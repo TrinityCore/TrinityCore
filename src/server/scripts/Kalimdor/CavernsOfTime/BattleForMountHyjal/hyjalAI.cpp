@@ -315,7 +315,7 @@ float HordeFirePos[65][8]=//spawn points for the fire visuals (GO) in the horde 
     {5545.43f,    -2647.82f,    1483.05f,    5.38848f,    0,    0,    0.432578f,    -0.901596f}
 };
 
-hyjalAI::hyjalAI(Creature* creature) : npc_escortAI(creature), Summons(me)
+hyjalAI::hyjalAI(Creature* creature) : EscortAI(creature), Summons(me)
 {
     Initialize();
     instance = creature->GetInstanceScript();
@@ -446,7 +446,7 @@ void hyjalAI::MoveInLineOfSight(Unit* who)
     if (IsDummy)
         return;
 
-    npc_escortAI::MoveInLineOfSight(who);
+    EscortAI::MoveInLineOfSight(who);
 }
 
 void hyjalAI::SummonCreature(uint32 entry, float Base[4][3])
@@ -929,7 +929,7 @@ void hyjalAI::RespawnNearPos(float x, float y)
     Cell::VisitGridObjects(x, y, me->GetMap(), worker, me->GetGridActivationRange());
 }
 
-void hyjalAI::WaypointReached(uint32 waypointId)
+void hyjalAI::WaypointReached(uint32 waypointId, uint32 /*pathId*/)
 {
     if (waypointId == 1 || (waypointId == 0 && me->GetEntry() == THRALL))
     {
@@ -978,7 +978,7 @@ void hyjalAI::WaypointReached(uint32 waypointId)
 }
 void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
 {
-    npc_escortAI::UpdateAI(diff);
+    EscortAI::UpdateAI(diff);
     if (WaitForTeleport)
     {
         if (TeleportTimer <= diff)

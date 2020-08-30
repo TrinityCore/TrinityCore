@@ -33,6 +33,7 @@ EndScriptData */
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "RBAC.h"
+#include "WaypointDefines.h"
 #include "WaypointManager.h"
 #include "WorldSession.h"
 
@@ -683,7 +684,7 @@ public:
             delete wpCreature;
 
             // To call _LoadGoods(); _LoadQuests(); CreateTrainerSpells();
-            wpCreature = Creature::CreateCreatureFromDB(dbGuid, map);
+            wpCreature = Creature::CreateCreatureFromDB(dbGuid, map, true, true);
             if (!wpCreature)
             {
                 handler->PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, VISUAL_WAYPOINT);
@@ -901,7 +902,7 @@ public:
                 delete wpCreature;
 
                 // To call _LoadGoods(); _LoadQuests(); CreateTrainerSpells();
-                wpCreature = Creature::CreateCreatureFromDB(dbGuid, map);
+                wpCreature = Creature::CreateCreatureFromDB(dbGuid, map, true, true);
                 if (!wpCreature)
                 {
                     handler->PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, id);
@@ -969,7 +970,7 @@ public:
             creature->CleanupsBeforeDelete();
             delete creature;
 
-            creature = Creature::CreateCreatureFromDB(dbGuid, map);
+            creature = Creature::CreateCreatureFromDB(dbGuid, map, true, true);
             if (!creature)
             {
                 handler->PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, id);
@@ -1026,7 +1027,7 @@ public:
             creature->CleanupsBeforeDelete();
             delete creature;
 
-            creature = Creature::CreateCreatureFromDB(dbGuid, map);
+            creature = Creature::CreateCreatureFromDB(dbGuid, map, true, true);
             if (!creature)
             {
                 handler->PSendSysMessage(LANG_WAYPOINT_NOTCREATED, id);

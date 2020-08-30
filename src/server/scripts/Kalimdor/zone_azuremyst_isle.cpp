@@ -346,9 +346,9 @@ class npc_magwin : public CreatureScript
 public:
     npc_magwin() : CreatureScript("npc_magwin") { }
 
-    struct npc_magwinAI : public npc_escortAI
+    struct npc_magwinAI : public EscortAI
     {
-        npc_magwinAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_magwinAI(Creature* creature) : EscortAI(creature) { }
 
         void Reset() override
         {
@@ -369,7 +369,7 @@ public:
             }
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             if (Player* player = GetPlayerForEscort())
             {
@@ -408,7 +408,7 @@ public:
                         break;
                     case EVENT_START_ESCORT:
                         if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
-                            npc_escortAI::Start(true, false, player->GetGUID());
+                            EscortAI::Start(true, false, player->GetGUID());
                         _events.ScheduleEvent(EVENT_STAND, Seconds(2));
                         break;
                     case EVENT_STAND: // Remove kneel standstate. Using a separate delayed event because it causes unwanted delay before starting waypoint movement.
@@ -426,7 +426,7 @@ public:
                 }
             }
 
-            npc_escortAI::UpdateEscortAI(diff);
+            EscortAI::UpdateEscortAI(diff);
         }
 
     private:

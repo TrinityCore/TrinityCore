@@ -35,6 +35,7 @@ class Quest;
 class Player;
 class SpellInfo;
 class WorldSession;
+
 enum MovementGeneratorType : uint8;
 
 struct VendorItemCount
@@ -73,7 +74,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         void DisappearAndDie();
 
-        bool Create(ObjectGuid::LowType guidlow, Map* map, uint32 entry, float x, float y, float z, float ang, CreatureData const* data, uint32 vehId);
+        bool Create(ObjectGuid::LowType guidlow, Map* map, uint32 entry, Position const& pos, CreatureData const* data, uint32 vehId, bool dynamic = false);
 
         static Creature* CreateCreature(uint32 entry, Map* map, Position const& pos, uint32 vehId = 0);
         static Creature* CreateCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap = true, bool allowDuplicate = false);
@@ -88,7 +89,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         void Update(uint32 time) override;                         // overwrited Unit::Update
         void GetRespawnPosition(float &x, float &y, float &z, float* ori = nullptr, float* dist = nullptr) const;
-        bool IsSpawnedOnTransport() const { return m_creatureData && m_creatureData->mapid != GetMapId(); }
+        bool IsSpawnedOnTransport() const { return m_creatureData && m_creatureData->spawnPoint.GetMapId() != GetMapId(); }
 
         void SetCorpseDelay(uint32 delay) { m_corpseDelay = delay; }
         uint32 GetCorpseDelay() const { return m_corpseDelay; }
@@ -181,10 +182,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         void setDeathState(DeathState s) override;                   // override virtual Unit::setDeathState
 
-        bool LoadFromDB(ObjectGuid::LowType spawnId, Map* map) { return LoadCreatureFromDB(spawnId, map, false, false); }
-    private:
-        bool LoadCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap, bool allowDuplicate);
-    public:
+        bool LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap, bool allowDuplicate);
         void SaveToDB();
                                                             // overriden in Pet
         virtual void SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDifficulties);
@@ -246,7 +244,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         time_t GetRespawnTimeEx() const;
         void SetRespawnTime(uint32 respawn) { m_respawnTime = respawn ? time(nullptr) + respawn : 0; }
         void Respawn(bool force = false);
-        void SaveRespawnTime() override;
+        void SaveRespawnTime(uint32 forceDelay = 0, bool savetodb = true) override;
 
         uint32 GetRespawnDelay() const { return m_respawnDelay; }
         void SetRespawnDelay(uint32 delay) { m_respawnDelay = delay; }
@@ -273,8 +271,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool hasQuest(uint32 quest_id) const override;
         bool hasInvolvedQuest(uint32 quest_id)  const override;
 
-        bool isRegeneratingHealth() { return m_regenHealth; }
-        void setRegeneratingHealth(bool regenHealth) { m_regenHealth = regenHealth; }
+        bool CanRegenerateHealth() { return !_regenerateHealthLock && _regenerateHealth; }
+        void SetRegenerateHealth(bool value) { _regenerateHealthLock = !value; }
         virtual uint8 GetPetAutoSpellSize() const { return MAX_SPELL_CHARM; }
         virtual uint32 GetPetAutoSpellOnPos(uint8 pos) const;
         float GetPetChaseDistance() const;
@@ -298,9 +296,14 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         uint32 GetCurrentWaypointID() const { return m_waypointID; }
         void UpdateWaypointID(uint32 wpID) { m_waypointID = wpID; }
 
+        bool IsReturningHome() const;
+
         void SearchFormation();
         CreatureGroup* GetFormation() { return m_formation; }
         void SetFormation(CreatureGroup* formation) { m_formation = formation; }
+        bool IsFormationLeader() const;
+        void SignalFormationMovement(Position const& destination, uint32 id = 0, uint32 moveType = 0, bool orientation = false);
+        bool IsFormationLeaderMoveAllowed() const;
 
         Unit* SelectVictim();
 
@@ -313,6 +316,10 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         uint32 GetOriginalEntry() const { return m_originalEntry; }
         void SetOriginalEntry(uint32 entry) { m_originalEntry = entry; }
+
+        // There's many places not ready for dynamic spawns. This allows them to live on for now.
+        void SetRespawnCompatibilityMode(bool mode = true) { m_respawnCompatibilityMode = mode; }
+        bool GetRespawnCompatibilityMode() { return m_respawnCompatibilityMode; }
 
         static float _GetDamageMod(int32 Rank);
 
@@ -337,6 +344,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         CreatureTextRepeatIds GetTextRepeatGroup(uint8 textGroup);
         void SetTextRepeatId(uint8 textGroup, uint8 id);
         void ClearTextRepeatGroup(uint8 textGroup);
+        bool IsEscortNPC(bool onlyIfActive = true);
 
         bool CanGiveExperience() const;
 
@@ -373,7 +381,6 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         bool m_AlreadyCallAssistance;
         bool m_AlreadySearchedAssistance;
-        bool m_regenHealth;
         bool m_cannotReachTarget;
         uint32 m_cannotReachTimer;
         bool m_AI_locked;
@@ -404,7 +411,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         //Formation var
         CreatureGroup* m_formation;
-        bool m_TriggerJustRespawned;
+        bool m_triggerJustAppeared;
+        bool m_respawnCompatibilityMode;
 
         /* Spell focus system */
         Spell const* m_focusSpell;   // Locks the target during spell cast for proper facing
@@ -415,6 +423,10 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         time_t _lastDamagedTime; // Part of Evade mechanics
         CreatureTextRepeatGroup m_textRepeat;
+
+        // Regenerate health
+        bool _regenerateHealth; // Set on creation
+        bool _regenerateHealthLock; // Dynamically set
 };
 
 class TC_GAME_API AssistDelayEvent : public BasicEvent

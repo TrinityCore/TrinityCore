@@ -1104,9 +1104,9 @@ class npc_scarlet_miner : public CreatureScript
     public:
         npc_scarlet_miner() : CreatureScript("npc_scarlet_miner") { }
 
-        struct npc_scarlet_minerAI : public npc_escortAI
+        struct npc_scarlet_minerAI : public EscortAI
         {
-            npc_scarlet_minerAI(Creature* creature) : npc_escortAI(creature)
+            npc_scarlet_minerAI(Creature* creature) : EscortAI(creature)
             {
                 Initialize();
                 me->SetReactState(REACT_PASSIVE);
@@ -1135,7 +1135,7 @@ class npc_scarlet_miner : public CreatureScript
 
             void InitWaypoint()
             {
-                AddWaypoint(1, 2389.03f,     -5902.74f,     109.014f, 5000);
+                AddWaypoint(1, 2389.03f,     -5902.74f,     109.014f, 0.f, 5000);
                 AddWaypoint(2, 2341.812012f, -5900.484863f, 102.619743f);
                 AddWaypoint(3, 2306.561279f, -5901.738281f, 91.792419f);
                 AddWaypoint(4, 2300.098389f, -5912.618652f, 86.014885f);
@@ -1154,7 +1154,7 @@ class npc_scarlet_miner : public CreatureScript
                     AddWaypoint(14, 2172.516602f, -6146.752441f, 1.074235f);
                     AddWaypoint(15, 2138.918457f, -6158.920898f, 1.342926f);
                     AddWaypoint(16, 2129.866699f, -6174.107910f, 4.380779f);
-                    AddWaypoint(17, 2117.709473f, -6193.830078f, 13.3542f, 10000);
+                    AddWaypoint(17, 2117.709473f, -6193.830078f, 13.3542f, 0.f, 10000);
                 }
                 else
                 {
@@ -1162,7 +1162,7 @@ class npc_scarlet_miner : public CreatureScript
                     AddWaypoint(14, 2234.265625f, -6163.741211f, 0.916021f);
                     AddWaypoint(15, 2268.071777f, -6158.750977f, 1.822252f);
                     AddWaypoint(16, 2270.028320f, -6176.505859f, 6.340538f);
-                    AddWaypoint(17, 2271.739014f, -6195.401855f, 13.3542f, 10000);
+                    AddWaypoint(17, 2271.739014f, -6195.401855f, 13.3542f, 0.f, 10000);
                 }
             }
 
@@ -1173,7 +1173,7 @@ class npc_scarlet_miner : public CreatureScript
                 SetDespawnAtFar(false);
             }
 
-            void WaypointReached(uint32 waypointId) override
+            void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
             {
                 switch (waypointId)
                 {
@@ -1223,7 +1223,7 @@ class npc_scarlet_miner : public CreatureScript
                     else
                         IntroTimer -= diff;
                 }
-                npc_escortAI::UpdateAI(diff);
+                EscortAI::UpdateAI(diff);
             }
         };
 

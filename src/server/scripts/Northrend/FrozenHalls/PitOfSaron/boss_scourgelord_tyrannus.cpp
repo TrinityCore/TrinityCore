@@ -547,18 +547,18 @@ class spell_tyrannus_rimefang_icy_blast : public SpellScriptLoader
         }
 };
 
-class at_tyrannus_event_starter : public AreaTriggerScript
+class at_tyrannus_event_starter : public OnlyOnceAreaTriggerScript
 {
     public:
-        at_tyrannus_event_starter() : AreaTriggerScript("at_tyrannus_event_starter") { }
+        at_tyrannus_event_starter() : OnlyOnceAreaTriggerScript("at_tyrannus_event_starter") { }
 
-        bool OnTrigger(Player* player, const AreaTriggerEntry* /*areaTrigger*/, bool /*entered*/) override
+        bool _OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
         {
             InstanceScript* instance = player->GetInstanceScript();
             if (player->IsGameMaster() || !instance)
                 return false;
 
-            if (instance->GetBossState(DATA_TYRANNUS) != IN_PROGRESS && instance->GetBossState(DATA_TYRANNUS) != DONE)
+            if (instance->GetBossState(DATA_TYRANNUS) != DONE)
                 if (Creature* tyrannus = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_TYRANNUS)))
                 {
                     tyrannus->AI()->DoAction(ACTION_START_INTRO);

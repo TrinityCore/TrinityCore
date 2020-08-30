@@ -1352,6 +1352,27 @@ namespace Trinity
             bool _reqAlive;
     };
 
+    class AnyPlayerInPositionRangeCheck
+    {
+    public:
+        AnyPlayerInPositionRangeCheck(Position const* pos, float range, bool reqAlive = true) : _pos(pos), _range(range), _reqAlive(reqAlive) { }
+        bool operator()(Player* u)
+        {
+            if (_reqAlive && !u->IsAlive())
+                return false;
+
+            if (!u->IsWithinDist3d(_pos, _range))
+                return false;
+
+            return true;
+        }
+
+    private:
+        Position const* _pos;
+        float _range;
+        bool _reqAlive;
+    };
+
     class NearestPlayerInObjectRangeCheck
     {
         public:

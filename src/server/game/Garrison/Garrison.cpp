@@ -683,7 +683,7 @@ template<class T, void(T::*SecondaryRelocate)(float,float,float,float)>
 T* BuildingSpawnHelper(GameObject* building, ObjectGuid::LowType spawnId, Map* map)
 {
     T* spawn = new T();
-    if (!spawn->LoadFromDB(spawnId, map))
+    if (!spawn->LoadFromDB(spawnId, map, false, false))
     {
         delete spawn;
         return nullptr;
