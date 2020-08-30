@@ -60,11 +60,11 @@ class npc_deathstalker_erland : public CreatureScript
 public:
     npc_deathstalker_erland() : CreatureScript("npc_deathstalker_erland") { }
 
-    struct npc_deathstalker_erlandAI : public npc_escortAI
+    struct npc_deathstalker_erlandAI : public EscortAI
     {
-        npc_deathstalker_erlandAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_deathstalker_erlandAI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)

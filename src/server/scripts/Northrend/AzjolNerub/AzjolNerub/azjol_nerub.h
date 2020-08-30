@@ -28,7 +28,7 @@ uint32 const EncounterCount = 3;
 enum ANDataTypes
 {
     // Encounter States/Boss GUIDs
-    DATA_KRIKTHIR_THE_GATEWATCHER   = 0,
+    DATA_KRIKTHIR                   = 0,
     DATA_HADRONOX                   = 1,
     DATA_ANUBARAK                   = 2,
 
@@ -37,7 +37,8 @@ enum ANDataTypes
     DATA_WATCHER_GASHRA,
     DATA_WATCHER_SILTHIK,
     DATA_ANUBARAK_WALL,
-    DATA_ANUBARAK_WALL_2
+    DATA_ANUBARAK_WALL_2,
+    DATA_GATEWATCHER_GREET
 };
 
 enum ANCreatureIds
