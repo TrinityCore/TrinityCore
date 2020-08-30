@@ -54,7 +54,6 @@ enum MageSpells
     SPELL_MAGE_EARLY_FROST_VISUAL                = 94315,
     SPELL_MAGE_FIREBALL                          = 133,
     SPELL_MAGE_FIRE_BLAST                        = 2136,
-    SPELL_MAGE_FOCUS_MAGIC_PROC                  = 54648,
     SPELL_MAGE_FROST_NOVA                        = 122,
     SPELL_MAGE_FROST_WARDING_R1                  = 11189,
     SPELL_MAGE_FROST_WARDING_TRIGGERED           = 57776,
@@ -531,43 +530,20 @@ class spell_mage_fire_frost_ward : public SpellScriptLoader
 };
 
 // 54646 - Focus Magic
-class spell_mage_focus_magic : public SpellScriptLoader
+class spell_mage_focus_magic : public AuraScript
 {
-    public:
-        spell_mage_focus_magic() : SpellScriptLoader("spell_mage_focus_magic") { }
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        PreventDefaultAction();
+        if (Unit* caster = GetCaster())
+            if (caster->IsAlive())
+                caster->CastSpell(caster, GetSpellInfo()->Effects[EFFECT_1].TriggerSpell, true, nullptr, aurEff);
+    }
 
-        class spell_mage_focus_magic_AuraScript : public AuraScript
-        {
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_MAGE_FOCUS_MAGIC_PROC });
-            }
-
-            bool CheckProc(ProcEventInfo& /*eventInfo*/)
-            {
-                _procTarget = GetCaster();
-                return _procTarget && _procTarget->IsAlive();
-            }
-
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
-            {
-                PreventDefaultAction();
-                GetTarget()->CastSpell(_procTarget, SPELL_MAGE_FOCUS_MAGIC_PROC, true, nullptr, aurEff);
-            }
-
-            void Register() override
-            {
-                DoCheckProc.Register(&spell_mage_focus_magic_AuraScript::CheckProc);
-                OnEffectProc.Register(&spell_mage_focus_magic_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_MOD_SPELL_CRIT_CHANCE);
-            }
-
-            Unit* _procTarget = nullptr;
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_mage_focus_magic_AuraScript();
-        }
+    void Register() override
+    {
+        OnEffectProc.Register(&spell_mage_focus_magic::HandleProc, EFFECT_1, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
 };
 
 // 116 - Frostbolt
@@ -2232,7 +2208,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_fire_frost_ward();
     new spell_mage_flame_orb();
     new spell_mage_flame_orb_aoe_dummy();
-    new spell_mage_focus_magic();
+    RegisterSpellScript(spell_mage_focus_magic);
     RegisterSpellScript(spell_mage_fingers_of_frost_charges);
     RegisterSpellScript(spell_mage_frostbolt);
     RegisterSpellScript(spell_mage_frostfire_bolt);
