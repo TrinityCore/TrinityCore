@@ -20,6 +20,7 @@
 #include "DB2Stores.h"
 #include "ObjectMgr.h"
 #include "SpellMgr.h"
+#include "Util.h"
 
 using namespace Trinity::ChatCommands;
 
@@ -29,12 +30,13 @@ struct AchievementVisitor
     value_type operator()(Hyperlink<achievement> achData) const { return achData->Achievement; }
     value_type operator()(uint32 achId) const { return sAchievementStore.LookupEntry(achId); }
 };
-char const* Trinity::ChatCommands::ArgInfo<AchievementEntry const*>::TryConsume(AchievementEntry const*& data, char const* args)
+Optional<std::string_view> Trinity::Impl::ChatCommands::ArgInfo<AchievementEntry const*>::TryConsume(AchievementEntry const*& data, std::string_view args)
 {
     Variant<Hyperlink<achievement>, uint32> val;
-    if ((args = CommandArgsConsumerSingle<decltype(val)>::TryConsumeTo(val, args)))
+    Optional<std::string_view> next = SingleConsumer<decltype(val)>::TryConsumeTo(val, args);
+    if (next)
         data = val.visit(AchievementVisitor());
-    return args;
+    return next;
 }
 
 struct CurrencyTypesVisitor
@@ -43,10 +45,11 @@ struct CurrencyTypesVisitor
     value_type operator()(Hyperlink<currency> currency) const { return currency->Currency; }
     value_type operator()(uint32 currencyId) const { return sCurrencyTypesStore.LookupEntry(currencyId); }
 };
-char const* Trinity::ChatCommands::ArgInfo<CurrencyTypesEntry const*>::TryConsume(CurrencyTypesEntry const*& data, char const* args)
+Optional<std::string_view> Trinity::Impl::ChatCommands::ArgInfo<CurrencyTypesEntry const*>::TryConsume(CurrencyTypesEntry const*& data, std::string_view args)
 {
     Variant<Hyperlink<currency>, uint32> val;
-    if ((args = CommandArgsConsumerSingle<decltype(val)>::TryConsumeTo(val, args)))
+    Optional<std::string_view> next = SingleConsumer<decltype(val)>::TryConsumeTo(val, args);
+    if (next)
         data = val.visit(CurrencyTypesVisitor());
     return args;
 }
@@ -57,12 +60,13 @@ struct GameTeleVisitor
     value_type operator()(Hyperlink<tele> tele) const { return sObjectMgr->GetGameTele(tele); }
     value_type operator()(std::string const& tele) const { return sObjectMgr->GetGameTele(tele); }
 };
-char const* Trinity::ChatCommands::ArgInfo<GameTele const*>::TryConsume(GameTele const*& data, char const* args)
+Optional<std::string_view> Trinity::Impl::ChatCommands::ArgInfo<GameTele const*>::TryConsume(GameTele const*& data, std::string_view args)
 {
     Variant<Hyperlink<tele>, std::string> val;
-    if ((args = CommandArgsConsumerSingle<decltype(val)>::TryConsumeTo(val, args)))
+    Optional<std::string_view> next = SingleConsumer<decltype(val)>::TryConsumeTo(val, args);
+    if (next)
         data = val.visit(GameTeleVisitor());
-    return args;
+    return next;
 }
 
 struct SpellInfoVisitor
@@ -80,26 +84,11 @@ struct SpellInfoVisitor
 
     value_type operator()(uint32 spellId) const { return sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE); }
 };
-char const* Trinity::ChatCommands::ArgInfo<SpellInfo const*>::TryConsume(SpellInfo const*& data, char const* args)
+Optional<std::string_view> Trinity::Impl::ChatCommands::ArgInfo<SpellInfo const*>::TryConsume(SpellInfo const*& data, std::string_view args)
 {
     Variant<Hyperlink<apower>, Hyperlink<conduit>, Hyperlink<enchant>, Hyperlink<mawpower>, Hyperlink<pvptal>, Hyperlink<spell>, Hyperlink<talent>, Hyperlink<trade>, uint32> val;
-    if ((args = CommandArgsConsumerSingle<decltype(val)>::TryConsumeTo(val, args)))
+    Optional<std::string_view> next = SingleConsumer<decltype(val)>::TryConsumeTo(val, args);
+    if (next)
         data = val.visit(SpellInfoVisitor());
-    return args;
-}
-
-char const* Trinity::ChatCommands::ArgInfo<bool>::TryConsume(bool& data, char const* args)
-{
-    std::string val;
-    if ((args = CommandArgsConsumerSingle<std::string>::TryConsumeTo(val, args)))
-    {
-        strToLower(val);
-        if (val == "on" || val == "yes" || val == "true" || val == "1" || val == "y")
-            data = true;
-        else if (val == "off" || val == "no" || val == "false" || val == "0" || val == "n")
-            data = false;
-        else
-            return nullptr;
-    }
-    return args;
+    return next;
 }
