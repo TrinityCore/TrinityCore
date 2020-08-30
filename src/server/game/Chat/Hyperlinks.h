@@ -133,7 +133,7 @@ namespace Trinity::Hyperlinks
         make_base_tag(areatrigger, uint32);
         make_base_tag(creature, ObjectGuid::LowType);
         make_base_tag(creature_entry, uint32);
-        make_base_tag(gameevent, uint32);
+        make_base_tag(gameevent, uint16);
         make_base_tag(gameobject, ObjectGuid::LowType);
         make_base_tag(gameobject_entry, uint32);
         make_base_tag(itemset, uint32);

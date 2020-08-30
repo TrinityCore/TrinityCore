@@ -638,7 +638,7 @@ void AddSC_wintergrasp()
     new achievement_wg_didnt_stand_a_chance();
     new spell_wintergrasp_defender_teleport();
     new spell_wintergrasp_defender_teleport_trigger();
-    RegisterAuraScript(spell_wintergrasp_tenacity_refresh);
+    RegisterSpellScript(spell_wintergrasp_tenacity_refresh);
     new condition_is_wintergrasp_horde();
     new condition_is_wintergrasp_alliance();
 }

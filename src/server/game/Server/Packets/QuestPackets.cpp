@@ -184,3 +184,63 @@ WorldPacket const* WorldPackets::Quest::QuestGiverQuestDetails::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Quest::QuestGiverOfferRewardMessage::Write()
+{
+    _worldPacket << QuestGiverGUID;
+    _worldPacket << uint32(QuestID);
+
+    _worldPacket << Title;
+    _worldPacket << RewardText;
+
+    _worldPacket << uint8(AutoLaunched);
+    _worldPacket << uint32(Flags);
+    _worldPacket << uint32(SuggestedGroupNum);
+
+    _worldPacket << uint32(Emotes.size());
+    for (WorldPackets::Quest::QuestDescEmote const& emote : Emotes)
+    {
+        _worldPacket << uint32(emote.Delay);
+        _worldPacket << uint32(emote.Type);
+    }
+
+    _worldPacket << uint32(Rewards.UnfilteredChoiceItems.size());
+    for (WorldPackets::Quest::QuestChoiceItem const& item : Rewards.UnfilteredChoiceItems)
+    {
+        _worldPacket << uint32(item.ItemID);
+        _worldPacket << uint32(item.Quantity);
+        _worldPacket << uint32(item.DisplayID);
+    }
+
+    _worldPacket << uint32(Rewards.RewardItems.size());
+    for (WorldPackets::Quest::QuestChoiceItem const& item : Rewards.RewardItems)
+    {
+        _worldPacket << uint32(item.ItemID);
+        _worldPacket << uint32(item.Quantity);
+        _worldPacket << uint32(item.DisplayID);
+    }
+
+    _worldPacket << uint32(Rewards.RewardMoney);
+    _worldPacket << uint32(Rewards.RewardXPDifficulty);
+
+    _worldPacket << uint32(Rewards.RewardHonor);
+    _worldPacket << float(Rewards.RewardKillHonor);
+    _worldPacket << uint32(0); // Unknown value. Read in the packet handler but unused
+    _worldPacket << uint32(Rewards.RewardDisplaySpell);
+    _worldPacket << int32(Rewards.RewardSpell);
+    _worldPacket << uint32(Rewards.RewardTitleId);
+    _worldPacket << uint32(Rewards.RewardTalents);
+    _worldPacket << uint32(Rewards.RewardArenaPoints);
+    _worldPacket << uint32(Rewards.RewardFactionFlags);
+
+    for (uint32 factionId : Rewards.RewardFactionID)
+        _worldPacket << uint32(factionId);
+
+    for (uint32 value : Rewards.RewardFactionValue)
+        _worldPacket << int32(value);
+
+    for (uint32 valueOverride : Rewards.RewardFactionValueOverride)
+        _worldPacket << int32(valueOverride);
+
+    return &_worldPacket;
+}

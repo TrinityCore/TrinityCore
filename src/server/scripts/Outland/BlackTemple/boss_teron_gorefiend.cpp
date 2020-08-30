@@ -446,8 +446,8 @@ void AddSC_boss_teron_gorefiend()
     RegisterBlackTempleCreatureAI(boss_teron_gorefiend);
     RegisterBlackTempleCreatureAI(npc_doom_blossom);
     RegisterBlackTempleCreatureAI(npc_shadowy_construct);
-    RegisterAuraScript(spell_teron_gorefiend_shadow_of_death);
-    RegisterAuraScript(spell_teron_gorefiend_spiritual_vengeance);
+    RegisterSpellScript(spell_teron_gorefiend_shadow_of_death);
+    RegisterSpellScript(spell_teron_gorefiend_spiritual_vengeance);
     RegisterSpellScript(spell_teron_gorefiend_shadow_of_death_remove);
     new at_teron_gorefiend_entrance();
 }

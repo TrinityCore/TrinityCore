@@ -1879,8 +1879,8 @@ void AddSC_boss_flame_leviathan()
     new achievement_nuked_from_orbit();
     new achievement_orbit_uary();
 
-    RegisterAuraScript(spell_overload_circuit);
-    RegisterAuraScript(spell_tar_blaze);
+    RegisterSpellScript(spell_overload_circuit);
+    RegisterSpellScript(spell_tar_blaze);
     new spell_load_into_catapult();
     new spell_auto_repair();
     new spell_systems_shutdown();

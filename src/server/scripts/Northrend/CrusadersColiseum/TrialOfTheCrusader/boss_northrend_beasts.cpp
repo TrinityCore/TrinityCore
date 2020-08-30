@@ -1375,16 +1375,16 @@ void AddSC_boss_northrend_beasts()
     RegisterTrialOfTheCrusaderCreatureAI(boss_icehowl);
     RegisterTrialOfTheCrusaderCreatureAI(npc_fire_bomb);
 
-    RegisterAuraScript(spell_gormok_jump_to_hand);
-    RegisterAuraScript(spell_gormok_ride_player);
-    RegisterAuraScript(spell_gormok_snobolled);
-    RegisterAuraScript(spell_jormungars_paralytic_toxin);
+    RegisterSpellScript(spell_gormok_jump_to_hand);
+    RegisterSpellScript(spell_gormok_ride_player);
+    RegisterSpellScript(spell_gormok_snobolled);
+    RegisterSpellScript(spell_jormungars_paralytic_toxin);
     RegisterSpellScript(spell_jormungars_burning_bile);
-    RegisterAuraScript(spell_jormungars_slime_pool);
+    RegisterSpellScript(spell_jormungars_slime_pool);
     new spell_jormungars_snakes_spray("spell_jormungars_burning_spray", SPELL_BURNING_BILE);
     new spell_jormungars_snakes_spray("spell_jormungars_paralytic_spray", SPELL_PARALYTIC_TOXIN);
-    RegisterAuraScript(spell_jormungars_paralysis);
+    RegisterSpellScript(spell_jormungars_paralysis);
     RegisterSpellScript(spell_icehowl_arctic_breath);
     RegisterSpellScript(spell_icehowl_trample);
-    RegisterAuraScript(spell_icehowl_massive_crash);
+    RegisterSpellScript(spell_icehowl_massive_crash);
 }
