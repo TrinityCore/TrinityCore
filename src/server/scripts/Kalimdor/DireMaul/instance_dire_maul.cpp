@@ -179,7 +179,7 @@ public:
         {
             for (uint8 i = 0; i < 5; ++i) // we store creatures in a list for all 5 crystals
             {
-                uint8 creatureCount =0;
+                uint8 creatureCount = 0;
 
                 if (GameObject* crystal = instance->GetGameObject(_crystalGUIDs[i]))
                 {
