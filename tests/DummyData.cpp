@@ -17,6 +17,7 @@
 
 #include "DummyData.h"
 
+#include "DB2Stores.h"
 #include "ItemDefines.h"
 #include "ItemTemplate.h"
 #include "ObjectMgr.h"
@@ -55,4 +56,24 @@
     ItemTemplate& t = GetItemTemplate(6948, "Hearthstone");
     const_cast<ItemSparseEntry*>(t.ExtendedData)->OverallQualityID = ITEM_QUALITY_NORMAL;
     SetItemLocale(6948, LOCALE_esMX, "Piedra de hogar");
+}
+
+static UnitTestDataLoader::DB2<AchievementEntry, &AchievementEntry::ID> achievements(sAchievementStore);
+/*static*/ void UnitTestDataLoader::LoadAchievementTemplates()
+{
+    auto loader = achievements.Loader();
+
+    AchievementEntry& toc5 = loader.Add();
+    toc5.ID = 4298;
+    toc5.Faction = 1;
+    toc5.InstanceID = 650;
+    toc5.Title.Str.fill("");
+    toc5.Title.Str[LOCALE_enUS] = "Heroic: Trial of the Champion";
+    toc5.Title.Str[LOCALE_esES] = "Heroico: Prueba del Campe\xc3\xb3n";
+    toc5.Title.Str[LOCALE_esMX] = "Heroico: Prueba del Campe\xc3\xb3n";
+    toc5.Category = 14921;
+    toc5.Points = 10;
+    toc5.Flags = 0;
+    toc5.MinimumCriteria = 0;
+    toc5.SharesCriteria = 0;
 }

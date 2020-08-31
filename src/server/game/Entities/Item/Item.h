@@ -97,7 +97,7 @@ struct BonusData
     void Initialize(ItemTemplate const* proto);
     void Initialize(WorldPackets::Item::ItemInstance const& itemInstance);
     void AddBonusList(uint32 bonusListId);
-    void AddBonus(uint32 type, int32 const (&values)[4]);
+    void AddBonus(uint32 type, std::array<int32, 4> const& values);
 
 private:
     struct
