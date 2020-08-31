@@ -5751,6 +5751,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_DUMMY;
     });
 
+    // Divine Purpose
+    ApplySpellFix({ 90174 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].SpellClassMask[1] = 0;
+    });
+
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {
         SpellInfo* spellInfo = mSpellInfoMap[i];
