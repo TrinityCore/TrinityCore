@@ -243,12 +243,12 @@ class spell_archavon_rock_shards : public SpellScriptLoader
 
                 for (uint8 i = 0; i < 3; ++i)
                 {
-                    caster->CastSpell((Unit*)NULL, SPELL_ROCK_SHARDS_VISUAL_L, true);
-                    caster->CastSpell((Unit*)NULL, SPELL_ROCK_SHARDS_VISUAL_R, true);
+                    caster->CastSpell(nullptr, SPELL_ROCK_SHARDS_VISUAL_L, true);
+                    caster->CastSpell(nullptr, SPELL_ROCK_SHARDS_VISUAL_R, true);
                 }
 
-                caster->CastSpell((Unit*)NULL, SPELL_ROCK_SHARDS_DAMAGE_L, true);
-                caster->CastSpell((Unit*)NULL, SPELL_ROCK_SHARDS_DAMAGE_R, true);
+                caster->CastSpell(nullptr, SPELL_ROCK_SHARDS_DAMAGE_L, true);
+                caster->CastSpell(nullptr, SPELL_ROCK_SHARDS_DAMAGE_R, true);
             }
 
             void Register() override

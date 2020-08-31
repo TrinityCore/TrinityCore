@@ -23,6 +23,7 @@
 #include "LinkedReference/Reference.h"
 #include "UnitEvents.h"
 #include "ObjectGuid.h"
+#include "IteratorPair.h"
 
 #include <list>
 
@@ -49,6 +50,19 @@ class TC_GAME_API HostileReference : public Reference<Unit, ThreatManager>
 {
     public:
         HostileReference(Unit* refUnit, ThreatManager* threatManager, float threat);
+
+        // -- compatibility layer for combat rewrite (PR #19930)
+        Unit* GetOwner() const;
+        Unit* GetVictim() const { return getTarget(); }
+        void AddThreat(float amt) { addThreat(amt); }
+        void SetThreat(float amt) { setThreat(amt); }
+        void ModifyThreatByPercent(int32 pct) { addThreatPercent(pct); }
+        void ScaleThreat(float factor) { setThreat(iThreat*factor); }
+        bool IsOnline() const { return iOnline; }
+        bool IsAvailable() const { return iOnline; }
+        bool IsOffline() const { return !iOnline; }
+        float GetThreat() const { return getThreat(); }
+        void ClearThreat() { removeReference(); }
 
         //=================================================
         void addThreat(float modThreat);
@@ -156,7 +170,7 @@ class TC_GAME_API ThreatContainer
 
         HostileReference* addThreat(Unit* victim, float threat);
 
-        void modifyThreatPercent(Unit* victim, int32 percent);
+        void ModifyThreatByPercent(Unit* victim, int32 percent);
 
         HostileReference* selectNextVictim(Creature* attacker, HostileReference* currentVictim) const;
 
@@ -174,7 +188,7 @@ class TC_GAME_API ThreatContainer
             return iThreatList.empty() ? nullptr : iThreatList.front();
         }
 
-        HostileReference* getReferenceByTarget(Unit* victim) const;
+        HostileReference* getReferenceByTarget(Unit const* victim) const;
 
         StorageType const & getThreatList() const { return iThreatList; }
 
@@ -200,9 +214,32 @@ class TC_GAME_API ThreatContainer
 
 //=================================================
 
+typedef HostileReference ThreatReference;
 class TC_GAME_API ThreatManager
 {
     public:
+        // -- compatibility layer for combat rewrite (PR #19930)
+        Trinity::IteratorPair<std::list<ThreatReference*>::const_iterator> GetSortedThreatList() const { auto& list = iThreatContainer.getThreatList(); return { list.cbegin(), list.cend() }; }
+        Trinity::IteratorPair<std::list<ThreatReference*>::const_iterator> GetUnsortedThreatList() const { return GetSortedThreatList(); }
+        std::list<ThreatReference*> GetModifiableThreatList() const { return iThreatContainer.getThreatList(); }
+        Unit* SelectVictim() { return getHostilTarget(); }
+        Unit* GetCurrentVictim() const { if (ThreatReference* ref = getCurrentVictim()) return ref->GetVictim(); else return nullptr; }
+        bool IsThreatListEmpty(bool includeOffline = false) const { return includeOffline ? areThreatListsEmpty() : isThreatListEmpty(); }
+        bool IsThreatenedBy(Unit const* who, bool includeOffline = false) const { return (FindReference(who, includeOffline) != nullptr); }
+        size_t GetThreatListSize() const { return iThreatContainer.iThreatList.size(); }
+        void ForwardThreatForAssistingMe(Unit* victim, float amount, SpellInfo const* spell, bool ignoreModifiers = false, bool ignoreRedirection = false);
+        Unit* GetAnyTarget() const { auto const& list = getThreatList(); if (!list.empty()) return list.front()->getTarget(); return nullptr; }
+        void ResetThreat(Unit const* who) { if (auto* ref = FindReference(who, true)) ref->setThreat(0.0f); }
+        void ResetAllThreat() { resetAllAggro(); }
+        float GetThreat(Unit const* who, bool includeOffline = false) const { if (auto* ref = FindReference(who, includeOffline)) return ref->GetThreat(); return 0.0f; }
+        void ClearThreat(Unit const* who) { if (auto* ref = FindReference(who, true)) ref->removeReference(); }
+        void ClearAllThreat();
+        void AddThreat(Unit* victim, float amount, SpellInfo const* spell = nullptr, bool ignoreModifiers = false, bool ignoreRedirection = false);
+    private:
+        HostileReference* FindReference(Unit const* who, bool includeOffline) const { if (auto* ref = iThreatContainer.getReferenceByTarget(who)) return ref; if (includeOffline) if (auto* ref = iThreatOfflineContainer.getReferenceByTarget(who)) return ref; return nullptr; }
+
+    public:
+
         friend class HostileReference;
 
         explicit ThreatManager(Unit* owner);
@@ -211,11 +248,11 @@ class TC_GAME_API ThreatManager
 
         void clearReferences();
 
-        void addThreat(Unit* victim, float threat, SpellSchoolMask schoolMask = SPELL_SCHOOL_MASK_NORMAL, SpellInfo const* threatSpell = NULL);
+        void addThreat(Unit* victim, float threat, SpellSchoolMask schoolMask = SPELL_SCHOOL_MASK_NORMAL, SpellInfo const* threatSpell = nullptr);
 
         void doAddThreat(Unit* victim, float threat);
 
-        void modifyThreatPercent(Unit* victim, int32 percent);
+        void ModifyThreatByPercent(Unit* victim, int32 percent);
 
         float getThreat(Unit* victim, bool alsoSearchOfflineList = false);
 

@@ -40,8 +40,6 @@ class TC_GAME_API FollowerAI : public ScriptedAI
         explicit FollowerAI(Creature* creature);
         ~FollowerAI() { }
 
-        //virtual void WaypointReached(uint32 uiPointId) = 0;
-
         void MovementInform(uint32 motionType, uint32 pointId) override;
 
         void AttackStart(Unit*) override;
@@ -52,12 +50,12 @@ class TC_GAME_API FollowerAI : public ScriptedAI
 
         void JustDied(Unit*) override;
 
-        void JustRespawned() override;
+        void JustAppeared() override;
 
         void UpdateAI(uint32) override;                        //the "internal" update, calls UpdateFollowerAI()
         virtual void UpdateFollowerAI(uint32);        //used when it's needed to add code in update (abilities, scripted events, etc)
 
-        void StartFollow(Player* player, uint32 factionForFollower = 0, const Quest* quest = NULL);
+        void StartFollow(Player* player, uint32 factionForFollower = 0, const Quest* quest = nullptr);
 
         void SetFollowPaused(bool bPaused);                 //if special event require follow mode to hold/resume during the follow
         void SetFollowComplete(bool bWithEndEvent = false);

@@ -559,7 +559,7 @@ class instance_violet_hold : public InstanceMapScript
                                 {
                                     if (Creature* moragg = GetCreature(DATA_MORAGG))
                                     {
-                                        moragg->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+                                        moragg->SetImmuneToAll(false);
                                         moragg->AI()->DoZoneInCombat(moragg, 200.0f);
                                     }
                                 });
@@ -592,12 +592,12 @@ class instance_violet_hold : public InstanceMapScript
                                         for (uint32 i = DATA_EREKEM_GUARD_1; i <= DATA_EREKEM_GUARD_2; ++i)
                                         {
                                             if (Creature* guard = instance->GetCreature(GetGuidData(i)))
-                                                guard->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+                                                guard->SetImmuneToAll(false);
                                         }
 
                                         if (Creature* erekem = GetCreature(DATA_EREKEM))
                                         {
-                                            erekem->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+                                            erekem->SetImmuneToAll(false);
                                             erekem->AI()->DoZoneInCombat(erekem, 200.0f);
                                         }
                                     });
@@ -620,7 +620,7 @@ class instance_violet_hold : public InstanceMapScript
                                 {
                                     if (Creature* ichoron = GetCreature(DATA_ICHORON))
                                     {
-                                        ichoron->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+                                        ichoron->SetImmuneToAll(false);
                                         ichoron->AI()->DoZoneInCombat(ichoron, 200.0f);
                                     }
                                 });
@@ -642,7 +642,7 @@ class instance_violet_hold : public InstanceMapScript
                                 {
                                     if (Creature* lavanthor = GetCreature(DATA_LAVANTHOR))
                                     {
-                                        lavanthor->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+                                        lavanthor->SetImmuneToAll(false);
                                         lavanthor->AI()->DoZoneInCombat(lavanthor, 200.0f);
                                     }
                                 });
@@ -669,7 +669,7 @@ class instance_violet_hold : public InstanceMapScript
                                     {
                                         if (Creature* xevozz = GetCreature(DATA_XEVOZZ))
                                         {
-                                            xevozz->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+                                            xevozz->SetImmuneToAll(false);
                                             xevozz->AI()->DoZoneInCombat(xevozz, 200.0f);
                                         }
                                     });
@@ -695,7 +695,7 @@ class instance_violet_hold : public InstanceMapScript
                                 {
                                     if (Creature* zuramat = GetCreature(DATA_ZURAMAT))
                                     {
-                                        zuramat->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+                                        zuramat->SetImmuneToAll(false);
                                         zuramat->AI()->DoZoneInCombat(zuramat, 200.0f);
                                     }
                                 });
@@ -735,7 +735,7 @@ class instance_violet_hold : public InstanceMapScript
                                     UpdateKilledBoss(guard);
 
                                 guard->GetMotionMaster()->MoveTargetedHome();
-                                guard->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+                                guard->SetImmuneToAll(true);
                             }
                         }
                         /* fallthrough */
@@ -748,7 +748,7 @@ class instance_violet_hold : public InstanceMapScript
                         }
 
                         boss->GetMotionMaster()->MoveTargetedHome();
-                        boss->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+                        boss->SetImmuneToAll(true);
                         break;
                 }
             }
@@ -903,7 +903,7 @@ class instance_violet_hold : public InstanceMapScript
                             {
                                 cyanigosa->RemoveAurasDueToSpell(SPELL_CYANIGOSA_ARCANE_POWER_STATE);
                                 cyanigosa->CastSpell(cyanigosa, SPELL_CYANIGOSA_TRANSFORM, true);
-                                cyanigosa->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+                                cyanigosa->SetImmuneToAll(false);
                             }
                         });
                     });

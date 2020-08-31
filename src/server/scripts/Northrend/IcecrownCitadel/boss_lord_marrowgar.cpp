@@ -139,7 +139,6 @@ class boss_lord_marrowgar : public CreatureScript
                 _boneStormDuration = RAID_MODE<uint32>(20000, 30000, 20000, 30000);
                 _baseSpeed = creature->GetSpeedRate(MOVE_RUN);
                 _coldflameLastPos.Relocate(creature);
-                _introDone = false;
                 _boneSlice = false;
             }
 
@@ -154,7 +153,6 @@ class boss_lord_marrowgar : public CreatureScript
                 events.ScheduleEvent(EVENT_COLDFLAME, 5000, EVENT_GROUP_SPECIAL);
                 events.ScheduleEvent(EVENT_WARN_BONE_STORM, urand(45000, 50000));
                 events.ScheduleEvent(EVENT_ENRAGE, 600000);
-                _introDone = false;
                 _boneSlice = false;
                 _boneSpikeImmune.clear();
             }
@@ -332,11 +330,7 @@ class boss_lord_marrowgar : public CreatureScript
                         _boneSpikeImmune.clear();
                         break;
                     case ACTION_TALK_ENTER_ZONE:
-                        if (!_introDone)
-                        {
                             Talk(SAY_ENTER_ZONE);
-                            _introDone = true;
-                        }
                         break;
                     default:
                         break;
@@ -349,7 +343,6 @@ class boss_lord_marrowgar : public CreatureScript
             ObjectGuid _coldflameTarget;
             uint32 _boneStormDuration;
             float _baseSpeed;
-            bool _introDone;
             bool _boneSlice;
         };
 
@@ -517,8 +510,8 @@ class spell_marrowgar_coldflame : public SpellScriptLoader
             void SelectTarget(std::list<WorldObject*>& targets)
             {
                 targets.clear();
-                // select any unit but not the tank (by owners threatlist)
-                Unit* target = GetCaster()->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 1, -GetCaster()->GetCombatReach(), true, -SPELL_IMPALED);
+                // select any unit but not the tank
+                Unit* target = GetCaster()->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 0, -GetCaster()->GetCombatReach(), true, false, -SPELL_IMPALED);
                 if (!target)
                     target = GetCaster()->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true); // or the tank if its solo
                 if (!target)
@@ -645,7 +638,7 @@ class spell_marrowgar_bone_spike_graveyard : public SpellScriptLoader
                     uint8 boneSpikeCount = uint8(GetCaster()->GetMap()->Is25ManRaid() ? 3 : 1);
 
                     std::list<Unit*> targets;
-                    marrowgarAI->SelectTargetList(targets, BoneSpikeTargetSelector(marrowgarAI), boneSpikeCount, SELECT_TARGET_RANDOM);
+                    marrowgarAI->SelectTargetList(targets, boneSpikeCount, SELECT_TARGET_RANDOM, 1, BoneSpikeTargetSelector(marrowgarAI));
                     if (targets.empty())
                         return;
 
@@ -654,6 +647,15 @@ class spell_marrowgar_bone_spike_graveyard : public SpellScriptLoader
                     {
                         Unit* target = *itr;
                         target->CastSpell(target, BoneSpikeSummonId[i], true);
+                        if (!target->IsAlive()) // make sure we don't get any stuck spikes on dead targets
+                        {
+                            if (Aura* aura = target->GetAura(SPELL_IMPALED))
+                            {
+                                if (Creature* spike = ObjectAccessor::GetCreature(*target, aura->GetCasterGUID()))
+                                    spike->DespawnOrUnsummon();
+                                aura->Remove();
+                            }
+                        }
                     }
 
                     marrowgarAI->Talk(SAY_BONESPIKE);
@@ -752,12 +754,12 @@ class spell_marrowgar_bone_slice : public SpellScriptLoader
         }
 };
 
-class at_lord_marrowgar_entrance : public AreaTriggerScript
+class at_lord_marrowgar_entrance : public OnlyOnceAreaTriggerScript
 {
     public:
-        at_lord_marrowgar_entrance() : AreaTriggerScript("at_lord_marrowgar_entrance") { }
+        at_lord_marrowgar_entrance() : OnlyOnceAreaTriggerScript("at_lord_marrowgar_entrance") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
+        bool _OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
         {
             if (InstanceScript* instance = player->GetInstanceScript())
                 if (Creature* lordMarrowgar = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_LORD_MARROWGAR)))

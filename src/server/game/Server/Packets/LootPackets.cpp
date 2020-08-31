@@ -78,6 +78,20 @@ void WorldPackets::Loot::LootItem::Read()
     }
 }
 
+void WorldPackets::Loot::MasterLootItem::Read()
+{
+    uint32 Count;
+    _worldPacket >> Count;
+    _worldPacket >> Target;
+
+    Loot.resize(Count);
+    for (uint32 i = 0; i < Count; ++i)
+    {
+        _worldPacket >> Loot[i].Object;
+        _worldPacket >> Loot[i].LootListID;
+    }
+}
+
 WorldPacket const* WorldPackets::Loot::LootRemoved::Write()
 {
     _worldPacket << Owner;
@@ -198,6 +212,16 @@ WorldPacket const* WorldPackets::Loot::LootRollsComplete::Write()
 {
     _worldPacket << LootObj;
     _worldPacket << uint8(LootListID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Loot::MasterLootCandidateList::Write()
+{
+    _worldPacket << LootObj;
+    _worldPacket << uint32(Players.size());
+    for (ObjectGuid const& player : Players)
+        _worldPacket << player;
 
     return &_worldPacket;
 }

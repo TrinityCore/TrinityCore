@@ -250,7 +250,8 @@ class boss_magtheridon : public CreatureScript
                             CombatStart();
                             break;
                         case EVENT_RELEASED:
-                            me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE));
+                            me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                            me->SetImmuneToPC(false);
                             me->SetInCombatWithZone();
                             instance->SetData(DATA_MANTICRON_CUBE, ACTION_ENABLE);
                             events.ScheduleEvent(EVENT_CLEAVE, Seconds(10));
@@ -472,15 +473,15 @@ public:
     {
         go_manticron_cubeAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* player, bool /*reportUse*/) override
+        bool GossipHello(Player* player) override
         {
             if (player->HasAura(SPELL_MIND_EXHAUSTION) || player->HasAura(SPELL_SHADOW_GRASP))
                 return true;
 
             if (Creature* trigger = player->FindNearestCreature(NPC_HELFIRE_RAID_TRIGGER, 10.0f))
-                trigger->CastSpell((Unit*)nullptr, SPELL_SHADOW_GRASP_VISUAL);
+                trigger->CastSpell(nullptr, SPELL_SHADOW_GRASP_VISUAL);
 
-            player->CastSpell((Unit*)nullptr, SPELL_SHADOW_GRASP, true);
+            player->CastSpell(nullptr, SPELL_SHADOW_GRASP, true);
             return true;
         }
     };

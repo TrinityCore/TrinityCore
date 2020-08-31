@@ -23,7 +23,7 @@ WorldPacketCrypt::WorldPacketCrypt() : _clientDecrypt(false), _serverEncrypt(tru
 {
 }
 
-void WorldPacketCrypt::Init(uint8 const* key)
+void WorldPacketCrypt::Init(Trinity::Crypto::AES::Key const& key)
 {
     _clientDecrypt.Init(key);
     _serverEncrypt.Init(key);
@@ -41,12 +41,12 @@ struct WorldPacketCryptIV
     std::array<uint8, 12> Value;
 };
 
-bool WorldPacketCrypt::DecryptRecv(uint8* data, size_t length, uint8 (&tag)[12])
+bool WorldPacketCrypt::DecryptRecv(uint8* data, size_t length, Trinity::Crypto::AES::Tag& tag)
 {
     if (_initialized)
     {
         WorldPacketCryptIV iv{ _clientCounter, 0x544E4C43 };
-        if (!_clientDecrypt.Process(iv.Value.data(), data, length, tag))
+        if (!_clientDecrypt.Process(iv.Value, data, length, tag))
             return false;
     }
     else
@@ -56,12 +56,12 @@ bool WorldPacketCrypt::DecryptRecv(uint8* data, size_t length, uint8 (&tag)[12])
     return true;
 }
 
-bool WorldPacketCrypt::EncryptSend(uint8* data, size_t length, uint8 (&tag)[12])
+bool WorldPacketCrypt::EncryptSend(uint8* data, size_t length, Trinity::Crypto::AES::Tag& tag)
 {
     if (_initialized)
     {
         WorldPacketCryptIV iv{ _serverCounter, 0x52565253 };
-        if (!_serverEncrypt.Process(iv.Value.data(), data, length, tag))
+        if (!_serverEncrypt.Process(iv.Value, data, length, tag))
             return false;
     }
     else

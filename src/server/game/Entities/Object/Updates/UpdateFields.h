@@ -537,7 +537,7 @@ struct ActivePlayerData : public IsUpdateFieldStructureTag, public HasChangesMas
     UpdateField<bool, 0, 2> BankAutoSortDisabled;
     UpdateField<bool, 0, 3> SortBagsRightToLeft;
     UpdateField<bool, 0, 4> InsertItemsLeftToRight;
-    UpdateFieldArray<DynamicUpdateField<UF::Research, 4294967295, 4294967295>, 1, 22, 23> Research;
+    UpdateFieldArray<DynamicUpdateFieldBase<UF::Research>, 1, 22, 23> Research;
     DynamicUpdateField<uint64, 0, 5> KnownTitles;
     DynamicUpdateField<uint16, 0, 6> ResearchSites;
     DynamicUpdateField<uint32, 0, 7> ResearchSiteProgress;

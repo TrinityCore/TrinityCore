@@ -499,7 +499,7 @@ public:
         {
             // Need be negative to heal trigger
             int32 bp = addhealth * (-1);
-            me->CastCustomSpell(SPELL_SHARED_RULE, SPELLVALUE_BASE_POINT0, bp, (Unit*) nullptr, true);
+            me->CastCustomSpell(SPELL_SHARED_RULE, SPELLVALUE_BASE_POINT0, bp, nullptr, true);
         }
 
         void ExecuteEvent(uint32 eventId) override
@@ -702,7 +702,7 @@ class spell_illidari_council_balance_of_power : public SpellScriptLoader
             {
                 PreventDefaultAction();
                 int32 bp = dmgInfo.GetDamage();
-                GetTarget()->CastCustomSpell(SPELL_SHARED_RULE, SPELLVALUE_BASE_POINT0, bp, (Unit*) nullptr, true, nullptr, aurEff);
+                GetTarget()->CastCustomSpell(SPELL_SHARED_RULE, SPELLVALUE_BASE_POINT0, bp, nullptr, true, nullptr, aurEff);
             }
 
             void Register() override

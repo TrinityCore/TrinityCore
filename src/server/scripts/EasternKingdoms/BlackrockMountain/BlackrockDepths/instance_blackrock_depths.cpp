@@ -355,7 +355,7 @@ public:
                 if (Creature* boss = instance->GetCreature(TombBossGUIDs[TombEventCounter]))
                 {
                     boss->SetFaction(FACTION_DARK_IRON_DWARVES);
-                    boss->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                    boss->SetImmuneToPC(false);
                     if (Unit* target = boss->SelectNearestTarget(500))
                         boss->AI()->AttackStart(target);
                 }
@@ -374,11 +374,11 @@ public:
                     {//do not call EnterEvadeMode(), it will create infinit loops
                         boss->Respawn();
                         boss->RemoveAllAuras();
-                        boss->DeleteThreatList();
+                        boss->GetThreatManager().ClearAllThreat();
                         boss->CombatStop(true);
                         boss->LoadCreaturesAddon();
                         boss->GetMotionMaster()->MoveTargetedHome();
-                        boss->SetLootRecipient(NULL);
+                        boss->SetLootRecipient(nullptr);
                     }
                     boss->SetFaction(FACTION_FRIENDLY);
                 }

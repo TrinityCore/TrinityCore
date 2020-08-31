@@ -47,4 +47,6 @@ inline AI* GetStormwindStockadeAI(Creature* creature)
     return GetInstanceAI<AI>(creature, StormwindStockadeScriptName);
 }
 
+#define RegisterStormwindStockadesAI(AI) RegisterCreatureAIWithFactory(AI, GetStormwindStockadeAI)
+
 #endif

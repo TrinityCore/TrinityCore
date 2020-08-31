@@ -16,18 +16,20 @@
  */
 
 #include "ObjectGridLoader.h"
+#include "AreaTrigger.h"
+#include "CellImpl.h"
+#include "Conversation.h"
+#include "Corpse.h"
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "DynamicObject.h"
+#include "GameObject.h"
+#include "Log.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
-#include "Creature.h"
-#include "GameObject.h"
-#include "DynamicObject.h"
-#include "Corpse.h"
-#include "AreaTrigger.h"
-#include "Conversation.h"
+#include "PhasingHandler.h"
 #include "World.h"
-#include "CellImpl.h"
-#include "CreatureAI.h"
-#include "Log.h"
+#include "ScriptMgr.h"
 
 void ObjectGridEvacuator::Visit(CreatureMapType &m)
 {
@@ -120,15 +122,56 @@ void LoadHelper(CellGuidSet const& guid_set, CellCoord &cell, GridRefManager<T> 
     for (CellGuidSet::const_iterator i_guid = guid_set.begin(); i_guid != guid_set.end(); ++i_guid)
     {
         T* obj = new T;
-        ObjectGuid::LowType guid = *i_guid;
-        //TC_LOG_INFO("misc", "DEBUG: LoadHelper from table: %s for (guid: %u) Loading", table, guid);
-        if (!obj->LoadFromDB(guid, map))
-        {
-            delete obj;
-            continue;
-        }
 
-        AddObjectHelper(cell, m, count, map, obj);
+        // Don't spawn at all if there's a respawn time
+        if ((obj->GetTypeId() == TYPEID_UNIT && !map->GetCreatureRespawnTime(*i_guid)) || (obj->GetTypeId() == TYPEID_GAMEOBJECT && !map->GetGORespawnTime(*i_guid)))
+        {
+            ObjectGuid::LowType guid = *i_guid;
+            //TC_LOG_INFO("misc", "DEBUG: LoadHelper from table: %s for (guid: %u) Loading", table, guid);
+
+            if (obj->GetTypeId() == TYPEID_UNIT)
+            {
+                CreatureData const* cdata = sObjectMgr->GetCreatureData(guid);
+                ASSERT(cdata, "Tried to load creature with spawnId " UI64FMTD ", but no such creature exists.", guid);
+                SpawnGroupTemplateData const* const group = cdata->spawnGroupData;
+                // If creature in manual spawn group, don't spawn here, unless group is already active.
+                if (!(group->flags & SPAWNGROUP_FLAG_SYSTEM))
+                    if (!map->IsSpawnGroupActive(group->groupId))
+                    {
+                        delete obj;
+                        continue;
+                    }
+
+                // If script is blocking spawn, don't spawn but queue for a re-check in a little bit
+                if (!(group->flags & SPAWNGROUP_FLAG_COMPATIBILITY_MODE) && !sScriptMgr->CanSpawn(guid, cdata->id, cdata, map))
+                {
+                    map->SaveRespawnTime(SPAWN_TYPE_CREATURE, guid, cdata->id, time(NULL) + urand(4,7), map->GetZoneId(PhasingHandler::GetEmptyPhaseShift(), cdata->spawnPoint), Trinity::ComputeGridCoord(cdata->spawnPoint.GetPositionX(), cdata->spawnPoint.GetPositionY()).GetId(), false);
+                    delete obj;
+                    continue;
+                }
+            }
+            else if (obj->GetTypeId() == TYPEID_GAMEOBJECT)
+            {
+                // If gameobject in manual spawn group, don't spawn here, unless group is already active.
+                GameObjectData const* godata = sObjectMgr->GetGameObjectData(guid);
+                ASSERT(godata, "Tried to load gameobject with spawnId " UI64FMTD ", but no such object exists.", guid);
+                if (!(godata->spawnGroupData->flags & SPAWNGROUP_FLAG_SYSTEM))
+                    if (!map->IsSpawnGroupActive(godata->spawnGroupData->groupId))
+                    {
+                        delete obj;
+                        continue;
+                    }
+            }
+
+            if (!obj->LoadFromDB(guid, map, false, false))
+            {
+                delete obj;
+                continue;
+            }
+            AddObjectHelper(cell, m, count, map, obj);
+        }
+        else
+            delete obj;
     }
 }
 
@@ -219,11 +262,10 @@ void ObjectGridStoper::Visit(CreatureMapType &m)
     {
         iter->GetSource()->RemoveAllDynObjects();
         iter->GetSource()->RemoveAllAreaTriggers();
-
-        if (iter->GetSource()->IsInCombat() || !iter->GetSource()->getThreatManager().areThreatListsEmpty())
+        if (iter->GetSource()->IsInCombat() || !iter->GetSource()->GetThreatManager().areThreatListsEmpty())
         {
             iter->GetSource()->CombatStop();
-            iter->GetSource()->DeleteThreatList();
+            iter->GetSource()->GetThreatManager().ClearAllThreat();
             iter->GetSource()->AI()->EnterEvadeMode();
         }
     }

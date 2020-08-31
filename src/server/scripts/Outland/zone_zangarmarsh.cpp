@@ -284,13 +284,13 @@ public:
                     {
                         ItemPosCountVec dest;
                         uint32 itemId = 24573;
-                        InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, 1, NULL);
+                        InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, 1, nullptr);
                         if (msg == EQUIP_ERR_OK)
                         {
                             player->StoreNewItem(dest, itemId, true);
                         }
                         else
-                            player->SendEquipError(msg, NULL, NULL, itemId);
+                            player->SendEquipError(msg, nullptr, nullptr, itemId);
                     }
                     SendGossipMenuFor(player, 9231, me->GetGUID());
                     break;
@@ -327,13 +327,13 @@ class npc_kayra_longmane : public CreatureScript
 public:
     npc_kayra_longmane() : CreatureScript("npc_kayra_longmane") { }
 
-    struct npc_kayra_longmaneAI : public npc_escortAI
+    struct npc_kayra_longmaneAI : public EscortAI
     {
-        npc_kayra_longmaneAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_kayra_longmaneAI(Creature* creature) : EscortAI(creature) { }
 
         void Reset() override { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)

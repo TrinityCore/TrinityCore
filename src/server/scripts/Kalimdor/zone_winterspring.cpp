@@ -170,7 +170,7 @@ public:
     // The array MUST be terminated by {0, 0, 0}
     DialogueHelper(DialogueEntry const* dialogueArray) :
       _dialogueArray(dialogueArray),
-          _currentEntry(NULL),
+          _currentEntry(nullptr),
           _actionTimer(0)
       { }
       // The array MUST be terminated by {0, 0, 0, 0, 0}
@@ -214,7 +214,7 @@ protected:
     /// Will be called when a dialogue step was done
     virtual void JustDidDialogueStep(int32 /*entry*/) { }
     /// Will be called to get a speaker, MUST be implemented if not used in instances
-    virtual Creature* GetSpeakerByEntry(int32 /*entry*/) { return NULL; }
+    virtual Creature* GetSpeakerByEntry(int32 /*entry*/) { return nullptr; }
 
 private:
     void DoNextDialogueStep()
@@ -306,9 +306,9 @@ class npc_ranshalla : public CreatureScript
 public:
     npc_ranshalla() : CreatureScript("npc_ranshalla") { }
 
-    struct npc_ranshallaAI : public npc_escortAI, private DialogueHelper
+    struct npc_ranshallaAI : public EscortAI, private DialogueHelper
     {
-        npc_ranshallaAI(Creature* creature) : npc_escortAI(creature), DialogueHelper(introDialogue)
+        npc_ranshallaAI(Creature* creature) : EscortAI(creature), DialogueHelper(introDialogue)
         {
             Initialize();
         }
@@ -392,7 +392,7 @@ public:
             StartNextDialogueText(SAY_PRIESTESS_ALTAR_3);
         }
 
-        void WaypointReached(uint32 pointId) override
+        void WaypointReached(uint32 pointId, uint32 /*pathId*/) override
         {
             switch (pointId)
             {
@@ -556,7 +556,7 @@ public:
                 case NPC_PRIESTESS_DATA_2:
                     return ObjectAccessor::GetCreature(*me, _secondPriestessGUID);
                 default:
-                    return NULL;
+                    return nullptr;
             }
 
         }
@@ -579,7 +579,7 @@ public:
             if (events.ExecuteEvent() == EVENT_RESUME)
                 StartNextDialogueText(SAY_PRIESTESS_ALTAR_3);
 
-            npc_escortAI::UpdateEscortAI(diff);
+            EscortAI::UpdateEscortAI(diff);
         }
 
         void QuestAccept(Player* player, Quest const* quest) override
@@ -616,7 +616,7 @@ public:
     {
         go_elune_fireAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* /*player*/, bool /*reportUse*/) override
+        bool GossipHello(Player* /*player*/) override
         {
             // Check if we are using the torches or the altar
             bool isAltar = false;

@@ -261,7 +261,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) override { }
 
-        void SaySound(uint8 textEntry, Unit* target = 0)
+        void SaySound(uint8 textEntry, Unit* target = nullptr)
         {
             Talk(textEntry, target);
 
@@ -446,7 +446,7 @@ public:
                 headGUID.Clear();
             }
 
-            me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetImmuneToPC(false);
             //instance->SetBossState(DATA_HORSEMAN_EVENT, NOT_STARTED);
         }
 
@@ -532,7 +532,7 @@ public:
             }
         }
 
-        void SaySound(uint8 textEntry, Unit* target = 0)
+        void SaySound(uint8 textEntry, Unit* target = nullptr)
         {
             Talk(textEntry, target);
             laugh += 4000;
@@ -542,7 +542,7 @@ public:
         {
             Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
             if (PlayerList.isEmpty())
-                return NULL;
+                return nullptr;
 
             std::list<Player*> temp;
             for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
@@ -556,7 +556,7 @@ public:
                 advance(j, rand32() % temp.size());
                 return (*j);
             }
-            return NULL;
+            return nullptr;
         }
 
         void SpellHitTarget(Unit* unit, const SpellInfo* spell) override
@@ -604,14 +604,6 @@ public:
                 DoCast(me, SPELL_HEAD);
                 caster->GetMotionMaster()->Clear(false);
                 caster->GetMotionMaster()->MoveFollow(me, 6, float(urand(0, 5)));
-                //DoResetThreat();//not sure if need
-                ThreatContainer::StorageType threatlist = caster->getThreatManager().getThreatList();
-                for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
-                {
-                    Unit* unit = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid());
-                    if (unit && unit->IsAlive() && unit != caster)
-                        me->AddThreat(unit, caster->getThreatManager().getThreat(unit));
-                }
             }
         }
 
@@ -861,7 +853,7 @@ public:
             if (!who || !me->IsValidAttackTarget(who) || me->GetVictim())
                 return;
 
-            me->AddThreat(who, 0.0f);
+            AddThreat(who, 0.0f);
             if (sprouted)
                 DoStartMovement(who);
         }
@@ -890,7 +882,7 @@ class go_loosely_turned_soil : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 if (instance->GetBossState(DATA_HORSEMAN_EVENT) == IN_PROGRESS || player->GetQuestStatus(QUEST_CALL_THE_HEADLESS_HORSEMAN) != QUEST_STATUS_COMPLETE)
                     return true;

@@ -373,7 +373,7 @@ class RunicSmashExplosionEvent : public BasicEvent
 
         bool Execute(uint64 /*eventTime*/, uint32 /*updateTime*/) override
         {
-            _owner->CastSpell((Unit*)nullptr, SPELL_RUNIC_SMASH);
+            _owner->CastSpell(nullptr, SPELL_RUNIC_SMASH);
             return true;
         }
 
@@ -391,7 +391,7 @@ class TrashJumpEvent : public BasicEvent
             switch (_stage)
             {
                 case 0:
-                    _owner->CastSpell((Unit*)nullptr, SPELL_LEAP);
+                    _owner->CastSpell(nullptr, SPELL_LEAP);
                     ++_stage;
                     _owner->m_Events.AddEvent(this, eventTime + 2000);
                     return false;
@@ -423,7 +423,7 @@ class LightningFieldEvent : public BasicEvent
             {
                 if (instance->GetBossState(BOSS_THORIM) == IN_PROGRESS)
                 {
-                    _owner->CastSpell((Unit*)nullptr, SPELL_LIGHTNING_FIELD);
+                    _owner->CastSpell(nullptr, SPELL_LIGHTNING_FIELD);
                     _owner->m_Events.AddEvent(this, eventTime + 1000);
                     return false;
                 }
@@ -472,7 +472,7 @@ class boss_thorim : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
                 me->SetDisableGravity(true);
                 me->SetControlled(true, UNIT_STATE_ROOT);
-                me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetImmuneToPC(true);
 
                 events.SetPhase(PHASE_NULL);
 
@@ -513,7 +513,7 @@ class boss_thorim : public CreatureScript
                     if (Creature* pillar = ObjectAccessor::GetCreature(*me, _activePillarGUID))
                     {
                         pillar->CastSpell(pillar, SPELL_LIGHTNING_ORB_CHARGED, true);
-                        pillar->CastSpell((Unit*)nullptr, SPELL_LIGHTNING_PILLAR_2);
+                        pillar->CastSpell(nullptr, SPELL_LIGHTNING_PILLAR_2);
                         events.ScheduleEvent(EVENT_LIGHTNING_CHARGE, 8000, 0, PHASE_2);
                     }
                 }
@@ -589,7 +589,7 @@ class boss_thorim : public CreatureScript
                 if (type != EFFECT_MOTION_TYPE || id != EVENT_JUMP)
                     return;
 
-                me->getThreatManager().resetAllAggro();
+                ResetThreatList();
                 SetBoundary(&ArenaBoundaries);
             }
 
@@ -613,7 +613,7 @@ class boss_thorim : public CreatureScript
 
                 if (Creature* runicColossus = instance->GetCreature(DATA_RUNIC_COLOSSUS))
                 {
-                    runicColossus->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                    runicColossus->SetImmuneToPC(false);
                     runicColossus->AI()->DoAction(ACTION_ACTIVATE_ADDS);
                 }
 
@@ -815,7 +815,7 @@ class boss_thorim : public CreatureScript
                         if (++_killedCount >= 6)
                         {
                             // Event starts
-                            me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                            me->SetImmuneToPC(false);
                             DoZoneInCombat(me);
                         }
                         break;
@@ -1333,7 +1333,7 @@ struct npc_thorim_minibossAI : public ScriptedAI
         {
             for (ObjectGuid const& guid : _summons)
                 if (Creature* summon = ObjectAccessor::GetCreature(*me, guid))
-                    summon->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                    summon->SetImmuneToPC(false);
         }
     }
 
@@ -1403,7 +1403,7 @@ class npc_runic_colossus : public CreatureScript
 
                 if (Creature* giant = _instance->GetCreature(DATA_RUNE_GIANT))
                 {
-                    giant->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                    giant->SetImmuneToPC(false);
                     giant->AI()->DoAction(ACTION_ACTIVATE_ADDS);
                 }
             }
@@ -1758,7 +1758,7 @@ class spell_thorim_charge_orb : public SpellScriptLoader
             void HandleScript()
             {
                 if (Unit* target = GetHitUnit())
-                    target->CastSpell((Unit*)nullptr, SPELL_LIGHTNING_PILLAR_1, true);
+                    target->CastSpell(nullptr, SPELL_LIGHTNING_PILLAR_1, true);
             }
 
             void Register() override

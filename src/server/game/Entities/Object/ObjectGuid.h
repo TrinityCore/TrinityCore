@@ -380,13 +380,14 @@ public:
     ObjectGuidGeneratorBase(ObjectGuid::LowType start = UI64LIT(1)) : _nextGuid(start) { }
     virtual ~ObjectGuidGeneratorBase() = default;
 
-    virtual void Set(uint64 val) { _nextGuid = val; }
+    virtual void Set(ObjectGuid::LowType val) { _nextGuid = val; }
     virtual ObjectGuid::LowType Generate() = 0;
     ObjectGuid::LowType GetNextAfterMaxUsed() const { return _nextGuid; }
 
 protected:
     static void HandleCounterOverflow(HighGuid high);
-    uint64 _nextGuid;
+    static void CheckGuidTrigger(ObjectGuid::LowType guid);
+    ObjectGuid::LowType _nextGuid;
 };
 
 template<HighGuid high>
@@ -399,6 +400,10 @@ public:
     {
         if (_nextGuid >= ObjectGuid::GetMaxCounter(high) - 1)
             HandleCounterOverflow(high);
+
+        if (high == HighGuid::Creature || high == HighGuid::Vehicle || high == HighGuid::GameObject || high == HighGuid::Transport)
+            CheckGuidTrigger(_nextGuid);
+
         return _nextGuid++;
     }
 };
