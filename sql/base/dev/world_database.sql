@@ -3842,14 +3842,14 @@ DROP TABLE IF EXISTS `warden_checks`;
 CREATE TABLE `warden_checks` (
   `id` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
   `type` tinyint(3) unsigned DEFAULT NULL,
-  `str` varchar(20) DEFAULT NULL,
+  `str` varchar(170) DEFAULT NULL,
   `address` int(10) unsigned DEFAULT NULL,
   `length` tinyint(3) unsigned DEFAULT NULL,
   `comment` varchar(50) DEFAULT NULL,
   `data` binary(24) DEFAULT NULL,
-  `result` varbinary(12) DEFAULT NULL,
+  `result` varbinary(24) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=787 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=791 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3948,4 +3948,4 @@ CREATE TABLE `waypoints` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-08-15  9:34:48
+-- Dump completed on 2020-08-22 16:27:28
