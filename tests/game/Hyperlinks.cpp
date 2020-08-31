@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -71,4 +71,22 @@ TEST_CASE("|Hitem validation", "[Hyperlinks]")
         REQUIRE(false == CheckAllLinks("This is a mis-colored |cffa335ee|Hitem:6948:0:0:0:0:0:0:0:80|h[Hearthstone]|h|r."));
         REQUIRE(false == CheckAllLinks("This is a |cffffffff|Hitem:6948:-1:0:0:0:0:0:0:-1|h[Hearthstone]|h|r that is quite negative."));
     }
+}
+
+TEST_CASE("|Hachievement validation", "[Hyperlinks]")
+{
+    UnitTestDataLoader::LoadAchievementTemplates();
+    sWorld->setIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_SEVERITY, 1);
+
+    REQUIRE(true  == CheckAllLinks("|cffffff00|Hachievement:4298:00000000000000FD:0:0:0:-1:0:0:0:0|h[Heroic: Trial of the Champion]|h|r"));
+    REQUIRE(false == CheckAllLinks("|cffffff00|Hachievement|h[Heroic: Trial of the Champion]|h|r"));
+    REQUIRE(false == CheckAllLinks("|cffffff00|Hachievement:1:00000000000000FD:0:0:0:-1:0:0:0:0|h[Heroic: Trial of the Champion]|h|r"));
+    REQUIRE(false == CheckAllLinks("|cffff0000|Hachievement:4298:00000000000000FD:0:0:0:-1:0:0:0:0|h[Heroic: Trial of the Champion]|h|r"));
+    REQUIRE(false == CheckAllLinks("|cffffff00|Hachievement:4298:00000000000000XY:0:0:0:-1:0:0:0:0|h[Heroic: Trial of the Champion]|h|r"));
+    REQUIRE(true  == CheckAllLinks("|cffffff00|Hachievement:4298:00000000000000FD:1:12:20:12:0:0:0:0|h[Heroic: Trial of the Champion]|h|r"));
+    REQUIRE(false == CheckAllLinks("|cffffff00|Hachievement:4298:00000000000000FD:1:12:40:12:0:0:0:0|h[Heroic: Trial of the Champion]|h|r"));
+    REQUIRE(false == CheckAllLinks("|cffffff00|Hachievement:4298:00000000000000FD:1:14:20:12:0:0:0:0|h[Heroic: Trial of the Champion]|h|r"));
+    REQUIRE(false == CheckAllLinks("|cffffff00|Hachievement:4298:00000000000000FD:1:0:0:-1:0:0:0:0|h[Heroic: Trial of the Champion]|h|r"));
+
+    REQUIRE(true  == CheckAllLinks("|cffffff00|Hachievement:4298:00000000000000FD:1:12:20:12:0:0:0:0|h[Heroico: Prueba del Campe\xc3\xb3n]|h|r"));
 }
