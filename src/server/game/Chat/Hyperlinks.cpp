@@ -372,7 +372,7 @@ struct LinkValidator<LinkTags::item>
     {
         for (LocaleConstant i = LOCALE_enUS; i < TOTAL_LOCALES; i = LocaleConstant(i + 1))
         {
-            std::string name = itemTemplate->GetName(i);
+            std::string_view name = itemTemplate->GetName(i);
             if (name.empty())
                 continue;
             if (suffixStrings)
@@ -449,16 +449,20 @@ struct LinkValidator<LinkTags::quest>
 {
     static bool IsTextValid(QuestLinkData const& data, std::string_view text)
     {
+        if (text == data.Quest->GetLogTitle())
+            return true;
+
         QuestTemplateLocale const* locale = sObjectMgr->GetQuestLocale(data.Quest->GetQuestId());
         if (!locale)
-            return data.Quest->GetLogTitle().c_str() == text;
+            return false;
 
         for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
         {
-            std::string const& name = (i == DEFAULT_LOCALE) ? data.Quest->GetLogTitle() : locale->LogTitle[i];
-            if (name.empty())
+            if (i == DEFAULT_LOCALE)
                 continue;
-            if (text == name)
+
+            std::string_view name = ObjectMgr::GetLocaleString(locale->LogTitle, i);
+            if (!name.empty() && (text == name))
                 return true;
         }
 
