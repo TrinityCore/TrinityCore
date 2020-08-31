@@ -1497,6 +1497,11 @@ class spell_pal_word_of_glory_AuraScript : public AuraScript
 // -85803 - Selfless Healer
 class spell_pal_selfless_healer : public AuraScript
 {
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ static_cast<uint32>(spellInfo->Effects[EFFECT_1].TriggerSpell) });
+    }
+
     bool CheckProc(ProcEventInfo& eventInfo)
     {
         if (HealInfo* heal = eventInfo.GetHealInfo())
@@ -1511,7 +1516,8 @@ class spell_pal_selfless_healer : public AuraScript
 
         Unit* target = GetTarget();
         SpellInfo const* spell = sSpellMgr->AssertSpellInfo(GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell);
-        target->CastCustomSpell(spell->Id, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), target, true, nullptr, aurEff);
+        int32 bp = aurEff->GetAmount() * (1 + target->GetPower(POWER_HOLY_POWER));
+        target->CastCustomSpell(spell->Id, SPELLVALUE_BASE_POINT0, bp, target, true, nullptr, aurEff);
     }
 
     void Register() override
