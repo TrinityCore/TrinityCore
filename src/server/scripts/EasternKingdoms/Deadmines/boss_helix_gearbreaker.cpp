@@ -201,6 +201,7 @@ struct boss_helix_gearbreaker : public BossAI
         Talk(SAY_DEATH);
         summons.DespawnAll();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_RIDE_VEHICLE);
         DoCastAOE(SPELL_FORCECAST_EJECT_PASSENGER_1, true);
     }
 
@@ -221,6 +222,7 @@ struct boss_helix_gearbreaker : public BossAI
         _EnterEvadeMode();
 
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_RIDE_VEHICLE);
         if (Creature* lumberingOaf = instance->GetCreature(DATA_LUMBERING_OAF))
             if (lumberingOaf->IsAlive())
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, lumberingOaf);
