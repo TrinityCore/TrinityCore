@@ -940,6 +940,7 @@ class PlayerDumpReader;
 class TC_GAME_API ObjectMgr
 {
     friend class PlayerDumpReader;
+    friend class UnitTestDataLoader;
 
     private:
         ObjectMgr();
@@ -1535,10 +1536,17 @@ class TC_GAME_API ObjectMgr
         GraveyardContainer GraveyardStore;
 
         static void AddLocaleString(std::string&& value, LocaleConstant localeConstant, std::vector<std::string>& data);
-        static inline void GetLocaleString(std::vector<std::string> const& data, LocaleConstant localeConstant, std::string& value)
+        static std::string_view GetLocaleString(std::vector<std::string> const& data, size_t locale)
         {
-            if (data.size() > size_t(localeConstant) && !data[localeConstant].empty())
-                value = data[localeConstant];
+            if (locale < data.size())
+                return data[locale];
+            else
+                return {};
+        }
+        static void GetLocaleString(std::vector<std::string> const& data, LocaleConstant localeConstant, std::string& value)
+        {
+            if (std::string_view str = GetLocaleString(data, static_cast<size_t>(localeConstant)); !str.empty())
+                value.assign(str);
         }
 
         CharacterConversionMap FactionChangeAchievements;

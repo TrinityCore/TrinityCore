@@ -152,7 +152,7 @@ struct LinkValidator<LinkTags::item>
         {
             if (!locale && i != DEFAULT_LOCALE)
                 continue;
-            std::string const& name = (i == DEFAULT_LOCALE) ? data.Item->Name1 : locale->Name[i];
+            std::string_view name = (i == DEFAULT_LOCALE) ? data.Item->Name1 : ObjectMgr::GetLocaleString(locale->Name, i);
             if (name.empty())
                 continue;
             if (randomSuffixes)
@@ -184,15 +184,17 @@ struct LinkValidator<LinkTags::quest>
     static bool IsTextValid(QuestLinkData const& data, std::string_view text)
     {
         QuestLocale const* locale = sObjectMgr->GetQuestLocale(data.Quest->GetQuestId());
-        if (!locale)
-            return text == data.Quest->GetTitle();
+
+        if (text == data.Quest->GetTitle())
+            return true;
 
         for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
         {
-            std::string const& name = (i == DEFAULT_LOCALE) ? data.Quest->GetTitle() : locale->Title[i];
-            if (name.empty())
+            if (i == DEFAULT_LOCALE)
                 continue;
-            if (text == name)
+
+            std::string_view name = ObjectMgr::GetLocaleString(locale->Title, i);
+            if (!name.empty() && (text == name))
                 return true;
         }
 
@@ -244,15 +246,14 @@ struct LinkValidator<LinkTags::enchant>
 
             for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
             {
-                std::string_view spellName = info->SpellName[i];
                 std::string_view skillName = skill->DisplayName[i];
+                std::string_view spellName = info->SpellName[i];
                 // alternate form [Skill Name: Spell Name]
-                return (
-                    (text.length() == (spellName.length() + 2 + skillName.length())) &&
-                    (text.substr(0, spellName.length()) == spellName) &&
-                    (text.substr(spellName.length(), 2) == ": ") &&
-                    (text.substr(spellName.length() + 2) == skillName)
-                );
+                if ((text.length() == (skillName.length() + 2 + spellName.length())) &&
+                    (text.substr(0, skillName.length()) == skillName) &&
+                    (text.substr(skillName.length(), 2) == ": ") &&
+                    (text.substr(skillName.length() + 2) == spellName))
+                    return true;
             }
         }
         return false;
