@@ -7869,7 +7869,7 @@ std::string ObjectMgr::GeneratePetName(uint32 entry)
         if (!cinfo)
             return std::string();
 
-        char* petname = GetPetName(cinfo->family, sWorld->GetDefaultDbcLocale());
+        char const* petname = GetPetName(cinfo->family, sWorld->GetDefaultDbcLocale());
         if (petname)
             return std::string(petname);
         else
