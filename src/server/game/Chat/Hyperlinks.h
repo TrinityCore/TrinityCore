@@ -40,7 +40,7 @@ namespace Trinity::Hyperlinks
     struct AchievementLinkData
     {
         AchievementEntry const* Achievement;
-        ObjectGuid::LowType CharacterId;
+        ObjectGuid CharacterId;
         bool IsFinished;
         uint8 Year;
         uint8 Month;

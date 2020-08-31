@@ -244,15 +244,14 @@ struct LinkValidator<LinkTags::enchant>
 
             for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
             {
-                std::string_view spellName = info->SpellName[i];
                 std::string_view skillName = skill->DisplayName[i];
+                std::string_view spellName = info->SpellName[i];
                 // alternate form [Skill Name: Spell Name]
-                return (
-                    (text.length() == (spellName.length() + 2 + skillName.length())) &&
-                    (text.substr(0, spellName.length()) == spellName) &&
-                    (text.substr(spellName.length(), 2) == ": ") &&
-                    (text.substr(spellName.length() + 2) == skillName)
-                );
+                if ((text.length() == (skillName.length() + 2 + spellName.length())) &&
+                    (text.substr(0, skillName.length()) == skillName) &&
+                    (text.substr(skillName.length(), 2) == ": ") &&
+                    (text.substr(skillName.length() + 2) == spellName))
+                    return true;
             }
         }
         return false;
