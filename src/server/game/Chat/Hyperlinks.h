@@ -95,7 +95,7 @@ namespace Trinity::Hyperlinks
         |*   - this method SHOULD be constexpr                                                  *|
         |*   - returns identifier string for the link ("creature", "creature_entry", "item")    *|
         |* - MUST expose static ::StoreTo method, (storage&, std::string_view)                  *|
-        |*   - assign value_type& based on content of std::string_view                          *|
+        |*   - assign storage& based on content of std::string_view                             *|
         |*   - return value indicates success/failure                                           *|
         |*   - for integral/string types this can be achieved by extending base_tag             *|
         \****************************************************************************************/
