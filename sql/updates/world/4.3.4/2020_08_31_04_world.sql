@@ -1,7 +1,7 @@
 UPDATE `instance_template` SET `parent`= 732 WHERE `map`= 757;
 
 SET @SPAWNGROUP := 443;
-DELETE FROM `spawn_group_template` WHERE `groupId` BETWEEN @SPAWNGROUP+0 AND @SPAWNGROUP+3;
+DELETE FROM `spawn_group_template` WHERE `groupId`= @SPAWNGROUP+0;
 INSERT INTO `spawn_group_template` (`groupId`, `groupName`, `groupFlags`) VALUES
 (@SPAWNGROUP+0, 'Baradin Hold - Alizabal Trash', 4);
 
