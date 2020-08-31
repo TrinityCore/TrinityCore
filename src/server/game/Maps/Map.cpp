@@ -2715,6 +2715,11 @@ ZLiquidStatus Map::GetLiquidStatus(uint32 phaseMask, float x, float y, float z, 
 
 void Map::GetFullTerrainStatusForPosition(uint32 phaseMask, float x, float y, float z, PositionFullTerrainStatus& data, uint8 reqLiquidType, float collisionHeight) const
 {
+    // Workaround: we have a bug in Z position inside of The Crimson Hall (ICC), that make vmgr->getAreaAndLiquidData return wrong area
+    // this wrong area make spells of Blood Orb object fail
+    if (GetId() == 631/*Icecrown Citadel*/ && G3D::fuzzyGe(z, 350.963013f))
+        z += 0.1f;
+
     VMAP::IVMapManager* vmgr = VMAP::VMapFactory::createOrGetVMapManager();
     VMAP::AreaAndLiquidData vmapData;
     VMAP::AreaAndLiquidData dynData;
