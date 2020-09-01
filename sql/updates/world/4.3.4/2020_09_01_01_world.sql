@@ -34,7 +34,7 @@ INSERT INTO `creature_trainer` (`CreatureId`, `TrainerId`, `MenuId`, `OptionInde
 -- Rogue
 (918, 33, 4502, 0),
 (13283, 33, 5061, 0),
-(51998, 33, 4504, 0); -- Needs gossip 
+(51998, 33, 5061, 0); -- Needs gossip 
 
 UPDATE `conditions` SET `ConditionValue1`= 128 WHERE `SourceTypeOrReferenceId`= 14 AND `SourceGroup`= 4463 AND `SourceEntry`= 3976;
 UPDATE `conditions` SET `ConditionValue1`= 128 WHERE `SourceTypeOrReferenceId`= 15 AND `SourceGroup`= 4463;
