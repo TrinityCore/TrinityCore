@@ -20,6 +20,7 @@
 
 #include "Packet.h"
 #include "ObjectGuid.h"
+#include "OptionalFwd.h"
 #include <array>
 
 namespace WorldPackets
@@ -102,6 +103,32 @@ namespace WorldPackets
 
             ObjectGuid TrainerGUID;
             int32 SpellID = 0;
+        };
+
+        struct VendorItem
+        {
+            int32 MuID                              = 0;
+            int32 Type                              = 0;
+            int32 ItemID                            = 0;
+            int32 ItemDisplayInfoID                 = 0;
+            int32 Quantity                          = -1;
+            uint32 Price                            = 0;
+            int32 Durability                        = 0;
+            int32 StackCount                        = 0;
+            Optional<int32> ExtendedCostID          = 0;
+            Optional<int32> PlayerConditionFailed   = 0;
+        };
+
+        class VendorInventory final : public ServerPacket
+        {
+        public:
+            VendorInventory() : ServerPacket(SMSG_VENDOR_INVENTORY, 600) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 Reason = 0;
+            std::vector<VendorItem> Items;
+            ObjectGuid Vendor;
         };
     }
 }

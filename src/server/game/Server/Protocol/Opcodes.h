@@ -936,7 +936,7 @@ enum OpcodeServer
     SMSG_LF_GUILD_MEMBERSHIP_LIST_UPDATED             = 0x1CA5,
     SMSG_LF_GUILD_POST_UPDATED                        = 0x35B7,
     SMSG_LF_GUILD_RECRUIT_LIST_UPDATED                = 0x1CB2,
-    SMSG_LIST_INVENTORY                               = 0x7CB0,
+    SMSG_VENDOR_INVENTORY                             = 0x7CB0,
     SMSG_LOAD_CUF_PROFILES                            = 0x50B1,
     SMSG_LOGIN_SETTIMESPEED                           = 0x4D15,
     SMSG_LOGIN_VERIFY_WORLD                           = 0x2005,

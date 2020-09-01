@@ -16,6 +16,7 @@
  */
 
 #include "NPCPackets.h"
+#include "Optional.h"
 
 void WorldPackets::NPC::Hello::Read()
 {
@@ -67,6 +68,67 @@ WorldPacket const* WorldPackets::NPC::TrainerBuySucceeded::Write()
 {
     _worldPacket << TrainerGUID;
     _worldPacket << int32(SpellID);
+
+    return &_worldPacket;
+}
+
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::NPC::VendorItem const& item)
+{
+    data << int32(item.MuID);
+    data << int32(item.Durability);
+
+    if (item.ExtendedCostID)
+        data << uint32(*item.ExtendedCostID);
+
+    data << uint32(item.ItemID);
+    data << uint32(item.Type);
+    data << uint32(item.Price);
+    data << uint32(item.ItemDisplayInfoID);
+
+    if (item.PlayerConditionFailed.is_initialized())
+        data << int32(*item.PlayerConditionFailed);
+
+    data << int32(item.Quantity);
+    data << uint32(item.StackCount);
+
+    return data;
+}
+
+WorldPacket const* WorldPackets::NPC::VendorInventory::Write()
+{
+    _worldPacket.WriteBit(Vendor[1]);
+    _worldPacket.WriteBit(Vendor[0]);
+    _worldPacket.WriteBits(Items.size(), 21);
+    _worldPacket.WriteBit(Vendor[3]);
+    _worldPacket.WriteBit(Vendor[6]);
+    _worldPacket.WriteBit(Vendor[5]);
+    _worldPacket.WriteBit(Vendor[2]);
+    _worldPacket.WriteBit(Vendor[7]);
+
+    for (VendorItem const& item : Items)
+    {
+        _worldPacket.WriteBit(!item.ExtendedCostID.is_initialized());
+        _worldPacket.WriteBit(!item.PlayerConditionFailed.is_initialized());
+    }
+
+    _worldPacket.WriteBit(Vendor[4]);
+    _worldPacket.FlushBits();
+
+    for (VendorItem const& item : Items)
+        _worldPacket << item;
+
+    _worldPacket.WriteByteSeq(Vendor[5]);
+    _worldPacket.WriteByteSeq(Vendor[4]);
+    _worldPacket.WriteByteSeq(Vendor[1]);
+    _worldPacket.WriteByteSeq(Vendor[0]);
+    _worldPacket.WriteByteSeq(Vendor[6]);
+
+    _worldPacket << uint8(Reason);
+
+    _worldPacket.WriteByteSeq(Vendor[2]);
+    _worldPacket.WriteByteSeq(Vendor[3]);
+    _worldPacket.WriteByteSeq(Vendor[7]);
 
     return &_worldPacket;
 }

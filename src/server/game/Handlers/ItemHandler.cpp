@@ -23,6 +23,7 @@
 #include "DBCStores.h"
 #include "Item.h"
 #include "Log.h"
+#include "NPCPackets.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "Player.h"
@@ -604,7 +605,7 @@ void WorldSession::HandleListInventoryOpcode(WorldPacket& recvData)
 
 void WorldSession::SendListInventory(ObjectGuid vendorGuid)
 {
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_LIST_INVENTORY");
+    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_VENDOR_INVENTORY");
 
     Creature* vendor = GetPlayer()->GetNPCIfCanInteractWith(vendorGuid, UNIT_NPC_FLAG_VENDOR);
     if (!vendor)
@@ -625,12 +626,10 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
     VendorItemData const* vendorItems = vendor->GetVendorItems();
     uint32 rawItemCount = vendorItems ? vendorItems->GetItemCount() : 0;
 
-    //if (rawItemCount > 300),
-    //    rawItemCount = 300; // client cap but uint8 max value is 255
+    WorldPackets::NPC::VendorInventory packet;
+    packet.Vendor = vendor->GetGUID();
 
-    ByteBuffer itemsData(32 * rawItemCount);
-    std::vector<bool> enablers;
-    enablers.reserve(2 * rawItemCount);
+    packet.Items.resize(rawItemCount);
 
     const float discountMod = _player->GetReputationPriceDiscount(vendor);
     uint8 count = 0;
@@ -640,13 +639,22 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
         if (!vendorItem)
             continue;
 
+        WorldPackets::NPC::VendorItem& item = packet.Items[count];
+
+        /*
+        // Todo: implement dbc file and handling
+        if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(vendorItem->PlayerConditionId))
+            if (!ConditionMgr::IsPlayerMeetingCondition(_player, playerCondition))
+                item.PlayerConditionFailed = playerCondition->ID;
+        */
+
         if (vendorItem->Type == ITEM_VENDOR_TYPE_ITEM)
         {
             ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(vendorItem->item);
             if (!itemTemplate)
                 continue;
 
-            uint32 leftInStock = !vendorItem->maxcount ? 0xFFFFFFFF : vendor->GetVendorItemCurrentCount(vendorItem);
+            int32 leftInStock = !vendorItem->maxcount ? -1 : vendor->GetVendorItemCurrentCount(vendorItem);
             if (!_player->IsGameMaster()) // ignore conditions if GM on
             {
                 // Respect allowed class
@@ -669,34 +677,22 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
                 continue;
             }
 
-            int32 price = vendorItem->IsGoldRequired(itemTemplate) ? uint32(floor(itemTemplate->GetBuyPrice() * discountMod)) : 0;
+            int32 price = vendorItem->IsGoldRequired(itemTemplate) ? uint32(std::floor(itemTemplate->GetBuyPrice() * discountMod)) : 0;
 
             if (int32 priceMod = _player->GetTotalAuraModifier(SPELL_AURA_MOD_VENDOR_ITEMS_PRICES))
                 price -= CalculatePct(price, priceMod);
 
-            itemsData << uint32(slot + 1);        // client expects counting to start at 1
-            itemsData << uint32(itemTemplate->MaxDurability);
-
+            item.MuID = slot + 1; // client expects counting to start at 1
+            item.Durability = itemTemplate->MaxDurability;
+            item.ExtendedCostID = vendorItem->ExtendedCost;
+            item.Type = vendorItem->Type;
+            item.Quantity = leftInStock;
+            item.StackCount = itemTemplate->GetBuyCount();
+            item.Price = price;
+            item.ItemID = vendorItem->item;
+            item.ItemDisplayInfoID = itemTemplate->GetDisplayID();
             if (vendorItem->ExtendedCost)
-            {
-                enablers.push_back(0);
-                itemsData << uint32(vendorItem->ExtendedCost);
-            }
-            else
-                enablers.push_back(1);
-
-            enablers.push_back(1);                 // item is unlocked
-
-            itemsData << uint32(vendorItem->item);
-            itemsData << uint32(vendorItem->Type);     // 1 is items, 2 is currency
-            itemsData << uint32(price);
-            itemsData << uint32(itemTemplate->GetDisplayID());
-            // if (!unk "enabler") data << uint32(something);
-            itemsData << int32(leftInStock);
-            itemsData << uint32(itemTemplate->GetBuyCount());
-
-            if (++count >= MAX_VENDOR_ITEMS)
-                break;
+                item.ExtendedCostID = vendorItem->ExtendedCost;
         }
         else if (vendorItem->Type == ITEM_VENDOR_TYPE_CURRENCY)
         {
@@ -707,70 +703,23 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
             if (!vendorItem->ExtendedCost)
                 continue; // there's no price defined for currencies, only extendedcost is used
 
-            itemsData << uint32(slot + 1);             // client expects counting to start at 1
-            itemsData << uint32(0);                  // max durability
-
-            enablers.push_back(0);
-            itemsData << uint32(vendorItem->ExtendedCost);
-
-            enablers.push_back(1);                    // item is unlocked
-
-            itemsData << uint32(vendorItem->item);
-            itemsData << uint32(vendorItem->Type);    // 1 is items, 2 is currency
-            itemsData << uint32(0);                   // price, only seen currency types that have Extended cost
-            itemsData << uint32(0);                   // displayId
-            // if (!unk "enabler") data << uint32(something);
-            itemsData << int32(-1);
-            itemsData << uint32(vendorItem->maxcount);
-
-            if (++count >= MAX_VENDOR_ITEMS)
-                break;
+            item.MuID = slot + 1; // client expects counting to start at 1
+            item.ExtendedCostID = vendorItem->ExtendedCost;
+            item.ItemID = vendorItem->item;
+            item.Type = vendorItem->Type;
+            item.StackCount = vendorItem->maxcount;
         }
-        // else error
+        else
+            continue;
+
+        if (++count >= MAX_VENDOR_ITEMS)
+            break;
     }
 
-    ObjectGuid guid = vendorGuid;
+    // Resize vector to real size (some items can be skipped due to checks)
+    packet.Items.resize(count);
 
-    WorldPacket data(SMSG_LIST_INVENTORY, 12 + itemsData.size());
-
-    data.WriteBit(guid[1]);
-    data.WriteBit(guid[0]);
-
-    data.WriteBits(count, 21); // item count
-
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[6]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[7]);
-
-    for (std::vector<bool>::const_iterator itr = enablers.begin(); itr != enablers.end(); ++itr)
-        data.WriteBit(*itr);
-
-    data.WriteBit(guid[4]);
-
-    data.FlushBits();
-    data.append(itemsData);
-
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[6]);
-
-    // It doesn't matter what value is used here (PROBABLY its full vendor size)
-    // What matters is that if count of items we can see is 0 and this field is 1
-    // then client will open the vendor list, otherwise it won't
-    if (rawItemCount)
-        data << uint8(rawItemCount);
-    else
-        data << uint8(vendor->IsArmorer());
-
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[7]);
-
-    SendPacket(&data);
+    SendPacket(packet.Write());
 }
 
 void WorldSession::HandleAutoStoreBagItemOpcode(WorldPacket& recvData)
