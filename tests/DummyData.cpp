@@ -1,4 +1,4 @@
-/*
+﻿/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,6 +17,7 @@
 
 #include "DummyData.h"
 
+#include "AchievementMgr.h"
 #include "ItemDefines.h"
 #include "ItemTemplate.h"
 #include "ObjectMgr.h"
@@ -126,4 +127,24 @@
     hearthstone.Bonding = ItemBondingType::BIND_WHEN_PICKED_UP;
 
     SetItemLocale(6948, LocaleConstant::LOCALE_esMX, "Piedra de hogar");
+}
+
+static UnitTestDataLoader::DBC<AchievementEntry, &AchievementEntry::ID> achievements(sAchievementStore);
+/*static*/ void UnitTestDataLoader::LoadAchievementTemplates()
+{
+    auto loader = achievements.Loader();
+
+    AchievementEntry& toc5 = loader.Add();
+    toc5.ID = 4298;
+    toc5.Faction = 1;
+    toc5.InstanceID = 650;
+    toc5.Title.fill("");
+    toc5.Title[LOCALE_enUS] = "Heroic: Trial of the Champion";
+    toc5.Title[LOCALE_esES] = "Heroico: Prueba del Campe\xc3\xb3n";
+    toc5.Title[LOCALE_esMX] = "Heroico: Prueba del Campe\xc3\xb3n";
+    toc5.Category = 14921;
+    toc5.Points = 10;
+    toc5.Flags = 0;
+    toc5.MinimumCriteria = 0;
+    toc5.SharesCriteria = 0;
 }

@@ -683,14 +683,14 @@ SimpleFactionsList const* GetFactionTeamList(uint32 faction)
     return nullptr;
 }
 
-char* GetPetName(uint32 petfamily, uint32 dbclang)
+char const* GetPetName(uint32 petfamily, uint32 dbclang)
 {
     if (!petfamily)
         return nullptr;
     CreatureFamilyEntry const* pet_family = sCreatureFamilyStore.LookupEntry(petfamily);
     if (!pet_family)
         return nullptr;
-    return pet_family->Name[dbclang]?pet_family->Name[dbclang]:nullptr;
+    return pet_family->Name[dbclang];
 }
 
 TalentSpellPos const* GetTalentSpellPos(uint32 spellId)
