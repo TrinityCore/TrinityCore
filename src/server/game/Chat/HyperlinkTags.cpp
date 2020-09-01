@@ -113,9 +113,47 @@ bool Trinity::Hyperlinks::LinkTags::item::StoreTo(ItemLinkData& val, std::string
     if (!t.TryConsumeTo(itemId))
         return false;
     val.Item = sObjectMgr->GetItemTemplate(itemId);
-    return val.Item && t.TryConsumeTo(val.EnchantId) && t.TryConsumeTo(val.GemEnchantId[0]) && t.TryConsumeTo(val.GemEnchantId[1]) &&
-        t.TryConsumeTo(val.GemEnchantId[2]) && t.TryConsumeTo(dummy) && t.TryConsumeTo(val.RandomPropertyId) && t.TryConsumeTo(val.RandomPropertySeed) &&
-        t.TryConsumeTo(val.RenderLevel) && t.IsEmpty() && !dummy;
+
+    int randomPropertyId;
+    if (!(val.Item && t.TryConsumeTo(val.EnchantId) && t.TryConsumeTo(val.GemEnchantId[0]) && t.TryConsumeTo(val.GemEnchantId[1]) &&
+        t.TryConsumeTo(val.GemEnchantId[2]) && t.TryConsumeTo(dummy) && t.TryConsumeTo(randomPropertyId) && t.TryConsumeTo(val.RandomSuffixBaseAmount) &&
+        t.TryConsumeTo(val.RenderLevel) && t.IsEmpty() && !dummy))
+        return false;
+
+    if (randomPropertyId < 0)
+    {
+        if (!val.Item->RandomSuffix)
+            return false;
+        if (ItemRandomSuffixEntry const* suffixEntry = sItemRandomSuffixStore.LookupEntry(-randomPropertyId))
+        {
+            val.RandomSuffix = suffixEntry;
+            val.RandomProperty = nullptr;
+        }
+        else
+            return false;
+    }
+    else if (randomPropertyId > 0)
+    {
+        if (!val.Item->RandomProperty)
+            return false;
+        if (ItemRandomPropertiesEntry const* propEntry = sItemRandomPropertiesStore.LookupEntry(randomPropertyId))
+        {
+            val.RandomSuffix = nullptr;
+            val.RandomProperty = propEntry;
+        }
+        else
+            return false;
+    }
+    else
+    {
+        val.RandomSuffix = nullptr;
+        val.RandomProperty = nullptr;
+    }
+
+    if ((val.RandomSuffix && !val.RandomSuffixBaseAmount) || (val.RandomSuffixBaseAmount && !val.RandomSuffix))
+        return false;
+
+    return true;
 }
 
 bool Trinity::Hyperlinks::LinkTags::quest::StoreTo(QuestLinkData& val, std::string_view text)
