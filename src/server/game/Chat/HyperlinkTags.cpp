@@ -150,7 +150,7 @@ bool Trinity::Hyperlinks::LinkTags::item::StoreTo(ItemLinkData& val, std::string
         val.RandomProperty = nullptr;
     }
 
-    if (static_cast<bool>(val.RandomSuffix) != static_cast<bool>(val.RandomSuffixBaseAmount))
+    if ((val.RandomSuffix && !val.RandomSuffixBaseAmount) || (val.RandomSuffixBaseAmount && !val.RandomSuffix))
         return false;
 
     return true;

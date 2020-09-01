@@ -147,9 +147,9 @@ struct LinkValidator<LinkTags::item>
                 continue;
             if (randomSuffixes)
             {
-                std::string_view randomSuffix(randomSuffixes->operator[](i));
+                std::string_view randomSuffix((*randomSuffixes)[i]);
                 if (
-                  (!randomSuffix.empty()) && 
+                  (!randomSuffix.empty()) &&
                   (text.length() == (name.length() + 1 + randomSuffix.length())) &&
                   (text.substr(0, name.length()) == name) &&
                   (text[name.length()] == ' ') &&
