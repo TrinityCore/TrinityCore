@@ -1,4 +1,4 @@
-﻿/*
+/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -70,6 +70,34 @@ TEST_CASE("|Hitem validation", "[Hyperlinks]")
         REQUIRE(false == CheckAllLinks("I'm out of witty one-liners. |cffffffff|Hitem|h[This]|h|r is just lacking data."));
         REQUIRE(false == CheckAllLinks("This is a mis-colored |cffa335ee|Hitem:6948:0:0:0:0:0:0:0:80|h[Hearthstone]|h|r."));
         REQUIRE(false == CheckAllLinks("This is a |cffffffff|Hitem:6948:-1:0:0:0:0:0:0:-1|h[Hearthstone]|h|r that is quite negative."));
+    }
+
+    SECTION("Item link with random property")
+    {
+        REQUIRE(true  == CheckAllLinks("|cff1eff00|Hitem:10250:0:0:0:0:0:1902:0:60|h[Master's Hat of Fiery Wrath]|h|r"));
+        REQUIRE(false == CheckAllLinks("|cff1eff00|Hitem:10250:0:0:0:0:0:1902:0:60|h[Master's Hat]|h|r"));
+        REQUIRE(false == CheckAllLinks("|cff1eff00|Hitem:10250:0:0:0:0:0:1:0:60|h[Master's Hat]|h|r"));
+        REQUIRE(false == CheckAllLinks("|cff1eff00|Hitem:10250:0:0:0:0:0:-1902:0:60|h[Master's Hat of Fiery Wrath]|h|r"));
+        REQUIRE(true  == CheckAllLinks("|cff1eff00|Hitem:10250:0:0:0:0:0:1902:0:60|h[Sombrero de maestro de c\xc3\xb3lera \xc3\xadgnea]|h|r"));
+        REQUIRE(false == CheckAllLinks("|cff1eff00|Hitem:10250:0:0:0:0:0:1902:0:60|h[Sombrero de maestro of Fiery Wrath]|h|r"));
+        REQUIRE(false == CheckAllLinks("|cff1eff00|Hitem:10250:0:0:0:0:0:1902:0:60|h[Master's Hat de c\xc3\xb3lera \xc3\xadgnea]|h|r"));
+        REQUIRE(false == CheckAllLinks("|cff1eff00|Hitem:10250:0:0:0:0:0:1902:1:60|h[Master's Hat of Fiery Wrath]|h|r"));
+        REQUIRE(false == CheckAllLinks("|cff1eff00|Hitem:10250:0:0:0:0:0:1902:-1:60|h[Master's Hat of Fiery Wrath]|h|r"));
+        REQUIRE(false == CheckAllLinks("|cffffffff|Hitem:6948:0:0:0:0:0:1902:0:80|h[Hearthstone of Fiery Wrath]|h|r"));
+    }
+
+    SECTION("Item link with random suffix")
+    {
+        REQUIRE(true == CheckAllLinks("|cff1eff00|Hitem:36449:0:0:0:0:0:-45:43:80|h[Vrykul Shield of the Champion]|h|r"));
+        REQUIRE(false == CheckAllLinks("|cff1eff00|Hitem:36449:0:0:0:0:0:-45:43:80|h[Vrykul Shield]|h|r"));
+        REQUIRE(false == CheckAllLinks("|cff1eff00|Hitem:36449:0:0:0:0:0:-1:43:80|h[Vrykul Shield]|h|r"));
+        REQUIRE(false == CheckAllLinks("|cff1eff00|Hitem:36449:0:0:0:0:0:45:43:80|h[Vrykul Shield of the Champion]|h|r"));
+        REQUIRE(true  == CheckAllLinks("|cff1eff00|Hitem:36449:0:0:0:0:0:-45:43:80|h[Escudo vrykul del Campe\xc3\xb3n]|h|r"));
+        REQUIRE(false == CheckAllLinks("|cff1eff00|Hitem:36449:0:0:0:0:0:-45:43:80|h[Escudo vrykul of the Champion]|h|r"));
+        REQUIRE(false == CheckAllLinks("|cff1eff00|Hitem:36449:0:0:0:0:0:-45:43:80|h[Vrykul Shield del Campe\xc3\xb3n]|h|r"));
+        REQUIRE(false == CheckAllLinks("|cff1eff00|Hitem:36449:0:0:0:0:0:-45:0:80|h[Escudo vrykul del Campe\xc3\xb3n]|h|r"));
+        REQUIRE(false == CheckAllLinks("|cff1eff00|Hitem:36449:0:0:0:0:0:-45:-1:80|h[Vrykul Shield of the Champion]|h|r"));
+        REQUIRE(false == CheckAllLinks("|cffffffff|Hitem:6948:0:0:0:0:0:-45:43:80|h[Hearthstone of the Champion]|h|r"));
     }
 }
 

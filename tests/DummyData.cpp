@@ -1,4 +1,4 @@
-﻿/*
+/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,7 +28,7 @@
     t.ItemId = itemId;
     t.Class = ItemClass::ITEM_CLASS_MISC;
     t.SubClass = 0;
-    t.SoundOverrideSubclass = 0;
+    t.SoundOverrideSubclass = -1;
     t.Name1 = name;
     t.DisplayInfoID = 0;
     t.Quality = ItemQualities::ITEM_QUALITY_ARTIFACT;
@@ -112,21 +112,88 @@
     localeData.Name[i] = name;
 }
 
+static UnitTestDataLoader::DBC<ItemRandomPropertiesEntry, &ItemRandomPropertiesEntry::ID> randomProperties(sItemRandomPropertiesStore);
+static UnitTestDataLoader::DBC<ItemRandomSuffixEntry, &ItemRandomSuffixEntry::ID> randomSuffixes(sItemRandomSuffixStore);
 /*static*/ void UnitTestDataLoader::LoadItemTemplates()
 {
     if (!sObjectMgr->_itemTemplateStore.empty())
         return;
 
     ItemTemplate& hearthstone = GetItemTemplate(6948, "Hearthstone");
-    hearthstone.SoundOverrideSubclass = -1;
     hearthstone.DisplayInfoID = 6418;
     hearthstone.Quality = ItemQualities::ITEM_QUALITY_NORMAL;
     hearthstone.Flags = ItemFlags::ITEM_FLAG_PLAYERCAST;
     hearthstone.MaxCount = 1;
     hearthstone.Spells[0].SpellId = 8690;
     hearthstone.Bonding = ItemBondingType::BIND_WHEN_PICKED_UP;
+    SetItemLocale(6948, LocaleConstant::LOCALE_esES, "Piedra de hogar");
 
-    SetItemLocale(6948, LocaleConstant::LOCALE_esMX, "Piedra de hogar");
+    ItemTemplate& niceHat = GetItemTemplate(10250, "Master's Hat");
+    niceHat.Class = ItemClass::ITEM_CLASS_ARMOR;
+    niceHat.SubClass = ItemSubclassArmor::ITEM_SUBCLASS_ARMOR_CLOTH;
+    niceHat.DisplayInfoID = 27824;
+    niceHat.Quality = ItemQualities::ITEM_QUALITY_UNCOMMON;
+    niceHat.BuyCount = 1;
+    niceHat.BuyPrice = 66902;
+    niceHat.SellPrice = 13380;
+    niceHat.InventoryType = InventoryType::INVTYPE_HEAD;
+    niceHat.ItemLevel = 63;
+    niceHat.RequiredLevel = 58;
+    niceHat.Armor = 66;
+    niceHat.Bonding = ItemBondingType::BIND_WHEN_EQUIPED;
+    niceHat.Material = 7;
+    niceHat.RandomProperty = 639;
+    niceHat.MaxDurability = 45;
+    niceHat.RequiredDisenchantSkill = 225;
+    niceHat.DisenchantID = 11;
+    SetItemLocale(10250, LocaleConstant::LOCALE_esES, "Sombrero de maestro");
+
+    ItemTemplate& vikingShield = GetItemTemplate(36449, "Vrykul Shield");
+    vikingShield.Class = ItemClass::ITEM_CLASS_ARMOR;
+    vikingShield.SubClass = ItemSubclassArmor::ITEM_SUBCLASS_ARMOR_SHIELD;
+    vikingShield.DisplayInfoID = 52191;
+    vikingShield.Quality = ItemQualities::ITEM_QUALITY_UNCOMMON;
+    vikingShield.BuyCount = 1;
+    vikingShield.BuyPrice = 300510;
+    vikingShield.SellPrice = 60102;
+    vikingShield.InventoryType = InventoryType::INVTYPE_SHIELD;
+    vikingShield.ItemLevel = 146;
+    vikingShield.RequiredLevel = 71;
+    vikingShield.Armor = 4476;
+    vikingShield.Bonding = ItemBondingType::BIND_WHEN_EQUIPED;
+    vikingShield.Material = 1;
+    vikingShield.Sheath = 4;
+    vikingShield.RandomSuffix = 82;
+    vikingShield.Block = 138;
+    vikingShield.MaxDurability = 85;
+    vikingShield.RequiredDisenchantSkill = 325;
+    vikingShield.DisenchantID = 34;
+    SetItemLocale(36449, LOCALE_esES, "Escudo vrykul");
+
+    for (auto& [id, data] : sObjectMgr->_itemTemplateStore)
+        data.InitializeQueryData();
+
+    auto propLoader = randomProperties.Loader();
+    ItemRandomPropertiesEntry& fieryWrath = propLoader.Add();
+    fieryWrath.ID = 1902;
+    fieryWrath.Enchantment = {};
+    fieryWrath.Enchantment[0] = 2182;
+    fieryWrath.Name.fill("");
+    fieryWrath.Name[LOCALE_enUS] = "of Fiery Wrath";
+    fieryWrath.Name[LOCALE_esES] = "de c\xc3\xb3lera \xc3\xadgnea";
+
+    auto suffixLoader = randomSuffixes.Loader();
+    ItemRandomSuffixEntry& champion = suffixLoader.Add();
+    champion.ID = 45;
+    champion.Name.fill("");
+    champion.Name[LOCALE_enUS] = "of the Champion";
+    champion.Name[LOCALE_esES] = "del Campe\xc3\xb3n";
+    champion.Enchantment[0] = 2805;
+    champion.Enchantment[1] = 2803;
+    champion.Enchantment[2] = 2813;
+    champion.AllocationPct[0] = 5259;
+    champion.AllocationPct[1] = 7889;
+    champion.AllocationPct[2] = 5259;
 }
 
 static UnitTestDataLoader::DBC<AchievementEntry, &AchievementEntry::ID> achievements(sAchievementStore);
@@ -141,7 +208,6 @@ static UnitTestDataLoader::DBC<AchievementEntry, &AchievementEntry::ID> achievem
     toc5.Title.fill("");
     toc5.Title[LOCALE_enUS] = "Heroic: Trial of the Champion";
     toc5.Title[LOCALE_esES] = "Heroico: Prueba del Campe\xc3\xb3n";
-    toc5.Title[LOCALE_esMX] = "Heroico: Prueba del Campe\xc3\xb3n";
     toc5.Category = 14921;
     toc5.Points = 10;
     toc5.Flags = 0;

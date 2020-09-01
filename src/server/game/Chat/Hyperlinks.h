@@ -29,6 +29,8 @@
 struct AchievementEntry;
 struct GlyphPropertiesEntry;
 struct GlyphSlotEntry;
+struct ItemRandomPropertiesEntry;
+struct ItemRandomSuffixEntry;
 struct ItemTemplate;
 class SpellInfo;
 class Quest;
@@ -59,8 +61,9 @@ namespace Trinity::Hyperlinks
         ItemTemplate const* Item;
         uint32 EnchantId;
         std::array<uint32, 3> GemEnchantId;
-        int32 RandomPropertyId;
-        int32 RandomPropertySeed;
+        ItemRandomPropertiesEntry const* RandomProperty;
+        ItemRandomSuffixEntry const* RandomSuffix;
+        uint32 RandomSuffixBaseAmount;
         uint8 RenderLevel;
     };
 
