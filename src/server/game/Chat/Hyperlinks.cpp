@@ -449,6 +449,9 @@ struct LinkValidator<LinkTags::quest>
 {
     static bool IsTextValid(QuestLinkData const& data, std::string_view text)
     {
+        if (text.empty())
+            return false;
+
         if (text == data.Quest->GetLogTitle())
             return true;
 
@@ -629,25 +632,32 @@ struct LinkValidator<LinkTags::worldmap>
     }
 };
 
-#define TryValidateAs(tagname)                                                                          \
-{                                                                                                       \
-    static_assert(LinkTags::tagname::tag() == #tagname);                                                \
-    if (info.tag == LinkTags::tagname::tag())                                                           \
-    {                                                                                                   \
-        advstd::remove_cvref_t<typename LinkTags::tagname::value_type> t;                               \
-        if (!LinkTags::tagname::StoreTo(t, info.data))                                                  \
-            return false;                                                                               \
-        if (!LinkValidator<LinkTags::tagname>::IsColorValid(t, info.color))                             \
-            return false;                                                                               \
-        if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_SEVERITY))                            \
-            if (!LinkValidator<LinkTags::tagname>::IsTextValid(t, info.text))                           \
-                return false;                                                                           \
-        return true;                                                                                    \
-    }                                                                                                   \
+template <typename TAG>
+static bool ValidateAs(HyperlinkInfo const& info)
+{
+    std::decay_t<typename TAG::value_type> t;
+    if (!TAG::StoreTo(t, info.data))
+        return false;
+
+    int32 const severity = static_cast<int32>(sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_SEVERITY));
+    if (severity >= 0)
+    {
+        if (!LinkValidator<TAG>::IsColorValid(t, info.color))
+            return false;
+        if (severity >= 1)
+        {
+            if (!LinkValidator<TAG>::IsTextValid(t, info.text))
+                return false;
+        }
+    }
+    return true;
 }
+
+#define TryValidateAs(T) do { if (info.tag == T::tag()) return ValidateAs<T>(info); } while (0)
 
 static bool ValidateLinkInfo(HyperlinkInfo const& info)
 {
+    using namespace LinkTags;
     TryValidateAs(achievement);
     TryValidateAs(apower);
     TryValidateAs(azessence);
