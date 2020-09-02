@@ -1933,10 +1933,14 @@ ChatFakeMessagePreventing = 1
 #
 #    ChatStrictLinkChecking.Severity
 #        Description: Check chat messages for in-game links to spells, items, quests, etc.
-#        Default:     0 - (Only verify that link format looks valid without checking the text)
-#                     1 - (Check if color, entry and name don't contradict each other. For this to
-#                         work correctly, please assure that you have extracted locale DBCs of
-#                         every language specific client playing on this server)
+#                     -1 - (Only verify validity of link data, but permit use of custom colors)
+#        Default:      0 - (Only verify that link data and color are valid without checking text)
+#                      1 - (Additionally verifies that the link text matches the provided data)
+#
+#        Note:        If this is set to '1', you must additionally provide .dbc files for all
+#                     client locales that are in use on your server.
+#                     If any files are missing, messages with links from clients using those
+#                     locales will likely be blocked by the server.
 
 ChatStrictLinkChecking.Severity = 0
 
@@ -3279,14 +3283,6 @@ PlayerDump.DisallowPaths = 1
 #        Default:     1
 
 PlayerDump.DisallowOverwrite = 1
-
-#
-#     UI.ShowQuestLevelsInDialogs
-#        Description: Show quest levels next to quest titles in UI dialogs
-#        Example:     [13] Westfall Stew
-#        Default:     0  - (Do not show)
-
-UI.ShowQuestLevelsInDialogs = 0
 
 #
 #     Calculate.Creature.Zone.Area.Data

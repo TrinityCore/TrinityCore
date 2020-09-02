@@ -464,9 +464,6 @@ WorldPacket Quest::BuildQueryData(LocaleConstant loc) const
     response.Info.POIy = GetPOIy();
     response.Info.POIPriority = GetPointOpt();
 
-    if (sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS))
-        Quest::AddQuestLevelToTitle(locQuestTitle, GetQuestLevel());
-
     response.Info.Title = locQuestTitle;
     response.Info.Objectives = locQuestObjectives;
     response.Info.Details = locQuestDetails;
