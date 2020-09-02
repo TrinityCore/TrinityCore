@@ -132,21 +132,11 @@ struct LinkValidator<LinkTags::item>
     {
         ItemLocale const* locale = sObjectMgr->GetItemLocale(data.Item->ItemId);
 
-        char const* const* randomSuffixes = nullptr; // this is a c-style array of c strings (and i don't want to touch DBCStructure.h right now)
-        if (data.RandomPropertyId < 0)
-        {
-            if (ItemRandomSuffixEntry const* suffixEntry = sItemRandomSuffixStore.LookupEntry(-data.RandomPropertyId))
-                randomSuffixes = suffixEntry->Name;
-            else
-                return false;
-        }
-        else if (data.RandomPropertyId > 0)
-        {
-            if (ItemRandomPropertiesEntry const* propEntry = sItemRandomPropertiesStore.LookupEntry(data.RandomPropertyId))
-                randomSuffixes = propEntry->Name;
-            else
-                return false;
-        }
+        std::array<char const*, 16> const* randomSuffixes = nullptr;
+        if (data.RandomProperty)
+            randomSuffixes = &data.RandomProperty->Name;
+        else if (data.RandomSuffix)
+            randomSuffixes = &data.RandomSuffix->Name;
 
         for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
         {
@@ -157,8 +147,9 @@ struct LinkValidator<LinkTags::item>
                 continue;
             if (randomSuffixes)
             {
-                std::string_view randomSuffix(randomSuffixes[i]);
+                std::string_view randomSuffix((*randomSuffixes)[i]);
                 if (
+                  (!randomSuffix.empty()) &&
                   (text.length() == (name.length() + 1 + randomSuffix.length())) &&
                   (text.substr(0, name.length()) == name) &&
                   (text[name.length()] == ' ') &&
@@ -286,9 +277,12 @@ struct LinkValidator<LinkTags::talent>
 {
     static bool IsTextValid(TalentLinkData const& data, std::string_view text)
     {
-        if (SpellInfo const* info = sSpellMgr->GetSpellInfo(data.Talent->SpellRank[0]))
-            return LinkValidator<LinkTags::spell>::IsTextValid(info, text);
-        return false;
+        SpellInfo const* info = data.Spell;
+        if (!info)
+            info = sSpellMgr->GetSpellInfo(data.Talent->SpellRank[0]);
+        if (!info)
+            return false;
+        return LinkValidator<LinkTags::spell>::IsTextValid(info, text);
     }
 
     static bool IsColorValid(TalentLinkData const&, HyperlinkColor c)

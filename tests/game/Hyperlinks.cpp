@@ -1,4 +1,4 @@
-﻿/*
+/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -71,6 +71,34 @@ TEST_CASE("|Hitem validation", "[Hyperlinks]")
         REQUIRE(false == CheckAllLinks("This is a mis-colored |cffa335ee|Hitem:6948:0:0:0:0:0:0:0:80|h[Hearthstone]|h|r."));
         REQUIRE(false == CheckAllLinks("This is a |cffffffff|Hitem:6948:-1:0:0:0:0:0:0:-1|h[Hearthstone]|h|r that is quite negative."));
     }
+
+    SECTION("Item link with random property")
+    {
+        REQUIRE(true  == CheckAllLinks("|cff1eff00|Hitem:10250:0:0:0:0:0:1902:0:60|h[Master's Hat of Fiery Wrath]|h|r"));
+        REQUIRE(false == CheckAllLinks("|cff1eff00|Hitem:10250:0:0:0:0:0:1902:0:60|h[Master's Hat]|h|r"));
+        REQUIRE(false == CheckAllLinks("|cff1eff00|Hitem:10250:0:0:0:0:0:1:0:60|h[Master's Hat]|h|r"));
+        REQUIRE(false == CheckAllLinks("|cff1eff00|Hitem:10250:0:0:0:0:0:-1902:0:60|h[Master's Hat of Fiery Wrath]|h|r"));
+        REQUIRE(true  == CheckAllLinks("|cff1eff00|Hitem:10250:0:0:0:0:0:1902:0:60|h[Sombrero de maestro de c\xc3\xb3lera \xc3\xadgnea]|h|r"));
+        REQUIRE(false == CheckAllLinks("|cff1eff00|Hitem:10250:0:0:0:0:0:1902:0:60|h[Sombrero de maestro of Fiery Wrath]|h|r"));
+        REQUIRE(false == CheckAllLinks("|cff1eff00|Hitem:10250:0:0:0:0:0:1902:0:60|h[Master's Hat de c\xc3\xb3lera \xc3\xadgnea]|h|r"));
+        REQUIRE(false == CheckAllLinks("|cff1eff00|Hitem:10250:0:0:0:0:0:1902:1:60|h[Master's Hat of Fiery Wrath]|h|r"));
+        REQUIRE(false == CheckAllLinks("|cff1eff00|Hitem:10250:0:0:0:0:0:1902:-1:60|h[Master's Hat of Fiery Wrath]|h|r"));
+        REQUIRE(false == CheckAllLinks("|cffffffff|Hitem:6948:0:0:0:0:0:1902:0:80|h[Hearthstone of Fiery Wrath]|h|r"));
+    }
+
+    SECTION("Item link with random suffix")
+    {
+        REQUIRE(true == CheckAllLinks("|cff1eff00|Hitem:36449:0:0:0:0:0:-45:43:80|h[Vrykul Shield of the Champion]|h|r"));
+        REQUIRE(false == CheckAllLinks("|cff1eff00|Hitem:36449:0:0:0:0:0:-45:43:80|h[Vrykul Shield]|h|r"));
+        REQUIRE(false == CheckAllLinks("|cff1eff00|Hitem:36449:0:0:0:0:0:-1:43:80|h[Vrykul Shield]|h|r"));
+        REQUIRE(false == CheckAllLinks("|cff1eff00|Hitem:36449:0:0:0:0:0:45:43:80|h[Vrykul Shield of the Champion]|h|r"));
+        REQUIRE(true  == CheckAllLinks("|cff1eff00|Hitem:36449:0:0:0:0:0:-45:43:80|h[Escudo vrykul del Campe\xc3\xb3n]|h|r"));
+        REQUIRE(false == CheckAllLinks("|cff1eff00|Hitem:36449:0:0:0:0:0:-45:43:80|h[Escudo vrykul of the Champion]|h|r"));
+        REQUIRE(false == CheckAllLinks("|cff1eff00|Hitem:36449:0:0:0:0:0:-45:43:80|h[Vrykul Shield del Campe\xc3\xb3n]|h|r"));
+        REQUIRE(false == CheckAllLinks("|cff1eff00|Hitem:36449:0:0:0:0:0:-45:0:80|h[Escudo vrykul del Campe\xc3\xb3n]|h|r"));
+        REQUIRE(false == CheckAllLinks("|cff1eff00|Hitem:36449:0:0:0:0:0:-45:-1:80|h[Vrykul Shield of the Champion]|h|r"));
+        REQUIRE(false == CheckAllLinks("|cffffffff|Hitem:6948:0:0:0:0:0:-45:43:80|h[Hearthstone of the Champion]|h|r"));
+    }
 }
 
 TEST_CASE("|Hachievement validation", "[Hyperlinks]")
@@ -89,4 +117,52 @@ TEST_CASE("|Hachievement validation", "[Hyperlinks]")
     REQUIRE(false == CheckAllLinks("|cffffff00|Hachievement:4298:00000000000000FD:1:0:0:-1:0:0:0:0|h[Heroic: Trial of the Champion]|h|r"));
 
     REQUIRE(true  == CheckAllLinks("|cffffff00|Hachievement:4298:00000000000000FD:1:12:20:12:0:0:0:0|h[Heroico: Prueba del Campe\xc3\xb3n]|h|r"));
+}
+
+TEST_CASE("|Htalent validation", "[Hyperlinks]")
+{
+    UnitTestDataLoader::LoadSpellInfo();
+    sWorld->setIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_SEVERITY, 1);
+
+    REQUIRE(false == CheckAllLinks("|cff4e96f7|Htalent:2063:-2|h[Tidal Waves]|h|r"));
+    REQUIRE(true  == CheckAllLinks("|cff4e96f7|Htalent:2063:-1|h[Tidal Waves]|h|r"));
+    REQUIRE(true  == CheckAllLinks("|cff4e96f7|Htalent:2063:0|h[Tidal Waves]|h|r"));
+    REQUIRE(true  == CheckAllLinks("|cff4e96f7|Htalent:2063:1|h[Tidal Waves]|h|r"));
+    REQUIRE(true  == CheckAllLinks("|cff4e96f7|Htalent:2063:2|h[Tidal Waves]|h|r"));
+    REQUIRE(true  == CheckAllLinks("|cff4e96f7|Htalent:2063:3|h[Tidal Waves]|h|r"));
+    REQUIRE(true  == CheckAllLinks("|cff4e96f7|Htalent:2063:4|h[Tidal Waves]|h|r"));
+    REQUIRE(false == CheckAllLinks("|cff4e96f7|Htalent:2063:5|h[Tidal Waves]|h|r"));
+    REQUIRE(false == CheckAllLinks("|cff4e96f7|Htalent:2063:6|h[Tidal Waves]|h|r"));
+    REQUIRE(false == CheckAllLinks("|cff4e96f7|Htalent:2063:4|h[Tidal Waves (Rank 5)|h|r"));
+
+    REQUIRE(true  == CheckAllLinks("|cff4e96f7|Htalent:2063:-1|h[Maremotos]|h|r"));
+    REQUIRE(true  == CheckAllLinks("|cff4e96f7|Htalent:2063:4|h[Maremotos]|h|r"));
+    REQUIRE(false == CheckAllLinks("|cff4e96f7|Htalent:2063:4|h[Maremotos (Rango 5)]|h|r"));
+
+    REQUIRE(false == CheckAllLinks("|cff4e96f7|Htalent:2059:-2|h[Improved Earth Shield]|h|r"));
+    REQUIRE(true  == CheckAllLinks("|cff4e96f7|Htalent:2059:-1|h[Improved Earth Shield]|h|r"));
+    REQUIRE(true  == CheckAllLinks("|cff4e96f7|Htalent:2059:0|h[Improved Earth Shield]|h|r"));
+    REQUIRE(true  == CheckAllLinks("|cff4e96f7|Htalent:2059:1|h[Improved Earth Shield]|h|r"));
+    REQUIRE(false == CheckAllLinks("|cff4e96f7|Htalent:2059:2|h[Improved Earth Shield]|h|r"));
+    REQUIRE(false == CheckAllLinks("|cff4e96f7|Htalent:2059:3|h[Improved Earth Shield]|h|r"));
+    REQUIRE(false == CheckAllLinks("|cff4e96f7|Htalent:2059:4|h[Improved Earth Shield]|h|r"));
+    REQUIRE(false == CheckAllLinks("|cff4e96f7|Htalent:2059:5|h[Improved Earth Shield]|h|r"));
+
+    REQUIRE(true  == CheckAllLinks("|cff4e96f7|Htalent:1698:0|h[Earth Shield]|h|r"));
+    REQUIRE(false == CheckAllLinks("|cff71d5ff|Htalent:1698:0|h[Earth Shield]|h|r"));
+    REQUIRE(false == CheckAllLinks("|cff4e96f7|Htalent:974:0|h[Earth Shield]|h|r"));
+    REQUIRE(false == CheckAllLinks("|cff71d5ff|Htalent:974:0|h[Earth Shield]|h|r"));
+}
+
+TEST_CASE("|Hspell validation", "[Hyperlinks]")
+{
+    UnitTestDataLoader::LoadSpellInfo();
+    sWorld->setIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_SEVERITY, 1);
+
+    REQUIRE(true  == CheckAllLinks("|cff71d5ff|Hspell:974|h[Earth Shield]|h|r"));
+    REQUIRE(false == CheckAllLinks("|cff4e96f7|Hspell:974|h[Earth Shield]|h|r"));
+    REQUIRE(true  == CheckAllLinks("|cff71d5ff|Hspell:974|h[Escudo de tierra]|h|r"));
+    REQUIRE(false == CheckAllLinks("|cff71d5ff|Hspell:974|h[Earth Shield (Rank 1)]|h|r"));
+    REQUIRE(false == CheckAllLinks("|cff71d5ff|Hspell:974|h[Escudo de tierra (Rango 1)]|h|r"));
+    REQUIRE(false == CheckAllLinks("|cff71d5ff|Hspell:1698|h[Earth Shield]|h|r"));
 }
