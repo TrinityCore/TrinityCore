@@ -118,3 +118,51 @@ TEST_CASE("|Hachievement validation", "[Hyperlinks]")
 
     REQUIRE(true  == CheckAllLinks("|cffffff00|Hachievement:4298:00000000000000FD:1:12:20:12:0:0:0:0|h[Heroico: Prueba del Campe\xc3\xb3n]|h|r"));
 }
+
+TEST_CASE("|Htalent validation", "[Hyperlinks]")
+{
+    UnitTestDataLoader::LoadSpellInfo();
+    sWorld->setIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_SEVERITY, 1);
+
+    REQUIRE(false == CheckAllLinks("|cff4e96f7|Htalent:2063:-2|h[Tidal Waves]|h|r"));
+    REQUIRE(true  == CheckAllLinks("|cff4e96f7|Htalent:2063:-1|h[Tidal Waves]|h|r"));
+    REQUIRE(true  == CheckAllLinks("|cff4e96f7|Htalent:2063:0|h[Tidal Waves]|h|r"));
+    REQUIRE(true  == CheckAllLinks("|cff4e96f7|Htalent:2063:1|h[Tidal Waves]|h|r"));
+    REQUIRE(true  == CheckAllLinks("|cff4e96f7|Htalent:2063:2|h[Tidal Waves]|h|r"));
+    REQUIRE(true  == CheckAllLinks("|cff4e96f7|Htalent:2063:3|h[Tidal Waves]|h|r"));
+    REQUIRE(true  == CheckAllLinks("|cff4e96f7|Htalent:2063:4|h[Tidal Waves]|h|r"));
+    REQUIRE(false == CheckAllLinks("|cff4e96f7|Htalent:2063:5|h[Tidal Waves]|h|r"));
+    REQUIRE(false == CheckAllLinks("|cff4e96f7|Htalent:2063:6|h[Tidal Waves]|h|r"));
+    REQUIRE(false == CheckAllLinks("|cff4e96f7|Htalent:2063:4|h[Tidal Waves (Rank 5)|h|r"));
+
+    REQUIRE(true  == CheckAllLinks("|cff4e96f7|Htalent:2063:-1|h[Maremotos]|h|r"));
+    REQUIRE(true  == CheckAllLinks("|cff4e96f7|Htalent:2063:4|h[Maremotos]|h|r"));
+    REQUIRE(false == CheckAllLinks("|cff4e96f7|Htalent:2063:4|h[Maremotos (Rango 5)]|h|r"));
+
+    REQUIRE(false == CheckAllLinks("|cff4e96f7|Htalent:2059:-2|h[Improved Earth Shield]|h|r"));
+    REQUIRE(true  == CheckAllLinks("|cff4e96f7|Htalent:2059:-1|h[Improved Earth Shield]|h|r"));
+    REQUIRE(true  == CheckAllLinks("|cff4e96f7|Htalent:2059:0|h[Improved Earth Shield]|h|r"));
+    REQUIRE(true  == CheckAllLinks("|cff4e96f7|Htalent:2059:1|h[Improved Earth Shield]|h|r"));
+    REQUIRE(false == CheckAllLinks("|cff4e96f7|Htalent:2059:2|h[Improved Earth Shield]|h|r"));
+    REQUIRE(false == CheckAllLinks("|cff4e96f7|Htalent:2059:3|h[Improved Earth Shield]|h|r"));
+    REQUIRE(false == CheckAllLinks("|cff4e96f7|Htalent:2059:4|h[Improved Earth Shield]|h|r"));
+    REQUIRE(false == CheckAllLinks("|cff4e96f7|Htalent:2059:5|h[Improved Earth Shield]|h|r"));
+
+    REQUIRE(true  == CheckAllLinks("|cff4e96f7|Htalent:1698:0|h[Earth Shield]|h|r"));
+    REQUIRE(false == CheckAllLinks("|cff71d5ff|Htalent:1698:0|h[Earth Shield]|h|r"));
+    REQUIRE(false == CheckAllLinks("|cff4e96f7|Htalent:974:0|h[Earth Shield]|h|r"));
+    REQUIRE(false == CheckAllLinks("|cff71d5ff|Htalent:974:0|h[Earth Shield]|h|r"));
+}
+
+TEST_CASE("|Hspell validation", "[Hyperlinks]")
+{
+    UnitTestDataLoader::LoadSpellInfo();
+    sWorld->setIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_SEVERITY, 1);
+
+    REQUIRE(true  == CheckAllLinks("|cff71d5ff|Hspell:974|h[Earth Shield]|h|r"));
+    REQUIRE(false == CheckAllLinks("|cff4e96f7|Hspell:974|h[Earth Shield]|h|r"));
+    REQUIRE(true  == CheckAllLinks("|cff71d5ff|Hspell:974|h[Escudo de tierra]|h|r"));
+    REQUIRE(false == CheckAllLinks("|cff71d5ff|Hspell:974|h[Earth Shield (Rank 1)]|h|r"));
+    REQUIRE(false == CheckAllLinks("|cff71d5ff|Hspell:974|h[Escudo de tierra (Rango 1)]|h|r"));
+    REQUIRE(false == CheckAllLinks("|cff71d5ff|Hspell:1698|h[Earth Shield]|h|r"));
+}

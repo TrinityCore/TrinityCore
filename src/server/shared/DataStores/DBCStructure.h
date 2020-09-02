@@ -1663,15 +1663,15 @@ struct TalentEntry
     uint32 TabID;                                           // 1 index in TalentTab.dbc (TalentTabEntry)
     uint32 TierID;                                          // 2
     uint32 ColumnIndex;                                     // 3
-    uint32 SpellRank[MAX_TALENT_RANK];                      // 4-8
-    //uint32 SpellRankUnused[4];                            // 9-12
+    std::array<uint32, MAX_TALENT_RANK> SpellRank;          // 4-8
+    //std::array<uint32, 4> SpellRankUnused;                // 9-12
     uint32 PrereqTalent;                                    // 13 index in Talent.dbc (TalentEntry)
-    //uint32 PrereqTalentUnused[2];                         // 14-15
+    //std::array<uint32, 2> PrereqTalentUnused;             // 14-15
     uint32 PrereqRank;                                      // 16
-    //uint32 PrereqRankUnused[2];                           // 17-18
+    //std::array<uint32, 2> PrereqRankUnused;               // 17-18
     //uint32 Flags;                                         // 19
     //uint32 RequiredSpellID;                               // 20 all 0
-    //uint32 CategoryMask[2];                               // 21 its a 64 bit mask for pet 1<<CategoryEnumID in CreatureFamily.dbc
+    //std::array<uint32, 2> CategoryMask;                   // 21 its a 64 bit mask for pet 1<<CategoryEnumID in CreatureFamily.dbc
 };
 
 struct TalentTabEntry
