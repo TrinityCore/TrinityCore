@@ -95,7 +95,7 @@ void CustomConfig::AddOption(std::string const& optionName, GameConfigType type,
         AddIntOption(optionName, value.empty() ? Trinity::StringTo<int32>(defaultValue).value() : Trinity::StringTo<int32>(value).value());
         break;
     case GameConfigType::GAME_CONFIG_TYPE_FLOAT:
-        AddFloatOption(optionName, value.empty() ? std::stof(defaultValue) : std::stof(value));
+        AddFloatOption(optionName, value.empty() ? rinity::StringTo<float>(defaultValue).value() : Trinity::StringTo<float>(value).value());
         break;
     case GameConfigType::GAME_CONFIG_TYPE_STRING:
         AddStringOption(optionName, value.empty() ? defaultValue : value);
