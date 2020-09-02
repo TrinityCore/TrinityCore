@@ -48,13 +48,30 @@ TEST_CASE("Command argument parsing", "[ChatCommand]")
         TestChatCommand("true", [](ChatHandler*, uint32) { return true; }, false);
     }
 
-    SECTION("std::vector<uint8>")
+    SECTION("Floating point argument")
     {
-        TestChatCommand("1 2 3 4 5 6 7 8 9 10", [](ChatHandler*, std::vector<uint8> v)
+        TestChatCommand("0.5", [](ChatHandler*, float f)
         {
-            REQUIRE(v.size() == 10);
-            for (size_t i = 0; i < 10; ++i)
-                REQUIRE(v[i] == (i + 1));
+            REQUIRE(f == 0.5);
+            return true;
+        });
+        TestChatCommand("true", [](ChatHandler*, float) { return true; }, false);
+    }
+
+    SECTION("std::vector<uint16>")
+    {
+        TestChatCommand("1 2 3 4 5 6 7 8 9 10", [](ChatHandler*, std::vector<uint16> v)
+        {
+            REQUIRE(v == std::vector<uint16>{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
+            return true;
+        });
+    }
+
+    SECTION("std::array<uint16>")
+    {
+        TestChatCommand("1 2 3 4 5 6 7 8 9 10", [](ChatHandler*, std::array<uint16, 10> v)
+        {
+            REQUIRE(v == std::array<uint16, 10>{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
             return true;
         });
     }
