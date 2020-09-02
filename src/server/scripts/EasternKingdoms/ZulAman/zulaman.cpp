@@ -52,31 +52,26 @@ enum VoljinEvents
     EVENT_DISMOUNT_VOLJIN = 1,
     EVENT_REMOVE_GOSSIP_FLAG,
     EVENT_SAY_FOLLOW_ME,
-    EVENT_MOVE_TO_GONG_1,
-    EVENT_MOVE_TO_GONG_2,
+    EVENT_MOVE_TO_GONG,
     EVENT_FACE_TO_GONG,
     EVENT_SAY_GONG_INSTRUCTIONS,
     EVENT_BANGING_THE_GONG,
-    EVENT_MAKE_GONG_SELECTABLE,
     EVENT_FAIL_GONG_EVENT,
     EVENT_MOVE_TO_ROOM_CENTER,
     EVENT_MOVE_HOME,
     EVENT_FACE_HOME,
     EVENT_RESET_NPC_FLAGS,
-    EVENT_MOVE_TO_CENTER,
-    EVENT_MAKE_GONG_UNSELECTABLE,
     EVENT_TALK_TO_AMANI,
     EVENT_OPEN_MASSIVE_GATE,
     EVENT_TALK_WARN_PLAYERS,
     EVENT_START_SPEED_RUN
 };
 
-enum VoljinMovePoints
+enum VoljinWaypointData
 {
-    POINT_HOME          = 1,
-    POINT_INTRO_1       = 2,
-    POINT_INTRO_2       = 3,
-    POINT_INTRO_3       = 4
+    PATH_ID_VOLJIN_INTRO_1  = NPC_VOLJIN * 100,
+    PATH_ID_VOLJIN_INTRO_2  = NPC_VOLJIN * 100 + 1,
+    PATH_ID_VOLJIN_INTRO_3  = NPC_VOLJIN * 100 + 2,
 };
 
 enum VoljinMisc
@@ -85,35 +80,39 @@ enum VoljinMisc
     MOUNT_DISPLAY_ID_RAPTOR = 29261
 };
 
-Position const VoljinIntroWaypoint[4] =
+enum VoljinGossip
 {
-    { 117.7349f, 1662.77f,  42.02156f, 0.0f },
-    { 132.14f,   1645.143f, 42.02158f, 0.0f },
-    { 121.8901f, 1639.118f, 42.23253f, 0.0f },
-    { 122.618f,  1639.546f, 42.11659f, 0.0f }
+    GOSSIP_MENU_ID_ZANDALARI_MUST_BE_STOPPED    = 12797,
+    GOSSIP_NPC_TEXT_ZANDALARI_MUST_BE_STOPPED   = 17988,
+    GOSSIP_MENU_OPTION_OPEN_GATES               = 0
 };
 
-Position const VoljinIntroPosition1 = { 117.7349f, 1662.77f,  42.02156f };
-Position const VoljinIntroPosition2 = { 132.14f,   1645.143f, 42.02158f };
-Position const VoljinIntroPosition3 = { 122.6202f, 1639.547f, 42.16251f };
 Position const VoljinHomePosition   = { 121.0399f, 1672.196f, 42.02157f };
 
 struct npc_zulaman_voljin : public ScriptedAI
 {
-    npc_zulaman_voljin(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript())
-    {
-        Initialize();
-    }
+    npc_zulaman_voljin(Creature* creature) : ScriptedAI(creature),
+        _instance(me->GetInstanceScript()), _restarted(false), _started(false), _actionTriggered(false) { }
 
-    void Initialize()
+    void JustAppeared() override
     {
-        _restarted = false;
-        _started = false;
-        _actionTriggered = false;
-        me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
-
         if (_instance->GetData(DATA_ZULAMAN_SPEEDRUN_STATE) != NOT_STARTED)
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+    }
+
+    bool GossipHello(Player* player) override
+    {
+        // Vol'jin stops for 4 seconds when talking to him during his intro.
+        me->PauseMovement(4 * IN_MILLISECONDS, MOTION_SLOT_IDLE);
+
+        if (me->IsQuestGiver())
+            player->PrepareQuestMenu(me->GetGUID());
+
+        if (_instance->GetData(DATA_ZULAMAN_SPEEDRUN_STATE) == NOT_STARTED && !_started)
+            AddGossipItemFor(player, GOSSIP_MENU_ID_ZANDALARI_MUST_BE_STOPPED, GOSSIP_MENU_OPTION_OPEN_GATES, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 0);
+
+        SendGossipMenuFor(player, GOSSIP_NPC_TEXT_ZANDALARI_MUST_BE_STOPPED, me->GetGUID());
+        return true;
     }
 
     bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
@@ -130,7 +129,6 @@ struct npc_zulaman_voljin : public ScriptedAI
             _events.ScheduleEvent(EVENT_DISMOUNT_VOLJIN, 1s);
             _events.ScheduleEvent(EVENT_REMOVE_GOSSIP_FLAG, 3s);
             _events.ScheduleEvent(EVENT_SAY_FOLLOW_ME, 4s);
-
         }
         else
         {
@@ -152,9 +150,38 @@ struct npc_zulaman_voljin : public ScriptedAI
                 if (!_actionTriggered)
                 {
                     _events.CancelEvent(EVENT_FAIL_GONG_EVENT);
-                    _events.ScheduleEvent(EVENT_MOVE_TO_CENTER, 1s);
+                    _instance->SetData(DATA_TRIGGER_AMANISHI_GUARDIANS, IN_PROGRESS);
+                    me->RemoveAurasDueToSpell(SPELL_BANGING_THE_GONG);
+                    me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, 0);
+                    me->GetMotionMaster()->MovePath(PATH_ID_VOLJIN_INTRO_2, false);
+
+                    if (GameObject* gong = _instance->GetGameObject(DATA_STRANGE_GONG))
+                        gong->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+
                     _actionTriggered = true;
                 }
+                break;
+            default:
+                break;
+        }
+    }
+
+    void WaypointReached(uint32 pointId, uint32 pathId) override
+    {
+        switch (pathId)
+        {
+            // The points Ids are based on Vol'jin's waypoint_data waypoints. Do not touch!
+            case PATH_ID_VOLJIN_INTRO_1:
+                if (pointId == 2)
+                    _events.ScheduleEvent(EVENT_FACE_TO_GONG, 400ms);
+                break;
+            case PATH_ID_VOLJIN_INTRO_2:
+                if (pointId == 1)
+                    _events.ScheduleEvent(EVENT_TALK_TO_AMANI, 1ms);
+                break;
+            case PATH_ID_VOLJIN_INTRO_3:
+                if (pointId == 1)
+                    _events.ScheduleEvent(EVENT_FACE_HOME, 1ms);
                 break;
             default:
                 break;
@@ -170,6 +197,7 @@ struct npc_zulaman_voljin : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_DISMOUNT_VOLJIN:
+                    me->SetSpeed(MOVE_RUN, 8.f); // Yes, this really happens in sniffs.
                     me->SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID, 0);
                     break;
                 case EVENT_REMOVE_GOSSIP_FLAG:
@@ -178,13 +206,11 @@ struct npc_zulaman_voljin : public ScriptedAI
                 case EVENT_SAY_FOLLOW_ME:
                     if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                         Talk(SAY_INTRO_1, player);
-                    _events.ScheduleEvent(EVENT_MOVE_TO_GONG_1, 1s);
+                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    _events.ScheduleEvent(EVENT_MOVE_TO_GONG, 1s);
                     break;
-                case EVENT_MOVE_TO_GONG_1:
-                    me->GetMotionMaster()->MovePoint(POINT_INTRO_1, VoljinIntroPosition1);
-                    break;
-                case EVENT_MOVE_TO_GONG_2:
-                    me->GetMotionMaster()->MovePoint(POINT_INTRO_2, VoljinIntroPosition2);
+                case EVENT_MOVE_TO_GONG:
+                    me->GetMotionMaster()->MovePath(PATH_ID_VOLJIN_INTRO_1, false);
                     break;
                 case EVENT_FACE_TO_GONG:
                     if (GameObject* gong = _instance->GetGameObject(DATA_STRANGE_GONG))
@@ -198,12 +224,9 @@ struct npc_zulaman_voljin : public ScriptedAI
                 case EVENT_BANGING_THE_GONG:
                     DoCastSelf(SPELL_BANGING_THE_GONG);
                     me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, ITEM_DISPLAY_ID_MACE);
-                    _events.ScheduleEvent(EVENT_MAKE_GONG_SELECTABLE, 400ms);
-                    _events.ScheduleEvent(EVENT_FAIL_GONG_EVENT, 1min + 3s);
-                    break;
-                case EVENT_MAKE_GONG_SELECTABLE:
                     if (GameObject* gong = _instance->GetGameObject(DATA_STRANGE_GONG))
                         gong->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    _events.ScheduleEvent(EVENT_FAIL_GONG_EVENT, 1min + 3s);
                     break;
                 case EVENT_FAIL_GONG_EVENT:
                     if (GameObject* gong = _instance->GetGameObject(DATA_STRANGE_GONG))
@@ -215,7 +238,7 @@ struct npc_zulaman_voljin : public ScriptedAI
                     _events.ScheduleEvent(EVENT_MOVE_HOME, 2s + 200ms);
                     break;
                 case EVENT_MOVE_HOME:
-                    me->GetMotionMaster()->MovePoint(POINT_HOME, VoljinHomePosition);
+                    me->GetMotionMaster()->MovePath(PATH_ID_VOLJIN_INTRO_3, false);
                     break;
                 case EVENT_FACE_HOME:
                     me->SetFacingTo(4.782202f);
@@ -229,18 +252,7 @@ struct npc_zulaman_voljin : public ScriptedAI
                         me->SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID, MOUNT_DISPLAY_ID_RAPTOR);
                     break;
                 case EVENT_RESET_NPC_FLAGS:
-                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
-                    break;
-                case EVENT_MOVE_TO_CENTER:
-                    _instance->SetData(DATA_TRIGGER_AMANISHI_GUARDIANS, IN_PROGRESS);
-                    me->RemoveAurasDueToSpell(SPELL_BANGING_THE_GONG);
-                    me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, 0);
-                    me->GetMotionMaster()->MovePoint(POINT_INTRO_3, VoljinIntroPosition3);
-                    _events.ScheduleEvent(EVENT_MAKE_GONG_UNSELECTABLE, 400ms);
-                    break;
-                case EVENT_MAKE_GONG_UNSELECTABLE:
-                    if (GameObject* gong = _instance->GetGameObject(DATA_STRANGE_GONG))
-                        gong->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     break;
                 case EVENT_TALK_TO_AMANI:
                     me->SetFacingTo(4.747295f);
@@ -263,30 +275,6 @@ struct npc_zulaman_voljin : public ScriptedAI
                 default:
                     break;
             }
-        }
-    }
-
-    void MovementInform(uint32 movementType, uint32 pointId) override
-    {
-        if (movementType != POINT_MOTION_TYPE)
-            return;
-
-        switch (pointId)
-        {
-            case POINT_HOME:
-                _events.ScheduleEvent(EVENT_FACE_HOME, 1ms);
-                break;
-            case POINT_INTRO_1:
-                _events.ScheduleEvent(EVENT_MOVE_TO_GONG_2, 1ms);
-                break;
-            case POINT_INTRO_2:
-                _events.ScheduleEvent(EVENT_FACE_TO_GONG, 800ms);
-                break;
-            case POINT_INTRO_3:
-                _events.ScheduleEvent(EVENT_TALK_TO_AMANI, 1ms);
-                break;
-            default:
-                break;
         }
     }
 
