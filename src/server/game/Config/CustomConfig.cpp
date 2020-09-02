@@ -112,7 +112,7 @@ void CustomConfig::Load()
 
     uint32 oldMSTime = getMSTime();
 
-    WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_GAME_CONFIG);
+    WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CUSTOM_CONFIG);
     PreparedQueryResult result = WorldDatabase.Query(stmt);
     if (!result)
     {
