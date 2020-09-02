@@ -181,7 +181,7 @@ struct LinkValidator<LinkTags::quest>
         // clients cache quest titles locally!
         if (text.substr(0, 1) == "[")
         {
-            std::string lvl = Trinity::ToString(data.QuestLevel);
+            std::string const lvl = Trinity::ToString(data.QuestLevel);
             if ((text.substr(1, lvl.length()) == lvl) && (text.substr(lvl.length() + 1, 2) == "] "))
                 text.remove_prefix(lvl.length() + 3);
         }
@@ -344,7 +344,7 @@ static bool ValidateAs(HyperlinkInfo const& info)
 static bool ValidateLinkInfo(HyperlinkInfo const& info)
 {
     using namespace LinkTags;
-    TryValidateAs(achievement);;
+    TryValidateAs(achievement);
     TryValidateAs(area);
     TryValidateAs(areatrigger);
     TryValidateAs(creature);
