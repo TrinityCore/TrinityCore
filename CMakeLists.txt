@@ -98,4 +98,10 @@ if(BUILD_TESTING)
   include(Catch)
 
   add_subdirectory(tests)
+
+  # Catch cmakefile messes with our settings we explicitly leave up to the user
+  # restore user preference
+  if (NOT WITH_SOURCE_TREE STREQUAL "hierarchical-folders")
+    set_property(GLOBAL PROPERTY USE_FOLDERS OFF)
+  endif()
 endif()

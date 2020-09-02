@@ -91,7 +91,9 @@ enum DruidSpells
     SPELL_DRUID_BARKSKIN_01                 = 63058,
     SPELL_DRUID_RESTORATION_T10_2P_BONUS    = 70658,
     SPELL_DRUID_FRENZIED_REGENERATION_HEAL  = 22845,
-    SPELL_DRUID_GLYPH_OF_NOURISH            = 62971
+    SPELL_DRUID_GLYPH_OF_NOURISH            = 62971,
+    SPELL_DRUID_NURTURING_INSTINCT_R1       = 47179,
+    SPELL_DRUID_NURTURING_INSTINCT_R2       = 47180
 };
 
 enum MiscSpells
@@ -998,6 +1000,36 @@ class spell_dru_nourish : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_dru_nourish::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+    }
+};
+
+// -33872 - Nurturing Instinct
+class spell_dru_nurturing_instinct : public AuraScript
+{
+    PrepareAuraScript(spell_dru_nurturing_instinct);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_NURTURING_INSTINCT_R1, SPELL_DRUID_NURTURING_INSTINCT_R2 });
+    }
+
+    void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        uint32 spellId = GetSpellInfo()->GetRank() == 1 ? SPELL_DRUID_NURTURING_INSTINCT_R1 : SPELL_DRUID_NURTURING_INSTINCT_R2;
+        target->CastSpell(target, spellId, aurEff);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        uint32 spellId = GetSpellInfo()->GetRank() == 1 ? SPELL_DRUID_NURTURING_INSTINCT_R1 : SPELL_DRUID_NURTURING_INSTINCT_R2;
+        GetTarget()->RemoveAurasDueToSpell(spellId);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_dru_nurturing_instinct::AfterApply, EFFECT_0, SPELL_AURA_MOD_SPELL_HEALING_OF_STAT_PERCENT, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dru_nurturing_instinct::AfterRemove, EFFECT_0, SPELL_AURA_MOD_SPELL_HEALING_OF_STAT_PERCENT, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -1919,6 +1951,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_living_seed_proc);
     RegisterSpellScript(spell_dru_moonkin_form_passive);
     RegisterSpellScript(spell_dru_nourish);
+    RegisterSpellScript(spell_dru_nurturing_instinct);
     RegisterSpellScript(spell_dru_omen_of_clarity);
     RegisterSpellScript(spell_dru_owlkin_frenzy);
     RegisterSpellScript(spell_dru_predatory_strikes);
