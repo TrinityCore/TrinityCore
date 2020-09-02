@@ -89,13 +89,13 @@ void CustomConfig::AddOption(std::string const& optionName, GameConfigType type,
     switch (type)
     {
     case GameConfigType::GAME_CONFIG_TYPE_BOOL:
-        AddBoolOption(optionName, value.empty() ? Trinity::StringTo<bool>(defaultValue).value() : Trinity::StringTo<bool>(value).value());
+        AddBoolOption(optionName, Trinity::StringTo<bool>().value());
         break;
     case GameConfigType::GAME_CONFIG_TYPE_INT:
-        AddIntOption(optionName, value.empty() ? Trinity::StringTo<int32>(defaultValue).value() : Trinity::StringTo<int32>(value).value());
+        AddIntOption(optionName, Trinity::StringTo<int32>(value.empty() ? defaultValue : value).value());
         break;
     case GameConfigType::GAME_CONFIG_TYPE_FLOAT:
-        AddFloatOption(optionName, value.empty() ? Trinity::StringTo<float>(defaultValue).value() : Trinity::StringTo<float>(value).value());
+        AddFloatOption(optionName, Trinity::StringTo<float>(value.empty() ? defaultValue : value).value());
         break;
     case GameConfigType::GAME_CONFIG_TYPE_STRING:
         AddStringOption(optionName, value.empty() ? defaultValue : value);
@@ -171,7 +171,7 @@ bool CustomConfig::GetBoolConfig(std::string const& optionName, bool defaultValu
         return defaultValue;
     }
 
-    return _boolOptions[optionName];
+    return _boolOptions.at(optionName);
 }
 
 int32 CustomConfig::GetIntConfig(std::string const& optionName, int32 defaultValue /*= 0*/)
@@ -183,7 +183,7 @@ int32 CustomConfig::GetIntConfig(std::string const& optionName, int32 defaultVal
         return defaultValue;
     }
 
-    return _intOptions[optionName];
+    return _intOptions.at(optionName);
 }
 
 float CustomConfig::GetFloatConfig(std::string const& optionName, float defaultValue /*= 1.0f*/)
@@ -195,7 +195,7 @@ float CustomConfig::GetFloatConfig(std::string const& optionName, float defaultV
         return defaultValue;
     }
 
-    return _floatOptions[optionName];
+    return _floatOptions.at(optionName);
 }
 
 std::string CustomConfig::GetStringConfig(std::string const& optionName, std::string const& defaultValue /*= ""*/)
@@ -207,5 +207,5 @@ std::string CustomConfig::GetStringConfig(std::string const& optionName, std::st
         return defaultValue;
     }
 
-    return _stringOptions[optionName];
+    return _stringOptions.at(optionName);
 }
