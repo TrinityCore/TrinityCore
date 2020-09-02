@@ -16,7 +16,6 @@
  */
 
 #include "NPCPackets.h"
-#include "Optional.h"
 
 void WorldPackets::NPC::Hello::Read()
 {
