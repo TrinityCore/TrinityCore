@@ -25846,7 +25846,7 @@ void Player::_SaveBGData(CharacterDatabaseTransaction& trans)
     stmt->setUInt16(7, m_bgData.joinPos.GetMapId());
     stmt->setUInt16(8, m_bgData.taxiPath[0]);
     stmt->setUInt16(9, m_bgData.taxiPath[1]);
-    stmt->setUInt16(10, m_bgData.mountSpell);
+    stmt->setUInt32(10, m_bgData.mountSpell);
     trans->Append(stmt);
 }
 
