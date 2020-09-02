@@ -176,6 +176,19 @@ struct LinkValidator<LinkTags::quest>
     {
         QuestLocale const* locale = sObjectMgr->GetQuestLocale(data.Quest->GetQuestId());
 
+        // potentially clip off quest level
+        // checking CONFIG_UI_QUESTLEVELS_IN_DIALOGS is not valid here
+        // clients cache quest titles locally!
+        if (text.substr(0, 1) == "[")
+        {
+            std::string lvl = Trinity::ToString(data.QuestLevel);
+            if ((text.substr(1, lvl.length()) == lvl) && (text.substr(lvl.length() + 1, 2) == "] "))
+                text.remove_prefix(lvl.length() + 3);
+        }
+
+        if (text.empty())
+            return false;
+
         if (text == data.Quest->GetTitle())
             return true;
 
@@ -305,26 +318,33 @@ struct LinkValidator<LinkTags::trade>
     }
 };
 
-#define TryValidateAs(tagname)                                                                          \
-{                                                                                                       \
-    static_assert(LinkTags::tagname::tag() == #tagname);                                                \
-    if (info.tag == LinkTags::tagname::tag())                                                           \
-    {                                                                                                   \
-        advstd::remove_cvref_t<typename LinkTags::tagname::value_type> t;                               \
-        if (!LinkTags::tagname::StoreTo(t, info.data))                                                  \
-            return false;                                                                               \
-        if (!LinkValidator<LinkTags::tagname>::IsColorValid(t, info.color))                             \
-            return false;                                                                               \
-        if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_SEVERITY))                            \
-            if (!LinkValidator<LinkTags::tagname>::IsTextValid(t, info.text))                           \
-                return false;                                                                           \
-        return true;                                                                                    \
-    }                                                                                                   \
+template <typename TAG>
+static bool ValidateAs(HyperlinkInfo const& info)
+{
+    std::decay_t<typename TAG::value_type> t;
+    if (!TAG::StoreTo(t, info.data))
+        return false;
+
+    int32 const severity = static_cast<int32>(sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_SEVERITY));
+    if (severity >= 0)
+    {
+        if (!LinkValidator<TAG>::IsColorValid(t, info.color))
+            return false;
+        if (severity >= 1)
+        {
+            if (!LinkValidator<TAG>::IsTextValid(t, info.text))
+                return false;
+        }
+    }
+    return true;
 }
+
+#define TryValidateAs(T) do { if (info.tag == T::tag()) return ValidateAs<T>(info); } while (0);
 
 static bool ValidateLinkInfo(HyperlinkInfo const& info)
 {
-    TryValidateAs(achievement);
+    using namespace LinkTags;
+    TryValidateAs(achievement);;
     TryValidateAs(area);
     TryValidateAs(areatrigger);
     TryValidateAs(creature);
