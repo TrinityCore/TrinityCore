@@ -22,9 +22,12 @@
 #include "Define.h"
 #include "DBCStore.h"
 
+#include <list>
 #include <string_view>
 
 struct ItemTemplate;
+
+class SpellInfo;
 
 class UnitTestDataLoader
 {
@@ -59,13 +62,19 @@ class UnitTestDataLoader
                         _store._indexTable.AsT[entry.*ID] = &entry;
                 }
 
+                bool Empty() const
+                {
+                    return !_store._indexTable.AsT;
+                }
+
             private:
-                std::vector<T> _storage;
+                std::list<T> _storage;
                 DBCStorage<T>& _store;
         };
 
         static void LoadAchievementTemplates();
         static void LoadItemTemplates();
+        static void LoadSpellInfo();
 
     private:
         static ItemTemplate& GetItemTemplate(uint32 id, std::string_view name);

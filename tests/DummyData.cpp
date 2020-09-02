@@ -21,84 +21,25 @@
 #include "ItemDefines.h"
 #include "ItemTemplate.h"
 #include "ObjectMgr.h"
+#include "SpellInfo.h"
+#include "SpellMgr.h"
 
 /*static*/ ItemTemplate& UnitTestDataLoader::GetItemTemplate(uint32 itemId, std::string_view name)
 {
     ItemTemplate& t = sObjectMgr->_itemTemplateStore[itemId];
+    t = {};
     t.ItemId = itemId;
     t.Class = ItemClass::ITEM_CLASS_MISC;
-    t.SubClass = 0;
     t.SoundOverrideSubclass = -1;
     t.Name1 = name;
-    t.DisplayInfoID = 0;
     t.Quality = ItemQualities::ITEM_QUALITY_ARTIFACT;
-    t.Flags = 0;
-    t.Flags2 = 0;
     t.BuyCount = 1;
-    t.BuyPrice = 0;
-    t.SellPrice = 0;
-    t.InventoryType = InventoryType::INVTYPE_NON_EQUIP;
     t.AllowableClass = static_cast<uint32>(-1);
     t.AllowableRace = static_cast<uint32>(-1);
     t.ItemLevel = 1;
-    t.RequiredLevel = 0;
-    t.RequiredSkill = 0;
-    t.RequiredSkillRank = 0;
-    t.RequiredSpell = 0;
-    t.RequiredHonorRank = 0;
-    t.RequiredCityRank = 0;
-    t.RequiredReputationFaction = 0;
-    t.RequiredReputationRank = 0;
-    t.MaxCount = 0;
     t.Stackable = 1;
-    t.ContainerSlots = 0;
-    t.StatsCount = 0;
-    t.ItemStat = {};
-    t.ScalingStatDistribution = 0;
-    t.ScalingStatValue = 0;
-    t.Damage = {};
-    t.Armor = 0;
-    t.HolyRes = 0;
-    t.FireRes = 0;
-    t.NatureRes = 0;
-    t.FrostRes = 0;
-    t.ShadowRes = 0;
-    t.ArcaneRes = 0;
-    t.Delay = 0;
-    t.AmmoType = 0;
-    t.RangedModRange = 0.0f;
-    t.Spells = {};
-    t.Bonding = ItemBondingType::NO_BIND;
-    t.Description = "";
-    t.PageText = 0;
-    t.LanguageID = 0;
-    t.PageMaterial = 0;
-    t.StartQuest = 0;
-    t.LockID = 0;
     t.Material = static_cast<uint32>(-1);
-    t.Sheath = 0;
-    t.RandomProperty = 0;
-    t.RandomSuffix = 0;
-    t.Block = 0;
-    t.ItemSet = 0;
-    t.MaxDurability = 0;
-    t.Area = 0;
-    t.Map = 0;
-    t.BagFamily = 0;
-    t.TotemCategory = 0;
-    t.Socket = {};
-    t.socketBonus = 0;
-    t.GemProperties = 0;
     t.RequiredDisenchantSkill = static_cast<uint32>(-1);
-    t.ArmorDamageModifier = 0.0;
-    t.Duration = 0;
-    t.ItemLevel = 0;
-    t.HolidayId = 0;
-    t.ScriptId = 0;
-    t.DisenchantID = 0;
-    t.FoodType = 0;
-    t.MinMoneyLoot = 0;
-    t.MaxMoneyLoot = 0;
 
     return t;
 }
@@ -199,9 +140,13 @@ static UnitTestDataLoader::DBC<ItemRandomSuffixEntry, &ItemRandomSuffixEntry::ID
 static UnitTestDataLoader::DBC<AchievementEntry, &AchievementEntry::ID> achievements(sAchievementStore);
 /*static*/ void UnitTestDataLoader::LoadAchievementTemplates()
 {
+    if (!achievements.Empty())
+        return;
+
     auto loader = achievements.Loader();
 
     AchievementEntry& toc5 = loader.Add();
+    toc5 = {};
     toc5.ID = 4298;
     toc5.Faction = 1;
     toc5.InstanceID = 650;
@@ -210,7 +155,184 @@ static UnitTestDataLoader::DBC<AchievementEntry, &AchievementEntry::ID> achievem
     toc5.Title[LOCALE_esES] = "Heroico: Prueba del Campe\xc3\xb3n";
     toc5.Category = 14921;
     toc5.Points = 10;
-    toc5.Flags = 0;
-    toc5.MinimumCriteria = 0;
-    toc5.SharesCriteria = 0;
+}
+
+static UnitTestDataLoader::DBC<SpellEntry, &SpellEntry::ID> spells(sSpellStore);
+static UnitTestDataLoader::DBC<TalentEntry, &TalentEntry::ID> talents(sTalentStore);
+/*static*/ void UnitTestDataLoader::LoadSpellInfo()
+{
+    if (!sSpellMgr->mSpellInfoMap.empty())
+        return;
+
+    {
+        auto spellLoader = spells.Loader();
+        SpellEntry& tidalWaves1 = spellLoader.Add();
+        tidalWaves1 = {};
+        tidalWaves1.ID = 51562;
+        tidalWaves1.Attributes = 464;
+        tidalWaves1.AttributesExC = 524288;
+        tidalWaves1.CastingTimeIndex = 1;
+        tidalWaves1.ProcTypeMask = 17408;
+        tidalWaves1.ProcChance = 20;
+        tidalWaves1.SpellLevel = 1;
+        tidalWaves1.RangeIndex = 1;
+        tidalWaves1.EquippedItemClass = -1;
+        tidalWaves1.Effect = { 6,6,6 };
+        tidalWaves1.EffectDieSides = { 1,1,1 };
+        tidalWaves1.EffectBasePoints = { 19,3,1 };
+        tidalWaves1.EffectImplicitTargetA = { 1,1,1 };
+        tidalWaves1.EffectAura = { 42, 107, 107 };
+        tidalWaves1.EffectMiscValue = { 7,24,24 };
+        tidalWaves1.EffectTriggerSpell = { 53390 };
+        tidalWaves1.EffectSpellClassMask = { { { 192, 8192, 0}, { 64, 0, 0 }, { 128, 0, 0 } } };
+        tidalWaves1.SpellIconID = 3057;
+        tidalWaves1.SpellPriority = 50;
+        tidalWaves1.Name.fill("");
+        tidalWaves1.Name[LOCALE_enUS] = "Tidal Waves";
+        tidalWaves1.Name[LOCALE_esES] = "Maremotos";
+        tidalWaves1.NameSubtext.fill("");
+        tidalWaves1.NameSubtext[LOCALE_enUS] = "Rank 1";
+        tidalWaves1.NameSubtext[LOCALE_esES] = "Rango 1";
+        tidalWaves1.SpellClassSet = 11;
+        tidalWaves1.EffectChainAmplitude.fill(1.0);
+        tidalWaves1.SchoolMask = 1;
+
+        SpellEntry& tidalWaves2 = spellLoader.Add();
+        tidalWaves2 = tidalWaves1;
+        tidalWaves2.ID = 51563;
+        tidalWaves2.ProcChance = 40;
+        tidalWaves2.EffectBasePoints = { 39,7,3 };
+        tidalWaves2.NameSubtext[LOCALE_enUS] = "Rank 2";
+        tidalWaves2.NameSubtext[LOCALE_esES] = "Rango 2";
+
+        SpellEntry& tidalWaves3 = spellLoader.Add();
+        tidalWaves3 = tidalWaves1;
+        tidalWaves3.ID = 51564;
+        tidalWaves3.ProcChance = 60;
+        tidalWaves3.EffectBasePoints = { 59, 11, 5 };
+        tidalWaves3.NameSubtext[LOCALE_enUS] = "Rank 3";
+        tidalWaves3.NameSubtext[LOCALE_esES] = "Rango 3";
+
+        SpellEntry& tidalWaves4 = spellLoader.Add();
+        tidalWaves4 = tidalWaves1;
+        tidalWaves4.ID = 51565;
+        tidalWaves4.ProcChance = 80;
+        tidalWaves4.EffectBasePoints = { 79, 15, 7 };
+        tidalWaves4.NameSubtext[LOCALE_enUS] = "Rank 4";
+        tidalWaves4.NameSubtext[LOCALE_esES] = "Rango 4";
+
+        SpellEntry& tidalWaves5 = spellLoader.Add();
+        tidalWaves5 = tidalWaves1;
+        tidalWaves5.ID = 51566;
+        tidalWaves5.ProcChance = 100;
+        tidalWaves5.EffectBasePoints = { 99, 19, 9 };
+        tidalWaves5.NameSubtext[LOCALE_enUS] = "Rank 5";
+        tidalWaves5.NameSubtext[LOCALE_esES] = "Rango 5";
+
+        SpellEntry& earthShield1 = spellLoader.Add();
+        earthShield1 = {};
+        earthShield1.ID = 974;
+        earthShield1.Category = 1195;
+        earthShield1.DispelType = 1;
+        earthShield1.Attributes = 327680;
+        earthShield1.AttributesExD = 524288;
+        earthShield1.AttributesExE = 32;
+        earthShield1.AttributesExF = 67108864;
+        earthShield1.AttributesExG = 1073742848;
+        earthShield1.CastingTimeIndex = 1;
+        earthShield1.AuraInterruptFlags = 524288;
+        earthShield1.ProcTypeMask = 172712;
+        earthShield1.ProcChance = 100;
+        earthShield1.ProcCharges = 6;
+        earthShield1.MaxLevel = 59;
+        earthShield1.BaseLevel = 50;
+        earthShield1.SpellLevel = 50;
+        earthShield1.DurationIndex = 6;
+        earthShield1.RangeIndex = 5;
+        earthShield1.Effect = { 6,6,0 };
+        earthShield1.EffectDieSides = { 1,1,0 };
+        earthShield1.EffectBasePoints = { 149,29,0 };
+        earthShield1.EffectImplicitTargetA = { 21,21,0 };
+        earthShield1.EffectAura = { 4,149,0 };
+        earthShield1.EffectMiscValue = { 0,126,0 };
+        earthShield1.SpellVisualID = { 7362,0 };
+        earthShield1.SpellIconID = 2015;
+        earthShield1.Name.fill("");
+        earthShield1.Name[LOCALE_enUS] = "Earth Shield";
+        earthShield1.Name[LOCALE_esES] = "Escudo de tierra";
+        earthShield1.NameSubtext = tidalWaves1.NameSubtext;
+        earthShield1.ManaCostPct = 15;
+        earthShield1.StartRecoveryCategory = 133;
+        earthShield1.StartRecoveryTime = 1500;
+        earthShield1.SpellClassSet = 11;
+        earthShield1.SpellClassMask = { 0, 1024, 0 };
+        earthShield1.DefenseType = 1;
+        earthShield1.PreventionType = 1;
+        earthShield1.EffectChainAmplitude.fill(1.0);
+        earthShield1.SchoolMask = 8;
+        earthShield1.EffectBonusCoefficient = { 1.0, 0.0, 1.0 };
+
+        SpellEntry& impEarthShield1 = spellLoader.Add();
+        impEarthShield1 = {};
+        impEarthShield1.ID = 51560;
+        impEarthShield1.Attributes = 464;
+        impEarthShield1.CastingTimeIndex = 1;
+        impEarthShield1.ProcChance = 101;
+        impEarthShield1.RangeIndex = 1;
+        impEarthShield1.EquippedItemClass = -1;
+        impEarthShield1.Effect = { 6,6,0 };
+        impEarthShield1.EffectDieSides = { 1,1,0 };
+        impEarthShield1.EffectBasePoints = { 0,4,0 };
+        impEarthShield1.EffectImplicitTargetA = { 1,1,0 };
+        impEarthShield1.EffectAura = { 107,108,0 };
+        impEarthShield1.EffectMiscValue = { 4,3,0 };
+        impEarthShield1.EffectMiscValueB = { 3,0,0 };
+        impEarthShield1.EffectSpellClassMask = { { {0,1024,0}, {0,1024,0}, {0,0,0} } };
+        impEarthShield1.SpellIconID = 2015;
+        impEarthShield1.Name.fill("");
+        impEarthShield1.Name[LOCALE_enUS] = "Improved Earth Shield";
+        impEarthShield1.Name[LOCALE_esES] = "Escudo de tierra mejorado";
+        impEarthShield1.NameSubtext = tidalWaves1.NameSubtext;
+        impEarthShield1.SpellClassSet = 11;
+        impEarthShield1.EffectChainAmplitude.fill(1.0);
+        impEarthShield1.SchoolMask = 1;
+        impEarthShield1.EffectBonusCoefficient = { 0.0, 0.0, 1.0 };
+
+        SpellEntry& impEarthShield2 = spellLoader.Add();
+        impEarthShield2 = impEarthShield1;
+        impEarthShield2.ID = 51561;
+        impEarthShield2.EffectBasePoints = { 1,9,0 };
+        impEarthShield2.NameSubtext = tidalWaves2.NameSubtext;
+
+        auto talentLoader = talents.Loader();
+        TalentEntry& tidalWaves = talentLoader.Add();
+        tidalWaves.ID = 2063;
+        tidalWaves.TabID = 262;
+        tidalWaves.TierID = 9;
+        tidalWaves.ColumnIndex = 1;
+        tidalWaves.SpellRank = { 51562, 51563, 51564, 51565, 51566 };
+        tidalWaves.PrereqTalent = 0;
+        tidalWaves.PrereqRank = 0;
+
+        TalentEntry& earthShield = talentLoader.Add();
+        earthShield.ID = 1698;
+        earthShield.TabID = 262;
+        earthShield.TierID = 8;
+        earthShield.ColumnIndex = 1;
+        earthShield.SpellRank = { 974,0,0,0,0 };
+        earthShield.PrereqTalent = 0;
+        earthShield.PrereqRank = 2;
+
+        TalentEntry& impEarthShield = talentLoader.Add();
+        impEarthShield.ID = 2059;
+        impEarthShield.TabID = 262;
+        impEarthShield.TierID = 8;
+        impEarthShield.ColumnIndex = 2;
+        impEarthShield.SpellRank = { 51560, 51561, 0, 0, 0 };
+        impEarthShield.PrereqTalent = 1698;
+        impEarthShield.PrereqRank = 0;
+    }
+
+    // this needs to be after the loader destructors
+    sSpellMgr->LoadSpellInfoStore();
 }
