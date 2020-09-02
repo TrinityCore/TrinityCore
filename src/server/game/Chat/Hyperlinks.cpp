@@ -174,23 +174,15 @@ struct LinkValidator<LinkTags::quest>
 {
     static bool IsTextValid(QuestLinkData const& data, std::string_view text)
     {
-        QuestLocale const* locale = sObjectMgr->GetQuestLocale(data.Quest->GetQuestId());
-
-        // potentially clip off quest level
-        // checking CONFIG_UI_QUESTLEVELS_IN_DIALOGS is not valid here
-        // clients cache quest titles locally!
-        if (text.substr(0, 1) == "[")
-        {
-            std::string const lvl = Trinity::ToString(data.QuestLevel);
-            if ((text.substr(1, lvl.length()) == lvl) && (text.substr(lvl.length() + 1, 2) == "] "))
-                text.remove_prefix(lvl.length() + 3);
-        }
-
         if (text.empty())
             return false;
 
         if (text == data.Quest->GetTitle())
             return true;
+
+        QuestLocale const* locale = sObjectMgr->GetQuestLocale(data.Quest->GetQuestId());
+        if (!locale)
+            return false;
 
         for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
         {
