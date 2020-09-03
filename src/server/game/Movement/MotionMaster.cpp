@@ -911,14 +911,20 @@ void MotionMaster::MoveFall(uint32 id/* = 0*/)
     if (_owner->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED))
         return;
 
-    _owner->AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
-    _owner->m_movementInfo.SetFallTime(0);
-
-    // Don't run spline movement for players
+    // Don't run spline movement for players and unit
     if (_owner->GetTypeId() == TYPEID_PLAYER)
     {
-        _owner->ToPlayer()->SetFallInformation(0, _owner->GetPositionZ());
-        return;
+        _owner->AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
+        _owner->m_movementInfo.SetFallTime(0);
+        _owner->ToPlayer()->SetFallInformation(time(NULL), _owner->GetPositionZ());
+    }
+    else if (_owner->GetTypeId() == TYPEID_UNIT)
+    {
+        _owner->RemoveUnitMovementFlag(MOVEMENTFLAG_MASK_MOVING);
+        _owner->RemoveUnitMovementFlag(MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY);
+        _owner->AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
+        _owner->m_movementInfo.SetFallTime(0);
+        _owner->SendMovementFlagUpdate();
     }
 
     Movement::MoveSplineInit init(_owner);
