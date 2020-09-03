@@ -192,6 +192,9 @@ namespace Trinity::ChatCommands
             return operator*();
         }
 
+        template <bool C = have_operators>
+        std::enable_if_t<C, bool> operator!() const { return !**this; }
+
         template <typename T>
         Variant& operator=(T&& arg) { base::operator=(std::forward<T>(arg)); return *this; }
 
