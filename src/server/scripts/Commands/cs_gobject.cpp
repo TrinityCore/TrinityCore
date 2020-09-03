@@ -45,13 +45,15 @@ EndScriptData */
 #include <sstream>
 #include <typeinfo>
 
-// definitions are over in cs_npc.cpp
-bool HandleNpcSpawnGroup(ChatHandler* handler, char const* args);
-bool HandleNpcDespawnGroup(ChatHandler* handler, char const* args);
 
 using namespace Trinity::ChatCommands;
 using GameObjectSpawnId = Variant<Hyperlink<gameobject>, ObjectGuid::LowType>;
 using GameObjectEntry = Variant<Hyperlink<gameobject_entry>, uint32>;
+
+// definitions are over in cs_npc.cpp
+bool HandleNpcSpawnGroup(ChatHandler* handler, std::vector<Variant<uint32, ExactSequence<'f','o','r','c','e'>, ExactSequence<'i','g','n','o','r','e','r','e','s','p','a','w','n'>>> const& opts);
+bool HandleNpcDespawnGroup(ChatHandler* handler, std::vector<Variant<uint32, ExactSequence<'r','e','m','o','v','e','r','e','s','p','a','w','n','t','i','m','e'>>> const& opts);
+
 class gobject_commandscript : public CommandScript
 {
 public:

@@ -65,6 +65,12 @@ namespace Trinity::Impl::ChatCommands
         static constexpr bool value = (std::is_assignable_v<T&, Ts> && ...);
     };
 
+    template <typename... Ts>
+    struct are_all_assignable<void, Ts...>
+    {
+        static constexpr bool value = false;
+    };
+
     template <std::size_t index, typename T1, typename... Ts>
     struct get_nth : get_nth<index-1, Ts...> { };
 
