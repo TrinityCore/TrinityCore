@@ -55,7 +55,7 @@ namespace Trinity::Impl::ChatCommands
         {
             if constexpr (I < N)
             {
-                if (Optional<std::string_view> next = ArgInfo<std::variant_alternative_t<I, V>>::TryConsume(val.template emplace<I>(), args))
+                if (Optional<std::string_view> next = SingleConsumer<std::variant_alternative_t<I, V>>::TryConsumeTo(val.template emplace<I>(), args))
                     return next;
                 else
                     return TryAtIndex<I+1>(val, args);
