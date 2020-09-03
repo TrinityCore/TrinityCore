@@ -212,10 +212,6 @@ void PlayerMenu::SendGossipMenu(uint32 titleTextId, ObjectGuid objectGUID)
     size_t count_pos = data.wpos();
     data << uint32(0);                                  // max count 0x20
     uint32 count = 0;
-
-    // Store this instead of checking the Singleton every loop iteration
-    bool questLevelInTitle = sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS);
-
     for (uint8 i = 0; i < _questMenu.GetMenuItemCount(); ++i)
     {
         QuestMenuItem const& item = _questMenu.GetItem(i);
@@ -234,9 +230,6 @@ void PlayerMenu::SendGossipMenu(uint32 titleTextId, ObjectGuid objectGUID)
             if (localeConstant != LOCALE_enUS)
                 if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(questID))
                     ObjectMgr::GetLocaleString(localeData->Title, localeConstant, title);
-
-            if (questLevelInTitle)
-                Quest::AddQuestLevelToTitle(title, quest->GetQuestLevel());
 
             data << title;                                  // max 0x200
         }
@@ -351,10 +344,6 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote const& eEmote, const std::string
     size_t count_pos = data.wpos();
     data << uint8(0);
     uint32 count = 0;
-
-    // Store this instead of checking the Singleton every loop iteration
-    bool questLevelInTitle = sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS);
-
     for (uint32 i = 0; i < _questMenu.GetMenuItemCount(); ++i)
     {
         QuestMenuItem const& questMenuItem = _questMenu.GetItem(i);
@@ -370,9 +359,6 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote const& eEmote, const std::string
             if (localeConstant != LOCALE_enUS)
                 if (QuestLocale const* questTemplateLocaleData = sObjectMgr->GetQuestLocale(questID))
                     ObjectMgr::GetLocaleString(questTemplateLocaleData->Title, localeConstant, title);
-
-            if (questLevelInTitle)
-                Quest::AddQuestLevelToTitle(title, quest->GetQuestLevel());
 
             data << uint32(questID);
             data << uint32(questMenuItem.QuestIcon);
@@ -417,9 +403,6 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
             ObjectMgr::GetLocaleString(localeData->Objectives, localeConstant, packet.Objectives);
         }
     }
-
-    if (sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS))
-        Quest::AddQuestLevelToTitle(packet.Title, quest->GetQuestLevel());
 
     packet.QuestGiverGUID = npcGUID;
     packet.InformUnit = _session->GetPlayer()->GetPlayerSharingQuest();
@@ -469,9 +452,6 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
             ObjectMgr::GetLocaleString(questOfferRewardLocale->RewardText, localeConstant, packet.RewardText);
     }
 
-    if (sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS))
-        Quest::AddQuestLevelToTitle(packet.Title, quest->GetQuestLevel());
-
     packet.QuestGiverGUID = npcGUID;
     packet.QuestID = quest->GetQuestId();
     packet.AutoLaunched = autoLaunched;
@@ -511,9 +491,6 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
         SendQuestGiverOfferReward(quest, npcGUID, true);
         return;
     }
-
-    if (sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS))
-        Quest::AddQuestLevelToTitle(questTitle, quest->GetQuestLevel());
 
     WorldPacket data(SMSG_QUESTGIVER_REQUEST_ITEMS, 50);    // guess size
     data << uint64(npcGUID);

@@ -119,7 +119,7 @@ TEST_CASE("String to smaller integer types", "[StringConvert]")
     REQUIRE(Trinity::StringTo<int16>("-1", 0) == -1);
 }
 
-TEST_CASE("Test.String to boolean", "[StringConvert]")
+TEST_CASE("String to boolean", "[StringConvert]")
 {
     REQUIRE(Trinity::StringTo<bool>("true") == true);
     REQUIRE(Trinity::StringTo<bool>("false") == false);
@@ -128,4 +128,27 @@ TEST_CASE("Test.String to boolean", "[StringConvert]")
     REQUIRE(Trinity::StringTo<bool>("1") == true);
     REQUIRE(Trinity::StringTo<bool>("1", 10) == true);
     REQUIRE(Trinity::StringTo<bool>("0", 10) == false);
+}
+
+TEST_CASE("String to double", "[StringConvert]")
+{
+    using namespace Catch::literals;
+    REQUIRE(Trinity::StringTo<double>("0.5") == 0.5);
+    REQUIRE(Trinity::StringTo<double>("0.1") == 0.1_a);
+    REQUIRE(Trinity::StringTo<double>("1.2.3") == std::nullopt);
+    REQUIRE(Trinity::StringTo<double>("1e+5") == 100000.0);
+    REQUIRE(Trinity::StringTo<double>("1e+3+5") == std::nullopt);
+    REQUIRE(Trinity::StringTo<double>("a1.5") == std::nullopt);
+    REQUIRE(Trinity::StringTo<double>("1.5tail") == std::nullopt);
+    REQUIRE(Trinity::StringTo<double>("0x0") == 0.0);
+    REQUIRE(Trinity::StringTo<double>("0x0", 16) == std::nullopt);
+    REQUIRE(Trinity::StringTo<double>("0", 16) == 0.0);
+    REQUIRE(Trinity::StringTo<double>("0x1.BC70A3D70A3D7p+6") == 0x1.BC70A3D70A3D7p+6);
+    REQUIRE(Trinity::StringTo<double>("0x1.BC70A3D70A3D7p+6", 10) == std::nullopt);
+    REQUIRE(Trinity::StringTo<double>("0x1.BC70A3D70A3D7p+6", 16) == std::nullopt);
+    REQUIRE(Trinity::StringTo<double>("1.BC70A3D70A3D7p+6", 16) == 0x1.BC70A3D70A3D7p+6);
+    REQUIRE(Trinity::StringTo<double>("0x1.2.3") == std::nullopt);
+    REQUIRE(Trinity::StringTo<double>("0x1.AAAp+1-3") == std::nullopt);
+    REQUIRE(Trinity::StringTo<double>("1.2.3", 16) == std::nullopt);
+    REQUIRE(Trinity::StringTo<double>("1.AAAp+1-3", 16) == std::nullopt);
 }

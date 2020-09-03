@@ -39,7 +39,6 @@ namespace Trinity::Impl::StringConvertImpl
         */
     };
 
-    // @todo relax this once proper std::from_chars support exists
     template <typename T>
     struct For<T, std::enable_if_t<std::is_integral_v<T> && !std::is_same_v<T, bool>>>
     {
@@ -171,6 +170,91 @@ namespace Trinity::Impl::StringConvertImpl
             return (val ? "1" : "0");
         }
     };
+
+#if TRINITY_COMPILER == TRINITY_COMPILER_MICROSOFT
+    template <typename T>
+    struct For<T, std::enable_if_t<std::is_floating_point_v<T>>>
+    {
+        static Optional<T> FromString(std::string_view str, std::chars_format fmt = std::chars_format())
+        {
+            if (str.empty())
+                return std::nullopt;
+
+            if (fmt == std::chars_format())
+            {
+                if (StringEqualI(str.substr(0, 2), "0x"))
+                {
+                    fmt = std::chars_format::hex;
+                    str.remove_prefix(2);
+                }
+                else
+                    fmt = std::chars_format::general;
+
+                if (str.empty())
+                    return std::nullopt;
+            }
+
+            char const* const start = str.data();
+            char const* const end = (start + str.length());
+
+            T val;
+            std::from_chars_result const res = std::from_chars(start, end, val, fmt);
+            if ((res.ptr == end) && (res.ec == std::errc()))
+                return val;
+            else
+                return std::nullopt;
+        }
+
+        // this allows generic converters for all numeric types (easier templating!)
+        static Optional<T> FromString(std::string_view str, int base)
+        {
+            if (base == 16)
+                return FromString(str, std::chars_format::hex);
+            else if (base == 10)
+                return FromString(str, std::chars_format::general);
+            else
+                return FromString(str, std::chars_format());
+        }
+
+        static std::string ToString(T val)
+        {
+            return std::to_string(val);
+        }
+    };
+#else
+    // @todo replace this once libc++ supports double args to from_chars
+    template <typename T>
+    struct For<T, std::enable_if_t<std::is_floating_point_v<T>>>
+    {
+        static Optional<T> FromString(std::string_view str, int base = 0)
+        {
+            try {
+                if (str.empty())
+                    return std::nullopt;
+
+                if ((base == 10) && StringEqualI(str.substr(0, 2), "0x"))
+                    return std::nullopt;
+
+                std::string tmp;
+                if (base == 16)
+                    tmp.append("0x");
+                tmp.append(str);
+
+                size_t n;
+                T val = static_cast<T>(std::stold(tmp, &n));
+                if (n != tmp.length())
+                    return std::nullopt;
+                return val;
+            }
+            catch (...) { return std::nullopt; }
+        }
+
+        static std::string ToString(T val)
+        {
+            return std::to_string(val);
+        }
+    };
+#endif
 }
 
 namespace Trinity

@@ -657,7 +657,7 @@ bool StringEqualI(std::string_view str1, std::string_view str2)
 
 bool StringStartsWith(std::string_view haystack, std::string_view needle)
 {
-    return (haystack.rfind(needle, 0) == 0);
+    return (haystack.substr(0, needle.length()) == needle);
 }
 
 bool StringContainsStringI(std::string_view haystack, std::string_view needle)
