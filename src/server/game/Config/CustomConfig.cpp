@@ -89,7 +89,7 @@ void CustomConfig::AddOption(std::string const& optionName, GameConfigType type,
     switch (type)
     {
     case GameConfigType::GAME_CONFIG_TYPE_BOOL:
-        AddBoolOption(optionName, Trinity::StringTo<bool>().value());
+        AddBoolOption(optionName, Trinity::StringTo<bool>(value.empty() ? defaultValue : value).value());
         break;
     case GameConfigType::GAME_CONFIG_TYPE_INT:
         AddIntOption(optionName, Trinity::StringTo<int32>(value.empty() ? defaultValue : value).value());
