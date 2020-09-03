@@ -150,7 +150,7 @@ namespace Trinity::Hyperlinks
         make_base_tag(gameobject, ObjectGuid::LowType);
         make_base_tag(gameobject_entry, uint32);
         make_base_tag(itemset, uint32);
-        make_base_tag(player, std::string const&);
+        make_base_tag(player, std::string_view);
         make_base_tag(skill, uint32);
         make_base_tag(taxinode, uint32);
         make_base_tag(tele, uint32);

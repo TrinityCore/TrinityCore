@@ -65,7 +65,7 @@ namespace Trinity::ChatCommands
 
         static bool Match(char const* pos)
         {
-            if (*(pos++) != c1)
+            if (std::toupper(*(pos++)) != std::toupper(c1))
                 return false;
             else if constexpr (sizeof...(chars) > 0)
                 return ExactSequence<chars...>::Match(pos);
@@ -150,10 +150,6 @@ namespace Trinity::ChatCommands
     // pull in link tags for user convenience
     using namespace ::Trinity::Hyperlinks::LinkTags;
 }
-
-/************************** VARIANT TAG LOGIC *********************************\
-|* This has some special handling over in ChatCommand.h                       *|
-\******************************************************************************/
 
 namespace Trinity::Impl
 {

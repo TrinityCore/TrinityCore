@@ -54,6 +54,21 @@ Optional<std::string_view> Trinity::Impl::ChatCommands::ArgInfo<GameTele const*>
     return next;
 }
 
+struct ItemTemplateVisitor
+{
+    using value_type = ItemTemplate const*;
+    value_type operator()(Hyperlink<item> item) const { return item->Item; }
+    value_type operator()(uint32 item) { return sObjectMgr->GetItemTemplate(item); }
+};
+Optional<std::string_view> Trinity::Impl::ChatCommands::ArgInfo<ItemTemplate const*>::TryConsume(ItemTemplate const*& data, std::string_view args)
+{
+    Variant<Hyperlink<item>, uint32> val;
+    Optional<std::string_view> next = SingleConsumer<decltype(val)>::TryConsumeTo(val, args);
+    if (next)
+        data = val.visit(ItemTemplateVisitor());
+    return next;
+}
+
 struct SpellInfoVisitor
 {
     using value_type = SpellInfo const*;
