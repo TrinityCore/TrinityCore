@@ -630,13 +630,7 @@ public:
 
         // respawn selected creature at the new location
         if (creature)
-        {
-            if (creature->IsAlive())
-                creature->setDeathState(JUST_DIED);
-            creature->Respawn(true);
-            if (!creature->GetRespawnCompatibilityMode())
-                creature->AddObjectToRemoveList();
-        }
+            creature->DespawnOrUnsummon(0s, 1s);
 
         handler->PSendSysMessage(LANG_COMMAND_CREATUREMOVED);
         return true;
