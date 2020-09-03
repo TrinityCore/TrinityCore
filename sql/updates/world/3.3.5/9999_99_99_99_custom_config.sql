@@ -14,7 +14,8 @@ CREATE TABLE `custom_config`  (
 -- ----------------------------
 -- Records of custom_config
 -- ----------------------------
-INSERT INTO `custom_config` VALUES ('TestOption.Bool', 'bool', '1', NULL, 'Test option bool');
-INSERT INTO `custom_config` VALUES ('TestOption.Float', 'float', '1.5232', NULL, 'Test option float');
-INSERT INTO `custom_config` VALUES ('TestOption.Int', 'int', '100', NULL, 'Test option int');
-INSERT INTO `custom_config` VALUES ('TestOption.String', 'string', 'test string', NULL, 'Test option string');
+INSERT INTO `custom_config` (`OptionName`, `Type`, `DefaultValue`, `CustomValue`, `Description`) VALUES
+('TestOption.Bool', 'bool', '1', NULL, 'Test option bool'),
+('TestOption.Float', 'float', '1.5232', NULL, 'Test option float'),
+('TestOption.Int', 'int', '100', NULL, 'Test option int'),
+('TestOption.String', 'string', 'test string', NULL, 'Test option string');
