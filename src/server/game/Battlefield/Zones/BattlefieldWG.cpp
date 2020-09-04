@@ -45,7 +45,7 @@ struct BfWGCoordGY
 };
 
 // 7 in sql, 7 in header
-BfWGCoordGY const WGGraveYard[BATTLEFIELD_WG_GRAVEYARD_MAX] =
+BfWGCoordGY const WGGraveyard[BATTLEFIELD_WG_GRAVEYARD_MAX] =
 {
     { { 5104.750f, 2300.940f, 368.579f, 0.733038f }, 1329, BATTLEFIELD_WG_GOSSIPTEXT_GY_NE,       TEAM_NEUTRAL  },
     { { 5099.120f, 3466.036f, 368.484f, 5.317802f }, 1330, BATTLEFIELD_WG_GOSSIPTEXT_GY_NW,       TEAM_NEUTRAL  },
@@ -436,7 +436,7 @@ bool BattlefieldWG::SetupBattlefield()
 
     m_saveTimer = 60000;
 
-    // Init GraveYards
+    // Init Graveyards
     SetGraveyardNumber(BATTLEFIELD_WG_GRAVEYARD_MAX);
 
     // Load from db
@@ -468,12 +468,12 @@ bool BattlefieldWG::SetupBattlefield()
         BfGraveyardWG* graveyard = new BfGraveyardWG(this);
 
         // When between games, the graveyard is controlled by the defending team
-        if (WGGraveYard[i].StartControl == TEAM_NEUTRAL)
-            graveyard->Initialize(m_DefenderTeam, WGGraveYard[i].GraveyardID);
+        if (WGGraveyard[i].StartControl == TEAM_NEUTRAL)
+            graveyard->Initialize(m_DefenderTeam, WGGraveyard[i].GraveyardID);
         else
-            graveyard->Initialize(WGGraveYard[i].StartControl, WGGraveYard[i].GraveyardID);
+            graveyard->Initialize(WGGraveyard[i].StartControl, WGGraveyard[i].GraveyardID);
 
-        graveyard->SetTextId(WGGraveYard[i].TextID);
+        graveyard->SetTextId(WGGraveyard[i].TextID);
         m_GraveyardList[i] = graveyard;
     }
 

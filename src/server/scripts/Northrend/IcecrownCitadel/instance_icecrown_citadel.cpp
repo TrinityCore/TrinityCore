@@ -17,10 +17,7 @@
 
 #include "icecrown_citadel.h"
 #include "AreaBoundary.h"
-#include "Creature.h"
 #include "CreatureAI.h"
-#include "EventMap.h"
-#include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "ObjectMgr.h"
@@ -30,6 +27,7 @@
 #include "Transport.h"
 #include "TransportMgr.h"
 #include "WorldStatePackets.h"
+#include <sstream>
 
 enum EventIds
 {
@@ -190,7 +188,7 @@ class instance_icecrown_citadel : public InstanceMapScript
             {
                 if (!TeamInInstance)
                 {
-                    Map::PlayerList const &players = instance->GetPlayers();
+                    Map::PlayerList const& players = instance->GetPlayers();
                     if (!players.isEmpty())
                         if (Player* player = players.begin()->GetSource())
                             TeamInInstance = player->GetTeam();

@@ -973,7 +973,7 @@ class BattlegroundIC : public Battleground
 
         void DestroyGate(Player* player, GameObject* go) override;
 
-        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
+        WorldSafeLocsEntry const* GetClosestGraveyard(Player* player) override;
         WorldSafeLocsEntry const* GetExploitTeleportLocation(Team team) override;
 
         /* Scorekeeping */

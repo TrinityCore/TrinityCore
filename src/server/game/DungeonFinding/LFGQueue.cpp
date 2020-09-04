@@ -503,7 +503,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
     else
     {
         ObjectGuid gguid = *check.begin();
-        const LfgQueueData &queue = QueueDataStore[gguid];
+        LfgQueueData const& queue = QueueDataStore[gguid];
         proposalDungeons = queue.dungeons;
         proposalRoles = queue.roles;
         LFGMgr::CheckGroupRoles(proposalRoles);          // assing new roles
@@ -673,7 +673,7 @@ std::string LFGQueue::DumpCompatibleInfo(bool full /* = false */) const
             {
                 o << " (";
                 bool first = true;
-                for (const auto& role : itr->second.roles)
+                for (auto const& role : itr->second.roles)
                 {
                     if (!first)
                         o << "|";

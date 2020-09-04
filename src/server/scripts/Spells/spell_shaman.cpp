@@ -691,7 +691,11 @@ class spell_sha_item_t6_trinket : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                return ValidateSpellInfo({ SPELL_SHAMAN_ENERGY_SURGE, SPELL_SHAMAN_POWER_SURGE });
+                return ValidateSpellInfo(
+                {
+                    SPELL_SHAMAN_ENERGY_SURGE,
+                    SPELL_SHAMAN_POWER_SURGE
+                });
             }
 
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)

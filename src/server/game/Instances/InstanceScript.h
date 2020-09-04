@@ -20,10 +20,10 @@
 
 #include "ZoneScript.h"
 #include "Common.h"
+#include <iosfwd>
 #include <map>
 #include <memory>
 #include <set>
-#include <sstream>
 
 #define OUT_SAVE_INST_DATA             TC_LOG_DEBUG("scripts", "Saving Instance Data for Instance %s (Map %d, Instance Id %d)", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
 #define OUT_SAVE_INST_DATA_COMPLETE    TC_LOG_DEBUG("scripts", "Saving Instance Data for Instance %s (Map %d, Instance Id %d) completed.", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
@@ -233,7 +233,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
         void DoCastSpellOnPlayers(uint32 spell);
 
         // Return wether server allow two side groups or not
-        bool ServerAllowsTwoSideGroups();
+        static bool ServerAllowsTwoSideGroups();
 
         virtual bool SetBossState(uint32 id, EncounterState state);
         EncounterState GetBossState(uint32 id) const { return id < bosses.size() ? bosses[id].state : TO_BE_DECIDED; }

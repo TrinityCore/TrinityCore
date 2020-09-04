@@ -22,13 +22,14 @@
 #include "InstanceScript.h"
 #include "Log.h"
 #include "Map.h"
+#include <sstream>
 
 #define    MAX_ENCOUNTER  1
 
 class instance_gnomeregan : public InstanceMapScript
 {
 public:
-    instance_gnomeregan() : InstanceMapScript("instance_gnomeregan", 90) { }
+    instance_gnomeregan() : InstanceMapScript(GNOScriptName, 90) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {
@@ -50,7 +51,7 @@ public:
 
         ObjectGuid uiBastmasterEmiShortfuseGUID;
 
-        void Load(const char* in) override
+        void Load(char const* in) override
         {
             if (!in)
             {

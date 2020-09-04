@@ -17,14 +17,15 @@
 
 #include "ScriptMgr.h"
 #include "CellImpl.h"
-#include "CreatureTextMgr.h"
 #include "CombatAI.h"
+#include "CreatureTextMgr.h"
 #include "GameEventMgr.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "GridNotifiersImpl.h"
 #include "Log.h"
 #include "MotionMaster.h"
+#include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "PassiveAI.h"
@@ -38,7 +39,6 @@
 #include "SpellMgr.h"
 #include "TemporarySummon.h"
 #include "Vehicle.h"
-#include "MoveSplineInit.h"
 
 /*########
 # npc_air_force_bots
@@ -110,9 +110,9 @@ public:
             SpawnedGUID.Clear();
 
             // find the correct spawnhandling
-            static uint32 entryCount = sizeof(spawnAssociations) / sizeof(SpawnAssociation);
+            static uint8 constexpr const EntryCount = uint8(std::extent<decltype(spawnAssociations)>::value);
 
-            for (uint8 i = 0; i < entryCount; ++i)
+            for (uint8 i = 0; i < EntryCount; ++i)
             {
                 if (spawnAssociations[i].thisCreatureEntry == creature->GetEntry())
                 {

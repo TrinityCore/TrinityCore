@@ -494,7 +494,7 @@ void SmartAI::MoveInLineOfSight(Unit* who)
     CreatureAI::MoveInLineOfSight(who);
 }
 
-bool SmartAI::CanAIAttack(const Unit* /*who*/) const
+bool SmartAI::CanAIAttack(Unit const* /*who*/) const
 {
     return !(me->HasReactState(REACT_PASSIVE));
 }
@@ -635,12 +635,12 @@ void SmartAI::AttackStart(Unit* who)
     }
 }
 
-void SmartAI::SpellHit(Unit* unit, const SpellInfo* spellInfo)
+void SmartAI::SpellHit(Unit* unit, SpellInfo const* spellInfo)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_SPELLHIT, unit, 0, 0, false, spellInfo);
 }
 
-void SmartAI::SpellHitTarget(Unit* target, const SpellInfo* spellInfo)
+void SmartAI::SpellHitTarget(Unit* target, SpellInfo const* spellInfo)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_SPELLHIT_TARGET, target, 0, 0, false, spellInfo);
 }
@@ -788,7 +788,7 @@ bool SmartAI::GossipSelect(Player* player, uint32 menuId, uint32 gossipListId)
     return _gossipReturn;
 }
 
-bool SmartAI::GossipSelectCode(Player* /*player*/, uint32 /*menuId*/, uint32 /*gossipListId*/, const char* /*code*/)
+bool SmartAI::GossipSelectCode(Player* /*player*/, uint32 /*menuId*/, uint32 /*gossipListId*/, char const* /*code*/)
 {
     return false;
 }
@@ -967,7 +967,7 @@ bool SmartGameObjectAI::GossipSelect(Player* player, uint32 sender, uint32 actio
 }
 
 // Called when a player selects a gossip with a code in the gameobject's gossip menu.
-bool SmartGameObjectAI::GossipSelectCode(Player* /*player*/, uint32 /*menuId*/, uint32 /*gossipListId*/, const char* /*code*/)
+bool SmartGameObjectAI::GossipSelectCode(Player* /*player*/, uint32 /*menuId*/, uint32 /*gossipListId*/, char const* /*code*/)
 {
     return false;
 }
@@ -1017,7 +1017,7 @@ void SmartGameObjectAI::EventInform(uint32 eventId)
     GetScript()->ProcessEventsFor(SMART_EVENT_GO_EVENT_INFORM, nullptr, eventId);
 }
 
-void SmartGameObjectAI::SpellHit(Unit* unit, const SpellInfo* spellInfo)
+void SmartGameObjectAI::SpellHit(Unit* unit, SpellInfo const* spellInfo)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_SPELLHIT, unit, 0, 0, false, spellInfo);
 }

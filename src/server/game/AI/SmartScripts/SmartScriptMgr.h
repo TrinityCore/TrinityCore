@@ -1630,31 +1630,22 @@ class TC_GAME_API SmartAIMgr
 
         bool IsEventValid(SmartScriptHolder& e);
         bool IsTargetValid(SmartScriptHolder const& e);
+
         bool IsMinMaxValid(SmartScriptHolder const& e, uint32 min, uint32 max);
 
-        /*inline bool IsPercentValid(SmartScriptHolder e, int32 pct)
-        {
-            if (pct < -100 || pct > 100)
-            {
-                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u has invalid Percent set (%d), skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), pct);
-                return false;
-            }
-            return true;
-        }*/
-
-        bool NotNULL(SmartScriptHolder const& e, uint32 data);
-        bool IsCreatureValid(SmartScriptHolder const& e, uint32 entry);
-        bool IsQuestValid(SmartScriptHolder const& e, uint32 entry);
-        bool IsGameObjectValid(SmartScriptHolder const& e, uint32 entry);
-        bool IsSpellValid(SmartScriptHolder const& e, uint32 entry);
-        bool IsItemValid(SmartScriptHolder const& e, uint32 entry);
-        bool IsTextEmoteValid(SmartScriptHolder const& e, uint32 entry);
-        bool IsEmoteValid(SmartScriptHolder const& e, uint32 entry);
-        bool IsAreaTriggerValid(SmartScriptHolder const& e, uint32 entry);
-        bool IsSoundValid(SmartScriptHolder const& e, uint32 entry);
-        bool IsAnimKitValid(SmartScriptHolder const& e, uint32 entry);
-        bool IsSpellVisualKitValid(SmartScriptHolder const& e, uint32 entry);
-        bool IsTextValid(SmartScriptHolder const& e, uint32 id);
+        static bool NotNULL(SmartScriptHolder const& e, uint32 data);
+        static bool IsCreatureValid(SmartScriptHolder const& e, uint32 entry);
+        static bool IsQuestValid(SmartScriptHolder const& e, uint32 entry);
+        static bool IsGameObjectValid(SmartScriptHolder const& e, uint32 entry);
+        static bool IsSpellValid(SmartScriptHolder const& e, uint32 entry);
+        static bool IsItemValid(SmartScriptHolder const& e, uint32 entry);
+        static bool IsTextEmoteValid(SmartScriptHolder const& e, uint32 entry);
+        static bool IsEmoteValid(SmartScriptHolder const& e, uint32 entry);
+        static bool IsAreaTriggerValid(SmartScriptHolder const& e, uint32 entry);
+        static bool IsSoundValid(SmartScriptHolder const& e, uint32 entry);
+        static bool IsAnimKitValid(SmartScriptHolder const& e, uint32 entry);
+        static bool IsSpellVisualKitValid(SmartScriptHolder const& e, uint32 entry);
+        static bool IsTextValid(SmartScriptHolder const& e, uint32 id);
 
         // Helpers
         void LoadHelperStores();

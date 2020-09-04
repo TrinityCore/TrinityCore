@@ -16,8 +16,8 @@
  */
 
 #include "ScriptMgr.h"
-#include "GameObjectAI.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "MoveSplineInit.h"
@@ -141,9 +141,7 @@ class boss_kirtonos_the_herald : public CreatureScript
             void MovementInform(uint32 type, uint32 id) override
             {
                 if (type == WAYPOINT_MOTION_TYPE && id == POINT_KIRTONOS_LAND)
-                {
                     events.ScheduleEvent(INTRO_2, 1500);
-                }
             }
 
             void UpdateAI(uint32 diff) override

@@ -1415,7 +1415,7 @@ namespace Trinity
     class AllGameObjectsWithEntryInRange
     {
         public:
-            AllGameObjectsWithEntryInRange(const WorldObject* object, uint32 entry, float maxRange) : m_pObject(object), m_uiEntry(entry), m_fRange(maxRange) { }
+            AllGameObjectsWithEntryInRange(WorldObject const* object, uint32 entry, float maxRange) : m_pObject(object), m_uiEntry(entry), m_fRange(maxRange) { }
 
             bool operator()(GameObject* go) const
             {
@@ -1434,7 +1434,7 @@ namespace Trinity
     class AllCreaturesOfEntryInRange
     {
         public:
-            AllCreaturesOfEntryInRange(const WorldObject* object, uint32 entry, float maxRange) : m_pObject(object), m_uiEntry(entry), m_fRange(maxRange) { }
+            AllCreaturesOfEntryInRange(WorldObject const* object, uint32 entry, float maxRange) : m_pObject(object), m_uiEntry(entry), m_fRange(maxRange) { }
 
             bool operator()(Unit* unit) const
             {
@@ -1490,7 +1490,7 @@ namespace Trinity
     class AllWorldObjectsInRange
     {
         public:
-            AllWorldObjectsInRange(const WorldObject* object, float maxRange) : m_pObject(object), m_fRange(maxRange) { }
+            AllWorldObjectsInRange(WorldObject const* object, float maxRange) : m_pObject(object), m_fRange(maxRange) { }
 
             bool operator()(WorldObject* go) const
             {

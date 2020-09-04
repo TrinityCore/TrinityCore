@@ -949,6 +949,7 @@ class spell_hadronox_periodic_summon_template_AuraScript : public AuraScript
         spell_hadronox_periodic_summon_template_AuraScript(uint32 topSpellId, uint32 bottomSpellId) : AuraScript(), _topSpellId(topSpellId), _bottomSpellId(bottomSpellId) { }
         PrepareAuraScript(spell_hadronox_periodic_summon_template_AuraScript);
 
+    private:
         bool Validate(SpellInfo const* /*spell*/) override
         {
             return ValidateSpellInfo({ _topSpellId, _bottomSpellId });
@@ -987,7 +988,6 @@ class spell_hadronox_periodic_summon_template_AuraScript : public AuraScript
             OnEffectPeriodic += AuraEffectPeriodicFn(spell_hadronox_periodic_summon_template_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
         }
 
-    private:
         uint32 _topSpellId;
         uint32 _bottomSpellId;
 };
@@ -1092,12 +1092,7 @@ class spell_hadronox_web_doors : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                return ValidateSpellInfo(
-                {
-                    SPELL_SUMMON_CHAMPION_PERIODIC,
-                    SPELL_SUMMON_CRYPT_FIEND_PERIODIC,
-                    SPELL_SUMMON_NECROMANCER_PERIODIC
-                });
+                return ValidateSpellInfo({ SPELL_SUMMON_CHAMPION_PERIODIC, SPELL_SUMMON_CRYPT_FIEND_PERIODIC, SPELL_SUMMON_NECROMANCER_PERIODIC });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)

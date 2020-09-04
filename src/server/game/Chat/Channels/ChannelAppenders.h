@@ -185,8 +185,8 @@ struct ChannelOwnerAppend
 {
     explicit ChannelOwnerAppend(Channel const* channel, ObjectGuid const& ownerGuid) : _channel(channel), _ownerGuid(ownerGuid)
     {
-        if (CharacterCacheEntry const* characterInfo = sCharacterCache->GetCharacterCacheByGuid(_ownerGuid))
-            _ownerName = characterInfo->Name;
+        if (CharacterCacheEntry const* cInfo = sCharacterCache->GetCharacterCacheByGuid(_ownerGuid))
+            _ownerName = cInfo->Name;
     }
 
     static uint8 const NotificationType = CHAT_CHANNEL_OWNER_NOTICE;

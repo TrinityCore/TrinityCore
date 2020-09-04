@@ -3173,7 +3173,7 @@ void Spell::_cast(bool skipCheck)
         // As of 3.0.2 pets begin attacking their owner's target immediately
         // Let any pets know we've attacked something. Check DmgClass for harmful spells only
         // This prevents spells such as Hunter's Mark from triggering pet attack
-        if (this->GetSpellInfo()->DmgClass != SPELL_DAMAGE_CLASS_NONE)
+        if (GetSpellInfo()->DmgClass != SPELL_DAMAGE_CLASS_NONE)
             if (Unit* unitTarget = m_targets.GetUnitTarget())
                 for (Unit* controlled : playerCaster->m_Controlled)
                     if (Creature* cControlled = controlled->ToCreature())
@@ -4024,7 +4024,7 @@ void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint32 sp
     WorldPackets::Spells::CastFailed packet;
     packet.SpellXSpellVisualID = spellVisual;
     FillSpellCastFailedArgs(packet, cast_count, spellInfo, result, customError, param1, param2, caster);
-    caster->GetSession()->SendPacket(packet.Write());
+    caster->SendDirectMessage(packet.Write());
 }
 
 void Spell::SendMountResult(MountResult result)
@@ -4551,21 +4551,15 @@ void Spell::SendResurrectRequest(Player* target)
     WorldPackets::Spells::ResurrectRequest resurrectRequest;
     resurrectRequest.ResurrectOffererGUID =  m_caster->GetGUID();
     resurrectRequest.ResurrectOffererVirtualRealmAddress = GetVirtualRealmAddress();
-
+    resurrectRequest.Name = sentName;
+    resurrectRequest.Sickness = m_caster->GetTypeId() != TYPEID_PLAYER && m_caster->IsSpiritHealer(); // "you'll be afflicted with resurrection sickness"
+    resurrectRequest.UseTimer = !m_spellInfo->HasAttribute(SPELL_ATTR3_IGNORE_RESURRECTION_TIMER);
     if (Pet* pet = target->GetPet())
-    {
         if (CharmInfo* charmInfo = pet->GetCharmInfo())
             resurrectRequest.PetNumber = charmInfo->GetPetNumber();
-    }
 
     resurrectRequest.SpellID = m_spellInfo->Id;
-
-    //packet.ReadBit("UseTimer"); /// @todo: 6.x Has to be implemented
-    resurrectRequest.Sickness = m_caster->GetTypeId() != TYPEID_PLAYER; // "you'll be afflicted with resurrection sickness"
-
-    resurrectRequest.Name = sentName;
-
-    target->GetSession()->SendPacket(resurrectRequest.Write());
+    target->SendDirectMessage(resurrectRequest.Write());
 }
 
 void Spell::TakeCastItem()
@@ -4991,7 +4985,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
             m_needComboPoints = false;
             if ((*j)->GetMiscValue() == 1)
             {
-                reqCombat=false;
+                reqCombat = false;
                 break;
             }
         }

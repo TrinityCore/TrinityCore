@@ -198,7 +198,7 @@ static void setAcceptTradeMode(TradeData* myTrade, TradeData* hisTrade, Item* *m
         if (Item* item = myTrade->GetItem(TradeSlots(i)))
         {
             TC_LOG_DEBUG("network", "player trade %s bag: %u slot: %u", item->GetGUID().ToString().c_str(), item->GetBagSlot(), item->GetSlot());
-            //Can return NULL
+            //Can return nullptr
             myItems[i] = item;
             myItems[i]->SetInTrade();
         }
@@ -242,8 +242,8 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPackets::Trade::AcceptTrade& acc
     if (!his_trade)
         return;
 
-    Item* myItems[TRADE_SLOT_TRADED_COUNT]  = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
-    Item* hisItems[TRADE_SLOT_TRADED_COUNT] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr };
+    Item* myItems[TRADE_SLOT_TRADED_COUNT]  = { };
+    Item* hisItems[TRADE_SLOT_TRADED_COUNT] = { };
 
     // set before checks for propertly undo at problems (it already set in to client)
     my_trade->SetAccepted(true);

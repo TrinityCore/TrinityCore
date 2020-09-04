@@ -1,19 +1,18 @@
 /*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "Spline.h"
@@ -94,7 +93,7 @@ inline void C_Evaluate(const Vector3 *vertice, float t, const float (&matrix)[4]
     position.z = z;
 }*/
 
-inline void C_Evaluate(const Vector3 *vertice, float t, const Matrix4& matr, Vector3 &result)
+inline void C_Evaluate(Vector3 const* vertice, float t, Matrix4 const& matr, Vector3 &result)
 {
     Vector4 tvec(t*t*t, t*t, t, 1.f);
     Vector4 weights(tvec * matr);
@@ -103,7 +102,7 @@ inline void C_Evaluate(const Vector3 *vertice, float t, const Matrix4& matr, Vec
            + vertice[2] * weights[2] + vertice[3] * weights[3];
 }
 
-inline void C_Evaluate_Derivative(const Vector3 *vertice, float t, const Matrix4& matr, Vector3 &result)
+inline void C_Evaluate_Derivative(Vector3 const* vertice, float t, Matrix4 const& matr, Vector3 &result)
 {
     Vector4 tvec(3.f*t*t, 2.f*t, 1.f, 0.f);
     Vector4 weights(tvec * matr);
@@ -215,7 +214,7 @@ void SplineBase::init_cyclic_spline(const Vector3 * controls, index_type count, 
     (this->*initializers[m_mode])(controls, count, cyclic_point);
 }
 
-void SplineBase::InitLinear(const Vector3* controls, index_type count, index_type cyclic_point)
+void SplineBase::InitLinear(Vector3 const* controls, index_type count, index_type cyclic_point)
 {
     ASSERT(count >= 2);
     const int real_size = count + 1;
@@ -235,7 +234,7 @@ void SplineBase::InitLinear(const Vector3* controls, index_type count, index_typ
     index_hi = cyclic ? count : (count - 1);
 }
 
-void SplineBase::InitCatmullRom(const Vector3* controls, index_type count, index_type cyclic_point)
+void SplineBase::InitCatmullRom(Vector3 const* controls, index_type count, index_type cyclic_point)
 {
     const int real_size = count + (cyclic ? (1+2) : (1+1));
 
@@ -268,7 +267,7 @@ void SplineBase::InitCatmullRom(const Vector3* controls, index_type count, index
     index_hi = high_index + (cyclic ? 1 : 0);
 }
 
-void SplineBase::InitBezier3(const Vector3* controls, index_type count, index_type /*cyclic_point*/)
+void SplineBase::InitBezier3(Vector3 const* controls, index_type count, index_type /*cyclic_point*/)
 {
     index_type c = count / 3u * 3u;
     index_type t = c / 3u;

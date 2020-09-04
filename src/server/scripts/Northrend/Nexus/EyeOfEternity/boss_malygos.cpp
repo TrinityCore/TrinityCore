@@ -30,7 +30,6 @@ Script Data End */
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
-#include "Spell.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
@@ -1841,7 +1840,7 @@ class spell_malygos_vortex_visual : public SpellScriptLoader
                             if (InstanceScript* instance = caster->GetInstanceScript())
                             {
                                 // Teleport spell - I'm not sure but might be it must be cast by each vehicle when it's passenger leaves it.
-                                if (Creature* trigger = caster->GetMap()->GetCreature(instance->GetGuidData(DATA_TRIGGER)))
+                                if (Creature* trigger = ObjectAccessor::GetCreature(*caster, instance->GetGuidData(DATA_TRIGGER)))
                                     trigger->CastSpell(targetPlayer, SPELL_VORTEX_6, true);
                             }
                         }

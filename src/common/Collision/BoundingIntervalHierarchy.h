@@ -79,8 +79,8 @@ class TC_COMMON_API BIH
         }
     public:
         BIH() { init_empty(); }
-        template< class BoundsFunc, class PrimArray >
-        void build(const PrimArray &primitives, BoundsFunc &getBounds, uint32 leafSize = 3, bool printStats=false)
+        template <class BoundsFunc, class PrimArray>
+        void build(PrimArray const& primitives, BoundsFunc& getBounds, uint32 leafSize = 3, bool printStats = false)
         {
             if (primitives.size() == 0)
             {
@@ -117,7 +117,7 @@ class TC_COMMON_API BIH
         uint32 primCount() const { return uint32(objects.size()); }
 
         template<typename RayCallback>
-        void intersectRay(const G3D::Ray &r, RayCallback& intersectCallback, float &maxDist, bool stopAtFirst=false) const
+        void intersectRay(const G3D::Ray &r, RayCallback& intersectCallback, float &maxDist, bool stopAtFirst = false) const
         {
             float intervalMin = -1.f;
             float intervalMax = -1.f;

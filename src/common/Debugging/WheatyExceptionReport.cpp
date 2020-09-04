@@ -930,7 +930,7 @@ DWORD64 modBase,
 DWORD dwTypeIndex,
 DWORD_PTR offset,
 bool & bHandled,
-const char* Name,
+char const* Name,
 char* /*suffix*/,
 bool newSymbol,
 bool logChildren)

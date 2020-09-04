@@ -19,7 +19,7 @@
 #define SCRIPTEDCREATURE_H_
 
 #include "CreatureAI.h"
-#include "Creature.h" // convenience include for scripts, all uses of ScriptedCreature also need Creature (except ScriptedCreature itself doesn't need Creature)
+#include "Creature.h"  // convenience include for scripts, all uses of ScriptedCreature also need Creature (except ScriptedCreature itself doesn't need Creature)
 #include "DBCEnums.h"
 #include "TaskScheduler.h"
 
@@ -90,7 +90,7 @@ public:
     void DespawnAll();
 
     template <typename T>
-    void DespawnIf(T const &predicate)
+    void DespawnIf(T const& predicate)
     {
         storage_.remove_if(predicate);
     }
@@ -364,7 +364,7 @@ class TC_GAME_API BossAI : public ScriptedAI
         void _EnterCombat();
         void _JustDied();
         void _JustReachedHome();
-        void _DespawnAtEvade(Seconds delayToRespawn,  Creature* who = nullptr);
+        void _DespawnAtEvade(Seconds delayToRespawn, Creature* who = nullptr);
         void _DespawnAtEvade(uint32 delayToRespawn = 30, Creature* who = nullptr) { _DespawnAtEvade(Seconds(delayToRespawn), who); }
 
         void TeleportCheaters();

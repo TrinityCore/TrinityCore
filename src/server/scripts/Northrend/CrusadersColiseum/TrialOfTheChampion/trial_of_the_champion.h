@@ -129,10 +129,10 @@ enum TCVehicles
     VEHICLE_BLACK_KNIGHT                            = 35491
 };
 
-template<class AI>
-inline AI* GetTrialOfTheChampionAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetTrialOfTheChampionAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, ToCScriptName);
+    return GetInstanceAI<AI>(obj, ToCScriptName);
 }
 
 #endif

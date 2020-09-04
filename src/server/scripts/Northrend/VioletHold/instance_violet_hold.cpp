@@ -25,8 +25,9 @@
 #include "Player.h"
 #include "TaskScheduler.h"
 #include "TemporarySummon.h"
-#include "WorldStatePackets.h"
 #include "violet_hold.h"
+#include "WorldStatePackets.h"
+#include <sstream>
 
 /*
  * TODO:

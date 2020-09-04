@@ -110,7 +110,7 @@ class boss_nazan : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* target, const SpellInfo* entry) override
+            void SpellHitTarget(Unit* target, SpellInfo const* entry) override
             {
                 if (target && entry->Id == uint32(SPELL_FIREBALL))
                     me->SummonCreature(NPC_LIQUID_FIRE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 30000);

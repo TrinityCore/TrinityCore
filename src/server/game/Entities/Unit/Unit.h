@@ -23,13 +23,13 @@
 #include "FollowerReference.h"
 #include "FollowerRefManager.h"
 #include "HostileRefManager.h"
+#include "OptionalFwd.h"
 #include "SpellAuraDefines.h"
 #include "ThreatManager.h"
 #include "Timer.h"
 #include "UnitDefines.h"
 #include "Util.h"
 #include <boost/container/flat_set.hpp>
-#include <algorithm>
 #include <array>
 #include <map>
 
@@ -235,8 +235,8 @@ typedef std::list<Unit*> UnitList;
 class DispelableAura
 {
     public:
-        DispelableAura(Aura* aura, int32 dispelChance, uint8 dispelCharges) :
-            _aura(aura), _chance(dispelChance), _charges(dispelCharges) { }
+        DispelableAura(Aura* aura, int32 dispelChance, uint8 dispelCharges);
+        ~DispelableAura();
 
         Aura* GetAura() const { return _aura; }
         bool RollDispel() const;
@@ -973,7 +973,7 @@ class TC_GAME_API Unit : public WorldObject
         void SetCombatReach(float combatReach) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::CombatReach), combatReach); }
         float GetBoundingRadius() const { return m_unitData->BoundingRadius; }
         void SetBoundingRadius(float boundingRadius) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::BoundingRadius), boundingRadius); }
-        bool IsWithinCombatRange(const Unit* obj, float dist2compare) const;
+        bool IsWithinCombatRange(Unit const* obj, float dist2compare) const;
         bool IsWithinMeleeRange(Unit const* obj) const;
         float GetMeleeRange(Unit const* target) const;
         virtual SpellSchoolMask GetMeleeDamageSchoolMask() const;
@@ -1334,7 +1334,7 @@ class TC_GAME_API Unit : public WorldObject
         void CastCustomSpell(Unit* victim, uint32 spellId, int32 const* bp0, int32 const* bp1, int32 const* bp2, bool triggered, Item* castItem = nullptr, AuraEffect const* triggeredByAura = nullptr, ObjectGuid originalCaster = ObjectGuid::Empty);
         void CastCustomSpell(uint32 spellId, SpellValueMod mod, int32 value, Unit* victim, bool triggered, Item* castItem = nullptr, AuraEffect const* triggeredByAura = nullptr, ObjectGuid originalCaster = ObjectGuid::Empty);
         void CastCustomSpell(uint32 spellId, SpellValueMod mod, int32 value, Unit* victim = nullptr, TriggerCastFlags triggerFlags = TRIGGERED_NONE, Item* castItem = nullptr, AuraEffect const* triggeredByAura = nullptr, ObjectGuid originalCaster = ObjectGuid::Empty);
-        void CastCustomSpell(uint32 spellId, CustomSpellValues const &value, Unit* victim = nullptr, TriggerCastFlags triggerFlags = TRIGGERED_NONE, Item* castItem = nullptr, AuraEffect const* triggeredByAura = nullptr, ObjectGuid originalCaster = ObjectGuid::Empty);
+        void CastCustomSpell(uint32 spellId, CustomSpellValues const& value, Unit* victim = nullptr, TriggerCastFlags triggerFlags = TRIGGERED_NONE, Item* castItem = nullptr, AuraEffect const* triggeredByAura = nullptr, ObjectGuid originalCaster = ObjectGuid::Empty);
         Aura* AddAura(uint32 spellId, Unit* target);
         Aura* AddAura(SpellInfo const* spellInfo, uint32 effMask, Unit* target);
         void SetAuraStack(uint32 spellId, Unit* target, uint32 stack);
@@ -1364,7 +1364,7 @@ class TC_GAME_API Unit : public WorldObject
         void SendTeleportPacket(Position const& pos);
         virtual bool UpdatePosition(float x, float y, float z, float ang, bool teleport = false);
         // returns true if unit's position really changed
-        virtual bool UpdatePosition(const Position &pos, bool teleport = false);
+        virtual bool UpdatePosition(Position const& pos, bool teleport = false);
         void UpdateOrientation(float orientation);
         void UpdateHeight(float newZ);
 
@@ -1905,7 +1905,7 @@ class TC_GAME_API Unit : public WorldObject
         void removeFollower(FollowerReference* /*pRef*/) { /* nothing to do yet */ }
 
         MotionMaster* GetMotionMaster() { return i_motionMaster; }
-        const MotionMaster* GetMotionMaster() const { return i_motionMaster; }
+        MotionMaster const* GetMotionMaster() const { return i_motionMaster; }
 
         bool IsStopped() const { return !(HasUnitState(UNIT_STATE_MOVING)); }
         void StopMoving();
@@ -1966,7 +1966,7 @@ class TC_GAME_API Unit : public WorldObject
         Vehicle* GetVehicleKit()const { return m_vehicleKit; }
         Vehicle* GetVehicle()   const { return m_vehicle; }
         void SetVehicle(Vehicle* vehicle) { m_vehicle = vehicle; }
-        bool IsOnVehicle(const Unit* vehicle) const;
+        bool IsOnVehicle(Unit const* vehicle) const;
         Unit* GetVehicleBase()  const;
         Creature* GetVehicleCreatureBase() const;
         ObjectGuid GetTransGUID()   const override;

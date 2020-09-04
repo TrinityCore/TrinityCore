@@ -18,13 +18,13 @@
 #include "ScriptMgr.h"
 #include "ahnkahet.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
-#include "GameObjectAI.h"
 #include "Spell.h"
 #include "SpellScript.h"
 
@@ -437,12 +437,7 @@ class spell_prince_taldaram_conjure_flame_sphere : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                return ValidateSpellInfo(
-                {
-                    SPELL_FLAME_SPHERE_SUMMON_1,
-                    SPELL_FLAME_SPHERE_SUMMON_2,
-                    SPELL_FLAME_SPHERE_SUMMON_3
-                });
+                return ValidateSpellInfo({ SPELL_FLAME_SPHERE_SUMMON_1, SPELL_FLAME_SPHERE_SUMMON_2, SPELL_FLAME_SPHERE_SUMMON_3 });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)

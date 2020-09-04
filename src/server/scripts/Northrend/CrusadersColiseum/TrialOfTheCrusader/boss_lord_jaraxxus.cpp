@@ -298,7 +298,7 @@ class npc_infernal_volcano : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_infernal_volcanoAI(creature);
+            return GetTrialOfTheCrusaderAI<npc_infernal_volcanoAI>(creature);
         }
 };
 

@@ -82,7 +82,7 @@ enum AKGameObjectIds
     GO_SPHERE_2                     = 193094
 };
 
-template<class AI, class T>
+template <class AI, class T>
 inline AI* GetAhnKahetAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, AhnKahetScriptName);

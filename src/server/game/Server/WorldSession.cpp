@@ -271,11 +271,11 @@ void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/
 
     if ((cur_time - lastTime) < 60)
     {
-        sendPacketCount+=1;
-        sendPacketBytes+=packet->size();
+        sendPacketCount += 1;
+        sendPacketBytes += packet->size();
 
-        sendLastPacketCount+=1;
-        sendLastPacketBytes+=packet->size();
+        sendLastPacketCount += 1;
+        sendLastPacketBytes += packet->size();
     }
     else
     {
@@ -303,7 +303,7 @@ void WorldSession::QueuePacket(WorldPacket* new_packet)
 }
 
 /// Logging helper for unexpected opcodes
-void WorldSession::LogUnexpectedOpcode(WorldPacket* packet, const char* status, const char *reason)
+void WorldSession::LogUnexpectedOpcode(WorldPacket* packet, char const* status, const char *reason)
 {
     TC_LOG_ERROR("network.opcode", "Received unexpected opcode %s Status: %s Reason: %s from %s",
         GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())).c_str(), status, reason, GetPlayerInfo().c_str());
@@ -551,7 +551,7 @@ void WorldSession::LogoutPlayer(bool save)
             }
         }
 
-        // Repop at GraveYard or other player far teleport will prevent saving player because of not present map
+        // Repop at Graveyard or other player far teleport will prevent saving player because of not present map
         // Teleport player immediately for correct player save
         while (_player->IsBeingTeleportedFar())
             HandleMoveWorldportAck();
