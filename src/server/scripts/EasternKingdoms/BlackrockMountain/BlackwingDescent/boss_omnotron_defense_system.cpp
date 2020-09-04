@@ -1515,7 +1515,7 @@ class spell_omnotron_shadow_conductor : public SpellScript
             return;
 
         float distanceMultiplier = std::max(caster->GetExactDist2d(target) * 0.5f, 1.0f);
-        SetHitDamage(int32(6000 * distanceMultiplier));
+        SetEffectValue(int32(6000 * distanceMultiplier));
     }
 
     void Register() override
