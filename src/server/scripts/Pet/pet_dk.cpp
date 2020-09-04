@@ -57,8 +57,8 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
                 interrupted     = false;
                 EnableSpellCast = false;
                 despawnTimer    = 0   * IN_MILLISECONDS;
-                spellCastTime   = urand(2, 3) * IN_MILLISECONDS;  
-                initStatTimer   = 0.1 * IN_MILLISECONDS;                
+                spellCastTime   = urand(2, 3) * IN_MILLISECONDS;
+                initStatTimer   = 0.1 * IN_MILLISECONDS;
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -139,7 +139,7 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
                     if (!EnableSpellCast)
                         EnableSpellCast = true;
                 }
-                else 
+                else
                     spellCastTime -= diff;
 
                 if (initStatTimer <= diff)
@@ -150,7 +150,7 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
                         me->SetHealth(me->GetMaxHealth());
                     }
                     initStatTimer = 120 * IN_MILLISECONDS;
-                }    
+                }
                 else
                     initStatTimer -= diff;
 
