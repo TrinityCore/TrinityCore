@@ -1063,7 +1063,7 @@ class spell_putricide_choking_gas_bomb : public SpellScript
 
 class spell_putricide_unbound_plague : public SpellScript
 {
-    PrepareSpellScript(spell_putricide_unbound_plague_SpellScript);
+    PrepareSpellScript(spell_putricide_unbound_plague);
 
     bool Validate(SpellInfo const* /*spell*/) override
     {
