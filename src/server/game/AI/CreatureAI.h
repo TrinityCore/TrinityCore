@@ -87,13 +87,14 @@ class TC_GAME_API CreatureAI : public UnitAI
         Creature* DoSummonFlyer(uint32 entry, WorldObject* obj, float flightZ, float radius = 5.0f, Milliseconds despawnTime = 30s, TempSummonType summonType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
 
     public:
+        // EnumUtils: DESCRIBE THIS (in CreatureAI::)
         enum EvadeReason
         {
             EVADE_REASON_NO_HOSTILES,       // the creature's threat list is empty
             EVADE_REASON_BOUNDARY,          // the creature has moved outside its evade boundary
             EVADE_REASON_NO_PATH,           // the creature was unable to reach its target for over 5 seconds
             EVADE_REASON_SEQUENCE_BREAK,    // this is a boss and the pre-requisite encounters for engaging it are not defeated yet
-            EVADE_REASON_OTHER
+            EVADE_REASON_OTHER,             // anything else
         };
 
         explicit CreatureAI(Creature* creature);

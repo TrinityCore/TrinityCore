@@ -44,32 +44,6 @@ namespace Trinity::Impl::ChatCommands
         }
     };
 
-    template <typename... Ts>
-    struct SingleConsumer<Trinity::ChatCommands::Variant<Ts...>>
-    {
-        using V = std::variant<Ts...>;
-        static constexpr size_t N = std::variant_size_v<V>;
-
-        template <size_t I>
-        static Optional<std::string_view> TryAtIndex(Trinity::ChatCommands::Variant<Ts...>& val, [[maybe_unused]] std::string_view args)
-        {
-            if constexpr (I < N)
-            {
-                if (Optional<std::string_view> next = ArgInfo<std::variant_alternative_t<I, V>>::TryConsume(val.template emplace<I>(), args))
-                    return next;
-                else
-                    return TryAtIndex<I+1>(val, args);
-            }
-            else
-                return std::nullopt;
-        }
-
-        static Optional<std::string_view> TryConsumeTo(Trinity::ChatCommands::Variant<Ts...>& val, std::string_view args)
-        {
-            return TryAtIndex<0>(val, args);
-        }
-    };
-
     /*
       for backwards compatibility, consumes the rest of the string
       new code should use the Tail/WTail tags defined in ChatCommandTags
