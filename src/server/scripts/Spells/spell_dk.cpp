@@ -1170,12 +1170,12 @@ class spell_dk_gargoyle_strike : public SpellScript
     bool Load() override
     {
         damage = 0;
-    
+
         if (GetCaster() && GetCaster()->GetEntry() == NPC_EBON_GARGOYLE)
             return true;
         return false;
     }
-    
+
     void HandleDummyHitTarget(SpellEffIndex /*effIndex*/)
     {
         if (SpellInfo const* info = GetSpellInfo())
@@ -1184,7 +1184,7 @@ class spell_dk_gargoyle_strike : public SpellScript
             damage += urand(0, info->Effects[0].DieSides);
             damage += (GetCaster()->GetLevel() - 60) * 4 + 60;
         }
-    
+
         Unit* target = GetHitUnit();
         Unit* caster = GetCaster();
         if (!target || !caster)
@@ -1192,13 +1192,13 @@ class spell_dk_gargoyle_strike : public SpellScript
         Unit* owner = caster->GetOwner();
         if (!owner)
             return;
-    
+
         damage += (owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.4f);
         damage *= target->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, GetSpellInfo()->GetSchoolMask());
-    
+
         SetHitDamage(damage);
     }
-    
+
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_dk_gargoyle_strike::HandleDummyHitTarget, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
@@ -2470,7 +2470,7 @@ class spell_dk_summon_gargoyle : public SpellScript
         offset.m_positionZ = 0.0f;
         return true;
     }
-    
+
     void HandleHitTarget(SpellEffIndex /*effIndex*/)
     {
         WorldLocation summonPos = *GetExplTargetDest();
@@ -2478,14 +2478,14 @@ class spell_dk_summon_gargoyle : public SpellScript
         SetExplTargetDest(summonPos);
         GetHitDest()->RelocateOffset(offset);
     }
-    
+
     void SetDest(SpellDestination& dest)
     {
         // Adjust effect summon position
         if (GetCaster()->IsWithinLOS(dest._position.GetPositionX(), dest._position.GetPositionY(), dest._position.GetPositionZ() + 15.0f))
             dest._position.m_positionZ += 15.0f;
     }
-    
+
     void HandleLaunchTarget(SpellEffIndex /*effIndex*/)
     {
         if (Unit* target = GetExplTargetUnit())
@@ -2498,7 +2498,7 @@ class spell_dk_summon_gargoyle : public SpellScript
             }
         }
     }
-    
+
     void Register() override
     {
         OnEffectHit += SpellEffectFn(spell_dk_summon_gargoyle::HandleHitTarget, EFFECT_0, SPELL_EFFECT_SUMMON);
