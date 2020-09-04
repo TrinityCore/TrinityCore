@@ -769,7 +769,11 @@ class spell_mark_of_nature : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                return ValidateSpellInfo({ SPELL_MARK_OF_NATURE, SPELL_AURA_OF_NATURE });
+                return ValidateSpellInfo(
+                {
+                    SPELL_MARK_OF_NATURE,
+                    SPELL_AURA_OF_NATURE
+                });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)

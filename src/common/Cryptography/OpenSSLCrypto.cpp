@@ -24,7 +24,7 @@
 std::vector<std::mutex*> cryptoLocks;
 void ValgrindRandomSetup();
 
-static void lockingCallback(int mode, int type, const char* /*file*/, int /*line*/)
+static void lockingCallback(int mode, int type, char const* /*file*/, int /*line*/)
 {
     if (mode & CRYPTO_LOCK)
         cryptoLocks[type]->lock();

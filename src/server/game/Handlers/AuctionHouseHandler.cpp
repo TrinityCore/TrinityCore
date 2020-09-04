@@ -32,7 +32,6 @@
 #include "Player.h"
 #include "Util.h"
 #include "World.h"
-#include "WorldPacket.h"
 #include <sstream>
 
 void WorldSession::HandleAuctionBrowseQuery(WorldPackets::AuctionHouse::AuctionBrowseQuery& browseQuery)

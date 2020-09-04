@@ -20,7 +20,7 @@
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ruby_sanctum.h"
-#include "ScriptedEscortAI.h"
+#include "ScriptedCreature.h"
 
 enum Texts
 {

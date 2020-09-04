@@ -17,9 +17,9 @@
 
 #include "ScriptMgr.h"
 #include "blackfathom_deeps.h"
-#include "GameObjectAI.h"
-#include "GameObject.h"
 #include "InstanceScript.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
 #include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
@@ -232,7 +232,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_morriduneAI(creature);
+        return GetBlackfathomDeepsAI<npc_morriduneAI>(creature);
     }
 };
 

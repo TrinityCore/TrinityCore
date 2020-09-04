@@ -63,7 +63,7 @@ class TC_GAME_API DynamicObject : public WorldObject, public GridObject<DynamicO
         Unit* GetCaster() const { return _caster; }
         void BindToCaster();
         void UnbindFromCaster();
-        uint32 GetSpellId() const {  return m_dynamicObjectData->SpellID; }
+        uint32 GetSpellId() const { return m_dynamicObjectData->SpellID; }
         SpellInfo const* GetSpellInfo() const;
         ObjectGuid GetCasterGUID() const { return m_dynamicObjectData->Caster; }
         float GetRadius() const { return m_dynamicObjectData->Radius; }

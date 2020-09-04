@@ -47,6 +47,7 @@ class TC_GAME_API HashMapHolder
     HashMapHolder() { }
 
 public:
+
     typedef std::unordered_map<ObjectGuid, T*> MapType;
 
     static void Insert(T* o);

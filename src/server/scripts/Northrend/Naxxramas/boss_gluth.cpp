@@ -194,7 +194,7 @@ public:
                         Creature* zombie = nullptr;
                         for (SummonList::const_iterator itr = summons.begin(); !zombie && itr != summons.end(); ++itr)
                         {
-                            zombie=ObjectAccessor::GetCreature(*me, *itr);
+                            zombie = ObjectAccessor::GetCreature(*me, *itr);
                             if (!zombie || !zombie->IsAlive() || !zombie->IsWithinDistInMap(me, 10.0))
                                 zombie = nullptr;
                         }

@@ -25,7 +25,7 @@
 union SQLElementUnion
 {
     PreparedStatementBase* stmt;
-    const char* query;
+    char const* query;
 };
 
 //- Type specifier of our element data

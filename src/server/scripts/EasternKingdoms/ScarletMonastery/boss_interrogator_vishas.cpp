@@ -16,9 +16,9 @@
  */
 
 #include "ScriptMgr.h"
+#include "scarlet_monastery.h"
 #include "InstanceScript.h"
 #include "ObjectAccessor.h"
-#include "scarlet_monastery.h"
 #include "ScriptedCreature.h"
 
 enum Says

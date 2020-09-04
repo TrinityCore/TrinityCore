@@ -46,17 +46,18 @@ class spell_item_trigger_spell : public SpellScriptLoader
         uint32 _triggeredSpellId;
 
     public:
-        spell_item_trigger_spell(const char* name, uint32 triggeredSpellId) : SpellScriptLoader(name), _triggeredSpellId(triggeredSpellId) { }
+        spell_item_trigger_spell(char const* name, uint32 triggeredSpellId) : SpellScriptLoader(name), _triggeredSpellId(triggeredSpellId) { }
 
         class spell_item_trigger_spell_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_item_trigger_spell_SpellScript);
-        private:
+
             uint32 _triggeredSpellId;
 
         public:
             spell_item_trigger_spell_SpellScript(uint32 triggeredSpellId) : SpellScript(), _triggeredSpellId(triggeredSpellId) { }
 
+        private:
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ _triggeredSpellId });
@@ -214,7 +215,7 @@ class spell_item_anger_capacitor : public SpellScriptLoader
                 caster->RemoveAurasDueToSpell(SPELL_MOTE_OF_ANGER);
                 uint32 spellId = SPELL_MANIFEST_ANGER_MAIN_HAND;
                 if (Player* player = caster->ToPlayer())
-                    if (player->GetWeaponForAttack(OFF_ATTACK, true) && urand(0, 1))
+                    if (player->GetWeaponForAttack(OFF_ATTACK, true) && roll_chance_i(50))
                         spellId = SPELL_MANIFEST_ANGER_OFF_HAND;
 
                 caster->CastSpell(target, spellId, true, nullptr, aurEff);
@@ -607,6 +608,7 @@ class spell_item_defibrillate : public SpellScriptLoader
         public:
             spell_item_defibrillate_SpellScript(uint8 chance, uint32 failSpell) : SpellScript(), _chance(chance), _failSpell(failSpell) { }
 
+        private:
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return !_failSpell || ValidateSpellInfo({ _failSpell });
@@ -627,7 +629,6 @@ class spell_item_defibrillate : public SpellScriptLoader
                 OnEffectHitTarget += SpellEffectFn(spell_item_defibrillate_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_RESURRECT);
             }
 
-        private:
             uint8 _chance;
             uint32 _failSpell;
         };
@@ -2982,7 +2983,11 @@ class spell_item_shard_of_the_scale : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                return ValidateSpellInfo({ HealProc, DamageProc });
+                return ValidateSpellInfo(
+                {
+                    HealProc,
+                    DamageProc
+                });
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -3106,14 +3111,9 @@ class spell_item_sunwell_neck : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (!sFactionStore.LookupEntry(FACTION_ALDOR) ||
-                    !sFactionStore.LookupEntry(FACTION_SCRYERS))
-                    return false;
-                return ValidateSpellInfo(
-                {
-                    Aldors,
-                    Scryers
-                });
+                return ValidateSpellInfo({ Aldors, Scryers }) &&
+                    sFactionStore.LookupEntry(FACTION_ALDOR) &&
+                    sFactionStore.LookupEntry(FACTION_SCRYERS);
             }
 
             bool CheckProc(ProcEventInfo& eventInfo)
@@ -3271,6 +3271,7 @@ public:
         {
         }
 
+    private:
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             return ValidateSpellInfo({ _stackSpell, _triggerSpell });
@@ -3301,7 +3302,6 @@ public:
             OnEffectProc += AuraEffectProcFn(spell_item_trinket_stack_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
         }
 
-    private:
         uint32 _stackSpell;
         uint32 _triggerSpell;
     };

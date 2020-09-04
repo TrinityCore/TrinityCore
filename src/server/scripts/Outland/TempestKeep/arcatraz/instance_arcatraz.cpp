@@ -66,12 +66,10 @@ class instance_arcatraz : public InstanceMapScript
 
             void OnGameObjectCreate(GameObject* go) override
             {
+                InstanceScript::OnGameObjectCreate(go);
+
                 switch (go->GetEntry())
                 {
-                    case GO_CONTAINMENT_CORE_SECURITY_FIELD_ALPHA:
-                    case GO_CONTAINMENT_CORE_SECURITY_FIELD_BETA:
-                        AddDoor(go, true);
-                        break;
                     case GO_STASIS_POD_ALPHA:
                         StasisPodGUIDs[0] = go->GetGUID();
                         break;
@@ -89,19 +87,6 @@ class instance_arcatraz : public InstanceMapScript
                         break;
                     case GO_WARDENS_SHIELD:
                         WardensShieldGUID = go->GetGUID();
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void OnGameObjectRemove(GameObject* go) override
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_CONTAINMENT_CORE_SECURITY_FIELD_ALPHA:
-                    case GO_CONTAINMENT_CORE_SECURITY_FIELD_BETA:
-                        AddDoor(go, false);
                         break;
                     default:
                         break;

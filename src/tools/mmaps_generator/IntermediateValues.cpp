@@ -68,7 +68,7 @@ namespace MMAP
 #undef DEBUG_WRITE
     }
 
-    void IntermediateValues::debugWrite(FILE* file, const rcHeightfield* mesh)
+    void IntermediateValues::debugWrite(FILE* file, rcHeightfield const* mesh)
     {
         if (!file || !mesh)
             return;
@@ -106,7 +106,7 @@ namespace MMAP
             }
     }
 
-    void IntermediateValues::debugWrite(FILE* file, const rcCompactHeightfield* chf)
+    void IntermediateValues::debugWrite(FILE* file, rcCompactHeightfield const* chf)
     {
         if (!file | !chf)
             return;
@@ -145,7 +145,7 @@ namespace MMAP
             fwrite(chf->areas, sizeof(unsigned char), chf->spanCount, file);
     }
 
-    void IntermediateValues::debugWrite(FILE* file, const rcContourSet* cs)
+    void IntermediateValues::debugWrite(FILE* file, rcContourSet const* cs)
     {
         if (!file || !cs)
             return;
@@ -166,7 +166,7 @@ namespace MMAP
         }
     }
 
-    void IntermediateValues::debugWrite(FILE* file, const rcPolyMesh* mesh)
+    void IntermediateValues::debugWrite(FILE* file, rcPolyMesh const* mesh)
     {
         if (!file || !mesh)
             return;
@@ -185,7 +185,7 @@ namespace MMAP
         fwrite(mesh->regs, sizeof(unsigned short), mesh->npolys, file);
     }
 
-    void IntermediateValues::debugWrite(FILE* file, const rcPolyMeshDetail* mesh)
+    void IntermediateValues::debugWrite(FILE* file, rcPolyMeshDetail const* mesh)
     {
         if (!file || !mesh)
             return;

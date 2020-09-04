@@ -23,7 +23,7 @@
 #include <G3D/g3dmath.h>
 #include <sstream>
 
-bool Position::operator==(Position const &a) const
+bool Position::operator==(Position const& a) const
 {
     return (G3D::fuzzyEq(a.m_positionX, m_positionX) &&
         G3D::fuzzyEq(a.m_positionY, m_positionY) &&
@@ -31,7 +31,7 @@ bool Position::operator==(Position const &a) const
         G3D::fuzzyEq(a.m_orientation, m_orientation));
 }
 
-void Position::RelocateOffset(const Position & offset)
+void Position::RelocateOffset(Position const& offset)
 {
     m_positionX = GetPositionX() + (offset.GetPositionX() * std::cos(GetOrientation()) + offset.GetPositionY() * std::sin(GetOrientation() + float(M_PI)));
     m_positionY = GetPositionY() + (offset.GetPositionY() * std::cos(GetOrientation()) + offset.GetPositionX() * std::sin(GetOrientation()));
@@ -64,7 +64,7 @@ float Position::GetExactDist(Position const* pos) const
     return std::sqrt(GetExactDistSq(pos));
 }
 
-void Position::GetPositionOffsetTo(const Position & endPos, Position & retOffset) const
+void Position::GetPositionOffsetTo(Position const& endPos, Position& retOffset) const
 {
     float dx = endPos.GetPositionX() - GetPositionX();
     float dy = endPos.GetPositionY() - GetPositionY();
@@ -120,7 +120,7 @@ void Position::GetSinCos(const float x, const float y, float &vsin, float &vcos)
     }
 }
 
-bool Position::IsWithinBox(const Position& center, float xradius, float yradius, float zradius) const
+bool Position::IsWithinBox(Position const& center, float xradius, float yradius, float zradius) const
 {
     // rotate the WorldObject position instead of rotating the whole cube, that way we can make a simplified
     // is-in-cube check and we have to calculate only one point instead of 4
@@ -154,7 +154,7 @@ bool Position::IsWithinDoubleVerticalCylinder(Position const* center, float radi
     return IsInDist2d(center, radius) && std::abs(verticalDelta) <= height;
 }
 
-bool Position::HasInArc(float arc, const Position* obj, float border) const
+bool Position::HasInArc(float arc, Position const* obj, float border) const
 {
     // always have self in arc
     if (obj == this)

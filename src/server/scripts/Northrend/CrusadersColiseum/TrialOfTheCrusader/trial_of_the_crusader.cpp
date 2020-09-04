@@ -93,7 +93,7 @@ Position const ToCSpawnLoc[] =
     { 549.951f,  261.55f, 394.73f, 4.74835f }   //  2 Right
 };
 
-Position const ToCCommonLoc[23] =
+Position const ToCCommonLoc[] =
 {
     { 559.257996f, 90.266197f, 395.122986f, 0 },  //  0 Barrent
 
@@ -136,7 +136,7 @@ Position const LichKingLoc[] =
     { 563.547f, 141.613f, 393.908f, 0 }           // 1 - Lich king end
 };
 
-Position const AnubarakLoc[6] =
+Position const AnubarakLoc[] =
 {
     { 783.9305f, 132.9722f, 142.6711f, 3.141593f }, // 0 - Anub'arak Spawn Location (sniffed)
     { 695.240051f, 137.834824f, 142.200000f, 0 },  // 1 - Anub'arak move point location

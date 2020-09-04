@@ -60,6 +60,7 @@
 #include "IPLocation.h"
 #include "Language.h"
 #include "LFGMgr.h"
+#include "Log.h"
 #include "LootItemStorage.h"
 #include "LootMgr.h"
 #include "M2Stores.h"
@@ -68,7 +69,6 @@
 #include "Metric.h"
 #include "MiscPackets.h"
 #include "MMapFactory.h"
-#include "Object.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
@@ -1405,7 +1405,7 @@ void World::LoadConfigSettings(bool reload)
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_UNIX || TRINITY_PLATFORM == TRINITY_PLATFORM_APPLE
     if (dataPath[0] == '~')
     {
-        const char* home = getenv("HOME");
+        char const* home = getenv("HOME");
         if (home)
             dataPath.replace(0, 1, home);
     }
@@ -2779,7 +2779,7 @@ void World::SendGMText(uint32 string_id, ...)
 }
 
 /// DEPRECATED, only for debug purpose. Send a System Message to all players (except self if mentioned)
-void World::SendGlobalText(const char* text, WorldSession* self)
+void World::SendGlobalText(char const* text, WorldSession* self)
 {
     // need copy to prevent corruption by strtok call in LineFromMessage original string
     char* buf = strdup(text);
@@ -2819,7 +2819,7 @@ bool World::SendZoneMessage(uint32 zone, WorldPacket const* packet, WorldSession
 }
 
 /// Send a System Message to all players in the zone (except self if mentioned)
-void World::SendZoneText(uint32 zone, const char* text, WorldSession* self, uint32 team)
+void World::SendZoneText(uint32 zone, char const* text, WorldSession* self, uint32 team)
 {
     WorldPackets::Chat::Chat packet;
     packet.Initialize(CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, text);
@@ -3142,7 +3142,7 @@ void World::SendServerMessage(ServerMessageType messageID, std::string stringPar
         chatServerMessage.StringParam = stringParam;
 
     if (player)
-        player->GetSession()->SendPacket(chatServerMessage.Write());
+        player->SendDirectMessage(chatServerMessage.Write());
     else
         SendGlobalMessage(chatServerMessage.Write());
 }
@@ -3258,9 +3258,9 @@ void World::_UpdateRealmCharCount(PreparedQueryResult resultCharCount)
 
 void World::InitWeeklyQuestResetTime()
 {
-    time_t wstime = sWorld->getWorldState(WS_WEEKLY_QUEST_RESET_TIME);
+    time_t wstime = uint64(sWorld->getWorldState(WS_WEEKLY_QUEST_RESET_TIME));
     time_t curtime = time(nullptr);
-    m_NextWeeklyQuestReset = wstime < curtime ? curtime : wstime;
+    m_NextWeeklyQuestReset = wstime < curtime ? curtime : time_t(wstime);
 }
 
 void World::InitDailyQuestResetTime(bool loading)
@@ -3300,16 +3300,16 @@ void World::InitDailyQuestResetTime(bool loading)
 
 void World::InitMonthlyQuestResetTime()
 {
-    time_t wstime = sWorld->getWorldState(WS_MONTHLY_QUEST_RESET_TIME);
+    time_t wstime = uint64(sWorld->getWorldState(WS_MONTHLY_QUEST_RESET_TIME));
     time_t curtime = time(nullptr);
-    m_NextMonthlyQuestReset = wstime < curtime ? curtime : wstime;
+    m_NextMonthlyQuestReset = wstime < curtime ? curtime : time_t(wstime);
 }
 
 void World::InitRandomBGResetTime()
 {
     time_t bgtime = sWorld->getWorldState(WS_BG_DAILY_RESET_TIME);
     if (!bgtime)
-        m_NextRandomBGReset = time(nullptr);         // game time not yet init
+        m_NextRandomBGReset = time(nullptr);              // game time not yet init
 
     // generate time by config
     time_t curTime = time(nullptr);
@@ -3337,7 +3337,7 @@ void World::InitGuildResetTime()
 {
     time_t gtime = getWorldState(WS_GUILD_DAILY_RESET_TIME);
     if (!gtime)
-        m_NextGuildReset = time(nullptr);         // game time not yet init
+        m_NextGuildReset = time(nullptr);              // game time not yet init
 
     // generate time by config
     time_t curTime = time(nullptr);

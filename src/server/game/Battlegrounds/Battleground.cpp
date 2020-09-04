@@ -153,7 +153,7 @@ void Battleground::Update(uint32 diff)
         // [[   but if you use battleground object again (more battles possible to be played on 1 instance)
         //      then this condition should be removed and code:
         //      if (!GetInvitedCount(HORDE) && !GetInvitedCount(ALLIANCE))
-        //          this->AddToFreeBGObjectsQueue(); // not yet implemented
+        //          AddToFreeBGObjectsQueue(); // not yet implemented
         //      should be used instead of current
         // ]]
         // Battleground Template instance cannot be updated, because it would be deleted
@@ -1365,7 +1365,7 @@ void Battleground::RelocateDeadPlayers(ObjectGuid guideGuid)
                 continue;
 
             if (!closestGrave)
-                closestGrave = GetClosestGraveYard(player);
+                closestGrave = GetClosestGraveyard(player);
 
             if (closestGrave)
                 player->TeleportTo(closestGrave->Loc);
@@ -1825,9 +1825,9 @@ void Battleground::SetBgRaid(uint32 TeamID, Group* bg_raid)
     old_raid = bg_raid;
 }
 
-WorldSafeLocsEntry const* Battleground::GetClosestGraveYard(Player* player)
+WorldSafeLocsEntry const* Battleground::GetClosestGraveyard(Player* player)
 {
-    return sObjectMgr->GetClosestGraveYard(*player, player->GetTeam(), player);
+    return sObjectMgr->GetClosestGraveyard(*player, player->GetTeam(), player);
 }
 
 void Battleground::StartCriteriaTimer(CriteriaTimedTypes type, uint32 entry)

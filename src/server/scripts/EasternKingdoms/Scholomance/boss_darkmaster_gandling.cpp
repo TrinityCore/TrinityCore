@@ -27,8 +27,8 @@ Category: Scholomance
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
-#include "ScriptedCreature.h"
 #include "scholomance.h"
+#include "ScriptedCreature.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
@@ -171,17 +171,10 @@ class spell_shadow_portal : public SpellScriptLoader
         {
             PrepareSpellScript(spell_shadow_portal_SpellScript);
 
-        public:
-            spell_shadow_portal_SpellScript()
-            {
-                _instance = nullptr;
-            }
-
-        private:
             bool Load() override
             {
                 _instance = GetCaster()->GetInstanceScript();
-                return _instance != nullptr;
+                return InstanceHasScript(GetCaster(), ScholomanceScriptName);
             }
 
             void HandleCast(SpellEffIndex /*effIndex*/)
@@ -238,7 +231,7 @@ class spell_shadow_portal : public SpellScriptLoader
                 OnEffectHitTarget += SpellEffectFn(spell_shadow_portal_SpellScript::HandleCast, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
 
-            InstanceScript* _instance;
+            InstanceScript* _instance = nullptr;
         };
 
         SpellScript* GetSpellScript() const override
@@ -300,13 +293,6 @@ class spell_shadow_portal_rooms : public SpellScriptLoader
         {
             PrepareSpellScript(spell_shadow_portal_rooms_SpellScript);
 
-        public:
-            spell_shadow_portal_rooms_SpellScript()
-            {
-                _instance = nullptr;
-            }
-
-        private:
             bool Load() override
             {
                 _instance = GetCaster()->GetInstanceScript();
@@ -380,7 +366,7 @@ class spell_shadow_portal_rooms : public SpellScriptLoader
                 OnEffectHit += SpellEffectFn(spell_shadow_portal_rooms_SpellScript::HandleSendEvent, EFFECT_1, SPELL_EFFECT_SEND_EVENT);
             }
 
-            InstanceScript* _instance;
+            InstanceScript* _instance = nullptr;
         };
 
         SpellScript* GetSpellScript() const override

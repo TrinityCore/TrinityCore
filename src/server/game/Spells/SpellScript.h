@@ -148,13 +148,13 @@ class TC_GAME_API _SpellScript
             return _ValidateSpellInfo(spellIds.begin(), spellIds.end());
         }
 
-        template<class T>
+        template <class T>
         static bool ValidateSpellInfo(T const& spellIds)
         {
             return _ValidateSpellInfo(std::begin(spellIds), std::end(spellIds));
         }
 
-private:
+    private:
         static bool _ValidateSpellInfo(uint32 const* begin, uint32 const* end);
 };
 

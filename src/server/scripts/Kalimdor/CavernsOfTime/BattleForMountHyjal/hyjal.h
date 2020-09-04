@@ -95,10 +95,10 @@ enum HYGameobjectIds
 
 #define MINRAIDDAMAGE 700000 // minimal damage before trash can drop loot and reputation, resets if faction leader dies
 
-template<typename AI>
-inline AI* GetHyjalAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetHyjalAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, HyjalScriptName);
+    return GetInstanceAI<AI>(obj, HyjalScriptName);
 }
 
 #endif

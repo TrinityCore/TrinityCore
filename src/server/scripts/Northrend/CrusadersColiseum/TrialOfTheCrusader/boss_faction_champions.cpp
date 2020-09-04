@@ -23,8 +23,8 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "trial_of_the_crusader.h"
 
@@ -343,7 +343,7 @@ enum Events
     EVENT_SPELL_LOCK                = 2
 };
 
-const Position FactionChampionLoc[] =
+Position const FactionChampionLoc[] =
 {
     { 514.231f, 105.569f, 418.234f, 0 },               //  0 - Horde Initial Pos 0
     { 508.334f, 115.377f, 418.234f, 0 },               //  1 - Horde Initial Pos 1
@@ -652,7 +652,7 @@ struct boss_faction_championsAI : public BossAI
     {
         if (who->GetTypeId() == TYPEID_PLAYER)
         {
-            Map::PlayerList const &players = me->GetMap()->GetPlayers();
+            Map::PlayerList const& players = me->GetMap()->GetPlayers();
             uint32 TeamInInstance = 0;
 
             if (!players.isEmpty())

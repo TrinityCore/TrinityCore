@@ -15,14 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __PLAYERTAXI_H__
-#define __PLAYERTAXI_H__
+#ifndef PlayerTaxi_h__
+#define PlayerTaxi_h__
 
 #include "DBCEnums.h"
 #include "Define.h"
 #include <deque>
 #include <iosfwd>
-#include <vector>
+#include <string>
 
 struct FactionTemplateEntry;
 namespace WorldPackets
@@ -69,7 +69,6 @@ class TC_GAME_API PlayerTaxi
 
         void ClearTaxiDestinations() { m_TaxiDestinations.clear(); }
         void AddTaxiDestination(uint32 dest) { m_TaxiDestinations.push_back(dest); }
-        void SetTaxiDestination(std::vector<uint32>& nodes) { m_TaxiDestinations.clear(); m_TaxiDestinations.insert(m_TaxiDestinations.begin(), nodes.begin(), nodes.end()); }
         uint32 GetTaxiSource() const { return m_TaxiDestinations.empty() ? 0 : m_TaxiDestinations.front(); }
         uint32 GetTaxiDestination() const { return m_TaxiDestinations.size() < 2 ? 0 : m_TaxiDestinations[1]; }
         uint32 GetCurrentTaxiPath() const;
@@ -93,4 +92,4 @@ class TC_GAME_API PlayerTaxi
 
 std::ostringstream& operator <<(std::ostringstream& ss, PlayerTaxi const& taxi);
 
-#endif
+#endif // PlayerTaxi_h__

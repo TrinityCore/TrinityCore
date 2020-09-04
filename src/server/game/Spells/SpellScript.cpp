@@ -44,6 +44,7 @@ bool _SpellScript::_ValidateSpellInfo(uint32 const* begin, uint32 const* end)
             TC_LOG_ERROR("scripts.spells", "_SpellScript::ValidateSpellInfo: Spell %u does not exist.", *begin);
             allValid = false;
         }
+
         ++begin;
     }
     return allValid;
