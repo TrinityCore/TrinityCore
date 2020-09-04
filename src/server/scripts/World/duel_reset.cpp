@@ -15,10 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "GameTime.h"
 #include "ScriptMgr.h"
-#include "Player.h"
+#include "GameTime.h"
 #include "Pet.h"
+#include "Player.h"
 #include "SpellHistory.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"

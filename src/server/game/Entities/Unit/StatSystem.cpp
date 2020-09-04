@@ -20,7 +20,6 @@
 #include "Item.h"
 #include "Player.h"
 #include "Pet.h"
-#include "Creature.h"
 #include "GameTables.h"
 #include "ObjectMgr.h"
 #include "SharedDefines.h"

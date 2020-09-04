@@ -79,10 +79,10 @@ private:
     void ScheduleOverallStatusLog();
 
     static std::string FormatInfluxDBValue(bool value);
-    template<class T>
+    template <class T>
     static std::string FormatInfluxDBValue(T value);
     static std::string FormatInfluxDBValue(std::string const& value);
-    static std::string FormatInfluxDBValue(const char* value);
+    static std::string FormatInfluxDBValue(char const* value);
     static std::string FormatInfluxDBValue(double value);
     static std::string FormatInfluxDBValue(float value);
 

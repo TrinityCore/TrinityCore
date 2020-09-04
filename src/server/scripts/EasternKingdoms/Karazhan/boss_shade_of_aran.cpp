@@ -23,11 +23,10 @@ SDCategory: Karazhan
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "GameObject.h"
-#include "InstanceScript.h"
-#include "Item.h"
 #include "karazhan.h"
-#include "Map.h"
+#include "InstanceScript.h"
+#include "GameObject.h"
+#include "Item.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"

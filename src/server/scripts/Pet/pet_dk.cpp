@@ -26,7 +26,6 @@
 #include "GridNotifiersImpl.h"
 #include "MotionMaster.h"
 #include "ScriptedCreature.h"
-#include "SpellInfo.h"
 
 enum DeathKnightSpells
 {

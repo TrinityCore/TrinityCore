@@ -560,13 +560,12 @@ enum WorldStates
 /// Storage class for commands issued for delayed execution
 struct TC_GAME_API CliCommandHolder
 {
-    typedef void(*Print)(void*, const char*);
+    typedef void(*Print)(void*, char const*);
     typedef void(*CommandFinished)(void*, bool success);
 
     void* m_callbackArg;
-    char *m_command;
+    char* m_command;
     Print m_print;
-
     CommandFinished m_commandFinished;
 
     CliCommandHolder(void* callbackArg, char const* command, Print zprint, CommandFinished commandFinished);
@@ -594,7 +593,7 @@ class TC_GAME_API World
         bool RemoveSession(uint32 id);
         /// Get the number of current active sessions
         void UpdateMaxSessionCounters();
-        const SessionMap& GetAllSessions() const { return m_sessions; }
+        SessionMap const& GetAllSessions() const { return m_sessions; }
         uint32 GetActiveAndQueuedSessionCount() const { return uint32(m_sessions.size()); }
         uint32 GetActiveSessionCount() const { return uint32(m_sessions.size() - m_QueuedPlayer.size()); }
         uint32 GetQueuedSessionCount() const { return uint32(m_QueuedPlayer.size()); }
@@ -673,7 +672,7 @@ class TC_GAME_API World
         void LoadConfigSettings(bool reload = false);
 
         void SendWorldText(uint32 string_id, ...);
-        void SendGlobalText(const char* text, WorldSession* self);
+        void SendGlobalText(char const* text, WorldSession* self);
         void SendGMText(uint32 string_id, ...);
         void SendServerMessage(ServerMessageType messageID, std::string stringParam = "", Player* player = nullptr);
         void SendGlobalMessage(WorldPacket const* packet, WorldSession* self = nullptr, uint32 team = 0);

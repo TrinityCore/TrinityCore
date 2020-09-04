@@ -221,7 +221,7 @@ public:
             if (!beam)
             {
                 SummonBeams();
-                beam=true;
+                beam = true;
             }
             //Return since we have no target
             if (!UpdateVictim())

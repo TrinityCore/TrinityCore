@@ -76,10 +76,10 @@ enum MTMovementData
     PATH_KALECGOS_FLIGHT    = 248440
 };
 
-template<typename AI>
-inline AI* GetMagistersTerraceAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetMagistersTerraceAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, MGTScriptName);
+    return GetInstanceAI<AI>(obj, MGTScriptName);
 }
 
 #endif

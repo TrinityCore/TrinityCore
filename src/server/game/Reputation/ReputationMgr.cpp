@@ -21,12 +21,10 @@
 #include "DB2Stores.h"
 #include "Log.h"
 #include "ObjectMgr.h"
-#include "Opcodes.h"
 #include "Player.h"
 #include "ReputationPackets.h"
 #include "ScriptMgr.h"
 #include "World.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
 
 const int32 ReputationMgr::PointsInRank[MAX_REPUTATION_RANK] = {36000, 3000, 3000, 3000, 6000, 12000, 21000, 1000};
@@ -271,7 +269,7 @@ bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standi
     if (!noSpillover)
     {
         // if spillover definition exists in DB, override DBC
-        if (const RepSpilloverTemplate* repTemplate = sObjectMgr->GetRepSpilloverTemplate(factionEntry->ID))
+        if (RepSpilloverTemplate const* repTemplate = sObjectMgr->GetRepSpilloverTemplate(factionEntry->ID))
         {
             for (uint32 i = 0; i < MAX_SPILLOVER_FACTIONS; ++i)
             {

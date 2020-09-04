@@ -23,8 +23,8 @@ SDCategory: Scarlet Monastery
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
 #include "scarlet_monastery.h"
+#include "InstanceScript.h"
 #include "ScriptedCreature.h"
 
 enum Spells

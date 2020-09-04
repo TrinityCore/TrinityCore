@@ -26,7 +26,6 @@
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "TemporarySummon.h"
 
 enum Yells
 {

@@ -358,7 +358,7 @@ void WorldSession::HandleRequestCemeteryList(WorldPackets::Misc::RequestCemetery
     uint32 team = _player->GetTeam();
 
     std::vector<uint32> graveyardIds;
-    auto range = sObjectMgr->GraveYardStore.equal_range(zoneId);
+    auto range = sObjectMgr->GraveyardStore.equal_range(zoneId);
 
     for (auto it = range.first; it != range.second && graveyardIds.size() < 16; ++it) // client max
     {

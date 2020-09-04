@@ -4873,7 +4873,7 @@ void AuraEffect::HandleChannelDeathItem(AuraApplication const* aurApp, uint8 mod
     InventoryResult msg = plCaster->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, GetSpellEffectInfo()->ItemType, count, &noSpaceForCount);
     if (msg != EQUIP_ERR_OK)
     {
-        count-=noSpaceForCount;
+        count -= noSpaceForCount;
         plCaster->SendEquipError(msg, nullptr, nullptr, GetSpellEffectInfo()->ItemType);
         if (count == 0)
             return;

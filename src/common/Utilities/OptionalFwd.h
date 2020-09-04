@@ -15,17 +15,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef maraudon_h__
-#define maraudon_h__
+#ifndef OptionalFwd_h__
+#define OptionalFwd_h__
 
-#include "CreatureAIImpl.h"
-
-#define MaraudonScriptName "instance_maraudon"
-
-template <class AI, class T>
-inline AI* GetMaraudonAI(T* obj)
+namespace boost
 {
-    return GetInstanceAI<AI>(obj, MaraudonScriptName);
+    template <class T>
+    class optional;
 }
 
-#endif // maraudon_h__
+//! Optional helper class to wrap optional values within.
+template <class T>
+using Optional = boost::optional<T>;
+
+#endif // OptionalFwd_h__

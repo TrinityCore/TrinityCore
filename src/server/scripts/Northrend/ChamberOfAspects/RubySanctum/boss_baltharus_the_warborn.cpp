@@ -15,13 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptedCreature.h"
-#include "InstanceScript.h"
-#include "ObjectAccessor.h"
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
+#include "ruby_sanctum.h"
+#include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
-#include "ruby_sanctum.h"
 
 enum Texts
 {

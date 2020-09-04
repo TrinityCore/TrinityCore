@@ -86,12 +86,12 @@ class TypeContainerVisitor
     public:
         TypeContainerVisitor(VISITOR &v) : i_visitor(v) { }
 
-        void Visit(TYPE_CONTAINER &c)
+        void Visit(TYPE_CONTAINER& c)
         {
             VisitorHelper(i_visitor, c);
         }
 
-        void Visit(const TYPE_CONTAINER &c) const
+        void Visit(TYPE_CONTAINER const& c) const
         {
             VisitorHelper(i_visitor, c);
         }

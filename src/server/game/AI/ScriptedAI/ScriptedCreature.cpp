@@ -548,7 +548,7 @@ bool BossAI::CanAIAttack(Unit const* target) const
     return CheckBoundary(target);
 }
 
-void BossAI::_DespawnAtEvade(Seconds delayToRespawn, Creature* who)
+void BossAI::_DespawnAtEvade(Seconds delayToRespawn /*= 30s*/, Creature* who /*= nullptr*/)
 {
     if (delayToRespawn < Seconds(2))
     {
@@ -566,7 +566,7 @@ void BossAI::_DespawnAtEvade(Seconds delayToRespawn, Creature* who)
         return;
     }
 
-    who->DespawnOrUnsummon(0, Seconds(delayToRespawn));
+    who->DespawnOrUnsummon(0, delayToRespawn);
 
     if (instance && who == me)
         instance->SetBossState(_bossId, FAIL);

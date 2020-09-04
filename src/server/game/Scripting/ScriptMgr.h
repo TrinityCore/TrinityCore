@@ -113,7 +113,7 @@ enum XPColorChar : uint8;
 
         protected:
 
-            MyScriptType(const char* name, uint32 someId)
+            MyScriptType(char const* name, uint32 someId)
                 : ScriptObject(name), _someId(someId)
             {
                 ScriptRegistry<MyScriptType>::AddScript(this);
@@ -174,7 +174,7 @@ class TC_GAME_API ScriptObject
 
     protected:
 
-        ScriptObject(const char* name);
+        ScriptObject(char const* name);
         virtual ~ScriptObject();
 
     private:
@@ -201,7 +201,7 @@ class TC_GAME_API SpellScriptLoader : public ScriptObject
 {
     protected:
 
-        SpellScriptLoader(const char* name);
+        SpellScriptLoader(char const* name);
 
     public:
 
@@ -216,7 +216,7 @@ class TC_GAME_API ServerScript : public ScriptObject
 {
     protected:
 
-        ServerScript(const char* name);
+        ServerScript(char const* name);
 
     public:
 
@@ -246,7 +246,7 @@ class TC_GAME_API WorldScript : public ScriptObject
 {
     protected:
 
-        WorldScript(const char* name);
+        WorldScript(char const* name);
 
     public:
 
@@ -279,7 +279,7 @@ class TC_GAME_API FormulaScript : public ScriptObject
 {
     protected:
 
-        FormulaScript(const char* name);
+        FormulaScript(char const* name);
 
     public:
 
@@ -342,7 +342,7 @@ class TC_GAME_API WorldMapScript : public ScriptObject, public MapScript<Map>
 {
     protected:
 
-        WorldMapScript(const char* name, uint32 mapId);
+        WorldMapScript(char const* name, uint32 mapId);
 };
 
 class TC_GAME_API InstanceMapScript
@@ -350,26 +350,26 @@ class TC_GAME_API InstanceMapScript
 {
     protected:
 
-        InstanceMapScript(const char* name, uint32 mapId);
+        InstanceMapScript(char const* name, uint32 mapId);
 
     public:
 
         // Gets an InstanceScript object for this instance.
-        virtual InstanceScript* GetInstanceScript(InstanceMap* /*map*/) const { return NULL; }
+        virtual InstanceScript* GetInstanceScript(InstanceMap* /*map*/) const { return nullptr; }
 };
 
 class TC_GAME_API BattlegroundMapScript : public ScriptObject, public MapScript<BattlegroundMap>
 {
     protected:
 
-        BattlegroundMapScript(const char* name, uint32 mapId);
+        BattlegroundMapScript(char const* name, uint32 mapId);
 };
 
 class TC_GAME_API ItemScript : public ScriptObject
 {
     protected:
 
-        ItemScript(const char* name);
+        ItemScript(char const* name);
 
     public:
 
@@ -393,7 +393,7 @@ class TC_GAME_API UnitScript : public ScriptObject
 {
     protected:
 
-        UnitScript(const char* name, bool addToScripts = true);
+        UnitScript(char const* name, bool addToScripts = true);
 
     public:
         // Called when a unit deals healing to another unit
@@ -416,7 +416,7 @@ class TC_GAME_API CreatureScript : public UnitScript
 {
     protected:
 
-        CreatureScript(const char* name);
+        CreatureScript(char const* name);
 
     public:
 
@@ -431,7 +431,7 @@ class TC_GAME_API GameObjectScript : public ScriptObject
 {
     protected:
 
-        GameObjectScript(const char* name);
+        GameObjectScript(char const* name);
 
     public:
 
@@ -443,7 +443,7 @@ class TC_GAME_API AreaTriggerScript : public ScriptObject
 {
     protected:
 
-        AreaTriggerScript(const char* name);
+        AreaTriggerScript(char const* name);
 
     public:
 
@@ -468,7 +468,7 @@ class TC_GAME_API BattlegroundScript : public ScriptObject
 {
     protected:
 
-        BattlegroundScript(const char* name);
+        BattlegroundScript(char const* name);
 
     public:
 
@@ -480,7 +480,7 @@ class TC_GAME_API OutdoorPvPScript : public ScriptObject
 {
     protected:
 
-        OutdoorPvPScript(const char* name);
+        OutdoorPvPScript(char const* name);
 
     public:
 
@@ -492,7 +492,7 @@ class TC_GAME_API CommandScript : public ScriptObject
 {
     protected:
 
-        CommandScript(const char* name);
+        CommandScript(char const* name);
 
     public:
 
@@ -504,7 +504,7 @@ class TC_GAME_API WeatherScript : public ScriptObject, public UpdatableScript<We
 {
     protected:
 
-        WeatherScript(const char* name);
+        WeatherScript(char const* name);
 
     public:
 
@@ -516,7 +516,7 @@ class TC_GAME_API AuctionHouseScript : public ScriptObject
 {
     protected:
 
-        AuctionHouseScript(const char* name);
+        AuctionHouseScript(char const* name);
 
     public:
 
@@ -537,7 +537,7 @@ class TC_GAME_API ConditionScript : public ScriptObject
 {
     protected:
 
-        ConditionScript(const char* name);
+        ConditionScript(char const* name);
 
     public:
 
@@ -549,7 +549,7 @@ class TC_GAME_API VehicleScript : public ScriptObject
 {
     protected:
 
-        VehicleScript(const char* name);
+        VehicleScript(char const* name);
 
     public:
 
@@ -576,14 +576,14 @@ class TC_GAME_API DynamicObjectScript : public ScriptObject, public UpdatableScr
 {
     protected:
 
-        DynamicObjectScript(const char* name);
+        DynamicObjectScript(char const* name);
 };
 
 class TC_GAME_API TransportScript : public ScriptObject, public UpdatableScript<Transport>
 {
     protected:
 
-        TransportScript(const char* name);
+        TransportScript(char const* name);
 
     public:
 
@@ -604,7 +604,7 @@ class TC_GAME_API AchievementCriteriaScript : public ScriptObject
 {
     protected:
 
-        AchievementCriteriaScript(const char* name);
+        AchievementCriteriaScript(char const* name);
 
     public:
 
@@ -616,7 +616,7 @@ class TC_GAME_API PlayerScript : public UnitScript
 {
     protected:
 
-        PlayerScript(const char* name);
+        PlayerScript(char const* name);
 
     public:
 
@@ -722,7 +722,7 @@ class TC_GAME_API AccountScript : public ScriptObject
 {
     protected:
 
-        AccountScript(const char* name);
+        AccountScript(char const* name);
 
     public:
 
@@ -749,7 +749,7 @@ class TC_GAME_API GuildScript : public ScriptObject
 {
     protected:
 
-        GuildScript(const char* name);
+        GuildScript(char const* name);
 
     public:
 
@@ -790,7 +790,7 @@ class TC_GAME_API GroupScript : public ScriptObject
 {
     protected:
 
-        GroupScript(const char* name);
+        GroupScript(char const* name);
 
     public:
 
@@ -801,7 +801,7 @@ class TC_GAME_API GroupScript : public ScriptObject
         virtual void OnInviteMember(Group* /*group*/, ObjectGuid /*guid*/) { }
 
         // Called when a member is removed from a group.
-        virtual void OnRemoveMember(Group* /*group*/, ObjectGuid /*guid*/, RemoveMethod /*method*/, ObjectGuid /*kicker*/, const char* /*reason*/) { }
+        virtual void OnRemoveMember(Group* /*group*/, ObjectGuid /*guid*/, RemoveMethod /*method*/, ObjectGuid /*kicker*/, char const* /*reason*/) { }
 
         // Called when the leader of a group is changed.
         virtual void OnChangeLeader(Group* /*group*/, ObjectGuid /*newLeaderGuid*/, ObjectGuid /*oldLeaderGuid*/) { }
@@ -814,7 +814,7 @@ class TC_GAME_API AreaTriggerEntityScript : public ScriptObject
 {
     protected:
 
-        AreaTriggerEntityScript(const char* name);
+        AreaTriggerEntityScript(char const* name);
 
     public:
 
@@ -837,7 +837,7 @@ class TC_GAME_API SceneScript : public ScriptObject
 {
     protected:
 
-        SceneScript(const char* name);
+        SceneScript(char const* name);
 
     public:
         // Called when a player start a scene
@@ -857,7 +857,7 @@ class TC_GAME_API QuestScript : public ScriptObject
 {
     protected:
 
-        QuestScript(const char* name);
+        QuestScript(char const* name);
 
     public:
         // Called when a quest status change
@@ -1114,7 +1114,7 @@ class TC_GAME_API ScriptMgr
 
         void OnGroupAddMember(Group* group, ObjectGuid guid);
         void OnGroupInviteMember(Group* group, ObjectGuid guid);
-        void OnGroupRemoveMember(Group* group, ObjectGuid guid, RemoveMethod method, ObjectGuid kicker, const char* reason);
+        void OnGroupRemoveMember(Group* group, ObjectGuid guid, RemoveMethod method, ObjectGuid kicker, char const* reason);
         void OnGroupChangeLeader(Group* group, ObjectGuid newLeaderGuid, ObjectGuid oldLeaderGuid);
         void OnGroupDisband(Group* group);
 

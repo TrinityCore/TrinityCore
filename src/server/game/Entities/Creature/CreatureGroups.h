@@ -19,7 +19,6 @@
 #define _FORMATIONS_H
 
 #include "Define.h"
-#include "Position.h"
 #include "ObjectGuid.h"
 #include <unordered_map>
 #include <map>
@@ -36,6 +35,7 @@ enum GroupAIFlags
 class Creature;
 class CreatureGroup;
 class Unit;
+struct Position;
 
 struct FormationInfo
 {
@@ -89,7 +89,7 @@ class TC_GAME_API CreatureGroup
         void RemoveMember(Creature* member);
         void FormationReset(bool dismiss);
 
-        void LeaderMoveTo(Position destination, uint32 id = 0, uint32 moveType = 0, bool orientation = false);
+        void LeaderMoveTo(Position const& destination, uint32 id = 0, uint32 moveType = 0, bool orientation = false);
         void MemberEngagingTarget(Creature* member, Unit* target);
         bool CanLeaderStartMoving() const;
 };

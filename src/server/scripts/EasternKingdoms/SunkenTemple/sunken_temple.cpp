@@ -28,10 +28,10 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
-#include "GameObjectAI.h"
 #include "sunken_temple.h"
 
 /*#####
@@ -43,7 +43,7 @@ class at_malfurion_stormrage : public AreaTriggerScript
 public:
     at_malfurion_stormrage() : AreaTriggerScript("at_malfurion_stormrage") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*areaTrigger*/, bool /*entered*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
     {
         if (player->GetInstanceScript() && !player->FindNearestCreature(15362, 15))
             player->SummonCreature(15362, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), -1.52f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 100000);

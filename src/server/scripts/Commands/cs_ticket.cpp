@@ -22,16 +22,14 @@ Comment: All ticket related commands
 Category: commandscripts
 EndScriptData */
 
+#include "ScriptMgr.h"
 #include "AccountMgr.h"
 #include "CharacterCache.h"
 #include "Chat.h"
-#include "Config.h"
 #include "Language.h"
 #include "ObjectMgr.h"
-#include "Opcodes.h"
 #include "Player.h"
 #include "Realm.h"
-#include "ScriptMgr.h"
 #include "SupportMgr.h"
 #include "World.h"
 #include "WorldSession.h"

@@ -27,7 +27,7 @@ DoorData const doorData[] =
     { GO_VOLKHAN_DOOR, DATA_VOLKHAN, DOOR_TYPE_PASSAGE },
     { GO_IONAR_DOOR,   DATA_IONAR,   DOOR_TYPE_PASSAGE },
     { GO_LOKEN_DOOR,   DATA_LOKEN,   DOOR_TYPE_PASSAGE },
-    { 0,               0,            DOOR_TYPE_ROOM } // END
+    { 0,               0,            DOOR_TYPE_ROOM    } // END
 };
 
 class instance_halls_of_lightning : public InstanceMapScript
@@ -67,29 +67,12 @@ class instance_halls_of_lightning : public InstanceMapScript
 
             void OnGameObjectCreate(GameObject* go) override
             {
+                InstanceScript::OnGameObjectCreate(go);
+
                 switch (go->GetEntry())
                 {
-                    case GO_VOLKHAN_DOOR:
-                    case GO_IONAR_DOOR:
-                    case GO_LOKEN_DOOR:
-                        AddDoor(go, true);
-                        break;
                     case GO_LOKEN_THRONE:
                         LokenGlobeGUID = go->GetGUID();
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void OnGameObjectRemove(GameObject* go) override
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_VOLKHAN_DOOR:
-                    case GO_IONAR_DOOR:
-                    case GO_LOKEN_DOOR:
-                        AddDoor(go, false);
                         break;
                     default:
                         break;

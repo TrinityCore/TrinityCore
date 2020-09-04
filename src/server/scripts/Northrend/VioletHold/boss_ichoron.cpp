@@ -20,7 +20,6 @@
 #include "MotionMaster.h"
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
-#include "SpellInfo.h"
 #include "SpellScript.h"
 #include "violet_hold.h"
 

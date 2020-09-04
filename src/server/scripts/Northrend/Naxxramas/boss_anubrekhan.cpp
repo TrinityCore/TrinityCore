@@ -17,8 +17,8 @@
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
-#include "naxxramas.h"
 #include "ObjectAccessor.h"
+#include "naxxramas.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 

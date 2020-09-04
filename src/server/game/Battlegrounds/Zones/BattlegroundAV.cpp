@@ -395,7 +395,7 @@ void BattlegroundAV::PostUpdateImpl(uint32 diff)
             }
         }
         if (m_Mine_Timer <= 0)
-            m_Mine_Timer=AV_MINE_TICK_TIMER; //this is at the end, cause we need to update both mines
+            m_Mine_Timer = AV_MINE_TICK_TIMER; //this is at the end, cause we need to update both mines
 
         //looks for all timers of the nodes and destroy the building (for graveyards the building wont get destroyed, it goes just to the other team
         for (BG_AV_Nodes i = BG_AV_NODES_FIRSTAID_STATION; i < BG_AV_NODES_MAX; ++i)
@@ -1099,7 +1099,7 @@ void BattlegroundAV::SendMineWorldStates(uint32 mine)
         UpdateWorldState(BG_AV_MineWorldStates[mine2][prevowner], 0);
 }
 
-WorldSafeLocsEntry const* BattlegroundAV::GetClosestGraveYard(Player* player)
+WorldSafeLocsEntry const* BattlegroundAV::GetClosestGraveyard(Player* player)
 {
     WorldSafeLocsEntry const* pGraveyard = nullptr;
     WorldSafeLocsEntry const* entry = nullptr;
@@ -1498,7 +1498,7 @@ void BattlegroundAV::ResetBGSubclass()
         InitNode(i, HORDE, true);
     InitNode(BG_AV_NODES_SNOWFALL_GRAVE, AV_NEUTRAL_TEAM, false); //give snowfall neutral owner
 
-    m_Mine_Timer=AV_MINE_TICK_TIMER;
+    m_Mine_Timer = AV_MINE_TICK_TIMER;
     for (uint16 i = 0; i < AV_CPLACE_MAX+AV_STATICCPLACE_MAX; i++)
         if (!BgCreatures[i].IsEmpty())
             DelCreature(i);

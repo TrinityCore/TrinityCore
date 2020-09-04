@@ -20,8 +20,8 @@
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
-#include "obsidian_sanctum.h"
 #include "ObjectAccessor.h"
+#include "obsidian_sanctum.h"
 #include "ScriptedCreature.h"
 #include "TemporarySummon.h"
 
@@ -737,7 +737,7 @@ class npc_acolyte_of_vesperon : public CreatureScript
                         vesperon->RemoveAurasDueToSpell(SPELL_TWILIGHT_TORMENT_VESP);
                 }
 
-                Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
+                Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
 
                 if (PlayerList.isEmpty())
                     return;

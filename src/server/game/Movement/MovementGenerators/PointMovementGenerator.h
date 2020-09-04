@@ -30,7 +30,7 @@ template<class T>
 class PointMovementGenerator : public MovementGeneratorMedium< T, PointMovementGenerator<T> >
 {
     public:
-explicit PointMovementGenerator(uint32 id, float x, float y, float z, bool generatePath, float speed = 0.0f, Unit const* faceTarget = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr) : _movementId(id), _destination(x, y, z), _speed(speed), i_faceTarget(faceTarget), i_spellEffectExtra(spellEffectExtraData), _generatePath(generatePath), _recalculateSpeed(false), _interrupt(false) { }
+        explicit PointMovementGenerator(uint32 id, float x, float y, float z, bool generatePath, float speed = 0.0f, Unit const* faceTarget = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr) : _movementId(id), _destination(x, y, z), _speed(speed), i_faceTarget(faceTarget), i_spellEffectExtra(spellEffectExtraData), _generatePath(generatePath), _recalculateSpeed(false), _interrupt(false) { }
 
         MovementGeneratorType GetMovementGeneratorType() const override { return POINT_MOTION_TYPE; }
 
@@ -57,7 +57,7 @@ explicit PointMovementGenerator(uint32 id, float x, float y, float z, bool gener
 class AssistanceMovementGenerator : public PointMovementGenerator<Creature>
 {
     public:
-        explicit AssistanceMovementGenerator(float _x, float _y, float _z) : PointMovementGenerator<Creature>(0, _x, _y, _z, true) { }
+        AssistanceMovementGenerator(float x, float y, float z) : PointMovementGenerator<Creature>(0, x, y, z, true) { }
 
         MovementGeneratorType GetMovementGeneratorType() const override { return ASSISTANCE_MOTION_TYPE; }
         void Finalize(Unit*) override;

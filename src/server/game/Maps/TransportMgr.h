@@ -30,7 +30,7 @@ class Map;
 
 namespace Movement
 {
-    template<typename length_type> class Spline;
+    template <typename length_type> class Spline;
 }
 
 typedef Movement::Spline<double>                 TransportSpline;

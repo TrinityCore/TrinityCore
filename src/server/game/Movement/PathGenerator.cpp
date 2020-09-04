@@ -1,19 +1,18 @@
 /*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "PathGenerator.h"
@@ -29,7 +28,7 @@
 #include "PhasingHandler.h"
 
 ////////////////// PathGenerator //////////////////
-PathGenerator::PathGenerator(const Unit* owner) :
+PathGenerator::PathGenerator(Unit const* owner) :
     _polyLength(0), _type(PATHFIND_BLANK), _useStraightPath(false),
     _forceDestination(false), _pointPathLimit(MAX_POINT_PATH_LENGTH), _straightLine(false),
     _endPosition(G3D::Vector3::zero()), _sourceUnit(owner), _navMesh(nullptr),
@@ -886,7 +885,7 @@ dtStatus PathGenerator::FindSmoothPath(float const* startPos, float const* endPo
     return nsmoothPath < MAX_POINT_PATH_LENGTH ? DT_SUCCESS : DT_FAILURE;
 }
 
-bool PathGenerator::InRangeYZX(const float* v1, const float* v2, float r, float h) const
+bool PathGenerator::InRangeYZX(float const* v1, float const* v2, float r, float h) const
 {
     const float dx = v2[0] - v1[0];
     const float dy = v2[1] - v1[1]; // elevation

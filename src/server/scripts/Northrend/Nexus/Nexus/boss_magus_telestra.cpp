@@ -23,7 +23,6 @@
 #include "nexus.h"
 #include "ScriptedCreature.h"
 #include "TemporarySummon.h"
-#include "World.h"
 
 enum Spells
 {

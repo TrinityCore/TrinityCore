@@ -41,7 +41,7 @@ ObjectPosSelector::UsedPosList::value_type const* ObjectPosSelector::nextUsedPos
     if (itr!=m_UsedPosLists[uptype].end())
         ++itr;
 
-    if (itr==m_UsedPosLists[uptype].end())
+    if (itr == m_UsedPosLists[uptype].end())
     {
         if (!m_UsedPosLists[~uptype].empty())
             return &*m_UsedPosLists[~uptype].rbegin();

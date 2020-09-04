@@ -21,15 +21,15 @@
  * Scriptnames of files in this file should be prefixed with "spell_q#questID_".
  */
 
+#include "ScriptMgr.h"
 #include "CellImpl.h"
 #include "CreatureAIImpl.h"
 #include "CreatureTextMgr.h"
 #include "GridNotifiersImpl.h"
 #include "Player.h"
-#include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "SpellScript.h"
 #include "Vehicle.h"
 
 class spell_generic_quest_update_entry_SpellScript : public SpellScript
@@ -1047,13 +1047,7 @@ class spell_q14112_14145_chum_the_water: public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellEntry*/) override
             {
-                return ValidateSpellInfo(
-                {
-                    SUMMON_ANGRY_KVALDIR,
-                    SUMMON_NORTH_SEA_MAKO,
-                    SUMMON_NORTH_SEA_THRESHER,
-                    SUMMON_NORTH_SEA_BLUE_SHARK
-                });
+                return ValidateSpellInfo({ SUMMON_ANGRY_KVALDIR, SUMMON_NORTH_SEA_MAKO, SUMMON_NORTH_SEA_THRESHER, SUMMON_NORTH_SEA_BLUE_SHARK });
             }
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
@@ -1857,9 +1851,8 @@ class spell_q12847_summon_soul_moveto_bunny : public SpellScriptLoader
 
 enum BearFlankMaster
 {
-    SPELL_BEAR_FLANK_MASTER = 56565,
     SPELL_CREATE_BEAR_FLANK = 56566,
-    SPELL_BEAR_FLANK_FAIL = 56569
+    SPELL_BEAR_FLANK_FAIL   = 56569
 };
 
 class spell_q13011_bear_flank_master : public SpellScriptLoader
@@ -1873,7 +1866,11 @@ class spell_q13011_bear_flank_master : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                return ValidateSpellInfo({ SPELL_BEAR_FLANK_MASTER, SPELL_CREATE_BEAR_FLANK });
+                return ValidateSpellInfo(
+                {
+                    SPELL_CREATE_BEAR_FLANK,
+                    SPELL_BEAR_FLANK_FAIL
+                });
             }
 
             bool Load() override
@@ -1919,7 +1916,7 @@ class spell_q13086_cannons_target : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo) override
             {
-                return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0)->CalcValue()) });
+                return ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0)->CalcValue()) });
             }
 
             void HandleEffectDummy(SpellEffIndex /*effIndex*/)

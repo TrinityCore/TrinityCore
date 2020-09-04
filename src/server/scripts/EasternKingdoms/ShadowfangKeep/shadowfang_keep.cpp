@@ -27,11 +27,11 @@ npc_shadowfang_prisoner
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "shadowfang_keep.h"
 #include "InstanceScript.h"
 #include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
-#include "shadowfang_keep.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 

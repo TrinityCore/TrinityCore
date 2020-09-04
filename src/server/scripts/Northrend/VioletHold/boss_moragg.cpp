@@ -19,7 +19,6 @@
 #include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
-#include "SpellInfo.h"
 #include "SpellScript.h"
 #include "violet_hold.h"
 

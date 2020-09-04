@@ -22,8 +22,8 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "trial_of_the_crusader.h"
 #include "Vehicle.h"
@@ -860,7 +860,7 @@ class spell_gormok_fire_bomb : public SpellScriptLoader
 
             void TriggerFireBomb(SpellEffIndex /*effIndex*/)
             {
-                if (const WorldLocation* pos = GetExplTargetDest())
+                if (WorldLocation const* pos = GetExplTargetDest())
                 {
                     if (Unit* caster = GetCaster())
                         caster->SummonCreature(NPC_FIRE_BOMB, pos->GetPositionX(), pos->GetPositionY(), pos->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 30*IN_MILLISECONDS);
@@ -1110,7 +1110,7 @@ class boss_icehowl : public CreatureScript
                         }
                         if (events.ExecuteEvent() == EVENT_TRAMPLE)
                         {
-                            Map::PlayerList const &lPlayers = me->GetMap()->GetPlayers();
+                            Map::PlayerList const& lPlayers = me->GetMap()->GetPlayers();
                             for (Map::PlayerList::const_iterator itr = lPlayers.begin(); itr != lPlayers.end(); ++itr)
                             {
                                 if (Unit* player = itr->GetSource())
@@ -1364,7 +1364,7 @@ public:
 class spell_jormungars_snakes_spray : public SpellScriptLoader
 {
 public:
-    spell_jormungars_snakes_spray(const char* name, uint32 spellId) : SpellScriptLoader(name), _spellId(spellId) { }
+    spell_jormungars_snakes_spray(char const* name, uint32 spellId) : SpellScriptLoader(name), _spellId(spellId) { }
 
     class spell_jormungars_snakes_spray_SpellScript : public SpellScript
     {
@@ -1373,6 +1373,7 @@ public:
     public:
         spell_jormungars_snakes_spray_SpellScript(uint32 spellId) : SpellScript(), _spellId(spellId) { }
 
+    private:
         bool Validate(SpellInfo const* /*spell*/) override
         {
             return ValidateSpellInfo({ _spellId });
@@ -1389,7 +1390,6 @@ public:
             OnEffectHitTarget += SpellEffectFn(spell_jormungars_snakes_spray_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
         }
 
-    private:
         uint32 _spellId;
     };
 

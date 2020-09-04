@@ -309,7 +309,7 @@ public:
                 {
                     if (WipeTimer <= diff)
                     {
-                        Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
+                        Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
                         if (PlayerList.isEmpty())
                             return;
 
@@ -566,7 +566,7 @@ public:
                 me->SetVisible(false);
                 me->ClearInCombat();
 
-                InstanceMap::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
+                InstanceMap::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
                 for (InstanceMap::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                 {
                     if (i->GetSource()->IsAlive())

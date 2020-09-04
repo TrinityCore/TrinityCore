@@ -17,7 +17,6 @@
 
 #include "SpellInfo.h"
 #include "Battleground.h"
-#include "ConditionMgr.h"
 #include "Corpse.h"
 #include "DB2Stores.h"
 #include "GameTables.h"
@@ -3627,6 +3626,7 @@ float SpellInfo::GetMaxRange(bool positive, Unit* caster, Spell* spell) const
     if (caster)
         if (Player* modOwner = caster->GetSpellModOwner())
             modOwner->ApplySpellMod(Id, SPELLMOD_RANGE, range, spell);
+
     return range;
 }
 

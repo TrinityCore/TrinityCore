@@ -28,9 +28,8 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "MotionMaster.h"
-#include "ScriptedCreature.h"
-#include "ScriptedEscortAI.h"
 #include "Player.h"
+#include "ScriptedEscortAI.h"
 
 /*######
 ## npc_oox09hl

@@ -99,7 +99,7 @@ namespace VMAP
         return fname.str();
     }
 
-    int VMapManager2::loadMap(const char* basePath, unsigned int mapId, int x, int y)
+    int VMapManager2::loadMap(char const* basePath, unsigned int mapId, int x, int y)
     {
         int result = VMAP_LOAD_RESULT_IGNORED;
         if (isMapLoadingEnabled())
@@ -387,7 +387,7 @@ namespace VMAP
         }
     }
 
-    LoadResult VMapManager2::existsMap(const char* basePath, unsigned int mapId, int x, int y)
+    LoadResult VMapManager2::existsMap(char const* basePath, unsigned int mapId, int x, int y)
     {
         return StaticMapTree::CanLoadMap(std::string(basePath), mapId, x, y, this);
     }

@@ -85,7 +85,6 @@ public:
         }
 
         void MoveInLineOfSight(Unit* who) override
-
         {
             //Despawn Time Keeper
             if (who->GetTypeId() == TYPEID_UNIT && who->GetEntry() == NPC_TIME_KEEPER)

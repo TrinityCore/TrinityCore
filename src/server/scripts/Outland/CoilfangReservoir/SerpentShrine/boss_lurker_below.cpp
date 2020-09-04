@@ -24,12 +24,12 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "MotionMaster.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
-#include "GameObjectAI.h"
 #include "serpent_shrine.h"
 #include "TemporarySummon.h"
 
@@ -173,7 +173,6 @@ public:
         }
 
         void MoveInLineOfSight(Unit* who) override
-
         {
             if (!CanStartEvent) // boss is invisible, don't attack
                 return;
@@ -242,7 +241,9 @@ public:
                     DoCast(me, SPELL_SUBMERGE);
                     PhaseTimer = 60000; // 60secs submerged
                     Submerged = true;
-                } else PhaseTimer-=diff;
+                }
+                else
+                    PhaseTimer -= diff;
 
                 if (SpoutTimer <= diff)
                 {
@@ -253,19 +254,23 @@ public:
                     WhirlTimer = 20000; // whirl directly after spout
                     RotTimer = 20000;
                     return;
-                } else SpoutTimer -= diff;
+                }
+                else
+                    SpoutTimer -= diff;
 
                 // Whirl directly after a Spout and at random times
                 if (WhirlTimer <= diff)
                 {
                     WhirlTimer = 18000;
                     DoCast(me, SPELL_WHIRL);
-                } else WhirlTimer -= diff;
+                }
+                else
+                    WhirlTimer -= diff;
 
                 if (CheckTimer <= diff)//check if there are players in melee range
                 {
                     InRange = false;
-                    Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
+                    Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
                     if (!PlayerList.isEmpty())
                     {
                         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
@@ -275,11 +280,13 @@ public:
                         }
                     }
                     CheckTimer = 2000;
-                } else CheckTimer -= diff;
+                }
+                else
+                    CheckTimer -= diff;
 
                 if (RotTimer)
                 {
-                    Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
+                    Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
                     for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                     {
                         if (i->GetSource() && i->GetSource()->IsAlive() && me->HasInArc(diff/20000.f*float(M_PI)*2.f, i->GetSource()) && me->IsWithinDist(i->GetSource(), SPOUT_DIST) && !i->GetSource()->IsInWater())
@@ -295,7 +302,9 @@ public:
                     if (RotTimer <= diff)
                     {
                         RotTimer = 0;
-                    } else RotTimer -= diff;
+                    }
+                    else
+                        RotTimer -= diff;
                     return;
                 }
 
@@ -307,7 +316,9 @@ public:
                     if (target)
                         DoCast(target, SPELL_GEYSER, true);
                     GeyserTimer = rand32() % 5000 + 15000;
-                } else GeyserTimer -= diff;
+                }
+                else
+                    GeyserTimer -= diff;
 
                 if (!InRange) // if on players in melee range cast Waterbolt
                 {
@@ -319,7 +330,9 @@ public:
                         if (target)
                             DoCast(target, SPELL_WATERBOLT, true);
                         WaterboltTimer = 3000;
-                    } else WaterboltTimer -= diff;
+                    }
+                    else
+                        WaterboltTimer -= diff;
                 }
 
                 if (!UpdateVictim())
@@ -342,7 +355,9 @@ public:
                     SpoutTimer = 3000; // directly cast Spout after emerging!
                     PhaseTimer = 120000;
                     return;
-                } else PhaseTimer-=diff;
+                }
+                else
+                    PhaseTimer -= diff;
 
                 if (!me->IsThreatened()) // check if should evade
                 {

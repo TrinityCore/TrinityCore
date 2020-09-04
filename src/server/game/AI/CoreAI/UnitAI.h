@@ -28,7 +28,7 @@
 #define ENSURE_AI(a,b)  (EnsureAI<a>(b))
 
 template<class T, class U>
-inline T* EnsureAI(U* ai)
+T* EnsureAI(U* ai)
 {
     T* cast_ai = dynamic_cast<T*>(ai);
     ASSERT(cast_ai);
@@ -74,7 +74,7 @@ struct TC_GAME_API DefaultTargetSelector
 
 // Target selector for spell casts checking range, auras and attributes
 /// @todo Add more checks from Spell::CheckCast
-struct TC_GAME_API SpellTargetSelector : public std::unary_function<Unit*, bool>
+struct TC_GAME_API SpellTargetSelector
 {
     public:
         SpellTargetSelector(Unit* caster, uint32 spellId);
@@ -88,7 +88,7 @@ struct TC_GAME_API SpellTargetSelector : public std::unary_function<Unit*, bool>
 // Very simple target selector, will just skip main target
 // NOTE: When passing to UnitAI::SelectTarget remember to use 0 as position for random selection
 //       because tank will not be in the temporary list
-struct TC_GAME_API NonTankTargetSelector : public std::unary_function<Unit*, bool>
+struct TC_GAME_API NonTankTargetSelector
 {
     public:
         NonTankTargetSelector(Unit* source, bool playerOnly = true) : _source(source), _playerOnly(playerOnly) { }
@@ -119,11 +119,11 @@ public:
     FarthestTargetSelector(Unit const* unit, float dist, bool playerOnly, bool inLos) : _me(unit), _dist(dist), _playerOnly(playerOnly), _inLos(inLos) {}
     bool operator()(Unit const* target) const;
 
-private:
-    const Unit* _me;
-    float _dist;
-    bool _playerOnly;
-    bool _inLos;
+    private:
+        Unit const* _me;
+        float _dist;
+        bool _playerOnly;
+        bool _inLos;
 };
 
 class TC_GAME_API UnitAI
@@ -315,7 +315,7 @@ class TC_GAME_API UnitAI
         virtual bool GossipSelect(Player* /*player*/, uint32 /*menuId*/, uint32 /*gossipListId*/) { return false; }
 
         // Called when a player selects a gossip with a code in the creature's gossip menu.
-        virtual bool GossipSelectCode(Player* /*player*/, uint32 /*menuId*/, uint32 /*gossipListId*/, const char* /*code*/) { return false; }
+        virtual bool GossipSelectCode(Player* /*player*/, uint32 /*menuId*/, uint32 /*gossipListId*/, char const* /*code*/) { return false; }
 
         // Called when a player accepts a quest from the creature.
         virtual void QuestAccept(Player* /*player*/, Quest const* /*quest*/) { }

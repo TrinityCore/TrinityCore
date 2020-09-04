@@ -39,10 +39,10 @@ enum WCDataTypes
     DATA_NARALEX              = 3679,
 };
 
-template<typename AI>
-inline AI* GetWailingCavernsAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetWailingCavernsAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, WCScriptName);
+    return GetInstanceAI<AI>(obj, WCScriptName);
 }
 
 #endif

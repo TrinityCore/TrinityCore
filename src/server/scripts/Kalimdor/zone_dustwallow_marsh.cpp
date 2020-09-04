@@ -29,7 +29,7 @@ EndContentData */
 #include "MotionMaster.h"
 #include "Player.h"
 #include "QuestDef.h"
-#include "ScriptedEscortAI.h"
+#include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"

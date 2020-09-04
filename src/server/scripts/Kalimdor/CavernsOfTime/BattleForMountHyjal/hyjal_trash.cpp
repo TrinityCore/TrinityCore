@@ -449,7 +449,7 @@ public:
             {
                 if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, attack thrall
                 {
-                    Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_THRALL));
+                    Creature* target = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THRALL));
                     if (target && target->IsAlive())
                         AddThreat(target, 0.0f);
                 }
@@ -461,8 +461,10 @@ public:
             if (Delay <= diff)
             {
                 Delay=0;
-            }else{
-                Delay-=diff;
+            }
+            else
+            {
+                Delay -= diff;
                 return;
             }
             if (!meteor)
@@ -485,7 +487,7 @@ public:
                     CanMove = true;
                     if (instance->GetData(DATA_ALLIANCE_RETREAT) && !instance->GetData(DATA_HORDE_RETREAT))
                     {
-                        Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_THRALL));
+                        Creature* target = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THRALL));
                         if (target && target->IsAlive())
                             AddThreat(target, 0.0f);
                     } else if (instance->GetData(DATA_ALLIANCE_RETREAT) && instance->GetData(DATA_HORDE_RETREAT)){
@@ -513,7 +515,7 @@ public:
             if (!imol)
             {
                 DoCast(me, SPELL_IMMOLATION);
-                imol=true;
+                imol = true;
             }
             if (FlameBuffetTimer <= diff)
             {
@@ -562,13 +564,13 @@ public:
             {
                 if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, attack thrall
                 {
-                    Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_THRALL));
+                    Creature* target = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THRALL));
                     if (target && target->IsAlive())
                         AddThreat(target, 0.0f);
                 }
                 else
                 {
-                    Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_JAINAPROUDMOORE));
+                    Creature* target = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_JAINAPROUDMOORE));
                     if (target && target->IsAlive())
                         AddThreat(target, 0.0f);
                 }
@@ -660,13 +662,13 @@ public:
             {
                 if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, attack thrall
                 {
-                    Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_THRALL));
+                    Creature* target = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THRALL));
                     if (target && target->IsAlive())
                         AddThreat(target, 0.0f);
                 }
                 else
                 {
-                    Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_JAINAPROUDMOORE));
+                    Creature* target = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_JAINAPROUDMOORE));
                     if (target && target->IsAlive())
                         AddThreat(target, 0.0f);
                 }
@@ -770,13 +772,13 @@ public:
             {
                 if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, attack thrall
                 {
-                    Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_THRALL));
+                    Creature* target = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THRALL));
                     if (target && target->IsAlive())
                         AddThreat(target, 0.0f);
                 }
                 else
                 {
-                    Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_JAINAPROUDMOORE));
+                    Creature* target = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_JAINAPROUDMOORE));
                     if (target && target->IsAlive())
                         AddThreat(target, 0.0f);
                 }
@@ -883,13 +885,13 @@ public:
             {
                 if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, attack thrall
                 {
-                    Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_THRALL));
+                    Creature* target = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THRALL));
                     if (target && target->IsAlive())
                         AddThreat(target, 0.0f);
                 }
                 else
                 {
-                    Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_JAINAPROUDMOORE));
+                    Creature* target = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_JAINAPROUDMOORE));
                     if (target && target->IsAlive())
                         AddThreat(target, 0.0f);
                 }
@@ -979,13 +981,13 @@ public:
             {
                 if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, attack thrall
                 {
-                    Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_THRALL));
+                    Creature* target = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THRALL));
                     if (target && target->IsAlive())
                         AddThreat(target, 0.0f);
                 }
                 else
                 {
-                    Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_JAINAPROUDMOORE));
+                    Creature* target = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_JAINAPROUDMOORE));
                     if (target && target->IsAlive())
                         AddThreat(target, 0.0f);
                 }
@@ -1065,13 +1067,13 @@ public:
             {
                 if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, attack thrall
                 {
-                    Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_THRALL));
+                    Creature* target = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THRALL));
                     if (target && target->IsAlive())
                         AddThreat(target, 0.0f);
                 }
                 else
                 {
-                    Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_JAINAPROUDMOORE));
+                    Creature* target = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_JAINAPROUDMOORE));
                     if (target && target->IsAlive())
                         AddThreat(target, 0.0f);
                 }
@@ -1157,7 +1159,7 @@ public:
         {
             if (waypointId == 2 && !IsOverrun)
             {
-                Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_THRALL));
+                Creature* target = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THRALL));
                 if (target && target->IsAlive())
                 {
                     AddThreat(target, 0.0f);
@@ -1221,7 +1223,9 @@ public:
                 {
                     me->GetMotionMaster()->MoveChase(me->GetVictim());
                     MoveTimer = 2000;
-                } else MoveTimer-=diff;
+                }
+                else
+                    MoveTimer -= diff;
             }
 
             if (FrostBreathTimer <= diff)
@@ -1233,7 +1237,9 @@ public:
                     me->GetMotionMaster()->Clear();
                     FrostBreathTimer = 4000;
                 }
-            } else FrostBreathTimer -= diff;
+            }
+            else
+                FrostBreathTimer -= diff;
         }
     };
 };
@@ -1278,7 +1284,7 @@ public:
         {
             if (waypointId == 2 && !IsOverrun)
             {
-                Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_THRALL));
+                Creature* target = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THRALL));
                 if (target && target->IsAlive())
                 {
                     AddThreat(target, 0.0f);
@@ -1354,12 +1360,14 @@ public:
                 {
                     float x, y, z;
                     me->EnsureVictim()->GetPosition(x, y, z);
-                    me->GetMotionMaster()->MovePoint(0, x, y, z+Zpos);
+                    me->GetMotionMaster()->MovePoint(0, x, y, z + Zpos);
                     Zpos -= 1.0f;
                     if (Zpos <= 0)
                         Zpos = 0;
                     MoveTimer = 2000;
-                } else MoveTimer-=diff;
+                }
+                else
+                    MoveTimer -= diff;
             }
 
             if (StrikeTimer <= diff)
@@ -1370,8 +1378,12 @@ public:
                     me->StopMoving();
                     me->GetMotionMaster()->Clear();
                     StrikeTimer = 2000 + rand32() % 1000;
-                } else StrikeTimer=0;
-            } else StrikeTimer -= diff;
+                }
+                else
+                    StrikeTimer = 0;
+            }
+            else
+                StrikeTimer -= diff;
         }
     };
 };
