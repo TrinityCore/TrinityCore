@@ -2229,7 +2229,7 @@ class spell_the_lich_king_ice_burst_target_search : public SpellScript
 
 class spell_the_lich_king_raging_spirit : public SpellScript
 {
-    PrepareSpellScript(spell_the_lich_king_raging_spirit_SpellScript);
+    PrepareSpellScript(spell_the_lich_king_raging_spirit);
 
     void HandleScript(SpellEffIndex effIndex)
     {
