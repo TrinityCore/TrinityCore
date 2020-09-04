@@ -613,9 +613,9 @@ protected:
     bool _isEmpowered;
 };
 
-struct boss_prince_keleseth : public BloodPrincesBossAI
+struct boss_prince_keleseth_icc : public BloodPrincesBossAI
 {
-    boss_prince_keleseth(Creature* creature) : BloodPrincesBossAI(creature, DATA_PRINCE_KELESETH) { }
+    boss_prince_keleseth_icc(Creature* creature) : BloodPrincesBossAI(creature, DATA_PRINCE_KELESETH) { }
 
     void ScheduleEvents() override
     {
@@ -680,9 +680,9 @@ struct boss_prince_keleseth : public BloodPrincesBossAI
     }
 };
 
-struct boss_prince_taldaram : public BloodPrincesBossAI
+struct boss_prince_taldaram_icc : public BloodPrincesBossAI
 {
-    boss_prince_taldaram(Creature* creature) : BloodPrincesBossAI(creature, DATA_PRINCE_TALDARAM) { }
+    boss_prince_taldaram_icc(Creature* creature) : BloodPrincesBossAI(creature, DATA_PRINCE_TALDARAM) { }
 
     void ScheduleEvents() override
     {
@@ -754,9 +754,9 @@ struct boss_prince_taldaram : public BloodPrincesBossAI
     }
 };
 
-struct boss_prince_valanar : public BloodPrincesBossAI
+struct boss_prince_valanar_icc : public BloodPrincesBossAI
 {
-    boss_prince_valanar(Creature* creature) : BloodPrincesBossAI(creature, DATA_PRINCE_VALANAR) { }
+    boss_prince_valanar_icc(Creature* creature) : BloodPrincesBossAI(creature, DATA_PRINCE_VALANAR) { }
 
     void ScheduleEvents() override
     {
