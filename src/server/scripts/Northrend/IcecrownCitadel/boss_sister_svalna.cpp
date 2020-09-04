@@ -1502,7 +1502,7 @@ void AddSC_boss_sister_svalna()
     RegisterIcecrownCitadelCreatureAI(npc_captain_rupert);
     RegisterIcecrownCitadelCreatureAI(npc_frostwing_ymirjar_vrykul);
     RegisterIcecrownCitadelCreatureAI(npc_impaling_spear);
-    new spell_trigger_spell_from_caster("spell_svalna_caress_of_death", SPELL_IMPALING_SPEAR_KILL);
+    RegisterSpellScriptWithArgs(spell_trigger_spell_from_caster, "spell_svalna_caress_of_death", SPELL_IMPALING_SPEAR_KILL);
     RegisterSpellScript(spell_svalna_revive_champion);
     RegisterSpellScript(spell_svalna_remove_spear);
     new at_icc_start_frostwing_gauntlet();

@@ -405,6 +405,8 @@ class TC_GAME_API AchievementGlobalMgr
 
         AchievementRewards m_achievementRewards;
         AchievementRewardLocales m_achievementRewardLocales;
+
+        friend class UnitTestDataLoader;
 };
 
 #define sAchievementMgr AchievementGlobalMgr::instance()

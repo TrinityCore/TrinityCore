@@ -191,26 +191,27 @@ namespace Trinity
 
     // Generic base class to insert elements into arbitrary containers using push_back
     template<typename Type>
-    class ContainerInserter {
+    class ContainerInserter
+    {
         using InserterType = void(*)(void*, Type&&);
 
         void* ref;
         InserterType inserter;
 
-        // MSVC workaround
-        template<typename T>
-        static void InserterOf(void* ref, Type&& type)
-        {
-            static_cast<T*>(ref)->push_back(std::move(type));
-        }
-
     protected:
         template<typename T>
-        ContainerInserter(T& ref_) : ref(&ref_), inserter(&InserterOf<T>) { }
-
-        void Insert(Type type)
+        ContainerInserter(T& ref_) : ref(&ref_)
         {
-            inserter(ref, std::move(type));
+            inserter = [](void* containerRaw, Type&& object)
+            {
+                T* container = reinterpret_cast<T*>(containerRaw);
+                container->insert(container->end(), std::move(object));
+            };
+        }
+
+        void Insert(Type object)
+        {
+            inserter(ref, std::move(object));
         }
     };
 
@@ -827,6 +828,27 @@ namespace Trinity
             Unit const* i_obj;
             float i_range;
             uint32 i_hp;
+    };
+
+    class MostHPPercentMissingInRange
+    {
+    public:
+        MostHPPercentMissingInRange(Unit const* obj, float range, uint32 minHpPct, uint32 maxHpPct) : i_obj(obj), i_range(range), i_minHpPct(minHpPct), i_maxHpPct(maxHpPct), i_hpPct(101.f) { }
+
+        bool operator()(Unit* u)
+        {
+            if (u->IsAlive() && u->IsInCombat() && !i_obj->IsHostileTo(u) && i_obj->IsWithinDistInMap(u, i_range) && i_minHpPct <= u->GetHealthPct() && u->GetHealthPct() <= i_maxHpPct && u->GetHealthPct() < i_hpPct)
+            {
+                i_hpPct = u->GetHealthPct();
+                return true;
+            }
+            return false;
+        }
+
+    private:
+        Unit const* i_obj;
+        float i_range;
+        float i_minHpPct, i_maxHpPct, i_hpPct;
     };
 
     class FriendlyBelowHpPctEntryInRange

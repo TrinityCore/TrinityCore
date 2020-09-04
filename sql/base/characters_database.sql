@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.29, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.30, for Linux (x86_64)
 --
 -- Host: localhost    Database: characters
 -- ------------------------------------------------------
--- Server version	5.7.29-0ubuntu0.18.04.1
+-- Server version	5.7.30-0ubuntu0.18.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -628,7 +628,7 @@ CREATE TABLE `character_battleground_data` (
   `joinMapId` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT 'Map Identifier',
   `taxiStart` int(10) unsigned NOT NULL DEFAULT '0',
   `taxiEnd` int(10) unsigned NOT NULL DEFAULT '0',
-  `mountSpell` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `mountSpell` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2647,7 +2647,10 @@ INSERT INTO `updates` VALUES
 ('2020_04_15_00_characters.sql','61F7DE3B81C7E479FFF9463A39DF568826926F39','ARCHIVED','2020-04-15 11:03:56',0),
 ('2020_05_15_00_characters.sql','F1C2FECAA4EB623560914E7758E0BB8364CA135A','ARCHIVED','2020-05-15 08:55:56',0),
 ('2020_06_15_00_characters.sql','99C4F85580421E928003380D8F992C4EF5E627DF','ARCHIVED','2020-06-15 07:48:08',0),
-('2020_07_15_00_characters.sql','D87627DC6E4D222F68A1F56F0B3B986EF9A590EF','ARCHIVED','2020-07-15 10:35:41',0);
+('2020_07_15_00_characters.sql','D87627DC6E4D222F68A1F56F0B3B986EF9A590EF','ARCHIVED','2020-07-15 10:35:41',0),
+('2020_08_15_00_characters.sql','70979D488ACD23DEB8E45D31C3ADC690A1B81F79','ARCHIVED','2020-08-15 09:34:44',0),
+('2020_08_22_00_characters.sql','78251072C9281D98BC4EAC523DA0858C9F8425D9','ARCHIVED','2020-08-22 16:27:27',0),
+('2020_09_02_00_characters.sql','627F320D58A42F401AB10ABA927F2B37C1981576','RELEASED','2020-09-02 17:41:04',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2804,6 +2807,10 @@ INSERT INTO `worldstates` VALUES
 (20008,0,'NextDailyQuestResetTime');
 /*!40000 ALTER TABLE `worldstates` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Dumping routines for database 'characters'
+--
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -2814,4 +2821,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-07-15 10:35:47
+-- Dump completed on 2020-08-22 16:27:28

@@ -18,60 +18,70 @@
 #ifndef TRINITY_CHATCOMMANDHELPERS_H
 #define TRINITY_CHATCOMMANDHELPERS_H
 
+#include <string_view>
 #include <type_traits>
 
-namespace Trinity
+namespace Trinity::Impl::ChatCommands
 {
-namespace ChatCommands
-{
+    /***************** HELPERS *************************\
+    |* These really aren't for outside use...          *|
+    \***************************************************/
 
-static constexpr char COMMAND_DELIMITER = ' ';
+    static constexpr char COMMAND_DELIMITER = ' ';
 
-/***************** HELPERS *************************\
-|* These really aren't for outside use...          *|
-\***************************************************/
-inline std::size_t tokenize(char const*& end)
-{
-    std::size_t len = 0;
-    for (; *end && *end != COMMAND_DELIMITER; ++end, ++len);
-    for (; *end && *end == COMMAND_DELIMITER; ++end);
-    return len;
-}
+    template <typename T, typename = void>
+    struct tag_base
+    {
+        using type = T;
+    };
 
-template <typename T, typename = void>
-struct tag_base
-{
-    using type = T;
-};
+    template <typename T>
+    using tag_base_t = typename tag_base<T>::type;
 
-template <typename T>
-using tag_base_t = typename tag_base<T>::type;
+    struct TokenizeResult {
+        explicit operator bool() { return !token.empty(); }
+        std::string_view token;
+        std::string_view tail;
+    };
 
-template <typename...>
-struct are_all_assignable
-{
-    static constexpr bool value = true;
-};
+    inline TokenizeResult tokenize(std::string_view args)
+    {
+        TokenizeResult result;
+        if (size_t delimPos = args.find(COMMAND_DELIMITER); delimPos != std::string_view::npos)
+        {
+            result.token = args.substr(0, delimPos);
+            if (size_t tailPos = args.find_first_not_of(COMMAND_DELIMITER, delimPos); tailPos != std::string_view::npos)
+                result.tail = args.substr(tailPos);
+        }
+        else
+            result.token = args;
 
-template <typename T1, typename T2, typename... Ts>
-struct are_all_assignable<T1, T2, Ts...>
-{
-    static constexpr bool value = std::is_assignable_v<T1&, T2> && are_all_assignable<T1, Ts...>::value;
-};
+        return result;
+    }
 
-template <std::size_t index, typename T1, typename... Ts>
-struct get_nth : get_nth<index-1, Ts...> { };
+    template <typename T, typename... Ts>
+    struct are_all_assignable
+    {
+        static constexpr bool value = (std::is_assignable_v<T&, Ts> && ...);
+    };
 
-template <typename T1, typename... Ts>
-struct get_nth<0, T1, Ts...>
-{
-    using type = T1;
-};
+    template <typename... Ts>
+    struct are_all_assignable<void, Ts...>
+    {
+        static constexpr bool value = false;
+    };
 
-template <std::size_t index, typename... Ts>
-using get_nth_t = typename get_nth<index, Ts...>::type;
+    template <std::size_t index, typename T1, typename... Ts>
+    struct get_nth : get_nth<index-1, Ts...> { };
 
-}
+    template <typename T1, typename... Ts>
+    struct get_nth<0, T1, Ts...>
+    {
+        using type = T1;
+    };
+
+    template <std::size_t index, typename... Ts>
+    using get_nth_t = typename get_nth<index, Ts...>::type;
 }
 
 #endif

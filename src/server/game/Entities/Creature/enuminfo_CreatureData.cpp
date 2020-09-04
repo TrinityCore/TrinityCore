@@ -20,9 +20,7 @@
 #include "SmartEnum.h"
 #include <stdexcept>
 
-namespace Trinity
-{
-namespace Impl
+namespace Trinity::Impl::EnumUtilsImpl
 {
 
 /*************************************************************************\
@@ -112,5 +110,45 @@ TC_API_EXPORT CreatureFlagsExtra EnumUtils<CreatureFlagsExtra>::FromIndex(size_t
         default: throw std::out_of_range("index");
     }
 }
+
+template <>
+TC_API_EXPORT size_t EnumUtils<CreatureFlagsExtra>::ToIndex(CreatureFlagsExtra value)
+{
+    switch (value)
+    {
+        case CREATURE_FLAG_EXTRA_INSTANCE_BIND: return 0;
+        case CREATURE_FLAG_EXTRA_CIVILIAN: return 1;
+        case CREATURE_FLAG_EXTRA_NO_PARRY: return 2;
+        case CREATURE_FLAG_EXTRA_NO_PARRY_HASTEN: return 3;
+        case CREATURE_FLAG_EXTRA_NO_BLOCK: return 4;
+        case CREATURE_FLAG_EXTRA_NO_CRUSH: return 5;
+        case CREATURE_FLAG_EXTRA_NO_XP_AT_KILL: return 6;
+        case CREATURE_FLAG_EXTRA_TRIGGER: return 7;
+        case CREATURE_FLAG_EXTRA_NO_TAUNT: return 8;
+        case CREATURE_FLAG_EXTRA_NO_MOVE_FLAGS_UPDATE: return 9;
+        case CREATURE_FLAG_EXTRA_GHOST_VISIBILITY: return 10;
+        case CREATURE_FLAG_EXTRA_USE_OFFHAND_ATTACK: return 11;
+        case CREATURE_FLAG_EXTRA_NO_SELL_VENDOR: return 12;
+        case CREATURE_FLAG_EXTRA_NO_COMBAT: return 13;
+        case CREATURE_FLAG_EXTRA_WORLDEVENT: return 14;
+        case CREATURE_FLAG_EXTRA_GUARD: return 15;
+        case CREATURE_FLAG_EXTRA_UNUSED_16: return 16;
+        case CREATURE_FLAG_EXTRA_NO_CRIT: return 17;
+        case CREATURE_FLAG_EXTRA_NO_SKILLGAIN: return 18;
+        case CREATURE_FLAG_EXTRA_TAUNT_DIMINISH: return 19;
+        case CREATURE_FLAG_EXTRA_ALL_DIMINISH: return 20;
+        case CREATURE_FLAG_EXTRA_NO_PLAYER_DAMAGE_REQ: return 21;
+        case CREATURE_FLAG_EXTRA_UNUSED_22: return 22;
+        case CREATURE_FLAG_EXTRA_UNUSED_23: return 23;
+        case CREATURE_FLAG_EXTRA_UNUSED_24: return 24;
+        case CREATURE_FLAG_EXTRA_UNUSED_25: return 25;
+        case CREATURE_FLAG_EXTRA_UNUSED_26: return 26;
+        case CREATURE_FLAG_EXTRA_UNUSED_27: return 27;
+        case CREATURE_FLAG_EXTRA_DUNGEON_BOSS: return 28;
+        case CREATURE_FLAG_EXTRA_IGNORE_PATHFINDING: return 29;
+        case CREATURE_FLAG_EXTRA_IMMUNITY_KNOCKBACK: return 30;
+        case CREATURE_FLAG_EXTRA_UNUSED_31: return 31;
+        default: throw std::out_of_range("value");
+    }
 }
 }

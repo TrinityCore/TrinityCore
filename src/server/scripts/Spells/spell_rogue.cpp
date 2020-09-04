@@ -1172,9 +1172,9 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_setup();
     new spell_rog_shiv();
     RegisterSpellAndAuraScriptPair(spell_rog_tricks_of_the_trade, spell_rog_tricks_of_the_trade_aura);
-    RegisterAuraScript(spell_rog_tricks_of_the_trade_proc);
+    RegisterSpellScript(spell_rog_tricks_of_the_trade_proc);
     new spell_rog_honor_among_thieves();
     new spell_rog_honor_among_thieves_proc();
     new spell_rog_turn_the_tables();
-    RegisterAuraScript(spell_rog_vanish);
+    RegisterSpellScript(spell_rog_vanish);
 }

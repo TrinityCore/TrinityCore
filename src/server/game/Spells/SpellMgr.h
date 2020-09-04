@@ -733,6 +733,8 @@ class TC_GAME_API SpellMgr
         PetLevelupSpellMap         mPetLevelupSpellMap;
         PetDefaultSpellsMap        mPetDefaultSpellsMap;           // only spells not listed in related mPetLevelupSpellMap entry
         SpellInfoMap               mSpellInfoMap;
+
+    friend class UnitTestDataLoader;
 };
 
 #define sSpellMgr SpellMgr::instance()

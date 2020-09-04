@@ -235,6 +235,55 @@ uint32 Quest::GetXPReward(Player const* player) const
     return true;
 }
 
+void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player* player, bool sendHiddenRewards) const
+{
+    if (!HasFlag(QUEST_FLAGS_HIDDEN_REWARDS) || sendHiddenRewards)
+    {
+        for (uint32 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
+        {
+            if (!RewardChoiceItemId[i])
+                continue;
+
+            uint32 displayID = 0;
+            if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(RewardChoiceItemId[i]))
+                displayID = itemTemplate->DisplayInfoID;
+
+            rewards.UnfilteredChoiceItems.emplace_back(RewardChoiceItemId[i], RewardChoiceItemCount[i], displayID);
+        }
+
+        for (uint32 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+        {
+            if (!RewardItemId[i])
+                continue;
+
+            uint32 displayID = 0;
+            if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(RewardItemId[i]))
+                displayID = itemTemplate->DisplayInfoID;
+
+            rewards.RewardItems.emplace_back(RewardItemId[i], RewardItemIdCount[i], displayID);
+        }
+
+        rewards.RewardMoney = GetRewOrReqMoney(player);
+        rewards.RewardXPDifficulty = GetXPReward(player) * sWorld->getRate(RATE_XP_QUEST);
+    }
+
+    rewards.RewardHonor = 10 * CalculateHonorGain(player->GetQuestLevel(this)); // rewarded honor points. Multiply with 10 to satisfy client
+    rewards.RewardDisplaySpell = GetRewSpell(); // reward spell, this spell will display (icon) (cast if RewSpellCast == 0)
+    rewards.RewardSpell = GetRewSpellCast();
+    rewards.RewardTitleId = GetCharTitleId();
+    rewards.RewardTalents = GetBonusTalents();
+    rewards.RewardArenaPoints = GetRewArenaPoints();
+
+    for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
+        rewards.RewardFactionID[i] = RewardFactionId[i];
+
+    for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
+        rewards.RewardFactionValue[i] = RewardFactionValueId[i];
+
+    for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
+        rewards.RewardFactionValueOverride[i] = RewardFactionValueIdOverride[i];
+}
+
 int32 Quest::GetRewOrReqMoney(Player const* player) const
 {
     // RequiredMoney: the amount is the negative copper sum.
@@ -414,9 +463,6 @@ WorldPacket Quest::BuildQueryData(LocaleConstant loc) const
     response.Info.POIx = GetPOIx();
     response.Info.POIy = GetPOIy();
     response.Info.POIPriority = GetPointOpt();
-
-    if (sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS))
-        Quest::AddQuestLevelToTitle(locQuestTitle, GetQuestLevel());
 
     response.Info.Title = locQuestTitle;
     response.Info.Objectives = locQuestObjectives;

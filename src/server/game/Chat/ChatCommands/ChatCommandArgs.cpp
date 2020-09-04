@@ -20,6 +20,7 @@
 #include "ChatCommand.h"
 #include "ObjectMgr.h"
 #include "SpellMgr.h"
+#include "Util.h"
 
 using namespace Trinity::ChatCommands;
 
@@ -29,12 +30,13 @@ struct AchievementVisitor
     value_type operator()(Hyperlink<achievement> achData) const { return achData->Achievement; }
     value_type operator()(uint32 achId) const { return sAchievementMgr->GetAchievement(achId); }
 };
-char const* Trinity::ChatCommands::ArgInfo<AchievementEntry const*>::TryConsume(AchievementEntry const*& data, char const* args)
+Optional<std::string_view> Trinity::Impl::ChatCommands::ArgInfo<AchievementEntry const*>::TryConsume(AchievementEntry const*& data, std::string_view args)
 {
-    Variant <Hyperlink<achievement>, uint32> val;
-    if ((args = CommandArgsConsumerSingle<decltype(val)>::TryConsumeTo(val, args)))
-        data = boost::apply_visitor(AchievementVisitor(), val);
-    return args;
+    Variant<Hyperlink<achievement>, uint32> val;
+    Optional<std::string_view> next = SingleConsumer<decltype(val)>::TryConsumeTo(val, args);
+    if (next)
+        data = val.visit(AchievementVisitor());
+    return next;
 }
 
 struct GameTeleVisitor
@@ -43,39 +45,49 @@ struct GameTeleVisitor
     value_type operator()(Hyperlink<tele> tele) const { return sObjectMgr->GetGameTele(tele); }
     value_type operator()(std::string const& tele) const { return sObjectMgr->GetGameTele(tele); }
 };
-char const* Trinity::ChatCommands::ArgInfo<GameTele const*>::TryConsume(GameTele const*& data, char const* args)
+Optional<std::string_view> Trinity::Impl::ChatCommands::ArgInfo<GameTele const*>::TryConsume(GameTele const*& data, std::string_view args)
 {
     Variant<Hyperlink<tele>, std::string> val;
-    if ((args = CommandArgsConsumerSingle<decltype(val)>::TryConsumeTo(val, args)))
-        data = boost::apply_visitor(GameTeleVisitor(), val);
-    return args;
+    Optional<std::string_view> next = SingleConsumer<decltype(val)>::TryConsumeTo(val, args);
+    if (next)
+        data = val.visit(GameTeleVisitor());
+    return next;
+}
+
+struct ItemTemplateVisitor
+{
+    using value_type = ItemTemplate const*;
+    value_type operator()(Hyperlink<item> item) const { return item->Item; }
+    value_type operator()(uint32 item) { return sObjectMgr->GetItemTemplate(item); }
+};
+Optional<std::string_view> Trinity::Impl::ChatCommands::ArgInfo<ItemTemplate const*>::TryConsume(ItemTemplate const*& data, std::string_view args)
+{
+    Variant<Hyperlink<item>, uint32> val;
+    Optional<std::string_view> next = SingleConsumer<decltype(val)>::TryConsumeTo(val, args);
+    if (next)
+        data = val.visit(ItemTemplateVisitor());
+    return next;
 }
 
 struct SpellInfoVisitor
 {
     using value_type = SpellInfo const*;
+    value_type operator()(Hyperlink<enchant> enchant) const { return enchant; };
+    value_type operator()(Hyperlink<glyph> glyph) const { return operator()(glyph->Glyph->SpellID); };
     value_type operator()(Hyperlink<spell> spell) const { return *spell; }
+    value_type operator()(Hyperlink<talent> talent) const
+    {
+        return operator()(talent->Talent->SpellRank[talent->Rank - 1]);
+    };
+    value_type operator()(Hyperlink<trade> trade) const { return trade->Spell; };
+
     value_type operator()(uint32 spellId) const { return sSpellMgr->GetSpellInfo(spellId); }
 };
-char const* Trinity::ChatCommands::ArgInfo<SpellInfo const*>::TryConsume(SpellInfo const*& data, char const* args)
+Optional<std::string_view> Trinity::Impl::ChatCommands::ArgInfo<SpellInfo const*>::TryConsume(SpellInfo const*& data, std::string_view args)
 {
-    Variant<Hyperlink<spell>, uint32> val;
-    if ((args = CommandArgsConsumerSingle<decltype(val)>::TryConsumeTo(val, args)))
-        data = boost::apply_visitor(SpellInfoVisitor(), val);
-    return args;
-}
-
-struct BoolVisitor
-{
-    using value_type = bool;
-    value_type operator()(uint32 i) const { return !!i; }
-    value_type operator()(ExactSequence<'o', 'n'>) const { return true; }
-    value_type operator()(ExactSequence<'o', 'f', 'f'>) const { return false; }
-};
-char const* Trinity::ChatCommands::ArgInfo<bool>::TryConsume(bool& data, char const* args)
-{
-    Variant<uint32, ExactSequence<'o', 'n'>, ExactSequence<'o', 'f', 'f'>> val;
-    if ((args = CommandArgsConsumerSingle<decltype(val)>::TryConsumeTo(val, args)))
-        data = boost::apply_visitor(BoolVisitor(), val);
-    return args;
+    Variant<Hyperlink<enchant>, Hyperlink<glyph>, Hyperlink<spell>, Hyperlink<talent>, Hyperlink<trade>, uint32> val;
+    Optional<std::string_view> next = SingleConsumer<decltype(val)>::TryConsumeTo(val, args);
+    if (next)
+        data = val.visit(SpellInfoVisitor());
+    return next;
 }
