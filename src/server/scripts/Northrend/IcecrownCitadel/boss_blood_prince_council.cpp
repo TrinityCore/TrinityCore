@@ -23,6 +23,7 @@
 #include "PassiveAI.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellInfo.h"

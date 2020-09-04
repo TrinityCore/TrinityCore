@@ -24,6 +24,7 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "QuestPools.h"
+#include "ScriptMgr.h"
 #include "TemporarySummon.h"
 #include "Transport.h"
 #include "TransportMgr.h"

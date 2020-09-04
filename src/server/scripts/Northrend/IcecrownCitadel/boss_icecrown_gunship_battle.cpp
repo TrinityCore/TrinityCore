@@ -29,6 +29,7 @@
 #include "PassiveAI.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"

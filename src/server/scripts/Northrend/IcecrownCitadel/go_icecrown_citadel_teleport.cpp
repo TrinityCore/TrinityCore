@@ -22,6 +22,7 @@
 #include "Map.h"
 #include "Player.h"
 #include "ScriptedGossip.h"
+#include "ScriptMgr.h"
 #include "Spell.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"

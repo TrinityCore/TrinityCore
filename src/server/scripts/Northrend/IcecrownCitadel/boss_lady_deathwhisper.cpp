@@ -23,6 +23,7 @@
 #include "Player.h"
 #include "QuestPools.h"
 #include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"

@@ -22,6 +22,7 @@
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "ScriptMgr.h"
 #include "SpellAuras.h"
 #include "SpellScript.h"
 

@@ -21,6 +21,7 @@
 #include "Map.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 #include "SpellAuras.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"

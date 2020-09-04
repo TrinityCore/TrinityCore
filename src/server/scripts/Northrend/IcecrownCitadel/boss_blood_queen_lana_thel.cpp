@@ -23,6 +23,7 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
