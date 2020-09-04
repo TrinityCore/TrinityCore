@@ -15,9 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
 #include "ruins_of_ahnqiraj.h"
 #include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 
 enum Yells
 {

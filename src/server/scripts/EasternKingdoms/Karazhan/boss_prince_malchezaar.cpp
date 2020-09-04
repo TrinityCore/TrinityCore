@@ -23,8 +23,8 @@ SDCategory: Karazhan
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
 #include "karazhan.h"
+#include "InstanceScript.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
@@ -154,7 +154,7 @@ public:
                     creature->AI()->KilledUnit(who);
         }
 
-        void SpellHit(Unit* /*who*/, const SpellInfo* spell) override
+        void SpellHit(Unit* /*who*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_INFERNAL_RELAY)
             {

@@ -161,7 +161,7 @@ void Bag::StoreItem(uint8 slot, Item* pItem, bool /*update*/)
 {
     ASSERT(slot < MAX_BAG_SIZE);
 
-    if (pItem && pItem->GetGUID() != this->GetGUID())
+    if (pItem && pItem->GetGUID() != GetGUID())
     {
         m_bagslot[slot] = pItem;
         SetSlot(slot, pItem->GetGUID());

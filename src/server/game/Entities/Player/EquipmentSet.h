@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef EquipementSet_h__
-#define EquipementSet_h__
+#ifndef EquipmentSet_h__
+#define EquipmentSet_h__
 
 #include "Define.h"
 #include "ObjectGuid.h"
@@ -31,7 +31,7 @@ enum EquipmentSetUpdateState
     EQUIPMENT_SET_DELETED   = 3
 };
 
-#define EQUIPEMENT_SET_SLOTS 19
+#define EQUIPMENT_SET_SLOTS 19
 
 struct EquipmentSetInfo
 {
@@ -51,8 +51,8 @@ struct EquipmentSetInfo
         int32 AssignedSpecIndex = -1;                           ///< Index of character specialization that this set is automatically equipped for
         std::string SetName;
         std::string SetIcon;
-        std::array<ObjectGuid, EQUIPEMENT_SET_SLOTS> Pieces;
-        std::array<int32, EQUIPEMENT_SET_SLOTS> Appearances;    ///< ItemModifiedAppearanceID
+        std::array<ObjectGuid, EQUIPMENT_SET_SLOTS> Pieces;
+        std::array<int32, EQUIPMENT_SET_SLOTS> Appearances;    ///< ItemModifiedAppearanceID
         std::array<int32, 2> Enchants;                          ///< SpellItemEnchantmentID
     } Data;
 
@@ -64,4 +64,4 @@ struct EquipmentSetInfo
 
 typedef std::map<uint64, EquipmentSetInfo> EquipmentSetContainer;
 
-#endif // EquipementSet_h__
+#endif // EquipmentSet_h__

@@ -25,7 +25,6 @@
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
-#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "SpellAuraEffects.h"
@@ -632,9 +631,9 @@ class npc_unleashed_light : public CreatureScript
                     {
                         DoCastAOE(SPELL_UNLEASHED_LIGHT);
                         me->GetMotionMaster()->MoveIdle();
-                        me->DespawnOrUnsummon(1*IN_MILLISECONDS);
+                        me->DespawnOrUnsummon(1 * IN_MILLISECONDS);
                     }
-                    RangeCheckTimer = 0.5*IN_MILLISECONDS;
+                    RangeCheckTimer = IN_MILLISECONDS / 2;
                 }
                 else
                     RangeCheckTimer -= diff;

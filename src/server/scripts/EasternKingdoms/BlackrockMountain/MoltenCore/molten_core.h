@@ -75,10 +75,10 @@ enum MCData
     DATA_RAGNAROS_ADDS  = 0,
 };
 
-template<typename AI>
-inline AI* GetMoltenCoreAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetMoltenCoreAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, MCScriptName);
+    return GetInstanceAI<AI>(obj, MCScriptName);
 }
 
 #endif

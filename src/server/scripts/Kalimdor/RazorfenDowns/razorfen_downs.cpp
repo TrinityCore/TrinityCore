@@ -28,13 +28,13 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "CellImpl.h"
+#include "GameObjectAI.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "Player.h"
 #include "razorfen_downs.h"
 #include "ScriptedCreature.h"
-#include "GameObjectAI.h"
 #include "ScriptedGossip.h"
 #include "TemporarySummon.h"
 

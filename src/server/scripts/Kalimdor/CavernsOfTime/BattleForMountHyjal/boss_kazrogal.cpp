@@ -101,7 +101,7 @@ public:
         {
             if (waypointId == 7 && instance)
             {
-                Unit* target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_THRALL));
+                Creature* target = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THRALL));
                 if (target && target->IsAlive())
                     AddThreat(target, 0.0f);
             }

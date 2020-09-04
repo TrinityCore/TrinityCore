@@ -137,7 +137,7 @@ enum BlackTempleMisc
     ACTION_OPEN_DOOR                = 4
 };
 
-template<class AI, class T>
+template <class AI, class T>
 inline AI* GetBlackTempleAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, BTScriptName);

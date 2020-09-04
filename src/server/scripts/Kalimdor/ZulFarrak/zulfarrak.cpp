@@ -29,14 +29,13 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "InstanceScript.h"
-#include "Map.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "GameObjectAI.h"
 #include "zulfarrak.h"
 
 /*######
@@ -226,7 +225,7 @@ public:
     private:
         void initBlyCrewMember(uint32 entry, float x, float y, float z)
         {
-            if (Creature* crew = instance->instance->GetCreature(instance->GetGuidData(entry)))
+            if (Creature* crew = ObjectAccessor::GetCreature(*me, instance->GetGuidData(entry)))
             {
                 crew->SetReactState(REACT_AGGRESSIVE);
                 crew->SetWalk(true);
@@ -273,7 +272,7 @@ public:
         npc_weegli_blastfuseAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
-            destroyingDoor=false;
+            destroyingDoor = false;
             Bomb_Timer = 10000;
             LandMine_Timer = 30000;
         }
@@ -348,7 +347,7 @@ public:
                 me->GetMotionMaster()->MovePoint(0, 1858.57f, 1146.35f, 14.745f);
                 me->SetHomePosition(1858.57f, 1146.35f, 14.745f, 3.85f); // in case he gets interrupted
                 Talk(SAY_WEEGLI_OK_I_GO);
-                destroyingDoor=true;
+                destroyingDoor = true;
             }
         }
 
@@ -429,7 +428,7 @@ public:
 
     GameObjectAI* GetAI(GameObject* go) const override
     {
-        return new go_shallow_graveAI(go);
+        return GetZulFarrakAI<go_shallow_graveAI>(go);
     }
 };
 
@@ -448,7 +447,7 @@ class at_zumrah : public AreaTriggerScript
 public:
     at_zumrah() : AreaTriggerScript("at_zumrah") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*areaTrigger*/, bool /*entered*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
     {
         Creature* pZumrah = player->FindNearestCreature(ZUMRAH_ID, 30.0f);
 

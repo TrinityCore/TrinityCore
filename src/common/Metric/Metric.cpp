@@ -249,7 +249,7 @@ std::string Metric::FormatInfluxDBValue(std::string const& value)
     return '"' + boost::replace_all_copy(value, "\"", "\\\"") + '"';
 }
 
-std::string Metric::FormatInfluxDBValue(const char* value)
+std::string Metric::FormatInfluxDBValue(char const* value)
 {
     return FormatInfluxDBValue(std::string(value));
 }

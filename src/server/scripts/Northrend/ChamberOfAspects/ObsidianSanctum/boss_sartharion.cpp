@@ -20,8 +20,8 @@
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
-#include "obsidian_sanctum.h"
 #include "ObjectAccessor.h"
+#include "obsidian_sanctum.h"
 #include "ScriptedCreature.h"
 #include "TemporarySummon.h"
 

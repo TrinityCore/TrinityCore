@@ -814,7 +814,7 @@ bool BattlegroundWS::UpdatePlayerScore(Player* player, uint32 type, uint32 value
     return true;
 }
 
-WorldSafeLocsEntry const* BattlegroundWS::GetClosestGraveYard(Player* player)
+WorldSafeLocsEntry const* BattlegroundWS::GetClosestGraveyard(Player* player)
 {
     //if status in progress, it returns main graveyards with spiritguides
     //else it will return the graveyard in the flagroom - this is especially good

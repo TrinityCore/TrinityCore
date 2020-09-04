@@ -1809,7 +1809,7 @@ class TC_GAME_API WorldSession
         bool CanUseBank(ObjectGuid bankerGUID = ObjectGuid::Empty) const;
 
         // logging helper
-        void LogUnexpectedOpcode(WorldPacket* packet, const char* status, const char *reason);
+        void LogUnexpectedOpcode(WorldPacket* packet, char const* status, const char *reason);
 
         // EnumData helpers
         bool IsLegitCharacterForAccount(ObjectGuid lowGUID)

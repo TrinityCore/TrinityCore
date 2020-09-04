@@ -23,8 +23,8 @@ SDCategory: Magister's Terrace
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
 #include "magisters_terrace.h"
+#include "InstanceScript.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "TemporarySummon.h"
@@ -1328,7 +1328,7 @@ public:
 
     //CreatureAI* GetAI(Creature* creature) const override
     //{
-    //    return new npc_high_explosive_sheepAI(creature);
+    //    return GetMagistersTerraceAI<npc_high_explosive_sheepAI>(creature);
     //};
 };
 */

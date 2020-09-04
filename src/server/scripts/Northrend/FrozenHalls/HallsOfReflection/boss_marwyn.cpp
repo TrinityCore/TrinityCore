@@ -19,7 +19,6 @@
 #include "boss_horAI.h"
 #include "halls_of_reflection.h"
 #include "InstanceScript.h"
-#include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 

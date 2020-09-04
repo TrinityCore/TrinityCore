@@ -5101,7 +5101,7 @@ enum BattlegroundTeamId : uint8
 
 #define BG_TEAMS_COUNT  2
 
-// indexes of BattlemasterList.dbc (7.1.5.23360)
+// indexes of BattlemasterList.dbc
 enum BattlegroundTypeId : uint32
 {
     BATTLEGROUND_TYPE_NONE      = 0,   // None

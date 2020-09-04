@@ -17,9 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "AreaBoundary.h"
-#include "Creature.h"
 #include "CreatureAI.h"
-#include "EventMap.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
@@ -479,7 +477,7 @@ class instance_naxxramas : public InstanceMapScript
                             std::list<TempSummon*> spawns;
                             instance->SummonCreatureGroup(nextFroggerWave, &spawns);
                             if (!spawns.empty())
-                                (*spawns.begin())->GetMotionMaster()->MovePath(10 * NPC_FROGGER + nextFroggerWave, false);
+                                spawns.front()->GetMotionMaster()->MovePath(10 * NPC_FROGGER + nextFroggerWave, false);
                             events.Repeat(Seconds(1) + Milliseconds(666));
                             nextFroggerWave = (nextFroggerWave+1) % 3;
                             break;

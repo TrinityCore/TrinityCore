@@ -584,7 +584,7 @@ void MapObject::Extract(ADT::MODF const& mapObjDef, char const* WmoInstName, boo
 
     fseek(input, 8, SEEK_SET); // get the correct no of vertices
     int nVertices;
-    int count = fread(&nVertices, sizeof (int), 1, input);
+    int count = fread(&nVertices, sizeof(int), 1, input);
     fclose(input);
 
     if (count != 1 || nVertices == 0)

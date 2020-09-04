@@ -23,7 +23,7 @@
 #include "pit_of_saron.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
-#include "SpellAuraEffects.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "Vehicle.h"
@@ -545,7 +545,7 @@ class spell_krick_explosive_barrage : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                     if (caster->GetTypeId() == TYPEID_UNIT)
                     {
-                        Map::PlayerList const &players = caster->GetMap()->GetPlayers();
+                        Map::PlayerList const& players = caster->GetMap()->GetPlayers();
                         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                             if (Player* player = itr->GetSource())
                                 if (player->IsWithinDist(caster, 60.0f))    // don't know correct range

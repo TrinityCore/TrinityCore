@@ -17,18 +17,19 @@
 
 #include "ScriptMgr.h"
 #include "AreaBoundary.h"
+#include "CreatureAI.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Item.h"
 #include "Map.h"
 #include "Player.h"
-#include "ScriptedCreature.h"
 #include "Spell.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "ulduar.h"
 #include "Vehicle.h"
 #include "WorldStatePackets.h"
+#include <sstream>
 
 static BossBoundaryData const boundaries =
 {

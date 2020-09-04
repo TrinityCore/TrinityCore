@@ -229,8 +229,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void SetNoCallAssistance(bool val) { m_AlreadyCallAssistance = val; }
         void SetNoSearchAssistance(bool val) { m_AlreadySearchedAssistance = val; }
         bool HasSearchedAssistance() const { return m_AlreadySearchedAssistance; }
-        bool CanAssistTo(const Unit* u, const Unit* enemy, bool checkfaction = true) const;
-        bool _IsTargetAcceptable(const Unit* target) const;
+        bool CanAssistTo(Unit const* u, Unit const* enemy, bool checkfaction = true) const;
+        bool _IsTargetAcceptable(Unit const* target) const;
 
         MovementGeneratorType GetDefaultMovementType() const { return m_defaultMovementType; }
         void SetDefaultMovementType(MovementGeneratorType mgt) { m_defaultMovementType = mgt; }
@@ -281,12 +281,12 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool CanNotReachTarget() const { return m_cannotReachTarget; }
 
         void SetHomePosition(float x, float y, float z, float o) { m_homePosition.Relocate(x, y, z, o); }
-        void SetHomePosition(const Position &pos) { m_homePosition.Relocate(pos); }
+        void SetHomePosition(Position const& pos) { m_homePosition.Relocate(pos); }
         void GetHomePosition(float& x, float& y, float& z, float& ori) const { m_homePosition.GetPosition(x, y, z, ori); }
         Position const& GetHomePosition() const { return m_homePosition; }
 
         void SetTransportHomePosition(float x, float y, float z, float o) { m_transportHomePosition.Relocate(x, y, z, o); }
-        void SetTransportHomePosition(const Position &pos) { m_transportHomePosition.Relocate(pos); }
+        void SetTransportHomePosition(Position const& pos) { m_transportHomePosition.Relocate(pos); }
         void GetTransportHomePosition(float& x, float& y, float& z, float& ori) const { m_transportHomePosition.GetPosition(x, y, z, ori); }
         Position const& GetTransportHomePosition() const { return m_transportHomePosition; }
 

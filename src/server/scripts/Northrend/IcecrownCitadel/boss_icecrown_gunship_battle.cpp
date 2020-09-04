@@ -18,6 +18,7 @@
 #include "icecrown_citadel.h"
 #include "CellImpl.h"
 #include "CreatureTextMgr.h"
+#include "GossipDef.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
 #include "Map.h"
@@ -26,12 +27,10 @@
 #include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
 #include "PassiveAI.h"
-#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
-#include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
@@ -1815,7 +1814,7 @@ class npc_gunship_cannon : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_gunship_cannonAI(creature);
+            return GetIcecrownCitadelAI<npc_gunship_cannonAI>(creature);
         }
 };
 
@@ -1830,11 +1829,7 @@ class spell_igb_rocket_pack : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                return ValidateSpellInfo(
-                {
-                    SPELL_ROCKET_PACK_DAMAGE,
-                    SPELL_ROCKET_BURST
-                });
+                return ValidateSpellInfo({ SPELL_ROCKET_PACK_DAMAGE, SPELL_ROCKET_BURST });
             }
 
             void HandlePeriodic(AuraEffect const* /*aurEff*/)

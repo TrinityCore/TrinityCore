@@ -19,9 +19,9 @@
  * Comment: Find in the future best timers and the event is not implemented.
  */
 
-#include "Containers.h"
 #include "ScriptMgr.h"
 #include "azjol_nerub.h"
+#include "Containers.h"
 #include "InstanceScript.h"
 #include "PassiveAI.h"
 #include "ScriptedCreature.h"

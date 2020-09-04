@@ -604,14 +604,7 @@ class spell_pri_guardian_spirit : public SpellScriptLoader
         {
             PrepareAuraScript(spell_pri_guardian_spirit_AuraScript);
 
-        public:
-            spell_pri_guardian_spirit_AuraScript()
-            {
-                healPct = 0;
-            }
-
-        private:
-            uint32 healPct;
+            uint32 healPct = 0;
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -869,13 +862,6 @@ class spell_pri_mana_leech : public SpellScriptLoader
         {
             PrepareAuraScript(spell_pri_mana_leech_AuraScript);
 
-        public:
-            spell_pri_mana_leech_AuraScript()
-            {
-                _procTarget = nullptr;
-            }
-
-        private:
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_PRIEST_MANA_LEECH_PROC });
@@ -899,8 +885,7 @@ class spell_pri_mana_leech : public SpellScriptLoader
                 OnEffectProc += AuraEffectProcFn(spell_pri_mana_leech_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
 
-        private:
-            Unit* _procTarget;
+            Unit* _procTarget = nullptr;
         };
 
         AuraScript* GetAuraScript() const override

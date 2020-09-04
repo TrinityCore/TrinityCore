@@ -31,6 +31,7 @@ EndScriptData */
 #include "Map.h"
 #include "Player.h"
 #include "stratholme.h"
+#include <sstream>
 
 enum Misc
 {
@@ -352,7 +353,7 @@ class instance_stratholme : public InstanceMapScript
                 return saveStream.str();
             }
 
-            void Load(const char* in) override
+            void Load(char const* in) override
             {
                 if (!in)
                 {

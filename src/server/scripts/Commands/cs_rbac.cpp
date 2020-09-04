@@ -22,13 +22,13 @@ Comment: All role based access control related commands (including account relat
 Category: commandscripts
 EndScriptData */
 
+#include "ScriptMgr.h"
 #include "AccountMgr.h"
 #include "Chat.h"
 #include "Config.h"
 #include "Language.h"
 #include "Player.h"
 #include "Realm.h"
-#include "ScriptMgr.h"
 #include "World.h"
 #include "WorldSession.h"
 

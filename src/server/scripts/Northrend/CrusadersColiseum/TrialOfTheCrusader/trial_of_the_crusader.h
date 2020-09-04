@@ -218,10 +218,10 @@ enum TCRAchievementData
     EVENT_START_TWINS_FIGHT                 = 21853
 };
 
-template<typename AI>
-inline AI* GetTrialOfTheCrusaderAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetTrialOfTheCrusaderAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, ToCrScriptName);
+    return GetInstanceAI<AI>(obj, ToCrScriptName);
 }
 
 #endif

@@ -28,6 +28,7 @@ EndScriptData */
 #include "Log.h"
 #include "Map.h"
 #include "wailing_caverns.h"
+#include <sstream>
 
 #define MAX_ENCOUNTER   9
 
@@ -117,7 +118,7 @@ public:
             return saveStream.str();
         }
 
-        void Load(const char* in) override
+        void Load(char const* in) override
         {
             if (!in)
             {

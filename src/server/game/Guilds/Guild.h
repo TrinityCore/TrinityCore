@@ -738,7 +738,7 @@ class TC_GAME_API Guild
         void HandleGetAchievementMembers(WorldSession* session, uint32 achievementId) const;
         void HandleSetMOTD(WorldSession* session, std::string const& motd);
         void HandleSetInfo(WorldSession* session, std::string const& info);
-        void HandleSetEmblem(WorldSession* session, const EmblemInfo& emblemInfo);
+        void HandleSetEmblem(WorldSession* session, EmblemInfo const& emblemInfo);
         void HandleSetNewGuildMaster(WorldSession* session, std::string const& name, bool isSelfPromote);
         void HandleSetBankTabInfo(WorldSession* session, uint8 tabId, std::string const& name, std::string const& icon);
         void HandleSetMemberNote(WorldSession* session, std::string const& note, ObjectGuid guid, bool isPublic);

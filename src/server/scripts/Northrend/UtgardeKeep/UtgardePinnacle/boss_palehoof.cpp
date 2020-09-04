@@ -16,16 +16,15 @@
  */
 
 #include "ScriptMgr.h"
-#include "GameObject.h"
 #include "InstanceScript.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "TemporarySummon.h"
-#include "GameObjectAI.h"
-#include "utgarde_pinnacle.h"
 #include "SpellScript.h"
-#include "SpellAuraEffects.h"
+#include "TemporarySummon.h"
+#include "utgarde_pinnacle.h"
 
 enum Spells
 {

@@ -30,9 +30,9 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
-#include "Map.h"
 #include "ObjectAccessor.h"
 #include "old_hillsbrad.h"
+#include "Map.h"
 #include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
@@ -350,7 +350,7 @@ public:
                 case 106:
                     {
                         //trigger taretha to run down outside
-                        if (Creature* Taretha = instance->instance->GetCreature(instance->GetGuidData(DATA_TARETHA)))
+                        if (Creature* Taretha = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TARETHA)))
                         {
                             if (Player* player = GetPlayerForEscort())
                                 ENSURE_AI(EscortAI, (Taretha->AI()))->Start(false, true, player->GetGUID());
@@ -613,7 +613,7 @@ public:
                     if (instance->GetGuidData(DATA_EPOCH).IsEmpty())
                         me->SummonCreature(ENTRY_EPOCH, 2639.13f, 698.55f, 65.43f, 4.59f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
 
-                    if (Creature* thrall = (ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THRALL))))
+                    if (Creature* thrall = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THRALL)))
                         ENSURE_AI(npc_thrall_old_hillsbrad::npc_thrall_old_hillsbradAI, thrall->AI())->StartWP();
                 }
             }

@@ -19,10 +19,10 @@
 #include "AreaBoundary.h"
 #include "black_temple.h"
 #include "Creature.h"
+#include "CreatureAI.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
-#include "ScriptedCreature.h"
 
 DoorData const doorData[] =
 {

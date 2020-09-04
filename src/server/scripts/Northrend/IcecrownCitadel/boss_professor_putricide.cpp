@@ -17,7 +17,6 @@
 
 #include "icecrown_citadel.h"
 #include "DB2Stores.h"
-#include "GameObject.h"
 #include "GridNotifiers.h"
 #include "Group.h"
 #include "InstanceScript.h"
@@ -27,8 +26,6 @@
 #include "ScriptedCreature.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
-#include "SpellAuras.h"
-#include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
@@ -892,16 +889,9 @@ class spell_putricide_ooze_channel : public SpellScriptLoader
         {
             PrepareSpellScript(spell_putricide_ooze_channel_SpellScript);
 
-        public:
-            spell_putricide_ooze_channel_SpellScript()
-            {
-                _target = nullptr;
-            }
-
-        private:
             bool Validate(SpellInfo const* spell) override
             {
-                return spell->ExcludeTargetAuraSpell && ValidateSpellInfo({ spell->ExcludeTargetAuraSpell });
+                return ValidateSpellInfo({ spell->ExcludeTargetAuraSpell });
             }
 
             // set up initial variables and check if caster is creature
@@ -949,7 +939,7 @@ class spell_putricide_ooze_channel : public SpellScriptLoader
                 AfterHit += SpellHitFn(spell_putricide_ooze_channel_SpellScript::StartAttack);
             }
 
-            WorldObject* _target;
+            WorldObject* _target = nullptr;
         };
 
         SpellScript* GetSpellScript() const override

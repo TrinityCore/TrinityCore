@@ -1,18 +1,18 @@
 /*
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef TRINITYSERVER_SPLINE_H
@@ -77,10 +77,10 @@ protected:
     typedef float (SplineBase::*SegLenghtMethtod)(index_type) const;
     static SegLenghtMethtod seglengths[ModesEnd];
 
-    void InitLinear(const Vector3*, index_type, index_type);
-    void InitCatmullRom(const Vector3*, index_type, index_type);
-    void InitBezier3(const Vector3*, index_type, index_type);
-    typedef void (SplineBase::*InitMethtod)(const Vector3*, index_type, index_type);
+    void InitLinear(Vector3 const*, index_type, index_type);
+    void InitCatmullRom(Vector3 const*, index_type, index_type);
+    void InitBezier3(Vector3 const*, index_type, index_type);
+    typedef void (SplineBase::*InitMethtod)(Vector3 const*, index_type, index_type);
     static InitMethtod initializers[ModesEnd];
 
     void UninitializedSplineEvaluationMethod(index_type, float, Vector3&) const { ABORT(); }
@@ -111,9 +111,9 @@ public:
     EvaluationMode mode() const { return (EvaluationMode)m_mode;}
     bool isCyclic() const { return cyclic;}
 
-    const ControlArray& getPoints() const { return points; }
-    index_type getPointCount() const { return index_type(points.size()); }
-    const Vector3& getPoint(index_type i) const { return points[i]; }
+    ControlArray const& getPoints() const { return points; }
+    index_type getPointCount() const { return index_type(points.size());}
+    Vector3 const& getPoint(index_type i) const { return points[i]; }
 
     /** Initializes spline. Don't call other methods while spline not initialized. */
     void init_spline(const Vector3 * controls, index_type count, EvaluationMode m);

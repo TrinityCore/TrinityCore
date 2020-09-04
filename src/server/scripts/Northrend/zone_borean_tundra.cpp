@@ -91,7 +91,7 @@ public:
             Initialize();
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell) override
+        void SpellHit(Unit* caster, SpellInfo const* spell) override
         {
             if (phase || spell->Id != SPELL_SET_CART)
                 return;
@@ -1458,7 +1458,7 @@ public:
                 AttackStart(who);
         }
 
-        void SpellHit(Unit* pCaster, const SpellInfo* pSpell) override
+        void SpellHit(Unit* pCaster, SpellInfo const* pSpell) override
         {
             if (pSpell->Id == SPELL_ARCANE_CHAINS && pCaster->GetTypeId() == TYPEID_PLAYER && !HealthAbovePct(50) && !bEnslaved)
             {
@@ -1568,7 +1568,7 @@ public:
         {
         }
 
-        void SpellHit(Unit* unit, const SpellInfo* spell) override
+        void SpellHit(Unit* unit, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_NEURAL_NEEDLE && unit->GetTypeId() == TYPEID_PLAYER)
                 if (Player* player = unit->ToPlayer())
@@ -1646,7 +1646,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            if (Player* player=GetPlayerForEscort())
+            if (Player* player = GetPlayerForEscort())
                 player->FailQuest(QUEST_ESCAPING_THE_MIST);
         }
 
@@ -2161,9 +2161,9 @@ enum HiddenCultist
     SAY_HIDDEN_CULTIST_4                        = 3
 };
 
-const char* GOSSIP_ITEM_TOM_HEGGER = "What do you know about the Cult of the Damned?";
-const char* GOSSIP_ITEM_GUARD_MITCHELLS = "How long have you worked for the Cult of the Damned?";
-const char* GOSSIP_ITEM_SALTY_JOHN_THORPE = "I have a reason to believe you're involved in the cultist activity";
+char const* GOSSIP_ITEM_TOM_HEGGER = "What do you know about the Cult of the Damned?";
+char const* GOSSIP_ITEM_GUARD_MITCHELLS = "How long have you worked for the Cult of the Damned?";
+char const* GOSSIP_ITEM_SALTY_JOHN_THORPE = "I have a reason to believe you're involved in the cultist activity";
 
 class npc_hidden_cultist : public CreatureScript
 {
@@ -2291,7 +2291,7 @@ public:
         bool GossipHello(Player* player) override
         {
             uint32 uiGossipText = 0;
-            const char* charGossipItem;
+            char const* charGossipItem;
 
             switch (me->GetEntry())
             {
