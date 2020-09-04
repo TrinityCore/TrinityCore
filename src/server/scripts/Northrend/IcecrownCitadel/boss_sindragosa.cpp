@@ -1551,8 +1551,8 @@ void AddSC_boss_sindragosa()
     RegisterSpellScript(spell_rimefang_icy_blast);
     RegisterSpellScript(spell_frostwarden_handler_order_whelp);
     RegisterSpellAndAuraScriptPair(spell_frostwarden_handler_focus_fire, spell_frostwarden_handler_focus_fire_aura);
-    new spell_trigger_spell_from_caster("spell_sindragosa_ice_tomb", SPELL_ICE_TOMB_DUMMY, TRIGGERED_IGNORE_SET_FACING);
-    new spell_trigger_spell_from_caster("spell_sindragosa_ice_tomb_dummy", SPELL_FROST_BEACON);
+    RegisterSpellScriptWithArgs(spell_trigger_spell_from_caster, "spell_sindragosa_ice_tomb", SPELL_ICE_TOMB_DUMMY, TRIGGERED_IGNORE_SET_FACING);
+    RegisterSpellScriptWithArgs(spell_trigger_spell_from_caster, "spell_sindragosa_ice_tomb_dummy", SPELL_FROST_BEACON);
     RegisterSpellScript(spell_sindragosa_ice_tomb_target);
 
     // AreaTriggers

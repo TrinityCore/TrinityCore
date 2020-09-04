@@ -19,7 +19,8 @@
 #define ICECROWN_CITADEL_H_
 
 #include "CreatureAIImpl.h"
-#include "ScriptMgr.h"
+#include "SpellDefines.h"
+#include "SpellScript.h"
 
 #define ICCScriptName "instance_icecrown_citadel"
 #define DataHeader "IC"
@@ -549,16 +550,20 @@ extern Position const SpiritWardenSpawn;
 uint32 const WeeklyNPCs = 9;
 uint32 const MaxHeroicAttempts = 50;
 
-class spell_trigger_spell_from_caster : public SpellScriptLoader
+class spell_trigger_spell_from_caster : public SpellScript
 {
-    public:
-        spell_trigger_spell_from_caster(char const* scriptName, uint32 triggerId, TriggerCastFlags triggerFlags);
-        spell_trigger_spell_from_caster(char const* scriptName, uint32 triggerId);
-        SpellScript* GetSpellScript() const override;
+    PrepareSpellScript(spell_trigger_spell_from_caster);
 
-    private:
-        uint32 _triggerId;
-        TriggerCastFlags _triggerFlags;
+public:
+    spell_trigger_spell_from_caster(uint32 triggerId, TriggerCastFlags triggerFlags = TRIGGERED_FULL_MASK);
+
+private:
+    bool Validate(SpellInfo const* spell) override;
+    void HandleTrigger();
+    void Register() override;
+
+    uint32 _triggerId;
+    TriggerCastFlags _triggerFlags;
 };
 
 template <class AI, class T>
