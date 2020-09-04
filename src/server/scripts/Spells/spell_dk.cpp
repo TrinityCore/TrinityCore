@@ -112,6 +112,7 @@ enum DeathKnightSpellIcons
 enum Misc
 {
     NPC_DK_GHOUL                                = 26125,
+    NPC_EBON_GARGOYLE                           = 27829,
     NPC_DK_DANCING_RUNE_WEAPON                  = 27893,
     SPELL_CATEGORY_HOWLING_BLAST                = 1248
 };
@@ -1159,6 +1160,52 @@ class spell_dk_death_strike : public SpellScriptLoader
         {
             return new spell_dk_death_strike_SpellScript();
         }
+};
+
+// 51963 - Gargoyle Strike
+class spell_dk_gargoyle_strike : public SpellScript
+{
+    PrepareSpellScript(spell_dk_gargoyle_strike);
+
+    bool Load() override
+    {
+        damage = 0;
+    
+        if (GetCaster() && GetCaster()->GetEntry() == NPC_EBON_GARGOYLE)
+            return true;
+        return false;
+    }
+    
+    void HandleDummyHitTarget(SpellEffIndex /*effIndex*/)
+    {
+        if (SpellInfo const* info = GetSpellInfo())
+        {
+            damage += info->Effects[0].BasePoints;
+            damage += urand(0, info->Effects[0].DieSides);
+            damage += (GetCaster()->GetLevel() - 60) * 4 + 60;
+        }
+    
+        Unit* target = GetHitUnit();
+        Unit* caster = GetCaster();
+        if (!target || !caster)
+            return;
+        Unit* owner = caster->GetOwner();
+        if (!owner)
+            return;
+    
+        damage += (owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.4f);
+        damage *= target->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, GetSpellInfo()->GetSchoolMask());
+    
+        SetHitDamage(damage);
+    }
+    
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dk_gargoyle_strike::HandleDummyHitTarget, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+
+    private:
+        int32 damage;
 };
 
 // 47496 - Explode, Ghoul spell for Corpse Explosion
@@ -2411,6 +2458,58 @@ class spell_dk_sudden_doom : public SpellScriptLoader
         }
 };
 
+// 49206 - Summon Gargoyle
+class spell_dk_summon_gargoyle : public SpellScript
+{
+    PrepareSpellScript(spell_dk_summon_gargoyle);
+
+    bool Load() override
+    {
+        offset.m_positionX = 0.0f;
+        offset.m_positionY = 0.0f;
+        offset.m_positionZ = 0.0f;
+        return true;
+    }
+    
+    void HandleHitTarget(SpellEffIndex /*effIndex*/)
+    {
+        WorldLocation summonPos = *GetExplTargetDest();
+        summonPos.RelocateOffset(offset);
+        SetExplTargetDest(summonPos);
+        GetHitDest()->RelocateOffset(offset);
+    }
+    
+    void SetDest(SpellDestination& dest)
+    {
+        // Adjust effect summon position
+        if (GetCaster()->IsWithinLOS(dest._position.GetPositionX(), dest._position.GetPositionY(), dest._position.GetPositionZ() + 15.0f))
+            dest._position.m_positionZ += 15.0f;
+    }
+    
+    void HandleLaunchTarget(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* target = GetExplTargetUnit())
+        {
+            if (!GetCaster()->isInFront(target, 2.5f) && GetCaster()->IsWithinMeleeRange(target))
+            {
+                float o = GetCaster()->GetOrientation();
+                offset.m_positionX = (7 * cos(o)) + target->GetMeleeRange(target);
+                offset.m_positionY = (7 * sin(o)) + target->GetMeleeRange(target);
+            }
+        }
+    }
+    
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_dk_summon_gargoyle::HandleHitTarget, EFFECT_0, SPELL_EFFECT_SUMMON);
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_dk_summon_gargoyle::SetDest, EFFECT_0, TARGET_DEST_CASTER_FRONT_LEFT);
+        OnEffectLaunchTarget += SpellEffectFn(spell_dk_summon_gargoyle::HandleLaunchTarget, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
+    }
+
+    private:
+        Position offset;
+};
+
 // -65661 Threat of Thassarian
 class spell_dk_threat_of_thassarian : public SpellScriptLoader
 {
@@ -3210,6 +3309,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_death_pact();
     new spell_dk_death_rune();
     new spell_dk_death_strike();
+    RegisterSpellScript(spell_dk_gargoyle_strike);
     new spell_dk_ghoul_explode();
     new spell_dk_glyph_of_death_grip();
     new spell_dk_glyph_of_scourge_strike();
@@ -3235,6 +3335,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_scourge_strike();
     new spell_dk_spell_deflection();
     new spell_dk_sudden_doom();
+    RegisterSpellScript(spell_dk_summon_gargoyle);
     new spell_dk_threat_of_thassarian();
     new spell_dk_unholy_blight();
     new spell_dk_vampiric_blood();
