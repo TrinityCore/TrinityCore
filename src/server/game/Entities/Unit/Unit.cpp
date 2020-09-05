@@ -8697,11 +8697,8 @@ void Unit::setDeathState(DeathState s)
                 //  * Using 'call pet' on dead pets
                 //  * Using 'call stabled pet'
                 //  * Logging in with dead pets
-                if (!isOnVehicle)
-                {
-                    GetMotionMaster()->Clear();
-                    GetMotionMaster()->MoveIdle();
-                }
+                GetMotionMaster()->Clear();
+                GetMotionMaster()->MoveIdle();
             }
 
             StopMoving();
