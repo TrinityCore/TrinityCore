@@ -143,14 +143,7 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
                     spellCastTime -= diff;
 
                 if (initStatTimer <= diff)
-                {
-                    if (Unit* owner = me->GetOwner())
-                    {
-                        me->SetMaxHealth(uint32(owner->GetMaxHealth() * 0.8f));
-                        me->SetHealth(me->GetMaxHealth());
-                    }
                     initStatTimer = 120 * IN_MILLISECONDS;
-                }
                 else
                     initStatTimer -= diff;
 
