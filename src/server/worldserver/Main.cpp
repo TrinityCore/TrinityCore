@@ -339,7 +339,7 @@ extern int main(int argc, char** argv)
     }
 
     sScriptMgr->OnStartup();
-    
+
     TC_LOG_INFO("server.worldserver", "%s (worldserver-daemon) ready...", GitRevision::GetFullVersion());
 
     WorldUpdateLoop();
