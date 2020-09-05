@@ -1244,9 +1244,9 @@ class spell_sindragosa_frost_beacon : public AuraScript
     }
 };
 
-class spell_sindragosa_ice_tomb : public AuraScript
+class spell_sindragosa_ice_tomb_trap : public AuraScript
 {
-    PrepareAuraScript(spell_sindragosa_ice_tomb);
+    PrepareAuraScript(spell_sindragosa_ice_tomb_trap);
 
     bool Validate(SpellInfo const* /*spell*/) override
     {
@@ -1288,8 +1288,8 @@ class spell_sindragosa_ice_tomb : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_sindragosa_ice_tomb::PeriodicTick, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-        AfterEffectRemove += AuraEffectRemoveFn(spell_sindragosa_ice_tomb::HandleRemove, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_sindragosa_ice_tomb_trap::PeriodicTick, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_sindragosa_ice_tomb_trap::HandleRemove, EFFECT_2, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -1545,14 +1545,14 @@ void AddSC_boss_sindragosa()
     RegisterSpellScript(spell_sindragosa_frost_breath);
     RegisterSpellScript(spell_sindragosa_instability);
     RegisterSpellScript(spell_sindragosa_frost_beacon);
-    RegisterSpellScript(spell_sindragosa_ice_tomb);
+    RegisterSpellScript(spell_sindragosa_ice_tomb_trap);
     RegisterSpellScript(spell_sindragosa_icy_grip);
     RegisterSpellScript(spell_sindragosa_mystic_buffet);
     RegisterSpellScript(spell_rimefang_icy_blast);
     RegisterSpellScript(spell_frostwarden_handler_order_whelp);
     RegisterSpellAndAuraScriptPair(spell_frostwarden_handler_focus_fire, spell_frostwarden_handler_focus_fire_aura);
-    new spell_trigger_spell_from_caster("spell_sindragosa_ice_tomb", SPELL_ICE_TOMB_DUMMY, TRIGGERED_IGNORE_SET_FACING);
-    new spell_trigger_spell_from_caster("spell_sindragosa_ice_tomb_dummy", SPELL_FROST_BEACON);
+    RegisterSpellScriptWithArgs(spell_trigger_spell_from_caster, "spell_sindragosa_ice_tomb", SPELL_ICE_TOMB_DUMMY, TRIGGERED_IGNORE_SET_FACING);
+    RegisterSpellScriptWithArgs(spell_trigger_spell_from_caster, "spell_sindragosa_ice_tomb_dummy", SPELL_FROST_BEACON);
     RegisterSpellScript(spell_sindragosa_ice_tomb_target);
 
     // AreaTriggers
