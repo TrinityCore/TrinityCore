@@ -830,8 +830,10 @@ void Map::Update(uint32 t_diff)
                 VisitNearbyCellsOf(unit, grid_object_update, world_object_update);
         }
 
-        { // Update player's guardians
+        { // Update player's summons
             std::unordered_set<Unit*> toVisit;
+
+            // Totems
             for (ObjectGuid const& summonGuid : player->m_SummonSlot)
                 if (summonGuid)
                     if (Creature* unit = GetCreature(summonGuid))
