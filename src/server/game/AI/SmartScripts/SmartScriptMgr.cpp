@@ -1018,6 +1018,14 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                     return false;
                 }
                 break;
+            case SMART_EVENT_RESET:
+                if (e.action.type == SMART_ACTION_CALL_SCRIPT_RESET)
+                {
+                    // There might be SMART_TARGET_* cases where this should be allowed, they will be handled if needed
+                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u uses event SMART_EVENT_RESET and action SMART_ACTION_CALL_SCRIPT_RESET, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id);
+                    return false;
+                }
+                break;
             case SMART_EVENT_LINK:
             case SMART_EVENT_GO_LOOT_STATE_CHANGED:
             case SMART_EVENT_GO_EVENT_INFORM:
@@ -1034,7 +1042,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             case SMART_EVENT_DEATH:
             case SMART_EVENT_EVADE:
             case SMART_EVENT_REACHED_HOME:
-            case SMART_EVENT_RESET:
             case SMART_EVENT_QUEST_ACCEPTED:
             case SMART_EVENT_QUEST_OBJ_COPLETETION:
             case SMART_EVENT_QUEST_COMPLETION:
