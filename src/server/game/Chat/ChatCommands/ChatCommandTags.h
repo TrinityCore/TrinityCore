@@ -113,11 +113,11 @@ namespace Trinity::ChatCommands
         }
     };
 
-    struct TC_GAME_API QuotedString : std::string, Trinity::Impl::ChatCommands::ContainerTag
+    struct QuotedString : std::string, Trinity::Impl::ChatCommands::ContainerTag
     {
         using value_type = std::string;
 
-        Optional<std::string_view> TryConsume(std::string_view args);
+        TC_GAME_API Optional<std::string_view> TryConsume(std::string_view args);
     };
 
     struct TC_GAME_API PlayerIdentifier : Trinity::Impl::ChatCommands::ContainerTag
