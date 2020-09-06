@@ -128,7 +128,7 @@ enum ICCSpells
 
     // Darkfallen Tactician
     SPELL_SHADOWSTEP = 70431,
-    SPELL_BLOOD_SAP = 70432,
+    SPELL_BLOOD_SAP = 70432
 
 };
 
