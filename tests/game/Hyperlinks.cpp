@@ -36,9 +36,9 @@ TEST_CASE("Basic link structure", "[Hyperlinks]")
         REQUIRE(info.color.g == 0xef);
         REQUIRE(info.color.b == 0x01);
         REQUIRE(info.tag == "Tag");
-        REQUIRE(info.data.empty());
+        REQUIRE(info.data == "");
         REQUIRE(info.text == "text");
-        REQUIRE(info.tail.empty());
+        REQUIRE(info.tail == "");
     }
     SECTION("Link with data")
     {
