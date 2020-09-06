@@ -1633,10 +1633,10 @@ class at_icc_start_blood_quickening : public AreaTriggerScript
         }
 };
 
-class at_icc_neruber_broodkeeper : public AreaTriggerScript
+class at_icc_nerubar_broodkeeper : public AreaTriggerScript
 {
     public:
-        at_icc_neruber_broodkeeper() : AreaTriggerScript("at_icc_neruber_broodkeeper") { }
+        at_icc_nerubar_broodkeeper() : AreaTriggerScript("at_icc_nerubar_broodkeeper") { }
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
         {
@@ -1682,5 +1682,5 @@ void AddSC_icecrown_citadel()
     new at_icc_saurfang_portal();
     new at_icc_shutdown_traps();
     new at_icc_start_blood_quickening();
-    new at_icc_neruber_broodkeeper();
+    new at_icc_nerubar_broodkeeper();
 }
