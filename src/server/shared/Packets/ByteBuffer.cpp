@@ -75,6 +75,8 @@ void ByteBuffer::append(uint8 const* src, size_t cnt)
     ASSERT(cnt, "Attempted to put a zero-sized value in ByteBuffer (pos: " SZFMTD " size: " SZFMTD ")", _wpos, size());
     ASSERT(size() < 10000000);
 
+    FlushBits();
+
     size_t const newSize = _wpos + cnt;
     if (_storage.capacity() < newSize) // custom memory allocation rules
     {
@@ -88,7 +90,6 @@ void ByteBuffer::append(uint8 const* src, size_t cnt)
             _storage.reserve(400000);
     }
 
-    FlushBits();
     if (_storage.size() < newSize)
         _storage.resize(newSize);
     std::memcpy(&_storage[_wpos], src, cnt);
