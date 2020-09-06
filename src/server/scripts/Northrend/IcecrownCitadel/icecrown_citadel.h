@@ -37,9 +37,6 @@ enum ICSharedSpells
     // Deathbound Ward
     SPELL_STONEFORM                     = 70733,
 
-    // Nerubar Broodkeeper
-    SPELL_FLIGHT                        = 43775,
-
     // Residue Rendezvous
     SPELL_ORANGE_BLIGHT_RESIDUE         = 72144,
     SPELL_GREEN_BLIGHT_RESIDUE          = 72145,

@@ -130,13 +130,7 @@ enum ICCSpells
     SPELL_SHADOWSTEP = 70431,
     SPELL_BLOOD_SAP = 70432,
 
-    // Nerubar broodkeeper
-    SPELL_CAST_NET_STARTROOM    = 69887,
-    SPELL_CRYPT_SCARABS         = 70965,
-    SPELL_WEB_WRAP              = 70980
 };
-
-#define SPELL_DARK_MENDING RAID_MODE<uint32>(72322, 72324)
 
 enum ICCTimedEventIds
 {
@@ -176,11 +170,6 @@ enum ICCTimedEventIds
 
     // Invisible Stalker (Float, Uninteractible, LargeAOI)
     EVENT_SOUL_MISSILE,
-
-    // Nerubar Broodkeeper
-    EVENT_CRYPT_SCARABS,
-    EVENT_DARK_MENDING,
-    EVENT_WEB_WRAP
 };
 
 enum ICCDataTypes
