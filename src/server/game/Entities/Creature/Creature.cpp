@@ -659,6 +659,11 @@ void Creature::Update(uint32 diff)
     }
 
     UpdateMovementFlags();
+    // updates visibility for other players
+    if (IsSummon() && m_deathState != DEAD)
+    {
+        UpdateObjectVisibility();
+    }
 
     switch (m_deathState)
     {
