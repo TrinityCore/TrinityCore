@@ -3468,7 +3468,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     });
 
     // Coldflame (Lord Marrowgar)
-    ApplySpellFix({ 69146, 70823, 70824, 70825 }, [](SpellInfo* spellInfo)
+    ApplySpellFix({ 69146 }, [](SpellInfo* spellInfo)
     {
         spellInfo->AttributesEx4 &= ~SPELL_ATTR4_IGNORE_RESISTANCES;
     });
