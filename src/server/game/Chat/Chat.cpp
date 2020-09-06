@@ -38,6 +38,8 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <sstream>
 
+Player* ChatHandler::GetPlayer() { return m_session ? m_session->GetPlayer() : nullptr; }
+
 // Lazy loading of the command table cache from commands and the
 // ScriptMgr should be thread safe since the player commands,
 // cli commands and ScriptMgr updates are all dispatched one after

@@ -46,8 +46,8 @@ ArenaTeam::~ArenaTeam()
 
 bool ArenaTeam::Create(ObjectGuid captainGuid, uint8 type, std::string const& teamName, uint32 backgroundColor, uint8 emblemStyle, uint32 emblemColor, uint8 borderStyle, uint32 borderColor)
 {
-    // Check if captain is present
-    if (!ObjectAccessor::FindPlayer(captainGuid))
+    // Check if captain exists
+    if (!sCharacterCache->GetCharacterCacheByGuid(captainGuid))
         return false;
 
     // Check if arena team name is already taken
@@ -615,12 +615,9 @@ void ArenaTeam::FinishGame(int32 mod)
 
     // Update team's rank, start with rank 1 and increase until no team with more rating was found
     Stats.Rank = 1;
-    ArenaTeamMgr::ArenaTeamContainer::const_iterator i = sArenaTeamMgr->GetArenaTeamMapBegin();
-    for (; i != sArenaTeamMgr->GetArenaTeamMapEnd(); ++i)
-    {
-        if (i->second->GetType() == Type && i->second->GetStats().Rating > Stats.Rating)
+    for (auto [teamId, team] : sArenaTeamMgr->GetArenaTeams())
+        if (team->GetType() == Type && team->GetStats().Rating > Stats.Rating)
             ++Stats.Rank;
-    }
 }
 
 int32 ArenaTeam::WonAgainst(uint32 ownMMRating, uint32 opponentMMRating, int32& ratingChange)
