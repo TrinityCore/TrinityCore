@@ -149,13 +149,6 @@ AccountOpResult AccountMgr::DeleteAccount(uint32 accountId)
     return AccountOpResult::AOR_OK;
 }
 
-// Do not use this. Use the appropriate methods on Trinity::Crypto::SRP6 to do whatever you are trying to do.
-// See issue #25157.
-static std::string CalculateShaPassHash_DEPRECATED_DONOTUSE(std::string const& name, std::string const& password)
-{
-    return ByteArrayToHexStr(Trinity::Crypto::SHA1::GetDigestOf(name, ":", password));
-}
-
 AccountOpResult AccountMgr::ChangeUsername(uint32 accountId, std::string newUsername, std::string newPassword)
 {
     // Check if accounts exists
@@ -187,14 +180,6 @@ AccountOpResult AccountMgr::ChangeUsername(uint32 accountId, std::string newUser
     stmt->setUInt32(2, accountId);
     LoginDatabase.Execute(stmt);
 
-    if (sWorld->getBoolConfig(CONFIG_SET_SHAPASSHASH))
-    {
-        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGON_LEGACY);
-        stmt->setString(0, CalculateShaPassHash_DEPRECATED_DONOTUSE(newUsername, newPassword));
-        stmt->setUInt32(1, accountId);
-        LoginDatabase.Execute(stmt);
-    }
-
     return AccountOpResult::AOR_OK;
 }
 
@@ -223,14 +208,6 @@ AccountOpResult AccountMgr::ChangePassword(uint32 accountId, std::string newPass
     stmt->setBinary(1, verifier);
     stmt->setUInt32(2, accountId);;
     LoginDatabase.Execute(stmt);
-
-    if (sWorld->getBoolConfig(CONFIG_SET_SHAPASSHASH))
-    {
-        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGON_LEGACY);
-        stmt->setString(0, CalculateShaPassHash_DEPRECATED_DONOTUSE(username, newPassword));
-        stmt->setUInt32(1, accountId);
-        LoginDatabase.Execute(stmt);
-    }
 
     sScriptMgr->OnPasswordChange(accountId);
     return AccountOpResult::AOR_OK;
