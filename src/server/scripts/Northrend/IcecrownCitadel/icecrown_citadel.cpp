@@ -1558,14 +1558,11 @@ class at_icc_nerubar_broodkeeper : public AreaTriggerScript
                 return false;
 
             std::list<Creature*> creatureList;
-            player->GetCreatureListWithEntryInGrid(creatureList, NPC_NERUBAR_BROODKEEPER, 100.0f);
-            for (std::list<Creature*>::iterator itr = creatureList.begin(); itr != creatureList.end(); ++itr)
-                if (Creature* creature = *itr)
-                {
-                    creature->GetMotionMaster()->MoveFall();
-                    creature->SetHover(false);
-                    creature->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, 0);
-                }
+            GetCreatureListWithEntryInGrid(creatureList, player, NPC_NERUBAR_BROODKEEPER, 135.0f);
+            for (Creature* creature : creatureList)
+                creature->GetMotionMaster()->MoveFall(),
+                creature->SetHover(false),
+                creature->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, 0);
                 return true;
         }
 };
