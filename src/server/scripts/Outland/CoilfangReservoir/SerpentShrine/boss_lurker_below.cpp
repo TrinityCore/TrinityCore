@@ -458,7 +458,7 @@ class go_strange_pool : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 // 25%
                 if (!urand(0, 3))

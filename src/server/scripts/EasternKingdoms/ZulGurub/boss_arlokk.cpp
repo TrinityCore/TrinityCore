@@ -449,7 +449,7 @@ class go_gong_of_bethekk : public GameObjectScript
         {
             go_gong_of_bethekkAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* /*player*/) override
+            bool OnGossipHello(Player* /*player*/) override
             {
                 me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                 me->SendCustomAnim(0);
