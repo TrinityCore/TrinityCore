@@ -320,6 +320,10 @@ class instance_icecrown_citadel : public InstanceMapScript
                         creature->SetCorpseDelay(0);
                         creature->SetReactState(REACT_PASSIVE);
                         break;
+                    case NPC_NERUBAR_BROODKEEPER:
+                    case NPC_NERUBAR_BROODKEEPER_H:
+                        creature->AddAura(SPELL_FLIGHT, creature);
+                        break;
                     default:
                         break;
                 }

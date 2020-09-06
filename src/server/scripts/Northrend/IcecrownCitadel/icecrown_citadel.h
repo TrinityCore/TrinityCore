@@ -37,6 +37,9 @@ enum ICSharedSpells
     // Deathbound Ward
     SPELL_STONEFORM                     = 70733,
 
+    // Nerubar Broodkeeper
+    SPELL_FLIGHT                        = 43775,
+
     // Residue Rendezvous
     SPELL_ORANGE_BLIGHT_RESIDUE         = 72144,
     SPELL_GREEN_BLIGHT_RESIDUE          = 72145,
@@ -148,6 +151,8 @@ enum ICCreaturesIds
     NPC_MURADIN_BRONZEBEARD_QUEST               = 38607,
     NPC_UTHER_THE_LIGHTBRINGER_QUEST            = 38608,
     NPC_LADY_SYLVANAS_WINDRUNNER_QUEST          = 38609,
+    NPC_NERUBAR_BROODKEEPER                     = 36725,
+    NPC_NERUBAR_BROODKEEPER_H                   = 38058,
 
     // Weekly quests
     NPC_INFILTRATOR_MINCHAR                     = 38471,

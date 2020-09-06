@@ -128,7 +128,14 @@ enum ICCSpells
 
     // Darkfallen Tactician
     SPELL_SHADOWSTEP = 70431,
-    SPELL_BLOOD_SAP = 70432
+    SPELL_BLOOD_SAP = 70432,
+
+    // Nerubar broodkeeper
+    SPELL_CAST_NET_STARTROOM    = 69887,
+    SPELL_CRYPT_SCARABS         = 70965,
+    SPELL_WEB_WRAP              = 70980,
+    SPELL_DARK_MENDING_N        = 72322,
+    SPELL_DARK_MENDING_HC       = 72324
 };
 
 enum ICCTimedEventIds
@@ -169,6 +176,11 @@ enum ICCTimedEventIds
 
     // Invisible Stalker (Float, Uninteractible, LargeAOI)
     EVENT_SOUL_MISSILE,
+
+    // Nerubar Broodkeeper
+    EVENT_CRYPT_SCARABS,
+    EVENT_DARK_MENDING,
+    EVENT_WEB_WRAP
 };
 
 enum ICCDataTypes
@@ -1043,6 +1055,80 @@ struct npc_darkfallen_tactician : public DarkFallenAI
     }
 };
 
+struct npc_nerubar_broodkeeper : public ScriptedAI
+{
+    npc_nerubar_broodkeeper(Creature* creature) : ScriptedAI(creature)
+    { 
+        Initialize();
+    }
+    
+    void Initialize()
+    {
+        CastNet = false;
+    }
+
+    void Reset() override
+    {
+        events.Reset();
+        events.ScheduleEvent(EVENT_CRYPT_SCARABS, 1s, 3s);  // Crypt Scarabs
+        events.ScheduleEvent(EVENT_DARK_MENDING, 10s, 15s); // Dark Mending
+        events.ScheduleEvent(EVENT_WEB_WRAP, 6s, 8s);       // Web Wrap
+    }
+
+    void SetData(uint32 type, uint32 data) override
+    {
+        if (type == 1 && data == 1)
+        {
+            me->GetMotionMaster()->MoveFall();
+            me->SetHover(false);
+            me->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, 0);
+            if (!CastNet)
+            {
+                CastNet = true;
+                me->RemoveAllAuras();
+                DoCastSelf(SPELL_CAST_NET_STARTROOM, true);
+            }
+        }
+    }
+    
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        switch (events.ExecuteEvent())
+        {
+            case EVENT_CRYPT_SCARABS:
+                me->CastSpell(me->GetVictim(), SPELL_CRYPT_SCARABS, false);
+                events.Repeat(3s, 5s);
+                break;
+            case EVENT_DARK_MENDING:
+                if (Unit* target = DoSelectLowestHpFriendly(30.0f, 100000))
+                {
+                    if (me->GetInstanceScript() && (me->GetMap()->GetSpawnMode() & 0 || me->GetMap()->GetSpawnMode() & 1))
+                        me->CastSpell(target, SPELL_DARK_MENDING_N);
+                    else
+                        me->CastSpell(target, SPELL_DARK_MENDING_HC);
+                }
+                events.Repeat(5s, 9s);
+                break;
+            case EVENT_WEB_WRAP:
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f, true))
+                me->CastSpell(target, SPELL_WEB_WRAP, false);
+                events.Repeat(5s, 9s);
+            break;
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+    private:
+        bool CastNet;
+        EventMap events;
+};
+
 struct go_empowering_blood_orb : public GameObjectAI
 {
     go_empowering_blood_orb(GameObject* go) : GameObjectAI(go) { }
@@ -1547,6 +1633,25 @@ class at_icc_start_blood_quickening : public AreaTriggerScript
         }
 };
 
+class at_icc_neruber_broodkeeper : public AreaTriggerScript
+{
+    public:
+        at_icc_neruber_broodkeeper() : AreaTriggerScript("at_icc_neruber_broodkeeper") { }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
+        {
+            if (player->IsGameMaster())
+                return false;
+
+            std::list<Creature*> SpiderList;
+            player->GetCreatureListWithEntryInGrid(SpiderList, NPC_NERUBAR_BROODKEEPER, 135.0f);
+            if (!SpiderList.empty())
+                for (std::list<Creature*>::iterator itr = SpiderList.begin(); itr != SpiderList.end(); itr++)
+                    (*itr)->AI()->SetData(1, 1);
+            return true;
+        }
+};
+
 void AddSC_icecrown_citadel()
 {
     new npc_highlord_tirion_fordring_lh();
@@ -1562,6 +1667,7 @@ void AddSC_icecrown_citadel()
     RegisterIcecrownCitadelCreatureAI(npc_darkfallen_archmage);
     RegisterIcecrownCitadelCreatureAI(npc_darkfallen_advisor);
     RegisterIcecrownCitadelCreatureAI(npc_darkfallen_tactician);
+    RegisterIcecrownCitadelCreatureAI(npc_nerubar_broodkeeper);
     RegisterGameObjectAI(go_empowering_blood_orb);
     RegisterSpellScript(spell_icc_empowered_blood);
     RegisterSpellScript(spell_icc_empowered_blood_3);
@@ -1576,4 +1682,5 @@ void AddSC_icecrown_citadel()
     new at_icc_saurfang_portal();
     new at_icc_shutdown_traps();
     new at_icc_start_blood_quickening();
+    new at_icc_neruber_broodkeeper();
 }
