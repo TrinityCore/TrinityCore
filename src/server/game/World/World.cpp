@@ -471,10 +471,12 @@ void World::LoadConfigSettings(bool reload)
 {
     if (reload)
     {
-        std::string configError;
-        if (!sConfigMgr->Reload(configError))
+        std::vector<std::string> configErrors;
+        if (!sConfigMgr->Reload(configErrors))
         {
-            TC_LOG_ERROR("misc", "World settings reload fail: %s.", configError.c_str());
+            for (std::string const& configError : configErrors)
+                TC_LOG_ERROR("misc", "World settings reload fail: %s.", configError.c_str());
+
             return;
         }
         sLog->LoadFromConfig();
@@ -1374,7 +1376,7 @@ void World::LoadConfigSettings(bool reload)
         TC_LOG_INFO("server.loading", "Using DataDir %s", m_dataPath.c_str());
     }
 
-    m_bool_configs[CONFIG_ENABLE_MMAPS] = sConfigMgr->GetBoolDefault("mmap.enablePathFinding", false);
+    m_bool_configs[CONFIG_ENABLE_MMAPS] = sConfigMgr->GetBoolDefault("mmap.enablePathFinding", true);
     TC_LOG_INFO("server.loading", "WORLD: MMap data directory is: %smmaps", m_dataPath.c_str());
 
     m_bool_configs[CONFIG_VMAP_INDOOR_CHECK] = sConfigMgr->GetBoolDefault("vmap.enableIndoorCheck", 0);
@@ -1462,7 +1464,6 @@ void World::LoadConfigSettings(bool reload)
     // misc
     m_bool_configs[CONFIG_PDUMP_NO_PATHS] = sConfigMgr->GetBoolDefault("PlayerDump.DisallowPaths", true);
     m_bool_configs[CONFIG_PDUMP_NO_OVERWRITE] = sConfigMgr->GetBoolDefault("PlayerDump.DisallowOverwrite", true);
-    m_bool_configs[CONFIG_UI_QUESTLEVELS_IN_DIALOGS] = sConfigMgr->GetBoolDefault("UI.ShowQuestLevelsInDialogs", false);
 
     // Wintergrasp battlefield
     m_bool_configs[CONFIG_WINTERGRASP_ENABLE] = sConfigMgr->GetBoolDefault("Wintergrasp.Enable", false);
@@ -1541,11 +1542,9 @@ void World::SetInitialWorldSettings()
     dtAllocSetCustom(dtCustomAlloc, dtCustomFree);
 
     ///- Initialize VMapManager function pointers (to untangle game/collision circular deps)
-    if (VMAP::VMapManager2* vmmgr2 = dynamic_cast<VMAP::VMapManager2*>(VMAP::VMapFactory::createOrGetVMapManager()))
-    {
-        vmmgr2->GetLiquidFlagsPtr = &GetLiquidFlags;
-        vmmgr2->IsVMAPDisabledForPtr = &DisableMgr::IsVMAPDisabledFor;
-    }
+    VMAP::VMapManager2* vmmgr2 = VMAP::VMapFactory::createOrGetVMapManager();
+    vmmgr2->GetLiquidFlagsPtr = &GetLiquidFlags;
+    vmmgr2->IsVMAPDisabledForPtr = &DisableMgr::IsVMAPDisabledFor;
 
     ///- Initialize config settings
     LoadConfigSettings();
@@ -1608,8 +1607,7 @@ void World::SetInitialWorldSettings()
         if (sMapStore.LookupEntry(mapId))
             mapIds.push_back(mapId);
 
-    if (VMAP::VMapManager2* vmmgr2 = dynamic_cast<VMAP::VMapManager2*>(VMAP::VMapFactory::createOrGetVMapManager()))
-        vmmgr2->InitializeThreadUnsafe(mapIds);
+    vmmgr2->InitializeThreadUnsafe(mapIds);
 
     MMAP::MMapManager* mmmgr = MMAP::MMapFactory::createOrGetMMapManager();
     mmmgr->InitializeThreadUnsafe(mapIds);

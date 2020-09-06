@@ -413,7 +413,7 @@ public:
                     break;
                 case SAY_PRIESTESS_ALTAR_8:
                     // make the gem respawn
-                    if (GameObject* gem = GetClosestGameObjectWithEntry(me, GO_ELUNE_GEM, 10.0f))
+                    if (GameObject* gem = GetClosestGameObjectWithEntry(me, GO_ELUNE_GEM, 10.0f, false))
                     {
                         if (gem->isSpawned())
                             break;

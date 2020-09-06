@@ -810,7 +810,7 @@ public:
         else
         {
             // The script uses a script name from database, but isn't assigned to anything.
-            TC_LOG_ERROR("sql.sql", "Script named '%s' does not have a script name assigned in database.",
+            TC_LOG_ERROR("sql.sql", "Script '%s' exists in the core, but the database does not assign it to any creature.",
                 script->GetName().c_str());
 
             // Avoid calling "delete script;" because we are currently in the script constructor
@@ -1071,8 +1071,7 @@ void ScriptMgr::Initialize()
         if (scriptName.empty())
             continue;
 
-        TC_LOG_ERROR("sql.sql", "ScriptName '%s' exists in database, "
-                     "but no core script found!", scriptName.c_str());
+        TC_LOG_ERROR("sql.sql", "Script '%s' is referenced by the database, but does not exist in the core!", scriptName.c_str());
     }
 
     TC_LOG_INFO("server.loading", ">> Loaded %u C++ scripts in %u ms",

@@ -40,6 +40,8 @@ EndScriptData */
 #include "SpellAuraEffects.h"
 #include "WorldSession.h"
 
+using namespace Trinity::ChatCommands;
+
 class list_commandscript : public CommandScript
 {
 public:
@@ -64,24 +66,8 @@ public:
         return commandTable;
     }
 
-    static bool HandleListCreatureCommand(ChatHandler* handler, char const* args)
+    static bool HandleListCreatureCommand(ChatHandler* handler, Variant<Hyperlink<creature_entry>, uint32> creatureId, Optional<uint32> countArg)
     {
-        if (!*args)
-            return false;
-
-        // number or [name] Shift-click form |color|Hcreature_entry:creature_id|h[name]|h|r
-        char* id = handler->extractKeyFromLink((char*)args, "Hcreature_entry");
-        if (!id)
-            return false;
-
-        uint32 creatureId = atoul(id);
-        if (!creatureId)
-        {
-            handler->PSendSysMessage(LANG_COMMAND_INVALIDCREATUREID, creatureId);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
         CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(creatureId);
         if (!cInfo)
         {
@@ -90,8 +76,7 @@ public:
             return false;
         }
 
-        char* countStr = strtok(nullptr, " ");
-        uint32 count = countStr ? atoul(countStr) : 10;
+        uint32 count = countArg.value_or(10);
 
         if (count == 0)
             return false;
@@ -166,33 +151,10 @@ public:
         return true;
     }
 
-    static bool HandleListItemCommand(ChatHandler* handler, char const* args)
+    static bool HandleListItemCommand(ChatHandler* handler, Hyperlink<item> item, Optional<uint32> countArg)
     {
-        if (!*args)
-            return false;
-
-        char const* id = handler->extractKeyFromLink((char*)args, "Hitem");
-        if (!id)
-            return false;
-
-        uint32 itemId = atoul(id);
-        if (!itemId)
-        {
-            handler->PSendSysMessage(LANG_COMMAND_ITEMIDINVALID, itemId);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
-        if (!itemTemplate)
-        {
-            handler->PSendSysMessage(LANG_COMMAND_ITEMIDINVALID, itemId);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        char* countStr = strtok(nullptr, " ");
-        uint32 count = countStr ? atoul(countStr) : 10;
+        uint32 itemId = item->Item->ItemId;
+        uint32 count = countArg.value_or(10);
 
         if (count == 0)
             return false;
@@ -226,7 +188,7 @@ public:
                 uint32 ownerAccountId   = fields[4].GetUInt32();
                 std::string ownerName   = fields[5].GetString();
 
-                char const* itemPos = 0;
+                char const* itemPos = nullptr;
                 if (Player::IsEquipmentPos(itemBag, itemSlot))
                     itemPos = "[equipped]";
                 else if (Player::IsInventoryPos(itemBag, itemSlot))
@@ -382,24 +344,8 @@ public:
         return true;
     }
 
-    static bool HandleListObjectCommand(ChatHandler* handler, char const* args)
+    static bool HandleListObjectCommand(ChatHandler* handler, Variant<Hyperlink<gameobject_entry>, uint32> gameObjectId, Optional<uint32> countArg)
     {
-        if (!*args)
-            return false;
-
-        // number or [name] Shift-click form |color|Hgameobject_entry:go_id|h[name]|h|r
-        char* id = handler->extractKeyFromLink((char*)args, "Hgameobject_entry");
-        if (!id)
-            return false;
-
-        uint32 gameObjectId = atoul(id);
-        if (!gameObjectId)
-        {
-            handler->PSendSysMessage(LANG_COMMAND_LISTOBJINVALIDID, gameObjectId);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
         GameObjectTemplate const* gInfo = sObjectMgr->GetGameObjectTemplate(gameObjectId);
         if (!gInfo)
         {
@@ -408,8 +354,7 @@ public:
             return false;
         }
 
-        char* countStr = strtok(nullptr, " ");
-        uint32 count = countStr ? atoul(countStr) : 10;
+        uint32 count = countArg.value_or(10);
 
         if (count == 0)
             return false;
@@ -485,7 +430,7 @@ public:
         return true;
     }
 
-    static bool HandleListAurasCommand(ChatHandler* handler, char const* /*args*/)
+    static bool HandleListAurasCommand(ChatHandler* handler)
     {
         Unit* unit = handler->getSelectedUnit();
         if (!unit)
@@ -500,11 +445,10 @@ public:
 
         Unit::AuraApplicationMap const& auras = unit->GetAppliedAuras();
         handler->PSendSysMessage(LANG_COMMAND_TARGET_LISTAURAS, auras.size());
-        for (Unit::AuraApplicationMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+        for (auto const& [spellId, aurApp] : auras)
         {
-            bool talent = GetTalentSpellCost(itr->second->GetBase()->GetId()) > 0;
+            bool talent = GetTalentSpellCost(aurApp->GetBase()->GetId()) > 0;
 
-            AuraApplication const* aurApp = itr->second;
             Aura const* aura = aurApp->GetBase();
             char const* name = aura->GetSpellInfo()->SpellName[handler->GetSessionDbcLocale()];
 
@@ -526,8 +470,8 @@ public:
 
             handler->PSendSysMessage(LANG_COMMAND_TARGET_LISTAURATYPE, auraList.size(), i);
 
-            for (Unit::AuraEffectList::const_iterator itr = auraList.begin(); itr != auraList.end(); ++itr)
-                handler->PSendSysMessage(LANG_COMMAND_TARGET_AURASIMPLE, (*itr)->GetId(), (*itr)->GetEffIndex(), (*itr)->GetAmount());
+            for (AuraEffect const* effect : auraList)
+                handler->PSendSysMessage(LANG_COMMAND_TARGET_AURASIMPLE, effect->GetId(), effect->GetEffIndex(), effect->GetAmount());
         }
 
         return true;
@@ -646,7 +590,7 @@ public:
         return true;
     }
 
-    static bool HandleListSpawnPointsCommand(ChatHandler* handler, char const* /*args*/)
+    static bool HandleListSpawnPointsCommand(ChatHandler* handler)
     {
         Player const* player = handler->GetSession()->GetPlayer();
         Map const* map = player->GetMap();
@@ -684,13 +628,10 @@ public:
         return zoneEntry ? zoneEntry->AreaName[locale] : "<unknown zone>";
     }
 
-    static bool HandleListRespawnsCommand(ChatHandler* handler, char const* args)
+    static bool HandleListRespawnsCommand(ChatHandler* handler, Optional<uint32> range)
     {
         Player const* player = handler->GetSession()->GetPlayer();
         Map const* map = player->GetMap();
-        uint32 range = 0;
-        if (*args)
-            range = atoi((char*)args);
 
         LocaleConstant locale = handler->GetSession()->GetSessionDbcLocale();
         char const* stringOverdue = sObjectMgr->GetTrinityString(LANG_LIST_RESPAWNS_OVERDUE, locale);
@@ -700,7 +641,7 @@ public:
         for (SpawnObjectType type : EnumUtils::Iterate<SpawnObjectType>())
         {
             if (range)
-                handler->PSendSysMessage(LANG_LIST_RESPAWNS_RANGE, EnumUtils::ToTitle(type), range);
+                handler->PSendSysMessage(LANG_LIST_RESPAWNS_RANGE, EnumUtils::ToTitle(type), *range);
             else
                 handler->PSendSysMessage(LANG_LIST_RESPAWNS_ZONE, EnumUtils::ToTitle(type), zoneName, zoneId);
 
@@ -719,7 +660,7 @@ public:
                     respawnZoneId = map->GetZoneId(edata->phaseMask, edata->spawnPoint);
                     if (range)
                     {
-                        if (!player->IsInDist(edata->spawnPoint, range))
+                        if (!player->IsInDist(edata->spawnPoint, *range))
                             continue;
                     }
                     else

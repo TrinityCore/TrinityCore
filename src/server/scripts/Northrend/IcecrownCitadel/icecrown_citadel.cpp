@@ -1465,47 +1465,24 @@ class spell_icc_soul_missile : public SpellScriptLoader
         }
 };
 
-class spell_trigger_spell_from_caster_SpellScript : public SpellScript
-{
-    PrepareSpellScript(spell_trigger_spell_from_caster_SpellScript);
-
-    public:
-        spell_trigger_spell_from_caster_SpellScript(uint32 triggerId, TriggerCastFlags triggerFlags)
-            : SpellScript(), _triggerId(triggerId), _triggerFlags(triggerFlags) { }
-
-    private:
-        bool Validate(SpellInfo const* /*spell*/) override
-        {
-            return ValidateSpellInfo({ _triggerId });
-        }
-
-        void HandleTrigger()
-        {
-            GetCaster()->CastSpell(GetHitUnit(), _triggerId, _triggerFlags);
-        }
-
-        void Register() override
-        {
-            AfterHit += SpellHitFn(spell_trigger_spell_from_caster_SpellScript::HandleTrigger);
-        }
-
-        uint32 _triggerId;
-        TriggerCastFlags _triggerFlags;
-};
-
-spell_trigger_spell_from_caster::spell_trigger_spell_from_caster(char const* scriptName, uint32 triggerId)
-    : SpellScriptLoader(scriptName), _triggerId(triggerId), _triggerFlags(TRIGGERED_FULL_MASK)
+spell_trigger_spell_from_caster::spell_trigger_spell_from_caster(uint32 triggerId, TriggerCastFlags triggerFlags /*= TRIGGERED_FULL_MASK*/)
+    : SpellScript(), _triggerId(triggerId), _triggerFlags(triggerFlags)
 {
 }
 
-spell_trigger_spell_from_caster::spell_trigger_spell_from_caster(char const* scriptName, uint32 triggerId, TriggerCastFlags triggerFlags)
-    : SpellScriptLoader(scriptName), _triggerId(triggerId), _triggerFlags(triggerFlags)
+bool spell_trigger_spell_from_caster::Validate(SpellInfo const* /*spell*/)
 {
+    return ValidateSpellInfo({ _triggerId });
 }
 
-SpellScript* spell_trigger_spell_from_caster::GetSpellScript() const
+void spell_trigger_spell_from_caster::HandleTrigger()
 {
-    return new spell_trigger_spell_from_caster_SpellScript(_triggerId, _triggerFlags);
+    GetCaster()->CastSpell(GetHitUnit(), _triggerId, _triggerFlags);
+}
+
+void spell_trigger_spell_from_caster::Register()
+{
+    AfterHit += SpellHitFn(spell_trigger_spell_from_caster::HandleTrigger);
 }
 
 class at_icc_saurfang_portal : public AreaTriggerScript

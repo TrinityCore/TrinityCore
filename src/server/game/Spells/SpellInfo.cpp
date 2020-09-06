@@ -211,8 +211,8 @@ uint32 SpellImplicitTargetInfo::GetExplicitTargetMask(bool& srcSet, bool& dstSet
     return targetMask;
 }
 
-SpellImplicitTargetInfo::StaticData SpellImplicitTargetInfo::_data[TOTAL_SPELL_TARGETS] =
-{
+std::array<SpellImplicitTargetInfo::StaticData, TOTAL_SPELL_TARGETS> SpellImplicitTargetInfo::_data =
+{ {
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        //
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 1 TARGET_UNIT_CASTER
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_NEARBY,  TARGET_CHECK_ENEMY,    TARGET_DIR_NONE},        // 2 TARGET_UNIT_NEARBY_ENEMY
@@ -324,7 +324,7 @@ SpellImplicitTargetInfo::StaticData SpellImplicitTargetInfo::_data[TOTAL_SPELL_T
     {TARGET_OBJECT_TYPE_GOBJ, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_CONE,    TARGET_CHECK_DEFAULT,  TARGET_DIR_FRONT},       // 108 TARGET_GAMEOBJECT_CONE
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 109
     {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_ENTRY,    TARGET_DIR_NONE},        // 110 TARGET_UNIT_CONE_ENTRY_110
-};
+} };
 
 SpellEffectInfo::SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* spellInfo, uint8 effIndex)
 {
@@ -595,8 +595,8 @@ SpellTargetObjectTypes SpellEffectInfo::GetUsedTargetObjectType() const
     return _data[Effect].UsedTargetObjectType;
 }
 
-SpellEffectInfo::StaticData SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
-{
+std::array<SpellEffectInfo::StaticData, TOTAL_SPELL_EFFECTS> SpellEffectInfo::_data =
+{ {
     // implicit target type           used target object type
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 0
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 1 SPELL_EFFECT_INSTAKILL
@@ -763,7 +763,7 @@ SpellEffectInfo::StaticData SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 162 SPELL_EFFECT_TALENT_SPEC_SELECT
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 163 SPELL_EFFECT_163
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 164 SPELL_EFFECT_REMOVE_AURA
-};
+} };
 
 SpellInfo::SpellInfo(SpellEntry const* spellEntry)
 {
@@ -819,33 +819,19 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry)
     RangeEntry = spellEntry->RangeIndex ? sSpellRangeStore.LookupEntry(spellEntry->RangeIndex) : nullptr;
     Speed = spellEntry->Speed;
     StackAmount = spellEntry->CumulativeAura;
-    for (uint8 i = 0; i < 2; ++i)
-        Totem[i] = spellEntry->Totem[i];
-
-    for (uint8 i = 0; i < MAX_SPELL_REAGENTS; ++i)
-        Reagent[i] = spellEntry->Reagent[i];
-
-    for (uint8 i = 0; i < MAX_SPELL_REAGENTS; ++i)
-        ReagentCount[i] = spellEntry->ReagentCount[i];
-
+    Totem = spellEntry->Totem;
+    Reagent = spellEntry->Reagent;
+    ReagentCount = spellEntry->ReagentCount;
     EquippedItemClass = spellEntry->EquippedItemClass;
     EquippedItemSubClassMask = spellEntry->EquippedItemSubclass;
     EquippedItemInventoryTypeMask = spellEntry->EquippedItemInvTypes;
-    for (uint8 i = 0; i < 2; ++i)
-        TotemCategory[i] = spellEntry->RequiredTotemCategoryID[i];
-
-    for (uint8 i = 0; i < 2; ++i)
-        SpellVisual[i] = spellEntry->SpellVisualID[i];
-
+    TotemCategory = spellEntry->RequiredTotemCategoryID;
+    SpellVisual = spellEntry->SpellVisualID;
     SpellIconID = spellEntry->SpellIconID;
     ActiveIconID = spellEntry->ActiveIconID;
     Priority = spellEntry->SpellPriority;
-    for (uint8 i = 0; i < 16; ++i)
-        SpellName[i] = spellEntry->Name[i];
-
-    for (uint8 i = 0; i < 16; ++i)
-        Rank[i] = spellEntry->NameSubtext[i];
-
+    SpellName = spellEntry->Name;
+    Rank = spellEntry->NameSubtext;
     MaxTargetLevel = spellEntry->MaxTargetLevel;
     MaxAffectedTargets = spellEntry->MaxTargets;
     SpellFamilyName = spellEntry->SpellClassSet;
@@ -2856,9 +2842,9 @@ void SpellInfo::_LoadImmunityInfo()
 
 void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, uint8 effIndex, bool apply) const
 {
-    ImmunityInfo const* immuneInfo = _immunityInfo + effIndex;
+    ImmunityInfo const& immuneInfo = _immunityInfo[effIndex];
 
-    if (uint32 schoolImmunity = immuneInfo->SchoolImmuneMask)
+    if (uint32 schoolImmunity = immuneInfo.SchoolImmuneMask)
     {
         target->ApplySpellImmune(Id, IMMUNITY_SCHOOL, schoolImmunity, apply);
 
@@ -2876,7 +2862,7 @@ void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, uint8 effIndex, bool app
         }
     }
 
-    if (uint32 mechanicImmunity = immuneInfo->MechanicImmuneMask)
+    if (uint32 mechanicImmunity = immuneInfo.MechanicImmuneMask)
     {
         for (uint32 i = 0; i < MAX_MECHANIC; ++i)
             if (mechanicImmunity & (1 << i))
@@ -2886,7 +2872,7 @@ void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, uint8 effIndex, bool app
             target->RemoveAurasWithMechanic(mechanicImmunity, AURA_REMOVE_BY_DEFAULT, Id);
     }
 
-    if (uint32 dispelImmunity = immuneInfo->DispelImmune)
+    if (uint32 dispelImmunity = immuneInfo.DispelImmune)
     {
         target->ApplySpellImmune(Id, IMMUNITY_DISPEL, dispelImmunity, apply);
 
@@ -2903,17 +2889,17 @@ void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, uint8 effIndex, bool app
         }
     }
 
-    if (uint32 damageImmunity = immuneInfo->DamageSchoolMask)
+    if (uint32 damageImmunity = immuneInfo.DamageSchoolMask)
         target->ApplySpellImmune(Id, IMMUNITY_DAMAGE, damageImmunity, apply);
 
-    for (AuraType auraType : immuneInfo->AuraTypeImmune)
+    for (AuraType auraType : immuneInfo.AuraTypeImmune)
     {
         target->ApplySpellImmune(Id, IMMUNITY_STATE, auraType, apply);
         if (apply && HasAttribute(SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY))
             target->RemoveAurasByType(auraType);
     }
 
-    for (SpellEffects effectType : immuneInfo->SpellEffectImmune)
+    for (SpellEffects effectType : immuneInfo.SpellEffectImmune)
         target->ApplySpellImmune(Id, IMMUNITY_EFFECT, effectType, apply);
 }
 
@@ -2922,22 +2908,20 @@ bool SpellInfo::CanSpellProvideImmunityAgainstAura(SpellInfo const* auraSpellInf
     if (!auraSpellInfo)
         return false;
 
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (ImmunityInfo const& immuneInfo : _immunityInfo)
     {
-        ImmunityInfo const* immuneInfo = _immunityInfo + i;
-
         if (!auraSpellInfo->HasAttribute(SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE) && !auraSpellInfo->HasAttribute(SPELL_ATTR2_UNAFFECTED_BY_AURA_SCHOOL_IMMUNE))
         {
-            if (uint32 schoolImmunity = immuneInfo->SchoolImmuneMask)
+            if (uint32 schoolImmunity = immuneInfo.SchoolImmuneMask)
                 if ((auraSpellInfo->SchoolMask & schoolImmunity) != 0)
                     return true;
         }
 
-        if (uint32 mechanicImmunity = immuneInfo->MechanicImmuneMask)
+        if (uint32 mechanicImmunity = immuneInfo.MechanicImmuneMask)
             if ((mechanicImmunity & (1 << auraSpellInfo->Mechanic)) != 0)
                 return true;
 
-        if (uint32 dispelImmunity = immuneInfo->DispelImmune)
+        if (uint32 dispelImmunity = immuneInfo.DispelImmune)
             if (auraSpellInfo->Dispel == dispelImmunity)
                 return true;
 
@@ -2948,8 +2932,8 @@ bool SpellInfo::CanSpellProvideImmunityAgainstAura(SpellInfo const* auraSpellInf
             if (!effectName)
                 continue;
 
-            auto spellImmuneItr = immuneInfo->SpellEffectImmune.find(static_cast<SpellEffects>(effectName));
-            if (spellImmuneItr == immuneInfo->SpellEffectImmune.cend())
+            auto spellImmuneItr = immuneInfo.SpellEffectImmune.find(static_cast<SpellEffects>(effectName));
+            if (spellImmuneItr == immuneInfo.SpellEffectImmune.cend())
             {
                 immuneToAllEffects = false;
                 break;
@@ -2957,7 +2941,7 @@ bool SpellInfo::CanSpellProvideImmunityAgainstAura(SpellInfo const* auraSpellInf
 
             if (uint32 mechanic = auraSpellInfo->Effects[effIndex].Mechanic)
             {
-                if (!(immuneInfo->MechanicImmuneMask & (1 << mechanic)))
+                if (!(immuneInfo.MechanicImmuneMask & (1 << mechanic)))
                 {
                     immuneToAllEffects = false;
                     break;
@@ -2969,13 +2953,13 @@ bool SpellInfo::CanSpellProvideImmunityAgainstAura(SpellInfo const* auraSpellInf
                 if (uint32 auraName = auraSpellInfo->Effects[effIndex].ApplyAuraName)
                 {
                     bool isImmuneToAuraEffectApply = false;
-                    auto auraImmuneItr = immuneInfo->AuraTypeImmune.find(static_cast<AuraType>(auraName));
-                    if (auraImmuneItr != immuneInfo->AuraTypeImmune.cend())
+                    auto auraImmuneItr = immuneInfo.AuraTypeImmune.find(static_cast<AuraType>(auraName));
+                    if (auraImmuneItr != immuneInfo.AuraTypeImmune.cend())
                         isImmuneToAuraEffectApply = true;
 
                     if (!isImmuneToAuraEffectApply && !auraSpellInfo->IsPositiveEffect(effIndex) && !auraSpellInfo->HasAttribute(SPELL_ATTR2_UNAFFECTED_BY_AURA_SCHOOL_IMMUNE))
                     {
-                        if (uint32 applyHarmfulAuraImmunityMask = immuneInfo->ApplyHarmfulAuraImmuneMask)
+                        if (uint32 applyHarmfulAuraImmunityMask = immuneInfo.ApplyHarmfulAuraImmuneMask)
                             if ((auraSpellInfo->GetSchoolMask() & applyHarmfulAuraImmunityMask) != 0)
                                 isImmuneToAuraEffectApply = true;
                     }

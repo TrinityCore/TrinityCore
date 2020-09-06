@@ -36,7 +36,7 @@ enum LocaleConstant : uint8;
 typedef std::list<uint32> SimpleFactionsList;
 TC_GAME_API SimpleFactionsList const* GetFactionTeamList(uint32 faction);
 
-TC_GAME_API char* GetPetName(uint32 petfamily, uint32 dbclang);
+TC_GAME_API char const* GetPetName(uint32 petfamily, uint32 dbclang);
 TC_GAME_API uint32 GetTalentSpellCost(uint32 spellId);
 TC_GAME_API TalentSpellPos const* GetTalentSpellPos(uint32 spellId);
 
