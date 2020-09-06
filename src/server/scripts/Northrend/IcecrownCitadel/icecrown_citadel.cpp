@@ -128,7 +128,10 @@ enum ICCSpells
 
     // Darkfallen Tactician
     SPELL_SHADOWSTEP = 70431,
-    SPELL_BLOOD_SAP = 70432
+    SPELL_BLOOD_SAP = 70432,
+
+    // Nerubar broodkeeper
+    SPELL_CAST_NET_STARTROOM = 69887
 };
 
 enum ICCTimedEventIds
@@ -1560,10 +1563,13 @@ class at_icc_nerubar_broodkeeper : public AreaTriggerScript
             std::list<Creature*> creatureList;
             GetCreatureListWithEntryInGrid(creatureList, player, NPC_NERUBAR_BROODKEEPER, 135.0f);
             for (Creature* creature : creatureList)
-                creature->GetMotionMaster()->MoveFall(),
-                creature->SetHover(false),
+            {
+                creature->CastSpell(creature, SPELL_CAST_NET_STARTROOM, true);
+                creature->GetMotionMaster()->MoveFall();
+                creature->SetHover(false);
                 creature->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, 0);
-                return true;
+            }
+            return true;
         }
 };
 
