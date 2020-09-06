@@ -72,8 +72,6 @@ void SmartAI::StartPath(bool run/* = false*/, uint32 pathId/* = 0*/, bool repeat
         me->SetFlag(UNIT_NPC_FLAGS, 0);
     }
 
-    GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_START, nullptr, _currentWaypointNode, GetScript()->GetPathId());
-
     me->GetMotionMaster()->MovePath(_path, _repeatWaypointPath);
 }
 
@@ -345,17 +343,12 @@ bool SmartAI::IsEscortInvokerInRange()
 ///@todo move escort related logic
 void SmartAI::WaypointPathStarted(uint32 pathId)
 {
-    if (!HasEscortState(SMART_ESCORT_ESCORTING))
-    {
-        // @todo remove the constant 1 at some point, it's never anything different
-        GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_START, nullptr, 1, pathId);
-        return;
-    }
+    // SmartAI::WaypointStarted() already handles the case of starting the 1st waypoint
 }
 
-///@todo Implement new smart event SMART_EVENT_WAYPOINT_STARTED
-void SmartAI::WaypointStarted(uint32 /*nodeId*/, uint32 /*pathId*/)
+void SmartAI::WaypointStarted(uint32 nodeId, uint32 pathId)
 {
+    GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_START, nullptr, nodeId, pathId);
 }
 
 void SmartAI::WaypointReached(uint32 nodeId, uint32 pathId)
