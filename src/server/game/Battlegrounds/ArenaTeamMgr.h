@@ -33,15 +33,14 @@ public:
     typedef std::unordered_map<uint32, ArenaTeam*> ArenaTeamContainer;
 
     ArenaTeam* GetArenaTeamById(uint32 arenaTeamId) const;
-    ArenaTeam* GetArenaTeamByName(std::string const& arenaTeamName) const;
+    ArenaTeam* GetArenaTeamByName(std::string_view arenaTeamName) const;
     ArenaTeam* GetArenaTeamByCaptain(ObjectGuid guid) const;
 
     void LoadArenaTeams();
     void AddArenaTeam(ArenaTeam* arenaTeam);
     void RemoveArenaTeam(uint32 Id);
 
-    ArenaTeamContainer::iterator GetArenaTeamMapBegin() { return ArenaTeamStore.begin(); }
-    ArenaTeamContainer::iterator GetArenaTeamMapEnd()   { return ArenaTeamStore.end(); }
+    ArenaTeamContainer const& GetArenaTeams() const { return ArenaTeamStore; }
 
     void DistributeArenaPoints();
 
