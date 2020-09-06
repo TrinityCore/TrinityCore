@@ -133,10 +133,10 @@ enum ICCSpells
     // Nerubar broodkeeper
     SPELL_CAST_NET_STARTROOM    = 69887,
     SPELL_CRYPT_SCARABS         = 70965,
-    SPELL_WEB_WRAP              = 70980,
-    SPELL_DARK_MENDING_N        = 72322,
-    SPELL_DARK_MENDING_HC       = 72324
+    SPELL_WEB_WRAP              = 70980
 };
+
+#define SPELL_DARK_MENDING RAID_MODE<uint32>(72322, 72324)
 
 enum ICCTimedEventIds
 {
@@ -1069,6 +1069,7 @@ struct npc_nerubar_broodkeeper : public ScriptedAI
 
     void Reset() override
     {
+        Initialize();
         events.Reset();
         events.ScheduleEvent(EVENT_CRYPT_SCARABS, 1s, 3s);  // Crypt Scarabs
         events.ScheduleEvent(EVENT_DARK_MENDING, 10s, 15s); // Dark Mending
@@ -1106,17 +1107,12 @@ struct npc_nerubar_broodkeeper : public ScriptedAI
                 break;
             case EVENT_DARK_MENDING:
                 if (Unit* target = DoSelectLowestHpFriendly(30.0f, 100000))
-                {
-                    if (me->GetInstanceScript() && (me->GetMap()->GetSpawnMode() & 0 || me->GetMap()->GetSpawnMode() & 1))
-                        me->CastSpell(target, SPELL_DARK_MENDING_N);
-                    else
-                        me->CastSpell(target, SPELL_DARK_MENDING_HC);
-                }
+                    me->CastSpell(target, SPELL_DARK_MENDING);
                 events.Repeat(5s, 9s);
                 break;
             case EVENT_WEB_WRAP:
                 if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f, true))
-                me->CastSpell(target, SPELL_WEB_WRAP, false);
+                    me->CastSpell(target, SPELL_WEB_WRAP, false);
                 events.Repeat(5s, 9s);
             break;
         }

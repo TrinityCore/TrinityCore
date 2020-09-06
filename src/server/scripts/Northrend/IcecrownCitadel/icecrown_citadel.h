@@ -152,7 +152,6 @@ enum ICCreaturesIds
     NPC_UTHER_THE_LIGHTBRINGER_QUEST            = 38608,
     NPC_LADY_SYLVANAS_WINDRUNNER_QUEST          = 38609,
     NPC_NERUBAR_BROODKEEPER                     = 36725,
-    NPC_NERUBAR_BROODKEEPER_H                   = 38058,
 
     // Weekly quests
     NPC_INFILTRATOR_MINCHAR                     = 38471,
