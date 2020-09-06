@@ -1055,76 +1055,6 @@ struct npc_darkfallen_tactician : public DarkFallenAI
     }
 };
 
-struct npc_nerubar_broodkeeper : public ScriptedAI
-{
-    npc_nerubar_broodkeeper(Creature* creature) : ScriptedAI(creature)
-    {
-        Initialize();
-    }
-
-    void Initialize()
-    {
-        CastNet = false;
-    }
-
-    void Reset() override
-    {
-        Initialize();
-        events.Reset();
-        events.ScheduleEvent(EVENT_CRYPT_SCARABS, 1s, 3s);  // Crypt Scarabs
-        events.ScheduleEvent(EVENT_DARK_MENDING, 10s, 15s); // Dark Mending
-        events.ScheduleEvent(EVENT_WEB_WRAP, 6s, 8s);       // Web Wrap
-    }
-
-    void SetData(uint32 type, uint32 data) override
-    {
-        if (type == 1 && data == 1)
-        {
-            me->GetMotionMaster()->MoveFall();
-            me->SetHover(false);
-            me->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, 0);
-            if (!CastNet)
-            {
-                CastNet = true;
-                me->RemoveAllAuras();
-                DoCastSelf(SPELL_CAST_NET_STARTROOM, true);
-            }
-        }
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        if (!UpdateVictim())
-            return;
-
-        events.Update(diff);
-
-        switch (events.ExecuteEvent())
-        {
-            case EVENT_CRYPT_SCARABS:
-                me->CastSpell(me->GetVictim(), SPELL_CRYPT_SCARABS, false);
-                events.Repeat(3s, 5s);
-                break;
-            case EVENT_DARK_MENDING:
-                if (Unit* target = DoSelectLowestHpFriendly(30.0f, 100000))
-                    me->CastSpell(target, SPELL_DARK_MENDING);
-                events.Repeat(5s, 9s);
-                break;
-            case EVENT_WEB_WRAP:
-                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f, true))
-                    me->CastSpell(target, SPELL_WEB_WRAP, false);
-                events.Repeat(5s, 9s);
-            break;
-        }
-
-        DoMeleeAttackIfReady();
-    }
-
-    private:
-        bool CastNet;
-        EventMap events;
-};
-
 struct go_empowering_blood_orb : public GameObjectAI
 {
     go_empowering_blood_orb(GameObject* go) : GameObjectAI(go) { }
@@ -1639,12 +1569,16 @@ class at_icc_nerubar_broodkeeper : public AreaTriggerScript
             if (player->IsGameMaster())
                 return false;
 
-            std::list<Creature*> SpiderList;
-            player->GetCreatureListWithEntryInGrid(SpiderList, NPC_NERUBAR_BROODKEEPER, 135.0f);
-            if (!SpiderList.empty())
-                for (std::list<Creature*>::iterator itr = SpiderList.begin(); itr != SpiderList.end(); itr++)
-                    (*itr)->AI()->SetData(1, 1);
-            return true;
+            std::list<Creature*> creatureList;
+            player->GetCreatureListWithEntryInGrid(creatureList, NPC_NERUBAR_BROODKEEPER, 100.0f);
+            for (std::list<Creature*>::iterator itr = creatureList.begin(); itr != creatureList.end(); ++itr)
+                if (Creature* creature = *itr)
+                {
+                    creature->GetMotionMaster()->MoveFall();
+                    creature->SetHover(false);
+                    creature->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, 0);
+                }
+                return true;
         }
 };
 
@@ -1663,7 +1597,6 @@ void AddSC_icecrown_citadel()
     RegisterIcecrownCitadelCreatureAI(npc_darkfallen_archmage);
     RegisterIcecrownCitadelCreatureAI(npc_darkfallen_advisor);
     RegisterIcecrownCitadelCreatureAI(npc_darkfallen_tactician);
-    RegisterIcecrownCitadelCreatureAI(npc_nerubar_broodkeeper);
     RegisterGameObjectAI(go_empowering_blood_orb);
     RegisterSpellScript(spell_icc_empowered_blood);
     RegisterSpellScript(spell_icc_empowered_blood_3);
