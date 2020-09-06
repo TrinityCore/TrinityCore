@@ -257,17 +257,13 @@ namespace Trinity::ChatCommands
 
         template <typename T>
         constexpr bool holds_alternative() const { return std::holds_alternative<T>(static_cast<base const&>(*this)); }
-    };
-}
 
-/* make the correct operator<< to use explicit, because otherwise the compiler gets confused with the implicit std::variant conversion */
-namespace std
-{
-    template <typename... Ts>
-    auto operator<<(std::ostream& os, Trinity::ChatCommands::Variant<Ts...> const& v) -> std::enable_if_t<Trinity::ChatCommands::Variant<Ts...>::have_operators, std::ostream&>
-    {
-        return (os << *v);
-    }
+        template <bool C = have_operators>
+        friend std::enable_if_t<C, std::ostream&> operator<<(std::ostream& os, Trinity::ChatCommands::Variant<T1, Ts...> const& v)
+        {
+            return (os << *v);
+        }
+    };
 }
 
 #endif
