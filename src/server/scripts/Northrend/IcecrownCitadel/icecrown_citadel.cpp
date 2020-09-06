@@ -1058,10 +1058,10 @@ struct npc_darkfallen_tactician : public DarkFallenAI
 struct npc_nerubar_broodkeeper : public ScriptedAI
 {
     npc_nerubar_broodkeeper(Creature* creature) : ScriptedAI(creature)
-    { 
+    {
         Initialize();
     }
-    
+
     void Initialize()
     {
         CastNet = false;
@@ -1090,7 +1090,7 @@ struct npc_nerubar_broodkeeper : public ScriptedAI
             }
         }
     }
-    
+
     void UpdateAI(uint32 diff) override
     {
         if (!UpdateVictim())
