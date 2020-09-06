@@ -21,6 +21,7 @@
 #include "advstd.h"
 #include "ChatCommandHelpers.h"
 #include "Hyperlinks.h"
+#include "ObjectGuid.h"
 #include "Optional.h"
 #include "Util.h"
 #include <cmath>
@@ -32,6 +33,9 @@
 #include <type_traits>
 #include <utility>
 #include <variant>
+
+class ChatHandler;
+class Player;
 
 namespace Trinity::Impl::ChatCommands
 {
@@ -109,39 +113,82 @@ namespace Trinity::ChatCommands
         }
     };
 
+    struct QuotedString : std::string, Trinity::Impl::ChatCommands::ContainerTag
+    {
+        using value_type = std::string;
+
+        TC_GAME_API Optional<std::string_view> TryConsume(std::string_view args);
+    };
+
+    struct TC_GAME_API PlayerIdentifier : Trinity::Impl::ChatCommands::ContainerTag
+    {
+        using value_type = Player*;
+
+        PlayerIdentifier() : _name(), _guid(), _player(nullptr) {}
+        PlayerIdentifier(Player& player);
+
+        template <typename T>
+        operator std::enable_if_t<std::is_base_of_v<T, Player>, T*>() const { return static_cast<T*>(_player); }
+        operator value_type() const { return _player; }
+        operator ObjectGuid() { return _guid; }
+        Player* operator->() const { return _player; }
+        explicit operator bool() const { return (_player != nullptr); }
+        bool operator!() const { return (_player == nullptr); }
+
+        std::string const& GetName() { return _name; }
+        ObjectGuid GetGUID() const { return _guid; }
+        Player* GetPlayer() const { return _player; }
+
+        Optional<std::string_view> TryConsume(std::string_view args);
+
+        static Optional<PlayerIdentifier> FromTarget(ChatHandler* handler);
+        static Optional<PlayerIdentifier> FromSelf(ChatHandler* handler);
+        static Optional<PlayerIdentifier> FromTargetOrSelf(ChatHandler* handler)
+        {
+            if (Optional<PlayerIdentifier> fromTarget = FromTarget(handler))
+                return fromTarget;
+            else
+                return FromSelf(handler);
+        }
+
+        private:
+            std::string _name;
+            ObjectGuid _guid;
+            Player* _player;
+    };
+
     template <typename linktag>
     struct Hyperlink : Trinity::Impl::ChatCommands::ContainerTag
     {
         using value_type = typename linktag::value_type;
         using storage_type = advstd::remove_cvref_t<value_type>;
 
-        public:
-            operator value_type() const { return val; }
-            value_type operator*() const { return val; }
-            storage_type const* operator->() const { return &val; }
+        operator value_type() const { return val; }
+        value_type operator*() const { return val; }
+        storage_type const* operator->() const { return &val; }
 
-            Optional<std::string_view> TryConsume(std::string_view args)
-            {
-                Trinity::Hyperlinks::HyperlinkInfo info = Trinity::Hyperlinks::ParseSingleHyperlink(args);
-                // invalid hyperlinks cannot be consumed
-                if (!info)
-                    return std::nullopt;
+        Optional<std::string_view> TryConsume(std::string_view args)
+        {
+            Trinity::Hyperlinks::HyperlinkInfo info = Trinity::Hyperlinks::ParseSingleHyperlink(args);
+            // invalid hyperlinks cannot be consumed
+            if (!info)
+                return std::nullopt;
 
-                // check if we got the right tag
-                if (info.tag != linktag::tag())
-                    return std::nullopt;
+            // check if we got the right tag
+            if (info.tag != linktag::tag())
+                return std::nullopt;
 
-                // store value
-                if (!linktag::StoreTo(val, info.data))
-                    return std::nullopt;
+            // store value
+            if (!linktag::StoreTo(val, info.data))
+                return std::nullopt;
 
-                // finally, skip any potential delimiters
-                auto [token, next] = Trinity::Impl::ChatCommands::tokenize(info.tail);
-                if (token.empty()) /* empty token = first character is delimiter, skip past it */
-                    return next;
-                else
-                    return info.tail;
-            }
+            // finally, skip any potential delimiters
+            auto [token, next] = Trinity::Impl::ChatCommands::tokenize(info.tail);
+            if (token.empty()) /* empty token = first character is delimiter, skip past it */
+                return next;
+            else
+                return info.tail;
+        }
 
         private:
             storage_type val;

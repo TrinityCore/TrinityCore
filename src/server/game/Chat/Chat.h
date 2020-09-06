@@ -42,6 +42,7 @@ class TC_GAME_API ChatHandler
 {
     public:
         WorldSession* GetSession() { return m_session; }
+        Player* GetPlayer();
         explicit ChatHandler(WorldSession* session) : m_session(session), sentErrorMessage(false) { }
         virtual ~ChatHandler() { }
 
