@@ -340,12 +340,6 @@ bool SmartAI::IsEscortInvokerInRange()
     return true;
 }
 
-///@todo move escort related logic
-void SmartAI::WaypointPathStarted(uint32 pathId)
-{
-    // SmartAI::WaypointStarted() already handles the case of starting the 1st waypoint
-}
-
 void SmartAI::WaypointStarted(uint32 nodeId, uint32 pathId)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_START, nullptr, nodeId, pathId);
