@@ -1366,11 +1366,9 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
         case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILLLINE_SPELLS:
         {
             uint32 spellCount = 0;
-            for (PlayerSpellMap::const_iterator spellIter = referencePlayer->GetSpellMap().begin();
-                spellIter != referencePlayer->GetSpellMap().end();
-                ++spellIter)
+            for (std::pair<uint32 const, PlayerSpell> const& spellIter : referencePlayer->GetSpellMap())
             {
-                SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellIter->first);
+                SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellIter.first);
                 for (SkillLineAbilityMap::const_iterator skillIter = bounds.first; skillIter != bounds.second; ++skillIter)
                 {
                     if (skillIter->second->SkillLine == achievementCriteria->learn_skillline_spell.skillLine)
@@ -1392,11 +1390,9 @@ void AchievementMgr<T>::UpdateAchievementCriteria(AchievementCriteriaTypes type,
         case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LINE:
         {
             uint32 spellCount = 0;
-            for (PlayerSpellMap::const_iterator spellIter = referencePlayer->GetSpellMap().begin();
-                spellIter != referencePlayer->GetSpellMap().end();
-                ++spellIter)
+            for (std::pair<uint32 const, PlayerSpell> const& spellIter : referencePlayer->GetSpellMap())
             {
-                SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellIter->first);
+                SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellIter.first);
                 for (SkillLineAbilityMap::const_iterator skillIter = bounds.first; skillIter != bounds.second; ++skillIter)
                     if (skillIter->second->SkillLine == achievementCriteria->learn_skill_line.skillLine)
                         spellCount++;

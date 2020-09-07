@@ -213,7 +213,7 @@ struct PlayerCurrency
 };
 
 typedef std::unordered_map<uint32, PlayerTalent*> PlayerTalentMap;
-typedef std::unordered_map<uint32, PlayerSpell*> PlayerSpellMap;
+typedef std::unordered_map<uint32, PlayerSpell> PlayerSpellMap;
 typedef std::unordered_set<SpellModifier*> SpellModContainer;
 typedef std::unordered_map<uint32, PlayerCurrency> PlayerCurrenciesMap;
 
