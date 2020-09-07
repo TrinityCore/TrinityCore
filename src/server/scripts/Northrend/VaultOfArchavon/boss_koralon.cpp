@@ -120,70 +120,6 @@ class boss_koralon : public CreatureScript
         }
 };
 
-/*######
-##  Npc Flame Warder
-######*/
-class npc_flame_warder : public CreatureScript
-{
-    public:
-        npc_flame_warder() : CreatureScript("npc_flame_warder") { }
-
-        struct npc_flame_warderAI : public ScriptedAI
-        {
-            npc_flame_warderAI(Creature* creature) : ScriptedAI(creature)
-            {
-            }
-
-            void Reset() override
-            {
-                events.Reset();
-            }
-
-            void JustEngagedWith(Unit* /*who*/) override
-            {
-                DoZoneInCombat();
-
-                events.ScheduleEvent(EVENT_FW_LAVA_BIRST, 5s);
-                events.ScheduleEvent(EVENT_FW_METEOR_FISTS, 10s);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_FW_LAVA_BIRST:
-                            DoCastVictim(SPELL_FW_LAVA_BIRST);
-                            events.ScheduleEvent(EVENT_FW_LAVA_BIRST, 15s);
-                            break;
-                        case EVENT_FW_METEOR_FISTS:
-                            DoCast(me, SPELL_FW_METEOR_FISTS);
-                            events.ScheduleEvent(EVENT_FW_METEOR_FISTS, 20s);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            EventMap events;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetVaultOfArchavonAI<npc_flame_warderAI>(creature);
-        }
-};
-
 class spell_koralon_meteor_fists : public SpellScriptLoader
 {
     public:
@@ -294,7 +230,6 @@ class spell_flame_warder_meteor_fists : public SpellScriptLoader
 void AddSC_boss_koralon()
 {
     new boss_koralon();
-    new npc_flame_warder();
     new spell_koralon_meteor_fists();
     new spell_koralon_meteor_fists_damage();
     new spell_flame_warder_meteor_fists();

@@ -117,47 +117,6 @@ struct npc_frozen_orb_stalker : public ScriptedAI
     }
 };
 
-struct npc_frost_warder : public ScriptedAI
-{
-    npc_frost_warder(Creature* creature) : ScriptedAI(creature) { }
-
-    void Reset() override
-    {
-        _events.Reset();
-    }
-
-    void JustEngagedWith(Unit* /*who*/) override
-    {
-        DoZoneInCombat();
-
-        DoCastSelf(SPELL_FROZEN_MALLET_2);
-
-        _events.ScheduleEvent(EVENT_FROST_BLAST, 5s);
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        if (!UpdateVictim())
-            return;
-
-        _events.Update(diff);
-
-        if (me->HasUnitState(UNIT_STATE_CASTING))
-            return;
-
-        if (_events.ExecuteEvent() == EVENT_FROST_BLAST)
-        {
-            DoCastVictim(SPELL_FROST_BLAST);
-            _events.ScheduleEvent(EVENT_FROST_BLAST, 20s);
-        }
-
-        DoMeleeAttackIfReady();
-    }
-
-private:
-    EventMap _events;
-};
-
 struct npc_frozen_orb : public ScriptedAI
 {
     npc_frozen_orb(Creature* creature) : ScriptedAI(creature) { }
@@ -211,7 +170,6 @@ class spell_toravon_random_aggro : public SpellScript
 void AddSC_boss_toravon()
 {
     RegisterVaultOfArchavonCreatureAI(boss_toravon);
-    RegisterVaultOfArchavonCreatureAI(npc_frost_warder);
     RegisterVaultOfArchavonCreatureAI(npc_frozen_orb_stalker);
     RegisterVaultOfArchavonCreatureAI(npc_frozen_orb);
     RegisterSpellScript(spell_toravon_random_aggro);
