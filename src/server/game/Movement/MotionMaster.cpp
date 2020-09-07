@@ -676,7 +676,7 @@ void MotionMaster::MoveLand(uint32 id, Position const& pos)
     TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveLand: '%s', landing point Id: %u (X: %f, Y: %f, Z: %f)", _owner->GetGUID().ToString().c_str(), id, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
 
     Movement::MoveSplineInit init(_owner);
-    init.MoveTo(PositionToVector3(pos));
+    init.MoveTo(PositionToVector3(pos), false);
     init.SetAnimation(Movement::ToGround);
     Add(new GenericMovementGenerator(std::move(init), EFFECT_MOTION_TYPE, id));
 }
