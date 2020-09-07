@@ -37,7 +37,7 @@ struct DBCPosition3D
 };
 
 #pragma pack(pop)
-enum LevelLimit
+enum LevelLimit : uint8
 {
     // Client expected level limitation, like as used in DBC item max levels for "until max player level"
     // use as default max player level, must be fit max level for used client

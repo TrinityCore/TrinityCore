@@ -273,10 +273,10 @@ AccountOpResult AccountMgr::ChangeRegEmail(uint32 accountId, std::string newEmai
     return AccountOpResult::AOR_OK;
 }
 
-uint32 AccountMgr::GetId(std::string const& username)
+uint32 AccountMgr::GetId(std::string_view username)
 {
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_ACCOUNT_ID_BY_USERNAME);
-    stmt->setString(0, username);
+    stmt->setStringView(0, username);
     PreparedQueryResult result = LoginDatabase.Query(stmt);
 
     return (result) ? (*result)[0].GetUInt32() : 0;

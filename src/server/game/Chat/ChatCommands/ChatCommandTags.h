@@ -120,6 +120,24 @@ namespace Trinity::ChatCommands
         TC_GAME_API Optional<std::string_view> TryConsume(std::string_view args);
     };
 
+    struct TC_GAME_API AccountIdentifier : Trinity::Impl::ChatCommands::ContainerTag
+    {
+        using value_type = uint32;
+
+        operator uint32() const { return _id; }
+        operator std::string const& () const { return _name; }
+        operator std::string_view() const { return { _name }; }
+
+        uint32 GetID() const { return _id; }
+        std::string const& GetName() const { return _name; }
+
+        Optional<std::string_view> TryConsume(std::string_view args);
+
+        private:
+            uint32 _id;
+            std::string _name;
+    };
+
     struct TC_GAME_API PlayerIdentifier : Trinity::Impl::ChatCommands::ContainerTag
     {
         using value_type = Player*;
@@ -137,7 +155,8 @@ namespace Trinity::ChatCommands
 
         std::string const& GetName() { return _name; }
         ObjectGuid GetGUID() const { return _guid; }
-        Player* GetPlayer() const { return _player; }
+        bool IsConnected() const { return (_player != nullptr); }
+        Player* GetConnectedPlayer() const { return _player; }
 
         Optional<std::string_view> TryConsume(std::string_view args);
 
