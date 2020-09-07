@@ -215,7 +215,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case NPC_NERUBAR_BROODKEEPER:
                     {
                         uint8 group = (creature->GetPositionX() > -230.0f) ? 0 : 1;
-                        nerubarBroodkeepersGUIDS[group].emplace_back(creature->GetGUID());
+                        nerubarBroodkeepersGUIDs[group].emplace_back(creature->GetGUID());
                         break;
                     }
                     case NPC_LORD_MARROWGAR:
@@ -1127,7 +1127,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case DATA_NERUBAR_BROODKEEPER_EVENT:
                     {
                         uint8 group = (data == AT_NERUBAR_BROODKEEPER) ? 0 : 1;
-                        for (ObjectGuid const& guid : nerubarBroodkeepersGUIDS[group])
+                        for (ObjectGuid const& guid : nerubarBroodkeepersGUIDs[group])
                             if (Creature* nerubar = instance->GetCreature(guid))
                                 nerubar->AI()->DoAction(ACTION_NERUBAR_FALL);
                         break;
@@ -1552,7 +1552,7 @@ class instance_icecrown_citadel : public InstanceMapScript
             bool IsNauseaEligible;
             bool IsOrbWhispererEligible;
             bool IsFactionBuffActive;
-            std::map<uint8, GuidVector> nerubarBroodkeepersGUIDS;
+            std::array<GuidVector, 2> nerubarBroodkeepersGUIDs;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

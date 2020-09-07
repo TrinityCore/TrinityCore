@@ -1067,8 +1067,7 @@ struct npc_icc_nerubar_broodkeeper : public ScriptedAI
     {
         me->SetDisableGravity(true);
         me->SetImmuneToAll(true);
-        // TODO: Remove it when Anim PR get merge
-        // me->SetAnimationTier(AnimationTier::Fly);
+        // TODO: Remove it when Anim PR get merge, Disable/EnableGravity will handle with it
         me->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, 3 /*Fly*/);
         me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_CUSTOM_SPELL_03);
     }
@@ -1080,7 +1079,6 @@ struct npc_icc_nerubar_broodkeeper : public ScriptedAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        DoZoneInCombat();
         _events.ScheduleEvent(EVENT_CRYPT_SCARABS, 1s);
         _events.ScheduleEvent(EVENT_DARK_MENDING, 5s);
         _events.ScheduleEvent(EVENT_WEB_WRAP, 20s);
@@ -1106,8 +1104,8 @@ struct npc_icc_nerubar_broodkeeper : public ScriptedAI
         if (type == EFFECT_MOTION_TYPE && id == POINT_LAND)
         {
             me->SetImmuneToAll(false);
-            // TODO: Remove it when Anim PR get merge
-            // me->SetAnimationTier(AnimationTier::Ground);
+            me->SetDisableGravity(false);
+            // TODO: Remove it when Anim PR get merge, Disable/EnableGravity will handle with it
             me->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, 0 /*Ground*/);
         }
     }
