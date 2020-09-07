@@ -766,9 +766,9 @@ private:
     bool _summoned;
 };
 
-struct npc_rimefang : public ScriptedAI
+struct npc_rimefang_icc : public ScriptedAI
 {
-    npc_rimefang(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _summoned(false)
+    npc_rimefang_icc(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _summoned(false)
     {
         Initialize();
     }
@@ -1536,7 +1536,7 @@ void AddSC_boss_sindragosa()
     RegisterIcecrownCitadelCreatureAI(boss_sindragosa);
     RegisterIcecrownCitadelCreatureAI(npc_ice_tomb);
     RegisterIcecrownCitadelCreatureAI(npc_spinestalker);
-    RegisterIcecrownCitadelCreatureAI(npc_rimefang);
+    RegisterIcecrownCitadelCreatureAI(npc_rimefang_icc);
     RegisterIcecrownCitadelCreatureAI(npc_sindragosa_trash);
 
     // Spells

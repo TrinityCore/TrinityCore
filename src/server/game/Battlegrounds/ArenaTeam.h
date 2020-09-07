@@ -77,6 +77,7 @@ ERR_ARENA_TEAM_TOO_MANY_MEMBERS_S
 ERR_ARENA_TEAM_LEVEL_TOO_LOW_I
 */
 
+// EnumUtils: DESCRIBE THIS
 enum ArenaTeamTypes
 {
     ARENA_TEAM_2v2      = 2,
