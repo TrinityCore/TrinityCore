@@ -187,8 +187,8 @@ UPDATE `hotfix_blob` SET `VerifiedBuild` = 35662 WHERE `locale` = 'koKR' AND `Ve
 UPDATE `hotfix_blob` SET `VerifiedBuild` = 35662 WHERE `locale` = 'koKR' AND `VerifiedBuild`>0 AND `TableHash` = 25144992 AND `RecordId` = 2203;
 UPDATE `hotfix_blob` SET `VerifiedBuild` = 35662 WHERE `locale` = 'koKR' AND `VerifiedBuild`>0 AND `TableHash` = 20077728 AND `RecordId` = 396607;
 
-DELETE FROM `hotfix_blob` WHERE `locale` = 'koKR' AND `VerifiedBuild`>0 AND `locale` = 'itIT' AND `VerifiedBuild`>0 AND `TableHash` = 3776013982 AND `RecordId` = 217506;
-DELETE FROM `hotfix_blob` WHERE `locale` = 'koKR' AND `VerifiedBuild`>0 AND `locale` = 'itIT' AND `VerifiedBuild`>0 AND `TableHash` = 3386943305 AND `RecordId` = 24302;
+DELETE FROM `hotfix_blob` WHERE `locale` = 'koKR' AND `VerifiedBuild`>0 AND `TableHash` = 3776013982 AND `RecordId` = 217506;
+DELETE FROM `hotfix_blob` WHERE `locale` = 'koKR' AND `VerifiedBuild`>0 AND `TableHash` = 3386943305 AND `RecordId` = 24302;
 INSERT INTO `hotfix_blob` (`TableHash`, `RecordId`, `locale`, `Blob`, `VerifiedBuild`) VALUES
 (3776013982, 217506, 'koKR', 0x000000, 35662),
 (3386943305, 24302, 'koKR', 0x0401015A0000000000060010000000000000000400000000000004000100000000000000004FE60000, 35662);
