@@ -118,7 +118,8 @@ enum ICDataTypes
     DATA_BLOOD_QUEEN_LANA_THEL_COUNCIL = 42,
     DATA_BLOOD_PRINCE_COUNCIL_INTRO    = 43,
     DATA_SINDRAGOSA_INTRO              = 44,
-    DATA_FACTION_BUFF                  = 45 // used by conditions
+    DATA_FACTION_BUFF                  = 45, // used by conditions
+    DATA_NERUBAR_BROODKEEPER_EVENT     = 46
 };
 
 enum ICCreaturesIds
@@ -478,6 +479,9 @@ enum ICAchievementCriteriaIds
 
 enum ICSharedActions
 {
+    // Nerub'ar Broodkeeper event
+    ACTION_NERUBAR_FALL          = 1,
+
     // Icecrown Gunship Battle
     ACTION_ENEMY_GUNSHIP_TALK   = -369390,
     ACTION_EXIT_SHIP            = -369391,
@@ -531,9 +535,10 @@ enum ICWorldStatesICC
     WORLDSTATE_ATTEMPTS_MAX         = 4942
 };
 
-enum ICAreaIds
+enum ICMisc
 {
-    AREA_ICECROWN_CITADEL   = 4812
+    AREA_ICECROWN_CITADEL   = 4812,
+    AT_NERUBAR_BROODKEEPER  = 5611
 };
 
 struct Position;
