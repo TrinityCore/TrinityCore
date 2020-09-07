@@ -2231,10 +2231,10 @@ bool OnlyOnceAreaTriggerScript::OnTrigger(Player* player, AreaTriggerEntry const
     InstanceScript* instance = player->GetInstanceScript();
     if (instance && instance->IsAreaTriggerDone(triggerId))
         return true;
-    
+
     if (TryHandleOnce(player, trigger) && instance)
         instance->MarkAreaTriggerDone(triggerId);
-    
+
     return true;
 }
 void OnlyOnceAreaTriggerScript::ResetAreaTriggerDone(InstanceScript* script, uint32 triggerId) { script->ResetAreaTriggerDone(triggerId); }
