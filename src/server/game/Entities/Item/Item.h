@@ -331,8 +331,6 @@ class TC_GAME_API Item : public Object
         SocketColor GetSocketColor(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_SOCKETS); return SocketColor(_bonusData.SocketColor[index]); }
         uint32 GetAppearanceModId() const { return m_itemData->ItemAppearanceModID; }
         void SetAppearanceModId(uint32 appearanceModId) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::ItemAppearanceModID), appearanceModId); }
-        uint32 GetArmor(Player const* owner) const { return GetTemplate()->GetArmor(GetItemLevel(owner)); }
-        void GetDamage(Player const* owner, float& minDamage, float& maxDamage) const { GetTemplate()->GetDamage(GetItemLevel(owner), minDamage, maxDamage); }
         uint32 GetDisplayId(Player const* owner) const;
         ItemModifiedAppearanceEntry const* GetItemModifiedAppearance() const;
         float GetRepairCostMultiplier() const { return _bonusData.RepairCostMultiplier; }
