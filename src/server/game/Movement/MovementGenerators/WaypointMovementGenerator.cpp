@@ -118,10 +118,6 @@ void WaypointMovementGenerator<Creature>::DoInitialize(Creature* owner)
     owner->StopMoving();
 
     _nextMoveTime.Reset(1000);
-
-    // inform AI
-    if (CreatureAI* AI = owner->AI())
-        AI->WaypointPathStarted(_path->id);
 }
 
 void WaypointMovementGenerator<Creature>::DoReset(Creature* owner)

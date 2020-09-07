@@ -31,7 +31,10 @@
 #include "Realm.h"
 #include "ScriptMgr.h"
 #include "World.h"
+#include "WorldSession.h"
 #include <boost/algorithm/string/replace.hpp>
+
+Player* ChatHandler::GetPlayer() { return m_session ? m_session->GetPlayer() : nullptr; }
 
 // Lazy loading of the command table cache from commands and the
 // ScriptMgr should be thread safe since the player commands,

@@ -462,7 +462,8 @@ class TC_GAME_API OnlyOnceAreaTriggerScript : public AreaTriggerScript
         bool OnTrigger(Player* /*player*/, AreaTriggerEntry const* /*trigger*/) final override;
 
     protected:
-        virtual bool _OnTrigger(Player* /*player*/, AreaTriggerEntry const* /*trigger*/) = 0;
+        // returns true if the trigger was successfully handled, false if we should try again next time
+        virtual bool TryHandleOnce(Player* /*player*/, AreaTriggerEntry const* /*trigger*/) = 0;
         void ResetAreaTriggerDone(InstanceScript* /*instance*/, uint32 /*triggerId*/);
         void ResetAreaTriggerDone(Player const* /*player*/, AreaTriggerEntry const* /*trigger*/);
 };

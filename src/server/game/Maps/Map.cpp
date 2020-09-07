@@ -829,6 +829,20 @@ void Map::Update(uint32 t_diff)
             for (Unit* unit : toVisit)
                 VisitNearbyCellsOf(unit, grid_object_update, world_object_update);
         }
+
+        { // Update player's summons
+            std::vector<Unit*> toVisit;
+
+            // Totems
+            for (ObjectGuid const& summonGuid : player->m_SummonSlot)
+                if (summonGuid)
+                    if (Creature* unit = GetCreature(summonGuid))
+                        if (unit->GetMapId() == player->GetMapId() && !unit->IsWithinDistInMap(player, GetVisibilityRange(), false))
+                            toVisit.push_back(unit);
+
+            for (Unit* unit : toVisit)
+                VisitNearbyCellsOf(unit, grid_object_update, world_object_update);
+        }
     }
 
     // non-player active objects, increasing iterator in the loop in case of object removal
