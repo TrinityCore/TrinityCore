@@ -462,7 +462,7 @@ public:
         return true;
     }
 
-    static bool HandleCharacterChangeAccountCommand(ChatHandler* handler, Optional<PlayerIdentifier> player, std::string accountName)
+    static bool HandleCharacterChangeAccountCommand(ChatHandler* handler, Optional<PlayerIdentifier> player, AccountIdentifier newAccount)
     {
         if (!player)
             player = PlayerIdentifier::FromTarget(handler);
@@ -478,53 +478,33 @@ public:
         }
 
         uint32 oldAccountId = characterInfo->AccountId;
-
-        if (!Utf8ToUpperOnlyLatin(accountName))
-        {
-            handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_ID_BY_NAME);
-        stmt->setString(0, accountName);
-        uint32 newAccountId;
-        if (PreparedQueryResult result = LoginDatabase.Query(stmt))
-            newAccountId = (*result)[0].GetUInt32();
-        else
-        {
-            handler->PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, accountName.c_str());
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
         // nothing to do :)
-        if (newAccountId == oldAccountId)
+        if (newAccount.GetID() == oldAccountId)
             return true;
 
-        if (uint32 charCount = AccountMgr::GetCharactersCount(newAccountId))
+        if (uint32 charCount = AccountMgr::GetCharactersCount(newAccount.GetID()))
         {
             if (charCount >= sWorld->getIntConfig(CONFIG_CHARACTERS_PER_REALM))
             {
-                handler->PSendSysMessage(LANG_ACCOUNT_CHARACTER_LIST_FULL, accountName.c_str(), newAccountId);
+                handler->PSendSysMessage(LANG_ACCOUNT_CHARACTER_LIST_FULL, newAccount.GetName().c_str(), newAccount.GetID());
                 handler->SetSentErrorMessage(true);
                 return false;
             }
         }
 
         CharacterDatabasePreparedStatement* charStmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ACCOUNT_BY_GUID);
-        charStmt->setUInt32(0, newAccountId);
+        charStmt->setUInt32(0, newAccount.GetID());
         charStmt->setUInt32(1, player->GetGUID().GetCounter());
         CharacterDatabase.DirectExecute(charStmt);
 
         sWorld->UpdateRealmCharCount(oldAccountId);
-        sWorld->UpdateRealmCharCount(newAccountId);
+        sWorld->UpdateRealmCharCount(newAccount.GetID());
 
-        sCharacterCache->UpdateCharacterAccountId(*player, newAccountId);
+        sCharacterCache->UpdateCharacterAccountId(*player, newAccount.GetID());
 
-        handler->PSendSysMessage(LANG_CHANGEACCOUNT_SUCCESS, player->GetName().c_str(), accountName.c_str());
+        handler->PSendSysMessage(LANG_CHANGEACCOUNT_SUCCESS, player->GetName().c_str(), newAccount.GetName().c_str());
 
-        std::string logString = Trinity::StringFormat("changed ownership of player %s (%s) from account %u to account %u", player->GetName().c_str(), player->GetGUID().ToString().c_str(), oldAccountId, newAccountId);
+        std::string logString = Trinity::StringFormat("changed ownership of player %s (%s) from account %u to account %u", player->GetName().c_str(), player->GetGUID().ToString().c_str(), oldAccountId, newAccount.GetID());
         if (WorldSession* session = handler->GetSession())
         {
             if (Player* player = session->GetPlayer())
@@ -627,7 +607,7 @@ public:
      *
      * @param args the search string which either contains a player GUID or a part of the character-name
      */
-    static bool HandleCharacterDeletedRestoreCommand(ChatHandler* handler, std::string needle, Optional<std::string_view> newCharName, Optional<uint32> newAccount)
+    static bool HandleCharacterDeletedRestoreCommand(ChatHandler* handler, std::string needle, Optional<std::string_view> newCharName, Optional<AccountIdentifier> newAccount)
     {
         DeletedInfoList foundList;
         if (!GetDeletedCharacterInfoList(foundList, needle))
@@ -662,8 +642,8 @@ public:
             // if new account provided update deleted info
             if (newAccount)
             {
-                delInfo.accountId = *newAccount;
-                AccountMgr::GetName(*newAccount, delInfo.accountName);
+                delInfo.accountId = newAccount->GetID();
+                delInfo.accountName = newAccount->GetName();
             }
 
             HandleCharacterDeletedRestoreHelper(delInfo, handler);
