@@ -55,10 +55,8 @@ void AggressorAI::UpdateAI(uint32 /*diff*/)
 void CombatAI::InitializeAI()
 {
     for (uint32 spell : me->m_spells)
-    {
         if (spell && sSpellMgr->GetSpellInfo(spell))
             _spells.push_back(spell);
-    }
 
     CreatureAI::InitializeAI();
 }
@@ -70,7 +68,7 @@ void CombatAI::Reset()
 
 void CombatAI::JustDied(Unit* killer)
 {
-    for (auto spell : _spells)
+    for (uint32 spell : _spells)
     {
         if (AISpellInfo[spell].condition == AICOND_DIE)
             me->CastSpell(killer, spell, true);
@@ -79,7 +77,7 @@ void CombatAI::JustDied(Unit* killer)
 
 void CombatAI::JustEngagedWith(Unit* who)
 {
-    for (auto spell : _spells)
+    for (uint32 spell : _spells)
     {
         if (AISpellInfo[spell].condition == AICOND_AGGRO)
             me->CastSpell(who, spell, false);
@@ -122,7 +120,7 @@ void CasterAI::InitializeAI()
 
     _attackDistance = 30.0f;
 
-    for (auto spell : _spells)
+    for (uint32 spell : _spells)
     {
         if (AISpellInfo[spell].condition == AICOND_COMBAT && _attackDistance > GetAISpellInfo(spell)->maxRange)
             _attackDistance = GetAISpellInfo(spell)->maxRange;
@@ -296,7 +294,7 @@ void VehicleAI::UpdateAI(uint32 diff)
 
 void VehicleAI::OnCharmed(bool /*isNew*/)
 {
-    const bool charmed = me->IsCharmed();
+    bool const charmed = me->IsCharmed();
     if (!me->GetVehicleKit()->IsVehicleInUse() && !charmed && _hasConditions) // was used and has conditions
     {
         _dismiss = true; // needs reset
@@ -321,7 +319,7 @@ void VehicleAI::CheckConditions(uint32 diff)
     {
         if (Vehicle* vehicleKit = me->GetVehicleKit())
         {
-            for (auto [i, vehicleSeat] : vehicleKit->Seats)
+            for (auto const& [i, vehicleSeat] : vehicleKit->Seats)
             {
                 if (Unit* passenger = ObjectAccessor::GetUnit(*me, vehicleSeat.Passenger.Guid))
                 {
