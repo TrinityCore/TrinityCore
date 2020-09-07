@@ -1007,7 +1007,7 @@ class at_lady_deathwhisper_entrance : public OnlyOnceAreaTriggerScript
     public:
         at_lady_deathwhisper_entrance() : OnlyOnceAreaTriggerScript("at_lady_deathwhisper_entrance") { }
 
-        bool _OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+        bool TryHandleOnce(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
         {
             if (InstanceScript* instance = player->GetInstanceScript())
                 if (instance->GetBossState(DATA_LADY_DEATHWHISPER) != DONE)
