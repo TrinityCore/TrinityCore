@@ -449,7 +449,7 @@ public:
         if (!player)
             player = PlayerIdentifier::FromTarget(handler);
         if (!player)
-            return;
+            return false;
 
         if (Player* target = player->GetConnectedPlayer())
         {
@@ -473,7 +473,7 @@ public:
         if (!player)
             player = PlayerIdentifier::FromTarget(handler);
         if (!player)
-            return;
+            return false;
 
         if (Player* target = player->GetConnectedPlayer())
         {
@@ -497,7 +497,7 @@ public:
         if (!player)
             player = PlayerIdentifier::FromTarget(handler);
         if (!player)
-            return;
+            return false;
 
         if (Player* target = player->GetConnectedPlayer())
         {

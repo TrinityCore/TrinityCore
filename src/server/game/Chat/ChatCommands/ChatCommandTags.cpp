@@ -101,7 +101,11 @@ Optional<std::string_view> Trinity::ChatCommands::PlayerIdentifier::TryConsume(s
     }
     else
     {
-        _name.assign(val.visit(Trinity::Impl::CastToVisitor<std::string_view>()));
+        if (val.holds_alternative<Hyperlink<player>>())
+            _name.assign(static_cast<std::string_view>(val.get<Hyperlink<player>>()));
+        else
+            _name.assign(val.get<std::string_view>());
+
         if (!normalizePlayerName(_name))
             return std::nullopt;
 
