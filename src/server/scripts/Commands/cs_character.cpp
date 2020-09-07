@@ -648,8 +648,11 @@ public:
     *
     * @param args the search string which either contains a player GUID or a part fo the character-name
     */
-    static bool HandleCharacterDeletedListCommand(ChatHandler* handler, std::string needle)
+    static bool HandleCharacterDeletedListCommand(ChatHandler* handler, Optional<std::string_view> needleStr)
     {
+        std::string needle;
+        if (needleStr)
+            needle.assign(*needleStr);
         DeletedInfoList foundList;
         if (!GetDeletedCharacterInfoList(foundList, needle))
             return false;
@@ -658,6 +661,7 @@ public:
         if (foundList.empty())
         {
             handler->SendSysMessage(LANG_CHARACTER_DELETED_LIST_EMPTY);
+            handler->SetSentErrorMessage(true);
             return false;
         }
 
@@ -686,6 +690,7 @@ public:
         if (foundList.empty())
         {
             handler->SendSysMessage(LANG_CHARACTER_DELETED_LIST_EMPTY);
+            handler->SetSentErrorMessage(true);
             return false;
         }
 
@@ -720,8 +725,8 @@ public:
         }
 
         handler->SendSysMessage(LANG_CHARACTER_DELETED_ERR_RENAME);
-
-        return true;
+        handler->SetSentErrorMessage(true);
+        return false;
     }
 
     /**
@@ -743,6 +748,7 @@ public:
         if (foundList.empty())
         {
             handler->SendSysMessage(LANG_CHARACTER_DELETED_LIST_EMPTY);
+            handler->SetSentErrorMessage(true);
             return false;
         }
 
