@@ -66,7 +66,7 @@ public:
             { "changeaccount", rbac::RBAC_PERM_COMMAND_CHARACTER_CHANGEACCOUNT,   true,  &HandleCharacterChangeAccountCommand,  "", },
             { "deleted",       rbac::RBAC_PERM_COMMAND_CHARACTER_DELETED,         true,  nullptr,                                  "", characterDeletedCommandTable },
             { "erase",         rbac::RBAC_PERM_COMMAND_CHARACTER_ERASE,           true,  &HandleCharacterEraseCommand,          "", },
-            { "level",         rbac::RBAC_PERM_COMMAND_CHARACTER_LEVEL,           true,  &HandleCharacterLevelCommand,          "", },
+            { "level",         rbac::RBAC_PERM_COMMAND_CHARACTER_LEVEL,           true,  &HandleLevelUpCommand,                 "", },
             { "rename",        rbac::RBAC_PERM_COMMAND_CHARACTER_RENAME,          true,  &HandleCharacterRenameCommand,         "", },
             { "reputation",    rbac::RBAC_PERM_COMMAND_CHARACTER_REPUTATION,      true,  &HandleCharacterReputationCommand,     "", },
             { "titles",        rbac::RBAC_PERM_COMMAND_CHARACTER_TITLES,          true,  &HandleCharacterTitlesCommand,         "", },
@@ -234,34 +234,6 @@ public:
             sCharacterCache->AddCharacterCacheEntry(delInfo.guid, delInfo.accountId, delInfo.name, (*result)[2].GetUInt8(), (*result)[0].GetUInt8(), (*result)[1].GetUInt8(), (*result)[3].GetUInt8());
     }
 
-    static void HandleCharacterLevel(Player* player, ObjectGuid playerGuid, uint8 oldLevel, uint8 newLevel, ChatHandler* handler)
-    {
-        if (player)
-        {
-            player->GiveLevel(newLevel);
-            player->InitTalentForLevel();
-            player->SetXP(0);
-
-            if (handler->needReportToTarget(player))
-            {
-                if (oldLevel == newLevel)
-                    ChatHandler(player->GetSession()).PSendSysMessage(LANG_YOURS_LEVEL_PROGRESS_RESET, handler->GetNameLink().c_str());
-                else if (oldLevel < newLevel)
-                    ChatHandler(player->GetSession()).PSendSysMessage(LANG_YOURS_LEVEL_UP, handler->GetNameLink().c_str(), newLevel);
-                else                                                // if (oldlevel > newlevel)
-                    ChatHandler(player->GetSession()).PSendSysMessage(LANG_YOURS_LEVEL_DOWN, handler->GetNameLink().c_str(), newLevel);
-            }
-        }
-        else
-        {
-            // Update level and reset XP, everything else will be updated at login
-            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_LEVEL);
-            stmt->setUInt8(0, uint8(newLevel));
-            stmt->setUInt32(1, playerGuid.GetCounter());
-            CharacterDatabase.Execute(stmt);
-        }
-    }
-
     static bool HandleCharacterTitlesCommand(ChatHandler* handler, Optional<PlayerIdentifier> player)
     {
         if (!player)
@@ -412,32 +384,6 @@ public:
                 stmt->setUInt32(1, player->GetGUID().GetCounter());
                 CharacterDatabase.Execute(stmt);
             }
-        }
-
-        return true;
-    }
-
-    static bool HandleCharacterLevelCommand(ChatHandler* handler, Optional<PlayerIdentifier> player, Optional<uint8> level)
-    {
-        if (!player && level)
-            return false;
-
-        if (!player)
-            player = PlayerIdentifier::FromTargetOrSelf(handler);
-        if (!player)
-            return false;
-
-        uint8 oldlevel = player->IsConnected() ? player->GetConnectedPlayer()->GetLevel() : sCharacterCache->GetCharacterLevelByGuid(player->GetGUID());
-        uint8 newlevel = level.value_or(oldlevel);
-
-        if (newlevel < 1)
-            return false;                                       // invalid level
-
-        HandleCharacterLevel(player->GetConnectedPlayer(), player->GetGUID(), oldlevel, newlevel, handler);
-        if (!handler->GetSession() || (handler->GetSession()->GetPlayer() != player->GetConnectedPlayer()))      // including player == NULL
-        {
-            std::string nameLink = handler->playerLink(player->GetName());
-            handler->PSendSysMessage(LANG_YOU_CHANGE_LVL, nameLink.c_str(), newlevel);
         }
 
         return true;
@@ -807,7 +753,7 @@ public:
         return true;
     }
 
-    static bool HandleLevelUpCommand(ChatHandler* handler, Optional<int16> level, Optional<PlayerIdentifier> player)
+    static bool HandleLevelUpCommand(ChatHandler* handler, Optional<PlayerIdentifier> player, Optional<int16> level)
     {
         if (!player)
             player = PlayerIdentifier::FromTargetOrSelf(handler);
@@ -823,7 +769,30 @@ public:
         if (newlevel > static_cast<int16>(STRONG_MAX_LEVEL))
             newlevel = static_cast<int16>(STRONG_MAX_LEVEL);
 
-        HandleCharacterLevel(*player, *player, oldlevel, static_cast<uint8>(newlevel), handler);
+        if (Player* target = player->GetConnectedPlayer())
+        {
+            target->GiveLevel(static_cast<uint8>(newlevel));
+            target->InitTalentForLevel();
+            target->SetXP(0);
+
+            if (handler->needReportToTarget(target))
+            {
+                if (oldlevel == newlevel)
+                    ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_LEVEL_PROGRESS_RESET, handler->GetNameLink().c_str());
+                else if (oldlevel < static_cast<uint8>(newlevel))
+                    ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_LEVEL_UP, handler->GetNameLink().c_str(), newlevel);
+                else                                                // if (oldlevel > newlevel)
+                    ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_LEVEL_DOWN, handler->GetNameLink().c_str(), newlevel);
+            }
+        }
+        else
+        {
+            // Update level and reset XP, everything else will be updated at login
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_LEVEL);
+            stmt->setUInt8(0, static_cast<uint8>(newlevel));
+            stmt->setUInt32(1, player->GetGUID());
+            CharacterDatabase.Execute(stmt);
+        }
 
         if (!handler->GetSession() || (handler->GetSession()->GetPlayer() != player->GetConnectedPlayer()))      // including chr == NULL
             handler->PSendSysMessage(LANG_YOU_CHANGE_LVL, handler->playerLink(player->GetName()).c_str(), newlevel);
