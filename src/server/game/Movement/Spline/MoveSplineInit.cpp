@@ -194,7 +194,7 @@ namespace Movement
         args.TransformForTransport = unit->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && unit->GetTransGUID();
         // mix existing state into new
         args.flags.canswim = unit->CanSwim();
-        args.walk = unit->HasUnitMovementFlag(MOVEMENTFLAG_WALKING);
+        args.walk = unit->IsWalking();
         args.flags.flying = unit->m_movementInfo.HasMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_DISABLE_GRAVITY);
     }
 
