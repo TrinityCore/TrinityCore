@@ -1675,7 +1675,7 @@ class at_icc_nerubar_broodkeeper : public OnlyOnceAreaTriggerScript
             if (InstanceScript* instance = player->GetInstanceScript())
             {
                 if (player->IsGameMaster())
-                return false;
+                    return false;
 
                 instance->SetData(DATA_NERUBAR_BROODKEEPER_EVENT, areaTrigger->ID);
             }
