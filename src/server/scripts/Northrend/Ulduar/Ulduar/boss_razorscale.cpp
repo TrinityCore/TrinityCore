@@ -310,7 +310,6 @@ struct boss_razorscale : public BossAI
         _permaGround = false;
         _flyCount = 0;
         me->SetDisableGravity(true);
-        me->SetAnimTier(UnitBytes1_Flags(UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER), true);
     }
 
     void Reset() override
@@ -360,7 +359,6 @@ struct boss_razorscale : public BossAI
         summons.DoAction(ACTION_START_FIGHT, DummyEntryCheckPredicate());
         events.ScheduleEvent(EVENT_BERSERK, 15min);
         HandleMusic(true);
-        me->SetAnimTier(UnitBytes1_Flags(UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER), true);
     }
 
     void ScheduleAirPhaseEvents()
@@ -398,7 +396,6 @@ struct boss_razorscale : public BossAI
             case ACTION_START_PERMA_GROUND:
             {
                 me->SetDisableGravity(false);
-                me->SetAnimTier(UNIT_BYTE1_FLAG_NONE, true);
                 me->RemoveAurasDueToSpell(SPELL_STUN_SELF);
                 Talk(EMOTE_PERMA_GROUND);
                 DoCastSelf(SPELL_WING_BUFFET);
@@ -430,7 +427,6 @@ struct boss_razorscale : public BossAI
                 break;
             case POINT_RAZORSCALE_GROUND:
                 me->SetDisableGravity(false);
-                me->SetAnimTier(UNIT_BYTE1_FLAG_NONE, true);
                 if (!_permaGround)
                 {
                     DoCastSelf(SPELL_STUN_SELF, true);
@@ -626,7 +622,6 @@ struct boss_razorscale : public BossAI
                 case EVENT_RESUME_AIR_PHASE:
                 {
                     me->SetDisableGravity(true);
-                    me->SetAnimTier(UnitBytes1_Flags(UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER), true);
                     events.SetPhase(PHASE_AIR);
                     me->SetReactState(REACT_PASSIVE);
                     Position pos = me->GetPosition();

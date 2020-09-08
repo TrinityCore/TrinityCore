@@ -528,7 +528,6 @@ struct boss_the_lich_king : public BossAI
         _JustDied();
         DoCastAOE(SPELL_PLAY_MOVIE, false);
         me->SetDisableGravity(false);
-        me->SetAnimTier(UNIT_BYTE1_FLAG_NONE, false);
         me->GetMotionMaster()->MoveFall();
         if (Creature* frostmourne = me->FindNearestCreature(NPC_FROSTMOURNE_TRIGGER, 50.0f))
             frostmourne->DespawnOrUnsummon();
@@ -1108,7 +1107,6 @@ struct boss_the_lich_king : public BossAI
                     CreatureTextMgr::SendSound(me, SOUND_PAIN, CHAT_MSG_MONSTER_YELL, 0, TEXT_RANGE_NORMAL, TEAM_OTHER, false);
                     // set flight
                     me->SetDisableGravity(true);
-                    me->SetAnimTier(UnitBytes1_Flags(UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER), false);
                     me->GetMotionMaster()->MovePoint(POINT_LK_OUTRO_2, OutroFlying);
                     break;
                 case EVENT_OUTRO_TALK_7:

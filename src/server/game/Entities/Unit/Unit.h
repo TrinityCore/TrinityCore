@@ -998,7 +998,8 @@ class TC_GAME_API Unit : public WorldObject
         void RemoveVisFlags(UnitVisFlags flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::VisFlags), flags); }
         void SetVisFlags(UnitVisFlags flags) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::VisFlags), flags); }
 
-        void SetAnimTier(UnitBytes1_Flags animTier, bool notifyClient);
+        AnimTier GetAnimTier() const { return AnimTier(*m_unitData->AnimTier); }
+        void SetAnimTier(AnimTier animTier, bool notifyClient = true);
 
         bool IsMounted() const { return HasUnitFlag(UNIT_FLAG_MOUNT); }
         uint32 GetMountDisplayId() const { return m_unitData->MountDisplayID; }
@@ -1205,13 +1206,13 @@ class TC_GAME_API Unit : public WorldObject
         bool IsWalking() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_WALKING); }
         bool IsHovering() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_HOVER); }
         bool SetWalk(bool enable);
-        bool SetDisableGravity(bool disable);
+        bool SetDisableGravity(bool disable, bool updateAnimationTier = true);
         bool SetFall(bool enable);
         bool SetSwim(bool enable);
         bool SetCanFly(bool enable);
         bool SetWaterWalking(bool enable);
         bool SetFeatherFall(bool enable);
-        bool SetHover(bool enable);
+        bool SetHover(bool enable, bool updateAnimationTier = true);
         bool SetCollision(bool disable);
         bool SetCanTransitionBetweenSwimAndFly(bool enable);
         bool SetCanTurnWhileFalling(bool enable);

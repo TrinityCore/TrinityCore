@@ -2100,6 +2100,7 @@ void Creature::setDeathState(DeathState s)
         uint32 respawnDelay = m_respawnDelay;
         if (uint32 scalingMode = sWorld->getIntConfig(CONFIG_RESPAWN_DYNAMICMODE))
             GetMap()->ApplyDynamicModeRespawnScaling(this, m_spawnId, respawnDelay, scalingMode);
+
         // @todo remove the boss respawn time hack in a dynspawn follow-up once we have creature groups in instances
         if (m_respawnCompatibilityMode)
         {
@@ -2135,8 +2136,9 @@ void Creature::setDeathState(DeathState s)
         if (m_formation && m_formation->GetLeader() == this)
             m_formation->FormationReset(true);
 
-        bool needsFalling = IsFlying() || IsHovering();
-        SetHover(false);
+        bool needsFalling = (IsFlying() || IsHovering()) && !IsUnderWater();
+        SetHover(false, false);
+        SetDisableGravity(false, false);
 
         if (needsFalling)
             GetMotionMaster()->MoveFall();
@@ -2670,7 +2672,7 @@ bool Creature::LoadCreaturesAddon()
 
         SetStandState(UnitStandStateType(cainfo->bytes1 & 0xFF));
         SetVisFlags(UnitVisFlags((cainfo->bytes1 >> 16) & 0xFF));
-        SetAnimTier(UnitBytes1_Flags((cainfo->bytes1 >> 24) & 0xFF), false);
+        SetAnimTier(AnimTier((cainfo->bytes1 >> 24) & 0xFF), false);
 
         //! Suspected correlation between UNIT_FIELD_BYTES_1, offset 3, value 0x2:
         //! If no inhabittype_fly (if no MovementFlag_DisableGravity or MovementFlag_CanFly flag found in sniffs)

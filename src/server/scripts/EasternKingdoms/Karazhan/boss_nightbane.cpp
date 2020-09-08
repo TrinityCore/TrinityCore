@@ -211,7 +211,7 @@ public:
                 switch (pointId)
                 {
                     case POINT_INTRO_START:
-                        me->SetAnimTier(UNIT_BYTE1_FLAG_NONE, false);
+                        me->SetStandState(UNIT_STAND_STATE_STAND);
                         events.ScheduleEvent(EVENT_START_INTRO_PATH, Milliseconds(1));
                         break;
                     case POINT_INTRO_END:

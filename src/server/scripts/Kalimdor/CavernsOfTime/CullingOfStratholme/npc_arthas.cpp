@@ -1476,7 +1476,7 @@ public:
                         break;
                     case RP5_EVENT_CHROMIE_LAND:
                         if (Creature* chromie = me->FindNearestCreature(NPC_CHROMIE_3, 100.0f, true))
-                            chromie->SetAnimTier(UNIT_BYTE1_FLAG_NONE, true);
+                            chromie->SetAnimTier(AnimTier::Ground, true);
                         break;
                     case RP5_EVENT_CHROMIE_TRANSFORM:
                         if (Creature* chromie = me->FindNearestCreature(NPC_CHROMIE_3, 100.0f, true))

@@ -534,7 +534,12 @@ void Unit::UpdateSplineMovement(uint32 t_diff)
     }
 
     if (arrived)
+    {
         DisableSpline();
+
+        if (Optional<AnimTier> animTier = movespline->GetAnimation())
+            SetAnimTier(*animTier);
+    }
 
     UpdateSplinePosition();
 }
@@ -9925,15 +9930,15 @@ void Unit::SetStandState(UnitStandStateType state, uint32 animKitID /* = 0*/)
     }
 }
 
-void Unit::SetAnimTier(UnitBytes1_Flags animTier, bool notifyClient)
+void Unit::SetAnimTier(AnimTier animTier, bool notifyClient /*= true*/)
 {
-    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::AnimTier), animTier);
+    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::AnimTier), AsUnderlyingType(animTier));
 
     if (notifyClient)
     {
         WorldPackets::Misc::SetAnimTier setAnimTier;
         setAnimTier.Unit = GetGUID();
-        setAnimTier.Tier = animTier;
+        setAnimTier.Tier = AsUnderlyingType(animTier);
         SendMessageToSet(setAnimTier.Write(), true);
     }
 }
@@ -12447,7 +12452,7 @@ bool Unit::SetWalk(bool enable)
     return true;
 }
 
-bool Unit::SetDisableGravity(bool disable)
+bool Unit::SetDisableGravity(bool disable, bool updateAnimationTier /*= true*/)
 {
     if (disable == IsGravityDisabled())
         return false;
@@ -12482,6 +12487,16 @@ bool Unit::SetDisableGravity(bool disable)
         WorldPackets::Movement::MoveSplineSetFlag packet(gravityOpcodeTable[disable][0]);
         packet.MoverGUID = GetGUID();
         SendMessageToSet(packet.Write(), true);
+    }
+
+    if (IsCreature() && updateAnimationTier && IsAlive() && !HasUnitState(UNIT_STATE_ROOT) && !ToCreature()->GetMovementTemplate().IsRooted())
+    {
+        if (IsGravityDisabled())
+            SetAnimTier(AnimTier::Fly);
+        else if (IsHovering())
+            SetAnimTier(AnimTier::Hover);
+        else
+            SetAnimTier(AnimTier::Ground);
     }
 
     return true;
@@ -12640,7 +12655,7 @@ bool Unit::SetFeatherFall(bool enable)
     return true;
 }
 
-bool Unit::SetHover(bool enable)
+bool Unit::SetHover(bool enable, bool updateAnimationTier /*= true*/)
 {
     if (enable == HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
         return false;
@@ -12688,6 +12703,16 @@ bool Unit::SetHover(bool enable)
         WorldPackets::Movement::MoveSplineSetFlag packet(hoverOpcodeTable[enable][0]);
         packet.MoverGUID = GetGUID();
         SendMessageToSet(packet.Write(), true);
+    }
+
+    if (IsCreature() && updateAnimationTier && IsAlive() && !HasUnitState(UNIT_STATE_ROOT) && !ToCreature()->GetMovementTemplate().IsRooted())
+    {
+        if (IsGravityDisabled())
+            SetAnimTier(AnimTier::Fly);
+        else if (IsHovering())
+            SetAnimTier(AnimTier::Hover);
+        else
+            SetAnimTier(AnimTier::Ground);
     }
 
     return true;

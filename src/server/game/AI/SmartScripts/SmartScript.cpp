@@ -1888,9 +1888,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                             target->ToUnit()->AddVisFlags(UnitVisFlags(e.action.setunitByte.byte1));
                             break;
                         case 3:
-                            // this is totally wrong to maintain compatibility with existing scripts
-                            // TODO: fix with animtier overhaul
-                            target->ToUnit()->SetAnimTier(UnitBytes1_Flags(target->ToUnit()->m_unitData->AnimTier | e.action.setunitByte.byte1), false);
+                            target->ToUnit()->SetAnimTier(AnimTier(e.action.setunitByte.byte1));
                             break;
                     }
                 }
@@ -1913,7 +1911,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                             target->ToUnit()->RemoveVisFlags(UnitVisFlags(e.action.setunitByte.byte1));
                             break;
                         case 3:
-                            target->ToUnit()->SetAnimTier(UnitBytes1_Flags(target->ToUnit()->m_unitData->AnimTier & ~e.action.setunitByte.byte1), false);
+                            target->ToUnit()->SetAnimTier(AnimTier::Ground);
                             break;
                     }
                 }

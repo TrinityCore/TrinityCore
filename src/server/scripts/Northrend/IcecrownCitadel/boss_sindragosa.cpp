@@ -299,7 +299,6 @@ struct boss_sindragosa : public BossAI
         instance->SetBossState(DATA_SINDRAGOSA, FAIL);
         me->SetCanFly(false);
         me->SetDisableGravity(false);
-        me->SetAnimTier(UnitBytes1_Flags(UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER), false);
         me->SetReactState(REACT_DEFENSIVE);
     }
 
@@ -325,7 +324,6 @@ struct boss_sindragosa : public BossAI
             me->SetFarVisible(true);
             me->SetCanFly(true);
             me->SetDisableGravity(true);
-            me->SetAnimTier(UnitBytes1_Flags(UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER), false);
             me->SetSpeedRate(MOVE_FLIGHT, 4.0f);
             me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             Milliseconds moveTime = Milliseconds(uint64(me->GetExactDist(&SindragosaFlyPos) / (me->GetSpeed(MOVE_FLIGHT) * 0.001f)));
@@ -360,7 +358,6 @@ struct boss_sindragosa : public BossAI
                 me->SetFarVisible(false);
                 me->SetCanFly(false);
                 me->SetDisableGravity(false);
-                me->SetAnimTier(UNIT_BYTE1_FLAG_NONE, false);
                 me->SetHomePosition(SindragosaLandPos);
                 me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                 me->SetSpeedRate(MOVE_FLIGHT, 2.5f);
@@ -392,7 +389,6 @@ struct boss_sindragosa : public BossAI
             {
                 me->SetCanFly(false);
                 me->SetDisableGravity(false);
-                me->SetAnimTier(UNIT_BYTE1_FLAG_NONE, false);
                 me->SetReactState(REACT_DEFENSIVE);
 
                 _isInAirPhase = false;
@@ -499,7 +495,6 @@ struct boss_sindragosa : public BossAI
                     Talk(SAY_AIR_PHASE);
                     me->SetCanFly(true);
                     me->SetDisableGravity(true);
-                    me->SetAnimTier(UnitBytes1_Flags(UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER), false);
                     me->SetReactState(REACT_PASSIVE);
                     me->AttackStop();
                     Position pos;
@@ -720,7 +715,6 @@ struct npc_spinestalker : public ScriptedAI
         me->SetFarVisible(false);
         me->SetCanFly(false);
         me->SetDisableGravity(false);
-        me->SetAnimTier(UNIT_BYTE1_FLAG_NONE, false);
         me->SetHomePosition(SpinestalkerLandPos);
         me->SetFacingTo(SpinestalkerLandPos.GetOrientation());
         me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
@@ -848,7 +842,6 @@ struct npc_rimefang_icc : public ScriptedAI
         me->SetFarVisible(false);
         me->SetCanFly(false);
         me->SetDisableGravity(false);
-        me->SetAnimTier(UNIT_BYTE1_FLAG_NONE, false);
         me->SetHomePosition(RimefangLandPos);
         me->SetFacingTo(RimefangLandPos.GetOrientation());
         me->SetImmuneToPC(false);

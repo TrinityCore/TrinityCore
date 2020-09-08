@@ -678,7 +678,7 @@ void MotionMaster::MoveLand(uint32 id, Position const& pos)
 
     Movement::MoveSplineInit init(_owner);
     init.MoveTo(PositionToVector3(pos), false);
-    init.SetAnimation(Movement::ToGround);
+    init.SetAnimation(AnimTier::Ground);
     Add(new GenericMovementGenerator(std::move(init), EFFECT_MOTION_TYPE, id));
 }
 
@@ -688,7 +688,7 @@ void MotionMaster::MoveTakeoff(uint32 id, Position const& pos)
 
     Movement::MoveSplineInit init(_owner);
     init.MoveTo(PositionToVector3(pos));
-    init.SetAnimation(Movement::ToFly);
+    init.SetAnimation(AnimTier::Hover);
     Add(new GenericMovementGenerator(std::move(init), EFFECT_MOTION_TYPE, id));
 }
 
@@ -881,7 +881,7 @@ void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool 
     {
         init.SetFly();
         init.SetCyclic();
-        init.SetAnimation(Movement::ToFly);
+        init.SetAnimation(AnimTier::Hover);
     }
     else
     {

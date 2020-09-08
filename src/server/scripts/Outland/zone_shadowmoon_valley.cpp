@@ -442,7 +442,6 @@ public:
 
                                 me->SetCanFly(true);
                                 me->SetDisableGravity(true);
-                                me->SetAnimTier(UnitBytes1_Flags(UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER), true);
                                 me->GetMotionMaster()->MoveTakeoff(POINT_MOVE_UP, pos);
                             }
                         }
