@@ -513,7 +513,12 @@ void Unit::UpdateSplineMovement(uint32 t_diff)
     }
 
     if (arrived)
+    {
         DisableSpline();
+
+        if (movespline->HasAnimation())
+            SetAnimationTier(movespline->GetAnimation());
+    }
 
     UpdateSplinePosition();
 }
@@ -10307,6 +10312,14 @@ bool Unit::IsPolymorphed() const
     return spellInfo->GetSpellSpecific() == SPELL_SPECIFIC_MAGE_POLYMORPH;
 }
 
+void Unit::SetAnimationTier(AnimationTier tier)
+{
+    if (!IsCreature())
+        return;
+
+    SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, static_cast<uint8>(tier));
+}
+
 void Unit::RecalculateObjectScale()
 {
     int32 scaleAuras = GetTotalAuraModifier(SPELL_AURA_MOD_SCALE) + GetTotalAuraModifier(SPELL_AURA_MOD_SCALE_2);
@@ -13141,7 +13154,7 @@ bool Unit::SetWalk(bool enable)
     return true;
 }
 
-bool Unit::SetDisableGravity(bool disable, bool /*packetOnly = false*/)
+bool Unit::SetDisableGravity(bool disable, bool /*packetOnly = false*/, bool /*updateAnimationTier = true*/)
 {
     if (disable == IsGravityDisabled())
         return false;
@@ -13153,6 +13166,7 @@ bool Unit::SetDisableGravity(bool disable, bool /*packetOnly = false*/)
     }
     else
         RemoveUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
+
     return true;
 }
 
@@ -13207,7 +13221,7 @@ bool Unit::SetFeatherFall(bool enable, bool /*packetOnly = false */)
     return true;
 }
 
-bool Unit::SetHover(bool enable, bool /*packetOnly = false*/)
+bool Unit::SetHover(bool enable, bool /*packetOnly = false*/, bool /*updateAnimationTier = true*/)
 {
     if (enable == HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
         return false;

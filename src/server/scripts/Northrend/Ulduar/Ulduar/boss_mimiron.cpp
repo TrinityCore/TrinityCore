@@ -618,7 +618,6 @@ class boss_mimiron : public CreatureScript
                             {
                                 if (Creature* aerial = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_AERIAL_COMMAND_UNIT)))
                                 {
-                                    aerial->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, 0);
                                     aerial->CastSpell(vx001, SPELL_MOUNT_VX_001);
                                     aerial->CastSpell(aerial, SPELL_HALF_HEAL);
                                 }
@@ -991,7 +990,7 @@ class boss_vx_001 : public CreatureScript
                         me->SetImmuneToPC(false);
                         me->RemoveAurasDueToSpell(SPELL_FREEZE_ANIM);
                         me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE); // Remove emotestate.
-                        //me->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER); Blizzard handles hover animation like this it seems.
+                        //me->SetHover(true); // Blizzard handles hover animation like this it seems.
                         DoCast(me, SPELL_HEAT_WAVE_AURA);
 
                         events.SetPhase(PHASE_VX_001);
@@ -1132,9 +1131,8 @@ class boss_aerial_command_unit : public CreatureScript
                     damage = me->GetHealth() - 1; // Let creature fall to 1 hp, but do not let it die or damage itself with SetHealth().
                     me->SetReactState(REACT_PASSIVE);
                     me->AttackStop();
-                    me->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_HOVER | UNIT_BYTE1_FLAG_ALWAYS_STAND);
-                    me->SetHover(false);
                     me->SetDisableGravity(true);
+                    me->SetAnimationTier(AnimationTier::Ground);
 
                     DoCastSelf(SPELL_VEHICLE_DAMAGED, true);
 
@@ -1168,7 +1166,6 @@ class boss_aerial_command_unit : public CreatureScript
                         events.ScheduleEvent(EVENT_SUMMON_FIRE_BOTS, 1s, 0, PHASE_AERIAL_COMMAND_UNIT);
                         [[fallthrough]];
                     case DO_START_AERIAL:
-                        me->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_HOVER);
                         me->SetDisableGravity(false);
                         me->SetHover(true);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
