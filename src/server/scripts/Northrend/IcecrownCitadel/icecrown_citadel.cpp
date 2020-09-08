@@ -1063,7 +1063,7 @@ struct npc_icc_nerubar_broodkeeper : public ScriptedAI
     npc_icc_nerubar_broodkeeper(Creature* creature) : ScriptedAI(creature) { }
 
     // We set the anim tier and flags manually because we don't need them anymore once the spiders are down
-    void JustAppeared() override
+    void InitializeAI() override
     {
         me->SetDisableGravity(true);
         me->SetImmuneToAll(true);
@@ -1079,7 +1079,7 @@ struct npc_icc_nerubar_broodkeeper : public ScriptedAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        _events.ScheduleEvent(EVENT_CRYPT_SCARABS, 1s);
+        _events.ScheduleEvent(EVENT_CRYPT_SCARABS, 1s, 3s);
         _events.ScheduleEvent(EVENT_DARK_MENDING, 5s);
         _events.ScheduleEvent(EVENT_WEB_WRAP, 20s);
     }
