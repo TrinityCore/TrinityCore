@@ -2891,7 +2891,7 @@ bool Creature::SetDisableGravity(bool disable, bool packetOnly /*=false*/, bool 
 {
     //! It's possible only a packet is sent but moveflags are not updated
     //! Need more research on this
-    if (!packetOnly && !Unit::SetDisableGravity(disable))
+    if (!packetOnly && !Unit::SetDisableGravity(disable, packetOnly, updateAnimationTier))
         return false;
 
     if (updateAnimationTier && IsAlive() && !HasUnitState(UNIT_STATE_ROOT) && !GetMovementTemplate().IsRooted())
@@ -2971,7 +2971,7 @@ bool Creature::SetFeatherFall(bool enable, bool packetOnly /* = false */)
 
 bool Creature::SetHover(bool enable, bool packetOnly /*= false*/, bool updateAnimationTier /*= true*/)
 {
-    if (!packetOnly && !Unit::SetHover(enable))
+    if (!packetOnly && !Unit::SetHover(enable, packetOnly, updateAnimationTier))
         return false;
 
     if (updateAnimationTier && IsAlive() && !HasUnitState(UNIT_STATE_ROOT) && !GetMovementTemplate().IsRooted())
