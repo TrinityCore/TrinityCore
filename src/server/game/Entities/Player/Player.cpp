@@ -26575,7 +26575,7 @@ bool Player::IsInWhisperWhiteList(ObjectGuid guid)
     return false;
 }
 
-bool Player::SetDisableGravity(bool disable, bool packetOnly /*= false*/, bool updateAnimationTier = /*true*/)
+bool Player::SetDisableGravity(bool disable, bool packetOnly /*= false*/, bool updateAnimationTier /*= true*/)
 {
     if (!packetOnly && !Unit::SetDisableGravity(disable, packetOnly, updateAnimationTier))
         return false;
@@ -26614,7 +26614,7 @@ bool Player::SetCanFly(bool apply, bool packetOnly /*= false*/)
         return false;
 }
 
-bool Player::SetHover(bool apply, bool packetOnly /*= false*/, bool updateAnimationTier = /*true*/)
+bool Player::SetHover(bool apply, bool packetOnly /*= false*/, bool updateAnimationTier /*= true*/)
 {
     if (!packetOnly && !Unit::SetHover(apply, packetOnly, updateAnimationTier))
         return false;
