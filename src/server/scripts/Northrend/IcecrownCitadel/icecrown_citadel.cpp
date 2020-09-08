@@ -1067,8 +1067,6 @@ struct npc_icc_nerubar_broodkeeper : public ScriptedAI
     {
         me->SetDisableGravity(true);
         me->SetImmuneToAll(true);
-        // TODO: Remove it when Anim PR get merge, Disable/EnableGravity will handle with it
-        me->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, 3 /*Fly*/);
         me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_CUSTOM_SPELL_03);
     }
 
@@ -1105,8 +1103,6 @@ struct npc_icc_nerubar_broodkeeper : public ScriptedAI
         {
             me->SetImmuneToAll(false);
             me->SetDisableGravity(false);
-            // TODO: Remove it when Anim PR get merge, Disable/EnableGravity will handle with it
-            me->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, 0 /*Ground*/);
         }
     }
 
