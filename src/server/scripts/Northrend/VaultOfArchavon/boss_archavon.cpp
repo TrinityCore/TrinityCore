@@ -37,12 +37,7 @@ enum Spells
     SPELL_CRUSHING_LEAP         = 58960,
     SPELL_STOMP                 = 58663,
     SPELL_IMPALE                = 58666,
-    SPELL_BERSERK               = 47008,
-
-    // Archavon Warders
-    SPELL_ROCK_SHOWER           = 60919,
-    SPELL_SHIELD_CRUSH          = 60897,
-    SPELL_WHIRL                 = 60902
+    SPELL_BERSERK               = 47008
 };
 
 enum Creatures
@@ -58,11 +53,6 @@ enum Events
     EVENT_STOMP             = 3,    // 45s cd
     EVENT_IMPALE            = 4,
     EVENT_BERSERK           = 5,    // 300s cd
-
-    //mob
-    EVENT_ROCK_SHOWER       = 6,    // set = 20s cd, unkown cd
-    EVENT_SHIELD_CRUSH      = 7,    // set = 30s cd
-    EVENT_WHIRL             = 8,    // set= 10s cd
 };
 
 class boss_archavon : public CreatureScript

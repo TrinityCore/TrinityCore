@@ -34,10 +34,6 @@ enum Spells
     SPELL_FROZEN_ORB_AURA   = 72067,
     SPELL_RANDOM_AGGRO      = 72084,
 
-    // Frost Warder
-    SPELL_FROST_BLAST       = 72123,    // don't know cd... using 20 secs.
-    SPELL_FROZEN_MALLET_2   = 72122,
-
     // Frozen Orb Stalker
     FROZEN_ORB_STALKER_AURA = 72094
 };
@@ -46,9 +42,7 @@ enum Events
 {
     EVENT_FREEZING_GROUND   = 1,
     EVENT_FROZEN_ORB        = 2,
-    EVENT_WHITEOUT          = 3,
-
-    EVENT_FROST_BLAST       = 4
+    EVENT_WHITEOUT          = 3
 };
 
 struct boss_toravon : public BossAI

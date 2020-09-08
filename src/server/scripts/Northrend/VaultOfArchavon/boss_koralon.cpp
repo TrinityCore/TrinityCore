@@ -26,11 +26,7 @@ enum Events
     EVENT_BURNING_BREATH    = 1,
     EVENT_BURNING_FURY      = 2,
     EVENT_FLAME_CINDER      = 3,
-    EVENT_METEOR_FISTS      = 4,
-
-    // Flame Warder
-    EVENT_FW_LAVA_BIRST     = 5,
-    EVENT_FW_METEOR_FISTS   = 6
+    EVENT_METEOR_FISTS      = 4
 };
 
 enum Spells
@@ -44,8 +40,6 @@ enum Spells
     SPELL_METEOR_FISTS_DAMAGE                   = 66765,
 
     // Spells Flame Warder
-    SPELL_FW_LAVA_BIRST                         = 66813,
-    SPELL_FW_METEOR_FISTS                       = 66808,
     SPELL_FW_METEOR_FISTS_DAMAGE                = 66809
 };
 
