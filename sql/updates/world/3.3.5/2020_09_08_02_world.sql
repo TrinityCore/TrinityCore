@@ -64,3 +64,8 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 
 -- Fix amount of gold from Flame Warder in heroic
 UPDATE `creature_template` SET `mingold` = 8112, `maxgold` = 13520 WHERE `entry` = 35359;
+
+-- Meteor Fists for heroic mode
+DELETE FROM `spelldifficulty_dbc` WHERE `id` = 66809;
+INSERT INTO `spelldifficulty_dbc` (`id`,`spellid0`,`spellid1`,`spellid2`,`spellid3`) VALUES
+(66809,66809,67331,0,0);
