@@ -1127,7 +1127,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case DATA_NERUBAR_BROODKEEPER_EVENT:
                     {
                         uint8 group = (data == AT_NERUBAR_BROODKEEPER) ? 0 : 1;
-                        for (ObjectGuid const& guid : nerubarBroodkeepersGUIDs[group])
+                        for (ObjectGuid guid : nerubarBroodkeepersGUIDs[group])
                             if (Creature* nerubar = instance->GetCreature(guid))
                                 nerubar->AI()->DoAction(ACTION_NERUBAR_FALL);
                         break;
