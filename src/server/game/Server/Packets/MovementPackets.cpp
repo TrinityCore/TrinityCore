@@ -400,7 +400,7 @@ void WorldPackets::Movement::MonsterMove::InitializeSplineData(::Movement::MoveS
     if (splineFlags.animation)
     {
         movementSpline.Animation = boost::in_place();
-        movementSpline.Animation->AnimTier = splineFlags.getAnimationId();
+        movementSpline.Animation->AnimTier = splineFlags.animTier;
         movementSpline.Animation->TierTransStartTime = moveSpline.effect_start_time;
     }
 

@@ -141,7 +141,7 @@ namespace Movement
         bool HasStarted() const { return time_passed > 0; }
 
         bool HasAnimation() const { return splineflags.animation; }
-        AnimationTier GetAnimation() const { return static_cast<AnimationTier>(splineflags.animId); }
+        AnimationTier GetAnimationTier() const { return static_cast<AnimationTier>(splineflags.animTier); }
 
         bool onTransport;
         std::string ToString() const;

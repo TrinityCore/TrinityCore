@@ -565,7 +565,7 @@ void Unit::UpdateSplineMovement(uint32 t_diff)
         DisableSpline();
 
         if (movespline->HasAnimation())
-            SetAnimationTier(movespline->GetAnimation());
+            SetAnimationTier(movespline->GetAnimationTier());
     }
 
     UpdateSplinePosition();
