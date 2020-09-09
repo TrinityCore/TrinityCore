@@ -1176,6 +1176,7 @@ void WorldSession::SendAddonsInfo()
         data.append(itr->VersionMD5, sizeof(itr->VersionMD5));
         data << uint32(itr->Timestamp);
         data << uint32(1);  // IsBanned
+        bannedAddonCount++;
     }
 
     data.put<uint32>(sizePos, bannedAddonCount);
