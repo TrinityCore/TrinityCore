@@ -347,9 +347,7 @@ void Guild::RankInfo::SetBankTabSlotsAndRights(GuildBankRightsAndSlots rightsAnd
 
 // BankTab
 Guild::BankTab::BankTab(ObjectGuid::LowType guildId, uint8 tabId) : m_guildId(guildId), m_tabId(tabId)
-{
-    memset(m_items, 0, GUILD_BANK_MAX_SLOTS * sizeof(Item*));
-}
+{ }
 
 void Guild::BankTab::LoadFromDB(Field* fields)
 {
@@ -507,9 +505,7 @@ Guild::Member::Member(ObjectGuid::LowType guildId, ObjectGuid guid, uint8 rankId
     m_logoutTime(GameTime::GetGameTime()),
     m_accountId(0),
     m_rankId(rankId)
-{
-    memset(m_bankWithdraw, 0, (GUILD_BANK_MAX_TABS + 1) * sizeof(int32));
-}
+{}
 
 void Guild::Member::SetStats(Player* player)
 {

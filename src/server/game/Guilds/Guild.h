@@ -348,7 +348,7 @@ class TC_GAME_API Guild
                 std::string m_publicNote;
                 std::string m_officerNote;
 
-                int32 m_bankWithdraw[GUILD_BANK_MAX_TABS + 1];
+                std::array<int32, GUILD_BANK_MAX_TABS + 1> m_bankWithdraw = {};
         };
 
         // Base class for event entries
@@ -519,7 +519,7 @@ class TC_GAME_API Guild
                 std::string m_name;
                 uint32 m_rights;
                 uint32 m_bankMoneyPerDay;
-                GuildBankRightsAndSlots m_bankTabRightsAndSlots[GUILD_BANK_MAX_TABS];
+                std::array<GuildBankRightsAndSlots, GUILD_BANK_MAX_TABS> m_bankTabRightsAndSlots = {};
         };
 
         class BankTab
@@ -546,7 +546,7 @@ class TC_GAME_API Guild
                 ObjectGuid::LowType m_guildId;
                 uint8 m_tabId;
 
-                Item* m_items[GUILD_BANK_MAX_SLOTS];
+                std::array<Item*, GUILD_BANK_MAX_SLOTS> m_items = {};
                 std::string m_name;
                 std::string m_icon;
                 std::string m_text;
