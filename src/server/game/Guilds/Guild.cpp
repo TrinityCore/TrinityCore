@@ -165,7 +165,7 @@ inline uint32 Guild::LogHolder<Entry>::GetNextGUID()
 Guild::LogEntry::LogEntry(ObjectGuid::LowType guildId, uint32 guid) : m_guildId(guildId), m_guid(guid), m_timestamp(GameTime::GetGameTime()) { }
 
 // EventLogEntry
-void Guild::EventLogEntry::SaveToDB(CharacterDatabaseTransaction& trans) const
+void Guild::EventLogEntry::SaveToDB(CharacterDatabaseTransaction trans) const
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_EVENTLOG);
     stmt->setUInt32(0, m_guildId);
@@ -199,7 +199,7 @@ void Guild::EventLogEntry::WritePacket(WorldPackets::Guild::GuildEventLogQueryRe
 }
 
 // BankEventLogEntry
-void Guild::BankEventLogEntry::SaveToDB(CharacterDatabaseTransaction& trans) const
+void Guild::BankEventLogEntry::SaveToDB(CharacterDatabaseTransaction trans) const
 {
     uint8 index = 0;
 
@@ -262,7 +262,7 @@ void Guild::RankInfo::LoadFromDB(Field* fields)
         m_rights |= GR_RIGHT_ALL;
 }
 
-void Guild::RankInfo::SaveToDB(CharacterDatabaseTransaction& trans) const
+void Guild::RankInfo::SaveToDB(CharacterDatabaseTransaction trans) const
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GUILD_RANK);
     stmt->setUInt32(0, m_guildId);
@@ -273,7 +273,7 @@ void Guild::RankInfo::SaveToDB(CharacterDatabaseTransaction& trans) const
     CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
 
-void Guild::RankInfo::CreateMissingTabsIfNeeded(uint8 tabs, CharacterDatabaseTransaction& trans, bool logOnCreate /* = false */)
+void Guild::RankInfo::CreateMissingTabsIfNeeded(uint8 tabs, CharacterDatabaseTransaction trans, bool logOnCreate /* = false */)
 {
     for (uint8 i = 0; i < tabs; ++i)
     {
@@ -416,7 +416,7 @@ bool Guild::BankTab::LoadItemFromDB(Field* fields)
 }
 
 // Deletes contents of the tab from the world (and from DB if necessary)
-void Guild::BankTab::Delete(CharacterDatabaseTransaction& trans, bool removeItemsFromDB)
+void Guild::BankTab::Delete(CharacterDatabaseTransaction trans, bool removeItemsFromDB)
 {
     for (uint8 slotId = 0; slotId < GUILD_BANK_MAX_SLOTS; ++slotId)
     {
@@ -464,7 +464,7 @@ void Guild::BankTab::SetText(std::string_view text)
 
 // Sets/removes contents of specified slot.
 // If pItem == nullptr contents are removed.
-bool Guild::BankTab::SetItem(CharacterDatabaseTransaction& trans, uint8 slotId, Item* item)
+bool Guild::BankTab::SetItem(CharacterDatabaseTransaction trans, uint8 slotId, Item* item)
 {
     if (slotId >= GUILD_BANK_MAX_SLOTS)
         return false;
@@ -593,7 +593,7 @@ void Guild::Member::UpdateLogoutTime()
     m_logoutTime = GameTime::GetGameTime();
 }
 
-void Guild::Member::SaveToDB(CharacterDatabaseTransaction& trans) const
+void Guild::Member::SaveToDB(CharacterDatabaseTransaction trans) const
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GUILD_MEMBER);
     stmt->setUInt32(0, m_guildId);
@@ -666,7 +666,7 @@ Player* Guild::Member::FindConnectedPlayer() const
 // Decreases amount of money/slots left for today.
 // If (tabId == GUILD_BANK_MAX_TABS) decrease money amount.
 // Otherwise decrease remaining items amount for specified tab.
-void Guild::Member::UpdateBankWithdrawValue(CharacterDatabaseTransaction& trans, uint8 tabId, uint32 amount)
+void Guild::Member::UpdateBankWithdrawValue(CharacterDatabaseTransaction trans, uint8 tabId, uint32 amount)
 {
     m_bankWithdraw[tabId] += amount;
 
@@ -808,7 +808,7 @@ bool Guild::PlayerMoveItemData::InitItem()
     return (m_pItem != nullptr);
 }
 
-void Guild::PlayerMoveItemData::RemoveItem(CharacterDatabaseTransaction& trans, MoveItemData* /*pOther*/, uint32 splitedAmount)
+void Guild::PlayerMoveItemData::RemoveItem(CharacterDatabaseTransaction trans, MoveItemData* /*pOther*/, uint32 splitedAmount)
 {
     if (splitedAmount)
     {
@@ -824,7 +824,7 @@ void Guild::PlayerMoveItemData::RemoveItem(CharacterDatabaseTransaction& trans, 
     }
 }
 
-Item* Guild::PlayerMoveItemData::StoreItem(CharacterDatabaseTransaction& trans, Item* pItem)
+Item* Guild::PlayerMoveItemData::StoreItem(CharacterDatabaseTransaction trans, Item* pItem)
 {
     ASSERT(pItem);
     m_pPlayer->MoveItemToInventory(m_vec, pItem, true);
@@ -832,7 +832,7 @@ Item* Guild::PlayerMoveItemData::StoreItem(CharacterDatabaseTransaction& trans, 
     return pItem;
 }
 
-void Guild::PlayerMoveItemData::LogBankEvent(CharacterDatabaseTransaction& trans, MoveItemData* pFrom, uint32 count) const
+void Guild::PlayerMoveItemData::LogBankEvent(CharacterDatabaseTransaction trans, MoveItemData* pFrom, uint32 count) const
 {
     ASSERT(pFrom);
     // Bank -> Char
@@ -875,7 +875,7 @@ bool Guild::BankMoveItemData::HasWithdrawRights(MoveItemData* pOther) const
     return slots != 0;
 }
 
-void Guild::BankMoveItemData::RemoveItem(CharacterDatabaseTransaction& trans, MoveItemData* pOther, uint32 splitedAmount)
+void Guild::BankMoveItemData::RemoveItem(CharacterDatabaseTransaction trans, MoveItemData* pOther, uint32 splitedAmount)
 {
     ASSERT(m_pItem);
     if (splitedAmount)
@@ -894,7 +894,7 @@ void Guild::BankMoveItemData::RemoveItem(CharacterDatabaseTransaction& trans, Mo
         m_pGuild->_UpdateMemberWithdrawSlots(trans, m_pPlayer->GetGUID(), m_container);
 }
 
-Item* Guild::BankMoveItemData::StoreItem(CharacterDatabaseTransaction& trans, Item* pItem)
+Item* Guild::BankMoveItemData::StoreItem(CharacterDatabaseTransaction trans, Item* pItem)
 {
     if (!pItem)
         return nullptr;
@@ -918,7 +918,7 @@ Item* Guild::BankMoveItemData::StoreItem(CharacterDatabaseTransaction& trans, It
     return pLastItem;
 }
 
-void Guild::BankMoveItemData::LogBankEvent(CharacterDatabaseTransaction& trans, MoveItemData* pFrom, uint32 count) const
+void Guild::BankMoveItemData::LogBankEvent(CharacterDatabaseTransaction trans, MoveItemData* pFrom, uint32 count) const
 {
     ASSERT(pFrom->GetItem());
     if (pFrom->IsBank())
@@ -944,7 +944,7 @@ void Guild::BankMoveItemData::LogAction(MoveItemData* pFrom) const
     }
 }
 
-Item* Guild::BankMoveItemData::_StoreItem(CharacterDatabaseTransaction& trans, BankTab* pTab, Item* pItem, ItemPosCount& pos, bool clone) const
+Item* Guild::BankMoveItemData::_StoreItem(CharacterDatabaseTransaction trans, BankTab* pTab, Item* pItem, ItemPosCount& pos, bool clone) const
 {
     uint8 slotId = uint8(pos.pos);
     uint32 count = pos.count;
@@ -2192,7 +2192,7 @@ void Guild::MassInviteToEvent(WorldSession* session, uint32 minLevel, uint32 max
 }
 
 // Members handling
-bool Guild::AddMember(CharacterDatabaseTransaction& trans, ObjectGuid guid, uint8 rankId)
+bool Guild::AddMember(CharacterDatabaseTransaction trans, ObjectGuid guid, uint8 rankId)
 {
     Player* player = ObjectAccessor::FindConnectedPlayer(guid);
     // Player cannot be in guild
@@ -2274,7 +2274,7 @@ bool Guild::AddMember(CharacterDatabaseTransaction& trans, ObjectGuid guid, uint
     return true;
 }
 
-void Guild::DeleteMember(CharacterDatabaseTransaction& trans, ObjectGuid guid, bool isDisbanding, bool isKicked, bool canDeleteGuild)
+void Guild::DeleteMember(CharacterDatabaseTransaction trans, ObjectGuid guid, bool isDisbanding, bool isKicked, bool canDeleteGuild)
 {
     ObjectGuid::LowType lowguid = guid.GetCounter();
     Player* player = ObjectAccessor::FindConnectedPlayer(guid);
@@ -2393,7 +2393,7 @@ bool Guild::_HasRankRight(Player* player, uint32 right) const
     return false;
 }
 
-void Guild::_DeleteMemberFromDB(CharacterDatabaseTransaction& trans, ObjectGuid::LowType lowguid)
+void Guild::_DeleteMemberFromDB(CharacterDatabaseTransaction trans, ObjectGuid::LowType lowguid)
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_MEMBER);
     stmt->setUInt32(0, lowguid);
@@ -2425,7 +2425,7 @@ void Guild::_CreateNewBankTab()
     CharacterDatabase.CommitTransaction(trans);
 }
 
-void Guild::_CreateDefaultGuildRanks(CharacterDatabaseTransaction& trans, LocaleConstant loc)
+void Guild::_CreateDefaultGuildRanks(CharacterDatabaseTransaction trans, LocaleConstant loc)
 {
     ASSERT(trans);
 
@@ -2444,7 +2444,7 @@ void Guild::_CreateDefaultGuildRanks(CharacterDatabaseTransaction& trans, Locale
     _CreateRank(trans, sObjectMgr->GetTrinityString(LANG_GUILD_INITIATE, loc), GR_RIGHT_GCHATLISTEN | GR_RIGHT_GCHATSPEAK);
 }
 
-bool Guild::_CreateRank(CharacterDatabaseTransaction& trans, std::string_view name, uint32 rights)
+bool Guild::_CreateRank(CharacterDatabaseTransaction trans, std::string_view name, uint32 rights)
 {
     uint8 newRankId = _GetRanksSize();
     if (newRankId >= GUILD_RANKS_MAX_COUNT)
@@ -2491,7 +2491,7 @@ bool Guild::_IsLeader(Player* player) const
     return false;
 }
 
-void Guild::_DeleteBankItems(CharacterDatabaseTransaction& trans, bool removeItemsFromDB)
+void Guild::_DeleteBankItems(CharacterDatabaseTransaction trans, bool removeItemsFromDB)
 {
     for (uint8 tabId = 0; tabId < _GetPurchasedTabsSize(); ++tabId)
         m_bankTabs[tabId].Delete(trans, removeItemsFromDB);
@@ -2499,7 +2499,7 @@ void Guild::_DeleteBankItems(CharacterDatabaseTransaction& trans, bool removeIte
     m_bankTabs.clear();
 }
 
-bool Guild::_ModifyBankMoney(CharacterDatabaseTransaction& trans, uint64 amount, bool add)
+bool Guild::_ModifyBankMoney(CharacterDatabaseTransaction trans, uint64 amount, bool add)
 {
     if (add)
         m_bankMoney += amount;
@@ -2612,7 +2612,7 @@ inline int32 Guild::_GetMemberRemainingMoney(Member const& member) const
     return 0;
 }
 
-inline void Guild::_UpdateMemberWithdrawSlots(CharacterDatabaseTransaction& trans, ObjectGuid guid, uint8 tabId)
+inline void Guild::_UpdateMemberWithdrawSlots(CharacterDatabaseTransaction trans, ObjectGuid guid, uint8 tabId)
 {
     if (Member* member = GetMember(guid))
     {
@@ -2646,7 +2646,7 @@ inline void Guild::_LogEvent(GuildEventLogTypes eventType, ObjectGuid::LowType p
 }
 
 // Add new bank event log record
-void Guild::_LogBankEvent(CharacterDatabaseTransaction& trans, GuildBankEventLogTypes eventType, uint8 tabId, ObjectGuid::LowType lowguid, uint32 itemOrMoney, uint16 itemStackCount, uint8 destTabId)
+void Guild::_LogBankEvent(CharacterDatabaseTransaction trans, GuildBankEventLogTypes eventType, uint8 tabId, ObjectGuid::LowType lowguid, uint32 itemOrMoney, uint16 itemStackCount, uint8 destTabId)
 {
     if (tabId > GUILD_BANK_MAX_TABS)
         return;
@@ -2674,7 +2674,7 @@ inline Item* Guild::_GetItem(uint8 tabId, uint8 slotId) const
     return nullptr;
 }
 
-inline void Guild::_RemoveItem(CharacterDatabaseTransaction& trans, uint8 tabId, uint8 slotId)
+inline void Guild::_RemoveItem(CharacterDatabaseTransaction trans, uint8 tabId, uint8 slotId)
 {
     if (BankTab* pTab = GetBankTab(tabId))
         pTab->SetItem(trans, slotId, nullptr);
