@@ -149,9 +149,6 @@ namespace Trinity::ChatCommands
         PlayerIdentifier() : _name(), _guid(), _player(nullptr) {}
         PlayerIdentifier(Player& player);
 
-        template <typename T>
-        operator std::enable_if_t<std::is_base_of_v<T, Player>, T*>() const { return static_cast<T*>(_player); }
-        operator value_type() const { return _player; }
         operator ObjectGuid() { return _guid; }
         Player* operator->() const { return _player; }
         explicit operator bool() const { return (_player != nullptr); }
