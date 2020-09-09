@@ -35,8 +35,9 @@ Optional<std::string_view> Trinity::Impl::ChatCommands::ArgInfo<AchievementEntry
     Variant<Hyperlink<achievement>, uint32> val;
     Optional<std::string_view> next = SingleConsumer<decltype(val)>::TryConsumeTo(val, args);
     if (next)
-        data = val.visit(AchievementVisitor());
-    return next;
+        if ((data = val.visit(AchievementVisitor())))
+            return next;
+    return std::nullopt;
 }
 
 struct GameTeleVisitor
@@ -50,8 +51,9 @@ Optional<std::string_view> Trinity::Impl::ChatCommands::ArgInfo<GameTele const*>
     Variant<Hyperlink<tele>, std::string> val;
     Optional<std::string_view> next = SingleConsumer<decltype(val)>::TryConsumeTo(val, args);
     if (next)
-        data = val.visit(GameTeleVisitor());
-    return next;
+        if ((data = val.visit(GameTeleVisitor())))
+            return next;
+    return std::nullopt;
 }
 
 struct ItemTemplateVisitor
@@ -65,8 +67,9 @@ Optional<std::string_view> Trinity::Impl::ChatCommands::ArgInfo<ItemTemplate con
     Variant<Hyperlink<item>, uint32> val;
     Optional<std::string_view> next = SingleConsumer<decltype(val)>::TryConsumeTo(val, args);
     if (next)
-        data = val.visit(ItemTemplateVisitor());
-    return next;
+        if ((data = val.visit(ItemTemplateVisitor())))
+            return next;
+    return std::nullopt;
 }
 
 struct SpellInfoVisitor
@@ -88,6 +91,7 @@ Optional<std::string_view> Trinity::Impl::ChatCommands::ArgInfo<SpellInfo const*
     Variant<Hyperlink<enchant>, Hyperlink<glyph>, Hyperlink<spell>, Hyperlink<talent>, Hyperlink<trade>, uint32> val;
     Optional<std::string_view> next = SingleConsumer<decltype(val)>::TryConsumeTo(val, args);
     if (next)
-        data = val.visit(SpellInfoVisitor());
-    return next;
+        if ((data = val.visit(SpellInfoVisitor())))
+            return next;
+    return std::nullopt;
 }
