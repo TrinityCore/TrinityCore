@@ -129,6 +129,27 @@ Guild::LogHolder<Entry>::LogHolder()
     : m_maxRecords(sWorld->getIntConfig(std::is_same_v<Entry, BankEventLogEntry> ? CONFIG_GUILD_BANK_EVENT_LOG_COUNT : CONFIG_GUILD_EVENT_LOG_COUNT)), m_nextGUID(uint32(GUILD_EVENT_LOG_GUID_UNDEFINED))
 { }
 
+template <typename Entry> template <typename... Ts>
+void Guild::LogHolder<Entry>::LoadEvent(Ts&&... args)
+{
+    Entry const& newEntry = m_log.emplace_front(std::forward<Ts>(args)...);
+    if (m_nextGUID == uint32(GUILD_EVENT_LOG_GUID_UNDEFINED))
+        m_nextGUID = newEntry.GetGUID();
+}
+
+template <typename Entry> template <typename... Ts>
+void Guild::LogHolder<Entry>::AddEvent(CharacterDatabaseTransaction trans, Ts&&... args)
+{
+    // Check max records limit
+    if (!CanInsert())
+        m_log.pop_front();
+
+    // Add event to list
+    Entry const& entry = m_log.emplace_back(std::forward<Ts>(args)...);
+    // Save to DB
+    entry.SaveToDB(trans);
+}
+
 template <typename Entry>
 inline uint32 Guild::LogHolder<Entry>::GetNextGUID()
 {

@@ -443,26 +443,11 @@ class TC_GAME_API Guild
 
                 // Adds event from DB to collection
                 template <typename... Ts>
-                void LoadEvent(Ts&&... args)
-                {
-                    Entry const& newEntry = m_log.emplace_front(std::forward<Ts>(args)...);
-                    if (m_nextGUID == uint32(GUILD_EVENT_LOG_GUID_UNDEFINED))
-                        m_nextGUID = newEntry.GetGUID();
-                }
+                void LoadEvent(Ts&&... args);
 
                 // Adds new event to collection and saves it to DB
                 template <typename... Ts>
-                void AddEvent(CharacterDatabaseTransaction& trans, Ts&&... args)
-                {
-                    // Check max records limit
-                    if (!CanInsert())
-                        m_log.pop_front();
-
-                    // Add event to list
-                    Entry const& entry = m_log.emplace_back(std::forward<Ts>(args)...);
-                    // Save to DB
-                    entry.SaveToDB(trans);
-                }
+                void AddEvent(CharacterDatabaseTransaction trans, Ts&&... args);
 
                 uint32 GetNextGUID();
                 std::list<Entry>& GetGuildLog() { return m_log; }
