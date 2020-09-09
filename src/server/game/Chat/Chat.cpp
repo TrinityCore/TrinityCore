@@ -906,21 +906,6 @@ uint32 ChatHandler::extractSpellIdFromLink(char* text)
     return 0;
 }
 
-GameTele const* ChatHandler::extractGameTeleFromLink(char* text)
-{
-    // id, or string, or [name] Shift-click form |color|Htele:id|h[name]|h|r
-    char* cId = extractKeyFromLink(text, "Htele");
-    if (!cId)
-        return nullptr;
-
-    // id case (explicit or from shift link)
-    if (cId[0] >= '0' && cId[0] <= '9')
-        if (uint32 id = atoi(cId))
-            return sObjectMgr->GetGameTele(id);
-
-    return sObjectMgr->GetGameTele(cId);
-}
-
 enum GuidLinkType
 {
     GUID_LINK_PLAYER     = 0,                              // must be first for selection in not link case
@@ -1046,24 +1031,6 @@ bool ChatHandler::extractPlayerTarget(char* args, Player** player, ObjectGuid* p
     }
 
     return true;
-}
-
-void ChatHandler::extractOptFirstArg(char* args, char** arg1, char** arg2)
-{
-    char* p1 = strtok(args, " ");
-    char* p2 = strtok(nullptr, " ");
-
-    if (!p2)
-    {
-        p2 = p1;
-        p1 = nullptr;
-    }
-
-    if (arg1)
-        *arg1 = p1;
-
-    if (arg2)
-        *arg2 = p2;
 }
 
 char* ChatHandler::extractQuotedArg(char* args)

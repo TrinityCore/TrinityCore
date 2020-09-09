@@ -583,7 +583,7 @@ void Guild::Member::SetOfficerNote(std::string const& officerNote)
     CharacterDatabase.Execute(stmt);
 }
 
-void Guild::Member::ChangeRank(CharacterDatabaseTransaction& trans, uint8 newRank)
+void Guild::Member::ChangeRank(CharacterDatabaseTransaction trans, uint8 newRank)
 {
     m_rankId = newRank;
 
@@ -2370,7 +2370,7 @@ void Guild::DeleteMember(CharacterDatabaseTransaction& trans, ObjectGuid guid, b
         _UpdateAccountsNumber();
 }
 
-bool Guild::ChangeMemberRank(CharacterDatabaseTransaction& trans, ObjectGuid guid, uint8 newRank)
+bool Guild::ChangeMemberRank(CharacterDatabaseTransaction trans, ObjectGuid guid, uint8 newRank)
 {
     if (newRank <= _GetLowestRankId())                    // Validate rank (allow only existing ranks)
     {

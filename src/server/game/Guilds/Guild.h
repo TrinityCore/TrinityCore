@@ -317,7 +317,7 @@ class TC_GAME_API Guild
                 uint32 GetZoneId() const { return m_zoneId; }
                 bool IsOnline() const { return (m_flags & GUILDMEMBER_STATUS_ONLINE); }
 
-                void ChangeRank(CharacterDatabaseTransaction& trans, uint8 newRank);
+                void ChangeRank(CharacterDatabaseTransaction trans, uint8 newRank);
 
                 inline void UpdateLogoutTime();
                 inline bool IsRank(uint8 rankId) const { return m_rankId == rankId; }
@@ -715,7 +715,7 @@ class TC_GAME_API Guild
         // Adds member to guild. If rankId == GUILD_RANK_NONE, lowest rank is assigned.
         bool AddMember(CharacterDatabaseTransaction& trans, ObjectGuid guid, uint8 rankId = GUILD_RANK_NONE);
         void DeleteMember(CharacterDatabaseTransaction& trans, ObjectGuid guid, bool isDisbanding = false, bool isKicked = false, bool canDeleteGuild = false);
-        bool ChangeMemberRank(CharacterDatabaseTransaction& trans, ObjectGuid guid, uint8 newRank);
+        bool ChangeMemberRank(CharacterDatabaseTransaction trans, ObjectGuid guid, uint8 newRank);
 
         // Bank
         void SwapItems(Player* player, uint8 tabId, uint8 slotId, uint8 destTabId, uint8 destSlotId, uint32 splitedAmount);
