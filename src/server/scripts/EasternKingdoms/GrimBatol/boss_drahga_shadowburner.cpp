@@ -81,9 +81,7 @@ enum Events
     EVENT_MOVE_INTRO,
     EVENT_SHREDDING_SWIPE,
     EVENT_DEVOURING_FLAMES,
-    EVENT_DEVOURING_FLAMES_CAST,
     EVENT_VALIONAS_FLAME,
-    EVENT_MAKE_AGGRESSIVE,
 
     // Invoked Flaming Spirit
     EVENT_CHASE_PLAYER
@@ -182,7 +180,20 @@ struct boss_drahga_shadowburner : public BossAI
     void JustSummoned(Creature* summon) override
     {
         if (summon->GetEntry() != NPC_VALIONA)
+        {
             summons.Summon(summon);
+
+            if (summon->GetEntry() == NPC_DEVOURING_FLAMES)
+            {
+                if (Creature* valiona = instance->GetCreature(DATA_VALIONA))
+                {
+                    valiona->SetFacingToObject(summon);
+                    if (valiona->IsAIEnabled)
+                        valiona->AI()->Talk(SAY_ANNOUNCE_DEVOURING_FLAMES);
+                    valiona->CastSpell(summon, SPELL_DEVOURING_FLAMES);
+                }
+            }
+        }
     }
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage) override
@@ -414,27 +425,11 @@ struct npc_drahga_valiona : public ScriptedAI
                     break;
                 case EVENT_DEVOURING_FLAMES:
                     if (IsHeroic())
-                    {
                         DoCast(SPELL_DEVOURING_FLAMES_AOE);
-                        _events.ScheduleEvent(EVENT_DEVOURING_FLAMES_CAST, 400ms);
-                    }
                     else if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                         DoCast(target, SPELL_VALIONAS_FLAME);
 
                     _events.Repeat(25s);
-                    break;
-                case EVENT_DEVOURING_FLAMES_CAST:
-                    if (Creature* dummy = me->FindNearestCreature(NPC_DEVOURING_FLAMES, 200.0f, true))
-                    {
-                        Talk(SAY_ANNOUNCE_DEVOURING_FLAMES);
-                        me->StopMoving();
-                        me->SetFacingToObject(dummy);
-                        DoCast(dummy, SPELL_DEVOURING_FLAMES);
-                        _events.ScheduleEvent(EVENT_MAKE_AGGRESSIVE, 7s + 500ms);
-                    }
-                    break;
-                case EVENT_MAKE_AGGRESSIVE:
-                    me->SetReactState(REACT_AGGRESSIVE);
                     break;
                 default:
                     break;

@@ -55,7 +55,6 @@ enum Events
     EVENT_BLITZ,
     EVENT_GROUND_SIEGE,
     EVENT_SUMMON_SKARDYN,
-    EVENT_MAKE_AGGRESSIVE,
 
     // Skardyn
     EVENT_ATTACK_PLAYER,
@@ -158,13 +157,9 @@ struct boss_general_umbriss : public BossAI
                 DoCast(summon, SPELL_BLITZ);
                 break;
             case NPC_GROUND_SIEGE_STALKER:
-                me->AttackStop();
-                me->SetReactState(REACT_PASSIVE);
-                me->StopMoving();
                 me->SetFacingToObject(summon);
                 DoCast(summon, SPELL_GROUND_SIEGE);
                 Talk(SAY_ANNOUNCE_GROUND_SIEGE);
-                events.ScheduleEvent(EVENT_MAKE_AGGRESSIVE, Seconds(4) + Milliseconds(500));
                 break;
             default:
                 break;
@@ -225,9 +220,6 @@ struct boss_general_umbriss : public BossAI
                                 troggDweller->GetMotionMaster()->MovePoint(POINT_SKARDYN_SUMMON, TroggDwellerMovePositions[i], false);
                     }
                     events.Repeat(Seconds(23));
-                    break;
-                case EVENT_MAKE_AGGRESSIVE:
-                    me->SetReactState(REACT_AGGRESSIVE);
                     break;
                 default:
                     break;

@@ -842,13 +842,6 @@ void Creature::Update(uint32 diff)
 
             Regenerate(GetPowerType(), diff);
 
-            // Update serverside orientation of channeled spells that are suposed to track the channel target
-            if (Spell const* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])
-                if (spell->GetSpellInfo()->HasAttribute(SPELL_ATTR1_CHANNEL_TRACK_TARGET))
-                    if (ObjectGuid guid = GetChannelObjectGuid())
-                        if (WorldObject* target = ObjectAccessor::GetWorldObject(*this, guid))
-                            SetOrientation(GetAngle(target));
-
             if (CanNotReachTarget() && !IsInEvadeMode() && !GetMap()->IsRaid())
             {
                 m_cannotReachTimer += diff;
@@ -3089,42 +3082,15 @@ void Creature::SetSpellFocus(Spell const* focusSpell, WorldObject const* target)
     _spellFocusInfo.spell = focusSpell;
 
     bool const noTurnDuringCast = spellInfo->HasAttribute(SPELL_ATTR5_DONT_TURN_DURING_CAST);
+    bool const turnDisabled = HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN);
     // set target, then force send update packet to players if it changed to provide appropriate facing
-    ObjectGuid newTarget = target ? target->GetGUID() : ObjectGuid::Empty;
+    ObjectGuid newTarget = (target && !noTurnDuringCast && !turnDisabled) ? target->GetGUID() : ObjectGuid::Empty;
     if (GetGuidValue(UNIT_FIELD_TARGET) != newTarget)
-    {
         SetGuidValue(UNIT_FIELD_TARGET, newTarget);
 
-        if ( // here we determine if the (relatively expensive) forced update is worth it, or whether we can afford to wait until the scheduled update tick
-            ( // only require instant update for spells that actually have a visual
-                spellInfo->SpellVisual[0] ||
-                spellInfo->SpellVisual[1]
-            ) && (
-                !focusSpell->GetCastTime() || // if the spell is instant cast
-                noTurnDuringCast // client gets confused if we attempt to turn at the regularly scheduled update packet
-            )
-        )
-        {
-            std::vector<Player*> playersNearby;
-            GetPlayerListInGrid(playersNearby, GetVisibilityRange());
-            for (Player* player : playersNearby)
-            {
-                // only update players that are known to the client (have already been created)
-                if (player->HaveAtClient(this))
-                    SendUpdateToPlayer(player);
-            }
-        }
-    }
-
-    if (!HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISABLE_TURN))
-    {
-        // Face the target - we need to do this before the unit state is modified for no-turn spells
-        if (target)
-            SetFacingToObject(target, false);
-        else if (noTurnDuringCast)
-            if (Unit* victim = GetVictim())
-                SetFacingToObject(victim, false); // ensure orientation is correct at beginning of cast
-    }
+    // If we are not allowed to turn during cast but have a focus target, face the target
+    if (!turnDisabled && noTurnDuringCast && target)
+        SetFacingToObject(target, false);
 
     if (noTurnDuringCast)
         AddUnitState(UNIT_STATE_FOCUSING);

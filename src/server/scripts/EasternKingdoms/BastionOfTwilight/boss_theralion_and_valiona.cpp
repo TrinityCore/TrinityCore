@@ -604,12 +604,8 @@ class boss_valiona : public CreatureScript
                 switch (summon->GetEntry())
                 {
                     case NPC_CONVECTIVE_FLAMES:
-                        me->AttackStop();
-                        me->SetReactState(REACT_PASSIVE);
-                        me->StopMoving();
                         me->SetFacingToObject(summon);
                         DoCast(summon, SPELL_DEVOURING_FLAMES);
-                        events.ScheduleEvent(EVENT_ATTACK_PLAYERS, Seconds(8));
                         break;
                     case NPC_COLLAPSING_TWILIGHT_PORTAL:
                         if (Creature* valionaDummy = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VALIONA_AURA_DUMMY)))
