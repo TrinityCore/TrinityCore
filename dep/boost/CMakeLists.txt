@@ -40,7 +40,7 @@ if (WIN32)
   # On windows the requirements are higher according to the wiki.
   set(BOOST_REQUIRED_VERSION 1.70)
 else()
-  set(BOOST_REQUIRED_VERSION 1.67)
+  set(BOOST_REQUIRED_VERSION 1.68)
 endif()
 
 if (STD_HAS_WORKING_WREGEX)
