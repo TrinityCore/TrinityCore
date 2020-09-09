@@ -1249,7 +1249,7 @@ void Guild::HandleRoster(WorldSession* session)
     }
 
     bool sendOfficerNote = _HasRankRight(session->GetPlayer(), GR_RIGHT_VIEWOFFNOTE);
-    for (auto& [guid, member] : m_members)
+    for (auto const& [guid, member] : m_members)
     {
         WorldPackets::Guild::GuildRosterMemberData& memberData = roster.MemberData.emplace_back();
 
@@ -2136,7 +2136,7 @@ void Guild::BroadcastToGuild(WorldSession* session, bool officerOnly, std::strin
     {
         WorldPacket data;
         ChatHandler::BuildChatPacket(data, officerOnly ? CHAT_MSG_OFFICER : CHAT_MSG_GUILD, Language(language), session->GetPlayer(), nullptr, msg);
-        for (auto& [guid, member] : m_members)
+        for (auto const& [guid, member] : m_members)
             if (Player* player = member.FindConnectedPlayer())
                 if (player->GetSession() && _HasRankRight(player, officerOnly ? GR_RIGHT_OFFCHATLISTEN : GR_RIGHT_GCHATLISTEN) &&
                     !player->GetSocial()->HasIgnore(session->GetPlayer()->GetGUID()))
@@ -2146,7 +2146,7 @@ void Guild::BroadcastToGuild(WorldSession* session, bool officerOnly, std::strin
 
 void Guild::BroadcastPacketToRank(WorldPacket const* packet, uint8 rankId) const
 {
-    for (auto& [guid, member] : m_members)
+    for (auto const& [guid, member] : m_members)
         if (member.IsRank(rankId))
             if (Player* player = member.FindConnectedPlayer())
                 player->SendDirectMessage(packet);
@@ -2154,7 +2154,7 @@ void Guild::BroadcastPacketToRank(WorldPacket const* packet, uint8 rankId) const
 
 void Guild::BroadcastPacket(WorldPacket const* packet) const
 {
-    for (auto& [guid, member] : m_members)
+    for (auto const& [guid, member] : m_members)
         if (Player* player = member.FindConnectedPlayer())
             player->SendDirectMessage(packet);
 }
@@ -2166,7 +2166,7 @@ void Guild::MassInviteToEvent(WorldSession* session, uint32 minLevel, uint32 max
     WorldPacket data(SMSG_CALENDAR_FILTER_GUILD);
     data << uint32(count); // count placeholder
 
-    for (auto& [guid, member] : m_members)
+    for (auto const& [guid, member] : m_members)
     {
         // not sure if needed, maybe client checks it as well
         if (count >= CALENDAR_MAX_INVITES)
@@ -2473,7 +2473,7 @@ void Guild::_UpdateAccountsNumber()
 {
     // We use a set to be sure each element will be unique
     std::unordered_set<uint32> accountsIdSet;
-    for (auto& [guid, member] : m_members)
+    for (auto const& [guid, member] : m_members)
         accountsIdSet.insert(member.GetAccountId());
 
     m_accountsNumber = accountsIdSet.size();
@@ -2922,7 +2922,7 @@ void Guild::_SendBankList(WorldSession* session /* = nullptr*/, uint8 tabId /*= 
     else /// @todo - Probably this is just sent to session + those that have sent CMSG_GUILD_BANKER_ACTIVATE
     {
         packet.Write();
-        for (auto& [guid, member] : m_members)
+        for (auto const& [guid, member] : m_members)
         {
             if (!_MemberHasTabRights(member.GetGUID(), tabId, GUILD_BANK_RIGHT_VIEW_TAB))
                 continue;
