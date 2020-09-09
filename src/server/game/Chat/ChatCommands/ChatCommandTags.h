@@ -93,6 +93,8 @@ namespace Trinity::ChatCommands
     {
         using value_type = std::string_view;
 
+        using std::string_view::operator=;
+
         Optional<std::string_view> TryConsume(std::string_view args)
         {
             std::string_view::operator=(args);
@@ -103,6 +105,8 @@ namespace Trinity::ChatCommands
     struct WTail : std::wstring, Trinity::Impl::ChatCommands::ContainerTag
     {
         using value_type = std::wstring;
+
+        using std::wstring::operator=;
 
         Optional<std::string_view> TryConsume(std::string_view args)
         {
