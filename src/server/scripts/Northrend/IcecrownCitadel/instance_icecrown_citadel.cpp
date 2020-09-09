@@ -212,6 +212,12 @@ class instance_icecrown_citadel : public InstanceMapScript
 
                 switch (creature->GetEntry())
                 {
+                    case NPC_NERUBAR_BROODKEEPER:
+                    {
+                        uint8 group = (creature->GetPositionX() > -230.0f) ? 0 : 1;
+                        nerubarBroodkeepersGUIDs[group].emplace_back(creature->GetGUID());
+                        break;
+                    }
                     case NPC_LORD_MARROWGAR:
                         LordMarrowgarGUID = creature->GetGUID();
                         break;
@@ -1118,6 +1124,14 @@ class instance_icecrown_citadel : public InstanceMapScript
                         if (!IsFactionBuffActive)
                             DoRemoveAurasDueToSpellOnPlayers(TeamInInstance == ALLIANCE ? SPELL_STRENGHT_OF_WRYNN : SPELL_HELLSCREAMS_WARSONG, true, true);
                         break;
+                    case DATA_NERUBAR_BROODKEEPER_EVENT:
+                    {
+                        uint8 group = (data == AT_NERUBAR_BROODKEEPER) ? 0 : 1;
+                        for (ObjectGuid guid : nerubarBroodkeepersGUIDs[group])
+                            if (Creature* nerubar = instance->GetCreature(guid))
+                                nerubar->AI()->DoAction(ACTION_NERUBAR_FALL);
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -1538,6 +1552,7 @@ class instance_icecrown_citadel : public InstanceMapScript
             bool IsNauseaEligible;
             bool IsOrbWhispererEligible;
             bool IsFactionBuffActive;
+            std::array<GuidVector, 2> nerubarBroodkeepersGUIDs;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

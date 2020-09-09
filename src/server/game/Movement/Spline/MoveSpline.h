@@ -126,7 +126,7 @@ namespace Movement
         int32 currentPathIdx() const;
 
         bool HasAnimation() const { return splineflags.animation; }
-        AnimationTier GetAnimation() const { return static_cast<AnimationTier>(splineflags.animId); }
+        AnimationTier GetAnimationTier() const { return static_cast<AnimationTier>(splineflags.animTier); }
 
         bool onTransport;
         std::string ToString() const;
