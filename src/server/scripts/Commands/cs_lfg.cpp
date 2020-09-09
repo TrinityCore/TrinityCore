@@ -91,8 +91,8 @@ public:
 
         Group* groupTarget = nullptr;
 
-        if (player->IsConnected())
-            groupTarget = player->GetConnectedPlayer()->GetGroup();
+        if (Player* target = player->GetConnectedPlayer())
+            groupTarget = target->GetGroup();
         else
         {
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GROUP_MEMBER);
