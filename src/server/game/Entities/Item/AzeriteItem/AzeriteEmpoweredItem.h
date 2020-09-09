@@ -27,10 +27,10 @@ public:
 
     bool Create(ObjectGuid::LowType guidlow, uint32 itemId, ItemContext context, Player const* owner) override;
 
-    void SaveToDB(CharacterDatabaseTransaction& trans) override;
+    void SaveToDB(CharacterDatabaseTransaction trans) override;
     void LoadAzeriteEmpoweredItemData(Player const* owner, AzeriteEmpoweredItemData& azeriteEmpoweredItem);
-    static void DeleteFromDB(CharacterDatabaseTransaction& trans, ObjectGuid::LowType itemGuid);
-    void DeleteFromDB(CharacterDatabaseTransaction& trans) override;
+    static void DeleteFromDB(CharacterDatabaseTransaction trans, ObjectGuid::LowType itemGuid);
+    void DeleteFromDB(CharacterDatabaseTransaction trans) override;
 
     uint32 GetRequiredAzeriteLevelForTier(uint32 tier) const;
     int32 GetTierForAzeritePower(Classes playerClass, int32 azeritePowerId) const;
