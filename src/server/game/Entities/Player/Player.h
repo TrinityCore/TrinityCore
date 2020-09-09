@@ -1622,8 +1622,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool IsQuestObjectiveProgressBarComplete(uint16 slot, Quest const* quest) const;
         void SendQuestComplete(uint32 questId) const;
         void SendQuestReward(Quest const* quest, Creature const* questGiver, uint32 xp, bool hideChatMessage) const;
-        void SendQuestFailed(uint32 questID, InventoryResult reason = EQUIP_ERR_OK) const;
-        void SendQuestTimerFailed(uint32 questID) const;
+        void SendQuestFailed(uint32 questId, InventoryResult reason = EQUIP_ERR_OK) const;
+        void SendQuestTimerFailed(uint32 questId) const;
         void SendCanTakeQuestResponse(QuestFailedReason reason, bool sendErrorMessage = true, std::string reasonText = "") const;
         void SendQuestConfirmAccept(Quest const* quest, Player* receiver) const;
         void SendPushToPartyResponse(Player const* player, QuestPushReason reason, Quest const* quest = nullptr) const;

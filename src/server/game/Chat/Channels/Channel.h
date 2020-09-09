@@ -35,7 +35,8 @@ namespace WorldPackets
     }
 }
 
-enum ChatNotify
+// EnumUtils: DESCRIBE THIS
+enum ChatNotify : uint8
 {
     CHAT_JOINED_NOTICE                = 0x00,           //+ "%s joined channel.";
     CHAT_LEFT_NOTICE                  = 0x01,           //+ "%s left channel.";
@@ -75,8 +76,8 @@ enum ChatNotify
     CHAT_NOT_IN_LFG_NOTICE            = 0x21,           //+ "[%s] You must be queued in looking for group before joining this channel."; -- The user must be in the looking for group system to join LFG chat channels.
     CHAT_VOICE_ON_NOTICE              = 0x22,           //+ "[%s] Channel voice enabled by %s.";
     CHAT_VOICE_OFF_NOTICE             = 0x23,           //+ "[%s] Channel voice disabled by %s.";
-    CHAT_TRIAL_RESTRICTED             = 0x24,
-    CHAT_NOT_ALLOWED_IN_CHANNEL       = 0x25
+    CHAT_TRIAL_RESTRICTED             = 0x24,           //+ "[%s] Free Trial accounts cannot send messages to this channel. |cffffd000|Hstorecategory:gametime|h[Click To Upgrade]|h|r"
+    CHAT_NOT_ALLOWED_IN_CHANNEL       = 0x25            //+ "That operation is not permitted in this channel."
 };
 
 enum ChannelFlags

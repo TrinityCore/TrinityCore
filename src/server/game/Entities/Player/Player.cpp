@@ -17417,23 +17417,23 @@ void Player::SendQuestReward(Quest const* quest, Creature const* questGiver, uin
     SendDirectMessage(packet.Write());
 }
 
-void Player::SendQuestFailed(uint32 questID, InventoryResult reason) const
+void Player::SendQuestFailed(uint32 questId, InventoryResult reason) const
 {
-    if (questID)
+    if (questId)
     {
         WorldPackets::Quest::QuestGiverQuestFailed questGiverQuestFailed;
-        questGiverQuestFailed.QuestID = questID;
+        questGiverQuestFailed.QuestID = questId;
         questGiverQuestFailed.Reason = reason; // failed reason (valid reasons: 4, 16, 50, 17, other values show default message)
         SendDirectMessage(questGiverQuestFailed.Write());
     }
 }
 
-void Player::SendQuestTimerFailed(uint32 questID) const
+void Player::SendQuestTimerFailed(uint32 questId) const
 {
-    if (questID)
+    if (questId)
     {
         WorldPackets::Quest::QuestUpdateFailedTimer questUpdateFailedTimer;
-        questUpdateFailedTimer.QuestID = questID;
+        questUpdateFailedTimer.QuestID = questId;
         SendDirectMessage(questUpdateFailedTimer.Write());
     }
 }

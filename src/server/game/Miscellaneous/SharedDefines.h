@@ -1422,6 +1422,7 @@ enum SpellEffectName
     TOTAL_SPELL_EFFECTS
 };
 
+// EnumUtils: DESCRIBE THIS
 enum SpellCastResult
 {
     SPELL_FAILED_SUCCESS                                        = 0,
@@ -1740,7 +1741,7 @@ enum SpellCastResult
     SPELL_FAILED_UNKNOWN                                        = 313,
 
     // ok cast value - here in case a future version removes SPELL_FAILED_SUCCESS and we need to use a custom value (not sent to client either way)
-    SPELL_CAST_OK                                               = SPELL_FAILED_SUCCESS
+    SPELL_CAST_OK                                               = SPELL_FAILED_SUCCESS  // SKIP
 };
 
 enum SpellCustomErrors
@@ -2381,6 +2382,7 @@ enum GhostVisibilityType
 };
 
 // Spell aura states
+// EnumUtils: DESCRIBE THIS
 enum AuraStateType
 {   // (C) used in caster aura state     (T) used in target aura state
     // (c) used in caster aura state-not (t) used in target aura state-not
@@ -5643,6 +5645,7 @@ enum WeatherType
 
 #define MAX_WEATHER_TYPE 4
 
+// EnumUtils: DESCRIBE THIS
 enum ChatMsg : int32
 {
     CHAT_MSG_ADDON                              = -1,
