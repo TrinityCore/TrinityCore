@@ -318,7 +318,7 @@ public:
         return true;
     }
 
-    static bool HandleUnAuraCommand(ChatHandler* handler, Variant<SpellInfo const*, ExactSequence<'a', 'l', 'l'>> spellArg)
+    static bool HandleUnAuraCommand(ChatHandler* handler, Variant<SpellInfo const*, EXACT_SEQUENCE("all")> spellArg)
     {
         Unit* target = handler->getSelectedUnit();
         if (!target)
@@ -328,7 +328,7 @@ public:
             return false;
         }
 
-        if (spellArg.holds_alternative<ExactSequence<'a', 'l', 'l'>>())
+        if (spellArg.holds_alternative<EXACT_SEQUENCE("all")>())
         {
             target->RemoveAllAuras();
             return true;

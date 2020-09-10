@@ -51,8 +51,8 @@ using CreatureSpawnId = Variant<Hyperlink<creature>, ObjectGuid::LowType>;
 using CreatureEntry = Variant<Hyperlink<creature_entry>, uint32>;
 
 // shared with cs_gobject.cpp, definitions are at the bottom of this file
-bool HandleNpcSpawnGroup(ChatHandler* handler, std::vector<Variant<uint32, ExactSequence<'f','o','r','c','e'>, ExactSequence<'i','g','n','o','r','e','r','e','s','p','a','w','n'>>> const& opts);
-bool HandleNpcDespawnGroup(ChatHandler* handler, std::vector<Variant<uint32, ExactSequence<'r','e','m','o','v','e','r','e','s','p','a','w','n','t','i','m','e'>>> const& opts);
+bool HandleNpcSpawnGroup(ChatHandler* handler, std::vector<Variant<uint32, EXACT_SEQUENCE("force"), EXACT_SEQUENCE("ignorerespawn")>> const& opts);
+bool HandleNpcDespawnGroup(ChatHandler* handler, std::vector<Variant<uint32, EXACT_SEQUENCE("removerespawntime")>> const& opts);
 
 class npc_commandscript : public CommandScript
 {
@@ -691,7 +691,7 @@ public:
     * additional parameter: NODEL - so no waypoints are deleted, if you
     *                       change the movement type
     */
-    static bool HandleNpcSetMoveTypeCommand(ChatHandler* handler, Optional<CreatureSpawnId> lowGuid, Variant<ExactSequence<'s','t','a','y'>, ExactSequence<'r','a','n','d','o','m'>, ExactSequence<'w','a','y'>> type, Optional<ExactSequence<'n','o','d','e','l'>> nodel)
+    static bool HandleNpcSetMoveTypeCommand(ChatHandler* handler, Optional<CreatureSpawnId> lowGuid, Variant<EXACT_SEQUENCE("stay"), EXACT_SEQUENCE("random"), EXACT_SEQUENCE("way")> type, Optional<EXACT_SEQUENCE("nodel")> nodel)
     {
         // 3 arguments:
         // GUID (optional - you can also select the creature)
@@ -1089,7 +1089,7 @@ public:
         return true;
     }
 
-    static bool HandleNpcEvadeCommand(ChatHandler* handler, Optional<CreatureAI::EvadeReason> why, Optional<ExactSequence<'f','o','r','c','e'>> force)
+    static bool HandleNpcEvadeCommand(ChatHandler* handler, Optional<CreatureAI::EvadeReason> why, Optional<EXACT_SEQUENCE("force")> force)
     {
         Creature* creatureTarget = handler->getSelectedCreature();
         if (!creatureTarget || creatureTarget->IsPet())
@@ -1145,7 +1145,7 @@ public:
             }
         }
     }
-    static bool HandleNpcShowLootCommand(ChatHandler* handler, Optional<ExactSequence<'a','l','l'>> all)
+    static bool HandleNpcShowLootCommand(ChatHandler* handler, Optional<EXACT_SEQUENCE("all")> all)
     {
         Creature* creatureTarget = handler->getSelectedCreature();
         if (!creatureTarget || creatureTarget->IsPet())
@@ -1331,7 +1331,7 @@ void AddSC_npc_commandscript()
     new npc_commandscript();
 }
 
-bool HandleNpcSpawnGroup(ChatHandler* handler, std::vector<Variant<uint32, ExactSequence<'f','o','r','c','e'>, ExactSequence<'i','g','n','o','r','e','r','e','s','p','a','w','n'>>> const& opts)
+bool HandleNpcSpawnGroup(ChatHandler* handler, std::vector<Variant<uint32, EXACT_SEQUENCE("force"), EXACT_SEQUENCE("ignorerespawn")>> const& opts)
 {
     if (opts.empty())
         return false;
@@ -1372,7 +1372,7 @@ bool HandleNpcSpawnGroup(ChatHandler* handler, std::vector<Variant<uint32, Exact
     return true;
 }
 
-bool HandleNpcDespawnGroup(ChatHandler* handler, std::vector<Variant<uint32, ExactSequence<'r','e','m','o','v','e','r','e','s','p','a','w','n','t','i','m','e'>>> const& opts)
+bool HandleNpcDespawnGroup(ChatHandler* handler, std::vector<Variant<uint32, EXACT_SEQUENCE("removerespawntime")>> const& opts)
 {
     if (opts.empty())
         return false;

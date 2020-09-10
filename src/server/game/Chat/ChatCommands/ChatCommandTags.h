@@ -24,6 +24,8 @@
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include "Util.h"
+#include <boost/preprocessor/repetition/repeat.hpp>
+#include <boost/preprocessor/punctuation/comma_if.hpp>
 #include <cmath>
 #include <cstring>
 #include <iostream>
@@ -45,6 +47,22 @@ namespace Trinity::Impl::ChatCommands
     {
         using type = typename T::value_type;
     };
+
+    template <size_t N>
+    inline constexpr char GetChar(char const (&s)[N], size_t i)
+    {
+        static_assert(N <= 25, "The EXACT_SEQUENCE macro can only be used with up to 25 character long literals. Specify them char-by-char (null terminated) as parameters to ExactSequence<> instead.");
+        return i >= N ? '\0' : s[i];
+    }
+
+#define CHATCOMMANDS_IMPL_SPLIT_LITERAL_EXTRACT_CHAR(z, i, strliteral) \
+        BOOST_PP_COMMA_IF(i) Trinity::Impl::ChatCommands::GetChar(strliteral, i)
+
+#define CHATCOMMANDS_IMPL_SPLIT_LITERAL_CONSTRAINED(maxlen, strliteral)  \
+        BOOST_PP_REPEAT(maxlen, CHATCOMMANDS_IMPL_SPLIT_LITERAL_EXTRACT_CHAR, strliteral)
+
+    // this creates always 25 elements - "abc" -> 'a', 'b', 'c', '\0', '\0', ... up to 25
+#define CHATCOMMANDS_IMPL_SPLIT_LITERAL(strliteral) CHATCOMMANDS_IMPL_SPLIT_LITERAL_CONSTRAINED(25, strliteral)
 }
 
 namespace Trinity::ChatCommands
@@ -60,34 +78,29 @@ namespace Trinity::ChatCommands
     |*                                                                                      *|
     \****************************************************************************************/
 
-    template <char c1, char... chars>
+    template <char... chars>
     struct ExactSequence : Trinity::Impl::ChatCommands::ContainerTag
     {
         using value_type = void;
 
-        static constexpr size_t N = (sizeof...(chars) + 1);
-
-        static bool Match(char const* pos)
-        {
-            if (std::toupper(*(pos++)) != std::toupper(c1))
-                return false;
-            else if constexpr (sizeof...(chars) > 0)
-                return ExactSequence<chars...>::Match(pos);
-            else
-                return true;
-        }
-
         Optional<std::string_view> TryConsume(std::string_view args) const
         {
-            if ((N <= args.length()) && ExactSequence::Match(args.data()))
+            if (StringStartsWithI(args, _string))
             {
-                auto [remainingToken, tail] = Trinity::Impl::ChatCommands::tokenize(args.substr(N));
+                auto [remainingToken, tail] = Trinity::Impl::ChatCommands::tokenize(args.substr(_string.length()));
                 if (remainingToken.empty()) // if this is not empty, then we did not consume the full token
                     return tail;
             }
             return std::nullopt;
         }
+
+        private:
+            static constexpr std::array<char, sizeof...(chars)> _storage = { chars... };
+            static_assert(!_storage.empty() && (_storage.back() == '\0'), "ExactSequence parameters must be null terminated! Use the EXACT_SEQUENCE macro to make this easier!");
+            static constexpr std::string_view _string = { _storage.data() };
     };
+
+#define EXACT_SEQUENCE(str) Trinity::ChatCommands::ExactSequence<CHATCOMMANDS_IMPL_SPLIT_LITERAL(str)>
 
     struct Tail : std::string_view, Trinity::Impl::ChatCommands::ContainerTag
     {

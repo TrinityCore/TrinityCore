@@ -108,7 +108,7 @@ public:
     }
 
     // teleport player to given game_tele.entry
-    static bool HandleTeleNameCommand(ChatHandler* handler, Optional<PlayerIdentifier> player, Variant<GameTele const*, ExactSequence<'$','h','o','m','e'>> where)
+    static bool HandleTeleNameCommand(ChatHandler* handler, Optional<PlayerIdentifier> player, Variant<GameTele const*, EXACT_SEQUENCE("$home")> where)
     {
         if (!player)
             player = PlayerIdentifier::FromTargetOrSelf(handler);
