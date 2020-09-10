@@ -339,6 +339,11 @@ inline bool ValueContainsStringI(std::pair<T, std::string_view> const& haystack,
 {
     return StringContainsStringI(haystack.second, needle);
 }
+TC_COMMON_API bool StringCompareLessI(std::string_view a, std::string_view b);
+
+struct StringCompareLessI_T {
+    bool operator()(std::string_view a, std::string_view b) const { return StringCompareLessI(a, b); }
+};
 
 // simple class for not-modifyable list
 template <typename T>
