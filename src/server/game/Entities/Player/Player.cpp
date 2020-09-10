@@ -14928,7 +14928,7 @@ void Player::AddQuestAndCheckCompletion(Quest const* quest, Object* questGiver)
     {
         case TYPEID_UNIT:
             PlayerTalkClass->ClearMenus();
-            questGiver->ToCreature()->AI()->QuestAccept(this, quest);
+            questGiver->ToCreature()->AI()->OnQuestAccept(this, quest);
             break;
         case TYPEID_ITEM:
         case TYPEID_CONTAINER:
@@ -14960,7 +14960,7 @@ void Player::AddQuestAndCheckCompletion(Quest const* quest, Object* questGiver)
         }
         case TYPEID_GAMEOBJECT:
             PlayerTalkClass->ClearMenus();
-            questGiver->ToGameObject()->AI()->QuestAccept(this, quest);
+            questGiver->ToGameObject()->AI()->OnQuestAccept(this, quest);
             break;
         default:
             break;

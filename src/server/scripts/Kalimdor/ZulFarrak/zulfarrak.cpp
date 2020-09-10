@@ -160,7 +160,7 @@ public:
                    crew->SetFaction(FACTION_MONSTER);
         }
 
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
             uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
             ClearGossipMenuFor(player);
@@ -173,7 +173,7 @@ public:
             return true;
         }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             if (instance->GetData(EVENT_PYRAMID) == PYRAMID_KILLED_ALL_TROLLS)
             {
@@ -210,7 +210,7 @@ public:
 
         InstanceScript* instance;
 
-        bool GossipHello(Player* /*player*/) override
+        bool OnGossipHello(Player* /*player*/) override
         {
             instance->SetData(EVENT_PYRAMID, PYRAMID_CAGES_OPEN);
             //set bly & co to aggressive & start moving to top of stairs
@@ -351,7 +351,7 @@ public:
             }
         }
 
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
             uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
             ClearGossipMenuFor(player);
@@ -364,7 +364,7 @@ public:
             return true;
         }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             switch (instance->GetData(EVENT_PYRAMID))
             {
@@ -409,7 +409,7 @@ public:
     {
         go_shallow_graveAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* /*player*/) override
+        bool OnGossipHello(Player* /*player*/) override
         {
             // randomly summon a zombie or dead hero the first time a grave is used
             if (me->GetUseCount() == 0)

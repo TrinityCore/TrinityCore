@@ -274,13 +274,13 @@ public:
             }
         }
 
-        void QuestAccept(Player* /*player*/, Quest const* quest) override
+        void OnQuestAccept(Player* /*player*/, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_CLUCK)
                 Reset();
         }
 
-        void QuestReward(Player* /*player*/, Quest const* quest, uint32 /*opt*/) override
+        void OnQuestReward(Player* /*player*/, Quest const* quest, uint32 /*opt*/) override
         {
             if (quest->GetQuestId() == QUEST_CLUCK)
                 Reset();
@@ -745,7 +745,7 @@ public:
 
         void JustEngagedWith(Unit* /*who*/) override { }
 
-        void QuestAccept(Player* player, Quest const* quest) override
+        void OnQuestAccept(Player* player, Quest const* quest) override
         {
             if ((quest->GetQuestId() == 6624) || (quest->GetQuestId() == 6622))
                 BeginEvent(player);
@@ -1606,7 +1606,7 @@ class npc_wormhole : public CreatureScript
                 Initialize();
             }
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 if (me->IsSummon())
                 {
@@ -1628,7 +1628,7 @@ class npc_wormhole : public CreatureScript
                 return true;
             }
 
-            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+            bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
             {
                 uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
                 ClearGossipMenuFor(player);
@@ -1693,7 +1693,7 @@ public:
     {
         npc_pet_trainerAI(Creature* creature) : ScriptedAI(creature) { }
 
-        bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+        bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
         {
             if (menuId == MENU_ID_PET_UNLEARN && gossipListId == OPTION_ID_PLEASE_DO)
             {
@@ -1731,7 +1731,7 @@ public:
     {
         npc_experienceAI(Creature* creature) : ScriptedAI(creature) { }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             if (player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN)) // not gaining XP
             {
@@ -1746,7 +1746,7 @@ public:
             return true;
         }
 
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
             uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
             ClearGossipMenuFor(player);
@@ -2228,9 +2228,9 @@ class npc_stable_master : public CreatureScript
         {
             npc_stable_masterAI(Creature* creature) : SmartAI(creature) { }
 
-            bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+            bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {
-                SmartAI::GossipSelect(player, menuId, gossipListId);
+                SmartAI::OnGossipSelect(player, menuId, gossipListId);
                 if (menuId != STABLE_MASTER_GOSSIP_SUB_MENU)
                     return false;
 
@@ -2483,7 +2483,7 @@ public:
                 });
         }
 
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
             switch (gossipListId)
             {

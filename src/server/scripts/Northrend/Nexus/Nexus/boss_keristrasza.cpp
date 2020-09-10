@@ -234,7 +234,7 @@ public:
 
         InstanceScript* instance;
 
-        bool GossipHello(Player* /*player*/) override
+        bool OnGossipHello(Player* /*player*/) override
         {
             Creature* keristrasza = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KERISTRASZA));
             if (keristrasza && keristrasza->IsAlive())

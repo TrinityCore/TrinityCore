@@ -714,7 +714,7 @@ public:
             }
         }
 
-        void QuestAccept(Player* player, Quest const* quest) override
+        void OnQuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_ESCAPE_COILSCAR)
             {
@@ -1346,7 +1346,7 @@ public:
     {
         go_crystal_prisonAI(GameObject* go) : GameObjectAI(go) { }
 
-        void QuestAccept(Player* player, Quest const* quest) override
+        void OnQuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_BATTLE_OF_THE_CRIMSON_WATCH)
             {
