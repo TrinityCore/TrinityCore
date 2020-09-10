@@ -70,7 +70,7 @@ namespace Trinity::Hyperlinks
     struct QuestLinkData
     {
         ::Quest const* Quest;
-        uint8 QuestLevel;
+        int8 QuestLevel;
     };
 
     struct TalentLinkData

@@ -162,7 +162,7 @@ bool Trinity::Hyperlinks::LinkTags::quest::StoreTo(QuestLinkData& val, std::stri
     uint32 questId;
     if (!t.TryConsumeTo(questId))
         return false;
-    return (val.Quest = sObjectMgr->GetQuestTemplate(questId)) && t.TryConsumeTo(val.QuestLevel) && t.IsEmpty();
+    return (val.Quest = sObjectMgr->GetQuestTemplate(questId)) && t.TryConsumeTo(val.QuestLevel) && (val.QuestLevel >= -1) && t.IsEmpty();
 }
 
 bool Trinity::Hyperlinks::LinkTags::spell::StoreTo(SpellInfo const*& val, std::string_view text)
