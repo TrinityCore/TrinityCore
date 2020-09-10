@@ -30,7 +30,7 @@ void EventMap::SetPhase(uint8 phase)
     if (!phase)
         _phase = 0;
     else if (phase <= 8)
-        _phase = uint8(1 << (phase - 1));
+        _phase = static_cast<uint8>(1 << (phase - 1));
 }
 
 void EventMap::ScheduleEvent(uint32 eventId, Milliseconds time, uint32 group /*= 0*/, uint8 phase /*= 0*/)
@@ -74,7 +74,7 @@ uint32 EventMap::ExecuteEvent()
 {
     while (!Empty())
     {
-        EventStore::iterator itr = _eventMap.begin();
+        auto itr = _eventMap.begin();
 
         if (itr->first > _time)
             return 0;
@@ -98,7 +98,7 @@ void EventMap::DelayEvents(Milliseconds delay)
         return;
 
     EventStore delayed = std::move(_eventMap);
-    for (EventStore::iterator itr = delayed.begin(); itr != delayed.end();)
+    for (auto itr = delayed.begin(); itr != delayed.end();)
     {
         EventStore::node_type node = delayed.extract(itr++);
         node.key() = node.key() + delay;
@@ -113,7 +113,7 @@ void EventMap::DelayEvents(Milliseconds delay, uint32 group)
 
     EventStore delayed;
 
-    for (EventStore::iterator itr = _eventMap.begin(); itr != _eventMap.end();)
+    for (auto itr = _eventMap.begin(); itr != _eventMap.end();)
     {
         if (itr->second & (1 << (group + 15)))
         {
@@ -132,7 +132,7 @@ void EventMap::CancelEvent(uint32 eventId)
     if (Empty())
         return;
 
-    for (EventStore::iterator itr = _eventMap.begin(); itr != _eventMap.end();)
+    for (auto itr = _eventMap.begin(); itr != _eventMap.end();)
     {
         if (eventId == (itr->second & 0x0000FFFF))
             _eventMap.erase(itr++);
@@ -146,7 +146,7 @@ void EventMap::CancelEventGroup(uint32 group)
     if (!group || group > 8 || Empty())
         return;
 
-    for (EventStore::iterator itr = _eventMap.begin(); itr != _eventMap.end();)
+    for (auto itr = _eventMap.begin(); itr != _eventMap.end();)
     {
         if (itr->second & (1 << (group + 15)))
             _eventMap.erase(itr++);
@@ -157,9 +157,9 @@ void EventMap::CancelEventGroup(uint32 group)
 
 Milliseconds EventMap::GetTimeUntilEvent(uint32 eventId) const
 {
-    for (std::pair<TimePoint const, uint32> const& itr : _eventMap)
-        if (eventId == (itr.second & 0x0000FFFF))
-            return std::chrono::duration_cast<Milliseconds>(itr.first - _time);
+    for (auto const& [timePoint, i] : _eventMap)
+        if (eventId == (i & 0x0000FFFF))
+            return std::chrono::duration_cast<Milliseconds>(timePoint - _time);
 
     return Milliseconds::max();
 }
