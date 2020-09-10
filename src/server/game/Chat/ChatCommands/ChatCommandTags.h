@@ -96,7 +96,7 @@ namespace Trinity::ChatCommands
 
         private:
             static constexpr std::array<char, sizeof...(chars)> _storage = { chars... };
-            static_assert(_storage[sizeof...(chars) - 1] == '\0', "ExactSequence parameters must be null terminated! Use the EXACT_SEQUENCE macro to make this easier!");
+            static_assert(!_storage.empty() && (_storage.back() == '\0'), "ExactSequence parameters must be null terminated! Use the EXACT_SEQUENCE macro to make this easier!");
             static constexpr std::string_view _string = { _storage.data() };
     };
 
