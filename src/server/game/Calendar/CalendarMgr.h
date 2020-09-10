@@ -46,85 +46,85 @@ enum CalendarFlags
 
 enum CalendarModerationRank
 {
-    CALENDAR_RANK_PLAYER            = 0,
-    CALENDAR_RANK_MODERATOR         = 1,
-    CALENDAR_RANK_OWNER             = 2
+    CALENDAR_RANK_PLAYER,
+    CALENDAR_RANK_MODERATOR,
+    CALENDAR_RANK_OWNER 
 };
 
 enum CalendarSendEventType
 {
-    CALENDAR_SENDTYPE_GET           = 0,
-    CALENDAR_SENDTYPE_ADD           = 1,
-    CALENDAR_SENDTYPE_COPY          = 2
+    CALENDAR_SENDTYPE_GET,
+    CALENDAR_SENDTYPE_ADD,
+    CALENDAR_SENDTYPE_COPY  
 };
 
 enum CalendarEventType
 {
-    CALENDAR_TYPE_RAID              = 0,
-    CALENDAR_TYPE_DUNGEON           = 1,
-    CALENDAR_TYPE_PVP               = 2,
-    CALENDAR_TYPE_MEETING           = 3,
-    CALENDAR_TYPE_OTHER             = 4
+    CALENDAR_TYPE_RAID,
+    CALENDAR_TYPE_DUNGEON,
+    CALENDAR_TYPE_PVP,
+    CALENDAR_TYPE_MEETING,
+    CALENDAR_TYPE_OTHER 
 };
 
 enum CalendarRepeatType
 {
-    CALENDAR_REPEAT_NEVER           = 0,
-    CALENDAR_REPEAT_WEEKLY          = 1,
-    CALENDAR_REPEAT_BIWEEKLY        = 2,
-    CALENDAR_REPEAT_MONTHLY         = 3
+    CALENDAR_REPEAT_NEVER,
+    CALENDAR_REPEAT_WEEKLY,
+    CALENDAR_REPEAT_BIWEEKLY,
+    CALENDAR_REPEAT_MONTHLY
 };
 
 enum CalendarInviteStatus
 {
-    CALENDAR_STATUS_INVITED         = 0,
-    CALENDAR_STATUS_ACCEPTED        = 1,
-    CALENDAR_STATUS_DECLINED        = 2,
-    CALENDAR_STATUS_CONFIRMED       = 3,
-    CALENDAR_STATUS_OUT             = 4,
-    CALENDAR_STATUS_STANDBY         = 5,
-    CALENDAR_STATUS_SIGNED_UP       = 6,
-    CALENDAR_STATUS_NOT_SIGNED_UP   = 7,
-    CALENDAR_STATUS_TENTATIVE       = 8,
-    CALENDAR_STATUS_REMOVED         = 9     // correct name?
+    CALENDAR_STATUS_INVITED,
+    CALENDAR_STATUS_ACCEPTED,
+    CALENDAR_STATUS_DECLINED,
+    CALENDAR_STATUS_CONFIRMED,
+    CALENDAR_STATUS_OUT,
+    CALENDAR_STATUS_STANDBY,
+    CALENDAR_STATUS_SIGNED_UP,
+    CALENDAR_STATUS_NOT_SIGNED_UP,
+    CALENDAR_STATUS_TENTATIVE,
+    CALENDAR_STATUS_REMOVED  
 };
 
 enum CalendarError
 {
-    CALENDAR_OK                                 = 0,
-    CALENDAR_ERROR_GUILD_EVENTS_EXCEEDED        = 1,
-    CALENDAR_ERROR_EVENTS_EXCEEDED              = 2,
-    CALENDAR_ERROR_SELF_INVITES_EXCEEDED        = 3,
-    CALENDAR_ERROR_OTHER_INVITES_EXCEEDED       = 4,
-    CALENDAR_ERROR_PERMISSIONS                  = 5,
-    CALENDAR_ERROR_EVENT_INVALID                = 6,
-    CALENDAR_ERROR_NOT_INVITED                  = 7,
-    CALENDAR_ERROR_INTERNAL                     = 8,
-    CALENDAR_ERROR_GUILD_PLAYER_NOT_IN_GUILD    = 9,
-    CALENDAR_ERROR_ALREADY_INVITED_TO_EVENT_S   = 10,
-    CALENDAR_ERROR_PLAYER_NOT_FOUND             = 11,
-    CALENDAR_ERROR_NOT_ALLIED                   = 12,
-    CALENDAR_ERROR_IGNORING_YOU_S               = 13,
-    CALENDAR_ERROR_INVITES_EXCEEDED             = 14,
-    CALENDAR_ERROR_INVALID_DATE                 = 16,
-    CALENDAR_ERROR_INVALID_TIME                 = 17,
+    CALENDAR_OK,
+    CALENDAR_ERROR_GUILD_EVENTS_EXCEEDED,
+    CALENDAR_ERROR_EVENTS_EXCEEDED,
+    CALENDAR_ERROR_SELF_INVITES_EXCEEDED,
+    CALENDAR_ERROR_OTHER_INVITES_EXCEEDED,
+    CALENDAR_ERROR_PERMISSIONS,
+    CALENDAR_ERROR_EVENT_INVALID,
+    CALENDAR_ERROR_NOT_INVITED,
+    CALENDAR_ERROR_INTERNAL,
+    CALENDAR_ERROR_GUILD_PLAYER_NOT_IN_GUILD,
+    CALENDAR_ERROR_ALREADY_INVITED_TO_EVENT_S,
+    CALENDAR_ERROR_PLAYER_NOT_FOUND,
+    CALENDAR_ERROR_NOT_ALLIED,
+    CALENDAR_ERROR_IGNORING_YOU_S,
+    CALENDAR_ERROR_INVITES_EXCEEDED,
+    CALENDAR_ERROR_INVALID_DATE,
+    CALENDAR_ERROR_INVALID_TIME,
 
-    CALENDAR_ERROR_NEEDS_TITLE                  = 19,
-    CALENDAR_ERROR_EVENT_PASSED                 = 20,
-    CALENDAR_ERROR_EVENT_LOCKED                 = 21,
-    CALENDAR_ERROR_DELETE_CREATOR_FAILED        = 22,
-    CALENDAR_ERROR_SYSTEM_DISABLED              = 24,
-    CALENDAR_ERROR_RESTRICTED_ACCOUNT           = 25,
-    CALENDAR_ERROR_ARENA_EVENTS_EXCEEDED        = 26,
-    CALENDAR_ERROR_RESTRICTED_LEVEL             = 27,
-    CALENDAR_ERROR_USER_SQUELCHED               = 28,
-    CALENDAR_ERROR_NO_INVITE                    = 29,
+    CALENDAR_ERROR_NEEDS_TITLE,
+    CALENDAR_ERROR_EVENT_PASSED,
+    CALENDAR_ERROR_EVENT_LOCKED,
+    CALENDAR_ERROR_DELETE_CREATOR_FAILED,
+    CALENDAR_ERROR_SYSTEM_DISABLED,
+    CALENDAR_ERROR_RESTRICTED_ACCOUNT,
+    CALENDAR_ERROR_ARENA_EVENTS_EXCEEDED,
+    CALENDAR_ERROR_RESTRICTED_LEVEL,
+    CALENDAR_ERROR_USER_SQUELCHED,
+    CALENDAR_ERROR_NO_INVITE,
 
-    CALENDAR_ERROR_EVENT_WRONG_SERVER           = 36,
-    CALENDAR_ERROR_INVITE_WRONG_SERVER          = 37,
-    CALENDAR_ERROR_NO_GUILD_INVITES             = 38,
-    CALENDAR_ERROR_INVALID_SIGNUP               = 39,
-    CALENDAR_ERROR_NO_MODERATOR                 = 40
+    CALENDAR_ERROR_EVENT_WRONG_SERVER,
+    CALENDAR_ERROR_INVITE_WRONG_SERVER,
+    CALENDAR_ERROR_NO_GUILD_INVITES,
+    CALENDAR_ERROR_INVALID_SIGNUP,
+    CALENDAR_ERROR_NO_MODERATOR  
 };
 
 enum CalendarLimits
@@ -280,18 +280,6 @@ typedef std::map<uint64 /* eventId */, CalendarInviteStore > CalendarEventInvite
 
 class TC_GAME_API CalendarMgr
 {
-    private:
-        CalendarMgr();
-        ~CalendarMgr();
-
-        CalendarEventStore _events;
-        CalendarEventInviteStore _invites;
-
-        std::deque<uint64> _freeEventIds;
-        std::deque<uint64> _freeInviteIds;
-        uint64 _maxEventId;
-        uint64 _maxInviteId;
-
     public:
         static CalendarMgr* instance();
 
@@ -344,6 +332,18 @@ class TC_GAME_API CalendarMgr
         void SendCalendarCommandResult(ObjectGuid guid, CalendarError err, char const* param = nullptr);
 
         void SendPacketToAllEventRelatives(WorldPacket& packet, CalendarEvent const& calendarEvent);
+
+    private:
+        CalendarMgr();
+        ~CalendarMgr();
+
+        CalendarEventStore _events;
+        CalendarEventInviteStore _invites;
+
+        std::deque<uint64> _freeEventIds;
+        std::deque<uint64> _freeInviteIds;
+        uint64 _maxEventId;
+        uint64 _maxInviteId;
 };
 
 #define sCalendarMgr CalendarMgr::instance()
