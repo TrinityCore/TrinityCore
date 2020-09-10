@@ -2491,7 +2491,7 @@ class spell_madness_of_deathwing_elementium_blast : public SpellScript
         float distance = caster->GetExactDist2d(GetHitUnit());
 
         // Guessed formular based on sniff data
-        damage = (damage / distance) * 3.5f;
+        damage -= std::max<int32>(0, CalculatePct(damage, distance * 3.5f));
         SetHitDamage(damage);
     }
 
