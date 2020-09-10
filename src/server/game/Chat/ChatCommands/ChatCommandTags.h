@@ -24,6 +24,8 @@
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include "Util.h"
+#include <boost/preprocessor/repetition/repeat.hpp>
+#include <boost/preprocessor/punctuation/comma_if.hpp>
 #include <cmath>
 #include <cstring>
 #include <iostream>
@@ -45,6 +47,35 @@ namespace Trinity::Impl::ChatCommands
     {
         using type = typename T::value_type;
     };
+
+    template <char... chars>
+    inline constexpr size_t StrlenParameters()
+    {
+        // we might have multiple \0 in our chars
+        char str[] = { chars... };
+        size_t i = 0;
+        for (; i < (sizeof...(chars)); ++i)
+            if (str[i] == '\0')
+                break;
+
+        return i;
+    }
+
+    template <unsigned int N>
+    inline constexpr char GetChar(char const (&s)[N], unsigned int i)
+    {
+        static_assert(N <= 20, "SPLIT_LITERAL macro can only be used with up to 50 character long literals");
+        return i >= N ? '\0' : s[i];
+    }
+
+#define CHATCOMMANDS_IMPL_SPLIT_LITERAL_EXTRACT_CHAR(z, i, strliteral) \
+        BOOST_PP_COMMA_IF(i) Trinity::Impl::ChatCommands::GetChar(strliteral, i)
+
+#define CHATCOMMANDS_IMPL_SPLIT_LITERAL_CONSTRAINED(maxlen, strliteral)  \
+        BOOST_PP_REPEAT(maxlen, CHATCOMMANDS_IMPL_SPLIT_LITERAL_EXTRACT_CHAR, strliteral)
+
+    // this creates always 50 elements - "abc" -> 'a', 'b', 'c', '\0', '\0', ... up to 50
+#define CHATCOMMANDS_IMPL_SPLIT_LITERAL(strliteral) CHATCOMMANDS_IMPL_SPLIT_LITERAL_CONSTRAINED(20, strliteral)
 }
 
 namespace Trinity::ChatCommands
@@ -65,13 +96,13 @@ namespace Trinity::ChatCommands
     {
         using value_type = void;
 
-        static constexpr size_t N = (sizeof...(chars) + 1);
+        static constexpr size_t N = Trinity::Impl::ChatCommands::StrlenParameters<c1, chars...>();
 
         static bool Match(char const* pos)
         {
             if (std::toupper(*(pos++)) != std::toupper(c1))
                 return false;
-            else if constexpr (sizeof...(chars) > 0)
+            else if constexpr (N > 1)
                 return ExactSequence<chars...>::Match(pos);
             else
                 return true;
@@ -88,6 +119,8 @@ namespace Trinity::ChatCommands
             return std::nullopt;
         }
     };
+
+#define EXACT_SEQUENCE(str) Trinity::ChatCommands::ExactSequence<CHATCOMMANDS_IMPL_SPLIT_LITERAL(str)>
 
     struct Tail : std::string_view, Trinity::Impl::ChatCommands::ContainerTag
     {
