@@ -17,15 +17,22 @@
 
 #include "tc_catch2.h"
 
+#include "Chat.h"
 #include "ChatCommand.h"
 
 using namespace Trinity::ChatCommands;
 using namespace std::string_view_literals;
 
+struct DummyChatHandler : ChatHandler
+{
+    DummyChatHandler() : ChatHandler(nullptr) {}
+    void SendSysMessage(std::string_view, bool) {}
+};
+
 template <typename F>
 static void TestChatCommand(char const* c, F f, Optional<bool> expected = true)
 {
-    bool r = ChatCommand("", 0, false, +f, "")(nullptr, c);
+    bool r = ChatCommand("", 0, false, +f, "")(&DummyChatHandler(), c);
     if (expected)
         REQUIRE(r == *expected);
 }

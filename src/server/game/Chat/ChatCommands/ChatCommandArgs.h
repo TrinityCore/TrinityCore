@@ -296,7 +296,7 @@ namespace Trinity::Impl::ChatCommands
         {
             ChatCommandResult result = TryAtIndex<0>(val, args);
             if (result.HasErrorMessage() && (result.GetErrorMessage().find('\n') != std::string::npos))
-                return Trinity::StringFormat("Either: ", result.GetErrorMessage().c_str());
+                return Trinity::StringFormat("Either: %s", result.GetErrorMessage().c_str());
             return result;
         }
     };
