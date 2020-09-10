@@ -712,22 +712,22 @@ public:
         return true;
     }
 
-    static bool HandleCharacterEraseCommand(ChatHandler* handler, PlayerIdentifier playerIdent)
+    static bool HandleCharacterEraseCommand(ChatHandler* handler, PlayerIdentifier player)
     {
         uint32 accountId;
-        if (Player* player = playerIdent.GetConnectedPlayer())
+        if (Player* target = player.GetConnectedPlayer())
         {
-            accountId = player->GetSession()->GetAccountId();
-            player->GetSession()->KickPlayer("HandleCharacterEraseCommand GM Command deleting character");
+            accountId = target->GetSession()->GetAccountId();
+            target->GetSession()->KickPlayer("HandleCharacterEraseCommand GM Command deleting character");
         }
         else
-            accountId = sCharacterCache->GetCharacterAccountIdByGuid(playerIdent);
+            accountId = sCharacterCache->GetCharacterAccountIdByGuid(player);
 
         std::string accountName;
         AccountMgr::GetName(accountId, accountName);
 
-        Player::DeleteFromDB(playerIdent, accountId, true, true);
-        handler->PSendSysMessage(LANG_CHARACTER_DELETED, playerIdent.GetName().c_str(), playerIdent.GetGUID().GetCounter(), accountName.c_str(), accountId);
+        Player::DeleteFromDB(player, accountId, true, true);
+        handler->PSendSysMessage(LANG_CHARACTER_DELETED, player.GetName().c_str(), player.GetGUID().GetCounter(), accountName.c_str(), accountId);
 
         return true;
     }
