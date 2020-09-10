@@ -32,7 +32,8 @@ struct DummyChatHandler : ChatHandler
 template <typename F>
 static void TestChatCommand(char const* c, F f, Optional<bool> expected = true)
 {
-    bool r = ChatCommand("", 0, false, +f, "")(&DummyChatHandler(), c);
+    DummyChatHandler handler;
+    bool r = ChatCommand("", 0, false, +f, "")(&handler, c);
     if (expected)
         REQUIRE(r == *expected);
 }

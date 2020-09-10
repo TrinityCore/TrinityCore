@@ -19,6 +19,7 @@
 #define TRINITY_CHATCOMMANDHELPERS_H
 
 #include "Define.h"
+#include <optional>
 #include <string_view>
 #include <type_traits>
 #include <variant>
