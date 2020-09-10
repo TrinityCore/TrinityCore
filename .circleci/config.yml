@@ -78,7 +78,7 @@ jobs:
           keys:
             - 3.3.5-nopch-{{ .Branch }}-{{ .Revision }}
             - 3.3.5-nopch-{{ .Branch }}
-            - 3.3.5-nopch
+            - 3.3.5-nopch-3.3.5
       - run:
           name: Setup
           command: |
