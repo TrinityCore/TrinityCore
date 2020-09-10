@@ -149,15 +149,11 @@ namespace Trinity::ChatCommands
         PlayerIdentifier() : _name(), _guid(), _player(nullptr) {}
         PlayerIdentifier(Player& player);
 
-        template <typename T>
-        operator std::enable_if_t<std::is_base_of_v<T, Player>, T*>() const { return static_cast<T*>(_player); }
-        operator value_type() const { return _player; }
-        operator ObjectGuid() { return _guid; }
-        Player* operator->() const { return _player; }
-        explicit operator bool() const { return (_player != nullptr); }
-        bool operator!() const { return (_player == nullptr); }
+        operator ObjectGuid() const { return _guid; }
+        operator std::string const&() const { return _name; }
+        operator std::string_view() const { return _name; }
 
-        std::string const& GetName() { return _name; }
+        std::string const& GetName() const { return _name; }
         ObjectGuid GetGUID() const { return _guid; }
         bool IsConnected() const { return (_player != nullptr); }
         Player* GetConnectedPlayer() const { return _player; }

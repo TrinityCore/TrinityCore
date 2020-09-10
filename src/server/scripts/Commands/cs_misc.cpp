@@ -1901,7 +1901,7 @@ public:
         stmt->setString(3, muteReasonStr);
         LoginDatabase.Execute(stmt);
 
-        std::string nameLink = handler->playerLink(player->GetName());
+        std::string nameLink = handler->playerLink(*player);
         if (sWorld->getBoolConfig(CONFIG_SHOW_MUTE_IN_WORLD))
             sWorld->SendWorldText(LANG_COMMAND_MUTEMESSAGE_WORLD, muteBy.c_str(), nameLink.c_str(), muteTime, muteReasonStr.c_str());
         if (target)
