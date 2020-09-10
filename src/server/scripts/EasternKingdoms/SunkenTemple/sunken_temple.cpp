@@ -74,7 +74,7 @@ class go_atalai_statue : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* /*player*/) override
+            bool OnGossipHello(Player* /*player*/) override
             {
                 instance->SetData(EVENT_STATE, me->GetEntry());
                 return false;

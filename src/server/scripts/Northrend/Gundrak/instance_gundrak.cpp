@@ -360,7 +360,7 @@ class go_gundrak_altar : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* /*player*/) override
+            bool OnGossipHello(Player* /*player*/) override
             {
                 me->AddFlag(GO_FLAG_NOT_SELECTABLE);
                 me->SetGoState(GO_STATE_ACTIVE);

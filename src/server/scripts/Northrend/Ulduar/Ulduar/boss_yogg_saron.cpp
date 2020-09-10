@@ -1547,7 +1547,7 @@ class npc_observation_ring_keeper : public CreatureScript
                 DoCast(SPELL_KEEPER_ACTIVE);
             }
 
-            bool GossipSelect(Player* player, uint32 menuId, uint32 /*gossipListId*/) override
+            bool OnGossipSelect(Player* player, uint32 menuId, uint32 /*gossipListId*/) override
             {
                 if (menuId != 10333)
                     return false;

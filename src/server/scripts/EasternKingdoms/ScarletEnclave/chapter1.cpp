@@ -332,7 +332,7 @@ class go_acherus_soul_prison : public GameObjectScript
         {
             go_acherus_soul_prisonAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 if (Creature* anchor = me->FindNearestCreature(29521, 15))
                 {
@@ -651,7 +651,7 @@ public:
             CombatAI::UpdateAI(uiDiff);
         }
 
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
             uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
             ClearGossipMenuFor(player);
@@ -674,7 +674,7 @@ public:
             return true;
         }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             if (player->GetQuestStatus(QUEST_DEATH_CHALLENGE) == QUEST_STATUS_INCOMPLETE && me->IsFullHealth())
             {
@@ -797,7 +797,7 @@ public:
     {
         npc_salanar_the_horsemanAI(Creature* creature) : ScriptedAI(creature) { }
 
-        bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+        bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
         {
             if (menuId == GOSSIP_SALANAR_MENU && gossipListId == GOSSIP_SALANAR_OPTION)
             {
