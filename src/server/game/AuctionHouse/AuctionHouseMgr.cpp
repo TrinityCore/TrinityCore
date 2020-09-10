@@ -120,7 +120,7 @@ uint32 AuctionHouseMgr::GetAuctionDeposit(AuctionHouseEntry const* entry, uint32
 }
 
 //does not clear ram
-void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, CharacterDatabaseTransaction& trans)
+void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, CharacterDatabaseTransaction trans)
 {
     Item* pItem = GetAItem(auction->itemGUIDLow);
     if (!pItem)
@@ -189,7 +189,7 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, CharacterDatabas
     }
 }
 
-void AuctionHouseMgr::SendAuctionSalePendingMail(AuctionEntry* auction, CharacterDatabaseTransaction& trans)
+void AuctionHouseMgr::SendAuctionSalePendingMail(AuctionEntry* auction, CharacterDatabaseTransaction trans)
 {
     ObjectGuid owner_guid(HighGuid::Player, auction->owner);
     Player* owner = ObjectAccessor::FindConnectedPlayer(owner_guid);
@@ -208,7 +208,7 @@ void AuctionHouseMgr::SendAuctionSalePendingMail(AuctionEntry* auction, Characte
 }
 
 //call this method to send mail to auction owner, when auction is successful, it does not clear ram
-void AuctionHouseMgr::SendAuctionSuccessfulMail(AuctionEntry* auction, CharacterDatabaseTransaction& trans)
+void AuctionHouseMgr::SendAuctionSuccessfulMail(AuctionEntry* auction, CharacterDatabaseTransaction trans)
 {
     ObjectGuid owner_guid(HighGuid::Player, auction->owner);
     Player* owner = ObjectAccessor::FindConnectedPlayer(owner_guid);
@@ -234,7 +234,7 @@ void AuctionHouseMgr::SendAuctionSuccessfulMail(AuctionEntry* auction, Character
 }
 
 //does not clear ram
-void AuctionHouseMgr::SendAuctionExpiredMail(AuctionEntry* auction, CharacterDatabaseTransaction& trans)
+void AuctionHouseMgr::SendAuctionExpiredMail(AuctionEntry* auction, CharacterDatabaseTransaction trans)
 {
     //return an item in auction to its owner by mail
     Item* pItem = GetAItem(auction->itemGUIDLow);
@@ -262,7 +262,7 @@ void AuctionHouseMgr::SendAuctionExpiredMail(AuctionEntry* auction, CharacterDat
 }
 
 //this function sends mail to old bidder
-void AuctionHouseMgr::SendAuctionOutbiddedMail(AuctionEntry* auction, uint32 newPrice, Player* newBidder, CharacterDatabaseTransaction& trans)
+void AuctionHouseMgr::SendAuctionOutbiddedMail(AuctionEntry* auction, uint32 newPrice, Player* newBidder, CharacterDatabaseTransaction trans)
 {
     ObjectGuid oldBidder_guid(HighGuid::Player, auction->bidder);
     Player* oldBidder = ObjectAccessor::FindConnectedPlayer(oldBidder_guid);
@@ -284,7 +284,7 @@ void AuctionHouseMgr::SendAuctionOutbiddedMail(AuctionEntry* auction, uint32 new
 }
 
 //this function sends mail, when auction is cancelled to old bidder
-void AuctionHouseMgr::SendAuctionCancelledToBidderMail(AuctionEntry* auction, CharacterDatabaseTransaction& trans)
+void AuctionHouseMgr::SendAuctionCancelledToBidderMail(AuctionEntry* auction, CharacterDatabaseTransaction trans)
 {
     ObjectGuid bidder_guid = ObjectGuid(HighGuid::Player, auction->bidder);
     Player* bidder = ObjectAccessor::FindConnectedPlayer(bidder_guid);
@@ -884,7 +884,7 @@ uint32 AuctionEntry::GetAuctionOutBid() const
     return outbid ? outbid : 1;
 }
 
-void AuctionEntry::DeleteFromDB(CharacterDatabaseTransaction& trans) const
+void AuctionEntry::DeleteFromDB(CharacterDatabaseTransaction trans) const
 {
     CharacterDatabasePreparedStatement* stmt;
 
@@ -897,7 +897,7 @@ void AuctionEntry::DeleteFromDB(CharacterDatabaseTransaction& trans) const
     trans->Append(stmt);
 }
 
-void AuctionEntry::SaveToDB(CharacterDatabaseTransaction& trans) const
+void AuctionEntry::SaveToDB(CharacterDatabaseTransaction trans) const
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_AUCTION);
     stmt->setUInt32(0, Id);

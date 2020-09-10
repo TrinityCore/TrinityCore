@@ -506,7 +506,7 @@ class TC_GAME_API WorldSession
 
         void LoadTutorialsData(PreparedQueryResult result);
         void SendTutorialsData();
-        void SaveTutorialsData(CharacterDatabaseTransaction& trans);
+        void SaveTutorialsData(CharacterDatabaseTransaction trans);
         uint32 GetTutorialInt(uint8 index) const { return m_Tutorials[index]; }
         void SetTutorialInt(uint8 index, uint32 value)
         {

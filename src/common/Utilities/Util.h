@@ -331,7 +331,8 @@ inline std::vector<uint8> HexStrToByteVector(std::string_view str, bool reverse 
 }
 
 TC_COMMON_API bool StringEqualI(std::string_view str1, std::string_view str2);
-TC_COMMON_API bool StringStartsWith(std::string_view haystack, std::string_view needle);
+inline bool StringStartsWith(std::string_view haystack, std::string_view needle) { return (haystack.substr(0, needle.length()) == needle); }
+inline bool StringStartsWithI(std::string_view haystack, std::string_view needle) { return StringEqualI(haystack.substr(0, needle.length()), needle); }
 TC_COMMON_API bool StringContainsStringI(std::string_view haystack, std::string_view needle);
 template <typename T>
 inline bool ValueContainsStringI(std::pair<T, std::string_view> const& haystack, std::string_view needle)

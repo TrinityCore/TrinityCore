@@ -102,7 +102,7 @@ void WorldSession::HandleQuestgiverHelloOpcode(WorldPacket& recvData)
     creature->SetHomePosition(creature->GetPosition());
 
     _player->PlayerTalkClass->ClearMenus();
-    if (creature->AI()->GossipHello(_player))
+    if (creature->AI()->OnGossipHello(_player))
         return;
 
     _player->PrepareGossipMenu(creature, creature->GetCreatureTemplate()->GossipMenuId, true);
@@ -325,7 +325,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
                         }
 
                         _player->PlayerTalkClass->ClearMenus();
-                        questgiver->AI()->QuestReward(_player, quest, reward);
+                        questgiver->AI()->OnQuestReward(_player, quest, reward);
                         break;
                     }
                     case TYPEID_GAMEOBJECT:
@@ -345,7 +345,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
                         }
 
                         _player->PlayerTalkClass->ClearMenus();
-                        questGiver->AI()->QuestReward(_player, quest, reward);
+                        questGiver->AI()->OnQuestReward(_player, quest, reward);
                         break;
                     }
                     default:
@@ -643,7 +643,7 @@ void WorldSession::HandleQuestPushResult(WorldPacket& recvPacket)
     {
         Player* player = ObjectAccessor::FindPlayer(guid);
         if (player)
-            player->SendPushToPartyResponse(_player, msg);
+            player->SendPushToPartyResponse(_player, static_cast<QuestShareMessages>(msg));
     }
 
     _player->ClearQuestSharingInfo();

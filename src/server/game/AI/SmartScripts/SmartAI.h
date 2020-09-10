@@ -173,11 +173,11 @@ class TC_GAME_API SmartAI : public CreatureAI
 
         void SetInvincibilityHpLevel(uint32 level) { _invincibilityHPLevel = level; }
 
-        bool GossipHello(Player* player) override;
-        bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override;
-        bool GossipSelectCode(Player* player, uint32 menuId, uint32 gossipListId, char const* code) override;
-        void QuestAccept(Player* player, Quest const* quest) override;
-        void QuestReward(Player* player, Quest const* quest, uint32 opt) override;
+        bool OnGossipHello(Player* player) override;
+        bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override;
+        bool OnGossipSelectCode(Player* player, uint32 menuId, uint32 gossipListId, char const* code) override;
+        void OnQuestAccept(Player* player, Quest const* quest) override;
+        void OnQuestReward(Player* player, Quest const* quest, uint32 opt) override;
         void OnGameEvent(bool start, uint16 eventId) override;
 
         void SetDespawnTime (uint32 t)
@@ -256,12 +256,12 @@ class TC_GAME_API SmartGameObjectAI : public GameObjectAI
         SmartScript* GetScript() { return &_script; }
         static int32 Permissible(GameObject const* /*go*/) { return PERMIT_BASE_NO; }
 
-        bool GossipHello(Player* player) override;
+        bool OnGossipHello(Player* player) override;
+        bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override;
+        bool OnGossipSelectCode(Player* player, uint32 menuId, uint32 gossipListId, char const* code) override;
+        void OnQuestAccept(Player* player, Quest const* quest) override;
+        void OnQuestReward(Player* player, Quest const* quest, uint32 opt) override;
         bool OnReportUse(Player* player) override;
-        bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override;
-        bool GossipSelectCode(Player* player, uint32 menuId, uint32 gossipListId, char const* code) override;
-        void QuestAccept(Player* player, Quest const* quest) override;
-        void QuestReward(Player* player, Quest const* quest, uint32 opt) override;
         void Destroyed(WorldObject* attacker, uint32 eventId) override;
         void SetData(uint32 id, uint32 value, Unit* invoker);
         void SetData(uint32 id, uint32 value) override { SetData(id, value, nullptr); }

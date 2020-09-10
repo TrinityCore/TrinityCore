@@ -60,8 +60,8 @@ class TC_GAME_API Corpse : public WorldObject, public GridObject<Corpse>
         void SaveToDB();
         bool LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields);
 
-        void DeleteFromDB(CharacterDatabaseTransaction& trans);
-        static void DeleteFromDB(ObjectGuid const& ownerGuid, CharacterDatabaseTransaction& trans);
+        void DeleteFromDB(CharacterDatabaseTransaction trans);
+        static void DeleteFromDB(ObjectGuid const& ownerGuid, CharacterDatabaseTransaction trans);
 
         ObjectGuid GetOwnerGUID() const override { return GetGuidValue(CORPSE_FIELD_OWNER); }
         uint32 GetFaction() const override;

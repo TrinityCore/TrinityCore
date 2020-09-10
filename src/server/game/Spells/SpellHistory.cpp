@@ -116,7 +116,7 @@ void SpellHistory::LoadFromDB(PreparedQueryResult cooldownsResult)
 }
 
 template<class OwnerType>
-void SpellHistory::SaveToDB(CharacterDatabaseTransaction& trans)
+void SpellHistory::SaveToDB(CharacterDatabaseTransaction trans)
 {
     typedef PersistenceHelper<OwnerType> StatementInfo;
 
@@ -730,5 +730,5 @@ void SpellHistory::RestoreCooldownStateAfterDuel()
 
 template void SpellHistory::LoadFromDB<Player>(PreparedQueryResult cooldownsResult);
 template void SpellHistory::LoadFromDB<Pet>(PreparedQueryResult cooldownsResult);
-template void SpellHistory::SaveToDB<Player>(CharacterDatabaseTransaction& trans);
-template void SpellHistory::SaveToDB<Pet>(CharacterDatabaseTransaction& trans);
+template void SpellHistory::SaveToDB<Player>(CharacterDatabaseTransaction trans);
+template void SpellHistory::SaveToDB<Pet>(CharacterDatabaseTransaction trans);

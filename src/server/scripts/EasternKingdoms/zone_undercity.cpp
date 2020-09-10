@@ -237,7 +237,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void QuestReward(Player* player, Quest const* quest, uint32 /*opt*/) override
+        void OnQuestReward(Player* player, Quest const* quest, uint32 /*opt*/) override
         {
             if (quest->GetQuestId() == QUEST_JOURNEY_TO_UNDERCITY)
                 SetGUID(player->GetGUID(), GUID_EVENT_INVOKER);

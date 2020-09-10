@@ -600,7 +600,7 @@ public:
     {
         go_ahune_ice_stoneAI(GameObject* go) : GameObjectAI(go), _instance(go->GetInstanceScript()) { }
 
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
         {
             ClearGossipMenuFor(player);
 

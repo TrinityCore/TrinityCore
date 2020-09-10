@@ -56,14 +56,14 @@ class npc_zulaman_hostage : public CreatureScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_HOSTAGE1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                 SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
                 return true;
             }
 
-            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+            bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
             {
                 uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
                 ClearGossipMenuFor(player);
@@ -192,7 +192,7 @@ class npc_harrison_jones : public CreatureScript
 
             void JustEngagedWith(Unit* /*who*/) override { }
 
-            bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+            bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {
                if (me->GetCreatureTemplate()->GossipMenuId == menuId && !gossipListId)
                {

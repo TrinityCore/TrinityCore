@@ -1733,7 +1733,7 @@ void Spell::SendLoot(ObjectGuid guid, LootType loottype)
         }
 
         player->PlayerTalkClass->ClearMenus();
-        if (gameObjTarget->AI()->GossipHello(player))
+        if (gameObjTarget->AI()->OnGossipHello(player))
             return;
 
         switch (gameObjTarget->GetGoType())

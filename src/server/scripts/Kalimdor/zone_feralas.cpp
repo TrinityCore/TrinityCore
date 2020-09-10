@@ -119,7 +119,7 @@ public:
             summoned->AI()->AttackStart(me);
         }
 
-        void QuestAccept(Player* player, Quest const* quest) override
+        void OnQuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_RESCUE_OOX22FE)
             {
