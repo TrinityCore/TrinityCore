@@ -1031,6 +1031,14 @@ bool PathGenerator::IsInvalidDestinationZ(Unit const* target) const
     return (target->GetPositionZ() - GetActualEndPosition().z) > 5.0f;
 }
 
+void PathGenerator::SetPathLengthLimit(float length)
+{
+    if (!(uint32(length) % 4))
+        _pointPathLimit = std::min<uint32>(length / SMOOTH_PATH_STEP_SIZE, MAX_POINT_PATH_LENGTH);
+    else
+        _pointPathLimit = std::min<uint32>((length + SMOOTH_PATH_STEP_SIZE) / SMOOTH_PATH_STEP_SIZE, MAX_POINT_PATH_LENGTH);
+}
+
 void PathGenerator::AddFarFromPolyFlags(bool startFarFromPoly, bool endFarFromPoly)
 {
     if (startFarFromPoly)
