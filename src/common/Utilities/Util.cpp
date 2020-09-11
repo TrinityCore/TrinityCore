@@ -29,6 +29,7 @@
 #include <cctype>
 #include <cstdarg>
 #include <ctime>
+#include <boost/core/demangle.hpp>
 
 #if TRINITY_COMPILER == TRINITY_COMPILER_GNU
   #include <sys/socket.h>
@@ -660,4 +661,9 @@ bool StringContainsStringI(std::string_view haystack, std::string_view needle)
 bool StringCompareLessI(std::string_view a, std::string_view b)
 {
     return std::lexicographical_compare(a.begin(), a.end(), b.begin(), b.end(), [](char c1, char c2) { return std::tolower(c1) < std::tolower(c2); });
+}
+
+std::string GetTypeName(std::type_info const& info)
+{
+    return boost::core::demangle(info.name());
 }

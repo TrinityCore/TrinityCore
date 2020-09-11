@@ -40,16 +40,16 @@ namespace Trinity::Impl::ChatCommands
     // the call stack is MultiConsumer -> ConsumeFromOffset -> MultiConsumer -> ConsumeFromOffset etc
     // MultiConsumer goes into ArgInfo for parsing on each iteration
     template <typename Tuple, size_t offset>
-    ChatCommandResult ConsumeFromOffset(Tuple&, std::string_view args);
+    ChatCommandResult ConsumeFromOffset(Tuple&, ChatHandler const* handler, std::string_view args);
 
     template <typename Tuple, typename NextType, size_t offset>
     struct MultiConsumer
     {
-        static ChatCommandResult TryConsumeTo(Tuple& tuple, std::string_view args)
+        static ChatCommandResult TryConsumeTo(Tuple& tuple, ChatHandler const* handler, std::string_view args)
         {
-            ChatCommandResult next = ArgInfo<NextType>::TryConsume(std::get<offset>(tuple), args);
+            ChatCommandResult next = ArgInfo<NextType>::TryConsume(std::get<offset>(tuple), handler, args);
             if (next)
-                return ConsumeFromOffset<Tuple, offset + 1>(tuple, *next);
+                return ConsumeFromOffset<Tuple, offset + 1>(tuple, handler, *next);
             else
                 return next;
         }
@@ -58,25 +58,26 @@ namespace Trinity::Impl::ChatCommands
     template <typename Tuple, typename NestedNextType, size_t offset>
     struct MultiConsumer<Tuple, Optional<NestedNextType>, offset>
     {
-        static ChatCommandResult TryConsumeTo(Tuple& tuple, std::string_view args)
+        static ChatCommandResult TryConsumeTo(Tuple& tuple, ChatHandler const* handler, std::string_view args)
         {
             // try with the argument
             auto& myArg = std::get<offset>(tuple);
             myArg.emplace();
 
-            ChatCommandResult result1 = ArgInfo<NestedNextType>::TryConsume(myArg.value(), args);
+            ChatCommandResult result1 = ArgInfo<NestedNextType>::TryConsume(myArg.value(), handler, args);
             if (result1)
-                if ((result1 = ConsumeFromOffset<Tuple, offset + 1>(tuple, *result1)))
+                if ((result1 = ConsumeFromOffset<Tuple, offset + 1>(tuple, handler, *result1)))
                     return result1;
             // try again omitting the argument
             myArg = std::nullopt;
-            ChatCommandResult result2 = ConsumeFromOffset<Tuple, offset + 1>(tuple, args);
+            ChatCommandResult result2 = ConsumeFromOffset<Tuple, offset + 1>(tuple, handler, args);
             if (result2)
                 return result2;
             if (result1.HasErrorMessage() && result2.HasErrorMessage())
             {
-                return Trinity::StringFormat("Either: \"%s\"\n"
-                                             "Or:     \"%s\"", result2.GetErrorMessage().c_str(), result1.GetErrorMessage().c_str());
+                return Trinity::StringFormat("%s \"%s\"\n%s \"%s\"",
+                    GetTrinityString(handler, LANG_CMDPARSER_EITHER), result2.GetErrorMessage().c_str(),
+                    GetTrinityString(handler, LANG_CMDPARSER_OR), result1.GetErrorMessage().c_str());
             }
             else if (result1.HasErrorMessage())
                 return result1;
@@ -86,10 +87,10 @@ namespace Trinity::Impl::ChatCommands
     };
 
     template <typename Tuple, size_t offset>
-    ChatCommandResult ConsumeFromOffset(Tuple& tuple, std::string_view args)
+    ChatCommandResult ConsumeFromOffset(Tuple& tuple, ChatHandler const* handler, std::string_view args)
     {
         if constexpr (offset < std::tuple_size_v<Tuple>)
-            return MultiConsumer<Tuple, std::tuple_element_t<offset, Tuple>, offset>::TryConsumeTo(tuple, args);
+            return MultiConsumer<Tuple, std::tuple_element_t<offset, Tuple>, offset>::TryConsumeTo(tuple, handler, args);
         else if (!args.empty()) /* the entire string must be consumed */
             return std::nullopt;
         else
@@ -117,13 +118,13 @@ class TC_GAME_API ChatCommand
 
                 Tuple arguments;
                 std::get<0>(arguments) = chatHandler;
-                Trinity::Impl::ChatCommands::ChatCommandResult result = Trinity::Impl::ChatCommands::ConsumeFromOffset<Tuple, 1>(arguments, argsStr);
+                Trinity::Impl::ChatCommands::ChatCommandResult result = Trinity::Impl::ChatCommands::ConsumeFromOffset<Tuple, 1>(arguments, chatHandler, argsStr);
                 if (result)
                     return std::apply(reinterpret_cast<TypedHandler>(handler), std::move(arguments));
                 else
                 {
                     if (result.HasErrorMessage())
-                        Trinity::Impl::ChatCommands::SendMessageToHandler(chatHandler, result.GetErrorMessage());
+                        Trinity::Impl::ChatCommands::SendErrorMessageToHandler(chatHandler, result.GetErrorMessage());
                     return false;
                 }
             };

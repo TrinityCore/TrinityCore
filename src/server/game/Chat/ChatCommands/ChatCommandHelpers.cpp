@@ -17,8 +17,15 @@
 
 #include "ChatCommandHelpers.h"
 #include "Chat.h"
+#include "ObjectMgr.h"
 
-void Trinity::Impl::ChatCommands::SendMessageToHandler(ChatHandler* handler, std::string_view str)
+void Trinity::Impl::ChatCommands::SendErrorMessageToHandler(ChatHandler* handler, std::string_view str)
 {
     handler->SendSysMessage(str);
+    handler->SetSentErrorMessage(true);
+}
+
+char const* Trinity::Impl::ChatCommands::GetTrinityString(ChatHandler const* handler, TrinityStrings which)
+{
+    return handler->GetTrinityString(which);
 }

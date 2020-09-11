@@ -75,7 +75,7 @@ namespace Trinity::ChatCommands
     |* Simple holder classes to differentiate between extraction methods                    *|
     |* Must inherit from Trinity::Impl::ChatCommands::ContainerTag                          *|
     |* Must implement the following:                                                        *|
-    |* - TryConsume: std::string_view -> ChatCommandResult                                  *|
+    |* - TryConsume: ChatHandler const*, std::string_view -> ChatCommandResult              *|
     |*   - on match, returns tail of the provided argument string (as std::string_view)     *|
     |*   - on specific error, returns error message (as std::string&& or char const*)       *|
     |*   - on generic error, returns std::nullopt (this will print command usage)           *|
@@ -90,15 +90,17 @@ namespace Trinity::ChatCommands
     {
         using value_type = void;
 
-        ChatCommandResult TryConsume(std::string_view args) const
+        ChatCommandResult TryConsume(ChatHandler const* handler, std::string_view args) const
         {
-            if (StringStartsWithI(args, _string))
+            std::string_view start = args.substr(0, _string.length());
+            if (StringEqualI(start, _string))
             {
                 auto [remainingToken, tail] = Trinity::Impl::ChatCommands::tokenize(args.substr(_string.length()));
                 if (remainingToken.empty()) // if this is not empty, then we did not consume the full token
                     return tail;
+                start = args.substr(0, _string.length() + remainingToken.length());
             }
-            return std::nullopt;
+            return Trinity::Impl::ChatCommands::FormatTrinityString(handler, LANG_CMDPARSER_EXACT_SEQ_MISMATCH, STRING_VIEW_FMT_ARG(_string), STRING_VIEW_FMT_ARG(start));
         }
 
         private:
@@ -115,7 +117,7 @@ namespace Trinity::ChatCommands
 
         using std::string_view::operator=;
 
-        ChatCommandResult TryConsume(std::string_view args)
+        ChatCommandResult TryConsume(ChatHandler const*,std::string_view args)
         {
             std::string_view::operator=(args);
             return std::string_view();
@@ -128,12 +130,12 @@ namespace Trinity::ChatCommands
 
         using std::wstring::operator=;
 
-        ChatCommandResult TryConsume(std::string_view args)
+        ChatCommandResult TryConsume(ChatHandler const* handler, std::string_view args)
         {
             if (Utf8toWStr(args, *this))
                 return std::string_view();
             else
-                return std::nullopt;
+                return Trinity::Impl::ChatCommands::GetTrinityString(handler, LANG_CMDPARSER_INVALID_UTF8);
         }
     };
 
@@ -141,7 +143,7 @@ namespace Trinity::ChatCommands
     {
         using value_type = std::string;
 
-        TC_GAME_API ChatCommandResult TryConsume(std::string_view args);
+        TC_GAME_API ChatCommandResult TryConsume(ChatHandler const* handler, std::string_view args);
     };
 
     struct TC_GAME_API AccountIdentifier : Trinity::Impl::ChatCommands::ContainerTag
@@ -155,7 +157,7 @@ namespace Trinity::ChatCommands
         uint32 GetID() const { return _id; }
         std::string const& GetName() const { return _name; }
 
-        ChatCommandResult TryConsume(std::string_view args);
+        ChatCommandResult TryConsume(ChatHandler const* handler, std::string_view args);
 
         private:
             uint32 _id;
@@ -178,7 +180,7 @@ namespace Trinity::ChatCommands
         bool IsConnected() const { return (_player != nullptr); }
         Player* GetConnectedPlayer() const { return _player; }
 
-        ChatCommandResult TryConsume(std::string_view args);
+        ChatCommandResult TryConsume(ChatHandler const* handler, std::string_view args);
 
         static Optional<PlayerIdentifier> FromTarget(ChatHandler* handler);
         static Optional<PlayerIdentifier> FromSelf(ChatHandler* handler);
@@ -206,7 +208,7 @@ namespace Trinity::ChatCommands
         value_type operator*() const { return val; }
         storage_type const* operator->() const { return &val; }
 
-        ChatCommandResult TryConsume(std::string_view args)
+        ChatCommandResult TryConsume(ChatHandler const* handler, std::string_view args)
         {
             Trinity::Hyperlinks::HyperlinkInfo info = Trinity::Hyperlinks::ParseSingleHyperlink(args);
             // invalid hyperlinks cannot be consumed
@@ -219,7 +221,7 @@ namespace Trinity::ChatCommands
 
             // store value
             if (!linktag::StoreTo(val, info.data))
-                return "Link data is invalid";
+                return Trinity::Impl::ChatCommands::GetTrinityString(handler, LANG_CMDPARSER_LINKDATA_INVALID);
 
             // finally, skip any potential delimiters
             auto [token, next] = Trinity::Impl::ChatCommands::tokenize(info.tail);

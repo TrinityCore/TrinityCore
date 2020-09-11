@@ -19,7 +19,10 @@
 #define TRINITY_CHATCOMMANDHELPERS_H
 
 #include "Define.h"
+#include "Language.h"
+#include "StringFormat.h"
 #include <optional>
+#include <string>
 #include <string_view>
 #include <type_traits>
 #include <variant>
@@ -117,7 +120,13 @@ namespace Trinity::Impl::ChatCommands
             std::variant<std::monostate, std::string_view, std::string> _storage;
     };
 
-    TC_GAME_API void SendMessageToHandler(ChatHandler* handler, std::string_view str);
+    TC_GAME_API void SendErrorMessageToHandler(ChatHandler* handler, std::string_view str);
+    TC_GAME_API char const* GetTrinityString(ChatHandler const* handler, TrinityStrings which);
+    template <typename... Ts>
+    std::string FormatTrinityString(ChatHandler const* handler, TrinityStrings which, Ts&&... args)
+    {
+        return Trinity::StringFormat(GetTrinityString(handler, which), std::forward<Ts>(args)...);
+    }
 }
 
 #endif
