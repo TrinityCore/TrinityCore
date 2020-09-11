@@ -137,9 +137,9 @@ public:
         return true;
     }
 
-    static bool HandleLfgQueueInfoCommand(ChatHandler* handler, bool full)
+    static bool HandleLfgQueueInfoCommand(ChatHandler* handler, Tail full)
     {
-        handler->SendSysMessage(sLFGMgr->DumpQueueInfo(full).c_str(), true);
+        handler->SendSysMessage(sLFGMgr->DumpQueueInfo(!full.empty()).c_str(), true);
         return true;
     }
 
