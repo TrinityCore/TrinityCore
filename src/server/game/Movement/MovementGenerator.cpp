@@ -17,6 +17,7 @@
 
 #include "MovementGenerator.h"
 #include "IdleMovementGenerator.h"
+#include "Unit.h"
 #include "UnitAI.h"
 
 MovementGenerator::~MovementGenerator() { }
