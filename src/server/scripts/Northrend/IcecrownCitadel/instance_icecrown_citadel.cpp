@@ -1513,7 +1513,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         trapPositions = GoSpiritAlarm_4;
                         break;
                     default:
-                        break;
+                        return;
                 }
 
                 go->Relocate(Trinity::Containers::SelectRandomContainerElement(trapPositions));
