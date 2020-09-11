@@ -38,6 +38,7 @@ enum DruidSpells
     SPELL_DRUID_ASTRAL_ALIGNMENT            = 90164,
     SPELL_DRUID_BLOOD_IN_THE_WATER_SCRIPT   = 80863,
     SPELL_DRUID_BLOOM                       = 90159,
+    SPELL_DRUID_BRUTAL_IMPACT_R1            = 16940,
     SPELL_DRUID_WRATH                       = 5176,
     SPELL_DRUID_STARFIRE                    = 2912,
     SPELL_DRUID_STARSURGE                   = 78674,
@@ -96,6 +97,10 @@ enum DruidSpells
     SPELL_DRUID_RIP                         = 1079,
     SPELL_DRUID_SURVIVAL_INSTINCTS          = 50322,
     SPELL_DRUID_SAVAGE_ROAR                 = 62071,
+    SPELL_DRUID_SKULL_BASH_CHARGE           = 93983,
+    SPELL_DRUID_SKULL_BASH_INTERRUPT        = 93985,
+    SPELL_DRUID_SKULL_BASH_COST_INCREASE_R1 = 82364,
+    SPELL_DRUID_SKULL_BASH_COST_INCREASE_R2 = 82365,
     SPELL_DRUID_STAMPEDE_BAER_RANK_1        = 81016,
     SPELL_DRUID_STAMPEDE_CAT_RANK_1         = 81021,
     SPELL_DRUID_STAMPEDE_CAT_STATE          = 109881,
@@ -1913,6 +1918,41 @@ class spell_dru_item_t11_feral_4p_bonus : public AuraScript
     }
 };
 
+// 80964 - Skull Bash (Bear Form)
+// 80965 - Skull Bash (Cat Form)
+class spell_dru_skull_bash : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_DRUID_SKULL_BASH_CHARGE,
+                SPELL_DRUID_SKULL_BASH_INTERRUPT,
+                SPELL_DRUID_SKULL_BASH_COST_INCREASE_R1,
+                SPELL_DRUID_SKULL_BASH_COST_INCREASE_R2,
+                SPELL_DRUID_BRUTAL_IMPACT_R1
+            });
+    }
+
+    void HandleDummyEffect(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        Unit* target = GetHitUnit();
+        caster->CastSpell(target, SPELL_DRUID_SKULL_BASH_CHARGE);
+        caster->CastSpell(target, SPELL_DRUID_SKULL_BASH_INTERRUPT);
+        if (Aura const* aura = caster->GetAuraOfRankedSpell(SPELL_DRUID_BRUTAL_IMPACT_R1, caster->GetGUID()))
+            caster->CastSpell(target, aura->GetSpellInfo()->GetRank() == 1 ? SPELL_DRUID_SKULL_BASH_COST_INCREASE_R1 : SPELL_DRUID_SKULL_BASH_COST_INCREASE_R2);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget.Register(&spell_dru_skull_bash::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_druid_spell_scripts()
 {
     RegisterSpellScript(spell_dru_astral_alignment);
@@ -1949,6 +1989,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_savage_defense);
     RegisterSpellAndAuraScriptPair(spell_dru_savage_roar, spell_dru_savage_roar_AuraScript);
     RegisterSpellScript(spell_dru_shooting_stars);
+    RegisterSpellScript(spell_dru_skull_bash);
     RegisterSpellScript(spell_dru_starfall_dummy);
     RegisterSpellScript(spell_dru_stampede);
     RegisterSpellScript(spell_dru_solar_beam);
