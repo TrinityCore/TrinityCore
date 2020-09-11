@@ -1229,7 +1229,7 @@ uint8 GameObject::getLevelForTarget(WorldObject const* target) const
         if (GetGOInfo()->trap.level != 0)
             return GetGOInfo()->trap.level;
         if (const Unit* targetUnit = target->ToUnit())
-            return targetUnit->GetLevel();
+            return targetUnit->getLevel();
     }
 
     return 1;

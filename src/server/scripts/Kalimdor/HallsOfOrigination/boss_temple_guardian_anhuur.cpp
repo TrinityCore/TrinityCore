@@ -231,7 +231,7 @@ struct boss_temple_guardian_anhuur : public BossAI
                     me->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
                     me->SetFacingTo(1.5708f);
                     DoCastSelf(SPELL_SHIELD_OF_LIGHT);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_31);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE);
                     events.ScheduleEvent(EVENT_ACTIVATE_BEACONS, 2s, 0, PHASE_SHIELD);
                     break;
                 case EVENT_ACTIVATE_BEACONS:
