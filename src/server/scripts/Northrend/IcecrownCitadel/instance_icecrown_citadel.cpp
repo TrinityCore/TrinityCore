@@ -132,6 +132,12 @@ Position const MuradinSpawnPos  = { -47.34549f, 2208.087f, 27.98586f, 3.106686f 
 Position const UtherSpawnPos    = { -26.58507f, 2211.524f, 30.19898f, 3.124139f };
 Position const SylvanasSpawnPos = { -41.45833f, 2222.891f, 27.98586f, 3.647738f };
 
+// Set position traps Spirit Alarm
+std::vector<Position> GoSpiritAlarm_1 = { { -160.96f, 2210.46f, 35.24f, 0.0f }, { -176.27f, 2201.93f, 35.24f, 0.0f}, { -207.83f, 2207.38f, 35.24f, 0.0f } };
+std::vector<Position> GoSpiritAlarm_2 = { { -178.41f, 2225.11f, 35.24f, 0.0f }, { -195.23f, 2221.55f, 35.24f, 0.0f}, { -209.94f, 2250.34f, 37.99f, 0.0f } };
+std::vector<Position> GoSpiritAlarm_3 = { { -289.80f, 2216.60f, 42.39f, 0.0f }, { -317.76f, 2216.11f, 42.57f, 0.0f}, { -301.07f, 2216.62f, 42.0f, 0.0f } };
+std::vector<Position> GoSpiritAlarm_4 = { { -276.07f, 2206.76f, 42.57f, 0.0f }, { -304.44f, 2199.11f, 41.99f, 0.0f}, { -292.82f, 2204.61f, 42.02f, 0.0f } };
+
 class instance_icecrown_citadel : public InstanceMapScript
 {
     public:
@@ -683,6 +689,12 @@ class instance_icecrown_citadel : public InstanceMapScript
                         PillarsUnchainedGUID = go->GetGUID();
                         if (GetBossState(DATA_THE_LICH_KING) == DONE)
                             go->SetRespawnTime(7 * DAY);
+                        break;
+                    case GO_SPIRIT_ALARM_1:
+                    case GO_SPIRIT_ALARM_2:
+                    case GO_SPIRIT_ALARM_3:
+                    case GO_SPIRIT_ALARM_4:
+                        SetPositionTraps(go);
                         break;
                     default:
                         break;
@@ -1480,6 +1492,31 @@ class instance_icecrown_citadel : public InstanceMapScript
                     default:
                         break;
                 }
+            }
+
+            void SetPositionTraps(GameObject* go)
+            {
+                std::vector<Position> trapPositions;
+
+                switch (go->GetEntry())
+                {
+                    case GO_SPIRIT_ALARM_1:
+                        trapPositions = GoSpiritAlarm_1;
+                        break;
+                    case GO_SPIRIT_ALARM_2:
+                        trapPositions= GoSpiritAlarm_2;
+                        break;
+                    case GO_SPIRIT_ALARM_3:
+                        trapPositions = GoSpiritAlarm_3;
+                        break;
+                    case GO_SPIRIT_ALARM_4:
+                        trapPositions = GoSpiritAlarm_4;
+                        break;
+                    default:
+                        break;
+                }
+
+                go->Relocate(Trinity::Containers::SelectRandomContainerElement(trapPositions));
             }
 
         protected:
