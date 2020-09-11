@@ -822,15 +822,15 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (!me)
                 break;
 
-            me->AI()->EnterEvadeMode();
-            me->SetWalk(e.action.evade.WalkMode ? true : false);
-            if (e.action.evade.ToRespawnPosition == 0)
+            // Reset home position to respawn position if specified in the parameters
+            if (e.action.evade.toRespawnPosition == 0)
             {
                 float HomepositionX, HomepositionY, HomepositionZ, HomepositionO;
                 me->GetRespawnPosition(HomepositionX, HomepositionY, HomepositionZ, &HomepositionO);
                 me->SetHomePosition(HomepositionX, HomepositionY, HomepositionZ, HomepositionO);
-                me->GetMotionMaster()->MoveTargetedHome();
             }
+
+            me->AI()->EnterEvadeMode();
             TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_EVADE: Creature %s EnterEvadeMode", me->GetGUID().ToString().c_str());
             break;
         }
