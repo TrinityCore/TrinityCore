@@ -1033,7 +1033,7 @@ bool PathGenerator::IsInvalidDestinationZ(Unit const* target) const
 
 void PathGenerator::SetPathLengthLimit(float length)
 {
-    if (!(uint32(length) % 4))
+    if (!(uint32(length) % uint32(SMOOTH_PATH_STEP_SIZE)))
         _pointPathLimit = std::min<uint32>(length / SMOOTH_PATH_STEP_SIZE, MAX_POINT_PATH_LENGTH);
     else
         _pointPathLimit = std::min<uint32>((length + SMOOTH_PATH_STEP_SIZE) / SMOOTH_PATH_STEP_SIZE, MAX_POINT_PATH_LENGTH);
