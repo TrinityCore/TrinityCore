@@ -33,7 +33,7 @@ enum Points
     POINT_HOME          = 0xFFFFFE
 };
 
-EscortAI::EscortAI(Creature* creature) : ScriptedAI(creature), _pauseTimer(2500), _playerCheckTimer(1000), _escortState(STATE_ESCORT_NONE), _maxPlayerDistance(DEFAULT_MAX_PLAYER_DISTANCE),
+EscortAI::EscortAI(Creature* creature) : ScriptedAI(creature), _pauseTimer(2500ms), _playerCheckTimer(1000), _escortState(STATE_ESCORT_NONE), _maxPlayerDistance(DEFAULT_MAX_PLAYER_DISTANCE),
     _escortQuest(nullptr), _activeAttacker(true), _running(false), _instantRespawn(false), _returnToStart(false), _despawnAtEnd(true), _despawnAtFar(true), _manualPath(false),
     _hasImmuneToNPCFlags(false), _started(false), _ended(false), _resume(false)
 {
@@ -79,7 +79,7 @@ void EscortAI::InitializeAI()
         SetCombatMovement(true);
 
     // add a small delay before going to first waypoint, normal in near all cases
-    _pauseTimer = 2000;
+    _pauseTimer = 2s;
 
     if (me->GetFaction() != me->GetCreatureTemplate()->faction)
         me->RestoreFaction();
@@ -123,8 +123,8 @@ void EscortAI::MovementInform(uint32 type, uint32 id)
 
     if (type == POINT_MOTION_TYPE)
     {
-        if (!_pauseTimer)
-            _pauseTimer = 2000;
+        if (_pauseTimer == 0s)
+            _pauseTimer = 2s;
 
         // continue waypoint movement
         if (id == POINT_LAST_POINT)
@@ -151,7 +151,7 @@ void EscortAI::MovementInform(uint32 type, uint32 id)
         {
             _started = false;
             _ended = true;
-            _pauseTimer = 1000;
+            _pauseTimer = 1s;
         }
     }
 }
@@ -161,11 +161,11 @@ void EscortAI::UpdateAI(uint32 diff)
     // Waypoint Updating
     if (HasEscortState(STATE_ESCORT_ESCORTING) && !me->IsEngaged() && !HasEscortState(STATE_ESCORT_RETURNING))
     {
-        if (_pauseTimer <= diff)
+        if (_pauseTimer.count() <= diff)
         {
             if (!HasEscortState(STATE_ESCORT_PAUSED))
             {
-                _pauseTimer = 0;
+                _pauseTimer = 0s;
 
                 if (_ended)
                 {
@@ -208,7 +208,7 @@ void EscortAI::UpdateAI(uint32 diff)
             }
         }
         else
-            _pauseTimer -= diff;
+            _pauseTimer -= Milliseconds(diff);
     }
 
     // Check if player or any member of his group is within range
@@ -227,7 +227,7 @@ void EscortAI::UpdateAI(uint32 diff)
                 if (_instantRespawn)
                 {
                     if (!isEscort)
-                      me->DespawnOrUnsummon(0, 1s);
+                      me->DespawnOrUnsummon(0s, 1s);
                     else
                       me->GetMap()->Respawn(SPAWN_TYPE_CREATURE, me->GetSpawnId());
                 }
@@ -254,7 +254,7 @@ void EscortAI::UpdateEscortAI(uint32 /*diff*/)
     DoMeleeAttackIfReady();
 }
 
-void EscortAI::AddWaypoint(uint32 id, float x, float y, float z, float orientation/* = 0*/, uint32 waitTime/* = 0*/)
+void EscortAI::AddWaypoint(uint32 id, float x, float y, float z, float orientation/* = 0*/, Milliseconds waitTime/* = 0s*/)
 {
     Trinity::NormalizeMapCoord(x);
     Trinity::NormalizeMapCoord(y);
@@ -266,7 +266,7 @@ void EscortAI::AddWaypoint(uint32 id, float x, float y, float z, float orientati
     waypoint.z = z;
     waypoint.orientation = orientation;
     waypoint.moveType = _running ? WAYPOINT_MOVE_TYPE_RUN : WAYPOINT_MOVE_TYPE_WALK;
-    waypoint.delay = waitTime;
+    waypoint.delay = waitTime.count();
     waypoint.eventId = 0;
     waypoint.eventChance = 100;
     _path.nodes.push_back(std::move(waypoint));
@@ -278,13 +278,10 @@ void EscortAI::AddWaypoint(uint32 id, float x, float y, float z, float orientati
 void EscortAI::Start(bool isActiveAttacker /* = true*/, bool run /* = false */, ObjectGuid playerGUID /* = 0 */, Quest const* quest /* = nullptr */, bool instantRespawn /* = false */, bool canLoopPath /* = false */, bool resetWaypoints /* = true */)
 {
     // Queue respawn from the point it starts
-    if (Map* map = me->GetMap())
+    if (CreatureData const* cdata = me->GetCreatureData())
     {
-        if (CreatureData const* cdata = me->GetCreatureData())
-        {
-            if (sWorld->getBoolConfig(CONFIG_RESPAWN_DYNAMIC_ESCORTNPC) && (cdata->spawnGroupData->flags & SPAWNGROUP_FLAG_ESCORTQUESTNPC))
-                me->SaveRespawnTime(me->GetRespawnDelay());
-        }
+        if (sWorld->getBoolConfig(CONFIG_RESPAWN_DYNAMIC_ESCORTNPC) && (cdata->spawnGroupData->flags & SPAWNGROUP_FLAG_ESCORTQUESTNPC))
+            me->SaveRespawnTime(me->GetRespawnDelay());
     }
 
     if (me->IsEngaged())

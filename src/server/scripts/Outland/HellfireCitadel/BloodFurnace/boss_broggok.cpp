@@ -150,7 +150,7 @@ class boss_broggok : public CreatureScript
         }
 };
 
-static std::vector<uint32> const PrisionersEmotes =
+static Emote const PrisionersEmotes[] =
 {
     EMOTE_ONESHOT_ROAR,
     EMOTE_ONESHOT_SHOUT,
@@ -179,7 +179,7 @@ struct BroggokPrisionersAI : public ScriptedAI
 
     virtual void ScheduleEvents() = 0;
 
-    void EnterEvadeMode(EvadeReason why) override
+    void JustReachedHome() override
     {
         if (instance->GetBossState(DATA_BROGGOK) == IN_PROGRESS)
         {
@@ -187,7 +187,7 @@ struct BroggokPrisionersAI : public ScriptedAI
                 broggok->AI()->DoAction(ACTION_RESET_BROGGOK);
         }
 
-        ScriptedAI::EnterEvadeMode(why);
+        ScriptedAI::JustReachedHome();
     }
 
     void UpdateAI(uint32 diff) override
@@ -254,7 +254,7 @@ class go_broggok_lever : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* /*player*/) override
+            bool OnGossipHello(Player* /*player*/) override
             {
                 if (instance->GetBossState(DATA_BROGGOK) != DONE && instance->GetBossState(DATA_BROGGOK) != IN_PROGRESS)
                 {

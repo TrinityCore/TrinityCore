@@ -33,53 +33,6 @@
 #include "WorldSession.h"
 
 /*######
-## npc_khunok_the_behemoth
-######*/
-
-enum Khunok
-{
-    NPC_ORPHANED_MAMMOTH_CALF        = 25861,
-    SPELL_MAMMOTH_CALF_ESCORT_CREDIT = 46231
-};
-
-class npc_khunok_the_behemoth : public CreatureScript
-{
-public:
-    npc_khunok_the_behemoth() : CreatureScript("npc_khunok_the_behemoth") { }
-
-    struct npc_khunok_the_behemothAI : public ScriptedAI
-    {
-        npc_khunok_the_behemothAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void MoveInLineOfSight(Unit* who) override
-
-        {
-            ScriptedAI::MoveInLineOfSight(who);
-
-            if (who->GetTypeId() != TYPEID_UNIT)
-                return;
-
-            if (who->GetEntry() == NPC_ORPHANED_MAMMOTH_CALF && me->IsWithinDistInMap(who, 10.0f))
-            {
-                if (Unit* owner = who->GetOwner())
-                {
-                    if (owner->GetTypeId() == TYPEID_PLAYER)
-                    {
-                        owner->CastSpell(owner, SPELL_MAMMOTH_CALF_ESCORT_CREDIT, true);
-                        who->ToCreature()->DespawnOrUnsummon();
-                    }
-                }
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_khunok_the_behemothAI(creature);
-    }
-};
-
-/*######
 ## npc_corastrasza
 ######*/
 
@@ -109,7 +62,7 @@ public:
     {
         npc_corastraszaAI(Creature* creature) : ScriptedAI(creature) { }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             if (me->IsQuestGiver())
                 player->PrepareQuestMenu(me->GetGUID());
@@ -129,7 +82,7 @@ public:
             return true;
         }
 
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
             uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
             ClearGossipMenuFor(player);
@@ -267,8 +220,8 @@ class spell_q11865_place_fake_fur : public SpellScript
         float x, y, z;
         go->GetClosePoint(x, y, z, go->GetCombatReach() / 3, 7.0f);
 
-        go->SummonGameObject(GO_HIGH_QUALITY_FUR, go->GetPosition(), QuaternionData(), 20);
-        if (TempSummon* summon = player->SummonCreature(NPC_NESINGWARY_TRAPPER, x, y, z, go->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 1000))
+        go->SummonGameObject(GO_HIGH_QUALITY_FUR, go->GetPosition(), QuaternionData(), 20s);
+        if (TempSummon* summon = player->SummonCreature(NPC_NESINGWARY_TRAPPER, x, y, z, go->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 1s))
         {
             summon->SetVisible(false);
             summon->SetReactState(REACT_PASSIVE);
@@ -400,152 +353,6 @@ public:
     }
 };
 
-/*######
-## npc_lurgglbr
-######*/
-
-enum Lurgglbr
-{
-    QUEST_ESCAPE_WINTERFIN_CAVERNS      = 11570,
-
-    GO_CAGE                             = 187369,
-
-    SAY_START_1                         = 0,
-    SAY_START_2                         = 1,
-    SAY_END_1                           = 2,
-    SAY_END_2                           = 3
-};
-
-class npc_lurgglbr : public CreatureScript
-{
-public:
-    npc_lurgglbr() : CreatureScript("npc_lurgglbr") { }
-
-    struct npc_lurgglbrAI : public EscortAI
-    {
-        npc_lurgglbrAI(Creature* creature) : EscortAI(creature)
-        {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            IntroTimer = 0;
-            IntroPhase = 0;
-        }
-
-        uint32 IntroTimer;
-        uint32 IntroPhase;
-
-        void Reset() override
-        {
-            if (!HasEscortState(STATE_ESCORT_ESCORTING))
-                Initialize();
-        }
-
-        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
-        {
-            switch (waypointId)
-            {
-                case 0:
-                    IntroPhase = 1;
-                    IntroTimer = 2000;
-                    break;
-                case 41:
-                    SetEscortPaused(true);
-                    IntroPhase = 4;
-                    IntroTimer = 2000;
-                    break;
-            }
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (IntroPhase)
-            {
-                if (IntroTimer <= diff)
-                {
-                    switch (IntroPhase)
-                    {
-                        case 1:
-                            if (Player* player = GetPlayerForEscort())
-                                Talk(SAY_START_1, player);
-                            IntroPhase = 2;
-                            IntroTimer = 7500;
-                            break;
-                        case 2:
-                            Talk(SAY_START_2);
-                            IntroPhase = 3;
-                            IntroTimer = 7500;
-                            break;
-                        case 3:
-                            me->SetReactState(REACT_DEFENSIVE);
-                            IntroPhase = 0;
-                            IntroTimer = 0;
-                            break;
-                        case 4:
-                            Talk(SAY_END_1);
-                            IntroPhase = 5;
-                            IntroTimer = 8000;
-                            break;
-                        case 5:
-                            if (Player* player = GetPlayerForEscort())
-                                Talk(SAY_END_2, player);
-                            IntroPhase = 6;
-                            IntroTimer = 2500;
-                            break;
-                        case 6:
-                            if (Player* player = GetPlayerForEscort())
-                                player->AreaExploredOrEventHappens(QUEST_ESCAPE_WINTERFIN_CAVERNS);
-                            IntroPhase = 7;
-                            IntroTimer = 2500;
-                            break;
-                        case 7:
-                            me->DespawnOrUnsummon();
-                            IntroPhase = 0;
-                            IntroTimer = 0;
-                            break;
-                    }
-                } else IntroTimer -= diff;
-            }
-            EscortAI::UpdateAI(diff);
-
-            if (!UpdateVictim())
-                return;
-        }
-
-        void QuestAccept(Player* player, Quest const* quest) override
-        {
-            if (quest->GetQuestId() == QUEST_ESCAPE_WINTERFIN_CAVERNS)
-            {
-                if (GameObject* go = me->FindNearestGameObject(GO_CAGE, 5.0f))
-                {
-                    go->SetRespawnTime(0);
-                    go->UseDoorOrButton(20000);
-                }
-
-                Start(true, false, player->GetGUID());
-
-                switch (player->GetTeam())
-                {
-                    case ALLIANCE:
-                        me->SetFaction(FACTION_ESCORTEE_A_PASSIVE);
-                        break;
-                    default:
-                    case HORDE:
-                        me->SetFaction(FACTION_ESCORTEE_H_PASSIVE);
-                        break;
-                }
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_lurgglbrAI(creature);
-    }
-};
-
 enum red_dragonblood
 {
     SPELL_DRAKE_HATCHLING_SUBDUED = 46691,
@@ -575,7 +382,7 @@ public:
             GetCaster()->CastSpell(GetCaster(), SPELL_DRAKE_HATCHLING_SUBDUED, true);
             owner->SetFaction(FACTION_FRIENDLY);
             owner->SetImmuneToAll(true);
-            owner->DespawnOrUnsummon(3 * MINUTE*IN_MILLISECONDS);
+            owner->DespawnOrUnsummon(3min);
         }
 
         void Register()
@@ -695,7 +502,7 @@ public:
             {
                 case 3:
                     SetEscortPaused(true);
-                    if (Creature* arthas = me->SummonCreature(NPC_IMAGE_LICH_KING, 3730.313f, 3518.689f, 473.324f, 1.562f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 120000))
+                    if (Creature* arthas = me->SummonCreature(NPC_IMAGE_LICH_KING, 3730.313f, 3518.689f, 473.324f, 1.562f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2min))
                     {
                         arthasGUID = arthas->GetGUID();
                         arthas->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -703,7 +510,7 @@ public:
                         arthas->SetWalk(true);
                         arthas->GetMotionMaster()->MovePoint(0, 3737.374756f, 3564.841309f, 477.433014f);
                     }
-                    if (Creature* talbot = me->SummonCreature(NPC_COUNSELOR_TALBOT, 3747.23f, 3614.936f, 473.321f, 4.462012f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 120000))
+                    if (Creature* talbot = me->SummonCreature(NPC_COUNSELOR_TALBOT, 3747.23f, 3614.936f, 473.321f, 4.462012f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2min))
                     {
                         talbotGUID = talbot->GetGUID();
                         talbot->SetWalk(true);
@@ -784,13 +591,13 @@ public:
                         break;
 
                     case 6:
-                        if (Creature* arlos = me->SummonCreature(NPC_GENERAL_ARLOS, 3745.527100f, 3615.655029f, 473.321533f, 4.447805f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 120000))
+                        if (Creature* arlos = me->SummonCreature(NPC_GENERAL_ARLOS, 3745.527100f, 3615.655029f, 473.321533f, 4.447805f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2min))
                         {
                             arlosGUID = arlos->GetGUID();
                             arlos->SetWalk(true);
                             arlos->GetMotionMaster()->MovePoint(0, 3735.570068f, 3572.419922f, 477.441010f);
                         }
-                        if (Creature* leryssa = me->SummonCreature(NPC_LERYSSA, 3749.654541f, 3614.959717f, 473.323486f, 4.524959f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 120000))
+                        if (Creature* leryssa = me->SummonCreature(NPC_LERYSSA, 3749.654541f, 3614.959717f, 473.323486f, 4.524959f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2min))
                         {
                             leryssaGUID = leryssa->GetGUID();
                             leryssa->SetWalk(false);
@@ -911,7 +718,7 @@ public:
                 arthas->RemoveFromWorld();
         }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             if (me->IsQuestGiver())
                 player->PrepareQuestMenu(me->GetGUID());
@@ -923,7 +730,7 @@ public:
             return true;
         }
 
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
             uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
             ClearGossipMenuFor(player);
@@ -1314,18 +1121,21 @@ public:
                 AttackStart(who);
         }
 
-        void SpellHit(Unit* pCaster, SpellInfo const* pSpell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
         {
-            if (pSpell->Id == SPELL_ARCANE_CHAINS && pCaster->GetTypeId() == TYPEID_PLAYER && !HealthAbovePct(50) && !bEnslaved)
+            Player* playerCaster = caster->ToPlayer();
+            if (!playerCaster)
+                return;
+
+            if (spellInfo->Id == SPELL_ARCANE_CHAINS && !HealthAbovePct(50) && !bEnslaved)
             {
                 EnterEvadeMode(); //We make sure that the npc is not attacking the player!
                 me->SetReactState(REACT_PASSIVE);
-                StartFollow(pCaster->ToPlayer());
+                StartFollow(playerCaster);
                 me->UpdateEntry(NPC_CAPTURED_BERLY_SORCERER);
                 DoCast(me, SPELL_COSMETIC_ENSLAVE_CHAINS_SELF, true);
 
-                if (Player* player = pCaster->ToPlayer())
-                    player->KilledMonsterCredit(NPC_CAPTURED_BERLY_SORCERER);
+                playerCaster->KilledMonsterCredit(NPC_CAPTURED_BERLY_SORCERER);
 
                 bEnslaved = true;
             }
@@ -1419,10 +1229,14 @@ public:
         {
         }
 
-        void SpellHit(Unit* unit, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
         {
-            if ((spell->Id == SPELL_NEURAL_NEEDLE || spell->Id == SPELL_PROTOTYPE_NEURAL_NEEDLE) && unit->GetTypeId() == TYPEID_PLAYER)
-                GotStinged(unit->ToPlayer(), spell->Id);
+            Player* playerCaster = caster->ToPlayer();
+            if (!playerCaster)
+                return;
+
+            if (spellInfo->Id == SPELL_NEURAL_NEEDLE || spellInfo->Id == SPELL_PROTOTYPE_NEURAL_NEEDLE)
+                GotStinged(playerCaster, spellInfo->Id);
         }
 
         void GotStinged(Player* caster, uint32 spellId)
@@ -1450,230 +1264,6 @@ public:
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_imprisoned_beryl_sorcererAI(creature);
-    }
-};
-
-/*######
-## npc_mootoo_the_younger
-######*/
-enum MootooTheYounger
-{
-    SAY_1                       = 0,
-    SAY_2                       = 1,
-    SAY_3                       = 2,
-    SAY_4                       = 3,
-    SAY_5                       = 4,
-
-    NPC_MOOTOO_THE_YOUNGER      = 25504,
-    QUEST_ESCAPING_THE_MIST     = 11664
-};
-
-class npc_mootoo_the_younger : public CreatureScript
-{
-public:
-    npc_mootoo_the_younger() : CreatureScript("npc_mootoo_the_younger") { }
-
-    struct npc_mootoo_the_youngerAI : public EscortAI
-    {
-        npc_mootoo_the_youngerAI(Creature* creature) : EscortAI(creature) { }
-
-        void Reset() override
-        {
-            SetDespawnAtFar(false);
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            if (Player* player = GetPlayerForEscort())
-                player->FailQuest(QUEST_ESCAPING_THE_MIST);
-        }
-
-        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
-        {
-            Player* player = GetPlayerForEscort();
-            if (!player)
-                return;
-
-            switch (waypointId)
-            {
-                case 10:
-                    me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
-                    Talk(SAY_2);
-                    break;
-                case 12:
-                    Talk(SAY_3);
-                    me->HandleEmoteCommand(EMOTE_ONESHOT_LOOT);
-                    break;
-                case 16:
-                    Talk(SAY_4);
-                    me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
-                    break;
-                case 20:
-                    me->SetPhaseMask(1, true);
-                    Talk(SAY_5);
-                    me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
-                    player->GroupEventHappens(QUEST_ESCAPING_THE_MIST, me);
-                    SetRun(true);
-                    break;
-            }
-        }
-
-        void QuestAccept(Player* player, Quest const* quest) override
-        {
-            if (quest->GetQuestId() == QUEST_ESCAPING_THE_MIST)
-            {
-                switch (player->GetTeam())
-                {
-                    case ALLIANCE:
-                        me->SetFaction(FACTION_ESCORTEE_A_PASSIVE);
-                        break;
-                    case HORDE:
-                        me->SetFaction(FACTION_ESCORTEE_H_PASSIVE);
-                        break;
-                }
-                me->SetStandState(UNIT_STAND_STATE_STAND);
-                Talk(SAY_1, player);
-                Start(true, false, player->GetGUID());
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_mootoo_the_youngerAI(creature);
-    }
-};
-
-/*######
-## npc_bonker_togglevolt
-######*/
-
-enum BonkerTogglevolt
-{
-    NPC_BONKER_TOGGLEVOLT  = 25589,
-    GO_BALL_AND_CHAIN      = 182531,
-    QUEST_GET_ME_OUTA_HERE = 11673,
-
-    EVENT_OOC_TALK         = 1,
-    EVENT_TALK_1           = 2,
-    EVENT_TALK_2           = 3,
-
-    SAY_BONKER_0           = 0,
-    SAY_BONKER_1           = 1,
-    SAY_BONKER_2           = 2,
-    SAY_BONKER_3           = 3,
-    SAY_BONKER_4           = 4,
-    SAY_BONKER_5           = 5
-};
-
-class npc_bonker_togglevolt : public CreatureScript
-{
-public:
-    npc_bonker_togglevolt() : CreatureScript("npc_bonker_togglevolt") { }
-
-    struct npc_bonker_togglevoltAI : public EscortAI
-    {
-        npc_bonker_togglevoltAI(Creature* creature) : EscortAI(creature)
-        {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            _events.ScheduleEvent(EVENT_OOC_TALK, 10s, 20s);
-        }
-
-        void Reset() override
-        {
-            SetDespawnAtFar(false);
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            if (Player* player = GetPlayerForEscort())
-                player->FailQuest(QUEST_GET_ME_OUTA_HERE);
-        }
-
-        void JustEngagedWith(Unit* who) override
-        {
-            if (who->GetTypeId() != TYPEID_PLAYER)
-            {
-                if (roll_chance_i(20))
-                    Talk(SAY_BONKER_5);
-            }
-        }
-
-        void UpdateEscortAI(uint32 diff) override
-        {
-            _events.Update(diff);
-
-            if (uint32 eventId = _events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_OOC_TALK:
-                        Talk(SAY_BONKER_0);
-                        _events.ScheduleEvent(EVENT_OOC_TALK, 5min, 10min);
-                        break;
-                    case EVENT_TALK_1:
-                        if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
-                            Talk(SAY_BONKER_1, player);
-                        if (GameObject* go = me->FindNearestGameObject(GO_BALL_AND_CHAIN, 20.0f))
-                            go->SetLootState(GO_JUST_DEACTIVATED);
-                        _events.ScheduleEvent(EVENT_TALK_2, 11s);
-                        break;
-                    case EVENT_TALK_2:
-                        Talk(SAY_BONKER_2);
-                        me->SetReactState(REACT_AGGRESSIVE);
-                        break;
-                }
-            }
-
-            if (!UpdateVictim())
-                return;
-
-            DoMeleeAttackIfReady();
-        }
-
-        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
-        {
-            Player* player = GetPlayerForEscort();
-            if (!player)
-                return;
-
-            switch (waypointId)
-            {
-                case 1:
-                    Talk(SAY_BONKER_3);
-                    break;
-                case 29:
-                    player->GroupEventHappens(QUEST_GET_ME_OUTA_HERE, me);
-                    Talk(SAY_BONKER_4, player);
-                    break;
-            }
-        }
-
-        void QuestAccept(Player* player, Quest const* quest) override
-        {
-            if (quest->GetQuestId() == QUEST_GET_ME_OUTA_HERE)
-            {
-                _player = player->GetGUID();
-                me->SetStandState(UNIT_STAND_STATE_STAND);
-                _events.ScheduleEvent(EVENT_TALK_1, Seconds(2));
-                _events.CancelEvent(EVENT_OOC_TALK);
-                Start(true, true, player->GetGUID());
-                SetPauseTimer(12 * IN_MILLISECONDS);
-            }
-        }
-
-    private:
-        EventMap _events;
-        ObjectGuid _player;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_bonker_togglevoltAI(creature);
     }
 };
 
@@ -1802,7 +1392,7 @@ public:
 };
 
 /*######
-## Help Those That Cannot Help Themselves, Quest 11876
+## Valiance Keep Cannoneer script to activate cannons
 ######*/
 
 enum Valiancekeepcannons
@@ -2012,7 +1602,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             uint32 uiGossipText = 0;
             char const* charGossipItem;
@@ -2046,7 +1636,7 @@ public:
             return true;
         }
 
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
             uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
             ClearGossipMenuFor(player);
@@ -2288,12 +1878,10 @@ class spell_q11653_shortening_blaster : public SpellScript
 
 void AddSC_borean_tundra()
 {
-    new npc_khunok_the_behemoth();
     new npc_corastrasza();
     new npc_nerubar_victim();
     RegisterSpellScript(spell_q11865_place_fake_fur);
     new npc_nesingwary_trapper();
-    new npc_lurgglbr();
     new spell_red_dragonblood();
     new npc_thassarian();
     new npc_image_lich_king();
@@ -2302,8 +1890,6 @@ void AddSC_borean_tundra()
     new npc_general_arlos();
     new npc_beryl_sorcerer();
     new npc_imprisoned_beryl_sorcerer();
-    new npc_mootoo_the_younger();
-    new npc_bonker_togglevolt();
     new npc_trapped_mammoth_calf();
     new npc_valiance_keep_cannoneer();
     new npc_hidden_cultist();

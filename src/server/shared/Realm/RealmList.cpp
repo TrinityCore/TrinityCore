@@ -42,8 +42,8 @@ RealmList* RealmList::Instance()
 void RealmList::Initialize(Trinity::Asio::IoContext& ioContext, uint32 updateInterval)
 {
     _updateInterval = updateInterval;
-    _updateTimer = Trinity::make_unique<Trinity::Asio::DeadlineTimer>(ioContext);
-    _resolver = Trinity::make_unique<boost::asio::ip::tcp::resolver>(ioContext);
+    _updateTimer = std::make_unique<Trinity::Asio::DeadlineTimer>(ioContext);
+    _resolver = std::make_unique<boost::asio::ip::tcp::resolver>(ioContext);
 
     LoadBuildInfo();
     // Get the content of the realmlist table in the database
@@ -77,11 +77,11 @@ void RealmList::LoadBuildInfo()
             build.Build = fields[4].GetUInt32();
             std::string windowsHash = fields[5].GetString();
             if (windowsHash.length() == build.WindowsHash.size() * 2)
-                HexStrToByteArray(windowsHash, build.WindowsHash.data());
+                HexStrToByteArray(windowsHash, build.WindowsHash);
 
             std::string macHash = fields[6].GetString();
             if (macHash.length() == build.MacHash.size() * 2)
-                HexStrToByteArray(macHash, build.MacHash.data());
+                HexStrToByteArray(macHash, build.MacHash);
 
         } while (result->NextRow());
     }
@@ -103,11 +103,11 @@ void RealmList::UpdateRealm(RealmHandle const& id, uint32 build, std::string con
     realm.AllowedSecurityLevel = allowedSecurityLevel;
     realm.PopulationLevel = population;
     if (!realm.ExternalAddress || *realm.ExternalAddress != address)
-        realm.ExternalAddress = Trinity::make_unique<boost::asio::ip::address>(std::move(address));
+        realm.ExternalAddress = std::make_unique<boost::asio::ip::address>(std::move(address));
     if (!realm.LocalAddress || *realm.LocalAddress != localAddr)
-        realm.LocalAddress = Trinity::make_unique<boost::asio::ip::address>(std::move(localAddr));
+        realm.LocalAddress = std::make_unique<boost::asio::ip::address>(std::move(localAddr));
     if (!realm.LocalSubnetMask || *realm.LocalSubnetMask != localSubmask)
-        realm.LocalSubnetMask = Trinity::make_unique<boost::asio::ip::address>(std::move(localSubmask));
+        realm.LocalSubnetMask = std::make_unique<boost::asio::ip::address>(std::move(localSubmask));
     realm.Port = port;
 }
 

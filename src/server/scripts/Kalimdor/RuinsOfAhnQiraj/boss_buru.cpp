@@ -120,7 +120,7 @@ class boss_buru : public CreatureScript
                 events.ScheduleEvent(EVENT_GATHERING_SPEED, 9s);
                 events.ScheduleEvent(EVENT_FULL_SPEED, 1min);
 
-                if (Unit* victim = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                if (Unit* victim = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                 {
                     ResetThreatList();
                     AttackStart(victim);
@@ -132,7 +132,7 @@ class boss_buru : public CreatureScript
             {
                 ChaseNewVictim();
                 Eggs.push_back(EggGUID);
-                events.ScheduleEvent(EVENT_RESPAWN_EGG, 100000);
+                events.ScheduleEvent(EVENT_RESPAWN_EGG, 100s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -218,7 +218,7 @@ class npc_buru_egg : public CreatureScript
             {
                 if (who->GetEntry() == NPC_HATCHLING)
                     if (Creature* buru = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_BURU)))
-                        if (Unit* target = buru->AI()->SelectTarget(SELECT_TARGET_RANDOM))
+                        if (Unit* target = buru->AI()->SelectTarget(SelectTargetMethod::Random))
                             who->AI()->AttackStart(target);
             }
 

@@ -34,7 +34,7 @@ enum Spells
     SPELL_CRYSTAL_CHAINS                          = 50997,
     SPELL_ENRAGE                                  = 8599,
     SPELL_CRYSTALFIRE_BREATH                      = 48096,
-    SPELL_CRYSTALIZE                              = 48179,
+    SPELL_CRYSTALLIZE                             = 48179,
     SPELL_INTENSE_COLD                            = 48094,
     SPELL_INTENSE_COLD_TRIGGERED                  = 48095
 };
@@ -42,7 +42,7 @@ enum Spells
 enum Events
 {
     EVENT_CRYSTAL_FIRE_BREATH                     = 1,
-    EVENT_CRYSTAL_CHAINS_CRYSTALIZE,
+    EVENT_CRYSTAL_CHAINS_CRYSTALLIZE,
     EVENT_TAIL_SWEEP
 };
 
@@ -99,7 +99,7 @@ class boss_keristrasza : public CreatureScript
                 BossAI::JustEngagedWith(who);
 
                 events.ScheduleEvent(EVENT_CRYSTAL_FIRE_BREATH, 14s);
-                events.ScheduleEvent(EVENT_CRYSTAL_CHAINS_CRYSTALIZE, DUNGEON_MODE(30000, 11000));
+                events.ScheduleEvent(EVENT_CRYSTAL_CHAINS_CRYSTALLIZE, DUNGEON_MODE(30s, 11s));
                 events.ScheduleEvent(EVENT_TAIL_SWEEP, 5s);
             }
 
@@ -186,17 +186,17 @@ class boss_keristrasza : public CreatureScript
                             DoCastVictim(SPELL_CRYSTALFIRE_BREATH);
                             events.ScheduleEvent(EVENT_CRYSTAL_FIRE_BREATH, 14s);
                             break;
-                        case EVENT_CRYSTAL_CHAINS_CRYSTALIZE:
+                        case EVENT_CRYSTAL_CHAINS_CRYSTALLIZE:
                             DoCast(me, SPELL_TAIL_SWEEP);
-                            events.ScheduleEvent(EVENT_CRYSTAL_CHAINS_CRYSTALIZE, 5s);
+                            events.ScheduleEvent(EVENT_CRYSTAL_CHAINS_CRYSTALLIZE, 5s);
                             break;
                         case EVENT_TAIL_SWEEP:
                             Talk(SAY_CRYSTAL_NOVA);
                             if (IsHeroic())
-                                DoCast(me, SPELL_CRYSTALIZE);
-                            else if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                                DoCast(me, SPELL_CRYSTALLIZE);
+                            else if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                                 DoCast(target, SPELL_CRYSTAL_CHAINS);
-                            events.ScheduleEvent(EVENT_TAIL_SWEEP, DUNGEON_MODE(30000, 11000));
+                            events.ScheduleEvent(EVENT_TAIL_SWEEP, DUNGEON_MODE(30s, 11s));
                             break;
                         default:
                             break;
@@ -234,7 +234,7 @@ public:
 
         InstanceScript* instance;
 
-        bool GossipHello(Player* /*player*/) override
+        bool OnGossipHello(Player* /*player*/) override
         {
             Creature* keristrasza = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KERISTRASZA));
             if (keristrasza && keristrasza->IsAlive())

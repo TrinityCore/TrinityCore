@@ -257,7 +257,7 @@ class spell_mother_shahraz_saber_lash : public AuraScript
         PreventDefaultAction();
 
         uint32 triggerSpell = GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
-        if (Unit* target = GetUnitOwner()->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 0))
+        if (Unit* target = GetUnitOwner()->GetAI()->SelectTarget(SelectTargetMethod::Random, 0))
             GetUnitOwner()->CastSpell(target, triggerSpell, true);
     }
 
@@ -285,7 +285,7 @@ class spell_mother_shahraz_generic_periodic : public AuraScript
         PreventDefaultAction();
 
         uint32 triggerSpell = GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
-        if (Unit* target = GetUnitOwner()->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 0))
+        if (Unit* target = GetUnitOwner()->GetAI()->SelectTarget(SelectTargetMethod::Random, 0))
             GetUnitOwner()->CastSpell(target, triggerSpell, true);
     }
 
@@ -322,7 +322,7 @@ void AddSC_boss_mother_shahraz()
     RegisterBlackTempleCreatureAI(boss_mother_shahraz);
     RegisterSpellScript(spell_mother_shahraz_fatal_attraction);
     RegisterSpellScript(spell_mother_shahraz_fatal_attraction_link);
-    RegisterAuraScript(spell_mother_shahraz_saber_lash);
-    RegisterAuraScript(spell_mother_shahraz_generic_periodic);
-    RegisterAuraScript(spell_mother_shahraz_random_periodic);
+    RegisterSpellScript(spell_mother_shahraz_saber_lash);
+    RegisterSpellScript(spell_mother_shahraz_generic_periodic);
+    RegisterSpellScript(spell_mother_shahraz_random_periodic);
 }

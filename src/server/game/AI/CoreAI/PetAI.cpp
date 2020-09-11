@@ -366,6 +366,12 @@ void PetAI::HandleReturnMovement()
     if (me->IsCharmed())
         return;
 
+    if (!me->GetCharmInfo())
+    {
+        TC_LOG_WARN("scripts.ai.petai", "me->GetCharmInfo() is NULL in PetAI::HandleReturnMovement(). Debug info: %s", GetDebugInfo().c_str());
+        return;
+    }
+
     if (me->GetCharmInfo()->HasCommandState(COMMAND_STAY))
     {
         if (!me->GetCharmInfo()->IsAtStay() && !me->GetCharmInfo()->IsReturning())
@@ -492,7 +498,7 @@ bool PetAI::CanAttack(Unit* target)
 
     if (!me->GetCharmInfo())
     {
-        TC_LOG_ERROR("scripts.ai.petai", "me->GetCharmInfo() is NULL in PetAI::CanAttack(). Debug info: %s", GetDebugInfo().c_str());
+        TC_LOG_WARN("scripts.ai.petai", "me->GetCharmInfo() is NULL in PetAI::CanAttack(). Debug info: %s", GetDebugInfo().c_str());
         return false;
     }
 

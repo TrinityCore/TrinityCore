@@ -192,7 +192,7 @@ public:
             //Charge_Timer
             if (Charge_Timer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                 {
                     DoCast(target, SPELL_CHARGE);
                     //me->SendMonsterMove(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, true, 1);
@@ -269,9 +269,9 @@ public:
 
             for (uint8 i = 0; i < 10; ++i)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                 {
-                    if (Creature* Summoned = me->SummonCreature(15621, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 90000))
+                    if (Creature* Summoned = me->SummonCreature(15621, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 90s))
                         Summoned->AI()->AttackStart(target);
                 }
             }

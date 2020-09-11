@@ -19,96 +19,92 @@
 #define TRINITY_CRYPTO_GENERICS_HPP
 
 #include "BigNumber.h"
+#include "CryptoRandom.h"
 #include "Define.h"
 #include "Errors.h"
 #include <iterator>
 #include <vector>
-#include <openssl/rand.h>
 
-namespace Trinity
+namespace Trinity::Impl
 {
-    namespace Impl
+    struct CryptoGenericsImpl
     {
-        struct CryptoGenericsImpl
+        template <typename Cipher>
+        static typename Cipher::IV GenerateRandomIV()
         {
-            template <typename Cipher>
-            static typename Cipher::IV GenerateRandomIV()
-            {
-                typename Cipher::IV iv;
-                int status = RAND_bytes(std::data(iv), std::size(iv));
-                ASSERT(status);
-                return iv;
-            }
+            typename Cipher::IV iv;
+            Trinity::Crypto::GetRandomBytes(iv);
+            return iv;
+        }
 
-            template <typename C>
-            static void AppendToBack(std::vector<uint8>& data, C const& tail)
-            {
-                data.insert(data.end(), std::begin(tail), std::end(tail));
-            }
+        template <typename Container>
+        static void AppendToBack(std::vector<uint8>& data, Container const& tail)
+        {
+            data.insert(data.end(), std::begin(tail), std::end(tail));
+        }
 
-            template <typename C>
-            static void SplitFromBack(std::vector<uint8>& data, C& tail)
+        template <typename Container>
+        static void SplitFromBack(std::vector<uint8>& data, Container& tail)
+        {
+            ASSERT(data.size() >= std::size(tail));
+            for (size_t i = 1, N = std::size(tail); i <= N; ++i)
             {
-                ASSERT(data.size() >= std::size(tail));
-                for (size_t i = 1, N = std::size(tail); i <= N; ++i)
-                {
-                    tail[N - i] = data.back();
-                    data.pop_back();
-                }
+                tail[N - i] = data.back();
+                data.pop_back();
             }
-        };
+        }
+    };
+}
+
+namespace Trinity::Crypto
+{
+    template <typename Cipher>
+    void AEEncryptWithRandomIV(std::vector<uint8>& data, typename Cipher::Key const& key)
+    {
+        using IV = typename Cipher::IV;
+        using Tag = typename Cipher::Tag;
+        // select random IV
+        IV iv = Trinity::Impl::CryptoGenericsImpl::GenerateRandomIV<Cipher>();
+        Tag tag;
+
+        // encrypt data
+        Cipher cipher(true);
+        cipher.Init(key);
+        bool success = cipher.Process(iv, data.data(), data.size(), tag);
+        ASSERT(success);
+
+        // append trailing IV and tag
+        Trinity::Impl::CryptoGenericsImpl::AppendToBack(data, iv);
+        Trinity::Impl::CryptoGenericsImpl::AppendToBack(data, tag);
     }
 
-    namespace Crypto
+    template <typename Cipher>
+    void AEEncryptWithRandomIV(std::vector<uint8>& data, BigNumber const& key)
     {
-        template <typename Cipher>
-        void AEEncryptWithRandomIV(std::vector<uint8>& data, typename Cipher::Key const& key)
-        {
-            using IV = typename Cipher::IV;
-            using Tag = typename Cipher::Tag;
-            // select random IV
-            IV iv = Trinity::Impl::CryptoGenericsImpl::GenerateRandomIV<Cipher>();
-            Tag tag;
+        AEEncryptWithRandomIV<Cipher>(data, key.ToByteArray<Cipher::KEY_SIZE_BYTES>());
+    }
 
-            // encrypt data
-            Cipher cipher(true);
-            cipher.Init(key);
-            bool success = cipher.Process(iv, data.data(), data.size(), tag);
-            ASSERT(success);
+    template <typename Cipher>
+    bool AEDecrypt(std::vector<uint8>& data, typename Cipher::Key const& key)
+    {
+        using IV = typename Cipher::IV;
+        using Tag = typename Cipher::Tag;
+        // extract trailing IV and tag
+        IV iv;
+        Tag tag;
+        Trinity::Impl::CryptoGenericsImpl::SplitFromBack(data, tag);
+        Trinity::Impl::CryptoGenericsImpl::SplitFromBack(data, iv);
 
-            // append trailing IV and tag
-            Trinity::Impl::CryptoGenericsImpl::AppendToBack(data, iv);
-            Trinity::Impl::CryptoGenericsImpl::AppendToBack(data, tag);
-        }
+        // decrypt data
+        Cipher cipher(false);
+        cipher.Init(key);
+        return cipher.Process(iv, data.data(), data.size(), tag);
+    }
 
-        template <typename Cipher>
-        void AEEncryptWithRandomIV(std::vector<uint8>& data, BigNumber const& key)
-        {
-            AEEncryptWithRandomIV<Cipher>(data, key.AsByteArray<Cipher::KEY_SIZE_BYTES>());
-        }
-
-        template <typename Cipher>
-        bool AEDecrypt(std::vector<uint8>& data, typename Cipher::Key const& key)
-        {
-            using IV = typename Cipher::IV;
-            using Tag = typename Cipher::Tag;
-            // extract trailing IV and tag
-            IV iv;
-            Tag tag;
-            Trinity::Impl::CryptoGenericsImpl::SplitFromBack(data, tag);
-            Trinity::Impl::CryptoGenericsImpl::SplitFromBack(data, iv);
-
-            // decrypt data
-            Cipher cipher(false);
-            cipher.Init(key);
-            return cipher.Process(iv, data.data(), data.size(), tag);
-        }
-
-        template <typename Cipher>
-        bool AEDecrypt(std::vector<uint8>& data, BigNumber const& key)
-        {
-            return AEDecrypt<Cipher>(data, key.AsByteArray<Cipher::KEY_SIZE_BYTES>());
-        }
+    template <typename Cipher>
+    bool AEDecrypt(std::vector<uint8>& data, BigNumber const& key)
+    {
+        return AEDecrypt<Cipher>(data, key.ToByteArray<Cipher::KEY_SIZE_BYTES>());
     }
 }
 

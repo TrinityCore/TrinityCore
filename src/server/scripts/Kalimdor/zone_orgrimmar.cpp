@@ -123,7 +123,7 @@ public:
             }
         }
 
-        void QuestAccept(Player* player, Quest const* quest) override
+        void OnQuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_SHATTERED_SALUTE)
             {
@@ -226,7 +226,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
             uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
             ClearGossipMenuFor(player);
@@ -264,7 +264,7 @@ public:
             return true;
         }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             if (me->IsQuestGiver())
                 player->PrepareQuestMenu(me->GetGUID());
@@ -353,7 +353,7 @@ public:
             if (who->GetTypeId() == TYPEID_PLAYER && who->IsWithinDist(me, 20.0f) && !inProgress)
             {
                 inProgress = true;
-                events.ScheduleEvent(EVENT_SCENE_1, 2000);
+                events.ScheduleEvent(EVENT_SCENE_1, 2s);
             }
         }
 
@@ -373,63 +373,63 @@ public:
                             me->SetFacingToObject(gryshka);
                             gryshka->AI()->Talk(SAY_GRYSHKA_1);
                         }
-                        events.ScheduleEvent(EVENT_SCENE_2, 4500);
+                        events.ScheduleEvent(EVENT_SCENE_2, 4500ms);
                         break;
                     case EVENT_SCENE_2:
                         if (Creature* olvia = ObjectAccessor::GetCreature(*me, olviaGUID))
                             olvia->AI()->Talk(SAY_OLVIA_1);
-                        events.ScheduleEvent(EVENT_SCENE_3, 4500);
+                        events.ScheduleEvent(EVENT_SCENE_3, 4500ms);
                         break;
                     case EVENT_SCENE_3:
                         if (Creature* felika = ObjectAccessor::GetCreature(*me, felikaGUID))
                             felika->AI()->Talk(SAY_FELIKA_1);
-                        events.ScheduleEvent(EVENT_SCENE_4, 4500);
+                        events.ScheduleEvent(EVENT_SCENE_4, 4500ms);
                         break;
                     case EVENT_SCENE_4:
                         if (Creature* thathung = ObjectAccessor::GetCreature(*me, thungGUID))
                             thathung->AI()->Talk(SAY_THATHUNG);
-                        events.ScheduleEvent(EVENT_SCENE_5, 4500);
+                        events.ScheduleEvent(EVENT_SCENE_5, 4500ms);
                         break;
                     case EVENT_SCENE_5:
                         if (Creature* sana = ObjectAccessor::GetCreature(*me, sanaGUID))
                             sana->AI()->Talk(SAY_SANA);
-                        events.ScheduleEvent(EVENT_SCENE_6, 4500);
+                        events.ScheduleEvent(EVENT_SCENE_6, 4500ms);
                         break;
                     case EVENT_SCENE_6:
                         if (Creature* gryshka = ObjectAccessor::GetCreature(*me, gryshkaGUID))
                             gryshka->AI()->Talk(SAY_GRYSHKA_2);
-                        events.ScheduleEvent(EVENT_SCENE_7, 4500);
+                        events.ScheduleEvent(EVENT_SCENE_7, 4500ms);
                         break;
                     case EVENT_SCENE_7:
                         if (Creature* kaja = ObjectAccessor::GetCreature(*me, kajaGUID))
                             kaja->AI()->Talk(SAY_KAJA);
-                        events.ScheduleEvent(EVENT_SCENE_8, 4500);
+                        events.ScheduleEvent(EVENT_SCENE_8, 4500ms);
                         break;
                     case EVENT_SCENE_8:
                         if (Creature* felika = ObjectAccessor::GetCreature(*me, felikaGUID))
                             felika->AI()->Talk(SAY_FELIKA_2);
-                        events.ScheduleEvent(EVENT_SCENE_9, 4500);
+                        events.ScheduleEvent(EVENT_SCENE_9, 4500ms);
                         break;
                     case EVENT_SCENE_9:
                         if (Creature* olvia = ObjectAccessor::GetCreature(*me, olviaGUID))
                             olvia->AI()->Talk(SAY_OLVIA_2);
-                        events.ScheduleEvent(EVENT_SCENE_10, 4500);
+                        events.ScheduleEvent(EVENT_SCENE_10, 4500ms);
                         break;
                     case EVENT_SCENE_10:
                         Talk(SAY_RUNTHAK_1);
-                        events.ScheduleEvent(EVENT_SCENE_11, 1500);
+                        events.ScheduleEvent(EVENT_SCENE_11, 1500ms);
                         break;
                     case EVENT_SCENE_11:
                         Talk(SAY_RUNTHAK_2);
-                        events.ScheduleEvent(EVENT_SCENE_12, 4500);
+                        events.ScheduleEvent(EVENT_SCENE_12, 4500ms);
                         break;
                     case EVENT_SCENE_12:
                         Talk(SAY_RUNTHAK_3);
-                        events.ScheduleEvent(EVENT_SCENE_13, 4500);
+                        events.ScheduleEvent(EVENT_SCENE_13, 4500ms);
                         break;
                     case EVENT_SCENE_13:
                         Talk(SAY_RUNTHAK_4);
-                        events.ScheduleEvent(EVENT_RESET, 25000);
+                        events.ScheduleEvent(EVENT_RESET, 25s);
                         break;
                     case EVENT_RESET:
                         Reset();
@@ -662,7 +662,7 @@ public:
                 if (Creature* sylvanas = me->FindNearestCreature(NPC_BANSHEE_SYLVANAS, 25.0f))
                     sylvanasGUID = sylvanas->GetGUID();
 
-                events.ScheduleEvent(EVENT_HERALD_SCENE1, 4000);
+                events.ScheduleEvent(EVENT_HERALD_SCENE1, 4s);
             }
         }
 
@@ -691,18 +691,18 @@ public:
                                 guard->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
                             }
                         }
-                        events.ScheduleEvent(EVENT_HERALD_SCENE2, 3000);
+                        events.ScheduleEvent(EVENT_HERALD_SCENE2, 3s);
                         break;
                     case EVENT_HERALD_SCENE2:
                         Talk(SAY_THRALL_1);
                         if (Creature* jaina = ObjectAccessor::GetCreature(*me, jainaGUID))
                             me->SetFacingToObject(jaina);
-                        events.ScheduleEvent(EVENT_HERALD_SCENE3, 3500);
+                        events.ScheduleEvent(EVENT_HERALD_SCENE3, 3500ms);
                         break;
                     case EVENT_HERALD_SCENE3:
                         if (Creature* jaina = ObjectAccessor::GetCreature(*me, jainaGUID))
                             jaina->AI()->Talk(SAY_JAINA_0);
-                        events.ScheduleEvent(EVENT_HERALD_SCENE4, 5500);
+                        events.ScheduleEvent(EVENT_HERALD_SCENE4, 5500ms);
                         break;
                     case EVENT_HERALD_SCENE4:
                         Talk(SAY_THRALL_2);
@@ -712,48 +712,48 @@ public:
                             sylvanas->SetWalk(true);
                             sylvanas->GetMotionMaster()->MovePoint(1, MiscMovePositions[2]);
                         }
-                        events.ScheduleEvent(EVENT_HERALD_SCENE5, 6500);
+                        events.ScheduleEvent(EVENT_HERALD_SCENE5, 6500ms);
                         break;
                     case EVENT_HERALD_SCENE5:
                         if (Creature* sylvanas = ObjectAccessor::GetCreature(*me, sylvanasGUID))
                             sylvanas->AI()->Talk(SAY_SYLVANAS_0);
-                        events.ScheduleEvent(EVENT_HERALD_SCENE6, 10000);
+                        events.ScheduleEvent(EVENT_HERALD_SCENE6, 10s);
                         break;
                     case EVENT_HERALD_SCENE6:
                         if (Creature* sylvanas = ObjectAccessor::GetCreature(*me, sylvanasGUID))
                             sylvanas->AI()->Talk(SAY_SYLVANAS_1);
-                        events.ScheduleEvent(EVENT_HERALD_SCENE7, 20000);
+                        events.ScheduleEvent(EVENT_HERALD_SCENE7, 20s);
                         break;
                     case EVENT_HERALD_SCENE7:
                         Talk(SAY_THRALL_3);
-                        events.ScheduleEvent(EVENT_HERALD_SCENE8, 4500);
+                        events.ScheduleEvent(EVENT_HERALD_SCENE8, 4500ms);
                         break;
                     case EVENT_HERALD_SCENE8:
                         Talk(SAY_THRALL_4);
-                        events.ScheduleEvent(EVENT_HERALD_SCENE9, 10000);
+                        events.ScheduleEvent(EVENT_HERALD_SCENE9, 10s);
                         break;
                     case EVENT_HERALD_SCENE9:
                         Talk(SAY_THRALL_5);
-                        events.ScheduleEvent(EVENT_HERALD_SCENE10, 8000);
+                        events.ScheduleEvent(EVENT_HERALD_SCENE10, 8s);
                         break;
                     case EVENT_HERALD_SCENE10:
                         Talk(SAY_THRALL_6);
-                        events.ScheduleEvent(EVENT_HERALD_SCENE11, 9000);
+                        events.ScheduleEvent(EVENT_HERALD_SCENE11, 9s);
                         break;
                     case EVENT_HERALD_SCENE11:
                         if (Creature* jaina = ObjectAccessor::GetCreature(*me, jainaGUID))
                             jaina->AI()->Talk(SAY_JAINA_1);
-                        events.ScheduleEvent(EVENT_HERALD_SCENE12, 6000);
+                        events.ScheduleEvent(EVENT_HERALD_SCENE12, 6s);
                         break;
                     case EVENT_HERALD_SCENE12:
                         if (Creature* jaina = ObjectAccessor::GetCreature(*me, jainaGUID))
                             jaina->AI()->Talk(SAY_JAINA_2);
-                        events.ScheduleEvent(EVENT_HERALD_SCENE13, 14000);
+                        events.ScheduleEvent(EVENT_HERALD_SCENE13, 14s);
                         break;
                     case EVENT_HERALD_SCENE13:
                         if (Creature* jaina = ObjectAccessor::GetCreature(*me, jainaGUID))
                             jaina->AI()->Talk(SAY_JAINA_3);
-                        events.ScheduleEvent(EVENT_HERALD_SCENE14, 10000);
+                        events.ScheduleEvent(EVENT_HERALD_SCENE14, 10s);
                         break;
                     case EVENT_HERALD_SCENE14:
                         if (Creature* jaina = ObjectAccessor::GetCreature(*me, jainaGUID))
@@ -761,9 +761,9 @@ public:
                             jaina->AI()->Talk(SAY_JAINA_4);
                             jaina->SetWalk(true);
                             jaina->GetMotionMaster()->MovePoint(2, jaina->GetHomePosition());
-                            jaina->DespawnOrUnsummon(5000);
+                            jaina->DespawnOrUnsummon(5s);
                         }
-                        events.ScheduleEvent(EVENT_HERALD_SCENE15, 7000);
+                        events.ScheduleEvent(EVENT_HERALD_SCENE15, 7s);
                         break;
                     case EVENT_HERALD_SCENE15:
                     {

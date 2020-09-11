@@ -222,9 +222,9 @@ class boss_devourer_of_souls : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == H_SPELL_PHANTOM_BLAST)
+                if (spellInfo->Id == H_SPELL_PHANTOM_BLAST)
                     threeFaced = false;
             }
 
@@ -261,12 +261,12 @@ class boss_devourer_of_souls : public CreatureScript
                             events.ScheduleEvent(EVENT_MIRRORED_SOUL, 15s, 30s);
                             break;
                         case EVENT_WELL_OF_SOULS:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                 DoCast(target, SPELL_WELL_OF_SOULS);
                             events.ScheduleEvent(EVENT_WELL_OF_SOULS, 20s);
                             break;
                         case EVENT_UNLEASHED_SOULS:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                 DoCast(target, SPELL_UNLEASHED_SOULS);
                             me->SetDisplayId(DISPLAY_SORROW);
                             Talk(SAY_FACE_UNLEASH_SOUL);
@@ -283,7 +283,7 @@ class boss_devourer_of_souls : public CreatureScript
                             Talk(SAY_FACE_WAILING_SOUL);
                             Talk(EMOTE_WAILING_SOUL);
                             DoCast(me, SPELL_WAILING_SOULS_STARTING);
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                             {
                                 me->SetFacingToObject(target);
                                 DoCast(me, SPELL_WAILING_SOULS_BEAM);
@@ -305,7 +305,7 @@ class boss_devourer_of_souls : public CreatureScript
                             me->SetControlled(true, UNIT_STATE_ROOT);
 
                             wailingSoulTick = 15;
-                            events.DelayEvents(18000); // no other events during wailing souls
+                            events.DelayEvents(18s); // no other events during wailing souls
                             events.ScheduleEvent(EVENT_WAILING_SOULS_TICK, 3s); // first one after 3 secs.
                             break;
 

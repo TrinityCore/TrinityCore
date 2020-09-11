@@ -212,14 +212,14 @@ public:
                     events.ScheduleEvent(EVENT_TALK_3, Seconds(3));
                     break;
                 case 20:
-                    events.ScheduleEvent(EVENT_BURN_CRATES, 0);
+                    events.ScheduleEvent(EVENT_BURN_CRATES, 0s);
                     break;
                 case 21:
-                    events.ScheduleEvent(EVENT_BURN_CRATES, 0);
+                    events.ScheduleEvent(EVENT_BURN_CRATES, 0s);
                     events.ScheduleEvent(EVENT_TALK_4, Seconds(3));
                     break;
                 case 28:
-                    events.ScheduleEvent(EVENT_BURN_CRATES, 0);
+                    events.ScheduleEvent(EVENT_BURN_CRATES, 0s);
                     events.ScheduleEvent(EVENT_LAUGH, 7s);
                     events.ScheduleEvent(EVENT_TALK_5, Seconds(9));
                     events.ScheduleEvent(EVENT_TALK_6, Seconds(17));
@@ -236,7 +236,7 @@ public:
             }
         }
 
-        void QuestAccept(Player* player, Quest const* quest) override
+        void OnQuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_TRAIL_OF_FIRE)
                 StartEscort(player);
@@ -372,7 +372,7 @@ struct npc_daegarn : public ScriptedAI
         SummonGladiator(entry);
     }
 
-    void QuestAccept(Player* player, Quest const* quest) override
+    void OnQuestAccept(Player* player, Quest const* quest) override
     {
         if (quest->GetQuestId() == QUEST_DEFEAT_AT_RING)
         {
@@ -414,7 +414,7 @@ struct npc_daegarn : public ScriptedAI
 private:
     void SummonGladiator(uint32 entry)
     {
-        me->SummonCreature(entry, daegarnSummonPosition, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30 * IN_MILLISECONDS);
+        me->SummonCreature(entry, daegarnSummonPosition, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30s);
     }
 
     bool _eventInProgress;

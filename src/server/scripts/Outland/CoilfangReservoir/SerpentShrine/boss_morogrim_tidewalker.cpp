@@ -198,8 +198,8 @@ public:
 
                     for (uint8 i = 0; i < 10; ++i)
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            if (Creature* Murloc = me->SummonCreature(NPC_TIDEWALKER_LURKER, MurlocCords[i][0], MurlocCords[i][1], MurlocCords[i][2], MurlocCords[i][3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                            if (Creature* Murloc = me->SummonCreature(NPC_TIDEWALKER_LURKER, MurlocCords[i][0], MurlocCords[i][1], MurlocCords[i][2], MurlocCords[i][3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10s))
                                 Murloc->AI()->AttackStart(target);
                     }
                     Talk(EMOTE_EARTHQUAKE);
@@ -222,14 +222,14 @@ public:
                 {
                     //Teleport 4 players under the waterfalls
                     GuidSet targets;
-                    GuidSet::const_iterator itr;
+                    GuidSet::const_iterator itr = targets.begin();
                     for (uint8 i = 0; i < 4; ++i)
                     {
                         counter = 0;
                         Unit* target;
                         do
                         {
-                            target = SelectTarget(SELECT_TARGET_RANDOM, 1, 50, true);    //target players only
+                            target = SelectTarget(SelectTargetMethod::Random, 1, 50, true);    //target players only
                             if (counter < Playercount)
                                 break;
                             if (target)
@@ -260,20 +260,21 @@ public:
                 if (WateryGlobules_Timer <= diff)
                 {
                     GuidSet globules;
-                    GuidSet::const_iterator itr;
+                    GuidSet::const_iterator itr = globules.begin();
                     for (uint8 g = 0; g < 4; g++)  //one unit can't cast more than one spell per update, so some players have to cast for us XD
                     {
                         counter = 0;
                         Unit* pGlobuleTarget;
                         do
                         {
-                            pGlobuleTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 50, true);
+                            pGlobuleTarget = SelectTarget(SelectTargetMethod::Random, 0, 50, true);
                             if (pGlobuleTarget)
                                 itr = globules.find(pGlobuleTarget->GetGUID());
                             if (counter > Playercount)
                                 break;
                             ++counter;
                         } while (itr != globules.end());
+
                         if (pGlobuleTarget)
                         {
                             globules.insert(pGlobuleTarget->GetGUID());

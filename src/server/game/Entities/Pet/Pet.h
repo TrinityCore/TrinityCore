@@ -45,6 +45,7 @@ class TC_GAME_API Pet : public Guardian
         void AddToWorld() override;
         void RemoveFromWorld() override;
 
+        float GetNativeObjectScale() const override;
         void SetDisplayId(uint32 modelId) override;
 
         PetType getPetType() const { return m_petType; }
@@ -58,9 +59,11 @@ class TC_GAME_API Pet : public Guardian
         bool CreateBaseAtCreature(Creature* creature);
         bool CreateBaseAtCreatureInfo(CreatureTemplate const* cinfo, Unit* owner);
         bool CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map, uint32 phaseMask);
-        bool LoadPetFromDB(Player* owner, uint32 petentry = 0, uint32 petnumber = 0, bool current = false);
+        static std::pair<PetStable::PetInfo const*, PetSaveMode> GetLoadPetInfo(PetStable const& stable, uint32 petEntry, uint32 petnumber, bool current);
+        bool LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool current);
         bool IsLoading() const override { return m_loading;}
         void SavePetToDB(PetSaveMode mode);
+        void FillPetInfo(PetStable::PetInfo* petInfo) const;
         void Remove(PetSaveMode mode, bool returnreagent = false);
         static void DeleteFromDB(ObjectGuid::LowType guidlow);
 
@@ -106,11 +109,10 @@ class TC_GAME_API Pet : public Guardian
         void CastPetAura(PetAura const* aura);
         bool IsPetAura(Aura const* aura);
 
-        void _LoadSpellCooldowns();
-        void _LoadAuras(uint32 timediff);
-        void _SaveAuras(CharacterDatabaseTransaction& trans);
-        void _LoadSpells();
-        void _SaveSpells(CharacterDatabaseTransaction& trans);
+        void _LoadAuras(PreparedQueryResult result, uint32 timediff);
+        void _SaveAuras(CharacterDatabaseTransaction trans);
+        void _LoadSpells(PreparedQueryResult result);
+        void _SaveSpells(CharacterDatabaseTransaction trans);
 
         bool addSpell(uint32 spellId, ActiveStates active = ACT_DECIDE, PetSpellState state = PETSPELL_NEW, PetSpellType type = PETSPELL_NORMAL);
         bool learnSpell(uint32 spell_id);
@@ -140,7 +142,7 @@ class TC_GAME_API Pet : public Guardian
         void SetAuraUpdateMaskForRaid(uint8 slot) { m_auraRaidUpdateMask |= (uint64(1) << slot); }
         void ResetAuraUpdateMaskForRaid() { m_auraRaidUpdateMask = 0; }
 
-        DeclinedName const* GetDeclinedNames() const { return m_declinedname; }
+        DeclinedName const* GetDeclinedNames() const { return m_declinedname.get(); }
 
         bool    m_removed;                                  // prevent overwrite pet state in DB at next Pet::Update if pet already removed(saved)
 
@@ -156,7 +158,7 @@ class TC_GAME_API Pet : public Guardian
         bool    m_loading;
         uint32  m_focusRegenTimer;
 
-        DeclinedName *m_declinedname;
+        std::unique_ptr<DeclinedName> m_declinedname;
 
     private:
         void SaveToDB(uint32, uint8, uint32) override                // override of Creature::SaveToDB     - must not be called

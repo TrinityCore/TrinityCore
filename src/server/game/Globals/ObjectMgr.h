@@ -940,6 +940,7 @@ class PlayerDumpReader;
 class TC_GAME_API ObjectMgr
 {
     friend class PlayerDumpReader;
+    friend class UnitTestDataLoader;
 
     private:
         ObjectMgr();
@@ -1343,7 +1344,7 @@ class TC_GAME_API ObjectMgr
                 case SPAWN_TYPE_GAMEOBJECT:
                     return GetGameObjectData(spawnId);
                 default:
-                    ASSERT(false, "Invalid spawn object type %u", uint32(type));
+                    ABORT_MSG("Invalid spawn object type %u", uint32(type));
                     return nullptr;
             }
         }
@@ -1467,12 +1468,12 @@ class TC_GAME_API ObjectMgr
 
         // reserved names
         void LoadReservedPlayersNames();
-        bool IsReservedName(std::string const& name) const;
+        bool IsReservedName(std::string_view name) const;
 
         // name with valid structure and symbols
-        static ResponseCodes CheckPlayerName(std::string const& name, LocaleConstant locale, bool create = false);
-        static PetNameInvalidReason CheckPetName(std::string const& name, LocaleConstant locale);
-        static bool IsValidCharterName(std::string const& name);
+        static ResponseCodes CheckPlayerName(std::string_view name, LocaleConstant locale, bool create = false);
+        static PetNameInvalidReason CheckPetName(std::string_view name, LocaleConstant locale);
+        static bool IsValidCharterName(std::string_view name);
 
         static bool CheckDeclinedNames(const std::wstring& w_ownname, DeclinedName const& names);
 
@@ -1482,11 +1483,11 @@ class TC_GAME_API ObjectMgr
             if (itr == _gameTeleStore.end()) return nullptr;
             return &itr->second;
         }
-        GameTele const* GetGameTele(std::string const& name) const;
-        GameTele const* GetGameTeleExactName(std::string const& name) const;
+        GameTele const* GetGameTele(std::string_view name) const;
+        GameTele const* GetGameTeleExactName(std::string_view name) const;
         GameTeleContainer const& GetGameTeleMap() const { return _gameTeleStore; }
         bool AddGameTele(GameTele& data);
-        bool DeleteGameTele(std::string const& name);
+        bool DeleteGameTele(std::string_view name);
 
         Trainer::Trainer const* GetTrainer(uint32 creatureId) const;
 
@@ -1535,10 +1536,17 @@ class TC_GAME_API ObjectMgr
         GraveyardContainer GraveyardStore;
 
         static void AddLocaleString(std::string&& value, LocaleConstant localeConstant, std::vector<std::string>& data);
-        static inline void GetLocaleString(std::vector<std::string> const& data, LocaleConstant localeConstant, std::string& value)
+        static std::string_view GetLocaleString(std::vector<std::string> const& data, size_t locale)
         {
-            if (data.size() > size_t(localeConstant) && !data[localeConstant].empty())
-                value = data[localeConstant];
+            if (locale < data.size())
+                return data[locale];
+            else
+                return {};
+        }
+        static void GetLocaleString(std::vector<std::string> const& data, LocaleConstant localeConstant, std::string& value)
+        {
+            if (std::string_view str = GetLocaleString(data, static_cast<size_t>(localeConstant)); !str.empty())
+                value.assign(str);
         }
 
         CharacterConversionMap FactionChangeAchievements;

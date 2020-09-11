@@ -243,7 +243,7 @@ class ActivateLivingConstellation : public BasicEvent
                 return true;    // delete event
 
             _owner->CastSpell(nullptr, SPELL_TRIGGER_3_ADDS, TRIGGERED_FULL_MASK);
-            _owner->m_Events.AddEvent(this, execTime + urand(45000, 50000));
+            _owner->m_Events.AddEvent(this, Milliseconds(execTime) + randtime(45s, 50s));
             return false;
         }
 
@@ -275,7 +275,7 @@ class SummonUnleashedDarkMatter : public BasicEvent
         bool Execute(uint64 execTime, uint32 /*diff*/) override
         {
             _caster->CastSpell(nullptr, SPELL_SUMMON_UNLEASHED_DARK_MATTER, TRIGGERED_FULL_MASK);
-            _caster->m_Events.AddEvent(this, execTime + 30000);
+            _caster->m_Events.AddEvent(this, Milliseconds(execTime) + 30s);
             return false;
         }
 
@@ -337,7 +337,7 @@ struct boss_algalon_the_observer : public BossAI
                 events.Reset();
                 events.SetPhase(PHASE_ROLE_PLAY);
                 if (me->IsInCombat())
-                    events.ScheduleEvent(EVENT_ASCEND_TO_THE_HEAVENS, 1);
+                    events.ScheduleEvent(EVENT_ASCEND_TO_THE_HEAVENS, 1ms);
                 events.ScheduleEvent(EVENT_DESPAWN_ALGALON_1, 5s);
                 events.ScheduleEvent(EVENT_DESPAWN_ALGALON_2, 17s);
                 events.ScheduleEvent(EVENT_DESPAWN_ALGALON_3, 26s);
@@ -361,7 +361,7 @@ struct boss_algalon_the_observer : public BossAI
 
     void JustEngagedWith(Unit* who) override
     {
-        uint32 introDelay = 0;
+        Milliseconds introDelay = 0ms;
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         me->SetImmuneToNPC(true);
         events.Reset();
@@ -372,7 +372,7 @@ struct boss_algalon_the_observer : public BossAI
             Talk(SAY_ALGALON_AGGRO);
             me->PlayDirectMusic(ENGAGE_MUSIC_ID);
             BossAI::JustEngagedWith(who);
-            introDelay = 8000;
+            introDelay = 8s;
         }
         else
         {
@@ -382,19 +382,19 @@ struct boss_algalon_the_observer : public BossAI
             me->setActive(true);
             me->SetFarVisible(true);
             DoZoneInCombat();
-            introDelay = 26500;
+            introDelay = 26500ms;
             summons.DespawnEntry(NPC_AZEROTH);
             instance->SetData(EVENT_DESPAWN_ALGALON, 0);
             events.ScheduleEvent(EVENT_START_COMBAT, 16s);
         }
 
         events.ScheduleEvent(EVENT_INTRO_TIMER_DONE, introDelay);
-        events.ScheduleEvent(EVENT_QUANTUM_STRIKE, 3500 + introDelay);
-        events.ScheduleEvent(EVENT_PHASE_PUNCH, 15500 + introDelay);
-        events.ScheduleEvent(EVENT_SUMMON_COLLAPSING_STAR, 18000 + introDelay);
-        events.ScheduleEvent(EVENT_BIG_BANG, 90000 + introDelay);
-        events.ScheduleEvent(EVENT_ASCEND_TO_THE_HEAVENS, 360000 + introDelay);
-        events.ScheduleEvent(EVENT_COSMIC_SMASH, 25000 + introDelay);
+        events.ScheduleEvent(EVENT_QUANTUM_STRIKE, 3500ms + introDelay);
+        events.ScheduleEvent(EVENT_PHASE_PUNCH, 15500ms + introDelay);
+        events.ScheduleEvent(EVENT_SUMMON_COLLAPSING_STAR, 18s + introDelay);
+        events.ScheduleEvent(EVENT_BIG_BANG, 90s + introDelay);
+        events.ScheduleEvent(EVENT_ASCEND_TO_THE_HEAVENS, 360s + introDelay);
+        events.ScheduleEvent(EVENT_COSMIC_SMASH, 25s + introDelay);
 
         std::list<Creature*> stalkers;
         me->GetCreatureListWithEntryInGrid(stalkers, NPC_ALGALON_STALKER, 200.0f);
@@ -476,7 +476,7 @@ struct boss_algalon_the_observer : public BossAI
             for (std::list<Creature*>::iterator itr = stalkers.begin(); itr != stalkers.end(); ++itr)
                 (*itr)->m_Events.KillAllEvents(true);
             for (uint8 i = 0; i < COLLAPSING_STAR_COUNT; ++i)
-                if (Creature* wormHole = DoSummon(NPC_WORM_HOLE, CollapsingStarPos[i], TEMPSUMMON_MANUAL_DESPAWN))
+                if (Creature* wormHole = DoSummon(NPC_WORM_HOLE, CollapsingStarPos[i], 0s, TEMPSUMMON_MANUAL_DESPAWN))
                     wormHole->m_Events.AddEventAtOffset(new SummonUnleashedDarkMatter(wormHole), i >= 2 ? 8s : 6s);
         }
         else if ((int32(me->GetHealth()) - int32(damage)) < CalculatePct<int32>(int32(me->GetMaxHealth()), 2.5f) && !_fightWon)
@@ -571,7 +571,7 @@ struct boss_algalon_the_observer : public BossAI
                     if (!me->GetThreatManager().IsThreatListEmpty())
                         AttackStart(me->GetThreatManager().GetCurrentVictim());
                     for (uint8 i = 0; i < LIVING_CONSTELLATION_COUNT; ++i)
-                        if (Creature* summon = DoSummon(NPC_LIVING_CONSTELLATION, ConstellationPos[i], 0, TEMPSUMMON_DEAD_DESPAWN))
+                        if (Creature* summon = DoSummon(NPC_LIVING_CONSTELLATION, ConstellationPos[i], 0s, TEMPSUMMON_DEAD_DESPAWN))
                             summon->SetReactState(REACT_PASSIVE);
 
                     std::list<Creature*> stalkers;
@@ -745,7 +745,7 @@ struct npc_living_constellation : public CreatureAI
             case ACTION_ACTIVATE_STAR:
                 if (Creature* algalon = _instance->GetCreature(BOSS_ALGALON))
                 {
-                    if (Unit* target = algalon->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(algalon)))
+                    if (Unit* target = algalon->AI()->SelectTarget(SelectTargetMethod::Random, 0, NonTankTargetSelector(algalon)))
                     {
                         me->SetReactState(REACT_AGGRESSIVE);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -765,14 +765,18 @@ struct npc_living_constellation : public CreatureAI
         }
     }
 
-    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
     {
-        if (spell->Id != SPELL_CONSTELLATION_PHASE_EFFECT || caster->GetTypeId() != TYPEID_UNIT)
+        Creature* creatureCaster = caster->ToCreature();
+        if (!creatureCaster)
+            return;
+
+        if (spellInfo->Id != SPELL_CONSTELLATION_PHASE_EFFECT)
             return;
 
         _instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, EVENT_ID_SUPERMASSIVE_START);
-        caster->CastSpell(nullptr, SPELL_BLACK_HOLE_CREDIT, TRIGGERED_FULL_MASK);
-        DoCast(caster, SPELL_DESPAWN_BLACK_HOLE, TRIGGERED_FULL_MASK);
+        creatureCaster->CastSpell(nullptr, SPELL_BLACK_HOLE_CREDIT, TRIGGERED_FULL_MASK);
+        DoCast(creatureCaster, SPELL_DESPAWN_BLACK_HOLE, TRIGGERED_FULL_MASK);
         me->DespawnOrUnsummon(500ms);
     }
 
@@ -825,12 +829,12 @@ struct npc_black_hole : public ScriptedAI
         _summons.Summon(summon);
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
     {
-        if (spell->Id == SPELL_DESPAWN_BLACK_HOLE)
+        if (spellInfo->Id == SPELL_DESPAWN_BLACK_HOLE)
         {
             _summons.DespawnAll();
-            me->DespawnOrUnsummon(1);
+            me->DespawnOrUnsummon(1ms);
         }
     }
 
@@ -852,7 +856,7 @@ struct npc_collapsing_star : public PassiveAI
         if (Creature* algalon = _instance->GetCreature(BOSS_ALGALON))
             algalon->AI()->JustSummoned(summon);
 
-        me->DespawnOrUnsummon(1);
+        me->DespawnOrUnsummon(1ms);
     }
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage) override
@@ -1282,15 +1286,15 @@ void AddSC_boss_algalon_the_observer()
     RegisterUlduarCreatureAI(npc_collapsing_star);
     RegisterUlduarCreatureAI(npc_brann_bronzebeard_algalon);
     RegisterGameObjectAI(go_celestial_planetarium_access);
-    RegisterAuraScript(spell_algalon_phase_punch);
-    RegisterAuraScript(spell_algalon_phase_constellation);
+    RegisterSpellScript(spell_algalon_phase_punch);
+    RegisterSpellScript(spell_algalon_phase_constellation);
     RegisterSpellScript(spell_algalon_trigger_3_adds);
-    RegisterAuraScript(spell_algalon_collapse);
+    RegisterSpellScript(spell_algalon_collapse);
     RegisterSpellScript(spell_algalon_big_bang);
-    RegisterAuraScript(spell_algalon_remove_phase);
+    RegisterSpellScript(spell_algalon_remove_phase);
     RegisterSpellScript(spell_algalon_cosmic_smash);
     RegisterSpellScript(spell_algalon_cosmic_smash_damage);
     RegisterSpellScript(spell_algalon_supermassive_fail);
-    RegisterAuraScript(spell_algalon_black_hole_phase_shifts);
+    RegisterSpellScript(spell_algalon_black_hole_phase_shifts);
     new achievement_he_feeds_on_your_tears();
 }

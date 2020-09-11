@@ -96,7 +96,7 @@ class boss_magmadar : public CreatureScript
                             events.ScheduleEvent(EVENT_PANIC, 35s);
                             break;
                         case EVENT_LAVA_BOMB:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, true, -SPELL_LAVA_BOMB))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true, true, -SPELL_LAVA_BOMB))
                                 DoCast(target, SPELL_LAVA_BOMB);
                             events.ScheduleEvent(EVENT_LAVA_BOMB, 12s);
                             break;

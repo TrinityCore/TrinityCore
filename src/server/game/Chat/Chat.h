@@ -42,16 +42,17 @@ class TC_GAME_API ChatHandler
 {
     public:
         WorldSession* GetSession() { return m_session; }
+        Player* GetPlayer();
         explicit ChatHandler(WorldSession* session) : m_session(session), sentErrorMessage(false) { }
         virtual ~ChatHandler() { }
 
         // Builds chat packet and returns receiver guid position in the packet to substitute in whisper builders
-        static size_t BuildChatPacket(WorldPacket& data, ChatMsg chatType, Language language, ObjectGuid senderGUID, ObjectGuid receiverGUID, std::string const& message, uint8 chatTag,
+        static size_t BuildChatPacket(WorldPacket& data, ChatMsg chatType, Language language, ObjectGuid senderGUID, ObjectGuid receiverGUID, std::string_view message, uint8 chatTag,
                                     std::string const& senderName = "", std::string const& receiverName = "",
                                     uint32 achievementId = 0, bool gmMessage = false, std::string const& channelName = "");
 
         // Builds chat packet and returns receiver guid position in the packet to substitute in whisper builders
-        static size_t BuildChatPacket(WorldPacket& data, ChatMsg chatType, Language language, WorldObject const* sender, WorldObject const* receiver, std::string const& message, uint32 achievementId = 0, std::string const& channelName = "", LocaleConstant locale = DEFAULT_LOCALE);
+        static size_t BuildChatPacket(WorldPacket& data, ChatMsg chatType, Language language, WorldObject const* sender, WorldObject const* receiver, std::string_view message, uint32 achievementId = 0, std::string const& channelName = "", LocaleConstant locale = DEFAULT_LOCALE);
 
         static char* LineFromMessage(char*& pos) { char* start = strtok(pos, "\n"); pos = nullptr; return start; }
 
@@ -83,6 +84,7 @@ class TC_GAME_API ChatHandler
         virtual bool ParseCommands(char const* text);
 
         static std::vector<ChatCommand> const& getCommandTable();
+        static void InitializeCommandTable();
         static void invalidateCommandTable();
 
         void SendGlobalSysMessage(const char *str);
@@ -111,14 +113,9 @@ class TC_GAME_API ChatHandler
 
         char* extractKeyFromLink(char* text, char const* linkType, char** something1 = nullptr);
         char* extractKeyFromLink(char* text, char const* const* linkTypes, int* found_idx, char** something1 = nullptr);
-
-        // if args have single value then it return in arg2 and arg1 == nullptr
-        void extractOptFirstArg(char* args, char** arg1, char** arg2);
         char* extractQuotedArg(char* args);
-
         uint32 extractSpellIdFromLink(char* text);
         ObjectGuid::LowType extractLowGuidFromLink(char* text, HighGuid& guidHigh);
-        GameTele const* extractGameTeleFromLink(char* text);
         bool GetPlayerGroupAndGUIDByName(char const* cname, Player*& player, Group*& group, ObjectGuid& guid, bool offline = false);
         std::string extractPlayerNameFromLink(char* text);
         // select by arg (name/link) or in-game selection online/offline player or self if a creature is selected

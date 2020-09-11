@@ -174,8 +174,13 @@ enum SMART_EVENT
     SMART_EVENT_DISTANCE_CREATURE        = 75,      // guid, entry, distance, repeat
     SMART_EVENT_DISTANCE_GAMEOBJECT      = 76,      // guid, entry, distance, repeat
     SMART_EVENT_COUNTER_SET              = 77,      // id, value, cooldownMin, cooldownMax
+    SMART_EVENT_SCENE_START              = 78,      // don't use on 3.3.5a
+    SMART_EVENT_SCENE_TRIGGER            = 79,      // don't use on 3.3.5a
+    SMART_EVENT_SCENE_CANCEL             = 80,      // don't use on 3.3.5a
+    SMART_EVENT_SCENE_COMPLETE           = 81,      // don't use on 3.3.5a
+    SMART_EVENT_SUMMONED_UNIT_DIES       = 82,      // CreatureId(0 all), CooldownMin, CooldownMax
 
-    SMART_EVENT_END                      = 78
+    SMART_EVENT_END                      = 83
 };
 
 struct SmartEvent
@@ -411,6 +416,7 @@ struct SmartEvent
             uint32 maxHpPct;
             uint32 repeatMin;
             uint32 repeatMax;
+            uint32 radius;
         } friendlyHealthPct;
 
         struct
@@ -496,6 +502,7 @@ enum SMART_ACTION
     SMART_ACTION_MOUNT_TO_ENTRY_OR_MODEL            = 43,     // Creature_template entry(param1) OR ModelId (param2) (or 0 for both to dismount)
     SMART_ACTION_SET_INGAME_PHASE_MASK              = 44,     // mask
     SMART_ACTION_SET_DATA                           = 45,     // Field, Data (only creature @todo)
+    SMART_ACTION_ATTACK_STOP                        = 46,     //
     SMART_ACTION_SET_VISIBILITY                     = 47,     // on/off
     SMART_ACTION_SET_ACTIVE                         = 48,     // on/off
     SMART_ACTION_ATTACK_START                       = 49,     //
@@ -1242,8 +1249,9 @@ enum SMARTAI_TARGETS
     SMART_TARGET_LOOT_RECIPIENTS                = 27,   // all players that have tagged this creature (for kill credit)
     SMART_TARGET_FARTHEST                       = 28,   // maxDist, playerOnly, isInLos
     SMART_TARGET_VEHICLE_PASSENGER              = 29,   // seatMask (0 - all seats)
+    SMART_TARGET_CLOSEST_UNSPAWNED_GAMEOBJECT   = 30,   // entry(0any), maxDist
 
-    SMART_TARGET_END                            = 30
+    SMART_TARGET_END                            = 31
 };
 
 struct SmartTarget
@@ -1502,7 +1510,12 @@ const uint32 SmartAIEventMask[SMART_EVENT_END][2] =
     {SMART_EVENT_FRIENDLY_HEALTH_PCT,       SMART_SCRIPT_TYPE_MASK_CREATURE },
     {SMART_EVENT_DISTANCE_CREATURE,         SMART_SCRIPT_TYPE_MASK_CREATURE },
     {SMART_EVENT_DISTANCE_GAMEOBJECT,       SMART_SCRIPT_TYPE_MASK_CREATURE },
-    {SMART_EVENT_COUNTER_SET,               SMART_SCRIPT_TYPE_MASK_CREATURE + SMART_SCRIPT_TYPE_MASK_GAMEOBJECT }
+    {SMART_EVENT_COUNTER_SET,               SMART_SCRIPT_TYPE_MASK_CREATURE + SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
+    {SMART_EVENT_SCENE_START,               0 },
+    {SMART_EVENT_SCENE_TRIGGER,             0 },
+    {SMART_EVENT_SCENE_CANCEL,              0 },
+    {SMART_EVENT_SCENE_COMPLETE,            0 },
+    {SMART_EVENT_SUMMONED_UNIT_DIES,        SMART_SCRIPT_TYPE_MASK_CREATURE + SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
 };
 
 enum SmartEventFlags
@@ -1537,7 +1550,7 @@ enum SmartCastFlags
 struct SmartScriptHolder
 {
     SmartScriptHolder() : entryOrGuid(0), source_type(SMART_SCRIPT_TYPE_CREATURE)
-        , event_id(0), link(0), event(), action(), target(), timer(0), active(false), runOnce(false)
+        , event_id(0), link(0), event(), action(), target(), timer(0), priority(DEFAULT_PRIORITY), active(false), runOnce(false)
         , enableTimed(false) { }
 
     int32 entryOrGuid;
@@ -1555,11 +1568,19 @@ struct SmartScriptHolder
     uint32 GetTargetType() const { return (uint32)target.type; }
 
     uint32 timer;
+    uint32 priority;
     bool active;
     bool runOnce;
     bool enableTimed;
 
     operator bool() const { return entryOrGuid != 0; }
+    // Default comparision operator using priority field as first ordering field
+    bool operator<(SmartScriptHolder const& other) const
+    {
+        return std::tie(priority, entryOrGuid, source_type, event_id, link) < std::tie(other.priority, other.entryOrGuid, other.source_type, other.event_id, other.link);
+    }
+
+    static constexpr uint32 DEFAULT_PRIORITY = std::numeric_limits<uint32>::max();
 };
 
 typedef std::vector<WorldObject*> ObjectVector;

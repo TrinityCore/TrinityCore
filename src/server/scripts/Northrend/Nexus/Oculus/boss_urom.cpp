@@ -251,7 +251,7 @@ class boss_urom : public CreatureScript
                             Talk(EMOTE_ARCANE_EXPLOSION);
                             Talk(SAY_ARCANE_EXPLOSION);
                             DoCastAOE(SPELL_EMPOWERED_ARCANE_EXPLOSION);
-                            events.ScheduleEvent(EVENT_TELEPORT_BACK, DUNGEON_MODE<uint32>(10000, 8000));
+                            events.ScheduleEvent(EVENT_TELEPORT_BACK, DUNGEON_MODE(10s, 8s));
                             break;
                         case EVENT_TELEPORT_BACK:
                             me->SetReactState(REACT_AGGRESSIVE);
@@ -271,7 +271,7 @@ class boss_urom : public CreatureScript
                             events.ScheduleEvent(EVENT_FROST_BOMB, 5s, 8s);
                             break;
                         case EVENT_TIME_BOMB:
-                            if (Unit* unit = SelectTarget(SELECT_TARGET_RANDOM))
+                            if (Unit* unit = SelectTarget(SelectTargetMethod::Random))
                                 DoCast(unit, SPELL_TIME_BOMB);
                             events.ScheduleEvent(EVENT_TIME_BOMB, 20s, 25s);
                             break;
@@ -295,7 +295,7 @@ class boss_urom : public CreatureScript
                 EngagementOver();
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spellInfo) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
                 switch (spellInfo->Id)
                 {
@@ -371,5 +371,5 @@ class spell_urom_frostbomb : public AuraScript
 void AddSC_boss_urom()
 {
     new boss_urom();
-    RegisterAuraScript(spell_urom_frostbomb);
+    RegisterSpellScript(spell_urom_frostbomb);
 }

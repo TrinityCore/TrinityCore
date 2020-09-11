@@ -559,45 +559,35 @@ const uint32 MaxItemSubclassValues[MAX_ITEM_CLASS] =
     MAX_ITEM_SUBCLASS_GLYPH
 };
 
-inline uint8 ItemSubClassToDurabilityMultiplierId(uint32 ItemClass, uint32 ItemSubClass)
-{
-    switch (ItemClass)
-    {
-        case ITEM_CLASS_WEAPON: return ItemSubClass;
-        case ITEM_CLASS_ARMOR:  return ItemSubClass + 21;
-    }
-    return 0;
-}
-
 #pragma pack(push, 1)
 
 struct _Damage
 {
-    float   DamageMin;
-    float   DamageMax;
-    uint32  DamageType;                                     // id from Resistances.dbc
+    float   DamageMin = 0.0f;
+    float   DamageMax = 0.0f;
+    uint32  DamageType = 0;                                 // id from Resistances.dbc
 };
 
 struct _ItemStat
 {
-    uint32  ItemStatType;
-    int32   ItemStatValue;
+    uint32  ItemStatType = 0;
+    int32   ItemStatValue = 0;
 };
 struct _Spell
 {
-    int32 SpellId;                                         // id from Spell.dbc
-    uint32 SpellTrigger;
-    int32  SpellCharges;
-    float  SpellPPMRate;
-    int32  SpellCooldown;
-    uint32 SpellCategory;                                   // id from SpellCategory.dbc
-    int32  SpellCategoryCooldown;
+    int32 SpellId = 0;                                      // id from Spell.dbc
+    uint32 SpellTrigger = 0;
+    int32  SpellCharges = 0;
+    float  SpellPPMRate = 0.0f;
+    int32  SpellCooldown = -1;
+    uint32 SpellCategory = 0;                               // id from SpellCategory.dbc
+    int32  SpellCategoryCooldown = -1;
 };
 
 struct _Socket
 {
-    uint32 Color;
-    uint32 Content;
+    uint32 Color = 0;
+    uint32 Content = 0;
 };
 
 #pragma pack(pop)
@@ -607,7 +597,7 @@ struct _Socket
 #define MAX_ITEM_PROTO_SPELLS  5
 #define MAX_ITEM_PROTO_STATS  10
 
-struct ItemTemplate
+struct TC_GAME_API ItemTemplate
 {
     friend class ObjectMgr;
 
@@ -639,10 +629,10 @@ struct ItemTemplate
     int32  Stackable;                                       // 0: not allowed, -1: put in player coin info tab and don't limit stacking (so 1 slot)
     uint32 ContainerSlots;
     uint32 StatsCount;
-    _ItemStat ItemStat[MAX_ITEM_PROTO_STATS];
+    std::array<_ItemStat, MAX_ITEM_PROTO_STATS> ItemStat;
     uint32 ScalingStatDistribution;                         // id from ScalingStatDistribution.dbc
     uint32 ScalingStatValue;                                // mask for selecting column in ScalingStatValues.dbc
-    _Damage Damage[MAX_ITEM_PROTO_DAMAGES];
+    std::array<_Damage, MAX_ITEM_PROTO_DAMAGES> Damage;
     uint32 Armor;
     uint32 HolyRes;
     uint32 FireRes;
@@ -653,7 +643,7 @@ struct ItemTemplate
     uint32 Delay;
     uint32 AmmoType;
     float  RangedModRange;
-    _Spell Spells[MAX_ITEM_PROTO_SPELLS];
+    std::array<_Spell, MAX_ITEM_PROTO_SPELLS> Spells;
     uint32 Bonding;
     std::string  Description;
     uint32 PageText;
@@ -672,7 +662,7 @@ struct ItemTemplate
     uint32 Map;                                             // id from Map.dbc
     uint32 BagFamily;                                       // bit mask (1 << id from ItemBagFamily.dbc)
     uint32 TotemCategory;                                   // id from TotemCategory.dbc
-    _Socket Socket[MAX_ITEM_PROTO_SOCKETS];
+    std::array<_Socket, MAX_ITEM_PROTO_SOCKETS> Socket;
     uint32 socketBonus;                                     // id from SpellItemEnchantment.dbc
     uint32 GemProperties;                                   // id from GemProperties.dbc
     uint32 RequiredDisenchantSkill;
@@ -686,7 +676,7 @@ struct ItemTemplate
     uint32 MinMoneyLoot;
     uint32 MaxMoneyLoot;
     uint32 FlagsCu;
-    WorldPacket QueryData[TOTAL_LOCALES];
+    std::array<WorldPacket, TOTAL_LOCALES> QueryData;
 
     // helpers
     bool CanChangeEquipStateInCombat() const;

@@ -192,7 +192,7 @@ class boss_venoxis : public CreatureScript
 
                             for (uint8 i = 0; i < 10; ++i)
                             {
-                                if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, i))
+                                if (Unit* target = SelectTarget(SelectTargetMethod::MaxThreat, i))
                                     // check if target is within melee-distance
                                     if (me->IsWithinMeleeRange(target))
                                         ++_inMeleeRange;
@@ -205,12 +205,12 @@ class boss_venoxis : public CreatureScript
                             events.ScheduleEvent(EVENT_HOLY_NOVA, 45s, 75s, 0, PHASE_ONE);
                             break;
                         case EVENT_HOLY_FIRE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random))
                                 DoCast(target, SPELL_HOLY_FIRE);
                             events.ScheduleEvent(EVENT_HOLY_FIRE, 45s, 60s, 0, PHASE_ONE);
                             break;
                         case EVENT_HOLY_WRATH:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random))
                                 DoCast(target, SPELL_HOLY_WRATH);
                             events.ScheduleEvent(EVENT_HOLY_WRATH, 45s, 60s, 0, PHASE_ONE);
                             break;
@@ -220,17 +220,17 @@ class boss_venoxis : public CreatureScript
                         //
 
                         case EVENT_VENOM_SPIT:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random))
                                 DoCast(target, SPELL_VENOM_SPIT);
                             events.ScheduleEvent(EVENT_VENOM_SPIT, 5s, 15s, 0, PHASE_TWO);
                             break;
                         case EVENT_POISON_CLOUD:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random))
                                 DoCast(target, SPELL_POISON_CLOUD);
                             events.ScheduleEvent(EVENT_POISON_CLOUD, 15s, 20s, 0, PHASE_TWO);
                             break;
                         case EVENT_PARASITIC_SERPENT:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random))
                                 DoCast(target, SPELL_SUMMON_PARASITIC_SERPENT);
                             events.ScheduleEvent(EVENT_PARASITIC_SERPENT, 15s, 0, PHASE_TWO);
                             break;

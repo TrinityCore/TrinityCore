@@ -19,13 +19,18 @@
 #define TRINITYCORE_QUEST_H
 
 #include "Common.h"
-#include "DBCEnums.h"
 #include "DatabaseEnvFwd.h"
+#include "DBCEnums.h"
 #include "SharedDefines.h"
 #include "WorldPacket.h"
 #include <vector>
 
 class Player;
+
+namespace WorldPackets::Quest
+{
+    struct QuestRewards;
+}
 
 #define MAX_QUEST_LOG_SIZE 25
 
@@ -39,23 +44,25 @@ class Player;
 #define QUEST_EMOTE_COUNT 4
 #define QUEST_PVP_KILL_SLOT 0
 
-enum QuestFailedReason
+// EnumUtils: DESCRIBE THIS
+enum QuestFailedReason : uint32
 {
     INVALIDREASON_DONT_HAVE_REQ                 = 0,
-    INVALIDREASON_QUEST_FAILED_LOW_LEVEL        = 1,        // You are not high enough level for that quest.
-    INVALIDREASON_QUEST_FAILED_WRONG_RACE       = 6,        // That quest is not available to your race.
-    INVALIDREASON_QUEST_ALREADY_DONE            = 7,        // You have completed that quest.
-    INVALIDREASON_QUEST_ONLY_ONE_TIMED          = 12,       // You can only be on one timed quest at a time.
-    INVALIDREASON_QUEST_ALREADY_ON              = 13,       // You are already on that quest.
-    INVALIDREASON_QUEST_FAILED_EXPANSION        = 16,       // This quest requires an expansion enabled account.
-    INVALIDREASON_QUEST_ALREADY_ON2             = 18,       // You are already on that quest.
-    INVALIDREASON_QUEST_FAILED_MISSING_ITEMS    = 21,       // You don't have the required items with you. Check storage.
-    INVALIDREASON_QUEST_FAILED_NOT_ENOUGH_MONEY = 23,       // You don't have enough money for that quest.
-    INVALIDREASON_DAILY_QUESTS_REMAINING        = 26,       // You have already completed 25 daily quests today.
-    INVALIDREASON_QUEST_FAILED_CAIS             = 27,       // You cannot complete quests once you have reached tired time.
-    INVALIDREASON_DAILY_QUEST_COMPLETED_TODAY   = 29        // You have completed that daily quest today.
+    INVALIDREASON_QUEST_FAILED_LOW_LEVEL        = 1,        // DESCRIPTION You are not high enough level for that quest.
+    INVALIDREASON_QUEST_FAILED_WRONG_RACE       = 6,        // DESCRIPTION That quest is not available to your race.
+    INVALIDREASON_QUEST_ALREADY_DONE            = 7,        // DESCRIPTION You have completed that quest.
+    INVALIDREASON_QUEST_ONLY_ONE_TIMED          = 12,       // DESCRIPTION You can only be on one timed quest at a time.
+    INVALIDREASON_QUEST_ALREADY_ON              = 13,       // DESCRIPTION You are already on that quest.
+    INVALIDREASON_QUEST_FAILED_EXPANSION        = 16,       // DESCRIPTION This quest requires an expansion enabled account.
+    INVALIDREASON_QUEST_ALREADY_ON2             = 18,       // DESCRIPTION You are already on that quest.
+    INVALIDREASON_QUEST_FAILED_MISSING_ITEMS    = 21,       // DESCRIPTION You don't have the required items with you. Check storage.
+    INVALIDREASON_QUEST_FAILED_NOT_ENOUGH_MONEY = 23,       // DESCRIPTION You don't have enough money for that quest.
+    INVALIDREASON_DAILY_QUESTS_REMAINING        = 26,       // DESCRIPTION You have already completed 25 daily quests today.
+    INVALIDREASON_QUEST_FAILED_CAIS             = 27,       // DESCRIPTION You cannot complete quests once you have reached tired time.
+    INVALIDREASON_DAILY_QUEST_COMPLETED_TODAY   = 29        // DESCRIPTION You have completed that daily quest today.
 };
 
+// EnumUtils: DESCRIBE THIS
 enum QuestShareMessages : uint8
 {
     QUEST_PARTY_MSG_SHARING_QUEST           = 0,
@@ -131,7 +138,7 @@ enum QuestFlags
     QUEST_FLAGS_RAID                    = 0x00000040,   // Can be completed while in raid
     QUEST_FLAGS_TBC                     = 0x00000080,   // Not used currently: Available if TBC expansion enabled only
     QUEST_FLAGS_NO_MONEY_FROM_XP        = 0x00000100,   // Not used currently: Experience is not converted to gold at max level
-    QUEST_FLAGS_HIDDEN_REWARDS          = 0x00000200,   // Items and money rewarded only sent in SMSG_QUESTGIVER_OFFER_REWARD (not in SMSG_QUESTGIVER_QUEST_DETAILS or in client quest log(SMSG_QUEST_QUERY_RESPONSE))
+    QUEST_FLAGS_HIDDEN_REWARDS          = 0x00000200,   // Items and money rewarded only sent in SMSG_QUESTGIVER_OFFER_REWARD (not in SMSG_QUEST_GIVER_QUEST_DETAILS or in client quest log(SMSG_QUEST_QUERY_RESPONSE))
     QUEST_FLAGS_TRACKING                = 0x00000400,   // These quests are automatically rewarded on quest complete and they will never appear in quest log client side.
     QUEST_FLAGS_DEPRECATE_REPUTATION    = 0x00000800,   // Not used currently
     QUEST_FLAGS_DAILY                   = 0x00001000,   // Used to know quest is Daily one
@@ -322,6 +329,8 @@ class TC_GAME_API Quest
         static void AddQuestLevelToTitle(std::string& title, int32 level);
         void InitializeQueryData();
         WorldPacket BuildQueryData(LocaleConstant loc) const;
+
+        void BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player* player, bool sendHiddenRewards = false) const;
 
         std::vector<uint32> DependentPreviousQuests;
         std::vector<uint32> DependentBreadcrumbQuests;

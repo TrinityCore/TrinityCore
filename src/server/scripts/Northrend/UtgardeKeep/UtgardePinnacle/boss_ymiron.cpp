@@ -145,12 +145,12 @@ public:
             events.ScheduleEvent(EVENT_BANE, 18s, 23s, EVENT_GROUP_BASE_SPELLS);
             events.ScheduleEvent(EVENT_FETID_ROT, 8s, 13s, EVENT_GROUP_BASE_SPELLS);
             events.ScheduleEvent(EVENT_DARK_SLASH, 28s, 33s, EVENT_GROUP_BASE_SPELLS);
-            events.ScheduleEvent(EVENT_ANCESTORS_VENGEANCE, DUNGEON_MODE(60000, 45000), EVENT_GROUP_BASE_SPELLS);
+            events.ScheduleEvent(EVENT_ANCESTORS_VENGEANCE, DUNGEON_MODE(60s, 45s), EVENT_GROUP_BASE_SPELLS);
         }
 
-        void SpellHitTarget(Unit* who, SpellInfo const* spell) override
+        void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
         {
-            if (who && who->GetTypeId() == TYPEID_PLAYER && spell->Id == SPELL_BANE_HIT)
+            if (target->GetTypeId() == TYPEID_PLAYER && spellInfo->Id == SPELL_BANE_HIT)
                 kingsBane = false;
         }
 
@@ -170,7 +170,7 @@ public:
             if (pointId == POINT_BOAT) // Check might not be needed.
             {
                 Talk(ActiveBoat[ActiveOrder[ActivedNumber]].say);
-                if (Creature* ancestor = me->SummonCreature(ActiveBoat[ActiveOrder[ActivedNumber]].npc, ActiveBoat[ActiveOrder[ActivedNumber]].SpawnX, ActiveBoat[ActiveOrder[ActivedNumber]].SpawnY, ActiveBoat[ActiveOrder[ActivedNumber]].SpawnZ, ActiveBoat[ActiveOrder[ActivedNumber]].SpawnO, TEMPSUMMON_CORPSE_DESPAWN, 0))
+                if (Creature* ancestor = me->SummonCreature(ActiveBoat[ActiveOrder[ActivedNumber]].npc, ActiveBoat[ActiveOrder[ActivedNumber]].SpawnX, ActiveBoat[ActiveOrder[ActivedNumber]].SpawnY, ActiveBoat[ActiveOrder[ActivedNumber]].SpawnZ, ActiveBoat[ActiveOrder[ActivedNumber]].SpawnO, TEMPSUMMON_CORPSE_DESPAWN))
                 {
                     DoCast(ancestor, SPELL_CHANNEL_YMIRON_TO_SPIRIT);
                     ancestor->CastSpell(me, SPELL_CHANNEL_SPIRIT_TO_YMIRON, true);
@@ -192,7 +192,7 @@ public:
                     SpiritFountGUID = summon->GetGUID();
                     break;
                 case NPC_AVENGING_SPIRIT:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     {
                         AddThreat(target, 0.0f, summon);
                         summon->AI()->AttackStart(target);
@@ -223,7 +223,7 @@ public:
                 DespawnBoatGhosts(SpiritFountGUID);
 
                 events.CancelEvent(ActiveBoat[ActiveOrder[ActivedNumber]].event); // Cancels the event started on the previous transition.
-                events.DelayEvents(10000, EVENT_GROUP_BASE_SPELLS);
+                events.DelayEvents(10s, EVENT_GROUP_BASE_SPELLS);
 
                 ActivedNumber = Order;
             }
@@ -247,11 +247,11 @@ public:
                     break;
                 case EVENT_ANCESTORS_VENGEANCE:
                     DoCast(me, SPELL_ANCESTORS_VENGEANCE);
-                    events.ScheduleEvent(EVENT_ANCESTORS_VENGEANCE, DUNGEON_MODE(urand(60000, 65000), urand(45000, 50000)));
+                    events.ScheduleEvent(EVENT_ANCESTORS_VENGEANCE, DUNGEON_MODE(randtime(60s, 65s), randtime(45s, 50s)));
                     break;
                 case EVENT_RESUME_COMBAT:
                     me->SetReactState(REACT_AGGRESSIVE);
-                    events.ScheduleEvent(ActiveBoat[ActiveOrder[ActivedNumber]].event, 5000);
+                    events.ScheduleEvent(ActiveBoat[ActiveOrder[ActivedNumber]].event, 5s);
                     break;
                 case EVENT_BJORN_SPIRIT_FOUNT:
                     DoCast(SPELL_SUMMON_SPIRIT_FOUNT);

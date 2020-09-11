@@ -16,7 +16,9 @@
  */
 
 #include "MapUpdater.h"
+#include "DatabaseEnv.h"
 #include "Map.h"
+#include "Metric.h"
 
 #include <mutex>
 
@@ -38,6 +40,7 @@ class MapUpdateRequest
 
         void call()
         {
+            TC_METRIC_TIMER("map_update_time_diff", TC_METRIC_TAG("map_id", std::to_string(m_map.GetId())));
             m_map.Update (m_diff);
             m_updater.update_finished();
         }
@@ -100,6 +103,10 @@ void MapUpdater::update_finished()
 
 void MapUpdater::WorkerThread()
 {
+    LoginDatabase.WarnAboutSyncQueries(true);
+    CharacterDatabase.WarnAboutSyncQueries(true);
+    WorldDatabase.WarnAboutSyncQueries(true);
+
     while (1)
     {
         MapUpdateRequest* request = nullptr;

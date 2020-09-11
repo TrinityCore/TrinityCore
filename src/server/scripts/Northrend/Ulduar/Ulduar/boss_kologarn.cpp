@@ -112,7 +112,6 @@ class boss_kologarn : public CreatureScript
 
                 DoCast(SPELL_KOLOGARN_REDUCE_PARRY);
                 SetCombatMovement(false);
-                Reset();
             }
 
             bool left, right;
@@ -125,7 +124,7 @@ class boss_kologarn : public CreatureScript
                 events.ScheduleEvent(EVENT_MELEE_CHECK, 6s);
                 events.ScheduleEvent(EVENT_SMASH, 5s);
                 events.ScheduleEvent(EVENT_SWEEP, 19s);
-                events.ScheduleEvent(EVENT_STONE_GRIP, 25000);
+                events.ScheduleEvent(EVENT_STONE_GRIP, 25s);
                 events.ScheduleEvent(EVENT_FOCUSED_EYEBEAM, 21s);
                 events.ScheduleEvent(EVENT_ENRAGE, 10min);
 
@@ -151,7 +150,6 @@ class boss_kologarn : public CreatureScript
                 me->GetMotionMaster()->MoveTargetedHome();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetCorpseDelay(604800); // Prevent corpse from despawning.
-                ForceCombatStopForCreatureEntry(NPC_ARM_SWEEP_STALKER, 500.f);
                 _JustDied();
             }
 
@@ -223,7 +221,7 @@ class boss_kologarn : public CreatureScript
                         break;
                     case NPC_RUBBLE:
                         summons.Summon(summon);
-                        // absence of break intended
+                        [[fallthrough]];
                     default:
                         return;
                 }
@@ -305,7 +303,7 @@ class boss_kologarn : public CreatureScript
                             break;
                         }
                         case EVENT_FOCUSED_EYEBEAM:
-                            if (Unit* eyebeamTargetUnit = SelectTarget(SELECT_TARGET_MAXDISTANCE, 0, 0, true))
+                            if (Unit* eyebeamTargetUnit = SelectTarget(SelectTargetMethod::MaxDistance, 0, 0, true))
                             {
                                 eyebeamTarget = eyebeamTargetUnit->GetGUID();
                                 DoCast(me, SPELL_SUMMON_FOCUSED_EYEBEAM, true);

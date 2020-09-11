@@ -118,7 +118,7 @@ void WorldSession::HandleGuildLeaveOpcode(WorldPackets::Guild::GuildLeave& /*lea
         guild->HandleLeaveMember(this);
 }
 
-void WorldSession::HandleGuildDisbandOpcode(WorldPackets::Guild::GuildDelete& /*packet*/)
+void WorldSession::HandleGuildDelete(WorldPackets::Guild::GuildDelete& /*packet*/)
 {
     TC_LOG_DEBUG("guild", "CMSG_GUILD_DISBAND [%s]", GetPlayerInfo().c_str());
 
@@ -126,7 +126,7 @@ void WorldSession::HandleGuildDisbandOpcode(WorldPackets::Guild::GuildDelete& /*
         guild->HandleDisband(this);
 }
 
-void WorldSession::HandleGuildLeaderOpcode(WorldPackets::Guild::GuildSetGuildMaster& packet)
+void WorldSession::HandleGuildSetGuildMaster(WorldPackets::Guild::GuildSetGuildMaster& packet)
 {
     TC_LOG_DEBUG("guild", "CMSG_GUILD_LEADER [%s]: Target: %s", GetPlayerInfo().c_str(), packet.NewMasterName.c_str());
 
@@ -135,7 +135,7 @@ void WorldSession::HandleGuildLeaderOpcode(WorldPackets::Guild::GuildSetGuildMas
             guild->HandleSetLeader(this, packet.NewMasterName);
 }
 
-void WorldSession::HandleGuildMOTDOpcode(WorldPackets::Guild::GuildUpdateMotdText& packet)
+void WorldSession::HandleGuildUpdateMotdText(WorldPackets::Guild::GuildUpdateMotdText& packet)
 {
     TC_LOG_DEBUG("guild", "CMSG_GUILD_MOTD [%s]: MOTD: %s", GetPlayerInfo().c_str(), packet.MotdText.c_str());
 
@@ -163,13 +163,13 @@ void WorldSession::HandleGuildSetOfficerNoteOpcode(WorldPackets::Guild::GuildSet
             guild->HandleSetMemberNote(this, packet.NoteeName, packet.Note, true);
 }
 
-void WorldSession::HandleGuildRankOpcode(WorldPackets::Guild::GuildSetRankPermissions& packet)
+void WorldSession::HandleGuildSetRankPermissions(WorldPackets::Guild::GuildSetRankPermissions& packet)
 {
     Guild* guild = GetPlayer()->GetGuild();
     if (!guild)
         return;
 
-    GuildBankRightsAndSlotsVec rightsAndSlots(GUILD_BANK_MAX_TABS);
+    std::array<GuildBankRightsAndSlots, GUILD_BANK_MAX_TABS> rightsAndSlots;
     for (uint8 tabId = 0; tabId < GUILD_BANK_MAX_TABS; ++tabId)
         rightsAndSlots[tabId] = GuildBankRightsAndSlots(tabId, uint8(packet.TabFlags[tabId]), uint32(packet.TabWithdrawItemLimit[tabId]));
 
@@ -186,7 +186,7 @@ void WorldSession::HandleGuildAddRankOpcode(WorldPackets::Guild::GuildAddRank& p
         guild->HandleAddNewRank(this, packet.Name);
 }
 
-void WorldSession::HandleGuildDelRankOpcode(WorldPackets::Guild::GuildDeleteRank& /*packet*/)
+void WorldSession::HandleGuildDeleteRank(WorldPackets::Guild::GuildDeleteRank& /*packet*/)
 {
     TC_LOG_DEBUG("guild", "CMSG_GUILD_DEL_RANK [%s]", GetPlayerInfo().c_str());
 
@@ -194,7 +194,7 @@ void WorldSession::HandleGuildDelRankOpcode(WorldPackets::Guild::GuildDeleteRank
         guild->HandleRemoveLowestRank(this);
 }
 
-void WorldSession::HandleGuildChangeInfoTextOpcode(WorldPackets::Guild::GuildUpdateInfoText& packet)
+void WorldSession::HandleGuildUpdateInfoText(WorldPackets::Guild::GuildUpdateInfoText& packet)
 {
     TC_LOG_DEBUG("guild", "CMSG_GUILD_INFO_TEXT [%s]: %s", GetPlayerInfo().c_str(), packet.InfoText.c_str());
 
@@ -241,14 +241,14 @@ void WorldSession::HandleGuildBankMoneyWithdrawn(WorldPackets::Guild::GuildBankR
         guild->SendMoneyInfo(this);
 }
 
-void WorldSession::HandleGuildPermissions(WorldPackets::Guild::GuildPermissionsQuery& /* packet */)
+void WorldSession::HandleGuildPermissionsQuery(WorldPackets::Guild::GuildPermissionsQuery& /* packet */)
 {
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->SendPermissions(this);
 }
 
 // Called when clicking on Guild bank gameobject
-void WorldSession::HandleGuildBankerActivate(WorldPackets::Guild::GuildBankActivate& packet)
+void WorldSession::HandleGuildBankActivate(WorldPackets::Guild::GuildBankActivate& packet)
 {
     TC_LOG_DEBUG("guild", "CMSG_GUILD_BANKER_ACTIVATE [%s]: [%s] AllSlots: %u"
         , GetPlayerInfo().c_str(), packet.Banker.ToString().c_str(), packet.FullUpdate);
@@ -365,7 +365,7 @@ void WorldSession::HandleGuildBankLogQuery(WorldPackets::Guild::GuildBankLogQuer
         guild->SendBankLog(this, packet.Tab);
 }
 
-void WorldSession::HandleQueryGuildBankTabText(WorldPackets::Guild::GuildBankTextQuery& packet)
+void WorldSession::HandleGuildBankTextQuery(WorldPackets::Guild::GuildBankTextQuery& packet)
 {
     TC_LOG_DEBUG("guild", "MSG_QUERY_GUILD_BANK_TEXT [%s]: TabId: %u", GetPlayerInfo().c_str(), packet.Tab);
 
@@ -373,7 +373,7 @@ void WorldSession::HandleQueryGuildBankTabText(WorldPackets::Guild::GuildBankTex
         guild->SendBankTabText(this, packet.Tab);
 }
 
-void WorldSession::HandleSetGuildBankTabText(WorldPackets::Guild::GuildBankSetTabText& packet)
+void WorldSession::HandleGuildBankSetTabText(WorldPackets::Guild::GuildBankSetTabText& packet)
 {
     TC_LOG_DEBUG("guild", "CMSG_SET_GUILD_BANK_TEXT [%s]: TabId: %u, Text: %s", GetPlayerInfo().c_str(), packet.Tab, packet.TabText.c_str());
 

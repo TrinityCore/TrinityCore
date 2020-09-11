@@ -200,7 +200,7 @@ public:
                 //summon all the remaining in vector
                 for (std::vector<uint32>::const_iterator itr = LackeyEntryList.begin(); itr != LackeyEntryList.end(); ++itr)
                 {
-                    if (Creature* pAdd = me->SummonCreature((*itr), LackeyLocations[j][0], LackeyLocations[j][1], fZLocation, fOrientation, TEMPSUMMON_CORPSE_DESPAWN, 0))
+                    if (Creature* pAdd = me->SummonCreature((*itr), LackeyLocations[j][0], LackeyLocations[j][1], fZLocation, fOrientation, TEMPSUMMON_CORPSE_DESPAWN))
                         m_auiLackeyGUID[j] = pAdd->GetGUID();
 
                     ++j;
@@ -215,7 +215,7 @@ public:
                     //object already removed, not exist
                     if (!pAdd)
                     {
-                        pAdd = me->SummonCreature((*itr), LackeyLocations[j][0], LackeyLocations[j][1], fZLocation, fOrientation, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                        pAdd = me->SummonCreature((*itr), LackeyLocations[j][0], LackeyLocations[j][1], fZLocation, fOrientation, TEMPSUMMON_CORPSE_DESPAWN);
                         if (pAdd)
                             m_auiLackeyGUID[j] = pAdd->GetGUID();
                     }
@@ -313,7 +313,7 @@ public:
                 Unit* target = nullptr;
 
                 if (urand(0, 1))
-                    target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                    target = SelectTarget(SelectTargetMethod::Random, 0, 100, true);
                 else
                 {
                     if (urand(0, 1))
@@ -332,7 +332,7 @@ public:
 
             if (SWPainTimer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
                     DoCast(target, SPELL_SW_PAIN_NORMAL);
 
                 SWPainTimer = 10000;
@@ -527,7 +527,7 @@ public:
             {
                 DoCast(me, SPELL_VANISH);
 
-                Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                Unit* unit = SelectTarget(SelectTargetMethod::Random, 0);
 
                 ResetThreatList();
 
@@ -651,7 +651,7 @@ public:
 
             if (Seed_of_Corruption_Timer <= diff)
             {
-                if (Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* unit = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(unit, SPELL_SEED_OF_CORRUPTION);
 
                 Seed_of_Corruption_Timer = 10000;
@@ -659,7 +659,7 @@ public:
 
             if (Curse_of_Agony_Timer <= diff)
             {
-                if (Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* unit = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(unit, SPELL_CURSE_OF_AGONY);
 
                 Curse_of_Agony_Timer = 13000;
@@ -667,7 +667,7 @@ public:
 
             if (Fear_Timer <= diff)
             {
-                if (Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* unit = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(unit, SPELL_FEAR);
 
                 Fear_Timer = 10000;
@@ -812,7 +812,7 @@ public:
 
             if (Polymorph_Timer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                 {
                     DoCast(target, SPELL_POLYMORPH);
                     Polymorph_Timer = 20000;
@@ -827,7 +827,7 @@ public:
 
             if (Blizzard_Timer <= diff)
             {
-                if (Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* unit = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(unit, SPELL_BLIZZARD);
 
                 Blizzard_Timer = 8000;
@@ -955,7 +955,7 @@ public:
                 //if nobody is in melee range than try to use Intercept
                 if (!InMeleeRange)
                 {
-                    if (Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* unit = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(unit, SPELL_INTERCEPT_STUN);
                 }
 
@@ -1052,7 +1052,7 @@ public:
 
             Unit* pPet = ObjectAccessor::GetUnit(*me, m_uiPetGUID);
             if (!pPet)
-                me->SummonCreature(NPC_SLIVER, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                me->SummonCreature(NPC_SLIVER, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_CORPSE_DESPAWN);
 
             boss_priestess_lackey_commonAI::Reset();
         }
@@ -1189,7 +1189,7 @@ public:
 
             if (Purge_Timer <= diff)
             {
-                if (Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* unit = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(unit, SPELL_PURGE);
 
                 Purge_Timer = 15000;

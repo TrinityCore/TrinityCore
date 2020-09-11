@@ -30,7 +30,7 @@ FormationMovementGenerator::FormationMovementGenerator(Unit* leader, float range
     Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_NORMAL;
     Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
-    BaseUnitState = UNIT_STATE_ROAMING;
+    BaseUnitState = UNIT_STATE_FOLLOW_FORMATION;
 }
 
 MovementGeneratorType FormationMovementGenerator::GetMovementGeneratorType() const
@@ -71,34 +71,24 @@ bool FormationMovementGenerator::DoUpdate(Creature* owner, uint32 diff)
     if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting())
     {
         AddFlag(MOVEMENTGENERATOR_FLAG_INTERRUPTED);
-        owner->ClearUnitState(UNIT_STATE_ROAMING_MOVE);
         owner->StopMoving();
+        _nextMoveTimer.Reset(0);
+        _hasPredictedDestination = false;
         return true;
     }
 
-    // Leader has stopped moving, so do we as well
+    // If target is not moving and destination has been predicted and if we are on the same spline, we stop as well
     if (target->movespline->Finalized() && target->movespline->GetId() == _lastLeaderSplineID && _hasPredictedDestination)
     {
-        owner->ClearUnitState(UNIT_STATE_ROAMING_MOVE);
+        AddFlag(MOVEMENTGENERATOR_FLAG_INTERRUPTED);
         owner->StopMoving();
         _nextMoveTimer.Reset(0);
         _hasPredictedDestination = false;
         return true;
     }
 
-    // Update home position
-    owner->SetHomePosition(owner->GetPosition());
-    if (HasFlag(MOVEMENTGENERATOR_FLAG_INTERRUPTED))
-        RemoveFlag(MOVEMENTGENERATOR_FLAG_INTERRUPTED);
-
-    // Leader has stopped moving, so do we as well
-    if (owner->HasUnitState(UNIT_STATE_ROAMING_MOVE) && _hasPredictedDestination && target->movespline->Finalized() && target->movespline->GetId() == _lastLeaderSplineID)
-    {
-        owner->StopMoving();
-        _nextMoveTimer.Reset(0);
-        _hasPredictedDestination = false;
-        return true;
-    }
+    if (!owner->movespline->Finalized())
+        owner->SetHomePosition(owner->GetPosition());
 
     // Formation leader has launched a new spline, launch a new one for our member as well
     // This action does not reset the regular movement launch cycle interval
@@ -137,9 +127,9 @@ bool FormationMovementGenerator::DoUpdate(Creature* owner, uint32 diff)
     }
 
     // We have reached our destination before launching a new movement. Alling facing with leader
-    if (owner->HasUnitState(UNIT_STATE_ROAMING_MOVE) && owner->movespline->Finalized())
+    if (owner->HasUnitState(UNIT_STATE_FOLLOW_FORMATION_MOVE) && owner->movespline->Finalized())
     {
-        owner->ClearUnitState(UNIT_STATE_ROAMING_MOVE);
+        owner->ClearUnitState(UNIT_STATE_FOLLOW_FORMATION_MOVE);
         owner->SetFacingTo(target->GetOrientation());
         MovementInform(owner);
     }
@@ -205,20 +195,21 @@ void FormationMovementGenerator::LaunchMovement(Creature* owner, Unit* target)
     init.Launch();
 
     _lastLeaderPosition = target->GetPosition();
-    owner->AddUnitState(UNIT_STATE_ROAMING_MOVE);
+    owner->AddUnitState(UNIT_STATE_FOLLOW_FORMATION_MOVE);
+    RemoveFlag(MOVEMENTGENERATOR_FLAG_INTERRUPTED);
 }
 
 void FormationMovementGenerator::DoDeactivate(Creature* owner)
 {
     AddFlag(MOVEMENTGENERATOR_FLAG_DEACTIVATED);
-    owner->ClearUnitState(UNIT_STATE_ROAMING_MOVE);
+    owner->ClearUnitState(UNIT_STATE_FOLLOW_FORMATION_MOVE);
 }
 
 void FormationMovementGenerator::DoFinalize(Creature* owner, bool active, bool movementInform)
 {
     AddFlag(MOVEMENTGENERATOR_FLAG_FINALIZED);
     if (active)
-        owner->ClearUnitState(UNIT_STATE_ROAMING_MOVE);
+        owner->ClearUnitState(UNIT_STATE_FOLLOW_FORMATION_MOVE);
 
     if (movementInform && HasFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED))
         MovementInform(owner);

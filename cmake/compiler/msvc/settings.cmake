@@ -6,6 +6,8 @@ set(MSVC_EXPECTED_VERSION_STRING "Microsoft Visual Studio 2019 16.4")
 
 if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS MSVC_EXPECTED_VERSION)
   message(FATAL_ERROR "MSVC: TrinityCore requires version ${MSVC_EXPECTED_VERSION} (${MSVC_EXPECTED_VERSION_STRING}) to build but found ${CMAKE_CXX_COMPILER_VERSION}")
+else()
+  message(STATUS "MSVC: Minimum version required is ${MSVC_EXPECTED_VERSION}, found ${CMAKE_CXX_COMPILER_VERSION} - ok!")
 endif()
 
 # CMake sets warning flags by default, however we manage it manually
@@ -20,6 +22,11 @@ string(REGEX REPLACE "/W[0-4]$" "" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
 target_compile_options(trinity-warning-interface
   INTERFACE
     /W3)
+
+# disable permissive mode to make msvc more eager to reject code that other compilers don't already accept
+target_compile_options(trinity-compile-option-interface
+  INTERFACE
+    /permissive-)
 
 # set up output paths ofr static libraries etc (commented out - shown here as an example only)
 #set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
@@ -59,7 +66,7 @@ else()
   # while all make-like generators do (nmake, ninja)
   target_compile_definitions(trinity-compile-option-interface
     INTERFACE
-      -D_BUILD_DIRECTIVE="${CMAKE_BUILD_TYPE}")
+      -D_BUILD_DIRECTIVE="$<CONFIG>")
 endif()
 
 # multithreaded compiling on VS
@@ -128,7 +135,7 @@ if(NOT WITH_WARNINGS)
   message(STATUS "MSVC: Disabled generic compiletime warnings")
 endif()
 
-if (BUILD_SHARED_LIBS)
+if(BUILD_SHARED_LIBS)
   # C4251: needs to have dll-interface to be used by clients of class '...'
   # C4275: non dll-interface class ...' used as base for dll-interface class '...'
   target_compile_options(trinity-compile-option-interface

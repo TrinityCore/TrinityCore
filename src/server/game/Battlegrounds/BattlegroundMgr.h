@@ -105,7 +105,8 @@ class TC_GAME_API BattlegroundMgr
         void ToggleArenaTesting();
         void ToggleTesting();
 
-        void SetHolidayWeekends(uint32 mask);
+        void ResetHolidays();
+        void SetHolidayActive(uint32 battlegroundId);
 
         bool isArenaTesting() const { return m_ArenaTesting; }
         bool isTesting() const { return m_Testing; }

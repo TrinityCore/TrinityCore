@@ -866,12 +866,12 @@ void GameEventMgr::LoadFromDB()
         }
     }
 
-    TC_LOG_INFO("server.loading", "Loading Game Event Battleground Data...");
+    TC_LOG_INFO("server.loading", "Loading Game Event Battleground Holiday Data...");
     {
         uint32 oldMSTime = getMSTime();
 
-        //                                                   0         1
-        QueryResult result = WorldDatabase.Query("SELECT eventEntry, bgflag FROM game_event_battleground_holiday");
+        //                                               0           1
+        QueryResult result = WorldDatabase.Query("SELECT EventEntry, BattlegroundID FROM game_event_battleground_holiday");
 
         if (!result)
             TC_LOG_INFO("server.loading", ">> Loaded 0 battleground holidays in game events. DB table `game_event_battleground_holiday` is empty.");
@@ -983,9 +983,9 @@ void GameEventMgr::LoadHolidayDates()
         if (uint32 duration = fields[3].GetUInt32())
             entry->Duration[0] = duration;
 
-        auto itr = std::lower_bound(modifiedHolidays.begin(), modifiedHolidays.end(), entry->Id);
-        if (itr == modifiedHolidays.end() || *itr != entry->Id)
-            modifiedHolidays.insert(itr, entry->Id);
+        auto itr = std::lower_bound(modifiedHolidays.begin(), modifiedHolidays.end(), entry->ID);
+        if (itr == modifiedHolidays.end() || *itr != entry->ID)
+            modifiedHolidays.insert(itr, entry->ID);
         ++count;
 
     } while (result->NextRow());
@@ -1232,10 +1232,10 @@ void GameEventMgr::UpdateEventNPCFlags(uint16 event_id)
 
 void GameEventMgr::UpdateBattlegroundSettings()
 {
-    uint32 mask = 0;
-    for (ActiveEvents::const_iterator itr = m_ActiveEvents.begin(); itr != m_ActiveEvents.end(); ++itr)
-        mask |= mGameEventBattlegroundHolidays[*itr];
-    sBattlegroundMgr->SetHolidayWeekends(mask);
+    sBattlegroundMgr->ResetHolidays();
+
+    for (uint16 activeEventId : m_ActiveEvents)
+        sBattlegroundMgr->SetHolidayActive(mGameEventBattlegroundHolidays[activeEventId]);
 }
 
 void GameEventMgr::UpdateEventNPCVendor(uint16 event_id, bool activate)
@@ -1585,10 +1585,10 @@ void GameEventMgr::UpdateWorldStates(uint16 event_id, bool Activate)
         if (bgTypeId != BATTLEGROUND_TYPE_NONE)
         {
             BattlemasterListEntry const* bl = sBattlemasterListStore.LookupEntry(bgTypeId);
-            if (bl && bl->HolidayWorldStateId)
+            if (bl && bl->HolidayWorldState)
             {
                 WorldPackets::WorldState::UpdateWorldState worldstate;
-                worldstate.VariableID = bl->HolidayWorldStateId;
+                worldstate.VariableID = bl->HolidayWorldState;
                 worldstate.Value = Activate ? 1 : 0;
                 sWorld->SendGlobalMessage(worldstate.Write());
             }
@@ -1843,8 +1843,8 @@ bool IsHolidayActive(HolidayIds id)
     return false;
 }
 
-bool IsEventActive(uint16 event_id)
+bool IsEventActive(uint16 eventId)
 {
     GameEventMgr::ActiveEvents const& ae = sGameEventMgr->GetActiveEventList();
-    return ae.find(event_id) != ae.end();
+    return ae.find(eventId) != ae.end();
 }

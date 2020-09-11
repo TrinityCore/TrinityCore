@@ -66,7 +66,7 @@ class boss_lavanthor : public CreatureScript
             {
                 scheduler.Schedule(Seconds(1), [this](TaskContext task)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f, true))
                         DoCast(target, SPELL_FIREBOLT);
                     task.Repeat(Seconds(5), Seconds(13));
                 });
@@ -79,7 +79,7 @@ class boss_lavanthor : public CreatureScript
 
                 scheduler.Schedule(Seconds(10), [this](TaskContext task)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 50.0f))
                         DoCast(target, SPELL_LAVA_BURN);
                     task.Repeat(Seconds(15), Seconds(23));
                 });

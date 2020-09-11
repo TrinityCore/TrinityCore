@@ -21,13 +21,18 @@
 #include "Language.h"
 #include "RBAC.h"
 
-uint32 const ahbotQualityIds[MAX_AUCTION_QUALITY] =
-{
-    LANG_AHBOT_QUALITY_GRAY, LANG_AHBOT_QUALITY_WHITE,
-    LANG_AHBOT_QUALITY_GREEN, LANG_AHBOT_QUALITY_BLUE,
-    LANG_AHBOT_QUALITY_PURPLE, LANG_AHBOT_QUALITY_ORANGE,
-    LANG_AHBOT_QUALITY_YELLOW
-};
+static std::unordered_map<AuctionQuality, uint32> const ahbotQualityLangIds =
+    {
+        { AUCTION_QUALITY_GRAY,   LANG_AHBOT_QUALITY_GRAY },
+        { AUCTION_QUALITY_WHITE,  LANG_AHBOT_QUALITY_WHITE },
+        { AUCTION_QUALITY_GREEN,  LANG_AHBOT_QUALITY_GREEN },
+        { AUCTION_QUALITY_BLUE,   LANG_AHBOT_QUALITY_BLUE },
+        { AUCTION_QUALITY_PURPLE, LANG_AHBOT_QUALITY_PURPLE },
+        { AUCTION_QUALITY_ORANGE, LANG_AHBOT_QUALITY_ORANGE },
+        { AUCTION_QUALITY_YELLOW, LANG_AHBOT_QUALITY_YELLOW }
+    };
+
+using namespace Trinity::ChatCommands;
 
 class ahbot_commandscript : public CommandScript
 {
@@ -73,103 +78,59 @@ public:
         return commandTable;
     }
 
-    static bool HandleAHBotItemsAmountCommand(ChatHandler* handler, char const* args)
+    static bool HandleAHBotItemsAmountCommand(ChatHandler* handler, std::array<uint32, MAX_AUCTION_QUALITY> items)
     {
-        uint32 qVals[MAX_AUCTION_QUALITY];
-        char* arg = strtok((char*)args, " ");
-        for (int i = 0; i < MAX_AUCTION_QUALITY; ++i)
-        {
-            if (!arg)
-                return false;
-            qVals[i] = atoi(arg);
-            arg = strtok(nullptr, " ");
-        }
+        sAuctionBot->SetItemsAmount(items);
 
-        sAuctionBot->SetItemsAmount(qVals);
-
-        for (int i = 0; i < MAX_AUCTION_QUALITY; ++i)
-            handler->PSendSysMessage(LANG_AHBOT_ITEMS_AMOUNT, handler->GetTrinityString(ahbotQualityIds[i]), sAuctionBotConfig->GetConfigItemQualityAmount(AuctionQuality(i)));
+        for (AuctionQuality quality : EnumUtils::Iterate<AuctionQuality>())
+            handler->PSendSysMessage(LANG_AHBOT_ITEMS_AMOUNT, handler->GetTrinityString(ahbotQualityLangIds.at(quality)), sAuctionBotConfig->GetConfigItemQualityAmount(quality));
 
         return true;
     }
 
     template <AuctionQuality Q>
-    static bool HandleAHBotItemsAmountQualityCommand(ChatHandler* handler, char const* args)
+    static bool HandleAHBotItemsAmountQualityCommand(ChatHandler* handler, uint32 amount)
     {
-        char* arg = strtok((char*)args, " ");
-        if (!arg)
-            return false;
-        uint32 qualityVal = atoi(arg);
-
-        sAuctionBot->SetItemsAmountForQuality(Q, qualityVal);
-        handler->PSendSysMessage(LANG_AHBOT_ITEMS_AMOUNT, handler->GetTrinityString(ahbotQualityIds[Q]),
+        sAuctionBot->SetItemsAmountForQuality(Q, amount);
+        handler->PSendSysMessage(LANG_AHBOT_ITEMS_AMOUNT, handler->GetTrinityString(ahbotQualityLangIds.at(Q)),
             sAuctionBotConfig->GetConfigItemQualityAmount(Q));
 
         return true;
     }
 
-    static bool HandleAHBotItemsRatioCommand(ChatHandler* handler, char const* args)
+    static bool HandleAHBotItemsRatioCommand(ChatHandler* handler, uint32 alliance, uint32 horde, uint32 neutral)
     {
-        uint32 rVal[MAX_AUCTION_QUALITY];
-        char* arg = strtok((char*)args, " ");
-        for (int i = 0; i < MAX_AUCTION_QUALITY; ++i)
-        {
-            if (!arg)
-                return false;
-            rVal[i] = atoi(arg);
-            arg = strtok(nullptr, " ");
-        }
+        sAuctionBot->SetItemsRatio(alliance, horde, neutral);
 
-        sAuctionBot->SetItemsRatio(rVal[0], rVal[1], rVal[2]);
-
-        for (int i = 0; i < MAX_AUCTION_HOUSE_TYPE; ++i)
-            handler->PSendSysMessage(LANG_AHBOT_ITEMS_RATIO, AuctionBotConfig::GetHouseTypeName(AuctionHouseType(i)), sAuctionBotConfig->GetConfigItemAmountRatio(AuctionHouseType(i)));
+        for (AuctionHouseType type : EnumUtils::Iterate<AuctionHouseType>())
+            handler->PSendSysMessage(LANG_AHBOT_ITEMS_RATIO, AuctionBotConfig::GetHouseTypeName(type), sAuctionBotConfig->GetConfigItemAmountRatio(type));
         return true;
     }
 
     template<AuctionHouseType H>
-    static bool HandleAHBotItemsRatioHouseCommand(ChatHandler* handler, char const* args)
+    static bool HandleAHBotItemsRatioHouseCommand(ChatHandler* handler, uint32 ratio)
     {
-        char* arg = strtok((char*)args, " ");
-        if (!arg)
-            return false;
-        uint32 ratioVal = atoi(arg);
-
-        sAuctionBot->SetItemsRatioForHouse(H, ratioVal);
+        sAuctionBot->SetItemsRatioForHouse(H, ratio);
         handler->PSendSysMessage(LANG_AHBOT_ITEMS_RATIO, AuctionBotConfig::GetHouseTypeName(H), sAuctionBotConfig->GetConfigItemAmountRatio(H));
         return true;
     }
 
-    static bool HandleAHBotRebuildCommand(ChatHandler* /*handler*/, char const* args)
+    static bool HandleAHBotRebuildCommand(ChatHandler* /*handler*/, Optional<EXACT_SEQUENCE("all")> all)
     {
-        char* arg = strtok((char*)args, " ");
-
-        bool all = false;
-        if (arg && strcmp(arg, "all") == 0)
-            all = true;
-
-        sAuctionBot->Rebuild(all);
+        sAuctionBot->Rebuild(all.has_value());
         return true;
     }
 
-    static bool HandleAHBotReloadCommand(ChatHandler* handler, char const* /*args*/)
+    static bool HandleAHBotReloadCommand(ChatHandler* handler)
     {
         sAuctionBot->ReloadAllConfig();
         handler->SendSysMessage(LANG_AHBOT_RELOAD_OK);
         return true;
     }
 
-    static bool HandleAHBotStatusCommand(ChatHandler* handler, char const* args)
+    static bool HandleAHBotStatusCommand(ChatHandler* handler, Optional<EXACT_SEQUENCE("all")> all)
     {
-        char* arg = strtok((char*)args, " ");
-        if (!arg)
-            return false;
-
-        bool all = false;
-        if (strcmp(arg, "all") == 0)
-            all = true;
-
-        AuctionHouseBotStatusInfo statusInfo;
+        std::unordered_map<AuctionHouseType, AuctionHouseBotStatusInfoPerType> statusInfo;
         sAuctionBot->PrepareStatusInfos(statusInfo);
 
         WorldSession* session = handler->GetSession();
@@ -212,12 +173,12 @@ public:
             else
                 handler->SendSysMessage(LANG_AHBOT_STATUS_TITLE2_CHAT);
 
-            for (int i = 0; i < MAX_AUCTION_QUALITY; ++i)
-                handler->PSendSysMessage(fmtId, handler->GetTrinityString(ahbotQualityIds[i]),
-                    statusInfo[AUCTION_HOUSE_ALLIANCE].QualityInfo[i],
-                    statusInfo[AUCTION_HOUSE_HORDE].QualityInfo[i],
-                    statusInfo[AUCTION_HOUSE_NEUTRAL].QualityInfo[i],
-                    sAuctionBotConfig->GetConfigItemQualityAmount(AuctionQuality(i)));
+            for (AuctionQuality quality : EnumUtils::Iterate<AuctionQuality>())
+                handler->PSendSysMessage(fmtId, handler->GetTrinityString(ahbotQualityLangIds.at(quality)),
+                    statusInfo[AUCTION_HOUSE_ALLIANCE].QualityInfo.at(quality),
+                    statusInfo[AUCTION_HOUSE_HORDE].QualityInfo.at(quality),
+                    statusInfo[AUCTION_HOUSE_NEUTRAL].QualityInfo.at(quality),
+                    sAuctionBotConfig->GetConfigItemQualityAmount(quality));
         }
 
         if (!session)
@@ -228,17 +189,17 @@ public:
 
 };
 
-template bool ahbot_commandscript::HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_GRAY>(ChatHandler* handler, char const*);
-template bool ahbot_commandscript::HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_WHITE>(ChatHandler* handler, char const*);
-template bool ahbot_commandscript::HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_GREEN>(ChatHandler* handler, char const*);
-template bool ahbot_commandscript::HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_BLUE>(ChatHandler* handler, char const*);
-template bool ahbot_commandscript::HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_PURPLE>(ChatHandler* handler, char const*);
-template bool ahbot_commandscript::HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_ORANGE>(ChatHandler* handler, char const*);
-template bool ahbot_commandscript::HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_YELLOW>(ChatHandler* handler, char const*);
+template bool ahbot_commandscript::HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_GRAY>(ChatHandler* handler, uint32 amount);
+template bool ahbot_commandscript::HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_WHITE>(ChatHandler* handler, uint32 amount);
+template bool ahbot_commandscript::HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_GREEN>(ChatHandler* handler, uint32 amount);
+template bool ahbot_commandscript::HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_BLUE>(ChatHandler* handler, uint32 amount);
+template bool ahbot_commandscript::HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_PURPLE>(ChatHandler* handler, uint32 amount);
+template bool ahbot_commandscript::HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_ORANGE>(ChatHandler* handler, uint32 amount);
+template bool ahbot_commandscript::HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_YELLOW>(ChatHandler* handler, uint32 amount);
 
-template bool ahbot_commandscript::HandleAHBotItemsRatioHouseCommand<AUCTION_HOUSE_ALLIANCE>(ChatHandler* handler, char const*);
-template bool ahbot_commandscript::HandleAHBotItemsRatioHouseCommand<AUCTION_HOUSE_HORDE>(ChatHandler* handler, char const*);
-template bool ahbot_commandscript::HandleAHBotItemsRatioHouseCommand<AUCTION_HOUSE_NEUTRAL>(ChatHandler* handler, char const*);
+template bool ahbot_commandscript::HandleAHBotItemsRatioHouseCommand<AUCTION_HOUSE_ALLIANCE>(ChatHandler* handler, uint32 ratio);
+template bool ahbot_commandscript::HandleAHBotItemsRatioHouseCommand<AUCTION_HOUSE_HORDE>(ChatHandler* handler, uint32 ratio);
+template bool ahbot_commandscript::HandleAHBotItemsRatioHouseCommand<AUCTION_HOUSE_NEUTRAL>(ChatHandler* handler, uint32 ratio);
 
 void AddSC_ahbot_commandscript()
 {

@@ -109,7 +109,7 @@ class boss_ayamiss : public CreatureScript
                         who->GetMotionMaster()->MovePoint(POINT_PARALYZE, AltarPos);
                         break;
                     case NPC_HORNET:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random))
                             who->AI()->AttackStart(target);
                         break;
                 }
@@ -199,19 +199,19 @@ class boss_ayamiss : public CreatureScript
                             events.ScheduleEvent(EVENT_POISON_STINGER, 2s, 3s);
                             break;
                         case EVENT_PARALYZE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0, true))
                             {
                                 DoCast(target, SPELL_PARALYZE);
                                 instance->SetGuidData(DATA_PARALYZED, target->GetGUID());
                                 uint8 Index = urand(0, 1);
-                                me->SummonCreature(NPC_LARVA, LarvaPos[Index], TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
+                                me->SummonCreature(NPC_LARVA, LarvaPos[Index], TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30s);
                             }
                             events.ScheduleEvent(EVENT_PARALYZE, 15s);
                             break;
                         case EVENT_SWARMER_ATTACK:
                             for (GuidList::iterator i = _swarmers.begin(); i != _swarmers.end(); ++i)
                                 if (Creature* swarmer = ObjectAccessor::GetCreature(*me, *i))
-                                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                                    if (Unit* target = SelectTarget(SelectTargetMethod::Random))
                                         swarmer->AI()->AttackStart(target);
 
                             _swarmers.clear();

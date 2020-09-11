@@ -88,7 +88,7 @@ bool GmTicket::LoadFromDB(Field* fields)
     return true;
 }
 
-void GmTicket::SaveToDB(CharacterDatabaseTransaction& trans) const
+void GmTicket::SaveToDB(CharacterDatabaseTransaction trans) const
 {
     //  0    1       2         3          4          5        6     7     8     9           10           11          12        13        14        15         16        17         18          19
     // id, type, playerGuid, name, description, createTime, mapId, posX, posY, posZ, lastModifiedTime, closedBy, assignedTo, comment, response, completed, escalated, viewed, needMoreHelp, resolvedBy

@@ -73,7 +73,7 @@ class boss_drakos : public CreatureScript
             {
                 _Reset();
 
-                events.ScheduleEvent(EVENT_MAGIC_PULL, 15000);
+                events.ScheduleEvent(EVENT_MAGIC_PULL, 15s);
                 events.ScheduleEvent(EVENT_STOMP, 15s);
                 events.ScheduleEvent(EVENT_BOMB_SUMMON, 2s);
 
@@ -113,7 +113,7 @@ class boss_drakos : public CreatureScript
                         case EVENT_MAGIC_PULL:
                             DoCast(SPELL_MAGIC_PULL);
                             postPull = true;
-                            events.ScheduleEvent(EVENT_MAGIC_PULL, 15000);
+                            events.ScheduleEvent(EVENT_MAGIC_PULL, 15s);
                             break;
                         case EVENT_STOMP:
                             Talk(SAY_STOMP);
@@ -183,7 +183,7 @@ class npc_unstable_sphere : public CreatureScript
 
                 Initialize();
 
-                me->DespawnOrUnsummon(19000);
+                me->DespawnOrUnsummon(19s);
             }
 
             void UpdateAI(uint32 diff) override

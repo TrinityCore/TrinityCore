@@ -18,6 +18,7 @@
 #ifndef TRINITY_SHAREDDEFINES_H
 #define TRINITY_SHAREDDEFINES_H
 
+#include "DBCEnums.h"
 #include "Define.h"
 #include "DetourNavMesh.h"
 #include "SmartEnum.h"
@@ -67,7 +68,7 @@ inline uint32 GetMaxLevelForExpansion(uint32 expansion)
         default:
             break;
     }
-    return 0;
+    return DEFAULT_MAX_LEVEL;
 }
 
 enum Gender
@@ -968,7 +969,8 @@ enum SpellEffects
     TOTAL_SPELL_EFFECTS                             = 165
 };
 
-enum SpellCastResult
+// EnumUtils: DESCRIBE THIS
+enum SpellCastResult : uint8
 {
     SPELL_FAILED_SUCCESS = 0,
     SPELL_FAILED_AFFECTING_COMBAT = 1,
@@ -1307,6 +1309,7 @@ enum GhostVisibilityType
 };
 
 // Spell aura states
+// EnumUtils: DESCRIBE THIS
 enum AuraStateType
 {   // (C) used in caster aura state     (T) used in target aura state
     // (c) used in caster aura state-not (t) used in target aura state-not
@@ -1921,9 +1924,10 @@ enum TextEmotes
 };
 
 // Emotes.dbc
-enum Emote
+// EnumUtils: DESCRIBE THIS
+enum Emote : uint32
 {
-    EMOTE_ONESHOT_NONE                  = 0,
+    EMOTE_ONESHOT_NONE                  = 0, // SKIP
     EMOTE_ONESHOT_TALK                  = 1,
     EMOTE_ONESHOT_BOW                   = 2,
     EMOTE_ONESHOT_WAVE                  = 3,
@@ -3131,6 +3135,7 @@ enum CorpseDynFlags
 
 #define PLAYER_CORPSE_LOOT_ENTRY 1
 
+// EnumUtils: DESCRIBE THIS
 enum WeatherType
 {
     WEATHER_TYPE_FINE       = 0,
@@ -3143,9 +3148,10 @@ enum WeatherType
 
 #define MAX_WEATHER_TYPE 4
 
-enum ChatMsg
+// EnumUtils: DESCRIBE THIS
+enum ChatMsg : uint8
 {
-    CHAT_MSG_ADDON                  = 0xFFFFFFFF, // -1
+    CHAT_MSG_ADDON                  = 0xFF, // -1
     CHAT_MSG_SYSTEM                 = 0x00,
     CHAT_MSG_SAY                    = 0x01,
     CHAT_MSG_PARTY                  = 0x02,
@@ -3212,7 +3218,7 @@ enum ChatLinkColors : uint32
     CHAT_LINK_COLOR_GLYPH       = 0xff66bbff
 };
 
-// Values from ItemPetFood (power of (value-1) used for compare with CreatureFamilyEntry.petDietMask
+// Values from ItemPetFood (power of (value-1) used for compare with CreatureFamilyEntry.PetFoodMask
 enum PetDiet
 {
     PET_DIET_MEAT     = 1,
@@ -3799,6 +3805,65 @@ enum ServerProcessTypes
     SERVER_PROCESS_WORLDSERVER = 1,
 
     NUM_SERVER_PROCESS_TYPES
+};
+
+enum class MountResult : uint32
+{
+    InvalidMountee = 0,
+    TooFarAway     = 1,
+    AlreadyMounted = 2,
+    NotMountable   = 3,
+    NotYourPet     = 4,
+    Other          = 5,
+    Looting        = 6,
+    RaceCantMount  = 7,
+    Shapeshifted   = 8,
+    ForcedDismount = 9,
+    Ok             = 10 // never sent
+};
+
+enum AreaId : uint32
+{
+    AREA_WINTERGRASP                = 4197,
+    AREA_THE_SUNKEN_RING            = 4538,
+    AREA_THE_BROKEN_TEMPLATE        = 4539,
+    AREA_WINTERGRASP_FORTRESS       = 4575,
+    AREA_THE_CHILLED_QUAGMIRE       = 4589,
+    AREA_WESTPARK_WORKSHOP          = 4611,
+    AREA_EASTPARK_WORKSHOP          = 4612,
+};
+
+enum WorldState : uint32
+{
+    WS_BATTLEFIELD_WG_VEHICLE_H        = 3490,
+    WS_BATTLEFIELD_WG_MAX_VEHICLE_H    = 3491,
+    WS_BATTLEFIELD_WG_VEHICLE_A        = 3680,
+    WS_BATTLEFIELD_WG_MAX_VEHICLE_A    = 3681,
+    WS_BATTLEFIELD_WG_WORKSHOP_K_W     = 3698,
+    WS_BATTLEFIELD_WG_WORKSHOP_K_E     = 3699,
+    WS_BATTLEFIELD_WG_WORKSHOP_NW      = 3700,
+    WS_BATTLEFIELD_WG_WORKSHOP_NE      = 3701,
+    WS_BATTLEFIELD_WG_WORKSHOP_SW      = 3702,
+    WS_BATTLEFIELD_WG_WORKSHOP_SE      = 3703,
+    WS_BATTLEFIELD_WG_SHOW_WORLDSTATE  = 3710,
+    WS_BATTLEFIELD_WG_TIME_BATTLE_END  = 3781,
+    WS_BATTLEFIELD_WG_ACTIVE           = 3801,
+    WS_BATTLEFIELD_WG_DEFENDER         = 3802,
+    WS_BATTLEFIELD_WG_ATTACKER         = 3803,
+    WS_BATTLEFIELD_WG_ATTACKED_H       = 4022,
+    WS_BATTLEFIELD_WG_ATTACKED_A       = 4023,
+    WS_BATTLEFIELD_WG_DEFENDED_H       = 4024,
+    WS_BATTLEFIELD_WG_DEFENDED_A       = 4025,
+    WS_BATTLEFIELD_WG_TIME_NEXT_BATTLE = 4354,
+
+    WS_ARENA_DISTRIBUTION_TIME  = 20001,                     // Next arena distribution time
+    WS_WEEKLY_QUEST_RESET_TIME  = 20002,                     // Next weekly quest reset time
+    WS_BG_DAILY_RESET_TIME      = 20003,                     // Next daily BG reset time
+    WS_CLEANING_FLAGS           = 20004,                     // Cleaning Flags
+    WS_GUILD_DAILY_RESET_TIME   = 20006,                     // Next guild cap reset time
+    WS_MONTHLY_QUEST_RESET_TIME = 20007,                     // Next monthly quest reset time
+    WS_DAILY_QUEST_RESET_TIME   = 20008,                     // Next daily quest reset time
+    WS_DAILY_CALENDAR_DELETION_OLD_EVENTS_TIME = 20009,      // Next daily calendar deletions of old events time
 };
 
 namespace Trinity

@@ -91,7 +91,9 @@ enum DruidSpells
     SPELL_DRUID_BARKSKIN_01                 = 63058,
     SPELL_DRUID_RESTORATION_T10_2P_BONUS    = 70658,
     SPELL_DRUID_FRENZIED_REGENERATION_HEAL  = 22845,
-    SPELL_DRUID_GLYPH_OF_NOURISH            = 62971
+    SPELL_DRUID_GLYPH_OF_NOURISH            = 62971,
+    SPELL_DRUID_NURTURING_INSTINCT_R1       = 47179,
+    SPELL_DRUID_NURTURING_INSTINCT_R2       = 47180
 };
 
 enum MiscSpells
@@ -228,7 +230,7 @@ class spell_dru_eclipse : public AuraScript
         if (!spellInfo || !(spellInfo->SpellFamilyFlags[0] & 4)) // Starfire
             return false;
 
-        return _solarProcCooldownEnd <= GameTime::GetGameTimeSteadyPoint();
+        return _solarProcCooldownEnd <= GameTime::Now();
     }
 
     bool CheckLunar(AuraEffect const*  /*aurEff*/, ProcEventInfo& eventInfo)
@@ -241,14 +243,14 @@ class spell_dru_eclipse : public AuraScript
         if (!roll_chance_i(60))
             return false;
 
-        return _lunarProcCooldownEnd <= GameTime::GetGameTimeSteadyPoint();
+        return _lunarProcCooldownEnd <= GameTime::Now();
     }
 
     void ProcSolar(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
 
-        _solarProcCooldownEnd = GameTime::GetGameTimeSteadyPoint() + Seconds(30);
+        _solarProcCooldownEnd = GameTime::Now() + 30s;
         eventInfo.GetActor()->CastSpell(eventInfo.GetActor(), SPELL_DRUID_ECLIPSE_SOLAR_PROC, aurEff);
     }
 
@@ -256,7 +258,7 @@ class spell_dru_eclipse : public AuraScript
     {
         PreventDefaultAction();
 
-        _lunarProcCooldownEnd = GameTime::GetGameTimeSteadyPoint() + Seconds(30);
+        _lunarProcCooldownEnd = GameTime::Now() + 30s;
         eventInfo.GetActor()->CastSpell(eventInfo.GetActor(), SPELL_DRUID_ECLIPSE_LUNAR_PROC, aurEff);
     }
 
@@ -271,8 +273,8 @@ class spell_dru_eclipse : public AuraScript
         OnEffectProc += AuraEffectProcFn(spell_dru_eclipse::ProcLunar, EFFECT_1, SPELL_AURA_DUMMY);
     }
 
-    std::chrono::steady_clock::time_point _lunarProcCooldownEnd = std::chrono::steady_clock::time_point::min();
-    std::chrono::steady_clock::time_point _solarProcCooldownEnd = std::chrono::steady_clock::time_point::min();
+    TimePoint _lunarProcCooldownEnd = std::chrono::steady_clock::time_point::min();
+    TimePoint _solarProcCooldownEnd = std::chrono::steady_clock::time_point::min();
 };
 
 // 5229 - Enrage
@@ -998,6 +1000,36 @@ class spell_dru_nourish : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_dru_nourish::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+    }
+};
+
+// -33872 - Nurturing Instinct
+class spell_dru_nurturing_instinct : public AuraScript
+{
+    PrepareAuraScript(spell_dru_nurturing_instinct);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_NURTURING_INSTINCT_R1, SPELL_DRUID_NURTURING_INSTINCT_R2 });
+    }
+
+    void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        uint32 spellId = GetSpellInfo()->GetRank() == 1 ? SPELL_DRUID_NURTURING_INSTINCT_R1 : SPELL_DRUID_NURTURING_INSTINCT_R2;
+        target->CastSpell(target, spellId, aurEff);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        uint32 spellId = GetSpellInfo()->GetRank() == 1 ? SPELL_DRUID_NURTURING_INSTINCT_R1 : SPELL_DRUID_NURTURING_INSTINCT_R2;
+        GetTarget()->RemoveAurasDueToSpell(spellId);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_dru_nurturing_instinct::AfterApply, EFFECT_0, SPELL_AURA_MOD_SPELL_HEALING_OF_STAT_PERCENT, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dru_nurturing_instinct::AfterRemove, EFFECT_0, SPELL_AURA_MOD_SPELL_HEALING_OF_STAT_PERCENT, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -1894,53 +1926,54 @@ class spell_dru_wild_growth_aura : public AuraScript
 
 void AddSC_druid_spell_scripts()
 {
-    RegisterAuraScript(spell_dru_barkskin);
-    RegisterAuraScript(spell_dru_bear_form_passive);
-    RegisterAuraScript(spell_dru_berserk);
-    RegisterAuraScript(spell_dru_dash);
-    RegisterAuraScript(spell_dru_eclipse);
-    RegisterAuraScript(spell_dru_enrage);
-    RegisterAuraScript(spell_dru_forms_trinket);
+    RegisterSpellScript(spell_dru_barkskin);
+    RegisterSpellScript(spell_dru_bear_form_passive);
+    RegisterSpellScript(spell_dru_berserk);
+    RegisterSpellScript(spell_dru_dash);
+    RegisterSpellScript(spell_dru_eclipse);
+    RegisterSpellScript(spell_dru_enrage);
+    RegisterSpellScript(spell_dru_forms_trinket);
     RegisterSpellScript(spell_dru_flight_form);
-    RegisterAuraScript(spell_dru_frenzied_regeneration);
-    RegisterAuraScript(spell_dru_glyph_of_barkskin);
-    RegisterAuraScript(spell_dru_glyph_of_innervate);
-    RegisterAuraScript(spell_dru_glyph_of_rake);
-    RegisterAuraScript(spell_dru_glyph_of_rejuvenation);
-    RegisterAuraScript(spell_dru_glyph_of_shred);
+    RegisterSpellScript(spell_dru_frenzied_regeneration);
+    RegisterSpellScript(spell_dru_glyph_of_barkskin);
+    RegisterSpellScript(spell_dru_glyph_of_innervate);
+    RegisterSpellScript(spell_dru_glyph_of_rake);
+    RegisterSpellScript(spell_dru_glyph_of_rejuvenation);
+    RegisterSpellScript(spell_dru_glyph_of_shred);
     RegisterSpellScript(spell_dru_glyph_of_starfire);
-    RegisterAuraScript(spell_dru_glyph_of_starfire_dummy);
-    RegisterAuraScript(spell_dru_idol_lifebloom);
-    RegisterAuraScript(spell_dru_innervate);
-    RegisterAuraScript(spell_dru_insect_swarm);
-    RegisterAuraScript(spell_dru_leader_of_the_pack);
-    RegisterAuraScript(spell_dru_lifebloom);
-    RegisterAuraScript(spell_dru_living_seed);
-    RegisterAuraScript(spell_dru_living_seed_proc);
-    RegisterAuraScript(spell_dru_moonkin_form_passive);
+    RegisterSpellScript(spell_dru_glyph_of_starfire_dummy);
+    RegisterSpellScript(spell_dru_idol_lifebloom);
+    RegisterSpellScript(spell_dru_innervate);
+    RegisterSpellScript(spell_dru_insect_swarm);
+    RegisterSpellScript(spell_dru_leader_of_the_pack);
+    RegisterSpellScript(spell_dru_lifebloom);
+    RegisterSpellScript(spell_dru_living_seed);
+    RegisterSpellScript(spell_dru_living_seed_proc);
+    RegisterSpellScript(spell_dru_moonkin_form_passive);
     RegisterSpellScript(spell_dru_nourish);
-    RegisterAuraScript(spell_dru_omen_of_clarity);
-    RegisterAuraScript(spell_dru_owlkin_frenzy);
-    RegisterAuraScript(spell_dru_predatory_strikes);
-    RegisterAuraScript(spell_dru_primal_tenacity);
-    RegisterAuraScript(spell_dru_revitalize);
-    RegisterAuraScript(spell_dru_rip);
-    RegisterAuraScript(spell_dru_savage_defense);
+    RegisterSpellScript(spell_dru_nurturing_instinct);
+    RegisterSpellScript(spell_dru_omen_of_clarity);
+    RegisterSpellScript(spell_dru_owlkin_frenzy);
+    RegisterSpellScript(spell_dru_predatory_strikes);
+    RegisterSpellScript(spell_dru_primal_tenacity);
+    RegisterSpellScript(spell_dru_revitalize);
+    RegisterSpellScript(spell_dru_rip);
+    RegisterSpellScript(spell_dru_savage_defense);
     RegisterSpellAndAuraScriptPair(spell_dru_savage_roar, spell_dru_savage_roar_aura);
     RegisterSpellScript(spell_dru_starfall_aoe);
     RegisterSpellScript(spell_dru_starfall_dummy);
     RegisterSpellAndAuraScriptPair(spell_dru_survival_instincts, spell_dru_survival_instincts_aura);
-    RegisterAuraScript(spell_dru_swift_flight_passive);
+    RegisterSpellScript(spell_dru_swift_flight_passive);
     RegisterSpellScript(spell_dru_tiger_s_fury);
     RegisterSpellScript(spell_dru_typhoon);
-    RegisterAuraScript(spell_dru_t3_2p_bonus);
-    RegisterAuraScript(spell_dru_t3_6p_bonus);
-    RegisterAuraScript(spell_dru_t3_8p_bonus);
-    RegisterAuraScript(spell_dru_t4_2p_bonus);
-    RegisterAuraScript(spell_dru_item_t6_trinket);
-    RegisterAuraScript(spell_dru_t9_feral_relic);
-    RegisterAuraScript(spell_dru_t10_balance_4p_bonus);
+    RegisterSpellScript(spell_dru_t3_2p_bonus);
+    RegisterSpellScript(spell_dru_t3_6p_bonus);
+    RegisterSpellScript(spell_dru_t3_8p_bonus);
+    RegisterSpellScript(spell_dru_t4_2p_bonus);
+    RegisterSpellScript(spell_dru_item_t6_trinket);
+    RegisterSpellScript(spell_dru_t9_feral_relic);
+    RegisterSpellScript(spell_dru_t10_balance_4p_bonus);
     RegisterSpellScript(spell_dru_t10_restoration_4p_bonus);
-    RegisterAuraScript(spell_dru_t10_restoration_4p_bonus_dummy);
+    RegisterSpellScript(spell_dru_t10_restoration_4p_bonus_dummy);
     RegisterSpellAndAuraScriptPair(spell_dru_wild_growth, spell_dru_wild_growth_aura);
 }

@@ -151,11 +151,11 @@ public:
             if (FocusFire_Timer <= diff)
             {
                 // Summon Focus Fire & Emote
-                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
+                Unit* target = SelectTarget(SelectTargetMethod::Random, 1);
                 if (target && target->GetTypeId() == TYPEID_PLAYER && target->IsAlive())
                 {
                     FocusedTargetGUID = target->GetGUID();
-                    me->SummonCreature(NPC_FOCUS_FIRE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 5500);
+                    me->SummonCreature(NPC_FOCUS_FIRE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 5500ms);
                     Talk(EMOTE_FOCUSED, target);
                 }
                 FocusFire_Timer = 15000 + (rand32() % 5000);

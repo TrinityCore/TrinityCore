@@ -123,9 +123,9 @@ class boss_pathaleon_the_calculator : public CreatureScript
                         case EVENT_SUMMON:
                             for (uint8 i = 0; i < 3; ++i)
                             {
-                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                 {
-                                    if (Creature* Wraith = me->SummonCreature(NPC_NETHER_WRAITH, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000))
+                                    if (Creature* Wraith = me->SummonCreature(NPC_NETHER_WRAITH, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25s))
                                         Wraith->AI()->AttackStart(target);
                                 }
                             }
@@ -207,7 +207,7 @@ class npc_nether_wraith : public CreatureScript
 
                 if (ArcaneMissiles_Timer <= diff)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
                         DoCast(target, SPELL_ARCANE_MISSILES);
                     else
                         DoCastVictim(SPELL_ARCANE_MISSILES);

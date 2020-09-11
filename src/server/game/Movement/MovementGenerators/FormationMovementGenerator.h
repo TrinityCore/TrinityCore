@@ -40,7 +40,6 @@ class FormationMovementGenerator : public MovementGeneratorMedium<Creature, Form
 
     private:
         void MovementInform(Creature*);
-
         void LaunchMovement(Creature* owner, Unit* target);
 
         static constexpr uint32 FORMATION_MOVEMENT_INTERVAL = 1200; // sniffed (3 batch update cycles)
@@ -52,7 +51,7 @@ class FormationMovementGenerator : public MovementGeneratorMedium<Creature, Form
         bool _hasPredictedDestination;
 
         Position _lastLeaderPosition;
-        TimeTrackerSmall _nextMoveTimer;
+        TimeTracker _nextMoveTimer;
 };
 
 #endif // TRINITY_FORMATIONMOVEMENTGENERATOR_H

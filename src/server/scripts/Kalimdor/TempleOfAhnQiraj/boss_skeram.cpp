@@ -106,7 +106,7 @@ class boss_skeram : public CreatureScript
                 if (_flag & (1 << 7))
                     _flag = 0;
 
-                if (Unit* Target = SelectTarget(SELECT_TARGET_RANDOM))
+                if (Unit* Target = SelectTarget(SelectTargetMethod::Random))
                     creature->AI()->AttackStart(Target);
 
                 float ImageHealthPct;
@@ -164,7 +164,7 @@ class boss_skeram : public CreatureScript
                             events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, 8s, 18s);
                             break;
                         case EVENT_FULLFILMENT:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 45.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 45.0f, true))
                                 DoCast(target, SPELL_TRUE_FULFILLMENT);
                             events.ScheduleEvent(EVENT_FULLFILMENT, 20s, 30s);
                             break;
@@ -187,12 +187,12 @@ class boss_skeram : public CreatureScript
                     Talk(SAY_SPLIT);
                     _hpct -= 25.0f;
                     me->SetVisible(false);
-                    events.RescheduleEvent(EVENT_BLINK, 2000);
+                    events.RescheduleEvent(EVENT_BLINK, 2s);
                 }
 
                 if (me->IsWithinMeleeRange(me->GetVictim()))
                 {
-                    events.RescheduleEvent(EVENT_EARTH_SHOCK, 2000);
+                    events.RescheduleEvent(EVENT_EARTH_SHOCK, 2s);
                     DoMeleeAttackIfReady();
                 }
             }

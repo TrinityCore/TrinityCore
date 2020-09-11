@@ -182,7 +182,7 @@ struct boss_teron_gorefiend : public BossAI
                     DoCast(SPELL_BERSERK);
                     break;
                 case EVENT_INCINERATE:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_INCINERATE);
                     Talk(SAY_INCINERATE);
                     events.Repeat(Seconds(12), Seconds(20));
@@ -193,7 +193,7 @@ struct boss_teron_gorefiend : public BossAI
                     events.Repeat(Seconds(30), Seconds(40));
                     break;
                 case EVENT_SHADOW_DEATH:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true, true, -SPELL_SPIRITUAL_VENGEANCE))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 100.0f, true, true, -SPELL_SPIRITUAL_VENGEANCE))
                         DoCast(target, SPELL_SHADOW_OF_DEATH);
                     events.Repeat(Seconds(30), Seconds(35));
                     break;
@@ -235,7 +235,7 @@ struct npc_doom_blossom : public NullCreatureAI
         DoZoneInCombat();
         _scheduler.Schedule(Seconds(12), [this](TaskContext shadowBolt)
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                 DoCast(target, SPELL_SHADOWBOLT);
 
             shadowBolt.Repeat(Seconds(2));
@@ -313,10 +313,10 @@ struct npc_shadowy_construct : public ScriptedAI
     {
         if (Creature* teron = _instance->GetCreature(DATA_TERON_GOREFIEND))
         {
-            Unit* target = teron->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, true, -SPELL_SPIRITUAL_VENGEANCE);
+            Unit* target = teron->AI()->SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true, true, -SPELL_SPIRITUAL_VENGEANCE);
             // He should target Vengeful Spirits only if has no other player available
             if (!target)
-                target = teron->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0);
+                target = teron->AI()->SelectTarget(SelectTargetMethod::Random, 0);
 
             if (target)
             {
@@ -431,7 +431,7 @@ class at_teron_gorefiend_entrance : public OnlyOnceAreaTriggerScript
 public:
     at_teron_gorefiend_entrance() : OnlyOnceAreaTriggerScript("at_teron_gorefiend_entrance") { }
 
-    bool _OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+    bool TryHandleOnce(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
     {
         if (InstanceScript* instance = player->GetInstanceScript())
             if (Creature* teron = instance->GetCreature(DATA_TERON_GOREFIEND))
@@ -446,8 +446,8 @@ void AddSC_boss_teron_gorefiend()
     RegisterBlackTempleCreatureAI(boss_teron_gorefiend);
     RegisterBlackTempleCreatureAI(npc_doom_blossom);
     RegisterBlackTempleCreatureAI(npc_shadowy_construct);
-    RegisterAuraScript(spell_teron_gorefiend_shadow_of_death);
-    RegisterAuraScript(spell_teron_gorefiend_spiritual_vengeance);
+    RegisterSpellScript(spell_teron_gorefiend_shadow_of_death);
+    RegisterSpellScript(spell_teron_gorefiend_spiritual_vengeance);
     RegisterSpellScript(spell_teron_gorefiend_shadow_of_death_remove);
     new at_teron_gorefiend_entrance();
 }

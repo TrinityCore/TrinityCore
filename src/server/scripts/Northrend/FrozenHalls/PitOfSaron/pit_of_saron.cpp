@@ -47,10 +47,10 @@ bool ScheduledIcicleSummons::Execute(uint64 /*time*/, uint32 /*diff*/)
     if (roll_chance_i(12))
     {
         _trigger->CastSpell(_trigger, SPELL_ICICLE_SUMMON, true);
-        _trigger->m_Events.AddEvent(new ScheduledIcicleSummons(_trigger), _trigger->m_Events.CalculateTime(urand(20000, 35000)));
+        _trigger->m_Events.AddEvent(new ScheduledIcicleSummons(_trigger), _trigger->m_Events.CalculateTime(randtime(20s, 35s)));
     }
     else
-        _trigger->m_Events.AddEvent(new ScheduledIcicleSummons(_trigger), _trigger->m_Events.CalculateTime(urand(1000, 20000)));
+        _trigger->m_Events.AddEvent(new ScheduledIcicleSummons(_trigger), _trigger->m_Events.CalculateTime(randtime(1s, 20s)));
 
     return true;
 }
@@ -92,15 +92,15 @@ class npc_ymirjar_flamebearer : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_FIREBALL:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                 DoCast(target, SPELL_FIREBALL);
-                            _events.RescheduleEvent(EVENT_FIREBALL, 5000);
+                            _events.RescheduleEvent(EVENT_FIREBALL, 5s);
                             break;
                         case EVENT_TACTICAL_BLINK:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                 DoCast(target, SPELL_TACTICAL_BLINK);
                             DoCast(me, SPELL_HELLFIRE);
-                            _events.RescheduleEvent(EVENT_TACTICAL_BLINK, 12000);
+                            _events.RescheduleEvent(EVENT_TACTICAL_BLINK, 12s);
                             break;
                         default:
                             break;
@@ -213,7 +213,7 @@ class npc_geist_ambusher : public CreatureScript
 
                 if (_leapingFaceMaulCooldown < diff)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 5.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 5.0f, true))
                         DoCast(target, SPELL_LEAPING_FACE_MAUL);
                     _leapingFaceMaulCooldown = urand(9000, 14000);
                 }

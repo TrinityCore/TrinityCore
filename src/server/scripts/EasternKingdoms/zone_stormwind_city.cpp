@@ -125,7 +125,7 @@ public:
                     break;
                 case 16:
                     SetEscortPaused(true);
-                    if (Creature* pMarzon = me->SummonCreature(NPC_MARZON_BLADE, -8411.360352f, 480.069733f, 123.760895f, 4.941504f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1000))
+                    if (Creature* pMarzon = me->SummonCreature(NPC_MARZON_BLADE, -8411.360352f, 480.069733f, 123.760895f, 4.941504f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1s))
                     {
                         pMarzon->GetMotionMaster()->MovePoint(0, -8408.000977f, 468.611450f, 123.759903f);
                         MarzonGUID = pMarzon->GetGUID();
@@ -474,7 +474,7 @@ public:
     {
         npc_tyrionAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void QuestAccept(Player* player, Quest const* quest) override
+        void OnQuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_THE_ATTACK)
             {

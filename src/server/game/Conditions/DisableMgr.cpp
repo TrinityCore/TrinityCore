@@ -25,6 +25,7 @@
 #include "OutdoorPvP.h"
 #include "Player.h"
 #include "SpellMgr.h"
+#include "StringConvert.h"
 #include "VMapManager2.h"
 #include "World.h"
 
@@ -105,16 +106,24 @@ void LoadDisables()
 
                 if (flags & SPELL_DISABLE_MAP)
                 {
-                    Tokenizer tokens(params_0, ',');
-                    for (uint8 i = 0; i < tokens.size(); )
-                        data.params[0].insert(atoi(tokens[i++]));
+                    for (std::string_view mapStr : Trinity::Tokenize(params_0, ',', true))
+                    {
+                        if (Optional<uint32> mapId = Trinity::StringTo<uint32>(mapStr))
+                            data.params[0].insert(*mapId);
+                        else
+                            TC_LOG_ERROR("sql.sql", "Disable map '%s' for spell %u is invalid, skipped.", std::string(mapStr).c_str(), entry);
+                    }
                 }
 
                 if (flags & SPELL_DISABLE_AREA)
                 {
-                    Tokenizer tokens(params_1, ',');
-                    for (uint8 i = 0; i < tokens.size(); )
-                        data.params[1].insert(atoi(tokens[i++]));
+                    for (std::string_view areaStr : Trinity::Tokenize(params_0, ',', true))
+                    {
+                        if (Optional<uint32> areaId = Trinity::StringTo<uint32>(areaStr))
+                            data.params[1].insert(*areaId);
+                        else
+                            TC_LOG_ERROR("sql.sql", "Disable area '%s' for spell %u is invalid, skipped.", std::string(areaStr).c_str(), entry);
+                    }
                 }
 
                 break;
@@ -131,7 +140,7 @@ void LoadDisables()
                     continue;
                 }
                 bool isFlagInvalid = false;
-                switch (mapEntry->map_type)
+                switch (mapEntry->InstanceType)
                 {
                     case MAP_COMMON:
                         if (flags)
@@ -195,7 +204,7 @@ void LoadDisables()
                     TC_LOG_ERROR("sql.sql", "Map entry %u from `disables` doesn't exist in dbc, skipped.", entry);
                     continue;
                 }
-                switch (mapEntry->map_type)
+                switch (mapEntry->InstanceType)
                 {
                     case MAP_COMMON:
                         if (flags & VMAP::VMAP_DISABLE_AREAFLAG)
@@ -235,7 +244,7 @@ void LoadDisables()
                     TC_LOG_ERROR("sql.sql", "Map entry %u from `disables` doesn't exist in dbc, skipped.", entry);
                     continue;
                 }
-                switch (mapEntry->map_type)
+                switch (mapEntry->InstanceType)
                 {
                     case MAP_COMMON:
                         TC_LOG_INFO("misc", "Pathfinding disabled for world map %u.", entry);
@@ -383,7 +392,7 @@ bool IsDisabledFor(DisableType type, uint32 entry, WorldObject const* ref, uint8
                             return (disabledModes & RAID_STATUSFLAG_25MAN_HEROIC) != 0;
                     }
                 }
-                else if (mapEntry->map_type == MAP_COMMON)
+                else if (mapEntry->InstanceType == MAP_COMMON)
                     return true;
             }
             return false;

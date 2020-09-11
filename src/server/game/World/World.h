@@ -23,10 +23,10 @@
 #define __WORLD_H
 
 #include "Common.h"
+#include "AsyncCallbackProcessor.h"
 #include "DatabaseEnvFwd.h"
 #include "LockedQueue.h"
 #include "ObjectGuid.h"
-#include "QueryCallbackProcessor.h"
 #include "SharedDefines.h"
 #include "Timer.h"
 
@@ -155,10 +155,10 @@ enum WorldBoolConfigs
     CONFIG_WARDEN_ENABLED,
     CONFIG_ENABLE_MMAPS,
     CONFIG_WINTERGRASP_ENABLE,
-    CONFIG_UI_QUESTLEVELS_IN_DIALOGS,     // Should we add quest levels to the title in the NPC dialogs?
     CONFIG_EVENT_ANNOUNCE,
     CONFIG_STATS_LIMITS_ENABLE,
     CONFIG_INSTANCES_RESET_ANNOUNCE,
+    CONFIG_SET_SHAPASSHASH,
     CONFIG_IP_BASED_ACTION_LOGGING,
     CONFIG_ALLOW_TRACK_BOTH_RESOURCES,
     CONFIG_CALCULATE_CREATURE_ZONE_AREA_DATA,
@@ -177,6 +177,7 @@ enum WorldBoolConfigs
     CONFIG_CACHE_DATA_QUERIES,
     CONFIG_CHECK_GOBJECT_LOS,
     CONFIG_RESPAWN_DYNAMIC_ESCORTNPC,
+    CONFIG_REGEN_HP_CANNOT_REACH_TARGET_IN_RAID,
     BOOL_CONFIG_VALUE_COUNT
 };
 
@@ -354,8 +355,9 @@ enum WorldIntConfigs
     CONFIG_WARDEN_CLIENT_CHECK_HOLDOFF,
     CONFIG_WARDEN_CLIENT_FAIL_ACTION,
     CONFIG_WARDEN_CLIENT_BAN_DURATION,
-    CONFIG_WARDEN_NUM_MEM_CHECKS,
-    CONFIG_WARDEN_NUM_OTHER_CHECKS,
+    CONFIG_WARDEN_NUM_INJECT_CHECKS,
+    CONFIG_WARDEN_NUM_LUA_CHECKS,
+    CONFIG_WARDEN_NUM_CLIENT_MOD_CHECKS,
     CONFIG_WINTERGRASP_PLR_MAX,
     CONFIG_WINTERGRASP_PLR_MIN,
     CONFIG_WINTERGRASP_PLR_MIN_LVL,
@@ -522,18 +524,6 @@ enum RealmZone
     REALM_ZONE_CN2_6_9       = 35,                          // basic-Latin at create, any at login
     REALM_ZONE_CN3_7         = 36,                          // basic-Latin at create, any at login
     REALM_ZONE_CN5_8         = 37                           // basic-Latin at create, any at login
-};
-
-enum WorldStates
-{
-    WS_ARENA_DISTRIBUTION_TIME  = 20001,                     // Next arena distribution time
-    WS_WEEKLY_QUEST_RESET_TIME  = 20002,                     // Next weekly quest reset time
-    WS_BG_DAILY_RESET_TIME      = 20003,                     // Next daily BG reset time
-    WS_CLEANING_FLAGS           = 20004,                     // Cleaning Flags
-    WS_GUILD_DAILY_RESET_TIME   = 20006,                     // Next guild cap reset time
-    WS_MONTHLY_QUEST_RESET_TIME = 20007,                     // Next monthly quest reset time
-    WS_DAILY_QUEST_RESET_TIME   = 20008,                     // Next daily quest reset time
-    WS_DAILY_CALENDAR_DELETION_OLD_EVENTS_TIME = 20009,      // Next daily calendar deletions of old events time
 };
 
 /// Storage class for commands issued for delayed execution

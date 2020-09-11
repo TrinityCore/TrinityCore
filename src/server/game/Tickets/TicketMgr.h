@@ -133,7 +133,7 @@ public:
     void AppendResponse(std::string const& response) { _response += response; }
 
     bool LoadFromDB(Field* fields);
-    void SaveToDB(CharacterDatabaseTransaction& trans) const;
+    void SaveToDB(CharacterDatabaseTransaction trans) const;
     void DeleteFromDB();
 
     void WritePacket(WorldPacket& data) const;

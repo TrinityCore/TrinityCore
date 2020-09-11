@@ -66,14 +66,13 @@ class TC_GAME_API AccountMgr
         static bool CheckPassword(uint32 accountId, std::string password);
         static bool CheckEmail(uint32 accountId, std::string newEmail);
 
-        static uint32 GetId(std::string const& username);
-        static uint32 GetSecurity(uint32 accountId);
+        static uint32 GetId(std::string_view username);
         static uint32 GetSecurity(uint32 accountId, int32 realmId);
+        [[nodiscard]] static QueryCallback GetSecurityAsync(uint32 accountId, int32 realmId, std::function<void(uint32)> callback);
         static bool GetName(uint32 accountId, std::string& name);
         static bool GetEmail(uint32 accountId, std::string& email);
         static uint32 GetCharactersCount(uint32 accountId);
 
-        static std::string CalculateShaPassHash(std::string const& name, std::string const& password);
         static bool IsBannedAccount(std::string const& name);
         static bool IsPlayerAccount(uint32 gmlevel);
         static bool IsAdminAccount(uint32 gmlevel);

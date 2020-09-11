@@ -162,14 +162,14 @@ class boss_blood_queen_lana_thel : public CreatureScript
             void Reset() override
             {
                 _Reset();
-                events.ScheduleEvent(EVENT_BERSERK, 330000);
+                events.ScheduleEvent(EVENT_BERSERK, 330s);
                 events.ScheduleEvent(EVENT_VAMPIRIC_BITE, 15s);
                 events.ScheduleEvent(EVENT_BLOOD_MIRROR, 2500ms, EVENT_GROUP_CANCELLABLE);
                 events.ScheduleEvent(EVENT_DELIRIOUS_SLASH, 20s, 24s, EVENT_GROUP_NORMAL);
                 events.ScheduleEvent(EVENT_PACT_OF_THE_DARKFALLEN, 15s, EVENT_GROUP_NORMAL);
-                events.ScheduleEvent(EVENT_SWARMING_SHADOWS, 30500, EVENT_GROUP_NORMAL);
+                events.ScheduleEvent(EVENT_SWARMING_SHADOWS, 30500ms, EVENT_GROUP_NORMAL);
                 events.ScheduleEvent(EVENT_TWILIGHT_BLOODBOLT, 20s, 25s, EVENT_GROUP_NORMAL);
-                events.ScheduleEvent(EVENT_AIR_PHASE, 124000 + uint32(Is25ManRaid() ? 3000 : 0));
+                events.ScheduleEvent(EVENT_AIR_PHASE, 124s + (Is25ManRaid() ? 3s : 0s));
                 CleanAuras();
                 _vampires.clear();
                 Initialize();
@@ -215,7 +215,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                     if (Creature* minchar = me->FindNearestCreature(NPC_INFILTRATOR_MINCHAR_BQ, 200.0f))
                     {
                         minchar->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
-                        minchar->RemoveByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND);
+                        minchar->SetAnimationTier(AnimationTier::Ground);
                         minchar->SetCanFly(false);
                         minchar->RemoveAllAuras();
                         minchar->GetMotionMaster()->MoveCharge(4629.3711f, 2782.6089f, 401.5301f, SPEED_CHARGE / 3.0f);
@@ -247,7 +247,6 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 else
                 {
                     me->SetDisableGravity(true);
-                    me->SetByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND);
                     me->GetMotionMaster()->MovePoint(POINT_MINCHAR, mincharPos);
                 }
             }
@@ -262,7 +261,6 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 {
                     _killMinchar = false;
                     me->SetDisableGravity(true);
-                    me->SetByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND);
                     me->GetMotionMaster()->MovePoint(POINT_MINCHAR, mincharPos);
                 }
                 else
@@ -276,7 +274,6 @@ class boss_blood_queen_lana_thel : public CreatureScript
             void JustReachedHome() override
             {
                 me->SetDisableGravity(false);
-                me->RemoveByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND);
                 me->SetReactState(REACT_AGGRESSIVE);
                 _JustReachedHome();
                 Talk(SAY_WIPE);
@@ -313,9 +310,9 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 {
                     case POINT_CENTER:
                         DoCast(me, SPELL_INCITE_TERROR);
-                        events.ScheduleEvent(EVENT_AIR_PHASE, 100000 + uint32(Is25ManRaid() ? 0 : 20000));
-                        events.RescheduleEvent(EVENT_SWARMING_SHADOWS, 30500, EVENT_GROUP_NORMAL);
-                        events.RescheduleEvent(EVENT_PACT_OF_THE_DARKFALLEN, 25500, EVENT_GROUP_NORMAL);
+                        events.ScheduleEvent(EVENT_AIR_PHASE, 100s + (Is25ManRaid() ? 0s : 20s));
+                        events.RescheduleEvent(EVENT_SWARMING_SHADOWS, 30500ms, EVENT_GROUP_NORMAL);
+                        events.RescheduleEvent(EVENT_PACT_OF_THE_DARKFALLEN, 25500ms, EVENT_GROUP_NORMAL);
                         events.ScheduleEvent(EVENT_AIR_START_FLYING, 5s);
                         break;
                     case POINT_AIR:
@@ -326,7 +323,6 @@ class boss_blood_queen_lana_thel : public CreatureScript
                         break;
                     case POINT_GROUND:
                         me->SetDisableGravity(false);
-                        me->RemoveByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND);
                         me->SetReactState(REACT_AGGRESSIVE);
                         if (Unit* victim = me->SelectVictim())
                             AttackStart(victim);
@@ -408,7 +404,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                             break;
                         }
                         case EVENT_DELIRIOUS_SLASH:
-                            if (_offtankGUID && !me->HasByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER))
+                            if (_offtankGUID && me->GetAnimationTier() != AnimationTier::Fly)
                                 if (Player* _offtank = ObjectAccessor::GetPlayer(*me, _offtankGUID))
                                     DoCast(_offtank, SPELL_DELIRIOUS_SLASH);
                             events.ScheduleEvent(EVENT_DELIRIOUS_SLASH, 20s, 24s, EVENT_GROUP_NORMAL);
@@ -424,7 +420,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                                 for (std::list<Player*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
                                     DoCast(*itr, SPELL_PACT_OF_THE_DARKFALLEN);
                             }
-                            events.ScheduleEvent(EVENT_PACT_OF_THE_DARKFALLEN, 30500, EVENT_GROUP_NORMAL);
+                            events.ScheduleEvent(EVENT_PACT_OF_THE_DARKFALLEN, 30500ms, EVENT_GROUP_NORMAL);
                             break;
                         }
                         case EVENT_SWARMING_SHADOWS:
@@ -434,7 +430,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                                 Talk(SAY_SWARMING_SHADOWS);
                                 DoCast(target, SPELL_SWARMING_SHADOWS);
                             }
-                            events.ScheduleEvent(EVENT_SWARMING_SHADOWS, 30500, EVENT_GROUP_NORMAL);
+                            events.ScheduleEvent(EVENT_SWARMING_SHADOWS, 30500ms, EVENT_GROUP_NORMAL);
                             break;
                         case EVENT_TWILIGHT_BLOODBOLT:
                         {
@@ -450,13 +446,12 @@ class boss_blood_queen_lana_thel : public CreatureScript
                         case EVENT_AIR_PHASE:
                             DoStopAttack();
                             me->SetReactState(REACT_PASSIVE);
-                            events.DelayEvents(10000, EVENT_GROUP_NORMAL);
+                            events.DelayEvents(10s, EVENT_GROUP_NORMAL);
                             events.CancelEventGroup(EVENT_GROUP_CANCELLABLE);
                             me->GetMotionMaster()->MovePoint(POINT_CENTER, centerPos);
                             break;
                         case EVENT_AIR_START_FLYING:
                             me->SetDisableGravity(true);
-                            me->SetByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND);
                             me->GetMotionMaster()->MovePoint(POINT_AIR, airPos);
                             break;
                         case EVENT_AIR_FLY_DOWN:
@@ -862,6 +857,27 @@ class spell_blood_queen_pact_of_the_darkfallen_dmg_target : public SpellScriptLo
         }
 };
 
+// 71446, 71478, 71479, 71480 - Twilight Bloodbolt
+class spell_blood_queen_twilight_bloodbolt : public SpellScript
+{
+    PrepareSpellScript(spell_blood_queen_twilight_bloodbolt);
+
+    void HandleResistance(DamageInfo const& damageInfo, uint32& resistAmount, int32& /*absorbAmount*/)
+    {
+        Unit* caster = damageInfo.GetAttacker();;
+        Unit* target = damageInfo.GetVictim();
+        uint32 damage = damageInfo.GetDamage();
+        uint32 resistedDamage = Unit::CalcSpellResistedDamage(caster, target, damage, SPELL_SCHOOL_MASK_SHADOW, nullptr);
+        resistedDamage += Unit::CalcSpellResistedDamage(caster, target, damage, SPELL_SCHOOL_MASK_ARCANE, nullptr);
+        resistAmount = resistedDamage;
+    }
+
+    void Register() override
+    {
+        OnCalculateResistAbsorb += SpellOnResistAbsorbCalculateFn(spell_blood_queen_twilight_bloodbolt::HandleResistance);
+    }
+};
+
 class achievement_once_bitten_twice_shy_n : public AchievementCriteriaScript
 {
     public:
@@ -904,6 +920,7 @@ void AddSC_boss_blood_queen_lana_thel()
     new spell_blood_queen_pact_of_the_darkfallen();
     new spell_blood_queen_pact_of_the_darkfallen_dmg();
     new spell_blood_queen_pact_of_the_darkfallen_dmg_target();
+    RegisterSpellScript(spell_blood_queen_twilight_bloodbolt);
     new achievement_once_bitten_twice_shy_n();
     new achievement_once_bitten_twice_shy_v();
 }

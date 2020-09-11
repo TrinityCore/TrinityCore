@@ -33,19 +33,30 @@ SET(_OPENSSL_ROOT_HINTS
   "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\OpenSSL (64-bit)_is1;Inno Setup: App Path]"
   )
 
+set(_OPENSSL_MSI_INSTALL_GUID "")
+
 IF(PLATFORM EQUAL 64)
+  set(_OPENSSL_MSI_INSTALL_GUID "117551DB-A110-4BBD-BB05-CFE0BCB3ED31")
   SET(_OPENSSL_ROOT_PATHS
     "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\OpenSSL (64-bit)_is1;InstallLocation]"
     "C:/OpenSSL-Win64/"
     "C:/OpenSSL/"
   )
 ELSE()
+  set(_OPENSSL_MSI_INSTALL_GUID "A1EEC576-43B9-4E75-9E02-03DA542D2A38")
   SET(_OPENSSL_ROOT_PATHS
     "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\OpenSSL (32-bit)_is1;InstallLocation]"
     "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\OpenSSL (32-bit)_is1;InstallLocation]"
     "C:/OpenSSL/"
   )
 ENDIF()
+
+# If OpenSSL was installed using .msi package instead of .exe, Inno Setup registry values are not written to Uninstall\OpenSSL
+# but because it is only a shim around Inno Setup it does write the location of uninstaller which we can use to determine path
+get_filename_component(_OPENSSL_MSI_INSTALL_PATH "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Inno Setup MSIs\\${_OPENSSL_MSI_INSTALL_GUID};]" DIRECTORY)
+if(NOT _OPENSSL_MSI_INSTALL_PATH STREQUAL "/")
+  list(APPEND _OPENSSL_ROOT_PATHS ${_OPENSSL_MSI_INSTALL_PATH})
+endif()
 
 FIND_PATH(OPENSSL_ROOT_DIR
   NAMES
@@ -81,7 +92,7 @@ IF(WIN32 AND NOT CYGWIN)
     # ssleay32MD.lib is identical to ../ssleay32.lib
 
     # Since OpenSSL 1.1, lib names are like libcrypto32MTd.lib and libssl32MTd.lib
-    if( "${CMAKE_SIZEOF_VOID_P}" STREQUAL "8" )
+    if("${CMAKE_SIZEOF_VOID_P}" STREQUAL "8")
         set(_OPENSSL_MSVC_ARCH_SUFFIX "64")
     else()
         set(_OPENSSL_MSVC_ARCH_SUFFIX "32")
@@ -115,13 +126,13 @@ IF(WIN32 AND NOT CYGWIN)
         ${OPENSSL_ROOT_DIR}/lib/VC
     )
 
-    if( CMAKE_CONFIGURATION_TYPES OR CMAKE_BUILD_TYPE )
-      set( OPENSSL_LIBRARIES
+    if(CMAKE_CONFIGURATION_TYPES OR CMAKE_BUILD_TYPE)
+      set(OPENSSL_LIBRARIES
         optimized ${SSL_EAY_RELEASE} ${LIB_EAY_RELEASE}
         debug ${SSL_EAY_DEBUG} ${LIB_EAY_DEBUG}
       )
     else()
-      set( OPENSSL_LIBRARIES
+      set(OPENSSL_LIBRARIES
         ${SSL_EAY_RELEASE}
         ${LIB_EAY_RELEASE}
       )
@@ -147,7 +158,7 @@ IF(WIN32 AND NOT CYGWIN)
 
     MARK_AS_ADVANCED(SSL_EAY LIB_EAY)
 
-    set( OPENSSL_LIBRARIES
+    set(OPENSSL_LIBRARIES
       ${SSL_EAY}
       ${LIB_EAY}
     )
@@ -170,7 +181,7 @@ IF(WIN32 AND NOT CYGWIN)
     )
     MARK_AS_ADVANCED(SSL_EAY LIB_EAY)
 
-    SET( OPENSSL_LIBRARIES ${SSL_EAY} ${LIB_EAY} )
+    SET(OPENSSL_LIBRARIES ${SSL_EAY} ${LIB_EAY})
   ENDIF(MSVC)
 ELSE(WIN32 AND NOT CYGWIN)
   FIND_LIBRARY(OPENSSL_SSL_LIBRARIES NAMES ssl ssleay32 ssleay32MD)
@@ -181,7 +192,7 @@ ELSE(WIN32 AND NOT CYGWIN)
 
 ENDIF(WIN32 AND NOT CYGWIN)
 
-if (NOT OPENSSL_INCLUDE_DIR)
+if(NOT OPENSSL_INCLUDE_DIR)
   include(FindPackageHandleStandardArgs)
   find_package_handle_standard_args(OpenSSL DEFAULT_MSG
     OPENSSL_LIBRARIES
@@ -189,12 +200,12 @@ if (NOT OPENSSL_INCLUDE_DIR)
   )
 endif()
 
-if (OPENSSL_INCLUDE_DIR)
-  message( STATUS "Found OpenSSL library: ${OPENSSL_LIBRARIES}")
-  message( STATUS "Found OpenSSL headers: ${OPENSSL_INCLUDE_DIR}")
-  if (_OPENSSL_VERSION)
+if(OPENSSL_INCLUDE_DIR)
+  message(STATUS "Found OpenSSL library: ${OPENSSL_LIBRARIES}")
+  message(STATUS "Found OpenSSL headers: ${OPENSSL_INCLUDE_DIR}")
+  if(_OPENSSL_VERSION)
     set(OPENSSL_VERSION "${_OPENSSL_VERSION}")
-  else (_OPENSSL_VERSION)
+  else(_OPENSSL_VERSION)
     file(STRINGS "${OPENSSL_INCLUDE_DIR}/openssl/opensslv.h" openssl_version_str
          REGEX "^# *define[\t ]+OPENSSL_VERSION_NUMBER[\t ]+0x[0-9][0-9][0-9][0-9][0-9][0-9].*")
 
@@ -215,23 +226,23 @@ if (OPENSSL_INCLUDE_DIR)
     string(REGEX REPLACE "^0(.)" "\\1" OPENSSL_VERSION_MINOR "${OPENSSL_VERSION_MINOR}")
     string(REGEX REPLACE "^0(.)" "\\1" OPENSSL_VERSION_FIX "${OPENSSL_VERSION_FIX}")
 
-    if (NOT OPENSSL_VERSION_PATCH STREQUAL "00")
+    if(NOT OPENSSL_VERSION_PATCH STREQUAL "00")
       # 96 is the ASCII code of 'a' minus 1
       math(EXPR OPENSSL_VERSION_PATCH_ASCII "${OPENSSL_VERSION_PATCH} + 96")
       # Once anyone knows how OpenSSL would call the patch versions beyond 'z'
       # this should be updated to handle that, too. This has not happened yet
       # so it is simply ignored here for now.
       string(ASCII "${OPENSSL_VERSION_PATCH_ASCII}" OPENSSL_VERSION_PATCH_STRING)
-    endif (NOT OPENSSL_VERSION_PATCH STREQUAL "00")
+    endif(NOT OPENSSL_VERSION_PATCH STREQUAL "00")
 
     set(OPENSSL_VERSION "${OPENSSL_VERSION_MAJOR}.${OPENSSL_VERSION_MINOR}.${OPENSSL_VERSION_FIX}${OPENSSL_VERSION_PATCH_STRING}")
-  endif (_OPENSSL_VERSION)
+  endif(_OPENSSL_VERSION)
 
   include(EnsureVersion)
   ENSURE_VERSION_RANGE("${OPENSSL_EXPECTED_VERSION}" "${OPENSSL_VERSION}" "${OPENSSL_MAX_VERSION}" OPENSSL_VERSION_OK)
-  if (NOT OPENSSL_VERSION_OK)
+  if(NOT OPENSSL_VERSION_OK)
       message(FATAL_ERROR "TrinityCore needs OpenSSL version ${OPENSSL_EXPECTED_VERSION} but found too new version ${OPENSSL_VERSION}. TrinityCore needs OpenSSL 1.0.x or 1.1.x to work properly. If you still have problems please install OpenSSL 1.0.x if you still have problems search on forum for TCE00022")
   endif()
-endif (OPENSSL_INCLUDE_DIR)
+endif(OPENSSL_INCLUDE_DIR)
 
 MARK_AS_ADVANCED(OPENSSL_INCLUDE_DIR OPENSSL_LIBRARIES)

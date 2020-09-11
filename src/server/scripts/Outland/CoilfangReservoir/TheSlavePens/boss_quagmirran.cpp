@@ -64,7 +64,7 @@ class boss_quagmirran : public CreatureScript
             void JustEngagedWith(Unit* who) override
             {
                 BossAI::JustEngagedWith(who);
-                events.ScheduleEvent(EVENT_ACID_SPRAY, 25000);
+                events.ScheduleEvent(EVENT_ACID_SPRAY, 25s);
                 events.ScheduleEvent(EVENT_CLEAVE, 9s);
                 events.ScheduleEvent(EVENT_UPPERCUT, 20s);
                 events.ScheduleEvent(EVENT_POISON_BOLT_VOLLEY, 31s);
@@ -95,7 +95,7 @@ class boss_quagmirran : public CreatureScript
                             events.ScheduleEvent(EVENT_CLEAVE, 18s, 34s);
                             break;
                         case EVENT_UPPERCUT:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 10.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 10.0f, true))
                             DoCast(target, SPELL_UPPERCUT);
                             events.ScheduleEvent(EVENT_UPPERCUT, 22s);
                             break;

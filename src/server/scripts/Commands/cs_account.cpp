@@ -27,6 +27,7 @@ EndScriptData */
 #include "Base32.h"
 #include "Chat.h"
 #include "CryptoGenerics.h"
+#include "CryptoRandom.h"
 #include "DatabaseEnv.h"
 #include "IpAddress.h"
 #include "IPLocation.h"
@@ -39,7 +40,6 @@ EndScriptData */
 #include "World.h"
 #include "WorldSession.h"
 #include <unordered_map>
-#include <openssl/rand.h>
 
 using namespace Trinity::ChatCommands;
 
@@ -59,7 +59,8 @@ public:
         {
             { "addon",          rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_ADDON,       true,  &HandleAccountSetAddonCommand,     ""       },
             { "sec",            rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SEC,         true,  nullptr,                "", accountSetSecTable },
-            { "gmlevel",        rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_GMLEVEL,     true,  &HandleAccountSetGmLevelCommand,   ""       },
+            { "gmlevel",        rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SECLEVEL,    true,  &HandleAccountSetSecLevelCommand,  ""       },  // temp for a transition period
+            { "seclevel",       rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SECLEVEL,    true,  &HandleAccountSetSecLevelCommand,  ""       },
             { "password",       rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_PASSWORD,    true,  &HandleAccountSetPasswordCommand,  ""       },
             { "2fa",            rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_2FA,         true,  &HandleAccountSet2FACommand,       ""       },
         };
@@ -130,7 +131,7 @@ public:
         static std::unordered_map<uint32, Trinity::Crypto::TOTP::Secret> suggestions;
         auto pair = suggestions.emplace(std::piecewise_construct, std::make_tuple(accountId), std::make_tuple(Trinity::Crypto::TOTP::RECOMMENDED_SECRET_LENGTH)); // std::vector 1-argument size_t constructor invokes resize
         if (pair.second) // no suggestion yet, generate random secret
-            RAND_bytes(pair.first->second.data(), pair.first->second.size());
+            Trinity::Crypto::GetRandomBytes(pair.first->second);
 
         if (!pair.second && token) // suggestion already existed and token specified - validate
         {
@@ -255,7 +256,7 @@ public:
             return false;
         }
 
-        switch (sAccountMgr->CreateAccount(accountName, password, email.get_value_or("")))
+        switch (sAccountMgr->CreateAccount(accountName, password, email.value_or("")))
         {
             case AccountOpResult::AOR_OK:
                 handler->PSendSysMessage(LANG_ACCOUNT_CREATED, accountName);
@@ -264,7 +265,7 @@ public:
                     TC_LOG_INFO("entities.player.character", "Account: %d (IP: %s) Character:[%s] %s) created Account %s (Email: '%s')",
                         handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                         handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().ToString().c_str(),
-                        accountName.c_str(), email.get_value_or("").c_str());
+                        accountName.c_str(), email.value_or("").c_str());
                 }
                 break;
             case AccountOpResult::AOR_NAME_TOO_LONG:
@@ -526,7 +527,7 @@ public:
 
         // This compares the old, current email to the entered email - however, only...
         if ((pwConfig == PW_EMAIL || (pwConfig == PW_RBAC && handler->HasPermission(rbac::RBAC_PERM_EMAIL_CONFIRM_FOR_PASS_CHANGE))) // ...if either PW_EMAIL or PW_RBAC with the Permission is active...
-            && !AccountMgr::CheckEmail(handler->GetSession()->GetAccountId(), confirmEmail.get_value_or(""))) // ... and returns false if the comparison fails.
+            && !AccountMgr::CheckEmail(handler->GetSession()->GetAccountId(), confirmEmail.value_or(""))) // ... and returns false if the comparison fails.
         {
             handler->SendSysMessage(LANG_COMMAND_WRONGEMAIL);
             sScriptMgr->OnFailedPasswordChange(handler->GetSession()->GetAccountId());
@@ -534,7 +535,7 @@ public:
             TC_LOG_INFO("entities.player.character", "Account: %u (IP: %s) Character:[%s] %s Tried to change password, but the entered email [%s] is wrong.",
                 handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                 handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUID().ToString().c_str(),
-                confirmEmail.get_value_or("").c_str());
+                confirmEmail.value_or("").c_str());
             return false;
         }
 
@@ -575,8 +576,8 @@ public:
     static bool HandleAccountCommand(ChatHandler* handler)
     {
         // GM Level
-        AccountTypes gmLevel = handler->GetSession()->GetSecurity();
-        handler->PSendSysMessage(LANG_ACCOUNT_LEVEL, uint32(gmLevel));
+        AccountTypes securityLevel = handler->GetSession()->GetSecurity();
+        handler->PSendSysMessage(LANG_ACCOUNT_LEVEL, uint32(securityLevel));
 
         // Security level required
         bool hasRBAC = (handler->HasPermission(rbac::RBAC_PERM_EMAIL_CONFIRM_FOR_PASS_CHANGE) ? true : false);
@@ -665,7 +666,7 @@ public:
         return true;
     }
 
-    static bool HandleAccountSetGmLevelCommand(ChatHandler* handler, Optional<std::string> accountName, uint8 gmLevel, int32 realmId)
+    static bool HandleAccountSetSecLevelCommand(ChatHandler* handler, Optional<std::string> accountName, uint8 securityLevel, Optional<int32> realmId)
     {
         uint32 accountId;
         if (accountName)
@@ -695,24 +696,28 @@ public:
             AccountMgr::GetName(accountId, *accountName);
         }
 
-        if (gmLevel >= SEC_CONSOLE)
+        if (securityLevel >= SEC_CONSOLE)
         {
             handler->SendSysMessage(LANG_BAD_VALUE);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
+        int32 realmID = -1;
+        if (realmId)
+            realmID = *realmId;
+
         // handler->getSession() == nullptr only for console
         uint32 playerSecurity;
         if (handler->GetSession())
-            playerSecurity = AccountMgr::GetSecurity(handler->GetSession()->GetAccountId(), realmId);
+            playerSecurity = AccountMgr::GetSecurity(handler->GetSession()->GetAccountId(), realmID);
         else
             playerSecurity = SEC_CONSOLE;
 
         // can set security level only for target with less security and to less security that we have
         // This also restricts setting handler's own security.
-        uint32 targetSecurity = AccountMgr::GetSecurity(accountId, realmId);
-        if (targetSecurity >= playerSecurity || gmLevel >= playerSecurity)
+        uint32 targetSecurity = AccountMgr::GetSecurity(accountId, realmID);
+        if (targetSecurity >= playerSecurity || securityLevel >= playerSecurity)
         {
             handler->SendSysMessage(LANG_YOURS_SECURITY_IS_LOW);
             handler->SetSentErrorMessage(true);
@@ -720,12 +725,12 @@ public:
         }
 
         // Check and abort if the target gm has a higher rank on one of the realms and the new realm is -1
-        if (realmId == -1 && !AccountMgr::IsConsoleAccount(playerSecurity))
+        if (realmID == -1 && !AccountMgr::IsConsoleAccount(playerSecurity))
         {
-            LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_ACCESS_GMLEVEL_TEST);
+            LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_ACCESS_SECLEVEL_TEST);
 
             stmt->setUInt32(0, accountId);
-            stmt->setUInt8(1, gmLevel);
+            stmt->setUInt8(1, securityLevel);
 
             PreparedQueryResult result = LoginDatabase.Query(stmt);
 
@@ -738,16 +743,16 @@ public:
         }
 
         // Check if provided realmID has a negative value other than -1
-        if (realmId < -1)
+        if (realmID < -1)
         {
             handler->SendSysMessage(LANG_INVALID_REALMID);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        sAccountMgr->UpdateAccountAccess(nullptr, accountId, gmLevel, realmId);
+        sAccountMgr->UpdateAccountAccess(nullptr, accountId, securityLevel, realmID);
 
-        handler->PSendSysMessage(LANG_YOU_CHANGE_SECURITY, accountName->c_str(), gmLevel);
+        handler->PSendSysMessage(LANG_YOU_CHANGE_SECURITY, accountName->c_str(), securityLevel);
         return true;
     }
 

@@ -187,12 +187,16 @@ class boss_sapphiron : public CreatureScript
                 EnterPhaseGround(true);
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
             {
-                switch(spell->Id)
+                Unit* unitTarget = target->ToUnit();
+                if (!unitTarget)
+                    return;
+
+                switch(spellInfo->Id)
                 {
                     case SPELL_CHECK_RESISTS:
-                        if (target && target->GetResistance(SPELL_SCHOOL_FROST) > MAX_FROST_RESISTANCE)
+                        if (unitTarget->GetResistance(SPELL_SCHOOL_FROST) > MAX_FROST_RESISTANCE)
                             _canTheHundredClub = false;
                         break;
                 }
@@ -259,7 +263,7 @@ class boss_sapphiron : public CreatureScript
                             if (Unit* temp = ObjectAccessor::GetUnit(*me, summonGuid))
                                 blizzards.push_back(temp);
 
-                    if (Unit* newTarget = me->AI()->SelectTarget(SELECT_TARGET_RANDOM, 1, BlizzardTargetSelector(blizzards)))
+                    if (Unit* newTarget = me->AI()->SelectTarget(SelectTargetMethod::Random, 1, BlizzardTargetSelector(blizzards)))
                         return newTarget->GetGUID();
                 }
 
@@ -336,7 +340,7 @@ class boss_sapphiron : public CreatureScript
                             case EVENT_LIFTOFF:
                             {
                                 Talk(EMOTE_AIR_PHASE);
-                                if (Creature* buffet = DoSummon(NPC_WING_BUFFET, me, 0.0f, 0, TEMPSUMMON_MANUAL_DESPAWN))
+                                if (Creature* buffet = DoSummon(NPC_WING_BUFFET, me, 0.0f, 0s, TEMPSUMMON_MANUAL_DESPAWN))
                                     _buffet = buffet->GetGUID();
                                 me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
                                 me->SetHover(true);
@@ -344,7 +348,7 @@ class boss_sapphiron : public CreatureScript
 
                                 _iceboltTargets.clear();
                                 std::list<Unit*> targets;
-                                SelectTargetList(targets, RAID_MODE(2, 3), SELECT_TARGET_RANDOM, 0, 200.0f, true);
+                                SelectTargetList(targets, RAID_MODE(2, 3), SelectTargetMethod::Random, 0, 200.0f, true);
                                 for (Unit* target : targets)
                                     if (target)
                                         _iceboltTargets.push_back(target->GetGUID());
@@ -387,7 +391,7 @@ class boss_sapphiron : public CreatureScript
                                     CastDrain();
                                 if (Creature* cBuffet = ObjectAccessor::GetCreature(*me, _buffet))
                                 {
-                                    cBuffet->DespawnOrUnsummon(1 * IN_MILLISECONDS);
+                                    cBuffet->DespawnOrUnsummon(1s);
                                     _buffet.Clear();
                                 }
                                 me->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
@@ -564,7 +568,7 @@ class spell_sapphiron_icebolt : public SpellScriptLoader
                 return;
             float x, y, z;
             GetTarget()->GetPosition(x, y, z);
-            if (GameObject* block = GetTarget()->SummonGameObject(GO_ICEBLOCK, x, y, z, 0.f, QuaternionData(), 25))
+            if (GameObject* block = GetTarget()->SummonGameObject(GO_ICEBLOCK, x, y, z, 0.f, QuaternionData(), 25s))
                 _block = block->GetGUID();
         }
 
@@ -601,7 +605,7 @@ class spell_sapphiron_summon_blizzard : public SpellScriptLoader
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* target = GetHitUnit())
-                    if (Creature* blizzard = GetCaster()->SummonCreature(NPC_BLIZZARD, *target, TEMPSUMMON_TIMED_DESPAWN, urandms(25, 30)))
+                    if (Creature* blizzard = GetCaster()->SummonCreature(NPC_BLIZZARD, *target, TEMPSUMMON_TIMED_DESPAWN, randtime(25s, 30s)))
                     {
                         blizzard->CastSpell(nullptr, blizzard->m_spells[0], TRIGGERED_NONE);
                         if (Creature* creatureCaster = GetCaster()->ToCreature())

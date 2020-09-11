@@ -159,7 +159,7 @@ struct npc_wrathbone_flayer : public ScriptedAI
                     _events.ScheduleEvent(EVENT_CLEAVE, 1s, 2s);
                     break;
                 case EVENT_IGNORED:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_IGNORED);
                     _events.ScheduleEvent(EVENT_IGNORED, 10s);
                     break;
@@ -278,5 +278,5 @@ void AddSC_black_temple()
     RegisterBlackTempleCreatureAI(npc_wrathbone_flayer);
     RegisterBlackTempleCreatureAI(npc_angered_soul_fragment);
     RegisterSpellScript(spell_soul_fragment_anger);
-    RegisterAuraScript(spell_illidari_nightlord_shadow_inferno);
+    RegisterSpellScript(spell_illidari_nightlord_shadow_inferno);
 }

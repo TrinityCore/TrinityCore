@@ -23,7 +23,7 @@
 
 class Quest;
 
-#define DEFAULT_MAX_PLAYER_DISTANCE 50
+#define DEFAULT_MAX_PLAYER_DISTANCE 100
 
 enum EscortState : uint32
 {
@@ -48,12 +48,12 @@ struct TC_GAME_API EscortAI : public ScriptedAI
         void UpdateAI(uint32 diff) override; // the "internal" update, calls UpdateEscortAI()
 
         virtual void UpdateEscortAI(uint32 diff); // used when it's needed to add code in update (abilities, scripted events, etc)
-        void AddWaypoint(uint32 id, float x, float y, float z, float orientation = 0.f, uint32 waitTime = 0); // waitTime is in ms
+        void AddWaypoint(uint32 id, float x, float y, float z, float orientation = 0.f, Milliseconds waitTime = 0s);
         void Start(bool isActiveAttacker = true, bool run = false, ObjectGuid playerGUID = ObjectGuid::Empty, Quest const* quest = nullptr, bool instantRespawn = false, bool canLoopPath = false, bool resetWaypoints = true);
 
         void SetRun(bool on = true);
         void SetEscortPaused(bool on);
-        void SetPauseTimer(uint32 Timer) { _pauseTimer = Timer; }
+        void SetPauseTimer(Milliseconds timer) { _pauseTimer = timer; }
         bool HasEscortState(uint32 escortState) { return (_escortState & escortState) != 0; }
         bool IsEscorted() const override { return !_playerGUID.IsEmpty(); }
         void SetMaxPlayerDistance(float newMax) { _maxPlayerDistance = newMax; }
@@ -76,7 +76,7 @@ struct TC_GAME_API EscortAI : public ScriptedAI
         void RemoveEscortState(uint32 escortState) { _escortState &= ~escortState; }
 
         ObjectGuid _playerGUID;
-        uint32 _pauseTimer;
+        Milliseconds _pauseTimer;
         uint32 _playerCheckTimer;
         uint32 _escortState;
         float _maxPlayerDistance;

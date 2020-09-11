@@ -238,11 +238,11 @@ public:
             if ( type == 1 && data == 1)
             {
                 me->StopMoving();
-                events.ScheduleEvent(EVENT_PATH_2, 9000);
+                events.ScheduleEvent(EVENT_PATH_2, 9s);
             }
 
             if (type == 1 && data == 2)
-                events.ScheduleEvent(EVENT_SUCCESS_1, 5000);
+                events.ScheduleEvent(EVENT_SUCCESS_1, 5s);
         }
 
         void UpdateAI(uint32 diff) override
@@ -257,7 +257,7 @@ public:
                     {
                         case EVENT_PATH_2:
                             me->GetMotionMaster()->MovePath(NEFARIUS_PATH_2, false);
-                            events.ScheduleEvent(EVENT_CHAOS_1, 7000);
+                            events.ScheduleEvent(EVENT_CHAOS_1, 7s);
                             break;
                         case EVENT_CHAOS_1:
                             if (Creature* gyth = me->FindNearestCreature(NPC_GYTH, 75.0f, true))
@@ -265,7 +265,7 @@ public:
                                 me->SetFacingToObject(gyth);
                                 Talk(SAY_CHAOS_SPELL);
                             }
-                            events.ScheduleEvent(EVENT_CHAOS_2, 2000);
+                            events.ScheduleEvent(EVENT_CHAOS_2, 2s);
                             break;
                         case EVENT_CHAOS_2:
                             DoCast(SPELL_CHROMATIC_CHAOS);
@@ -281,11 +281,11 @@ public:
                                 if (GameObject* portcullis2 = me->FindNearestGameObject(GO_PORTCULLIS_TOBOSSROOMS, 80.0f))
                                     portcullis2->SetGoState(GO_STATE_ACTIVE);
                             }
-                            events.ScheduleEvent(EVENT_SUCCESS_2, 4000);
+                            events.ScheduleEvent(EVENT_SUCCESS_2, 4s);
                             break;
                         case EVENT_SUCCESS_2:
                             DoCast(me, SPELL_VAELASTRASZZ_SPAWN);
-                            me->DespawnOrUnsummon(1000);
+                            me->DespawnOrUnsummon(1s);
                             break;
                         case EVENT_PATH_3:
                             me->GetMotionMaster()->MovePath(NEFARIUS_PATH_3, false);
@@ -316,7 +316,7 @@ public:
                                     DoCastVictim(SPELL_SHADOWBOLT_VOLLEY);
                                     break;
                                 case 1:
-                                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true))
+                                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40, true))
                                         DoCast(target, SPELL_SHADOWBOLT);
                                     break;
                             }
@@ -324,12 +324,12 @@ public:
                             events.ScheduleEvent(EVENT_SHADOW_BOLT, 3s, 10s);
                             break;
                         case EVENT_FEAR:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40, true))
                                 DoCast(target, SPELL_FEAR);
                             events.ScheduleEvent(EVENT_FEAR, 10s, 20s);
                             break;
                         case EVENT_MIND_CONTROL:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40, true))
                                 DoCast(target, SPELL_SHADOW_COMMAND);
                             events.ScheduleEvent(EVENT_MIND_CONTROL, 30s, 35s);
                             break;
@@ -375,7 +375,7 @@ public:
             }
         }
 
-        bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+        bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
         {
             if (menuId == GOSSIP_ID && gossipListId == GOSSIP_OPTION_ID)
             {
@@ -513,7 +513,7 @@ public:
                         events.ScheduleEvent(EVENT_TAILLASH, 10s);
                         break;
                     case EVENT_CLASSCALL:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                             switch (target->GetClass())
                         {
                             case CLASS_MAGE:

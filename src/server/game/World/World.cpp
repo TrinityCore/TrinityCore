@@ -471,18 +471,17 @@ void World::LoadConfigSettings(bool reload)
 {
     if (reload)
     {
-        std::string configError;
-        if (!sConfigMgr->Reload(configError))
+        std::vector<std::string> configErrors;
+        if (!sConfigMgr->Reload(configErrors))
         {
-            TC_LOG_ERROR("misc", "World settings reload fail: %s.", configError.c_str());
+            for (std::string const& configError : configErrors)
+                TC_LOG_ERROR("misc", "World settings reload fail: %s.", configError.c_str());
+
             return;
         }
         sLog->LoadFromConfig();
         sMetric->LoadFromConfigs();
     }
-
-    // load update time related configs
-    sWorldUpdateTime.LoadFromConfig();
 
     ///- Read the player limit and the Message of the day from the config file
     SetPlayerAmountLimit(sConfigMgr->GetIntDefault("PlayerLimit", 100));
@@ -766,6 +765,8 @@ void World::LoadConfigSettings(bool reload)
 
     /// @todo Add MonsterSight (with meaning) in worldserver.conf or put them as define
     m_float_configs[CONFIG_SIGHT_MONSTER] = sConfigMgr->GetFloatDefault("MonsterSight", 50.0f);
+
+    m_bool_configs[CONFIG_REGEN_HP_CANNOT_REACH_TARGET_IN_RAID] = sConfigMgr->GetBoolDefault("Creature.RegenHPCannotReachTargetInRaid", true);
 
     if (reload)
     {
@@ -1375,7 +1376,7 @@ void World::LoadConfigSettings(bool reload)
         TC_LOG_INFO("server.loading", "Using DataDir %s", m_dataPath.c_str());
     }
 
-    m_bool_configs[CONFIG_ENABLE_MMAPS] = sConfigMgr->GetBoolDefault("mmap.enablePathFinding", false);
+    m_bool_configs[CONFIG_ENABLE_MMAPS] = sConfigMgr->GetBoolDefault("mmap.enablePathFinding", true);
     TC_LOG_INFO("server.loading", "WORLD: MMap data directory is: %smmaps", m_dataPath.c_str());
 
     m_bool_configs[CONFIG_VMAP_INDOOR_CHECK] = sConfigMgr->GetBoolDefault("vmap.enableIndoorCheck", 0);
@@ -1416,8 +1417,9 @@ void World::LoadConfigSettings(bool reload)
 
     // Warden
     m_bool_configs[CONFIG_WARDEN_ENABLED]              = sConfigMgr->GetBoolDefault("Warden.Enabled", false);
-    m_int_configs[CONFIG_WARDEN_NUM_MEM_CHECKS]        = sConfigMgr->GetIntDefault("Warden.NumMemChecks", 3);
-    m_int_configs[CONFIG_WARDEN_NUM_OTHER_CHECKS]      = sConfigMgr->GetIntDefault("Warden.NumOtherChecks", 7);
+    m_int_configs[CONFIG_WARDEN_NUM_INJECT_CHECKS]     = sConfigMgr->GetIntDefault("Warden.NumInjectionChecks", 9);
+    m_int_configs[CONFIG_WARDEN_NUM_LUA_CHECKS]        = sConfigMgr->GetIntDefault("Warden.NumLuaSandboxChecks", 1);
+    m_int_configs[CONFIG_WARDEN_NUM_CLIENT_MOD_CHECKS] = sConfigMgr->GetIntDefault("Warden.NumClientModChecks", 1);
     m_int_configs[CONFIG_WARDEN_CLIENT_BAN_DURATION]   = sConfigMgr->GetIntDefault("Warden.BanDuration", 86400);
     m_int_configs[CONFIG_WARDEN_CLIENT_CHECK_HOLDOFF]  = sConfigMgr->GetIntDefault("Warden.ClientCheckHoldOff", 30);
     m_int_configs[CONFIG_WARDEN_CLIENT_FAIL_ACTION]    = sConfigMgr->GetIntDefault("Warden.ClientCheckFailAction", 0);
@@ -1462,7 +1464,6 @@ void World::LoadConfigSettings(bool reload)
     // misc
     m_bool_configs[CONFIG_PDUMP_NO_PATHS] = sConfigMgr->GetBoolDefault("PlayerDump.DisallowPaths", true);
     m_bool_configs[CONFIG_PDUMP_NO_OVERWRITE] = sConfigMgr->GetBoolDefault("PlayerDump.DisallowOverwrite", true);
-    m_bool_configs[CONFIG_UI_QUESTLEVELS_IN_DIALOGS] = sConfigMgr->GetBoolDefault("UI.ShowQuestLevelsInDialogs", false);
 
     // Wintergrasp battlefield
     m_bool_configs[CONFIG_WINTERGRASP_ENABLE] = sConfigMgr->GetBoolDefault("Wintergrasp.Enable", false);
@@ -1489,6 +1490,8 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_PACKET_SPOOF_BANDURATION] = sConfigMgr->GetIntDefault("PacketSpoof.BanDuration", 86400);
 
     m_int_configs[CONFIG_BIRTHDAY_TIME] = sConfigMgr->GetIntDefault("BirthdayTime", 1222964635);
+
+    m_bool_configs[CONFIG_SET_SHAPASSHASH] = sConfigMgr->GetBoolDefault("SetDeprecatedExternalPasswords", false, true);
 
     m_bool_configs[CONFIG_IP_BASED_ACTION_LOGGING] = sConfigMgr->GetBoolDefault("Allow.IP.Based.Action.Logging", false);
 
@@ -1539,11 +1542,9 @@ void World::SetInitialWorldSettings()
     dtAllocSetCustom(dtCustomAlloc, dtCustomFree);
 
     ///- Initialize VMapManager function pointers (to untangle game/collision circular deps)
-    if (VMAP::VMapManager2* vmmgr2 = dynamic_cast<VMAP::VMapManager2*>(VMAP::VMapFactory::createOrGetVMapManager()))
-    {
-        vmmgr2->GetLiquidFlagsPtr = &GetLiquidFlags;
-        vmmgr2->IsVMAPDisabledForPtr = &DisableMgr::IsVMAPDisabledFor;
-    }
+    VMAP::VMapManager2* vmmgr2 = VMAP::VMapFactory::createOrGetVMapManager();
+    vmmgr2->GetLiquidFlagsPtr = &GetLiquidFlags;
+    vmmgr2->IsVMAPDisabledForPtr = &DisableMgr::IsVMAPDisabledFor;
 
     ///- Initialize config settings
     LoadConfigSettings();
@@ -1606,8 +1607,7 @@ void World::SetInitialWorldSettings()
         if (sMapStore.LookupEntry(mapId))
             mapIds.push_back(mapId);
 
-    if (VMAP::VMapManager2* vmmgr2 = dynamic_cast<VMAP::VMapManager2*>(VMAP::VMapFactory::createOrGetVMapManager()))
-        vmmgr2->InitializeThreadUnsafe(mapIds);
+    vmmgr2->InitializeThreadUnsafe(mapIds);
 
     MMAP::MMapManager* mmmgr = MMAP::MMapFactory::createOrGetMMapManager();
     mmmgr->InitializeThreadUnsafe(mapIds);
@@ -2076,6 +2076,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Initialize query data...");
     sObjectMgr->InitializeQueriesData(QUERY_DATA_ALL);
 
+    TC_LOG_INFO("server.loading", "Initialize commands...");
+    ChatHandler::InitializeCommandTable();
+
     ///- Initialize game time and timers
     TC_LOG_INFO("server.loading", "Initialize game time and timers");
     GameTime::UpdateGameTimers();
@@ -2219,7 +2222,7 @@ void World::DetectDBCLang()
     uint8 default_locale = TOTAL_LOCALES;
     for (uint8 i = default_locale-1; i < TOTAL_LOCALES; --i)  // -1 will be 255 due to uint8
     {
-        if (race->name[i][0] != '\0')                     // check by race names
+        if (race->Name[i][0] != '\0')                     // check by race names
         {
             default_locale = i;
             m_availableDbcLocaleMask |= (1 << i);
@@ -2282,14 +2285,12 @@ void World::LoadAutobroadcasts()
 /// Update the World !
 void World::Update(uint32 diff)
 {
+    TC_METRIC_TIMER("world_update_time_total");
     ///- Update the game time and check for shutdown time
     _UpdateGameTime();
     time_t currentGameTime = GameTime::GetGameTime();
 
     sWorldUpdateTime.UpdateWithDiff(diff);
-
-    // Record update if recording set in log and diff is greater then minimum set in log
-    sWorldUpdateTime.RecordUpdateTime(GameTime::GetGameTimeMS(), diff, GetActiveSessionCount());
 
     ///- Update the different timers
     for (int i = 0; i < WUPDATE_COUNT; ++i)
@@ -2303,6 +2304,7 @@ void World::Update(uint32 diff)
     ///- Update Who List Storage
     if (m_timers[WUPDATE_WHO_LIST].Passed())
     {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update who list"));
         m_timers[WUPDATE_WHO_LIST].Reset();
         sWhoListStorageMgr->Update();
     }
@@ -2313,6 +2315,7 @@ void World::Update(uint32 diff)
 
         if (sWorld->getBoolConfig(CONFIG_PRESERVE_CUSTOM_CHANNELS))
         {
+            TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Save custom channels"));
             ChannelMgr* mgr1 = ASSERT_NOTNULL(ChannelMgr::forTeam(ALLIANCE));
             mgr1->SaveToDB();
             ChannelMgr* mgr2 = ASSERT_NOTNULL(ChannelMgr::forTeam(HORDE));
@@ -2321,20 +2324,33 @@ void World::Update(uint32 diff)
         }
     }
 
-    CheckQuestResetTimes();
+    {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Check quest reset times"));
+        CheckQuestResetTimes();
+    }
 
     if (currentGameTime > m_NextRandomBGReset)
+    {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Reset random BG"));
         ResetRandomBG();
+    }
 
     if (currentGameTime > m_NextCalendarOldEventsDeletionTime)
+    {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Delete old calendar events"));
         CalendarDeleteOldEvents();
+    }
 
     if (currentGameTime > m_NextGuildReset)
+    {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Reset guild cap"));
         ResetGuildCap();
+    }
 
     /// <ul><li> Handle auctions when the timer has passed
     if (m_timers[WUPDATE_AUCTIONS].Passed())
     {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update expired auctions"));
         m_timers[WUPDATE_AUCTIONS].Reset();
 
         ///- Update mails (return old mails with item, or delete them)
@@ -2351,6 +2367,7 @@ void World::Update(uint32 diff)
 
     if (m_timers[WUPDATE_AUCTIONS_PENDING].Passed())
     {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update pending auctions"));
         m_timers[WUPDATE_AUCTIONS_PENDING].Reset();
 
         sAuctionMgr->UpdatePendingAuctions();
@@ -2359,6 +2376,7 @@ void World::Update(uint32 diff)
     /// <li> Handle AHBot operations
     if (m_timers[WUPDATE_AHBOT].Passed())
     {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update AHBot"));
         sAuctionBot->Update();
         m_timers[WUPDATE_AHBOT].Reset();
     }
@@ -2366,18 +2384,21 @@ void World::Update(uint32 diff)
     /// <li> Handle file changes
     if (m_timers[WUPDATE_CHECK_FILECHANGES].Passed())
     {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update HotSwap"));
         sScriptReloadMgr->Update();
         m_timers[WUPDATE_CHECK_FILECHANGES].Reset();
     }
 
-    /// <li> Handle session updates when the timer has passed
-    sWorldUpdateTime.RecordUpdateTimeReset();
-    UpdateSessions(diff);
-    sWorldUpdateTime.RecordUpdateTimeDuration("UpdateSessions");
+    {
+        /// <li> Handle session updates when the timer has passed
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update sessions"));
+        UpdateSessions(diff);
+    }
 
     /// <li> Update uptime table
     if (m_timers[WUPDATE_UPTIME].Passed())
     {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update uptime"));
         uint32 tmpDiff = GameTime::GetUptime();
         uint32 maxOnlinePlayers = GetMaxPlayerCount();
 
@@ -2398,6 +2419,7 @@ void World::Update(uint32 diff)
     {
         if (m_timers[WUPDATE_CLEANDB].Passed())
         {
+            TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Clean logs table"));
             m_timers[WUPDATE_CLEANDB].Reset();
 
             LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_OLD_LOGS);
@@ -2412,48 +2434,64 @@ void World::Update(uint32 diff)
 
     /// <li> Handle all other objects
     ///- Update objects when the timer has passed (maps, transport, creatures, ...)
-    sWorldUpdateTime.RecordUpdateTimeReset();
-    sMapMgr->Update(diff);
-    sWorldUpdateTime.RecordUpdateTimeDuration("UpdateMapMgr");
+    {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update maps"));
+        sMapMgr->Update(diff);
+    }
 
     if (sWorld->getBoolConfig(CONFIG_AUTOBROADCAST))
     {
         if (m_timers[WUPDATE_AUTOBROADCAST].Passed())
         {
+            TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Send autobroadcast"));
             m_timers[WUPDATE_AUTOBROADCAST].Reset();
             SendAutoBroadcast();
         }
     }
 
-    sBattlegroundMgr->Update(diff);
-    sWorldUpdateTime.RecordUpdateTimeDuration("UpdateBattlegroundMgr");
+    {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update battlegrounds"));
+        sBattlegroundMgr->Update(diff);
+    }
 
-    sOutdoorPvPMgr->Update(diff);
-    sWorldUpdateTime.RecordUpdateTimeDuration("UpdateOutdoorPvPMgr");
+    {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update outdoor pvp"));
+        sOutdoorPvPMgr->Update(diff);
+    }
 
-    sBattlefieldMgr->Update(diff);
-    sWorldUpdateTime.RecordUpdateTimeDuration("BattlefieldMgr");
+    {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update battlefields"));
+        sBattlefieldMgr->Update(diff);
+    }
 
     ///- Delete all characters which have been deleted X days before
     if (m_timers[WUPDATE_DELETECHARS].Passed())
     {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Delete old characters"));
         m_timers[WUPDATE_DELETECHARS].Reset();
         Player::DeleteOldCharacters();
     }
 
-    sGroupMgr->Update(diff);
-    sWorldUpdateTime.RecordUpdateTimeDuration("UpdateGroupMgr");
+    {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update groups"));
+        sGroupMgr->Update(diff);
+    }
 
-    sLFGMgr->Update(diff);
-    sWorldUpdateTime.RecordUpdateTimeDuration("UpdateLFGMgr");
+    {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update LFG"));
+        sLFGMgr->Update(diff);
+    }
 
-    // execute callbacks from sql queries that were queued recently
-    ProcessQueryCallbacks();
-    sWorldUpdateTime.RecordUpdateTimeDuration("ProcessQueryCallbacks");
+    {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Process query callbacks"));
+        // execute callbacks from sql queries that were queued recently
+        ProcessQueryCallbacks();
+    }
 
     ///- Erase corpses once every 20 minutes
     if (m_timers[WUPDATE_CORPSES].Passed())
     {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Remove old corpses"));
         m_timers[WUPDATE_CORPSES].Reset();
         sMapMgr->DoForAllMaps([](Map* map)
         {
@@ -2464,6 +2502,7 @@ void World::Update(uint32 diff)
     ///- Process Game events when necessary
     if (m_timers[WUPDATE_EVENTS].Passed())
     {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update game events"));
         m_timers[WUPDATE_EVENTS].Reset();                   // to give time for Update() to be processed
         uint32 nextGameEvent = sGameEventMgr->Update();
         m_timers[WUPDATE_EVENTS].SetInterval(nextGameEvent);
@@ -2473,6 +2512,7 @@ void World::Update(uint32 diff)
     ///- Ping to keep MySQL connections alive
     if (m_timers[WUPDATE_PINGDB].Passed())
     {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Ping MySQL"));
         m_timers[WUPDATE_PINGDB].Reset();
         TC_LOG_DEBUG("misc", "Ping MySQL to keep connection alive");
         CharacterDatabase.KeepAlive();
@@ -2480,8 +2520,11 @@ void World::Update(uint32 diff)
         WorldDatabase.KeepAlive();
     }
 
-    // update the instance reset times
-    sInstanceSaveMgr->Update();
+    {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update instance reset times"));
+        // update the instance reset times
+        sInstanceSaveMgr->Update();
+    }
 
     // Check for shutdown warning
     if (_guidWarn && !_guidAlert)
@@ -2493,14 +2536,23 @@ void World::Update(uint32 diff)
             SendGuidWarning();
     }
 
-    // And last, but not least handle the issued cli commands
-    ProcessCliCommands();
+    {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Process cli commands"));
+        // And last, but not least handle the issued cli commands
+        ProcessCliCommands();
+    }
 
-    sScriptMgr->OnWorldUpdate(diff);
+    {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update world scripts"));
+        sScriptMgr->OnWorldUpdate(diff);
+    }
 
-    // Stats logger update
-    sMetric->Update();
-    TC_METRIC_VALUE("update_time_diff", diff);
+    {
+        TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Update metrics"));
+        // Stats logger update
+        sMetric->Update();
+        TC_METRIC_VALUE("update_time_diff", diff);
+    }
 }
 
 void World::ForceGameEventUpdate()
@@ -3011,10 +3063,15 @@ void World::SendServerMessage(ServerMessageType type, const char *text, Player* 
 
 void World::UpdateSessions(uint32 diff)
 {
-    ///- Add new sessions
-    WorldSession* sess = nullptr;
-    while (addSessQueue.next(sess))
-        AddSession_ (sess);
+    {
+        TC_METRIC_DETAILED_NO_THRESHOLD_TIMER("world_update_time",
+            TC_METRIC_TAG("type", "Add sessions"),
+            TC_METRIC_TAG("parent_type", "Update sessions"));
+        ///- Add new sessions
+        WorldSession* sess = nullptr;
+        while (addSessQueue.next(sess))
+            AddSession_(sess);
+    }
 
     ///- Then send an update signal to remaining ones
     for (SessionMap::iterator itr = m_sessions.begin(), next; itr != m_sessions.end(); itr = next)
@@ -3025,6 +3082,9 @@ void World::UpdateSessions(uint32 diff)
         ///- and remove not active sessions from the list
         WorldSession* pSession = itr->second;
         WorldSessionFilter updater(pSession);
+
+        [[maybe_unused]] uint32 currentSessionId = itr->first;
+        TC_METRIC_DETAILED_TIMER("world_update_sessions_time", TC_METRIC_TAG("account_id", std::to_string(currentSessionId)));
 
         if (!pSession->Update(diff, updater))    // As interval = 0
         {
@@ -3118,7 +3178,7 @@ void World::UpdateRealmCharCount(uint32 accountId)
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_COUNT);
     stmt->setUInt32(0, accountId);
-    _queryProcessor.AddQuery(CharacterDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&World::_UpdateRealmCharCount, this, std::placeholders::_1)));
+    _queryProcessor.AddCallback(CharacterDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&World::_UpdateRealmCharCount, this, std::placeholders::_1)));
 }
 
 void World::_UpdateRealmCharCount(PreparedQueryResult resultCharCount)
@@ -3490,7 +3550,7 @@ uint64 World::getWorldState(uint32 index) const
 
 void World::ProcessQueryCallbacks()
 {
-    _queryProcessor.ProcessReadyQueries();
+    _queryProcessor.ProcessReadyCallbacks();
 }
 
 void World::ReloadRBAC()

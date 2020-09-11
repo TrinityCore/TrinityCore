@@ -32,21 +32,19 @@
 
 MySQLConnectionInfo::MySQLConnectionInfo(std::string const& infoString)
 {
-    Tokenizer tokens(infoString, ';');
+    std::vector<std::string_view> tokens = Trinity::Tokenize(infoString, ';', true);
 
     if (tokens.size() != 5 && tokens.size() != 6)
         return;
 
-    uint8 i = 0;
-
-    host.assign(tokens[i++]);
-    port_or_socket.assign(tokens[i++]);
-    user.assign(tokens[i++]);
-    password.assign(tokens[i++]);
-    database.assign(tokens[i++]);
+    host.assign(tokens[0]);
+    port_or_socket.assign(tokens[1]);
+    user.assign(tokens[2]);
+    password.assign(tokens[3]);
+    database.assign(tokens[4]);
 
     if (tokens.size() == 6)
-        ssl.assign(tokens[i++]);
+        ssl.assign(tokens[5]);
 }
 
 MySQLConnection::MySQLConnection(MySQLConnectionInfo& connInfo) :
@@ -65,7 +63,7 @@ m_Mysql(nullptr),
 m_connectionInfo(connInfo),
 m_connectionFlags(CONNECTION_ASYNC)
 {
-    m_worker = Trinity::make_unique<DatabaseWorker>(m_queue, this);
+    m_worker = std::make_unique<DatabaseWorker>(m_queue, this);
 }
 
 MySQLConnection::~MySQLConnection()
@@ -321,8 +319,8 @@ ResultSet* MySQLConnection::Query(char const* sql)
     if (!sql)
         return nullptr;
 
-    MySQLResult* result = NULL;
-    MySQLField* fields = NULL;
+    MySQLResult* result = nullptr;
+    MySQLField* fields = nullptr;
     uint64 rowCount = 0;
     uint32 fieldCount = 0;
 
@@ -509,7 +507,7 @@ void MySQLConnection::PrepareStatement(uint32 index, std::string const& sql, Con
             m_prepareError = true;
         }
         else
-            m_stmts[index] = Trinity::make_unique<MySQLPreparedStatement>(reinterpret_cast<MySQLStmt*>(stmt), sql);
+            m_stmts[index] = std::make_unique<MySQLPreparedStatement>(reinterpret_cast<MySQLStmt*>(stmt), sql);
     }
 }
 
@@ -545,8 +543,8 @@ bool MySQLConnection::_HandleMySQLErrno(uint32 errNo, uint8 attempts /*= 5*/)
                 mysql_close(m_Mysql);
                 m_Mysql = nullptr;
             }
+            [[fallthrough]];
         }
-        /* fallthrough */
         case CR_CONN_HOST_ERROR:
         {
             TC_LOG_INFO("sql.sql", "Attempting to reconnect to the MySQL server...");

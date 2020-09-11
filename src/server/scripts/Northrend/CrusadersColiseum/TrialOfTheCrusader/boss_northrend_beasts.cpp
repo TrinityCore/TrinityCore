@@ -490,7 +490,7 @@ struct npc_snobold_vassal : public ScriptedAI
             me->AttackStop();
             SetCombatMovement(true);
             _gormokDead = true;
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
             {
                 AttackStart(target);
                 me->GetMotionMaster()->MoveChase(target);
@@ -515,7 +515,7 @@ struct npc_snobold_vassal : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_FIRE_BOMB:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                         me->CastSpell(target, SPELL_FIRE_BOMB);
                     _events.Repeat(20s, 30s);
                     break;
@@ -770,7 +770,7 @@ struct boss_jormungarAI : public boss_northrend_beastsAI
         DoCastAOE(SPELL_HATE_TO_ZERO, true);
         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
         me->SetReactState(REACT_AGGRESSIVE);
-        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
             AttackStart(target);
 
         // if the worm was mobile before submerging, make him stationary now
@@ -834,7 +834,7 @@ struct boss_jormungarAI : public boss_northrend_beastsAI
                 me->SummonCreature(NPC_ACIDMAW, ToCCommonLoc[9]);
                 break;
             case EVENT_SPRAY:
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
                     DoCast(target, spraySpell);
                 events.Repeat(21s);
                 break;
@@ -1020,7 +1020,7 @@ struct boss_icehowl : public boss_northrend_beastsAI
                 me->GetMotionMaster()->MoveJump(ToCCommonLoc[1], 20.0f, 20.0f, POINT_MIDDLE);
                 break;
             case EVENT_SELECT_CHARGE_TARGET:
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                 {
                     DoCast(target, SPELL_FURIOUS_CHARGE_SUMMON, true);
                     me->SetTarget(target->GetGUID());
@@ -1048,7 +1048,7 @@ struct boss_icehowl : public boss_northrend_beastsAI
                 events.Repeat(20s);
                 break;
             case EVENT_ARCTIC_BREATH:
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                     DoCast(target, SPELL_ARCTIC_BREATH);
                 events.Repeat(24s);
                 break;
@@ -1079,7 +1079,7 @@ class spell_gormok_jump_to_hand : public AuraScript
             return;
 
         if (Creature* gormok = GetTarget()->ToCreature())
-            if (Unit* target = gormok->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, SnobolledTargetSelector()))
+            if (Unit* target = gormok->AI()->SelectTarget(SelectTargetMethod::Random, 0, SnobolledTargetSelector()))
             {
                 gormok->AI()->Talk(EMOTE_SNOBOLLED);
                 caster->GetAI()->DoAction(ACTION_ACTIVE_SNOBOLD);
@@ -1375,16 +1375,16 @@ void AddSC_boss_northrend_beasts()
     RegisterTrialOfTheCrusaderCreatureAI(boss_icehowl);
     RegisterTrialOfTheCrusaderCreatureAI(npc_fire_bomb);
 
-    RegisterAuraScript(spell_gormok_jump_to_hand);
-    RegisterAuraScript(spell_gormok_ride_player);
-    RegisterAuraScript(spell_gormok_snobolled);
-    RegisterAuraScript(spell_jormungars_paralytic_toxin);
+    RegisterSpellScript(spell_gormok_jump_to_hand);
+    RegisterSpellScript(spell_gormok_ride_player);
+    RegisterSpellScript(spell_gormok_snobolled);
+    RegisterSpellScript(spell_jormungars_paralytic_toxin);
     RegisterSpellScript(spell_jormungars_burning_bile);
-    RegisterAuraScript(spell_jormungars_slime_pool);
+    RegisterSpellScript(spell_jormungars_slime_pool);
     new spell_jormungars_snakes_spray("spell_jormungars_burning_spray", SPELL_BURNING_BILE);
     new spell_jormungars_snakes_spray("spell_jormungars_paralytic_spray", SPELL_PARALYTIC_TOXIN);
-    RegisterAuraScript(spell_jormungars_paralysis);
+    RegisterSpellScript(spell_jormungars_paralysis);
     RegisterSpellScript(spell_icehowl_arctic_breath);
     RegisterSpellScript(spell_icehowl_trample);
-    RegisterAuraScript(spell_icehowl_massive_crash);
+    RegisterSpellScript(spell_icehowl_massive_crash);
 }

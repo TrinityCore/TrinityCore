@@ -159,7 +159,7 @@ class instance_gundrak : public InstanceMapScript
                     DwellerGUIDs.erase(unit->GetGUID());
 
                     if (DwellerGUIDs.empty())
-                        unit->SummonCreature(NPC_ECK_THE_FEROCIOUS, EckSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300 * IN_MILLISECONDS);
+                        unit->SummonCreature(NPC_ECK_THE_FEROCIOUS, EckSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300s);
                 }
             }
 
@@ -360,7 +360,7 @@ class go_gundrak_altar : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* /*player*/) override
+            bool OnGossipHello(Player* /*player*/) override
             {
                 me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                 me->SetGoState(GO_STATE_ACTIVE);

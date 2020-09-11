@@ -65,6 +65,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void AddToWorld() override;
         void RemoveFromWorld() override;
 
+        float GetNativeObjectScale() const override;
         void SetObjectScale(float scale) override;
         void SetDisplayId(uint32 modelId) override;
 
@@ -97,8 +98,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         CreatureMovementData const& GetMovementTemplate() const;
         bool CanWalk() const { return GetMovementTemplate().IsGroundAllowed(); }
         bool CanSwim() const override { return GetMovementTemplate().IsSwimAllowed() || IsPet(); }
-        bool CanFly()  const override { return GetMovementTemplate().IsFlightAllowed(); }
-        bool CanHover() const { return GetMovementTemplate().Ground == CreatureGroundMovementType::Hover; }
+        bool CanFly()  const override { return GetMovementTemplate().IsFlightAllowed() || IsFlying(); }
+        bool CanHover() const { return GetMovementTemplate().Ground == CreatureGroundMovementType::Hover || IsHovering(); }
 
         MovementGeneratorType GetDefaultMovementType() const override { return m_defaultMovementType; }
         void SetDefaultMovementType(MovementGeneratorType mgt) { m_defaultMovementType = mgt; }
@@ -146,12 +147,12 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         CreatureAI* AI() const { return reinterpret_cast<CreatureAI*>(GetAI()); }
 
         bool SetWalk(bool enable) override;
-        bool SetDisableGravity(bool disable, bool packetOnly = false) override;
+        bool SetDisableGravity(bool disable, bool packetOnly = false, bool updateAnimationTier = true) override;
         bool SetSwim(bool enable) override;
         bool SetCanFly(bool enable, bool packetOnly = false) override;
         bool SetWaterWalking(bool enable, bool packetOnly = false) override;
         bool SetFeatherFall(bool enable, bool packetOnly = false) override;
-        bool SetHover(bool enable, bool packetOnly = false) override;
+        bool SetHover(bool enable, bool packetOnly = false, bool updateAnimationTier = true) override;
 
         uint32 GetShieldBlockValue() const override;
 
@@ -245,8 +246,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         void RemoveCorpse(bool setSpawnTime = true, bool destroyForNearbyPlayers = true);
 
-        void DespawnOrUnsummon(uint32 msTimeToDespawn = 0, Seconds forceRespawnTime = 0s);
-        void DespawnOrUnsummon(Milliseconds time, Seconds forceRespawnTime = 0s) { DespawnOrUnsummon(uint32(time.count()), forceRespawnTime); }
+        void DespawnOrUnsummon(Milliseconds timeToDespawn = 0s, Seconds forceRespawnTime = 0s);
 
         time_t const& GetRespawnTime() const { return m_respawnTime; }
         time_t GetRespawnTimeEx() const;
@@ -283,13 +283,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         virtual uint32 GetPetAutoSpellOnPos(uint8 pos) const;
         float GetPetChaseDistance() const;
 
-        void SetCannotReachTarget(bool cannotReach)
-        {
-            if (cannotReach == m_cannotReachTarget)
-                return;
-            m_cannotReachTarget = cannotReach;
-            m_cannotReachTimer = 0;
-        }
+        void SetCannotReachTarget(bool cannotReach);
         bool CanNotReachTarget() const { return m_cannotReachTarget; }
 
         void SetHomePosition(float x, float y, float z, float o) { m_homePosition.Relocate(x, y, z, o); }

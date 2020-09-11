@@ -415,7 +415,7 @@ public:
 
         void TombOfSevenEnd()
         {
-            DoRespawnGameObject(GoChestGUID, DAY);
+            DoRespawnGameObject(GoChestGUID, 24h);
             HandleGameObject(GoTombExitGUID, true);//event done, open exit door
             HandleGameObject(GoTombEnterGUID, true);//event done, open entrance door
             TombEventStarterGUID.Clear();

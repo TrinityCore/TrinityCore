@@ -1,9 +1,9 @@
 version: 2
 jobs:
-  pch_and_sql:
+  codestyle_and_sql:
     docker:
-      - image: trinitycore/circle-ci:3.3.5-buildpacks-disco
-      - image: circleci/mysql:5.7
+      - image: trinitycore/circle-ci:3.3.5-buildpacks-focal
+      - image: circleci/mysql:8
         environment:
           MYSQL_ALLOW_EMPTY_PASSWORD: yes
           MYSQL_ROOT_PASSWORD: ''
@@ -19,13 +19,6 @@ jobs:
             chmod +x contrib/check_codestyle.sh
             ./contrib/check_codestyle.sh
       - run:
-          name: Setup
-          command: |
-            mkdir bin
-            cd bin
-            cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS=dynamic -DSERVERS=1 -DNOJEM=0 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS="-Werror" -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_C_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_CXX_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_INSTALL_PREFIX=check_install
-            cd ..
-      - run:
           name: SQL checks
           command: |
             chmod +x contrib/check_updates.sh
@@ -37,18 +30,40 @@ jobs:
             ./contrib/check_updates.sh characters 3.3.5 characters 127.0.0.1
             mysql -h 127.0.0.1 -uroot world < sql/base/dev/world_database.sql
             cat sql/updates/world/3.3.5/*.sql | mysql -h 127.0.0.1 -uroot world
-            mysql -h 127.0.0.1 -uroot < sql/create/drop_mysql.sql
+  pch:
+    docker:
+      - image: trinitycore/circle-ci:3.3.5-buildpacks-focal
+    steps:
+      - run:
+          name: Checkout
+          command: |
+            /scripts/checkout.sh
+      - run:
+          name: Setup
+          command: |
+            mkdir bin
+            cd bin
+            cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS=dynamic -DSERVERS=1 -DNOJEM=0 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS="-Werror" -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_C_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_CXX_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_INSTALL_PREFIX=check_install -DBUILD_TESTING=1
+            cd ..
       - run:
           name: Build
           command: |
             cd bin
             make -j 4 -k && make install
-            cd check_install/bin
+      - run:
+          name: Unit tests
+          command: |
+            cd bin
+            make test
+      - run:
+          name: Check executables
+          command: |
+            cd bin/check_install/bin
             ./authserver --version
             ./worldserver --version
   nopch:
     docker:
-      - image: trinitycore/circle-ci:3.3.5-buildpacks-disco
+      - image: trinitycore/circle-ci:3.3.5-buildpacks-focal
     steps:
       - run:
           name: Requirements
@@ -63,7 +78,7 @@ jobs:
           keys:
             - 3.3.5-nopch-{{ .Branch }}-{{ .Revision }}
             - 3.3.5-nopch-{{ .Branch }}
-            - 3.3.5-nopch
+            - 3.3.5-nopch-3.3.5
       - run:
           name: Setup
           command: |
@@ -97,5 +112,6 @@ workflows:
   version: 2
   build_all:
     jobs:
-      - pch_and_sql
+      - codestyle_and_sql
+      - pch
       - nopch

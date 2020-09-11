@@ -41,10 +41,10 @@ class spell_generic_quest_update_entry_SpellScript : public SpellScript
         uint32 _originalEntry;
         uint32 _newEntry;
         bool _shouldAttack;
-        uint32 _despawnTime;
+        Milliseconds _despawnTime;
 
     public:
-        spell_generic_quest_update_entry_SpellScript(uint16 spellEffect, uint8 effIndex, uint32 originalEntry, uint32 newEntry, bool shouldAttack, uint32 despawnTime = 0) :
+        spell_generic_quest_update_entry_SpellScript(uint16 spellEffect, uint8 effIndex, uint32 originalEntry, uint32 newEntry, bool shouldAttack, Milliseconds despawnTime = 0s) :
             SpellScript(), _spellEffect(spellEffect), _effIndex(effIndex), _originalEntry(originalEntry),
             _newEntry(newEntry), _shouldAttack(shouldAttack), _despawnTime(despawnTime) { }
 
@@ -57,7 +57,7 @@ class spell_generic_quest_update_entry_SpellScript : public SpellScript
                     if (_shouldAttack)
                         creatureTarget->EngageWithTarget(GetCaster());
 
-                    if (_despawnTime)
+                    if (_despawnTime != 0s)
                         creatureTarget->DespawnOrUnsummon(_despawnTime);
                 }
         }
@@ -208,8 +208,9 @@ enum Quests6124_6129Data
     NPC_CURED_GAZELLE   = 12297,
     NPC_SICKLY_DEER     = 12298,
     NPC_CURED_DEER      = 12299,
-    DESPAWN_TIME        = 30000
 };
+
+constexpr Milliseconds Quest6124_6129_DESPAWN_TIME = 30s;
 
 class spell_q6124_6129_apply_salve : public SpellScriptLoader
 {
@@ -246,7 +247,7 @@ class spell_q6124_6129_apply_salve : public SpellScriptLoader
                         if (newEntry)
                         {
                             creatureTarget->UpdateEntry(newEntry);
-                            creatureTarget->DespawnOrUnsummon(DESPAWN_TIME);
+                            creatureTarget->DespawnOrUnsummon(Quest6124_6129_DESPAWN_TIME);
                             caster->KilledMonsterCredit(newEntry);
                         }
                     }
@@ -955,7 +956,7 @@ class spell_q9874_liquid_fire : public SpellScriptLoader
                     {
                         caster->KilledMonsterCredit(NPC_VILLAGER_KILL_CREDIT);
                         target->CastSpell(target, SPELL_FLAMES, true);
-                        target->DespawnOrUnsummon(60000);
+                        target->DespawnOrUnsummon(60s);
                     }
             }
 
@@ -999,7 +1000,7 @@ class spell_q12805_lifeblood_dummy : public SpellScriptLoader
                 {
                     caster->KilledMonsterCredit(NPC_SHARD_KILL_CREDIT);
                     target->CastSpell(target, uint32(GetEffectValue()), true);
-                    target->DespawnOrUnsummon(2000);
+                    target->DespawnOrUnsummon(2s);
                 }
             }
 
@@ -2227,7 +2228,7 @@ class spell_q12690_burst_at_the_seams_52510 : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->ToCreature()->DespawnOrUnsummon(2 * IN_MILLISECONDS);
+        GetCaster()->ToCreature()->DespawnOrUnsummon(2s);
     }
 
     void Register() override
@@ -2965,8 +2966,8 @@ void AddSC_quest_spell_scripts()
     new spell_q13011_bear_flank_master();
     new spell_q13086_cannons_target();
     RegisterSpellScript(spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59576);
-    RegisterAuraScript(spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59579);
-    RegisterAuraScript(spell_q13264_q13276_q13288_q13289_bloated_abom_feign_death);
+    RegisterSpellScript(spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59579);
+    RegisterSpellScript(spell_q13264_q13276_q13288_q13289_bloated_abom_feign_death);
     RegisterSpellScript(spell_q13264_q13276_q13288_q13289_area_restrict_abom);
     RegisterSpellScript(spell_q13264_q13276_q13288_q13289_assign_credit_to_master);
     RegisterSpellScript(spell_q12690_burst_at_the_seams_52510);

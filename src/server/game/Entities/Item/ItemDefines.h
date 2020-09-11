@@ -20,6 +20,7 @@
 
 #include "Define.h"
 
+// EnumUtils: DESCRIBE THIS
 enum InventoryResult : uint8
 {
     EQUIP_ERR_OK                                 = 0,
@@ -113,6 +114,7 @@ enum InventoryResult : uint8
     EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_EQUIPPED_EXCEEDED  = 89
 };
 
+// EnumUtils: DESCRIBE THIS
 enum BuyResult
 {
     BUY_ERR_CANT_FIND_ITEM                      = 0,
@@ -126,15 +128,16 @@ enum BuyResult
     BUY_ERR_REPUTATION_REQUIRE                  = 12
 };
 
+// EnumUtils: DESCRIBE THIS
 enum SellResult
 {
-    SELL_ERR_CANT_FIND_ITEM                      = 1,       // The item was not found.
-    SELL_ERR_CANT_SELL_ITEM                      = 2,       // The merchant doesn't want that item.
-    SELL_ERR_CANT_FIND_VENDOR                    = 3,       // The merchant doesn't like you.
-    SELL_ERR_YOU_DONT_OWN_THAT_ITEM              = 4,       // You don't own that item.
-    SELL_ERR_UNK                                 = 5,       // nothing appears...
-    SELL_ERR_ONLY_EMPTY_BAG                      = 6,       // You can only do that with empty bags.
-    SELL_ERR_CANT_SELL_TO_THIS_MERCHANT          = 7        // You cannot sell items to this merchant.
+    SELL_ERR_CANT_FIND_ITEM                      = 1,       // DESCRIPTION The item was not found.
+    SELL_ERR_CANT_SELL_ITEM                      = 2,       // DESCRIPTION The merchant doesn't want that item.
+    SELL_ERR_CANT_FIND_VENDOR                    = 3,       // DESCRIPTION The merchant doesn't like you.
+    SELL_ERR_YOU_DONT_OWN_THAT_ITEM              = 4,       // DESCRIPTION You don't own that item.
+    SELL_ERR_UNK                                 = 5,       // DESCRIPTION nothing appears...
+    SELL_ERR_ONLY_EMPTY_BAG                      = 6,       // DESCRIPTION You can only do that with empty bags.
+    SELL_ERR_CANT_SELL_TO_THIS_MERCHANT          = 7        // DESCRIPTION You cannot sell items to this merchant.
 };
 
 // -1 from client enchantment slot number

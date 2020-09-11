@@ -107,7 +107,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
     else
     {
         /// @todo find correct opcode
-        if (_player->GetLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+        if (!_player->IsMaxLevel())
         {
             SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, "", _player->GetName(), ERR_ARENA_TEAM_TARGET_TOO_LOW_S);
             return;
@@ -217,7 +217,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
     sPetitionMgr->AddPetition(charter->GetGUID(), _player->GetGUID(), name, type, false);
 }
 
-void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recvData)
+void WorldSession::HandlePetitionShowSignatures(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "Received opcode CMSG_PETITION_SHOW_SIGNATURES");
 
@@ -258,7 +258,7 @@ void WorldSession::SendPetitionSigns(Petition const* petition, Player* sendTo)
     sendTo->SendDirectMessage(&data);
 }
 
-void WorldSession::HandlePetitionQueryOpcode(WorldPacket& recvData)
+void WorldSession::HandleQueryPetition(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "Received opcode CMSG_PETITION_QUERY");   // ok
 
@@ -319,7 +319,7 @@ void WorldSession::SendPetitionQueryOpcode(ObjectGuid petitionguid)
     SendPacket(&data);
 }
 
-void WorldSession::HandlePetitionRenameOpcode(WorldPacket& recvData)
+void WorldSession::HandlePetitionRenameGuild(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "Received opcode MSG_PETITION_RENAME");   // ok
 
@@ -380,7 +380,7 @@ void WorldSession::HandlePetitionRenameOpcode(WorldPacket& recvData)
     SendPacket(&data);
 }
 
-void WorldSession::HandlePetitionSignOpcode(WorldPacket& recvData)
+void WorldSession::HandleSignPetition(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "Received opcode CMSG_PETITION_SIGN");    // ok
 
@@ -398,7 +398,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket& recvData)
 
     ObjectGuid ownerGuid = petition->OwnerGuid;
     CharterTypes type = petition->PetitionType;
-    uint8 signs = petition->Signatures.size();
+    uint8 signs = uint8(petition->Signatures.size());
 
     ObjectGuid playerGuid = _player->GetGUID();
     if (ownerGuid == playerGuid)
@@ -416,7 +416,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket& recvData)
 
     if (type != GUILD_CHARTER_TYPE)
     {
-        if (_player->GetLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+        if (!_player->IsMaxLevel())
         {
             SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, "", _player->GetName(), ERR_ARENA_TEAM_TARGET_TOO_LOW_S);
             return;
@@ -490,7 +490,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket& recvData)
         owner->SendDirectMessage(&data);
 }
 
-void WorldSession::HandlePetitionDeclineOpcode(WorldPacket& recvData)
+void WorldSession::HandleDeclinePetition(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "Received opcode MSG_PETITION_DECLINE");  // ok
 
@@ -544,7 +544,7 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket& recvData)
 
     if (type != GUILD_CHARTER_TYPE)
     {
-        if (player->GetLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+        if (!player->IsMaxLevel())
         {
             // player is too low level to join an arena team
             SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, player->GetName(), "", ERR_ARENA_TEAM_TARGET_TOO_LOW_S);

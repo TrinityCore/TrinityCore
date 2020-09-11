@@ -760,7 +760,7 @@ enum TrinityStrings
     LANG_ARENA_ERROR_NAME_EXISTS          = 858,
     LANG_ARENA_ERROR_SIZE                 = 859,
     LANG_ARENA_ERROR_COMBAT               = 860,
-    LANG_AREAN_ERROR_NAME_NOT_FOUND       = 861,
+    LANG_ARENA_ERROR_NAME_NOT_FOUND       = 861,
     LANG_ARENA_ERROR_NOT_MEMBER           = 862,
     LANG_ARENA_ERROR_CAPTAIN              = 863,
     LANG_ARENA_CREATE                     = 864,
@@ -1069,6 +1069,9 @@ enum TrinityStrings
     // unused 5081
     // unused 5082
     LANG_OBJECTINFO_AITYPE                = 5083,
+    LANG_NPCINFO_UNIT_FIELD_FLAGS_2       = 5084, // master branch ONLY
+    LANG_NPCINFO_UNIT_FIELD_FLAGS_3       = 5085, // master branch ONLY
+    LANG_NPCINFO_NPC_FLAGS                = 5086, // master branch ONLY
 
     // Room for more Trinity strings        5084-6603
 

@@ -15,13 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "VMapFactory.h"
-#include "VMapManager2.h"
-#include "VMapDefinitions.h"
-#include "WorldModel.h"
 #include "GameObjectModel.h"
 #include "Log.h"
+#include "MapTree.h"
 #include "Timer.h"
+#include "VMapDefinitions.h"
+#include "VMapFactory.h"
+#include "VMapManager2.h"
+#include "WorldModel.h"
 
 using G3D::Vector3;
 using G3D::Ray;
@@ -99,7 +100,7 @@ void LoadGameObjectModelList(std::string const& dataPath)
 GameObjectModel::~GameObjectModel()
 {
     if (iModel)
-        ((VMAP::VMapManager2*)VMAP::VMapFactory::createOrGetVMapManager())->releaseModelInstance(name);
+        VMAP::VMapFactory::createOrGetVMapManager()->releaseModelInstance(name);
 }
 
 bool GameObjectModel::initialize(std::unique_ptr<GameObjectModelOwnerBase> modelOwner, std::string const& dataPath)
@@ -116,7 +117,7 @@ bool GameObjectModel::initialize(std::unique_ptr<GameObjectModelOwnerBase> model
         return false;
     }
 
-    iModel = ((VMAP::VMapManager2*)VMAP::VMapFactory::createOrGetVMapManager())->acquireModelInstance(dataPath + "vmaps/", it->second.name);
+    iModel = VMAP::VMapFactory::createOrGetVMapManager()->acquireModelInstance(dataPath + "vmaps/", it->second.name);
 
     if (!iModel)
         return false;
@@ -146,6 +147,7 @@ bool GameObjectModel::initialize(std::unique_ptr<GameObjectModelOwnerBase> model
 #endif
 
     owner = std::move(modelOwner);
+    isWmo = it->second.isWmo;
     return true;
 }
 
@@ -181,6 +183,69 @@ bool GameObjectModel::intersectRay(const G3D::Ray& ray, float& MaxDist, bool Sto
         MaxDist = distance;
     }
     return hit;
+}
+
+void GameObjectModel::intersectPoint(G3D::Vector3 const& point, VMAP::AreaInfo& info, uint32 ph_mask) const
+{
+    if (!(phasemask & ph_mask) || !owner->IsSpawned() || !isMapObject())
+        return;
+
+    if (!iBound.contains(point))
+        return;
+
+    // child bounds are defined in object space:
+    Vector3 pModel = iInvRot * (point - iPos) * iInvScale;
+    Vector3 zDirModel = iInvRot * Vector3(0.f, 0.f, -1.f);
+    float zDist;
+    if (iModel->IntersectPoint(pModel, zDirModel, zDist, info))
+    {
+        Vector3 modelGround = pModel + zDist * zDirModel;
+        float world_Z = ((modelGround * iInvRot) * iScale + iPos).z;
+        if (info.ground_Z < world_Z)
+            info.ground_Z = world_Z;
+    }
+}
+
+bool GameObjectModel::GetLocationInfo(G3D::Vector3 const& point, VMAP::LocationInfo& info, uint32 ph_mask) const
+{
+    if (!(phasemask & ph_mask) || !owner->IsSpawned() || !isMapObject())
+        return false;
+
+    if (!iBound.contains(point))
+        return false;
+
+    // child bounds are defined in object space:
+    Vector3 pModel = iInvRot * (point - iPos) * iInvScale;
+    Vector3 zDirModel = iInvRot * Vector3(0.f, 0.f, -1.f);
+    float zDist;
+    if (iModel->GetLocationInfo(pModel, zDirModel, zDist, info))
+    {
+        Vector3 modelGround = pModel + zDist * zDirModel;
+        float world_Z = ((modelGround * iInvRot) * iScale + iPos).z;
+        if (info.ground_Z < world_Z)
+        {
+            info.ground_Z = world_Z;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool GameObjectModel::GetLiquidLevel(G3D::Vector3 const& point, VMAP::LocationInfo& info, float& liqHeight) const
+{
+    // child bounds are defined in object space:
+    Vector3 pModel = iInvRot * (point - iPos) * iInvScale;
+    //Vector3 zDirModel = iInvRot * Vector3(0.f, 0.f, -1.f);
+    float zDist;
+    if (info.hitModel->GetLiquidLevel(pModel, zDist))
+    {
+        // calculate world height (zDist in model coords):
+        // assume WMO not tilted (wouldn't make much sense anyway)
+        liqHeight = zDist * iScale + iPos.z;
+        return true;
+    }
+    return false;
 }
 
 bool GameObjectModel::UpdatePosition()

@@ -16,9 +16,11 @@
  */
 
 #include "BattlefieldMgr.h"
-#include "BattlefieldWG.h"
+#include "DatabaseEnv.h"
+#include "ObjectMgr.h"
 #include "Log.h"
 #include "Player.h"
+#include "ScriptMgr.h"
 
 BattlefieldMgr::BattlefieldMgr()
 {
@@ -41,34 +43,46 @@ BattlefieldMgr* BattlefieldMgr::instance()
 
 void BattlefieldMgr::InitBattlefield()
 {
-    Battlefield* wg = new BattlefieldWG();
-    // respawn, init variables
-    if (!wg->SetupBattlefield())
+    uint32 oldMSTime = getMSTime();
+
+    uint32 count = 0;
+
+    if (QueryResult result = WorldDatabase.Query("SELECT TypeId, ScriptName FROM battlefield_template"))
     {
-        TC_LOG_INFO("bg.battlefield", "Battlefield: Wintergrasp init failed.");
-        delete wg;
-    }
-    else
-    {
-        _battlefieldSet.push_back(wg);
-        TC_LOG_INFO("bg.battlefield", "Battlefield: Wintergrasp successfully initiated.");
+        do
+        {
+            Field* fields = result->Fetch();
+
+            uint32 typeId = fields[0].GetUInt8();
+
+            if (typeId >= BATTLEFIELD_MAX)
+            {
+                TC_LOG_ERROR("sql.sql", "BattlefieldMgr::InitBattlefield: Invalid TypeId value %u in battlefield_template, skipped.", typeId);
+                continue;
+            }
+
+            uint32 scriptId = sObjectMgr->GetScriptId(fields[1].GetString());
+
+            Battlefield* bf = sScriptMgr->CreateBattlefield(scriptId);
+            if (!bf)
+                continue;
+
+            if (!bf->SetupBattlefield())
+            {
+                TC_LOG_INFO("bg.battlefield", "Setting up battlefield with TypeId %u failed.", typeId);
+                delete bf;
+            }
+            else
+            {
+                _battlefieldSet.push_back(bf);
+                TC_LOG_INFO("bg.battlefield", "Setting up battlefield with TypeId %u succeeded.", typeId);
+            }
+
+            ++count;
+        } while (result->NextRow());
     }
 
-    /*
-    For Cataclysm: Tol Barad
-    Battlefield* tb = new BattlefieldTB;
-    // respawn, init variables
-    if (!tb->SetupBattlefield())
-    {
-        TC_LOG_DEBUG("bg.battlefield", "Battlefield: Tol Barad init failed.");
-        delete tb;
-    }
-    else
-    {
-        _battlefieldSet.push_back(tb);
-        TC_LOG_DEBUG("bg.battlefield", "Battlefield: Tol Barad successfully initiated.");
-    }
-    */
+    TC_LOG_INFO("server.loading", ">> Loaded %u battlefields in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void BattlefieldMgr::AddZone(uint32 zoneId, Battlefield* bf)

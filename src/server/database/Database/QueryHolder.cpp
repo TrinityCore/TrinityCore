@@ -92,3 +92,14 @@ bool SQLQueryHolderTask::Execute()
     m_result.set_value(m_holder);
     return true;
 }
+
+bool SQLQueryHolderCallback::InvokeIfReady()
+{
+    if (m_future.valid() && m_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+    {
+        m_callback(m_future.get());
+        return true;
+    }
+
+    return false;
+}

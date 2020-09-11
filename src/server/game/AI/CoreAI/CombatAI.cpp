@@ -56,31 +56,33 @@ void CombatAI::InitializeAI()
 {
     for (uint32 spell : me->m_spells)
         if (spell && sSpellMgr->GetSpellInfo(spell))
-            Spells.push_back(spell);
+            _spells.push_back(spell);
 
     CreatureAI::InitializeAI();
 }
 
 void CombatAI::Reset()
 {
-    Events.Reset();
+    _events.Reset();
 }
 
 void CombatAI::JustDied(Unit* killer)
 {
-    for (uint32 spell : Spells)
+    for (uint32 spell : _spells)
+    {
         if (AISpellInfo[spell].condition == AICOND_DIE)
             me->CastSpell(killer, spell, true);
+    }
 }
 
 void CombatAI::JustEngagedWith(Unit* who)
 {
-    for (uint32 spell : Spells)
+    for (uint32 spell : _spells)
     {
         if (AISpellInfo[spell].condition == AICOND_AGGRO)
             me->CastSpell(who, spell, false);
         else if (AISpellInfo[spell].condition == AICOND_COMBAT)
-            Events.ScheduleEvent(spell, AISpellInfo[spell].cooldown + rand32() % AISpellInfo[spell].cooldown);
+            _events.ScheduleEvent(spell, Milliseconds(AISpellInfo[spell].cooldown + rand32() % AISpellInfo[spell].cooldown));
     }
 }
 
@@ -89,15 +91,15 @@ void CombatAI::UpdateAI(uint32 diff)
     if (!UpdateVictim())
         return;
 
-    Events.Update(diff);
+    _events.Update(diff);
 
     if (me->HasUnitState(UNIT_STATE_CASTING))
         return;
 
-    if (uint32 spellId = Events.ExecuteEvent())
+    if (uint32 spellId = _events.ExecuteEvent())
     {
         DoCast(spellId);
-        Events.ScheduleEvent(spellId, AISpellInfo[spellId].cooldown + rand32() % AISpellInfo[spellId].cooldown);
+        _events.ScheduleEvent(spellId, Milliseconds(AISpellInfo[spellId].cooldown + rand32() % AISpellInfo[spellId].cooldown));
     }
     else
         DoMeleeAttackIfReady();
@@ -105,7 +107,7 @@ void CombatAI::UpdateAI(uint32 diff)
 
 void CombatAI::SpellInterrupted(uint32 spellId, uint32 unTimeMs)
 {
-    Events.RescheduleEvent(spellId, unTimeMs);
+    _events.RescheduleEvent(spellId, Milliseconds(unTimeMs));
 }
 
 /////////////////
@@ -118,9 +120,11 @@ void CasterAI::InitializeAI()
 
     _attackDistance = 30.0f;
 
-    for (uint32 spell : Spells)
+    for (uint32 spell : _spells)
+    {
         if (AISpellInfo[spell].condition == AICOND_COMBAT && _attackDistance > GetAISpellInfo(spell)->maxRange)
             _attackDistance = GetAISpellInfo(spell)->maxRange;
+    }
 
     if (_attackDistance == 30.0f)
         _attackDistance = MELEE_RANGE;
@@ -128,12 +132,12 @@ void CasterAI::InitializeAI()
 
 void CasterAI::JustEngagedWith(Unit* who)
 {
-    if (Spells.empty())
+    if (_spells.empty())
         return;
 
-    uint32 spell = rand32() % Spells.size();
+    uint32 spell = rand32() % _spells.size();
     uint32 count = 0;
-    for (SpellVector::iterator itr = Spells.begin(); itr != Spells.end(); ++itr, ++count)
+    for (auto itr = _spells.begin(); itr != _spells.end(); ++itr, ++count)
     {
         if (AISpellInfo[*itr].condition == AICOND_AGGRO)
             me->CastSpell(who, *itr, false);
@@ -142,10 +146,10 @@ void CasterAI::JustEngagedWith(Unit* who)
             uint32 cooldown = GetAISpellInfo(*itr)->realCooldown;
             if (count == spell)
             {
-                DoCast(Spells[spell]);
+                DoCast(_spells[spell]);
                 cooldown += me->GetCurrentSpellCastTime(*itr);
             }
-            Events.ScheduleEvent(*itr, cooldown);
+            _events.ScheduleEvent(*itr, Milliseconds(cooldown));
         }
     }
 }
@@ -155,7 +159,7 @@ void CasterAI::UpdateAI(uint32 diff)
     if (!UpdateVictim())
         return;
 
-    Events.Update(diff);
+    _events.Update(diff);
 
     if (me->GetVictim() && me->EnsureVictim()->HasBreakableByDamageCrowdControlAura(me))
     {
@@ -166,11 +170,11 @@ void CasterAI::UpdateAI(uint32 diff)
     if (me->HasUnitState(UNIT_STATE_CASTING))
         return;
 
-    if (uint32 spellId = Events.ExecuteEvent())
+    if (uint32 spellId = _events.ExecuteEvent())
     {
         DoCast(spellId);
         uint32 casttime = me->GetCurrentSpellCastTime(spellId);
-        Events.ScheduleEvent(spellId, (casttime ? casttime : 500) + GetAISpellInfo(spellId)->realCooldown);
+        _events.ScheduleEvent(spellId, (casttime ? Milliseconds(casttime) : 500ms) + Milliseconds(GetAISpellInfo(spellId)->realCooldown));
     }
 }
 
@@ -315,8 +319,9 @@ void VehicleAI::CheckConditions(uint32 diff)
     {
         if (Vehicle* vehicleKit = me->GetVehicleKit())
         {
-            for (std::pair<int8 const, VehicleSeat>& Seat : vehicleKit->Seats)
-                if (Unit* passenger = ObjectAccessor::GetUnit(*me, Seat.second.Passenger.Guid))
+            for (auto const& [i, vehicleSeat] : vehicleKit->Seats)
+            {
+                if (Unit* passenger = ObjectAccessor::GetUnit(*me, vehicleSeat.Passenger.Guid))
                 {
                     if (Player* player = passenger->ToPlayer())
                     {
@@ -327,6 +332,7 @@ void VehicleAI::CheckConditions(uint32 diff)
                         }
                     }
                 }
+            }
         }
 
         _conditionsTimer = VEHICLE_CONDITION_CHECK_TIME;

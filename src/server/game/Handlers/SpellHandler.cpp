@@ -241,7 +241,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
     {
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_GIFT_BY_ITEM);
         stmt->setUInt32(0, item->GetGUID().GetCounter());
-        _queryProcessor.AddQuery(CharacterDatabase.AsyncQuery(stmt)
+        _queryProcessor.AddCallback(CharacterDatabase.AsyncQuery(stmt)
             .WithPreparedCallback(std::bind(&WorldSession::HandleOpenWrappedItemCallback, this, item->GetPos(), item->GetGUID(), std::placeholders::_1)));
     }
     else
@@ -544,11 +544,23 @@ void WorldSession::HandleCancelAutoRepeatSpellOpcode(WorldPackets::Spells::Cance
     _player->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
 }
 
-void WorldSession::HandleCancelChanneling(WorldPackets::Spells::CancelChannelling& /*cancelChanneling*/)
+void WorldSession::HandleCancelChanneling(WorldPackets::Spells::CancelChannelling& cancelChanneling)
 {
     // ignore for remote control state (for player case)
     Unit* mover = _player->GetUnitBeingMoved();
     if (mover != _player && mover->GetTypeId() == TYPEID_PLAYER)
+        return;
+
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(cancelChanneling.ChannelSpell);
+    if (!spellInfo)
+        return;
+
+    // not allow remove spells with attr SPELL_ATTR0_CANT_CANCEL
+    if (spellInfo->HasAttribute(SPELL_ATTR0_CANT_CANCEL))
+        return;
+
+    Spell* spell = mover->GetCurrentSpell(CURRENT_CHANNELED_SPELL);
+    if (!spell || spell->GetSpellInfo()->Id != spellInfo->Id)
         return;
 
     mover->InterruptSpell(CURRENT_CHANNELED_SPELL);

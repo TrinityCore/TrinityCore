@@ -1969,7 +1969,7 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
     // check for min / max count
     uint32 memberscount = GetMembersCount();
 
-    if (memberscount > bgEntry->maxGroupSize)                // no MinPlayerCount for battlegrounds
+    if (memberscount > bgEntry->MaxGroupSize)                // no MinPlayerCount for battlegrounds
         return ERR_BATTLEGROUND_NONE;                        // ERR_GROUP_JOIN_BATTLEGROUND_TOO_MANY handled on client side
 
     // get a player as reference, to compare other players' stats to (arena team id, queue id based on level, etc.)
@@ -2002,7 +2002,7 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
         if (member->GetTeam() != team)
             return ERR_BATTLEGROUND_JOIN_TIMED_OUT;
         // not in the same battleground level braket, don't let join
-        PvPDifficultyEntry const* memberBracketEntry = GetBattlegroundBracketByLevel(bracketEntry->mapId, member->GetLevel());
+        PvPDifficultyEntry const* memberBracketEntry = GetBattlegroundBracketByLevel(bracketEntry->MapID, member->GetLevel());
         if (memberBracketEntry != bracketEntry)
             return ERR_BATTLEGROUND_JOIN_RANGE_INDEX;
         // don't let join rated matches if the arena team id doesn't match
@@ -2132,7 +2132,7 @@ void Group::ResetInstances(uint8 method, bool isRaid, Player* SendMsgTo)
         if (method == INSTANCE_RESET_ALL)
         {
             // the "reset all instances" method can only reset normal maps
-            if (entry->map_type == MAP_RAID || diff == DUNGEON_DIFFICULTY_HEROIC)
+            if (entry->InstanceType == MAP_RAID || diff == DUNGEON_DIFFICULTY_HEROIC)
             {
                 ++itr;
                 continue;
@@ -2184,7 +2184,7 @@ void Group::ResetInstances(uint8 method, bool isRaid, Player* SendMsgTo)
                     else
                     {
                         WorldSafeLocsEntry const * graveyardLocation = sObjectMgr->GetClosestGraveyard(instanceEntrance->target_X, instanceEntrance->target_Y, instanceEntrance->target_Z, instanceEntrance->target_mapId, SendMsgTo->GetTeam());
-                        uint32 const zoneId = sMapMgr->GetZoneId(graveyardLocation->map_id, graveyardLocation->x, graveyardLocation->y, graveyardLocation->z);
+                        uint32 const zoneId = sMapMgr->GetZoneId(PHASEMASK_NORMAL, graveyardLocation->Continent, graveyardLocation->Loc.X, graveyardLocation->Loc.Y, graveyardLocation->Loc.Z);
 
                         for (MemberSlot const& member : GetMemberSlots())
                         {
@@ -2192,11 +2192,11 @@ void Group::ResetInstances(uint8 method, bool isRaid, Player* SendMsgTo)
                             {
                                 CharacterDatabasePreparedStatement*stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_POSITION_BY_MAPID);
 
-                                stmt->setFloat(0, graveyardLocation->x);
-                                stmt->setFloat(1, graveyardLocation->y);
-                                stmt->setFloat(2, graveyardLocation->z);
+                                stmt->setFloat(0, graveyardLocation->Loc.X);
+                                stmt->setFloat(1, graveyardLocation->Loc.Y);
+                                stmt->setFloat(2, graveyardLocation->Loc.Z);
                                 stmt->setFloat(3, instanceEntrance->target_Orientation);
-                                stmt->setUInt32(4, graveyardLocation->map_id);
+                                stmt->setUInt32(4, graveyardLocation->Continent);
                                 stmt->setUInt32(5, zoneId);
                                 stmt->setUInt32(6, member.guid.GetCounter());
                                 stmt->setUInt32(7, map->GetId());
@@ -2251,7 +2251,7 @@ InstanceGroupBind* Group::GetBoundInstance(MapEntry const* mapEntry)
         return nullptr;
 
     Difficulty difficulty = GetDifficulty(mapEntry->IsRaid());
-    return GetBoundInstance(difficulty, mapEntry->MapID);
+    return GetBoundInstance(difficulty, mapEntry->ID);
 }
 
 InstanceGroupBind* Group::GetBoundInstance(Difficulty difficulty, uint32 mapId)

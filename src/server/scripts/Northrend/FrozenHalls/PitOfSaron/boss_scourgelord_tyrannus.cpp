@@ -210,9 +210,9 @@ class boss_tyrannus : public CreatureScript
                 {
                     Talk(SAY_TYRANNUS_INTRO_1);
                     events.SetPhase(PHASE_INTRO);
-                    events.ScheduleEvent(EVENT_INTRO_1, 14000, 0, PHASE_INTRO);
-                    events.ScheduleEvent(EVENT_INTRO_2, 22000, 0, PHASE_INTRO);
-                    events.ScheduleEvent(EVENT_INTRO_3, 34000, 0, PHASE_INTRO);
+                    events.ScheduleEvent(EVENT_INTRO_1, 14s, 0, PHASE_INTRO);
+                    events.ScheduleEvent(EVENT_INTRO_2, 22s, 0, PHASE_INTRO);
+                    events.ScheduleEvent(EVENT_INTRO_3, 34s, 0, PHASE_INTRO);
                     events.ScheduleEvent(EVENT_COMBAT_START, 36s, 0, PHASE_INTRO);
                     instance->SetBossState(DATA_TYRANNUS, IN_PROGRESS);
                 }
@@ -252,7 +252,7 @@ class boss_tyrannus : public CreatureScript
                             events.ScheduleEvent(EVENT_MARK_OF_RIMEFANG, 25s, 27s);
                             break;
                         case EVENT_OVERLORD_BRAND:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
                                 DoCast(target, SPELL_OVERLORD_BRAND);
                             events.ScheduleEvent(EVENT_OVERLORD_BRAND, 11s, 12s);
                             break;
@@ -268,7 +268,7 @@ class boss_tyrannus : public CreatureScript
                             break;
                         case EVENT_MARK_OF_RIMEFANG:
                             Talk(SAY_MARK_RIMEFANG_1);
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
                             {
                                 Talk(SAY_MARK_RIMEFANG_2, target);
                                 DoCast(target, SPELL_MARK_OF_RIMEFANG);
@@ -331,7 +331,7 @@ class boss_rimefang : public CreatureScript
                 {
                     _events.SetPhase(PHASE_COMBAT);
                     DoZoneInCombat();
-                    _events.ScheduleEvent(EVENT_MOVE_NEXT, 500, 0, PHASE_COMBAT);
+                    _events.ScheduleEvent(EVENT_MOVE_NEXT, 500ms, 0, PHASE_COMBAT);
                     _events.ScheduleEvent(EVENT_ICY_BLAST, 15s, 0, PHASE_COMBAT);
                 }
                 else if (actionId == ACTION_END_COMBAT)
@@ -366,7 +366,7 @@ class boss_rimefang : public CreatureScript
                             _events.ScheduleEvent(EVENT_MOVE_NEXT, 2s, 0, PHASE_COMBAT);
                             break;
                         case EVENT_ICY_BLAST:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                 DoCast(target, SPELL_ICY_BLAST);
                             _events.ScheduleEvent(EVENT_ICY_BLAST, 15s, 0, PHASE_COMBAT);
                             break;
@@ -522,7 +522,7 @@ class spell_tyrannus_rimefang_icy_blast : public SpellScriptLoader
             {
                 PreventHitDefaultEffect(effIndex);
                 if (Position const* pos = GetHitDest())
-                    if (TempSummon* summon = GetCaster()->SummonCreature(NPC_ICY_BLAST, *pos, TEMPSUMMON_TIMED_DESPAWN, 60000))
+                    if (TempSummon* summon = GetCaster()->SummonCreature(NPC_ICY_BLAST, *pos, TEMPSUMMON_TIMED_DESPAWN, 1min))
                         summon->CastSpell(summon, SPELL_ICY_BLAST_AURA, true);
             }
 

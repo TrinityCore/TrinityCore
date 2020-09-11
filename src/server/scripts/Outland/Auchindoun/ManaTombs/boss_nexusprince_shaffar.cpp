@@ -91,9 +91,9 @@ class boss_nexusprince_shaffar : public CreatureScript
                 float posX, posY, posZ, angle;
                 me->GetHomePosition(posX, posY, posZ, angle);
 
-                me->SummonCreature(NPC_BEACON, posX - dist, posY - dist, posZ, angle, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 7200000);
-                me->SummonCreature(NPC_BEACON, posX - dist, posY + dist, posZ, angle, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 7200000);
-                me->SummonCreature(NPC_BEACON, posX + dist, posY, posZ, angle, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 7200000);
+                me->SummonCreature(NPC_BEACON, posX - dist, posY - dist, posZ, angle, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2h);
+                me->SummonCreature(NPC_BEACON, posX - dist, posY + dist, posZ, angle, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2h);
+                me->SummonCreature(NPC_BEACON, posX + dist, posY, posZ, angle, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2h);
             }
 
             void MoveInLineOfSight(Unit* who) override
@@ -113,7 +113,7 @@ class boss_nexusprince_shaffar : public CreatureScript
                 events.ScheduleEvent(EVENT_BEACON, 10s);
                 events.ScheduleEvent(EVENT_FIREBALL, 8s);
                 events.ScheduleEvent(EVENT_FROSTBOLT, 4s);
-                events.ScheduleEvent(EVENT_FROST_NOVA, 15000);
+                events.ScheduleEvent(EVENT_FROST_NOVA, 15s);
             }
 
             void JustSummoned(Creature* summoned) override
@@ -122,7 +122,7 @@ class boss_nexusprince_shaffar : public CreatureScript
                 {
                     summoned->CastSpell(summoned, SPELL_ETHEREAL_BEACON_VISUAL, false);
 
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         summoned->AI()->AttackStart(target);
                 }
 
@@ -172,7 +172,7 @@ class boss_nexusprince_shaffar : public CreatureScript
                         break;
                     case EVENT_FROST_NOVA:
                         DoCast(me, SPELL_FROSTNOVA);
-                        events.ScheduleEvent(EVENT_FROST_NOVA, urand(17500, 25000));
+                        events.ScheduleEvent(EVENT_FROST_NOVA, 17500ms, 25s);
                         events.ScheduleEvent(EVENT_BLINK, 1500ms);
                         break;
                     default:
@@ -216,7 +216,7 @@ class npc_ethereal_beacon : public CreatureScript
                     if (!shaffar->IsInCombat())
                         shaffar->AI()->AttackStart(who);
 
-                _events.ScheduleEvent(EVENT_APPRENTICE, DUNGEON_MODE(20000, 10000));
+                _events.ScheduleEvent(EVENT_APPRENTICE, DUNGEON_MODE(20s, 10s));
                 _events.ScheduleEvent(EVENT_ARCANE_BOLT, 1s);
             }
 

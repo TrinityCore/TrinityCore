@@ -297,7 +297,7 @@ public:
             {
                 if (!me->IsNonMeleeSpellCast(false))
                 {
-                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                    Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true);
                     if (!target)
                         return;
 
@@ -339,7 +339,7 @@ public:
                         DoCast(me, SPELL_AOE_CS);
                         break;
                     case 1:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
                             DoCast(target, SPELL_CHAINSOFICE);
                         break;
                 }
@@ -399,7 +399,7 @@ public:
                     case SUPER_BLIZZARD:
                         Talk(SAY_BLIZZARD);
 
-                        if (Creature* pSpawn = me->SummonCreature(CREATURE_ARAN_BLIZZARD, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 25000))
+                        if (Creature* pSpawn = me->SummonCreature(CREATURE_ARAN_BLIZZARD, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 25s))
                         {
                             pSpawn->SetFaction(me->GetFaction());
                             pSpawn->CastSpell(pSpawn, SPELL_CIRCULAR_BLIZZARD, false);
@@ -416,7 +416,7 @@ public:
 
                 for (uint32 i = 0; i < 4; ++i)
                 {
-                    if (Creature* unit = me->SummonCreature(CREATURE_WATER_ELEMENTAL, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 90000))
+                    if (Creature* unit = me->SummonCreature(CREATURE_WATER_ELEMENTAL, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 90s))
                     {
                         unit->Attack(me->GetVictim(), true);
                         unit->SetFaction(me->GetFaction());
@@ -430,7 +430,7 @@ public:
             {
                 for (uint32 i = 0; i < 5; ++i)
                 {
-                    if (Creature* unit = me->SummonCreature(CREATURE_SHADOW_OF_ARAN, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
+                    if (Creature* unit = me->SummonCreature(CREATURE_SHADOW_OF_ARAN, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s))
                     {
                         unit->Attack(me->GetVictim(), true);
                         unit->SetFaction(me->GetFaction());
@@ -478,12 +478,12 @@ public:
                 DrinkInturrupted = true;
         }
 
-        void SpellHit(Unit* /*pAttacker*/, SpellInfo const* Spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
             //We only care about interrupt effects and only if they are durring a spell currently being cast
-            if ((Spell->Effects[0].Effect != SPELL_EFFECT_INTERRUPT_CAST &&
-                Spell->Effects[1].Effect != SPELL_EFFECT_INTERRUPT_CAST &&
-                Spell->Effects[2].Effect != SPELL_EFFECT_INTERRUPT_CAST) || !me->IsNonMeleeSpellCast(false))
+            if ((spellInfo->Effects[0].Effect != SPELL_EFFECT_INTERRUPT_CAST &&
+                spellInfo->Effects[1].Effect != SPELL_EFFECT_INTERRUPT_CAST &&
+                spellInfo->Effects[2].Effect != SPELL_EFFECT_INTERRUPT_CAST) || !me->IsNonMeleeSpellCast(false))
                 return;
 
             //Interrupt effect

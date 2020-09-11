@@ -26,11 +26,24 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "MPSCQueue.h"
-#include <chrono>
 #include <boost/asio/ip/tcp.hpp>
 
 using boost::asio::ip::tcp;
-class EncryptablePacket;
+class EncryptablePacket : public WorldPacket
+{
+public:
+    EncryptablePacket(WorldPacket const& packet, bool encrypt) : WorldPacket(packet), _encrypt(encrypt)
+    {
+        SocketQueueLink.store(nullptr, std::memory_order_relaxed);
+    }
+
+    bool NeedsEncryption() const { return _encrypt; }
+
+    std::atomic<EncryptablePacket*> SocketQueueLink;
+
+private:
+    bool _encrypt;
+};
 
 namespace WorldPackets
 {
@@ -57,6 +70,7 @@ class TC_GAME_API WorldSocket : public Socket<WorldSocket>
 
 public:
     WorldSocket(tcp::socket&& socket);
+    ~WorldSocket();
 
     WorldSocket(WorldSocket const& right) = delete;
     WorldSocket& operator=(WorldSocket const& right) = delete;
@@ -98,10 +112,10 @@ private:
 
     bool HandlePing(WorldPacket& recvPacket);
 
-    uint32 _authSeed;
+    std::array<uint8, 4> _authSeed;
     AuthCrypt _authCrypt;
 
-    std::chrono::steady_clock::time_point _LastPingTime;
+    TimePoint _LastPingTime;
     uint32 _OverSpeedPings;
 
     std::mutex _worldSessionLock;
@@ -110,7 +124,7 @@ private:
 
     MessageBuffer _headerBuffer;
     MessageBuffer _packetBuffer;
-    MPSCQueue<EncryptablePacket> _bufferQueue;
+    MPSCQueue<EncryptablePacket, &EncryptablePacket::SocketQueueLink> _bufferQueue;
     std::size_t _sendBufferSize;
 
     QueryCallbackProcessor _queryProcessor;

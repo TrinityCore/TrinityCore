@@ -18,7 +18,7 @@
 #include "ScriptMgr.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
-#include "BattlefieldWG.h"
+#include "Battlefield/BattlefieldWG.h"
 #include "DBCStores.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
@@ -126,7 +126,7 @@ class npc_wg_demolisher_engineer : public CreatureScript
         {
             npc_wg_demolisher_engineerAI(Creature* creature) : ScriptedAI(creature) { }
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 if (me->IsQuestGiver())
                     player->PrepareQuestMenu(me->GetGUID());
@@ -149,7 +149,7 @@ class npc_wg_demolisher_engineer : public CreatureScript
                 return true;
             }
 
-            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+            bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
             {
                 uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
                 CloseGossipMenuFor(player);
@@ -214,7 +214,7 @@ class npc_wg_spirit_guide : public CreatureScript
                     DoCast(me, SPELL_CHANNEL_SPIRIT_HEAL);
             }
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 if (me->IsQuestGiver())
                     player->PrepareQuestMenu(me->GetGUID());
@@ -232,7 +232,7 @@ class npc_wg_spirit_guide : public CreatureScript
                 return true;
             }
 
-            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+            bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
             {
                 uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
                 CloseGossipMenuFor(player);
@@ -244,7 +244,7 @@ class npc_wg_spirit_guide : public CreatureScript
                     for (uint8 i = 0; i < gy.size(); i++)
                         if (action - GOSSIP_ACTION_INFO_DEF == i && gy[i]->GetControlTeamId() == player->GetTeamId())
                             if (WorldSafeLocsEntry const* safeLoc = sWorldSafeLocsStore.LookupEntry(gy[i]->GetGraveyardId()))
-                                player->TeleportTo(safeLoc->map_id, safeLoc->x, safeLoc->y, safeLoc->z, 0);
+                                player->TeleportTo(safeLoc->Continent, safeLoc->Loc.X, safeLoc->Loc.Y, safeLoc->Loc.Z, 0);
                 }
                 return true;
             }
@@ -294,7 +294,7 @@ class npc_wg_queue : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 if (me->IsQuestGiver())
                     player->PrepareQuestMenu(me->GetGUID());
@@ -323,7 +323,7 @@ class npc_wg_queue : public CreatureScript
                 return true;
             }
 
-            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+            bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
             {
                 CloseGossipMenuFor(player);
 
@@ -360,8 +360,8 @@ class go_wg_vehicle_teleporter : public GameObjectScript
 
             bool IsFriendly(Unit* passenger)
             {
-                return ((me->GetFaction() == WintergraspFaction[TEAM_HORDE] && passenger->GetFaction() == HORDE) ||
-                        (me->GetFaction() == WintergraspFaction[TEAM_ALLIANCE] && passenger->GetFaction() == ALLIANCE));
+                return ((me->GetFaction() == FACTION_HORDE_GENERIC_WG && passenger->GetFaction() == HORDE) ||
+                        (me->GetFaction() == FACTION_ALLIANCE_GENERIC_WG && passenger->GetFaction() == ALLIANCE));
             }
 
             Creature* GetValidVehicle(Creature* cVeh)
@@ -370,7 +370,7 @@ class go_wg_vehicle_teleporter : public GameObjectScript
                     if (Vehicle* vehicle = cVeh->GetVehicleKit())
                         if (Unit* passenger = vehicle->GetPassenger(0))
                             if (IsFriendly(passenger))
-                                if (Creature* teleportTrigger = passenger->SummonTrigger(me->GetPositionX()-60.0f, me->GetPositionY(), me->GetPositionZ()+1.0f, cVeh->GetOrientation(), 1000))
+                                if (Creature* teleportTrigger = passenger->SummonTrigger(me->GetPositionX()-60.0f, me->GetPositionY(), me->GetPositionZ()+1.0f, cVeh->GetOrientation(), 1s))
                                     return teleportTrigger;
 
                 return nullptr;
@@ -396,34 +396,6 @@ class go_wg_vehicle_teleporter : public GameObjectScript
         GameObjectAI* GetAI(GameObject* go) const override
         {
             return new go_wg_vehicle_teleporterAI(go);
-        }
-};
-
-class npc_wg_give_promotion_credit : public CreatureScript
-{
-    public:
-        npc_wg_give_promotion_credit() : CreatureScript("npc_wg_give_promotion_credit") { }
-
-        struct npc_wg_give_promotion_creditAI : public ScriptedAI
-        {
-            npc_wg_give_promotion_creditAI(Creature* creature) : ScriptedAI(creature) { }
-
-            void JustDied(Unit* killer) override
-            {
-                if (!killer || killer->GetTypeId() != TYPEID_PLAYER)
-                    return;
-
-                BattlefieldWG* wintergrasp = static_cast<BattlefieldWG*>(sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG));
-                if (!wintergrasp)
-                    return;
-
-                wintergrasp->HandlePromotion(killer->ToPlayer(), me);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_wg_give_promotion_creditAI(creature);
         }
 };
 
@@ -508,7 +480,7 @@ class achievement_wg_didnt_stand_a_chance : public AchievementCriteriaScript
                     return false;
 
                 if (Vehicle* vehicle = source->GetVehicle())
-                    if (vehicle->GetVehicleInfo()->m_ID == 244) // Wintergrasp Tower Cannon
+                    if (vehicle->GetVehicleInfo()->ID == 244) // Wintergrasp Tower Cannon
                         return true;
             }
 
@@ -535,7 +507,7 @@ class spell_wintergrasp_defender_teleport : public SpellScriptLoader
                 if (Battlefield* wg = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG))
                     if (Player* target = GetExplTargetUnit()->ToPlayer())
                         // check if we are in Wintergrasp at all, SotA uses same teleport spells
-                        if ((target->GetZoneId() == 4197 && target->GetTeamId() != wg->GetDefenderTeam()) || target->HasAura(SPELL_WINTERGRASP_TELEPORT_TRIGGER))
+                        if ((target->GetZoneId() == AREA_WINTERGRASP && target->GetTeamId() != wg->GetDefenderTeam()) || target->HasAura(SPELL_WINTERGRASP_TELEPORT_TRIGGER))
                             return SPELL_FAILED_BAD_TARGETS;
                 return SPELL_CAST_OK;
             }
@@ -661,13 +633,12 @@ void AddSC_wintergrasp()
     new npc_wg_spirit_guide();
     new npc_wg_demolisher_engineer();
     new go_wg_vehicle_teleporter();
-    new npc_wg_give_promotion_credit();
     new spell_wintergrasp_force_building();
     new spell_wintergrasp_grab_passenger();
     new achievement_wg_didnt_stand_a_chance();
     new spell_wintergrasp_defender_teleport();
     new spell_wintergrasp_defender_teleport_trigger();
-    RegisterAuraScript(spell_wintergrasp_tenacity_refresh);
+    RegisterSpellScript(spell_wintergrasp_tenacity_refresh);
     new condition_is_wintergrasp_horde();
     new condition_is_wintergrasp_alliance();
 }

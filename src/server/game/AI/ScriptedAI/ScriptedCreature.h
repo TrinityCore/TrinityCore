@@ -215,7 +215,7 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
         Player* GetPlayerAtMinimumRange(float minRange);
 
         // Spawns a creature relative to me
-        Creature* DoSpawnCreature(uint32 entry, float offsetX, float offsetY, float offsetZ, float angle, uint32 type, uint32 despawntime);
+        Creature* DoSpawnCreature(uint32 entry, float offsetX, float offsetY, float offsetZ, float angle, uint32 type, Milliseconds despawntime);
 
         bool HealthBelowPct(uint32 pct) const;
         bool HealthAbovePct(uint32 pct) const;
@@ -337,8 +337,7 @@ class TC_GAME_API BossAI : public ScriptedAI
         void _JustEngagedWith(Unit* who);
         void _JustDied();
         void _JustReachedHome();
-        void _DespawnAtEvade(Seconds delayToRespawn,  Creature* who = nullptr);
-        void _DespawnAtEvade(uint32 delayToRespawn = 30, Creature* who = nullptr) { _DespawnAtEvade(Seconds(delayToRespawn), who); }
+        void _DespawnAtEvade(Seconds delayToRespawn = 30s,  Creature* who = nullptr);
 
         void TeleportCheaters();
 
@@ -386,9 +385,9 @@ inline Creature* GetClosestCreatureWithEntry(WorldObject* source, uint32 entry, 
     return source->FindNearestCreature(entry, maxSearchRange, alive);
 }
 
-inline GameObject* GetClosestGameObjectWithEntry(WorldObject* source, uint32 entry, float maxSearchRange)
+inline GameObject* GetClosestGameObjectWithEntry(WorldObject* source, uint32 entry, float maxSearchRange, bool spawnedOnly = true)
 {
-    return source->FindNearestGameObject(entry, maxSearchRange);
+    return source->FindNearestGameObject(entry, maxSearchRange, spawnedOnly);
 }
 
 template <typename Container>

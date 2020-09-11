@@ -108,7 +108,7 @@ class boss_grandmaster_vorpil : public CreatureScript
             void SummonPortals()
             {
                 for (uint8 i = 0; i < 5; ++i)
-                    if (Creature* portal = me->SummonCreature(NPC_VOID_PORTAL, VoidPortalCoords[i][0], VoidPortalCoords[i][1], VoidPortalCoords[i][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 3000000))
+                    if (Creature* portal = me->SummonCreature(NPC_VOID_PORTAL, VoidPortalCoords[i][0], VoidPortalCoords[i][1], VoidPortalCoords[i][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 50min))
                         portal->CastSpell(portal, SPELL_VOID_PORTAL_VISUAL, true);
 
                 events.ScheduleEvent(EVENT_SUMMON_TRAVELER, 5s);
@@ -117,7 +117,7 @@ class boss_grandmaster_vorpil : public CreatureScript
             void spawnVoidTraveler()
             {
                 uint8 pos = urand(0, 4);
-                me->SummonCreature(NPC_VOID_TRAVELER, VoidPortalCoords[pos][0], VoidPortalCoords[pos][1], VoidPortalCoords[pos][2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000);
+                me->SummonCreature(NPC_VOID_TRAVELER, VoidPortalCoords[pos][0], VoidPortalCoords[pos][1], VoidPortalCoords[pos][2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5s);
                 if (!_helpYell)
                 {
                     Talk(SAY_HELP);
@@ -143,7 +143,7 @@ class boss_grandmaster_vorpil : public CreatureScript
                 events.ScheduleEvent(EVENT_SHADOWBOLT_VOLLEY, 7s, 14s);
                 if (IsHeroic())
                     events.ScheduleEvent(EVENT_BANISH, 15s);
-                events.ScheduleEvent(EVENT_DRAW_SHADOWS, 45000);
+                events.ScheduleEvent(EVENT_DRAW_SHADOWS, 45s);
                 events.ScheduleEvent(EVENT_SUMMON_TRAVELER, 90s);
 
                 Talk(SAY_AGGRO);
@@ -180,7 +180,7 @@ class boss_grandmaster_vorpil : public CreatureScript
                             events.ScheduleEvent(EVENT_SHADOWBOLT_VOLLEY, 15s, 30s);
                             break;
                         case EVENT_BANISH:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, false))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 30.0f, false))
                                  DoCast(target, SPELL_BANISH);
                             events.ScheduleEvent(EVENT_BANISH, 15s);
                             break;

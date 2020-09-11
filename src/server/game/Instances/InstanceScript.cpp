@@ -523,7 +523,7 @@ void InstanceScript::DoCloseDoorOrButton(ObjectGuid guid)
         TC_LOG_DEBUG("scripts", "InstanceScript: DoCloseDoorOrButton failed");
 }
 
-void InstanceScript::DoRespawnGameObject(ObjectGuid guid, uint32 timeToDespawn /*= MINUTE*/)
+void InstanceScript::DoRespawnGameObject(ObjectGuid guid, Seconds timeToDespawn /*= 1min */)
 {
     if (GameObject* go = instance->GetGameObject(guid))
     {
@@ -543,7 +543,7 @@ void InstanceScript::DoRespawnGameObject(ObjectGuid guid, uint32 timeToDespawn /
         if (go->isSpawned())
             return;
 
-        go->SetRespawnTime(timeToDespawn);
+        go->SetRespawnTime(timeToDespawn.count());
     }
     else
         TC_LOG_DEBUG("scripts", "InstanceScript: DoRespawnGameObject failed");
@@ -742,11 +742,11 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
     {
         if (encounter->creditType == type && encounter->creditEntry == creditEntry)
         {
-            completedEncounters |= 1 << encounter->dbcEntry->encounterIndex;
+            completedEncounters |= 1 << encounter->dbcEntry->Bit;
             if (encounter->lastEncounterDungeon)
             {
                 dungeonId = encounter->lastEncounterDungeon;
-                TC_LOG_DEBUG("lfg", "UpdateEncounterState: Instance %s (instanceId %u) completed encounter %s. Credit Dungeon: %u", instance->GetMapName(), instance->GetInstanceId(), encounter->dbcEntry->encounterName[0], dungeonId);
+                TC_LOG_DEBUG("lfg", "UpdateEncounterState: Instance %s (instanceId %u) completed encounter %s. Credit Dungeon: %u", instance->GetMapName(), instance->GetInstanceId(), encounter->dbcEntry->Name[0], dungeonId);
                 break;
             }
         }

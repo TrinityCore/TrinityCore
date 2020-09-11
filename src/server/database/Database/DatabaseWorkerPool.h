@@ -160,7 +160,7 @@ class DatabaseWorkerPool
         //! return object as soon as the query is executed.
         //! The return value is then processed in ProcessQueryCallback methods.
         //! Any prepared statements added to this holder need to be prepared with the CONNECTION_ASYNC flag.
-        QueryResultHolderFuture DelayQueryHolder(SQLQueryHolder<T>* holder);
+        SQLQueryHolderCallback DelayQueryHolder(SQLQueryHolder<T>* holder);
 
         /**
             Transaction context methods.
@@ -172,6 +172,10 @@ class DatabaseWorkerPool
         //! Enqueues a collection of one-way SQL operations (can be both adhoc and prepared). The order in which these operations
         //! were appended to the transaction will be respected during execution.
         void CommitTransaction(SQLTransaction<T> transaction);
+
+        //! Enqueues a collection of one-way SQL operations (can be both adhoc and prepared). The order in which these operations
+        //! were appended to the transaction will be respected during execution.
+        TransactionCallback AsyncCommitTransaction(SQLTransaction<T> transaction);
 
         //! Directly executes a collection of one-way SQL operations (can be both adhoc and prepared). The order in which these operations
         //! were appended to the transaction will be respected during execution.
@@ -202,6 +206,13 @@ class DatabaseWorkerPool
         //! Keeps all our MySQL connections alive, prevent the server from disconnecting us.
         void KeepAlive();
 
+        void WarnAboutSyncQueries([[maybe_unused]] bool warn)
+        {
+#ifdef TRINITY_DEBUG
+            _warnSyncQueries = warn;
+#endif
+        }
+
     private:
         uint32 OpenConnections(InternalIndex type, uint8 numConnections);
 
@@ -221,6 +232,9 @@ class DatabaseWorkerPool
         std::unique_ptr<MySQLConnectionInfo> _connectionInfo;
         std::vector<uint8> _preparedStatementSize;
         uint8 _async_threads, _synch_threads;
+#ifdef TRINITY_DEBUG
+        static inline thread_local bool _warnSyncQueries = false;
+#endif
 };
 
 #endif

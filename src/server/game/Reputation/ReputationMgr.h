@@ -67,7 +67,7 @@ class TC_GAME_API ReputationMgr
             _visibleFactionCount(0), _honoredFactionCount(0), _reveredFactionCount(0), _exaltedFactionCount(0), _sendFactionIncreased(false) { }
         ~ReputationMgr() { }
 
-        void SaveToDB(CharacterDatabaseTransaction& trans);
+        void SaveToDB(CharacterDatabaseTransaction trans);
         void LoadFromDB(PreparedQueryResult result);
     public:                                                 // statics
         static const int32 PointsInRank[MAX_REPUTATION_RANK];
@@ -85,7 +85,7 @@ class TC_GAME_API ReputationMgr
 
         FactionState const* GetState(FactionEntry const* factionEntry) const
         {
-            return factionEntry->CanHaveReputation() ? GetState(factionEntry->reputationListID) : nullptr;
+            return factionEntry->CanHaveReputation() ? GetState(factionEntry->ReputationIndex) : nullptr;
         }
 
         FactionState const* GetState(RepListID id) const
@@ -111,7 +111,7 @@ class TC_GAME_API ReputationMgr
 
         ReputationRank const* GetForcedRankIfAny(FactionTemplateEntry const* factionTemplateEntry) const
         {
-            ForcedReactions::const_iterator forceItr = _forcedReactions.find(factionTemplateEntry->faction);
+            ForcedReactions::const_iterator forceItr = _forcedReactions.find(factionTemplateEntry->Faction);
             return forceItr != _forcedReactions.end() ? &forceItr->second : nullptr;
         }
 

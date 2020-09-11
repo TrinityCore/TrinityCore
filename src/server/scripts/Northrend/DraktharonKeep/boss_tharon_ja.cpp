@@ -131,7 +131,7 @@ class boss_tharon_ja : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_CURSE_OF_LIFE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                                 DoCast(target, SPELL_CURSE_OF_LIFE);
                             events.ScheduleEvent(EVENT_CURSE_OF_LIFE, 10s, 15s);
                             return;
@@ -140,17 +140,17 @@ class boss_tharon_ja : public CreatureScript
                             events.ScheduleEvent(EVENT_SHADOW_VOLLEY, 8s, 10s);
                             return;
                         case EVENT_RAIN_OF_FIRE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                                 DoCast(target, SPELL_RAIN_OF_FIRE);
                             events.ScheduleEvent(EVENT_RAIN_OF_FIRE, 14s, 18s);
                             return;
                         case EVENT_LIGHTNING_BREATH:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                                 DoCast(target, SPELL_LIGHTNING_BREATH);
                             events.ScheduleEvent(EVENT_LIGHTNING_BREATH, 6s, 7s);
                             return;
                         case EVENT_EYE_BEAM:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                                 DoCast(target, SPELL_EYE_BEAM);
                             events.ScheduleEvent(EVENT_EYE_BEAM, 4s, 6s);
                             return;

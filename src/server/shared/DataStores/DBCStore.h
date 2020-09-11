@@ -98,6 +98,8 @@ class DBCStorage : public DBCStorageBase
 
         DBCStorage(DBCStorage const& right) = delete;
         DBCStorage& operator=(DBCStorage const& right) = delete;
+
+        friend class UnitTestDataLoader;
 };
 
 #endif

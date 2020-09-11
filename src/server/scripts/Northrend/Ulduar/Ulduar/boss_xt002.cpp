@@ -198,7 +198,7 @@ struct boss_xt002 : public BossAI
     void DoAction(int32 action) override
     {
         if (action == ACTION_ENTER_HARD_MODE)
-            events.ScheduleEvent(EVENT_ENTER_HARD_MODE, 1);
+            events.ScheduleEvent(EVENT_ENTER_HARD_MODE, 1ms);
     }
 
     void KilledUnit(Unit* who) override
@@ -396,6 +396,11 @@ private:
 struct npc_xt002_heart : public NullCreatureAI
 {
     npc_xt002_heart(Creature* creature) : NullCreatureAI(creature), _instance(creature->GetInstanceScript()) { }
+
+    void Reset() override
+    {
+        me->SetRegenerateHealth(false);
+    }
 
     void DoAction(int32 action) override
     {
@@ -1019,15 +1024,15 @@ void AddSC_boss_xt002()
     RegisterUlduarCreatureAI(npc_life_spark);
     RegisterUlduarCreatureAI(npc_xt_void_zone);
 
-    RegisterAuraScript(spell_xt002_searing_light_spawn_life_spark);
-    RegisterAuraScript(spell_xt002_gravity_bomb_aura);
+    RegisterSpellScript(spell_xt002_searing_light_spawn_life_spark);
+    RegisterSpellScript(spell_xt002_gravity_bomb_aura);
     RegisterSpellScript(spell_xt002_gravity_bomb_damage);
     RegisterSpellScript(spell_xt002_heart_overload_periodic);
     RegisterSpellScript(spell_xt002_energy_orb);
     RegisterSpellScript(spell_xt002_tympanic_tantrum);
     RegisterSpellScript(spell_xt002_submerged);
-    RegisterAuraScript(spell_xt002_321_boombot_aura);
-    RegisterAuraScript(spell_xt002_exposed_heart);
+    RegisterSpellScript(spell_xt002_321_boombot_aura);
+    RegisterSpellScript(spell_xt002_exposed_heart);
 
     new achievement_nerf_engineering();
     new achievement_heartbreaker();

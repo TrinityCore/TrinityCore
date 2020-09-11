@@ -66,6 +66,8 @@ public:
         for (int32 i = 0; i < _threadCount; ++i)
             _threads[i].Start();
 
+        _acceptor->SetSocketFactory([this]() { return GetSocketForAccept(); });
+
         return true;
     }
 

@@ -189,9 +189,9 @@ class KelThuzadCharmedPlayerAI : public SimpleCharmedPlayerAI
         {
             if (Creature* charmer = GetCharmer())
             {
-                if (Unit* target = charmer->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, CharmedPlayerTargetSelectPred()))
+                if (Unit* target = charmer->AI()->SelectTarget(SelectTargetMethod::Random, 0, CharmedPlayerTargetSelectPred()))
                     return target;
-                if (Unit* target = charmer->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, true, -SPELL_CHAINS))
+                if (Unit* target = charmer->AI()->SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true, true, -SPELL_CHAINS))
                     return target;
             }
             return nullptr;
@@ -234,8 +234,12 @@ public:
                 _abominationDeathCount = 0;
                 _phaseThree = false;
             }
+
             void EnterEvadeMode(EvadeReason /*why*/) override
             {
+                if (!me->IsAlive())
+                    return;
+
                 for (NAXData64 portalData : portalList)
                     if (GameObject* portal = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(portalData)))
                         portal->SetGoState(GO_STATE_READY);
@@ -280,13 +284,13 @@ public:
                     damage = 0;
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_CHAINS_DUMMY)
+                if (spellInfo->Id == SPELL_CHAINS_DUMMY)
                 {
                     Talk(SAY_CHAINS);
                     std::list<Unit*> targets;
-                    SelectTargetList(targets, 3, SELECT_TARGET_RANDOM, 0, 0.0f, true, false);
+                    SelectTargetList(targets, 3, SelectTargetMethod::Random, 0, 0.0f, true, false);
                     for (Unit* target : targets)
                         DoCast(target, SPELL_CHAINS);
                 }
@@ -348,7 +352,7 @@ public:
                             else
                             {
                                 // retail uses server-side spell 28421 for this
-                                Creature* summon = me->SummonCreature(NPC_SKELETON1, GetRandomMinionSpawnPoint(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2 * IN_MILLISECONDS);
+                                Creature* summon = me->SummonCreature(NPC_SKELETON1, GetRandomMinionSpawnPoint(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2s);
                                 summon->AI()->DoZoneInCombat();
                             }
 
@@ -373,7 +377,7 @@ public:
                         {
                             ++_bansheeCount;
                             // retail uses server-side spell 28423 for this
-                            Creature* summon = me->SummonCreature(NPC_BANSHEE1, GetRandomMinionSpawnPoint(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2 * IN_MILLISECONDS);
+                            Creature* summon = me->SummonCreature(NPC_BANSHEE1, GetRandomMinionSpawnPoint(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2s);
                             summon->AI()->DoZoneInCombat();
 
                             uint8 nextTime = 0;
@@ -393,7 +397,7 @@ public:
                         {
                             ++_abominationCount;
                             // retail uses server-side spell 28422 for this
-                            Creature* summon = me->SummonCreature(NPC_ABOMINATION1, GetRandomMinionSpawnPoint(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2 * IN_MILLISECONDS);
+                            Creature* summon = me->SummonCreature(NPC_ABOMINATION1, GetRandomMinionSpawnPoint(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2s);
                             summon->AI()->DoZoneInCombat();
 
                             uint8 nextTime = 0;
@@ -448,7 +452,7 @@ public:
                             break;
 
                         case EVENT_SHADOW_FISSURE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                                 DoCast(target, SPELL_SHADOW_FISSURE);
                             events.Repeat(randtime(Seconds(14), Seconds(17)));
                             break;
@@ -456,14 +460,14 @@ public:
                         case EVENT_DETONATE_MANA:
                         {
                             ManaUserTargetSelector pred;
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, pred))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, pred))
                                 DoCast(target, SPELL_DETONATE_MANA);
                             events.Repeat(randtime(Seconds(30), Seconds(40)));
                             break;
                         }
 
                         case EVENT_FROST_BLAST:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
                                 DoCast(target, SPELL_FROST_BLAST);
                             events.Repeat(randtime(Seconds(25), Seconds(45)));
                             break;
@@ -810,8 +814,9 @@ public:
                         me->CombatStop();
                         me->StopMoving();
                         me->SetImmuneToPC(true);
-                        me->DespawnOrUnsummon(30 * IN_MILLISECONDS); // just in case anything interrupts the movement
+                        me->DespawnOrUnsummon(30s); // just in case anything interrupts the movement
                         me->GetMotionMaster()->MoveTargetedHome();
+                        break;
                     default:
                         break;
                 }
@@ -1028,7 +1033,7 @@ void AddSC_boss_kelthuzad()
     new npc_kelthuzad_guardian();
     new spell_kelthuzad_chains();
     new spell_kelthuzad_detonate_mana();
-    RegisterAuraScript(spell_kelthuzad_frost_blast);
+    RegisterSpellScript(spell_kelthuzad_frost_blast);
     new at_kelthuzad_center();
     new achievement_just_cant_get_enough();
 }

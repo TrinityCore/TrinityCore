@@ -102,7 +102,7 @@ class boss_apothecary_hummel : public CreatureScript
         {
             boss_apothecary_hummelAI(Creature* creature) : BossAI(creature, DATA_APOTHECARY_HUMMEL), _deadCount(0), _isDead(false) { }
 
-            bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+            bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {
                 if (menuId == GOSSIP_MENU_HUMMEL && gossipListId == GOSSIP_OPTION_START)
                 {
@@ -274,7 +274,7 @@ class boss_apothecary_hummel : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void QuestReward(Player* /*player*/, Quest const* quest, uint32 /*opt*/) override
+            void OnQuestReward(Player* /*player*/, Quest const* quest, uint32 /*opt*/) override
             {
                 if (quest->GetQuestId() == QUEST_YOUVE_BEEN_SERVED)
                     DoAction(ACTION_START_EVENT);
@@ -422,6 +422,9 @@ class spell_apothecary_lingering_fumes : public SpellScriptLoader
 
                 std::list<Creature*> triggers;
                 caster->GetCreatureListWithEntryInGrid(triggers, NPC_VIAL_BUNNY, 100.0f);
+                if (triggers.empty())
+                    return;
+
                 Creature* trigger = Trinity::Containers::SelectRandomContainerElement(triggers);
                 caster->GetMotionMaster()->MovePoint(0, trigger->GetPosition());
 

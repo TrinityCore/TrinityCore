@@ -50,7 +50,7 @@ class icecrown_citadel_teleport : public GameObjectScript
             {
             }
 
-            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+            bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
             {
                 if (gossipListId >= TeleportSpells.size())
                     return false;

@@ -163,7 +163,11 @@ namespace WorldPackets
         class SpellGo final : public ServerPacket
         {
             public:
-                SpellGo() : ServerPacket(SMSG_SPELL_GO) { }
+                SpellGo() : ServerPacket(SMSG_SPELL_GO)
+                {
+                    Cast.HitTargets.emplace();
+                    Cast.MissStatus.emplace();
+                }
 
                 WorldPacket const* Write() override;
 
@@ -195,6 +199,16 @@ namespace WorldPackets
 
             uint32 Count = 0;
             std::vector<ResyncRune> Runes;
+        };
+
+        class MountResult final : public ServerPacket
+        {
+        public:
+            MountResult() : ServerPacket(SMSG_MOUNT_RESULT, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Result = 0;
         };
     }
 }

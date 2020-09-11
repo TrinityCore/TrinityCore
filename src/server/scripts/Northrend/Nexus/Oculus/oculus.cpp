@@ -144,7 +144,7 @@ class npc_verdisa_beglaristrasz_eternos : public CreatureScript
                 player->DestroyItemCount(itemId, 1, true, false);
             }
 
-            bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+            bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {
                 switch (menuId)
                 {
@@ -225,13 +225,13 @@ class npc_image_belgaristrasz : public CreatureScript
                 if (summoner->GetEntry() == NPC_VAROS)
                 {
                    Talk(SAY_VAROS);
-                   me->DespawnOrUnsummon(60000);
+                   me->DespawnOrUnsummon(60s);
                 }
 
                 if (summoner->GetEntry() == NPC_UROM)
                 {
                    Talk(SAY_UROM);
-                   me->DespawnOrUnsummon(60000);
+                   me->DespawnOrUnsummon(60s);
                 }
             }
         };
@@ -266,10 +266,10 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
                 Initialize();
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
                 if (Unit* creator = ObjectAccessor::GetUnit(*me, me->GetCreatorGUID()))
-                    if (spell->Id == SPELL_GPS)
+                    if (spellInfo->Id == SPELL_GPS)
                     {
                         if (_instance->GetBossState(DATA_EREGOS) == DONE)
                             Talk(WHISPER_GPS_END, creator);
@@ -344,7 +344,7 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
                 if (_healthWarning)
                 {
                     if (me->GetHealthPct() <= 40.0f)
-                        _events.ScheduleEvent(EVENT_LOW_HEALTH, 0);
+                        _events.ScheduleEvent(EVENT_LOW_HEALTH, 0ms);
                 }
 
                 _events.Update(diff);
@@ -377,7 +377,7 @@ class npc_ruby_emerald_amber_drake : public CreatureScript
                             break;
                         case EVENT_TAKE_OFF:
                         {
-                            me->DespawnOrUnsummon(2050);
+                            me->DespawnOrUnsummon(2050ms);
                             me->SetOrientation(2.5f);
                             me->SetSpeedRate(MOVE_FLIGHT, 1.0f);
                             Talk(SAY_DRAKES_TAKEOFF);

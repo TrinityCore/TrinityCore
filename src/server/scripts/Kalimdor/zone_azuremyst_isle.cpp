@@ -28,8 +28,6 @@ npc_engineer_spark_overgrind
 npc_injured_draenei
 npc_magwin
 npc_geezle
-go_ravager_cage
-npc_death_ravager
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -113,16 +111,16 @@ public:
             }
         }
 
-        void SpellHit(Unit* Caster, SpellInfo const* Spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
         {
-            if (Spell->SpellFamilyFlags[2] & 0x080000000)
+            if (spellInfo->SpellFamilyFlags[2] & 0x080000000)
             {
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
                 me->SetStandState(UNIT_STAND_STATE_STAND);
 
                 DoCast(me, SPELL_STUNNED, true);
 
-                pCaster = Caster->GetGUID();
+                pCaster = caster->GetGUID();
 
                 SayThanksTimer = 5000;
             }
@@ -231,7 +229,7 @@ public:
             Talk(ATTACK_YELL, who);
         }
 
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
         {
             CloseGossipMenuFor(player);
             me->SetFaction(FACTION_MONSTER);
@@ -362,7 +360,7 @@ public:
             Talk(SAY_AGGRO, who);
         }
 
-        void QuestAccept(Player* player, Quest const* quest) override
+        void OnQuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_A_CRY_FOR_HELP)
             {
@@ -507,7 +505,7 @@ public:
         {
             Step = 0;
             EventStarted = true;
-            if (Creature* Spark = me->SummonCreature(NPC_SPARK, SparkPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1000))
+            if (Creature* Spark = me->SummonCreature(NPC_SPARK, SparkPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1s))
             {
                 SparkGUID = Spark->GetGUID();
                 Spark->setActive(true);
@@ -564,7 +562,7 @@ public:
                     Spark->DisappearAndDie();
                     DespawnNagaFlag(false);
                     me->DisappearAndDie();
-                    /* fallthrough */
+                    [[fallthrough]];
                 default:
                     return 99999999;
             }
@@ -599,8 +597,6 @@ public:
                         (*itr)->Respawn();
                 }
             }
-            else
-                TC_LOG_ERROR("scripts", "SD2 ERROR: FlagList is empty!");
         }
 
         void UpdateAI(uint32 diff) override
@@ -618,105 +614,6 @@ public:
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_geezleAI(creature);
-    }
-};
-
-enum RavegerCage
-{
-    NPC_DEATH_RAVAGER       = 17556,
-
-    SPELL_REND              = 13443,
-    SPELL_ENRAGING_BITE     = 30736,
-
-    QUEST_STRENGTH_ONE      = 9582
-};
-
-class go_ravager_cage : public GameObjectScript
-{
-public:
-    go_ravager_cage() : GameObjectScript("go_ravager_cage") { }
-
-    struct go_ravager_cageAI : public GameObjectAI
-    {
-        go_ravager_cageAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool GossipHello(Player* player) override
-        {
-            me->UseDoorOrButton();
-            if (player->GetQuestStatus(QUEST_STRENGTH_ONE) == QUEST_STATUS_INCOMPLETE)
-            {
-                if (Creature* ravager = me->FindNearestCreature(NPC_DEATH_RAVAGER, 5.0f, true))
-                {
-                    ravager->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    ravager->SetReactState(REACT_AGGRESSIVE);
-                    ravager->AI()->AttackStart(player);
-                }
-            }
-            return true;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_ravager_cageAI(go);
-    }
-};
-
-class npc_death_ravager : public CreatureScript
-{
-public:
-    npc_death_ravager() : CreatureScript("npc_death_ravager") { }
-
-    struct npc_death_ravagerAI : public ScriptedAI
-    {
-        npc_death_ravagerAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            RendTimer = 30000;
-            EnragingBiteTimer = 20000;
-        }
-
-        uint32 RendTimer;
-        uint32 EnragingBiteTimer;
-
-        void Reset() override
-        {
-            Initialize();
-
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            me->SetReactState(REACT_PASSIVE);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            if (RendTimer <= diff)
-            {
-                DoCastVictim(SPELL_REND);
-                RendTimer = 30000;
-            }
-            else RendTimer -= diff;
-
-            if (EnragingBiteTimer <= diff)
-            {
-                DoCastVictim(SPELL_ENRAGING_BITE);
-                EnragingBiteTimer = 15000;
-            }
-            else EnragingBiteTimer -= diff;
-
-            DoMeleeAttackIfReady();
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_death_ravagerAI(creature);
     }
 };
 
@@ -744,7 +641,5 @@ void AddSC_azuremyst_isle()
     new npc_injured_draenei();
     new npc_magwin();
     new npc_geezle();
-    new npc_death_ravager();
-    new go_ravager_cage();
-    RegisterAuraScript(spell_inoculate_nestlewood);
+    RegisterSpellScript(spell_inoculate_nestlewood);
 }
