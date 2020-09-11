@@ -69,9 +69,8 @@ enum PaladinSpells
     SPELL_PALADIN_HAND_OF_SACRIFICE                     = 6940,
     SPELL_PALADIN_HOLY_LIGHT                            = 635,
     SPELL_PALADIN_HOLY_RADIANCE_TRIGGERED               = 86452,
-    SPELL_PALADIN_HOLY_SHOCK_R1                         = 20473,
-    SPELL_PALADIN_HOLY_SHOCK_R1_DAMAGE                  = 25912,
-    SPELL_PALADIN_HOLY_SHOCK_R1_HEALING                 = 25914,
+    SPELL_PALADIN_HOLY_SHOCK_DAMAGE                     = 25912,
+    SPELL_PALADIN_HOLY_SHOCK_HEALING                    = 25914,
     SPELL_PALADIN_ILLUMINATED_HEALING                   = 86273,
     SPELL_PALADIN_IMMUNE_SHIELD_MARKER                  = 61988,
     SPELL_PALADIN_IMPROVED_CONCENTRACTION_AURA          = 63510,
@@ -663,73 +662,55 @@ class spell_pal_hand_of_sacrifice : public SpellScriptLoader
 };
 
 // 20473 - Holy Shock
-class spell_pal_holy_shock : public SpellScriptLoader
+class spell_pal_holy_shock : public SpellScript
 {
-    public:
-        spell_pal_holy_shock() : SpellScriptLoader("spell_pal_holy_shock") { }
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_PALADIN_HOLY_SHOCK_DAMAGE,
+                SPELL_PALADIN_HOLY_SHOCK_HEALING
+            });
+    }
 
-        class spell_pal_holy_shock_SpellScript : public SpellScript
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        Unit* target = GetHitUnit();
+
+        if (caster->IsFriendlyTo(target))
+            caster->CastSpell(target, SPELL_PALADIN_HOLY_SHOCK_HEALING, true);
+        else
+            caster->CastSpell(target, SPELL_PALADIN_HOLY_SHOCK_DAMAGE, true);
+    }
+
+    SpellCastResult CheckCast()
+    {
+        Unit* caster = GetCaster();
+        if (Unit* target = GetExplTargetUnit())
         {
-            bool Validate(SpellInfo const* spellInfo) override
+            if (!caster->IsFriendlyTo(target))
             {
-                SpellInfo const* firstRankSpellInfo = sSpellMgr->GetSpellInfo(SPELL_PALADIN_HOLY_SHOCK_R1);
-                if (!firstRankSpellInfo)
-                    return false;
-
-                // can't use other spell than holy shock due to spell_ranks dependency
-                if (!spellInfo->IsRankOf(firstRankSpellInfo))
-                    return false;
-
-                uint8 rank = spellInfo->GetRank();
-                if (!sSpellMgr->GetSpellWithRank(SPELL_PALADIN_HOLY_SHOCK_R1_DAMAGE, rank, true) || !sSpellMgr->GetSpellWithRank(SPELL_PALADIN_HOLY_SHOCK_R1_HEALING, rank, true))
-                    return false;
-
-                return true;
-            }
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                Unit* caster = GetCaster();
-                if (Unit* unitTarget = GetHitUnit())
-                {
-                    uint8 rank = GetSpellInfo()->GetRank();
-                    if (caster->IsFriendlyTo(unitTarget))
-                        caster->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(SPELL_PALADIN_HOLY_SHOCK_R1_HEALING, rank), true);
-                    else
-                        caster->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(SPELL_PALADIN_HOLY_SHOCK_R1_DAMAGE, rank), true);
-                }
-            }
-
-            SpellCastResult CheckCast()
-            {
-                Unit* caster = GetCaster();
-                if (Unit* target = GetExplTargetUnit())
-                {
-                    if (!caster->IsFriendlyTo(target))
-                    {
-                        if (!caster->IsValidAttackTarget(target))
-                            return SPELL_FAILED_BAD_TARGETS;
-
-                        if (!caster->isInFront(target))
-                            return SPELL_FAILED_UNIT_NOT_INFRONT;
-                    }
-                }
-                else
+                if (!caster->IsValidAttackTarget(target))
                     return SPELL_FAILED_BAD_TARGETS;
-                return SPELL_CAST_OK;
-            }
 
-            void Register() override
-            {
-                OnCheckCast.Register(&spell_pal_holy_shock_SpellScript::CheckCast);
-                OnEffectHitTarget.Register(&spell_pal_holy_shock_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                if (!caster->isInFront(target))
+                    return SPELL_FAILED_UNIT_NOT_INFRONT;
             }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_pal_holy_shock_SpellScript();
         }
+        else
+            return SPELL_FAILED_BAD_TARGETS;
+        return SPELL_CAST_OK;
+    }
+
+    void Register() override
+    {
+        OnCheckCast.Register(&spell_pal_holy_shock::CheckCast);
+        OnEffectHitTarget.Register(&spell_pal_holy_shock::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
 };
 
 // 63510 - Improved Concentraction Aura (Area Aura)
@@ -2021,7 +2002,7 @@ void AddSC_paladin_spell_scripts()
     RegisterSpellAndAuraScriptPair(spell_pal_holy_radiance, spell_pal_holy_radiance_AuraScript);
     RegisterSpellScript(spell_pal_hand_of_protection);
     new spell_pal_hand_of_sacrifice();
-    new spell_pal_holy_shock();
+    RegisterSpellScript(spell_pal_holy_shock);
     RegisterSpellScript(spell_pal_illuminated_healing);
     new spell_pal_improved_aura_effect("spell_pal_improved_concentraction_aura_effect");
     new spell_pal_improved_aura_effect("spell_pal_improved_devotion_aura_effect");
