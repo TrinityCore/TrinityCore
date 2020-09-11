@@ -1443,6 +1443,7 @@ class spell_rog_bandits_guile : public AuraScript
         {
             target->RemoveAurasDueToSpell(SPELL_ROGUE_SHALLOW_INSIGHT, target->GetGUID());
             target->RemoveAurasDueToSpell(SPELL_ROGUE_MODERATE_INSIGHT, target->GetGUID());
+            target->RemoveAurasDueToSpell(SPELL_ROGUE_DEEP_INSIGHT, target->GetGUID());
             _recentTargetGUID = procTarget->GetGUID();
         }
 
