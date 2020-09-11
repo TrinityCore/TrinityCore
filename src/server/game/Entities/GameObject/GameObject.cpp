@@ -2071,6 +2071,7 @@ void GameObject::CastSpell(Unit* target, uint32 spellId, TriggerCastFlags trigge
 
     // remove immunity flags, to allow spell to target anything
     trigger->SetImmuneToAll(false);
+    PhasingHandler::InheritPhaseShift(trigger, this);
 
     if (Unit* owner = GetOwner())
     {
