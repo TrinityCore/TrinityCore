@@ -14,32 +14,23 @@ DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryorguid` IN(-@DW_GU
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (-@DW_GUID_FIRST, 0, 0, 0, 0, 0, 100, 0, 3000, 6000, 6000, 8000, 0, 11, 71021, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - In Combat - Cast \'Saber Lash\''),
 (-@DW_GUID_FIRST, 0, 1, 0, 0, 0, 100, 0, 6000, 8000, 6000, 12000, 0, 11, 71022, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - In Combat - Cast \'Disrupting Shout\''),
-(-@DW_GUID_FIRST, 0, 2, 0, 38, 0, 100, 0, 1, 1, 0, 0, 0, 53, 0, @DW_WAYPOINT_FIRST, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - On Data Set 1 1 - Start Waypoint'),
+(-@DW_GUID_FIRST, 0, 2, 0, 38, 0, 100, 0, 1, 1, 0, 0, 0, 53, 0, @DW_WAYPOINT_FIRST, 1, 0, 0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - On Data Set 1 1 - Start Waypoint'),
 (-@DW_GUID_FIRST, 0, 3, 0, 63, 0, 100, 0, 0, 0, 0, 0, 0, 55, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - On Just Created - Stop Waypoint'),
-(-@DW_GUID_FIRST, 0, 4, 0, 38, 0, 100, 0, 1, 1, 0, 0, 0, 8, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - On Data Set 1 1 - Set Reactstate Aggressive'),
-(-@DW_GUID_FIRST, 0, 5, 0, 38, 0, 100, 0, 1, 1, 0, 0, 0, 22, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - On Data Set 1 1 - Set Event Phase 2'),
-(-@DW_GUID_FIRST, 0, 6, 0, 7, 2, 100, 0, 0, 0, 0, 0, 0, 28, 70733, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - On Evade - Remove Aura \'Stoneform\' (Phase 2)'),
+
 (-@DW_GUID_SECOND, 0, 0, 0, 0, 0, 100, 0, 3000, 6000, 6000, 8000, 0, 11, 71021, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - In Combat - Cast \'Saber Lash\''),
 (-@DW_GUID_SECOND, 0, 1, 0, 0, 0, 100, 0, 6000, 8000, 6000, 12000, 0, 11, 71022, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - In Combat - Cast \'Disrupting Shout\''),
-(-@DW_GUID_SECOND, 0, 2, 0, 38, 0, 100, 0, 1, 1, 0, 0, 0, 53, 0, @DW_WAYPOINT_SECOND, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - On Data Set 1 1 - Start Waypoint'),
+(-@DW_GUID_SECOND, 0, 2, 0, 38, 0, 100, 0, 1, 1, 0, 0, 0, 53, 0, @DW_WAYPOINT_SECOND, 1, 0, 0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - On Data Set 1 1 - Start Waypoint'),
 (-@DW_GUID_SECOND, 0, 3, 0, 63, 0, 100, 0, 0, 0, 0, 0, 0, 55, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - On Just Created - Stop Waypoint'),
-(-@DW_GUID_SECOND, 0, 4, 0, 38, 0, 100, 0, 1, 1, 0, 0, 0, 8, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - On Data Set 1 1 - Set Reactstate Aggressive'),
-(-@DW_GUID_SECOND, 0, 5, 0, 38, 0, 100, 0, 1, 1, 0, 0, 0, 22, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - On Data Set 1 1 - Set Event Phase 2'),
-(-@DW_GUID_SECOND, 0, 6, 0, 7, 2, 100, 0, 0, 0, 0, 0, 0, 28, 70733, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - On Evade - Remove Aura \'Stoneform\' (Phase 2)'),
+
 (-@DW_GUID_THIRD, 0, 0, 0, 0, 0, 100, 0, 3000, 6000, 6000, 8000, 0, 11, 71021, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - In Combat - Cast \'Saber Lash\''),
 (-@DW_GUID_THIRD, 0, 1, 0, 0, 0, 100, 0, 6000, 8000, 6000, 12000, 0, 11, 71022, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - In Combat - Cast \'Disrupting Shout\''),
-(-@DW_GUID_THIRD, 0, 2, 0, 38, 0, 100, 0, 1, 1, 0, 0, 0, 53, 0, @DW_WAYPOINT_THIRD, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - On Data Set 1 1 - Start Waypoint'),
+(-@DW_GUID_THIRD, 0, 2, 0, 38, 0, 100, 0, 1, 1, 0, 0, 0, 53, 0, @DW_WAYPOINT_THIRD, 1, 0, 0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - On Data Set 1 1 - Start Waypoint'),
 (-@DW_GUID_THIRD, 0, 3, 0, 63, 0, 100, 0, 0, 0, 0, 0, 0, 55, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - On Just Created - Stop Waypoint'),
-(-@DW_GUID_THIRD, 0, 4, 0, 38, 0, 100, 0, 1, 1, 0, 0, 0, 8, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - On Data Set 1 1 - Set Reactstate Aggressive'),
-(-@DW_GUID_THIRD, 0, 5, 0, 38, 0, 100, 0, 1, 1, 0, 0, 0, 22, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - On Data Set 1 1 - Set Event Phase 2'),
-(-@DW_GUID_THIRD, 0, 6, 0, 7, 2, 100, 0, 0, 0, 0, 0, 0, 28, 70733, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - On Evade - Remove Aura \'Stoneform\' (Phase 2)'),
+
 (-@DW_GUID_FOURTH, 0, 0, 0, 0, 0, 100, 0, 3000, 6000, 6000, 8000, 0, 11, 71021, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - In Combat - Cast \'Saber Lash\''),
 (-@DW_GUID_FOURTH, 0, 1, 0, 0, 0, 100, 0, 6000, 8000, 6000, 12000, 0, 11, 71022, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - In Combat - Cast \'Disrupting Shout\''),
-(-@DW_GUID_FOURTH, 0, 2, 0, 38, 0, 100, 0, 1, 1, 0, 0, 0, 53, 0, @DW_WAYPOINT_FOURTH, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - On Data Set 1 1 - Start Waypoint'),
+(-@DW_GUID_FOURTH, 0, 2, 0, 38, 0, 100, 0, 1, 1, 0, 0, 0, 53, 0, @DW_WAYPOINT_FOURTH, 1, 0, 0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - On Data Set 1 1 - Start Waypoint'),
 (-@DW_GUID_FOURTH, 0, 3, 0, 63, 0, 100, 0, 0, 0, 0, 0, 0, 55, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - On Just Created - Stop Waypoint'),
-(-@DW_GUID_FOURTH, 0, 4, 0, 38, 0, 100, 0, 1, 1, 0, 0, 0, 8, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - On Data Set 1 1 - Set Reactstate Aggressive'),
-(-@DW_GUID_FOURTH, 0, 5, 0, 38, 0, 100, 0, 1, 1, 0, 0, 0, 22, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - On Data Set 1 1 - Set Event Phase 2'),
-(-@DW_GUID_FOURTH, 0, 6, 0, 7, 2, 100, 0, 0, 0, 0, 0, 0, 28, 70733, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - On Evade - Remove Aura \'Stoneform\' (Phase 2)');
 
 DELETE FROM `waypoints` WHERE `entry` IN (@DW_WAYPOINT_FIRST, @DW_WAYPOINT_SECOND, @DW_WAYPOINT_THIRD, @DW_WAYPOINT_FOURTH);
 INSERT INTO `waypoints`(`entry`, `pointid`, `position_x`, `position_y`, `position_z`, `point_comment`) VALUES 
