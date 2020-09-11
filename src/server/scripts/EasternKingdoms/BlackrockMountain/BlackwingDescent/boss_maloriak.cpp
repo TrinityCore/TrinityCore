@@ -518,7 +518,7 @@ struct boss_maloriak : public BossAI
                     events.Repeat(14s + 500ms);
                     break;
                 case EVENT_SCORCHING_BLAST:
-                    DoCastSelf(SPELL_SCORCHING_BLAST);
+                    DoCastVictim(SPELL_SCORCHING_BLAST);
                     events.Repeat(17s);
                     break;
                 case EVENT_BITING_CHILL:
