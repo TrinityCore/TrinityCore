@@ -884,7 +884,9 @@ void MotionMaster::DirectDelete(MovementGenerator* curr)
     if (IsStatic(curr))
         return;
 
+
     curr->Finalize(_owner);
+    curr->NotifyAIOnFinalize(_owner);
     delete curr;
 }
 

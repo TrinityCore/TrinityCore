@@ -17,6 +17,7 @@
 
 #include "PassiveAI.h"
 #include "Creature.h"
+#include "MotionMaster.h"
 
 PassiveAI::PassiveAI(Creature* c) : CreatureAI(c) { me->SetReactState(REACT_PASSIVE); }
 PossessedAI::PossessedAI(Creature* c) : CreatureAI(c) { me->SetReactState(REACT_PASSIVE); }
@@ -74,10 +75,16 @@ void PossessedAI::OnCharmed(bool /*apply*/)
     me->IsAIEnabled = false;
 }
 
-void CritterAI::DamageTaken(Unit* /*done_by*/, uint32&)
+void CritterAI::JustEngagedWith(Unit* /*who*/)
 {
     if (!me->HasUnitState(UNIT_STATE_FLEEING))
         me->SetControlled(true, UNIT_STATE_FLEEING);
+}
+
+void CritterAI::OnMovementGeneratorFinalized(MovementGeneratorType type)
+{
+    if (type == TIMED_FLEEING_MOTION_TYPE)
+        EnterEvadeMode(EVADE_REASON_OTHER);
 }
 
 void CritterAI::EnterEvadeMode(EvadeReason why)

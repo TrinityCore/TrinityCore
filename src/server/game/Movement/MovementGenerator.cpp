@@ -17,6 +17,7 @@
 
 #include "MovementGenerator.h"
 #include "IdleMovementGenerator.h"
+#include "UnitAI.h"
 
 MovementGenerator::~MovementGenerator() { }
 
@@ -24,4 +25,10 @@ MovementGenerator* IdleMovementFactory::Create(Unit* /*object*/) const
 {
     static IdleMovementGenerator instance;
     return &instance;
+}
+
+void MovementGenerator::NotifyAIOnFinalize(Unit* object)
+{
+    if (UnitAI* ai = object->GetAI())
+        ai->OnMovementGeneratorFinalized(GetMovementGeneratorType());
 }
