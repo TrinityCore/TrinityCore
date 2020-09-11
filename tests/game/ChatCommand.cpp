@@ -26,7 +26,8 @@ using namespace std::string_view_literals;
 struct DummyChatHandler : ChatHandler
 {
     DummyChatHandler() : ChatHandler(nullptr) {}
-    void SendSysMessage(std::string_view, bool) {}
+    void SendSysMessage(std::string_view, bool) override {}
+    char const* GetTrinityString(uint32) const override { return ""; }
 };
 
 template <typename F>
