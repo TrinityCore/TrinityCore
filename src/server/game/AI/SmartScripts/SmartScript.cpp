@@ -825,9 +825,9 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             // Reset home position to respawn position if specified in the parameters
             if (e.action.evade.toRespawnPosition == 0)
             {
-                float HomepositionX, HomepositionY, HomepositionZ, HomepositionO;
-                me->GetRespawnPosition(HomepositionX, HomepositionY, HomepositionZ, &HomepositionO);
-                me->SetHomePosition(HomepositionX, HomepositionY, HomepositionZ, HomepositionO);
+                float homeX, homeY, homeZ, homeO;
+                me->GetRespawnPosition(homeX, homeY, homeZ, &homeO);
+                me->SetHomePosition(homeX, homeY, homeZ, homeO);
             }
 
             me->AI()->EnterEvadeMode();
