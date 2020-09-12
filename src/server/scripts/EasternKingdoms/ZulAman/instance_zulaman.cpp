@@ -103,6 +103,11 @@ public:
                     if (creature->GetExactDist2d(AmanishiSavageDistanceCheckPos) < 100.0f)
                         _amanishiSavageGUIDs.push_back(creature->GetGUID());
                     break;
+                case NPC_AMANI_DRAGONHAWK_HATCHLING:
+                    if (Creature* janalai = GetCreature(DATA_JANALAI))
+                        if (janalai->IsAIEnabled)
+                            janalai->AI()->JustSummoned(creature);
+                    break;
                 default:
                     break;
             }

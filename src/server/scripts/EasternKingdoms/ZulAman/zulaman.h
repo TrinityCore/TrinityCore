@@ -58,6 +58,14 @@ enum ZACreatureIds
     /*Akil'zon*/
     NPC_SOARING_EAGLE               = 24858,
 
+    /*Jan'alai*/
+    NPC_FIRE_BOMB_ZULAMAN           = 23920,
+    NPC_WORLD_TRIGGER_NOT_IMMUNE_PC = 21252,
+    NPC_AMANISHI_HATCHER_1          = 23818,
+    NPC_AMANISHI_HATCHER_2          = 24504,
+    NPC_AMANI_DRAGONHAWK_HATCHLING  = 23598,
+    NPC_DRAGONHAWK_EGG              = 23817,
+
     NPC_VOLJIN                      = 52924,
     NPC_HEXLORD_MALACRASS_TRIGGER   = 24363,
     NPC_AMANISHI_GUARDIAN           = 23597,
