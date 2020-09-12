@@ -63,7 +63,7 @@ namespace Trinity::Hyperlinks
         std::array<uint32, 3> GemEnchantId;
         ItemRandomPropertiesEntry const* RandomProperty;
         ItemRandomSuffixEntry const* RandomSuffix;
-        uint32 RandomSuffixBaseAmount;
+        uint32 PropertySeed;
         uint8 RenderLevel;
     };
 
