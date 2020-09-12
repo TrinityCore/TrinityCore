@@ -278,7 +278,7 @@ namespace Trinity::Impl::ChatCommands
                 else
                 {
                     ChatCommandResult nestedResult = TryAtIndex<I + 1>(val, handler, args);
-                    if (!thisResult.HasErrorMessage())
+                    if (nestedResult || !thisResult.HasErrorMessage())
                         return nestedResult;
                     if (!nestedResult.HasErrorMessage())
                         return thisResult;
