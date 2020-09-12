@@ -144,12 +144,6 @@ void CalendarMgr::AddEvent(CalendarEvent* calendarEvent, CalendarSendEventType s
     SendCalendarEvent(calendarEvent->GetOwnerGUID(), *calendarEvent, sendType);
 }
 
-void CalendarMgr::AddInvite(CalendarEvent* calendarEvent, CalendarInvite* invite)
-{
-    CharacterDatabaseTransaction dummy;
-    AddInvite(calendarEvent, invite, dummy);
-}
-
 void CalendarMgr::AddInvite(CalendarEvent* calendarEvent, CalendarInvite* invite, CharacterDatabaseTransaction trans)
 {
     if (!calendarEvent->IsGuildAnnouncement() && calendarEvent->GetOwnerGUID() != invite->GetInviteeGUID())
@@ -267,12 +261,6 @@ void CalendarMgr::UpdateEvent(CalendarEvent* calendarEvent)
     stmt->setUInt32(7, calendarEvent->GetFlags());
     stmt->setInt64(8, calendarEvent->GetLockDate());
     CharacterDatabase.Execute(stmt);
-}
-
-void CalendarMgr::UpdateInvite(CalendarInvite* invite)
-{
-    CharacterDatabaseTransaction dummy;
-    UpdateInvite(invite, dummy);
 }
 
 void CalendarMgr::UpdateInvite(CalendarInvite* invite, CharacterDatabaseTransaction trans)
