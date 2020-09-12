@@ -18,12 +18,11 @@
 /* ScriptData
 SDName: Tanaris
 SD%Complete: 80
-SDComment: Quest support: 1560, 4005, 10277
+SDComment: Quest support: 1560
 SDCategory: Tanaris
 EndScriptData */
 
 /* ContentData
-npc_custodian_of_time
 npc_tooga
 EndContentData */
 
@@ -35,142 +34,6 @@ EndContentData */
 #include "ScriptedFollowerAI.h"
 #include "ScriptedGossip.h"
 #include "WorldSession.h"
-
-/*######
-## npc_custodian_of_time
-######*/
-
-enum CustodianOfTime
-{
-    WHISPER_CUSTODIAN_1     = 0,
-    WHISPER_CUSTODIAN_2     = 1,
-    WHISPER_CUSTODIAN_3     = 2,
-    WHISPER_CUSTODIAN_4     = 3,
-    WHISPER_CUSTODIAN_5     = 4,
-    WHISPER_CUSTODIAN_6     = 5,
-    WHISPER_CUSTODIAN_7     = 6,
-    WHISPER_CUSTODIAN_8     = 7,
-    WHISPER_CUSTODIAN_9     = 8,
-    WHISPER_CUSTODIAN_10    = 9,
-    WHISPER_CUSTODIAN_11    = 10,
-    WHISPER_CUSTODIAN_12    = 11,
-    WHISPER_CUSTODIAN_13    = 12,
-    WHISPER_CUSTODIAN_14    = 13,
-
-    QUEST_CAVERNS_OF_TIME   = 10277,
-    SPELL_QID_10277         = 34883
-};
-
-class npc_custodian_of_time : public CreatureScript
-{
-public:
-    npc_custodian_of_time() : CreatureScript("npc_custodian_of_time") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_custodian_of_timeAI(creature);
-    }
-
-    struct npc_custodian_of_timeAI : public EscortAI
-    {
-        npc_custodian_of_timeAI(Creature* creature) : EscortAI(creature) { }
-
-        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
-        {
-            if (Player* player = GetPlayerForEscort())
-            {
-                switch (waypointId)
-                {
-                    case 0:
-                        Talk(WHISPER_CUSTODIAN_1, player);
-                        break;
-                    case 1:
-                        Talk(WHISPER_CUSTODIAN_2, player);
-                        break;
-                    case 2:
-                        Talk(WHISPER_CUSTODIAN_3, player);
-                        break;
-                    case 3:
-                        Talk(WHISPER_CUSTODIAN_4, player);
-                        break;
-                    case 5:
-                        Talk(WHISPER_CUSTODIAN_5, player);
-                        break;
-                    case 6:
-                        Talk(WHISPER_CUSTODIAN_6, player);
-                        break;
-                    case 7:
-                        Talk(WHISPER_CUSTODIAN_7, player);
-                        break;
-                    case 8:
-                        Talk(WHISPER_CUSTODIAN_8, player);
-                        break;
-                    case 9:
-                        Talk(WHISPER_CUSTODIAN_9, player);
-                        break;
-                    case 10:
-                        Talk(WHISPER_CUSTODIAN_4, player);
-                        break;
-                    case 13:
-                        Talk(WHISPER_CUSTODIAN_10, player);
-                        break;
-                    case 14:
-                        Talk(WHISPER_CUSTODIAN_4, player);
-                        break;
-                    case 16:
-                        Talk(WHISPER_CUSTODIAN_11, player);
-                        break;
-                    case 17:
-                        Talk(WHISPER_CUSTODIAN_12, player);
-                        break;
-                    case 18:
-                        Talk(WHISPER_CUSTODIAN_4, player);
-                        break;
-                    case 22:
-                        Talk(WHISPER_CUSTODIAN_13, player);
-                        break;
-                    case 23:
-                        Talk(WHISPER_CUSTODIAN_4, player);
-                        break;
-                    case 24:
-                        Talk(WHISPER_CUSTODIAN_14, player);
-                        DoCast(player, SPELL_QID_10277);
-                        // below here is temporary workaround, to be removed when spell works properly
-                        player->AreaExploredOrEventHappens(QUEST_CAVERNS_OF_TIME);
-                        break;
-                }
-            }
-        }
-
-        void MoveInLineOfSight(Unit* who) override
-
-        {
-            if (HasEscortState(STATE_ESCORT_ESCORTING))
-                return;
-
-            if (Player* player = who->ToPlayer())
-            {
-                if (who->HasAura(34877) && player->GetQuestStatus(10277) == QUEST_STATUS_INCOMPLETE)
-                {
-                    float Radius = 10.0f;
-                    if (me->IsWithinDistInMap(who, Radius))
-                    {
-                        Start(false, false, who->GetGUID());
-                    }
-                }
-            }
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override { }
-        void Reset() override { }
-
-        void UpdateAI(uint32 diff) override
-        {
-            EscortAI::UpdateAI(diff);
-        }
-    };
-
-};
 
 /*####
 # npc_tooga
@@ -335,6 +198,5 @@ public:
 
 void AddSC_tanaris()
 {
-    new npc_custodian_of_time();
     new npc_tooga();
 }
