@@ -25695,7 +25695,7 @@ void Player::BuildEnchantmentsInfoData(WorldPacket* data)
 
         data->put<uint16>(enchantmentMaskPos, enchantmentMask);
 
-        *data << uint16(item->GetItemRandomPropertyId());                // Random item property id
+        *data << int16(item->GetItemRandomPropertyId());                 // Random item property id
         *data << item->GetGuidValue(ITEM_FIELD_CREATOR).WriteAsPacked(); // item creator
         *data << uint32(item->GetItemSuffixFactor());                    // SuffixFactor
     }

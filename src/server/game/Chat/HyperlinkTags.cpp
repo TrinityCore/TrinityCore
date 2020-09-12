@@ -116,7 +116,7 @@ bool Trinity::Hyperlinks::LinkTags::item::StoreTo(ItemLinkData& val, std::string
 
     int randomPropertyId;
     if (!(val.Item && t.TryConsumeTo(val.EnchantId) && t.TryConsumeTo(val.GemEnchantId[0]) && t.TryConsumeTo(val.GemEnchantId[1]) &&
-        t.TryConsumeTo(val.GemEnchantId[2]) && t.TryConsumeTo(dummy) && t.TryConsumeTo(val.PropertySeed) && t.TryConsumeTo(randomPropertyId) &&
+        t.TryConsumeTo(val.GemEnchantId[2]) && t.TryConsumeTo(dummy) && t.TryConsumeTo(randomPropertyId) && t.TryConsumeTo(val.PropertySeed) &&
         t.TryConsumeTo(val.RenderLevel) && t.IsEmpty() && !dummy))
         return false;
 
