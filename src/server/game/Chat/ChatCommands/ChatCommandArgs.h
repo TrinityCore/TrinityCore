@@ -268,7 +268,7 @@ namespace Trinity::Impl::ChatCommands
         static constexpr size_t N = std::variant_size_v<V>;
 
         template <size_t I>
-        static ChatCommandResult TryAtIndex(Trinity::ChatCommands::Variant<Ts...>& val, ChatHandler const* handler, [[maybe_unused]] std::string_view args)
+        static ChatCommandResult TryAtIndex([[maybe_unused]] Trinity::ChatCommands::Variant<Ts...>& val, [[maybe_unused]] ChatHandler const* handler, [[maybe_unused]] std::string_view args)
         {
             if constexpr (I < N)
             {
