@@ -1,3 +1,6 @@
+-- Deathbound Ward Aura
+DELETE FROM `creature_template_addon` WHERE `entry` = 37007;
+
 -- Deathbound Ward Guid
 SET @DW_GUID_FIRST := 200987;
 SET @DW_GUID_SECOND := 201043;
@@ -12,21 +15,25 @@ SET @DW_WAYPOINT_FOURTH := 3700703;
 
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryorguid` IN(-@DW_GUID_FIRST, -@DW_GUID_SECOND, -@DW_GUID_THIRD, -@DW_GUID_FOURTH);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(-@DW_GUID_FIRST, 0, 0, 0, 0, 0, 100, 0, 3000, 6000, 6000, 8000, 0, 11, 71021, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - In Combat - Cast \'Saber Lash\''),
-(-@DW_GUID_FIRST, 0, 1, 0, 0, 0, 100, 0, 6000, 8000, 6000, 12000, 0, 11, 71022, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - In Combat - Cast \'Disrupting Shout\''),
-(-@DW_GUID_FIRST, 0, 2, 0, 38, 0, 100, 0, 1, 1, 0, 0, 0, 53, 0, @DW_WAYPOINT_FIRST, 1, 0, 0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - On Data Set 1 1 - Start Waypoint'),
+(-@DW_GUID_FIRST, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 0, 75, 70733, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - On Respawn - Add Aura \'Stoneform\''),
+(-@DW_GUID_FIRST, 0, 1, 0, 0, 0, 100, 0, 3000, 6000, 6000, 8000, 0, 11, 71021, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - In Combat - Cast \'Saber Lash\''),
+(-@DW_GUID_FIRST, 0, 2, 0, 0, 0, 100, 0, 6000, 8000, 6000, 12000, 0, 11, 71022, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - In Combat - Cast \'Disrupting Shout\''),
+(-@DW_GUID_FIRST, 0, 3, 0, 38, 0, 100, 0, 1, 1, 0, 0, 0, 53, 0, @DW_WAYPOINT_FIRST, 1, 0, 0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - On Data Set 1 1 - Start Waypoint'),
 
-(-@DW_GUID_SECOND, 0, 0, 0, 0, 0, 100, 0, 3000, 6000, 6000, 8000, 0, 11, 71021, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - In Combat - Cast \'Saber Lash\''),
-(-@DW_GUID_SECOND, 0, 1, 0, 0, 0, 100, 0, 6000, 8000, 6000, 12000, 0, 11, 71022, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - In Combat - Cast \'Disrupting Shout\''),
-(-@DW_GUID_SECOND, 0, 2, 0, 38, 0, 100, 0, 1, 1, 0, 0, 0, 53, 0, @DW_WAYPOINT_SECOND, 1, 0, 0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - On Data Set 1 1 - Start Waypoint'),
+(-@DW_GUID_SECOND, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 0, 75, 70733, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - On Respawn - Add Aura \'Stoneform\''),
+(-@DW_GUID_SECOND, 0, 1, 0, 0, 0, 100, 0, 3000, 6000, 6000, 8000, 0, 11, 71021, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - In Combat - Cast \'Saber Lash\''),
+(-@DW_GUID_SECOND, 0, 2, 0, 0, 0, 100, 0, 6000, 8000, 6000, 12000, 0, 11, 71022, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - In Combat - Cast \'Disrupting Shout\''),
+(-@DW_GUID_SECOND, 0, 3, 0, 38, 0, 100, 0, 1, 1, 0, 0, 0, 53, 0, @DW_WAYPOINT_SECOND, 1, 0, 0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - On Data Set 1 1 - Start Waypoint'),
 
-(-@DW_GUID_THIRD, 0, 0, 0, 0, 0, 100, 0, 3000, 6000, 6000, 8000, 0, 11, 71021, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - In Combat - Cast \'Saber Lash\''),
-(-@DW_GUID_THIRD, 0, 1, 0, 0, 0, 100, 0, 6000, 8000, 6000, 12000, 0, 11, 71022, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - In Combat - Cast \'Disrupting Shout\''),
-(-@DW_GUID_THIRD, 0, 2, 0, 38, 0, 100, 0, 1, 1, 0, 0, 0, 53, 0, @DW_WAYPOINT_THIRD, 1, 0, 0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - On Data Set 1 1 - Start Waypoint'),
+(-@DW_GUID_THIRD, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 0, 75, 70733, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - On Respawn - Add Aura \'Stoneform\''),
+(-@DW_GUID_THIRD, 0, 1, 0, 0, 0, 100, 0, 3000, 6000, 6000, 8000, 0, 11, 71021, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - In Combat - Cast \'Saber Lash\''),
+(-@DW_GUID_THIRD, 0, 2, 0, 0, 0, 100, 0, 6000, 8000, 6000, 12000, 0, 11, 71022, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - In Combat - Cast \'Disrupting Shout\''),
+(-@DW_GUID_THIRD, 0, 3, 0, 38, 0, 100, 0, 1, 1, 0, 0, 0, 53, 0, @DW_WAYPOINT_THIRD, 1, 0, 0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - On Data Set 1 1 - Start Waypoint'),
 
-(-@DW_GUID_FOURTH, 0, 0, 0, 0, 0, 100, 0, 3000, 6000, 6000, 8000, 0, 11, 71021, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - In Combat - Cast \'Saber Lash\''),
-(-@DW_GUID_FOURTH, 0, 1, 0, 0, 0, 100, 0, 6000, 8000, 6000, 12000, 0, 11, 71022, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - In Combat - Cast \'Disrupting Shout\''),
-(-@DW_GUID_FOURTH, 0, 2, 0, 38, 0, 100, 0, 1, 1, 0, 0, 0, 53, 0, @DW_WAYPOINT_FOURTH, 1, 0, 0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - On Data Set 1 1 - Start Waypoint');
+(-@DW_GUID_FOURTH, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 0, 75, 70733, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - On Respawn - Add Aura \'Stoneform\''),
+(-@DW_GUID_FOURTH, 0, 1, 0, 0, 0, 100, 0, 3000, 6000, 6000, 8000, 0, 11, 71021, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - In Combat - Cast \'Saber Lash\''),
+(-@DW_GUID_FOURTH, 0, 2, 0, 0, 0, 100, 0, 6000, 8000, 6000, 12000, 0, 11, 71022, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - In Combat - Cast \'Disrupting Shout\''),
+(-@DW_GUID_FOURTH, 0, 3, 0, 38, 0, 100, 0, 1, 1, 0, 0, 0, 53, 0, @DW_WAYPOINT_FOURTH, 1, 0, 0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathbound Ward - On Data Set 1 1 - Start Waypoint');
 
 DELETE FROM `waypoints` WHERE `entry` IN (@DW_WAYPOINT_FIRST, @DW_WAYPOINT_SECOND, @DW_WAYPOINT_THIRD, @DW_WAYPOINT_FOURTH);
 INSERT INTO `waypoints`(`entry`, `pointid`, `position_x`, `position_y`, `position_z`, `point_comment`) VALUES 
