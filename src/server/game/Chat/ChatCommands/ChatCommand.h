@@ -87,7 +87,7 @@ namespace Trinity::Impl::ChatCommands
     };
 
     template <typename Tuple, size_t offset>
-    ChatCommandResult ConsumeFromOffset(Tuple& tuple, ChatHandler const* handler, std::string_view args)
+    ChatCommandResult ConsumeFromOffset([[maybe_unused]] Tuple& tuple, [[maybe_unused]] ChatHandler const* handler, std::string_view args)
     {
         if constexpr (offset < std::tuple_size_v<Tuple>)
             return MultiConsumer<Tuple, std::tuple_element_t<offset, Tuple>, offset>::TryConsumeTo(tuple, handler, args);
