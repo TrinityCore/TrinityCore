@@ -63,8 +63,9 @@ namespace Trinity::Hyperlinks
         std::array<uint32, 3> GemEnchantId;
         ItemRandomPropertiesEntry const* RandomProperty;
         ItemRandomSuffixEntry const* RandomSuffix;
-        uint32 PropertySeed;
+        uint32 RandomSuffixBaseAmount; /* ITEM_FIELD_PROPERTY_SEED - only nonzero for RandomSuffix items, AllocationPct from DBC are multiplied with this, then floored, to get stat value */
         uint8 RenderLevel;
+        bool IsBuggedInspectLink;
     };
 
     struct QuestLinkData

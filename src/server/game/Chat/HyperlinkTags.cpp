@@ -20,6 +20,7 @@
 #include "ObjectMgr.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
+#include <limits>
 
 static constexpr char HYPERLINK_DATA_DELIMITER = ':';
 
@@ -113,16 +114,30 @@ bool Trinity::Hyperlinks::LinkTags::item::StoreTo(ItemLinkData& val, std::string
     if (!t.TryConsumeTo(itemId))
         return false;
     val.Item = sObjectMgr->GetItemTemplate(itemId);
+    val.IsBuggedInspectLink = false;
 
-    int randomPropertyId;
+    // randomPropertyId is actually a int16 in the client
+    // positive values index ItemRandomSuffix.dbc, while negative values index ItemRandomProperties.dbc
+    // however, there is also a client bug in inspect packet handling that causes a int16 to be cast to uint16, then int32 (dropping sign extension along the way)
+    // this results in the wrong value being sent in the link; DBC lookup clientside fails, so it sends the link without suffix
+    // to detect and allow these invalid links, we first read randomPropertyId as a full int32
+    int32 randomPropertyId;
     if (!(val.Item && t.TryConsumeTo(val.EnchantId) && t.TryConsumeTo(val.GemEnchantId[0]) && t.TryConsumeTo(val.GemEnchantId[1]) &&
-        t.TryConsumeTo(val.GemEnchantId[2]) && t.TryConsumeTo(dummy) && t.TryConsumeTo(randomPropertyId) && t.TryConsumeTo(val.PropertySeed) &&
+        t.TryConsumeTo(val.GemEnchantId[2]) && t.TryConsumeTo(dummy) && t.TryConsumeTo(randomPropertyId) && t.TryConsumeTo(val.RandomSuffixBaseAmount) &&
         t.TryConsumeTo(val.RenderLevel) && t.IsEmpty() && !dummy))
         return false;
+
+    if ((static_cast<int32>(std::numeric_limits<int16>::max()) < randomPropertyId) && (randomPropertyId <= std::numeric_limits<uint16>::max()))
+    { // this is the bug case, the id we received is actually static_cast<uint16>(i16RandomPropertyId)
+        randomPropertyId = static_cast<int16>(randomPropertyId);
+        val.IsBuggedInspectLink = true;
+    }
 
     if (randomPropertyId < 0)
     {
         if (!val.Item->RandomSuffix)
+            return false;
+        if (randomPropertyId < -static_cast<int32>(sItemRandomSuffixStore.GetNumRows()))
             return false;
         if (ItemRandomSuffixEntry const* suffixEntry = sItemRandomSuffixStore.LookupEntry(-randomPropertyId))
         {
@@ -150,7 +165,7 @@ bool Trinity::Hyperlinks::LinkTags::item::StoreTo(ItemLinkData& val, std::string
         val.RandomProperty = nullptr;
     }
 
-    if ((val.RandomSuffix && !val.PropertySeed) || (val.PropertySeed && !val.RandomSuffix))
+    if ((val.RandomSuffix && !val.RandomSuffixBaseAmount) || (val.RandomSuffixBaseAmount && !val.RandomSuffix))
         return false;
 
     return true;
