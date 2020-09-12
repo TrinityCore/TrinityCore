@@ -92,6 +92,8 @@ namespace Trinity::ChatCommands
 
         ChatCommandResult TryConsume(ChatHandler const* handler, std::string_view args) const
         {
+            if (args.empty())
+                return std::nullopt;
             std::string_view start = args.substr(0, _string.length());
             if (StringEqualI(start, _string))
             {
