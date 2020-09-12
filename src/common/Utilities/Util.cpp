@@ -29,6 +29,7 @@
 #include <cctype>
 #include <cstdarg>
 #include <ctime>
+#include <boost/core/demangle.hpp>
 
 #if TRINITY_COMPILER == TRINITY_COMPILER_GNU
   #include <sys/socket.h>
@@ -646,17 +647,23 @@ void Trinity::Impl::HexStrToByteArray(std::string_view str, uint8* out, size_t o
     }
 }
 
-bool StringEqualI(std::string_view str1, std::string_view str2)
+bool StringEqualI(std::string_view a, std::string_view b)
 {
-    return std::equal(str1.begin(), str1.end(), str2.begin(), str2.end(),
-                      [](char a, char b)
-                      {
-                          return std::tolower(a) == std::tolower(b);
-                      });
+    return std::equal(a.begin(), a.end(), b.begin(), b.end(), [](char c1, char c2) { return std::tolower(c1) == std::tolower(c2); });
 }
 
 bool StringContainsStringI(std::string_view haystack, std::string_view needle)
 {
     return haystack.end() !=
-        std::search(haystack.begin(), haystack.end(), needle.begin(), needle.end(), [](char c1, char c2) { return std::toupper(c1) == std::toupper(c2); });
+        std::search(haystack.begin(), haystack.end(), needle.begin(), needle.end(), [](char c1, char c2) { return std::tolower(c1) == std::tolower(c2); });
+}
+
+bool StringCompareLessI(std::string_view a, std::string_view b)
+{
+    return std::lexicographical_compare(a.begin(), a.end(), b.begin(), b.end(), [](char c1, char c2) { return std::tolower(c1) < std::tolower(c2); });
+}
+
+std::string GetTypeName(std::type_info const& info)
+{
+    return boost::core::demangle(info.name());
 }
