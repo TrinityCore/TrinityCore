@@ -1,5 +1,5 @@
 -- Deathbound Ward Aura
-DELETE FROM `creature_template_addon` WHERE `entry` = 37007;
+UPDATE `creature_template_addon` SET `auras` = "" WHERE `entry` IN (37007,38031);
 
 -- Deathbound Ward Guid
 SET @DW_GUID_FIRST := 200987;
