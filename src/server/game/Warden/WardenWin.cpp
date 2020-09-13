@@ -252,7 +252,7 @@ void WardenWin::RequestChecks()
         [&expectedSize](uint16 id)
         {
             uint8 const thisSize = GetCheckPacketSize(sWardenCheckMgr->GetCheckData(id));
-            if ((expectedSize + thisSize) > 512) // warden packets are truncated to 512 bytes clientside
+            if ((expectedSize + thisSize) > 500) // warden packets are truncated to 512 bytes clientside
                 return true;
             expectedSize += thisSize;
             return false;
