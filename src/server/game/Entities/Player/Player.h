@@ -1428,7 +1428,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void LearnDefaultSkill(uint32 skillId, uint16 rank);
         void LearnQuestRewardedSpells();
         void LearnQuestRewardedSpells(Quest const* quest);
-        void LearnSpellHighestRank(uint32 spellid);
         void AddTemporarySpell(uint32 spellId);
         void RemoveTemporarySpell(uint32 spellId);
         void SetReputation(uint32 factionentry, uint32 value);
