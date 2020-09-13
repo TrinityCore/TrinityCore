@@ -953,7 +953,7 @@ namespace Trinity
 
                 if (_exactRange)
                 {
-                    if (!i_obj->GetPosition().IsInDist(u->GetPositionX(), u->GetPositionY(), u->GetPositionZ(), i_range) || i_funit->IsFriendlyTo(u))
+                    if (!i_obj->GetPosition().IsInDist(u->GetPositionX(), u->GetPositionY(), u->GetPositionZ(), i_range))
                         return false;
 
                     i_range = i_obj->GetPosition().GetExactDist(u->GetPosition());
@@ -969,7 +969,6 @@ namespace Trinity
 
         private:
             WorldObject const* i_obj;
-            Unit const* i_funit;
             float i_range;
             bool _exactRange;
     };
