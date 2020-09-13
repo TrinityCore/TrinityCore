@@ -3944,14 +3944,6 @@ void Spell::update(uint32 difftime)
                         if (Unit* unit = m_caster->GetGUID() == target.targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, target.targetGUID))
                             unit->RemoveOwnedAura(m_spellInfo->Id, m_originalCasterGUID, 0, AuraRemoveFlags::ByCancel);
                 }
-                else
-                {
-                    // Update serverside orientation of channeling units
-                    ObjectGuid const channelGuid = m_caster->GetChannelObjectGuid();
-                    if (!channelGuid.IsEmpty() && channelGuid != m_caster->GetGUID() && GetSpellInfo()->HasAttribute(SPELL_ATTR1_CHANNEL_TRACK_TARGET))
-                        if (WorldObject const* objectTarget = ObjectAccessor::GetWorldObject(*m_caster, channelGuid))
-                            m_caster->SetInFront(objectTarget);
-                }
 
                 if (m_timer > 0)
                 {
