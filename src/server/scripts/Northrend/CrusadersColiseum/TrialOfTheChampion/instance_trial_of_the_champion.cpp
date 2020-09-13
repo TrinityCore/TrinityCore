@@ -200,6 +200,7 @@ public:
                     }
                     break;
             }
+            return true;
         }
 
         void SetData(uint32 uiType, uint32 uiData) override
