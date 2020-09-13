@@ -89,6 +89,7 @@ public:
                 case NPC_IMMOLTHAR:
                     _immoGUID = creature->GetGUID();
                     // we make Immolthar non attackable, otherwise players with pets can pull him out of the forcefield
+                    // TODO: this change isnt correct but since of today (13.09.2020) mmaps dont support doors
                     if (GetBossState(DATA_FORCEFIELD) != DONE)
                         creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     break;
@@ -161,13 +162,13 @@ public:
                 switch (eventId)
                 {
                     case EVENT_CRYSTAL_CREATURE_STORE:
-                        Crystalcreaturestore();
+                        CrystalCreatureStore();
                         _events.ScheduleEvent(EVENT_CRYSTAL_CREATURE_CHECK, 3s);
                         break;
                     case EVENT_CRYSTAL_CREATURE_CHECK:
-                        Crystalcreaturecheck();
+                        CrystalCreatureCheck();
                         if ((GetBossState(DATA_FORCEFIELD) != DONE))
-                            _events.ScheduleEvent(EVENT_CRYSTAL_CREATURE_CHECK, 3s);
+                            _events.ScheduleEvent(EVENT_CRYSTAL_CREATURE_CHECK, 1s);
                         break;
                     default:
                          break;
@@ -175,7 +176,7 @@ public:
             }
         }
 
-        void Crystalcreaturestore()
+        void CrystalCreatureStore()
         {
             for (uint8 i = 0; i < 5; ++i) // we store creatures in a list for all 5 crystals
             {
@@ -200,7 +201,7 @@ public:
             }
         }
 
-        void Crystalcreaturecheck()
+        void CrystalCreatureCheck()
         {
             Creature* mob = nullptr;
             GameObject* go = nullptr;
@@ -263,7 +264,7 @@ public:
                 if (GameObject* ffield = instance->GetGameObject(_forcefieldGUID))
                     ffield->SetGoState(GO_STATE_ACTIVE);
                 // remove previously set non attackable flag
-                if (Creature* Immo = instance->GetCreature(_immoGUID))
+                if (Creature* immo = instance->GetCreature(_immoGUID))
                     Immo->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
         }
