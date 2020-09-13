@@ -935,7 +935,7 @@ namespace Trinity
     class NearestAttackableNoTotemUnitInObjectRangeCheck
     {
         public:
-            NearestAttackableNoTotemUnitInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range, bool exactRange = false) : i_obj(obj), i_range(range), _exactRange(exactRange) { }
+            NearestAttackableNoTotemUnitInObjectRangeCheck(WorldObject const* obj, float range, bool exactRange = false) : i_obj(obj), i_range(range), _exactRange(exactRange) { }
 
             bool operator()(Unit* u)
             {
