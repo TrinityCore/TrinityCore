@@ -205,7 +205,7 @@ public:
             if (MovementType != POINT_MOTION_TYPE)
                 return;
 
-            instance->SetData(BOSS_ARGENT_CHALLENGE_E, DONE);
+            instance->SetBossState(BOSS_ARGENT_CHALLENGE_E, DONE);
 
             me->DisappearAndDie();
         }
@@ -333,7 +333,7 @@ public:
             if (MovementType != POINT_MOTION_TYPE || Point != 0)
                 return;
 
-            instance->SetData(BOSS_ARGENT_CHALLENGE_P, DONE);
+            instance->SetBossState(BOSS_ARGENT_CHALLENGE_P, DONE);
 
             me->DisappearAndDie();
         }
