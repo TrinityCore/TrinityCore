@@ -935,7 +935,7 @@ namespace Trinity
     class NearestAttackableNoTotemUnitInObjectRangeCheck
     {
         public:
-            NearestAttackableNoTotemUnitInObjectRangeCheck(WorldObject const* obj, float range, bool exactRange = false) : i_obj(obj), i_range(range) { }
+            NearestAttackableNoTotemUnitInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range, bool exactRange = false) : i_obj(obj), i_range(range), _exactRange(exactRange) { }
 
             bool operator()(Unit* u)
             {
@@ -1362,7 +1362,7 @@ namespace Trinity
     class AnyPlayerInObjectRangeCheck
     {
         public:
-            AnyPlayerInObjectRangeCheck(WorldObject const* obj, float range, bool exactRange = false, bool reqAlive = true) : _obj(obj), _range(range), _reqAlive(reqAlive) { }
+            AnyPlayerInObjectRangeCheck(WorldObject const* obj, float range, bool reqAlive = true, bool exactRange = false) : _obj(obj), _range(range), _reqAlive(reqAlive), _exactRange(exactRange) { }
 
             bool operator()(Player* u) const
             {
