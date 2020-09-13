@@ -583,14 +583,13 @@ public:
             handler->PSendSysMessage(LANG_SUMMONING, nameLink.c_str(), handler->GetTrinityString(LANG_OFFLINE));
 
             // in point where GM stay
-            CharacterDatabaseTransaction dummy;
             Player::SavePositionInDB(WorldLocation(_player->GetMapId(),
                 _player->GetPositionX(),
                 _player->GetPositionY(),
                 _player->GetPositionZ(),
                 _player->GetOrientation()),
                 _player->GetZoneId(),
-                targetGuid, dummy);
+                targetGuid, nullptr);
         }
 
         return true;

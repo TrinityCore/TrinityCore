@@ -138,6 +138,9 @@ struct LinkValidator<LinkTags::item>
         else if (data.RandomSuffix)
             randomSuffixes = &data.RandomSuffix->Name;
 
+        if (data.IsBuggedInspectLink) /* DBC lookup will have failed on the client, so the link should've arrived without suffix */
+            randomSuffixes = nullptr;
+
         for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
         {
             if (!locale && i != DEFAULT_LOCALE)

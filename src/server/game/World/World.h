@@ -529,8 +529,8 @@ enum RealmZone
 /// Storage class for commands issued for delayed execution
 struct TC_GAME_API CliCommandHolder
 {
-    typedef void(*Print)(void*, char const*);
-    typedef void(*CommandFinished)(void*, bool success);
+    using Print = void(*)(void*, std::string_view);
+    using CommandFinished = void(*)(void*, bool success);
 
     void* m_callbackArg;
     char* m_command;

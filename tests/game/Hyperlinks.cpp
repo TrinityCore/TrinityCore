@@ -88,7 +88,7 @@ TEST_CASE("|Hitem validation", "[Hyperlinks]")
 
     SECTION("Item link with random suffix")
     {
-        REQUIRE(true == CheckAllLinks("|cff1eff00|Hitem:36449:0:0:0:0:0:-45:43:80|h[Vrykul Shield of the Champion]|h|r"));
+        REQUIRE(true  == CheckAllLinks("|cff1eff00|Hitem:36449:0:0:0:0:0:-45:43:80|h[Vrykul Shield of the Champion]|h|r"));
         REQUIRE(false == CheckAllLinks("|cff1eff00|Hitem:36449:0:0:0:0:0:-45:43:80|h[Vrykul Shield]|h|r"));
         REQUIRE(false == CheckAllLinks("|cff1eff00|Hitem:36449:0:0:0:0:0:-1:43:80|h[Vrykul Shield]|h|r"));
         REQUIRE(false == CheckAllLinks("|cff1eff00|Hitem:36449:0:0:0:0:0:45:43:80|h[Vrykul Shield of the Champion]|h|r"));
@@ -98,6 +98,7 @@ TEST_CASE("|Hitem validation", "[Hyperlinks]")
         REQUIRE(false == CheckAllLinks("|cff1eff00|Hitem:36449:0:0:0:0:0:-45:0:80|h[Escudo vrykul del Campe\xc3\xb3n]|h|r"));
         REQUIRE(false == CheckAllLinks("|cff1eff00|Hitem:36449:0:0:0:0:0:-45:-1:80|h[Vrykul Shield of the Champion]|h|r"));
         REQUIRE(false == CheckAllLinks("|cffffffff|Hitem:6948:0:0:0:0:0:-45:43:80|h[Hearthstone of the Champion]|h|r"));
+        REQUIRE(true  == CheckAllLinks("|cff1eff00|Hitem:36449:0:0:0:0:0:65491:43:80|h[Vrykul Shield]|h|r"));
     }
 }
 

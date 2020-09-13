@@ -22,6 +22,7 @@
 #include "ChatCommandTags.h"
 #include "SmartEnum.h"
 #include "StringConvert.h"
+#include "StringFormat.h"
 #include "Util.h"
 #include <charconv>
 #include <map>
@@ -36,10 +37,13 @@ namespace Trinity::Impl::ChatCommands
     /************************** ARGUMENT HANDLERS *******************************************\
     |* Define how to extract contents of a certain requested type from a string             *|
     |* Must implement the following:                                                        *|
-    |* - TryConsume: T&, std::string_view -> Optional<std::string_view>                     *|
-    |*   returns nullopt if no match, otherwise tail of argument string                     *|
-    |*     - if nullopt is returned, state of T& is indeterminate                           *|
-    |*     - otherwise, T& should be initialized to the intended return value               *|
+    |* - TryConsume: T&, ChatHandler const*, std::string_view -> ChatCommandResult          *|
+    |*   - on match, returns tail of the provided argument string (as std::string_view)     *|
+    |*   - on specific error, returns error message (as std::string&& or char const*)       *|
+    |*   - on generic error, returns std::nullopt (this will print command usage)           *|
+    |*                                                                                      *|
+    |*   - if a match is returned, T& should be initialized to the matched value            *|
+    |*   - otherwise, the state of T& is indeterminate and caller will not use it           *|
     |*                                                                                      *|
     \****************************************************************************************/
     template <typename T, typename = void>
@@ -49,7 +53,7 @@ namespace Trinity::Impl::ChatCommands
     template <typename T>
     struct ArgInfo<T, std::enable_if_t<std::is_integral_v<T> || std::is_floating_point_v<T>>>
     {
-        static Optional<std::string_view> TryConsume(T& val, std::string_view args)
+        static ChatCommandResult TryConsume(T& val, ChatHandler const* handler, std::string_view args)
         {
             auto [token, tail] = tokenize(args);
             if (token.empty())
@@ -58,23 +62,33 @@ namespace Trinity::Impl::ChatCommands
             if (Optional<T> v = StringTo<T>(token, 0))
                 val = *v;
             else
-                return std::nullopt;
+                return FormatTrinityString(handler, LANG_CMDPARSER_STRING_VALUE_INVALID, STRING_VIEW_FMT_ARG(token), GetTypeName<T>().c_str());
 
             if constexpr (std::is_floating_point_v<T>)
             {
                 if (!std::isfinite(val))
-                    return std::nullopt;
+                    return FormatTrinityString(handler, LANG_CMDPARSER_STRING_VALUE_INVALID, STRING_VIEW_FMT_ARG(token), GetTypeName<T>().c_str());
             }
 
             return tail;
         }
     };
 
+    /*
+      for backwards compatibility, consumes the rest of the string
+      new code should use the Tail/WTail tags defined in ChatCommandTags
+    */
+    template <>
+    struct ArgInfo<char const*, void>
+    {
+        static ChatCommandResult TryConsume(char const*& arg, ChatHandler const*, std::string_view args) { arg = args.data(); return std::string_view(); }
+    };
+
     // string_view
     template <>
     struct ArgInfo<std::string_view, void>
     {
-        static Optional<std::string_view> TryConsume(std::string_view& val, std::string_view args)
+        static ChatCommandResult TryConsume(std::string_view& val, ChatHandler const*, std::string_view args)
         {
             auto [token, next] = tokenize(args);
             if (token.empty())
@@ -88,10 +102,10 @@ namespace Trinity::Impl::ChatCommands
     template <>
     struct ArgInfo<std::string, void>
     {
-        static Optional<std::string_view> TryConsume(std::string& val, std::string_view args)
+        static ChatCommandResult TryConsume(std::string& val, ChatHandler const* handler, std::string_view args)
         {
             std::string_view view;
-            Optional<std::string_view> next = ArgInfo<std::string_view>::TryConsume(view, args);
+            ChatCommandResult next = ArgInfo<std::string_view>::TryConsume(view, handler, args);
             if (next)
                 val.assign(view);
             return next;
@@ -102,13 +116,18 @@ namespace Trinity::Impl::ChatCommands
     template <>
     struct ArgInfo<std::wstring, void>
     {
-        static Optional<std::string_view> TryConsume(std::wstring& val, std::string_view args)
+        static ChatCommandResult TryConsume(std::wstring& val, ChatHandler const* handler, std::string_view args)
         {
             std::string_view utf8view;
-            Optional<std::string_view> next = ArgInfo<std::string_view>::TryConsume(utf8view, args);
+            ChatCommandResult next = ArgInfo<std::string_view>::TryConsume(utf8view, handler, args);
 
-            if (next && Utf8toWStr(utf8view, val))
-                return next;
+            if (next)
+            {
+                if (Utf8toWStr(utf8view, val))
+                    return next;
+                else
+                    return GetTrinityString(handler, LANG_CMDPARSER_INVALID_UTF8);
+            }
             else
                 return std::nullopt;
         }
@@ -118,19 +137,18 @@ namespace Trinity::Impl::ChatCommands
     template <typename T>
     struct ArgInfo<T, std::enable_if_t<std::is_enum_v<T>>>
     {
-        static std::map<std::string, Optional<T>> MakeSearchMap()
+        using SearchMap = std::map<std::string_view, Optional<T>, StringCompareLessI_T>;
+        static SearchMap MakeSearchMap()
         {
-            std::map<std::string, Optional<T>> map;
+            SearchMap map;
             for (T val : EnumUtils::Iterate<T>())
             {
                 EnumText text = EnumUtils::ToString(val);
 
-                std::string title(text.Title);
-                strToLower(title);
-                std::string constant(text.Constant);
-                strToLower(constant);
+                std::string_view title(text.Title);
+                std::string_view constant(text.Constant);
 
-                auto [constantIt, constantNew] = map.try_emplace(constant, val);
+                auto [constantIt, constantNew] = map.try_emplace(title, val);
                 if (!constantNew)
                     constantIt->second = std::nullopt;
 
@@ -144,21 +162,19 @@ namespace Trinity::Impl::ChatCommands
             return map;
         }
 
-        static inline std::map<std::string, Optional<T>> const SearchMap = MakeSearchMap();
+        static inline SearchMap const _map = MakeSearchMap();
 
-        static T const* Match(std::string s)
+        static T const* Match(std::string_view s)
         {
-            strToLower(s);
-
-            auto it = SearchMap.lower_bound(s);
-            if (it == SearchMap.end() || !StringStartsWith(it->first, s)) // not a match
+            auto it = _map.lower_bound(s);
+            if (it == _map.end() || !StringStartsWithI(it->first, s)) // not a match
                 return nullptr;
 
-            if (it->first != s) // we don't have an exact match - check if it is unique
+            if (!StringEqualI(it->first, s)) // we don't have an exact match - check if it is unique
             {
                 auto it2 = it;
                 ++it2;
-                if (it2 != SearchMap.end() && StringStartsWith(it2->first, s)) // not unique
+                if ((it2 != _map.end()) && StringStartsWithI(it2->first, s)) // not unique
                     return nullptr;
             }
 
@@ -168,31 +184,35 @@ namespace Trinity::Impl::ChatCommands
                 return nullptr;
         }
 
-        static Optional<std::string_view> TryConsume(T& val, std::string_view args)
+        static ChatCommandResult TryConsume(T& val, ChatHandler const* handler, std::string_view args)
         {
-            std::string strVal;
-            Optional<std::string_view> next = ArgInfo<std::string>::TryConsume(strVal, args);
-
-            if (next)
+            std::string_view strVal;
+            ChatCommandResult next1 = ArgInfo<std::string_view>::TryConsume(strVal, handler, args);
+            if (next1)
             {
                 if (T const* match = Match(strVal))
                 {
                     val = *match;
-                    return next;
+                    return next1;
                 }
             }
 
             // Value not found. Try to parse arg as underlying type and cast it to enum type
             using U = std::underlying_type_t<T>;
             U uVal = 0;
-            next = ArgInfo<U>::TryConsume(uVal, args);
-            if (next && EnumUtils::IsValid<T>(uVal))
+            if (ChatCommandResult next2 = ArgInfo<U>::TryConsume(uVal, handler, args))
             {
-                val = static_cast<T>(uVal);
-                return next;
+                if (EnumUtils::IsValid<T>(uVal))
+                {
+                    val = static_cast<T>(uVal);
+                    return next2;
+                }
             }
 
-            return std::nullopt;
+            if (next1)
+                return FormatTrinityString(handler, LANG_CMDPARSER_STRING_VALUE_INVALID, STRING_VIEW_FMT_ARG(strVal), GetTypeName<T>().c_str());
+            else
+                return next1;
         }
     };
 
@@ -200,9 +220,9 @@ namespace Trinity::Impl::ChatCommands
     template <typename T>
     struct ArgInfo<T, std::enable_if_t<std::is_base_of_v<ContainerTag, T>>>
     {
-        static Optional<std::string_view> TryConsume(T& tag, std::string_view args)
+        static ChatCommandResult TryConsume(T& tag, ChatHandler const* handler, std::string_view args)
         {
-            return tag.TryConsume(args);
+            return tag.TryConsume(handler, args);
         }
     };
 
@@ -210,16 +230,16 @@ namespace Trinity::Impl::ChatCommands
     template <typename T>
     struct ArgInfo<std::vector<T>, void>
     {
-        static Optional<std::string_view> TryConsume(std::vector<T>& val, std::string_view args)
+        static ChatCommandResult TryConsume(std::vector<T>& val, ChatHandler const* handler, std::string_view args)
         {
             val.clear();
-            Optional<std::string_view> next = ArgInfo<T>::TryConsume(val.emplace_back(), args);
+            ChatCommandResult next = ArgInfo<T>::TryConsume(val.emplace_back(), handler, args);
 
             if (!next)
-                return std::nullopt;
+                return next;
 
-            while (Optional<std::string_view> next2 = ArgInfo<T>::TryConsume(val.emplace_back(), *next))
-                next = next2;
+            while (ChatCommandResult next2 = ArgInfo<T>::TryConsume(val.emplace_back(), handler, *next))
+                next = std::move(next2);
 
             val.pop_back();
             return next;
@@ -230,12 +250,12 @@ namespace Trinity::Impl::ChatCommands
     template <typename T, size_t N>
     struct ArgInfo<std::array<T, N>, void>
     {
-        static Optional<std::string_view> TryConsume(std::array<T, N>& val, std::string_view args)
+        static ChatCommandResult TryConsume(std::array<T, N>& val, ChatHandler const* handler, std::string_view args)
         {
-            Optional<std::string_view> next = args;
+            ChatCommandResult next = args;
             for (T& t : val)
-                if (!(next = ArgInfo<T>::TryConsume(t, *next)))
-                    return std::nullopt;
+                if (!(next = ArgInfo<T>::TryConsume(t, handler, *next)))
+                    break;
             return next;
         }
     };
@@ -248,22 +268,36 @@ namespace Trinity::Impl::ChatCommands
         static constexpr size_t N = std::variant_size_v<V>;
 
         template <size_t I>
-        static Optional<std::string_view> TryAtIndex(Trinity::ChatCommands::Variant<Ts...>& val, [[maybe_unused]] std::string_view args)
+        static ChatCommandResult TryAtIndex([[maybe_unused]] Trinity::ChatCommands::Variant<Ts...>& val, [[maybe_unused]] ChatHandler const* handler, [[maybe_unused]] std::string_view args)
         {
             if constexpr (I < N)
             {
-                if (Optional<std::string_view> next = ArgInfo<std::variant_alternative_t<I, V>>::TryConsume(val.template emplace<I>(), args))
-                    return next;
+                ChatCommandResult thisResult = ArgInfo<std::variant_alternative_t<I, V>>::TryConsume(val.template emplace<I>(), handler, args);
+                if (thisResult)
+                    return thisResult;
                 else
-                    return TryAtIndex<I + 1>(val, args);
+                {
+                    ChatCommandResult nestedResult = TryAtIndex<I + 1>(val, handler, args);
+                    if (nestedResult || !thisResult.HasErrorMessage())
+                        return nestedResult;
+                    if (!nestedResult.HasErrorMessage())
+                        return thisResult;
+                    if (StringStartsWith(nestedResult.GetErrorMessage(), "\""))
+                        return Trinity::StringFormat("\"%s\"\n%s %s", thisResult.GetErrorMessage().c_str(), GetTrinityString(handler, LANG_CMDPARSER_OR), nestedResult.GetErrorMessage().c_str());
+                    else
+                        return Trinity::StringFormat("\"%s\"\n%s \"%s\"", thisResult.GetErrorMessage().c_str(), GetTrinityString(handler, LANG_CMDPARSER_OR), nestedResult.GetErrorMessage().c_str());
+                }
             }
             else
                 return std::nullopt;
         }
 
-        static Optional<std::string_view> TryConsume(Trinity::ChatCommands::Variant<Ts...>& val, std::string_view args)
+        static ChatCommandResult TryConsume(Trinity::ChatCommands::Variant<Ts...>& val, ChatHandler const* handler, std::string_view args)
         {
-            return TryAtIndex<0>(val, args);
+            ChatCommandResult result = TryAtIndex<0>(val, handler, args);
+            if (result.HasErrorMessage() && (result.GetErrorMessage().find('\n') != std::string::npos))
+                return Trinity::StringFormat("%s %s", GetTrinityString(handler, LANG_CMDPARSER_EITHER), result.GetErrorMessage().c_str());
+            return result;
         }
     };
 
@@ -271,28 +305,28 @@ namespace Trinity::Impl::ChatCommands
     template <>
     struct TC_GAME_API ArgInfo<AchievementEntry const*>
     {
-        static Optional<std::string_view> TryConsume(AchievementEntry const*&, std::string_view);
+        static ChatCommandResult TryConsume(AchievementEntry const*&, ChatHandler const*, std::string_view);
     };
 
     // GameTele* from string name or link
     template <>
     struct TC_GAME_API ArgInfo<GameTele const*>
     {
-        static Optional<std::string_view> TryConsume(GameTele const*&, std::string_view);
+        static ChatCommandResult TryConsume(GameTele const*&, ChatHandler const*, std::string_view);
     };
 
     // ItemTemplate* from numeric id or link
     template <>
     struct TC_GAME_API ArgInfo<ItemTemplate const*>
     {
-        static Optional<std::string_view> TryConsume(ItemTemplate const*&, std::string_view);
+        static ChatCommandResult TryConsume(ItemTemplate const*&, ChatHandler const*, std::string_view);
     };
 
     // SpellInfo const* from spell id or link
     template <>
     struct TC_GAME_API ArgInfo<SpellInfo const*>
     {
-        static Optional<std::string_view> TryConsume(SpellInfo const*&, std::string_view);
+        static ChatCommandResult TryConsume(SpellInfo const*&, ChatHandler const*, std::string_view);
     };
 
 }

@@ -25,19 +25,21 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 
-Optional<std::string_view> Trinity::ChatCommands::QuotedString::TryConsume(std::string_view args)
+using namespace Trinity::Impl::ChatCommands;
+
+ChatCommandResult Trinity::ChatCommands::QuotedString::TryConsume(ChatHandler const* handler, std::string_view args)
 {
     if (args.empty())
         return std::nullopt;
     if ((args[0] != '"') && (args[0] != '\''))
-        return Trinity::Impl::ChatCommands::ArgInfo<std::string>::TryConsume(*this, args);
+        return ArgInfo<std::string>::TryConsume(*this, handler, args);
 
     char const QUOTE = args[0];
     for (size_t i = 1; i < args.length(); ++i)
     {
         if (args[i] == QUOTE)
         {
-            auto [remainingToken, tail] = Trinity::Impl::ChatCommands::tokenize(args.substr(i + 1));
+            auto [remainingToken, tail] = tokenize(args.substr(i + 1));
             if (remainingToken.empty()) // if this is not empty, then we did not consume the full token
                 return tail;
             else
@@ -56,17 +58,17 @@ Optional<std::string_view> Trinity::ChatCommands::QuotedString::TryConsume(std::
     return std::nullopt;
 }
 
-Optional<std::string_view> Trinity::ChatCommands::AccountIdentifier::TryConsume(std::string_view args)
+ChatCommandResult Trinity::ChatCommands::AccountIdentifier::TryConsume(ChatHandler const* handler, std::string_view args)
 {
     std::string_view text;
-    Optional<std::string_view> next = Trinity::Impl::ChatCommands::ArgInfo<std::string_view>::TryConsume(text, args);
+    ChatCommandResult next = ArgInfo<std::string_view>::TryConsume(text, handler, args);
     if (!next)
-        return std::nullopt;
+        return next;
 
     // first try parsing as account name
     _name.assign(text);
     if (!Utf8ToUpperOnlyLatin(_name))
-        return std::nullopt;
+        return GetTrinityString(handler, LANG_CMDPARSER_INVALID_UTF8);
     _id = AccountMgr::GetId(_name);
     if (_id) // account with name exists, we are done
         return next;
@@ -74,21 +76,21 @@ Optional<std::string_view> Trinity::ChatCommands::AccountIdentifier::TryConsume(
     // try parsing as account id instead
     Optional<uint32> id = Trinity::StringTo<uint32>(text, 10);
     if (!id)
-        return std::nullopt;
+        return FormatTrinityString(handler, LANG_CMDPARSER_ACCOUNT_NAME_NO_EXIST, STRING_VIEW_FMT_ARG(_name));
     _id = *id;
 
     if (AccountMgr::GetName(_id, _name))
         return next;
     else
-        return std::nullopt;
+        return FormatTrinityString(handler, LANG_CMDPARSER_ACCOUNT_ID_NO_EXIST, _id);
 }
 
-Optional<std::string_view> Trinity::ChatCommands::PlayerIdentifier::TryConsume(std::string_view args)
+ChatCommandResult Trinity::ChatCommands::PlayerIdentifier::TryConsume(ChatHandler const* handler, std::string_view args)
 {
     Variant<Hyperlink<player>, ObjectGuid::LowType, std::string_view> val;
-    Optional<std::string_view> next = Trinity::Impl::ChatCommands::ArgInfo<decltype(val)>::TryConsume(val, args);
+    ChatCommandResult next = ArgInfo<decltype(val)>::TryConsume(val, handler, args);
     if (!next)
-        return std::nullopt;
+        return next;
 
     if (val.holds_alternative<ObjectGuid::LowType>())
     {
@@ -96,7 +98,7 @@ Optional<std::string_view> Trinity::ChatCommands::PlayerIdentifier::TryConsume(s
         if ((_player = ObjectAccessor::FindPlayerByLowGUID(_guid.GetCounter())))
             _name = _player->GetName();
         else if (!sCharacterCache->GetCharacterNameByGuid(_guid, _name))
-            return std::nullopt;
+            return FormatTrinityString(handler, LANG_CMDPARSER_CHAR_GUID_NO_EXIST, _guid.ToString().c_str());
         return next;
     }
     else
@@ -107,12 +109,12 @@ Optional<std::string_view> Trinity::ChatCommands::PlayerIdentifier::TryConsume(s
             _name.assign(val.get<std::string_view>());
 
         if (!normalizePlayerName(_name))
-            return std::nullopt;
+            return FormatTrinityString(handler, LANG_CMDPARSER_CHAR_NAME_INVALID, STRING_VIEW_FMT_ARG(_name));
 
         if ((_player = ObjectAccessor::FindPlayerByName(_name)))
             _guid = _player->GetGUID();
         else if (!(_guid = sCharacterCache->GetCharacterGuidByName(_name)))
-            return std::nullopt;
+            return FormatTrinityString(handler, LANG_CMDPARSER_CHAR_NAME_NO_EXIST, STRING_VIEW_FMT_ARG(_name));
         return next;
     }
 }
