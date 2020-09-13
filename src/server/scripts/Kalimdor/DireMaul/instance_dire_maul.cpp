@@ -265,7 +265,7 @@ public:
                     ffield->SetGoState(GO_STATE_ACTIVE);
                 // remove previously set non attackable flag
                 if (Creature* immo = instance->GetCreature(_immoGUID))
-                    Immo->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    immo->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
         }
 
