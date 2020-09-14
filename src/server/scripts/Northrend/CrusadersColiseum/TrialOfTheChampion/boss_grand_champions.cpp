@@ -435,7 +435,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            instance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
+            instance->SetBossState(BOSS_GRAND_CHAMPIONS, DONE);
         }
     };
 
@@ -522,7 +522,7 @@ public:
                 else if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_3))
                     me->SetHomePosition(754.34f, 660.70f, 412.39f, 4.79f);
 
-                instance->SetData(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
+                instance->SetBossState(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
 
                 EnterEvadeMode();
                 bHome = true;
@@ -579,7 +579,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            instance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
+            instance->SetBossState(BOSS_GRAND_CHAMPIONS, DONE);
         }
     };
 
@@ -672,7 +672,7 @@ public:
                 else if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_3))
                     me->SetHomePosition(754.34f, 660.70f, 412.39f, 4.79f);
 
-                instance->SetData(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
+                instance->SetBossState(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
 
                 EnterEvadeMode();
                 bHome = true;
@@ -731,7 +731,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            instance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
+            instance->SetBossState(BOSS_GRAND_CHAMPIONS, DONE);
         }
     };
 
@@ -823,7 +823,7 @@ public:
                 else if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_3))
                     me->SetHomePosition(754.34f, 660.70f, 412.39f, 4.79f);
 
-                instance->SetData(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
+                instance->SetBossState(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
 
                 EnterEvadeMode();
                 bHome = true;
@@ -892,7 +892,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            instance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
+            instance->SetBossState(BOSS_GRAND_CHAMPIONS, DONE);
         }
     };
 
@@ -976,7 +976,7 @@ public:
                 else if (me->GetGUID() == instance->GetGuidData(DATA_GRAND_CHAMPION_3))
                     me->SetHomePosition(754.34f, 660.70f, 412.39f, 4.79f);
 
-                instance->SetData(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
+                instance->SetBossState(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
 
                 EnterEvadeMode();
                 bHome = true;
@@ -1018,7 +1018,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            instance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
+            instance->SetBossState(BOSS_GRAND_CHAMPIONS, DONE);
         }
     };
 

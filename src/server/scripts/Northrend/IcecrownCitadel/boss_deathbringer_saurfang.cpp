@@ -626,7 +626,7 @@ struct npc_high_overlord_saurfang_icc : public ScriptedAI
         _events.Reset();
     }
 
-    bool GossipSelect(Player* player, uint32 menuId, uint32 /*gossipListId*/) override
+    bool OnGossipSelect(Player* player, uint32 menuId, uint32 /*gossipListId*/) override
     {
         if (menuId == GOSSIP_MENU_HIGH_OVERLORD_SAURFANG)
         {
@@ -826,7 +826,7 @@ struct npc_muradin_bronzebeard_icc : public ScriptedAI
         _events.Reset();
     }
 
-    bool GossipSelect(Player* player, uint32 menuId, uint32 /*gossipListId*/) override
+    bool OnGossipSelect(Player* player, uint32 menuId, uint32 /*gossipListId*/) override
     {
         if (menuId == GOSSIP_MENU_MURADIN_BRONZEBEARD)
         {

@@ -58,7 +58,7 @@ class TC_GAME_API ChatHandler
 
         // function with different implementation for chat/console
         virtual char const* GetTrinityString(uint32 entry) const;
-        virtual void SendSysMessage(char const* str, bool escapeCharacters = false);
+        virtual void SendSysMessage(std::string_view str, bool escapeCharacters = false);
 
         void SendSysMessage(uint32 entry);
 
@@ -147,14 +147,14 @@ class TC_GAME_API ChatHandler
 class TC_GAME_API CliHandler : public ChatHandler
 {
     public:
-        typedef void Print(void*, char const*);
+        using Print = void(void*, std::string_view);
         explicit CliHandler(void* callbackArg, Print* zprint) : m_callbackArg(callbackArg), m_print(zprint) { }
 
         // overwrite functions
         char const* GetTrinityString(uint32 entry) const override;
         bool isAvailable(ChatCommand const& cmd) const override;
         bool HasPermission(uint32 /*permission*/) const override { return true; }
-        void SendSysMessage(const char *str, bool escapeCharacters) override;
+        void SendSysMessage(std::string_view, bool escapeCharacters) override;
         bool ParseCommands(char const* str) override;
         std::string GetNameLink() const override;
         bool needReportToTarget(Player* chr) const override;
@@ -171,7 +171,7 @@ class TC_GAME_API AddonChannelCommandHandler : public ChatHandler
     public:
         using ChatHandler::ChatHandler;
         bool ParseCommands(char const* str) override;
-        void SendSysMessage(char const* str, bool escapeCharacters) override;
+        void SendSysMessage(std::string_view, bool escapeCharacters) override;
         using ChatHandler::SendSysMessage;
         bool IsHumanReadable() const override { return humanReadable; }
 

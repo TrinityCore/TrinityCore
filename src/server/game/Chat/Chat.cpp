@@ -171,7 +171,7 @@ bool ChatHandler::hasStringAbbr(char const* name, char const* part)
     return true;
 }
 
-void ChatHandler::SendSysMessage(const char *str, bool escapeCharacters)
+void ChatHandler::SendSysMessage(std::string_view str, bool escapeCharacters)
 {
     std::string msg{ str };
 
@@ -1105,7 +1105,7 @@ bool CliHandler::isAvailable(ChatCommand const& cmd) const
     return cmd.AllowConsole;
 }
 
-void CliHandler::SendSysMessage(const char *str, bool /*escapeCharacters*/)
+void CliHandler::SendSysMessage(std::string_view str, bool /*escapeCharacters*/)
 {
     m_print(m_callbackArg, str);
     m_print(m_callbackArg, "\r\n");
@@ -1262,7 +1262,7 @@ void AddonChannelCommandHandler::SendFailed() // f Command failed, no body
 }
 
 // m Command message, message in body
-void AddonChannelCommandHandler::SendSysMessage(char const* str, bool escapeCharacters)
+void AddonChannelCommandHandler::SendSysMessage(std::string_view str, bool escapeCharacters)
 {
     ASSERT(echo);
     if (!hadAck)

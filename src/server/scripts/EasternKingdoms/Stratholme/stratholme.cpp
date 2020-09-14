@@ -58,7 +58,7 @@ class go_gauntlet_gate : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 if (instance->GetData(TYPE_BARON_RUN) != NOT_STARTED)
                     return false;
