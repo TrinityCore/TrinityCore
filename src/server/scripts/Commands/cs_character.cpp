@@ -886,6 +886,8 @@ public:
                 return false;
             }
         }
+
+        return true;
     }
 
     static bool HandlePDumpWriteCommand(ChatHandler* handler, std::string fileName, PlayerIdentifier player)
