@@ -1575,6 +1575,7 @@ enum OpcodeServer : uint16
     SMSG_QUEST_GIVER_REQUEST_ITEMS                    = 0x2A92,
     SMSG_QUEST_GIVER_STATUS                           = 0x2A9A,
     SMSG_QUEST_GIVER_STATUS_MULTIPLE                  = 0x2A90,
+    SMSG_QUEST_LINES_FOR_MAP_RESPONSE                 = 0x2AA1,
     SMSG_QUEST_LOG_FULL                               = 0x2A86,
     SMSG_QUEST_POI_CHANGED                            = 0x2A9F,
     SMSG_QUEST_POI_QUERY_RESPONSE                     = 0x2A9C,
