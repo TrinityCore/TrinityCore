@@ -935,7 +935,7 @@ namespace Trinity
     class NearestAttackableNoTotemUnitInObjectRangeCheck
     {
         public:
-            NearestAttackableNoTotemUnitInObjectRangeCheck(WorldObject const* obj, float range, bool exactRange = false) : i_obj(obj), i_range(range), _exactRange(exactRange) { }
+            NearestAttackableNoTotemUnitInObjectRangeCheck(WorldObject const* obj, float range) : i_obj(obj), i_range(range) { }
 
             bool operator()(Unit* u)
             {
@@ -951,15 +951,6 @@ namespace Trinity
                 if (!u->isTargetableForAttack(false))
                     return false;
 
-                if (_exactRange)
-                {
-                    if (!i_obj->GetPosition().IsInDist(u->GetPositionX(), u->GetPositionY(), u->GetPositionZ(), i_range))
-                        return false;
-
-                    i_range = i_obj->GetPosition().GetExactDist(u->GetPosition());
-                    return true;
-                }
-
                 if (!i_obj->IsWithinDistInMap(u, i_range) || !i_obj->IsValidAttackTarget(u))
                     return false;
 
@@ -970,7 +961,6 @@ namespace Trinity
         private:
             WorldObject const* i_obj;
             float i_range;
-            bool _exactRange;
     };
 
     class AnyFriendlyUnitInObjectRangeCheck
@@ -1362,24 +1352,23 @@ namespace Trinity
     class AnyPlayerInObjectRangeCheck
     {
         public:
-            AnyPlayerInObjectRangeCheck(WorldObject const* obj, float range, bool reqAlive = true, bool exactRange = false) : _obj(obj), _range(range), _reqAlive(reqAlive), _exactRange(exactRange) { }
+            AnyPlayerInObjectRangeCheck(WorldObject const* obj, float range, bool reqAlive = true) : _obj(obj), _range(range), _reqAlive(reqAlive) { }
 
             bool operator()(Player* u) const
             {
                 if (_reqAlive && !u->IsAlive())
                     return false;
 
-                if (_exactRange)
-                    return _obj->GetPosition().IsInDist(u->GetPositionX(), u->GetPositionY(), u->GetPositionZ(), _range);
+                if (!_obj->IsWithinDistInMap(u, _range))
+                    return false;
 
-                return _obj->IsWithinDistInMap(u, _range);;
+                return true;
             }
 
         private:
             WorldObject const* _obj;
             float _range;
             bool _reqAlive;
-            bool _exactRange;
     };
 
     class AnyPlayerInPositionRangeCheck
