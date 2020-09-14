@@ -586,7 +586,7 @@ class npc_alchemist_adrianna : public CreatureScript
         {
             npc_alchemist_adriannaAI(Creature* creature) : ScriptedAI(creature) { }
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 if (!me->FindCurrentSpellBySpellId(sSpellMgr->GetSpellIdForDifficulty(SPELL_HARVEST_BLIGHT_SPECIMEN, me)))
                     if (player->HasAura(SPELL_ORANGE_BLIGHT_RESIDUE) && player->HasAura(SPELL_GREEN_BLIGHT_RESIDUE))
@@ -655,7 +655,7 @@ struct npc_entrance_faction_leader : public ScriptedAI
 {
     npc_entrance_faction_leader(Creature* creature) : ScriptedAI(creature) { }
 
-    bool GossipSelect(Player* /*player*/, uint32 menuId, uint32 /*gossipListId*/) override
+    bool OnGossipSelect(Player* /*player*/, uint32 menuId, uint32 /*gossipListId*/) override
     {
         if (menuId == GOSSIP_MENUID_ALLY || menuId == GOSSIP_MENUID_HORDE)
             if (InstanceScript* instance = me->GetInstanceScript())
@@ -1167,7 +1167,7 @@ struct go_empowering_blood_orb : public GameObjectAI
             _triggerGuid = trigger->GetGUID();
     }
 
-    bool GossipHello(Player* player) override
+    bool OnGossipHello(Player* player) override
     {
         me->CastSpell(player, SPELL_EMPOWERED_BLOOD, true);
         HandleObjectUse();

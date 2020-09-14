@@ -318,7 +318,7 @@ public:
         return true;
     }
 
-    static bool HandleUnAuraCommand(ChatHandler* handler, Variant<SpellInfo const*, ExactSequence<'a', 'l', 'l'>> spellArg)
+    static bool HandleUnAuraCommand(ChatHandler* handler, Variant<SpellInfo const*, EXACT_SEQUENCE("all")> spellArg)
     {
         Unit* target = handler->getSelectedUnit();
         if (!target)
@@ -328,7 +328,7 @@ public:
             return false;
         }
 
-        if (spellArg.holds_alternative<ExactSequence<'a', 'l', 'l'>>())
+        if (spellArg.holds_alternative<EXACT_SEQUENCE("all")>())
         {
             target->RemoveAllAuras();
             return true;
@@ -583,14 +583,13 @@ public:
             handler->PSendSysMessage(LANG_SUMMONING, nameLink.c_str(), handler->GetTrinityString(LANG_OFFLINE));
 
             // in point where GM stay
-            CharacterDatabaseTransaction dummy;
             Player::SavePositionInDB(WorldLocation(_player->GetMapId(),
                 _player->GetPositionX(),
                 _player->GetPositionY(),
                 _player->GetPositionZ(),
                 _player->GetOrientation()),
                 _player->GetZoneId(),
-                targetGuid, dummy);
+                targetGuid, nullptr);
         }
 
         return true;
@@ -1901,7 +1900,7 @@ public:
         stmt->setString(3, muteReasonStr);
         LoginDatabase.Execute(stmt);
 
-        std::string nameLink = handler->playerLink(player->GetName());
+        std::string nameLink = handler->playerLink(*player);
         if (sWorld->getBoolConfig(CONFIG_SHOW_MUTE_IN_WORLD))
             sWorld->SendWorldText(LANG_COMMAND_MUTEMESSAGE_WORLD, muteBy.c_str(), nameLink.c_str(), muteTime, muteReasonStr.c_str());
         if (target)
