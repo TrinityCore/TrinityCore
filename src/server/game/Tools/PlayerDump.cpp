@@ -829,6 +829,8 @@ DumpReturn PlayerDumpReader::LoadDump(std::istream& input, uint32 account, std::
     while (!input.eof())
     {
         input.getline(buf, BUFFER_SIZE);
+        if (input.eof())
+            break;
         if (input.fail())
             return DUMP_FILE_BROKEN;
 
