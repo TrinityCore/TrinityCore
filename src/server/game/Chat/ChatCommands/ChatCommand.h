@@ -25,77 +25,72 @@
 #include "Errors.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
+#include "StringFormat.h"
 #include <cstddef>
 #include <tuple>
 #include <type_traits>
 #include <vector>
 
 class ChatHandler;
-class CommandArgs;
 
 namespace Trinity::Impl::ChatCommands
 {
-    template <typename T>
-    struct SingleConsumer
-    {
-        static Optional<std::string_view> TryConsumeTo(T& val, std::string_view args)
-        {
-            return ArgInfo<T>::TryConsume(val, args);
-        }
-    };
-
-    /*
-      for backwards compatibility, consumes the rest of the string
-      new code should use the Tail/WTail tags defined in ChatCommandTags
-    */
-    template <>
-    struct SingleConsumer<char const*>
-    {
-        static Optional<std::string_view> TryConsumeTo(char const*& arg, std::string_view args) { arg = args.data(); return std::string_view(); }
-    };
-
-
     // forward declaration
     // ConsumeFromOffset contains the bounds check for offset, then hands off to MultiConsumer
     // the call stack is MultiConsumer -> ConsumeFromOffset -> MultiConsumer -> ConsumeFromOffset etc
-    // MultiConsumer calls SingleConsumer in each iteration
+    // MultiConsumer goes into ArgInfo for parsing on each iteration
     template <typename Tuple, size_t offset>
-    Optional<std::string_view> ConsumeFromOffset(Tuple&, std::string_view args);
+    ChatCommandResult ConsumeFromOffset(Tuple&, ChatHandler const* handler, std::string_view args);
 
     template <typename Tuple, typename NextType, size_t offset>
     struct MultiConsumer
     {
-        static Optional<std::string_view> TryConsumeTo(Tuple& tuple, std::string_view args)
+        static ChatCommandResult TryConsumeTo(Tuple& tuple, ChatHandler const* handler, std::string_view args)
         {
-            if (Optional<std::string_view> next = SingleConsumer<NextType>::TryConsumeTo(std::get<offset>(tuple), args))
-                return ConsumeFromOffset<Tuple, offset + 1>(tuple, *next);
+            ChatCommandResult next = ArgInfo<NextType>::TryConsume(std::get<offset>(tuple), handler, args);
+            if (next)
+                return ConsumeFromOffset<Tuple, offset + 1>(tuple, handler, *next);
             else
-                return std::nullopt;
+                return next;
         }
     };
 
     template <typename Tuple, typename NestedNextType, size_t offset>
     struct MultiConsumer<Tuple, Optional<NestedNextType>, offset>
     {
-        static Optional<std::string_view> TryConsumeTo(Tuple& tuple, std::string_view args)
+        static ChatCommandResult TryConsumeTo(Tuple& tuple, ChatHandler const* handler, std::string_view args)
         {
             // try with the argument
             auto& myArg = std::get<offset>(tuple);
             myArg.emplace();
-            if (Optional<std::string_view> next = SingleConsumer<NestedNextType>::TryConsumeTo(myArg.value(), args))
-                if ((next = ConsumeFromOffset<Tuple, offset + 1>(tuple, *next)))
-                    return next;
+
+            ChatCommandResult result1 = ArgInfo<NestedNextType>::TryConsume(myArg.value(), handler, args);
+            if (result1)
+                if ((result1 = ConsumeFromOffset<Tuple, offset + 1>(tuple, handler, *result1)))
+                    return result1;
             // try again omitting the argument
             myArg = std::nullopt;
-            return ConsumeFromOffset<Tuple, offset + 1>(tuple, args);
+            ChatCommandResult result2 = ConsumeFromOffset<Tuple, offset + 1>(tuple, handler, args);
+            if (result2)
+                return result2;
+            if (result1.HasErrorMessage() && result2.HasErrorMessage())
+            {
+                return Trinity::StringFormat("%s \"%s\"\n%s \"%s\"",
+                    GetTrinityString(handler, LANG_CMDPARSER_EITHER), result2.GetErrorMessage().c_str(),
+                    GetTrinityString(handler, LANG_CMDPARSER_OR), result1.GetErrorMessage().c_str());
+            }
+            else if (result1.HasErrorMessage())
+                return result1;
+            else
+                return result2;
         }
     };
 
     template <typename Tuple, size_t offset>
-    Optional<std::string_view> ConsumeFromOffset(Tuple& tuple, std::string_view args)
+    ChatCommandResult ConsumeFromOffset([[maybe_unused]] Tuple& tuple, [[maybe_unused]] ChatHandler const* handler, std::string_view args)
     {
         if constexpr (offset < std::tuple_size_v<Tuple>)
-            return MultiConsumer<Tuple, std::tuple_element_t<offset, Tuple>, offset>::TryConsumeTo(tuple, args);
+            return MultiConsumer<Tuple, std::tuple_element_t<offset, Tuple>, offset>::TryConsumeTo(tuple, handler, args);
         else if (!args.empty()) /* the entire string must be consumed */
             return std::nullopt;
         else
@@ -123,10 +118,15 @@ class TC_GAME_API ChatCommand
 
                 Tuple arguments;
                 std::get<0>(arguments) = chatHandler;
-                if (Trinity::Impl::ChatCommands::ConsumeFromOffset<Tuple, 1>(arguments, argsStr))
+                Trinity::Impl::ChatCommands::ChatCommandResult result = Trinity::Impl::ChatCommands::ConsumeFromOffset<Tuple, 1>(arguments, chatHandler, argsStr);
+                if (result)
                     return std::apply(reinterpret_cast<TypedHandler>(handler), std::move(arguments));
                 else
+                {
+                    if (result.HasErrorMessage())
+                        Trinity::Impl::ChatCommands::SendErrorMessageToHandler(chatHandler, result.GetErrorMessage());
                     return false;
+                }
             };
             _handler = reinterpret_cast<void*>(handler);
         }

@@ -1366,7 +1366,7 @@ public:
         return true;
     }
 
-    static bool HandleDebugBoundaryCommand(ChatHandler* handler, Optional<ExactSequence<'f', 'i', 'l','l'>> fill, Optional<uint32> durationArg)
+    static bool HandleDebugBoundaryCommand(ChatHandler* handler, Optional<EXACT_SEQUENCE("fill")> fill, Optional<uint32> durationArg)
     {
         Player* player = handler->GetPlayer();
         if (!player)
@@ -1471,7 +1471,7 @@ public:
         return true;
     }
 
-    static bool HandleDebugNearGraveyard(ChatHandler* handler, Optional<ExactSequence<'l', 'i', 'n', 'k', 'e', 'd'>> linked)
+    static bool HandleDebugNearGraveyard(ChatHandler* handler, Optional<EXACT_SEQUENCE("linked")> linked)
     {
         Player* player = handler->GetPlayer();
         WorldSafeLocsEntry const* nearestLoc = nullptr;
@@ -1518,7 +1518,7 @@ public:
         return true;
     }
 
-    static bool HandleDebugInstanceSpawns(ChatHandler* handler, Variant<uint32, ExactSequence<'e', 'x', 'p', 'l', 'a', 'i', 'n'>> optArg)
+    static bool HandleDebugInstanceSpawns(ChatHandler* handler, Variant<uint32, EXACT_SEQUENCE("explain")> optArg)
     {
         Player const* const player = handler->GetPlayer();
         if (!player)
@@ -1526,10 +1526,10 @@ public:
 
         bool explain = false;
         uint32 groupID = 0;
-        if (optArg.holds_alternative<ExactSequence<'e', 'x', 'p', 'l', 'a', 'i', 'n'>>())
-            explain = true;
-        else
+        if (optArg.holds_alternative<uint32>())
             groupID = optArg.get<uint32>();
+        else
+            explain = true;
 
         if (groupID && !sObjectMgr->GetSpawnGroupData(groupID))
         {

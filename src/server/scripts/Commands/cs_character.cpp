@@ -248,7 +248,6 @@ public:
         Player const* target = player->GetConnectedPlayer();
 
         LocaleConstant loc = handler->GetSessionDbcLocale();
-        std::string const& targetName = player->GetName();
         char const* knownStr = handler->GetTrinityString(LANG_KNOWN);
 
         // Search in CharTitles.dbc
@@ -268,7 +267,7 @@ public:
                 if (target->GetUInt32Value(PLAYER_CHOSEN_TITLE) == titleInfo->MaskID)
                     activeStr = handler->GetTrinityString(LANG_ACTIVE);
 
-                std::string titleName = Trinity::StringFormat(name, targetName.c_str());
+                std::string titleName = Trinity::StringFormat(name, player->GetName().c_str());
 
                 // send title in "id (idx:idx) - [namedlink locale]" format
                 if (handler->GetSession())
@@ -377,7 +376,7 @@ public:
                 if (handler->HasLowerSecurity(nullptr, player->GetGUID()))
                     return false;
 
-                handler->PSendSysMessage(LANG_RENAME_PLAYER_GUID, handler->playerLink(player->GetName()).c_str(), player->GetGUID().GetCounter());
+                handler->PSendSysMessage(LANG_RENAME_PLAYER_GUID, handler->playerLink(*player).c_str(), player->GetGUID().GetCounter());
 
                 CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
                 stmt->setUInt16(0, uint16(AT_LOGIN_RENAME));
@@ -404,7 +403,7 @@ public:
         }
         else
         {
-            handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER_GUID, handler->playerLink(player->GetName()).c_str(), player->GetGUID().GetCounter());
+            handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER_GUID, handler->playerLink(*player).c_str(), player->GetGUID().GetCounter());
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
             stmt->setUInt16(0, static_cast<uint16>(AT_LOGIN_CUSTOMIZE));
             stmt->setUInt32(1, player->GetGUID().GetCounter());
@@ -428,7 +427,7 @@ public:
         }
         else
         {
-            handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER_GUID, handler->playerLink(player->GetName()).c_str(), player->GetGUID().GetCounter());
+            handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER_GUID, handler->playerLink(*player).c_str(), player->GetGUID().GetCounter());
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
             stmt->setUInt16(0, uint16(AT_LOGIN_CHANGE_FACTION));
             stmt->setUInt32(1, player->GetGUID().GetCounter());
@@ -452,7 +451,7 @@ public:
         }
         else
         {
-            handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER_GUID, handler->playerLink(player->GetName()).c_str(), player->GetGUID().GetCounter());
+            handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER_GUID, handler->playerLink(*player).c_str(), player->GetGUID().GetCounter());
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
             stmt->setUInt16(0, uint16(AT_LOGIN_CHANGE_RACE));
             stmt->setUInt32(1, player->GetGUID().GetCounter());
@@ -716,10 +715,10 @@ public:
     static bool HandleCharacterEraseCommand(ChatHandler* handler, PlayerIdentifier player)
     {
         uint32 accountId;
-        if (player.IsConnected())
+        if (Player* target = player.GetConnectedPlayer())
         {
-            accountId = player->GetSession()->GetAccountId();
-            player->GetSession()->KickPlayer("HandleCharacterEraseCommand GM Command deleting character");
+            accountId = target->GetSession()->GetAccountId();
+            target->GetSession()->KickPlayer("HandleCharacterEraseCommand GM Command deleting character");
         }
         else
             accountId = sCharacterCache->GetCharacterAccountIdByGuid(player);
@@ -775,7 +774,7 @@ public:
         }
 
         if (!handler->GetSession() || (handler->GetSession()->GetPlayer() != player->GetConnectedPlayer()))      // including chr == NULL
-            handler->PSendSysMessage(LANG_YOU_CHANGE_LVL, handler->playerLink(player->GetName()).c_str(), newlevel);
+            handler->PSendSysMessage(LANG_YOU_CHANGE_LVL, handler->playerLink(*player).c_str(), newlevel);
 
         return true;
     }

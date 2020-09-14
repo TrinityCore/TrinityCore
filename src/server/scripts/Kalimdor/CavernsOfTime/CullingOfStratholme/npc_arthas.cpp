@@ -1595,7 +1595,7 @@ public:
                 instance->SetGuidData(command, cause->GetGUID());
         }
 
-        bool GossipSelect(Player* player, uint32 /*sender*/, uint32 listId) override
+        bool OnGossipSelect(Player* player, uint32 /*sender*/, uint32 listId) override
         {
             uint32 const action = GetGossipActionFor(player, listId);
             TC_LOG_TRACE("scripts.cos", "npc_arthas_stratholmeAI::GossipSelect: '%s' selects action '%u' on '%s'", player->GetGUID().ToString().c_str(), action, me->GetGUID().ToString().c_str());
@@ -1608,7 +1608,7 @@ public:
             return true;
         }
 
-        bool GossipHello(Player* /*player*/) override
+        bool OnGossipHello(Player* /*player*/) override
         {
             return false;
         }

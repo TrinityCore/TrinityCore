@@ -118,7 +118,7 @@ struct boss_coren_direbrew : public BossAI
 {
     boss_coren_direbrew(Creature* creature) : BossAI(creature, DATA_COREN) { }
 
-    bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+    bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
     {
         if (menuId != GOSSIP_ID)
             return false;

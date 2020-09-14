@@ -18,8 +18,16 @@
 #ifndef TRINITY_CHATCOMMANDHELPERS_H
 #define TRINITY_CHATCOMMANDHELPERS_H
 
+#include "Define.h"
+#include "Language.h"
+#include "StringFormat.h"
+#include <optional>
+#include <string>
 #include <string_view>
 #include <type_traits>
+#include <variant>
+
+class ChatHandler;
 
 namespace Trinity::Impl::ChatCommands
 {
@@ -82,6 +90,43 @@ namespace Trinity::Impl::ChatCommands
 
     template <std::size_t index, typename... Ts>
     using get_nth_t = typename get_nth<index, Ts...>::type;
+
+    // this essentially models std::optional<std::string_view>, except it can also hold an error message
+    // it has std::string_view's bool conversion and dereference operators
+    //
+    // monostate <-> unspecified error, typically end-of-string reached or parsing failed
+    // std::string <-> specified error, typically character-not-found or invalid item link
+    // std::string_view <-> success, string_view is remaining argument string
+    struct ChatCommandResult
+    {
+        ChatCommandResult(std::nullopt_t) : _storage() {}
+        ChatCommandResult(std::string const&) = delete;
+        ChatCommandResult(std::string&& s) : _storage(std::in_place_type<std::string>, std::forward<std::string>(s)) {}
+        ChatCommandResult(char const* c) : _storage(std::in_place_type<std::string>, c) {}
+        ChatCommandResult(std::string_view s) : _storage(std::in_place_type<std::string_view>, s) {}
+
+        ChatCommandResult(ChatCommandResult const&) = delete;
+        ChatCommandResult(ChatCommandResult&&) = default;
+        ChatCommandResult& operator=(ChatCommandResult const&) = delete;
+        ChatCommandResult& operator=(ChatCommandResult&&) = default;
+
+        std::string_view operator*() const { return std::get<std::string_view>(_storage); }
+        bool IsSuccessful() const { return std::holds_alternative<std::string_view>(_storage); }
+        explicit operator bool() const { return IsSuccessful(); }
+        bool HasErrorMessage() const { return std::holds_alternative<std::string>(_storage); }
+        std::string const& GetErrorMessage() const { return std::get<std::string>(_storage); }
+
+        private:
+            std::variant<std::monostate, std::string_view, std::string> _storage;
+    };
+
+    TC_GAME_API void SendErrorMessageToHandler(ChatHandler* handler, std::string_view str);
+    TC_GAME_API char const* GetTrinityString(ChatHandler const* handler, TrinityStrings which);
+    template <typename... Ts>
+    std::string FormatTrinityString(ChatHandler const* handler, TrinityStrings which, Ts&&... args)
+    {
+        return Trinity::StringFormat(GetTrinityString(handler, which), std::forward<Ts>(args)...);
+    }
 }
 
 #endif

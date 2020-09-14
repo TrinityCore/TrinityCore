@@ -344,7 +344,7 @@ class npc_sinclari_vh : public CreatureScript
                 }
             }
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 // override default gossip
                 switch (_instance->GetData(DATA_MAIN_EVENT_STATE))
@@ -365,7 +365,7 @@ class npc_sinclari_vh : public CreatureScript
                 return false;
             }
 
-            bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+            bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {
                 if (menuId == GOSSIP_MENU_START_ENCOUNTER && gossipListId == 0)
                 {
@@ -1307,7 +1307,7 @@ class go_activation_crystal : public GameObjectScript
         {
             go_activation_crystalAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 player->CastSpell(player, SPELL_CRYSTAL_ACTIVATION, true);
                 return false;

@@ -4474,7 +4474,7 @@ void Player::DeleteOldCharacters(uint32 keepDays)
     TC_LOG_INFO("entities.player", "Player::DeleteOldCharacters: Deleting all characters which have been deleted %u days before...", keepDays);
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_OLD_CHARS);
-    stmt->setUInt32(0, uint32(GameTime::GetGameTime() - time_t(keepDays * DAY)));
+    stmt->setUInt32(0, static_cast<uint32>(GameTime::GetGameTime() - static_cast<time_t>(keepDays) * DAY));
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     if (result)
@@ -14928,7 +14928,7 @@ void Player::AddQuestAndCheckCompletion(Quest const* quest, Object* questGiver)
     {
         case TYPEID_UNIT:
             PlayerTalkClass->ClearMenus();
-            questGiver->ToCreature()->AI()->QuestAccept(this, quest);
+            questGiver->ToCreature()->AI()->OnQuestAccept(this, quest);
             break;
         case TYPEID_ITEM:
         case TYPEID_CONTAINER:
@@ -14960,7 +14960,7 @@ void Player::AddQuestAndCheckCompletion(Quest const* quest, Object* questGiver)
         }
         case TYPEID_GAMEOBJECT:
             PlayerTalkClass->ClearMenus();
-            questGiver->ToGameObject()->AI()->QuestAccept(this, quest);
+            questGiver->ToGameObject()->AI()->OnQuestAccept(this, quest);
             break;
         default:
             break;
@@ -25695,7 +25695,7 @@ void Player::BuildEnchantmentsInfoData(WorldPacket* data)
 
         data->put<uint16>(enchantmentMaskPos, enchantmentMask);
 
-        *data << uint16(item->GetItemRandomPropertyId());                // Random item property id
+        *data << int16(item->GetItemRandomPropertyId());                 // Random item property id
         *data << item->GetGuidValue(ITEM_FIELD_CREATOR).WriteAsPacked(); // item creator
         *data << uint32(item->GetItemSuffixFactor());                    // SuffixFactor
     }

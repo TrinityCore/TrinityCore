@@ -1212,7 +1212,7 @@ struct npc_tirion_fordring_tft : public ScriptedAI
             me->LoadEquipment(1); // remove glow on ashbringer
     }
 
-    bool GossipSelect(Player* /*player*/, uint32 menuId, uint32 gossipListId) override
+    bool OnGossipSelect(Player* /*player*/, uint32 menuId, uint32 gossipListId) override
     {
         if (me->GetCreatureTemplate()->GossipMenuId == menuId && !gossipListId)
         {

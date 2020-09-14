@@ -3191,12 +3191,7 @@ void World::_UpdateRealmCharCount(PreparedQueryResult resultCharCount)
 
         LoginDatabaseTransaction trans = LoginDatabase.BeginTransaction();
 
-        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_REALM_CHARACTERS_BY_REALM);
-        stmt->setUInt32(0, accountId);
-        stmt->setUInt32(1, realm.Id.Realm);
-        trans->Append(stmt);
-
-        stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_REALM_CHARACTERS);
+        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_REP_REALM_CHARACTERS);
         stmt->setUInt8(0, charCount);
         stmt->setUInt32(1, accountId);
         stmt->setUInt32(2, realm.Id.Realm);
