@@ -230,6 +230,7 @@ public:
                     case 9:
                         me->SetCanFly(false);
                         me->SetDisableGravity(false);
+                        me->SetAnimationTier(AnimationTier::Ground);
                         if (Creature* trigger = ObjectAccessor::GetCreature(*me, triggerGUID))
                             Unit::Kill(me, trigger);
                         me->SetReactState(REACT_AGGRESSIVE);
