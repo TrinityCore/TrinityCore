@@ -3552,7 +3552,8 @@ void Spell::_cast(bool skipCheck)
     // The spell focusing is making sure that we have a valid cast target guid when we need it so only check for a guid value here.
     if (Creature* creatureCaster = m_caster->ToCreature())
         if (!creatureCaster->GetTarget().IsEmpty() && !creatureCaster->HasUnitFlag(UNIT_FLAG_POSSESSED))
-            creatureCaster->SetInFront(ObjectAccessor::GetUnit(*creatureCaster, creatureCaster->GetTarget()));
+            if (WorldObject const* target = ObjectAccessor::GetUnit(*creatureCaster, creatureCaster->GetTarget()))
+                creatureCaster->SetInFront(target);
 
     SelectSpellTargets();
 
