@@ -19,7 +19,7 @@
 #define _PLAYER_DUMP_H
 
 #include <string>
-#include <istream>
+#include <iosfwd>
 #include <map>
 #include <set>
 #include "ObjectGuid.h"
