@@ -228,7 +228,7 @@ class spell_hun_cobra_shot : public SpellScriptLoader
                             if (spellTarget->GetHealthPct() <= float(terminationAura->GetSpellInfo()->Effects[EFFECT_1].BasePoints))
                                 amount += terminationAura->GetEffect(EFFECT_0)->GetAmount();
                     }
-                    caster->CastCustomSpell(SPELL_HUNTER_GENERIC_ENERGIZE_FOCUS, SPELLVALUE_BASE_POINT0, amount, caster, true);
+                    caster->CastSpell(caster, SPELL_HUNTER_GENERIC_ENERGIZE_FOCUS, CastSpellExtraArgs(true).AddSpellBP0(amount));
                 }
             }
 
@@ -349,7 +349,7 @@ class spell_hun_improved_mend_pet : public SpellScriptLoader
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
-                GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_IMPROVED_MEND_PET, true, nullptr, aurEff);
+                GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_IMPROVED_MEND_PET, aurEff);
             }
 
             void Register() override
@@ -377,7 +377,7 @@ class spell_hun_invigoration : public SpellScript
     {
         Unit* target = GetHitUnit();
         if (AuraEffect* aurEff = target->GetDummyAuraEffect(SPELLFAMILY_HUNTER, HUNTER_ICON_ID_INVIGORATION, EFFECT_0))
-            target->CastCustomSpell(SPELL_HUNTER_INVIGORATION_TRIGGERED, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), target, true, nullptr, aurEff);
+            target->CastSpell(target, SPELL_HUNTER_INVIGORATION_TRIGGERED, CastSpellExtraArgs(aurEff).AddSpellBP0(aurEff->GetAmount()));
     }
 
     void Register() override
@@ -403,7 +403,7 @@ class spell_hun_last_stand_pet : public SpellScriptLoader
             {
                 Unit* caster = GetCaster();
                 int32 healthModSpellBasePoints0 = int32(caster->CountPctFromMaxHealth(30));
-                caster->CastCustomSpell(caster, SPELL_HUNTER_PET_LAST_STAND_TRIGGERED, &healthModSpellBasePoints0, nullptr, nullptr, true, nullptr);
+                caster->CastSpell(caster, SPELL_HUNTER_PET_LAST_STAND_TRIGGERED, CastSpellExtraArgs(true).AddSpellBP0(healthModSpellBasePoints0));
             }
 
             void Register() override
@@ -549,7 +549,7 @@ class spell_hun_misdirection : public SpellScriptLoader
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
-                GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_MISDIRECTION_PROC, true, nullptr, aurEff);
+                GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_MISDIRECTION_PROC, aurEff);
             }
 
             void Register() override
@@ -671,7 +671,7 @@ class spell_hun_pet_heart_of_the_phoenix : public SpellScriptLoader
                 if (Unit* owner = caster->GetOwner())
                     if (!caster->HasAura(SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF))
                     {
-                        owner->CastCustomSpell(SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED, SPELLVALUE_BASE_POINT0, 100, caster, true);
+                        owner->CastSpell(caster, SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED, CastSpellExtraArgs(true).AddSpellBP0(100));
                         caster->CastSpell(caster, SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF, true);
                     }
             }
@@ -716,7 +716,7 @@ class spell_hun_rapid_recuperation : public SpellScriptLoader
                     return;
 
                 int32 focus = aurEff->GetAmount();
-                GetTarget()->CastCustomSpell(SPELL_HUNTER_RAPID_RECUPERATION, SPELLVALUE_BASE_POINT0, focus, GetTarget(), true, nullptr, aurEff);
+                GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_RAPID_RECUPERATION, CastSpellExtraArgs(aurEff).AddSpellBP0(focus));
             }
 
             void Register() override
@@ -792,7 +792,7 @@ class spell_hun_ready_set_aim : public SpellScriptLoader
             {
                 if (GetStackAmount() == 5)
                 {
-                    GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_FIRE, true, nullptr, aurEff);
+                    GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_FIRE, aurEff);
                     GetTarget()->RemoveAura(GetId());
                 }
             }
@@ -864,7 +864,7 @@ class spell_hun_sniper_training : public SpellScriptLoader
                     Unit* target = GetTarget();
                     uint32 spellId = SPELL_HUNTER_SNIPER_TRAINING_BUFF_R1 + GetId() - SPELL_HUNTER_SNIPER_TRAINING_R1;
 
-                    target->CastSpell(target, spellId, true, 0, aurEff);
+                    target->CastSpell(target, spellId, aurEff);
                     if (Player* playerTarget = GetUnitOwner()->ToPlayer())
                     {
                         int32 baseAmount = aurEff->GetBaseAmount();
@@ -943,7 +943,7 @@ class spell_hun_steady_shot : public SpellScriptLoader
                                 amount += terminationAura->GetEffect(EFFECT_0)->GetAmount();
                     }
 
-                    caster->CastCustomSpell(SPELL_HUNTER_STEADY_SHOT_FOCUS, SPELLVALUE_BASE_POINT0, amount, caster, true);
+                    caster->CastSpell(caster, SPELL_HUNTER_STEADY_SHOT_FOCUS, CastSpellExtraArgs(true).AddSpellBP0(amount));
                 }
             }
 
@@ -986,7 +986,7 @@ class spell_hun_improved_steady_shot : public SpellScriptLoader
                     _steadyShotCounter++;
                     if (_steadyShotCounter == 2)
                     {
-                        GetCaster()->CastCustomSpell(SPELL_HUNTER_IMPROVED_STEADY_SHOT_TRIGGERED, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), GetCaster(), true);
+                        GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_IMPROVED_STEADY_SHOT_TRIGGERED, CastSpellExtraArgs(aurEff).AddSpellBP0(aurEff->GetAmount()));
                         _steadyShotCounter = 0;
                     }
                 }
@@ -1136,7 +1136,7 @@ class spell_hun_thrill_of_the_hunt : public SpellScriptLoader
                 int32 focus = eventInfo.GetDamageInfo()->GetSpellInfo()->CalcPowerCost(GetTarget(), SpellSchoolMask(eventInfo.GetDamageInfo()->GetSchoolMask()));
                 focus = CalculatePct(focus, aurEff->GetAmount());
 
-                GetTarget()->CastCustomSpell(GetTarget(), SPELL_HUNTER_THRILL_OF_THE_HUNT, &focus, nullptr, nullptr, true, nullptr, aurEff);
+                GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_THRILL_OF_THE_HUNT, CastSpellExtraArgs(aurEff).AddSpellBP0(focus));
             }
 
             void Register() override
@@ -1167,7 +1167,7 @@ class spell_hun_tnt : public AuraScript
     void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
     {
         PreventDefaultAction();
-        GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_LOCK_AND_LOAD, true, nullptr, aurEff);
+        GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_LOCK_AND_LOAD, aurEff);
     }
 
     void Register() override
@@ -1200,7 +1200,7 @@ class spell_hun_wild_quiver : public SpellScriptLoader
                 PreventDefaultAction();
                 if (Unit* caster = GetCaster())
                     if (Unit* target = eventInfo.GetActionTarget())
-                        caster->CastSpell(target, SPELL_HUNTER_WILD_QUIVER_DAMAGE, true, nullptr, aurEff);
+                        caster->CastSpell(target, SPELL_HUNTER_WILD_QUIVER_DAMAGE, aurEff);
             }
 
             void Register() override
@@ -1233,7 +1233,7 @@ class spell_hun_serpent_sting : public AuraScript
         if (AuraEffect const* improved = caster->GetDummyAuraEffect(SPELLFAMILY_HUNTER, HUNTER_ICON_ID_IMPROVED_SERPPENT_STING, EFFECT_0))
         {
             int32 bp = CalculatePct(aurEff->GetAmount() * aurEff->GetTotalTicks(), improved->GetAmount());
-            caster->CastCustomSpell(SPELL_HUNTER_IMPROVED_SERPENT_STING_DAMAGE, SPELLVALUE_BASE_POINT0, bp, GetTarget(), true, nullptr, improved);
+            caster->CastSpell(GetTarget(), SPELL_HUNTER_IMPROVED_SERPENT_STING_DAMAGE, CastSpellExtraArgs(improved).AddSpellBP0(bp));
         }
     }
 
@@ -1290,7 +1290,7 @@ class spell_hun_piercing_shots : public SpellScriptLoader
                 if (tickNumber)
                 {
                     uint32 damage = CalculatePct(eventInfo.GetDamageInfo()->GetDamage() * aurEff->GetAmount(), 1) / tickNumber;
-                    GetCaster()->CastCustomSpell(SPELL_HUNTER_PIERCING_SHOTS, SPELLVALUE_BASE_POINT0, damage, eventInfo.GetActionTarget(), true);
+                    GetCaster()->CastSpell(eventInfo.GetActionTarget(), SPELL_HUNTER_PIERCING_SHOTS, CastSpellExtraArgs(aurEff).AddSpellBP0(damage));
                 }
             }
 
@@ -1376,7 +1376,7 @@ class spell_hun_trap_launcher : public AuraScript
 
     void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
-        GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_IMPROVED_STEADY_SHOT_TRIGGERED, true, nullptr, aurEff);
+        GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_IMPROVED_STEADY_SHOT_TRIGGERED, aurEff);
     }
 
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1415,7 +1415,7 @@ class spell_hun_glyph_of_kill_shot : public AuraScript
         if (damage->GetDamage() < victim->GetHealth())
         {
             target->GetSpellHistory()->ResetCooldown(spell->Id, true);
-            target->CastSpell(target, SPELL_HUNTER_GLYPH_OF_KILL_SHOT_COOLDOWN, true, nullptr, aurEff);
+            target->CastSpell(target, SPELL_HUNTER_GLYPH_OF_KILL_SHOT_COOLDOWN, aurEff);
         }
     }
 
@@ -1466,7 +1466,7 @@ class spell_hun_camouflage_duration : public AuraScript
 
     void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
-        GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_CAMOUFLAGE_PERIODIC, true, nullptr, aurEff);
+        GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_CAMOUFLAGE_PERIODIC, aurEff);
     }
 
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1531,7 +1531,7 @@ class spell_hun_marked_for_death : public AuraScript
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
-        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_HUNTER_MARKED_FOR_DEATH_TRIGGERED, true, nullptr, aurEff);
+        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_HUNTER_MARKED_FOR_DEATH_TRIGGERED, aurEff);
     }
 
     void Register() override
@@ -1577,7 +1577,7 @@ class spell_hun_focus_fire : public AuraScript
             {
                 uint8 stacks = frenzy->GetStackAmount();
                 int32 bp = aurEff->GetAmount() * stacks;
-                player->CastCustomSpell(SPELL_HUNTER_FOCUS_FIRE_ENERGIZE, SPELLVALUE_BASE_POINT0, bp, pet, true, nullptr, aurEff);
+                player->CastSpell(pet, SPELL_HUNTER_FOCUS_FIRE_ENERGIZE, CastSpellExtraArgs(aurEff).AddSpellBP0(bp));
                 frenzy->Remove();
             }
         }
@@ -1607,7 +1607,7 @@ class spell_hun_frenzy_effect : public AuraScript
         if (GetStackAmount() == GetSpellInfo()->StackAmount)
             if (Unit* owner = GetTarget()->GetOwner())
                 if (owner->HasSpell(SPELL_HUNTER_FOCUS_FIRE))
-                    owner->CastSpell(owner, SPELL_HUNTER_FOCUS_FIRE_DUMMY, true, nullptr, aurEff);
+                    owner->CastSpell(owner, SPELL_HUNTER_FOCUS_FIRE_DUMMY, aurEff);
     }
 
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1702,7 +1702,7 @@ class spell_hun_killing_streak : public AuraScript
         {
             if (_firstCrit)
             {
-                GetTarget()->CastSpell(GetTarget(), KillingStreakTriggerSpells[GetSpellInfo()->GetRank() - 1], true, nullptr, aurEff);
+                GetTarget()->CastSpell(GetTarget(), KillingStreakTriggerSpells[GetSpellInfo()->GetRank() - 1], aurEff);
                 _firstCrit = false;
             }
             else

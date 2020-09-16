@@ -203,7 +203,7 @@ class spell_ozruk_rupture : public AuraScript
             float y = caster->GetPositionY() + sin(angle) * dist;
             float z = caster->GetMap()->GetStaticHeight(caster->GetPhaseShift(), x, y, caster->GetPositionZ() + 3.0f);
             if (std::abs(z) < caster->GetPositionZ() + 5.0f)
-                caster->CastSpell(x, y, z, SPELL_RUPTURE_SUMMON, true);
+                caster->CastSpell({ x, y, z }, SPELL_RUPTURE_SUMMON, true);
             angle += 0.2f;
         }
     }

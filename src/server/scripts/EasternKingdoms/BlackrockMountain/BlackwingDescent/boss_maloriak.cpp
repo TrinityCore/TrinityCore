@@ -1134,7 +1134,7 @@ class spell_maloriak_magma_jets_periodic : public AuraScript
         float y = target->GetPositionY() + sin(target->GetOrientation()) * dist;
         float z = target->GetMapHeight(x, y, target->GetPositionZ() + 5.0f);
         if (target->IsWithinLOS(x, y, z))
-            target->CastSpell(x, y, z, SPELL_MAGMA_JETS_SUMMON_FIRE, true);
+            target->CastSpell({ x, y, z }, SPELL_MAGMA_JETS_SUMMON_FIRE, true);
         else
             Remove();
     }
@@ -1182,7 +1182,7 @@ class spell_maloriak_vile_swill: public AuraScript
         PreventDefaultAction();
         Unit* target = GetTarget();
         Position const destination = target->GetRandomPoint(target->GetPosition(), 11.0f);
-        target->CastSpell(destination.GetPositionX(), destination.GetPositionY(), destination.GetPositionZ(), SPELL_VILE_SWILL_SUMMON, true);
+        target->CastSpell({ destination.GetPositionX(), destination.GetPositionY(), destination.GetPositionZ() }, SPELL_VILE_SWILL_SUMMON, true);
     }
 
     void Register() override

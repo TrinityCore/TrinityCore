@@ -439,7 +439,7 @@ public:
             {
                 int bp0 = 1100;
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    me->CastCustomSpell(target, SPELL_SHOOT, &bp0, nullptr, nullptr, true);
+                    DoCast(target, SPELL_SHOOT, CastSpellExtraArgs(true).AddSpellBP0(bp0));
                 ShootBowTimer = 4000 + rand32() % 5000;
                 MultiShotTimer += 1500; // add global cooldown
             } else ShootBowTimer -= diff;

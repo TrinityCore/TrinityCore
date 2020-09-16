@@ -499,7 +499,7 @@ public:
         {
             // Need be negative to heal trigger
             int32 bp = addhealth * (-1);
-            me->CastCustomSpell(SPELL_SHARED_RULE, SPELLVALUE_BASE_POINT0, bp, (Unit*) nullptr, true);
+            DoCast(nullptr, SPELL_SHARED_RULE, CastSpellExtraArgs(true).AddSpellBP0(bp));
         }
 
         void ExecuteEvent(uint32 eventId) override
@@ -696,7 +696,7 @@ class spell_illidari_council_balance_of_power : public SpellScriptLoader
             {
                 PreventDefaultAction();
                 int32 bp = dmgInfo.GetDamage();
-                GetTarget()->CastCustomSpell(SPELL_SHARED_RULE, SPELLVALUE_BASE_POINT0, bp, (Unit*) nullptr, true, nullptr, aurEff);
+                GetTarget()->CastSpell(nullptr, SPELL_SHARED_RULE, CastSpellExtraArgs(aurEff).AddSpellBP0(bp));
             }
 
             void Register() override
@@ -729,7 +729,7 @@ class spell_illidari_council_deadly_strike : public SpellScriptLoader
                 PreventDefaultAction();
 
                 if (Unit* victim = GetTarget()->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    GetTarget()->CastSpell(victim, SPELL_DEADLY_POISON, true, nullptr, aurEff);
+                    GetTarget()->CastSpell(victim, SPELL_DEADLY_POISON, CastSpellExtraArgs(aurEff));
             }
 
             void Register() override
@@ -795,7 +795,7 @@ class spell_illidari_council_reflective_shield : public SpellScriptLoader
                     return;
 
                 int32 bp = absorbAmount / 2;
-                target->CastCustomSpell(dmgInfo.GetAttacker(), SPELL_REFLECTIVE_SHIELD_DAMAGE, &bp, nullptr, nullptr, true, nullptr, aurEff);
+                target->CastSpell(dmgInfo.GetAttacker(), SPELL_REFLECTIVE_SHIELD_DAMAGE, CastSpellExtraArgs(aurEff).AddSpellBP0(bp));
             }
 
             void Register() override

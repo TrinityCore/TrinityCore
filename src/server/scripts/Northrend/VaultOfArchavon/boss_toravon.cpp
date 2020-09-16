@@ -92,7 +92,7 @@ class boss_toravon : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_FROZEN_ORB:
-                            me->CastCustomSpell(SPELL_FROZEN_ORB, SPELLVALUE_MAX_TARGETS, 1, me);
+                            DoCastSelf(SPELL_FROZEN_ORB, { SPELLVALUE_MAX_TARGETS, 1 });
                             events.ScheduleEvent(EVENT_FROZEN_ORB, 38000);
                             break;
                         case EVENT_WHITEOUT:

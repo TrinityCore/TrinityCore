@@ -368,7 +368,7 @@ class boss_lady_deathwhisper : public CreatureScript
                         })
                         .Schedule(Seconds(12), GROUP_TWO, [this](TaskContext summonShade)
                         {
-                            me->CastCustomSpell(SPELL_SUMMON_SPIRITS, SPELLVALUE_MAX_TARGETS, Is25ManRaid() ? 2 : 1);
+                            me->CastSpell(nullptr, SPELL_SUMMON_SPIRITS, { SPELLVALUE_MAX_TARGETS, Is25ManRaid() ? 2 : 1 });
                             summonShade.Repeat();
                         });
 

@@ -436,7 +436,11 @@ void BattlefieldTB::OnPlayerJoinWar(Player* player)
 
     // Bonus damage buff for attackers
     if (player->GetTeam() == GetAttackerTeam() && GetData(BATTLEFIELD_TB_DATA_TOWERS_DESTROYED) > 0)
-        player->CastCustomSpell(SPELL_TOWER_ATTACK_BONUS, SPELLVALUE_AURA_STACK, GetData(BATTLEFIELD_TB_DATA_TOWERS_DESTROYED), player, TRIGGERED_FULL_MASK);
+    {
+        CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+        args.SpellValueOverrides.AddMod(SPELLVALUE_AURA_STACK, GetData(BATTLEFIELD_TB_DATA_TOWERS_DESTROYED));
+        player->CastSpell(player, SPELL_TOWER_ATTACK_BONUS, args);
+    }
 }
 
 
@@ -982,8 +986,14 @@ void BattlefieldTB::TowerDestroyed(TBTowerId tbTowerId)
 
     // Attack bonus buff
     for (auto itr = m_PlayersInWar[GetAttackerTeam()].begin(); itr != m_PlayersInWar[GetAttackerTeam()].end(); ++itr)
+    {
         if (Player* player = ObjectAccessor::FindPlayer(*itr))
-            player->CastCustomSpell(SPELL_TOWER_ATTACK_BONUS, SPELLVALUE_AURA_STACK, GetData(BATTLEFIELD_TB_DATA_TOWERS_DESTROYED), player, TRIGGERED_FULL_MASK);
+        {
+            CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+            args.SpellValueOverrides.AddMod(SPELLVALUE_AURA_STACK, GetData(BATTLEFIELD_TB_DATA_TOWERS_DESTROYED));
+            player->CastSpell(player, SPELL_TOWER_ATTACK_BONUS, args);
+        }
+    }
 
     // Honor reward
     TeamCastSpell(GetAttackerTeam(), SPELL_REWARD_TOWER_DESTROYED);

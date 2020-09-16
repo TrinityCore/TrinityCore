@@ -104,7 +104,7 @@ class spell_rog_blade_flurry : public SpellScriptLoader
                 if (DamageInfo* damageInfo = eventInfo.GetDamageInfo())
                     if (Unit* procTarget = damageInfo->GetVictim())
                         if (Unit* target = GetTarget()->SelectNearbyTarget(procTarget, GetTarget()->GetFloatValue(UNIT_FIELD_COMBATREACH)))
-                            GetTarget()->CastCustomSpell(SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK, SPELLVALUE_BASE_POINT0, damageInfo->GetDamage(), target, true, nullptr, aurEff);
+                            GetTarget()->CastSpell(target, SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK, CastSpellExtraArgs(aurEff).AddSpellBP0(damageInfo->GetDamage()));
             }
 
             void Register() override
@@ -197,7 +197,7 @@ class spell_rog_crippling_poison : public SpellScriptLoader
             void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_ROGUE_CRIPPLING_POISON, true, nullptr, aurEff);
+                GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_ROGUE_CRIPPLING_POISON, aurEff);
             }
 
             void Register() override
@@ -310,9 +310,9 @@ class spell_rog_deadly_poison : public SpellScriptLoader
                                 continue;
 
                             if (spellInfo->IsPositive())
-                                player->CastSpell(player, enchant->EffectArg[s], true, item);
+                                player->CastSpell(player, enchant->EffectArg[s], item);
                             else
-                                player->CastSpell(target, enchant->EffectArg[s], true, item);
+                                player->CastSpell(target, enchant->EffectArg[s], item);
                         }
                     }
                 }
@@ -614,7 +614,7 @@ class spell_rog_prey_on_the_weak : public SpellScriptLoader
                     if (!target->HasAura(SPELL_ROGUE_PREY_ON_THE_WEAK))
                     {
                         int32 bp = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
-                        target->CastCustomSpell(target, SPELL_ROGUE_PREY_ON_THE_WEAK, &bp, nullptr, nullptr, true);
+                        target->CastSpell(target, SPELL_ROGUE_PREY_ON_THE_WEAK, CastSpellExtraArgs(true).AddSpellBP0(bp));
                     }
                 }
                 else
@@ -858,7 +858,7 @@ class spell_rog_stealth : public SpellScriptLoader
                 if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE, EFFECT_0))
                 {
                     int32 basepoints0 = aurEff->GetAmount();
-                    target->CastCustomSpell(target, SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT, &basepoints0, nullptr, nullptr, true);
+                    target->CastSpell(target, SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT, CastSpellExtraArgs(true).AddSpellBP0(basepoints0));
                 }
 
                 // Overkill
@@ -987,7 +987,7 @@ class spell_rog_honor_among_thieves : public AuraScript
 
         if (Player* player = caster->ToPlayer())
             if (Unit* target = ObjectAccessor::GetUnit(*player, player->GetTarget()))
-                caster->CastSpell(target, SPELL_ROGUE_HONOR_AMONG_THIEVES_TRIGGERED, true, nullptr, aurEff);
+                caster->CastSpell(target, SPELL_ROGUE_HONOR_AMONG_THIEVES_TRIGGERED, aurEff);
     }
 
     void Register() override
@@ -1028,7 +1028,7 @@ class spell_rog_main_gauche : public AuraScript
         Unit* target = eventInfo.GetProcTarget();
         Item* item = ASSERT_NOTNULL(caster->GetWeaponForAttack(BASE_ATTACK));
 
-        caster->CastSpell(target, SPELL_ROGUE_MAIN_GAUCHE, true, item, aurEff);
+        caster->CastSpell(target, SPELL_ROGUE_MAIN_GAUCHE, CastSpellExtraArgs(item).SetTriggeringAura(aurEff));
     }
 
     void Register() override
@@ -1057,7 +1057,7 @@ class spell_rog_glyph_of_hemorrhage : public AuraScript
         if (uint8 ticks = spell->GetMaxTicks())
         {
             bp /= ticks;
-            GetTarget()->CastCustomSpell(damage->GetVictim(), SPELL_ROGUE_GLYPH_HEMORRHAGE_TRIGGERED, &bp, nullptr, nullptr, true, nullptr, aurEff);
+            GetTarget()->CastSpell(damage->GetVictim(), SPELL_ROGUE_GLYPH_HEMORRHAGE_TRIGGERED, CastSpellExtraArgs(aurEff).AddSpellBP0(bp));
         }
     }
 
@@ -1297,7 +1297,7 @@ class spell_rog_improved_expose_armor : public AuraScript
     {
         PreventDefaultAction();
         Player* player = GetTarget()->ToPlayer();
-        player->CastCustomSpell(SPELL_ROGUE_IMPROVED_EXPOSE_ARMOR, SPELLVALUE_BASE_POINT0, player->GetComboPoints(), eventInfo.GetProcTarget(), true);
+        player->CastSpell(eventInfo.GetProcTarget(), SPELL_ROGUE_IMPROVED_EXPOSE_ARMOR, CastSpellExtraArgs(true).AddSpellBP0(player->GetComboPoints()));
     }
 
     void Register() override
@@ -1323,7 +1323,7 @@ class spell_rog_murderous_intent : public AuraScript
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
     {
         PreventDefaultAction();
-        GetTarget()->CastCustomSpell(SPELL_ROGUE_MURDEROUS_INTENT, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), GetTarget(), true);
+        GetTarget()->CastSpell(GetTarget(), SPELL_ROGUE_MURDEROUS_INTENT, CastSpellExtraArgs(aurEff).AddSpellBP0(aurEff->GetAmount()));
     }
 
     void Register() override
@@ -1443,7 +1443,7 @@ class spell_rog_bandits_guile : public AuraScript
         }
 
         target->CastSpell(target, spellId, true);
-        target->CastCustomSpell(procTarget, SPELL_ROGUE_BANDITS_GUILE, &basepoints, &basepoints, nullptr, true);
+        target->CastSpell(procTarget, SPELL_ROGUE_BANDITS_GUILE, CastSpellExtraArgs(true).AddSpellBP0(basepoints).AddSpellMod(SPELLVALUE_BASE_POINT1, basepoints));
     }
 
     void Register() override

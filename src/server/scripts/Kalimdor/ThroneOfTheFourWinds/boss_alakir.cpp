@@ -193,7 +193,7 @@ class RelentlessStormTeleportEvent : public BasicEvent
             float y = RelentlessStormTeleportReferencePos.GetPositionY() + frand(-15.0f, 15.0f);
             float z = RelentlessStormTeleportReferencePos.GetPositionZ() + frand(-15.0f, 15.0f);
 
-            _owner->CastSpell(x, y, z, SPELL_RELENTLESS_STORM_INITIAL_VEHICLE_RIDE_TELEPORT, true);
+            _owner->CastSpell({ x, y, z }, SPELL_RELENTLESS_STORM_INITIAL_VEHICLE_RIDE_TELEPORT, true);
             return true;
         }
     private:
@@ -444,8 +444,8 @@ struct boss_alakir : public BossAI
 
             if (Creature* cloud = DoSummon(NPC_LIGHTNING_CLOUDS_BOTTOM, LightningCloudBottomPos, 0, TEMPSUMMON_MANUAL_DESPAWN))
                 for (uint8 i = 0; i < 48; i++)
-                    cloud->CastSpell(LightningCloudsExtraVisualsBottomPositions[i].GetPositionX(), LightningCloudsExtraVisualsBottomPositions[i].GetPositionY(),
-                        LightningCloudsExtraVisualsBottomPositions[i].GetPositionZ(), SPELL_LIGHTNING_CLOUDS_SUMMON_EXTRA_VISUALS_BOTTOM);
+                    cloud->CastSpell({ LightningCloudsExtraVisualsBottomPositions[i].GetPositionX(), LightningCloudsExtraVisualsBottomPositions[i].GetPositionY(),
+                        LightningCloudsExtraVisualsBottomPositions[i].GetPositionZ() }, SPELL_LIGHTNING_CLOUDS_SUMMON_EXTRA_VISUALS_BOTTOM);
         }
     }
 
@@ -512,8 +512,8 @@ struct boss_alakir : public BossAI
 
                 }, 5s);
                 for (uint8 i = 0; i < 24; i++)
-                    summon->CastSpell(LightningCloudsExtraVisualsPositions[i].GetPositionX(), LightningCloudsExtraVisualsPositions[i].GetPositionY(),
-                        summon->GetPositionZ(), SPELL_LIGHTNING_CLOUDS_SUMMON_EXTRA_VISUALS);
+                    summon->CastSpell({ LightningCloudsExtraVisualsPositions[i].GetPositionX(), LightningCloudsExtraVisualsPositions[i].GetPositionY(),
+                        summon->GetPositionZ() }, SPELL_LIGHTNING_CLOUDS_SUMMON_EXTRA_VISUALS);
                 break;
             default:
                 break;
@@ -666,7 +666,7 @@ struct npc_alakir_ice_storm : public ScriptedAI
                     if (!possibleDestinations.empty())
                     {
                         Position dest = Trinity::Containers::SelectRandomContainerElement(possibleDestinations);
-                        me->CastSpell(dest.GetPositionX(), dest.GetPositionY(), dest.GetPositionZ(), SPELL_ICE_STORM_CHARGE, true);
+                        me->CastSpell({ dest.GetPositionX(), dest.GetPositionY(), dest.GetPositionZ() }, SPELL_ICE_STORM_CHARGE, true);
                     }
                     break;
                 }
@@ -811,7 +811,7 @@ class spell_alakir_lightning_strike_periodic : public SpellScript
             float x = caster->GetPositionX() + cos(angle) * 75.0f;
             float y = caster->GetPositionY() + sin(angle) * 75.0f;
             float z = caster->GetPositionZ();
-            caster->CastSpell(x, y, z, SPELL_LIGHTNING_STRIKE_VISUAL, true);
+            caster->CastSpell({ x, y, z }, SPELL_LIGHTNING_STRIKE_VISUAL, true);
         }
     }
 
@@ -995,7 +995,7 @@ class spell_alakir_lightning_clouds_periodic : public AuraScript
         Unit* target = GetTarget();
         Position pos = target->GetRandomPoint(target->GetPosition(), 80.0f);
         pos.m_positionZ = target->GetPositionZ() + frand(-10.0f, 10.0f);
-        target->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SPELL_LIGHTNING_CLOUDS_VISUAL_DEST);
+        target->CastSpell({ pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ() }, SPELL_LIGHTNING_CLOUDS_VISUAL_DEST);
     }
 
     void Register() override
@@ -1048,7 +1048,7 @@ class spell_alakir_lightning_clouds_targeting : public SpellScript
             float y = caster->GetPositionY();
             float z = GetHitUnit()->GetPositionZ();
             float o = GetHitUnit()->GetOrientation();
-            caster->CastSpell(x, y, z, o, SPELL_SUMMON_LIGHTNING_CLOUDS_SUMMON);
+            caster->CastSpell({ x, y, z, o }, SPELL_SUMMON_LIGHTNING_CLOUDS_SUMMON);
         }
     }
 

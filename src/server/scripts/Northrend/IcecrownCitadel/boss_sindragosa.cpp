@@ -194,7 +194,7 @@ class FrostBombExplosion : public BasicEvent
 
         bool Execute(uint64 /*eventTime*/, uint32 /*updateTime*/) override
         {
-            _owner->CastSpell((Unit*)nullptr, SPELL_FROST_BOMB, false, nullptr, nullptr, _sindragosaGUID);
+            _owner->CastSpell(nullptr, SPELL_FROST_BOMB, CastSpellExtraArgs().SetOriginalCaster(_sindragosaGUID));
             _owner->RemoveAurasDueToSpell(SPELL_FROST_BOMB_VISUAL);
             return true;
         }
@@ -370,7 +370,7 @@ class boss_sindragosa : public CreatureScript
                         events.ScheduleEvent(EVENT_AIR_MOVEMENT, 1);
                         break;
                     case POINT_AIR_PHASE:
-                        me->CastCustomSpell(SPELL_ICE_TOMB_TARGET, SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(2, 5, 2, 6), nullptr, TRIGGERED_FULL_MASK);
+                        me->CastSpell(nullptr, SPELL_ICE_TOMB_TARGET, CastSpellExtraArgs(true).AddSpellMod(SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(2, 5, 2, 6)));
                         me->SetFacingTo(float(M_PI), true);
                         events.ScheduleEvent(EVENT_AIR_MOVEMENT_FAR, 1);
                         events.ScheduleEvent(EVENT_FROST_BOMB, 9000);
@@ -507,7 +507,7 @@ class boss_sindragosa : public CreatureScript
                             me->GetMotionMaster()->MovePoint(POINT_AIR_PHASE_FAR, SindragosaAirPosFar);
                             break;
                         case EVENT_ICE_TOMB:
-                            me->CastCustomSpell(SPELL_ICE_TOMB_TARGET, SPELLVALUE_MAX_TARGETS, 1, nullptr, TRIGGERED_FULL_MASK);
+                            me->CastSpell(nullptr, SPELL_ICE_TOMB_TARGET, CastSpellExtraArgs(true).AddSpellMod(SPELLVALUE_MAX_TARGETS, 1));
                             events.ScheduleEvent(EVENT_ICE_TOMB, urand(16000, 23000));
                             break;
                         case EVENT_FROST_BOMB:
@@ -517,7 +517,7 @@ class boss_sindragosa : public CreatureScript
                             destY = float(rand_norm()) * 75.0f + 2450.0f;
                             destZ = 205.0f; // random number close to ground, get exact in next call
                             me->UpdateGroundPositionZ(destX, destY, destZ);
-                            me->CastSpell(destX, destY, destZ, SPELL_FROST_BOMB_TRIGGER, false);
+                            me->CastSpell({ destX, destY, destZ }, SPELL_FROST_BOMB_TRIGGER);
                             events.ScheduleEvent(EVENT_FROST_BOMB, urand(6000, 8000));
                             break;
                         }
@@ -1236,7 +1236,7 @@ class spell_sindragosa_instability : public SpellScriptLoader
             void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 if (GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::Expired))
-                    GetTarget()->CastCustomSpell(SPELL_BACKLASH, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), GetTarget(), true, nullptr, aurEff, GetCasterGUID());
+                    GetTarget()->CastSpell(GetTarget(), SPELL_BACKLASH, CastSpellExtraArgs().SetOriginalCaster(GetCasterGUID()).AddSpellBP0(aurEff->GetAmount()).SetTriggeringAura(aurEff));
             }
 
             void Register() override

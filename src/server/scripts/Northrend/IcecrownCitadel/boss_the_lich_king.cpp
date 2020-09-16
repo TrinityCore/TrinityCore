@@ -470,7 +470,7 @@ class TriggerWickedSpirit : public BasicEvent
 
         bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
-            _owner->CastCustomSpell(SPELL_TRIGGER_VILE_SPIRIT_HEROIC, SPELLVALUE_MAX_TARGETS, 1, nullptr, true);
+            _owner->CastSpell(nullptr, SPELL_TRIGGER_VILE_SPIRIT_HEROIC, CastSpellExtraArgs(true).AddSpellMod(SPELLVALUE_MAX_TARGETS, 1));
 
             if (--_counter)
             {
@@ -2105,11 +2105,8 @@ class spell_the_lich_king_necrotic_plague : public SpellScriptLoader
             {
                 if (!GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::ByEnemySpell | AuraRemoveFlags::Expired | AuraRemoveFlags::ByDeath))
                     return;
-
-                CustomSpellValues values;
-                //values.AddSpellMod(SPELLVALUE_AURA_STACK, 2);
-                values.AddSpellMod(SPELLVALUE_MAX_TARGETS, 1);
-                GetTarget()->CastCustomSpell(SPELL_NECROTIC_PLAGUE_JUMP, values, nullptr, TRIGGERED_FULL_MASK, nullptr, nullptr, GetCasterGUID());
+                //args.AddSpellMod(SPELLVALUE_AURA_STACK, 2);
+                GetTarget()->CastSpell(nullptr, SPELL_NECROTIC_PLAGUE_JUMP, CastSpellExtraArgs(GetCasterGUID()).AddSpellMod(SPELLVALUE_MAX_TARGETS, 1));
                 if (Unit* caster = GetCaster())
                     caster->CastSpell(caster, SPELL_PLAGUE_SIPHON, true);
             }
@@ -2193,9 +2190,7 @@ class spell_the_lich_king_necrotic_plague_jump : public SpellScriptLoader
 
                 if (GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::Expired | AuraRemoveFlags::ByDeath))
                 {
-                    CustomSpellValues values;
-                    values.AddSpellMod(SPELLVALUE_AURA_STACK, GetStackAmount());
-                    GetTarget()->CastCustomSpell(SPELL_NECROTIC_PLAGUE_JUMP, values, nullptr, TRIGGERED_FULL_MASK, nullptr, nullptr, GetCasterGUID());
+                    GetTarget()->CastSpell(nullptr, SPELL_NECROTIC_PLAGUE_JUMP, CastSpellExtraArgs(GetCasterGUID()).AddSpellMod(SPELLVALUE_AURA_STACK, GetStackAmount()));
                     if (Unit* caster = GetCaster())
                         caster->CastSpell(caster, SPELL_PLAGUE_SIPHON, true);
                 }
@@ -2212,10 +2207,10 @@ class spell_the_lich_king_necrotic_plague_jump : public SpellScriptLoader
                 if (aurEff->GetAmount() > _lastAmount)
                     return;
 
-                CustomSpellValues values;
-                values.AddSpellMod(SPELLVALUE_AURA_STACK, GetStackAmount());
-                values.AddSpellMod(SPELLVALUE_BASE_POINT1, static_cast<uint32>(AuraRemoveFlags::ByEnemySpell)); // add as marker (spell has no effect 1)
-                GetTarget()->CastCustomSpell(SPELL_NECROTIC_PLAGUE_JUMP, values, nullptr, TRIGGERED_FULL_MASK, nullptr, nullptr, GetCasterGUID());
+                CastSpellExtraArgs args(GetCasterGUID());
+                args.AddSpellMod(SPELLVALUE_AURA_STACK, GetStackAmount());
+                args.AddSpellMod(SPELLVALUE_BASE_POINT1, static_cast<uint32>(AuraRemoveFlags::ByEnemySpell)); // add as marker (spell has no effect 1)
+                GetTarget()->CastSpell(nullptr, SPELL_NECROTIC_PLAGUE_JUMP, args);
                 if (Unit* caster = GetCaster())
                     caster->CastSpell(caster, SPELL_PLAGUE_SIPHON, true);
 
@@ -2606,7 +2601,7 @@ class spell_the_lich_king_life_siphon : public SpellScriptLoader
 
             void TriggerHeal()
             {
-                GetHitUnit()->CastCustomSpell(SPELL_LIFE_SIPHON_HEAL, SPELLVALUE_BASE_POINT0, GetHitDamage() * 10, GetCaster(), true);
+                GetHitUnit()->CastSpell(GetCaster(), SPELL_LIFE_SIPHON_HEAL, CastSpellExtraArgs(true).AddSpellBP0(GetHitDamage() * 10));
             }
 
             void Register() override
@@ -2644,7 +2639,7 @@ class spell_the_lich_king_vile_spirits : public SpellScriptLoader
             void OnPeriodic(AuraEffect const* aurEff)
             {
                 if (_is25Man || ((aurEff->GetTickNumber() - 1) % 5))
-                    GetTarget()->CastSpell((Unit*)nullptr, GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, true, nullptr, aurEff, GetCasterGUID());
+                    GetTarget()->CastSpell(nullptr, GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, CastSpellExtraArgs(aurEff).SetOriginalCaster(GetCasterGUID()));
             }
 
             void Register() override
@@ -2794,7 +2789,7 @@ class spell_the_lich_king_harvest_soul : public SpellScriptLoader
             {
                 // m_originalCaster to allow stacking from different casters, meh
                 if (GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::ByDeath))
-                    GetTarget()->CastSpell((Unit*)nullptr, SPELL_HARVESTED_SOUL, true, nullptr, nullptr, GetTarget()->GetInstanceScript()->GetGuidData(DATA_THE_LICH_KING));
+                    GetTarget()->CastSpell(nullptr, SPELL_HARVESTED_SOUL, GetTarget()->GetInstanceScript()->GetGuidData(DATA_THE_LICH_KING));
             }
 
             void Register() override
@@ -2856,7 +2851,7 @@ class spell_the_lich_king_soul_rip : public SpellScriptLoader
                 PreventDefaultAction();
                 // shouldn't be needed, this is channeled
                 if (Unit* caster = GetCaster())
-                    caster->CastCustomSpell(SPELL_SOUL_RIP_DAMAGE, SPELLVALUE_BASE_POINT0, 5000 * aurEff->GetTickNumber(), GetTarget(), true, nullptr, aurEff, GetCasterGUID());
+                    caster->CastSpell(GetTarget(), SPELL_SOUL_RIP_DAMAGE, CastSpellExtraArgs(aurEff).SetOriginalCaster(GetCasterGUID()).AddSpellBP0(5000 * aurEff->GetTickNumber()));
             }
 
             void Register() override
@@ -2949,7 +2944,7 @@ class spell_the_lich_king_dark_hunger : public SpellScriptLoader
                     return;
 
                 int32 heal = static_cast<int32>(damageInfo->GetDamage()) / 2;
-                GetTarget()->CastCustomSpell(SPELL_DARK_HUNGER_HEAL, SPELLVALUE_BASE_POINT0, heal, GetTarget(), true, nullptr, aurEff);
+                GetTarget()->CastSpell(GetTarget(), SPELL_DARK_HUNGER_HEAL, CastSpellExtraArgs(aurEff).AddSpellBP0(heal));
             }
 
             void Register() override
@@ -2980,7 +2975,7 @@ class spell_the_lich_king_in_frostmourne_room : public SpellScriptLoader
             {
                 // m_originalCaster to allow stacking from different casters, meh
                 if (GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::ByDeath))
-                    GetTarget()->CastSpell((Unit*)nullptr, SPELL_HARVESTED_SOUL, true, nullptr, nullptr, GetTarget()->GetInstanceScript()->GetGuidData(DATA_THE_LICH_KING));
+                    GetTarget()->CastSpell((Unit*)nullptr, SPELL_HARVESTED_SOUL, GetTarget()->GetInstanceScript()->GetGuidData(DATA_THE_LICH_KING));
             }
 
             void Register() override

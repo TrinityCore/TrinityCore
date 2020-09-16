@@ -770,7 +770,7 @@ struct npc_magmaw_blazing_bone_construct : public ScriptedAI
             for (uint8 i = 0; i < 20; i++)
             {
                 Position const pos = me->GetRandomNearPosition(10.0f);
-                me->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SPELL_IGNITION, true);
+                me->CastSpell({ pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ() }, SPELL_IGNITION, true);
             }
             _events.ScheduleEvent(EVENT_ENGAGE_PLAYERS, 1s);
         }

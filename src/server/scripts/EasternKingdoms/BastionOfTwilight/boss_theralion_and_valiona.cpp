@@ -1194,7 +1194,7 @@ class spell_theralion_engulfing_magic : public SpellScriptLoader
                     bp += dmgInfo->GetDamage();
 
                 if (bp)
-                    GetCaster()->CastCustomSpell(GetCaster(), SPELL_ENGULFING_MAGIC_TRIGGERED, &bp, nullptr, nullptr, true, nullptr, aurEff);
+                    GetCaster()->CastSpell(GetCaster(), SPELL_ENGULFING_MAGIC_TRIGGERED, CastSpellExtraArgs(aurEff).AddSpellBP0(bp));
             }
 
             void Register() override

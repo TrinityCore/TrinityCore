@@ -1044,7 +1044,7 @@ public:
                 return;
 
             int32 damage = int32(200 * std::pow(2.0f, GetStackAmount()));
-            caster->CastCustomSpell(caster, SPELL_BITING_COLD_DAMAGE, &damage, nullptr, nullptr, true);
+            caster->CastSpell(caster, SPELL_BITING_COLD_DAMAGE,  CastSpellExtraArgs(true).AddSpellBP0(damage));
 
             if (caster->isMoving())
                 caster->RemoveAuraFromStack(SPELL_BITING_COLD_TRIGGERED);

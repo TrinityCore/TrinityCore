@@ -1137,7 +1137,7 @@ class spell_conclave_of_wind_winds : public AuraScript
         }
 
         if (spellId)
-            owner->CastCustomSpell(spellId, SPELLVALUE_BASE_POINT0, damage, owner, true);
+            owner->CastSpell(owner, spellId, CastSpellExtraArgs(true).AddSpellBP0(damage));
     }
 
     void Register() override

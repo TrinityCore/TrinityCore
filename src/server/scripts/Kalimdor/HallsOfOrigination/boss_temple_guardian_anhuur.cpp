@@ -339,14 +339,8 @@ class spell_anhuur_divine_reckoning : public AuraScript
     void OnPeriodic(AuraEffect const* aurEff)
     {
         if (Unit* caster = GetCaster())
-        {
             if (!caster->isDead())
-            {
-                CustomSpellValues values;
-                values.AddSpellMod(SPELLVALUE_BASE_POINT0, aurEff->GetAmount());
-                caster->CastCustomSpell(GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, values, GetTarget());
-            }
-        }
+                caster->CastSpell(GetTarget(), GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, { SPELLVALUE_BASE_POINT0, aurEff->GetAmount() });
     }
 
     void Register() override

@@ -727,7 +727,7 @@ class spell_four_horsemen_mark : public SpellScriptLoader
                             break;
                     }
                     if (damage)
-                        caster->CastCustomSpell(SPELL_MARK_DAMAGE, SPELLVALUE_BASE_POINT0, damage, GetTarget());
+                        caster->CastSpell(GetTarget(), SPELL_MARK_DAMAGE, { SPELLVALUE_BASE_POINT0, damage });
                 }
             }
 

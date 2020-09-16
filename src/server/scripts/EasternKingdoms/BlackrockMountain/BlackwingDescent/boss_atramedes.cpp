@@ -537,7 +537,7 @@ struct npc_atramedes_ancient_dwarven_shield : public NullCreatureAI
             return;
 
         if (atramedes->AI()->GetData(DATA_IS_IN_AIR))
-            clicker->CastSpell(clicker, SPELL_RESONATING_CLASH_AIR, true, nullptr, nullptr, me->GetGUID());
+            clicker->CastSpell(clicker, SPELL_RESONATING_CLASH_AIR, me->GetGUID());
         else
             DoCastSelf(SPELL_RESONATING_CLASH_GROUND);
 
@@ -731,7 +731,7 @@ class spell_atramedes_roaring_flame_breath : public AuraScript
     void HandleTick(AuraEffect const* aurEff)
     {
         PreventDefaultAction();
-        GetTarget()->CastSpell(GetTarget(), GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, true, nullptr, aurEff);
+        GetTarget()->CastSpell(GetTarget(), GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, aurEff);
     }
 
     void Register() override
@@ -839,7 +839,7 @@ class spell_atramedes_sound_bar : public AuraScript
                 if (Creature* atramedes = instance->GetCreature(DATA_ATRAMEDES))
                     atramedes->AI()->SetGUID(target->GetGUID(), DATA_ADD_NOISY_PLAYER);
 
-            target->CastSpell(target, SPELL_NOISY, true, nullptr, aurEff);
+            target->CastSpell(target, SPELL_NOISY, aurEff);
         }
         else if (target->GetPower(POWER_ALTERNATE_POWER) >= 50)
             if (Creature* atramedes = instance->GetCreature(DATA_ATRAMEDES))
@@ -922,7 +922,7 @@ class spell_atramedes_sonic_flames_AuraScript : public AuraScript
             return;
 
         PreventDefaultAction();
-        caster->CastSpell(GetTarget(), GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, true, nullptr, aurEff);
+        caster->CastSpell(GetTarget(), GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, aurEff);
     }
 
     void Register() override

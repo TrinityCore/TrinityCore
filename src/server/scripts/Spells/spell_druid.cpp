@@ -218,7 +218,7 @@ class spell_dru_eclipse : public AuraScript
         // Handle Sunfire talent
         if (GetSpellInfo()->Id == SPELL_DRUID_SOLAR_ECLIPSE && target->GetDummyAuraEffect(SPELLFAMILY_DRUID, SPELL_ICON_ID_SUNFIRE, EFFECT_0))
             if (!target->HasAura(SPELL_DRUID_SOLAR_ECLIPSE_SUNFIRE))
-                target->CastCustomSpell(SPELL_DRUID_SOLAR_ECLIPSE_SUNFIRE, SPELLVALUE_BASE_POINT0, SPELL_DRUID_SUNFIRE, target, true);
+                target->CastSpell(target, SPELL_DRUID_SOLAR_ECLIPSE_SUNFIRE, CastSpellExtraArgs(true).AddSpellBP0(SPELL_DRUID_SUNFIRE));
     }
 
     void RemoveEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -290,14 +290,14 @@ class spell_dru_eclipse_mastery_driver_passive : public AuraScript
 
         // Cast Energy Gain
         uint32 energizeSpell = (eventInfo.GetSpellInfo()->SpellFamilyFlags[2] & 0x2000000) != 0 ? SPELL_DRUID_STARSURGE_ENERGIZE : SPELL_DRUID_ECLIPSE_GENERAL_ENERGIZE;
-        target->CastCustomSpell(target, energizeSpell, &_energyAmount, 0, 0, false, nullptr, aurEff);
+        target->CastSpell(target, energizeSpell, CastSpellExtraArgs().AddSpellBP0(_energyAmount));
 
         // Cast Euphoria Bonus
         if (_euphoriaEnergyAmount)
-            target->CastCustomSpell(target, SPELL_DRUID_EUPHORIA_ENERGIZE, &_euphoriaEnergyAmount, 0, 0, false, nullptr, aurEff);
+            target->CastSpell(target, SPELL_DRUID_EUPHORIA_ENERGIZE, CastSpellExtraArgs().AddSpellBP0(_euphoriaEnergyAmount));
     }
 
-    void HandleEclipseProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    void HandleEclipseProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
     {
         Unit* target = GetTarget();
         uint32 newMarkerSpellId = 0;
@@ -325,7 +325,7 @@ class spell_dru_eclipse_mastery_driver_passive : public AuraScript
             if (Aura* aura = _eclipseMarker->GetBase())
                 aura->Remove();
 
-        target->CastSpell(target, newMarkerSpellId, false, nullptr, aurEff);
+        target->CastSpell(target, newMarkerSpellId, false);
 
         // Reset Nature's Grace proc cooldown
         if (Aura* aura = target->GetAuraOfRankedSpell(SPELL_DRUID_NATURES_GRACE))
@@ -333,11 +333,11 @@ class spell_dru_eclipse_mastery_driver_passive : public AuraScript
 
         // Euphoria Mana Bonus
         if (AuraEffect const* euphoria = target->GetDummyAuraEffect(SPELLFAMILY_DRUID, SPELL_ICON_ID_EUPHORIA, EFFECT_2))
-            target->CastCustomSpell(SPELL_DRUID_EUPHORIA_MANA_ENERGIZE, SPELLVALUE_BASE_POINT0, euphoria->GetAmount(), target, false, nullptr, euphoria);
+            target->CastSpell(target, SPELL_DRUID_EUPHORIA_MANA_ENERGIZE, CastSpellExtraArgs().AddSpellBP0(euphoria->GetAmount()));
 
         // T11 Bonus
         if (AuraEffect const* t11Bonus = target->GetAuraEffect(SPELL_DRUID_ITEM_T11_BALANCE_4P_BONUS, EFFECT_0))
-            target->CastCustomSpell(SPELL_DRUID_ASTRAL_ALIGNMENT, SPELLVALUE_AURA_STACK, 3, target, false, nullptr, t11Bonus);
+            target->CastSpell(target, SPELL_DRUID_ASTRAL_ALIGNMENT, CastSpellExtraArgs().AddSpellMod(SPELLVALUE_AURA_STACK, 3));
     }
 
     void Register() override
@@ -437,7 +437,7 @@ class spell_dru_enrage : public AuraScript
     {
         Unit* target = GetTarget();
         if (AuraEffect const* aurEff = target->GetAuraEffectOfRankedSpell(SPELL_DRUID_KING_OF_THE_JUNGLE, EFFECT_0))
-            target->CastCustomSpell(SPELL_DRUID_ENRAGE_MOD_DAMAGE, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), target, true);
+            target->CastSpell(target, SPELL_DRUID_ENRAGE_MOD_DAMAGE, CastSpellExtraArgs(aurEff).AddSpellBP0(aurEff->GetAmount()));
 
         // Item - Druid T10 Feral 4P Bonus
         if (target->HasAura(SPELL_DRUID_ITEM_T10_FERAL_4P_BONUS))
@@ -522,7 +522,7 @@ class spell_dru_glyph_of_starfire_proc : public AuraScript
     void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
-        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_DRUID_GLYPH_OF_STARFIRE, true, nullptr, aurEff);
+        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_DRUID_GLYPH_OF_STARFIRE, aurEff);
     }
 
     void Register() override
@@ -644,15 +644,15 @@ class spell_dru_lifebloom : public AuraScript
             healAmount = caster->SpellHealingBonusDone(GetTarget(), GetSpellInfo(), healAmount, HEAL, stack);
             healAmount = GetTarget()->SpellHealingBonusTaken(caster, GetSpellInfo(), healAmount, HEAL, stack);
 
-            GetTarget()->CastCustomSpell(GetTarget(), SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, &healAmount, nullptr, nullptr, true, nullptr, aurEff, GetCasterGUID());
+            GetTarget()->CastSpell(GetTarget(), SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, CastSpellExtraArgs(aurEff).AddSpellBP0(healAmount).SetOriginalCaster(GetCasterGUID()));
 
             // restore mana
             int32 returnMana = CalculatePct(caster->GetCreateMana(), GetSpellInfo()->ManaCostPercentage) * stack / 2;
-            caster->CastCustomSpell(caster, SPELL_DRUID_LIFEBLOOM_ENERGIZE, &returnMana, nullptr, nullptr, true, nullptr, aurEff, GetCasterGUID());
+            caster->CastSpell(caster, SPELL_DRUID_LIFEBLOOM_ENERGIZE, CastSpellExtraArgs(aurEff).AddSpellBP0(returnMana).SetOriginalCaster(GetCasterGUID()));
             return;
         }
 
-        GetTarget()->CastCustomSpell(GetTarget(), SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, &healAmount, nullptr, nullptr, true, nullptr, aurEff, GetCasterGUID());
+        GetTarget()->CastSpell(GetTarget(), SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, CastSpellExtraArgs(aurEff).AddSpellBP0(healAmount).SetOriginalCaster(GetCasterGUID()));
     }
 
     void HandleDispel(DispelInfo* dispelInfo)
@@ -667,15 +667,15 @@ class spell_dru_lifebloom : public AuraScript
                 {
                     healAmount = caster->SpellHealingBonusDone(target, GetSpellInfo(), healAmount, HEAL, dispelInfo->GetRemovedCharges());
                     healAmount = target->SpellHealingBonusTaken(caster, GetSpellInfo(), healAmount, HEAL, dispelInfo->GetRemovedCharges());
-                    target->CastCustomSpell(target, SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, &healAmount, nullptr, nullptr, true, nullptr, nullptr, GetCasterGUID());
+                    target->CastSpell(target, SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, CastSpellExtraArgs(GetCasterGUID()).AddSpellBP0(healAmount));
 
                     // restore mana
                     int32 returnMana = CalculatePct(caster->GetCreateMana(), GetSpellInfo()->ManaCostPercentage) * dispelInfo->GetRemovedCharges() / 2;
-                    caster->CastCustomSpell(caster, SPELL_DRUID_LIFEBLOOM_ENERGIZE, &returnMana, nullptr, nullptr, true, nullptr, nullptr, GetCasterGUID());
+                    caster->CastSpell(caster, SPELL_DRUID_LIFEBLOOM_ENERGIZE, CastSpellExtraArgs(GetCasterGUID()).AddSpellBP0(returnMana));
                     return;
                 }
 
-                target->CastCustomSpell(target, SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, &healAmount, nullptr, nullptr, true, nullptr, nullptr, GetCasterGUID());
+                target->CastSpell(target, SPELL_DRUID_LIFEBLOOM_FINAL_HEAL, CastSpellExtraArgs(GetCasterGUID()).AddSpellBP0(healAmount));
             }
         }
     }
@@ -699,7 +699,7 @@ class spell_dru_living_seed : public AuraScript
     {
         PreventDefaultAction();
         int32 amount = CalculatePct(eventInfo.GetHealInfo()->GetHeal(), aurEff->GetAmount());
-        GetTarget()->CastCustomSpell(SPELL_DRUID_LIVING_SEED_PROC, SPELLVALUE_BASE_POINT0, amount, eventInfo.GetProcTarget(), true, nullptr, aurEff);
+        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_DRUID_LIVING_SEED_PROC, CastSpellExtraArgs(aurEff).AddSpellBP0(amount));
     }
 
     void Register() override
@@ -719,7 +719,7 @@ class spell_dru_living_seed_proc : public AuraScript
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
     {
         PreventDefaultAction();
-        GetTarget()->CastCustomSpell(SPELL_DRUID_LIVING_SEED_HEAL, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), GetTarget(), true, nullptr, aurEff);
+        GetTarget()->CastSpell(GetTarget(), SPELL_DRUID_LIVING_SEED_HEAL, CastSpellExtraArgs(aurEff).AddSpellBP0(aurEff->GetAmount()));
     }
 
     void Register() override
@@ -780,7 +780,7 @@ class spell_dru_savage_defense : public AuraScript
             absorbPct += masteryAurEff->GetAmount();
 
         int32 amount = uint32(CalculatePct(GetTarget()->GetTotalAttackPowerValue(BASE_ATTACK), absorbPct));
-        target->CastCustomSpell(GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, SPELLVALUE_BASE_POINT0, amount, target, true);
+        target->CastSpell(target, GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell, CastSpellExtraArgs(true).AddSpellBP0(amount));
     }
 
     void Register() override
@@ -817,7 +817,7 @@ class spell_dru_savage_roar_AuraScript : public AuraScript
     void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
-        target->CastSpell(target, SPELL_DRUID_SAVAGE_ROAR, true, nullptr, aurEff, GetCasterGUID());
+        target->CastSpell(target, SPELL_DRUID_SAVAGE_ROAR, { aurEff, GetCasterGUID() });
     }
 
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -886,8 +886,8 @@ class spell_dru_stampede : public AuraScript
         if (GetTarget()->GetShapeshiftForm() != FORM_CAT || eventInfo.GetSpellInfo()->Id != SPELL_DRUID_FERAL_CHARGE_CAT)
             return;
 
-        GetTarget()->CastSpell(GetTarget(), sSpellMgr->GetSpellWithRank(SPELL_DRUID_STAMPEDE_CAT_RANK_1, GetSpellInfo()->GetRank()), true, nullptr, aurEff);
-        GetTarget()->CastSpell(GetTarget(), SPELL_DRUID_STAMPEDE_CAT_STATE, true, nullptr, aurEff);
+        GetTarget()->CastSpell(GetTarget(), sSpellMgr->GetSpellWithRank(SPELL_DRUID_STAMPEDE_CAT_RANK_1, GetSpellInfo()->GetRank()), aurEff);
+        GetTarget()->CastSpell(GetTarget(), SPELL_DRUID_STAMPEDE_CAT_STATE, aurEff);
     }
 
     void HandleEffectBearProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -896,7 +896,7 @@ class spell_dru_stampede : public AuraScript
         if (GetTarget()->GetShapeshiftForm() != FORM_BEAR || eventInfo.GetSpellInfo()->Id != SPELL_DRUID_FERAL_CHARGE_BEAR)
             return;
 
-        GetTarget()->CastSpell(GetTarget(), sSpellMgr->GetSpellWithRank(SPELL_DRUID_STAMPEDE_BAER_RANK_1, GetSpellInfo()->GetRank()), true, nullptr, aurEff);
+        GetTarget()->CastSpell(GetTarget(), sSpellMgr->GetSpellWithRank(SPELL_DRUID_STAMPEDE_BAER_RANK_1, GetSpellInfo()->GetRank()), aurEff);
     }
 
     void Register() override
@@ -933,7 +933,7 @@ class spell_dru_survival_instincts_AuraScript : public AuraScript
 
     void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
-        GetTarget()->CastSpell(GetTarget(), SPELL_DRUID_SURVIVAL_INSTINCTS, true, nullptr, aurEff);
+        GetTarget()->CastSpell(GetTarget(), SPELL_DRUID_SURVIVAL_INSTINCTS, aurEff);
     }
 
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1019,7 +1019,7 @@ class spell_dru_tiger_s_fury : public SpellScript
     void OnHit()
     {
         if (AuraEffect const* aurEff = GetHitUnit()->GetAuraEffectOfRankedSpell(SPELL_DRUID_KING_OF_THE_JUNGLE, EFFECT_1))
-            GetHitUnit()->CastCustomSpell(SPELL_DRUID_TIGER_S_FURY_ENERGIZE, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), GetHitUnit(), true);
+            GetHitUnit()->CastSpell(GetHitUnit(), SPELL_DRUID_TIGER_S_FURY_ENERGIZE, CastSpellExtraArgs(true).AddSpellBP0(aurEff->GetAmount()));
     }
 
     void Register() override
@@ -1156,7 +1156,7 @@ class spell_dru_solar_beam : public AuraScript
     void HandleEffectPeriodic(AuraEffect const* aurEff)
     {
         if (DynamicObject* dyn = GetTarget()->GetDynObject(aurEff->GetId()))
-            GetTarget()->CastSpell(dyn->GetPositionX(), dyn->GetPositionY(), dyn->GetPositionZ(), SPELL_DRUID_SOLAR_BEAM_SILENCE, true);
+            GetTarget()->CastSpell({ dyn->GetPositionX(), dyn->GetPositionY(), dyn->GetPositionZ() }, SPELL_DRUID_SOLAR_BEAM_SILENCE, true);
     }
 
     void Register() override
@@ -1177,7 +1177,7 @@ class spell_dru_effloresence : public AuraScript
         {
             healAmount = CalculatePct(heal->GetHeal(), GetSpellInfo()->Effects[EFFECT_0].BasePoints);
             if (healAmount)
-                GetTarget()->CastCustomSpell(GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, SPELLVALUE_BASE_POINT1, healAmount, heal->GetTarget(), true, nullptr, aurEff);
+                GetTarget()->CastSpell(heal->GetTarget(), GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, CastSpellExtraArgs(aurEff).AddSpellMod(SPELLVALUE_BASE_POINT1, healAmount));
         }
     }
 
@@ -1199,7 +1199,7 @@ class spell_dru_effloresence_aoe : public AuraScript
     {
         if (Unit* caster = GetCaster())
             if (DynamicObject* dyn = caster->GetDynObject(aurEff->GetId()))
-                caster->CastSpell(dyn->GetPositionX(), dyn->GetPositionY(), dyn->GetPositionZ(), SPELL_DRUID_EFFLORESCENCE_HEAL, true, nullptr, aurEff, caster->GetGUID());
+                caster->CastSpell({ dyn->GetPositionX(), dyn->GetPositionY(), dyn->GetPositionZ() }, SPELL_DRUID_EFFLORESCENCE_HEAL, { aurEff, caster->GetGUID() });
     }
 
     void Register() override
@@ -1264,7 +1264,7 @@ class spell_dru_rejuvenation : public AuraScript
                 if (naturesBountyAurEff->GetBonusAmount() >= 3)
                 {
                     int32 bp0 = -naturesBountyAurEff->GetSpellInfo()->Effects[EFFECT_1].BasePoints;
-                    caster->CastCustomSpell(caster, SPELL_DRUID_NATURES_BOUNTY, &bp0, 0, 0, true);
+                    caster->CastSpell(caster, SPELL_DRUID_NATURES_BOUNTY, CastSpellExtraArgs(true).AddSpellBP0(bp0));
                 }
             }
         }
@@ -1277,7 +1277,7 @@ class spell_dru_rejuvenation : public AuraScript
             if (AuraEffect const* giftEffect = caster->GetDummyAuraEffect(SPELLFAMILY_DRUID, SPELL_ICON_ID_GIFT_OF_THE_EARTHMOTHER, EFFECT_1))
             {
                 int32 bp = CalculatePct(aurEff->GetAmount() * aurEff->GetTotalTicks(), giftEffect->GetAmount());
-                caster->CastCustomSpell(SPELL_DRUID_REJUVENATION_DIRECT_HEAL, SPELLVALUE_BASE_POINT0, bp, GetTarget(), true);
+                caster->CastSpell(GetTarget(), SPELL_DRUID_REJUVENATION_DIRECT_HEAL, CastSpellExtraArgs(true).AddSpellBP0(bp));
             }
         }
     }
@@ -1320,9 +1320,9 @@ class spell_dru_tree_of_life : public AuraScript
     {
         if (Unit* target = GetTarget())
         {
-            target->CastSpell(target, SPELL_DRUID_TREE_OF_LIFE_PASSIVE_1, true, nullptr, aurEff);
-            target->CastSpell(target, SPELL_DRUID_TREE_OF_LIFE_PASSIVE_2, true, nullptr, aurEff);
-            target->CastSpell(target, SPELL_DRUID_TREE_OF_LIFE_PASSIVE_3, true, nullptr, aurEff);
+            target->CastSpell(target, SPELL_DRUID_TREE_OF_LIFE_PASSIVE_1, aurEff);
+            target->CastSpell(target, SPELL_DRUID_TREE_OF_LIFE_PASSIVE_2, aurEff);
+            target->CastSpell(target, SPELL_DRUID_TREE_OF_LIFE_PASSIVE_3, aurEff);
 
         }
     }
@@ -1356,7 +1356,7 @@ class spell_dru_harmony : public AuraScript
     {
         PreventDefaultAction();
         int32 amount = aurEff->GetAmount();
-        GetTarget()->CastCustomSpell(SPELL_DRUID_HARMONY, SPELLVALUE_BASE_POINT0, amount, GetTarget(), true, nullptr, aurEff);
+        GetTarget()->CastSpell(GetTarget(), SPELL_DRUID_HARMONY, CastSpellExtraArgs(aurEff).AddSpellBP0(amount));
     }
 
     void Register() override
@@ -1399,10 +1399,10 @@ class spell_dru_leader_of_the_pack : public AuraScript
                 mana = CalculatePct(target->GetMaxPower(POWER_MANA), bp);
 
         if (heal)
-            target->CastCustomSpell(SPELL_DRUID_LEADER_OF_THE_PACK_HEAL, SPELLVALUE_BASE_POINT0, heal, target, true, nullptr, aurEff);
+            target->CastSpell(target, SPELL_DRUID_LEADER_OF_THE_PACK_HEAL, CastSpellExtraArgs(aurEff).AddSpellBP0(heal));
 
         if (mana)
-            target->CastCustomSpell(SPELL_DRUID_LEADER_OF_THE_PACK_ENERGIZE, SPELLVALUE_BASE_POINT0, mana, target, true, nullptr, aurEff);
+            target->CastSpell(target, SPELL_DRUID_LEADER_OF_THE_PACK_ENERGIZE, CastSpellExtraArgs(aurEff).AddSpellBP0(mana));
     }
 
     void Register() override
@@ -1583,7 +1583,7 @@ class spell_dru_ferocious_bite : public SpellScript
             {
                 int32 totalEnergySpentMultiplier = std::floor((GetSpell()->GetPowerCost() + energy) / 10);
                 int32 bp = aurEff->GetAmount() * totalEnergySpentMultiplier;
-                caster->CastCustomSpell(SPELL_DRUID_GLYPH_OF_FEROCIOUS_BITE, SPELLVALUE_BASE_POINT0, bp, caster, true);
+                caster->CastSpell(caster, SPELL_DRUID_GLYPH_OF_FEROCIOUS_BITE, CastSpellExtraArgs(true).AddSpellBP0(bp));
             }
 
         }
@@ -1612,7 +1612,7 @@ class spell_dru_empowered_touch : public AuraScript
     {
         PreventDefaultAction();
         Unit* target = GetTarget();
-        target->CastSpell(eventInfo.GetProcTarget(), SPELL_DRUID_EMPOWERED_TOUCH_SCRIPT, true, nullptr, aurEff);
+        target->CastSpell(eventInfo.GetProcTarget(), SPELL_DRUID_EMPOWERED_TOUCH_SCRIPT, aurEff);
     }
 
     void Register() override
@@ -1691,7 +1691,7 @@ class spell_dru_pulverize : public SpellScript
             SetEffectValue(bp);
 
             uint32 critPerStack = sSpellMgr->GetSpellInfo(SPELL_DRUID_PULVERIZE_TRIGGERED)->Effects[EFFECT_0].BasePoints;
-            caster->CastCustomSpell(SPELL_DRUID_PULVERIZE_TRIGGERED, SPELLVALUE_BASE_POINT0, int32(critPerStack * stacks), caster, true);
+            caster->CastSpell(caster, SPELL_DRUID_PULVERIZE_TRIGGERED, CastSpellExtraArgs(true).AddSpellBP0(int32(critPerStack * stacks)));
             aura->Remove();
         }
         else
@@ -1734,7 +1734,7 @@ class spell_dru_frenzied_regeneration : public AuraScript
         int32 heal = CalculatePct(target->GetMaxHealth(), healthPct) * CalculatePct(rage, 10);
 
         target->ModifyPower(POWER_RAGE, int32(rage * -1));
-        target->CastCustomSpell(SPELL_DRUID_FRENZIED_REGENERATION_HEAL, SPELLVALUE_BASE_POINT0, heal, target, true, nullptr, aurEff);
+        target->CastSpell(target, SPELL_DRUID_FRENZIED_REGENERATION_HEAL, CastSpellExtraArgs(aurEff).AddSpellBP0(heal));
     }
 
     void Register() override
@@ -1820,7 +1820,7 @@ class spell_dru_blood_in_the_water : public AuraScript
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
-        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_DRUID_BLOOD_IN_THE_WATER_SCRIPT, true, nullptr, aurEff);
+        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_DRUID_BLOOD_IN_THE_WATER_SCRIPT, aurEff);
     }
 
     void Register() override
@@ -1896,7 +1896,7 @@ class spell_dru_item_t11_feral_4p_bonus : public AuraScript
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
     {
         PreventDefaultAction();
-        GetTarget()->CastSpell(GetTarget(), SPELL_DRUID_STRENGTH_OF_THE_PANTHER, true, nullptr, aurEff);
+        GetTarget()->CastSpell(GetTarget(), SPELL_DRUID_STRENGTH_OF_THE_PANTHER, aurEff);
     }
 
     void Register() override

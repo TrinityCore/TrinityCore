@@ -141,7 +141,7 @@ class spell_pal_ardent_defender : public AuraScript
         if (dmgInfo.GetDamage() >= target->GetHealth())
         {
             int32 health = target->CountPctFromMaxHealth(15);
-            target->CastCustomSpell(SPELL_PALADIN_ARDENT_DEFENDER_HEAL, SPELLVALUE_BASE_POINT0, health, target, true, nullptr, aurEff);
+            target->CastSpell(target, SPELL_PALADIN_ARDENT_DEFENDER_HEAL, CastSpellExtraArgs(aurEff).AddSpellBP0(health));
             Remove();
         }
     }
@@ -235,7 +235,7 @@ class spell_pal_avenging_wrath : public AuraScript
     {
         Unit* target = GetTarget();
         if (target->GetAuraOfRankedSpell(SPELL_PALADIN_SANCTIFIED_WRATH_TALENT_R1))
-            target->CastSpell(target, SPELL_PALADIN_SANCTIFIED_WRATH, true, nullptr, aurEff);
+            target->CastSpell(target, SPELL_PALADIN_SANCTIFIED_WRATH, aurEff);
     }
 
     void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -336,7 +336,7 @@ class spell_pal_consecration : public SpellScriptLoader
                     return;
 
                 if (Unit* caster = GetCaster())
-                    caster->CastSpell(castPos.GetPositionX(), castPos.GetPositionY(), castPos.GetPositionZ(), SPELL_PALADIN_CONSECRATION_TRIGGERED, true, nullptr, aurEff);
+                    caster->CastSpell({ castPos.GetPositionX(), castPos.GetPositionY(), castPos.GetPositionZ() }, SPELL_PALADIN_CONSECRATION_TRIGGERED, aurEff);
             }
 
         private:
@@ -421,7 +421,7 @@ class spell_pal_divine_storm : public SpellScript
         if (Unit* caster = GetCaster())
         {
             int32 heal = CalculatePct(GetHitDamage(), GetSpellInfo()->Effects[EFFECT_1].CalcValue(GetCaster()));
-            caster->CastCustomSpell(SPELL_PALADIN_DIVINE_STORM_DUMMY, SPELLVALUE_BASE_POINT0, heal, caster, true);
+            caster->CastSpell(caster, SPELL_PALADIN_DIVINE_STORM_DUMMY, CastSpellExtraArgs(true).AddSpellBP0(heal));
         }
     }
 
@@ -466,7 +466,7 @@ class spell_pal_divine_storm_dummy : public SpellScript
             return;
 
         int32 heal = GetEffectValue() / _targetCount;
-        GetCaster()->CastCustomSpell(GetHitUnit(), SPELL_PALADIN_DIVINE_STORM_HEAL, &heal, nullptr, nullptr, true);
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_PALADIN_DIVINE_STORM_HEAL, CastSpellExtraArgs(true).AddSpellBP0(heal));
     }
 
     void Register() override
@@ -530,7 +530,7 @@ class spell_pal_eye_for_an_eye : public SpellScriptLoader
             {
                 PreventDefaultAction();
                 int32 damage = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount());
-                GetTarget()->CastCustomSpell(SPELL_PALADIN_EYE_FOR_AN_EYE_DAMAGE, SPELLVALUE_BASE_POINT0, damage, eventInfo.GetProcTarget(), true, nullptr, aurEff);
+                GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_PALADIN_EYE_FOR_AN_EYE_DAMAGE, CastSpellExtraArgs(aurEff).AddSpellBP0(damage));
             }
 
             void Register() override
@@ -769,7 +769,7 @@ class spell_pal_item_healing_discount : public SpellScriptLoader
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
-                GetTarget()->CastSpell(GetTarget(), SPELL_PALADIN_ITEM_HEALING_TRANCE, true, nullptr, aurEff);
+                GetTarget()->CastSpell(GetTarget(), SPELL_PALADIN_ITEM_HEALING_TRANCE, aurEff);
             }
 
             void Register() override
@@ -836,7 +836,7 @@ class spell_pal_judgement : public SpellScript
         else
             bp = 1 + int32(1 + ap * 0.16f + 0.25f * holy);
 
-        caster->CastCustomSpell(spellId, SPELLVALUE_BASE_POINT0, bp, target, true, nullptr);
+        caster->CastSpell(target, spellId, CastSpellExtraArgs(true).AddSpellBP0(bp));
     }
 
     void Register() override
@@ -882,7 +882,7 @@ class spell_pal_lay_on_hands : public SpellScript
 
         // Glyph of Divinity
         if (AuraEffect const* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_PALADIN, PALADIN_ICON_ID_GLYPH_OF_DIVINITY, EFFECT_0))
-            caster->CastSpell(caster, SPELL_PALADIN_GLYPH_OF_DIVINITY, true, nullptr, aurEff);
+            caster->CastSpell(caster, SPELL_PALADIN_GLYPH_OF_DIVINITY, aurEff);
     }
 
     void Register() override
@@ -1078,9 +1078,9 @@ class spell_pal_seal_of_righteousness : public AuraScript
         int32 bp = int32((ap * 0.011f + 0.022f * holy) * target->GetAttackTime(BASE_ATTACK) / 1000);
 
         if (target->GetDummyAuraEffect(SPELLFAMILY_PALADIN, PALADIN_ICON_ID_SEALS_OF_COMMAND, EFFECT_1))
-            target->CastCustomSpell(SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS_DAMAGE_AOE, SPELLVALUE_BASE_POINT0, bp, target, true, nullptr, aurEff);
+            target->CastSpell(target, SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS_DAMAGE_AOE, CastSpellExtraArgs(aurEff).AddSpellBP0(bp));
         else
-            target->CastCustomSpell(SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS_DAMAGE, SPELLVALUE_BASE_POINT0, bp, eventInfo.GetProcTarget(), true, nullptr, aurEff);
+            target->CastSpell(eventInfo.GetProcTarget(), SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS_DAMAGE, CastSpellExtraArgs(aurEff).AddSpellBP0(bp));
     }
 
     void Register() override
@@ -1115,7 +1115,7 @@ class spell_pal_illuminated_healing : public AuraScript
                     aura->RefreshDuration();
                 }
                 else
-                    caster->CastCustomSpell(SPELL_PALADIN_ILLUMINATED_HEALING, SPELLVALUE_BASE_POINT0, shieldAmount, target, true, nullptr, aurEff);
+                    caster->CastSpell(target, SPELL_PALADIN_ILLUMINATED_HEALING, CastSpellExtraArgs(aurEff).AddSpellBP0(shieldAmount));
             }
         }
     }
@@ -1161,7 +1161,7 @@ class spell_pal_hand_of_light : public SpellScriptLoader
                     if (Unit* target = eventInfo.GetProcTarget())
                     {
                         uint32 damageAmount = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount());
-                        caster->CastCustomSpell(SPELL_PALADIN_HAND_OF_LIGHT, SPELLVALUE_BASE_POINT0, damageAmount, target, true, nullptr, aurEff);
+                        caster->CastSpell(target, SPELL_PALADIN_HAND_OF_LIGHT, CastSpellExtraArgs(aurEff).AddSpellBP0(damageAmount));
                     }
                 }
             }
@@ -1207,7 +1207,7 @@ class spell_pal_judgements : public AuraScript
             if (uint32 mana = actor->GetCreateMana())
                 bp = CalculatePct(CalculatePct(mana, spell->Effects[EFFECT_0].BasePoints), spell->GetMaxTicks());
 
-            actor->CastCustomSpell(actor, spellId, &bp, nullptr, nullptr, true, nullptr, aurEff);
+            actor->CastSpell(actor, spellId, CastSpellExtraArgs(aurEff).AddSpellBP0(bp));
         }
     }
 
@@ -1285,11 +1285,11 @@ class spell_pal_seal_of_truth : public AuraScript
 
         if (Aura* aura = target->GetAura(SPELL_PALADIN_CENSURE, caster->GetGUID()))
             if (aura->GetStackAmount() == aura->GetSpellInfo()->StackAmount)
-                caster->CastSpell(target, SPELL_PALADIN_SEAL_OF_TRUTH_DAMAGE, true, nullptr, aurEff);
+                caster->CastSpell(target, SPELL_PALADIN_SEAL_OF_TRUTH_DAMAGE, aurEff);
 
         float ap = caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.0270f;
         float holy = caster->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY) * 0.01f;
-        caster->CastCustomSpell(SPELL_PALADIN_CENSURE, SPELLVALUE_BASE_POINT0, int32(ap + holy), target, true, nullptr, aurEff);
+        caster->CastSpell(target, SPELL_PALADIN_CENSURE, CastSpellExtraArgs(aurEff).AddSpellBP0(int32(ap + holy)));
     }
 
     void Register() override
@@ -1319,7 +1319,7 @@ class spell_pal_long_arm_of_the_law : public AuraScript
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
     {
         PreventDefaultAction();
-        GetTarget()->CastSpell(GetTarget(), SPELL_PALADIN_LONG_ARM_OF_THE_LAW, true, nullptr, aurEff);
+        GetTarget()->CastSpell(GetTarget(), SPELL_PALADIN_LONG_ARM_OF_THE_LAW, aurEff);
     }
 
     void Register() override
@@ -1340,7 +1340,7 @@ class spell_pal_communion : public AuraScript
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
     {
         PreventDefaultAction();
-        GetTarget()->CastSpell(GetTarget(), SPELL_GENERIC_REPLENISHMENT, true, nullptr, aurEff);
+        GetTarget()->CastSpell(GetTarget(), SPELL_GENERIC_REPLENISHMENT, aurEff);
     }
 
     void Register() override
@@ -1367,7 +1367,7 @@ class spell_pal_sacred_shield : public AuraScript
         Unit* target = GetTarget();
         SpellInfo const* spell = sSpellMgr->AssertSpellInfo(GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell);
         int32 absorb = (spell->Effects[EFFECT_0].CalcValue() * 2) + target->GetTotalAttackPowerValue(BASE_ATTACK) * 2.8f;
-        target->CastCustomSpell(spell->Id, SPELLVALUE_BASE_POINT0, absorb, target, true, nullptr, aurEff);
+        target->CastSpell(target, spell->Id, CastSpellExtraArgs(aurEff).AddSpellBP0(absorb));
     }
 
     void Register() override
@@ -1429,7 +1429,7 @@ class spell_pal_word_of_glory: public SpellScript
             if (roll_chance_i(aurEff->GetAmount()))
             {
                 uint8 powerCost = 1 + GetSpell()->GetPowerCost();
-                caster->CastCustomSpell(SPELL_PALADIN_ETERNAL_GLORY_PROC, SPELLVALUE_BASE_POINT0, powerCost, caster, true, nullptr, aurEff);
+                caster->CastSpell(caster, SPELL_PALADIN_ETERNAL_GLORY_PROC, CastSpellExtraArgs(aurEff).AddSpellBP0(powerCost));
             }
         }
     }
@@ -1498,7 +1498,7 @@ class spell_pal_selfless_healer : public AuraScript
         Unit* target = GetTarget();
         SpellInfo const* spell = sSpellMgr->AssertSpellInfo(GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell);
         int32 bp = aurEff->GetAmount() * (1 + target->GetPower(POWER_HOLY_POWER));
-        target->CastCustomSpell(spell->Id, SPELLVALUE_BASE_POINT0, bp, target, true, nullptr, aurEff);
+        target->CastSpell(target, spell->Id, CastSpellExtraArgs(aurEff).AddSpellBP0(bp));
     }
 
     void Register() override
@@ -1531,7 +1531,7 @@ class spell_pal_divine_purpose : public AuraScript
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
     {
         PreventDefaultAction();
-        GetTarget()->CastSpell(GetTarget(), SPELL_PALADIN_DIVINE_PURPOSE_PROC, true, nullptr, aurEff);
+        GetTarget()->CastSpell(GetTarget(), SPELL_PALADIN_DIVINE_PURPOSE_PROC, aurEff);
     }
 
     void Register() override
@@ -1657,10 +1657,8 @@ class spell_pal_ancient_healer : public AuraScript
 
 
         for (Unit* guardian : GetTarget()->m_Controlled)
-        {
             if (guardian->GetUInt32Value(UNIT_CREATED_BY_SPELL) == SPELL_PALADIN_GUARDIAN_OF_ANCIENT_KINGS_HOLY)
-                guardian->CastCustomSpell(heal->GetTarget(), SPELL_PALADIN_LIGHT_OF_THE_ANCIENT_KINGS, &bp0, &bp1, nullptr, false, nullptr, aurEff);
-        }
+                guardian->CastSpell(heal->GetTarget(), SPELL_PALADIN_LIGHT_OF_THE_ANCIENT_KINGS, CastSpellExtraArgs(aurEff).AddSpellBP0(bp0).AddSpellMod(SPELLVALUE_BASE_POINT1, bp1));
 
         _procCount++;
     }
@@ -1694,10 +1692,10 @@ class spell_pal_ancient_crusader : public AuraScript
         {
             if (TempSummon* summon = GetTarget()->ToTempSummon())
                 if (Unit* summoner = summon->GetSummoner())
-                    summoner->CastSpell(summoner, SPELL_PALADIN_ANCIENT_POWER, true, nullptr, aurEff);
+                    summoner->CastSpell(summoner, SPELL_PALADIN_ANCIENT_POWER, aurEff);
         }
         else
-            GetTarget()->CastSpell(GetTarget(), SPELL_PALADIN_ANCIENT_POWER, true, nullptr, aurEff);
+            GetTarget()->CastSpell(GetTarget(), SPELL_PALADIN_ANCIENT_POWER, aurEff);
     }
 
     void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
@@ -1708,7 +1706,7 @@ class spell_pal_ancient_crusader : public AuraScript
         Unit* target = GetTarget();
         if (Aura* aura = target->GetAura(SPELL_PALADIN_ANCIENT_POWER))
         {
-            target->CastSpell(target, SPELL_PALADIN_ANCIENT_FURY, true, nullptr, aurEff);
+            target->CastSpell(target, SPELL_PALADIN_ANCIENT_FURY, aurEff);
             aura->Remove();
         }
     }
@@ -1853,7 +1851,7 @@ class spell_pal_holy_radiance_AuraScript : public AuraScript
     void HandleEffectPeriodic(AuraEffect const* aurEff)
     {
         if (Unit* caster = GetCaster())
-            caster->CastSpell(GetTarget(), SPELL_PALADIN_HOLY_RADIANCE_TRIGGERED, true, nullptr, aurEff);
+            caster->CastSpell(GetTarget(), SPELL_PALADIN_HOLY_RADIANCE_TRIGGERED, aurEff);
     }
 
 private:
@@ -1898,7 +1896,7 @@ class spell_pal_lights_beacon : public AuraScript
         if (Unit* caster = GetCaster())
             if (Aura* aura = caster->GetAura(SPELL_PALADIN_BEACON_OF_LIGHT))
                 if (Unit* originalCaster = aura->GetCaster())
-                    originalCaster->CastCustomSpell(SPELL_PALADIN_BEACON_OF_LIGHT_HEAL, SPELLVALUE_BASE_POINT0, bp, caster, true, nullptr, aurEff);
+                    originalCaster->CastSpell(caster, SPELL_PALADIN_BEACON_OF_LIGHT_HEAL, CastSpellExtraArgs(aurEff).AddSpellBP0(bp));
     }
 
     void Register() override

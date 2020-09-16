@@ -458,7 +458,7 @@ class spell_janalai_flame_breath_AuraScript : public AuraScript
 
         float x = 0.f, y = 0.f, z = 0.f;
         _castDestinations[tickNumber - 1].GetPosition(x, y, z);
-        GetTarget()->CastSpell(x, y, z, SPELL_FLAME_BREATH_AREA_EFFECT);
+        GetTarget()->CastSpell({ x, y, z }, SPELL_FLAME_BREATH_AREA_EFFECT);
     }
 
     void Register() override

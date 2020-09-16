@@ -218,7 +218,7 @@ class spell_pet_silverback : public SpellScriptLoader
                 PreventDefaultAction();
 
                 uint32 spellId = triggerSpell[GetSpellInfo()->GetRank() - 1];
-                eventInfo.GetActor()->CastSpell((Unit*)nullptr, spellId, true, nullptr, aurEff);
+                eventInfo.GetActor()->CastSpell((Unit*)nullptr, spellId, aurEff);
             }
 
             void Register() override

@@ -176,7 +176,7 @@ public:
                     break;
                 case EVENT_FATAL_ATTRACTION:
                     Talk(SAY_SPELL);
-                    me->CastCustomSpell(SPELL_FATAL_ATTACTION_TELEPORT, SPELLVALUE_MAX_TARGETS, 3, me);
+                    DoCastSelf(SPELL_FATAL_ATTACTION_TELEPORT, { SPELLVALUE_MAX_TARGETS, 3 });
                     events.Repeat(Seconds(30));
                     break;
                 case EVENT_SILENCING_SHRIEK:

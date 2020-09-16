@@ -467,7 +467,7 @@ struct npc_brazie_the_bonatist_vehicle : public VehicleAI
                     float x = pos.GetPositionX() + cos(angle) * 3;
                     float y = pos.GetPositionY() + sin(angle) * 3;
 
-                    GetPlayer()->CastSpell(x, y, pos.GetPositionZ() + 50.0f, SPELL_CREATE_RANDOM_SUN_POWER, true);
+                    GetPlayer()->CastSpell({ x, y, pos.GetPositionZ() + 50.0f }, SPELL_CREATE_RANDOM_SUN_POWER, true);
 
                     switch (_currentLevel)
                     {
@@ -508,7 +508,7 @@ struct npc_brazie_the_bonatist_vehicle : public VehicleAI
                     }
 
                     if (Player* player = GetPlayer())
-                        player->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), angle, spellId, true);
+                        player->CastSpell({ pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), angle }, spellId, true);
                     break;
                 }
                 case EVENT_ANNOUNCE_GOOD_JOB:
@@ -592,19 +592,19 @@ private:
         for (uint8 i = 0; i < MAX_TARGET_POSITIONS; i++)
         {
             Position pos = LawnMowerPositions[i];
-            charmer->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), LawnmowerOrientation, SPELL_CREATE_LAWMOWER, true);
+            charmer->CastSpell({ pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), LawnmowerOrientation }, SPELL_CREATE_LAWMOWER, true);
 
             pos = GoalStalkerPositions[i];
-            charmer->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), GoalStalkerOrientation, SPELL_CREATE_GOAL_STALKER, true);
+            charmer->CastSpell({ pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), GoalStalkerOrientation }, SPELL_CREATE_GOAL_STALKER, true);
 
             pos = SpitterTargetPositions[i];
-            charmer->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SpitterTargetOrientation, SPELL_CREATE_SPITTER_TARGET, true);
+            charmer->CastSpell({ pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SpitterTargetOrientation }, SPELL_CREATE_SPITTER_TARGET, true);
         }
 
         for (uint8 i = 0; i < MAX_EMPTY_SPOT_POSITIONS; i++)
         {
             Position pos = EmptySpotPositions[i];
-            charmer->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), EmptySpotOrientation, SPELL_CREATE_EMPTY_SPOT, true);
+            charmer->CastSpell({ pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), EmptySpotOrientation }, SPELL_CREATE_EMPTY_SPOT, true);
         }
     }
 
@@ -917,7 +917,7 @@ struct npc_brazie_spot : public ScriptedAI
                         float x = pos.GetPositionX() + cos(angle) * 3;
                         float y = pos.GetPositionY() + sin(angle) * 3;
 
-                        summoner->CastSpell(x, y, pos.GetPositionZ() + 50.0f, SPELL_CREATE_RANDOM_SUN_POWER, true);
+                        summoner->CastSpell({ x, y, pos.GetPositionZ() + 50.0f }, SPELL_CREATE_RANDOM_SUN_POWER, true);
                     }
                 }
                 _events.Repeat(17s);

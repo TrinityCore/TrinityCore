@@ -186,7 +186,7 @@ struct boss_bloodlord_mandokir : public BossAI
                     float y = me->GetPositionY() + sin(angle + angleOffset) * (i * 6.0f);
                     float z = me->GetPositionZ();
                     angleOffset += 0.3f;
-                    me->CastSpell(x, y, z, SPELL_DEVASTATING_SLAM_DAMAGE, true);
+                    me->CastSpell({ x, y, z }, SPELL_DEVASTATING_SLAM_DAMAGE, true);
                 }
             }
         }
@@ -530,8 +530,8 @@ class spell_mandokir_bloodletting : public AuraScript
 
         int32 damage = std::max<int32>(7500, target->CountPctFromCurHealth(aurEff->GetAmount()));
 
-        caster->CastCustomSpell(target, SPELL_BLOODLETTING_DAMAGE, &damage, 0, 0, true);
-        target->CastCustomSpell(caster, SPELL_BLOODLETTING_HEAL, &damage, 0, 0, true);
+        caster->CastSpell(target, SPELL_BLOODLETTING_DAMAGE, CastSpellExtraArgs(true).AddSpellBP0(damage));
+        target->CastSpell(caster, SPELL_BLOODLETTING_HEAL, CastSpellExtraArgs(true).AddSpellBP0(damage));
     }
 
     void Register() override

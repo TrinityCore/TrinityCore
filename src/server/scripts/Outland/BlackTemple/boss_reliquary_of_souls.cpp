@@ -392,7 +392,7 @@ public:
                 switch (eventId)
                 {
                     case EVENT_SOUL_DRAIN:
-                        me->CastCustomSpell(SPELL_SOUL_DRAIN, SPELLVALUE_MAX_TARGETS, 5, me);
+                        DoCastSelf(SPELL_SOUL_DRAIN, { SPELLVALUE_MAX_TARGETS, 5 });
                         events.Repeat(Seconds(30), Seconds(35));
                         break;
                     case EVENT_FRENZY:
@@ -618,7 +618,7 @@ public:
                         break;
                     case EVENT_SPITE:
                         Talk(ANGER_SAY_SPITE);
-                        me->CastCustomSpell(SPELL_SPITE, SPELLVALUE_MAX_TARGETS, 3, me);
+                        DoCastSelf(SPELL_SPITE, { SPELLVALUE_MAX_TARGETS, 3 });
                         events.Repeat(Seconds(20));
                         break;
                     case EVENT_START_CHECK_TANKER:
@@ -738,7 +738,7 @@ class spell_reliquary_of_souls_aura_of_desire : public SpellScriptLoader
 
                 Unit* caster = eventInfo.GetActor();
                 int32 bp = damageInfo->GetDamage() / 2;
-                caster->CastCustomSpell(SPELL_AURA_OF_DESIRE_DAMAGE, SPELLVALUE_BASE_POINT0, bp, caster, true, nullptr, aurEff);
+                caster->CastSpell(caster, SPELL_AURA_OF_DESIRE_DAMAGE, CastSpellExtraArgs(aurEff).AddSpellBP0(bp));
             }
 
             void UpdateAmount(AuraEffect* /*aurEff*/)

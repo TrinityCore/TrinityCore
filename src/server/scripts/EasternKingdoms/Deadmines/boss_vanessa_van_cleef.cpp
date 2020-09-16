@@ -327,7 +327,7 @@ class boss_vanessa_van_cleef : public CreatureScript
                                 float y = defiasReinforcementPositions[_currentReinforcement].m_positionY;
                                 float z = defiasReinforcementPositions[_currentReinforcement].m_positionZ;
 
-                                me->CastSpell(x, y, z, defiasReinforcementSpells[_currentReinforcement], true);
+                                me->CastSpell({ x, y, z }, defiasReinforcementSpells[_currentReinforcement], true);
                                 _currentReinforcement++;
 
                                 if (_currentReinforcement == REINFORCEMENT_BLOOD_WIZARD)

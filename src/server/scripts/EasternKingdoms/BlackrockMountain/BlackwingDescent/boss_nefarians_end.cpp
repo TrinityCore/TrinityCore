@@ -1346,14 +1346,14 @@ struct npc_nefarians_end_shadowblaze : public NullCreatureAI
                         }
                     }
 
-                    me->CastSpell(summonPos.GetPositionX(), summonPos.GetPositionY(), z, 0.f, SPELL_BRUSHFIRE_SUMMON, true);
+                    me->CastSpell({ summonPos.GetPositionX(), summonPos.GetPositionY(), z, 0.f }, SPELL_BRUSHFIRE_SUMMON, true);
                 }
                 else
                 {
                     if (me->GetEntry() == NPC_SHADOWBLAZE_FLASHPOINT)
                     {
-                        me->CastSpell(me->GetPositionX() - 5.f, me->GetPositionY(), z, 0.f, SPELL_BRUSHFIRE_SUMMON, true);
-                        me->CastSpell(me->GetPositionX(), me->GetPositionY() + 5.f, z, 0.f, SPELL_BRUSHFIRE_SUMMON, true);
+                        me->CastSpell({ me->GetPositionX() - 5.f, me->GetPositionY(), z, 0.f }, SPELL_BRUSHFIRE_SUMMON, true);
+                        me->CastSpell({ me->GetPositionX(), me->GetPositionY() + 5.f, z, 0.f }, SPELL_BRUSHFIRE_SUMMON, true);
                     }
                     else if (_summonedByController)
                     {
@@ -1361,7 +1361,7 @@ struct npc_nefarians_end_shadowblaze : public NullCreatureAI
                         {
                             float x = me->GetPositionX() + 5.f;
                             float y = me->GetPositionY() + 5.f;
-                            me->CastSpell(x, y, z, 0.f, SPELL_BRUSHFIRE_SUMMON, true);
+                            me->CastSpell({ x, y, z, 0.f }, SPELL_BRUSHFIRE_SUMMON, true);
                         }
                     }
                 }
@@ -1843,7 +1843,7 @@ class spell_nefarians_end_dominion_dummy : public SpellScript
         Unit* caster = GetCaster();
         uint8 size = caster->GetMap()->Is25ManRaid() ? 2 : 5;
         if (!targets.empty())
-            caster->CastCustomSpell(SPELL_DOMINION_OVERRIDE_ACTION_BAR, SPELLVALUE_MAX_TARGETS, size, caster, true);
+            caster->CastSpell(caster, SPELL_DOMINION_OVERRIDE_ACTION_BAR, CastSpellExtraArgs(true).AddSpellMod(SPELLVALUE_MAX_TARGETS, size));
     }
 
     void Register() override

@@ -554,7 +554,7 @@ class spell_pilgrims_bounty_feast_on : public SpellScriptLoader
                         if (Player* player = target->ToPlayer())
                         {
                             player->CastSpell(player, SPELL_ON_PLATE_EAT_VISUAL, true);
-                            caster->CastSpell(player, _spellId, true, nullptr, nullptr, player->GetGUID());
+                            caster->CastSpell(player, _spellId, player->GetGUID());
                         }
 
                 if (Aura* aura = caster->GetAura(GetEffectValue()))
@@ -1155,12 +1155,12 @@ class spell_brewfest_ram : public SpellScriptLoader
                             target->CastSpell(target, SPELL_BREWFEST_QUEST_SPEED_BUNNY_GREEN, true);
                         break;
                     case SPELL_RAM_CANTER:
-                        target->CastCustomSpell(SPELL_RAM_FATIGUE, SPELLVALUE_AURA_STACK, 1, target, TRIGGERED_FULL_MASK);
+                        target->CastSpell(target, SPELL_RAM_FATIGUE, CastSpellExtraArgs(true).AddSpellMod(SPELLVALUE_AURA_STACK, 1));
                         if (aurEff->GetTickNumber() == 8)
                             target->CastSpell(target, SPELL_BREWFEST_QUEST_SPEED_BUNNY_YELLOW, true);
                         break;
                     case SPELL_RAM_GALLOP:
-                        target->CastCustomSpell(SPELL_RAM_FATIGUE, SPELLVALUE_AURA_STACK, target->HasAura(SPELL_RAM_FATIGUE) ? 4 : 5 /*Hack*/, target, TRIGGERED_FULL_MASK);
+                        target->CastSpell(target, SPELL_RAM_FATIGUE, CastSpellExtraArgs(true).AddSpellMod(SPELLVALUE_AURA_STACK, target->HasAura(SPELL_RAM_FATIGUE) ? 4 : 5 /*Hack*/));
                         if (aurEff->GetTickNumber() == 8)
                             target->CastSpell(target, SPELL_BREWFEST_QUEST_SPEED_BUNNY_RED, true);
                         break;
@@ -1664,7 +1664,7 @@ class spell_darkmoon_island_ring_toss : public SpellScript
         if (target->GetExactDist2d(destination) <= 1.0f)
             caster->CastSpell(target, SPELL_RING_TOSS_HIT, true);
         else
-            caster->CastSpell(destination.GetPositionX(), destination.GetPositionY(), destination.GetPositionZ(), SPELL_RING_TOSS_MISS, true);
+            caster->CastSpell({ destination.GetPositionX(), destination.GetPositionY(), destination.GetPositionZ() }, SPELL_RING_TOSS_MISS, true);
         _hasHit = true;
     }
 
@@ -1675,7 +1675,7 @@ class spell_darkmoon_island_ring_toss : public SpellScript
         if (!_hasHit)
         {
             Position destination = GetExplTargetDest()->GetPosition();
-            caster->CastSpell(destination.GetPositionX(), destination.GetPositionY(), destination.GetPositionZ(), SPELL_RING_TOSS_MISS, true);
+            caster->CastSpell({destination.GetPositionX(), destination.GetPositionY(), destination.GetPositionZ()} , SPELL_RING_TOSS_MISS, true);
         }
 
         if (!caster->GetPower(POWER_ALTERNATE_POWER))
@@ -1720,7 +1720,7 @@ class spell_darkmoon_island_whack_summon_aura : public AuraScript
 
     void OnPeriodic(AuraEffect const* aurEff)
     {
-        GetTarget()->CastSpell(GetTarget(), SPELL_GNOLL_AURA_OKAY_TO_HIT, true, nullptr, aurEff);
+        GetTarget()->CastSpell(GetTarget(), SPELL_GNOLL_AURA_OKAY_TO_HIT, aurEff);
     }
 
     void Register() override

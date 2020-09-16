@@ -516,7 +516,7 @@ public:
                     {
                         //DoCastVictim(SPELL_CHAOS_BLAST, true);
                         int damage = 100;
-                        me->CastCustomSpell(me->GetVictim(), SPELL_CHAOS_BLAST, &damage, nullptr, nullptr, false, nullptr, nullptr, me->GetGUID());
+                        DoCast(me->GetVictim(), SPELL_CHAOS_BLAST, CastSpellExtraArgs(damage).SetOriginalCaster(me->GetGUID()));
                     }
                     ChaosBlast_Timer = 3000;
                 } else ChaosBlast_Timer -= diff;
@@ -673,7 +673,7 @@ public:
                 {
                     //DoCastVictim(SPELL_CHAOS_BLAST, true);
                     int damage = 100;
-                    me->CastCustomSpell(me->GetVictim(), SPELL_CHAOS_BLAST, &damage, nullptr, nullptr, false, nullptr, nullptr, me->GetGUID());
+                    DoCast(me->GetVictim(), SPELL_CHAOS_BLAST, CastSpellExtraArgs(damage).SetOriginalCaster(me->GetGUID()));
                     ChaosBlast_Timer = 3000;
                 }
              } else ChaosBlast_Timer -= diff;

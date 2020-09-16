@@ -620,7 +620,7 @@ void PlayerAI::DoCastAtTarget(TargetedSpell spell)
 {
     SpellCastTargets targets;
     targets.SetUnitTarget(spell.second);
-    spell.first->prepare(&targets);
+    spell.first->prepare(targets);
 }
 
 void PlayerAI::DoRangedAttackIfReady()

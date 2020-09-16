@@ -178,7 +178,7 @@ class spell_mage_arcane_potency : public AuraScript
         if (!spellId)
             return;
 
-        GetTarget()->CastSpell(GetTarget(), spellId, true, nullptr, aurEff);
+        GetTarget()->CastSpell(GetTarget(), spellId, aurEff);
 
     }
 
@@ -223,7 +223,7 @@ class spell_mage_blast_wave : public SpellScriptLoader
                                 return;
 
                             loc->GetPosition(x, y, z);
-                            GetCaster()->CastSpell(x, y, z, SPELL_MAGE_FLAMESTRIKE, true);
+                            GetCaster()->CastSpell({ x, y, z }, SPELL_MAGE_FLAMESTRIKE, true);
                         }
             }
 
@@ -258,7 +258,7 @@ class spell_mage_blazing_speed : public SpellScriptLoader
             void OnProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
-                GetTarget()->CastSpell(GetTarget(), SPELL_MAGE_BLAZING_SPEED, true, nullptr, aurEff);
+                GetTarget()->CastSpell(GetTarget(), SPELL_MAGE_BLAZING_SPEED, aurEff);
             }
 
             void Register() override
@@ -508,7 +508,7 @@ class spell_mage_fire_frost_ward : public SpellScriptLoader
                     {
                         int32 bp = dmgInfo.GetDamage();
                         dmgInfo.AbsorbDamage(bp);
-                        target->CastCustomSpell(target, SPELL_MAGE_FROST_WARDING_TRIGGERED, &bp, nullptr, nullptr, true, nullptr, aurEff);
+                        target->CastSpell(target, SPELL_MAGE_FROST_WARDING_TRIGGERED, CastSpellExtraArgs(aurEff).AddSpellBP0(bp));
                         absorbAmount = 0;
                         PreventDefaultAction();
                     }
@@ -536,7 +536,7 @@ class spell_mage_focus_magic : public AuraScript
         PreventDefaultAction();
         if (Unit* caster = GetCaster())
             if (caster->IsAlive())
-                caster->CastSpell(caster, GetSpellInfo()->Effects[EFFECT_1].TriggerSpell, true, nullptr, aurEff);
+                caster->CastSpell(caster, GetSpellInfo()->Effects[EFFECT_1].TriggerSpell, aurEff);
     }
 
     void Register() override
@@ -738,7 +738,7 @@ class spell_mage_living_bomb : public AuraScript
             return;
 
         if (Unit* caster = GetCaster())
-            caster->CastSpell(GetTarget(), uint32(aurEff->GetAmount()), true, nullptr, aurEff);
+            caster->CastSpell(GetTarget(), uint32(aurEff->GetAmount()), aurEff);
     }
 
     void Register() override
@@ -830,7 +830,7 @@ class spell_mage_ignite : public AuraScript
             if (!ignite->GetTickNumber())
                 bp += ignite->GetAmount();
 
-        target->CastCustomSpell(SPELL_MAGE_IGNITE, SPELLVALUE_BASE_POINT0, bp, eventInfo.GetProcTarget(), true, nullptr, aurEff);
+        target->CastSpell(eventInfo.GetProcTarget(), SPELL_MAGE_IGNITE, CastSpellExtraArgs(aurEff).AddSpellBP0(bp));
     }
 
     void Register() override
@@ -864,7 +864,7 @@ class spell_mage_mage_ward : public SpellScriptLoader
                if (AuraEffect const* aurEff = GetTarget()->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_GENERIC, ICON_MAGE_INCANTER_S_ABSORPTION, EFFECT_0))
                {
                    int32 bp = CalculatePct(absorbAmount, aurEff->GetAmount());
-                   GetTarget()->CastCustomSpell(GetTarget(), SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED, &bp, nullptr, nullptr, true);
+                   GetTarget()->CastSpell(GetTarget(), SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED, CastSpellExtraArgs(true).AddSpellBP0(bp));
                }
            }
 
@@ -915,7 +915,7 @@ class spell_mage_mana_shield : public SpellScriptLoader
                if (AuraEffect const* aurEff = GetTarget()->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_GENERIC, ICON_MAGE_INCANTER_S_ABSORPTION, EFFECT_0))
                {
                    int32 bp = CalculatePct(absorbAmount, aurEff->GetAmount());
-                   GetTarget()->CastCustomSpell(GetTarget(), SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED, &bp, nullptr, nullptr, true);
+                   GetTarget()->CastSpell(GetTarget(), SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED, CastSpellExtraArgs(true).AddSpellBP0(bp));
                }
            }
 
@@ -962,7 +962,7 @@ class spell_mage_master_of_elements : public AuraScript
         mana = CalculatePct(mana, aurEff->GetAmount());
 
         if (mana)
-            GetTarget()->CastCustomSpell(SPELL_MAGE_MASTER_OF_ELEMENTS_ENERGIZE, SPELLVALUE_BASE_POINT0, mana, GetTarget(), true, nullptr, aurEff);
+            GetTarget()->CastSpell(GetTarget(), SPELL_MAGE_MASTER_OF_ELEMENTS_ENERGIZE, CastSpellExtraArgs(aurEff).AddSpellBP0(mana));
     }
 
     void Register() override
@@ -992,7 +992,7 @@ class spell_mage_nether_vortex : public AuraScript
     void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
-        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_MAGE_SLOW, true, nullptr, aurEff);
+        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_MAGE_SLOW, aurEff);
     }
 
     void Register() override
@@ -1025,8 +1025,8 @@ class spell_mage_permafrost : public AuraScript
 
         Unit* target = GetTarget();
         int32 heal = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount()));
-        target->CastCustomSpell(SPELL_MAGE_PERMAFROST_HEAL, SPELLVALUE_BASE_POINT0, heal, (Unit*)nullptr, true, nullptr, aurEff);
-        target->CastSpell(eventInfo.GetProcTarget(), SPELL_MAGE_PERMAFROST_REDUCE_HEAL, true, nullptr, aurEff);
+        target->CastSpell(nullptr, SPELL_MAGE_PERMAFROST_HEAL, CastSpellExtraArgs(aurEff).AddSpellBP0(heal));
+        target->CastSpell(eventInfo.GetProcTarget(), SPELL_MAGE_PERMAFROST_REDUCE_HEAL, aurEff);
     }
 
     void Register() override
@@ -1075,8 +1075,8 @@ class spell_mage_polymorph : public SpellScriptLoader
                     if (_caster->HasAura(SPELL_MAGE_IMPROVED_POLYMORPH_MARKER))
                         return;
 
-                    GetTarget()->CastSpell(GetTarget(), sSpellMgr->GetSpellWithRank(SPELL_MAGE_IMPROVED_POLYMORPH_STUN_RANK_1, improvedPolymorph->GetSpellInfo()->GetRank()), true, nullptr, aurEff);
-                    _caster->CastSpell(_caster, SPELL_MAGE_IMPROVED_POLYMORPH_MARKER, true, nullptr, aurEff);
+                    GetTarget()->CastSpell(GetTarget(), sSpellMgr->GetSpellWithRank(SPELL_MAGE_IMPROVED_POLYMORPH_STUN_RANK_1, improvedPolymorph->GetSpellInfo()->GetRank()), aurEff);
+                    _caster->CastSpell(_caster, SPELL_MAGE_IMPROVED_POLYMORPH_MARKER, aurEff);
                 }
             }
 
@@ -1167,7 +1167,7 @@ class spell_mage_replenish_mana : public SpellScriptLoader
                if (AuraEffect* aurEff = GetCaster()->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_MAGE, ICON_MAGE_IMPROVED_MANA_GEM, EFFECT_0))
                {
                    int32 bp = CalculatePct(GetCaster()->GetMaxPower(POWER_MANA), aurEff->GetAmount());
-                   GetCaster()->CastCustomSpell(GetCaster(), SPELL_MAGE_IMPROVED_MANA_GEM_TRIGGERED, &bp, &bp, nullptr, true);
+                   GetCaster()->CastSpell(GetCaster(), SPELL_MAGE_IMPROVED_MANA_GEM_TRIGGERED, CastSpellExtraArgs(true).AddSpellBP0(bp).AddSpellMod(SPELLVALUE_BASE_POINT1, bp));
                }
            }
 
@@ -1212,7 +1212,7 @@ class spell_mage_ring_of_frost : public SpellScriptLoader
             {
                 if (ringOfFrost)
                     if (GetMaxDuration() - (int32)ringOfFrost->GetTimer() >= sSpellMgr->GetSpellInfo(SPELL_MAGE_RING_OF_FROST_DUMMY)->GetDuration())
-                        GetTarget()->CastSpell(ringOfFrost->GetPositionX(), ringOfFrost->GetPositionY(), ringOfFrost->GetPositionZ(), SPELL_MAGE_RING_OF_FROST_FREEZE, true);
+                        GetTarget()->CastSpell({ ringOfFrost->GetPositionX(), ringOfFrost->GetPositionY(), ringOfFrost->GetPositionZ() }, SPELL_MAGE_RING_OF_FROST_FREEZE, true);
             }
 
             void Apply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1394,7 +1394,7 @@ class spell_mage_water_elemental_freeze : public SpellScriptLoader
                if (AuraEffect* aurEff = owner->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_MAGE, ICON_MAGE_IMPROVED_FREEZE, EFFECT_0))
                {
                    if (roll_chance_i(aurEff->GetAmount()))
-                       owner->CastCustomSpell(SPELL_MAGE_FINGERS_OF_FROST, SPELLVALUE_AURA_STACK, 2, owner, true);
+                       owner->CastSpell(owner, SPELL_MAGE_FINGERS_OF_FROST, CastSpellExtraArgs(true).AddSpellMod(SPELLVALUE_AURA_STACK, 2));
                }
            }
 
@@ -1510,7 +1510,7 @@ public:
         void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
         {
             if (Unit* caster = GetCaster())
-                caster->CastSpell(caster, SPELL_MAGE_EARLY_FROST_VISUAL , true, nullptr, aurEff);
+                caster->CastSpell(caster, SPELL_MAGE_EARLY_FROST_VISUAL, aurEff);
         }
 
         void Register() override
@@ -1717,7 +1717,7 @@ class spell_mage_hot_streak : public SpellScriptLoader
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
-                GetCaster()->CastSpell(GetCaster(), SPELL_MAGE_HOT_STREAK_TRIGGERED, true, nullptr, aurEff);
+                GetCaster()->CastSpell(GetCaster(), SPELL_MAGE_HOT_STREAK_TRIGGERED, aurEff);
             }
 
             void Register() override
@@ -1788,7 +1788,7 @@ class spell_mage_improved_hot_streak : public SpellScriptLoader
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
-                GetCaster()->CastSpell(GetCaster(), SPELL_MAGE_HOT_STREAK_TRIGGERED, true, nullptr, aurEff);
+                GetCaster()->CastSpell(GetCaster(), SPELL_MAGE_HOT_STREAK_TRIGGERED, aurEff);
             }
 
             void Register() override
@@ -1963,7 +1963,7 @@ class spell_mage_pyromaniac : public AuraScript
 
         if (_dotTargetGuids.size() >= 3)
         {
-            target->CastCustomSpell(SPELL_MAGE_PYROMANIAC_TRIGGERED, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), target, true, nullptr, aurEff);
+            target->CastSpell(target, SPELL_MAGE_PYROMANIAC_TRIGGERED, CastSpellExtraArgs(aurEff).AddSpellBP0(aurEff->GetAmount()));
             _buffActive = true;
         }
     }
@@ -2136,7 +2136,7 @@ class spell_mage_combustion : public SpellScript
         }
 
         if (totalAmount)
-            caster->CastCustomSpell(SPELL_MAGE_COMBUSTION_DAMAGE, SPELLVALUE_BASE_POINT0, totalAmount, target, true);
+            caster->CastSpell(target, SPELL_MAGE_COMBUSTION_DAMAGE, CastSpellExtraArgs(true).AddSpellBP0(totalAmount));
     }
 
     void Register() override

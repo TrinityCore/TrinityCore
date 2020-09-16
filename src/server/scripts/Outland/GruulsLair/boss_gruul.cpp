@@ -133,11 +133,11 @@ class boss_gruul : public CreatureScript
                         switch (urand(0, 1))
                         {
                             case 0:
-                                target->CastSpell(target, SPELL_MAGNETIC_PULL, true, nullptr, nullptr, me->GetGUID());
+                                target->CastSpell(target, SPELL_MAGNETIC_PULL, me->GetGUID());
                                 break;
 
                             case 1:
-                                target->CastSpell(target, SPELL_KNOCK_BACK, true, nullptr, nullptr, me->GetGUID());
+                                target->CastSpell(target, SPELL_KNOCK_BACK, me->GetGUID());
                                 break;
                         }
                     }

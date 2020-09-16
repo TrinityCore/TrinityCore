@@ -460,7 +460,7 @@ struct npc_asaad_unstable_grounding_field : public ScriptedAI
                 DoCast(me, SPELL_STORM_SUMMON_GROUNDING_FIELD);
 
                 Position pos = ENSURE_AI(AsaadAI, asaad->AI())->GetTriangleCenterPosition();
-                me->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), SPELL_STORM_SUMMON_GROUNDING_FIELD, true);
+                me->CastSpell({ pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ() }, SPELL_STORM_SUMMON_GROUNDING_FIELD, true);
                 _events.ScheduleEvent(EVENT_STORM_ASAAD_TELEPORT, 500);
                 break;
             }

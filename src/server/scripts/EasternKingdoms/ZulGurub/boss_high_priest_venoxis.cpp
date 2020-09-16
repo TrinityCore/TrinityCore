@@ -533,7 +533,7 @@ class spell_venoxis_pool_of_acrid_tears : public AuraScript
         {
             uint32 triggerSpell = GetSpellInfo()->Effects[EFFECT_0].TriggerSpell;
             int32 radius = target->GetObjectScale() * 75;
-            target->CastCustomSpell(triggerSpell, SPELLVALUE_RADIUS_MOD, radius, nullptr, true, nullptr, aurEff, target->GetGUID());
+            target->CastSpell(nullptr, triggerSpell, CastSpellExtraArgs(aurEff).SetOriginalCaster(target->GetGUID()).AddSpellMod(SPELLVALUE_RADIUS_MOD, radius));
         }
     }
 

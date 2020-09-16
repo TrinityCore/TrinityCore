@@ -318,7 +318,7 @@ struct boss_twin_baseAI : public BossAI
                 break;
             case EVENT_TOUCH:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true, true, OtherEssenceSpellId))
-                    me->CastCustomSpell(TouchSpellId, SPELLVALUE_MAX_TARGETS, 1, target, false);
+                    me->CastSpell(target, TouchSpellId, { SPELLVALUE_MAX_TARGETS, 1 });
                 events.ScheduleEvent(EVENT_TOUCH, urand(10 * IN_MILLISECONDS, 15 * IN_MILLISECONDS));
                 break;
             case EVENT_BERSERK:

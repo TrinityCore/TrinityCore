@@ -243,7 +243,7 @@ namespace CorruptionHandler
         // Add power to target
         power += corruptionAmount;
         target->SetPower(POWER_ALTERNATE_POWER, std::min(power, uint8(MAX_CORRUPTION)));
-        target->CastCustomSpell(SPELL_CORRUPTED_BLOOD_DAMAGE_INCREASE, SPELLVALUE_AURA_STACK, corruptionAmount, target, true);
+        target->CastSpell(target, SPELL_CORRUPTED_BLOOD_DAMAGE_INCREASE, CastSpellExtraArgs(true).AddSpellMod(SPELLVALUE_AURA_STACK, corruptionAmount));
 
         // Achievement check
         if (power > CORRUPTION_ACHIEVEMENT_CAP)
@@ -769,10 +769,8 @@ struct npc_chogall_elemental : public PassiveAI
         if (Creature* chogall = _instance->GetCreature(DATA_CHOGALL))
             chogall->AI()->JustSummoned(me);
 
-        if (me->GetEntry() == NPC_FIRE_ELEMENTAL)
-            me->CastCustomSpell(SPELL_FIRE_POWER, SPELLVALUE_AURA_STACK, 10, me, true);
-        else
-            me->CastCustomSpell(SPELL_SHADOW_POWER, SPELLVALUE_AURA_STACK, 10, me, true);
+        uint32 spellId = me->GetEntry() == NPC_FIRE_ELEMENTAL ? SPELL_FIRE_POWER : SPELL_SHADOW_POWER;
+        me->CastSpell(me, spellId, { SPELLVALUE_AURA_STACK, 10 });
 
         _events.ScheduleEvent(EVENT_ABSORB_ELEMENTAL, 10s + 500ms);
     }
@@ -1011,7 +1009,7 @@ class spell_chogall_absorb_elemental_heroic_AuraScript : public AuraScript
 
         if (Creature* chogall = instance->GetCreature(DATA_CHOGALL))
             if (uint8 stacks = chogall->AI()->GetData(DATA_ELEMENTAL_POWER_STACKS))
-                target->CastCustomSpell(GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, SPELLVALUE_AURA_STACK, stacks, target, true);
+                target->CastSpell(target, GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, CastSpellExtraArgs(true).AddSpellMod(SPELLVALUE_AURA_STACK, stacks));
     }
 
     void Register() override
@@ -1053,7 +1051,7 @@ class spell_chogall_flaming_destruction_heroic : public AuraScript
         uint8 stacks = GetStackAmount();
         int32 bp = spell->Effects[EFFECT_0].CalcValue();
         bp += CalculatePct(bp, stacks * 10);
-        caster->CastCustomSpell(spell->Id, SPELLVALUE_BASE_POINT0, bp, target, true, nullptr, aurEff);
+        caster->CastSpell(target, spell->Id, CastSpellExtraArgs(aurEff).AddSpellBP0(bp));
     }
 
     void Register() override
@@ -1076,7 +1074,7 @@ class spell_chogall_empowered_shadows_heroic : public AuraScript
         uint8 stacks = GetStackAmount();
         int32 bp = spell->Effects[EFFECT_0].CalcValue();
         bp += CalculatePct(bp, stacks * 5);
-        caster->CastCustomSpell(spell->Id, SPELLVALUE_BASE_POINT0, bp, caster, true, nullptr, aurEff);
+        caster->CastSpell(caster, spell->Id, CastSpellExtraArgs(aurEff).AddSpellBP0(bp));
     }
 
     void Register() override

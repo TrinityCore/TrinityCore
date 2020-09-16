@@ -308,7 +308,7 @@ class spell_godfrey_pistol_barrage : public AuraScript
         float posX = target->GetPositionX() + cos(ori) * 60;
         float posY = target->GetPositionY() + sin(ori) * 60;
         float posZ = target->GetPositionZ();
-        target->CastSpell(posX, posY, posZ, spellId, true);
+        target->CastSpell({ posX, posY, posZ }, spellId, true);
         _useLeftGun = _useLeftGun ? false : true;
     }
 

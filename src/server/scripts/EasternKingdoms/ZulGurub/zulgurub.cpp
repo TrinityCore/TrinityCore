@@ -545,7 +545,7 @@ class spell_zulgurub_ancient_guardian : public AuraScript
         {
             absorbAmount = dmgInfo.GetDamage();
             int32 health = target->CountPctFromMaxHealth(50) - absorbAmount;
-            target->CastCustomSpell(SPELL_ANCIENT_GUARDIAN_HEAL, SPELLVALUE_BASE_POINT0, health, target, true, nullptr, aurEff);
+            target->CastSpell(target, SPELL_ANCIENT_GUARDIAN_HEAL,  CastSpellExtraArgs(aurEff).AddSpellBP0(health));
             Remove();
         }
     }

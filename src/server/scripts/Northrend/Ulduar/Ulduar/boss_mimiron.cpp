@@ -495,7 +495,7 @@ class boss_mimiron : public CreatureScript
                     {
                         case EVENT_SUMMON_FLAMES:
                             if (Creature* worldtrigger = instance->GetCreature(DATA_MIMIRON_WORLD_TRIGGER))
-                                worldtrigger->CastCustomSpell(SPELL_SCRIPT_EFFECT_SUMMON_FLAMES_INITIAL, SPELLVALUE_MAX_TARGETS, 3, nullptr, true, nullptr, nullptr, me->GetGUID());
+                                worldtrigger->CastSpell(nullptr, SPELL_SCRIPT_EFFECT_SUMMON_FLAMES_INITIAL, CastSpellExtraArgs(me->GetGUID()).AddSpellMod(SPELLVALUE_MAX_TARGETS, 3));
                             events.RescheduleEvent(EVENT_SUMMON_FLAMES, 28000);
                             break;
                         case EVENT_INTRO_1:
@@ -1235,15 +1235,15 @@ class boss_aerial_command_unit : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_SUMMON_FIRE_BOTS:
-                            me->CastCustomSpell(SPELL_SUMMON_FIRE_BOT_TRIGGER, SPELLVALUE_MAX_TARGETS, 3, nullptr, true);
+                            DoCastAOE(SPELL_SUMMON_FIRE_BOT_TRIGGER, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_MAX_TARGETS, 3));
                             events.RescheduleEvent(EVENT_SUMMON_FIRE_BOTS, 45000, 0, PHASE_AERIAL_COMMAND_UNIT);
                             break;
                         case EVENT_SUMMON_JUNK_BOT:
-                            me->CastCustomSpell(SPELL_SUMMON_JUNK_BOT_TRIGGER, SPELLVALUE_MAX_TARGETS, 1, nullptr, true);
+                            DoCastAOE(SPELL_SUMMON_JUNK_BOT_TRIGGER, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_MAX_TARGETS, 1));
                             events.RescheduleEvent(EVENT_SUMMON_JUNK_BOT, urand(11000, 12000), 0, PHASE_AERIAL_COMMAND_UNIT);
                             break;
                         case EVENT_SUMMON_ASSAULT_BOT:
-                            me->CastCustomSpell(SPELL_SUMMON_ASSAULT_BOT_TRIGGER, SPELLVALUE_MAX_TARGETS, 1, nullptr, true);
+                            DoCastAOE(SPELL_SUMMON_ASSAULT_BOT_TRIGGER, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_MAX_TARGETS, 1));
                             events.RescheduleEvent(EVENT_SUMMON_ASSAULT_BOT, 30000, 0, PHASE_AERIAL_COMMAND_UNIT);
                             break;
                         case EVENT_SUMMON_BOMB_BOT:
@@ -2145,7 +2145,7 @@ class spell_mimiron_rapid_burst : public SpellScriptLoader
             void HandleDummyTick(AuraEffect const* aurEff)
             {
                 if (GetCaster())
-                    GetCaster()->CastSpell(GetTarget(), aurEff->GetTickNumber() % 2 == 0 ? SPELL_RAPID_BURST_RIGHT : SPELL_RAPID_BURST_LEFT, true, nullptr, aurEff);
+                    GetCaster()->CastSpell(GetTarget(), aurEff->GetTickNumber() % 2 == 0 ? SPELL_RAPID_BURST_RIGHT : SPELL_RAPID_BURST_LEFT, aurEff);
             }
 
             void Register() override
@@ -2189,7 +2189,7 @@ class spell_mimiron_rocket_strike : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                GetHitUnit()->CastSpell((Unit*)nullptr, SPELL_SCRIPT_EFFECT_ROCKET_STRIKE, true, nullptr, nullptr, GetCaster()->GetGUID());
+                GetHitUnit()->CastSpell(nullptr, SPELL_SCRIPT_EFFECT_ROCKET_STRIKE, GetCaster()->GetGUID());
             }
 
             void Register() override
@@ -2283,7 +2283,7 @@ class spell_mimiron_rocket_strike_target_select : public SpellScriptLoader
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (InstanceScript* instance = GetCaster()->GetInstanceScript())
-                    GetCaster()->CastSpell(GetHitUnit(), SPELL_SUMMON_ROCKET_STRIKE, true, nullptr, nullptr, instance->GetGuidData(DATA_VX_001));
+                    GetCaster()->CastSpell(GetHitUnit(), SPELL_SUMMON_ROCKET_STRIKE, instance->GetGuidData(DATA_VX_001));
                 GetCaster()->SetDisplayId(11686);
             }
 
@@ -2371,7 +2371,7 @@ class spell_mimiron_summon_assault_bot : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                     if (InstanceScript* instance = caster->GetInstanceScript())
                         if (instance->GetBossState(DATA_MIMIRON) == IN_PROGRESS)
-                            caster->CastSpell(caster, SPELL_SUMMON_ASSAULT_BOT, false, nullptr, aurEff, instance->GetGuidData(DATA_AERIAL_COMMAND_UNIT));
+                            caster->CastSpell(caster, SPELL_SUMMON_ASSAULT_BOT, CastSpellExtraArgs(aurEff).SetOriginalCaster(instance->GetGuidData(DATA_AERIAL_COMMAND_UNIT)));
             }
 
             void Register() override
@@ -2434,7 +2434,7 @@ class spell_mimiron_summon_fire_bot : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                     if (InstanceScript* instance = caster->GetInstanceScript())
                         if (instance->GetBossState(DATA_MIMIRON) == IN_PROGRESS)
-                            caster->CastSpell(caster, SPELL_SUMMON_FIRE_BOT, false, nullptr, aurEff, instance->GetGuidData(DATA_AERIAL_COMMAND_UNIT));
+                            caster->CastSpell(caster, SPELL_SUMMON_FIRE_BOT, { aurEff, instance->GetGuidData(DATA_AERIAL_COMMAND_UNIT) });
             }
 
             void Register() override
@@ -2612,7 +2612,7 @@ class spell_mimiron_summon_junk_bot : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                     if (InstanceScript* instance = caster->GetInstanceScript())
                         if (instance->GetBossState(DATA_MIMIRON) == IN_PROGRESS)
-                            caster->CastSpell(caster, SPELL_SUMMON_JUNK_BOT, false, nullptr, aurEff, instance->GetGuidData(DATA_AERIAL_COMMAND_UNIT));
+                            caster->CastSpell(caster, SPELL_SUMMON_JUNK_BOT, { aurEff, instance->GetGuidData(DATA_AERIAL_COMMAND_UNIT) });
             }
 
             void Register() override

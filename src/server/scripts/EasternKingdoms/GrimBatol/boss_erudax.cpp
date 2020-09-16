@@ -516,7 +516,7 @@ class spell_erudax_twilight_corruption_AuraScript : public AuraScript
                 if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(spellId))
                 {
                     int32 damage = CalculatePct(target->GetMaxHealth(), spell->Effects[EFFECT_0].BasePoints);
-                    target->CastCustomSpell(target, spellId, &damage, 0, 0, true);
+                    target->CastSpell(target, spellId, CastSpellExtraArgs(true).AddSpellBP0(damage));
                 }
             }
         }

@@ -956,7 +956,7 @@ class spell_xt002_heart_overload_periodic : public SpellScriptLoader
                             {
                                 uint8 a = urand(0, 4);
                                 uint32 spellId = spells[a];
-                                toyPile->CastSpell(toyPile, spellId, true, nullptr, nullptr, instance->GetGuidData(DATA_XT002));
+                                toyPile->CastSpell(toyPile, spellId, instance->GetGuidData(DATA_XT002));
                             }
                         }
                     }

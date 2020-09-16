@@ -309,12 +309,12 @@ class boss_anubarak_trial : public CreatureScript
                             events.ScheduleEvent(EVENT_FREEZE_SLASH, 15*IN_MILLISECONDS, 0, PHASE_MELEE);
                             return;
                         case EVENT_PENETRATING_COLD:
-                            me->CastCustomSpell(SPELL_PENETRATING_COLD, SPELLVALUE_MAX_TARGETS, RAID_MODE(2, 5, 2, 5));
+                            DoCastAOE(SPELL_PENETRATING_COLD, { SPELLVALUE_MAX_TARGETS, RAID_MODE(2, 5, 2, 5) });
                             events.ScheduleEvent(EVENT_PENETRATING_COLD, 20*IN_MILLISECONDS, 0, PHASE_MELEE);
                             return;
                         case EVENT_SUMMON_NERUBIAN:
                             if (IsHeroic() || !_reachedPhase3)
-                                me->CastCustomSpell(SPELL_SUMMON_BURROWER, SPELLVALUE_MAX_TARGETS, RAID_MODE(1, 2, 2, 4));
+                                DoCastAOE(SPELL_SUMMON_BURROWER, { SPELLVALUE_MAX_TARGETS, RAID_MODE(1, 2, 2, 4) });
                             events.ScheduleEvent(EVENT_SUMMON_NERUBIAN, 45*IN_MILLISECONDS, 0, PHASE_MELEE);
                             return;
                         case EVENT_NERUBIAN_SHADOW_STRIKE:
@@ -881,10 +881,11 @@ class spell_anubarak_leeching_swarm : public SpellScriptLoader
                     int32 lifeLeeched = target->CountPctFromCurHealth(aurEff->GetAmount());
                     if (lifeLeeched < 250)
                         lifeLeeched = 250;
+
                     // Damage
-                    caster->CastCustomSpell(target, SPELL_LEECHING_SWARM_DMG, &lifeLeeched, 0, 0, true);
+                    caster->CastSpell(target, SPELL_LEECHING_SWARM_DMG, CastSpellExtraArgs(true).AddSpellBP0(lifeLeeched));
                     // Heal
-                    caster->CastCustomSpell(caster, SPELL_LEECHING_SWARM_HEAL, &lifeLeeched, 0, 0, true);
+                    caster->CastSpell(caster, SPELL_LEECHING_SWARM_HEAL, CastSpellExtraArgs(true).AddSpellBP0(lifeLeeched));
                 }
             }
 

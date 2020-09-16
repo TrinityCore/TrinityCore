@@ -364,14 +364,14 @@ class boss_high_priestess_azil : public CreatureScript
                             if (events.IsInPhase(PHASE_ONE))
                             {
                                 if (Creature* worldtrigger = me->FindNearestCreature(NPC_WORLDTRIGGER, 150.0f))
-                                    worldtrigger->CastCustomSpell(SPELL_SUMMON_WAVE_SOUTH, SPELLVALUE_BASE_POINT0, 3, worldtrigger, true);
+                                    worldtrigger->CastSpell(worldtrigger, SPELL_SUMMON_WAVE_SOUTH, { SPELLVALUE_BASE_POINT0, 3});
                             }
                             else
                             {
                                 if (Creature* worldtrigger = me->FindNearestCreature(NPC_WORLDTRIGGER, 150.0f))
                                 {
-                                    worldtrigger->CastCustomSpell(SPELL_SUMMON_WAVE_SOUTH, SPELLVALUE_BASE_POINT0, 10, worldtrigger, true);
-                                    worldtrigger->CastCustomSpell(SPELL_SUMMON_WAVE_WEST, SPELLVALUE_BASE_POINT0, 10, worldtrigger, true);
+                                    worldtrigger->CastSpell(worldtrigger, SPELL_SUMMON_WAVE_SOUTH, { SPELLVALUE_BASE_POINT0, 10 });
+                                    worldtrigger->CastSpell(worldtrigger, SPELL_SUMMON_WAVE_WEST,  { SPELLVALUE_BASE_POINT0, 10 });
                                     events.Repeat(10s, 13s);
                                 }
                             }
@@ -720,7 +720,7 @@ class spell_azil_seismic_shard : public SpellScript
 
         target->ExitVehicle();
         if (DynamicObject* dynamicObject = GetCaster()->GetDynObject(SPELL_SEISMIC_SHARD_TARGETING))
-            target->CastSpell(dynamicObject->GetPositionX(), dynamicObject->GetPositionY(), dynamicObject->GetPositionZ(), SPELL_SEISMIC_SHARD_MISSLE, true);
+            target->CastSpell({ dynamicObject->GetPositionX(), dynamicObject->GetPositionY(), dynamicObject->GetPositionZ() }, SPELL_SEISMIC_SHARD_MISSLE, true);
     }
 
     void Register() override

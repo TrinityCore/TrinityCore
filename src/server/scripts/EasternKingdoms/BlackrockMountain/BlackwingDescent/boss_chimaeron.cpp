@@ -589,7 +589,7 @@ class spell_chimaeron_double_attack : public AuraScript
     {
         PreventDefaultAction();
         if (Unit* target = eventInfo.GetProcTarget())
-            GetTarget()->CastSpell(target, SPELL_DOUBLE_ATTACK_TRIGGERED, true, nullptr, aurEff);
+            GetTarget()->CastSpell(target, SPELL_DOUBLE_ATTACK_TRIGGERED, aurEff);
     }
 
     void Register() override

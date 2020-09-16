@@ -554,7 +554,7 @@ class boss_razorscale : public CreatureScript
                                 return;
                             case EVENT_DEVOURING:
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true))
-                                    me->CastSpell(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), SPELL_DEVOURING_FLAME, true);
+                                    me->CastSpell({ target->GetPositionX(), target->GetPositionY(), target->GetPositionZ() }, SPELL_DEVOURING_FLAME, true);
                                 events.ScheduleEvent(EVENT_DEVOURING, 10000, 0, PHASE_FLIGHT);
                                 return;
                             case EVENT_SUMMON:

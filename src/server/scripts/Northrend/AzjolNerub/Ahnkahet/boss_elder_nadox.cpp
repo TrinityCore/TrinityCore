@@ -256,7 +256,7 @@ class spell_ahn_kahet_swarm : public SpellScriptLoader
                         aura->RefreshDuration();
                     }
                     else
-                        GetCaster()->CastCustomSpell(SPELL_SWARM_BUFF, SPELLVALUE_AURA_STACK, _targetCount, GetCaster(), TRIGGERED_FULL_MASK);
+                        GetCaster()->CastSpell(GetCaster(), SPELL_SWARM_BUFF, CastSpellExtraArgs(true).AddSpellMod(SPELLVALUE_AURA_STACK, _targetCount));
                 }
                 else
                     GetCaster()->RemoveAurasDueToSpell(SPELL_SWARM_BUFF);

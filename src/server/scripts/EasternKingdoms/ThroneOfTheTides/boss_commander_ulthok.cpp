@@ -207,7 +207,7 @@ class spell_ulthok_dark_fissure : public AuraScript
         {
             uint32 triggerSpell = GetSpellInfo()->Effects[EFFECT_0].TriggerSpell;
             int32 radius = target->GetObjectScale() * 300;
-            target->CastCustomSpell(triggerSpell, SPELLVALUE_RADIUS_MOD, radius, nullptr, true, nullptr, aurEff, target->GetGUID());
+            target->CastSpell(nullptr, triggerSpell, CastSpellExtraArgs(aurEff).SetOriginalCaster(target->GetGUID()).AddSpellMod(SPELLVALUE_RADIUS_MOD, radius));
         }
     }
 

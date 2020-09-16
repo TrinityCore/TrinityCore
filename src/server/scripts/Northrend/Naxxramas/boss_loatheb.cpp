@@ -179,7 +179,7 @@ class spell_loatheb_deathbloom : public SpellScriptLoader
                 if (!GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::Expired))
                     return;
 
-                GetTarget()->CastSpell(nullptr, SPELL_DEATHBLOOM_FINAL_DAMAGE, true, nullptr, eff, GetCasterGUID());
+                GetTarget()->CastSpell(nullptr, SPELL_DEATHBLOOM_FINAL_DAMAGE, { eff, GetCasterGUID() });
             }
 
             void Register() override

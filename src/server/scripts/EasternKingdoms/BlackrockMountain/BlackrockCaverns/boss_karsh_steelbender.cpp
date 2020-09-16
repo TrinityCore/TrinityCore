@@ -218,7 +218,7 @@ class spell_karsh_superheated_quicksilver_armor : public SpellScript
             SpellInfo const* spell = sSpellMgr->AssertSpellInfo(SPELL_HEAT_WAVE);
             uint8 stacks = superheatedArmor->GetStackAmount();
             int32 bp = spell->Effects[EFFECT_0].CalcValue() * stacks;
-            target->CastCustomSpell(SPELL_HEAT_WAVE, SPELLVALUE_BASE_POINT0, bp, target, true, nullptr);
+            target->CastSpell(target, SPELL_HEAT_WAVE, CastSpellExtraArgs(true).AddSpellBP0(bp));
         }
     }
 
@@ -291,7 +291,7 @@ class spell_karsh_superheated_quicksilver_armor_proc : public AuraScript
                 return;
 
             int32 bp = spell->Effects[EFFECT_0].CalcValue() * stacks;
-            target->CastCustomSpell(spell->Id, SPELLVALUE_BASE_POINT0, bp, eventInfo.GetProcTarget(), true, nullptr, aurEff);
+            target->CastSpell(eventInfo.GetProcTarget(), spell->Id, CastSpellExtraArgs(aurEff).AddSpellBP0(bp));
         }
     }
 

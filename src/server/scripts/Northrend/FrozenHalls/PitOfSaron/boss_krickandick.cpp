@@ -280,7 +280,7 @@ class boss_ick : public CreatureScript
                         case EVENT_PURSUIT:
                             if (Creature* krick = GetKrick())
                                 krick->AI()->Talk(SAY_KRICK_CHASE);
-                            me->CastCustomSpell(SPELL_PURSUIT, SPELLVALUE_MAX_TARGETS, 1, me);
+                            me->CastSpell(me, SPELL_PURSUIT, { SPELLVALUE_MAX_TARGETS, 1 });
                             break;
                         default:
                             break;

@@ -109,7 +109,7 @@ class spell_warr_bloodthirst : public SpellScript
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         int32 damage = GetEffectValue();
-        GetCaster()->CastCustomSpell(GetCaster(), SPELL_WARRIOR_BLOODTHIRST, &damage, nullptr, nullptr, true, nullptr);
+        GetCaster()->CastSpell(GetCaster(), SPELL_WARRIOR_BLOODTHIRST, { SPELLVALUE_BASE_POINT0, damage });
     }
 
     void Register() override
@@ -166,7 +166,7 @@ class spell_warr_charge : public SpellScript
         if (!caster)
             return;
 
-        caster->CastCustomSpell(SPELL_WARRIOR_CHARGE_ENERGIZE, SPELLVALUE_BASE_POINT0, GetEffectValue(), caster, true);
+        caster->CastSpell(caster, SPELL_WARRIOR_CHARGE_ENERGIZE, { SPELLVALUE_BASE_POINT0, GetEffectValue() });
 
         // Juggernaut crit bonus
         if (caster->HasAura(SPELL_WARRIOR_JUGGERNAUT_CRIT_BONUS_TALENT))
@@ -201,7 +201,7 @@ class spell_warr_colossus_smash : public SpellScript
     {
         if (Unit* caster = GetCaster())
             if (AuraEffect const* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_WARRIOR, WARRIOR_ICON_ID_GLYPH_OF_COLOSSUS_SMASH, EFFECT_0))
-                caster->CastSpell(GetHitUnit(), SPELL_WARRIOR_SUNDER_ARMOR, true, nullptr, aurEff);
+                caster->CastSpell(GetHitUnit(), SPELL_WARRIOR_SUNDER_ARMOR, aurEff);
     }
 
     void Register() override
@@ -232,7 +232,7 @@ class spell_warr_deep_wounds : public AuraScript
                         damage = damage / ticks;
 
             if (Unit* target = eventInfo.GetProcTarget())
-                player->CastCustomSpell(target, SPELL_WARRIOR_DEEP_WOUNDS_PERIODIC, &damage, 0, 0, true, nullptr, aurEff);
+                player->CastSpell(target, SPELL_WARRIOR_DEEP_WOUNDS_PERIODIC, CastSpellExtraArgs(aurEff).AddSpellBP0(damage));
         }
     }
 
@@ -349,7 +349,7 @@ class spell_warr_last_stand : public SpellScript
     {
         Unit* caster = GetCaster();
         int32 healthModSpellBasePoints0 = int32(caster->CountPctFromMaxHealth(GetEffectValue()));
-        caster->CastCustomSpell(caster, SPELL_WARRIOR_LAST_STAND_TRIGGERED, &healthModSpellBasePoints0, nullptr, nullptr, true, nullptr);
+        caster->CastSpell(caster, SPELL_WARRIOR_LAST_STAND_TRIGGERED, { SPELLVALUE_BASE_POINT0, healthModSpellBasePoints0 });
     }
 
     void Register() override
@@ -400,8 +400,7 @@ class spell_warr_rallying_cry : public SpellScript
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         int32 basePoints0 = int32(GetHitUnit()->CountPctFromMaxHealth(GetEffectValue()));
-
-        GetCaster()->CastCustomSpell(GetHitUnit(), SPELL_WARRIOR_RALLYING_CRY, &basePoints0, nullptr, nullptr, true);
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_WARRIOR_RALLYING_CRY, { SPELLVALUE_BASE_POINT0, basePoints0 });
     }
 
     void Register() override
@@ -452,7 +451,7 @@ class spell_warr_retaliation : public AuraScript
     void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
-        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_WARRIOR_RETALIATION_DAMAGE, true, nullptr, aurEff);
+        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_WARRIOR_RETALIATION_DAMAGE, aurEff);
     }
 
     void Register() override
@@ -587,7 +586,7 @@ class spell_warr_second_wind_proc : public AuraScript
         if (!spellId)
             return;
 
-        GetTarget()->CastSpell(GetTarget(), spellId, true, nullptr, aurEff);
+        GetTarget()->CastSpell(GetTarget(), spellId, aurEff);
 
     }
 
@@ -659,12 +658,12 @@ class spell_warr_sweeping_strikes : public AuraScript
             if (spellInfo && (spellInfo->Id == SPELL_WARRIOR_BLADESTORM_PERIODIC_WHIRLWIND || (spellInfo->Id == SPELL_WARRIOR_EXECUTE && !_procTarget->HasAuraState(AURA_STATE_HEALTHLESS_20_PERCENT))))
             {
                 // If triggered by Execute (while target is not under 20% hp) or Bladestorm deals normalized weapon damage
-                GetTarget()->CastSpell(_procTarget, SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_2, true, nullptr, aurEff);
+                GetTarget()->CastSpell(_procTarget, SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_2, aurEff);
             }
             else
             {
                 int32 damage = eventInfo.GetDamageInfo()->GetDamage();
-                GetTarget()->CastCustomSpell(SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_1, SPELLVALUE_BASE_POINT0, damage, _procTarget, true, nullptr, aurEff);
+                GetTarget()->CastSpell(_procTarget, SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_1, CastSpellExtraArgs(aurEff).AddSpellBP0(damage));
             }
         }
     }
@@ -766,8 +765,8 @@ class spell_warr_vigilance : public AuraScript
         PreventDefaultAction();
         int32 damage = std::min(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue()), CalculatePct(_procTarget->GetMaxHealth(), 10));
 
-        GetTarget()->CastSpell(_procTarget, SPELL_WARRIOR_VIGILANCE_PROC, true, nullptr, aurEff);
-        _procTarget->CastCustomSpell(_procTarget, SPELL_WARRIOR_VENGEANCE, &damage, &damage, &damage, true, nullptr, aurEff);
+        GetTarget()->CastSpell(_procTarget, SPELL_WARRIOR_VIGILANCE_PROC, aurEff);
+        _procTarget->CastSpell(_procTarget, SPELL_WARRIOR_VENGEANCE, CastSpellExtraArgs(aurEff).AddSpellBP0(damage).AddSpellMod(SPELLVALUE_BASE_POINT1, damage).AddSpellMod(SPELLVALUE_BASE_POINT2, damage));
     }
 
     void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -830,7 +829,7 @@ class spell_warr_strikes_of_opportunity : public AuraScript
         PreventDefaultAction();
         if (Unit* caster = GetCaster())
             if (Unit* target = eventInfo.GetActionTarget())
-                caster->CastSpell(target, SPELL_WARRIOR_OPPORTUNITY_STRIKE, true, nullptr, aurEff);
+                caster->CastSpell(target, SPELL_WARRIOR_OPPORTUNITY_STRIKE, aurEff);
     }
 
     void Register() override
@@ -891,7 +890,7 @@ class spell_warr_shield_specialization : public AuraScript
             if (SpellInfo const* spell = sSpellMgr->GetSpellInfo((GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell)))
             {
                 int32 bp = spell->Effects[EFFECT_0].CalcValue() * 4;
-                target->CastCustomSpell(spell->Id, SPELLVALUE_BASE_POINT0, bp, nullptr, true, nullptr, aurEff);
+                target->CastSpell(nullptr, spell->Id, CastSpellExtraArgs(aurEff).AddSpellBP0(bp));
             }
         }
     }

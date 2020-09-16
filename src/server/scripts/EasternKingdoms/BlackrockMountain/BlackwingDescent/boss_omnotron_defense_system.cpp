@@ -1412,7 +1412,7 @@ class spell_omnotron_unstable_shield : public AuraScript
         if (!target)
             return;
 
-        caster->CastSpell(target, SPELL_STATIC_SHOCK, true, nullptr, aurEff);
+        caster->CastSpell(target, SPELL_STATIC_SHOCK, aurEff);
 
         if (InstanceScript* instance = caster->GetInstanceScript())
             if (Creature* magmatron = instance->GetCreature(DATA_MAGMATRON))
@@ -1576,7 +1576,7 @@ class spell_omnotron_overcharged_power_generator : public AuraScript
         {
             uint32 triggerSpell = GetSpellInfo()->Effects[EFFECT_0].TriggerSpell;
             int32 radius = target->GetObjectScale() * 10000;
-            target->CastCustomSpell(triggerSpell, SPELLVALUE_RADIUS_MOD, radius, nullptr, true, nullptr, aurEff, target->GetGUID());
+            target->CastSpell(nullptr, triggerSpell,  CastSpellExtraArgs(aurEff).SetOriginalCaster(target->GetGUID()).AddSpellMod(SPELLVALUE_RADIUS_MOD, radius));
         }
     }
 

@@ -175,7 +175,7 @@ class boss_jaraxxus : public CreatureScript
                             events.ScheduleEvent(EVENT_INCINERATE_FLESH, urand(20*IN_MILLISECONDS, 25*IN_MILLISECONDS));
                             return;
                         case EVENT_NETHER_POWER:
-                            me->CastCustomSpell(SPELL_NETHER_POWER, SPELLVALUE_AURA_STACK, RAID_MODE<uint32>(5, 10, 5, 10), me, true);
+                            me->CastSpell(me, SPELL_NETHER_POWER, CastSpellExtraArgs(true).AddSpellMod(SPELLVALUE_AURA_STACK, RAID_MODE<uint32>(5, 10, 5, 10)));
                             events.ScheduleEvent(EVENT_NETHER_POWER, 40*IN_MILLISECONDS);
                             return;
                         case EVENT_LEGION_FLAME:

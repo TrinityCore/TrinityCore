@@ -311,7 +311,7 @@ public:
             {
                 int32 damage = int32(unit->GetHealth()) - int32(unit->CountPctFromMaxHealth(5));
                 if (damage > 0)
-                    GetCaster()->CastCustomSpell(SPELL_DECIMATE_DMG, SPELLVALUE_BASE_POINT0, damage, unit);
+                    GetCaster()->CastSpell(unit, SPELL_DECIMATE_DMG, { SPELLVALUE_BASE_POINT0, damage });
             }
         }
 

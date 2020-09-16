@@ -693,7 +693,7 @@ class spell_mh_inferno : public AuraScript
         bp += CalculatePct(bp, 10) * ticks;
         bp = std::min(bp, basePoints);
 
-        caster->CastCustomSpell(SPELL_INFERNO_TRIGGERED, SPELLVALUE_BASE_POINT0, bp, caster, true);
+        caster->CastSpell(caster, SPELL_INFERNO_TRIGGERED, CastSpellExtraArgs(true).AddSpellBP0(bp));
     }
 
     void Register() override

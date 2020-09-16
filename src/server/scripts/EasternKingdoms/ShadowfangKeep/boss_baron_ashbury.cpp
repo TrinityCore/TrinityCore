@@ -242,7 +242,7 @@ class spell_ashbury_asphyxiate : public AuraScript
                 if (!target->HasAura(SPELL_ASPHYXIATE_ROOT))
                     target->CastSpell(target, SPELL_ASPHYXIATE_ROOT, true);
 
-                target->CastCustomSpell(triggerSpell, SPELLVALUE_BASE_POINT0, damage, target, true, nullptr, aurEff, caster->GetGUID());
+                target->CastSpell(target, triggerSpell, CastSpellExtraArgs(aurEff).SetOriginalCaster(caster->GetGUID()).AddSpellBP0(damage));
             }
         }
     }

@@ -708,7 +708,7 @@ struct boss_madness_of_deathwing : public BossAI
                             break;
                     }
 
-                    me->CastCustomSpell(SPELL_FACE_TRIGGER, SPELLVALUE_BASE_POINT0, facingSpellID);
+                    me->CastSpell(me, SPELL_FACE_TRIGGER, { SPELLVALUE_BASE_POINT0, facingSpellID });
 
                     // Nozdormu creates a time zone at the same moment when Deathwing faces a platform
                     if (!_limbData[DRAGON_ASPECT_NOZDORMU].TentacleKilled)
@@ -1930,7 +1930,7 @@ class spell_madness_of_deathwing_regenerative_blood_periodic : public AuraScript
         }
 
         int32 bp = _basePoints * 10;
-        target->CastCustomSpell(SPELL_REGENERATIVE_BLOOD_SCRIPT, SPELLVALUE_BASE_POINT0, bp, target);
+        target->CastSpell(target, SPELL_REGENERATIVE_BLOOD_SCRIPT, { SPELLVALUE_BASE_POINT0, bp });
 
         if (aurEff->GetTickNumber() >= 20)
             Remove();
@@ -2016,11 +2016,11 @@ class spell_madness_of_deathwing_burning_blood : public AuraScript
 
         uint8 stackDiff = std::max<int8>(0, uint8(lostHealthPct) - GetStackAmount());
         if (stackDiff)
-            target->CastCustomSpell(GetSpellInfo()->Id, SPELLVALUE_AURA_STACK, stackDiff, target);
+            target->CastSpell(target, GetSpellInfo()->Id, { SPELLVALUE_AURA_STACK, stackDiff });
 
         uint32 spellId = sSpellMgr->GetSpellIdForDifficulty(GetSpellInfo()->Effects[EFFECT_0].TriggerSpell, target);
         int32 bp = sSpellMgr->AssertSpellInfo(spellId)->Effects[EFFECT_0].CalcValue() * GetStackAmount();
-        target->CastCustomSpell(spellId, SPELLVALUE_BASE_POINT0, bp, target, true);
+        target->CastSpell(target, spellId, CastSpellExtraArgs(true).AddSpellBP0(bp));
     }
 
     void Register() override
@@ -2600,7 +2600,7 @@ public:
 
         if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(spellId))
             if (uint32 triggerSpellId = spell->Effects[EFFECT_0].TriggerSpell)
-                player->CastCustomSpell(triggerSpellId, SPELLVALUE_BASE_POINT1, spellId, player, true);
+                player->CastSpell(player, triggerSpellId, CastSpellExtraArgs(true).AddSpellMod(SPELLVALUE_BASE_POINT1, spellId));
 
         return true;
     }

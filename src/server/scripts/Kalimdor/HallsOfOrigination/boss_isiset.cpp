@@ -631,7 +631,7 @@ public:
                 return;
 
             int32 damage = CalculatePct(absorbAmount, reflectPct);
-            GetCaster()->CastCustomSpell(SPELL_VEIL_OF_SKY_DAMAGE, SPELLVALUE_BASE_POINT0, damage, dmgInfo.GetAttacker(), true);
+            GetCaster()->CastSpell(dmgInfo.GetAttacker(), SPELL_VEIL_OF_SKY_DAMAGE, CastSpellExtraArgs(true).AddSpellBP0(damage));
         }
 
         void Register() override

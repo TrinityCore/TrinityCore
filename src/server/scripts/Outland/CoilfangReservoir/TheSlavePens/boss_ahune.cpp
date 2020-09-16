@@ -998,7 +998,7 @@ public:
 
         void HandleScriptEffect(SpellEffIndex /*effIndex*/)
         {
-            GetCaster()->CastSpell(GetHitDest()->GetPositionX(), GetHitDest()->GetPositionY(), GetHitDest()->GetPositionZ(), SPELL_ICE_BOMBARDMENT, true);
+            GetCaster()->CastSpell({ GetHitDest()->GetPositionX(), GetHitDest()->GetPositionY(), GetHitDest()->GetPositionZ() }, SPELL_ICE_BOMBARDMENT, true);
         }
 
         void Register() override

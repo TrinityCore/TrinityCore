@@ -806,7 +806,7 @@ class npc_ignacious : public CreatureScript
                                     float y = pos.GetPositionY() + sin(angle) * i;
                                     float z = pos.GetPositionZ();
                                     float floor = me->GetMapHeight(x, y, z);
-                                    me->CastSpell(x, y, floor, SPELL_INFERNO_RUSH_SUMMON, true);
+                                    me->CastSpell({ x, y, floor }, SPELL_INFERNO_RUSH_SUMMON, true);
                                 }
                             }
 
@@ -1989,7 +1989,7 @@ class spell_feludius_heart_of_ice : public AuraScript
 
     void HandlePeriodic(AuraEffect const* aurEff)
     {
-        GetTarget()->CastSpell(GetTarget(), SPELL_FROST_IMBUED, true, nullptr, aurEff);
+        GetTarget()->CastSpell(GetTarget(), SPELL_FROST_IMBUED, aurEff);
 
         if (AuraEffect* aurEff = GetEffect(EFFECT_0))
         {
@@ -2069,7 +2069,7 @@ class spell_ignacious_rising_flames : public AuraScript
 
     void HandlePeriodic(AuraEffect const* aurEff)
     {
-        GetTarget()->CastSpell(GetTarget(), SPELL_RISING_FLAMES_BUFF, true, nullptr, aurEff);
+        GetTarget()->CastSpell(GetTarget(), SPELL_RISING_FLAMES_BUFF, aurEff);
     }
 
     void HandleAuraRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -2108,7 +2108,7 @@ class spell_ignacious_burning_blood : public AuraScript
 
     void HandlePeriodic(AuraEffect const* aurEff)
     {
-        GetTarget()->CastSpell(GetTarget(), SPELL_FLAME_IMBUED, true, nullptr, aurEff);
+        GetTarget()->CastSpell(GetTarget(), SPELL_FLAME_IMBUED, aurEff);
 
         if (AuraEffect* aurEff = GetEffect(EFFECT_0))
         {
@@ -2491,7 +2491,7 @@ class spell_terrastra_harden_skin : public AuraScript
     {
         if (GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::ByEnemySpell))
             if (Unit* target = GetTarget())
-                target->CastCustomSpell(SPELL_SHATTER, SPELLVALUE_BASE_POINT0, _absorbedDamage, nullptr, true, nullptr, aurEff);
+                target->CastSpell(nullptr, SPELL_SHATTER, CastSpellExtraArgs(aurEff).AddSpellBP0(_absorbedDamage));
     }
 private:
     uint32 _absorbedDamage;
@@ -2544,7 +2544,7 @@ class spell_terrastra_eruption : public SpellScript
                 float x = caster->GetPositionX() + cos(angle + (i * steps)) * dist;
                 float y = caster->GetPositionY() + sin(angle + (i * steps)) * dist;
                 float floor = caster->GetMap()->GetHeight(caster->GetPhaseShift(), x, y, z, true);
-                caster->CastSpell(x, y, floor, SPELL_ERUPTION_SUMMON, true);
+                caster->CastSpell({ x, y, floor }, SPELL_ERUPTION_SUMMON, true);
             }
         }
     }
@@ -2666,7 +2666,7 @@ class spell_elementium_monstrosity_liquid_ice : public AuraScript
         {
             uint32 triggerSpell = GetSpellInfo()->Effects[EFFECT_0].TriggerSpell;
             int32 radius = target->GetObjectScale() * 500;
-            target->CastCustomSpell(triggerSpell, SPELLVALUE_RADIUS_MOD, radius, nullptr, true, nullptr, aurEff, target->GetGUID());
+            target->CastSpell(nullptr, triggerSpell, CastSpellExtraArgs(aurEff).SetOriginalCaster(target->GetGUID()).AddSpellMod(SPELLVALUE_RADIUS_MOD, radius));
         }
     }
 

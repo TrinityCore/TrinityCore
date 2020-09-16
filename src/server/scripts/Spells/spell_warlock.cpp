@@ -148,7 +148,7 @@ class spell_warl_aftermath : public AuraScript
         {
             PreventDefaultAction();
             if (eventInfo.GetProcTarget() && roll_chance_i(aurEff->GetAmount()))
-                GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_WARLOCK_AFTERMATH_STUN, true, nullptr, aurEff);
+                GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_WARLOCK_AFTERMATH_STUN, aurEff);
         }
     }
 
@@ -298,7 +298,7 @@ class spell_warl_bane_of_doom : public SpellScriptLoader
                     return;
 
                 if (GetCaster()->ToPlayer()->isHonorOrXPTarget(GetTarget()))
-                    GetCaster()->CastSpell(GetTarget(), SPELL_WARLOCK_BANE_OF_DOOM_EFFECT, true, nullptr, aurEff);
+                    GetCaster()->CastSpell(GetTarget(), SPELL_WARLOCK_BANE_OF_DOOM_EFFECT, aurEff);
             }
 
             void Register() override
@@ -499,7 +499,7 @@ class spell_warl_demonic_empowerment : public SpellScriptLoader
                             {
                                 SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_WARLOCK_DEMONIC_EMPOWERMENT_VOIDWALKER);
                                 int32 hp = int32(targetCreature->CountPctFromMaxHealth(GetCaster()->CalculateSpellDamage(targetCreature, spellInfo, 0)));
-                                targetCreature->CastCustomSpell(targetCreature, SPELL_WARLOCK_DEMONIC_EMPOWERMENT_VOIDWALKER, &hp, nullptr, nullptr, true);
+                                targetCreature->CastSpell(targetCreature, SPELL_WARLOCK_DEMONIC_EMPOWERMENT_VOIDWALKER, CastSpellExtraArgs(true).AddSpellBP0(hp));
                                 break;
                             }
                             case CREATURE_FAMILY_FELGUARD:
@@ -624,7 +624,7 @@ class spell_warl_fel_synergy : public SpellScriptLoader
                 PreventDefaultAction();
 
                 int32 heal = CalculatePct(int32(eventInfo.GetDamageInfo()->GetDamage()), aurEff->GetAmount());
-                GetTarget()->CastCustomSpell(SPELL_WARLOCK_FEL_SYNERGY_HEAL, SPELLVALUE_BASE_POINT0, heal, (Unit*)nullptr, true, nullptr, aurEff); // TARGET_UNIT_PET
+                GetTarget()->CastSpell(nullptr, SPELL_WARLOCK_FEL_SYNERGY_HEAL, CastSpellExtraArgs(aurEff).AddSpellBP0(heal)); // TARGET_UNIT_PET
             }
 
             void Register() override
@@ -656,7 +656,7 @@ class spell_warl_glyph_of_shadowflame : public SpellScriptLoader
             void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_WARLOCK_GLYPH_OF_SHADOWFLAME, true, nullptr, aurEff);
+                GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_WARLOCK_GLYPH_OF_SHADOWFLAME, aurEff);
             }
 
             void Register() override
@@ -705,7 +705,7 @@ class spell_warl_haunt : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                 {
                     int32 amount = aurEff->GetAmount();
-                    GetTarget()->CastCustomSpell(caster, SPELL_WARLOCK_HAUNT_HEAL, &amount, nullptr, nullptr, true, nullptr, aurEff, GetCasterGUID());
+                    GetTarget()->CastSpell(caster, SPELL_WARLOCK_HAUNT_HEAL, CastSpellExtraArgs(aurEff).SetOriginalCaster(GetCasterGUID()).AddSpellBP0(amount));
                 }
             }
 
@@ -827,8 +827,8 @@ class spell_warl_improved_soul_fire : public AuraScript
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
     {
         PreventDefaultAction();
-        GetTarget()->CastCustomSpell(SPELL_WARLOCK_IMPROVED_SOUL_FIRE_PCT, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), GetTarget(), true, nullptr, aurEff);
-        GetTarget()->CastSpell(GetTarget(), SPELL_WARLOCK_IMPROVED_SOUL_FIRE_STATE, true, nullptr, aurEff);
+        GetTarget()->CastSpell(GetTarget(), SPELL_WARLOCK_IMPROVED_SOUL_FIRE_PCT, CastSpellExtraArgs(aurEff).AddSpellBP0(aurEff->GetAmount()));
+        GetTarget()->CastSpell(GetTarget(), SPELL_WARLOCK_IMPROVED_SOUL_FIRE_STATE, aurEff);
     }
 
     void Register() override
@@ -871,14 +871,14 @@ class spell_warl_life_tap : public SpellScriptLoader
                     if (AuraEffect const* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_IMPROVED_LIFE_TAP, 0))
                         AddPct(mana, aurEff->GetAmount());
 
-                    caster->CastCustomSpell(target, SPELL_WARLOCK_LIFE_TAP_ENERGIZE, &mana, nullptr, nullptr, false);
+                    caster->CastSpell(target, SPELL_WARLOCK_LIFE_TAP_ENERGIZE, { SPELLVALUE_BASE_POINT0, mana });
 
                     // Mana Feed
                     if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_MANA_FEED, 0))
                     {
                         int32 manaFeedVal = aurEff->GetAmount();
                         ApplyPct(manaFeedVal, mana);
-                        caster->CastCustomSpell(caster, SPELL_WARLOCK_LIFE_TAP_ENERGIZE_2, &manaFeedVal, nullptr, nullptr, true, nullptr);
+                        caster->CastSpell(caster, SPELL_WARLOCK_LIFE_TAP_ENERGIZE_2, CastSpellExtraArgs(true).AddSpellBP0(manaFeedVal));
                     }
                 }
             }
@@ -1024,8 +1024,8 @@ class spell_warl_seed_of_corruption : public AuraScript
         {
             if (_affectedBySoulburn)
             {
-                caster->CastSpell(caster, SPELL_WARLOCK_SOUL_SHARD, true, nullptr, aurEff);
-                caster->CastSpell(target, SPELL_WARLOCK_SEED_OF_CORRUPTION_TRIGGERED, true, nullptr, aurEff);
+                caster->CastSpell(caster, SPELL_WARLOCK_SOUL_SHARD, aurEff);
+                caster->CastSpell(target, SPELL_WARLOCK_SEED_OF_CORRUPTION_TRIGGERED, aurEff);
             }
             else
                 caster->CastSpell(target, SPELL_WARLOCK_SEED_OF_CORRUPTION_TRIGGERED, true);
@@ -1058,8 +1058,8 @@ class spell_warl_seed_of_corruption : public AuraScript
 
             if (_affectedBySoulburn)
             {
-                caster->CastSpell(caster, SPELL_WARLOCK_SOUL_SHARD, true, nullptr, aurEff);
-                caster->CastSpell(target, SPELL_WARLOCK_SEED_OF_CORRUPTION_TRIGGERED, true, nullptr, aurEff);
+                caster->CastSpell(caster, SPELL_WARLOCK_SOUL_SHARD, aurEff);
+                caster->CastSpell(target, SPELL_WARLOCK_SEED_OF_CORRUPTION_TRIGGERED, aurEff);
             }
             else
                 caster->CastSpell(target, SPELL_WARLOCK_SEED_OF_CORRUPTION_TRIGGERED, true);
@@ -1122,7 +1122,7 @@ class spell_warl_shadow_trance_proc : public SpellScriptLoader
             void OnProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
-                GetTarget()->CastSpell(GetTarget(), SPELL_WARLOCK_SHADOW_TRANCE, true, nullptr, aurEff);
+                GetTarget()->CastSpell(GetTarget(), SPELL_WARLOCK_SHADOW_TRANCE, aurEff);
             }
 
             void Register() override
@@ -1169,7 +1169,7 @@ class spell_warl_soul_leech : public AuraScript
 
     void OnProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
     {
-        GetTarget()->CastSpell((Unit*)nullptr, SPELL_GEN_REPLENISHMENT, true, nullptr, aurEff);
+        GetTarget()->CastSpell(nullptr, SPELL_GEN_REPLENISHMENT, aurEff);
     }
 
     void Register() override
@@ -1436,7 +1436,7 @@ class spell_warl_unstable_affliction : public SpellScriptLoader
                     {
                         int32 damage = aurEff->GetAmount() * 9;
                         // backfire damage and silence
-                        caster->CastCustomSpell(dispelInfo->GetDispeller(), SPELL_WARLOCK_UNSTABLE_AFFLICTION_DISPEL, &damage, nullptr, nullptr, true, nullptr, aurEff);
+                        caster->CastSpell(dispelInfo->GetDispeller(), SPELL_WARLOCK_UNSTABLE_AFFLICTION_DISPEL, CastSpellExtraArgs(aurEff).AddSpellBP0(damage));
                     }
             }
 
@@ -1478,7 +1478,7 @@ class spell_warl_drain_life : public SpellScriptLoader
                         if (caster->HealthBelowPct(25))
                             baseAmount += int32(deathsEmbraceAurEff->GetAmount());
 
-                    caster->CastCustomSpell(caster, SPELL_WARLOCK_DRAIN_LIFE_HEAL, &baseAmount, 0, 0, true);
+                    caster->CastSpell(caster, SPELL_WARLOCK_DRAIN_LIFE_HEAL, CastSpellExtraArgs(true).AddSpellBP0(baseAmount));
                 }
             }
 
@@ -1608,7 +1608,7 @@ class spell_warl_fel_armor : public SpellScriptLoader
                 PreventDefaultAction();
                 int32 bp = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount());
                 if (Unit* caster = GetCaster())
-                    caster->CastCustomSpell(caster, SPELL_WARLOCK_FEL_ARMOR_HEAL, &bp, 0, 0, true);
+                    caster->CastSpell(caster, SPELL_WARLOCK_FEL_ARMOR_HEAL, CastSpellExtraArgs(true).AddSpellBP0(bp));
             }
 
             void Register() override
@@ -1633,7 +1633,7 @@ class spell_warl_soul_harvest : public AuraScript
     void HandleDummy(AuraEffect const* aurEff)
     {
         if (!(aurEff->GetTickNumber() % 3))
-            GetTarget()->CastSpell(GetTarget(), SPELL_WARLOCK_SOUL_HARVEST_ENERGIZE, true, nullptr, aurEff);
+            GetTarget()->CastSpell(GetTarget(), SPELL_WARLOCK_SOUL_HARVEST_ENERGIZE, aurEff);
     }
 
     void Register() override
@@ -1679,13 +1679,13 @@ class spell_warl_soulburn : public AuraScript
         switch (spellInfo->Id)
         {
             case SPELL_WARLOCK_HEALTHSTONE:
-                target->CastSpell(target, SPELL_WARLOCK_SOULBURN_HEALTHSTONE, true, nullptr, aurEff);
+                target->CastSpell(target, SPELL_WARLOCK_SOULBURN_HEALTHSTONE, aurEff);
                 break;
             case SPELL_WARLOCK_DEMONIC_CIRCLE_TELEPORT:
-                target->CastSpell(target, SPELL_WARLOCK_SOULBURN_DEMONIC_CIRCLE, true, nullptr, aurEff);
+                target->CastSpell(target, SPELL_WARLOCK_SOULBURN_DEMONIC_CIRCLE, aurEff);
                 break;
             case SPELL_WARLOCK_SEARING_PAIN:
-                target->CastSpell(target, SPELL_WARLOCK_SOULBURN_SEARING_PAIN, true, nullptr, aurEff);
+                target->CastSpell(target, SPELL_WARLOCK_SOULBURN_SEARING_PAIN, aurEff);
                 break;
             case SPELL_WARLOCK_SEED_OF_CORRUPTION:
                 target->ToPlayer()->SetLastSoulburnSpell(spellInfo);
@@ -1760,7 +1760,7 @@ class spell_warl_shadowburn : public AuraScript
 
         if (GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::ByDeath))
             if (caster->ToPlayer()->isHonorOrXPTarget(GetTarget()))
-                caster->CastCustomSpell(SPELL_WARLOCK_SOUL_SHARD, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), caster, true, nullptr, aurEff);
+                caster->CastSpell(caster, SPELL_WARLOCK_SOUL_SHARD, CastSpellExtraArgs(aurEff).AddSpellBP0(aurEff->GetAmount()));
     }
 
     void Register() override
@@ -1791,7 +1791,7 @@ class spell_warl_burning_embers : public AuraScript
         float coefficient = GetSpellInfo()->GetRank() * 0.7f;
         int32 damageCap = (target->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_FIRE) * coefficient + GetSpellInfo()->Effects[EFFECT_1].CalcValue(target)) / maxTicks;
         int32 bp = std::min(damageBp, damageCap);
-        target->CastCustomSpell(SPELL_WARLOCK_BURNING_EMBERS_DAMAGE, SPELLVALUE_BASE_POINT0, bp, eventInfo.GetProcTarget(), true, nullptr, aurEff);
+        target->CastSpell(eventInfo.GetProcTarget(), SPELL_WARLOCK_BURNING_EMBERS_DAMAGE, CastSpellExtraArgs(aurEff).AddSpellBP0(bp));
     }
 
     void Register() override
@@ -1845,7 +1845,7 @@ class spell_warl_jinx : public AuraScript
         PreventDefaultAction();
         uint8 targets = sSpellMgr->AssertSpellInfo(SPELL_WARLOCK_JINX_R1)->Effects[EFFECT_2].CalcValue();
         uint32 spellId = GetSpellInfo()->GetRank() == 1 ? SPELL_WARLOCK_JINX_AOE_R1 : SPELL_WARLOCK_JINX_AOE_R2;
-        GetTarget()->CastCustomSpell(spellId, SPELLVALUE_MAX_TARGETS, targets, eventInfo.GetProcTarget(), true, nullptr, aurEff);
+        GetTarget()->CastSpell(eventInfo.GetProcTarget(), spellId, CastSpellExtraArgs(aurEff).AddSpellMod(SPELLVALUE_MAX_TARGETS, targets));
     }
 
     void Register() override
@@ -1898,7 +1898,7 @@ class spell_warl_curse_of_weakness : public AuraScript
                 }
 
                 if (_debuffSpellId)
-                    caster->CastCustomSpell(_debuffSpellId, SPELLVALUE_BASE_POINT0, jinx->GetAmount(), target, true, nullptr);
+                    caster->CastSpell(target, _debuffSpellId, CastSpellExtraArgs(true).AddSpellBP0(jinx->GetAmount()));
             }
         }
     }
