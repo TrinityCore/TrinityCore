@@ -27,6 +27,10 @@
 #include "Player.h"
 #include "RBAC.h"
 
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 using namespace Trinity::ChatCommands;
 
 void PrintPlayerInfo(ChatHandler* handler, Player const* player)

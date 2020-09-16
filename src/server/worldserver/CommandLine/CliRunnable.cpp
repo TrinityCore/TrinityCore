@@ -44,32 +44,11 @@ static inline void PrintCliPrefix()
 #if TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
 char* command_finder(char const* text, int state)
 {
-    static size_t idx, len;
-    char const* ret;
-    std::vector<ChatCommand> const& cmd = ChatHandler::getCommandTable();
+    (void)text;
+    (void)state;
+    //@todo maybe? dear lord this readline business is UGLY
 
-    if (!state)
-    {
-        idx = 0;
-        len = strlen(text);
-    }
-
-    while (idx < cmd.size())
-    {
-        ret = cmd[idx].Name;
-        if (!cmd[idx].AllowConsole)
-        {
-            ++idx;
-            continue;
-        }
-
-        ++idx;
-        //printf("Checking %s \n", cmd[idx].Name);
-        if (strncmp(ret, text, len) == 0)
-            return strdup(ret);
-    }
-
-    return ((char*)nullptr);
+    return nullptr;
 }
 
 char** cli_completion(char const* text, int start, int /*end*/)

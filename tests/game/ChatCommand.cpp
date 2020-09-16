@@ -31,10 +31,10 @@ struct DummyChatHandler : ChatHandler
 };
 
 template <typename F>
-static void TestChatCommand(char const* c, F f, Optional<bool> expected = true)
+static void TestChatCommand(std::string_view c, F f, Optional<bool> expected = true)
 {
     DummyChatHandler handler;
-    bool r = ChatCommand("", 0, false, +f, "")(&handler, c);
+    bool r = Trinity::Impl::ChatCommands::CommandInvoker(*+f)(&handler, c);
     if (expected)
         REQUIRE(r == *expected);
 }

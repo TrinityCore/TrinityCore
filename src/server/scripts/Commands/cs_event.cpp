@@ -30,6 +30,10 @@ EndScriptData */
 #include "Player.h"
 #include "RBAC.h"
 
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 using namespace Trinity::ChatCommands;
 
 class event_commandscript : public CommandScript

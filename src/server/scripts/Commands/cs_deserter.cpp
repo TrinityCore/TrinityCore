@@ -29,6 +29,10 @@
 #include "RBAC.h"
 #include "SpellAuras.h"
 
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 enum Spells
 {
     LFG_SPELL_DUNGEON_DESERTER = 71041,

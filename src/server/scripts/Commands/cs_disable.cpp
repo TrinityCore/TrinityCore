@@ -34,6 +34,10 @@ EndScriptData */
 #include "RBAC.h"
 #include "SpellMgr.h"
 
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 class disable_commandscript : public CommandScript
 {
 public:

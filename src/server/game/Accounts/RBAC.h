@@ -105,6 +105,12 @@ enum RBACPermissions
 
     // Free space for core permissions (till 149)
     // Roles (Permissions with delegated permissions) use 199 and descending
+
+    RBAC_ROLE_ADMINISTRATOR                                  = 196,
+    RBAC_ROLE_GAMEMASTER                                     = 197,
+    RBAC_ROLE_MODERATOR                                      = 198,
+    RBAC_ROLE_PLAYER                                         = 199,
+
     RBAC_PERM_COMMAND_RBAC                                   = 200,
     RBAC_PERM_COMMAND_RBAC_ACC                               = 201,
     RBAC_PERM_COMMAND_RBAC_ACC_PERM_LIST                     = 202,

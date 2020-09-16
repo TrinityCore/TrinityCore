@@ -27,6 +27,10 @@ EndScriptData */
 #include "Chat.h"
 #include "RBAC.h"
 
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 class bf_commandscript : public CommandScript
 {
 public:

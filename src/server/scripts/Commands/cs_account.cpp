@@ -48,48 +48,36 @@ class account_commandscript : public CommandScript
 public:
     account_commandscript() : CommandScript("account_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    ChatCommandTable GetCommands() const override
     {
-        static std::vector<ChatCommand> accountSetSecTable =
+        static ChatCommandTable accountSetCommandTable =
         {
-            { "regmail",        rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SEC_REGMAIL, true,  &HandleAccountSetRegEmailCommand,  ""       },
-            { "email",          rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SEC_EMAIL,   true,  &HandleAccountSetEmailCommand,     ""       },
+            { "addon",              HandleAccountSetAddonCommand,       rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_ADDON,          Console::Yes },
+            { "sec regmail",        HandleAccountSetRegEmailCommand,    rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SEC_REGMAIL,    Console::Yes },
+            { "sec email",          HandleAccountSetEmailCommand,       rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SEC_EMAIL,      Console::Yes },
+            { "gmlevel",            HandleAccountSetSecLevelCommand,    rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SECLEVEL,       Console::Yes },  // temp for a transition period
+            { "seclevel",           HandleAccountSetSecLevelCommand,    rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SECLEVEL,       Console::Yes },
+            { "password",           HandleAccountSetPasswordCommand,    rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_PASSWORD,       Console::Yes },
+            { "2fa",                HandleAccountSet2FACommand,         rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_2FA,            Console::Yes },
         };
-        static std::vector<ChatCommand> accountSetCommandTable =
+        static ChatCommandTable accountCommandTable =
         {
-            { "addon",          rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_ADDON,       true,  &HandleAccountSetAddonCommand,     ""       },
-            { "sec",            rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SEC,         true,  nullptr,                "", accountSetSecTable },
-            { "gmlevel",        rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SECLEVEL,    true,  &HandleAccountSetSecLevelCommand,  ""       },  // temp for a transition period
-            { "seclevel",       rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SECLEVEL,    true,  &HandleAccountSetSecLevelCommand,  ""       },
-            { "password",       rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_PASSWORD,    true,  &HandleAccountSetPasswordCommand,  ""       },
-            { "2fa",            rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_2FA,         true,  &HandleAccountSet2FACommand,       ""       },
+            { "2fa setup",          HandleAccount2FASetupCommand,       rbac::RBAC_PERM_COMMAND_ACCOUNT_2FA_SETUP,          Console::No  },
+            { "2fa remove",         HandleAccount2FARemoveCommand,      rbac::RBAC_PERM_COMMAND_ACCOUNT_2FA_REMOVE,         Console::No  },
+            { "addon",              HandleAccountAddonCommand,          rbac::RBAC_PERM_COMMAND_ACCOUNT_ADDON,              Console::No  },
+            { "create",             HandleAccountCreateCommand,         rbac::RBAC_PERM_COMMAND_ACCOUNT_CREATE,             Console::Yes },
+            { "delete",             HandleAccountDeleteCommand,         rbac::RBAC_PERM_COMMAND_ACCOUNT_DELETE,             Console::Yes },
+            { "email",              HandleAccountEmailCommand,          rbac::RBAC_PERM_COMMAND_ACCOUNT_EMAIL,              Console::No  },
+            { "onlinelist",         HandleAccountOnlineListCommand,     rbac::RBAC_PERM_COMMAND_ACCOUNT_ONLINE_LIST,        Console::Yes },
+            { "lock country",       HandleAccountLockCountryCommand,    rbac::RBAC_PERM_COMMAND_ACCOUNT_LOCK_COUNTRY,       Console::No  },
+            { "lock ip",            HandleAccountLockIpCommand,         rbac::RBAC_PERM_COMMAND_ACCOUNT_LOCK_IP,            Console::No  },
+            { "set",                accountSetCommandTable },
+            { "password",           HandleAccountPasswordCommand,       rbac::RBAC_PERM_COMMAND_ACCOUNT_PASSWORD,           Console::No  },
+            { "",                   HandleAccountCommand,               rbac::RBAC_PERM_COMMAND_ACCOUNT,                    Console::No  },
         };
-        static std::vector<ChatCommand> account2FACommandTable =
+        static ChatCommandTable commandTable =
         {
-            { "setup",          rbac::RBAC_PERM_COMMAND_ACCOUNT_2FA_SETUP,       false,  &HandleAccount2FASetupCommand,     ""      },
-            { "remove",         rbac::RBAC_PERM_COMMAND_ACCOUNT_2FA_REMOVE,      false,  &HandleAccount2FARemoveCommand,     ""     },
-        };
-        static std::vector<ChatCommand> accountLockCommandTable =
-        {
-            { "country",        rbac::RBAC_PERM_COMMAND_ACCOUNT_LOCK_COUNTRY,    false,  &HandleAccountLockCountryCommand,  ""      },
-            { "ip",             rbac::RBAC_PERM_COMMAND_ACCOUNT_LOCK_IP,         false,  &HandleAccountLockIpCommand,       ""      },
-        };
-        static std::vector<ChatCommand> accountCommandTable =
-        {
-            { "2fa",            rbac::RBAC_PERM_COMMAND_ACCOUNT_2FA,             false, nullptr,           "", account2FACommandTable  },
-            { "addon",          rbac::RBAC_PERM_COMMAND_ACCOUNT_ADDON,           false, &HandleAccountAddonCommand,        ""       },
-            { "create",         rbac::RBAC_PERM_COMMAND_ACCOUNT_CREATE,          true,  &HandleAccountCreateCommand,       ""       },
-            { "delete",         rbac::RBAC_PERM_COMMAND_ACCOUNT_DELETE,          true,  &HandleAccountDeleteCommand,       ""       },
-            { "email",          rbac::RBAC_PERM_COMMAND_ACCOUNT_EMAIL,           false, &HandleAccountEmailCommand,        ""       },
-            { "onlinelist",     rbac::RBAC_PERM_COMMAND_ACCOUNT_ONLINE_LIST,     true,  &HandleAccountOnlineListCommand,   ""       },
-            { "lock",           rbac::RBAC_PERM_COMMAND_ACCOUNT_LOCK,            false, nullptr,           "", accountLockCommandTable },
-            { "set",            rbac::RBAC_PERM_COMMAND_ACCOUNT_SET,             true,  nullptr,            "", accountSetCommandTable },
-            { "password",       rbac::RBAC_PERM_COMMAND_ACCOUNT_PASSWORD,        false, &HandleAccountPasswordCommand,     ""       },
-            { "",               rbac::RBAC_PERM_COMMAND_ACCOUNT,                 false, &HandleAccountCommand,             ""       },
-        };
-        static std::vector<ChatCommand> commandTable =
-        {
-            { "account",        rbac::RBAC_PERM_COMMAND_ACCOUNT,                 true,  nullptr,              "",  accountCommandTable },
+            { "account",            accountCommandTable },
         };
         return commandTable;
     }

@@ -33,6 +33,10 @@ EndScriptData */
 #include "ReputationMgr.h"
 #include "World.h"
 
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 class quest_commandscript : public CommandScript
 {
 public:
