@@ -155,7 +155,7 @@ def processFile(path, filename):
 
     output.write('}\n')
 
-FilenamePattern = compile(r'^(.+).h$')
+FilenamePattern = compile(r'^(.+)\.h$')
 for root, dirs, files in walk('.'):
     for n in files:
         nameMatch = FilenamePattern.match(n)
