@@ -814,8 +814,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::istream& input, uint32 account, std::
     std::map<uint64, uint64> equipmentSetIds;
     uint64 equipmentSetGuidOffset = sObjectMgr->_equipmentSetGuid;
 
-    static size_t const BUFFER_SIZE = 32000;
-    char buf[BUFFER_SIZE] = { };
+    std::string line;
 
     uint8 gender = GENDER_NONE;
     uint8 race = RACE_NONE;
@@ -826,16 +825,8 @@ DumpReturn PlayerDumpReader::LoadDump(std::istream& input, uint32 account, std::
     size_t lineNumber = 0;
 
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
-    while (!input.eof())
+    while (std::getline(input, line))
     {
-        input.getline(buf, BUFFER_SIZE);
-        if (input.eof())
-            break;
-        if (input.fail())
-            return DUMP_FILE_BROKEN;
-
-        std::string line;
-        line.assign(buf);
         ++lineNumber;
 
         // skip empty strings
@@ -954,6 +945,9 @@ DumpReturn PlayerDumpReader::LoadDump(std::istream& input, uint32 account, std::
 
         trans->Append(line.c_str());
     }
+
+    if (input.fail() && !input.eof())
+        return DUMP_FILE_BROKEN;
 
     CharacterDatabase.CommitTransaction(trans);
 
