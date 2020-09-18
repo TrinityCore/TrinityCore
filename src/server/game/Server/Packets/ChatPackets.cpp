@@ -29,3 +29,11 @@ void WorldPackets::Chat::EmoteClient::Read()
 {
     _worldPacket >> EmoteID;
 }
+
+WorldPacket const* WorldPackets::Chat::ChatServerMessage::Write()
+{
+    _worldPacket << MessageID;
+    _worldPacket << StringParam;
+
+    return &_worldPacket;
+}

@@ -683,7 +683,7 @@ enum Opcodes : uint16
     CMSG_GROUP_RAID_CONVERT                         = 0x28E,
     CMSG_GROUP_ASSISTANT_LEADER                     = 0x28F,
     CMSG_BUYBACK_ITEM                               = 0x290,
-    SMSG_SERVER_MESSAGE                             = 0x291,
+    SMSG_CHAT_SERVER_MESSAGE                        = 0x291,
     CMSG_SET_SAVED_INSTANCE_EXTEND                  = 0x292,
     SMSG_LFG_OFFER_CONTINUE                         = 0x293,
     CMSG_TEST_DROP_RATE                             = 0x294,
