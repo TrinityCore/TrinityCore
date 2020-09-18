@@ -211,227 +211,216 @@ enum ICCMisc
 };
 
 // at Light's Hammer
-class npc_highlord_tirion_fordring_lh : public CreatureScript
+struct npc_highlord_tirion_fordring_lh : public ScriptedAI
 {
-    public:
-        npc_highlord_tirion_fordring_lh() : CreatureScript("npc_highlord_tirion_fordring_lh") { }
+    npc_highlord_tirion_fordring_lh(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
+    {
+        Initialize();
+    }
 
-        struct npc_highlord_tirion_fordringAI : public ScriptedAI
+    void Initialize()
+    {
+        _theLichKing.Clear();
+        _bolvarFordragon.Clear();
+        _factionNPC.Clear();
+        _damnedKills = 0;
+    }
+
+    void Reset() override
+    {
+        _events.Reset();
+        Initialize();
+    }
+
+    // IMPORTANT NOTE: This is triggered from per-GUID scripts
+    // of The Damned SAI
+    void SetData(uint32 type, uint32 data) override
+    {
+        if (type == DATA_DAMNED_KILLS && data == 1)
         {
-            npc_highlord_tirion_fordringAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
+            if (++_damnedKills == 2)
             {
-                Initialize();
-            }
-
-            void Initialize()
-            {
-                _theLichKing.Clear();
-                _bolvarFordragon.Clear();
-                _factionNPC.Clear();
-                _damnedKills = 0;
-            }
-
-            void Reset() override
-            {
-                _events.Reset();
-                Initialize();
-            }
-
-            // IMPORTANT NOTE: This is triggered from per-GUID scripts
-            // of The Damned SAI
-            void SetData(uint32 type, uint32 data) override
-            {
-                if (type == DATA_DAMNED_KILLS && data == 1)
+                if (Creature* theLichKing = me->FindNearestCreature(NPC_THE_LICH_KING_LH, 150.0f))
                 {
-                    if (++_damnedKills == 2)
+                    if (Creature* bolvarFordragon = me->FindNearestCreature(NPC_HIGHLORD_BOLVAR_FORDRAGON_LH, 150.0f))
                     {
-                        if (Creature* theLichKing = me->FindNearestCreature(NPC_THE_LICH_KING_LH, 150.0f))
+                        if (Creature* factionNPC = me->FindNearestCreature(_instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE ? NPC_SE_HIGH_OVERLORD_SAURFANG : NPC_SE_MURADIN_BRONZEBEARD, 50.0f))
                         {
-                            if (Creature* bolvarFordragon = me->FindNearestCreature(NPC_HIGHLORD_BOLVAR_FORDRAGON_LH, 150.0f))
-                            {
-                                if (Creature* factionNPC = me->FindNearestCreature(_instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE ? NPC_SE_HIGH_OVERLORD_SAURFANG : NPC_SE_MURADIN_BRONZEBEARD, 50.0f))
-                                {
-                                    me->setActive(true);
-                                    me->SetFarVisible(true);
-                                    _theLichKing = theLichKing->GetGUID();
-                                    theLichKing->setActive(true);
-                                    theLichKing->SetFarVisible(true);
-                                    _bolvarFordragon = bolvarFordragon->GetGUID();
-                                    bolvarFordragon->setActive(true);
-                                    bolvarFordragon->SetFarVisible(true);
-                                    _factionNPC = factionNPC->GetGUID();
-                                    factionNPC->setActive(true);
-                                    factionNPC->SetFarVisible(true);
-                                }
-                            }
-                        }
-
-                        if (!_bolvarFordragon || !_theLichKing || !_factionNPC)
-                            return;
-
-                        Talk(SAY_TIRION_INTRO_1);
-                        _events.ScheduleEvent(EVENT_TIRION_INTRO_2, 4s);
-                        _events.ScheduleEvent(EVENT_TIRION_INTRO_3, 14s);
-                        _events.ScheduleEvent(EVENT_TIRION_INTRO_4, 18s);
-                        _events.ScheduleEvent(EVENT_TIRION_INTRO_5, 31s);
-                        _events.ScheduleEvent(EVENT_LK_INTRO_1, 35s);
-                        _events.ScheduleEvent(EVENT_TIRION_INTRO_6, 51s);
-                        _events.ScheduleEvent(EVENT_LK_INTRO_2, 58s);
-                        _events.ScheduleEvent(EVENT_LK_INTRO_3, 74s);
-                        _events.ScheduleEvent(EVENT_LK_INTRO_4, 86s);
-                        _events.ScheduleEvent(EVENT_BOLVAR_INTRO_1, 100s);
-                        _events.ScheduleEvent(EVENT_LK_INTRO_5, 108s);
-
-                        if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
-                        {
-                            _events.ScheduleEvent(EVENT_SAURFANG_INTRO_1, 120s);
-                            _events.ScheduleEvent(EVENT_TIRION_INTRO_H_7, 129s);
-                            _events.ScheduleEvent(EVENT_SAURFANG_INTRO_2, 139s);
-                            _events.ScheduleEvent(EVENT_SAURFANG_INTRO_3, 150s);
-                            _events.ScheduleEvent(EVENT_SAURFANG_INTRO_4, 162s);
-                            _events.ScheduleEvent(EVENT_SAURFANG_RUN, 170s);
-                        }
-                        else
-                        {
-                            _events.ScheduleEvent(EVENT_MURADIN_INTRO_1, 120s);
-                            _events.ScheduleEvent(EVENT_MURADIN_INTRO_2, 124s);
-                            _events.ScheduleEvent(EVENT_MURADIN_INTRO_3, 127s);
-                            _events.ScheduleEvent(EVENT_TIRION_INTRO_A_7, 136s);
-                            _events.ScheduleEvent(EVENT_MURADIN_INTRO_4, 144s);
-                            _events.ScheduleEvent(EVENT_MURADIN_INTRO_5, 151s);
-                            _events.ScheduleEvent(EVENT_MURADIN_RUN, 157s);
+                            me->setActive(true);
+                            me->SetFarVisible(true);
+                            _theLichKing = theLichKing->GetGUID();
+                            theLichKing->setActive(true);
+                            theLichKing->SetFarVisible(true);
+                            _bolvarFordragon = bolvarFordragon->GetGUID();
+                            bolvarFordragon->setActive(true);
+                            bolvarFordragon->SetFarVisible(true);
+                            _factionNPC = factionNPC->GetGUID();
+                            factionNPC->setActive(true);
+                            factionNPC->SetFarVisible(true);
                         }
                     }
                 }
-            }
 
-            void UpdateAI(uint32 diff) override
-            {
-                if (_damnedKills != 2)
+                if (!_bolvarFordragon || !_theLichKing || !_factionNPC)
                     return;
 
-                _events.Update(diff);
+                Talk(SAY_TIRION_INTRO_1);
+                _events.ScheduleEvent(EVENT_TIRION_INTRO_2, 4s);
+                _events.ScheduleEvent(EVENT_TIRION_INTRO_3, 14s);
+                _events.ScheduleEvent(EVENT_TIRION_INTRO_4, 18s);
+                _events.ScheduleEvent(EVENT_TIRION_INTRO_5, 31s);
+                _events.ScheduleEvent(EVENT_LK_INTRO_1, 35s);
+                _events.ScheduleEvent(EVENT_TIRION_INTRO_6, 51s);
+                _events.ScheduleEvent(EVENT_LK_INTRO_2, 58s);
+                _events.ScheduleEvent(EVENT_LK_INTRO_3, 74s);
+                _events.ScheduleEvent(EVENT_LK_INTRO_4, 86s);
+                _events.ScheduleEvent(EVENT_BOLVAR_INTRO_1, 100s);
+                _events.ScheduleEvent(EVENT_LK_INTRO_5, 108s);
 
-                while (uint32 eventId = _events.ExecuteEvent())
+                if (_instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
                 {
-                    switch (eventId)
-                    {
-                        case EVENT_TIRION_INTRO_2:
-                            me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
-                            break;
-                        case EVENT_TIRION_INTRO_3:
-                            Talk(SAY_TIRION_INTRO_2);
-                            break;
-                        case EVENT_TIRION_INTRO_4:
-                            me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
-                            break;
-                        case EVENT_TIRION_INTRO_5:
-                            Talk(SAY_TIRION_INTRO_3);
-                            break;
-                        case EVENT_LK_INTRO_1:
-                            me->HandleEmoteCommand(EMOTE_ONESHOT_POINT_NO_SHEATHE);
-                            if (Creature* theLichKing = ObjectAccessor::GetCreature(*me, _theLichKing))
-                                theLichKing->AI()->Talk(SAY_LK_INTRO_1);
-                            break;
-                        case EVENT_TIRION_INTRO_6:
-                            Talk(SAY_TIRION_INTRO_4);
-                            break;
-                        case EVENT_LK_INTRO_2:
-                            if (Creature* theLichKing = ObjectAccessor::GetCreature(*me, _theLichKing))
-                                theLichKing->AI()->Talk(SAY_LK_INTRO_2);
-                            break;
-                        case EVENT_LK_INTRO_3:
-                            if (Creature* theLichKing = ObjectAccessor::GetCreature(*me, _theLichKing))
-                                theLichKing->AI()->Talk(SAY_LK_INTRO_3);
-                            break;
-                        case EVENT_LK_INTRO_4:
-                            if (Creature* theLichKing = ObjectAccessor::GetCreature(*me, _theLichKing))
-                                theLichKing->AI()->Talk(SAY_LK_INTRO_4);
-                            break;
-                        case EVENT_BOLVAR_INTRO_1:
-                            if (Creature* bolvarFordragon = ObjectAccessor::GetCreature(*me, _bolvarFordragon))
-                            {
-                                bolvarFordragon->AI()->Talk(SAY_BOLVAR_INTRO_1);
-                                bolvarFordragon->setActive(false);
-                                bolvarFordragon->SetFarVisible(false);
-                            }
-                            break;
-                        case EVENT_LK_INTRO_5:
-                            if (Creature* theLichKing = ObjectAccessor::GetCreature(*me, _theLichKing))
-                            {
-                                theLichKing->AI()->Talk(SAY_LK_INTRO_5);
-                                theLichKing->setActive(false);
-                                theLichKing->SetFarVisible(false);
-                            }
-                            break;
-                        case EVENT_SAURFANG_INTRO_1:
-                            if (Creature* saurfang = ObjectAccessor::GetCreature(*me, _factionNPC))
-                                saurfang->AI()->Talk(SAY_SAURFANG_INTRO_1);
-                            break;
-                        case EVENT_TIRION_INTRO_H_7:
-                            Talk(SAY_TIRION_INTRO_H_5);
-                            break;
-                        case EVENT_SAURFANG_INTRO_2:
-                            if (Creature* saurfang = ObjectAccessor::GetCreature(*me, _factionNPC))
-                                saurfang->AI()->Talk(SAY_SAURFANG_INTRO_2);
-                            break;
-                        case EVENT_SAURFANG_INTRO_3:
-                            if (Creature* saurfang = ObjectAccessor::GetCreature(*me, _factionNPC))
-                                saurfang->AI()->Talk(SAY_SAURFANG_INTRO_3);
-                            break;
-                        case EVENT_SAURFANG_INTRO_4:
-                            if (Creature* saurfang = ObjectAccessor::GetCreature(*me, _factionNPC))
-                                saurfang->AI()->Talk(SAY_SAURFANG_INTRO_4);
-                            break;
-                        case EVENT_MURADIN_RUN:
-                        case EVENT_SAURFANG_RUN:
-                            if (Creature* factionNPC = ObjectAccessor::GetCreature(*me, _factionNPC))
-                                factionNPC->GetMotionMaster()->MovePath(factionNPC->GetSpawnId() * 10, false);
-                            me->setActive(false);
-                            _damnedKills = 3;
-                            break;
-                        case EVENT_MURADIN_INTRO_1:
-                            if (Creature* muradin = ObjectAccessor::GetCreature(*me, _factionNPC))
-                                muradin->AI()->Talk(SAY_MURADIN_INTRO_1);
-                            break;
-                        case EVENT_MURADIN_INTRO_2:
-                            if (Creature* muradin = ObjectAccessor::GetCreature(*me, _factionNPC))
-                                muradin->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
-                            break;
-                        case EVENT_MURADIN_INTRO_3:
-                            if (Creature* muradin = ObjectAccessor::GetCreature(*me, _factionNPC))
-                                muradin->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
-                            break;
-                        case EVENT_TIRION_INTRO_A_7:
-                            Talk(SAY_TIRION_INTRO_A_5);
-                            break;
-                        case EVENT_MURADIN_INTRO_4:
-                            if (Creature* muradin = ObjectAccessor::GetCreature(*me, _factionNPC))
-                                muradin->AI()->Talk(SAY_MURADIN_INTRO_2);
-                            break;
-                        case EVENT_MURADIN_INTRO_5:
-                            if (Creature* muradin = ObjectAccessor::GetCreature(*me, _factionNPC))
-                                muradin->AI()->Talk(SAY_MURADIN_INTRO_3);
-                            break;
-                        default:
-                            break;
-                    }
+                    _events.ScheduleEvent(EVENT_SAURFANG_INTRO_1, 120s);
+                    _events.ScheduleEvent(EVENT_TIRION_INTRO_H_7, 129s);
+                    _events.ScheduleEvent(EVENT_SAURFANG_INTRO_2, 139s);
+                    _events.ScheduleEvent(EVENT_SAURFANG_INTRO_3, 150s);
+                    _events.ScheduleEvent(EVENT_SAURFANG_INTRO_4, 162s);
+                    _events.ScheduleEvent(EVENT_SAURFANG_RUN, 170s);
+                }
+                else
+                {
+                    _events.ScheduleEvent(EVENT_MURADIN_INTRO_1, 120s);
+                    _events.ScheduleEvent(EVENT_MURADIN_INTRO_2, 124s);
+                    _events.ScheduleEvent(EVENT_MURADIN_INTRO_3, 127s);
+                    _events.ScheduleEvent(EVENT_TIRION_INTRO_A_7, 136s);
+                    _events.ScheduleEvent(EVENT_MURADIN_INTRO_4, 144s);
+                    _events.ScheduleEvent(EVENT_MURADIN_INTRO_5, 151s);
+                    _events.ScheduleEvent(EVENT_MURADIN_RUN, 157s);
                 }
             }
-
-        private:
-            EventMap _events;
-            InstanceScript* const _instance;
-            ObjectGuid _theLichKing;
-            ObjectGuid _bolvarFordragon;
-            ObjectGuid _factionNPC;
-            uint16 _damnedKills;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetIcecrownCitadelAI<npc_highlord_tirion_fordringAI>(creature);
         }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (_damnedKills != 2)
+            return;
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_TIRION_INTRO_2:
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
+                    break;
+                case EVENT_TIRION_INTRO_3:
+                    Talk(SAY_TIRION_INTRO_2);
+                    break;
+                case EVENT_TIRION_INTRO_4:
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
+                    break;
+                case EVENT_TIRION_INTRO_5:
+                    Talk(SAY_TIRION_INTRO_3);
+                    break;
+                case EVENT_LK_INTRO_1:
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_POINT_NO_SHEATHE);
+                    if (Creature* theLichKing = ObjectAccessor::GetCreature(*me, _theLichKing))
+                        theLichKing->AI()->Talk(SAY_LK_INTRO_1);
+                    break;
+                case EVENT_TIRION_INTRO_6:
+                    Talk(SAY_TIRION_INTRO_4);
+                    break;
+                case EVENT_LK_INTRO_2:
+                    if (Creature* theLichKing = ObjectAccessor::GetCreature(*me, _theLichKing))
+                        theLichKing->AI()->Talk(SAY_LK_INTRO_2);
+                    break;
+                case EVENT_LK_INTRO_3:
+                    if (Creature* theLichKing = ObjectAccessor::GetCreature(*me, _theLichKing))
+                        theLichKing->AI()->Talk(SAY_LK_INTRO_3);
+                    break;
+                case EVENT_LK_INTRO_4:
+                    if (Creature* theLichKing = ObjectAccessor::GetCreature(*me, _theLichKing))
+                        theLichKing->AI()->Talk(SAY_LK_INTRO_4);
+                    break;
+                case EVENT_BOLVAR_INTRO_1:
+                    if (Creature* bolvarFordragon = ObjectAccessor::GetCreature(*me, _bolvarFordragon))
+                    {
+                        bolvarFordragon->AI()->Talk(SAY_BOLVAR_INTRO_1);
+                        bolvarFordragon->setActive(false);
+                        bolvarFordragon->SetFarVisible(false);
+                    }
+                    break;
+                case EVENT_LK_INTRO_5:
+                    if (Creature* theLichKing = ObjectAccessor::GetCreature(*me, _theLichKing))
+                    {
+                        theLichKing->AI()->Talk(SAY_LK_INTRO_5);
+                        theLichKing->setActive(false);
+                        theLichKing->SetFarVisible(false);
+                    }
+                    break;
+                case EVENT_SAURFANG_INTRO_1:
+                    if (Creature* saurfang = ObjectAccessor::GetCreature(*me, _factionNPC))
+                        saurfang->AI()->Talk(SAY_SAURFANG_INTRO_1);
+                    break;
+                case EVENT_TIRION_INTRO_H_7:
+                    Talk(SAY_TIRION_INTRO_H_5);
+                    break;
+                case EVENT_SAURFANG_INTRO_2:
+                    if (Creature* saurfang = ObjectAccessor::GetCreature(*me, _factionNPC))
+                        saurfang->AI()->Talk(SAY_SAURFANG_INTRO_2);
+                    break;
+                case EVENT_SAURFANG_INTRO_3:
+                    if (Creature* saurfang = ObjectAccessor::GetCreature(*me, _factionNPC))
+                        saurfang->AI()->Talk(SAY_SAURFANG_INTRO_3);
+                    break;
+                case EVENT_SAURFANG_INTRO_4:
+                    if (Creature* saurfang = ObjectAccessor::GetCreature(*me, _factionNPC))
+                        saurfang->AI()->Talk(SAY_SAURFANG_INTRO_4);
+                    break;
+                case EVENT_MURADIN_RUN:
+                case EVENT_SAURFANG_RUN:
+                    if (Creature* factionNPC = ObjectAccessor::GetCreature(*me, _factionNPC))
+                        factionNPC->GetMotionMaster()->MovePath(factionNPC->GetSpawnId() * 10, false);
+                    me->setActive(false);
+                    _damnedKills = 3;
+                    break;
+                case EVENT_MURADIN_INTRO_1:
+                    if (Creature* muradin = ObjectAccessor::GetCreature(*me, _factionNPC))
+                        muradin->AI()->Talk(SAY_MURADIN_INTRO_1);
+                    break;
+                case EVENT_MURADIN_INTRO_2:
+                    if (Creature* muradin = ObjectAccessor::GetCreature(*me, _factionNPC))
+                        muradin->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
+                    break;
+                case EVENT_MURADIN_INTRO_3:
+                    if (Creature* muradin = ObjectAccessor::GetCreature(*me, _factionNPC))
+                        muradin->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
+                    break;
+                case EVENT_TIRION_INTRO_A_7:
+                    Talk(SAY_TIRION_INTRO_A_5);
+                    break;
+                case EVENT_MURADIN_INTRO_4:
+                    if (Creature* muradin = ObjectAccessor::GetCreature(*me, _factionNPC))
+                        muradin->AI()->Talk(SAY_MURADIN_INTRO_2);
+                    break;
+                case EVENT_MURADIN_INTRO_5:
+                    if (Creature* muradin = ObjectAccessor::GetCreature(*me, _factionNPC))
+                        muradin->AI()->Talk(SAY_MURADIN_INTRO_3);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+    InstanceScript* const _instance;
+    ObjectGuid _theLichKing;
+    ObjectGuid _bolvarFordragon;
+    ObjectGuid _factionNPC;
+    uint16 _damnedKills;
 };
 
 class DeathPlagueTargetSelector
@@ -456,149 +445,116 @@ private:
     Unit const* _me;
 };
 
-class npc_rotting_frost_giant : public CreatureScript
+struct npc_rotting_frost_giant : public ScriptedAI
 {
-    public:
-        npc_rotting_frost_giant() : CreatureScript("npc_rotting_frost_giant") { }
+    npc_rotting_frost_giant(Creature* creature) : ScriptedAI(creature) { }
 
-        struct npc_rotting_frost_giantAI : public ScriptedAI
+    void Reset() override
+    {
+        _events.Reset();
+        _events.ScheduleEvent(EVENT_DEATH_PLAGUE, 15s);
+        _events.ScheduleEvent(EVENT_STOMP, 5s, 8s);
+        _events.ScheduleEvent(EVENT_ARCTIC_BREATH, 10s, 15s);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _events.Reset();
+        if (InstanceScript* instance = me->GetInstanceScript())
+            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DEATH_PLAGUE_AURA);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
         {
-            npc_rotting_frost_giantAI(Creature* creature) : ScriptedAI(creature) { }
-
-            void Reset() override
+            switch (eventId)
             {
-                _events.Reset();
-                _events.ScheduleEvent(EVENT_DEATH_PLAGUE, 15s);
-                _events.ScheduleEvent(EVENT_STOMP, 5s, 8s);
-                _events.ScheduleEvent(EVENT_ARCTIC_BREATH, 10s, 15s);
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _events.Reset();
-                if (InstanceScript* instance = me->GetInstanceScript())
-                    instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DEATH_PLAGUE_AURA);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                _events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
+                case EVENT_DEATH_PLAGUE:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, DeathPlagueTargetSelector(me)))
                     {
-                        case EVENT_DEATH_PLAGUE:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, DeathPlagueTargetSelector(me)))
-                            {
-                                Talk(EMOTE_DEATH_PLAGUE_WARNING, target);
-                                DoCast(target, SPELL_DEATH_PLAGUE_AURA);
-                            }
-                            _events.ScheduleEvent(EVENT_DEATH_PLAGUE, 15s);
-                            break;
-                        case EVENT_STOMP:
-                            DoCastVictim(SPELL_STOMP);
-                            _events.ScheduleEvent(EVENT_STOMP, 15s, 18s);
-                            break;
-                        case EVENT_ARCTIC_BREATH:
-                            DoCastVictim(SPELL_ARCTIC_BREATH);
-                            _events.ScheduleEvent(EVENT_ARCTIC_BREATH, 26s, 33s);
-                            break;
-                        default:
-                            break;
+                        Talk(EMOTE_DEATH_PLAGUE_WARNING, target);
+                        DoCast(target, SPELL_DEATH_PLAGUE_AURA);
                     }
-
-                    if (me->HasUnitState(UNIT_STATE_CASTING))
-                        return;
-                }
-
-                DoMeleeAttackIfReady();
+                    _events.ScheduleEvent(EVENT_DEATH_PLAGUE, 15s);
+                    break;
+                case EVENT_STOMP:
+                    DoCastVictim(SPELL_STOMP);
+                    _events.ScheduleEvent(EVENT_STOMP, 15s, 18s);
+                    break;
+                case EVENT_ARCTIC_BREATH:
+                    DoCastVictim(SPELL_ARCTIC_BREATH);
+                    _events.ScheduleEvent(EVENT_ARCTIC_BREATH, 26s, 33s);
+                    break;
+                default:
+                    break;
             }
 
-        private:
-            EventMap _events;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetIcecrownCitadelAI<npc_rotting_frost_giantAI>(creature);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
 };
 
-class npc_frost_freeze_trap : public CreatureScript
+struct npc_frost_freeze_trap: public ScriptedAI
 {
-    public:
-        npc_frost_freeze_trap() : CreatureScript("npc_frost_freeze_trap") { }
+    npc_frost_freeze_trap(Creature* creature) : ScriptedAI(creature)
+    {
+        SetCombatMovement(false);
+    }
 
-        struct npc_frost_freeze_trapAI: public ScriptedAI
+    void DoAction(int32 action) override
+    {
+        switch (action)
         {
-            npc_frost_freeze_trapAI(Creature* creature) : ScriptedAI(creature)
-            {
-                SetCombatMovement(false);
-            }
-
-            void DoAction(int32 action) override
-            {
-                switch (action)
-                {
-                    case 1000:
-                    case 11000:
-                        _events.ScheduleEvent(EVENT_ACTIVATE_TRAP, Milliseconds(action));
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                _events.Update(diff);
-
-                if (_events.ExecuteEvent() == EVENT_ACTIVATE_TRAP)
-                {
-                    DoCast(me, SPELL_COLDFLAME_JETS);
-                    _events.ScheduleEvent(EVENT_ACTIVATE_TRAP, 22s);
-                }
-            }
-
-        private:
-            EventMap _events;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetIcecrownCitadelAI<npc_frost_freeze_trapAI>(creature);
+            case 1000:
+            case 11000:
+                _events.ScheduleEvent(EVENT_ACTIVATE_TRAP, Milliseconds(action));
+                break;
+            default:
+                break;
         }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        if (_events.ExecuteEvent() == EVENT_ACTIVATE_TRAP)
+        {
+            DoCast(me, SPELL_COLDFLAME_JETS);
+            _events.ScheduleEvent(EVENT_ACTIVATE_TRAP, 22s);
+        }
+    }
+
+private:
+    EventMap _events;
 };
 
-class npc_alchemist_adrianna : public CreatureScript
+struct npc_alchemist_adrianna : public ScriptedAI
 {
-    public:
-        npc_alchemist_adrianna() : CreatureScript("npc_alchemist_adrianna") { }
+    npc_alchemist_adrianna(Creature* creature) : ScriptedAI(creature) { }
 
-        struct npc_alchemist_adriannaAI : public ScriptedAI
-        {
-            npc_alchemist_adriannaAI(Creature* creature) : ScriptedAI(creature) { }
-
-            bool OnGossipHello(Player* player) override
-            {
-                if (!me->FindCurrentSpellBySpellId(sSpellMgr->GetSpellIdForDifficulty(SPELL_HARVEST_BLIGHT_SPECIMEN, me)))
-                    if (player->HasAura(SPELL_ORANGE_BLIGHT_RESIDUE) && player->HasAura(SPELL_GREEN_BLIGHT_RESIDUE))
-                        DoCastSelf(SPELL_HARVEST_BLIGHT_SPECIMEN, false);
-                return false;
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetIcecrownCitadelAI<npc_alchemist_adriannaAI>(creature);
-        }
+    bool OnGossipHello(Player* player) override
+    {
+        if (!me->FindCurrentSpellBySpellId(sSpellMgr->GetSpellIdForDifficulty(SPELL_HARVEST_BLIGHT_SPECIMEN, me)))
+            if (player->HasAura(SPELL_ORANGE_BLIGHT_RESIDUE) && player->HasAura(SPELL_GREEN_BLIGHT_RESIDUE))
+                DoCastSelf(SPELL_HARVEST_BLIGHT_SPECIMEN, false);
+        return false;
+    }
 };
 
 class npc_arthas_teleport_visual : public CreatureScript
@@ -1347,110 +1303,88 @@ class spell_generic_remove_empowered_blood : public SpellScript
     }
 };
 
-class spell_icc_stoneform : public SpellScriptLoader
+class spell_icc_stoneform : public AuraScript
 {
-    public:
-        spell_icc_stoneform() : SpellScriptLoader("spell_icc_stoneform") { }
+    PrepareAuraScript(spell_icc_stoneform);
 
-        class spell_icc_stoneform_AuraScript : public AuraScript
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Creature* target = GetTarget()->ToCreature())
         {
-            PrepareAuraScript(spell_icc_stoneform_AuraScript);
-
-            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (Creature* target = GetTarget()->ToCreature())
-                {
-                    target->SetReactState(REACT_PASSIVE);
-                    target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    target->SetImmuneToPC(true);
-                    target->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_CUSTOM_SPELL_02);
-                }
-            }
-
-            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (Creature* target = GetTarget()->ToCreature())
-                {
-                    target->SetReactState(REACT_AGGRESSIVE);
-                    target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    target->SetImmuneToPC(false);
-                    target->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
-                }
-            }
-
-            void Register() override
-            {
-                OnEffectApply += AuraEffectApplyFn(spell_icc_stoneform_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(spell_icc_stoneform_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_icc_stoneform_AuraScript();
+            target->SetReactState(REACT_PASSIVE);
+            target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            target->SetImmuneToPC(true);
+            target->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_CUSTOM_SPELL_02);
         }
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Creature* target = GetTarget()->ToCreature())
+        {
+            target->SetReactState(REACT_AGGRESSIVE);
+            target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            target->SetImmuneToPC(false);
+            target->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_icc_stoneform::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove += AuraEffectRemoveFn(spell_icc_stoneform::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
 };
 
-class spell_icc_sprit_alarm : public SpellScriptLoader
+class spell_icc_sprit_alarm : public SpellScript
 {
-    public:
-        spell_icc_sprit_alarm() : SpellScriptLoader("spell_icc_sprit_alarm") { }
+    PrepareSpellScript(spell_icc_sprit_alarm);
 
-        class spell_icc_sprit_alarm_SpellScript : public SpellScript
+    void HandleEvent(SpellEffIndex effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+        uint32 trapId = 0;
+        switch (GetSpellInfo()->Effects[effIndex].MiscValue)
         {
-            PrepareSpellScript(spell_icc_sprit_alarm_SpellScript);
-
-            void HandleEvent(SpellEffIndex effIndex)
-            {
-                PreventHitDefaultEffect(effIndex);
-                uint32 trapId = 0;
-                switch (GetSpellInfo()->Effects[effIndex].MiscValue)
-                {
-                    case EVENT_AWAKEN_WARD_1:
-                        trapId = GO_SPIRIT_ALARM_1;
-                        break;
-                    case EVENT_AWAKEN_WARD_2:
-                        trapId = GO_SPIRIT_ALARM_2;
-                        break;
-                    case EVENT_AWAKEN_WARD_3:
-                        trapId = GO_SPIRIT_ALARM_3;
-                        break;
-                    case EVENT_AWAKEN_WARD_4:
-                        trapId = GO_SPIRIT_ALARM_4;
-                        break;
-                    default:
-                        return;
-                }
-
-                if (GameObject* trap = GetGObjCaster()->FindNearestGameObject(trapId, 5.0f))
-                    trap->SetRespawnTime(trap->GetGOInfo()->GetAutoCloseTime() / IN_MILLISECONDS);
-
-                std::list<Creature*> wards;
-                GetGObjCaster()->GetCreatureListWithEntryInGrid(wards, NPC_DEATHBOUND_WARD, 150.0f);
-                wards.sort(Trinity::ObjectDistanceOrderPred(GetGObjCaster()));
-                for (std::list<Creature*>::iterator itr = wards.begin(); itr != wards.end(); ++itr)
-                {
-                    if ((*itr)->IsAlive() && (*itr)->HasAura(SPELL_STONEFORM))
-                    {
-                        (*itr)->AI()->Talk(SAY_TRAP_ACTIVATE);
-                        (*itr)->RemoveAurasDueToSpell(SPELL_STONEFORM);
-                        if (Unit* target = (*itr)->SelectNearestTarget(150.0f))
-                            (*itr)->AI()->AttackStart(target);
-                        break;
-                    }
-                }
-            }
-
-            void Register() override
-            {
-                OnEffectHit += SpellEffectFn(spell_icc_sprit_alarm_SpellScript::HandleEvent, EFFECT_2, SPELL_EFFECT_SEND_EVENT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_icc_sprit_alarm_SpellScript();
+            case EVENT_AWAKEN_WARD_1:
+                trapId = GO_SPIRIT_ALARM_1;
+                break;
+            case EVENT_AWAKEN_WARD_2:
+                trapId = GO_SPIRIT_ALARM_2;
+                break;
+            case EVENT_AWAKEN_WARD_3:
+                trapId = GO_SPIRIT_ALARM_3;
+                break;
+            case EVENT_AWAKEN_WARD_4:
+                trapId = GO_SPIRIT_ALARM_4;
+                break;
+            default:
+                return;
         }
+
+        if (GameObject* trap = GetGObjCaster()->FindNearestGameObject(trapId, 5.0f))
+            trap->SetRespawnTime(trap->GetGOInfo()->GetAutoCloseTime() / IN_MILLISECONDS);
+
+        std::list<Creature*> wards;
+        GetGObjCaster()->GetCreatureListWithEntryInGrid(wards, NPC_DEATHBOUND_WARD, 150.0f);
+        wards.sort(Trinity::ObjectDistanceOrderPred(GetGObjCaster()));
+        for (std::list<Creature*>::iterator itr = wards.begin(); itr != wards.end(); ++itr)
+        {
+            if ((*itr)->IsAlive() && (*itr)->HasAura(SPELL_STONEFORM))
+            {
+                (*itr)->AI()->Talk(SAY_TRAP_ACTIVATE);
+                (*itr)->RemoveAurasDueToSpell(SPELL_STONEFORM);
+                if (Unit* target = (*itr)->SelectNearestTarget(150.0f))
+                    (*itr)->AI()->AttackStart(target);
+                break;
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_icc_sprit_alarm::HandleEvent, EFFECT_2, SPELL_EFFECT_SEND_EVENT);
+    }
 };
 
 // 72864 - Death Plague
@@ -1518,65 +1452,43 @@ private:
     std::list<WorldObject*> _sharedList;
 };
 
-class spell_icc_harvest_blight_specimen : public SpellScriptLoader
+class spell_icc_harvest_blight_specimen : public SpellScript
 {
-    public:
-        spell_icc_harvest_blight_specimen() : SpellScriptLoader("spell_icc_harvest_blight_specimen") { }
+    PrepareSpellScript(spell_icc_harvest_blight_specimen);
 
-        class spell_icc_harvest_blight_specimen_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_icc_harvest_blight_specimen_SpellScript);
+    void HandleScript(SpellEffIndex effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+        GetHitUnit()->RemoveAurasDueToSpell(uint32(GetEffectValue()));
+    }
 
-            void HandleScript(SpellEffIndex effIndex)
-            {
-                PreventHitDefaultEffect(effIndex);
-                GetHitUnit()->RemoveAurasDueToSpell(uint32(GetEffectValue()));
-            }
+    void HandleQuestComplete(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->RemoveAurasDueToSpell(uint32(GetEffectValue()));
+    }
 
-            void HandleQuestComplete(SpellEffIndex /*effIndex*/)
-            {
-                GetHitUnit()->RemoveAurasDueToSpell(uint32(GetEffectValue()));
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_icc_harvest_blight_specimen_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-                OnEffectHitTarget += SpellEffectFn(spell_icc_harvest_blight_specimen_SpellScript::HandleQuestComplete, EFFECT_1, SPELL_EFFECT_QUEST_COMPLETE);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_icc_harvest_blight_specimen_SpellScript();
-        }
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_icc_harvest_blight_specimen::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget += SpellEffectFn(spell_icc_harvest_blight_specimen::HandleQuestComplete, EFFECT_1, SPELL_EFFECT_QUEST_COMPLETE);
+    }
 };
 
 // 72585 - Soul Missile
-class spell_icc_soul_missile : public SpellScriptLoader
+class spell_icc_soul_missile : public SpellScript
 {
-    public:
-        spell_icc_soul_missile() : SpellScriptLoader("spell_icc_soul_missile") { }
+    PrepareSpellScript(spell_icc_soul_missile);
 
-        class spell_icc_soul_missile_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_icc_soul_missile_SpellScript);
+    void RelocateDest(SpellDestination& dest)
+    {
+        static Position const offset = { 0.0f, 0.0f, 200.0f, 0.0f };
+        dest.RelocateOffset(offset);
+    }
 
-            void RelocateDest(SpellDestination& dest)
-            {
-                static Position const offset = { 0.0f, 0.0f, 200.0f, 0.0f };
-                dest.RelocateOffset(offset);
-            }
-
-            void Register() override
-            {
-                OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_icc_soul_missile_SpellScript::RelocateDest, EFFECT_0, TARGET_DEST_CASTER);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_icc_soul_missile_SpellScript();
-        }
+    void Register() override
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_icc_soul_missile::RelocateDest, EFFECT_0, TARGET_DEST_CASTER);
+    }
 };
 
 spell_trigger_spell_from_caster::spell_trigger_spell_from_caster(uint32 triggerId, TriggerCastFlags triggerFlags /*= TRIGGERED_FULL_MASK*/)
@@ -1681,10 +1593,11 @@ class at_icc_nerubar_broodkeeper : public OnlyOnceAreaTriggerScript
 
 void AddSC_icecrown_citadel()
 {
-    new npc_highlord_tirion_fordring_lh();
-    new npc_rotting_frost_giant();
-    new npc_frost_freeze_trap();
-    new npc_alchemist_adrianna();
+    // Creatures
+    RegisterIcecrownCitadelCreatureAI(npc_highlord_tirion_fordring_lh);
+    RegisterIcecrownCitadelCreatureAI(npc_rotting_frost_giant);
+    RegisterIcecrownCitadelCreatureAI(npc_frost_freeze_trap);
+    RegisterIcecrownCitadelCreatureAI(npc_alchemist_adrianna);
     new npc_arthas_teleport_visual();
     RegisterIcecrownCitadelCreatureAI(npc_entrance_faction_leader);
     RegisterIcecrownCitadelCreatureAI(npc_icc_orb_controller);
@@ -1695,17 +1608,23 @@ void AddSC_icecrown_citadel()
     RegisterIcecrownCitadelCreatureAI(npc_darkfallen_advisor);
     RegisterIcecrownCitadelCreatureAI(npc_darkfallen_tactician);
     RegisterIcecrownCitadelCreatureAI(npc_icc_nerubar_broodkeeper);
+
+    // GameObjects
     RegisterGameObjectAI(go_empowering_blood_orb);
+
+    // Spells
     RegisterSpellScript(spell_icc_empowered_blood);
     RegisterSpellScript(spell_icc_empowered_blood_3);
     RegisterSpellScript(spell_icc_siphon_essence);
     RegisterSpellScript(spell_darkfallen_blood_mirror);
     RegisterSpellScript(spell_generic_remove_empowered_blood);
-    new spell_icc_stoneform();
-    new spell_icc_sprit_alarm();
+    RegisterSpellScript(spell_icc_stoneform);
+    RegisterSpellScript(spell_icc_sprit_alarm);
     RegisterSpellScript(spell_frost_giant_death_plague);
-    new spell_icc_harvest_blight_specimen();
-    new spell_icc_soul_missile();
+    RegisterSpellScript(spell_icc_harvest_blight_specimen);
+    RegisterSpellScript(spell_icc_soul_missile);
+
+    // AreaTriggers
     new at_icc_saurfang_portal();
     new at_icc_shutdown_traps();
     new at_icc_start_blood_quickening();
