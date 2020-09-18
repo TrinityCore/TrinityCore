@@ -44,7 +44,7 @@ enum SHCreatureIds
 
 enum SHGameObjectIds
 {
-    GO_IKISS_DOOR                       = 177203,
+    GO_IKISS_DOOR                       = 183398,
     GO_TALON_KING_COFFER                = 187372
 };
 
