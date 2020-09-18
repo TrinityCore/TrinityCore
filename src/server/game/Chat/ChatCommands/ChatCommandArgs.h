@@ -81,7 +81,7 @@ namespace Trinity::Impl::ChatCommands
     template <>
     struct ArgInfo<char const*, void>
     {
-        static ChatCommandResult TryConsume(char const*& arg, ChatHandler const*, std::string_view args) { arg = args.data(); return std::string_view(); }
+        [[deprecated]] static ChatCommandResult TryConsume(char const*& arg, ChatHandler const*, std::string_view args) { arg = args.data(); return std::string_view(); }
     };
 
     // string_view

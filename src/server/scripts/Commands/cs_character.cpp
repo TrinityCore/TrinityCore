@@ -44,15 +44,15 @@ class character_commandscript : public CommandScript
 public:
     character_commandscript() : CommandScript("character_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    ChatCommandTable GetCommands() const override
     {
-        static std::vector<ChatCommand> pdumpCommandTable =
+        static ChatCommandTable pdumpCommandTable =
         {
             { "copy",          HandlePDumpCopyCommand,               rbac::RBAC_PERM_COMMAND_PDUMP_COPY,                Console::Yes },
             { "load",          HandlePDumpLoadCommand,               rbac::RBAC_PERM_COMMAND_PDUMP_LOAD,                Console::Yes },
             { "write",         HandlePDumpWriteCommand,              rbac::RBAC_PERM_COMMAND_PDUMP_WRITE,               Console::Yes },
         };
-        static std::vector<ChatCommand> characterDeletedCommandTable =
+        static ChatCommandTable characterDeletedCommandTable =
         {
             { "delete",        HandleCharacterDeletedDeleteCommand,  rbac::RBAC_PERM_COMMAND_CHARACTER_DELETED_DELETE,  Console::Yes },
             { "list",          HandleCharacterDeletedListCommand,    rbac::RBAC_PERM_COMMAND_CHARACTER_DELETED_LIST,    Console::Yes },
@@ -60,7 +60,7 @@ public:
             { "old",           HandleCharacterDeletedOldCommand,     rbac::RBAC_PERM_COMMAND_CHARACTER_DELETED_OLD,     Console::Yes },
         };
 
-        static std::vector<ChatCommand> characterCommandTable =
+        static ChatCommandTable characterCommandTable =
         {
             { "customize",     HandleCharacterCustomizeCommand,      rbac::RBAC_PERM_COMMAND_CHARACTER_CUSTOMIZE,       Console::Yes },
             { "changefaction", HandleCharacterChangeFactionCommand,  rbac::RBAC_PERM_COMMAND_CHARACTER_CHANGEFACTION,   Console::Yes },
@@ -74,7 +74,7 @@ public:
             { "titles",        HandleCharacterTitlesCommand,         rbac::RBAC_PERM_COMMAND_CHARACTER_TITLES,          Console::Yes },
         };
 
-        static std::vector<ChatCommand> commandTable =
+        static ChatCommandTable commandTable =
         {
             { "character", characterCommandTable },
             { "levelup",       HandleLevelUpCommand,                 rbac::RBAC_PERM_COMMAND_LEVELUP,                   Console::No },
