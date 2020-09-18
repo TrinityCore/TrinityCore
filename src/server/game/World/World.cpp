@@ -3052,7 +3052,7 @@ uint32 World::ShutdownCancel()
 void World::SendServerMessage(ServerMessageType messageID, std::string stringParam /*= ""*/, Player* player /*= nullptr*/)
 {
     WorldPackets::Chat::ChatServerMessage chatServerMessage;
-    chatServerMessage.MessageID = uint32(messageID);
+    chatServerMessage.MessageID = int32(messageID);
     if (messageID <= SERVER_MSG_STRING)
         chatServerMessage.StringParam = stringParam;
 

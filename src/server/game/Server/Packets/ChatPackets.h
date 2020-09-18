@@ -49,11 +49,11 @@ namespace WorldPackets
         class ChatServerMessage final : public ServerPacket
         {
         public:
-            ChatServerMessage() : ServerPacket(SMSG_CHAT_SERVER_MESSAGE, 4 + 2) { }
+            ChatServerMessage() : ServerPacket(SMSG_CHAT_SERVER_MESSAGE, 4 + 20) { }
 
             WorldPacket const* Write() override;
 
-            uint32 MessageID = 0;
+            int32 MessageID = 0;
             std::string StringParam;
         };
     }

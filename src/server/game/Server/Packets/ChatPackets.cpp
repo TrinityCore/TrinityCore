@@ -32,7 +32,7 @@ void WorldPackets::Chat::EmoteClient::Read()
 
 WorldPacket const* WorldPackets::Chat::ChatServerMessage::Write()
 {
-    _worldPacket << MessageID;
+    _worldPacket << int32(MessageID);
     _worldPacket << StringParam;
 
     return &_worldPacket;
