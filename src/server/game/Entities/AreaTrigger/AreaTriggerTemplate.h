@@ -108,7 +108,7 @@ struct AreaTriggerScaleInfo
     } Data;
 };
 
-struct AreaTriggerCircularMovementInfo
+struct AreaTriggerOrbitInfo
 {
     Optional<ObjectGuid> PathTarget;
     Optional<TaggedPosition<Position::XYZ>> Center;
@@ -214,7 +214,7 @@ public:
 
     AreaTriggerScaleInfo OverrideScale;
     AreaTriggerScaleInfo ExtraScale;
-    AreaTriggerCircularMovementInfo CircularMovementInfo;
+    AreaTriggerOrbitInfo OrbitInfo;
 
     AreaTriggerTemplate const* Template;
     std::vector<Position> SplinePoints;

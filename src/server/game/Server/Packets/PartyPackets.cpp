@@ -227,7 +227,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::PartyMemberStats c
     return data;
 }
 
-WorldPacket const* WorldPackets::Party::PartyMemberState::Write()
+WorldPacket const* WorldPackets::Party::PartyMemberFullState::Write()
 {
     _worldPacket.WriteBit(ForEnemy);
 
@@ -542,7 +542,7 @@ WorldPacket const* WorldPackets::Party::RaidMarkersChanged::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Party::PartyMemberState::Initialize(Player const* player)
+void WorldPackets::Party::PartyMemberFullState::Initialize(Player const* player)
 {
     ForEnemy = false;
 

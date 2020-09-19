@@ -277,7 +277,7 @@ void AzeriteItem::GiveXP(uint64 xp)
         SetState(ITEM_CHANGED, owner);
     }
 
-    WorldPackets::Azerite::AzeriteXpGain xpGain;
+    WorldPackets::Azerite::PlayerAzeriteItemGains xpGain;
     xpGain.ItemGUID = GetGUID();
     xpGain.XP = xp;
     owner->SendDirectMessage(xpGain.Write());

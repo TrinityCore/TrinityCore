@@ -63,7 +63,7 @@ struct BattlegroundScore
 
         virtual void UpdateScore(uint32 type, uint32 value);
 
-        virtual void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPLogData::PVPMatchPlayerStatistics& playerData) const;
+        virtual void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics& playerData) const;
 
         // For Logging purpose
         virtual std::string ToString() const { return ""; }

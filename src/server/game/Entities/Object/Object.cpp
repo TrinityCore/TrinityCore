@@ -480,7 +480,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags) const
         bool hasAreaTriggerPolygon  = areaTriggerTemplate->IsPolygon();
         bool hasAreaTriggerCylinder = areaTriggerTemplate->IsCylinder();
         bool hasAreaTriggerSpline   = areaTrigger->HasSplines();
-        bool hasCircularMovement    = areaTrigger->HasCircularMovement();
+        bool hasOrbit               = areaTrigger->HasOrbit();
 
         data->WriteBit(hasAbsoluteOrientation);
         data->WriteBit(hasDynamicShape);
@@ -502,7 +502,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags) const
         data->WriteBit(hasAreaTriggerPolygon);
         data->WriteBit(hasAreaTriggerCylinder);
         data->WriteBit(hasAreaTriggerSpline);
-        data->WriteBit(hasCircularMovement);
+        data->WriteBit(hasOrbit);
 
         if (hasUnk3)
             data->WriteBit(false);
@@ -581,7 +581,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags) const
             *data << float(areaTriggerTemplate->CylinderDatas.LocationZOffsetTarget);
         }
 
-        if (hasCircularMovement)
+        if (hasOrbit)
             *data << *areaTrigger->GetCircularMovementInfo();
     }
 

@@ -635,10 +635,10 @@ namespace WorldPackets
             int32 Value;
         };
 
-        class WorldQuestUpdate final : public ServerPacket
+        class WorldQuestUpdateResponse final : public ServerPacket
         {
         public:
-            WorldQuestUpdate() : ServerPacket(SMSG_WORLD_QUEST_UPDATE, 100) { }
+            WorldQuestUpdateResponse() : ServerPacket(SMSG_WORLD_QUEST_UPDATE_RESPONSE, 100) { }
 
             WorldPacket const* Write() override;
 

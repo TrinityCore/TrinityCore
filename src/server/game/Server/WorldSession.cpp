@@ -1091,7 +1091,7 @@ void WorldSession::InitializeSessionCallback(LoginDatabaseQueryHolder* realmHold
         } while (characterCountsResult->NextRow());
     }
 
-    WorldPackets::Battlenet::SetSessionState bnetConnected;
+    WorldPackets::Battlenet::ConnectionStatus bnetConnected;
     bnetConnected.State = 1;
     SendPacket(bnetConnected.Write());
 

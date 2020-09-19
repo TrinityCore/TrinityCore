@@ -70,7 +70,7 @@ WorldPacket const* WorldPackets::GameObject::GameObjectCustomAnim::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::GameObject::GameObjectUIAction::Write()
+WorldPacket const* WorldPackets::GameObject::GameObjectUILink::Write()
 {
     _worldPacket << ObjectGUID;
     _worldPacket << int32(UILink);

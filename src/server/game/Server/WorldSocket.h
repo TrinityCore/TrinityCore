@@ -126,7 +126,7 @@ private:
     void LoadSessionPermissionsCallback(PreparedQueryResult result);
     void HandleConnectToFailed(WorldPackets::Auth::ConnectToFailed& connectToFailed);
     bool HandlePing(WorldPackets::Auth::Ping& ping);
-    void HandleEnableEncryptionAck();
+    void HandleEnterEncryptedModeAck();
 
     ConnectionType _type;
     uint64 _key;

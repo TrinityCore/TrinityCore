@@ -205,18 +205,18 @@ namespace WorldPackets
             uint32 MovieID = 0;
         };
 
-        class UITimeRequest final : public ClientPacket
+        class ServerTimeOffsetRequest final : public ClientPacket
         {
         public:
-            UITimeRequest(WorldPacket&& packet) : ClientPacket(CMSG_UI_TIME_REQUEST, std::move(packet)) { }
+            ServerTimeOffsetRequest(WorldPacket&& packet) : ClientPacket(CMSG_SERVER_TIME_OFFSET_REQUEST, std::move(packet)) { }
 
             void Read() override { }
         };
 
-        class UITime final : public ServerPacket
+        class ServerTimeOffset final : public ServerPacket
         {
         public:
-            UITime() : ServerPacket(SMSG_UI_TIME, 4) { }
+            ServerTimeOffset() : ServerPacket(SMSG_SERVER_TIME_OFFSET, 4) { }
 
             WorldPacket const* Write() override;
 

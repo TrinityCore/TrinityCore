@@ -132,7 +132,7 @@ void WorldPackets::Misc::TimeSyncResponse::Read()
     _worldPacket >> ClientTime;
 }
 
-WorldPacket const* WorldPackets::Misc::UITime::Write()
+WorldPacket const* WorldPackets::Misc::ServerTimeOffset::Write()
 {
     _worldPacket << Time;
 

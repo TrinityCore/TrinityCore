@@ -28,23 +28,23 @@
 
 void WorldSession::HandleLearnTalentsOpcode(WorldPackets::Talent::LearnTalents& packet)
 {
-    WorldPackets::Talent::LearnTalentsFailed learnTalentsFailed;
+    WorldPackets::Talent::LearnTalentFailed learnTalentFailed;
     bool anythingLearned = false;
     for (uint32 talentId : packet.Talents)
     {
-        if (TalentLearnResult result = _player->LearnTalent(talentId, &learnTalentsFailed.SpellID))
+        if (TalentLearnResult result = _player->LearnTalent(talentId, &learnTalentFailed.SpellID))
         {
-            if (!learnTalentsFailed.Reason)
-                learnTalentsFailed.Reason = result;
+            if (!learnTalentFailed.Reason)
+                learnTalentFailed.Reason = result;
 
-            learnTalentsFailed.Talents.push_back(talentId);
+            learnTalentFailed.Talents.push_back(talentId);
         }
         else
             anythingLearned = true;
     }
 
-    if (learnTalentsFailed.Reason)
-        SendPacket(learnTalentsFailed.Write());
+    if (learnTalentFailed.Reason)
+        SendPacket(learnTalentFailed.Write());
 
     if (anythingLearned)
         _player->SendTalentsInfoData();
@@ -52,23 +52,23 @@ void WorldSession::HandleLearnTalentsOpcode(WorldPackets::Talent::LearnTalents& 
 
 void WorldSession::HandleLearnPvpTalentsOpcode(WorldPackets::Talent::LearnPvpTalents& packet)
 {
-    WorldPackets::Talent::LearnPvpTalentsFailed learnPvpTalentsFailed;
+    WorldPackets::Talent::LearnPvpTalentFailed learnPvpTalentFailed;
     bool anythingLearned = false;
     for (WorldPackets::Talent::PvPTalent pvpTalent : packet.Talents)
     {
-        if (TalentLearnResult result = _player->LearnPvpTalent(pvpTalent.PvPTalentID, pvpTalent.Slot, &learnPvpTalentsFailed.SpellID))
+        if (TalentLearnResult result = _player->LearnPvpTalent(pvpTalent.PvPTalentID, pvpTalent.Slot, &learnPvpTalentFailed.SpellID))
         {
-            if (!learnPvpTalentsFailed.Reason)
-                learnPvpTalentsFailed.Reason = result;
+            if (!learnPvpTalentFailed.Reason)
+                learnPvpTalentFailed.Reason = result;
 
-            learnPvpTalentsFailed.Talents.push_back(pvpTalent);
+            learnPvpTalentFailed.Talents.push_back(pvpTalent);
         }
         else
             anythingLearned = true;
     }
 
-    if (learnPvpTalentsFailed.Reason)
-        SendPacket(learnPvpTalentsFailed.Write());
+    if (learnPvpTalentFailed.Reason)
+        SendPacket(learnPvpTalentFailed.Write());
 
     if (anythingLearned)
         _player->SendTalentsInfoData();

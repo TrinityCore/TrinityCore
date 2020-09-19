@@ -50,10 +50,10 @@ namespace WorldPackets
             bool CurrentSpecOnly = false;
         };
 
-        class TransmogCollectionUpdate final : public ServerPacket
+        class AccountTransmogUpdate final : public ServerPacket
         {
         public:
-            TransmogCollectionUpdate() : ServerPacket(SMSG_TRANSMOG_COLLECTION_UPDATE) { }
+            AccountTransmogUpdate() : ServerPacket(SMSG_ACCOUNT_TRANSMOG_UPDATE) { }
 
             WorldPacket const* Write() override;
 
@@ -63,10 +63,10 @@ namespace WorldPackets
             std::vector<uint32> NewAppearances;
         };
 
-        class OpenTransmogrifier final : public ServerPacket
+        class TransmogrifyNPC final : public ServerPacket
         {
         public:
-            OpenTransmogrifier(ObjectGuid const& guid) : ServerPacket(SMSG_OPEN_TRANSMOGRIFIER, 16), Guid(guid) { }
+            TransmogrifyNPC(ObjectGuid const& guid) : ServerPacket(SMSG_TRANSMOGRIFY_NPC, 16), Guid(guid) { }
 
             WorldPacket const* Write() override;
 

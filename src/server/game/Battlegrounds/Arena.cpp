@@ -95,7 +95,7 @@ void Arena::HandleKillPlayer(Player* player, Player* killer)
     CheckWinConditions();
 }
 
-void Arena::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPLogData& pvpLogData) const
+void Arena::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPMatchStatistics& pvpLogData) const
 {
     Battleground::BuildPvPLogDataPacket(pvpLogData);
 

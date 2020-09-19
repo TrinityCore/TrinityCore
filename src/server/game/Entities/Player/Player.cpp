@@ -10304,7 +10304,7 @@ void Player::SetInventorySlotCount(uint8 slots)
 
             CharacterDatabase.CommitTransaction(trans);
 
-            SendDirectMessage(WorldPackets::Item::CharacterInventoryOverflowWarning().Write());
+            SendDirectMessage(WorldPackets::Item::InventoryFullOverflow().Write());
         }
     }
 
@@ -24078,10 +24078,10 @@ void Player::SendInitialPacketsBeforeAddToMap()
     SendDirectMessage(mountUpdate.Write());
 
     // SMSG_ACCOUNT_TOYS_UPDATE
-    WorldPackets::Toy::AccountToysUpdate toysUpdate;
-    toysUpdate.IsFullUpdate = true;
-    toysUpdate.Toys = &GetSession()->GetCollectionMgr()->GetAccountToys();
-    SendDirectMessage(toysUpdate.Write());
+    WorldPackets::Toy::AccountToyUpdate toyUpdate;
+    toyUpdate.IsFullUpdate = true;
+    toyUpdate.Toys = &GetSession()->GetCollectionMgr()->GetAccountToys();
+    SendDirectMessage(toyUpdate.Write());
 
     // SMSG_ACCOUNT_HEIRLOOM_UPDATE
     WorldPackets::Misc::AccountHeirloomUpdate heirloomUpdate;
