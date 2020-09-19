@@ -174,6 +174,7 @@ namespace Trinity::Impl::ChatCommands
             static void InvalidateCommandMap();
             static bool TryExecuteCommand(ChatHandler& handler, std::string_view cmd);
             static void SendCommandHelpFor(ChatHandler& handler, std::string_view cmd);
+            static std::vector<std::string> GetAutoCompletionsFor(ChatHandler const& handler, std::string_view cmd);
 
             ChatCommandNode() : _invoker{}, _permission{}, _help{}, _subCommands{} {}
 
@@ -230,6 +231,7 @@ namespace Trinity::ChatCommands
     TC_GAME_API void InvalidateCommandMap();
     TC_GAME_API bool TryExecuteCommand(ChatHandler& handler, std::string_view cmd);
     TC_GAME_API void SendCommandHelpFor(ChatHandler& handler, std::string_view cmd);
+    TC_GAME_API std::vector<std::string> GetAutoCompletionsFor(ChatHandler const& handler, std::string_view cmd);
 }
 
 // backwards compatibility with old patches

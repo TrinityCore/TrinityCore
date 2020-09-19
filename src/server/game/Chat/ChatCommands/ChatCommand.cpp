@@ -340,6 +340,13 @@ namespace Trinity::Impl::ChatCommands
         handler.PSendSysMessage(LANG_CMD_INVALID, STRING_VIEW_FMT_ARG(cmdStr));
 }
 
+/*static*/ std::vector<std::string> Trinity::Impl::ChatCommands::ChatCommandNode::GetAutoCompletionsFor(ChatHandler const& handler, std::string_view cmdStr)
+{
+    (void)handler;
+    (void)cmdStr;
+    return { "command 1", "command 2", "command 3" };
+}
+
 bool Trinity::Impl::ChatCommands::ChatCommandNode::IsInvokerVisible(ChatHandler const& who) const
 {
     if (!_invoker)
@@ -361,3 +368,5 @@ void Trinity::ChatCommands::LoadCommandMap() { Trinity::Impl::ChatCommands::Chat
 void Trinity::ChatCommands::InvalidateCommandMap() { Trinity::Impl::ChatCommands::ChatCommandNode::InvalidateCommandMap(); }
 bool Trinity::ChatCommands::TryExecuteCommand(ChatHandler& handler, std::string_view cmd) { return Trinity::Impl::ChatCommands::ChatCommandNode::TryExecuteCommand(handler, cmd); }
 void Trinity::ChatCommands::SendCommandHelpFor(ChatHandler& handler, std::string_view cmd) { Trinity::Impl::ChatCommands::ChatCommandNode::SendCommandHelpFor(handler, cmd); }
+std::vector<std::string> Trinity::ChatCommands::GetAutoCompletionsFor(ChatHandler const& handler, std::string_view cmd) { return Trinity::Impl::ChatCommands::ChatCommandNode::GetAutoCompletionsFor(handler, cmd); }
+
