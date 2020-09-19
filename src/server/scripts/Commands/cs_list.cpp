@@ -477,40 +477,27 @@ public:
         return true;
     }
     // handle list mail command
-    static bool HandleListMailCommand(ChatHandler* handler, char const* args)
+    static bool HandleListMailCommand(ChatHandler* handler, Optional<PlayerIdentifier> player)
     {
-        Player* target;
-        ObjectGuid targetGuid;
-        std::string targetName;
-        CharacterDatabasePreparedStatement* stmt = nullptr;
-
-        if (!*args)
+        if (!player)
+            player = PlayerIdentifier::FromTargetOrSelf(handler);
+        if (!player)
             return false;
 
-        ObjectGuid parseGUID(HighGuid::Player, uint32(atoul(args)));
-
-        if (sCharacterCache->GetCharacterNameByGuid(parseGUID, targetName))
-        {
-            target = ObjectAccessor::FindPlayer(parseGUID);
-            targetGuid = parseGUID;
-        }
-        else if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid, &targetName))
-            return false;
-
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_LIST_COUNT);
-        stmt->setUInt32(0, targetGuid.GetCounter());
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_LIST_COUNT);
+        stmt->setUInt32(0, player->GetGUID().GetCounter());
         PreparedQueryResult queryResult = CharacterDatabase.Query(stmt);
         if (queryResult)
         {
             Field* fields       = queryResult->Fetch();
             uint32 countMail    = fields[0].GetUInt64();
 
-            std::string nameLink = handler->playerLink(targetName);
-            handler->PSendSysMessage(LANG_LIST_MAIL_HEADER, countMail, nameLink.c_str(), targetGuid.GetCounter());
+            std::string nameLink = handler->playerLink(player->GetName());
+            handler->PSendSysMessage(LANG_LIST_MAIL_HEADER, countMail, nameLink.c_str(), player->GetGUID().GetCounter());
             handler->PSendSysMessage(LANG_ACCOUNT_LIST_BAR);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_LIST_INFO);
-            stmt->setUInt32(0, targetGuid.GetCounter());
+            stmt->setUInt32(0, player->GetGUID().GetCounter());
             queryResult = CharacterDatabase.Query(stmt);
 
             if (queryResult)
