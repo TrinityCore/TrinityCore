@@ -386,9 +386,9 @@ namespace Trinity::Impl::ChatCommands
                     }
                 });
 
-                vec.emplace_back(std::move(possibility(it1->first)));
+                vec.emplace_back(possibility(it1->first));
 
-                do vec.emplace_back(std::move(possibility(it2->first)));
+                do vec.emplace_back(possibility(it2->first));
                 while (++it2);
 
                 return vec;
@@ -436,7 +436,7 @@ namespace Trinity::Impl::ChatCommands
 
         std::vector<std::string> vec;
         for (FilteredCommandListIterator it(*map, handler, ""); it; ++it)
-            vec.emplace_back(std::move(possibility(it->first)));
+            vec.emplace_back(possibility(it->first));
         return vec;
     }
 }

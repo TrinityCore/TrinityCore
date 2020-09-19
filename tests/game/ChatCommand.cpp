@@ -111,4 +111,26 @@ TEST_CASE("Command argument parsing", "[ChatCommand]")
             return true;
         });
     }
+
+    SECTION("Variant<>")
+    {
+        TestChatCommand("0x1ffff", [](ChatHandler*, Variant<uint16, uint32> v)
+        {
+            REQUIRE(v.holds_alternative<uint32>());
+            REQUIRE(v.get<uint32>() == 0x1ffff);
+            return true;
+        });
+        TestChatCommand("0xffff", [](ChatHandler*, Variant<uint16, uint32> v)
+        {
+            REQUIRE(v.holds_alternative<uint16>());
+            REQUIRE(v.get<uint16>() == 0xffff);
+            return true;
+        });
+        TestChatCommand("0x1ffff", [](ChatHandler*, Variant<uint32, uint16> v)
+        {
+            REQUIRE(v.holds_alternative<uint32>());
+            REQUIRE(v.get<uint32>() == 0x1ffff);
+            return true;
+        });
+    }
 }
