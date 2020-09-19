@@ -62,7 +62,7 @@ namespace Trinity::Impl::Readline
     char** cli_completion(char const* text, int /*start*/, int /*end*/)
     {
         ::rl_attempted_completion_over = 1;
-        vec = std::move(Trinity::ChatCommands::GetAutoCompletionsFor(CliHandler(nullptr,nullptr), text));
+        vec = Trinity::ChatCommands::GetAutoCompletionsFor(CliHandler(nullptr,nullptr), text);
         return ::rl_completion_matches(text, &cli_unpack_vector);
     }
 
