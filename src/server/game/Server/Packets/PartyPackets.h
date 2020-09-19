@@ -206,10 +206,10 @@ namespace WorldPackets
             int8 PartyType[2];
         };
 
-        class PartyMemberState final : public ServerPacket
+        class PartyMemberFullState final : public ServerPacket
         {
         public:
-            PartyMemberState() : ServerPacket(SMSG_PARTY_MEMBER_STATE, 80) { }
+            PartyMemberFullState() : ServerPacket(SMSG_PARTY_MEMBER_FULL_STATE, 80) { }
 
             WorldPacket const* Write() override;
             void Initialize(Player const* player);

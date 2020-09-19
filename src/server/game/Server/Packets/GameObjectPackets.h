@@ -121,10 +121,10 @@ namespace WorldPackets
             bool PlayAsDespawn = false;
         };
 
-        class GameObjectUIAction final : public ServerPacket
+        class GameObjectUILink final : public ServerPacket
         {
         public:
-            GameObjectUIAction() : ServerPacket(SMSG_GAME_OBJECT_UI_ACTION, 16 + 4) { }
+            GameObjectUILink() : ServerPacket(SMSG_GAME_OBJECT_UI_LINK, 16 + 4) { }
 
             WorldPacket const* Write() override;
 

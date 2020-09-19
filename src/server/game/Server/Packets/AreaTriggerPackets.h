@@ -73,12 +73,12 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             Optional<AreaTriggerSplineInfo> AreaTriggerSpline;
-            Optional<AreaTriggerCircularMovementInfo> AreaTriggerCircularMovement;
+            Optional<AreaTriggerOrbitInfo> AreaTriggerOrbit;
             ObjectGuid TriggerGUID;
         };
     }
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, AreaTriggerCircularMovementInfo const& areaTriggerCircularMovement);
+ByteBuffer& operator<<(ByteBuffer& data, AreaTriggerOrbitInfo const& areaTriggerCircularMovement);
 
 #endif // AreaTriggerPackets_h__

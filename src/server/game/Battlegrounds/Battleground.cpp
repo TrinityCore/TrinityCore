@@ -730,12 +730,12 @@ void Battleground::EndBattleground(uint32 winner)
     //we must set it this way, because end time is sent in packet!
     SetRemainingTime(TIME_AUTOCLOSE_BATTLEGROUND);
 
-    WorldPackets::Battleground::PVPMatchEnd pvpMatchEnd;
-    pvpMatchEnd.Winner = GetWinner();
-    pvpMatchEnd.Duration = std::max<int32>(0, (GetElapsedTime() - BG_START_DELAY_2M) / IN_MILLISECONDS);
-    pvpMatchEnd.LogData.emplace();
-    BuildPvPLogDataPacket(*pvpMatchEnd.LogData);
-    pvpMatchEnd.Write();
+    WorldPackets::Battleground::PVPMatchComplete pvpMatchComplete;
+    pvpMatchComplete.Winner = GetWinner();
+    pvpMatchComplete.Duration = std::max<int32>(0, (GetElapsedTime() - BG_START_DELAY_2M) / IN_MILLISECONDS);
+    pvpMatchComplete.LogData.emplace();
+    BuildPvPLogDataPacket(*pvpMatchComplete.LogData);
+    pvpMatchComplete.Write();
 
     for (BattlegroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
     {
@@ -830,7 +830,7 @@ void Battleground::EndBattleground(uint32 winner)
 
         BlockMovement(player);
 
-        player->SendDirectMessage(pvpMatchEnd.GetRawPacket());
+        player->SendDirectMessage(pvpMatchComplete.GetRawPacket());
 
         player->UpdateCriteria(CRITERIA_TYPE_COMPLETE_BATTLEGROUND, player->GetMapId());
     }
@@ -1040,20 +1040,20 @@ void Battleground::AddPlayer(Player* player)
     playerJoined.Guid = player->GetGUID();
     SendPacketToTeam(team, playerJoined.Write(), player);
 
-    WorldPackets::Battleground::PVPMatchInit pvpMatchState;
-    pvpMatchState.MapID = GetMapId();
+    WorldPackets::Battleground::PVPMatchInitialize pvpMatchInitialize;
+    pvpMatchInitialize.MapID = GetMapId();
     switch (GetStatus())
     {
         case STATUS_NONE:
         case STATUS_WAIT_QUEUE:
-            pvpMatchState.State = WorldPackets::Battleground::PVPMatchInit::Inactive;
+            pvpMatchInitialize.State = WorldPackets::Battleground::PVPMatchInitialize::Inactive;
             break;
         case STATUS_WAIT_JOIN:
         case STATUS_IN_PROGRESS:
-            pvpMatchState.State = WorldPackets::Battleground::PVPMatchInit::InProgress;
+            pvpMatchInitialize.State = WorldPackets::Battleground::PVPMatchInitialize::InProgress;
             break;
         case STATUS_WAIT_LEAVE:
-            pvpMatchState.State = WorldPackets::Battleground::PVPMatchInit::Complete;
+            pvpMatchInitialize.State = WorldPackets::Battleground::PVPMatchInitialize::Complete;
             break;
         default:
             break;
@@ -1061,15 +1061,15 @@ void Battleground::AddPlayer(Player* player)
 
     if (GetElapsedTime() >= BG_START_DELAY_2M)
     {
-        pvpMatchState.Duration = (GetElapsedTime() - BG_START_DELAY_2M) / IN_MILLISECONDS;
-        pvpMatchState.StartTime = GameTime::GetGameTime() - pvpMatchState.Duration;
+        pvpMatchInitialize.Duration = (GetElapsedTime() - BG_START_DELAY_2M) / IN_MILLISECONDS;
+        pvpMatchInitialize.StartTime = GameTime::GetGameTime() - pvpMatchInitialize.Duration;
     }
-    pvpMatchState.ArenaFaction = player->GetBGTeam() == HORDE ? BG_TEAM_HORDE : BG_TEAM_ALLIANCE;
-    pvpMatchState.BattlemasterListID = GetTypeID();
-    pvpMatchState.Registered = false;
-    pvpMatchState.AffectsRating = isRated();
+    pvpMatchInitialize.ArenaFaction = player->GetBGTeam() == HORDE ? BG_TEAM_HORDE : BG_TEAM_ALLIANCE;
+    pvpMatchInitialize.BattlemasterListID = GetTypeID();
+    pvpMatchInitialize.Registered = false;
+    pvpMatchInitialize.AffectsRating = isRated();
 
-    player->SendDirectMessage(pvpMatchState.Write());
+    player->SendDirectMessage(pvpMatchInitialize.Write());
 
     player->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
@@ -1284,12 +1284,12 @@ bool Battleground::HasFreeSlots() const
     return GetPlayersSize() < GetMaxPlayers();
 }
 
-void Battleground::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPLogData& pvpLogData) const
+void Battleground::BuildPvPLogDataPacket(WorldPackets::Battleground::PVPMatchStatistics& pvpLogData) const
 {
     pvpLogData.Statistics.reserve(GetPlayerScoresSize());
     for (auto const& score : PlayerScores)
     {
-        WorldPackets::Battleground::PVPLogData::PVPMatchPlayerStatistics playerData;
+        WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics playerData;
         score.second->BuildPvPLogPlayerDataPacket(playerData);
 
         if (Player* player = ObjectAccessor::GetPlayer(GetBgMap(), playerData.PlayerGUID))
@@ -1780,9 +1780,9 @@ void Battleground::PlayerAddedToBGCheckIfBGIsRunning(Player* player)
 
     BlockMovement(player);
 
-    WorldPackets::Battleground::PVPLogDataMessage pvpLogData;
-    BuildPvPLogDataPacket(pvpLogData.Data);
-    player->SendDirectMessage(pvpLogData.Write());
+    WorldPackets::Battleground::PVPMatchStatisticsMessage pvpMatchStatistics;
+    BuildPvPLogDataPacket(pvpMatchStatistics.Data);
+    player->SendDirectMessage(pvpMatchStatistics.Write());
 }
 
 uint32 Battleground::GetAlivePlayersCountByTeam(uint32 Team) const

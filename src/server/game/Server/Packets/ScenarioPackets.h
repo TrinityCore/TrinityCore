@@ -82,10 +82,10 @@ namespace WorldPackets
             uint32 ScenarioID = 0;
         };
 
-        class ScenarioBoot final : public ServerPacket
+        class ScenarioVacate final : public ServerPacket
         {
         public:
-            ScenarioBoot() : ServerPacket(SMSG_SCENARIO_BOOT, 4 + 4 + 1) { }
+            ScenarioVacate() : ServerPacket(SMSG_SCENARIO_VACATE, 4 + 4 + 1) { }
 
             WorldPacket const* Write() override;
 

@@ -31,7 +31,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::AreaTrigger::AreaTriggerS
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, AreaTriggerCircularMovementInfo const& areaTriggerCircularMovement)
+ByteBuffer& operator<<(ByteBuffer& data, AreaTriggerOrbitInfo const& areaTriggerCircularMovement)
 {
     data.WriteBit(areaTriggerCircularMovement.PathTarget.is_initialized());
     data.WriteBit(areaTriggerCircularMovement.Center.is_initialized());
@@ -76,14 +76,14 @@ WorldPacket const* WorldPackets::AreaTrigger::AreaTriggerRePath::Write()
     _worldPacket << TriggerGUID;
 
     _worldPacket.WriteBit(AreaTriggerSpline.is_initialized());
-    _worldPacket.WriteBit(AreaTriggerCircularMovement.is_initialized());
+    _worldPacket.WriteBit(AreaTriggerOrbit.is_initialized());
     _worldPacket.FlushBits();
 
     if (AreaTriggerSpline)
         _worldPacket << *AreaTriggerSpline;
 
-    if (AreaTriggerCircularMovement)
-        _worldPacket << *AreaTriggerCircularMovement;
+    if (AreaTriggerOrbit)
+        _worldPacket << *AreaTriggerOrbit;
 
     return &_worldPacket;
 }
