@@ -1458,7 +1458,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (!IsSmart())
                 break;
 
-            ENSURE_AI(SmartAI, me->AI())->SetWPPauseTimer(0);
+            ENSURE_AI(SmartAI, me->AI())->SetWPPauseTimer(1);
             break;
         }
         case SMART_ACTION_SET_ORIENTATION:
