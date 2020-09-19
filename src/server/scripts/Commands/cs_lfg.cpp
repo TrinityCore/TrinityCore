@@ -48,20 +48,20 @@ class lfg_commandscript : public CommandScript
 public:
     lfg_commandscript() : CommandScript("lfg_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    ChatCommandTable GetCommands() const override
     {
-        static std::vector<ChatCommand> lfgCommandTable =
+        static ChatCommandTable lfgCommandTable =
         {
-            {  "player", rbac::RBAC_PERM_COMMAND_LFG_PLAYER,  false, &HandleLfgPlayerInfoCommand, "" },
-            {   "group", rbac::RBAC_PERM_COMMAND_LFG_GROUP,   false, &HandleLfgGroupInfoCommand,  "" },
-            {   "queue", rbac::RBAC_PERM_COMMAND_LFG_QUEUE,   true,  &HandleLfgQueueInfoCommand,  "" },
-            {   "clean", rbac::RBAC_PERM_COMMAND_LFG_CLEAN,   true,  &HandleLfgCleanCommand,      "" },
-            { "options", rbac::RBAC_PERM_COMMAND_LFG_OPTIONS, true,  &HandleLfgOptionsCommand,    "" },
+            { "player",     HandleLfgPlayerInfoCommand,     rbac::RBAC_PERM_COMMAND_LFG_PLAYER,     Console::No },
+            { "group",      HandleLfgGroupInfoCommand,      rbac::RBAC_PERM_COMMAND_LFG_GROUP,      Console::No },
+            { "queue",      HandleLfgQueueInfoCommand,      rbac::RBAC_PERM_COMMAND_LFG_QUEUE,      Console::Yes },
+            { "clean",      HandleLfgCleanCommand,          rbac::RBAC_PERM_COMMAND_LFG_CLEAN,      Console::Yes },
+            { "options",    HandleLfgOptionsCommand,        rbac::RBAC_PERM_COMMAND_LFG_OPTIONS,    Console::Yes },
         };
 
-        static std::vector<ChatCommand> commandTable =
+        static ChatCommandTable commandTable =
         {
-            { "lfg", rbac::RBAC_PERM_COMMAND_LFG, true, nullptr, "", lfgCommandTable },
+            { "lfg", lfgCommandTable },
         };
         return commandTable;
     }

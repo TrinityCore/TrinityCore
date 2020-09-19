@@ -34,6 +34,10 @@ EndScriptData */
 #include "SpellMgr.h"
 #include "WorldSession.h"
 
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 using namespace Trinity::ChatCommands;
 class learn_commandscript : public CommandScript
 {

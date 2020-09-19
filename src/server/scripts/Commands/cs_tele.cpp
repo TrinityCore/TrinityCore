@@ -41,19 +41,19 @@ class tele_commandscript : public CommandScript
 public:
     tele_commandscript() : CommandScript("tele_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    ChatCommandTable GetCommands() const override
     {
-        static std::vector<ChatCommand> teleCommandTable =
+        static ChatCommandTable teleCommandTable =
         {
-            { "add",   rbac::RBAC_PERM_COMMAND_TELE_ADD,   false, &HandleTeleAddCommand,   "" },
-            { "del",   rbac::RBAC_PERM_COMMAND_TELE_DEL,    true, &HandleTeleDelCommand,   "" },
-            { "name",  rbac::RBAC_PERM_COMMAND_TELE_NAME,   true, &HandleTeleNameCommand,  "" },
-            { "group", rbac::RBAC_PERM_COMMAND_TELE_GROUP, false, &HandleTeleGroupCommand, "" },
-            { "",      rbac::RBAC_PERM_COMMAND_TELE,       false, &HandleTeleCommand,      "" },
+            { "add",    HandleTeleAddCommand,   rbac::RBAC_PERM_COMMAND_TELE_ADD,   Console::No },
+            { "del",    HandleTeleDelCommand,   rbac::RBAC_PERM_COMMAND_TELE_DEL,   Console::Yes },
+            { "name",   HandleTeleNameCommand,  rbac::RBAC_PERM_COMMAND_TELE_NAME,  Console::Yes },
+            { "group",  HandleTeleGroupCommand, rbac::RBAC_PERM_COMMAND_TELE_GROUP, Console::No },
+            { "",       HandleTeleCommand,      rbac::RBAC_PERM_COMMAND_TELE,       Console::No },
         };
-        static std::vector<ChatCommand> commandTable =
+        static ChatCommandTable commandTable =
         {
-            { "tele", rbac::RBAC_PERM_COMMAND_TELE, false, nullptr, "", teleCommandTable },
+            { "tele", teleCommandTable },
         };
         return commandTable;
     }
