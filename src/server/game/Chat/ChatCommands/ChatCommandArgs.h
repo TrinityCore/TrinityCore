@@ -79,7 +79,7 @@ namespace Trinity::Impl::ChatCommands
       new code should use the Tail/WTail tags defined in ChatCommandTags
     */
     template <>
-    struct [[deprecated]] ArgInfo<char const*, void>
+    struct ArgInfo<char const*, void>
     {
         static ChatCommandResult TryConsume(char const*& arg, ChatHandler const*, std::string_view args) { arg = (args.empty() ? "" : args.data()); return std::string_view(); }
     };

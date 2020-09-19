@@ -207,6 +207,10 @@ namespace Trinity::ChatCommands
         using InvokerEntry = std::pair<Trinity::Impl::ChatCommands::CommandInvoker, Trinity::Impl::ChatCommands::CommandPermissions>;
         using SubCommandEntry = std::reference_wrapper<std::vector<ChatCommandBuilder> const>;
 
+        [[deprecated]]
+        ChatCommandBuilder(char const* name, bool(&handler)(ChatHandler*, char const*), rbac::RBACPermissions permission, Trinity::ChatCommands::Console allowConsole)
+            : _name{ ASSERT_NOTNULL(name) }, _data{ std::in_place_type<InvokerEntry>, std::piecewise_construct, std::forward_as_tuple(handler), std::forward_as_tuple(permission, allowConsole) }
+        {}
         template <typename TypedHandler>
         ChatCommandBuilder(char const* name, TypedHandler& handler, rbac::RBACPermissions permission, Trinity::ChatCommands::Console allowConsole)
             : _name{ ASSERT_NOTNULL(name) }, _data{ std::in_place_type<InvokerEntry>, std::piecewise_construct, std::forward_as_tuple(handler), std::forward_as_tuple(permission, allowConsole) }
