@@ -226,7 +226,7 @@ namespace Trinity::Impl::ChatCommands
     ChatSubCommandMap const* map = &GetTopLevelMap();
 
     std::string_view oldTail = cmdStr;
-    while (true)
+    while (!oldTail.empty())
     {
         /* oldTail = token SEPARATOR newTail */
         auto [token, newTail] = tokenize(oldTail);
@@ -235,31 +235,31 @@ namespace Trinity::Impl::ChatCommands
         if (!it1)
             break; /* no matching subcommands found */
 
-        /* ok, so it1 points at a matching subcommand - let's see if there are others */
-        auto it2 = it1;
-        ++it2;
+        if (!StringEqualI(it1->first, token))
+        { /* ok, so it1 points at a partially matching subcommand - let's see if there are others */
+            auto it2 = it1;
+            ++it2;
 
-        if (it2)
-        { /* there are multiple matching subcommands - print possibilities and return */
-            if (cmd)
-                handler.PSendSysMessage(LANG_SUBCMD_AMBIGUOUS, STRING_VIEW_FMT_ARG(token));
-            else
-                handler.PSendSysMessage(LANG_CMD_AMBIGUOUS, STRING_VIEW_FMT_ARG(token));
-            handler.PSendSysMessage(it1->second.HasVisibleSubCommands(handler) ? LANG_SUBCMDS_LIST_ENTRY_ELLIPSIS : LANG_SUBCMDS_LIST_ENTRY, STRING_VIEW_FMT_ARG(it1->first));
-            do
-            {
-                handler.PSendSysMessage(it2->second.HasVisibleSubCommands(handler) ? LANG_SUBCMDS_LIST_ENTRY_ELLIPSIS : LANG_SUBCMDS_LIST_ENTRY, STRING_VIEW_FMT_ARG(it2->first));
-            } while (++it2);
+            if (it2)
+            { /* there are multiple matching subcommands - print possibilities and return */
+                if (cmd)
+                    handler.PSendSysMessage(LANG_SUBCMD_AMBIGUOUS, STRING_VIEW_FMT_ARG(token));
+                else
+                    handler.PSendSysMessage(LANG_CMD_AMBIGUOUS, STRING_VIEW_FMT_ARG(token));
+                handler.PSendSysMessage(it1->second.HasVisibleSubCommands(handler) ? LANG_SUBCMDS_LIST_ENTRY_ELLIPSIS : LANG_SUBCMDS_LIST_ENTRY, STRING_VIEW_FMT_ARG(it1->first));
+                do
+                {
+                    handler.PSendSysMessage(it2->second.HasVisibleSubCommands(handler) ? LANG_SUBCMDS_LIST_ENTRY_ELLIPSIS : LANG_SUBCMDS_LIST_ENTRY, STRING_VIEW_FMT_ARG(it2->first));
+                } while (++it2);
 
-            return true;
+                return true;
+            }
         }
 
         /* now we matched exactly one subcommand, and it1 points to it; go down the rabbit hole */
         cmd = &it1->second;
         map = &cmd->_subCommands;
 
-        if (newTail.empty())
-            break;
         oldTail = newTail;
     }
 
@@ -301,20 +301,22 @@ namespace Trinity::Impl::ChatCommands
             return;
         }
 
-        /* ok, so it1 points at a matching subcommand - let's see if there are others */
-        auto it2 = it1;
-        ++it2;
+        if (!StringEqualI(it1->first, token))
+        { /* ok, so it1 points at a partially matching subcommand - let's see if there are others */
+            auto it2 = it1;
+            ++it2;
 
-        if (it2)
-        { /* there are multiple matching subcommands - print possibilities and return */
-            handler.PSendSysMessage(cmd ? LANG_SUBCMD_AMBIGUOUS : LANG_CMD_AMBIGUOUS, STRING_VIEW_FMT_ARG(token));
-            handler.PSendSysMessage(it1->second.HasVisibleSubCommands(handler) ? LANG_SUBCMDS_LIST_ENTRY_ELLIPSIS : LANG_SUBCMDS_LIST_ENTRY, STRING_VIEW_FMT_ARG(it1->first));
-            do
-            {
-                handler.PSendSysMessage(it2->second.HasVisibleSubCommands(handler) ? LANG_SUBCMDS_LIST_ENTRY_ELLIPSIS : LANG_SUBCMDS_LIST_ENTRY, STRING_VIEW_FMT_ARG(it2->first));
-            } while (++it2);
+            if (it2)
+            { /* there are multiple matching subcommands - print possibilities and return */
+                handler.PSendSysMessage(cmd ? LANG_SUBCMD_AMBIGUOUS : LANG_CMD_AMBIGUOUS, STRING_VIEW_FMT_ARG(token));
+                handler.PSendSysMessage(it1->second.HasVisibleSubCommands(handler) ? LANG_SUBCMDS_LIST_ENTRY_ELLIPSIS : LANG_SUBCMDS_LIST_ENTRY, STRING_VIEW_FMT_ARG(it1->first));
+                do
+                {
+                    handler.PSendSysMessage(it2->second.HasVisibleSubCommands(handler) ? LANG_SUBCMDS_LIST_ENTRY_ELLIPSIS : LANG_SUBCMDS_LIST_ENTRY, STRING_VIEW_FMT_ARG(it2->first));
+                } while (++it2);
 
-            return;
+                return;
+            }
         }
 
         cmd = &it1->second;
