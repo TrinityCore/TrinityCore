@@ -150,10 +150,10 @@ namespace Trinity::Impl::ChatCommands
             return _wrapper(_handler, chatHandler, args);
         }
 
-        private:
-            using wrapper_func = bool(void*, ChatHandler*, std::string_view);
-            wrapper_func* _wrapper;
-            void* _handler;
+    private:
+        using wrapper_func = bool(void*, ChatHandler*, std::string_view);
+        wrapper_func* _wrapper;
+        void* _handler;
     };
 
     struct CommandPermissions
@@ -207,10 +207,6 @@ namespace Trinity::ChatCommands
         using InvokerEntry = std::pair<Trinity::Impl::ChatCommands::CommandInvoker, Trinity::Impl::ChatCommands::CommandPermissions>;
         using SubCommandEntry = std::reference_wrapper<std::vector<ChatCommandBuilder> const>;
 
-        [[deprecated]]
-        ChatCommandBuilder(char const* name, bool(&handler)(ChatHandler*, char const*), rbac::RBACPermissions permission, Trinity::ChatCommands::Console allowConsole)
-            : _name{ ASSERT_NOTNULL(name) }, _data{ std::in_place_type<InvokerEntry>, std::piecewise_construct, std::forward_as_tuple(handler), std::forward_as_tuple(permission, allowConsole) }
-        {}
         template <typename TypedHandler>
         ChatCommandBuilder(char const* name, TypedHandler& handler, rbac::RBACPermissions permission, Trinity::ChatCommands::Console allowConsole)
             : _name{ ASSERT_NOTNULL(name) }, _data{ std::in_place_type<InvokerEntry>, std::piecewise_construct, std::forward_as_tuple(handler), std::forward_as_tuple(permission, allowConsole) }
@@ -220,13 +216,21 @@ namespace Trinity::ChatCommands
         {}
         ChatCommandBuilder(ChatCommandBuilder const&) = default;
 
+        /* deprecated: char const* parameters to command handlers */
+        [[deprecated]] ChatCommandBuilder(char const* name, bool(&handler)(ChatHandler*, char const*), rbac::RBACPermissions permission, Trinity::ChatCommands::Console allowConsole)
+            : _name{ ASSERT_NOTNULL(name) }, _data{ std::in_place_type<InvokerEntry>, std::piecewise_construct, std::forward_as_tuple(handler), std::forward_as_tuple(permission, allowConsole) }
+        {}
+
+        /* deprecated: old-style command table format */
         template <typename TypedHandler>
         [[deprecated]] ChatCommandBuilder(char const* name, rbac::RBACPermissions permission, bool console, TypedHandler* handler, char const*)
-            : ChatCommandBuilder(name, *handler, permission, console ? Trinity::ChatCommands::Console::Yes : Trinity::ChatCommands::Console::No) {}
+            : _name{ ASSERT_NOTNULL(name) }, _data{ std::in_place_type<InvokerEntry>, std::piecewise_construct, std::forward_as_tuple(*handler), std::forward_as_tuple(permission, static_cast<Trinity::ChatCommands::Console>(console)) }
+        {}
         [[deprecated]] ChatCommandBuilder(char const* name, rbac::RBACPermissions, bool, std::nullptr_t, char const*, std::vector <ChatCommandBuilder> const& sub)
-            : ChatCommandBuilder(name, sub) {}
+            : _name{ ASSERT_NOTNULL(name) }, _data { std::in_place_type<SubCommandEntry>, sub }
+        {}
 
-        private:
+    private:
         std::string_view _name;
         std::variant<InvokerEntry, SubCommandEntry> _data;
     };

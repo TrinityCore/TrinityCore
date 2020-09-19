@@ -44,7 +44,7 @@ public:
             { "activelist", HandleEventActiveListCommand, rbac::RBAC_PERM_COMMAND_EVENT_ACTIVELIST, Console::Yes },
             { "start",      HandleEventStartCommand,      rbac::RBAC_PERM_COMMAND_EVENT_START,      Console::Yes },
             { "stop",       HandleEventStopCommand,       rbac::RBAC_PERM_COMMAND_EVENT_STOP,       Console::Yes },
-            { "info",       HandleEventInfoCommand,       rbac::RBAC_PERM_COMMAND_EVENT,            Console::Yes },
+            { "info",       HandleEventInfoCommand,       rbac::RBAC_PERM_COMMAND_EVENT_INFO,       Console::Yes },
         };
         static ChatCommandTable commandTable =
         {

@@ -410,7 +410,10 @@ public:
         TC_LOG_INFO("misc", "Reloading .command information...");
         Trinity::ChatCommands::LoadCommandMap();
         handler->SendGlobalGMSysMessage("DB table `command` reloaded.");
-        return true;
+
+        // do not log this invocation, otherwise we might crash (the command table we used to get here is no longer valid!)
+        handler->SetSentErrorMessage(true);
+        return false;
     }
 
     static bool HandleReloadOnKillReputationCommand(ChatHandler* handler, char const* /*args*/)
