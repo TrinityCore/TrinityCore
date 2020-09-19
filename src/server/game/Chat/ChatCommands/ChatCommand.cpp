@@ -85,7 +85,7 @@ static ChatSubCommandMap COMMAND_MAP;
 
             ChatCommandNode* cmd = nullptr;
             ChatSubCommandMap* map = &COMMAND_MAP;
-            for (std::string_view key : Trinity::Tokenize(name, ' ', false))
+            for (std::string_view key : Trinity::Tokenize(name, COMMAND_DELIMITER, false))
             {
                 auto it = map->find(key);
                 if (it != map->end())
@@ -225,10 +225,14 @@ namespace Trinity::Impl::ChatCommands
     ChatCommandNode const* cmd = nullptr;
     ChatSubCommandMap const* map = &GetTopLevelMap();
 
+    while (!cmdStr.empty() && (cmdStr.front() == COMMAND_DELIMITER))
+        cmdStr.remove_prefix(1);
+    while (!cmdStr.empty() && (cmdStr.back() == COMMAND_DELIMITER))
+        cmdStr.remove_suffix(1);
     std::string_view oldTail = cmdStr;
     while (!oldTail.empty())
     {
-        /* oldTail = token SEPARATOR newTail */
+        /* oldTail = token DELIMITER newTail */
         auto [token, newTail] = tokenize(oldTail);
         ASSERT(!token.empty());
         FilteredCommandListIterator it1(*map, handler, token);
@@ -286,7 +290,7 @@ namespace Trinity::Impl::ChatCommands
 {
     ChatCommandNode const* cmd = nullptr;
     ChatSubCommandMap const* map = &GetTopLevelMap();
-    for (std::string_view token : Trinity::Tokenize(cmdStr, ' ', false))
+    for (std::string_view token : Trinity::Tokenize(cmdStr, COMMAND_DELIMITER, false))
     {
         FilteredCommandListIterator it1(*map, handler, token);
         if (!it1)
@@ -342,9 +346,99 @@ namespace Trinity::Impl::ChatCommands
 
 /*static*/ std::vector<std::string> Trinity::Impl::ChatCommands::ChatCommandNode::GetAutoCompletionsFor(ChatHandler const& handler, std::string_view cmdStr)
 {
-    (void)handler;
-    (void)cmdStr;
-    return { "command 1", "command 2", "command 3" };
+    std::string path;
+    ChatCommandNode const* cmd = nullptr;
+    ChatSubCommandMap const* map = &GetTopLevelMap();
+
+    while (!cmdStr.empty() && (cmdStr.front() == COMMAND_DELIMITER))
+        cmdStr.remove_prefix(1);
+    while (!cmdStr.empty() && (cmdStr.back() == COMMAND_DELIMITER))
+        cmdStr.remove_suffix(1);
+    std::string_view oldTail = cmdStr;
+    while (!oldTail.empty())
+    {
+        /* oldTail = token DELIMITER newTail */
+        auto [token, newTail] = tokenize(oldTail);
+        ASSERT(!token.empty());
+        FilteredCommandListIterator it1(*map, handler, token);
+        if (!it1)
+            break; /* no matching subcommands found */
+
+        if (!StringEqualI(it1->first, token))
+        { /* ok, so it1 points at a partially matching subcommand - let's see if there are others */
+            auto it2 = it1;
+            ++it2;
+
+            if (it2)
+            { /* there are multiple matching subcommands - terminate here and show possibilities */
+                std::vector<std::string> vec;
+                auto possibility = ([prefix = std::string_view(path), suffix = std::string_view(newTail)](std::string_view match)
+                {
+                    if (prefix.empty())
+                    {
+                        return Trinity::StringFormat(STRING_VIEW_FMT "%c" STRING_VIEW_FMT,
+                            STRING_VIEW_FMT_ARG(match), COMMAND_DELIMITER, STRING_VIEW_FMT_ARG(suffix));
+                    }
+                    else
+                    {
+                        return Trinity::StringFormat(STRING_VIEW_FMT "%c" STRING_VIEW_FMT "%c" STRING_VIEW_FMT,
+                            STRING_VIEW_FMT_ARG(prefix), COMMAND_DELIMITER, STRING_VIEW_FMT_ARG(match), COMMAND_DELIMITER, STRING_VIEW_FMT_ARG(suffix));
+                    }
+                });
+
+                vec.emplace_back(std::move(possibility(it1->first)));
+
+                do vec.emplace_back(std::move(possibility(it2->first)));
+                while (++it2);
+
+                return vec;
+            }
+        }
+
+        /* now we matched exactly one subcommand, and it1 points to it; go down the rabbit hole */
+        if (path.empty())
+            path.assign(it1->first);
+        else
+        {
+            path = Trinity::StringFormat(STRING_VIEW_FMT "%c" STRING_VIEW_FMT,
+                STRING_VIEW_FMT_ARG(path), COMMAND_DELIMITER, STRING_VIEW_FMT_ARG(it1->first));
+        }
+        cmd = &it1->second;
+        map = &cmd->_subCommands;
+
+        oldTail = newTail;
+    }
+
+    if (!oldTail.empty())
+    { /* there is some trailing text, leave it as is */
+        if (cmd)
+        { /* if we matched a command at some point, auto-complete it */
+            return {
+                Trinity::StringFormat(STRING_VIEW_FMT "%c" STRING_VIEW_FMT,
+                    STRING_VIEW_FMT_ARG(path), COMMAND_DELIMITER, STRING_VIEW_FMT_ARG(oldTail))
+            };
+        }
+        else
+            return {};
+    }
+    else
+    { /* offer all subcommands */
+        auto possibility = ([prefix = std::string_view(path)](std::string_view match)
+        {
+            if (prefix.empty())
+                return std::string(match);
+            else
+            {
+                return Trinity::StringFormat(STRING_VIEW_FMT "%c" STRING_VIEW_FMT,
+                    STRING_VIEW_FMT_ARG(prefix), COMMAND_DELIMITER, STRING_VIEW_FMT_ARG(match));
+            }
+        });
+
+        std::vector<std::string> vec;
+        for (FilteredCommandListIterator it(*map, handler, ""); it; ++it)
+            vec.emplace_back(std::move(possibility(it->first)));
+        return vec;
+    }
 }
 
 bool Trinity::Impl::ChatCommands::ChatCommandNode::IsInvokerVisible(ChatHandler const& who) const
