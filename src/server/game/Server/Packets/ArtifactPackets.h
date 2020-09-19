@@ -67,10 +67,10 @@ namespace WorldPackets
             ObjectGuid NpcGUID;
         };
 
-        class ArtifactForgeOpened final : public ServerPacket
+        class OpenArtifactForge final : public ServerPacket
         {
         public:
-            ArtifactForgeOpened() : ServerPacket(SMSG_ARTIFACT_FORGE_OPENED, 16 + 16) { }
+            OpenArtifactForge() : ServerPacket(SMSG_OPEN_ARTIFACT_FORGE, 16 + 16) { }
 
             WorldPacket const* Write() override;
 
@@ -78,10 +78,10 @@ namespace WorldPackets
             ObjectGuid ForgeGUID;
         };
 
-        class ArtifactRespecConfirm final : public ServerPacket
+        class ArtifactRespecPrompt final : public ServerPacket
         {
         public:
-            ArtifactRespecConfirm() : ServerPacket(SMSG_ARTIFACT_RESPEC_CONFIRM, 16 + 16) { }
+            ArtifactRespecPrompt() : ServerPacket(SMSG_ARTIFACT_RESPEC_PROMPT, 16 + 16) { }
 
             WorldPacket const* Write() override;
 

@@ -707,11 +707,11 @@ namespace WorldPackets
             uint32 FactionIndex = 0;
         };
 
-        class CharCustomizeResponse final : public ServerPacket
+        class CharCustomizeSuccess final : public ServerPacket
         {
         public:
-            CharCustomizeResponse() : ServerPacket(SMSG_CHAR_CUSTOMIZE, 16 + 1 + 1 + 1 + 1 + 1 + 1 + 1) { }
-            CharCustomizeResponse(CharCustomizeInfo const* customizeInfo);
+            CharCustomizeSuccess() : ServerPacket(SMSG_CHAR_CUSTOMIZE_SUCCESS, 16 + 1 + 1 + 1 + 1 + 1 + 1 + 1) { }
+            CharCustomizeSuccess(CharCustomizeInfo const* customizeInfo);
 
             WorldPacket const* Write() override;
 
@@ -726,10 +726,10 @@ namespace WorldPackets
             std::array<uint8, PLAYER_CUSTOM_DISPLAY_SIZE> CustomDisplay = { };
         };
 
-        class CharCustomizeFailed final : public ServerPacket
+        class CharCustomizeFailure final : public ServerPacket
         {
         public:
-            CharCustomizeFailed() : ServerPacket(SMSG_CHAR_CUSTOMIZE_FAILED, 1 + 16) { }
+            CharCustomizeFailure() : ServerPacket(SMSG_CHAR_CUSTOMIZE_FAILURE, 1 + 16) { }
 
             WorldPacket const* Write() override;
 

@@ -57,7 +57,7 @@ void WorldSession::HandleAzeriteEssenceUnlockMilestone(WorldPackets::Azerite::Az
 
 void WorldSession::HandleAzeriteEssenceActivateEssence(WorldPackets::Azerite::AzeriteEssenceActivateEssence& azeriteEssenceActivateEssence)
 {
-    WorldPackets::Azerite::AzeriteEssenceSelectionResult activateEssenceResult;
+    WorldPackets::Azerite::ActivateEssenceFailed activateEssenceResult;
     activateEssenceResult.AzeriteEssenceID = azeriteEssenceActivateEssence.AzeriteEssenceID;
     Item* item = _player->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH, ITEM_SEARCH_IN_EQUIPMENT);
     if (!item)

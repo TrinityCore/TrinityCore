@@ -2637,7 +2637,7 @@ void Guild::BroadcastPacketIfTrackingAchievement(WorldPacket const* packet, uint
 
 void Guild::MassInviteToEvent(WorldSession* session, uint32 minLevel, uint32 maxLevel, uint32 minRank)
 {
-    WorldPackets::Calendar::CalendarEventInitialInvites packet;
+    WorldPackets::Calendar::CalendarCommunityInvite packet;
 
     for (auto itr = m_members.begin(); itr != m_members.end(); ++itr)
     {

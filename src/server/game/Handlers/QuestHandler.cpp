@@ -667,7 +667,7 @@ void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPackets::Quest::Ques
 
 void WorldSession::HandleRequestWorldQuestUpdate(WorldPackets::Quest::RequestWorldQuestUpdate& /*packet*/)
 {
-    WorldPackets::Quest::WorldQuestUpdate response;
+    WorldPackets::Quest::WorldQuestUpdateResponse response;
 
     /// @todo: 7.x Has to be implemented
     //response.WorldQuestUpdates.push_back(WorldPackets::Quest::WorldQuestUpdateInfo(lastUpdate, questID, timer, variableID, value));

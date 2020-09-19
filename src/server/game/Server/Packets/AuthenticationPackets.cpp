@@ -306,7 +306,7 @@ void WorldPackets::Auth::ConnectToFailed::Read()
 
 uint8 constexpr EnableEncryptionSeed[16] = { 0x90, 0x9C, 0xD0, 0x50, 0x5A, 0x2C, 0x14, 0xDD, 0x5C, 0x2C, 0xC0, 0x64, 0x14, 0xF3, 0xFE, 0xC9 };
 
-WorldPacket const* WorldPackets::Auth::EnableEncryption::Write()
+WorldPacket const* WorldPackets::Auth::EnterEncryptedMode::Write()
 {
     Trinity::Crypto::HMAC_SHA256 hash(EncryptionKey, 16);
     hash.UpdateData(reinterpret_cast<uint8 const*>(&Enabled), 1);
