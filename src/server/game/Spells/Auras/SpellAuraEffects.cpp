@@ -1038,7 +1038,7 @@ void AuraEffect::PeriodicTick(AuraApplication* aurApp, Unit* caster) const
         ObjectGuid const channelGuid = caster->GetChannelObjectGuid();
         if (!channelGuid.IsEmpty() && channelGuid != caster->GetGUID())
             if (WorldObject const* objectTarget = ObjectAccessor::GetWorldObject(*caster, channelGuid))
-                caster->SetInFront(objectTarget);
+                caster->SetOrientation(caster->GetAngle(objectTarget));
     }
 
     switch (GetAuraType())
