@@ -83,7 +83,7 @@ namespace WorldPackets
             std::vector<DB2Manager::HotfixRecord> Hotfixes;
         };
 
-        class HotfixResponse final : public ServerPacket
+        class HotfixConnect final : public ServerPacket
         {
         public:
             struct HotfixData
@@ -92,7 +92,7 @@ namespace WorldPackets
                 Optional<uint32> Size;
             };
 
-            HotfixResponse() : ServerPacket(SMSG_HOTFIX_RESPONSE) { }
+            HotfixConnect() : ServerPacket(SMSG_HOTFIX_CONNECT) { }
 
             WorldPacket const* Write() override;
 

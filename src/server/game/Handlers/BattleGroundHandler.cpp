@@ -239,9 +239,9 @@ void WorldSession::HandlePVPLogDataOpcode(WorldPackets::Battleground::PVPLogData
     if (bg->isArena())
         return;
 
-    WorldPackets::Battleground::PVPLogDataMessage pvpLogData;
-    bg->BuildPvPLogDataPacket(pvpLogData.Data);
-    SendPacket(pvpLogData.Write());
+    WorldPackets::Battleground::PVPMatchStatisticsMessage pvpMatchStatistics;
+    bg->BuildPvPLogDataPacket(pvpMatchStatistics.Data);
+    SendPacket(pvpMatchStatistics.Write());
 }
 
 void WorldSession::HandleBattlefieldListOpcode(WorldPackets::Battleground::BattlefieldListRequest& battlefieldList)
@@ -602,8 +602,8 @@ void WorldSession::HandleReportPvPAFK(WorldPackets::Battleground::ReportPvPPlaye
 
 void WorldSession::HandleRequestRatedBattlefieldInfo(WorldPackets::Battleground::RequestRatedBattlefieldInfo& /*packet*/)
 {
-    WorldPackets::Battleground::RatedBattlefieldInfo ratedBattlefieldInfo;
-    SendPacket(ratedBattlefieldInfo.Write());
+    WorldPackets::Battleground::RatedPvpInfo ratedPvpInfo;
+    SendPacket(ratedPvpInfo.Write());
 }
 
 void WorldSession::HandleGetPVPOptionsEnabled(WorldPackets::Battleground::GetPVPOptionsEnabled& /*getPvPOptionsEnabled*/)

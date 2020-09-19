@@ -42,7 +42,7 @@ namespace WorldPackets
 {
     namespace Battleground
     {
-        struct PVPLogData;
+        struct PVPMatchStatistics;
         struct BattlegroundPlayerPosition;
     }
 
@@ -401,7 +401,7 @@ class TC_GAME_API Battleground
         Group* GetBgRaid(uint32 TeamID) const { return TeamID == ALLIANCE ? m_BgRaids[TEAM_ALLIANCE] : m_BgRaids[TEAM_HORDE]; }
         void SetBgRaid(uint32 TeamID, Group* bg_raid);
 
-        virtual void BuildPvPLogDataPacket(WorldPackets::Battleground::PVPLogData& pvpLogData) const;
+        virtual void BuildPvPLogDataPacket(WorldPackets::Battleground::PVPMatchStatistics& pvpLogData) const;
         virtual bool UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor = true);
 
         static TeamId GetTeamIndexByTeamId(uint32 Team) { return Team == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }

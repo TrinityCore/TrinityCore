@@ -2051,10 +2051,10 @@ void GameObject::Use(Unit* user)
                         return;
                     }
 
-                    WorldPackets::Artifact::ArtifactForgeOpened artifactForgeOpened;
-                    artifactForgeOpened.ArtifactGUID = item->GetGUID();
-                    artifactForgeOpened.ForgeGUID = GetGUID();
-                    player->SendDirectMessage(artifactForgeOpened.Write());
+                    WorldPackets::Artifact::OpenArtifactForge openArtifactForge;
+                    openArtifactForge.ArtifactGUID = item->GetGUID();
+                    openArtifactForge.ForgeGUID = GetGUID();
+                    player->SendDirectMessage(openArtifactForge.Write());
                     break;
                 }
                 case 2: // Heart Forge
@@ -2063,9 +2063,9 @@ void GameObject::Use(Unit* user)
                     if (!item)
                         return;
 
-                    WorldPackets::Azerite::AzeriteEssenceForgeOpened azeriteEssenceForgeOpened;
-                    azeriteEssenceForgeOpened.ForgeGUID = GetGUID();
-                    player->SendDirectMessage(azeriteEssenceForgeOpened.Write());
+                    WorldPackets::Azerite::OpenHeartForge openHeartForge;
+                    openHeartForge.ForgeGUID = GetGUID();
+                    player->SendDirectMessage(openHeartForge.Write());
                     break;
                 }
                 default:
@@ -2079,10 +2079,10 @@ void GameObject::Use(Unit* user)
             if (!player)
                 return;
 
-            WorldPackets::GameObject::GameObjectUIAction gameObjectUIAction;
-            gameObjectUIAction.ObjectGUID = GetGUID();
-            gameObjectUIAction.UILink = GetGOInfo()->UILink.UILinkType;
-            player->SendDirectMessage(gameObjectUIAction.Write());
+            WorldPackets::GameObject::GameObjectUILink gameObjectUILink;
+            gameObjectUILink.ObjectGUID = GetGUID();
+            gameObjectUILink.UILink = GetGOInfo()->UILink.UILinkType;
+            player->SendDirectMessage(gameObjectUILink.Write());
             return;
         }
         default:
@@ -2150,7 +2150,7 @@ void GameObject::CastSpell(Unit* target, uint32 spellId, TriggerCastFlags trigge
     // remove immunity flags, to allow spell to target anything
     trigger->SetImmuneToAll(false);
     PhasingHandler::InheritPhaseShift(trigger, this);
-    
+
     if (Unit* owner = GetOwner())
     {
         trigger->SetFaction(owner->GetFaction());

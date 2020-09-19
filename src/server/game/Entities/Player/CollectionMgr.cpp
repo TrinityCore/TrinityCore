@@ -886,22 +886,22 @@ void CollectionMgr::SetAppearanceIsFavorite(uint32 itemModifiedAppearanceId, boo
     else
         return;
 
-    WorldPackets::Transmogrification::TransmogCollectionUpdate transmogCollectionUpdate;
-    transmogCollectionUpdate.IsFullUpdate = false;
-    transmogCollectionUpdate.IsSetFavorite = apply;
-    transmogCollectionUpdate.FavoriteAppearances.push_back(itemModifiedAppearanceId);
+    WorldPackets::Transmogrification::AccountTransmogUpdate accountTransmogUpdate;
+    accountTransmogUpdate.IsFullUpdate = false;
+    accountTransmogUpdate.IsSetFavorite = apply;
+    accountTransmogUpdate.FavoriteAppearances.push_back(itemModifiedAppearanceId);
 
-    _owner->SendPacket(transmogCollectionUpdate.Write());
+    _owner->SendPacket(accountTransmogUpdate.Write());
 }
 
 void CollectionMgr::SendFavoriteAppearances() const
 {
-    WorldPackets::Transmogrification::TransmogCollectionUpdate transmogCollectionUpdate;
-    transmogCollectionUpdate.IsFullUpdate = true;
-    transmogCollectionUpdate.FavoriteAppearances.reserve(_favoriteAppearances.size());
+    WorldPackets::Transmogrification::AccountTransmogUpdate accountTransmogUpdate;
+    accountTransmogUpdate.IsFullUpdate = true;
+    accountTransmogUpdate.FavoriteAppearances.reserve(_favoriteAppearances.size());
     for (auto itr = _favoriteAppearances.begin(); itr != _favoriteAppearances.end(); ++itr)
         if (itr->second != FavoriteAppearanceState::Removed)
-            transmogCollectionUpdate.FavoriteAppearances.push_back(itr->first);
+            accountTransmogUpdate.FavoriteAppearances.push_back(itr->first);
 
-    _owner->SendPacket(transmogCollectionUpdate.Write());
+    _owner->SendPacket(accountTransmogUpdate.Write());
 }

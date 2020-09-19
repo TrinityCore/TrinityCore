@@ -42,8 +42,8 @@ namespace WorldPackets
         struct AuctionSortDef;
         struct BucketInfo;
         class AuctionListBucketsResult;
-        class AuctionListBidderItemsResult;
-        class AuctionListOwnerItemsResult;
+        class AuctionListBiddedItemsResult;
+        class AuctionListOwnedItemsResult;
         class AuctionListItemsResult;
         class AuctionReplicateResponse;
     }
@@ -302,13 +302,13 @@ public:
     void BuildListBuckets(WorldPackets::AuctionHouse::AuctionListBucketsResult& listBucketsResult, Player* player,
         WorldPackets::AuctionHouse::AuctionBucketKey const* keys, std::size_t keysCount,
         WorldPackets::AuctionHouse::AuctionSortDef const* sorts, std::size_t sortCount);
-    void BuildListBidderItems(WorldPackets::AuctionHouse::AuctionListBidderItemsResult& listBidderItemsResult, Player* player,
+    void BuildListBiddedItems(WorldPackets::AuctionHouse::AuctionListBiddedItemsResult& listBiddedItemsResult, Player* player,
         uint32 offset, WorldPackets::AuctionHouse::AuctionSortDef const* sorts, std::size_t sortCount) const;
     void BuildListAuctionItems(WorldPackets::AuctionHouse::AuctionListItemsResult& listItemsResult, Player* player, AuctionsBucketKey const& bucketKey,
         uint32 offset, WorldPackets::AuctionHouse::AuctionSortDef const* sorts, std::size_t sortCount) const;
     void BuildListAuctionItems(WorldPackets::AuctionHouse::AuctionListItemsResult& listItemsResult, Player* player, uint32 itemId,
         uint32 offset, WorldPackets::AuctionHouse::AuctionSortDef const* sorts, std::size_t sortCount) const;
-    void BuildListOwnerItems(WorldPackets::AuctionHouse::AuctionListOwnerItemsResult& listOwnerItemsResult, Player* player,
+    void BuildListOwnedItems(WorldPackets::AuctionHouse::AuctionListOwnedItemsResult& listOwnedItemsResult, Player* player,
         uint32 offset, WorldPackets::AuctionHouse::AuctionSortDef const* sorts, std::size_t sortCount);
     void BuildReplicate(WorldPackets::AuctionHouse::AuctionReplicateResponse& replicateResponse, Player* player,
         uint32 global, uint32 cursor, uint32 tombstone, uint32 count);

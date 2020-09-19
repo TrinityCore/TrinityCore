@@ -1545,7 +1545,7 @@ void Group::UpdatePlayerOutOfRange(Player* player)
     if (!player || !player->IsInWorld())
         return;
 
-    WorldPackets::Party::PartyMemberState packet;
+    WorldPackets::Party::PartyMemberFullState packet;
     packet.Initialize(player);
 
     Player* member;
