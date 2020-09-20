@@ -21,58 +21,58 @@
 #include "Language.h"
 #include "RBAC.h"
 
-static std::unordered_map<AuctionQuality, uint32> const ahbotQualityLangIds =
-    {
-        { AUCTION_QUALITY_GRAY,   LANG_AHBOT_QUALITY_GRAY },
-        { AUCTION_QUALITY_WHITE,  LANG_AHBOT_QUALITY_WHITE },
-        { AUCTION_QUALITY_GREEN,  LANG_AHBOT_QUALITY_GREEN },
-        { AUCTION_QUALITY_BLUE,   LANG_AHBOT_QUALITY_BLUE },
-        { AUCTION_QUALITY_PURPLE, LANG_AHBOT_QUALITY_PURPLE },
-        { AUCTION_QUALITY_ORANGE, LANG_AHBOT_QUALITY_ORANGE },
-        { AUCTION_QUALITY_YELLOW, LANG_AHBOT_QUALITY_YELLOW }
-    };
-
 using namespace Trinity::ChatCommands;
+
+static std::unordered_map<AuctionQuality, uint32> const ahbotQualityLangIds =
+{
+    { AUCTION_QUALITY_GRAY,   LANG_AHBOT_QUALITY_GRAY },
+    { AUCTION_QUALITY_WHITE,  LANG_AHBOT_QUALITY_WHITE },
+    { AUCTION_QUALITY_GREEN,  LANG_AHBOT_QUALITY_GREEN },
+    { AUCTION_QUALITY_BLUE,   LANG_AHBOT_QUALITY_BLUE },
+    { AUCTION_QUALITY_PURPLE, LANG_AHBOT_QUALITY_PURPLE },
+    { AUCTION_QUALITY_ORANGE, LANG_AHBOT_QUALITY_ORANGE },
+    { AUCTION_QUALITY_YELLOW, LANG_AHBOT_QUALITY_YELLOW }
+};
 
 class ahbot_commandscript : public CommandScript
 {
 public:
     ahbot_commandscript(): CommandScript("ahbot_commandscript") {}
 
-    std::vector<ChatCommand> GetCommands() const override
+    ChatCommandTable GetCommands() const override
     {
-        static std::vector<ChatCommand> ahbotItemsAmountCommandTable =
+        static ChatCommandTable ahbotItemsAmountCommandTable =
         {
-            { "gray",           rbac::RBAC_PERM_COMMAND_AHBOT_ITEMS_GRAY,   true,  &HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_GRAY>,     "" },
-            { "white",          rbac::RBAC_PERM_COMMAND_AHBOT_ITEMS_WHITE,  true,  &HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_WHITE>,    "" },
-            { "green",          rbac::RBAC_PERM_COMMAND_AHBOT_ITEMS_GREEN,  true,  &HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_GREEN>,    "" },
-            { "blue",           rbac::RBAC_PERM_COMMAND_AHBOT_ITEMS_BLUE,   true,  &HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_BLUE>,     "" },
-            { "purple",         rbac::RBAC_PERM_COMMAND_AHBOT_ITEMS_PURPLE, true,  &HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_PURPLE>,   "" },
-            { "orange",         rbac::RBAC_PERM_COMMAND_AHBOT_ITEMS_ORANGE, true,  &HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_ORANGE>,   "" },
-            { "yellow",         rbac::RBAC_PERM_COMMAND_AHBOT_ITEMS_YELLOW, true,  &HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_YELLOW>,   "" },
-            { "",               rbac::RBAC_PERM_COMMAND_AHBOT_ITEMS,        true,  &HandleAHBotItemsAmountCommand,                                  "" },
+            { "gray",       HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_GRAY>,     rbac::RBAC_PERM_COMMAND_AHBOT_ITEMS_GRAY,       Console::Yes },
+            { "white",      HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_WHITE>,    rbac::RBAC_PERM_COMMAND_AHBOT_ITEMS_WHITE,      Console::Yes },
+            { "green",      HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_GREEN>,    rbac::RBAC_PERM_COMMAND_AHBOT_ITEMS_GREEN,      Console::Yes },
+            { "blue",       HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_BLUE>,     rbac::RBAC_PERM_COMMAND_AHBOT_ITEMS_BLUE,       Console::Yes },
+            { "purple",     HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_PURPLE>,   rbac::RBAC_PERM_COMMAND_AHBOT_ITEMS_PURPLE,     Console::Yes },
+            { "orange",     HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_ORANGE>,   rbac::RBAC_PERM_COMMAND_AHBOT_ITEMS_ORANGE,     Console::Yes },
+            { "yellow",     HandleAHBotItemsAmountQualityCommand<AUCTION_QUALITY_YELLOW>,   rbac::RBAC_PERM_COMMAND_AHBOT_ITEMS_YELLOW,     Console::Yes },
+            { "",           HandleAHBotItemsAmountCommand,                                  rbac::RBAC_PERM_COMMAND_AHBOT_ITEMS,            Console::Yes },
         };
 
-        static std::vector<ChatCommand> ahbotItemsRatioCommandTable =
+        static ChatCommandTable ahbotItemsRatioCommandTable =
         {
-            { "alliance",       rbac::RBAC_PERM_COMMAND_AHBOT_RATIO_ALLIANCE, true,  &HandleAHBotItemsRatioHouseCommand<AUCTION_HOUSE_ALLIANCE>,    "" },
-            { "horde",          rbac::RBAC_PERM_COMMAND_AHBOT_RATIO_HORDE,    true,  &HandleAHBotItemsRatioHouseCommand<AUCTION_HOUSE_HORDE>,       "" },
-            { "neutral",        rbac::RBAC_PERM_COMMAND_AHBOT_RATIO_NEUTRAL,  true,  &HandleAHBotItemsRatioHouseCommand<AUCTION_HOUSE_NEUTRAL>,     "" },
-            { "",               rbac::RBAC_PERM_COMMAND_AHBOT_RATIO,          true,  &HandleAHBotItemsRatioCommand,                                 "" },
+            { "alliance",   HandleAHBotItemsRatioHouseCommand<AUCTION_HOUSE_ALLIANCE>,      rbac::RBAC_PERM_COMMAND_AHBOT_RATIO_ALLIANCE,   Console::Yes },
+            { "horde",      HandleAHBotItemsRatioHouseCommand<AUCTION_HOUSE_HORDE>,         rbac::RBAC_PERM_COMMAND_AHBOT_RATIO_HORDE,      Console::Yes },
+            { "neutral",    HandleAHBotItemsRatioHouseCommand<AUCTION_HOUSE_NEUTRAL>,       rbac::RBAC_PERM_COMMAND_AHBOT_RATIO_NEUTRAL,    Console::Yes },
+            { "",           HandleAHBotItemsRatioCommand,                                   rbac::RBAC_PERM_COMMAND_AHBOT_RATIO,            Console::Yes },
         };
 
-        static std::vector<ChatCommand> ahbotCommandTable =
+        static ChatCommandTable ahbotCommandTable =
         {
-            { "items",          rbac::RBAC_PERM_COMMAND_AHBOT_ITEMS,    true,   nullptr,                       "", ahbotItemsAmountCommandTable },
-            { "ratio",          rbac::RBAC_PERM_COMMAND_AHBOT_RATIO,    true,   nullptr,                       "", ahbotItemsRatioCommandTable },
-            { "rebuild",        rbac::RBAC_PERM_COMMAND_AHBOT_REBUILD,  true,   &HandleAHBotRebuildCommand, "" },
-            { "reload",         rbac::RBAC_PERM_COMMAND_AHBOT_RELOAD,   true,   &HandleAHBotReloadCommand,  "" },
-            { "status",         rbac::RBAC_PERM_COMMAND_AHBOT_STATUS,   true,   &HandleAHBotStatusCommand,  "" },
+            { "items",      ahbotItemsAmountCommandTable },
+            { "ratio",      ahbotItemsRatioCommandTable },
+            { "rebuild",    HandleAHBotRebuildCommand,  rbac::RBAC_PERM_COMMAND_AHBOT_REBUILD,  Console::Yes },
+            { "reload",     HandleAHBotReloadCommand,   rbac::RBAC_PERM_COMMAND_AHBOT_RELOAD,   Console::Yes },
+            { "status",     HandleAHBotStatusCommand,   rbac::RBAC_PERM_COMMAND_AHBOT_STATUS,   Console::Yes },
         };
 
-        static std::vector<ChatCommand> commandTable =
+        static ChatCommandTable commandTable =
         {
-            { "ahbot",          rbac::RBAC_PERM_COMMAND_AHBOT,  false, nullptr,    "", ahbotCommandTable },
+            { "ahbot", ahbotCommandTable },
         };
 
         return commandTable;

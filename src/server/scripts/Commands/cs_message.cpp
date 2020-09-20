@@ -43,26 +43,18 @@ class message_commandscript : public CommandScript
 public:
     message_commandscript() : CommandScript("message_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    ChatCommandTable GetCommands() const override
     {
-        static std::vector<ChatCommand> channelSetCommandTable =
+        static ChatCommandTable commandTable =
         {
-            { "ownership", rbac::RBAC_PERM_COMMAND_CHANNEL_SET_OWNERSHIP, false, &HandleChannelSetOwnership, "" },
-        };
-        static std::vector<ChatCommand> channelCommandTable =
-        {
-            { "set", rbac::RBAC_PERM_COMMAND_CHANNEL_SET, true, nullptr, "", channelSetCommandTable },
-        };
-        static std::vector<ChatCommand> commandTable =
-        {
-            { "channel",        rbac::RBAC_PERM_COMMAND_CHANNEL,        true, nullptr,                         "", channelCommandTable  },
-            { "nameannounce",   rbac::RBAC_PERM_COMMAND_NAMEANNOUNCE,   true, &HandleNameAnnounceCommand,   "" },
-            { "gmnameannounce", rbac::RBAC_PERM_COMMAND_GMNAMEANNOUNCE, true, &HandleGMNameAnnounceCommand, "" },
-            { "announce",       rbac::RBAC_PERM_COMMAND_ANNOUNCE,       true, &HandleAnnounceCommand,       "" },
-            { "gmannounce",     rbac::RBAC_PERM_COMMAND_GMANNOUNCE,     true, &HandleGMAnnounceCommand,     "" },
-            { "notify",         rbac::RBAC_PERM_COMMAND_NOTIFY,         true, &HandleNotifyCommand,         "" },
-            { "gmnotify",       rbac::RBAC_PERM_COMMAND_GMNOTIFY,       true, &HandleGMNotifyCommand,       "" },
-            { "whispers",       rbac::RBAC_PERM_COMMAND_WHISPERS,      false, &HandleWhispersCommand,       "" },
+            { "channel set ownership",  HandleChannelSetOwnership,      rbac::RBAC_PERM_COMMAND_CHANNEL_SET_OWNERSHIP,  Console::No },
+            { "nameannounce",           HandleNameAnnounceCommand,      rbac::RBAC_PERM_COMMAND_NAMEANNOUNCE,           Console::Yes },
+            { "gmnameannounce",         HandleGMNameAnnounceCommand,    rbac::RBAC_PERM_COMMAND_GMNAMEANNOUNCE,         Console::Yes },
+            { "announce",               HandleAnnounceCommand,          rbac::RBAC_PERM_COMMAND_ANNOUNCE,               Console::Yes },
+            { "gmannounce",             HandleGMAnnounceCommand,        rbac::RBAC_PERM_COMMAND_GMANNOUNCE,             Console::Yes },
+            { "notify",                 HandleNotifyCommand,            rbac::RBAC_PERM_COMMAND_NOTIFY,                 Console::Yes },
+            { "gmnotify",               HandleGMNotifyCommand,          rbac::RBAC_PERM_COMMAND_GMNOTIFY,               Console::Yes },
+            { "whispers",               HandleWhispersCommand,          rbac::RBAC_PERM_COMMAND_WHISPERS,               Console::No },
         };
         return commandTable;
     }

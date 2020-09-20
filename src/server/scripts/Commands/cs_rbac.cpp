@@ -32,6 +32,10 @@ EndScriptData */
 #include "World.h"
 #include "WorldSession.h"
 
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 struct RBACCommandData
 {
     RBACCommandData(): id(0), realmId(0), rbac(nullptr), needDelete(false) { }

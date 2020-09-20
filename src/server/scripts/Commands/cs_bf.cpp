@@ -27,24 +27,26 @@ EndScriptData */
 #include "Chat.h"
 #include "RBAC.h"
 
+using namespace Trinity::ChatCommands;
+
 class bf_commandscript : public CommandScript
 {
 public:
     bf_commandscript() : CommandScript("bf_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    ChatCommandTable GetCommands() const override
     {
-        static std::vector<ChatCommand> battlefieldcommandTable =
+        static ChatCommandTable battlefieldcommandTable =
         {
-            { "start",          rbac::RBAC_PERM_COMMAND_BF_START,  false, &HandleBattlefieldStart,  "" },
-            { "stop",           rbac::RBAC_PERM_COMMAND_BF_STOP,   false, &HandleBattlefieldEnd,    "" },
-            { "switch",         rbac::RBAC_PERM_COMMAND_BF_SWITCH, false, &HandleBattlefieldSwitch, "" },
-            { "timer",          rbac::RBAC_PERM_COMMAND_BF_TIMER,  false, &HandleBattlefieldTimer,  "" },
-            { "enable",         rbac::RBAC_PERM_COMMAND_BF_ENABLE, false, &HandleBattlefieldEnable, "" },
+            { "start",      HandleBattlefieldStart,  rbac::RBAC_PERM_COMMAND_BF_START,  Console::No },
+            { "stop",       HandleBattlefieldEnd,    rbac::RBAC_PERM_COMMAND_BF_STOP,   Console::No },
+            { "switch",     HandleBattlefieldSwitch, rbac::RBAC_PERM_COMMAND_BF_SWITCH, Console::No },
+            { "timer",      HandleBattlefieldTimer,  rbac::RBAC_PERM_COMMAND_BF_TIMER,  Console::No },
+            { "enable",     HandleBattlefieldEnable, rbac::RBAC_PERM_COMMAND_BF_ENABLE, Console::No },
         };
-        static std::vector<ChatCommand> commandTable =
+        static ChatCommandTable commandTable =
         {
-            { "bf",             rbac::RBAC_PERM_COMMAND_BF,        false, nullptr,                     "", battlefieldcommandTable },
+            { "bf", battlefieldcommandTable },
         };
         return commandTable;
     }

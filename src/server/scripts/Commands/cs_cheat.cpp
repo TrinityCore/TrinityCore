@@ -29,29 +29,31 @@ EndScriptData */
 #include "RBAC.h"
 #include "WorldSession.h"
 
+using namespace Trinity::ChatCommands;
+
 class cheat_commandscript : public CommandScript
 {
 public:
     cheat_commandscript() : CommandScript("cheat_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    ChatCommandTable GetCommands() const override
     {
-        static std::vector<ChatCommand> cheatCommandTable =
+        static ChatCommandTable cheatCommandTable =
         {
-            { "god",            rbac::RBAC_PERM_COMMAND_CHEAT_GOD,       false, &HandleGodModeCheatCommand,   "" },
-            { "casttime",       rbac::RBAC_PERM_COMMAND_CHEAT_CASTTIME,  false, &HandleCasttimeCheatCommand,  "" },
-            { "cooldown",       rbac::RBAC_PERM_COMMAND_CHEAT_COOLDOWN,  false, &HandleCoolDownCheatCommand,  "" },
-            { "power",          rbac::RBAC_PERM_COMMAND_CHEAT_POWER,     false, &HandlePowerCheatCommand,     "" },
-            { "waterwalk",      rbac::RBAC_PERM_COMMAND_CHEAT_WATERWALK, false, &HandleWaterWalkCheatCommand, "" },
-            { "status",         rbac::RBAC_PERM_COMMAND_CHEAT_STATUS,    false, &HandleCheatStatusCommand,    "" },
-            { "taxi",           rbac::RBAC_PERM_COMMAND_CHEAT_TAXI,      false, &HandleTaxiCheatCommand,      "" },
-            { "explore",        rbac::RBAC_PERM_COMMAND_CHEAT_EXPLORE,   false, &HandleExploreCheatCommand,   "" },
+            { "god",            HandleGodModeCheatCommand,   rbac::RBAC_PERM_COMMAND_CHEAT_GOD,       Console::No },
+            { "casttime",       HandleCasttimeCheatCommand,  rbac::RBAC_PERM_COMMAND_CHEAT_CASTTIME,  Console::No },
+            { "cooldown",       HandleCoolDownCheatCommand,  rbac::RBAC_PERM_COMMAND_CHEAT_COOLDOWN,  Console::No },
+            { "power",          HandlePowerCheatCommand,     rbac::RBAC_PERM_COMMAND_CHEAT_POWER,     Console::No },
+            { "waterwalk",      HandleWaterWalkCheatCommand, rbac::RBAC_PERM_COMMAND_CHEAT_WATERWALK, Console::No },
+            { "status",         HandleCheatStatusCommand,    rbac::RBAC_PERM_COMMAND_CHEAT_STATUS,    Console::No },
+            { "taxi",           HandleTaxiCheatCommand,      rbac::RBAC_PERM_COMMAND_CHEAT_TAXI,      Console::No },
+            { "explore",        HandleExploreCheatCommand,   rbac::RBAC_PERM_COMMAND_CHEAT_EXPLORE,   Console::No },
 
         };
 
-        static std::vector<ChatCommand> commandTable =
+        static ChatCommandTable commandTable =
         {
-            { "cheat",          rbac::RBAC_PERM_COMMAND_CHEAT, false, nullptr, "", cheatCommandTable },
+            { "cheat", cheatCommandTable },
         };
         return commandTable;
     }

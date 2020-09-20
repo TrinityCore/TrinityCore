@@ -29,6 +29,10 @@ EndScriptData */
 #include "Player.h"
 #include "RBAC.h"
 
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 class titles_commandscript : public CommandScript
 {
 public:

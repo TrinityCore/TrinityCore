@@ -41,8 +41,10 @@ struct GameTele;
 class TC_GAME_API ChatHandler
 {
     public:
+        bool IsConsole() const { return (m_session == nullptr); }
         WorldSession* GetSession() { return m_session; }
-        Player* GetPlayer();
+        WorldSession const* GetSession() const { return m_session; }
+        Player* GetPlayer() const;
         explicit ChatHandler(WorldSession* session) : m_session(session), sentErrorMessage(false) { }
         virtual ~ChatHandler() { }
 
@@ -80,19 +82,12 @@ class TC_GAME_API ChatHandler
             return Trinity::StringFormat(GetTrinityString(entry), std::forward<Args>(args)...);
         }
 
-        bool _ParseCommands(char const* text);
-        virtual bool ParseCommands(char const* text);
-
-        static std::vector<ChatCommand> const& getCommandTable();
-        static void InitializeCommandTable();
-        static void invalidateCommandTable();
+        bool _ParseCommands(std::string_view text);
+        virtual bool ParseCommands(std::string_view text);
 
         void SendGlobalSysMessage(const char *str);
 
-        bool hasStringAbbr(char const* name, char const* part);
-
         // function with different implementation for chat/console
-        virtual bool isAvailable(ChatCommand const& cmd) const;
         virtual bool IsHumanReadable() const { return true; }
         virtual bool HasPermission(uint32 permission) const;
         virtual std::string GetNameLink() const;
@@ -129,13 +124,8 @@ class TC_GAME_API ChatHandler
         Creature* GetCreatureFromPlayerMapByDbGuid(ObjectGuid::LowType lowguid);
         bool HasSentErrorMessage() const { return sentErrorMessage; }
         void SetSentErrorMessage(bool val){ sentErrorMessage = val; }
-
-        bool ShowHelpForCommand(std::vector<ChatCommand> const& table, char const* cmd);
     protected:
         explicit ChatHandler() : m_session(nullptr), sentErrorMessage(false) { }     // for CLI subclass
-        static bool SetDataForCommandInTable(std::vector<ChatCommand>& table, char const* text, uint32 permission, std::string const& help, std::string const& fullcommand);
-        bool ExecuteCommandInTable(std::vector<ChatCommand> const& table, char const* text, std::string const& fullcmd);
-        bool ShowHelpForSubCommands(std::vector<ChatCommand> const& table, char const* cmd, char const* subcmd);
 
     private:
         WorldSession* m_session;                           // != nullptr for chat command call and nullptr for CLI command
@@ -152,10 +142,9 @@ class TC_GAME_API CliHandler : public ChatHandler
 
         // overwrite functions
         char const* GetTrinityString(uint32 entry) const override;
-        bool isAvailable(ChatCommand const& cmd) const override;
         bool HasPermission(uint32 /*permission*/) const override { return true; }
         void SendSysMessage(std::string_view, bool escapeCharacters) override;
-        bool ParseCommands(char const* str) override;
+        bool ParseCommands(std::string_view str) override;
         std::string GetNameLink() const override;
         bool needReportToTarget(Player* chr) const override;
         LocaleConstant GetSessionDbcLocale() const override;
@@ -170,7 +159,7 @@ class TC_GAME_API AddonChannelCommandHandler : public ChatHandler
 {
     public:
         using ChatHandler::ChatHandler;
-        bool ParseCommands(char const* str) override;
+        bool ParseCommands(std::string_view str) override;
         void SendSysMessage(std::string_view, bool escapeCharacters) override;
         using ChatHandler::SendSysMessage;
         bool IsHumanReadable() const override { return humanReadable; }

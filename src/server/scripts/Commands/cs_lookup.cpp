@@ -37,6 +37,10 @@ EndScriptData */
 #include "World.h"
 #include "WorldSession.h"
 
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 class lookup_commandscript : public CommandScript
 {
 public:

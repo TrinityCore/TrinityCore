@@ -20,6 +20,7 @@
 /// \file
 
 #include "Common.h"
+#include "Errors.h"
 #include "ObjectMgr.h"
 #include "World.h"
 #include "Configuration/Config.h"
@@ -29,9 +30,11 @@
 #include "Util.h"
 
 #if TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
+#include "Chat.h"
+#include "ChatCommand.h"
+#include <cstring>
 #include <readline/readline.h>
 #include <readline/history.h>
-#include "Chat.h"
 #endif
 
 static constexpr char CLI_PREFIX[] = "TC> ";
@@ -42,54 +45,34 @@ static inline void PrintCliPrefix()
 }
 
 #if TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
-char* command_finder(char const* text, int state)
+namespace Trinity::Impl::Readline
 {
-    static size_t idx, len;
-    char const* ret;
-    std::vector<ChatCommand> const& cmd = ChatHandler::getCommandTable();
-
-    if (!state)
+    static std::vector<std::string> vec;
+    char* cli_unpack_vector(char const*, int state)
     {
-        idx = 0;
-        len = strlen(text);
+        static size_t i=0;
+        if (!state)
+            i = 0;
+        if (i < vec.size())
+            return strdup(vec[i++].c_str());
+        else
+            return nullptr;
     }
 
-    while (idx < cmd.size())
+    char** cli_completion(char const* text, int /*start*/, int /*end*/)
     {
-        ret = cmd[idx].Name;
-        if (!cmd[idx].AllowConsole)
-        {
-            ++idx;
-            continue;
-        }
-
-        ++idx;
-        //printf("Checking %s \n", cmd[idx].Name);
-        if (strncmp(ret, text, len) == 0)
-            return strdup(ret);
+        ::rl_attempted_completion_over = 1;
+        vec = Trinity::ChatCommands::GetAutoCompletionsFor(CliHandler(nullptr,nullptr), text);
+        return ::rl_completion_matches(text, &cli_unpack_vector);
     }
 
-    return ((char*)nullptr);
+    int cli_hook_func()
+    {
+           if (World::IsStopped())
+               ::rl_done = 1;
+           return 0;
+    }
 }
-
-char** cli_completion(char const* text, int start, int /*end*/)
-{
-    char** matches = nullptr;
-
-    if (start)
-        rl_bind_key('\t', rl_abort);
-    else
-        matches = rl_completion_matches((char*)text, &command_finder);
-    return matches;
-}
-
-int cli_hook_func()
-{
-       if (World::IsStopped())
-           rl_done = 1;
-       return 0;
-}
-
 #endif
 
 void utf8print(void* /*arg*/, std::string_view str)
@@ -137,8 +120,12 @@ void CliThread()
     // later it will be printed after command queue updates
     PrintCliPrefix();
 #else
-    rl_attempted_completion_function = cli_completion;
-    rl_event_hook = cli_hook_func;
+    ::rl_attempted_completion_function = &Trinity::Impl::Readline::cli_completion;
+    {
+        static char BLANK = '\0';
+        ::rl_completer_word_break_characters = &BLANK;
+    }
+    ::rl_event_hook = &Trinity::Impl::Readline::cli_hook_func;
 #endif
 
     if (sConfigMgr->GetBoolDefault("BeepAtStart", true))
@@ -163,7 +150,7 @@ void CliThread()
         }
 #else
         char* command_str = readline(CLI_PREFIX);
-        rl_bind_key('\t', rl_complete);
+        ::rl_bind_key('\t', ::rl_complete);
         if (command_str != nullptr)
         {
             command = command_str;

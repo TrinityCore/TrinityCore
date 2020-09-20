@@ -1439,7 +1439,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 break;
 
             uint32 delay = e.action.wpPause.delay;
-            ENSURE_AI(SmartAI, me->AI())->PausePath(delay, e.GetEventType() == SMART_EVENT_WAYPOINT_REACHED ? false : true);
+            ENSURE_AI(SmartAI, me->AI())->PausePath(delay, true);
             break;
         }
         case SMART_ACTION_WP_STOP:
@@ -1458,7 +1458,8 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (!IsSmart())
                 break;
 
-            ENSURE_AI(SmartAI, me->AI())->SetWPPauseTimer(0);
+            // Set the timer to 1 ms so the path will be resumed on next update loop
+            ENSURE_AI(SmartAI, me->AI())->SetWPPauseTimer(1);
             break;
         }
         case SMART_ACTION_SET_ORIENTATION:
