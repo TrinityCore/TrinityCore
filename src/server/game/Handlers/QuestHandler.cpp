@@ -111,11 +111,11 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPackets::Quest::QuestG
     else
         object = ObjectAccessor::FindPlayer(packet.QuestGiverGUID);
 
-#define CLOSE_GOSSIP_CLEAR_SHARING_INFO() \
-    do { \
-        _player->PlayerTalkClass->SendCloseGossip(); \
-        _player->ClearQuestSharingInfo(); \
-    } while (0)
+    auto CLOSE_GOSSIP_CLEAR_SHARING_INFO = ([this]()
+    {
+        _player->PlayerTalkClass->SendCloseGossip();
+        _player->ClearQuestSharingInfo();
+    });
 
     // no or incorrect quest giver
     if (!object)
