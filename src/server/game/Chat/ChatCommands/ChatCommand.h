@@ -23,6 +23,7 @@
 #include "ChatCommandTags.h"
 #include "Define.h"
 #include "Errors.h"
+#include "Language.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include "RBAC.h"
@@ -202,7 +203,7 @@ namespace Trinity::Impl::ChatCommands
 
             CommandInvoker _invoker;
             CommandPermissions _permission;
-            std::string _help;
+            std::variant<std::monostate, TrinityStrings, std::string> _help;
             std::map<std::string_view, ChatCommandNode, StringCompareLessI_T> _subCommands;
     };
 }
@@ -212,32 +213,53 @@ namespace Trinity::ChatCommands
     struct ChatCommandBuilder
     {
         friend class Trinity::Impl::ChatCommands::ChatCommandNode;
-        using InvokerEntry = std::pair<Trinity::Impl::ChatCommands::CommandInvoker, Trinity::Impl::ChatCommands::CommandPermissions>;
+        struct InvokerEntry
+        {
+            template <typename T>
+            InvokerEntry(T& handler, TrinityStrings help, rbac::RBACPermissions permission, Trinity::ChatCommands::Console allowConsole)
+                : _invoker{ handler }, _help{ help }, _permissions{ permission, allowConsole }
+            {}
+            InvokerEntry(InvokerEntry const&) = default;
+            InvokerEntry(InvokerEntry&&) = default;
+
+            Trinity::Impl::ChatCommands::CommandInvoker _invoker;
+            TrinityStrings _help;
+            Trinity::Impl::ChatCommands::CommandPermissions _permissions;
+
+            auto operator*() const { return std::tie(_invoker, _help, _permissions); }
+        };
         using SubCommandEntry = std::reference_wrapper<std::vector<ChatCommandBuilder> const>;
+
+        ChatCommandBuilder(ChatCommandBuilder&&) = default;
+        ChatCommandBuilder(ChatCommandBuilder const&) = default;
+
+        template <typename TypedHandler>
+        ChatCommandBuilder(char const* name, TypedHandler& handler, TrinityStrings help, rbac::RBACPermissions permission, Trinity::ChatCommands::Console allowConsole)
+            : _name{ ASSERT_NOTNULL(name) }, _data{ std::in_place_type<InvokerEntry>, handler, help, permission, allowConsole }
+        {}
 
         template <typename TypedHandler>
         ChatCommandBuilder(char const* name, TypedHandler& handler, rbac::RBACPermissions permission, Trinity::ChatCommands::Console allowConsole)
-            : _name{ ASSERT_NOTNULL(name) }, _data{ std::in_place_type<InvokerEntry>, std::piecewise_construct, std::forward_as_tuple(handler), std::forward_as_tuple(permission, allowConsole) }
+            : ChatCommandBuilder(name, handler, TrinityStrings(), permission, allowConsole)
         {}
         ChatCommandBuilder(char const* name, std::vector<ChatCommandBuilder> const& subCommands)
             : _name{ ASSERT_NOTNULL(name) }, _data{ std::in_place_type<SubCommandEntry>, subCommands }
         {}
-        ChatCommandBuilder(ChatCommandBuilder const&) = default;
 
         [[deprecated("char const* parameters to command handlers are deprecated; convert this to a typed argument handler instead")]]
         ChatCommandBuilder(char const* name, bool(&handler)(ChatHandler*, char const*), rbac::RBACPermissions permission, Trinity::ChatCommands::Console allowConsole)
-            : _name{ ASSERT_NOTNULL(name) }, _data{ std::in_place_type<InvokerEntry>, std::piecewise_construct, std::forward_as_tuple(handler), std::forward_as_tuple(permission, allowConsole) }
+            : ChatCommandBuilder(name, handler, TrinityStrings(), permission, allowConsole)
         {}
 
         template <typename TypedHandler>
         [[deprecated("you are using the old-style command format; convert this to the new format ({ name, handler (not a pointer!), permission, Console::(Yes/No) })")]]
         ChatCommandBuilder(char const* name, rbac::RBACPermissions permission, bool console, TypedHandler* handler, char const*)
-            : _name{ ASSERT_NOTNULL(name) }, _data{ std::in_place_type<InvokerEntry>, std::piecewise_construct, std::forward_as_tuple(*handler), std::forward_as_tuple(permission, static_cast<Trinity::ChatCommands::Console>(console)) }
+            : ChatCommandBuilder(name, *handler, TrinityStrings(), permission, static_cast<Trinity::ChatCommands::Console>(console))
         {}
 
         [[deprecated("you are using the old-style command format; convert this to the new format ({ name, subCommands })")]]
         ChatCommandBuilder(char const* name, rbac::RBACPermissions, bool, std::nullptr_t, char const*, std::vector <ChatCommandBuilder> const& sub)
-            : _name{ ASSERT_NOTNULL(name) }, _data { std::in_place_type<SubCommandEntry>, sub }
+            : ChatCommandBuilder(name, sub)
         {}
 
     private:

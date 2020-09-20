@@ -1622,7 +1622,7 @@ Trinity::ChatCommands::ChatCommandTable ScriptMgr::GetChatCommands()
 {
     Trinity::ChatCommands::ChatCommandTable table;
 
-    FOR_SCRIPTS_RET(CommandScript, itr, end, table)
+    FOR_SCRIPTS(CommandScript, itr, end)
     {
         Trinity::ChatCommands::ChatCommandTable cmds = itr->second->GetCommands();
         std::move(cmds.begin(), cmds.end(), std::back_inserter(table));
