@@ -260,7 +260,7 @@ public:
         }
 
         CreatureAddon const* addon = sObjectMgr->GetCreatureAddon(guidLow);
-        if (!addon || addon->path_id == 0)
+        if (!addon || addon->waypointPathId == 0)
         {
             handler->PSendSysMessage("%s%s|r", "|cffff33ff", "Target does not have a loaded path.");
             return true;

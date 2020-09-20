@@ -603,6 +603,8 @@ void SmartAI::JustReachedHome()
     {
         if (me->GetMotionMaster()->GetMotionSlotType(MOTION_SLOT_IDLE) != WAYPOINT_MOTION_TYPE && me->GetWaypointPath())
             me->GetMotionMaster()->MovePath(me->GetWaypointPath(), true);
+        else if (me->GetMotionMaster()->GetMotionSlotType(MOTION_SLOT_IDLE) != CYCLIC_SPLINE_MOTION_TYPE && me->GetCyclicSplinePathId())
+            me->GetMotionMaster()->MoveCyclicPath(me->GetCyclicSplinePathId());
         else
             me->ResumeMovement();
     }

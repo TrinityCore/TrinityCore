@@ -20,6 +20,7 @@
 #include "ConfusedMovementGenerator.h"
 #include "Creature.h"
 #include "CreatureAISelector.h"
+#include "CyclicMovementGenerator.h"
 #include "DBCStores.h"
 #include "G3DPosition.hpp"
 #include "FleeingMovementGenerator.h"
@@ -42,6 +43,7 @@
 #include "Unit.h"
 #include "WaypointDefines.h"
 #include "WaypointMovementGenerator.h"
+#include "WaypointManager.h"
 
 inline MovementGenerator* GetIdleMovementGenerator()
 {
@@ -498,7 +500,7 @@ void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool 
     if (velocity > 0.f)
         init.SetVelocity(velocity);
 
-    Mutate(new GenericMovementGenerator(std::move(init), EFFECT_MOTION_TYPE, 0), MOTION_SLOT_ACTIVE);
+    Mutate(new GenericMovementGenerator(std::move(init), CYCLIC_SPLINE_MOTION_TYPE, 0), MOTION_SLOT_ACTIVE);
 }
 
 void MotionMaster::MoveCyclicPath(Position const* pathPoints, size_t pathSize, bool walk /*= false*/, bool fly /*= false*/, float velocity /*= 0.0f*/)
@@ -524,7 +526,13 @@ void MotionMaster::MoveCyclicPath(Position const* pathPoints, size_t pathSize, b
     init.SetSmooth();
     init.SetWalk(walk);
     init.SetCyclic();
-    Mutate(new GenericMovementGenerator(std::move(init), EFFECT_MOTION_TYPE, 0), MOTION_SLOT_IDLE);
+    Mutate(new GenericMovementGenerator(std::move(init), CYCLIC_SPLINE_MOTION_TYPE, 0), MOTION_SLOT_IDLE);
+}
+
+void MotionMaster::MoveCyclicPath(uint32 pathId)
+{
+    if (WaypointPath const* splinePath = sWaypointMgr->GetPath(pathId))
+        Mutate(new CyclicMovementGenerator<Creature>(splinePath), MOTION_SLOT_IDLE);
 }
 
 void MotionMaster::MoveSmoothPath(uint32 pointId, Position const* pathPoints, size_t pathSize, bool walk /*= false*/, bool fly /*= false*/, float velocity /*= 0.0f*/)

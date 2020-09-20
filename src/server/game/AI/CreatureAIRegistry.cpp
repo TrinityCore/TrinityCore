@@ -26,6 +26,7 @@
 #include "SmartAI.h"
 #include "TotemAI.h"
 
+#include "CyclicMovementGenerator.h"
 #include "MovementGenerator.h"
 #include "RandomMovementGenerator.h"
 #include "WaypointMovementGenerator.h"
@@ -56,5 +57,6 @@ namespace AIRegistry
         (new IdleMovementFactory())->RegisterSelf();
         (new MovementGeneratorFactory<RandomMovementGenerator<Creature>>(RANDOM_MOTION_TYPE))->RegisterSelf();
         (new MovementGeneratorFactory<WaypointMovementGenerator<Creature>>(WAYPOINT_MOTION_TYPE))->RegisterSelf();
+        (new MovementGeneratorFactory<CyclicMovementGenerator<Creature>>(CYCLIC_SPLINE_MOTION_TYPE))->RegisterSelf();
     }
 }

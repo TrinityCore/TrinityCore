@@ -49,7 +49,8 @@ enum MovementGeneratorType : uint8
     IDLE_MOTION_TYPE                = 0,                  // IdleMovementGenerator.h
     RANDOM_MOTION_TYPE              = 1,                  // RandomMovementGenerator.h
     WAYPOINT_MOTION_TYPE            = 2,                  // WaypointMovementGenerator.h
-    MAX_DB_MOTION_TYPE              = 3,                  // Below motion types can't be set in DB.
+    CYCLIC_SPLINE_MOTION_TYPE       = 3,                  // CyclicMovementGenerator.h
+    MAX_DB_MOTION_TYPE              = 4,                  // Below motion types can't be set in DB.
     CONFUSED_MOTION_TYPE            = 4,                  // ConfusedMovementGenerator.h
     CHASE_MOTION_TYPE               = 5,                  // TargetedMovementGenerator.h
     HOME_MOTION_TYPE                = 6,                  // HomeMovementGenerator.h
@@ -60,7 +61,7 @@ enum MovementGeneratorType : uint8
     ASSISTANCE_MOTION_TYPE          = 11,                 // PointMovementGenerator.h
     ASSISTANCE_DISTRACT_MOTION_TYPE = 12,                 // IdleMovementGenerator.h
     TIMED_FLEEING_MOTION_TYPE       = 13,                 // FleeingMovementGenerator.h
-    FOLLOW_MOTION_TYPE              = 14,
+    FOLLOW_MOTION_TYPE              = 14,                 // FollowMovementGenerator.h
     ROTATE_MOTION_TYPE              = 15,
     EFFECT_MOTION_TYPE              = 16,
     SPLINE_CHAIN_MOTION_TYPE        = 17,                 // SplineChainMovementGenerator.h
@@ -182,6 +183,7 @@ class TC_GAME_API MotionMaster
         void MoveJump(float x, float y, float z, float o, float speedXY, float speedZ, uint32 id = EVENT_JUMP, bool hasOrientation = false);
         void MoveCirclePath(float x, float y, float z, float radius, bool clockwise, uint8 stepCount, float velocity = 0.f);
         void MoveCyclicPath(Position const* pathPoints, size_t pathSize, bool walk = false, bool fly = false, float velocity = 0.f);
+        void MoveCyclicPath(uint32 pathId);
         void MoveSmoothPath(uint32 pointId, Position const* pathPoints, size_t pathSize, bool walk = false, bool fly = false, float velocity = 0.f);
         // Walk along spline chain stored in DB (script_spline_chain_meta and script_spline_chain_waypoints)
         void MoveAlongSplineChain(uint32 pointId, uint16 dbChainId, bool walk);

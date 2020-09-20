@@ -1,0 +1,141 @@
+/*
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "CyclicMovementGenerator.h"
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "G3DPosition.hpp"
+#include "Log.h"
+#include "Map.h"
+#include "MoveSpline.h"
+#include "MoveSplineInit.h"
+#include "ObjectMgr.h"
+#include "Transport.h"
+#include "WaypointManager.h"
+
+inline bool CanMove(Creature const* creature)
+{
+    return (!creature->HasUnitState(UNIT_STATE_NOT_MOVE) && !creature->IsMovementPreventedByCasting());
+}
+
+CyclicMovementGenerator<Creature>::CyclicMovementGenerator(WaypointPath const* path, Optional<bool> enforceFlight, Optional<bool> enforceWalk, Optional<float> velocity) : _path(path), _moveTimer(0)
+{
+    if (enforceFlight.is_initialized())
+        _enforceFlight = *enforceFlight;
+
+    if (enforceWalk.is_initialized())
+        _enforceWalk = *enforceWalk;
+
+    if (velocity.is_initialized())
+        _velocity = *velocity;
+}
+
+CyclicMovementGenerator<Creature>::CyclicMovementGenerator() : _path(nullptr), _moveTimer(0)
+{
+}
+
+void CyclicMovementGenerator<Creature>::DoInitialize(Creature* creature)
+{
+    if (!_path)
+        if (uint32 pathId = creature->GetCyclicSplinePathId())
+            _path = sWaypointMgr->GetPath(pathId);
+
+    if (_path)
+        _moveTimer.Reset(1000);
+}
+
+void CyclicMovementGenerator<Creature>::DoFinalize(Creature* creature)
+{
+    creature->setActive(false);
+}
+
+void CyclicMovementGenerator<Creature>::DoReset(Creature* creature)
+{
+    if (_moveTimer.Passed() && CanMove(creature))
+        StartMovement(creature);
+}
+
+bool CyclicMovementGenerator<Creature>::DoUpdate(Creature* creature, uint32 diff)
+{
+    if (!creature || !creature->IsAlive())
+        return true;
+
+    if (!_path || _path->nodes.empty())
+        return true;
+
+    if (!CanMove(creature))
+    {
+        creature->StopMoving();
+        return true;
+    }
+
+    // dont update wait timer while moving
+    if (creature->movespline->Finalized())
+    {
+        _moveTimer.Update(diff);
+        if (_moveTimer.Passed())
+        {
+            _moveTimer.Reset(0);
+            StartMovement(creature); 
+        }
+    }
+
+    return true;
+}
+
+void CyclicMovementGenerator<Creature>::StartMovement(Creature* creature)
+{
+    if (!creature || !creature->IsAlive() || !CanMove(creature) || !_path || _path->nodes.empty())
+        return;
+
+    if (!CanMove(creature) || (creature->IsFormationLeader() && !creature->IsFormationLeaderMoveAllowed())) // if cannot move OR cannot move because of formation
+    {
+        _moveTimer.Reset(1000); // delay 1s
+        return;
+    }
+
+    // Cyclic splines get asynchronous if the serverside position is not being tracked constantly.
+    creature->setActive(true);
+
+    bool const flying = creature->IsFlying() || creature->IsInWater(); // Swimming units also use flying and uncompressed splines
+    Movement::MoveSplineInit init(creature);
+    Movement::PointsArray path;
+
+    path.reserve(_path->nodes.size() + 1);
+    path.push_back(PositionToVector3(creature->GetPosition()));
+    std::transform(_path->nodes.begin(), _path->nodes.end(), std::back_inserter(path), [](WaypointNode const& node)
+    {
+        return G3D::Vector3(node.x, node.y, node.z);
+    });
+
+    if (flying || (_enforceFlight.is_initialized() && *_enforceFlight))
+    {
+        init.SetFly();
+        init.SetUncompressed();
+    }
+
+    if (_velocity.is_initialized())
+        init.SetVelocity(*_velocity);
+
+    if (_enforceWalk.is_initialized())
+        init.SetWalk(*_enforceWalk);
+
+    init.MovebyPath(path);
+    init.SetSmooth();
+    init.SetCyclic();
+    init.Launch();
+}
