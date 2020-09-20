@@ -35,10 +35,10 @@ enum TrinityStrings
     LANG_SYSTEMMESSAGE                    = 3,
     LANG_EVENTMESSAGE                     = 4,
     LANG_NO_HELP_CMD                      = 5,
-    LANG_NO_CMD                           = 6,
-    LANG_NO_SUBCMD                        = 7,
+    LANG_CMD_INVALID                      = 6,
+    LANG_SUBCMD_AMBIGUOUS                 = 7,
     LANG_SUBCMDS_LIST                     = 8,
-    LANG_AVIABLE_CMD                      = 9,
+    LANG_AVAILABLE_CMDS                   = 9,
     LANG_CMD_SYNTAX                       = 10,
     LANG_ACCOUNT_LEVEL                    = 11,
     LANG_CONNECTED_USERS                  = 12,
@@ -232,10 +232,10 @@ enum TrinityStrings
     LANG_2FA_SECRET_TOO_LONG              = 188,
     LANG_2FA_SECRET_INVALID               = 189,
     LANG_2FA_SECRET_SET_COMPLETE          = 190,
-    LANG_SUBCMDS_LIST_ENTRY               = 191, // 3.3.5 RESERVED
-    LANG_SUBCMDS_LIST_ENTRY_ELLIPSIS      = 192, // 3.3.5 RESERVED
-    LANG_SUBCMD_INVALID                   = 193, // 3.3.5 RESERVED
-    LANG_CMD_AMBIGUOUS                    = 194, // 3.3.5 RESERVED
+    LANG_SUBCMDS_LIST_ENTRY               = 191,
+    LANG_SUBCMDS_LIST_ENTRY_ELLIPSIS      = 192,
+    LANG_SUBCMD_INVALID                   = 193,
+    LANG_CMD_AMBIGUOUS                    = 194,
     LANG_CMD_HELP_GENERIC                 = 195, // 3.3.5 RESERVED
     LANG_CMD_NO_HELP_AVAILABLE            = 196, // 3.3.5 RESERVED
     // Room for more level 1                197-199 not used

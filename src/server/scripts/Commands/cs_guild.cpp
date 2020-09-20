@@ -35,6 +35,10 @@ EndScriptData */
 #include "RBAC.h"
 #include <iomanip>
 
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 using namespace Trinity::ChatCommands;
 class guild_commandscript : public CommandScript
 {

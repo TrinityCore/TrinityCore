@@ -46,6 +46,10 @@ EndScriptData */
 #include <openssl/opensslv.h>
 #include <numeric>
 
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 class server_commandscript : public CommandScript
 {
 public:

@@ -35,6 +35,10 @@ EndScriptData */
 #include "World.h"
 #include "WorldSession.h"
 
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 class ticket_commandscript : public CommandScript
 {
 public:
