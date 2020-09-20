@@ -50,7 +50,8 @@ public:
             { "ingame",     HandleGMListIngameCommand,  rbac::RBAC_PERM_COMMAND_GM_INGAME,      Console::Yes },
             { "list",       HandleGMListFullCommand,    rbac::RBAC_PERM_COMMAND_GM_LIST,        Console::Yes },
             { "visible",    HandleGMVisibleCommand,     rbac::RBAC_PERM_COMMAND_GM_VISIBLE,     Console::No },
-            { "",           HandleGMCommand,            rbac::RBAC_PERM_COMMAND_GM,             Console::No },
+            { "on",         HandleGMOnCommand,          rbac::RBAC_PERM_COMMAND_GM,             Console::No },
+            { "off",        HandleGMOffCommand,         rbac::RBAC_PERM_COMMAND_GM,             Console::No },
         };
         static ChatCommandTable commandTable =
         {
@@ -220,30 +221,19 @@ public:
         return true;
     }
 
-    //Enable\Disable GM Mode
-    static bool HandleGMCommand(ChatHandler* handler, Optional<bool> enableArg)
+    static bool HandleGMOnCommand(ChatHandler* handler)
     {
-        Player* _player = handler->GetSession()->GetPlayer();
+        handler->GetPlayer()->SetGameMaster(true);
+        handler->GetPlayer()->UpdateTriggerVisibility();
+        handler->GetSession()->SendNotification(LANG_GM_ON);
+        return true;
+    }
 
-        if (!enableArg)
-        {
-            handler->GetSession()->SendNotification(_player->IsGameMaster() ? LANG_GM_ON : LANG_GM_OFF);
-            return true;
-        }
-
-        if (*enableArg)
-        {
-            _player->SetGameMaster(true);
-            handler->GetSession()->SendNotification(LANG_GM_ON);
-            _player->UpdateTriggerVisibility();
-        }
-        else
-        {
-            _player->SetGameMaster(false);
-            handler->GetSession()->SendNotification(LANG_GM_OFF);
-            _player->UpdateTriggerVisibility();
-        }
-
+    static bool HandleGMOffCommand(ChatHandler* handler)
+    {
+        handler->GetPlayer()->SetGameMaster(false);
+        handler->GetPlayer()->UpdateTriggerVisibility();
+        handler->GetSession()->SendNotification(LANG_GM_OFF);
         return true;
     }
 };

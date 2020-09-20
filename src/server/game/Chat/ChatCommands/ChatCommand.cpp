@@ -80,8 +80,7 @@ static ChatSubCommandMap COMMAND_MAP;
         {
             Field* fields = result->Fetch();
             std::string_view const name = fields[0].GetStringView();
-            uint16 const permission = fields[1].GetUInt16();
-            std::string_view const help = fields[2].GetStringView();
+            std::string_view const help = fields[1].GetStringView();
 
             ChatCommandNode* cmd = nullptr;
             ChatSubCommandMap* map = &COMMAND_MAP;
@@ -103,14 +102,6 @@ static ChatSubCommandMap COMMAND_MAP;
 
             if (!cmd)
                 continue;
-
-            if (cmd->_invoker && (cmd->_permission.RequiredPermission != permission))
-            {
-                TC_LOG_WARN("sql.sql", "Table `command` has permission %u for '" STRING_VIEW_FMT "' which does not match the core (%u). Overriding.",
-                    permission, STRING_VIEW_FMT_ARG(name), cmd->_permission.RequiredPermission);
-
-                cmd->_permission.RequiredPermission = static_cast<rbac::RBACPermissions>(permission);
-            }
 
             cmd->_help.assign(help);
         } while (result->NextRow());

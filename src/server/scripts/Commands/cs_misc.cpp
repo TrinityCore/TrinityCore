@@ -695,6 +695,8 @@ public:
     static bool HandleHelpCommand(ChatHandler* handler, Tail cmd)
     {
         Trinity::ChatCommands::SendCommandHelpFor(*handler, cmd);
+        if (cmd.empty())
+            Trinity::ChatCommands::SendCommandHelpFor(*handler, "help");
         return true;
     }
 

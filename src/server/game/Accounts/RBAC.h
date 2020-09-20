@@ -493,7 +493,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_RELOAD_AREATRIGGER_TELEPORT            = 625,
     RBAC_PERM_COMMAND_RELOAD_AUCTIONS                        = 626,
     RBAC_PERM_COMMAND_RELOAD_AUTOBROADCAST                   = 627,
-    RBAC_PERM_COMMAND_RELOAD_COMMAND                         = 628,
+    // 628 previously used, do not reuse
     RBAC_PERM_COMMAND_RELOAD_CONDITIONS                      = 629,
     RBAC_PERM_COMMAND_RELOAD_CONFIG                          = 630,
     RBAC_PERM_COMMAND_RELOAD_BATTLEGROUND_TEMPLATE           = 631,

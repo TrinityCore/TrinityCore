@@ -85,7 +85,6 @@ public:
             { "autobroadcast",                 rbac::RBAC_PERM_COMMAND_RELOAD_AUTOBROADCAST,                    true,  &HandleReloadAutobroadcastCommand,              "" },
             { "battleground_template",         rbac::RBAC_PERM_COMMAND_RELOAD_BATTLEGROUND_TEMPLATE,            true,  &HandleReloadBattlegroundTemplate,              "" },
             { "broadcast_text",                rbac::RBAC_PERM_COMMAND_RELOAD_BROADCAST_TEXT,                   true,  &HandleReloadBroadcastTextCommand,              "" },
-            { "command",                       rbac::RBAC_PERM_COMMAND_RELOAD_COMMAND,                          true,  &HandleReloadCommandCommand,                    "" },
             { "conditions",                    rbac::RBAC_PERM_COMMAND_RELOAD_CONDITIONS,                       true,  &HandleReloadConditions,                        "" },
             { "config",                        rbac::RBAC_PERM_COMMAND_RELOAD_CONFIG,                           true,  &HandleReloadConfigCommand,                     "" },
             { "creature_text",                 rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_TEXT,                    true,  &HandleReloadCreatureText,                      "" },
@@ -197,7 +196,6 @@ public:
 
         HandleReloadAccessRequirementCommand(handler, "");
         HandleReloadMailLevelRewardCommand(handler, "");
-        HandleReloadCommandCommand(handler, "");
         HandleReloadReservedNameCommand(handler, "");
         HandleReloadTrinityStringCommand(handler, "");
         HandleReloadGameTeleCommand(handler, "");
@@ -403,17 +401,6 @@ public:
         sObjectMgr->LoadBroadcastTextLocales();
         handler->SendGlobalGMSysMessage("DB table `broadcast_text` reloaded.");
         return true;
-    }
-
-    static bool HandleReloadCommandCommand(ChatHandler* handler, char const* /*args*/)
-    {
-        TC_LOG_INFO("misc", "Reloading .command information...");
-        Trinity::ChatCommands::LoadCommandMap();
-        handler->SendGlobalGMSysMessage("DB table `command` reloaded.");
-
-        // do not log this invocation, otherwise we might crash (the command table we used to get here is no longer valid!)
-        handler->SetSentErrorMessage(true);
-        return false;
     }
 
     static bool HandleReloadOnKillReputationCommand(ChatHandler* handler, char const* /*args*/)
