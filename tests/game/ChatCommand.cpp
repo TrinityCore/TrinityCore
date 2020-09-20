@@ -31,10 +31,10 @@ struct DummyChatHandler : ChatHandler
 };
 
 template <typename F>
-static void TestChatCommand(char const* c, F f, Optional<bool> expected = true)
+static void TestChatCommand(std::string_view c, F f, Optional<bool> expected = true)
 {
     DummyChatHandler handler;
-    bool r = ChatCommand("", 0, false, +f, "")(&handler, c);
+    bool r = Trinity::Impl::ChatCommands::CommandInvoker(*+f)(&handler, c);
     if (expected)
         REQUIRE(r == *expected);
 }
@@ -108,6 +108,28 @@ TEST_CASE("Command argument parsing", "[ChatCommand]")
         TestChatCommand("two strings", [](ChatHandler*, Tail t)
         {
             REQUIRE(t == "two strings");
+            return true;
+        });
+    }
+
+    SECTION("Variant<>")
+    {
+        TestChatCommand("0x1ffff", [](ChatHandler*, Variant<uint16, uint32> v)
+        {
+            REQUIRE(v.holds_alternative<uint32>());
+            REQUIRE(v.get<uint32>() == 0x1ffff);
+            return true;
+        });
+        TestChatCommand("0xffff", [](ChatHandler*, Variant<uint16, uint32> v)
+        {
+            REQUIRE(v.holds_alternative<uint16>());
+            REQUIRE(v.get<uint16>() == 0xffff);
+            return true;
+        });
+        TestChatCommand("0x1ffff", [](ChatHandler*, Variant<uint32, uint16> v)
+        {
+            REQUIRE(v.holds_alternative<uint32>());
+            REQUIRE(v.get<uint32>() == 0x1ffff);
             return true;
         });
     }

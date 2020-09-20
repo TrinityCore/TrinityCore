@@ -35,6 +35,10 @@
 #include "PointMovementGenerator.h"
 #include "RBAC.h"
 
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 class mmaps_commandscript : public CommandScript
 {
 public:

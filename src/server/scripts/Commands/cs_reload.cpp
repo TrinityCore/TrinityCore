@@ -47,6 +47,10 @@ EndScriptData */
 #include "WaypointManager.h"
 #include "World.h"
 
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 class reload_commandscript : public CommandScript
 {
 public:
@@ -403,9 +407,13 @@ public:
 
     static bool HandleReloadCommandCommand(ChatHandler* handler, char const* /*args*/)
     {
-        ChatHandler::invalidateCommandTable();
-        handler->SendGlobalGMSysMessage("DB table `command` will be reloaded at next chat command use.");
-        return true;
+        TC_LOG_INFO("misc", "Reloading .command information...");
+        Trinity::ChatCommands::LoadCommandMap();
+        handler->SendGlobalGMSysMessage("DB table `command` reloaded.");
+
+        // do not log this invocation, otherwise we might crash (the command table we used to get here is no longer valid!)
+        handler->SetSentErrorMessage(true);
+        return false;
     }
 
     static bool HandleReloadOnKillReputationCommand(ChatHandler* handler, char const* /*args*/)
