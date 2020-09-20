@@ -74,16 +74,6 @@ namespace Trinity::Impl::ChatCommands
         }
     };
 
-    /*
-      for backwards compatibility, consumes the rest of the string
-      new code should use the Tail/WTail tags defined in ChatCommandTags
-    */
-    template <>
-    struct ArgInfo<char const*, void>
-    {
-        static ChatCommandResult TryConsume(char const*& arg, ChatHandler const*, std::string_view args) { arg = (args.empty() ? "" : args.data()); return std::string_view(); }
-    };
-
     // string_view
     template <>
     struct ArgInfo<std::string_view, void>

@@ -142,6 +142,14 @@ namespace Trinity::Impl::ChatCommands
             };
             _handler = reinterpret_cast<void*>(handler);
         }
+        CommandInvoker(bool(&handler)(ChatHandler*, char const*))
+        {
+            _wrapper = [](void* handler, ChatHandler* chatHandler, std::string_view argsStr)
+            {
+                return reinterpret_cast<bool(*)(ChatHandler*, char const*)>(handler)(chatHandler, argsStr.empty() ? "" : argsStr.data());
+            };
+            _handler = reinterpret_cast<void*>(handler);
+        }
 
         explicit operator bool() const { return (_wrapper != nullptr); }
         bool operator()(ChatHandler* chatHandler, std::string_view args) const
@@ -216,17 +224,19 @@ namespace Trinity::ChatCommands
         {}
         ChatCommandBuilder(ChatCommandBuilder const&) = default;
 
-        /* deprecated: char const* parameters to command handlers */
-        [[deprecated]] ChatCommandBuilder(char const* name, bool(&handler)(ChatHandler*, char const*), rbac::RBACPermissions permission, Trinity::ChatCommands::Console allowConsole)
+        [[deprecated("char const* parameters to command handlers are deprecated; convert this to a typed argument handler instead")]]
+        ChatCommandBuilder(char const* name, bool(&handler)(ChatHandler*, char const*), rbac::RBACPermissions permission, Trinity::ChatCommands::Console allowConsole)
             : _name{ ASSERT_NOTNULL(name) }, _data{ std::in_place_type<InvokerEntry>, std::piecewise_construct, std::forward_as_tuple(handler), std::forward_as_tuple(permission, allowConsole) }
         {}
 
-        /* deprecated: old-style command table format */
         template <typename TypedHandler>
-        [[deprecated]] ChatCommandBuilder(char const* name, rbac::RBACPermissions permission, bool console, TypedHandler* handler, char const*)
+        [[deprecated("you are using the old-style command format; convert this to the new format ({ name, handler (not a pointer!), permission, Console::(Yes/No) })")]]
+        ChatCommandBuilder(char const* name, rbac::RBACPermissions permission, bool console, TypedHandler* handler, char const*)
             : _name{ ASSERT_NOTNULL(name) }, _data{ std::in_place_type<InvokerEntry>, std::piecewise_construct, std::forward_as_tuple(*handler), std::forward_as_tuple(permission, static_cast<Trinity::ChatCommands::Console>(console)) }
         {}
-        [[deprecated]] ChatCommandBuilder(char const* name, rbac::RBACPermissions, bool, std::nullptr_t, char const*, std::vector <ChatCommandBuilder> const& sub)
+
+        [[deprecated("you are using the old-style command format; convert this to the new format ({ name, subCommands })")]]
+        ChatCommandBuilder(char const* name, rbac::RBACPermissions, bool, std::nullptr_t, char const*, std::vector <ChatCommandBuilder> const& sub)
             : _name{ ASSERT_NOTNULL(name) }, _data { std::in_place_type<SubCommandEntry>, sub }
         {}
 
@@ -243,6 +253,6 @@ namespace Trinity::ChatCommands
 }
 
 // backwards compatibility with old patches
-using ChatCommand [[deprecated]] = Trinity::ChatCommands::ChatCommandBuilder;
+using ChatCommand [[deprecated("std::vector<ChatCommand> should be ChatCommandTable! (using namespace Trinity::ChatCommands)")]] = Trinity::ChatCommands::ChatCommandBuilder;
 
 #endif
