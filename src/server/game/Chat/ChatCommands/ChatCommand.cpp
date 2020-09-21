@@ -34,7 +34,10 @@ void Trinity::Impl::ChatCommands::ChatCommandNode::LoadFromBuilder(ChatCommandBu
     if (std::holds_alternative<ChatCommandBuilder::InvokerEntry>(builder._data))
     {
         ASSERT(!_invoker, "Duplicate blank sub-command.");
-        std::tie(_invoker, _permission) = std::get<ChatCommandBuilder::InvokerEntry>(builder._data);
+        TrinityStrings help;
+        std::tie(_invoker, help, _permission) = *(std::get<ChatCommandBuilder::InvokerEntry>(builder._data));
+        if (help)
+            _help.emplace<TrinityStrings>(help);
     }
     else
         LoadCommandsIntoMap(this, _subCommands, std::get<ChatCommandBuilder::SubCommandEntry>(builder._data));
@@ -103,7 +106,13 @@ static ChatSubCommandMap COMMAND_MAP;
             if (!cmd)
                 continue;
 
-            cmd->_help.assign(help);
+            if (std::holds_alternative<std::string>(cmd->_help))
+                TC_LOG_ERROR("sql.sql", "Table `command` contains duplicate data for command '" STRING_VIEW_FMT "'. Skipped.", STRING_VIEW_FMT_ARG(name));
+
+            if (std::holds_alternative<std::monostate>(cmd->_help))
+                cmd->_help.emplace<std::string>(help);
+            else
+                TC_LOG_ERROR("sql.sql", "Table `command` contains legacy help text for command '" STRING_VIEW_FMT "', which uses `trinity_string`. Skipped.", STRING_VIEW_FMT_ARG(name));
         } while (result->NextRow());
     }
 
@@ -113,7 +122,7 @@ static ChatSubCommandMap COMMAND_MAP;
 
 void Trinity::Impl::ChatCommands::ChatCommandNode::AssertCommandHelp(std::string_view name) const
 {
-    if (_invoker && _help.empty())
+    if (_invoker && std::holds_alternative<std::monostate>(_help))
         TC_LOG_WARN("sql.sql", "Table `command` is missing help text for (sub-)command '" STRING_VIEW_FMT "'.", STRING_VIEW_FMT_ARG(name));
 
     for (auto const& [name, cmd] : _subCommands)
@@ -154,7 +163,13 @@ static void LogCommandUsage(WorldSession const& session, uint32 permission, std:
 void Trinity::Impl::ChatCommands::ChatCommandNode::SendCommandHelp(ChatHandler& handler) const
 {
     if (IsInvokerVisible(handler))
-        handler.SendSysMessage(_help);
+    {
+        if (std::holds_alternative<TrinityStrings>(_help))
+            handler.SendSysMessage(std::get<TrinityStrings>(_help));
+        else
+            handler.SendSysMessage(std::get<std::string>(_help));
+    }
+
     bool header = false;
     for (auto it = _subCommands.begin(); it != _subCommands.end(); ++it)
     {
