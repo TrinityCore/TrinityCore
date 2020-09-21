@@ -551,7 +551,7 @@ class spell_alysrazor_turn_monstrosity : public SpellScriptLoader
                 float angle = 0.0f;
                 if (Unit* bird = GetCaster()->GetVehicleBase())
                 {
-                    bird->SetInFront(GetHitUnit());
+                    bird->SetOrientationTowards(GetHitUnit());
                     angle = bird->GetOrientation();
                 }
 

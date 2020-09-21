@@ -2505,7 +2505,7 @@ class spell_mimiron_summon_flames_spread : public SpellScriptLoader
 
             void OnHit(SpellEffIndex /*effIndex*/)
             {
-                GetCaster()->SetInFront(GetHitUnit());
+                GetCaster()->SetOrientationTowards(GetHitUnit());
             }
 
             void Register() override

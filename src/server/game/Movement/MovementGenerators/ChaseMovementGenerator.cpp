@@ -117,7 +117,6 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
         if (Creature* cOwner = owner->ToCreature())
             cOwner->SetCannotReachTarget(false);
 
-        owner->SetInFront(target);
         owner->ClearUnitState(UNIT_STATE_CHASE_MOVE);
         DoMovementInform(owner, target);
         return true;

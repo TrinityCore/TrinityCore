@@ -472,14 +472,14 @@ void Unit::Update(uint32 p_time)
             ObjectGuid const channelGuid = GetChannelObjectGuid();
             if (!channelGuid.IsEmpty() && channelGuid != GetGUID())
                 if (WorldObject const* objectTarget = ObjectAccessor::GetWorldObject(*this, channelGuid))
-                    SetOrientation(GetAngle(objectTarget)); // use SetOrientation instead of SetInFront because channeling may apply no turn unit states.
+                    SetOrientationTowards(objectTarget);
         }
         else
         {
             ObjectGuid const targetGuid = GetTarget();
             if (!targetGuid.IsEmpty() && targetGuid != GetGUID())
                 if (WorldObject const* objectTarget = ObjectAccessor::GetWorldObject(*this, targetGuid))
-                    SetInFront(objectTarget);
+                    SetOrientationTowards(objectTarget);
         }
     }
 
@@ -13948,10 +13948,9 @@ bool CharmInfo::IsReturning()
     return _isReturning;
 }
 
-void Unit::SetInFront(WorldObject const* target)
+void Unit::SetOrientationTowards(WorldObject const* target)
 {
-    if (!HasUnitState(UNIT_STATE_CANNOT_TURN))
-        SetOrientation(GetAngle(target));
+    SetOrientation(GetAngle(target));
 }
 
 void Unit::SetFacingTo(float ori, bool force)

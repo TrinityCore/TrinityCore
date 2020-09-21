@@ -197,8 +197,8 @@ public:
                     ++IntroPhase;
                     break;
                 case 1:
-                    me->SetInFront(Madrigosa);
-                    Madrigosa->SetInFront(me);
+                    me->SetOrientationTowards(Madrigosa);
+                    Madrigosa->SetOrientationTowards(me);
                     Madrigosa->AI()->Talk(YELL_MADR_INTRO, me);
                     IntroPhaseTimer = 9000;
                     ++IntroPhase;
