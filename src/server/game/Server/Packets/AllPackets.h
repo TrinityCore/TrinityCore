@@ -19,6 +19,7 @@
 #define AllPackets_h__
 
 #include "AuthenticationPackets.h"
+#include "BattlegroundPackets.h"
 #include "CharacterPackets.h"
 #include "CombatLogPackets.h"
 #include "CombatPackets.h"
