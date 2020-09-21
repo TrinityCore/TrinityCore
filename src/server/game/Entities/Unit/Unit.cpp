@@ -462,6 +462,27 @@ void Unit::Update(uint32 p_time)
     if (!IsInWorld())
         return;
 
+    // Update server controlled facing for standing units
+    if (movespline->Finalized() && !isMoving())
+    {
+        // Prioritize tracking channeled spells above unit targets if they should both be present at the same time.
+        Spell const* channeledSpell = GetCurrentSpell(CURRENT_CHANNELED_SPELL);
+        if (channeledSpell && channeledSpell->GetSpellInfo()->HasAttribute(SPELL_ATTR1_CHANNEL_TRACK_TARGET))
+        {
+            ObjectGuid const channelGuid = GetChannelObjectGuid();
+            if (!channelGuid.IsEmpty() && channelGuid != GetGUID())
+                if (WorldObject const* objectTarget = ObjectAccessor::GetWorldObject(*this, channelGuid))
+                    SetOrientation(GetAngle(objectTarget)); // use SetOrientation instead of SetInFront because channeling may apply no turn unit states.
+        }
+        else
+        {
+            ObjectGuid const targetGuid = GetTarget();
+            if (!targetGuid.IsEmpty() && targetGuid != GetGUID())
+                if (WorldObject const* objectTarget = ObjectAccessor::GetWorldObject(*this, targetGuid))
+                    SetInFront(objectTarget);
+        }
+    }
+
     _UpdateSpells(p_time);
 
     // If this is set during update SetCantProc(false) call is missing somewhere in the code

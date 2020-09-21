@@ -1111,11 +1111,7 @@ Unit* Creature::SelectVictim()
         return nullptr;
 
     if (target && _IsTargetAcceptable(target) && CanCreatureAttack(target))
-    {
-        if (!HasSpellFocus())
-            SetInFront(target);
         return target;
-    }
 
     /// @todo a vehicle may eat some mob, so mob should not evade
     if (GetVehicle())
