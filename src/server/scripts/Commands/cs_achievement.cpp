@@ -40,7 +40,7 @@ public:
     {
         static ChatCommandTable commandTable =
         {
-            { "achievement add", HandleAchievementAddCommand, rbac::RBAC_PERM_COMMAND_ACHIEVEMENT_ADD, Console::No },
+            { "achievement add", HandleAchievementAddCommand, LANG_COMMAND_ACHIEVEMENT_ADD_HELP ,rbac::RBAC_PERM_COMMAND_ACHIEVEMENT_ADD, Console::No },
         };
         return commandTable;
     }
