@@ -608,21 +608,15 @@ void WorldSession::HandlePushQuestToParty(WorldPacket& recvPacket)
 
         sender->SendPushToPartyResponse(receiver, QUEST_PARTY_MSG_SHARING_QUEST);
 
-        bool questAutoAccepted = false;
-        if (quest->IsAutoAccept() && receiver->CanAddQuest(quest, true) && receiver->CanTakeQuest(quest, true))
-        {
-            receiver->AddQuestAndCheckCompletion(quest, sender);
-            questAutoAccepted = true;
-        }
-
         if ((quest->IsAutoComplete() && quest->IsRepeatable() && !quest->IsDailyOrWeekly()) || quest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE))
             receiver->PlayerTalkClass->SendQuestGiverRequestItems(quest, sender->GetGUID(), receiver->CanCompleteRepeatableQuest(quest), true);
         else
         {
             receiver->SetQuestSharingInfo(sender->GetGUID(), questId);
             receiver->PlayerTalkClass->SendQuestGiverQuestDetails(quest, receiver->GetGUID(), true);
-            if (questAutoAccepted)
+            if (quest->IsAutoAccept() && receiver->CanAddQuest(quest, true) && receiver->CanTakeQuest(quest, true))
             {
+                receiver->AddQuestAndCheckCompletion(quest, sender);
                 sender->SendPushToPartyResponse(receiver, QUEST_PARTY_MSG_ACCEPT_QUEST);
                 receiver->ClearQuestSharingInfo();
             }
