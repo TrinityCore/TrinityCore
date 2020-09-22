@@ -52,28 +52,28 @@ public:
     {
         static ChatCommandTable accountSetCommandTable =
         {
-            { "addon",              HandleAccountSetAddonCommand,       rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_ADDON,          Console::Yes },
-            { "sec regmail",        HandleAccountSetRegEmailCommand,    rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SEC_REGMAIL,    Console::Yes },
-            { "sec email",          HandleAccountSetEmailCommand,       rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SEC_EMAIL,      Console::Yes },
-            { "gmlevel",            HandleAccountSetSecLevelCommand,    rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SECLEVEL,       Console::Yes },  // temp for a transition period
-            { "seclevel",           HandleAccountSetSecLevelCommand,    rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SECLEVEL,       Console::Yes },
-            { "password",           HandleAccountSetPasswordCommand,    rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_PASSWORD,       Console::Yes },
-            { "2fa",                HandleAccountSet2FACommand,         rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_2FA,            Console::Yes },
+            { "addon",              HandleAccountSetAddonCommand,       LANG_COMMAND_ACC_SET_ADDON_HELP,        rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_ADDON,          Console::Yes },
+            { "sec regmail",        HandleAccountSetRegEmailCommand,    LANG_COMMAND_ACC_SET_SEC_REGMAIL_HELP,  rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SEC_REGMAIL,    Console::Yes },
+            { "sec email",          HandleAccountSetEmailCommand,       LANG_COMMAND_ACC_SET_SEC_EMAIL_HELP,    rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SEC_EMAIL,      Console::Yes },
+            { "gmlevel",            HandleAccountSetSecLevelCommand,    LANG_COMMAND_ACC_SET_SECLEVEL_HELP,     rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SECLEVEL,       Console::Yes },  // temp for a transition period
+            { "seclevel",           HandleAccountSetSecLevelCommand,    LANG_COMMAND_ACC_SET_SECLEVEL_HELP,     rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SECLEVEL,       Console::Yes },
+            { "password",           HandleAccountSetPasswordCommand,    LANG_COMMAND_ACC_SET_PASSWORD_HELP,     rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_PASSWORD,       Console::Yes },
+            { "2fa",                HandleAccountSet2FACommand,         LANG_COMMAND_ACC_SET_2FA_HELP,          rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_2FA,            Console::Yes },
         };
         static ChatCommandTable accountCommandTable =
         {
-            { "2fa setup",          HandleAccount2FASetupCommand,       rbac::RBAC_PERM_COMMAND_ACCOUNT_2FA_SETUP,          Console::No  },
-            { "2fa remove",         HandleAccount2FARemoveCommand,      rbac::RBAC_PERM_COMMAND_ACCOUNT_2FA_REMOVE,         Console::No  },
-            { "addon",              HandleAccountAddonCommand,          rbac::RBAC_PERM_COMMAND_ACCOUNT_ADDON,              Console::No  },
-            { "create",             HandleAccountCreateCommand,         rbac::RBAC_PERM_COMMAND_ACCOUNT_CREATE,             Console::Yes },
-            { "delete",             HandleAccountDeleteCommand,         rbac::RBAC_PERM_COMMAND_ACCOUNT_DELETE,             Console::Yes },
-            { "email",              HandleAccountEmailCommand,          rbac::RBAC_PERM_COMMAND_ACCOUNT_EMAIL,              Console::No  },
-            { "onlinelist",         HandleAccountOnlineListCommand,     rbac::RBAC_PERM_COMMAND_ACCOUNT_ONLINE_LIST,        Console::Yes },
-            { "lock country",       HandleAccountLockCountryCommand,    rbac::RBAC_PERM_COMMAND_ACCOUNT_LOCK_COUNTRY,       Console::No  },
-            { "lock ip",            HandleAccountLockIpCommand,         rbac::RBAC_PERM_COMMAND_ACCOUNT_LOCK_IP,            Console::No  },
+            { "2fa setup",          HandleAccount2FASetupCommand,       LANG_COMMAND_ACC_2FA_SETUP_HELP,        rbac::RBAC_PERM_COMMAND_ACCOUNT_2FA_SETUP,          Console::No  },
+            { "2fa remove",         HandleAccount2FARemoveCommand,      LANG_COMMAND_ACC_2FA_REMOVE_HELP,       rbac::RBAC_PERM_COMMAND_ACCOUNT_2FA_REMOVE,         Console::No  },
+            { "addon",              HandleAccountAddonCommand,          LANG_COMMAND_ACC_ADDON_HELP,            rbac::RBAC_PERM_COMMAND_ACCOUNT_ADDON,              Console::No  },
+            { "create",             HandleAccountCreateCommand,         LANG_COMMAND_ACC_CREATE_HELP,           rbac::RBAC_PERM_COMMAND_ACCOUNT_CREATE,             Console::Yes },
+            { "delete",             HandleAccountDeleteCommand,         LANG_COMMAND_ACC_DELETE_HELP,           rbac::RBAC_PERM_COMMAND_ACCOUNT_DELETE,             Console::Yes },
+            { "email",              HandleAccountEmailCommand,          LANG_COMMAND_ACC_EMAIL_HELP,            rbac::RBAC_PERM_COMMAND_ACCOUNT_EMAIL,              Console::No  },
+            { "onlinelist",         HandleAccountOnlineListCommand,     LANG_COMMAND_ACC_ONLINELIST_HELP,       rbac::RBAC_PERM_COMMAND_ACCOUNT_ONLINE_LIST,        Console::Yes },
+            { "lock country",       HandleAccountLockCountryCommand,    LANG_COMMAND_ACC_LOCK_COUNTRY_HELP,     rbac::RBAC_PERM_COMMAND_ACCOUNT_LOCK_COUNTRY,       Console::No  },
+            { "lock ip",            HandleAccountLockIpCommand,         LANG_COMMAND_ACC_LOCK_IP_HELP,          rbac::RBAC_PERM_COMMAND_ACCOUNT_LOCK_IP,            Console::No  },
             { "set",                accountSetCommandTable },
-            { "password",           HandleAccountPasswordCommand,       rbac::RBAC_PERM_COMMAND_ACCOUNT_PASSWORD,           Console::No  },
-            { "",                   HandleAccountCommand,               rbac::RBAC_PERM_COMMAND_ACCOUNT,                    Console::No  },
+            { "password",           HandleAccountPasswordCommand,       LANG_COMMAND_ACC_PASSWORD_HELP,         rbac::RBAC_PERM_COMMAND_ACCOUNT_PASSWORD,           Console::No  },
+            { "",                   HandleAccountCommand,               LANG_COMMAND_ACCOUNT_HELP,              rbac::RBAC_PERM_COMMAND_ACCOUNT,                    Console::No  },
         };
         static ChatCommandTable commandTable =
         {
@@ -695,9 +695,8 @@ public:
         if (realmId)
             realmID = *realmId;
 
-        // handler->getSession() == nullptr only for console
         uint32 playerSecurity;
-        if (handler->GetSession())
+        if (handler->IsConsole())
             playerSecurity = AccountMgr::GetSecurity(handler->GetSession()->GetAccountId(), realmID);
         else
             playerSecurity = SEC_CONSOLE;
