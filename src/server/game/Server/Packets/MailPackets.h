@@ -19,6 +19,7 @@
 #define MailPackets_h__
 
 #include "Packet.h"
+#include "ObjectGuid.h"
 
 namespace WorldPackets
 {
