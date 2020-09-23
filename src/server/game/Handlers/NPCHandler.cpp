@@ -25,7 +25,9 @@
 #include "DBCStores.h"
 #include "GossipDef.h"
 #include "Item.h"
+#include "ItemPackets.h"
 #include "Log.h"
+#include "MailPackets.h"
 #include "Map.h"
 #include "NPCPackets.h"
 #include "Opcodes.h"
@@ -76,9 +78,9 @@ void WorldSession::SendTabardVendorActivate(ObjectGuid guid)
 
 void WorldSession::SendShowMailBox(ObjectGuid guid)
 {
-    WorldPacket data(SMSG_SHOW_MAILBOX, 8);
-    data << guid;
-    SendPacket(&data);
+    WorldPackets::Mail::ShowMailbox packet;
+    packet.PostmasterGUID = guid;
+    SendPacket(packet.Write());
 }
 
 void WorldSession::HandleTrainerListOpcode(WorldPackets::NPC::Hello& packet)
@@ -137,17 +139,12 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPackets::NPC::TrainerBuySpel
     trainer->TeachSpell(npc, _player, packet.SpellID);
 }
 
-void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
+void WorldSession::HandleGossipHelloOpcode(WorldPackets::NPC::Hello& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_GOSSIP_HELLO");
-
-    ObjectGuid guid;
-    recvData >> guid;
-
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_GOSSIP);
+    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(packet.Unit, UNIT_NPC_FLAG_GOSSIP);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleGossipHelloOpcode - %s not found or you can not interact with him.", guid.ToString().c_str());
+        TC_LOG_DEBUG("network", "WORLD: HandleGossipHelloOpcode - %s not found or you can not interact with him.", packet.Unit.ToString().c_str());
         return;
     }
 
@@ -185,17 +182,12 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandleSpiritHealerActivateOpcode(WorldPacket& recvData)
+void WorldSession::HandleSpiritHealerActivateOpcode(WorldPackets::NPC::Hello& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_SPIRIT_HEALER_ACTIVATE");
-
-    ObjectGuid guid;
-    recvData >> guid;
-
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_SPIRITHEALER);
+    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(packet.Unit, UNIT_NPC_FLAG_SPIRITHEALER);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleSpiritHealerActivateOpcode - %s not found or you can not interact with him.", guid.ToString().c_str());
+        TC_LOG_DEBUG("network", "WORLD: HandleSpiritHealerActivateOpcode - %s not found or you can not interact with him.", packet.Unit.ToString().c_str());
         return;
     }
 
@@ -234,18 +226,15 @@ void WorldSession::SendSpiritResurrect()
     }
 }
 
-void WorldSession::HandleBinderActivateOpcode(WorldPacket& recvData)
+void WorldSession::HandleBinderActivateOpcode(WorldPackets::NPC::Hello& packet)
 {
-    ObjectGuid npcGUID;
-    recvData >> npcGUID;
-
     if (!GetPlayer()->IsInWorld() || !GetPlayer()->IsAlive())
         return;
 
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(npcGUID, UNIT_NPC_FLAG_INNKEEPER);
+    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(packet.Unit, UNIT_NPC_FLAG_INNKEEPER);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleBinderActivateOpcode - %s not found or you can not interact with him.", npcGUID.ToString().c_str());
+        TC_LOG_DEBUG("network", "WORLD: HandleBinderActivateOpcode - %s not found or you can not interact with him.", packet.Unit.ToString().c_str());
         return;
     }
 
@@ -267,22 +256,17 @@ void WorldSession::SendBindPoint(Creature* npc)
     // send spell for homebinding (3286)
     npc->CastSpell(_player, bindspell, true);
 
-    WorldPacket data(SMSG_TRAINER_BUY_SUCCEEDED, (8+4));
-    data << uint64(npc->GetGUID());
-    data << uint32(bindspell);
-    SendPacket(&data);
+    WorldPackets::NPC::TrainerBuySucceeded trainerBuySucceeded;
+    trainerBuySucceeded.TrainerGUID = npc->GetGUID();
+    trainerBuySucceeded.SpellID = bindspell;
+    _player->SendDirectMessage(trainerBuySucceeded.Write());
 
     _player->PlayerTalkClass->SendCloseGossip();
 }
 
-void WorldSession::HandleRequestStabledPets(WorldPacket& recvData)
+void WorldSession::HandleRequestStabledPets(WorldPackets::NPC::Hello& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: Recv MSG_LIST_STABLED_PETS");
-    ObjectGuid npcGUID;
-
-    recvData >> npcGUID;
-
-    if (!CheckStableMaster(npcGUID))
+    if (!CheckStableMaster(packet.Unit))
         return;
 
     // remove fake death
@@ -293,7 +277,7 @@ void WorldSession::HandleRequestStabledPets(WorldPacket& recvData)
     if (GetPlayer()->IsMounted())
         GetPlayer()->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
-    SendStablePet(npcGUID);
+    SendStablePet(packet.Unit);
 }
 
 void WorldSession::SendStablePet(ObjectGuid guid)
@@ -704,19 +688,15 @@ void WorldSession::HandleStableSwapPet(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandleRepairItemOpcode(WorldPacket& recvData)
+void WorldSession::HandleRepairItemOpcode(WorldPackets::Item::RepairItem& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_REPAIR_ITEM");
+    TC_LOG_DEBUG("network", "WORLD: CMSG_REPAIR_ITEM: Npc %s, Item %s, UseGuildBank: %u",
+        packet.NpcGUID.ToString().c_str(), packet.ItemGUID.ToString().c_str(), packet.UseGuildBank);
 
-    ObjectGuid npcGUID, itemGUID;
-    uint8 guildBank;                                        // new in 2.3.2, bool that means from guild bank money
-
-    recvData >> npcGUID >> itemGUID >> guildBank;
-
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(npcGUID, UNIT_NPC_FLAG_REPAIR);
+    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(packet.NpcGUID, UNIT_NPC_FLAG_REPAIR);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleRepairItemOpcode - %s not found or you can not interact with him.", npcGUID.ToString().c_str());
+        TC_LOG_DEBUG("network", "WORLD: HandleRepairItemOpcode - %s not found or you can not interact with him.", packet.NpcGUID.ToString().c_str());
         return;
     }
 
@@ -727,17 +707,17 @@ void WorldSession::HandleRepairItemOpcode(WorldPacket& recvData)
     // reputation discount
     float discountMod = _player->GetReputationPriceDiscount(unit);
 
-    if (itemGUID)
+    if (!packet.ItemGUID.IsEmpty())
     {
-        TC_LOG_DEBUG("network", "ITEM: Repair %s, at %s", itemGUID.ToString().c_str(), npcGUID.ToString().c_str());
+        TC_LOG_DEBUG("network", "ITEM: Repair %s, at %s", packet.ItemGUID.ToString().c_str(), packet.NpcGUID.ToString().c_str());
 
-        Item* item = _player->GetItemByGuid(itemGUID);
+        Item* item = _player->GetItemByGuid(packet.ItemGUID);
         if (item)
-            _player->DurabilityRepair(item->GetPos(), true, discountMod, guildBank != 0);
+            _player->DurabilityRepair(item->GetPos(), true, discountMod, packet.UseGuildBank);
     }
     else
     {
-        TC_LOG_DEBUG("network", "ITEM: Repair all items at %s", npcGUID.ToString().c_str());
-        _player->DurabilityRepairAll(true, discountMod, guildBank != 0);
+        TC_LOG_DEBUG("network", "ITEM: Repair all items at %s", packet.NpcGUID.ToString().c_str());
+        _player->DurabilityRepairAll(true, discountMod, packet.UseGuildBank);
     }
 }

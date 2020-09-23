@@ -15,26 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AllPackets_h__
-#define AllPackets_h__
-
-#include "BankPackets.h"
-#include "CharacterPackets.h"
-#include "ChatPackets.h"
-#include "CombatLogPackets.h"
-#include "CombatPackets.h"
-#include "GuildPackets.h"
-#include "ItemPackets.h"
-#include "LFGPackets.h"
 #include "MailPackets.h"
-#include "MiscPackets.h"
-#include "NPCPackets.h"
-#include "PetPackets.h"
-#include "QueryPackets.h"
-#include "QuestPackets.h"
-#include "SpellPackets.h"
-#include "SystemPackets.h"
-#include "TotemPackets.h"
-#include "WorldStatePackets.h"
 
-#endif // AllPackets_h__
+WorldPacket const* WorldPackets::Mail::ShowMailbox::Write()
+{
+    _worldPacket << PostmasterGUID;
+
+    return &_worldPacket;
+}

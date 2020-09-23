@@ -15,26 +15,27 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AllPackets_h__
-#define AllPackets_h__
+#ifndef ItemPackets_h__
+#define ItemPackets_h__
 
-#include "BankPackets.h"
-#include "CharacterPackets.h"
-#include "ChatPackets.h"
-#include "CombatLogPackets.h"
-#include "CombatPackets.h"
-#include "GuildPackets.h"
-#include "ItemPackets.h"
-#include "LFGPackets.h"
-#include "MailPackets.h"
-#include "MiscPackets.h"
-#include "NPCPackets.h"
-#include "PetPackets.h"
-#include "QueryPackets.h"
-#include "QuestPackets.h"
-#include "SpellPackets.h"
-#include "SystemPackets.h"
-#include "TotemPackets.h"
-#include "WorldStatePackets.h"
+#include "Packet.h"
 
-#endif // AllPackets_h__
+namespace WorldPackets
+{
+    namespace Item
+    {
+        class RepairItem final : public ClientPacket
+        {
+        public:
+            RepairItem(WorldPacket&& packet) : ClientPacket(CMSG_REPAIR_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid NpcGUID;
+            ObjectGuid ItemGUID;
+            bool UseGuildBank = false;
+        };
+    }
+}
+
+#endif // ItemPackets_h__

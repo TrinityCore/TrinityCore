@@ -15,26 +15,25 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AllPackets_h__
-#define AllPackets_h__
+#ifndef MailPackets_h__
+#define MailPackets_h__
 
-#include "BankPackets.h"
-#include "CharacterPackets.h"
-#include "ChatPackets.h"
-#include "CombatLogPackets.h"
-#include "CombatPackets.h"
-#include "GuildPackets.h"
-#include "ItemPackets.h"
-#include "LFGPackets.h"
-#include "MailPackets.h"
-#include "MiscPackets.h"
-#include "NPCPackets.h"
-#include "PetPackets.h"
-#include "QueryPackets.h"
-#include "QuestPackets.h"
-#include "SpellPackets.h"
-#include "SystemPackets.h"
-#include "TotemPackets.h"
-#include "WorldStatePackets.h"
+#include "Packet.h"
 
-#endif // AllPackets_h__
+namespace WorldPackets
+{
+    namespace Mail
+    {
+        class ShowMailbox final : public ServerPacket
+        {
+        public:
+            ShowMailbox() : ServerPacket(SMSG_SHOW_MAILBOX, 8) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid PostmasterGUID;
+        };
+    }
+}
+
+#endif // MailPackets_h__

@@ -100,12 +100,14 @@ namespace WorldPackets
     {
         class EmoteClient;
     }
+
     namespace Combat
     {
         class AttackSwing;
         class AttackStop;
         class SetSheathed;
     }
+
     namespace Guild
     {
         class QueryGuildInfo;
@@ -142,16 +144,24 @@ namespace WorldPackets
         class GuildSetGuildMaster;
         class SaveGuildEmblem;
     }
+    
+    namespace Item
+    {
+        class RepairItem;
+    }
+
     namespace LFG
     {
         class LFGJoin;
         class LFGLeave;
     }
+
     namespace NPC
     {
         class Hello;
         class TrainerBuySpell;
     }
+
     namespace Misc
     {
         class CompleteCinematic;
@@ -182,10 +192,12 @@ namespace WorldPackets
         class QueryItemSingle;
         class QuestPOIQuery;
     }
+
     namespace Quest
     {
         class QueryQuestInfo;
     }
+
     namespace Spells
     {
         class CancelCast;
@@ -196,6 +208,7 @@ namespace WorldPackets
         class CancelAutoRepeatSpell;
         class CancelChannelling;
     }
+
     namespace Totem
     {
         class TotemDestroyed;
@@ -628,7 +641,7 @@ class TC_GAME_API WorldSession
         void HandleShowingCloakOpcode(WorldPackets::Character::ShowingCloak& packet);
 
         // repair
-        void HandleRepairItemOpcode(WorldPacket& recvPacket);
+        void HandleRepairItemOpcode(WorldPackets::Item::RepairItem& packet);
 
         // Knockback
         void HandleMoveKnockBackAck(WorldPacket& recvPacket);
@@ -775,12 +788,12 @@ class TC_GAME_API WorldSession
         void HandleTrainerListOpcode(WorldPackets::NPC::Hello& packet);
         void HandleTrainerBuySpellOpcode(WorldPackets::NPC::TrainerBuySpell& packet);
         void HandlePetitionShowListOpcode(WorldPacket& recvPacket);
-        void HandleGossipHelloOpcode(WorldPacket& recvPacket);
+        void HandleGossipHelloOpcode(WorldPackets::NPC::Hello& packet);
         void HandleGossipSelectOptionOpcode(WorldPacket& recvPacket);
-        void HandleSpiritHealerActivateOpcode(WorldPacket& recvPacket);
+        void HandleSpiritHealerActivateOpcode(WorldPackets::NPC::Hello& packet);
         void HandleNpcTextQueryOpcode(WorldPacket& recvPacket);
-        void HandleBinderActivateOpcode(WorldPacket& recvPacket);
-        void HandleRequestStabledPets(WorldPacket& recvPacket);
+        void HandleBinderActivateOpcode(WorldPackets::NPC::Hello& packet);
+        void HandleRequestStabledPets(WorldPackets::NPC::Hello& packet);
         void HandleStablePet(WorldPacket& recvPacket);
         void HandleUnstablePet(WorldPacket& recvPacket);
         void HandleBuyStableSlot(WorldPacket& recvPacket);
