@@ -32,6 +32,9 @@ namespace WorldPackets
         // CMSG_GOSSIP_HELLO
         // CMSG_LIST_INVENTORY
         // CMSG_TRAINER_LIST
+        // MSG_TABARD_VENDOR_ACTIVATE
+        // CMSG_SPIRIT_HEALER_ACTIVATE
+        // MSG_LIST_STABLED_PETS
         class Hello final : public ClientPacket
         {
         public:
