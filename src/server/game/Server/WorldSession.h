@@ -144,7 +144,7 @@ namespace WorldPackets
         class GuildSetGuildMaster;
         class SaveGuildEmblem;
     }
-    
+
     namespace Item
     {
         class RepairItem;
