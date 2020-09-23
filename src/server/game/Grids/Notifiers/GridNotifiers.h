@@ -1057,7 +1057,8 @@ namespace Trinity
                     return;
 
                 // too far
-                if (!u->IsWithinDistInMap(i_funit, i_range))
+                // Don't use combat reach distance, range must be an absolute value, otherwise the chain aggro range will be too big
+                if (!u->IsWithinDistInMap(i_funit, i_range, true, false, false))
                     return;
 
                 // only if see assisted creature's enemy
@@ -1196,7 +1197,8 @@ namespace Trinity
                     return false;
 
                 // too far
-                if (!i_funit->IsWithinDistInMap(u, i_range))
+                // Don't use combat reach distance, range must be an absolute value, otherwise the chain aggro range will be too big
+                if (!i_funit->IsWithinDistInMap(u, i_range, true, false, false))
                     return false;
 
                 // only if see assisted creature
@@ -1224,7 +1226,8 @@ namespace Trinity
                 if (!u->CanAssistTo(i_obj, i_enemy))
                     return false;
 
-                if (!i_obj->IsWithinDistInMap(u, i_range))
+                // Don't use combat reach distance, range must be an absolute value, otherwise the chain aggro range will be too big
+                if (!i_obj->IsWithinDistInMap(u, i_range, true, false, false))
                     return false;
 
                 if (!i_obj->IsWithinLOSInMap(u))

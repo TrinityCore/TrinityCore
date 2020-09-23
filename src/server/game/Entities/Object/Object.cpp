@@ -1292,9 +1292,11 @@ float WorldObject::GetDistanceZ(const WorldObject* obj) const
     return (dist > 0 ? dist : 0);
 }
 
-bool WorldObject::_IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D) const
+bool WorldObject::_IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D, bool incOwnRadius, bool incTargetRadius) const
 {
-    float sizefactor = GetCombatReach() + obj->GetCombatReach();
+    float sizefactor = 0.f;
+    sizefactor += incOwnRadius ? GetCombatReach() : 0.0f;
+    sizefactor += incTargetRadius ? obj->GetCombatReach() : 0.0f;
     float maxdist = dist2compare + sizefactor;
 
     if (GetTransport() && obj->GetTransport() && obj->GetTransport()->GetGUID().GetCounter() == GetTransport()->GetGUID().GetCounter())
@@ -1391,11 +1393,10 @@ bool WorldObject::IsWithinDist(WorldObject const* obj, float dist2compare, bool 
     return obj && _IsWithinDist(obj, dist2compare, is3D);
 }
 
-bool WorldObject::IsWithinDistInMap(WorldObject const* obj, float dist2compare, bool is3D /*= true*/) const
+bool WorldObject::IsWithinDistInMap(WorldObject const* obj, float dist2compare, bool is3D /*= true*/, bool incOwnRadius /*= true*/, bool incTargetRadius /*= true*/) const
 {
-    return obj && IsInMap(obj) && IsInPhase(obj) && _IsWithinDist(obj, dist2compare, is3D);
+    return obj && IsInMap(obj) && IsInPhase(obj) && _IsWithinDist(obj, dist2compare, is3D, incOwnRadius, incTargetRadius);
 }
-
 Position WorldObject::GetHitSpherePointFor(Position const& dest) const
 {
     G3D::Vector3 vThis(GetPositionX(), GetPositionY(), GetPositionZ() + GetCollisionHeight());
