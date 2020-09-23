@@ -67,6 +67,16 @@ namespace WorldPackets
             std::string Greeting;
         };
 
+        class PlayerTabardVendorActivate final : public ServerPacket
+        {
+        public:
+            PlayerTabardVendorActivate() : ServerPacket(MSG_TABARD_VENDOR_ACTIVATE, 8) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Vendor;
+        };
+
         class TrainerBuySpell final : public ClientPacket
         {
         public:

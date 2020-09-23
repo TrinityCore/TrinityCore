@@ -626,7 +626,7 @@ void OpcodeTable::Initialize()
     /*0x1EF*/ DEFINE_HANDLER(MSG_GM_SHOWLABEL,                             STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     /*0x1F0*/ DEFINE_HANDLER(CMSG_PET_CAST_SPELL,                          STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::HandlePetCastSpellOpcode        );
     /*0x1F1*/ DEFINE_HANDLER(MSG_SAVE_GUILD_EMBLEM,                        STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleSaveGuildEmblemOpcode     );
-    /*0x1F2*/ DEFINE_HANDLER(MSG_TABARDVENDOR_ACTIVATE,                    STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::HandleTabardVendorActivateOpcode);
+    /*0x1F2*/ DEFINE_HANDLER(MSG_TABARD_VENDOR_ACTIVATE,                   STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::HandleTabardVendorActivateOpcode);
     /*0x1F3*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_PLAY_SPELL_VISUAL,         STATUS_NEVER);
     /*0x1F4*/ DEFINE_HANDLER(CMSG_ZONEUPDATE,                              STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::HandleZoneUpdateOpcode          );
     /*0x1F5*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_PARTYKILLLOG,              STATUS_NEVER);

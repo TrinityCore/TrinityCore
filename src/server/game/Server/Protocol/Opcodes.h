@@ -524,7 +524,7 @@ enum Opcodes : uint16
     MSG_GM_SHOWLABEL                                = 0x1EF,
     CMSG_PET_CAST_SPELL                             = 0x1F0,
     MSG_SAVE_GUILD_EMBLEM                           = 0x1F1,
-    MSG_TABARDVENDOR_ACTIVATE                       = 0x1F2,
+    MSG_TABARD_VENDOR_ACTIVATE                      = 0x1F2,
     SMSG_PLAY_SPELL_VISUAL                          = 0x1F3,
     CMSG_ZONEUPDATE                                 = 0x1F4,
     SMSG_PARTYKILLLOG                               = 0x1F5,
