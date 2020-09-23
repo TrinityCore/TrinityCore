@@ -228,7 +228,8 @@ enum TrinityStrings
     LANG_SUBCMDS_LIST_ENTRY_ELLIPSIS      = 192,
     LANG_SUBCMD_INVALID                   = 193,
     LANG_CMD_AMBIGUOUS                    = 194,
-    // Room for more level 1                195-199 not used
+    LANG_CMD_HELP_GENERIC                 = 195,
+    // Room for more level 1                196-199 not used
 
     // level 2 chat
     LANG_NO_SELECTION                     = 200,
@@ -409,7 +410,24 @@ enum TrinityStrings
     LANG_COMMAND_WHISPEROFFPLAYER         = 363,
     LANG_COMMAND_CHEAT_TAXINODES          = 364,
     LANG_COMMAND_ACHIEVEMENT_ADD_HELP     = 365,
-    // Room for more level 2                366-399 not used
+    LANG_COMMAND_ACC_SET_ADDON_HELP       = 366,
+    LANG_COMMAND_ACC_SET_SEC_REGMAIL_HELP = 367,
+    LANG_COMMAND_ACC_SET_SEC_EMAIL_HELP   = 368,
+    LANG_COMMAND_ACC_SET_2FA_HELP         = 369,
+    LANG_COMMAND_ACC_SET_SECLEVEL_HELP    = 370,
+    LANG_COMMAND_ACC_SET_PASSWORD_HELP    = 371,
+    LANG_COMMAND_ACC_2FA_SETUP_HELP       = 372,
+    LANG_COMMAND_ACC_2FA_REMOVE_HELP      = 373,
+    LANG_COMMAND_ACC_ADDON_HELP           = 374,
+    LANG_COMMAND_ACC_CREATE_HELP          = 375,
+    LANG_COMMAND_ACC_DELETE_HELP          = 376,
+    LANG_COMMAND_ACC_EMAIL_HELP           = 377,
+    LANG_COMMAND_ACC_ONLINELIST_HELP      = 378,
+    LANG_COMMAND_ACC_LOCK_COUNTRY_HELP    = 379,
+    LANG_COMMAND_ACC_LOCK_IP_HELP         = 380,
+    LANG_COMMAND_ACC_PASSWORD_HELP        = 381,
+    LANG_COMMAND_ACCOUNT_HELP             = 382,
+    // Room for more level 2                383-399 not used
 
     // level 3 chat
     LANG_SCRIPTS_RELOADED                 = 400,

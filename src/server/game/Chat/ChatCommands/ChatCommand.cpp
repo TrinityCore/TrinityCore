@@ -116,17 +116,23 @@ static ChatSubCommandMap COMMAND_MAP;
         } while (result->NextRow());
     }
 
-    for (auto const& [name, cmd] : COMMAND_MAP)
-        cmd.AssertCommandHelp(name);
+    for (auto& [name, cmd] : COMMAND_MAP)
+        cmd.ResolveNames(std::string(name));
 }
 
-void Trinity::Impl::ChatCommands::ChatCommandNode::AssertCommandHelp(std::string_view name) const
+void Trinity::Impl::ChatCommands::ChatCommandNode::ResolveNames(std::string name)
 {
     if (_invoker && std::holds_alternative<std::monostate>(_help))
-        TC_LOG_WARN("sql.sql", "Table `command` is missing help text for (sub-)command '" STRING_VIEW_FMT "'.", STRING_VIEW_FMT_ARG(name));
+        TC_LOG_WARN("sql.sql", "Table `command` is missing help text for command '" STRING_VIEW_FMT "'.", STRING_VIEW_FMT_ARG(name));
 
-    for (auto const& [name, cmd] : _subCommands)
-        cmd.AssertCommandHelp(name);
+    _name = name;
+    for (auto& [subToken, cmd] : _subCommands)
+    {
+        std::string subName(name);
+        subName.push_back(COMMAND_DELIMITER);
+        subName.append(subToken);
+        cmd.ResolveNames(subName);
+    }
 }
 
 static void LogCommandUsage(WorldSession const& session, uint32 permission, std::string_view cmdStr)
@@ -162,7 +168,8 @@ static void LogCommandUsage(WorldSession const& session, uint32 permission, std:
 
 void Trinity::Impl::ChatCommands::ChatCommandNode::SendCommandHelp(ChatHandler& handler) const
 {
-    if (IsInvokerVisible(handler))
+    bool const hasInvoker = IsInvokerVisible(handler);
+    if (hasInvoker)
     {
         if (std::holds_alternative<TrinityStrings>(_help))
             handler.SendSysMessage(std::get<TrinityStrings>(_help));
@@ -178,10 +185,12 @@ void Trinity::Impl::ChatCommands::ChatCommandNode::SendCommandHelp(ChatHandler& 
             continue;
         if (!header)
         {
+            if (!hasInvoker)
+                handler.PSendSysMessage(LANG_CMD_HELP_GENERIC, STRING_VIEW_FMT_ARG(_name));
             handler.SendSysMessage(LANG_SUBCMDS_LIST);
             header = true;
         }
-        handler.PSendSysMessage(subCommandHasSubCommand ? LANG_SUBCMDS_LIST_ENTRY_ELLIPSIS : LANG_SUBCMDS_LIST_ENTRY, STRING_VIEW_FMT_ARG(it->first));
+        handler.PSendSysMessage(subCommandHasSubCommand ? LANG_SUBCMDS_LIST_ENTRY_ELLIPSIS : LANG_SUBCMDS_LIST_ENTRY, STRING_VIEW_FMT_ARG(it->second._name));
     }
 }
 
@@ -253,9 +262,10 @@ namespace Trinity::Impl::ChatCommands
             if (it2)
             { /* there are multiple matching subcommands - print possibilities and return */
                 if (cmd)
-                    handler.PSendSysMessage(LANG_SUBCMD_AMBIGUOUS, STRING_VIEW_FMT_ARG(token));
+                    handler.PSendSysMessage(LANG_SUBCMD_AMBIGUOUS, STRING_VIEW_FMT_ARG(cmd->_name), COMMAND_DELIMITER, STRING_VIEW_FMT_ARG(token));
                 else
                     handler.PSendSysMessage(LANG_CMD_AMBIGUOUS, STRING_VIEW_FMT_ARG(token));
+
                 handler.PSendSysMessage(it1->second.HasVisibleSubCommands(handler) ? LANG_SUBCMDS_LIST_ENTRY_ELLIPSIS : LANG_SUBCMDS_LIST_ENTRY, STRING_VIEW_FMT_ARG(it1->first));
                 do
                 {
@@ -304,7 +314,7 @@ namespace Trinity::Impl::ChatCommands
             if (cmd)
             {
                 cmd->SendCommandHelp(handler);
-                handler.PSendSysMessage(LANG_SUBCMD_INVALID, STRING_VIEW_FMT_ARG(token));
+                handler.PSendSysMessage(LANG_SUBCMD_INVALID, STRING_VIEW_FMT_ARG(cmd->_name), COMMAND_DELIMITER, STRING_VIEW_FMT_ARG(token));
             }
             else
                 handler.PSendSysMessage(LANG_CMD_INVALID, STRING_VIEW_FMT_ARG(token));
@@ -318,7 +328,11 @@ namespace Trinity::Impl::ChatCommands
 
             if (it2)
             { /* there are multiple matching subcommands - print possibilities and return */
-                handler.PSendSysMessage(cmd ? LANG_SUBCMD_AMBIGUOUS : LANG_CMD_AMBIGUOUS, STRING_VIEW_FMT_ARG(token));
+                if (cmd)
+                    handler.PSendSysMessage(LANG_SUBCMD_AMBIGUOUS, STRING_VIEW_FMT_ARG(cmd->_name), COMMAND_DELIMITER, STRING_VIEW_FMT_ARG(token));
+                else
+                    handler.PSendSysMessage(LANG_CMD_AMBIGUOUS, STRING_VIEW_FMT_ARG(token));
+
                 handler.PSendSysMessage(it1->second.HasVisibleSubCommands(handler) ? LANG_SUBCMDS_LIST_ENTRY_ELLIPSIS : LANG_SUBCMDS_LIST_ENTRY, STRING_VIEW_FMT_ARG(it1->first));
                 do
                 {
@@ -343,7 +357,7 @@ namespace Trinity::Impl::ChatCommands
         handler.SendSysMessage(LANG_AVAILABLE_CMDS);
         do
         {
-            handler.PSendSysMessage(it->second.HasVisibleSubCommands(handler) ? LANG_SUBCMDS_LIST_ENTRY_ELLIPSIS : LANG_SUBCMDS_LIST_ENTRY, STRING_VIEW_FMT_ARG(it->first));
+            handler.PSendSysMessage(it->second.HasVisibleSubCommands(handler) ? LANG_SUBCMDS_LIST_ENTRY_ELLIPSIS : LANG_SUBCMDS_LIST_ENTRY, STRING_VIEW_FMT_ARG(it->second._name));
         } while (++it);
     }
     else
