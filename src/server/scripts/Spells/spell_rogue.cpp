@@ -56,6 +56,7 @@ enum RogueSpells
     SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT   = 31665,
     SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE          = 31223,
     SPELL_ROGUE_MASTER_OF_SUBTLETY_PERIODIC         = 31666,
+    SPELL_ROGUE_MASTER_POISONER                     = 58410,
     SPELL_ROGUE_MODERATE_INSIGHT                    = 84746,
     SPELL_ROGUE_MURDEROUS_INTENT                    = 79132,
     SPELL_ROGUE_OVERKILL_TALENT                     = 58426,
@@ -1142,78 +1143,57 @@ class spell_rog_envenom : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_ROGUE_REVEALING_STRIKE });
+        return ValidateSpellInfo(
+            {
+                SPELL_ROGUE_EVISCERATE_AND_ENVENOM_BONUS_DAMAGE,
+                SPELL_ROGUE_REVEALING_STRIKE,
+                SPELL_ROGUE_MASTER_POISONER
+            });
     }
 
     bool Load() override
     {
-        if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
-            return false;
-
-        if (GetCaster()->ToPlayer()->getClass() != CLASS_ROGUE)
-            return false;
-
-        return true;
+        return (GetCaster()->IsPlayer() && GetCaster()->ToPlayer()->getClass() == CLASS_ROGUE);
     }
 
     void ChangeDamage(SpellEffIndex /*effIndex*/)
     {
-        Unit* caster = GetCaster();
-        Unit* target = GetHitUnit();
-        if (!caster || !target)
+        Unit const* caster = GetCaster();
+        Unit const* target = GetHitUnit();
+        if (!target)
+            return;
+
+        Player const* player = caster->ToPlayer();
+        uint8 const comboPoints = player->GetComboPoints();
+        if (!comboPoints)
             return;
 
         int32 damage = GetEffectValue();
-        if (Player* player = caster->ToPlayer())
+
+        // Consume one stack of Deadly Poison per spent combo point to increase the damage dealt by Envenom
+        if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_ROGUE, 0x00010000, 0, 0, caster->GetGUID()))
         {
-            // consume from stack dozes not more that have combo-points
-            if (uint32 combo = player->GetComboPoints())
-            {
-                // Lookup for Deadly poison (only attacker applied)
-                if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_ROGUE, 0x00010000, 0, 0, caster->GetGUID()))
-                {
-                    // count consumed deadly poison doses at target
-                    bool needConsume = true;
-                    uint32 spellId = aurEff->GetId();
+            uint8 consumedStacks = std::min<uint8>(comboPoints, aurEff->GetBase()->GetStackAmount());
 
-                    uint32 doses = aurEff->GetBase()->GetStackAmount();
-                    if (doses > combo)
-                        doses = combo;
+            // As of patch 4.0.1 Master Poisoner now always prevents Envenom from consuming Deadly Poison stacks
+            if (!player->HasSpell(SPELL_ROGUE_MASTER_POISONER))
+                aurEff->GetBase()->ModStackAmount(-consumedStacks);
 
-                    // Master Poisoner
-                    Unit::AuraEffectList const& auraList = player->GetAuraEffectsByType(SPELL_AURA_MOD_AURA_DURATION_BY_DISPEL_NOT_STACK);
-                    for (Unit::AuraEffectList::const_iterator iter = auraList.begin(); iter != auraList.end(); ++iter)
-                    {
-                        if ((*iter)->GetSpellInfo()->SpellFamilyName == SPELLFAMILY_ROGUE && (*iter)->GetSpellInfo()->SpellIconID == 1960)
-                        {
-                            uint32 chance = (*iter)->GetSpellInfo()->Effects[EFFECT_2].CalcValue(caster);
-
-                            if (chance && roll_chance_i(chance))
-                                needConsume = false;
-
-                            break;
-                        }
-                    }
-
-                    if (needConsume)
-                        for (uint32 i = 0; i < doses; ++i)
-                            target->RemoveAuraFromStack(spellId, caster->GetGUID());
-
-                    damage *= doses;
-                    damage += int32(player->GetTotalAttackPowerValue(BASE_ATTACK) * 0.09f * combo);
-                }
-
-                // Eviscerate and Envenom Bonus Damage (item set effect)
-                if (caster->HasAura(37169))
-                    damage += combo * 40;
-
-                if (AuraEffect* const revealingStrike = target->GetAuraEffect(SPELL_ROGUE_REVEALING_STRIKE, EFFECT_2, caster->GetGUID()))
-                {
-                    damage += CalculatePct(damage, revealingStrike->GetAmount());
-                    revealingStrike->GetBase()->Remove();
-                }
-            }
+            damage *= consumedStacks;
+            damage += int32(player->GetTotalAttackPowerValue(BASE_ATTACK) * 0.09f * comboPoints);
         }
+
+        // Eviscerate and Envenom Bonus Damage (item set effect)
+        if (AuraEffect* aurEff = caster->GetAuraEffect(SPELL_ROGUE_EVISCERATE_AND_ENVENOM_BONUS_DAMAGE, EFFECT_0))
+            damage += comboPoints * aurEff->GetAmount();
+
+        if (AuraEffect* const revealingStrike = target->GetAuraEffect(SPELL_ROGUE_REVEALING_STRIKE, EFFECT_2, caster->GetGUID()))
+        {
+            damage += CalculatePct(damage, revealingStrike->GetAmount());
+            revealingStrike->GetBase()->Remove();
+        }
+
+        SetEffectValue(damage);
     }
 
     void Register() override
