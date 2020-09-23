@@ -228,7 +228,8 @@ enum TrinityStrings
     LANG_SUBCMDS_LIST_ENTRY_ELLIPSIS      = 192,
     LANG_SUBCMD_INVALID                   = 193,
     LANG_CMD_AMBIGUOUS                    = 194,
-    // Room for more level 1                195-199 not used
+    LANG_CMD_HELP_GENERIC                 = 195,
+    // Room for more level 1                196-199 not used
 
     // level 2 chat
     LANG_NO_SELECTION                     = 200,
