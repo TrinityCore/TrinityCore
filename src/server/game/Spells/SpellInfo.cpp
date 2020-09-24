@@ -4590,7 +4590,6 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, SpellEffectInfo const& ef
             case SPELL_AURA_MOD_SKILL:
             case SPELL_AURA_MOD_SKILL_2:
             case SPELL_AURA_MOD_DODGE_PERCENT:
-            case SPELL_AURA_MOD_HEALING_PCT:
             case SPELL_AURA_MOD_HEALING_DONE:
             case SPELL_AURA_MOD_DAMAGE_DONE_CREATURE:
             case SPELL_AURA_OBS_MOD_HEALTH:
@@ -4627,6 +4626,7 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, SpellEffectInfo const& ef
             case SPELL_AURA_MELEE_SLOW:
             case SPELL_AURA_MOD_ATTACK_POWER_PCT:
             case SPELL_AURA_MOD_HEALING_DONE_PERCENT:
+            case SPELL_AURA_MOD_HEALING_PCT:
                 if (!_isPositiveTarget(effect) || bp < 0)
                     return false;
                 break;
