@@ -74,7 +74,7 @@ bool CyclicMovementGenerator<Creature>::DoUpdate(Creature* creature, uint32 diff
     if (!creature || !creature->IsAlive())
         return true;
 
-    if (!_path || _path->nodes.empty())
+    if (!_path || _path->Nodes.empty())
         return true;
 
     if (!CanMove(creature))
@@ -99,7 +99,7 @@ bool CyclicMovementGenerator<Creature>::DoUpdate(Creature* creature, uint32 diff
 
 void CyclicMovementGenerator<Creature>::StartMovement(Creature* creature)
 {
-    if (!creature || !creature->IsAlive() || !CanMove(creature) || !_path || _path->nodes.empty())
+    if (!creature || !creature->IsAlive() || !CanMove(creature) || !_path || _path->Nodes.empty())
         return;
 
     if (!CanMove(creature) || (creature->IsFormationLeader() && !creature->IsFormationLeaderMoveAllowed())) // if cannot move OR cannot move because of formation
@@ -115,11 +115,11 @@ void CyclicMovementGenerator<Creature>::StartMovement(Creature* creature)
     Movement::MoveSplineInit init(creature);
     Movement::PointsArray path;
 
-    path.reserve(_path->nodes.size() + 1);
+    path.reserve(_path->Nodes.size() + 1);
     path.push_back(PositionToVector3(creature->GetPosition()));
-    std::transform(_path->nodes.begin(), _path->nodes.end(), std::back_inserter(path), [](WaypointNode const& node)
+    std::transform(_path->Nodes.begin(), _path->Nodes.end(), std::back_inserter(path), [](WaypointNode const& node)
     {
-        return G3D::Vector3(node.x, node.y, node.z);
+        return G3D::Vector3(node.X, node.Y, node.Z);
     });
 
     if (flying || (_enforceFlight.is_initialized() && *_enforceFlight))
@@ -130,6 +130,12 @@ void CyclicMovementGenerator<Creature>::StartMovement(Creature* creature)
 
     if (_velocity.is_initialized())
         init.SetVelocity(*_velocity);
+    else
+    {
+        float velocity = _path->Nodes.front().Velocity;
+        if (velocity > 0.f)
+            init.SetVelocity(velocity);
+    }
 
     if (_enforceWalk.is_initialized())
         init.SetWalk(*_enforceWalk);

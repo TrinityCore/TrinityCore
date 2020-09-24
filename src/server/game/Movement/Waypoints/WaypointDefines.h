@@ -33,39 +33,35 @@ enum WaypointMoveType
 
 struct WaypointNode
 {
-    WaypointNode() : id(0), x(0.f), y(0.f), z(0.f), orientation(0.f), delay(0), eventId(0), moveType(WAYPOINT_MOVE_TYPE_RUN), eventChance(0) { }
-    WaypointNode(uint32 _id, float _x, float _y, float _z, float _orientation = 0.f, uint32 _delay = 0)
+    WaypointNode() : Id(0), X(0.f), Y(0.f), Z(0.f), Orientation(0.f), Velocity(0.f), Delay(0), EventId(0), MoveType(WAYPOINT_MOVE_TYPE_RUN), EventChance(0) { }
+    WaypointNode(uint32 id, float x, float y, float z, float orientation = 0.f, float velocity = 0.f, uint32 delay = 0) :
+        Id(id), X(x), Y(y), Z(z), Orientation(orientation), Velocity(velocity), Delay(delay)
     {
-        id = _id;
-        x = _x;
-        y = _y;
-        z = _z;
-        orientation = _orientation;
-        delay = _delay;
-        eventId = 0;
-        moveType = WAYPOINT_MOVE_TYPE_WALK;
-        eventChance = 100;
+        EventId = 0;
+        MoveType = WAYPOINT_MOVE_TYPE_WALK;
+        EventChance = 100;
     }
 
-    uint32 id;
-    float x, y, z, orientation;
-    uint32 delay;
-    uint32 eventId;
-    uint32 moveType;
-    uint8 eventChance;
+    uint32 Id;
+    float X, Y, Z, Orientation;
+    float Velocity;
+    uint32 Delay;
+    uint32 EventId;
+    uint32 MoveType;
+    uint8 EventChance;
 };
 
 struct WaypointPath
 {
-    WaypointPath() : id(0) { }
+    WaypointPath() : Id(0) { }
     WaypointPath(uint32 _id, std::vector<WaypointNode>&& _nodes)
     {
-        id = _id;
-        nodes = _nodes;
+        Id = _id;
+        Nodes = _nodes;
     }
 
-    std::vector<WaypointNode> nodes;
-    uint32 id;
+    std::vector<WaypointNode> Nodes;
+    uint32 Id;
 };
 
 #endif

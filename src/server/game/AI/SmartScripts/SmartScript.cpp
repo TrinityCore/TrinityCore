@@ -2124,18 +2124,18 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         for (uint32 pathId : waypoints)
                         {
                             WaypointPath const* path = sSmartWaypointMgr->GetPath(pathId);
-                            if (!path || path->nodes.empty())
+                            if (!path || path->Nodes.empty())
                                 continue;
 
-                            for (auto itr = path->nodes.begin(); itr != path->nodes.end(); ++itr)
+                            for (auto itr = path->Nodes.begin(); itr != path->Nodes.end(); ++itr)
                             {
                                 WaypointNode const waypoint = *itr;
-                                float distamceToThisNode = creature->GetDistance(waypoint.x, waypoint.y, waypoint.z);
+                                float distamceToThisNode = creature->GetDistance(waypoint.X, waypoint.Y, waypoint.Z);
                                 if (distamceToThisNode < distanceToClosest)
                                 {
                                     distanceToClosest = distamceToThisNode;
                                     closest.first = pathId;
-                                    closest.second = waypoint.id;
+                                    closest.second = waypoint.Id;
                                 }
                             }
                         }
