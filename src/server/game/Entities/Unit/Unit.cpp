@@ -474,7 +474,7 @@ void Unit::Update(uint32 p_time)
                 if (WorldObject const* objectTarget = ObjectAccessor::GetWorldObject(*this, channelGuid))
                     SetOrientationTowards(objectTarget);
         }
-        else if (IsCreature())
+        else if (IsCreature() && !HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_POSSESSED))
         {
             ObjectGuid const targetGuid = GetTarget();
             if (!targetGuid.IsEmpty() && targetGuid != GetGUID())
