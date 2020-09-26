@@ -439,12 +439,14 @@ void AuctionBotBuyer::PlaceBidToEntry(AuctionPosting* auction, AuctionHouseObjec
     // Set bot as bidder and set new bid amount
     auction->Bidder = newBidder;
     auction->BidAmount = bidPrice;
+    auction->ServerFlags &= ~AuctionPostingServerFlag::GmLogBuyer;
 
     // Update auction to DB
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_AUCTION_BID);
     stmt->setUInt64(0, auction->Bidder.GetCounter());
-    stmt->setUInt32(1, auction->BidAmount);
-    stmt->setUInt32(2, auction->Id);
+    stmt->setUInt64(1, auction->BidAmount);
+    stmt->setUInt8(2, auction->ServerFlags.AsUnderlyingType());
+    stmt->setUInt32(3, auction->Id);
     trans->Append(stmt);
 
     // Run SQLs

@@ -435,6 +435,10 @@ void WorldSession::HandleAuctionPlaceBid(WorldPackets::AuctionHouse::AuctionPlac
     player->ModifyMoney(-int64(priceToPay));
     auction->Bidder = player->GetGUID();
     auction->BidAmount = placeBid.BidAmount;
+    if (HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE))
+        auction->ServerFlags |= AuctionPostingServerFlag::GmLogBuyer;
+    else
+        auction->ServerFlags &= ~AuctionPostingServerFlag::GmLogBuyer;
 
     if (canBuyout && placeBid.BidAmount == auction->BuyoutOrUnitPrice)
     {
@@ -450,7 +454,8 @@ void WorldSession::HandleAuctionPlaceBid(WorldPackets::AuctionHouse::AuctionPlac
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_AUCTION_BID);
         stmt->setUInt64(0, auction->Bidder.GetCounter());
         stmt->setUInt64(1, auction->BidAmount);
-        stmt->setUInt32(2, auction->Id);
+        stmt->setUInt8(2, auction->ServerFlags.AsUnderlyingType());
+        stmt->setUInt32(3, auction->Id);
         trans->Append(stmt);
 
         if (auction->BidderHistory.insert(player->GetGUID()).second)
