@@ -7235,7 +7235,8 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
     // recent client version not send leave/join channel packets for built-in local channels
     UpdateLocalChannels(newZone);
 
-    UpdateZoneDependentAuras(newZone);
+    if (oldZone != newZone)
+        UpdateZoneDependentAuras(newZone);
 
     // call enter script hooks after everyting else has processed
     sScriptMgr->OnPlayerUpdateZone(this, newZone, newArea);
@@ -24857,6 +24858,10 @@ void Player::UpdateAreaDependentAuras(uint32 newArea)
         else
             ++iter;
     }
+
+    // UpdateZoneDependentAuras takes care of zone specific auras so skip excessive casting if the area Id is the same as its parent.
+    if (m_zoneUpdateId == newArea)
+        return;
 
     // some auras applied at subzone enter
     SpellAreaForAreaMapBounds saBounds = sSpellMgr->GetSpellAreaForAreaMapBounds(newArea);
