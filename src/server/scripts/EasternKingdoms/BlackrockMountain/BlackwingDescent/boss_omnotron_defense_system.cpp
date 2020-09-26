@@ -51,6 +51,7 @@ enum Spells
     SPELL_ELECTRICAL_DISCHARGE                  = 79879,
     SPELL_UNSTABLE_SHIELD                       = 79900,
     SPELL_STATIC_SHOCK                          = 79912,
+    SPELL_LIGHTNING_CONDUCTOR_10N               = 79888,
 
     // Magmatron
     SPELL_INCINERATION_SECURITY_MEASURE         = 79023,
@@ -1490,12 +1491,18 @@ class spell_omnotron_shadow_infusion : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_SHADOW_CONDUCTOR });
+        return ValidateSpellInfo(
+            {
+                SPELL_SHADOW_CONDUCTOR,
+                SPELL_LIGHTNING_CONDUCTOR_10N
+            });
     }
 
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_SHADOW_CONDUCTOR, true);
+        Unit* target = GetHitUnit();
+        target->RemoveAurasDueToSpell(sSpellMgr->GetSpellIdForDifficulty(SPELL_LIGHTNING_CONDUCTOR_10N, target));
+        target->CastSpell(target, SPELL_SHADOW_CONDUCTOR, true);
     }
 
     void Register() override
