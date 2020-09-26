@@ -5298,6 +5298,42 @@ class spell_gen_zero_energy_zero_regen : public AuraScript
     }
 };
 
+enum LaunchQuestAura
+{
+    SPELL_LAUNCH_QUEST_PERSONAL_SUMMONS_HORDE       = 93079,
+    SPELL_LAUNCH_QUEST_PERSONAL_SUMMONS_ALLIANCE    = 93217,
+};
+
+// 93081 - Launch Quest Aura
+// 93216 - Launch Quest Aura
+class spell_gen_launch_quest_aura : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_LAUNCH_QUEST_PERSONAL_SUMMONS_HORDE,
+                SPELL_LAUNCH_QUEST_PERSONAL_SUMMONS_ALLIANCE
+            });
+    }
+
+    // According to sniffs the quests are being launched when the aura expires, not when it gets applied.
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Player* player = GetTarget()->ToPlayer();
+        if (!player)
+            return;
+
+        uint32 spellId = player->GetTeamId() == TEAM_ALLIANCE ? SPELL_LAUNCH_QUEST_PERSONAL_SUMMONS_ALLIANCE : SPELL_LAUNCH_QUEST_PERSONAL_SUMMONS_HORDE;
+        GetTarget()->CastSpell(GetTarget(), spellId);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove.Register(&spell_gen_launch_quest_aura::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -5348,6 +5384,7 @@ void AddSC_generic_spell_scripts()
     new spell_gen_increase_stats_buff("spell_mage_arcane_brilliance");
     new spell_gen_increase_stats_buff("spell_mage_dalaran_brilliance");
     new spell_gen_interrupt();
+    RegisterSpellScript(spell_gen_launch_quest_aura);
     new spell_gen_lifebloom("spell_hexlord_lifebloom", SPELL_HEXLORD_MALACRASS_LIFEBLOOM_FINAL_HEAL);
     new spell_gen_lifebloom("spell_tur_ragepaw_lifebloom", SPELL_TUR_RAGEPAW_LIFEBLOOM_FINAL_HEAL);
     new spell_gen_lifebloom("spell_cenarion_scout_lifebloom", SPELL_CENARION_SCOUT_LIFEBLOOM_FINAL_HEAL);
