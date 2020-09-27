@@ -65,6 +65,7 @@ enum RogueSpells
     SPELL_ROGUE_PREY_ON_THE_WEAK                    = 58670,
     SPELL_ROGUE_REVEALING_STRIKE                    = 84617,
     SPELL_ROGUE_REDIRECT                            = 73981,
+    SPELL_ROGUE_RELENTLESS_STRIKES_ENERGIZE         = 98440,
     SPELL_ROGUE_SHALLOW_INSIGHT                     = 84745,
     SPELL_ROGUE_SHIV_TRIGGERED                      = 5940,
     SPELL_ROGUE_SILCE_AND_DICE                      = 5171,
@@ -1454,6 +1455,26 @@ private:
     ObjectGuid _recentTargetGUID;
 };
 
+// 14181 - Relentless Strikes
+class spell_rog_relentless_strikes : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ROGUE_RELENTLESS_STRIKES_ENERGIZE });
+    }
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(caster, SPELL_ROGUE_RELENTLESS_STRIKES_ENERGIZE);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget.Register(&spell_rog_relentless_strikes::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_rogue_spell_scripts()
 {
     RegisterSpellScript(spell_rog_bandits_guile);
@@ -1477,6 +1498,7 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_preparation();
     new spell_rog_prey_on_the_weak();
     RegisterSpellScript(spell_rog_recuperate);
+    RegisterSpellScript(spell_rog_relentless_strikes);
     RegisterSpellScript(spell_rog_restless_blades);
     RegisterSpellScript(spell_rog_rupture);
     new spell_rog_glyph_of_backstab_triggered();
