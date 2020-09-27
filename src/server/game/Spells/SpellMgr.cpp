@@ -5417,17 +5417,10 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_5_YARDS);
     });
 
-    // Sonar Pulse (10n, 10h)
+    // Sonar Pulse
     ApplySpellFix({
         77672,
-        92412
-    }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->MaxAffectedTargets = 3;
-    });
-
-    // Sonar Pulse (25n, 25h)
-    ApplySpellFix({
+        92412,
         92411,
         92413
     }, [](SpellInfo* spellInfo)
@@ -5444,15 +5437,22 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_1].AuraPeriod = 2000;
     });
 
-    // Sonar Pulse
+    // Sonar Pulse (10 player)
     ApplySpellFix({
         92526,
-        92531,
         92532,
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 5;
+    });
+
+    // Sonar Pulse (25 player)
+    ApplySpellFix({
+        92531,
         92533
     }, [](SpellInfo* spellInfo)
     {
-        spellInfo->MaxAffectedTargets = 4;
+        spellInfo->MaxAffectedTargets = 12;
     });
 
     // Roaring Flame Breath
