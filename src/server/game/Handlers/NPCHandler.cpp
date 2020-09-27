@@ -26,6 +26,7 @@
 #include "GossipDef.h"
 #include "Item.h"
 #include "Log.h"
+#include "MailPackets.h"
 #include "Map.h"
 #include "NPCPackets.h"
 #include "Opcodes.h"
@@ -79,9 +80,9 @@ void WorldSession::SendTabardVendorActivate(ObjectGuid guid)
 
 void WorldSession::SendShowMailBox(ObjectGuid guid)
 {
-    WorldPacket data(SMSG_SHOW_MAILBOX, 8);
-    data << guid;
-    SendPacket(&data);
+    WorldPackets::Mail::ShowMailbox packet;
+    packet.PostmasterGUID = guid;
+    SendPacket(packet.Write());
 }
 
 void WorldSession::HandleTrainerListOpcode(WorldPackets::NPC::Hello& packet)
