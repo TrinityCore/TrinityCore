@@ -3113,7 +3113,10 @@ bool Map::CheckRespawn(RespawnInfo* info)
 void Map::Respawn(RespawnInfo* info, CharacterDatabaseTransaction dbTrans)
 {
     info->respawnTime = GameTime::GetGameTime();
-    _respawnTimes.increase(info->handle);
+
+    // Update order in _respawnTimes
+    _respawnTimes.insert(std::move(_respawnTimes.extract(info)));
+
     SaveRespawnInfoDB(*info, dbTrans);
 }
 
@@ -3168,7 +3171,7 @@ bool Map::AddRespawnInfo(RespawnInfo const& info)
         ABORT_MSG("Invalid respawn info for spawn id (%u,%u) being inserted", uint32(info.type), info.spawnId);
 
     RespawnInfo * ri = new RespawnInfo(info);
-    ri->handle = _respawnTimes.push(ri);
+    _respawnTimes.insert(ri);
     bySpawnIdMap.emplace(ri->spawnId, ri);
     return true;
 }
@@ -3219,7 +3222,7 @@ void Map::DeleteRespawnInfo(RespawnInfo* info, CharacterDatabaseTransaction dbTr
     spawnMap.erase(it);
 
     // respawn heap
-    _respawnTimes.erase(info->handle);
+    _respawnTimes.erase(info);
 
     // database
     DeleteRespawnInfoFromDB(info->type, info->spawnId, dbTrans);
@@ -3269,27 +3272,28 @@ void Map::ProcessRespawns()
     time_t now = GameTime::GetGameTime();
     while (!_respawnTimes.empty())
     {
-        RespawnInfo* next = _respawnTimes.top();
+        auto nextIterator = _respawnTimes.begin();
+        RespawnInfo* next = *nextIterator;
         if (now < next->respawnTime) // done for this tick
             break;
         if (CheckRespawn(next)) // see if we're allowed to respawn
         {
             // ok, respawn
-            _respawnTimes.pop();
+            _respawnTimes.erase(next);
             GetRespawnMapForType(next->type).erase(next->spawnId);
             DoRespawn(next->type, next->spawnId, next->gridId);
             delete next;
         }
         else if (!next->respawnTime) // just remove respawn entry without rescheduling
         {
-            _respawnTimes.pop();
+            _respawnTimes.erase(next);
             GetRespawnMapForType(next->type).erase(next->spawnId);
             delete next;
         }
         else // value changed, update heap position
         {
             ASSERT(now < next->respawnTime); // infinite loop guard
-            _respawnTimes.decrease(next->handle);
+            _respawnTimes.insert(std::move(_respawnTimes.extract(nextIterator)));
             SaveRespawnInfoDB(*next);
         }
     }

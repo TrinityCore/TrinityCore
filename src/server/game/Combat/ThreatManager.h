@@ -22,10 +22,10 @@
 #include "IteratorPair.h"
 #include "ObjectGuid.h"
 #include "SharedDefines.h"
-#include <boost/heap/fibonacci_heap.hpp>
 #include <array>
 #include <unordered_map>
 #include <vector>
+#include <set>
 
 class Creature;
 class Unit;
@@ -75,13 +75,18 @@ struct CompareThreatLessThan
 {
     CompareThreatLessThan() {}
     bool operator()(ThreatReference const* a, ThreatReference const* b) const;
+    bool operator()(ThreatReference const* a, ThreatReference const* b);
 };
 
 // Please check Game/Combat/ThreatManager.h for documentation on how this class works!
 class TC_GAME_API ThreatManager
 {
     public:
-        typedef boost::heap::fibonacci_heap<ThreatReference const*, boost::heap::compare<CompareThreatLessThan>> threat_list_heap;
+        // Use an ordered set, keep in mind that changes applied to ThreatReference will most likely not change the order in the collection.
+        // To update position you need to reinsert the item, C++17 introduced the method "extract" to obtain the node, you can move it back with minimum allocation/copy.
+        // As most implementations of std::set use a Tree (RBTree), the stated operation can cause a rebalancing of the tree.
+        typedef std::set<ThreatReference const*, CompareThreatLessThan> threat_list_heap;
+
         class ThreatListIterator;
         static const uint32 THREAT_UPDATE_INTERVAL = 1000u;
 
@@ -122,7 +127,7 @@ class TC_GAME_API ThreatManager
         // slightly slower than GetUnsorted, but, well...sorted - only use it if you need the sorted property, of course
         // this iterator pair will invalidate on any modification (even indirect) of the threat list; spell casts and similar can all induce this!
         // note: current tank is NOT guaranteed to be the first entry in this list - check GetLastVictim separately if you want that!
-        Trinity::IteratorPair<threat_list_heap::ordered_iterator> GetSortedThreatList() const { return { _sortedThreatList.ordered_begin(), _sortedThreatList.ordered_end() }; }
+        Trinity::IteratorPair<threat_list_heap::const_iterator> GetSortedThreatList() const { return { _sortedThreatList.cbegin(), _sortedThreatList.cend() }; }
         // slowest of the three threat list getters (by far), but lets you modify the threat references - this is also sorted
         std::vector<ThreatReference*> GetModifiableThreatList();
 
@@ -291,14 +296,12 @@ class TC_GAME_API ThreatReference
         void UpdateTauntState(TauntState state = TAUNT_STATE_NONE);
         Creature* const _owner;
         ThreatManager& _mgr;
-        void HeapNotifyIncreased() { _mgr._sortedThreatList.increase(_handle); }
-        void HeapNotifyDecreased() { _mgr._sortedThreatList.decrease(_handle); }
+        void NotifyThreatChange();
         Unit* const _victim;
         OnlineState _online;
         float _baseAmount;
         int32 _tempModifier; // Temporary effects (auras with SPELL_AURA_MOD_TOTAL_THREAT) - set from victim's threatmanager in ThreatManager::UpdateMyTempModifiers
         TauntState _taunted;
-        ThreatManager::threat_list_heap::handle_type _handle;
 
     public:
         ThreatReference(ThreatReference const&) = delete;
@@ -309,5 +312,6 @@ class TC_GAME_API ThreatReference
 };
 
 inline bool CompareThreatLessThan::operator()(ThreatReference const* a, ThreatReference const* b) const { return ThreatManager::CompareReferencesLT(a, b, 1.0f); }
+inline bool CompareThreatLessThan::operator()(ThreatReference const* a, ThreatReference const* b) { return ThreatManager::CompareReferencesLT(a, b, 1.0f); }
 
  #endif

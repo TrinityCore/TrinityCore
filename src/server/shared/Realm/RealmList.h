@@ -24,6 +24,7 @@
 #include <map>
 #include <vector>
 #include <unordered_set>
+#include <boost/asio/ip/tcp.hpp>
 
 struct RealmBuildInfo
 {
@@ -84,7 +85,7 @@ private:
     RealmMap _realms;
     uint32 _updateInterval;
     std::unique_ptr<Trinity::Asio::DeadlineTimer> _updateTimer;
-    std::unique_ptr<boost::asio::ip::tcp_resolver> _resolver;
+    std::unique_ptr<boost::asio::ip::tcp::resolver> _resolver;
 };
 
 #define sRealmList RealmList::Instance()

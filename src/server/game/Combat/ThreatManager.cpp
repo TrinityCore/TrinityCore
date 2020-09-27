@@ -39,10 +39,7 @@ void ThreatReference::AddThreat(float amount)
     if (amount == 0.0f)
         return;
     _baseAmount = std::max<float>(_baseAmount + amount, 0.0f);
-    if (amount > 0.0f)
-        HeapNotifyIncreased();
-    else
-        HeapNotifyDecreased();
+    NotifyThreatChange();
     _mgr._needClientUpdate = true;
 }
 
@@ -51,10 +48,7 @@ void ThreatReference::ScaleThreat(float factor)
     if (factor == 1.0f)
         return;
     _baseAmount *= factor;
-    if (factor > 1.0f)
-        HeapNotifyIncreased();
-    else
-        HeapNotifyDecreased();
+    NotifyThreatChange();
     _mgr._needClientUpdate = true;
 }
 
@@ -64,16 +58,15 @@ void ThreatReference::UpdateOffline()
     if (shouldBeOffline == IsOffline())
         return;
 
+    NotifyThreatChange();
     if (shouldBeOffline)
     {
         _online = ONLINE_STATE_OFFLINE;
-        HeapNotifyDecreased();
         _mgr.SendRemoveToClients(_victim);
     }
     else
     {
         _online = ShouldBeSuppressed() ? ONLINE_STATE_SUPPRESSED : ONLINE_STATE_ONLINE;
-        HeapNotifyIncreased();
         _mgr.RegisterForAIUpdate(this);
     }
 }
@@ -130,12 +123,17 @@ void ThreatReference::UpdateTauntState(TauntState state)
 
     std::swap(state, _taunted);
 
-    if (_taunted < state)
-        HeapNotifyDecreased();
-    else
-        HeapNotifyIncreased();
+    NotifyThreatChange();
 
     _mgr._needClientUpdate = true;
+}
+
+void ThreatReference::NotifyThreatChange() {
+    // Extract the node from the collection
+    auto node = _mgr._sortedThreatList.extract(this);
+
+    // Move it back to update order
+    _mgr._sortedThreatList.insert(std::move(node));
 }
 
 void ThreatReference::ClearThreat()
@@ -255,7 +253,7 @@ std::vector<ThreatReference*> ThreatManager::GetModifiableThreatList()
 {
     std::vector<ThreatReference*> list;
     list.reserve(_myThreatListEntries.size());
-    for (auto it = _sortedThreatList.ordered_begin(), end = _sortedThreatList.ordered_end(); it != end; ++it)
+    for (auto it = _sortedThreatList.cbegin(), end = _sortedThreatList.cend(); it != end; ++it)
         list.push_back(const_cast<ThreatReference*>(*it));
     return list;
 }
@@ -287,12 +285,12 @@ void ThreatManager::EvaluateSuppressed(bool canExpire)
         if (pair.second->IsOnline() && shouldBeSuppressed)
         {
             pair.second->_online = ThreatReference::ONLINE_STATE_SUPPRESSED;
-            pair.second->HeapNotifyDecreased();
+            pair.second->NotifyThreatChange();
         }
         else if (canExpire && pair.second->IsSuppressed() && !shouldBeSuppressed)
         {
             pair.second->_online = ThreatReference::ONLINE_STATE_ONLINE;
-            pair.second->HeapNotifyIncreased();
+            pair.second->NotifyThreatChange();
         }
     }
 }
@@ -378,7 +376,7 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
             if (!ref->ShouldBeSuppressed())
             {
                 ref->_online = ThreatReference::ONLINE_STATE_ONLINE;
-                ref->HeapNotifyIncreased();
+                ref->NotifyThreatChange();
             }
 
         if (ref->IsOnline())
@@ -413,7 +411,7 @@ void ThreatManager::MatchUnitThreatToHighestThreat(Unit* target)
     if (_sortedThreatList.empty())
         return;
 
-    auto it = _sortedThreatList.ordered_begin(), end = _sortedThreatList.ordered_end();
+    auto it = _sortedThreatList.cbegin(), end = _sortedThreatList.cend();
     ThreatReference const* highest = *it;
     if (!highest->IsAvailable())
         return;
@@ -536,7 +534,7 @@ ThreatReference const* ThreatManager::ReselectVictim()
     if (oldVictimRef && oldVictimRef->IsOffline())
         oldVictimRef = nullptr;
     // in 99% of cases - we won't need to actually look at anything beyond the first element
-    ThreatReference const* highest = _sortedThreatList.top();
+    ThreatReference const* highest = *_sortedThreatList.begin();
     // if the highest reference is offline, the entire list is offline, and we indicate this
     if (!highest->IsAvailable())
         return nullptr;
@@ -554,7 +552,7 @@ ThreatReference const* ThreatManager::ReselectVictim()
         return highest;
     // If we get here, highest threat is ranged, but below 130% of current - there might be a melee that breaks 110% below us somewhere, so now we need to actually look at the next highest element
     // luckily, this is a heap, so getting the next highest element is O(log n), and we're just gonna do that repeatedly until we've seen enough targets (or find a target)
-    auto it = _sortedThreatList.ordered_begin(), end = _sortedThreatList.ordered_end();
+    auto it = _sortedThreatList.cbegin(), end = _sortedThreatList.cend();
     while (it != end)
     {
         ThreatReference const* next = *it;
@@ -702,10 +700,7 @@ void ThreatManager::UpdateMyTempModifiers()
     do
     {
         it->second->_tempModifier = mod;
-        if (isIncrease)
-            it->second->HeapNotifyIncreased();
-        else
-            it->second->HeapNotifyDecreased();
+        it->second->NotifyThreatChange();
     } while ((++it) != _threatenedByMe.end());
 }
 
@@ -786,7 +781,7 @@ void ThreatManager::PutThreatListRef(ObjectGuid const& guid, ThreatReference* re
     auto& inMap = _myThreatListEntries[guid];
     ASSERT(!inMap, "Duplicate threat reference at %p being inserted on %s for %s - memory leak!", ref, _owner->GetGUID().ToString().c_str(), guid.ToString().c_str());
     inMap = ref;
-    ref->_handle = _sortedThreatList.push(ref);
+    _sortedThreatList.insert(ref);
 }
 
 void ThreatManager::PurgeThreatListRef(ObjectGuid const& guid)
@@ -796,7 +791,7 @@ void ThreatManager::PurgeThreatListRef(ObjectGuid const& guid)
         return;
     ThreatReference* ref = it->second;
     _myThreatListEntries.erase(it);
-    _sortedThreatList.erase(ref->_handle);
+    _sortedThreatList.erase(ref);
 
     if (_fixateRef == ref)
         _fixateRef = nullptr;

@@ -32,11 +32,11 @@
 #include "SpawnData.h"
 #include "Timer.h"
 #include "Transaction.h"
-#include <boost/heap/fibonacci_heap.hpp>
 #include <bitset>
 #include <list>
 #include <memory>
 #include <mutex>
+#include <set>
 
 class Battleground;
 class BattlegroundMap;
@@ -293,9 +293,15 @@ struct CompareRespawnInfo
     bool operator()(RespawnInfo const* a, RespawnInfo const* b) const;
 };
 typedef std::unordered_map<uint32 /*zoneId*/, ZoneDynamicInfo> ZoneDynamicInfoMap;
-typedef boost::heap::fibonacci_heap<RespawnInfo*, boost::heap::compare<CompareRespawnInfo>> RespawnListContainer;
-typedef RespawnListContainer::handle_type RespawnListHandle;
+
+// Use a std::set, it should have been a std::priority_queue but it can't be dynamically reordered.
+// Keep in mind that changes applied to RespawnInfo will most likely not change the order in the collection.
+// To update position you need to reinsert the item, C++17 introduced the method "extract" to obtain the node, you can move it back with minimum allocation/copy.
+// As most implementations of std::set use a Tree (RBTree), the stated operation can cause a rebalancing of the tree.
+typedef std::set<RespawnInfo*, CompareRespawnInfo> RespawnListContainer;
+
 typedef std::unordered_map<ObjectGuid::LowType, RespawnInfo*> RespawnInfoMap;
+
 struct RespawnInfo
 {
     SpawnObjectType type;
@@ -303,7 +309,6 @@ struct RespawnInfo
     uint32 entry;
     time_t respawnTime;
     uint32 gridId;
-    RespawnListHandle handle;
 };
 inline bool CompareRespawnInfo::operator()(RespawnInfo const* a, RespawnInfo const* b) const
 {
