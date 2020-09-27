@@ -142,16 +142,26 @@ namespace WorldPackets
         class GuildSetGuildMaster;
         class SaveGuildEmblem;
     }
+
     namespace LFG
     {
         class LFGJoin;
         class LFGLeave;
     }
-    namespace NPC
+
+    namespace Mail
     {
-        class Hello;
-        class TrainerBuySpell;
+        class MailCreateTextItem;
+        class MailDelete;
+        class MailGetList;
+        class MailMarkAsRead;
+        class MailQueryNextMailTime;
+        class MailReturnToSender;
+        class MailTakeItem;
+        class MailTakeMoney;
+        class SendMail;
     }
+
     namespace Misc
     {
         class CompleteCinematic;
@@ -164,6 +174,12 @@ namespace WorldPackets
         class ReclaimCorpse;
         class RepopRequest;
         class ResurrectResponse;
+    }
+
+    namespace NPC
+    {
+        class Hello;
+        class TrainerBuySpell;
     }
 
     namespace Pet
@@ -816,16 +832,16 @@ class TC_GAME_API WorldSession
         void HandleAutoStoreBankItemOpcode(WorldPackets::Bank::AutoStoreBankItem& packet);
         void HandleBuyBankSlotOpcode(WorldPackets::Bank::BuyBankSlot& buyBankSlot);
 
-        void HandleGetMailList(WorldPacket& recvData);
-        void HandleSendMail(WorldPacket& recvData);
-        void HandleMailTakeMoney(WorldPacket& recvData);
-        void HandleMailTakeItem(WorldPacket& recvData);
-        void HandleMailMarkAsRead(WorldPacket& recvData);
-        void HandleMailReturnToSender(WorldPacket& recvData);
-        void HandleMailDelete(WorldPacket& recvData);
+        void HandleGetMailList(WorldPackets::Mail::MailGetList& getList);
+        void HandleSendMail(WorldPackets::Mail::SendMail& sendMail);
+        void HandleMailTakeMoney(WorldPackets::Mail::MailTakeMoney& takeMoney);
+        void HandleMailTakeItem(WorldPackets::Mail::MailTakeItem& takeItem);
+        void HandleMailMarkAsRead(WorldPackets::Mail::MailMarkAsRead& markAsRead);
+        void HandleMailReturnToSender(WorldPackets::Mail::MailReturnToSender& returnToSender);
+        void HandleMailDelete(WorldPackets::Mail::MailDelete& mailDelete);
         void HandleItemTextQuery(WorldPacket& recvData);
-        void HandleMailCreateTextItem(WorldPacket& recvData);
-        void HandleQueryNextMailTime(WorldPacket& recvData);
+        void HandleMailCreateTextItem(WorldPackets::Mail::MailCreateTextItem& createTextItem);
+        void HandleQueryNextMailTime(WorldPackets::Mail::MailQueryNextMailTime& queryNextMailTime);
 
         void HandleSplitItemOpcode(WorldPacket& recvPacket);
         void HandleSwapInvItemOpcode(WorldPacket& recvPacket);

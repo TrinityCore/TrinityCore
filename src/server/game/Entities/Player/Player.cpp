@@ -62,6 +62,7 @@
 #include "LootItemStorage.h"
 #include "LootMgr.h"
 #include "Mail.h"
+#include "MailPackets.h"
 #include "MapManager.h"
 #include "MiscPackets.h"
 #include "MotionMaster.h"
@@ -2992,26 +2993,22 @@ void Player::RemoveMail(uint32 id)
 
 void Player::SendMailResult(uint32 mailId, MailResponseType mailAction, MailResponseResult mailError, uint32 equipError, ObjectGuid::LowType item_guid, uint32 item_count) const
 {
-    WorldPacket data(SMSG_SEND_MAIL_RESULT, (4+4+4+(4+4)));
-    data << (uint32) mailId;
-    data << (uint32) mailAction;
-    data << (uint32) mailError;
-    if (mailError == MAIL_ERR_EQUIP_ERROR)
-        data << (uint32) equipError;
-    else if (mailAction == MAIL_ITEM_TAKEN)
-    {
-        data << (uint32) item_guid;                         // item guid low?
-        data << (uint32) item_count;                        // item count?
-    }
-    SendDirectMessage(&data);
+    WorldPackets::Mail::MailCommandResult result;
+    result.MailID = mailId;
+    result.Command = mailAction;
+    result.ErrorCode = mailError;
+    result.BagResult = equipError;
+    result.AttachID = item_guid;
+    result.QtyInInventory = item_count;
+    SendDirectMessage(result.Write());
 }
 
 void Player::SendNewMail() const
 {
     // deliver undelivered mail
-    WorldPacket data(SMSG_RECEIVED_MAIL, 4);
-    data << (uint32) 0;
-    SendDirectMessage(&data);
+    WorldPackets::Mail::NotifyReceivedMail notify;
+    notify.Delay = 0.0f;
+    SendDirectMessage(notify.Write());
 }
 
 void Player::UpdateNextMailTimeAndUnreads()
