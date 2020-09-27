@@ -3836,7 +3836,7 @@ void Player::RemoveArenaSpellCooldowns(bool removeActivePetCooldowns)
 
 uint32 Player::ResetTalentsCost() const
 {
-    auto TEN_SILVER = 10*SILVER;
+    auto TEN_SILVER = (uint32) 10*SILVER;
 
     // The first time reset costs 1 gold
     if (m_resetTalentsCost < 1*TEN_SILVER)
