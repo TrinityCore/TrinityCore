@@ -157,7 +157,7 @@ void WorldPackets::Mail::MailListResult::AddMail(::Mail const* mail, Player* pla
         return;
 
     MailListEntry packetEntry(mail, player);
-    if (_worldPacket.size() + packetEntry.GetPacketSize() >= std::numeric_limits<int16>::max())
+    if (_worldPacket.size() + packetEntry.GetPacketSize() >= std::size_t(std::numeric_limits<int16>::max()))
     {
         _maxPacketSizeReached = true;
         return;
