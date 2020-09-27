@@ -7163,7 +7163,7 @@ float Unit::SpellCritChanceTaken(Unit const* caster, SpellInfo const* spellInfo,
                         break;
                     case SPELLFAMILY_SHAMAN:
                         // Lava Burst
-                        if (spellInfo->SpellFamilyFlags[1] & 0x00001000)
+                        if ((spellInfo->SpellFamilyFlags[1] & 01000) != 0 || (spellInfo->SpellFamilyFlags[2] & 0x400000) != 0)
                         {
                             if (GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_SHAMAN, 0x10000000, 0, 0, caster->GetGUID()))
                                 if (GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE) > -100)
