@@ -21,6 +21,7 @@
 #include "Define.h"
 #include <string>
 
+class QueryCallback;
 enum class AccountOpResult : uint8;
 
 #define MAX_BNET_EMAIL_STR 320
@@ -38,6 +39,7 @@ namespace Battlenet
         TC_GAME_API uint32 GetId(std::string_view username);
         TC_GAME_API bool GetName(uint32 accountId, std::string& name);
         TC_GAME_API uint32 GetIdByGameAccount(uint32 gameAccountId);
+        [[nodiscard]] TC_GAME_API QueryCallback GetIdByGameAccountAsync(uint32 gameAccountId);
         TC_GAME_API uint8 GetMaxIndex(uint32 accountId);
 
         TC_GAME_API std::string CalculateShaPassHash(std::string_view name, std::string_view password);

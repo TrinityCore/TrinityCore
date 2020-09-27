@@ -161,6 +161,13 @@ uint32 Battlenet::AccountMgr::GetIdByGameAccount(uint32 gameAccountId)
     return 0;
 }
 
+QueryCallback Battlenet::AccountMgr::GetIdByGameAccountAsync(uint32 gameAccountId)
+{
+    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_ACCOUNT_ID_BY_GAME_ACCOUNT);
+    stmt->setUInt32(0, gameAccountId);
+    return LoginDatabase.AsyncQuery(stmt);
+}
+
 uint8 Battlenet::AccountMgr::GetMaxIndex(uint32 accountId)
 {
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_MAX_ACCOUNT_INDEX);
