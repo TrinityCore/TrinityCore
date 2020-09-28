@@ -651,7 +651,7 @@ class spell_vp_howling_gale : public AuraScript
             });
     }
 
-    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
     {
         _inactiveTicks = 20;
         _weakTicks = 10;
