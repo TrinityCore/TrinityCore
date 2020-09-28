@@ -200,7 +200,7 @@ class boss_erekem : public CreatureScript
 
                 scheduler.Schedule(Seconds(2), [this](TaskContext task)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f))
                         DoCast(target, SPELL_LIGHTNING_BOLT);
 
                     task.Repeat(Milliseconds(2500));

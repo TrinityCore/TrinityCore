@@ -76,7 +76,7 @@ class boss_doomlord_kazzak : public CreatureScript
                 _events.ScheduleEvent(EVENT_CLEAVE, 7s);
                 _events.ScheduleEvent(EVENT_THUNDERCLAP, 14s, 18s);
                 _events.ScheduleEvent(EVENT_VOID_BOLT, 30s);
-                _events.ScheduleEvent(EVENT_MARK_OF_KAZZAK, 25000);
+                _events.ScheduleEvent(EVENT_MARK_OF_KAZZAK, 25s);
                 _events.ScheduleEvent(EVENT_ENRAGE, 1min);
                 _events.ScheduleEvent(EVENT_TWISTED_REFLECTION, 33s);
                 _events.ScheduleEvent(EVENT_BERSERK, 3min);
@@ -140,7 +140,7 @@ class boss_doomlord_kazzak : public CreatureScript
                             _events.ScheduleEvent(EVENT_VOID_BOLT, 15s, 18s);
                             break;
                         case EVENT_MARK_OF_KAZZAK:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                                 DoCast(target, SPELL_MARK_OF_KAZZAK);
                             _events.ScheduleEvent(EVENT_MARK_OF_KAZZAK, 20s);
                             break;
@@ -150,9 +150,9 @@ class boss_doomlord_kazzak : public CreatureScript
                             _events.ScheduleEvent(EVENT_ENRAGE, 30s);
                             break;
                         case EVENT_TWISTED_REFLECTION:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                                 DoCast(target, SPELL_TWISTED_REFLECTION);
-                            _events.ScheduleEvent(EVENT_TWISTED_REFLECTION, 15000);
+                            _events.ScheduleEvent(EVENT_TWISTED_REFLECTION, 15s);
                             break;
                         case EVENT_BERSERK:
                             DoCast(me, SPELL_BERSERK);

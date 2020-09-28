@@ -81,7 +81,7 @@ class boss_gloomrel : public CreatureScript
                     case GOSSIP_ACTION_INFO_DEF + 22:
                         CloseGossipMenuFor(player);
                         //are 5 minutes expected? go template may have data to despawn when used at quest
-                        instance->DoRespawnGameObject(instance->GetGuidData(DATA_GO_CHALICE), MINUTE * 5);
+                        instance->DoRespawnGameObject(instance->GetGuidData(DATA_GO_CHALICE), 5min);
                         break;
                 }
                 return true;
@@ -209,7 +209,7 @@ class boss_doomrel : public CreatureScript
                             _events.ScheduleEvent(EVENT_SHADOW_BOLT_VOLLEY, 12s);
                             break;
                         case EVENT_IMMOLATE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                                 DoCast(target, SPELL_IMMOLATE);
                             _events.ScheduleEvent(EVENT_IMMOLATE, 25s);
                             break;

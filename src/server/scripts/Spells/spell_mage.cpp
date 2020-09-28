@@ -68,7 +68,8 @@ enum MageSpells
     SPELL_MAGE_T8_4P_BONUS                       = 64869,
     SPELL_MAGE_MISSILE_BARRAGE                   = 44401,
     SPELL_MAGE_FINGERS_OF_FROST_AURASTATE_AURA   = 44544,
-    SPELL_MAGE_PERMAFROST_AURA                   = 68391
+    SPELL_MAGE_PERMAFROST_AURA                   = 68391,
+    SPELL_MAGE_ARCANE_MISSILES_R1                = 5143
 };
 
 enum MageSpellIcons
@@ -104,6 +105,38 @@ class spell_mage_incanters_absorbtion_base_AuraScript : public AuraScript
                 target->CastSpell(target, SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED, args);
             }
         }
+};
+
+// -5143 - Arcane Missiles
+class spell_mage_arcane_missiles : public AuraScript
+{
+    PrepareAuraScript(spell_mage_arcane_missiles);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_T10_2P_BONUS, SPELL_MAGE_T10_2P_BONUS_EFFECT });
+    }
+
+    void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        if (target->HasAura(SPELL_MAGE_T10_2P_BONUS) && _canProcT10)
+            target->CastSpell(nullptr, SPELL_MAGE_T10_2P_BONUS_EFFECT, aurEff);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_mage_arcane_missiles::OnRemove, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+    }
+
+private:
+    bool _canProcT10 = false;
+
+public:
+    void AllowT10Proc()
+    {
+        _canProcT10 = true;
+    }
 };
 
 // -31571 - Arcane Potency
@@ -728,7 +761,6 @@ class spell_mage_focus_magic : public SpellScriptLoader
         }
 };
 
-// 44401 - Missile Barrage
 // 48108 - Hot Streak
 // 57761 - Fireball!
 class spell_mage_gen_extra_effects : public SpellScriptLoader
@@ -1301,6 +1333,50 @@ class spell_mage_missile_barrage : public SpellScriptLoader
         }
 };
 
+// 44401 - Missile Barrage
+class spell_mage_missile_barrage_proc : public AuraScript
+{
+    PrepareAuraScript(spell_mage_missile_barrage_proc);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_T10_2P_BONUS, SPELL_MAGE_T8_4P_BONUS });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        Unit* caster = eventInfo.GetActor();
+        // Prevent double proc for Arcane missiles
+        if (caster == eventInfo.GetProcTarget())
+            return false;
+
+        // Proc chance is unknown, we'll just use dummy aura amount
+        if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_MAGE_T8_4P_BONUS, EFFECT_0))
+            if (roll_chance_i(aurEff->GetAmount()))
+                return false;
+
+        return true;
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* caster = GetTarget();
+        if (caster->HasAura(SPELL_MAGE_T10_2P_BONUS))
+            if (Aura* aura = caster->GetAuraOfRankedSpell(SPELL_MAGE_ARCANE_MISSILES_R1))
+                if (spell_mage_arcane_missiles* missiles = aura->GetScript<spell_mage_arcane_missiles>(ScriptName))
+                    missiles->AllowT10Proc();
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_mage_missile_barrage_proc::CheckProc);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_mage_missile_barrage_proc::OnRemove, EFFECT_0, SPELL_AURA_ADD_FLAT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+    }
+
+public:
+    static char constexpr const ScriptName[] = "spell_mage_arcane_missiles";
+};
+
 enum SilvermoonPolymorph
 {
     NPC_AUROSALIA   = 18744,
@@ -1398,6 +1474,7 @@ class spell_mage_summon_water_elemental : public SpellScriptLoader
 void AddSC_mage_spell_scripts()
 {
     new spell_mage_arcane_potency();
+    RegisterSpellScript(spell_mage_arcane_missiles);
     new spell_mage_blast_wave();
     new spell_mage_blazing_speed();
     new spell_mage_burning_determination();
@@ -1405,13 +1482,13 @@ void AddSC_mage_spell_scripts()
     new spell_mage_cold_snap();
     new spell_mage_combustion();
     new spell_mage_combustion_proc();
-    RegisterAuraScript(spell_mage_dragon_breath);
+    RegisterSpellScript(spell_mage_dragon_breath);
     new spell_mage_imp_blizzard();
     new spell_mage_imp_mana_gems();
     new spell_mage_empowered_fire();
     new spell_mage_fingers_of_frost();
     new spell_mage_fire_frost_ward();
-    RegisterAuraScript(spell_mage_frostfire_bolt);
+    RegisterSpellScript(spell_mage_frostfire_bolt);
     new spell_mage_focus_magic();
     new spell_mage_gen_extra_effects();
     new spell_mage_glyph_of_polymorph();
@@ -1425,8 +1502,9 @@ void AddSC_mage_spell_scripts()
     new spell_mage_magic_absorption();
     new spell_mage_mana_shield();
     new spell_mage_master_of_elements();
-    RegisterAuraScript(spell_mage_mirror_image);
+    RegisterSpellScript(spell_mage_mirror_image);
     new spell_mage_missile_barrage();
+    RegisterSpellScript(spell_mage_missile_barrage_proc);
     new spell_mage_polymorph_cast_visual();
     new spell_mage_summon_water_elemental();
 }

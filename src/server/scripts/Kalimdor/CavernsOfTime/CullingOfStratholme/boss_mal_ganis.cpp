@@ -150,7 +150,7 @@ class boss_mal_ganis : public CreatureScript
                             events.Repeat(Seconds(6));
                             break;
                         case EVENT_MIND_BLAST:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true, -int32(sSpellMgr->GetSpellIdForDifficulty(SPELL_SLEEP, me))))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 100.0f, true, -int32(sSpellMgr->GetSpellIdForDifficulty(SPELL_SLEEP, me))))
                                 DoCast(target, SPELL_MIND_BLAST);
                             else
                                 DoCastVictim(SPELL_MIND_BLAST);
@@ -161,7 +161,7 @@ class boss_mal_ganis : public CreatureScript
                             events.Repeat(Seconds(30));
                             break;
                         case EVENT_SLEEP:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 100.0f))
                                 DoCast(target, SPELL_SLEEP);
                             else
                                 DoCastVictim(SPELL_SLEEP);

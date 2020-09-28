@@ -597,7 +597,7 @@ struct npc_tirion_toc : public ScriptedAI
                 case EVENT_LICH_KING_SAY_CHALLENGE:
                     if (Creature* lkVoice = _instance->GetCreature(DATA_LICH_KING_VOICE))
                         lkVoice->AI()->Talk(LK_VOICE_SAY_CHALLENGE);
-                    if (Creature* arthasPortal = me->SummonCreature(NPC_ARTHAS_PORTAL, ArthasPortalSpawnPosition, TEMPSUMMON_TIMED_DESPAWN, Seconds(34)))
+                    if (Creature* arthasPortal = me->SummonCreature(NPC_ARTHAS_PORTAL, ArthasPortalSpawnPosition, TEMPSUMMON_TIMED_DESPAWN, 34s))
                         arthasPortal->m_Events.AddEventAtOffset(new ArthasPortalEvent(arthasPortal), 3s);
                     _events.ScheduleEvent(EVENT_SUMMON_LICH_KING, 5s);
                     break;
@@ -643,7 +643,7 @@ struct npc_open_portal_target_toc : public ScriptedAI
         me->SetDisableGravity(true);
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spellInfo) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
     {
         if (spellInfo->Id == SPELL_OPEN_PORTAL)
         {

@@ -168,7 +168,7 @@ public:
                     break;
                 case DATA_CHESS:
                     if (state == DONE)
-                        DoRespawnGameObject(DustCoveredChest, DAY);
+                        DoRespawnGameObject(DustCoveredChest, 24h);
                     break;
                 default:
                     break;

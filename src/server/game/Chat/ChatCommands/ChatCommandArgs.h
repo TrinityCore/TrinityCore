@@ -20,6 +20,9 @@
 
 #include "ChatCommandHelpers.h"
 #include "ChatCommandTags.h"
+#include "SmartEnum.h"
+#include "Util.h"
+#include <map>
 
 struct GameTele;
 
@@ -38,17 +41,23 @@ namespace ChatCommands
 |*                                                                                      *|
 \****************************************************************************************/
 template <typename T, typename = void>
-struct ArgInfo { static_assert(!advstd::is_same_v<T,T>, "Invalid command parameter type - see ChatCommandArgs.h for possible types"); };
+struct ArgInfo { static_assert(!std::is_same_v<T,T>, "Invalid command parameter type - see ChatCommandArgs.h for possible types"); };
 
 // catch-all for signed integral types
 template <typename T>
-struct ArgInfo<T, std::enable_if_t<advstd::is_integral_v<T> && advstd::is_signed_v<T>>>
+struct ArgInfo<T, std::enable_if_t<std::is_integral_v<T> && std::is_signed_v<T>>>
 {
     static char const* TryConsume(T& val, char const* args)
     {
         char const* next = args;
-        std::string token(args, tokenize(next));
-        try { val = std::stoll(token); }
+        std::string token(args, Trinity::Impl::ChatCommands::tokenize(next));
+        try
+        {
+            size_t processedChars = 0;
+            val = std::stoll(token, &processedChars, 0);
+            if (processedChars != token.length())
+                return nullptr;
+        }
         catch (...) { return nullptr; }
         return next;
     }
@@ -56,13 +65,19 @@ struct ArgInfo<T, std::enable_if_t<advstd::is_integral_v<T> && advstd::is_signed
 
 // catch-all for unsigned integral types
 template <typename T>
-struct ArgInfo<T, std::enable_if_t<advstd::is_integral_v<T> && advstd::is_unsigned_v<T>>>
+struct ArgInfo<T, std::enable_if_t<std::is_integral_v<T> && std::is_unsigned_v<T>>>
 {
     static char const* TryConsume(T& val, char const* args)
     {
         char const* next = args;
-        std::string token(args, tokenize(next));
-        try { val = std::stoull(token); }
+        std::string token(args, Trinity::Impl::ChatCommands::tokenize(next));
+        try
+        {
+            size_t processedChars = 0;
+            val = std::stoull(token, &processedChars, 0);
+            if (processedChars != token.length())
+                return nullptr;
+        }
         catch (...) { return nullptr; }
         return next;
     }
@@ -70,13 +85,19 @@ struct ArgInfo<T, std::enable_if_t<advstd::is_integral_v<T> && advstd::is_unsign
 
 // catch-all for floating point types
 template <typename T>
-struct ArgInfo<T, std::enable_if_t<advstd::is_floating_point_v<T>>>
+struct ArgInfo<T, std::enable_if_t<std::is_floating_point_v<T>>>
 {
     static char const* TryConsume(T& val, char const* args)
     {
         char const* next = args;
-        std::string token(args, tokenize(next));
-        try { val = std::stold(token); }
+        std::string token(args, Trinity::Impl::ChatCommands::tokenize(next));
+        try
+        {
+            size_t processedChars = 0;
+            val = std::stold(token, &processedChars);
+            if (processedChars != token.length())
+                return nullptr;
+        }
         catch (...) { return nullptr; }
         return std::isfinite(val) ? next : nullptr;
     }
@@ -89,7 +110,7 @@ struct ArgInfo<std::string, void>
     static char const* TryConsume(std::string& val, char const* args)
     {
         char const* next = args;
-        if (size_t len = tokenize(next))
+        if (size_t len = Trinity::Impl::ChatCommands::tokenize(next))
         {
             val.assign(args, len);
             return next;
@@ -99,9 +120,111 @@ struct ArgInfo<std::string, void>
     }
 };
 
+// wstring
+template <>
+struct ArgInfo<std::wstring, void>
+{
+    static char const* TryConsume(std::wstring& val, char const* args)
+    {
+        std::string utf8Str;
+        char const* ret = ArgInfo<std::string>::TryConsume(utf8Str, args);
+
+        if (!ret)
+            return nullptr;
+
+        if (!Utf8toWStr(utf8Str, val))
+            return nullptr;
+
+        return ret;
+    }
+};
+
+// enum
+template <typename T>
+struct ArgInfo<T, std::enable_if_t<std::is_enum_v<T>>>
+{
+    static std::map<std::string, Optional<T>> MakeSearchMap()
+    {
+        std::map<std::string, Optional<T>> map;
+        for (T val : EnumUtils::Iterate<T>())
+        {
+            EnumText text = EnumUtils::ToString(val);
+
+            std::string title(text.Title);
+            strToLower(title);
+            std::string constant(text.Constant);
+            strToLower(constant);
+
+            auto [constantIt, constantNew] = map.try_emplace(constant, val);
+            if (!constantNew)
+                constantIt->second = std::nullopt;
+
+            if (title != constant)
+            {
+                auto [titleIt, titleNew] = map.try_emplace(title, val);
+                if (!titleNew)
+                    titleIt->second = std::nullopt;
+            }
+        }
+        return map;
+    }
+
+    static inline std::map<std::string, Optional<T>> const SearchMap = MakeSearchMap();
+
+    static T const* Match(std::string s)
+    {
+        strToLower(s);
+
+        auto it = SearchMap.lower_bound(s);
+        if (it == SearchMap.end() || !StringStartsWith(it->first, s)) // not a match
+            return nullptr;
+
+        if (it->first != s) // we don't have an exact match - check if it is unique
+        {
+            auto it2 = it;
+            ++it2;
+            if (it2 != SearchMap.end() && StringStartsWith(it2->first, s)) // not unique
+                return nullptr;
+        }
+
+        if (it->second)
+            return &*it->second;
+        else
+            return nullptr;
+    }
+
+    static char const* TryConsume(T& val, char const* args)
+    {
+        std::string strVal;
+        char const* ret = ArgInfo<std::string>::TryConsume(strVal, args);
+
+        if (!ret)
+            return nullptr;
+
+        if (T const* tmpVal = Match(strVal))
+        {
+            val = *tmpVal;
+            return ret;
+        }
+
+        // Value not found. Try to parse arg as underlying type and cast it to enum type
+        using U = std::underlying_type_t<T>;
+        U uVal = 0;
+        ret = ArgInfo<U>::TryConsume(uVal, args);
+        if (ret)
+        {
+            val = static_cast<T>(uVal);
+            if (!EnumUtils::IsValid(val))
+                return nullptr;
+        }
+
+        return ret;
+    }
+};
+
 // a container tag
 template <typename T>
-struct ArgInfo<T, std::enable_if_t<advstd::is_base_of_v<ContainerTag, T>>>
+struct ArgInfo<T, std::enable_if_t<std::is_base_of_v<ContainerTag, T>>>
 {
     static char const* TryConsume(T& tag, char const* args)
     {
@@ -121,6 +244,13 @@ template <>
 struct TC_GAME_API ArgInfo<GameTele const*>
 {
     static char const* TryConsume(GameTele const*&, char const*);
+};
+
+// SpellInfo const* from spell id or link
+template <>
+struct TC_GAME_API ArgInfo<SpellInfo const*>
+{
+    static char const* TryConsume(SpellInfo const*&, char const*);
 };
 
 // bool from 1/0 or on/off

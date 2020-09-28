@@ -178,7 +178,7 @@ public:
             events.ScheduleEvent(EVENT_FLAME_TSUNAMI, 30s);
             events.ScheduleEvent(EVENT_CALL_TENEBRON, 30s);
             events.ScheduleEvent(EVENT_CALL_SHADRON, 75s);
-            events.ScheduleEvent(EVENT_CALL_VESPERON, 120000);
+            events.ScheduleEvent(EVENT_CALL_VESPERON, 120s);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -430,19 +430,19 @@ public:
                         {
                             case 0:
                             {
-                                if (Creature* right1 = me->SummonCreature(NPC_FLAME_TSUNAMI, FlameRight1Spawn, TEMPSUMMON_TIMED_DESPAWN, 12000))
+                                if (Creature* right1 = me->SummonCreature(NPC_FLAME_TSUNAMI, FlameRight1Spawn, TEMPSUMMON_TIMED_DESPAWN, 12s))
                                     right1->GetMotionMaster()->MovePoint(0, FlameRight1Direction);
-                                if (Creature* right2 = me->SummonCreature(NPC_FLAME_TSUNAMI, FlameRight2Spawn, TEMPSUMMON_TIMED_DESPAWN, 12000))
+                                if (Creature* right2 = me->SummonCreature(NPC_FLAME_TSUNAMI, FlameRight2Spawn, TEMPSUMMON_TIMED_DESPAWN, 12s))
                                     right2->GetMotionMaster()->MovePoint(0, FlameRight2Direction);
-                                if (Creature* right3 = me->SummonCreature(NPC_FLAME_TSUNAMI, FlameRight3Spawn, TEMPSUMMON_TIMED_DESPAWN, 12000))
+                                if (Creature* right3 = me->SummonCreature(NPC_FLAME_TSUNAMI, FlameRight3Spawn, TEMPSUMMON_TIMED_DESPAWN, 12s))
                                     right3->GetMotionMaster()->MovePoint(0, FlameRight3Direction);
                                 break;
                             }
                             case 1:
                             {
-                                if (Creature* left1 = me->SummonCreature(NPC_FLAME_TSUNAMI, FlameLeft1Spawn, TEMPSUMMON_TIMED_DESPAWN, 12000))
+                                if (Creature* left1 = me->SummonCreature(NPC_FLAME_TSUNAMI, FlameLeft1Spawn, TEMPSUMMON_TIMED_DESPAWN, 12s))
                                     left1->GetMotionMaster()->MovePoint(0, FlameLeft1Direction);
-                                if (Creature* left2 = me->SummonCreature(NPC_FLAME_TSUNAMI, FlameLeft2Spawn, TEMPSUMMON_TIMED_DESPAWN, 12000))
+                                if (Creature* left2 = me->SummonCreature(NPC_FLAME_TSUNAMI, FlameLeft2Spawn, TEMPSUMMON_TIMED_DESPAWN, 12s))
                                     left2->GetMotionMaster()->MovePoint(0, FlameLeft2Direction);
                                 break;
                             }
@@ -463,13 +463,16 @@ public:
                         events.ScheduleEvent(EVENT_CLEAVE_ATTACK, 7s, 10s);
                         break;
                     case EVENT_LAVA_STRIKE:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         {
                             CastLavaStrikeOnTarget(target);
                             if (urand(0, 5) == 0)
                                 Talk(SAY_SARTHARION_SPECIAL);
                         }
-                        events.ScheduleEvent(EVENT_LAVA_STRIKE, (_isSoftEnraged ? urand(1400, 2000) : urand(5000, 20000)));
+                        if (_isSoftEnraged)
+                            events.ScheduleEvent(EVENT_LAVA_STRIKE, 1400ms, 2s);
+                        else
+                            events.ScheduleEvent(EVENT_LAVA_STRIKE, 5s, 20s);
                         break;
                     case EVENT_CALL_TENEBRON:
                         CallDragon(DATA_TENEBRON);

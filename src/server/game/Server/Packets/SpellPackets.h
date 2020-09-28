@@ -28,6 +28,72 @@ namespace WorldPackets
 {
     namespace Spells
     {
+        class CancelCast final : public ClientPacket
+        {
+        public:
+            CancelCast(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_CAST, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 CastID = 0;
+            uint32 SpellID = 0;
+        };
+
+        class CancelAura final : public ClientPacket
+        {
+        public:
+            CancelAura(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_AURA, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 SpellID = 0;
+        };
+
+        class PetCancelAura final : public ClientPacket
+        {
+        public:
+            PetCancelAura(WorldPacket&& packet) : ClientPacket(CMSG_PET_CANCEL_AURA, std::move(packet)) { }
+
+            void Read() override;
+
+            ObjectGuid PetGUID;
+            uint32 SpellID = 0;
+        };
+
+        class CancelGrowthAura final : public ClientPacket
+        {
+        public:
+            CancelGrowthAura(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_GROWTH_AURA, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class CancelMountAura final : public ClientPacket
+        {
+        public:
+            CancelMountAura(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_MOUNT_AURA, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class CancelAutoRepeatSpell final : public ClientPacket
+        {
+        public:
+            CancelAutoRepeatSpell(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_AUTO_REPEAT_SPELL, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class CancelChannelling final : public ClientPacket
+        {
+        public:
+            CancelChannelling(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_CHANNELLING, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 ChannelSpell = 0;
+        };
+
         struct SpellMissStatus
         {
             ObjectGuid TargetGUID;
@@ -129,6 +195,16 @@ namespace WorldPackets
 
             uint32 Count = 0;
             std::vector<ResyncRune> Runes;
+        };
+
+        class MountResult final : public ServerPacket
+        {
+        public:
+            MountResult() : ServerPacket(SMSG_MOUNT_RESULT, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Result = 0;
         };
     }
 }

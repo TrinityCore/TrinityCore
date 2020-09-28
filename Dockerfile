@@ -1,7 +1,8 @@
 # specify the node base image with your desired version
-FROM ubuntu:bionic
-
-RUN apt-get update && apt-get install -y \
+FROM ubuntu:rolling
+ENV TZ=Europe/Paris
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+RUN apt-get update && apt-get upgrade && apt-get install -y \
    mysql-client\
    git\
    clang\
@@ -10,10 +11,13 @@ RUN apt-get update && apt-get install -y \
    gcc\
    g++\
    libmysqlclient-dev\
-   libssl1.0-dev\
+   libssl-dev\
+   libbz2-dev\
    libreadline-dev\
    libncurses-dev\
-   libboost-all-dev
+   libboost-all-dev\
+   default-libmysqlclient-dev
+
 
 
 

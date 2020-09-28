@@ -18,11 +18,12 @@
 #ifndef _WARDEN_BASE_H
 #define _WARDEN_BASE_H
 
-#include <map>
-#include "Cryptography/ARC4.h"
-#include "Cryptography/BigNumber.h"
+#include "ARC4.h"
+#include "AuthDefines.h"
 #include "ByteBuffer.h"
+#include "Optional.h"
 #include "WardenCheckMgr.h"
+#include <array>
 
 enum WardenOpcodes
 {
@@ -43,28 +44,16 @@ enum WardenOpcodes
     WARDEN_SMSG_HASH_REQUEST                    = 5
 };
 
-enum WardenCheckType
-{
-    MEM_CHECK               = 0xF3, // 243: byte moduleNameIndex + uint Offset + byte Len (check to ensure memory isn't modified)
-    PAGE_CHECK_A            = 0xB2, // 178: uint Seed + byte[20] SHA1 + uint Addr + byte Len (scans all pages for specified hash)
-    PAGE_CHECK_B            = 0xBF, // 191: uint Seed + byte[20] SHA1 + uint Addr + byte Len (scans only pages starts with MZ+PE headers for specified hash)
-    MPQ_CHECK               = 0x98, // 152: byte fileNameIndex (check to ensure MPQ file isn't modified)
-    LUA_STR_CHECK           = 0x8B, // 139: byte luaNameIndex (check to ensure LUA string isn't used)
-    DRIVER_CHECK            = 0x71, // 113: uint Seed + byte[20] SHA1 + byte driverNameIndex (check to ensure driver isn't loaded)
-    TIMING_CHECK            = 0x57, //  87: empty (check to ensure GetTickCount() isn't detoured)
-    PROC_CHECK              = 0x7E, // 126: uint Seed + byte[20] SHA1 + byte moluleNameIndex + byte procNameIndex + uint Offset + byte Len (check to ensure proc isn't detoured)
-    MODULE_CHECK            = 0xD9  // 217: uint Seed + byte[20] SHA1 (check to ensure module isn't injected)
-};
-
 #pragma pack(push, 1)
 
 struct WardenModuleUse
 {
     uint8 Command;
-    uint8 ModuleId[16];
-    uint8 ModuleKey[16];
+    std::array<uint8, 16> ModuleId;
+    std::array<uint8, 16> ModuleKey;
     uint32 Size;
 };
+static_assert(sizeof(WardenModuleUse) == (1 + 16 + 16 + 4));
 
 struct WardenModuleTransfer
 {
@@ -72,66 +61,71 @@ struct WardenModuleTransfer
     uint16 DataSize;
     uint8 Data[500];
 };
+static_assert(sizeof(WardenModuleTransfer) == (1 + 2 + 500));
 
 struct WardenHashRequest
 {
     uint8 Command;
-    uint8 Seed[16];
+    std::array<uint8, 16> Seed;
 };
+static_assert(sizeof(WardenHashRequest) == (1 + 16));
 
 #pragma pack(pop)
 
 struct ClientWardenModule
 {
-    uint8 Id[16];
-    uint8 Key[16];
-    uint32 CompressedSize;
-    uint8* CompressedData;
+    std::array<uint8, 16> Id;
+    std::array<uint8, 16> Key;
+    uint8 const* CompressedData;
+    size_t CompressedSize;
 };
 
 class WorldSession;
 
 class TC_GAME_API Warden
 {
-    friend class WardenWin;
-    friend class WardenMac;
-
     public:
         Warden();
         virtual ~Warden();
 
-        virtual void Init(WorldSession* session, BigNumber* k) = 0;
-        virtual ClientWardenModule* GetModuleForClient() = 0;
-        virtual void InitializeModule() = 0;
-        virtual void RequestHash() = 0;
-        virtual void HandleHashResult(ByteBuffer &buff) = 0;
-        virtual void RequestData() = 0;
-        virtual void HandleData(ByteBuffer &buff) = 0;
+        virtual void Init(WorldSession* session, SessionKey const& K) = 0;
+        void Update(uint32 diff);
+        void HandleData(ByteBuffer& buff);
+        bool ProcessLuaCheckResponse(std::string const& msg);
 
-        void SendModuleToClient();
-        void RequestModule();
-        void Update();
+        virtual size_t DEBUG_ForceSpecificChecks(std::vector<uint16> const& checks) = 0;
+
+    protected:
         void DecryptData(uint8* buffer, uint32 length);
         void EncryptData(uint8* buffer, uint32 length);
+
+        virtual void InitializeModule() = 0;
+        virtual void RequestHash() = 0;
+        virtual void HandleHashResult(ByteBuffer& buff) = 0;
+        virtual void HandleCheckResult(ByteBuffer& buff) = 0;
+        virtual void InitializeModuleForClient(ClientWardenModule& module) = 0;
+        virtual void RequestChecks() = 0;
+
+        void MakeModuleForClient();
+        void SendModuleToClient();
+        void RequestModule();
 
         static bool IsValidCheckSum(uint32 checksum, const uint8 *data, const uint16 length);
         static uint32 BuildChecksum(const uint8 *data, uint32 length);
 
-        // If no check is passed, the default action from config is executed
-        std::string Penalty(WardenCheck* check = nullptr);
+        // If nullptr is passed, the default action from config is executed
+        char const* ApplyPenalty(WardenCheck const* check);
 
-    private:
         WorldSession* _session;
-        uint8 _inputKey[16];
-        uint8 _outputKey[16];
-        uint8 _seed[16];
-        ARC4 _inputCrypto;
-        ARC4 _outputCrypto;
+        std::array<uint8, 16> _inputKey = {};
+        std::array<uint8, 16> _outputKey = {};
+        std::array<uint8, 16> _seed = {};
+        Trinity::Crypto::ARC4 _inputCrypto;
+        Trinity::Crypto::ARC4 _outputCrypto;
         uint32 _checkTimer;                          // Timer for sending check requests
         uint32 _clientResponseTimer;                 // Timer for client response delay
         bool _dataSent;
-        uint32 _previousTimestamp;
-        ClientWardenModule* _module;
+        Optional<ClientWardenModule> _module;
         bool _initialized;
 };
 

@@ -132,6 +132,14 @@ public:
         return Trinity::Find(_elements, handle, (SPECIFIC_TYPE*)nullptr);
     }
 
+    template<class SPECIFIC_TYPE>
+    std::size_t Size() const
+    {
+        std::size_t size = 0;
+        Trinity::Size(_elements, &size, (SPECIFIC_TYPE*)nullptr);
+        return size;
+    }
+
     ContainerUnorderedMap<OBJECT_TYPES, KEY_TYPE>& GetElements() { return _elements; }
     ContainerUnorderedMap<OBJECT_TYPES, KEY_TYPE> const& GetElements() const { return _elements; }
 

@@ -115,9 +115,9 @@ class boss_high_astromancer_solarian : public CreatureScript
                 Fear_Timer = 20000;
                 VoidBolt_Timer = 10000;
                 Phase1_Timer = 50000;
-                Phase2_Timer = 10000;
-                Phase3_Timer = 15000;
-                AppearDelay_Timer = 2000;
+                Phase2_Timer = 10s;
+                Phase3_Timer = 15s;
+                AppearDelay_Timer = 2s;
                 BlindingLight = false;
                 AppearDelay = false;
                 Wrath_Timer = 20000 + rand32() % 5000;//twice in phase one
@@ -132,9 +132,9 @@ class boss_high_astromancer_solarian : public CreatureScript
             uint32 Fear_Timer;
             uint32 VoidBolt_Timer;
             uint32 Phase1_Timer;
-            uint32 Phase2_Timer;
-            uint32 Phase3_Timer;
-            uint32 AppearDelay_Timer;
+            Milliseconds Phase2_Timer;
+            Milliseconds Phase3_Timer;
+            Milliseconds AppearDelay_Timer;
             uint32 defaultarmor;
             uint32 Wrath_Timer;
 
@@ -177,10 +177,10 @@ class boss_high_astromancer_solarian : public CreatureScript
 
             void SummonMinion(uint32 entry, float x, float y, float z)
             {
-                Creature* Summoned = me->SummonCreature(entry, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                Creature* Summoned = me->SummonCreature(entry, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
                 if (Summoned)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         Summoned->AI()->AttackStart(target);
 
                     summons.Summon(Summoned);
@@ -210,7 +210,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                 {
                     me->StopMoving();
                     me->AttackStop();
-                    if (AppearDelay_Timer <= diff)
+                    if (AppearDelay_Timer <= Milliseconds(diff))
                     {
                         AppearDelay = false;
                         if (Phase == 2)
@@ -218,10 +218,10 @@ class boss_high_astromancer_solarian : public CreatureScript
                             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             me->SetVisible(false);
                         }
-                        AppearDelay_Timer = 2000;
+                        AppearDelay_Timer = 2s;
                     }
                     else
-                        AppearDelay_Timer -= diff;
+                        AppearDelay_Timer -= Milliseconds(diff);
                 }
                 if (Phase == 1)
                 {
@@ -236,7 +236,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                     if (Wrath_Timer <= diff)
                     {
                         me->InterruptNonMeleeSpells(false);
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 100, true))
                             DoCast(target, SPELL_WRATH_OF_THE_ASTROMANCER, true);
                         Wrath_Timer = 20000 + rand32() % 5000;
                     }
@@ -252,7 +252,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                         }
                         else
                         {
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                             {
                                 if (!me->HasInArc(2.5f, target))
                                     target = me->GetVictim();
@@ -269,7 +269,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                     {
                         me->InterruptNonMeleeSpells(false);
                         //Target the tank ?
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
                         {
                             if (target->GetTypeId() == TYPEID_PLAYER)
                             {
@@ -316,7 +316,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                         }
                         for (int i = 0; i <= 2; ++i)
                         {
-                            if (Creature* Summoned = me->SummonCreature(NPC_ASTROMANCER_SOLARIAN_SPOTLIGHT, Portals[i][0], Portals[i][1], Portals[i][2], CENTER_O, TEMPSUMMON_TIMED_DESPAWN, Phase2_Timer + Phase3_Timer + AppearDelay_Timer + 1700))
+                            if (Creature* Summoned = me->SummonCreature(NPC_ASTROMANCER_SOLARIAN_SPOTLIGHT, Portals[i][0], Portals[i][1], Portals[i][2], CENTER_O, TEMPSUMMON_TIMED_DESPAWN, Phase2_Timer + Phase3_Timer + AppearDelay_Timer + 1700ms))
                             {
                                 Summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 Summoned->CastSpell(Summoned, SPELL_SPOTLIGHT, false);
@@ -332,7 +332,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                     //10 seconds after Solarian disappears, 12 mobs spawn out of the three portals.
                     me->AttackStop();
                     me->StopMoving();
-                    if (Phase2_Timer <= diff)
+                    if (Phase2_Timer <= Milliseconds(diff))
                     {
                         Phase = 3;
                         for (int i=0; i <= 2; ++i)
@@ -340,17 +340,17 @@ class boss_high_astromancer_solarian : public CreatureScript
                                 SummonMinion(NPC_SOLARIUM_AGENT, Portals[i][0], Portals[i][1], Portals[i][2]);
 
                         Talk(SAY_SUMMON1);
-                        Phase2_Timer = 10000;
+                        Phase2_Timer = 10s;
                     }
                     else
-                        Phase2_Timer -= diff;
+                        Phase2_Timer -= Milliseconds(diff);
                 }
                 else if (Phase == 3)
                 {
                     me->AttackStop();
                     me->StopMoving();
                     //Check Phase3_Timer
-                    if (Phase3_Timer <= diff)
+                    if (Phase3_Timer <= Milliseconds(diff))
                     {
                         Phase = 1;
                         //15 seconds later Solarian reappears out of one of the 3 portals. Simultaneously, 2 healers appear in the two other portals.
@@ -367,10 +367,10 @@ class boss_high_astromancer_solarian : public CreatureScript
 
                         Talk(SAY_SUMMON2);
                         AppearDelay = true;
-                        Phase3_Timer = 15000;
+                        Phase3_Timer = 15s;
                     }
                     else
-                        Phase3_Timer -= diff;
+                        Phase3_Timer -= Milliseconds(diff);
                 }
                 else if (Phase == 4)
                 {

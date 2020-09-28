@@ -637,7 +637,7 @@ Unit* SimpleCharmedPlayerAI::SelectAttackTarget() const
     if (Unit* charmer = me->GetCharmer())
     {
         if (UnitAI* charmerAI = charmer->GetAI())
-            return charmerAI->SelectTarget(SELECT_TARGET_RANDOM, 0, ValidTargetSelectPredicate(this));
+            return charmerAI->SelectTarget(SelectTargetMethod::Random, 0, ValidTargetSelectPredicate(this));
         return charmer->GetVictim();
     }
     return nullptr;

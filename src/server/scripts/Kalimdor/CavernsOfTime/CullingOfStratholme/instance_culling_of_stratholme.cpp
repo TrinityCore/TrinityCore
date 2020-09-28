@@ -759,7 +759,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                     {
                         if (creature->GetSpawnId())
                             creature->SetRespawnTime(1);
-                        creature->DespawnOrUnsummon(0, 1s);
+                        creature->DespawnOrUnsummon(0s, 1s);
                     }
 
                     SpawnInfiniteCorruptor();

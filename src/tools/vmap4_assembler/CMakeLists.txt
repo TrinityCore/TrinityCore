@@ -10,9 +10,7 @@
 
 set(PRIVATE_SOURCES VMapAssembler.cpp)
 
-if (WIN32)
-  list(APPEND PRIVATE_SOURCES ${sources_windows})
-endif()
+list(APPEND PRIVATE_SOURCES ${sources_windows})
 
 add_executable(vmap4assembler ${PRIVATE_SOURCES})
 
@@ -32,8 +30,8 @@ set_target_properties(vmap4assembler
       FOLDER
         "tools")
 
-if( UNIX )
+if(UNIX)
   install(TARGETS vmap4assembler DESTINATION bin)
-elseif( WIN32 )
+elseif(WIN32)
   install(TARGETS vmap4assembler DESTINATION "${CMAKE_INSTALL_PREFIX}")
 endif()

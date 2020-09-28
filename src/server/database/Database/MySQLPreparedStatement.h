@@ -25,7 +25,7 @@
 #include <vector>
 
 class MySQLConnection;
-class PreparedStatement;
+class PreparedStatementBase;
 
 //- Class of which the instances are unique per MySQLConnection
 //- access to these class objects is only done when a prepared statement task
@@ -33,13 +33,13 @@ class PreparedStatement;
 class TC_DATABASE_API MySQLPreparedStatement
 {
     friend class MySQLConnection;
-    friend class PreparedStatement;
+    friend class PreparedStatementBase;
 
     public:
         MySQLPreparedStatement(MySQLStmt* stmt, std::string queryString);
         ~MySQLPreparedStatement();
 
-        void BindParameters(PreparedStatement* stmt);
+        void BindParameters(PreparedStatementBase* stmt);
 
         uint32 GetParameterCount() const { return m_paramCount; }
 
@@ -53,7 +53,7 @@ class TC_DATABASE_API MySQLPreparedStatement
 
         MySQLStmt* GetSTMT() { return m_Mstmt; }
         MySQLBind* GetBind() { return m_bind; }
-        PreparedStatement* m_stmt;
+        PreparedStatementBase* m_stmt;
         void ClearParameters();
         void AssertValidIndex(uint8 index);
         std::string getQueryString() const;

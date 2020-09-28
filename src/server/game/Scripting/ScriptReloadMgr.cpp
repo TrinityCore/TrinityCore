@@ -40,13 +40,14 @@ ScriptReloadMgr* ScriptReloadMgr::instance()
 #include "BuiltInConfig.h"
 #include "Config.h"
 #include "GitRevision.h"
+#include "CryptoHash.h"
 #include "Log.h"
 #include "MPSCQueue.h"
 #include "Regex.h"
 #include "ScriptMgr.h"
-#include "SHA1.h"
 #include "StartProcess.h"
 #include "Timer.h"
+#include "Util.h"
 #include "World.h"
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/filesystem.hpp>
@@ -368,7 +369,6 @@ static int InvokeCMakeCommand(T&&... args)
 {
     auto const executable = BuiltInConfig::GetCMakeCommand();
     return Trinity::StartProcess(executable, {
-        executable,
         std::forward<T>(args)...
     }, "scripts.hotswap");
 }
@@ -379,7 +379,6 @@ static std::shared_ptr<Trinity::AsyncProcessResult> InvokeAsyncCMakeCommand(T&&.
 {
     auto const executable = BuiltInConfig::GetCMakeCommand();
     return Trinity::StartAsyncProcess(executable, {
-        executable,
         std::forward<T>(args)...
     }, "scripts.hotswap");
 }
@@ -758,7 +757,7 @@ private:
         auto path = fs::temp_directory_path();
         path /= Trinity::StringFormat("tc_script_cache_%s_%s",
             GitRevision::GetBranch(),
-            CalculateSHA1Hash(sConfigMgr->GetFilename()).c_str());
+            ByteArrayToHexStr(Trinity::Crypto::SHA1::GetDigestOf(sConfigMgr->GetFilename())).c_str());
 
         return path;
     }
@@ -936,7 +935,7 @@ private:
         }
 
         // Create the source listener
-        auto listener = Trinity::make_unique<SourceUpdateListener>(
+        auto listener = std::make_unique<SourceUpdateListener>(
             sScriptReloadMgr->GetSourceDirectory() / module_name,
             module_name);
 
@@ -1358,7 +1357,7 @@ private:
                         return;
 
                     TC_LOG_INFO("scripts.hotswap", ">> Found outdated CMAKE_INSTALL_PREFIX (\"%s\"), "
-                        "worldserver is currently installed at %s...",
+                        "worldserver is currently installed at %s",
                         value.generic_string().c_str(), current_path.generic_string().c_str());
                 }
                 else

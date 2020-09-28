@@ -155,10 +155,8 @@ bool readCamera(M2Camera const* cam, uint32 buffSize, M2Header const* header, Ci
                     uint32 timeDiffThis = posTimestamps[i] - lastTarget.timeStamp;
                     float xDiff = nextTarget.locations.GetPositionX() - lastTarget.locations.GetPositionX();
                     float yDiff = nextTarget.locations.GetPositionY() - lastTarget.locations.GetPositionY();
-                    float zDiff = nextTarget.locations.GetPositionZ() - lastTarget.locations.GetPositionZ();
                     x = lastTarget.locations.GetPositionX() + (xDiff * (float(timeDiffThis) / float(timeDiffTarget)));
                     y = lastTarget.locations.GetPositionY() + (yDiff * (float(timeDiffThis) / float(timeDiffTarget)));
-                    z = lastTarget.locations.GetPositionZ() + (zDiff * (float(timeDiffThis) / float(timeDiffTarget)));
                 }
                 float xDiff = x - thisCam.locations.GetPositionX();
                 float yDiff = y - thisCam.locations.GetPositionY();
@@ -203,10 +201,10 @@ void LoadM2Cameras(std::string const& dataPath)
 
         // Get file size
         m2file.seekg(0, std::ios::end);
-        std::streamoff const fileSize = m2file.tellg();
+        std::streamoff fileSize = m2file.tellg();
 
         // Reject if not at least the size of the header
-        if (static_cast<uint32 const>(fileSize) < sizeof(M2Header))
+        if (static_cast<uint32>(fileSize) < sizeof(M2Header))
         {
             TC_LOG_ERROR("server.loading", "Camera file %s is damaged. File is smaller than header size", filename.string().c_str());
             m2file.close();
@@ -240,7 +238,7 @@ void LoadM2Cameras(std::string const& dataPath)
         // Read header
         M2Header const* header = reinterpret_cast<M2Header const*>(buffer.data());
 
-        if (header->ofsCameras + sizeof(M2Camera) > static_cast<uint32 const>(fileSize))
+        if (header->ofsCameras + sizeof(M2Camera) > static_cast<uint32>(fileSize))
         {
             TC_LOG_ERROR("server.loading", "Camera file %s is damaged. Camera references position beyond file end", filename.string().c_str());
             continue;

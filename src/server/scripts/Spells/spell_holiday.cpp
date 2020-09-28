@@ -1668,6 +1668,253 @@ class spell_midsummer_ribbon_pole_periodic_visual : public AuraScript
     }
 };
 
+enum JugglingTorch
+{
+    SPELL_JUGGLE_TORCH_SLOW          = 45792,
+    SPELL_JUGGLE_TORCH_MEDIUM        = 45806,
+    SPELL_JUGGLE_TORCH_FAST          = 45816,
+    SPELL_JUGGLE_TORCH_SELF          = 45638,
+
+    SPELL_JUGGLE_TORCH_SHADOW_SLOW   = 46120,
+    SPELL_JUGGLE_TORCH_SHADOW_MEDIUM = 46118,
+    SPELL_JUGGLE_TORCH_SHADOW_FAST   = 46117,
+    SPELL_JUGGLE_TORCH_SHADOW_SELF   = 46121,
+
+    SPELL_GIVE_TORCH                 = 45280,
+    QUEST_TORCH_CATCHING_A           = 11657,
+    QUEST_TORCH_CATCHING_H           = 11923,
+    QUEST_MORE_TORCH_CATCHING_A      = 11924,
+    QUEST_MORE_TORCH_CATCHING_H      = 11925
+};
+
+// 45819 - Throw Torch
+class spell_midsummer_juggle_torch : public SpellScript
+{
+    PrepareSpellScript(spell_midsummer_juggle_torch);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({
+            SPELL_JUGGLE_TORCH_SLOW, SPELL_JUGGLE_TORCH_MEDIUM, SPELL_JUGGLE_TORCH_FAST,
+            SPELL_JUGGLE_TORCH_SELF, SPELL_JUGGLE_TORCH_SHADOW_SLOW, SPELL_JUGGLE_TORCH_SHADOW_MEDIUM,
+            SPELL_JUGGLE_TORCH_SHADOW_FAST, SPELL_JUGGLE_TORCH_SHADOW_SELF
+        });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        if (!GetExplTargetDest())
+            return;
+
+        Position spellDest = *GetExplTargetDest();
+        float distance = GetCaster()->GetExactDist2d(spellDest.GetPositionX(), spellDest.GetPositionY());
+
+        uint32 torchSpellID = 0;
+        uint32 torchShadowSpellID = 0;
+
+        if (distance <= 1.5f)
+        {
+            torchSpellID = SPELL_JUGGLE_TORCH_SELF;
+            torchShadowSpellID = SPELL_JUGGLE_TORCH_SHADOW_SELF;
+            spellDest = GetCaster()->GetPosition();
+        }
+        else if (distance <= 10.0f)
+        {
+            torchSpellID = SPELL_JUGGLE_TORCH_SLOW;
+            torchShadowSpellID = SPELL_JUGGLE_TORCH_SHADOW_SLOW;
+        }
+        else if (distance <= 20.0f)
+        {
+            torchSpellID = SPELL_JUGGLE_TORCH_MEDIUM;
+            torchShadowSpellID = SPELL_JUGGLE_TORCH_SHADOW_MEDIUM;
+        }
+        else
+        {
+            torchSpellID = SPELL_JUGGLE_TORCH_FAST;
+            torchShadowSpellID = SPELL_JUGGLE_TORCH_SHADOW_FAST;
+        }
+
+        GetCaster()->CastSpell(spellDest, torchSpellID);
+        GetCaster()->CastSpell(spellDest, torchShadowSpellID);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_midsummer_juggle_torch::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 45644 - Juggle Torch (Catch)
+class spell_midsummer_torch_catch : public SpellScript
+{
+    PrepareSpellScript(spell_midsummer_torch_catch);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_GIVE_TORCH });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Player* player = GetHitPlayer();
+        if (!player)
+            return;
+
+        if (player->GetQuestStatus(QUEST_TORCH_CATCHING_A) == QUEST_STATUS_REWARDED || player->GetQuestStatus(QUEST_TORCH_CATCHING_H) == QUEST_STATUS_REWARDED)
+            player->CastSpell(player, SPELL_GIVE_TORCH);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_midsummer_torch_catch::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+enum FlingTorch
+{
+    SPELL_FLING_TORCH_TRIGGERED           = 45669,
+    SPELL_FLING_TORCH_SHADOW              = 46105,
+    SPELL_JUGGLE_TORCH_MISSED             = 45676,
+    SPELL_TORCHES_CAUGHT                  = 45693,
+    SPELL_TORCH_CATCHING_SUCCESS_ALLIANCE = 46081,
+    SPELL_TORCH_CATCHING_SUCCESS_HORDE    = 46654,
+    SPELL_TORCH_CATCHING_REMOVE_TORCHES   = 46084
+};
+
+// 46747 - Fling torch
+class spell_midsummer_fling_torch : public SpellScript
+{
+    PrepareSpellScript(spell_midsummer_fling_torch);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_FLING_TORCH_TRIGGERED, SPELL_FLING_TORCH_SHADOW });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Position dest = GetCaster()->GetFirstCollisionPosition(30.0f, (float)rand_norm() * static_cast<float>(2 * M_PI));
+        GetCaster()->CastSpell(dest, SPELL_FLING_TORCH_TRIGGERED, true);
+        GetCaster()->CastSpell(dest, SPELL_FLING_TORCH_SHADOW);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_midsummer_fling_torch::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 45669 - Fling Torch
+class spell_midsummer_fling_torch_triggered : public SpellScript
+{
+    PrepareSpellScript(spell_midsummer_fling_torch_triggered);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_JUGGLE_TORCH_MISSED });
+    }
+
+    void HandleTriggerMissile(SpellEffIndex effIndex)
+    {
+        if (Position const* pos = GetHitDest())
+        {
+            if (GetCaster()->GetExactDist2d(pos) > 3.0f)
+            {
+                PreventHitEffect(effIndex);
+                GetCaster()->CastSpell(*GetExplTargetDest(), SPELL_JUGGLE_TORCH_MISSED);
+                GetCaster()->RemoveAura(SPELL_TORCHES_CAUGHT);
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_midsummer_fling_torch_triggered::HandleTriggerMissile, EFFECT_0, SPELL_EFFECT_TRIGGER_MISSILE);
+    }
+};
+
+// 45671 - Juggle Torch (Catch, Quest)
+class spell_midsummer_fling_torch_catch : public SpellScript
+{
+    PrepareSpellScript(spell_midsummer_fling_torch_catch);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({
+            SPELL_FLING_TORCH_TRIGGERED,
+            SPELL_TORCH_CATCHING_SUCCESS_ALLIANCE,
+            SPELL_TORCH_CATCHING_SUCCESS_HORDE,
+            SPELL_TORCH_CATCHING_REMOVE_TORCHES,
+            SPELL_FLING_TORCH_SHADOW
+        });
+    }
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        Player* player = GetHitPlayer();
+        if (!player)
+            return;
+
+        if (!GetExplTargetDest())
+            return;
+
+        // Only the caster can catch the torch
+        if (player->GetGUID() != GetCaster()->GetGUID())
+            return;
+
+        uint8 requiredCatches = 0;
+        // Number of required catches depends on quest - 4 for the normal quest, 10 for the daily version
+        if (player->GetQuestStatus(QUEST_TORCH_CATCHING_A) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_TORCH_CATCHING_H) == QUEST_STATUS_INCOMPLETE)
+            requiredCatches = 3;
+        else if (player->GetQuestStatus(QUEST_MORE_TORCH_CATCHING_A) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_MORE_TORCH_CATCHING_H) == QUEST_STATUS_INCOMPLETE)
+            requiredCatches = 9;
+
+        // Used quest item without being on quest - do nothing
+        if (requiredCatches == 0)
+            return;
+
+        if (player->GetAuraCount(SPELL_TORCHES_CAUGHT) >= requiredCatches)
+        {
+            player->CastSpell(player, (player->GetTeam() == ALLIANCE) ? SPELL_TORCH_CATCHING_SUCCESS_ALLIANCE : SPELL_TORCH_CATCHING_SUCCESS_HORDE);
+            player->CastSpell(player, SPELL_TORCH_CATCHING_REMOVE_TORCHES);
+            player->RemoveAura(SPELL_TORCHES_CAUGHT);
+        }
+        else
+        {
+            Position dest = player->GetFirstCollisionPosition(15.0f, (float)rand_norm() * static_cast<float>(2 * M_PI));
+            player->CastSpell(player, SPELL_TORCHES_CAUGHT);
+            player->CastSpell(dest, SPELL_FLING_TORCH_TRIGGERED, true);
+            player->CastSpell(dest, SPELL_FLING_TORCH_SHADOW);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_midsummer_fling_torch_catch::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 45676 - Juggle Torch (Quest, Missed)
+class spell_midsummer_fling_torch_missed : public SpellScript
+{
+    PrepareSpellScript(spell_midsummer_fling_torch_missed);
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        // This spell only hits the caster
+        targets.remove_if([this](WorldObject* obj)
+            {
+                return obj->GetGUID() != GetCaster()->GetGUID();
+            });
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_midsummer_fling_torch_missed::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENTRY);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_midsummer_fling_torch_missed::FilterTargets, EFFECT_2, TARGET_UNIT_DEST_AREA_ENTRY);
+    }
+};
+
 void AddSC_holiday_spell_scripts()
 {
     // Love is in the Air
@@ -1716,9 +1963,15 @@ void AddSC_holiday_spell_scripts()
     new spell_brewfest_dismount_ram();
     new spell_brewfest_barker_bunny();
     // Midsummer Fire Festival
-    RegisterAuraScript(spell_midsummer_braziers_hit);
+    RegisterSpellScript(spell_midsummer_braziers_hit);
     RegisterSpellScript(spell_midsummer_torch_target_picker);
     RegisterSpellScript(spell_midsummer_torch_toss_land);
-    RegisterAuraScript(spell_midsummer_test_ribbon_pole_channel);
-    RegisterAuraScript(spell_midsummer_ribbon_pole_periodic_visual);
+    RegisterSpellScript(spell_midsummer_test_ribbon_pole_channel);
+    RegisterSpellScript(spell_midsummer_ribbon_pole_periodic_visual);
+    RegisterSpellScript(spell_midsummer_juggle_torch);
+    RegisterSpellScript(spell_midsummer_torch_catch);
+    RegisterSpellScript(spell_midsummer_fling_torch);
+    RegisterSpellScript(spell_midsummer_fling_torch_triggered);
+    RegisterSpellScript(spell_midsummer_fling_torch_catch);
+    RegisterSpellScript(spell_midsummer_fling_torch_missed);
 }

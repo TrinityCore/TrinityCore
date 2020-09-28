@@ -59,7 +59,6 @@ enum Spells
     SPELL_DREAM_SLIP                    = 71196,
     SPELL_ACHIEVEMENT_CHECK             = 72706,
     SPELL_CLEAR_ALL                     = 71721,
-    SPELL_AWARD_REPUTATION_BOSS_KILL    = 73843,
     SPELL_CORRUPTION_VALITHRIA          = 70904,
     SPELL_MANA_VOID_AURA                = 71085,
     SPELL_COLUMN_OF_FROST_AURA          = 70715,
@@ -176,14 +175,14 @@ struct ValithriaManaVoidSelector
 class ValithriaDelayedCastEvent : public BasicEvent
 {
     public:
-        ValithriaDelayedCastEvent(Creature* trigger, uint32 spellId, ObjectGuid originalCaster, uint32 despawnTime) : _trigger(trigger), _originalCaster(originalCaster), _spellId(spellId), _despawnTime(despawnTime)
+        ValithriaDelayedCastEvent(Creature* trigger, uint32 spellId, ObjectGuid originalCaster, Milliseconds despawnTime) : _trigger(trigger), _originalCaster(originalCaster), _spellId(spellId), _despawnTime(despawnTime)
         {
         }
 
         bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
             _trigger->CastSpell(_trigger, _spellId, _originalCaster);
-            if (_despawnTime)
+            if (_despawnTime != 0s)
                 _trigger->DespawnOrUnsummon(_despawnTime);
             return true;
         }
@@ -192,7 +191,7 @@ class ValithriaDelayedCastEvent : public BasicEvent
         Creature* _trigger;
         ObjectGuid _originalCaster;
         uint32 _spellId;
-        uint32 _despawnTime;
+        Milliseconds _despawnTime;
 };
 
 class ValithriaAuraRemoveEvent : public BasicEvent
@@ -234,7 +233,7 @@ class ValithriaDespawner : public BasicEvent
                 case NPC_VALITHRIA_DREAMWALKER:
                     if (InstanceScript* instance = creature->GetInstanceScript())
                         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, creature);
-                    /* fallthrough */
+                    [[fallthrough]];
                 case NPC_BLAZING_SKELETON:
                 case NPC_SUPPRESSER:
                 case NPC_BLISTERING_ZOMBIE:
@@ -249,7 +248,7 @@ class ValithriaDespawner : public BasicEvent
                     return;
             }
 
-            creature->DespawnOrUnsummon(0, 10s);
+            creature->DespawnOrUnsummon(0s, 10s);
         }
 
     private:
@@ -313,12 +312,12 @@ class boss_valithria_dreamwalker : public CreatureScript
                 if (action != ACTION_ENTER_COMBAT)
                     return;
 
-                DoCast(me, SPELL_COPY_DAMAGE);
+                DoCastSelf(SPELL_COPY_DAMAGE);
                 _instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
                 _events.ScheduleEvent(EVENT_INTRO_TALK, 15s);
                 _events.ScheduleEvent(EVENT_DREAM_PORTAL, 45s, 48s);
                 if (IsHeroic())
-                    _events.ScheduleEvent(EVENT_BERSERK, 420000);
+                    _events.ScheduleEvent(EVENT_BERSERK, 420s);
             }
 
             void HealReceived(Unit* healer, uint32& heal) override
@@ -335,7 +334,7 @@ class boss_valithria_dreamwalker : public CreatureScript
                     Talk(SAY_VALITHRIA_SUCCESS);
                     _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                     me->RemoveAurasDueToSpell(SPELL_CORRUPTION_VALITHRIA);
-                    DoCast(me, SPELL_ACHIEVEMENT_CHECK);
+                    DoCastSelf(SPELL_ACHIEVEMENT_CHECK);
                     DoCastAOE(SPELL_DREAMWALKERS_RAGE);
                     _events.ScheduleEvent(EVENT_DREAM_SLIP, 3500ms);
                     if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_VALITHRIA_LICH_KING)))
@@ -378,16 +377,16 @@ class boss_valithria_dreamwalker : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_DREAM_SLIP)
+                if (spellInfo->Id == SPELL_DREAM_SLIP)
                 {
-                    DoCast(me, SPELL_CLEAR_ALL);
-                    DoCast(me, SPELL_AWARD_REPUTATION_BOSS_KILL);
+                    DoCastSelf(SPELL_CLEAR_ALL);
+                    DoCastSelf(SPELL_REPUTATION_BOSS_KILL, true);
                     // this display id was found in sniff instead of the one on aura
                     me->SetDisplayId(11686);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    me->DespawnOrUnsummon(4000);
+                    me->DespawnOrUnsummon(4s);
                     if (Creature* trigger = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_VALITHRIA_TRIGGER)))
                         Unit::Kill(me, trigger);
 
@@ -400,13 +399,13 @@ class boss_valithria_dreamwalker : public CreatureScript
             {
                 if (summon->GetEntry() == NPC_DREAM_PORTAL_PRE_EFFECT)
                 {
-                    summon->m_Events.AddEvent(new ValithriaDelayedCastEvent(summon, SPELL_SUMMON_DREAM_PORTAL, me->GetGUID(), 6000), summon->m_Events.CalculateTime(15000));
-                    summon->m_Events.AddEvent(new ValithriaAuraRemoveEvent(summon, SPELL_DREAM_PORTAL_VISUAL_PRE), summon->m_Events.CalculateTime(15000));
+                    summon->m_Events.AddEvent(new ValithriaDelayedCastEvent(summon, SPELL_SUMMON_DREAM_PORTAL, me->GetGUID(), 6s), summon->m_Events.CalculateTime(15s));
+                    summon->m_Events.AddEvent(new ValithriaAuraRemoveEvent(summon, SPELL_DREAM_PORTAL_VISUAL_PRE), summon->m_Events.CalculateTime(15s));
                 }
                 else if (summon->GetEntry() == NPC_NIGHTMARE_PORTAL_PRE_EFFECT)
                 {
-                    summon->m_Events.AddEvent(new ValithriaDelayedCastEvent(summon, SPELL_SUMMON_NIGHTMARE_PORTAL, me->GetGUID(), 6000), summon->m_Events.CalculateTime(15000));
-                    summon->m_Events.AddEvent(new ValithriaAuraRemoveEvent(summon, SPELL_NIGHTMARE_PORTAL_VISUAL_PRE), summon->m_Events.CalculateTime(15000));
+                    summon->m_Events.AddEvent(new ValithriaDelayedCastEvent(summon, SPELL_SUMMON_NIGHTMARE_PORTAL, me->GetGUID(), 6s), summon->m_Events.CalculateTime(15s));
+                    summon->m_Events.AddEvent(new ValithriaAuraRemoveEvent(summon, SPELL_NIGHTMARE_PORTAL_VISUAL_PRE), summon->m_Events.CalculateTime(15s));
                 }
             }
 
@@ -442,11 +441,11 @@ class boss_valithria_dreamwalker : public CreatureScript
                             if (!IsHeroic())
                                 Talk(SAY_VALITHRIA_DREAM_PORTAL);
                             for (uint32 i = 0; i < _portalCount; ++i)
-                                DoCast(me, SUMMON_PORTAL);
+                                DoCastSelf(SUMMON_PORTAL);
                             _events.ScheduleEvent(EVENT_DREAM_PORTAL, 45s, 48s);
                             break;
                         case EVENT_DREAM_SLIP:
-                            DoCast(me, SPELL_DREAM_SLIP);
+                            DoCastSelf(SPELL_DREAM_SLIP);
                             break;
                         default:
                             break;
@@ -629,19 +628,19 @@ class npc_the_lich_king_controller : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_GLUTTONOUS_ABOMINATION_SUMMONER:
-                            DoCast(me, SPELL_TIMER_GLUTTONOUS_ABOMINATION);
+                            DoCastSelf(SPELL_TIMER_GLUTTONOUS_ABOMINATION);
                             break;
                         case EVENT_SUPPRESSER_SUMMONER:
-                            DoCast(me, SPELL_TIMER_SUPPRESSER);
+                            DoCastSelf(SPELL_TIMER_SUPPRESSER);
                             break;
                         case EVENT_BLISTERING_ZOMBIE_SUMMONER:
-                            DoCast(me, SPELL_TIMER_BLISTERING_ZOMBIE);
+                            DoCastSelf(SPELL_TIMER_BLISTERING_ZOMBIE);
                             break;
                         case EVENT_RISEN_ARCHMAGE_SUMMONER:
-                            DoCast(me, SPELL_TIMER_RISEN_ARCHMAGE);
+                            DoCastSelf(SPELL_TIMER_RISEN_ARCHMAGE);
                             break;
                         case EVENT_BLAZING_SKELETON_SUMMONER:
-                            DoCast(me, SPELL_TIMER_BLAZING_SKELETON);
+                            DoCastSelf(SPELL_TIMER_BLAZING_SKELETON);
                             break;
                         default:
                             break;
@@ -726,12 +725,12 @@ class npc_risen_archmage : public CreatureScript
                 if (summon->GetEntry() == NPC_COLUMN_OF_FROST)
                 {
                     summon->CastSpell(summon, SPELL_COLUMN_OF_FROST_AURA, true);
-                    summon->m_Events.AddEvent(new ValithriaDelayedCastEvent(summon, SPELL_COLUMN_OF_FROST_DAMAGE, ObjectGuid::Empty, 8000), summon->m_Events.CalculateTime(2000));
+                    summon->m_Events.AddEvent(new ValithriaDelayedCastEvent(summon, SPELL_COLUMN_OF_FROST_DAMAGE, ObjectGuid::Empty, 8s), summon->m_Events.CalculateTime(2s));
                 }
                 else if (summon->GetEntry() == NPC_MANA_VOID)
                 {
                     summon->CastSpell(summon, SPELL_MANA_VOID_AURA, true);
-                    summon->DespawnOrUnsummon(36000);
+                    summon->DespawnOrUnsummon(36s);
                 }
             }
 
@@ -753,16 +752,16 @@ class npc_risen_archmage : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_FROSTBOLT_VOLLEY:
-                            DoCast(me, SPELL_FROSTBOLT_VOLLEY);
+                            DoCastSelf(SPELL_FROSTBOLT_VOLLEY);
                             _events.ScheduleEvent(EVENT_FROSTBOLT_VOLLEY, 8s, 15s);
                             break;
                         case EVENT_MANA_VOID:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, ValithriaManaVoidSelector(me)))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, ValithriaManaVoidSelector(me)))
                                 DoCast(target, SPELL_MANA_VOID);
                             _events.ScheduleEvent(EVENT_MANA_VOID, 20s, 25s);
                             break;
                         case EVENT_COLUMN_OF_FROST:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, -10.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, -10.0f, true))
                                 DoCast(target, SPELL_COLUMN_OF_FROST);
                             _events.ScheduleEvent(EVENT_COLUMN_OF_FROST, 15s, 25s);
                             break;
@@ -827,7 +826,7 @@ class npc_blazing_skeleton : public CreatureScript
                             _events.ScheduleEvent(EVENT_FIREBALL, 2s, 4s);
                             break;
                         case EVENT_LEY_WASTE:
-                            DoCast(me, SPELL_LEY_WASTE);
+                            DoCastSelf(SPELL_LEY_WASTE);
                             _events.ScheduleEvent(EVENT_LEY_WASTE, 15s, 20s);
                             break;
                         default:
@@ -881,7 +880,7 @@ class npc_suppresser : public CreatureScript
             void MovementInform(uint32 type, uint32 /*id*/) override
             {
                 if (type == CHASE_MOTION_TYPE)
-                    _events.RescheduleEvent(EVENT_SUPPRESSION, 1);
+                    _events.RescheduleEvent(EVENT_SUPPRESSION, 1ms);
             }
 
             void UpdateAI(uint32 diff) override
@@ -934,7 +933,7 @@ class npc_blistering_zombie : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                DoCast(me, SPELL_ACID_BURST, true);
+                DoCastSelf(SPELL_ACID_BURST, true);
             }
 
             void UpdateAI(uint32 /*diff*/) override
@@ -992,7 +991,7 @@ class npc_gluttonous_abomination : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_GUT_SPRAY:
-                            DoCast(me, SPELL_GUT_SPRAY);
+                            DoCastSelf(SPELL_GUT_SPRAY);
                             _events.ScheduleEvent(EVENT_GUT_SPRAY, 10s, 13s);
                             break;
                         default:
@@ -1090,14 +1089,14 @@ class npc_dream_cloud : public CreatureScript
                             Trinity::AnyPlayerInObjectRangeCheck check(me, 5.0f);
                             Trinity::PlayerSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, player, check);
                             Cell::VisitWorldObjects(me, searcher, 7.5f);
-                            _events.ScheduleEvent(player ? EVENT_EXPLODE : EVENT_CHECK_PLAYER, 1000);
+                            _events.ScheduleEvent(player ? EVENT_EXPLODE : EVENT_CHECK_PLAYER, 1s);
                             break;
                         }
                         case EVENT_EXPLODE:
                             me->GetMotionMaster()->MoveIdle();
                             // must use originalCaster the same for all clouds to allow stacking
                             me->CastSpell(me, EMERALD_VIGOR, _instance->GetGuidData(DATA_VALITHRIA_DREAMWALKER));
-                            me->DespawnOrUnsummon(100);
+                            me->DespawnOrUnsummon(100ms);
                             break;
                         default:
                             break;

@@ -206,11 +206,12 @@ enum FreyaEvents
 
 enum Misc
 {
-    WAVE_TIME                                   = 60000, // Normal wave is one minute
     TIME_DIFFERENCE                             = 10000, // If difference between waveTime and WAVE_TIME is bigger then TIME_DIFFERENCE, schedule EVENT_WAVE in 10 seconds
     DATA_GETTING_BACK_TO_NATURE                 = 1,
     DATA_KNOCK_ON_WOOD                          = 2
 };
+
+constexpr Seconds FREYA_WAVE_TIME = 60s; // Normal wave is one minute
 
 class npc_iron_roots : public CreatureScript
 {
@@ -385,7 +386,7 @@ class boss_freya : public CreatureScript
                 me->CastSpell(me, SPELL_ATTUNED_TO_NATURE, args);
 
                 events.ScheduleEvent(EVENT_WAVE, 10s);
-                events.ScheduleEvent(EVENT_EONAR_GIFT, 25000);
+                events.ScheduleEvent(EVENT_EONAR_GIFT, 25s);
                 events.ScheduleEvent(EVENT_ENRAGE, 10min);
                 events.ScheduleEvent(EVENT_SUNBEAM, 5s, 15s);
             }
@@ -422,7 +423,7 @@ class boss_freya : public CreatureScript
                             DoCast(me, SPELL_ENRAGE);
                             break;
                         case EVENT_SUNBEAM:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                                 DoCast(target, SPELL_SUNBEAM);
                             events.ScheduleEvent(EVENT_SUNBEAM, 10s, 15s);
                             break;
@@ -431,14 +432,14 @@ class boss_freya : public CreatureScript
                             events.ScheduleEvent(EVENT_NATURE_BOMB, 10s, 12s);
                             break;
                         case EVENT_UNSTABLE_ENERGY:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                                 DoCast(target, SPELL_FREYA_UNSTABLE_SUNBEAM, true);
                             events.ScheduleEvent(EVENT_UNSTABLE_ENERGY, 15s, 20s);
                             break;
                         case EVENT_WAVE:
                             SpawnWave();
                             if (waveCount <= 6) // If set to 6 The Bombs appear during the Final Add wave
-                                events.ScheduleEvent(EVENT_WAVE, WAVE_TIME);
+                                events.ScheduleEvent(EVENT_WAVE, FREYA_WAVE_TIME);
                             else
                                 events.ScheduleEvent(EVENT_NATURE_BOMB, 10s, 20s);
                             break;
@@ -449,7 +450,7 @@ class boss_freya : public CreatureScript
                             break;
                         case EVENT_STRENGTHENED_IRON_ROOTS:
                             Talk(EMOTE_IRON_ROOTS);
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, true, -SPELL_ROOTS_FREYA))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true, true, -SPELL_ROOTS_FREYA))
                                 target->CastSpell(target, SPELL_ROOTS_FREYA, true); // This must be cast by Target self
                             events.ScheduleEvent(EVENT_STRENGTHENED_IRON_ROOTS, 12s, 20s);
                             break;
@@ -514,7 +515,7 @@ class boss_freya : public CreatureScript
                                         for (uint8 n = 0; n < 3; ++n)
                                         {
                                             summons.Despawn(Elemental[n][i]);
-                                            Elemental[n][i]->DespawnOrUnsummon(5000);
+                                            Elemental[n][i]->DespawnOrUnsummon(5s);
                                             trioDefeated[i] = true;
                                             Elemental[n][i]->CastSpell(me, SPELL_REMOVE_10STACK, true);
                                         }
@@ -622,7 +623,7 @@ class boss_freya : public CreatureScript
                 me->RemoveAllAttackers();
                 me->AttackStop();
                 me->SetFaction(FACTION_FRIENDLY);
-                me->DespawnOrUnsummon(7500);
+                me->DespawnOrUnsummon(7500ms);
                 me->CastSpell(me, SPELL_KNOCK_ON_WOOD_CREDIT, true);
                 _JustDied();
 
@@ -661,7 +662,7 @@ class boss_freya : public CreatureScript
                 }
 
                 // Need to have it there, or summoned units would do nothing untill attacked
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 250.0f, true))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 250.0f, true))
                 {
                     summoned->AI()->AttackStart(target);
                     AddThreat(target, 250.0f, summoned);
@@ -676,12 +677,12 @@ class boss_freya : public CreatureScript
                     case NPC_DETONATING_LASHER:
                         summoned->CastSpell(me, SPELL_REMOVE_2STACK, true);
                         summoned->CastSpell(who, SPELL_DETONATE, true);
-                        summoned->DespawnOrUnsummon(5000);
+                        summoned->DespawnOrUnsummon(5s);
                         summons.Despawn(summoned);
                         break;
                     case NPC_ANCIENT_CONSERVATOR:
                         summoned->CastSpell(me, SPELL_REMOVE_25STACK, true);
-                        summoned->DespawnOrUnsummon(5000);
+                        summoned->DespawnOrUnsummon(5s);
                         summons.Despawn(summoned);
                         break;
                 }
@@ -784,7 +785,7 @@ class boss_elder_brightleaf : public CreatureScript
                 switch (action)
                 {
                     case ACTION_ELDER_FREYA_KILLED:
-                        me->DespawnOrUnsummon(10000);
+                        me->DespawnOrUnsummon(10s);
                         _JustDied();
                         break;
                 }
@@ -815,7 +816,7 @@ class boss_elder_stonebark : public CreatureScript
                     me->RemoveAurasDueToSpell(SPELL_DRAINED_OF_POWER);
                 events.ScheduleEvent(EVENT_TREMOR, 10s, 12s);
                 events.ScheduleEvent(EVENT_FISTS, 25s, 35s);
-                events.ScheduleEvent(EVENT_BARK, urand(37500, 40000));
+                events.ScheduleEvent(EVENT_BARK, 37500ms, 40s);
             }
 
             void KilledUnit(Unit* who) override
@@ -893,7 +894,7 @@ class boss_elder_stonebark : public CreatureScript
                 switch (action)
                 {
                     case ACTION_ELDER_FREYA_KILLED:
-                        me->DespawnOrUnsummon(10000);
+                        me->DespawnOrUnsummon(10s);
                         _JustDied();
                         break;
                 }
@@ -924,7 +925,7 @@ class boss_elder_ironbranch : public CreatureScript
                     me->RemoveAurasDueToSpell(SPELL_DRAINED_OF_POWER);
                 events.ScheduleEvent(EVENT_IMPALE, 18s, 22s);
                 events.ScheduleEvent(EVENT_IRON_ROOTS, 12s, 17s);
-                events.ScheduleEvent(EVENT_THORN_SWARM, urand(7500, 12500));
+                events.ScheduleEvent(EVENT_THORN_SWARM, 7500ms, 12500ms);
             }
 
             void KilledUnit(Unit* who) override
@@ -965,7 +966,7 @@ class boss_elder_ironbranch : public CreatureScript
                             events.ScheduleEvent(EVENT_IMPALE, 15s, 25s);
                             break;
                         case EVENT_IRON_ROOTS:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, true, -SPELL_ROOTS_IRONBRANCH))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true, true, -SPELL_ROOTS_IRONBRANCH))
                                 target->CastSpell(target, SPELL_ROOTS_IRONBRANCH, true);
                             events.ScheduleEvent(EVENT_IRON_ROOTS, 10s, 20s);
                             break;
@@ -987,7 +988,7 @@ class boss_elder_ironbranch : public CreatureScript
                 switch (action)
                 {
                     case ACTION_ELDER_FREYA_KILLED:
-                        me->DespawnOrUnsummon(10000);
+                        me->DespawnOrUnsummon(10s);
                         _JustDied();
                         break;
                 }
@@ -1039,7 +1040,7 @@ class npc_detonating_lasher : public CreatureScript
 
                 if (changeTargetTimer <= diff)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                     {
                         // Switching to other target - modify aggro of new target by 20% from current target's aggro
                         AddThreat(target, GetThreat(me->GetVictim()) * 1.2f);
@@ -1098,7 +1099,7 @@ class npc_ancient_water_spirit : public CreatureScript
 
                 if (tidalWaveTimer <= diff)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                     {
                         DoCast(target, SPELL_TIDAL_WAVE);
                         DoCast(target, SPELL_TIDAL_WAVE_EFFECT, true);
@@ -1175,7 +1176,7 @@ class npc_storm_lasher : public CreatureScript
 
                 if (stormboltTimer <= diff)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                         DoCast(target, SPELL_STORMBOLT);
                     stormboltTimer = urand(8000, 12000);
                 }
@@ -1309,7 +1310,7 @@ class npc_ancient_conservator : public CreatureScript
 
                 if (natureFuryTimer <= diff)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, true, -SPELL_NATURE_FURY))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true, true, -SPELL_NATURE_FURY))
                         DoCast(target, SPELL_NATURE_FURY);
                     me->AddAura(SPELL_CONSERVATOR_GRIP, me);
                     natureFuryTimer = 5000;
@@ -1377,7 +1378,7 @@ class npc_healthy_spore : public CreatureScript
                 if (lifeTimer <= diff)
                 {
                     me->RemoveAurasDueToSpell(SPELL_GROW);
-                    me->DespawnOrUnsummon(2200);
+                    me->DespawnOrUnsummon(2200ms);
                     lifeTimer = urand(22000, 30000);
                 }
                 else
@@ -1417,7 +1418,7 @@ class npc_eonars_gift : public CreatureScript
                 {
                     me->RemoveAurasDueToSpell(SPELL_GROW);
                     DoCast(SPELL_LIFEBINDERS_GIFT);
-                    me->DespawnOrUnsummon(2500);
+                    me->DespawnOrUnsummon(2500ms);
                     lifeBindersGiftTimer = 12000;
                 }
                 else
@@ -1505,12 +1506,16 @@ class npc_unstable_sun_beam : public CreatureScript
                     despawnTimer -= diff;
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
             {
-                if (target && spell->Id == SPELL_UNSTABLE_ENERGY)
+                Unit* unitTarget = target->ToUnit();
+                if (!unitTarget)
+                    return;
+
+                if (spellInfo->Id == SPELL_UNSTABLE_ENERGY)
                 {
-                    target->RemoveAurasDueToSpell(SPELL_UNSTABLE_SUN_BEAM);
-                    target->RemoveAurasDueToSpell(SPELL_UNSTABLE_SUN_BEAM_TRIGGERED);
+                    unitTarget->RemoveAurasDueToSpell(SPELL_UNSTABLE_SUN_BEAM);
+                    unitTarget->RemoveAurasDueToSpell(SPELL_UNSTABLE_SUN_BEAM_TRIGGERED);
                 }
             }
 

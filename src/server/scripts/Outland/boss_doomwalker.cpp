@@ -67,7 +67,7 @@ class boss_doomwalker : public CreatureScript
             void Reset() override
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_ENRAGE, 0);
+                _events.ScheduleEvent(EVENT_ENRAGE, 0s);
                 _events.ScheduleEvent(EVENT_ARMOR, 5s, 13s);
                 _events.ScheduleEvent(EVENT_CHAIN, 10s, 30s);
                 _events.ScheduleEvent(EVENT_QUAKE, 25s, 35s);
@@ -144,7 +144,7 @@ class boss_doomwalker : public CreatureScript
                             _events.ScheduleEvent(EVENT_QUAKE, 30s, 55s);
                             break;
                         case EVENT_CHAIN:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
                                 DoCast(target, SPELL_CHAIN_LIGHTNING);
                             _events.ScheduleEvent(EVENT_CHAIN, 7s, 27s);
                             break;

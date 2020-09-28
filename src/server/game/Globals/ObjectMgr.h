@@ -1343,7 +1343,7 @@ class TC_GAME_API ObjectMgr
                 case SPAWN_TYPE_GAMEOBJECT:
                     return GetGameObjectData(spawnId);
                 default:
-                    ASSERT(false, "Invalid spawn object type %u", uint32(type));
+                    ABORT_MSG("Invalid spawn object type %u", uint32(type));
                     return nullptr;
             }
         }
@@ -1534,7 +1534,7 @@ class TC_GAME_API ObjectMgr
         // for wintergrasp only
         GraveyardContainer GraveyardStore;
 
-        static void AddLocaleString(std::string const& value, LocaleConstant localeConstant, std::vector<std::string>& data);
+        static void AddLocaleString(std::string&& value, LocaleConstant localeConstant, std::vector<std::string>& data);
         static inline void GetLocaleString(std::vector<std::string> const& data, LocaleConstant localeConstant, std::string& value)
         {
             if (data.size() > size_t(localeConstant) && !data[localeConstant].empty())

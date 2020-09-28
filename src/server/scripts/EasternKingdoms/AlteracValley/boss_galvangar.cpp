@@ -67,8 +67,8 @@ public:
             Talk(SAY_AGGRO);
             events.ScheduleEvent(EVENT_CLEAVE, 1s, 9s);
             events.ScheduleEvent(EVENT_FRIGHTENING_SHOUT, 2s, 19s);
-            events.ScheduleEvent(EVENT_WHIRLWIND1, urand(1 * IN_MILLISECONDS, 13 * IN_MILLISECONDS));
-            events.ScheduleEvent(EVENT_WHIRLWIND2, urand(5 * IN_MILLISECONDS, 20 * IN_MILLISECONDS));
+            events.ScheduleEvent(EVENT_WHIRLWIND1, 1s, 13s);
+            events.ScheduleEvent(EVENT_WHIRLWIND2, 5s, 20s);
             events.ScheduleEvent(EVENT_MORTAL_STRIKE, 5s, 20s);
         }
 
@@ -114,11 +114,11 @@ public:
                         break;
                     case EVENT_WHIRLWIND1:
                         DoCastVictim(SPELL_WHIRLWIND1);
-                        events.ScheduleEvent(EVENT_WHIRLWIND1, urand(6 * IN_MILLISECONDS, 10 * IN_MILLISECONDS));
+                        events.ScheduleEvent(EVENT_WHIRLWIND1, 6s, 10s);
                         break;
                     case EVENT_WHIRLWIND2:
                         DoCastVictim(SPELL_WHIRLWIND2);
-                        events.ScheduleEvent(EVENT_WHIRLWIND2, urand(10 * IN_MILLISECONDS, 25 * IN_MILLISECONDS));
+                        events.ScheduleEvent(EVENT_WHIRLWIND2, 10s, 25s);
                         break;
                     case EVENT_MORTAL_STRIKE:
                         DoCastVictim(SPELL_MORTAL_STRIKE);

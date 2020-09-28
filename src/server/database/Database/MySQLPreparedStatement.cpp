@@ -61,7 +61,7 @@ MySQLPreparedStatement::~MySQLPreparedStatement()
     delete[] m_bind;
 }
 
-void MySQLPreparedStatement::BindParameters(PreparedStatement* stmt)
+void MySQLPreparedStatement::BindParameters(PreparedStatementBase* stmt)
 {
     m_stmt = stmt;     // Cross reference them for debug output
 

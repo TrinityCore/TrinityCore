@@ -148,7 +148,7 @@ public:
                         events.ScheduleEvent(EVENT_CRYSTAL_SPIKES, 12s);
                         break;
                     case EVENT_CRYSTALLINE_TANGLER:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, OrmorokTanglerPredicate(me)))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, OrmorokTanglerPredicate(me)))
                             DoCast(target, SPELL_SUMMON_CRYSTALLINE_TANGLER);
                         events.ScheduleEvent(EVENT_CRYSTALLINE_TANGLER, 15s);
                         break;

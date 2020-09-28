@@ -46,7 +46,7 @@ namespace WorldPackets
             ObjectGuid Totem;
             uint32 Duration = 0;
             uint32 SpellID = 0;
-            
+
         };
     }
 }

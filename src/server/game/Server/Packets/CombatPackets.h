@@ -36,7 +36,7 @@ namespace WorldPackets
 
             ObjectGuid Victim;
         };
-        
+
         class AttackSwingNotInRange final : public ServerPacket
         {
         public:
@@ -117,6 +117,16 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             PackedGuid Guid;
+        };
+
+        class SetSheathed final : public ClientPacket
+        {
+        public:
+            SetSheathed(WorldPacket&& packet) : ClientPacket(CMSG_SET_SHEATHED, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 CurrentSheathState = 0;
         };
     }
 }

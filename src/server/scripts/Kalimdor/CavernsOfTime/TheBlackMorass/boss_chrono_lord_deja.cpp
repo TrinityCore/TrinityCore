@@ -125,7 +125,7 @@ public:
                         events.ScheduleEvent(EVENT_TIME_LAPSE, 15s, 25s);
                         break;
                     case EVENT_ARCANE_DISCHARGE:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                             DoCast(target, SPELL_ARCANE_DISCHARGE);
                         events.ScheduleEvent(EVENT_ARCANE_DISCHARGE, 20s, 30s);
                         break;

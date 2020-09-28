@@ -70,7 +70,8 @@ enum WarriorSpells
     SPELL_WARRIOR_SECOND_WIND_TRIGGER_2             = 29842,
     SPELL_WARRIOR_GLYPH_OF_BLOCKING                 = 58374,
     SPELL_WARRIOR_STOICISM                          = 70845,
-    SPELL_WARRIOR_T10_MELEE_4P_BONUS                = 70847
+    SPELL_WARRIOR_T10_MELEE_4P_BONUS                = 70847,
+    SPELL_WARRIOR_INTERVENE_THREAT                  = 59667
 };
 
 enum WarriorSpellIcons
@@ -581,6 +582,28 @@ class spell_warr_improved_spell_reflection : public SpellScriptLoader
         {
             return new spell_warr_improved_spell_reflection_AuraScript();
         }
+};
+
+// 3411 - Intervene
+class spell_warr_intervene : public SpellScript
+{
+    PrepareSpellScript(spell_warr_intervene);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_INTERVENE_THREAT });
+    }
+
+    void HandleThreat(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit();
+        target->CastSpell(target, SPELL_WARRIOR_INTERVENE_THREAT, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_warr_intervene::HandleThreat, EFFECT_0, SPELL_EFFECT_CHARGE);
+    }
 };
 
 // 5246 - Intimidating Shout
@@ -1202,6 +1225,7 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_glyph_of_blocking();
     new spell_warr_glyph_of_sunder_armor();
     new spell_warr_improved_spell_reflection();
+    RegisterSpellScript(spell_warr_intervene);
     new spell_warr_intimidating_shout();
     new spell_warr_item_t10_prot_4p_bonus();
     new spell_warr_last_stand();

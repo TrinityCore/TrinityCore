@@ -18,11 +18,12 @@
 #ifndef __EVENTPROCESSOR_H
 #define __EVENTPROCESSOR_H
 
+#include "advstd.h"
 #include "Define.h"
 #include "Duration.h"
 #include "Random.h"
-#include "advstd.h"
 #include <map>
+#include <type_traits>
 
 class EventProcessor;
 
@@ -88,7 +89,7 @@ private:
 };
 
 template<typename T>
-using is_lambda_event = std::enable_if_t<!advstd::is_base_of_v<BasicEvent, std::remove_pointer_t<advstd::remove_cvref_t<T>>>>;
+using is_lambda_event = std::enable_if_t<!std::is_base_of_v<BasicEvent, std::remove_pointer_t<advstd::remove_cvref_t<T>>>>;
 
 class TC_COMMON_API EventProcessor
 {
@@ -98,17 +99,18 @@ class TC_COMMON_API EventProcessor
 
         void Update(uint32 p_time);
         void KillAllEvents(bool force);
-        void AddEvent(BasicEvent* event, uint64 e_time, bool set_addtime = true);
+
+        void AddEvent(BasicEvent* event, Milliseconds e_time, bool set_addtime = true);
         template<typename T>
-        is_lambda_event<T> AddEvent(T&& event, uint64 e_time, bool set_addtime = true) { AddEvent(new LambdaBasicEvent<T>(std::move(event)), e_time, set_addtime); }
-        void AddEventAtOffset(BasicEvent* event, Milliseconds offset) { AddEvent(event, CalculateTime(offset.count())); }
-        void AddEventAtOffset(BasicEvent* event, Milliseconds offset, Milliseconds offset2) { AddEvent(event, CalculateTime(urand(offset.count(), offset2.count()))); }
+        is_lambda_event<T> AddEvent(T&& event, Milliseconds e_time, bool set_addtime = true) { AddEvent(new LambdaBasicEvent<T>(std::move(event)), e_time, set_addtime); }
+        void AddEventAtOffset(BasicEvent* event, Milliseconds offset) { AddEvent(event, CalculateTime(offset)); }
+        void AddEventAtOffset(BasicEvent* event, Milliseconds offset, Milliseconds offset2) { AddEvent(event, CalculateTime(randtime(offset, offset2))); }
         template<typename T>
         is_lambda_event<T> AddEventAtOffset(T&& event, Milliseconds offset) { AddEventAtOffset(new LambdaBasicEvent<T>(std::move(event)), offset); }
         template<typename T>
         is_lambda_event<T> AddEventAtOffset(T&& event, Milliseconds offset, Milliseconds offset2) { AddEventAtOffset(new LambdaBasicEvent<T>(std::move(event)), offset, offset2); }
-        void ModifyEventTime(BasicEvent* event, uint64 newTime);
-        uint64 CalculateTime(uint64 t_offset) const { return m_time + t_offset; }
+        void ModifyEventTime(BasicEvent* event, Milliseconds newTime);
+        Milliseconds CalculateTime(Milliseconds t_offset) const { return Milliseconds(m_time) + t_offset; }
 
     protected:
         uint64 m_time;

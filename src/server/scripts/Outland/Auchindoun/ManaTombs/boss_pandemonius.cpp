@@ -39,6 +39,8 @@ enum Events
     EVENT_DARK_SHELL
 };
 
+uint32 constexpr DARK_SHELL_EVENT_GROUP = 1;
+
 class boss_pandemonius : public CreatureScript
 {
 public:
@@ -71,7 +73,7 @@ public:
         {
             BossAI::JustEngagedWith(who);
             Talk(SAY_AGGRO);
-            events.ScheduleEvent(EVENT_DARK_SHELL, 20s);
+            events.ScheduleEvent(EVENT_DARK_SHELL, 20s, DARK_SHELL_EVENT_GROUP);
             events.ScheduleEvent(EVENT_VOID_BLAST, 8s, 23s);
         }
 
@@ -80,7 +82,7 @@ public:
             switch (eventId)
             {
                 case EVENT_VOID_BLAST:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                     {
                         DoCast(target, SPELL_VOID_BLAST);
                         ++VoidBlastCounter;
@@ -94,7 +96,7 @@ public:
                     else
                     {
                         events.ScheduleEvent(EVENT_VOID_BLAST, 500ms);
-                        events.DelayEvents(EVENT_DARK_SHELL, 500);
+                        events.DelayEvents(500ms, DARK_SHELL_EVENT_GROUP);
                     }
                     break;
                 case EVENT_DARK_SHELL:
@@ -102,7 +104,7 @@ public:
                         me->InterruptNonMeleeSpells(true);
                     Talk(EMOTE_DARK_SHELL);
                     DoCast(me, SPELL_DARK_SHELL);
-                    events.ScheduleEvent(EVENT_DARK_SHELL, 20s);
+                    events.ScheduleEvent(EVENT_DARK_SHELL, 20s, DARK_SHELL_EVENT_GROUP);
                     break;
                 default:
                     break;

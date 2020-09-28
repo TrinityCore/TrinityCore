@@ -135,7 +135,7 @@ std::string Transmogrification::GetItemIcon(uint32 entry, uint32 width, uint32 h
     {
         dispInfo = sItemDisplayInfoStore.LookupEntry(temp->DisplayInfoID);
         if (dispInfo)
-            ss << "/ICONS/" << dispInfo->inventoryIcon;
+            ss << "/ICONS/" << dispInfo->InventoryIcon[0];
     }
     if (!dispInfo)
         ss << "/InventoryItems/WoWUnknownItem01";
@@ -188,13 +188,13 @@ std::string Transmogrification::GetItemLink(Item* item, WorldSession* session) c
         {
             const ItemRandomSuffixEntry* itemRandEntry = sItemRandomSuffixStore.LookupEntry(-item->GetItemRandomPropertyId());
             if (itemRandEntry)
-                suffix = itemRandEntry->nameSuffix;
+                suffix = itemRandEntry->Name;
         }
         else
         {
             const ItemRandomPropertiesEntry* itemRandEntry = sItemRandomPropertiesStore.LookupEntry(item->GetItemRandomPropertyId());
             if (itemRandEntry)
-                suffix = itemRandEntry->nameSuffix;
+                suffix = itemRandEntry->Name;
         }
         if (suffix)
         {

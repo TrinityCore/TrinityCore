@@ -19,6 +19,7 @@
 #define TRINITYCORE_COMMON_H
 
 #include "Define.h"
+#include <array>
 #include <memory>
 #include <string>
 #include <utility>
@@ -120,10 +121,5 @@ TC_COMMON_API LocaleConstant GetLocaleByName(std::string const& name);
 #endif
 
 #define MAX_QUERY_LEN 32*1024
-
-namespace Trinity
-{
-    using std::make_unique;
-}
 
 #endif

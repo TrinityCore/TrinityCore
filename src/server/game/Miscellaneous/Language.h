@@ -1069,6 +1069,9 @@ enum TrinityStrings
     // unused 5081
     // unused 5082
     LANG_OBJECTINFO_AITYPE                = 5083,
+    LANG_NPCINFO_UNIT_FIELD_FLAGS_2       = 5084, // master branch ONLY
+    LANG_NPCINFO_UNIT_FIELD_FLAGS_3       = 5085, // master branch ONLY
+    LANG_NPCINFO_NPC_FLAGS                = 5086, // master branch ONLY
 
     // Room for more Trinity strings        5084-6603
 

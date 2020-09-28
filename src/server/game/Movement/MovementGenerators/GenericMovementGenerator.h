@@ -44,7 +44,7 @@ class GenericMovementGenerator : public MovementGenerator
         Movement::MoveSplineInit _splineInit;
         MovementGeneratorType _type;
         uint32 _pointId;
-        TimeTrackerSmall _duration;
+        TimeTracker _duration;
 };
 
 #endif

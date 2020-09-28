@@ -165,7 +165,7 @@ class boss_general_vezax : public CreatureScript
                         {
                             Unit* target = CheckPlayersInRange(RAID_MODE<uint8>(4, 9), 15.0f, 50.0f);
                             if (!target)
-                                target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150.0f, true);
+                                target = SelectTarget(SelectTargetMethod::Random, 0, 150.0f, true);
                             if (target)
                                 DoCast(target, SPELL_SHADOW_CRASH);
                             events.ScheduleEvent(EVENT_SHADOW_CRASH, 8s, 12s);
@@ -173,13 +173,13 @@ class boss_general_vezax : public CreatureScript
                         }
                         case EVENT_SEARING_FLAMES:
                             DoCastAOE(SPELL_SEARING_FLAMES);
-                            events.ScheduleEvent(EVENT_SEARING_FLAMES, urand(14000, 17500));
+                            events.ScheduleEvent(EVENT_SEARING_FLAMES, 14s, 17500ms);
                             break;
                         case EVENT_MARK_OF_THE_FACELESS:
                         {
                             Unit* target = CheckPlayersInRange(RAID_MODE<uint8>(4, 9), 15.0f, 50.0f);
                             if (!target)
-                                target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150.0f, true);
+                                target = SelectTarget(SelectTargetMethod::Random, 0, 150.0f, true);
                             if (target)
                                 DoCast(target, SPELL_MARK_OF_THE_FACELESS);
                             events.ScheduleEvent(EVENT_MARK_OF_THE_FACELESS, 35s, 45s);
@@ -219,9 +219,9 @@ class boss_general_vezax : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void SpellHitTarget(Unit* who, SpellInfo const* spell) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
             {
-                if (who && who->GetTypeId() == TYPEID_PLAYER && spell->Id == SPELL_SHADOW_CRASH_HIT)
+                if (target->GetTypeId() == TYPEID_PLAYER && spellInfo->Id == SPELL_SHADOW_CRASH_HIT)
                     shadowDodger = false;
             }
 
@@ -430,7 +430,7 @@ class npc_saronite_vapors : public CreatureScript
                     me->SetHealth(me->GetMaxHealth());
                     me->RemoveAllAuras();
                     DoCast(me, SPELL_SARONITE_VAPORS);
-                    me->DespawnOrUnsummon(30000);
+                    me->DespawnOrUnsummon(30s);
 
                     if (Creature* vezax = instance->GetCreature(BOSS_VEZAX))
                         vezax->AI()->DoAction(ACTION_VAPORS_DIE);
