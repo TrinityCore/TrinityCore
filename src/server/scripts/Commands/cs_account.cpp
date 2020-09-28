@@ -697,9 +697,9 @@ public:
 
         uint32 playerSecurity;
         if (handler->IsConsole())
-            playerSecurity = AccountMgr::GetSecurity(handler->GetSession()->GetAccountId(), realmID);
-        else
             playerSecurity = SEC_CONSOLE;
+        else
+            playerSecurity = AccountMgr::GetSecurity(handler->GetSession()->GetAccountId(), realmID);
 
         // can set security level only for target with less security and to less security that we have
         // This also restricts setting handler's own security.

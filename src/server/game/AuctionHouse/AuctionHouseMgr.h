@@ -72,6 +72,12 @@ enum AuctionHouses
     AUCTIONHOUSE_NEUTRAL        = 7
 };
 
+enum AuctionEntryFlag : uint8
+{
+    AUCTION_ENTRY_FLAG_NONE         = 0x0,
+    AUCTION_ENTRY_FLAG_GM_LOG_BUYER = 0x1  // write transaction to gm log file for buyer (optimization flag - avoids querying database for offline player permissions)
+};
+
 struct TC_GAME_API AuctionEntry
 {
     uint32 Id;
@@ -89,6 +95,7 @@ struct TC_GAME_API AuctionEntry
     uint32 etime;
     std::unordered_set<ObjectGuid> bidders;
     AuctionHouseEntry const* auctionHouseEntry;             // in AuctionHouse.dbc
+    AuctionEntryFlag Flags;
 
     // helpers
     uint8 GetHouseId() const { return houseId; }
