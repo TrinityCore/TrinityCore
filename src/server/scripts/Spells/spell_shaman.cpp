@@ -950,69 +950,48 @@ class spell_sha_lava_lash_script : public SpellScript
     }
 };
 
-class spell_sha_lava_surge : public SpellScriptLoader
+// -77755 - Lava Surge
+class spell_sha_lava_surge : public AuraScript
 {
-    public:
-        spell_sha_lava_surge() : SpellScriptLoader("spell_sha_lava_surge") { }
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_LAVA_SURGE });
+    }
 
-        class spell_sha_lava_surge_AuraScript : public AuraScript
-        {
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_SHAMAN_LAVA_SURGE });
-            }
+    void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+    {
+        PreventDefaultAction();
+        GetTarget()->CastSpell(GetTarget(), SPELL_SHAMAN_LAVA_SURGE, true);
+    }
 
-            void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
-            {
-                PreventDefaultAction();
-                GetTarget()->CastSpell(GetTarget(), SPELL_SHAMAN_LAVA_SURGE, true);
-            }
-
-            void Register() override
-            {
-                OnEffectProc.Register(&spell_sha_lava_surge_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_sha_lava_surge_AuraScript();
-        }
+    void Register() override
+    {
+        OnEffectProc.Register(&spell_sha_lava_surge::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
 };
 
-class spell_sha_lava_surge_proc : public SpellScriptLoader
+class spell_sha_lava_surge_proc : public SpellScript
 {
-    public:
-        spell_sha_lava_surge_proc() : SpellScriptLoader("spell_sha_lava_surge_proc") { }
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_LAVA_BURST });
+    }
 
-        class spell_sha_lava_surge_proc_SpellScript : public SpellScript
-        {
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_SHAMAN_LAVA_BURST });
-            }
+    bool Load() override
+    {
+        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+    }
 
-            bool Load() override
-            {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-            }
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->ToPlayer()->GetSpellHistory()->ResetCooldown(SPELL_SHAMAN_LAVA_BURST, true);
+    }
 
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                GetCaster()->ToPlayer()->GetSpellHistory()->ResetCooldown(SPELL_SHAMAN_LAVA_BURST, true);
-            }
+    void Register() override
+    {
+        OnEffectHitTarget.Register(&spell_sha_lava_surge_proc::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
 
-            void Register() override
-            {
-                OnEffectHitTarget.Register(&spell_sha_lava_surge_proc_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_sha_lava_surge_proc_SpellScript();
-        }
 };
 
 // 16191 - Mana Tide
@@ -2064,8 +2043,8 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_item_t10_elemental_2p_bonus();
     RegisterSpellScript(spell_sha_lava_lash);
     RegisterSpellScript(spell_sha_lava_lash_script);
-    new spell_sha_lava_surge();
-    new spell_sha_lava_surge_proc();
+    RegisterSpellScript(spell_sha_lava_surge);
+    RegisterSpellScript(spell_sha_lava_surge_proc);
     RegisterSpellScript(spell_sha_lightning_shield);
     new spell_sha_mana_tide_totem();
     new spell_sha_nature_guardian();
