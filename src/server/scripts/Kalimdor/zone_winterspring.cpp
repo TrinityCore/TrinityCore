@@ -413,7 +413,7 @@ public:
                     break;
                 case SAY_PRIESTESS_ALTAR_8:
                     // make the gem respawn
-                    if (GameObject* gem = GetClosestGameObjectWithEntry(me, GO_ELUNE_GEM, 10.0f))
+                    if (GameObject* gem = GetClosestGameObjectWithEntry(me, GO_ELUNE_GEM, 10.0f, false))
                     {
                         if (gem->isSpawned())
                             break;
@@ -538,7 +538,7 @@ public:
             EscortAI::UpdateEscortAI(diff);
         }
 
-        void QuestAccept(Player* player, Quest const* quest) override
+        void OnQuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_GUARDIANS_ALTAR)
             {
@@ -572,7 +572,7 @@ public:
     {
         go_elune_fireAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* /*player*/) override
+        bool OnGossipHello(Player* /*player*/) override
         {
             // Check if we are using the torches or the altar
             bool isAltar = false;

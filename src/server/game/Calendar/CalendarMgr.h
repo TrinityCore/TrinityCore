@@ -322,11 +322,9 @@ class TC_GAME_API CalendarMgr
         void RemoveEvent(CalendarEvent* calendarEvent, ObjectGuid remover);
         void UpdateEvent(CalendarEvent* calendarEvent);
 
-        void AddInvite(CalendarEvent* calendarEvent, CalendarInvite* invite);
-        void AddInvite(CalendarEvent* calendarEvent, CalendarInvite* invite, CharacterDatabaseTransaction& trans);
+        void AddInvite(CalendarEvent* calendarEvent, CalendarInvite* invite, CharacterDatabaseTransaction trans = nullptr);
         void RemoveInvite(uint64 inviteId, uint64 eventId, ObjectGuid remover);
-        void UpdateInvite(CalendarInvite* invite);
-        void UpdateInvite(CalendarInvite* invite, CharacterDatabaseTransaction& trans);
+        void UpdateInvite(CalendarInvite* invite, CharacterDatabaseTransaction trans = nullptr);
 
         void RemoveAllPlayerEventsAndInvites(ObjectGuid guid);
         void RemovePlayerGuildEventsAndSignups(ObjectGuid guid, ObjectGuid::LowType guildId);

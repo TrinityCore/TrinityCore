@@ -1164,7 +1164,7 @@ void Pet::_LoadSpells(PreparedQueryResult result)
     }
 }
 
-void Pet::_SaveSpells(CharacterDatabaseTransaction& trans)
+void Pet::_SaveSpells(CharacterDatabaseTransaction trans)
 {
     for (PetSpellMap::iterator itr = m_spells.begin(), next = m_spells.begin(); itr != m_spells.end(); itr = next)
     {
@@ -1290,7 +1290,7 @@ void Pet::_LoadAuras(PreparedQueryResult result, uint32 timediff)
     }
 }
 
-void Pet::_SaveAuras(CharacterDatabaseTransaction& trans)
+void Pet::_SaveAuras(CharacterDatabaseTransaction trans)
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PET_AURAS);
     stmt->setUInt32(0, m_charmInfo->GetPetNumber());
@@ -2030,7 +2030,7 @@ std::string Pet::GetDebugInfo() const
     std::stringstream sstr;
     sstr << Guardian::GetDebugInfo() << "\n"
         << std::boolalpha
-        << "PetType: " << std::to_string(getPetType())
+        << "PetType: " << std::to_string(getPetType()) << " "
         << "PetNumber: " << m_charmInfo->GetPetNumber();
     return sstr.str();
 }

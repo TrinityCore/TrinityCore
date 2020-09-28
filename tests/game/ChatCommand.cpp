@@ -17,15 +17,24 @@
 
 #include "tc_catch2.h"
 
+#include "Chat.h"
 #include "ChatCommand.h"
 
 using namespace Trinity::ChatCommands;
 using namespace std::string_view_literals;
 
-template <typename F>
-static void TestChatCommand(char const* c, F f, Optional<bool> expected = true)
+struct DummyChatHandler : ChatHandler
 {
-    bool r = ChatCommand("", 0, false, +f, "")(nullptr, c);
+    DummyChatHandler() : ChatHandler(nullptr) {}
+    void SendSysMessage(std::string_view, bool) override {}
+    char const* GetTrinityString(uint32) const override { return ""; }
+};
+
+template <typename F>
+static void TestChatCommand(std::string_view c, F f, Optional<bool> expected = true)
+{
+    DummyChatHandler handler;
+    bool r = Trinity::Impl::ChatCommands::CommandInvoker(*+f)(&handler, c);
     if (expected)
         REQUIRE(r == *expected);
 }
@@ -48,13 +57,30 @@ TEST_CASE("Command argument parsing", "[ChatCommand]")
         TestChatCommand("true", [](ChatHandler*, uint32) { return true; }, false);
     }
 
-    SECTION("std::vector<uint8>")
+    SECTION("Floating point argument")
     {
-        TestChatCommand("1 2 3 4 5 6 7 8 9 10", [](ChatHandler*, std::vector<uint8> v)
+        TestChatCommand("0.5", [](ChatHandler*, float f)
         {
-            REQUIRE(v.size() == 10);
-            for (size_t i = 0; i < 10; ++i)
-                REQUIRE(v[i] == (i + 1));
+            REQUIRE(f == 0.5);
+            return true;
+        });
+        TestChatCommand("true", [](ChatHandler*, float) { return true; }, false);
+    }
+
+    SECTION("std::vector<uint16>")
+    {
+        TestChatCommand("1 2 3 4 5 6 7 8 9 10", [](ChatHandler*, std::vector<uint16> v)
+        {
+            REQUIRE(v == std::vector<uint16>{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
+            return true;
+        });
+    }
+
+    SECTION("std::array<uint16>")
+    {
+        TestChatCommand("1 2 3 4 5 6 7 8 9 10", [](ChatHandler*, std::array<uint16, 10> v)
+        {
+            REQUIRE(v == std::array<uint16, 10>{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 });
             return true;
         });
     }
@@ -82,6 +108,28 @@ TEST_CASE("Command argument parsing", "[ChatCommand]")
         TestChatCommand("two strings", [](ChatHandler*, Tail t)
         {
             REQUIRE(t == "two strings");
+            return true;
+        });
+    }
+
+    SECTION("Variant<>")
+    {
+        TestChatCommand("0x1ffff", [](ChatHandler*, Variant<uint16, uint32> v)
+        {
+            REQUIRE(v.holds_alternative<uint32>());
+            REQUIRE(v.get<uint32>() == 0x1ffff);
+            return true;
+        });
+        TestChatCommand("0xffff", [](ChatHandler*, Variant<uint16, uint32> v)
+        {
+            REQUIRE(v.holds_alternative<uint16>());
+            REQUIRE(v.get<uint16>() == 0xffff);
+            return true;
+        });
+        TestChatCommand("0x1ffff", [](ChatHandler*, Variant<uint32, uint16> v)
+        {
+            REQUIRE(v.holds_alternative<uint32>());
+            REQUIRE(v.get<uint32>() == 0x1ffff);
             return true;
         });
     }

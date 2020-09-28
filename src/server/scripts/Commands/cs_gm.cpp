@@ -34,25 +34,28 @@ EndScriptData */
 #include "World.h"
 #include "WorldSession.h"
 
+using namespace Trinity::ChatCommands;
+
 class gm_commandscript : public CommandScript
 {
 public:
     gm_commandscript() : CommandScript("gm_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    ChatCommandTable GetCommands() const override
     {
-        static std::vector<ChatCommand> gmCommandTable =
+        static ChatCommandTable gmCommandTable =
         {
-            { "chat",    rbac::RBAC_PERM_COMMAND_GM_CHAT,    false, &HandleGMChatCommand,       "" },
-            { "fly",     rbac::RBAC_PERM_COMMAND_GM_FLY,     false, &HandleGMFlyCommand,        "" },
-            { "ingame",  rbac::RBAC_PERM_COMMAND_GM_INGAME,   true, &HandleGMListIngameCommand, "" },
-            { "list",    rbac::RBAC_PERM_COMMAND_GM_LIST,     true, &HandleGMListFullCommand,   "" },
-            { "visible", rbac::RBAC_PERM_COMMAND_GM_VISIBLE, false, &HandleGMVisibleCommand,    "" },
-            { "",        rbac::RBAC_PERM_COMMAND_GM,         false, &HandleGMCommand,           "" },
+            { "chat",       HandleGMChatCommand,        rbac::RBAC_PERM_COMMAND_GM_CHAT,        Console::No },
+            { "fly",        HandleGMFlyCommand,         rbac::RBAC_PERM_COMMAND_GM_FLY,         Console::No },
+            { "ingame",     HandleGMListIngameCommand,  rbac::RBAC_PERM_COMMAND_GM_INGAME,      Console::Yes },
+            { "list",       HandleGMListFullCommand,    rbac::RBAC_PERM_COMMAND_GM_LIST,        Console::Yes },
+            { "visible",    HandleGMVisibleCommand,     rbac::RBAC_PERM_COMMAND_GM_VISIBLE,     Console::No },
+            { "on",         HandleGMOnCommand,          rbac::RBAC_PERM_COMMAND_GM,             Console::No },
+            { "off",        HandleGMOffCommand,         rbac::RBAC_PERM_COMMAND_GM,             Console::No },
         };
-        static std::vector<ChatCommand> commandTable =
+        static ChatCommandTable commandTable =
         {
-            { "gm", rbac::RBAC_PERM_COMMAND_GM, false, nullptr, "", gmCommandTable },
+            { "gm", gmCommandTable },
         };
         return commandTable;
     }
@@ -218,30 +221,19 @@ public:
         return true;
     }
 
-    //Enable\Disable GM Mode
-    static bool HandleGMCommand(ChatHandler* handler, Optional<bool> enableArg)
+    static bool HandleGMOnCommand(ChatHandler* handler)
     {
-        Player* _player = handler->GetSession()->GetPlayer();
+        handler->GetPlayer()->SetGameMaster(true);
+        handler->GetPlayer()->UpdateTriggerVisibility();
+        handler->GetSession()->SendNotification(LANG_GM_ON);
+        return true;
+    }
 
-        if (!enableArg)
-        {
-            handler->GetSession()->SendNotification(_player->IsGameMaster() ? LANG_GM_ON : LANG_GM_OFF);
-            return true;
-        }
-
-        if (*enableArg)
-        {
-            _player->SetGameMaster(true);
-            handler->GetSession()->SendNotification(LANG_GM_ON);
-            _player->UpdateTriggerVisibility();
-        }
-        else
-        {
-            _player->SetGameMaster(false);
-            handler->GetSession()->SendNotification(LANG_GM_OFF);
-            _player->UpdateTriggerVisibility();
-        }
-
+    static bool HandleGMOffCommand(ChatHandler* handler)
+    {
+        handler->GetPlayer()->SetGameMaster(false);
+        handler->GetPlayer()->UpdateTriggerVisibility();
+        handler->GetSession()->SendNotification(LANG_GM_OFF);
         return true;
     }
 };

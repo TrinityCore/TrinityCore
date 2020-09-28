@@ -29,6 +29,8 @@
 struct AchievementEntry;
 struct GlyphPropertiesEntry;
 struct GlyphSlotEntry;
+struct ItemRandomPropertiesEntry;
+struct ItemRandomSuffixEntry;
 struct ItemTemplate;
 class SpellInfo;
 class Quest;
@@ -59,21 +61,24 @@ namespace Trinity::Hyperlinks
         ItemTemplate const* Item;
         uint32 EnchantId;
         std::array<uint32, 3> GemEnchantId;
-        int32 RandomPropertyId;
-        int32 RandomPropertySeed;
+        ItemRandomPropertiesEntry const* RandomProperty;
+        ItemRandomSuffixEntry const* RandomSuffix;
+        uint32 RandomSuffixBaseAmount; /* ITEM_FIELD_PROPERTY_SEED - only nonzero for RandomSuffix items, AllocationPct from DBC are multiplied with this, then floored, to get stat value */
         uint8 RenderLevel;
+        bool IsBuggedInspectLink;
     };
 
     struct QuestLinkData
     {
         ::Quest const* Quest;
-        uint8 QuestLevel;
+        int16 QuestLevel;
     };
 
     struct TalentLinkData
     {
         TalentEntry const* Talent;
         uint8 Rank;
+        SpellInfo const* Spell;
     };
 
     struct TradeskillLinkData
@@ -146,7 +151,7 @@ namespace Trinity::Hyperlinks
         make_base_tag(gameobject, ObjectGuid::LowType);
         make_base_tag(gameobject_entry, uint32);
         make_base_tag(itemset, uint32);
-        make_base_tag(player, std::string const&);
+        make_base_tag(player, std::string_view);
         make_base_tag(skill, uint32);
         make_base_tag(taxinode, uint32);
         make_base_tag(tele, uint32);
