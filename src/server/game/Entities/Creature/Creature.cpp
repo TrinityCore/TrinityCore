@@ -1139,7 +1139,8 @@ Unit* Creature::SelectVictim()
 
 bool Creature::SetDisableGravity(bool disable, bool packetOnly /*= false*/, bool updateAnimationTier /*= true*/)
 {
-    Unit::SetDisableGravity(disable, packetOnly, updateAnimationTier);
+    if (!Unit::SetDisableGravity(disable, packetOnly, updateAnimationTier))
+        return false;
 
     if (updateAnimationTier && IsAlive() && !HasUnitState(UNIT_STATE_ROOT) && !GetMovementTemplate().IsRooted())
     {
@@ -1156,7 +1157,8 @@ bool Creature::SetDisableGravity(bool disable, bool packetOnly /*= false*/, bool
 
 bool Creature::SetHover(bool enable, bool packetOnly /*= false*/, bool updateAnimationTier /*= true*/)
 {
-    Unit::SetHover(enable, packetOnly, updateAnimationTier);
+    if (!Unit::SetHover(enable, packetOnly, updateAnimationTier))
+        return false;
 
     if (updateAnimationTier && IsAlive() && !HasUnitState(UNIT_STATE_ROOT) && !GetMovementTemplate().IsRooted())
     {

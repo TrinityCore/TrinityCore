@@ -10954,7 +10954,7 @@ bool Unit::IsPolymorphed() const
 
 void Unit::SetAnimationTier(AnimationTier tier, bool immediate /* = true */)
 {
-    if (!IsCreature())
+    if (!IsCreature() || tier == GetAnimationTier())
         return;
 
     SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, static_cast<uint8>(tier));
