@@ -128,7 +128,7 @@ struct npc_vp_howling_gale : public NullCreatureAI
 {
     npc_vp_howling_gale(Creature* creature) : NullCreatureAI(creature) { }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEnteredCombat(Unit* /*who*/) override
     {
         me->GetThreatManager().ClearAllThreat();
         me->CombatStop(false);
@@ -138,31 +138,26 @@ struct npc_vp_howling_gale : public NullCreatureAI
 enum Slipstreams
 {
     // Spells
-    SPELL_SLIPSTREAM_ENTER = 84965,
-    SPELL_SLIPSTREAM_FIRST = 84980,
-    SPELL_SLIPSTREAM_SECOND = 84988,
-    SPELL_SLIPSTREAM_THIRD = 85394,
-    SPELL_SLIPSTREAM_FOURTH = 85397,
-    SPELL_SLIPSTREAM_LAST = 85016,
-    SPELL_SLIPSTREAM_ASAAD = 95911,
-    SPELL_SLIPSTREAM_SHORTCUT_ALTAIRUS = 89498,
-    SPELL_SLIPSTREAM_SHORTCUT_ASAAD = 89500,
-    SPELL_SLIPSTREAM_CONTROL_VEHICLE_FIRST = 84978,
+    SPELL_SLIPSTREAM_ENTER                  = 84965,
+    SPELL_SLIPSTREAM_FIRST                  = 84980,
+    SPELL_SLIPSTREAM_SECOND                 = 84988,
+    SPELL_SLIPSTREAM_THIRD                  = 85394,
+    SPELL_SLIPSTREAM_FOURTH                 = 85397,
+    SPELL_SLIPSTREAM_LAST                   = 85016,
+    SPELL_SLIPSTREAM_ASAAD                  = 95911,
+    SPELL_SLIPSTREAM_SHORTCUT_ALTAIRUS      = 89498,
+    SPELL_SLIPSTREAM_SHORTCUT_ASAAD         = 89500,
+    SPELL_SLIPSTREAM_CONTROL_VEHICLE_FIRST  = 84978,
     SPELL_SLIPSTREAM_CONTROL_VEHICLE_SECOND = 84989,
-    SPELL_SLIPSTREAM_CONTROL_VEHICLE_THIRD = 85395,
+    SPELL_SLIPSTREAM_CONTROL_VEHICLE_THIRD  = 85395,
     SPELL_SLIPSTREAM_CONTROL_VEHICLE_FOURTH = 85396,
-    SPELL_SLIPSTREAM_CONTROL_VEHICLE_LAST = 85017
+    SPELL_SLIPSTREAM_CONTROL_VEHICLE_LAST   = 85017
 };
 
 // 45455 - Slipstream
 struct npc_slipstream : public NullCreatureAI
 {
     npc_slipstream(Creature* creature) : NullCreatureAI(creature), _instance(me->GetInstanceScript()), _guid(me->GetGUID())
-    {
-        Initialize();
-    }
-
-    void Initialize()
     {
         me->SetExtraUnitMovementFlags(MOVEMENTFLAG2_NO_STRAFE | MOVEMENTFLAG2_NO_JUMPING);
     }
@@ -515,7 +510,9 @@ class spell_vp_lurk_search : public SpellScript
         return ValidateSpellInfo(
             {
                 SPELL_LURK_SEARCH_FACING_PLAYERS,
-                SPELL_LURK_SEARCH_DEATH_CHECK
+                SPELL_LURK_SEARCH_DEATH_CHECK,
+                SPELL_LURK_SEARCH_SELECT_TARGET,
+                SPELL_LURK_RESSURECT
             });
     }
 
@@ -534,19 +531,17 @@ class spell_vp_lurk_search : public SpellScript
                     return !target->HasInArc(float(M_PI), caster);
                 });
 
-                if (!caster->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29))
-                    if (!targets.empty() && GetSpellInfo()->Id == SPELL_LURK_SEARCH_FACING_PLAYERS)
-                        caster->CastSpell(caster, SPELL_FEIGN_DEATH);
+                if (!caster->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29) && !targets.empty())
+                    caster->CastSpell(caster, SPELL_FEIGN_DEATH);
                 break;
             case SPELL_LURK_SEARCH_DEATH_CHECK:
                 targets.remove_if([caster](WorldObject const* target)->bool
                 {
-                    return target->HasInArc(float(M_PI), caster);
+                    return !target->HasInArc(float(M_PI), caster);
                 });
 
-                if (caster->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29))
-                    if (!targets.empty() && GetSpellInfo()->Id == SPELL_LURK_SEARCH_DEATH_CHECK && !caster->HasAura(SPELL_LURK_RESSURECT, caster->GetGUID()))
-                        caster->CastSpell(caster, SPELL_LURK_RESSURECT);
+                if (caster->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29) && targets.empty() && !caster->HasAura(SPELL_LURK_RESSURECT, caster->GetGUID()))
+                    caster->CastSpell(caster, SPELL_LURK_RESSURECT);
                 break;
             case SPELL_LURK_SEARCH_SELECT_TARGET:
             {
@@ -656,18 +651,42 @@ class spell_vp_howling_gale : public AuraScript
             });
     }
 
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        _inactiveTicks = 20;
+        _weakTicks = 10;
+    }
+
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
         Unit* caster = GetTarget();
-        bool weakOrb = GetAura()->IsProcOnCooldown(std::chrono::steady_clock::now());
-        caster->CastSpell(caster, weakOrb ? SPELL_HOWLING_GALE_VISUAL_WEAK : SPELL_HOWLING_GALE_VISUAL_STRONG);
-        caster->CastSpell(caster, weakOrb ? SPELL_HOWLING_GALE_KNOCKBACK_WEAK : SPELL_HOWLING_GALE_KNOCKBACK_STRONG);
+        if (_inactiveTicks > 0)
+        {
+            --_inactiveTicks;
+            return;
+        }
+
+        if (_weakTicks > 0)
+        {
+            --_weakTicks;
+            caster->CastSpell(caster, SPELL_HOWLING_GALE_VISUAL_WEAK);
+            caster->CastSpell(caster, SPELL_HOWLING_GALE_KNOCKBACK_WEAK);
+        }
+        else
+        {
+            caster->CastSpell(caster, SPELL_HOWLING_GALE_VISUAL_STRONG);
+            caster->CastSpell(caster, SPELL_HOWLING_GALE_KNOCKBACK_STRONG);
+        }
     }
 
     void Register() override
     {
+        OnEffectProc.Register(&spell_vp_howling_gale::HandleProc, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
         OnEffectPeriodic.Register(&spell_vp_howling_gale::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
     }
+private:
+    uint8 _inactiveTicks = 0;
+    uint8 _weakTicks = 0;
 };
 
 // 85159, 85085 - Howling Gale
