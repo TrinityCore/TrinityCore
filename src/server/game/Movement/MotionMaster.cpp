@@ -343,7 +343,7 @@ void MotionMaster::MoveCloserAndStop(uint32 id, Unit* target, float distance)
     }
 }
 
-void MotionMaster::MoveLand(uint32 id, Position const& pos, Optional<float> velocity /*= nullptr*/)
+void MotionMaster::MoveLand(uint32 id, Position const& pos, Optional<float> velocity /*= { }*/)
 {
     TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveLand: '%s', landing point Id: %u (X: %f, Y: %f, Z: %f)", _owner->GetGUID().ToString().c_str(), id, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
 
@@ -357,7 +357,7 @@ void MotionMaster::MoveLand(uint32 id, Position const& pos, Optional<float> velo
     Mutate(new GenericMovementGenerator(std::move(init), EFFECT_MOTION_TYPE, id), MOTION_SLOT_ACTIVE);
 }
 
-void MotionMaster::MoveTakeoff(uint32 id, Position const& pos)
+void MotionMaster::MoveTakeoff(uint32 id, Position const& pos, Optional<float> velocity /*= { }*/)
 {
     TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveTakeoff: '%s', landing point Id: %u (X: %f, Y: %f, Z: %f)", _owner->GetGUID().ToString().c_str(), id, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
 
@@ -366,6 +366,8 @@ void MotionMaster::MoveTakeoff(uint32 id, Position const& pos)
     init.SetSmooth();
     init.SetFly();
     init.SetAnimation(AnimationTier::Hover);
+    if (velocity)
+        init.SetVelocity(velocity.get());
     Mutate(new GenericMovementGenerator(std::move(init), EFFECT_MOTION_TYPE, id), MOTION_SLOT_ACTIVE);
 }
 
