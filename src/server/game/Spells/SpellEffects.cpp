@@ -3604,7 +3604,7 @@ void Spell::EffectDismissPet()
     Pet* pet = unitTarget->ToPet();
 
     ExecuteLogEffectUnsummonObject(SpellEffectName(effectInfo->Effect), pet);
-    pet->GetOwner()->RemovePet(pet, PET_SAVE_NOT_IN_SLOT);
+    pet->Remove(PET_SAVE_NOT_IN_SLOT);
 }
 
 void Spell::EffectSummonObject()
