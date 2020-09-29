@@ -244,7 +244,7 @@ class boss_razorscale_controller : public CreatureScript
 
             void DoAction(int32 action) override
             {
-                if (instance->GetBossState(BOSS_RAZORSCALE) != IN_PROGRESS)
+                if (instance->GetBossState(DATA_RAZORSCALE) != IN_PROGRESS)
                     return;
 
                 switch (action)
@@ -331,7 +331,7 @@ class go_razorscale_harpoon : public GameObjectScript
 
             bool GossipHello(Player* /*player*/) override
             {
-                if (instance->GetCreature(BOSS_RAZORSCALE))
+                if (instance->GetCreature(DATA_RAZORSCALE))
                     me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                 return true;
             }
@@ -350,7 +350,7 @@ class boss_razorscale : public CreatureScript
 
         struct boss_razorscaleAI : public BossAI
         {
-            boss_razorscaleAI(Creature* creature) : BossAI(creature, BOSS_RAZORSCALE)
+            boss_razorscaleAI(Creature* creature) : BossAI(creature, DATA_RAZORSCALE)
             {
                 Initialize();
                 // Do not let Razorscale be affected by Battle Shout buff
@@ -691,7 +691,7 @@ class npc_expedition_commander : public CreatureScript
                     switch (Phase)
                     {
                         case 1:
-                            instance->SetBossState(BOSS_RAZORSCALE, IN_PROGRESS);
+                            instance->SetBossState(DATA_RAZORSCALE, IN_PROGRESS);
                             summons.DespawnAll();
                             AttackStartTimer = 1000;
                             Phase = 2;
@@ -738,7 +738,7 @@ class npc_expedition_commander : public CreatureScript
                             Phase = 5;
                             break;
                         case 5:
-                            if (Creature* razorscale = instance->GetCreature(BOSS_RAZORSCALE))
+                            if (Creature* razorscale = instance->GetCreature(DATA_RAZORSCALE))
                             {
                                 razorscale->AI()->DoAction(ACTION_EVENT_START);
                                 me->SetInCombatWith(razorscale);
@@ -769,7 +769,7 @@ class npc_expedition_commander : public CreatureScript
             bool GossipHello(Player* player) override
             {
                 InstanceScript* instance = me->GetInstanceScript();
-                if (instance && instance->GetBossState(BOSS_RAZORSCALE) == NOT_STARTED)
+                if (instance && instance->GetBossState(DATA_RAZORSCALE) == NOT_STARTED)
                 {
                     player->PrepareGossipMenu(me);
 

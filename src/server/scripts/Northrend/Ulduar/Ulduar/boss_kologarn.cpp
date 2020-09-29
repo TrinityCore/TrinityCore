@@ -104,7 +104,7 @@ class boss_kologarn : public CreatureScript
 
         struct boss_kologarnAI : public BossAI
         {
-            boss_kologarnAI(Creature* creature) : BossAI(creature, BOSS_KOLOGARN),
+            boss_kologarnAI(Creature* creature) : BossAI(creature, DATA_KOLOGARN),
                 left(false), right(false)
             {
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -162,7 +162,7 @@ class boss_kologarn : public CreatureScript
 
             void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) override
             {
-                bool isEncounterInProgress = instance->GetBossState(BOSS_KOLOGARN) == IN_PROGRESS;
+                bool isEncounterInProgress = instance->GetBossState(DATA_KOLOGARN) == IN_PROGRESS;
                 if (who->GetEntry() == NPC_LEFT_ARM)
                 {
                     left = apply;
@@ -339,7 +339,7 @@ class spell_ulduar_rubble_summon : public SpellScriptLoader
                 if (!caster)
                     return;
 
-                ObjectGuid originalCaster = caster->GetInstanceScript() ? caster->GetInstanceScript()->GetGuidData(BOSS_KOLOGARN) : ObjectGuid::Empty;
+                ObjectGuid originalCaster = caster->GetInstanceScript() ? caster->GetInstanceScript()->GetGuidData(DATA_KOLOGARN) : ObjectGuid::Empty;
                 uint32 spellId = GetEffectValue();
                 for (uint8 i = 0; i < 5; ++i)
                     caster->CastSpell(caster, spellId, true, nullptr, nullptr, originalCaster);

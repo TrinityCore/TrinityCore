@@ -27,27 +27,27 @@ extern Position const ObservationRingKeepersPos[4];
 extern Position const YSKeepersPos[4];
 extern Position const AlgalonLandPos;
 
+static constexpr uint8 const MAX_ENCOUNTER = 17;
+
 enum UlduarBosses
 {
-    MAX_ENCOUNTER            = 17,
-
-    BOSS_LEVIATHAN           = 0,
-    BOSS_IGNIS               = 1,
-    BOSS_RAZORSCALE          = 2,
-    BOSS_XT002               = 3,
-    BOSS_ASSEMBLY_OF_IRON    = 4,
-    BOSS_KOLOGARN            = 5,
-    BOSS_AURIAYA             = 6,
-    BOSS_HODIR               = 7,
-    BOSS_THORIM              = 8,
-    BOSS_FREYA               = 9,
-    BOSS_MIMIRON             = 10,
-    BOSS_VEZAX               = 11,
-    BOSS_YOGG_SARON          = 12,
-    BOSS_ALGALON             = 13,
-    BOSS_BRIGHTLEAF          = 14,
-    BOSS_IRONBRANCH          = 15,
-    BOSS_STONEBARK           = 16,
+    DATA_FLAME_LEVIATHAN    = 0,
+    DATA_IGNIS              = 1,
+    DATA_RAZORSCALE         = 2,
+    DATA_XT002              = 3,
+    DATA_ASSEMBLY_OF_IRON   = 4,
+    DATA_KOLOGARN           = 5,
+    DATA_AURIAYA            = 6,
+    DATA_HODIR              = 7,
+    DATA_THORIM             = 8,
+    DATA_FREYA              = 9,
+    DATA_MIMIRON            = 10,
+    DATA_VEZAX              = 11,
+    DATA_YOGG_SARON         = 12,
+    DATA_ALGALON            = 13,
+    DATA_BRIGHTLEAF         = 14,
+    DATA_IRONBRANCH         = 15,
+    DATA_STONEBARK          = 16
 };
 
 enum UlduarNPCs
@@ -64,9 +64,6 @@ enum UlduarNPCs
     NPC_EXPEDITION_COMMANDER                = 33210,
     NPC_XT002                               = 33293,
     NPC_XT_TOY_PILE                         = 33337,
-    NPC_STEELBREAKER                        = 32867,
-    NPC_MOLGEIM                             = 32927,
-    NPC_BRUNDIR                             = 32857,
     NPC_KOLOGARN                            = 32930,
     NPC_FOCUSED_EYEBEAM                     = 33632,
     NPC_FOCUSED_EYEBEAM_RIGHT               = 33802,
@@ -81,6 +78,11 @@ enum UlduarNPCs
     NPC_VEZAX                               = 33271,
     NPC_YOGG_SARON                          = 33288,
     NPC_ALGALON                             = 32871,
+
+    // Assembly of Iron
+    BOSS_STEELBREAKER                        = 32867,
+    BOSS_RUNEMASTER_MOLGEIM                  = 32927,
+    BOSS_STORMCALLER_BRUNDIR                 = 32857,
 
     //XT002
     NPC_XS013_SCRAPBOT                      = 33343,
@@ -400,8 +402,8 @@ enum UlduarData
 
     // Assembly of Iron
     DATA_STEELBREAKER,
-    DATA_MOLGEIM,
-    DATA_BRUNDIR,
+    DATA_RUNEMASTER_MOLGEIM,
+    DATA_STORMCALLER_BRUNDIR,
 
     // Hodir
     DATA_HODIR_RARE_CACHE,
@@ -478,11 +480,17 @@ enum UlduarSharedSpells
 
 enum UlduarEvents
 {
-    EVENT_DESPAWN_ALGALON       = 1,
-    EVENT_UPDATE_ALGALON_TIMER  = 2,
-    ACTION_INIT_ALGALON         = 6,
-    EVENT_DESPAWN_LEVIATHAN_VEHICLES = 7,
-    EVENT_LEVIATHAN_BREAK_DOOR   = 8
+    EVENT_DESPAWN_ALGALON               = 1,
+    EVENT_UPDATE_ALGALON_TIMER          = 2,
+    ACTION_INIT_ALGALON                 = 6,
+    EVENT_DESPAWN_LEVIATHAN_VEHICLES    = 7,
+    EVENT_LEVIATHAN_BREAK_DOOR          = 8,
+    EVENT_RESPAWN_ASSEMBLY_OF_IRON      = 9
+};
+
+enum UlduarSpawnGroups
+{
+    SPAWN_GROUP_ASSEMBLY_OF_IRON = 67
 };
 
 enum YoggSaronIllusions
@@ -497,6 +505,8 @@ inline AI* GetUlduarAI(T* obj)
 {
     return GetInstanceAI<AI, T>(obj, UlduarScriptName);
 }
+
+#define RegisterUlduarCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetUlduarAI)
 
 class KeeperDespawnEvent : public BasicEvent
 {

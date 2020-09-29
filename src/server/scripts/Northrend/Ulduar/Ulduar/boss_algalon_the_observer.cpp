@@ -251,7 +251,7 @@ class ActivateLivingConstellation : public BasicEvent
 
         bool Execute(uint64 execTime, uint32 /*diff*/) override
         {
-            if (!_instance || _instance->GetBossState(BOSS_ALGALON) != IN_PROGRESS)
+            if (!_instance || _instance->GetBossState(DATA_ALGALON) != IN_PROGRESS)
                 return true;    // delete event
 
             _owner->CastSpell((Unit*)nullptr, SPELL_TRIGGER_3_ADDS, TRIGGERED_FULL_MASK);
@@ -306,7 +306,7 @@ class boss_algalon_the_observer : public CreatureScript
 
         struct boss_algalon_the_observerAI : public BossAI
         {
-            boss_algalon_the_observerAI(Creature* creature) : BossAI(creature, BOSS_ALGALON)
+            boss_algalon_the_observerAI(Creature* creature) : BossAI(creature, DATA_ALGALON)
             {
                 Initialize();
                 _firstPull = true;
@@ -504,7 +504,7 @@ class boss_algalon_the_observer : public CreatureScript
 
             void EnterEvadeMode(EvadeReason why) override
             {
-                instance->SetBossState(BOSS_ALGALON, FAIL);
+                instance->SetBossState(DATA_ALGALON, FAIL);
                 BossAI::EnterEvadeMode(why);
                 me->SetImmuneToPC(false);
                 me->SetSheath(SHEATH_STATE_UNARMED);
@@ -584,7 +584,7 @@ class boss_algalon_the_observer : public CreatureScript
                             me->SetImmuneToPC(false);
                             break;
                         case EVENT_START_COMBAT:
-                            instance->SetBossState(BOSS_ALGALON, IN_PROGRESS);
+                            instance->SetBossState(DATA_ALGALON, IN_PROGRESS);
                             break;
                         case EVENT_INTRO_TIMER_DONE:
                         {
@@ -661,7 +661,7 @@ class boss_algalon_the_observer : public CreatureScript
                             _hasYelled = false;
                             break;
                         case EVENT_OUTRO_START:
-                            instance->SetBossState(BOSS_ALGALON, DONE);
+                            instance->SetBossState(DATA_ALGALON, DONE);
                             break;
                         case EVENT_OUTRO_1:
                             me->RemoveAllAuras();

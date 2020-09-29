@@ -178,7 +178,7 @@ class boss_xt002 : public CreatureScript
 
         struct boss_xt002_AI : public BossAI
         {
-            boss_xt002_AI(Creature* creature) : BossAI(creature, BOSS_XT002)
+            boss_xt002_AI(Creature* creature) : BossAI(creature, DATA_XT002)
             {
                 Initialize();
                 _transferHealth = 0;
@@ -460,7 +460,7 @@ class npc_xt002_heart : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (Creature* xt002 = _instance->GetCreature(BOSS_XT002))
+                if (Creature* xt002 = _instance->GetCreature(DATA_XT002))
                 {
                     xt002->AI()->SetData(DATA_TRANSFERED_HEALTH, me->GetHealth());
                     xt002->AI()->DoAction(ACTION_ENTER_HARD_MODE);
@@ -506,7 +506,7 @@ class npc_scrapbot : public CreatureScript
 
                 Initialize();
 
-                if (Creature* xt002 = _instance->GetCreature(BOSS_XT002))
+                if (Creature* xt002 = _instance->GetCreature(DATA_XT002))
                     me->GetMotionMaster()->MoveFollow(xt002, 0.0f, 0.0f);
             }
 
@@ -514,7 +514,7 @@ class npc_scrapbot : public CreatureScript
             {
                 if (_rangeCheckTimer <= diff)
                 {
-                    if (Creature* xt002 = _instance->GetCreature(BOSS_XT002))
+                    if (Creature* xt002 = _instance->GetCreature(DATA_XT002))
                     {
                         if (me->IsWithinMeleeRange(xt002))
                         {
@@ -569,7 +569,7 @@ class npc_pummeller : public CreatureScript
             {
                 Initialize();
 
-                if (Creature* xt002 = _instance->GetCreature(BOSS_XT002))
+                if (Creature* xt002 = _instance->GetCreature(DATA_XT002))
                 {
                     Position pos = xt002->GetPosition();
                     me->GetMotionMaster()->MovePoint(0, pos);
@@ -683,7 +683,7 @@ class npc_boombot : public CreatureScript
                 me->SetFloatValue(UNIT_FIELD_MAXDAMAGE, 18000.0f);
 
                 /// @todo proper waypoints?
-                if (Creature* xt002 = _instance->GetCreature(BOSS_XT002))
+                if (Creature* xt002 = _instance->GetCreature(DATA_XT002))
                     me->GetMotionMaster()->MoveFollow(xt002, 0.0f, 0.0f);
             }
 
@@ -956,7 +956,7 @@ class spell_xt002_heart_overload_periodic : public SpellScriptLoader
                             {
                                 uint8 a = urand(0, 4);
                                 uint32 spellId = spells[a];
-                                toyPile->CastSpell(toyPile, spellId, true, nullptr, nullptr, instance->GetGuidData(BOSS_XT002));
+                                toyPile->CastSpell(toyPile, spellId, true, nullptr, nullptr, instance->GetGuidData(DATA_XT002));
                             }
                         }
                     }
