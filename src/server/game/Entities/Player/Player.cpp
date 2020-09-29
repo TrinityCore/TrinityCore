@@ -20656,7 +20656,7 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
 
     if (!pet)
     {
-        if (mode == PET_SAVE_NOT_IN_SLOT && m_petStable->CurrentPet)
+        if (mode == PET_SAVE_NOT_IN_SLOT && m_petStable && m_petStable->CurrentPet)
         {
             // Handle removing pet while it is in "temporarily unsummoned" state, for example on mount
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_ID);
