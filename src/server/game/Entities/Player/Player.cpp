@@ -20654,8 +20654,23 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
         m_temporaryUnsummonedPetNumber = 0;
     }
 
-    if (!pet || pet->GetOwnerGUID() != GetGUID())
+    if (!pet)
+    {
+        if (mode == PET_SAVE_NOT_IN_SLOT && m_petStable->CurrentPet)
+        {
+            // Handle removing pet while it is in "temporarily unsummoned" state, for example on mount
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_ID);
+            stmt->setUInt8(0, PET_SAVE_NOT_IN_SLOT);
+            stmt->setUInt32(1, GetGUID().GetCounter());
+            stmt->setUInt32(2, m_petStable->CurrentPet->PetNumber);
+            CharacterDatabase.Execute(stmt);
+
+            m_petStable->UnslottedPets.push_back(std::move(*m_petStable->CurrentPet));
+            m_petStable->CurrentPet.reset();
+        }
+
         return;
+    }
 
     pet->CombatStop();
 
