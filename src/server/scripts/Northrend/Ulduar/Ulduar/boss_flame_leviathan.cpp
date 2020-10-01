@@ -221,7 +221,7 @@ class boss_flame_leviathan : public CreatureScript
 
         struct boss_flame_leviathanAI : public BossAI
         {
-            boss_flame_leviathanAI(Creature* creature) : BossAI(creature, BOSS_LEVIATHAN)
+            boss_flame_leviathanAI(Creature* creature) : BossAI(creature, DATA_FLAME_LEVIATHAN)
             {
                 Initialize();
             }
@@ -1272,7 +1272,7 @@ class npc_lorekeeper : public CreatureScript
                     player->PlayerTalkClass->SendCloseGossip();
                     _instance->instance->LoadGrid(364, -16); // make sure leviathan is loaded
 
-                    if (Creature* leviathan = _instance->GetCreature(BOSS_LEVIATHAN))
+                    if (Creature* leviathan = _instance->GetCreature(DATA_FLAME_LEVIATHAN))
                     {
                         leviathan->AI()->DoAction(ACTION_START_HARD_MODE);
                         me->SetVisible(false);
