@@ -37,7 +37,6 @@ static BossBoundaryData const boundaries =
     { DATA_IGNIS, new RectangleBoundary(495.0f, 680.0f, 90.0f, 400.0f) },
     { DATA_RAZORSCALE, new RectangleBoundary(370.0f, 810.0f, -542.0f, -55.0f) },
     { DATA_XT002, new RectangleBoundary(755.0f, 940.0f, -125.0f, 95.0f) },
-    { DATA_ASSEMBLY_OF_IRON, new CircleBoundary(Position(1587.2f, 121.0f), 90.0) },
     { DATA_ALGALON, new CircleBoundary(Position(1632.668f, -307.7656f), 45.0) },
     { DATA_ALGALON, new ZRangeBoundary(410.0f, 470.0f) },
     { DATA_HODIR, new EllipseBoundary(Position(2001.5f, -240.0f), 50.0, 75.0) },

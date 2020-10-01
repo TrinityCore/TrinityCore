@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "AreaBoundary.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
@@ -158,6 +159,9 @@ std::array<Position, 8> BrundirIntroWaypoints =
     Position(1588.82f, 120.42f, 427.3189f)
 };
 
+CircleBoundary const AssemblyBoundary({ 1587.2f, 121.0f }, 90.0f);
+CreatureBoundary const ArenaBoundaries = { &AssemblyBoundary };
+
 namespace EncounterHelper
 {
     // Let's use cheap AI macros instead of having the SpellMgr go through storages
@@ -177,6 +181,7 @@ struct boss_steelbreaker : public ScriptedAI
     {
         // For dynamic linking compatability
         _instance = me->GetInstanceScript();
+        SetBoundary(&ArenaBoundaries);
     }
 
     void JustEngagedWith(Unit* who) override
@@ -267,7 +272,7 @@ struct boss_steelbreaker : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
-        if (!UpdateVictim())
+        if (!UpdateVictim() || !CheckInRoom())
             return;
 
         _events.Update(diff);
@@ -322,6 +327,7 @@ struct boss_runemaster_molgeim : public ScriptedAI
     {
         // For dynamic linking compatability
         _instance = me->GetInstanceScript();
+        SetBoundary(&ArenaBoundaries);
     }
 
     void JustAppeared() override
@@ -416,7 +422,7 @@ struct boss_runemaster_molgeim : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
-        if (!UpdateVictim() && !_events.IsInPhase(PHASE_INTRO))
+        if ((!UpdateVictim() || !CheckInRoom()) && !_events.IsInPhase(PHASE_INTRO))
             return;
 
         _events.Update(diff);
@@ -490,6 +496,7 @@ struct boss_stormcaller_brundir : public ScriptedAI
     {
         // For dynamic linking compatability
         _instance = me->GetInstanceScript();
+        SetBoundary(&ArenaBoundaries);
     }
 
     void JustAppeared() override
@@ -625,7 +632,7 @@ struct boss_stormcaller_brundir : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
-        if (!UpdateVictim() && !_events.IsInPhase(PHASE_INTRO))
+        if ((!UpdateVictim() || !CheckInRoom()) && !_events.IsInPhase(PHASE_INTRO))
             return;
 
         _events.Update(diff);
