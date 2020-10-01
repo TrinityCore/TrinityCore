@@ -80,9 +80,10 @@ enum UlduarNPCs
     NPC_ALGALON                             = 32871,
 
     // Assembly of Iron
-    BOSS_STEELBREAKER                        = 32867,
-    BOSS_RUNEMASTER_MOLGEIM                  = 32927,
-    BOSS_STORMCALLER_BRUNDIR                 = 32857,
+    BOSS_STEELBREAKER                       = 32867,
+    BOSS_RUNEMASTER_MOLGEIM                 = 32927,
+    BOSS_STORMCALLER_BRUNDIR                = 32857,
+    NPC_RUNE_OF_POWER                       = 33705,
 
     //XT002
     NPC_XS013_SCRAPBOT                      = 33343,

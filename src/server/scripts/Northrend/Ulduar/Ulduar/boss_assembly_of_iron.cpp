@@ -370,6 +370,8 @@ struct boss_runemaster_molgeim : public ScriptedAI
         if (_events.IsInPhase(PHASE_THREE))
         {
             EncounterHelper::CleanupAuras(this, _instance);
+            _summons.DespawnAll();
+            me->RemoveAllDynObjects();
             _instance->SetBossState(DATA_ASSEMBLY_OF_IRON, DONE);
             DoCastAOE(SPELL_KILL_CREDIT, true);
             Talk(SAY_MOLGEIM_ENCOUNTER_DEFEATED);

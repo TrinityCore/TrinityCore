@@ -400,7 +400,11 @@ class instance_ulduar : public InstanceMapScript
                     case NPC_SANITY_WELL:
                         creature->SetReactState(REACT_PASSIVE);
                         break;
-
+                    case NPC_RUNE_OF_POWER:
+                        if (Creature* molgeim = GetCreature(DATA_RUNEMASTER_MOLGEIM))
+                            if (molgeim->IsAIEnabled)
+                                molgeim->AI()->JustSummoned(creature);
+                        break;
                     // Algalon
                     //! These creatures are summoned by something else than Algalon
                     //! but need to be controlled/despawned by him - so they need to be
