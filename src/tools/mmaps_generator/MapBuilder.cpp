@@ -32,7 +32,7 @@ namespace MMAP
 {
     MapBuilder::MapBuilder(float maxWalkableAngle, bool skipLiquid,
         bool skipContinents, bool skipJunkMaps, bool skipBattlegrounds,
-        bool debugOutput, bool bigBaseUnit, int mapid, const char* offMeshFilePath) :
+        bool debugOutput, bool bigBaseUnit, int mapid, char const* offMeshFilePath) :
         m_terrainBuilder     (nullptr),
         m_debugOutput        (debugOutput),
         m_offMeshFilePath    (offMeshFilePath),

@@ -79,7 +79,7 @@ WorldPacket const* WorldPackets::Scenario::ScenarioCompleted::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Scenario::ScenarioBoot::Write()
+WorldPacket const* WorldPackets::Scenario::ScenarioVacate::Write()
 {
     _worldPacket << int32(ScenarioID);
     _worldPacket << int32(Unk1);

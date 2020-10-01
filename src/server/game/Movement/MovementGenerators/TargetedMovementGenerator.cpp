@@ -15,15 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CreatureAI.h"
+#include "TargetedMovementGenerator.h"
 #include "Creature.h"
+#include "CreatureAI.h"
+#include "MoveSpline.h"
+#include "MoveSplineInit.h"
+#include "PathGenerator.h"
 #include "Player.h"
 #include "VehicleDefines.h"
-#include "MoveSplineInit.h"
-#include "MoveSpline.h"
-#include "PathGenerator.h"
 #include "World.h"
-#include "TargetedMovementGenerator.h"
 
 template<class T, typename D>
 TargetedMovementGenerator<T, D>::~TargetedMovementGenerator()

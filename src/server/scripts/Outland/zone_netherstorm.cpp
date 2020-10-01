@@ -31,11 +31,10 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
-#include "GameObjectAI.h"
 #include "Player.h"
-#include "QuestDef.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
 
@@ -318,7 +317,7 @@ class at_commander_dawnforge : public AreaTriggerScript
 public:
     at_commander_dawnforge() : AreaTriggerScript("at_commander_dawnforge") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*areaTrigger*/, bool /*entered*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
     {
         //if player lost aura or not have at all, we should not try start event.
         if (!player->HasAura(SPELL_SUNFURY_DISGUISE))
@@ -409,7 +408,7 @@ public:
                 PlayerGUID = who->GetGUID();
         }
 
-        //void SpellHit(Unit* /*caster*/, const SpellInfo* /*spell*/) override
+        //void SpellHit(Unit* /*caster*/, SpellInfo const* /*spell*/) override
         //{
         //    DoCast(me, SPELL_DE_MATERIALIZE);
         //}
@@ -607,7 +606,7 @@ public:
                         // take the GO -> animation
                         me->HandleEmoteCommand(EMOTE_STATE_LOOT);
                         SetEscortPaused(true);
-                        bTake=true;
+                        bTake = true;
                     }
                     break;
                 case 36: //return and quest_complete
@@ -634,7 +633,7 @@ public:
                     if (GameObject* go = GetClosestGameObjectWithEntry(me, GO_DRAENEI_MACHINE, INTERACTION_DISTANCE))
                     {
                         SetEscortPaused(false);
-                        bTake=false;
+                        bTake = false;
                         uiTakeTimer = 3000;
                         go->Delete();
                     }

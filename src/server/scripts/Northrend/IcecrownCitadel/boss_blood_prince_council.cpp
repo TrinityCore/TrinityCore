@@ -20,15 +20,14 @@
 #include "Map.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
+#include "PassiveAI.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
-#include "SpellAuras.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
-#include "PassiveAI.h"
 
 enum Texts
 {

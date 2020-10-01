@@ -1597,7 +1597,7 @@ struct BattlegroundAVScore final : public BattlegroundScore
             }
         }
 
-        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPLogData::PVPMatchPlayerStatistics& playerData) const override
+        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics& playerData) const override
         {
             BattlegroundScore::BuildPvPLogPlayerDataPacket(playerData);
 
@@ -1650,7 +1650,7 @@ class BattlegroundAV : public Battleground
 
         void EndBattleground(uint32 winner) override;
 
-        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
+        WorldSafeLocsEntry const* GetClosestGraveyard(Player* player) override;
         WorldSafeLocsEntry const* GetExploitTeleportLocation(Team team) override;
 
         // Achievement: Av perfection and Everything counts
@@ -1687,7 +1687,7 @@ class BattlegroundAV : public Battleground
         bool IsTower(BG_AV_Nodes node) { return m_Nodes[node].Tower; }
 
         /*mine*/
-        void ChangeMineOwner(uint8 mine, uint32 team, bool initial=false);
+        void ChangeMineOwner(uint8 mine, uint32 team, bool initial = false);
 
         /*worldstates*/
         void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;

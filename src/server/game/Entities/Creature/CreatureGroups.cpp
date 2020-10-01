@@ -217,7 +217,7 @@ void CreatureGroup::FormationReset(bool dismiss)
     m_Formed = !dismiss;
 }
 
-void CreatureGroup::LeaderMoveTo(Position destination, uint32 id /*= 0*/, uint32 moveType /*= 0*/, bool orientation /*= false*/)
+void CreatureGroup::LeaderMoveTo(Position const& destination, uint32 id /*= 0*/, uint32 moveType /*= 0*/, bool orientation /*= false*/)
 {
     //! To do: This should probably get its own movement generator or use WaypointMovementGenerator.
     //! If the leader's path is known, member's path can be plotted as well using formation offsets.

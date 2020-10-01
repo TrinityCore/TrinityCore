@@ -22,7 +22,6 @@
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
-#include "SpellInfo.h"
 
 enum Yells
 {

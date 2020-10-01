@@ -678,7 +678,7 @@ public:
 
         void EnterEvadeModeIfNeeded()
         {
-            Map::PlayerList const &players = me->GetMap()->GetPlayers();
+            Map::PlayerList const& players = me->GetMap()->GetPlayers();
             for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
                 if (Player* player = i->GetSource())
                     if (player->IsAlive() && !player->IsGameMaster() && CheckBoundary(player))

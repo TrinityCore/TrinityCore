@@ -104,7 +104,7 @@ class npc_crystalcore_devastator : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_crystalcore_devastatorAI(creature);
+            return GetTheEyeAI<npc_crystalcore_devastatorAI>(creature);
         }
 };
 void AddSC_the_eye()

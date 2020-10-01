@@ -28,7 +28,6 @@
 #include "ObjectAccessor.h"
 #include "PassiveAI.h"
 #include "ScriptedCreature.h"
-#include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 #include "ulduar.h"
@@ -940,13 +939,7 @@ class spell_xt002_heart_overload_periodic : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                return ValidateSpellInfo(
-                {
-                    SPELL_ENERGY_ORB,
-                    SPELL_RECHARGE_BOOMBOT,
-                    SPELL_RECHARGE_PUMMELER,
-                    SPELL_RECHARGE_SCRAPBOT
-                });
+                return ValidateSpellInfo({ SPELL_ENERGY_ORB, SPELL_RECHARGE_BOOMBOT, SPELL_RECHARGE_PUMMELER, SPELL_RECHARGE_SCRAPBOT });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)

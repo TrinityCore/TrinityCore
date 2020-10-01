@@ -440,7 +440,7 @@ void WorldSession::SendQueryPetNameResponse(ObjectGuid guid)
         }
     }
 
-    _player->GetSession()->SendPacket(response.Write());
+    _player->SendDirectMessage(response.Write());
 }
 
 bool WorldSession::CheckStableMaster(ObjectGuid guid)
@@ -692,6 +692,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPackets::Spells::PetCastSpell& 
     spell->m_targets = targets;
 
     SpellCastResult result = spell->CheckPetCast(nullptr);
+
     if (result == SPELL_CAST_OK)
     {
         if (Creature* creature = caster->ToCreature())

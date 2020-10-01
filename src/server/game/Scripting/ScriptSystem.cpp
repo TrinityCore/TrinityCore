@@ -111,7 +111,7 @@ void SystemMgr::LoadScriptSplineChains()
             uint32 entry = fieldsMeta[0].GetUInt32();
             uint16 chainId = fieldsMeta[1].GetUInt16();
             uint8 splineId = fieldsMeta[2].GetUInt8();
-            std::vector<SplineChainLink>& chain = m_mSplineChainsMap[{entry,chainId}];
+            std::vector<SplineChainLink>& chain = m_mSplineChainsMap[{entry, chainId}];
 
             if (splineId != chain.size())
             {

@@ -22,6 +22,7 @@
 #include "halls_of_origination.h"
 #include "InstanceScript.h"
 #include "Map.h"
+#include <sstream>
 
 DoorData const doorData[] =
 {

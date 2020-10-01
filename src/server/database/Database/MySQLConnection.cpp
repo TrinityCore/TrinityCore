@@ -165,7 +165,7 @@ bool MySQLConnection::PrepareStatements()
     return !m_prepareError;
 }
 
-bool MySQLConnection::Execute(const char* sql)
+bool MySQLConnection::Execute(char const* sql)
 {
     if (!m_Mysql)
         return false;
@@ -294,7 +294,7 @@ bool MySQLConnection::_Query(PreparedStatementBase* stmt, MySQLResult** pResult,
     return true;
 }
 
-ResultSet* MySQLConnection::Query(const char* sql)
+ResultSet* MySQLConnection::Query(char const* sql)
 {
     if (!sql)
         return nullptr;
@@ -394,7 +394,7 @@ int MySQLConnection::ExecuteTransaction(std::shared_ptr<TransactionBase> transac
             break;
             case SQL_ELEMENT_RAW:
             {
-                const char* sql = data.element.query;
+                char const* sql = data.element.query;
                 ASSERT(sql);
                 if (!Execute(sql))
                 {

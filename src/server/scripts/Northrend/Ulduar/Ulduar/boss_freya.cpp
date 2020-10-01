@@ -16,14 +16,12 @@
  */
 
 #include "ScriptMgr.h"
-#include "CellImpl.h"
-#include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
-#include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "ulduar.h"

@@ -34,7 +34,6 @@ EndContentData */
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
-#include "QuestDef.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
 

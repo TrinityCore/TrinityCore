@@ -71,8 +71,8 @@ public:
             { "near",         rbac::RBAC_PERM_COMMAND_GOBJECT_NEAR,         false, &HandleGameObjectNearCommand,      ""       },
             { "target",       rbac::RBAC_PERM_COMMAND_GOBJECT_TARGET,       false, &HandleGameObjectTargetCommand,    ""       },
             { "turn",         rbac::RBAC_PERM_COMMAND_GOBJECT_TURN,         false, &HandleGameObjectTurnCommand,      ""       },
-            { "spawngroup",   rbac::RBAC_PERM_COMMAND_GOBJECT_SPAWNGROUP,   false, &HandleNpcSpawnGroup, "" },
-            { "despawngroup", rbac::RBAC_PERM_COMMAND_GOBJECT_DESPAWNGROUP, false, &HandleNpcDespawnGroup,""},
+            { "spawngroup",   rbac::RBAC_PERM_COMMAND_GOBJECT_SPAWNGROUP,   false, &HandleNpcSpawnGroup,              ""       },
+            { "despawngroup", rbac::RBAC_PERM_COMMAND_GOBJECT_DESPAWNGROUP, false, &HandleNpcDespawnGroup,            ""       },
             { "add",          rbac::RBAC_PERM_COMMAND_GOBJECT_ADD,          false, nullptr,         "", gobjectAddCommandTable },
             { "set",          rbac::RBAC_PERM_COMMAND_GOBJECT_SET,          false, nullptr,         "", gobjectSetCommandTable },
         };

@@ -83,6 +83,7 @@ class TC_DATABASE_API PreparedStatementBase
         explicit PreparedStatementBase(uint32 index, uint8 capacity);
         virtual ~PreparedStatementBase();
 
+        void setNull(const uint8 index);
         void setBool(const uint8 index, const bool value);
         void setUInt8(const uint8 index, const uint8 value);
         void setUInt16(const uint8 index, const uint16 value);
@@ -102,7 +103,6 @@ class TC_DATABASE_API PreparedStatementBase
             std::vector<uint8> vec(value.begin(), value.end());
             setBinary(index, vec);
         }
-        void setNull(const uint8 index);
 
         uint32 GetIndex() const { return m_index; }
 

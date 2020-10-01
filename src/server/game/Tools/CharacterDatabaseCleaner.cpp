@@ -18,10 +18,10 @@
 #include "Common.h"
 #include "CriteriaHandler.h"
 #include "CharacterDatabaseCleaner.h"
+#include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "Log.h"
 #include "World.h"
-#include "Database/DatabaseEnv.h"
 #include "SpellMgr.h"
 #include "SpellInfo.h"
 #include <sstream>
@@ -69,7 +69,7 @@ void CharacterDatabaseCleaner::CleanDatabase()
     TC_LOG_INFO("server.loading", ">> Cleaned character database in %u ms", GetMSTimeDiffToNow(oldMSTime));
 }
 
-void CharacterDatabaseCleaner::CheckUnique(const char* column, const char* table, bool (*check)(uint32))
+void CharacterDatabaseCleaner::CheckUnique(char const* column, char const* table, bool (*check)(uint32))
 {
     QueryResult result = CharacterDatabase.PQuery("SELECT DISTINCT %s FROM %s", column, table);
     if (!result)

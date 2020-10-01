@@ -75,7 +75,7 @@ class TC_GAME_API LootStore
         void CheckLootRefs(LootIdSet* ref_set = nullptr) const; // check existence reference and remove it from ref_set
         void ReportUnusedIds(LootIdSet const& ids_set) const;
         void ReportNonExistingId(uint32 lootId) const;
-        void ReportNonExistingId(uint32 lootId, const char* ownerType, uint32 ownerId) const;
+        void ReportNonExistingId(uint32 lootId, char const* ownerType, uint32 ownerId) const;
 
         bool HaveLootFor(uint32 loot_id) const { return m_LootTemplates.find(loot_id) != m_LootTemplates.end(); }
         bool HaveQuestLootFor(uint32 loot_id) const;
@@ -111,7 +111,7 @@ class TC_GAME_API LootTemplate
         void AddEntry(LootStoreItem* item);
         // Rolls for every item in the template and adds the rolled items the the loot
         void Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId = 0) const;
-        void CopyConditions(const ConditionContainer& conditions);
+        void CopyConditions(ConditionContainer const& conditions);
         void CopyConditions(LootItem* li) const;
 
         // True if template includes at least 1 quest drop entry

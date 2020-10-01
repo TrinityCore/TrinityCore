@@ -78,7 +78,7 @@ InstanceSave* InstanceSaveManager::AddInstanceSave(uint32 mapId, uint32 instance
     if (InstanceSave* old_save = GetInstanceSave(instanceId))
         return old_save;
 
-    const MapEntry* entry = sMapStore.LookupEntry(mapId);
+    MapEntry const* entry = sMapStore.LookupEntry(mapId);
     if (!entry)
     {
         TC_LOG_ERROR("misc", "InstanceSaveManager::AddInstanceSave: wrong mapid = %d, instanceid = %d!", mapId, instanceId);
@@ -233,7 +233,7 @@ void InstanceSave::SaveToDB()
 time_t InstanceSave::GetResetTimeForDB()
 {
     // only save the reset time for normal instances
-    const MapEntry* entry = sMapStore.LookupEntry(GetMapId());
+    MapEntry const* entry = sMapStore.LookupEntry(GetMapId());
     if (!entry || entry->IsRaid() || GetDifficultyID() == DIFFICULTY_HEROIC)
         return 0;
     else

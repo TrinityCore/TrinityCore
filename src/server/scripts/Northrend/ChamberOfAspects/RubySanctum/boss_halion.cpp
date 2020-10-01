@@ -765,7 +765,7 @@ class npc_halion_controller : public CreatureScript
 
             void DoCheckEvade()
             {
-                Map::PlayerList const &players = me->GetMap()->GetPlayers();
+                Map::PlayerList const& players = me->GetMap()->GetPlayers();
                 for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
                     if (Player* player = i->GetSource())
                         if (player->IsAlive() && CheckBoundary(player) && !player->IsGameMaster())
@@ -1447,7 +1447,8 @@ class spell_halion_combustion_consumption : public SpellScriptLoader
         public:
             spell_halion_combustion_consumption_AuraScript(uint32 spellID) : AuraScript(), _markSpell(spellID) { }
 
-            bool Validate(SpellInfo const* /*spell*/) override
+        private:
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ _markSpell });
             }
@@ -1543,9 +1544,10 @@ class spell_halion_marks : public SpellScriptLoader
             spell_halion_marks_AuraScript(uint32 summonSpell, uint32 removeSpell) : AuraScript(),
                 _summonSpellId(summonSpell), _removeSpellId(removeSpell) { }
 
+        private:
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                return ValidateSpellInfo({ _summonSpellId });
+                return ValidateSpellInfo({ _summonSpellId, _removeSpellId });
             }
 
             /// We were purged. Force removed stacks to zero and trigger the appropriated remove handler.
@@ -1626,7 +1628,7 @@ class spell_halion_damage_aoe_summon : public SpellScriptLoader
 class spell_halion_twilight_realm_handlers : public SpellScriptLoader
 {
     public:
-        spell_halion_twilight_realm_handlers(const char* scriptName, uint32 beforeHitSpell, bool isApplyHandler) : SpellScriptLoader(scriptName),
+        spell_halion_twilight_realm_handlers(char const* scriptName, uint32 beforeHitSpell, bool isApplyHandler) : SpellScriptLoader(scriptName),
             _beforeHitSpell(beforeHitSpell), _isApplyHandler(isApplyHandler)
         { }
 
@@ -1639,6 +1641,7 @@ class spell_halion_twilight_realm_handlers : public SpellScriptLoader
                 _isApply(isApplyHandler), _beforeHitSpellId(beforeHitSpell)
             { }
 
+        private:
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ _beforeHitSpellId });
@@ -1698,11 +1701,7 @@ class spell_halion_clear_debuffs : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                return ValidateSpellInfo(
-                {
-                    SPELL_CLEAR_DEBUFFS,
-                    SPELL_TWILIGHT_REALM,
-                });
+                return ValidateSpellInfo({ SPELL_CLEAR_DEBUFFS, SPELL_TWILIGHT_REALM });
             }
 
             void HandleScript(SpellEffIndex effIndex)

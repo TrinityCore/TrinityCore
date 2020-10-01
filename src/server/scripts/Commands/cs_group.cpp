@@ -342,7 +342,7 @@ public:
         ObjectGuid guidTarget;
         std::string nameTarget;
         std::string zoneName;
-        const char* onlineState = "";
+        char const* onlineState = "";
 
         // Parse the guid to uint32...
         ObjectGuid parseGUID = ObjectGuid::Create<HighGuid::Player>(strtoull(args, nullptr, 10));

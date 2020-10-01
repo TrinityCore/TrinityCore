@@ -23,8 +23,8 @@
 #include "PassiveAI.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "SpellScript.h"
 #include "TemporarySummon.h"
 
 enum Says
@@ -400,13 +400,13 @@ class spell_teron_gorefiend_shadow_of_death : public SpellScriptLoader
             {
                 return ValidateSpellInfo(
                 {
-                     SPELL_SUMMON_SPIRIT,
-                     SPELL_POSSESS_SPIRIT_IMMUNE,
-                     SPELL_SPIRITUAL_VENGEANCE,
-                     SPELL_SUMMON_SKELETRON_1,
-                     SPELL_SUMMON_SKELETRON_2,
-                     SPELL_SUMMON_SKELETRON_3,
-                     SPELL_SUMMON_SKELETRON_4
+                    SPELL_SUMMON_SPIRIT,
+                    SPELL_POSSESS_SPIRIT_IMMUNE,
+                    SPELL_SPIRITUAL_VENGEANCE,
+                    SPELL_SUMMON_SKELETRON_1,
+                    SPELL_SUMMON_SKELETRON_2,
+                    SPELL_SUMMON_SKELETRON_3,
+                    SPELL_SUMMON_SKELETRON_4
                 });
             }
 

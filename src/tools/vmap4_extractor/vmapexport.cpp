@@ -65,7 +65,7 @@ std::unordered_map<std::string, WMODoodadData> WmoDoodads;
 
 // Constants
 
-const char* szWorkDirWmo = "./Buildings";
+char const* szWorkDirWmo = "./Buildings";
 
 #define CASC_LOCALES_COUNT 17
 char const* CascLocaleNames[CASC_LOCALES_COUNT] =
@@ -111,7 +111,7 @@ bool OpenCascStorage(int locale)
 
         return true;
     }
-    catch (boost::filesystem::filesystem_error& error)
+    catch (boost::filesystem::filesystem_error const& error)
     {
         printf("error opening casc storage : %s\n", error.what());
         return false;
@@ -145,7 +145,7 @@ uint32 GenerateUniqueObjectId(uint32 clientId, uint16 clientDoodadId)
 }
 
 // Local testing functions
-bool FileExists(const char* file)
+bool FileExists(char const* file)
 {
     if (FILE* n = fopen(file, "rb"))
     {
@@ -426,7 +426,7 @@ int main(int argc, char ** argv)
         }
     }
 
-    printf("Extract %s. Beginning work ....\n\n", versionString);
+    printf("Extract %s. Beginning work ....\n", versionString);
     //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     // Create the working directory
     if (mkdir(szWorkDirWmo

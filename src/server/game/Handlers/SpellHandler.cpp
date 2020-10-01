@@ -477,7 +477,7 @@ void WorldSession::HandleTotemDestroyed(WorldPackets::Totem::TotemDestroyed& tot
     if (!_player->m_SummonSlot[slotId])
         return;
 
-    Creature* totem = ObjectAccessor::GetCreature(*GetPlayer(), _player->m_SummonSlot[slotId]);
+    Creature* totem = ObjectAccessor::GetCreature(*_player, _player->m_SummonSlot[slotId]);
     if (totem && totem->IsTotem() && totem->GetGUID() == totemDestroyed.TotemGUID)
         totem->ToTotem()->UnSummon();
 }

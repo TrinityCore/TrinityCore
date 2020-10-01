@@ -36,7 +36,7 @@ void WorldPackets::Transmogrification::TransmogrifyItems::Read()
     CurrentSpecOnly = _worldPacket.ReadBit();
 }
 
-WorldPacket const* WorldPackets::Transmogrification::TransmogCollectionUpdate::Write()
+WorldPacket const* WorldPackets::Transmogrification::AccountTransmogUpdate::Write()
 {
     _worldPacket.WriteBit(IsFullUpdate);
     _worldPacket.WriteBit(IsSetFavorite);
@@ -51,7 +51,7 @@ WorldPacket const* WorldPackets::Transmogrification::TransmogCollectionUpdate::W
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Transmogrification::OpenTransmogrifier::Write()
+WorldPacket const* WorldPackets::Transmogrification::TransmogrifyNPC::Write()
 {
     _worldPacket << Guid;
 

@@ -22,6 +22,7 @@ Comment: All ban related commands
 Category: commandscripts
 EndScriptData */
 
+#include "ScriptMgr.h"
 #include "AccountMgr.h"
 #include "CharacterCache.h"
 #include "Chat.h"
@@ -30,7 +31,6 @@ EndScriptData */
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "ScriptMgr.h"
 #include "World.h"
 #include "WorldSession.h"
 
@@ -429,7 +429,7 @@ public:
                 Field* fields = result->Fetch();
                 uint32 accountid = fields[0].GetUInt32();
 
-                QueryResult banResult = LoginDatabase.PQuery("SELECT account.username FROM account, account_banned WHERE account_banned.id='%u' AND account_banned.id=account.id", accountid);
+                QueryResult banResult = LoginDatabase.PQuery("SELECT account.username FROM account, account_banned WHERE account_banned.id='%u' AND account_banned.id = account.id", accountid);
                 if (banResult)
                 {
                     Field* fields2 = banResult->Fetch();

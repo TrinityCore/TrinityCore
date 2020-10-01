@@ -18,10 +18,10 @@
 #ifndef _IVMAPMANAGER_H
 #define _IVMAPMANAGER_H
 
-#include <string>
 #include "Define.h"
 #include "ModelIgnoreFlags.h"
 #include "Optional.h"
+#include <string>
 
 //===========================================================
 
@@ -82,9 +82,9 @@ namespace VMAP
 
             virtual ~IVMapManager(void) { }
 
-            virtual int loadMap(const char* pBasePath, unsigned int pMapId, int x, int y) = 0;
+            virtual int loadMap(char const* pBasePath, unsigned int pMapId, int x, int y) = 0;
 
-            virtual LoadResult existsMap(const char* pBasePath, unsigned int pMapId, int x, int y) = 0;
+            virtual LoadResult existsMap(char const* pBasePath, unsigned int pMapId, int x, int y) = 0;
 
             virtual void unloadMap(unsigned int pMapId, int x, int y) = 0;
             virtual void unloadMap(unsigned int pMapId) = 0;

@@ -18,12 +18,11 @@
 #include "ScriptMgr.h"
 #include "blood_furnace.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "GameObjectAI.h"
 #include "SpellAuraEffects.h"
-#include "SpellInfo.h"
 #include "SpellScript.h"
 
 enum Yells

@@ -17,17 +17,15 @@
 
 #include "ScriptMgr.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "magtheridons_lair.h"
-#include "ObjectAccessor.h"
+#include "PassiveAI.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
 #include "TemporarySummon.h"
 #include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "PassiveAI.h"
-#include "GameObjectAI.h"
 
 enum Yells
 {
@@ -460,7 +458,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_magtheridon_roomAI(creature);
+        return GetMagtheridonsLairAI<npc_magtheridon_roomAI>(creature);
     }
 };
 
@@ -488,7 +486,7 @@ public:
 
     GameObjectAI* GetAI(GameObject* go) const override
     {
-        return new go_manticron_cubeAI(go);
+        return GetMagtheridonsLairAI<go_manticron_cubeAI>(go);
     }
 };
 
@@ -571,7 +569,11 @@ class spell_magtheridon_shadow_grasp_visual : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                return ValidateSpellInfo({ SPELL_SHADOW_CAGE, SPELL_SHADOW_GRASP_VISUAL });
+                return ValidateSpellInfo(
+                {
+                    SPELL_SHADOW_CAGE,
+                    SPELL_SHADOW_GRASP_VISUAL
+                });
             }
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

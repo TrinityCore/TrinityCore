@@ -163,11 +163,13 @@ class instance_magisters_terrace : public InstanceMapScript
                 Events.Update(diff);
 
                 if (Events.ExecuteEvent() == EVENT_SPAWN_KALECGOS)
+                {
                     if (Creature* kalecgos = instance->SummonCreature(NPC_KALECGOS, KalecgosSpawnPos))
                     {
                         kalecgos->GetMotionMaster()->MovePath(PATH_KALECGOS_FLIGHT, false);
                         kalecgos->AI()->Talk(SAY_KALECGOS_SPAWN);
                     }
+                }
             }
 
             bool SetBossState(uint32 type, EncounterState state) override

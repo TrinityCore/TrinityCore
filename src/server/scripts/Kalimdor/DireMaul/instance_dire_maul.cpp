@@ -67,7 +67,6 @@ public:
     {
         return new instance_dire_maul_InstanceMapScript(map);
     }
-
 };
 
 void AddSC_instance_dire_maul()

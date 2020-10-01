@@ -24,8 +24,6 @@
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
-#include "SpellAuras.h"
-#include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
 
@@ -378,7 +376,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                         }
                         case EVENT_BLOOD_MIRROR:
                         {
-                            // victim can be NULL when this is processed in the same update tick as EVENT_AIR_PHASE
+                            // victim can be nullptr when this is processed in the same update tick as EVENT_AIR_PHASE
                             if (me->GetVictim())
                             {
                                 Player* newOfftank = SelectRandomTarget(true);
@@ -540,12 +538,7 @@ class spell_blood_queen_vampiric_bite : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                return ValidateSpellInfo(
-                {
-                    SPELL_ESSENCE_OF_THE_BLOOD_QUEEN_PLR,
-                    SPELL_FRENZIED_BLOODTHIRST,
-                    SPELL_PRESENCE_OF_THE_DARKFALLEN
-                });
+                return ValidateSpellInfo({ SPELL_ESSENCE_OF_THE_BLOOD_QUEEN_PLR, SPELL_FRENZIED_BLOODTHIRST, SPELL_PRESENCE_OF_THE_DARKFALLEN });
             }
 
             SpellCastResult CheckTarget()

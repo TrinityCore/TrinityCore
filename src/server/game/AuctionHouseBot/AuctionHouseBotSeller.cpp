@@ -109,7 +109,6 @@ bool AuctionBotSeller::Initialize()
     for (uint32 itemId = 0; itemId < sItemStore.GetNumRows(); ++itemId)
     {
         ItemTemplate const* prototype = sObjectMgr->GetItemTemplate(itemId);
-
         if (!prototype)
             continue;
 

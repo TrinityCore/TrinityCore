@@ -64,7 +64,7 @@ void WorldSession::SendAvailableHotfixes()
 void WorldSession::HandleHotfixRequest(WorldPackets::Hotfix::HotfixRequest& hotfixQuery)
 {
     DB2Manager::HotfixContainer const& hotfixes = sDB2Manager.GetHotfixData();
-    WorldPackets::Hotfix::HotfixResponse hotfixQueryResponse;
+    WorldPackets::Hotfix::HotfixConnect hotfixQueryResponse;
     hotfixQueryResponse.Hotfixes.reserve(hotfixQuery.Hotfixes.size());
     for (DB2Manager::HotfixRecord const& hotfixRecord : hotfixQuery.Hotfixes)
     {
@@ -72,7 +72,7 @@ void WorldSession::HandleHotfixRequest(WorldPackets::Hotfix::HotfixRequest& hotf
         {
             DB2StorageBase const* storage = sDB2Manager.GetStorage(hotfixRecord.TableHash);
 
-            WorldPackets::Hotfix::HotfixResponse::HotfixData hotfixData;
+            WorldPackets::Hotfix::HotfixConnect::HotfixData hotfixData;
             hotfixData.Record = hotfixRecord;
             if (storage && storage->HasRecord(uint32(hotfixRecord.RecordID)))
             {

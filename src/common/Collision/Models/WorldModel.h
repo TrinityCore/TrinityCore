@@ -47,11 +47,11 @@ namespace VMAP
     class TC_COMMON_API WmoLiquid
     {
         public:
-            WmoLiquid(uint32 width, uint32 height, const G3D::Vector3 &corner, uint32 type);
-            WmoLiquid(const WmoLiquid &other);
+            WmoLiquid(uint32 width, uint32 height, G3D::Vector3 const& corner, uint32 type);
+            WmoLiquid(WmoLiquid const& other);
             ~WmoLiquid();
-            WmoLiquid& operator=(const WmoLiquid &other);
-            bool GetLiquidHeight(const G3D::Vector3 &pos, float &liqHeight) const;
+            WmoLiquid& operator=(WmoLiquid const& other);
+            bool GetLiquidHeight(G3D::Vector3 const& pos, float& liqHeight) const;
             uint32 GetType() const { return iType; }
             float *GetHeightStorage() { return iHeight; }
             uint8 *GetFlagsStorage() { return iFlags; }
@@ -74,8 +74,8 @@ namespace VMAP
     {
         public:
             GroupModel() : iBound(), iMogpFlags(0), iGroupWMOID(0), iLiquid(nullptr) { }
-            GroupModel(const GroupModel &other);
-            GroupModel(uint32 mogpFlags, uint32 groupWMOID, const G3D::AABox &bound):
+            GroupModel(GroupModel const& other);
+            GroupModel(uint32 mogpFlags, uint32 groupWMOID, G3D::AABox const& bound):
                         iBound(bound), iMogpFlags(mogpFlags), iGroupWMOID(groupWMOID), iLiquid(nullptr) { }
             ~GroupModel() { delete iLiquid; }
 

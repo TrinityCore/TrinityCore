@@ -62,7 +62,7 @@ enum SMGameObjectIds
     GO_PUMPKIN_SHRINE               = 186267
 };
 
-template<class AI, class T>
+template <class AI, class T>
 inline AI* GetScarletMonasteryAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, SMScriptName);

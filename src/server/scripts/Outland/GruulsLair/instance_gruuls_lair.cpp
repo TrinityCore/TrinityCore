@@ -17,7 +17,6 @@
 
 #include "ScriptMgr.h"
 #include "Creature.h"
-#include "GameObject.h"
 #include "gruuls_lair.h"
 #include "InstanceScript.h"
 
@@ -55,6 +54,8 @@ class instance_gruuls_lair : public InstanceMapScript
 
             void OnCreatureCreate(Creature* creature) override
             {
+                InstanceScript::OnCreatureCreate(creature);
+
                 switch (creature->GetEntry())
                 {
                     case NPC_MAULGAR:
@@ -65,48 +66,6 @@ class instance_gruuls_lair : public InstanceMapScript
                     case NPC_KIGGLER_THE_CRAZED:
                     case NPC_BLINDEYE_THE_SEER:
                         AddMinion(creature, true);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void OnCreatureRemove(Creature* creature) override
-            {
-                switch (creature->GetEntry())
-                {
-                    case NPC_MAULGAR:
-                    case NPC_KROSH_FIREHAND:
-                    case NPC_OLM_THE_SUMMONER:
-                    case NPC_KIGGLER_THE_CRAZED:
-                    case NPC_BLINDEYE_THE_SEER:
-                        AddMinion(creature, false);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void OnGameObjectCreate(GameObject* go) override
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_MAULGAR_DOOR:
-                    case GO_GRUUL_DOOR:
-                        AddDoor(go, true);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void OnGameObjectRemove(GameObject* go) override
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_MAULGAR_DOOR:
-                    case GO_GRUUL_DOOR:
-                        AddDoor(go, false);
                         break;
                     default:
                         break;

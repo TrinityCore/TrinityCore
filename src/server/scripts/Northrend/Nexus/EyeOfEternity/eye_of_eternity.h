@@ -87,10 +87,10 @@ enum EOEInstanceSpells
     SPELL_SUMMOM_RED_DRAGON_BUDDY         = 56070
 };
 
-template<typename AI>
-inline AI* GetEyeOfEternityAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetEyeOfEternityAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, EoEScriptName);
+    return GetInstanceAI<AI>(obj, EoEScriptName);
 }
 
 #endif

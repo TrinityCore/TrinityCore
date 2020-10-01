@@ -16,10 +16,9 @@
  */
 
 #include "ScriptMgr.h"
-#include "GameObjectAI.h"
 #include "blackrock_depths.h"
-#include "CreatureAIImpl.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
@@ -98,7 +97,7 @@ class at_ring_of_law : public AreaTriggerScript
 public:
     at_ring_of_law() : AreaTriggerScript("at_ring_of_law") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*areaTrigger*/, bool /*entered*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
     {
         if (InstanceScript* instance = player->GetInstanceScript())
         {
@@ -370,7 +369,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_phalanxAI(creature);
+        return GetBlackrockDepthsAI<npc_phalanxAI>(creature);
     }
 
     struct npc_phalanxAI : public ScriptedAI
@@ -494,7 +493,7 @@ class npc_lokhtos_darkbargainer : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_lokhtos_darkbargainerAI(creature);
+            return GetBlackrockDepthsAI<npc_lokhtos_darkbargainerAI>(creature);
         }
 };
 

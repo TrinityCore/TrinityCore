@@ -25,8 +25,8 @@
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "trial_of_the_crusader.h"
 

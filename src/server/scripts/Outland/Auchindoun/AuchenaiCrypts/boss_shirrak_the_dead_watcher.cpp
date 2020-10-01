@@ -57,7 +57,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new boss_shirrak_the_dead_watcherAI(creature);
+        return GetAuchenaiCryptsAI<boss_shirrak_the_dead_watcherAI>(creature);
     }
 
     struct boss_shirrak_the_dead_watcherAI : public ScriptedAI
@@ -111,7 +111,7 @@ public:
             if (Inhibitmagic_Timer <= diff)
             {
                 float dist;
-                Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
+                Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
                 for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                     if (Player* i_pl = i->GetSource())
                         if (i_pl->IsAlive() && (dist = i_pl->GetDistance(me)) < 45)
@@ -174,7 +174,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_focus_fireAI(creature);
+        return GetAuchenaiCryptsAI<npc_focus_fireAI>(creature);
     }
 
     struct npc_focus_fireAI : public ScriptedAI

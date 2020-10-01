@@ -20,8 +20,8 @@
 #include "InstanceScript.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
-#include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
 #include "TemporarySummon.h"
 
 enum Texts

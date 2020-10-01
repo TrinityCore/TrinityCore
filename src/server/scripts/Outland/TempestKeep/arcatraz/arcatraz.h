@@ -64,10 +64,10 @@ enum AZGameObjectIds
     GO_WARDENS_SHIELD                           = 184802  // shield 'protecting' mellichar
 };
 
-template<typename AI>
-inline AI* GetArcatrazAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetArcatrazAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, ArcatrazScriptName);
+    return GetInstanceAI<AI>(obj, ArcatrazScriptName);
 }
 
 #endif // ARCATRAZ_H

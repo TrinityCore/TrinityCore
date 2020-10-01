@@ -23,8 +23,8 @@ SDCategory: Karazhan
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
 #include "karazhan.h"
+#include "InstanceScript.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "TemporarySummon.h"

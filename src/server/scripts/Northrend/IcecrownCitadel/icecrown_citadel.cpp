@@ -17,17 +17,13 @@
 
 #include "icecrown_citadel.h"
 #include "CellImpl.h"
-#include "GameObject.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "PassiveAI.h"
-#include "PetDefines.h"
-#include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "SmartAI.h"
-#include "Spell.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
@@ -737,7 +733,7 @@ class npc_alchemist_adrianna : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_alchemist_adriannaAI(creature);
+            return GetIcecrownCitadelAI<npc_alchemist_adriannaAI>(creature);
         }
 };
 
@@ -1680,7 +1676,7 @@ class npc_frostwing_vrykul : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_frostwing_vrykulAI(creature);
+            return GetIcecrownCitadelAI<npc_frostwing_vrykulAI>(creature);
         }
 };
 
@@ -1724,7 +1720,7 @@ class npc_impaling_spear : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_impaling_spearAI(creature);
+            return GetIcecrownCitadelAI<npc_impaling_spearAI>(creature);
         }
 };
 
@@ -2123,6 +2119,7 @@ public:
     spell_trigger_spell_from_caster_SpellScript(uint32 triggerId, TriggerCastFlags triggerFlags)
         : SpellScript(), _triggerId(triggerId), _triggerFlags(triggerFlags) { }
 
+private:
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ _triggerId });

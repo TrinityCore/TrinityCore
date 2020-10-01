@@ -116,7 +116,7 @@ enum SWPGameObjectIds
 };
 
 template <class AI, class T>
-inline AI* GetSunwellPlateauAI(T* obj)
+AI* GetSunwellPlateauAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, SunwellPlateauScriptName);
 }

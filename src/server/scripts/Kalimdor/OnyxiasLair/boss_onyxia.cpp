@@ -27,7 +27,6 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "CellImpl.h"
-#include "CreatureAIImpl.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
@@ -196,7 +195,7 @@ public:
             Talk(SAY_KILL);
         }
 
-        void SpellHit(Unit* /*pCaster*/, const SpellInfo* Spell) override
+        void SpellHit(Unit* /*pCaster*/, SpellInfo const* Spell) override
         {
             if (Spell->Id == SPELL_BREATH_EAST_TO_WEST ||
                 Spell->Id == SPELL_BREATH_WEST_TO_EAST ||
@@ -274,7 +273,7 @@ public:
             }
         }
 
-        void SpellHitTarget(Unit* target, const SpellInfo* Spell) override
+        void SpellHitTarget(Unit* target, SpellInfo const* Spell) override
         {
             //Workaround - Couldn't find a way to group this spells (All Eruption)
             if (((Spell->Id >= 17086 && Spell->Id <= 17095) ||
@@ -495,7 +494,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetInstanceAI<boss_onyxiaAI>(creature, OLScriptName);
+        return GetOnyxiaAI<boss_onyxiaAI>(creature);
     }
 };
 

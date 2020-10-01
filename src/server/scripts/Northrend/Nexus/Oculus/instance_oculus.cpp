@@ -18,7 +18,6 @@
 #include "ScriptMgr.h"
 #include "Creature.h"
 #include "CreatureAI.h"
-#include "EventMap.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
@@ -123,26 +122,13 @@ class instance_oculus : public InstanceMapScript
 
             void OnGameObjectCreate(GameObject* go) override
             {
+                InstanceScript::OnGameObjectCreate(go);
+
                 switch (go->GetEntry())
                 {
-                    case GO_DRAGON_CAGE_DOOR:
-                        AddDoor(go, true);
-                        break;
                     case GO_EREGOS_CACHE_N:
                     case GO_EREGOS_CACHE_H:
                         EregosCacheGUID = go->GetGUID();
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void OnGameObjectRemove(GameObject* go) override
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_DRAGON_CAGE_DOOR:
-                        AddDoor(go, false);
                         break;
                     default:
                         break;

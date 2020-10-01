@@ -24,11 +24,11 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "old_hillsbrad.h"
 #include "ScriptedEscortAI.h"
-#include "GameObjectAI.h"
 
 /*######
 ## go_barrel_old_hillsbrad

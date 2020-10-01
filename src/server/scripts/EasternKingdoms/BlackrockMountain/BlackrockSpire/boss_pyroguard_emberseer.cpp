@@ -255,7 +255,7 @@ public:
                         {
                             // Check to see if all players in instance have aura SPELL_EMBERSEER_START before starting event
                             bool _hasAura = true;
-                            Map::PlayerList const &players = me->GetMap()->GetPlayers();
+                            Map::PlayerList const& players = me->GetMap()->GetPlayers();
                             for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                                 if (Player* player = itr->GetSource()->ToPlayer())
                                     if (!player->HasAura(SPELL_EMBERSEER_OBJECT_VISUAL))
@@ -441,7 +441,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_blackhand_incarceratorAI(creature);
+        return GetBlackrockSpireAI<npc_blackhand_incarceratorAI>(creature);
     }
 };
 

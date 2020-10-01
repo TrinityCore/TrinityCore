@@ -17,12 +17,12 @@
 
 #include "ScriptMgr.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "nexus.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
-#include "GameObjectAI.h"
 #include "SpellScript.h"
 
 enum Spells

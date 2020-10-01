@@ -164,7 +164,7 @@ class LinkedListHead
                 {                                           // construct with node pointer _Pnode
                 }
 
-                Iterator& operator=(const_pointer const &_Right)
+                Iterator& operator=(const_pointer const& _Right)
                 {
                     _Ptr = pointer(_Right);
                     return *this;
@@ -206,22 +206,22 @@ class LinkedListHead
                     return (_Tmp);
                 }
 
-                bool operator==(Iterator const &_Right) const
+                bool operator==(Iterator const& _Right) const
                 {                                           // test for iterator equality
                     return (_Ptr == _Right._Ptr);
                 }
 
-                bool operator!=(Iterator const &_Right) const
+                bool operator!=(Iterator const& _Right) const
                 {                                           // test for iterator inequality
                     return (!(*this == _Right));
                 }
 
-                bool operator==(pointer const &_Right) const
+                bool operator==(pointer const& _Right) const
                 {                                           // test for pointer equality
                     return (_Ptr != _Right);
                 }
 
-                bool operator!=(pointer const &_Right) const
+                bool operator!=(pointer const& _Right) const
                 {                                           // test for pointer equality
                     return (!(*this == _Right));
                 }

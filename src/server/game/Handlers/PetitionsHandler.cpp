@@ -276,7 +276,7 @@ void WorldSession::HandleSignPetition(WorldPackets::Petition::SignPetition& pack
 
         // update for owner if online
         if (Player* owner = ObjectAccessor::FindConnectedPlayer(ownerGuid))
-            owner->GetSession()->SendPacket(signResult.GetRawPacket());
+            owner->SendDirectMessage(signResult.GetRawPacket());
         return;
     }
 
@@ -298,7 +298,7 @@ void WorldSession::HandleSignPetition(WorldPackets::Petition::SignPetition& pack
 
     // update for owner if online
     if (Player* owner = ObjectAccessor::FindConnectedPlayer(ownerGuid))
-        owner->GetSession()->SendPacket(signResult.GetRawPacket());
+        owner->SendDirectMessage(signResult.GetRawPacket());
 }
 
 void WorldSession::HandleDeclinePetition(WorldPackets::Petition::DeclinePetition& packet)
@@ -316,7 +316,7 @@ void WorldSession::HandleDeclinePetition(WorldPackets::Petition::DeclinePetition
     {
         WorldPackets::Petition::PetitionDeclined packet;
         packet.Decliner = _player->GetGUID();
-        owner->GetSession()->SendPacket(packet.Write());
+        owner->SendDirectMessage(packet.Write());
     }
     */
 }

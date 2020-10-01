@@ -122,10 +122,10 @@ enum BRSGameObjectsIds
     GO_PORTCULLIS_TOBOSSROOMS       = 175186
 };
 
-template<typename AI>
-inline AI* GetBlackrockSpireAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetBlackrockSpireAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, BRSScriptName);
+    return GetInstanceAI<AI>(obj, BRSScriptName);
 }
 
 #endif

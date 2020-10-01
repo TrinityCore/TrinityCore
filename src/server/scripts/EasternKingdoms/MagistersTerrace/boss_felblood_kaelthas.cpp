@@ -71,8 +71,6 @@ enum Spells
     SPELL_POWER_FEEDBACK          = 44233                 // Stuns him, making him take 50% more damage for 10 seconds. Cast after Gravity Lapse
 };
 
-
-
 enum Creatures
 {
     CREATURE_PHOENIX              = 24674,

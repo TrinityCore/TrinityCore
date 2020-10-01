@@ -24,7 +24,6 @@
 #include "PoolMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
-#include "SpellMgr.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 
@@ -454,7 +453,7 @@ class boss_lady_deathwhisper : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* target, const SpellInfo* spell) override
+            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_SUMMON_SPIRITS)
                     _nextVengefulShadeTargetGUID.push_back(target->GetGUID());
@@ -541,7 +540,7 @@ class boss_lady_deathwhisper : public CreatureScript
             }
 
             // helper for summoning wave mobs
-            void Summon(uint32 entry, const Position& pos)
+            void Summon(uint32 entry, Position const& pos)
             {
                 if (TempSummon* summon = me->SummonCreature(entry, pos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
                     summon->CastSpell(summon, SPELL_TELEPORT_VISUAL);

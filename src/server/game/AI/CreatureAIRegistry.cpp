@@ -15,19 +15,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PassiveAI.h"
-#include "ReactorAI.h"
-#include "CombatAI.h"
-#include "GuardAI.h"
-#include "PetAI.h"
-#include "TotemAI.h"
-#include "RandomMovementGenerator.h"
-#include "MovementGenerator.h"
-#include "CreatureAIRegistry.h"
-#include "WaypointMovementGenerator.h"
 #include "CreatureAIFactory.h"
 #include "GameObjectAIFactory.h"
+
+#include "CombatAI.h"
+#include "GuardAI.h"
+#include "PassiveAI.h"
+#include "PetAI.h"
+#include "ReactorAI.h"
 #include "SmartAI.h"
+#include "TotemAI.h"
+
+#include "MovementGenerator.h"
+#include "RandomMovementGenerator.h"
+#include "WaypointMovementGenerator.h"
 
 namespace AIRegistry
 {

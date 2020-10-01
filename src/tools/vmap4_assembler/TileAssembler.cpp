@@ -32,12 +32,12 @@ using std::pair;
 
 template<> struct BoundsTrait<VMAP::ModelSpawn*>
 {
-    static void getBounds(const VMAP::ModelSpawn* const &obj, G3D::AABox& out) { out = obj->getBounds(); }
+    static void getBounds(VMAP::ModelSpawn const* const& obj, G3D::AABox& out) { out = obj->getBounds(); }
 };
 
 namespace VMAP
 {
-    Vector3 ModelPosition::transform(const Vector3& pIn) const
+    Vector3 ModelPosition::transform(Vector3 const& pIn) const
     {
         Vector3 out = pIn * iScale;
         out = iRotation * out;

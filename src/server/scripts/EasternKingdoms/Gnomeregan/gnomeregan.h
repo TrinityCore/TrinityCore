@@ -50,10 +50,10 @@ enum GNOData64
     DATA_NPC_BASTMASTER_EMI_SHORTFUSE
 };
 
-template<typename AI>
-inline AI* GetGnomereganAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetGnomereganAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, GNOScriptName);
+    return GetInstanceAI<AI>(obj, GNOScriptName);
 }
 
 #endif

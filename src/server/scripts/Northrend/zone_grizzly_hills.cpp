@@ -298,7 +298,7 @@ public:
                 _gender = Data;
         }
 
-        void SpellHit(Unit* Caster, const SpellInfo* Spell) override
+        void SpellHit(Unit* Caster, SpellInfo const* Spell) override
         {
              if (Spell->Id == SPELL_OUTHOUSE_GROANS)
              {
@@ -493,7 +493,7 @@ public:
                 me->DespawnOrUnsummon(_despawnTimer);
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell) override
+        void SpellHit(Unit* caster, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_RENEW_SKIRMISHER && caster->GetTypeId() == TYPEID_PLAYER
                 && caster->ToPlayer()->GetQuestStatus(QUEST_OVERWHELMED) == QUEST_STATUS_INCOMPLETE)
@@ -953,12 +953,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            return ValidateSpellInfo(
-            {
-                SPELL_WARHEAD_Z_CHECK,
-                SPELL_WARHEAD_SEEKING_LUMBERSHIP,
-                SPELL_WARHEAD_FUSE
-            });
+            return ValidateSpellInfo({ SPELL_WARHEAD_Z_CHECK, SPELL_WARHEAD_SEEKING_LUMBERSHIP, SPELL_WARHEAD_FUSE });
         }
 
         void HandleDummy(SpellEffIndex /*effIndex*/)

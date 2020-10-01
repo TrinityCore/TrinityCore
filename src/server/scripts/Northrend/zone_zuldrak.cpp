@@ -17,9 +17,9 @@
 
 #include "ScriptMgr.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
-#include "GameObjectAI.h"
 #include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
@@ -89,7 +89,7 @@ public:
             me->setDeathState(DEAD);
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell) override
+        void SpellHit(Unit* caster, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_UNLOCK_SHACKLE)
             {
@@ -145,7 +145,7 @@ public:
 
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_FREE_RAGECLAW)
             {
@@ -653,7 +653,7 @@ class spell_random_ingredient_aura : public SpellScriptLoader
                 {
                     SPELL_RANDOM_INGREDIENT_EASY,
                     SPELL_RANDOM_INGREDIENT_MEDIUM,
-                    SPELL_RANDOM_INGREDIENT_HARD,
+                    SPELL_RANDOM_INGREDIENT_HARD
                 });
             }
 
@@ -929,7 +929,7 @@ public:
             Reset();
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell) override
+        void SpellHit(Unit* caster, SpellInfo const* spell) override
         {
             if (spell->Id != GYMERS_GRAB)
                 return;

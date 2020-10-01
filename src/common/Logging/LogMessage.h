@@ -32,7 +32,7 @@ struct TC_COMMON_API LogMessage
     LogMessage& operator=(LogMessage const& /*other*/) = delete;
 
     static std::string getTimeStr(time_t time);
-    std::string getTimeStr();
+    std::string getTimeStr() const;
 
     LogLevel const level;
     std::string const type;

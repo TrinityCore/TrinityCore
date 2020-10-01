@@ -18,17 +18,13 @@
 #include "icecrown_citadel.h"
 #include "CellImpl.h"
 #include "CreatureTextMgr.h"
-#include "GameObject.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
-#include "Map.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
-#include "SpellAuras.h"
-#include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "Vehicle.h"
@@ -2564,13 +2560,6 @@ class spell_the_lich_king_valkyr_target_search : public SpellScriptLoader
         {
             PrepareSpellScript(spell_the_lich_king_valkyr_target_search_SpellScript);
 
-        public:
-            spell_the_lich_king_valkyr_target_search_SpellScript()
-            {
-                _target = nullptr;
-            }
-
-        private:
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_CHARGE });
@@ -2611,7 +2600,7 @@ class spell_the_lich_king_valkyr_target_search : public SpellScriptLoader
                 OnEffectHitTarget += SpellEffectFn(spell_the_lich_king_valkyr_target_search_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
 
-            WorldObject* _target;
+            WorldObject* _target = nullptr;
         };
 
         SpellScript* GetSpellScript() const override

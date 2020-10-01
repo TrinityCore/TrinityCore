@@ -20,7 +20,6 @@
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "MoveSplineInit.h"
-#include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
@@ -442,7 +441,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_LAUNCH_HARPOON)
                 if (Creature* skadi = _instance->GetCreature(DATA_SKADI_THE_RUTHLESS))

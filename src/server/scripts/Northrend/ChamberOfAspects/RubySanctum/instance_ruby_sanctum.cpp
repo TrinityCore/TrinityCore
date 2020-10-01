@@ -72,7 +72,6 @@ ObjectData const gameObjectData[] =
     { 0,                        0                           } //END
 };
 
-
 class instance_ruby_sanctum : public InstanceMapScript
 {
     public:

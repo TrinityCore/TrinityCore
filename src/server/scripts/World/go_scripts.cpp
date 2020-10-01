@@ -46,11 +46,11 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "DB2Structure.h"
+#include "GameEventMgr.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "GameTime.h"
 #include "Log.h"
-#include "Map.h"
 #include "MotionMaster.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
@@ -58,7 +58,6 @@ EndContentData */
 #include "TemporarySummon.h"
 #include "WorldSession.h"
 #include "World.h"
-#include "GameEventMgr.h"
 
 /*######
 ## go_cat_figurine
@@ -1696,7 +1695,7 @@ public:
                             break;
 
                         std::vector<Player*> playersNearby;
-                        me->GetPlayerListInGrid(playersNearby, me->GetMap()->GetVisibilityRange());
+                        me->GetPlayerListInGrid(playersNearby, me->GetVisibilityRange());
                         for (Player* player : playersNearby)
                         {
                             if (player->GetTeamId() == TEAM_HORDE)

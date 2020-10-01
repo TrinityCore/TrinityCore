@@ -252,7 +252,7 @@ class TC_GAME_API Group
         void   RemoveAllInvites();
         bool   AddLeaderInvite(Player* player);
         bool   AddMember(Player* player);
-        bool   RemoveMember(ObjectGuid guid, const RemoveMethod &method = GROUP_REMOVEMETHOD_DEFAULT, ObjectGuid kicker = ObjectGuid::Empty, const char* reason = nullptr);
+        bool   RemoveMember(ObjectGuid guid, RemoveMethod method = GROUP_REMOVEMETHOD_DEFAULT, ObjectGuid kicker = ObjectGuid::Empty, const char* reason = nullptr);
         void   ChangeLeader(ObjectGuid guid, int8 partyIndex = 0);
  static void   ConvertLeaderInstancesToGroup(Player* player, Group* group, bool switchLeader);
         void   SetLootMethod(LootMethod method);

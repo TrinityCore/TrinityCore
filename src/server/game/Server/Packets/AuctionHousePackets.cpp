@@ -321,7 +321,7 @@ void AuctionHelloRequest::Read()
     _worldPacket >> Guid;
 }
 
-void AuctionListBidderItems::Read()
+void AuctionListBiddedItems::Read()
 {
     _worldPacket >> Auctioneer;
     _worldPacket >> Offset;
@@ -401,7 +401,7 @@ void AuctionListItemsByItemID::Read()
         _worldPacket >> *TaintedBy;
 }
 
-void AuctionListOwnerItems::Read()
+void AuctionListOwnedItems::Read()
 {
     _worldPacket >> Auctioneer;
     _worldPacket >> Offset;
@@ -498,7 +498,7 @@ void AuctionSetFavoriteItem::Read()
     _worldPacket >> Item;
 }
 
-void AuctionStartCommoditiesPurchase::Read()
+void AuctionGetCommodityQuote::Read()
 {
     _worldPacket >> Auctioneer;
     _worldPacket >> ItemID;
@@ -534,7 +534,7 @@ WorldPacket const* AuctionCommandResult::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* AuctionCommodityQuote::Write()
+WorldPacket const* AuctionGetCommodityQuoteResult::Write()
 {
     _worldPacket.WriteBit(TotalPrice.is_initialized());
     _worldPacket.WriteBit(Quantity.is_initialized());
@@ -554,7 +554,7 @@ WorldPacket const* AuctionCommodityQuote::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* AuctionFavoriteItems::Write()
+WorldPacket const* AuctionFavoriteList::Write()
 {
     _worldPacket << uint32(DesiredDelay);
     _worldPacket.WriteBits(Items.size(), 7);
@@ -575,7 +575,7 @@ WorldPacket const* AuctionHelloResponse::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* AuctionListBidderItemsResult::Write()
+WorldPacket const* AuctionListBiddedItemsResult::Write()
 {
     _worldPacket << int32(Items.size());
     _worldPacket << uint32(DesiredDelay);
@@ -622,7 +622,7 @@ WorldPacket const* AuctionListItemsResult::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* AuctionListOwnerItemsResult::Write()
+WorldPacket const* AuctionListOwnedItemsResult::Write()
 {
     _worldPacket << int32(Items.size());
     _worldPacket << int32(SoldItems.size());

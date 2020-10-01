@@ -19,12 +19,12 @@
 #include "CombatAI.h"
 #include "CreatureTextMgr.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "Log.h"
 #include "MotionMaster.h"
 #include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
 #include "PassiveAI.h"
-#include "GameObjectAI.h"
 #include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
@@ -521,7 +521,7 @@ public:
             me->AddUnitFlag(UNIT_FLAG_UNK_15);
         }
 
-        void SpellHit(Unit* pCaster, const SpellInfo* pSpell) override
+        void SpellHit(Unit* pCaster, SpellInfo const* pSpell) override
         {
             if (!m_bIsDuelInProgress && pSpell->Id == SPELL_DUEL)
             {
@@ -776,7 +776,7 @@ public:
             return false;
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell) override
+        void SpellHit(Unit* caster, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_DELIVER_STOLEN_HORSE)
             {

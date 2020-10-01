@@ -40,11 +40,11 @@ namespace MMAP
 
         void writeIV(uint32 mapID, uint32 tileX, uint32 tileY);
 
-        void debugWrite(FILE* file, const rcHeightfield* mesh);
-        void debugWrite(FILE* file, const rcCompactHeightfield* chf);
-        void debugWrite(FILE* file, const rcContourSet* cs);
-        void debugWrite(FILE* file, const rcPolyMesh* mesh);
-        void debugWrite(FILE* file, const rcPolyMeshDetail* mesh);
+        void debugWrite(FILE* file, rcHeightfield const* mesh);
+        void debugWrite(FILE* file, rcCompactHeightfield const* chf);
+        void debugWrite(FILE* file, rcContourSet const* cs);
+        void debugWrite(FILE* file, rcPolyMesh const* mesh);
+        void debugWrite(FILE* file, rcPolyMeshDetail const* mesh);
 
         void generateObjFile(uint32 mapID, uint32 tileX, uint32 tileY, MeshData &meshData);
     };

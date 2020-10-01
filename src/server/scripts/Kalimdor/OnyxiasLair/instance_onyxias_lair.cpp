@@ -39,7 +39,7 @@ BossBoundaryData const boundaries =
 class instance_onyxias_lair : public InstanceMapScript
 {
 public:
-    instance_onyxias_lair() : InstanceMapScript(OLScriptName, 249) { }
+    instance_onyxias_lair() : InstanceMapScript(OnyxiaScriptName, 249) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
     {

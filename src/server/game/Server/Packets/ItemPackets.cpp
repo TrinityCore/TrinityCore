@@ -347,7 +347,7 @@ void WorldPackets::Item::SocketGems::Read()
         _worldPacket >> gemGuid;
 }
 
-WorldPacket const* WorldPackets::Item::SocketGemsResult::Write()
+WorldPacket const* WorldPackets::Item::SocketGemsSuccess::Write()
 {
     _worldPacket << Item;
 

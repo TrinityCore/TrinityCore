@@ -198,7 +198,7 @@ public:
             instance->SetBossState(DATA_FELMYST, DONE);
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell) override
+        void SpellHit(Unit* caster, SpellInfo const* spell) override
         {
             // workaround for linked aura
             /*if (spell->Id == SPELL_VAPOR_FORCE)

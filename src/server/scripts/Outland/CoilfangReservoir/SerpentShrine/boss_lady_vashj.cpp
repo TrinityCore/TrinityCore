@@ -30,8 +30,8 @@ EndScriptData */
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
-#include "Spell.h"
 #include "serpent_shrine.h"
+#include "Spell.h"
 #include "TemporarySummon.h"
 
 enum LadyVashj
@@ -256,7 +256,7 @@ public:
         void EnterCombat(Unit* who) override
         {
             // remove old tainted cores to prevent cheating in phase 2
-            Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
+            Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
             for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
                 if (Player* player = itr->GetSource())
                     player->DestroyItemCount(31088, 1, true);
@@ -326,7 +326,7 @@ public:
                 }
                 else
                 {
-                    AggroTimer-=diff;
+                    AggroTimer -= diff;
                     return;
                 }
             }

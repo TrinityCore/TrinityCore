@@ -96,7 +96,6 @@ class npc_warp_splinter_treant : public CreatureScript
 
             void MoveInLineOfSight(Unit* /*who*/) override { }
 
-
             void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim() || !me->GetVictim())

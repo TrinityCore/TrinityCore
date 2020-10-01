@@ -17,13 +17,10 @@
 
 #include "ScriptMgr.h"
 #include "blood_furnace.h"
-#include "Map.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "Spell.h"
 #include "SpellAuras.h"
-#include "SpellMgr.h"
-#include "SpellInfo.h"
 #include "TemporarySummon.h"
 
 enum Kelidan

@@ -15,23 +15,22 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MoveSplineInit.h"
-#include "Player.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "TypeContainerVisitor.h"
+#include "AreaBoundary.h"
 #include "CellImpl.h"
 #include "GridNotifiersImpl.h"
-#include "ulduar.h"
-#include "SpellAuras.h"
-#include "SpellMgr.h"
-#include <G3D/Vector3.h>
-#include "AreaBoundary.h"
 #include "InstanceScript.h"
-#include "ObjectAccessor.h"
 #include "MotionMaster.h"
+#include "MoveSplineInit.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellMgr.h"
+#include "SpellScript.h"
+#include "TypeContainerVisitor.h"
+#include "ulduar.h"
+#include <G3D/Vector3.h>
 
 enum Spells
 {
@@ -321,8 +320,7 @@ enum DisplayIds
     THORIM_WEAPON_DISPLAY_ID                = 45900
 };
 
-uint32 const LightningOrbPathSize = 8;
-G3D::Vector3 const LightningOrbPath[LightningOrbPathSize] =
+Position const LightningOrbPath[] =
 {
     { 2134.889893f, -298.632996f, 438.247467f },
     { 2134.570068f, -440.317993f, 438.247467f },
@@ -333,6 +331,7 @@ G3D::Vector3 const LightningOrbPath[LightningOrbPathSize] =
     { 2202.208008f, -262.939270f, 412.168976f },
     { 2182.310059f, -263.233093f, 414.739410f }
 };
+std::size_t const LightningOrbPathSize = std::extent<decltype(LightningOrbPath)>::value;
 
 // used for trash jump calculation
 Position const ArenaCenter = { 2134.77f, -262.307f };
@@ -356,7 +355,7 @@ class HeightPositionCheck
 
         bool operator()(Position const* pos) const
         {
-            return pos->GetPositionZ() > THORIM_BALCONY_Z_CHECK == _ret;
+            return (pos->GetPositionZ() > THORIM_BALCONY_Z_CHECK) == _ret;
         }
 
     private:
@@ -633,9 +632,14 @@ class boss_thorim : public CreatureScript
                         summon->SetReactState(REACT_PASSIVE);
                         summon->CastSpell(summon, SPELL_LIGHTNING_DESTRUCTION, true);
 
-                        summon->GetMotionMaster()->MovePoint(EVENT_CHARGE_PREPATH, LightningOrbPath[LightningOrbPathSize - 1].x, LightningOrbPath[LightningOrbPathSize - 1].y, LightningOrbPath[LightningOrbPathSize - 1].z, false);
+                        summon->GetMotionMaster()->MovePoint(EVENT_CHARGE_PREPATH, LightningOrbPath[LightningOrbPathSize - 1], false);
 
-                        Movement::PointsArray path(LightningOrbPath, LightningOrbPath + LightningOrbPathSize);
+                        Movement::PointsArray path;
+                        path.reserve(LightningOrbPathSize);
+                        std::transform(std::begin(LightningOrbPath), std::end(LightningOrbPath), std::back_inserter(path), [](Position const& pos)
+                        {
+                            return G3D::Vector3(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
+                        });
 
                         Movement::MoveSplineInit init(summon);
                         init.MovebyPath(path);
@@ -1867,11 +1871,7 @@ class spell_thorim_stormhammer : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                return ValidateSpellInfo(
-                    {
-                        SPELL_STORMHAMMER_BOOMERANG,
-                        SPELL_DEAFENING_THUNDER
-                    });
+                return ValidateSpellInfo({ SPELL_STORMHAMMER_BOOMERANG, SPELL_DEAFENING_THUNDER });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -1929,11 +1929,7 @@ class spell_thorim_stormhammer_sif : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                return ValidateSpellInfo(
-                    {
-                        SPELL_STORMHAMMER_BOOMERANG,
-                        SPELL_SIF_TRANSFORM
-                    });
+                return ValidateSpellInfo({ SPELL_STORMHAMMER_BOOMERANG, SPELL_SIF_TRANSFORM });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)

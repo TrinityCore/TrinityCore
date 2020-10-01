@@ -233,7 +233,7 @@ class spell_heigan_eruption : public SpellScriptLoader
             void HandleScript(SpellEffIndex /*eff*/)
             {
                 Unit* caster = GetCaster();
-                if (!caster || !GetHitPlayer())
+                if (!caster || !GetHitUnit())
                     return;
 
                 if (GetHitDamage() >= int32(GetHitUnit()->GetHealth()))

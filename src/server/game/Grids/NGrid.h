@@ -32,14 +32,14 @@ class TC_GAME_API GridInfo
 {
 public:
     GridInfo();
-    GridInfo(time_t expiry, bool unload = true );
-    const TimeTracker& getTimeTracker() const { return i_timer; }
+    GridInfo(time_t expiry, bool unload = true);
+    TimeTracker const& getTimeTracker() const { return i_timer; }
     bool getUnloadLock() const { return i_unloadActiveLockCount || i_unloadExplicitLock; }
     void setUnloadExplicitLock(bool on) { i_unloadExplicitLock = on; }
     void incUnloadActiveLock() { ++i_unloadActiveLockCount; }
     void decUnloadActiveLock() { if (i_unloadActiveLockCount) --i_unloadActiveLockCount; }
 
-    void setTimer(const TimeTracker& pTimer) { i_timer = pTimer; }
+    void setTimer(TimeTracker const& pTimer) { i_timer = pTimer; }
     void ResetTimeTracker(time_t interval) { i_timer.Reset(interval); }
     void UpdateTimeTracker(time_t diff) { i_timer.Update(diff); }
     PeriodicTimer& getRelocationTimer() { return vis_Update; }
@@ -102,7 +102,7 @@ class NGrid
         void setGridObjectDataLoaded(bool pLoaded) { i_GridObjectDataLoaded = pLoaded; }
 
         GridInfo* getGridInfoRef() { return &i_GridInfo; }
-        const TimeTracker& getTimeTracker() const { return i_GridInfo.getTimeTracker(); }
+        TimeTracker const& getTimeTracker() const { return i_GridInfo.getTimeTracker(); }
         bool getUnloadLock() const { return i_GridInfo.getUnloadLock(); }
         void setUnloadExplicitLock(bool on) { i_GridInfo.setUnloadExplicitLock(on); }
         void incUnloadActiveLock() { i_GridInfo.incUnloadActiveLock(); }

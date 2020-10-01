@@ -436,7 +436,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* /*pCaster*/, const SpellInfo* pSpell) override
+        void SpellHit(Unit* /*pCaster*/, SpellInfo const* pSpell) override
         {
             // This is the dummy effect of the spells
             if (pSpell->Id == SPELL_SHATTER)

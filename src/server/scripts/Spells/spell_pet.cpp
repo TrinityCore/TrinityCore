@@ -1436,13 +1436,6 @@ public:
     {
         PrepareAuraScript(spell_dk_pet_scaling_01_AuraScript);
 
-    public:
-        spell_dk_pet_scaling_01_AuraScript()
-        {
-            _tempHealth = 0;
-        }
-
-    private:
         bool Load() override
         {
             if (!GetCaster() || !GetCaster()->GetOwner() || GetCaster()->GetOwner()->GetTypeId() != TYPEID_PLAYER)
@@ -1502,8 +1495,7 @@ public:
             DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_pet_scaling_01_AuraScript::CalculateStrengthAmount, EFFECT_1, SPELL_AURA_MOD_STAT);
         }
 
-    private:
-        uint32 _tempHealth;
+        uint32 _tempHealth = 0;
     };
 
     AuraScript* GetAuraScript() const override

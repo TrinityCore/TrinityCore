@@ -136,4 +136,5 @@ class FlightPathMovementGenerator : public MovementGeneratorMedium<Player, Fligh
 
         std::deque<TaxiNodeChangeInfo> _pointsForPathSwitch;    //! node indexes and costs where TaxiPath changes
 };
+
 #endif

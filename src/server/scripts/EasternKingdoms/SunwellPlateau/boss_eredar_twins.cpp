@@ -17,7 +17,6 @@
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
-#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
 #include "sunwell_plateau.h"
@@ -162,7 +161,7 @@ public:
                 me->RemoveDynamicFlag(UNIT_DYNFLAG_LOOTABLE);
         }
 
-        void SpellHitTarget(Unit* target, const SpellInfo* spell) override
+        void SpellHitTarget(Unit* target, SpellInfo const* spell) override
         {
             switch (spell->Id)
             {
@@ -438,7 +437,7 @@ public:
                 me->RemoveDynamicFlag(UNIT_DYNFLAG_LOOTABLE);
         }
 
-        void SpellHitTarget(Unit* target, const SpellInfo* spell) override
+        void SpellHitTarget(Unit* target, SpellInfo const* spell) override
         {
             switch (spell->Id)
             {
@@ -675,7 +674,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) override { }
 
-        void SpellHitTarget(Unit* target, const SpellInfo* spell) override
+        void SpellHitTarget(Unit* target, SpellInfo const* spell) override
         {
             switch (spell->Id)
             {

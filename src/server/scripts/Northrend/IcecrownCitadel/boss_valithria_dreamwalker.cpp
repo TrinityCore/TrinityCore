@@ -24,7 +24,6 @@
 #include "PhasingHandler.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
-#include "SpellInfo.h"
 #include "SpellScript.h"
 
 enum Texts

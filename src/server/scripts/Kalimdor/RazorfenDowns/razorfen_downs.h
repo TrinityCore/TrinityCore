@@ -63,8 +63,8 @@ enum RFDGameObjectIds
     GO_BELNISTRASZS_BRAZIER                = 152097
 };
 
-template<class AI, class T>
-AI* GetRazorfenDownsAI(T* obj)
+template <class AI, class T>
+inline AI* GetRazorfenDownsAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, RFDScriptName);
 }

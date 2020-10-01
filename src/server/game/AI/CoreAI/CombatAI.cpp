@@ -248,7 +248,7 @@ TurretAI::TurretAI(Creature* c) : CreatureAI(c)
     me->m_SightDistance = me->m_CombatDistance;
 }
 
-bool TurretAI::CanAIAttack(const Unit* /*who*/) const
+bool TurretAI::CanAIAttack(Unit const* /*who*/) const
 {
     /// @todo use one function to replace it
     if (!me->IsWithinCombatRange(me->GetVictim(), me->m_CombatDistance)

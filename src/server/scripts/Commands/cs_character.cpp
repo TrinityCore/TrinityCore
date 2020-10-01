@@ -22,6 +22,7 @@ Comment: All character related commands
 Category: commandscripts
 EndScriptData */
 
+#include "ScriptMgr.h"
 #include "AccountMgr.h"
 #include "CharacterCache.h"
 #include "Chat.h"
@@ -30,10 +31,9 @@ EndScriptData */
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
-#include "PlayerDump.h"
 #include "Player.h"
+#include "PlayerDump.h"
 #include "ReputationMgr.h"
-#include "ScriptMgr.h"
 #include "World.h"
 #include "WorldSession.h"
 #include <sstream>

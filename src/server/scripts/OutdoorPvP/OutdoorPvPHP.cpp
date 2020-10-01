@@ -22,7 +22,6 @@
 #include "Player.h"
 #include "WorldStatePackets.h"
 
-
 uint32 const OutdoorPvPHPBuffZonesNum = 6;
                                                          //  HP, citadel, ramparts, blood furnace, shattered halls, mag's lair
 uint32 const OutdoorPvPHPBuffZones[OutdoorPvPHPBuffZonesNum] = { 3483, 3563, 3562, 3713, 3714, 3836 };
@@ -253,7 +252,7 @@ void OPvPCapturePointHP::ChangeState()
         break;
     }
 
-    Map* map = sMapMgr->FindMap(530, 0);
+    Map* map = m_PvP->GetMap();
     auto bounds = map->GetGameObjectBySpawnIdStore().equal_range(m_capturePointSpawnId);
     for (auto itr = bounds.first; itr != bounds.second; ++itr)
         itr->second->SetGoArtKit(artkit);

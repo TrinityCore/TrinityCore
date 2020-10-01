@@ -17,7 +17,6 @@
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
-#include "Map.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ruins_of_ahnqiraj.h"
@@ -210,7 +209,7 @@ class boss_ayamiss : public CreatureScript
                             break;
                         case EVENT_SWARMER_ATTACK:
                             for (GuidList::iterator i = _swarmers.begin(); i != _swarmers.end(); ++i)
-                                if (Creature* swarmer = me->GetMap()->GetCreature(*i))
+                                if (Creature* swarmer = ObjectAccessor::GetCreature(*me, *i))
                                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                         swarmer->AI()->AttackStart(target);
 

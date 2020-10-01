@@ -69,15 +69,31 @@ uint32 ByteBuffer::ReadPackedTime()
     return uint32(mktime(&lt));
 }
 
-void ByteBuffer::append(const uint8 *src, size_t cnt)
+void ByteBuffer::append(uint8 const* src, size_t cnt)
 {
     ASSERT(src, "Attempted to put a NULL-pointer in ByteBuffer (pos: " SZFMTD " size: " SZFMTD ")", _wpos, size());
     ASSERT(cnt, "Attempted to put a zero-sized value in ByteBuffer (pos: " SZFMTD " size: " SZFMTD ")", _wpos, size());
     ASSERT(size() < 10000000);
 
     FlushBits();
-    _storage.insert(_storage.begin() + _wpos, src, src + cnt);
-    _wpos += cnt;
+
+    size_t const newSize = _wpos + cnt;
+    if (_storage.capacity() < newSize) // custom memory allocation rules
+    {
+        if (newSize < 100)
+            _storage.reserve(300);
+        else if (newSize < 750)
+            _storage.reserve(2500);
+        else if (newSize < 6000)
+            _storage.reserve(10000);
+        else
+            _storage.reserve(400000);
+    }
+
+    if (_storage.size() < newSize)
+        _storage.resize(newSize);
+    std::memcpy(&_storage[_wpos], src, cnt);
+    _wpos = newSize;
 }
 
 void ByteBuffer::AppendPackedTime(time_t time)
@@ -87,7 +103,7 @@ void ByteBuffer::AppendPackedTime(time_t time)
     append<uint32>((lt.tm_year - 100) << 24 | lt.tm_mon << 20 | (lt.tm_mday - 1) << 14 | lt.tm_wday << 11 | lt.tm_hour << 6 | lt.tm_min);
 }
 
-void ByteBuffer::put(size_t pos, const uint8 *src, size_t cnt)
+void ByteBuffer::put(size_t pos, uint8 const* src, size_t cnt)
 {
     ASSERT(pos + cnt <= size(), "Attempted to put value with size: " SZFMTD " in ByteBuffer (pos: " SZFMTD " size: " SZFMTD ")", cnt, pos, size());
     ASSERT(src, "Attempted to put a NULL-pointer in ByteBuffer (pos: " SZFMTD " size: " SZFMTD ")", pos, size());

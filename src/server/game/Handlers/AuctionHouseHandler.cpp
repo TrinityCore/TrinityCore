@@ -32,7 +32,6 @@
 #include "Player.h"
 #include "Util.h"
 #include "World.h"
-#include "WorldPacket.h"
 #include <sstream>
 
 void WorldSession::HandleAuctionBrowseQuery(WorldPackets::AuctionHouse::AuctionBrowseQuery& browseQuery)
@@ -157,6 +156,40 @@ void WorldSession::HandleAuctionConfirmCommoditiesPurchase(WorldPackets::Auction
     }
 }
 
+void WorldSession::HandleAuctionGetCommodityQuote(WorldPackets::AuctionHouse::AuctionGetCommodityQuote& getCommodityQuote)
+{
+    AuctionThrottleResult throttle = sAuctionMgr->CheckThrottle(_player, getCommodityQuote.TaintedBy.is_initialized(), AuctionCommand::PlaceBid);
+    if (throttle.Throttled)
+        return;
+
+    Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(getCommodityQuote.Auctioneer, UNIT_NPC_FLAG_AUCTIONEER, UNIT_NPC_FLAG_2_NONE);
+    if (!creature)
+    {
+        TC_LOG_DEBUG("network", "WORLD: HandleAuctionStartCommoditiesPurchase - %s not found or you can't interact with him.",
+            getCommodityQuote.Auctioneer.ToString().c_str());
+        return;
+    }
+
+    // remove fake death
+    if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
+        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
+
+    AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(creature->GetFaction());
+
+    WorldPackets::AuctionHouse::AuctionGetCommodityQuoteResult commodityQuoteResult;
+
+    if (CommodityQuote const* quote = auctionHouse->CreateCommodityQuote(_player, getCommodityQuote.ItemID, getCommodityQuote.Quantity))
+    {
+        commodityQuoteResult.TotalPrice = quote->TotalPrice;
+        commodityQuoteResult.Quantity = quote->Quantity;
+        commodityQuoteResult.QuoteDuration = std::chrono::duration_cast<Milliseconds>(quote->ValidTo - GameTime::GetGameTimeSteadyPoint()).count();
+    }
+
+    commodityQuoteResult.DesiredDelay = uint32(throttle.DelayUntilNext.count());
+
+    SendPacket(commodityQuoteResult.Write());
+}
+
 void WorldSession::HandleAuctionHelloOpcode(WorldPackets::AuctionHouse::AuctionHelloRequest& hello)
 {
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(hello.Guid, UNIT_NPC_FLAG_AUCTIONEER, UNIT_NPC_FLAG_2_NONE);
@@ -173,16 +206,16 @@ void WorldSession::HandleAuctionHelloOpcode(WorldPackets::AuctionHouse::AuctionH
     SendAuctionHello(hello.Guid, unit);
 }
 
-void WorldSession::HandleAuctionListBidderItems(WorldPackets::AuctionHouse::AuctionListBidderItems& listBidderItems)
+void WorldSession::HandleAuctionListBiddedItems(WorldPackets::AuctionHouse::AuctionListBiddedItems& listBiddedItems)
 {
-    AuctionThrottleResult throttle = sAuctionMgr->CheckThrottle(_player, listBidderItems.TaintedBy.is_initialized());
+    AuctionThrottleResult throttle = sAuctionMgr->CheckThrottle(_player, listBiddedItems.TaintedBy.is_initialized());
     if (throttle.Throttled)
         return;
 
-    Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(listBidderItems.Auctioneer, UNIT_NPC_FLAG_AUCTIONEER, UNIT_NPC_FLAG_2_NONE);
+    Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(listBiddedItems.Auctioneer, UNIT_NPC_FLAG_AUCTIONEER, UNIT_NPC_FLAG_2_NONE);
     if (!creature)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleAuctionListBidderItems - %s not found or you can't interact with him.", listBidderItems.Auctioneer.ToString().c_str());
+        TC_LOG_DEBUG("network", "WORLD: HandleAuctionListBidderItems - %s not found or you can't interact with him.", listBiddedItems.Auctioneer.ToString().c_str());
         return;
     }
 
@@ -192,10 +225,10 @@ void WorldSession::HandleAuctionListBidderItems(WorldPackets::AuctionHouse::Auct
 
     AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(creature->GetFaction());
 
-    WorldPackets::AuctionHouse::AuctionListBidderItemsResult result;
+    WorldPackets::AuctionHouse::AuctionListBiddedItemsResult result;
 
     Player* player = GetPlayer();
-    auctionHouse->BuildListBidderItems(result, player, listBidderItems.Offset, listBidderItems.Sorts.data(), listBidderItems.Sorts.size());
+    auctionHouse->BuildListBiddedItems(result, player, listBiddedItems.Offset, listBiddedItems.Sorts.data(), listBiddedItems.Sorts.size());
     result.DesiredDelay = uint32(throttle.DelayUntilNext.count());
     SendPacket(result.Write());
 }
@@ -294,16 +327,16 @@ void WorldSession::HandleAuctionListItemsByItemID(WorldPackets::AuctionHouse::Au
 }
 
 //this void sends player info about his auctions
-void WorldSession::HandleAuctionListOwnerItems(WorldPackets::AuctionHouse::AuctionListOwnerItems& listOwnerItems)
+void WorldSession::HandleAuctionListOwnedItems(WorldPackets::AuctionHouse::AuctionListOwnedItems& listOwnedItems)
 {
-    AuctionThrottleResult throttle = sAuctionMgr->CheckThrottle(_player, listOwnerItems.TaintedBy.is_initialized());
+    AuctionThrottleResult throttle = sAuctionMgr->CheckThrottle(_player, listOwnedItems.TaintedBy.is_initialized());
     if (throttle.Throttled)
         return;
 
-    Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(listOwnerItems.Auctioneer, UNIT_NPC_FLAG_AUCTIONEER, UNIT_NPC_FLAG_2_NONE);
+    Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(listOwnedItems.Auctioneer, UNIT_NPC_FLAG_AUCTIONEER, UNIT_NPC_FLAG_2_NONE);
     if (!creature)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleAuctionListOwnerItems - %s not found or you can't interact with him.", listOwnerItems.Auctioneer.ToString().c_str());
+        TC_LOG_DEBUG("network", "WORLD: HandleAuctionListOwnerItems - %s not found or you can't interact with him.", listOwnedItems.Auctioneer.ToString().c_str());
         return;
     }
 
@@ -313,9 +346,9 @@ void WorldSession::HandleAuctionListOwnerItems(WorldPackets::AuctionHouse::Aucti
 
     AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(creature->GetFaction());
 
-    WorldPackets::AuctionHouse::AuctionListOwnerItemsResult result;
+    WorldPackets::AuctionHouse::AuctionListOwnedItemsResult result;
 
-    auctionHouse->BuildListOwnerItems(result, _player, listOwnerItems.Offset, listOwnerItems.Sorts.data(), listOwnerItems.Sorts.size());
+    auctionHouse->BuildListOwnedItems(result, _player, listOwnedItems.Offset, listOwnedItems.Sorts.data(), listOwnedItems.Sorts.size());
     result.DesiredDelay = uint32(throttle.DelayUntilNext.count());
     SendPacket(result.Write());
 }
@@ -927,40 +960,6 @@ void WorldSession::HandleAuctionSetFavoriteItem(WorldPackets::AuctionHouse::Auct
     }
 
     CharacterDatabase.CommitTransaction(trans);
-}
-
-void WorldSession::HandleAuctionStartCommoditiesPurchase(WorldPackets::AuctionHouse::AuctionStartCommoditiesPurchase& startCommoditiesPurchase)
-{
-    AuctionThrottleResult throttle = sAuctionMgr->CheckThrottle(_player, startCommoditiesPurchase.TaintedBy.is_initialized(), AuctionCommand::PlaceBid);
-    if (throttle.Throttled)
-        return;
-
-    Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(startCommoditiesPurchase.Auctioneer, UNIT_NPC_FLAG_AUCTIONEER, UNIT_NPC_FLAG_2_NONE);
-    if (!creature)
-    {
-        TC_LOG_DEBUG("network", "WORLD: HandleAuctionStartCommoditiesPurchase - %s not found or you can't interact with him.",
-            startCommoditiesPurchase.Auctioneer.ToString().c_str());
-        return;
-    }
-
-    // remove fake death
-    if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
-        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
-
-    AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(creature->GetFaction());
-
-    WorldPackets::AuctionHouse::AuctionCommodityQuote auctionCommodityQuote;
-
-    if (CommodityQuote const* quote = auctionHouse->CreateCommodityQuote(_player, startCommoditiesPurchase.ItemID, startCommoditiesPurchase.Quantity))
-    {
-        auctionCommodityQuote.TotalPrice = quote->TotalPrice;
-        auctionCommodityQuote.Quantity = quote->Quantity;
-        auctionCommodityQuote.QuoteDuration = std::chrono::duration_cast<Milliseconds>(quote->ValidTo - GameTime::GetGameTimeSteadyPoint()).count();
-    }
-
-    auctionCommodityQuote.DesiredDelay = uint32(throttle.DelayUntilNext.count());
-
-    SendPacket(auctionCommodityQuote.Write());
 }
 
 //this void causes that auction window is opened

@@ -428,14 +428,6 @@ class spell_tyrannus_overlord_brand : public SpellScriptLoader
         {
             PrepareAuraScript(spell_tyrannus_overlord_brand_AuraScript);
 
-        public:
-            spell_tyrannus_overlord_brand_AuraScript()
-            {
-                oldAI = nullptr;
-                oldAIState = false;
-            }
-
-        private:
             bool Load() override
             {
                 return GetCaster() && GetCaster()->GetEntry() == NPC_TYRANNUS;
@@ -470,8 +462,8 @@ class spell_tyrannus_overlord_brand : public SpellScriptLoader
                 AfterEffectRemove += AuraEffectRemoveFn(spell_tyrannus_overlord_brand_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
 
-            PlayerAI* oldAI;
-            bool oldAIState;
+            PlayerAI* oldAI = nullptr;
+            bool oldAIState = false;
         };
 
         AuraScript* GetAuraScript() const override

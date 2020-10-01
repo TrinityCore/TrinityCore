@@ -62,7 +62,7 @@ class TC_GAME_API TempSummon : public Creature
         void SetVisibleBySummonerOnly(bool visibleBySummonerOnly) { m_visibleBySummonerOnly = visibleBySummonerOnly; }
         bool IsVisibleBySummonerOnly() const { return m_visibleBySummonerOnly; }
 
-        const SummonPropertiesEntry* const m_Properties;
+        SummonPropertiesEntry const* const m_Properties;
     private:
         TempSummonType m_type;
         uint32 m_timer;

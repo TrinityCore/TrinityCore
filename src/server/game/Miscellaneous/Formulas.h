@@ -198,7 +198,7 @@ namespace Trinity
 
                 xpMod *= isBattleGround ? sWorld->getRate(RATE_XP_BG_KILL) : sWorld->getRate(RATE_XP_KILL);
                 if (creature && creature->m_PlayerDamageReq) // if players dealt less than 50% of the damage and were credited anyway (due to CREATURE_FLAG_EXTRA_NO_PLAYER_DAMAGE_REQ), scale XP gained appropriately (linear scaling)
-                    xpMod *= 1.0f - 2.0f*creature->m_PlayerDamageReq / creature->GetMaxHealth();
+                    xpMod *= 1.0f - 2.0f * creature->m_PlayerDamageReq / creature->GetMaxHealth();
 
                 gain = uint32(gain * xpMod);
             }

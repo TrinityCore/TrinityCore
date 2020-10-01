@@ -300,7 +300,7 @@ class TC_GAME_API Battlefield : public ZoneScript
 
         // Graveyard methods
         // Find which graveyard the player must be teleported to to be resurrected by spiritguide
-        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
+        WorldSafeLocsEntry const* GetClosestGraveyard(Player* player);
 
         virtual void AddPlayerToResurrectQueue(ObjectGuid npc_guid, ObjectGuid player_guid);
         void RemovePlayerFromResurrectQueue(ObjectGuid player_guid);

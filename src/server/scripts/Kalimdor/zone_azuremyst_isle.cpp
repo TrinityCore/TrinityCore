@@ -32,8 +32,8 @@ npc_death_ravager
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "GameObjectAI.h"
 #include "CellImpl.h"
+#include "GameObjectAI.h"
 #include "GridNotifiersImpl.h"
 #include "Log.h"
 #include "MotionMaster.h"
@@ -107,7 +107,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell) override
+        void SpellHit(Unit* caster, SpellInfo const* spell) override
         {
             if (spell->SpellFamilyFlags[2] & 0x80000000 && !_tappedBySpell)
             {

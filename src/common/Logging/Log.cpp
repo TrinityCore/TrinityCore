@@ -61,7 +61,7 @@ void Log::CreateAppenderFromConfig(std::string const& appenderName)
     if (appenderName.empty())
         return;
 
-    // Format=type, level, flags, optional1, optional2
+    // Format = type, level, flags, optional1, optional2
     // if type = File. optional1 = file and option2 = mode
     // if type = Console. optional1 = Color
     std::string options = sConfigMgr->GetStringDefault(appenderName.c_str(), "");
@@ -213,7 +213,7 @@ void Log::RegisterAppender(uint8 index, AppenderCreatorFn appenderCreateFn)
     appenderFactory[index] = appenderCreateFn;
 }
 
-void Log::outMessage(std::string const& filter, LogLevel const level, std::string&& message)
+void Log::outMessage(std::string const& filter, LogLevel level, std::string&& message)
 {
     write(std::make_unique<LogMessage>(level, filter, std::move(message)));
 }
@@ -279,7 +279,7 @@ std::string Log::GetTimestampStr()
     }
 }
 
-bool Log::SetLogLevel(std::string const& name, const char* newLevelc, bool isLogger /* = true */)
+bool Log::SetLogLevel(std::string const& name, char const* newLevelc, bool isLogger /* = true */)
 {
     LogLevel newLevel = LogLevel(atoi(newLevelc));
     if (newLevel < 0)

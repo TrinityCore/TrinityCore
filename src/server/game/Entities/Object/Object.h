@@ -401,8 +401,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void UpdateGroundPositionZ(float x, float y, float &z) const;
         void UpdateAllowedPositionZ(float x, float y, float &z) const;
 
-        void GetRandomPoint(Position const &srcPos, float distance, float &rand_x, float &rand_y, float &rand_z) const;
-        Position GetRandomPoint(Position const &srcPos, float distance) const;
+        void GetRandomPoint(Position const& srcPos, float distance, float& rand_x, float& rand_y, float& rand_z) const;
+        Position GetRandomPoint(Position const& srcPos, float distance) const;
 
         uint32 GetInstanceId() const { return m_InstanceId; }
 
@@ -433,7 +433,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         std::string GetNameForLocaleIdx(LocaleConstant /*locale*/) const override { return m_name; }
 
         float GetDistance(WorldObject const* obj) const;
-        float GetDistance(Position const &pos) const;
+        float GetDistance(Position const& pos) const;
         float GetDistance(float x, float y, float z) const;
         float GetDistance2d(WorldObject const* obj) const;
         float GetDistance2d(float x, float y) const;

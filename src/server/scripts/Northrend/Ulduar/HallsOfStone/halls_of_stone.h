@@ -69,10 +69,10 @@ enum HOSGameObjectIds
     GO_TRIBUNAL_SKY_FLOOR       = 191527
 };
 
-template<typename AI>
-inline AI* GetHallsOfStoneAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetHallsOfStoneAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, HoSScriptName);
+    return GetInstanceAI<AI>(obj, HoSScriptName);
 }
 
 #endif // HALLS_OF_STONE_H_

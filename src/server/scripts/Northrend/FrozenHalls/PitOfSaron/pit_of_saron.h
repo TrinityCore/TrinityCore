@@ -121,10 +121,10 @@ class ScheduledIcicleSummons : public BasicEvent
         Creature* _trigger;
 };
 
-template<typename AI>
-inline AI* GetPitOfSaronAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetPitOfSaronAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, PoSScriptName);
+    return GetInstanceAI<AI>(obj, PoSScriptName);
 }
 
 #endif // PIT_OF_SARON_H_

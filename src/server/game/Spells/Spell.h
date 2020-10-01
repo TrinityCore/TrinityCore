@@ -954,4 +954,5 @@ namespace Trinity
 }
 
 typedef void(Spell::*pEffect)(SpellEffIndex effIndex);
+
 #endif

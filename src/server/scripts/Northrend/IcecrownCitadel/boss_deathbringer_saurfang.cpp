@@ -1010,11 +1010,7 @@ class spell_deathbringer_blood_link : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                return ValidateSpellInfo(
-                {
-                    SPELL_BLOOD_LINK_POWER,
-                    SPELL_BLOOD_POWER
-                });
+                return ValidateSpellInfo({ SPELL_BLOOD_LINK_POWER, SPELL_BLOOD_POWER });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)

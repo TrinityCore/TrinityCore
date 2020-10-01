@@ -67,6 +67,7 @@ bool VendorItemData::RemoveItem(uint32 item_id, uint8 type)
     {
         return vendorItem.item == item_id && vendorItem.Type == type;
     });
+
     bool found = newEnd != m_items.end();
     m_items.erase(newEnd, m_items.end());
     return found;
@@ -812,7 +813,7 @@ void Creature::Update(uint32 diff)
 
                 if (m_combatPulseTime == 0)
                 {
-                    Map::PlayerList const &players = GetMap()->GetPlayers();
+                    Map::PlayerList const& players = GetMap()->GetPlayers();
                     if (!players.isEmpty())
                         for (Map::PlayerList::const_iterator it = players.begin(); it != players.end(); ++it)
                         {
@@ -2190,7 +2191,7 @@ void Creature::ForcedDespawn(uint32 timeMSToDespawn, Seconds const& forceRespawn
 
 void Creature::DespawnOrUnsummon(uint32 msTimeToDespawn /*= 0*/, Seconds const& forceRespawnTimer /*= 0*/)
 {
-    if (TempSummon* summon = this->ToTempSummon())
+    if (TempSummon* summon = ToTempSummon())
         summon->UnSummon(msTimeToDespawn);
     else
         ForcedDespawn(msTimeToDespawn, forceRespawnTimer);
@@ -2456,7 +2457,7 @@ void Creature::CallForHelp(float radius)
     Cell::VisitGridObjects(this, worker, radius);
 }
 
-bool Creature::CanAssistTo(const Unit* u, const Unit* enemy, bool checkfaction /*= true*/) const
+bool Creature::CanAssistTo(Unit const* u, Unit const* enemy, bool checkfaction /*= true*/) const
 {
     if (IsInEvadeMode())
         return false;
@@ -2730,7 +2731,7 @@ void Creature::SetInCombatWithZone()
         return;
     }
 
-    Map::PlayerList const &PlList = map->GetPlayers();
+    Map::PlayerList const& PlList = map->GetPlayers();
 
     if (PlList.isEmpty())
         return;
@@ -3057,7 +3058,7 @@ float Creature::GetAggroRange(Unit const* target) const
     // Determines the aggro range for creatures (usually pets), used mainly for aggressive pet target selection.
     // Based on data from wowwiki due to lack of 3.3.5a data
 
-    if (target && this->IsPet())
+    if (target && IsPet())
     {
         uint32 targetLevel = 0;
 

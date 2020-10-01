@@ -222,7 +222,7 @@ public:
                 std::bind(&BossAI::DoMeleeAttackIfReady, this));
         }
 
-        void SpellHit(Unit* /*source*/, const SpellInfo* spell) override
+        void SpellHit(Unit* /*source*/, SpellInfo const* spell) override
         {
             if (spell->Mechanic == MECHANIC_DISARM)
                 Talk(SAY_DISARMED);

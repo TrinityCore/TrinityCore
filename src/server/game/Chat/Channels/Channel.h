@@ -24,6 +24,7 @@
 #include <unordered_set>
 
 class Player;
+struct AreaTableEntry;
 
 namespace WorldPackets
 {
@@ -32,8 +33,6 @@ namespace WorldPackets
         class ChannelNotify;
     }
 }
-
-struct AreaTableEntry;
 
 enum ChatNotify
 {

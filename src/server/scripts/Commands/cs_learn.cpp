@@ -288,9 +288,9 @@ public:
 
     static bool HandleLearnAllLangCommand(ChatHandler* handler, char const* /*args*/)
     {
-        // skipping UNIVERSAL language (0)
-        for (uint8 i = 1; i < LANGUAGES_COUNT; ++i)
-            handler->GetSession()->GetPlayer()->LearnSpell(lang_description[i].spell_id, false);
+        for (LanguageDesc const& langDesc : lang_description)
+            if (uint32 langSpellId = langDesc.spell_id)
+                handler->GetSession()->GetPlayer()->LearnSpell(langSpellId, false);
 
         handler->SendSysMessage(LANG_COMMAND_LEARN_ALL_LANG);
         return true;

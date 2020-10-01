@@ -49,5 +49,4 @@ inline AI* GetOldHillsbradAI(T* obj)
     return GetInstanceAI<AI>(obj, OHScriptName);
 }
 
-
 #endif

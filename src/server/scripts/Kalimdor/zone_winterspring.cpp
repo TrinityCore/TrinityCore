@@ -29,8 +29,8 @@ go_elune_fire
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "GameObjectAI.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"

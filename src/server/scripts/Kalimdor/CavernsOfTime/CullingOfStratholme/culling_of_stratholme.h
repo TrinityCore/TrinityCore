@@ -103,10 +103,10 @@ enum CSInstanceEvents
     EVENT_INFINITE_TIMER    = 1
 };
 
-template<typename AI>
-inline AI* GetCullingOfStratholmeAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetCullingOfStratholmeAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, CoSScriptName);
+    return GetInstanceAI<AI>(obj, CoSScriptName);
 }
 
 #endif

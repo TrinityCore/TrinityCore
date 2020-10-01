@@ -27,7 +27,7 @@
 #include "SpellMgr.h"
 #include "WorldSession.h"
 
-static inline Pet* GetSelectedPlayerPetOrOwn(ChatHandler* handler)
+inline Pet* GetSelectedPlayerPetOrOwn(ChatHandler* handler)
 {
     if (Unit* target = handler->getSelectedUnit())
     {
@@ -40,6 +40,7 @@ static inline Pet* GetSelectedPlayerPetOrOwn(ChatHandler* handler)
     Player* player = handler->GetSession()->GetPlayer();
     return player ? player->GetPet() : nullptr;
 }
+
 class pet_commandscript : public CommandScript
 {
 public:

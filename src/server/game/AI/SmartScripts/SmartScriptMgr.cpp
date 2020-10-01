@@ -16,8 +16,8 @@
  */
 
 #include "SmartScriptMgr.h"
-#include "DB2Stores.h"
 #include "CreatureTextMgr.h"
+#include "DB2Stores.h"
 #include "DatabaseEnv.h"
 #include "GameEventMgr.h"
 #include "InstanceScript.h"

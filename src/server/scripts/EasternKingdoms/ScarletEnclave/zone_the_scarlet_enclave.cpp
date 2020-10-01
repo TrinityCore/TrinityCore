@@ -131,10 +131,11 @@ public:
                         break;
                 }
                 ++phase;
-            } else FlyBackTimer-=diff;
+            }
+            else
+                FlyBackTimer -= diff;
         }
     };
-
 };
 
 void AddSC_the_scarlet_enclave()

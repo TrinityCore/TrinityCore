@@ -299,7 +299,7 @@ void WorldSession::SendSpiritResurrect()
     WorldLocation corpseLocation = _player->GetCorpseLocation();
     if (_player->HasCorpse())
     {
-        corpseGrave = sObjectMgr->GetClosestGraveYard(corpseLocation, _player->GetTeam(), _player);
+        corpseGrave = sObjectMgr->GetClosestGraveyard(corpseLocation, _player->GetTeam(), _player);
     }
 
     // now can spawn bones
@@ -308,7 +308,7 @@ void WorldSession::SendSpiritResurrect()
     // teleport to nearest from corpse graveyard, if different from nearest to player ghost
     if (corpseGrave)
     {
-        WorldSafeLocsEntry const* ghostGrave = sObjectMgr->GetClosestGraveYard(*_player, _player->GetTeam(), _player);
+        WorldSafeLocsEntry const* ghostGrave = sObjectMgr->GetClosestGraveyard(*_player, _player->GetTeam(), _player);
 
         if (corpseGrave != ghostGrave)
             _player->TeleportTo(corpseGrave->Loc);

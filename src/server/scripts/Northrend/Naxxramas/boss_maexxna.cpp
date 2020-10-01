@@ -87,7 +87,7 @@ struct WebTargetSelector : public std::unary_function<Unit*, bool>
     }
 
     private:
-        const Unit* _maexxna;
+        Unit const* _maexxna;
 };
 
 class boss_maexxna : public CreatureScript

@@ -15,16 +15,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "GameObject.h"
 #include "ScriptMgr.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "karazhan.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "GameObjectAI.h"
-#include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "SpellScript.h"
 
 enum NightbaneSpells
 {
@@ -118,11 +118,6 @@ class boss_nightbane : public CreatureScript
 {
 public:
     boss_nightbane() : CreatureScript("boss_nightbane") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetKarazhanAI<boss_nightbaneAI>(creature);
-    }
 
     struct boss_nightbaneAI : public BossAI
     {
@@ -381,6 +376,11 @@ public:
         private:
             uint8 _flyCount;
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetKarazhanAI<boss_nightbaneAI>(creature);
+    }
 };
 
 // 37098 - Rain of Bones

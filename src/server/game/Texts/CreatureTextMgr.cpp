@@ -334,7 +334,7 @@ void CreatureTextMgr::SendNonChatPacket(WorldObject* source, WorldPacket const* 
                 if (!whisperTarget || whisperTarget->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                whisperTarget->ToPlayer()->GetSession()->SendPacket(data);
+                whisperTarget->ToPlayer()->SendDirectMessage(data);
                 return;
             }
             break;

@@ -187,7 +187,7 @@ void HandleArgs(int argc, char* arg[])
                 break;
             case 'f':
                 if (c + 1 < argc)                            // all ok
-                    CONF_allow_float_to_int = atoi(arg[c++ + 1])!=0;
+                    CONF_allow_float_to_int = atoi(arg[c++ + 1]) != 0;
                 else
                     Usage(arg[0]);
                 break;
@@ -853,12 +853,12 @@ bool ConvertADT(ChunkedFile& adt, std::string const& mapName, std::string const&
             float diff = maxHeight - minHeight;
             if (diff < CONF_float_to_int8_limit)      // As uint8 (max accuracy = CONF_float_to_int8_limit/256)
             {
-                heightHeader.flags|=MAP_HEIGHT_AS_INT8;
+                heightHeader.flags |= MAP_HEIGHT_AS_INT8;
                 step = selectUInt8StepStore(diff);
             }
-            else if (diff<CONF_float_to_int16_limit)  // As uint16 (max accuracy = CONF_float_to_int16_limit/65536)
+            else if (diff < CONF_float_to_int16_limit)  // As uint16 (max accuracy = CONF_float_to_int16_limit/65536)
             {
-                heightHeader.flags|=MAP_HEIGHT_AS_INT16;
+                heightHeader.flags |= MAP_HEIGHT_AS_INT16;
                 step = selectUInt16StepStore(diff);
             }
         }
@@ -996,30 +996,30 @@ bool ConvertADT(ChunkedFile& adt, std::string const& mapName, std::string const&
         return false;
     }
 
-    outFile.write(reinterpret_cast<const char*>(&map), sizeof(map));
+    outFile.write(reinterpret_cast<char const*>(&map), sizeof(map));
     // Store area data
-    outFile.write(reinterpret_cast<const char*>(&areaHeader), sizeof(areaHeader));
+    outFile.write(reinterpret_cast<char const*>(&areaHeader), sizeof(areaHeader));
     if (!(areaHeader.flags & MAP_AREA_NO_AREA))
-        outFile.write(reinterpret_cast<const char*>(area_ids), sizeof(area_ids));
+        outFile.write(reinterpret_cast<char const*>(area_ids), sizeof(area_ids));
 
     // Store height data
-    outFile.write(reinterpret_cast<const char*>(&heightHeader), sizeof(heightHeader));
+    outFile.write(reinterpret_cast<char const*>(&heightHeader), sizeof(heightHeader));
     if (!(heightHeader.flags & MAP_HEIGHT_NO_HEIGHT))
     {
         if (heightHeader.flags & MAP_HEIGHT_AS_INT16)
         {
-            outFile.write(reinterpret_cast<const char*>(uint16_V9), sizeof(uint16_V9));
-            outFile.write(reinterpret_cast<const char*>(uint16_V8), sizeof(uint16_V8));
+            outFile.write(reinterpret_cast<char const*>(uint16_V9), sizeof(uint16_V9));
+            outFile.write(reinterpret_cast<char const*>(uint16_V8), sizeof(uint16_V8));
         }
         else if (heightHeader.flags & MAP_HEIGHT_AS_INT8)
         {
-            outFile.write(reinterpret_cast<const char*>(uint8_V9), sizeof(uint8_V9));
-            outFile.write(reinterpret_cast<const char*>(uint8_V8), sizeof(uint8_V8));
+            outFile.write(reinterpret_cast<char const*>(uint8_V9), sizeof(uint8_V9));
+            outFile.write(reinterpret_cast<char const*>(uint8_V8), sizeof(uint8_V8));
         }
         else
         {
-            outFile.write(reinterpret_cast<const char*>(V9), sizeof(V9));
-            outFile.write(reinterpret_cast<const char*>(V8), sizeof(V8));
+            outFile.write(reinterpret_cast<char const*>(V9), sizeof(V9));
+            outFile.write(reinterpret_cast<char const*>(V8), sizeof(V8));
         }
     }
 
@@ -1032,23 +1032,23 @@ bool ConvertADT(ChunkedFile& adt, std::string const& mapName, std::string const&
     // Store liquid data if need
     if (map.liquidMapOffset)
     {
-        outFile.write(reinterpret_cast<const char*>(&liquidHeader), sizeof(liquidHeader));
+        outFile.write(reinterpret_cast<char const*>(&liquidHeader), sizeof(liquidHeader));
         if (!(liquidHeader.flags & MAP_LIQUID_NO_TYPE))
         {
-            outFile.write(reinterpret_cast<const char*>(liquid_entry), sizeof(liquid_entry));
-            outFile.write(reinterpret_cast<const char*>(liquid_flags), sizeof(liquid_flags));
+            outFile.write(reinterpret_cast<char const*>(liquid_entry), sizeof(liquid_entry));
+            outFile.write(reinterpret_cast<char const*>(liquid_flags), sizeof(liquid_flags));
         }
 
         if (!(liquidHeader.flags & MAP_LIQUID_NO_HEIGHT))
         {
             for (int y = 0; y < liquidHeader.height; y++)
-                outFile.write(reinterpret_cast<const char*>(&liquid_height[y + liquidHeader.offsetY][liquidHeader.offsetX]), sizeof(float) * liquidHeader.width);
+                outFile.write(reinterpret_cast<char const*>(&liquid_height[y + liquidHeader.offsetY][liquidHeader.offsetX]), sizeof(float) * liquidHeader.width);
         }
     }
 
     // store hole data
     if (hasHoles)
-        outFile.write(reinterpret_cast<const char*>(holes), map.holesSize);
+        outFile.write(reinterpret_cast<char const*>(holes), map.holesSize);
 
     outFile.close();
 

@@ -1,3 +1,20 @@
+/*
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #ifndef _REGULAR_GRID_H
 #define _REGULAR_GRID_H
 
@@ -86,15 +103,18 @@ public:
     struct Cell
     {
         int x, y;
-        bool operator == (const Cell& c2) const { return x == c2.x && y == c2.y;}
+        bool operator==(Cell const& c2) const
+        {
+            return x == c2.x && y == c2.y;
+        }
 
         static Cell ComputeCell(float fx, float fy)
         {
-            Cell c = { int(fx * (1.f/CELL_SIZE) + (CELL_NUMBER/2)), int(fy * (1.f/CELL_SIZE) + (CELL_NUMBER/2)) };
+            Cell c = { int(fx * (1.f / CELL_SIZE) + (CELL_NUMBER / 2)), int(fy * (1.f / CELL_SIZE) + (CELL_NUMBER / 2)) };
             return c;
         }
 
-        bool isValid() const { return x >= 0 && x < CELL_NUMBER && y >= 0 && y < CELL_NUMBER;}
+        bool isValid() const { return x >= 0 && x < CELL_NUMBER && y >= 0 && y < CELL_NUMBER; }
     };
 
     Node& getGrid(int x, int y)

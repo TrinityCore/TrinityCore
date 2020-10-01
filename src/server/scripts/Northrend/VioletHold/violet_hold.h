@@ -155,7 +155,7 @@ enum VHInstanceMisc
     POINT_INTRO                                 = 1
 };
 
-template<class AI, class T>
+template <class AI, class T>
 inline AI* GetVioletHoldAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, VioletHoldScriptName);

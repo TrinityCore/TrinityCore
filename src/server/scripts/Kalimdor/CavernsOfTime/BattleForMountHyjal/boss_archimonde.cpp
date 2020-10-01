@@ -141,7 +141,7 @@ public:
         {
             if (CheckTimer <= diff)
             {
-                if (Unit* Archimonde = ObjectAccessor::GetUnit(*me, ArchimondeGUID))
+                if (Creature* Archimonde = ObjectAccessor::GetCreature(*me, ArchimondeGUID))
                 {
                     if (Archimonde->HealthBelowPct(2) || !Archimonde->IsAlive())
                         DoCast(me, SPELL_DENOUEMENT_WISP);

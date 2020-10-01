@@ -65,10 +65,10 @@ enum TEGameObjectIds
     GO_ARCANE_DOOR_RIGHT                = 184325
 };
 
-template<typename AI>
-inline AI* GetTheEyeAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetTheEyeAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, TheEyeScriptName);
+    return GetInstanceAI<AI>(obj, TheEyeScriptName);
 }
 
 #endif

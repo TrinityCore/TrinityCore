@@ -74,13 +74,6 @@ class spell_rog_blade_flurry : public SpellScriptLoader
         {
             PrepareAuraScript(spell_rog_blade_flurry_AuraScript);
 
-        public:
-            spell_rog_blade_flurry_AuraScript()
-            {
-                _procTarget = nullptr;
-            }
-
-        private:
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK });
@@ -112,8 +105,7 @@ class spell_rog_blade_flurry : public SpellScriptLoader
                     OnEffectProc += AuraEffectProcFn(spell_rog_blade_flurry_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_MOD_MELEE_HASTE);
             }
 
-        private:
-            Unit* _procTarget;
+            Unit* _procTarget = nullptr;
         };
 
         AuraScript* GetAuraScript() const override
@@ -132,14 +124,7 @@ class spell_rog_cheat_death : public SpellScriptLoader
         {
             PrepareAuraScript(spell_rog_cheat_death_AuraScript);
 
-        public:
-            spell_rog_cheat_death_AuraScript()
-            {
-                absorbChance = 0;
-            }
-
-        private:
-            uint32 absorbChance;
+            uint32 absorbChance = 0;
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
@@ -234,13 +219,6 @@ class spell_rog_deadly_poison : public SpellScriptLoader
         {
             PrepareSpellScript(spell_rog_deadly_poison_SpellScript);
 
-        public:
-            spell_rog_deadly_poison_SpellScript()
-            {
-                _stackAmount = 0;
-            }
-
-        private:
             bool Load() override
             {
                 // at this point CastItem must already be initialized
@@ -318,7 +296,7 @@ class spell_rog_deadly_poison : public SpellScriptLoader
                 AfterHit += SpellHitFn(spell_rog_deadly_poison_SpellScript::HandleAfterHit);
             }
 
-            uint8 _stackAmount;
+            uint8 _stackAmount = 0;
         };
 
         SpellScript* GetSpellScript() const override
@@ -765,16 +743,13 @@ class spell_rog_tricks_of_the_trade : public SpellScriptLoader
         {
             PrepareAuraScript(spell_rog_tricks_of_the_trade_AuraScript);
 
-        public:
-            spell_rog_tricks_of_the_trade_AuraScript()
-            {
-                _redirectTarget = nullptr;
-            }
-
-        private:
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                return ValidateSpellInfo({ SPELL_ROGUE_TRICKS_OF_THE_TRADE_DMG_BOOST, SPELL_ROGUE_TRICKS_OF_THE_TRADE_PROC });
+                return ValidateSpellInfo(
+                {
+                    SPELL_ROGUE_TRICKS_OF_THE_TRADE_DMG_BOOST,
+                    SPELL_ROGUE_TRICKS_OF_THE_TRADE_PROC
+                });
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -806,8 +781,7 @@ class spell_rog_tricks_of_the_trade : public SpellScriptLoader
                 OnEffectProc += AuraEffectProcFn(spell_rog_tricks_of_the_trade_AuraScript::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
             }
 
-        private:
-            Unit* _redirectTarget;
+            Unit* _redirectTarget = nullptr;
         };
 
         AuraScript* GetAuraScript() const override
@@ -890,10 +864,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            return ValidateSpellInfo(
-            {
-                SPELL_ROGUE_HONOR_AMONG_THIEVES_ENERGIZE
-            });
+            return ValidateSpellInfo({ SPELL_ROGUE_HONOR_AMONG_THIEVES_ENERGIZE });
         }
 
         void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)

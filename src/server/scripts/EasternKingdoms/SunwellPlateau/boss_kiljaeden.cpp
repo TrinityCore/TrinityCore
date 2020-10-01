@@ -26,13 +26,13 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "Log.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
-#include "GameObjectAI.h"
 #include "sunwell_plateau.h"
 #include "TemporarySummon.h"
 #include <cmath>
@@ -707,7 +707,7 @@ public:
                         case TIMER_SPEECH:
                             if (SpeechBegins)
                             {
-                                SpeechBegins=false;
+                                SpeechBegins = false;
                                 switch (Phase)
                                 {
                                     case PHASE_NORMAL:

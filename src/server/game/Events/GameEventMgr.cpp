@@ -467,7 +467,7 @@ void GameEventMgr::LoadFromDB()
 
         //                                                       0           1                       2                                 3                                     4
         QueryResult result = WorldDatabase.Query("SELECT creature.guid, creature.id, game_event_model_equip.eventEntry, game_event_model_equip.modelid, game_event_model_equip.equipment_id "
-                                                 "FROM creature JOIN game_event_model_equip ON creature.guid=game_event_model_equip.guid");
+                                                 "FROM creature JOIN game_event_model_equip ON creature.guid = game_event_model_equip.guid");
 
         if (!result)
             TC_LOG_INFO("server.loading", ">> Loaded 0 model/equipment changes in game events. DB table `game_event_model_equip` is empty.");

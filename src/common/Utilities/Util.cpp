@@ -101,7 +101,7 @@ void stripLineInvisibleChars(std::string &str)
 }
 
 #if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
-struct tm* localtime_r(const time_t* time, struct tm *result)
+struct tm* localtime_r(time_t const* time, struct tm *result)
 {
     localtime_s(result, time);
     return result;
@@ -131,7 +131,7 @@ std::string secsToTimeString(uint64 timeInSecs, bool shortText, bool hoursOnly)
     return ss.str();
 }
 
-int64 MoneyStringToMoney(const std::string& moneyString)
+int64 MoneyStringToMoney(std::string const& moneyString)
 {
     int64 money = 0;
 
@@ -162,7 +162,7 @@ int64 MoneyStringToMoney(const std::string& moneyString)
     return money;
 }
 
-uint32 TimeStringToSecs(const std::string& timestring)
+uint32 TimeStringToSecs(std::string const& timestring)
 {
     uint32 secs       = 0;
     uint32 buffer     = 0;

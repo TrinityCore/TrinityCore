@@ -16,13 +16,12 @@
  */
 
 #include "ScriptMgr.h"
+#include "black_temple.h"
 #include "GridNotifiers.h"
 #include "ObjectAccessor.h"
 #include "PassiveAI.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-
-#include "black_temple.h"
 
 enum Says
 {

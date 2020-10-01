@@ -245,7 +245,7 @@ public:
         
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            return ValidateSpellInfo({ SPELL_GENERIC_DISMOUNT, SPELL_TRUE_FULFILLMENT_2 });
+            return ValidateSpellInfo({ SPELL_TRUE_FULFILLMENT_2, SPELL_GENERIC_DISMOUNT });
         }
 
         void HandleEffect(SpellEffIndex /*effIndex*/)

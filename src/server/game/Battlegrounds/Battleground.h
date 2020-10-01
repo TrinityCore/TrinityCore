@@ -42,7 +42,7 @@ namespace WorldPackets
 {
     namespace Battleground
     {
-        struct PVPLogData;
+        struct PVPMatchStatistics;
         struct BattlegroundPlayerPosition;
     }
 
@@ -401,7 +401,7 @@ class TC_GAME_API Battleground
         Group* GetBgRaid(uint32 TeamID) const { return TeamID == ALLIANCE ? m_BgRaids[TEAM_ALLIANCE] : m_BgRaids[TEAM_HORDE]; }
         void SetBgRaid(uint32 TeamID, Group* bg_raid);
 
-        virtual void BuildPvPLogDataPacket(WorldPackets::Battleground::PVPLogData& pvpLogData) const;
+        virtual void BuildPvPLogDataPacket(WorldPackets::Battleground::PVPMatchStatistics& pvpLogData) const;
         virtual bool UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor = true);
 
         static TeamId GetTeamIndexByTeamId(uint32 Team) { return Team == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
@@ -444,7 +444,7 @@ class TC_GAME_API Battleground
         virtual void HandlePlayerResurrect(Player* /*player*/) { }
 
         // Death related
-        virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
+        virtual WorldSafeLocsEntry const* GetClosestGraveyard(Player* player);
 
         virtual WorldSafeLocsEntry const* GetExploitTeleportLocation(Team /*team*/) { return nullptr; }
         // GetExploitTeleportLocation(TeamId) must be implemented in the battleground subclass.
@@ -507,10 +507,10 @@ class TC_GAME_API Battleground
         void EndNow();
         void PlayerAddedToBGCheckIfBGIsRunning(Player* player);
 
-        Player* _GetPlayer(ObjectGuid guid, bool offlineRemove, const char* context) const;
-        Player* _GetPlayer(BattlegroundPlayerMap::iterator itr, const char* context) { return _GetPlayer(itr->first, itr->second.OfflineRemoveTime != 0, context); }
-        Player* _GetPlayer(BattlegroundPlayerMap::const_iterator itr, const char* context) const { return _GetPlayer(itr->first, itr->second.OfflineRemoveTime != 0, context); }
-        Player* _GetPlayerForTeam(uint32 teamId, BattlegroundPlayerMap::const_iterator itr, const char* context) const;
+        Player* _GetPlayer(ObjectGuid guid, bool offlineRemove, char const* context) const;
+        Player* _GetPlayer(BattlegroundPlayerMap::iterator itr, char const* context) { return _GetPlayer(itr->first, itr->second.OfflineRemoveTime != 0, context); }
+        Player* _GetPlayer(BattlegroundPlayerMap::const_iterator itr, char const* context) const { return _GetPlayer(itr->first, itr->second.OfflineRemoveTime != 0, context); }
+        Player* _GetPlayerForTeam(uint32 teamId, BattlegroundPlayerMap::const_iterator itr, char const* context) const;
 
         /* Pre- and post-update hooks */
 

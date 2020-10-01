@@ -30,7 +30,6 @@
 #include "QueryPackets.h"
 #include "Realm.h"
 #include "World.h"
-#include "WorldPacket.h"
 
 void WorldSession::SendNameQueryOpcode(ObjectGuid guid)
 {

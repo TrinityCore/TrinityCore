@@ -36,8 +36,7 @@ void OutdoorPvPMgr::Die()
 
     m_OutdoorPvPSet.clear();
 
-    for (uint32 i = 0; i < MAX_OUTDOORPVP_TYPES; ++i)
-        m_OutdoorPvPDatas[i] = 0;
+    m_OutdoorPvPDatas.fill(0);
 
     m_OutdoorPvPMap.clear();
 }

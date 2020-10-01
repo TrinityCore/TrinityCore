@@ -504,8 +504,6 @@ enum YoggSaronIllusions
     STORMWIND_ILLUSION          = 2,
 };
 
-#define RegisterUlduarCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetUlduarAI)
-
 class KeeperDespawnEvent : public BasicEvent
 {
 public:
@@ -523,10 +521,12 @@ private:
     uint32 _despawnTimer;
 };
 
-template<typename AI, typename T>
+template <class AI, class T>
 inline AI* GetUlduarAI(T* obj)
 {
-    return GetInstanceAI<AI>(obj, UlduarScriptName);
+    return GetInstanceAI<AI, T>(obj, UlduarScriptName);
 }
+
+#define RegisterUlduarCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetUlduarAI)
 
 #endif

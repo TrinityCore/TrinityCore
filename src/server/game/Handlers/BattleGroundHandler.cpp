@@ -168,7 +168,6 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPackets::Battleground::Batt
 
         BattlegroundQueue& bgQueue = sBattlegroundMgr->GetBattlegroundQueue(bgQueueTypeId);
         GroupQueueInfo* ginfo = bgQueue.AddGroup(_player, nullptr, bgTypeId, bracketEntry, 0, false, isPremade, 0, 0);
-
         uint32 avgTime = bgQueue.GetAverageQueueWaitTime(ginfo, bracketEntry->GetBracketId());
         uint32 queueSlot = _player->AddBattlegroundQueueId(bgQueueTypeId);
 
@@ -240,9 +239,9 @@ void WorldSession::HandlePVPLogDataOpcode(WorldPackets::Battleground::PVPLogData
     if (bg->isArena())
         return;
 
-    WorldPackets::Battleground::PVPLogDataMessage pvpLogData;
-    bg->BuildPvPLogDataPacket(pvpLogData.Data);
-    SendPacket(pvpLogData.Write());
+    WorldPackets::Battleground::PVPMatchStatisticsMessage pvpMatchStatistics;
+    bg->BuildPvPLogDataPacket(pvpMatchStatistics.Data);
+    SendPacket(pvpMatchStatistics.Write());
 }
 
 void WorldSession::HandleBattlefieldListOpcode(WorldPackets::Battleground::BattlefieldListRequest& battlefieldList)
@@ -603,8 +602,8 @@ void WorldSession::HandleReportPvPAFK(WorldPackets::Battleground::ReportPvPPlaye
 
 void WorldSession::HandleRequestRatedBattlefieldInfo(WorldPackets::Battleground::RequestRatedBattlefieldInfo& /*packet*/)
 {
-    WorldPackets::Battleground::RatedBattlefieldInfo ratedBattlefieldInfo;
-    SendPacket(ratedBattlefieldInfo.Write());
+    WorldPackets::Battleground::RatedPvpInfo ratedPvpInfo;
+    SendPacket(ratedPvpInfo.Write());
 }
 
 void WorldSession::HandleGetPVPOptionsEnabled(WorldPackets::Battleground::GetPVPOptionsEnabled& /*getPvPOptionsEnabled*/)

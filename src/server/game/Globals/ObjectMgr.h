@@ -138,14 +138,14 @@ enum ScriptCommands
 
 enum ChatType
 {
-    CHAT_TYPE_SAY               = 0,
-    CHAT_TYPE_YELL              = 1,
-    CHAT_TYPE_TEXT_EMOTE        = 2,
-    CHAT_TYPE_BOSS_EMOTE        = 3,
-    CHAT_TYPE_WHISPER           = 4,
-    CHAT_TYPE_BOSS_WHISPER      = 5,
-    CHAT_TYPE_ZONE_YELL         = 6,
-    CHAT_TYPE_END               = 255
+    CHAT_TYPE_SAY                = 0,
+    CHAT_TYPE_YELL               = 1,
+    CHAT_TYPE_TEXT_EMOTE         = 2,
+    CHAT_TYPE_BOSS_EMOTE         = 3,
+    CHAT_TYPE_WHISPER            = 4,
+    CHAT_TYPE_BOSS_WHISPER       = 5,
+    CHAT_TYPE_ZONE_YELL          = 6,
+    CHAT_TYPE_END                = 255
 };
 
 typedef std::map<uint32, PageText> PageTextContainer;
@@ -567,55 +567,51 @@ struct PlayerCreateInfoItem
 {
     PlayerCreateInfoItem(uint32 id, uint32 amount) : item_id(id), item_amount(amount) { }
 
-    uint32 item_id;
-    uint32 item_amount;
+    uint32 item_id = 0;
+    uint32 item_amount = 0;
 };
 
-typedef std::list<PlayerCreateInfoItem> PlayerCreateInfoItems;
+typedef std::vector<PlayerCreateInfoItem> PlayerCreateInfoItems;
 
 struct PlayerLevelInfo
 {
-    PlayerLevelInfo() { for (uint8 i = 0; i < MAX_STATS; ++i) stats[i] = 0; }
-
-    uint16 stats[MAX_STATS];
+    uint16 stats[MAX_STATS] = { };
 };
 
-typedef std::list<uint32> PlayerCreateInfoSpells;
+typedef std::vector<uint32> PlayerCreateInfoSpells;
 
 struct PlayerCreateInfoAction
 {
-    PlayerCreateInfoAction() : button(0), type(0), action(0) { }
     PlayerCreateInfoAction(uint8 _button, uint32 _action, uint8 _type) : button(_button), type(_type), action(_action) { }
 
-    uint8 button;
-    uint8 type;
-    uint32 action;
+    uint8 button = 0;
+    uint8 type = 0;
+    uint32 action = 0;
 };
 
-typedef std::list<PlayerCreateInfoAction> PlayerCreateInfoActions;
+typedef std::vector<PlayerCreateInfoAction> PlayerCreateInfoActions;
 
-typedef std::list<SkillRaceClassInfoEntry const*> PlayerCreateInfoSkills;
+typedef std::vector<SkillRaceClassInfoEntry const*> PlayerCreateInfoSkills;
 
+// existence checked by displayId != 0
 struct PlayerInfo
 {
-    // existence checked by displayId != 0
-    PlayerInfo() : mapId(0), areaId(0), positionX(0.0f), positionY(0.0f), positionZ(0.0f), orientation(0.0f), displayId_m(0), displayId_f(0), levelInfo(nullptr) { }
-
-    uint32 mapId;
-    uint32 areaId;
-    float positionX;
-    float positionY;
-    float positionZ;
-    float orientation;
-    uint32 displayId_m;
-    uint32 displayId_f;
+    uint32 mapId = 0;
+    uint32 areaId = 0;
+    float positionX = 0.0f;
+    float positionY = 0.0f;
+    float positionZ = 0.0f;
+    float orientation = 0.0f;
+    uint32 displayId_m = 0;
+    uint32 displayId_f = 0;
     PlayerCreateInfoItems item;
     PlayerCreateInfoSpells customSpells;
     PlayerCreateInfoSpells castSpells;
     PlayerCreateInfoActions action;
     PlayerCreateInfoSkills skills;
 
-    PlayerLevelInfo* levelInfo;                             //[level-1] 0..MaxPlayerLevel-1
+    //[level-1] 0..MaxPlayerLevel-1
+    PlayerLevelInfo* levelInfo = nullptr;
 };
 
 struct PetLevelInfo
@@ -774,15 +770,15 @@ struct WorldSafeLocsEntry
     WorldLocation Loc;
 };
 
-struct GraveYardData
+struct GraveyardData
 {
     uint32 safeLocId;
     uint32 team;
 };
 
-typedef std::multimap<uint32, GraveYardData> GraveYardContainer;
-typedef std::pair<GraveYardContainer::const_iterator, GraveYardContainer::const_iterator> GraveYardMapBounds;
-typedef std::pair<GraveYardContainer::iterator, GraveYardContainer::iterator> GraveYardMapBoundsNonConst;
+typedef std::multimap<uint32, GraveyardData> GraveyardContainer;
+typedef std::pair<GraveyardContainer::const_iterator, GraveyardContainer::const_iterator> GraveyardMapBounds;
+typedef std::pair<GraveyardContainer::iterator, GraveyardContainer::iterator> GraveyardMapBoundsNonConst;
 
 typedef std::unordered_map<uint32, VendorItemData> CacheVendorItemContainer;
 
@@ -1116,12 +1112,12 @@ class TC_GAME_API ObjectMgr
         QuestGreeting const* GetQuestGreeting(TypeID type, uint32 id) const;
         QuestGreetingLocale const* GetQuestGreetingLocale(TypeID type, uint32 id) const;
 
-        WorldSafeLocsEntry const* GetDefaultGraveYard(uint32 team) const;
-        WorldSafeLocsEntry const* GetClosestGraveYard(WorldLocation const& location, uint32 team, WorldObject* conditionObject) const;
-        bool AddGraveYardLink(uint32 id, uint32 zoneId, uint32 team, bool persist = true);
-        void RemoveGraveYardLink(uint32 id, uint32 zoneId, uint32 team, bool persist = false);
+        WorldSafeLocsEntry const* GetDefaultGraveyard(uint32 team) const;
+        WorldSafeLocsEntry const* GetClosestGraveyard(WorldLocation const& location, uint32 team, WorldObject* conditionObject) const;
+        bool AddGraveyardLink(uint32 id, uint32 zoneId, uint32 team, bool persist = true);
+        void RemoveGraveyardLink(uint32 id, uint32 zoneId, uint32 team, bool persist = false);
         void LoadGraveyardZones();
-        GraveYardData const* FindGraveYardData(uint32 id, uint32 zone) const;
+        GraveyardData const* FindGraveyardData(uint32 id, uint32 zone) const;
         void LoadWorldSafeLocs();
         WorldSafeLocsEntry const* GetWorldSafeLoc(uint32 id) const;
         Trinity::IteratorPair<std::unordered_map<uint32, WorldSafeLocsEntry>::const_iterator> GetWorldSafeLocs() const;
@@ -1609,7 +1605,7 @@ class TC_GAME_API ObjectMgr
         }
 
         // for wintergrasp only
-        GraveYardContainer GraveYardStore;
+        GraveyardContainer GraveyardStore;
 
         static void AddLocaleString(std::string&& value, LocaleConstant localeConstant, std::vector<std::string>& data);
         static inline void GetLocaleString(std::vector<std::string> const& data, LocaleConstant localeConstant, std::string& value)
@@ -1794,10 +1790,10 @@ class TC_GAME_API ObjectMgr
         CreatureTemplateContainer _creatureTemplateStore;
         CreatureModelContainer _creatureModelStore;
         CreatureAddonContainer _creatureAddonStore;
+        CreatureTemplateAddonContainer _creatureTemplateAddonStore;
         GameObjectAddonContainer _gameObjectAddonStore;
         GameObjectQuestItemMap _gameObjectQuestItemStore;
         CreatureQuestItemMap _creatureQuestItemStore;
-        CreatureTemplateAddonContainer _creatureTemplateAddonStore;
         EquipmentInfoContainer _equipmentInfoStore;
         LinkedRespawnContainer _linkedRespawnStore;
         CreatureLocaleContainer _creatureLocaleStore;

@@ -16,14 +16,12 @@
  */
 
 #include "icecrown_citadel.h"
-#include "GameObject.h"
 #include "GridNotifiers.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
-#include "Player.h"
 #include "ScriptedCreature.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"

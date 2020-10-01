@@ -18,7 +18,6 @@
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
-#include "ObjectAccessor.h"
 #include "Player.h"
 #include "ruby_sanctum.h"
 #include "ScriptedCreature.h"
@@ -206,7 +205,6 @@ class spell_ruby_sanctum_rallying_shout : public SpellScriptLoader
                 OnEffectHit += SpellEffectFn(spell_ruby_sanctum_rallying_shout_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
 
-        private:
             uint32 _targetCount = 0;
         };
 

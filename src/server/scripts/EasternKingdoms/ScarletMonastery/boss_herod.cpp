@@ -23,9 +23,9 @@ SDCategory: Scarlet Monastery
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "scarlet_monastery.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
-#include "scarlet_monastery.h"
 
 enum Says
 {

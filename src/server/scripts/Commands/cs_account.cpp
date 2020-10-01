@@ -686,7 +686,7 @@ public:
             return false;
         }
 
-        // handler->getSession() == NULL only for console
+        // handler->getSession() == nullptr only for console
         accountId = (isAccountNameGiven) ? AccountMgr::GetId(accountName) : handler->getSelectedPlayer()->GetSession()->GetAccountId();
         int32 realmID = (isAccountNameGiven) ? atoi(arg3) : atoi(arg2);
         uint32 playerSecurity;

@@ -15,16 +15,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "SkillDiscovery.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "Log.h"
-#include "World.h"
-#include "Util.h"
-#include "SkillDiscovery.h"
-#include "SpellMgr.h"
 #include "Player.h"
 #include "Random.h"
+#include "SpellMgr.h"
 #include "SpellInfo.h"
+#include "Util.h"
+#include "World.h"
 #include <map>
 #include <sstream>
 

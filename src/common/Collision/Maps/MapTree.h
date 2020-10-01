@@ -34,8 +34,8 @@ namespace VMAP
     {
         LocationInfo(): rootId(-1), hitInstance(nullptr), hitModel(nullptr), ground_Z(-G3D::finf()) { }
         int32 rootId;
-        const ModelInstance* hitInstance;
-        const GroupModel* hitModel;
+        ModelInstance const* hitInstance;
+        GroupModel const* hitModel;
         float ground_Z;
     };
 

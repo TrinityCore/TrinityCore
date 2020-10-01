@@ -34,7 +34,6 @@ struct UpdateFetcher::DirectoryEntry
     DirectoryEntry(Path const& path_, State state_) : path(path_), state(state_) { }
 
     Path const path;
-
     State const state;
 };
 

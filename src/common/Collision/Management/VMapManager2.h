@@ -101,7 +101,7 @@ namespace VMAP
 
             void InitializeThreadUnsafe(std::unordered_map<uint32, std::vector<uint32>> const& mapData);
 
-            int loadMap(const char* pBasePath, unsigned int mapId, int x, int y) override;
+            int loadMap(char const* pBasePath, unsigned int mapId, int x, int y) override;
             bool loadSingleMap(uint32 mapId, const std::string& basePath, uint32 tileX, uint32 tileY);
 
             void unloadMap(unsigned int mapId, int x, int y) override;
@@ -131,7 +131,7 @@ namespace VMAP
             {
                 return getMapFileName(mapId);
             }
-            virtual LoadResult existsMap(const char* basePath, unsigned int mapId, int x, int y) override;
+            virtual LoadResult existsMap(char const* basePath, unsigned int mapId, int x, int y) override;
 
             void getInstanceMapTree(InstanceTreeMap &instanceMapTree);
 

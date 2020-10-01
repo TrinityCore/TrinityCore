@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "blackrock_depths.h"
 #include "ScriptedCreature.h"
 
 enum Spells
@@ -93,7 +94,7 @@ class boss_moira_bronzebeard : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_moira_bronzebeardAI(creature);
+            return GetBlackrockDepthsAI<boss_moira_bronzebeardAI>(creature);
         }
 };
 

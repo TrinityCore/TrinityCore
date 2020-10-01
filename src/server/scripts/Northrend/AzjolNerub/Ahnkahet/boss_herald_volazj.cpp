@@ -111,7 +111,7 @@ public:
             }
         }
 
-        void SpellHitTarget(Unit* target, const SpellInfo* spell) override
+        void SpellHitTarget(Unit* target, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_INSANITY)
             {
@@ -136,7 +136,7 @@ public:
                     return;
 
                 // summon twisted party members for this target
-                Map::PlayerList const &players = me->GetMap()->GetPlayers();
+                Map::PlayerList const& players = me->GetMap()->GetPlayers();
                 for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
                 {
                     Player* player = i->GetSource();
@@ -157,7 +157,7 @@ public:
 
         void ResetPlayersPhase()
         {
-            Map::PlayerList const &players = me->GetMap()->GetPlayers();
+            Map::PlayerList const& players = me->GetMap()->GetPlayers();
             for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
             {
                 Player* player = i->GetSource();
