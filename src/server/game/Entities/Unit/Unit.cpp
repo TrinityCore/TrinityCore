@@ -4676,6 +4676,11 @@ uint32 Unit::GetDiseasesByCaster(ObjectGuid casterGUID, bool remove)
         SPELL_AURA_NONE
     };
 
+    // Burning Blood - Blood DK T12 Bonus
+    // "Causes owning Death Knight's abilities to treat the target as if it had 2 diseases active."
+    if (HasAura(98957, casterGUID))
+        return 2;
+
     uint32 diseases = 0;
     for (AuraType const* itr = diseaseAuraTypes; *itr != SPELL_AURA_NONE; ++itr)
     {
