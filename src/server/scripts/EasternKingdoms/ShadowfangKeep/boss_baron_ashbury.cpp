@@ -138,7 +138,7 @@ struct boss_baron_ashbury : public BossAI
         if (spell->Id == SPELL_STAY_OF_EXECUTION)
         {
             // Failing achievement when Baron Ashbury finished channeling Stay of Execution
-            if (reason == SPELL_FINISHED_FINISHED && IsHeroic())
+            if (reason == SPELL_FINISHED_CHANNELING_COMPLETE && IsHeroic())
                 _pardonDenied = false;
 
             me->SetReactState(REACT_AGGRESSIVE);

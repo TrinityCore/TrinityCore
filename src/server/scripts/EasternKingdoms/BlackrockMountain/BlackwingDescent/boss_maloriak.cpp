@@ -324,7 +324,7 @@ struct boss_maloriak : public BossAI
         switch (spell->Id)
         {
             case SPELL_ARCANE_STORM:
-                if (reason == SPELL_FINISHED_FINISHED || reason == SPELL_FINISHED_CANCELED)
+                if (reason == SPELL_FINISHED_CHANNELING_COMPLETE || reason == SPELL_FINISHED_CANCELED)
                 {
                     me->MakeInterruptable(false);
                     me->m_Events.KillAllEvents(true);

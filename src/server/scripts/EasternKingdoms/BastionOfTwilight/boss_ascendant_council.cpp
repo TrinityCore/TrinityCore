@@ -776,7 +776,7 @@ class npc_ignacious : public CreatureScript
 
             void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason reason) override
             {
-                if (spell->Id == SPELL_RISING_FLAMES && (reason == SPELL_FINISHED_CANCELED || reason == SPELL_FINISHED_FINISHED))
+                if (spell->Id == SPELL_RISING_FLAMES && (reason == SPELL_FINISHED_CANCELED || reason == SPELL_FINISHED_CHANNELING_COMPLETE))
                     me->MakeInterruptable(false);
             }
 

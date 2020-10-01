@@ -568,7 +568,7 @@ struct boss_stormcaller_brundir : public ScriptedAI
 
     void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason reason) override
     {
-        if (spell->Id == SPELL_OVERLOAD && (reason == SPELL_FINISHED_FINISHED || reason == SPELL_FINISHED_CANCELED))
+        if (spell->Id == SPELL_OVERLOAD && (reason == SPELL_FINISHED_CHANNELING_COMPLETE || reason == SPELL_FINISHED_CANCELED))
             _summons.DespawnAll();
     }
 
