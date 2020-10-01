@@ -65,6 +65,7 @@ enum DeathKnightSpells
     SPELL_DK_ENERGIZE_BLOOD_RUNE                = 81166,
     SPELL_DK_ENERGIZE_FROST_RUNE                = 81168,
     SPELL_DK_ENERGIZE_UNHOLY_RUNE               = 81169,
+    SPELL_DK_FLAMING_TORRENT                    = 99000,
     SPELL_DK_FROST_FEVER                        = 55095,
     SPELL_DK_FROST_PRESENCE                     = 48266,
     SPELL_DK_FROST_STRIKE                       = 49143,
@@ -92,6 +93,7 @@ enum DeathKnightSpells
     SPELL_DK_SCENT_OF_BLOOD                     = 50422,
     SPELL_DK_SCOURGE_STRIKE_TRIGGERED           = 70890,
     SPELL_DK_SHADOW_INFUSION                    = 91342,
+    SPELL_DK_SMOLDERING_RUNE_ENERGIZE           = 99055,
     SPELL_DK_UNHOLY_BLIGHT_PERIODIC             = 50536,
     SPELL_DK_UNHOLY_PRESENCE                    = 48265,
     SPELL_DK_PESTILENCE_REDUCED_DOTS            = 76243,
@@ -1675,6 +1677,52 @@ class spell_dk_killing_machine : public SpellScript
     }
 };
 
+// 98996 - Item - Death Knight T12 DPS 4P Bonus
+class spell_dk_item_death_knight_t12_dps_4p_bonus : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DK_FLAMING_TORRENT });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetDamageInfo();
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        int32 damage = CalculatePct(aurEff->GetAmount(), eventInfo.GetDamageInfo()->GetDamage());
+        GetTarget()->CastCustomSpell(SPELL_DK_FLAMING_TORRENT, SPELLVALUE_BASE_POINT0, damage, eventInfo.GetProcTarget(), true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        DoCheckProc.Register(&spell_dk_item_death_knight_t12_dps_4p_bonus::CheckProc);
+        OnEffectProc.Register(&spell_dk_item_death_knight_t12_dps_4p_bonus::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 98971 - Smoldering Rune
+class spell_dk_smoldering_rune : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DK_SMOLDERING_RUNE_ENERGIZE });
+    }
+
+    void HandleDummyTick(AuraEffect const* aurEff)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_DK_SMOLDERING_RUNE_ENERGIZE, true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic.Register(&spell_dk_smoldering_rune::HandleDummyTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     RegisterSpellScript(spell_dk_anti_magic_shell);
@@ -1692,6 +1740,7 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_death_gate);
     RegisterSpellScript(spell_dk_death_grip);
     RegisterSpellScript(spell_dk_death_grip_initial);
+    RegisterSpellScript(spell_dk_item_death_knight_t12_dps_4p_bonus);
     RegisterSpellScript(spell_dk_death_pact);
     RegisterSpellScript(spell_dk_death_strike);
     RegisterSpellScript(spell_dk_death_strike_enabler);
@@ -1717,6 +1766,7 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_scent_of_blood);
     RegisterSpellScript(spell_dk_shadow_infusion);
     RegisterSpellScript(spell_dk_scourge_strike);
+    RegisterSpellScript(spell_dk_smoldering_rune);
     RegisterSpellScript(spell_dk_threat_of_thassarian);
     RegisterSpellScript(spell_dk_unoly_blight);
     RegisterSpellScript(spell_dk_unholy_command);
