@@ -12696,7 +12696,7 @@ bool Unit::SetHover(bool enable, bool updateAnimationTier /*= true*/)
         //! Dying creatures will MoveFall from setDeathState
         if (hoverHeight && (!isDying() || GetTypeId() != TYPEID_UNIT))
         {
-            float newZ = GetPositionZ() - hoverHeight;
+            float newZ = std::max<float>(GetFloorZ(), GetPositionZ() - hoverHeight);
             UpdateAllowedPositionZ(GetPositionX(), GetPositionY(), newZ);
             UpdateHeight(newZ);
         }
