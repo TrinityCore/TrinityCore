@@ -151,12 +151,12 @@ enum Actions
     ACTION_METAMORPHOSIS = 1,
     ACTION_SUMMON_FEL_FURY = 2,
 };
-const Position jumpPos = { 4284.973, -451.2752, 259.66946, 3.123 };
+const Position jumpPos = { 4284.973f, -451.2752f, 259.66946f, 3.123f };
 const Position spawnFury[4] = {
-    { 4244.3003, -421.0004,  259.53052},
-    { 4264.336,  -431.36285, 259.56845},
-    { 4284.3716, -441.7253 , 259.60638},
-    { 4284.3716, -441.7253 , 259.60638},
+    { 4244.3003f, -421.0004f,  259.53052f},
+    { 4264.336f,  -431.36285f, 259.56845f},
+    { 4284.3716f, -441.7253f , 259.60638f},
+    { 4284.3716f, -441.7253f , 259.60638f},
 };
 //After boss jump he need to jump on his position
 //So some set/get things, didn't figure out
@@ -175,7 +175,7 @@ struct npc_drelanim_whisperwind : public ScriptedAI
             me->CastSpell(nullptr, SPELL_DRELANIM_WHISPERWIND_KNEEL);
         }
     }
-    const Position jumpLoc = { 4229.3887,-449.48373, 266.80066, 3.123 };
+    const Position jumpLoc = { 4229.3887f,-449.48373f, 266.80066f, 3.123f };
 };
 struct boss_tirathon_saltheril: public BossAI
 {
@@ -529,7 +529,7 @@ class spell_intro_jump : public SpellScript
     void HandleJumpDest(SpellEffIndex effIndex)
     {
         PreventHitDefaultEffect(effIndex);
-        Position const jumpPos = { 4284.973, -451.2752, 259.66946 };
+        Position const jumpPos = { 4284.973f, -451.2752f, 259.66946f };
         GetCaster()->GetMotionMaster()->MoveJump(jumpPos, 100, 0);
     }
 
