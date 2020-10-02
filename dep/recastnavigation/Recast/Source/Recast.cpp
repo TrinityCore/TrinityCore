@@ -207,7 +207,7 @@ void rcCalcBounds(const float* verts, int nv, float* bmin, float* bmax)
 	rcVcopy(bmax, verts);
 	for (int i = 1; i < nv; ++i)
 	{
-		const float* v = &verts[i*3];
+        const float* v = &verts[i * 3];
 		rcVmin(bmin, v);
 		rcVmax(bmax, v);
 	}
