@@ -7229,13 +7229,15 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
 
 void Player::UpdateHostileAreaState(AreaTableEntry const* area)
 {
+    ZonePVPTypeOverride overrideZonePvpType = GetOverrideZonePVPType();
+
     pvpInfo.IsInHostileArea = false;
 
     if (area->IsSanctuary()) // sanctuary and arena cannot be overriden
         pvpInfo.IsInHostileArea = false;
     else if (area->Flags[0] & AREA_FLAG_ARENA)
         pvpInfo.IsInHostileArea = true;
-    else
+    else if (overrideZonePvpType == ZonePVPTypeOverride::None)
     {
         if (area)
         {
@@ -7256,6 +7258,22 @@ void Player::UpdateHostileAreaState(AreaTableEntry const* area)
                         pvpInfo.IsInHostileArea = sWorld->IsPvPRealm();
                 }
             }
+        }
+    }
+    else
+    {
+        switch (overrideZonePvpType)
+        {
+            case ZonePVPTypeOverride::Friendly:
+                pvpInfo.IsInHostileArea = false;
+                break;
+            case ZonePVPTypeOverride::Hostile:
+            case ZonePVPTypeOverride::Contested:
+            case ZonePVPTypeOverride::Combat:
+                pvpInfo.IsInHostileArea = true;
+                break;
+            default:
+                break;
         }
     }
 
