@@ -3022,7 +3022,7 @@ void Unit::InterruptSpell(CurrentSpellTypes spellType, bool withDelayed, bool wi
         }
 
         if (GetTypeId() == TYPEID_UNIT && IsAIEnabled())
-            ToCreature()->AI()->OnSpellCastInterrupt(spell->GetSpellInfo());
+            ToCreature()->AI()->OnSpellCastFinished(spell->GetSpellInfo(), SPELL_FINISHED_CANCELED);
     }
 }
 
