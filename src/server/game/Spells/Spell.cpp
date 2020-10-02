@@ -3821,10 +3821,6 @@ void Spell::update(uint32 difftime)
             {
                 SendChannelUpdate(0);
                 finish();
-
-                if (Creature* creatureCaster = m_caster->ToCreature())
-                    if (creatureCaster->IsAIEnabled())
-                        creatureCaster->AI()->OnSpellCastFinished(m_spellInfo, SPELL_FINISHED_CHANNELING_COMPLETE);
             }
             break;
         }
@@ -3916,6 +3912,11 @@ void Spell::finish(bool ok)
     // Stop Attack for some spells
     if (m_spellInfo->HasAttribute(SPELL_ATTR0_STOP_ATTACK_TARGET))
         unitCaster->AttackStop();
+
+    if (m_spellInfo->IsChanneled())
+        if (Creature* creatureCaster = m_caster->ToCreature())
+            if (creatureCaster->IsAIEnabled())
+                creatureCaster->AI()->OnSpellCastFinished(m_spellInfo, SPELL_FINISHED_CHANNELING_COMPLETE);
 }
 
 void Spell::WriteCastResultInfo(WorldPacket& data, Player* caster, SpellInfo const* spellInfo, uint8 castCount, SpellCastResult result, SpellCustomErrors customError, uint32* param1 /*= nullptr*/, uint32* param2 /*= nullptr*/)
