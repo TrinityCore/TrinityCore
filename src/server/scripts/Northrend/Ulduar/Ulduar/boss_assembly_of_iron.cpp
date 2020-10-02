@@ -534,7 +534,7 @@ struct boss_stormcaller_brundir : public ScriptedAI
         DoCastSelf(SPELL_BERSERK);
 
         _events.SetPhase(PHASE_ONE);
-        _events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 1ms); 
+        _events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 1ms);
         _events.ScheduleEvent(EVENT_OVERLOAD, 42s, 1min);
     }
 
