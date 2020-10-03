@@ -1344,12 +1344,9 @@ struct npc_shambling_horror_icc : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void OnSpellCastInterrupt(SpellInfo const* spell) override
+    void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason reason) override
     {
-        ScriptedAI::OnSpellCastInterrupt(spell);
-
-        // When enrage is interrupted, reschedule the event
-        if (spell->Id == ENRAGE)
+        if (reason == SPELL_FINISHED_CANCELED && spell->Id == ENRAGE)
             _events.RescheduleEvent(EVENT_ENRAGE, 1s);
     }
 
