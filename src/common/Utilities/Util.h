@@ -337,9 +337,10 @@ class HookList final
         typedef typename ContainerType::const_iterator const_iterator;
         typedef typename ContainerType::iterator iterator;
 
-        HookList<T>& operator+=(T&& t)
+        template <typename...Args>
+        HookList<T>& operator+=(Args&&... args)
         {
-            _container.push_back(std::move(t));
+            _container.emplace_back(std::forward<Args&&>(args)...);
             return *this;
         }
 
