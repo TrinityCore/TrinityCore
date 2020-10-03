@@ -249,7 +249,7 @@ public:
         {
             Talk(SAY_DEATH);
             //When Exarch Maladar is defeated D'ore appear.
-            me->SummonCreature(19412, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 10min);
+            me->SummonCreature(19412, -4.40722f, -387.277f, 40.6294f, 6.26573f, TEMPSUMMON_MANUAL_DESPAWN);
         }
 
         void UpdateAI(uint32 diff) override
