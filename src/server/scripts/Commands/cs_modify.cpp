@@ -34,6 +34,10 @@ EndScriptData */
 #include "ReputationMgr.h"
 #include "WorldSession.h"
 
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 class modify_commandscript : public CommandScript
 {
 public:
@@ -557,11 +561,16 @@ public:
         if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
-        int32 moneyToAdd = 0;
+        Optional<int32> moneyToAddO = 0;
         if (strchr(args, 'g') || strchr(args, 's') || strchr(args, 'c'))
-            moneyToAdd = MoneyStringToMoney(std::string(args));
+            moneyToAddO = MoneyStringToMoney(std::string(args));
         else
-            moneyToAdd = atoi(args);
+            moneyToAddO = Trinity::StringTo<int32>(args);
+
+        if (!moneyToAddO)
+            return false;
+
+        int32 moneyToAdd = *moneyToAddO;
 
         uint32 targetMoney = target->GetMoney();
 

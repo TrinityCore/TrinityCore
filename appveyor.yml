@@ -25,7 +25,19 @@ build_script:
     copy "%OPENSSL_ROOT_DIR%\ssleay32.dll" ssleay32.dll
 
     copy "%OPENSSL_ROOT_DIR%\libeay32.dll" libeay32.dll
+
+    cd ..
+
+    7z a TrinityCoreWin64VS2019.zip .\RelWithDebInfo\*
+
+    del /F /Q /S "RelWithDebInfo\*.pdb" > NUL
+
+    7z a TrinityCoreWin64VS2019NoSymbols.zip .\RelWithDebInfo\*
+
 test: off
 artifacts:
-- path: build\bin\RelWithDebInfo\
+- path: build\bin\TrinityCoreWin64VS2019.zip
   name: TrinityCoreWin64VS2019
+
+- path: build\bin\TrinityCoreWin64VS2019NoSymbols.zip
+  name: TrinityCoreWin64VS2019NoSymbols

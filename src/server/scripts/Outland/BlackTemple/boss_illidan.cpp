@@ -1063,7 +1063,7 @@ struct npc_akama_illidan : public ScriptedAI
         _isTeleportToMinions = false;
     }
 
-    bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+    bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
     {
         if (gossipListId == GOSSIP_START_INTRO)
         {

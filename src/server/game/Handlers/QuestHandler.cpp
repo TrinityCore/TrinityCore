@@ -102,7 +102,7 @@ void WorldSession::HandleQuestgiverHelloOpcode(WorldPacket& recvData)
     creature->SetHomePosition(creature->GetPosition());
 
     _player->PlayerTalkClass->ClearMenus();
-    if (creature->AI()->GossipHello(_player))
+    if (creature->AI()->OnGossipHello(_player))
         return;
 
     _player->PrepareGossipMenu(creature, creature->GetCreatureTemplate()->GossipMenuId, true);
@@ -124,11 +124,11 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
     else
         object = ObjectAccessor::FindPlayer(guid);
 
-#define CLOSE_GOSSIP_CLEAR_SHARING_INFO() \
-    do { \
-        _player->PlayerTalkClass->SendCloseGossip(); \
-        _player->ClearQuestSharingInfo(); \
-    } while (0)
+    auto CLOSE_GOSSIP_CLEAR_SHARING_INFO = ([this]()
+    {
+        _player->PlayerTalkClass->SendCloseGossip();
+        _player->ClearQuestSharingInfo();
+    });
 
     // no or incorrect quest giver
     if (!object)
@@ -325,7 +325,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
                         }
 
                         _player->PlayerTalkClass->ClearMenus();
-                        questgiver->AI()->QuestReward(_player, quest, reward);
+                        questgiver->AI()->OnQuestReward(_player, quest, reward);
                         break;
                     }
                     case TYPEID_GAMEOBJECT:
@@ -345,7 +345,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
                         }
 
                         _player->PlayerTalkClass->ClearMenus();
-                        questGiver->AI()->QuestReward(_player, quest, reward);
+                        questGiver->AI()->OnQuestReward(_player, quest, reward);
                         break;
                     }
                     default:
@@ -614,15 +614,18 @@ void WorldSession::HandlePushQuestToParty(WorldPacket& recvPacket)
 
         sender->SendPushToPartyResponse(receiver, QUEST_PARTY_MSG_SHARING_QUEST);
 
-        if (quest->IsAutoAccept() && receiver->CanAddQuest(quest, true) && receiver->CanTakeQuest(quest, true))
-            receiver->AddQuestAndCheckCompletion(quest, sender);
-
         if ((quest->IsAutoComplete() && quest->IsRepeatable() && !quest->IsDailyOrWeekly()) || quest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE))
             receiver->PlayerTalkClass->SendQuestGiverRequestItems(quest, sender->GetGUID(), receiver->CanCompleteRepeatableQuest(quest), true);
         else
         {
             receiver->SetQuestSharingInfo(sender->GetGUID(), questId);
             receiver->PlayerTalkClass->SendQuestGiverQuestDetails(quest, receiver->GetGUID(), true);
+            if (quest->IsAutoAccept() && receiver->CanAddQuest(quest, true) && receiver->CanTakeQuest(quest, true))
+            {
+                receiver->AddQuestAndCheckCompletion(quest, sender);
+                sender->SendPushToPartyResponse(receiver, QUEST_PARTY_MSG_ACCEPT_QUEST);
+                receiver->ClearQuestSharingInfo();
+            }
         }
     }
 }
@@ -643,7 +646,7 @@ void WorldSession::HandleQuestPushResult(WorldPacket& recvPacket)
     {
         Player* player = ObjectAccessor::FindPlayer(guid);
         if (player)
-            player->SendPushToPartyResponse(_player, msg);
+            player->SendPushToPartyResponse(_player, static_cast<QuestShareMessages>(msg));
     }
 
     _player->ClearQuestSharingInfo();

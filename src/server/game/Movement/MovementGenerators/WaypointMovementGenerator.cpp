@@ -118,10 +118,6 @@ void WaypointMovementGenerator<Creature>::DoInitialize(Creature* owner)
     owner->StopMoving();
 
     _nextMoveTime.Reset(1000);
-
-    // inform AI
-    if (CreatureAI* AI = owner->AI())
-        AI->WaypointPathStarted(_path->id);
 }
 
 void WaypointMovementGenerator<Creature>::DoReset(Creature* owner)
@@ -355,10 +351,10 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
     switch (waypoint.moveType)
     {
         case WAYPOINT_MOVE_TYPE_LAND:
-            init.SetAnimation(Movement::ToGround);
+            init.SetAnimation(AnimationTier::Ground);
             break;
         case WAYPOINT_MOVE_TYPE_TAKEOFF:
-            init.SetAnimation(Movement::ToFly);
+            init.SetAnimation(AnimationTier::Hover);
             break;
         case WAYPOINT_MOVE_TYPE_RUN:
             init.SetWalk(false);

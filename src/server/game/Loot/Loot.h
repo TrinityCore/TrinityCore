@@ -52,7 +52,7 @@ enum RollMask
     ROLL_ALL_TYPE_MASK          = 0x0F
 };
 
-#define MAX_NR_LOOT_ITEMS 16
+#define MAX_NR_LOOT_ITEMS 18
 // note: the client cannot show more than 16 items total
 #define MAX_NR_QUEST_ITEMS 32
 // unrelated to the number of quest items shown, just for reserve

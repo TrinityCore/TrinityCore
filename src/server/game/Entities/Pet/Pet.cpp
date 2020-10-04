@@ -31,6 +31,7 @@
 #include "SpellAuras.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
+#include "SpellPackets.h"
 #include "Unit.h"
 #include "Util.h"
 #include "WorldPacket.h"
@@ -110,7 +111,7 @@ std::pair<PetStable::PetInfo const*, PetSaveMode> Pet::GetLoadPetInfo(PetStable 
                 return { &stable.StabledPets[stableSlot].value(), PetSaveMode(PET_SAVE_FIRST_STABLE_SLOT + stableSlot) };
 
         for (PetStable::PetInfo const& pet : stable.UnslottedPets)
-            if (pet.CreatureId == petEntry)
+            if (pet.PetNumber == petnumber)
                 return { &pet, PET_SAVE_NOT_IN_SLOT };
     }
     else if (current)
@@ -338,14 +339,13 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     /// @todo pets should be summoned from real cast instead of just faking it?
     if (petInfo->CreatedBySpellId)
     {
-        WorldPacket data(SMSG_SPELL_GO, (8+8+4+4+2));
-        data << owner->GetPackGUID();
-        data << owner->GetPackGUID();
-        data << uint8(0);
-        data << uint32(petInfo->CreatedBySpellId);
-        data << uint32(256); // CAST_FLAG_UNKNOWN3
-        data << uint32(0);
-        owner->SendMessageToSet(&data, true);
+        WorldPackets::Spells::SpellGo spellGo;
+        spellGo.Cast.CasterGUID = owner->GetGUID();
+        spellGo.Cast.CasterUnit = owner->GetGUID();
+        spellGo.Cast.SpellID = petInfo->CreatedBySpellId;
+        spellGo.Cast.CastFlags = CAST_FLAG_UNKNOWN_9;
+        spellGo.Cast.CastTime = GameTime::GetGameTimeMS();
+        owner->SendMessageToSet(spellGo.Write(), true);
     }
 
     owner->SetMinion(this, true);
@@ -1164,7 +1164,7 @@ void Pet::_LoadSpells(PreparedQueryResult result)
     }
 }
 
-void Pet::_SaveSpells(CharacterDatabaseTransaction& trans)
+void Pet::_SaveSpells(CharacterDatabaseTransaction trans)
 {
     for (PetSpellMap::iterator itr = m_spells.begin(), next = m_spells.begin(); itr != m_spells.end(); itr = next)
     {
@@ -1290,7 +1290,7 @@ void Pet::_LoadAuras(PreparedQueryResult result, uint32 timediff)
     }
 }
 
-void Pet::_SaveAuras(CharacterDatabaseTransaction& trans)
+void Pet::_SaveAuras(CharacterDatabaseTransaction trans)
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PET_AURAS);
     stmt->setUInt32(0, m_charmInfo->GetPetNumber());
@@ -2030,7 +2030,7 @@ std::string Pet::GetDebugInfo() const
     std::stringstream sstr;
     sstr << Guardian::GetDebugInfo() << "\n"
         << std::boolalpha
-        << "PetType: " << std::to_string(getPetType())
+        << "PetType: " << std::to_string(getPetType()) << " "
         << "PetNumber: " << m_charmInfo->GetPetNumber();
     return sstr.str();
 }

@@ -63,6 +63,12 @@ namespace Trinity
     */
     template<template<typename...> typename Check, typename... Ts>
     using find_type_if_t = typename find_type_if<Check, Ts...>::type;
+
+    template <typename T>
+    struct dependant_false { static constexpr bool value = false; };
+
+    template <typename T>
+    constexpr bool dependant_false_v = dependant_false<T>::value;
 }
 
 #endif // Types_h__

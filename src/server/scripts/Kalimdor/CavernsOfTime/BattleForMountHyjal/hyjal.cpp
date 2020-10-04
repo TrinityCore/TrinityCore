@@ -70,7 +70,7 @@ class npc_jaina_proudmoore : public CreatureScript
                 Spells[2].TargetType = TARGETTYPE_SELF;
             }
 
-            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+            bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
             {
                 uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
                 ClearGossipMenuFor(player);
@@ -95,7 +95,7 @@ class npc_jaina_proudmoore : public CreatureScript
                 return true;
             }
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 if (EventBegun)
                     return false;
@@ -141,7 +141,7 @@ class npc_thrall : public CreatureScript
                 Spells[1].TargetType = TARGETTYPE_RANDOM;
             }
 
-            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+            bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
             {
                 uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
                 ClearGossipMenuFor(player);
@@ -167,7 +167,7 @@ class npc_thrall : public CreatureScript
                 return true;
             }
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 if (EventBegun)
                     return false;
@@ -211,7 +211,7 @@ class npc_tyrande_whisperwind : public CreatureScript
             {
             }
 
-            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+            bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
             {
                 uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
                 ClearGossipMenuFor(player);
@@ -228,7 +228,7 @@ class npc_tyrande_whisperwind : public CreatureScript
                 return true;
             }
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 uint32 AzgalorEvent = GetInstanceData(DATA_AZGALOREVENT);
 

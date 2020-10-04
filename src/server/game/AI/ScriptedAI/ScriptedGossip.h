@@ -81,6 +81,7 @@ enum eTradeskill
 
 class Creature;
 
+uint32 TC_GAME_API GetGossipSenderFor(Player* player, uint32 menuId);
 uint32 TC_GAME_API GetGossipActionFor(Player* player, uint32 gossipListId);
 void TC_GAME_API ClearGossipMenuFor(Player* player);
 // Using provided text, not from DB

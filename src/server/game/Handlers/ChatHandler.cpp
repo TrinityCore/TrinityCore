@@ -39,6 +39,7 @@
 #include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
 #include "Util.h"
+#include "Warden.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include <algorithm>
@@ -221,6 +222,12 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
     if (msg.size() > 255)
         return;
 
+    // Our Warden module also uses SendAddonMessage as a way to communicate Lua check results to the server, see if this is that
+    if ((type == CHAT_MSG_GUILD) && (lang == LANG_ADDON))
+    {
+        if (_warden && _warden->ProcessLuaCheckResponse(msg))
+            return;
+    }
 
     // no chat commands in AFK/DND autoreply, and it can be empty
     if (!(type == CHAT_MSG_AFK || type == CHAT_MSG_DND))

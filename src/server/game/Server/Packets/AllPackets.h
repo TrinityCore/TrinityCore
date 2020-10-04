@@ -26,6 +26,7 @@
 #include "GuildPackets.h"
 #include "LFGPackets.h"
 #include "NPCPackets.h"
+#include "MailPackets.h"
 #include "MiscPackets.h"
 #include "PetPackets.h"
 #include "QueryPackets.h"

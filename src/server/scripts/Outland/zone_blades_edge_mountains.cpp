@@ -259,7 +259,7 @@ public:
     {
         go_legion_obeliskAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             if (player->GetQuestStatus(QUEST_YOURE_FIRED) == QUEST_STATUS_INCOMPLETE)
             {
@@ -850,7 +850,7 @@ class go_simon_cluster : public GameObjectScript
         {
             go_simon_clusterAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 if (Creature* bunny = me->FindNearestCreature(NPC_SIMON_BUNNY, 12.0f, true))
                     bunny->AI()->SetData(me->GetEntry(), 0);
@@ -886,14 +886,14 @@ class go_apexis_relic : public GameObjectScript
         {
             go_apexis_relicAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 player->PrepareGossipMenu(me, me->GetGOInfo()->questgiver.gossipID);
                 player->SendPreparedGossip(me);
                 return true;
             }
 
-            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+            bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
             {
                 CloseGossipMenuFor(player);
 

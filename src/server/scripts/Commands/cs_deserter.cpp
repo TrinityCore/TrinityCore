@@ -29,6 +29,8 @@
 #include "RBAC.h"
 #include "SpellAuras.h"
 
+using namespace Trinity::ChatCommands;
+
 enum Spells
 {
     LFG_SPELL_DUNGEON_DESERTER = 71041,
@@ -44,27 +46,27 @@ public:
     * @brief Returns the command structure for the system.
     */
 
-    std::vector<ChatCommand> GetCommands() const override
+    ChatCommandTable GetCommands() const override
     {
-        static std::vector<ChatCommand> deserterInstanceCommandTable =
+        static ChatCommandTable deserterInstanceCommandTable =
         {
-            { "add",      rbac::RBAC_PERM_COMMAND_DESERTER_INSTANCE_ADD,    false, &HandleDeserterInstanceAdd,    "" },
-            { "remove",   rbac::RBAC_PERM_COMMAND_DESERTER_INSTANCE_REMOVE, false, &HandleDeserterInstanceRemove, "" },
+            { "add",      HandleDeserterInstanceAdd,    rbac::RBAC_PERM_COMMAND_DESERTER_INSTANCE_ADD,    Console::No },
+            { "remove",   HandleDeserterInstanceRemove, rbac::RBAC_PERM_COMMAND_DESERTER_INSTANCE_REMOVE, Console::No },
         };
-        static std::vector<ChatCommand> deserterBGCommandTable =
+        static ChatCommandTable deserterBGCommandTable =
         {
-            { "add",      rbac::RBAC_PERM_COMMAND_DESERTER_BG_ADD,    false, &HandleDeserterBGAdd,    "" },
-            { "remove",   rbac::RBAC_PERM_COMMAND_DESERTER_BG_REMOVE, false, &HandleDeserterBGRemove, "" },
+            { "add",      HandleDeserterBGAdd,    rbac::RBAC_PERM_COMMAND_DESERTER_BG_ADD,          Console::No },
+            { "remove",   HandleDeserterBGRemove, rbac::RBAC_PERM_COMMAND_DESERTER_BG_REMOVE,       Console::No },
         };
 
-        static std::vector<ChatCommand> deserterCommandTable =
+        static ChatCommandTable deserterCommandTable =
         {
-            { "instance", rbac::RBAC_PERM_COMMAND_DESERTER_INSTANCE, false, nullptr, "", deserterInstanceCommandTable },
-            { "bg",       rbac::RBAC_PERM_COMMAND_DESERTER_BG,       false, nullptr, "", deserterBGCommandTable },
+            { "instance", deserterInstanceCommandTable },
+            { "bg",       deserterBGCommandTable },
         };
-        static std::vector<ChatCommand> commandTable =
+        static ChatCommandTable commandTable =
         {
-            { "deserter", rbac::RBAC_PERM_COMMAND_DESERTER, false, nullptr, "", deserterCommandTable },
+            { "deserter", deserterCommandTable },
         };
         return commandTable;
     }
