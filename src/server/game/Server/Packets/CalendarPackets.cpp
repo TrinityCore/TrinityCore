@@ -352,7 +352,7 @@ WorldPacket const* WorldPackets::Calendar::CalendarInviteRemoved::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Calendar::CalendarInviteModeratorStatus::Write()
+WorldPacket const* WorldPackets::Calendar::CalendarModeratorStatus::Write()
 {
     _worldPacket << InviteGuid;
     _worldPacket << uint64(EventID);
