@@ -283,7 +283,7 @@ class npc_varian_wrynn : public CreatureScript
         {
         }
 
-        void QuestReward(Player* player, Quest const* quest, uint32 /*opt*/) override
+        void OnQuestReward(Player* player, Quest const* quest, uint32 /*opt*/) override
         {
             switch (quest->GetQuestId())
             {

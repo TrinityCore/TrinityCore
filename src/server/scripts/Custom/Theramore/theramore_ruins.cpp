@@ -148,7 +148,7 @@ class npc_jaina_ruins : public CreatureScript
             }
         }
 
-        void QuestReward(Player* player, Quest const* quest, uint32 /*opt*/) override
+        void OnQuestReward(Player* player, Quest const* quest, uint32 /*opt*/) override
         {
             playerForQuest = player;
 

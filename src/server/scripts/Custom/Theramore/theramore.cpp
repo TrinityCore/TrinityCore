@@ -163,7 +163,7 @@ class npc_jaina_theramore : public CreatureScript
             });
         }
 
-        void QuestAccept(Player* player, Quest const* quest) override
+        void OnQuestAccept(Player* player, Quest const* quest) override
         {
             playerForQuest = player;
 
@@ -188,7 +188,7 @@ class npc_jaina_theramore : public CreatureScript
             }
         }
 
-        void QuestReward(Player* player, Quest const* quest, uint32 /*opt*/) override
+        void OnQuestReward(Player* player, Quest const* quest, uint32 /*opt*/) override
         {
             playerForQuest = player;
 

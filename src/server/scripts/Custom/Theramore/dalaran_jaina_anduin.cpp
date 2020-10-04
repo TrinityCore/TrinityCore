@@ -468,7 +468,7 @@ class dalaran_jaina_anduin : public CreatureScript
 			phase = PHASE_NONE;
 		}
 
-		bool GossipHello(Player* player) override
+		bool OnGossipHello(Player* player) override
 		{
 			if (me->IsQuestGiver())
 			{
@@ -488,7 +488,7 @@ class dalaran_jaina_anduin : public CreatureScript
 			return true;
 		}
 
-		bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+		bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
 		{
 			uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
 			ClearGossipMenuFor(player);
@@ -503,7 +503,7 @@ class dalaran_jaina_anduin : public CreatureScript
 			return true;
 		}
 
-		void QuestAccept(Player* player, Quest const* quest) override
+		void OnQuestAccept(Player* player, Quest const* quest) override
 		{
 			switch (quest->GetQuestId())
 			{
@@ -1056,7 +1056,7 @@ struct dalaran_anduin_wrynnAI : public ScriptedAI
 
     }
 
-    void QuestAccept(Player* player, Quest const* quest) override
+    void OnQuestAccept(Player* player, Quest const* quest) override
     {
         switch (quest->GetQuestId())
         {
@@ -1066,7 +1066,7 @@ struct dalaran_anduin_wrynnAI : public ScriptedAI
         }
     }
 
-    void QuestReward(Player* player, Quest const* quest, uint32 /*opt*/) override
+    void OnQuestReward(Player* player, Quest const* quest, uint32 /*opt*/) override
     {
         switch (quest->GetQuestId())
         {

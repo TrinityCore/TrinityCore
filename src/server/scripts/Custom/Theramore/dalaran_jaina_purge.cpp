@@ -167,11 +167,14 @@ class npc_displaced_sunreaver : public CreatureScript
             me->DespawnOrUnsummon(1s);
         }
 
-        void OnSpellCastInterrupt(SpellInfo const* /*spell*/) override
+        void OnSpellCastFinished(SpellInfo const* /*spell*/, SpellFinishReason reason) override
         {
-            me->StopMoving();
-            me->GetMotionMaster()->Clear();
-            me->GetMotionMaster()->MoveFleeing(me->GetVictim(), 5);
+            if (reason == SPELL_FINISHED_CANCELED)
+            {
+                me->StopMoving();
+                me->GetMotionMaster()->Clear();
+                me->GetMotionMaster()->MoveFleeing(me->GetVictim(), 5);
+            }
         }
 
         void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
@@ -855,7 +858,7 @@ class npc_enchanter_isian : public CreatureScript
 
         }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             if (player->IsGameMaster() || player->GetQuestStatus(QUEST_NOWHERE_TO_HIDE) == QUEST_STATUS_INCOMPLETE)
             {
@@ -868,7 +871,7 @@ class npc_enchanter_isian : public CreatureScript
             return true;
         }
 
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
             uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
             ClearGossipMenuFor(player);
@@ -975,7 +978,7 @@ class npc_vereesa_windrunner : public CreatureScript
             });
         }
 
-        void QuestAccept(Player* player, Quest const* quest) override
+        void OnQuestAccept(Player* player, Quest const* quest) override
         {
             switch (quest->GetQuestId())
             {
