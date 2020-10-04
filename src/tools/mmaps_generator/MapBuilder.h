@@ -22,6 +22,7 @@
 
 #include "Recast.h"
 #include "DetourNavMesh.h"
+#include "Optional.h"
 #include "ProducerConsumerQueue.h"
 
 #include <vector>
@@ -94,12 +95,15 @@ namespace MMAP
     class MapBuilder
     {
         public:
-            MapBuilder(bool skipLiquid   = false,
+            MapBuilder(Optional<float> maxWalkableAngle,
+                Optional<float> maxWalkableAngleNotSteep,
+                bool skipLiquid          = false,
                 bool skipContinents      = false,
                 bool skipJunkMaps        = true,
                 bool skipBattlegrounds   = false,
                 bool debugOutput         = false,
                 bool bigBaseUnit         = false,
+                bool smallOutputSize     = false,
                 int mapid                = -1,
                 char const* offMeshFilePath = nullptr);
 
@@ -159,7 +163,10 @@ namespace MMAP
             bool m_skipJunkMaps;
             bool m_skipBattlegrounds;
 
+            Optional<float> m_maxWalkableAngle;
+            Optional<float> m_maxWalkableAngleNotSteep;
             bool m_bigBaseUnit;
+            bool m_smallOutputSize;
 
             int32 m_mapid;
 
