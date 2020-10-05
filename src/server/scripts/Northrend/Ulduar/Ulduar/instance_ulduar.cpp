@@ -1000,6 +1000,12 @@ class instance_ulduar : public InstanceMapScript
                             if (GameObject* gameObject = instance->GetGameObject(LeviathanGateGUID))
                                 gameObject->SetGoState(GO_STATE_DESTROYED);
                             break;
+                        case EVENT_RESPAWN_ASSEMBLY_OF_IRON:
+                            SetBossState(DATA_ASSEMBLY_OF_IRON, NOT_STARTED);
+                            instance->SpawnGroupSpawn(SPAWN_GROUP_ASSEMBLY_OF_IRON, true);
+                            break;
+                        default:
+                            break;
                     }
                 }
             }
