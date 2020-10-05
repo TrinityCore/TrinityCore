@@ -686,20 +686,33 @@ void GameObject::Update(uint32 diff)
                     break;
                 case GAMEOBJECT_TYPE_TRAP:
                 {
+                    if (GameTime::GetGameTimeMS() < m_cooldownTime)
+                        break;
+
                     GameObjectTemplate const* goInfo = GetGOInfo();
-                    Unit* target = ObjectAccessor::GetUnit(*this, m_lootStateUnitGUID);
-                    // Some traps do not have a spell but should be triggered
-                    CastSpellExtraArgs args;
-                    args.SetOriginalCaster(GetOwnerGUID());
-                    if (goInfo->trap.spellId)
-                        CastSpell(target, goInfo->trap.spellId, args);
+                    // Spell is cast only once?
+                    if (GetUseCount() == 0)
+                    {
+                        Unit* target = ObjectAccessor::GetUnit(*this, m_lootStateUnitGUID);
+                        // Some traps do not have a spell but should be triggered
+                        CastSpellExtraArgs args;
+                        args.SetOriginalCaster(GetOwnerGUID());
+                        if (goInfo->trap.spellId)
+                            CastSpell(target, goInfo->trap.spellId, args);
+                    }
+
+                    if (goInfo->GetCharges() > 0)
+                        AddUse();
 
                     // Template value or 4 seconds
                     m_cooldownTime = GameTime::GetGameTimeMS() + (goInfo->trap.cooldown ? goInfo->trap.cooldown : uint32(4)) * IN_MILLISECONDS;
 
-                    if (goInfo->trap.type == 0)
+                    bool shouldDeactivateImmediatly = goInfo->GetCharges() > 0 && goInfo->trap.cooldown == 0;
+                    shouldDeactivateImmediatly = shouldDeactivateImmediatly || GetUseCount() == goInfo->GetCharges();
+
+                    if (goInfo->GetCharges() == 0)
                         SetLootState(GO_READY);
-                    else
+                    else if (shouldDeactivateImmediatly)
                         SetLootState(GO_JUST_DEACTIVATED);
                     break;
                 }
@@ -1473,7 +1486,7 @@ void GameObject::Use(Unit* user)
 
             m_cooldownTime = GameTime::GetGameTimeMS() + (goInfo->trap.cooldown ? goInfo->trap.cooldown : uint32(4)) * IN_MILLISECONDS;   // template or 4 seconds
 
-            if (goInfo->trap.type != 0)         // Deactivate after trigger
+            if (goInfo->GetCharges() != 0)         // Deactivate after trigger
                 SetLootState(GO_JUST_DEACTIVATED);
 
             return;
