@@ -1747,6 +1747,7 @@ enum OpcodeServer : uint16
     SMSG_SPELL_PERIODIC_AURA_LOG                      = 0x2C1B,
     SMSG_SPELL_PREPARE                                = 0x2C38,
     SMSG_SPELL_START                                  = 0x2C3A,
+    SMSG_SPELL_SET_POWER_TYPE                         = 0x2C58,
     SMSG_SPELL_VISUAL_LOAD_SCREEN                     = 0x25E5,
     SMSG_SPIRIT_HEALER_CONFIRM                        = 0x275A,
     SMSG_STAND_STATE_UPDATE                           = 0x2760,
