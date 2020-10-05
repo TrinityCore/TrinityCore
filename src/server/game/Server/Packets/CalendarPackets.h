@@ -312,10 +312,10 @@ namespace WorldPackets
             bool ClearPending = false;
         };
 
-        class CalendarInviteModeratorStatus final : public ServerPacket
+        class CalendarModeratorStatus final : public ServerPacket
         {
         public:
-            CalendarInviteModeratorStatus() : ServerPacket(SMSG_CALENDAR_INVITE_MODERATOR_STATUS, 26) { }
+            CalendarModeratorStatus() : ServerPacket(SMSG_CALENDAR_MODERATOR_STATUS, 26) { }
 
             WorldPacket const* Write() override;
 

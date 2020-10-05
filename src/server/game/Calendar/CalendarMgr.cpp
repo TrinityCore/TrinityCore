@@ -513,7 +513,7 @@ void CalendarMgr::SendCalendarEventInviteRemove(CalendarEvent const& calendarEve
 
 void CalendarMgr::SendCalendarEventModeratorStatusAlert(CalendarEvent const& calendarEvent, CalendarInvite const& invite)
 {
-    WorldPackets::Calendar::CalendarInviteModeratorStatus packet;
+    WorldPackets::Calendar::CalendarModeratorStatus packet;
     packet.ClearPending = true; // FIXME
     packet.EventID = calendarEvent.GetEventId();
     packet.InviteGuid = invite.GetInviteeGUID();
