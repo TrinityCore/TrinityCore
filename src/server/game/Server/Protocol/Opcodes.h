@@ -1281,6 +1281,7 @@ enum OpcodeServer : uint16
     SMSG_INSTANCE_RESET                               = 0x26B5,
     SMSG_INSTANCE_RESET_FAILED                        = 0x26B6,
     SMSG_INSTANCE_SAVE_CREATED                        = 0x27C5,
+    SMSG_INTERRUPT_POWER_REGEN                        = 0x2C58,
     SMSG_INVALIDATE_PAGE_TEXT                         = 0x270C,
     SMSG_INVALIDATE_PLAYER                            = 0x26DA,
     SMSG_INVALID_PROMOTION_CODE                       = 0x2799,
