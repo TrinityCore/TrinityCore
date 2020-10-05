@@ -52,6 +52,7 @@ class TC_GAME_API SmartAI : public CreatureAI
         void StartPath(bool run = false, uint32 pathId = 0, bool repeat = false, Unit* invoker = nullptr, uint32 nodeId = 1);
         bool LoadPath(uint32 entry);
         void PausePath(uint32 delay, bool forced = false);
+        bool CanResumePath();
         void StopPath(uint32 DespawnTime = 0, uint32 quest = 0, bool fail = false);
         void EndPath(bool fail = false);
         void ResumePath();

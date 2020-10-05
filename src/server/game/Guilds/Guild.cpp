@@ -1586,7 +1586,7 @@ void Guild::HandleRemoveMember(WorldSession* session, std::string_view name)
                 CharacterDatabaseTransaction trans(nullptr);
                 DeleteMember(trans, guid, false, true);
                 _LogEvent(GUILD_EVENT_LOG_UNINVITE_PLAYER, player->GetGUID().GetCounter(), guid.GetCounter());
-                _BroadcastEvent(GE_REMOVED, ObjectGuid::Empty, member->GetName(), player->GetName());
+                _BroadcastEvent(GE_REMOVED, ObjectGuid::Empty, name, player->GetName());
             }
         }
     }
