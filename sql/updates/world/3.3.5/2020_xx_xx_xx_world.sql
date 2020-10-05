@@ -4,7 +4,7 @@ UPDATE `creature_template` SET `speed_run`= 1.42857 WHERE `entry`= 33694;
 UPDATE `creature_template` SET `speed_run`= 1.28571 WHERE `entry`= 33692;
 UPDATE `creature_template` SET `speed_walk`= 0.888888,  `speed_run`= 1.58731 WHERE `entry`= 33693;
 UPDATE `creature_template` SET `ScriptName`= 'npc_assembly_lightning_elemental' WHERE `entry`= 32958;
-UPDATE `creature_template` SET `flags_extra`= 128 WHERE `entry`= 32866;
+UPDATE `creature_template` SET `flags_extra`= 128 WHERE `entry` IN (32866, 33690);
 
 DELETE FROM `creature_template_addon` WHERE `entry`= 32866;
 INSERT INTO `creature_template_addon` (`entry`, `auras`) VALUES
