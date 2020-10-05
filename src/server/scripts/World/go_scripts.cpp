@@ -803,7 +803,6 @@ public:
 
         bool OnGossipHello(Player* player) override
         {
-            me->SetLootState(GO_JUST_DEACTIVATED);
             if (LockEntry const* lockEntry = sLockStore.LookupEntry(me->GetGOInfo()->trap.lockId))
             {
                 for (uint8 i = 0; i < MAX_LOCK_CASE; i++)
