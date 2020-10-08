@@ -367,6 +367,8 @@ enum UlduarAchievementCriteriaIds
     CRITERIA_ALONE_IN_THE_DARKNESS_25        = 10417,
     CRITERIA_HERALD_OF_TITANS                = 10678,
 
+    REALM_FIRST_DEATHS_DEMISE                = 10279,
+
     // Champion of Ulduar
     CRITERIA_C_O_U_LEVIATHAN_10              = 10042,
     CRITERIA_C_O_U_IGNIS_10                  = 10342,
@@ -475,6 +477,7 @@ enum UlduarData
 
 enum UlduarWorldStates
 {
+    WORLD_STATE_YOGG_SARON_KEEPERS      = 4116,
     WORLD_STATE_ALGALON_DESPAWN_TIMER   = 4131,
     WORLD_STATE_ALGALON_TIMER_ENABLED   = 4132,
 };

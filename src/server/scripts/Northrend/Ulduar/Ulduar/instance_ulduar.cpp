@@ -230,6 +230,7 @@ class instance_ulduar : public InstanceMapScript
 
             void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override
             {
+                packet.Worldstates.emplace_back(WORLD_STATE_YOGG_SARON_KEEPERS, int32(keepersCount));
                 packet.Worldstates.emplace_back(WORLD_STATE_ALGALON_TIMER_ENABLED, (_algalonTimer && _algalonTimer <= 60) ? 1 : 0);
                 packet.Worldstates.emplace_back(WORLD_STATE_ALGALON_DESPAWN_TIMER, std::min<int32>(_algalonTimer, 60));
             }
@@ -897,6 +898,7 @@ class instance_ulduar : public InstanceMapScript
                         return keepersCount <= 1;
                     case CRITERIA_ALONE_IN_THE_DARKNESS_10:
                     case CRITERIA_ALONE_IN_THE_DARKNESS_25:
+                    case REALM_FIRST_DEATHS_DEMISE:
                         return keepersCount == 0;
                     case CRITERIA_C_O_U_LEVIATHAN_10:
                     case CRITERIA_C_O_U_LEVIATHAN_25:
