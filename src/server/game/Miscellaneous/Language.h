@@ -237,7 +237,7 @@ enum TrinityStrings
     LANG_SUBCMD_INVALID                   = 193,
     LANG_CMD_AMBIGUOUS                    = 194,
     LANG_CMD_HELP_GENERIC                 = 195,
-    LANG_CMD_NO_HELP_AVAILABLE            = 196, // 3.3.5 RESERVED
+    LANG_CMD_NO_HELP_AVAILABLE            = 196,
     // Room for more level 1                197-199 not used
 
     // level 2 chat
