@@ -4,11 +4,10 @@
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
+#include "MotionMaster.h"
 #include "ScriptMgr.h"
 #include "TemporarySummon.h"
 #include "WorldStatePackets.h"
-
-#include <iostream>
 
 class instance_tristam_catacombs : public InstanceMapScript
 {
@@ -23,6 +22,25 @@ class instance_tristam_catacombs : public InstanceMapScript
                 SetBossNumber(EncounterCount);
             }
 
+            void OnPlayerEnter(Player* /*player*/) override
+            {
+                if (Creature* netristrasza = instance->GetCreature(netristraszaGUID))
+                    netristrasza->SummonCreature(NPC_TIME_RIFT, *netristrasza);
+            }
+
+            void OnGameObjectCreate(GameObject* go) override
+            {
+                switch (go->GetEntry())
+                {
+                    case GOB_IRON_GATE:
+                        HandleGameObject(ObjectGuid::Empty, false, go);
+                        go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
             void OnCreatureCreate(Creature* creature) override
             {
                 switch (creature->GetEntry())
@@ -33,9 +51,11 @@ class instance_tristam_catacombs : public InstanceMapScript
                     case NPC_ANTONN_GRAVE:
                         antonnGUID = creature->GetGUID();
                         break;
-                    case NPC_ACOLYTE:
-                        if (!creature->HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD))
-                            acolytesGUID.push_back(creature->GetGUID());
+                    case NPC_TIME_RIFT:
+                        riftGUID = creature->GetGUID();
+                        break;
+                    case NPC_LEORIC:
+                        leoricGUID = creature->GetGUID();
                         break;
                     default:
                         break;
@@ -50,6 +70,10 @@ class instance_tristam_catacombs : public InstanceMapScript
                         return netristraszaGUID;
                     case DATA_ANTONN_GRAVE:
                         return antonnGUID;
+                    case DATA_TIME_RIFT:
+                        return riftGUID;
+                    case DATA_LEORIC:
+                        return leoricGUID;
                     default:
                         break;
                 }
@@ -67,17 +91,13 @@ class instance_tristam_catacombs : public InstanceMapScript
                     case DATA_NETRISTRASZA_ENTRANCE:
                         switch (state)
                         {
-                            case NOT_STARTED:
-                                break;
                             case IN_PROGRESS:
                                 if (Creature* netristrasza = instance->GetCreature(netristraszaGUID))
                                     netristrasza->AI()->DoAction(ACTION_START_DUNGEON);
                                 break;
-                            case DONE:
-                                break;
                             case FAIL:
                                 if (Creature* netristrasza = instance->GetCreature(netristraszaGUID))
-                                    netristrasza->DespawnOrUnsummon(10s);
+                                    netristrasza->DespawnOrUnsummon();
                                 break;
                             default:
                                 break;
@@ -90,33 +110,11 @@ class instance_tristam_catacombs : public InstanceMapScript
                 return true;
             }
 
-            void ProcessEvent(WorldObject* /*obj*/, uint32 eventId) override
-            {
-                switch (eventId)
-                {
-                    case EVENT_ANTONN_GRAVE:
-                        if (Creature* antonn = instance->GetCreature(antonnGUID))
-                        {
-                            antonn->AI()->Talk(SAY_ANTONN_01);
-                            for (auto guid : acolytesGUID)
-                            {
-                                if (Creature* acolyte = instance->GetCreature(guid))
-                                {
-                                    acolyte->SetFacingToObject(antonn);
-                                    acolyte->CastSpell(antonn, SPELL_RITUAL_CANALISATION, true);
-                                }
-                            }
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
-
             private:
+            ObjectGuid riftGUID;
             ObjectGuid netristraszaGUID;
             ObjectGuid antonnGUID;
-            std::list<ObjectGuid> acolytesGUID;
+            ObjectGuid leoricGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

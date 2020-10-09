@@ -14,12 +14,13 @@ enum TCDataTypes
 	DATA_NETRISTRASZA_ENTRANCE,
 	DATA_ANTONN_GRAVE,
 	DATA_GHEZRIM,
-	DATA_KING_LEORIC,
+	DATA_LEORIC,
 	DATA_ASMODAN,
 
 	// Etc
 	DATA_GHEZRIM_GUARDIAN,
 	DATA_NETRISTRASZA,
+    DATA_TIME_RIFT,
 };
 
 enum TCCreaturesIds
@@ -28,8 +29,8 @@ enum TCCreaturesIds
     NPC_ANTONN_GRAVE                = 100076,
     NPC_ACOLYTE                     = 100077,
 
-	// King Leoric
-	NPC_KING_LEORIC                 = 0,
+	// Leoric
+	NPC_LEORIC                      = 100078,
 
 	// Ghezrim
 	NPC_GHEZRIM                     = 0,
@@ -42,18 +43,21 @@ enum TCCreaturesIds
 	NPC_INVISIBLE_STALKER           = 32780,
     NPC_TIME_RIFT                   = 28409,
 	NPC_NETRISTRASZA                = 100075,
+    NPC_SKELETON_MINION             = 100079,
+    NPC_MAGE_SKELETON_MINION        = 100080
+};
+
+enum TCGameObjecs
+{
+    GOB_IRON_GATE                   = 175611
 };
 
 enum TCActions
 {
 	ACTION_START_DUNGEON            = -668001,
-	ACTION_START_ANTONN             = -668002,
-	ACTION_INTRO_ANTONN             = -668003,
-};
-
-enum TCInstanceEvents
-{
-    EVENT_ANTONN_GRAVE              = 1
+	ACTION_AG_INTRO                 = -668002,
+	ACTION_AG_SKELETON              = -668003,
+	ACTION_AG_COMBAT                = -668004,
 };
 
 enum TCInstanceTexts
@@ -64,7 +68,11 @@ enum TCInstanceTexts
 enum TCSpells
 {
     SPELL_RITUAL_CANALISATION       = 100094,
-    SPELL_PORTAL_VISUAL             = 57687
+    SPELL_PORTAL_VISUAL             = 57687,
+    SPELL_DEMONIC_PORTAL            = 68424,
+    SPELL_SAND_STORM                = 68802,
+    SPELL_VISUAL_TELEPORT           = 51347,
+    SPELL_VISUAL_TELEPORT_DEMON     = 52235
 };
 
 template <class AI, class T>
