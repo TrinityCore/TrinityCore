@@ -167,16 +167,6 @@ class npc_displaced_sunreaver : public CreatureScript
             me->DespawnOrUnsummon(1s);
         }
 
-        void OnSpellCastFinished(SpellInfo const* /*spell*/, SpellFinishReason reason) override
-        {
-            if (reason == SPELL_FINISHED_CANCELED)
-            {
-                me->StopMoving();
-                me->GetMotionMaster()->Clear();
-                me->GetMotionMaster()->MoveFleeing(me->GetVictim(), 5);
-            }
-        }
-
         void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
         {
             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);

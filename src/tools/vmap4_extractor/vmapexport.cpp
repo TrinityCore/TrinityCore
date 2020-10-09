@@ -309,6 +309,8 @@ bool fillArchiveNameVector(std::vector<std::string>& pArchiveNames)
     pArchiveNames.push_back(input_path + std::string("lichking.MPQ"));
     pArchiveNames.push_back(input_path + std::string("patch-A.MPQ"));
     pArchiveNames.push_back(input_path + std::string("patch-B.MPQ"));
+    pArchiveNames.push_back(input_path + std::string("patch-F.MPQ"));
+    pArchiveNames.push_back(input_path + std::string("patch-G.MPQ"));
 
     // now, scan for the patch levels in the core dir
     printf("Scanning patch levels from data directory.\n");

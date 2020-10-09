@@ -73,12 +73,12 @@ class npc_archmage_fire : public CreatureScript
         void JustEngagedWith(Unit* /*who*/) override
         {
             scheduler
-                .Schedule(5ms, [this](TaskContext fireball)
+                .Schedule(1s, 5s, [this](TaskContext fireball)
                 {
                     DoCastVictim(SPELL_FIREBALL);
                     fireball.Repeat(2s);
                 })
-                .Schedule(5ms, [this](TaskContext counterspell)
+                .Schedule(1s, 5s, [this](TaskContext counterspell)
                 {
                     if (Unit* target = DoSelectCastingUnit(SPELL_COUNTERSPELL, 35.f))
                     {
@@ -91,18 +91,18 @@ class npc_archmage_fire : public CreatureScript
                         counterspell.Repeat(1s);
                     }
                 })
-                .Schedule(5s, [this](TaskContext living_bomb)
+                .Schedule(5s, 8s, [this](TaskContext living_bomb)
                 {
                     DoCastVictim(SPELL_LIVING_BOMB);
                     living_bomb.Repeat(20s, 28s);
                 })
-                .Schedule(8s, [this](TaskContext fireblast)
+                .Schedule(8s, 10s, [this](TaskContext fireblast)
                 {
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_FIREBLAST);
                     fireblast.Repeat(14s, 22s);
                 })
-                .Schedule(12s, [this](TaskContext pyroblast)
+                .Schedule(12s, 18s, [this](TaskContext pyroblast)
                 {
                     if (Unit* target = SelectTarget(SelectTargetMethod::MaxDistance, 0))
                         DoCast(target, SPELL_PYROBLAST);
@@ -110,10 +110,11 @@ class npc_archmage_fire : public CreatureScript
                 });
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        void DamageTaken(Unit* attacker, uint32& damage) override
         {
             // Que pour la bataille de Theramore
-            if (me->GetMapId() == 726)
+            if (me->GetMapId() == 726
+                && (attacker->GetTypeId() == TYPEID_PLAYER && !attacker->ToPlayer()->IsGameMaster()))
             {
                 if (damage >= me->GetMaxHealth())
                     damage = 0;
@@ -174,7 +175,7 @@ class npc_archmage_arcanes : public CreatureScript
             }
 
             scheduler
-                .Schedule(5ms, [this](TaskContext arcane_blast)
+                .Schedule(1s, 5s, [this](TaskContext arcane_blast)
                 {
                     if (Aura* aura = me->GetAura(AURA_ARCANE_BLAST))
                     {
@@ -188,7 +189,7 @@ class npc_archmage_arcanes : public CreatureScript
 
                     arcane_blast.Repeat(500ms);
                 })
-                .Schedule(5ms, [this](TaskContext evocation)
+                .Schedule(1s, 5s, [this](TaskContext evocation)
                 {
                     float manaPct = me->GetPower(POWER_MANA) * 100 / me->GetMaxPower(POWER_MANA);
                     if (manaPct <= 20)
@@ -213,7 +214,7 @@ class npc_archmage_arcanes : public CreatureScript
                         evocation.Repeat(5s);
                     }
                 })
-                .Schedule(5ms, [this](TaskContext counterspell)
+                .Schedule(1s, 5s, [this](TaskContext counterspell)
                 {
                     if (Unit* target = DoSelectCastingUnit(SPELL_COUNTERSPELL, 35.f))
                     {
@@ -226,7 +227,7 @@ class npc_archmage_arcanes : public CreatureScript
                         counterspell.Repeat(1s);
                     }
                 })
-                .Schedule(3s, [this](TaskContext arcane_barrage)
+                .Schedule(3s, 6s, [this](TaskContext arcane_barrage)
                 {
                     if (Aura* aura = me->GetAura(AURA_ARCANE_BLAST))
                     {
@@ -240,17 +241,18 @@ class npc_archmage_arcanes : public CreatureScript
 
                     arcane_barrage.Repeat(500ms);
                 })
-                .Schedule(1min, [this](TaskContext arcane_explosion)
+                .Schedule(8s, 12s, [this](TaskContext arcane_explosion)
                 {
                     DoCastAOE(SPELL_ARCANE_EXPLOSION);
                     arcane_explosion.Repeat(1min, 2min);
                 });
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        void DamageTaken(Unit* attacker, uint32& damage) override
         {
             // Que pour la bataille de Theramore
-            if (me->GetMapId() == 726)
+            if (me->GetMapId() == 726
+                && (attacker->GetTypeId() == TYPEID_PLAYER && !attacker->ToPlayer()->IsGameMaster()))
             {
                 if (damage >= me->GetMaxHealth())
                     damage = 0;
@@ -294,12 +296,12 @@ class npc_archmage_frost : public CreatureScript
             DoCast(SPELL_ICE_BARRIER);
 
             scheduler
-                .Schedule(5ms, PHASE_COMBAT, [this](TaskContext frostbotl)
+                .Schedule(1s, 5s, PHASE_COMBAT, [this](TaskContext frostbotl)
                 {
                     DoCastVictim(SPELL_FROSTBOLT);
                     frostbotl.Repeat(2s);
                 })
-                .Schedule(5ms, PHASE_COMBAT, [this](TaskContext counterspell)
+                .Schedule(1s, 5s, PHASE_COMBAT, [this](TaskContext counterspell)
                 {
                     if (Unit* target = DoSelectCastingUnit(SPELL_COUNTERSPELL, 35.f))
                     {
@@ -312,14 +314,14 @@ class npc_archmage_frost : public CreatureScript
                         counterspell.Repeat(1s);
                     }
                 })
-                .Schedule(3s, PHASE_COMBAT, [this](TaskContext ice_lance)
+                .Schedule(3s, 6s, PHASE_COMBAT, [this](TaskContext ice_lance)
                 {
                     me->InterruptNonMeleeSpells(false);
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_ICE_LANCE);
                     ice_lance.Repeat(8s, 14s);
                 })
-                .Schedule(30s, PHASE_COMBAT, [this](TaskContext ice_barrier)
+                .Schedule(30s, 50s, PHASE_COMBAT, [this](TaskContext ice_barrier)
                 {
                     if (!me->HasAura(SPELL_ICE_BARRIER))
                     {
@@ -340,10 +342,11 @@ class npc_archmage_frost : public CreatureScript
             me->RemoveAurasDueToSpell(SPELL_HYPOTHERMIA);
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        void DamageTaken(Unit* attacker, uint32& damage) override
         {
             // Que pour la bataille de Theramore
-            if (me->GetMapId() == 726)
+            if (me->GetMapId() == 726
+                && (attacker->GetTypeId() == TYPEID_PLAYER && !attacker->ToPlayer()->IsGameMaster()))
             {
                 if (damage >= me->GetMaxHealth())
                     damage = 0;

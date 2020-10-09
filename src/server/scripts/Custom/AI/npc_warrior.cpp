@@ -24,10 +24,12 @@ class npc_warrior : public CreatureScript
     {
         npc_warriorAI(Creature* creature) : CustomAI(creature, AI_Type::Melee) {}
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        void DamageTaken(Unit* attacker, uint32& damage) override
         {
             // Que pour la bataille de Theramore et pour Aden
-            if (me->GetEntry() == NPC_LIEUTENANT_ADEN && me->GetMapId() == 726)
+            if (me->GetEntry() == NPC_LIEUTENANT_ADEN
+                && me->GetMapId() == 726
+                && (attacker->GetTypeId() == TYPEID_PLAYER && !attacker->ToPlayer()->IsGameMaster()))
             {
                 if (damage >= me->GetMaxHealth())
                     damage = 0;

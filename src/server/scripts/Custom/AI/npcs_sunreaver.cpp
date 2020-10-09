@@ -45,10 +45,10 @@ enum Spells
     SPELL_DUMMY_METEOR          = 100056 
 };
 
-enum Phases
+enum class Phases
 {
-    PHASE_NORMAL                = 1,
-    PHASE_POSTCOMBUSTION
+    Normal                      = 1,
+    Combustion
 };
 
 void KillCredit(Unit* killer)
@@ -252,7 +252,7 @@ class npc_magister_brasael : public CreatureScript
     struct npc_magister_brasaelAI : public CustomAI
     {
         npc_magister_brasaelAI(Creature* creature) : CustomAI(creature),
-            phase(PHASE_NORMAL), meteors(0), combustionUsed(false)
+            phase(Phases::Normal), meteors(0), combustionUsed(false)
         {
 
         }
@@ -269,13 +269,13 @@ class npc_magister_brasael : public CreatureScript
             {
                 combustionUsed = true;
 
-                phase = PHASE_POSTCOMBUSTION;
+                phase = Phases::Combustion;
 
-                scheduler.Schedule(1s, PHASE_POSTCOMBUSTION, [this](TaskContext postcombustion)
+                scheduler.Schedule(1s, (int)Phases::Combustion, [this](TaskContext postcombustion)
                 {
                     if (me->GetVictim()->GetTypeId() == TYPEID_PLAYER)
                     {
-                        scheduler.CancelGroup(PHASE_NORMAL);
+                        scheduler.CancelGroup((int)Phases::Normal);
 
                         DoCastSelf(SPELL_POSTCOMBUSTION);
 
@@ -285,8 +285,8 @@ class npc_magister_brasael : public CreatureScript
                     }
                     else
                     {
-                        phase = PHASE_NORMAL;
-                        scheduler.CancelGroup(PHASE_POSTCOMBUSTION);
+                        phase = Phases::Normal;
+                        scheduler.CancelGroup((int)Phases::Combustion);
                     }
                 });
             }
@@ -301,7 +301,7 @@ class npc_magister_brasael : public CreatureScript
         {
             if (spellInfo->Id == SPELL_POSTCOMBUSTION)
             {
-                scheduler.Schedule(1s, PHASE_POSTCOMBUSTION, [this](TaskContext meteor)
+                scheduler.Schedule(1s, (int)Phases::Combustion, [this](TaskContext meteor)
                 {
                     if (meteors > 2)
                     {
@@ -330,7 +330,7 @@ class npc_magister_brasael : public CreatureScript
 
         void Reset() override
         {
-            phase = PHASE_NORMAL;
+            phase = Phases::Normal;
             combustionUsed = false;
             meteors = 0;
         }
@@ -355,15 +355,15 @@ class npc_magister_brasael : public CreatureScript
 
         void SetCombatToNormal()
         {
-            phase = PHASE_NORMAL;
+            phase = Phases::Normal;
 
             scheduler
-                .Schedule(5ms, PHASE_NORMAL, [this](TaskContext scorch)
+                .Schedule(5ms, (int)Phases::Normal, [this](TaskContext scorch)
                 {
                     DoCast(SPELL_SCORCH);
                     scorch.Repeat(5s, 8s);
                 })
-                .Schedule(14s, PHASE_NORMAL, [this](TaskContext dragonBreath)
+                .Schedule(14s, (int)Phases::Normal, [this](TaskContext dragonBreath)
                 {
                     DoCast(SPELL_DRAGON_BREATH);
                     dragonBreath.Repeat(14s, 28s);

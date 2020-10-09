@@ -16,6 +16,7 @@
  */
 
 // This is where scripts' loading functions should be declared:
+// Theramore
 void AddSC_theramore();
 void AddSC_theramore_waves_invoker();
 void AddSC_npc_priest();
@@ -34,11 +35,16 @@ void AddSC_action_update_phase();
 void AddSC_jaina_affray_isle();
 void AddSC_stormwind_final_event();
 
+// Tristam Catacombs
+void AddSC_instance_tristam_catacombs();
+void AddSC_tristam_catacombs();
+void AddSC_npc_antonn_grave();
+
 // The name of this function should match:
-// void Add${NameOfDirectory}Scripts()
 void AddCustomScripts()
 {
-	AddSC_theramore();
+    // Theramore
+    AddSC_theramore();
     AddSC_theramore_waves_invoker();
     AddSC_npc_priest();
 	AddSC_npc_archmages();
@@ -55,4 +61,9 @@ void AddCustomScripts()
     AddSC_action_update_phase();
     AddSC_jaina_affray_isle();
     AddSC_stormwind_final_event();
+
+    // Tristam Catacombs
+    AddSC_instance_tristam_catacombs();
+    AddSC_tristam_catacombs();
+    AddSC_npc_antonn_grave();
 }
