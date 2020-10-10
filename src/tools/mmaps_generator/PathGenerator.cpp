@@ -108,7 +108,6 @@ bool handleArgs(int argc, char** argv,
                bool &debugOutput,
                bool &silent,
                bool &bigBaseUnit,
-               bool &smallOutputSize,
                char* &offMeshInputPath,
                char* &file,
                unsigned int& threads)
@@ -266,10 +265,6 @@ bool handleArgs(int argc, char** argv,
 
             offMeshInputPath = param;
         }
-        else if (strcmp(argv[i], "--smallOutputSize") == 0)
-        {
-            smallOutputSize = true;
-        }
         else if (!strcmp(argv[i], "--help") || !strcmp(argv[i], "-?"))
         {
             printf("%s\n", Readme);
@@ -379,15 +374,14 @@ int main(int argc, char** argv)
          skipBattlegrounds = false,
          debugOutput = false,
          silent = false,
-         bigBaseUnit = false,
-         smallOutputSize = false;
+         bigBaseUnit = false;
     char* offMeshInputPath = nullptr;
     char* file = nullptr;
 
     bool validParam = handleArgs(argc, argv, mapnum,
                                  tileX, tileY, maxAngle, maxAngleNotSteep,
                                  skipLiquid, skipContinents, skipJunkMaps, skipBattlegrounds,
-                                 debugOutput, silent, bigBaseUnit, smallOutputSize, offMeshInputPath, file, threads);
+                                 debugOutput, silent, bigBaseUnit, offMeshInputPath, file, threads);
 
     if (!validParam)
         return silent ? -1 : finish("You have specified invalid parameters", -1);
@@ -420,7 +414,7 @@ int main(int argc, char** argv)
     };
 
     MapBuilder builder(maxAngle, maxAngleNotSteep, skipLiquid, skipContinents, skipJunkMaps,
-                       skipBattlegrounds, debugOutput, bigBaseUnit, smallOutputSize, mapnum, offMeshInputPath);
+                       skipBattlegrounds, debugOutput, bigBaseUnit, mapnum, offMeshInputPath);
 
     uint32 start = getMSTime();
     if (file)

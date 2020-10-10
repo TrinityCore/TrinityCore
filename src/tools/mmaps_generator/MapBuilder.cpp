@@ -33,7 +33,7 @@ namespace MMAP
 {
     MapBuilder::MapBuilder(Optional<float> maxWalkableAngle, Optional<float> maxWalkableAngleNotSteep, bool skipLiquid,
         bool skipContinents, bool skipJunkMaps, bool skipBattlegrounds,
-        bool debugOutput, bool bigBaseUnit, bool smallOutputSize, int mapid, char const* offMeshFilePath) :
+        bool debugOutput, bool bigBaseUnit, int mapid, char const* offMeshFilePath) :
         m_terrainBuilder     (nullptr),
         m_debugOutput        (debugOutput),
         m_offMeshFilePath    (offMeshFilePath),
@@ -43,7 +43,6 @@ namespace MMAP
         m_maxWalkableAngle   (maxWalkableAngle),
         m_maxWalkableAngleNotSteep (maxWalkableAngleNotSteep),
         m_bigBaseUnit        (bigBaseUnit),
-        m_smallOutputSize    (smallOutputSize),
         m_mapid              (mapid),
         m_totalTiles         (0u),
         m_totalTilesProcessed(0u),
@@ -605,9 +604,7 @@ namespace MMAP
                 delete[] triFlags;
 
                 rcFilterLowHangingWalkableObstacles(m_rcContext, config.walkableClimb, *tile.solid);
-                // disabled by default as it ignores walkableSlopeAngle settings
-                if (m_smallOutputSize)
-                    rcFilterLedgeSpans(m_rcContext, tileCfg.walkableHeight, tileCfg.walkableClimb, *tile.solid);
+                rcFilterLedgeSpans(m_rcContext, tileCfg.walkableHeight, tileCfg.walkableClimb, *tile.solid);
                 rcFilterWalkableLowHeightSpans(m_rcContext, tileCfg.walkableHeight, *tile.solid);
 
                 // add liquid triangles
@@ -998,7 +995,7 @@ namespace MMAP
         config.ch = tileConfig.BASE_UNIT_DIM;
         // Keeping these 2 slope angles the same reduces a lot the number of polys.
         // 55 should be the minimum, maybe 70 is ok (keep in mind blink uses mmaps), 85 is too much for players
-        config.walkableSlopeAngle = m_maxWalkableAngle ? *m_maxWalkableAngle : m_smallOutputSize ? 55 : 85;
+        config.walkableSlopeAngle = m_maxWalkableAngle ? *m_maxWalkableAngle : 55;
         config.walkableSlopeAngleNotSteep = m_maxWalkableAngleNotSteep ? *m_maxWalkableAngleNotSteep : 55;
         config.tileSize = tileConfig.VERTEX_PER_TILE;
         config.walkableRadius = m_bigBaseUnit ? 1 : 2;

@@ -105,7 +105,6 @@ namespace MMAP
                 bool skipBattlegrounds   = false,
                 bool debugOutput         = false,
                 bool bigBaseUnit         = false,
-                bool smallOutputSize     = false,
                 int mapid                = -1,
                 char const* offMeshFilePath = nullptr);
 
@@ -170,7 +169,6 @@ namespace MMAP
             Optional<float> m_maxWalkableAngle;
             Optional<float> m_maxWalkableAngleNotSteep;
             bool m_bigBaseUnit;
-            bool m_smallOutputSize;
 
             int32 m_mapid;
 
