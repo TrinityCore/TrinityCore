@@ -37,7 +37,7 @@ class npc_mage_skeleton : public CreatureScript
             {
                 case SKELETON_MAGE_FROST:
                     scheduler
-                        .Schedule(1s, 5s, [this](TaskContext frostbotl)
+                        .Schedule(5ms, [this](TaskContext frostbotl)
                         {
                             DoCastVictim(SPELL_FROSTBOLT);
                             frostbotl.Repeat(1890ms);
@@ -52,7 +52,7 @@ class npc_mage_skeleton : public CreatureScript
                     break;
                 case SKELETON_MAGE_FIRE:
                     scheduler
-                        .Schedule(1s, 5s, [this](TaskContext fireball)
+                        .Schedule(5s, [this](TaskContext fireball)
                         {
                             DoCastVictim(SPELL_FIREBALL);
                             fireball.Repeat(2s);

@@ -11,6 +11,7 @@
 #include "ScriptedGossip.h"
 #include "ScriptMgr.h"
 #include "Spell.h"
+#include "SpellAuras.h"
 #include "SpellInfo.h"
 #include "TemporarySummon.h"
 #include "Unit.h"
@@ -19,38 +20,20 @@
 
 enum Spells
 {
+    AURA_ARCANE_BLAST           = 36032,
+
     SPELL_ARCANE_BARRAGE        = 100009,
     SPELL_ARCANE_BLAST          = 100010,
-    SPELL_ARCANE_PROJECTILE     = 100012,
     SPELL_ARCANE_EXPLOSION      = 100011,
-    SPELL_STOP_TIME             = 100096,
-    SPELL_WRAP_IN_TIME          = 100097
-};
-
-enum Events
-{
-	EVENT_START_01              = 1,
-	EVENT_START_02,
-	EVENT_START_03,
-
-	EVENT_ANTONN_GRAVE_01,
-	EVENT_ANTONN_GRAVE_02,
-	EVENT_ANTONN_GRAVE_03,
-	EVENT_ANTONN_GRAVE_04,
-	EVENT_ANTONN_GRAVE_05,
-	EVENT_ANTONN_GRAVE_06,
-	EVENT_ANTONN_GRAVE_07,
-	EVENT_ANTONN_GRAVE_08,
-	EVENT_ANTONN_GRAVE_09,
-
-    EVENT_SPELL_ARCANE_BARRAGE,
-    EVENT_SPELL_ARCANE_BLAST,
-    EVENT_SPELL_ARCANE_PROJECTILE,
-    EVENT_SPELL_ARCANE_EXPLOSION
+    SPELL_STOP_TIME             = 100090,
+    SPELL_WRAP_IN_TIME          = 100096
 };
 
 enum Texts
 {
+	SAY_NETRISTRASZA_AGGRO      = 20,
+	SAY_NETRISTRASZA_COMBAT     = 21,
+
 	SAY_NETRISTRASZA_INTRO_01   = 0,
 	SAY_NETRISTRASZA_INTRO_02   = 1,
 
@@ -64,12 +47,17 @@ enum Texts
 	SAY_AG_NETRISTRASZA_03      = 6,
     SAY_AG_ANTONN_GRAVE_04      = 3,
     SAY_AG_LEORIC_05            = 0,
+    SAY_AG_NETRISTRASZA_06      = 7
 };
 
-enum Gossips
+enum Misc
 {
+    // Gossips
 	GOSSIP_MENU_START           = 57024,
 	GOSSIP_MENU_FINAL           = 57025,
+
+    // Group
+    GROUP_COMBAT                = 1
 };
 
 const Position leoricPos01 = { 261.69f, 93.37f, 109.97f, 4.72f };
@@ -88,28 +76,62 @@ class npc_netristrasza : public CreatureScript
 		npc_netristraszaAI(Creature* creature) : EscortAI(creature),
 			instance(creature->GetInstanceScript()), started(false), wrapInTime(false)
 		{
+            Initialize();
 		}
+
+        void Initialize()
+        {
+            scheduler.SetValidator([this]
+            {
+                return !me->HasUnitState(UNIT_STATE_CASTING);
+            });
+        }
 
 		void Reset() override
 		{
-			events.Reset();
+            scheduler.CancelAll();
 		}
+
+        void EnterEvadeMode(EvadeReason why) override
+        {
+            scheduler.CancelAll();
+
+            EscortAI::EnterEvadeMode(why);
+        }
+
+        void JustDied(Unit* killer) override
+        {
+            scheduler.CancelAll();
+
+            EscortAI::JustDied(killer);
+        }
 
         void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
         {
-            if (!wrapInTime && HealthBelowPct(30))
+            if (!wrapInTime && HealthBelowPct(50))
             {
                 wrapInTime = true;
+                scheduler.DelayGroup(GROUP_COMBAT, 9s);
                 me->InterruptNonMeleeSpells(false);
-                DoCastAOE(SPELL_STOP_TIME, true);
-                DoCast(SPELL_WRAP_IN_TIME);
+                DoCastAOE(SPELL_STOP_TIME);
             }
         }
 
         void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason reason) override
         {
-            if (spell->Id == SPELL_WRAP_IN_TIME && reason == SPELL_FINISHED_CHANNELING_COMPLETE)
-                wrapInTime = false;
+            switch (spell->Id)
+            {
+                case SPELL_STOP_TIME:
+                    if (reason == SPELL_FINISHED_SUCCESSFUL_CAST)
+                        DoCast(SPELL_WRAP_IN_TIME);
+                    break;
+                case SPELL_WRAP_IN_TIME:
+                    if (reason == SPELL_FINISHED_CHANNELING_COMPLETE)
+                        wrapInTime = false;
+                    break;
+                default:
+                    break;
+            }
         }
 
 		void DoAction(int32 actionId) override
@@ -133,8 +155,79 @@ class npc_netristrasza : public CreatureScript
 						me->SetFacingToObject(antonn);
 						antonn->AI()->Talk(SAY_AG_ANTONN_GRAVE_01);
 					}
-					events.ScheduleEvent(EVENT_ANTONN_GRAVE_01, 4s);
+                    scheduler.Schedule(4s, [this](TaskContext context)
+                    {
+                        switch (context.GetRepeatCounter())
+                        {
+                            case 0:
+                                if (Creature* antonn = instance->GetCreature(DATA_ANTONN_GRAVE))
+                                    antonn->AI()->Talk(SAY_AG_ANTONN_GRAVE_02);
+                                context.Repeat(4s);
+                                break;
+                            case 1:
+                                Talk(SAY_AG_NETRISTRASZA_03);
+                                context.Repeat(4s);
+                                break;
+                            case 2:
+                                if (Creature* antonn = instance->GetCreature(DATA_ANTONN_GRAVE))
+                                    antonn->AI()->Talk(SAY_AG_ANTONN_GRAVE_04);
+                                context.Repeat(2s);
+                                break;
+                            case 3:
+                                if (Creature* stalker = me->SummonCreature(NPC_INVISIBLE_STALKER, 261.69f, 93.37f, 112.19f, 4.72f))
+                                {
+                                    stalker->CastSpell(stalker, SPELL_DEMONIC_PORTAL);
+                                    portalGUID = stalker->GetGUID();
+                                }
+                                context.Repeat(1s);
+                                break;
+                            case 4:
+                                if (Creature* leoric = me->SummonCreature(NPC_LEORIC, leoricPos01))
+                                {
+                                    leoric->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                                    leoric->SetWalk(true);
+                                    leoric->GetMotionMaster()->MovePoint(0, leoricPos02);
+                                }
+                                context.Repeat(2s);
+                                break;
+                            case 5:
+                                if (Creature* leoric = instance->GetCreature(DATA_LEORIC))
+                                    leoric->AI()->Talk(SAY_AG_LEORIC_05);
+                                context.Repeat(9s);
+                                break;
+                            case 6:
+                                if (Creature* antonn = instance->GetCreature(DATA_ANTONN_GRAVE))
+                                {
+                                    antonn->RemoveAllAuras();
+                                    antonn->SetStandState(UNIT_STAND_STATE_STAND);
+                                }
+                                if (Creature* leoric = instance->GetCreature(DATA_LEORIC))
+                                {
+                                    leoric->GetMotionMaster()->MovePoint(0, leoricPos01);
+                                    leoric->DespawnOrUnsummon(5s);
+                                    if (Creature* portal = ObjectAccessor::GetCreature(*me, portalGUID))
+                                        portal->DespawnOrUnsummon(7s);
+                                }
+                                context.Repeat(8s);
+                                break;
+                            case 7:
+                                if (GameObject* door = instance->GetGameObject(DATA_ANTONN_GRAVE_ENTRANCE))
+                                    instance->HandleGameObject(ObjectGuid::Empty, true, door);
+                                if (Creature* antonn = instance->GetCreature(DATA_ANTONN_GRAVE))
+                                {
+                                    antonn->AI()->DoAction(ACTION_AG_SKELETON);
+                                    antonn->SetFacingToObject(me);
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                    });
 					break;
+                case ACTION_AG_END:
+                    Talk(SAY_AG_NETRISTRASZA_06);
+                    SetEscortPaused(false);
+                    break;
 				default:
 					break;
 			}
@@ -142,10 +235,47 @@ class npc_netristrasza : public CreatureScript
 
         void JustEngagedWith(Unit* /*who*/) override
         {
-            events.ScheduleEvent(EVENT_SPELL_ARCANE_BARRAGE, 5s);
-            events.ScheduleEvent(EVENT_SPELL_ARCANE_BLAST, 2s);
-            events.ScheduleEvent(EVENT_SPELL_ARCANE_PROJECTILE, 24s);
-            events.ScheduleEvent(EVENT_SPELL_ARCANE_EXPLOSION, 18s);
+            if (roll_chance_i(60))
+                Talk(SAY_NETRISTRASZA_AGGRO);
+
+            scheduler
+                .Schedule(5s, GROUP_COMBAT, [this](TaskContext talk)
+                {
+                    Talk(SAY_NETRISTRASZA_COMBAT);
+                    talk.Repeat(15s, 1min);
+                })
+                .Schedule(2s, GROUP_COMBAT, [this](TaskContext arcane_blast)
+                {
+                    if (Aura* aura = me->GetAura(AURA_ARCANE_BLAST))
+                    {
+                        if (aura->GetStackAmount() < 4)
+                            DoCastVictim(SPELL_ARCANE_BLAST);
+                    }
+                    else
+                    {
+                        DoCastVictim(SPELL_ARCANE_BLAST);
+                    }
+                    arcane_blast.Repeat(8s, 12s);
+                })
+                .Schedule(5s, GROUP_COMBAT, [this](TaskContext arcane_barrage)
+                {
+                    if (Aura* aura = me->GetAura(AURA_ARCANE_BLAST))
+                    {
+                        if (aura->GetStackAmount() >= 4)
+                        {
+                            me->InterruptNonMeleeSpells(true);
+                            me->RemoveAura(aura);
+                            DoCastVictim(SPELL_ARCANE_BARRAGE);
+                        }
+                    }
+                    arcane_barrage.Repeat(500ms);
+                })
+                .Schedule(18s, GROUP_COMBAT, [this](TaskContext arcane_explosion)
+                {
+                    me->InterruptNonMeleeSpells(true);
+                    DoCastAOE(SPELL_ARCANE_EXPLOSION);
+                    arcane_explosion.Repeat(32s, 45s);
+                });
         }
 
 		void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
@@ -156,12 +286,32 @@ class npc_netristrasza : public CreatureScript
 					SetEscortPaused(true);
 					if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
 						me->SetFacingToObject(player);
-                    if (Creature* rift = instance->GetCreature(DATA_TIME_RIFT))
-                        rift->DespawnOrUnsummon();
-                    events.ScheduleEvent(EVENT_START_01, 1s);
+                    scheduler.Schedule(1s, [this](TaskContext context)
+                    {
+                        switch (context.GetRepeatCounter())
+                        {
+                            case 0:
+						        Talk(SAY_NETRISTRASZA_INTRO_01);
+                                if (Creature* rift = instance->GetCreature(DATA_TIME_RIFT))
+                                    rift->DespawnOrUnsummon();
+                                context.Repeat(6s);
+                                break;
+                            case 1:
+						        Talk(SAY_NETRISTRASZA_INTRO_02);
+                                context.Repeat(4s);
+                                break;
+                            case 2:
+                                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                                if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
+                                    me->SetFacingToObject(player);
+                                break;
+                            default:
+                                break;
+                        }
+                    });
 					break;
 				case 4:
-					me->AI()->Talk(SAY_NETRISTRASZA_ESCORT_01);
+					Talk(SAY_NETRISTRASZA_ESCORT_01);
                     if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
                         me->SetFacingToObject(player);
 					break;
@@ -180,130 +330,18 @@ class npc_netristrasza : public CreatureScript
 			}
 		}
 
-		void UpdateAI(uint32 diff) override
-		{
-			events.Update(diff);
-
-            EscortAI::UpdateAI(diff);
-
-			while (uint32 event = events.ExecuteEvent())
-			{
-				switch (event)
-				{
-                    // Handle after waypoint 1
-					case EVENT_START_01:
-						me->AI()->Talk(SAY_NETRISTRASZA_INTRO_01);
-						events.ScheduleEvent(EVENT_START_02, 6s);
-						break;
-					case EVENT_START_02:
-						me->AI()->Talk(SAY_NETRISTRASZA_INTRO_02);
-						events.ScheduleEvent(EVENT_START_03, 4s);
-						break;
-					case EVENT_START_03:
-						me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                        if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
-                            me->SetFacingToObject(player);
-						break;
-                    // Handle after waypoint 15
-					case EVENT_ANTONN_GRAVE_01:
-                        if (Creature* antonn = instance->GetCreature(DATA_ANTONN_GRAVE))
-                            antonn->AI()->Talk(SAY_AG_ANTONN_GRAVE_02);
-                        events.ScheduleEvent(EVENT_ANTONN_GRAVE_02, 4s);
-                        break;
-                    case EVENT_ANTONN_GRAVE_02:
-						me->AI()->Talk(SAY_AG_NETRISTRASZA_03);
-                        events.ScheduleEvent(EVENT_ANTONN_GRAVE_03, 4s);
-                        break;
-                    case EVENT_ANTONN_GRAVE_03:
-                        if (Creature* antonn = instance->GetCreature(DATA_ANTONN_GRAVE))
-                            antonn->AI()->Talk(SAY_AG_ANTONN_GRAVE_04);
-                        events.ScheduleEvent(EVENT_ANTONN_GRAVE_04, 2s);
-                        break;
-                    case EVENT_ANTONN_GRAVE_04:
-                        if (Creature* stalker = me->SummonCreature(NPC_INVISIBLE_STALKER, 261.69f, 93.37f, 112.19f, 4.72f))
-                        {
-                            stalker->CastSpell(stalker, SPELL_DEMONIC_PORTAL);
-                            portalGUID = stalker->GetGUID();
-                        }
-                        events.ScheduleEvent(EVENT_ANTONN_GRAVE_05, 1s);
-                        break;
-                    case EVENT_ANTONN_GRAVE_05:
-                        if (Creature* leoric = me->SummonCreature(NPC_LEORIC, leoricPos01))
-                        {
-                            leoric->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
-                            leoric->SetWalk(true);
-                            leoric->GetMotionMaster()->MovePoint(0, leoricPos02);
-                        }
-                        events.ScheduleEvent(EVENT_ANTONN_GRAVE_06, 2s);
-                        break;
-                    case EVENT_ANTONN_GRAVE_06:
-                        if (Creature* leoric = instance->GetCreature(DATA_LEORIC))
-                            leoric->AI()->Talk(SAY_AG_LEORIC_05);
-                        events.ScheduleEvent(EVENT_ANTONN_GRAVE_07, 9s);
-                        break;
-                    case EVENT_ANTONN_GRAVE_07:
-                        if (Creature* antonn = instance->GetCreature(DATA_ANTONN_GRAVE))
-                        {
-                            antonn->RemoveAllAuras();
-                            antonn->SetStandState(UNIT_STAND_STATE_STAND);
-                        }
-                        if (Creature* leoric = instance->GetCreature(DATA_LEORIC))
-                        {
-                            leoric->GetMotionMaster()->MovePoint(0, leoricPos01);
-                            leoric->DespawnOrUnsummon(5s);
-                            if (Creature* portal = ObjectAccessor::GetCreature(*me, portalGUID))
-                                portal->DespawnOrUnsummon(7s);
-                        }
-                        events.ScheduleEvent(EVENT_ANTONN_GRAVE_08, 8s);
-                        break;
-                    case EVENT_ANTONN_GRAVE_08:
-                        if (GameObject* door = instance->GetGameObject(DATA_NETRISTRASZA_ENTRANCE))
-                            instance->HandleGameObject(ObjectGuid::Empty, true, door);
-                        if (Creature* antonn = instance->GetCreature(DATA_ANTONN_GRAVE))
-                        {
-                            antonn->AI()->DoAction(ACTION_AG_SKELETON);
-                            antonn->SetFacingToObject(me);
-                        }
-                        break;
-                    default:
-                        break;
-				}
-			}
-		}
-
-        void UpdateEscortAI(uint32 /*diff*/) override
+        void WaypointPathEnded(uint32 /*nodeId*/, uint32 /*pathId*/) override
         {
-            if (!UpdateVictim())
-                return;
+            instance->SetBossState(DATA_NETRISTRASZA, DONE);
+        }
 
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 event = events.ExecuteEvent())
+        void UpdateEscortAI(uint32 diff) override
+        {
+            scheduler.Update(diff, [this]
             {
-                switch (event)
-                {
-                    case EVENT_SPELL_ARCANE_BARRAGE:
-                        if (Unit* victim = SelectTarget(SelectTargetMethod::Random))
-                            DoCast(victim, SPELL_ARCANE_BARRAGE);
-                        events.RescheduleEvent(EVENT_SPELL_ARCANE_BARRAGE, 5s, 8s);
-                        break;
-                    case EVENT_SPELL_ARCANE_BLAST:
-                        DoCastVictim(SPELL_ARCANE_BLAST);
-                        events.RescheduleEvent(EVENT_SPELL_ARCANE_BLAST, 1s, 2s);
-                        break;
-                    case EVENT_SPELL_ARCANE_PROJECTILE:
-                        DoCastVictim(SPELL_ARCANE_PROJECTILE);
-                        events.RescheduleEvent(EVENT_SPELL_ARCANE_PROJECTILE, 12s, 15s);
-                        break;
-                    case EVENT_SPELL_ARCANE_EXPLOSION:
-                        DoCastAOE(SPELL_ARCANE_EXPLOSION);
-                        events.RescheduleEvent(EVENT_SPELL_ARCANE_EXPLOSION, 13s, 28s);
-                        break;
-                }
-            }
-
-            DoMeleeAttackIfReady();
+                if (UpdateVictim())
+                    DoMeleeAttackIfReady();
+            });
         }
 
 		bool OnGossipHello(Player* player) override
@@ -341,7 +379,7 @@ class npc_netristrasza : public CreatureScript
 
 		private:
 		InstanceScript* instance;
-		EventMap events;
+        TaskScheduler scheduler;
 		bool started;
 		bool wrapInTime;
 		ObjectGuid playerGUID;

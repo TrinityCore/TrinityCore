@@ -23,8 +23,8 @@ enum TCDataTypes
 
     // Doors
     DATA_NETRISTRASZA_ENTRANCE,
-    DATA_NANTONN_GRAVE_ENTRANCE,
-    DATA_NANTONN_GRAVE_EXIT,
+    DATA_ANTONN_GRAVE_ENTRANCE,
+    DATA_ANTONN_GRAVE_EXIT,
 };
 
 enum TCCreaturesIds
@@ -62,6 +62,7 @@ enum TCActions
 	ACTION_AG_INTRO                 = -668002,
 	ACTION_AG_SKELETON              = -668003,
 	ACTION_AG_COMBAT                = -668004,
+	ACTION_AG_END                   = -668005,
 };
 
 enum TCInstanceTexts

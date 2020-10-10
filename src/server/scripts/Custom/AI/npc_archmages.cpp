@@ -179,7 +179,7 @@ class npc_archmage_arcanes : public CreatureScript
                 {
                     if (Aura* aura = me->GetAura(AURA_ARCANE_BLAST))
                     {
-                        if (aura->GetStackAmount() <= 3)
+                        if (aura->GetStackAmount() < 4)
                             DoCastVictim(SPELL_ARCANE_BLAST);
                     }
                     else

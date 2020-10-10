@@ -108,7 +108,7 @@ class npc_antonn_grave : public CreatureScript
 
             me->CombatStop();
             me->SetControlled(true, UNIT_STATE_ROOT);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+            me->SetImmuneToAll(true);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
 
             for (auto acolyte : acolytes)
@@ -133,7 +133,7 @@ class npc_antonn_grave : public CreatureScript
             {
                 if (Creature* acolyte = me->SummonCreature(NPC_ACOLYTE, acolyteSpawnPos[i]))
                 {
-                    acolyte->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                    acolyte->SetImmuneToAll(true);
                     acolyte->SetFacingToObject(me);
                     acolyte->CastSpell(me, SPELL_RITUAL_CANALISATION, true);
                     acolytes.push_back(acolyte);
@@ -157,14 +157,14 @@ class npc_antonn_grave : public CreatureScript
                 switch (event)
                 {
                     case EVENT_AG_SKELETON_01:
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                        me->SetImmuneToAll(false);
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
                         events.ScheduleEvent(EVENT_AG_SKELETON_02, 2s);
                         break;
                     case EVENT_AG_SKELETON_02:
                         me->AI()->Talk(SAY_ANTONN_GRAVE_01);
                         for (auto acolyte : acolytes)
-                            acolyte->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC);
+                            acolyte->SetImmuneToAll(false);
                         events.ScheduleEvent(EVENT_AG_SKELETON_03, 4s);
                         events.ScheduleEvent(EVENT_AG_SKELETON_04, 2min);
                         break;
@@ -179,7 +179,7 @@ class npc_antonn_grave : public CreatureScript
                                     minion->GetMotionMaster()->MoveChase(victim);
                             }
                         }
-                        events.RescheduleEvent(EVENT_AG_SKELETON_03, 8s);
+                        events.RescheduleEvent(EVENT_AG_SKELETON_03, 10s);
                         break;
                     case EVENT_AG_SKELETON_04:
                         DoAction(ACTION_AG_COMBAT);

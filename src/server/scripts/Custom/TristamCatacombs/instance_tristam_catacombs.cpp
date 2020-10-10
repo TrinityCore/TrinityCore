@@ -81,9 +81,9 @@ class instance_tristam_catacombs : public InstanceMapScript
                         return leoricGUID;
                     case DATA_NETRISTRASZA_ENTRANCE:
                         return doorsGUID[0];
-                    case DATA_NANTONN_GRAVE_ENTRANCE:
+                    case DATA_ANTONN_GRAVE_ENTRANCE:
                         return doorsGUID[1];
-                    case DATA_NANTONN_GRAVE_EXIT:
+                    case DATA_ANTONN_GRAVE_EXIT:
                         return doorsGUID[2];
                     default:
                         break;
@@ -118,7 +118,9 @@ class instance_tristam_catacombs : public InstanceMapScript
                         switch (state)
                         {
                             case DONE:
-                                HandleGameObject(GetGuidData(DATA_NANTONN_GRAVE_EXIT), true);
+                                HandleGameObject(GetGuidData(DATA_ANTONN_GRAVE_EXIT), true);
+                                if (Creature* netristrasza = instance->GetCreature(netristraszaGUID))
+                                    netristrasza->AI()->DoAction(ACTION_AG_END);
                                 break;
                             default:
                                 break;
