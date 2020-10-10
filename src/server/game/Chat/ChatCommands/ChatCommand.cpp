@@ -140,8 +140,14 @@ static void LogCommandUsage(WorldSession const& session, uint32 permission, std:
     if (AccountMgr::IsPlayerAccount(session.GetSecurity()))
         return;
 
-    if (sAccountMgr->GetRBACPermission(rbac::RBAC_ROLE_PLAYER)->GetLinkedPermissions().count(permission))
-        return;
+    rbac::RBACPermission const* rbacPermission = sAccountMgr->GetRBACPermission(rbac::RBAC_ROLE_PLAYER);
+    if (rbacPermission)
+    {
+        if (rbacPermission->GetLinkedPermissions().count(permission))
+            return;
+    }
+    else
+        TC_LOG_ERROR("sql.sql", "RBAC_ROLE_PLAYER (Id: %u) does not exists, please check rbac_permissions table in auth database", rbac::RBAC_ROLE_PLAYER);
 
     Player* player = session.GetPlayer();
     ObjectGuid targetGuid = player->GetTarget();
