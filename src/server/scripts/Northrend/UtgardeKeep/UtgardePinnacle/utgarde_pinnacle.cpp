@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
+#include "Unit.h"
 #include "utgarde_pinnacle.h"
 
 enum UtgardeSpells
