@@ -1459,7 +1459,8 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 break;
 
             // Set the timer to 1 ms so the path will be resumed on next update loop
-            ENSURE_AI(SmartAI, me->AI())->SetWPPauseTimer(1);
+            if (ENSURE_AI(SmartAI, me->AI())->CanResumePath())
+                ENSURE_AI(SmartAI, me->AI())->SetWPPauseTimer(1);
             break;
         }
         case SMART_ACTION_SET_ORIENTATION:

@@ -103,7 +103,7 @@ class TC_GAME_API Aura
         typedef std::unordered_map<ObjectGuid, AuraApplication*> ApplicationMap;
 
         static uint8 BuildEffectMaskForOwner(SpellInfo const* spellProto, uint8 availableEffectMask, WorldObject* owner);
-        static Aura* TryRefreshStackOrCreate(AuraCreateInfo& createInfo);
+        static Aura* TryRefreshStackOrCreate(AuraCreateInfo& createInfo, bool updateEffectMask = true);
         static Aura* TryCreate(AuraCreateInfo& createInfo);
         static Aura* Create(AuraCreateInfo& createInfo);
         explicit Aura(AuraCreateInfo const& createInfo);
