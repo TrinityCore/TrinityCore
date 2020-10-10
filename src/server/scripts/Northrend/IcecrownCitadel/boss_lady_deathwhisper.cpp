@@ -1023,7 +1023,7 @@ class spell_deathwhisper_vampiric_might : public AuraScript
 
         Unit* target = GetTarget();
         uint32 damage = damageInfo->GetDamage();
-        AddPct(damage, aurEff->GetAmount());
+        ApplyPct(damage, aurEff->GetAmount());
         CastSpellExtraArgs args(aurEff);
         args.AddSpellBP0(damage);
         target->CastSpell(target, SPELL_VAMPIRIC_MIGHT_PROC, args);
