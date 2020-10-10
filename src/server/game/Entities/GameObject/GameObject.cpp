@@ -620,15 +620,27 @@ void GameObject::Update(uint32 diff)
                         break;
 
                     // If diameter is 0 -> trap should not be activated when you're near it... If it should, check for areatriggers.
-                    if (!goInfo->trap.radius)
+                    if (!goInfo->trap.diameter)
                         break;
 
                     // Pointer to appropriate target if found any
                     Unit* target = nullptr;
 
-                    Trinity::NearestAttackableNoTotemUnitInObjectExactRangeCheck checker(this, goInfo->trap.radius);
-                    Trinity::UnitLastSearcher<Trinity::NearestAttackableNoTotemUnitInObjectExactRangeCheck> searcher(this, target, checker);
-                    Cell::VisitAllObjects(this, searcher, goInfo->trap.radius);
+                    if (GetOwner())
+                    {
+                        Trinity::NearestAttackableNoTotemUnitInObjectExactRangeCheck checker(this, goInfo->trap.diameter);
+                        Trinity::UnitLastSearcher<Trinity::NearestAttackableNoTotemUnitInObjectExactRangeCheck> searcher(this, target, checker);
+                        Cell::VisitAllObjects(this, searcher, goInfo->trap.diameter);
+                    }
+                    else
+                    {
+                        // only target players
+                        Player* player = nullptr;
+                        Trinity::AnyPlayerInObjectExactRangeCheck checker(this, goInfo->trap.diameter);
+                        Trinity::PlayerLastSearcher<Trinity::AnyPlayerInObjectExactRangeCheck> searcher(this, player, checker);
+                        Cell::VisitAllObjects(this, searcher, goInfo->trap.diameter);
+                        target = player;
+                    }
 
                     if (target)
                         SetLootState(GO_ACTIVATED, target);
@@ -707,8 +719,7 @@ void GameObject::Update(uint32 diff)
                     // Template value or 4 seconds
                     m_cooldownTime = GameTime::GetGameTimeMS() + (goInfo->trap.cooldown ? goInfo->trap.cooldown : uint32(4)) * IN_MILLISECONDS;
 
-                    bool shouldDeactivateImmediatly = goInfo->GetCharges() > 0 && goInfo->trap.cooldown == 0;
-                    shouldDeactivateImmediatly = shouldDeactivateImmediatly || GetUseCount() == goInfo->GetCharges();
+                    bool shouldDeactivateImmediatly = (goInfo->GetCharges() > 0 && goInfo->trap.cooldown == 0) || GetUseCount() == goInfo->GetCharges();
 
                     if (goInfo->GetCharges() == 0)
                         SetLootState(GO_READY);

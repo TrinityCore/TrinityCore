@@ -122,7 +122,7 @@ struct GameObjectTemplate
         {
             uint32 lockId;                                  //0 -> Lock.dbc
             uint32 level;                                   //1
-            uint32 radius;                                  //2 radius for trap activation
+            uint32 diameter;                                //2 name in client is diameter, but it is used like radius for trap activation.
             uint32 spellId;                                 //3
             uint32 charges;                                 //4 0 trap with no despawn after cast. 1 trap despawns after cast. 2 trap despawns after cooldown after cast.
             uint32 cooldown;                                //5 time in secs

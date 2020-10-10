@@ -1433,6 +1433,32 @@ namespace Trinity
         bool _reqAlive;
     };
 
+    class AnyPlayerInObjectExactRangeCheck
+    {
+    public:
+        AnyPlayerInObjectExactRangeCheck(WorldObject const* obj, float range, bool reqAlive = true) : _obj(obj), _range(range), _reqAlive(reqAlive) { }
+        bool operator()(Player* u)
+        {
+            if (_reqAlive && !u->IsAlive())
+                return false;
+
+            if (!_obj->IsInMap(u) || !_obj->InSamePhase(u))
+                return false;
+
+            float range = _obj->GetExactDist(u);
+            if (range >= _range)
+                return false;
+
+            _range = range;
+            return true;
+        }
+
+    private:
+        WorldObject const* _obj;
+        float _range;
+        bool _reqAlive;
+    };
+
     class NearestPlayerInObjectRangeCheck
     {
         public:
