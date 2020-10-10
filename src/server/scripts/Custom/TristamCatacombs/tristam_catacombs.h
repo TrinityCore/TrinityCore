@@ -11,7 +11,7 @@ uint32 const EncounterCount = 5;
 enum TCDataTypes
 {
 	// Encounter States/Boss GUIDs
-	DATA_NETRISTRASZA_ENTRANCE,
+	DATA_NETRISTRASZA,
 	DATA_ANTONN_GRAVE,
 	DATA_GHEZRIM,
 	DATA_LEORIC,
@@ -19,8 +19,12 @@ enum TCDataTypes
 
 	// Etc
 	DATA_GHEZRIM_GUARDIAN,
-	DATA_NETRISTRASZA,
     DATA_TIME_RIFT,
+
+    // Doors
+    DATA_NETRISTRASZA_ENTRANCE,
+    DATA_NANTONN_GRAVE_ENTRANCE,
+    DATA_NANTONN_GRAVE_EXIT,
 };
 
 enum TCCreaturesIds
@@ -63,6 +67,12 @@ enum TCActions
 enum TCInstanceTexts
 {
     SAY_ANTONN_01                   = 1
+};
+
+enum class TCDoors
+{
+    Entrance,
+    Exit
 };
 
 enum TCSpells

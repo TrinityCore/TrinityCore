@@ -118,12 +118,12 @@ ObjectGuid InstanceScript::GetGuidData(uint32 type) const
 
 Creature* InstanceScript::GetCreature(uint32 type)
 {
-    return instance->GetCreature(GetObjectGuid(type));
+    return instance->GetCreature(GetGuidData(type));
 }
 
 GameObject* InstanceScript::GetGameObject(uint32 type)
 {
-    return instance->GetGameObject(GetObjectGuid(type));
+    return instance->GetGameObject(GetGuidData(type));
 }
 
 void InstanceScript::SetHeaders(std::string const& dataHeaders)

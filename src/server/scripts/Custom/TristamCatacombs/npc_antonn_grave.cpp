@@ -1,4 +1,5 @@
 #include "tristam_catacombs.h"
+#include "Custom/AI/CustomAI.h"
 #include "CellImpl.h"
 #include "CreatureAIImpl.h"
 #include "GridNotifiers.h"
@@ -11,14 +12,17 @@
 #include "TemporarySummon.h"
 #include "World.h"
 
+#define SKELETON_SPAWN_POS_SIZE     6
+#define ACOLYTE_SPAWN_POS_SIZE      6
+
 enum Texts
 {
-    SAY_ANTONN_GRAVE_01         = 4
+    SAY_ANTONN_GRAVE_01             = 4
 };
 
 enum Events
 {
-    EVENT_AG_SKELETON_01        = 1,
+    EVENT_AG_SKELETON_01            = 1,
     EVENT_AG_SKELETON_02,
     EVENT_AG_SKELETON_03,
     EVENT_AG_SKELETON_04,
@@ -26,8 +30,8 @@ enum Events
 
 enum Spells
 {
-    SPELL_SHADOW_BOLT           = 100028,
-    SPELL_CORRUPTION            = 100074,
+    SPELL_SHADOW_BOLT               = 100028,
+    SPELL_CORRUPTION                = 100074,
 };
 
 enum class Phases : uint8
@@ -37,7 +41,7 @@ enum class Phases : uint8
     Combat
 };
 
-const Position skeletonSpawnPos[] =
+const Position skeletonSpawnPos[SKELETON_SPAWN_POS_SIZE] =
 {
     { 247.27f,  82.09f, 110.20f, 6.25f },
     { 246.90f, 102.05f, 110.22f, 0.00f },
@@ -47,7 +51,7 @@ const Position skeletonSpawnPos[] =
     { 277.44f,  82.74f, 110.20f, 3.85f }
 };
 
-const Position acolyteSpawnPos[] =
+const Position acolyteSpawnPos[ACOLYTE_SPAWN_POS_SIZE] =
 {
     { 281.48f,  83.11f, 109.97f, 3.13f },
     { 242.66f,  82.45f, 109.97f, 6.25f },
@@ -116,29 +120,20 @@ class npc_antonn_grave : public CreatureScript
             }
         }
 
-        void JustDied(Unit* killer) override
-        {
-            if (GameObject* ironGate = GetClosestGameObjectWithEntry(me, GOB_IRON_GATE, 80.f))
-                instance->HandleGameObject(ObjectGuid::Empty, true, ironGate);
-
-            _JustDied();
-        }
-
         void Reset() override
         {
             _Reset();
 
             Initialize();
 
-            me->SetControlled(true, UNIT_STATE_ROOT);
-
             if (!acolytes.empty())
                 acolytes.clear();
 
-            for (uint8 i = 0; i < 6; i++)
+            for (uint8 i = 0; i < ACOLYTE_SPAWN_POS_SIZE; i++)
             {
                 if (Creature* acolyte = me->SummonCreature(NPC_ACOLYTE, acolyteSpawnPos[i]))
                 {
+                    acolyte->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
                     acolyte->SetFacingToObject(me);
                     acolyte->CastSpell(me, SPELL_RITUAL_CANALISATION, true);
                     acolytes.push_back(acolyte);
@@ -164,21 +159,18 @@ class npc_antonn_grave : public CreatureScript
                     case EVENT_AG_SKELETON_01:
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
-                        me->SetStandState(UNIT_STAND_STATE_STAND);
                         events.ScheduleEvent(EVENT_AG_SKELETON_02, 2s);
                         break;
                     case EVENT_AG_SKELETON_02:
                         me->AI()->Talk(SAY_ANTONN_GRAVE_01);
                         for (auto acolyte : acolytes)
                             acolyte->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC);
-                        if (Creature* netristrasza = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_NETRISTRASZA)))
-                            me->SetFacingToObject(netristrasza);
                         events.ScheduleEvent(EVENT_AG_SKELETON_03, 4s);
                         events.ScheduleEvent(EVENT_AG_SKELETON_04, 2min);
                         break;
                     case EVENT_AG_SKELETON_03:
                         if (Creature* minion = me->SummonCreature(RAND(NPC_SKELETON_MINION, NPC_MAGE_SKELETON_MINION),
-                            skeletonSpawnPos[urand(0, 5)], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30s))
+                            skeletonSpawnPos[urand(0, SKELETON_SPAWN_POS_SIZE - 1)], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30s))
                         {
                             minion->CastSpell(minion, SPELL_VISUAL_TELEPORT_DEMON, true);
                             if (Unit* victim = me->GetThreatManager().GetAnyTarget())
@@ -218,10 +210,9 @@ class npc_acolyte : public CreatureScript
     public:
     npc_acolyte() : CreatureScript("npc_acolyte") {}
 
-    struct npc_acolyteAI : public ScriptedAI
+    struct npc_acolyteAI : public CustomAI
     {
-        npc_acolyteAI(Creature* creature) : ScriptedAI(creature),
-            instance(creature->GetInstanceScript())
+        npc_acolyteAI(Creature* creature) : CustomAI(creature)
         {
             Initialize();
         }
@@ -229,23 +220,6 @@ class npc_acolyte : public CreatureScript
         void Initialize()
         {
             corruptionInfo = sSpellMgr->AssertSpellInfo(SPELL_CORRUPTION);
-
-            scheduler.SetValidator([this]
-            {
-                return !me->HasUnitState(UNIT_STATE_CASTING);
-            });
-        }
-
-        void AttackStart(Unit* who) override
-        {
-            if (!who)
-                return;
-
-            if (me->Attack(who, false))
-            {
-                DoStartMovement(who, 20.0f);
-                SetCombatMovement(true);
-            }
         }
 
         void JustEngagedWith(Unit* /*who*/) override
@@ -264,31 +238,7 @@ class npc_acolyte : public CreatureScript
                 });
         }
 
-        void JustDied(Unit* /*killer*/) override
-        {
-            scheduler.CancelAll();
-        }
-
-        void Reset() override
-        {
-            Initialize();
-
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_IMMUNE_TO_PC);
-
-            scheduler.CancelAll();
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            scheduler.Update();
-        }
-
         private:
-        TaskScheduler scheduler;
-        InstanceScript* instance;
         const SpellInfo* corruptionInfo;
     };
 

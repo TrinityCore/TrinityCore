@@ -35,6 +35,8 @@ class instance_tristam_catacombs : public InstanceMapScript
                     case GOB_IRON_GATE:
                         HandleGameObject(ObjectGuid::Empty, false, go);
                         go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        doorsGUID.push_back(go->GetGUID());
+                        std::sort(doorsGUID.begin(), doorsGUID.end(), std::less<uint64>());
                         break;
                     default:
                         break;
@@ -46,9 +48,12 @@ class instance_tristam_catacombs : public InstanceMapScript
                 switch (creature->GetEntry())
                 {
                     case NPC_NETRISTRASZA:
+                        creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        creature->SetVisible(false);
                         netristraszaGUID = creature->GetGUID();
                         break;
                     case NPC_ANTONN_GRAVE:
+                        creature->SetControlled(true, UNIT_STATE_ROOT);
                         antonnGUID = creature->GetGUID();
                         break;
                     case NPC_TIME_RIFT:
@@ -74,6 +79,12 @@ class instance_tristam_catacombs : public InstanceMapScript
                         return riftGUID;
                     case DATA_LEORIC:
                         return leoricGUID;
+                    case DATA_NETRISTRASZA_ENTRANCE:
+                        return doorsGUID[0];
+                    case DATA_NANTONN_GRAVE_ENTRANCE:
+                        return doorsGUID[1];
+                    case DATA_NANTONN_GRAVE_EXIT:
+                        return doorsGUID[2];
                     default:
                         break;
                 }
@@ -88,7 +99,7 @@ class instance_tristam_catacombs : public InstanceMapScript
 
                 switch (type)
                 {
-                    case DATA_NETRISTRASZA_ENTRANCE:
+                    case DATA_NETRISTRASZA:
                         switch (state)
                         {
                             case IN_PROGRESS:
@@ -98,6 +109,16 @@ class instance_tristam_catacombs : public InstanceMapScript
                             case FAIL:
                                 if (Creature* netristrasza = instance->GetCreature(netristraszaGUID))
                                     netristrasza->DespawnOrUnsummon();
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    case DATA_ANTONN_GRAVE:
+                        switch (state)
+                        {
+                            case DONE:
+                                HandleGameObject(GetGuidData(DATA_NANTONN_GRAVE_EXIT), true);
                                 break;
                             default:
                                 break;
@@ -115,6 +136,7 @@ class instance_tristam_catacombs : public InstanceMapScript
             ObjectGuid netristraszaGUID;
             ObjectGuid antonnGUID;
             ObjectGuid leoricGUID;
+            std::vector<ObjectGuid> doorsGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

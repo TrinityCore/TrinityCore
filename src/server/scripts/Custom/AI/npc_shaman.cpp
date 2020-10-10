@@ -24,11 +24,6 @@ class npc_shaman : public CreatureScript
         npc_shamanAI(Creature* creature) : CustomAI(creature)
         {
             SetCombatMovement(false);
-
-            scheduler.SetValidator([this]
-            {
-                return !me->HasUnitState(UNIT_STATE_CASTING);
-            });
         }
 
         void JustEngagedWith(Unit* who) override

@@ -39,6 +39,7 @@ void AddSC_stormwind_final_event();
 void AddSC_instance_tristam_catacombs();
 void AddSC_tristam_catacombs();
 void AddSC_npc_antonn_grave();
+void AddSC_npc_skeletons();
 
 // The name of this function should match:
 void AddCustomScripts()
@@ -66,4 +67,5 @@ void AddCustomScripts()
     AddSC_instance_tristam_catacombs();
     AddSC_tristam_catacombs();
     AddSC_npc_antonn_grave();
+    AddSC_npc_skeletons();
 }
