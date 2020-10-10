@@ -58,16 +58,12 @@ enum TCGameObjecs
 
 enum TCActions
 {
+	ACTION_SAY_DONE                 = -668000,
 	ACTION_START_DUNGEON            = -668001,
 	ACTION_AG_INTRO                 = -668002,
 	ACTION_AG_SKELETON              = -668003,
 	ACTION_AG_COMBAT                = -668004,
 	ACTION_AG_END                   = -668005,
-};
-
-enum TCInstanceTexts
-{
-    SAY_ANTONN_01                   = 1
 };
 
 enum class TCDoors

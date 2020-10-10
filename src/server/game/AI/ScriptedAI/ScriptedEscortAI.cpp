@@ -89,7 +89,7 @@ void EscortAI::InitializeAI()
 
 void EscortAI::ReturnToLastPoint()
 {
-    me->GetMotionMaster()->MovePoint(POINT_LAST_POINT, me->GetHomePosition());
+    me->GetMotionMaster()->MovePoint(POINT_LAST_POINT, me->GetHomePosition(), true, me->GetHomePosition().GetOrientation());
 }
 
 void EscortAI::EnterEvadeMode(EvadeReason /*why*/)

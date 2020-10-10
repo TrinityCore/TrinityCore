@@ -31,23 +31,33 @@ enum Spells
 
 enum Texts
 {
-	SAY_NETRISTRASZA_AGGRO      = 20,
-	SAY_NETRISTRASZA_COMBAT     = 21,
+	SAY_NETRISTRASZA_AGGRO      = 0,
+	SAY_NETRISTRASZA_COMBAT     = 2,
+	SAY_NETRISTRASZA_WOUNDED    = 3,
+	SAY_NETRISTRASZA_KILL       = 4,
+	SAY_NETRISTRASZA_DONE       = 5,
 
-	SAY_NETRISTRASZA_INTRO_01   = 0,
-	SAY_NETRISTRASZA_INTRO_02   = 1,
+	SAY_NETRISTRASZA_ESCORT_01  = 6,
+	SAY_NETRISTRASZA_ESCORT_02  = 7,
+	SAY_NETRISTRASZA_ESCORT_03  = 8,
+	SAY_NETRISTRASZA_ESCORT_04  = 9,
+	SAY_NETRISTRASZA_ESCORT_05  = 10,
+	SAY_NETRISTRASZA_ESCORT_06  = 11,
 
-	SAY_NETRISTRASZA_ESCORT_01  = 2,
-	SAY_NETRISTRASZA_ESCORT_02  = 3,
-	SAY_NETRISTRASZA_ESCORT_03  = 4,
-	SAY_NETRISTRASZA_ESCORT_04  = 5,
+    SAY_NETRISTRASZA_HURRY      = 12,
+    SAY_NETRISTRASZA_THANKS     = 13,
+	SAY_NETRISTRASZA_WAIT       = 14,
+
+    SAY_NETRISTRASZA_INTRO_01   = 15,
+	SAY_NETRISTRASZA_INTRO_02   = 16,
 
 	SAY_AG_ANTONN_GRAVE_01      = 0,
-    SAY_AG_ANTONN_GRAVE_02      = 2,
-	SAY_AG_NETRISTRASZA_03      = 6,
-    SAY_AG_ANTONN_GRAVE_04      = 3,
-    SAY_AG_LEORIC_05            = 0,
-    SAY_AG_NETRISTRASZA_06      = 7
+	SAY_AG_ANTONN_GRAVE_02      = 1,
+    SAY_AG_ANTONN_GRAVE_03      = 2,
+	SAY_AG_NETRISTRASZA_04      = 17,
+    SAY_AG_ANTONN_GRAVE_05      = 3,
+    SAY_AG_LEORIC_06            = 0,
+    SAY_AG_NETRISTRASZA_07      = 18
 };
 
 enum Misc
@@ -89,27 +99,35 @@ class npc_netristrasza : public CreatureScript
 
 		void Reset() override
 		{
-            scheduler.CancelAll();
+            scheduler.CancelGroup(GROUP_COMBAT);
 		}
 
         void EnterEvadeMode(EvadeReason why) override
         {
-            scheduler.CancelAll();
+            scheduler.CancelGroup(GROUP_COMBAT);
 
             EscortAI::EnterEvadeMode(why);
         }
 
         void JustDied(Unit* killer) override
         {
-            scheduler.CancelAll();
+            scheduler.CancelGroup(GROUP_COMBAT);
 
             EscortAI::JustDied(killer);
+        }
+
+        void KilledUnit(Unit* /*victim*/) override
+        {
+            if (roll_chance_i(60))
+                Talk(SAY_NETRISTRASZA_KILL);
         }
 
         void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
         {
             if (!wrapInTime && HealthBelowPct(50))
             {
+                Talk(SAY_NETRISTRASZA_WOUNDED);
+
                 wrapInTime = true;
                 scheduler.DelayGroup(GROUP_COMBAT, 9s);
                 me->InterruptNonMeleeSpells(false);
@@ -138,6 +156,9 @@ class npc_netristrasza : public CreatureScript
 		{
 			switch (actionId)
 			{
+                case ACTION_SAY_DONE:
+                    Talk(SAY_NETRISTRASZA_DONE);
+                    break;
 				case ACTION_START_DUNGEON:
 					if (started)
 						return;
@@ -153,7 +174,7 @@ class npc_netristrasza : public CreatureScript
 					if (Creature* antonn = instance->GetCreature(DATA_ANTONN_GRAVE))
 					{
 						me->SetFacingToObject(antonn);
-						antonn->AI()->Talk(SAY_AG_ANTONN_GRAVE_01);
+						antonn->AI()->Talk(SAY_AG_ANTONN_GRAVE_02);
 					}
                     scheduler.Schedule(4s, [this](TaskContext context)
                     {
@@ -161,16 +182,16 @@ class npc_netristrasza : public CreatureScript
                         {
                             case 0:
                                 if (Creature* antonn = instance->GetCreature(DATA_ANTONN_GRAVE))
-                                    antonn->AI()->Talk(SAY_AG_ANTONN_GRAVE_02);
+                                    antonn->AI()->Talk(SAY_AG_ANTONN_GRAVE_03);
                                 context.Repeat(4s);
                                 break;
                             case 1:
-                                Talk(SAY_AG_NETRISTRASZA_03);
+                                Talk(SAY_AG_NETRISTRASZA_04);
                                 context.Repeat(4s);
                                 break;
                             case 2:
                                 if (Creature* antonn = instance->GetCreature(DATA_ANTONN_GRAVE))
-                                    antonn->AI()->Talk(SAY_AG_ANTONN_GRAVE_04);
+                                    antonn->AI()->Talk(SAY_AG_ANTONN_GRAVE_05);
                                 context.Repeat(2s);
                                 break;
                             case 3:
@@ -192,7 +213,7 @@ class npc_netristrasza : public CreatureScript
                                 break;
                             case 5:
                                 if (Creature* leoric = instance->GetCreature(DATA_LEORIC))
-                                    leoric->AI()->Talk(SAY_AG_LEORIC_05);
+                                    leoric->AI()->Talk(SAY_AG_LEORIC_06);
                                 context.Repeat(9s);
                                 break;
                             case 6:
@@ -225,8 +246,26 @@ class npc_netristrasza : public CreatureScript
                     });
 					break;
                 case ACTION_AG_END:
-                    Talk(SAY_AG_NETRISTRASZA_06);
-                    SetEscortPaused(false);
+                    scheduler.Schedule(5s, [this](TaskContext context)
+                    {
+                        switch (context.GetRepeatCounter())
+                        {
+                            case 0:
+                                if (Creature* antonn = instance->GetCreature(DATA_ANTONN_GRAVE))
+                                    me->SetFacingToObject(antonn);
+                                context.Repeat(1s);
+                                break;
+                            case 1:
+                                Talk(SAY_AG_NETRISTRASZA_07);
+                                context.Repeat(5s);
+                                break;
+                            case 2:
+                                SetEscortPaused(false);
+                                break;
+                            default:
+                                break;
+                        }
+                    });
                     break;
 				default:
 					break;
@@ -246,29 +285,18 @@ class npc_netristrasza : public CreatureScript
                 })
                 .Schedule(2s, GROUP_COMBAT, [this](TaskContext arcane_blast)
                 {
-                    if (Aura* aura = me->GetAura(AURA_ARCANE_BLAST))
-                    {
-                        if (aura->GetStackAmount() < 4)
-                            DoCastVictim(SPELL_ARCANE_BLAST);
-                    }
-                    else
-                    {
-                        DoCastVictim(SPELL_ARCANE_BLAST);
-                    }
+                    DoCastVictim(SPELL_ARCANE_BLAST);
                     arcane_blast.Repeat(8s, 12s);
                 })
                 .Schedule(5s, GROUP_COMBAT, [this](TaskContext arcane_barrage)
                 {
                     if (Aura* aura = me->GetAura(AURA_ARCANE_BLAST))
                     {
-                        if (aura->GetStackAmount() >= 4)
-                        {
-                            me->InterruptNonMeleeSpells(true);
-                            me->RemoveAura(aura);
-                            DoCastVictim(SPELL_ARCANE_BARRAGE);
-                        }
+                        me->InterruptNonMeleeSpells(true);
+                        me->RemoveAura(aura);
+                        DoCastVictim(SPELL_ARCANE_BARRAGE);
                     }
-                    arcane_barrage.Repeat(500ms);
+                    arcane_barrage.Repeat(14s, 24s);
                 })
                 .Schedule(18s, GROUP_COMBAT, [this](TaskContext arcane_explosion)
                 {
@@ -319,7 +347,7 @@ class npc_netristrasza : public CreatureScript
                     if (GameObject* door = instance->GetGameObject(DATA_NETRISTRASZA_ENTRANCE))
                         instance->HandleGameObject(ObjectGuid::Empty, false, door);
                     if (Creature* antonn = instance->GetCreature(DATA_ANTONN_GRAVE))
-                        antonn->AI()->Talk(SAY_ANTONN_01);
+                        antonn->AI()->Talk(SAY_AG_ANTONN_GRAVE_01);
                     break;
 				case 15:
 					SetEscortPaused(true);
