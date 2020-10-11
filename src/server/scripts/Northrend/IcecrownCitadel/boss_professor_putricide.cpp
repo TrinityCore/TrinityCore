@@ -1459,7 +1459,7 @@ class spell_putricide_chocking_gas_filter : public SpellScript
 {
     PrepareSpellScript(spell_putricide_chocking_gas_filter);
 
-    bool Validate(SpellInfo const* spell) override
+    bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_OOZE_VARIABLE, SPELL_GAS_VARIABLE });
     }
