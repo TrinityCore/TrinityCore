@@ -493,6 +493,10 @@ public:
             }
         }
 
+        if (Player* onlinePlayer = player->GetConnectedPlayer())
+            if (WorldSession* session = onlinePlayer->GetSession())
+                session->KickPlayer("HandleCharacterChangeAccountCommand GM Command transferring character to another account");
+
         CharacterDatabasePreparedStatement* charStmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ACCOUNT_BY_GUID);
         charStmt->setUInt32(0, newAccount.GetID());
         charStmt->setUInt32(1, player->GetGUID().GetCounter());
