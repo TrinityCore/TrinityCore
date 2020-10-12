@@ -24,6 +24,7 @@
 #include "Player.h"
 #include "QuestPools.h"
 #include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
@@ -86,6 +87,7 @@ enum Spells
     SPELL_NECROTIC_STRIKE             = 70659,
     SPELL_SHADOW_CLEAVE               = 70670,
     SPELL_VAMPIRIC_MIGHT              = 70674,
+    SPELL_VAMPIRIC_MIGHT_PROC         = 70677,
     SPELL_FANATIC_S_DETERMINATION     = 71235,
     SPELL_DARK_MARTYRDOM_FANATIC      = 71236,
     SPELL_DARK_MARTYRDOM_FANATIC_25N  = 72495,
@@ -1002,6 +1004,37 @@ class spell_deathwhisper_summon_spirits : public SpellScript
     }
 };
 
+// 70674 - Vampiric Might
+class spell_deathwhisper_vampiric_might : public AuraScript
+{
+    PrepareAuraScript(spell_deathwhisper_vampiric_might);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_VAMPIRIC_MIGHT_PROC });
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+        if (!damageInfo || !damageInfo->GetDamage())
+            return;
+
+        Unit* target = GetTarget();
+        uint32 damage = damageInfo->GetDamage();
+        ApplyPct(damage, aurEff->GetAmount());
+        CastSpellExtraArgs args(aurEff);
+        args.AddSpellBP0(damage);
+        target->CastSpell(target, SPELL_VAMPIRIC_MIGHT_PROC, args);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_deathwhisper_vampiric_might::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
+    }
+};
+
 class at_lady_deathwhisper_entrance : public OnlyOnceAreaTriggerScript
 {
     public:
@@ -1031,6 +1064,7 @@ void AddSC_boss_lady_deathwhisper()
     RegisterSpellScript(spell_deathwhisper_mana_barrier);
     RegisterSpellScript(spell_deathwhisper_dominated_mind);
     RegisterSpellScript(spell_deathwhisper_summon_spirits);
+    RegisterSpellScript(spell_deathwhisper_vampiric_might);
 
     // AreaTriggers
     new at_lady_deathwhisper_entrance();
