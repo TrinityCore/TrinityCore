@@ -1455,9 +1455,9 @@ class spell_abomination_mutated_transformation : public SpellScript
 
 // 71278, 72460, 72619, 72620 - Choking Gas
 // 71279, 72459, 72621, 72622 - Choking Gas Explosion
-class spell_putricide_chocking_gas_filter : public SpellScript
+class spell_putricide_choking_gas_filter : public SpellScript
 {
-    PrepareSpellScript(spell_putricide_chocking_gas_filter);
+    PrepareSpellScript(spell_putricide_choking_gas_filter);
 
     bool Validate(SpellInfo const* /*spell*/) override
     {
@@ -1481,8 +1481,8 @@ class spell_putricide_chocking_gas_filter : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_putricide_chocking_gas_filter::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ENTRY);
-        OnEffectHitTarget += SpellEffectFn(spell_putricide_chocking_gas_filter::HandleDispel, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_putricide_choking_gas_filter::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ENTRY);
+        OnEffectHitTarget += SpellEffectFn(spell_putricide_choking_gas_filter::HandleDispel, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
     }
 };
 
@@ -1513,5 +1513,5 @@ void AddSC_boss_professor_putricide()
     RegisterSpellScript(spell_putricide_clear_aura_effect_value);
     RegisterSpellScript(spell_stinky_precious_decimate);
     RegisterSpellScript(spell_abomination_mutated_transformation);
-    RegisterSpellScript(spell_putricide_chocking_gas_filter);
+    RegisterSpellScript(spell_putricide_choking_gas_filter);
 }
