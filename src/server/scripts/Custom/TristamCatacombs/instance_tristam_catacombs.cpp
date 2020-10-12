@@ -97,11 +97,14 @@ class instance_tristam_catacombs : public InstanceMapScript
                 if (!InstanceScript::SetBossState(type, state))
                     return false;
 
-                if (state == DONE && type != DATA_NETRISTRASZA)
-                {
-                    if (Creature* netristrasza = instance->GetCreature(netristraszaGUID))
-                        netristrasza->AI()->DoAction(ACTION_SAY_DONE);
-                }
+                //if (state == DONE && type != DATA_NETRISTRASZA)
+                //{
+                //    if (Creature* netristrasza = instance->GetCreature(netristraszaGUID))
+                //    {
+                //        if (netristrasza->IsAlive())
+                //            netristrasza->AI()->DoAction(ACTION_SAY_DONE);
+                //    }
+                //}
 
                 switch (type)
                 {

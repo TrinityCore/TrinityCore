@@ -5,12 +5,15 @@
 
 enum Spells
 {
-    SPELL_FROSTBOLT         = 100006,
-    SPELL_ICE_LANCE         = 100007,
+    SPELL_FROSTBOLT             = 100006,
+    SPELL_ICE_LANCE             = 100007,
 
-    SPELL_FIREBALL          = 100003,
-    SPELL_FIREBLAST         = 100004,
-    SPELL_LIVING_BOMB       = 100080
+    SPELL_FIREBALL              = 100003,
+    SPELL_FIREBLAST             = 100004,
+    SPELL_LIVING_BOMB           = 100080,
+
+    SPELL_UNBALANCING_STRIKE    = 100099,
+    SPELL_SPIRIT_STRIKE         = 100100
 };
 
 enum DisplayId
@@ -52,7 +55,7 @@ class npc_mage_skeleton : public CreatureScript
                     break;
                 case SKELETON_MAGE_FIRE:
                     scheduler
-                        .Schedule(5s, [this](TaskContext fireball)
+                        .Schedule(5ms, [this](TaskContext fireball)
                         {
                             DoCastVictim(SPELL_FIREBALL);
                             fireball.Repeat(2s);
@@ -86,7 +89,43 @@ class npc_mage_skeleton : public CreatureScript
     }
 };
 
+class npc_skeleton : public CreatureScript
+{
+    public:
+    npc_skeleton() : CreatureScript("npc_skeleton")
+    {
+    }
+
+    struct npc_skeletonAI : public CustomAI
+    {
+        npc_skeletonAI(Creature* creature) : CustomAI(creature, AI_Type::Melee)
+        {
+        }
+
+        void JustEngagedWith(Unit* /*who*/) override
+        {
+            scheduler
+                .Schedule(5s, 8s, [this](TaskContext unbalancing_strike)
+                {
+                    DoCastVictim(SPELL_UNBALANCING_STRIKE);
+                    unbalancing_strike.Repeat(20s, 30s);
+                })
+                .Schedule(12s, 18s, [this](TaskContext spirit_strike)
+                {
+                    DoCastVictim(SPELL_SPIRIT_STRIKE);
+                    spirit_strike.Repeat(40s, 50s);
+                });
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetTristamCatacombsAI<npc_skeletonAI>(creature);
+    }
+};
+
 void AddSC_npc_skeletons()
 {
     new npc_mage_skeleton();
+    new npc_skeleton();
 }

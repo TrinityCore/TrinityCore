@@ -48,7 +48,8 @@ enum TCCreaturesIds
     NPC_TIME_RIFT                   = 28409,
 	NPC_NETRISTRASZA                = 100075,
     NPC_SKELETON_MINION             = 100079,
-    NPC_MAGE_SKELETON_MINION        = 100080
+    NPC_MAGE_SKELETON_MINION        = 100080,
+    NPC_SACRIFIED_SOUL              = 100081
 };
 
 enum TCGameObjecs
