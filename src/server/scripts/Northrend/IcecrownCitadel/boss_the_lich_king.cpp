@@ -1512,7 +1512,7 @@ struct npc_valkyr_shadowguard : public ScriptedAI
                         triggers.sort(Trinity::ObjectDistanceOrderPred(me));
                         DoCast(target, SPELL_VALKYR_CARRY);
                         _dropPoint.Relocate(triggers.front());
-                        _events.ScheduleEvent(EVENT_MOVE_TO_DROP_POS, 1500ms);
+                        _events.ScheduleEvent(EVENT_MOVE_TO_DROP_POS, 1s + 500ms);
                     }
                 }
                 else
@@ -1541,7 +1541,7 @@ struct npc_valkyr_shadowguard : public ScriptedAI
 
         _events.Update(diff);
 
-        if (me->HasUnitState(UNIT_STATE_CASTING))
+        if (me->HasUnitState(UNIT_STATE_CASTING) || me->HasSpellFocus())
             return;
 
         while (uint32 eventId = _events.ExecuteEvent())
@@ -1560,7 +1560,7 @@ struct npc_valkyr_shadowguard : public ScriptedAI
                     break;
                 case EVENT_LIFE_SIPHON:
                      DoCastVictim(SPELL_LIFE_SIPHON);
-                    _events.Repeat(2500ms);
+                     _events.Repeat(2s + 500ms);
                     break;
                 case EVENT_MOVE_TO_CENTER:
                 {
