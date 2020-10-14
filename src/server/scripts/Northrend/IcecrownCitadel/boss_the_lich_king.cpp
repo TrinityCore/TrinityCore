@@ -124,6 +124,7 @@ enum Spells
     SPELL_LIFE_SIPHON                   = 73488,
     SPELL_LIFE_SIPHON_HEAL              = 73489,
     SPELL_EJECT_ALL_PASSENGERS          = 68576,
+    SPELL_VALKYR_TRANSFORM              = 73501,
 
     // Phase 3
     SPELL_VILE_SPIRITS                  = 70498,
@@ -1419,7 +1420,10 @@ private:
 
 struct npc_valkyr_shadowguard : public ScriptedAI
 {
-    npc_valkyr_shadowguard(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
+    npc_valkyr_shadowguard(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
+    {
+        SetCombatMovement(false);
+    }
 
     void Reset() override
     {
@@ -1456,10 +1460,6 @@ struct npc_valkyr_shadowguard : public ScriptedAI
         me->ClearUnitState(UNIT_STATE_EVADE);
     }
 
-    void AttackStart(Unit* /*target*/) override
-    {
-    }
-
     void MovementInform(uint32 type, uint32 id) override
     {
         if (type != POINT_MOTION_TYPE)
@@ -1489,13 +1489,15 @@ struct npc_valkyr_shadowguard : public ScriptedAI
                         triggers.sort(Trinity::ObjectDistanceOrderPred(me));
                         DoCast(target, SPELL_VALKYR_CARRY);
                         _dropPoint.Relocate(triggers.front());
-                        _events.ScheduleEvent(EVENT_MOVE_TO_DROP_POS, 1500ms);
+                        _events.ScheduleEvent(EVENT_MOVE_TO_DROP_POS, 1s + 500ms);
                     }
                 }
                 else
                     me->DespawnOrUnsummon();
                 break;
             case POINT_SIPHON:
+                DoCastSelf(SPELL_VALKYR_TRANSFORM);
+                me->SetReactState(REACT_AGGRESSIVE);
                 DoZoneInCombat();
                 _events.ScheduleEvent(EVENT_LIFE_SIPHON, 2s);
                 break;
@@ -1534,9 +1536,8 @@ struct npc_valkyr_shadowguard : public ScriptedAI
                     me->GetMotionMaster()->MovePoint(POINT_DROP_PLAYER, _dropPoint);
                     break;
                 case EVENT_LIFE_SIPHON:
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
-                        DoCast(target, SPELL_LIFE_SIPHON);
-                    _events.ScheduleEvent(EVENT_LIFE_SIPHON, 2500ms);
+                     DoCastVictim(SPELL_LIFE_SIPHON);
+                     _events.Repeat(2s + 500ms);
                     break;
                 case EVENT_MOVE_TO_CENTER:
                 {
@@ -1548,6 +1549,9 @@ struct npc_valkyr_shadowguard : public ScriptedAI
                 default:
                     break;
             }
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
 
         // no melee attacks
