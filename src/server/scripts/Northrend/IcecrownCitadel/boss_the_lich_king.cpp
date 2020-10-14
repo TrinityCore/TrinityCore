@@ -1541,7 +1541,7 @@ struct npc_valkyr_shadowguard : public ScriptedAI
 
         _events.Update(diff);
 
-        if (me->HasUnitState(UNIT_STATE_CASTING) || me->HasSpellFocus())
+        if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
 
         while (uint32 eventId = _events.ExecuteEvent())
