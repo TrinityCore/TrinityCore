@@ -84,7 +84,7 @@ class npc_netristrasza : public CreatureScript
 	struct npc_netristraszaAI : public EscortAI
 	{
 		npc_netristraszaAI(Creature* creature) : EscortAI(creature),
-			instance(creature->GetInstanceScript()), started(false), wrapInTime(false)
+			instance(creature->GetInstanceScript()), started(false), wrapInTime(false), debug(false)
 		{
 			Initialize();
 		}
@@ -151,6 +151,27 @@ class npc_netristrasza : public CreatureScript
 					break;
 			}
 		}
+
+        void SetData(uint32 id, uint32 /*value*/) override
+        {
+            if (GameObject* ironGate = GetClosestGameObjectWithEntry(me, GOB_IRON_GATE, 50.f))
+                instance->HandleGameObject(ObjectGuid::Empty, true, ironGate);
+
+            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+
+            debug = true;
+
+            switch (id)
+            {
+                case 0:
+                    me->SetVisible(true);
+                    Start(true, true, playerGUID);
+                    SetDespawnAtEnd(false);
+                    break;
+                default:
+                    break;
+            }
+        }
 
 		void DoAction(int32 actionId) override
 		{
@@ -311,6 +332,8 @@ class npc_netristrasza : public CreatureScript
 			switch (waypointId)
 			{
 				case 1:
+                    if (debug)
+                        return;
 					SetEscortPaused(true);
 					if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
 						me->SetFacingToObject(player);
@@ -339,6 +362,8 @@ class npc_netristrasza : public CreatureScript
 					});
 					break;
 				case 4:
+                    if (debug)
+                        return;
 					Talk(SAY_NETRISTRASZA_ESCORT_01);
 					if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
 						me->SetFacingToObject(player);
@@ -410,6 +435,7 @@ class npc_netristrasza : public CreatureScript
 		TaskScheduler scheduler;
 		bool started;
 		bool wrapInTime;
+        bool debug;
 		ObjectGuid playerGUID;
 		ObjectGuid portalGUID;
 	};

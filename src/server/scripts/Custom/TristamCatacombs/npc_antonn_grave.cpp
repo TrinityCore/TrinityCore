@@ -174,10 +174,10 @@ class npc_antonn_grave : public CreatureScript
             for (auto acolyte : acolytes)
             {
                 acolytesOrientation[index] = acolyte->GetOrientation();
-
                 acolyte->SetImmuneToAll(true);
                 acolyte->SetFacingToObject(me);
                 acolyte->CastSpell(me, SPELL_RITUAL_CANALISATION, true);
+                index++;
             }
         }
 
