@@ -1453,6 +1453,39 @@ class spell_abomination_mutated_transformation : public SpellScript
     }
 };
 
+// 71278, 72460, 72619, 72620 - Choking Gas
+// 71279, 72459, 72621, 72622 - Choking Gas Explosion
+class spell_putricide_choking_gas_filter : public SpellScript
+{
+    PrepareSpellScript(spell_putricide_choking_gas_filter);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_OOZE_VARIABLE, SPELL_GAS_VARIABLE });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        targets.remove_if([](WorldObject* obj)
+        {
+            return obj->ToUnit() && obj->ToUnit()->GetVehicle();
+        });
+    }
+
+    void HandleDispel(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit();
+        target->RemoveAurasDueToSpell(SPELL_OOZE_VARIABLE);
+        target->RemoveAurasDueToSpell(SPELL_GAS_VARIABLE);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_putricide_choking_gas_filter::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ENTRY);
+        OnEffectHitTarget += SpellEffectFn(spell_putricide_choking_gas_filter::HandleDispel, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
+    }
+};
+
 void AddSC_boss_professor_putricide()
 {
     // Creatures
@@ -1480,4 +1513,5 @@ void AddSC_boss_professor_putricide()
     RegisterSpellScript(spell_putricide_clear_aura_effect_value);
     RegisterSpellScript(spell_stinky_precious_decimate);
     RegisterSpellScript(spell_abomination_mutated_transformation);
+    RegisterSpellScript(spell_putricide_choking_gas_filter);
 }
