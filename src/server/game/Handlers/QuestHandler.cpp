@@ -35,6 +35,7 @@
 #include "ScriptMgr.h"
 #include "UnitAI.h"
 #include "World.h"
+#include "WorldQuestMgr.h"
 
 void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPackets::Quest::QuestGiverStatusQuery& packet)
 {
@@ -217,7 +218,8 @@ void WorldSession::HandleQuestgiverQueryQuestOpcode(WorldPackets::Quest::QuestGi
     Object* object = ObjectAccessor::GetObjectByTypeMask(*_player, packet.QuestGiverGUID, TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT | TYPEMASK_ITEM);
     if (!object || (!object->hasQuest(packet.QuestID) && !object->hasInvolvedQuest(packet.QuestID)))
     {
-        _player->PlayerTalkClass->SendCloseGossip();
+        if (_player->PlayerTalkClass)
+            _player->PlayerTalkClass->SendCloseGossip();
         return;
     }
 
@@ -226,13 +228,16 @@ void WorldSession::HandleQuestgiverQueryQuestOpcode(WorldPackets::Quest::QuestGi
         if (!_player->CanTakeQuest(quest, true))
             return;
 
+        if (_player->PlayerTalkClass)
+        {
+            if (quest->IsAutoComplete())
+                _player->PlayerTalkClass->SendQuestGiverRequestItems(quest, object->GetGUID(), _player->CanCompleteQuest(quest->GetQuestId()), true);
+            else
+                _player->PlayerTalkClass->SendQuestGiverQuestDetails(quest, object->GetGUID(), true, false);
+        }
+
         if (quest->IsAutoAccept() && _player->CanAddQuest(quest, true))
             _player->AddQuestAndCheckCompletion(quest, object);
-
-        if (quest->IsAutoComplete())
-            _player->PlayerTalkClass->SendQuestGiverRequestItems(quest, object->GetGUID(), _player->CanCompleteQuest(quest->GetQuestId()), true);
-        else
-            _player->PlayerTalkClass->SendQuestGiverQuestDetails(quest, object->GetGUID(), true, false);
     }
 }
 
@@ -446,7 +451,7 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPackets::Quest::QuestLogRemove
 
             _player->TakeQuestSourceItem(questId, true); // remove quest src item from player
             _player->AbandonQuest(questId); // remove all quest items player received before abandoning quest. Note, this does not remove normal drop items that happen to be quest requirements.
-            _player->RemoveActiveQuest(questId);
+            _player->RemoveActiveQuest(quest);
             _player->RemoveCriteriaTimer(CRITERIA_TIMED_TYPE_QUEST, questId);
 
             TC_LOG_INFO("network", "%s abandoned quest %u", _player->GetGUID().ToString().c_str(), questId);
@@ -667,11 +672,20 @@ void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPackets::Quest::Ques
 
 void WorldSession::HandleRequestWorldQuestUpdate(WorldPackets::Quest::RequestWorldQuestUpdate& /*packet*/)
 {
-    WorldPackets::Quest::WorldQuestUpdateResponse response;
+    if (!GetPlayer())
+        return;
 
-    /// @todo: 7.x Has to be implemented
-    //response.WorldQuestUpdates.push_back(WorldPackets::Quest::WorldQuestUpdateInfo(lastUpdate, questID, timer, variableID, value));
+    WorldPackets::Quest::WorldQuestUpdate response;
+    sWorldQuestMgr->BuildPacket(GetPlayer(), response);
+    SendPacket(response.Write());
+}
 
+void WorldSession::HandleQueryQuestRewards(WorldPackets::Quest::QueryQuestReward& packet)
+{
+    WorldPackets::Quest::QueryQuestRewardResponse response;
+    response.QuestID    = packet.QuestID;
+    response.Unk1       = packet.Unk;
+    sWorldQuestMgr->BuildRewardPacket(GetPlayer(), response.QuestID, response);
     SendPacket(response.Write());
 }
 

@@ -397,6 +397,14 @@ enum DrunkenState
 
 #define MAX_DRUNKEN   4
 
+enum PlayerAvgItemLevelOffsets
+{
+    PLAYER_AVG_ITEM_LEVEL_EQUIPPED_AND_BAG  = 0,
+    PLAYER_AVG_ITEM_LEVEL_EQUIPPED          = 1,
+    PLAYER_AVG_ITEM_LEVEL_UNK3              = 2,
+    PLAYER_AVG_ITEM_LEVEL_UNK4              = 3
+};
+
 enum PlayerFlags
 {
     PLAYER_FLAGS_GROUP_LEADER           = 0x00000001,
@@ -1139,6 +1147,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         std::vector<Item*> GetItemListByEntry(uint32 entry, bool inBankAlso = false) const;
         Item* GetItemByPos(uint16 pos) const;
         Item* GetItemByPos(uint8 bag, uint8 slot) const;
+        Item* GetEquippedItem(EquipmentSlots slot) const;
         Item* GetUseableItemByPos(uint8 bag, uint8 slot) const;
         Bag*  GetBagByPos(uint8 slot) const;
         Item* GetWeaponForAttack(WeaponAttackType attackType, bool useable = false) const;
@@ -1346,6 +1355,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void AddQuestAndCheckCompletion(Quest const* quest, Object* questGiver);
         void AddQuest(Quest const* quest, Object* questGiver);
         void AbandonQuest(uint32 quest_id);
+        void ForceCompleteQuest(uint32 quest_id);
         void CompleteQuest(uint32 quest_id);
         void IncompleteQuest(uint32 quest_id);
         uint32 GetQuestMoneyReward(Quest const* quest) const;
@@ -1376,8 +1386,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool TakeQuestSourceItem(uint32 questId, bool msg);
         bool GetQuestRewardStatus(uint32 quest_id) const;
         QuestStatus GetQuestStatus(uint32 quest_id) const;
+        std::string GetQuestStatusString(QuestStatus status) const;
         void SetQuestStatus(uint32 questId, QuestStatus status, bool update = true);
-        void RemoveActiveQuest(uint32 questId, bool update = true);
+        void RemoveActiveQuest(Quest const* quest, bool update = true);
         void RemoveRewardedQuest(uint32 questId, bool update = true);
         void SendQuestUpdate(uint32 questId);
         QuestGiverStatus GetQuestDialogStatus(Object* questGiver);
@@ -1420,10 +1431,13 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void CurrencyChanged(uint32 currencyId, int32 change);
         bool HasQuestForItem(uint32 itemId) const;
         bool HasQuestForGO(int32 goId) const;
+        bool HasQuest(uint32 questID) const;
         void UpdateForQuestWorldObjects();
         bool CanShareQuest(uint32 questId) const;
 
         int32 GetQuestObjectiveData(Quest const* quest, int8 storageIndex) const;
+        int32 GetQuestObjectiveData(uint32 questId, int8 storageIndex) const;
+        int32 GetQuestObjectiveCounter(uint32 objectiveId) const;
         bool IsQuestObjectiveComplete(QuestObjective const& objective) const;
         void SetQuestObjectiveData(QuestObjective const& objective, int32 data);
         bool IsQuestObjectiveProgressComplete(Quest const* quest) const;
@@ -1802,6 +1816,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void UpdateVersatilityDamageDone();
         void UpdateHealingDonePercentMod();
         bool CanUseMastery() const;
+        void UpdateAverageItemLevel();
 
         void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& minDamage, float& maxDamage) const override;
 
@@ -1878,6 +1893,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool UpdatePosition(float x, float y, float z, float orientation, bool teleport = false) override;
         bool UpdatePosition(Position const& pos, bool teleport = false) override { return UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport); }
         void ProcessTerrainStatusUpdate(ZLiquidStatus status, Optional<LiquidData> const& liquidData) override;
+
+        bool HasWorldQuestEnabled(uint8 expansion) const;
+        void UpdateWorldQuestPosition(float x, float y);
 
         void SendMessageToSet(WorldPacket const* data, bool self) const override { SendMessageToSetInRange(data, GetVisibilityRange(), self); }
         void SendMessageToSetInRange(WorldPacket const* data, float dist, bool self) const override;
@@ -2361,7 +2379,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetChampioningFaction(uint32 faction) { m_ChampioningFaction = faction; }
         Spell* m_spellModTakingSpell;
 
-        float GetAverageItemLevel() const;
+        float GetAverageItemLevelEquipped() const;
+        float GetAverageItemLevelEquippedAndBag() const;
+        uint8 GetSlotEquipmentFromInventory(ItemTemplate const* proto) const;
+
         bool isDebugAreaTriggers;
 
         void ClearWhisperWhiteList() { WhisperList.clear(); }
@@ -2402,6 +2423,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool IsAdvancedCombatLoggingEnabled() const { return _advancedCombatLoggingEnabled; }
         void SetAdvancedCombatLogging(bool enabled) { _advancedCombatLoggingEnabled = enabled; }
 
+        PlayerAchievementMgr* GetAchievementMgr() { return m_achievementMgr; }
+        QuestObjectiveCriteriaMgr* GetQuestObjectiveCriteriaMgr() const { return m_questObjectiveCriteriaMgr.get(); }
         SceneMgr& GetSceneMgr() { return m_sceneMgr; }
         RestMgr& GetRestMgr() const { return *_restMgr; }
         void SetRestState(RestTypes type, PlayerRestState state)
@@ -2515,6 +2538,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 m_regenTimerCount;
         float m_powerFraction[MAX_POWERS_PER_CLASS];
         uint32 m_contestedPvPTimer;
+        uint32 m_areaQuestTimer;
 
         /*********************************************************/
         /***               BATTLEGROUND SYSTEM                 ***/

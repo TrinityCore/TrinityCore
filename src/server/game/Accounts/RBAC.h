@@ -782,6 +782,7 @@ enum RBACPermissions
     // IF YOU ADD NEW PERMISSIONS, ADD THEM IN 3.3.5 BRANCH AS WELL!
     //
     // custom permissions 1000+
+    RBAC_PERM_COMMAND_LIST_QUESTS                            = 2003,
     RBAC_PERM_MAX
 };
 

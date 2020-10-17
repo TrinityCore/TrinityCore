@@ -600,6 +600,8 @@ namespace WorldPackets
 
     namespace Quest
     {
+        struct WorldQuestUpdateInfo;
+
         class QuestConfirmAccept;
         class QuestGiverStatusQuery;
         class QuestGiverStatusMultipleQuery;
@@ -614,6 +616,7 @@ namespace WorldPackets
         class QuestPushResult;
         class PushQuestToParty;
         class RequestWorldQuestUpdate;
+        class QueryQuestReward;
         class ChoiceResponse;
     }
 
@@ -1472,6 +1475,7 @@ class TC_GAME_API WorldSession
         void HandlePushQuestToParty(WorldPackets::Quest::PushQuestToParty& packet);
         void HandleQuestPushResult(WorldPackets::Quest::QuestPushResult& packet);
         void HandleRequestWorldQuestUpdate(WorldPackets::Quest::RequestWorldQuestUpdate& packet);
+        void HandleQueryQuestRewards(WorldPackets::Quest::QueryQuestReward& packet);
         void HandlePlayerChoiceResponse(WorldPackets::Quest::ChoiceResponse& choiceResponse);
 
         void HandleChatMessageOpcode(WorldPackets::Chat::ChatMessage& chatMessage);

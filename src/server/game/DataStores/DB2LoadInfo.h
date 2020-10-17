@@ -4012,6 +4012,47 @@ struct QuestFactionRewardLoadInfo
     }
 };
 
+struct QuestV2CliTaskLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { true, FT_LONG, "FiltRaces" },
+            { false, FT_STRING, "QuestTitle" },
+            { false, FT_STRING, "BulletText" },
+            { false, FT_INT, "ID" },
+            { false, FT_SHORT, "UniqueBitFlag" },
+            { false, FT_INT, "ConditionID" },
+            { false, FT_INT, "FiltActiveQuest" },
+            { true, FT_SHORT, "FiltClasses" },
+            { false, FT_INT, "FiltCompletedQuestLogic" },
+            { false, FT_INT, "FiltMaxFactionID" },
+            { false, FT_INT, "FiltMaxFactionValue" },
+            { false, FT_INT, "FiltMaxLevel" },
+            { false, FT_INT, "FiltMinFactionID" },
+            { false, FT_INT, "FiltMinFactionValue" },
+            { false, FT_INT, "FiltMinLevel" },
+            { false, FT_INT, "FiltMinSkillID" },
+            { false, FT_INT, "FiltMinSkillValue" },
+            { false, FT_INT, "FiltNonActiveQuest" },
+            { false, FT_INT, "BreadCrumbID" },
+            { true, FT_INT, "StartItem" },
+            { true, FT_SHORT, "WorldStateExpressionID" },
+            { false, FT_INT, "QuestInfoID" },
+            { true, FT_INT, "ContentTuningID" },
+            { true, FT_INT, "Unk820_1" },
+            { true, FT_INT, "Unk820_2" },
+            { true, FT_INT, "Unk820_3" },
+            { false, FT_INT, "FiltCompletedQuest1" },
+            { false, FT_INT, "FiltCompletedQuest2" },
+            { false, FT_INT, "FiltCompletedQuest3" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, QuestV2CliTaskMeta::Instance(), HOTFIX_SEL_QUEST_V2_CLI_TASK);
+        return &loadInfo;
+    }
+};
+
 struct QuestMoneyRewardLoadInfo
 {
     static DB2LoadInfo const* Instance()
@@ -4100,6 +4141,41 @@ struct QuestXpLoadInfo
             { false, FT_SHORT, "Difficulty10" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, QuestXPMeta::Instance(), HOTFIX_SEL_QUEST_XP);
+        return &loadInfo;
+    }
+};
+
+struct QuestPOIBlobLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_SHORT, "MapID" },
+            { true, FT_INT, "UiMapID" },
+            { false, FT_BYTE, "NumPoints" },
+            { false, FT_INT, "QuestID" },
+            { true, FT_INT, "ObjectiveIndex" },
+            { false, FT_INT, "PlayerConditionID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, QuestPOIBlobMeta::Instance(), HOTFIX_SEL_QUEST_POI_BLOB);
+        return &loadInfo;
+    }
+};
+
+struct QuestPOIPointLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "Id" },
+            { true, FT_SHORT, "X" },
+            { true, FT_SHORT, "Y" },
+            { false, FT_INT, "QuestPoiBlobID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, QuestPOIPointMeta::Instance(), HOTFIX_SEL_QUEST_POI_POINT);
         return &loadInfo;
     }
 };

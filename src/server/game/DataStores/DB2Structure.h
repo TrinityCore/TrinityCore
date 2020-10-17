@@ -2409,6 +2409,35 @@ struct QuestFactionRewardEntry
     int16 Difficulty[10];
 };
 
+struct QuestV2CliTaskEntry
+{
+    int64 FiltRaces;
+    LocalizedString QuestTitle;
+    LocalizedString BulletText;
+    uint32 ID;
+    uint16 UniqueBitFlag;
+    uint32 ConditionID;
+    uint32 FiltActiveQuest;
+    int16 FiltClasses;
+    uint32 FiltCompletedQuestLogic;
+    uint32 FiltMaxFactionID;
+    uint32 FiltMaxFactionValue;
+    uint32 FiltMaxLevel;
+    uint32 FiltMinFactionID;
+    uint32 FiltMinFactionValue;
+    uint32 FiltMinLevel;
+    uint32 FiltMinSkillID;
+    uint32 FiltMinSkillValue;
+    uint32 FiltNonActiveQuest;
+    uint32 BreadCrumbID;
+    int32 StartItem;
+    int16 WorldStateExpressionID;
+    uint32 QuestInfoID;
+    int32 ContentTuningID;
+    int32 Unk820[3];
+    uint32 FiltCompletedQuest[3];
+};
+
 struct QuestMoneyRewardEntry
 {
     uint32 ID;
@@ -2441,6 +2470,25 @@ struct QuestXPEntry
 {
     uint32 ID;
     uint16 Difficulty[10];
+};
+
+struct QuestPOIBlobEntry
+{
+    uint32 ID;
+    int16 MapID;
+    int32 UiMapID;
+    uint8 NumPoints;
+    uint32 QuestID;
+    int32 ObjectiveIndex;
+    uint32 PlayerConditionID;
+};
+
+struct QuestPOIPointEntry
+{
+    uint32 Id;
+    int16 X;
+    int16 Y;
+    uint32 QuestPoiBlobID;
 };
 
 struct RandPropPointsEntry

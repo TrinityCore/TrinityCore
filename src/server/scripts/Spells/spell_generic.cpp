@@ -2844,7 +2844,7 @@ class spell_gen_vehicle_scaling : public AuraScript
                 break;
         }
 
-        float avgILvl = caster->ToPlayer()->GetAverageItemLevel();
+        float avgILvl = caster->ToPlayer()->GetAverageItemLevelEquipped();
         if (avgILvl < baseItemLevel)
             return;                     /// @todo Research possibility of scaling down
 

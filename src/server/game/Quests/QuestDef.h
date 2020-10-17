@@ -36,7 +36,7 @@ namespace WorldPackets
     }
 }
 
-#define MAX_QUEST_LOG_SIZE 25
+#define MAX_QUEST_LOG_SIZE 100
 
 #define QUEST_ITEM_DROP_COUNT 4
 #define QUEST_REWARD_CHOICES_COUNT 6
@@ -458,6 +458,8 @@ class TC_GAME_API Quest
         bool   IsSeasonal() const { return (_questSortID == -QUEST_SORT_SEASONAL || _questSortID == -QUEST_SORT_SPECIAL || _questSortID == -QUEST_SORT_LUNAR_FESTIVAL || _questSortID == -QUEST_SORT_MIDSUMMER || _questSortID == -QUEST_SORT_BREWFEST || _questSortID == -QUEST_SORT_LOVE_IS_IN_THE_AIR || _questSortID == -QUEST_SORT_NOBLEGARDEN) && !IsRepeatable(); }
         bool   IsDailyOrWeekly() const { return (_flags & (QUEST_FLAGS_DAILY | QUEST_FLAGS_WEEKLY)) != 0; }
         bool   IsRaidQuest(Difficulty difficulty) const;
+        bool   IsWorldQuest() const;
+        bool   IsEmissaryQuest() const { return _questInfoID == QUEST_INFO_EMISSARY; }
         bool   IsAllowedInRaid(Difficulty difficulty) const;
         bool   IsDFQuest() const { return (_specialFlags & QUEST_SPECIAL_FLAGS_DF_QUEST) != 0; }
         uint32 CalculateHonorGain(uint8 level) const;
@@ -598,9 +600,14 @@ class TC_GAME_API Quest
 
 struct QuestStatusData
 {
-    QuestStatus Status = QUEST_STATUS_NONE;
-    uint32 Timer = 0;
-    std::vector<int32> ObjectiveData = { };
+    QuestStatusData(): Status(QUEST_STATUS_NONE), Timer(0), Explored(false)
+    {
+    }
+
+    QuestStatus Status;
+    uint32 Timer;
+    std::vector<int32> ObjectiveData;
+    bool Explored;
 };
 
 #endif

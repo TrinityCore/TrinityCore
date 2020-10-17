@@ -59,6 +59,7 @@
 #include "VMapFactory.h"
 #include "World.h"
 #include <G3D/g3dmath.h>
+#include "WorldQuestMgr.h"
 #include <numeric>
 
 ScriptMapMap sSpellScripts;
@@ -4096,6 +4097,7 @@ void ObjectMgr::LoadQuests()
         delete itr->second;
     _questTemplates.clear();
     _questObjectives.clear();
+    _worldQuestStore.clear();
 
     _exclusiveQuestGroups.clear();
 
@@ -4146,6 +4148,9 @@ void ObjectMgr::LoadQuests()
 
         Quest* newQuest = new Quest(fields);
         _questTemplates[newQuest->GetQuestId()] = newQuest;
+
+        if (newQuest->IsWorldQuest() || newQuest->IsEmissaryQuest())
+            _worldQuestStore[newQuest->GetQuestInfoID()].push_back(newQuest->GetQuestId());
     } while (result->NextRow());
 
     struct QuestLoaderHelper
@@ -4571,6 +4576,7 @@ void ObjectMgr::LoadQuests()
                     break;
                 case QUEST_OBJECTIVE_MONEY:
                 case QUEST_OBJECTIVE_WINPVPPETBATTLES:
+                case QUEST_OBJECTIVE_PROGRESS_BAR:
                     break;
                 default:
                     TC_LOG_ERROR("sql.sql", "Quest %u objective %u has unhandled type %u", qinfo->GetQuestId(), obj.ID, obj.Type);
@@ -4900,6 +4906,9 @@ void ObjectMgr::LoadQuests()
             }
         }
     }
+
+    sWorldQuestMgr->LoadWorldQuestTemplates();
+    sWorldQuestMgr->LoadWorldQuestRewardTemplates();
 
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " quests definitions in %u ms", _questTemplates.size(), GetMSTimeDiffToNow(oldMSTime));
 }
@@ -10364,6 +10373,74 @@ void ObjectMgr::LoadSceneTemplates()
     } while (templates->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u scene templates in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+void ObjectMgr::LoadQuestTasks()
+{
+    for (auto const& it : _questTemplates)
+    {
+        Quest const* quest_template = it.second;
+
+        //CriteriaEntry const* criteria = sCriteriaStore.LookupEntry(l_I);
+        //if (!criteria || criteria->Type != CRITERIA_TYPE_COMPLETE_QUEST)
+        //    continue;
+
+        QuestV2CliTaskEntry const* cliTask = sQuestV2CliTaskStore.LookupEntry(quest_template->GetQuestId());
+        if (!cliTask)
+            continue;
+
+        if (!quest_template || quest_template->GetQuestType() != QUEST_TYPE_TASK)
+            continue;
+
+        if (QuestPOIData const* questPOIs = GetQuestPOIData(quest_template->GetQuestId()))
+        {
+            if (questPOIs->QuestPOIBlobDataStats.size() <= 0)
+                continue;
+
+            for (auto itr = questPOIs->QuestPOIBlobDataStats.begin(); itr != questPOIs->QuestPOIBlobDataStats.end(); ++itr)
+            {
+                BonusQuestRectEntry rec;
+                rec.MapID = itr->MapID;
+                rec.MinX = 5000000.f;
+                rec.MinY = 5000000.f;
+                rec.MaxX = -5000000.f;
+                rec.MaxY = -5000000.f;
+
+                for (auto const& poi : itr->QuestPOIBlobPointStats)
+                {
+                    if (poi.X == 0 && poi.Y == 0)
+                        continue;
+
+                    rec.MaxX = std::max(rec.MaxX, poi.X);
+                    rec.MaxY = std::max(rec.MaxY, poi.Y);
+
+                    rec.MinX = std::min(rec.MinX, poi.X);
+                    rec.MinY = std::min(rec.MinY, poi.Y);
+                }
+
+                // If the area is a single point, we assume 50m
+                if (itr->QuestPOIBlobPointStats.size() == 1)
+                {
+                    rec.MinX -= 50;
+                    rec.MaxX += 50;
+                    rec.MinY -= 50;
+                    rec.MaxY += 50;
+                }
+                else
+                {
+                    int32 areaWidth = std::abs(rec.MaxX - rec.MinX);
+                    rec.MinX -= 0.175f * float(areaWidth);
+                    rec.MaxX += 0.175f * float(areaWidth);
+
+                    int32 areaHeight = std::abs(rec.MaxY - rec.MinY);
+                    rec.MinY -= 0.175f * float(areaHeight);
+                    rec.MaxY += 0.175f * float(areaHeight);
+                }
+
+                BonusQuestsRects[quest_template->GetQuestId()].push_back(rec);
+            }
+        }
+    }
 }
 
 void ObjectMgr::LoadPlayerChoices()

@@ -94,6 +94,7 @@
 #include "WardenCheckMgr.h"
 #include "WaypointManager.h"
 #include "WeatherMgr.h"
+#include "WorldQuestMgr.h"
 #include "WhoListStorage.h"
 #include "WorldSession.h"
 #include "WorldSocket.h"
@@ -1832,7 +1833,7 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Item set names...");                // must be after LoadItemPrototypes
     sObjectMgr->LoadItemTemplateAddon();
 
-    TC_LOG_INFO("misc", "Loading Item Scripts...");                 // must be after LoadItemPrototypes
+    TC_LOG_INFO("misc", "Loading Item Scripts...");                            // must be after LoadItemPrototypes
     sObjectMgr->LoadItemScriptNames();
 
     TC_LOG_INFO("server.loading", "Loading Creature Model Based Info Data...");
@@ -2234,6 +2235,8 @@ void World::SetInitialWorldSettings()
 
     m_timers[WUPDATE_BLACKMARKET].SetInterval(10 * IN_MILLISECONDS);
 
+    m_timers[WUPDATE_WORLD_QUEST].SetInterval(1 * MINUTE * IN_MILLISECONDS);
+
     blackmarket_timer = 0;
 
     m_timers[WUPDATE_CHECK_FILECHANGES].SetInterval(500);
@@ -2339,6 +2342,9 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading scenario poi data");
     sScenarioMgr->LoadScenarioPOI();
+
+    TC_LOG_INFO("server.loading", "Loading active world quests...");
+    sWorldQuestMgr->LoadActiveWorldQuests();
 
     // Preload all cells, if required for the base maps
     if (sWorld->getBoolConfig(CONFIG_BASEMAP_LOAD_GRIDS))
@@ -2497,6 +2503,12 @@ void World::Update(uint32 diff)
     {
         sScriptReloadMgr->Update();
         m_timers[WUPDATE_CHECK_FILECHANGES].Reset();
+    }
+
+    if (m_timers[WUPDATE_WORLD_QUEST].Passed())
+    {
+        sWorldQuestMgr->Update();
+        m_timers[WUPDATE_WORLD_QUEST].Reset();
     }
 
     /// <li> Handle session updates when the timer has passed

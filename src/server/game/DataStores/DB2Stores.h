@@ -158,7 +158,10 @@ TC_GAME_API extern DB2Storage<PvpTalentEntry>                       sPvpTalentSt
 TC_GAME_API extern DB2Storage<PvpTalentCategoryEntry>               sPvpTalentCategoryStore;
 TC_GAME_API extern DB2Storage<PvpTalentSlotUnlockEntry>             sPvpTalentSlotUnlockStore;
 TC_GAME_API extern DB2Storage<QuestFactionRewardEntry>              sQuestFactionRewardStore;
+TC_GAME_API extern DB2Storage<QuestV2CliTaskEntry>                  sQuestV2CliTaskStore;
 TC_GAME_API extern DB2Storage<QuestMoneyRewardEntry>                sQuestMoneyRewardStore;
+TC_GAME_API extern DB2Storage<QuestPOIPointEntry>                   sQuestPOIPointStore;
+TC_GAME_API extern DB2Storage<QuestPOIBlobEntry>                    sQuestPOIBlobStore;
 TC_GAME_API extern DB2Storage<QuestSortEntry>                       sQuestSortStore;
 TC_GAME_API extern DB2Storage<QuestXPEntry>                         sQuestXPStore;
 TC_GAME_API extern DB2Storage<RandPropPointsEntry>                  sRandPropPointsStore;
@@ -317,7 +320,12 @@ public:
     std::vector<uint32> const* GetGlyphRequiredSpecs(uint32 glyphPropertiesId) const;
     ItemBonusList const* GetItemBonusList(uint32 bonusListId) const;
     uint32 GetItemBonusListForItemLevelDelta(int16 delta) const;
+    bool HasItemContext(uint32 itemId) const;
+    bool HasItemContext(uint32 itemId, ItemContext itemContext) const;
+    std::vector<int32> GetItemBonusTreeVector(uint32 itemId, ItemContext itemContext) const;
+    std::set<uint32> GetItemBonusTree(uint32 itemId, ItemContext itemContext, uint32& itemLevel) const;
     std::set<uint32> GetDefaultItemBonusTree(uint32 itemId, ItemContext itemContext) const;
+    std::vector<int32> GetItemBonusTreeVector(uint32 itemId, uint32 itemBonusTreeMod) const;
     ItemChildEquipmentEntry const* GetItemChildEquipment(uint32 itemId) const;
     ItemClassEntry const* GetItemClassByOldEnum(uint32 itemClass) const;
     bool HasItemCurrencyCost(uint32 itemId) const;

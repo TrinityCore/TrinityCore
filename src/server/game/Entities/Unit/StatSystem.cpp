@@ -27,6 +27,7 @@
 #include "SpellAuraEffects.h"
 #include "World.h"
 #include <G3D/g3dmath.h>
+#include "ObjectMgr.h"
 #include <numeric>
 
 inline bool _ModifyUInt32(bool apply, uint32& baseValue, int32& amount)
@@ -562,6 +563,15 @@ void Player::UpdateVersatilityDamageDone()
         UpdateDamagePhysical(RANGED_ATTACK);
     else
         UpdateDamagePhysical(BASE_ATTACK);
+}
+
+void Player::UpdateAverageItemLevel()
+{
+    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::AvgItemLevel, PLAYER_AVG_ITEM_LEVEL_EQUIPPED_AND_BAG), GetAverageItemLevelEquippedAndBag());
+    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::AvgItemLevel, PLAYER_AVG_ITEM_LEVEL_EQUIPPED), GetAverageItemLevelEquipped());
+    // @TODO : Possible old offsets for WoD itemlevel scaling
+    //SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL + PlayerAvgItemLevelOffsets::PLAYER_AVG_ITEM_LEVEL_UNK3, equipped);
+    //SetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL + PlayerAvgItemLevelOffsets::PLAYER_AVG_ITEM_LEVEL_UNK4, equipped_bag);
 }
 
 void Player::UpdateHealingDonePercentMod()

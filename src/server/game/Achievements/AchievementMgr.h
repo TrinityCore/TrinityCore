@@ -63,7 +63,7 @@ protected:
     void CompletedCriteriaTree(CriteriaTree const* tree, Player* referencePlayer) override;
     void AfterCriteriaTreeUpdate(CriteriaTree const* tree, Player* referencePlayer) override;
 
-    bool IsCompletedAchievement(AchievementEntry const* entry);
+    bool IsCompletedAchievement(AchievementEntry const* entry, Player* referencePlayer);
 
     bool RequiredAchievementSatisfied(uint32 achievementId) const override;
 
@@ -84,6 +84,7 @@ public:
     void SaveToDB(CharacterDatabaseTransaction& trans);
 
     void ResetCriteria(CriteriaCondition condition, int32 failAsset, bool evenIfCriteriaComplete = false);
+    void ResetCriteriaId(CriteriaTypes type, uint32 asset, uint32 id);
 
     void SendAllData(Player const* receiver) const override;
     void SendAchievementInfo(Player* receiver, uint32 achievementId = 0) const;

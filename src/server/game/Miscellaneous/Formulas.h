@@ -42,6 +42,8 @@ namespace Trinity
             return EXPANSION_MISTS_OF_PANDARIA;
         else if (level < 100)
             return EXPANSION_WARLORDS_OF_DRAENOR;
+        else if (level < 110)
+            return EXPANSION_LEGION;
         else
             return CURRENT_EXPANSION;
     }

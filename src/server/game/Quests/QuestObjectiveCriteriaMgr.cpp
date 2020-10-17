@@ -178,7 +178,7 @@ void QuestObjectiveCriteriaMgr::ResetCriteria(CriteriaCondition condition, int32
             for (CriteriaTree const* tree : *trees)
             {
                 // don't update already completed criteria if not forced
-                if (!(IsCompletedCriteriaTree(tree) && !evenIfCriteriaComplete))
+                if (!(CheckCompletedCriteriaTree(tree, _owner) && !evenIfCriteriaComplete))
                 {
                     allComplete = false;
                     break;
@@ -244,6 +244,16 @@ bool QuestObjectiveCriteriaMgr::HasCompletedObjective(QuestObjective const* ques
     return _completedObjectives.find(questObjective->ID) != _completedObjectives.end();
 }
 
+void QuestObjectiveCriteriaMgr::RemoveCompletedObjective(QuestObjective const* questObjective)
+{
+    if (!HasCompletedObjective(questObjective))
+        return;
+
+    TC_LOG_INFO("criteria.quest", "QuestObjectiveCriteriaMgr::RemoveCompletedObjective(%u). %s", questObjective->ID, GetOwnerInfo().c_str());
+
+    _completedObjectives.erase(questObjective->ID);
+}
+
 void QuestObjectiveCriteriaMgr::SendCriteriaUpdate(Criteria const* criteria, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const
 {
     WorldPackets::Achievement::CriteriaUpdate criteriaUpdate;
@@ -296,6 +306,8 @@ bool QuestObjectiveCriteriaMgr::CanCompleteCriteriaTree(CriteriaTree const* tree
 
 void QuestObjectiveCriteriaMgr::CompletedCriteriaTree(CriteriaTree const* tree, Player* referencePlayer)
 {
+    CriteriaHandler::CompletedCriteriaTree(tree, referencePlayer);
+
     QuestObjective const* objective = tree->QuestObjective;
     if (!objective)
         return;

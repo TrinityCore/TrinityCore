@@ -69,7 +69,7 @@ void WorldSession::HandleInspectOpcode(WorldPackets::Inspect::Inspect& inspect)
         if (AzeriteItem const* azeriteItem = heartOfAzeroth->ToAzeriteItem())
             inspectResult.AzeriteLevel = azeriteItem->GetEffectiveLevel();
 
-    inspectResult.ItemLevel = int32(player->GetAverageItemLevel());
+    inspectResult.ItemLevel = int32(player->GetAverageItemLevelEquipped());
     inspectResult.LifetimeMaxRank = player->m_activePlayerData->LifetimeMaxRank;
     inspectResult.TodayHK = player->m_activePlayerData->TodayHonorableKills;
     inspectResult.YesterdayHK = player->m_activePlayerData->YesterdayHonorableKills;

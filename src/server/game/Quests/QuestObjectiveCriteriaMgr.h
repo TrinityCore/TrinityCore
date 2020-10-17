@@ -41,6 +41,7 @@ public:
 
     void CompletedObjective(QuestObjective const* questObjective, Player* referencePlayer);
     bool HasCompletedObjective(QuestObjective const* questObjective) const;
+    void RemoveCompletedObjective(QuestObjective const* questObjective);
 
 protected:
     void SendCriteriaUpdate(Criteria const* entry, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const override;

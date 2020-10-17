@@ -1029,6 +1029,14 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "Difficulty7, Difficulty8, Difficulty9, Difficulty10 FROM quest_money_reward WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_QUEST_MONEY_REWARD, "SELECT MAX(ID) + 1 FROM quest_money_reward", CONNECTION_SYNCH);
 
+    // QuestV2CliTask.db2
+    PrepareStatement(HOTFIX_SEL_QUEST_V2_CLI_TASK, "SELECT FiltRaces, QuestTitle, BulletText, ID, UniqueBitFlag, ConditionID, FiltActiveQuest, "
+        "FiltClasses, FiltCompletedQuestLogic, FiltMaxFactionID, FiltMaxFactionValue, FiltMaxLevel, FiltMinFactionID, FiltMinFactionValue, "
+        "FiltMinLevel, FiltMinSkillID, FiltMinSkillValue, FiltNonActiveQuest, BreadCrumbID, StartItem, WorldStateExpressionID, QuestInfoID, "
+        "ContentTuningID, FiltCompletedQuest1, FiltCompletedQuest2, FiltCompletedQuest3 FROM quest_v2_cli_task WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_QUEST_V2_CLI_TASK, "SELECT MAX(ID) + 1 FROM quest_v2_cli_task_locale", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_QUEST_V2_CLI_TASK, "SELECT ID, QuestTitle_lang, BulletText_lang FROM quest_v2_cli_task_locale WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
+
     // QuestPackageItem.db2
     PrepareStatement(HOTFIX_SEL_QUEST_PACKAGE_ITEM, "SELECT ID, PackageID, ItemID, ItemQuantity, DisplayType FROM quest_package_item"
         " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
@@ -1047,6 +1055,13 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_QUEST_XP, "SELECT ID, Difficulty1, Difficulty2, Difficulty3, Difficulty4, Difficulty5, Difficulty6, Difficulty7, "
         "Difficulty8, Difficulty9, Difficulty10 FROM quest_xp WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_QUEST_XP, "SELECT MAX(ID) + 1 FROM quest_xp", CONNECTION_SYNCH);
+
+    // QuestPOIBlob.db2
+    PrepareStatement(HOTFIX_SEL_QUEST_POI_BLOB, "SELECT ID, MapID, UiMapID, NumPoints, QuestID, ObjectiveIndex, PlayerConditionID"
+        " FROM quest_poi_blob WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+
+    // QuestPOIPoint.db2
+    PrepareStatement(HOTFIX_SEL_QUEST_POI_POINT, "SELECT Id, X, Y, QuestPoiBlobID FROM quest_poi_point WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
 
     // RandPropPoints.db2
     PrepareStatement(HOTFIX_SEL_RAND_PROP_POINTS, "SELECT ID, DamageReplaceStat, DamageSecondary, Epic1, Epic2, Epic3, Epic4, Epic5, Superior1, "

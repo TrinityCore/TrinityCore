@@ -794,6 +794,8 @@ struct SceneTemplate
 
 typedef std::unordered_map<uint32, SceneTemplate> SceneTemplateContainer;
 
+typedef std::unordered_map<uint32, std::vector<uint32>> WorldQuestContainer;
+
 struct PlayerChoiceResponseRewardItem
 {
     PlayerChoiceResponseRewardItem() : Id(0), Quantity(0) { }
@@ -1184,6 +1186,19 @@ class TC_GAME_API ObjectMgr
         void LoadGameobjectQuestEnders();
         void LoadCreatureQuestStarters();
         void LoadCreatureQuestEnders();
+        void LoadQuestTasks();
+
+        struct BonusQuestRectEntry
+        {
+            int32 MinX, MinY, MaxX, MaxY;
+            uint32 MapID;
+
+            bool IsIn(uint32 mapID, int x, int y)
+            {
+                return MapID == mapID && MinX <= x && MaxX >= x && MinY <= y && MaxY >= y;
+            }
+        };
+        std::map<uint32, std::vector<BonusQuestRectEntry>> BonusQuestsRects;
 
         QuestRelations* GetGOQuestRelationMap()
         {
@@ -1660,6 +1675,8 @@ class TC_GAME_API ObjectMgr
 
         PlayerChoice const* GetPlayerChoice(int32 choiceId) const;
 
+        WorldQuestContainer const& GetWorldQuestStore() const{ return _worldQuestStore; }
+
     private:
         // first free id for selected id type
         uint32 _auctionId;
@@ -1833,6 +1850,8 @@ class TC_GAME_API ObjectMgr
         RealmNameContainer _realmNameStore;
 
         SceneTemplateContainer _sceneTemplateStore;
+
+        WorldQuestContainer _worldQuestStore;
 
         enum CreatureLinkedRespawnType
         {

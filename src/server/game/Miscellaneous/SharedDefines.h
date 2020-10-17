@@ -127,6 +127,9 @@ enum Gender
     GENDER_NONE                        =  2
 };
 
+#define RACEMASK_HUMAN      1
+#define RACEMASK_ORC        2
+
 // Class value is index in ChrClasses.dbc
 enum Classes : uint8
 {
@@ -4186,20 +4189,47 @@ enum QuestType
 // QuestInfo.dbc (6.0.2.18988)
 enum QuestInfo
 {
-    QUEST_INFO_GROUP               = 1,
-    QUEST_INFO_CLASS               = 21,
-    QUEST_INFO_PVP                 = 41,
-    QUEST_INFO_RAID                = 62,
-    QUEST_INFO_DUNGEON             = 81,
-    QUEST_INFO_WORLD_EVENT         = 82,
-    QUEST_INFO_LEGENDARY           = 83,
-    QUEST_INFO_ESCORT              = 84,
-    QUEST_INFO_HEROIC              = 85,
-    QUEST_INFO_RAID_10             = 88,
-    QUEST_INFO_RAID_25             = 89,
-    QUEST_INFO_SCENARIO            = 98,
-    QUEST_INFO_ACCOUNT             = 102,
-    QUEST_INFO_SIDE_QUEST          = 104
+    QUEST_INFO_GROUP                        = 1,
+    QUEST_INFO_CLASS                        = 21,
+    QUEST_INFO_PVP                          = 41,
+    QUEST_INFO_RAID                         = 62,
+    QUEST_INFO_DUNGEON                      = 81,
+    QUEST_INFO_WORLD_EVENT                  = 82,
+    QUEST_INFO_LEGENDARY                    = 83,
+    QUEST_INFO_ESCORT                       = 84,
+    QUEST_INFO_HEROIC                       = 85,
+    QUEST_INFO_RAID_10                      = 88,
+    QUEST_INFO_RAID_25                      = 89,
+    QUEST_INFO_SCENARIO                     = 98,
+    QUEST_INFO_ACCOUNT                      = 102,
+    QUEST_INFO_SIDE_QUEST                   = 104,
+    QUEST_INFO_ARTIFACT                     = 107,
+    QUEST_INFO_WORLD_QUEST                  = 109,
+    QUEST_INFO_WORLD_QUEST_EPIC             = 110,
+    QUEST_INFO_WORLD_QUEST_ELITE            = 111,
+    QUEST_INFO_WORLD_QUEST_RARE_ELITE       = 112,
+    QUEST_INFO_WORLD_QUEST_PVP              = 113,
+    QUEST_INFO_WORLD_QUEST_FIRST_AID        = 114,
+    QUEST_INFO_WORLD_QUEST_BATTLEPET        = 115,
+    QUEST_INFO_WORLD_QUEST_BLACKSMITHING    = 116,
+    QUEST_INFO_WORLD_QUEST_LEATHERWORKING   = 117,
+    QUEST_INFO_WORLD_QUEST_ALCHEMY          = 118,
+    QUEST_INFO_WORLD_QUEST_HERBALISM        = 119,
+    QUEST_INFO_WORLD_QUEST_MINING           = 120,
+    QUEST_INFO_WORLD_QUEST_TAILORING        = 121,
+    QUEST_INFO_WORLD_QUEST_ENGINEERING      = 122,
+    QUEST_INFO_WORLD_QUEST_ENCHANTING       = 123,
+    QUEST_INFO_WORLD_QUEST_SKINNINg         = 124,
+    QUEST_INFO_WORLD_QUEST_JEWELCRAFTING    = 125,
+    QUEST_INFO_WORLD_QUEST_INSCRIPTION      = 126,
+    QUEST_INFO_EMISSARY                     = 128,
+    QUEST_INFO_WORLD_QUEST_ARCHEOLOGY       = 129,
+    QUEST_INFO_WORLD_QUEST_FISHING          = 130,
+    QUEST_INFO_WORLD_QUEST_COOKING          = 131,
+    QUEST_INFO_WORLD_QUEST_RARE_2           = 135,
+    QUEST_INFO_WORLD_QUEST_RARE_ELITE_2     = 136,
+    QUEST_INFO_WORLD_QUEST_DUNGEON          = 137,
+    QUEST_INFO_RATED_REWARD                 = 140
 };
 
 // QuestSort.dbc (6.0)

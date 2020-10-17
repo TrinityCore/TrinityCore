@@ -289,10 +289,12 @@ protected:
     bool IsCompletedCriteriaTree(CriteriaTree const* tree);
     virtual bool CanUpdateCriteriaTree(Criteria const* criteria, CriteriaTree const* tree, Player* referencePlayer) const;
     virtual bool CanCompleteCriteriaTree(CriteriaTree const* tree);
-    virtual void CompletedCriteriaTree(CriteriaTree const* tree, Player* referencePlayer) = 0;
+    virtual void CompletedCriteriaTree(CriteriaTree const* tree, Player* referencePlayer);
     virtual void AfterCriteriaTreeUpdate(CriteriaTree const* /*tree*/, Player* /*referencePlayer*/) { }
 
     bool IsCompletedCriteria(Criteria const* criteria, uint64 requiredAmount);
+    bool CheckCompletedCriteriaTree(CriteriaTree const* tree, Player* referencePlayer);
+    bool CheckCompletedCriteriaTree(uint32 criteriaTreeId, Player* referencePlayer);
     bool CanUpdateCriteria(Criteria const* criteria, CriteriaTreeList const* trees, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, Unit const* unit, Player* referencePlayer);
 
     virtual void SendPacket(WorldPacket const* data) const = 0;
@@ -307,6 +309,7 @@ protected:
     virtual CriteriaList const& GetCriteriaByType(CriteriaTypes type, uint32 asset) const = 0;
 
     CriteriaProgressMap _criteriaProgress;
+    std::set<uint32> _completedCriteriaTree;
     std::map<uint32, uint32 /*ms time left*/> _timeCriteriaTrees;
 };
 

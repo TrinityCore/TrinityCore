@@ -69,7 +69,7 @@ namespace WorldPackets
 
             Type = TYPE_CREATURE_TO_PLAYER_DAMAGE;
             PlayerLevelDelta = target->m_activePlayerData->ScalingPlayerLevelDelta;
-            PlayerItemLevel = target->GetAverageItemLevel();
+            PlayerItemLevel = target->GetAverageItemLevelEquipped();
             TargetItemLevel = 0;
             ScalingHealthItemLevelCurveID = target->m_unitData->ScalingHealthItemLevelCurveID;
             TargetLevel = target->getLevel();
@@ -88,7 +88,7 @@ namespace WorldPackets
 
             Type = TYPE_PLAYER_TO_CREATURE_DAMAGE;
             PlayerLevelDelta = attacker->m_activePlayerData->ScalingPlayerLevelDelta;
-            PlayerItemLevel = attacker->GetAverageItemLevel();
+            PlayerItemLevel = attacker->GetAverageItemLevelEquipped();
             TargetItemLevel = 0;
             ScalingHealthItemLevelCurveID = target->m_unitData->ScalingHealthItemLevelCurveID;
             TargetLevel = target->getLevel();

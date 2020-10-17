@@ -4323,7 +4323,7 @@ void Spell::EffectQuestClear(SpellEffIndex /*effIndex*/)
         }
     }
 
-    player->RemoveActiveQuest(quest_id, false);
+    player->RemoveActiveQuest(quest, false);
     player->RemoveRewardedQuest(quest_id);
 
     sScriptMgr->OnQuestStatusChange(player, quest_id);

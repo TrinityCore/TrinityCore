@@ -124,6 +124,7 @@
 #include "WeatherMgr.h"
 #include "World.h"
 #include "WorldPacket.h"
+#include "WorldQuestMgr.h"
 #include "WorldSession.h"
 #include "WorldStatePackets.h"
 #include <G3D/g3dmath.h>
@@ -356,6 +357,8 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
     _advancedCombatLoggingEnabled = false;
 
     _restMgr = std::make_unique<RestMgr>(this);
+
+    m_areaQuestTimer = 0;
 
     _usePvpItemLevels = false;
 }
@@ -6045,6 +6048,8 @@ bool Player::UpdatePosition(float x, float y, float z, float orientation, bool t
     if (!Unit::UpdatePosition(x, y, z, orientation, teleport))
         return false;
 
+    UpdateWorldQuestPosition(x, y);
+
     //if (movementInfo.flags & MOVEMENTFLAG_MOVING)
     //    mover->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOVE);
     //if (movementInfo.flags & MOVEMENTFLAG_TURNING)
@@ -6057,6 +6062,85 @@ bool Player::UpdatePosition(float x, float y, float z, float orientation, bool t
     CheckAreaExploreAndOutdoor();
 
     return true;
+}
+
+bool Player::MeetPlayerCondition(uint32 conditionId) const
+{
+    if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(conditionId))
+        if (!ConditionMgr::IsPlayerMeetingCondition(this, playerCondition))
+            return false;
+
+    return true;
+}
+
+bool Player::HasWorldQuestEnabled(uint8 expansion) const
+{
+    if (expansion == EXPANSION_LEGION)
+        return MeetPlayerCondition(41005);
+    else if (expansion == EXPANSION_BATTLE_FOR_AZEROTH)
+        return GetQuestStatus(51918) == QUEST_STATUS_REWARDED || // Union of Kul'Tiras
+               GetQuestStatus(51916) == QUEST_STATUS_REWARDED;   // Union of Zandalar
+
+    return false;
+}
+
+void Player::UpdateWorldQuestPosition(float x, float y)
+{
+    if (time(nullptr) < m_areaQuestTimer)
+        return;
+
+    m_areaQuestTimer = time(nullptr) + 2;
+
+    for (auto bonus_quest : sObjectMgr->BonusQuestsRects)
+    {
+        if (IsQuestRewarded(bonus_quest.first))
+            continue;
+
+        bool found = false;
+
+        for (uint32 i = 0; i < bonus_quest.second.size(); ++i)
+        {
+            if (bonus_quest.second[i].IsIn(GetMapId(), x, y))
+                found = true;
+        }
+
+        uint32 slot = FindQuestSlot(bonus_quest.first);
+        Quest const* quest = sObjectMgr->GetQuestTemplate(bonus_quest.first);
+        if (!quest)
+            continue;
+
+        if (!found && slot < MAX_QUEST_LOG_SIZE)
+        {
+            SetQuestSlot(slot, 0);
+            RemoveActiveQuest(quest, true);
+        }
+        else if (found && slot >= MAX_QUEST_LOG_SIZE)
+        {
+            if (!CanTakeQuest(quest, false))
+                continue;
+
+            if (quest->IsWorldQuest())
+            {
+                // Uniting the Isles, required for Legion world quests
+                if (!HasWorldQuestEnabled(quest->GetExpansion()))
+                    continue;
+
+                if (!sWorldQuestMgr->IsQuestActive(quest->GetQuestId()))
+                    continue;
+            }
+
+            AddQuest(quest, this);
+            slot = FindQuestSlot(quest->GetQuestId());
+            auto itr = m_QuestStatus.find(quest->GetQuestId());
+            if (itr != m_QuestStatus.end())
+            {
+                QuestStatusData& questStatusData = itr->second;
+                uint8 index = 0;
+                for (auto obj : questStatusData.ObjectiveData)
+                    SetQuestSlotCounter(slot, index++, obj);
+            }
+        }
+    }
 }
 
 void Player::SendMessageToSetInRange(WorldPacket const* data, float dist, bool self) const
@@ -9691,6 +9775,7 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
     }
 
     SendDirectMessage(packet.Write());
+    sWorldQuestMgr->FillInitWorldStates(packet);
     SendBGWeekendWorldStates();
     SendBattlefieldWorldStates();
 }
@@ -10104,6 +10189,11 @@ Item* Player::GetItemByPos(uint8 bag, uint8 slot) const
     if (Bag* pBag = GetBagByPos(bag))
         return pBag->GetItemByPos(slot);
     return nullptr;
+}
+
+Item* Player::GetEquippedItem(EquipmentSlots slot) const
+{
+    return GetItemByPos(INVENTORY_SLOT_BAG_0, slot);
 }
 
 //Does additional check for disarmed weapons
@@ -12200,6 +12290,7 @@ Item* Player::StoreItem(ItemPosCountVec const& dest, Item* pItem, bool update)
     }
 
     AutoUnequipChildItem(lastItem);
+    UpdateAverageItemLevel();
 
     return lastItem;
 }
@@ -12391,6 +12482,7 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
             default:
                 break;
         }
+        UpdateAverageItemLevel();
     }
     else
     {
@@ -12417,6 +12509,7 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
         pItem2->SetState(ITEM_CHANGED, this);
 
         ApplyEquipCooldown(pItem2);
+        UpdateAverageItemLevel();
 
         return pItem2;
     }
@@ -12678,6 +12771,7 @@ void Player::RemoveItem(uint8 bag, uint8 slot, bool update)
             pItem->SendUpdateToPlayer(this);
 
         AutoUnequipChildItem(pItem);
+        UpdateAverageItemLevel();
     }
 }
 
@@ -12815,6 +12909,8 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
         pItem->SetContainedIn(ObjectGuid::Empty);
         pItem->SetSlot(NULL_SLOT);
         pItem->SetState(ITEM_REMOVED, this);
+
+        UpdateAverageItemLevel();
     }
 }
 
@@ -13492,6 +13588,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
             RemoveItem(srcbag, srcslot, true);
             BankItem(dest, pSrcItem, true);
             ItemRemovedQuestCheck(pSrcItem->GetEntry(), pSrcItem->GetCount());
+            UpdateAverageItemLevel();
         }
         else if (IsEquipmentPos(dst))
         {
@@ -13506,6 +13603,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
             RemoveItem(srcbag, srcslot, true);
             EquipItem(dest, pSrcItem, true);
             AutoUnequipOffhandIfNeed();
+            UpdateAverageItemLevel();
         }
 
         return;
@@ -13548,6 +13646,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
 
                     AutoUnequipOffhandIfNeed();
                 }
+                UpdateAverageItemLevel();
             }
             else
             {
@@ -13672,6 +13771,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
                     fullBag->RemoveItem(i, true);
                     emptyBag->StoreItem(count, bagItem, true);
                     bagItem->SetState(ITEM_CHANGED, this);
+                    UpdateAverageItemLevel();
 
                     ++count;
                 }
@@ -13748,6 +13848,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
     }
 
     AutoUnequipOffhandIfNeed();
+    UpdateAverageItemLevel();
 }
 
 void Player::AddItemToBuyBackSlot(Item* pItem)
@@ -15237,6 +15338,12 @@ bool Player::CanCompleteQuest(uint32 quest_id)
 
         if (q_status.Status == QUEST_STATUS_INCOMPLETE)
         {
+            if (qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT) && !q_status.Explored)
+                return false;
+
+            if (qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_TIMED) && q_status.Timer == 0)
+                return false;
+
             for (QuestObjective const& obj : qInfo->GetObjectives())
             {
                 if (!(obj.Flags & QUEST_OBJECTIVE_FLAG_OPTIONAL) && !(obj.Flags & QUEST_OBJECTIVE_FLAG_PART_OF_PROGRESS_BAR))
@@ -15245,9 +15352,6 @@ bool Player::CanCompleteQuest(uint32 quest_id)
                         return false;
                 }
             }
-
-            if (qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_TIMED) && q_status.Timer == 0)
-                return false;
 
             return true;
         }
@@ -15482,6 +15586,7 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
 
     // check for repeatable quests status reset
     questStatusData.Status = QUEST_STATUS_INCOMPLETE;
+    questStatusData.Explored = false;
 
     int32 maxStorageIndex = 0;
     for (QuestObjective const& obj : quest->GetObjectives())
@@ -15519,6 +15624,9 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
         // shared timed quest
         if (questGiver && questGiver->GetTypeId() == TYPEID_PLAYER)
             limittime = questGiver->ToPlayer()->getQuestStatusMap()[quest_id].Timer / IN_MILLISECONDS;
+
+        if (quest->IsWorldQuest())
+            limittime = sWorldQuestMgr->GetTimerForQuest(quest_id);
 
         AddTimedQuest(quest_id);
         questStatusData.Timer = limittime * IN_MILLISECONDS;
@@ -15567,6 +15675,71 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
 
     sScriptMgr->OnQuestStatusChange(this, quest_id);
     sScriptMgr->OnQuestStatusChange(this, quest, oldStatus, questStatusData.Status);
+}
+
+void Player::ForceCompleteQuest(uint32 quest_id)
+{
+    Quest const* quest = sObjectMgr->GetQuestTemplate(quest_id);
+    if (!quest)
+        return;
+
+    for (uint32 i = 0; i < quest->Objectives.size(); ++i)
+    {
+        QuestObjective const& obj = quest->Objectives[i];
+
+        switch (obj.Type)
+        {
+            case QUEST_OBJECTIVE_ITEM:
+            {
+                uint32 curItemCount = GetItemCount(obj.ObjectID, true);
+                ItemPosCountVec dest;
+                uint8 msg = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, obj.ObjectID, obj.Amount - curItemCount);
+                if (msg == EQUIP_ERR_OK)
+                {
+                    Item* item = StoreNewItem(dest, obj.ObjectID, true);
+                    SendNewItem(item, obj.Amount - curItemCount, true, false);
+                }
+                break;
+            }
+            case QUEST_OBJECTIVE_MONSTER:
+            {
+                if (CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(obj.ObjectID))
+                    for (uint16 z = 0; z < obj.Amount; ++z)
+                        KilledMonster(creatureInfo, ObjectGuid::Empty);
+                break;
+            }
+            case QUEST_OBJECTIVE_GAMEOBJECT:
+            {
+                for (uint16 z = 0; z < obj.Amount; ++z)
+                    KillCreditGO(obj.ObjectID);
+                break;
+            }
+            case QUEST_OBJECTIVE_MIN_REPUTATION:
+            {
+                uint32 curRep = GetReputationMgr().GetReputation(obj.ObjectID);
+                if (curRep < uint32(obj.Amount))
+                    if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(obj.ObjectID))
+                        GetReputationMgr().SetReputation(factionEntry, obj.Amount);
+                break;
+            }
+            case QUEST_OBJECTIVE_MAX_REPUTATION:
+            {
+                uint32 curRep = GetReputationMgr().GetReputation(obj.ObjectID);
+                if (curRep > uint32(obj.Amount))
+                    if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(obj.ObjectID))
+                        GetReputationMgr().SetReputation(factionEntry, obj.Amount);
+                break;
+            }
+            case QUEST_OBJECTIVE_MONEY:
+            {
+                ModifyMoney(obj.Amount);
+                break;
+            }
+        }
+    }
+
+    if (GetQuestStatus(quest_id) != QUEST_STATUS_COMPLETE)
+        CompleteQuest(quest_id);
 }
 
 void Player::CompleteQuest(uint32 quest_id)
@@ -15804,6 +15977,9 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
             UpdateCriteria(CRITERIA_TYPE_MONEY_FROM_QUEST_REWARD, uint32(moneyRew));
     }
 
+    if (quest->IsWorldQuest())
+        sWorldQuestMgr->RewardQuestForPlayer(this, quest->GetQuestId());
+
     // honor reward
     if (uint32 honor = quest->CalculateHonorGain(getLevel()))
         RewardHonor(nullptr, 0, honor);
@@ -15843,9 +16019,10 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     else if (quest->IsSeasonal())
         SetSeasonalQuestStatus(quest_id);
 
-    RemoveActiveQuest(quest_id, false);
     if (quest->CanIncreaseRewardedQuestCounters())
         SetRewardedQuest(quest_id);
+
+    RemoveActiveQuest(quest, false);
 
     SendQuestReward(quest, questGiver ? questGiver->ToCreature() : nullptr, XP, !announce);
 
@@ -15856,7 +16033,10 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     {
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(quest->GetRewSpell(), GetMap()->GetDifficultyID());
         Unit* caster = this;
-        if (questGiver && questGiver->isType(TYPEMASK_UNIT) && !quest->HasFlag(QUEST_FLAGS_PLAYER_CAST_ON_COMPLETE) && !spellInfo->HasTargetType(TARGET_UNIT_CASTER))
+        if (questGiver && questGiver->isType(TYPEMASK_UNIT) &&
+            !quest->HasFlag(QUEST_FLAGS_PLAYER_CAST_ON_COMPLETE) &&
+            !spellInfo->HasTargetType(TARGET_UNIT_CASTER) &&
+            !spellInfo->HasEffect(SPELL_EFFECT_LEARN_SPELL))
             if (Unit* unit = questGiver->ToUnit())
                 caster = unit;
 
@@ -16468,6 +16648,18 @@ QuestStatus Player::GetQuestStatus(uint32 quest_id) const
     return QUEST_STATUS_NONE;
 }
 
+std::string Player::GetQuestStatusString(QuestStatus status) const
+{
+    switch (status)
+    {
+        case QUEST_STATUS_COMPLETE:     return "COMPLETE";
+        case QUEST_STATUS_INCOMPLETE:   return "INCOMPLETE";
+        case QUEST_STATUS_FAILED:       return "FAILED";
+        case QUEST_STATUS_REWARDED:     return "REWARDED";
+        default:                        return "NONE";
+    }
+}
+
 bool Player::CanShareQuest(uint32 quest_id) const
 {
     Quest const* qInfo = sObjectMgr->GetQuestTemplate(quest_id);
@@ -16507,14 +16699,21 @@ void Player::SetQuestStatus(uint32 questId, QuestStatus status, bool update /*= 
         SendQuestUpdate(questId);
 }
 
-void Player::RemoveActiveQuest(uint32 questId, bool update /*= true*/)
+void Player::RemoveActiveQuest(Quest const* quest, bool update /*= true*/)
 {
+    uint32 questId = quest->GetQuestId();
     QuestStatusMap::iterator itr = m_QuestStatus.find(questId);
-    if (itr != m_QuestStatus.end())
+
+    if (quest->GetQuestType() != QUEST_TYPE_TASK || (quest->GetQuestType() == QUEST_TYPE_TASK && IsQuestRewarded(questId)))
     {
-        m_QuestStatus.erase(itr);
-        m_QuestStatusSave[questId] = QUEST_DELETE_SAVE_TYPE;
+        if (itr != m_QuestStatus.end())
+        {
+            m_QuestStatus.erase(itr);
+            m_QuestStatusSave[questId] = QUEST_DELETE_SAVE_TYPE;
+        }
     }
+    else if (itr != m_QuestStatus.end())
+        itr->second.Status = QUEST_STATUS_NONE;
 
     if (update)
         SendQuestUpdate(questId);
@@ -16531,6 +16730,10 @@ void Player::RemoveRewardedQuest(uint32 questId, bool update /*= true*/)
 
     if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(questId))
         SetQuestCompletedBit(questBit, false);
+
+    if (Quest const* quest = sObjectMgr->GetQuestTemplate(questId))
+        for (QuestObjective const& obj : quest->GetObjectives())
+            m_questObjectiveCriteriaMgr->RemoveCompletedObjective(&obj);
 
     // Remove seasonal quest also
     Quest const* qInfo = sObjectMgr->GetQuestTemplate(questId);
@@ -16792,20 +16995,27 @@ void Player::AreaExploredOrEventHappens(uint32 questId)
         uint16 log_slot = FindQuestSlot(questId);
         if (log_slot < MAX_QUEST_LOG_SIZE)
         {
-            TC_LOG_ERROR("entities.player.quest", "Player::AreaExploredOrEventHappens:Deprecated function called for quest %u", questId);
-            /** @todo
-            This function was previously used for area triggers but now those are a part of quest objective system
-            Currently this function is used to complete quests with no objectives (needs verifying) so probably rename it?
-
-            QuestStatusData& q_status = m_QuestStatus[questId];
-
-            if (!q_status.Explored)
+            Quest const* qInfo = sObjectMgr->GetQuestTemplate(questId);
+            if (qInfo && GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE)
             {
+                QuestStatusMap::const_iterator itr = m_QuestStatus.find(questId);
+                if (itr == m_QuestStatus.end())
+                    return;
+
+                QuestStatusData& q_status = m_QuestStatus[questId];
                 q_status.Explored = true;
                 m_QuestStatusSave[questId] = QUEST_DEFAULT_SAVE_TYPE;
 
-                SendQuestComplete(questId);
-            }**/
+                for (QuestObjective const& obj : qInfo->Objectives)
+                {
+                    if (obj.Type == QUEST_OBJECTIVE_AREATRIGGER && !IsQuestObjectiveComplete(obj))
+                    {
+                        SetQuestObjectiveData(obj, 1);
+                        SendQuestUpdateAddCreditSimple(obj);
+                        break;
+                    }
+                }
+            }
         }
         if (CanCompleteQuest(questId))
             CompleteQuest(questId);
@@ -17364,6 +17574,29 @@ int32 Player::GetQuestObjectiveData(Quest const* quest, int8 storageIndex) const
     }
 
     return status.ObjectiveData[storageIndex];
+}
+
+int32 Player::GetQuestObjectiveData(uint32 questId, int8 storageIndex) const
+{
+    if (Quest const* qInfo = sObjectMgr->GetQuestTemplate(questId))
+        return GetQuestObjectiveData(qInfo, storageIndex);
+
+    return 0;
+}
+
+int32 Player::GetQuestObjectiveCounter(uint32 objectiveId) const
+{
+    QuestObjective const* obj = sObjectMgr->GetQuestObjective(objectiveId);
+
+    if (obj == nullptr)
+        return 0;
+
+    Quest const* quest = sObjectMgr->GetQuestTemplate(obj->QuestID);
+
+    if (quest == nullptr)
+        return 0;
+
+    return GetQuestObjectiveData(quest, obj->StorageIndex);
 }
 
 bool Player::IsQuestObjectiveComplete(QuestObjective const& objective) const
@@ -18640,6 +18873,12 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder* holder)
     }
 
     m_achievementMgr->CheckAllAchievementCriteria(this);
+
+    // Add active emissary quests on player at login
+    sWorldQuestMgr->AddEmissaryQuestsOnPlayerIfNeeded(this);
+
+    UpdateAverageItemLevel();
+
     m_questObjectiveCriteriaMgr->CheckAllQuestObjectiveCriteria(this);
     return true;
 }
@@ -19453,8 +19692,8 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
 {
     uint16 slot = 0;
 
-    ////                                                       0      1       2
-    //QueryResult* result = CharacterDatabase.PQuery("SELECT quest, status, timer WHERE guid = '%u'", GetGUIDLow());
+    ////                                                       0      1       2       3
+    //QueryResult* result = CharacterDatabase.PQuery("SELECT quest, status, timer, explored WHERE guid = '%u'", GetGUIDLow());
 
     if (result)
     {
@@ -19481,6 +19720,7 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
                 }
 
                 time_t quest_time = time_t(fields[2].GetUInt32());
+                questStatusData.Explored = fields[3].GetBool();
 
                 if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_TIMED) && !GetQuestRewardStatus(quest_id))
                 {
@@ -21115,6 +21355,7 @@ void Player::_SaveQuestStatus(CharacterDatabaseTransaction& trans)
                 stmt->setUInt32(1, statusItr->first);
                 stmt->setUInt8(2, uint8(qData.Status));
                 stmt->setUInt32(3, uint32(qData.Timer / IN_MILLISECONDS+ GameTime::GetGameTime()));
+                stmt->setBool(4, qData.Explored);
                 trans->Append(stmt);
 
                 // Save objectives
@@ -24094,7 +24335,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     /// SMSG_WORLD_SERVER_INFO
     WorldPackets::Misc::WorldServerInfo worldServerInfo;
-    worldServerInfo.InstanceGroupSize = GetMap()->GetMapDifficulty()->MaxPlayers;
+    worldServerInfo.InstanceGroupSize = GetMap()->GetMapDifficulty() ? GetMap()->GetMapDifficulty()->MaxPlayers: 0;
     worldServerInfo.IsTournamentRealm = 0; /// @todo
     // worldServerInfo.RestrictedAccountMaxLevel; /// @todo
     // worldServerInfo.RestrictedAccountMaxMoney; /// @todo
@@ -24930,6 +25171,18 @@ bool Player::HasQuestForGO(int32 GOId) const
     return false;
 }
 
+bool Player::HasQuest(uint32 questID) const
+{
+    if (questID == 0)
+        return false;
+
+    for (uint8 itr = 0; itr < MAX_QUEST_LOG_SIZE; ++itr)
+        if (GetQuestSlotQuestId(itr) == questID)
+            return true;
+
+    return false;
+}
+
 void Player::UpdateForQuestWorldObjects()
 {
     if (m_clientGUIDs.empty())
@@ -25345,6 +25598,9 @@ void Player::RewardPlayerAndGroupAtEvent(uint32 creature_id, WorldObject* pRewar
     }
     else                                                    // if (!group)
         KilledMonsterCredit(creature_id, creature_guid);
+
+    if (Scenario* scenario = GetScenario())
+        scenario->UpdateCriteria(CRITERIA_TYPE_KILL_CREATURE, creature_id, 1, 0, pRewardSource->ToUnit(), this);
 }
 
 bool Player::IsAtGroupRewardDistance(WorldObject const* pRewardSource) const
@@ -27773,24 +28029,170 @@ void Player::_LoadRandomBGStatus(PreparedQueryResult result)
         m_IsBGRandomWinner = true;
 }
 
-float Player::GetAverageItemLevel() const
+float Player::GetAverageItemLevelEquipped() const
 {
-    float sum = 0;
+    uint32 levelSum = 0;
     uint32 count = 0;
+    bool has2hInMain = false;
+    uint32 invType = INVTYPE_NON_EQUIP;
 
-    for (int i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
+    if (Item * item = GetEquippedItem(EQUIPMENT_SLOT_MAINHAND))
+        invType = item->GetTemplate()->GetInventoryType();
+
+    if (getClass() == CLASS_HUNTER)
+        has2hInMain = invType == INVTYPE_RANGED || invType == INVTYPE_RANGEDRIGHT;
+    else
+        has2hInMain = invType == INVTYPE_2HWEAPON;
+
+    bool hasOffHand = GetEquippedItem(EQUIPMENT_SLOT_OFFHAND) != nullptr;
+
+    for (EquipmentSlots i = EQUIPMENT_SLOT_HEAD; i < EQUIPMENT_SLOT_TABARD; i = (EquipmentSlots)(int(i) + 1))
     {
-        // don't check tabard, ranged, offhand or shirt
-        if (i == EQUIPMENT_SLOT_TABARD || i == EQUIPMENT_SLOT_RANGED || i == EQUIPMENT_SLOT_OFFHAND || i == EQUIPMENT_SLOT_BODY)
+        if (i == EQUIPMENT_SLOT_BODY) // skip shirt
+            continue;
+        if (i == EQUIPMENT_SLOT_RANGED) // ranged slot was removed in MOP
             continue;
 
-        if (m_items[i])
-            sum += m_items[i]->GetItemLevel(this);
+        if (Item * item = GetEquippedItem(i))
+        {
+            uint32 ilvl = item->GetItemLevel(this);
+            if (i == EQUIPMENT_SLOT_MAINHAND && has2hInMain && !hasOffHand)
+            {
+                ilvl += ilvl;
+                count++;
+            }
 
-        ++count;
+            levelSum += ilvl;
+        }
+        count++;
+
+        if (has2hInMain && !hasOffHand && i == EQUIPMENT_SLOT_OFFHAND)
+            count--;
     }
+    uint32 iLevel = levelSum / (count ? count : 1);
 
-    return ((float)sum) / count;
+    return iLevel;
+}
+
+float Player::GetAverageItemLevelEquippedAndBag() const
+{
+    uint32 levelSum = 0;
+    uint32 count = 0;
+    bool has2hInMain = false;
+    uint32 invType = INVTYPE_NON_EQUIP;
+
+    if (Item * item = GetEquippedItem(EQUIPMENT_SLOT_MAINHAND))
+        invType = item->GetTemplate()->GetInventoryType();
+
+    if (getClass() == CLASS_HUNTER)
+        has2hInMain = invType == INVTYPE_RANGED || invType == INVTYPE_RANGEDRIGHT;
+    else
+        has2hInMain = invType == INVTYPE_2HWEAPON;
+
+    bool hasOffHand = GetEquippedItem(EQUIPMENT_SLOT_OFFHAND) != nullptr;
+
+    for (EquipmentSlots i = EQUIPMENT_SLOT_HEAD; i < EQUIPMENT_SLOT_TABARD; i = (EquipmentSlots)(int(i) + 1))
+    {
+        if (i == EQUIPMENT_SLOT_BODY) // skip shirt
+            continue;
+        if (i == EQUIPMENT_SLOT_RANGED) // ranged slot was removed in MOP
+            continue;
+        uint32 ilvl = 0;
+
+        if (Item * item = GetEquippedItem(i))
+            ilvl = item->GetItemLevel(this);
+
+        for (int j = INVENTORY_SLOT_ITEM_START; j < INVENTORY_SLOT_ITEM_END; ++j)
+        {
+            if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, j))
+            {
+                auto slot = GetSlotEquipmentFromInventory(item->GetTemplate());
+                if (slot == i ||
+                    ((slot == EQUIPMENT_SLOT_TRINKET1 || slot == EQUIPMENT_SLOT_TRINKET2) && (i == 12 || i == 13)) ||
+                    ((slot == EQUIPMENT_SLOT_FINGER1 || slot == EQUIPMENT_SLOT_FINGER2) && (i == 10 || i == 11)))
+                    ilvl = std::max(ilvl, item->GetItemLevel(this));
+            }
+        }
+
+        for (uint8 j = INVENTORY_SLOT_BAG_START; j < INVENTORY_SLOT_BAG_END; j++)
+        {
+            if (Bag* pBag = GetBagByPos(j))
+            {
+                for (uint32 g = 0; g < pBag->GetBagSize(); g++)
+                {
+                    if (Item* pItem = GetItemByPos(j, g))
+                    {
+                        auto slot = GetSlotEquipmentFromInventory(pItem->GetTemplate());
+                        if (slot == i ||
+                            ((slot == EQUIPMENT_SLOT_TRINKET1 || slot == EQUIPMENT_SLOT_TRINKET2) && (i == 12 || i == 13)) ||
+                            ((slot == EQUIPMENT_SLOT_FINGER1 || slot == EQUIPMENT_SLOT_FINGER2) && (i == 10 || i == 11)))
+                            ilvl = std::max(ilvl, pItem->GetItemLevel(this));
+                    }
+                }
+            }
+        }
+
+        if (i == EQUIPMENT_SLOT_MAINHAND && has2hInMain && !hasOffHand)
+        {
+            ilvl += ilvl;
+            count++;
+        }
+
+        levelSum += ilvl;
+        count++;
+
+
+        if (has2hInMain && i == EQUIPMENT_SLOT_OFFHAND)
+            count--;
+    }
+    uint32 iLevel = levelSum / (count ? count : 1);
+
+    return iLevel;
+}
+
+uint8 Player::GetSlotEquipmentFromInventory(ItemTemplate const* proto) const
+{
+    switch (proto->GetInventoryType())
+    {
+        case INVTYPE_HEAD:
+            return EQUIPMENT_SLOT_HEAD;
+        case INVTYPE_NECK:
+            return EQUIPMENT_SLOT_NECK;
+        case INVTYPE_SHOULDERS:
+            return EQUIPMENT_SLOT_SHOULDERS;
+        case INVTYPE_BODY:
+            return EQUIPMENT_SLOT_BODY;
+        case INVTYPE_CHEST:
+            return EQUIPMENT_SLOT_CHEST;
+        case INVTYPE_ROBE:
+            return EQUIPMENT_SLOT_CHEST;
+        case INVTYPE_WAIST:
+            return EQUIPMENT_SLOT_WAIST;
+        case INVTYPE_LEGS:
+            return EQUIPMENT_SLOT_LEGS;
+        case INVTYPE_FEET:
+            return EQUIPMENT_SLOT_FEET;
+        case INVTYPE_WRISTS:
+            return EQUIPMENT_SLOT_WRISTS;
+        case INVTYPE_HANDS:
+            return EQUIPMENT_SLOT_HANDS;
+        case INVTYPE_FINGER:
+            return EQUIPMENT_SLOT_FINGER1;
+        case INVTYPE_TRINKET:
+            return EQUIPMENT_SLOT_TRINKET1;
+        case INVTYPE_CLOAK:
+            return EQUIPMENT_SLOT_BACK;
+        case INVTYPE_RANGED:
+        case INVTYPE_2HWEAPON:
+        case INVTYPE_WEAPON:
+        case INVTYPE_WEAPONMAINHAND:
+        case INVTYPE_RANGEDRIGHT:
+            return EQUIPMENT_SLOT_MAINHAND;
+        case INVTYPE_WEAPONOFFHAND:
+            return EQUIPMENT_SLOT_OFFHAND;
+        default:
+            return NULL_SLOT;
+    }
 }
 
 void Player::_LoadInstanceTimeRestrictions(PreparedQueryResult result)
@@ -28054,15 +28456,6 @@ void Player::SendPlayerChoice(ObjectGuid sender, int32 choiceId)
     }
 
     SendDirectMessage(displayPlayerChoice.Write());
-}
-
-bool Player::MeetPlayerCondition(uint32 conditionId) const
-{
-    if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(conditionId))
-        if (!ConditionMgr::IsPlayerMeetingCondition(this, playerCondition))
-            return false;
-
-    return true;
 }
 
 float Player::GetCollisionHeight(bool mounted) const

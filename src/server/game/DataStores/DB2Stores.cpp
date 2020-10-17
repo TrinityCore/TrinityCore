@@ -212,8 +212,11 @@ DB2Storage<PvpTalentEntry>                      sPvpTalentStore("PvpTalent.db2",
 DB2Storage<PvpTalentCategoryEntry>              sPvpTalentCategoryStore("PvpTalentCategory.db2", PvpTalentCategoryLoadInfo::Instance());
 DB2Storage<PvpTalentSlotUnlockEntry>            sPvpTalentSlotUnlockStore("PvpTalentSlotUnlock.db2", PvpTalentSlotUnlockLoadInfo::Instance());
 DB2Storage<QuestFactionRewardEntry>             sQuestFactionRewardStore("QuestFactionReward.db2", QuestFactionRewardLoadInfo::Instance());
+DB2Storage<QuestV2CliTaskEntry>                 sQuestV2CliTaskStore("QuestV2CliTask.db2", QuestV2CliTaskLoadInfo::Instance());
 DB2Storage<QuestMoneyRewardEntry>               sQuestMoneyRewardStore("QuestMoneyReward.db2", QuestMoneyRewardLoadInfo::Instance());
 DB2Storage<QuestPackageItemEntry>               sQuestPackageItemStore("QuestPackageItem.db2", QuestPackageItemLoadInfo::Instance());
+DB2Storage<QuestPOIBlobEntry>                   sQuestPOIBlobStore("QuestPOIBlob.db2", QuestPOIBlobLoadInfo::Instance());
+DB2Storage<QuestPOIPointEntry>                  sQuestPOIPointStore("QuestPOIPoint.db2", QuestPOIPointLoadInfo::Instance());
 DB2Storage<QuestSortEntry>                      sQuestSortStore("QuestSort.db2", QuestSortLoadInfo::Instance());
 DB2Storage<QuestV2Entry>                        sQuestV2Store("QuestV2.db2", QuestV2LoadInfo::Instance());
 DB2Storage<QuestXPEntry>                        sQuestXPStore("QuestXP.db2", QuestXpLoadInfo::Instance());
@@ -733,9 +736,12 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sPvpTalentSlotUnlockStore);
     LOAD_DB2(sQuestFactionRewardStore);
     LOAD_DB2(sQuestMoneyRewardStore);
+    LOAD_DB2(sQuestPOIPointStore);
+    LOAD_DB2(sQuestPOIBlobStore);
     LOAD_DB2(sQuestPackageItemStore);
     LOAD_DB2(sQuestSortStore);
     LOAD_DB2(sQuestV2Store);
+    LOAD_DB2(sQuestV2CliTaskStore);
     LOAD_DB2(sQuestXPStore);
     LOAD_DB2(sRandPropPointsStore);
     LOAD_DB2(sRewardPackStore);
@@ -2079,6 +2085,12 @@ void VisitItemBonusTree(uint32 itemBonusTreeId, bool visitChildren, Visitor visi
 
 std::set<uint32> DB2Manager::GetDefaultItemBonusTree(uint32 itemId, ItemContext itemContext) const
 {
+    uint32 unuseduint = 0;
+    return GetItemBonusTree(itemId, itemContext, unuseduint);
+}
+
+std::set<uint32> DB2Manager::GetItemBonusTree(uint32 itemId, ItemContext itemContext, uint32& itemLevel) const
+{
     std::set<uint32> bonusListIDs;
 
     ItemSparseEntry const* proto = sItemSparseStore.LookupEntry(itemId);
@@ -2164,6 +2176,28 @@ std::set<uint32> DB2Manager::GetDefaultItemBonusTree(uint32 itemId, ItemContext 
     }
 
     return bonusListIDs;
+}
+
+bool DB2Manager::HasItemContext(uint32 itemId) const
+{
+    auto itemIdRange = _itemToBonusTree.equal_range(itemId);
+    return itemIdRange.first == itemIdRange.second;
+}
+
+bool DB2Manager::HasItemContext(uint32 itemId, ItemContext itemContext) const
+{
+    return !GetDefaultItemBonusTree(itemId, itemContext).empty();
+}
+
+std::vector<int32> DB2Manager::GetItemBonusTreeVector(uint32 itemId, ItemContext itemContext) const
+{
+    std::set<uint32> bonusListIDs = GetDefaultItemBonusTree(itemId, itemContext);
+    std::vector<int32> vectorBonusListIDs;
+
+    for (uint32 bonusList : bonusListIDs)
+        vectorBonusListIDs.push_back(bonusList);
+
+    return vectorBonusListIDs;
 }
 
 void LoadAzeriteEmpoweredItemUnlockMappings(std::unordered_map<int32, std::vector<AzeriteUnlockMappingEntry const*>> const& azeriteUnlockMappingsBySet, uint32 itemId)
