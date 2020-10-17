@@ -3,7 +3,13 @@ jobs:
   codestyle_and_sql:
     docker:
       - image: trinitycore/circle-ci:3.3.5-buildpacks-focal
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
       - image: circleci/mysql:8
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
         environment:
           MYSQL_ALLOW_EMPTY_PASSWORD: yes
           MYSQL_ROOT_PASSWORD: ''
@@ -33,6 +39,9 @@ jobs:
   pch:
     docker:
       - image: trinitycore/circle-ci:3.3.5-buildpacks-focal
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
     steps:
       - run:
           name: Checkout
@@ -64,6 +73,9 @@ jobs:
   nopch:
     docker:
       - image: trinitycore/circle-ci:3.3.5-buildpacks-focal
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
     steps:
       - run:
           name: Requirements
