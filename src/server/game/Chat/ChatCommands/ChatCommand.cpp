@@ -173,8 +173,13 @@ void Trinity::Impl::ChatCommands::ChatCommandNode::SendCommandHelp(ChatHandler& 
     {
         if (std::holds_alternative<TrinityStrings>(_help))
             handler.SendSysMessage(std::get<TrinityStrings>(_help));
-        else
+        else if (std::holds_alternative<std::string>(_help))
             handler.SendSysMessage(std::get<std::string>(_help));
+        else
+        {
+            handler.PSendSysMessage(LANG_CMD_HELP_GENERIC, STRING_VIEW_FMT_ARG(_name));
+            handler.PSendSysMessage(LANG_CMD_NO_HELP_AVAILABLE, STRING_VIEW_FMT_ARG(_name));
+        }
     }
 
     bool header = false;

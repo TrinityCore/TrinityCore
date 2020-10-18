@@ -31,7 +31,7 @@
 
 namespace MMAP
 {
-    MapBuilder::MapBuilder(bool skipLiquid,
+    MapBuilder::MapBuilder(Optional<float> maxWalkableAngle, Optional<float> maxWalkableAngleNotSteep, bool skipLiquid,
         bool skipContinents, bool skipJunkMaps, bool skipBattlegrounds,
         bool debugOutput, bool bigBaseUnit, int mapid, char const* offMeshFilePath) :
         m_terrainBuilder     (nullptr),
@@ -40,6 +40,8 @@ namespace MMAP
         m_skipContinents     (skipContinents),
         m_skipJunkMaps       (skipJunkMaps),
         m_skipBattlegrounds  (skipBattlegrounds),
+        m_maxWalkableAngle   (maxWalkableAngle),
+        m_maxWalkableAngleNotSteep (maxWalkableAngleNotSteep),
         m_bigBaseUnit        (bigBaseUnit),
         m_mapid              (mapid),
         m_totalTiles         (0u),
@@ -602,8 +604,7 @@ namespace MMAP
                 delete[] triFlags;
 
                 rcFilterLowHangingWalkableObstacles(m_rcContext, config.walkableClimb, *tile.solid);
-                // disabled as it ignores walkableSlopeAngle settings
-                //rcFilterLedgeSpans(m_rcContext, tileCfg.walkableHeight, tileCfg.walkableClimb, *tile.solid);
+                rcFilterLedgeSpans(m_rcContext, tileCfg.walkableHeight, tileCfg.walkableClimb, *tile.solid);
                 rcFilterWalkableLowHeightSpans(m_rcContext, tileCfg.walkableHeight, *tile.solid);
 
                 // add liquid triangles
@@ -836,6 +837,11 @@ namespace MMAP
             header.size = uint32(navDataSize);
             fwrite(&header, sizeof(MmapTileHeader), 1, file);
 
+            /*
+            dtMeshHeader* navDataHeader = (dtMeshHeader*)navData;
+            printf("Poly count: %d\n", navDataHeader->polyCount);
+            */
+
             // write data
             fwrite(navData, sizeof(unsigned char), navDataSize, file);
             fclose(file);
@@ -1016,8 +1022,10 @@ namespace MMAP
         config.maxVertsPerPoly = DT_VERTS_PER_POLYGON;
         config.cs = tileConfig.BASE_UNIT_DIM;
         config.ch = tileConfig.BASE_UNIT_DIM;
-        config.walkableSlopeAngle = 85;
-        config.walkableSlopeAngleNotSteep = 55;
+        // Keeping these 2 slope angles the same reduces a lot the number of polys.
+        // 55 should be the minimum, maybe 70 is ok (keep in mind blink uses mmaps), 85 is too much for players
+        config.walkableSlopeAngle = m_maxWalkableAngle ? *m_maxWalkableAngle : 55;
+        config.walkableSlopeAngleNotSteep = m_maxWalkableAngleNotSteep ? *m_maxWalkableAngleNotSteep : 55;
         config.tileSize = tileConfig.VERTEX_PER_TILE;
         config.walkableRadius = m_bigBaseUnit ? 1 : 2;
         config.borderSize = config.walkableRadius + 3;

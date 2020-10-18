@@ -300,7 +300,7 @@ uint8 Aura::BuildEffectMaskForOwner(SpellInfo const* spellProto, uint8 available
     return effMask & availableEffectMask;
 }
 
-Aura* Aura::TryRefreshStackOrCreate(AuraCreateInfo& createInfo)
+Aura* Aura::TryRefreshStackOrCreate(AuraCreateInfo& createInfo, bool updateEffectMask)
 {
     ASSERT_NODEBUGINFO(createInfo.Caster || createInfo.CasterGUID);
 
@@ -331,8 +331,9 @@ Aura* Aura::TryRefreshStackOrCreate(AuraCreateInfo& createInfo)
         Unit* unit = createInfo._owner->ToUnit();
 
         // check effmask on owner application (if existing)
-        if (AuraApplication* aurApp = foundAura->GetApplicationOfTarget(unit->GetGUID()))
-            aurApp->UpdateApplyEffectMask(effMask);
+        if (updateEffectMask)
+            if (AuraApplication* aurApp = foundAura->GetApplicationOfTarget(unit->GetGUID()))
+                aurApp->UpdateApplyEffectMask(effMask);
         return foundAura;
     }
     else

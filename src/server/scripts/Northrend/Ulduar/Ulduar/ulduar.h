@@ -366,6 +366,8 @@ enum UlduarAchievementCriteriaIds
     CRITERIA_ALONE_IN_THE_DARKNESS_25        = 10417,
     CRITERIA_HERALD_OF_TITANS                = 10678,
 
+    REALM_FIRST_DEATHS_DEMISE                = 10279,
+
     // Champion of Ulduar
     CRITERIA_C_O_U_LEVIATHAN_10              = 10042,
     CRITERIA_C_O_U_IGNIS_10                  = 10342,
