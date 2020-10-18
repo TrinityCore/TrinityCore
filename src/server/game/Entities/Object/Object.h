@@ -55,6 +55,9 @@ class UpdateData;
 class WorldObject;
 class WorldPacket;
 class ZoneScript;
+#ifdef ELUNA
+class ElunaEventProcessor;
+#endif			
 struct FactionTemplateEntry;
 struct PositionFullTerrainStatus;
 struct QuaternionData;
@@ -505,6 +508,9 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         uint32  LastUsedScriptID;
 
+#ifdef ELUNA
+        ElunaEventProcessor* elunaEvents;
+#endif			
         // Transports
         Transport* GetTransport() const { return m_transport; }
         float GetTransOffsetX() const { return m_movementInfo.transport.pos.GetPositionX(); }

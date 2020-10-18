@@ -1,0 +1,4 @@
+[submodule "LuaEngine"]
+	path = LuaEngine
+	url = F:\\wow\\TrinityCore\\LuaEngine
+	branch = https://github.com/ElunaLuaEngine/Eluna.git
