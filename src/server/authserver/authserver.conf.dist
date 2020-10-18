@@ -145,7 +145,7 @@ StrictVersionCheck = 0
 #        Description: Time (in seconds) between checks for expired bans
 #        Default:     60
 
-BanExpiryCheckInterval = 60
+BanExpiryCheckInterval = 600
 
 #
 #    SourceDirectory
@@ -195,7 +195,7 @@ IPLocationFile = ""
 #    The SSL option will enable TLS when connecting to the specified database. If not provided or
 #    any value other than 'ssl' is set, TLS will not be used.
 
-LoginDatabaseInfo = "127.0.0.1;3306;trinity;trinity;auth"
+LoginDatabaseInfo = "192.168.1.104;3306;trinity;trinity;auth-bot"
 
 #
 #    LoginDatabase.WorkerThreads
@@ -254,7 +254,7 @@ Updates.EnableDatabases = 0
 #        Default:     1 - (Enabled)
 #                     0 - (Disabled)
 
-Updates.AutoSetup   = 1
+Updates.AutoSetup   = 0
 
 #
 #    Updates.Redundancy
@@ -263,7 +263,7 @@ Updates.AutoSetup   = 1
 #        Default:     1 - (Enabled)
 #                     0 - (Disabled)
 
-Updates.Redundancy  = 1
+Updates.Redundancy  = 0
 
 #
 #    Updates.ArchivedRedundancy
@@ -280,7 +280,7 @@ Updates.ArchivedRedundancy = 0
 #        Default:     1 - (Enabled)
 #                     0 - (Disabled)
 
-Updates.AllowRehash = 1
+Updates.AllowRehash = 0
 
 #
 #    Updates.CleanDeadRefMaxCount

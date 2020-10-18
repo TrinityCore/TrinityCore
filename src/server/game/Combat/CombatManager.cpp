@@ -20,6 +20,12 @@
 #include "Unit.h"
 #include "CreatureAI.h"
 #include "Player.h"
+#ifdef ELUNA
+#include "LuaEngine.h"
+#endif
+//npcbot
+#include "botmgr.h"
+//end npcbot
 
 /*static*/ bool CombatManager::CanBeginCombat(Unit const* a, Unit const* b)
 {
@@ -74,6 +80,18 @@ void CombatReference::EndCombat()
     bool const needSecondAI = second->GetCombatManager().UpdateOwnerCombatState();
 
     // ...and if that happened, also notify the AI of it...
+#ifdef ELUNA
+    if (needFirstAI)
+    {
+        if (Player* player = first->ToPlayer())
+            sEluna->OnPlayerLeaveCombat(player);
+    }
+    if (needSecondAI)
+    {
+        if (Player* player = second->ToPlayer())
+            sEluna->OnPlayerLeaveCombat(player);
+    }
+#endif			
     if (needFirstAI)
         if (UnitAI* firstAI = first->GetAI())
             firstAI->JustExitedCombat();
@@ -119,9 +137,15 @@ void PvPCombatReference::SuppressFor(Unit* who)
 {
     Suppress(who);
     if (who->GetCombatManager().UpdateOwnerCombatState())
+    {
+#ifdef ELUNA
+        if (Player* player = who->ToPlayer())
+            sEluna->OnPlayerLeaveCombat(player);
+#endif	 
         if (UnitAI* ai = who->GetAI())
             ai->JustExitedCombat();
-}
+    }
+ }
 
 CombatManager::~CombatManager()
 {
@@ -192,8 +216,29 @@ bool CombatManager::SetInCombatWith(Unit* who)
     CombatReference* ref;
     if (_owner->IsControlledByPlayer() && who->IsControlledByPlayer())
         ref = new PvPCombatReference(_owner, who);
+    //npcbot: follow pvp rules
+    else if ((_owner->ToCreature() && _owner->ToCreature()->IsNPCBotOrPet() && who->IsControlledByPlayer()) ||
+        (who->ToCreature() && who->ToCreature()->IsNPCBotOrPet() && _owner->IsControlledByPlayer()) ||
+        (_owner->ToCreature() && _owner->ToCreature()->IsNPCBotOrPet() &&
+        who->ToCreature() && who->ToCreature()->IsNPCBotOrPet()))
+        ref = new PvPCombatReference(_owner, who);
+    //end npcbot
     else
         ref = new CombatReference(_owner, who);
+
+    //npcbot
+    /*
+    if (_owner->GetTypeId() == TYPEID_PLAYER && _owner->ToPlayer()->HaveBot())
+    {
+        BotMap const* map = _owner->ToPlayer()->GetBotMgr()->GetBotMap();
+        for (BotMap::const_iterator itr = map->begin(); itr != map->end(); ++itr)
+        {
+            itr->second->SetInCombatWith(who);
+            if (Unit* botPet = itr->second->GetBotsPet())
+                botPet->SetInCombatWith(who);
+        }
+    }*/
+    //end npcbot
 
     // ...and insert it into both managers
     PutReference(who->GetGUID(), ref);
@@ -285,9 +330,15 @@ void CombatManager::SuppressPvPCombat()
     for (auto const& pair : _pvpRefs)
         pair.second->Suppress(_owner);
     if (UpdateOwnerCombatState())
+    {
+#ifdef ELUNA
+        if (Player* player = _owner->ToPlayer())
+            sEluna->OnPlayerLeaveCombat(player);
+#endif	 
         if (UnitAI* ownerAI = _owner->GetAI())
             ownerAI->JustExitedCombat();
-}
+    }
+} 
 
 void CombatManager::EndAllPvECombat()
 {
@@ -306,6 +357,10 @@ void CombatManager::EndAllPvPCombat()
 
 /*static*/ void CombatManager::NotifyAICombat(Unit* me, Unit* other)
 {
+#ifdef ELUNA
+    if (Player* player = me->ToPlayer())
+        sEluna->OnPlayerEnterCombat(player, other);
+#endif			
     if (UnitAI* ai = me->GetAI())
         ai->JustEnteredCombat(other);
 }

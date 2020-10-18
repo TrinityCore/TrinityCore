@@ -114,7 +114,7 @@ DBCStorage <HolidaysEntry>                sHolidaysStore(Holidaysfmt);
 DBCStorage <ItemEntry>                    sItemStore(Itemfmt);
 DBCStorage <ItemBagFamilyEntry>           sItemBagFamilyStore(ItemBagFamilyfmt);
 //DBCStorage <ItemCondExtCostsEntry> sItemCondExtCostsStore(ItemCondExtCostsEntryfmt);
-//DBCStorage <ItemDisplayInfoEntry> sItemDisplayInfoStore(ItemDisplayTemplateEntryfmt); -- not used currently
+DBCStorage <ItemDisplayInfoEntry> sItemDisplayInfoStore(ItemDisplayTemplateEntryfmt);
 DBCStorage <ItemExtendedCostEntry> sItemExtendedCostStore(ItemExtendedCostEntryfmt);
 DBCStorage <ItemLimitCategoryEntry> sItemLimitCategoryStore(ItemLimitCategoryEntryfmt);
 DBCStorage <ItemRandomPropertiesEntry> sItemRandomPropertiesStore(ItemRandomPropertiesfmt);
@@ -335,7 +335,7 @@ void LoadDBCStores(const std::string& dataPath)
     LOAD_DBC(sHolidaysStore,                      "Holidays.dbc");
     LOAD_DBC(sItemStore,                          "Item.dbc");
     LOAD_DBC(sItemBagFamilyStore,                 "ItemBagFamily.dbc");
-    //LOAD_DBC(sItemDisplayInfoStore,               "ItemDisplayInfo.dbc");     -- not used currently
+    LOAD_DBC(sItemDisplayInfoStore,               "ItemDisplayInfo.dbc");
     //LOAD_DBC(sItemCondExtCostsStore,              "ItemCondExtCosts.dbc");
     LOAD_DBC(sItemExtendedCostStore,              "ItemExtendedCost.dbc");
     LOAD_DBC(sItemLimitCategoryStore,             "ItemLimitCategory.dbc");

@@ -169,6 +169,12 @@ class spell_pal_ardent_defender : public SpellScriptLoader
             {
                 _absorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
                 _healPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue();
+
+                //npcbot - allow for npcbots
+                if (GetUnitOwner()->GetTypeId() == TYPEID_UNIT && GetUnitOwner()->ToCreature()->IsNPCBot())
+                    return true;
+                //end npcbot
+
                 return GetUnitOwner()->GetTypeId() == TYPEID_PLAYER;
             }
 
@@ -183,6 +189,40 @@ class spell_pal_ardent_defender : public SpellScriptLoader
                 Unit* victim = GetTarget();
                 int32 remainingHealth = victim->GetHealth() - dmgInfo.GetDamage();
                 uint32 allowedHealth = victim->CountPctFromMaxHealth(35);
+
+                //npcbot - calc for bots
+                if (victim->GetTypeId() == TYPEID_UNIT/* && victim->ToCreature()->IsNPCBot()*/)
+                {
+                    if (remainingHealth <= 0 && !victim->GetSpellHistory()->HasCooldown(PAL_SPELL_ARDENT_DEFENDER_HEAL) &&
+                        !victim->ToCreature()->HasSpellCooldown(PAL_SPELL_ARDENT_DEFENDER_HEAL))
+                    {
+                        // Cast healing spell, completely avoid damage
+                        absorbAmount = dmgInfo.GetDamage();
+
+                        float defenseSkillValue = victim->GetDefenseSkillValue();
+                        // Max heal when defense skill denies critical hits from raid bosses
+                        // Formula: max defense at level + 140 (rating from gear)
+                        float reqDefForMaxHeal = victim->GetMaxSkillValueForLevel() + 140.0f;
+                        float defenseFactor = std::min(1.0f, defenseSkillValue / reqDefForMaxHeal);
+
+                        CastSpellExtraArgs args(aurEff);
+                        args.AddSpellBP0(victim->CountPctFromMaxHealth(lroundf(_healPct * defenseFactor)));
+                        victim->CastSpell(victim, PAL_SPELL_ARDENT_DEFENDER_HEAL, args);
+                        victim->GetSpellHistory()->AddCooldown(PAL_SPELL_ARDENT_DEFENDER_HEAL, 0, std::chrono::minutes(2));
+                    }
+                    else if (remainingHealth < int32(allowedHealth))
+                    {
+                        // Reduce damage that brings us under 35% (or full damage if we are already under 35%) by x%
+                        uint32 damageToReduce = (victim->GetHealth() < allowedHealth)
+                            ? dmgInfo.GetDamage()
+                            : allowedHealth - remainingHealth;
+                        absorbAmount = CalculatePct(damageToReduce, _absorbPct);
+                    }
+
+                    return;
+                }
+                //end npcbot
+
                 // If damage kills us
                 if (remainingHealth <= 0 && !victim->GetSpellHistory()->HasCooldown(PAL_SPELL_ARDENT_DEFENDER_HEAL))
                 {
@@ -535,6 +575,23 @@ class spell_pal_divine_sacrifice : public AuraScript
     {
         if (Unit* caster = GetCaster())
         {
+            //npcbot: handle for bots
+            if (caster->GetTypeId() == TYPEID_UNIT && caster->ToCreature()->IsNPCBot())
+            {
+                Player const* owner = caster->ToCreature()->GetBotOwner();
+                if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
+                    return false;
+
+                if (owner->GetGroup())
+                    groupSize = owner->GetGroup()->GetMembersCount();
+                else
+                    groupSize = 1;
+
+                remainingAmount = (caster->CountPctFromMaxHealth(GetSpellInfo()->Effects[EFFECT_2].CalcValue(caster)) * groupSize);
+                minHpPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue(caster);
+                return true;
+            }
+            //end npcbot
             if (caster->GetTypeId() == TYPEID_PLAYER)
             {
                 if (caster->ToPlayer()->GetGroup())
@@ -1832,6 +1889,9 @@ class spell_pal_righteous_defense : public SpellScript
     {
         Unit* caster = GetCaster();
         if (caster->GetTypeId() != TYPEID_PLAYER)
+            //npcbot: this player check makes no sense
+            if (!(caster->GetTypeId() == TYPEID_UNIT && caster->ToCreature()->IsNPCBot()))
+            //end npcbot
             return SPELL_FAILED_DONT_REPORT;
 
         if (Unit* target = GetExplTargetUnit())

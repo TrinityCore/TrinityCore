@@ -31,6 +31,10 @@
 #include "SpellMgr.h"
 #include "Vehicle.h"
 
+//npcbot
+#include "botmgr.h"
+//end npcbot
+
 uint32 GetTargetFlagMask(SpellTargetObjectTypes objType)
 {
     switch (objType)
@@ -439,6 +443,14 @@ int32 SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullptr*/, int32 
     // random damage
     if (casterUnit)
     {
+        //npcbot: bonus amount from combo points and specific mods
+        if (casterUnit->GetTypeId() == TYPEID_UNIT && casterUnit->ToCreature()->IsNPCBot())
+        {
+            if (uint8 comboPoints = casterUnit->ToCreature()->GetCreatureComboPoints())
+                value += PointsPerComboPoint * comboPoints;
+        }
+        else
+        //end npcbot
         // bonus amount from combo points
         if (uint8 comboPoints = casterUnit->GetComboPoints())
             value += PointsPerComboPoint * comboPoints;
@@ -551,6 +563,11 @@ float SpellEffectInfo::CalcRadius(WorldObject* caster /*= nullptr*/, Spell* spel
 
         if (Player* modOwner = caster->GetSpellModOwner())
             modOwner->ApplySpellMod(_spellInfo->Id, SPELLMOD_RADIUS, radius, spell);
+
+        //npcbot - apply bot spell radius mods
+        if (caster->GetTypeId() == TYPEID_UNIT && caster->ToCreature()->IsNPCBot())
+            caster->ToCreature()->ApplyCreatureSpellRadiusMods(_spellInfo, radius);
+        //end npcbot
     }
 
     return radius;
@@ -3213,6 +3230,11 @@ int32 SpellInfo::CalcPowerCost(WorldObject const* caster, SpellSchoolMask school
                 powerCost *= casterScaler->Data / spellScaler->Data;
         }
     }
+
+    //npcbot - apply bot spell cost mods
+    if (powerCost > 0 && caster->GetTypeId() == TYPEID_UNIT && caster->ToCreature()->IsNPCBot())
+        caster->ToCreature()->ApplyCreatureSpellCostMods(this, powerCost);
+    //end npcbot
 
     // PCT mod from user auras by school
     powerCost = int32(powerCost * (1.0f + unitCaster->GetFloatValue(UNIT_FIELD_POWER_COST_MULTIPLIER + school)));

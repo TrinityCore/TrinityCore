@@ -30,6 +30,9 @@
 #include "Player.h"
 #include "Realm.h"
 #include "ScriptMgr.h"
+#ifdef ELUNA
+#include "LuaEngine.h"
+#endif			
 #include "World.h"
 #include "WorldSession.h"
 #include <boost/algorithm/string/replace.hpp>
@@ -153,8 +156,13 @@ void ChatHandler::SendSysMessage(uint32 entry)
 bool ChatHandler::_ParseCommands(std::string_view text)
 {
     if (Trinity::ChatCommands::TryExecuteCommand(*this, text))
+			
         return true;
 
+#ifdef ELUNA
+    if (!sEluna->OnCommand(GetSession() ? GetSession()->GetPlayer() : NULL, text))
+        return true;
+#endif															 
     // Pretend commands don't exist for regular players
     if (m_session && !m_session->HasPermission(rbac::RBAC_PERM_COMMANDS_NOTIFY_COMMAND_NOT_FOUND_ERROR))
         return false;

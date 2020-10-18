@@ -44,6 +44,9 @@
 #include "Player.h"
 #include "Realm.h"
 #include "ScriptMgr.h"
+#ifdef ELUNA
+#include "LuaEngine.h"
+#endif			
 #include "SocialMgr.h"
 #include "QueryHolder.h"
 #include "Vehicle.h"
@@ -53,6 +56,10 @@
 #include "WorldPacket.h"
 #include "WorldSocket.h"
 #include <zlib.h>
+
+//npcbot
+#include "botmgr.h"
+//end npcbot
 
 namespace {
 
@@ -241,6 +248,11 @@ void WorldSession::SendPacket(WorldPacket const* packet)
 
     sScriptMgr->OnPacketSend(this, *packet);
 
+#ifdef ELUNA
+    if (!sEluna->OnPacketSend(this, *packet))
+        return;
+#endif
+
     TC_LOG_TRACE("network.opcode", "S->C: %s %s", GetPlayerInfo().c_str(), GetOpcodeNameForLogging(static_cast<OpcodeServer>(packet->GetOpcode())).c_str());
     m_Socket->SendPacket(*packet);
 }
@@ -314,6 +326,10 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                     else if (_player->IsInWorld() && AntiDOS.EvaluateOpcode(*packet, currentTime))
                     {
                         sScriptMgr->OnPacketReceive(this, *packet);
+#ifdef ELUNA
+                        if (!sEluna->OnPacketReceive(this, *packet))
+                            break;
+#endif			
                         opHandle->Call(this, *packet);
                         LogUnprocessedTail(packet);
                     }
@@ -327,6 +343,10 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                     {
                         // not expected _player or must checked in packet hanlder
                         sScriptMgr->OnPacketReceive(this, *packet);
+#ifdef ELUNA
+                        if (!sEluna->OnPacketReceive(this, *packet))
+                            break;
+#endif			
                         opHandle->Call(this, *packet);
                         LogUnprocessedTail(packet);
                     }
@@ -339,6 +359,10 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                     else if (AntiDOS.EvaluateOpcode(*packet, currentTime))
                     {
                         sScriptMgr->OnPacketReceive(this, *packet);
+#ifdef ELUNA
+                        if (!sEluna->OnPacketReceive(this, *packet))
+                            break;
+#endif			
                         opHandle->Call(this, *packet);
                         LogUnprocessedTail(packet);
                     }
@@ -359,6 +383,10 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                     if (AntiDOS.EvaluateOpcode(*packet, currentTime))
                     {
                         sScriptMgr->OnPacketReceive(this, *packet);
+#ifdef ELUNA
+                        if (!sEluna->OnPacketReceive(this, *packet))
+                            break;
+#endif			
                         opHandle->Call(this, *packet);
                         LogUnprocessedTail(packet);
                     }
@@ -473,6 +501,10 @@ void WorldSession::LogoutPlayer(bool save)
 
     m_playerLogout = true;
     m_playerSave = save;
+
+    //npcbot - free all bots and remove from botmap
+    _player->RemoveAllBots();
+    //end npcbots
 
     if (_player)
     {
@@ -1626,6 +1658,16 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
             maxPacketCounterAllowed = PLAYER_SLOTS_COUNT;
             break;
         }
+        //npcbot: prevent kicks when too many bots spawned in one spot
+        case CMSG_GET_MIRRORIMAGE_DATA:
+        {
+            if (BotMgr::GetBotInfoPacketsLimit() > -1)
+                maxPacketCounterAllowed = BotMgr::GetBotInfoPacketsLimit();
+            else
+                maxPacketCounterAllowed = 100;
+            break;
+        }
+        //end npcbot
         default:
         {
             maxPacketCounterAllowed = 100;

@@ -1111,16 +1111,58 @@ void Creature::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, 
     float weaponMinDamage = GetWeaponDamageRange(attType, MINDAMAGE);
     float weaponMaxDamage = GetWeaponDamageRange(attType, MAXDAMAGE);
 
+    //npcbot: support for feral form
+    if (IsNPCBot() && IsInFeralForm())
+    {
+        float att_speed = GetAPMultiplier(attType, false);
+        uint8 lvl = GetLevel();
+        if (lvl > 60)
+            lvl = 60;
+
+        weaponMinDamage = lvl*0.85f*att_speed;
+        weaponMaxDamage = lvl*1.25f*att_speed;
+    }
+    else
+    //end npcbot
     if (!CanUseAttackType(attType)) // disarm case
     {
+        //npcbot: mimic player-like disarm (retain damage)
+        if (IsNPCBot())
+        {
+            // Main hand melee is always usable, but disarm reduces damage drastically
+            if (attType == BASE_ATTACK)
+            {
+                weaponMinDamage *= 0.25f;
+                weaponMaxDamage *= 0.25f;
+            }
+            else
+            {
+                weaponMinDamage = 0.0f;
+                weaponMaxDamage = 0.0f;
+            }
+        }
+        else
+        {
+        //end npcbot
         weaponMinDamage = 0.0f;
         weaponMaxDamage = 0.0f;
+        //npcbot
+        }
+    }
+    //end npcbot
+    //npcbot: support for ammo
+    else if (attType == RANGED_ATTACK)
+    {
+        float att_speed = GetAPMultiplier(attType, false);
+        weaponMinDamage += GetCreatureAmmoDPS() * att_speed;
+        weaponMaxDamage += GetCreatureAmmoDPS() * att_speed;
+    //end npcbot
     }
 
     float attackPower      = GetTotalAttackPowerValue(attType);
     float attackSpeedMulti = GetAPMultiplier(attType, normalized);
-    float baseValue        = GetFlatModifierValue(unitMod, BASE_VALUE) + (attackPower / 14.0f) * variance;
-    float basePct          = GetPctModifierValue(unitMod, BASE_PCT) * attackSpeedMulti;
+    float baseValue        = GetFlatModifierValue(unitMod, BASE_VALUE) + (attackPower / 14.0f) * variance * attackSpeedMulti;
+    float basePct          = GetPctModifierValue(unitMod, BASE_PCT);
     float totalValue       = GetFlatModifierValue(unitMod, TOTAL_VALUE);
     float totalPct         = addTotalPct ? GetPctModifierValue(unitMod, TOTAL_PCT) : 1.0f;
     float dmgMultiplier    = GetCreatureTemplate()->ModDamage; // = ModDamage * _GetDamageMod(rank);

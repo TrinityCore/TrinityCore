@@ -190,10 +190,24 @@ enum UnitClass
     UNIT_CLASS_WARRIOR                  = 1,
     UNIT_CLASS_PALADIN                  = 2,
     UNIT_CLASS_ROGUE                    = 4,
-    UNIT_CLASS_MAGE                     = 8
+    UNIT_CLASS_MAGE                     = 8,
+    //2020.10.13
+    UNIT_CLASS_HUNTER = 3,
+    UNIT_CLASS_PRIEST = 5,
+    UNIT_CLASS_DEATH_KNIGHT = 6,
+    UNIT_CLASS_SHAMAN = 7,
+    UNIT_CLASS_WARLOCK = 9,
+    UNIT_CLASS_DRUID = 11
 };
 
+//npcbot
+/*
+//end npcbot
 #define CLASSMASK_ALL_CREATURES ((1<<(UNIT_CLASS_WARRIOR-1)) | (1<<(UNIT_CLASS_PALADIN-1)) | (1<<(UNIT_CLASS_ROGUE-1)) | (1<<(UNIT_CLASS_MAGE-1)))
+//npcbot
+*/
+#define CLASSMASK_ALL_CREATURES CLASSMASK_ALL_PLAYABLE
+//end npcbot
 
 #define CLASSMASK_WAND_USERS ((1<<(CLASS_PRIEST-1))|(1<<(CLASS_MAGE-1))|(1<<(CLASS_WARLOCK-1)))
 

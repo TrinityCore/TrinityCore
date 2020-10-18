@@ -397,6 +397,13 @@ class spell_dk_anti_magic_zone : public SpellScriptLoader
             {
                 SpellInfo const* talentSpell = sSpellMgr->AssertSpellInfo(SPELL_DK_ANTI_MAGIC_SHELL_TALENT);
                 amount = talentSpell->Effects[EFFECT_0].CalcValue(GetCaster());
+                //npcbot: take bot attack power into account
+                if (Creature const* bot = GetCaster()->ToCreature())
+                {
+                    if (bot->IsNPCBot())
+                        amount += int32(2 * bot->GetTotalAttackPowerValue(BASE_ATTACK));
+                }
+                //end npcbot
                 if (Player* player = GetCaster()->ToPlayer())
                      amount += int32(2 * player->GetTotalAttackPowerValue(BASE_ATTACK));
             }
@@ -2344,6 +2351,16 @@ class spell_dk_spell_deflection : public SpellScriptLoader
             void Absorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
             {
                 // You have a chance equal to your Parry chance
+                //npcbot handle creature case (and prevent crashes)
+                Unit* target = GetTarget();
+                if (target->GetTypeId() == TYPEID_UNIT)
+                {
+                    if (dmgInfo.GetDamageType() == SPELL_DIRECT_DAMAGE &&
+                        roll_chance_f(target->ToCreature()->GetCreatureParryChance()))
+                        absorbAmount = CalculatePct(dmgInfo.GetDamage(), absorbPct);
+                }
+                else
+                //end npcbot
                 if ((dmgInfo.GetDamageType() == SPELL_DIRECT_DAMAGE) && roll_chance_f(GetTarget()->GetFloatValue(PLAYER_PARRY_PERCENTAGE)))
                     absorbAmount = CalculatePct(dmgInfo.GetDamage(), absorbPct);
             }

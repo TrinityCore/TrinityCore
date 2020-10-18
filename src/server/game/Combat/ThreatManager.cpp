@@ -170,6 +170,11 @@ void ThreatReference::UnregisterAndFree()
             if (tWho->GetSummonerGUID().IsPlayer())
                 return false;
 
+    //npcbot - npcbots and their pets cannot have threatlist
+    if (cWho->IsNPCBot() || cWho->IsNPCBotPet())
+        return false;
+    //end npcbot
+
     return true;
 }
 

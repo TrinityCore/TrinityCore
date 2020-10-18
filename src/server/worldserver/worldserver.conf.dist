@@ -37,6 +37,7 @@
 #    LOGGING SYSTEM SETTINGS
 #    PACKET SPOOF PROTECTION SETTINGS
 #    METRIC SETTINGS
+#	 VAS AUTOBALANCE OPTIONS						
 #
 ###################################################################################################
 
@@ -72,7 +73,7 @@ RealmID = 1
 #        Example:     "@prefix@/share/trinitycore"
 #        Default:     "."
 
-DataDir = "."
+DataDir = "data"
 
 #
 #    LogsDir
@@ -106,9 +107,9 @@ LogsDir = ""
 #    The SSL option will enable TLS when connecting to the specified database. If not provided or
 #    any value other than 'ssl' is set, TLS will not be used.
 
-LoginDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;auth"
-WorldDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;world"
-CharacterDatabaseInfo = "127.0.0.1;3306;trinity;trinity;characters"
+LoginDatabaseInfo     = "192.168.1.104;3306;trinity;trinity;auth-bot"
+WorldDatabaseInfo     = "192.168.1.104;3306;trinity;trinity;world-bot"
+CharacterDatabaseInfo = "192.168.1.104;3306;trinity;trinity;characters-bot"
 
 #
 #    LoginDatabase.WorkerThreads
@@ -345,14 +346,14 @@ MapUpdateInterval = 100
 #        Description: Time (in milliseconds) for weather update interval.
 #        Default:     600000 - (10 min)
 
-ChangeWeatherInterval = 600000
+ChangeWeatherInterval = 11600000
 
 #
 #    PlayerSaveInterval
 #        Description: Time (in milliseconds) for player save interval.
 #        Default:     90000 - (90 seconds)
 
-PlayerSaveInterval = 90000
+PlayerSaveInterval = 900000
 
 #
 #    PlayerSave.Stats.MinLevel
@@ -383,7 +384,7 @@ DisconnectToleranceInterval = 0
 #        Default:     1 - (Enabled)
 #                     0 - (Disabled)
 
-mmap.enablePathFinding = 1
+mmap.enablePathFinding = 0
 
 #
 #    vmap.enableLOS
@@ -402,7 +403,7 @@ vmap.enableHeight = 1
 #        Default:     1 - (Enabled)
 #                     0 - (Disabled, somewhat less CPU usage)
 
-vmap.enableIndoorCheck = 1
+vmap.enableIndoorCheck = 0
 
 #
 #    DetectPosCollision
@@ -411,7 +412,7 @@ vmap.enableIndoorCheck = 1
 #        Default:     1 - (Enabled)
 #                     0 - (Disabled, Less position precision but less CPU usage)
 
-DetectPosCollision = 1
+DetectPosCollision = 0
 
 #
 #    CheckGameObjectLoS
@@ -453,7 +454,7 @@ LogDB.Opt.ClearTime = 1209600
 #        Default:     60 - (Enabled, Recommended 10+)
 #                      0 - (Disabled)
 
-MaxCoreStuckTime = 60
+MaxCoreStuckTime = 0
 
 #
 #    AddonChannel
@@ -547,7 +548,7 @@ PacketLogFile = ""
 #                     16 - (FFA_PVP, Free for all PvP mode like arena PvP in all zones except rest
 #                          activated places and sanctuaries)
 
-GameType = 0
+GameType = 8
 
 #
 #    RealmZone
@@ -640,7 +641,7 @@ StrictPetNames = 0
 #                     7   - (Spanish Mexico)
 #                     8   - (Russian)
 
-DBC.Locale = 255
+DBC.Locale = 0
 
 #
 #    DeclinedNames
@@ -835,7 +836,7 @@ StartDeathKnightPlayerLevel = 55
 #        Default:     0
 #                     100 - (1 Silver)
 
-StartPlayerMoney = 0
+StartPlayerMoney = 100000
 
 #
 #    MaxHonorPoints
@@ -849,7 +850,7 @@ MaxHonorPoints = 75000
 #        Description: Amount of honor points that characters have after creation.
 #        Default:     0
 
-StartHonorPoints = 0
+StartHonorPoints = 2000
 
 #
 #    MaxArenaPoints
@@ -898,7 +899,7 @@ DisableWaterBreath = 4
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-AllFlightPaths = 0
+AllFlightPaths = 1
 
 #
 #    InstantFlightPaths
@@ -907,7 +908,7 @@ AllFlightPaths = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-InstantFlightPaths = 0
+InstantFlightPaths = 1
 
 #
 #    AlwaysMaxSkillForLevel
@@ -924,7 +925,7 @@ AlwaysMaxSkillForLevel = 0
 #        Default:     1 - (Enabled)
 #                     0 - (Disabled)
 
-ActivateWeather = 1
+ActivateWeather = 0
 
 #
 #    CastUnstuck
@@ -949,7 +950,7 @@ Instance.IgnoreLevel = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-Instance.IgnoreRaid = 0
+Instance.IgnoreRaid = 1
 
 #
 #    Instance.ResetTimeHour
@@ -1088,7 +1089,7 @@ Guild.BankEventLogRecordsCount = 25
 #        Range:       0-11
 #        Default:     2
 
-MaxPrimaryTradeSkill = 2
+MaxPrimaryTradeSkill = 11
 
 #
 #    MinPetitionSigns
@@ -1096,7 +1097,7 @@ MaxPrimaryTradeSkill = 2
 #        Range:       0-9
 #        Default:     9
 
-MinPetitionSigns = 9
+MinPetitionSigns = 0
 
 #
 #    MaxGroupXPDistance
@@ -1147,7 +1148,7 @@ MinDiscoveredScaledXPRatio = 0
 #        Description: Time (in seconds) mail delivery is delayed when sending items.
 #        Default:     3600 - (1 hour)
 
-MailDeliveryDelay = 3600
+MailDeliveryDelay = 1
 
 #
 #    CleanOldMailTime
@@ -1204,7 +1205,7 @@ Event.Announce = 0
 #        Default:     1 - (Enabled)
 #                     0 - (Disabled)
 
-BeepAtStart = 1
+BeepAtStart = 0
 
 #
 #    Motd
@@ -1212,7 +1213,7 @@ BeepAtStart = 1
 #        Example:     "Welcome to John's Server!@This server is proud to be powered by Trinity Core."
 #        Default:     "Welcome to a Trinity Core server."
 
-Motd = "Welcome to a Trinity Core server."
+Motd = "欢迎来到魔兽世界，祝您玩的愉快！"
 
 #
 #    Server.LoginInfo
@@ -1255,7 +1256,7 @@ DeletedCharacterTicketTrace = 0
 #           LFG_OPTION_ENABLE_RAID_BROWSER   = 2,     Enable the raid browser
 #        Default:     1
 
-DungeonFinder.OptionsMask = 1
+DungeonFinder.OptionsMask = 3
 
 #
 #   DBC.EnforceItemAttributes
@@ -1290,7 +1291,7 @@ Account.PasswordChangeSecurity = 0
 #
 #
 
-BirthdayTime = 1222964635
+BirthdayTime = 1588252689
 
 #
 #   CacheDataQueries
@@ -1301,7 +1302,7 @@ BirthdayTime = 1222964635
 #
 #
 
-CacheDataQueries = 1
+CacheDataQueries = 0
 
 #
 ###################################################################################################
@@ -1340,7 +1341,7 @@ TOTPMasterSecret =
 #                     4  - (Enable world only)
 #                     0  - (All disabled)
 
-Updates.EnableDatabases = 7
+Updates.EnableDatabases = 0
 
 #
 #    Updates.AutoSetup
@@ -1348,7 +1349,7 @@ Updates.EnableDatabases = 7
 #        Default:     1 - (Enabled)
 #                     0 - (Disabled)
 
-Updates.AutoSetup   = 1
+Updates.AutoSetup   = 0
 
 #
 #    Updates.Redundancy
@@ -1357,7 +1358,7 @@ Updates.AutoSetup   = 1
 #        Default:     1 - (Enabled)
 #                     0 - (Disabled)
 
-Updates.Redundancy  = 1
+Updates.Redundancy  = 0
 
 #
 #    Updates.ArchivedRedundancy
@@ -1374,7 +1375,7 @@ Updates.ArchivedRedundancy = 0
 #        Default:     1 - (Enabled)
 #                     0 - (Disabled)
 
-Updates.AllowRehash = 1
+Updates.AllowRehash = 0
 
 #
 #    Updates.CleanDeadRefMaxCount
@@ -1417,7 +1418,7 @@ HotSwap.ScriptDir = "scripts"
 #        Default:     1 - (Enabled)
 #                     0 - (Disabled)
 
-HotSwap.EnableReCompiler = 1
+HotSwap.EnableReCompiler = 0
 
 #    HotSwap.EnableEarlyTermination
 #        Description: Terminate the build of a module when an associated
@@ -1425,7 +1426,7 @@ HotSwap.EnableReCompiler = 1
 #        Default:     1 - (Enabled)
 #                     0 - (Disabled)
 
-HotSwap.EnableEarlyTermination = 1
+HotSwap.EnableEarlyTermination = 0
 
 #    HotSwap.EnableBuildFileRecreation
 #        Description: Recreate build files when sources to a module
@@ -1433,7 +1434,7 @@ HotSwap.EnableEarlyTermination = 1
 #        Default:     1 - (Enabled)
 #                     0 - (Disabled)
 
-HotSwap.EnableBuildFileRecreation = 1
+HotSwap.EnableBuildFileRecreation = 0
 
 #
 #    HotSwap.EnableInstall
@@ -1441,7 +1442,7 @@ HotSwap.EnableBuildFileRecreation = 1
 #        Default:     1 - (Enabled)
 #                     0 - (Disabled)
 
-HotSwap.EnableInstall = 1
+HotSwap.EnableInstall = 0
 
 #
 #    HotSwap.EnablePrefixCorrection
@@ -1450,7 +1451,7 @@ HotSwap.EnableInstall = 1
 #        Default:     1 - (Enabled)
 #                     0 - (Disabled)
 
-HotSwap.EnablePrefixCorrection = 1
+HotSwap.EnablePrefixCorrection = 0
 
 #    HotSwap.ReCompilerBuildType
 #        Description: Defines the build type of the builds invoked by the recompiler.
@@ -1458,7 +1459,7 @@ HotSwap.EnablePrefixCorrection = 1
 #                     "Release" - Release builds only
 #                     "Debug" - Debug builds only
 
-HotSwap.ReCompilerBuildType = ""
+HotSwap.ReCompilerBuildType = "Release"
 
 #
 ###################################################################################################
@@ -1528,14 +1529,14 @@ Warden.BanDuration = 86400
 ###################################################################################################
 
 ###################################################################################################
-# PLAYER INTERACTION
+# PLAYER INTERACTION玩家互动
 #
 #    AllowTwoSide.Interaction.Calendar
 #        Description: Allow calendar invites between factions.
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-AllowTwoSide.Interaction.Calendar = 0
+AllowTwoSide.Interaction.Calendar = 1
 
 #
 #    AllowTwoSide.Interaction.Channel
@@ -1543,7 +1544,7 @@ AllowTwoSide.Interaction.Calendar = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-AllowTwoSide.Interaction.Channel = 0
+AllowTwoSide.Interaction.Channel = 1
 
 #
 #    AllowTwoSide.Interaction.Group
@@ -1551,7 +1552,7 @@ AllowTwoSide.Interaction.Channel = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-AllowTwoSide.Interaction.Group = 0
+AllowTwoSide.Interaction.Group = 1
 
 #
 #    AllowTwoSide.Interaction.Guild
@@ -1559,11 +1560,11 @@ AllowTwoSide.Interaction.Group = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-AllowTwoSide.Interaction.Guild = 0
+AllowTwoSide.Interaction.Guild = 1
 
 #
 #    AllowTwoSide.Interaction.Auction
-#        Description: Allow auctions between factions.
+#        Description: 允许各派之间进行拍卖。
 #                     This results in all auctions being handled as if placed in the neutral
 #                     auction house and will intentionally lock acces to the Horde and Alliance AH.
 #                     Deposit fee and auction cut values will be taken from neutral auction house.
@@ -1576,7 +1577,7 @@ AllowTwoSide.Interaction.Guild = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-AllowTwoSide.Interaction.Auction = 0
+AllowTwoSide.Interaction.Auction = 1
 
 #
 #    AllowTwoSide.Trade
@@ -1584,7 +1585,7 @@ AllowTwoSide.Interaction.Auction = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-AllowTwoSide.Trade = 0
+AllowTwoSide.Trade = 1
 
 #
 #    TalentsInspecting
@@ -1600,7 +1601,7 @@ TalentsInspecting = 1
 ###################################################################################################
 
 ###################################################################################################
-# CREATURE SETTINGS
+# CREATURE SETTINGS 生物
 #
 #    ThreatRadius
 #        Description: Distance for creatures to evade after being pulled away from the combat
@@ -1617,7 +1618,7 @@ ThreatRadius = 60
 #                     1.5 - (Enabled, 150%)
 #                     0   - (Disabled, 0%)
 
-Rate.Creature.Aggro = 1
+Rate.Creature.Aggro = 0.7
 
 #
 #    CreatureFamilyFleeAssistanceRadius
@@ -1671,11 +1672,11 @@ WorldBossLevelDiff = 3
 #                     300  - (5 Minutes, Corpse.Decay.RAREELITE)
 #                     3600 - (1 Hour, Corpse.Decay.WORLDBOSS)
 
-Corpse.Decay.NORMAL    = 300
-Corpse.Decay.RARE      = 300
-Corpse.Decay.ELITE     = 300
-Corpse.Decay.RAREELITE = 300
-Corpse.Decay.WORLDBOSS = 3600
+Corpse.Decay.NORMAL    = 600
+Corpse.Decay.RARE      = 600
+Corpse.Decay.ELITE     = 600
+Corpse.Decay.RAREELITE = 600
+Corpse.Decay.WORLDBOSS = 7200
 
 #
 #    Rate.Corpse.Decay.Looted
@@ -1699,11 +1700,11 @@ Rate.Corpse.Decay.Looted = 0.5
 #                     1 - (Rate.Creature.Elite.WORLDBOSS.Damage)
 #
 
-Rate.Creature.Normal.Damage          = 1
-Rate.Creature.Elite.Elite.Damage     = 1
-Rate.Creature.Elite.RARE.Damage      = 1
-Rate.Creature.Elite.RAREELITE.Damage = 1
-Rate.Creature.Elite.WORLDBOSS.Damage = 1
+Rate.Creature.Normal.Damage          = 4
+Rate.Creature.Elite.Elite.Damage     = 6
+Rate.Creature.Elite.RARE.Damage      = 4
+Rate.Creature.Elite.RAREELITE.Damage = 5
+Rate.Creature.Elite.WORLDBOSS.Damage = 3.7
 
 #
 #    Rate.Creature.Normal.SpellDamage
@@ -1718,11 +1719,11 @@ Rate.Creature.Elite.WORLDBOSS.Damage = 1
 #                     1 - (Rate.Creature.Elite.RAREELITE.SpellDamage)
 #                     1 - (Rate.Creature.Elite.WORLDBOSS.SpellDamage)
 
-Rate.Creature.Normal.SpellDamage          = 1
-Rate.Creature.Elite.Elite.SpellDamage     = 1
-Rate.Creature.Elite.RARE.SpellDamage      = 1
-Rate.Creature.Elite.RAREELITE.SpellDamage = 1
-Rate.Creature.Elite.WORLDBOSS.SpellDamage = 1
+Rate.Creature.Normal.SpellDamage          = 3
+Rate.Creature.Elite.Elite.SpellDamage     = 3
+Rate.Creature.Elite.RARE.SpellDamage      = 3
+Rate.Creature.Elite.RAREELITE.SpellDamage = 3
+Rate.Creature.Elite.WORLDBOSS.SpellDamage = 2.2
 
 #
 #    Rate.Creature.Normal.HP
@@ -1737,12 +1738,21 @@ Rate.Creature.Elite.WORLDBOSS.SpellDamage = 1
 #                     1 - (Rate.Creature.Elite.RAREELITE.HP)
 #                     1 - (Rate.Creature.Elite.WORLDBOSS.HP)
 
-Rate.Creature.Normal.HP          = 1
-Rate.Creature.Elite.Elite.HP     = 1
-Rate.Creature.Elite.RARE.HP      = 1
-Rate.Creature.Elite.RAREELITE.HP = 1
-Rate.Creature.Elite.WORLDBOSS.HP = 1
-
+#    Corpse.Decay.NORMAL	普通
+#    Corpse.Decay.RARE		稀有怪
+#    Corpse.Decay.ELITE		精英
+#    Corpse.Decay.RAREELITE	精英稀有
+#    Corpse.Decay.WORLDBOSS	BOSS
+# Rate.Creature.Normal.HP          = 2
+# Rate.Creature.Elite.Elite.HP     = 2.5
+# Rate.Creature.Elite.RARE.HP      = 3
+# Rate.Creature.Elite.RAREELITE.HP = 3
+# Rate.Creature.Elite.WORLDBOSS.HP = 1.5
+Rate.Creature.Normal.HP          = 3
+Rate.Creature.Elite.Elite.HP     = 3.75
+Rate.Creature.Elite.RARE.HP      = 4.5
+Rate.Creature.Elite.RAREELITE.HP = 4.5
+Rate.Creature.Elite.WORLDBOSS.HP = 2.25									
 #
 #    Creature.PickPocketRefillDelay
 #        Description: Time in seconds that the server will wait before refilling the pickpocket loot
@@ -1792,11 +1802,11 @@ MonsterSight = 50.000000
 
 #
 #    Creature.RegenHPCannotReachTargetInRaid
-#        Description: Regenerates HP for Creatures in Raids if they cannot reach the target.
+#        描述：如果突袭中的生物无法攻击到玩家俗称玩家站BUG位,怪物过不来打它闪避的现象，则可为其恢复生命值。
 #        Default:     1 - (Enabled)
 #                     0 - (Disabled)
 
-Creature.RegenHPCannotReachTargetInRaid = 1
+Creature.RegenHPCannotReachTargetInRaid = 0
 
 #
 ###################################################################################################
@@ -1826,7 +1836,7 @@ Respawn.GuidWarnLevel = 12000000
 #                     It's used to warn users that there will be an out of schedule server restart soon.
 #        Default:     "There will be an unscheduled server restart at 03:00 server time. The server will be available again shortly after."
 
-Respawn.WarningMessage = "There will be an unscheduled server restart at 03:00. The server will be available again shortly after."
+Respawn.WarningMessage = "将在03:00意外重新启动服务器,不久之后服务器将再次可用."
 
 #
 #    Respawn.WarningFrequency
@@ -1852,7 +1862,7 @@ Respawn.GuidAlertLevel = 16000000
 #                     5 minutes and the reason for shutdown will be this message
 #        Default:     "Urgent Maintenance"
 
-Respawn.AlertRestartReason = "Urgent Maintenance"
+Respawn.AlertRestartReason = "紧急维修"
 
 #
 #    Respawn.RestartQuietTime
@@ -2172,7 +2182,7 @@ Visibility.GroupMode = 1
 #    Visibility.Distance.Continents
 #    Visibility.Distance.Instances
 #    Visibility.Distance.BGArenas
-#        Description: Visibility distance to see other players or gameobjects.
+#        Description: Visibility distance to see other players or gameobjects.地图中的可见视距
 #                     Visibility on continents on retail ~100 yards. In BG/Arenas ~533.
 #                     For instances default ~170.
 #                     Max limited by grid size: 533.33333
@@ -2183,7 +2193,7 @@ Visibility.GroupMode = 1
 
 Visibility.Distance.Continents = 100
 Visibility.Distance.Instances = 170
-Visibility.Distance.BGArenas = 533
+Visibility.Distance.BGArenas = 170
 
 #
 #    Visibility.Notify.Period.OnContinents
@@ -2203,7 +2213,7 @@ Visibility.Notify.Period.InBGArenas   = 1000
 ###################################################################################################
 
 ###################################################################################################
-# SERVER RATES
+# SERVER RATES 服务器倍率概率,爆率
 #
 #    Rate.Health
 #    Rate.Mana
@@ -2214,7 +2224,7 @@ Visibility.Notify.Period.InBGArenas   = 1000
 #    Rate.Focus
 #    Rate.Energy
 #    Rate.Loyalty
-#        Description: Multiplier to configure health, mana, incoming rage, loss of rage, focus
+#        Description: Multiplier to configure health, mana, incoming rage, loss of rage, focus生命、魔法、怒气增长、怒气减少、符文能量增长、符文能量减少、仇恨、忠诚度倍率
 #                     energy and loyalty increase or decrease.
 #        Default:     1 - (Rate.Health)
 #                     1 - (Rate.Mana)
@@ -2227,7 +2237,7 @@ Visibility.Notify.Period.InBGArenas   = 1000
 #                     1 - (Rate.Loyalty)
 
 Rate.Health            = 1
-Rate.Mana              = 1
+Rate.Mana              = 0.5
 Rate.Rage.Income       = 1
 Rate.Rage.Loss         = 1
 Rate.RunicPower.Income = 1
@@ -2241,7 +2251,7 @@ Rate.Loyalty           = 1
 #        Description: Multiplier for skill discovery.
 #        Default:     1
 
-Rate.Skill.Discovery = 1
+Rate.Skill.Discovery = 2
 
 #
 #    Rate.Drop.Item.Poor
@@ -2272,7 +2282,7 @@ Rate.Drop.Item.Epic             = 1
 Rate.Drop.Item.Legendary        = 1
 Rate.Drop.Item.Artifact         = 1
 Rate.Drop.Item.Referenced       = 1
-Rate.Drop.Money                 = 1
+Rate.Drop.Money                 = 5
 
 #
 #    Rate.Drop.Item.ReferencedAmount
@@ -2308,8 +2318,8 @@ Rate.XP.BattlegroundKill = 1
 #        Description: Multiplier for money quest rewards. Can not be below 0.
 #        Default:     1
 
-Rate.Quest.Money.Reward = 1
-Rate.Quest.Money.Max.Level.Reward = 1
+Rate.Quest.Money.Reward = 20
+Rate.Quest.Money.Max.Level.Reward = 20
 
 #
 #    Rate.RepairCost
@@ -2327,16 +2337,16 @@ Rate.RepairCost = 1
 #                     1 - (Rate.Rest.Offline.InTavernOrCity)
 #                     1 - (Rate.Rest.Offline.InWilderness)
 
-Rate.Rest.InGame                 = 1
-Rate.Rest.Offline.InTavernOrCity = 1
-Rate.Rest.Offline.InWilderness   = 1
+Rate.Rest.InGame                 = 0
+Rate.Rest.Offline.InTavernOrCity = 0
+Rate.Rest.Offline.InWilderness   = 0
 
 #
 #    Rate.Damage.Fall
 #        Description: Damage after fall rate.
 #        Default:     1
 
-Rate.Damage.Fall = 1
+Rate.Damage.Fall = 0.3
 
 #
 #    Rate.Auction.Time
@@ -2371,21 +2381,21 @@ Rate.ArenaPoints = 1
 #        Description: Talent point rate.
 #        Default:     1
 
-Rate.Talent = 1
+Rate.Talent = 1.2
 
 #
 #    Rate.Reputation.Gain
 #        Description: Reputation gain rate.
 #        Default:     1
 
-Rate.Reputation.Gain = 1
+Rate.Reputation.Gain = 5
 
 #
 #    Rate.Reputation.LowLevel.Kill
 #        Description: Reputation gain from killing low level (grey) creatures.
 #        Default:     1
 
-Rate.Reputation.LowLevel.Kill = 1
+Rate.Reputation.LowLevel.Kill = 80
 
 #
 #    Rate.Reputation.LowLevel.Quest
@@ -2416,7 +2426,7 @@ Rate.MoveSpeed = 1
 #                     characters db in order to let new values work.
 #        Default:     1
 
-Rate.InstanceResetTime = 1
+Rate.InstanceResetTime = 0.5
 
 #
 #    SkillGain.Crafting
@@ -2429,10 +2439,10 @@ Rate.InstanceResetTime = 1
 #                     1 - (SkillGain.Gathering)
 #                     1 - (SkillGain.Weapon)
 
-SkillGain.Crafting  = 1
-SkillGain.Defense   = 1
-SkillGain.Gathering = 1
-SkillGain.Weapon    = 1
+SkillGain.Crafting  = 10
+SkillGain.Defense   = 3
+SkillGain.Gathering = 10
+SkillGain.Weapon    = 3
 
 #
 #    SkillChance.Orange
@@ -2447,8 +2457,8 @@ SkillGain.Weapon    = 1
 
 SkillChance.Orange = 100
 SkillChance.Yellow = 75
-SkillChance.Green  = 25
-SkillChance.Grey   = 0
+SkillChance.Green  = 45
+SkillChance.Grey   = 30
 
 #
 #    SkillChance.MiningSteps
@@ -2517,7 +2527,7 @@ DurabilityLossChance.Block = 0.05
 #                     MaxPlayerLevel+1 - (Disabled)
 #                     -10              - (Enabled, Level 1+ characters have 10 minute duration)
 
-Death.SicknessLevel = 11
+Death.SicknessLevel = 120
 
 #
 #    Death.CorpseReclaimDelay.PvP
@@ -2547,7 +2557,7 @@ Death.Bones.BattlegroundOrArena = 1
 #        Default:     1 - (Enabled)
 #                     0 - (Disabled)
 
-Die.Command.Mode = 1
+Die.Command.Mode = 0
 
 #
 ###################################################################################################
@@ -2566,10 +2576,10 @@ Stats.Limits.Enable = 0
 #        Description: Set percentage limit for dodge, parry, block and crit rating.
 #        Default:     95.0 (95%)
 
-Stats.Limits.Dodge = 95.0
-Stats.Limits.Parry = 95.0
-Stats.Limits.Block = 95.0
-Stats.Limits.Crit  = 95.0
+Stats.Limits.Dodge = 100.0
+Stats.Limits.Parry = 100.0
+Stats.Limits.Block = 100.0
+Stats.Limits.Crit  = 100.0
 
 #
 ###################################################################################################
@@ -2611,7 +2621,7 @@ AutoBroadcast.Timer = 600000
 #        Default:     1 - (Enabled)
 #                     0 - (Disabled)
 
-Battleground.CastDeserter = 1
+Battleground.CastDeserter = 0
 
 #
 #    Battleground.QueueAnnouncer.Enable
@@ -2619,7 +2629,7 @@ Battleground.CastDeserter = 1
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-Battleground.QueueAnnouncer.Enable = 0
+Battleground.QueueAnnouncer.Enable = 1
 
 #
 #    Battleground.QueueAnnouncer.PlayerOnly
@@ -2663,7 +2673,7 @@ Battleground.InvitationType = 0
 #        Default:     300000 - (Enabled, 5 minutes)
 #                     0      - (Disabled, Not recommended)
 
-Battleground.PrematureFinishTimer = 300000
+Battleground.PrematureFinishTimer = 0
 
 #
 #    Battleground.PremadeGroupWaitForMatch
@@ -3072,7 +3082,7 @@ CharDelete.KeepDays = 30
 #                       bugs out and doesn't switch the check mark. It has no effect on the actual tracking though).
 #                     * The minimap dots are yellow for both resources.
 
-AllowTrackBothResources = 0
+AllowTrackBothResources = 1
 
 #
 #    PlayerStart.AllReputation
@@ -3116,7 +3126,7 @@ XP.Boost.Rate = 2.0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-PlayerStart.AllSpells = 0
+PlayerStart.AllSpells = 1
 
 #
 #    PlayerStart.MapsExplored
@@ -3207,7 +3217,7 @@ NoResetTalentsCost = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-Guild.AllowMultipleGuildMaster = 0
+Guild.AllowMultipleGuildMaster = 1
 
 #
 #     ShowKickInWorld
@@ -3335,7 +3345,7 @@ PreventRenameCharacterOnCustomization = 0
 #       Default:     0
 #
 
-AuctionHouseBot.Account = 0
+AuctionHouseBot.Account = 2
 
 #
 #    AuctionHouseBot.Update.Interval
@@ -3343,7 +3353,7 @@ AuctionHouseBot.Account = 0
 #       Default:     20
 #
 
-AuctionHouseBot.Update.Interval = 20
+AuctionHouseBot.Update.Interval = 1600
 
 #
 #    AuctionHouseBot.Seller.Enabled
@@ -3351,21 +3361,21 @@ AuctionHouseBot.Update.Interval = 20
 #       Default:     0 - (Disabled)
 #                    1 - (Enabled)
 
-AuctionHouseBot.Seller.Enabled = 0
+AuctionHouseBot.Seller.Enabled = 1
 
 #
 #    AuctionHouseBot.Alliance.Items.Amount.Ratio
 #       Description: Enable/Disable (disabled if 0) the part of AHBot that puts items up for auction on Alliance AH
 #       Default:     100 - (Enabled with 100% of items specified in AuctionHouse.Items.Amount.color section)
 
-AuctionHouseBot.Alliance.Items.Amount.Ratio = 100
+AuctionHouseBot.Alliance.Items.Amount.Ratio = 0
 
 #
 #    AuctionHouseBot.Horde.Items.Amount.Ratio
 #        Enable/Disable (disabled if 0) the part of AHBot that puts items up for auction on Horde AH
 #       Default: 100 (Enabled with 100% of items specified in AuctionHouse.Items.Amount.color section)
 
-AuctionHouseBot.Horde.Items.Amount.Ratio = 100
+AuctionHouseBot.Horde.Items.Amount.Ratio = 0
 
 #
 #    AuctionHouseBot.Neutral.Items.Amount.Ratio
@@ -3379,14 +3389,14 @@ AuctionHouseBot.Neutral.Items.Amount.Ratio = 100
 #       Description: Minimum time for the new auction in hours
 #       Default: 1 - (Hour)
 
-AuctionHouseBot.MinTime = 1
+AuctionHouseBot.MinTime = 6
 
 #
 #    AuctionHouseBot.MaxTime
 #       Description: Maximum time for the new auction in hours
 #       Default:     72 - (Hours)
 
-AuctionHouseBot.MaxTime = 72
+AuctionHouseBot.MaxTime = 24
 
 #
 #    AuctionHouseBot.Class.CLASS.Allow.Zero = 0
@@ -3415,7 +3425,7 @@ AuctionHouseBot.Class.Glyph.Allow.Zero = 0
 #       Default:     0 - (Disabled)
 #                    1 - (Enabled)
 
-AuctionHouseBot.Items.Vendor = 0
+AuctionHouseBot.Items.Vendor = 1
 
 #
 #    AuctionHouseBot.Items.Loot
@@ -3445,7 +3455,7 @@ AuctionHouseBot.Items.Misc = 0
 #                    1 - (Enabled)
 
 AuctionHouseBot.Bind.No = 1
-AuctionHouseBot.Bind.Pickup = 0
+AuctionHouseBot.Bind.Pickup = 1
 AuctionHouseBot.Bind.Equip = 1
 AuctionHouseBot.Bind.Use = 1
 AuctionHouseBot.Bind.Quest = 0
@@ -3464,7 +3474,7 @@ AuctionHouseBot.LockBox.Enabled = 0
 #                    Usually this value is only used once on server start with empty auction table.
 #       Default:     1000
 
-AuctionHouseBot.ItemsPerCycle.Boost = 1000
+AuctionHouseBot.ItemsPerCycle.Boost = 200
 
 #
 #    AuctionHouseBot.ItemsPerCycle.Normal
@@ -3480,7 +3490,7 @@ AuctionHouseBot.ItemsPerCycle.Normal = 20
 #       Default:     0 - (use BuyPrice - results in higher prices)
 #                    1 - (use SellPrice - results in lower prices)
 
-AuctionHouseBot.BuyPrice.Seller = 0
+AuctionHouseBot.BuyPrice.Seller = 1
 
 #
 #    AuctionHouseBot.BidPrice.*
@@ -3488,7 +3498,7 @@ AuctionHouseBot.BuyPrice.Seller = 0
 #       Default:     0.6 - (Min)
 #                    0.9 - (Max)
 
-AuctionHouseBot.BidPrice.Min = 0.6
+AuctionHouseBot.BidPrice.Min = 0.1
 AuctionHouseBot.BidPrice.Max = 0.9
 
 #
@@ -3496,55 +3506,55 @@ AuctionHouseBot.BidPrice.Max = 0.9
 #       Description: Percentage by which the price of items sold on Alliance Auction House is incremented / decreased
 #       Default:     100 - (Not modify)
 
-AuctionHouseBot.Alliance.Price.Ratio = 100
+AuctionHouseBot.Alliance.Price.Ratio = 800
 
 #
 #    AuctionHouseBot.Horde.Price.Ratio
 #       Description: Percentage by which the price of items sold on Horde Auction House is incremented / decreased
 #       Default:     100 - (Not modify)
 
-AuctionHouseBot.Horde.Price.Ratio = 100
+AuctionHouseBot.Horde.Price.Ratio = 800
 
 #
 #    AuctionHouseBot.Neutral.Price.Ratio
 #       Description: Percentage by which the price of items sold on Neutral Auction House is incremented / decreased
 #       Default:     100 - (Not modify)
 
-AuctionHouseBot.Neutral.Price.Ratio = 100
+AuctionHouseBot.Neutral.Price.Ratio = 800
 
 #
 #    AuctionHouseBot.Items.QUALITY.Price.Ratio
 #       Description: Percentage by which the price of items sold of each quality is incremented / decreased (for all houses)
 #       Default:     100 - (No change)
 
-AuctionHouseBot.Items.Gray.Price.Ratio = 100
-AuctionHouseBot.Items.White.Price.Ratio = 100
-AuctionHouseBot.Items.Green.Price.Ratio = 100
-AuctionHouseBot.Items.Blue.Price.Ratio = 100
-AuctionHouseBot.Items.Purple.Price.Ratio = 100
-AuctionHouseBot.Items.Orange.Price.Ratio = 100
-AuctionHouseBot.Items.Yellow.Price.Ratio = 100
+AuctionHouseBot.Items.Gray.Price.Ratio = 200
+AuctionHouseBot.Items.White.Price.Ratio = 200
+AuctionHouseBot.Items.Green.Price.Ratio = 400
+AuctionHouseBot.Items.Blue.Price.Ratio = 600
+AuctionHouseBot.Items.Purple.Price.Ratio = 800
+AuctionHouseBot.Items.Orange.Price.Ratio = 1000
+AuctionHouseBot.Items.Yellow.Price.Ratio = 2000
 
 #
 #    AuctionHouseBot.Class.CLASS.Price.Ratio
 #       Description: Percentage by which the price of items sold of each class is incremented / decreased (for all houses)
 #       Default:   100 - (No change)
 
-AuctionHouseBot.Class.Consumable.Price.Ratio = 100
-AuctionHouseBot.Class.Container.Price.Ratio = 100
-AuctionHouseBot.Class.Weapon.Price.Ratio = 100
-AuctionHouseBot.Class.Gem.Price.Ratio = 100
-AuctionHouseBot.Class.Armor.Price.Ratio = 100
-AuctionHouseBot.Class.Reagent.Price.Ratio = 100
-AuctionHouseBot.Class.Projectile.Price.Ratio = 100
-AuctionHouseBot.Class.TradeGood.Price.Ratio = 100
-AuctionHouseBot.Class.Generic.Price.Ratio = 100
-AuctionHouseBot.Class.Recipe.Price.Ratio = 100
-AuctionHouseBot.Class.Quiver.Price.Ratio = 100
-AuctionHouseBot.Class.Quest.Price.Ratio = 100
-AuctionHouseBot.Class.Key.Price.Ratio = 100
-AuctionHouseBot.Class.Misc.Price.Ratio = 100
-AuctionHouseBot.Class.Glyph.Price.Ratio = 100
+AuctionHouseBot.Class.Consumable.Price.Ratio = 200
+AuctionHouseBot.Class.Container.Price.Ratio = 200
+AuctionHouseBot.Class.Weapon.Price.Ratio = 200
+AuctionHouseBot.Class.Gem.Price.Ratio = 200
+AuctionHouseBot.Class.Armor.Price.Ratio = 200
+AuctionHouseBot.Class.Reagent.Price.Ratio = 200
+AuctionHouseBot.Class.Projectile.Price.Ratio = 200
+AuctionHouseBot.Class.TradeGood.Price.Ratio = 200
+AuctionHouseBot.Class.Generic.Price.Ratio = 200
+AuctionHouseBot.Class.Recipe.Price.Ratio = 200
+AuctionHouseBot.Class.Quiver.Price.Ratio = 200
+AuctionHouseBot.Class.Quest.Price.Ratio = 200
+AuctionHouseBot.Class.Key.Price.Ratio = 200
+AuctionHouseBot.Class.Misc.Price.Ratio = 200
+AuctionHouseBot.Class.Glyph.Price.Ratio = 200
 
 #
 #    AuctionHouseBot.Items.ItemLevel.*
@@ -3579,12 +3589,12 @@ AuctionHouseBot.Items.ReqSkill.Max = 0
 #       Default:     0, 2000, 2500, 1500, 1000, 0, 0 (Gray, white, green, blue, purple, orange, yellow)
 
 AuctionHouseBot.Items.Amount.Gray = 0
-AuctionHouseBot.Items.Amount.White = 2000
-AuctionHouseBot.Items.Amount.Green = 2500
-AuctionHouseBot.Items.Amount.Blue = 1500
-AuctionHouseBot.Items.Amount.Purple = 1000
-AuctionHouseBot.Items.Amount.Orange = 0
-AuctionHouseBot.Items.Amount.Yellow = 0
+AuctionHouseBot.Items.Amount.White = 3500
+AuctionHouseBot.Items.Amount.Green = 3500
+AuctionHouseBot.Items.Amount.Blue = 2500
+AuctionHouseBot.Items.Amount.Purple = 1500
+AuctionHouseBot.Items.Amount.Orange = 50
+AuctionHouseBot.Items.Amount.Yellow = 50
 
 #
 #    AuctionHouseBot.Class.*
@@ -3611,7 +3621,7 @@ AuctionHouseBot.Class.Container = 4
 AuctionHouseBot.Class.Weapon = 8
 AuctionHouseBot.Class.Gem = 3
 AuctionHouseBot.Class.Armor = 8
-AuctionHouseBot.Class.Reagent = 1
+AuctionHouseBot.Class.Reagent = 5
 AuctionHouseBot.Class.Projectile = 2
 AuctionHouseBot.Class.TradeGood = 10
 AuctionHouseBot.Class.Generic = 1
@@ -3620,7 +3630,7 @@ AuctionHouseBot.Class.Quiver = 1
 AuctionHouseBot.Class.Quest = 1
 AuctionHouseBot.Class.Key = 1
 AuctionHouseBot.Class.Misc = 5
-AuctionHouseBot.Class.Glyph = 3
+AuctionHouseBot.Class.Glyph = 2
 
 #
 ###################################################################################################
@@ -3684,7 +3694,7 @@ AuctionHouseBot.Class.Container.ItemLevel.Max = 0
 #                    List of ids with delimiter ','
 #       Default:     ""
 
-AuctionHouseBot.forceIncludeItems = ""
+AuctionHouseBot.forceIncludeItems = "23162,49290,49284,38050,23713,34493,49287,32588,34492,49343,32542,32566,33219,33223,34499,35227,38578,45063,46780,49704,38301,38314,38312,38309,38313,38311,38310,23709,23705,45037,45047,35223,42943,42944,42945,42946,42947,42948,42949,42950,42951,42952,42984,42985,42991,42992,44091,44092,44093,44094,44095,44096,44097,44098,44099,44100,44101,44102,44103,44105,44107,44115,44133,44134,44135,44136,44149,44150,44152,44159,44701,44702,49177,48685,48691,48677,48687,48689,48683,48716,48718,50255,50335,50336,50337,50338,50367,50368,50370,50373,50372,50369,38691,44090,51999,52000,52001,52002,52003,52004,52005,38766,38768,38769,38767,38770,38771,38773,38774,38775,38776,38777,38778,38772,38779,38780,38781,38787,38788,38789,38790,38791,38782,38783,38784,38785,38786,38792,38793,38795,38794,38797,38798,38796,38799,38800,38801,38802,38803,38804,38805,38806,38807,38808,38809,38810,38811,38812,38813,38814,38815,38816,38817,38818,38819,38876,38820,38821,38822,38823,38824,38825,38826,38827,38828,38829,38830,38831,38832,38833,38834,38835,38836,38837,45628,38839,38840,38841,38842,38843,38844,38845,38846,38847,38848,38849,38850,38851,38852,38862,38838,38858,38861,38853,38856,38864,38866,38860,38859,38868,38867,38879,38880,38881,38896,38854,38857,38863,38869,38872,38855,38870,38875,38877,38878,38929,38938,38873,38897,38908,38931,38937,38865,38871,38874,38904,38914,38934,38940,38898,38911,38882,38899,38909,38928,38900,38905,38939,38945,38883,38915,38949,38901,37603,38906,38917,38918,38933,38913,38930,38884,38885,38886,38887,38888,38889,38890,38891,38892,38893,38894,38895,38902,38919,38920,38921,38936,38941,38942,38946,38947,50816,38912,38954,38961,38971,39001,44449,44453,44470,44815,38903,38907,38922,38926,38927,38932,38935,38943,38944,38999,44469,38951,38974,38998,44497,38910,38923,38924,38925,38948,38960,38962,38966,38968,39000,44455,44456,44457,38953,38955,38973,44463,44465,44466,44493,38950,38956,38959,38963,38969,38977,38980,38981,38982,38987,39002,45060,46026,46098,44946,38975,38976,38985,38988,38992,38964,38965,38984,38995,38967,38972,38978,38979,38986,38989,38990,38991,38993,38997,39003,39004,39005,39006,43987,44458,44467,43097,111111"
 
 #
 #    AuctionHouseBot.forceExcludeItems
@@ -3694,7 +3704,7 @@ AuctionHouseBot.forceIncludeItems = ""
 #       Default:     ""
 #
 
-AuctionHouseBot.forceExcludeItems = "6343,6345,6376"
+AuctionHouseBot.forceExcludeItems = "6343,6345,6376,19727,6217,18567,111112,111113,45506"
 
 #
 #    AuctionHouseBot.Class.RandomStackRatio.*
@@ -3718,22 +3728,22 @@ AuctionHouseBot.forceExcludeItems = "6343,6345,6376"
 #                    Key: 100 (100% random stack size)
 #                    Misc: 100 (100% random stack size)
 #                    Glyph: 0 (100% single stack size)
-#
+#随机堆叠
 
 AuctionHouseBot.Class.RandomStackRatio.Consumable = 20
 AuctionHouseBot.Class.RandomStackRatio.Container = 0
 AuctionHouseBot.Class.RandomStackRatio.Weapon = 0
 AuctionHouseBot.Class.RandomStackRatio.Gem = 20
 AuctionHouseBot.Class.RandomStackRatio.Armor = 0
-AuctionHouseBot.Class.RandomStackRatio.Reagent = 100
-AuctionHouseBot.Class.RandomStackRatio.Projectile = 100
-AuctionHouseBot.Class.RandomStackRatio.TradeGood = 50
-AuctionHouseBot.Class.RandomStackRatio.Generic = 100
+AuctionHouseBot.Class.RandomStackRatio.Reagent = 10
+AuctionHouseBot.Class.RandomStackRatio.Projectile = 10
+AuctionHouseBot.Class.RandomStackRatio.TradeGood = 10
+AuctionHouseBot.Class.RandomStackRatio.Generic = 10
 AuctionHouseBot.Class.RandomStackRatio.Recipe = 0
 AuctionHouseBot.Class.RandomStackRatio.Quiver = 0
-AuctionHouseBot.Class.RandomStackRatio.Quest = 100
-AuctionHouseBot.Class.RandomStackRatio.Key = 100
-AuctionHouseBot.Class.RandomStackRatio.Misc = 100
+AuctionHouseBot.Class.RandomStackRatio.Quest = 10
+AuctionHouseBot.Class.RandomStackRatio.Key = 10
+AuctionHouseBot.Class.RandomStackRatio.Misc = 10
 AuctionHouseBot.Class.RandomStackRatio.Glyph = 0
 
 #
@@ -3818,6 +3828,33 @@ AuctionHouseBot.Buyer.Recheck.Interval = 20
 ###################################################################################################
 
 ###################################################################################################
+#  ELUNA SETTINGS
+#
+#   Eluna.Enabled
+#       Description: Enable or disable Eluna LuaEngine
+#       Default:    true  - (enabled)
+#                   false - (disabled)
+#
+#   Eluna.TraceBack
+#       Description: Sets whether to use debug.traceback function on a lua error or not.
+#                    Notice that you can redefine the function.
+#       Default:    false - (use default error output)
+#                   true  - (use debug.traceback function)
+#
+#   Eluna.ScriptPath
+#       Description: Sets the location of the script folder to load scripts from
+#                    The path can be relative or absolute.
+#       Default:    "lua_scripts"
+#
+
+Eluna.Enabled = true
+Eluna.TraceBack = true
+Eluna.ScriptPath = "data/lua_scripts"
+
+#
+###################################################################################################
+
+###################################################################################################
 # LOGGING SYSTEM SETTINGS
 #
 #  Appender config values: Given an appender "name"
@@ -3884,10 +3921,11 @@ AuctionHouseBot.Buyer.Recheck.Interval = 20
 #                         Example:  536870912 (512 MB)
 #
 
-Appender.Console=1,3,0
+Appender.Console=1,3,0,13 11 9 14 3 1
 Appender.Server=2,2,0,Server.log,w
 Appender.GM=2,2,15,gm/gm_%s.log
 Appender.DBErrors=2,2,0,DBErrors.log
+Appender.Eluna=2,5,3,Eluna.log,a
 
 #  Logger config values: Given a logger "name"
 #    Logger.name
@@ -3907,13 +3945,14 @@ Appender.DBErrors=2,2,0,DBErrors.log
 #                     (Using spaces as separator).
 #
 
-Logger.root=5,Console Server
+Logger.root=4,Console Server
 Logger.server=3,Console Server
-Logger.commands.gm=3,Console GM
-Logger.scripts.hotswap=3,Console Server
+Logger.commands.gm=5,Console GM
+Logger.scripts.hotswap=4,Console Server
 Logger.sql.sql=5,Console DBErrors
 Logger.sql.updates=3,Console Server
-Logger.mmaps=3,Server
+Logger.mmaps=2,Server
+Logger.eluna=1,Console Eluna
 
 #Logger.achievement=3,Console Server
 #Logger.addon=3,Console Server
@@ -4008,7 +4047,7 @@ Allow.IP.Based.Action.Logging = 0
 #                     0 - (Log only 'network')
 #                     2 - (Log + kick + ban)
 
-PacketSpoof.Policy = 1
+PacketSpoof.Policy = 0
 
 #
 #    PacketSpoof.BanMode
@@ -4084,3 +4123,386 @@ Metric.OverallStatusInterval = 1
 
 #
 ###################################################################################################
+
+###################################################################################################
+# VAS AUTOBALANCE OPTIONS VAS 自动平衡 MOD已禁用
+#
+#     VAS.AutoBalance.XPlayer
+#        Set Server to level of solo mode.
+#        Set to 0 to Disable VAS-SOLO Mod.
+#        Example: VAS.AutoBalance.XPlayer = 1 will set everything for a 1 player game. VAS.自动平衡开关 将服务器设置为单独模式级别。设置为0以禁用VAS-SOLO Mod 。示例：VAS。自动平衡。XPlayer = 1会将所有内容设置为1玩家游戏。
+#        Default:     1
+
+VAS.AutoBalance.XPlayer = 0
+
+#
+#     VAS.AutoBalance.AutoInstance VAS.副本自动平衡开关
+#        Set instances to Auto chance XPlayer depending on players in it.
+#        Default:     1 (1 = ON, 0 = OFF)
+
+VAS.AutoBalance.AutoInstance = 0
+
+#
+#     VAS.AutoBalance.Debug
+#        0 = None
+#        1 = Errors Only
+#        2 = Errors and Basic Information
+#        3 = All VAS Info
+#        Default:     1
+
+VAS.AutoBalance.Debug = 0
+
+#
+#     VAS.AutoBalance.PlayerChangeNotify 设置自动通知到所有玩家，例如玩家计数已更改。
+#        Set Auto Notifications to all players in Instance that player count has changed.
+#        Default:     1 (1 = ON, 0 = OFF)
+
+VAS.AutoBalance.PlayerChangeNotify = 0
+
+#
+#     VAS.AutoBalance.Color VAS.聊天窗口通知文本颜色设置
+#        In Game Color for mod information in chat window.
+#        Default:     cffFF8000 (Orange)
+
+VAS.AutoBalance.Color = cffFF8000
+
+#
+#     Min.HP.Mod Min.生命值修改比例1=100% 0.1=10% 
+#        Minimum Modifier setting for Health Modification
+#        Default:     0.20
+
+Min.HP.Mod = 0.20
+
+#
+#     Min.D.Mod Min.伤害值修改比例1=100% 0.1=10% 
+#        Minimum Modifier setting for Damage Modification
+#        Default:     0.10
+
+Min.D.Mod = 0.10
+
+#
+#     VAS.AutoBalance.XX.Name
+#        Sets MobIDs for the group they belong to.
+#        All 5 Man Mobs should go in VAS.AutoBalance.5.Name
+#        All 10 Man Mobs should go in VAS.AutoBalance.10.Name etc.
+
+VAS.AutoBalance.40.Name = ""
+VAS.AutoBalance.25.Name = ""
+VAS.AutoBalance.20.Name = ""
+VAS.AutoBalance.10.Name = ""
+VAS.AutoBalance.5.Name = ""
+VAS.AutoBalance.2.Name = ""
+# VAS.AutoBalance.40.Name = "11583,16441,30057,13020,15589,14435,18192,14889,14888,14887,14890,15302,15818,15742,15741,15740,18338"
+# VAS.AutoBalance.25.Name = "22997,21966,21965,21964,21806,21215,21845,19728,12397,17711,18256,18192,"
+# VAS.AutoBalance.10.Name = "15689,15550,16152,17521,17225,16028,29324,31099"
+# VAS.AutoBalance.5.Name = "15203,15204,15205,15305,6109,26801,30508,26799,30495,26803,30497,27859,27249"
+# VAS.AutoBalance.2.Name = "25549,24558,25574,24559,25556,25557,25578,24561,25555,24555,25541,24553,25550,24554,24552,25564,15931,29373"
+# VAS.AutoBalance.20.Name=""
+#
+###################################################################################################
+
+###################################################################################################
+#    Random Item Stats config 随机附魔物品
+###################################################################################################
+#
+#    SETTINGS
+#
+#    Random.ItemStats.Enable
+#        Description: Enables / Disables mod
+#        Default:    1
+#
+#    Random.ItemStats.Rate The number of levels, for which the object gives one state
+#        Description: 随机附魔出现的概率
+#        Default:    10
+#
+#    Random.ItemStats.ItemLevel //Item level, after which all articles are randomly
+#        Description: 设定在该物品等级等级之上的所有装备都有随机附魔
+#        Default:    250
+#
+#    Random.ItemStats.ItemLevelUp //Item level, followed by a sharp increase in performance
+#        Description: 根据物品等级,每个级别提升属性的倍数.200=1耐力=1力量=1敏捷
+#        Default:    200
+#
+
+Random.ItemStats.Enable = 1
+Random.ItemStats.Rate = 10
+Random.ItemStats.ItemLevel = 1
+Random.ItemStats.ItemLevelUp = 400
+
+#
+###################################################################################################
+###################################################################################################
+#
+# Custom.GainHonorOnGuardKill 击杀卫兵给予荣誉奖历
+# Set it to 1 to gain honor when you kill a guard. 将其设置为1可以在杀死卫兵时获得荣誉。
+# Note that not all city guards will give you honor. It seems only capital and big city guards are flagged
+# as so in the database.
+# Default : 0 (No honor when you kill a guard)
+#
+
+Custom.GainHonorOnGuardKill = 1
+
+#
+# Custom.GainHonorOnEliteKill
+# Set it to 1 to gain honor when you kill an elite mob (this does not apply on rare mob, unless he is also elite). 将其设置为1可以在杀死精英时获得荣誉（这不适用于稀有生物，除非他也是精英）
+# Default : 0 (No honor when you kill an elite mob)
+#
+
+Custom.GainHonorOnEliteKill = 1
+
+#
+###################################################################################################																								   
+
+###################################################################################################
+# NPCBOT CONFIGURATION
+#
+#    NpcBot.Enable
+#        Description: Enables NpcBot system.
+#        Default:     1 - enable
+#                     0 - disable
+
+NpcBot.Enable = 1
+
+#    NpcBot.MaxBots
+#        Description: Maximum number of bots allowed for players.
+#        Default:     1
+#        Max:         39
+
+NpcBot.MaxBots = 19
+
+#    NpcBot.MaxBotsPerClass
+#        Description: Maximum bots of each class allowed for players.
+#        Default:     0 - no limit
+
+NpcBot.MaxBotsPerClass = 0
+
+#    NpcBot.BaseFollowDistance
+#        Description: Default bot follow distance.
+#        Note:        This parameter determines bots' formation size, distance at which bots
+#                     will chase and attack enemies.
+#        Note2:       This parameter is set for each player at login.
+#        Default:     30
+
+NpcBot.BaseFollowDistance = 20
+
+#    NpcBot.XpReduction
+#        Description: XP percent penalty for each bot used starting with second.
+#        Example:     3 bots, xp reduction is 20: ((3-1)*20) = 40%, 60% exp gained only.
+#        Note:        Maximum overall xp reduction is 90%.
+#        Default:     0
+
+NpcBot.XpReduction = 30
+
+#    NpcBot.HealTargetIconsMask
+#        Description: Icon number bitmask which bots use to search for additional
+#                     targets to buff, heal and protect (out of party).
+#        Note:        Many creatures cannot accept heal.
+#        Example:     To check Star, Triangle and Square we need 1 + 8 + 32 = 41.
+#        Default:     0 (Disable)
+#                     1 - Star
+#                     2 - Circle
+#                     4 - Diamond
+#                     8 - Triangle
+#                     16 - Moon
+#                     32 - Square
+#                     64 - Cross
+#                     128 - Skull
+
+NpcBot.HealTargetIconsMask = 38
+
+#    NpcBot.TankTargetIconMask
+#        Description: Icon number bitmask which bot tanks use to search for primary target.
+#        Note:        While icon is active NPCBot tanks will ignore any other targets
+#                     and will not break from combat to follow you.
+#        Example:     To check Star and Cross we need 1 + 64 = 65.
+#        Default:     0 (Disable)
+#                     1 - Star
+#                     2 - Circle
+#                     4 - Diamond
+#                     8 - Triangle
+#                     16 - Moon
+#                     32 - Square
+#                     64 - Cross
+#                     128 - Skull
+#1-星
+#2-圈
+#4-钻石
+#8-三角形
+#16-月亮
+#32-正方形
+#64-XX
+#128-头骨
+NpcBot.TankTargetIconMask = 192
+
+#    NpcBot.DPSTargetIconMask
+#        Description: Icon number bitmask which bots use to search for primary attack target.
+#        Note:        While icon is active NPCBots will ignore any other targets
+#                     and will not break from combat to follow you.
+#        Note2:       NPCBot tanks will prioritize targets pointed by TankTargetIconMask.
+#        Note3:       If you set multiple targets only one target at a time will be used.
+#        Example:     To check Skull and Circle we need 128 + 2 = 130.
+#        Default:     0 (Disable)
+#                     1 - Star
+#                     2 - Circle
+#                     4 - Diamond
+#                     8 - Triangle
+#                     16 - Moon
+#                     32 - Square
+#                     64 - Cross
+#                     128 - Skull
+
+NpcBot.DPSTargetIconMask = 0
+
+#    NpcBot.Mult.Damage.Physical
+#    NpcBot.Mult.Damage.Spell
+#    NpcBot.Mult.Healing
+#        Description: Multipliers for bots' damage and healing. Allows to balance bots vs players.
+#        Default:     1.0
+#        Minimum:     0.1
+#        Maximum:    10.0
+
+NpcBot.Mult.Damage.Physical = 0.2
+NpcBot.Mult.Damage.Spell    = 0.3
+NpcBot.Mult.Healing         = 0.2
+
+#    NpcBot.Enable.Dungeon
+#    NpcBot.Enable.Raid
+#    NpcBot.Enable.BG
+#    NpcBot.Enable.Arena
+#    NpcBot.Enable.DungeonFinder
+#        Description: Allow bots to enter PvE/PvP areas and Dungeon Finder query.
+#        Default:     1 - (NpcBot.Enable.Dungeon)
+#                     0 - (NpcBot.Enable.Raid)
+#                     0 - (NpcBot.Enable.BG)
+#                     0 - (NpcBot.Enable.Arena)
+#                     1 - (NpcBot.Enable.DungeonFinder)
+
+NpcBot.Enable.Dungeon       = 1
+NpcBot.Enable.Raid          = 1
+NpcBot.Enable.BG            = 1
+NpcBot.Enable.Arena         = 1
+NpcBot.Enable.DungeonFinder = 1
+
+#    NpcBot.Limit.Dungeon
+#    NpcBot.Limit.Raid
+#        Description: Enable/Disable instance players limitation rules for bots.
+#        Default:     1 - (NpcBot.Limit.Dungeon)
+#                     1 - (NpcBot.Limit.Raid)
+
+NpcBot.Limit.Dungeon = 1
+NpcBot.Limit.Raid    = 1
+
+#    NpcBot.Cost
+#        Description: Bot recruitment cost (in copper).
+#        Note:        This value is for level 80 characters, for lower levels cost is reduced greatly.
+#        Default:     1000000 (100 gold)
+
+NpcBot.Cost = 0
+
+#    NpcBot.UpdateDelay.Base
+#        Description: Base delay between bot AI update cycles (in milliseconds).
+#        Note:        This parameter allows you to increase reaction time and slow down bots in general.
+#                     This may be useful if you want to balance bots in PvP.
+#        Note2:       This value is added on top of existing semi-randomized delay.
+#        Default:     0 (No additional delay)
+
+NpcBot.UpdateDelay.Base = 511
+
+#    NpcBot.PvP
+#        Description: Allow bots to attack player-controlled units (players, pets, bots, etc.).
+#        Note:        This rule only applies to player-controlled bots.
+#        Default:     1
+
+NpcBot.PvP = 1
+
+#    NpcBot.Movements.InterruptFood
+#        Description: Remove food and drink auras when starting to move.
+#        Note:        Bots don't use food or drink if not standing still.
+#        Default:     0 - (Do not interrupt)
+#                     1 - (Interrupt food and drink)
+
+NpcBot.Movements.InterruptFood = 0
+
+#    NpcBot.EquipmentDisplay.Enable
+#        Description: Enable displaying equipment changes other than weapons on bot models.
+#        Note:        Client limits equipment updates to
+#                     1) relog
+#                     2) taking a taxi flight
+#                     3) teleporting between maps
+#                     4) not seeing this bot for 3 minutes
+#                     5) bot changing displayId (polymorph, shapeshift, etc.)
+#        Note2:       If client registers (5) of a single bot 3+ times
+#                     said client may crash at exiting game (Error #132) unless (4) happens.
+#        Note3:       Changing this setting requires server restart.
+#        Note4:       Bots having no equipment will not appear naked.
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+NpcBot.EquipmentDisplay.Enable = 1
+
+#    NpcBot.EquipmentDisplay.ShowCloak
+#    NpcBot.EquipmentDisplay.ShowHelm
+#        Description: Equipment display rules.
+#        Default:     1 - (NpcBot.EquipmentDisplay.ShowCloak)
+#                     1 - (NpcBot.EquipmentDisplay.ShowHelm)
+
+NpcBot.EquipmentDisplay.ShowCloak = 1
+NpcBot.EquipmentDisplay.ShowHelm  = 1
+
+#    NpcBot.NewClasses.<Class>.Enable
+#        Description: Allow players to hire bots of non-standard classes.
+#        Note:        Some bot abilities may be unbalanced or game breaking under certain circumstances.
+#        Default:     1 - (NpcBot.NewClasses.Blademaster.Enable)
+#                     1 - (NpcBot.NewClasses.ObsidianDestroyer.Enable)
+#                     1 - (NpcBot.NewClasses.Archmage.Enable)
+#                     1 - (NpcBot.NewClasses.Dreadlord.Enable)
+#                     1 - (NpcBot.NewClasses.SpellBreaker.Enable)
+#                     1 - (NpcBot.NewClasses.DarkRanger.Enable)
+
+NpcBot.NewClasses.Blademaster.Enable       = 0
+NpcBot.NewClasses.ObsidianDestroyer.Enable = 0
+NpcBot.NewClasses.Archmage.Enable          = 0
+NpcBot.NewClasses.Dreadlord.Enable         = 0
+NpcBot.NewClasses.SpellBreaker.Enable      = 0
+NpcBot.NewClasses.DarkRanger.Enable        = 0
+
+#    NpcBot.Stats.Limits.Enable
+#        Description: Enable or disable stats limits for bots.
+#        Default:     0 - Disabled
+
+NpcBot.Stats.Limits.Enable = 1
+
+#    NpcBot.Stats.Limits.<Stat>
+#        Description: Set dodge, parry, block and crit chance percentage limit for bots.
+#        Note:        Some bot classes may ignore some of these values.
+#        Note2:       Auras can still increase these stats above limit.
+#        Default:     95.0 (95%)
+
+NpcBot.Stats.Limits.Dodge = 95.0
+NpcBot.Stats.Limits.Parry = 95.0
+NpcBot.Stats.Limits.Block = 95.0
+NpcBot.Stats.Limits.Crit  = 95.0
+
+#    NpcBot.InfoPacketsLimit 同场所机器人过百避免封包被当做外挂处理.
+#        Description: This is a workaround for known issue #5.
+#                     If more than 100 bots are spawned in a single spot players trying
+#                     to approach them will be kicked by AntiDOS protection due to
+#                     'flooding' CMSG_GET_MIRRORIMAGE_DATA packets. This setting
+#                     overrides packets limit per tick for that request type.
+#        Note:        If you care about your server stability at all, use this only as a
+#                     temporary solution and spread your bots spawn points properly.
+#        Default:     -1  - (use default limit set by TC devs)
+#                     500 - (500 bots in one spot won't get you kicked)
+
+NpcBot.InfoPacketsLimit = -1
+
+#
+###################################################################################################
+#单人模式 五人副本个人属性提升5倍,10人提升10倍.. MOD已禁用
+# Solocraft.Enable = 0
+# Solocraft.Dungeon = 5
+# Solocraft.Heroic = 10
+# Solocraft.Raid25 = 25
+# Solocraft.Raid40 = 40
+#玩家+npcbot进入副本数量通告
+Instance.Notice.Enable=1
