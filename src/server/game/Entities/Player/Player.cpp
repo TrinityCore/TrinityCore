@@ -21123,11 +21123,11 @@ void Player::ApplySpellMod(uint32 spellId, SpellModOp op, T& basevalue, Spell* s
                     return;
                 else if (!Player::HasSpellModApplied(mod, spell))
                 {
-                    // special case for Surge of Light, don't apply critical chance reduction if other mods not applied (ie procs while casting another spell)
+                    // Special case for Surge of Light, do not apply critical chance reduction if others mods was not applied (i.e. procs while casting another spell)
                     // (Surge of Light is the only PCT_MOD on critical chance)
                     if (op == SPELLMOD_CRITICAL_CHANCE)
                         return;
-                    // special case for Backdraft, dont' apply GCD reduction if cast time reduction wasn't applied (ie when Backlash is consumed first)
+                    // Special case for Backdraft: do not apply GCD reduction if cast time reduction was not applied (i.e. when Backlash is consumed first).
                     // (Backdraft is the only PCT_MOD on global cooldown)
                     else if (op == SPELLMOD_GLOBAL_COOLDOWN)
                         return;
