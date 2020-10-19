@@ -21121,6 +21121,17 @@ void Player::ApplySpellMod(uint32 spellId, SpellModOp op, T& basevalue, Spell* s
                 // special case (skip > 10sec spell casts for instant cast setting)
                 if (op == SPELLMOD_CASTING_TIME && mod->value <= -100 && basevalue >= T(10000))
                     return;
+                else if (!Player::HasSpellModApplied(mod, spell))
+                {
+                    // Special case for Surge of Light, do not apply critical chance reduction if others mods was not applied (i.e. procs while casting another spell)
+                    // (Surge of Light is the only PCT_MOD on critical chance)
+                    if (op == SPELLMOD_CRITICAL_CHANCE)
+                        return;
+                    // Special case for Backdraft: do not apply GCD reduction if cast time reduction was not applied (i.e. when Backlash is consumed first).
+                    // (Backdraft is the only PCT_MOD on global cooldown)
+                    else if (op == SPELLMOD_GLOBAL_COOLDOWN)
+                        return;
+                }
 
                 totalmul += CalculatePct(1.0f, mod->value);
                 break;
@@ -21207,6 +21218,14 @@ void Player::ApplyModToSpell(SpellModifier* mod, Spell* spell)
 
     // register inside spell, proc system uses this to drop charges
     spell->m_appliedMods.insert(mod->ownerAura);
+}
+
+bool Player::HasSpellModApplied(SpellModifier* mod, Spell* spell)
+{
+    if (!spell)
+        return false;
+
+    return spell->m_appliedMods.count(mod->ownerAura) != 0;
 }
 
 void Player::SetSpellModTakingSpell(Spell* spell, bool apply)
