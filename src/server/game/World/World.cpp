@@ -2376,6 +2376,8 @@ void World::Update(uint32 diff)
         sWhoListStorageMgr->Update();
     }
 
+    CheckQuestResetTimes();
+
     if (currentGameTime  > m_NextRandomBGReset)
         ResetRandomBG();
 
