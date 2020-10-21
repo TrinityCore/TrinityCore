@@ -16,6 +16,7 @@
  */
 
 #include "CombatPackets.h"
+#include "Unit.h"
 
 WorldPacket const* WorldPackets::Combat::ThreatUpdate::Write()
 {
@@ -55,5 +56,60 @@ WorldPacket const* WorldPackets::Combat::ThreatRemove::Write()
 WorldPacket const* WorldPackets::Combat::ThreatClear::Write()
 {
     _worldPacket << UnitGUID.WriteAsPacked();
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Combat::PowerUpdate::Write()
+{
+    _worldPacket << Guid.WriteAsPacked();
+    _worldPacket << uint32(Powers.size());
+    for (PowerUpdatePower const& power : Powers)
+    {
+        _worldPacket << uint8(power.PowerType);
+        _worldPacket << int32(power.Power);
+    }
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Combat::BreakTarget::Write()
+{
+    _worldPacket << UnitGUID.WriteAsPacked();
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Combat::AIReaction::Write()
+{
+    _worldPacket << UnitGUID;
+    _worldPacket << uint32(Reaction);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Combat::AttackStart::Write()
+{
+    _worldPacket << Attacker;
+    _worldPacket << Victim;
+
+    return &_worldPacket;
+}
+
+WorldPackets::Combat::SAttackStop::SAttackStop(Unit const* attacker, Unit const* victim) : ServerPacket(SMSG_ATTACK_STOP, 8 + 8 + 4)
+{
+    Attacker = attacker->GetGUID();
+    if (victim)
+    {
+        Victim = victim->GetGUID();
+        NowDead = victim->isDead();
+    }
+}
+
+WorldPacket const* WorldPackets::Combat::SAttackStop::Write()
+{
+    _worldPacket << Attacker.WriteAsPacked();
+    _worldPacket << Victim.WriteAsPacked();
+    _worldPacket << int32(NowDead);
+
     return &_worldPacket;
 }

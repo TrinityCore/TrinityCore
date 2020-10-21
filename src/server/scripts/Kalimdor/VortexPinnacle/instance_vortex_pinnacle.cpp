@@ -157,10 +157,6 @@ class instance_vortex_pinnacle : public InstanceMapScript
                                 {
                                     creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                     creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-                                    WorldPacket data(SMSG_PLAYER_VEHICLE_DATA, creature->GetPackGUID().size() + 4);
-                                    data << creature->GetPackGUID();
-                                    data << uint32(info.VehicleId);
-                                    creature->SendMessageToSet(&data, true);
                                 }
                                 AddObject(creature, info.GuidDataId, true);
                                 break;

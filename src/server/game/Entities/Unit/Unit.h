@@ -1364,6 +1364,7 @@ class TC_GAME_API Unit : public WorldObject
         bool SetWaterWalking(bool enable, bool packetOnly = false);
         bool SetFeatherFall(bool enable, bool packetOnly = false);
         virtual bool SetHover(bool enable, bool packetOnly = false, bool updateAnimationTier = true);
+        void SendSetVehicleRecId(uint32 vehicleId);
 
         // Sets the internal orientation value to face the provided target. Does NOT have clientside effects.
         void SetOrientationTowards(WorldObject const* target);
@@ -1848,8 +1849,8 @@ class TC_GAME_API Unit : public WorldObject
         friend class VehicleJoinEvent;
         bool IsAIEnabled, NeedChangeAI;
         ObjectGuid LastCharmerGUID;
-        bool CreateVehicleKit(uint32 id, uint32 creatureEntry);
-        void RemoveVehicleKit();
+        bool CreateVehicleKit(uint32 id, uint32 creatureEntry, bool loading = false);
+        void RemoveVehicleKit(bool onRemoveFromWorld = false);
         Vehicle* GetVehicleKit()const { return m_vehicleKit; }
         Vehicle* GetVehicle()   const { return m_vehicle; }
         void SetVehicle(Vehicle* vehicle) { m_vehicle = vehicle; }

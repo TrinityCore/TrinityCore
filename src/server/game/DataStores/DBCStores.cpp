@@ -226,6 +226,7 @@ DBCStorage <SpellRuneCostEntry> sSpellRuneCostStore(SpellRuneCostfmt);
 DBCStorage <SpellShapeshiftEntry> sSpellShapeshiftStore(SpellShapeshiftEntryfmt);
 DBCStorage <SpellShapeshiftFormEntry> sSpellShapeshiftFormStore(SpellShapeshiftFormfmt);
 DBCStorage <SpellVisualEntry> sSpellVisualStore(SpellVisualfmt);
+DBCStorage <SpellVisualKitEntry> sSpellVisualKitStore(SpellVisualKitfmt);
 DBCStorage <SummonPropertiesEntry> sSummonPropertiesStore(SummonPropertiesfmt);
 DBCStorage <TalentEntry> sTalentStore(TalentEntryfmt);
 TalentSpellPosMap sTalentSpellPosMap;
@@ -492,6 +493,7 @@ void DBCManager::LoadStores(const std::string& dataPath, uint32 defaultLocale)
     LOAD_DBC(sSpellShapeshiftStore,               "SpellShapeshift.dbc");//15595
     LOAD_DBC(sSpellShapeshiftFormStore,           "SpellShapeshiftForm.dbc");//15595
     LOAD_DBC(sSpellVisualStore,                   "SpellVisual.dbc");//15595
+    LOAD_DBC(sSpellVisualKitStore,                "SpellVisualKit.dbc");//15595
     LOAD_DBC(sSummonPropertiesStore,              "SummonProperties.dbc");//15595
     LOAD_DBC(sTalentStore,                        "Talent.dbc");//15595
     LOAD_DBC(sTalentTabStore,                     "TalentTab.dbc");//15595

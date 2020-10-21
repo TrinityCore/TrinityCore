@@ -306,6 +306,38 @@ namespace WorldPackets
             ObjectGuid Guid;
             bool IsDead = false;
         };
+
+        class StandStateUpdate : public ServerPacket
+        {
+        public:
+            StandStateUpdate() : ServerPacket(SMSG_STAND_STATE_UPDATE, 1) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 State = 0;
+        };
+
+        class SetAnimTier final : public ServerPacket
+        {
+        public:
+            SetAnimTier() : ServerPacket(SMSG_SET_ANIM_TIER, 8 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Unit;
+            int32 Tier = 0;
+        };
+
+        class SetPlayHoverAnim final : public ServerPacket
+        {
+        public:
+            SetPlayHoverAnim() : ServerPacket(SMSG_SET_PLAY_HOVER_ANIM, 8 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid UnitGUID;
+            bool PlayHoverAnim = false;
+        };
     }
 }
 

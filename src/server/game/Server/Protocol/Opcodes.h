@@ -606,8 +606,8 @@ enum OpcodeServer
     SMSG_ARENA_TEAM_ROSTER                            = 0x2717,
     SMSG_ARENA_TEAM_STATS                             = 0x4425,
     SMSG_ATTACKER_STATE_UPDATE                        = 0x0B25,
-    SMSG_ATTACKSTART                                  = 0x2D15,
-    SMSG_ATTACKSTOP                                   = 0x0934,
+    SMSG_ATTACK_START                                 = 0x2D15,
+    SMSG_ATTACK_STOP                                  = 0x0934,
     SMSG_ATTACKSWING_BADFACING                        = 0x6C07,
     SMSG_ATTACKSWING_CANT_ATTACK                      = 0x0016,
     SMSG_ATTACKSWING_DEADTARGET                       = 0x2B26,
@@ -1073,7 +1073,6 @@ enum OpcodeServer
     SMSG_PLAYERBOUND                                  = 0x2516,
     SMSG_PLAYER_DIFFICULTY_CHANGE                     = 0x2217,
     SMSG_PLAYER_SKINNED                               = 0x0116,
-    SMSG_PLAYER_VEHICLE_DATA                          = 0x4115,
     SMSG_PLAY_DANCE                                   = 0x4704,
     SMSG_PLAY_MUSIC                                   = 0x4B06,
     SMSG_PLAY_OBJECT_SOUND                            = 0x2635,
@@ -1156,6 +1155,7 @@ enum OpcodeServer
     SMSG_SERVER_MESSAGE                               = 0x6C04,
     SMSG_SERVER_PERF                                  = 0x74B6,
     SMSG_SET_AI_ANIM_KIT                              = 0x4626,
+    SMSG_SET_ANIM_TIER                                = 0x4335,
     SMSG_SET_DF_FAST_LAUNCH_RESULT                    = 0x35B6,
     SMSG_SET_FACTION_ATWAR                            = 0x4216,
     SMSG_SET_FACTION_NOT_VISIBLE                      = 0x6737,
@@ -1171,6 +1171,7 @@ enum OpcodeServer
     SMSG_SET_PLAY_HOVER_ANIM                          = 0x30A6,
     SMSG_SET_PROFICIENCY                              = 0x6207,
     SMSG_SET_PROJECTILE_POSITION                      = 0x2616,
+    SMSG_SET_VEHICLE_REC_ID                           = 0x4115,
     SMSG_SHOWTAXINODES                                = 0x2A36,
     SMSG_SHOW_BANK                                    = 0x2627,
     SMSG_SHOW_MAILBOX                                 = 0x2524,
@@ -1203,7 +1204,6 @@ enum OpcodeServer
     SMSG_SPLINE_MOVE_GRAVITY_DISABLE                  = 0x5DB5,
     SMSG_SPLINE_MOVE_GRAVITY_ENABLE                   = 0x3CA6,
     SMSG_SPLINE_MOVE_ROOT                             = 0x51B4,
-    SMSG_SPLINE_MOVE_SET_ANIM                         = 0x4335,
     SMSG_SPLINE_MOVE_SET_FEATHER_FALL                 = 0x3DA5,
     SMSG_SPLINE_MOVE_SET_FLIGHT_BACK_SPEED            = 0x38B3,
     SMSG_SPLINE_MOVE_SET_FLIGHT_SPEED                 = 0x39A0,
@@ -1228,7 +1228,7 @@ enum OpcodeServer
     SMSG_SPLINE_MOVE_UNSET_HOVER                      = 0x7DA5,
     SMSG_SPLINE_MOVE_WATER_WALK                       = 0x50A2,
     SMSG_STABLE_RESULT                                = 0x2204,
-    SMSG_STANDSTATE_UPDATE                            = 0x6F04,
+    SMSG_STAND_STATE_UPDATE                           = 0x6F04,
     SMSG_START_MIRROR_TIMER                           = 0x6824,
     SMSG_START_TIMER                                  = 0x59A5,
     SMSG_STOP_DANCE                                   = 0x4637,
@@ -1390,7 +1390,7 @@ inline bool IsInstanceOnlyOpcode(uint32 opcode)
 {
     switch (opcode)
     {
-        case SMSG_ATTACKSTOP:
+        case SMSG_ATTACK_STOP:
         case SMSG_DUEL_INBOUNDS:
         case SMSG_DUEL_OUTOFBOUNDS:
         case SMSG_ITEM_PUSH_RESULT:
@@ -1400,7 +1400,7 @@ inline bool IsInstanceOnlyOpcode(uint32 opcode)
         case SMSG_DUEL_COMPLETE:
         case SMSG_LOOT_MONEY_NOTIFY:
         case SMSG_COIN_REMOVED:
-        case SMSG_ATTACKSTART:
+        case SMSG_ATTACK_START:
         case SMSG_DUEL_WINNER:
         case SMSG_DUEL_REQUESTED:
         case SMSG_LOOT_RESPONSE:

@@ -15,23 +15,27 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AllPackets_h__
-#define AllPackets_h__
+#ifndef VehiclePackets_h__
+#define VehiclePackets_h__
 
-#include "AuthenticationPackets.h"
-#include "CharacterPackets.h"
-#include "CombatLogPackets.h"
-#include "CombatPackets.h"
-#include "GuildPackets.h"
-#include "LFGPackets.h"
-#include "MiscPackets.h"
-#include "MovementPackets.h"
-#include "NPCPackets.h"
-#include "QuestPackets.h"
-#include "QueryPackets.h"
-#include "SystemPackets.h"
-#include "VehiclePackets.h"
-#include "WhoPackets.h"
-#include "WorldStatePackets.h"
+#include "Packet.h"
+#include "ObjectGuid.h"
 
-#endif // AllPackets_h__
+namespace WorldPackets
+{
+    namespace Vehicle
+    {
+        class SetVehicleRecID final : public ServerPacket
+        {
+        public:
+            SetVehicleRecID() : ServerPacket(SMSG_SET_VEHICLE_REC_ID, 8 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid VehicleGUID;
+            int32 VehicleRecID = 0;
+        };
+    }
+}
+
+#endif // VehiclePackets_h__

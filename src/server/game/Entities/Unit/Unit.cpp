@@ -75,6 +75,7 @@
 #include "UpdateFieldFlags.h"
 #include "Util.h"
 #include "Vehicle.h"
+#include "VehiclePackets.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
@@ -2398,25 +2399,15 @@ uint32 Unit::CalculateDamage(WeaponAttackType attType, bool normalized, bool add
 
 void Unit::SendMeleeAttackStart(Unit* victim)
 {
-    WorldPacket data(SMSG_ATTACKSTART, 8 + 8);
-    data << uint64(GetGUID());
-    data << uint64(victim->GetGUID());
-    SendMessageToSet(&data, true);
-    TC_LOG_DEBUG("entities.unit", "WORLD: Sent SMSG_ATTACKSTART");
+    WorldPackets::Combat::AttackStart packet;
+    packet.Attacker = GetGUID();
+    packet.Victim = victim->GetGUID();
+    SendMessageToSet(packet.Write(), IsPlayer());
 }
 
 void Unit::SendMeleeAttackStop(Unit* victim)
 {
-    WorldPacket data(SMSG_ATTACKSTOP, (8+8+4));
-    data << GetPackGUID();
-    if (victim)
-        data << victim->GetPackGUID();
-    else
-        data << uint8(0);
-
-    data << uint32(0);                                     //! Can also take the value 0x01, which seems related to updating rotation
-    SendMessageToSet(&data, true);
-    TC_LOG_DEBUG("entities.unit", "WORLD: Sent SMSG_ATTACKSTOP");
+    SendMessageToSet(WorldPackets::Combat::SAttackStop(this, victim).Write(), IsPlayer());
 
     if (victim)
         TC_LOG_DEBUG("entities.unit", "%s %u stopped attacking %s %u", (GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature"), GetGUID().GetCounter(), (victim->GetTypeId() == TYPEID_PLAYER ? "player" : "creature"), victim->GetGUID().GetCounter());
@@ -8175,12 +8166,6 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
         {
             if (CreateVehicleKit(VehicleId, creatureEntry))
             {
-                // Send others that we now have a vehicle
-                WorldPacket data(SMSG_PLAYER_VEHICLE_DATA, GetPackGUID().size()+4);
-                data << GetPackGUID();
-                data << uint32(VehicleId);
-                SendMessageToSet(&data, true);
-
                 player->SendOnCancelExpectedVehicleRideAura();
 
                 // mounts can also have accessories
@@ -8228,15 +8213,7 @@ void Unit::Dismount()
 
     // dismount as a vehicle
     if (GetTypeId() == TYPEID_PLAYER && GetVehicleKit())
-    {
-        // Send other players that we are no longer a vehicle
-        data.Initialize(SMSG_PLAYER_VEHICLE_DATA, 8+4);
-        data << GetPackGUID();
-        data << uint32(0);
-        ToPlayer()->SendMessageToSet(&data, true);
-        // Remove vehicle from player
         RemoveVehicleKit();
-    }
 
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_NOT_MOUNTED);
 
@@ -9931,12 +9908,10 @@ void Unit::SetPower(Powers power, int32 val)
 
     if (IsInWorld())
     {
-        WorldPacket data(SMSG_POWER_UPDATE, 8 + 4 + 1 + 4);
-        data << GetPackGUID();
-        data << uint32(1); //power count
-        data << uint8(power);
-        data << int32(val);
-        SendMessageToSet(&data, GetTypeId() == TYPEID_PLAYER);
+        WorldPackets::Combat::PowerUpdate packet;
+        packet.Guid = GetGUID();
+        packet.Powers.emplace_back(val, power);
+        SendMessageToSet(packet.Write(), IsPlayer());
     }
 
     // group update
@@ -10123,7 +10098,7 @@ void Unit::RemoveFromWorld()
             GetAI()->LeavingWorld();
 
         if (IsVehicle())
-            RemoveVehicleKit();
+            RemoveVehicleKit(true);
 
         RemoveCharmAuras();
         RemoveBindSightAuras();
@@ -10865,10 +10840,11 @@ void Unit::SendPetAIReaction(ObjectGuid guid)
     if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    WorldPacket data(SMSG_AI_REACTION, 8 + 4);
-    data << uint64(guid);
-    data << uint32(AI_REACTION_HOSTILE);
-    owner->ToPlayer()->SendDirectMessage(&data);
+    WorldPackets::Combat::AIReaction packet;
+    packet.UnitGUID = guid;
+    packet.Reaction = AI_REACTION_HOSTILE;
+
+    owner->ToPlayer()->SendDirectMessage(packet.Write());
 }
 
 ///----------End of Pet responses methods----------
@@ -10936,11 +10912,11 @@ void Unit::SetStandState(uint8 state)
     if (IsStandState())
        RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_NOT_SEATED);
 
-    if (GetTypeId() == TYPEID_PLAYER)
+    if (IsPlayer())
     {
-        WorldPacket data(SMSG_STANDSTATE_UPDATE, 1);
-        data << (uint8)state;
-        ToPlayer()->SendDirectMessage(&data);
+        WorldPackets::Misc::StandStateUpdate packet;
+        packet.State = state;
+        ToPlayer()->SendDirectMessage(packet.Write());
     }
 }
 
@@ -12266,7 +12242,7 @@ void Unit::RestoreFaction()
     }
 }
 
-bool Unit::CreateVehicleKit(uint32 id, uint32 creatureEntry)
+bool Unit::CreateVehicleKit(uint32 id, uint32 creatureEntry, bool loading /*= false*/)
 {
     VehicleEntry const* vehInfo = sVehicleStore.LookupEntry(id);
     if (!vehInfo)
@@ -12275,13 +12251,20 @@ bool Unit::CreateVehicleKit(uint32 id, uint32 creatureEntry)
     m_vehicleKit = new Vehicle(this, vehInfo, creatureEntry);
     m_updateFlag |= UPDATEFLAG_VEHICLE;
     m_unitTypeMask |= UNIT_MASK_VEHICLE;
+
+    if (!loading)
+        SendSetVehicleRecId(id);
+
     return true;
 }
 
-void Unit::RemoveVehicleKit()
+void Unit::RemoveVehicleKit(bool onRemoveFromWorld /*= false*/)
 {
     if (!m_vehicleKit)
         return;
+
+    if (!onRemoveFromWorld)
+        SendSetVehicleRecId(0);
 
     m_vehicleKit->Uninstall();
     delete m_vehicleKit;
@@ -12470,30 +12453,15 @@ void Unit::SetAuraStack(uint32 spellId, Unit* target, uint32 stack)
 
 void Unit::SendPlaySpellVisualKit(uint32 id, uint32 type, uint32 duration) const
 {
-    ObjectGuid guid = GetGUID();
+    if (!sSpellVisualKitStore.LookupEntry(id))
+        return;
 
-    WorldPacket data(SMSG_PLAY_SPELL_VISUAL_KIT, 4 + 4+ 4 + 8);
-    data << uint32(duration);
-    data << uint32(id);     // SpellVisualKit.dbc index
-    data << uint32(type);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[1]);
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[6]);
-    data.FlushBits();
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[6]);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[5]);
-    SendMessageToSet(&data, true);
+    WorldPackets::Spells::PlaySpellVisualKit packet;
+    packet.Unit = GetGUID();
+    packet.KitRecID = id; // SpellVisualKit.dbc index
+    packet.KitType = type;
+    packet.Duration = duration;
+    SendMessageToSet(packet.Write(), IsPlayer());
 }
 
 void Unit::CancelSpellMissiles(uint32 spellId, bool reverseMissile /*= false*/)
@@ -13866,9 +13834,9 @@ uint32 Unit::GetRemainingPeriodicAmount(ObjectGuid caster, uint32 spellId, AuraT
 
 void Unit::SendClearTarget()
 {
-    WorldPacket data(SMSG_BREAK_TARGET, GetPackGUID().size());
-    data << GetPackGUID();
-    SendMessageToSet(&data, false);
+    WorldPackets::Combat::BreakTarget packet;
+    packet.UnitGUID = GetGUID();
+    SendMessageToSet(packet.Write(), false);
 }
 
 uint32 Unit::GetResistance(SpellSchoolMask mask) const
@@ -14186,38 +14154,28 @@ bool Unit::SetHover(bool enable, bool packetOnly /*= false*/, bool /*updateAnima
     return true;
 }
 
+void Unit::SendSetVehicleRecId(uint32 vehicleId)
+{
+    WorldPackets::Vehicle::SetVehicleRecID setVehicleRec;
+    setVehicleRec.VehicleGUID = GetGUID();
+    setVehicleRec.VehicleRecID = vehicleId;
+    SendMessageToSet(setVehicleRec.Write(), true);
+}
+
 void Unit::SendSetPlayHoverAnim(bool enable)
 {
-    ObjectGuid guid = GetGUID();
-    WorldPacket data(SMSG_SET_PLAY_HOVER_ANIM, 10);
-    data.WriteBit(guid[4]);
-    data.WriteBit(guid[0]);
-    data.WriteBit(guid[1]);
-    data.WriteBit(enable);
-    data.WriteBit(guid[3]);
-    data.WriteBit(guid[7]);
-    data.WriteBit(guid[5]);
-    data.WriteBit(guid[2]);
-    data.WriteBit(guid[6]);
-
-    data.WriteByteSeq(guid[3]);
-    data.WriteByteSeq(guid[2]);
-    data.WriteByteSeq(guid[1]);
-    data.WriteByteSeq(guid[7]);
-    data.WriteByteSeq(guid[0]);
-    data.WriteByteSeq(guid[5]);
-    data.WriteByteSeq(guid[4]);
-    data.WriteByteSeq(guid[6]);
-
-    SendMessageToSet(&data, true);
+    WorldPackets::Misc::SetPlayHoverAnim packet;
+    packet.UnitGUID = GetGUID();
+    packet.PlayHoverAnim = enable;
+    SendMessageToSet(packet.Write(), IsPlayer());
 }
 
 void Unit::SendMovementSetSplineAnim(AnimationTier anim)
 {
-    WorldPacket data(SMSG_SPLINE_MOVE_SET_ANIM, 8 + 4);
-    data << GetPackGUID();
-    data << uint32(anim);
-    SendMessageToSet(&data, false);
+    WorldPackets::Misc::SetAnimTier packet;
+    packet.Unit = GetGUID();
+    packet.Tier = AsUnderlyingType(anim);
+    SendMessageToSet(packet.Write(), false);
 }
 
 bool Unit::IsSplineEnabled() const

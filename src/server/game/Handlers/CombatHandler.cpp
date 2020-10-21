@@ -18,6 +18,7 @@
 #include "WorldSession.h"
 #include "Common.h"
 #include "CreatureAI.h"
+#include "CombatPackets.h"
 #include "DBCStores.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
@@ -88,13 +89,5 @@ void WorldSession::HandleSetSheathedOpcode(WorldPacket& recvData)
 
 void WorldSession::SendAttackStop(Unit const* enemy)
 {
-    WorldPacket data(SMSG_ATTACKSTOP, (8+8+4));             // we guess size
-    data << GetPlayer()->GetPackGUID();
-    if (enemy)
-        data << enemy->GetPackGUID();
-    else
-        data << uint8(0);
-
-    data << uint32(0);                                      // unk, can be 1 also
-    SendPacket(&data);
+    SendPacket(WorldPackets::Combat::SAttackStop(GetPlayer(), enemy).Write());
 }

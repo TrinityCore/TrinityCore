@@ -2381,6 +2381,32 @@ struct SpellVisualEntry
     uint32 AlternativeVisualID;
 };
 
+struct SpellVisualKitEntry
+{
+    uint32 ID;
+    uint32 StartAnimID;
+    uint32 AnimID;
+    uint32 AnimKitID;
+    uint32 HeadEffect;
+    uint32 ChestEffect;
+    uint32 BaseEffect;
+    uint32 LeftHandEffect;
+    uint32 RightHandEffect;
+    uint32 BreathEffect;
+    uint32 LeftWeaponEffect;
+    uint32 RightWeaponEffect;
+    uint32 SpecialEffect[3];
+    uint32 WorldEffect;
+    uint32 SoundID;
+    uint32 ShakeID;
+    uint32 CharProc[4];
+    uint32 CharParamZero[4];
+    uint32 CharParamOne[4];
+    uint32 CharParamTwo[4];
+    uint32 CharParamThree[4];
+    uint32 Flags;
+};
+
 struct SummonPropertiesEntry
 {
     uint32  ID;                                             // 0

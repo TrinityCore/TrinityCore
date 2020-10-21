@@ -249,6 +249,19 @@ namespace WorldPackets
 
             std::vector<CategoryCooldownInfo> CategoryCooldowns;
         };
+
+        class PlaySpellVisualKit final : public ServerPacket
+        {
+        public:
+            PlaySpellVisualKit() : ServerPacket(SMSG_PLAY_SPELL_VISUAL_KIT, 8 + 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Unit;
+            int32 KitRecID = 0;
+            int32 KitType = 0;
+            uint32 Duration = 0;
+        };
     }
 }
 

@@ -249,3 +249,43 @@ WorldPacket const* WorldPackets::Misc::DestroyObject::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::StandStateUpdate::Write()
+{
+    _worldPacket << uint8(State);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::SetAnimTier::Write()
+{
+    _worldPacket << Unit.WriteAsPacked();
+    _worldPacket << int32(Tier);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::SetPlayHoverAnim::Write()
+{
+    _worldPacket.WriteBit(UnitGUID[4]);
+    _worldPacket.WriteBit(UnitGUID[0]);
+    _worldPacket.WriteBit(UnitGUID[1]);
+    _worldPacket.WriteBit(PlayHoverAnim);
+    _worldPacket.WriteBit(UnitGUID[3]);
+    _worldPacket.WriteBit(UnitGUID[7]);
+    _worldPacket.WriteBit(UnitGUID[5]);
+    _worldPacket.WriteBit(UnitGUID[2]);
+    _worldPacket.WriteBit(UnitGUID[6]);
+    _worldPacket.FlushBits();
+
+    _worldPacket.WriteByteSeq(UnitGUID[3]);
+    _worldPacket.WriteByteSeq(UnitGUID[2]);
+    _worldPacket.WriteByteSeq(UnitGUID[1]);
+    _worldPacket.WriteByteSeq(UnitGUID[7]);
+    _worldPacket.WriteByteSeq(UnitGUID[0]);
+    _worldPacket.WriteByteSeq(UnitGUID[5]);
+    _worldPacket.WriteByteSeq(UnitGUID[4]);
+    _worldPacket.WriteByteSeq(UnitGUID[6]);
+
+    return &_worldPacket;
+}

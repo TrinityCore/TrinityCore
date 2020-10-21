@@ -22,6 +22,7 @@
 #include "CreatureAI.h"
 #include "CreatureAISelector.h"
 #include "CreatureGroups.h"
+#include "CombatPackets.h"
 #include "DatabaseEnv.h"
 #include "Formulas.h"
 #include "GameEventMgr.h"
@@ -1567,7 +1568,7 @@ bool Creature::CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, Creatu
     }
 
     if (vehId)
-        if (CreateVehicleKit(vehId, entry))
+        if (CreateVehicleKit(vehId, entry, true))
             UpdateDisplayPower();
 
     return true;
@@ -2335,12 +2336,10 @@ Unit* Creature::SelectNearestTargetInAttackDistance(float dist) const
 
 void Creature::SendAIReaction(AiReaction reactionType)
 {
-    WorldPacket data(SMSG_AI_REACTION, 12);
-
-    data << uint64(GetGUID());
-    data << uint32(reactionType);
-
-    ((WorldObject*)this)->SendMessageToSet(&data, true);
+    WorldPackets::Combat::AIReaction packet;
+    packet.UnitGUID = GetGUID();
+    packet.Reaction = reactionType;
+    SendMessageToSet(packet.Write(), false);
 
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_AI_REACTION, type %u.", reactionType);
 }

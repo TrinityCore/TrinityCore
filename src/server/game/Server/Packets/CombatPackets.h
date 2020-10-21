@@ -21,6 +21,8 @@
 #include "Packet.h"
 #include "ObjectGuid.h"
 
+class Unit;
+
 namespace WorldPackets
 {
     namespace Combat
@@ -73,6 +75,70 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid UnitGUID;
+        };
+
+        struct PowerUpdatePower
+        {
+            PowerUpdatePower(int32 power, uint8 powerType) : Power(power), PowerType(powerType) { }
+
+            int32 Power = 0;
+            uint8 PowerType = 0;
+        };
+
+        class PowerUpdate final : public ServerPacket
+        {
+        public:
+            PowerUpdate() : ServerPacket(SMSG_POWER_UPDATE, 8 + 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+            std::vector<PowerUpdatePower> Powers;
+        };
+
+        class BreakTarget final : public ServerPacket
+        {
+        public:
+            BreakTarget() : ServerPacket(SMSG_BREAK_TARGET, 8) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid UnitGUID;
+        };
+
+        class AIReaction final : public ServerPacket
+        {
+        public:
+            AIReaction() : ServerPacket(SMSG_AI_REACTION, 8 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid UnitGUID;
+            uint32 Reaction = 0;
+        };
+
+        class AttackStart final : public ServerPacket
+        {
+        public:
+            AttackStart() : ServerPacket(SMSG_ATTACK_START, 8 + 8) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Attacker;
+            ObjectGuid Victim;
+        };
+
+        class SAttackStop final : public ServerPacket
+        {
+        public:
+            SAttackStop() : ServerPacket(SMSG_ATTACK_STOP, 8 + 8 + 4) { }
+            SAttackStop(Unit const* attacker, Unit const* victim);
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Attacker;
+            ObjectGuid Victim;
+            bool NowDead = false; // sent as int32 prior to 6.x
         };
     }
 }

@@ -175,6 +175,7 @@ char const SpellRuneCostfmt[] = "niiii";
 char const SpellShapeshiftEntryfmt[] = "niiiix";
 char const SpellShapeshiftFormfmt[] = "nxxiixiiiiiiiiiiiiiix";
 char const SpellVisualfmt[] = "dxxxxxxiixxxxxxxxxxxxxxxxxxxxxxxi";
+char const SpellVisualKitfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii";
 char const StableSlotPricesfmt[] = "ni";
 char const SummonPropertiesfmt[] = "niiiii";
 char const TalentEntryfmt[] = "niiiiiiiiiiiiiixxxx";
