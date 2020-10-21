@@ -259,7 +259,7 @@ struct boss_steelbreaker : public ScriptedAI
                 break;
             case ACTION_ADD_CHARGE:
                 if (_events.IsInPhase(PHASE_THREE))
-                    DoCast(me, SPELL_ELECTRICAL_CHARGE, true);
+                    DoCastSelf(SPELL_ELECTRICAL_CHARGE, true);
                 break;
             case ACTION_BERSERK_TRIGGERED:
                 Talk(SAY_STEELBREAKER_BERSERK);
