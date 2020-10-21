@@ -523,13 +523,13 @@ bool SpellHistory::HasCooldown(uint32 spellId, uint32 itemId /*= 0*/, bool ignor
     return HasCooldown(sSpellMgr->AssertSpellInfo(spellId), itemId, ignoreCategoryCooldown);
 }
 
-uint32 SpellHistory::GetRemainingCooldown(SpellInfo const* spellInfo) const
+uint32 SpellHistory::GetRemainingCooldown(SpellInfo const* spellInfo, bool withCategoryCooldown /*= true*/) const
 {
     Clock::time_point end;
     auto itr = _spellCooldowns.find(spellInfo->Id);
     if (itr != _spellCooldowns.end())
         end = itr->second.CooldownEnd;
-    else
+    else if (withCategoryCooldown)
     {
         auto catItr = _categoryCooldowns.find(spellInfo->GetCategory());
         if (catItr == _categoryCooldowns.end())
@@ -538,6 +538,22 @@ uint32 SpellHistory::GetRemainingCooldown(SpellInfo const* spellInfo) const
         end = catItr->second->CategoryEnd;
     }
 
+    Clock::time_point now = GameTime::GetGameTimeSystemPoint();
+    if (end < now)
+        return 0;
+
+    Clock::duration remaining = end - now;
+    return uint32(std::chrono::duration_cast<std::chrono::milliseconds>(remaining).count());
+}
+
+uint32 SpellHistory::GetRemainingCategoryCooldown(SpellInfo const* spellInfo) const
+{
+    Clock::time_point end;
+    auto catItr = _categoryCooldowns.find(spellInfo->GetCategory());
+    if (catItr == _categoryCooldowns.end())
+        return 0;
+
+    end = catItr->second->CategoryEnd;
     Clock::time_point now = GameTime::GetGameTimeSystemPoint();
     if (end < now)
         return 0;

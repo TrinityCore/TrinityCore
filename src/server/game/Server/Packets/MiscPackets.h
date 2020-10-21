@@ -21,6 +21,8 @@
 #include "Packet.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
+#include "SharedDefines.h"
+#include "Position.h"
 
 enum WeatherState : uint32;
 
@@ -337,6 +339,110 @@ namespace WorldPackets
 
             ObjectGuid UnitGUID;
             bool PlayHoverAnim = false;
+        };
+
+        class StartMirrorTimer final : public ServerPacket
+        {
+        public:
+            StartMirrorTimer() : ServerPacket(SMSG_START_MIRROR_TIMER, 4 + 4 + 4 + 4 + 4 + 1) { }
+            StartMirrorTimer(int32 timer, int32 value, int32 maxValue, int32 scale, int32 spellID, bool paused) :
+                ServerPacket(SMSG_START_MIRROR_TIMER, 21), Scale(scale), MaxValue(maxValue), Timer(timer), SpellID(spellID), Value(value), Paused(paused) { }
+
+            WorldPacket const* Write() override;
+
+            int32 Scale = 0;
+            int32 MaxValue = 0;
+            int32 Timer = 0;
+            int32 SpellID = 0;
+            int32 Value = 0;
+            bool Paused = false;
+        };
+
+        class PauseMirrorTimer final : public ServerPacket
+        {
+        public:
+            PauseMirrorTimer() : ServerPacket(SMSG_PAUSE_MIRROR_TIMER, 4 + 1) { }
+            PauseMirrorTimer(int32 timer, bool paused) : ServerPacket(SMSG_PAUSE_MIRROR_TIMER, 5), Timer(timer), Paused(paused) { }
+
+            WorldPacket const* Write() override;
+
+            int32 Timer = 0;
+            bool Paused = true;
+        };
+
+        class StopMirrorTimer final : public ServerPacket
+        {
+        public:
+            StopMirrorTimer() : ServerPacket(SMSG_STOP_MIRROR_TIMER, 4) { }
+            StopMirrorTimer(int32 timer) : ServerPacket(SMSG_STOP_MIRROR_TIMER, 4), Timer(timer) { }
+
+            WorldPacket const* Write() override;
+
+            int32 Timer = 0;
+        };
+
+        class CrossedInebriationThreshold final : public ServerPacket
+        {
+        public:
+            CrossedInebriationThreshold() : ServerPacket(SMSG_CROSSED_INEBRIATION_THRESHOLD, 8 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+            int32 ItemID = 0;
+            int32 Threshold = 0;
+        };
+
+        class LevelUpInfo final : public ServerPacket
+        {
+        public:
+            LevelUpInfo() : ServerPacket(SMSG_LEVEL_UP_INFO, 48) { }
+
+            WorldPacket const* Write() override;
+
+            int32 Level = 0;
+            int32 HealthDelta = 0;
+            std::array<int32, 6> PowerDelta = { };
+            std::array<int32, MAX_STATS> StatDelta = { };
+        };
+
+        class BindPointUpdate final : public ServerPacket
+        {
+        public:
+            BindPointUpdate() : ServerPacket(SMSG_BIND_POINT_UPDATE, 20) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 BindMapID = 0;
+            TaggedPosition<Position::XYZ> BindPosition;
+            uint32 BindAreaID = 0;
+        };
+
+        class WorldServerInfo final : public ServerPacket
+        {
+        public:
+            WorldServerInfo() : ServerPacket(SMSG_WORLD_SERVER_INFO, 10) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 DifficultyID = 0;
+            uint32 WeeklyReset = 0;
+            uint8 IsTournamentRealm = 0;
+            Optional<uint32> IneligibleForLootMask;
+            Optional<uint32> RestrictedAccountMaxLevel;
+            Optional<uint32> RestrictedAccountMaxMoney;
+        };
+
+        class LoginSetTimeSpeed final : public ServerPacket
+        {
+        public:
+            LoginSetTimeSpeed() : ServerPacket(SMSG_LOGIN_SET_TIME_SPEED, 12) { }
+
+            WorldPacket const* Write() override;
+
+            float NewSpeed = 0.0f;
+            uint32 GameTime = 0;
+            uint32 GameTimeHolidayOffset = 0;
         };
     }
 }

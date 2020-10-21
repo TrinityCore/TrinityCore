@@ -329,3 +329,80 @@ WorldPacket const* WorldPackets::Spells::PlaySpellVisualKit::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Spells::SendKnownSpells::Write()
+{
+    _worldPacket.reserve(1 + 2  + 6 * KnownSpells.size() + 2 + 14 * SpellHistoryEntries.size());
+
+    _worldPacket << uint8(InitialLogin);
+    _worldPacket << uint16(KnownSpells.size());
+
+    for (uint32 SpellID : KnownSpells)
+    {
+        _worldPacket << uint32(SpellID);
+        _worldPacket << int16(0); // Slot (unused)
+    }
+
+    _worldPacket << uint16(SpellHistoryEntries.size());
+    for (SpellHistoryEntry const& entry : SpellHistoryEntries)
+    {
+        _worldPacket << uint32(entry.SpellID);
+        _worldPacket << uint32(entry.ItemID);
+        _worldPacket << uint16(entry.Category);
+        _worldPacket << int32(entry.RecoveryTime);
+        _worldPacket << int32(entry.CategoryRecoveryTime);
+    }
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Spells::SendUnlearnSpells::Write()
+{
+    _worldPacket << uint32(Spells.size());
+    for (uint32 spellId : Spells)
+        _worldPacket << uint32(spellId);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Spells::UnlearnedSpells::Write()
+{
+    _worldPacket << uint32(SpellID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Spells::UpdateActionButtons::Write()
+{
+    _worldPacket.append(ActionButtons.data(), ActionButtons.size());
+    _worldPacket << Reason;
+
+    return &_worldPacket;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellModifierData const& spellModifierData)
+{
+    data << uint8(spellModifierData.ClassIndex);
+    data << float(spellModifierData.ModifierValue);
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellModifier const& spellModifier)
+{
+    data << uint32(spellModifier.ModifierData.size());
+    data << uint8(spellModifier.ModIndex);
+    for (WorldPackets::Spells::SpellModifierData const& modData : spellModifier.ModifierData)
+        data << modData;
+
+    return data;
+}
+
+WorldPacket const* WorldPackets::Spells::SetSpellModifier::Write()
+{
+    _worldPacket << uint32(Modifiers.size());
+    for (WorldPackets::Spells::SpellModifier const& spellMod : Modifiers)
+        _worldPacket << spellMod;
+
+    return &_worldPacket;
+}

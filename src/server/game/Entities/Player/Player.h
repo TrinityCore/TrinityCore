@@ -95,8 +95,9 @@ typedef std::deque<Mail*> PlayerMails;
 // Note: SPELLMOD_* values is aura types in fact
 enum SpellModType : uint8
 {
-    SPELLMOD_FLAT         = SPELL_AURA_ADD_FLAT_MODIFIER,
-    SPELLMOD_PCT          = SPELL_AURA_ADD_PCT_MODIFIER
+    SPELLMOD_FLAT         = 0,                            // SPELL_AURA_ADD_FLAT_MODIFIER
+    SPELLMOD_PCT          = 1,                            // SPELL_AURA_ADD_PCT_MODIFIER
+    SPELLMOD_END
 };
 
 // 2^n values, Player::m_isunderwater is a bitmask. These are Trinity internal values, they are never send to any client
@@ -1591,8 +1592,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool IsCurrentSpecMasterySpell(SpellInfo const* spellInfo) const;
 
         void SendProficiency(ItemClass itemClass, uint32 itemSubclassMask) const;
-        void SendInitialSpells();
-        void SendUnlearnSpells();
+        void SendKnownSpells();
         bool AddSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading = false, uint32 fromSkill = 0);
         void LearnSpell(uint32 spell_id, bool dependent, uint32 fromSkill = 0);
         void RemoveSpell(uint32 spell_id, bool disabled = false, bool learn_low_rank = true);
@@ -1673,6 +1673,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         static void ApplyModToSpell(SpellModifier* mod, Spell* spell);
         static bool HasSpellModApplied(SpellModifier* mod, Spell* spell);
         void SetSpellModTakingSpell(Spell* spell, bool apply);
+        void SendSpellModifiers() const;
 
         void RemoveArenaSpellCooldowns(bool removeActivePetCooldowns = false);
         uint32 GetLastPotionId() const { return m_lastPotionId; }
@@ -2176,6 +2177,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void Recall() { TeleportTo(m_recall_location); }
 
         void SetHomebind(WorldLocation const& loc, uint32 areaId);
+        void SendBindPointUpdate() const;
 
         // Homebind coordinates
         uint32 m_homebindMapId;
@@ -2601,7 +2603,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 m_baseHealthRegen;
         int32 m_spellPenetrationItemMod;
 
-        SpellModContainer m_spellMods[MAX_SPELLMOD];
+        SpellModContainer m_spellMods[MAX_SPELLMOD][SPELLMOD_END];
 
         EnchantDurationList m_enchantDuration;
         ItemDurationList m_itemDuration;

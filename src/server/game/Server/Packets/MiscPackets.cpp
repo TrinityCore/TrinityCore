@@ -289,3 +289,95 @@ WorldPacket const* WorldPackets::Misc::SetPlayHoverAnim::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::StartMirrorTimer::Write()
+{
+    _worldPacket << int32(Timer);
+    _worldPacket << int32(Value);
+    _worldPacket << int32(MaxValue);
+    _worldPacket << int32(Scale);
+    _worldPacket << uint8(Paused);
+    _worldPacket << int32(SpellID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::PauseMirrorTimer::Write()
+{
+    _worldPacket << int32(Timer);
+    _worldPacket << uint8(Paused);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::StopMirrorTimer::Write()
+{
+    _worldPacket << int32(Timer);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::CrossedInebriationThreshold::Write()
+{
+    _worldPacket << Guid;
+    _worldPacket << int32(Threshold);
+    _worldPacket << int32(ItemID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::LevelUpInfo::Write()
+{
+    _worldPacket << int32(Level);
+    _worldPacket << int32(HealthDelta);
+
+    for (int32 power : PowerDelta)
+        _worldPacket << power;
+
+    for (int32 stat : StatDelta)
+        _worldPacket << stat;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::BindPointUpdate::Write()
+{
+    _worldPacket << BindPosition;
+    _worldPacket << uint32(BindMapID);
+    _worldPacket << uint32(BindAreaID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::WorldServerInfo::Write()
+{
+    _worldPacket.WriteBit(RestrictedAccountMaxLevel.is_initialized());
+    _worldPacket.WriteBit(RestrictedAccountMaxMoney.is_initialized());
+    _worldPacket.WriteBit(IneligibleForLootMask.is_initialized());
+    _worldPacket.FlushBits();
+
+    if (IneligibleForLootMask)
+        _worldPacket << uint32(*IneligibleForLootMask);
+
+    _worldPacket << uint8(IsTournamentRealm);
+
+    if (RestrictedAccountMaxMoney)
+        _worldPacket << uint32(*RestrictedAccountMaxMoney);
+
+    if (RestrictedAccountMaxLevel)
+        _worldPacket << uint32(*RestrictedAccountMaxLevel);
+
+    _worldPacket << uint32(WeeklyReset);
+    _worldPacket << uint32(DifficultyID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::LoginSetTimeSpeed::Write()
+{
+    _worldPacket.AppendPackedTime(GameTime);
+    _worldPacket << float(NewSpeed);
+    _worldPacket << uint32(GameTimeHolidayOffset);
+
+    return &_worldPacket;
+}
