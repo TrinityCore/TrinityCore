@@ -89,7 +89,7 @@ public:
             return false;
         }
         SpellInfo const* spellInfo = _spell;
-        if (!spellInfo || !SpellMgr::IsSpellValid(spellInfo, handler->GetSession()->GetPlayer()))
+        if (!SpellMgr::IsSpellValid(spellInfo, handler->GetSession()->GetPlayer()))
         {
             handler->PSendSysMessage(LANG_COMMAND_SPELL_BROKEN, spellInfo->Id);
             handler->SetSentErrorMessage(true);
