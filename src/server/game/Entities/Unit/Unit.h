@@ -1087,7 +1087,7 @@ class TC_GAME_API Unit : public WorldObject
         int32 GetMinPower(Powers power) const { return power == POWER_ECLIPSE ? -100 : 0; }
         int32 GetMaxPower(Powers power) const;
         int32 CountPctFromMaxPower(Powers power, int32 pct) const { return CalculatePct(GetMaxPower(power), pct); }
-        void SetPower(Powers power, int32 val);
+        void SetPower(Powers power, int32 val, bool withPowerUpdate = true);
         void SetMaxPower(Powers power, int32 val);
         void SetPowerBarID(uint32 id) { _powerBarId = id; }
         void Regenerate(Powers powerType, uint32 diff);
@@ -1095,7 +1095,7 @@ class TC_GAME_API Unit : public WorldObject
         inline void SetFullPower(Powers power) { SetPower(power, GetMaxPower(power)); }
 
         // returns the change in power
-        int32 ModifyPower(Powers power, int32 val);
+        int32 ModifyPower(Powers power, int32 val, bool withPowerUpdate = true);
         int32 ModifyPowerPct(Powers power, float pct, bool apply = true);
         float GetPowerRegen(Powers powerType, bool isInCombat) const;
 

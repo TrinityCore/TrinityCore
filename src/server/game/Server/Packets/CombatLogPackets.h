@@ -73,6 +73,20 @@ namespace WorldPackets
             UnkAttackerState UnkState;
             float Unk = 0.0f;
         };
+
+        class SpellEnergizeLog final : public ServerPacket
+        {
+        public:
+            SpellEnergizeLog() : ServerPacket(SMSG_SPELL_ENERGIZE_LOG, 8 + 8 + 4 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid CasterGUID;
+            ObjectGuid TargetGUID;
+            int32 SpellID = 0;
+            int32 Type = 0;
+            int32 Amount = 0;
+        };
     }
 }
 

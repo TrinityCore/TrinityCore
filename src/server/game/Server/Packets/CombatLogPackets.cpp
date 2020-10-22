@@ -68,3 +68,14 @@ WorldPacket const* WorldPackets::CombatLog::AttackerStateUpdate::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::CombatLog::SpellEnergizeLog::Write()
+{
+    _worldPacket << TargetGUID.WriteAsPacked();
+    _worldPacket << CasterGUID.WriteAsPacked();
+    _worldPacket << int32(SpellID);
+    _worldPacket << int32(Type);
+    _worldPacket << int32(Amount);
+
+    return &_worldPacket;
+}

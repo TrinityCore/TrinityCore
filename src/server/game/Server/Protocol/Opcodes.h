@@ -1180,7 +1180,7 @@ enum OpcodeServer
     SMSG_SPELLBREAKLOG                                = 0x6B17,
     SMSG_SPELLDAMAGESHIELD                            = 0x2927,
     SMSG_SPELLDISPELLOG                               = 0x4516,
-    SMSG_SPELLENERGIZELOG                             = 0x0414,
+    SMSG_SPELL_ENERGIZE_LOG                           = 0x0414,
     SMSG_SPELLHEALLOG                                 = 0x2816,
     SMSG_SPELLINSTAKILLLOG                            = 0x6216,
     SMSG_SPELLINTERRUPTLOG                            = 0x1DA7,

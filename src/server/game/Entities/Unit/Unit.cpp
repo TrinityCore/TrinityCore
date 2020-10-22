@@ -6559,13 +6559,14 @@ int32 Unit::HealBySpell(HealInfo& healInfo, bool critical /*= false*/)
 
 void Unit::SendEnergizeSpellLog(Unit* victim, uint32 spellId, int32 damage, Powers powerType)
 {
-    WorldPacket data(SMSG_SPELLENERGIZELOG, (8+8+4+4+4+1));
-    data << victim->GetPackGUID();
-    data << GetPackGUID();
-    data << uint32(spellId);
-    data << uint32(powerType);
-    data << int32(damage);
-    SendMessageToSet(&data, true);
+    WorldPackets::CombatLog::SpellEnergizeLog packet;
+    packet.TargetGUID = victim->GetGUID();
+    packet.CasterGUID = GetGUID();
+    packet.SpellID = spellId;
+    packet.Amount = damage;
+    packet.Type = powerType;
+
+    SendMessageToSet(packet.Write(), true);
 }
 
 void Unit::EnergizeBySpell(Unit* victim, uint32 spellId, int32 damage, Powers powerType)
@@ -6576,10 +6577,9 @@ void Unit::EnergizeBySpell(Unit* victim, uint32 spellId, int32 damage, Powers po
 
 void Unit::EnergizeBySpell(Unit* victim, SpellInfo const* spellInfo, int32 damage, Powers powerType)
 {
-    SendEnergizeSpellLog(victim, spellInfo->Id, damage, powerType);
-    // needs to be called after sending spell log
-    victim->ModifyPower(powerType, damage);
+    victim->ModifyPower(powerType, damage, false);
     victim->GetThreatManager().ForwardThreatForAssistingMe(this, float(damage) / 2, spellInfo, true);
+    SendEnergizeSpellLog(victim, spellInfo->Id, damage, powerType);
 }
 
 uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uint32 pdamage, DamageEffectType damagetype, uint8 effIndex, uint32 stack) const
@@ -8706,7 +8706,7 @@ int32 Unit::GetHealthGain(int32 dVal)
 }
 
 // returns negative amount on power reduction
-int32 Unit::ModifyPower(Powers power, int32 dVal)
+int32 Unit::ModifyPower(Powers power, int32 dVal, bool withPowerUpdate /*= true*/)
 {
     int32 gain = 0;
 
@@ -8718,7 +8718,7 @@ int32 Unit::ModifyPower(Powers power, int32 dVal)
     int32 val = dVal + curPower;
     if (val <= GetMinPower(power))
     {
-        SetPower(power, GetMinPower(power));
+        SetPower(power, GetMinPower(power), withPowerUpdate);
         return -curPower;
     }
 
@@ -8726,12 +8726,12 @@ int32 Unit::ModifyPower(Powers power, int32 dVal)
 
     if (val < maxPower)
     {
-        SetPower(power, val);
+        SetPower(power, val, withPowerUpdate);
         gain = val - curPower;
     }
     else if (curPower != maxPower)
     {
-        SetPower(power, maxPower);
+        SetPower(power, maxPower, withPowerUpdate);
         gain = maxPower - curPower;
     }
 
@@ -9894,7 +9894,7 @@ int32 Unit::GetMaxPower(Powers power) const
     return GetInt32Value(UNIT_FIELD_MAXPOWER1 + powerIndex);
 }
 
-void Unit::SetPower(Powers power, int32 val)
+void Unit::SetPower(Powers power, int32 val, bool withPowerUpdate /*= true*/)
 {
     uint32 powerIndex = GetPowerIndex(power);
     if (powerIndex == MAX_POWERS)
@@ -9906,7 +9906,7 @@ void Unit::SetPower(Powers power, int32 val)
 
     SetInt32Value(UNIT_FIELD_POWER1 + powerIndex, val);
 
-    if (IsInWorld())
+    if (IsInWorld() && withPowerUpdate)
     {
         WorldPackets::Combat::PowerUpdate packet;
         packet.Guid = GetGUID();
