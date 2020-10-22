@@ -537,6 +537,8 @@ uint32 SpellHistory::GetRemainingCooldown(SpellInfo const* spellInfo, bool withC
 
         end = catItr->second->CategoryEnd;
     }
+    else
+        return 0;
 
     Clock::time_point now = GameTime::GetGameTimeSystemPoint();
     if (end < now)

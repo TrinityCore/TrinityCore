@@ -2636,7 +2636,7 @@ void Player::SendKnownSpells()
             uint32 categoryCooldown = GetSpellHistory()->GetRemainingCategoryCooldown(spellInfo);
 
             if (cooldown || categoryCooldown)
-                knownSpells.SpellHistoryEntries.push_back({ spellInfo->Id, 0, uint16(spellInfo->CategoryEntry->ID), int32(cooldown), int32(categoryCooldown) });
+                knownSpells.SpellHistoryEntries.push_back({ spellInfo->Id, 0, uint16(spellInfo->GetCategory()), int32(cooldown), int32(categoryCooldown) });
         }
     }
 
