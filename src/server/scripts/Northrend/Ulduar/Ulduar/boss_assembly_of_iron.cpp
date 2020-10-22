@@ -39,6 +39,8 @@ enum Spells
     SPELL_HIGH_VOLTAGE                          = 61890,
     SPELL_STATIC_DISRUPTION                     = 44008,
     SPELL_ELECTRICAL_CHARGE                     = 61902,
+    SPELL_FUSION_PUNCH                          = 61903,
+    SPELL_OVERWHELMING_POWER                    = 64637,
 
     // Runemaster Molgeim
     SPELL_RUNE_OF_POWER_PRE_FIGHT               = 61975,
@@ -53,16 +55,14 @@ enum Spells
     SPELL_LIGHTNING_CHANNEL_PRE_FIGHT_VISUAL    = 61942,
     SPELL_CHAIN_LIGHTNING                       = 61879,
     SPELL_LIGHTNING_WHIRL                       = 61915,
+    SPELL_LIGHTNING_TENDRILS                    = 61887,
     SPELL_LIGHTNING_TENDRILS_VISUAL             = 61883,
     SPELL_STORMSHIELD                           = 64187,
     SPELL_RANDOM_AGGRO_PERIODIC                 = 61906
 };
 
-#define SPELL_OVERLOAD              RAID_MODE<uint32>(61869, 63481)
-#define SPELL_LIGHTNING_TENDRILS    RAID_MODE<uint32>(61887, 63486)
-#define SPELL_FUSION_PUNCH          RAID_MODE<uint32>(61903, 63493)
-#define SPELL_OVERWHELMING_POWER    RAID_MODE<uint32>(64637, 61888)
-#define SPELL_STATIC_DISRUPTION     RAID_MODE<uint32>(44008, 61912)
+// Needed for OnSpellCastFinished hook in Stormcaller Brundir's script
+#define SPELL_OVERLOAD RAID_MODE<uint32>(61869, 63481)
 
 enum Events
 {
@@ -161,14 +161,14 @@ std::array<Position, 8> BrundirIntroWaypoints =
 CircleBoundary const AssemblyBoundary({ 1587.2f, 121.0f }, 90.0f);
 CreatureBoundary const ArenaBoundaries = { &AssemblyBoundary };
 
-namespace EncounterHelper
+namespace AOIEncounterHelper
 {
     // Let's use cheap AI macros instead of having the SpellMgr go through storages
     void CleanupAuras(ScriptedAI const* ai, InstanceScript* instance)
     {
-        instance->DoRemoveAurasDueToSpellOnPlayers(ai->SPELL_FUSION_PUNCH);
-        instance->DoRemoveAurasDueToSpellOnPlayers(ai->SPELL_OVERWHELMING_POWER);
-        instance->DoRemoveAurasDueToSpellOnPlayers(ai->SPELL_STATIC_DISRUPTION);
+        instance->DoRemoveAurasDueToSpellOnPlayers(sSpellMgr->GetSpellIdForDifficulty(SPELL_FUSION_PUNCH, creature));
+        instance->DoRemoveAurasDueToSpellOnPlayers(sSpellMgr->GetSpellIdForDifficulty(SPELL_OVERWHELMING_POWER, creature));
+        instance->DoRemoveAurasDueToSpellOnPlayers(sSpellMgr->GetSpellIdForDifficulty(SPELL_STATIC_DISRUPTION, creature));
     }
 }
 
@@ -205,7 +205,7 @@ struct boss_steelbreaker : public ScriptedAI
 
     void EnterEvadeMode(EvadeReason /*why*/) override
     {
-        EncounterHelper::CleanupAuras(this, _instance);
+        AOIEncounterHelper::CleanupAuras(me, _instance);
         _instance->SetBossState(DATA_ASSEMBLY_OF_IRON, FAIL);
     }
 
@@ -222,7 +222,7 @@ struct boss_steelbreaker : public ScriptedAI
     {
         if (_events.IsInPhase(PHASE_THREE))
         {
-            EncounterHelper::CleanupAuras(this, _instance);
+            AOIEncounterHelper::CleanupAuras(me, _instance);
             _instance->SetBossState(DATA_ASSEMBLY_OF_IRON, DONE);
             DoCastAOE(SPELL_KILL_CREDIT, true);
             Talk(SAY_STEELBREAKER_ENCOUNTER_DEFEATED);
@@ -359,7 +359,7 @@ struct boss_runemaster_molgeim : public ScriptedAI
 
     void EnterEvadeMode(EvadeReason /*why*/) override
     {
-        EncounterHelper::CleanupAuras(this, _instance);
+        AOIEncounterHelper::CleanupAuras(me, _instance);
         _summons.DespawnAll();
         _instance->SetBossState(DATA_ASSEMBLY_OF_IRON, FAIL);
     }
@@ -368,7 +368,7 @@ struct boss_runemaster_molgeim : public ScriptedAI
     {
         if (_events.IsInPhase(PHASE_THREE))
         {
-            EncounterHelper::CleanupAuras(this, _instance);
+            AOIEncounterHelper::CleanupAuras(me, _instance);
             _summons.DespawnAll();
             me->RemoveAllDynObjects();
             _instance->SetBossState(DATA_ASSEMBLY_OF_IRON, DONE);
@@ -510,7 +510,7 @@ struct boss_stormcaller_brundir : public ScriptedAI
 
     void EnterEvadeMode(EvadeReason /*why*/) override
     {
-        EncounterHelper::CleanupAuras(this, _instance);
+        AOIEncounterHelper::CleanupAuras(me, _instance);
         _instance->SetBossState(DATA_ASSEMBLY_OF_IRON, FAIL);
     }
 
@@ -550,7 +550,7 @@ struct boss_stormcaller_brundir : public ScriptedAI
     {
         if (_events.IsInPhase(PHASE_THREE))
         {
-            EncounterHelper::CleanupAuras(this, _instance);
+            AOIEncounterHelper::CleanupAuras(me, _instance);
             _instance->SetBossState(DATA_ASSEMBLY_OF_IRON, DONE);
             DoCastAOE(SPELL_KILL_CREDIT, true);
             Talk(SAY_BRUNDIR_ENCOUNTER_DEFEATED);
@@ -621,7 +621,7 @@ struct boss_stormcaller_brundir : public ScriptedAI
                 break;
             case POINT_ID_LAND:
                 me->SetHover(false);
-                me->RemoveAurasDueToSpell(SPELL_LIGHTNING_TENDRILS);
+                me->RemoveAurasDueToSpell(sSpellMgr->GetSpellIdForDifficulty(SPELL_LIGHTNING_TENDRILS, me));
                 me->RemoveAurasDueToSpell(SPELL_LIGHTNING_TENDRILS_VISUAL);
                 ResetThreatList();
                 me->SetReactState(REACT_AGGRESSIVE);
@@ -652,7 +652,7 @@ struct boss_stormcaller_brundir : public ScriptedAI
                     // Generate new random waypoints if we run out of them.
                     if (_potentialWaypoints.empty())
                     {
-                        std::transform(BrundirIntroWaypoints.begin(), BrundirIntroWaypoints.end(), std::back_inserter(_potentialWaypoints), [](Position const& pos) { return pos; });
+                        std::copy(BrundirIntroWaypoints.begin(), BrundirIntroWaypoints.end(), std::back_inserter(_potentialWaypoints));
                         Trinity::Containers::RandomShuffle(_potentialWaypoints);
                     }
 
