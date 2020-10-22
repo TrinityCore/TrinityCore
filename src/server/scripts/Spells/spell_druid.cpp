@@ -346,7 +346,7 @@ class spell_dru_eclipse_mastery_driver_passive : public AuraScript
         AfterEffectProc.Register(&spell_dru_eclipse_mastery_driver_passive::HandleEclipseProc, EFFECT_1, SPELL_AURA_PROC_ON_POWER_AMOUNT);
     }
 private:
-    int32 const GetEnergyGainFromSpellInfo(SpellInfo const* spell)
+    int32 GetEnergyGainFromSpellInfo(SpellInfo const* spell)
     {
         Unit* target = GetTarget();
         int32 energyAmount = 0;
@@ -396,7 +396,6 @@ private:
 
     AuraEffect* _eclipseMarker = nullptr;
     int32 _energyAmount = 0;
-    int32 _starsurgeEnergyAmount = 0;
     int32 _euphoriaEnergyAmount = 0;
 };
 
