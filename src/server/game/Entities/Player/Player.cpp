@@ -21323,12 +21323,12 @@ void Player::ApplySpellMod(uint32 spellId, SpellModOp op, T& basevalue, Spell* s
         case SPELLMOD_CASTING_TIME:
         {
             SpellModifier* modInstantSpell = nullptr;
-            for (SpellModifier* mod : m_spellMods[op][SPELLMOD_PCT])
+            for (SpellModifier* mod : m_spellMods[op])
             {
                 if (!IsAffectedBySpellmod(spellInfo, mod, spell))
                     continue;
 
-                if (basevalue < T(10000) && mod->value <= -100)
+                if (mod->type == SPELLMOD_PCT && basevalue < T(10000) && mod->value <= -100)
                 {
                     modInstantSpell = mod;
                     break;
@@ -21347,12 +21347,12 @@ void Player::ApplySpellMod(uint32 spellId, SpellModOp op, T& basevalue, Spell* s
         case SPELLMOD_CRITICAL_CHANCE:
         {
             SpellModifier* modCritical = nullptr;
-            for (SpellModifier* mod : m_spellMods[op][SPELLMOD_FLAT])
+            for (SpellModifier* mod : m_spellMods[op])
             {
                 if (!IsAffectedBySpellmod(spellInfo, mod, spell))
                     continue;
 
-                if (mod->value >= 100)
+                if (mod->type == SPELLMOD_FLAT && mod->value >= 100)
                 {
                     modCritical = mod;
                     break;
@@ -21371,35 +21371,44 @@ void Player::ApplySpellMod(uint32 spellId, SpellModOp op, T& basevalue, Spell* s
             break;
     }
 
-    for (SpellModifier* mod : m_spellMods[op][SPELLMOD_FLAT])
+    for (SpellModifier* mod : m_spellMods[op])
     {
         if (!IsAffectedBySpellmod(spellInfo, mod, spell))
             continue;
 
-        totalflat += mod->value;
-        Player::ApplyModToSpell(mod, spell);
-    }
-
-    for (SpellModifier* mod : m_spellMods[op][SPELLMOD_PCT])
-    {
-        if (!IsAffectedBySpellmod(spellInfo, mod, spell))
-            continue;
-
-        // skip percent mods for null basevalue (most important for spell mods with charges)
-        if (basevalue + totalflat == T(0))
-            continue;
-
-        // special case (skip > 10sec spell casts for instant cast setting)
-        if (op == SPELLMOD_CASTING_TIME)
+        switch (mod->type)
         {
-            if (basevalue >= T(10000) && mod->value <= -100)
-                continue;
+            case SPELLMOD_FLAT:
+                totalflat += mod->value;
+                break;
+            case SPELLMOD_PCT:
+            {
+                // skip percent mods with null basevalue (most important for spell mods with charges)
+                if (basevalue == T(0))
+                    continue;
+
+                // special case (skip > 10sec spell casts for instant cast setting)
+                if (op == SPELLMOD_CASTING_TIME && mod->value <= -100 && basevalue >= T(10000))
+                    continue;
+                else if (!Player::HasSpellModApplied(mod, spell))
+                {
+                    // special case for Surge of Light, don't apply critical chance reduction if other mods not applied (ie procs while casting another spell)
+                    // (Surge of Light is the only PCT_MOD on critical chance)
+                    if (op == SPELLMOD_CRITICAL_CHANCE)
+                        continue;
+                    // special case for Backdraft, dont' apply GCD reduction if cast time reduction wasn't applied (ie when Backlash is consumed first)
+                    // (Backdraft is the only PCT_MOD on global cooldown)
+                    else if (op == SPELLMOD_GLOBAL_COOLDOWN)
+                        continue;
+                }
+
+                totalmul += CalculatePct(1.0f, mod->value);
+                break;
+            }
         }
 
-        totalmul *= 1.0f + CalculatePct(1.0f, mod->value);
         Player::ApplyModToSpell(mod, spell);
     }
-
     basevalue = T(float(basevalue + totalflat) * totalmul);
 }
 
@@ -21413,9 +21422,9 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
 
     /// First, manipulate our spellmodifier container
     if (apply)
-        m_spellMods[mod->op][mod->type].insert(mod);
+        m_spellMods[mod->op].insert(mod);
     else
-        m_spellMods[mod->op][mod->type].erase(mod);
+        m_spellMods[mod->op].erase(mod);
 
     /// Now, send spellmodifier packet
     if (!IsLoading())
@@ -21438,27 +21447,9 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
             {
                 WorldPackets::Spells::SpellModifierData modData;
 
-                if (mod->type == SPELLMOD_FLAT)
-                {
-                    modData.ModifierValue = 0.0f;
-                    for (SpellModifier* spellMod : m_spellMods[mod->op][SPELLMOD_FLAT])
-                        if (spellMod->mask & mask)
-                            modData.ModifierValue += spellMod->value;
-                }
-                else
-                {
-                    modData.ModifierValue = 0.0f;
-                    for (SpellModifier* spellMod : m_spellMods[mod->op][SPELLMOD_PCT])
-                    {
-                        if (spellMod->mask & mask)
-                        {
-                            if (modData.ModifierValue > 0.f)
-                                AddPct(modData.ModifierValue, spellMod->value);
-                            else
-                                modData.ModifierValue += spellMod->value;
-                        }
-                    }
-                }
+                for (SpellModifier* spellMod : m_spellMods[mod->op])
+                    if (spellMod->mask & mask)
+                        modData.ModifierValue += spellMod->value;
 
                 modData.ClassIndex = eff;
 
@@ -21523,20 +21514,9 @@ void Player::SendSpellModifiers() const
             pctMod.ModifierData[j].ClassIndex = j;
             pctMod.ModifierData[j].ModifierValue = 0.0f;
 
-            for (SpellModifier* mod : m_spellMods[i][SPELLMOD_FLAT])
+            for (SpellModifier* mod : m_spellMods[i])
                 if (mod->mask & mask)
                     flatMod.ModifierData[j].ModifierValue += mod->value;
-
-            for (SpellModifier* mod : m_spellMods[i][SPELLMOD_PCT])
-            {
-                if (mod->mask & mask)
-                {
-                    if (flatMod.ModifierData[j].ModifierValue > 0.f)
-                        AddPct(flatMod.ModifierData[j].ModifierValue, mod->value);
-                    else
-                        flatMod.ModifierData[j].ModifierValue += mod->value;
-                }
-            }
         }
 
         flatMod.ModifierData.erase(std::remove_if(flatMod.ModifierData.begin(), flatMod.ModifierData.end(), [](WorldPackets::Spells::SpellModifierData const& mod)
@@ -21546,7 +21526,7 @@ void Player::SendSpellModifiers() const
 
         pctMod.ModifierData.erase(std::remove_if(pctMod.ModifierData.begin(), pctMod.ModifierData.end(), [](WorldPackets::Spells::SpellModifierData const& mod)
         {
-            return G3D::fuzzyEq(mod.ModifierValue, 1.0f);
+            return G3D::fuzzyEq(mod.ModifierValue, 0.0f);
         }), pctMod.ModifierData.end());
 
         flatMods.Modifiers.emplace_back(std::move(flatMod));
