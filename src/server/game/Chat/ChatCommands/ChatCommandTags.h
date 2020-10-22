@@ -148,6 +148,19 @@ namespace Trinity::ChatCommands
         TC_GAME_API ChatCommandResult TryConsume(ChatHandler const* handler, std::string_view args);
     };
 
+    struct TC_GAME_API SpellIdentifier : Trinity::Impl::ChatCommands::ContainerTag
+    {
+        using value_type = SpellInfo const*;
+
+        operator uint32() const;
+        operator SpellInfo const* () const;
+
+        ChatCommandResult TryConsume(ChatHandler const* handler, std::string_view args);
+
+    private:
+        SpellInfo const* _spellInfo;
+    };
+
     struct TC_GAME_API AccountIdentifier : Trinity::Impl::ChatCommands::ContainerTag
     {
         using value_type = uint32;

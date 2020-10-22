@@ -24,6 +24,8 @@
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "SpellInfo.h"
+#include "SpellMgr.h"
 
 using namespace Trinity::Impl::ChatCommands;
 
@@ -56,6 +58,36 @@ ChatCommandResult Trinity::ChatCommands::QuotedString::TryConsume(ChatHandler co
     }
     // if we reach this, we did not find a closing quote
     return std::nullopt;
+}
+
+Trinity::ChatCommands::SpellIdentifier::operator uint32() const
+{
+    return _spellInfo->Id;
+}
+
+Trinity::ChatCommands::SpellIdentifier::operator SpellInfo const* () const
+{
+    return _spellInfo;
+}
+
+ChatCommandResult Trinity::ChatCommands::SpellIdentifier::TryConsume(ChatHandler const* handler, std::string_view args)
+{
+    Variant<uint32, Hyperlink<spell>> val;
+    ChatCommandResult next = ArgInfo<decltype(val)>::TryConsume(val, handler, args);
+    if (!next)
+        return next;
+
+    if (val.holds_alternative<uint32>())
+    {
+        uint32 spellId = val.get<uint32>();
+        _spellInfo = sSpellMgr->GetSpellInfo(spellId);
+        if (!_spellInfo)
+            return FormatTrinityString(handler, LANG_CMDPARSER_SPELL_NO_EXIST, spellId);
+    }
+    else
+        _spellInfo = *(val.get<Hyperlink<spell>>());
+
+    return next;
 }
 
 ChatCommandResult Trinity::ChatCommands::AccountIdentifier::TryConsume(ChatHandler const* handler, std::string_view args)
