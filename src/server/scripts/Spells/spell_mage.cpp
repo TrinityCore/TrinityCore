@@ -39,7 +39,6 @@ enum MageSpells
     SPELL_MAGE_ARCANE_POTENCY_TRIGGER_RANK_2     = 57531,
     SPELL_MAGE_ARCANE_BLAST                      = 30451,
     SPELL_MAGE_ARCANE_MISSILES                   = 5143,
-    SPELL_MAGE_ARCANE_MISSILES_DAMAGE            = 7268,
     SPELL_MAGE_ARCANE_MISSILES_AURASTATE         = 79808,
     SPELL_MAGE_BLAZING_SPEED                     = 31643,
     SPELL_MAGE_BRAIN_FREEZE_R1                   = 44546,
@@ -1464,7 +1463,6 @@ class spell_mage_offensive_state_dnd : public AuraScript
         return ValidateSpellInfo(
             {
                 SPELL_MAGE_ARCANE_MISSILES,
-                SPELL_MAGE_ARCANE_MISSILES_DAMAGE,
                 SPELL_MAGE_HOT_STREAK,
                 SPELL_MAGE_BRAIN_FREEZE_R1
             });
@@ -1486,10 +1484,6 @@ class spell_mage_offensive_state_dnd : public AuraScript
 
         // Brain Freeze will no longer allow Arcane Missiles to proc
         if (player->GetAuraOfRankedSpell(SPELL_MAGE_BRAIN_FREEZE_R1))
-            return false;
-
-        // Don't proc Arcane Missiles from triggered Missiles
-        if (eventInfo.GetSpellInfo()->Id == SPELL_MAGE_ARCANE_MISSILES_DAMAGE)
             return false;
 
         return true;
