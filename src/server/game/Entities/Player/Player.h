@@ -869,6 +869,12 @@ enum PlayerCommandStates
     CHEAT_WATERWALK = 0x10
 };
 
+enum PlayerLogXPReason : uint8
+{
+    LOG_XP_REASON_KILL    = 0,
+    LOG_XP_REASON_NO_KILL = 1
+};
+
 struct PlayerPetData
 {
     uint32 PetId;
@@ -1853,7 +1859,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) const override;
         void DestroyForPlayer(Player* target, bool onDeath = false) const override;
-        void SendLogXPGain(uint32 GivenXP, Unit* victim, uint32 BonusXP, bool recruitAFriend = false, float group_rate=1.0f) const;
 
         // notifiers
         void SendAttackSwingCantAttack() const;

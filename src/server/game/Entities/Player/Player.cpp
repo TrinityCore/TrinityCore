@@ -34,8 +34,10 @@
 #include "ChannelMgr.h"
 #include "CharacterCache.h"
 #include "CharacterDatabaseCleaner.h"
+#include "CharacterPackets.h"
 #include "Chat.h"
 #include "CinematicMgr.h"
+#include "CombatLogPackets.h"
 #include "Common.h"
 #include "ConditionMgr.h"
 #include "CreatureAI.h"
@@ -728,13 +730,13 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage type, uint32 damage)
 
     DealDamageMods(this, damage, &absorb);
 
-    WorldPacket data(SMSG_ENVIRONMENTALDAMAGELOG, (21));
-    data << uint64(GetGUID());
-    data << uint8(type != DAMAGE_FALL_TO_VOID ? type : DAMAGE_FALL);
-    data << uint32(damage);
-    data << uint32(absorb);
-    data << uint32(resist);
-    SendMessageToSet(&data, true);
+    WorldPackets::CombatLog::EnvironmentalDamageLog environmentalDamageLog;
+    environmentalDamageLog.Victim = GetGUID();
+    environmentalDamageLog.Type = type != DAMAGE_FALL_TO_VOID ? type : DAMAGE_FALL;
+    environmentalDamageLog.Amount = damage;
+    environmentalDamageLog.Absorbed = absorb;
+    environmentalDamageLog.Resisted = resist;
+    SendMessageToSet(environmentalDamageLog.Write(), true);
 
     uint32 final_damage = DealDamage(this, damage, nullptr, SELF_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
 
@@ -2218,25 +2220,6 @@ void Player::RemoveFromGroup(Group* group, ObjectGuid guid, RemoveMethod method 
     group->RemoveMember(guid, method, kicker, reason);
 }
 
-void Player::SendLogXPGain(uint32 GivenXP, Unit* victim, uint32 BonusXP, bool recruitAFriend, float /*group_rate*/) const
-{
-    WorldPacket data(SMSG_LOG_XPGAIN, 21); // guess size?
-    data << uint64(victim ? victim->GetGUID() : ObjectGuid::Empty);
-    data << uint32(GivenXP + BonusXP);                      // given experience
-    data << uint8(victim ? 0 : 1);                          // 00-kill_xp type, 01-non_kill_xp type
-
-    if (victim)
-    {
-        data << uint32(GivenXP);                            // experience without bonus
-
-        // should use group_rate here but can't figure out how
-        data << float(1);                                   // 1 - none 0 - 100% group bonus output
-    }
-
-    data << uint8(recruitAFriend ? 1 : 0);                  // does the GivenXP include a RaF bonus?
-    SendDirectMessage(&data);
-}
-
 void Player::GiveXP(uint32 xp, Unit* victim, float group_rate)
 {
     if (xp < 1)
@@ -2268,7 +2251,14 @@ void Player::GiveXP(uint32 xp, Unit* victim, float group_rate)
     else
         bonus_xp = victim ? GetXPRestBonus(xp) : 0; // XP resting bonus
 
-    SendLogXPGain(xp, victim, bonus_xp, recruitAFriend, group_rate);
+    WorldPackets::Character::LogXPGain packet;
+    packet.Victim = victim ? victim->GetGUID() : ObjectGuid::Empty;
+    packet.Original = xp + bonus_xp;
+    packet.Reason = victim ? LOG_XP_REASON_KILL : LOG_XP_REASON_NO_KILL;
+    packet.Amount = xp;
+    packet.GroupBonus = group_rate;
+    packet.ReferAFriendBonusType = recruitAFriend ? 1 : 0;
+    SendDirectMessage(packet.Write());
 
     uint32 curXP = GetUInt32Value(PLAYER_XP);
     uint32 nextLvlXP = GetUInt32Value(PLAYER_NEXT_LEVEL_XP);
@@ -23453,10 +23443,10 @@ void Player::SendInitialPacketsAfterAddToMap()
     {
         for (uint8 i = 0; i < MAX_RUNES; i++)
         {
-            WorldPacket data(SMSG_CONVERT_RUNE, 2);
-            data << uint8(i);
-            data << uint8(GetCurrentRune(i));
-            GetSession()->SendPacket(&data);
+            WorldPackets::Spells::ConvertRune packet;
+            packet.Index = i;
+            packet.Rune = GetCurrentRune(i);
+            SendDirectMessage(packet.Write());
         }
     }
 
@@ -25424,29 +25414,27 @@ void Player::ConvertRune(uint8 index, RuneType newType)
 {
     SetCurrentRune(index, newType);
 
-    WorldPacket data(SMSG_CONVERT_RUNE, 2);
-    data << uint8(index);
-    data << uint8(newType);
-    SendDirectMessage(&data);
+    WorldPackets::Spells::ConvertRune packet;
+    packet.Index = index;
+    packet.Rune = newType;
+
+    SendDirectMessage(packet.Write());
 }
 
 void Player::ResyncRunes(uint8 count)
 {
-    WorldPacket data(SMSG_RESYNC_RUNES, 4 + count * 2);
-    data << uint32(count);
+    WorldPackets::Spells::ResyncRunes packet(count);
     for (uint32 i = 0; i < count; ++i)
-    {
-        data << uint8(GetCurrentRune(i));                   // rune type
-        data << uint8(255 - (GetRuneCooldown(i) * 51));     // passed cooldown time (0-255)
-    }
-    SendDirectMessage(&data);
+        packet.Runes.push_back({ uint8(GetCurrentRune(i)), uint8(255 - (GetRuneCooldown(i) * 51)) });
+
+    SendDirectMessage(packet.Write());
 }
 
 void Player::AddRunePower(uint8 mask)
 {
-    WorldPacket data(SMSG_ADD_RUNE_POWER, 4);
-    data << uint32(mask);                             // mask (0x00-0x3F probably)
-    SendDirectMessage(&data);
+    WorldPackets::Spells::AddRunePower packet;
+    packet.AddedRunesMask = mask; // mask (0x00-0x3F probably)
+    SendDirectMessage(packet.Write());
 }
 
 static RuneType runeSlotTypes[MAX_RUNES] =
@@ -28101,9 +28089,10 @@ void Player::ReadMovementInfo(WorldPacket& data, MovementInfo* mi, Movement::Ext
 
 void Player::SendSupercededSpell(uint32 oldSpell, uint32 newSpell) const
 {
-    WorldPacket data(SMSG_SUPERCEDED_SPELL, 8);
-    data << uint32(newSpell) << uint32(oldSpell);
-    SendDirectMessage(&data);
+    WorldPackets::Spells::SupercededSpells packet;
+    packet.SpellID = newSpell;
+    packet.Superceded = oldSpell;
+    SendDirectMessage(packet.Write());
 }
 
 bool Player::ValidateAppearance(uint8 race, uint8 class_, uint8 gender, uint8 hairID, uint8 hairColor, uint8 faceID, uint8 facialStyle, uint8 skinColor, bool create /*=false*/)

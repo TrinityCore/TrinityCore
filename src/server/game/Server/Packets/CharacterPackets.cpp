@@ -287,3 +287,18 @@ void WorldPackets::Character::PlayerLogin::Read()
     _worldPacket.ReadByteSeq(Guid[1]);
     _worldPacket.ReadByteSeq(Guid[4]);
 }
+
+WorldPacket const* WorldPackets::Character::LogXPGain::Write()
+{
+    _worldPacket << Victim;
+    _worldPacket << int32(Original);
+    _worldPacket << uint8(Reason);
+    if (!Reason)
+    {
+        _worldPacket << int32(Amount);
+        _worldPacket << float(GroupBonus);
+    }
+    _worldPacket << uint8(ReferAFriendBonusType);
+
+    return &_worldPacket;
+}

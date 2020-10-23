@@ -406,3 +406,38 @@ WorldPacket const* WorldPackets::Spells::SetSpellModifier::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Spells::ConvertRune::Write()
+{
+    _worldPacket << uint8(Index);
+    _worldPacket << uint8(Rune);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Spells::ResyncRunes::Write()
+{
+    _worldPacket << uint32(Runes.size());
+    for (auto const& rune : Runes)
+    {
+        _worldPacket << uint8(rune.RuneType);
+        _worldPacket << uint8(rune.Cooldown);
+    }
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Spells::AddRunePower::Write()
+{
+    _worldPacket << uint32(AddedRunesMask);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Spells::SupercededSpells::Write()
+{
+    _worldPacket << int32(SpellID);
+    _worldPacket << int32(Superceded);
+
+    return &_worldPacket;
+}

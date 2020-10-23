@@ -87,6 +87,20 @@ namespace WorldPackets
             int32 Type = 0;
             int32 Amount = 0;
         };
+
+        class EnvironmentalDamageLog final : public ServerPacket
+        {
+        public:
+            EnvironmentalDamageLog() : ServerPacket(SMSG_ENVIRONMENTAL_DAMAGE_LOG, 8 + 4 + 4 + 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Victim;
+            int32 Amount = 0;
+            int32 Resisted = 0;
+            int32 Absorbed = 0;
+            uint8 Type = 0; ///< @see enum EnviromentalDamage
+        };
     }
 }
 

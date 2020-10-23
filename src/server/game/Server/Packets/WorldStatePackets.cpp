@@ -18,11 +18,11 @@
 #include "WorldStatePackets.h"
 
 WorldPackets::WorldState::InitWorldStates::InitWorldStates()
-    : ServerPacket(SMSG_INIT_WORLD_STATES, 14) { }
+    : ServerPacket(SMSG_INIT_WORLD_STATES, 4 + 4 + 4 + 2) { }
 
 WorldPacket const* WorldPackets::WorldState::InitWorldStates::Write()
 {
-    _worldPacket.reserve(16 + Worldstates.size() * 8);
+    _worldPacket.reserve(4 + 4 + 4 + 2 + Worldstates.size() * 8);
 
     _worldPacket << int32(MapID);
     _worldPacket << int32(AreaID);
@@ -39,7 +39,7 @@ WorldPacket const* WorldPackets::WorldState::InitWorldStates::Write()
 }
 
 WorldPackets::WorldState::UpdateWorldState::UpdateWorldState()
-    : ServerPacket(SMSG_UPDATE_WORLD_STATE, 9) { }
+    : ServerPacket(SMSG_UPDATE_WORLD_STATE, 4 + 4 + 1) { }
 
 WorldPacket const* WorldPackets::WorldState::UpdateWorldState::Write()
 {

@@ -79,3 +79,14 @@ WorldPacket const* WorldPackets::CombatLog::SpellEnergizeLog::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::CombatLog::EnvironmentalDamageLog::Write()
+{
+    _worldPacket << Victim;
+    _worldPacket << uint8(Type);
+    _worldPacket << int32(Amount);
+    _worldPacket << int32(Absorbed);
+    _worldPacket << int32(Resisted);
+
+    return &_worldPacket;
+}
