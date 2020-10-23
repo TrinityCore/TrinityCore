@@ -888,11 +888,11 @@ class TC_GAME_API Unit : public WorldObject
         void UpdateDisplayPower();
         uint32 GetPower(Powers power) const { return GetUInt32Value(UNIT_FIELD_POWER1   +power); }
         uint32 GetMaxPower(Powers power) const { return GetUInt32Value(UNIT_FIELD_MAXPOWER1+power); }
-        void SetPower(Powers power, uint32 val);
+        void SetPower(Powers power, uint32 val, bool withPowerUpdate = true);
         void SetMaxPower(Powers power, uint32 val);
         inline void SetFullPower(Powers power) { SetPower(power, GetMaxPower(power)); }
         // returns the change in power
-        int32 ModifyPower(Powers power, int32 val);
+        int32 ModifyPower(Powers power, int32 val, bool withPowerUpdate = true);
 
         uint32 GetAttackTime(WeaponAttackType att) const;
         void SetAttackTime(WeaponAttackType att, uint32 val) { SetFloatValue(UNIT_FIELD_BASEATTACKTIME+att, val*m_modAttackSpeedPct[att]); }
