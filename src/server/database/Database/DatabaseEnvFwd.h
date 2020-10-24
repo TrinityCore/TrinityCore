@@ -72,8 +72,8 @@ using LoginDatabaseTransaction = SQLTransaction<LoginDatabaseConnection>;
 using WorldDatabaseTransaction = SQLTransaction<WorldDatabaseConnection>;
 
 class SQLQueryHolderBase;
-using QueryResultHolderFuture = std::future<SQLQueryHolderBase*>;
-using QueryResultHolderPromise = std::promise<SQLQueryHolderBase*>;
+using QueryResultHolderFuture = std::future<void>;
+using QueryResultHolderPromise = std::promise<void>;
 
 template<typename T>
 class SQLQueryHolder;
