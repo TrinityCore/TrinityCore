@@ -1124,54 +1124,51 @@ public:
 
 void WorldSession::InitializeSession()
 {
-    AccountInfoQueryHolderPerRealm* realmHolder = new AccountInfoQueryHolderPerRealm();
+    std::shared_ptr<AccountInfoQueryHolderPerRealm> realmHolder = std::make_shared<AccountInfoQueryHolderPerRealm>();
     if (!realmHolder->Initialize(GetAccountId(), GetBattlenetAccountId()))
     {
-        delete realmHolder;
         SendAuthResponse(ERROR_INTERNAL, false);
         return;
     }
 
-    AccountInfoQueryHolder* holder = new AccountInfoQueryHolder();
+    std::shared_ptr<AccountInfoQueryHolder> holder = std::make_shared<AccountInfoQueryHolder>();
     if (!holder->Initialize(GetAccountId(), GetBattlenetAccountId()))
     {
-        delete realmHolder;
-        delete holder;
         SendAuthResponse(ERROR_INTERNAL, false);
         return;
     }
 
     struct ForkJoinState
     {
-        AccountInfoQueryHolderPerRealm* Character = nullptr;
-        AccountInfoQueryHolder* Login = nullptr;
+        std::shared_ptr<AccountInfoQueryHolderPerRealm> Character;
+        std::shared_ptr<AccountInfoQueryHolder> Login;
     };
 
     std::shared_ptr<ForkJoinState> state = std::make_shared<ForkJoinState>();
 
-    AddQueryHolderCallback(CharacterDatabase.DelayQueryHolder(realmHolder)).AfterComplete([this, state](SQLQueryHolderBase* result)
+    AddQueryHolderCallback(CharacterDatabase.DelayQueryHolder(realmHolder)).AfterComplete([this, state, realmHolder](SQLQueryHolderBase const& /*result*/)
     {
-        state->Character = static_cast<AccountInfoQueryHolderPerRealm*>(result);
+        state->Character = realmHolder;
         if (state->Login && state->Character)
-            InitializeSessionCallback(state->Login, state->Character);
+            InitializeSessionCallback(*state->Login, *state->Character);
     });
 
-    AddQueryHolderCallback(LoginDatabase.DelayQueryHolder(holder)).AfterComplete([this, state](SQLQueryHolderBase* result)
+    AddQueryHolderCallback(LoginDatabase.DelayQueryHolder(holder)).AfterComplete([this, state, holder](SQLQueryHolderBase const& /*result*/)
     {
-        state->Login = static_cast<AccountInfoQueryHolder*>(result);
+        state->Login = holder;
         if (state->Login && state->Character)
-            InitializeSessionCallback(state->Login, state->Character);
+            InitializeSessionCallback(*state->Login, *state->Character);
     });
 }
 
-void WorldSession::InitializeSessionCallback(LoginDatabaseQueryHolder* holder, CharacterDatabaseQueryHolder* realmHolder)
+void WorldSession::InitializeSessionCallback(LoginDatabaseQueryHolder const& holder, CharacterDatabaseQueryHolder const& realmHolder)
 {
-    LoadAccountData(realmHolder->GetPreparedResult(AccountInfoQueryHolderPerRealm::GLOBAL_ACCOUNT_DATA), GLOBAL_CACHE_MASK);
-    LoadTutorialsData(realmHolder->GetPreparedResult(AccountInfoQueryHolderPerRealm::TUTORIALS));
-    _collectionMgr->LoadAccountToys(holder->GetPreparedResult(AccountInfoQueryHolder::GLOBAL_ACCOUNT_TOYS));
-    _collectionMgr->LoadAccountHeirlooms(holder->GetPreparedResult(AccountInfoQueryHolder::GLOBAL_ACCOUNT_HEIRLOOMS));
-    _collectionMgr->LoadAccountMounts(holder->GetPreparedResult(AccountInfoQueryHolder::MOUNTS));
-    _collectionMgr->LoadAccountItemAppearances(holder->GetPreparedResult(AccountInfoQueryHolder::ITEM_APPEARANCES), holder->GetPreparedResult(AccountInfoQueryHolder::ITEM_FAVORITE_APPEARANCES));
+    LoadAccountData(realmHolder.GetPreparedResult(AccountInfoQueryHolderPerRealm::GLOBAL_ACCOUNT_DATA), GLOBAL_CACHE_MASK);
+    LoadTutorialsData(realmHolder.GetPreparedResult(AccountInfoQueryHolderPerRealm::TUTORIALS));
+    _collectionMgr->LoadAccountToys(holder.GetPreparedResult(AccountInfoQueryHolder::GLOBAL_ACCOUNT_TOYS));
+    _collectionMgr->LoadAccountHeirlooms(holder.GetPreparedResult(AccountInfoQueryHolder::GLOBAL_ACCOUNT_HEIRLOOMS));
+    _collectionMgr->LoadAccountMounts(holder.GetPreparedResult(AccountInfoQueryHolder::MOUNTS));
+    _collectionMgr->LoadAccountItemAppearances(holder.GetPreparedResult(AccountInfoQueryHolder::ITEM_APPEARANCES), holder.GetPreparedResult(AccountInfoQueryHolder::ITEM_FAVORITE_APPEARANCES));
 
     if (!m_inQueue)
         SendAuthResponse(ERROR_OK, false);
@@ -1188,7 +1185,7 @@ void WorldSession::InitializeSessionCallback(LoginDatabaseQueryHolder* holder, C
     SendAccountDataTimes(ObjectGuid::Empty, GLOBAL_CACHE_MASK);
     SendTutorialsData();
 
-    if (PreparedQueryResult characterCountsResult = holder->GetPreparedResult(AccountInfoQueryHolder::GLOBAL_REALM_CHARACTER_COUNTS))
+    if (PreparedQueryResult characterCountsResult = holder.GetPreparedResult(AccountInfoQueryHolder::GLOBAL_REALM_CHARACTER_COUNTS))
     {
         do
         {
@@ -1202,11 +1199,8 @@ void WorldSession::InitializeSessionCallback(LoginDatabaseQueryHolder* holder, C
     bnetConnected.State = 1;
     SendPacket(bnetConnected.Write());
 
-    _battlePetMgr->LoadFromDB(holder->GetPreparedResult(AccountInfoQueryHolder::BATTLE_PETS),
-                              holder->GetPreparedResult(AccountInfoQueryHolder::BATTLE_PET_SLOTS));
-
-    delete realmHolder;
-    delete holder;
+    _battlePetMgr->LoadFromDB(holder.GetPreparedResult(AccountInfoQueryHolder::BATTLE_PETS),
+                              holder.GetPreparedResult(AccountInfoQueryHolder::BATTLE_PET_SLOTS));
 }
 
 rbac::RBACData* WorldSession::GetRBACData()
