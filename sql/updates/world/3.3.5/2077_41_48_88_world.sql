@@ -10,6 +10,9 @@ UPDATE `creature_template` SET `ScriptName` = 'npc_sir_thomas' WHERE `entry` = 2
 UPDATE `creature_model_info` SET `BoundingRadius` = 0.75, `CombatReach` = 2.25 WHERE `DisplayID` = 22351;
 UPDATE `creature_model_info` SET `BoundingRadius` = 0.5, `CombatReach` = 1 WHERE `DisplayID` = 24720;
 UPDATE `creature_model_info` SET `BoundingRadius` = 0.75, `CombatReach` = 1.125 WHERE `DisplayID` = 21822;
+-- AllowableRaces for Sir Thomas' quests
+UPDATE `quest_template` SET `AllowableRaces` = 1101 WHERE `ID` = 11242;
+UPDATE `quest_template` SET `AllowableRaces` = 690 WHERE `ID` = 11403;
 
 DELETE FROM `spell_script_names` WHERE `ScriptName` IN
 ('spell_headless_horseman_yell_timer',
