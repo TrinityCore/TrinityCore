@@ -22,6 +22,7 @@
 #include "InstanceScript.h"
 #include "Map.h"
 #include "ScriptMgr.h"
+#include "TemporarySummon.h"
 
 ObjectData const creatureData[] =
 {
