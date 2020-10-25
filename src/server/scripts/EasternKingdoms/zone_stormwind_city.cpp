@@ -389,7 +389,10 @@ public:
                             break;
                         case 2:
                             if (Creature* pTyrion = me->FindNearestCreature(NPC_TYRION, 10.0f))
-                                pTyrion->AI()->Talk(SAY_TYRION_1);
+                            {
+                                if (Player* player = GetPlayerForEscort())
+                                    pTyrion->AI()->Talk(SAY_TYRION_1, player);
+                            }
                             uiTimer = 3000;
                             uiPhase = 3;
                             break;

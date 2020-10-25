@@ -108,7 +108,7 @@ namespace Trinity::ChatCommands
         private:
             static constexpr std::array<char, sizeof...(chars)> _storage = { chars... };
             static_assert(!_storage.empty() && (_storage.back() == '\0'), "ExactSequence parameters must be null terminated! Use the EXACT_SEQUENCE macro to make this easier!");
-            static constexpr std::string_view _string = { _storage.data() };
+            static constexpr std::string_view _string = { _storage.data(), std::string_view::traits_type::length(_storage.data()) };
     };
 
 #define EXACT_SEQUENCE(str) Trinity::ChatCommands::ExactSequence<CHATCOMMANDS_IMPL_SPLIT_LITERAL(str)>
