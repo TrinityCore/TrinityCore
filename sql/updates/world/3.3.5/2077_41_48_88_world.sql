@@ -45,7 +45,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` IN (42410, 43101, 43306);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorType`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
 (13,1,42410,0,0,31,0,3,23775,0,0,0,0,'','Effect_0 hits Head of the Horseman'), -- Headless Horseman Climax - Command, Head Repositions
-(13,1,43101,0,0,31,0,3,23682,0,0,0,0,'','Effect_0 hits Headless Horseman'),    -- Headless Horseman Climax - Command, Head Requests Body
+(13,1,43306,0,0,31,0,3,23682,0,0,0,0,'','Effect_0 hits Headless Horseman'),    -- Headless Horseman Climax - Command, Head Requests Body
 (13,1,43101,0,0,31,0,3,23682,0,0,0,0,'','Effect_0 hits Headless Horseman');    -- Headless Horseman Climax - Heal Body
 
 DELETE FROM `creature_text` WHERE `CreatureID` IN (23682,23775);
