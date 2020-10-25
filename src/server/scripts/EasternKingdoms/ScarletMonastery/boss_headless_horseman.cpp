@@ -473,6 +473,7 @@ struct boss_headless_horseman : public ScriptedAI
 
     void StartPhase(uint8 nextPhase)
     {
+        DoCastSelf(SPELL_HEADLESS_HORSEMAN_C_BODY_REGEN_IMMUNE, true);
         _events.SetPhase(nextPhase);
         me->SetReactState(REACT_PASSIVE);
         me->AttackStop();
@@ -560,7 +561,6 @@ struct boss_headless_horseman : public ScriptedAI
                     if (Creature* head = _instance->GetCreature(DATA_HORSEMAN_HEAD))
                         DoCast(head, SPELL_HEADLESS_HORSEMAN_C_SEND_HEAD, true);
                     DoCastSelf(SPELL_HEADLESS_HORSEMAN_C_BODY_REGEN_CONFUSE, true);
-                    DoCastSelf(SPELL_HEADLESS_HORSEMAN_C_BODY_REGEN_IMMUNE, true);
                     me->RemoveAurasDueToSpell(SPELL_HEADLESS_HORSEMAN_C_HEAD_VISUAL);
                     DoCastSelf(SPELL_HEADLESS_HORSEMAN_C_BODY_REGEN_TRANSFORM, true);
                     break;
@@ -707,6 +707,7 @@ struct npc_sir_thomas : public PassiveAI
 
     void Reset() override
     {
+        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         DoCastSelf(SPELL_HEADLESS_HORSEMAN_WISP_INVIS);
 
@@ -721,6 +722,7 @@ struct npc_sir_thomas : public PassiveAI
         if (spellInfo->Id == SPELL_HEADLESS_HORSEMAN_WISP_FLIGHT_PORT)
         {
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
             me->RemoveAurasDueToSpell(SPELL_HEADLESS_HORSEMAN_WISP_INVIS);
             DoCastSelf(SPELL_HEADLESS_HORSEMAN_C_GHOST_VISUAL, true);
         }

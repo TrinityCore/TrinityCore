@@ -42,17 +42,11 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (42821,'spell_headless_horseman_wisp_teleport'),
 (42818,'spell_headless_horseman_wisp_teleport');
 
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=42410; -- Headless Horseman Climax - Command, Head Repositions
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(13,1,42410,0,0,31,0,3,23775,0,0,0,0,'','Effect_0 hits Head of the Horseman');
-
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=43306; -- Headless Horseman Climax - Heal Body
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(13,1,43306,0,0,31,0,3,23682,0,0,0,0,'','Effect_0 hits Headless Horseman');
-
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=43101; -- Headless Horseman Climax - Command, Head Requests Body
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(13,1,43101,0,0,31,0,3,23682,0,0,0,0,'','Effect_0 hits Headless Horseman');
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` IN (42410, 43101, 43306);
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorType`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
+(13,1,42410,0,0,31,0,3,23775,0,0,0,0,'','Effect_0 hits Head of the Horseman'), -- Headless Horseman Climax - Command, Head Repositions
+(13,1,43101,0,0,31,0,3,23682,0,0,0,0,'','Effect_0 hits Headless Horseman'),    -- Headless Horseman Climax - Command, Head Requests Body
+(13,1,43101,0,0,31,0,3,23682,0,0,0,0,'','Effect_0 hits Headless Horseman');    -- Headless Horseman Climax - Heal Body
 
 DELETE FROM `creature_text` WHERE `CreatureID` IN (23682,23775);
 INSERT INTO `creature_text` (`CreatureID`,`GroupID`,`ID`,`Text`,`Type`,`Language`,`Probability`,`Emote`,`Duration`,`Sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES
