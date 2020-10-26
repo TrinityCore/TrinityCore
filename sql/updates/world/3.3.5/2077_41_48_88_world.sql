@@ -2,10 +2,11 @@
 UPDATE `gameobject_template` SET `ScriptName` = 'go_headless_horseman_pumpkin' WHERE `entry` = 186267;
 -- Creature Updates
 UPDATE `creature_template` SET `flags_extra` = `flags_extra`|512|2097152 WHERE `entry` = 23682;
-UPDATE `creature_template` SET `flags_extra` =`flags_extra`|512 WHERE `entry` = 23694;
+UPDATE `creature_template` SET `flags_extra` =`flags_extra`|512, `ScriptName` = 'npc_pulsing_pumpkin' WHERE `entry` = 23694;
 UPDATE `creature_template` SET `ScriptName` = 'npc_flame_bunny' WHERE `entry` = 23686;
-UPDATE `creature_template` SET `ScriptName` = 'npc_headless_horseman_head' WHERE `entry` = 23775;
+UPDATE `creature_template` SET `ScriptName` = 'npc_headless_horseman_head', `mechanic_immune_mask`=617299827 WHERE `entry` = 23775;
 UPDATE `creature_template` SET `ScriptName` = 'npc_sir_thomas' WHERE `entry` = 23904;
+UPDATE `creature_template` SET `ScriptName` = '' WHERE `entry` = 24034;
 -- Model Updates
 UPDATE `creature_model_info` SET `BoundingRadius` = 0.75, `CombatReach` = 2.25 WHERE `DisplayID` = 22351;
 UPDATE `creature_model_info` SET `BoundingRadius` = 0.5, `CombatReach` = 1 WHERE `DisplayID` = 24720;
