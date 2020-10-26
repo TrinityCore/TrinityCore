@@ -100,11 +100,6 @@ class instance_scarlet_monastery : public InstanceMapScript
                 }
             }
 
-            bool IsEncounterInProgress() const override
-            {
-                return InstanceScript::IsEncounterInProgress() && _horsemanState == IN_PROGRESS;
-            }
-
             uint32 GetData(uint32 type) const override
             {
                 switch (type)
