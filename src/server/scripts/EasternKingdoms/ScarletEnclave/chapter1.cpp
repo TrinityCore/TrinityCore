@@ -893,59 +893,6 @@ class spell_deliver_stolen_horse : public SpellScript
     }
 };
 
-/*######
-## npc_ros_dark_rider
-######*/
-
-class npc_ros_dark_rider : public CreatureScript
-{
-public:
-    npc_ros_dark_rider() : CreatureScript("npc_ros_dark_rider") { }
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_ros_dark_riderAI(creature);
-    }
-
-    struct npc_ros_dark_riderAI : public ScriptedAI
-    {
-        npc_ros_dark_riderAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void JustEngagedWith(Unit* /*who*/) override
-        {
-            me->ExitVehicle();
-        }
-
-        void Reset() override
-        {
-            Creature* deathcharger = me->FindNearestCreature(28782, 30);
-            if (!deathcharger)
-                return;
-
-            deathcharger->RestoreFaction();
-            deathcharger->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-            deathcharger->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            if (!me->GetVehicle() && deathcharger->IsVehicle() && deathcharger->GetVehicleKit()->HasEmptySeat(0))
-                me->EnterVehicle(deathcharger);
-        }
-
-        void JustDied(Unit* killer) override
-        {
-            Creature* deathcharger = me->FindNearestCreature(28782, 30);
-            if (!deathcharger || !killer)
-                return;
-
-            if (killer->GetTypeId() == TYPEID_PLAYER && deathcharger->GetTypeId() == TYPEID_UNIT && deathcharger->IsVehicle())
-            {
-                deathcharger->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-                deathcharger->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                deathcharger->SetFaction(FACTION_SCARLET_CRUSADE_2);
-            }
-        }
-    };
-
-};
-
 // correct way: 52312 52314 52555 ...
 enum TheGiftThatKeepsOnGiving
 {
@@ -1118,7 +1065,6 @@ void AddSC_the_scarlet_enclave_c1()
     new npc_salanar_the_horseman();
     RegisterSpellScript(spell_stable_master_repo);
     RegisterSpellScript(spell_deliver_stolen_horse);
-    new npc_ros_dark_rider();
     new npc_dkc1_gothik();
     RegisterCreatureAI(npc_scarlet_ghoul);
     RegisterSpellScript(spell_gift_of_the_harvester);
