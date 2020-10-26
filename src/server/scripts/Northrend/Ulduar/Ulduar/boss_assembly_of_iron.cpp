@@ -163,7 +163,6 @@ CreatureBoundary const ArenaBoundaries = { &AssemblyBoundary };
 
 namespace AOIEncounterHelper
 {
-    // Let's use cheap AI macros instead of having the SpellMgr go through storages
     void CleanupAuras(Creature const* creature, InstanceScript* instance)
     {
         instance->DoRemoveAurasDueToSpellOnPlayers(sSpellMgr->GetSpellIdForDifficulty(SPELL_FUSION_PUNCH, creature));
