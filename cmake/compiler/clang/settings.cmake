@@ -90,9 +90,7 @@ if(MSAN)
     INTERFACE
       -fno-omit-frame-pointer
       -fsanitize=memory
-      -fsanitize-memory-track-origins
-      -mllvm
-      -msan-keep-going=1)
+      -fsanitize-memory-track-origins)
 
   message(STATUS "Clang: Enabled Memory Sanitizer MSan")
 endif()
