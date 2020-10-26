@@ -140,7 +140,7 @@ if(TSAN)
   message("")
   message(" *** TSAN - WARNING!")
   message(" *** Please note that this is for DEBUGGING WITH THREAD SANITIZER only!")
-  add_definitions(-DTSAN)
+  add_definitions(-DTSAN -DNO_BUFFERPOOL)
 endif()
 
 if(PERFORMANCE_PROFILING)
