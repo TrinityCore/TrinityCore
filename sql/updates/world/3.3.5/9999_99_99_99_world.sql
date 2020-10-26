@@ -25,5 +25,14 @@ DELETE FROM `creature_text` WHERE `CreatureID`=28782;
 INSERT INTO `creature_text` (`CreatureID`,`GroupID`,`ID`,`Text`,`Type`,`Language`,`Probability`,`Emote`,`Duration`,`Sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES
 (28782,0,0,"%s rears up, beckoning you to ride it.",16,0,100,0,0,0,29069,0,"Acherus Deathcharger");
 
-UPDATE `npc_spellclick_spells` SET `spell_id`=46598 WHERE `npc_entry`=28782;
+DELETE FROM `npc_spellclick_spells` WHERE `npc_entry`=28782;
+INSERT INTO `npc_spellclick_spells` (`npc_entry`,`spell_id`,`cast_flags`,`user_type`) VALUES
+(28782,46598,1,0),
+(28782,52349,1,0);
 
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=18 AND `SourceGroup`=28782;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=52349;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorType`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
+(18,28782,46598,0,0,31,0,3,0,0,0,0,0,'','Allow spellclick for NPC'),
+(18,28782,52349,0,0,9,0,12687,0,0,0,0,0,'','Required quest 12687 active for spellclick'),
+(13,1,52349,0,0,31,0,3,28782,0,0,0,0,'','Target Acherus Deathcharger');
