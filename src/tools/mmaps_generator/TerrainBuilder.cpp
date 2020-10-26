@@ -516,7 +516,8 @@ namespace MMAP
                         meshData.solidTris.append(ttris[k]);
 
                 // advance to next set of triangles
-                ltris += 3;
+                if (useLiquid)
+                    ltris += 3;
                 ttris += 3*tTriCount/2;
             }
         }
