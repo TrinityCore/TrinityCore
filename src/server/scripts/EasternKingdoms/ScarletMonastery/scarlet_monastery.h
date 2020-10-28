@@ -24,7 +24,7 @@
 #define SMScriptName "instance_scarlet_monastery"
 #define DataHeader "SM"
 
-uint32 const EncounterCount = 10;
+uint32 const EncounterCount = 9;
 
 Position const BunnySpawnPosition                = { 1776.27f, 1348.74f, 19.20f };
 Position const EarthBunnySpawnPosition           = { 1765.28f, 1347.46f, 18.55f, 6.17f };
