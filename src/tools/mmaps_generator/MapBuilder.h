@@ -97,14 +97,15 @@ namespace MMAP
         public:
             MapBuilder(Optional<float> maxWalkableAngle,
                 Optional<float> maxWalkableAngleNotSteep,
-                bool skipLiquid          = false,
-                bool skipContinents      = false,
-                bool skipJunkMaps        = true,
-                bool skipBattlegrounds   = false,
-                bool debugOutput         = false,
-                bool bigBaseUnit         = false,
-                int mapid                = -1,
-                char const* offMeshFilePath = nullptr);
+                bool skipLiquid,
+                bool skipContinents,
+                bool skipJunkMaps,
+                bool skipBattlegrounds,
+                bool debugOutput,
+                bool bigBaseUnit,
+                int mapid,
+                char const* offMeshFilePath,
+                unsigned int threads);
 
             ~MapBuilder();
 
@@ -116,7 +117,7 @@ namespace MMAP
             void buildSingleTile(uint32 mapID, uint32 tileX, uint32 tileY);
 
             // builds list of maps, then builds all of mmap tiles (based on the skip settings)
-            void buildAllMaps(unsigned int threads);
+            void buildAllMaps();
 
             void WorkerThread();
 
@@ -158,6 +159,7 @@ namespace MMAP
             bool m_debugOutput;
 
             char const* m_offMeshFilePath;
+            unsigned int m_threads;
             bool m_skipContinents;
             bool m_skipJunkMaps;
             bool m_skipBattlegrounds;

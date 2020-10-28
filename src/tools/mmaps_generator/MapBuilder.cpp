@@ -33,10 +33,11 @@ namespace MMAP
 {
     MapBuilder::MapBuilder(Optional<float> maxWalkableAngle, Optional<float> maxWalkableAngleNotSteep, bool skipLiquid,
         bool skipContinents, bool skipJunkMaps, bool skipBattlegrounds,
-        bool debugOutput, bool bigBaseUnit, int mapid, char const* offMeshFilePath) :
+        bool debugOutput, bool bigBaseUnit, int mapid, char const* offMeshFilePath, unsigned int threads) :
         m_terrainBuilder     (nullptr),
         m_debugOutput        (debugOutput),
         m_offMeshFilePath    (offMeshFilePath),
+        m_threads            (threads),
         m_skipContinents     (skipContinents),
         m_skipJunkMaps       (skipJunkMaps),
         m_skipBattlegrounds  (skipBattlegrounds),
@@ -187,11 +188,11 @@ namespace MMAP
         }
     }
 
-    void MapBuilder::buildAllMaps(unsigned int threads)
+    void MapBuilder::buildAllMaps()
     {
-        printf("Using %u threads to extract mmaps\n", threads);
+        printf("Using %u threads to extract mmaps\n", m_threads);
 
-        for (unsigned int i = 0; i < threads; ++i)
+        for (unsigned int i = 0; i < m_threads; ++i)
         {
             _workerThreads.push_back(std::thread(&MapBuilder::WorkerThread, this));
         }
@@ -206,7 +207,7 @@ namespace MMAP
             uint32 mapId = it->m_mapId;
             if (!shouldSkipMap(mapId))
             {
-                if (threads > 0)
+                if (m_threads > 0)
                     _queue.Push(mapId);
                 else
                     buildMap(mapId);

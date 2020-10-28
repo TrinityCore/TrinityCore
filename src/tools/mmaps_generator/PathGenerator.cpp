@@ -327,7 +327,7 @@ int main(int argc, char** argv)
         return silent ? -5 : finish("Failed to load LiquidType.dbc", -5);
 
     MapBuilder builder(maxAngle, maxAngleNotSteep, skipLiquid, skipContinents, skipJunkMaps,
-                       skipBattlegrounds, debugOutput, bigBaseUnit, mapnum, offMeshInputPath);
+                       skipBattlegrounds, debugOutput, bigBaseUnit, mapnum, offMeshInputPath, threads);
 
     uint32 start = getMSTime();
     if (file)
@@ -337,7 +337,7 @@ int main(int argc, char** argv)
     else if (mapnum >= 0)
         builder.buildMap(uint32(mapnum));
     else
-        builder.buildAllMaps(threads);
+        builder.buildAllMaps();
 
     if (!silent)
         printf("Finished. MMAPS were built in %s\n", secsToTimeString(GetMSTimeDiffToNow(start) / 1000).c_str());
