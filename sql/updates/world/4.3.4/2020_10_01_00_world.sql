@@ -39,9 +39,9 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (13, 7, 61920, 0, 0, 31, 0, 3, 32867, 0, 0, 0, '', 'Supercharge - Target Steelbreaker'),
 (13, 7, 61920, 0, 1, 31, 0, 3, 32927, 0, 0, 0, '', 'Supercharge - Target Runemaster Molgeim'),
 (13, 7, 61920, 0, 2, 31, 0, 3, 32857, 0, 0, 0, '', 'Supercharge - Target Stormcaller Brundir'),
-(13, 7, 64320, 0, 0, 31, 0, 3, 32867, 0, 0, 0, '', 'Rune of Power - Target Steelbreaker'),
-(13, 7, 64320, 0, 1, 31, 0, 3, 32927, 0, 0, 0, '', 'Rune of Power - Target Runemaster Molgeim'),
-(13, 7, 64320, 0, 2, 31, 0, 3, 32857, 0, 0, 0, '', 'Rune of Power - Target Stormcaller Brundir');
+(13, 1, 64320, 0, 0, 31, 0, 3, 32867, 0, 0, 0, '', 'Rune of Power - Target Steelbreaker'),
+(13, 1, 64320, 0, 1, 31, 0, 3, 32927, 0, 0, 0, '', 'Rune of Power - Target Runemaster Molgeim'),
+(13, 1, 64320, 0, 2, 31, 0, 3, 32857, 0, 0, 0, '', 'Rune of Power - Target Stormcaller Brundir');
 
 -- Spell Scripts
 DELETE FROM `spell_script_names` WHERE `ScriptName` IN 
