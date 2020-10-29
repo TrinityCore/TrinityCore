@@ -21,9 +21,9 @@
 
 enum Spells
 {
-    SPELL_FIREBALL           = 12466, //starts 1-2 secs from pull
-    SPELL_OVERHEAT           = 86633, //probably cast every 10 secs, need to confirm.
-    SPELL_RAIN_OF_FIRE       = 86636  //probably cast every 10 secs, need to confirm
+    SPELL_FIREBALL      = 12466,
+    SPELL_OVERHEAT      = 86633,
+    SPELL_RAIN_OF_FIRE  = 86636
 };
 
 enum Events
@@ -35,80 +35,69 @@ enum Events
 
 enum Says
 {
-    SAY_PULL  = 0, //Yell: ALL MUST BURN!
-    SAY_DEATH = 1  //Yell: FIRE... EXTINGUISHED!
+    SAY_AGGRO = 0,
+    SAY_DEATH = 1
 };
 
-class boss_lord_overheat : public CreatureScript
+struct boss_lord_overheat : public BossAI
 {
-public:
-    boss_lord_overheat() : CreatureScript("boss_lord_overheat") {}
+    boss_lord_overheat(Creature* creature) : BossAI(creature, DATA_LORD_OVERHEAT) { }
 
-    struct boss_lord_overheatAI : public BossAI
+    void JustEngagedWith(Unit* who) override
     {
-        boss_lord_overheatAI(Creature* creature) : BossAI(creature, DATA_LORD_OVERHEAT) { }
+        BossAI::JustEngagedWith(who);
+        Talk(SAY_AGGRO);
+        events.ScheduleEvent(EVENT_FIREBALL, 2s);
+        events.ScheduleEvent(EVENT_OVERHEAT, 9s, 11s);
+        events.ScheduleEvent(EVENT_RAIN_OF_FIRE, 10s, 13s);
+    }
 
-        void JustEngagedWith(Unit* who) override
+    void JustDied(Unit* /*killer*/) override
+    {
+        Talk(SAY_DEATH);
+        _JustDied();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            BossAI::JustEngagedWith(who);
-            Talk(SAY_PULL);
-            events.ScheduleEvent(EVENT_FIREBALL, Seconds(2));
-            events.ScheduleEvent(EVENT_OVERHEAT, Seconds(9), Seconds(11));
-            events.ScheduleEvent(EVENT_RAIN_OF_FIRE, Seconds(10), Seconds(13));
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            Talk(SAY_DEATH);
-            _JustDied();
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 eventId = events.ExecuteEvent())
+            switch (eventId)
             {
-                switch (eventId)
-                {
                 case EVENT_FIREBALL:
                     DoCastVictim(SPELL_FIREBALL);
-                    events.Repeat(Seconds(2));
+                    events.Repeat(2s);
                     break;
                 case EVENT_OVERHEAT:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                         DoCast(target, SPELL_OVERHEAT);
-                    events.Repeat(Seconds(9), Seconds(10));
+                    events.Repeat(9s, 10s);
                     break;
                 case EVENT_RAIN_OF_FIRE:
                     DoCastAOE(SPELL_RAIN_OF_FIRE);
-                    events.Repeat(Seconds(15), Seconds(20));
+                    events.Repeat(15s, 20s);
                     break;
                 default:
                     break;
-                }
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
             }
 
-            DoMeleeAttackIfReady();
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
-    };
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetStormwindStockadeAI<boss_lord_overheatAI>(creature);
+        DoMeleeAttackIfReady();
     }
 };
 
 void AddSC_boss_lord_overheat()
 {
-    new boss_lord_overheat();
+    RegisterStormwindStockadeAI(boss_lord_overheat);
 }
