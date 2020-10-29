@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "scarlet_monastery.h"
@@ -301,7 +302,7 @@ struct npc_high_inquisitor_whitemane : public ScriptedAI
         }
     }
 
-    void MovementInform(uint32 type, uint32 pointId)
+    void MovementInform(uint32 type, uint32 pointId) override
     {
         if (type != POINT_MOTION_TYPE)
             return;
