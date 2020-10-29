@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "Creature.h"
+#include "EventMap.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
@@ -24,17 +25,29 @@
 
 ObjectData const creatureData[] =
 {
-    { BOSS_INTERROGATOR_VISHAS,         DATA_INTERROGATOR_VISHAS    },
-    { BOSS_BLOODMAGE_THALNOS,           DATA_BLOODMAGE_THALNOS      },
-    { BOSS_HOUNDMASTER_LOKSEY,          DATA_HOUNDMASTER_LOKSEY     },
-    { BOSS_ARCANIST_DOAN,               DATA_ARCANIST_DOAN          },
-    { 0,                                0                           } // END
+    { BOSS_INTERROGATOR_VISHAS,         DATA_INTERROGATOR_VISHAS        },
+    { BOSS_BLOODMAGE_THALNOS,           DATA_BLOODMAGE_THALNOS          },
+    { BOSS_HOUNDMASTER_LOKSEY,          DATA_HOUNDMASTER_LOKSEY         },
+    { BOSS_ARCANIST_DOAN,               DATA_ARCANIST_DOAN              },
+    { BOSS_HIGH_INQUISITOR_WHITEMANE,   DATA_HIGH_INQUISITOR_WHITEMANE  },
+    { BOSS_SCARLET_COMMANDER_MOGRAINE,  DATA_SCARLET_COMMANDER_MOGRAINE },
+    { 0,                                0                               } // END
 };
 
-DoorData const doorData[] =
+ObjectData const gameObjectData[] =
 {
-    { GO_HIGH_INQUISITORS_DOOR, DATA_MOGRAINE_AND_WHITE_EVENT, DOOR_TYPE_ROOM },
-    { 0,                        0,                             DOOR_TYPE_ROOM } // END
+    { GO_HIGH_INQUISITORS_DOOR,     DATA_HIGH_INQUISITORS_DOOR  },
+    { 0,                            0                           } // END
+};
+
+enum SpawnGroups
+{
+    SPAWN_GROUP_ID_WHITEMANE_AND_MOGRAINE = 451
+};
+
+enum Events
+{
+    EVENT_RESPAWN_MOGRAINE_AND_WHITEMANE = 1
 };
 
 class instance_scarlet_monastery : public InstanceMapScript
@@ -48,33 +61,28 @@ class instance_scarlet_monastery : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
-                LoadObjectData(creatureData, nullptr);
-                LoadDoorData(doorData);
+                LoadObjectData(creatureData, gameObjectData);
+            }
 
-                HorsemanAdds.clear();
+            void Create() override
+            {
+                instance->SpawnGroupSpawn(SPAWN_GROUP_ID_WHITEMANE_AND_MOGRAINE, true);
+            }
+
+            void Load(char const* /*data*/) override
+            {
+                if (GetBossState(DATA_MOGRAINE_AND_WHITEMANE) != DONE)
+                    instance->SpawnGroupSpawn(SPAWN_GROUP_ID_WHITEMANE_AND_MOGRAINE, true, true);
             }
 
             void OnGameObjectCreate(GameObject* go) override
             {
+                InstanceScript::OnGameObjectCreate(go);
+
                 switch (go->GetEntry())
                 {
                     case GO_PUMPKIN_SHRINE:
                         PumpkinShrineGUID = go->GetGUID();
-                        break;
-                    case GO_HIGH_INQUISITORS_DOOR:
-                        AddDoor(go, true);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void OnGameObjectRemove(GameObject* go) override
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_HIGH_INQUISITORS_DOOR:
-                        AddDoor(go, false);
                         break;
                     default:
                         break;
@@ -83,6 +91,8 @@ class instance_scarlet_monastery : public InstanceMapScript
 
             void OnCreatureCreate(Creature* creature) override
             {
+                InstanceScript::OnCreatureCreate(creature);
+
                 switch (creature->GetEntry())
                 {
                     case NPC_HORSEMAN:
@@ -93,12 +103,6 @@ class instance_scarlet_monastery : public InstanceMapScript
                         break;
                     case NPC_PUMPKIN:
                         HorsemanAdds.insert(creature->GetGUID());
-                        break;
-                    case NPC_MOGRAINE:
-                        MograineGUID = creature->GetGUID();
-                        break;
-                    case NPC_WHITEMANE:
-                        WhitemaneGUID = creature->GetGUID();
                         break;
                     case NPC_VORREL:
                         VorrelGUID = creature->GetGUID();
@@ -140,20 +144,43 @@ class instance_scarlet_monastery : public InstanceMapScript
                             HandleGameObject(PumpkinShrineGUID, false);
                         }
                         break;
+                    case DATA_MOGRAINE_AND_WHITEMANE:
+                        if (state == FAIL)
+                        {
+                            instance->SpawnGroupDespawn(SPAWN_GROUP_ID_WHITEMANE_AND_MOGRAINE);
+                            _events.ScheduleEvent(EVENT_RESPAWN_MOGRAINE_AND_WHITEMANE, 30s);
+
+                            if (GameObject* door = GetGameObject(DATA_HIGH_INQUISITORS_DOOR))
+                                door->ResetDoorOrButton();
+                        }
+                        break;
                     default:
                         break;
                 }
                 return true;
             }
 
+            void Update(uint32 diff) override
+            {
+                _events.Update(diff);
+
+                while (uint32 eventId = _events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_RESPAWN_MOGRAINE_AND_WHITEMANE:
+                            instance->SpawnGroupSpawn(SPAWN_GROUP_ID_WHITEMANE_AND_MOGRAINE);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
             ObjectGuid GetGuidData(uint32 type) const override
             {
                 switch (type)
                 {
-                    case DATA_MOGRAINE:
-                        return MograineGUID;
-                    case DATA_WHITEMANE:
-                        return WhitemaneGUID;
                     case DATA_VORREL:
                         return VorrelGUID;
                     default:
@@ -162,14 +189,13 @@ class instance_scarlet_monastery : public InstanceMapScript
                 return ObjectGuid::Empty;
             }
 
-        protected:
+        private:
+            EventMap _events;
+
             ObjectGuid PumpkinShrineGUID;
             ObjectGuid HorsemanGUID;
             ObjectGuid HeadGUID;
-            ObjectGuid MograineGUID;
-            ObjectGuid WhitemaneGUID;
             ObjectGuid VorrelGUID;
-
             GuidSet HorsemanAdds;
         };
 

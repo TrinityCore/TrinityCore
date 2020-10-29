@@ -30,40 +30,43 @@ enum SMDataTypes
     // Bosses
     DATA_INTERROGATOR_VISHAS    = 1,
     DATA_BLOODMAGE_THALNOS      = 2,
+    DATA_ARCANIST_DOAN          = 3,
+    DATA_HOUNDMASTER_LOKSEY     = 4,
+    DATA_MOGRAINE_AND_WHITEMANE = 5,
 
-    DATA_MOGRAINE_AND_WHITE_EVENT,
-    DATA_MOGRAINE,
-    DATA_WHITEMANE,
+
+    // Additional Data Types
+    DATA_SCARLET_COMMANDER_MOGRAINE,
+    DATA_HIGH_INQUISITOR_WHITEMANE,
     DATA_HORSEMAN_EVENT,
     DATA_PUMPKIN_SHRINE,
     DATA_VORREL,
-    DATA_ARCANIST_DOAN,
     DATA_AZSHIR,
     DATA_HEROD,
     DATA_HIGH_INQUISITOR_FAIRBANKS,
-    DATA_HOUNDMASTER_LOKSEY,
-    DATA_SCORN
+    DATA_SCORN,
+    DATA_HIGH_INQUISITORS_DOOR,
 };
 
 enum SMCreatureIds
 {
     // Bosses
-    BOSS_INTERROGATOR_VISHAS    = 3983,
-    BOSS_BLOODMAGE_THALNOS      = 4543,
-    BOSS_HOUNDMASTER_LOKSEY     = 3974,
-    BOSS_ARCANIST_DOAN          = 6487,
+    BOSS_INTERROGATOR_VISHAS        = 3983,
+    BOSS_BLOODMAGE_THALNOS          = 4543,
+    BOSS_HOUNDMASTER_LOKSEY         = 3974,
+    BOSS_ARCANIST_DOAN              = 6487,
+    BOSS_HIGH_INQUISITOR_WHITEMANE  = 3977,
+    BOSS_SCARLET_COMMANDER_MOGRAINE = 3976,
 
     // Encounter related creature
     /*Houndmaster Loksey*/
-    NPC_SCARLET_TRACKING_HOUND  = 4304,
+    NPC_SCARLET_TRACKING_HOUND      = 4304,
 
-    NPC_MOGRAINE                = 3976,
-    NPC_WHITEMANE               = 3977,
-    NPC_VORREL                  = 3981,
+    NPC_VORREL                      = 3981,
 
-    NPC_HORSEMAN                = 23682,
-    NPC_HEAD                    = 23775,
-    NPC_PUMPKIN                 = 23694
+    NPC_HORSEMAN                    = 23682,
+    NPC_HEAD                        = 23775,
+    NPC_PUMPKIN                     = 23694
 };
 
 enum SMGameObjectIds
@@ -78,7 +81,7 @@ inline AI* GetScarletMonasteryAI(T* obj)
     return GetInstanceAI<AI>(obj, SMScriptName);
 }
 
-#define RegisterScarletMonastryCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetScarletMonasteryAI)
+#define RegisterScarletMonasteryCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetScarletMonasteryAI)
 
 
 #endif // SCARLET_M_

@@ -108,5 +108,5 @@ private:
 
 void AddSC_boss_interrogator_vishas()
 {
-    RegisterScarletMonastryCreatureAI(boss_interrogator_vishas);
+    RegisterScarletMonasteryCreatureAI(boss_interrogator_vishas);
 }
