@@ -17,6 +17,9 @@
 
 #include "ScriptMgr.h"
 #include "blackrock_caverns.h"
+#include "AreaTrigger.h"
+#include "GossipDef.h"
+#include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
@@ -757,8 +760,40 @@ class at_raz_obsidius_event : public AreaTriggerScript
                     instance->SetData(DATA_RAZ_LAST_AREA_INDEX, RAZ_AREA_INDEX_OBSIDIUS);
 
             return true;
-
         }
+};
+
+enum AreaTriggerQuests
+{
+    SPELL_UPDATE_PLAYER_PHASE_AURAS     = 89457,
+    QUEST_ID_WHAT_IS_THIS_PLACE         = 28737,
+    QUEST_ID_THE_TWILIGHT_FORGE         = 28738,
+    QUEST_ID_DO_MY_EYES_DECEIVE_ME      = 28740,
+    QUEST_ID_ASCENDANT_LORD_OBSIDIUS    = 28741
+};
+
+class at_brc_quest_trigger : public AreaTriggerScript
+{
+public:
+    at_brc_quest_trigger(char const* scriptName, uint32 questId) : AreaTriggerScript(scriptName), _questId(questId) { }
+
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
+    {
+        if (Quest const* quest = sObjectMgr->GetQuestTemplate(_questId))
+        {
+            if (!player->CanTakeQuest(quest, false))
+                return false;
+
+            player->AddQuestAndCheckCompletion(quest, player);
+            player->PlayerTalkClass->SendQuestGiverQuestDetails(quest, player->GetGUID(), true, true);
+        }
+
+        player->CastSpell(player, SPELL_UPDATE_PLAYER_PHASE_AURAS);
+
+        return true;
+    }
+private:
+    uint32 _questId = 0;
 };
 
 void AddSC_blackrock_caverns()
@@ -772,4 +807,8 @@ void AddSC_blackrock_caverns()
     RegisterBlackrockCavernsCreatureAI(npc_raz_the_crazed);
     new at_raz_corla_event();
     new at_raz_obsidius_event();
+    new at_brc_quest_trigger("at_brc_corla_quest", QUEST_ID_WHAT_IS_THIS_PLACE);
+    new at_brc_quest_trigger("at_brc_karsh_quest", QUEST_ID_THE_TWILIGHT_FORGE);
+    new at_brc_quest_trigger("at_brc_beauty_quest", QUEST_ID_DO_MY_EYES_DECEIVE_ME);
+    new at_brc_quest_trigger("at_brc_obsidius_quest", QUEST_ID_ASCENDANT_LORD_OBSIDIUS);
 }
