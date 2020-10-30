@@ -155,12 +155,12 @@ class TC_GAME_API MotionMaster
 
         void MoveConfused();
         void MoveFleeing(Unit* enemy, uint32 time = 0);
-        void MovePoint(uint32 id, Position const& pos, bool generatePath = true)
+        void MovePoint(uint32 id, Position const& pos, bool generatePath = true, float speed = 0.f)
         {
-            MovePoint(id, pos.m_positionX, pos.m_positionY, pos.m_positionZ, generatePath);
+            MovePoint(id, pos.m_positionX, pos.m_positionY, pos.m_positionZ, generatePath, speed);
         }
 
-        void MovePoint(uint32 id, float x, float y, float z, bool generatePath = true);
+        void MovePoint(uint32 id, float x, float y, float z, bool generatePath = true, float speed = 0.f);
 
         /*  Makes the unit move toward the target until it is at a certain distance from it. The unit then stops.
             Only works in 2D.

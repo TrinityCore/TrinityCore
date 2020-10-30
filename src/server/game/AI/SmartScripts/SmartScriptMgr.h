@@ -828,6 +828,11 @@ struct SmartAction
 
         struct
         {
+            uint32 speed;
+        } moveOffset;
+
+        struct
+        {
             uint32 state;
         } visibility;
 
@@ -1027,6 +1032,7 @@ struct SmartAction
             uint32 transport;
             uint32 disablePathfinding;
             uint32 ContactDistance;
+            uint32 speed;
         } MoveToPos;
 
         struct
