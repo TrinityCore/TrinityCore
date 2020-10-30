@@ -124,7 +124,8 @@ namespace Trinity::ChatCommands
 namespace Trinity::Impl
 {
     template <typename T>
-    struct CastToVisitor {
+    struct CastToVisitor
+    {
         template <typename U>
         T operator()(U const& v) const { return v; }
     };
@@ -153,7 +154,7 @@ namespace Trinity::ChatCommands
         }
 
         template<bool C = have_operators>
-        operator std::enable_if_t<C && std::is_convertible<first_type, size_t>::value, size_t>() const
+        operator std::enable_if_t<C && !std::is_same_v<first_type, size_t> && std::is_convertible_v<first_type, size_t>, size_t>() const
         {
             return operator*();
         }
