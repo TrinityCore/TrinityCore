@@ -943,7 +943,7 @@ class spell_maloriak_consuming_flames: public AuraScript
 {
     bool CheckProc(ProcEventInfo& eventInfo)
     {
-        if (eventInfo.GetSpellInfo() && eventInfo.GetSpellInfo()->Id == GetId())
+        if (!eventInfo.GetSpellInfo() || eventInfo.GetSpellInfo()->DmgClass != SPELL_DAMAGE_CLASS_MAGIC || eventInfo.GetSpellInfo()->Id == GetId())
             return false;
 
         return eventInfo.GetDamageInfo();
