@@ -37,6 +37,7 @@ enum TwilightHightlandsArena
     QUEST_ID_COC_THE_BLOODEYE_BRUISER   = 27863,
     QUEST_ID_COC_THE_DEADLY_DRAGONMAW   = 27864,
     QUEST_ID_COC_THE_WAYWARD_WILDHAMMER = 27865,
+    QUEST_ID_COC_CALDERS_CREATION       = 27866,
 
     // Events
     EVENT_SAY_REMEMBER = 1,
@@ -48,6 +49,9 @@ enum TwilightHightlandsArena
 
     EVENT_ANNOUNCE_BATTLE_2_HORDE,
     EVENT_SUMMON_SULLY_KNEECAPPER,
+
+    EVENT_ANNOUNCE_BATTLE_3,
+    EVENT_SUMMON_CADAVER_COLLAGE,
 
 
     // Texts
@@ -63,11 +67,16 @@ enum TwilightHightlandsArena
     SAY_INTRO_BATTLE_2_HORDE        = 6,
     SAY_START_BATTLE_2_HORDE        = 7,
     SAY_SULLY_KNEECAPPER_DEFEATED   = 8,
+    // Cadaver Collage
+    SAY_INTRO_BATTLE_3              = 9,
+    SAY_START_BATTLE_3              = 10,
+    SAY_CADAVER_COLLAGE_DEFEATED    = 11,
 
     // Creatures
     NPC_HURP_DERP                   = 46944,
     NPC_TORG_DRAKEFLAYER            = 46945,
-    NPC_SULLY_KNEECAPPER            = 46946
+    NPC_SULLY_KNEECAPPER            = 46946,
+    NPC_CADAVER_COLLAGE             = 46947,
 };
 
 Position const HurpDerpSpawnPosition        = { -4133.8647f, -5192.587f,    -9.481462f, 2.447715520858764648f };
@@ -75,6 +84,8 @@ Position const HurpDerpMovePosition         = { -4182.394f,  -5148.4478f,   -7.7
 Position const TorgDrakeflayerSpawnPosition = { -4136.02f,   -5137.94f,     40.58253f, 3.379617214202880859 };
 Position const TorgDrakeflayerJumpPosition  = { -4168.87f,   -5145.91f,     -7.73344f };
 Position const SullyKneecapperSpawnPosition = { -4235.0522f, -5133.8877f,   -4.938032f, 5.69227f };
+Position const CadaverCollageSpawnPosition  = { -4165.78f,   -5095.76f,     -11.078667f, 3.8550262451171875f };
+Position const CadaverCollageMovePosition   = { -4182.644f,  -5148.0923f,   -7.736145f };
 
 // 46935 - Gurgthock
 struct npc_th_gurgthock : public ScriptedAI
@@ -101,6 +112,9 @@ struct npc_th_gurgthock : public ScriptedAI
                 break;
             case QUEST_ID_COC_THE_WAYWARD_WILDHAMMER:
                 _events.ScheduleEvent(EVENT_ANNOUNCE_BATTLE_2_HORDE, 6s);
+                break;
+            case QUEST_ID_COC_CALDERS_CREATION:
+                _events.ScheduleEvent(EVENT_ANNOUNCE_BATTLE_3, 10s);
                 break;
             default:
                 break;
@@ -150,6 +164,15 @@ struct npc_th_gurgthock : public ScriptedAI
                     break;
                 case NPC_SULLY_KNEECAPPER:
                     FailQuest(summon, QUEST_ID_COC_THE_WAYWARD_WILDHAMMER);
+                    break;
+                case NPC_CADAVER_COLLAGE:
+                    if (summon->IsHovering())
+                    {
+                        CompleteQuest(summon, QUEST_ID_COC_CALDERS_CREATION);
+                        Talk(SAY_CADAVER_COLLAGE_DEFEATED, ObjectAccessor::GetUnit(*me, _playerGUID));
+                    }
+                    else
+                        FailQuest(summon, QUEST_ID_COC_CALDERS_CREATION);
                     break;
                 default:
                     break;
@@ -206,6 +229,15 @@ struct npc_th_gurgthock : public ScriptedAI
                 case EVENT_SUMMON_SULLY_KNEECAPPER:
                     Talk(SAY_START_BATTLE_2_HORDE);
                     DoSummon(NPC_SULLY_KNEECAPPER, SullyKneecapperSpawnPosition);
+                    break;
+                case EVENT_ANNOUNCE_BATTLE_3:
+                    if (Unit const* player = ObjectAccessor::GetUnit(*me, _playerGUID))
+                        Talk(SAY_INTRO_BATTLE_3, player);
+                    _events.ScheduleEvent(EVENT_SUMMON_CADAVER_COLLAGE, 8s + 500ms);
+                    break;
+                case EVENT_SUMMON_CADAVER_COLLAGE:
+                    Talk(SAY_START_BATTLE_3);
+                    DoSummon(NPC_CADAVER_COLLAGE, CadaverCollageSpawnPosition);
                     break;
                 default:
                     break;
@@ -301,9 +333,55 @@ class spell_th_charge : public SpellScript
     }
 };
 
+enum BrawlerExplosion
+{
+    SPELL_PLAGUE_EXPLOSION  = 88614,
+    SPELL_BRAWLER_PARTS_00  = 87706,
+    SPELL_BRAWLER_PARTS_01  = 87708,
+    SPELL_BRAWLER_PARTS_02  = 87711
+};
+
+std::array<uint32, 3> BrawlerPartsSpells
+{
+    SPELL_BRAWLER_PARTS_00,
+    SPELL_BRAWLER_PARTS_01,
+    SPELL_BRAWLER_PARTS_02
+};
+
+// 87705 - Brawler Explosion
+class spell_th_brawler_explosion : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_PLAGUE_EXPLOSION,
+                SPELL_BRAWLER_PARTS_00,
+                SPELL_BRAWLER_PARTS_01,
+                SPELL_BRAWLER_PARTS_02
+            });
+    }
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit();
+        for (uint8 i = 0; i < BrawlerPartsSpells.size(); ++i)
+            for (uint8 j = 0; j < 2; j++)
+                target->CastSpell(target, BrawlerPartsSpells[i], true);
+
+        target->CastSpell(target, SPELL_PLAGUE_EXPLOSION);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget.Register(&spell_th_brawler_explosion::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_twilight_highlands()
 {
     RegisterCreatureAI(npc_th_gurgthock);
     RegisterSpellScript(spell_th_grab_targeting);
     RegisterSpellScript(spell_th_charge);
+    RegisterSpellScript(spell_th_brawler_explosion);
 }
