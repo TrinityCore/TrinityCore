@@ -2417,6 +2417,16 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             }
             break;
         }
+        case SMART_ACTION_SET_AI_ANIM_KIT:
+            for (WorldObject* target : targets)
+                target->SetAIAnimKitId(e.action.setAIAnimKit.animKitId);
+            break;
+        case SMART_ACTION_SET_HOVER:
+            for (WorldObject* target : targets)
+                if (IsUnit(target))
+                    target->ToUnit()->SetHover(e.action.setHover.enable != 0);
+
+            break;
         default:
             TC_LOG_ERROR("sql.sql", "SmartScript::ProcessAction: Entry %d SourceType %u, Event %u, Unhandled Action type %u", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
             break;

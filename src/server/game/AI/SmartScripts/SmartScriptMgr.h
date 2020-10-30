@@ -590,8 +590,10 @@ enum SMART_ACTION
     SMART_ACTION_PLAY_SPELL_VISUAL_KIT              = 137,    // spellVisualKitId (RESERVED, PENDING CHERRYPICK)
     SMART_ACTION_OVERRIDE_LIGHT                     = 138,    // zoneId, overrideLightID, transitionMilliseconds
     SMART_ACTION_OVERRIDE_WEATHER                   = 139,    // zoneId, weatherId, intensity
+    SMART_ACTION_SET_AI_ANIM_KIT                    = 140,    // animKitId
+    SMART_ACTION_SET_HOVER                          = 141,    // enable
 
-    SMART_ACTION_END                                = 140
+    SMART_ACTION_END                                = 142
 };
 
 struct SmartAction
@@ -1192,6 +1194,15 @@ struct SmartAction
             uint32 intensity;
         } overrideWeather;
 
+        struct
+        {
+            uint32 animKitId;
+        } setAIAnimKit;
+
+        struct
+        {
+            uint32 enable;
+        } setHover;
 
         struct
         {
