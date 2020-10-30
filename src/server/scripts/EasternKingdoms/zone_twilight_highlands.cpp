@@ -22,6 +22,7 @@
 #include "Player.h"
 #include "Group.h"
 #include "Spell.h"
+#include "SpellAuraEffects.h"
 #include "SpellScript.h"
 
 enum Points
@@ -378,10 +379,31 @@ class spell_th_brawler_explosion : public SpellScript
     }
 };
 
+// 90449 - Poison
+class spell_th_poison : public AuraScript
+{
+    void HandlePeriodic(AuraEffect const* aurEff)
+    {
+        PreventDefaultAction();
+        if (Unit* target = GetTarget())
+        {
+            uint32 triggerSpell = GetSpellInfo()->Effects[EFFECT_0].TriggerSpell;
+            int32 radius = int32(166.66f * aurEff->GetTickNumber());
+            target->CastCustomSpell(triggerSpell, SPELLVALUE_RADIUS_MOD, radius, nullptr, true, nullptr, aurEff, target->GetGUID());
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic.Register(&spell_th_poison::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
 void AddSC_twilight_highlands()
 {
     RegisterCreatureAI(npc_th_gurgthock);
     RegisterSpellScript(spell_th_grab_targeting);
     RegisterSpellScript(spell_th_charge);
     RegisterSpellScript(spell_th_brawler_explosion);
+    RegisterSpellScript(spell_th_poison);
 }
