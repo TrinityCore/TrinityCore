@@ -1094,18 +1094,15 @@ class spell_maloriak_magma_jets_script : public SpellScript
         return ValidateSpellInfo({ SPELL_MAGMA_JETS_SUMMON });
     }
 
-    void FilterTargets(std::list<WorldObject*>& targets)
-    {
-        if (targets.empty())
-            return;
-
-        Trinity::Containers::RandomResize(targets, 1);
-    }
-
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
         Unit* target = GetHitUnit();
-        if (Unit* caster = GetCaster())
+
+        if (target == caster->GetVictim())
         {
             caster->SetOrientation(caster->GetAngle(target));
             caster->SetFacingToObject(target); // update orientation immediately
@@ -1115,7 +1112,6 @@ class spell_maloriak_magma_jets_script : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect.Register(&spell_maloriak_magma_jets_script::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
         OnEffectHitTarget.Register(&spell_maloriak_magma_jets_script::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
