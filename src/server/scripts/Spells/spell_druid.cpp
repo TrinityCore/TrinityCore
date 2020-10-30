@@ -247,6 +247,7 @@ class spell_dru_eclipse_mastery_driver_passive : public AuraScript
                 SPELL_DRUID_SOLAR_ECLIPSE,
                 SPELL_DRUID_SOLAR_ECLIPSE_MARKER,
                 SPELL_DRUID_EUPHORIA_ENERGIZE,
+                SPELL_DRUID_EUPHORIA_MANA_ENERGIZE,
                 SPELL_DRUID_STARSURGE_ENERGIZE,
                 SPELL_DRUID_ECLIPSE_GENERAL_ENERGIZE,
                 SPELL_DRUID_NATURES_GRACE,
@@ -329,6 +330,10 @@ class spell_dru_eclipse_mastery_driver_passive : public AuraScript
         // Reset Nature's Grace proc cooldown
         if (Aura* aura = target->GetAuraOfRankedSpell(SPELL_DRUID_NATURES_GRACE))
             aura->ResetProcCooldown();
+
+        // Euphoria Mana Bonus
+        if (AuraEffect const* euphoria = target->GetDummyAuraEffect(SPELLFAMILY_DRUID, SPELL_ICON_ID_EUPHORIA, EFFECT_2))
+            target->CastCustomSpell(SPELL_DRUID_EUPHORIA_MANA_ENERGIZE, SPELLVALUE_BASE_POINT0, euphoria->GetAmount(), target, false, nullptr, euphoria);
 
         // T11 Bonus
         if (AuraEffect const* t11Bonus = target->GetAuraEffect(SPELL_DRUID_ITEM_T11_BALANCE_4P_BONUS, EFFECT_0))
