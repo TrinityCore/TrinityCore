@@ -24,6 +24,7 @@
 #    STATS LIMITS
 #    AUTO BROADCAST
 #    BATTLEGROUND CONFIG
+#    RATED BATTLEGROUND CONFIG
 #    BATTLEFIELD CONFIG
 #    ARENA CONFIG
 #    NETWORK CONFIG
@@ -1093,7 +1094,7 @@ MinQuestScaledXPRatio = 0
 
 #
 #    MinCreatureScaledXPRatio
-#        Description: Min ratio of experience that a creature kill can grant when player level scaling is factored.  This 
+#        Description: Min ratio of experience that a creature kill can grant when player level scaling is factored.  This
 #                     will also allow spell procs to trigger, such as Drain Soul, if > 0 and exp is grantable.
 #        Example:     50 (No less than 50% experience granted from a lower leveled creature kill)
 #                     100 (Creature kills always grant full experience upon kill)
@@ -1279,7 +1280,7 @@ BirthdayTime = 1222964635
 
 #
 #   CacheDataQueries
-#        Description: Server caches data queries at startup. 
+#        Description: Server caches data queries at startup.
 #                     Can be disabled if not enough memory is available.
 #        Default:     1 - (Enabled)
 #                     0 - (Disabled)
@@ -2658,6 +2659,28 @@ Battleground.RewardLoserHonorLast       = 3500
 #        Default:     3
 
 Battleground.ReportAFK = 3
+
+#
+###################################################################################################
+
+###################################################################################################
+# RATED BATTLEGROUND CONFIG
+#
+#    RatedBattleground.Enable
+#        Description: Enable or disable the rated battleground system.
+#        Default:     0 - (Disabled)
+#                     1 - (10v10 Enabled, Experimental as in not implemented)
+#                     2 - (15v15 Enabled, Experimental as in not implemented)
+#                     3 - (25v25 Enabled, Experimental as in not implemented)
+
+RatedBattleground.Enable = 0
+
+#
+#    RatedBattleground.Reward
+#        Description: The conquest points reward after winning a rated battleground.
+#        Default:     40000
+
+RatedBattleground.Reward = 40000
 
 #
 ###################################################################################################

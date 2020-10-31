@@ -872,8 +872,11 @@ void WorldSession::HandleRequestRatedBgStats(WorldPacket& /*recvData*/)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_REQUEST_RATED_BG_STATS");
 
+    uint8 ratedBattlegroundActive = sWorld->getBoolConfig(CONFIG_RATED_BATTLEGROUND_ENABLE);
+    uint8 ratedBattlegroundReward = sWorld->getIntConfig(CONFIG_RATED_BATTLEGROUND_REWARD) / CURRENCY_PRECISION;
+
     WorldPacket data(SMSG_BATTLEFIELD_RATED_INFO, 29);
-    data << uint32(0);  // Reward
+    data << uint32(ratedBattlegroundReward);  // Reward
     data << uint8(3);   // unk
     data << uint32(0);  // unk
     data << uint32(0);  // unk
@@ -883,6 +886,9 @@ void WorldSession::HandleRequestRatedBgStats(WorldPacket& /*recvData*/)
     data << _player->GetCurrency(CURRENCY_TYPE_CONQUEST_POINTS, true);
 
     SendPacket(&data);
+
+    // update the rated battleground state
+    _player->SendUpdateWorldState(WS_RATED_BATTLEGROUND_STATE_ACTIVE, ratedBattlegroundActive);
 }
 
 void WorldSession::HandleBattlegroundStateQuery(WorldPacket& /*recvData*/)
