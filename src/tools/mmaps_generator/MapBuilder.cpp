@@ -236,11 +236,11 @@ namespace MMAP
 
     void MapBuilder::buildMaps(Optional<uint32> mapID)
     {
-        printf("Using %u threads to extract mmaps\n", m_threads);
+        printf("Using %u threads to generate mmaps\n", m_threads);
 
         for (unsigned int i = 0; i < m_threads; ++i)
         {
-            m_tileBuilders.push_back(TileBuilder(this, m_skipLiquid, m_bigBaseUnit, m_debugOutput));
+            m_tileBuilders.emplace_back(this, m_skipLiquid, m_bigBaseUnit, m_debugOutput);
         }
 
         if (mapID)

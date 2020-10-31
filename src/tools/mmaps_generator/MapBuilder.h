@@ -112,6 +112,7 @@ namespace MMAP
                 bool bigBaseUnit,
                 bool debugOutput);
 
+            TileBuilder(TileBuilder&&) = default;
             ~TileBuilder();
 
             void WorkerThread();
