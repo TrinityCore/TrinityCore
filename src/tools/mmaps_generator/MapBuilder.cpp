@@ -31,6 +31,27 @@
 
 namespace MMAP
 {
+    TileBuilder::TileBuilder(MapBuilder* mapBuilder, bool skipLiquid, bool bigBaseUnit, bool debugOutput) :
+        m_bigBaseUnit(bigBaseUnit),
+        m_debugOutput(debugOutput),
+        m_mapBuilder(mapBuilder),
+        m_terrainBuilder(nullptr),
+        m_workerThread(&TileBuilder::WorkerThread, this),
+        m_rcContext(nullptr)
+    {
+        m_terrainBuilder = new TerrainBuilder(skipLiquid);
+        m_rcContext = new rcContext(false);
+    }
+
+    TileBuilder::~TileBuilder()
+    {
+    }
+
+    void TileBuilder::WaitCompletion()
+    {
+        m_workerThread.join();
+    }
+
     MapBuilder::MapBuilder(Optional<float> maxWalkableAngle, Optional<float> maxWalkableAngleNotSteep, bool skipLiquid,
         bool skipContinents, bool skipJunkMaps, bool skipBattlegrounds,
         bool debugOutput, bool bigBaseUnit, int mapid, char const* offMeshFilePath, unsigned int threads) :
@@ -41,6 +62,7 @@ namespace MMAP
         m_skipContinents     (skipContinents),
         m_skipJunkMaps       (skipJunkMaps),
         m_skipBattlegrounds  (skipBattlegrounds),
+        m_skipLiquid         (skipLiquid),
         m_maxWalkableAngle   (maxWalkableAngle),
         m_maxWalkableAngleNotSteep (maxWalkableAngleNotSteep),
         m_bigBaseUnit        (bigBaseUnit),
@@ -63,6 +85,15 @@ namespace MMAP
     /**************************************************************************/
     MapBuilder::~MapBuilder()
     {
+        _cancelationToken = true;
+
+        _queue.Cancel();
+
+        for (auto& builder : m_tileBuilders)
+        {
+            builder.WaitCompletion();
+        }
+
         for (TileList::iterator it = m_tiles.begin(); it != m_tiles.end(); ++it)
         {
             (*it).m_tiles->clear();
@@ -176,21 +207,22 @@ namespace MMAP
 
     /**************************************************************************/
 
-    void MapBuilder::WorkerThread()
+    void TileBuilder::WorkerThread()
     {
         while (1)
         {
             TileInfo tileInfo;
 
-            _queue.WaitAndPop(tileInfo);
+            m_mapBuilder->_queue.WaitAndPop(tileInfo);
 
-            if (_cancelationToken)
+            if (m_mapBuilder->_cancelationToken)
                 return;
 
             dtNavMesh* navMesh = dtAllocNavMesh();
             if (!navMesh->init(&tileInfo.m_navMeshParams))
             {
                 printf("[Map %03i] Failed creating navmesh for tile %i,%i !\n", tileInfo.m_mapId, tileInfo.m_tileX, tileInfo.m_tileY);
+                dtFreeNavMesh(navMesh);
                 return;
             }
 
@@ -206,7 +238,7 @@ namespace MMAP
 
         for (unsigned int i = 0; i < m_threads; ++i)
         {
-            _workerThreads.push_back(std::thread(&MapBuilder::WorkerThread, this));
+            m_tileBuilders.push_back(TileBuilder(this, m_skipLiquid, m_bigBaseUnit, m_debugOutput));
         }
 
         if (mapID)
@@ -232,9 +264,9 @@ namespace MMAP
 
         _queue.Cancel();
 
-        for (auto& thread : _workerThreads)
+        for (auto& builder : m_tileBuilders)
         {
-            thread.join();
+            builder.WaitCompletion();
         }
     }
 
@@ -364,7 +396,8 @@ namespace MMAP
         getTileBounds(tileX, tileY, data.solidVerts.getCArray(), data.solidVerts.size() / 3, bmin, bmax);
 
         // build navmesh tile
-        buildMoveMapTile(mapId, tileX, tileY, data, bmin, bmax, navMesh);
+        TileBuilder tileBuilder = TileBuilder(this, m_skipLiquid, m_bigBaseUnit, m_debugOutput);
+        tileBuilder.buildMoveMapTile(mapId, tileX, tileY, data, bmin, bmax, navMesh);
         fclose(file);
     }
 
@@ -381,7 +414,8 @@ namespace MMAP
 
         // ToDo: delete the old tile as the user clearly wants to rebuild it
 
-        buildTile(mapID, tileX, tileY, navMesh);
+        TileBuilder tileBuilder = TileBuilder(this, m_skipLiquid, m_bigBaseUnit, m_debugOutput);
+        tileBuilder.buildTile(mapID, tileX, tileY, navMesh);
         dtFreeNavMesh(navMesh);
     }
 
@@ -424,15 +458,15 @@ namespace MMAP
     }
 
     /**************************************************************************/
-    void MapBuilder::buildTile(uint32 mapID, uint32 tileX, uint32 tileY, dtNavMesh* navMesh)
+    void TileBuilder::buildTile(uint32 mapID, uint32 tileX, uint32 tileY, dtNavMesh* navMesh)
     {
         if(shouldSkipTile(mapID, tileX, tileY))
         {
-            ++m_totalTilesProcessed;
+            ++m_mapBuilder->m_totalTilesProcessed;
             return;
         }
 
-        printf("%u%% [Map %03i] Building tile [%02u,%02u]\n", percentageDone(m_totalTiles, m_totalTilesProcessed), mapID, tileX, tileY);
+        printf("%u%% [Map %03i] Building tile [%02u,%02u]\n", m_mapBuilder->currentPercentageDone(), mapID, tileX, tileY);
 
         MeshData meshData;
 
@@ -445,7 +479,7 @@ namespace MMAP
         // if there is no data, give up now
         if (!meshData.solidVerts.size() && !meshData.liquidVerts.size())
         {
-            ++m_totalTilesProcessed;
+            ++m_mapBuilder->m_totalTilesProcessed;
             return;
         }
 
@@ -460,20 +494,20 @@ namespace MMAP
 
         if (!allVerts.size())
         {
-            ++m_totalTilesProcessed;
+            ++m_mapBuilder->m_totalTilesProcessed;
             return;
         }
 
         // get bounds of current tile
         float bmin[3], bmax[3];
-        getTileBounds(tileX, tileY, allVerts.getCArray(), allVerts.size() / 3, bmin, bmax);
+        m_mapBuilder->getTileBounds(tileX, tileY, allVerts.getCArray(), allVerts.size() / 3, bmin, bmax);
 
-        m_terrainBuilder->loadOffMeshConnections(mapID, tileX, tileY, meshData, m_offMeshFilePath);
+        m_terrainBuilder->loadOffMeshConnections(mapID, tileX, tileY, meshData, m_mapBuilder->m_offMeshFilePath);
 
         // build navmesh tile
         buildMoveMapTile(mapID, tileX, tileY, meshData, bmin, bmax, navMesh);
 
-        ++m_totalTilesProcessed;
+        ++m_mapBuilder->m_totalTilesProcessed;
     }
 
     /**************************************************************************/
@@ -552,7 +586,7 @@ namespace MMAP
     }
 
     /**************************************************************************/
-    void MapBuilder::buildMoveMapTile(uint32 mapID, uint32 tileX, uint32 tileY,
+    void TileBuilder::buildMoveMapTile(uint32 mapID, uint32 tileX, uint32 tileY,
         MeshData &meshData, float bmin[3], float bmax[3],
         dtNavMesh* navMesh)
     {
@@ -577,7 +611,7 @@ namespace MMAP
         const TileConfig tileConfig = TileConfig(m_bigBaseUnit);
         int TILES_PER_MAP = tileConfig.TILES_PER_MAP;
         float BASE_UNIT_DIM = tileConfig.BASE_UNIT_DIM;
-        rcConfig config = GetMapSpecificConfig(mapID, bmin, bmax, tileConfig);
+        rcConfig config = m_mapBuilder->GetMapSpecificConfig(mapID, bmin, bmax, tileConfig);
 
         // this sets the dimensions of the heightfield - should maybe happen before border padding
         rcCalcGridSize(config.bmin, config.bmax, config.cs, &config.width, &config.height);
@@ -894,7 +928,7 @@ namespace MMAP
     }
 
     /**************************************************************************/
-    void MapBuilder::getTileBounds(uint32 tileX, uint32 tileY, float* verts, int vertCount, float* bmin, float* bmax)
+    void MapBuilder::getTileBounds(uint32 tileX, uint32 tileY, float* verts, int vertCount, float* bmin, float* bmax) const
     {
         // this is for elevation
         if (verts && vertCount)
@@ -913,7 +947,7 @@ namespace MMAP
     }
 
     /**************************************************************************/
-    bool MapBuilder::shouldSkipMap(uint32 mapID)
+    bool MapBuilder::shouldSkipMap(uint32 mapID) const
     {
         if (m_mapid >= 0)
             return static_cast<uint32>(m_mapid) != mapID;
@@ -961,7 +995,7 @@ namespace MMAP
     }
 
     /**************************************************************************/
-    bool MapBuilder::isTransportMap(uint32 mapID)
+    bool MapBuilder::isTransportMap(uint32 mapID) const
     {
         switch (mapID)
         {
@@ -1000,7 +1034,7 @@ namespace MMAP
         }
     }
 
-    bool MapBuilder::isContinentMap(uint32 mapID)
+    bool MapBuilder::isContinentMap(uint32 mapID) const
     {
         switch (mapID)
         {
@@ -1015,7 +1049,7 @@ namespace MMAP
     }
 
     /**************************************************************************/
-    bool MapBuilder::shouldSkipTile(uint32 mapID, uint32 tileX, uint32 tileY)
+    bool TileBuilder::shouldSkipTile(uint32 mapID, uint32 tileX, uint32 tileY) const
     {
         char fileName[255];
         sprintf(fileName, "mmaps/%03u%02i%02i.mmtile", mapID, tileY, tileX);
@@ -1038,7 +1072,7 @@ namespace MMAP
         return true;
     }
 
-    rcConfig MapBuilder::GetMapSpecificConfig(uint32 mapID, float bmin[3], float bmax[3], const TileConfig &tileConfig)
+    rcConfig MapBuilder::GetMapSpecificConfig(uint32 mapID, float bmin[3], float bmax[3], const TileConfig &tileConfig) const
     {
         rcConfig config;
         memset(&config, 0, sizeof(rcConfig));
@@ -1087,12 +1121,17 @@ namespace MMAP
     }
 
     /**************************************************************************/
-    uint32 MapBuilder::percentageDone(uint32 totalTiles, uint32 totalTilesBuilt)
+    uint32 MapBuilder::percentageDone(uint32 totalTiles, uint32 totalTilesBuilt) const
     {
         if (totalTiles)
             return totalTilesBuilt * 100 / totalTiles;
 
         return 0;
+    }
+
+    uint32 MapBuilder::currentPercentageDone() const
+    {
+        return percentageDone(m_totalTiles, m_totalTilesProcessed);
     }
 
 }
