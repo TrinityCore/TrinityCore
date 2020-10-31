@@ -92,6 +92,16 @@ namespace MMAP
         int TILES_PER_MAP;
     };
 
+    struct TileInfo
+    {
+        TileInfo() : m_mapId(uint32(-1)), m_tileX(), m_tileY(), m_navMeshParams() {}
+
+        uint32 m_mapId;
+        uint32 m_tileX;
+        uint32 m_tileY;
+        dtNavMeshParams m_navMeshParams;
+    };
+
     class MapBuilder
     {
         public:
@@ -109,19 +119,19 @@ namespace MMAP
 
             ~MapBuilder();
 
-            // builds all mmap tiles for the specified map id (ignores skip settings)
-            void buildMap(uint32 mapID);
             void buildMeshFromFile(char* name);
 
             // builds an mmap tile for the specified map and its mesh
             void buildSingleTile(uint32 mapID, uint32 tileX, uint32 tileY);
 
             // builds list of maps, then builds all of mmap tiles (based on the skip settings)
-            void buildAllMaps();
+            void buildMaps(Optional<uint32> mapID);
 
             void WorkerThread();
 
         private:
+            // builds all mmap tiles for the specified map id (ignores skip settings)
+            void buildMap(uint32 mapID);
             // detect maps and tiles
             void discoverTiles();
             std::set<uint32>* getTileList(uint32 mapID);
@@ -177,7 +187,7 @@ namespace MMAP
             rcContext* m_rcContext;
 
             std::vector<std::thread> _workerThreads;
-            ProducerConsumerQueue<uint32> _queue;
+            ProducerConsumerQueue<TileInfo> _queue;
             std::atomic<bool> _cancelationToken;
     };
 }

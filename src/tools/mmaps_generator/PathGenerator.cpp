@@ -335,9 +335,9 @@ int main(int argc, char** argv)
     else if (tileX > -1 && tileY > -1 && mapnum >= 0)
         builder.buildSingleTile(mapnum, tileX, tileY);
     else if (mapnum >= 0)
-        builder.buildMap(uint32(mapnum));
+        builder.buildMaps(uint32(mapnum));
     else
-        builder.buildAllMaps();
+        builder.buildMaps({});
 
     if (!silent)
         printf("Finished. MMAPS were built in %s\n", secsToTimeString(GetMSTimeDiffToNow(start) / 1000).c_str());

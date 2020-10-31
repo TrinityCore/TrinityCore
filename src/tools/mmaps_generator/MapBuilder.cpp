@@ -54,6 +54,9 @@ namespace MMAP
 
         m_rcContext = new rcContext(false);
 
+        // At least 1 thread is needed
+        m_threads = std::max(1u, m_threads);
+
         discoverTiles();
     }
 
@@ -177,18 +180,27 @@ namespace MMAP
     {
         while (1)
         {
-            uint32 mapId = 0;
+            TileInfo tileInfo;
 
-            _queue.WaitAndPop(mapId);
+            _queue.WaitAndPop(tileInfo);
 
             if (_cancelationToken)
                 return;
 
-            buildMap(mapId);
+            dtNavMesh* navMesh = dtAllocNavMesh();
+            if (!navMesh->init(&tileInfo.m_navMeshParams))
+            {
+                printf("[Map %03i] Failed creating navmesh for tile %i,%i !\n", tileInfo.m_mapId, tileInfo.m_tileX, tileInfo.m_tileY);
+                return;
+            }
+
+            buildTile(tileInfo.m_mapId, tileInfo.m_tileX, tileInfo.m_tileY, navMesh);
+
+            dtFreeNavMesh(navMesh);
         }
     }
 
-    void MapBuilder::buildAllMaps()
+    void MapBuilder::buildMaps(Optional<uint32> mapID)
     {
         printf("Using %u threads to extract mmaps\n", m_threads);
 
@@ -197,20 +209,17 @@ namespace MMAP
             _workerThreads.push_back(std::thread(&MapBuilder::WorkerThread, this));
         }
 
-        m_tiles.sort([](MapTiles a, MapTiles b)
+        if (mapID)
         {
-            return a.m_tiles->size() > b.m_tiles->size();
-        });
-
-        for (TileList::iterator it = m_tiles.begin(); it != m_tiles.end(); ++it)
+            buildMap(*mapID);
+        }
+        else
         {
-            uint32 mapId = it->m_mapId;
-            if (!shouldSkipMap(mapId))
+            // Build all maps if no map id has been specified
+            for (TileList::iterator it = m_tiles.begin(); it != m_tiles.end(); ++it)
             {
-                if (m_threads > 0)
-                    _queue.Push(mapId);
-                else
-                    buildMap(mapId);
+                if (!shouldSkipMap(it->m_mapId))
+                    buildMap(it->m_mapId);
             }
         }
 
@@ -370,6 +379,8 @@ namespace MMAP
             return;
         }
 
+        // ToDo: delete the old tile as the user clearly wants to rebuild it
+
         buildTile(mapID, tileX, tileY, navMesh);
         dtFreeNavMesh(navMesh);
     }
@@ -400,20 +411,27 @@ namespace MMAP
                 // unpack tile coords
                 StaticMapTree::unpackTileID((*it), tileX, tileY);
 
-                if (!shouldSkipTile(mapID, tileX, tileY))
-                    buildTile(mapID, tileX, tileY, navMesh);
-                ++m_totalTilesProcessed;
+                TileInfo tileInfo;
+                tileInfo.m_mapId = mapID;
+                tileInfo.m_tileX = tileX;
+                tileInfo.m_tileY = tileY;
+                memcpy(&tileInfo.m_navMeshParams, navMesh->getParams(), sizeof(dtNavMeshParams));
+                _queue.Push(tileInfo);
             }
 
             dtFreeNavMesh(navMesh);
         }
-
-        printf("[Map %03i] Complete!\n", mapID);
     }
 
     /**************************************************************************/
     void MapBuilder::buildTile(uint32 mapID, uint32 tileX, uint32 tileY, dtNavMesh* navMesh)
     {
+        if(shouldSkipTile(mapID, tileX, tileY))
+        {
+            ++m_totalTilesProcessed;
+            return;
+        }
+
         printf("%u%% [Map %03i] Building tile [%02u,%02u]\n", percentageDone(m_totalTiles, m_totalTilesProcessed), mapID, tileX, tileY);
 
         MeshData meshData;
@@ -426,7 +444,10 @@ namespace MMAP
 
         // if there is no data, give up now
         if (!meshData.solidVerts.size() && !meshData.liquidVerts.size())
+        {
+            ++m_totalTilesProcessed;
             return;
+        }
 
         // remove unused vertices
         TerrainBuilder::cleanVertices(meshData.solidVerts, meshData.solidTris);
@@ -438,7 +459,10 @@ namespace MMAP
         allVerts.append(meshData.solidVerts);
 
         if (!allVerts.size())
+        {
+            ++m_totalTilesProcessed;
             return;
+        }
 
         // get bounds of current tile
         float bmin[3], bmax[3];
@@ -448,6 +472,8 @@ namespace MMAP
 
         // build navmesh tile
         buildMoveMapTile(mapID, tileX, tileY, meshData, bmin, bmax, navMesh);
+
+        ++m_totalTilesProcessed;
     }
 
     /**************************************************************************/
