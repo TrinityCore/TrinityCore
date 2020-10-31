@@ -2367,10 +2367,6 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             }
             break;
         }
-        case SMART_ACTION_SET_AI_ANIM_KIT:
-            for (WorldObject* target : targets)
-                target->SetAIAnimKitId(e.action.setAIAnimKit.animKitId);
-            break;
         case SMART_ACTION_SET_HOVER:
             for (WorldObject* target : targets)
                 if (IsUnit(target))

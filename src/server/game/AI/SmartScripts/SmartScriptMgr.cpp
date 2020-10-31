@@ -1589,13 +1589,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
 
             break;
         }
-        case SMART_ACTION_SET_AI_ANIM_KIT:
-            if (!sAnimKitStore.LookupEntry(e.action.setAIAnimKit.animKitId))
-            {
-                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses non-existent AI anim Kit %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.setAIAnimKit.animKitId);
-                return false;
-            }
-            break;
         case SMART_ACTION_FOLLOW:
         case SMART_ACTION_SET_ORIENTATION:
         case SMART_ACTION_STORE_TARGET_LIST:
