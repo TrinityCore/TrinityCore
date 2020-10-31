@@ -215,7 +215,7 @@ namespace MMAP
             // build performance - not really used for now
             rcContext* m_rcContext;
 
-            std::vector<TileBuilder> m_tileBuilders;
+            std::vector<TileBuilder*> m_tileBuilders;
             ProducerConsumerQueue<TileInfo> _queue;
             std::atomic<bool> _cancelationToken;
     };

@@ -93,7 +93,8 @@ namespace MMAP
 
         for (auto& builder : m_tileBuilders)
         {
-            builder.WaitCompletion();
+            builder->WaitCompletion();
+            delete builder;
         }
 
         for (TileList::iterator it = m_tiles.begin(); it != m_tiles.end(); ++it)
@@ -240,7 +241,7 @@ namespace MMAP
 
         for (unsigned int i = 0; i < m_threads; ++i)
         {
-            m_tileBuilders.emplace_back(this, m_skipLiquid, m_bigBaseUnit, m_debugOutput);
+            m_tileBuilders.push_back(new TileBuilder(this, m_skipLiquid, m_bigBaseUnit, m_debugOutput));
         }
 
         if (mapID)
@@ -268,7 +269,8 @@ namespace MMAP
 
         for (auto& builder : m_tileBuilders)
         {
-            builder.WaitCompletion();
+            builder->WaitCompletion();
+            delete builder;
         }
     }
 
