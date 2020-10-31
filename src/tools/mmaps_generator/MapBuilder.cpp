@@ -45,6 +45,8 @@ namespace MMAP
 
     TileBuilder::~TileBuilder()
     {
+        delete m_terrainBuilder;
+        delete m_rcContext;
     }
 
     void TileBuilder::WaitCompletion()
