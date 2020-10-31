@@ -123,7 +123,7 @@ class TC_COMMON_API TaskScheduler
     /// Container which provides Task order, insert and reschedule operations.
     struct Compare
     {
-        bool operator() (TaskContainer const& left, TaskContainer const& right)
+        bool operator() (TaskContainer const& left, TaskContainer const& right) const
         {
             return (*left.get()) < (*right.get());
         };
