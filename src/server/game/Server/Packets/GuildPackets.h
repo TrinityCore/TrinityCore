@@ -1016,7 +1016,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            Array<uint32, 10> AchievementIDs;
+            std::set<uint32> AchievementIDs;
         };
 
         class GuildNameChanged final : ServerPacket

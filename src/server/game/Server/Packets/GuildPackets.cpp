@@ -806,10 +806,15 @@ WorldPacket const* WorldPackets::Guild::PlayerSaveGuildEmblem::Write()
 
 void WorldPackets::Guild::GuildSetAchievementTracking::Read()
 {
-    AchievementIDs.resize(_worldPacket.read<uint32>());
+    uint32 count;
+    _worldPacket >> count;
 
-    for (uint32& achievementID : AchievementIDs)
-        _worldPacket >> achievementID;
+    for (uint32 i = 0; i < count; ++i)
+    {
+        uint32 value;
+        _worldPacket >> value;
+        AchievementIDs.insert(value);
+    }
 }
 
 WorldPacket const* WorldPackets::Guild::GuildNameChanged::Write()
