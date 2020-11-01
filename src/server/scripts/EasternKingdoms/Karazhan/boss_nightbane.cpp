@@ -134,7 +134,7 @@ public:
             me->SetDisableGravity(true);
             HandleTerraceDoors(true);
             if (GameObject* urn = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_GO_BLACKENED_URN)))
-                urn->RemoveFlag(GO_FLAG_IN_USE);
+                urn->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE | GO_FLAG_NOT_SELECTABLE);
         }
 
         void EnterEvadeMode(EvadeReason why) override
@@ -161,7 +161,7 @@ public:
                 Talk(EMOTE_SUMMON);
                 events.SetPhase(PHASE_INTRO);
                 me->setActive(true);
-                me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->GetMotionMaster()->MoveAlongSplineChain(POINT_INTRO_START, SPLINE_CHAIN_INTRO_START, false);
                 HandleTerraceDoors(false);
             }
@@ -214,7 +214,7 @@ public:
                 switch (pointId)
                 {
                     case POINT_INTRO_START:
-                        me->SetAnimTier(UNIT_BYTE1_FLAG_NONE, false);
+                        me->SetStandState(UNIT_STAND_STATE_STAND);
                         events.ScheduleEvent(EVENT_START_INTRO_PATH, Milliseconds(1));
                         break;
                     case POINT_INTRO_END:
@@ -302,7 +302,7 @@ public:
                     me->GetMotionMaster()->MoveAlongSplineChain(POINT_PHASE_TWO_LANDING, SPLINE_CHAIN_SECOND_LANDING, false);
                     break;
                 case EVENT_INTRO_LANDING:
-                    me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                     me->SetInCombatWithZone();
                     break;
                 case EVENT_LAND:
@@ -422,7 +422,7 @@ public:
 
     bool OnGossipHello(Player* /*player*/, GameObject* go) override
     {
-        if (go->HasFlag(GO_FLAG_IN_USE))
+        if (go->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE))
             return false;
 
         InstanceScript* instance = go->GetInstanceScript();
@@ -431,7 +431,7 @@ public:
 
         if (Creature* nightbane = ObjectAccessor::GetCreature(*go, instance->GetGuidData(DATA_NIGHTBANE)))
         {
-            go->AddFlag(GO_FLAG_IN_USE);
+            go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
             nightbane->AI()->DoAction(ACTION_SUMMON);
         }
         return false;

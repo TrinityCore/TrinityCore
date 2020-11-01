@@ -7856,9 +7856,9 @@ void Unit::ClearInCombat()
 
 void Unit::ClearInPetCombat()
 {
-    RemoveUnitFlag(UNIT_FLAG_PET_IN_COMBAT);
+    RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
     if (Unit* owner = GetOwner())
-        owner->RemoveUnitFlag(UNIT_FLAG_PET_IN_COMBAT);
+        owner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
 }
 
 bool Unit::isTargetableForAttack(bool checkFakeDeath) const

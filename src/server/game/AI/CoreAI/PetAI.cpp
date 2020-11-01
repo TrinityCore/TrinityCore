@@ -459,9 +459,9 @@ void PetAI::DoAttack(Unit* target, bool chase)
     {
         // properly fix fake combat after pet is sent to attack
         if (Unit* owner = me->GetOwner())
-            owner->AddUnitFlag(UNIT_FLAG_PET_IN_COMBAT);
+            owner->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
 
-        me->AddUnitFlag(UNIT_FLAG_PET_IN_COMBAT);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
 
         // Play sound to let the player know the pet is attacking something it picked on its own
         if (me->HasReactState(REACT_AGGRESSIVE) && !me->GetCharmInfo()->IsCommandAttack())

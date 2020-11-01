@@ -894,10 +894,10 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 entry, float
     if (!CreateFromProto(guidlow, entry, data, vehId))
         return false;
 
-    switch (GetCreatureTemplate()->rank)
     if (cinfo->flags_extra & CREATURE_FLAG_EXTRA_DUNGEON_BOSS && map->IsDungeon())
         m_respawnDelay = 0; // special value, prevents respawn for dungeon bosses unless overridden
 
+    switch (GetCreatureTemplate()->rank)
     {
         case CREATURE_ELITE_RARE:
             m_corpseDelay = sWorld->getIntConfig(CONFIG_CORPSE_DECAY_RARE);

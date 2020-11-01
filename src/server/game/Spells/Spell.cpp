@@ -521,7 +521,7 @@ protected:
 
 Spell::Spell(Unit* caster, SpellInfo const* info, TriggerCastFlags triggerFlags, ObjectGuid originalCasterGUID, bool skipCheck) :
 m_spellInfo(info), m_caster((info->HasAttribute(SPELL_ATTR6_CAST_BY_CHARMER) && caster->GetCharmerOrOwner()) ? caster->GetCharmerOrOwner() : caster),
-m_spellValue(new SpellValue(caster->GetMap()->GetDifficultyID(), m_spellInfo, caster)), _spellEvent(nullptr)
+m_spellValue(new SpellValue(caster->GetMap()->GetDifficultyID(), m_spellInfo)), _spellEvent(nullptr)
 {
     _effects = info->GetEffectsForDifficulty(caster->GetMap()->GetDifficultyID());
 
@@ -5975,7 +5975,7 @@ SpellCastResult Spell::CheckCasterAuras(uint32* param1) const
         else if (!CheckSpellCancelsConfuse(param1))
             result = SPELL_FAILED_CONFUSED;
     }
-    else if (m_caster->HasUnitFlag2(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_NO_ACTIONS) && m_spellInfo->PreventionType & SPELL_PREVENTION_TYPE_NO_ACTIONS && !CheckSpellCancelsNoActions(param1))
+    else if (m_caster->HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_NO_ACTIONS) && m_spellInfo->PreventionType & SPELL_PREVENTION_TYPE_NO_ACTIONS && !CheckSpellCancelsNoActions(param1))
         result = SPELL_FAILED_NO_ACTIONS;
 
     // Attr must make flag drop spell totally immune from all effects
