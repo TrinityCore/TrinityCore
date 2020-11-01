@@ -207,7 +207,7 @@ public:
             if (GameObject* go = instance->GetGameObject(DATA_GORTOK_PALEHOOF_SPHERE))
             {
                 go->SetGoState(GO_STATE_READY);
-                go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
+                go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
             }
         }
 
@@ -292,7 +292,7 @@ public:
                 }
                 case ACTION_START_FIGHT:
                     me->RemoveAurasDueToSpell(SPELL_FREEZE);
-                    me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                     DoZoneInCombat();
                     if (Creature* orb = ObjectAccessor::GetCreature(*me, _orb))
                         orb->DespawnOrUnsummon(1000);
@@ -345,7 +345,7 @@ struct PalehoofMinionsBossAI : public BossAI
         if (actionId == ACTION_START_FIGHT)
         {
             me->RemoveAurasDueToSpell(SPELL_FREEZE);
-            me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             DoZoneInCombat();
         }
     }
@@ -567,7 +567,7 @@ public:
             if (Creature* palehoof = instance->GetCreature(DATA_GORTOK_PALEHOOF))
                 if (palehoof->IsAlive() && instance->GetBossState(DATA_GORTOK_PALEHOOF) != DONE)
                 {
-                    go->SetFlags(GO_FLAG_NOT_SELECTABLE);
+                    go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     go->SetGoState(GO_STATE_ACTIVE);
                     palehoof->AI()->DoAction(ACTION_START_ENCOUNTER);
                 }
@@ -652,7 +652,7 @@ class spell_palehoof_awaken_subboss : public SpellScriptLoader
             {
                 Unit* target = GetHitUnit();
                 GetCaster()->CastSpell(target, SPELL_ORB_CHANNEL);
-                target->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 target->m_Events.AddEvent(new CombatStartEvent(target), target->m_Events.CalculateTime(8500));
             }
 
@@ -681,7 +681,7 @@ class spell_palehoof_awaken_gortok : public SpellScriptLoader
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 Unit* target = GetHitUnit();
-                target->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 target->m_Events.AddEvent(new CombatStartEvent(target), target->m_Events.CalculateTime(8000));
             }
 
