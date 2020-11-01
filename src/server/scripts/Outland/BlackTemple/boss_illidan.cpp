@@ -571,7 +571,7 @@ public:
                 {
                     me->SetReactState(REACT_PASSIVE);
                     me->AttackStop();
-                    me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
                     me->SetDisableGravity(true);
                     DoPlaySoundToSet(me, ILLIDAN_TAKEOFF_SOUND_ID);
@@ -600,7 +600,7 @@ public:
                     DoCastSelf(SPELL_SHADOW_PRISON, true);
                     me->SetReactState(REACT_PASSIVE);
                     me->AttackStop();
-                    me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     events.ScheduleEvent(EVENT_SHADOW_PRISON_TEXT, Milliseconds(500), GROUP_PHASE_ALL);
                     break;
                 case ACTION_ILLIDAN_CAGED:
@@ -613,7 +613,7 @@ public:
                     events.Reset();
                     specialEvents.Reset();
                     DoCastSelf(SPELL_DEATH, true);
-                    me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     events.ScheduleEvent(EVENT_DEFEATED_TEXT, Seconds(4));
                     break;
                 default:
@@ -623,7 +623,7 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
-            me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             instance->SetBossState(DATA_ILLIDAN_STORMRAGE, DONE);
             events.Reset();
         }
@@ -794,7 +794,7 @@ public:
                         events.ScheduleEvent(EVENT_ENCOUNTER_START, Seconds(3), GROUP_PHASE_ALL);
                         break;
                     case EVENT_ENCOUNTER_START:
-                        me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
                         DoZoneInCombat();
                         if (Creature* akama = instance->GetCreature(DATA_AKAMA))
                             akama->AI()->DoAction(ACTION_START_ENCOUNTER);
@@ -902,7 +902,7 @@ public:
                         events.ScheduleEvent(EVENT_RESUME_COMBAT, Seconds(3), GROUP_PHASE_ALL);
                         break;
                     case EVENT_RESUME_COMBAT:
-                        me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         me->SetReactState(REACT_AGGRESSIVE);
                         ScheduleEvents(GROUP_PHASE_3, GROUP_PHASE_3);
                         break;
@@ -964,7 +964,7 @@ public:
                         events.ScheduleEvent(EVENT_RESUME_COMBAT_PHASE_4, Seconds(13), GROUP_PHASE_ALL);
                         break;
                     case EVENT_RESUME_COMBAT_PHASE_4:
-                        me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         me->SetReactState(REACT_AGGRESSIVE);
                         ScheduleEvents(GROUP_PHASE_4, GROUP_PHASE_4);
                         break;
@@ -1046,7 +1046,7 @@ public:
             {
                 _instance->SetData(DATA_AKAMA, AKAMA_FIGHT);
                 me->GetMotionMaster()->MoveAlongSplineChain(POINT_STAIRS, SPLINE_STAIRS, false);
-                me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 if (Creature* illidan = _instance->GetCreature(DATA_ILLIDAN_STORMRAGE))
                     illidan->AI()->DoAction(ACTION_INTRO_DONE);
                 CloseGossipMenuFor(player);
@@ -1056,7 +1056,7 @@ public:
             {
                 _events.SetPhase(PHASE_INTRO);
                 me->GetMotionMaster()->MoveAlongSplineChain(POINT_FACE_ILLIDAN, SPLINE_FACE_ILLIDAN, false);
-                me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 CloseGossipMenuFor(player);
             }
         }
@@ -1080,12 +1080,12 @@ public:
             if (summon->GetEntry() == NPC_SPIRIT_OF_UDALO)
             {
                 _spiritOfUdaloGUID = summon->GetGUID();
-                summon->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             }
             else if (summon->GetEntry() == NPC_SPIRIT_OF_OLUM)
             {
                 _spiritOfOlumGUID = summon->GetGUID();
-                summon->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             }
         }
 
@@ -1095,7 +1095,7 @@ public:
             {
                 case ACTION_ACTIVE_AKAMA_INTRO:
                     _events.SetPhase(PHASE_INTRO);
-                    me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     _events.SetPhase(PHASE_INTRO);
                     _events.ScheduleEvent(EVENT_TELEPORT, Seconds(1));
                     _events.ScheduleEvent(EVENT_MOVE_TO_ILLIDARI_ROOM, Seconds(1) + Milliseconds(500));
@@ -1140,7 +1140,7 @@ public:
             {
                 case POINT_ILLIDARI_COUNCIL:
                     Talk(SAY_AKAMA_FINISH);
-                    me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     break;
                 case POINT_STAIRS:
                     ChangeOrientation(6.265732f);
@@ -1149,7 +1149,7 @@ public:
                 case POINT_ILLIDAN_ROOM:
                     ChangeOrientation(2.129302f);
                     Talk(SAY_AKAMA_BETRAYER);
-                    me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     break;
                 case POINT_FACE_ILLIDAN:
                     ChangeOrientation(3.140537f);
@@ -1161,7 +1161,7 @@ public:
                     break;
                 case POINT_MINIONS:
                     _events.SetPhase(PHASE_MINIONS);
-                    me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
                     me->SetReactState(REACT_AGGRESSIVE);
                     if (Creature* illidan = _instance->GetCreature(DATA_ILLIDAN_STORMRAGE))
                         illidan->AI()->DoAction(ACTION_START_MINIONS_WEAVE);
@@ -1271,7 +1271,7 @@ public:
                         break;
                     case EVENT_ROAR:
                         me->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
-                        me->SetEmoteState(EMOTE_STATE_READY1H);
+                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY1H);
                         break;
                     case EVENT_CHANGE_ORIENTATION:
                         me->SetFacingTo(_orientation, true);
@@ -1289,7 +1289,7 @@ public:
                         me->SetReactState(REACT_PASSIVE);
                         me->AttackStop();
                         me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
-                        me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
                         _events.ScheduleEvent(EVENT_AKAMA_MINIONS_MOVE, Seconds(4));
                         break;
                     case EVENT_AKAMA_MINIONS_MOVE:
@@ -2418,12 +2418,12 @@ public:
 
         void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            GetTarget()->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+            GetTarget()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
 
         void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            GetTarget()->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+            GetTarget()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             GetTarget()->GetAI()->DoAction(ACTION_MAIEV_DOWN_FADE);
         }
 

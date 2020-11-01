@@ -6977,7 +6977,7 @@ bool Spell::CheckEffectTarget(Unit const* target, SpellEffectInfo const* effect,
         {
             if (!m_targets.GetCorpseTargetGUID())
             {
-                if (target->IsWithinLOSInMap(m_caster, VMAP::ModelIgnoreFlags::M2) && target->HasUnitFlag(UNIT_FLAG_SKINNABLE))
+                if (target->IsWithinLOSInMap(m_caster, VMAP::ModelIgnoreFlags::M2) && target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE))
                     return true;
         
                 return false;
@@ -6990,7 +6990,7 @@ bool Spell::CheckEffectTarget(Unit const* target, SpellEffectInfo const* effect,
             if (target->GetGUID() != corpse->GetOwnerGUID())
                 return false;
         
-            if (!corpse->HasDynamicFlag(CORPSE_DYNFLAG_LOOTABLE))
+            if (!corpse->HasFlag(CORPSE_FIELD_DYNAMIC_FLAGS, CORPSE_DYNFLAG_LOOTABLE))
                 return false;
         
             if (!corpse->IsWithinLOSInMap(m_caster, VMAP::ModelIgnoreFlags::M2))

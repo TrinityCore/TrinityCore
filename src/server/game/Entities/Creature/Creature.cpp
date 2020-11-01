@@ -725,7 +725,7 @@ void Creature::Regenerate(Powers power)
     uint32 curValue = GetPower(power);
     uint32 maxValue = GetMaxPower(power);
 
-    if (!HasUnitFlag2(UNIT_FLAG2_REGENERATE_POWER))
+    if (!HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER))
         return;
 
     if (curValue >= maxValue)

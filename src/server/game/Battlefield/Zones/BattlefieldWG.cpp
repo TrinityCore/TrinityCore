@@ -958,7 +958,7 @@ void BattlefieldWG::HandleKill(Player* killer, Unit* victim)
         HandlePromotion(killer, victim);
 
         // Allow to Skin non-released corpse
-        victim->AddUnitFlag(UNIT_FLAG_SKINNABLE);
+        victim->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
     }
 
     /// @todoRecent PvP activity worldstate
