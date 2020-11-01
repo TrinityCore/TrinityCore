@@ -45,13 +45,16 @@ namespace MMAP
 
     TileBuilder::~TileBuilder()
     {
+        WaitCompletion();
+
         delete m_terrainBuilder;
         delete m_rcContext;
     }
 
     void TileBuilder::WaitCompletion()
     {
-        m_workerThread.join();
+        if (m_workerThread.joinable())
+            m_workerThread.join();
     }
 
     MapBuilder::MapBuilder(Optional<float> maxWalkableAngle, Optional<float> maxWalkableAngleNotSteep, bool skipLiquid,
@@ -92,10 +95,9 @@ namespace MMAP
         _queue.Cancel();
 
         for (auto& builder : m_tileBuilders)
-        {
-            builder->WaitCompletion();
             delete builder;
-        }
+
+        m_tileBuilders.clear();
 
         for (TileList::iterator it = m_tiles.begin(); it != m_tiles.end(); ++it)
         {
@@ -268,10 +270,9 @@ namespace MMAP
         _queue.Cancel();
 
         for (auto& builder : m_tileBuilders)
-        {
-            builder->WaitCompletion();
             delete builder;
-        }
+
+        m_tileBuilders.clear();
     }
 
     /**************************************************************************/
