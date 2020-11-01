@@ -819,7 +819,6 @@ struct GameObjectTemplate
             case GAMEOBJECT_TYPE_DOOR:          return door.InfiniteAOI != 0;
             case GAMEOBJECT_TYPE_FLAGSTAND:     return flagStand.InfiniteAOI != 0;
             case GAMEOBJECT_TYPE_FLAGDROP:      return flagDrop.InfiniteAOI != 0;
-            case GAMEOBJECT_TYPE_TRAPDOOR:      return trapdoor.InfiniteAOI != 0;
             case GAMEOBJECT_TYPE_NEW_FLAG:      return newflag.InfiniteAOI != 0;
             default: return false;
         }
@@ -842,7 +841,6 @@ struct GameObjectTemplate
             case GAMEOBJECT_TYPE_FLAGDROP:              return flagDrop.GiganticAOI != 0;
             case GAMEOBJECT_TYPE_CONTROL_ZONE:          return controlZone.GiganticAOI != 0;
             case GAMEOBJECT_TYPE_DUNGEON_DIFFICULTY:    return dungeonDifficulty.GiganticAOI != 0;
-            case GAMEOBJECT_TYPE_TRAPDOOR:              return trapdoor.GiganticAOI != 0;
             case GAMEOBJECT_TYPE_NEW_FLAG:              return newflag.GiganticAOI != 0;
             case GAMEOBJECT_TYPE_CAPTURE_POINT:         return capturePoint.GiganticAOI != 0;
             case GAMEOBJECT_TYPE_GARRISON_SHIPMENT:     return garrisonShipment.GiganticAOI != 0;
