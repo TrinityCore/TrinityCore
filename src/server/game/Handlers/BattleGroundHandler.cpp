@@ -811,7 +811,7 @@ void WorldSession::HandleRequestRatedBgInfo(WorldPacket & recvData)
 
     TC_LOG_DEBUG("bg.battleground", "WorldSession::HandleRequestRatedBgInfo: unk = %u", unk);
     uint8 ratedBattlegroundActive = sWorld->getBoolConfig(CONFIG_RATED_BATTLEGROUND_ENABLE);
-    uint8 ratedBattlegroundReward = sWorld->getIntConfig(CONFIG_RATED_BATTLEGROUND_REWARD) / CURRENCY_PRECISION;
+    int32 ratedBattlegroundReward = sWorld->getIntConfig(CONFIG_RATED_BATTLEGROUND_REWARD) / CURRENCY_PRECISION;
 
 
     WorldPackets::Battleground::BattlefieldRatedInfo packet;
