@@ -6642,7 +6642,7 @@ void Player::SendPvpRewards() const
     packet.ArenaRewardPointsThisWeek = GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ARENA, true);
     packet.MaxRewardPointsThisWeek = GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS, true);
     packet.RewardPointsThisWeek = GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_POINTS, true);
-    packet.RatedMaxRewardPointsThisWeek = GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS, true);
+    packet.RatedMaxRewardPointsThisWeek = GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_RBG, true);
     packet.RatedRewardPointsThisWeek = GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_RBG, true);
 
     SendDirectMessage(packet.Write());
