@@ -475,6 +475,14 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Movement::MonsterSplineAn
     return data;
 }
 
+WorldPacket const* WorldPackets::Movement::FlightSplineSync::Write()
+{
+    _worldPacket << float(SplineDist);
+    _worldPacket << Guid.WriteAsPacked();
+
+    return &_worldPacket;
+}
+
 ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementSpline const& movementSpline)
 {
     data << int8(movementSpline.Face);

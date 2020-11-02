@@ -34,7 +34,7 @@ namespace Movement
     public:
         static void WriteCreateBits(MoveSpline const& moveSpline, ByteBuffer& data);
         static void WriteCreateData(MoveSpline const& moveSpline, ByteBuffer& data);
-        static void WriteSplineSync(MoveSpline const& moveSpline, ByteBuffer& data);
+        static float GetFlightSplineSyncDist(MoveSpline const& moveSpline);
     };
 }
 #endif // TRINITYSERVER_PACKET_BUILDER_H

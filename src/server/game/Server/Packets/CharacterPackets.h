@@ -233,6 +233,18 @@ namespace WorldPackets
             uint8 Reason = 0;
             uint8 ReferAFriendBonusType = 0;    // 1 - 300% of normal XP; 2 - 150% of normal XP
         };
+
+        class PlayedTime final : public ServerPacket
+        {
+        public:
+            PlayedTime() : ServerPacket(SMSG_PLAYED_TIME, 9) { }
+
+            WorldPacket const* Write() override;
+
+            int32 TotalTime = 0;
+            int32 LevelTime = 0;
+            bool TriggerEvent = false;
+        };
     }
 }
 

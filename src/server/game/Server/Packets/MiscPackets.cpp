@@ -381,3 +381,72 @@ WorldPacket const* WorldPackets::Misc::LoginSetTimeSpeed::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::ZoneUnderAttack::Write()
+{
+    _worldPacket << int32(AreaID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::Dismount::Write()
+{
+    _worldPacket << Guid.WriteAsPacked();
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::LoadCUFProfiles::Write()
+{
+    _worldPacket.WriteBits(CUFProfiles.size(), 20);
+
+    for (CUFProfile const* cufProfile : CUFProfiles)
+    {
+        _worldPacket.WriteBit(cufProfile->BoolOptions[CUF_UNK_157]);
+        _worldPacket.WriteBit(cufProfile->BoolOptions[CUF_AUTO_ACTIVATE_10_PLAYERS]);
+        _worldPacket.WriteBit(cufProfile->BoolOptions[CUF_AUTO_ACTIVATE_5_PLAYERS]);
+        _worldPacket.WriteBit(cufProfile->BoolOptions[CUF_AUTO_ACTIVATE_25_PLAYERS]);
+        _worldPacket.WriteBit(cufProfile->BoolOptions[CUF_DISPLAY_HEAL_PREDICTION]);
+        _worldPacket.WriteBit(cufProfile->BoolOptions[CUF_AUTO_ACTIVATE_PVE]);
+        _worldPacket.WriteBit(cufProfile->BoolOptions[CUF_DISPLAY_HORIZONTAL_GROUPS]);
+        _worldPacket.WriteBit(cufProfile->BoolOptions[CUF_AUTO_ACTIVATE_40_PLAYERS]);
+        _worldPacket.WriteBit(cufProfile->BoolOptions[CUF_AUTO_ACTIVATE_3_PLAYERS]);
+        _worldPacket.WriteBit(cufProfile->BoolOptions[CUF_DISPLAY_AGGRO_HIGHLIGHT]);
+        _worldPacket.WriteBit(cufProfile->BoolOptions[CUF_DISPLAY_BORDER]);
+        _worldPacket.WriteBit(cufProfile->BoolOptions[CUF_AUTO_ACTIVATE_2_PLAYERS]);
+        _worldPacket.WriteBit(cufProfile->BoolOptions[CUF_DISPLAY_NON_BOSS_DEBUFFS]);
+        _worldPacket.WriteBit(cufProfile->BoolOptions[CUF_DISPLAY_MAIN_TANK_AND_ASSIST]);
+        _worldPacket.WriteBit(cufProfile->BoolOptions[CUF_UNK_156]);
+        _worldPacket.WriteBit(cufProfile->BoolOptions[CUF_AUTO_ACTIVATE_SPEC_2]);
+        _worldPacket.WriteBit(cufProfile->BoolOptions[CUF_USE_CLASS_COLORS]);
+        _worldPacket.WriteBit(cufProfile->BoolOptions[CUF_DISPLAY_POWER_BAR]);
+        _worldPacket.WriteBit(cufProfile->BoolOptions[CUF_AUTO_ACTIVATE_SPEC_1]);
+        _worldPacket.WriteBits(cufProfile->ProfileName.size(), 8);
+        _worldPacket.WriteBit(cufProfile->BoolOptions[CUF_DISPLAY_ONLY_DISPELLABLE_DEBUFFS]);
+        _worldPacket.WriteBit(cufProfile->BoolOptions[CUF_KEEP_GROUPS_TOGETHER]);
+        _worldPacket.WriteBit(cufProfile->BoolOptions[CUF_UNK_145]);
+        _worldPacket.WriteBit(cufProfile->BoolOptions[CUF_AUTO_ACTIVATE_15_PLAYERS]);
+        _worldPacket.WriteBit(cufProfile->BoolOptions[CUF_DISPLAY_PETS]);
+        _worldPacket.WriteBit(cufProfile->BoolOptions[CUF_AUTO_ACTIVATE_PVP]);
+    }
+
+    _worldPacket.FlushBits();
+
+    for (CUFProfile const* cufProfile : CUFProfiles)
+    {
+        // Other Options
+        _worldPacket << uint16(cufProfile->LeftOffset);
+        _worldPacket << uint16(cufProfile->FrameHeight);
+        _worldPacket << uint16(cufProfile->BottomOffset);
+        _worldPacket << uint8(cufProfile->BottomPoint);
+        _worldPacket << uint16(cufProfile->TopOffset);
+        _worldPacket << uint8(cufProfile->TopPoint);
+        _worldPacket << uint8(cufProfile->HealthText);
+        _worldPacket << uint8(cufProfile->SortBy);
+        _worldPacket << uint16(cufProfile->FrameWidth);
+        _worldPacket << uint8(cufProfile->LeftPoint);
+        _worldPacket.WriteString(cufProfile->ProfileName);
+    }
+
+    return &_worldPacket;
+}

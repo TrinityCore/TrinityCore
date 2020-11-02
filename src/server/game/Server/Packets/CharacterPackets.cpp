@@ -302,3 +302,12 @@ WorldPacket const* WorldPackets::Character::LogXPGain::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Character::PlayedTime::Write()
+{
+    _worldPacket << int32(TotalTime);
+    _worldPacket << int32(LevelTime);
+    _worldPacket << uint8(TriggerEvent);
+
+    return &_worldPacket;
+}

@@ -19,6 +19,7 @@
 #define MiscPackets_h__
 
 #include "Packet.h"
+#include "CUFProfile.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include "SharedDefines.h"
@@ -443,6 +444,36 @@ namespace WorldPackets
             float NewSpeed = 0.0f;
             uint32 GameTime = 0;
             uint32 GameTimeHolidayOffset = 0;
+        };
+
+        class ZoneUnderAttack final : public ServerPacket
+        {
+        public:
+            ZoneUnderAttack() : ServerPacket(SMSG_ZONE_UNDER_ATTACK, 4) { }
+
+            WorldPacket const* Write() override;
+
+            int32 AreaID = 0;
+        };
+
+        class Dismount final : public ServerPacket
+        {
+        public:
+            Dismount() : ServerPacket(SMSG_DISMOUNT, 8) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+        };
+
+        class LoadCUFProfiles final : public ServerPacket
+        {
+        public:
+            LoadCUFProfiles() : ServerPacket(SMSG_LOAD_CUF_PROFILES, 20) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<CUFProfile const*> CUFProfiles;
         };
     }
 }

@@ -36,6 +36,7 @@
 #include "Log.h"
 #include "LootMgr.h"
 #include "MapManager.h"
+#include "MiscPackets.h"
 #include "MotionMaster.h"
 #include "MoveSpline.h"
 #include "ObjectAccessor.h"
@@ -2632,9 +2633,9 @@ void Creature::SendZoneUnderAttackMessage(Player* attacker)
 {
     uint32 enemy_team = attacker->GetTeam();
 
-    WorldPacket data(SMSG_ZONE_UNDER_ATTACK, 4);
-    data << (uint32)GetAreaId();
-    sWorld->SendGlobalMessage(&data, nullptr, (enemy_team == ALLIANCE ? HORDE : ALLIANCE));
+    WorldPackets::Misc::ZoneUnderAttack packet;
+    packet.AreaID = GetAreaId();
+    sWorld->SendGlobalMessage(packet.Write(), nullptr, (enemy_team == ALLIANCE ? HORDE : ALLIANCE));
 }
 
 void Creature::SetInCombatWithZone()

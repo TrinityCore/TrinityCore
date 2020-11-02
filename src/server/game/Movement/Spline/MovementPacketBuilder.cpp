@@ -130,8 +130,8 @@ namespace Movement
         data << moveSpline.GetId();
     }
 
-    void PacketBuilder::WriteSplineSync(MoveSpline const& moveSpline, ByteBuffer& data)
+    float PacketBuilder::GetFlightSplineSyncDist(MoveSpline const& moveSpline)
     {
-        data << (float)moveSpline.timePassed() / moveSpline.Duration();
+        return (float)moveSpline.timePassed() / moveSpline.Duration();
     }
 }

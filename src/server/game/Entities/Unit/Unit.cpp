@@ -568,10 +568,10 @@ void Unit::UpdateSplineMovement(uint32 t_diff)
         {
             m_splineSyncTimer.Reset(5000); // Retail value, do not change
 
-            WorldPacket data(SMSG_FLIGHT_SPLINE_SYNC, 4 + GetPackGUID().size());
-            Movement::PacketBuilder::WriteSplineSync(*movespline, data);
-            data.appendPackGUID(GetGUID());
-            SendMessageToSet(&data, true);
+            WorldPackets::Movement::FlightSplineSync packet;
+            packet.Guid = GetGUID();
+            packet.SplineDist = Movement::PacketBuilder::GetFlightSplineSyncDist(*movespline);
+            SendMessageToSet(packet.Write(), IsPlayer());
         }
     }
 
@@ -8207,9 +8207,9 @@ void Unit::Dismount()
     if (Player* thisPlayer = ToPlayer())
         thisPlayer->SendMovementSetCollisionHeight(thisPlayer->GetCollisionHeight(), UPDATE_COLLISION_HEIGHT_MOUNT);
 
-    WorldPacket data(SMSG_DISMOUNT, 8);
-    data << GetPackGUID();
-    SendMessageToSet(&data, true);
+    WorldPackets::Misc::Dismount packet;
+    packet.Guid = GetGUID();
+    SendMessageToSet(packet.Write(), IsPlayer());
 
     // dismount as a vehicle
     if (GetTypeId() == TYPEID_PLAYER && GetVehicleKit())

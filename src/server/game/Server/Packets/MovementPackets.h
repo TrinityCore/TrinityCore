@@ -225,6 +225,17 @@ namespace WorldPackets
             ObjectGuid MoverGUID;
             TaggedPosition<Position::XYZ> Pos;
         };
+
+        class FlightSplineSync final : public ServerPacket
+        {
+        public:
+            FlightSplineSync() : ServerPacket(SMSG_FLIGHT_SPLINE_SYNC, 4 + 8) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+            float SplineDist = 0.0f;
+        };
     }
 
     ByteBuffer& operator<<(ByteBuffer& data, Movement::MovementSpline const& movementSpline);
