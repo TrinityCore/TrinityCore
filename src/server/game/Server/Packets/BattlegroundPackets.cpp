@@ -61,3 +61,50 @@ WorldPacket const* WorldPackets::Battleground::BattlefieldRatedInfo::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Battleground::BattlefieldList::Write()
+{
+    _worldPacket << int32(ConquestBonusHoliday);
+    _worldPacket << int32(ConquestBonusRandom);
+
+    _worldPacket << int32(HonorBonusHolidayLoss);
+    _worldPacket << int32(BattlemasterListID);
+    _worldPacket << int32(HonorBonusRandomLoss);
+
+    _worldPacket << int32(HonorBonusRandomWin);
+    _worldPacket << int32(HonorBonusHolidayWin);
+    _worldPacket << uint8(MaxLevel);
+    _worldPacket << uint8(MinLevel);
+
+    _worldPacket.WriteBit(BattlemasterGuid[0]);
+    _worldPacket.WriteBit(BattlemasterGuid[1]);
+    _worldPacket.WriteBit(BattlemasterGuid[7]);
+
+    _worldPacket.WriteBit(HasHolidayWinToday);
+    _worldPacket.WriteBit(HasRandomWinToday);
+    _worldPacket.WriteBits(Battlefields.size(), 24);
+
+    _worldPacket.WriteBit(BattlemasterGuid[6]);
+    _worldPacket.WriteBit(BattlemasterGuid[4]);
+    _worldPacket.WriteBit(BattlemasterGuid[2]);
+    _worldPacket.WriteBit(BattlemasterGuid[3]);
+    _worldPacket.WriteBit(IsRandomBG);
+    _worldPacket.WriteBit(BattlemasterGuid[5]);
+    _worldPacket.WriteBit(PvpAnywhere);
+    _worldPacket.FlushBits();
+
+    _worldPacket.WriteByteSeq(BattlemasterGuid[6]);
+    _worldPacket.WriteByteSeq(BattlemasterGuid[1]);
+    _worldPacket.WriteByteSeq(BattlemasterGuid[7]);
+    _worldPacket.WriteByteSeq(BattlemasterGuid[5]);
+
+    for (int32 battlefield : Battlefields)
+        _worldPacket << int32(battlefield);
+
+    _worldPacket.WriteByteSeq(BattlemasterGuid[0]);
+    _worldPacket.WriteByteSeq(BattlemasterGuid[2]);
+    _worldPacket.WriteByteSeq(BattlemasterGuid[4]);
+    _worldPacket.WriteByteSeq(BattlemasterGuid[3]);
+
+    return &_worldPacket;
+}

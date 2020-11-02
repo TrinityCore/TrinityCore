@@ -30,6 +30,7 @@
 #include "BattlegroundIC.h"
 #include "BattlegroundTP.h"
 #include "BattlegroundBFG.h"
+#include "BattlegroundPackets.h"
 #include "Common.h"
 #include "Containers.h"
 #include "Chat.h"
@@ -865,74 +866,45 @@ void BattlegroundMgr::LoadBattlegroundTemplates()
     TC_LOG_INFO("server.loading", ">> Loaded %u battlegrounds in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, ObjectGuid guid, Player* player, BattlegroundTypeId bgTypeId, bool hideWindow /*= true*/)
+void BattlegroundMgr::SendBattlegroundList(ObjectGuid guid, Player* player, BattlegroundTypeId bgTypeId)
 {
-    if (!player)
-        return;
-
     BattlegroundTemplate const* bgTemplate = GetBattlegroundTemplateByTypeId(bgTypeId);
     if (!bgTemplate)
         return;
 
     uint32 winnerConquest = (player->GetRandomWinner() ? sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_CONQUEST_LAST) : sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_CONQUEST_FIRST)) / CURRENCY_PRECISION;
     uint32 winnerHonor = (player->GetRandomWinner() ? sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_HONOR_LAST) : sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_HONOR_FIRST)) / CURRENCY_PRECISION;
-    uint32 loserHonor = (!player->GetRandomWinner() ? sWorld->getIntConfig(CONFIG_BG_REWARD_LOSER_HONOR_LAST) : sWorld->getIntConfig(CONFIG_BG_REWARD_LOSER_HONOR_FIRST)) / CURRENCY_PRECISION;
+    uint32 loserHonor = (player->GetRandomWinner() ? sWorld->getIntConfig(CONFIG_BG_REWARD_LOSER_HONOR_LAST) : sWorld->getIntConfig(CONFIG_BG_REWARD_LOSER_HONOR_FIRST)) / CURRENCY_PRECISION;
 
-    data->Initialize(SMSG_BATTLEFIELD_LIST);
-    *data << uint32(winnerConquest)             // Winner Conquest Reward or Random Winner Conquest Reward
-          << uint32(winnerConquest)             // Winner Conquest Reward or Random Winner Conquest Reward
-          << uint32(loserHonor)                 // Loser Honor Reward or Random Loser Honor Reward
-          << uint32(bgTypeId)                   // battleground id
-          << uint32(loserHonor)                 // Loser Honor Reward or Random Loser Honor Reward
-          << uint32(winnerHonor)                // Winner Honor Reward or Random Winner Honor Reward
-          << uint32(winnerHonor)                // Winner Honor Reward or Random Winner Honor Reward
-          << uint8(bgTemplate->MaxLevel)        // max level
-          << uint8(bgTemplate->MinLevel);       // min level
-
-    data->WriteBit(guid[0]);
-    data->WriteBit(guid[1]);
-    data->WriteBit(guid[7]);
-    data->WriteBit(0);                                      // unk
-    data->WriteBit(0);                                      // unk
-
-    size_t count_pos = data->bitwpos();
-    data->WriteBits(0, 24);                                 // placeholder
-
-    data->WriteBit(guid[6]);
-    data->WriteBit(guid[4]);
-    data->WriteBit(guid[2]);
-    data->WriteBit(guid[3]);
-    data->WriteBit(0);                                      // unk
-    data->WriteBit(guid[5]);
-    data->WriteBit(hideWindow);                             // hide battleground list window
-
-    data->FlushBits();
-
-    data->WriteByteSeq(guid[6]);
-    data->WriteByteSeq(guid[1]);
-    data->WriteByteSeq(guid[7]);
-    data->WriteByteSeq(guid[5]);
+    WorldPackets::Battleground::BattlefieldList battlefieldList;
+    battlefieldList.ConquestBonusRandom = winnerConquest;
+    battlefieldList.ConquestBonusHoliday = winnerConquest;
+    battlefieldList.HonorBonusRandomWin = winnerHonor;
+    battlefieldList.HonorBonusHolidayWin = winnerHonor;
+    battlefieldList.HonorBonusRandomLoss = loserHonor;
+    battlefieldList.HonorBonusHolidayLoss = loserHonor;
+    battlefieldList.BattlemasterGuid = guid;
+    battlefieldList.BattlemasterListID = bgTypeId;
+    battlefieldList.MinLevel = bgTemplate->MinLevel;
+    battlefieldList.MaxLevel = bgTemplate->MaxLevel;
+    battlefieldList.PvpAnywhere = guid.IsEmpty();
+    battlefieldList.IsRandomBG = bgTypeId == BATTLEGROUND_RB;
+    battlefieldList.HasRandomWinToday = player->GetRandomWinner();
 
     BattlegroundDataContainer::iterator it = bgDataStore.find(bgTypeId);
     if (it != bgDataStore.end())
     {
-
         PvPDifficultyEntry const* bracketEntry = sDBCManager.GetBattlegroundBracketByLevel(it->second.m_Battlegrounds.begin()->second->GetMapId(), player->getLevel());
         if (bracketEntry)
         {
             BattlegroundBracketId bracketId = bracketEntry->GetBracketId();
             BattlegroundClientIdsContainer& clientIds = it->second.m_ClientBattlegroundIds[bracketId];
             for (BattlegroundClientIdsContainer::const_iterator itr = clientIds.begin(); itr != clientIds.end(); ++itr)
-                *data << uint32(*itr);
-
-            data->PutBits(count_pos, clientIds.size(), 24);                    // bg instance count
+                battlefieldList.Battlefields.push_back(uint32(*itr));
         }
     }
 
-    data->WriteByteSeq(guid[0]);
-    data->WriteByteSeq(guid[2]);
-    data->WriteByteSeq(guid[4]);
-    data->WriteByteSeq(guid[3]);
+    player->SendDirectMessage(battlefieldList.Write());
 }
 
 void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, BattlegroundTypeId bgTypeId)

@@ -66,6 +66,32 @@ namespace WorldPackets
             int32 PurseQuantity = 0;
             int8 Unk = 0; // Same value as in cmsg
         };
+
+        class BattlefieldList final : public ServerPacket
+        {
+        public:
+            BattlefieldList() : ServerPacket(SMSG_BATTLEFIELD_LIST, 35) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid BattlemasterGuid;
+            int32 BattlemasterListID = 0;
+            int32 ConquestBonusRandom = 0;
+            int32 ConquestBonusHoliday = 0;
+            int32 HonorBonusRandomWin = 0;
+            int32 HonorBonusRandomLoss = 0;
+            int32 HonorBonusHolidayWin = 0;
+            int32 HonorBonusHolidayLoss = 0;
+            int32 HonorLossBonus = 0;
+            int32 HonorWinBonus = 0;
+            uint8 MinLevel = 0;
+            uint8 MaxLevel = 0;
+            std::vector<int32> Battlefields;
+            bool PvpAnywhere = false;
+            bool IsRandomBG = false;
+            bool HasRandomWinToday = false;
+            bool HasHolidayWinToday = false;
+        };
     }
 
 }

@@ -14129,7 +14129,7 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
                 return;
             }
 
-            GetSession()->SendBattleGroundList(guid, bgTypeId);
+            sBattlegroundMgr->SendBattlegroundList(source->GetGUID(), this, BattlegroundTypeId(bgTypeId));
             break;
         }
     }

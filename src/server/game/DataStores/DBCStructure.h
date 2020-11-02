@@ -765,8 +765,8 @@ struct BattlemasterListEntry
     char* Name;                                             // 11
     uint32  MaxGroupSize;                                   // 12 maxGroupSize, used for checking if queue as group
     uint32  HolidayWorldState;                              // 13 new 3.1
-    uint32  Minlevel;                                       // 14, min level (sync with PvPDifficulty.dbc content)
-    uint32  Maxlevel;                                       // 15, max level (sync with PvPDifficulty.dbc content)
+    uint32  MinLevel;                                       // 14, min level (sync with PvPDifficulty.dbc content)
+    uint32  MaxLevel;                                       // 15, max level (sync with PvPDifficulty.dbc content)
     //uint32  RatedPlayers;                                 // 16 4.0.1
     //uint32  MinPlayers;                                   // 17 - 4.0.6.13596
     //uint32  MaxPlayers;                                   // 18 4.0.1
