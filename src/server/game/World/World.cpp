@@ -1258,7 +1258,7 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_RATED_BATTLEGROUND_ENABLE]                  = sConfigMgr->GetIntDefault ("RatedBattleground.Enable", 0);
     if (m_int_configs[CONFIG_RATED_BATTLEGROUND_ENABLE] < 0 || m_int_configs[CONFIG_RATED_BATTLEGROUND_ENABLE] > 3)
     {
-        TC_LOG_ERROR("server.loading", "RatedBattleground.Enable (%d) must be >= 0 and <= 3. Using 0 instead.", m_int_configs[CONFIG_BATTLEGROUND_REPORT_AFK]);
+        TC_LOG_ERROR("server.loading", "RatedBattleground.Enable (%d) must be >= 0 and <= 3. Using 0 instead.", m_int_configs[CONFIG_RATED_BATTLEGROUND_ENABLE]);
         m_int_configs[CONFIG_RATED_BATTLEGROUND_ENABLE] = 0;
     }
     m_int_configs[CONFIG_RATED_BATTLEGROUND_REWARD]                  = sConfigMgr->GetIntDefault ("RatedBattleground.Reward", 40000);
