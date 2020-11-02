@@ -1255,7 +1255,12 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_BATTLEGROUND_PREMADE_GROUP_WAIT_FOR_MATCH]  = sConfigMgr->GetIntDefault ("Battleground.PremadeGroupWaitForMatch", 30 * MINUTE * IN_MILLISECONDS);
     m_bool_configs[CONFIG_BG_XP_FOR_KILL]                            = sConfigMgr->GetBoolDefault("Battleground.GiveXPForKills", false);
 
-    m_bool_configs[CONFIG_RATED_BATTLEGROUND_ENABLE]                 = sConfigMgr->GetIntDefault ("RatedBattleground.Enable", 0);
+    m_int_configs[CONFIG_RATED_BATTLEGROUND_ENABLE]                  = sConfigMgr->GetIntDefault ("RatedBattleground.Enable", 0);
+    if (m_int_configs[CONFIG_RATED_BATTLEGROUND_ENABLE] < 0 || m_int_configs[CONFIG_RATED_BATTLEGROUND_ENABLE] > 3)
+    {
+        TC_LOG_ERROR("server.loading", "RatedBattleground.Enable (%d) must be >= 0 and <= 3. Using 0 instead.", m_int_configs[CONFIG_BATTLEGROUND_REPORT_AFK]);
+        m_int_configs[CONFIG_RATED_BATTLEGROUND_ENABLE] = 0;
+    }
     m_int_configs[CONFIG_RATED_BATTLEGROUND_REWARD]                  = sConfigMgr->GetIntDefault ("RatedBattleground.Reward", 40000);
 
     m_int_configs[CONFIG_ARENA_MAX_RATING_DIFFERENCE]                = sConfigMgr->GetIntDefault ("Arena.MaxRatingDifference", 150);
