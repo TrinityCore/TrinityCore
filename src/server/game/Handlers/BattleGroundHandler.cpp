@@ -810,15 +810,15 @@ void WorldSession::HandleRequestRatedBgInfo(WorldPacket & recvData)
     recvData >> unk;
 
     TC_LOG_DEBUG("bg.battleground", "WorldSession::HandleRequestRatedBgInfo: unk = %u", unk);
-    uint8 ratedBattlegroundActive = sWorld->getBoolConfig(CONFIG_RATED_BATTLEGROUND_ENABLE);
+    uint8 ratedBattlegroundActive = sWorld->getIntConfig(CONFIG_RATED_BATTLEGROUND_ENABLE);
     int32 ratedBattlegroundReward = sWorld->getIntConfig(CONFIG_RATED_BATTLEGROUND_REWARD) / CURRENCY_PRECISION;
 
 
     WorldPackets::Battleground::BattlefieldRatedInfo packet;
     packet.Unk = unk;
     packet.Reward = ratedBattlegroundReward;
-    packet.RewardWeeklyLimit = _player->GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_RBG, true);
-    packet.PurseQuantity = _player->GetCurrency(CURRENCY_TYPE_CONQUEST_POINTS, true);
+    packet.RatedMaxRewardPointsThisWeek = _player->GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_RBG, true);
+    packet.MaxRewardPointsThisWeek = _player->GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS, true);
 
     SendPacket(packet.Write());
 

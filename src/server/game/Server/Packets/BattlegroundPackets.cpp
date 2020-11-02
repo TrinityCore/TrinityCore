@@ -33,14 +33,17 @@ WorldPacket const* WorldPackets::Battleground::RatedBattlefieldInfo::Write()
     _worldPacket << int32(Brackets[2].WeeklyWon);       // BgWeeklyWins25vs25
     _worldPacket << int32(Brackets[2].WeeklyPlayed);    // BgWeeklyPlayed25vs25
     _worldPacket << int32(Brackets[1].WeeklyPlayed);    // BgWeeklyPlayed15vs15
-    _worldPacket << int32(0);
+    _worldPacket << int32(0); // 3
     _worldPacket << int32(Brackets[0].WeeklyWon);       // BgWeeklyWins10vs10
-    _worldPacket << int32(0);
-    _worldPacket << int32(0);
+    _worldPacket << int32(0); // 3
+    _worldPacket << int32(0); // 4
     _worldPacket << int32(0);
     _worldPacket << int32(Brackets[1].WeeklyWon);       // BgWeeklyWins15vs15
     _worldPacket << int32(0);
+    _worldPacket << int32(0); // 4
     _worldPacket << int32(0);
+    _worldPacket << int32(0); // 3
+    _worldPacket << int32(0); // 4
     _worldPacket << int32(0);
     _worldPacket << int32(Brackets[0].WeeklyPlayed);    // BgWeeklyPlayed10vs10
     _worldPacket << int32(0);
@@ -54,10 +57,10 @@ WorldPacket const* WorldPackets::Battleground::BattlefieldRatedInfo::Write()
     _worldPacket << int8(Unk);
     _worldPacket << int32(PersonalRating);
     _worldPacket << int32(0);
-    _worldPacket << int32(RewardWeeklyLimit);
+    _worldPacket << int32(RatedMaxRewardPointsThisWeek); // this and MaxRewardPointsThisWeek are weekly conquest limits but not sure which one is for rated BGs
     _worldPacket << int32(0);
     _worldPacket << int32(0);
-    _worldPacket << int32(PurseQuantity);
+    _worldPacket << int32(MaxRewardPointsThisWeek);
 
     return &_worldPacket;
 }
@@ -66,11 +69,9 @@ WorldPacket const* WorldPackets::Battleground::BattlefieldList::Write()
 {
     _worldPacket << int32(ConquestBonusHoliday);
     _worldPacket << int32(ConquestBonusRandom);
-
     _worldPacket << int32(HonorBonusHolidayLoss);
     _worldPacket << int32(BattlemasterListID);
     _worldPacket << int32(HonorBonusRandomLoss);
-
     _worldPacket << int32(HonorBonusRandomWin);
     _worldPacket << int32(HonorBonusHolidayWin);
     _worldPacket << uint8(MaxLevel);
@@ -79,11 +80,9 @@ WorldPacket const* WorldPackets::Battleground::BattlefieldList::Write()
     _worldPacket.WriteBit(BattlemasterGuid[0]);
     _worldPacket.WriteBit(BattlemasterGuid[1]);
     _worldPacket.WriteBit(BattlemasterGuid[7]);
-
     _worldPacket.WriteBit(HasHolidayWinToday);
     _worldPacket.WriteBit(HasRandomWinToday);
     _worldPacket.WriteBits(Battlefields.size(), 24);
-
     _worldPacket.WriteBit(BattlemasterGuid[6]);
     _worldPacket.WriteBit(BattlemasterGuid[4]);
     _worldPacket.WriteBit(BattlemasterGuid[2]);
