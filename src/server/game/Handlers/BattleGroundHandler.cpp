@@ -819,6 +819,7 @@ void WorldSession::HandleRequestRatedBgInfo(WorldPacket & recvData)
     packet.Reward = ratedBattlegroundReward;
     packet.RatedMaxRewardPointsThisWeek = _player->GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_RBG, true);
     packet.MaxRewardPointsThisWeek = _player->GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS, true);
+    packet.RewardPointsThisWeek = _player->GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_POINTS, true);
 
     SendPacket(packet.Write());
 

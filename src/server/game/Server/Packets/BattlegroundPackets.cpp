@@ -56,7 +56,7 @@ WorldPacket const* WorldPackets::Battleground::BattlefieldRatedInfo::Write()
     _worldPacket << int32(Reward);
     _worldPacket << int8(Unk);
     _worldPacket << int32(PersonalRating);
-    _worldPacket << int32(0);
+    _worldPacket << int32(RewardPointsThisWeek);
     _worldPacket << int32(RatedMaxRewardPointsThisWeek); // this and MaxRewardPointsThisWeek are weekly conquest limits but not sure which one is for rated BGs
     _worldPacket << int32(0);
     _worldPacket << int32(0);

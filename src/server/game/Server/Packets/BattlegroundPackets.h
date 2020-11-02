@@ -64,6 +64,7 @@ namespace WorldPackets
             int32 PersonalRating = 0;
             int32 RatedMaxRewardPointsThisWeek = 0;
             int32 MaxRewardPointsThisWeek = 0;
+            int32 RewardPointsThisWeek = 0;
             int8 Unk = 0; // Same value as in cmsg
         };
 
