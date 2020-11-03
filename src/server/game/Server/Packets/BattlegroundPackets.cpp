@@ -33,21 +33,22 @@ WorldPacket const* WorldPackets::Battleground::RatedBattlefieldInfo::Write()
     _worldPacket << int32(Brackets[2].WeeklyWon);       // BgWeeklyWins25vs25
     _worldPacket << int32(Brackets[2].WeeklyPlayed);    // BgWeeklyPlayed25vs25
     _worldPacket << int32(Brackets[1].WeeklyPlayed);    // BgWeeklyPlayed15vs15
-    _worldPacket << int32(0); // 3
+    _worldPacket << int32(Brackets[1].SeasonPlayed);    // BgSeasonalPlayed15vs15
     _worldPacket << int32(Brackets[0].WeeklyWon);       // BgWeeklyWins10vs10
-    _worldPacket << int32(0); // 3
-    _worldPacket << int32(0); // 4
-    _worldPacket << int32(0);
+    _worldPacket << int32(Brackets[2].SeasonPlayed);    // BgSeasonalPlayed25vs25
+    _worldPacket << int32(Brackets[1].SeasonWon);       // BgSeasonalWins15vs15
+    _worldPacket << int32(Brackets[0].TotalWon);        // BgTotalWins10vs10
     _worldPacket << int32(Brackets[1].WeeklyWon);       // BgWeeklyWins15vs15
-    _worldPacket << int32(0);
-    _worldPacket << int32(0); // 4
-    _worldPacket << int32(0);
-    _worldPacket << int32(0); // 3
-    _worldPacket << int32(0); // 4
-    _worldPacket << int32(0);
+    _worldPacket << int32(Brackets[2].TotalWon);        // BgTotalWins25vs25
+    _worldPacket << int32(Brackets[0].SeasonWon);       // BgSeasonalWins10vs10
+    _worldPacket << int32(Brackets[1].TotalWon);        // BgTotalWins15vs15
+    _worldPacket << int32(Brackets[0].SeasonPlayed);    // BgSeasonalPlayed10vs10
+    _worldPacket << int32(Brackets[2].SeasonWon);       // BgSeasonalWins25vs25
+    _worldPacket << int32(Brackets[0].TotalPlayed);     // BgTotalPlayed10vs10
     _worldPacket << int32(Brackets[0].WeeklyPlayed);    // BgWeeklyPlayed10vs10
-    _worldPacket << int32(0);
-    _worldPacket << int32(0);
+    _worldPacket << int32(Brackets[2].TotalPlayed);     // BgTotalPlayed25vs25
+    _worldPacket << int32(Brackets[1].TotalPlayed);     // BgTotalPlayed15vs15
+
     return &_worldPacket;
 }
 

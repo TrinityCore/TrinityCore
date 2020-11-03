@@ -41,6 +41,10 @@ namespace WorldPackets
         {
             int32 WeeklyPlayed = 0;
             int32 WeeklyWon = 0;
+            int32 SeasonPlayed = 0;
+            int32 SeasonWon = 0;
+            int32 TotalPlayed = 0;
+            int32 TotalWon = 0;
         };
 
         class RatedBattlefieldInfo final : public ServerPacket
