@@ -813,25 +813,28 @@ void WorldSession::HandleRequestRatedBgInfo(WorldPacket & recvData)
     WorldPackets::Battleground::BattlefieldRatedInfo packet;
     packet.Mode = mode;
 
-    switch (mode)
+    int32 baseReward = 0;
+    int32 remainingConquest = _player->GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS, true) - _player->GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_POINTS, true);
+
+    if (mode == 3)
     {
-        case 0: // Arena 2v2
-        case 1: // Arena 3v3
-        case 2: // Arena 5v5
-            packet.Reward = sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD) / CURRENCY_PRECISION;
-            break;
-        case 3: // Rated Battlegrounds
-            packet.Reward = sWorld->getIntConfig(CONFIG_RATED_BATTLEGROUND_REWARD) / CURRENCY_PRECISION;
-            packet.RatedMaxRewardPointsThisWeek = _player->GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_RBG, true);
-            packet.PersonalRating = 0; // Todo: implement
-            break;
-        default:
-            TC_LOG_ERROR("bg.battleground", "WorldSession::HandleRequestRatedBgInfo: Player %s tried to request rated BG infos for a invalid game mode (%u). Possible cheater.", _player->GetGUID().ToString().c_str(), mode);
-            return;
+        baseReward = sWorld->getIntConfig(CONFIG_RATED_BATTLEGROUND_REWARD) / CURRENCY_PRECISION;
+        int32 remainingConquestRBG = _player->GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_RBG, true) - _player->GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_RBG, true);
+        baseReward = std::min<int32>(baseReward, remainingConquestRBG);
+    }
+    else
+    {
+        baseReward = sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD) / CURRENCY_PRECISION;
+        int32 remainingConquestArena = _player->GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA, true) - _player->GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ARENA, true);
+        baseReward = std::min<int32>(baseReward, remainingConquestArena);
     }
 
+    packet.Reward = std::min<int32>(baseReward, remainingConquest);
+    packet.RatedMaxRewardPointsThisWeek = _player->GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_RBG, true);
     packet.MaxRewardPointsThisWeek = _player->GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS, true);
     packet.RewardPointsThisWeek = _player->GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_POINTS, true);
+    packet.RatedRewardPointsThisWeek = _player->GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_RBG, true);
+    packet.PersonalRating = 0; // Todo: implement
 
     SendPacket(packet.Write());
 

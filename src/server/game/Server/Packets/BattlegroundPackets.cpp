@@ -58,9 +58,9 @@ WorldPacket const* WorldPackets::Battleground::BattlefieldRatedInfo::Write()
     _worldPacket << int8(Mode);
     _worldPacket << int32(PersonalRating);
     _worldPacket << int32(RewardPointsThisWeek);
-    _worldPacket << int32(RatedMaxRewardPointsThisWeek); // this and MaxRewardPointsThisWeek are weekly conquest limits but not sure which one is for rated BGs
-    _worldPacket << int32(0);
-    _worldPacket << int32(0);
+    _worldPacket << int32(RatedMaxRewardPointsThisWeek);    // this and MaxRewardPointsThisWeek are weekly conquest limits but not sure which one is for rated BGs
+    _worldPacket << int32(RatedRewardPointsThisWeek);
+    _worldPacket << int32(0);                               // values are being sent in in sniffs but this filed is unused in the client and interface code
     _worldPacket << int32(MaxRewardPointsThisWeek);
 
     return &_worldPacket;

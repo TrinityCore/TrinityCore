@@ -69,6 +69,7 @@ namespace WorldPackets
             int32 RatedMaxRewardPointsThisWeek = 0;
             int32 MaxRewardPointsThisWeek = 0;
             int32 RewardPointsThisWeek = 0;
+            int32 RatedRewardPointsThisWeek = 0;
             int8 Mode = 0; // 0 = arena 2v2, 1 = arena 3v3, 2 = arena 5v5, 3 = rated battleground
         };
 
