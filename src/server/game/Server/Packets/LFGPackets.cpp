@@ -578,3 +578,244 @@ WorldPacket const* WorldPackets::LFG::LFGTeleportDenied::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::LFG::LFGSearchResults::Write()
+{
+    _worldPacket.WriteBit(Ticket.RequesterGuid[3]);
+    _worldPacket.WriteBits(Parties.size(), 21);
+
+    for (ClientLFGSearchResultParty const& party : Parties)
+    {
+        _worldPacket.WriteBit(party.InstanceID[6]);
+        _worldPacket.WriteBit(party.Guid[3]);
+        _worldPacket.WriteBit(party.Guid[1]);
+        _worldPacket.WriteBits(party.Comment.length(), 9);
+        _worldPacket.WriteBit(party.InstanceID[0]);
+        _worldPacket.WriteBit(party.Guid[5]);
+        _worldPacket.WriteBit(party.Guid[2]);
+        _worldPacket.WriteBit(party.InstanceID[1]);
+        _worldPacket.WriteBit(party.InstanceID[4]);
+        _worldPacket.WriteBit(party.Guid[4]);
+        _worldPacket.WriteBit(party.InstanceID[7]);
+        _worldPacket.WriteBit(party.Guid[7]);
+        _worldPacket.WriteBit(party.Guid[0]);
+        _worldPacket.WriteBit(party.InstanceID[3]);
+        _worldPacket.WriteBit(party.Guid[6]);
+        _worldPacket.WriteBit(party.InstanceID[2]);
+        _worldPacket.WriteBit(party.InstanceID[5]);
+    }
+
+    _worldPacket.WriteBit(Ticket.RequesterGuid[6]);
+    _worldPacket.WriteBit(Incremental);
+    _worldPacket.WriteBit(Ticket.RequesterGuid[7]);
+    _worldPacket.WriteBit(Ticket.RequesterGuid[5]);
+    _worldPacket.WriteBit(Ticket.RequesterGuid[2]);
+    _worldPacket.WriteBit(Ticket.RequesterGuid[4]);
+    _worldPacket.WriteBits(Players.size(), 18);
+
+    for (ClientLFGSearchResultPlayer const& player : Players)
+    {
+        _worldPacket.WriteBits(player.Comment.length(), 9);
+        _worldPacket.WriteBit(player.PartyGuid[3]);
+        _worldPacket.WriteBit(player.Guid[7]);
+        _worldPacket.WriteBit(player.PartyGuid[1]);
+        _worldPacket.WriteBit(player.InstanceID[7]);
+        _worldPacket.WriteBit(player.InstanceID[4]);
+        _worldPacket.WriteBit(player.Guid[3]);
+        _worldPacket.WriteBit(player.Guid[1]);
+        _worldPacket.WriteBit(player.InstanceID[6]);
+        _worldPacket.WriteBit(player.PartyGuid[2]);
+        _worldPacket.WriteBit(player.IsLeader);
+        _worldPacket.WriteBit(player.InstanceID[0]);
+        _worldPacket.WriteBit(player.PartyGuid[0]);
+        _worldPacket.WriteBit(player.Guid[2]);
+        _worldPacket.WriteBit(player.PartyGuid[5]);
+        _worldPacket.WriteBit(player.InstanceID[3]);
+        _worldPacket.WriteBit(player.Guid[4]);
+        _worldPacket.WriteBit(player.Guid[6]);
+        _worldPacket.WriteBit(player.InstanceID[5]);
+        _worldPacket.WriteBit(player.Guid[0]);
+        _worldPacket.WriteBit(player.PartyGuid[7]);
+        _worldPacket.WriteBit(player.InstanceID[1]);
+        _worldPacket.WriteBit(player.PartyGuid[4]);
+        _worldPacket.WriteBit(player.PartyGuid[6]);
+        _worldPacket.WriteBit(player.InstanceID[2]);
+        _worldPacket.WriteBit(player.Guid[5]);
+    }
+
+    _worldPacket.WriteBits(Removes.size(), 26);
+
+    for (ObjectGuid const& remove : Removes)
+    {
+        _worldPacket.WriteBit(remove[7]);
+        _worldPacket.WriteBit(remove[3]);
+        _worldPacket.WriteBit(remove[6]);
+        _worldPacket.WriteBit(remove[2]);
+        _worldPacket.WriteBit(remove[1]);
+        _worldPacket.WriteBit(remove[4]);
+        _worldPacket.WriteBit(remove[0]);
+        _worldPacket.WriteBit(remove[5]);
+    }
+
+    _worldPacket.WriteBit(Ticket.RequesterGuid[0]);
+    _worldPacket.WriteBit(Ticket.RequesterGuid[1]);
+    _worldPacket.FlushBits();
+
+    for (ObjectGuid const& remove : Removes)
+    {
+        _worldPacket.WriteByteSeq(remove[3]);
+        _worldPacket.WriteByteSeq(remove[6]);
+        _worldPacket.WriteByteSeq(remove[4]);
+        _worldPacket.WriteByteSeq(remove[2]);
+        _worldPacket.WriteByteSeq(remove[1]);
+        _worldPacket.WriteByteSeq(remove[0]);
+        _worldPacket.WriteByteSeq(remove[5]);
+        _worldPacket.WriteByteSeq(remove[7]);
+    }
+
+    for (ClientLFGSearchResultPlayer const& player : Players)
+    {
+        _worldPacket << int32(player.CritRanged);
+        _worldPacket << int8(player.Talents[0]);
+        _worldPacket << float(player.GearRating);
+
+        _worldPacket.WriteByteSeq(player.PartyGuid[4]);
+        _worldPacket.WriteByteSeq(player.InstanceID[5]);
+
+        _worldPacket << int32(player.DefenseRating);
+
+        _worldPacket.WriteByteSeq(player.InstanceID[7]);
+        _worldPacket.WriteString(player.Comment);
+        _worldPacket.WriteByteSeq(player.InstanceID[4]);
+
+        _worldPacket << float(player.Mp5InCombat);
+        _worldPacket << int32(player.DodgeRating);
+        _worldPacket << int8(player.Level);
+        _worldPacket << int32(player.FreeTalentPoints);
+
+        _worldPacket.WriteByteSeq(player.PartyGuid[6]);
+
+        _worldPacket << int32(player.HasteRating);
+        _worldPacket << int32(player.Expertise);
+        _worldPacket << int32(player.ParryRating);
+        _worldPacket << int8(player.Race);
+
+        _worldPacket.WriteByteSeq(player.PartyGuid[5]);
+
+        _worldPacket << float(player.AvgItemLevel);
+        _worldPacket << int32(player.MaxHealth);
+        _worldPacket << int32(player.CritSpell);
+
+        _worldPacket.WriteByteSeq(player.PartyGuid[0]);
+        _worldPacket.WriteByteSeq(player.Guid[4]);
+        _worldPacket.WriteByteSeq(player.PartyGuid[7]);
+
+        _worldPacket << int32(player.Armor);
+        _worldPacket << int8(0); // unk?
+
+        _worldPacket.WriteByteSeq(player.Guid[6]);
+        _worldPacket.WriteByteSeq(player.PartyGuid[2]);
+
+        _worldPacket << int8(player.Talents[1]);
+        _worldPacket << int32(player.Agility);
+
+        _worldPacket.WriteByteSeq(player.InstanceID[2]);
+
+        _worldPacket << int8(player.Talents[2]);
+
+        _worldPacket.WriteByteSeq(player.InstanceID[1]);
+
+        _worldPacket << int8(player.ChrClass);
+
+        _worldPacket.WriteByteSeq(player.Guid[0]);
+        _worldPacket.WriteByteSeq(player.PartyGuid[1]);
+        _worldPacket.WriteByteSeq(player.Guid[7]);
+        _worldPacket.WriteByteSeq(player.Guid[2]);
+
+        _worldPacket << int32(player.BlockRating);
+        _worldPacket << float(player.Mp5);
+
+        _worldPacket.WriteByteSeq(player.InstanceID[0]);
+
+        _worldPacket << int8(0); // unk?
+
+        _worldPacket << int32(player.CritMelee);
+        _worldPacket << int32(player.ChangeMask);
+        _worldPacket << int32(player.SpellDamage);
+
+        _worldPacket.WriteByteSeq(player.InstanceID[6]);
+
+        _worldPacket << int32(player.MaxMana);
+
+        _worldPacket.WriteByteSeq(player.Guid[1]);
+        _worldPacket.WriteByteSeq(player.Guid[3]);
+
+        _worldPacket << int32(player.InstanceCompletedMask);
+        _worldPacket << int32(player.PlusHealing);
+
+        _worldPacket.WriteByteSeq(player.PartyGuid[3]);
+        _worldPacket.WriteByteSeq(player.Guid[5]);
+        _worldPacket.WriteByteSeq(player.InstanceID[3]);
+
+        _worldPacket << int32(0); // Unk
+        _worldPacket << int32(0); // Unk
+    }
+
+    _worldPacket << int32(SlotID);
+
+    for (ClientLFGSearchResultParty const& party : Parties)
+    {
+        _worldPacket.WriteString(party.Comment);
+        _worldPacket << int32(party.ChangeMask);
+
+        _worldPacket.WriteByteSeq(party.Guid[6]);
+
+        _worldPacket << int32(party.InstanceCompletedMask);
+
+        _worldPacket.WriteByteSeq(party.InstanceID[6]);
+        _worldPacket.WriteByteSeq(party.Guid[2]);
+        _worldPacket.WriteByteSeq(party.InstanceID[4]);
+
+        _worldPacket << int8(party.Needs[0]);
+        _worldPacket << int8(party.Needs[1]);
+        _worldPacket << int8(party.Needs[2]);
+
+        _worldPacket.WriteByteSeq(party.Guid[4]);
+        _worldPacket.WriteByteSeq(party.InstanceID[7]);
+        _worldPacket.WriteByteSeq(party.Guid[7]);
+        _worldPacket.WriteByteSeq(party.Guid[3]);
+        _worldPacket.WriteByteSeq(party.InstanceID[3]);
+        _worldPacket.WriteByteSeq(party.InstanceID[5]);
+        _worldPacket.WriteByteSeq(party.InstanceID[0]);
+        _worldPacket.WriteByteSeq(party.Guid[5]);
+        _worldPacket.WriteByteSeq(party.InstanceID[1]);
+        _worldPacket.WriteByteSeq(party.Guid[1]);
+        _worldPacket.WriteByteSeq(party.InstanceID[2]);
+        _worldPacket.WriteByteSeq(party.Guid[0]);
+    }
+
+    _worldPacket.WriteByteSeq(Ticket.RequesterGuid[7]);
+    _worldPacket.WriteByteSeq(Ticket.RequesterGuid[1]);
+
+    _worldPacket << int32(CountTotalParties);
+    _worldPacket << int32(Ticket.Type);
+
+    _worldPacket.WriteByteSeq(Ticket.RequesterGuid[4]);
+    _worldPacket.WriteByteSeq(Ticket.RequesterGuid[2]);
+
+    _worldPacket << int32(Ticket.Id);
+
+    _worldPacket.WriteByteSeq(Ticket.RequesterGuid[6]);
+    _worldPacket.WriteByteSeq(Ticket.RequesterGuid[5]);
+
+    _worldPacket << int32(CountTotalPlayers);
+    _worldPacket << int32(Ticket.Time);
+
+    _worldPacket.WriteByteSeq(Ticket.RequesterGuid[0]);
+
+    _worldPacket << int32(SlotType);
+
+    _worldPacket.WriteByteSeq(Ticket.RequesterGuid[3]);
+
+    return &_worldPacket;
+}

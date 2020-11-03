@@ -413,6 +413,75 @@ namespace WorldPackets
 
             lfg::LfgTeleportResult Reason;
         };
+
+        struct ClientLFGSearchResultParty
+        {
+            ObjectGuid Guid;
+            uint32 ChangeMask = 0;
+            std::string Comment;
+            ObjectGuid InstanceID;
+            uint32 InstanceCompletedMask = 0;
+            uint8 Needs[3] = { };
+        };
+
+        struct ClientLFGSearchResultPlayer
+        {
+            ObjectGuid Guid;
+            uint32 ChangeMask = 0;
+            uint8 Level = 0;
+            uint8 ChrClass = 0;
+            uint8 Race = 0;
+            uint32 Armor = 0;
+            uint32 SpellDamage = 0;
+            uint32 PlusHealing = 0;
+            uint32 CritMelee = 0;
+            uint32 CritRanged = 0;
+            uint32 CritSpell = 0;
+            float Mp5 = 0.0f;
+            float Mp5InCombat = 0.0f;
+            uint32 AttackPower = 0;
+            uint32 Agility = 0;
+            uint32 MaxHealth = 0;
+            uint32 MaxMana = 0;
+            uint32 BossKills = 0;
+            float GearRating = 0.0f;
+            float AvgItemLevel = 0.0f;
+            uint32 DefenseRating = 0;
+            uint32 DodgeRating = 0;
+            uint32 BlockRating = 0;
+            uint32 ParryRating = 0;
+            uint32 HasteRating = 0;
+            float Expertise = 0.0f;
+            uint32 SpecID = 0;
+            std::string Comment;
+            bool IsLeader = false;
+            ObjectGuid PartyGuid;
+            uint8 RolesDesired = 0;
+            uint32 Area = 0;
+            uint8 Status = 0;
+            ObjectGuid InstanceID;
+            uint32 InstanceCompletedMask = 0;
+            int32 FreeTalentPoints = 0;
+            std::array<int8, 3> Talents = { };
+        };
+
+        class LFGSearchResults final : public ServerPacket
+        {
+        public:
+            LFGSearchResults() : ServerPacket(SMSG_LFG_SEARCH_RESULT, 4) { }
+
+            WorldPacket const* Write() override;
+
+            bool Incremental = false;
+            std::vector<ObjectGuid> Removes;
+            RideTicket Ticket;
+            uint32 SlotID = 0;
+            uint32 CountTotalParties = 0;
+            uint32 CountTotalPlayers = 0;
+            uint32 SlotType = 0;
+            std::vector<ClientLFGSearchResultParty> Parties;
+            std::vector<ClientLFGSearchResultPlayer> Players;
+        };
     }
 }
 
