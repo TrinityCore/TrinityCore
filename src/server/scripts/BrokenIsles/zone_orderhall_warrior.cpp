@@ -118,7 +118,7 @@ struct npc_danica_the_reclaimer : public ScriptedAI
         if (summoner->GetTypeId() != TYPEID_PLAYER)
             return;
 
-        me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         _summonerGuid = summoner->GetGUID();
         _scheduler.Schedule(2s, [this, summoner](TaskContext /*context*/)
         {
