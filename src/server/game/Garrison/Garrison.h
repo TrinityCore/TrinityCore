@@ -257,7 +257,7 @@ public:
     void SendInfo();
     void SendRemoteInfo() const;
     void SendBlueprintAndSpecializationData();
-    void SendBuildingLandmarks(Player* receiver) const;
+    void SendMapData(Player* receiver) const;
 
     void ResetFollowerActivationLimit() { _followerActivationsRemainingToday = 1; }
 

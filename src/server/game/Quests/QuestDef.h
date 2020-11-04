@@ -376,6 +376,7 @@ class TC_GAME_API Quest
         int32  GetQuestLevel() const { return _level; }
         int32  GetQuestScalingFactionGroup() const { return _scalingFactionGroup; }
         int32  GetQuestMaxScalingLevel() const { return _maxScalingLevel; }
+        int32  GetContentTuningId() const { return 0; }
         uint32 GetQuestInfoID() const { return _questInfoID; }
         uint32 GetAllowableClasses() const { return _allowableClasses; }
         Trinity::RaceMask<uint64> GetAllowableRaces() const { return _allowableRaces; }

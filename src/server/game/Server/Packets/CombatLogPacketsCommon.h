@@ -61,8 +61,8 @@ namespace WorldPackets
 
             uint32 Type = 0;
             int16 PlayerLevelDelta = 0;
-            uint16 PlayerItemLevel = 0;
-            uint16 TargetItemLevel = 0;
+            float PlayerItemLevel = 0;
+            float TargetItemLevel = 0;
             uint16 ScalingHealthItemLevelCurveID = 0;
             uint8 TargetLevel = 0;
             uint8 Expansion = 0;
@@ -74,6 +74,17 @@ namespace WorldPackets
             template<class T, class U>
             bool GenerateDataForUnits(T* attacker, U* target);
         };
+
+        struct SpellCastVisual
+        {
+            int32 SpellXSpellVisualID = 0;
+            int32 ScriptVisualID = 0;
+        };
+
+        ByteBuffer& operator<<(ByteBuffer& data, SpellCastLogData const& spellCastLogData);
+        ByteBuffer& operator<<(ByteBuffer& data, ContentTuningParams const& contentTuningParams);
+        ByteBuffer& operator>>(ByteBuffer& data, SpellCastVisual& visual);
+        ByteBuffer& operator<<(ByteBuffer& data, SpellCastVisual const& visual);
     }
 
     namespace CombatLog
@@ -128,8 +139,5 @@ namespace WorldPackets
         };
     }
 }
-
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastLogData const& spellCastLogData);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::ContentTuningParams const& contentTuningParams);
 
 #endif // CombatLogPacketsCommon_h__

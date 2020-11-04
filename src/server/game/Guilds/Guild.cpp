@@ -2264,11 +2264,11 @@ void Guild::SendEventAwayChanged(ObjectGuid const& memberGuid, bool afk, bool dn
     else
         member->RemFlag(GUILDMEMBER_STATUS_DND);
 
-    WorldPackets::Guild::GuildEventAwayChange awayChange;
-    awayChange.Guid = memberGuid;
-    awayChange.AFK = afk;
-    awayChange.DND = dnd;
-    BroadcastPacket(awayChange.Write());
+    WorldPackets::Guild::GuildEventStatusChange statusChange;
+    statusChange.Guid = memberGuid;
+    statusChange.AFK = afk;
+    statusChange.DND = dnd;
+    BroadcastPacket(statusChange.Write());
 }
 
 void Guild::SendEventBankMoneyChanged() const

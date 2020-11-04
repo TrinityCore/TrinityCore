@@ -188,7 +188,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildRosterMemberD
     return data;
 }
 
-WorldPacket const* WorldPackets::Guild::GuildEventAwayChange::Write()
+WorldPacket const* WorldPackets::Guild::GuildEventStatusChange::Write()
 {
     _worldPacket << Guid;
     _worldPacket.WriteBit(AFK);
@@ -272,12 +272,10 @@ WorldPacket const* WorldPackets::Guild::GuildEventPlayerLeft::Write()
 {
     _worldPacket.WriteBit(Removed);
     _worldPacket.WriteBits(LeaverName.length(), 6);
-    _worldPacket.FlushBits();
 
     if (Removed)
     {
         _worldPacket.WriteBits(RemoverName.length(), 6);
-        _worldPacket.FlushBits();
 
         _worldPacket << RemoverGUID;
         _worldPacket << uint32(RemoverVirtualRealmAddress);

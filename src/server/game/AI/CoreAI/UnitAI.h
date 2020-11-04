@@ -43,6 +43,7 @@ struct AISpellInfoType;
 enum DamageEffectType : uint8;
 enum Difficulty : uint8;
 enum SpellEffIndex : uint8;
+enum class LootItemType : uint8;
 
 //Selection method used by SelectTarget
 enum SelectAggroTarget
@@ -321,7 +322,8 @@ class TC_GAME_API UnitAI
         virtual void QuestAccept(Player* /*player*/, Quest const* /*quest*/) { }
 
         // Called when a player completes a quest and is rewarded, opt is the selected item's index or 0
-        virtual void QuestReward(Player* /*player*/, Quest const* /*quest*/, uint32 /*opt*/) { }
+        virtual void QuestReward(Player* player, Quest const* quest, uint32 opt);
+        virtual void QuestReward(Player* /*player*/, Quest const* /*quest*/, LootItemType /*type*/, uint32 /*opt*/) { }
 
         // Called when a game event starts or ends
         virtual void OnGameEvent(bool /*start*/, uint16 /*eventId*/) { }

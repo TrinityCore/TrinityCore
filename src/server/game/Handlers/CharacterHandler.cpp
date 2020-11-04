@@ -309,10 +309,6 @@ bool LoginQueryHolder::Initialize()
 
 void WorldSession::HandleCharEnum(PreparedQueryResult result)
 {
-    uint8 demonHunterCount = 0; // We use this counter to allow multiple demon hunter creations when allowed in config
-    bool canAlwaysCreateDemonHunter = HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_DEMON_HUNTER);
-    if (sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_DEMON_HUNTER) == 0) // char level = 0 means this check is disabled, so always true
-        canAlwaysCreateDemonHunter = true;
     WorldPackets::Character::EnumCharactersResult charEnum;
     charEnum.Success = true;
     charEnum.IsDeletedCharacters = false;
@@ -358,21 +354,11 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
             if (!sCharacterCache->HasCharacterCacheEntry(charInfo.Guid)) // This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
                 sCharacterCache->AddCharacterCacheEntry(charInfo.Guid, GetAccountId(), charInfo.Name, charInfo.SexID, charInfo.RaceID, charInfo.ClassID, charInfo.ExperienceLevel, false);
 
-            if (charInfo.ClassID == CLASS_DEMON_HUNTER)
-                demonHunterCount++;
-
-            if (demonHunterCount >= sWorld->getIntConfig(CONFIG_DEMON_HUNTERS_PER_REALM) && !canAlwaysCreateDemonHunter)
-                charEnum.HasDemonHunterOnRealm = true;
-            else
-                charEnum.HasDemonHunterOnRealm = false;
-
             charEnum.MaxCharacterLevel = std::max<int32>(charEnum.MaxCharacterLevel, charInfo.ExperienceLevel);
         }
         while (result->NextRow());
     }
 
-    charEnum.IsTestDemonHunterCreationAllowed = canAlwaysCreateDemonHunter;
-    charEnum.IsDemonHunterCreationAllowed = GetAccountExpansion() >= EXPANSION_LEGION || canAlwaysCreateDemonHunter;
     charEnum.IsAlliedRacesCreationAllowed = GetAccountExpansion() >= EXPANSION_BATTLE_FOR_AZEROTH;
 
     for (std::pair<uint8 const, RaceUnlockRequirement> const& requirement : sObjectMgr->GetRaceUnlockRequirements())
@@ -643,26 +629,12 @@ void WorldSession::HandleCharCreateOpcode(WorldPackets::Character::CreateCharact
             if (result)
             {
                 uint32 team = Player::TeamForRace(createInfo->Race);
-                uint32 freeDemonHunterSlots = sWorld->getIntConfig(CONFIG_DEMON_HUNTERS_PER_REALM);
 
                 Field* field = result->Fetch();
                 uint8 accRace = field[1].GetUInt8();
 
                 if (checkDemonHunterReqs)
                 {
-                    uint8 accClass = field[2].GetUInt8();
-                    if (accClass == CLASS_DEMON_HUNTER)
-                    {
-                        if (freeDemonHunterSlots > 0)
-                            --freeDemonHunterSlots;
-
-                        if (freeDemonHunterSlots == 0)
-                        {
-                            SendCharCreate(CHAR_CREATE_FAILED);
-                            return;
-                        }
-                    }
-
                     if (!hasDemonHunterReqLevel)
                     {
                         uint8 accLevel = field[0].GetUInt8();
@@ -1374,6 +1346,40 @@ void WorldSession::HandleSetFactionInactiveOpcode(WorldPackets::Character::SetFa
 void WorldSession::HandleRequestForcedReactionsOpcode(WorldPackets::Reputation::RequestForcedReactions& /*requestForcedReactions*/)
 {
     _player->GetReputationMgr().SendForceReactions();
+}
+
+void WorldSession::HandleCheckCharacterNameAvailability(WorldPackets::Character::CheckCharacterNameAvailability& checkCharacterNameAvailability)
+{
+    // prevent character rename to invalid name
+    if (!normalizePlayerName(checkCharacterNameAvailability.Name))
+    {
+        SendPacket(WorldPackets::Character::CheckCharacterNameAvailabilityResult(checkCharacterNameAvailability.SequenceIndex, CHAR_NAME_NO_NAME).Write());
+        return;
+    }
+
+    ResponseCodes res = ObjectMgr::CheckPlayerName(checkCharacterNameAvailability.Name, GetSessionDbcLocale(), true);
+    if (res != CHAR_NAME_SUCCESS)
+    {
+        SendPacket(WorldPackets::Character::CheckCharacterNameAvailabilityResult(checkCharacterNameAvailability.SequenceIndex, res).Write());
+        return;
+    }
+
+    // check name limitations
+    if (!HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_RESERVEDNAME) && sObjectMgr->IsReservedName(checkCharacterNameAvailability.Name))
+    {
+        SendPacket(WorldPackets::Character::CheckCharacterNameAvailabilityResult(checkCharacterNameAvailability.SequenceIndex, CHAR_NAME_RESERVED).Write());
+        return;
+    }
+
+    // Ensure that there is no character with the desired new name
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_NAME);
+    stmt->setString(0, checkCharacterNameAvailability.Name);
+
+    _queryProcessor.AddCallback(CharacterDatabase.AsyncQuery(stmt)
+        .WithPreparedCallback([this, sequenceIndex = checkCharacterNameAvailability.SequenceIndex](PreparedQueryResult result)
+    {
+        SendPacket(WorldPackets::Character::CheckCharacterNameAvailabilityResult(sequenceIndex, result ? CHAR_CREATE_NAME_IN_USE : RESPONSE_SUCCESS).Write());
+    }));
 }
 
 void WorldSession::HandleCharRenameOpcode(WorldPackets::Character::CharacterRenameRequest& request)
@@ -2670,13 +2676,8 @@ void WorldSession::SendCharFactionChange(ResponseCodes result, WorldPackets::Cha
         packet.Display = boost::in_place();
         packet.Display->Name = factionChangeInfo->Name;
         packet.Display->SexID = factionChangeInfo->SexID;
-        packet.Display->SkinID = factionChangeInfo->SkinID;
-        packet.Display->HairColorID = factionChangeInfo->HairColorID;
-        packet.Display->HairStyleID = factionChangeInfo->HairStyleID;
-        packet.Display->FacialHairStyleID = factionChangeInfo->FacialHairStyleID;
-        packet.Display->FaceID = factionChangeInfo->FaceID;
+        packet.Display->Customizations = &factionChangeInfo->Customizations;
         packet.Display->RaceID = factionChangeInfo->RaceID;
-        packet.Display->CustomDisplay = factionChangeInfo->CustomDisplay;
     }
 
     SendPacket(packet.Write());

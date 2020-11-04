@@ -54,7 +54,7 @@ WorldPacket const* DBReply::Write()
     _worldPacket << uint32(TableHash);
     _worldPacket << uint32(RecordID);
     _worldPacket << uint32(Timestamp);
-    _worldPacket.WriteBit(Allow);
+    _worldPacket.WriteBits(Status, 2);
     _worldPacket << uint32(Data.size());
     _worldPacket.append(Data);
 
@@ -91,12 +91,12 @@ ByteBuffer& operator<<(ByteBuffer& data, HotfixConnect::HotfixData const& hotfix
     if (hotfixData.Size)
     {
         data << uint32(*hotfixData.Size);
-        data.WriteBit(true);
+        data.WriteBits(1, 2);
     }
     else
     {
         data << uint32(0);
-        data.WriteBit(false);
+        data.WriteBits(3, 2);
     }
     data.FlushBits();
 

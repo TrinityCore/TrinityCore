@@ -42,7 +42,7 @@ void WorldSession::HandleDBQueryBulk(WorldPackets::Hotfix::DBQueryBulk& dbQuery)
 
         if (store->HasRecord(record.RecordID))
         {
-            dbReply.Allow = true;
+            dbReply.Status = 1;
             dbReply.Timestamp = GameTime::GetGameTime();
             store->WriteRecord(record.RecordID, GetSessionDbcLocale(), dbReply.Data);
         }

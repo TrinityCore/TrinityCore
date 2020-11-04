@@ -95,11 +95,13 @@ namespace WorldPackets
         {
             AuctionBucketKey Key;
             int32 TotalQuantity = 0;
+            int32 RequiredLevel = 0;
             uint64 MinPrice = 0;
             std::vector<int32> ItemModifiedAppearanceIDs;
             Optional<uint8> MaxBattlePetQuality;
             Optional<uint8> MaxBattlePetLevel;
             Optional<uint8> BattlePetBreedID;
+            Optional<uint32> Unk901_1;
             bool ContainsOwnerItem = false;
             bool ContainsOnlyCollectedAppearances = false;
         };

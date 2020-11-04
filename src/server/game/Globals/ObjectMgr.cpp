@@ -7955,7 +7955,7 @@ void ObjectMgr::LoadQuestPOI()
         {
             QuestPOIData& poiData = _questPOIStore[questID];
             poiData.QuestID = questID;
-            poiData.QuestPOIBlobDataStats.emplace_back(blobIndex, objectiveIndex, questObjectiveID, questObjectID, mapID, uiMapID, priority, flags,
+            poiData.Blobs.emplace_back(blobIndex, objectiveIndex, questObjectiveID, questObjectID, mapID, uiMapID, priority, flags,
                 worldEffectID, playerConditionID, spawnTrackingID, std::move(POIs[questID][idx1]), alwaysAllowMergingBlobs);
         }
         else

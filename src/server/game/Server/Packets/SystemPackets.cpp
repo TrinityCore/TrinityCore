@@ -18,7 +18,32 @@
 #include "SystemPackets.h"
 #include "Errors.h"
 
-WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
+namespace WorldPackets
+{
+namespace System
+{
+ByteBuffer& operator<<(ByteBuffer& data, SavedThrottleObjectState const& throttleState)
+{
+    data << uint32(throttleState.MaxTries);
+    data << uint32(throttleState.PerMilliseconds);
+    data << uint32(throttleState.TryCount);
+    data << uint32(throttleState.LastResetTimeBeforeNow);
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, EuropaTicketConfig const& europaTicketSystemStatus)
+{
+    data.WriteBit(europaTicketSystemStatus.TicketsEnabled);
+    data.WriteBit(europaTicketSystemStatus.BugsEnabled);
+    data.WriteBit(europaTicketSystemStatus.ComplaintsEnabled);
+    data.WriteBit(europaTicketSystemStatus.SuggestionsEnabled);
+
+    data << europaTicketSystemStatus.ThrottleState;
+
+    return data;
+}
+
+WorldPacket const* FeatureSystemStatus::Write()
 {
     _worldPacket << uint8(ComplaintStatus);
 
@@ -37,6 +62,7 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
     _worldPacket << uint32(TwitterPostThrottleCooldown);
 
     _worldPacket << uint32(TokenPollTimeSeconds);
+    _worldPacket << uint32(KioskSessionMinutes);
     _worldPacket << int64(TokenBalanceAmount);
 
     _worldPacket << uint32(BpayStoreProductDeliveryDelay);
@@ -59,7 +85,6 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
     _worldPacket.WriteBit(RestrictedAccount);
     _worldPacket.WriteBit(CommerceSystemEnabled);
     _worldPacket.WriteBit(TutorialsEnabled);
-    _worldPacket.WriteBit(NPETutorialsEnabled);
     _worldPacket.WriteBit(TwitterEnabled);
     _worldPacket.WriteBit(Unk67);
     _worldPacket.WriteBit(WillKickFromWorld);
@@ -76,6 +101,7 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
     _worldPacket.WriteBit(QuestSessionEnabled);
     _worldPacket.WriteBit(IsMuted);
     _worldPacket.WriteBit(ClubFinderEnabled);
+    _worldPacket.WriteBit(Unknown901CheckoutRelated);
 
     _worldPacket.FlushBits();
 
@@ -113,28 +139,18 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
     }
 
     {
-        _worldPacket.WriteBit(VoiceChatManagerSettings.IsSquelched);
-        _worldPacket << VoiceChatManagerSettings.BnetAccountGuid;
-        _worldPacket << VoiceChatManagerSettings.GuildGuid;
+        _worldPacket.WriteBit(Squelch.IsSquelched);
+        _worldPacket << Squelch.BnetAccountGuid;
+        _worldPacket << Squelch.GuildGuid;
     }
 
     if (EuropaTicketSystemStatus)
-    {
-        _worldPacket.WriteBit(EuropaTicketSystemStatus->TicketsEnabled);
-        _worldPacket.WriteBit(EuropaTicketSystemStatus->BugsEnabled);
-        _worldPacket.WriteBit(EuropaTicketSystemStatus->ComplaintsEnabled);
-        _worldPacket.WriteBit(EuropaTicketSystemStatus->SuggestionsEnabled);
-
-        _worldPacket << uint32(EuropaTicketSystemStatus->ThrottleState.MaxTries);
-        _worldPacket << uint32(EuropaTicketSystemStatus->ThrottleState.PerMilliseconds);
-        _worldPacket << uint32(EuropaTicketSystemStatus->ThrottleState.TryCount);
-        _worldPacket << uint32(EuropaTicketSystemStatus->ThrottleState.LastResetTimeBeforeNow);
-    }
+        _worldPacket << *EuropaTicketSystemStatus;
 
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::System::FeatureSystemStatusGlueScreen::Write()
+WorldPacket const* FeatureSystemStatusGlueScreen::Write()
 {
     _worldPacket.WriteBit(BpayStoreEnabled);
     _worldPacket.WriteBit(BpayStoreAvailable);
@@ -151,21 +167,32 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatusGlueScreen::Write()
     _worldPacket.WriteBit(LiveRegionCharacterListEnabled);
     _worldPacket.WriteBit(LiveRegionCharacterCopyEnabled);
     _worldPacket.WriteBit(LiveRegionAccountCopyEnabled);
+    _worldPacket.WriteBit(LiveRegionKeyBindingsCopyEnabled);
+    _worldPacket.WriteBit(Unknown901CheckoutRelated);
+    _worldPacket.WriteBit(EuropaTicketSystemStatus.is_initialized());
     _worldPacket.FlushBits();
 
+    if (EuropaTicketSystemStatus)
+        _worldPacket << *EuropaTicketSystemStatus;
+
     _worldPacket << uint32(TokenPollTimeSeconds);
+    _worldPacket << uint32(KioskSessionMinutes);
     _worldPacket << int64(TokenBalanceAmount);
     _worldPacket << int32(MaxCharactersPerRealm);
+    _worldPacket << uint32(LiveRegionCharacterCopySourceRegions.size());
     _worldPacket << uint32(BpayStoreProductDeliveryDelay);
     _worldPacket << int32(ActiveCharacterUpgradeBoostType);
     _worldPacket << int32(ActiveClassTrialBoostType);
     _worldPacket << int32(MinimumExpansionLevel);
     _worldPacket << int32(MaximumExpansionLevel);
 
+    if (!LiveRegionCharacterCopySourceRegions.empty())
+        _worldPacket.append(LiveRegionCharacterCopySourceRegions.data(), LiveRegionCharacterCopySourceRegions.size());
+
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::System::MOTD::Write()
+WorldPacket const* MOTD::Write()
 {
     ASSERT(Text);
     _worldPacket.WriteBits(Text->size(), 4);
@@ -181,7 +208,7 @@ WorldPacket const* WorldPackets::System::MOTD::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::System::SetTimeZoneInformation::Write()
+WorldPacket const* SetTimeZoneInformation::Write()
 {
     _worldPacket.WriteBits(ServerTimeTZ.length(), 7);
     _worldPacket.WriteBits(GameTimeTZ.length(), 7);
@@ -191,4 +218,6 @@ WorldPacket const* WorldPackets::System::SetTimeZoneInformation::Write()
     _worldPacket.WriteString(GameTimeTZ);
 
     return &_worldPacket;
+}
+}
 }

@@ -33,6 +33,12 @@ class Player;
 struct Loot;
 struct LootItem;
 
+enum class LootItemType : uint8
+{
+    Item        = 0,
+    Currency    = 1
+};
+
 struct TC_GAME_API LootStoreItem
 {
     uint32  itemid;                                         // id of the item

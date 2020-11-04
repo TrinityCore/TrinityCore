@@ -34,7 +34,7 @@ namespace WorldPackets
 
             ObjectGuid PlayerGuid;
             uint32 ServerTime = 0;
-            uint32 AccountTimes[NUM_ACCOUNT_DATA_TYPES];
+            std::array<uint32, NUM_ACCOUNT_DATA_TYPES> AccountTimes = { };
         };
 
         class ClientCacheVersion final : public ServerPacket

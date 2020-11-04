@@ -80,7 +80,6 @@ WorldPacket const* WorldPackets::Query::QueryCreatureResponse::Write()
         _worldPacket << int32(Stats.RequiredExpansion);
         _worldPacket << int32(Stats.VignetteID);
         _worldPacket << int32(Stats.Class);
-        _worldPacket << float(Stats.FadeRegionRadius);
         _worldPacket << int32(Stats.WidgetSetID);
         _worldPacket << int32(Stats.WidgetSetUnitConditionID);
 
@@ -355,9 +354,9 @@ void WorldPackets::Query::QuestPOIQuery::Read()
 ByteBuffer& operator<<(ByteBuffer& data, QuestPOIData const& questPOIData)
 {
     data << int32(questPOIData.QuestID);
-    data << int32(questPOIData.QuestPOIBlobDataStats.size());
+    data << int32(questPOIData.Blobs.size());
 
-    for (QuestPOIBlobData const& questPOIBlobData : questPOIData.QuestPOIBlobDataStats)
+    for (QuestPOIBlobData const& questPOIBlobData : questPOIData.Blobs)
     {
         data << int32(questPOIBlobData.BlobIndex);
         data << int32(questPOIBlobData.ObjectiveIndex);
@@ -369,13 +368,15 @@ ByteBuffer& operator<<(ByteBuffer& data, QuestPOIData const& questPOIData)
         data << int32(questPOIBlobData.Flags);
         data << int32(questPOIBlobData.WorldEffectID);
         data << int32(questPOIBlobData.PlayerConditionID);
+        data << int32(questPOIBlobData.NavigationPlayerConditionID);
         data << int32(questPOIBlobData.SpawnTrackingID);
-        data << int32(questPOIBlobData.QuestPOIBlobPointStats.size());
+        data << int32(questPOIBlobData.Points.size());
 
-        for (QuestPOIBlobPoint const& questPOIBlobPoint : questPOIBlobData.QuestPOIBlobPointStats)
+        for (QuestPOIBlobPoint const& questPOIBlobPoint : questPOIBlobData.Points)
         {
-            data << int32(questPOIBlobPoint.X);
-            data << int32(questPOIBlobPoint.Y);
+            data << int16(questPOIBlobPoint.X);
+            data << int16(questPOIBlobPoint.Y);
+            data << int16(questPOIBlobPoint.Z);
         }
 
         data.WriteBit(questPOIBlobData.AlwaysAllowMergingBlobs);

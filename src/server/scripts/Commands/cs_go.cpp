@@ -328,12 +328,12 @@ public:
 
         if (QuestPOIData const* poiData = sObjectMgr->GetQuestPOIData(questID))
         {
-            auto data = poiData->QuestPOIBlobDataStats.front();
+            QuestPOIBlobData const& data = poiData->Blobs.front();
 
             mapId = data.MapID;
 
-            x = data.QuestPOIBlobPointStats.front().X;
-            y = data.QuestPOIBlobPointStats.front().Y;
+            x = data.Points.front().X;
+            y = data.Points.front().Y;
         }
         else
         {

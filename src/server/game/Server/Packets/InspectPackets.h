@@ -18,6 +18,7 @@
 #pragma once
 
 #include "Packet.h"
+#include "CharacterPackets.h"
 #include "DBCEnums.h"
 #include "ItemPacketsCommon.h"
 #include "ObjectGuid.h"
@@ -78,14 +79,9 @@ namespace WorldPackets
             std::string Name;
             int32 SpecializationID = 0;
             uint8 GenderID = GENDER_NONE;
-            uint8 Skin = 0;
-            uint8 HairColor = 0;
-            uint8 HairStyle = 0;
-            uint8 FacialHairStyle = 0;
-            uint8 Face = 0;
             uint8 Race = RACE_NONE;
             uint8 ClassID = CLASS_NONE;
-            std::array<uint8, PLAYER_CUSTOM_DISPLAY_SIZE> CustomDisplay;
+            std::vector<Character::ChrCustomizationChoice> Customizations;
 
             void Initialize(Player const* player);
         };

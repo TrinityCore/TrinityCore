@@ -22,7 +22,10 @@ WorldPacket const* WorldPackets::Battleground::SeasonInfo::Write()
     _worldPacket << int32(MythicPlusSeasonID);
     _worldPacket << int32(CurrentSeason);
     _worldPacket << int32(PreviousSeason);
+    _worldPacket << int32(ConquestWeeklyProgressCurrencyID);
     _worldPacket << int32(PvpSeasonID);
+    _worldPacket.WriteBit(WeeklyRewardChestsEnabled);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
