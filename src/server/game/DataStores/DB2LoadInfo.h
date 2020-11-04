@@ -4821,10 +4821,10 @@ struct SpellVisualKitLoadInfo
     {
         static DB2FieldMeta const fields[] =
         {
-            { false, FT_INT, "ID" },
+            { true, FT_INT, "ID" },
             { true, FT_INT, "Flags" },
-            { true, FT_BYTE, "FallbackPriority" },
-            { false, FT_INT, "FallbackSpellVisualKitId" },
+            { false, FT_FLOAT, "FallbackPriority" },
+            { true, FT_INT, "FallbackSpellVisualKitId" },
             { false, FT_SHORT, "DelayMin" },
             { false, FT_SHORT, "DelayMax" },
         };
