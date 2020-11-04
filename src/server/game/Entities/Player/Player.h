@@ -2227,6 +2227,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         uint32 DoRandomRoll(uint32 minimum, uint32 maximum);
         uint8 GetItemLimitCategoryQuantity(ItemLimitCategoryEntry const* limitEntry) const;
+        void ShowNeutralPlayerFactionSelectUI();
 
         void UpdateItemLevelAreaBasedScaling();
         void ActivatePvpItemLevels(bool activate) { _usePvpItemLevels = activate; }
