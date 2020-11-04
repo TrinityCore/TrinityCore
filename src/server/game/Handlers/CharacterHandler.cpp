@@ -358,6 +358,8 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
         WorldPackets::Character::EnumCharactersResult::RaceUnlock raceUnlock;
         raceUnlock.RaceID = requirement.first;
         raceUnlock.HasExpansion = GetAccountExpansion() >= requirement.second.Expansion;
+        raceUnlock.HasAchievement = requirement.second.AchievementId == 0; // ugly hack (fun)
+        raceUnlock.HasHeritageArmor = true;
         charEnum.RaceUnlockData.push_back(raceUnlock);
     }
 
@@ -997,7 +999,18 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
             else if (cEntry->CinematicSequenceID)
                 pCurrChar->SendCinematicStart(cEntry->CinematicSequenceID);
             else if (ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry(pCurrChar->getRace()))
-                pCurrChar->SendCinematicStart(rEntry->CinematicSequenceID);
+            {
+                if (rEntry->CinematicSequenceID)
+                    pCurrChar->SendCinematicStart(rEntry->CinematicSequenceID);
+                else if (pCurrChar->getRace() == RACE_NIGHTBORNE)
+                    pCurrChar->GetSceneMgr().PlayScene(1900);
+                else if (pCurrChar->getRace() == RACE_HIGHMOUNTAIN_TAUREN)
+                    pCurrChar->GetSceneMgr().PlayScene(1901);
+                else if (pCurrChar->getRace() == RACE_VOID_ELF)
+                    pCurrChar->GetSceneMgr().PlayScene(1903);
+                else if (pCurrChar->getRace() == RACE_LIGHTFORGED_DRAENEI)
+                    pCurrChar->GetSceneMgr().PlayScene(1902);
+            }
 
             // send new char string if not empty
             if (!sWorld->GetNewCharString().empty())

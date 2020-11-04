@@ -898,6 +898,8 @@ void World::LoadConfigSettings(bool reload)
         m_int_configs[CONFIG_START_DEMON_HUNTER_PLAYER_LEVEL] = m_int_configs[CONFIG_MAX_PLAYER_LEVEL];
     }
 
+    m_int_configs[CONFIG_START_ALLIED_RACE_PLAYER_LEVEL] = sConfigMgr->GetIntDefault("StartAlliedRacePlayerLevel", 20);
+
     m_int_configs[CONFIG_START_PLAYER_MONEY] = sConfigMgr->GetIntDefault("StartPlayerMoney", 0);
     if (int32(m_int_configs[CONFIG_START_PLAYER_MONEY]) < 0)
     {
@@ -1286,6 +1288,7 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_CHARDELETE_MIN_LEVEL] = sConfigMgr->GetIntDefault("CharDelete.MinLevel", 0);
     m_int_configs[CONFIG_CHARDELETE_DEATH_KNIGHT_MIN_LEVEL] = sConfigMgr->GetIntDefault("CharDelete.DeathKnight.MinLevel", 0);
     m_int_configs[CONFIG_CHARDELETE_DEMON_HUNTER_MIN_LEVEL] = sConfigMgr->GetIntDefault("CharDelete.DemonHunter.MinLevel", 0);
+    m_int_configs[CONFIG_CHARDELETE_ALLIED_RACE_MIN_LEVEL] = sConfigMgr->GetIntDefault("CharDelete.DemonHunter.MinLevel", 0);
     m_int_configs[CONFIG_CHARDELETE_KEEP_DAYS] = sConfigMgr->GetIntDefault("CharDelete.KeepDays", 30);
 
     // No aggro from gray mobs
