@@ -504,6 +504,8 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
         start_level = sWorld->getIntConfig(CONFIG_START_DEATH_KNIGHT_PLAYER_LEVEL);
     else if (getClass() == CLASS_DEMON_HUNTER)
         start_level = sWorld->getIntConfig(CONFIG_START_DEMON_HUNTER_PLAYER_LEVEL);
+    else if (getRace() >= RACE_NIGHTBORNE)
+        start_level = sWorld->getIntConfig(CONFIG_START_ALLIED_RACE_PLAYER_LEVEL);
 
     if (createInfo->TemplateSet)
     {
@@ -3731,6 +3733,8 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             charDeleteMinLvl = sWorld->getIntConfig(CONFIG_CHARDELETE_DEATH_KNIGHT_MIN_LEVEL);
         else if (characterInfo->Class == CLASS_DEMON_HUNTER)
             charDeleteMinLvl = sWorld->getIntConfig(CONFIG_CHARDELETE_DEMON_HUNTER_MIN_LEVEL);
+        else if (characterInfo->Race >= RACE_NIGHTBORNE)
+            charDeleteMinLvl = sWorld->getIntConfig(CONFIG_CHARDELETE_ALLIED_RACE_MIN_LEVEL);
         else
             charDeleteMinLvl = sWorld->getIntConfig(CONFIG_CHARDELETE_MIN_LEVEL);
 

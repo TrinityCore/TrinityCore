@@ -468,6 +468,7 @@ namespace WorldPackets
         class MountSetFavorite;
         class PvpPrestigeRankUp;
         class CloseInteraction;
+        class OpenAlliedRaceDetailsGiver;
     }
 
     namespace Movement

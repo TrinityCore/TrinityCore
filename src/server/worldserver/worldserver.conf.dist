@@ -875,6 +875,14 @@ StartDeathKnightPlayerLevel = 55
 StartDemonHunterPlayerLevel = 98
 
 #
+#    StartAlliedRacePlayerLevel
+#        Description: Staring level for allied race after creation.
+#        Range:       1-MaxPlayerLevel
+#        Default:     20
+
+StartAlliedRacePlayerLevel = 20
+
+#
 #    StartPlayerMoney
 #        Description: Amount of money (in Copper) that a character has after creation.
 #        Default:     0
