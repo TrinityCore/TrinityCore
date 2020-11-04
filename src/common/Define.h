@@ -38,6 +38,9 @@
 #    define _GLIBCXX_SYNCHRONIZATION_HAPPENS_BEFORE(A) ANNOTATE_HAPPENS_BEFORE(A)
 #    define _GLIBCXX_SYNCHRONIZATION_HAPPENS_AFTER(A)  ANNOTATE_HAPPENS_AFTER(A)
 #  endif
+#  if defined(VALGRIND)
+#    include <valgrind/memcheck.h>
+#  endif
 #endif
 
 #include <cstddef>

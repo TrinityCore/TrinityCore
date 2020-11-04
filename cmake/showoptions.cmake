@@ -100,7 +100,7 @@ elseif ( VALGRIND )
   message(" *** jemalloc will be configured to support Valgrind")
   message(" *** Please specify the valgrind include directory in VALGRIND_INCLUDE_DIR option if you get build errors")
   message(" *** Please note that this is for DEBUGGING WITH VALGRIND only!")
-  add_definitions(-DJEMALLOC_VALGRIND)
+  add_definitions(-DJEMALLOC_VALGRIND -DVALGRIND)
 endif()
 
 if ( HELGRIND )

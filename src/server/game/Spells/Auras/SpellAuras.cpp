@@ -1850,7 +1850,7 @@ float Aura::CalcPPMProcChance(Unit* actor) const
     float ppm = m_spellInfo->CalcProcPPM(actor, m_castItemLevel);
     float averageProcInterval = 60.0f / ppm;
 
-    std::chrono::steady_clock::time_point currentTime = std::chrono::steady_clock::now();
+    std::chrono::steady_clock::time_point currentTime = GameTime::GetGameTimeSteadyPoint();
     float secondsSinceLastAttempt = std::min(std::chrono::duration_cast<FSeconds>(currentTime - m_lastProcAttemptTime).count(), 10.0f);
     float secondsSinceLastProc = std::min(std::chrono::duration_cast<FSeconds>(currentTime - m_lastProcSuccessTime).count(), 1000.0f);
 

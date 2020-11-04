@@ -685,3 +685,8 @@ WorldPacket const* WorldPackets::Misc::OpenAlliedRaceDetailsGiver::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Misc::FactionSelect::Read()
+{
+    _worldPacket >> FactionChoice;
+}

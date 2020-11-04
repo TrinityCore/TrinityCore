@@ -24,6 +24,7 @@
 #include <list>
 
 class GameObject;
+class SpellInfo;
 class Unit;
 
 class TC_GAME_API GameObjectAI

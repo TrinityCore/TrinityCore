@@ -26,6 +26,8 @@
 #include <sstream>
 #include <iomanip>
 
+static_assert(sizeof(ObjectGuid) == sizeof(uint64) * 2, "ObjectGuid must be exactly 16 bytes");
+
 namespace
 {
     struct GuidTypeNames

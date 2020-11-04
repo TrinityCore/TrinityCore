@@ -35,6 +35,7 @@
 #include "DB2Stores.h"
 #include "EquipmentSetPackets.h"
 #include "GameObject.h"
+#include "GameTime.h"
 #include "GitRevision.h"
 #include "Group.h"
 #include "Guild.h"
@@ -921,7 +922,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     WorldPackets::ClientConfig::AccountDataTimes accountDataTimes;
     accountDataTimes.PlayerGuid = playerGuid;
-    accountDataTimes.ServerTime = uint32(sWorld->GetGameTime());
+    accountDataTimes.ServerTime = uint32(GameTime::GetGameTime());
     for (uint32 i = 0; i < NUM_ACCOUNT_DATA_TYPES; ++i)
         accountDataTimes.AccountTimes[i] = uint32(GetAccountData(AccountDataType(i))->Time);
 
@@ -955,7 +956,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
             chH.PSendSysMessage(GitRevision::GetFullVersion());
     }
 
-    //QueryResult* result = CharacterDatabase.PQuery("SELECT guildid, rank FROM guild_member WHERE guid = '%u'", pCurrChar->GetGUIDLow());
+    //QueryResult* result = CharacterDatabase.PQuery("SELECT guildid, `rank` FROM guild_member WHERE guid = '%u'", pCurrChar->GetGUIDLow());
     if (PreparedQueryResult resultGuild = holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_GUILD))
     {
         Field* fields = resultGuild->Fetch();
@@ -1052,7 +1053,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     loginStmt->setUInt32(0, GetAccountId());
     LoginDatabase.Execute(loginStmt);
 
-    pCurrChar->SetInGameTime(getMSTime());
+    pCurrChar->SetInGameTime(GameTime::GetGameTimeMS());
 
     // announce group about member online (must be after add to player list to receive announce to self)
     if (Group* group = pCurrChar->GetGroup())

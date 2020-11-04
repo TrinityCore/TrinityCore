@@ -23,6 +23,7 @@
 #include "Log.h"
 #include "Opcodes.h"
 #include "ByteBuffer.h"
+#include "GameTime.h"
 #include "World.h"
 #include "Player.h"
 #include "Util.h"
@@ -186,7 +187,7 @@ void WardenMac::HandleHashResult(ByteBuffer &buff)
 
     _initialized = true;
 
-    _previousTimestamp = getMSTime();
+    _previousTimestamp = GameTime::GetGameTimeMS();
 }
 
 void WardenMac::RequestData()

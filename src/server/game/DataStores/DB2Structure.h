@@ -1014,7 +1014,6 @@ struct FactionTemplateEntry
         return EnemyGroup == 0 && FriendGroup == 0;
     }
     bool IsContestedGuardFaction() const { return (Flags & FACTION_TEMPLATE_FLAG_CONTESTED_GUARD) != 0; }
-    bool ShouldSparAttack() const { return (Flags & FACTION_TEMPLATE_ENEMY_SPAR) != 0; }
 };
 
 struct GameObjectDisplayInfoEntry
@@ -2783,6 +2782,16 @@ struct SpellTotemsEntry
     uint16 RequiredTotemCategoryID[MAX_SPELL_TOTEMS];
 };
 
+struct SpellVisualKitEntry
+{
+    int32 ID;
+    int32 Flags;
+    float FallbackPriority;
+    int32 FallbackSpellVisualKitId;
+    uint16 DelayMin;
+    uint16 DelayMax;
+};
+
 struct SpellXSpellVisualEntry
 {
     uint32 SpellVisualID;
@@ -3159,6 +3168,12 @@ struct WorldSafeLocsEntry
     DBCPosition3D Loc;
     float Facing;
     uint16 MapID;
+};
+
+struct WorldStateExpressionEntry
+{
+    uint32 ID;
+    char const* Expression;
 };
 
 #pragma pack(pop)

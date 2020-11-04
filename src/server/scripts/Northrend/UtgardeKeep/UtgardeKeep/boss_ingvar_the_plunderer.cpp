@@ -198,7 +198,7 @@ class boss_ingvar_the_plunderer : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (!UpdateVictim() && !events.IsInPhase(PHASE_EVENT))
+                if (!events.IsInPhase(PHASE_EVENT) && !UpdateVictim())
                     return;
 
                 events.Update(diff);

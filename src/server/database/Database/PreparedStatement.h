@@ -80,7 +80,7 @@ class TC_DATABASE_API PreparedStatementBase
     friend class MySQLConnection;
 
     public:
-        explicit PreparedStatementBase(uint32 index);
+        explicit PreparedStatementBase(uint32 index, uint8 capacity);
         virtual ~PreparedStatementBase();
 
         void setBool(const uint8 index, const bool value);
@@ -98,13 +98,17 @@ class TC_DATABASE_API PreparedStatementBase
         void setBinary(const uint8 index, const std::vector<uint8>& value);
         void setNull(const uint8 index);
 
+        uint32 GetIndex() const { return m_index; }
+
     protected:
-        void BindParameters();
+        void BindParameters(MySQLPreparedStatement* stmt);
 
     protected:
         MySQLPreparedStatement* m_stmt;
         uint32 m_index;
-        std::vector<PreparedStatementData> statement_data;    //- Buffer of parameters, not tied to MySQL in any way yet
+
+        //- Buffer of parameters, not tied to MySQL in any way yet
+        std::vector<PreparedStatementData> statement_data;
 
         PreparedStatementBase(PreparedStatementBase const& right) = delete;
         PreparedStatementBase& operator=(PreparedStatementBase const& right) = delete;
@@ -114,57 +118,13 @@ template<typename T>
 class PreparedStatement : public PreparedStatementBase
 {
 public:
-    explicit PreparedStatement(uint32 index) : PreparedStatementBase(index)
+    explicit PreparedStatement(uint32 index, uint8 capacity) : PreparedStatementBase(index, capacity)
     {
     }
 
 private:
     PreparedStatement(PreparedStatement const& right) = delete;
     PreparedStatement& operator=(PreparedStatement const& right) = delete;
-};
-
-//- Class of which the instances are unique per MySQLConnection
-//- access to these class objects is only done when a prepared statement task
-//- is executed.
-class TC_DATABASE_API MySQLPreparedStatement
-{
-    friend class MySQLConnection;
-    friend class PreparedStatementBase;
-
-    public:
-        MySQLPreparedStatement(MYSQL_STMT* stmt);
-        ~MySQLPreparedStatement();
-
-        void setNull(const uint8 index);
-        void setBool(const uint8 index, const bool value);
-        void setUInt8(const uint8 index, const uint8 value);
-        void setUInt16(const uint8 index, const uint16 value);
-        void setUInt32(const uint8 index, const uint32 value);
-        void setUInt64(const uint8 index, const uint64 value);
-        void setInt8(const uint8 index, const int8 value);
-        void setInt16(const uint8 index, const int16 value);
-        void setInt32(const uint8 index, const int32 value);
-        void setInt64(const uint8 index, const int64 value);
-        void setFloat(const uint8 index, const float value);
-        void setDouble(const uint8 index, const double value);
-        void setBinary(const uint8 index, const std::vector<uint8>& value, bool isString);
-
-    protected:
-        MYSQL_STMT* GetSTMT() { return m_Mstmt; }
-        MYSQL_BIND* GetBind() { return m_bind; }
-        PreparedStatementBase* m_stmt;
-        void ClearParameters();
-        void CheckValidIndex(uint8 index);
-        std::string getQueryString(std::string const& sqlPattern) const;
-
-    private:
-        MYSQL_STMT* m_Mstmt;
-        uint32 m_paramCount;
-        std::vector<bool> m_paramsSet;
-        MYSQL_BIND* m_bind;
-
-        MySQLPreparedStatement(MySQLPreparedStatement const& right) = delete;
-        MySQLPreparedStatement& operator=(MySQLPreparedStatement const& right) = delete;
 };
 
 //- Lower-level class, enqueuable operation
