@@ -709,7 +709,7 @@ public:
 
             InitSpellsForPhase();
 
-            me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
         }
 
         void DoAction(int32 action) override
@@ -748,7 +748,7 @@ public:
 
             _playerGuid = caster->GetGUID();
             DoCastAOE(SPELL_FULL_HEAL_MANA, true);
-            me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
 
             me->GetMotionMaster()->MovePoint(POINT_START_FIGHT, *caster);
         }
@@ -803,8 +803,8 @@ public:
                     me->RemoveAurasDueToSpell(SPELL_JAWS_OF_DEATH_PERIODIC);
                     me->RemoveAurasDueToSpell(SPELL_PRY_JAWS_OPEN);
 
-                    me->SetDynamicFlags(UNIT_DYNFLAG_DEAD);
-                    me->SetUnitFlags((UnitFlags)0);
+                    me->SetUInt32Value(OBJECT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
+                    me->SetUInt32Value(UNIT_NPC_FLAGS, 0);
 
                     me->GetMotionMaster()->MoveFall(POINT_FALL);
                 });
@@ -1474,14 +1474,14 @@ public:
 
         void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            GetTarget()->AddUnitFlag(UNIT_FLAG_UNK_29);
-            GetTarget()->AddUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
+            GetTarget()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+            GetTarget()->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
         }
 
         void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            GetTarget()->RemoveUnitFlag(UNIT_FLAG_UNK_29);
-            GetTarget()->RemoveUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
+            GetTarget()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+            GetTarget()->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
         }
 
         void Register() override

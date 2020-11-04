@@ -106,7 +106,7 @@ class boss_apothecary_hummel : public CreatureScript
             {
                 if (menuId == GOSSIP_MENU_HUMMEL && gossipListId == GOSSIP_OPTION_START)
                 {
-                    me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     CloseGossipMenuFor(player);
                     DoAction(ACTION_START_EVENT);
                 }
@@ -136,7 +136,7 @@ class boss_apothecary_hummel : public CreatureScript
                     events.SetPhase(PHASE_INTRO);
                     events.ScheduleEvent(EVENT_HUMMEL_SAY_0, Milliseconds(1));
 
-                    me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                     me->setFaction(FACTION_APOTHECARY_HOSTILE);
                     DummyEntryCheckPredicate pred;
                     summons.DoAction(ACTION_START_EVENT, pred);
@@ -154,8 +154,8 @@ class boss_apothecary_hummel : public CreatureScript
                             _isDead = true;
                             me->RemoveAurasDueToSpell(SPELL_ALLURING_PERFUME);
                             DoCastSelf(SPELL_PERMANENT_FEIGN_DEATH, true);
-                            me->AddUnitFlag(UNIT_FLAG_UNK_29);
-                            me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+                            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             Talk(SAY_HUMMEL_DEATH);
                         }
                     }
@@ -176,8 +176,8 @@ class boss_apothecary_hummel : public CreatureScript
                     Talk(SAY_HUMMEL_DEATH);
 
                 events.Reset();
-                me->RemoveUnitFlag(UNIT_FLAG_UNK_29);
-                me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 instance->SetBossState(DATA_APOTHECARY_HUMMEL, DONE);
 
                 Map::PlayerList const& players = me->GetMap()->GetPlayers();
@@ -217,8 +217,8 @@ class boss_apothecary_hummel : public CreatureScript
                             break;
                         case EVENT_START_FIGHT:
                         {
-                            me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-                            me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
                             me->SetInCombatWithZone();
                             events.ScheduleEvent(EVENT_CALL_BAXTER, Seconds(6));
                             events.ScheduleEvent(EVENT_CALL_FRYE, Seconds(14));
@@ -289,14 +289,14 @@ struct npc_apothecary_genericAI : public ScriptedAI
     {
         if (action == ACTION_START_EVENT)
         {
-            me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             me->setFaction(FACTION_APOTHECARY_HOSTILE);
             me->GetMotionMaster()->MovePoint(1, _movePos);
         }
         else if (action == ACTION_START_FIGHT)
         {
-            me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-            me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
             me->SetInCombatWithZone();
         }
     }
@@ -304,7 +304,7 @@ struct npc_apothecary_genericAI : public ScriptedAI
     void MovementInform(uint32 type, uint32 pointId) override
     {
         if (type == POINT_MOTION_TYPE && pointId == 1)
-            me->SetEmoteState(EMOTE_STATE_USE_STANDING);
+            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
     }
 
 protected:
