@@ -62,6 +62,7 @@ enum ItemUpdateState
 bool ItemCanGoIntoBag(ItemTemplate const* proto, ItemTemplate const* pBagProto);
 extern ItemModifier const AppearanceModifierSlotBySpec[MAX_SPECIALIZATIONS];
 extern ItemModifier const IllusionModifierSlotBySpec[MAX_SPECIALIZATIONS];
+extern ItemModifier const SecondaryAppearanceModifierSlotBySpec[MAX_SPECIALIZATIONS];
 extern int32 const ItemTransmogrificationSlots[MAX_INVTYPE];
 
 struct BonusData
