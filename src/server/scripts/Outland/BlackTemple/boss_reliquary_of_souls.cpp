@@ -661,7 +661,7 @@ struct npc_reliquary_combat_trigger : public ScriptedAI
 
     bool CanAIAttack(Unit const* who) const override
     {
-        return ScriptedAI::CanAIAttack(who) && IsInBoundary(&who->GetPosition());
+        return ScriptedAI::CanAIAttack(who) && IsInBoundary(who);
     }
 
     void Reset() override
