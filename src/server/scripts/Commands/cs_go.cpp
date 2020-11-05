@@ -334,6 +334,7 @@ public:
 
             x = data.Points.front().X;
             y = data.Points.front().Y;
+            z = data.Points.front().Z;
         }
         else
         {

@@ -68,7 +68,7 @@ struct ScenarioPOIPoint
     int32 Z;
 
     ScenarioPOIPoint() : X(0), Y(0), Z(0) { }
-    ScenarioPOIPoint(int32 x, int32 y) : X(x), Y(y), Z(0) { }
+    ScenarioPOIPoint(int32 x, int32 y, int32 z) : X(x), Y(y), Z(z) { }
 };
 
 struct ScenarioPOI
@@ -86,9 +86,9 @@ struct ScenarioPOI
     ScenarioPOI() : BlobIndex(0), MapID(0), UiMapID(0), Priority(0), Flags(0), WorldEffectID(0), PlayerConditionID(0), NavigationPlayerConditionID(0) { }
 
     ScenarioPOI(int32 blobIndex, int32 mapID, int32 uiMapID, int32 priority, int32 flags, int32 worldEffectID,
-        int32 playerConditionID, std::vector<ScenarioPOIPoint> points) :
+        int32 playerConditionID, int32 navigationPlayerConditionID, std::vector<ScenarioPOIPoint> points) :
         BlobIndex(blobIndex), MapID(mapID), UiMapID(uiMapID), Priority(priority), Flags(flags), WorldEffectID(worldEffectID),
-        PlayerConditionID(playerConditionID), NavigationPlayerConditionID(0), Points(std::move(points)) { }
+        PlayerConditionID(playerConditionID), NavigationPlayerConditionID(navigationPlayerConditionID), Points(std::move(points)) { }
 
     ScenarioPOI(ScenarioPOI&& scenarioPOI) = default;
 };

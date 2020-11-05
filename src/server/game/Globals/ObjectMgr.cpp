@@ -430,9 +430,9 @@ void ObjectMgr::LoadCreatureTemplates()
     //                                       "spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8, VehicleId, mingold, maxgold, AIName, MovementType, "
     //                                        60           61           62              63                   64            65                 66             67              68
     //                                       "InhabitType, HoverHeight, HealthModifier, HealthModifierExtra, ManaModifier, ManaModifierExtra, ArmorModifier, DamageModifier, ExperienceModifier, "
-    //                                        69            70          71                72           73                        74           75                    76
-    //                                       "RacialLeader, movementId, FadeRegionRadius, WidgetSetID, WidgetSetUnitConditionID, RegenHealth, mechanic_immune_mask, flags_extra, "
-    //                                        77
+    //                                        69            70          71           72                        73           74                    75
+    //                                       "RacialLeader, movementId, WidgetSetID, WidgetSetUnitConditionID, RegenHealth, mechanic_immune_mask, flags_extra, "
+    //                                        76
     //                                       "ScriptName FROM creature_template WHERE entry = ? OR 1 = ?");
 
     WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CREATURE_TEMPLATE);
@@ -536,13 +536,12 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.ModExperience          = fields[68].GetFloat();
     creatureTemplate.RacialLeader           = fields[69].GetBool();
     creatureTemplate.movementId             = fields[70].GetUInt32();
-    creatureTemplate.FadeRegionRadius       = fields[71].GetFloat();
-    creatureTemplate.WidgetSetID            = fields[72].GetInt32();
-    creatureTemplate.WidgetSetUnitConditionID = fields[73].GetInt32();
-    creatureTemplate.RegenHealth            = fields[74].GetBool();
-    creatureTemplate.MechanicImmuneMask     = fields[75].GetUInt32();
-    creatureTemplate.flags_extra            = fields[76].GetUInt32();
-    creatureTemplate.ScriptID               = GetScriptId(fields[77].GetString());
+    creatureTemplate.WidgetSetID            = fields[71].GetInt32();
+    creatureTemplate.WidgetSetUnitConditionID = fields[72].GetInt32();
+    creatureTemplate.RegenHealth            = fields[73].GetBool();
+    creatureTemplate.MechanicImmuneMask     = fields[74].GetUInt32();
+    creatureTemplate.flags_extra            = fields[75].GetUInt32();
+    creatureTemplate.ScriptID               = GetScriptId(fields[76].GetString());
 }
 
 void ObjectMgr::LoadCreatureTemplateModels()
@@ -4083,6 +4082,7 @@ void ObjectMgr::BuildPlayerLevelInfo(uint8 race, uint8 _class, uint8 level, Play
                 info->stats[STAT_STAMINA]   += (lvl > 32 ? 2: (lvl > 4 ? 1: 0));
                 info->stats[STAT_AGILITY]   += (lvl > 38 ? 2: (lvl > 8 && (lvl%2) ? 1: 0));
                 info->stats[STAT_INTELLECT] += (lvl > 38 ? 3: (lvl > 4 ? 1: 0));
+                break;
         }
     }
 }
@@ -4100,35 +4100,35 @@ void ObjectMgr::LoadQuests()
     _exclusiveQuestGroups.clear();
 
     QueryResult result = WorldDatabase.Query("SELECT "
-        //0  1          2           3                    4                5               6         7            8            9                  10               11                  12
-        "ID, QuestType, QuestLevel, ScalingFactionGroup, MaxScalingLevel, QuestPackageID, MinLevel, QuestSortID, QuestInfoID, SuggestedGroupNum, RewardNextQuest, RewardXPDifficulty, RewardXPMultiplier, "
-        //13          14                     15                     16                17                   18                   19                   20           21           22               23
-        "RewardMoney, RewardMoneyDifficulty, RewardMoneyMultiplier, RewardBonusMoney, RewardDisplaySpell1, RewardDisplaySpell2, RewardDisplaySpell3, RewardSpell, RewardHonor, RewardKillHonor, StartItem, "
-        //24                         25                          26                        27     28       29
+        //0  1          2               3                4            5            6                  7                8                   9
+        "ID, QuestType, QuestPackageID, ContentTuningID, QuestSortID, QuestInfoID, SuggestedGroupNum, RewardNextQuest, RewardXPDifficulty, RewardXPMultiplier, "
+        //10          11                     12                     13                14           15           16               17
+        "RewardMoney, RewardMoneyDifficulty, RewardMoneyMultiplier, RewardBonusMoney, RewardSpell, RewardHonor, RewardKillHonor, StartItem, "
+        //18                         19                          20                        21     22       23
         "RewardArtifactXPDifficulty, RewardArtifactXPMultiplier, RewardArtifactCategoryID, Flags, FlagsEx, FlagsEx2, "
-        //30          31             32           33               34           35             36         37
+        //24          25             26         27                 28           29             30         31
         "RewardItem1, RewardAmount1, ItemDrop1, ItemDropQuantity1, RewardItem2, RewardAmount2, ItemDrop2, ItemDropQuantity2, "
-        //38           39            40         41                42            43             44         45
+        //32          33             34         35                 36           37             38         39
         "RewardItem3, RewardAmount3, ItemDrop3, ItemDropQuantity3, RewardItem4, RewardAmount4, ItemDrop4, ItemDropQuantity4, "
-        //46                  47                         48                          49                   50                         51
+        //40                  41                         42                          43                   44                         45
         "RewardChoiceItemID1, RewardChoiceItemQuantity1, RewardChoiceItemDisplayID1, RewardChoiceItemID2, RewardChoiceItemQuantity2, RewardChoiceItemDisplayID2, "
-        //52                  53                         54                          55                   56                         57
+        //46                  47                         48                          49                   50                         51
         "RewardChoiceItemID3, RewardChoiceItemQuantity3, RewardChoiceItemDisplayID3, RewardChoiceItemID4, RewardChoiceItemQuantity4, RewardChoiceItemDisplayID4, "
-        //58                  59                         60                          61                   62                         63
+        //52                  53                         54                          55                   56                         57
         "RewardChoiceItemID5, RewardChoiceItemQuantity5, RewardChoiceItemDisplayID5, RewardChoiceItemID6, RewardChoiceItemQuantity6, RewardChoiceItemDisplayID6, "
-        //64           65    66    67           68           69                 70                 71                 72             73                  74
+        //58           59    60    61           62           63                 64                 65                 66             67                  68
         "POIContinent, POIx, POIy, POIPriority, RewardTitle, RewardArenaPoints, RewardSkillLineID, RewardNumSkillUps, PortraitGiver, PortraitGiverMount, PortraitTurnIn, "
-        //75               76                   77                      78                   79                80                   81                      82
+        //69               70                   71                      72                   73                74                   75                      76
         "RewardFactionID1, RewardFactionValue1, RewardFactionOverride1, RewardFactionCapIn1, RewardFactionID2, RewardFactionValue2, RewardFactionOverride2, RewardFactionCapIn2, "
-        //83               84                   85                      86                   87                88                   89                      90
+        //77               78                   79                      80                   81                82                   83                      84
         "RewardFactionID3, RewardFactionValue3, RewardFactionOverride3, RewardFactionCapIn3, RewardFactionID4, RewardFactionValue4, RewardFactionOverride4, RewardFactionCapIn4, "
-        //91               92                   93                      94                   95
+        //85               86                   87                      88                   89
         "RewardFactionID5, RewardFactionValue5, RewardFactionOverride5, RewardFactionCapIn5, RewardFactionFlags, "
-        //96                97                  98                 99                  100                101                 102                103
+        //90                91                  92                 93                  94                 95                  96                 97
         "RewardCurrencyID1, RewardCurrencyQty1, RewardCurrencyID2, RewardCurrencyQty2, RewardCurrencyID3, RewardCurrencyQty3, RewardCurrencyID4, RewardCurrencyQty4, "
-        //104                105                 106          107          108             109               110        111                  112
+        //98                 99                  100          101          102             103               104        105                  106
         "AcceptedSoundKitID, CompleteSoundKitID, AreaGroupID, TimeAllowed, AllowableRaces, TreasurePickerID, Expansion, ManagedWorldStateID, QuestSessionBonus, "
-        //113      114             115               116              117                118                119                 120                 121
+        //107      108             109               110              111                112                113                 114                 115
         "LogTitle, LogDescription, QuestDescription, AreaDescription, PortraitGiverText, PortraitGiverName, PortraitTurnInText, PortraitTurnInName, QuestCompletionLog"
         " FROM quest_template");
     if (!result)
@@ -4159,8 +4159,15 @@ void ObjectMgr::LoadQuests()
         QuestLoaderFunction LoaderFunction;
     };
 
-    static std::vector<QuestLoaderHelper> const QuestLoaderHelpers =
+    // QuestID needs to be fields[0]
+    QuestLoaderHelper const QuestLoaderHelpers[] =
     {
+        // 0        1      2      3      4      5      6
+        { "QuestID, Type1, Type2, Type3, Type4, Type5, Type6",                                                                                                            "quest_reward_choice_items", "",                                  "reward choice items", &Quest::LoadRewardChoiceItems },
+
+        // 0        1        2
+        { "QuestID, SpellID, PlayerConditionID",                                                                                                                          "quest_reward_display_spell", "ORDER BY QuestID ASC, Idx ASC",    "reward display spells", &Quest::LoadRewardDisplaySpell },
+
         // 0   1       2       3       4       5            6            7            8
         { "ID, Emote1, Emote2, Emote3, Emote4, EmoteDelay1, EmoteDelay2, EmoteDelay3, EmoteDelay4",                                                                       "quest_details",        "",                                       "details",             &Quest::LoadQuestDetails       },
 
@@ -4180,14 +4187,13 @@ void ObjectMgr::LoadQuests()
         // 0        1
         { "QuestId, RewardMailSenderEntry",                                                                                                                               "quest_mail_sender",    "",                                       "mail sender entries", &Quest::LoadQuestMailSender    },
 
-        // QuestID needs to be fields[0]
         // 0        1   2     3             4         5       6      7       8                  9
         { "QuestID, ID, Type, StorageIndex, ObjectID, Amount, Flags, Flags2, ProgressBarWeight, Description",                                                             "quest_objectives",     "ORDER BY `Order` ASC, StorageIndex ASC", "quest objectives",    &Quest::LoadQuestObjective     }
     };
 
     for (QuestLoaderHelper const& loader : QuestLoaderHelpers)
     {
-        QueryResult result = WorldDatabase.PQuery("SELECT %s FROM %s", loader.QueryFields, loader.TableName, loader.QueryExtra);
+        QueryResult result = WorldDatabase.PQuery("SELECT %s FROM %s %s", loader.QueryFields, loader.TableName, loader.QueryExtra);
 
         if (!result)
             TC_LOG_ERROR("server.loading", ">> Loaded 0 quest %s. DB table `%s` is empty.", loader.TableDesc, loader.TableName);
@@ -4315,10 +4321,10 @@ void ObjectMgr::LoadQuests()
             }
         }
 
-        if (qinfo->_minLevel == -1 || qinfo->_minLevel > DEFAULT_MAX_LEVEL)
+        if (qinfo->_contentTuningID && !sContentTuningStore.LookupEntry(qinfo->_contentTuningID))
         {
-            TC_LOG_ERROR("sql.sql", "Quest %u should be disabled because `MinLevel` = %i", qinfo->GetQuestId(), int32(qinfo->_minLevel));
-            // no changes needed, sending -1 in SMSG_QUEST_QUERY_RESPONSE is valid
+            TC_LOG_ERROR("sql.sql", "Quest %u has `ContentTuningID` = %u but content tuning with this id does not exist.",
+                qinfo->GetQuestId(), qinfo->_contentTuningID);
         }
 
         // client quest log visual (area case)
@@ -4603,27 +4609,43 @@ void ObjectMgr::LoadQuests()
 
         for (uint8 j = 0; j < QUEST_REWARD_CHOICES_COUNT; ++j)
         {
-            uint32 id = qinfo->RewardChoiceItemId[j];
-            if (id)
+            if (uint32 id = qinfo->RewardChoiceItemId[j])
             {
-                if (!sObjectMgr->GetItemTemplate(id))
+                switch (qinfo->RewardChoiceItemType[j])
                 {
-                    TC_LOG_ERROR("sql.sql", "Quest %u has `RewardChoiceItemId%d` = %u but item with entry %u does not exist, quest will not reward this item.",
-                        qinfo->GetQuestId(), j+1, id, id);
-                    qinfo->RewardChoiceItemId[j] = 0;          // no changes, quest will not reward this
+                    case LootItemType::Item:
+                        if (!sObjectMgr->GetItemTemplate(id))
+                        {
+                            TC_LOG_ERROR("sql.sql", "Quest %u has `RewardChoiceItemId%d` = %u but item with entry %u does not exist, quest will not reward this item.",
+                                qinfo->GetQuestId(), j + 1, id, id);
+                            qinfo->RewardChoiceItemId[j] = 0;          // no changes, quest will not reward this
+                        }
+                        break;
+                    case LootItemType::Currency:
+                        if (!sCurrencyTypesStore.HasRecord(id))
+                        {
+                            TC_LOG_ERROR("sql.sql", "Quest %u has `RewardChoiceItemId%d` = %u but currency with id %u does not exist, quest will not reward this currency.",
+                                qinfo->GetQuestId(), j + 1, id, id);
+                            qinfo->RewardChoiceItemId[j] = 0;          // no changes, quest will not reward this
+                        }
+                        break;
+                    default:
+                        TC_LOG_ERROR("sql.sql", "Quest %u has `RewardChoiceItemType%d` = %u but it is not a valid item type, reward removed.",
+                            qinfo->GetQuestId(), j + 1, uint32(qinfo->RewardChoiceItemType[j]));
+                        qinfo->RewardChoiceItemId[j] = 0;
+                        break;
                 }
 
                 if (!qinfo->RewardChoiceItemCount[j])
                 {
-                    TC_LOG_ERROR("sql.sql", "Quest %u has `RewardChoiceItemId%d` = %u but `RewardChoiceItemCount%d` = 0, quest can't be done.",
-                        qinfo->GetQuestId(), j+1, id, j+1);
-                    // no changes, quest can't be done
+                    TC_LOG_ERROR("sql.sql", "Quest %u has `RewardChoiceItemId%d` = %u but `RewardChoiceItemCount%d` = 0.",
+                        qinfo->GetQuestId(), j + 1, id, j + 1);
                 }
             }
-            else if (qinfo->RewardChoiceItemCount[j]>0)
+            else if (qinfo->RewardChoiceItemCount[j] > 0)
             {
                 TC_LOG_ERROR("sql.sql", "Quest %u has `RewardChoiceItemId%d` = 0 but `RewardChoiceItemCount%d` = %u.",
-                    qinfo->GetQuestId(), j+1, j+1, qinfo->RewardChoiceItemCount[j]);
+                    qinfo->GetQuestId(), j + 1, j + 1, qinfo->RewardChoiceItemCount[j]);
                 // no changes, quest ignore this data
             }
         }
@@ -4675,28 +4697,6 @@ void ObjectMgr::LoadQuests()
                 TC_LOG_ERROR("sql.sql", "Quest %u has `RewardFactionId%d` = 0 but `RewardFactionValueIdOverride%d` = %i.",
                     qinfo->GetQuestId(), j+1, j+1, qinfo->RewardFactionOverride[j]);
                 // no changes, quest ignore this data
-            }
-        }
-
-        for (uint32 i = 0; i < QUEST_REWARD_DISPLAY_SPELL_COUNT; ++i)
-        {
-            if (qinfo->RewardDisplaySpell[i])
-            {
-                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(qinfo->RewardDisplaySpell[i], DIFFICULTY_NONE);
-
-                if (!spellInfo)
-                {
-                    TC_LOG_ERROR("sql.sql", "Quest %u has `RewardDisplaySpell%u` = %u but spell %u does not exist, spell removed as display reward.",
-                        qinfo->GetQuestId(), i, qinfo->RewardDisplaySpell[i], qinfo->RewardDisplaySpell[i]);
-                    qinfo->RewardDisplaySpell[i] = 0;                        // no spell reward will display for this quest
-                }
-
-                else if (!SpellMgr::IsSpellValid(spellInfo))
-                {
-                    TC_LOG_ERROR("sql.sql", "Quest %u has `RewardDisplaySpell%u` = %u but spell %u is broken, quest will not have a spell reward.",
-                        qinfo->GetQuestId(), i, qinfo->RewardDisplaySpell[i], qinfo->RewardDisplaySpell[i]);
-                    qinfo->RewardDisplaySpell[i] = 0;                        // no spell reward will display for this quest
-                }
             }
         }
 
@@ -7892,41 +7892,33 @@ void ObjectMgr::LoadQuestPOI()
 
     uint32 count = 0;
 
-    //                                               0        1          2     3               4                 5              6      7        8         9      10             11                 12               13
-    QueryResult result = WorldDatabase.Query("SELECT QuestID, BlobIndex, Idx1, ObjectiveIndex, QuestObjectiveID, QuestObjectID, MapID, UiMapID, Priority, Flags, WorldEffectID, PlayerConditionID, SpawnTrackingID, AlwaysAllowMergingBlobs FROM quest_poi order by QuestID, Idx1");
+    //                                               0        1          2     3               4                 5              6      7        8         9      10             11                 12                           13               14
+    QueryResult result = WorldDatabase.Query("SELECT QuestID, BlobIndex, Idx1, ObjectiveIndex, QuestObjectiveID, QuestObjectID, MapID, UiMapID, Priority, Flags, WorldEffectID, PlayerConditionID, NavigationPlayerConditionID, SpawnTrackingID, AlwaysAllowMergingBlobs FROM quest_poi order by QuestID, Idx1");
     if (!result)
     {
         TC_LOG_ERROR("server.loading", ">> Loaded 0 quest POI definitions. DB table `quest_poi` is empty.");
         return;
     }
 
-    //                                                0        1    2  3
-    QueryResult points = WorldDatabase.Query("SELECT QuestID, Idx1, X, Y FROM quest_poi_points ORDER BY QuestID DESC, Idx1, Idx2");
+    //                                                0        1    2  3  4
+    QueryResult pointsResult = WorldDatabase.Query("SELECT QuestID, Idx1, X, Y, Z FROM quest_poi_points ORDER BY QuestID DESC, Idx1, Idx2");
 
-    std::vector<std::vector<std::vector<QuestPOIBlobPoint>>> POIs;
+    std::unordered_map<int32, std::map<int32, std::vector<QuestPOIBlobPoint>>> allPoints;
 
-    if (points)
+    if (pointsResult)
     {
-        // The first result should have the highest questId
-        Field* fields = points->Fetch();
-        uint32 questIdMax = fields[0].GetInt32();
-        POIs.resize(questIdMax + 1);
-
         do
         {
-            fields = points->Fetch();
+            Field* fields = pointsResult->Fetch();
 
             int32 QuestID             = fields[0].GetInt32();
             int32 Idx1                = fields[1].GetInt32();
-            int32 X                   = fields[2].GetInt32();
-            int32 Y                   = fields[3].GetInt32();
+            int32 x                   = fields[2].GetInt32();
+            int32 y                   = fields[3].GetInt32();
+            int32 z                   = fields[4].GetInt32();
 
-            if (int32(POIs[QuestID].size()) <= Idx1 + 1)
-                POIs[QuestID].resize(Idx1 + 10);
-
-            QuestPOIBlobPoint point(X, Y);
-            POIs[QuestID][Idx1].push_back(point);
-        } while (points->NextRow());
+            allPoints[QuestID][Idx1].emplace_back(x, y, z);
+        } while (pointsResult->NextRow());
     }
 
     do
@@ -7945,23 +7937,28 @@ void ObjectMgr::LoadQuestPOI()
         int32 flags                 = fields[9].GetInt32();
         int32 worldEffectID         = fields[10].GetInt32();
         int32 playerConditionID     = fields[11].GetInt32();
-        int32 spawnTrackingID       = fields[12].GetInt32();
-        bool alwaysAllowMergingBlobs = fields[13].GetBool();
+        int32 navigationPlayerConditionID = fields[12].GetInt32();
+        int32 spawnTrackingID       = fields[13].GetInt32();
+        bool alwaysAllowMergingBlobs = fields[14].GetBool();
 
         if (!sObjectMgr->GetQuestTemplate(questID))
             TC_LOG_ERROR("sql.sql", "`quest_poi` quest id (%u) Idx1 (%u) does not exist in `quest_template`", questID, idx1);
 
-        if (questID < int32(POIs.size()) && idx1 < int32(POIs[questID].size()))
+        if (std::map<int32, std::vector<QuestPOIBlobPoint>>* blobs = Trinity::Containers::MapGetValuePtr(allPoints, questID))
         {
-            QuestPOIData& poiData = _questPOIStore[questID];
-            poiData.QuestID = questID;
-            poiData.Blobs.emplace_back(blobIndex, objectiveIndex, questObjectiveID, questObjectID, mapID, uiMapID, priority, flags,
-                worldEffectID, playerConditionID, spawnTrackingID, std::move(POIs[questID][idx1]), alwaysAllowMergingBlobs);
+            if (std::vector<QuestPOIBlobPoint>* points = Trinity::Containers::MapGetValuePtr(*blobs, idx1))
+            {
+                QuestPOIData& poiData = _questPOIStore[questID];
+                poiData.QuestID = questID;
+                poiData.Blobs.emplace_back(blobIndex, objectiveIndex, questObjectiveID, questObjectID, mapID, uiMapID, priority, flags,
+                    worldEffectID, playerConditionID, navigationPlayerConditionID, spawnTrackingID, std::move(*points), alwaysAllowMergingBlobs);
+                ++count;
+                continue;
+            }
         }
-        else
-            TC_LOG_ERROR("sql.sql", "Table quest_poi references unknown quest points for quest %i POI id %i", questID, blobIndex);
 
-        ++count;
+        TC_LOG_ERROR("sql.sql", "Table quest_poi references unknown quest points for quest %i POI id %i", questID, blobIndex);
+
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u quest POI definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
@@ -10384,6 +10381,8 @@ void ObjectMgr::LoadPlayerChoices()
     uint32 itemRewardCount = 0;
     uint32 currencyRewardCount = 0;
     uint32 factionRewardCount = 0;
+    uint32 itemChoiceRewardCount = 0;
+    uint32 mawPowersCount = 0;
 
     do
     {
@@ -10401,7 +10400,11 @@ void ObjectMgr::LoadPlayerChoices()
 
     } while (choices->NextRow());
 
-    if (QueryResult responses = WorldDatabase.Query("SELECT ChoiceId, ResponseId, ChoiceArtFileId, Flags, WidgetSetID, UiTextureAtlasElementID, SoundKitID, GroupID, Answer, Header, SubHeader, ButtonTemplate, Description, Confirmation, RewardQuestID FROM playerchoice_response ORDER BY `Index` ASC"))
+    //                                                             0           1                   2                3      4            5
+    if (QueryResult responses = WorldDatabase.Query("SELECT ChoiceId, ResponseId, ResponseIdentifier, ChoiceArtFileId, Flags, WidgetSetID, "
+    //                         6           7        8               9      10      11         12              13           14            15             16
+        "UiTextureAtlasElementID, SoundKitID, GroupID, UiTextureKitID, Answer, Header, SubHeader, ButtonTemplate, Description, Confirmation, RewardQuestID "
+        "FROM playerchoice_response ORDER BY `Index` ASC"))
     {
         do
         {
@@ -10421,20 +10424,22 @@ void ObjectMgr::LoadPlayerChoices()
 
             PlayerChoiceResponse& response = choice->Responses.back();
             response.ResponseId         = responseId;
-            response.ChoiceArtFileId    = fields[2].GetInt32();
-            response.Flags              = fields[3].GetInt32();
-            response.WidgetSetID        = fields[4].GetUInt32();
-            response.UiTextureAtlasElementID = fields[5].GetUInt32();
-            response.SoundKitID         = fields[6].GetUInt32();
-            response.GroupID            = fields[7].GetUInt8();
-            response.Answer             = fields[8].GetString();
-            response.Header             = fields[9].GetString();
-            response.SubHeader          = fields[10].GetString();
-            response.ButtonTooltip      = fields[11].GetString();
-            response.Description        = fields[12].GetString();
-            response.Confirmation       = fields[13].GetString();
-            if (!fields[14].IsNull())
-                response.RewardQuestID  = fields[14].GetUInt32();
+            response.ResponseId         = fields[2].GetUInt16();
+            response.ChoiceArtFileId    = fields[3].GetInt32();
+            response.Flags              = fields[4].GetInt32();
+            response.WidgetSetID        = fields[5].GetUInt32();
+            response.UiTextureAtlasElementID = fields[6].GetUInt32();
+            response.SoundKitID         = fields[7].GetUInt32();
+            response.GroupID            = fields[8].GetUInt8();
+            response.UiTextureKitID     = fields[9].GetInt32();
+            response.Answer             = fields[10].GetString();
+            response.Header             = fields[11].GetString();
+            response.SubHeader          = fields[12].GetString();
+            response.ButtonTooltip      = fields[13].GetString();
+            response.Description        = fields[14].GetString();
+            response.Confirmation       = fields[15].GetString();
+            if (!fields[16].IsNull())
+                response.RewardQuestID  = fields[16].GetUInt32();
 
             ++responseCount;
 
@@ -10548,6 +10553,7 @@ void ObjectMgr::LoadPlayerChoices()
             }
 
             responseItr->Reward->Items.emplace_back(itemId, std::move(bonusListIds), quantity);
+            ++itemRewardCount;
 
         } while (rewards->NextRow());
     }
@@ -10593,6 +10599,7 @@ void ObjectMgr::LoadPlayerChoices()
             }
 
             responseItr->Reward->Currency.emplace_back(currencyId, quantity);
+            ++currencyRewardCount;
 
         } while (rewards->NextRow());
     }
@@ -10638,12 +10645,102 @@ void ObjectMgr::LoadPlayerChoices()
             }
 
             responseItr->Reward->Faction.emplace_back(factionId, quantity);
+            ++factionRewardCount;
 
         } while (rewards->NextRow());
     }
 
-    TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " player choices, %u responses, %u rewards, %u item rewards, %u currency rewards and %u faction rewards in %u ms.",
-        _playerChoices.size(), responseCount, rewardCount, itemRewardCount, currencyRewardCount, factionRewardCount, GetMSTimeDiffToNow(oldMSTime));
+    if (QueryResult rewards = WorldDatabase.Query("SELECT ChoiceId, ResponseId, ItemId, BonusListIDs, Quantity FROM playerchoice_response_reward_item_choice ORDER BY `Index` ASC"))
+    {
+        do
+        {
+            Field* fields = rewards->Fetch();
+
+            int32 choiceId = fields[0].GetInt32();
+            int32 responseId = fields[1].GetInt32();
+            uint32 itemId = fields[2].GetUInt32();
+            Tokenizer bonusListIDsTok(fields[3].GetString(), ' ');
+            std::vector<int32> bonusListIds;
+            for (char const* token : bonusListIDsTok)
+                bonusListIds.push_back(int32(atol(token)));
+            int32 quantity = fields[4].GetInt32();
+
+            PlayerChoice* choice = Trinity::Containers::MapGetValuePtr(_playerChoices, choiceId);
+            if (!choice)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `playerchoice_response_reward_item_choice` references non-existing ChoiceId: %d (ResponseId: %d), skipped", choiceId, responseId);
+                continue;
+            }
+
+            auto responseItr = std::find_if(choice->Responses.begin(), choice->Responses.end(),
+                [responseId](PlayerChoiceResponse const& playerChoiceResponse) { return playerChoiceResponse.ResponseId == responseId; });
+            if (responseItr == choice->Responses.end())
+            {
+                TC_LOG_ERROR("sql.sql", "Table `playerchoice_response_reward_item_choice` references non-existing ResponseId: %d for ChoiceId %d, skipped", responseId, choiceId);
+                continue;
+            }
+
+            if (!responseItr->Reward)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `playerchoice_response_reward_item_choice` references non-existing player choice reward for ChoiceId %d, ResponseId: %d, skipped",
+                    choiceId, responseId);
+                continue;
+            }
+
+            if (!GetItemTemplate(itemId))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `playerchoice_response_reward_item_choice` references non-existing item %u for ChoiceId %d, ResponseId: %d, skipped",
+                    itemId, choiceId, responseId);
+                continue;
+            }
+
+            responseItr->Reward->ItemChoices.emplace_back(itemId, std::move(bonusListIds), quantity);
+            ++itemChoiceRewardCount;
+
+        } while (rewards->NextRow());
+    }
+
+    if (QueryResult mawPowersResult = WorldDatabase.Query("SELECT ChoiceId, ResponseId, TypeArtFileID, Rarity, RarityColor, SpellID, MaxStacks FROM playerchoice_response_maw_power"))
+    {
+        do
+        {
+            Field* fields = mawPowersResult->Fetch();
+            int32 choiceId = fields[0].GetInt32();
+            int32 responseId = fields[1].GetInt32();
+
+            PlayerChoice* choice = Trinity::Containers::MapGetValuePtr(_playerChoices, choiceId);
+            if (!choice)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `playerchoice_response_maw_power` references non-existing ChoiceId: %d (ResponseId: %d), skipped", choiceId, responseId);
+                continue;
+            }
+
+            auto responseItr = std::find_if(choice->Responses.begin(), choice->Responses.end(),
+                [responseId](PlayerChoiceResponse const& playerChoiceResponse)
+            {
+                return playerChoiceResponse.ResponseId == responseId;
+            });
+            if (responseItr == choice->Responses.end())
+            {
+                TC_LOG_ERROR("sql.sql", "Table `playerchoice_response_maw_power` references non-existing ResponseId: %d for ChoiceId %d, skipped", responseId, choiceId);
+                continue;
+            }
+
+            responseItr->MawPower.emplace();
+            PlayerChoiceResponseMawPower& mawPower = responseItr->MawPower.get();
+            mawPower.TypeArtFileID = fields[2].GetInt32();
+            mawPower.Rarity = fields[3].GetInt32();
+            mawPower.RarityColor = fields[4].GetUInt32();
+            mawPower.SpellID = fields[5].GetInt32();
+            mawPower.MaxStacks = fields[6].GetInt32();
+
+            ++mawPowersCount;
+
+        } while (mawPowersResult->NextRow());
+    }
+
+    TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " player choices, %u responses, %u rewards, %u item rewards, %u currency rewards, %u faction rewards, %u item choice rewards and %u maw powers in %u ms.",
+        _playerChoices.size(), responseCount, rewardCount, itemRewardCount, currencyRewardCount, factionRewardCount, itemChoiceRewardCount, mawPowersCount, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadPlayerChoicesLocale()

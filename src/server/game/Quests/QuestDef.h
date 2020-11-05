@@ -27,6 +27,7 @@
 #include <vector>
 
 class Player;
+enum class LootItemType : uint8;
 
 namespace WorldPackets
 {
@@ -337,6 +338,15 @@ struct QuestObjective
 
 typedef std::vector<QuestObjective> QuestObjectives;
 
+struct QuestRewardDisplaySpell
+{
+    QuestRewardDisplaySpell() : SpellId(0), PlayerConditionId(0) { }
+    QuestRewardDisplaySpell(uint32 spellId, uint32 playerConditionId) : SpellId(spellId), PlayerConditionId(playerConditionId) { }
+
+    uint32 SpellId;
+    uint32 PlayerConditionId;
+};
+
 // This Quest class provides a convenient way to access a few pretotaled (cached) quest details,
 // all base quest information, and any utility functions such as generating the amount of
 // xp to give
@@ -347,7 +357,9 @@ class TC_GAME_API Quest
     friend class PlayerMenu;
     public:
         // Loading data. All queries are in ObjectMgr::LoadQuests()
-        Quest(Field* questRecord);
+        explicit Quest(Field* questRecord);
+        void LoadRewardDisplaySpell(Field* fields);
+        void LoadRewardChoiceItems(Field* fields);
         void LoadQuestDetails(Field* fields);
         void LoadQuestRequestItems(Field* fields);
         void LoadQuestOfferReward(Field* fields);
@@ -366,17 +378,19 @@ class TC_GAME_API Quest
         bool HasSpecialFlag(uint32 flag) const { return (_specialFlags & flag) != 0; }
         void SetSpecialFlag(uint32 flag) { _specialFlags |= flag; }
 
+        // DEPRECATED
+        int32  GetMinLevel() const { return 0; }
+        int32  GetQuestLevel() const { return 0; }
+        int32  GetQuestScalingFactionGroup() const { return 0; }
+        int32  GetQuestMaxScalingLevel() const { return 0; }
+
         // table data accessors:
         uint32 GetQuestId() const { return _id; }
         uint32 GetQuestType() const { return _type; }
         uint32 GetQuestPackageID() const { return _packageID; }
+        uint32 GetContentTuningId() const { return _contentTuningID; }
         int32  GetZoneOrSort() const { return _questSortID; }
-        int32  GetMinLevel() const { return _minLevel; }
         uint32 GetMaxLevel() const { return _maxLevel; }
-        int32  GetQuestLevel() const { return _level; }
-        int32  GetQuestScalingFactionGroup() const { return _scalingFactionGroup; }
-        int32  GetQuestMaxScalingLevel() const { return _maxScalingLevel; }
-        int32  GetContentTuningId() const { return 0; }
         uint32 GetQuestInfoID() const { return _questInfoID; }
         uint32 GetAllowableClasses() const { return _allowableClasses; }
         Trinity::RaceMask<uint64> GetAllowableRaces() const { return _allowableRaces; }
@@ -465,25 +479,26 @@ class TC_GAME_API Quest
         bool   CanIncreaseRewardedQuestCounters() const;
 
         // multiple values
-        uint32 RewardDisplaySpell[QUEST_REWARD_DISPLAY_SPELL_COUNT] = { };
-        uint32 RewardItemId[QUEST_REWARD_ITEM_COUNT] = { };
-        uint32 RewardItemCount[QUEST_REWARD_ITEM_COUNT] = { };
-        uint32 ItemDrop[QUEST_ITEM_DROP_COUNT] = { };
-        uint32 ItemDropQuantity[QUEST_ITEM_DROP_COUNT] = { };
-        uint32 RewardChoiceItemId[QUEST_REWARD_CHOICES_COUNT] = { };
-        uint32 RewardChoiceItemCount[QUEST_REWARD_CHOICES_COUNT] = { };
-        uint32 RewardChoiceItemDisplayId[QUEST_REWARD_CHOICES_COUNT] = { };
-        uint32 RewardFactionId[QUEST_REWARD_REPUTATIONS_COUNT] = { };
-        int32  RewardFactionValue[QUEST_REWARD_REPUTATIONS_COUNT] = { };
-        int32  RewardFactionOverride[QUEST_REWARD_REPUTATIONS_COUNT] = { };
-        uint32 RewardFactionCapIn[QUEST_REWARD_REPUTATIONS_COUNT] = { };
-        uint32 RewardCurrencyId[QUEST_REWARD_CURRENCY_COUNT] = { };
-        uint32 RewardCurrencyCount[QUEST_REWARD_CURRENCY_COUNT] = { };
-        QuestObjectives Objectives = { };
-        uint32 DetailsEmote[QUEST_EMOTE_COUNT] = { };
-        uint32 DetailsEmoteDelay[QUEST_EMOTE_COUNT] = { };
-        uint32 OfferRewardEmote[QUEST_EMOTE_COUNT] = { };
-        uint32 OfferRewardEmoteDelay[QUEST_EMOTE_COUNT] = { };
+        std::vector<QuestRewardDisplaySpell> RewardDisplaySpell;
+        std::array<uint32, QUEST_REWARD_ITEM_COUNT> RewardItemId = { };
+        std::array<uint32, QUEST_REWARD_ITEM_COUNT> RewardItemCount = { };
+        std::array<uint32, QUEST_ITEM_DROP_COUNT> ItemDrop = { };
+        std::array<uint32, QUEST_ITEM_DROP_COUNT> ItemDropQuantity = { };
+        std::array<LootItemType, QUEST_REWARD_CHOICES_COUNT> RewardChoiceItemType = { };
+        std::array<uint32, QUEST_REWARD_CHOICES_COUNT> RewardChoiceItemId = { };
+        std::array<uint32, QUEST_REWARD_CHOICES_COUNT> RewardChoiceItemCount = { };
+        std::array<uint32, QUEST_REWARD_CHOICES_COUNT> RewardChoiceItemDisplayId = { };
+        std::array<uint32, QUEST_REWARD_REPUTATIONS_COUNT> RewardFactionId = { };
+        std::array<int32, QUEST_REWARD_REPUTATIONS_COUNT>  RewardFactionValue = { };
+        std::array<int32, QUEST_REWARD_REPUTATIONS_COUNT>  RewardFactionOverride = { };
+        std::array<uint32, QUEST_REWARD_REPUTATIONS_COUNT> RewardFactionCapIn = { };
+        std::array<uint32, QUEST_REWARD_CURRENCY_COUNT> RewardCurrencyId = { };
+        std::array<uint32, QUEST_REWARD_CURRENCY_COUNT> RewardCurrencyCount = { };
+        QuestObjectives Objectives;
+        std::array<uint32, QUEST_EMOTE_COUNT> DetailsEmote = { };
+        std::array<uint32, QUEST_EMOTE_COUNT> DetailsEmoteDelay = { };
+        std::array<uint32, QUEST_EMOTE_COUNT> OfferRewardEmote = { };
+        std::array<uint32, QUEST_EMOTE_COUNT> OfferRewardEmoteDelay = { };
 
         uint32 GetRewChoiceItemsCount() const { return _rewChoiceItemsCount; }
         uint32 GetRewItemsCount() const { return _rewItemsCount; }
@@ -498,7 +513,7 @@ class TC_GAME_API Quest
         void BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player* player) const;
 
         std::vector<uint32> DependentPreviousQuests;
-        WorldPacket QueryData[TOTAL_LOCALES];
+        std::array<WorldPacket, TOTAL_LOCALES> QueryData;
 
     private:
         uint32 _rewChoiceItemsCount = 0;
@@ -509,11 +524,8 @@ class TC_GAME_API Quest
         // wdb data (quest query response)
         uint32 _id = 0;
         uint32 _type = 0;
-        int32  _level = 0;
-        int32  _scalingFactionGroup = 0;
-        int32  _maxScalingLevel = 0;
         uint32 _packageID = 0;
-        int32  _minLevel = 0;
+        uint32 _contentTuningID = 0;
         int32  _questSortID = 0;
         uint32 _questInfoID = 0;
         uint32 _suggestedPlayers = 0;
@@ -600,7 +612,7 @@ struct QuestStatusData
 {
     QuestStatus Status = QUEST_STATUS_NONE;
     uint32 Timer = 0;
-    std::vector<int32> ObjectiveData = { };
+    std::vector<int32> ObjectiveData;
 };
 
 #endif
