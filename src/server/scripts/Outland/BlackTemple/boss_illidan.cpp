@@ -235,7 +235,8 @@ enum IllidanPhases
     PHASE_MINIONS,
     PHASE_2,
     PHASE_3,
-    PHASE_4
+    PHASE_4,
+    PHASE_OUTRO
 };
 
 enum IllidanSplineMovement
@@ -1621,12 +1622,12 @@ struct npc_maiev : public ScriptedAI
 {
     npc_maiev(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _canDown(true) { }
 
-    void Reset() override
+    void JustAppeared() override
     {
         if (Creature* illidan = _instance->GetCreature(DATA_ILLIDAN_STORMRAGE))
             me->SetFacingToObject(illidan);
         me->SetReactState(REACT_PASSIVE);
-        _events.SetPhase(PHASE_INTRO);
+        _events.SetPhase(PHASE_OUTRO);
         _events.ScheduleEvent(EVENT_MAIEV_APPEAR, 1s);
         _events.ScheduleEvent(EVENT_MAIEV_EXCLAMATION, 2s);
         _events.ScheduleEvent(EVENT_MAIEV_JUSTICE_TEXT, 14s);
@@ -1647,6 +1648,7 @@ struct npc_maiev : public ScriptedAI
         if (actionId == ACTION_START_OUTRO)
         {
             _events.Reset();
+            _events.SetPhase(PHASE_OUTRO);
             me->SetReactState(REACT_PASSIVE);
             me->AttackStop();
             if (Creature* illidan = _instance->GetCreature(DATA_ILLIDAN_STORMRAGE))
@@ -1671,7 +1673,7 @@ struct npc_maiev : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
-        if (!UpdateVictim() && !_events.IsInPhase(PHASE_INTRO))
+        if (!_events.IsInPhase(PHASE_OUTRO) && !UpdateVictim())
             return;
 
         if (me->HasUnitState(UNIT_STATE_CASTING))
