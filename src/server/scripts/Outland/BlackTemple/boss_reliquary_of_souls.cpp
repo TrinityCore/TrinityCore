@@ -656,6 +656,12 @@ struct npc_reliquary_combat_trigger : public ScriptedAI
     {
         SetCombatMovement(false);
         creature->m_SightDistance = 70.0f;
+        SetBoundary(_instance->GetBossBoundary(DATA_RELIQUARY_OF_SOULS));
+    }
+
+    bool CanAIAttack(Unit const* who) const override
+    {
+        return ScriptedAI::CanAIAttack(who) && IsInBoundary(&who->GetPosition());
     }
 
     void Reset() override
