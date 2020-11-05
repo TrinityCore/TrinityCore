@@ -563,10 +563,3 @@ WorldPacket Quest::BuildQueryData(LocaleConstant loc) const
 
     return *response.Write();
 }
-
-void Quest::AddQuestLevelToTitle(std::string& title, int32 level)
-{
-    // Adds the quest level to the front of the quest title
-    // example: [13] Westfall Stew
-    title = Trinity::StringFormat("[%d] %s", level, title);
-}

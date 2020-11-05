@@ -3302,14 +3302,6 @@ PlayerDump.DisallowPaths = 1
 PlayerDump.DisallowOverwrite = 1
 
 #
-#     UI.ShowQuestLevelsInDialogs
-#        Description: Show quest levels next to quest titles in UI dialogs
-#        Example:     [13] Westfall Stew
-#        Default:     0  - (Do not show)
-
-UI.ShowQuestLevelsInDialogs = 0
-
-#
 #     Calculate.Creature.Zone.Area.Data
 #        Description: Calculate at loading creature zoneId / areaId and save in creature table (WARNING: SLOW WORLD SERVER STARTUP)
 #        Default:     0  - (Do not show)

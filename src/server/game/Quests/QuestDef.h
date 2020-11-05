@@ -492,7 +492,6 @@ class TC_GAME_API Quest
         void SetEventIdForQuest(uint16 eventId) { _eventIdForQuest = eventId; }
         uint16 GetEventIdForQuest() const { return _eventIdForQuest; }
 
-        static void AddQuestLevelToTitle(std::string& title, int32 level);
         void InitializeQueryData();
         WorldPacket BuildQueryData(LocaleConstant loc) const;
 
