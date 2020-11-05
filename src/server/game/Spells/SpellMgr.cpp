@@ -4849,6 +4849,18 @@ void SpellMgr::LoadSpellInfoCorrections()
     });
     // ENDOF ISLE OF CONQUEST SPELLS
 
+    // Deadly Poison - Black Temple
+    ApplySpellFix({ 66551 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
+    });
+
+    // Envenom - Black Temple
+    ApplySpellFix({ 41487 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
+    });
+
     //
     // FIRELANDS SPELLS
     //
