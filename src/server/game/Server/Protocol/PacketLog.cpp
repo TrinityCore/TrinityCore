@@ -132,11 +132,15 @@ void PacketLog::LogPacket(WorldPacket const& packet, Direction direction, boost:
     }
 
     header.OptionalData.SocketPort = port;
-    header.Length = packet.size() + sizeof(header.Opcode);
+    std::size_t size = packet.size();
+    if (direction == CLIENT_TO_SERVER)
+        size -= 2;
+
+    header.Length = size + sizeof(header.Opcode);
     header.Opcode = packet.GetOpcode();
 
     fwrite(&header, sizeof(header), 1, _file);
-    if (!packet.empty())
+    if (size)
         fwrite(packet.contents(), 1, packet.size(), _file);
 
     fflush(_file);
