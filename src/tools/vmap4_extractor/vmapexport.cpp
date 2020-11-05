@@ -484,7 +484,7 @@ int main(int argc, char ** argv)
         }
         catch (std::exception const& e)
         {
-            printf("Fatal error: Invalid Map.db2 file format! %s\n%s\n", CASC::HumanReadableCASCError(GetLastError()), e.what());
+            printf("Fatal error: Invalid Map.db2 file format! %s\n%s\n", CASC::HumanReadableCASCError(GetCascError()), e.what());
             exit(1);
         }
 

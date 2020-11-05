@@ -63,10 +63,10 @@ CASC::Storage* CASC::Storage::Open(boost::filesystem::path const& path, uint32 l
     HANDLE handle = nullptr;
     if (!::CascOpenStorageEx(nullptr, &args, false, &handle))
     {
-        DWORD lastError = GetLastError(); // support checking error set by *Open* call, not the next *Close*
+        DWORD lastError = GetCascError(); // support checking error set by *Open* call, not the next *Close*
         printf("Error opening casc storage '%s': %s\n", path.string().c_str(), HumanReadableCASCError(lastError));
         CascCloseStorage(handle);
-        SetLastError(lastError);
+        SetCascError(lastError);
         return nullptr;
     }
 
@@ -116,12 +116,12 @@ CASC::File* CASC::Storage::OpenFile(char const* fileName, uint32 localeMask, boo
     HANDLE handle = nullptr;
     if (!::CascOpenFile(_handle, fileName, localeMask, openFlags, &handle))
     {
-        DWORD lastError = GetLastError(); // support checking error set by *Open* call, not the next *Close*
+        DWORD lastError = GetCascError(); // support checking error set by *Open* call, not the next *Close*
         if (printErrors)
             fprintf(stderr, "Failed to open '%s' in CASC storage: %s\n", fileName, HumanReadableCASCError(lastError));
 
         CascCloseFile(handle);
-        SetLastError(lastError);
+        SetCascError(lastError);
         return nullptr;
     }
 
@@ -137,12 +137,12 @@ CASC::File* CASC::Storage::OpenFile(uint32 fileDataId, uint32 localeMask, bool p
     HANDLE handle = nullptr;
     if (!::CascOpenFile(_handle, CASC_FILE_DATA_ID(fileDataId), localeMask, openFlags, &handle))
     {
-        DWORD lastError = GetLastError(); // support checking error set by *Open* call, not the next *Close*
+        DWORD lastError = GetCascError(); // support checking error set by *Open* call, not the next *Close*
         if (printErrors)
             fprintf(stderr, "Failed to open 'FileDataId %u' in CASC storage: %s\n", fileDataId, HumanReadableCASCError(lastError));
 
         CascCloseFile(handle);
-        SetLastError(lastError);
+        SetCascError(lastError);
         return nullptr;
     }
 

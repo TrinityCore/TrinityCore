@@ -150,7 +150,7 @@ void * ProbeOutputBuffer(void * pvBuffer, size_t cbLength, size_t cbMinLength, s
     // Verify the output length
     if(cbLength < cbMinLength)
     {
-        SetLastError(ERROR_INSUFFICIENT_BUFFER);
+        SetCascError(ERROR_INSUFFICIENT_BUFFER);
         pvBuffer = NULL;
     }
 
@@ -519,7 +519,7 @@ static int LoadEncodingManifest(TCascStorage * hs)
     }
     else
     {
-        dwErrCode = GetLastError();
+        dwErrCode = GetCascError();
     }
 
     return dwErrCode;
@@ -810,7 +810,7 @@ static int LoadInstallManifest(TCascStorage * hs)
     }
     else
     {
-        dwErrCode = GetLastError();
+        dwErrCode = GetCascError();
     }
 
     return dwErrCode;
@@ -929,7 +929,7 @@ static int LoadBuildManifest(TCascStorage * hs, DWORD dwLocaleMask)
     }
     else
     {
-        dwErrCode = GetLastError();
+        dwErrCode = GetCascError();
     }
 
     return dwErrCode;
@@ -990,7 +990,7 @@ static bool GetStorageTags(TCascStorage * hs, void * pvStorageInfo, size_t cbSto
     // Does the storage support tags?
     if(hs->TagsArray.IsInitialized() == false)
     {
-        SetLastError(ERROR_NOT_SUPPORTED);
+        SetCascError(ERROR_NOT_SUPPORTED);
         return false;
     }
 
@@ -1274,14 +1274,14 @@ static LPTSTR ParseOpenParams(LPCTSTR szParams, PCASC_OPEN_STORAGE_ARGS pArgs)
     // The 'szParams' must not be empty
     if(szParams == NULL || pArgs == NULL || szParams[0] == 0)
     {
-        SetLastError(ERROR_INVALID_PARAMETER);
+        SetCascError(ERROR_INVALID_PARAMETER);
         return NULL;
     }
 
     // The 'pArgs' must be valid but must not contain 'szLocalPath', 'szCodeName' or 'szRegion'
     if(pArgs->szLocalPath != NULL || pArgs->szCodeName != NULL || pArgs->szRegion != NULL)
     {
-        SetLastError(ERROR_INVALID_PARAMETER);
+        SetCascError(ERROR_INVALID_PARAMETER);
         return NULL;
     }
 
@@ -1321,7 +1321,7 @@ static LPTSTR ParseOpenParams(LPCTSTR szParams, PCASC_OPEN_STORAGE_ARGS pArgs)
     }
     else
     {
-        SetLastError(ERROR_NOT_ENOUGH_MEMORY);
+        SetCascError(ERROR_NOT_ENOUGH_MEMORY);
     }
 
     return szParamsCopy;
@@ -1353,7 +1353,7 @@ bool WINAPI CascOpenStorageEx(LPCTSTR szParams, PCASC_OPEN_STORAGE_ARGS pArgs, b
         // The arguments and the local path must be entered
         if(pArgs == NULL || pArgs->szLocalPath == NULL || pArgs->szLocalPath[0] == 0)
         {
-            SetLastError(ERROR_INVALID_PARAMETER);
+            SetCascError(ERROR_INVALID_PARAMETER);
             return false;
         }
     }
@@ -1382,7 +1382,7 @@ bool WINAPI CascOpenStorageEx(LPCTSTR szParams, PCASC_OPEN_STORAGE_ARGS pArgs, b
 
     // Return the result
     if(dwErrCode != ERROR_SUCCESS)
-        SetLastError(dwErrCode);
+        SetCascError(dwErrCode);
     return (dwErrCode == ERROR_SUCCESS);
 }
 
@@ -1425,7 +1425,7 @@ bool WINAPI CascGetStorageInfo(
     hs = TCascStorage::IsValid(hStorage);
     if(hs == NULL)
     {
-        SetLastError(ERROR_INVALID_HANDLE);
+        SetCascError(ERROR_INVALID_HANDLE);
         return false;
     }
 
@@ -1460,7 +1460,7 @@ bool WINAPI CascGetStorageInfo(
             return GetStoragePathProduct(hs, pvStorageInfo, cbStorageInfo, pcbLengthNeeded);
 
         default:
-            SetLastError(ERROR_INVALID_PARAMETER);
+            SetCascError(ERROR_INVALID_PARAMETER);
             return false;
     }
 
@@ -1482,7 +1482,7 @@ bool WINAPI CascCloseStorage(HANDLE hStorage)
     hs = TCascStorage::IsValid(hStorage);
     if(hs == NULL)
     {
-        SetLastError(ERROR_INVALID_PARAMETER);
+        SetCascError(ERROR_INVALID_PARAMETER);
         return false;
     }
 

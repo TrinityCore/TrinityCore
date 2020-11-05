@@ -1,4 +1,6 @@
 // Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
 
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////
@@ -25,8 +27,8 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,50,0,197
- PRODUCTVERSION 1,50,0,197
+ FILEVERSION 1,50,0,204
+ PRODUCTVERSION 1,50,0,204
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -41,13 +43,14 @@ BEGIN
     BEGIN
         BLOCK "040504b0"
         BEGIN
+            VALUE "Comments", "http://www.zezula.net/casc.html"
             VALUE "FileDescription", "CascLib library for reading Blizzard CASC storages"
-            VALUE "FileVersion", "1, 50, 0, 197\0"
+            VALUE "FileVersion", "1, 50, 0, 204\0"
             VALUE "InternalName", "CascLib"
             VALUE "LegalCopyright", "Copyright (c) 2014 - 2019 Ladislav Zezula"
             VALUE "OriginalFilename", "CascLib.dll"
             VALUE "ProductName", "CascLib"
-            VALUE "ProductVersion", "1, 50, 0, 197\0"
+            VALUE "ProductVersion", "1, 50, 0, 204\0"
         END
     END
     BLOCK "VarFileInfo"
@@ -75,16 +78,21 @@ LANGUAGE LANG_CZECH, SUBLANG_DEFAULT
 // TEXTINCLUDE
 //
 
-2 TEXTINCLUDE
+2 TEXTINCLUDE 
 BEGIN
     "#include ""afxres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE
+3 TEXTINCLUDE 
 BEGIN
     "\r\n"
     "\0"
+END
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
 END
 
 #endif    // APSTUDIO_INVOKED

@@ -203,7 +203,7 @@ DWORD CASC_CSV::Load(LPCTSTR szFileName)
     }
     else
     {
-        dwErrCode = GetLastError();
+        dwErrCode = GetCascError();
     }
 
     return dwErrCode;
