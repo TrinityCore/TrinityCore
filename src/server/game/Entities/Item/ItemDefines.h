@@ -179,9 +179,11 @@ enum EnchantmentSlot : uint16
 
 enum ItemVendorType
 {
-    ITEM_VENDOR_TYPE_NONE     = 0,
-    ITEM_VENDOR_TYPE_ITEM     = 1,
-    ITEM_VENDOR_TYPE_CURRENCY = 2,
+    ITEM_VENDOR_TYPE_NONE       = 0,
+    ITEM_VENDOR_TYPE_ITEM       = 1,
+    ITEM_VENDOR_TYPE_CURRENCY   = 2,
+    ITEM_VENDOR_TYPE_SPELL      = 3,
+    ITEM_VENDOR_TYPE_MAW_POWER  = 4
 };
 
 enum ItemModifier : uint16
