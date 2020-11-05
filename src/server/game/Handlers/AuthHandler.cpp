@@ -103,5 +103,15 @@ void WorldSession::SendFeatureSystemStatusGlueScreen()
     features.MinimumExpansionLevel = EXPANSION_CLASSIC;
     features.MaximumExpansionLevel = sWorld->getIntConfig(CONFIG_EXPANSION);
 
+    features.EuropaTicketSystemStatus.emplace();
+    features.EuropaTicketSystemStatus->ThrottleState.MaxTries = 10;
+    features.EuropaTicketSystemStatus->ThrottleState.PerMilliseconds = 60000;
+    features.EuropaTicketSystemStatus->ThrottleState.TryCount = 1;
+    features.EuropaTicketSystemStatus->ThrottleState.LastResetTimeBeforeNow = 111111;
+    features.EuropaTicketSystemStatus->TicketsEnabled = sWorld->getBoolConfig(CONFIG_SUPPORT_TICKETS_ENABLED);
+    features.EuropaTicketSystemStatus->BugsEnabled = sWorld->getBoolConfig(CONFIG_SUPPORT_BUGS_ENABLED);
+    features.EuropaTicketSystemStatus->ComplaintsEnabled = sWorld->getBoolConfig(CONFIG_SUPPORT_COMPLAINTS_ENABLED);
+    features.EuropaTicketSystemStatus->SuggestionsEnabled = sWorld->getBoolConfig(CONFIG_SUPPORT_SUGGESTIONS_ENABLED);
+
     SendPacket(features.Write());
 }

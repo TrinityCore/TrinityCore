@@ -28,6 +28,7 @@
 #include "LFGQueue.h"
 #include "LFGScripts.h"
 #include "Log.h"
+#include "LootMgr.h"
 #include "Map.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
@@ -1463,7 +1464,7 @@ void LFGMgr::FinishDungeon(ObjectGuid gguid, const uint32 dungeonId, Map const* 
 
         // if we can take the quest, means that we haven't done this kind of "run", IE: First Heroic Random of Day.
         if (player->CanRewardQuest(quest, false))
-            player->RewardQuest(quest, 0, nullptr, false);
+            player->RewardQuest(quest, LootItemType::Item, 0, nullptr, false);
         else
         {
             done = true;
@@ -1471,7 +1472,7 @@ void LFGMgr::FinishDungeon(ObjectGuid gguid, const uint32 dungeonId, Map const* 
             if (!quest)
                 continue;
             // we give reward without informing client (retail does this)
-            player->RewardQuest(quest, 0, nullptr, false);
+            player->RewardQuest(quest, LootItemType::Item, 0, nullptr, false);
         }
 
         // Give rewards

@@ -5206,6 +5206,7 @@ void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage const* log)
     packet.CasterGUID = log->attacker->GetGUID();
     packet.CastID = log->castId;
     packet.SpellID = log->Spell ? log->Spell->Id : 0;
+    packet.Visual.SpellXSpellVisualID = log->SpellXSpellVisualID;
     packet.Damage = log->damage;
     packet.OriginalDamage = log->originalDamage;
     if (log->damage > log->preHitHealth)

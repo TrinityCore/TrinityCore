@@ -54,7 +54,7 @@ Location MoveSpline::computePosition(int32 time_point, int32 point_index) const
     }
     else
     {
-        if (!splineflags.hasFlag(MoveSplineFlag::OrientationFixed | MoveSplineFlag::Falling | MoveSplineFlag::Unknown0x8))
+        if (!splineflags.hasFlag(MoveSplineFlag::OrientationFixed | MoveSplineFlag::Falling | MoveSplineFlag::Unknown_0x8))
         {
             Vector3 hermite;
             spline.evaluate_derivative(point_Idx, u, hermite);
