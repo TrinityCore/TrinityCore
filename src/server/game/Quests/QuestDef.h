@@ -248,7 +248,10 @@ enum QuestObjectiveType
     QUEST_OBJECTIVE_CRITERIA_TREE           = 14,
     QUEST_OBJECTIVE_PROGRESS_BAR            = 15,
     QUEST_OBJECTIVE_HAVE_CURRENCY           = 16,   // requires the player to have X currency when turning in but does not consume it
-    QUEST_OBJECTIVE_OBTAIN_CURRENCY         = 17    // requires the player to gain X currency after starting the quest but not required to keep it until the end (does not consume)
+    QUEST_OBJECTIVE_OBTAIN_CURRENCY         = 17,   // requires the player to gain X currency after starting the quest but not required to keep it until the end (does not consume)
+    QUEST_OBJECTIVE_INCREASE_REPUTATION     = 18,   // requires the player to gain X reputation with a faction
+    QUEST_OBJECTIVE_AREA_TRIGGER_ENTER      = 19,
+    QUEST_OBJECTIVE_AREA_TRIGGER_EXIT       = 20
 };
 
 enum QuestObjectiveFlags
