@@ -104,7 +104,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellHitInfo cons
     {
         data << missTarget.MissTarget;
         data << uint8(missTarget.Reason);
-        if (missTarget.ReflectStatus)
+        if (missTarget.Reason == SPELL_MISS_REFLECT)
             data << uint8(missTarget.ReflectStatus);
     }
     return data;
