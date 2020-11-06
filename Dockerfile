@@ -2,7 +2,7 @@
 FROM ubuntu:rolling
 ENV TZ=Europe/Paris
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-RUN apt-get update && apt-get upgrade && apt-get install -y \
+RUN apt update && apt upgrade -y && apt install -y \
    mysql-client\
    git\
    clang\
@@ -16,7 +16,8 @@ RUN apt-get update && apt-get upgrade && apt-get install -y \
    libreadline-dev\
    libncurses-dev\
    libboost-all-dev\
-   default-libmysqlclient-dev
+   default-libmysqlclient-dev\
+   tzdata
 
 
 
