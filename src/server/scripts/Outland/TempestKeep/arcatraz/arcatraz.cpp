@@ -25,7 +25,6 @@ EndScriptData */
 /* ContentData
 npc_millhouse_manastorm
 npc_warden_mellichar
-npc_zerekethvoidzone
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -519,47 +518,8 @@ class npc_warden_mellichar : public CreatureScript
         }
 };
 
-/*#####
-# npc_zerekethvoidzone (this script probably not needed in future -> `creature_template_addon`.`auras`='36120 0')
-#####*/
-
-enum ZerekethSpell
-{
-    SPELL_VOID_ZONE_DAMAGE = 36120,
-};
-
-class npc_zerekethvoidzone : public CreatureScript
-{
-    public:
-
-        npc_zerekethvoidzone() : CreatureScript("npc_zerekethvoidzone")
-        {
-        }
-        struct npc_zerekethvoidzoneAI : public ScriptedAI
-        {
-            npc_zerekethvoidzoneAI(Creature* creature) : ScriptedAI(creature) { }
-
-            void Reset() override
-            {
-                me->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
-                me->SetFaction(FACTION_MONSTER_2);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-
-                DoCast(me, SPELL_VOID_ZONE_DAMAGE);
-            }
-
-            void JustEngagedWith(Unit* /*who*/) override { }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetArcatrazAI<npc_zerekethvoidzoneAI>(creature);
-        }
-};
-
 void AddSC_arcatraz()
 {
     new npc_millhouse_manastorm();
     new npc_warden_mellichar();
-    new npc_zerekethvoidzone();
 }
