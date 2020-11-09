@@ -42,9 +42,14 @@ EndScriptData */
 #include "SkillExtraItems.h"
 #include "SmartAI.h"
 #include "SpellMgr.h"
+#include "StringConvert.h"
 #include "TicketMgr.h"
 #include "WaypointManager.h"
 #include "World.h"
+
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 
 class reload_commandscript : public CommandScript
 {
@@ -80,7 +85,6 @@ public:
             { "autobroadcast",                 rbac::RBAC_PERM_COMMAND_RELOAD_AUTOBROADCAST,                    true,  &HandleReloadAutobroadcastCommand,              "" },
             { "battleground_template",         rbac::RBAC_PERM_COMMAND_RELOAD_BATTLEGROUND_TEMPLATE,            true,  &HandleReloadBattlegroundTemplate,              "" },
             { "broadcast_text",                rbac::RBAC_PERM_COMMAND_RELOAD_BROADCAST_TEXT,                   true,  &HandleReloadBroadcastTextCommand,              "" },
-            { "command",                       rbac::RBAC_PERM_COMMAND_RELOAD_COMMAND,                          true,  &HandleReloadCommandCommand,                    "" },
             { "conditions",                    rbac::RBAC_PERM_COMMAND_RELOAD_CONDITIONS,                       true,  &HandleReloadConditions,                        "" },
             { "config",                        rbac::RBAC_PERM_COMMAND_RELOAD_CONFIG,                           true,  &HandleReloadConfigCommand,                     "" },
             { "creature_text",                 rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_TEXT,                    true,  &HandleReloadCreatureText,                      "" },
@@ -192,13 +196,12 @@ public:
 
         HandleReloadAccessRequirementCommand(handler, "");
         HandleReloadMailLevelRewardCommand(handler, "");
-        HandleReloadCommandCommand(handler, "");
         HandleReloadReservedNameCommand(handler, "");
         HandleReloadTrinityStringCommand(handler, "");
         HandleReloadGameTeleCommand(handler, "");
 
         HandleReloadCreatureMovementOverrideCommand(handler, "");
-        HandleReloadCreatureSummonGroupsCommand(handler, "");
+        HandleReloadCreatureSummonGroupsCommand(handler);
 
         HandleReloadVehicleAccessoryCommand(handler, "");
         HandleReloadVehicleTemplateAccessoryCommand(handler, "");
@@ -400,13 +403,6 @@ public:
         return true;
     }
 
-    static bool HandleReloadCommandCommand(ChatHandler* handler, char const* /*args*/)
-    {
-        ChatHandler::invalidateCommandTable();
-        handler->SendGlobalGMSysMessage("DB table `command` will be reloaded at next chat command use.");
-        return true;
-    }
-
     static bool HandleReloadOnKillReputationCommand(ChatHandler* handler, char const* /*args*/)
     {
         TC_LOG_INFO("misc", "Re-Loading creature award reputation definitions...");
@@ -415,7 +411,7 @@ public:
         return true;
     }
 
-    static bool HandleReloadCreatureSummonGroupsCommand(ChatHandler* handler, char const* /*args*/)
+    static bool HandleReloadCreatureSummonGroupsCommand(ChatHandler* handler)
     {
         TC_LOG_INFO("misc", "Reloading creature summon groups...");
         sObjectMgr->LoadTempSummons();
@@ -428,11 +424,9 @@ public:
         if (!*args)
             return false;
 
-        Tokenizer entries(std::string(args), ' ');
-
-        for (Tokenizer::const_iterator itr = entries.begin(); itr != entries.end(); ++itr)
+        for (std::string_view entryStr : Trinity::Tokenize(args, ' ', false))
         {
-            uint32 entry = uint32(atoi(*itr));
+            uint32 entry = Trinity::StringTo<uint32>(entryStr).value_or(0);
 
             WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CREATURE_TEMPLATE);
             stmt->setUInt32(0, entry);

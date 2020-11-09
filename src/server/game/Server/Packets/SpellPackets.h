@@ -163,7 +163,11 @@ namespace WorldPackets
         class SpellGo final : public ServerPacket
         {
             public:
-                SpellGo() : ServerPacket(SMSG_SPELL_GO) { }
+                SpellGo() : ServerPacket(SMSG_SPELL_GO)
+                {
+                    Cast.HitTargets.emplace();
+                    Cast.MissStatus.emplace();
+                }
 
                 WorldPacket const* Write() override;
 

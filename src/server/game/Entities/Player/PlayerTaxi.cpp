@@ -19,6 +19,7 @@
 #include "DBCStores.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "StringConvert.h"
 #include <sstream>
 
 void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level)
@@ -61,16 +62,26 @@ void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level
         SetTaximaskNode(213);                               //Shattered Sun Staging Area
 }
 
-void PlayerTaxi::LoadTaxiMask(std::string const& data)
+bool PlayerTaxi::LoadTaxiMask(std::string const& data)
 {
-    Tokenizer tokens(data, ' ');
-
-    uint8 index = 0;
-    for (Tokenizer::const_iterator iter = tokens.begin(); index < TaxiMaskSize && iter != tokens.end(); ++iter, ++index)
+    bool warn = false;
+    std::vector<std::string_view> tokens = Trinity::Tokenize(data, ' ', false);
+    for (uint8 index = 0; (index < TaxiMaskSize) && (index < tokens.size()); ++index)
     {
-        // load and set bits only for existing taxi nodes
-        m_taximask[index] = sTaxiNodesMask[index] & atoul(*iter);
+        if (Optional<uint32> mask = Trinity::StringTo<uint32>(tokens[index]))
+        {
+            // load and set bits only for existing taxi nodes
+            m_taximask[index] = sTaxiNodesMask[index] & *mask;
+            if (m_taximask[index] != *mask)
+                warn = true;
+        }
+        else
+        {
+            m_taximask[index] = 0;
+            warn = true;
+        }
     }
+    return !warn;
 }
 
 void PlayerTaxi::AppendTaximaskTo(ByteBuffer& data, bool all)
@@ -91,16 +102,22 @@ bool PlayerTaxi::LoadTaxiDestinationsFromString(const std::string& values, uint3
 {
     ClearTaxiDestinations();
 
-    Tokenizer tokens(values, ' ');
-    auto iter = tokens.begin();
-    if (iter != tokens.end())
-        m_flightMasterFactionId = atoul(*iter);
-
-    ++iter;
-    for (; iter != tokens.end(); ++iter)
+    std::vector<std::string_view> tokens = Trinity::Tokenize(values, ' ', false);
+    auto itr = tokens.begin();
+    if (itr != tokens.end())
     {
-        uint32 node = atoul(*iter);
-        AddTaxiDestination(node);
+        if (Optional<uint32> faction = Trinity::StringTo<uint32>(*itr))
+            m_flightMasterFactionId = *faction;
+        else
+            return false;
+    }
+
+    while ((++itr) != tokens.end())
+    {
+        if (Optional<uint32> node = Trinity::StringTo<uint32>(*itr))
+            AddTaxiDestination(*node);
+        else
+            return false;
     }
 
     if (m_TaxiDestinations.empty())

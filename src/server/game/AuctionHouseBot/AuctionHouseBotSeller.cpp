@@ -928,6 +928,7 @@ void AuctionBotSeller::AddNewAuctions(SellerConfiguration& config)
         auctionEntry->deposit = sAuctionMgr->GetAuctionDeposit(ahEntry, etime, item, stackCount);
         auctionEntry->auctionHouseEntry = ahEntry;
         auctionEntry->expire_time = GameTime::GetGameTime() + urand(config.GetMinTime(), config.GetMaxTime()) * HOUR;
+        auctionEntry->Flags = AUCTION_ENTRY_FLAG_NONE;
 
         item->SaveToDB(trans);
         sAuctionMgr->AddAItem(item);

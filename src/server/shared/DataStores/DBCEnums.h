@@ -37,7 +37,7 @@ struct DBCPosition3D
 };
 
 #pragma pack(pop)
-enum LevelLimit
+enum LevelLimit : uint8
 {
     // Client expected level limitation, like as used in DBC item max levels for "until max player level"
     // use as default max player level, must be fit max level for used client
@@ -433,7 +433,7 @@ enum SummonPropFlags
 #define MAX_PET_TALENT_RANK 3                               // use in calculations, expected <= MAX_TALENT_RANK
 #define MAX_TALENT_TABS 3
 
-#define TaxiMaskSize 14
+static constexpr size_t TaxiMaskSize = 14;
 typedef std::array<uint32, TaxiMaskSize> TaxiMask;
 
 enum TotemCategoryType

@@ -29,20 +29,18 @@ EndScriptData */
 #include "Player.h"
 #include "RBAC.h"
 
+using namespace Trinity::ChatCommands;
+
 class achievement_commandscript : public CommandScript
 {
 public:
     achievement_commandscript() : CommandScript("achievement_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    ChatCommandTable GetCommands() const override
     {
-        static std::vector<ChatCommand> achievementCommandTable =
+        static ChatCommandTable commandTable =
         {
-            { "add", rbac::RBAC_PERM_COMMAND_ACHIEVEMENT_ADD, false, &HandleAchievementAddCommand, "" },
-        };
-        static std::vector<ChatCommand> commandTable =
-        {
-            { "achievement", rbac::RBAC_PERM_COMMAND_ACHIEVEMENT,  false, nullptr, "", achievementCommandTable },
+            { "achievement add", HandleAchievementAddCommand, LANG_COMMAND_ACHIEVEMENT_ADD_HELP ,rbac::RBAC_PERM_COMMAND_ACHIEVEMENT_ADD, Console::No },
         };
         return commandTable;
     }

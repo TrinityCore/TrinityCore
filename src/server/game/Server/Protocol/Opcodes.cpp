@@ -785,7 +785,7 @@ void OpcodeTable::Initialize()
     /*0x28E*/ DEFINE_HANDLER(CMSG_GROUP_RAID_CONVERT,                      STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGroupRaidConvertOpcode    );
     /*0x28F*/ DEFINE_HANDLER(CMSG_GROUP_ASSISTANT_LEADER,                  STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGroupAssistantLeaderOpcode);
     /*0x290*/ DEFINE_HANDLER(CMSG_BUYBACK_ITEM,                            STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::HandleBuybackItem               );
-    /*0x291*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_SERVER_MESSAGE,            STATUS_NEVER);
+    /*0x291*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_CHAT_SERVER_MESSAGE,       STATUS_NEVER);
     /*0x292*/ DEFINE_HANDLER(CMSG_SET_SAVED_INSTANCE_EXTEND,               STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleSetSavedInstanceExtend    );
     /*0x293*/ DEFINE_SERVER_OPCODE_HANDLER(SMSG_LFG_OFFER_CONTINUE,        STATUS_NEVER);
     /*0x294*/ DEFINE_HANDLER(CMSG_TEST_DROP_RATE,                          STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );

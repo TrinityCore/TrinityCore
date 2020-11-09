@@ -48,48 +48,36 @@ class account_commandscript : public CommandScript
 public:
     account_commandscript() : CommandScript("account_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    ChatCommandTable GetCommands() const override
     {
-        static std::vector<ChatCommand> accountSetSecTable =
+        static ChatCommandTable accountSetCommandTable =
         {
-            { "regmail",        rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SEC_REGMAIL, true,  &HandleAccountSetRegEmailCommand,  ""       },
-            { "email",          rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SEC_EMAIL,   true,  &HandleAccountSetEmailCommand,     ""       },
+            { "addon",              HandleAccountSetAddonCommand,       LANG_COMMAND_ACC_SET_ADDON_HELP,        rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_ADDON,          Console::Yes },
+            { "sec regmail",        HandleAccountSetRegEmailCommand,    LANG_COMMAND_ACC_SET_SEC_REGMAIL_HELP,  rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SEC_REGMAIL,    Console::Yes },
+            { "sec email",          HandleAccountSetEmailCommand,       LANG_COMMAND_ACC_SET_SEC_EMAIL_HELP,    rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SEC_EMAIL,      Console::Yes },
+            { "gmlevel",            HandleAccountSetSecLevelCommand,    LANG_COMMAND_ACC_SET_SECLEVEL_HELP,     rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SECLEVEL,       Console::Yes },  // temp for a transition period
+            { "seclevel",           HandleAccountSetSecLevelCommand,    LANG_COMMAND_ACC_SET_SECLEVEL_HELP,     rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SECLEVEL,       Console::Yes },
+            { "password",           HandleAccountSetPasswordCommand,    LANG_COMMAND_ACC_SET_PASSWORD_HELP,     rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_PASSWORD,       Console::Yes },
+            { "2fa",                HandleAccountSet2FACommand,         LANG_COMMAND_ACC_SET_2FA_HELP,          rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_2FA,            Console::Yes },
         };
-        static std::vector<ChatCommand> accountSetCommandTable =
+        static ChatCommandTable accountCommandTable =
         {
-            { "addon",          rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_ADDON,       true,  &HandleAccountSetAddonCommand,     ""       },
-            { "sec",            rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SEC,         true,  nullptr,                "", accountSetSecTable },
-            { "gmlevel",        rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SECLEVEL,    true,  &HandleAccountSetSecLevelCommand,  ""       },  // temp for a transition period
-            { "seclevel",       rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_SECLEVEL,    true,  &HandleAccountSetSecLevelCommand,  ""       },
-            { "password",       rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_PASSWORD,    true,  &HandleAccountSetPasswordCommand,  ""       },
-            { "2fa",            rbac::RBAC_PERM_COMMAND_ACCOUNT_SET_2FA,         true,  &HandleAccountSet2FACommand,       ""       },
+            { "2fa setup",          HandleAccount2FASetupCommand,       LANG_COMMAND_ACC_2FA_SETUP_HELP,        rbac::RBAC_PERM_COMMAND_ACCOUNT_2FA_SETUP,          Console::No  },
+            { "2fa remove",         HandleAccount2FARemoveCommand,      LANG_COMMAND_ACC_2FA_REMOVE_HELP,       rbac::RBAC_PERM_COMMAND_ACCOUNT_2FA_REMOVE,         Console::No  },
+            { "addon",              HandleAccountAddonCommand,          LANG_COMMAND_ACC_ADDON_HELP,            rbac::RBAC_PERM_COMMAND_ACCOUNT_ADDON,              Console::No  },
+            { "create",             HandleAccountCreateCommand,         LANG_COMMAND_ACC_CREATE_HELP,           rbac::RBAC_PERM_COMMAND_ACCOUNT_CREATE,             Console::Yes },
+            { "delete",             HandleAccountDeleteCommand,         LANG_COMMAND_ACC_DELETE_HELP,           rbac::RBAC_PERM_COMMAND_ACCOUNT_DELETE,             Console::Yes },
+            { "email",              HandleAccountEmailCommand,          LANG_COMMAND_ACC_EMAIL_HELP,            rbac::RBAC_PERM_COMMAND_ACCOUNT_EMAIL,              Console::No  },
+            { "onlinelist",         HandleAccountOnlineListCommand,     LANG_COMMAND_ACC_ONLINELIST_HELP,       rbac::RBAC_PERM_COMMAND_ACCOUNT_ONLINE_LIST,        Console::Yes },
+            { "lock country",       HandleAccountLockCountryCommand,    LANG_COMMAND_ACC_LOCK_COUNTRY_HELP,     rbac::RBAC_PERM_COMMAND_ACCOUNT_LOCK_COUNTRY,       Console::No  },
+            { "lock ip",            HandleAccountLockIpCommand,         LANG_COMMAND_ACC_LOCK_IP_HELP,          rbac::RBAC_PERM_COMMAND_ACCOUNT_LOCK_IP,            Console::No  },
+            { "set",                accountSetCommandTable },
+            { "password",           HandleAccountPasswordCommand,       LANG_COMMAND_ACC_PASSWORD_HELP,         rbac::RBAC_PERM_COMMAND_ACCOUNT_PASSWORD,           Console::No  },
+            { "",                   HandleAccountCommand,               LANG_COMMAND_ACCOUNT_HELP,              rbac::RBAC_PERM_COMMAND_ACCOUNT,                    Console::No  },
         };
-        static std::vector<ChatCommand> account2FACommandTable =
+        static ChatCommandTable commandTable =
         {
-            { "setup",          rbac::RBAC_PERM_COMMAND_ACCOUNT_2FA_SETUP,       false,  &HandleAccount2FASetupCommand,     ""      },
-            { "remove",         rbac::RBAC_PERM_COMMAND_ACCOUNT_2FA_REMOVE,      false,  &HandleAccount2FARemoveCommand,     ""     },
-        };
-        static std::vector<ChatCommand> accountLockCommandTable =
-        {
-            { "country",        rbac::RBAC_PERM_COMMAND_ACCOUNT_LOCK_COUNTRY,    false,  &HandleAccountLockCountryCommand,  ""      },
-            { "ip",             rbac::RBAC_PERM_COMMAND_ACCOUNT_LOCK_IP,         false,  &HandleAccountLockIpCommand,       ""      },
-        };
-        static std::vector<ChatCommand> accountCommandTable =
-        {
-            { "2fa",            rbac::RBAC_PERM_COMMAND_ACCOUNT_2FA,             false, nullptr,           "", account2FACommandTable  },
-            { "addon",          rbac::RBAC_PERM_COMMAND_ACCOUNT_ADDON,           false, &HandleAccountAddonCommand,        ""       },
-            { "create",         rbac::RBAC_PERM_COMMAND_ACCOUNT_CREATE,          true,  &HandleAccountCreateCommand,       ""       },
-            { "delete",         rbac::RBAC_PERM_COMMAND_ACCOUNT_DELETE,          true,  &HandleAccountDeleteCommand,       ""       },
-            { "email",          rbac::RBAC_PERM_COMMAND_ACCOUNT_EMAIL,           false, &HandleAccountEmailCommand,        ""       },
-            { "onlinelist",     rbac::RBAC_PERM_COMMAND_ACCOUNT_ONLINE_LIST,     true,  &HandleAccountOnlineListCommand,   ""       },
-            { "lock",           rbac::RBAC_PERM_COMMAND_ACCOUNT_LOCK,            false, nullptr,           "", accountLockCommandTable },
-            { "set",            rbac::RBAC_PERM_COMMAND_ACCOUNT_SET,             true,  nullptr,            "", accountSetCommandTable },
-            { "password",       rbac::RBAC_PERM_COMMAND_ACCOUNT_PASSWORD,        false, &HandleAccountPasswordCommand,     ""       },
-            { "",               rbac::RBAC_PERM_COMMAND_ACCOUNT,                 false, &HandleAccountCommand,             ""       },
-        };
-        static std::vector<ChatCommand> commandTable =
-        {
-            { "account",        rbac::RBAC_PERM_COMMAND_ACCOUNT,                 true,  nullptr,              "",  accountCommandTable },
+            { "account",            accountCommandTable },
         };
         return commandTable;
     }
@@ -707,12 +695,11 @@ public:
         if (realmId)
             realmID = *realmId;
 
-        // handler->getSession() == nullptr only for console
         uint32 playerSecurity;
-        if (handler->GetSession())
-            playerSecurity = AccountMgr::GetSecurity(handler->GetSession()->GetAccountId(), realmID);
-        else
+        if (handler->IsConsole())
             playerSecurity = SEC_CONSOLE;
+        else
+            playerSecurity = AccountMgr::GetSecurity(handler->GetSession()->GetAccountId(), realmID);
 
         // can set security level only for target with less security and to less security that we have
         // This also restricts setting handler's own security.

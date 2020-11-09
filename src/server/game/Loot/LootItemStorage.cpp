@@ -284,7 +284,7 @@ void LootItemStorage::AddNewStoredLoot(Loot* loot, Player* player)
     }
 }
 
-void StoredLootContainer::AddLootItem(LootItem const& lootItem, CharacterDatabaseTransaction& trans)
+void StoredLootContainer::AddLootItem(LootItem const& lootItem, CharacterDatabaseTransaction trans)
 {
     _lootItems.emplace(std::piecewise_construct, std::forward_as_tuple(lootItem.itemid), std::forward_as_tuple(lootItem));
     if (!trans)
@@ -307,7 +307,7 @@ void StoredLootContainer::AddLootItem(LootItem const& lootItem, CharacterDatabas
     trans->Append(stmt);
 }
 
-void StoredLootContainer::AddMoney(uint32 money, CharacterDatabaseTransaction& trans)
+void StoredLootContainer::AddMoney(uint32 money, CharacterDatabaseTransaction trans)
 {
     _money = money;
     if (!trans)

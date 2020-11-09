@@ -1,0 +1,2 @@
+--
+UPDATE `quest_offer_reward` SET `RewardText` = "You've done it! Praise be to Elune and whichever powers you worship, $N. You have done an honorable and noble thing this day. I am certain Arko'narin will be pleased that you not only took the time to save her, but to also slay the creature who tortured one of her best friends.$b$bI wish I could do more for you, but please, take this." WHERE `ID` = 5385;

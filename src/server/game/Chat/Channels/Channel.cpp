@@ -30,6 +30,7 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "SocialMgr.h"
+#include "StringConvert.h"
 #include "World.h"
 
 Channel::Channel(uint32 channelId, uint32 team /*= 0*/, AreaTableEntry const* zoneEntry /*= nullptr*/) :
@@ -73,10 +74,9 @@ Channel::Channel(std::string const& name, uint32 team /*= 0*/, std::string const
     _channelPassword(),
     _zoneEntry(nullptr)
 {
-    Tokenizer tokens(banList, ' ');
-    for (auto const& token : tokens)
+    for (std::string_view guid : Trinity::Tokenize(banList, ' ', false))
     {
-        ObjectGuid banned(uint64(atoull(token)));
+        ObjectGuid banned(Trinity::StringTo<uint64>(guid).value_or(0));
         if (!banned)
             continue;
 

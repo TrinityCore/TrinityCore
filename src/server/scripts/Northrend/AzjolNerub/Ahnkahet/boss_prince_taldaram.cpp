@@ -409,7 +409,7 @@ class go_prince_taldaram_sphere : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* /*player*/) override
+            bool OnGossipHello(Player* /*player*/) override
             {
                 Creature* princeTaldaram = instance->GetCreature(DATA_PRINCE_TALDARAM);
                 if (princeTaldaram && princeTaldaram->IsAlive())

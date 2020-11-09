@@ -9,42 +9,48 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 include(CheckSymbolExists)
-if (WIN32)
-  check_symbol_exists(open io.h HAVE_OPEN)
-else ()
-  check_symbol_exists(open fcntl.h HAVE_OPEN)
+
+set(strtod_l_headers stdlib.h)
+
+if (APPLE)
+  set(strtod_l_headers ${strtod_l_headers} xlocale.h)
 endif ()
 
-set(FMT_SOURCES
-  ${CMAKE_CURRENT_SOURCE_DIR}/fmt/container.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/fmt/format.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/fmt/format.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/fmt/ostream.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/fmt/ostream.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/fmt/printf.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/fmt/printf.cc
-  ${CMAKE_CURRENT_SOURCE_DIR}/fmt/string.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/fmt/time.h)
-
-if (HAVE_OPEN)
-  set(FMT_SOURCES ${FMT_SOURCES}
-    ${CMAKE_CURRENT_SOURCE_DIR}/fmt/posix.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/fmt/posix.cc)
+if(WIN32)
+  check_symbol_exists(_strtod_l "${strtod_l_headers}" HAVE_STRTOD_L)
+else()
+  check_symbol_exists(strtod_l "${strtod_l_headers}" HAVE_STRTOD_L)
 endif()
 
-add_library(fmt STATIC ${FMT_SOURCES})
+set(FMT_HEADERS 
+  include/fmt/chrono.h
+  include/fmt/color.h
+  include/fmt/compile.h
+  include/fmt/core.h
+  include/fmt/format.h
+  include/fmt/format-inl.h
+  include/fmt/locale.h
+  include/fmt/os.h
+  include/fmt/ostream.h
+  include/fmt/posix.h
+  include/fmt/printf.h
+  include/fmt/ranges.h)
+
+set(FMT_SOURCES
+  src/format.cc
+  src/os.cc)
+
+add_library(fmt STATIC ${FMT_SOURCES} ${FMT_HEADERS})
+
+if (HAVE_STRTOD_L)
+  target_compile_definitions(fmt 
+    PUBLIC 
+      FMT_LOCALE)
+endif()
 
 target_include_directories(fmt
   PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR})
-
-target_compile_definitions(fmt
-  PUBLIC
-    -DFMT_USE_OVERRIDE
-    -DFMT_USE_VARIADIC_TEMPLATES
-    -DFMT_USE_RVALUE_REFERENCES
-    -DFMT_USE_DELETED_FUNCTIONS
-    -DFMT_USE_EXTERN_TEMPLATES)
+    ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 target_link_libraries(fmt
   PRIVATE

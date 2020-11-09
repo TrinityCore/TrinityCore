@@ -170,12 +170,13 @@ WorldPacket const* WorldPackets::Quest::QuestGiverQuestDetails::Write()
     for (uint32 factionId : Rewards.RewardFactionID)
         _worldPacket << uint32(factionId);
 
-    for (uint32 value : Rewards.RewardFactionValue)
+    for (int32 value : Rewards.RewardFactionValue)
         _worldPacket << int32(value);
 
-    for (uint32 valueOverride : Rewards.RewardFactionValueOverride)
+    for (int32 valueOverride : Rewards.RewardFactionValueOverride)
         _worldPacket << int32(valueOverride);
 
+    _worldPacket << int32(DescEmotes.size());
     for (QuestDescEmote const& emote : DescEmotes)
     {
         _worldPacket << uint32(emote.Type);

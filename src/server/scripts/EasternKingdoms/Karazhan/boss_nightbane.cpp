@@ -211,7 +211,7 @@ public:
                 switch (pointId)
                 {
                     case POINT_INTRO_START:
-                        me->RemoveByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_STAND_STATE, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                        me->SetStandState(UNIT_STAND_STATE_STAND);
                         events.ScheduleEvent(EVENT_START_INTRO_PATH, Milliseconds(1));
                         break;
                     case POINT_INTRO_END:
@@ -428,7 +428,7 @@ class go_blackened_urn : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* /*player*/) override
+            bool OnGossipHello(Player* /*player*/) override
             {
                 if (me->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE))
                     return false;

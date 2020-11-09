@@ -34,41 +34,46 @@ EndScriptData */
 #include "SpellMgr.h"
 #include "WorldSession.h"
 
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
+using namespace Trinity::ChatCommands;
 class learn_commandscript : public CommandScript
 {
 public:
     learn_commandscript() : CommandScript("learn_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    ChatCommandTable GetCommands() const override
     {
-        static std::vector<ChatCommand> learnAllMyCommandTable =
+        static ChatCommandTable learnAllMyCommandTable =
         {
-            { "class",      rbac::RBAC_PERM_COMMAND_LEARN_ALL_MY_CLASS,      false, &HandleLearnAllMyClassCommand,      "" },
-            { "pettalents", rbac::RBAC_PERM_COMMAND_LEARN_ALL_MY_PETTALENTS, false, &HandleLearnAllMyPetTalentsCommand, "" },
-            { "spells",     rbac::RBAC_PERM_COMMAND_LEARN_ALL_MY_SPELLS,     false, &HandleLearnAllMySpellsCommand,     "" },
-            { "talents",    rbac::RBAC_PERM_COMMAND_LEARN_ALL_MY_TALENTS,    false, &HandleLearnAllMyTalentsCommand,    "" },
+            { "class",      HandleLearnAllMyClassCommand,       rbac::RBAC_PERM_COMMAND_LEARN_ALL_MY_CLASS,         Console::No },
+            { "pettalents", HandleLearnAllMyPetTalentsCommand,  rbac::RBAC_PERM_COMMAND_LEARN_ALL_MY_PETTALENTS,    Console::No },
+            { "spells",     HandleLearnAllMySpellsCommand,      rbac::RBAC_PERM_COMMAND_LEARN_ALL_MY_SPELLS,        Console::No },
+            { "talents",    HandleLearnAllMyTalentsCommand,     rbac::RBAC_PERM_COMMAND_LEARN_ALL_MY_TALENTS,       Console::No },
         };
 
-        static std::vector<ChatCommand> learnAllCommandTable =
+        static ChatCommandTable learnAllCommandTable =
         {
-            { "my",      rbac::RBAC_PERM_COMMAND_LEARN_ALL_MY,      false, nullptr,                          "", learnAllMyCommandTable },
-            { "gm",      rbac::RBAC_PERM_COMMAND_LEARN_ALL_GM,      false, &HandleLearnAllGMCommand,      "" },
-            { "crafts",  rbac::RBAC_PERM_COMMAND_LEARN_ALL_CRAFTS,  false, &HandleLearnAllCraftsCommand,  "" },
-            { "default", rbac::RBAC_PERM_COMMAND_LEARN_ALL_DEFAULT, false, &HandleLearnAllDefaultCommand, "" },
-            { "lang",    rbac::RBAC_PERM_COMMAND_LEARN_ALL_LANG,    false, &HandleLearnAllLangCommand,    "" },
-            { "recipes", rbac::RBAC_PERM_COMMAND_LEARN_ALL_RECIPES, false, &HandleLearnAllRecipesCommand, "" },
+            { "my",      learnAllMyCommandTable },
+            { "gm",      HandleLearnAllGMCommand,       rbac::RBAC_PERM_COMMAND_LEARN_ALL_GM,       Console::No },
+            { "crafts",  HandleLearnAllCraftsCommand,   rbac::RBAC_PERM_COMMAND_LEARN_ALL_CRAFTS,   Console::No },
+            { "default", HandleLearnAllDefaultCommand,  rbac::RBAC_PERM_COMMAND_LEARN_ALL_DEFAULT,  Console::No },
+            { "lang",    HandleLearnAllLangCommand,     rbac::RBAC_PERM_COMMAND_LEARN_ALL_LANG,     Console::No },
+            { "recipes", HandleLearnAllRecipesCommand,  rbac::RBAC_PERM_COMMAND_LEARN_ALL_RECIPES,  Console::No },
         };
 
-        static std::vector<ChatCommand> learnCommandTable =
+        static ChatCommandTable learnCommandTable =
         {
-            { "all", rbac::RBAC_PERM_COMMAND_LEARN_ALL, false, nullptr,                "", learnAllCommandTable },
-            { "",    rbac::RBAC_PERM_COMMAND_LEARN,     false, &HandleLearnCommand, "" },
+            { "",       HandleLearnCommand,             rbac::RBAC_PERM_COMMAND_LEARN,              Console::No },
+            { "all",    learnAllCommandTable },
         };
 
-        static std::vector<ChatCommand> commandTable =
+        static ChatCommandTable commandTable =
         {
-            { "learn",   rbac::RBAC_PERM_COMMAND_LEARN,   false, nullptr,                  "", learnCommandTable },
-            { "unlearn", rbac::RBAC_PERM_COMMAND_UNLEARN, false, &HandleUnLearnCommand, "" },
+            { "learn",   learnCommandTable },
+            { "unlearn", HandleUnLearnCommand,          rbac::RBAC_PERM_COMMAND_UNLEARN,            Console::No },
         };
         return commandTable;
     }

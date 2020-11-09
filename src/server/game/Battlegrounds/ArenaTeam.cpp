@@ -47,8 +47,8 @@ ArenaTeam::~ArenaTeam()
 
 bool ArenaTeam::Create(ObjectGuid captainGuid, uint8 type, std::string const& teamName, uint32 backgroundColor, uint8 emblemStyle, uint32 emblemColor, uint8 borderStyle, uint32 borderColor)
 {
-    // Check if captain is present
-    if (!ObjectAccessor::FindPlayer(captainGuid))
+    // Check if captain exists
+    if (!sCharacterCache->GetCharacterCacheByGuid(captainGuid))
         return false;
 
     // Check if arena team name is already taken
@@ -124,10 +124,10 @@ bool ArenaTeam::AddMember(ObjectGuid playerGuid)
     }
 
     // Set player's personal rating
-    uint32 personalRating = 0;
+    uint16 personalRating = 0;
 
     if (sWorld->getIntConfig(CONFIG_ARENA_START_PERSONAL_RATING) > 0)
-        personalRating = sWorld->getIntConfig(CONFIG_ARENA_START_PERSONAL_RATING);
+        personalRating = uint16(sWorld->getIntConfig(CONFIG_ARENA_START_PERSONAL_RATING));
     else if (GetRating() >= 1000)
         personalRating = 1000;
 
@@ -166,6 +166,7 @@ bool ArenaTeam::AddMember(ObjectGuid playerGuid)
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ARENA_TEAM_MEMBER);
     stmt->setUInt32(0, TeamId);
     stmt->setUInt32(1, playerGuid.GetCounter());
+    stmt->setUInt16(2, personalRating);
     CharacterDatabase.Execute(stmt);
 
     // Inform player if online
@@ -760,12 +761,9 @@ void ArenaTeam::FinishGame(int32 mod)
 
     // Update team's rank, start with rank 1 and increase until no team with more rating was found
     Stats.Rank = 1;
-    ArenaTeamMgr::ArenaTeamContainer::const_iterator i = sArenaTeamMgr->GetArenaTeamMapBegin();
-    for (; i != sArenaTeamMgr->GetArenaTeamMapEnd(); ++i)
-    {
-        if (i->second->GetType() == Type && i->second->GetStats().Rating > Stats.Rating)
+    for (auto [teamId, team] : sArenaTeamMgr->GetArenaTeams())
+        if (team->GetType() == Type && team->GetStats().Rating > Stats.Rating)
             ++Stats.Rank;
-    }
 }
 
 int32 ArenaTeam::WonAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& rating_change)

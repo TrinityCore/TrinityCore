@@ -66,6 +66,7 @@ enum WeatherState : uint32;
 
 namespace Trinity { struct ObjectUpdater; }
 namespace VMAP { enum class ModelIgnoreFlags : uint32; }
+namespace G3D { class Plane; }
 
 struct ScriptAction
 {
@@ -201,8 +202,7 @@ class TC_GAME_API GridMap
         uint16* m_uint16_V8;
         uint8* m_uint8_V8;
     };
-    int16* _maxHeight;
-    int16* _minHeight;
+    G3D::Plane* _minHeightPlanes;
     // Height level data
     float _gridHeight;
     float _gridIntHeightMultiplier;
@@ -295,7 +295,7 @@ struct CompareRespawnInfo
 typedef std::unordered_map<uint32 /*zoneId*/, ZoneDynamicInfo> ZoneDynamicInfoMap;
 typedef boost::heap::fibonacci_heap<RespawnInfo*, boost::heap::compare<CompareRespawnInfo>> RespawnListContainer;
 typedef RespawnListContainer::handle_type RespawnListHandle;
-typedef std::unordered_map<uint32, RespawnInfo*> RespawnInfoMap;
+typedef std::unordered_map<ObjectGuid::LowType, RespawnInfo*> RespawnInfoMap;
 struct RespawnInfo
 {
     SpawnObjectType type;
@@ -916,7 +916,7 @@ enum InstanceResetMethod
 class TC_GAME_API InstanceMap : public Map
 {
     public:
-        InstanceMap(uint32 id, time_t, uint32 InstanceId, uint8 SpawnMode, Map* _parent);
+        InstanceMap(uint32 id, time_t, uint32 InstanceId, uint8 SpawnMode, Map* _parent, TeamId InstanceTeam);
         ~InstanceMap();
         bool AddPlayerToMap(Player*) override;
         void RemovePlayerFromMap(Player*, bool) override;
@@ -938,6 +938,8 @@ class TC_GAME_API InstanceMap : public Map
         bool HasPermBoundPlayers() const;
         uint32 GetMaxPlayers() const;
         uint32 GetMaxResetDelay() const;
+        TeamId GetTeamIdInInstance() const { return i_script_team; }
+        Team GetTeamInInstance() const { return i_script_team == TEAM_ALLIANCE ? ALLIANCE : HORDE; }
 
         virtual void InitVisibilityDistance() override;
 
@@ -947,6 +949,7 @@ class TC_GAME_API InstanceMap : public Map
         bool m_unloadWhenEmpty;
         InstanceScript* i_data;
         uint32 i_script_id;
+        TeamId i_script_team;
 };
 
 class TC_GAME_API BattlegroundMap : public Map

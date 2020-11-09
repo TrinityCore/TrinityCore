@@ -84,7 +84,7 @@ public:
             bool triggered;
         };
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             return OnGossipHello(player, me);
         }
@@ -114,7 +114,7 @@ public:
             return true;
         }
 
-        bool GossipSelect(Player* player, uint32 /*menu_id*/, uint32 gossipListId) override
+        bool OnGossipSelect(Player* player, uint32 /*menu_id*/, uint32 gossipListId) override
         {
             uint32 sender = player->PlayerTalkClass->GetGossipOptionSender(gossipListId);
             uint32 action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
@@ -327,7 +327,7 @@ public:
         }
 
 #ifdef PRESETS
-        bool GossipSelectCode(Player* player, uint32 /*menu_id*/, uint32 gossipListId, const char* code) override
+        bool OnGossipSelectCode(Player* player, uint32 /*menu_id*/, uint32 gossipListId, const char* code) override
         {
             uint32 sender = player->PlayerTalkClass->GetGossipOptionSender(gossipListId);
             uint32 action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
@@ -341,7 +341,7 @@ public:
                 return true; // should never happen
             if (!sTransmogrification->EnableSets)
             {
-                GossipHello(player);
+                OnGossipHello(player, creature);
                 return true;
             }
 

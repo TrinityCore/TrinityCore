@@ -37,44 +37,35 @@ EndScriptData */
 #include "WorldSession.h"
 
 using namespace Trinity::ChatCommands;
+
 class go_commandscript : public CommandScript
 {
 public:
     go_commandscript() : CommandScript("go_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    ChatCommandTable GetCommands() const override
     {
-        static std::vector<ChatCommand> goCreatureCommandTable =
+        static ChatCommandTable goCommandTable =
         {
-            { "id",     rbac::RBAC_PERM_COMMAND_GO,     false,      &HandleGoCreatureCIdCommand,            "" },
-            { "",       rbac::RBAC_PERM_COMMAND_GO,     false,      &HandleGoCreatureSpawnIdCommand,        "" }
+            { "creature",           HandleGoCreatureSpawnIdCommand,         rbac::RBAC_PERM_COMMAND_GO,             Console::No },
+            { "creature id",        HandleGoCreatureCIdCommand,             rbac::RBAC_PERM_COMMAND_GO,             Console::No },
+            { "gameobject",         HandleGoGameObjectSpawnIdCommand,       rbac::RBAC_PERM_COMMAND_GO,             Console::No },
+            { "gameobject id",      HandleGoGameObjectGOIdCommand,          rbac::RBAC_PERM_COMMAND_GO,             Console::No },
+            { "graveyard",          HandleGoGraveyardCommand,               rbac::RBAC_PERM_COMMAND_GO,             Console::No },
+            { "grid",               HandleGoGridCommand,                    rbac::RBAC_PERM_COMMAND_GO,             Console::No },
+            { "taxinode",           HandleGoTaxinodeCommand,                rbac::RBAC_PERM_COMMAND_GO,             Console::No },
+            { "areatrigger",        HandleGoAreaTriggerCommand,             rbac::RBAC_PERM_COMMAND_GO,             Console::No },
+            { "zonexy",             HandleGoZoneXYCommand,                  rbac::RBAC_PERM_COMMAND_GO,             Console::No },
+            { "xyz",                HandleGoXYZCommand,                     rbac::RBAC_PERM_COMMAND_GO,             Console::No },
+            { "ticket",             HandleGoTicketCommand,                  rbac::RBAC_PERM_COMMAND_GO,             Console::No },
+            { "offset",             HandleGoOffsetCommand,                  rbac::RBAC_PERM_COMMAND_GO,             Console::No },
+            { "instance",           HandleGoInstanceCommand,                rbac::RBAC_PERM_COMMAND_GO,             Console::No },
+            { "boss",               HandleGoBossCommand,                    rbac::RBAC_PERM_COMMAND_GO,             Console::No }
         };
 
-        static std::vector<ChatCommand> goGameObjectCommandTable =
+        static ChatCommandTable commandTable =
         {
-            { "id",     rbac::RBAC_PERM_COMMAND_GO,     false,      &HandleGoGameObjectGOIdCommand,         "" },
-            { "",       rbac::RBAC_PERM_COMMAND_GO,     false,      &HandleGoGameObjectSpawnIdCommand,      "" }
-        };
-
-        static std::vector<ChatCommand> goCommandTable =
-        {
-            { "creature",           rbac::RBAC_PERM_COMMAND_GO,             false, nullptr,                                     "", goCreatureCommandTable },
-            { "gameobject",         rbac::RBAC_PERM_COMMAND_GO,             false, nullptr,                                     "", goGameObjectCommandTable },
-            { "graveyard",          rbac::RBAC_PERM_COMMAND_GO,             false, &HandleGoGraveyardCommand,                   "" },
-            { "grid",               rbac::RBAC_PERM_COMMAND_GO,             false, &HandleGoGridCommand,                        "" },
-            { "taxinode",           rbac::RBAC_PERM_COMMAND_GO,             false, &HandleGoTaxinodeCommand,                    "" },
-            { "areatrigger",        rbac::RBAC_PERM_COMMAND_GO,             false, &HandleGoAreaTriggerCommand,                 "" },
-            { "zonexy",             rbac::RBAC_PERM_COMMAND_GO,             false, &HandleGoZoneXYCommand,                      "" },
-            { "xyz",                rbac::RBAC_PERM_COMMAND_GO,             false, &HandleGoXYZCommand,                         "" },
-            { "ticket",             rbac::RBAC_PERM_COMMAND_GO,             false, &HandleGoTicketCommand,                      "" },
-            { "offset",             rbac::RBAC_PERM_COMMAND_GO,             false, &HandleGoOffsetCommand,                      "" },
-            { "instance",           rbac::RBAC_PERM_COMMAND_GO,             false, &HandleGoInstanceCommand,                    "" },
-            { "boss",               rbac::RBAC_PERM_COMMAND_GO,             false, &HandleGoBossCommand,                        "" }
-        };
-
-        static std::vector<ChatCommand> commandTable =
-        {
-            { "go", rbac::RBAC_PERM_COMMAND_GO, false, nullptr, "", goCommandTable },
+            { "go", goCommandTable },
         };
         return commandTable;
     }
@@ -372,7 +363,7 @@ public:
         return DoTeleport(handler, loc);
     }
 
-    static bool HandleGoInstanceCommand(ChatHandler* handler, std::vector<std::string> const& labels)
+    static bool HandleGoInstanceCommand(ChatHandler* handler, std::vector<std::string_view> labels)
     {
         if (labels.empty())
             return false;
@@ -384,7 +375,7 @@ public:
             uint32 count = 0;
             std::string const& scriptName = sObjectMgr->GetScriptName(pair.second.ScriptId);
             char const* mapName = ASSERT_NOTNULL(sMapStore.LookupEntry(pair.first))->MapName[handler->GetSessionDbcLocale()];
-            for (auto const& label : labels)
+            for (std::string_view label : labels)
                 if (StringContainsStringI(scriptName, label))
                     ++count;
 
@@ -457,7 +448,7 @@ public:
         return false;
     }
 
-    static bool HandleGoBossCommand(ChatHandler* handler, std::vector<std::string> const& needles)
+    static bool HandleGoBossCommand(ChatHandler* handler, std::vector<std::string_view> needles)
     {
         if (needles.empty())
             return false;
@@ -474,7 +465,7 @@ public:
 
             uint32 count = 0;
             std::string const& scriptName = sObjectMgr->GetScriptName(data.ScriptID);
-            for (auto const& label : needles)
+            for (std::string_view label : needles)
                 if (StringContainsStringI(scriptName, label) || StringContainsStringI(data.Name, label))
                     ++count;
 

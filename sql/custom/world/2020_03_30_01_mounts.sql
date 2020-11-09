@@ -1,11 +1,11 @@
 update creature_loot_template clt
 inner join item_template it on it.entry = clt.item
-set clt.Chance = 5
+set clt.Chance = 20
 where it.name='Deathcharger''s Reins';
 
 update creature_loot_template clt
 inner join item_template it on it.entry = clt.item
-set clt.Chance = 30
+set clt.Chance = 75
 where it.name='Swift Zulian Tiger';
 
 
