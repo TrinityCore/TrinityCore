@@ -422,8 +422,7 @@ class spell_q11515_fel_siphon_dummy : public SpellScriptLoader
 enum Quest11587Data
 {
     SPELL_SUMMON_ARCANE_PRISONER_MALE    = 45446,    // Summon Arcane Prisoner - Male
-    SPELL_SUMMON_ARCANE_PRISONER_FEMALE  = 45448,    // Summon Arcane Prisoner - Female
-    SPELL_ARCANE_PRISONER_KILL_CREDIT    = 45456     // Arcane Prisoner Kill Credit
+    SPELL_SUMMON_ARCANE_PRISONER_FEMALE  = 45448     // Summon Arcane Prisoner - Female
 };
 
 class spell_q11587_arcane_prisoner_rescue : public SpellScriptLoader
@@ -437,20 +436,16 @@ class spell_q11587_arcane_prisoner_rescue : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellEntry*/) override
             {
-                return ValidateSpellInfo({ SPELL_SUMMON_ARCANE_PRISONER_MALE, SPELL_SUMMON_ARCANE_PRISONER_FEMALE, SPELL_ARCANE_PRISONER_KILL_CREDIT });
+                return ValidateSpellInfo({ SPELL_SUMMON_ARCANE_PRISONER_MALE, SPELL_SUMMON_ARCANE_PRISONER_FEMALE });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 Unit* caster = GetCaster();
-                if (Unit* unitTarget = GetHitUnit())
-                {
-                    uint32 spellId = SPELL_SUMMON_ARCANE_PRISONER_MALE;
-                    if (rand32() % 2)
-                        spellId = SPELL_SUMMON_ARCANE_PRISONER_FEMALE;
-                    caster->CastSpell(caster, spellId, true);
-                    unitTarget->CastSpell(caster, SPELL_ARCANE_PRISONER_KILL_CREDIT, true);
-                }
+                uint32 spellId = SPELL_SUMMON_ARCANE_PRISONER_MALE;
+                if (rand32() % 2)
+                    spellId = SPELL_SUMMON_ARCANE_PRISONER_FEMALE;
+                caster->CastSpell(caster, spellId, true);
             }
 
             void Register() override
