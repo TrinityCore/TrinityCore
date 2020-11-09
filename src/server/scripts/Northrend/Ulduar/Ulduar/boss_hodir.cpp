@@ -51,7 +51,6 @@ enum HodirYells
 enum HodirSpells
 {
     // Hodir
-    SPELL_FROZEN_BLOWS                           = 62478,
     SPELL_FLASH_FREEZE                           = 61968,
     SPELL_FLASH_FREEZE_VISUAL                    = 62148,
     SPELL_BITING_COLD                            = 62038,
@@ -93,6 +92,8 @@ enum HodirSpells
     SPELL_GREATER_HEAL                           = 62809,
     SPELL_DISPEL_MAGIC                           = 63499,
 };
+
+#define SPELL_FROZEN_BLOWS RAID_MODE<uint32>(62478,63512)
 
 enum HodirNPC
 {

@@ -82,8 +82,9 @@ enum Spells
     // Ancient Rune Giant
     SPELL_RUNIC_FORTIFICATION                   = 62942,
     SPELL_RUNE_DETONATION                       = 62526,
-    SPELL_STOMP                                 = 62411
 };
+
+#define SPELL_STOMP RAID_MODE<uint32>(62411,62413)
 
 enum Phases
 {

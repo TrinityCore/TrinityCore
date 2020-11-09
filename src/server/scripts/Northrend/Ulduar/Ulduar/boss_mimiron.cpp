@@ -85,6 +85,7 @@ enum Spells
     // Leviathan MK II
     SPELL_FLAME_SUPPRESSANT_MK                  = 64570,
     SPELL_NAPALM_SHELL                          = 63666,
+    SPELL_NAPALM_SHELL_25                       = 65026,
     SPELL_FORCE_CAST_NAPALM_SHELL               = 64539,
     SPELL_PLASMA_BLAST                          = 62997,
     SPELL_SCRIPT_EFFECT_PLASMA_BLAST            = 64542,
@@ -1980,7 +1981,7 @@ class spell_mimiron_napalm_shell : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                return ValidateSpellInfo({ SPELL_NAPALM_SHELL });
+                return ValidateSpellInfo({ SPELL_NAPALM_SHELL, SPELL_NAPALM_SHELL_25 });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -2001,7 +2002,7 @@ class spell_mimiron_napalm_shell : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                GetCaster()->CastSpell(GetHitUnit(), SPELL_NAPALM_SHELL);
+                GetCaster()->CastSpell(GetHitUnit(), GetCaster()->GetMap()->Is25ManRaid() ? SPELL_NAPALM_SHELL_25 : SPELL_NAPALM_SHELL);
             }
 
             void Register() override

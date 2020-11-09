@@ -35,7 +35,6 @@ EndScriptData */
 
 enum Spells
 {
-    SPELL_TWO_ARM_SMASH                 = 63356,
     SPELL_ONE_ARM_SMASH                 = 63573,
     SPELL_ARM_SWEEP                     = 63766,
     SPELL_STONE_SHOUT                   = 63716,
@@ -43,7 +42,6 @@ enum Spells
     SPELL_STONE_GRIP                    = 62166,
     SPELL_STONE_GRIP_CANCEL             = 65594,
     SPELL_SUMMON_RUBBLE                 = 63633,
-    SPELL_FALLING_RUBBLE                = 63821,
     SPELL_ARM_ENTER_VEHICLE             = 65343,
     SPELL_ARM_ENTER_VISUAL              = 64753,
 
@@ -61,6 +59,8 @@ enum Spells
     SPELL_BERSERK                       = 47008  // guess
 };
 
+#define SPELL_TWO_ARM_SMASH RAID_MODE<uint32>(63356,64003)
+#define SPELL_FALLING_RUBBLE RAID_MODE<uint32>(63821,64001)
 #define SPELL_ARM_DEAD_DAMAGE RAID_MODE<uint32>(63629,63979)
 
 enum NPCs
