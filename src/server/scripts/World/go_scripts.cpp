@@ -24,10 +24,8 @@ go_tablet_of_the_seven
 go_tele_to_dalaran_crystal
 go_tele_to_violet_stand
 go_scourge_cage
-go_table_theka
 go_soulwell
 go_amberpine_outhouse
-go_hive_pod
 go_veil_skith_cage
 go_toy_train_set
 go_bells
@@ -548,38 +546,6 @@ public:
     }
 };
 
-enum TableTheka
-{
-    GOSSIP_TABLE_THEKA = 1653,
-
-    QUEST_SPIDER_GOLD = 2936
-};
-
-class go_table_theka : public GameObjectScript
-{
-public:
-    go_table_theka() : GameObjectScript("go_table_theka") { }
-
-    struct go_table_thekaAI : public GameObjectAI
-    {
-        go_table_thekaAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool OnGossipHello(Player* player) override
-        {
-            if (player->GetQuestStatus(QUEST_SPIDER_GOLD) == QUEST_STATUS_INCOMPLETE)
-                player->AreaExploredOrEventHappens(QUEST_SPIDER_GOLD);
-
-            SendGossipMenuFor(player, GOSSIP_TABLE_THEKA, me->GetGUID());
-            return true;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_table_thekaAI(go);
-    }
-};
-
 /*######
 ## go_soulwell
 ######*/
@@ -753,41 +719,6 @@ public:
     GameObjectAI* GetAI(GameObject* go) const override
     {
         return new go_amberpine_outhouseAI(go);
-    }
-};
-
-/*######
-## Quest 1126: Hive in the Tower
-## go_hive_pod
-######*/
-
-enum Hives
-{
-    QUEST_HIVE_IN_THE_TOWER                       = 9544,
-    NPC_HIVE_AMBUSHER                             = 13301
-};
-
-class go_hive_pod : public GameObjectScript
-{
-public:
-    go_hive_pod() : GameObjectScript("go_hive_pod") { }
-
-    struct go_hive_podAI : public GameObjectAI
-    {
-        go_hive_podAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool OnGossipHello(Player* player) override
-        {
-            player->SendLoot(me->GetGUID(), LOOT_CORPSE);
-            me->SummonCreature(NPC_HIVE_AMBUSHER, me->GetPositionX() + 1, me->GetPositionY(), me->GetPositionZ(), me->GetAbsoluteAngle(player), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 1min);
-            me->SummonCreature(NPC_HIVE_AMBUSHER, me->GetPositionX(), me->GetPositionY() + 1, me->GetPositionZ(), me->GetAbsoluteAngle(player), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 1min);
-            return true;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_hive_podAI(go);
     }
 };
 
@@ -1530,10 +1461,8 @@ void AddSC_go_scripts()
     new go_scourge_cage();
     new go_arcane_prison();
     new go_blood_filled_orb();
-    new go_table_theka();
     new go_soulwell();
     new go_amberpine_outhouse();
-    new go_hive_pod();
     new go_massive_seaforium_charge();
     new go_veil_skith_cage();
     new go_frostblade_shrine();
