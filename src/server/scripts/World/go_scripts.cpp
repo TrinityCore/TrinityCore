@@ -476,43 +476,6 @@ public:
 };
 
 /*######
-## go_arcane_prison
-######*/
-
-enum ArcanePrison
-{
-    QUEST_PRISON_BREAK                  = 11587,
-    SPELL_ARCANE_PRISONER_KILL_CREDIT   = 45456
-};
-
-class go_arcane_prison : public GameObjectScript
-{
-public:
-    go_arcane_prison() : GameObjectScript("go_arcane_prison") { }
-
-    struct go_arcane_prisonAI : public GameObjectAI
-    {
-        go_arcane_prisonAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool OnGossipHello(Player* player) override
-        {
-            if (player->GetQuestStatus(QUEST_PRISON_BREAK) == QUEST_STATUS_INCOMPLETE)
-            {
-                me->SummonCreature(25318, 3485.089844f, 6115.7422188f, 70.966812f, 0, TEMPSUMMON_TIMED_DESPAWN, 1min);
-                player->CastSpell(player, SPELL_ARCANE_PRISONER_KILL_CREDIT, true);
-                return true;
-            }
-            return false;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_arcane_prisonAI(go);
-    }
-};
-
-/*######
 ## go_blood_filled_orb
 ######*/
 
@@ -1459,7 +1422,6 @@ void AddSC_go_scripts()
     new go_tele_to_violet_stand();
     new go_matrix_punchograph();
     new go_scourge_cage();
-    new go_arcane_prison();
     new go_blood_filled_orb();
     new go_soulwell();
     new go_amberpine_outhouse();
