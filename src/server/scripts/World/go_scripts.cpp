@@ -23,7 +23,6 @@ go_resonite_cask
 go_tablet_of_the_seven
 go_tele_to_dalaran_crystal
 go_tele_to_violet_stand
-go_scourge_cage
 go_soulwell
 go_amberpine_outhouse
 go_veil_skith_cage
@@ -435,80 +434,6 @@ public:
     GameObjectAI* GetAI(GameObject* go) const override
     {
         return new go_matrix_punchographAI(go);
-    }
-};
-
-/*######
-## go_scourge_cage
-######*/
-
-enum ScourgeCage
-{
-    NPC_SCOURGE_PRISONER = 25610
-};
-
-class go_scourge_cage : public GameObjectScript
-{
-public:
-    go_scourge_cage() : GameObjectScript("go_scourge_cage") { }
-
-    struct go_scourge_cageAI : public GameObjectAI
-    {
-        go_scourge_cageAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool OnGossipHello(Player* player) override
-        {
-            me->UseDoorOrButton();
-            if (Creature* pNearestPrisoner = me->FindNearestCreature(NPC_SCOURGE_PRISONER, 5.0f, true))
-            {
-                player->KilledMonsterCredit(NPC_SCOURGE_PRISONER, pNearestPrisoner->GetGUID());
-                pNearestPrisoner->DisappearAndDie();
-            }
-
-            return true;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_scourge_cageAI(go);
-    }
-};
-
-/*######
-## go_arcane_prison
-######*/
-
-enum ArcanePrison
-{
-    QUEST_PRISON_BREAK                  = 11587,
-    SPELL_ARCANE_PRISONER_KILL_CREDIT   = 45456
-};
-
-class go_arcane_prison : public GameObjectScript
-{
-public:
-    go_arcane_prison() : GameObjectScript("go_arcane_prison") { }
-
-    struct go_arcane_prisonAI : public GameObjectAI
-    {
-        go_arcane_prisonAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool OnGossipHello(Player* player) override
-        {
-            if (player->GetQuestStatus(QUEST_PRISON_BREAK) == QUEST_STATUS_INCOMPLETE)
-            {
-                me->SummonCreature(25318, 3485.089844f, 6115.7422188f, 70.966812f, 0, TEMPSUMMON_TIMED_DESPAWN, 1min);
-                player->CastSpell(player, SPELL_ARCANE_PRISONER_KILL_CREDIT, true);
-                return true;
-            }
-            return false;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_arcane_prisonAI(go);
     }
 };
 
@@ -1458,8 +1383,6 @@ void AddSC_go_scripts()
     new go_tele_to_dalaran_crystal();
     new go_tele_to_violet_stand();
     new go_matrix_punchograph();
-    new go_scourge_cage();
-    new go_arcane_prison();
     new go_blood_filled_orb();
     new go_soulwell();
     new go_amberpine_outhouse();
