@@ -73,11 +73,9 @@ void CustomAI::UpdateAI(uint32 diff)
 {
     ScriptedAI::UpdateAI(diff);
 
-    if (!UpdateVictim())
-        return;
-
     scheduler.Update(diff, [this]
     {
-        DoMeleeAttackIfReady();
+        if (UpdateVictim())
+            DoMeleeAttackIfReady();
     });
 }

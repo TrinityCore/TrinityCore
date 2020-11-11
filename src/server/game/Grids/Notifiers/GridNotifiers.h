@@ -1500,7 +1500,7 @@ namespace Trinity
     class AllFriendlyInRange
     {
         public:
-            AllFriendlyInRange(Unit const* obj, float range) : unit(obj), range(range){ }
+            AllFriendlyInRange(Unit const* obj, float range) : unit(obj), range(range) { }
 
             bool operator()(Unit* u) const
             {
@@ -1518,6 +1518,29 @@ namespace Trinity
         private:
             Unit const* unit;
             float range;
+    };
+
+    class AllHostileInRange
+    {
+        public:
+        AllHostileInRange(Unit const* obj, float range) : unit(obj), range(range) { }
+
+        bool operator()(Unit* u) const
+        {
+            if (u->GetTypeId() == TYPEID_PLAYER)
+                return true;
+
+            if (u->IsAlive() && u->IsVisible() && u->IsHostileTo(unit) && u->IsWithinDistInMap(u, range))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private:
+        Unit const* unit;
+        float range;
     };
 
     class AllGameObjectsWithEntryInRange

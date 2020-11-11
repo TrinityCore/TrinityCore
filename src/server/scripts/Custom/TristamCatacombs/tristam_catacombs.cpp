@@ -1,6 +1,9 @@
 #include "tristam_catacombs.h"
+#include "Custom/AI/CustomAI.h"
+#include "CellImpl.h"
 #include "Creature.h"
 #include "EventProcessor.h"
+#include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
@@ -15,8 +18,6 @@
 #include "SpellInfo.h"
 #include "TemporarySummon.h"
 #include "Unit.h"
-
-#include <iostream>
 
 enum Spells
 {
@@ -39,7 +40,7 @@ enum Texts
 
 	SAY_NETRISTRASZA_ESCORT_01  = 6,
 	SAY_NETRISTRASZA_ESCORT_02  = 7,
-	SAY_NETRISTRASZA_ESCORT_03  = 8,
+	REMOVED                     = 8,        // Removed in database
 	SAY_NETRISTRASZA_ESCORT_04  = 9,
 	SAY_NETRISTRASZA_ESCORT_05  = 10,
 	SAY_NETRISTRASZA_ESCORT_06  = 11,
@@ -57,7 +58,19 @@ enum Texts
 	SAY_AG_NETRISTRASZA_04      = 17,
 	SAY_AG_ANTONN_GRAVE_05      = 3,
 	SAY_AG_LEORIC_06            = 0,
-	SAY_AG_NETRISTRASZA_07      = 18
+	SAY_AG_NETRISTRASZA_07      = 18,
+
+    SAY_KORMAC_INTRO_01         = 23,
+    SAY_KORMAC_INTRO_02         = 0,
+    SAY_KORMAC_INTRO_03         = 24,
+    SAY_KORMAC_INTRO_04         = 1,
+    SAY_KORMAC_INTRO_05         = 25,
+
+    SAY_KORMAC_WEAPON_01        = 2,
+    SAY_KORMAC_WEAPON_02        = 26,
+    SAY_KORMAC_WEAPON_03        = 3,
+    SAY_KORMAC_WEAPON_04        = 4,
+    SAY_KORMAC_WEAPON_05        = 5
 };
 
 enum Misc
@@ -168,6 +181,16 @@ class npc_netristrasza : public CreatureScript
                     Start(true, true, playerGUID);
                     SetDespawnAtEnd(false);
                     break;
+                case 1:
+                {
+                    me->SetVisible(true);
+                    me->NearTeleportTo(262.13f, 153.63f, 109.77f, 1.57f);
+                    Map::PlayerList const& players = me->GetMap()->GetPlayers();
+                    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                        itr->GetSource()->NearTeleportTo(257.07f, 158.85f, 109.75f, 6.09f);
+                    DoAction(ACTION_KORMAC_INTRO);
+                    break;
+                }
                 default:
                     break;
             }
@@ -293,6 +316,141 @@ class npc_netristrasza : public CreatureScript
 						}
 					});
 					break;
+                case ACTION_KORMAC_INTRO:
+                    scheduler.Schedule(2s, [this](TaskContext context)
+                    {
+                        switch (context.GetRepeatCounter())
+                        {
+                            case 0:
+                                Talk(SAY_KORMAC_INTRO_01);
+                                context.Repeat(1s);
+                                break;
+                            case 1:
+                                if (Creature* kormac = instance->GetCreature(DATA_KORMAC))
+                                {
+                                    me->SetFacingToObject(kormac);
+                                    kormac->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                                }
+                                break;
+                        }
+                    });
+                    break;
+                case ACTION_KORMAC_FREED:
+                    scheduler.Schedule(1s, [this](TaskContext context)
+                    {
+                        switch (context.GetRepeatCounter())
+                        {
+                            case 0:
+                                Talk(SAY_KORMAC_INTRO_03);
+                                context.Repeat(1s);
+                                break;
+                            case 1:
+                                if (Creature* kormac = instance->GetCreature(DATA_KORMAC))
+                                {
+                                    kormac->SetWalk(true);
+                                    kormac->AI()->Talk(SAY_KORMAC_INTRO_04);
+                                    kormac->GetMotionMaster()->MoveCloserAndStop(0, me, 4.f);
+                                }
+                                context.Repeat(6s);
+                                break;
+                            case 2:
+                                Talk(SAY_KORMAC_INTRO_05);
+                                context.Repeat(3s);
+                                break;
+                            case 3:
+                                if (Creature* kormac = instance->GetCreature(DATA_KORMAC))
+                                    kormac->SetFacingTo(3.16f);
+                                context.Repeat(2s);
+                                break;
+                            case 4:
+                                if (Creature* kormac = instance->GetCreature(DATA_KORMAC))
+                                {
+                                    kormac->SetWalk(false);
+                                    kormac->GetMotionMaster()->MovePoint(1, 243.14f, 154.81f, 109.65f);
+                                }
+                                context.Repeat(3s);
+                                break;
+                            case 5:
+                                me->SetFacingTo(3.06f);
+                                if (Creature* kormac = instance->GetCreature(DATA_KORMAC))
+                                    kormac->AI()->Talk(SAY_KORMAC_WEAPON_01);
+                                context.Repeat(3s);
+                                break;
+                            case 6:
+                                Talk(SAY_KORMAC_WEAPON_02);
+                                context.Repeat(3s);
+                                break;
+                            case 7:
+                                if (debug)
+                                {
+                                    Start(true, true, playerGUID);
+                                    SetDespawnAtEnd(false);
+                                }
+                                SetEscortPaused(false);
+                                break;
+                        }
+                    });
+                    break;
+                case ACTION_KORMAC_WEAPON:
+                    scheduler.Schedule(1s, [this](TaskContext context)
+                    {
+                        switch (context.GetRepeatCounter())
+                        {
+                            case 0:
+                                if (Creature* kormac = instance->GetCreature(DATA_KORMAC))
+                                    kormac->AI()->Talk(SAY_KORMAC_WEAPON_03);
+                                context.Repeat(3s);
+                                break;
+                            case 1:
+                                if (Creature* kormac = instance->GetCreature(DATA_KORMAC))
+                                {
+                                    kormac->AI()->Talk(SAY_KORMAC_WEAPON_04);
+                                    kormac->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_SPELL_CHANNEL_OMNI);
+                                    kormac->CastSpell(kormac, SPELL_LIGHTS_BLESSING, true);
+                                }
+                                context.Repeat(5s);
+                                break;
+                            case 2:
+                                if (Creature* kormac = instance->GetCreature(DATA_KORMAC))
+                                {
+                                    Trinity::AllHostileInRange check(me, 35.f);
+                                    Trinity::UnitListSearcher<Trinity::AllHostileInRange> searcher(me, enemies, check);
+                                    Cell::VisitGridObjects(me, searcher, 35.f);
+
+                                    me->SetReactState(REACT_PASSIVE);
+
+                                    kormac->SetReactState(REACT_PASSIVE);
+                                    kormac->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
+                                    kormac->GetMotionMaster()->MoveJump(220.83f, 152.71f, 109.64f, 3.16f, 28.f, 12.f);
+
+                                    for (Unit* enemy : enemies)
+                                        enemy->ToCreature()->SetReactState(REACT_PASSIVE);
+                                }
+                                context.Repeat(2s);
+                                break;
+                            case 3:
+                                if (Creature* kormac = instance->GetCreature(DATA_KORMAC))
+                                {
+                                    const Position home = { 200.67f, 151.30f, 109.79f };
+                                    kormac->SetHomePosition(home);
+
+                                    kormac->AI()->Talk(SAY_KORMAC_WEAPON_05);
+                                    kormac->GetMotionMaster()->MoveCharge(200.67f, 151.30f, 109.79f, 25.f);
+
+                                    CastSpellExtraArgs args;
+                                    args.AddSpellBP0(999999);
+                                    args.SetTriggerFlags(TRIGGERED_CAST_DIRECTLY);
+                                    args.SetTriggerFlags(TRIGGERED_IGNORE_SET_FACING);
+
+                                    for (Unit* enemy : enemies)
+                                        kormac->CastSpell(enemy, 66546, args);
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                    });
+                    break;
 				default:
 					break;
 			}
@@ -378,6 +536,14 @@ class npc_netristrasza : public CreatureScript
 					SetEscortPaused(true);
 					DoAction(ACTION_AG_INTRO);
 					break;
+                case 20:
+                    SetEscortPaused(true);
+                    DoAction(ACTION_KORMAC_INTRO);
+                    break;
+                case 21:
+                    SetEscortPaused(true);
+                    DoAction(ACTION_KORMAC_WEAPON);
+                    break;
 				default:
 					break;
 			}
@@ -385,7 +551,7 @@ class npc_netristrasza : public CreatureScript
 
 		void WaypointPathEnded(uint32 /*nodeId*/, uint32 /*pathId*/) override
 		{
-			instance->SetBossState(DATA_NETRISTRASZA, DONE);
+			//instance->SetBossState(DATA_NETRISTRASZA, DONE);
 		}
 
 		void UpdateEscortAI(uint32 diff) override
@@ -433,7 +599,8 @@ class npc_netristrasza : public CreatureScript
 		private:
 		InstanceScript* instance;
 		TaskScheduler scheduler;
-		bool started;
+        std::list<Unit*> enemies;
+        bool started;
 		bool wrapInTime;
         bool debug;
 		ObjectGuid playerGUID;
@@ -468,8 +635,72 @@ class at_entrance_catacombs : public AreaTriggerScript
 	}
 };
 
+// 100082
+class npc_kormac : public CreatureScript
+{
+    public:
+    npc_kormac() : CreatureScript("npc_kormac")
+    {
+    }
+
+    struct npc_kormacAI : public CustomAI
+    {
+        npc_kormacAI(Creature* creature) : CustomAI(creature, AI_Type::Melee),
+            instance(creature->GetInstanceScript())
+        {
+            Initialize();
+        }
+
+        void Initialize()
+        {
+
+        }
+
+        void OnSpellClick(Unit* /*clicker*/, bool spellClickHandled) override
+        {
+            if (!spellClickHandled)
+                return;
+
+            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+
+            scheduler.Schedule(2s, [this](TaskContext context)
+            {
+                switch (context.GetRepeatCounter())
+                {
+                    case 0:
+                        me->RemoveAurasDueToSpell(SPELL_STASIS_FIELD);
+                        me->SetRegenerateHealth(true);
+                        me->SetHealth(me->GetMaxHealth());
+                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
+                        me->SetStandState(UNIT_STAND_STATE_KNEEL);
+                        context.Repeat(2s);
+                        break;
+                    case 1:
+                        me->SetStandState(UNIT_STAND_STATE_STAND);
+                        context.Repeat(3s);
+                        break;
+                    case 2:
+                        Talk(SAY_KORMAC_INTRO_02);
+                        if (Creature* netristrasza = instance->GetCreature(DATA_NETRISTRASZA))
+                            netristrasza->AI()->DoAction(ACTION_KORMAC_FREED);
+                        break;
+                }
+            });
+        }
+
+        private:
+        InstanceScript* instance;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetTristamCatacombsAI<npc_kormacAI>(creature);
+    }
+};
+
 void AddSC_tristam_catacombs()
 {
 	new at_entrance_catacombs();
 	new npc_netristrasza();
+	new npc_kormac();
 }

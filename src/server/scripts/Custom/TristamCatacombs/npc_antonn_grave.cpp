@@ -380,6 +380,8 @@ class npc_acolyte : public CreatureScript
     {
         npc_acolyteAI(Creature* creature) : CustomAI(creature)
         {
+            SetCombatMovement(false);
+
             Initialize();
         }
 
@@ -396,12 +398,12 @@ class npc_acolyte : public CreatureScript
         void JustEngagedWith(Unit* /*who*/) override
         {
             scheduler
-                .Schedule(1s, 5s, [this](TaskContext shadow_bolt)
+                .Schedule(5ms, [this](TaskContext shadow_bolt)
                 {
                     DoCastVictim(SPELL_SHADOW_BOLT);
                     shadow_bolt.Repeat(3s);
                 })
-                .Schedule(5ms, [this](TaskContext corruption)
+                .Schedule(3s, [this](TaskContext corruption)
                 {
                     if (Unit* target = DoFindEnemyMissingDot(50.0f, corruptionInfo))
                         DoCast(target, SPELL_CORRUPTION);

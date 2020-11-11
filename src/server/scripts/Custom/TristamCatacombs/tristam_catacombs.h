@@ -20,6 +20,7 @@ enum TCDataTypes
 	// Etc
 	DATA_GHEZRIM_GUARDIAN,
     DATA_TIME_RIFT,
+    DATA_KORMAC,
 
     // Doors
     DATA_NETRISTRASZA_ENTRANCE,
@@ -49,12 +50,19 @@ enum TCCreaturesIds
 	NPC_NETRISTRASZA                = 100075,
     NPC_SKELETON_MINION             = 100079,
     NPC_MAGE_SKELETON_MINION        = 100080,
-    NPC_SACRIFIED_SOUL              = 100081
+    NPC_SACRIFIED_SOUL              = 100081,
+    NPC_KORMAC                      = 100082
 };
 
 enum TCGameObjecs
 {
-    GOB_IRON_GATE                   = 175611
+    GOB_IRON_GATE                   = 175611,
+    GOB_DARK_GATE                   = 500020
+};
+
+enum TCEvents
+{
+    EVENT_OPEN_WIND_DOORS           = 1,
 };
 
 enum TCActions
@@ -65,12 +73,9 @@ enum TCActions
 	ACTION_AG_SKELETON              = -668003,
 	ACTION_AG_COMBAT                = -668004,
 	ACTION_AG_END                   = -668005,
-};
-
-enum class TCDoors
-{
-    Entrance,
-    Exit
+    ACTION_KORMAC_INTRO             = -668006,
+    ACTION_KORMAC_FREED             = -668007,
+    ACTION_KORMAC_WEAPON            = -668008,
 };
 
 enum TCSpells
@@ -80,7 +85,9 @@ enum TCSpells
     SPELL_DEMONIC_PORTAL            = 68424,
     SPELL_SAND_STORM                = 68802,
     SPELL_VISUAL_TELEPORT           = 51347,
-    SPELL_VISUAL_TELEPORT_DEMON     = 52235
+    SPELL_VISUAL_TELEPORT_DEMON     = 52235,
+    SPELL_STASIS_FIELD              = 100101,
+    SPELL_LIGHTS_BLESSING           = 71797,
 };
 
 template <class AI, class T>

@@ -28,10 +28,28 @@ class instance_tristam_catacombs : public InstanceMapScript
                     netristrasza->SummonCreature(NPC_TIME_RIFT, *netristrasza);
             }
 
+            void ProcessEvent(WorldObject* obj, uint32 eventId) override
+            {
+                switch (eventId)
+                {
+                    case EVENT_OPEN_WIND_DOORS:
+                        for (ObjectGuid doorGUID : windsGUID)
+                            HandleGameObject(doorGUID, true);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
             void OnGameObjectCreate(GameObject* go) override
             {
                 switch (go->GetEntry())
                 {
+                    case GOB_DARK_GATE:
+                        HandleGameObject(ObjectGuid::Empty, false, go);
+                        go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        windsGUID.push_back(go->GetGUID());
+                        break;
                     case GOB_IRON_GATE:
                         HandleGameObject(ObjectGuid::Empty, false, go);
                         go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
@@ -62,6 +80,13 @@ class instance_tristam_catacombs : public InstanceMapScript
                     case NPC_LEORIC:
                         leoricGUID = creature->GetGUID();
                         break;
+                    case NPC_KORMAC:
+                        kormacGUID = creature->GetGUID();
+                        creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                        creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STRANGULATE);
+                        creature->SetHealth(creature->GetMaxHealth() / 2.f);
+                        creature->AddAura(SPELL_STASIS_FIELD, creature);
+                        break;
                     default:
                         break;
                 }
@@ -79,6 +104,8 @@ class instance_tristam_catacombs : public InstanceMapScript
                         return riftGUID;
                     case DATA_LEORIC:
                         return leoricGUID;
+                    case DATA_KORMAC:
+                        return kormacGUID;
                     case DATA_NETRISTRASZA_ENTRANCE:
                         return doorsGUID[0];
                     case DATA_ANTONN_GRAVE_ENTRANCE:
@@ -147,7 +174,9 @@ class instance_tristam_catacombs : public InstanceMapScript
             ObjectGuid netristraszaGUID;
             ObjectGuid antonnGUID;
             ObjectGuid leoricGUID;
+            ObjectGuid kormacGUID;
             std::vector<ObjectGuid> doorsGUID;
+            std::vector<ObjectGuid> windsGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
