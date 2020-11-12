@@ -23,11 +23,20 @@ enum Spells
 {
 	AURA_ARCANE_BLAST           = 36032,
 
+    // Netristrasza
 	SPELL_ARCANE_BARRAGE        = 100009,
 	SPELL_ARCANE_BLAST          = 100010,
 	SPELL_ARCANE_EXPLOSION      = 100011,
 	SPELL_STOP_TIME             = 100090,
-	SPELL_WRAP_IN_TIME          = 100096
+	SPELL_WRAP_IN_TIME          = 100096,
+
+    // Kormac
+    SPELL_DIVINE_STORM          = 100034,
+    SPELL_HAMMER_OF_JUSTICE     = 100035,
+    SPELL_HAND_OF_RECKONING     = 100036,
+    SPELL_SACRED_LIGHT          = 100071,
+    SPELL_DIVINE_SHIELD         = 100072,
+    SPELL_JUDGMENT_OF_COMMAND   = 100073
 };
 
 enum Texts
@@ -70,7 +79,13 @@ enum Texts
     SAY_KORMAC_WEAPON_02        = 26,
     SAY_KORMAC_WEAPON_03        = 3,
     SAY_KORMAC_WEAPON_04        = 4,
-    SAY_KORMAC_WEAPON_05        = 5
+    SAY_KORMAC_WEAPON_05        = 5,
+
+    SAY_KORMAC_OUTRO_01         = 6,
+    SAY_KORMAC_OUTRO_02         = 7,
+    SAY_KORMAC_OUTRO_03         = 27,
+    SAY_KORMAC_OUTRO_04         = 8,
+    SAY_KORMAC_OUTRO_05         = 28,
 };
 
 enum Misc
@@ -96,8 +111,11 @@ class npc_netristrasza : public CreatureScript
 
 	struct npc_netristraszaAI : public EscortAI
 	{
+        bool kormacFollower;
+
 		npc_netristraszaAI(Creature* creature) : EscortAI(creature),
-			instance(creature->GetInstanceScript()), started(false), wrapInTime(false), debug(false)
+			instance(creature->GetInstanceScript()), started(false), wrapInTime(false), debug(false),
+            kormacFollower(false)
 		{
 			Initialize();
 		}
@@ -281,11 +299,6 @@ class npc_netristrasza : public CreatureScript
                                 context.Repeat(2s);
 								break;
                             case 8:
-                                if (GameObject* door = instance->GetGameObject(DATA_ANTONN_GRAVE_ENTRANCE))
-                                    instance->HandleGameObject(ObjectGuid::Empty, true, door);
-                                context.Repeat(1s);
-                                break;
-                            case 9:
                                 if (Creature* antonn = instance->GetCreature(DATA_ANTONN_GRAVE))
                                     antonn->AI()->DoAction(ACTION_AG_SKELETON);
                                 break;
@@ -317,21 +330,13 @@ class npc_netristrasza : public CreatureScript
 					});
 					break;
                 case ACTION_KORMAC_INTRO:
-                    scheduler.Schedule(2s, [this](TaskContext context)
+                    scheduler.Schedule(1s, [this](TaskContext /*context*/)
                     {
-                        switch (context.GetRepeatCounter())
+                        Talk(SAY_KORMAC_INTRO_01);
+                        if (Creature* kormac = instance->GetCreature(DATA_KORMAC))
                         {
-                            case 0:
-                                Talk(SAY_KORMAC_INTRO_01);
-                                context.Repeat(1s);
-                                break;
-                            case 1:
-                                if (Creature* kormac = instance->GetCreature(DATA_KORMAC))
-                                {
-                                    me->SetFacingToObject(kormac);
-                                    kormac->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-                                }
-                                break;
+                            me->SetFacingToObject(kormac);
+                            kormac->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                         }
                     });
                     break;
@@ -366,19 +371,19 @@ class npc_netristrasza : public CreatureScript
                                 if (Creature* kormac = instance->GetCreature(DATA_KORMAC))
                                 {
                                     kormac->SetWalk(false);
-                                    kormac->GetMotionMaster()->MovePoint(1, 243.14f, 154.81f, 109.65f);
+                                    kormac->AI()->Talk(SAY_KORMAC_WEAPON_01);
                                 }
                                 context.Repeat(3s);
                                 break;
                             case 5:
                                 me->SetFacingTo(3.06f);
                                 if (Creature* kormac = instance->GetCreature(DATA_KORMAC))
-                                    kormac->AI()->Talk(SAY_KORMAC_WEAPON_01);
+                                    kormac->GetMotionMaster()->MovePoint(1, 243.14f, 154.81f, 109.65f);
                                 context.Repeat(3s);
                                 break;
                             case 6:
                                 Talk(SAY_KORMAC_WEAPON_02);
-                                context.Repeat(3s);
+                                context.Repeat(1s);
                                 break;
                             case 7:
                                 if (debug)
@@ -398,7 +403,26 @@ class npc_netristrasza : public CreatureScript
                         {
                             case 0:
                                 if (Creature* kormac = instance->GetCreature(DATA_KORMAC))
+                                {
+                                    Trinity::AllHostileInRange check(kormac, 25.f);
+                                    Trinity::UnitListSearcher<Trinity::AllHostileInRange> searcher(kormac, enemies, check);
+                                    Cell::VisitGridObjects(kormac, searcher, 5.f);
+
+                                    for (Unit* enemy : enemies)
+                                    {
+                                        Creature* target = enemy->ToCreature();
+                                        if (!target)
+                                            continue;
+
+                                        target->SetReactState(REACT_PASSIVE);
+                                        if (target->GetCreatureTemplate()->unit_class == 8)
+                                            target->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2HL);
+                                        else
+                                            target->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY1H);
+                                    }
+
                                     kormac->AI()->Talk(SAY_KORMAC_WEAPON_03);
+                                }
                                 context.Repeat(3s);
                                 break;
                             case 1:
@@ -413,18 +437,11 @@ class npc_netristrasza : public CreatureScript
                             case 2:
                                 if (Creature* kormac = instance->GetCreature(DATA_KORMAC))
                                 {
-                                    Trinity::AllHostileInRange check(me, 35.f);
-                                    Trinity::UnitListSearcher<Trinity::AllHostileInRange> searcher(me, enemies, check);
-                                    Cell::VisitGridObjects(me, searcher, 35.f);
-
                                     me->SetReactState(REACT_PASSIVE);
 
                                     kormac->SetReactState(REACT_PASSIVE);
                                     kormac->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
-                                    kormac->GetMotionMaster()->MoveJump(220.83f, 152.71f, 109.64f, 3.16f, 28.f, 12.f);
-
-                                    for (Unit* enemy : enemies)
-                                        enemy->ToCreature()->SetReactState(REACT_PASSIVE);
+                                    kormac->GetMotionMaster()->MoveJump(220.83f, 152.71f, 109.64f, 3.16f, 28.f, 10.f);
                                 }
                                 context.Repeat(2s);
                                 break;
@@ -435,15 +452,90 @@ class npc_netristrasza : public CreatureScript
                                     kormac->SetHomePosition(home);
 
                                     kormac->AI()->Talk(SAY_KORMAC_WEAPON_05);
-                                    kormac->GetMotionMaster()->MoveCharge(200.67f, 151.30f, 109.79f, 25.f);
-
+                                    kormac->GetMotionMaster()->MoveCharge(200.67f, 151.30f, 109.79f, 16.f);
+                                }
+                                context.Repeat(1s);
+                                break;
+                            case 4:
+                                if (Creature* kormac = instance->GetCreature(DATA_KORMAC))
+                                {
                                     CastSpellExtraArgs args;
                                     args.AddSpellBP0(999999);
                                     args.SetTriggerFlags(TRIGGERED_CAST_DIRECTLY);
                                     args.SetTriggerFlags(TRIGGERED_IGNORE_SET_FACING);
 
-                                    for (Unit* enemy : enemies)
-                                        kormac->CastSpell(enemy, 66546, args);
+                                    kormac->CastSpell(kormac, SPELL_CONSECRATION, args);
+                                }
+                                context.Repeat(2s);
+                                break;
+                            case 5:
+                                if (Creature* kormac = instance->GetCreature(DATA_KORMAC))
+                                {
+                                    if (Creature* ashbringer = GetClosestCreatureWithEntry(kormac, NPC_ASHBRINGER, 20.f))
+                                        ashbringer->SetVisible(false);
+
+                                    kormac->LoadEquipment(1);
+                                    kormac->SetSheath(SHEATH_STATE_UNARMED);
+                                    kormac->SetFacingToObject(me);
+                                }
+                                context.Repeat(2s);
+                                break;
+                            case 6:
+                                if (Creature* kormac = instance->GetCreature(DATA_KORMAC))
+                                    kormac->GetMotionMaster()->MovePoint(2, 221.11f, 152.88f, 109.63f);
+                                context.Repeat(3s);
+                                break;
+                            case 7:
+                                if (Creature* kormac = instance->GetCreature(DATA_KORMAC))
+                                    kormac->GetMotionMaster()->MoveJump(231.05f, 152.90f, 109.64f, 0.01f, 12.f, 10.f);
+                                context.Repeat(5ms);
+                                break;
+                            case 8:
+                                if (Creature* kormac = instance->GetCreature(DATA_KORMAC))
+                                {
+                                    kormac->CastSpell(kormac, SPELL_AVENGING_WRATH);
+                                    kormac->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_ATTACK2HTIGHT);
+                                }
+                                context.Repeat(1s);
+                                break;
+                            case 9:
+                                instance->ProcessEvent(me, EVENT_OPEN_WIND_DOORS);
+                                if (Creature* kormac = instance->GetCreature(DATA_KORMAC))
+                                    kormac->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
+                                context.Repeat(3s);
+                                break;
+                            case 10:
+                                if (Creature* kormac = instance->GetCreature(DATA_KORMAC))
+                                {
+                                    me->SetFacingToObject(kormac);
+                                    kormac->RemoveAllAuras();
+                                    kormac->SetFacingToObject(me);
+                                    kormac->AI()->Talk(SAY_KORMAC_OUTRO_01);
+                                }
+                                context.Repeat(5s);
+                                break;
+                            case 11:
+                                if (Creature* kormac = instance->GetCreature(DATA_KORMAC))
+                                    kormac->AI()->Talk(SAY_KORMAC_OUTRO_02);
+                                context.Repeat(4s);
+                                break;
+                            case 12:
+                                Talk(SAY_KORMAC_OUTRO_03);
+                                context.Repeat(4s);
+                                break;
+                            case 13:
+                                if (Creature* kormac = instance->GetCreature(DATA_KORMAC))
+                                    kormac->AI()->Talk(SAY_KORMAC_OUTRO_04);
+                                context.Repeat(4s);
+                                break;
+                            case 14:
+                                Talk(SAY_KORMAC_OUTRO_05);
+                                me->SetReactState(REACT_AGGRESSIVE);
+                                if (Creature* kormac = instance->GetCreature(DATA_KORMAC))
+                                {
+                                    kormac->SetReactState(REACT_AGGRESSIVE);
+                                    kormac->GetMotionMaster()->MoveFollow(me, 2.f, PET_FOLLOW_ANGLE);
+                                    kormacFollower = true;
                                 }
                                 break;
                             default:
@@ -527,8 +619,8 @@ class npc_netristrasza : public CreatureScript
 						me->SetFacingToObject(player);
 					break;
 				case 10:
-					if (GameObject* door = instance->GetGameObject(DATA_NETRISTRASZA_ENTRANCE))
-						instance->HandleGameObject(ObjectGuid::Empty, false, door);
+                    if (GameObject* door = GetClosestGameObjectWithEntry(me, GOB_IRON_GATE, 50.f))
+                        instance->HandleGameObject(ObjectGuid::Empty, false, door);
 					if (Creature* antonn = instance->GetCreature(DATA_ANTONN_GRAVE))
 						antonn->AI()->Talk(SAY_AG_ANTONN_GRAVE_01);
 					break;
@@ -645,21 +737,21 @@ class npc_kormac : public CreatureScript
 
     struct npc_kormacAI : public CustomAI
     {
-        npc_kormacAI(Creature* creature) : CustomAI(creature, AI_Type::Melee),
-            instance(creature->GetInstanceScript())
+        npc_kormacAI(Creature* creature) : CustomAI(creature),
+            instance(creature->GetInstanceScript()), handleEvent(false)
         {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-
+            scheduler.SetValidator([this]
+            {
+                return !me->HasUnitState(UNIT_STATE_CASTING);
+            });
         }
 
         void OnSpellClick(Unit* /*clicker*/, bool spellClickHandled) override
         {
-            if (!spellClickHandled)
+            if (!spellClickHandled || handleEvent)
                 return;
+
+            handleEvent = true;
 
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
 
@@ -688,8 +780,95 @@ class npc_kormac : public CreatureScript
             });
         }
 
+        void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override
+        {
+            CustomAI::EnterEvadeMode(why);
+
+            Creature* netristrasza = instance->GetCreature(DATA_NETRISTRASZA);
+            if (netristrasza && netristrasza->IsAlive())
+            {
+                if (ENSURE_AI(npc_netristrasza::npc_netristraszaAI, netristrasza->AI())->kormacFollower)
+                {
+                    me->GetMotionMaster()->Clear();
+                    me->GetMotionMaster()->MoveFollow(netristrasza, 2.f, PET_FOLLOW_DIST);
+                }
+            }
+        }
+
+        void JustEngagedWith(Unit* who) override
+        {
+            scheduler
+                .Schedule(5s, GROUP_COMBAT, [this](TaskContext divine_storm)
+                {
+                    DoCast(SPELL_DIVINE_STORM);
+                    divine_storm.Repeat(18s, 25s);
+                })
+                .Schedule(5ms, GROUP_COMBAT, [this](TaskContext rejuvenation)
+                {
+                    if (Unit* target = DoSelectBelowHpPctFriendly(30.0f, 30, true))
+                    {
+                        me->InterruptNonMeleeSpells(true);
+                        DoCast(target, SPELL_SACRED_LIGHT);
+                        rejuvenation.Repeat(24s);
+                    }
+                    else
+                    {
+                        rejuvenation.Repeat(1ms);
+                    }
+                })
+                .Schedule(8s, GROUP_COMBAT, [this](TaskContext divine_storm)
+                {
+                    if (Unit* target = DoSelectCastingUnit(SPELL_HAMMER_OF_JUSTICE, 35.f))
+                    {
+                        DoCast(target, SPELL_HAMMER_OF_JUSTICE);
+                        divine_storm.Repeat(24s, 32s);
+                    }
+                    else
+                    {
+                        divine_storm.Repeat(1s);
+                    }
+                })
+                .Schedule(13s, [this](TaskContext judgment_of_command)
+                {
+                    DoCastVictim(SPELL_JUDGMENT_OF_COMMAND);
+                    judgment_of_command.Repeat(18s, 29s);
+                })
+                .Schedule(5s, GROUP_COMBAT, [this](TaskContext divine_storm)
+                {
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                        DoCast(target, SPELL_HAND_OF_RECKONING);
+                    divine_storm.Repeat(24s, 35s);
+                });
+        }
+
+        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        {
+            if (!healOnCooldown && HealthBelowPct(30))
+            {
+                damage = 0;
+
+                scheduler.DelayGroup(GROUP_COMBAT, 5s);
+
+                DoCastSelf(SPELL_DIVINE_SHIELD);
+
+                healOnCooldown = true;
+
+                scheduler
+                    .Schedule(1s, [this](TaskContext /*context*/)
+                    {
+                        DoCastSelf(SPELL_SACRED_LIGHT);
+                    })
+                    .Schedule(1min, [this](TaskContext /*context*/)
+                    {
+                        healOnCooldown = false;
+                    });
+            }
+        }
+
         private:
         InstanceScript* instance;
+        bool handleEvent;
+        bool healOnCooldown;
     };
 
     CreatureAI* GetAI(Creature* creature) const override

@@ -112,8 +112,6 @@ class npc_antonn_grave : public CreatureScript
                     break;
                 case ACTION_AG_COMBAT:
                     me->AI()->Talk(SAY_ANTONN_GRAVE_01);
-                    if (GameObject* door = instance->GetGameObject(DATA_ANTONN_GRAVE_ENTRANCE))
-                        instance->HandleGameObject(ObjectGuid::Empty, false, door);
                     me->SummonCreatureGroup(SUMMON_GROUP_SACRIFIED_SOULS, &souls);
                     for (auto soul : souls)
                     {

@@ -20,12 +20,7 @@ enum TCDataTypes
 	// Etc
 	DATA_GHEZRIM_GUARDIAN,
     DATA_TIME_RIFT,
-    DATA_KORMAC,
-
-    // Doors
-    DATA_NETRISTRASZA_ENTRANCE,
-    DATA_ANTONN_GRAVE_ENTRANCE,
-    DATA_ANTONN_GRAVE_EXIT,
+    DATA_KORMAC
 };
 
 enum TCCreaturesIds
@@ -38,7 +33,7 @@ enum TCCreaturesIds
 	NPC_LEORIC                      = 100078,
 
 	// Ghezrim
-	NPC_GHEZRIM                     = 0,
+	NPC_GHEZRIM                     = 100084,
 	NPC_GHEZRIM_GUARDIAN            = 0,
 
 	// Asmodan
@@ -51,7 +46,8 @@ enum TCCreaturesIds
     NPC_SKELETON_MINION             = 100079,
     NPC_MAGE_SKELETON_MINION        = 100080,
     NPC_SACRIFIED_SOUL              = 100081,
-    NPC_KORMAC                      = 100082
+    NPC_KORMAC                      = 100082,
+    NPC_ASHBRINGER                  = 100083
 };
 
 enum TCGameObjecs
@@ -88,6 +84,8 @@ enum TCSpells
     SPELL_VISUAL_TELEPORT_DEMON     = 52235,
     SPELL_STASIS_FIELD              = 100101,
     SPELL_LIGHTS_BLESSING           = 71797,
+    SPELL_CONSECRATION              = 71122,
+    SPELL_AVENGING_WRATH            = 66011
 };
 
 template <class AI, class T>

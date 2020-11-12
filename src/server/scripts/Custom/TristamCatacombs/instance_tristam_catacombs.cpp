@@ -33,6 +33,7 @@ class instance_tristam_catacombs : public InstanceMapScript
                 switch (eventId)
                 {
                     case EVENT_OPEN_WIND_DOORS:
+                        obj->PlayDirectSound(15374);
                         for (ObjectGuid doorGUID : windsGUID)
                             HandleGameObject(doorGUID, true);
                         break;
@@ -53,8 +54,6 @@ class instance_tristam_catacombs : public InstanceMapScript
                     case GOB_IRON_GATE:
                         HandleGameObject(ObjectGuid::Empty, false, go);
                         go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                        doorsGUID.push_back(go->GetGUID());
-                        std::sort(doorsGUID.begin(), doorsGUID.end(), std::less<uint64>());
                         break;
                     default:
                         break;
@@ -87,6 +86,9 @@ class instance_tristam_catacombs : public InstanceMapScript
                         creature->SetHealth(creature->GetMaxHealth() / 2.f);
                         creature->AddAura(SPELL_STASIS_FIELD, creature);
                         break;
+                    case NPC_GHEZRIM:
+                        ghezrimGUID = creature->GetGUID();
+                        break;
                     default:
                         break;
                 }
@@ -106,12 +108,8 @@ class instance_tristam_catacombs : public InstanceMapScript
                         return leoricGUID;
                     case DATA_KORMAC:
                         return kormacGUID;
-                    case DATA_NETRISTRASZA_ENTRANCE:
-                        return doorsGUID[0];
-                    case DATA_ANTONN_GRAVE_ENTRANCE:
-                        return doorsGUID[1];
-                    case DATA_ANTONN_GRAVE_EXIT:
-                        return doorsGUID[2];
+                    case DATA_GHEZRIM:
+                        return ghezrimGUID;
                     default:
                         break;
                 }
@@ -123,15 +121,6 @@ class instance_tristam_catacombs : public InstanceMapScript
             {
                 if (!InstanceScript::SetBossState(type, state))
                     return false;
-
-                //if (state == DONE && type != DATA_NETRISTRASZA)
-                //{
-                //    if (Creature* netristrasza = instance->GetCreature(netristraszaGUID))
-                //    {
-                //        if (netristrasza->IsAlive())
-                //            netristrasza->AI()->DoAction(ACTION_SAY_DONE);
-                //    }
-                //}
 
                 switch (type)
                 {
@@ -154,7 +143,6 @@ class instance_tristam_catacombs : public InstanceMapScript
                         switch (state)
                         {
                             case DONE:
-                                HandleGameObject(GetGuidData(DATA_ANTONN_GRAVE_EXIT), true);
                                 if (Creature* netristrasza = instance->GetCreature(netristraszaGUID))
                                     netristrasza->AI()->DoAction(ACTION_AG_END);
                                 break;
@@ -175,7 +163,7 @@ class instance_tristam_catacombs : public InstanceMapScript
             ObjectGuid antonnGUID;
             ObjectGuid leoricGUID;
             ObjectGuid kormacGUID;
-            std::vector<ObjectGuid> doorsGUID;
+            ObjectGuid ghezrimGUID;
             std::vector<ObjectGuid> windsGUID;
         };
 
