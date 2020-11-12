@@ -1184,59 +1184,6 @@ public:
     }
 };
 
-enum TonkMine
-{
-    SPELL_TONK_MINE_DETONATE    = 25099
-};
-
-class npc_tonk_mine : public CreatureScript
-{
-public:
-    npc_tonk_mine() : CreatureScript("npc_tonk_mine") { }
-
-    struct npc_tonk_mineAI : public ScriptedAI
-    {
-        npc_tonk_mineAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-            me->SetReactState(REACT_PASSIVE);
-        }
-
-        void Initialize()
-        {
-            ExplosionTimer = 3000;
-        }
-
-        uint32 ExplosionTimer;
-
-        void Reset() override
-        {
-            Initialize();
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override { }
-        void AttackStart(Unit* /*who*/) override { }
-        void MoveInLineOfSight(Unit* /*who*/) override { }
-
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (ExplosionTimer <= diff)
-            {
-                DoCast(me, SPELL_TONK_MINE_DETONATE, true);
-                me->setDeathState(DEAD); // unsummon it
-            }
-            else
-                ExplosionTimer -= diff;
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_tonk_mineAI(creature);
-    }
-};
-
 enum TournamentPennantSpells
 {
     SPELL_PENNANT_STORMWIND_ASPIRANT        = 62595,
@@ -2680,7 +2627,6 @@ void AddSC_npcs_special()
     new npc_garments_of_quests();
     new npc_guardian();
     new npc_steam_tonk();
-    new npc_tonk_mine();
     new npc_tournament_mount();
     new npc_brewfest_reveler();
     RegisterCreatureAI(npc_training_dummy);
