@@ -3367,14 +3367,22 @@ void AuraEffect::HandleAuraModBaseResistancePCT(AuraApplication const* aurApp, u
         return;
 
     Unit* target = aurApp->GetTarget();
+    int32 spellGroupVal = target->GetHighestExclusiveSameEffectSpellGroupValue(this, SPELL_AURA_MOD_RESISTANCE);
+    if (abs(spellGroupVal) >= abs(GetAmount()))
+        return;
 
     // only players and pets have base stats
     if (target->GetTypeId() == TYPEID_PLAYER || target->IsPet())
     {
-        for (int8 x = SPELL_SCHOOL_NORMAL; x < MAX_SPELL_SCHOOL; x++)
+        for (int8 i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; i++)
         {
-            if (GetMiscValue() & int32(1<<x))
-                target->HandleStatModifier(UnitMods(UNIT_MOD_RESISTANCE_START + x), BASE_PCT, float(GetAmount()), apply);
+            if (GetMiscValue() & int32(1 << i))
+            {
+                if (spellGroupVal)
+                    target->HandleStatModifier(UnitMods(UNIT_MOD_RESISTANCE_START + i), BASE_PCT, (float)spellGroupVal, !apply);
+
+                target->HandleStatModifier(UnitMods(UNIT_MOD_RESISTANCE_START + i), BASE_PCT, float(GetAmount()), apply);
+            }
         }
     }
 }
