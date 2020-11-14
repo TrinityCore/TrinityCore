@@ -319,7 +319,7 @@ namespace WorldPackets
             int32 Flags = 0;
             int32 WorldEffectID = 0;
             int32 PlayerConditionID = 0;
-            int32 UnkWoD1 = 0;
+            int32 SpawnTrackingID = 0;
             std::vector<QuestPOIBlobPoint> QuestPOIBlobPointStats;
             bool AlwaysAllowMergingBlobs = false;
         };

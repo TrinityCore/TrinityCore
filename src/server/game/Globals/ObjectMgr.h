@@ -716,14 +716,14 @@ struct QuestPOI
     int32 Flags;
     int32 WorldEffectID;
     int32 PlayerConditionID;
-    int32 UnkWoD1;
+    int32 SpawnTrackingID;
     std::vector<QuestPOIPoint> points;
     bool AlwaysAllowMergingBlobs;
 
-    QuestPOI() : BlobIndex(0), ObjectiveIndex(0), QuestObjectiveID(0), QuestObjectID(0), MapID(0), WorldMapAreaID(0), Floor(0), Priority(0), Flags(0), WorldEffectID(0), PlayerConditionID(0), UnkWoD1(0), AlwaysAllowMergingBlobs(false){ }
-    QuestPOI(int32 _BlobIndex, int32 _ObjectiveIndex, int32 _QuestObjectiveID, int32 _QuestObjectID, int32 _MapID, int32 _WorldMapAreaID, int32 _Foor, int32 _Priority, int32 _Flags, int32 _WorldEffectID, int32 _PlayerConditionID, int32 _UnkWoD1, bool _AlwaysAllowMergingBlobs) :
+    QuestPOI() : BlobIndex(0), ObjectiveIndex(0), QuestObjectiveID(0), QuestObjectID(0), MapID(0), WorldMapAreaID(0), Floor(0), Priority(0), Flags(0), WorldEffectID(0), PlayerConditionID(0), SpawnTrackingID(0), AlwaysAllowMergingBlobs(false){ }
+    QuestPOI(int32 _BlobIndex, int32 _ObjectiveIndex, int32 _QuestObjectiveID, int32 _QuestObjectID, int32 _MapID, int32 _WorldMapAreaID, int32 _Foor, int32 _Priority, int32 _Flags, int32 _WorldEffectID, int32 _PlayerConditionID, int32 _SpawnTrackingID, bool _AlwaysAllowMergingBlobs) :
         BlobIndex(_BlobIndex), ObjectiveIndex(_ObjectiveIndex), QuestObjectiveID(_QuestObjectiveID), QuestObjectID(_QuestObjectID), MapID(_MapID), WorldMapAreaID(_WorldMapAreaID),
-        Floor(_Foor), Priority(_Priority), Flags(_Flags), WorldEffectID(_WorldEffectID), PlayerConditionID(_PlayerConditionID), UnkWoD1(_UnkWoD1), AlwaysAllowMergingBlobs(_AlwaysAllowMergingBlobs) { }
+        Floor(_Foor), Priority(_Priority), Flags(_Flags), WorldEffectID(_WorldEffectID), PlayerConditionID(_PlayerConditionID), SpawnTrackingID(_SpawnTrackingID), AlwaysAllowMergingBlobs(_AlwaysAllowMergingBlobs) { }
 };
 
 typedef std::vector<QuestPOI> QuestPOIVector;
