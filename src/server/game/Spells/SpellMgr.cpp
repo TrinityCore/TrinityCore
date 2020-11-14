@@ -5665,6 +5665,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_2].BasePoints = 100;
     });
 
+    // Shadow Conductor
+    ApplySpellFix({ 92053 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(29); // 12 seconds
+    });
+
     // ENDOF BLACKWING DESCENT SPELLS
 
     // Living Bomb
