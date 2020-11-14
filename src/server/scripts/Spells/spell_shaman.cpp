@@ -75,6 +75,7 @@ enum ShamanSpells
     SPELL_SHAMAN_ITEM_MANA_SURGE                = 23571,
     SPELL_SHAMAN_LIGHTNING_SHIELD               = 324,
     SPELL_SHAMAN_LIGHTNING_SHIELD_DAMAGE        = 26364,
+    SPELL_SHAMAN_MAELSTROM_DUMMY                = 60349,
     SPELL_SHAMAN_NATURE_GUARDIAN                = 31616,
     SPELL_SHAMAN_RESURGENCE_ENERGIZE            = 101033,
     SPELL_SHAMAN_RIPTIDE                        = 61295,
@@ -2008,6 +2009,32 @@ class spell_sha_searing_bolt : public SpellScript
     }
 };
 
+// 53817 - Maelstrom Weapon
+class spell_sha_maelstrom_weapon : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_MAELSTROM_DUMMY });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetStackAmount() == GetSpellInfo()->StackAmount)
+            GetTarget()->CastSpell(nullptr, SPELL_SHAMAN_MAELSTROM_DUMMY);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_SHAMAN_MAELSTROM_DUMMY, GetTarget()->GetGUID());
+    }
+
+    void Register() override
+    {
+        AfterEffectApply.Register(&spell_sha_maelstrom_weapon::AfterApply, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        AfterEffectRemove.Register(&spell_sha_maelstrom_weapon::AfterRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+    }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     new spell_sha_ancestral_awakening();
@@ -2046,6 +2073,7 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScript(spell_sha_lava_surge);
     RegisterSpellScript(spell_sha_lava_surge_proc);
     RegisterSpellScript(spell_sha_lightning_shield);
+    RegisterSpellScript(spell_sha_maelstrom_weapon);
     new spell_sha_mana_tide_totem();
     new spell_sha_nature_guardian();
     new spell_sha_resurgence();
