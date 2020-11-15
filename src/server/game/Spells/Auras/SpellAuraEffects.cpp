@@ -5799,7 +5799,7 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
         GetCasterGUID().ToString().c_str(), target->GetGUID().ToString().c_str(), damage, GetId(), absorb);
 
     // SendSpellNonMeleeDamageLog expects non-absorbed/non-resisted damage
-    SpellNonMeleeDamage log(caster, target, GetSpellInfo(), GetBase()->GetSpellXSpellVisualId(), GetSpellInfo()->GetSchoolMask(), GetBase()->GetCastGUID());
+    SpellNonMeleeDamage log(caster, target, GetSpellInfo(), GetBase()->GetSpellVisual(), GetSpellInfo()->GetSchoolMask(), GetBase()->GetCastGUID());
     log.damage = damage;
     log.originalDamage = dmg;
     log.absorb = absorb;
@@ -6099,7 +6099,7 @@ void AuraEffect::HandlePeriodicPowerBurnAuraTick(Unit* target, Unit* caster) con
 
     SpellInfo const* spellProto = GetSpellInfo();
     // maybe has to be sent different to client, but not by SMSG_PERIODICAURALOG
-    SpellNonMeleeDamage damageInfo(caster, target, spellProto, GetBase()->GetSpellXSpellVisualId(), spellProto->SchoolMask, GetBase()->GetCastGUID());
+    SpellNonMeleeDamage damageInfo(caster, target, spellProto, GetBase()->GetSpellVisual(), spellProto->SchoolMask, GetBase()->GetCastGUID());
     // no SpellDamageBonus for burn mana
     caster->CalculateSpellDamageTaken(&damageInfo, int32(gain * dmgMultiplier), spellProto);
 
@@ -6175,7 +6175,7 @@ void AuraEffect::HandleProcTriggerDamageAuraProc(AuraApplication* aurApp, ProcEv
         return;
     }
 
-    SpellNonMeleeDamage damageInfo(target, triggerTarget, GetSpellInfo(), GetBase()->GetSpellXSpellVisualId(), GetSpellInfo()->SchoolMask, GetBase()->GetCastGUID());
+    SpellNonMeleeDamage damageInfo(target, triggerTarget, GetSpellInfo(), GetBase()->GetSpellVisual(), GetSpellInfo()->SchoolMask, GetBase()->GetCastGUID());
     uint32 damage = target->SpellDamageBonusDone(triggerTarget, GetSpellInfo(), GetAmount(), SPELL_DIRECT_DAMAGE, GetSpellEffectInfo());
     damage = triggerTarget->SpellDamageBonusTaken(target, GetSpellInfo(), damage, SPELL_DIRECT_DAMAGE, GetSpellEffectInfo());
     target->CalculateSpellDamageTaken(&damageInfo, damage, GetSpellInfo());
@@ -6307,7 +6307,7 @@ void AuraEffect::HandleCreateAreaTrigger(AuraApplication const* aurApp, uint8 mo
 
     if (apply)
     {
-        AreaTrigger::CreateAreaTrigger(GetMiscValue(), GetCaster(), target, GetSpellInfo(), *target, GetBase()->GetDuration(), GetBase()->GetSpellXSpellVisualId(), ObjectGuid::Empty, this);
+        AreaTrigger::CreateAreaTrigger(GetMiscValue(), GetCaster(), target, GetSpellInfo(), *target, GetBase()->GetDuration(), GetBase()->GetSpellVisual(), ObjectGuid::Empty, this);
     }
     else
     {

@@ -29,6 +29,7 @@
 #include "PhaseShift.h"
 #include "Position.h"
 #include "SharedDefines.h"
+#include "SpellDefines.h"
 #include "UpdateFields.h"
 #include <list>
 #include <unordered_map>

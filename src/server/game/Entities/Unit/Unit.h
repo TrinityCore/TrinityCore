@@ -690,13 +690,13 @@ struct CalcDamageInfo
 // Spell damage info structure based on structure sending in SMSG_SPELLNONMELEEDAMAGELOG opcode
 struct TC_GAME_API SpellNonMeleeDamage
 {
-    SpellNonMeleeDamage(Unit* _attacker, Unit* _target, SpellInfo const* _spellInfo, uint32 _SpellXSpellVisualID, uint32 _schoolMask, ObjectGuid _castId = ObjectGuid::Empty);
+    SpellNonMeleeDamage(Unit* _attacker, Unit* _target, SpellInfo const* _spellInfo, SpellCastVisual spellVisual, uint32 _schoolMask, ObjectGuid _castId = ObjectGuid::Empty);
 
     Unit   *target;
     Unit   *attacker;
     ObjectGuid castId;
     SpellInfo const* Spell;
-    uint32 SpellXSpellVisualID;
+    SpellCastVisual SpellVisual;
     uint32 damage;
     uint32 originalDamage;
     uint32 schoolMask;
@@ -1647,12 +1647,12 @@ class TC_GAME_API Unit : public WorldObject
                 .ModifyValue(&UF::UnitChannel::SpellID), channelSpellId);
         }
         uint32 GetChannelSpellXSpellVisualId() const { return m_unitData->ChannelData->SpellXSpellVisualID; }
-        void SetChannelSpellXSpellVisualId(uint32 channelSpellXSpellVisualId)
+        void SetChannelSpellXSpellVisualId(SpellCastVisual channelVisual)
         {
             SetUpdateFieldValue(m_values
                 .ModifyValue(&Unit::m_unitData)
                 .ModifyValue(&UF::UnitData::ChannelData)
-                .ModifyValue(&UF::UnitChannel::SpellXSpellVisualID), channelSpellXSpellVisualId);
+                .ModifyValue(&UF::UnitChannel::SpellXSpellVisualID), channelVisual.SpellXSpellVisualID);
         }
         void AddChannelObject(ObjectGuid guid) { AddDynamicUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ChannelObjects)) = guid; }
         void SetChannelObject(uint32 slot, ObjectGuid guid) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ChannelObjects, slot), guid); }

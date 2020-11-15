@@ -21,6 +21,7 @@
 #include "Containers.h"
 #include "EventMap.h"
 #include "ObjectGuid.h"
+#include "SpellDefines.h"
 #include "ThreatManager.h"
 #include <unordered_map>
 
