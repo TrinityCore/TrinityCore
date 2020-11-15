@@ -19035,7 +19035,7 @@ void Player::_LoadMailedItems(Mail* mail)
         ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemEntry);
         if (!proto)
         {
-            TC_LOG_ERROR("entities.player", "Player '%s' (%s) has unknown item_template in mailed items (GUID: " UI64FMTD ", Entry: %u) in mail (%u), deleted.",
+            TC_LOG_ERROR("entities.player", "Player '%s' (%s) has unknown item in mailed items (GUID: " UI64FMTD ", Entry: %u) in mail (%u), deleted.",
                 GetName().c_str(), GetGUID().ToString().c_str(), itemGuid, itemEntry, mail->messageID);
 
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_MAIL_ITEM);

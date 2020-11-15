@@ -2944,7 +2944,7 @@ void ObjectMgr::LoadItemTemplates()
     }
 
     for (std::set<uint32>::const_iterator itr = notFoundOutfit.begin(); itr != notFoundOutfit.end(); ++itr)
-        TC_LOG_ERROR("sql.sql", "Item (Entry: %u) does not exist in `item_template` but is referenced in `CharStartOutfit.dbc`", *itr);
+        TC_LOG_ERROR("sql.sql", "Item (Entry: %u) does not exist but is referenced in `CharStartOutfit.dbc`", *itr);
 
     TC_LOG_INFO("server.loading", ">> Loaded %u item templates in %u ms", sparseCount, GetMSTimeDiffToNow(oldMSTime));
 }
@@ -3378,7 +3378,7 @@ void ObjectMgr::LoadPlayerInfo()
 
                 if (!GetItemTemplate(item_id))
                 {
-                    TC_LOG_ERROR("sql.sql", "Item id %u (race %u class %u) in `playercreateinfo_item` table but not listed in `item_template`, ignoring.", item_id, current_race, current_class);
+                    TC_LOG_ERROR("sql.sql", "Item id %u (race %u class %u) in `playercreateinfo_item` table but it does not exist, ignoring.", item_id, current_race, current_class);
                     continue;
                 }
 
@@ -4094,7 +4094,7 @@ void ObjectMgr::LoadQuests()
 
         Quest* qinfo = iter->second;
 
-        // additional quest integrity checks (GO, creature_template and item_template must be loaded already)
+        // additional quest integrity checks (GO, creature_template and items must be loaded already)
 
         if (qinfo->GetQuestType() >= MAX_QUEST_TYPES)
             TC_LOG_ERROR("sql.sql", "Quest %u has `Method` = %u, expected values are 0, 1 or 2.", qinfo->GetQuestId(), qinfo->GetQuestType());
@@ -7659,7 +7659,7 @@ void ObjectMgr::LoadQuestPOI()
     uint32 count = 0;
 
     //                                                   0        1        2            3           4                 5           6         7            8       9       10         11              12             13               14
-    QueryResult result = WorldDatabase.Query("SELECT QuestID, BlobIndex, Idx1, ObjectiveIndex, QuestObjectiveID, QuestObjectID, MapID, WorldMapAreaId, Floor, Priority, Flags, WorldEffectID, PlayerConditionID, WoDUnk1, AlwaysAllowMergingBlobs FROM quest_poi order by QuestID, Idx1");
+    QueryResult result = WorldDatabase.Query("SELECT QuestID, BlobIndex, Idx1, ObjectiveIndex, QuestObjectiveID, QuestObjectID, MapID, WorldMapAreaId, Floor, Priority, Flags, WorldEffectID, PlayerConditionID, SpawnTrackingID, AlwaysAllowMergingBlobs FROM quest_poi order by QuestID, Idx1");
     if (!result)
     {
         TC_LOG_ERROR("server.loading", ">> Loaded 0 quest POI definitions. DB table `quest_poi` is empty.");
@@ -7699,26 +7699,26 @@ void ObjectMgr::LoadQuestPOI()
     {
         Field* fields = result->Fetch();
 
-        int32 QuestID               = fields[0].GetInt32();
-        int32 BlobIndex             = fields[1].GetInt32();
-        int32 Idx1                  = fields[2].GetInt32();
-        int32 ObjectiveIndex        = fields[3].GetInt32();
-        int32 QuestObjectiveID      = fields[4].GetInt32();
-        int32 QuestObjectID         = fields[5].GetInt32();
-        int32 MapID                 = fields[6].GetInt32();
-        int32 WorldMapAreaId        = fields[7].GetInt32();
-        int32 Floor                 = fields[8].GetInt32();
-        int32 Priority              = fields[9].GetInt32();
-        int32 Flags                 = fields[10].GetInt32();
-        int32 WorldEffectID         = fields[11].GetInt32();
-        int32 PlayerConditionID     = fields[12].GetInt32();
-        int32 WoDUnk1               = fields[13].GetInt32();
+        int32 QuestID                = fields[0].GetInt32();
+        int32 BlobIndex              = fields[1].GetInt32();
+        int32 Idx1                   = fields[2].GetInt32();
+        int32 ObjectiveIndex         = fields[3].GetInt32();
+        int32 QuestObjectiveID       = fields[4].GetInt32();
+        int32 QuestObjectID          = fields[5].GetInt32();
+        int32 MapID                  = fields[6].GetInt32();
+        int32 WorldMapAreaId         = fields[7].GetInt32();
+        int32 Floor                  = fields[8].GetInt32();
+        int32 Priority               = fields[9].GetInt32();
+        int32 Flags                  = fields[10].GetInt32();
+        int32 WorldEffectID          = fields[11].GetInt32();
+        int32 PlayerConditionID      = fields[12].GetInt32();
+        int32 SpawnTrackingID        = fields[13].GetInt32();
         bool AlwaysAllowMergingBlobs = fields[14].GetBool();
 
         if (!sObjectMgr->GetQuestTemplate(QuestID))
             TC_LOG_ERROR("sql.sql", "`quest_poi` quest id (%u) Idx1 (%u) does not exist in `quest_template`", QuestID, Idx1);
 
-        QuestPOI POI(BlobIndex, ObjectiveIndex, QuestObjectiveID, QuestObjectID, MapID, WorldMapAreaId, Floor, Priority, Flags, WorldEffectID, PlayerConditionID, WoDUnk1, AlwaysAllowMergingBlobs);
+        QuestPOI POI(BlobIndex, ObjectiveIndex, QuestObjectiveID, QuestObjectID, MapID, WorldMapAreaId, Floor, Priority, Flags, WorldEffectID, PlayerConditionID, SpawnTrackingID, AlwaysAllowMergingBlobs);
         if (QuestID < int32(POIs.size()) && Idx1 < int32(POIs[QuestID].size()))
         {
             POI.points = POIs[QuestID][Idx1];

@@ -1517,7 +1517,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->SourceEntry);
             if (!pItemProto && !loot->isReference(cond->SourceEntry))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceType, SourceEntry in `condition` table, does not exist in `item_template`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "%s SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond->ToString().c_str());
                 return false;
             }
             break;
@@ -1534,7 +1534,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->SourceEntry);
             if (!pItemProto && !loot->isReference(cond->SourceEntry))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceType, SourceEntry in `condition` table, does not exist in `item_template`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "%s SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond->ToString().c_str());
                 return false;
             }
             break;
@@ -1551,7 +1551,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->SourceEntry);
             if (!pItemProto && !loot->isReference(cond->SourceEntry))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceType, SourceEntry in `condition` table, does not exist in `item_template`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "%s SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond->ToString().c_str());
                 return false;
             }
             break;
@@ -1568,7 +1568,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->SourceEntry);
             if (!pItemProto && !loot->isReference(cond->SourceEntry))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceType, SourceEntry in `condition` table, does not exist in `item_template`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "%s SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond->ToString().c_str());
                 return false;
             }
             break;
@@ -1585,7 +1585,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->SourceEntry);
             if (!pItemProto && !loot->isReference(cond->SourceEntry))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceType, SourceEntry in `condition` table, does not exist in `item_template`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "%s SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond->ToString().c_str());
                 return false;
             }
             break;
@@ -1602,7 +1602,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->SourceEntry);
             if (!pItemProto && !loot->isReference(cond->SourceEntry))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceType, SourceEntry in `condition` table, does not exist in `item_template`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "%s SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond->ToString().c_str());
                 return false;
             }
             break;
@@ -1619,7 +1619,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->SourceEntry);
             if (!pItemProto && !loot->isReference(cond->SourceEntry))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceType, SourceEntry in `condition` table, does not exist in `item_template`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "%s SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond->ToString().c_str());
                 return false;
             }
             break;
@@ -1636,7 +1636,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->SourceEntry);
             if (!pItemProto && !loot->isReference(cond->SourceEntry))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceType, SourceEntry in `condition` table, does not exist in `item_template`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "%s SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond->ToString().c_str());
                 return false;
             }
             break;
@@ -1653,7 +1653,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->SourceEntry);
             if (!pItemProto && !loot->isReference(cond->SourceEntry))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceType, SourceEntry in `condition` table, does not exist in `item_template`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "%s SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond->ToString().c_str());
                 return false;
             }
             break;
@@ -1670,7 +1670,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->SourceEntry);
             if (!pItemProto && !loot->isReference(cond->SourceEntry))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceType, SourceEntry in `condition` table, does not exist in `item_template`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "%s SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond->ToString().c_str());
                 return false;
             }
             break;
@@ -1687,7 +1687,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->SourceEntry);
             if (!pItemProto && !loot->isReference(cond->SourceEntry))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceType, SourceEntry in `condition` table, does not exist in `item_template`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "%s SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond->ToString().c_str());
                 return false;
             }
             break;
@@ -1704,7 +1704,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->SourceEntry);
             if (!pItemProto && !loot->isReference(cond->SourceEntry))
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceType, SourceEntry in `condition` table, does not exist in `item_template`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "%s SourceType, SourceEntry in `condition` table, item does not exist, ignoring.", cond->ToString().c_str());
                 return false;
             }
             break;
@@ -1831,7 +1831,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(cond->SourceEntry);
             if (!itemTemplate)
             {
-                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, does not exist in `item_template`, ignoring.", cond->ToString().c_str());
+                TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, item does not exist, ignoring.", cond->ToString().c_str());
                 return false;
             }
             break;
