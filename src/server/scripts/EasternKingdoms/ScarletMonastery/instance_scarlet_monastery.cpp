@@ -66,11 +66,13 @@ class instance_scarlet_monastery : public InstanceMapScript
 
             void Create() override
             {
+                InstanceScript::Create();
                 instance->SpawnGroupSpawn(SPAWN_GROUP_ID_WHITEMANE_AND_MOGRAINE, true);
             }
 
-            void Load(char const* /*data*/) override
+            void Load(char const* data) override
             {
+                InstanceScript::Load(data);
                 if (GetBossState(DATA_MOGRAINE_AND_WHITEMANE) != DONE)
                     instance->SpawnGroupSpawn(SPAWN_GROUP_ID_WHITEMANE_AND_MOGRAINE, true, true);
             }

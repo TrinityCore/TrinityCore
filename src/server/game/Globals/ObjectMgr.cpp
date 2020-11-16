@@ -2680,6 +2680,12 @@ void ObjectMgr::LoadInstanceSpawnGroups()
             TC_LOG_ERROR("sql.sql", "Instance spawn group (%u,%u) FLAG_ACTIVATE_SPAWN and FLAG_BLOCK_SPAWN may not be used together in a single entry - truncated to %u.", instanceMapId, spawnGroupId, info.Flags);
         }
 
+        if ((flags & InstanceSpawnGroupInfo::FLAG_ALLIANCE_ONLY) && (flags & InstanceSpawnGroupInfo::FLAG_HORDE_ONLY))
+        {
+            info.Flags = flags & ~(InstanceSpawnGroupInfo::FLAG_ALLIANCE_ONLY | InstanceSpawnGroupInfo::FLAG_HORDE_ONLY);
+            TC_LOG_ERROR("sql.sql", "Instance spawn group (%u,%u) FLAG_ALLIANCE_ONLY and FLAG_HORDE_ONLY may not be used together in a single entry - truncated to %u.", instanceMapId, spawnGroupId, info.Flags);
+        }
+
         if (flags & ~InstanceSpawnGroupInfo::FLAG_ALL)
         {
             info.Flags = flags & InstanceSpawnGroupInfo::FLAG_ALL;

@@ -436,9 +436,10 @@ struct TC_GAME_API InstanceSpawnGroupInfo
     {
         FLAG_ACTIVATE_SPAWN = 0x01,
         FLAG_BLOCK_SPAWN    = 0x02,
-        FLAG_FORCE_DESPAWN  = 0x04,
+        FLAG_ALLIANCE_ONLY  = 0x04,
+        FLAG_HORDE_ONLY     = 0x08,
 
-        FLAG_ALL = (FLAG_ACTIVATE_SPAWN | FLAG_BLOCK_SPAWN | FLAG_FORCE_DESPAWN)
+        FLAG_ALL = (FLAG_ACTIVATE_SPAWN | FLAG_BLOCK_SPAWN | FLAG_ALLIANCE_ONLY | FLAG_HORDE_ONLY)
     };
     uint8 BossStateId;
     uint8 BossStates;
