@@ -361,7 +361,7 @@ CREATE TABLE `creature_addon` (
   `path_id` int(10) unsigned NOT NULL DEFAULT '0',
   `mount` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `bytes1` int(10) unsigned NOT NULL DEFAULT '0',
-  `bytes2` int(10) unsigned NOT NULL DEFAULT '0',
+  `bytes2` int(10) unsigned NOT NULL DEFAULT '1',
   `emote` int(10) unsigned NOT NULL DEFAULT '0',
   `visibilityDistanceType` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `auras` text,
@@ -674,7 +674,7 @@ CREATE TABLE `creature_template_addon` (
   `path_id` int(10) unsigned NOT NULL DEFAULT '0',
   `mount` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `bytes1` int(10) unsigned NOT NULL DEFAULT '0',
-  `bytes2` int(10) unsigned NOT NULL DEFAULT '0',
+  `bytes2` int(10) unsigned NOT NULL DEFAULT '1',
   `emote` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `visibilityDistanceType` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `auras` text,
@@ -4028,4 +4028,4 @@ CREATE TABLE `waypoints` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-10-15  7:33:16
+-- Dump completed on 2020-11-16 13:37:26
