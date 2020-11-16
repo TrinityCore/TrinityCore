@@ -10,4 +10,4 @@ SELECT @GROUPID, 0, `guid` FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CG
 
 DELETE FROM `instance_spawn_groups` WHERE `spawnGroupId`= @GROUPID;
 INSERT INTO `instance_spawn_groups` (`instanceMapId`, `bossStateId`, `bossStates`, `spawnGroupId`, `flags`) VALUES
-(189, 0, 0, @GROUPID, 0x1 | 0x4);
+(189, 0, 37, @GROUPID, 0x1 | 0x4);
