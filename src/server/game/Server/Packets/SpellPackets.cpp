@@ -441,3 +441,28 @@ WorldPacket const* WorldPackets::Spells::SupercededSpells::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Spells::AuraPointsDepleted::Write()
+{
+    _worldPacket.WriteBit(Unit[2]);
+    _worldPacket.WriteBit(Unit[4]);
+    _worldPacket.WriteBit(Unit[1]);
+    _worldPacket.WriteBit(Unit[7]);
+    _worldPacket.WriteBit(Unit[5]);
+    _worldPacket.WriteBit(Unit[0]);
+    _worldPacket.WriteBit(Unit[3]);
+    _worldPacket.WriteBit(Unit[6]);
+
+    _worldPacket.WriteByteSeq(Unit[5]);
+    _worldPacket.WriteByteSeq(Unit[0]);
+    _worldPacket << uint8(EffectIndex);
+    _worldPacket.WriteByteSeq(Unit[3]);
+    _worldPacket.WriteByteSeq(Unit[7]);
+    _worldPacket.WriteByteSeq(Unit[4]);
+    _worldPacket.WriteByteSeq(Unit[2]);
+    _worldPacket << uint8(Slot);
+    _worldPacket.WriteByteSeq(Unit[6]);
+    _worldPacket.WriteByteSeq(Unit[1]);
+
+    return &_worldPacket;
+}

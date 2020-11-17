@@ -397,6 +397,18 @@ namespace WorldPackets
             int32 SpellID;
             int32 Superceded;
         };
+
+        class AuraPointsDepleted final : public ServerPacket
+        {
+        public:
+            AuraPointsDepleted() : ServerPacket(SMSG_AURA_POINTS_DEPLETED, 8 + 1 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Unit;
+            uint8 Slot = 0;
+            uint8 EffectIndex = 0;
+        };
     }
 }
 
