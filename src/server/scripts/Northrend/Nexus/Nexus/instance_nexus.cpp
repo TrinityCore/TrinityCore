@@ -30,7 +30,7 @@ class instance_nexus : public InstanceMapScript
 
         struct instance_nexus_InstanceMapScript : public InstanceScript
         {
-            instance_nexus_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_nexus_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
