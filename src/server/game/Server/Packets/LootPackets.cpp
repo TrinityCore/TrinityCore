@@ -48,3 +48,32 @@ WorldPacket const* WorldPackets::Loot::LootList::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Loot::DisenchantCredit::Write()
+{
+    _worldPacket.WriteBit(Disenchanter[0]);
+    _worldPacket.WriteBit(Disenchanter[6]);
+    _worldPacket.WriteBit(Disenchanter[3]);
+    _worldPacket.WriteBit(Disenchanter[1]);
+    _worldPacket.WriteBit(Disenchanter[7]);
+    _worldPacket.WriteBit(Disenchanter[5]);
+    _worldPacket.WriteBit(Disenchanter[2]);
+    _worldPacket.WriteBit(Disenchanter[4]);
+
+    _worldPacket << int32(Item.ItemID);
+
+    _worldPacket.WriteByteSeq(Disenchanter[4]);
+    _worldPacket.WriteByteSeq(Disenchanter[1]);
+
+    _worldPacket << int32(Item.RandomPropertiesID);
+    _worldPacket << int32(Item.RandomPropertiesSeed);
+
+    _worldPacket.WriteByteSeq(Disenchanter[6]);
+    _worldPacket.WriteByteSeq(Disenchanter[5]);
+    _worldPacket.WriteByteSeq(Disenchanter[2]);
+    _worldPacket.WriteByteSeq(Disenchanter[7]);
+    _worldPacket.WriteByteSeq(Disenchanter[3]);
+    _worldPacket.WriteByteSeq(Disenchanter[0]);
+
+    return &_worldPacket;
+}

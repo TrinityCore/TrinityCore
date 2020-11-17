@@ -77,6 +77,17 @@ namespace WorldPackets
             ObjectGuid Master;
             ObjectGuid RoundRobinWinner;
         };
+
+        class DisenchantCredit final : public ServerPacket
+        {
+        public:
+            DisenchantCredit() : ServerPacket(SMSG_DISENCHANT_CREDIT, 8 + 12) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Disenchanter;
+            WorldPackets::Item::ItemInstance Item;
+        };
     }
 }
 

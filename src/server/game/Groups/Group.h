@@ -200,6 +200,19 @@ class TC_GAME_API Group
         typedef MemberSlotList::const_iterator member_citerator;
 
         typedef std::unordered_map< uint32 /*mapId*/, InstanceGroupBind> BoundInstancesMap;
+
+        struct GroupDisenchantInfo
+        {
+            ObjectGuid DisenchanterGUID;
+            uint32 MaxDisenchantSkillLevel;
+
+            void Initialize()
+            {
+                DisenchanterGUID = ObjectGuid::Empty;
+                MaxDisenchantSkillLevel = 0;
+            }
+        };
+
     protected:
         typedef MemberSlotList::iterator member_witerator;
         typedef std::set<Player*> InvitesList;
@@ -415,7 +428,7 @@ class TC_GAME_API Group
         uint8*              m_subGroupsCounts;
         ObjectGuid          m_guid;
         uint32              m_counter;                      // used only in SMSG_GROUP_LIST
-        uint32              m_maxEnchantingLevel;
+        GroupDisenchantInfo m_disenchantInfo;
         uint32              m_dbStoreId;                    // Represents the ID used in database (Can be reused by other groups if group was disbanded)
         RaidMarkerList      m_raidMarkers;
 };

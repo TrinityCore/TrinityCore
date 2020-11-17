@@ -65,8 +65,10 @@ Loot* Roll::getLoot()
 Group::Group() : m_leaderGuid(), m_leaderName(""), m_groupType(GROUPTYPE_NORMAL),
 m_dungeonDifficulty(DUNGEON_DIFFICULTY_NORMAL), m_raidDifficulty(RAID_DIFFICULTY_10MAN_NORMAL),
 m_bgGroup(nullptr), m_bfGroup(nullptr), m_lootMethod(FREE_FOR_ALL), m_lootThreshold(ITEM_QUALITY_UNCOMMON), m_looterGuid(),
-m_masterLooterGuid(), m_subGroupsCounts(nullptr), m_guid(), m_counter(0), m_maxEnchantingLevel(0), m_dbStoreId(0)
+m_masterLooterGuid(), m_subGroupsCounts(nullptr), m_guid(), m_counter(0), m_dbStoreId(0)
 {
+    m_disenchantInfo.Initialize();
+
     for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
         m_targetIcons[i].Clear();
 }
@@ -540,8 +542,11 @@ bool Group::AddMember(Player* player)
         player->RemoveFieldNotifyFlag(UF_FLAG_PARTY_MEMBER);
     }
 
-    if (m_maxEnchantingLevel < player->GetSkillValue(SKILL_ENCHANTING))
-        m_maxEnchantingLevel = player->GetSkillValue(SKILL_ENCHANTING);
+    if (m_disenchantInfo.MaxDisenchantSkillLevel < player->GetSkillValue(SKILL_ENCHANTING))
+    {
+        m_disenchantInfo.MaxDisenchantSkillLevel = player->GetSkillValue(SKILL_ENCHANTING);
+        m_disenchantInfo.DisenchanterGUID = player->GetGUID();
+    }
 
     return true;
 }
@@ -1079,7 +1084,7 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
             {
                 r->setLoot(loot);
                 r->itemSlot = itemSlot;
-                if (item->DisenchantID && m_maxEnchantingLevel >= item->RequiredDisenchantSkill)
+                if (item->DisenchantID && m_disenchantInfo.MaxDisenchantSkillLevel >= item->RequiredDisenchantSkill)
                     r->rollVoteMask |= ROLL_FLAG_TYPE_DISENCHANT;
 
                 loot->items[itemSlot].is_blocked = true;
@@ -1219,7 +1224,7 @@ void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
             {
                 r->setLoot(loot);
                 r->itemSlot = itemSlot;
-                if (item->DisenchantID && m_maxEnchantingLevel >= item->RequiredDisenchantSkill)
+                if (item->DisenchantID && m_disenchantInfo.MaxDisenchantSkillLevel >= item->RequiredDisenchantSkill)
                     r->rollVoteMask |= ROLL_FLAG_TYPE_DISENCHANT;
 
                 if (item->GetFlags2() & ITEM_FLAG2_CAN_ONLY_ROLL_GREED)
@@ -1562,6 +1567,13 @@ void Group::CountTheRoll(Rolls::iterator rollI, Map* allowedMap)
                     }
                     else if (rollvote == DISENCHANT)
                     {
+                        WorldPackets::Loot::DisenchantCredit disenchantCredit;
+                        disenchantCredit.Disenchanter = m_disenchantInfo.DisenchanterGUID;
+                        disenchantCredit.Item.ItemID = item->itemid;
+                        disenchantCredit.Item.RandomPropertiesID = item->randomPropertyId;
+                        disenchantCredit.Item.RandomPropertiesSeed = item->randomSuffix;
+                        BroadcastPacket(disenchantCredit.Write(), false);
+
                         item->is_looted = true;
                         roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
                         roll->getLoot()->unlootedCount--;
@@ -2523,13 +2535,16 @@ void Group::BroadcastGroupUpdate(void)
 
 void Group::ResetMaxEnchantingLevel()
 {
-    m_maxEnchantingLevel = 0;
+    m_disenchantInfo.Initialize();
     Player* member = nullptr;
     for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
     {
         member = ObjectAccessor::FindPlayer(citr->guid);
-        if (member && m_maxEnchantingLevel < member->GetSkillValue(SKILL_ENCHANTING))
-            m_maxEnchantingLevel = member->GetSkillValue(SKILL_ENCHANTING);
+        if (member && m_disenchantInfo.MaxDisenchantSkillLevel < member->GetSkillValue(SKILL_ENCHANTING))
+        {
+            m_disenchantInfo.MaxDisenchantSkillLevel = member->GetSkillValue(SKILL_ENCHANTING);
+            m_disenchantInfo.DisenchanterGUID = member->GetGUID();
+        }
     }
 }
 
