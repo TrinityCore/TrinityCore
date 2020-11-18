@@ -22,7 +22,6 @@
 #include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "Log.h"
-#include "Map.h"
 #include "steam_vault.h"
 
 struct go_main_chambers_access_panel : public GameObjectAI
@@ -67,7 +66,7 @@ class instance_steam_vault : public InstanceMapScript
 
         struct instance_steam_vault_InstanceMapScript : public InstanceScript
         {
-            instance_steam_vault_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_steam_vault_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
