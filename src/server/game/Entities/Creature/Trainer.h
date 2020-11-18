@@ -50,7 +50,7 @@ namespace Trainer
         NotEnoughSkill = 2
     };
 
-    struct Spell
+    struct TC_GAME_API Spell
     {
         uint32 SpellId = 0;
         uint32 MoneyCost = 0;
@@ -62,12 +62,15 @@ namespace Trainer
         bool IsCastable() const;
     };
 
-    class Trainer
+    class TC_GAME_API Trainer
     {
     public:
         Trainer(uint32 trainerId, Type type, uint32 requirement, std::string greeting, std::vector<Spell> spells);
 
+        Spell const* GetSpell(uint32 spellId) const;
+        std::vector<Spell> const& GetSpells() const { return _spells; }
         void SendSpells(Creature const* npc, Player const* player, LocaleConstant locale) const;
+        bool CanTeachSpell(Player const* player, Spell const* trainerSpell) const;
         void TeachSpell(Creature const* npc, Player* player, uint32 spellId) const;
 
         Type GetTrainerType() const { return _type; }
@@ -75,8 +78,6 @@ namespace Trainer
         bool IsTrainerValidForPlayer(Player const* player) const;
 
     private:
-        Spell const* GetSpell(uint32 spellId) const;
-        bool CanTeachSpell(Player const* player, Spell const* trainerSpell) const;
         SpellState GetSpellState(Player const* player, Spell const* trainerSpell) const;
         void SendTeachFailure(Creature const* npc, Player const* player, uint32 spellId, FailReason reason) const;
         void SendTeachSucceeded(Creature const* npc, Player const* player, uint32 spellId) const;
