@@ -43,6 +43,8 @@ class CyclicMovementGenerator<Creature> : public MovementGeneratorMedium<Creatur
         bool DoUpdate(Creature*, uint32);
 
         MovementGeneratorType GetMovementGeneratorType() const override { return CYCLIC_SPLINE_MOTION_TYPE; }
+        void Pause(uint32 timer = 0) override;
+        void Resume(uint32 overrideTimer = 0) override;
 
     private:
         void StartMovement(Creature*);
@@ -51,6 +53,7 @@ class CyclicMovementGenerator<Creature> : public MovementGeneratorMedium<Creatur
         Optional<bool> _enforceFlight;
         Optional<bool> _enforceWalk;
         Optional<float> _velocity;
+        bool _stalled;
 
         TimeTrackerSmall _moveTimer;
 };

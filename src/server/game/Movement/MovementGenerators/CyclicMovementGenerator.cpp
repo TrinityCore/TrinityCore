@@ -32,7 +32,7 @@ inline bool CanMove(Creature const* creature)
     return (!creature->HasUnitState(UNIT_STATE_NOT_MOVE) && !creature->IsMovementPreventedByCasting());
 }
 
-CyclicMovementGenerator<Creature>::CyclicMovementGenerator(WaypointPath const* path, Optional<bool> enforceFlight, Optional<bool> enforceWalk, Optional<float> velocity) : _path(path), _moveTimer(0)
+CyclicMovementGenerator<Creature>::CyclicMovementGenerator(WaypointPath const* path, Optional<bool> enforceFlight, Optional<bool> enforceWalk, Optional<float> velocity) : _path(path), _stalled(false), _moveTimer(0)
 {
     if (enforceFlight.is_initialized())
         _enforceFlight = *enforceFlight;
@@ -77,7 +77,7 @@ bool CyclicMovementGenerator<Creature>::DoUpdate(Creature* creature, uint32 diff
     if (!_path || _path->Nodes.empty())
         return true;
 
-    if (!CanMove(creature))
+    if (_stalled || !CanMove(creature))
     {
         creature->StopMoving();
         return true;
@@ -111,7 +111,7 @@ void CyclicMovementGenerator<Creature>::StartMovement(Creature* creature)
     // Cyclic splines get asynchronous if the serverside position is not being tracked constantly.
     creature->setActive(true);
 
-    bool const flying = creature->IsFlying() || creature->IsInWater(); // Swimming units also use flying and uncompressed splines
+    bool const flying = creature->CanFly() || creature->IsInWater(); // Swimming units also use flying and uncompressed splines
     Movement::MoveSplineInit init(creature);
     Movement::PointsArray path;
 
@@ -144,4 +144,17 @@ void CyclicMovementGenerator<Creature>::StartMovement(Creature* creature)
     init.SetSmooth();
     init.SetCyclic();
     init.Launch();
+}
+
+void CyclicMovementGenerator<Creature>::Pause(uint32 timer/* = 0*/)
+{
+    _stalled = timer ? false : true;
+    _moveTimer.Reset(timer ? timer : 1);
+}
+
+void CyclicMovementGenerator<Creature>::Resume(uint32 overrideTimer/* = 0*/)
+{
+    _stalled = false;
+    if (overrideTimer)
+        _moveTimer.Reset(overrideTimer);
 }
