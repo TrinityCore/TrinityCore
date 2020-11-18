@@ -103,7 +103,7 @@ class instance_zulaman : public InstanceMapScript
 
         struct instance_zulaman_InstanceMapScript : public InstanceScript
         {
-            instance_zulaman_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_zulaman_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(MAX_ENCOUNTER);
