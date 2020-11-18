@@ -26617,14 +26617,6 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, AELootResult* aeResult/* 
         SendEquipError(msg, nullptr, nullptr, item->itemid);
 }
 
-void Player::LearnSpellHighestRank(uint32 spellid)
-{
-    LearnSpell(spellid, false);
-
-    if (uint32 next = sSpellMgr->GetNextSpellInChain(spellid))
-        LearnSpellHighestRank(next);
-}
-
 void Player::_LoadSkills(PreparedQueryResult result)
 {
     //                                                           0      1      2
