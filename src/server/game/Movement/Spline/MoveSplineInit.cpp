@@ -173,7 +173,15 @@ namespace Movement
         packet.MoverGUID = unit->GetGUID();
         packet.Pos = Position(loc.x, loc.y, loc.z, loc.orientation);
         packet.SplineData.ID = move_spline.GetId();
-        packet.SplineData.Move.Face = MONSTER_MOVE_STOP;
+
+        if (unit->IsAlive())
+            packet.SplineData.Move.Face = MONSTER_MOVE_STOP;
+        else
+        {
+            // Stopping splines for killed creatures send a normal packet with their current position as first path point
+            packet.SplineData.Move.Face = MONSTER_MOVE_NORMAL;
+            packet.SplineData.Move.Points.push_back({ loc.x, loc.y, loc.z });
+        }
 
         if (transport)
         {

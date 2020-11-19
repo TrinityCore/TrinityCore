@@ -101,7 +101,7 @@ WorldPackets::Combat::SAttackStop::SAttackStop(Unit const* attacker, Unit const*
     if (victim)
     {
         Victim = victim->GetGUID();
-        NowDead = victim->isDead();
+        NowDead = !attacker->IsAlive(); // using IsAlive instead of IsDead to catch JUST_DIED death states as well
     }
 }
 
