@@ -38,6 +38,8 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (2878800,9,4,0,0,0,100,0,0,0,0,0,28,52693,0,0,0,0,0,23,0,0,0,0,0,0,0,"Salanar the Horseman - Action List - Remove Aura"),
 (2878800,9,5,0,0,0,100,0,0,0,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Salanar the Horseman - Action List - Despawn");
 
+UPDATE `creature_template` SET `ScriptName`='' WHERE `entry`=28653;
+
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry`=28782;
 INSERT INTO `npc_spellclick_spells` (`npc_entry`,`spell_id`,`cast_flags`,`user_type`) VALUES
 (28782,46598,1,0),
@@ -47,7 +49,7 @@ DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=18 AND `SourceGroup`=28
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=52349;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorType`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
 (18,28782,46598,0,0,31,0,3,0,0,0,0,0,'','Allow spellclick for NPC'),
-(18,28782,52349,0,0,9,0,12687,0,0,0,0,0,'','Requires quest 'Into the Realm of Shadows' active for spellclick'),
+(18,28782,52349,0,0,9,0,12687,0,0,0,0,0,'','Required quest 12687 active for spellclick'),
 (13,1,52349,0,0,31,0,3,28782,0,0,0,0,'','Target Acherus Deathcharger');
 
 DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_death_race_complete';
