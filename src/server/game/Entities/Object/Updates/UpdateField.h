@@ -770,8 +770,8 @@ namespace UF
     {
     };
 
-    void WriteDynamicFieldUpdateMask(std::size_t size, std::vector<uint32> const& updateMask, ByteBuffer& data);
-    void WriteCompleteDynamicFieldUpdateMask(std::size_t size, ByteBuffer& data);
+    void WriteDynamicFieldUpdateMask(std::size_t size, std::vector<uint32> const& updateMask, ByteBuffer& data, int32 bitsForSize = 32);
+    void WriteCompleteDynamicFieldUpdateMask(std::size_t size, ByteBuffer& data, int32 bitsForSize = 32);
 
     template<typename T>
     class DynamicUpdateFieldBase : public IsUpdateFieldHolderTag
@@ -842,9 +842,9 @@ namespace UF
             return (_updateMask[index / 32] & (1 << (index % 32))) != 0;
         }
 
-        void WriteUpdateMask(ByteBuffer& data) const
+        void WriteUpdateMask(ByteBuffer& data, int32 bitsForSize = 32) const
         {
-            WriteDynamicFieldUpdateMask(_values.size(), _updateMask, data);
+            WriteDynamicFieldUpdateMask(_values.size(), _updateMask, data, bitsForSize);
         }
 
     private:
