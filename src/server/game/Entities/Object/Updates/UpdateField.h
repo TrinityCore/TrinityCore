@@ -22,6 +22,7 @@
 #include "Optional.h"
 #include "UpdateMask.h"
 #include <algorithm>
+#include <memory>
 #include <vector>
 
 class ByteBuffer;
@@ -898,7 +899,7 @@ namespace UF
     public:
         using value_type = T;
         using IsLarge = std::integral_constant<bool, sizeof(void*) * 3 < sizeof(T)>;
-        using StorageType = std::conditional_t<IsLarge::value, std::add_pointer_t<T>, Optional<T>>;
+        using StorageType = std::conditional_t<IsLarge::value, std::unique_ptr<T>, Optional<T>>;
 
         ~OptionalUpdateFieldBase()
         {
@@ -936,23 +937,12 @@ namespace UF
 
         void ConstructValue(std::true_type)
         {
-            _value = new T();
+            _value = std::make_unique<T>();
         }
 
         void DestroyValue()
         {
-            DestroyValue(IsLarge{});
-        }
-
-        void DestroyValue(std::false_type)
-        {
             _value.reset();
-        }
-
-        void DestroyValue(std::true_type)
-        {
-            delete _value;
-            _value = nullptr;
         }
 
         StorageType _value = { };
