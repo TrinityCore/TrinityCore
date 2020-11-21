@@ -15,25 +15,26 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AllPackets_h__
-#define AllPackets_h__
+#ifndef ItemPackets_h__
+#define ItemPackets_h__
 
-#include "AuthenticationPackets.h"
-#include "BattlegroundPackets.h"
-#include "CharacterPackets.h"
-#include "CombatLogPackets.h"
-#include "CombatPackets.h"
-#include "GuildPackets.h"
-#include "ItemPackets.h"
-#include "LFGPackets.h"
-#include "MiscPackets.h"
-#include "MovementPackets.h"
-#include "NPCPackets.h"
-#include "QuestPackets.h"
-#include "QueryPackets.h"
-#include "SystemPackets.h"
-#include "VehiclePackets.h"
-#include "WhoPackets.h"
-#include "WorldStatePackets.h"
+#include "Packet.h"
 
-#endif // AllPackets_h__
+namespace WorldPackets
+{
+    namespace Item
+    {
+        class SetProficiency final : public ServerPacket
+        {
+        public:
+            SetProficiency() : ServerPacket(SMSG_SET_PROFICIENCY, 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 ProficiencyMask = 0;
+            uint8 ProficiencyClass = 0;
+        };
+    }
+}
+
+#endif // ItemPackets_h_

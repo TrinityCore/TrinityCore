@@ -823,40 +823,9 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
     pCurrChar->GetMotionMaster()->Initialize();
     pCurrChar->SendDungeonDifficulty(false);
 
-    WorldPackets::Character::LoginVerifyWorld loginVerifyWorld;
-    loginVerifyWorld.MapID = pCurrChar->GetMapId();
-    loginVerifyWorld.Pos = pCurrChar->GetPosition();
-    SendPacket(loginVerifyWorld.Write());
-
     // load player specific part before send times
     LoadAccountData(holder.GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_ACCOUNT_DATA), PER_CHARACTER_CACHE_MASK);
     SendAccountDataTimes(PER_CHARACTER_CACHE_MASK);
-
-    WorldPackets::System::FeatureSystemStatus features;
-    features.ComplaintStatus = 2;
-    features.ScrollOfResurrectionRequestsRemaining = 1;
-    features.ScrollOfResurrectionMaxRequestsPerDay = 1;
-    features.CfgRealmID = realm.Id.Realm;
-    features.CfgRealmRecID = 0;
-
-    bool europaTicketSystemEnabled = sWorld->getBoolConfig(CONFIG_ALLOW_BUG_REPORTS_AND_SUGGESTIONS);
-    if (europaTicketSystemEnabled)
-    {
-        features.EuropaTicketSystemStatus = boost::in_place();
-        features.EuropaTicketSystemStatus->TryCount = 1;
-        features.EuropaTicketSystemStatus->LastResetTimeBeforeNow = 264134872; // Pulled from sniff data
-        features.EuropaTicketSystemStatus->PerMilliseconds = 10;
-        features.EuropaTicketSystemStatus->MaxTries = 60;
-    }
-
-    SendPacket(features.Write());
-
-    // Send MOTD
-    {
-        WorldPackets::System::MOTD motd;
-        motd.Text = &sWorld->GetMotd();
-        SendPacket(motd.Write());
-    }
 
     // send server info
     if (sWorld->getIntConfig(CONFIG_ENABLE_SINFO_LOGIN) == 1)
@@ -894,6 +863,32 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
     SendPacket(hotfixInfo.Write());
 
     pCurrChar->SendInitialPacketsBeforeAddToMap();
+
+    // Send MOTD
+    {
+        WorldPackets::System::MOTD motd;
+        motd.Text = &sWorld->GetMotd();
+        SendPacket(motd.Write());
+    }
+
+    WorldPackets::System::FeatureSystemStatus features;
+    features.ComplaintStatus = 2;
+    features.ScrollOfResurrectionRequestsRemaining = 1;
+    features.ScrollOfResurrectionMaxRequestsPerDay = 1;
+    features.CfgRealmID = realm.Id.Realm;
+    features.CfgRealmRecID = 0;
+
+    bool europaTicketSystemEnabled = sWorld->getBoolConfig(CONFIG_ALLOW_BUG_REPORTS_AND_SUGGESTIONS);
+    if (europaTicketSystemEnabled)
+    {
+        features.EuropaTicketSystemStatus = boost::in_place();
+        features.EuropaTicketSystemStatus->TryCount = 1;
+        features.EuropaTicketSystemStatus->LastResetTimeBeforeNow = 264134872; // Pulled from sniff data
+        features.EuropaTicketSystemStatus->PerMilliseconds = 10;
+        features.EuropaTicketSystemStatus->MaxTries = 60;
+    }
+
+    SendPacket(features.Write());
 
     //Show cinematic at the first time that player login
     if (!pCurrChar->getCinematic())
@@ -936,6 +931,11 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
             pCurrChar->SetInGuild(0);
         }
     }
+
+    WorldPackets::Character::LoginVerifyWorld loginVerifyWorld;
+    loginVerifyWorld.MapID = pCurrChar->GetMapId();
+    loginVerifyWorld.Pos = pCurrChar->GetPosition();
+    SendPacket(loginVerifyWorld.Write());
 
     // check if player is on transport and not added earlier to transport
     // e.g. in case of loading transport on grid load

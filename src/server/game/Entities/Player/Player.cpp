@@ -58,6 +58,7 @@
 #include "GuildMgr.h"
 #include "InstanceSaveMgr.h"
 #include "InstanceScript.h"
+#include "ItemPackets.h"
 #include "KillRewarder.h"
 #include "Language.h"
 #include "LFGMgr.h"
@@ -21540,9 +21541,10 @@ void Player::SendSpellModifiers() const
 // send Proficiency
 void Player::SendProficiency(ItemClass itemClass, uint32 itemSubclassMask) const
 {
-    WorldPacket data(SMSG_SET_PROFICIENCY, 1 + 4);
-    data << uint8(itemClass) << uint32(itemSubclassMask);
-    SendDirectMessage(&data);
+    WorldPackets::Item::SetProficiency packet;
+    packet.ProficiencyClass = itemClass;
+    packet.ProficiencyMask = itemSubclassMask;
+    SendDirectMessage(packet.Write());
 }
 
 void Player::RemovePetitionsAndSigns(ObjectGuid guid, uint32 type)
@@ -23334,49 +23336,11 @@ void Player::SetGroup(Group* group, int8 subgroup)
 
 void Player::SendInitialPacketsBeforeAddToMap()
 {
-    /// Pass 'this' as argument because we're not stored in ObjectAccessor yet
-    GetSocial()->SendSocialList(this, SOCIAL_FLAG_ALL);
+    /// SMSG_CONTROL_UPDATE
+    SetClientControl(this, true);
 
     /// SMSG_BIND_POINT_UPDATE
     SendBindPointUpdate();
-
-    // SMSG_SET_PROFICIENCY
-    // SMSG_SET_PCT_SPELL_MODIFIER
-    // SMSG_SET_FLAT_SPELL_MODIFIER
-
-    /// SMSG_TALENTS_INFO
-    SendTalentsInfoData(false);
-
-    /// SMSG_SEND_KNOWN_SPELLS
-    SendKnownSpells();
-
-    /// SMSG_SEND_UNLEARN_SPELLS
-    SendDirectMessage(WorldPackets::Spells::SendUnlearnSpells().Write());
-
-    /// SMSG_UPDATE_ACTION_BUTTONS
-    SendInitialActionButtons();
-
-    /// SMSG_INITIALIZE_FACTIONS
-    m_reputationMgr->SendInitialReputations();
-
-    /// SMSG_SET_FORCED_REACTIONS
-    GetReputationMgr().SendForceReactions();
-
-    /// SMSG_SETUP_CURRENCY
-    SendCurrencies();
-
-    /// SMSG_EQUIPMENT_SET_LIST
-    SendEquipmentSetList();
-
-    m_achievementMgr->SendAllAchievementData(this);
-
-    /// SMSG_LOGIN_SET_TIME_SPEED
-    static float const TimeSpeed = 0.01666667f;
-    WorldPackets::Misc::LoginSetTimeSpeed loginSetTimeSpeed;
-    loginSetTimeSpeed.NewSpeed = TimeSpeed;
-    loginSetTimeSpeed.GameTime = GameTime::GetGameTime();
-    loginSetTimeSpeed.GameTimeHolidayOffset = 0; /// @todo
-    SendDirectMessage(loginSetTimeSpeed.Write());
 
     /// SMSG_WORLD_SERVER_INFO
     WorldPackets::Misc::WorldServerInfo worldServerInfo;
@@ -23387,15 +23351,78 @@ void Player::SendInitialPacketsBeforeAddToMap()
     worldServerInfo.WeeklyReset = sWorld->GetNextWeeklyQuestsResetTime() - WEEK;
     SendDirectMessage(worldServerInfo.Write());
 
+    /// SMSG_SET_PROFICIENCY
+    SendProficiency(ITEM_CLASS_WEAPON, m_WeaponProficiency);
+    SendProficiency(ITEM_CLASS_ARMOR, m_ArmorProficiency);
+
+    /// SMSG_SEND_KNOWN_SPELLS
+    SendKnownSpells();
+
+    /// SMSG_SEND_UNLEARN_SPELLS
+    SendDirectMessage(WorldPackets::Spells::SendUnlearnSpells().Write());
+
+    /// SMSG_UPDATE_TALENT_DATA
+    SendTalentsInfoData(false);
+
+    /// SMSG_UPDATE_ACTION_BUTTONS
+    SendInitialActionButtons();
+
+    /// SMSG_INITIALIZE_FACTIONS
+    m_reputationMgr->SendInitialReputations();
+
+    /// MSG_SET_DUNGEON_DIFFICULTY
+    // Handled in WorldSession::HandlePlayerLogin
+
+    /// SMSG_ACCOUNT_DATA_TIMES
+    // Handled in WorldSession::HandlePlayerLogin
+
+    /// Pass 'this' as argument because we're not stored in ObjectAccessor yet
+    GetSocial()->SendSocialList(this, SOCIAL_FLAG_ALL);
+
+    /// SMSG_MOTD
+    // Handled in WorldSession::HandlePlayerLogin
+
+    /// SMSG_FEATURE_SYSTEM_STATUS
+    // Handled in WorldSession::HandlePlayerLogin
+
+    /// SMSG_RESYNC_RUNES
+    if (getClass() == CLASS_DEATH_KNIGHT)
+        ResyncRunes(0);
+
     // Spell modifiers
     SendSpellModifiers();
+
+    /// SMSG_SET_FORCED_REACTIONS
+    GetReputationMgr().SendForceReactions();
+
+    /// SMSG_SETUP_CURRENCY
+    SendCurrencies();
+
+    /// SMSG_WEEKLY_SPELL_USAGE
+
+    ///  SMSG_ALL_ACHIEVEMENT_DATA
+    m_achievementMgr->SendAllAchievementData(this);
+
+    /// SMSG_LOGIN_SET_TIME_SPEED
+    static float const TimeSpeed = 0.016666667535901069f;
+    WorldPackets::Misc::LoginSetTimeSpeed loginSetTimeSpeed;
+    loginSetTimeSpeed.NewSpeed = TimeSpeed;
+    loginSetTimeSpeed.GameTime = GameTime::GetGameTime();
+    loginSetTimeSpeed.GameTimeHolidayOffset = 0; /// @todo
+    SendDirectMessage(loginSetTimeSpeed.Write());
+
+    /// SMSG_EQUIPMENT_SET_LIST
+    SendEquipmentSetList();
 
     // SMSG_TALENTS_INFO x 2 for pet (unspent points and talents in separate packets...)
     // SMSG_PET_GUIDS
     // SMSG_UPDATE_WORLD_STATE
     // SMSG_POWER_UPDATE
 
-    SetMover(this);
+    // Not going with  SetMover(this); because sniffs show no packet
+    m_unitMovedByMe->m_playerMovingMe = nullptr;
+    m_unitMovedByMe = this;
+    m_unitMovedByMe->m_playerMovingMe = this;
 }
 
 void Player::SendInitialPacketsAfterAddToMap()
@@ -23405,7 +23432,7 @@ void Player::SendInitialPacketsAfterAddToMap()
     // update zone
     uint32 newzone, newarea;
     GetZoneAndAreaId(newzone, newarea);
-    UpdateZone(newzone, newarea);                            // also call SendInitWorldStates();
+    UpdateZone(newzone, newarea); // also calls SendInitWorldStates and SendZoneDynamicInfo
 
     GetSession()->ResetTimeSync();
     GetSession()->SendTimeSync();
@@ -23445,17 +23472,6 @@ void Player::SendInitialPacketsAfterAddToMap()
     SendItemDurations();                                    // must be after add to map
     SendQuestGiverStatusMultiple();
     SendTaxiNodeStatusMultiple();
-
-    if (getClass() == CLASS_DEATH_KNIGHT)
-    {
-        for (uint8 i = 0; i < MAX_RUNES; i++)
-        {
-            WorldPackets::Spells::ConvertRune packet;
-            packet.Index = i;
-            packet.Rune = GetCurrentRune(i);
-            SendDirectMessage(packet.Write());
-        }
-    }
 
     // raid downscaling - send difficulty to player
     if (GetMap()->IsRaid())

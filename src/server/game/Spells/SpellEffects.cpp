@@ -1806,20 +1806,23 @@ void Spell::EffectProficiency(SpellEffIndex /*effIndex*/)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
-    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+    if (!m_caster->IsPlayer())
         return;
-    Player* p_target = m_caster->ToPlayer();
+
+    Player* player = m_caster->ToPlayer();
 
     uint32 subClassMask = m_spellInfo->EquippedItemSubClassMask;
-    if (m_spellInfo->EquippedItemClass == ITEM_CLASS_WEAPON && !(p_target->GetWeaponProficiency() & subClassMask))
+    if (m_spellInfo->EquippedItemClass == ITEM_CLASS_WEAPON && !(player->GetWeaponProficiency() & subClassMask))
     {
-        p_target->AddWeaponProficiency(subClassMask);
-        p_target->SendProficiency(ITEM_CLASS_WEAPON, p_target->GetWeaponProficiency());
+        player->AddWeaponProficiency(subClassMask);
+        if (!player->IsLoading())
+            player->SendProficiency(ITEM_CLASS_WEAPON, player->GetWeaponProficiency());
     }
-    if (m_spellInfo->EquippedItemClass == ITEM_CLASS_ARMOR && !(p_target->GetArmorProficiency() & subClassMask))
+    if (m_spellInfo->EquippedItemClass == ITEM_CLASS_ARMOR && !(player->GetArmorProficiency() & subClassMask))
     {
-        p_target->AddArmorProficiency(subClassMask);
-        p_target->SendProficiency(ITEM_CLASS_ARMOR, p_target->GetArmorProficiency());
+        player->AddArmorProficiency(subClassMask);
+        if (!player->IsLoading())
+            player->SendProficiency(ITEM_CLASS_ARMOR, player->GetArmorProficiency());
     }
 }
 
