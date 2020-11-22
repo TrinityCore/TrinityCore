@@ -422,6 +422,10 @@ namespace MMAP
         TileBuilder tileBuilder = TileBuilder(this, m_skipLiquid, m_bigBaseUnit, m_debugOutput);
         tileBuilder.buildTile(mapID, tileX, tileY, navMesh);
         dtFreeNavMesh(navMesh);
+
+        _cancelationToken = true;
+
+        _queue.Cancel();
     }
 
     /**************************************************************************/
