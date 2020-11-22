@@ -20,6 +20,7 @@
 #include "MoveSpline.h"
 #include "MovementPacketBuilder.h"
 #include "Creature.h"
+#include "G3DPosition.hpp"
 #include "Unit.h"
 #include "PathGenerator.h"
 #include "Transport.h"
@@ -242,17 +243,12 @@ namespace Movement
         std::transform(controls.begin(), controls.end(), args.path.begin(), TransportPathTransform(unit, args.TransformForTransport));
     }
 
-    void MoveSplineInit::MoveTo(float x, float y, float z, bool generatePath, bool forceDestination)
-    {
-        MoveTo(G3D::Vector3(x, y, z), generatePath, forceDestination);
-    }
-
-    void MoveSplineInit::MoveTo(Vector3 const& dest, bool generatePath, bool forceDestination)
+    void MoveSplineInit::MoveTo(Vector3 const& start, Vector3 const& dest, bool generatePath, bool forceDestination)
     {
         if (generatePath)
         {
             PathGenerator path(unit);
-            bool result = path.CalculatePath(dest.x, dest.y, dest.z, forceDestination);
+            bool result = path.CalculatePath(start, dest, forceDestination);
             if (result && !(path.GetPathType() & PATHFIND_NOPATH))
             {
                 MovebyPath(path.GetPath());
@@ -264,6 +260,16 @@ namespace Movement
         args.path.resize(2);
         TransportPathTransform transform(unit, args.TransformForTransport);
         args.path[1] = transform(dest);
+    }
+
+    void MoveSplineInit::MoveTo(float x, float y, float z, bool generatePath, bool forceDestination)
+    {
+        MoveTo(PositionToVector3(unit->GetPosition()), G3D::Vector3(x, y, z), generatePath, forceDestination);
+    }
+
+    void MoveSplineInit::MoveTo(Vector3 const& dest, bool generatePath, bool forceDestination)
+    {
+        MoveTo(PositionToVector3(unit->GetPosition()), dest, generatePath, forceDestination);
     }
 
     void MoveSplineInit::SetFall()

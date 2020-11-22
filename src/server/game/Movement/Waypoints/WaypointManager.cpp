@@ -64,7 +64,7 @@ void WaypointMgr::Load()
             continue;
         }
 
-        waypoint.Delay = fields[8].GetUInt32();
+        waypoint.Delay = fields[8].GetInt32();
         waypoint.EventId = fields[9].GetUInt32();
         waypoint.EventChance = fields[10].GetInt16();
 
@@ -76,6 +76,63 @@ void WaypointMgr::Load()
     while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u waypoints in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+void WaypointMgr::LoadWaypointAddons()
+{
+    uint32 oldMSTime = getMSTime();
+
+    //                                               0       1        2                 3          4          5
+    QueryResult result = WorldDatabase.Query("SELECT PathID, PointID, SplinePointIndex, PositionX, PositionY, PositionZ FROM waypoint_data_addon ORDER BY PathID, PointID, SplinePointIndex");
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 waypoints. DB table `waypoint_data_addon` is empty!");
+        return;
+    }
+
+    uint32 count = 0;
+
+    do
+    {
+        Field* fields = result->Fetch();
+        uint32 pathId = fields[0].GetUInt32();
+
+        std::unordered_map<uint32, WaypointPath>::iterator it = _waypointStore.find(pathId);
+        if (it == _waypointStore.end())
+        {
+            TC_LOG_ERROR("sql.sql", "Tried to load waypoint_data_addon data for PathID %u but there is no such path in waypoint_data. Ignoring.", pathId);
+            continue;
+        }
+
+        WaypointPath& path = it->second;
+        uint32 pointId = fields[1].GetUInt32();
+
+
+        std::vector<WaypointNode>::iterator itr = std::find_if(path.Nodes.begin(), path.Nodes.end(), [pointId](WaypointNode const& node)
+        {
+            return node.Id == pointId;
+        });
+
+        if (itr == path.Nodes.end())
+        {
+            TC_LOG_ERROR("sql.sql", "Tried to load waypoint_data_addon data for PointID %u of PathID %u but there is no such point in waypoint_data. Ignoring.", pointId, pathId);
+            continue;
+        }
+
+        float x = fields[3].GetFloat();
+        float y = fields[4].GetFloat();
+        float z = fields[5].GetFloat();
+
+        Trinity::NormalizeMapCoord(x);
+        Trinity::NormalizeMapCoord(y);
+
+        itr->SplinePoints.push_back(G3D::Vector3(x, y, z));
+
+        ++count;
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded %u waypoint addon data in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 WaypointMgr* WaypointMgr::instance()

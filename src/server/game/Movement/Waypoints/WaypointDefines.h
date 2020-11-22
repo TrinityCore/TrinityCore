@@ -19,6 +19,7 @@
 #define TRINITY_WAYPOINTDEFINES_H
 
 #include "Define.h"
+#include "G3D/Vector3.h"
 #include <vector>
 
 enum WaypointMoveType
@@ -45,10 +46,11 @@ struct WaypointNode
     uint32 Id;
     float X, Y, Z, Orientation;
     float Velocity;
-    uint32 Delay;
+    int32 Delay;
     uint32 EventId;
     uint32 MoveType;
     uint8 EventChance;
+    std::vector<G3D::Vector3> SplinePoints;
 };
 
 struct WaypointPath
