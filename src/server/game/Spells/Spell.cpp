@@ -5034,7 +5034,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
     if (Unit* target = m_targets.GetUnitTarget())
     {
         // do not allow to cast on hostile targets in sanctuary
-        if (!m_caster->IsFriendlyTo(target))
+        if (!m_caster->IsFriendlyTo(target) && !m_targets.GetUnitTarget()->ToCreature())
         {
             if (m_caster->IsInSanctuary() || target->IsInSanctuary())
             {
