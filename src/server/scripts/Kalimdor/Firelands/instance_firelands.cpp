@@ -60,6 +60,19 @@ private:
     Creature* _owner;
 };
 
+enum MajordomoStaghelmActions
+{
+    ACTION_BALEROC_DIED             = 2, // Action 0 and 1 used by encounter
+    ACTION_DRUID_OF_THE_FLAME_DIED  = 3
+};
+
+enum Events
+{
+    EVENT_RESPAWN_MAJORDOMO_STAGHELM = 1
+};
+
+Position const MajordomoStaghelmSpawnPosition   = { 570.2274f, -61.82986f,  90.42272f, 3.1415927f };
+Position const MajordomoStaghelmRespawnPosition = { 523.4965f, -61.987846f, 83.94701f, 3.1415927f };
 
 class instance_firelands : public InstanceMapScript
 {
@@ -76,8 +89,23 @@ class instance_firelands : public InstanceMapScript
                 LoadObjectData(creatureData, nullptr);
             }
 
+            void Create() override
+            {
+                InstanceScript::Create();
+                instance->SummonCreature(BOSS_MAJORDOMO_STAGHELM, MajordomoStaghelmSpawnPosition);
+            }
+
+            void Load(char const* data) override
+            {
+                InstanceScript::Load(data);
+                if (GetBossState(DATA_MAJORDOMO_STAGHELM) != DONE)
+                    instance->SummonCreature(BOSS_MAJORDOMO_STAGHELM, MajordomoStaghelmSpawnPosition);
+            }
+
             void OnCreatureCreate(Creature* creature) override
             {
+                InstanceScript::OnCreatureCreate(creature);
+
                 switch (creature->GetEntry())
                 {
                     case NPC_SMOULDERING_HATCHLING:
@@ -88,6 +116,67 @@ class instance_firelands : public InstanceMapScript
                         break;
                 }
             }
+
+            void OnUnitDeath(Unit* unit) override
+            {
+                if (!unit->IsCreature())
+                    return;
+
+                switch (unit->GetEntry())
+                {
+                    case NPC_DRUID_OF_THE_FLAME:
+                        if (Creature* majordomo = GetCreature(DATA_MAJORDOMO_STAGHELM))
+                            if (majordomo->IsAIEnabled)
+                                majordomo->AI()->DoAction(ACTION_DRUID_OF_THE_FLAME_DIED);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            bool SetBossState(uint32 type, EncounterState state) override
+            {
+                if (!InstanceScript::SetBossState(type, state))
+                    return false;
+
+                switch (type)
+                {
+                    case DATA_BALEROC:
+                        if (state == DONE)
+                            if (Creature* majordomo = GetCreature(DATA_MAJORDOMO_STAGHELM))
+                                if (majordomo->IsAIEnabled)
+                                    majordomo->AI()->DoAction(ACTION_BALEROC_DIED);
+                        break;
+                    case DATA_MAJORDOMO_STAGHELM:
+                        if (state == FAIL)
+                            _events.ScheduleEvent(EVENT_RESPAWN_MAJORDOMO_STAGHELM, 30s);
+                        break;
+                    default:
+                        break;
+                }
+
+                return true;
+            }
+
+            void Update(uint32 diff) override
+            {
+                _events.Update(diff);
+
+                while (uint32 eventId = _events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_RESPAWN_MAJORDOMO_STAGHELM:
+                            instance->SummonCreature(BOSS_MAJORDOMO_STAGHELM, MajordomoStaghelmRespawnPosition);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+        private:
+            EventMap _events;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

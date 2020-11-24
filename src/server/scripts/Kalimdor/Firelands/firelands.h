@@ -55,6 +55,11 @@ enum FLCreatureIds
     NPC_HARBINGER_OF_FLAME          = 53793,
     NPC_MOLTEN_EGG_TRASH            = 53914,
     NPC_SMOULDERING_HATCHLING       = 53794,
+
+    // Majordomo Staghelm
+    NPC_SPIRIT_OF_THE_FLAME         = 52593,
+    NPC_BURNING_ORB                 = 53216,
+    NPC_DRUID_OF_THE_FLAME          = 53619
 };
 
 enum GameobjectIds
@@ -71,5 +76,7 @@ inline AI* GetFirelandsAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, FirelandsScriptName);
 }
+
+#define RegisterFirelandsCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetFirelandsAI)
 
 #endif // FIRELANDS_H_

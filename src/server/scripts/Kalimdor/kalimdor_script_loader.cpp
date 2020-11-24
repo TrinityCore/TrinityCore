@@ -128,6 +128,7 @@ void AddSC_boss_alakir();
 void AddSC_instance_firelands();             //Firelands
 void AddSC_boss_alysrazor();
 void AddSC_boss_baleroc();
+void AddSC_boss_majordomo_staghelm();
 
 void AddSC_ashenvale();
 void AddSC_azuremyst_isle();
@@ -262,6 +263,7 @@ void AddKalimdorScripts()
     AddSC_instance_firelands();             //Firelands
     AddSC_boss_alysrazor();
     AddSC_boss_baleroc();
+    AddSC_boss_majordomo_staghelm();
 
     AddSC_ashenvale();
     AddSC_azuremyst_isle();
