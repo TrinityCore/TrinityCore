@@ -352,7 +352,7 @@ class npc_shard_of_torment : public CreatureScript
 
             void IsSummonedBy(Unit* summoner) override
             {
-                if (summoner->GetEntry() == NPC_BALEROC)
+                if (summoner->GetEntry() == BOSS_BALEROC)
                 {
                     if (_instance->GetBossState(DATA_BALEROC) != IN_PROGRESS)
                         me->DespawnOrUnsummon();
@@ -367,7 +367,7 @@ class npc_shard_of_torment : public CreatureScript
             void KilledUnit(Unit* who) override
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
-                    if (Creature* baleroc = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_BALEROC)))
+                    if (Creature* baleroc = _instance->GetCreature(DATA_BALEROC))
                         baleroc->AI()->KilledUnit(who);
             }
 

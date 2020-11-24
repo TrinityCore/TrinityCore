@@ -27,25 +27,26 @@ uint32 const EncounterCount = 7;
 
 enum FLDataTypes
 {
-    DATA_BETH_TILAC         = 0,
+    // Bosses
+    DATA_BETHTILAC          = 0,
     DATA_LORD_RHYOLITH      = 1,
     DATA_SHANNOX            = 2,
     DATA_ALYSRAZOR          = 3,
     DATA_BALEROC            = 4,
     DATA_MAJORDOMO_STAGHELM = 5,
-    DATA_RAGNAROS           = 6,
+    DATA_RAGNAROS           = 6
 };
 
 enum FLCreatureIds
 {
     //Bosses
-    NPC_SHANNOX                     = 53691,
-    NPC_LORD_RHYOLITH               = 52558,
-    NPC_BETH_TILAC                  = 52498,
-    NPC_ALYSRAZOR                   = 52530,
-    NPC_BALEROC                     = 53494,
-    NPC_MAJORDOMO_STAGHELM          = 52571,
-    NPC_RAGNAROS                    = 52409,
+    BOSS_SHANNOX                    = 53691,
+    BOSS_LORD_RHYOLITH              = 52558,
+    BOSS_BETHTILAC                  = 52498,
+    BOSS_ALYSRAZOR                  = 52530,
+    BOSS_BALEROC                    = 53494,
+    BOSS_MAJORDOMO_STAGHELM         = 52571,
+    BOSS_RAGNAROS                   = 52409,
 
     //Alysrazor
     NPC_BLAZING_MONSTROSITY_LEFT    = 53786,
