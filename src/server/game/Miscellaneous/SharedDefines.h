@@ -1749,7 +1749,7 @@ enum Targets
     TARGET_UNIT_AREA_TAP_LIST          = 123,
     TARGET_UNK_124                     = 124,
     TARGET_DEST_CASTER_FLOOR           = 125, // 1 spell in 4.3.4
-    TARGET_UNK_126                     = 126,
+    TARGET_UNIT_SRC_AREA_ENEMY_2       = 126, // 1 spell in 4.3.4 (checked up until 8.3.0)
     TARGET_UNK_127                     = 127,
     TOTAL_SPELL_TARGETS
 };
