@@ -1321,8 +1321,8 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
     }
 
     float radius = m_spellInfo->Effects[effIndex].CalcRadius(m_caster);
-    // Workaround for some spells that don't have RadiusEntry set in dbc (but SpellRange instead)
-    if (G3D::fuzzyEq(radius, 0.f))
+    // Workaround for some spells that don't have RadiusEntry set in dbc (but SpellRange instead) and TARGET_UNIT_AREA_ENEMY (Id 126)
+    if (G3D::fuzzyEq(radius, 0.f) || m_spellInfo->Effects[effIndex].TargetA.GetTarget() == TARGET_UNIT_AREA_ENEMY)
         radius = m_spellInfo->GetMaxRange(m_spellInfo->IsPositiveEffect(effIndex), m_caster, this);
 
     radius *= m_spellValue->RadiusMod;
