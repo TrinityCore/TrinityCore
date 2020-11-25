@@ -300,7 +300,7 @@ struct boss_majordomo_staghelm : public BossAI
                         if (_currentForm == Forms::Scorpion)
                             DoCastVictim(SPELL_FLAME_SCYTHE);
                         else if (_currentForm == Forms::Cat)
-                            DoCastAOE(SPELL_LEAPING_FLAMES_TARGETING, CastSpellExtraArgs(false).AddSpellMod(SPELLVALUE_MAX_TARGETS, 1));
+                            DoCastAOE(SPELL_LEAPING_FLAMES_TARGETING, CastSpellExtraArgs().AddSpellMod(SPELLVALUE_MAX_TARGETS, 1));
                     }
                     events.Repeat(400ms);
                     break;
@@ -361,22 +361,36 @@ class spell_majordomo_staghelm_clump_check : public SpellScript
     bool Load() override
     {
         _targetThreshold = GetCaster()->GetMap()->Is25ManRaid() ? 18 : 7;
+        _radius = GetSpellInfo()->Effects[EFFECT_0].CalcRadius();
         return GetCaster()->IsCreature();
     }
 
-    void FilterTargets(std::list<WorldObject*>& targets)
+    void CountClumpedTargets(std::list<WorldObject*>& targets)
     {
+        bool hasClumpedPlayers = false;
+        for (WorldObject const* target : targets)
+        {
+            std::vector<Player*> nearbyTargetsList;
+            target->GetPlayerListInGrid(nearbyTargetsList, _radius);
+            if (nearbyTargetsList.size() >= _targetThreshold)
+            {
+                hasClumpedPlayers = true;
+                break;
+            }
+        }
+
         Creature* caster = GetCaster()->ToCreature();
         if (caster->IsAIEnabled)
-            caster->AI()->DoAction(targets.size() >= _targetThreshold ? ACTION_PLAYERS_CLUSTERED : ACTION_PLAYERS_SPLIT);
+            caster->AI()->DoAction(hasClumpedPlayers ? ACTION_PLAYERS_CLUSTERED : ACTION_PLAYERS_SPLIT);
     }
 
     void Register() override
     {
-        OnObjectAreaTargetSelect.Register(&spell_majordomo_staghelm_clump_check::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY_2);
+        OnObjectAreaTargetSelect.Register(&spell_majordomo_staghelm_clump_check::CountClumpedTargets, EFFECT_0, TARGET_UNIT_AREA_ENEMY);
     }
 private:
     uint8 _targetThreshold = 0;
+    float _radius = 0.f;
 };
 
 class spell_majordomo_staghelm_leaping_flames_targeting : public SpellScript
@@ -384,6 +398,22 @@ class spell_majordomo_staghelm_leaping_flames_targeting : public SpellScript
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_LEAPING_FLAMES_SUMMON });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
+
+        std::list<WorldObject*> targetsCopy = targets;
+        targets.remove_if([&](WorldObject const* target)
+        {
+            return target == GetCaster()->GetVictim();
+        });
+
+        // We only have the tank left fightning the caster so we use im
+        if (targets.empty())
+            targets = targetsCopy;
     }
 
     void HandleDummyEffect(SpellEffIndex /*effIndex*/)
@@ -397,6 +427,7 @@ class spell_majordomo_staghelm_leaping_flames_targeting : public SpellScript
 
     void Register() override
     {
+        OnObjectAreaTargetSelect.Register(&spell_majordomo_staghelm_leaping_flames_targeting::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
         OnEffectHitTarget.Register(&spell_majordomo_staghelm_leaping_flames_targeting::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
