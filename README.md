@@ -88,3 +88,5 @@ Read file [AUTHORS](AUTHORS)
 [Documentation](https://www.trinitycore.net) (powered by Doxygen)
 
 [Forums](https://www.trinitycore.org/f/)
+
+[Discord](https://discord.gg/NevNbcagJX)
