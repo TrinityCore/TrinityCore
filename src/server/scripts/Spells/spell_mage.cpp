@@ -710,7 +710,7 @@ public:
     {
         PrepareSpellScript(spell_mage_finger_of_frost_SpellScript);
 
-        bool Validate(SpellInfo const* spellInfo) override
+        bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             return ValidateSpellInfo({ SPELL_MAGE_FINGERS_OF_FROST });
         }
