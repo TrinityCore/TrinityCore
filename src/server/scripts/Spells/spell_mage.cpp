@@ -59,6 +59,9 @@ enum MageSpells
     SPELL_MAGE_TEMPORAL_DISPLACEMENT             = 80354,
     SPELL_MAGE_WORGEN_FORM                       = 32819,
     SPELL_PET_NETHERWINDS_FATIGUED               = 160455,
+    SPELL_MAGE_FROZEN_ORB                        = 84714,
+    SPELL_MAGE_FROSTBOLT                         = 228597,
+    SPELL_MAGE_FROZEN_TOUCH                      = 205030,
 };
 
 enum MiscSpells
@@ -695,6 +698,64 @@ class spell_mage_water_elemental_freeze : public SpellScript
     }
 };
 
+/* 112965 - Finger of Frost
+   228597 - Frostbolt
+   84721  - Frozen Orb */
+class spell_mage_finger_of_frost : public SpellScriptLoader
+{
+public:
+    spell_mage_finger_of_frost() : SpellScriptLoader("spell_mage_finger_of_frost") { }
+
+    class spell_mage_finger_of_frost_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_mage_finger_of_frost_SpellScript);
+
+        bool Validate(SpellInfo const* spellInfo) override
+        {
+            return ValidateSpellInfo({ SPELL_MAGE_FINGERS_OF_FROST });
+        }
+
+        void HandleAfterCast()
+        {
+            Unit* caster = GetCaster();
+            uint32 spellId = GetSpell()->GetSpellInfo()->Id;
+            uint32 chance = 0;
+
+            SpellInfo const* fingerFrostInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_FINGERS_OF_FROST, GetCastDifficulty());
+
+            // Frostbolt has a 15% chance and Frozen Orb damage has a 10% to grant a charge of Fingers of Frost
+            switch (spellId) {
+            case SPELL_MAGE_FROSTBOLT:
+                //chance = fingerFrostInfo->GetEffect(EFFECT_0)->CalcValue();
+                chance = 15;
+
+                // Frozen Touch (Frostbolt grants you Fingers of Frost and Brain Freeze 20% more often)
+                if (caster->HasAura(SPELL_MAGE_FROZEN_TOUCH)) {
+                    chance += 20;
+                }
+                break;
+            case SPELL_MAGE_FROZEN_ORB:
+                //chance = fingerFrostInfo->GetEffect(EFFECT_1)->CalcValue();
+                chance = 10;
+                break;
+            }
+
+            if (roll_chance_i(chance))
+                caster->CastSpell(caster, SPELL_MAGE_FINGERS_OF_FROST, true);
+        }
+
+        void Register() override
+        {
+            AfterCast += SpellCastFn(spell_mage_finger_of_frost_SpellScript::HandleAfterCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_mage_finger_of_frost_SpellScript();
+    }
+};
+
 void AddSC_mage_spell_scripts()
 {
     RegisterAuraScript(spell_mage_blazing_barrier);
@@ -716,4 +777,5 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_time_warp);
     RegisterSpellScript(spell_mage_trigger_chilled);
     RegisterSpellScript(spell_mage_water_elemental_freeze);
+    new spell_mage_finger_of_frost();
 }
