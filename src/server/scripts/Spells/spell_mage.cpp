@@ -721,7 +721,7 @@ public:
             uint32 spellId = GetSpell()->GetSpellInfo()->Id;
             uint32 chance = 0;
 
-            SpellInfo const* fingerFrostInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_FINGERS_OF_FROST, GetCastDifficulty());
+            SpellInfo const* /*fingerFrostInfo*/ = sSpellMgr->GetSpellInfo(SPELL_MAGE_FINGERS_OF_FROST, GetCastDifficulty());
 
             // Frostbolt has a 15% chance and Frozen Orb damage has a 10% to grant a charge of Fingers of Frost
             switch (spellId) {
