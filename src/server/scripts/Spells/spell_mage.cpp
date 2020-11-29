@@ -701,58 +701,47 @@ class spell_mage_water_elemental_freeze : public SpellScript
 /* 112965 - Finger of Frost
    228597 - Frostbolt
    84721  - Frozen Orb */
-class spell_mage_finger_of_frost : public SpellScriptLoader
+class spell_mage_finger_of_frost : public SpellScript
 {
-public:
-    spell_mage_finger_of_frost() : SpellScriptLoader("spell_mage_finger_of_frost") { }
+    PrepareSpellScript(spell_mage_finger_of_frost);
 
-    class spell_mage_finger_of_frost_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        PrepareSpellScript(spell_mage_finger_of_frost_SpellScript);
+        return ValidateSpellInfo({ SPELL_MAGE_FINGERS_OF_FROST });
+    }
 
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            return ValidateSpellInfo({ SPELL_MAGE_FINGERS_OF_FROST });
-        }
-
-        void HandleAfterCast()
-        {
-            Unit* caster = GetCaster();
-            uint32 spellId = GetSpell()->GetSpellInfo()->Id;
-            uint32 chance = 0;
-
-            //SpellInfo const* fingerFrostInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_FINGERS_OF_FROST, GetCastDifficulty());
-
-            // Frostbolt has a 15% chance and Frozen Orb damage has a 10% to grant a charge of Fingers of Frost
-            switch (spellId) {
-                case SPELL_MAGE_FROSTBOLT:
-                    //chance = fingerFrostInfo->GetEffect(EFFECT_0)->CalcValue();
-                    chance = 15;
-
-                    // Frozen Touch (Frostbolt grants you Fingers of Frost and Brain Freeze 20% more often)
-                    if (caster->HasAura(SPELL_MAGE_FROZEN_TOUCH)) {
-                        chance += 20;
-                    }
-                    break;
-                case SPELL_MAGE_FROZEN_ORB:
-                    //chance = fingerFrostInfo->GetEffect(EFFECT_1)->CalcValue();
-                    chance = 10;
-                    break;
-            }
-
-            if (roll_chance_i(chance))
-                caster->CastSpell(caster, SPELL_MAGE_FINGERS_OF_FROST, true);
-        }
-
-        void Register() override
-        {
-            AfterCast += SpellCastFn(spell_mage_finger_of_frost_SpellScript::HandleAfterCast);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
+    void HandleAfterCast()
     {
-        return new spell_mage_finger_of_frost_SpellScript();
+        Unit* caster = GetCaster();
+        uint32 spellId = GetSpell()->GetSpellInfo()->Id;
+        uint32 chance = 0;
+
+        //SpellInfo const* fingerFrostInfo = sSpellMgr->GetSpellInfo(SPELL_MAGE_FINGERS_OF_FROST, GetCastDifficulty());
+
+        // Frostbolt has a 15% chance and Frozen Orb damage has a 10% to grant a charge of Fingers of Frost
+        switch (spellId) {
+            case SPELL_MAGE_FROSTBOLT:
+                //chance = fingerFrostInfo->GetEffect(EFFECT_0)->CalcValue();
+                chance = 15;
+
+                // Frozen Touch (Frostbolt grants you Fingers of Frost and Brain Freeze 20% more often)
+                if (caster->HasAura(SPELL_MAGE_FROZEN_TOUCH)) {
+                    chance += 20;
+                }
+                break;
+            case SPELL_MAGE_FROZEN_ORB:
+                //chance = fingerFrostInfo->GetEffect(EFFECT_1)->CalcValue();
+                chance = 10;
+                break;
+        }
+
+        if (roll_chance_i(chance))
+            caster->CastSpell(caster, SPELL_MAGE_FINGERS_OF_FROST, true);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_mage_finger_of_frost::HandleAfterCast);
     }
 };
 
@@ -777,5 +766,5 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_time_warp);
     RegisterSpellScript(spell_mage_trigger_chilled);
     RegisterSpellScript(spell_mage_water_elemental_freeze);
-    new spell_mage_finger_of_frost();
+    RegisterSpellScript(spell_mage_finger_of_frost);
 }
