@@ -3102,7 +3102,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Fingers of Frost
     ApplySpellFix({ 44544 }, [](SpellInfo* spellInfo)
     {
-        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->SpellClassMask = flag128(685904631, 1151048, 0, 0);
+        const_cast<SpellEffectInfo*>(spellInfo->GetEffect(EFFECT_0))->SpellClassMask[0] |= 0x20000;
     });
 
     ApplySpellFix({
