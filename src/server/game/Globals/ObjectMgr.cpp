@@ -55,6 +55,7 @@
 #include "Util.h"
 #include "Vehicle.h"
 #include "World.h"
+#include "DBCStores.h"
 
 ScriptMapMap sSpellScripts;
 ScriptMapMap sEventScripts;
@@ -157,7 +158,7 @@ bool normalizePlayerName(std::string& name)
     return true;
 }
 
-LanguageDesc lang_description[LANGUAGES_COUNT] =
+std::vector<LanguageDesc> lang_description
 {
     { LANG_ADDON,           0, 0                       },
     { LANG_UNIVERSAL,       0, 0                       },
@@ -180,8 +181,56 @@ LanguageDesc lang_description[LANGUAGES_COUNT] =
     { LANG_GOBLIN_BINARY,   0, 0                       }
 };
 
+static void LoadLanguageDescs() 
+{
+    for(auto sl : sSkillLineStore) 
+    {
+        // Check category ID
+        if(sl->CategoryID != 10) 
+        {
+            continue;
+        }
+
+        // Check if this skillId is already used (no duplicates)
+        for(auto desc : lang_description)
+        {
+            if(desc.skill_id == sl->ID)
+            {
+                goto sla_finished;
+            }
+        }
+
+        // Find a skillLineAbility and then a spell from that.
+        for(auto sla : sSkillLineAbilityStore)
+        {
+            if(sla->SkillLine != sl->ID)
+            {
+                continue;
+            }
+
+            for(auto spell : sSpellStore)
+            {
+                if(spell->ID==sla->Spell)
+                {
+                    lang_description.push_back({(uint32) spell->EffectMiscValue[0],spell->ID,sl->ID});
+                    goto sla_finished;
+                }
+            }
+        }
+sla_finished:;
+    }
+}
+
+bool langLoaded = 0;
+
 LanguageDesc const* GetLanguageDescByID(uint32 lang)
 {
+    if(!langLoaded)
+    {
+        langLoaded = 1;
+        LoadLanguageDescs();
+    }
+
     for (uint8 i = 0; i < LANGUAGES_COUNT; ++i)
     {
         if (uint32(lang_description[i].lang_id) == lang)

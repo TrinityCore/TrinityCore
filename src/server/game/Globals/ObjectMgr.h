@@ -896,12 +896,12 @@ TC_GAME_API bool normalizePlayerName(std::string& name);
 
 struct LanguageDesc
 {
-    Language lang_id;
+    uint32   lang_id;
     uint32   spell_id;
     uint32   skill_id;
 };
 
-TC_GAME_API extern LanguageDesc lang_description[LANGUAGES_COUNT];
+TC_GAME_API extern std::vector<LanguageDesc> lang_description;
 LanguageDesc const* GetLanguageDescByID(uint32 lang);
 
 enum EncounterCreditType : uint8

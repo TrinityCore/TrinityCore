@@ -75,7 +75,9 @@ SpellEffectHandlerFn SpellEffectHandlers[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectHealthLeech,                              //  9 SPELL_EFFECT_HEALTH_LEECH
     &Spell::EffectHeal,                                     // 10 SPELL_EFFECT_HEAL
     &Spell::EffectBind,                                     // 11 SPELL_EFFECT_BIND
-    &Spell::EffectNULL,                                     // 12 SPELL_EFFECT_PORTAL
+    // @tswow-begin
+    &Spell::EffectCommandTotemCreature,                     // 12 SPELL_EFFECT_PORTAL (Used for TotemCreature instead)
+    // @tswow-end
     &Spell::EffectUnused,                                   // 13 SPELL_EFFECT_RITUAL_BASE              unused
     &Spell::EffectUnused,                                   // 14 SPELL_EFFECT_RITUAL_SPECIALIZE        unused
     &Spell::EffectUnused,                                   // 15 SPELL_EFFECT_RITUAL_ACTIVATE_PORTAL   unused
@@ -1227,6 +1229,123 @@ void Spell::EffectPowerBurn(SpellEffIndex effIndex)
 
     m_damage += newDamage;
 }
+
+// @tswow-begin
+void Spell::EffectCommandTotemCreature(SpellEffIndex effIndex)
+{
+    Unit* unitCaster = GetUnitCasterForEffectHandlers();
+
+    uint32 targets = m_spellInfo->Effects[effIndex].MiscValue;
+    for (int i = 0; i < 7; ++i) {
+        if(!(targets&1<<i))
+        {
+            continue;
+        }
+
+        ObjectGuid guid = unitCaster->m_SummonSlot[i];
+        if (!guid)
+        {
+            continue;
+        }
+
+        Creature* charmed = unitCaster->GetMap()->GetCreature(guid);
+        CharmInfo* info = charmed->GetCharmInfo();
+        if (!info)
+        {
+            TC_LOG_ERROR("tswow","Creature at %i has no charm!",i);
+            continue;
+        }
+
+        uint32 command = m_spellInfo->Effects[effIndex].MiscValueB;
+        switch (command) {
+        case 0:
+            charmed->SetReactState(REACT_PASSIVE);
+            break;
+        case 1:
+            charmed->SetReactState(REACT_DEFENSIVE);
+            break;
+        case 2:
+            charmed->SetReactState(REACT_AGGRESSIVE);
+            break;
+        case 3:
+            charmed->GetMotionMaster()->Clear(MOTION_PRIORITY_NORMAL);
+            charmed->GetMotionMaster()->MoveIdle();
+            info->SetCommandState(COMMAND_STAY);
+            info->SetIsCommandAttack(false);
+            info->SetIsAtStay(true);
+            info->SetIsCommandFollow(false);
+            info->SetIsFollowing(false);
+            info->SetIsReturning(false);
+            info->SaveStayPosition();
+            break;
+        case 4:
+            charmed->AttackStop();
+            charmed->InterruptNonMeleeSpells(false);
+            charmed->GetMotionMaster()->MoveFollow(unitCaster, PET_FOLLOW_DIST, charmed->GetFollowAngle());
+            info->SetCommandState(COMMAND_FOLLOW);
+            info->SetIsCommandAttack(false);
+            info->SetIsAtStay(false);
+            info->SetIsReturning(true);
+            info->SetIsCommandFollow(true);
+            info->SetIsFollowing(false);
+            break;
+        case 5:{
+            // Can't attack if owner is pacified
+            if (unitCaster->HasAuraType(SPELL_AURA_MOD_PACIFY))
+            {
+                // pet->SendPetCastFail(spellid, SPELL_FAILED_PACIFIED);
+                /// @todo Send proper error message to client
+                return;
+            }
+
+            // only place where pet can be player
+            Unit* TargetUnit = ObjectAccessor::GetUnit(*unitCaster, unitCaster->GetTarget());
+            if (!TargetUnit)
+                return;
+
+            if (Unit* owner = charmed->GetOwner())
+                if (!owner->IsValidAttackTarget(TargetUnit))
+                    return;
+
+            // This is true if pet has no target or has target but targets differs.
+            if (charmed->GetVictim() != TargetUnit || !charmed->GetCharmInfo()->IsCommandAttack())
+            {
+                if (charmed->GetVictim())
+                    charmed->AttackStop();
+
+                if (charmed->GetTypeId() != TYPEID_PLAYER && charmed->ToCreature()->IsAIEnabled())
+                {
+                    info->SetIsCommandAttack(true);
+                    info->SetIsAtStay(false);
+                    info->SetIsFollowing(false);
+                    info->SetIsCommandFollow(false);
+                    info->SetIsReturning(false);
+
+                    CreatureAI* AI = charmed->ToCreature()->AI();
+                    //if (PetAI* petAI = dynamic_cast<PetAI*>(AI))
+                    //    petAI->_AttackStart(TargetUnit); // force target switch
+                    //else
+                        AI->AttackStart(TargetUnit);
+                }
+                else // charmed player
+                {
+                    info->SetIsCommandAttack(true);
+                    info->SetIsAtStay(false);
+                    info->SetIsFollowing(false);
+                    info->SetIsCommandFollow(false);
+                    info->SetIsReturning(false);
+                    charmed->Attack(TargetUnit, true);
+                    //charmed->SendPetAIReaction(guid1);
+                }
+            }
+            break;
+        }
+        default:
+            TC_LOG_ERROR("tswow","Invalid TotemPet command: %i (should be 0-5)",command);
+        };
+    }
+}
+// @tswow-end
 
 void Spell::EffectHeal(SpellEffIndex effIndex)
 {

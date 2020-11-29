@@ -25,6 +25,9 @@
 #include "ReactorAI.h"
 #include "SmartAI.h"
 #include "TotemAI.h"
+// @tswow-begin
+#include "TotemCreatureAI.h"
+// @tswow-end
 
 #include "MovementGenerator.h"
 
@@ -41,6 +44,9 @@ namespace AIRegistry
         (new CreatureAIFactory<GuardAI>("GuardAI"))->RegisterSelf();
         (new CreatureAIFactory<PetAI, false>("PetAI"))->RegisterSelf();
         (new CreatureAIFactory<TotemAI, false>("TotemAI"))->RegisterSelf();
+        // @tswow-begin
+        (new CreatureAIFactory<TotemCreatureAI, false>("TotemCreatureAI"))->RegisterSelf();
+        // @tswow-end
         (new CreatureAIFactory<CombatAI>("CombatAI"))->RegisterSelf();
         (new CreatureAIFactory<ArcherAI>("ArcherAI"))->RegisterSelf();
         (new CreatureAIFactory<TurretAI>("TurretAI"))->RegisterSelf();

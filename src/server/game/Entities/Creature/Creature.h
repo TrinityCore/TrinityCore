@@ -358,6 +358,9 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         std::string GetDebugInfo() const override;
 
+        // @tswow-begin
+        bool m_isTempCreature = false;
+        // @tswow-end
     protected:
         bool CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, CreatureData const* data = nullptr, uint32 vehId = 0);
         bool InitEntry(uint32 entry, CreatureData const* data = nullptr);

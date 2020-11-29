@@ -62,6 +62,9 @@ ScriptReloadMgr* ScriptReloadMgr::instance()
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+// @tswow-begin
+#include "TSEventLoader.h"
+// @tswow-end
 
 namespace fs = boost::filesystem;
 
@@ -175,15 +178,24 @@ typedef char const* (*GetScriptModuleRevisionHashType)();
 typedef void (*AddScriptsType)();
 typedef char const* (*GetScriptModuleType)();
 typedef char const* (*GetBuildDirectiveType)();
+// @tswow-begin
+typedef void (*AddTSScriptsType)(TSEventHandlers*);
+// @tswow-end
 
 class ScriptModule
     : public ModuleReference
 {
 public:
     explicit ScriptModule(HandleHolder handle, GetScriptModuleRevisionHashType getScriptModuleRevisionHash,
+                 // @tswow-begin
+                 AddTSScriptsType tsScripts,
+                 // @tswow-end
                  AddScriptsType addScripts, GetScriptModuleType getScriptModule,
                  GetBuildDirectiveType getBuildDirective, fs::path const& path)
         : _handle(std::forward<HandleHolder>(handle)), _getScriptModuleRevisionHash(getScriptModuleRevisionHash),
+          // @tswow-begin
+          _addTSScripts(tsScripts),
+          // @tswow-end
           _addScripts(addScripts), _getScriptModule(getScriptModule),
           _getBuildDirective(getBuildDirective), _path(path) { }
 
@@ -218,6 +230,15 @@ public:
         return _getBuildDirective();
     }
 
+    // @tswow-begin
+    void AddTSScripts() const
+    {
+        if(_addTSScripts)
+        {
+            _addTSScripts(TSLoadEventHandler(GetModulePath()));
+        }
+    }
+    // @tswow-end
     fs::path const& GetModulePath() const override
     {
         return _path;
@@ -230,6 +251,9 @@ private:
     AddScriptsType _addScripts;
     GetScriptModuleType _getScriptModule;
     GetBuildDirectiveType _getBuildDirective;
+    // @tswow-begin
+    AddTSScriptsType _addTSScripts;
+    // @tswow-end
 
     fs::path _path;
 };
@@ -292,7 +316,14 @@ Optional<std::shared_ptr<ScriptModule>>
         GetFunctionFromSharedLibrary(handle, "GetScriptModule", getScriptModule) &&
         GetFunctionFromSharedLibrary(handle, "GetBuildDirective", getBuildDirective))
     {
+        // @tswow-begin
+        AddTSScriptsType addTSScripts = nullptr;
+        GetFunctionFromSharedLibrary(handle, "AddTSScripts", addTSScripts);
+        // @tswow-end
         auto module = new ScriptModule(std::move(holder), getScriptModuleRevisionHash,
+            // @tswow-begin
+            addTSScripts,
+            // @tswow-end
             addScripts, getScriptModule, getBuildDirective, path);
 
         // Unload the module at the next update tick as soon as all references are removed
@@ -579,6 +610,9 @@ public:
     /// into the running server.
     void Initialize() final override
     {
+        // @tswow-begin
+        TSInitializeEvents();
+        // @tswow-end
         if (!sWorld->getBoolConfig(CONFIG_HOTSWAP_ENABLED))
             return;
 
@@ -948,6 +982,9 @@ private:
         // Process the script loading after the module was registered correctly (#17557).
         sScriptMgr->SetScriptContext(module_name);
         (*module)->AddScripts();
+        // @tswow-begin
+        (*module)->AddTSScripts();
+        // @tswow-end
         TC_LOG_TRACE("scripts.hotswap", ">> Registered all scripts of module %s.", module_name.c_str());
 
         if (swap_context)
@@ -966,7 +1003,9 @@ private:
 
         ASSERT(itr != _running_script_module_names.end(),
                "Can't unload a module which isn't running!");
-
+        // @tswow-begin
+        TSUnloadEventHandler(path);
+        // @tswow-end
         // Unload the script context
         sScriptMgr->ReleaseScriptContext(itr->second);
 

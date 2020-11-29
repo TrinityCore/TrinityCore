@@ -140,13 +140,8 @@ enum Classes
 };
 
 // max+1 for player class
-#define MAX_CLASSES       12
-
-#define CLASSMASK_ALL_PLAYABLE \
-    ((1<<(CLASS_WARRIOR-1))|(1<<(CLASS_PALADIN-1))|(1<<(CLASS_HUNTER-1))| \
-    (1<<(CLASS_ROGUE-1))  |(1<<(CLASS_PRIEST-1)) |(1<<(CLASS_SHAMAN-1))| \
-    (1<<(CLASS_MAGE-1))   |(1<<(CLASS_WARLOCK-1))|(1<<(CLASS_DRUID-1)) | \
-    (1<<(CLASS_DEATH_KNIGHT-1)))
+#define MAX_CLASSES       32
+#define CLASSMASK_ALL_PLAYABLE 4294967295
 
 #define MAX_TALENT_TREES 3
 
@@ -756,30 +751,29 @@ enum CharacterSlot
     SLOT_EMPTY                         = 19
 };
 
-enum Language
-{
-    LANG_UNIVERSAL      = 0,
-    LANG_ORCISH         = 1,
-    LANG_DARNASSIAN     = 2,
-    LANG_TAURAHE        = 3,
-    LANG_DWARVISH       = 6,
-    LANG_COMMON         = 7,
-    LANG_DEMONIC        = 8,
-    LANG_TITAN          = 9,
-    LANG_THALASSIAN     = 10,
-    LANG_DRACONIC       = 11,
-    LANG_KALIMAG        = 12,
-    LANG_GNOMISH        = 13,
-    LANG_TROLL          = 14,
-    LANG_GUTTERSPEAK    = 33,
-    LANG_DRAENEI        = 35,
-    LANG_ZOMBIE         = 36,
-    LANG_GNOMISH_BINARY = 37,
-    LANG_GOBLIN_BINARY  = 38,
-    LANG_ADDON          = 0xFFFFFFFF                        // used by addons, in 2.4.0 not exist, replaced by messagetype?
-};
+typedef uint32 Language;
 
-#define LANGUAGES_COUNT   19
+#define LANG_UNIVERSAL      0
+#define LANG_ORCISH         1
+#define LANG_DARNASSIAN     2
+#define LANG_TAURAHE        3
+#define LANG_DWARVISH       6
+#define LANG_COMMON         7
+#define LANG_DEMONIC        8
+#define LANG_TITAN          9
+#define LANG_THALASSIAN     10
+#define LANG_DRACONIC       11
+#define LANG_KALIMAG        12
+#define LANG_GNOMISH        13
+#define LANG_TROLL          14
+#define LANG_GUTTERSPEAK    33
+#define LANG_DRAENEI        35
+#define LANG_ZOMBIE         36
+#define LANG_GNOMISH_BINARY 37
+#define LANG_GOBLIN_BINARY  38
+#define LANG_ADDON          0xFFFFFFFF                        // used by addons, in 2.4.0 not exist, replaced by messagetype?
+
+#define LANGUAGES_COUNT lang_description.size()
 
 enum TeamId
 {

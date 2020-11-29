@@ -26,6 +26,7 @@
 #include "SpellMgr.h"
 #include "World.h"
 #include <numeric>
+#include "atmsp.h"
 
 inline bool _ModifyUInt32(bool apply, uint32& baseValue, int32& amount)
 {
@@ -334,8 +335,98 @@ void Player::ApplyFeralAPBonus(int32 amount, bool apply)
     UpdateAttackPowerAndDamage();
 }
 
+struct Formula {
+    ATMSB<float> byteCode;
+    ATMSP<float> parser;
+    bool loaded = false;
+};
+Formula meleeAPFormulas[32];
+Formula rangedAPFormulas[32];
+
+void LoadAPFormulas() 
+{
+    for (int i = 0; i < 32; ++i) 
+    {
+        meleeAPFormulas[i] = Formula();
+        rangedAPFormulas[i] = Formula();
+    }
+
+    QueryResult result = WorldDatabase.Query("SELECT * from class_stat_formulas;");
+    if(!result) return;
+    do
+    {
+        Field* field = result->Fetch();
+        uint32 stat = field[1].GetUInt32();
+        uint32 cls = field[0].GetUInt32();
+        if (cls > 32) {
+            /*
+            sLog->outError("Error loading formula for class %i: Class ID exceeds 32",
+                cls);
+            */
+            continue;
+        }
+
+        std::string fs = field[2].GetString();
+        Formula* f;
+
+        if(stat == 1)
+        {
+            f = &meleeAPFormulas[cls-1];
+        } 
+        else if(stat == 2)
+        {
+            f = &rangedAPFormulas[cls-1];
+        } else {
+            continue;
+        }
+
+        std::string args = "level,agility,strength,stamina,intellect,spirit,form";
+        size_t err = f->parser.parse(f->byteCode, fs.c_str(), args);
+        if (err)
+        {
+            /*
+            sLog->outError("Error loading formula %i for class %i: %s",
+                stat, cls, f->parser.errMessage(err));
+            */
+        }
+        else
+        {
+            f->loaded = true;
+        }
+    } while(result->NextRow());
+}
+
+// @TS TODO: load at startup
+bool loaded = false;
+float applyFormula(Formula *formulas, Player* player, float level, float origVal)
+{
+    Formula* formula = &formulas[player->GetClass()-1];
+    if(formula->loaded)
+    {
+        formula->byteCode.var[0] = level;
+        formula->byteCode.var[1] = player->GetStat(STAT_AGILITY);
+        formula->byteCode.var[2] = player->GetStat(STAT_STRENGTH);
+        formula->byteCode.var[3] = player->GetStat(STAT_STAMINA);
+        formula->byteCode.var[4] = player->GetStat(STAT_INTELLECT);
+        formula->byteCode.var[5] = player->GetStat(STAT_SPIRIT);
+        formula->byteCode.var[6] = player->GetShapeshiftForm();
+        return formula->byteCode.run();
+    }
+    else
+    {
+        return origVal;
+    }
+
+}
+
 void Player::UpdateAttackPowerAndDamage(bool ranged)
 {
+    if(!loaded)
+    {
+        LoadAPFormulas();
+        loaded = true;
+    }
+
     float val2 = 0.0f;
     float level = float(GetLevel());
 
@@ -375,6 +466,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
                 break;
             default: val2 = GetStat(STAT_AGILITY) - 10.0f; break;
         }
+        val2 = applyFormula(rangedAPFormulas,this,level, val2);
     }
     else
     {
@@ -451,6 +543,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
                 val2 = GetStat(STAT_STRENGTH) - 10.0f;
                 break;
         }
+        val2 = applyFormula(meleeAPFormulas, this, level, val2);
     }
 
     SetStatFlatModifier(unitMod, BASE_VALUE, val2);

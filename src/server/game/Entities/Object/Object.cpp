@@ -49,6 +49,9 @@
 #include "VMapFactory.h"
 #include "VMapManager2.h"
 #include "World.h"
+// @tswow-begin
+#include "TotemCreature.h"
+// @tswow-end
 #include <G3D/Vector3.h>
 
 constexpr float VisibilityDistances[AsUnderlyingType(VisibilityDistanceType::Max)] =
@@ -1916,7 +1919,16 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
             summon = new Puppet(properties, summonerUnit);
             break;
         case UNIT_MASK_TOTEM:
-            summon = new Totem(properties, summonerUnit);
+            // @tswow-begin
+            if (properties->Flags & 512)
+            {
+                summon = new TotemCreature(properties, summonerUnit);
+            } 
+            else 
+            {
+                summon = new Totem(properties, summonerUnit);
+            }
+            // @tswow-end
             break;
         case UNIT_MASK_MINION:
             summon = new Minion(properties, summonerUnit, false);

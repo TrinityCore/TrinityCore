@@ -266,6 +266,9 @@ class TC_GAME_API Spell
     public:
 
         void EffectNULL(SpellEffIndex effIndex);
+        // @tswow-begin
+        void EffectCommandTotemCreature(SpellEffIndex effIndex);
+        // @tswow-end
         void EffectUnused(SpellEffIndex effIndex);
         void EffectDistract(SpellEffIndex effIndex);
         void EffectPull(SpellEffIndex effIndex);
