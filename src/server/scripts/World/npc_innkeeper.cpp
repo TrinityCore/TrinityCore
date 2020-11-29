@@ -39,10 +39,23 @@ enum Spells
 #define LOCALE_TRICK_OR_TREAT_0 "Trick or Treat!"
 #define LOCALE_TRICK_OR_TREAT_2 "Des bonbons ou des blagues!"
 #define LOCALE_TRICK_OR_TREAT_3 "Süßes oder Saures!"
+#define LOCALE_TRICK_OR_TREAT_4 "不給糖就搗蛋！"
+#define LOCALE_TRICK_OR_TREAT_5 "不給糖就搗蛋！"
 #define LOCALE_TRICK_OR_TREAT_6 "¡Truco o trato!"
 
 #define LOCALE_INNKEEPER_0 "Make this inn my home."
+#define LOCALE_INNKEEPER_2 "Faites de cette auberge votre foyer." 
 #define LOCALE_INNKEEPER_3 "Ich möchte dieses Gasthaus zu meinem Heimatort machen."
+#define LOCALE_INNKEEPER_4 "將這座旅店設為你的家。"
+#define LOCALE_INNKEEPER_5 "將這座旅店設為你的家。"
+#define LOCALE_INNKEEPER_6 "Fija tu hogar en esta taberna."
+
+#define LOCALE_VENDOR_0 "I want to browse your goods." 
+#define LOCALE_VENDOR_2 "Je voudrais regarder vos articles." 
+#define LOCALE_VENDOR_3 "Ich sehe mich nur mal um." 
+#define LOCALE_VENDOR_4 "我想要看看你賣的貨物。" 
+#define LOCALE_VENDOR_5 "我想要看看你賣的貨物。" 
+#define LOCALE_VENDOR_6 "Quiero ver tus mercancías." 
 
 class npc_innkeeper : public CreatureScript
 {
@@ -60,10 +73,12 @@ public:
                 char const* localizedEntry;
                 switch (player->GetSession()->GetSessionDbcLocale())
                 {
-                    case LOCALE_frFR: localizedEntry = LOCALE_TRICK_OR_TREAT_2; break;
-                    case LOCALE_deDE: localizedEntry = LOCALE_TRICK_OR_TREAT_3; break;
-                    case LOCALE_esES: localizedEntry = LOCALE_TRICK_OR_TREAT_6; break;
-                    case LOCALE_enUS: default: localizedEntry = LOCALE_TRICK_OR_TREAT_0;
+			    case LOCALE_frFR: localizedEntry = LOCALE_TRICK_OR_TREAT_2; break;
+			    case LOCALE_deDE: localizedEntry = LOCALE_TRICK_OR_TREAT_3; break;
+			    case LOCALE_zhCN: localizedEntry = LOCALE_TRICK_OR_TREAT_4; break;
+			    case LOCALE_zhTW: localizedEntry = LOCALE_TRICK_OR_TREAT_5; break;
+			    case LOCALE_esES: localizedEntry = LOCALE_TRICK_OR_TREAT_6; break;
+			    case LOCALE_enUS: default: localizedEntry = LOCALE_TRICK_OR_TREAT_0;
                 }
                 AddGossipItemFor(player, GOSSIP_ICON_CHAT, localizedEntry, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             }
@@ -72,15 +87,30 @@ public:
                 player->PrepareQuestMenu(me->GetGUID());
 
             if (me->IsVendor())
-                AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+              {
+                const char* localizedEntry;
+			    switch (player->GetSession()->GetSessionDbcLocale())
+			    {
+			    case LOCALE_frFR: localizedEntry = LOCALE_VENDOR_2; break;
+			    case LOCALE_deDE: localizedEntry = LOCALE_VENDOR_3; break;
+			    case LOCALE_zhCN: localizedEntry = LOCALE_VENDOR_4; break;
+			    case LOCALE_zhTW: localizedEntry = LOCALE_VENDOR_5; break;
+			    case LOCALE_esES: localizedEntry = LOCALE_VENDOR_6; break;
+			    case LOCALE_enUS: default: localizedEntry = LOCALE_VENDOR_0;
+			    }
+               }
 
             if (me->IsInnkeeper())
             {
                 char const* localizedEntry;
                 switch (player->GetSession()->GetSessionDbcLocale())
                 {
-                    case LOCALE_deDE: localizedEntry = LOCALE_INNKEEPER_3; break;
-                    case LOCALE_enUS: default: localizedEntry = LOCALE_INNKEEPER_0;
+			    case LOCALE_frFR: localizedEntry = LOCALE_INNKEEPER_2; break;
+			    case LOCALE_deDE: localizedEntry = LOCALE_INNKEEPER_3; break;
+			    case LOCALE_zhCN: localizedEntry = LOCALE_INNKEEPER_4; break;
+			    case LOCALE_zhTW: localizedEntry = LOCALE_INNKEEPER_5; break;
+			    case LOCALE_esES: localizedEntry = LOCALE_INNKEEPER_6; break;
+			    case LOCALE_enUS: default: localizedEntry = LOCALE_INNKEEPER_0;
                 }
                 AddGossipItemFor(player, GOSSIP_ICON_INTERACT_1, localizedEntry, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INN);
             }
