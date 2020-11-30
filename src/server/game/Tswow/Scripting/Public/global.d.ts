@@ -830,127 +830,138 @@ declare class TSSpellCastTargets {
     GetUnit() : TSUnit;
 }
 
-declare type EventHandler = {
-    Server : {
-    },
+declare namespace _hidden {
+    export class World {
+        OnOpenStateChange(callback: (open : bool)=>void);
+        OnConfigLoad(callback: (reload : bool)=>void);
+        OnMotdChange(callback: (newMotd : string)=>void);
+        OnShutdownInitiate(callback: (code : uint32,mask : uint32)=>void);
+        OnUpdate(callback: (diff : uint32)=>void);
+    }
 
-    World : {
-        OnOpenStateChange(open : bool),
-        OnConfigLoad(reload : bool),
-        OnMotdChange(newMotd : string),
-        OnShutdownInitiate(code : uint32,mask : uint32),
-        OnUpdate(diff : uint32),
-    },
+    export class Formula {
+        OnHonorCalculation(callback: (honor : TSMutable<float>,level : uint8,multiplier : float)=>void);
+        OnGrayLevelCalculation(callback: (grayLevel : TSMutable<uint8>,playerLevel : uint8)=>void);
+        OnColorCodeCalculation(callback: (color : TSMutable<uint8>,playerLevel : uint8,mobLevel : uint8)=>void);
+        OnZeroDifferenceCalculation(callback: (diff : TSMutable<uint8>,playerLevel : uint8)=>void);
+        OnBaseGainCalculation(callback: (gain : TSMutable<uint32>,playerLevel : uint8,mobLevel : uint8,content : uint32)=>void);
+        OnGainCalculation(callback: (gain : TSMutable<uint32>,player : TSPlayer,unit : TSUnit)=>void);
+        OnGroupRateCalculation(callback: (rate : TSMutable<float>,count : uint32,isRaid : bool)=>void);
+    }
 
-    Formula : {
-        OnHonorCalculation(honor : TSMutable<float>,level : uint8,multiplier : float),
-        OnGrayLevelCalculation(grayLevel : TSMutable<uint8>,playerLevel : uint8),
-        OnColorCodeCalculation(color : TSMutable<uint8>,playerLevel : uint8,mobLevel : uint8),
-        OnZeroDifferenceCalculation(diff : TSMutable<uint8>,playerLevel : uint8),
-        OnBaseGainCalculation(gain : TSMutable<uint32>,playerLevel : uint8,mobLevel : uint8,content : uint32),
-        OnGainCalculation(gain : TSMutable<uint32>,player : TSPlayer,unit : TSUnit),
-        OnGroupRateCalculation(rate : TSMutable<float>,count : uint32,isRaid : bool),
-    },
-
-    Item : {
-        OnQuestAccept(player : TSPlayer,item : TSItem,quest : TSQuest),
+    export class Item {
+        OnQuestAccept(callback: (player : TSPlayer,item : TSItem,quest : TSQuest)=>void);
         // TODO: OnItemUse
-        OnExpire(player : TSPlayer,proto : TSItemTemplate),
-        OnRemove(player : TSPlayer,item : TSItem),
-        OnCastItemCombatSpell(player : TSPlayer,victim : TSUnit,spellInfo : TSSpellInfo,item : TSItem),
-    },
+        OnExpire(callback: (player : TSPlayer,proto : TSItemTemplate)=>void);
+        OnRemove(callback: (player : TSPlayer,item : TSItem)=>void);
+        OnCastItemCombatSpell(callback: (player : TSPlayer,victim : TSUnit,spellInfo : TSSpellInfo,item : TSItem)=>void);
+    }
 
-    Unit : {
-        OnHeal(healer : TSUnit,reciever : TSUnit,gain : TSMutable<uint32>),
-        OnDamage(attacker : TSUnit,victim : TSUnit,damage : TSMutable<uint32>),
-        ModifyPeriodicDamageAurasTick(target : TSUnit,attacker : TSUnit,damage : TSMutable<uint32>),
-        ModifyMeleeDamage(target : TSUnit,attacker : TSUnit,damage : TSMutable<uint32>),
-        ModifySpellDamageTaken(target : TSUnit,attacker : TSUnit,damage : TSMutable<int32>),
-        ModifyVehiclePassengerExitPos(passenger : TSUnit,vehicle : TSVehicle,pos : TSMutable<Position>),
-    },
+    export class Unit {
+        OnHeal(callback: (healer : TSUnit,reciever : TSUnit,gain : TSMutable<uint32>)=>void);
+        OnDamage(callback: (attacker : TSUnit,victim : TSUnit,damage : TSMutable<uint32>)=>void);
+        ModifyPeriodicDamageAurasTick(callback: (target : TSUnit,attacker : TSUnit,damage : TSMutable<uint32>)=>void);
+        ModifyMeleeDamage(callback: (target : TSUnit,attacker : TSUnit,damage : TSMutable<uint32>)=>void);
+        ModifySpellDamageTaken(callback: (target : TSUnit,attacker : TSUnit,damage : TSMutable<int32>)=>void);
+        ModifyVehiclePassengerExitPos(callback: (passenger : TSUnit,vehicle : TSVehicle,pos : TSMutable<Position>)=>void);
+    }
 
-    AreaTrigger : {
-        OnTrigger(player : TSPlayer,id: uint32),
-    },
+    export class AreaTrigger {
+        OnTrigger(callback: (player : TSPlayer,id: uint32)=>void);
+    }
 
-    Vehicle : {
-        OnInstall(veh : TSVehicle),
-        OnUninstall(veh : TSVehicle),
-        OnReset(veh : TSVehicle),
-        OnInstallAccessory(veh : TSVehicle,accessory : TSCreature),
-        OnAddPassenger(veh : TSVehicle,passenger : TSUnit,seatId : int8),
-        OnRemovePassenger(veh : TSVehicle,passenger : TSUnit),
-    },
+    export class Vehicle {
+        OnInstall(callback: (veh : TSVehicle)=>void);
+        OnUninstall(callback: (veh : TSVehicle)=>void);
+        OnReset(callback: (veh : TSVehicle)=>void);
+        OnInstallAccessory(callback: (veh : TSVehicle,accessory : TSCreature)=>void);
+        OnAddPassenger(callback: (veh : TSVehicle,passenger : TSUnit,seatId : int8)=>void);
+        OnRemovePassenger(callback: (veh : TSVehicle,passenger : TSUnit)=>void);
+    }
 
-    AchievementCriteria : {
-        OnCheck(source : TSPlayer,target : TSUnit),
-    },
+    export class AchievementCriteria {
+        OnCheck(callback: (source : TSPlayer,target : TSUnit)=>void);
+    }
 
-    Player : {
-        OnPVPKill(killer : TSPlayer,killed : TSPlayer),
-        OnCreatureKill(killer : TSPlayer,killed : TSCreature),
-        OnPlayerKilledByCreature(killer : TSCreature,killed : TSPlayer),
-        OnLevelChanged(player : TSPlayer,oldLevel : uint8),
-        OnFreeTalentPointsChanged(player : TSPlayer,points : uint32),
-        OnTalentsReset(player : TSPlayer,noCost : bool),
-        OnMoneyChanged(player : TSPlayer,amount : TSMutable<int32>),
-        OnMoneyLimit(player : TSPlayer,amount : int32),
-        OnGiveXP(player : TSPlayer,amount : TSMutable<uint32>,victim : TSUnit),
-        OnReputationChange(player : TSPlayer,factionId : uint32,standing : TSMutable<int32>,incremental : bool),
-        OnDuelRequest(target : TSPlayer,challenger : TSPlayer),
-        OnDuelStart(player1 : TSPlayer,player2 : TSPlayer),
-        OnDuelEnd(winner : TSPlayer,loser : TSPlayer,type : uint32),
-        OnSay(player : TSPlayer,type : uint32,lang : uint32,msg : string),
-        OnWhisper(player : TSPlayer,type : uint32,lang : uint32,msg : string,receiver : TSPlayer),
-        OnPartyChat(player : TSPlayer,type : uint32,lang : uint32,msg : string,group : TSGroup),
-        OnGuildChat(player : TSPlayer,type : uint32,lang : uint32,msg : string,guild : TSGuild),
+    export class Player {
+        OnPVPKill(callback: (killer : TSPlayer,killed : TSPlayer)=>void);
+        OnCreatureKill(callback: (killer : TSPlayer,killed : TSCreature)=>void);
+        OnPlayerKilledByCreature(callback: (killer : TSCreature,killed : TSPlayer)=>void);
+        OnLevelChanged(callback: (player : TSPlayer,oldLevel : uint8)=>void);
+        OnFreeTalentPointsChanged(callback: (player : TSPlayer,points : uint32)=>void);
+        OnTalentsReset(callback: (player : TSPlayer,noCost : bool)=>void);
+        OnMoneyChanged(callback: (player : TSPlayer,amount : TSMutable<int32>)=>void);
+        OnMoneyLimit(callback: (player : TSPlayer,amount : int32)=>void);
+        OnGiveXP(callback: (player : TSPlayer,amount : TSMutable<uint32>,victim : TSUnit)=>void);
+        OnReputationChange(callback: (player : TSPlayer,factionId : uint32,standing : TSMutable<int32>,incremental : bool)=>void);
+        OnDuelRequest(callback: (target : TSPlayer,challenger : TSPlayer)=>void);
+        OnDuelStart(callback: (player1 : TSPlayer,player2 : TSPlayer)=>void);
+        OnDuelEnd(callback: (winner : TSPlayer,loser : TSPlayer,type : uint32)=>void);
+        OnSay(callback: (player : TSPlayer,type : uint32,lang : uint32,msg : string)=>void);
+        OnWhisper(callback: (player : TSPlayer,type : uint32,lang : uint32,msg : string,receiver : TSPlayer)=>void);
+        OnPartyChat(callback: (player : TSPlayer,type : uint32,lang : uint32,msg : string,group : TSGroup)=>void);
+        OnGuildChat(callback: (player : TSPlayer,type : uint32,lang : uint32,msg : string,guild : TSGuild)=>void);
         // TODO: Fix chat to channel
-        //OnChat(player : TSPlayer,type : uint32,lang : uint32,msg : string,channel : Channel*),
-        OnEmote(player : TSPlayer,emote : uint32),
-        OnTextEmote(player : TSPlayer,textEmote : uint32,emoteNum : uint32,guid : uint64),
-        OnSpellCast(player : TSPlayer,spell : TSSpell,skipCheck : bool),
-        OnLogin(player : TSPlayer,firstLogin : bool),
-        OnLogout(player : TSPlayer),
-        OnCreate(player : TSPlayer),
-        OnDelete(guid : uint64,accountId : uint32),
-        OnFailedDelete(guid : uint64,accountId : uint32),
-        OnSave(player : TSPlayer),
-        OnBindToInstance(player : TSPlayer,difficulty : uint32,mapId : uint32,permanent : bool,extendState : uint8),
-        OnUpdateZone(player : TSPlayer,newZone : uint32,newArea : uint32),
-        OnMapChanged(player : TSPlayer),
-        OnQuestObjectiveProgress(player : TSPlayer,quest : TSQuest,objectiveIndex : uint32,progress : uint16),
-        OnQuestStatusChange(player : TSPlayer,questId : uint32),
-        OnMovieComplete(player : TSPlayer,movieId : uint32),
-        OnPlayerRepop(player : TSPlayer),
-    },
+        //OnChat(callback: (player : TSPlayer,type : uint32,lang : uint32,msg : string,channel : Channel*)=>void),
+        OnEmote(callback: (player : TSPlayer,emote : uint32)=>void);
+        OnTextEmote(callback: (player : TSPlayer,textEmote : uint32,emoteNum : uint32,guid : uint64)=>void);
+        OnSpellCast(callback: (player : TSPlayer,spell : TSSpell,skipCheck : bool)=>void);
+        OnLogin(callback: (player : TSPlayer,firstLogin : bool)=>void);
+        OnLogout(callback: (player : TSPlayer)=>void);
+        OnCreate(callback: (player : TSPlayer)=>void);
+        OnDelete(callback: (guid : uint64,accountId : uint32)=>void);
+        OnFailedDelete(callback: (guid : uint64,accountId : uint32)=>void);
+        OnSave(callback: (player : TSPlayer)=>void);
+        OnBindToInstance(callback: (player : TSPlayer,difficulty : uint32,mapId : uint32,permanent : bool,extendState : uint8)=>void);
+        OnUpdateZone(callback: (player : TSPlayer,newZone : uint32,newArea : uint32)=>void);
+        OnMapChanged(callback: (player : TSPlayer)=>void);
+        OnQuestObjectiveProgress(callback: (player : TSPlayer,quest : TSQuest,objectiveIndex : uint32,progress : uint16)=>void);
+        OnQuestStatusChange(callback: (player : TSPlayer,questId : uint32)=>void);
+        OnMovieComplete(callback: (player : TSPlayer,movieId : uint32)=>void);
+        OnPlayerRepop(callback: (player : TSPlayer)=>void);
+    }
 
-    Account : {
-        OnAccountLogin(accountId : uint32),
-        OnFailedAccountLogin(accountId : uint32),
-        OnEmailChange(accountId : uint32),
-        OnFailedEmailChange(accountId : uint32),
-        OnPasswordChange(accountId : uint32),
-        OnFailedPasswordChange(accountId : uint32),
-    },
+    export class Account {
+        OnAccountLogin(callback: (accountId : uint32)=>void);
+        OnFailedAccountLogin(callback: (accountId : uint32)=>void);
+        OnEmailChange(callback: (accountId : uint32)=>void);
+        OnFailedEmailChange(callback: (accountId : uint32)=>void);
+        OnPasswordChange(callback: (accountId : uint32)=>void);
+        OnFailedPasswordChange(callback: (accountId : uint32)=>void);
+    }
 
-    Guild : {
-        OnAddMember(guild : TSGuild,player : TSPlayer,plRank : TSMutable<uint8>),
-        OnRemoveMember(guild : TSGuild,player : TSPlayer,isDisbanding : bool,isKicked : bool),
-        OnMOTDChanged(guild : TSGuild,newMotd : string),
-        OnInfoChanged(guild : TSGuild,newInfo : string),
-        OnCreate(guild : TSGuild,leader : TSPlayer,name : string),
-        OnDisband(guild : TSGuild),
-        OnMemberWitdrawMoney(guild : TSGuild,player : TSPlayer,amount : TSMutable<uint32>,isRepair : bool),
-        OnMemberDepositMoney(guild : TSGuild,player : TSPlayer,amount : TSMutable<uint32>),
-        OnEvent(guild : TSGuild,eventType : uint8,playerGuid1 : uint32,playerGuid2 : uint32,newRank : uint8),
-        OnBankEvent(guild : TSGuild,eventType : uint8,tabId : uint8,playerGuid : uint32,itemOrMoney : uint32,itemStackCount : uint16,destTabId : uint8),
-    },
+    export class Guild {
+        OnAddMember(callback: (guild : TSGuild,player : TSPlayer,plRank : TSMutable<uint8>)=>void);
+        OnRemoveMember(callback: (guild : TSGuild,player : TSPlayer,isDisbanding : bool,isKicked : bool)=>void);
+        OnMOTDChanged(callback: (guild : TSGuild,newMotd : string)=>void);
+        OnInfoChanged(callback: (guild : TSGuild,newInfo : string)=>void);
+        OnCreate(callback: (guild : TSGuild,leader : TSPlayer,name : string)=>void);
+        OnDisband(callback: (guild : TSGuild)=>void);
+        OnMemberWitdrawMoney(callback: (guild : TSGuild,player : TSPlayer,amount : TSMutable<uint32>,isRepair : bool)=>void);
+        OnMemberDepositMoney(callback: (guild : TSGuild,player : TSPlayer,amount : TSMutable<uint32>)=>void);
+        OnEvent(callback: (guild : TSGuild,eventType : uint8,playerGuid1 : uint32,playerGuid2 : uint32,newRank : uint8)=>void);
+        OnBankEvent(callback: (guild : TSGuild,eventType : uint8,tabId : uint8,playerGuid : uint32,itemOrMoney : uint32,itemStackCount : uint16,destTabId : uint8)=>void);
+    }
 
-    Group : {
-        OnAddMember(group : TSGroup,guid : uint64),
-        OnInviteMember(group : TSGroup,guid : uint64),
-        OnRemoveMember(group : TSGroup,guid : uint64,method : uint32,kicker : uint64,reason : string),
-        OnChangeLeader(group : TSGroup,newLeaderGuid : uint64,oldLeaderGuid : uint64),
-        OnDisband(group : TSGroup),
-    },
+    export class Group {
+        OnAddMember(callback: (group : TSGroup,guid : uint64)=>void);
+        OnInviteMember(callback: (group : TSGroup,guid : uint64)=>void);
+        OnRemoveMember(callback: (group : TSGroup,guid : uint64,method : uint32,kicker : uint64,reason : string)=>void);
+        OnChangeLeader(callback: (group : TSGroup,newLeaderGuid : uint64,oldLeaderGuid : uint64)=>void);
+        OnDisband(callback: (group : TSGroup)=>void);
+    }
+}
+
+declare class TSEventHandlers {
+    World: _hidden.World;
+    Formula: _hidden.Formula;
+    Item: _hidden.Item;
+    Unit: _hidden.Unit;
+    AreaTrigger: _hidden.AreaTrigger;
+    Vehicle: _hidden.Vehicle;
+    AchievementCriteria: _hidden.AchievementCriteria;
+    Player: _hidden.Player;
+    Account: _hidden.Account;
+    Guild: _hidden.Guild;
+    Group: _hidden.Group;
 }
