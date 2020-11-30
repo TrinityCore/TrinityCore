@@ -23,6 +23,7 @@ private:
     T* value;
 
 public:
+    TSMutable* operator->() { return this;}
     TSMutable(T *value)
     {
         this->value = value;

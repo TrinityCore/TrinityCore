@@ -25,6 +25,7 @@ public:
     Corpse* corpse;
     TSCorpse(Corpse* corpse);
     TSCorpse();
+    TSCorpse* operator->() { return this;}
     uint64 GetOwnerGUID();
     uint32 GetGhostTime();
     uint32 GetType();

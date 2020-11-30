@@ -132,7 +132,7 @@ void TSEvent<TSCallback>::Remove(size_t index)
 
 #define EVENT_TYPE(name,...) typedef void (*name##Type)(__VA_ARGS__);
 #define EVENT(name,...) TSEvent<name##Type> name;
-#define EVENT_HANDLE(name) void name(name##Type cb) { Add(this->events->name.Add(cb)); }
+#define EVENT_HANDLE(category,name) void name(category##name##Type cb) { Add(this->events->category##name.Add(cb)); }
 #define FIRE(name,...) {for(size_t i=0;i< tsEvents.name.GetSize(); ++i) tsEvents.name.Get(i)(__VA_ARGS__);}
 #define FIRE_RETURN(name,retType,retVal,...) {retType rv = retVal; for(size_t i=0;i< tsEvents.name.GetSize(); ++i) tsEvents.name.Get(i)(__VA_ARGS__,TSMutable<retType>(&rv)); return retVal;}
 

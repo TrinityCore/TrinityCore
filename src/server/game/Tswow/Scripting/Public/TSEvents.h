@@ -273,156 +273,171 @@ class TSEventHandlers
 {
 public:
 
-    struct : public EventHandler
+    struct ServerEvents: public EventHandler
     {
+         ServerEvents* operator->() { return this;}
     } Server;
 
-    struct : public EventHandler
+    struct WorldEvents: public EventHandler
     {
-         EVENT_HANDLE(WorldOnOpenStateChange)
-         EVENT_HANDLE(WorldOnConfigLoad)
-         EVENT_HANDLE(WorldOnMotdChange)
-         EVENT_HANDLE(WorldOnShutdownInitiate)
-         EVENT_HANDLE(WorldOnUpdate)
+         WorldEvents* operator->() { return this;}
+         EVENT_HANDLE(World,OnOpenStateChange)
+         EVENT_HANDLE(World,OnConfigLoad)
+         EVENT_HANDLE(World,OnMotdChange)
+         EVENT_HANDLE(World,OnShutdownInitiate)
+         EVENT_HANDLE(World,OnUpdate)
     } World;
 
-    struct : public EventHandler
+    struct FormulaEvents: public EventHandler
     {
-         EVENT_HANDLE(FormulaOnHonorCalculation)
-         EVENT_HANDLE(FormulaOnGrayLevelCalculation)
-         EVENT_HANDLE(FormulaOnColorCodeCalculation)
-         EVENT_HANDLE(FormulaOnZeroDifferenceCalculation)
-         EVENT_HANDLE(FormulaOnBaseGainCalculation)
-         EVENT_HANDLE(FormulaOnGainCalculation)
-         EVENT_HANDLE(FormulaOnGroupRateCalculation)
+         FormulaEvents* operator->() { return this;}
+         EVENT_HANDLE(Formula,OnHonorCalculation)
+         EVENT_HANDLE(Formula,OnGrayLevelCalculation)
+         EVENT_HANDLE(Formula,OnColorCodeCalculation)
+         EVENT_HANDLE(Formula,OnZeroDifferenceCalculation)
+         EVENT_HANDLE(Formula,OnBaseGainCalculation)
+         EVENT_HANDLE(Formula,OnGainCalculation)
+         EVENT_HANDLE(Formula,OnGroupRateCalculation)
     } Formula;
 
-    struct : public EventHandler
+    struct ItemEvents: public EventHandler
     {
-         EVENT_HANDLE(ItemOnQuestAccept)
-         //EVENT_HANDLE(ItemOnUse)
-         EVENT_HANDLE(ItemOnExpire)
-         EVENT_HANDLE(ItemOnRemove)
-         EVENT_HANDLE(ItemOnCastItemCombatSpell)
+         ItemEvents* operator->() { return this;}
+         EVENT_HANDLE(Item,OnQuestAccept)
+         //EVENT_HANDLE(Item,OnUse)
+         EVENT_HANDLE(Item,OnExpire)
+         EVENT_HANDLE(Item,OnRemove)
+         EVENT_HANDLE(Item,OnCastItemCombatSpell)
     } Item;
 
-    struct : public EventHandler
+    struct UnitEvents: public EventHandler
     {
-         EVENT_HANDLE(UnitOnHeal)
-         EVENT_HANDLE(UnitOnDamage)
-         EVENT_HANDLE(UnitModifyPeriodicDamageAurasTick)
-         EVENT_HANDLE(UnitModifyMeleeDamage)
-         EVENT_HANDLE(UnitModifySpellDamageTaken)
-         //EVENT_HANDLE(UnitModifyVehiclePassengerExitPos)
+         UnitEvents* operator->() { return this;}
+         EVENT_HANDLE(Unit,OnHeal)
+         EVENT_HANDLE(Unit,OnDamage)
+         EVENT_HANDLE(Unit,ModifyPeriodicDamageAurasTick)
+         EVENT_HANDLE(Unit,ModifyMeleeDamage)
+         EVENT_HANDLE(Unit,ModifySpellDamageTaken)
+         //EVENT_HANDLE(Unit,ModifyVehiclePassengerExitPos)
     } Unit;
 
-    struct : public EventHandler
+    struct AreaTriggerEvents: public EventHandler
     {
-         //EVENT_HANDLE(AreaTriggerOnTrigger)
+         AreaTriggerEvents* operator->() { return this;}
+         //EVENT_HANDLE(Area,TriggerOnTrigger)
     } AreaTrigger;
 
-    struct : public EventHandler
+    struct WeatherEvents: public EventHandler
     {
-         //EVENT_HANDLE(WeatherOnChange)
+         WeatherEvents* operator->() { return this;}
+         //EVENT_HANDLE(Weather,OnChange)
     } Weather;
 
-    struct : public EventHandler
+    struct AuctionEvents: public EventHandler
     {
-         //EVENT_HANDLE(AuctionHouseOnAuctionAdd)
-         //EVENT_HANDLE(AuctionHouseOnAuctionRemove)
-         //EVENT_HANDLE(AuctionHouseOnAuctionSuccessful)
-         //EVENT_HANDLE(AuctionHouseOnAuctionExpire)
+         AuctionEvents* operator->() { return this;}
+         //EVENT_HANDLE(AuctionHouse,OnAuctionAdd)
+         //EVENT_HANDLE(AuctionHouse,OnAuctionRemove)
+         //EVENT_HANDLE(AuctionHouse,OnAuctionSuccessful)
+         //EVENT_HANDLE(AuctionHouse,OnAuctionExpire)
     } AuctionHouse;
 
-    struct : public EventHandler
+    struct ConditionEvents: public EventHandler
     {
-         //EVENT_HANDLE(ConditionOnConditionCheck)
+         ConditionEvents* operator->() { return this;}
+         //EVENT_HANDLE(Condition,OnConditionCheck)
     } Condition;
 
-    struct : public EventHandler
+    struct VehicleEvents: public EventHandler
     {
-         EVENT_HANDLE(VehicleOnInstall)
-         EVENT_HANDLE(VehicleOnUninstall)
-         EVENT_HANDLE(VehicleOnReset)
-         EVENT_HANDLE(VehicleOnInstallAccessory)
-         EVENT_HANDLE(VehicleOnAddPassenger)
-         EVENT_HANDLE(VehicleOnRemovePassenger)
+         VehicleEvents* operator->() { return this;}
+         EVENT_HANDLE(Vehicle,OnInstall)
+         EVENT_HANDLE(Vehicle,OnUninstall)
+         EVENT_HANDLE(Vehicle,OnReset)
+         EVENT_HANDLE(Vehicle,OnInstallAccessory)
+         EVENT_HANDLE(Vehicle,OnAddPassenger)
+         EVENT_HANDLE(Vehicle,OnRemovePassenger)
     } Vehicle;
 
-    struct : public EventHandler
+    struct AchievementEvents: public EventHandler
     {
-         //EVENT_HANDLE(AchievementCriteriaOnCheck)
+         AchievementEvents* operator->() { return this;}
+         //EVENT_HANDLE(AchievementCriteria,OnCheck)
     } AchievementCriteria;
 
-    struct : public EventHandler
+    struct PlayerEvents : public EventHandler
     {
-         EVENT_HANDLE(PlayerOnPVPKill)
-         EVENT_HANDLE(PlayerOnCreatureKill)
-         EVENT_HANDLE(PlayerOnPlayerKilledByCreature)
-         EVENT_HANDLE(PlayerOnLevelChanged)
-         EVENT_HANDLE(PlayerOnFreeTalentPointsChanged)
-         EVENT_HANDLE(PlayerOnTalentsReset)
-         EVENT_HANDLE(PlayerOnMoneyChanged)
-         EVENT_HANDLE(PlayerOnMoneyLimit)
-         EVENT_HANDLE(PlayerOnGiveXP)
-         EVENT_HANDLE(PlayerOnReputationChange)
-         EVENT_HANDLE(PlayerOnDuelRequest)
-         EVENT_HANDLE(PlayerOnDuelStart)
-         EVENT_HANDLE(PlayerOnDuelEnd)
-         EVENT_HANDLE(PlayerOnSay)
-         EVENT_HANDLE(PlayerOnWhisper)
-         EVENT_HANDLE(PlayerOnChatGroup)
-         EVENT_HANDLE(PlayerOnChatGuild)
-         //EVENT_HANDLE(PlayerOnChat)
-         EVENT_HANDLE(PlayerOnEmote)
-         EVENT_HANDLE(PlayerOnTextEmote)
-         EVENT_HANDLE(PlayerOnSpellCast)
-         EVENT_HANDLE(PlayerOnLogin)
-         EVENT_HANDLE(PlayerOnLogout)
-         EVENT_HANDLE(PlayerOnCreate)
-         EVENT_HANDLE(PlayerOnDelete)
-         EVENT_HANDLE(PlayerOnFailedDelete)
-         EVENT_HANDLE(PlayerOnSave)
-         EVENT_HANDLE(PlayerOnBindToInstance)
-         EVENT_HANDLE(PlayerOnUpdateZone)
-         EVENT_HANDLE(PlayerOnMapChanged)
-         EVENT_HANDLE(PlayerOnQuestObjectiveProgress)
-         EVENT_HANDLE(PlayerOnQuestStatusChange)
-         EVENT_HANDLE(PlayerOnMovieComplete)
-         EVENT_HANDLE(PlayerOnPlayerRepop)
+         PlayerEvents* operator->() { return this;}
+         EVENT_HANDLE(Player,OnPVPKill)
+         EVENT_HANDLE(Player,OnCreatureKill)
+         EVENT_HANDLE(Player,OnPlayerKilledByCreature)
+         EVENT_HANDLE(Player,OnLevelChanged)
+         EVENT_HANDLE(Player,OnFreeTalentPointsChanged)
+         EVENT_HANDLE(Player,OnTalentsReset)
+         EVENT_HANDLE(Player,OnMoneyChanged)
+         EVENT_HANDLE(Player,OnMoneyLimit)
+         EVENT_HANDLE(Player,OnGiveXP)
+         EVENT_HANDLE(Player,OnReputationChange)
+         EVENT_HANDLE(Player,OnDuelRequest)
+         EVENT_HANDLE(Player,OnDuelStart)
+         EVENT_HANDLE(Player,OnDuelEnd)
+         EVENT_HANDLE(Player,OnSay)
+         EVENT_HANDLE(Player,OnWhisper)
+         EVENT_HANDLE(Player,OnChatGroup)
+         EVENT_HANDLE(Player,OnChatGuild)
+         //EVENT_HANDLE(Player,OnChat)
+         EVENT_HANDLE(Player,OnEmote)
+         EVENT_HANDLE(Player,OnTextEmote)
+         EVENT_HANDLE(Player,OnSpellCast)
+         EVENT_HANDLE(Player,OnLogin)
+         EVENT_HANDLE(Player,OnLogout)
+         EVENT_HANDLE(Player,OnCreate)
+         EVENT_HANDLE(Player,OnDelete)
+         EVENT_HANDLE(Player,OnFailedDelete)
+         EVENT_HANDLE(Player,OnSave)
+         EVENT_HANDLE(Player,OnBindToInstance)
+         EVENT_HANDLE(Player,OnUpdateZone)
+         EVENT_HANDLE(Player,OnMapChanged)
+         EVENT_HANDLE(Player,OnQuestObjectiveProgress)
+         EVENT_HANDLE(Player,OnQuestStatusChange)
+         EVENT_HANDLE(Player,OnMovieComplete)
+         EVENT_HANDLE(Player,OnPlayerRepop)
     } Player;
 
-    struct : public EventHandler
+    struct AccountEvents : public EventHandler
     {
-         EVENT_HANDLE(AccountOnAccountLogin)
-         EVENT_HANDLE(AccountOnFailedAccountLogin)
-         EVENT_HANDLE(AccountOnEmailChange)
-         EVENT_HANDLE(AccountOnFailedEmailChange)
-         EVENT_HANDLE(AccountOnPasswordChange)
-         EVENT_HANDLE(AccountOnFailedPasswordChange)
+         AccountEvents* operator->() { return this;}
+         EVENT_HANDLE(Account,OnAccountLogin)
+         EVENT_HANDLE(Account,OnFailedAccountLogin)
+         EVENT_HANDLE(Account,OnEmailChange)
+         EVENT_HANDLE(Account,OnFailedEmailChange)
+         EVENT_HANDLE(Account,OnPasswordChange)
+         EVENT_HANDLE(Account,OnFailedPasswordChange)
     } Account;
 
-    struct : public EventHandler
+    struct GuildEvents : public EventHandler
     {
-         EVENT_HANDLE(GuildOnAddMember)
-         EVENT_HANDLE(GuildOnRemoveMember)
-         EVENT_HANDLE(GuildOnMOTDChanged)
-         EVENT_HANDLE(GuildOnInfoChanged)
-         EVENT_HANDLE(GuildOnCreate)
-         EVENT_HANDLE(GuildOnDisband)
-         EVENT_HANDLE(GuildOnMemberWitdrawMoney)
-         EVENT_HANDLE(GuildOnMemberDepositMoney)
-         EVENT_HANDLE(GuildOnEvent)
-         EVENT_HANDLE(GuildOnBankEvent)
+         GuildEvents* operator->() { return this;}
+         EVENT_HANDLE(Guild,OnAddMember)
+         EVENT_HANDLE(Guild,OnRemoveMember)
+         EVENT_HANDLE(Guild,OnMOTDChanged)
+         EVENT_HANDLE(Guild,OnInfoChanged)
+         EVENT_HANDLE(Guild,OnCreate)
+         EVENT_HANDLE(Guild,OnDisband)
+         EVENT_HANDLE(Guild,OnMemberWitdrawMoney)
+         EVENT_HANDLE(Guild,OnMemberDepositMoney)
+         EVENT_HANDLE(Guild,OnEvent)
+         EVENT_HANDLE(Guild,OnBankEvent)
     } Guild;
 
-    struct : public EventHandler
+    struct GroupEvents : public EventHandler
     {
-         EVENT_HANDLE(GroupOnAddMember)
-         EVENT_HANDLE(GroupOnInviteMember)
-         EVENT_HANDLE(GroupOnRemoveMember)
-         EVENT_HANDLE(GroupOnChangeLeader)
-         EVENT_HANDLE(GroupOnDisband)
+         GroupEvents* operator->(){return this;}
+         EVENT_HANDLE(Group,OnAddMember)
+         EVENT_HANDLE(Group,OnInviteMember)
+         EVENT_HANDLE(Group,OnRemoveMember)
+         EVENT_HANDLE(Group,OnChangeLeader)
+         EVENT_HANDLE(Group,OnDisband)
     } Group;
 
     void Unload()

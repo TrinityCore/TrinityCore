@@ -24,5 +24,6 @@ private:
 public:
     TSItemTemplate(ItemTemplate const* info);
     TSItemTemplate();
+    TSItemTemplate* operator->() { return this;}
     uint32 Id();
 };

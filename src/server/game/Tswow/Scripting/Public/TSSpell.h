@@ -24,6 +24,7 @@ public:
     Spell * spell;
     TSSpell(Spell *spell);
     TSSpell();
+    TSSpell* operator->() { return this;}
     bool IsAutoRepeat();
     TSUnit  GetCaster();
     int32 GetCastTime();

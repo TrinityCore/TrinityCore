@@ -26,6 +26,7 @@ public:
     WorldObject* obj;
     TSWorldObject();
     TSWorldObject(WorldObject* obj);
+    TSWorldObject* operator->() { return this;}
     // TODO: Re-enable these
     /*
     TSArray<TSCreature> GetCreaturesInRange(float range, uint32 entry, uint32 hostile, uint32 dead);

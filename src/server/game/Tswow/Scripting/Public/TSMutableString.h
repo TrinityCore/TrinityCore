@@ -28,6 +28,7 @@ public:
     {
         this->str = str;
     }
+    TSMutableString* operator->() { return this;}
 
     TSString get()
     {

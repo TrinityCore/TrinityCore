@@ -24,6 +24,7 @@ public:
     GameObject *go;
     TSGameObject(GameObject *go);
     TSGameObject();
+    TSGameObject* operator->() { return this;}
     bool HasQuest(uint32 questId);
     bool IsSpawned();
     bool IsTransport();

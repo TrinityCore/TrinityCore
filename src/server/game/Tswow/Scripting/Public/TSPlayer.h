@@ -26,6 +26,7 @@ public:
 	Player* player;
 	TSPlayer(Player* player);
     TSPlayer();
+    TSPlayer* operator->() { return this;}
 	bool CanTitanGrip();
 	bool HasTalent(uint32 spellId, uint8 spec);
 	bool HasAchieved(uint32 achievementId);

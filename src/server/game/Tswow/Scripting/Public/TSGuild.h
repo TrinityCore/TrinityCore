@@ -26,6 +26,7 @@ public:
     Guild *guild;
     TSGuild(Guild *guild);
     TSGuild();
+    TSGuild* operator->() { return this;}
     TSArray<TSPlayer> GetMembers();
     uint32 GetMemberCount();
     TSPlayer GetLeader();

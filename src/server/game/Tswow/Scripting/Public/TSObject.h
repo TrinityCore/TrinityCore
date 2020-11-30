@@ -40,6 +40,7 @@ public:
     Object* obj;
     TSObject(Object* obj);
     TSObject();
+    TSObject* operator->() { return this;}
     bool HasFlag(uint16 index, uint32 flag);
     bool IsInWorld();
     int32 GetInt32Value(uint16 index);

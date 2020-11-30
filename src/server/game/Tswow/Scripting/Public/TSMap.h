@@ -26,6 +26,7 @@ public:
     Map *map;
     TSMap(Map *map);
     TSMap();
+    TSMap* operator->() { return this;}
     bool IsArena();
     bool IsBattleground();
     bool IsDungeon();

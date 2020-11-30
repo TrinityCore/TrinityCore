@@ -24,4 +24,5 @@ public:
     std::shared_ptr<WorldSocket> socket;
     TSWorldSocket(std::shared_ptr<WorldSocket> socket);
     TSWorldSocket();
+    TSWorldSocket* operator->() { return this;}
 };

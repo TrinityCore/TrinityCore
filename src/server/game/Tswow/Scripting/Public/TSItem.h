@@ -26,6 +26,7 @@ public:
     Item* item;
     TSItem(Item* item);
     TSItem();
+    TSItem* operator->() { return this;}
     bool IsSoulBound();
     bool IsBoundAccountWide();
     bool IsBoundByEnchant();

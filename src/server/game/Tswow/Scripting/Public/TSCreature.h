@@ -28,6 +28,7 @@ public:
     Creature *creature;
     TSCreature(Creature* creature);
     TSCreature();
+    TSCreature* operator->() { return this;}
     bool IsReputationGainDisabled();
     bool CanCompleteQuest(uint32 quest_id);
     bool IsTargetableForAttack(bool mustBeDead);

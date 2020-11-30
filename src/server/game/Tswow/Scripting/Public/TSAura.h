@@ -24,6 +24,7 @@ public:
     Aura *aura;
     TSAura(Aura *aura);
     TSAura();
+    TSAura* operator->() { return this;}
     TSUnit GetCaster();
     uint64 GetCasterGUID();
     uint32 GetCasterLevel();

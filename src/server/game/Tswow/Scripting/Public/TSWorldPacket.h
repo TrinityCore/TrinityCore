@@ -25,6 +25,7 @@ public:
     WorldPacket *packet;
     TSWorldPacket();
     TSWorldPacket(WorldPacket *packet);
+    TSWorldPacket* operator->() { return this;}
     uint16 GetOpcode();
     uint32 GetSize();
     void SetOpcode(uint32 opcode);

@@ -25,6 +25,7 @@ public:
     Battleground* bg;
     TSBattleground(Battleground* bg);
     TSBattleground();
+    TSBattleground* operator->() { return this;}
     uint32 GetBracketId();
     TSString GetName();
     uint32 GetAlivePlayersCountByTeam(uint32 team);

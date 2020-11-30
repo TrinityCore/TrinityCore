@@ -22,5 +22,6 @@ public:
     SpellInfo const* info;
     TSSpellInfo(SpellInfo const* info);
     TSSpellInfo();
+    TSSpellInfo* operator->() { return this;}
     uint32 Id();
 };
