@@ -45,6 +45,7 @@ TSEventHandlers* TSLoadEventHandler(boost::filesystem::path const& name)
 {
     std::string sname = name.string();
     eventHandlers[sname] = TSEventHandlers();
+    eventHandlers[sname].LoadEvents(&tsEvents);
     return &eventHandlers[sname];
 }
 

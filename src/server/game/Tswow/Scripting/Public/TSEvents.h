@@ -272,7 +272,6 @@ struct TSEvents
 class TSEventHandlers
 {
 public:
-
     struct ServerEvents: public EventHandler
     {
          ServerEvents* operator->() { return this;}
@@ -439,6 +438,25 @@ public:
          EVENT_HANDLE(Group,OnChangeLeader)
          EVENT_HANDLE(Group,OnDisband)
     } Group;
+
+    void LoadEvents(TSEvents* events)
+    {
+        Server.LoadEvents(events);
+        World.LoadEvents(events);
+        Formula.LoadEvents(events);
+        Item.LoadEvents(events);
+        Unit.LoadEvents(events);
+        AreaTrigger.LoadEvents(events);
+        Weather.LoadEvents(events);
+        AuctionHouse.LoadEvents(events);
+        Condition.LoadEvents(events);
+        Vehicle.LoadEvents(events);
+        AchievementCriteria.LoadEvents(events);
+        Player.LoadEvents(events);
+        Account.LoadEvents(events);
+        Guild.LoadEvents(events);
+        Group.LoadEvents(events);
+    }
 
     void Unload()
     {
