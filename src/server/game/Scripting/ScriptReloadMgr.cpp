@@ -1573,8 +1573,15 @@ SourceUpdateListener::SourceUpdateListener(fs::path path, std::string script_mod
     }
     else
     {
-        TC_LOG_ERROR("scripts.hotswap", "Failed to initialize thesource recompiler on \"%s\".",
-            path_.generic_string().c_str());
+        // @tswow-begin TODO:
+        // TODO: I don't know why this fires even when we set HotSwap.EnableReCompiler = 0.
+        // So this workaround will just suppress this error message for *_ts files.
+        if (!path.string().find("_ts.dll"))
+        {
+            TC_LOG_ERROR("scripts.hotswap", "Failed to initialize thesource recompiler on \"%s\".",
+                path_.generic_string().c_str());
+        }
+        // @tswow-end
     }
 }
 
