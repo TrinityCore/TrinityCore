@@ -947,7 +947,7 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
     }
 
     // check to see if victim is sitting
-    if (victim->IsSitState())
+    if (victim->GetStandState())
         victim->SetStandState(UNIT_STAND_STATE_STAND);
 
     return damage;
