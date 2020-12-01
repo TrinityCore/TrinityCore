@@ -725,9 +725,8 @@ class spell_mage_finger_of_frost : public SpellScript
                 chance = 15;
 
                 // Frozen Touch (Frostbolt grants you Fingers of Frost and Brain Freeze 20% more often)
-                if (caster->HasAura(SPELL_MAGE_FROZEN_TOUCH)) {
+                if (caster->HasAura(SPELL_MAGE_FROZEN_TOUCH))
                     chance += 20;
-                }
                 break;
             case SPELL_MAGE_FROZEN_ORB:
                 //chance = fingerFrostInfo->GetEffect(EFFECT_1)->CalcValue();
