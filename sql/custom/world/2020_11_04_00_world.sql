@@ -1,9 +1,9 @@
 DELETE FROM race_unlock_requirement WHERE raceID IN (27, 28, 29, 30);
 INSERT INTO race_unlock_requirement VALUES
-(27, 7, 0),
-(28, 7, 0),
-(29, 7, 0),
-(30, 7, 0);
+(27, 6, 0),
+(28, 6, 0),
+(29, 6, 0),
+(30, 6, 0);
 
 DELETE FROM playercreateinfo WHERE race IN (27, 28, 29, 30);
 INSERT INTO `playercreateinfo` VALUES
