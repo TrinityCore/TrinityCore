@@ -573,7 +573,8 @@ void Player::UpdateHealingDonePercentMod()
     for (AuraEffect const* auraEffect : GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_DONE_PERCENT))
         AddPct(value, auraEffect->GetAmount());
 
-    SetUpdateFieldStatValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ModHealingDonePercent), value);
+    for (uint32 i = 0; i < MAX_SPELL_SCHOOL; ++i)
+        SetUpdateFieldStatValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ModHealingDonePercent, i), value);
 }
 
 float const m_diminishing_k[MAX_CLASSES] =

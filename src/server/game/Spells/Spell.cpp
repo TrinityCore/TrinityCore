@@ -3003,13 +3003,13 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
         if (!player->GetCommandStatus(CHEAT_CASTTIME))
         {
             // calculate cast time (calculated after first CheckCast check to prevent charge counting for first CheckCast fail)
-            m_casttime = m_spellInfo->CalcCastTime(player->getLevel(), this);
+            m_casttime = m_spellInfo->CalcCastTime(this);
         }
         else
             m_casttime = 0; // Set cast time to 0 if .cheat casttime is enabled.
     }
     else
-        m_casttime = m_spellInfo->CalcCastTime(m_caster->getLevel(), this);
+        m_casttime = m_spellInfo->CalcCastTime(this);
 
     // don't allow channeled spells / spells with cast time to be cast while moving
     // exception are only channeled spells that have no casttime and SPELL_ATTR5_CAN_CHANNEL_WHEN_MOVING
@@ -4495,7 +4495,7 @@ void Spell::SendChannelUpdate(uint32 time)
     {
         m_caster->ClearChannelObjects();
         m_caster->SetChannelSpellId(0);
-        m_caster->SetChannelSpellXSpellVisualId({});
+        m_caster->SetChannelVisual({});
     }
 
     WorldPackets::Spells::SpellChannelUpdate spellChannelUpdate;
@@ -4539,7 +4539,7 @@ void Spell::SendChannelStart(uint32 duration)
         m_caster->AddChannelObject(target.targetGUID);
 
     m_caster->SetChannelSpellId(m_spellInfo->Id);
-    m_caster->SetChannelSpellXSpellVisualId(m_SpellVisual);
+    m_caster->SetChannelVisual(m_SpellVisual);
 }
 
 void Spell::SendResurrectRequest(Player* target)
@@ -8048,6 +8048,14 @@ bool WorldObjectSpellTrajTargetCheck::operator()(WorldObject* target)
 }
 
 } //namespace Trinity
+
+SpellCastVisual::operator UF::SpellCastVisual() const
+{
+    UF::SpellCastVisual visual;
+    visual.SpellXSpellVisualID = SpellXSpellVisualID;
+    visual.ScriptVisualID = ScriptVisualID;
+    return visual;
+}
 
 SpellCastVisual::operator WorldPackets::Spells::SpellCastVisual() const
 {

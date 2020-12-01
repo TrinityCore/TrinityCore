@@ -27,9 +27,11 @@
 #include "AuthDefines.h"
 #include "DatabaseEnvFwd.h"
 #include "Duration.h"
+#include "IteratorPair.h"
 #include "LockedQueue.h"
 #include "ObjectGuid.h"
 #include "Packet.h"
+#include "RaceMask.h"
 #include "SharedDefines.h"
 #include <array>
 #include <unordered_map>
@@ -49,6 +51,7 @@ class WorldSession;
 class WorldSocket;
 struct AuctionPosting;
 struct BlackMarketTemplate;
+struct ChrCustomizationReqEntry;
 struct DeclinedName;
 struct ItemTemplate;
 struct MovementInfo;
@@ -74,6 +77,11 @@ enum LfgTeleportResult : uint8;
 namespace rbac
 {
 class RBACData;
+}
+
+namespace UF
+{
+    struct ChrCustomizationChoice;
 }
 
 namespace WorldPackets
@@ -1117,9 +1125,8 @@ class TC_GAME_API WorldSession
         void Handle_EarlyProccess(WorldPackets::Null& null); // just mark packets processed in WorldSocket::OnRead
         void LogUnprocessedTail(WorldPacket const* packet);
 
-        void HandleCharEnum(PreparedQueryResult result);
+        void HandleCharEnum(CharacterDatabaseQueryHolder* holder);
         void HandleCharEnumOpcode(WorldPackets::Character::EnumCharacters& /*enumCharacters*/);
-        void HandleCharUndeleteEnum(PreparedQueryResult result);
         void HandleCharUndeleteEnumOpcode(WorldPackets::Character::EnumCharacters& /*enumCharacters*/);
         void HandleCharDeleteOpcode(WorldPackets::Character::CharDelete& charDelete);
         void HandleCharCreateOpcode(WorldPackets::Character::CreateCharacter& charCreate);
@@ -1145,6 +1152,10 @@ class TC_GAME_API WorldSession
         void HandleGetUndeleteCooldownStatus(WorldPackets::Character::GetUndeleteCharacterCooldownStatus& /*getCooldown*/);
         void HandleUndeleteCooldownStatusCallback(PreparedQueryResult result);
         void HandleCharUndeleteOpcode(WorldPackets::Character::UndeleteCharacter& undeleteInfo);
+        bool MeetsChrCustomizationReq(ChrCustomizationReqEntry const* req, Classes playerClass,
+            bool checkRequiredDependentChoices, Trinity::IteratorPair<UF::ChrCustomizationChoice const*> selectedChoices) const;
+        bool ValidateAppearance(Races race, Classes playerClass, Gender gender,
+            Trinity::IteratorPair<UF::ChrCustomizationChoice const*> customizations); // customizations must be sorted
 
         void SendCharCreate(ResponseCodes result, ObjectGuid const& guid = ObjectGuid::Empty);
         void SendCharDelete(ResponseCodes result);
@@ -1768,6 +1779,7 @@ class TC_GAME_API WorldSession
         QueryResultHolderFuture _realmAccountLoginCallback;
         QueryResultHolderFuture _accountLoginCallback;
         QueryResultHolderFuture _charLoginCallback;
+        QueryResultHolderFuture _charEnumCallback;
 
         QueryCallbackProcessor _queryProcessor;
         AsyncCallbackProcessor<TransactionCallback> _transactionCallbacks;

@@ -1371,9 +1371,6 @@ void ExtractGameTables()
     {
         { 1582086, "ArtifactKnowledgeMultiplier.txt" },
         { 1391662, "ArtifactLevelXP.txt" },
-        { 1892815, "AzeriteBaseExperiencePerLevel.txt" },
-        { 1892816, "AzeriteKnowledgeMultiplier.txt" },
-        { 1859377, "AzeriteLevelToItemLevel.txt" },
         { 1391663, "BarberShopCostBase.txt" },
         { 1391664, "BaseMp.txt" },
         { 1391665, "BattlePetTypeDamageMod.txt" },
@@ -1391,7 +1388,7 @@ void ExtractGameTables()
         { 1391659, "SandboxScaling.txt" },
         { 1391660, "SpellScaling.txt" },
         { 1980632, "StaminaMultByILvl.txt" },
-        { 1391661, "xp.txt" },
+        { 1391661, "xp.txt" }
     };
 
     uint32 count = 0;

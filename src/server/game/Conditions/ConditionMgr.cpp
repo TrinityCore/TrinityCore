@@ -2547,11 +2547,30 @@ uint32 ConditionMgr::GetPlayerConditionLfgValue(Player const* player, PlayerCond
 
 bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditionEntry const* condition)
 {
-    if (condition->MinLevel && player->getLevel() < condition->MinLevel)
-        return false;
+    if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(condition->ContentTuningID, player->m_playerData->CtrOptions->ContentTuningConditionMask))
+    {
+        uint8 minLevel = condition->Flags & 0x800 ? levels->MinLevelWithDelta : levels->MinLevel;
+        uint8 maxLevel = 0;
+        if (!(condition->Flags & 0x20))
+            maxLevel = condition->Flags & 0x800 ? levels->MaxLevelWithDelta : levels->MaxLevel;
 
-    if (condition->MaxLevel && player->getLevel() > condition->MaxLevel)
-        return false;
+        if (condition->Flags & 0x80)
+        {
+            if (minLevel && player->getLevel() >= minLevel && (!maxLevel || player->getLevel() <= maxLevel))
+                return false;
+
+            if (maxLevel && player->getLevel() <= maxLevel && (!minLevel || player->getLevel() >= minLevel))
+                return false;
+        }
+        else
+        {
+            if (minLevel && player->getLevel() < minLevel)
+                return false;
+
+            if (maxLevel && player->getLevel() > maxLevel)
+                return false;
+        }
+    }
 
     if (condition->RaceMask && !condition->RaceMask.HasRace(player->getRace()))
         return false;
@@ -2562,7 +2581,7 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
     if (condition->Gender >= 0 && player->getGender() != condition->Gender)
         return false;
 
-    if (condition->NativeGender >= 0 && player->m_playerData->NativeSex != condition->NativeGender)
+    if (condition->NativeGender >= 0 && player->GetNativeSex() != condition->NativeGender)
         return false;
 
     if (condition->PowerType != -1 && condition->PowerTypeComp)
@@ -2944,6 +2963,9 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
         return false;
 
     if (condition->ModifierTreeID && !player->ModifierTreeSatisfied(condition->ModifierTreeID))
+        return false;
+
+    if (condition->CovenantID && player->m_playerData->CovenantID != condition->CovenantID)
         return false;
 
     return true;

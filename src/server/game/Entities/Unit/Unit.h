@@ -1646,13 +1646,14 @@ class TC_GAME_API Unit : public WorldObject
                 .ModifyValue(&UF::UnitData::ChannelData)
                 .ModifyValue(&UF::UnitChannel::SpellID), channelSpellId);
         }
-        uint32 GetChannelSpellXSpellVisualId() const { return m_unitData->ChannelData->SpellXSpellVisualID; }
-        void SetChannelSpellXSpellVisualId(SpellCastVisual channelVisual)
+        uint32 GetChannelSpellXSpellVisualId() const { return m_unitData->ChannelData->SpellVisual.SpellXSpellVisualID; }
+        uint32 GetChannelScriptVisualId() const { return m_unitData->ChannelData->SpellVisual.ScriptVisualID; }
+        void SetChannelVisual(SpellCastVisual channelVisual)
         {
             SetUpdateFieldValue(m_values
                 .ModifyValue(&Unit::m_unitData)
                 .ModifyValue(&UF::UnitData::ChannelData)
-                .ModifyValue(&UF::UnitChannel::SpellXSpellVisualID), channelVisual.SpellXSpellVisualID);
+                .ModifyValue(&UF::UnitChannel::SpellVisual), channelVisual);
         }
         void AddChannelObject(ObjectGuid guid) { AddDynamicUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ChannelObjects)) = guid; }
         void SetChannelObject(uint32 slot, ObjectGuid guid) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ChannelObjects, slot), guid); }

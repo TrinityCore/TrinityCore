@@ -26,23 +26,25 @@
 #include "RaceMask.h"
 #include "SharedDefines.h"
 #include "UnitDefines.h"
+#include "UpdateFields.h"
 #include <array>
 #include <memory>
 
 class Field;
 
+namespace UF
+{
+    struct ChrCustomizationChoice;
+
+    ByteBuffer& operator<<(ByteBuffer& data, ChrCustomizationChoice const& customizationChoice);
+    ByteBuffer& operator>>(ByteBuffer& data, ChrCustomizationChoice& customizationChoice);
+}
+
 namespace WorldPackets
 {
     namespace Character
     {
-        struct ChrCustomizationChoice
-        {
-            uint32 ChrCustomizationOptionID = 0;
-            uint32 ChrCustomizationChoiceID = 0;
-        };
-
-        ByteBuffer& operator<<(ByteBuffer& data, ChrCustomizationChoice const& customizationChoice);
-        ByteBuffer& operator>>(ByteBuffer& data, ChrCustomizationChoice& customizationChoice);
+        using ChrCustomizationChoice = UF::ChrCustomizationChoice;
 
         class EnumCharacters final : public ClientPacket
         {

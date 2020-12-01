@@ -71,14 +71,14 @@ struct BonusData
     int32 ItemLevelBonus;
     int32 RequiredLevel;
     int32 ItemStatType[MAX_ITEM_PROTO_STATS];
-    int32 ItemStatAllocation[MAX_ITEM_PROTO_STATS];
+    int32 StatPercentEditor[MAX_ITEM_PROTO_STATS];
     float ItemStatSocketCostMultiplier[MAX_ITEM_PROTO_STATS];
     uint32 SocketColor[MAX_ITEM_PROTO_SOCKETS];
     ItemBondingType Bonding;
     uint32 AppearanceModID;
     float RepairCostMultiplier;
-    uint32 ScalingStatDistribution;
     uint32 ContentTuningId;
+    uint32 PlayerLevelToItemLevelCurveId;
     uint32 DisenchantLootId;
     uint32 GemItemLevelBonus[MAX_ITEM_PROTO_SOCKETS];
     int32 GemRelicType[MAX_ITEM_PROTO_SOCKETS];
@@ -87,6 +87,7 @@ struct BonusData
     int32 RequiredLevelOverride;
     int32 AzeriteTierUnlockSetId;
     uint32 Suffix;
+    int32 RequiredLevelCurve;
     std::array<ItemEffectEntry const*, 13> Effects;
     std::size_t EffectCount;
     bool CanDisenchant;
@@ -96,7 +97,7 @@ struct BonusData
     void Initialize(ItemTemplate const* proto);
     void Initialize(WorldPackets::Item::ItemInstance const& itemInstance);
     void AddBonusList(uint32 bonusListId);
-    void AddBonus(uint32 type, int32 const (&values)[3]);
+    void AddBonus(uint32 type, int32 const (&values)[4]);
 
 private:
     struct
@@ -105,6 +106,7 @@ private:
         int32 AppearanceModPriority;
         int32 ScalingStatDistributionPriority;
         int32 AzeriteTierUnlockSetPriority;
+        int32 RequiredLevelCurvePriority;
         bool HasQualityBonus;
     } _state;
 };
@@ -137,7 +139,7 @@ struct AzeriteItemData
     uint32 KnowledgeLevel;
     std::vector<uint32> AzeriteItemMilestonePowers;
     std::vector<AzeriteEssencePowerEntry const*> UnlockedAzeriteEssences;
-    std::array<AzeriteItemSelectedEssencesData, MAX_SPECIALIZATIONS> SelectedAzeriteEssences = { };
+    std::array<AzeriteItemSelectedEssencesData, 4> SelectedAzeriteEssences = { };
 };
 
 struct AzeriteEmpoweredItemData
@@ -335,7 +337,7 @@ class TC_GAME_API Item : public Object
         uint32 GetDisplayId(Player const* owner) const;
         ItemModifiedAppearanceEntry const* GetItemModifiedAppearance() const;
         float GetRepairCostMultiplier() const { return _bonusData.RepairCostMultiplier; }
-        uint32 GetScalingStatDistribution() const { return _bonusData.ScalingStatDistribution; }
+        uint32 GetScalingContentTuningId() const { return _bonusData.ContentTuningId; }
         ItemDisenchantLootEntry const* GetDisenchantLoot(Player const* owner) const;
         static ItemDisenchantLootEntry const* GetDisenchantLoot(ItemTemplate const* itemTemplate, uint32 quality, uint32 itemLevel);
         void SetFixedLevel(uint8 level);

@@ -72,7 +72,7 @@ enum LootModes
     LOOT_MODE_JUNK_FISH                = 0x8000
 };
 
-#define MAX_CHARACTERS_PER_REALM 16
+#define MAX_CHARACTERS_PER_REALM 200
 
 enum Expansions
 {
@@ -85,34 +85,36 @@ enum Expansions
     EXPANSION_WARLORDS_OF_DRAENOR      = 5,
     EXPANSION_LEGION                   = 6,
     EXPANSION_BATTLE_FOR_AZEROTH       = 7,
-    MAX_EXPANSIONS,
     EXPANSION_SHADOWLANDS              = 8,
+    MAX_EXPANSIONS,
 
     MAX_ACCOUNT_EXPANSIONS
 };
 
-#define CURRENT_EXPANSION EXPANSION_BATTLE_FOR_AZEROTH
+#define CURRENT_EXPANSION EXPANSION_SHADOWLANDS
 
-inline uint32 GetMaxLevelForExpansion(uint32 expansion)
+constexpr uint32 GetMaxLevelForExpansion(uint32 expansion)
 {
     switch (expansion)
     {
         case EXPANSION_CLASSIC:
-            return 60;
+            return 30;
         case EXPANSION_THE_BURNING_CRUSADE:
-            return 70;
+            return 30;
         case EXPANSION_WRATH_OF_THE_LICH_KING:
-            return 80;
+            return 30;
         case EXPANSION_CATACLYSM:
-            return 85;
+            return 35;
         case EXPANSION_MISTS_OF_PANDARIA:
-            return 90;
+            return 35;
         case EXPANSION_WARLORDS_OF_DRAENOR:
-            return 100;
+            return 40;
         case EXPANSION_LEGION:
-            return 110;
+            return 45;
         case EXPANSION_BATTLE_FOR_AZEROTH:
-            return 120;
+            return 50;
+        case EXPANSION_SHADOWLANDS:
+            return 60;
         default:
             break;
     }
@@ -864,9 +866,14 @@ enum SpellAttr13
     SPELL_ATTR13_UNK23                           = 0x00800000  // 23
 };
 
+enum SpellAttr14
+{
+};
+
 #define MIN_SPECIALIZATION_LEVEL    10
-#define MAX_SPECIALIZATIONS         4
+#define MAX_SPECIALIZATIONS         5
 #define PET_SPEC_OVERRIDE_CLASS_INDEX MAX_CLASSES
+#define INITIAL_SPECIALIZATION_INDEX 4
 
 // Custom values
 enum SpellClickUserTypes
@@ -1313,6 +1320,18 @@ enum SpellEffectName
     SPELL_EFFECT_UPGRADE_ITEM                       = 269,
     SPELL_EFFECT_270                                = 270,
     SPELL_EFFECT_APPLY_AREA_AURA_PARTY_NONRANDOM    = 271,
+    SPELL_EFFECT_SET_COVENANT                       = 272,
+    SPELL_EFFECT_CRAFT_RUNEFORGE_LEGENDARY          = 273,
+    SPELL_EFFECT_274                                = 274,
+    SPELL_EFFECT_275                                = 275,
+    SPELL_EFFECT_LEARN_TRANSMOG_ILLUSION            = 276,
+    SPELL_EFFECT_SET_CHROMIE_TIME                   = 277,
+    SPELL_EFFECT_278                                = 278,
+    SPELL_EFFECT_LEARN_GARR_TALENT                  = 279,
+    SPELL_EFFECT_280                                = 280,
+    SPELL_EFFECT_LEARN_SOULBIND_CONDUIT             = 281,
+    SPELL_EFFECT_CONVERT_ITEMS_TO_CURRENCY          = 282,
+    SPELL_EFFECT_283                                = 283,
     TOTAL_SPELL_EFFECTS
 };
 
@@ -2380,6 +2399,7 @@ enum Targets
     TARGET_UNK_148                     = 148,
     TARGET_UNK_149                     = 149,
     TARGET_UNIT_OWN_CRITTER            = 150, // own battle pet from UNIT_FIELD_CRITTER
+    TARGET_UNK_151                     = 151,
     TOTAL_SPELL_TARGETS
 };
 

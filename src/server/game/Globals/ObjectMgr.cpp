@@ -3122,25 +3122,6 @@ void ObjectMgr::LoadItemTemplates()
         itemItr->second.Effects.push_back(effectEntry);
     }
 
-    // Check if item templates for DBC referenced character start outfit are present
-    std::set<uint32> notFoundOutfit;
-    for (CharStartOutfitEntry const* entry : sCharStartOutfitStore)
-    {
-        for (int j = 0; j < MAX_OUTFIT_ITEMS; ++j)
-        {
-            if (entry->ItemID[j] <= 0)
-                continue;
-
-            uint32 item_id = entry->ItemID[j];
-
-            if (!GetItemTemplate(item_id))
-                notFoundOutfit.insert(item_id);
-        }
-    }
-
-    for (std::set<uint32>::const_iterator itr = notFoundOutfit.begin(); itr != notFoundOutfit.end(); ++itr)
-        TC_LOG_ERROR("sql.sql", "Item (Entry: %u) does not exist but is referenced in `CharStartOutfit.dbc`", *itr);
-
     TC_LOG_INFO("server.loading", ">> Loaded %u item templates in %u ms", sparseCount, GetMSTimeDiffToNow(oldMSTime));
 }
 
@@ -3422,31 +3403,22 @@ void ObjectMgr::PlayerCreateInfoAddItemHelper(uint32 race_, uint32 class_, uint3
         return;
 
     if (count > 0)
-        _playerInfo[race_][class_]->item.push_back(PlayerCreateInfoItem(itemId, count));
+        _playerInfo[race_][class_]->item.emplace_back(itemId, count);
     else
     {
         if (count < -1)
             TC_LOG_ERROR("sql.sql", "Invalid count %i specified on item %u be removed from original player create info (use -1)!", count, itemId);
 
-        for (uint32 gender = 0; gender < GENDER_NONE; ++gender)
-        {
-            if (CharStartOutfitEntry const* entry = sDB2Manager.GetCharStartOutfitEntry(race_, class_, gender))
-            {
-                bool found = false;
-                for (uint8 x = 0; x < MAX_OUTFIT_ITEMS; ++x)
-                {
-                    if (entry->ItemID[x] > 0 && uint32(entry->ItemID[x]) == itemId)
-                    {
-                        found = true;
-                        const_cast<CharStartOutfitEntry*>(entry)->ItemID[x] = 0;
-                        break;
-                    }
-                }
+        PlayerCreateInfoItems& items = _playerInfo[race_][class_]->item;
 
-                if (!found)
-                    TC_LOG_ERROR("sql.sql", "Item %u specified to be removed from original create info not found in dbc!", itemId);
-            }
+        auto erased = std::remove_if(items.begin(), items.end(), [itemId](PlayerCreateInfoItem const& item) { return item.item_id == itemId; });
+        if (erased == items.end())
+        {
+            TC_LOG_ERROR("sql.sql", "Item %u specified to be removed from original create info not found in db2!", itemId);
+            return;
         }
+
+        items.erase(erased, items.end());
     }
 }
 
@@ -3480,22 +3452,9 @@ void ObjectMgr::LoadPlayerInfo()
                 float  positionZ     = fields[6].GetFloat();
                 float  orientation   = fields[7].GetFloat();
 
-                if (current_race >= MAX_RACES)
+                if (!sChrRacesStore.LookupEntry(current_race))
                 {
                     TC_LOG_ERROR("sql.sql", "Wrong race %u in `playercreateinfo` table, ignoring.", current_race);
-                    continue;
-                }
-
-                ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry(current_race);
-                if (!rEntry)
-                {
-                    TC_LOG_ERROR("sql.sql", "Wrong race %u in `playercreateinfo` table, ignoring.", current_race);
-                    continue;
-                }
-
-                if (current_class >= MAX_CLASSES)
-                {
-                    TC_LOG_ERROR("sql.sql", "Wrong class %u in `playercreateinfo` table, ignoring.", current_class);
                     continue;
                 }
 
@@ -3518,6 +3477,20 @@ void ObjectMgr::LoadPlayerInfo()
                     continue;
                 }
 
+                ChrModelEntry const* maleModel = sDB2Manager.GetChrModel(current_race, GENDER_MALE);
+                if (!maleModel)
+                {
+                    TC_LOG_ERROR("sql.sql", "Missing male model for race %u, ignoring.", current_race);
+                    continue;
+                }
+
+                ChrModelEntry const* femaleModel = sDB2Manager.GetChrModel(current_race, GENDER_FEMALE);
+                if (!femaleModel)
+                {
+                    TC_LOG_ERROR("sql.sql", "Missing female model for race %u, ignoring.", current_race);
+                    continue;
+                }
+
                 PlayerInfo* info = new PlayerInfo();
                 info->mapId = mapId;
                 info->areaId = areaId;
@@ -3525,8 +3498,8 @@ void ObjectMgr::LoadPlayerInfo()
                 info->positionY = positionY;
                 info->positionZ = positionZ;
                 info->orientation = orientation;
-                info->displayId_m = rEntry->MaleDisplayId;
-                info->displayId_f = rEntry->FemaleDisplayId;
+                info->displayId_m = maleModel->DisplayID;
+                info->displayId_f = femaleModel->DisplayID;
                 _playerInfo[current_race][current_class] = info;
 
                 ++count;
@@ -3539,6 +3512,60 @@ void ObjectMgr::LoadPlayerInfo()
 
     // Load playercreate items
     TC_LOG_INFO("server.loading", "Loading Player Create Items Data...");
+    {
+        std::unordered_map<uint32, std::vector<ItemTemplate const*>> itemsByCharacterLoadout;
+        for (CharacterLoadoutItemEntry const* characterLoadoutItem : sCharacterLoadoutItemStore)
+            if (ItemTemplate const* itemTemplate = GetItemTemplate(characterLoadoutItem->ItemID))
+                itemsByCharacterLoadout[characterLoadoutItem->CharacterLoadoutID].push_back(itemTemplate);
+
+        for (CharacterLoadoutEntry const* characterLoadout : sCharacterLoadoutStore)
+        {
+            if (!characterLoadout->IsForNewCharacter())
+                continue;
+
+            std::vector<ItemTemplate const*> const* items = Trinity::Containers::MapGetValuePtr(itemsByCharacterLoadout, characterLoadout->ID);
+            if (!items)
+                continue;
+
+            for (uint32 raceIndex = RACE_HUMAN; raceIndex < MAX_RACES; ++raceIndex)
+            {
+                if (!characterLoadout->RaceMask.HasRace(raceIndex))
+                    continue;
+
+                if (PlayerInfo* playerInfo = _playerInfo[raceIndex][characterLoadout->ChrClassID])
+                {
+                    for (ItemTemplate const* itemTemplate : *items)
+                    {
+                        // BuyCount by default
+                        uint32 count = itemTemplate->GetBuyCount();
+
+                        // special amount for food/drink
+                        if (itemTemplate->GetClass() == ITEM_CLASS_CONSUMABLE && itemTemplate->GetSubClass() == ITEM_SUBCLASS_FOOD_DRINK)
+                        {
+                            if (!itemTemplate->Effects.empty())
+                            {
+                                switch (itemTemplate->Effects[0]->SpellCategoryID)
+                                {
+                                    case SPELL_CATEGORY_FOOD:                                // food
+                                        count = characterLoadout->ChrClassID == CLASS_DEATH_KNIGHT ? 10 : 4;
+                                        break;
+                                    case SPELL_CATEGORY_DRINK:                                // drink
+                                        count = 2;
+                                        break;
+                                }
+                            }
+                            if (itemTemplate->GetMaxStackSize() < count)
+                                count = itemTemplate->GetMaxStackSize();
+                        }
+
+                        playerInfo->item.emplace_back(itemTemplate->GetId(), count);
+                    }
+                }
+            }
+        }
+    }
+
+    TC_LOG_INFO("server.loading", "Loading Player Create Items Override Data...");
     {
         uint32 oldMSTime = getMSTime();
         //                                                0     1      2       3

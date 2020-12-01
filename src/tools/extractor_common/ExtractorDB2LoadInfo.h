@@ -231,6 +231,7 @@ struct MapLoadInfo
             { false, FT_INT, "ID" },
             { false, FT_STRING_NOT_LOCALIZED, "Directory" },
             { false, FT_STRING, "MapName" },
+            { false, FT_STRING_NOT_LOCALIZED, "InternalName" },
             { false, FT_STRING, "MapDescription0" },
             { false, FT_STRING, "MapDescription1" },
             { false, FT_STRING, "PvpShortDescription" },
@@ -255,10 +256,11 @@ struct MapLoadInfo
             { true, FT_INT, "Flags1" },
             { true, FT_INT, "Flags2" },
         };
-        static DB2MetaField const fields[23] =
+        static DB2MetaField const fields[24] =
         {
             { FT_STRING_NOT_LOCALIZED, 1, true },
             { FT_STRING, 1, true },
+            { FT_STRING_NOT_LOCALIZED, 1, true },
             { FT_STRING, 1, true },
             { FT_STRING, 1, true },
             { FT_STRING, 1, true },
@@ -281,7 +283,7 @@ struct MapLoadInfo
             { FT_INT, 1, true },
             { FT_INT, 2, true },
         };
-        static DB2Meta meta(1349477, -1, 23, 23, 0xDA9493AF, fields, -1);
+        static DB2Meta meta(1349477, -1, 24, 24, 0x793F4E8E, fields, -1);
         static DB2FileLoadInfo const loadInfo(&loadedFields[0], std::extent<decltype(loadedFields)>::value, &meta);
         return &loadInfo;
     }

@@ -23,6 +23,7 @@
 #include "ObjectGuid.h"
 #include "Position.h"
 #include "SharedDefines.h"
+#include "SpellDefines.h"
 #include <memory>
 
 namespace WorldPackets

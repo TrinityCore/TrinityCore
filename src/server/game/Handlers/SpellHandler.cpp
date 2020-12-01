@@ -539,10 +539,11 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPackets::Spells::GetMirrorI
         mirrorImageComponentedData.Gender = creator->getGender();
         mirrorImageComponentedData.ClassID = creator->getClass();
 
-        Guild* guild = player->GetGuild();
 
-        for (UF::ChrCustomizationChoice customization : player->m_playerData->Customizations)
-            mirrorImageComponentedData.Customizations.push_back({ customization.ChrCustomizationOptionID, customization.ChrCustomizationChoiceID });
+        for (UF::ChrCustomizationChoice const& customization : player->m_playerData->Customizations)
+            mirrorImageComponentedData.Customizations.push_back(customization);
+
+        Guild* guild = player->GetGuild();
         mirrorImageComponentedData.GuildGUID = (guild ? guild->GetGUID() : ObjectGuid::Empty);
 
         mirrorImageComponentedData.ItemDisplayID.reserve(11);

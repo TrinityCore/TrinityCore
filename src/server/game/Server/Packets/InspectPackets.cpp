@@ -77,12 +77,12 @@ void WorldPackets::Inspect::PlayerModelDisplayInfo::Initialize(Player const* pla
     GUID = player->GetGUID();
     SpecializationID = player->GetPrimarySpecialization();
     Name = player->GetName();
-    GenderID = player->m_playerData->NativeSex;
+    GenderID = player->GetNativeSex();
     Race = player->getRace();
     ClassID = player->getClass();
 
-    for (UF::ChrCustomizationChoice customization : player->m_playerData->Customizations)
-        Customizations.push_back({ customization.ChrCustomizationOptionID, customization.ChrCustomizationChoiceID });
+    for (UF::ChrCustomizationChoice const& customization : player->m_playerData->Customizations)
+        Customizations.push_back(customization);
 
     for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
         if (::Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))

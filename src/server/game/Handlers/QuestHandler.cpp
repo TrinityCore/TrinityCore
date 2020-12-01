@@ -290,7 +290,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPackets::Quest::Quest
                     {
                         for (QuestPackageItemEntry const* questPackageItem : *questPackageItems)
                         {
-                            if (questPackageItem->ItemID != packet.Choice.Item.ItemID)
+                            if (uint32(questPackageItem->ItemID) != packet.Choice.Item.ItemID)
                                 continue;
 
                             if (_player->CanSelectQuestPackageItem(questPackageItem))
@@ -307,7 +307,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPackets::Quest::Quest
                         {
                             for (QuestPackageItemEntry const* questPackageItem : *questPackageItems)
                             {
-                                if (questPackageItem->ItemID != packet.Choice.Item.ItemID)
+                                if (uint32(questPackageItem->ItemID) != packet.Choice.Item.ItemID)
                                     continue;
 
                                 itemValid = true;

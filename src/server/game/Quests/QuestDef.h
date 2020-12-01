@@ -404,12 +404,6 @@ class TC_GAME_API Quest
         bool HasSpecialFlag(uint32 flag) const { return (_specialFlags & flag) != 0; }
         void SetSpecialFlag(uint32 flag) { _specialFlags |= flag; }
 
-        // DEPRECATED
-        int32  GetMinLevel() const { return 0; }
-        int32  GetQuestLevel() const { return 0; }
-        int32  GetQuestScalingFactionGroup() const { return 0; }
-        int32  GetQuestMaxScalingLevel() const { return 0; }
-
         // table data accessors:
         uint32 GetQuestId() const { return _id; }
         uint32 GetQuestType() const { return _type; }

@@ -26,6 +26,7 @@
 #include "QuestPackets.h"
 #include "SpellMgr.h"
 #include "World.h"
+#include "WorldSession.h"
 
 Quest::Quest(Field* questRecord)
 {
@@ -280,17 +281,16 @@ uint32 Quest::XPValue(Player const* player) const
         if (!questXp || _rewardXPDifficulty >= 10)
             return 0;
 
-        float multiplier = 1.0f;
-        if (questLevel != player->getLevel())
-            multiplier = sXpGameTable.GetRow(std::min<int32>(player->getLevel(), questLevel))->Divisor / sXpGameTable.GetRow(player->getLevel())->Divisor;
-
-        int32 diffFactor = 2 * (questLevel + (GetQuestLevel() == -1 ? 0 : 5) - player->getLevel()) + 10;
+        int32 diffFactor = 2 * (questLevel - player->getLevel()) + 12;
         if (diffFactor < 1)
             diffFactor = 1;
         else if (diffFactor > 10)
             diffFactor = 10;
 
-        uint32 xp = diffFactor * questXp->Difficulty[_rewardXPDifficulty] * _rewardXPMultiplier / 10 * multiplier;
+        uint32 xp = diffFactor * questXp->Difficulty[_rewardXPDifficulty] * _rewardXPMultiplier / 10;
+        if (player->getLevel() >= GetMaxLevelForExpansion(CURRENT_EXPANSION - 1) && player->GetSession()->GetExpansion() == CURRENT_EXPANSION && _expansion < CURRENT_EXPANSION)
+            xp = uint32(xp / 9.0f);
+
         if (xp <= 100)
             xp = 5 * ((xp + 2) / 5);
         else if (xp <= 500)

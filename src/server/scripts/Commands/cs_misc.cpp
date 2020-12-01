@@ -1029,7 +1029,7 @@ public:
             if (Player* caster = handler->GetSession()->GetPlayer())
             {
                 ObjectGuid castId = ObjectGuid::Create<HighGuid::Cast>(SPELL_CAST_SOURCE_NORMAL, player->GetMapId(), SPELL_UNSTUCK_ID, player->GetMap()->GenerateLowGuid<HighGuid::Cast>());
-                Spell::SendCastResult(caster, spellInfo, SPELL_UNSTUCK_VISUAL, castId, SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW);
+                Spell::SendCastResult(caster, spellInfo, { SPELL_UNSTUCK_VISUAL, 0 }, castId, SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW);
             }
 
             return false;
@@ -1700,7 +1700,7 @@ public:
             mapId             = target->GetMapId();
             areaId            = target->GetAreaId();
             alive             = target->IsAlive() ? handler->GetTrinityString(LANG_YES) : handler->GetTrinityString(LANG_NO);
-            gender            = target->m_playerData->NativeSex;
+            gender            = target->GetNativeSex();
         }
         // get additional information from DB
         else
@@ -2431,7 +2431,7 @@ public:
         if (!spellInfo)
             return false;
 
-        SpellNonMeleeDamage damageInfo(attacker, target, spellInfo, spellInfo->GetSpellXSpellVisualId(handler->GetSession()->GetPlayer()), spellInfo->SchoolMask);
+        SpellNonMeleeDamage damageInfo(attacker, target, spellInfo, { spellInfo->GetSpellXSpellVisualId(handler->GetSession()->GetPlayer()),0 }, spellInfo->SchoolMask);
         damageInfo.damage = damage;
         attacker->DealDamageMods(damageInfo.target, damageInfo.damage, &damageInfo.absorb);
         target->DealSpellDamage(&damageInfo, true);

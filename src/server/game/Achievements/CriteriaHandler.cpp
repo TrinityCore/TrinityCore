@@ -523,6 +523,10 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
             case CRITERIA_TYPE_PRESTIGE_REACHED:
             case CRITERIA_TYPE_APPEARANCE_UNLOCKED_BY_SLOT:
             case CRITERIA_TYPE_TRANSMOG_SET_UNLOCKED:
+            case CRITERIA_TYPE_COMPLETE_QUEST_ACCUMULATE:
+            case CRITERIA_TYPE_BOUGHT_ITEM_FROM_VENDOR:
+            case CRITERIA_TYPE_SOLD_ITEM_TO_VENDOR:
+            case CRITERIA_TYPE_TRAVELLED_TO_AREA:
                 SetCriteriaProgress(criteria, 1, referencePlayer, PROGRESS_ACCUMULATE);
                 break;
             // std case: increment at miscValue1
@@ -810,6 +814,9 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
             case CRITERIA_TYPE_EARN_HONOR_XP:
             case CRITERIA_TYPE_RELIC_TALENT_UNLOCKED:
             case CRITERIA_TYPE_REACH_ACCOUNT_HONOR_LEVEL:
+            case CRITERIA_TYPE_MYTHIC_KEYSTONE_COMPLETED:
+            case CRITERIA_TYPE_APPLY_CONDUIT:
+            case CRITERIA_TYPE_CONVERT_ITEMS_TO_CURRENCY:
                 break;                                   // Not implemented yet :(
         }
 
@@ -1175,6 +1182,10 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CRITERIA_TYPE_REACH_ACCOUNT_HONOR_LEVEL:
         case CRITERIA_TYPE_HEART_OF_AZEROTH_ARTIFACT_POWER_EARNED:
         case CRITERIA_TYPE_HEART_OF_AZEROTH_LEVEL_REACHED:
+        case CRITERIA_TYPE_COMPLETE_QUEST_ACCUMULATE:
+        case CRITERIA_TYPE_BOUGHT_ITEM_FROM_VENDOR:
+        case CRITERIA_TYPE_SOLD_ITEM_TO_VENDOR:
+        case CRITERIA_TYPE_TRAVELLED_TO_AREA:
             return progress->Counter >= requiredAmount;
         case CRITERIA_TYPE_COMPLETE_ACHIEVEMENT:
         case CRITERIA_TYPE_COMPLETE_QUEST:
@@ -1336,6 +1347,9 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
         case CRITERIA_TYPE_WIN_DUEL:
         case CRITERIA_TYPE_WIN_RATED_ARENA:
         case CRITERIA_TYPE_WON_AUCTIONS:
+        case CRITERIA_TYPE_COMPLETE_QUEST_ACCUMULATE:
+        case CRITERIA_TYPE_BOUGHT_ITEM_FROM_VENDOR:
+        case CRITERIA_TYPE_SOLD_ITEM_TO_VENDOR:
             if (!miscValue1)
                 return false;
             break;
@@ -1590,6 +1604,9 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
             if (!miscValue2 /*login case*/ || miscValue1 != uint32(criteria->Entry->Asset.EquipmentSlot))
                 return false;
             break;
+        case CRITERIA_TYPE_TRAVELLED_TO_AREA:
+            if (miscValue1 != uint32(criteria->Entry->Asset.AreaID))
+                return false;
         default:
             break;
     }
@@ -2017,7 +2034,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 return false;
             break;
         case CRITERIA_ADDITIONAL_CONDITION_SOURCE_NATIVE_SEX: // 98
-            if (referencePlayer->m_playerData->NativeSex != uint8(reqValue))
+            if (referencePlayer->GetNativeSex() != uint8(reqValue))
                 return false;
             break;
         case CRITERIA_ADDITIONAL_CONDITION_SKILL: // 99
@@ -2701,7 +2718,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             break;
         }
         case CRITERIA_ADDITIONAL_CONDITION_SOURCE_LEVEL_120: // 264
-            if (referencePlayer->getLevel() != 120)
+            if (referencePlayer->getLevel() != 60)
                 return false;
             break;
         case CRITERIA_ADDITIONAL_CONDITION_SELECTED_AZERITE_ESSENCE_RANK_LOWER: // 266
@@ -2720,6 +2737,46 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                             if (essence.AzeriteEssenceID == selectedEssences->AzeriteEssenceID[reqValue] && essence.Rank > secondaryAsset)
                                 return true;
             return false;
+        case CRITERIA_ADDITIONAL_CONDITION_SOURCE_LEVEL_IN_RANGE_CT: // 268
+        {
+            uint8 level = referencePlayer->getLevel();
+            if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(reqValue, 0))
+            {
+                if (secondaryAsset)
+                    return level >= levels->MinLevelWithDelta && level <= levels->MaxLevelWithDelta;
+                return level >= levels->MinLevel && level <= levels->MaxLevel;
+            }
+            return false;
+        }
+        case CRITERIA_ADDITIONAL_CONDITION_TARGET_LEVEL_IN_RANGE_CT: // 269
+        {
+            if (!unit)
+                return false;
+            uint8 level = unit->getLevel();
+            if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(reqValue, 0))
+            {
+                if (secondaryAsset)
+                    return level >= levels->MinLevelWithDelta && level <= levels->MaxLevelWithDelta;
+                return level >= levels->MinLevel && level <= levels->MaxLevel;
+            }
+            return false;
+        }
+        case CRITERIA_ADDITIONAL_CONDITION_SOURCE_LEVEL_GREATER_CT: // 272
+        {
+            uint8 level = referencePlayer->getLevel();
+            if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(reqValue, 0))
+                return secondaryAsset ? level >= levels->MinLevelWithDelta : level >= levels->MinLevel;
+            return false;
+        }
+        case CRITERIA_ADDITIONAL_CONDITION_TARGET_LEVEL_GREATER_CT: // 273
+        {
+            if (!unit)
+                return false;
+            uint8 level = unit->getLevel();
+            if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(reqValue, 0))
+                return secondaryAsset ? level >= levels->MinLevelWithDelta : level >= levels->MinLevel;
+            return false;
+        }
         case CRITERIA_ADDITIONAL_CONDITION_MAP_OR_COSMETIC_MAP: // 280
         {
             MapEntry const* map = referencePlayer->GetMap()->GetEntry();
@@ -2727,6 +2784,60 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 return false;
             break;
         }
+        case CRITERIA_ADDITIONAL_CONDITION_COVENANT: // 288
+            if (referencePlayer->m_playerData->CovenantID != int32(reqValue))
+                return false;
+            break;
+        case CRITERIA_ADDITIONAL_CONDITION_SOULBIND: // 291
+            if (referencePlayer->m_playerData->SoulbindID != int32(reqValue))
+                return false;
+            break;
+        case CRITERIA_ADDITIONAL_CONDITION_SOURCE_AREA_OR_ZONE_IN_GROUP: // 293
+        {
+            std::vector<uint32> areas = sDB2Manager.GetAreasForGroup(reqValue);
+            if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(referencePlayer->GetAreaId()))
+                for (uint32 areaInGroup : areas)
+                    if (areaInGroup == area->ID || areaInGroup == area->ParentAreaID)
+                        return true;
+            return false;
+        }
+        case CRITERIA_ADDITIONAL_CONDITION_SOURCE_IN_SPECIFIC_CHROMIE_TIME: // 300
+            if (referencePlayer->m_activePlayerData->UiChromieTimeExpansionID != int32(reqValue))
+                return false;
+            break;
+        case CRITERIA_ADDITIONAL_CONDITION_SOURCE_IN_ANY_CHROMIE_TIME: // 301
+            if (referencePlayer->m_activePlayerData->UiChromieTimeExpansionID == 0)
+                return false;
+            break;
+        case CRITERIA_ADDITIONAL_CONDITION_SOURCE_RUNEFORGE_LEGENDARY_KNOWN: // 303
+        {
+            uint32 block = reqValue / 32;
+            if (block >= referencePlayer->m_activePlayerData->RuneforgePowers.size())
+                return false;
+
+            uint32 bit = reqValue % 32;
+            return referencePlayer->m_activePlayerData->RuneforgePowers[block] & (1 << bit);
+        }
+        case CRITERIA_ADDITIONAL_CONDITION_SHAPESHIFT_FORM_CUSTOMIZATION_DISPLAY: // 308
+        {
+            ShapeshiftFormModelData const* formModelData = sDB2Manager.GetShapeshiftFormModelData(referencePlayer->getRace(), referencePlayer->GetNativeSex(), secondaryAsset);
+            if (!formModelData)
+                return false;
+            uint32 formChoice = referencePlayer->GetCustomizationChoice(formModelData->OptionID);
+            auto choiceItr = std::find_if(formModelData->Choices->begin(), formModelData->Choices->end(), [formChoice](ChrCustomizationChoiceEntry const* choice)
+            {
+                return choice->ID == formChoice;
+            });
+            if (choiceItr == formModelData->Choices->end())
+                return false;
+            if (int32(reqValue) != formModelData->Displays[std::distance(formModelData->Choices->begin(), choiceItr)]->DisplayID)
+                return false;
+            break;
+        }
+        case CRITERIA_ADDITIONAL_CONDITION_SOURCE_FLYING: // 311
+            if (!referencePlayer->IsFlying())
+                return false;
+            break;
         default:
             break;
     }
@@ -3106,6 +3217,20 @@ char const* CriteriaMgr::GetCriteriaTypeString(CriteriaTypes type)
             return "HEART_OF_AZEROTH_ARTIFACT_POWER_EARNED";
         case CRITERIA_TYPE_HEART_OF_AZEROTH_LEVEL_REACHED:
             return "HEART_OF_AZEROTH_LEVEL_REACHED";
+        case CRITERIA_TYPE_MYTHIC_KEYSTONE_COMPLETED:
+            return "MYTHIC_KEYSTONE_COMPLETED";
+        case CRITERIA_TYPE_COMPLETE_QUEST_ACCUMULATE:
+            return "COMPLETE_QUEST_ACCUMULATE";
+        case CRITERIA_TYPE_BOUGHT_ITEM_FROM_VENDOR:
+            return "BOUGHT_ITEM_FROM_VENDOR";
+        case CRITERIA_TYPE_SOLD_ITEM_TO_VENDOR:
+            return "SOLD_ITEM_TO_VENDOR";
+        case CRITERIA_TYPE_TRAVELLED_TO_AREA:
+            return "TRAVELLED_TO_AREA";
+        case CRITERIA_TYPE_APPLY_CONDUIT:
+            return "APPLY_CONDUIT";
+        case CRITERIA_TYPE_CONVERT_ITEMS_TO_CURRENCY:
+            return "CONVERT_ITEMS_TO_CURRENCY";
     }
     return "MISSING_TYPE";
 }

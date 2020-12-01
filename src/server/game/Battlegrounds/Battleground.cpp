@@ -1629,7 +1629,7 @@ bool Battleground::AddSpiritGuide(uint32 type, float x, float y, float z, float 
         // creature->SetVisibleAura(0, SPELL_SPIRIT_HEAL_CHANNEL);
         // casting visual effect
         creature->SetChannelSpellId(SPELL_SPIRIT_HEAL_CHANNEL);
-        creature->SetChannelSpellXSpellVisualId(VISUAL_SPIRIT_HEAL_CHANNEL);
+        creature->SetChannelVisual({ VISUAL_SPIRIT_HEAL_CHANNEL, 0 });
         //creature->CastSpell(creature, SPELL_SPIRIT_HEAL_CHANNEL, true);
         return true;
     }

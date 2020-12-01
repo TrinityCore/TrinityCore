@@ -840,28 +840,19 @@ CharactersPerAccount = 50
 #
 #    CharactersPerRealm
 #        Description: Limit number of characters per account on this realm.
-#        Range:       1-16
-#        Default:     16 - (Client limitation)
+#        Range:       1-200
+#        Default:     50
 
-CharactersPerRealm = 16
-
-#
-#    DemonHuntersPerRealm
-#        Description: Limit number of demon hunter characters per account on this realm.
-#        Range:       1-16
-#        Default:     1
-
-DemonHuntersPerRealm = 1
+CharactersPerRealm = 50
 
 #
 #    CharacterCreating.MinLevelForDemonHunter
 #        Description: Limit creating demon hunters only for account with another
 #                     character of specific level.
-#        Default:     70 - (Enabled, Requires at least another level 70 character)
-#                     0  - (Disabled)
+#        Default:     0  - (Disabled, No requirement)
 #                     1  - (Enabled, Requires at least another level 1 character)
 
-CharacterCreating.MinLevelForDemonHunter = 70
+CharacterCreating.MinLevelForDemonHunter = 0
 
 #
 #    SkipCinematics
@@ -878,9 +869,9 @@ SkipCinematics = 0
 #        Description: Maximum level that can be reached by players.
 #        Important:   Levels beyond 110 are not recommended at all.
 #        Range:       1-255
-#        Default:     120
+#        Default:     60
 
-MaxPlayerLevel = 120
+MaxPlayerLevel = 60
 
 #
 #    MinDualSpecLevel

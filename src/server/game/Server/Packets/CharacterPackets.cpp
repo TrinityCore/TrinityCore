@@ -22,9 +22,7 @@
 #include "Player.h"
 #include "World.h"
 
-namespace WorldPackets
-{
-namespace Character
+namespace UF
 {
 ByteBuffer& operator<<(ByteBuffer& data, ChrCustomizationChoice const& customizationChoice)
 {
@@ -41,6 +39,25 @@ ByteBuffer& operator>>(ByteBuffer& data, ChrCustomizationChoice& customizationCh
 
     return data;
 }
+}
+
+namespace WorldPackets
+{
+namespace Character
+{
+void SortCustomizations(Array<ChrCustomizationChoice, 50>& customizations)
+{
+    auto first = customizations.begin();
+    auto last = customizations.end();
+    for (auto itr = first; itr != last; ++itr)
+    {
+        auto insertion = std::upper_bound(first, itr, *itr, [](ChrCustomizationChoice const& left, ChrCustomizationChoice const& right)
+        {
+            return left.ChrCustomizationOptionID < right.ChrCustomizationOptionID;
+        });
+        std::rotate(insertion, itr, std::next(itr));
+    }
+}
 
 EnumCharacters::EnumCharacters(WorldPacket&& packet) : ClientPacket(std::move(packet))
 {
@@ -49,15 +66,13 @@ EnumCharacters::EnumCharacters(WorldPacket&& packet) : ClientPacket(std::move(pa
 
 EnumCharactersResult::CharacterInfo::CharacterInfo(Field* fields)
 {
-    //         0                1                2                3                 4                  5                6                7
-    // "SELECT characters.guid, characters.name, characters.race, characters.class, characters.gender, characters.skin, characters.face, characters.hairStyle, "
-    //  8                     9                       10                         11                         12                         13
-    // "characters.hairColor, characters.facialStyle, characters.customDisplay1, characters.customDisplay2, characters.customDisplay3, characters.level, "
-    //  14               15              16                     17                     18
+    //         0                1                2                3                 4                  5
+    // "SELECT characters.guid, characters.name, characters.race, characters.class, characters.gender, characters.level, "
+    //  6                7               8                      9                      10
     // "characters.zone, characters.map, characters.position_x, characters.position_y, characters.position_z, "
-    //  19                    20                      21                   22                   23                     24                   25
+    //  11                    12                      13                   14                   15                     16                   17
     // "guild_member.guildid, characters.playerFlags, characters.at_login, character_pet.entry, character_pet.modelid, character_pet.level, characters.equipmentCache, "
-    //  26                     27               28                      29                            30                         31
+    //  18                     19               20                      21                            22                         23
     // "character_banned.guid, characters.slot, characters.logout_time, characters.activeTalentGroup, characters.lastLoginBuild, character_declinedname.genitive"
 
     Guid              = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64());
@@ -65,24 +80,16 @@ EnumCharactersResult::CharacterInfo::CharacterInfo(Field* fields)
     RaceID            = fields[2].GetUInt8();
     ClassID           = fields[3].GetUInt8();
     SexID             = fields[4].GetUInt8();
-    SkinID            = fields[5].GetUInt8();
-    FaceID            = fields[6].GetUInt8();
-    HairStyle         = fields[7].GetUInt8();
-    HairColor         = fields[8].GetUInt8();
-    FacialHair        = fields[9].GetUInt8();
-    CustomDisplay[0]  = fields[10].GetUInt8();
-    CustomDisplay[1]  = fields[11].GetUInt8();
-    CustomDisplay[2]  = fields[12].GetUInt8();
-    ExperienceLevel   = fields[13].GetUInt8();
-    ZoneID            = int32(fields[14].GetUInt16());
-    MapID             = int32(fields[15].GetUInt16());
-    PreloadPos        = Position(fields[16].GetFloat(), fields[17].GetFloat(), fields[18].GetFloat());
+    ExperienceLevel   = fields[5].GetUInt8();
+    ZoneID            = int32(fields[6].GetUInt16());
+    MapID             = int32(fields[7].GetUInt16());
+    PreloadPos        = Position(fields[8].GetFloat(), fields[8].GetFloat(), fields[10].GetFloat());
 
-    if (ObjectGuid::LowType guildId = fields[19].GetUInt64())
+    if (ObjectGuid::LowType guildId = fields[11].GetUInt64())
         GuildGUID = ObjectGuid::Create<HighGuid::Guild>(guildId);
 
-    uint32 playerFlags  = fields[20].GetUInt32();
-    uint32 atLoginFlags = fields[21].GetUInt16();
+    uint32 playerFlags  = fields[12].GetUInt32();
+    uint32 atLoginFlags = fields[13].GetUInt16();
 
     if (atLoginFlags & AT_LOGIN_RESURRECT)
         playerFlags &= ~PLAYER_FLAGS_GHOST;
@@ -93,10 +100,10 @@ EnumCharactersResult::CharacterInfo::CharacterInfo(Field* fields)
     if (atLoginFlags & AT_LOGIN_RENAME)
         Flags |= CHARACTER_FLAG_RENAME;
 
-    if (fields[26].GetUInt64())
+    if (fields[18].GetUInt64())
         Flags |= CHARACTER_FLAG_LOCKED_BY_BILLING;
 
-    if (sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED) && !fields[31].GetString().empty())
+    if (sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED) && !fields[23].GetString().empty())
         Flags |= CHARACTER_FLAG_DECLINED;
 
     if (atLoginFlags & AT_LOGIN_CUSTOMIZE)
@@ -113,10 +120,10 @@ EnumCharactersResult::CharacterInfo::CharacterInfo(Field* fields)
     // show pet at selection character in character list only for non-ghost character
     if (!(playerFlags & PLAYER_FLAGS_GHOST) && (ClassID == CLASS_WARLOCK || ClassID == CLASS_HUNTER || ClassID == CLASS_DEATH_KNIGHT))
     {
-        if (CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(fields[22].GetUInt32()))
+        if (CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(fields[14].GetUInt32()))
         {
-            PetCreatureDisplayID = fields[23].GetUInt32();
-            PetExperienceLevel = fields[24].GetUInt16();
+            PetCreatureDisplayID = fields[15].GetUInt32();
+            PetExperienceLevel = fields[16].GetUInt16();
             PetCreatureFamilyID = creatureInfo->family;
         }
     }
@@ -125,13 +132,13 @@ EnumCharactersResult::CharacterInfo::CharacterInfo(Field* fields)
     ProfessionIds[0] = 0;
     ProfessionIds[1] = 0;
 
-    Tokenizer equipment(fields[25].GetString(), ' ');
-    ListPosition = fields[27].GetUInt8();
-    LastPlayedTime = fields[28].GetUInt32();
-    if (ChrSpecializationEntry const* spec = sDB2Manager.GetChrSpecializationByIndex(ClassID, fields[29].GetUInt8()))
+    Tokenizer equipment(fields[17].GetString(), ' ');
+    ListPosition = fields[19].GetUInt8();
+    LastPlayedTime = fields[20].GetUInt32();
+    if (ChrSpecializationEntry const* spec = sDB2Manager.GetChrSpecializationByIndex(ClassID, fields[21].GetUInt8()))
         SpecID = spec->ID;
 
-    LastLoginVersion = fields[30].GetUInt32();
+    LastLoginVersion = fields[22].GetUInt32();
 
     for (uint8 slot = 0; slot < INVENTORY_SLOT_BAG_END; ++slot)
     {
@@ -292,6 +299,8 @@ void CreateCharacter::Read()
 
     for (ChrCustomizationChoice& customization : CreateInfo->Customizations)
         _worldPacket >> customization;
+
+    SortCustomizations(CreateInfo->Customizations);
 }
 
 WorldPacket const* CreateChar::Write()
@@ -343,6 +352,8 @@ void CharCustomize::Read()
     for (ChrCustomizationChoice& customization : CustomizeInfo->Customizations)
         _worldPacket >> customization;
 
+    SortCustomizations(CustomizeInfo->Customizations);
+
     CustomizeInfo->CharName = _worldPacket.ReadString(_worldPacket.ReadBits(6));
 }
 
@@ -361,6 +372,8 @@ void CharRaceOrFactionChange::Read()
     RaceOrFactionChangeInfo->Name = _worldPacket.ReadString(nameLength);
     for (ChrCustomizationChoice& customization : RaceOrFactionChangeInfo->Customizations)
         _worldPacket >> customization;
+
+    SortCustomizations(RaceOrFactionChangeInfo->Customizations);
 }
 
 WorldPacket const* CharFactionChangeResult::Write()
@@ -516,6 +529,8 @@ void AlterApperance::Read()
     _worldPacket >> NewSex;
     for (ChrCustomizationChoice& customization : Customizations)
         _worldPacket >> customization;
+
+    SortCustomizations(Customizations);
 }
 
 WorldPacket const* BarberShopResult::Write()

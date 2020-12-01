@@ -141,11 +141,11 @@ void WorldSession::HandleTransmogrifyItems(WorldPackets::Transmogrification::Tra
                 return;
             }
 
-            if (PlayerConditionEntry const* condition = sPlayerConditionStore.LookupEntry(illusion->TransmogPlayerConditionID))
+            if (PlayerConditionEntry const* condition = sPlayerConditionStore.LookupEntry(illusion->TransmogUseConditionID))
             {
                 if (!sConditionMgr->IsPlayerMeetingCondition(player, condition))
                 {
-                    TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - %s, Name: %s tried to transmogrify illusion using not collected enchant (%d).", player->GetGUID().ToString().c_str(), player->GetName().c_str(), transmogItem.SpellItemEnchantmentID);
+                    TC_LOG_DEBUG("network", "WORLD: HandleTransmogrifyItems - %s, Name: %s tried to transmogrify illusion using not allowed enchant (%d).", player->GetGUID().ToString().c_str(), player->GetName().c_str(), transmogItem.SpellItemEnchantmentID);
                     return;
                 }
             }
