@@ -249,7 +249,7 @@ struct PassiveSpellHistory : public IsUpdateFieldStructureTag
     bool operator!=(PassiveSpellHistory const& right) const { return !(*this == right); }
 };
 
-struct UnitData : public IsUpdateFieldStructureTag, public HasChangesMask<196>
+struct UnitData : public IsUpdateFieldStructureTag, public HasChangesMask<189>
 {
     UpdateField<std::vector<uint32>, 0, 1> StateWorldEffectIDs;
     DynamicUpdateField<UF::PassiveSpellHistory, 0, 2> PassiveSpells;
@@ -385,13 +385,12 @@ struct UnitData : public IsUpdateFieldStructureTag, public HasChangesMask<196>
     UpdateFieldArray<int32, 7, 167, 168> Resistances;
     UpdateFieldArray<int32, 7, 167, 175> BonusResistanceMods;
     UpdateFieldArray<int32, 7, 167, 182> PowerCostModifier;
-    UpdateFieldArray<float, 7, 167, 189> PowerCostMultiplier;
 
     void WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Unit const* owner, Player const* receiver) const;
     void WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Unit const* owner, Player const* receiver) const;
-    void WriteUpdate(ByteBuffer& data, UpdateMask<196> const& changesMask, bool ignoreNestedChangesMask, Unit const* owner, Player const* receiver) const;
-    void AppendAllowedFieldsMaskForFlag(UpdateMask<196>& allowedMaskForTarget, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags) const;
-    void FilterDisallowedFieldsMaskForFlag(UpdateMask<196>& changesMask, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags) const;
+    void WriteUpdate(ByteBuffer& data, UpdateMask<189> const& changesMask, bool ignoreNestedChangesMask, Unit const* owner, Player const* receiver) const;
+    void AppendAllowedFieldsMaskForFlag(UpdateMask<189>& allowedMaskForTarget, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags) const;
+    void FilterDisallowedFieldsMaskForFlag(UpdateMask<189>& changesMask, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags) const;
     void ClearChangesMask();
 };
 

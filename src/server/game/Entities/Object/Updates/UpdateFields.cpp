@@ -1056,7 +1056,6 @@ void UnitData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisi
         {
             data << int32(BonusResistanceMods[i]);
             data << int32(PowerCostModifier[i]);
-            data << float(PowerCostMultiplier[i]);
         }
     }
     data << int32(BaseMana);
@@ -1123,35 +1122,35 @@ void UnitData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisi
 
 void UnitData::WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Unit const* owner, Player const* receiver) const
 {
-    UpdateMask<196> allowedMaskForTarget({ 0xFFFFDFFFu, 0xE1FF7FFFu, 0x001EFFFFu, 0xFBFFFF81u, 0x03F8007Fu, 0x00000000u, 0x00000000u });
+    UpdateMask<189> allowedMaskForTarget({ 0xFFFFDFFFu, 0xE1FF7FFFu, 0x001EFFFFu, 0xFBFFFF81u, 0x03F8007Fu, 0x00000000u });
     AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
     WriteUpdate(data, _changesMask & allowedMaskForTarget, false, owner, receiver);
 }
 
-void UnitData::AppendAllowedFieldsMaskForFlag(UpdateMask<196>& allowedMaskForTarget, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags) const
+void UnitData::AppendAllowedFieldsMaskForFlag(UpdateMask<189>& allowedMaskForTarget, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags) const
 {
     if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Owner))
-        allowedMaskForTarget |= { 0x00002000u, 0x1E008000u, 0xFFE10000u, 0x0400007Eu, 0xFC07FF80u, 0xFFFFFFFFu, 0x0000000Fu };
+        allowedMaskForTarget |= { 0x00002000u, 0x1E008000u, 0xFFE10000u, 0x0400007Eu, 0xFC07FF80u, 0x1FFFFFFFu };
     if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::UnitAll))
-        allowedMaskForTarget |= { 0x00000000u, 0x00000000u, 0x00000000u, 0x04000000u, 0x0007FF80u, 0x00000000u, 0x00000000u };
+        allowedMaskForTarget |= { 0x00000000u, 0x00000000u, 0x00000000u, 0x04000000u, 0x0007FF80u, 0x00000000u };
     if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Empath))
-        allowedMaskForTarget |= { 0x00000000u, 0x1E000000u, 0x00000000u, 0x00000000u, 0x00000000u, 0x00007F80u, 0x00000000u };
+        allowedMaskForTarget |= { 0x00000000u, 0x1E000000u, 0x00000000u, 0x00000000u, 0x00000000u, 0x00007F80u };
 }
 
-void UnitData::FilterDisallowedFieldsMaskForFlag(UpdateMask<196>& changesMask, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags) const
+void UnitData::FilterDisallowedFieldsMaskForFlag(UpdateMask<189>& changesMask, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags) const
 {
     if (!fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Owner))
-        changesMask &= { 0xFFFFDFFFu, 0xE1FF7FFFu, 0x001EFFFFu, 0xFBFFFF81u, 0x03F8007Fu, 0x00000000u, 0xFFFFFFF0u };
+        changesMask &= { 0xFFFFDFFFu, 0xE1FF7FFFu, 0x001EFFFFu, 0xFBFFFF81u, 0x03F8007Fu, 0xE0000000u };
     if (!fieldVisibilityFlags.HasFlag(UpdateFieldFlag::UnitAll))
-        changesMask &= { 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFBFFFFFFu, 0xFFF8007Fu, 0xFFFFFFFFu, 0xFFFFFFFFu };
+        changesMask &= { 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFBFFFFFFu, 0xFFF8007Fu, 0xFFFFFFFFu };
     if (!fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Empath))
-        changesMask &= { 0xFFFFFFFFu, 0xE1FFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFF807Fu, 0xFFFFFFFFu };
+        changesMask &= { 0xFFFFFFFFu, 0xE1FFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFF807Fu };
 }
 
-void UnitData::WriteUpdate(ByteBuffer& data, UpdateMask<196> const& changesMask, bool ignoreNestedChangesMask, Unit const* owner, Player const* receiver) const
+void UnitData::WriteUpdate(ByteBuffer& data, UpdateMask<189> const& changesMask, bool ignoreNestedChangesMask, Unit const* owner, Player const* receiver) const
 {
-    data.WriteBits(changesMask.GetBlocksMask(0), 7);
-    for (std::size_t i = 0; i < 7; ++i)
+    data.WriteBits(changesMask.GetBlocksMask(0), 6);
+    for (std::size_t i = 0; i < 6; ++i)
         if (changesMask.GetBlock(i))
             data.WriteBits(changesMask.GetBlock(i), 32);
 
@@ -1764,10 +1763,6 @@ void UnitData::WriteUpdate(ByteBuffer& data, UpdateMask<196> const& changesMask,
             {
                 data << int32(PowerCostModifier[i]);
             }
-            if (changesMask[189 + i])
-            {
-                data << float(PowerCostMultiplier[i]);
-            }
         }
     }
 }
@@ -1902,7 +1897,6 @@ void UnitData::ClearChangesMask()
     Base::ClearChangesMask(Resistances);
     Base::ClearChangesMask(BonusResistanceMods);
     Base::ClearChangesMask(PowerCostModifier);
-    Base::ClearChangesMask(PowerCostMultiplier);
     _changesMask.ResetAll();
 }
 
@@ -4676,6 +4670,7 @@ void ScaleCurve::ClearChangesMask()
 
 void AreaTriggerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, AreaTrigger const* owner, Player const* receiver) const
 {
+    OverrideScaleCurve->WriteCreate(data, owner, receiver);
     data << Caster;
     data << uint32(Duration);
     data << uint32(TimeToTarget);
@@ -4687,7 +4682,6 @@ void AreaTriggerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fi
     data << float(BoundsRadius2D);
     data << uint32(DecalPropertiesID);
     data << CreatingEffectGUID;
-    OverrideScaleCurve->WriteCreate(data, owner, receiver);
     ExtraScaleCurve->WriteCreate(data, owner, receiver);
 }
 

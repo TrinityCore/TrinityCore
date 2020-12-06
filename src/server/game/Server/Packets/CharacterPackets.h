@@ -161,6 +161,7 @@ namespace WorldPackets
 
                 std::array<VisualItemInfo, 23> VisualItems = { };
                 std::vector<std::string> MailSenders;
+                std::vector<uint32> MailSenderTypes;
             };
 
             struct RaceUnlock
@@ -184,6 +185,7 @@ namespace WorldPackets
             bool Success                          = false; ///<
             bool IsDeletedCharacters              = false; ///< used for character undelete list
             bool IsNewPlayerRestrictionSkipped    = false; ///< allows client to skip new player restrictions
+            bool IsNewPlayerRestricted            = false; ///< forbids using level boost and class trials
             bool IsNewPlayer                      = false; ///< forbids hero classes and allied races
             bool IsAlliedRacesCreationAllowed     = false;
 

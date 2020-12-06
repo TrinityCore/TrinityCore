@@ -70,6 +70,7 @@ namespace WorldPackets
             std::string Text;
             std::string Confirm;
             TreasureLootList Treasure;
+            Optional<int32> SpellID;
         };
 
         struct ClientGossipText

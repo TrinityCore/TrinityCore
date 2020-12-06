@@ -77,11 +77,12 @@ enum SpellModOp : uint8
     SPELLMOD_SPELL_COST2                = 34, // Used when SpellPowerEntry::PowerIndex == 1
     SPELLMOD_JUMP_DISTANCE              = 35,
     // spellmod 36
-    SPELLMOD_STACK_AMOUNT2              = 37  // same as SPELLMOD_STACK_AMOUNT but affects tooltips
+    SPELLMOD_STACK_AMOUNT2              = 37, // same as SPELLMOD_STACK_AMOUNT but affects tooltips
     // spellmod 38
+    SPELLMOD_SPELL_COST3                = 39
 };
 
-#define MAX_SPELLMOD 39
+#define MAX_SPELLMOD 40
 
 enum SpellValueMod : uint8
 {
@@ -1087,7 +1088,6 @@ class TC_GAME_API Unit : public WorldObject
         int32 ModifyPower(Powers power, int32 val);
 
         void ApplyModPowerCostModifier(SpellSchools school, int32 mod, bool apply) { ApplyModUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerCostModifier, school), mod, apply); }
-        void ApplyModPowerCostMultiplier(SpellSchools school, float pct, bool apply) { ApplyModUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerCostMultiplier, school), pct, apply); }
 
         uint32 GetBaseAttackTime(WeaponAttackType att) const;
         void SetBaseAttackTime(WeaponAttackType att, uint32 val);

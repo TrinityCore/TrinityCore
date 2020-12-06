@@ -279,7 +279,6 @@ class TC_GAME_API AuraEffect
         void HandleAuraModRangedHaste(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //   combat rating
         void HandleModRating(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleModRatingFromStat(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModRatingPct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //   attack power
         void HandleAuraModAttackPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -293,7 +292,6 @@ class TC_GAME_API AuraEffect
         void HandleShieldBlockValue(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleShieldBlockValuePercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //  power cost
-        void HandleModPowerCostPCT(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModPowerCost(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleArenaPreparation(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleNoReagentUseAura(AuraApplication const* aurApp, uint8 mode, bool apply) const;

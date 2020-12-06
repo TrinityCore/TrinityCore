@@ -177,8 +177,8 @@ ByteBuffer& operator<<(ByteBuffer& data, ContentTuningParams const& contentTunin
     data << uint8(contentTuningParams.TargetMinScalingLevel);
     data << uint8(contentTuningParams.TargetMaxScalingLevel);
     data << int8(contentTuningParams.TargetScalingLevelDelta);
+    data << uint32(contentTuningParams.Flags);
     data.WriteBits(contentTuningParams.Type, 4);
-    data.WriteBit(contentTuningParams.ScalesWithItemLevel);
     data.FlushBits();
     return data;
 }

@@ -3811,6 +3811,7 @@ std::vector<SpellPowerCost> SpellInfo::CalcPowerCost(Unit const* caster, SpellSc
         if (power->PowerType != POWER_HEALTH)
         {
             // Flat mod from caster auras by spell school and power type
+            int32 flatMod = 0;
             Unit::AuraEffectList const& auras = caster->GetAuraEffectsByType(SPELL_AURA_MOD_POWER_COST_SCHOOL);
             for (Unit::AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); ++i)
             {
@@ -3820,8 +3821,13 @@ std::vector<SpellPowerCost> SpellInfo::CalcPowerCost(Unit const* caster, SpellSc
                 if (!((*i)->GetMiscValueB() & (1 << power->PowerType)))
                     continue;
 
-                powerCost += (*i)->GetAmount();
+                flatMod += (*i)->GetAmount();
             }
+
+            if (power->PowerType == POWER_MANA)
+                flatMod *= 1.0f + caster->m_unitData->ManaCostModifierModifier;
+
+            powerCost += flatMod;
         }
 
         // Shiv - costs 20 + weaponSpeed*10 energy (apply only to non-triggered spell with energy cost)
@@ -3833,7 +3839,7 @@ std::vector<SpellPowerCost> SpellInfo::CalcPowerCost(Unit const* caster, SpellSc
             else
             {
                 WeaponAttackType slot = BASE_ATTACK;
-                if (HasAttribute(SPELL_ATTR3_REQ_OFFHAND))
+                if (!HasAttribute(SPELL_ATTR3_MAIN_HAND) && HasAttribute(SPELL_ATTR3_REQ_OFFHAND))
                     slot = OFF_ATTACK;
 
                 speed = caster->GetBaseAttackTime(slot);
@@ -3845,13 +3851,23 @@ std::vector<SpellPowerCost> SpellInfo::CalcPowerCost(Unit const* caster, SpellSc
         // Apply cost mod by spell
         if (Player* modOwner = caster->GetSpellModOwner())
         {
-            if (power->OrderIndex == 0)
-                modOwner->ApplySpellMod(Id, SPELLMOD_COST, powerCost, spell);
-            else if (power->OrderIndex == 1)
-                modOwner->ApplySpellMod(Id, SPELLMOD_SPELL_COST2, powerCost, spell);
+            switch (power->OrderIndex)
+            {
+                case 0:
+                    modOwner->ApplySpellMod(Id, SPELLMOD_COST, powerCost, spell);
+                    break;
+                case 1:
+                    modOwner->ApplySpellMod(Id, SPELLMOD_SPELL_COST2, powerCost, spell);
+                    break;
+                case 2:
+                    modOwner->ApplySpellMod(Id, SPELLMOD_SPELL_COST3, powerCost, spell);
+                    break;
+                default:
+                    break;
+            }
         }
 
-        if (!caster->IsControlledByPlayer() && G3D::fuzzyEq(power->PowerCostPct, 0.0f) && SpellLevel)
+        if (!caster->IsControlledByPlayer() && G3D::fuzzyEq(power->PowerCostPct, 0.0f) && SpellLevel && power->PowerType == POWER_MANA)
         {
             if (HasAttribute(SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION))
             {

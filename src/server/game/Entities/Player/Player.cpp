@@ -2449,6 +2449,8 @@ void Player::InitStatsForLevel(bool reapplyMods)
 
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::MaxLevel), sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL));
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::NextLevelXP), sObjectMgr->GetXPForLevel(getLevel()));
+    if (m_activePlayerData->XP >= m_activePlayerData->NextLevelXP)
+        SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::XP), m_activePlayerData->NextLevelXP - 1);
 
     // reset before any aura state sources (health set/aura apply)
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::AuraState), 0);
@@ -2550,10 +2552,7 @@ void Player::InitStatsForLevel(bool reapplyMods)
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ModTargetResistance), 0);
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ModTargetPhysicalResistance), 0);
     for (uint8 i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; ++i)
-    {
         SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerCostModifier, i), 0);
-        SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerCostMultiplier, i), 0.0f);
-    }
 
     // Reset no reagent cost field
     SetNoRegentCostMask(flag128());
@@ -5183,13 +5182,6 @@ void Player::ApplyRatingMod(CombatRating combatRating, int32 value, bool apply)
 void Player::UpdateRating(CombatRating cr)
 {
     int32 amount = m_baseRatingValue[cr];
-    // Apply bonus from SPELL_AURA_MOD_RATING_FROM_STAT
-    // stat used stored in miscValueB for this aura
-    AuraEffectList const& modRatingFromStat = GetAuraEffectsByType(SPELL_AURA_MOD_RATING_FROM_STAT);
-    for (AuraEffect const* aurEff : modRatingFromStat)
-        if (aurEff->GetMiscValue() & (1 << cr))
-            amount += int32(CalculatePct(GetStat(Stats(aurEff->GetMiscValueB())), aurEff->GetAmount()));
-
     AuraEffectList const& modRatingPct = GetAuraEffectsByType(SPELL_AURA_MOD_RATING_PCT);
     for (AuraEffect const* aurEff : modRatingPct)
         if (aurEff->GetMiscValue() & (1 << cr))

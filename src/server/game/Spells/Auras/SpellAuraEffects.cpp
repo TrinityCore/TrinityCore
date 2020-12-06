@@ -138,7 +138,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNoImmediateEffect,                         // 69 SPELL_AURA_SCHOOL_ABSORB implemented in Unit::CalcAbsorbResist
     &AuraEffect::HandleUnused,                                    // 70 SPELL_AURA_EXTRA_ATTACKS clientside
     &AuraEffect::HandleNULL,                                      // 71 SPELL_AURA_71
-    &AuraEffect::HandleModPowerCostPCT,                           // 72 SPELL_AURA_MOD_POWER_COST_SCHOOL_PCT
+    &AuraEffect::HandleNoImmediateEffect,                         // 72 SPELL_AURA_MOD_POWER_COST_SCHOOL_PCT
     &AuraEffect::HandleModPowerCost,                              // 73 SPELL_AURA_MOD_POWER_COST_SCHOOL
     &AuraEffect::HandleNoImmediateEffect,                         // 74 SPELL_AURA_REFLECT_SPELLS_SCHOOL  implemented in Unit::SpellHitResult
     &AuraEffect::HandleNoImmediateEffect,                         // 75 SPELL_AURA_MOD_LANGUAGE
@@ -286,7 +286,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleModMeleeSpeedPct,                          //217 SPELL_AURA_MOD_MELEE_HASTE_2
     &AuraEffect::HandleNULL,                                      //218 Affects item stats from equipment
     &AuraEffect::HandleModManaRegen,                              //219 SPELL_AURA_MOD_MANA_REGEN_FROM_STAT
-    &AuraEffect::HandleModRatingFromStat,                         //220 SPELL_AURA_MOD_RATING_FROM_STAT
+    &AuraEffect::HandleNULL,                                      //220 SPELL_AURA_MOD_ABILITY_SCHOOL_MASK
     &AuraEffect::HandleNULL,                                      //221 SPELL_AURA_MOD_DETAUNT
     &AuraEffect::HandleUnused,                                    //222 unused (3.2.0) only for spell 44586 that not used in real spell cast
     &AuraEffect::HandleUnused,                                    //223 unused (7.2.0)
@@ -4238,22 +4238,6 @@ void AuraEffect::HandleModRating(AuraApplication const* aurApp, uint8 mode, bool
             target->ToPlayer()->ApplyRatingMod(CombatRating(rating), GetAmount(), apply);
 }
 
-void AuraEffect::HandleModRatingFromStat(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
-{
-    if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
-        return;
-
-    Unit* target = aurApp->GetTarget();
-
-    if (target->GetTypeId() != TYPEID_PLAYER)
-        return;
-
-    // Just recalculate ratings
-    for (uint32 rating = 0; rating < MAX_COMBAT_RATING; ++rating)
-        if (GetMiscValue() & (1 << rating))
-            target->ToPlayer()->UpdateRating(CombatRating(rating));
-}
-
 void AuraEffect::HandleModRatingPct(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
@@ -4431,19 +4415,6 @@ void AuraEffect::HandleShieldBlockValuePercent(AuraApplication const* aurApp, ui
 /********************************/
 /***        POWER COST        ***/
 /********************************/
-
-void AuraEffect::HandleModPowerCostPCT(AuraApplication const* aurApp, uint8 mode, bool apply) const
-{
-    if (!(mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK))
-        return;
-
-    Unit* target = aurApp->GetTarget();
-
-    float amount = CalculatePct(1.0f, GetAmount());
-    for (int i = 0; i < MAX_SPELL_SCHOOL; ++i)
-        if (GetMiscValue() & (1 << i))
-            target->ApplyModPowerCostMultiplier(SpellSchools(i), amount, apply);
-}
 
 void AuraEffect::HandleModPowerCost(AuraApplication const* aurApp, uint8 mode, bool apply) const
 {

@@ -163,6 +163,8 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::CharacterInfo::Vi
 
 ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::CharacterInfo const& charInfo)
 {
+    ASSERT(charInfo.MailSenders.size() == charInfo.MailSenderTypes.size());
+
     data << charInfo.Guid;
     data << uint64(charInfo.GuildClubMemberID);
     data << uint8(charInfo.ListPosition);
@@ -194,10 +196,14 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::CharacterInfo con
     data << uint32(charInfo.LastLoginVersion);
     data << uint32(charInfo.Flags4);
     data << uint32(charInfo.MailSenders.size());
+    data << uint32(charInfo.MailSenderTypes.size());
     data << uint32(charInfo.OverrideSelectScreenFileDataID);
 
-    for (ChrCustomizationChoice customization : charInfo.Customizations)
+    for (ChrCustomizationChoice const& customization : charInfo.Customizations)
         data << customization;
+
+    if (!charInfo.MailSenderTypes.empty())
+        data.append(charInfo.MailSenderTypes.data(), charInfo.MailSenderTypes.size());
 
     data.WriteBits(charInfo.Name.length(), 6);
     data.WriteBit(charInfo.FirstLogin);
@@ -244,6 +250,7 @@ WorldPacket const* EnumCharactersResult::Write()
     _worldPacket.WriteBit(Success);
     _worldPacket.WriteBit(IsDeletedCharacters);
     _worldPacket.WriteBit(IsNewPlayerRestrictionSkipped);
+    _worldPacket.WriteBit(IsNewPlayerRestricted);
     _worldPacket.WriteBit(IsNewPlayer);
     _worldPacket.WriteBit(DisabledClassesMask.is_initialized());
     _worldPacket.WriteBit(IsAlliedRacesCreationAllowed);

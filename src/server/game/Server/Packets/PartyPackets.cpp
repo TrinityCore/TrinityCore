@@ -411,7 +411,7 @@ WorldPacket const* WorldPackets::Party::RolePollInform::Write()
 WorldPacket const* WorldPackets::Party::GroupNewLeader::Write()
 {
     _worldPacket << PartyIndex;
-    _worldPacket.WriteBits(Name.size(), 6);
+    _worldPacket.WriteBits(Name.size(), 9);
     _worldPacket.WriteString(Name);
 
     return &_worldPacket;

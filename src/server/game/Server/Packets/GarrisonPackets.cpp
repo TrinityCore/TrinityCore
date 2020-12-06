@@ -108,12 +108,17 @@ ByteBuffer& operator<<(ByteBuffer& data, GarrisonMission const& mission)
 ByteBuffer& operator<<(ByteBuffer& data, GarrisonMissionReward const& missionRewardItem)
 {
     data << int32(missionRewardItem.ItemID);
-    data << uint32(missionRewardItem.Quantity);
+    data << uint32(missionRewardItem.ItemQuantity);
     data << int32(missionRewardItem.CurrencyID);
     data << uint32(missionRewardItem.CurrencyQuantity);
     data << uint32(missionRewardItem.FollowerXP);
-    data << uint32(missionRewardItem.BonusAbilityID);
-    data << int32(missionRewardItem.Unknown);
+    data << uint32(missionRewardItem.GarrMssnBonusAbilityID);
+    data << int32(missionRewardItem.ItemFileDataID);
+    data.WriteBit(missionRewardItem.ItemInstance.is_initialized());
+    data.FlushBits();
+
+    if (missionRewardItem.ItemInstance)
+        data << *missionRewardItem.ItemInstance;
 
     return data;
 }
@@ -219,16 +224,8 @@ ByteBuffer& operator<<(ByteBuffer& data, GarrisonInfo const& garrison)
     for (std::vector<GarrisonMissionReward> const& missionReward : garrison.MissionRewards)
         data << uint32(missionReward.size());
 
-    for (std::vector<GarrisonMissionReward> const& missionReward : garrison.MissionRewards)
-        for (GarrisonMissionReward const& missionRewardItem : missionReward)
-            data << missionRewardItem;
-
     for (std::vector<GarrisonMissionReward> const& missionReward : garrison.MissionOvermaxRewards)
         data << uint32(missionReward.size());
-
-    for (std::vector<GarrisonMissionReward> const& missionReward : garrison.MissionOvermaxRewards)
-        for (GarrisonMissionReward const& missionRewardItem : missionReward)
-            data << missionRewardItem;
 
     for (GarrisonMissionBonusAbility const* areaBonus : garrison.MissionAreaBonuses)
         data << *areaBonus;
@@ -258,6 +255,14 @@ ByteBuffer& operator<<(ByteBuffer& data, GarrisonInfo const& garrison)
 
     for (GarrisonTalent const& talent : garrison.Talents)
         data << talent;
+
+    for (std::vector<GarrisonMissionReward> const& missionReward : garrison.MissionRewards)
+        for (GarrisonMissionReward const& missionRewardItem : missionReward)
+            data << missionRewardItem;
+
+    for (std::vector<GarrisonMissionReward> const& missionReward : garrison.MissionOvermaxRewards)
+        for (GarrisonMissionReward const& missionRewardItem : missionReward)
+            data << missionRewardItem;
 
     return data;
 }

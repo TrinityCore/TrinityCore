@@ -19,6 +19,7 @@
 #define GarrisonPackets_h__
 
 #include "Packet.h"
+#include "ItemPacketsCommon.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include "Position.h"
@@ -119,12 +120,13 @@ namespace WorldPackets
         struct GarrisonMissionReward
         {
             int32 ItemID = 0;
-            uint32 Quantity = 0;
+            uint32 ItemQuantity = 0;
             int32 CurrencyID = 0;
             uint32 CurrencyQuantity = 0;
             uint32 FollowerXP = 0;
-            uint32 BonusAbilityID = 0;
-            int32 Unknown = 0;
+            uint32 GarrMssnBonusAbilityID = 0;
+            int32 ItemFileDataID = 0;
+            Optional<Item::ItemInstance> ItemInstance;
         };
 
         struct GarrisonMissionBonusAbility
