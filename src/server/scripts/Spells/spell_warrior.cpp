@@ -80,11 +80,62 @@ enum WarriorSpells
     SPELL_WARRIOR_VENGEANCE                         = 76691,
     SPELL_WARRIOR_VICTORIOUS                        = 32216,
     SPELL_WARRIOR_VICTORY_RUSH_HEAL                 = 118779,
+    SPELL_WARRIOR_JUMP_TO_SKYHOLD_JUMP              = 192085,
+    SPELL_WARRIOR_JUMP_TO_SKYHOLD_TELEPORT          = 216016,
+    SPELL_WARRIOR_JUMP_TO_SKYHOLD_AURA              = 215997,
 };
 
 enum WarriorMisc
 {
     SPELL_VISUAL_BLAZING_CHARGE = 26423
+};
+
+// Jump to Skyhold Jump - 192085
+class spell_warr_jump_to_skyhold : public SpellScriptLoader
+{
+public:
+    spell_warr_jump_to_skyhold() : SpellScriptLoader("spell_warr_jump_to_skyhold") {}
+
+    class spell_warr_jump_to_skyhold_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warr_jump_to_skyhold_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_JUMP_TO_SKYHOLD_TELEPORT))
+                return false;
+            return true;
+        }
+
+        void HandleJump(SpellEffIndex effIndex)
+        {
+            PreventHitDefaultEffect(effIndex);
+
+            if (Unit* caster = GetCaster())
+            {
+                float pos_x = caster->GetPositionX();
+                float pos_y = caster->GetPositionY();
+                float pos_z = caster->GetPositionZ() + 30.0f;
+
+                JumpArrivalCastArgs arrivalCast;
+                arrivalCast.SpellId = SPELL_WARRIOR_JUMP_TO_SKYHOLD_TELEPORT;
+                arrivalCast.Target = caster->GetGUID();
+                caster->GetMotionMaster()->MoveJump(pos_x, pos_y, pos_z, caster->GetOrientation(), 20.f, 20.f, EVENT_JUMP, false, &arrivalCast);
+
+                caster->RemoveAurasDueToSpell(SPELL_WARRIOR_JUMP_TO_SKYHOLD_AURA);
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectLaunch += SpellEffectFn(spell_warr_jump_to_skyhold_SpellScript::HandleJump, EFFECT_0, SPELL_EFFECT_JUMP_DEST);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_warr_jump_to_skyhold_SpellScript();
+    }
 };
 
 // 23881 - Bloodthirst
@@ -1465,4 +1516,5 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_victory_rush();
     new spell_warr_vigilance();
     new spell_warr_vigilance_trigger();
+    new spell_warr_jump_to_skyhold();
 }
