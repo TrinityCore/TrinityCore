@@ -502,6 +502,10 @@ int main(int argc, char ** argv)
             map.ParentMapID = int16(record.GetUInt16("ParentMapID"));
             map.Name = record.GetString("MapName");
             map.Directory = record.GetString("Directory");
+
+            if (map.ParentMapID < 0)
+                map.ParentMapID = int16(record.GetUInt16("CosmeticParentMapID"));
+
             if (map.ParentMapID >= 0)
                 maps_that_are_parents.insert(map.ParentMapID);
 

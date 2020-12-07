@@ -43,7 +43,8 @@ namespace VMAP
     {
         Success,
         FileNotFound,
-        VersionMismatch
+        VersionMismatch,
+        ReadFromFileFailed
     };
 
     #define VMAP_INVALID_HEIGHT       -100000.0f            // for check
