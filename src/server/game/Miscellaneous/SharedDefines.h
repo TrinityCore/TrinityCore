@@ -2621,11 +2621,14 @@ enum GameobjectTypes : uint8
     GAMEOBJECT_TYPE_SIEGEABLE_MULTI             = 53,
     GAMEOBJECT_TYPE_SIEGEABLE_MO                = 54,
     GAMEOBJECT_TYPE_PVP_REWARD                  = 55,
-    GAMEOBJECT_TYPE_FUTURE_PATCH_1              = 56,
-    GAMEOBJECT_TYPE_FUTURE_PATCH_2              = 57
+    GAMEOBJECT_TYPE_PLAYER_CHOICE_CHEST         = 56,
+    GAMEOBJECT_TYPE_LEGENDARY_FORGE             = 57,
+    GAMEOBJECT_TYPE_GARR_TALENT_TREE            = 58,
+    GAMEOBJECT_TYPE_WEEKLY_REWARD_CHEST         = 59,
+    GAMEOBJECT_TYPE_CLIENT_MODEL                = 60
 };
 
-#define MAX_GAMEOBJECT_TYPE                  58             // sending to client this or greater value can crash client.
+#define MAX_GAMEOBJECT_TYPE                  61             // sending to client this or greater value can crash client.
 #define MAX_GAMEOBJECT_DATA                  34             // Max number of uint32 vars in gameobject_template data field
 
 enum GameObjectFlags

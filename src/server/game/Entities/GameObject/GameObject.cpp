@@ -90,7 +90,7 @@ WorldPacket GameObjectTemplate::BuildQueryData(LocaleConstant loc) const
             stats.QuestItems.push_back(item);
 
     memcpy(stats.Data, raw.data, MAX_GAMEOBJECT_DATA * sizeof(int32));
-    stats.RequiredLevel = RequiredLevel;
+    stats.ContentTuningId = ContentTuningId;
 
     return *queryTemp.Write();
 }
@@ -1898,12 +1898,13 @@ void GameObject::Use(Unit* user)
                 return;
 
             //required lvl checks!
-            uint8 level = player->getLevel();
-            if (level < info->meetingStone.minLevel)
-                return;
-            level = targetPlayer->getLevel();
-            if (level < info->meetingStone.minLevel)
-                return;
+            if (Optional<ContentTuningLevels> userLevels = sDB2Manager.GetContentTuningData(info->ContentTuningId, player->m_playerData->CtrOptions->ContentTuningConditionMask))
+                if (player->getLevel() < userLevels->MaxLevel)
+                    return;
+
+            if (Optional<ContentTuningLevels> targetLevels = sDB2Manager.GetContentTuningData(info->ContentTuningId, targetPlayer->m_playerData->CtrOptions->ContentTuningConditionMask))
+                if (targetPlayer->getLevel() < targetLevels->MaxLevel)
+                    return;
 
             if (info->entry == 194097)
                 spellId = 61994;                            // Ritual of Summoning

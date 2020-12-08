@@ -292,7 +292,7 @@ WorldPacket const* WorldPackets::Query::QueryGameObjectResponse::Write()
         if (!Stats.QuestItems.empty())
             statsData.append(Stats.QuestItems.data(), Stats.QuestItems.size());
 
-        statsData << int32(Stats.RequiredLevel);
+        statsData << int32(Stats.ContentTuningId);
     }
 
     _worldPacket << uint32(statsData.size());
