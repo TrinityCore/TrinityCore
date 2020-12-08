@@ -124,10 +124,15 @@ enum InventoryResult : uint8
     EQUIP_ERR_CANT_USE_ITEM                                = 99, // You can't use that item.
     EQUIP_ERR_CANT_BE_OBLITERATED                          = 100,// You can't obliterate that item
     EQUIP_ERR_GUILD_BANK_CONJURED_ITEM                     = 101,// You cannot store conjured items in the guild bank
-    EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW                       = 102,// You can't do that right now.
-    EQUIP_ERR_BAG_FULL_6                                   = 103,// That bag is full.
-    EQUIP_ERR_CANT_BE_SCRAPPED                             = 104,// You can't scrap that item
-    EQUIP_NONE_4                                           = 105,
+    EQUIP_ERR_BAG_FULL_6                                   = 102,// That bag is full.
+    EQUIP_ERR_CANT_BE_SCRAPPED                             = 103,// You can't scrap that item
+    EQUIP_ERR_BAG_FULL_7                                   = 104,// That bag is full.
+    EQUIP_ERR_NOT_IN_PET_BATTLE                            = 105,// You cannot do that while in a pet battle
+    EQUIP_ERR_BAG_FULL_8                                   = 106,// That bag is full.
+    EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW                       = 107,// You can't do that right now.
+    EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW_2                     = 108,// You can't do that right now.
+    EQUIP_ERR_NOT_IN_NPE                                   = 109,// Not available during the tutorial
+    EQUIP_ERR_ITEM_COOLDOWN                                = 110,// Item is not ready yet.
 };
 
 enum BuyResult
