@@ -58,8 +58,8 @@ class TC_GAME_API AuraApplication
         Aura* const _base;
         AuraRemoveMode _removeMode:8;                  // Store info for know remove aura reason
         uint8 _slot;                                   // Aura slot on unit
-        uint8 _flags;                                  // Aura info flag
-        uint32 _effectsToApply;                         // Used only at spell hit to determine which effect should be applied
+        uint16 _flags;                                 // Aura info flag
+        uint32 _effectsToApply;                        // Used only at spell hit to determine which effect should be applied
         bool _needClientUpdate:1;
         uint32 _effectMask;
 
@@ -74,7 +74,7 @@ class TC_GAME_API AuraApplication
         Aura* GetBase() const { return _base; }
 
         uint8 GetSlot() const { return _slot; }
-        uint8 GetFlags() const { return _flags; }
+        uint16 GetFlags() const { return _flags; }
         uint32 GetEffectMask() const { return _effectMask; }
         bool HasEffect(uint8 effect) const { ASSERT(effect < MAX_SPELL_EFFECTS);  return (_effectMask & (1 << effect)) != 0; }
         bool IsPositive() const { return (_flags & AFLAG_POSITIVE) != 0; }
@@ -135,7 +135,7 @@ class TC_GAME_API Aura
         ObjectGuid GetCastItemGUID() const { return m_castItemGuid; }
         uint32 GetCastItemId() const { return m_castItemId; }
         int32 GetCastItemLevel() const { return m_castItemLevel; }
-        uint32 GetSpellXSpellVisualId() const { return m_spellXSpellVisualId; }
+        SpellCastVisual GetSpellVisual() const { return m_spellVisual; }
         Unit* GetCaster() const;
         WorldObject* GetOwner() const { return m_owner; }
         Unit* GetUnitOwner() const { ASSERT(GetType() == UNIT_AURA_TYPE); return (Unit*)m_owner; }
@@ -303,7 +303,7 @@ class TC_GAME_API Aura
         ObjectGuid const m_castItemGuid;                    // it is NOT safe to keep a pointer to the item because it may get deleted
         uint32 m_castItemId;
         int32 m_castItemLevel;
-        uint32 const m_spellXSpellVisualId;
+        SpellCastVisual const m_spellVisual;
         time_t const m_applyTime;
         WorldObject* const m_owner;
 

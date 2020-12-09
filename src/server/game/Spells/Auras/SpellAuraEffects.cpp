@@ -138,7 +138,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNoImmediateEffect,                         // 69 SPELL_AURA_SCHOOL_ABSORB implemented in Unit::CalcAbsorbResist
     &AuraEffect::HandleUnused,                                    // 70 SPELL_AURA_EXTRA_ATTACKS clientside
     &AuraEffect::HandleNULL,                                      // 71 SPELL_AURA_71
-    &AuraEffect::HandleModPowerCostPCT,                           // 72 SPELL_AURA_MOD_POWER_COST_SCHOOL_PCT
+    &AuraEffect::HandleNoImmediateEffect,                         // 72 SPELL_AURA_MOD_POWER_COST_SCHOOL_PCT
     &AuraEffect::HandleModPowerCost,                              // 73 SPELL_AURA_MOD_POWER_COST_SCHOOL
     &AuraEffect::HandleNoImmediateEffect,                         // 74 SPELL_AURA_REFLECT_SPELLS_SCHOOL  implemented in Unit::SpellHitResult
     &AuraEffect::HandleNoImmediateEffect,                         // 75 SPELL_AURA_MOD_LANGUAGE
@@ -286,7 +286,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleModMeleeSpeedPct,                          //217 SPELL_AURA_MOD_MELEE_HASTE_2
     &AuraEffect::HandleNULL,                                      //218 Affects item stats from equipment
     &AuraEffect::HandleModManaRegen,                              //219 SPELL_AURA_MOD_MANA_REGEN_FROM_STAT
-    &AuraEffect::HandleModRatingFromStat,                         //220 SPELL_AURA_MOD_RATING_FROM_STAT
+    &AuraEffect::HandleNULL,                                      //220 SPELL_AURA_MOD_ABILITY_SCHOOL_MASK
     &AuraEffect::HandleNULL,                                      //221 SPELL_AURA_MOD_DETAUNT
     &AuraEffect::HandleUnused,                                    //222 unused (3.2.0) only for spell 44586 that not used in real spell cast
     &AuraEffect::HandleUnused,                                    //223 unused (7.2.0)
@@ -555,11 +555,21 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //486
     &AuraEffect::HandleNULL,                                      //487
     &AuraEffect::HandleNULL,                                      //488
-    &AuraEffect::HandleNULL,                                      //489
+    &AuraEffect::HandleNULL,                                      //489 SPELL_AURA_MOD_ALTERNATIVE_DEFAULT_LANGUAGE
     &AuraEffect::HandleNULL,                                      //490
     &AuraEffect::HandleNULL,                                      //491
     &AuraEffect::HandleNULL,                                      //492
     &AuraEffect::HandleNULL,                                      //493
+    &AuraEffect::HandleNULL,                                      //494 SPELL_AURA_SET_POWER_POINT_CHARGE
+    &AuraEffect::HandleNULL,                                      //495 SPELL_AURA_TRIGGER_SPELL_ON_EXPIRE
+    &AuraEffect::HandleNULL,                                      //496 SPELL_AURA_ALLOW_CHANGING_EQUIPMENT_IN_TORGHAST
+    &AuraEffect::HandleNULL,                                      //497 SPELL_AURA_MOD_ANIMA_GAIN
+    &AuraEffect::HandleNULL,                                      //498 SPELL_AURA_CURRENCY_LOSS_PCT_ON_DEATH
+    &AuraEffect::HandleNULL,                                      //499 SPELL_AURA_MOD_RESTED_XP_CONSUMPTION
+    &AuraEffect::HandleNULL,                                      //500 SPELL_AURA_IGNORE_SPELL_CHARGE_COOLDOWN
+    &AuraEffect::HandleNULL,                                      //501 SPELL_AURA_MOD_CRITICAL_DAMAGE_TAKEN_FROM_CASTER
+    &AuraEffect::HandleNULL,                                      //502 SPELL_AURA_MOD_VERSATILITY_DAMAGE_DONE_BENEFIT
+    &AuraEffect::HandleNULL,                                      //503 SPELL_AURA_MOD_VERSATILITY_HEALING_DONE_BENEFIT
 };
 
 AuraEffect::AuraEffect(Aura* base, uint32 effIndex, int32 *baseAmount, Unit* caster) :
@@ -4228,22 +4238,6 @@ void AuraEffect::HandleModRating(AuraApplication const* aurApp, uint8 mode, bool
             target->ToPlayer()->ApplyRatingMod(CombatRating(rating), GetAmount(), apply);
 }
 
-void AuraEffect::HandleModRatingFromStat(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
-{
-    if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
-        return;
-
-    Unit* target = aurApp->GetTarget();
-
-    if (target->GetTypeId() != TYPEID_PLAYER)
-        return;
-
-    // Just recalculate ratings
-    for (uint32 rating = 0; rating < MAX_COMBAT_RATING; ++rating)
-        if (GetMiscValue() & (1 << rating))
-            target->ToPlayer()->UpdateRating(CombatRating(rating));
-}
-
 void AuraEffect::HandleModRatingPct(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
@@ -4421,19 +4415,6 @@ void AuraEffect::HandleShieldBlockValuePercent(AuraApplication const* aurApp, ui
 /********************************/
 /***        POWER COST        ***/
 /********************************/
-
-void AuraEffect::HandleModPowerCostPCT(AuraApplication const* aurApp, uint8 mode, bool apply) const
-{
-    if (!(mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK))
-        return;
-
-    Unit* target = aurApp->GetTarget();
-
-    float amount = CalculatePct(1.0f, GetAmount());
-    for (int i = 0; i < MAX_SPELL_SCHOOL; ++i)
-        if (GetMiscValue() & (1 << i))
-            target->ApplyModPowerCostMultiplier(SpellSchools(i), amount, apply);
-}
 
 void AuraEffect::HandleModPowerCost(AuraApplication const* aurApp, uint8 mode, bool apply) const
 {
@@ -5799,7 +5780,7 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
         GetCasterGUID().ToString().c_str(), target->GetGUID().ToString().c_str(), damage, GetId(), absorb);
 
     // SendSpellNonMeleeDamageLog expects non-absorbed/non-resisted damage
-    SpellNonMeleeDamage log(caster, target, GetSpellInfo(), GetBase()->GetSpellXSpellVisualId(), GetSpellInfo()->GetSchoolMask(), GetBase()->GetCastGUID());
+    SpellNonMeleeDamage log(caster, target, GetSpellInfo(), GetBase()->GetSpellVisual(), GetSpellInfo()->GetSchoolMask(), GetBase()->GetCastGUID());
     log.damage = damage;
     log.originalDamage = dmg;
     log.absorb = absorb;
@@ -6099,7 +6080,7 @@ void AuraEffect::HandlePeriodicPowerBurnAuraTick(Unit* target, Unit* caster) con
 
     SpellInfo const* spellProto = GetSpellInfo();
     // maybe has to be sent different to client, but not by SMSG_PERIODICAURALOG
-    SpellNonMeleeDamage damageInfo(caster, target, spellProto, GetBase()->GetSpellXSpellVisualId(), spellProto->SchoolMask, GetBase()->GetCastGUID());
+    SpellNonMeleeDamage damageInfo(caster, target, spellProto, GetBase()->GetSpellVisual(), spellProto->SchoolMask, GetBase()->GetCastGUID());
     // no SpellDamageBonus for burn mana
     caster->CalculateSpellDamageTaken(&damageInfo, int32(gain * dmgMultiplier), spellProto);
 
@@ -6175,7 +6156,7 @@ void AuraEffect::HandleProcTriggerDamageAuraProc(AuraApplication* aurApp, ProcEv
         return;
     }
 
-    SpellNonMeleeDamage damageInfo(target, triggerTarget, GetSpellInfo(), GetBase()->GetSpellXSpellVisualId(), GetSpellInfo()->SchoolMask, GetBase()->GetCastGUID());
+    SpellNonMeleeDamage damageInfo(target, triggerTarget, GetSpellInfo(), GetBase()->GetSpellVisual(), GetSpellInfo()->SchoolMask, GetBase()->GetCastGUID());
     uint32 damage = target->SpellDamageBonusDone(triggerTarget, GetSpellInfo(), GetAmount(), SPELL_DIRECT_DAMAGE, GetSpellEffectInfo());
     damage = triggerTarget->SpellDamageBonusTaken(target, GetSpellInfo(), damage, SPELL_DIRECT_DAMAGE, GetSpellEffectInfo());
     target->CalculateSpellDamageTaken(&damageInfo, damage, GetSpellInfo());
@@ -6307,7 +6288,7 @@ void AuraEffect::HandleCreateAreaTrigger(AuraApplication const* aurApp, uint8 mo
 
     if (apply)
     {
-        AreaTrigger::CreateAreaTrigger(GetMiscValue(), GetCaster(), target, GetSpellInfo(), *target, GetBase()->GetDuration(), GetBase()->GetSpellXSpellVisualId(), ObjectGuid::Empty, this);
+        AreaTrigger::CreateAreaTrigger(GetMiscValue(), GetCaster(), target, GetSpellInfo(), *target, GetBase()->GetDuration(), GetBase()->GetSpellVisual(), ObjectGuid::Empty, this);
     }
     else
     {

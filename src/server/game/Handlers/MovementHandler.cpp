@@ -240,7 +240,7 @@ void WorldSession::HandleSuspendTokenResponse(WorldPackets::Movement::SuspendTok
 
     WorldPackets::Movement::NewWorld packet;
     packet.MapID = loc.GetMapId();
-    packet.Pos = loc;
+    packet.Loc.Pos = loc;
     packet.Reason = !_player->IsBeingTeleportedSeamlessly() ? NEW_WORLD_NORMAL : NEW_WORLD_SEAMLESS;
     SendPacket(packet.Write());
 

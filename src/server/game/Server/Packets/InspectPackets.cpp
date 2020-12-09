@@ -77,15 +77,12 @@ void WorldPackets::Inspect::PlayerModelDisplayInfo::Initialize(Player const* pla
     GUID = player->GetGUID();
     SpecializationID = player->GetPrimarySpecialization();
     Name = player->GetName();
-    GenderID = player->m_playerData->NativeSex;
-    Skin = player->m_playerData->SkinID;
-    HairColor = player->m_playerData->HairColorID;
-    HairStyle = player->m_playerData->HairStyleID;
-    FacialHairStyle = player->m_playerData->FacialHairStyleID;
-    Face = player->m_playerData->FaceID;
+    GenderID = player->GetNativeSex();
     Race = player->getRace();
     ClassID = player->getClass();
-    std::copy(player->m_playerData->CustomDisplayOption.begin(), player->m_playerData->CustomDisplayOption.end(), CustomDisplay.begin());
+
+    for (UF::ChrCustomizationChoice const& customization : player->m_playerData->Customizations)
+        Customizations.push_back(customization);
 
     for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
         if (::Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
@@ -99,15 +96,13 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Inspect::PlayerModelDispl
     data << uint32(displayInfo.Items.size());
     data.WriteBits(displayInfo.Name.length(), 6);
     data << uint8(displayInfo.GenderID);
-    data << uint8(displayInfo.Skin);
-    data << uint8(displayInfo.HairColor);
-    data << uint8(displayInfo.HairStyle);
-    data << uint8(displayInfo.FacialHairStyle);
-    data << uint8(displayInfo.Face);
     data << uint8(displayInfo.Race);
     data << uint8(displayInfo.ClassID);
-    data.append(displayInfo.CustomDisplay.data(), displayInfo.CustomDisplay.size());
+    data << uint32(displayInfo.Customizations.size());
     data.WriteString(displayInfo.Name);
+
+    for (WorldPackets::Character::ChrCustomizationChoice const& customization : displayInfo.Customizations)
+        data << customization;
 
     for (WorldPackets::Inspect::InspectItemData const& item : displayInfo.Items)
         data << item;

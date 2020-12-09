@@ -208,7 +208,6 @@ WorldPacket CreatureTemplate::BuildQueryData(LocaleConstant loc) const
     stats.HealthScalingExpansion = HealthScalingExpansion;
     stats.VignetteID = VignetteID;
     stats.Class = unit_class;
-    stats.FadeRegionRadius = FadeRegionRadius;
     stats.WidgetSetID = WidgetSetID;
     stats.WidgetSetUnitConditionID = WidgetSetUnitConditionID;
 

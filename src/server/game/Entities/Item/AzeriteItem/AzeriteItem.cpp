@@ -76,7 +76,7 @@ void AzeriteItem::SaveToDB(CharacterDatabaseTransaction& trans)
                 for (std::size_t j = 0; j < MAX_AZERITE_ESSENCE_SLOT; ++j)
                     stmt->setUInt32(5 + specIndex * 5 + j, m_azeriteItemData->SelectedEssences[specIndex].AzeriteEssenceID[j]);
             }
-            for (; specIndex < MAX_SPECIALIZATIONS; ++specIndex)
+            for (; specIndex < 4; ++specIndex)
             {
                 stmt->setUInt32(4 + specIndex * 5, 0);
                 for (std::size_t j = 0; j < MAX_AZERITE_ESSENCE_SLOT; ++j)

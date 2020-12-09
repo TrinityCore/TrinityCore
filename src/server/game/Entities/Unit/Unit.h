@@ -77,11 +77,12 @@ enum SpellModOp : uint8
     SPELLMOD_SPELL_COST2                = 34, // Used when SpellPowerEntry::PowerIndex == 1
     SPELLMOD_JUMP_DISTANCE              = 35,
     // spellmod 36
-    SPELLMOD_STACK_AMOUNT2              = 37  // same as SPELLMOD_STACK_AMOUNT but affects tooltips
+    SPELLMOD_STACK_AMOUNT2              = 37, // same as SPELLMOD_STACK_AMOUNT but affects tooltips
     // spellmod 38
+    SPELLMOD_SPELL_COST3                = 39
 };
 
-#define MAX_SPELLMOD 39
+#define MAX_SPELLMOD 40
 
 enum SpellValueMod : uint8
 {
@@ -690,13 +691,13 @@ struct CalcDamageInfo
 // Spell damage info structure based on structure sending in SMSG_SPELLNONMELEEDAMAGELOG opcode
 struct TC_GAME_API SpellNonMeleeDamage
 {
-    SpellNonMeleeDamage(Unit* _attacker, Unit* _target, SpellInfo const* _spellInfo, uint32 _SpellXSpellVisualID, uint32 _schoolMask, ObjectGuid _castId = ObjectGuid::Empty);
+    SpellNonMeleeDamage(Unit* _attacker, Unit* _target, SpellInfo const* _spellInfo, SpellCastVisual spellVisual, uint32 _schoolMask, ObjectGuid _castId = ObjectGuid::Empty);
 
     Unit   *target;
     Unit   *attacker;
     ObjectGuid castId;
     SpellInfo const* Spell;
-    uint32 SpellXSpellVisualID;
+    SpellCastVisual SpellVisual;
     uint32 damage;
     uint32 originalDamage;
     uint32 schoolMask;
@@ -1087,7 +1088,6 @@ class TC_GAME_API Unit : public WorldObject
         int32 ModifyPower(Powers power, int32 val);
 
         void ApplyModPowerCostModifier(SpellSchools school, int32 mod, bool apply) { ApplyModUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerCostModifier, school), mod, apply); }
-        void ApplyModPowerCostMultiplier(SpellSchools school, float pct, bool apply) { ApplyModUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::PowerCostMultiplier, school), pct, apply); }
 
         uint32 GetBaseAttackTime(WeaponAttackType att) const;
         void SetBaseAttackTime(WeaponAttackType att, uint32 val);
@@ -1646,13 +1646,14 @@ class TC_GAME_API Unit : public WorldObject
                 .ModifyValue(&UF::UnitData::ChannelData)
                 .ModifyValue(&UF::UnitChannel::SpellID), channelSpellId);
         }
-        uint32 GetChannelSpellXSpellVisualId() const { return m_unitData->ChannelData->SpellXSpellVisualID; }
-        void SetChannelSpellXSpellVisualId(uint32 channelSpellXSpellVisualId)
+        uint32 GetChannelSpellXSpellVisualId() const { return m_unitData->ChannelData->SpellVisual.SpellXSpellVisualID; }
+        uint32 GetChannelScriptVisualId() const { return m_unitData->ChannelData->SpellVisual.ScriptVisualID; }
+        void SetChannelVisual(SpellCastVisual channelVisual)
         {
             SetUpdateFieldValue(m_values
                 .ModifyValue(&Unit::m_unitData)
                 .ModifyValue(&UF::UnitData::ChannelData)
-                .ModifyValue(&UF::UnitChannel::SpellXSpellVisualID), channelSpellXSpellVisualId);
+                .ModifyValue(&UF::UnitChannel::SpellVisual), channelVisual);
         }
         void AddChannelObject(ObjectGuid guid) { AddDynamicUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ChannelObjects)) = guid; }
         void SetChannelObject(uint32 slot, ObjectGuid guid) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ChannelObjects, slot), guid); }

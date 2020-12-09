@@ -350,6 +350,18 @@ NonDefaultConstructible<pEffect> SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectNULL,                                     //269 SPELL_EFFECT_UPGRADE_ITEM
     &Spell::EffectNULL,                                     //270 SPELL_EFFECT_270
     &Spell::EffectApplyAreaAura,                            //271 SPELL_EFFECT_APPLY_AREA_AURA_PARTY_NONRANDOM
+    &Spell::EffectNULL,                                     //272 SPELL_EFFECT_SET_COVENANT
+    &Spell::EffectNULL,                                     //273 SPELL_EFFECT_CRAFT_RUNEFORGE_LEGENDARY
+    &Spell::EffectNULL,                                     //274 SPELL_EFFECT_274
+    &Spell::EffectNULL,                                     //275 SPELL_EFFECT_275
+    &Spell::EffectNULL,                                     //276 SPELL_EFFECT_LEARN_TRANSMOG_ILLUSION
+    &Spell::EffectNULL,                                     //277 SPELL_EFFECT_SET_CHROMIE_TIME
+    &Spell::EffectNULL,                                     //278 SPELL_EFFECT_270
+    &Spell::EffectNULL,                                     //279 SPELL_EFFECT_LEARN_GARR_TALENT
+    &Spell::EffectNULL,                                     //280 SPELL_EFFECT_270
+    &Spell::EffectNULL,                                     //281 SPELL_EFFECT_LEARN_SOULBIND_CONDUIT
+    &Spell::EffectNULL,                                     //282 SPELL_EFFECT_CONVERT_ITEMS_TO_CURRENCY
+    &Spell::EffectNULL,                                     //283 SPELL_EFFECT_283
 };
 
 void Spell::EffectNULL(SpellEffIndex /*effIndex*/)

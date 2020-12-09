@@ -129,6 +129,20 @@ enum Poi_Icon
     ICON_POI_REDHORSE           =   40                      // Red Horse
 };
 
+enum class GossipOptionStatus : uint8
+{
+    Available       = 0,
+    Unavailable     = 1,
+    Locked          = 2,
+    AlreadyComplete = 3
+};
+
+enum class GossipOptionRewardType : uint8
+{
+    Item        = 0,
+    Currency    = 1
+};
+
 struct GossipMenuItem
 {
     uint8       MenuItemIcon;

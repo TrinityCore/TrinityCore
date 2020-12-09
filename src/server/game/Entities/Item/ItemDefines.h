@@ -124,10 +124,15 @@ enum InventoryResult : uint8
     EQUIP_ERR_CANT_USE_ITEM                                = 99, // You can't use that item.
     EQUIP_ERR_CANT_BE_OBLITERATED                          = 100,// You can't obliterate that item
     EQUIP_ERR_GUILD_BANK_CONJURED_ITEM                     = 101,// You cannot store conjured items in the guild bank
-    EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW                       = 102,// You can't do that right now.
-    EQUIP_ERR_BAG_FULL_6                                   = 103,// That bag is full.
-    EQUIP_ERR_CANT_BE_SCRAPPED                             = 104,// You can't scrap that item
-    EQUIP_NONE_4                                           = 105,
+    EQUIP_ERR_BAG_FULL_6                                   = 102,// That bag is full.
+    EQUIP_ERR_CANT_BE_SCRAPPED                             = 103,// You can't scrap that item
+    EQUIP_ERR_BAG_FULL_7                                   = 104,// That bag is full.
+    EQUIP_ERR_NOT_IN_PET_BATTLE                            = 105,// You cannot do that while in a pet battle
+    EQUIP_ERR_BAG_FULL_8                                   = 106,// That bag is full.
+    EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW                       = 107,// You can't do that right now.
+    EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW_2                     = 108,// You can't do that right now.
+    EQUIP_ERR_NOT_IN_NPE                                   = 109,// Not available during the tutorial
+    EQUIP_ERR_ITEM_COOLDOWN                                = 110,// Item is not ready yet.
 };
 
 enum BuyResult
@@ -179,40 +184,53 @@ enum EnchantmentSlot : uint16
 
 enum ItemVendorType
 {
-    ITEM_VENDOR_TYPE_NONE     = 0,
-    ITEM_VENDOR_TYPE_ITEM     = 1,
-    ITEM_VENDOR_TYPE_CURRENCY = 2,
+    ITEM_VENDOR_TYPE_NONE       = 0,
+    ITEM_VENDOR_TYPE_ITEM       = 1,
+    ITEM_VENDOR_TYPE_CURRENCY   = 2,
+    ITEM_VENDOR_TYPE_SPELL      = 3,
+    ITEM_VENDOR_TYPE_MAW_POWER  = 4
 };
 
 enum ItemModifier : uint16
 {
-    ITEM_MODIFIER_TRANSMOG_APPEARANCE_ALL_SPECS         = 0,
-    ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_1            = 1,
-    ITEM_MODIFIER_UPGRADE_ID                            = 2,
-    ITEM_MODIFIER_BATTLE_PET_SPECIES_ID                 = 3,
-    ITEM_MODIFIER_BATTLE_PET_BREED_DATA                 = 4, // (breedId) | (breedQuality << 24)
-    ITEM_MODIFIER_BATTLE_PET_LEVEL                      = 5,
-    ITEM_MODIFIER_BATTLE_PET_DISPLAY_ID                 = 6,
-    ITEM_MODIFIER_ENCHANT_ILLUSION_ALL_SPECS            = 7,
-    ITEM_MODIFIER_ARTIFACT_APPEARANCE_ID                = 8,
-    ITEM_MODIFIER_TIMEWALKER_LEVEL                      = 9,
-    ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_1               = 10,
-    ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_2            = 11,
-    ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_2               = 12,
-    ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_3            = 13,
-    ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_3               = 14,
-    ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_4            = 15,
-    ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_4               = 16,
-    ITEM_MODIFIER_CHALLENGE_MAP_CHALLENGE_MODE_ID       = 17,
-    ITEM_MODIFIER_CHALLENGE_KEYSTONE_LEVEL              = 18,
-    ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_1         = 19,
-    ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_2         = 20,
-    ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_3         = 21,
-    ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_4         = 22,
-    ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL              = 23,
-    ITEM_MODIFIER_ARTIFACT_TIER                         = 24,
-    ITEM_MODIFIER_UNUSED_25                             = 25,
-    ITEM_MODIFIER_PVP_RATING                            = 26,
+    ITEM_MODIFIER_TRANSMOG_APPEARANCE_ALL_SPECS             = 0,
+    ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_1                = 1,
+    ITEM_MODIFIER_UPGRADE_ID                                = 2,
+    ITEM_MODIFIER_BATTLE_PET_SPECIES_ID                     = 3,
+    ITEM_MODIFIER_BATTLE_PET_BREED_DATA                     = 4, // (breedId) | (breedQuality << 24)
+    ITEM_MODIFIER_BATTLE_PET_LEVEL                          = 5,
+    ITEM_MODIFIER_BATTLE_PET_DISPLAY_ID                     = 6,
+    ITEM_MODIFIER_ENCHANT_ILLUSION_ALL_SPECS                = 7,
+    ITEM_MODIFIER_ARTIFACT_APPEARANCE_ID                    = 8,
+    ITEM_MODIFIER_TIMEWALKER_LEVEL                          = 9,
+    ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_1                   = 10,
+    ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_2                = 11,
+    ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_2                   = 12,
+    ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_3                = 13,
+    ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_3                   = 14,
+    ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_4                = 15,
+    ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_4                   = 16,
+    ITEM_MODIFIER_CHALLENGE_MAP_CHALLENGE_MODE_ID           = 17,
+    ITEM_MODIFIER_CHALLENGE_KEYSTONE_LEVEL                  = 18,
+    ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_1             = 19,
+    ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_2             = 20,
+    ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_3             = 21,
+    ITEM_MODIFIER_CHALLENGE_KEYSTONE_AFFIX_ID_4             = 22,
+    ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL                  = 23,
+    ITEM_MODIFIER_ARTIFACT_TIER                             = 24,
+    ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_5                = 25,
+    ITEM_MODIFIER_PVP_RATING                                = 26,
+    ITEM_MODIFIER_ENCHANT_ILLUSION_SPEC_5                   = 27,
+    ITEM_MODIFIER_CONTENT_TUNING_ID                         = 28,
+    ITEM_MODIFIER_CHANGE_MODIFIED_CRAFTING_STAT_1           = 29,
+    ITEM_MODIFIER_CHANGE_MODIFIED_CRAFTING_STAT_2           = 30,
+    ITEM_MODIFIER_TRANSMOG_SECONDARY_APPEARANCE_ALL_SPECS   = 31,
+    ITEM_MODIFIER_TRANSMOG_SECONDARY_APPEARANCE_SPEC_1      = 32,
+    ITEM_MODIFIER_TRANSMOG_SECONDARY_APPEARANCE_SPEC_2      = 33,
+    ITEM_MODIFIER_TRANSMOG_SECONDARY_APPEARANCE_SPEC_3      = 34,
+    ITEM_MODIFIER_TRANSMOG_SECONDARY_APPEARANCE_SPEC_4      = 35,
+    ITEM_MODIFIER_TRANSMOG_SECONDARY_APPEARANCE_SPEC_5      = 36,
+    ITEM_MODIFIER_SOULBIND_CONDUIT_RANK                     = 37,
 
     MAX_ITEM_MODIFIERS
 };

@@ -153,7 +153,7 @@ static const char * CaptureSingleHash(const char * szDataPtr, const char * szDat
         return NULL;
 
     // Give the values
-    ConvertStringToBinary(szHashString, HashStringLength, HashValue);
+    BinaryFromString(szHashString, HashStringLength, HashValue);
     return szDataPtr;
 }
 
@@ -717,7 +717,7 @@ static DWORD ParseFile_VersionsDb(TCascStorage * hs, CASC_CSV & Csv)
             {
                 // If we have manually given build key, override the value
                 if(hs->szBuildKey != NULL)
-                    dwErrCode = ConvertStringToBinary(hs->szBuildKey, MD5_STRING_SIZE, hs->CdnBuildKey.pbData);
+                    dwErrCode = BinaryFromString(hs->szBuildKey, MD5_STRING_SIZE, hs->CdnBuildKey.pbData);
                 return dwErrCode;
             }
 
@@ -1113,7 +1113,7 @@ static DWORD DownloadFile(
     }
     else
     {
-        dwErrCode = GetLastError();
+        dwErrCode = GetCascError();
     }
 
     return dwErrCode;
@@ -1489,7 +1489,7 @@ LPBYTE LoadInternalFileToMemory(TCascStorage * hs, PCASC_CKEY_ENTRY pCKeyEntry, 
     }
     else
     {
-        dwErrCode = GetLastError();
+        dwErrCode = GetCascError();
     }
 
     // Handle errors
@@ -1500,7 +1500,7 @@ LPBYTE LoadInternalFileToMemory(TCascStorage * hs, PCASC_CKEY_ENTRY pCKeyEntry, 
         cbFileData = 0;
 
         // Set the last error
-        SetLastError(dwErrCode);
+        SetCascError(dwErrCode);
     }
 
     // Give the loaded file length
@@ -1540,13 +1540,13 @@ LPBYTE LoadFileToMemory(LPCTSTR szFileName, DWORD * pcbFileData)
             }
             else
             {
-                SetLastError(ERROR_NOT_ENOUGH_MEMORY);
+                SetCascError(ERROR_NOT_ENOUGH_MEMORY);
                 cbFileData = 0;
             }
         }
         else
         {
-            SetLastError(ERROR_BAD_FORMAT);
+            SetCascError(ERROR_BAD_FORMAT);
             cbFileData = 0;
             assert(false);
         }

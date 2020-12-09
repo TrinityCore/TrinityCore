@@ -24,7 +24,7 @@ WorldPacket const* WorldPackets::CombatLog::SpellNonMeleeDamageLog::Write()
     *this << CasterGUID;
     *this << CastID;
     *this << int32(SpellID);
-    *this << int32(SpellXSpellVisualID);
+    *this << Visual;
     *this << int32(Damage);
     *this << int32(OriginalDamage);
     *this << int32(Overkill);
@@ -349,10 +349,10 @@ WorldPacket const* WorldPackets::CombatLog::AttackerStateUpdate::Write()
     attackRoundInfo << uint8(ContentTuning.TargetMaxScalingLevel);
     attackRoundInfo << int16(ContentTuning.PlayerLevelDelta);
     attackRoundInfo << int8(ContentTuning.TargetScalingLevelDelta);
-    attackRoundInfo << uint16(ContentTuning.PlayerItemLevel);
-    attackRoundInfo << uint16(ContentTuning.TargetItemLevel);
+    attackRoundInfo << float(ContentTuning.PlayerItemLevel);
+    attackRoundInfo << float(ContentTuning.TargetItemLevel);
     attackRoundInfo << uint16(ContentTuning.ScalingHealthItemLevelCurveID);
-    attackRoundInfo << uint8(ContentTuning.ScalesWithItemLevel ? 1 : 0);
+    attackRoundInfo << uint32(ContentTuning.Flags);
 
     WriteLogDataBit();
     FlushBits();

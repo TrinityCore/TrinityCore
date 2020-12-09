@@ -21,6 +21,7 @@
 #include "Object.h"
 #include "DatabaseEnvFwd.h"
 #include "GridDefines.h"
+#include "IteratorPair.h"
 #include "Loot.h"
 
 enum CorpseType
@@ -83,15 +84,21 @@ class TC_GAME_API Corpse : public WorldObject, public GridObject<Corpse>
         void SetDisplayId(uint32 displayId) { SetUpdateFieldValue(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::DisplayID), displayId); }
         void SetRace(uint8 race) { SetUpdateFieldValue(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::RaceID), race); }
         void SetSex(uint8 sex) { SetUpdateFieldValue(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::Sex), sex); }
-        void SetSkin(uint8 skin) { SetUpdateFieldValue(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::SkinID), skin); }
-        void SetFace(uint8 face) { SetUpdateFieldValue(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::FaceID), face); }
-        void SetHairStyle(uint8 hairStyle) { SetUpdateFieldValue(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::HairStyleID), hairStyle); }
-        void SetHairColor(uint8 hairColor) { SetUpdateFieldValue(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::HairColorID), hairColor); }
-        void SetFacialHairStyle(uint8 facialHairStyle) { SetUpdateFieldValue(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::FacialHairStyleID), facialHairStyle); }
         void SetFlags(uint32 flags) { SetUpdateFieldValue(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::Flags), flags); }
         void SetFactionTemplate(int32 factionTemplate) { SetUpdateFieldValue(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::FactionTemplate), factionTemplate); }
         void SetItem(uint32 slot, uint32 item) { SetUpdateFieldValue(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::Items, slot), item); }
-        void SetCustomDisplayOption(uint32 slot, uint8 customDisplayOption) { SetUpdateFieldValue(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::CustomDisplayOption, slot), customDisplayOption); }
+
+        template<typename Iter>
+        void SetCustomizations(Trinity::IteratorPair<Iter> customizations)
+        {
+            ClearDynamicUpdateFieldValues(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::Customizations));
+            for (auto&& customization : customizations)
+            {
+                UF::ChrCustomizationChoice& newChoice = AddDynamicUpdateFieldValue(m_values.ModifyValue(&Corpse::m_corpseData).ModifyValue(&UF::CorpseData::Customizations));
+                newChoice.ChrCustomizationOptionID = customization.ChrCustomizationOptionID;
+                newChoice.ChrCustomizationChoiceID = customization.ChrCustomizationChoiceID;
+            }
+        }
 
         time_t const& GetGhostTime() const { return m_time; }
         void ResetGhostTime() { m_time = time(nullptr); }

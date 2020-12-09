@@ -64,16 +64,16 @@ void WorldPackets::Ticket::GMTicketAcknowledgeSurvey::Read()
     _worldPacket >> CaseID;
 }
 
-void WorldPackets::Ticket::SupportTicketSubmitBug::Read()
+void WorldPackets::Ticket::SubmitUserFeedback::Read()
 {
     _worldPacket >> Header;
-    Note = _worldPacket.ReadString(_worldPacket.ReadBits(10));
-}
-
-void WorldPackets::Ticket::SupportTicketSubmitSuggestion::Read()
-{
-    _worldPacket >> Header;
-    Note = _worldPacket.ReadString(_worldPacket.ReadBits(10));
+    uint32 noteLength = _worldPacket.ReadBits(24);
+    IsSuggestion = _worldPacket.ReadBit();
+    if (noteLength)
+    {
+        Note = _worldPacket.ReadString(noteLength - 1);
+        _worldPacket.read_skip<char>(); // null terminator
+    }
 }
 
 WorldPackets::Ticket::SupportTicketSubmitComplaint::SupportTicketChatLine::SupportTicketChatLine(uint32 timestamp, std::string const& text) :

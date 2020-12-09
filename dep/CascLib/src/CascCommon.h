@@ -329,8 +329,7 @@ struct TCascStorage
     size_t EKeyLength;                              // EKey length from the index files
     DWORD FileOffsetBits;                           // Number of bits in the storage offset which mean data segent offset
 
-    CASC_ARRAY ExtraKeysList;                       // List additional encryption keys
-    CASC_MAP   EncryptionKeys;                      // Map of encryption keys
+    CASC_KEY_MAP KeyMap;                            // Growable map of encryption keys
     ULONGLONG  LastFailKeyName;                     // The value of the encryption key that recently was NOT found.
 };
 

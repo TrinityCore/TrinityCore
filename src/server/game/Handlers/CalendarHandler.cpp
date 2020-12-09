@@ -124,10 +124,10 @@ void WorldSession::HandleCalendarGetEvent(WorldPackets::Calendar::CalendarGetEve
         sCalendarMgr->SendCalendarCommandResult(_player->GetGUID(), CALENDAR_ERROR_EVENT_INVALID);
 }
 
-void WorldSession::HandleCalendarCommunityFilter(WorldPackets::Calendar::CalendarCommunityFilter& calendarCommunityFilter)
+void WorldSession::HandleCalendarCommunityInvite(WorldPackets::Calendar::CalendarCommunityInviteRequest& calendarCommunityInvite)
 {
     if (Guild* guild = sGuildMgr->GetGuildById(_player->GetGuildId()))
-        guild->MassInviteToEvent(this, calendarCommunityFilter.MinLevel, calendarCommunityFilter.MaxLevel, calendarCommunityFilter.MaxRankOrder);
+        guild->MassInviteToEvent(this, calendarCommunityInvite.MinLevel, calendarCommunityInvite.MaxLevel, calendarCommunityInvite.MaxRankOrder);
 }
 
 void WorldSession::HandleCalendarAddEvent(WorldPackets::Calendar::CalendarAddEvent& calendarAddEvent)
@@ -239,7 +239,7 @@ void WorldSession::HandleCalendarCopyEvent(WorldPackets::Calendar::CalendarCopyE
         sCalendarMgr->SendCalendarCommandResult(guid, CALENDAR_ERROR_EVENT_INVALID);
 }
 
-void WorldSession::HandleCalendarEventInvite(WorldPackets::Calendar::CalendarEventInvite& calendarEventInvite)
+void WorldSession::HandleCalendarInvite(WorldPackets::Calendar::CalendarInvite& calendarEventInvite)
 {
     ObjectGuid playerGuid = _player->GetGUID();
 
@@ -347,22 +347,22 @@ void WorldSession::HandleCalendarEventSignup(WorldPackets::Calendar::CalendarEve
         sCalendarMgr->SendCalendarCommandResult(guid, CALENDAR_ERROR_EVENT_INVALID);
 }
 
-void WorldSession::HandleCalendarEventRsvp(WorldPackets::Calendar::CalendarEventRSVP& calendarEventRSVP)
+void WorldSession::HandleCalendarRsvp(WorldPackets::Calendar::CalendarRSVP& calendarRSVP)
 {
     ObjectGuid guid = _player->GetGUID();
 
-    if (CalendarEvent* calendarEvent = sCalendarMgr->GetEvent(calendarEventRSVP.EventID))
+    if (CalendarEvent* calendarEvent = sCalendarMgr->GetEvent(calendarRSVP.EventID))
     {
         // I think we still should be able to remove self from locked events
-        if (calendarEventRSVP.Status != CALENDAR_STATUS_REMOVED && calendarEvent->IsLocked())
+        if (calendarRSVP.Status != CALENDAR_STATUS_REMOVED && calendarEvent->IsLocked())
         {
             sCalendarMgr->SendCalendarCommandResult(guid, CALENDAR_ERROR_EVENT_LOCKED);
             return;
         }
 
-        if (CalendarInvite* invite = sCalendarMgr->GetInvite(calendarEventRSVP.InviteID))
+        if (CalendarInvite* invite = sCalendarMgr->GetInvite(calendarRSVP.InviteID))
         {
-            invite->SetStatus(CalendarInviteStatus(calendarEventRSVP.Status));
+            invite->SetStatus(CalendarInviteStatus(calendarRSVP.Status));
             invite->SetResponseTime(time(nullptr));
 
             sCalendarMgr->UpdateInvite(invite);
@@ -398,23 +398,23 @@ void WorldSession::HandleCalendarEventRemoveInvite(WorldPackets::Calendar::Calen
         sCalendarMgr->SendCalendarCommandResult(guid, CALENDAR_ERROR_NO_INVITE);
 }
 
-void WorldSession::HandleCalendarEventStatus(WorldPackets::Calendar::CalendarEventStatus& calendarEventStatus)
+void WorldSession::HandleCalendarStatus(WorldPackets::Calendar::CalendarStatus& calendarStatus)
 {
     ObjectGuid guid = _player->GetGUID();
 
-    TC_LOG_DEBUG("network", "CMSG_CALENDAR_EVENT_STATUS [%s] EventId ["
+    TC_LOG_DEBUG("network", "CMSG_CALENDAR_STATUS [%s] EventId ["
         UI64FMTD "] ownerInviteId [" UI64FMTD "], Invitee ([%s] id: ["
-        UI64FMTD "], status %u", guid.ToString().c_str(), calendarEventStatus.EventID, calendarEventStatus.ModeratorID, calendarEventStatus.Guid.ToString().c_str(), calendarEventStatus.InviteID, calendarEventStatus.Status);
+        UI64FMTD "], status %u", guid.ToString().c_str(), calendarStatus.EventID, calendarStatus.ModeratorID, calendarStatus.Guid.ToString().c_str(), calendarStatus.InviteID, calendarStatus.Status);
 
-    if (CalendarEvent* calendarEvent = sCalendarMgr->GetEvent(calendarEventStatus.EventID))
+    if (CalendarEvent* calendarEvent = sCalendarMgr->GetEvent(calendarStatus.EventID))
     {
-        if (CalendarInvite* invite = sCalendarMgr->GetInvite(calendarEventStatus.InviteID))
+        if (CalendarInvite* invite = sCalendarMgr->GetInvite(calendarStatus.InviteID))
         {
-            invite->SetStatus((CalendarInviteStatus)calendarEventStatus.Status);
+            invite->SetStatus((CalendarInviteStatus)calendarStatus.Status);
 
             sCalendarMgr->UpdateInvite(invite);
             sCalendarMgr->SendCalendarEventStatus(*calendarEvent, *invite);
-            sCalendarMgr->SendCalendarClearPendingAction(calendarEventStatus.Guid);
+            sCalendarMgr->SendCalendarClearPendingAction(calendarStatus.Guid);
         }
         else
             sCalendarMgr->SendCalendarCommandResult(guid, CALENDAR_ERROR_NO_INVITE); // correct?
@@ -423,19 +423,19 @@ void WorldSession::HandleCalendarEventStatus(WorldPackets::Calendar::CalendarEve
         sCalendarMgr->SendCalendarCommandResult(guid, CALENDAR_ERROR_EVENT_INVALID);
 }
 
-void WorldSession::HandleCalendarEventModeratorStatus(WorldPackets::Calendar::CalendarEventModeratorStatus& calendarEventModeratorStatus)
+void WorldSession::HandleCalendarModeratorStatus(WorldPackets::Calendar::CalendarModeratorStatusQuery& calendarModeratorStatus)
 {
     ObjectGuid guid = _player->GetGUID();
 
-    TC_LOG_DEBUG("network", "CMSG_CALENDAR_EVENT_MODERATOR_STATUS [%s] EventID ["
+    TC_LOG_DEBUG("network", "CMSG_CALENDAR_MODERATOR_STATUS [%s] EventID ["
         UI64FMTD "] ModeratorID [" UI64FMTD "], Invitee ([%s] InviteID: ["
-        UI64FMTD "], Status %u", guid.ToString().c_str(), calendarEventModeratorStatus.EventID, calendarEventModeratorStatus.ModeratorID, calendarEventModeratorStatus.Guid.ToString().c_str(), calendarEventModeratorStatus.InviteID, calendarEventModeratorStatus.Status);
+        UI64FMTD "], Status %u", guid.ToString().c_str(), calendarModeratorStatus.EventID, calendarModeratorStatus.ModeratorID, calendarModeratorStatus.Guid.ToString().c_str(), calendarModeratorStatus.InviteID, calendarModeratorStatus.Status);
 
-    if (CalendarEvent* calendarEvent = sCalendarMgr->GetEvent(calendarEventModeratorStatus.EventID))
+    if (CalendarEvent* calendarEvent = sCalendarMgr->GetEvent(calendarModeratorStatus.EventID))
     {
-        if (CalendarInvite* invite = sCalendarMgr->GetInvite(calendarEventModeratorStatus.InviteID))
+        if (CalendarInvite* invite = sCalendarMgr->GetInvite(calendarModeratorStatus.InviteID))
         {
-            invite->SetRank(CalendarModerationRank(calendarEventModeratorStatus.Status));
+            invite->SetRank(CalendarModerationRank(calendarModeratorStatus.Status));
             sCalendarMgr->UpdateInvite(invite);
             sCalendarMgr->SendCalendarEventModeratorStatusAlert(*calendarEvent, *invite);
         }

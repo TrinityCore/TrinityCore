@@ -59,24 +59,42 @@ unsigned char AsciiToUpperTable_BkSlash[256] =
     0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF
 };
 
+// Converts ASCII characters to hexa digit
+unsigned char AsciiToHexTable[128] =
+{
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xFF, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xFF, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+};
+
 unsigned char IntToHexChar[] = "0123456789abcdef";
 
 //-----------------------------------------------------------------------------
-// GetLastError/SetLastError support for non-Windows platform
+// GetCascError/SetCascError support for non-Windows platform
 
-#ifndef PLATFORM_WINDOWS
 static DWORD dwLastError = ERROR_SUCCESS;
 
-DWORD GetLastError()
+DWORD GetCascError()
 {
+#ifdef PLATFORM_WINDOWS
+    return GetLastError();
+#else
     return dwLastError;
+#endif
 }
 
-void SetLastError(DWORD dwErrCode)
+void SetCascError(DWORD dwErrCode)
 {
+#ifdef PLATFORM_WINDOWS
+    SetLastError(dwErrCode);
+#endif
     dwLastError = dwErrCode;
 }
-#endif
 
 //-----------------------------------------------------------------------------
 // Linear data stream manipulation
@@ -520,103 +538,6 @@ ULONGLONG CalcFileNameHash(const char * szFileName)
     return CalcNormNameHash(szNormName, nLength);
 }
 
-DWORD ConvertDigitToInt32(LPCTSTR szString, PDWORD PtrValue)
-{
-    BYTE Digit;
-
-    Digit = (BYTE)(AsciiToUpperTable_BkSlash[szString[0]] - _T('0'));
-    if(Digit > 9)
-        Digit -= 'A' - '9' - 1;
-
-    PtrValue[0] = Digit;
-    return (Digit > 0x0F) ? ERROR_BAD_FORMAT : ERROR_SUCCESS;
-}
-
-DWORD ConvertStringToInt08(LPCSTR szString, PDWORD PtrValue)
-{
-    BYTE DigitOne = AsciiToUpperTable_BkSlash[szString[0]] - '0';
-    BYTE DigitTwo = AsciiToUpperTable_BkSlash[szString[1]] - '0';
-
-    // Fix the digits
-    if(DigitOne > 9)
-        DigitOne -= 'A' - '9' - 1;
-    if(DigitTwo > 9)
-        DigitTwo -= 'A' - '9' - 1;
-
-    // Combine them into a value
-    PtrValue[0] = (DigitOne << 0x04) | DigitTwo;
-    return (DigitOne <= 0x0F && DigitTwo <= 0x0F) ? ERROR_SUCCESS : ERROR_BAD_FORMAT;
-}
-
-DWORD ConvertStringToInt32(LPCTSTR szString, size_t nMaxDigits, PDWORD PtrValue)
-{
-    // The number of digits must be even
-    assert((nMaxDigits & 0x01) == 0);
-    assert(nMaxDigits <= 8);
-
-    // Prepare the variables
-    PtrValue[0] = 0;
-    nMaxDigits >>= 1;
-
-    // Convert the string up to the number of digits
-    for(size_t i = 0; i < nMaxDigits; i++)
-    {
-        BYTE DigitOne;
-        BYTE DigitTwo;
-
-        DigitOne = (BYTE)(AsciiToUpperTable_BkSlash[szString[0]] - _T('0'));
-        if(DigitOne > 9)
-            DigitOne -= 'A' - '9' - 1;
-
-        DigitTwo = (BYTE)(AsciiToUpperTable_BkSlash[szString[1]] - _T('0'));
-        if(DigitTwo > 9)
-            DigitTwo -= 'A' - '9' - 1;
-
-        if(DigitOne > 0x0F || DigitTwo > 0x0F)
-            return ERROR_BAD_FORMAT;
-
-        PtrValue[0] = (PtrValue[0] << 0x08) | (DigitOne << 0x04) | DigitTwo;
-        szString += 2;
-    }
-
-    return ERROR_SUCCESS;
-}
-
-// Converts string blob to binary blob.
-DWORD ConvertStringToBinary(
-    LPCSTR szString,
-    size_t nMaxDigits,
-    LPBYTE pbBinary)
-{
-    const char * szStringEnd = szString + nMaxDigits;
-    DWORD dwCounter = 0;
-    BYTE DigitValue;
-    BYTE ByteValue = 0;
-
-    // Convert the string
-    while(szString < szStringEnd)
-    {
-        // Retrieve the digit converted to hexa
-        DigitValue = (BYTE)(AsciiToUpperTable_BkSlash[szString[0]] - '0');
-        if(DigitValue > 9)
-            DigitValue -= 'A' - '9' - 1;
-        if(DigitValue > 0x0F)
-            return ERROR_BAD_FORMAT;
-
-        // Insert the digit to the binary buffer
-        ByteValue = (ByteValue << 0x04) | DigitValue;
-        dwCounter++;
-
-        // If we reached the second digit, it means that we need
-        // to flush the byte value and move on
-        if((dwCounter & 0x01) == 0)
-            *pbBinary++ = ByteValue;
-        szString++;
-    }
-
-    return ERROR_SUCCESS;
-}
-
 //-----------------------------------------------------------------------------
 // File name utilities
 
@@ -648,7 +569,7 @@ bool IsFileDataIdName(const char * szFileName, DWORD & FileDataId)
     if(!strncmp(szFileName, "FILE", 4) && strlen(szFileName) >= 0x0C)
     {
         // Convert the hexadecimal number to integer
-        if(ConvertStringToBinary(szFileName+4, 8, BinaryValue) == ERROR_SUCCESS)
+        if(BinaryFromString(szFileName+4, 8, BinaryValue) == ERROR_SUCCESS)
         {
             // Must be followed by an extension or end-of-string
             if(szFileName[0x0C] == 0 || szFileName[0x0C] == '.')
@@ -668,7 +589,7 @@ bool IsFileCKeyEKeyName(const char * szFileName, LPBYTE PtrKeyBuffer)
 
     if(nLength == MD5_STRING_SIZE)
     {
-        if(ConvertStringToBinary(szFileName, MD5_STRING_SIZE, PtrKeyBuffer) == ERROR_SUCCESS)
+        if(BinaryFromString(szFileName, MD5_STRING_SIZE, PtrKeyBuffer) == ERROR_SUCCESS)
         {
             return true;
         }

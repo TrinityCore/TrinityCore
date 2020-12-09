@@ -52,8 +52,10 @@ struct EquipmentSetInfo
         std::string SetName;
         std::string SetIcon;
         std::array<ObjectGuid, EQUIPMENT_SET_SLOTS> Pieces;
-        std::array<int32, EQUIPMENT_SET_SLOTS> Appearances;    ///< ItemModifiedAppearanceID
+        std::array<int32, EQUIPMENT_SET_SLOTS> Appearances;     ///< ItemModifiedAppearanceID
         std::array<int32, 2> Enchants;                          ///< SpellItemEnchantmentID
+        int32 Unknown901_1 = 0;
+        int32 Unknown901_2 = 0;
     } Data;
 
     /// Server-side data

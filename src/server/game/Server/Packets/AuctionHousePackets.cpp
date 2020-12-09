@@ -154,6 +154,7 @@ ByteBuffer& operator<<(ByteBuffer& data, BucketInfo const& bucketInfo)
 {
     data << bucketInfo.Key;
     data << int32(bucketInfo.TotalQuantity);
+    data << int32(bucketInfo.RequiredLevel);
     data << uint64(bucketInfo.MinPrice);
     data << uint32(bucketInfo.ItemModifiedAppearanceIDs.size());
     if (!bucketInfo.ItemModifiedAppearanceIDs.empty())
@@ -162,6 +163,7 @@ ByteBuffer& operator<<(ByteBuffer& data, BucketInfo const& bucketInfo)
     data.WriteBit(bucketInfo.MaxBattlePetQuality.is_initialized());
     data.WriteBit(bucketInfo.MaxBattlePetLevel.is_initialized());
     data.WriteBit(bucketInfo.BattlePetBreedID.is_initialized());
+    data.WriteBit(bucketInfo.Unk901_1.is_initialized());
     data.WriteBit(bucketInfo.ContainsOwnerItem);
     data.WriteBit(bucketInfo.ContainsOnlyCollectedAppearances);
     data.FlushBits();
@@ -174,6 +176,9 @@ ByteBuffer& operator<<(ByteBuffer& data, BucketInfo const& bucketInfo)
 
     if (bucketInfo.BattlePetBreedID)
         data << uint8(*bucketInfo.BattlePetBreedID);
+
+    if (bucketInfo.Unk901_1)
+        data << uint32(*bucketInfo.Unk901_1);
 
     return data;
 }
@@ -631,6 +636,9 @@ WorldPacket const* AuctionListOwnedItemsResult::Write()
     _worldPacket.FlushBits();
 
     for (AuctionItem const& item : Items)
+        _worldPacket << item;
+
+    for (AuctionItem const& item : SoldItems)
         _worldPacket << item;
 
     return &_worldPacket;

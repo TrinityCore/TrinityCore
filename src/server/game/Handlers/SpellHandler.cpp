@@ -539,15 +539,11 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPackets::Spells::GetMirrorI
         mirrorImageComponentedData.Gender = creator->getGender();
         mirrorImageComponentedData.ClassID = creator->getClass();
 
-        Guild* guild = player->GetGuild();
 
-        mirrorImageComponentedData.SkinColor = player->m_playerData->SkinID;
-        mirrorImageComponentedData.FaceVariation = player->m_playerData->FaceID;
-        mirrorImageComponentedData.HairVariation = player->m_playerData->HairStyleID;
-        mirrorImageComponentedData.HairColor = player->m_playerData->HairColorID;
-        mirrorImageComponentedData.BeardVariation = player->m_playerData->FacialHairStyleID;
-        for (uint32 i = 0; i < PLAYER_CUSTOM_DISPLAY_SIZE; ++i)
-            mirrorImageComponentedData.CustomDisplay[i] = player->m_playerData->CustomDisplayOption[i];
+        for (UF::ChrCustomizationChoice const& customization : player->m_playerData->Customizations)
+            mirrorImageComponentedData.Customizations.push_back(customization);
+
+        Guild* guild = player->GetGuild();
         mirrorImageComponentedData.GuildGUID = (guild ? guild->GetGUID() : ObjectGuid::Empty);
 
         mirrorImageComponentedData.ItemDisplayID.reserve(11);

@@ -459,6 +459,7 @@ void WorldSession::HandleSellItemOpcode(WorldPackets::Item::SellItem& packet)
                 }
 
                 _player->UpdateCriteria(CRITERIA_TYPE_MONEY_FROM_VENDORS, money);
+                _player->UpdateCriteria(CRITERIA_TYPE_SOLD_ITEM_TO_VENDOR, 1);
 
                 if (packet.Amount < pItem->GetCount())               // need split items
                 {

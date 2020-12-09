@@ -134,19 +134,6 @@ bool Player::UpdateStats(Stats stat)
 
     UpdateSpellDamageAndHealingBonus();
     UpdateManaRegen();
-
-    // Update ratings in exist SPELL_AURA_MOD_RATING_FROM_STAT and only depends from stat
-    uint32 mask = 0;
-    AuraEffectList const& modRatingFromStat = GetAuraEffectsByType(SPELL_AURA_MOD_RATING_FROM_STAT);
-    for (AuraEffectList::const_iterator i = modRatingFromStat.begin(); i != modRatingFromStat.end(); ++i)
-        if (Stats((*i)->GetMiscValueB()) == stat)
-            mask |= (*i)->GetMiscValue();
-    if (mask)
-    {
-        for (uint32 rating = 0; rating < MAX_COMBAT_RATING; ++rating)
-            if (mask & (1 << rating))
-                ApplyRatingMod(CombatRating(rating), 0, true);
-    }
     return true;
 }
 
@@ -573,7 +560,8 @@ void Player::UpdateHealingDonePercentMod()
     for (AuraEffect const* auraEffect : GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_DONE_PERCENT))
         AddPct(value, auraEffect->GetAmount());
 
-    SetUpdateFieldStatValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ModHealingDonePercent), value);
+    for (uint32 i = 0; i < MAX_SPELL_SCHOOL; ++i)
+        SetUpdateFieldStatValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ModHealingDonePercent, i), value);
 }
 
 float const m_diminishing_k[MAX_CLASSES] =

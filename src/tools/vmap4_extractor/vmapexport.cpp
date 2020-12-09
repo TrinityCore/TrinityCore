@@ -484,7 +484,7 @@ int main(int argc, char ** argv)
         }
         catch (std::exception const& e)
         {
-            printf("Fatal error: Invalid Map.db2 file format! %s\n%s\n", CASC::HumanReadableCASCError(GetLastError()), e.what());
+            printf("Fatal error: Invalid Map.db2 file format! %s\n%s\n", CASC::HumanReadableCASCError(GetCascError()), e.what());
             exit(1);
         }
 
@@ -502,6 +502,10 @@ int main(int argc, char ** argv)
             map.ParentMapID = int16(record.GetUInt16("ParentMapID"));
             map.Name = record.GetString("MapName");
             map.Directory = record.GetString("Directory");
+
+            if (map.ParentMapID < 0)
+                map.ParentMapID = int16(record.GetUInt16("CosmeticParentMapID"));
+
             if (map.ParentMapID >= 0)
                 maps_that_are_parents.insert(map.ParentMapID);
 

@@ -91,24 +91,46 @@ namespace WorldPackets
             uint32 Duration = 0;
         };
 
+        struct MonsterSplineAnimTierTransition
+        {
+            int32 TierTransitionID = 0;
+            uint32 StartTime = 0;
+            uint32 EndTime = 0;
+            uint8 AnimTier = 0;
+        };
+
+        struct MonsterSplineUnknown901
+        {
+            struct Inner
+            {
+                int32 Unknown_1 = 0;
+                int32 Unknown_2 = 0;
+                int32 Unknown_3 = 0;
+                uint32 Unknown_4 = 0;
+            };
+
+            std::array<Inner, 16> Data;
+        };
+
         struct MovementSpline
         {
             uint32 Flags                = 0;    // Spline flags
             uint8 Face                  = 0;    // Movement direction (see MonsterMoveType enum)
-            uint8 AnimTier              = 0;
-            uint32 TierTransStartTime   = 0;
             int32 Elapsed               = 0;
             uint32 MoveTime             = 0;
             uint32 FadeObjectTime       = 0;
             std::vector<TaggedPosition<Position::XYZ>> Points;   // Spline path
             uint8 Mode                  = 0;    // Spline mode - actually always 0 in this packet - Catmullrom mode appears only in SMSG_UPDATE_OBJECT. In this packet it is determined by flags
-            uint8 VehicleExitVoluntary  = 0;
+            bool VehicleExitVoluntary   = false;
+            bool Interpolate            = false;
             ObjectGuid TransportGUID;
             int8 VehicleSeat            = -1;
             std::vector<TaggedPosition<Position::PackedXYZ>> PackedDeltas;
             Optional<MonsterSplineFilter> SplineFilter;
             Optional<MonsterSplineSpellEffectExtraData> SpellEffectExtraData;
             Optional<MonsterSplineJumpExtraData> JumpExtraData;
+            Optional<MonsterSplineAnimTierTransition> AnimTierTransition;
+            Optional<MonsterSplineUnknown901> Unknown901;
             float FaceDirection         = 0.0f;
             ObjectGuid FaceGUID;
             TaggedPosition<Position::XYZ> FaceSpot;
@@ -233,16 +255,23 @@ namespace WorldPackets
             uint32 TransfertAbort = 0;
         };
 
+        struct TeleportLocation
+        {
+            TaggedPosition<Position::XYZO> Pos;
+            int32 Unused901_1 = -1;
+            int32 Unused901_2 = -1;
+        };
+
         class NewWorld final : public ServerPacket
         {
         public:
-            NewWorld() : ServerPacket(SMSG_NEW_WORLD, 4 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 4) { }
+            NewWorld() : ServerPacket(SMSG_NEW_WORLD, 4 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 4) { }
 
             WorldPacket const* Write() override;
 
             int32 MapID = 0;
             uint32 Reason = 0;
-            TaggedPosition<Position::XYZO> Pos;
+            TeleportLocation Loc;
             TaggedPosition<Position::XYZ> MovementOffset;    // Adjusts all pending movement events by this offset
         };
 
@@ -609,7 +638,7 @@ namespace WorldPackets
             {
                 float Height = 0.0f;
                 float Scale = 0.0f;
-                UpdateCollisionHeightReason Reason;
+                UpdateCollisionHeightReason Reason = UPDATE_COLLISION_HEIGHT_MOUNT;
             };
 
             struct KnockBackInfo

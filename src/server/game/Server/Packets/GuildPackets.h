@@ -227,10 +227,10 @@ namespace WorldPackets
             std::string OldGuildName;
         };
 
-        class GuildEventAwayChange final : public ServerPacket
+        class GuildEventStatusChange final : public ServerPacket
         {
         public:
-            GuildEventAwayChange() : ServerPacket(SMSG_GUILD_EVENT_AWAY_CHANGE, 16 + 1) {  }
+            GuildEventStatusChange() : ServerPacket(SMSG_GUILD_EVENT_STATUS_CHANGE, 16 + 1) {  }
 
             WorldPacket const* Write() override;
 

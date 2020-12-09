@@ -369,18 +369,16 @@ bool  WINAPI CascFindClose(HANDLE hFind);
 
 bool   WINAPI CascAddEncryptionKey(HANDLE hStorage, ULONGLONG KeyName, LPBYTE Key);
 bool   WINAPI CascAddStringEncryptionKey(HANDLE hStorage, ULONGLONG KeyName, LPCSTR szKey);
+bool   WINAPI CascImportKeysFromString(HANDLE hStorage, LPCSTR szKeyList);
+bool   WINAPI CascImportKeysFromFile(HANDLE hStorage, LPCTSTR szFileName);
 LPBYTE WINAPI CascFindEncryptionKey(HANDLE hStorage, ULONGLONG KeyName);
 bool   WINAPI CascGetNotFoundEncryptionKey(HANDLE hStorage, ULONGLONG * KeyName);
 
 //-----------------------------------------------------------------------------
-// GetLastError/SetLastError support for non-Windows platform
+// Error code support
 
-#ifndef PLATFORM_WINDOWS
-
-DWORD GetLastError();
-void SetLastError(DWORD dwErrCode);
-
-#endif  // PLATFORM_WINDOWS
+void SetCascError(DWORD dwErrCode);
+DWORD GetCascError();
 
 #ifdef __cplusplus
 }   // extern "C"

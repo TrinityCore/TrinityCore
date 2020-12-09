@@ -719,9 +719,10 @@ struct QuestPOIBlobPoint
 {
     int32 X;
     int32 Y;
+    int32 Z;
 
-    QuestPOIBlobPoint() : X(0), Y(0) { }
-    QuestPOIBlobPoint(int32 _X, int32 _Y) : X(_X), Y(_Y) { }
+    QuestPOIBlobPoint() : X(0), Y(0), Z(0) { }
+    QuestPOIBlobPoint(int32 x, int32 y, int32 z) : X(x), Y(y), Z(z) { }
 };
 
 struct QuestPOIBlobData
@@ -736,24 +737,25 @@ struct QuestPOIBlobData
     int32 Flags;
     int32 WorldEffectID;
     int32 PlayerConditionID;
+    int32 NavigationPlayerConditionID;
     int32 SpawnTrackingID;
-    std::vector<QuestPOIBlobPoint> QuestPOIBlobPointStats;
+    std::vector<QuestPOIBlobPoint> Points;
     bool AlwaysAllowMergingBlobs;
 
     QuestPOIBlobData() : BlobIndex(0), ObjectiveIndex(0), QuestObjectiveID(0), QuestObjectID(0), MapID(0), UiMapID(0), Priority(0), Flags(0), WorldEffectID(0),
-        PlayerConditionID(0), SpawnTrackingID(0), AlwaysAllowMergingBlobs(false) { }
+        PlayerConditionID(0), NavigationPlayerConditionID(0), SpawnTrackingID(0), AlwaysAllowMergingBlobs(false) { }
     QuestPOIBlobData(int32 blobIndex, int32 objectiveIndex, int32 questObjectiveID, int32 questObjectID, int32 mapID, int32 uiMapID, int32 priority,
-        int32 flags, int32 worldEffectID, int32 playerConditionID, int32 spawnTrackingID, std::vector<QuestPOIBlobPoint> questPOIBlobPointStats,
+        int32 flags, int32 worldEffectID, int32 playerConditionID, int32 navigationPlayerConditionID, int32 spawnTrackingID, std::vector<QuestPOIBlobPoint> points,
         bool alwaysAllowMergingBlobs) : BlobIndex(blobIndex), ObjectiveIndex(objectiveIndex), QuestObjectiveID(questObjectiveID),
         QuestObjectID(questObjectID), MapID(mapID), UiMapID(uiMapID), Priority(priority), Flags(flags), WorldEffectID(worldEffectID),
-        PlayerConditionID(playerConditionID), SpawnTrackingID(spawnTrackingID), QuestPOIBlobPointStats(std::move(questPOIBlobPointStats)),
+        PlayerConditionID(playerConditionID), NavigationPlayerConditionID(navigationPlayerConditionID), SpawnTrackingID(spawnTrackingID), Points(std::move(points)),
         AlwaysAllowMergingBlobs(alwaysAllowMergingBlobs) { }
 };
 
 struct QuestPOIData
 {
     int32 QuestID = 0;
-    std::vector<QuestPOIBlobData> QuestPOIBlobDataStats;
+    std::vector<QuestPOIBlobData> Blobs;
 
     void InitializeQueryData();
     ByteBuffer QueryDataBuffer;
@@ -826,17 +828,29 @@ struct PlayerChoiceResponseReward
     std::vector<PlayerChoiceResponseRewardItem> Items;
     std::vector<PlayerChoiceResponseRewardEntry> Currency;
     std::vector<PlayerChoiceResponseRewardEntry> Faction;
+    std::vector<PlayerChoiceResponseRewardItem> ItemChoices;
+};
+
+struct PlayerChoiceResponseMawPower
+{
+    int32 TypeArtFileID = 0;
+    int32 Rarity = 0;
+    uint32 RarityColor = 0;
+    int32 SpellID = 0;
+    int32 MaxStacks = 0;
 };
 
 struct PlayerChoiceResponse
 {
-    int32 ResponseId;
-    int32 ChoiceArtFileId;
-    int32 Flags;
-    uint32 WidgetSetID;
+    int32 ResponseId = 0;
+    uint16 ResponseIdentifier = 0;
+    int32 ChoiceArtFileId = 0;
+    int32 Flags = 0;
+    uint32 WidgetSetID = 0;
     uint32 UiTextureAtlasElementID = 0;
     uint32 SoundKitID = 0;
-    uint8 GroupID;
+    uint8 GroupID = 0;
+    int32 UiTextureKitID = 0;
     std::string Answer;
     std::string Header;
     std::string SubHeader;
@@ -845,6 +859,7 @@ struct PlayerChoiceResponse
     std::string Confirmation;
     Optional<PlayerChoiceResponseReward> Reward;
     Optional<uint32> RewardQuestID;
+    Optional<PlayerChoiceResponseMawPower> MawPower;
 };
 
 struct PlayerChoice

@@ -705,6 +705,29 @@ LOCK TABLES `character_currency` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `character_customizations`
+--
+DROP TABLE IF EXISTS `character_customizations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `character_customizations` (
+  `guid` bigint(20) unsigned NOT NULL,
+  `chrCustomizationOptionID` int(10) unsigned NOT NULL,
+  `chrCustomizationChoiceID` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`guid`,`chrCustomizationOptionID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `character_customizations`
+--
+
+LOCK TABLES `character_customizations` WRITE;
+/*!40000 ALTER TABLE `character_customizations` DISABLE KEYS */;
+/*!40000 ALTER TABLE `character_customizations` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `character_declinedname`
 --
 
@@ -1736,14 +1759,6 @@ CREATE TABLE `characters` (
   `level` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `xp` int(10) unsigned NOT NULL DEFAULT '0',
   `money` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `skin` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `face` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `hairStyle` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `hairColor` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `facialStyle` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `customDisplay1` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `customDisplay2` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `customDisplay3` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `inventorySlots` tinyint(3) unsigned NOT NULL DEFAULT '16',
   `bankSlots` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `restState` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -1841,8 +1856,8 @@ CREATE TABLE `corpse` (
   `mapId` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT 'Map Identifier',
   `displayId` int(10) unsigned NOT NULL DEFAULT '0',
   `itemCache` text NOT NULL,
-  `bytes1` int(10) unsigned NOT NULL DEFAULT '0',
-  `bytes2` int(10) unsigned NOT NULL DEFAULT '0',
+  `race` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `gender` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `flags` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `dynFlags` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `time` int(10) unsigned NOT NULL DEFAULT '0',
@@ -1862,6 +1877,30 @@ CREATE TABLE `corpse` (
 LOCK TABLES `corpse` WRITE;
 /*!40000 ALTER TABLE `corpse` DISABLE KEYS */;
 /*!40000 ALTER TABLE `corpse` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `corpse_customizations`
+--
+
+DROP TABLE IF EXISTS `corpse_customizations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `corpse_customizations` (
+  `ownerGuid` bigint(20) unsigned NOT NULL,
+  `chrCustomizationOptionID` int(10) unsigned NOT NULL,
+  `chrCustomizationChoiceID` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`ownerGuid`,`chrCustomizationOptionID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `corpse_customizations`
+--
+
+LOCK TABLES `corpse_customizations` WRITE;
+/*!40000 ALTER TABLE `corpse_customizations` DISABLE KEYS */;
+/*!40000 ALTER TABLE `corpse_customizations` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -3780,7 +3819,8 @@ INSERT INTO `updates` VALUES
 ('2020_06_12_00_characters.sql','DF16C99EFACA4DFADDDF35644AAC63F9B4AA2BD6','ARCHIVED','2020-06-11 16:24:56',0),
 ('2020_06_17_00_characters.sql','C3EE0D751E4B97CDF15F3BE27AAAE3646514A358','ARCHIVED','2020-06-17 17:04:56',0),
 ('2020_08_14_00_characters.sql','355685FF86EE64E2ED9D4B7D1311D53A9C2E0FA5','ARCHIVED','2020-08-14 21:41:24',0),
-('2020_10_20_00_characters.sql','744F2A36865761920CE98A6DDE3A3BADF44D1E77','ARCHIVED','2020-10-20 21:36:49',0);
+('2020_10_20_00_characters.sql','744F2A36865761920CE98A6DDE3A3BADF44D1E77','ARCHIVED','2020-10-20 21:36:49',0),
+('2020_11_16_00_characters.sql','8F9D4738BA4A91307AD90F7B5C9AEA998CE82CF1','RELEASED','2020-11-16 19:16:31',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

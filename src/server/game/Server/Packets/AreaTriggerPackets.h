@@ -34,6 +34,12 @@ namespace WorldPackets
             std::vector<TaggedPosition<Position::XYZ>> Points;
         };
 
+        struct AreaTriggerMovementScriptInfo
+        {
+            uint32 SpellScriptID = 0;
+            TaggedPosition<Position::XYZ> Center;
+        };
+
         class AreaTrigger final : public ClientPacket
         {
         public:
@@ -74,6 +80,7 @@ namespace WorldPackets
 
             Optional<AreaTriggerSplineInfo> AreaTriggerSpline;
             Optional<AreaTriggerOrbitInfo> AreaTriggerOrbit;
+            Optional<AreaTriggerMovementScriptInfo> AreaTriggerMovementScript;
             ObjectGuid TriggerGUID;
         };
     }
