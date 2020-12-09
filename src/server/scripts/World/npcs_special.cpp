@@ -1460,20 +1460,9 @@ class npc_brewfest_reveler : public CreatureScript
         }
 };
 
-enum TrainingDummy
-{
-    NPC_ADVANCED_TARGET_DUMMY                  = 2674,
-    NPC_TARGET_DUMMY                           = 2673
-};
-
 struct npc_training_dummy : NullCreatureAI
 {
-    npc_training_dummy(Creature* creature) : NullCreatureAI(creature)
-    {
-        uint32 const entry = me->GetEntry();
-        if (entry == NPC_TARGET_DUMMY || entry == NPC_ADVANCED_TARGET_DUMMY)
-            me->DespawnOrUnsummon(16s);
-    }
+    npc_training_dummy(Creature* creature) : NullCreatureAI(creature) { }
 
     void DamageTaken(Unit* attacker, uint32& damage) override
     {
