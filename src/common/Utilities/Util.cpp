@@ -59,6 +59,11 @@ static char* strtok_static_context = nullptr;
 
 char* strtok_static(char* str, const char* delim)
 {
+    // Safeguard against calling strtok(nullptr,..) as first call as it would result in a crash otherwise.
+    // The first strtok() call must have a non-null pointer as first argument.
+    if (!str && !strtok_static_context)
+        return nullptr;
+
     return strtok_r(str, delim, &strtok_static_context);
 }
 
