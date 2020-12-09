@@ -49,7 +49,10 @@ namespace Trinity
     inline std::vector<std::string_view> Tokenize(char const* str, char sep, bool keepEmpty) { return Tokenize(std::string_view(str ? str : ""), sep, keepEmpty); }
 }
 
+#if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
 TC_COMMON_API char* strtok_r(char* str, const char* delim, char** saveptr);
+#endif
+
 TC_COMMON_API char* strtok_static(char* str, const char* delim);
 
 TC_COMMON_API Optional<int32> MoneyStringToMoney(std::string const& moneyString);
