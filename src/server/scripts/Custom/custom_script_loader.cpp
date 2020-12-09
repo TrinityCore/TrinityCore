@@ -20,6 +20,10 @@
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
+
+void AddSC_tswow_commandscript();
+
 void AddCustomScripts()
 {
+    AddSC_tswow_commandscript();
 }
