@@ -94,17 +94,17 @@ public:
         if (!*args)
             return false;
 
-        char* nameStr = strtok((char*)args, " ");
+        char* nameStr = strtok_static((char*)args, " ");
         if (!nameStr)
             return false;
 
         std::string name = nameStr;
 
-        char* durationStr = strtok(nullptr, " ");
+        char* durationStr = strtok_static(nullptr, " ");
         if (!durationStr || !atoi(durationStr))
             return false;
 
-        char* reasonStr = strtok(nullptr, "");
+        char* reasonStr = strtok_static(nullptr, "");
         if (!reasonStr)
             return false;
 
@@ -165,17 +165,17 @@ public:
         if (!*args)
             return false;
 
-        char* cnameOrIP = strtok((char*)args, " ");
+        char* cnameOrIP = strtok_static((char*)args, " ");
         if (!cnameOrIP)
             return false;
 
         std::string nameOrIP = cnameOrIP;
 
-        char* durationStr = strtok(nullptr, " ");
+        char* durationStr = strtok_static(nullptr, " ");
         if (!durationStr || !atoi(durationStr))
             return false;
 
-        char* reasonStr = strtok(nullptr, "");
+        char* reasonStr = strtok_static(nullptr, "");
         if (!reasonStr)
             return false;
 
@@ -253,7 +253,7 @@ public:
         if (!*args)
             return false;
 
-        char* nameStr = strtok((char*)args, "");
+        char* nameStr = strtok_static((char*)args, "");
         if (!nameStr)
             return false;
 
@@ -366,7 +366,7 @@ public:
         if (!*args)
             return false;
 
-        char* ipStr = strtok((char*)args, "");
+        char* ipStr = strtok_static((char*)args, "");
         if (!ipStr)
             return false;
 
@@ -400,7 +400,7 @@ public:
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_EXPIRED_IP_BANS);
         LoginDatabase.Execute(stmt);
 
-        char* filterStr = strtok((char*)args, " ");
+        char* filterStr = strtok_static((char*)args, " ");
         std::string filter = filterStr ? filterStr : "";
 
         PreparedQueryResult result;
@@ -512,7 +512,7 @@ public:
         if (!*args)
             return false;
 
-        char* filterStr = strtok((char*)args, " ");
+        char* filterStr = strtok_static((char*)args, " ");
         if (!filterStr)
             return false;
 
@@ -600,7 +600,7 @@ public:
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_EXPIRED_IP_BANS);
         LoginDatabase.Execute(stmt);
 
-        char* filterStr = strtok((char*)args, " ");
+        char* filterStr = strtok_static((char*)args, " ");
         std::string filter = filterStr ? filterStr : "";
         LoginDatabase.EscapeString(filter);
 
@@ -683,7 +683,7 @@ public:
         if (!*args)
             return false;
 
-        char* nameStr = strtok((char*)args, " ");
+        char* nameStr = strtok_static((char*)args, " ");
         if (!nameStr)
             return false;
 
@@ -721,7 +721,7 @@ public:
         if (!*args)
             return false;
 
-        char* nameOrIPStr = strtok((char*)args, " ");
+        char* nameOrIPStr = strtok_static((char*)args, " ");
         if (!nameOrIPStr)
             return false;
 

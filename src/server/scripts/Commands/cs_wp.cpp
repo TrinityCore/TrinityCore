@@ -90,7 +90,7 @@ public:
         uint32 pathid = 0;
 
         if (*args)
-            path_number = strtok((char*)args, " ");
+            path_number = strtok_static((char*)args, " ");
 
         uint32 point = 0;
         Creature* target = handler->getSelectedCreature();
@@ -156,7 +156,7 @@ public:
         char* path_number = nullptr;
 
         if (*args)
-            path_number = strtok((char*)args, " ");
+            path_number = strtok_static((char*)args, " ");
 
         uint32 pathid = 0;
         ObjectGuid::LowType guidLow = 0;
@@ -290,7 +290,7 @@ public:
         if (!*args)
             return false;
 
-        char* show_str = strtok((char*)args, " ");
+        char* show_str = strtok_static((char*)args, " ");
         std::string show = show_str;
         WorldDatabasePreparedStatement* stmt = nullptr;
 
@@ -298,7 +298,7 @@ public:
         if ((show != "add") && (show != "mod") && (show != "del") && (show != "listid"))
             return false;
 
-        char* arg_id = strtok(nullptr, " ");
+        char* arg_id = strtok_static(nullptr, " ");
         uint32 id = 0;
 
         if (show == "add")
@@ -427,7 +427,7 @@ public:
                 return true;
             }
 
-            char* arg_2 = strtok(nullptr, " ");
+            char* arg_2 = strtok_static(nullptr, " ");
 
             if (!arg_2)
             {
@@ -447,7 +447,7 @@ public:
 
             char* arg_3;
             std::string arg_str_2 = arg_2;
-            arg_3 = strtok(nullptr, " ");
+            arg_3 = strtok_static(nullptr, " ");
 
             if (!arg_3)
             {
@@ -548,7 +548,7 @@ public:
             return false;
 
         // first arg: add del text emote spell waittime move
-        char* show_str = strtok((char*)args, " ");
+        char* show_str = strtok_static((char*)args, " ");
         if (!show_str)
         {
             return false;
@@ -624,7 +624,7 @@ public:
 
         // We have the waypoint number and the GUID of the "master npc"
         // Text is enclosed in "<>", all other arguments not
-        arg_str = strtok((char*)nullptr, " ");
+        arg_str = strtok_static((char*)nullptr, " ");
 
         // Check for argument
         if (show != "del" && show != "move" && arg_str == nullptr)
@@ -732,12 +732,12 @@ public:
             return false;
 
         // first arg: on, off, first, last
-        char* show_str = strtok((char*)args, " ");
+        char* show_str = strtok_static((char*)args, " ");
         if (!show_str)
             return false;
 
         // second arg: GUID (optional, if a creature is selected)
-        char* guid_str = strtok((char*)nullptr, " ");
+        char* guid_str = strtok_static((char*)nullptr, " ");
 
         uint32 pathid = 0;
         Creature* target = handler->getSelectedCreature();

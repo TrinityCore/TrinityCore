@@ -85,9 +85,9 @@ public:
         if (!args)
             return nullptr;
 
-        char* param1 = strtok((char*)args, " ");
-        char* param2 = strtok(nullptr, " ");
-        char* param3 = strtok(nullptr, " ");
+        char* param1 = strtok_static((char*)args, " ");
+        char* param2 = strtok_static(nullptr, " ");
+        char* param3 = strtok_static(nullptr, " ");
 
         int32 realmId = -1;
         uint32 accountId = 0;
@@ -345,7 +345,7 @@ public:
     static bool HandleRBACListPermissionsCommand(ChatHandler* handler, char const* args)
     {
         uint32 id = 0;
-        if (char* param1 = strtok((char*)args, " "))
+        if (char* param1 = strtok_static((char*)args, " "))
           id = atoi(param1);
 
         if (!id)

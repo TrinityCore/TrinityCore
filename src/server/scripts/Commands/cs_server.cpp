@@ -286,7 +286,7 @@ public:
     {
         if (*args)
         {
-            char* paramStr = strtok((char*)args, " ");
+            char* paramStr = strtok_static((char*)args, " ");
             if (!paramStr)
                 return false;
 
@@ -464,7 +464,7 @@ private:
 
         // #delay [#exit_code] [reason]
         int32 delay = 0;
-        char* delayStr = strtok((char*)args, " ");
+        char* delayStr = strtok_static((char*)args, " ");
         if (!delayStr)
             return false;
 
@@ -487,14 +487,14 @@ private:
 
         char reason[256] = { 0 };
 
-        while (char* nextToken = strtok(nullptr, " "))
+        while (char* nextToken = strtok_static(nullptr, " "))
         {
             if (isNumeric(nextToken))
                 exitCodeStr = nextToken;
             else
             {
                 strcat(reason, nextToken);
-                if (char* remainingTokens = strtok(nullptr, "\0"))
+                if (char* remainingTokens = strtok_static(nullptr, "\0"))
                 {
                     strcat(reason, " ");
                     strcat(reason, remainingTokens);

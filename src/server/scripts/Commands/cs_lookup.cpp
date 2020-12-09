@@ -1173,7 +1173,7 @@ public:
             return false;
         }
 
-        char const* str = strtok((char*)args, " ");
+        char const* str = strtok_static((char*)args, " ");
         if (!str)
             return false;
 
@@ -1441,8 +1441,8 @@ public:
         }
         else
         {
-            ip = strtok((char*)args, " ");
-            limitStr = strtok(nullptr, " ");
+            ip = strtok_static((char*)args, " ");
+            limitStr = strtok_static(nullptr, " ");
             limit = limitStr ? atoi(limitStr) : -1;
         }
 
@@ -1458,8 +1458,8 @@ public:
         if (!*args)
             return false;
 
-        std::string account = strtok((char*)args, " ");
-        char* limitStr = strtok(nullptr, " ");
+        std::string account = strtok_static((char*)args, " ");
+        char* limitStr = strtok_static(nullptr, " ");
         int32 limit = limitStr ? atoi(limitStr) : -1;
 
         if (!Utf8ToUpperOnlyLatin
@@ -1478,8 +1478,8 @@ public:
         if (!*args)
             return false;
 
-        std::string email = strtok((char*)args, " ");
-        char* limitStr = strtok(nullptr, " ");
+        std::string email = strtok_static((char*)args, " ");
+        char* limitStr = strtok_static(nullptr, " ");
         int32 limit = limitStr ? atoi(limitStr) : -1;
 
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_LIST_BY_EMAIL);

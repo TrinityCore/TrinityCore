@@ -235,13 +235,13 @@ public:
         uint32 factionid = atoi(pfactionid);
         uint32 flag;
 
-        char *pflag = strtok(nullptr, " ");
+        char *pflag = strtok_static(nullptr, " ");
         if (!pflag)
             flag = target->GetUInt32Value(UNIT_FIELD_FLAGS);
         else
             flag = atoi(pflag);
 
-        char* pnpcflag = strtok(nullptr, " ");
+        char* pnpcflag = strtok_static(nullptr, " ");
 
         uint32 npcflag;
         if (!pnpcflag)
@@ -249,7 +249,7 @@ public:
         else
             npcflag = atoi(pnpcflag);
 
-        char* pdyflag = strtok(nullptr, " ");
+        char* pdyflag = strtok_static(nullptr, " ");
 
         uint32  dyflag;
         if (!pdyflag)
@@ -280,21 +280,21 @@ public:
         if (!*args)
             return false;
 
-        char* pspellflatid = strtok((char*)args, " ");
+        char* pspellflatid = strtok_static((char*)args, " ");
         if (!pspellflatid)
             return false;
 
-        char* pop = strtok(nullptr, " ");
+        char* pop = strtok_static(nullptr, " ");
         if (!pop)
             return false;
 
-        char* pval = strtok(nullptr, " ");
+        char* pval = strtok_static(nullptr, " ");
         if (!pval)
             return false;
 
         uint16 mark;
 
-        char* pmark = strtok(nullptr, " ");
+        char* pmark = strtok_static(nullptr, " ");
 
         uint8 spellflatid = atoi(pspellflatid);
         uint8 op   = atoi(pop);
@@ -506,8 +506,8 @@ public:
         if (!*args)
             return false;
 
-        char const* mount_cstr = strtok(const_cast<char*>(args), " ");
-        char const* speed_cstr = strtok(nullptr, " ");
+        char const* mount_cstr = strtok_static(const_cast<char*>(args), " ");
+        char const* speed_cstr = strtok_static(nullptr, " ");
 
         if (!mount_cstr || !speed_cstr)
             return false;
@@ -630,11 +630,11 @@ public:
         if (target->GetTypeId() == TYPEID_PLAYER && handler->HasLowerSecurity(target->ToPlayer(), ObjectGuid::Empty))
             return false;
 
-        char* pField = strtok((char*)args, " ");
+        char* pField = strtok_static((char*)args, " ");
         if (!pField)
             return false;
 
-        char* pBit = strtok(nullptr, " ");
+        char* pBit = strtok_static(nullptr, " ");
         if (!pBit)
             return false;
 
@@ -732,7 +732,7 @@ public:
         uint32 factionId = atoi(factionTxt);
 
         int32 amount = 0;
-        char *rankTxt = strtok(nullptr, " ");
+        char *rankTxt = strtok_static(nullptr, " ");
         if (!factionId || !rankTxt)
             return false;
 
@@ -761,7 +761,7 @@ public:
 
                 if (wrank.substr(0, wrankStr.size()) == wrankStr)
                 {
-                    char *deltaTxt = strtok(nullptr, " ");
+                    char *deltaTxt = strtok_static(nullptr, " ");
                     if (deltaTxt)
                     {
                         int32 delta = atoi(deltaTxt);

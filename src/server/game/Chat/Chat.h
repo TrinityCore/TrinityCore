@@ -56,7 +56,7 @@ class TC_GAME_API ChatHandler
         // Builds chat packet and returns receiver guid position in the packet to substitute in whisper builders
         static size_t BuildChatPacket(WorldPacket& data, ChatMsg chatType, Language language, WorldObject const* sender, WorldObject const* receiver, std::string_view message, uint32 achievementId = 0, std::string const& channelName = "", LocaleConstant locale = DEFAULT_LOCALE);
 
-        static char* LineFromMessage(char*& pos) { char* start = strtok(pos, "\n"); pos = nullptr; return start; }
+        static char* LineFromMessage(char*& pos) { char* start = strtok_static(pos, "\n"); pos = nullptr; return start; }
 
         // function with different implementation for chat/console
         virtual char const* GetTrinityString(uint32 entry) const;

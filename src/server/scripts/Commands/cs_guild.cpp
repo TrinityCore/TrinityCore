@@ -80,7 +80,7 @@ public:
         if (!handler->extractPlayerTarget(*args != '"' ? (char*)args : nullptr, &target))
             return false;
 
-        char* tailStr = *args != '"' ? strtok(nullptr, "") : (char*)args;
+        char* tailStr = *args != '"' ? strtok_static(nullptr, "") : (char*)args;
         if (!tailStr)
             return false;
 
@@ -156,7 +156,7 @@ public:
         if (!handler->extractPlayerTarget(*args != '"' ? (char*)args : nullptr, nullptr, &targetGuid))
             return false;
 
-        char* tailStr = *args != '"' ? strtok(nullptr, "") : (char*)args;
+        char* tailStr = *args != '"' ? strtok_static(nullptr, "") : (char*)args;
         if (!tailStr)
             return false;
 
@@ -227,7 +227,7 @@ public:
             return false;
         }
 
-        char const* newGuildStr = handler->extractQuotedArg(strtok(nullptr, ""));
+        char const* newGuildStr = handler->extractQuotedArg(strtok_static(nullptr, ""));
         if (!newGuildStr)
         {
             handler->SendSysMessage(LANG_INSERT_GUILD_NAME);

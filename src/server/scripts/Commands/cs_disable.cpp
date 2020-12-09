@@ -83,14 +83,14 @@ public:
 
     static bool HandleAddDisables(ChatHandler* handler, char const* args, uint8 disableType)
     {
-        char* entryStr = strtok((char*)args, " ");
+        char* entryStr = strtok_static((char*)args, " ");
         if (!entryStr || !atoi(entryStr))
             return false;
 
-        char* flagsStr = strtok(nullptr, " ");
+        char* flagsStr = strtok_static(nullptr, " ");
         uint8 flags = flagsStr ? uint8(atoi(flagsStr)) : 0;
 
-        char* commentStr = strtok(nullptr, "");
+        char* commentStr = strtok_static(nullptr, "");
         if (!commentStr)
             return false;
 
@@ -282,7 +282,7 @@ public:
 
     static bool HandleRemoveDisables(ChatHandler* handler, char const* args, uint8 disableType)
     {
-        char* entryStr = strtok((char*)args, " ");
+        char* entryStr = strtok_static((char*)args, " ");
         if (!entryStr || !atoi(entryStr))
             return false;
 

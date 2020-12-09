@@ -374,36 +374,36 @@ char* ChatHandler::extractKeyFromLink(char* text, char const* linkType, char** s
 
     // return non link case
     if (text[0] != '|')
-        return strtok(text, " ");
+        return strtok_static(text, " ");
 
     // [name] Shift-click form |color|linkType:key|h[name]|h|r
     // or
     // [name] Shift-click form |color|linkType:key:something1:...:somethingN|h[name]|h|r
 
-    char* check = strtok(text, "|");                        // skip color
+    char* check = strtok_static(text, "|");                        // skip color
     if (!check)
         return nullptr;                                        // end of data
 
-    char* cLinkType = strtok(nullptr, ":");                    // linktype
+    char* cLinkType = strtok_static(nullptr, ":");                    // linktype
     if (!cLinkType)
         return nullptr;                                        // end of data
 
     if (strcmp(cLinkType, linkType) != 0)
     {
-        strtok(nullptr, " ");                                  // skip link tail (to allow continue strtok(nullptr, s) use after retturn from function
+        strtok_static(nullptr, " ");                                  // skip link tail (to allow continue strtok_static(nullptr, s) use after retturn from function
         SendSysMessage(LANG_WRONG_LINK_TYPE);
         return nullptr;
     }
 
-    char* cKeys = strtok(nullptr, "|");                        // extract keys and values
-    char* cKeysTail = strtok(nullptr, "");
+    char* cKeys = strtok_static(nullptr, "|");                        // extract keys and values
+    char* cKeysTail = strtok_static(nullptr, "");
 
-    char* cKey = strtok(cKeys, ":|");                       // extract key
+    char* cKey = strtok_static(cKeys, ":|");                       // extract key
     if (something1)
-        *something1 = strtok(nullptr, ":|");                   // extract something
+        *something1 = strtok_static(nullptr, ":|");                   // extract something
 
-    strtok(cKeysTail, "]");                                 // restart scan tail and skip name with possible spaces
-    strtok(nullptr, " ");                                      // skip link tail (to allow continue strtok(nullptr, s) use after return from function
+    strtok_static(cKeysTail, "]");                                 // restart scan tail and skip name with possible spaces
+    strtok_static(nullptr, " ");                                      // skip link tail (to allow continue strtok_static(nullptr, s) use after return from function
     return cKey;
 }
 
@@ -422,7 +422,7 @@ char* ChatHandler::extractKeyFromLink(char* text, char const* const* linkTypes, 
 
     // return non link case
     if (text[0] != '|')
-        return strtok(text, " ");
+        return strtok_static(text, " ");
 
     // [name] Shift-click form |color|linkType:key|h[name]|h|r
     // or
@@ -434,16 +434,16 @@ char* ChatHandler::extractKeyFromLink(char* text, char const* const* linkTypes, 
 
     if (text[1] == 'c')
     {
-        char* check = strtok(text, "|");                    // skip color
+        char* check = strtok_static(text, "|");                    // skip color
         if (!check)
             return nullptr;                                    // end of data
 
-        tail = strtok(nullptr, "");                            // tail
+        tail = strtok_static(nullptr, "");                            // tail
     }
     else
         tail = text+1;                                      // skip first |
 
-    char* cLinkType = strtok(tail, ":");                    // linktype
+    char* cLinkType = strtok_static(tail, ":");                    // linktype
     if (!cLinkType)
         return nullptr;                                        // end of data
 
@@ -451,22 +451,22 @@ char* ChatHandler::extractKeyFromLink(char* text, char const* const* linkTypes, 
     {
         if (strcmp(cLinkType, linkTypes[i]) == 0)
         {
-            char* cKeys = strtok(nullptr, "|");                // extract keys and values
-            char* cKeysTail = strtok(nullptr, "");
+            char* cKeys = strtok_static(nullptr, "|");                // extract keys and values
+            char* cKeysTail = strtok_static(nullptr, "");
 
-            char* cKey = strtok(cKeys, ":|");               // extract key
+            char* cKey = strtok_static(cKeys, ":|");               // extract key
             if (something1)
-                *something1 = strtok(nullptr, ":|");           // extract something
+                *something1 = strtok_static(nullptr, ":|");           // extract something
 
-            strtok(cKeysTail, "]");                         // restart scan tail and skip name with possible spaces
-            strtok(nullptr, " ");                              // skip link tail (to allow continue strtok(nullptr, s) use after return from function
+            strtok_static(cKeysTail, "]");                         // restart scan tail and skip name with possible spaces
+            strtok_static(nullptr, " ");                              // skip link tail (to allow continue strtok_static(nullptr, s) use after return from function
             if (found_idx)
                 *found_idx = i;
             return cKey;
         }
     }
 
-    strtok(nullptr, " ");                                      // skip link tail (to allow continue strtok(nullptr, s) use after return from function
+    strtok_static(nullptr, " ");                                      // skip link tail (to allow continue strtok_static(nullptr, s) use after return from function
     SendSysMessage(LANG_WRONG_LINK_TYPE);
     return nullptr;
 }
@@ -713,7 +713,7 @@ char* ChatHandler::extractQuotedArg(char* args)
         return nullptr;
 
     if (*args == '"')
-        return strtok(args+1, "\"");
+        return strtok_static(args+1, "\"");
     else
     {
         // skip spaces
@@ -734,13 +734,13 @@ char* ChatHandler::extractQuotedArg(char* args)
             // strtok doesn't handle this case
             if (*(args + 1) == '"')
             {
-                strtok(args, " ");
+                strtok_static(args, " ");
                 static char arg[1];
                 arg[0] = '\0';
                 return arg;
             }
             else
-                return strtok(args + 1, "\"");
+                return strtok_static(args + 1, "\"");
         }
         else
             return nullptr;

@@ -898,7 +898,7 @@ public:
         std::string kickReasonStr = handler->GetTrinityString(LANG_NO_REASON);
         if (*args != '\0')
         {
-            char const* kickReason = strtok(nullptr, "\r");
+            char const* kickReason = strtok_static(nullptr, "\r");
             if (kickReason != nullptr)
                 kickReasonStr = kickReason;
         }
@@ -927,12 +927,12 @@ public:
         if (!*args)
             return false;
 
-        char* player_str = strtok((char*)args, " ");
+        char* player_str = strtok_static((char*)args, " ");
         if (!player_str)
             return false;
 
         std::string location_str = "inn";
-        if (char const* loc = strtok(nullptr, " "))
+        if (char const* loc = strtok_static(nullptr, " "))
             location_str = loc;
 
         Player* player = nullptr;
@@ -1153,7 +1153,7 @@ public:
 
         if (args[0] == '[')                                        // [name] manual form
         {
-            char const* itemNameStr = strtok((char*)args, "]");
+            char const* itemNameStr = strtok_static((char*)args, "]");
 
             if (itemNameStr && itemNameStr[0])
             {
@@ -1183,7 +1183,7 @@ public:
             itemId = atoul(id);
         }
 
-        char const* ccount = strtok(nullptr, " ");
+        char const* ccount = strtok_static(nullptr, " ");
 
         int32 count = 1;
 
@@ -2118,11 +2118,11 @@ public:
         if (!*args)
             return false;
 
-        char* str = strtok((char*)args, " ");
+        char* str = strtok_static((char*)args, " ");
 
         if (strcmp(str, "go") == 0)
         {
-            char* guidStr = strtok(nullptr, " ");
+            char* guidStr = strtok_static(nullptr, " ");
             if (!guidStr)
             {
                 handler->SendSysMessage(LANG_BAD_VALUE);
@@ -2138,7 +2138,7 @@ public:
                 return false;
             }
 
-            char* damageStr = strtok(nullptr, " ");
+            char* damageStr = strtok_static(nullptr, " ");
             if (!damageStr)
             {
                 handler->SendSysMessage(LANG_BAD_VALUE);
@@ -2199,7 +2199,7 @@ public:
 
         uint32 damage = damage_int;
 
-        char* schoolStr = strtok((char*)nullptr, " ");
+        char* schoolStr = strtok_static((char*)nullptr, " ");
 
         // flat melee damage without resistence/etc reduction
         if (!schoolStr)
@@ -2219,7 +2219,7 @@ public:
         if (Unit::IsDamageReducedByArmor(schoolmask))
             damage = Unit::CalcArmorReducedDamage(handler->GetSession()->GetPlayer(), target, damage, nullptr, BASE_ATTACK);
 
-        char* spellStr = strtok((char*)nullptr, " ");
+        char* spellStr = strtok_static((char*)nullptr, " ");
 
         // melee damage by specific school
         if (!spellStr)
@@ -2340,8 +2340,8 @@ public:
         else
         {
             // Get the args that we might have (up to 2)
-            char const* arg1 = strtok((char*)args, " ");
-            char const* arg2 = strtok(nullptr, " ");
+            char const* arg1 = strtok_static((char*)args, " ");
+            char const* arg2 = strtok_static(nullptr, " ");
 
             // Analyze them to see if we got either a playerName or duration or both
             if (arg1)

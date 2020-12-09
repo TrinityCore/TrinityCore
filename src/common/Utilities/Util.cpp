@@ -55,7 +55,19 @@ std::vector<std::string_view> Trinity::Tokenize(std::string_view str, char sep, 
     return tokens;
 }
 
+static char* strtok_static_context = nullptr;
+
+char* strtok_static(char* str, const char* delim)
+{
+    return strtok_r(str, delim, &strtok_static_context);
+}
+
 #if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
+char* strtok_r(char* str, const char* delim, char** saveptr)
+{
+    return strtok_s(str, delim, saveptr);
+}
+
 struct tm* localtime_r(time_t const* time, struct tm *result)
 {
     localtime_s(result, time);

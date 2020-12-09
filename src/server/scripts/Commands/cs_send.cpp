@@ -63,7 +63,7 @@ public:
         if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid, &targetName))
             return false;
 
-        char* tail1 = strtok(nullptr, "");
+        char* tail1 = strtok_static(nullptr, "");
         if (!tail1)
             return false;
 
@@ -71,7 +71,7 @@ public:
         if (!msgSubject)
             return false;
 
-        char* tail2 = strtok(nullptr, "");
+        char* tail2 = strtok_static(nullptr, "");
         if (!tail2)
             return false;
 
@@ -108,7 +108,7 @@ public:
         if (!handler->extractPlayerTarget((char*)args, &receiver, &receiverGuid, &receiverName))
             return false;
 
-        char* tail1 = strtok(nullptr, "");
+        char* tail1 = strtok_static(nullptr, "");
         if (!tail1)
             return false;
 
@@ -116,7 +116,7 @@ public:
         if (!msgSubject)
             return false;
 
-        char* tail2 = strtok(nullptr, "");
+        char* tail2 = strtok_static(nullptr, "");
         if (!tail2)
             return false;
 
@@ -134,17 +134,17 @@ public:
         ItemPairs items;
 
         // get all tail string
-        char* tail = strtok(nullptr, "");
+        char* tail = strtok_static(nullptr, "");
 
         // get from tail next item str
-        while (char* itemStr = strtok(tail, " "))
+        while (char* itemStr = strtok_static(tail, " "))
         {
             // and get new tail
-            tail = strtok(nullptr, "");
+            tail = strtok_static(nullptr, "");
 
             // parse item str
-            char const* itemIdStr = strtok(itemStr, ":");
-            char const* itemCountStr = strtok(nullptr, " ");
+            char const* itemIdStr = strtok_static(itemStr, ":");
+            char const* itemCountStr = strtok_static(nullptr, " ");
 
             uint32 itemId = atoi(itemIdStr);
             if (!itemId)
@@ -217,7 +217,7 @@ public:
         if (!handler->extractPlayerTarget((char*)args, &receiver, &receiverGuid, &receiverName))
             return false;
 
-        char* tail1 = strtok(nullptr, "");
+        char* tail1 = strtok_static(nullptr, "");
         if (!tail1)
             return false;
 
@@ -225,7 +225,7 @@ public:
         if (!msgSubject)
             return false;
 
-        char* tail2 = strtok(nullptr, "");
+        char* tail2 = strtok_static(nullptr, "");
         if (!tail2)
             return false;
 
@@ -233,7 +233,7 @@ public:
         if (!msgText)
             return false;
 
-        char* moneyStr = strtok(nullptr, "");
+        char* moneyStr = strtok_static(nullptr, "");
         int32 money = moneyStr ? atoi(moneyStr) : 0;
         if (money <= 0)
             return false;
@@ -265,7 +265,7 @@ public:
         if (!handler->extractPlayerTarget((char*)args, &player))
             return false;
 
-        char* msgStr = strtok(nullptr, "");
+        char* msgStr = strtok_static(nullptr, "");
         if (!msgStr)
             return false;
 

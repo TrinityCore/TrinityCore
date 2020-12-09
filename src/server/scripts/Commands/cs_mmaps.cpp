@@ -81,7 +81,7 @@ public:
             return true;
         }
 
-        char* para = strtok((char*)args, " ");
+        char* para = strtok_static((char*)args, " ");
 
         bool useStraightPath = false;
         if (para && strcmp(para, "true") == 0)

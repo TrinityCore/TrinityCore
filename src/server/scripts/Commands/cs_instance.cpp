@@ -126,8 +126,8 @@ public:
         if (!player)
             player = handler->GetSession()->GetPlayer();
 
-        char* map = strtok((char*)args, " ");
-        char* pDiff = strtok(nullptr, " ");
+        char* map = strtok_static((char*)args, " ");
+        char* pDiff = strtok_static(nullptr, " ");
         int8 diff = -1;
         if (pDiff)
             diff = atoi(pDiff);
@@ -202,9 +202,9 @@ public:
         if (!*args)
             return false;
 
-        char* param1 = strtok((char*)args, " ");
-        char* param2 = strtok(nullptr, " ");
-        char* param3 = strtok(nullptr, " ");
+        char* param1 = strtok_static((char*)args, " ");
+        char* param2 = strtok_static(nullptr, " ");
+        char* param3 = strtok_static(nullptr, " ");
         uint32 encounterId = 0;
         int32 state = 0;
         Player* player = nullptr;
@@ -270,8 +270,8 @@ public:
         if (!*args)
             return false;
 
-        char* param1 = strtok((char*)args, " ");
-        char* param2 = strtok(nullptr, " ");
+        char* param1 = strtok_static((char*)args, " ");
+        char* param2 = strtok_static(nullptr, " ");
         uint32 encounterId = 0;
         Player* player = nullptr;
         std::string playerName;

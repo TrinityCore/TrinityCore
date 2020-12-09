@@ -163,7 +163,7 @@ public:
         Player* player = nullptr;
         Group* group = nullptr;
         ObjectGuid guid;
-        char* nameStr = strtok((char*)args, " ");
+        char* nameStr = strtok_static((char*)args, " ");
 
         if (!handler->GetPlayerGroupAndGUIDByName(nameStr, player, group, guid))
             return false;
@@ -189,7 +189,7 @@ public:
         Player* player = nullptr;
         Group* group = nullptr;
         ObjectGuid guid;
-        char* nameStr = strtok((char*)args, " ");
+        char* nameStr = strtok_static((char*)args, " ");
 
         if (!handler->GetPlayerGroupAndGUIDByName(nameStr, player, group, guid))
             return false;
@@ -248,7 +248,7 @@ public:
         Player* player = nullptr;
         Group* group = nullptr;
         ObjectGuid guid;
-        char* nameStr = strtok((char*)args, " ");
+        char* nameStr = strtok_static((char*)args, " ");
 
         if (!handler->GetPlayerGroupAndGUIDByName(nameStr, player, group, guid))
             return false;
@@ -269,7 +269,7 @@ public:
         Player* player = nullptr;
         Group* group = nullptr;
         ObjectGuid guid;
-        char* nameStr = strtok((char*)args, " ");
+        char* nameStr = strtok_static((char*)args, " ");
 
         if (!handler->GetPlayerGroupAndGUIDByName(nameStr, player, group, guid))
             return false;
@@ -296,8 +296,8 @@ public:
         Group* groupTarget = nullptr;
         ObjectGuid guidSource;
         ObjectGuid guidTarget;
-        char* nameplgrStr = strtok((char*)args, " ");
-        char* nameplStr = strtok(nullptr, " ");
+        char* nameplgrStr = strtok_static((char*)args, " ");
+        char* nameplStr = strtok_static(nullptr, " ");
 
         if (!handler->GetPlayerGroupAndGUIDByName(nameplgrStr, playerSource, groupSource, guidSource, true))
             return false;

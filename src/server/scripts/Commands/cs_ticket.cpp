@@ -83,10 +83,10 @@ public:
         if (!*args)
             return false;
 
-        char* ticketIdStr = strtok((char*)args, " ");
+        char* ticketIdStr = strtok_static((char*)args, " ");
         uint32 ticketId = atoi(ticketIdStr);
 
-        char* targetStr = strtok(nullptr, " ");
+        char* targetStr = strtok_static(nullptr, " ");
         if (!targetStr)
             return false;
 
@@ -180,10 +180,10 @@ public:
         if (!*args)
             return false;
 
-        char* ticketIdStr = strtok((char*)args, " ");
+        char* ticketIdStr = strtok_static((char*)args, " ");
         uint32 ticketId = atoi(ticketIdStr);
 
-        char* comment = strtok(nullptr, "\n");
+        char* comment = strtok_static(nullptr, "\n");
         if (!comment)
             return false;
 
@@ -231,7 +231,7 @@ public:
         if (!*args)
             return false;
 
-        char* ticketIdStr = strtok((char*)args, " ");
+        char* ticketIdStr = strtok_static((char*)args, " ");
         uint32 ticketId = atoi(ticketIdStr);
 
         GmTicket* ticket = sTicketMgr->GetTicket(ticketId);
@@ -241,7 +241,7 @@ public:
             return true;
         }
 
-        char* response = strtok(nullptr, "\n");
+        char* response = strtok_static(nullptr, "\n");
         if (response)
         {
             // Cannot add response to ticket, assigned to someone else
@@ -491,10 +491,10 @@ public:
         if (!*args)
             return false;
 
-        char* ticketIdStr = strtok((char*)args, " ");
+        char* ticketIdStr = strtok_static((char*)args, " ");
         uint32 ticketId = atoi(ticketIdStr);
 
-        char* response = strtok(nullptr, "\n");
+        char* response = strtok_static(nullptr, "\n");
         if (!response)
             return false;
 
