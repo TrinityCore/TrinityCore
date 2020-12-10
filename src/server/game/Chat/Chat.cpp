@@ -585,6 +585,10 @@ bool ChatHandler::extractPlayerTarget(char* args, Player** player, ObjectGuid* p
     }
     else
     {
+        // populate strtok buffer to prevent crashes
+        static char dummy[1] = "";
+        strtok(dummy, "");
+
         Player* pl = getSelectedPlayerOrSelf();
         // if allowed player pointer
         if (player)
