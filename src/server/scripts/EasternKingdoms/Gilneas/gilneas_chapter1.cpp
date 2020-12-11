@@ -778,7 +778,7 @@ public:
     }
 };
 
-void AddSC_gilneas_c1()
+void AddSC_gilneas_chapter1()
 {
     new npc_frightened_citizen();
     new npc_worgen_runt();
