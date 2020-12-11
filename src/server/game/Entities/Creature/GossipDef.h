@@ -26,6 +26,7 @@
 class Object;
 class Quest;
 class WorldSession;
+enum class QuestGiverStatus : uint32;
 
 #define GOSSIP_MAX_MENU_ITEMS               32
 #define DEFAULT_GOSSIP_MESSAGE              0xffffff
@@ -288,7 +289,7 @@ class TC_GAME_API PlayerMenu
         /*********************************************************/
         /***                    QUEST SYSTEM                   ***/
         /*********************************************************/
-        void SendQuestGiverStatus(uint32 questStatus, ObjectGuid npcGUID) const;
+        void SendQuestGiverStatus(QuestGiverStatus questStatus, ObjectGuid npcGUID) const;
 
         void SendQuestGiverQuestListMessage(Object* questgiver);
 

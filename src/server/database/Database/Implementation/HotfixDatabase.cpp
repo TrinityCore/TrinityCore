@@ -1067,6 +1067,11 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "Difficulty7, Difficulty8, Difficulty9, Difficulty10 FROM quest_faction_reward WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_QUEST_FACTION_REWARD, "SELECT MAX(ID) + 1 FROM quest_faction_reward", CONNECTION_SYNCH);
 
+    // QuestInfo.db2
+    PrepareStatement(HOTFIX_SEL_QUEST_INFO, "SELECT ID, InfoName, Type, Modifiers, Profession FROM quest_info WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_QUEST_INFO, "SELECT MAX(ID) + 1 FROM quest_info", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_QUEST_INFO, "SELECT ID, InfoName_lang FROM quest_info_locale WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
+
     // QuestMoneyReward.db2
     PrepareStatement(HOTFIX_SEL_QUEST_MONEY_REWARD, "SELECT ID, Difficulty1, Difficulty2, Difficulty3, Difficulty4, Difficulty5, Difficulty6, "
         "Difficulty7, Difficulty8, Difficulty9, Difficulty10 FROM quest_money_reward WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);

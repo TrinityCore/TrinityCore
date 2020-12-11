@@ -45,6 +45,7 @@ enum DamageEffectType : uint8;
 enum Difficulty : uint8;
 enum SpellEffIndex : uint8;
 enum class LootItemType : uint8;
+enum class QuestGiverStatus : uint32;
 
 //Selection method used by SelectTarget
 enum SelectAggroTarget
@@ -330,7 +331,7 @@ class TC_GAME_API UnitAI
         virtual void OnGameEvent(bool /*start*/, uint16 /*eventId*/) { }
 
         // Called when the dialog status between a player and the creature is requested.
-        virtual uint32 GetDialogStatus(Player* player);
+        virtual QuestGiverStatus GetDialogStatus(Player* player);
 
         virtual void WaypointStarted(uint32 /*nodeId*/, uint32 /*pathId*/) { }
         virtual void WaypointReached(uint32 /*nodeId*/, uint32 /*pathId*/) { }

@@ -21,6 +21,7 @@
 #include "Common.h"
 #include "DBCEnums.h"
 #include "DatabaseEnvFwd.h"
+#include "Optional.h"
 #include "RaceMask.h"
 #include "SharedDefines.h"
 #include "WorldPacket.h"
@@ -115,24 +116,35 @@ enum QuestStatus : uint8
     MAX_QUEST_STATUS
 };
 
-enum QuestGiverStatus
+enum class QuestGiverStatus : uint32
 {
-    DIALOG_STATUS_NONE                     = 0x000,
-    DIALOG_STATUS_UNK                      = 0x001,
-    DIALOG_STATUS_UNAVAILABLE              = 0x002,
-    DIALOG_STATUS_LOW_LEVEL_AVAILABLE      = 0x004,
-    DIALOG_STATUS_LOW_LEVEL_REWARD_REP     = 0x008,
-    DIALOG_STATUS_LOW_LEVEL_AVAILABLE_REP  = 0x010,
-    DIALOG_STATUS_INCOMPLETE               = 0x020,
-    DIALOG_STATUS_REWARD_REP               = 0x040,
-    DIALOG_STATUS_AVAILABLE_REP            = 0x080,
-    DIALOG_STATUS_AVAILABLE                = 0x100,
-    DIALOG_STATUS_REWARD2                  = 0x200,         // no yellow dot on minimap
-    DIALOG_STATUS_REWARD                   = 0x400,         // yellow dot on minimap
+    None                                = 0x000000,
+    Future                              = 0x000002,
+    Trivial                             = 0x000004,
+    TrivialRepeatableTurnin             = 0x000008,
+    TrivialDailyQuest                   = 0x000010,
+    Reward                              = 0x000020,
+    JourneyReward                       = 0x000040,
+    CovenantCallingReward               = 0x000080,
+    RepeatableTurnin                    = 0x000100,
+    DailyQuest                          = 0x000200,
+    Quest                               = 0x000400,
+    RewardCompleteNoPOI                 = 0x000800,
+    RewardCompletePOI                   = 0x001000,
+    LegendaryQuest                      = 0x002000,
+    LegendaryRewardCompleteNoPOI        = 0x004000,
+    LegendaryRewardCompletePOI          = 0x008000,
+    JourneyQuest                        = 0x010000,
+    JourneyRewardCompleteNoPOI          = 0x020000,
+    JourneyRewardCompletePOI            = 0x040000,
+    CovenantCallingQuest                = 0x080000,
+    CovenantCallingRewardCompleteNoPOI  = 0x100000,
+    CovenantCallingRewardCompletePOI    = 0x200000,
 
-    // Custom value meaning that script call did not return any valid quest status
-    DIALOG_STATUS_SCRIPTED_NO_STATUS       = 0x1000
+    ScriptedDefault                     = 0x80000000
 };
+
+DEFINE_ENUM_FLAG(QuestGiverStatus)
 
 enum QuestFlags : uint32
 {
@@ -251,6 +263,26 @@ enum QuestSpecialFlags
     QUEST_SPECIAL_FLAGS_COMPLETED_AT_START   = 0x1000   // Internal flag computed only
 };
 
+enum class QuestTagType
+{
+    Tag,
+    Profession,
+    Normal,
+    Pvp,
+    PetBattle,
+    Bounty,
+    Dungeon,
+    Invasion,
+    Raid,
+    Contribution,
+    RatedRreward,
+    InvasionWrapper,
+    FactionAssault,
+    Islands,
+    Threat,
+    CovenantCalling
+};
+
 enum QuestObjectiveType
 {
     QUEST_OBJECTIVE_MONSTER                 = 0,
@@ -362,7 +394,7 @@ struct QuestObjective
     }
 };
 
-typedef std::vector<QuestObjective> QuestObjectives;
+using QuestObjectives = std::vector<QuestObjective>;
 
 struct QuestRewardDisplaySpell
 {
@@ -396,6 +428,7 @@ class TC_GAME_API Quest
 
         uint32 XPValue(Player const* player) const;
         uint32 MoneyValue(Player const* player) const;
+        Optional<QuestTagType> GetQuestTag() const;
 
         bool HasFlag(QuestFlags flag) const { return (_flags & uint32(flag)) != 0; }
         bool HasFlagEx(QuestFlagsEx flag) const { return (_flagsEx & uint32(flag)) != 0; }
