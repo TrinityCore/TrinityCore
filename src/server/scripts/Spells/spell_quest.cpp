@@ -2896,4 +2896,4 @@ void AddSC_quest_spell_scripts()
     RegisterSpellScript(spell_q14386_call_attack_mastiffs);
     new spell_q14098_knocking_67869();
 }
-}
+
