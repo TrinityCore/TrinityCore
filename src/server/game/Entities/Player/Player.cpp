@@ -26964,7 +26964,6 @@ void Player::SendTalentsInfoData()
 {
     WorldPackets::Talent::UpdateTalentData packet;
     packet.Info.PrimarySpecialization = GetPrimarySpecialization();
-    packet.Info.ActiveGroup = GetActiveTalentGroup();
 
     for (uint8 i = 0; i < MAX_SPECIALIZATIONS; ++i)
     {
@@ -27030,7 +27029,11 @@ void Player::SendTalentsInfoData()
             pvpTalent.Slot = slot;
         }
 
-        packet.Info.TalentGroups.push_back(groupInfoPkt);
+        if (i == GetActiveTalentGroup())
+            packet.Info.ActiveGroup = packet.Info.TalentGroups.size();
+
+        if (!groupInfoPkt.TalentIDs.empty() || !groupInfoPkt.PvPTalents.empty() || i == GetActiveTalentGroup())
+            packet.Info.TalentGroups.push_back(groupInfoPkt);
     }
 
     SendDirectMessage(packet.Write());
