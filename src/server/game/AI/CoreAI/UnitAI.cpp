@@ -318,9 +318,9 @@ void UnitAI::QuestReward(Player* player, Quest const* quest, uint32 opt)
     QuestReward(player, quest, LootItemType::Item, opt);
 }
 
-uint32 UnitAI::GetDialogStatus(Player* /*player*/)
+QuestGiverStatus UnitAI::GetDialogStatus(Player* /*player*/)
 {
-    return DIALOG_STATUS_SCRIPTED_NO_STATUS;
+    return QuestGiverStatus::ScriptedDefault;
 }
 
 ThreatManager& UnitAI::GetThreatManager()

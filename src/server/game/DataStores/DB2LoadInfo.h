@@ -4133,6 +4133,23 @@ struct QuestFactionRewardLoadInfo
     }
 };
 
+struct QuestInfoLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_STRING, "InfoName" },
+            { true, FT_BYTE, "Type" },
+            { false, FT_BYTE, "Modifiers" },
+            { false, FT_SHORT, "Profession" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, QuestInfoMeta::Instance(), HOTFIX_SEL_QUEST_INFO);
+        return &loadInfo;
+    }
+};
+
 struct QuestMoneyRewardLoadInfo
 {
     static DB2LoadInfo const* Instance()

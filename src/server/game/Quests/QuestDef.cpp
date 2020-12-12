@@ -314,6 +314,14 @@ uint32 Quest::MoneyValue(Player const* player) const
         return 0;
 }
 
+Optional<QuestTagType> Quest::GetQuestTag() const
+{
+    if (QuestInfoEntry const* questInfo = sQuestInfoStore.LookupEntry(GetQuestInfoID()))
+        return static_cast<QuestTagType>(questInfo->Type);
+
+    return {};
+}
+
 void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player* player) const
 {
     rewards.ChoiceItemCount         = GetRewChoiceItemsCount();

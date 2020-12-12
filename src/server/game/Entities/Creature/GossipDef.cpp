@@ -27,6 +27,7 @@
 #include "QuestPackets.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
+#include "Util.h"
 #include "World.h"
 #include "WorldSession.h"
 
@@ -387,14 +388,14 @@ void PlayerMenu::SendQuestGiverQuestListMessage(Object* questgiver)
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUEST_GIVER_QUEST_LIST_MESSAGE NPC=%s", guid.ToString().c_str());
 }
 
-void PlayerMenu::SendQuestGiverStatus(uint32 questStatus, ObjectGuid npcGUID) const
+void PlayerMenu::SendQuestGiverStatus(QuestGiverStatus questStatus, ObjectGuid npcGUID) const
 {
     WorldPackets::Quest::QuestGiverStatus packet;
     packet.QuestGiver.Guid = npcGUID;
     packet.QuestGiver.Status = questStatus;
 
     _session->SendPacket(packet.Write());
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_STATUS NPC=%s, status=%u", npcGUID.ToString().c_str(), questStatus);
+    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_STATUS NPC=%s, status=%u", npcGUID.ToString().c_str(), AsUnderlyingType(questStatus));
 }
 
 void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGUID, bool autoLaunched, bool displayPopup) const

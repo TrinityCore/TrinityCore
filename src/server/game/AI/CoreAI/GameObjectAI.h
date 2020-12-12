@@ -27,6 +27,7 @@ class Quest;
 class SpellInfo;
 class Unit;
 enum class LootItemType : uint8;
+enum class QuestGiverStatus : uint32;
 
 class TC_GAME_API GameObjectAI
 {
@@ -66,7 +67,7 @@ class TC_GAME_API GameObjectAI
         virtual void QuestReward(Player* /*player*/, Quest const* /*quest*/, LootItemType /*type*/, uint32 /*opt*/) { }
 
         // Called when the dialog status between a player and the gameobject is requested.
-        virtual uint32 GetDialogStatus(Player* player);
+        virtual QuestGiverStatus GetDialogStatus(Player* player);
 
         // Called when a Player clicks a GameObject, before GossipHello
         // prevents achievement tracking if returning true
