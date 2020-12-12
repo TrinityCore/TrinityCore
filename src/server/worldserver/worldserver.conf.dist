@@ -892,17 +892,17 @@ StartPlayerLevel = 1
 #    StartDeathKnightPlayerLevel
 #        Description: Starting level for death knights after creation.
 #        Range:       1-MaxPlayerLevel
-#        Default:     55
+#        Default:     10
 
-StartDeathKnightPlayerLevel = 55
+StartDeathKnightPlayerLevel = 10
 
 #
 #    StartDemonHunterPlayerLevel
 #        Description: Staring level for demon hunters after creation.
-#        Range:       98-MaxPlayerLevel
-#        Default:     98
+#        Range:       1-MaxPlayerLevel
+#        Default:     8
 
-StartDemonHunterPlayerLevel = 98
+StartDemonHunterPlayerLevel = 8
 
 #
 #    StartPlayerMoney
@@ -916,9 +916,9 @@ StartPlayerMoney = 0
 #    RecruitAFriend.MaxLevel
 #        Description: Highest level up to which a character can benefit from the Recruit-A-Friend
 #                     experience multiplier.
-#        Default:     85
+#        Default:     60
 
-RecruitAFriend.MaxLevel = 85
+RecruitAFriend.MaxLevel = 60
 
 #
 #    RecruitAFriend.MaxDifference
