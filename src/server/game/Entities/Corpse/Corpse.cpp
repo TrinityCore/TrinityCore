@@ -113,6 +113,7 @@ void Corpse::SaveToDB()
     stmt->setUInt32(index++, m_corpseData->DisplayID);                                // displayId
     stmt->setString(index++, items.str());                                            // itemCache
     stmt->setUInt8 (index++, m_corpseData->RaceID);                                   // race
+    stmt->setUInt8 (index++, m_corpseData->Class);                                    // class
     stmt->setUInt8 (index++, m_corpseData->Sex);                                      // gender
     stmt->setUInt8 (index++, m_corpseData->Flags);                                    // flags
     stmt->setUInt8 (index++, m_corpseData->DynamicFlags);                             // dynFlags
@@ -165,8 +166,8 @@ void Corpse::DeleteFromDB(ObjectGuid const& ownerGuid, CharacterDatabaseTransact
 
 bool Corpse::LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields)
 {
-    //        0     1     2     3            4      5          6          7       8     9       10        11    12          13          14
-    // SELECT posX, posY, posZ, orientation, mapId, displayId, itemCache, bytes1, race, gender, dynFlags, time, corpseType, instanceId, guid FROM corpse WHERE mapId = ? AND instanceId = ?
+    //        0     1     2     3            4      5          6          7     8      9       10     11        12    13          14          15
+    // SELECT posX, posY, posZ, orientation, mapId, displayId, itemCache, race, class, gender, flags, dynFlags, time, corpseType, instanceId, guid FROM corpse WHERE mapId = ? AND instanceId = ?
 
     float posX   = fields[0].GetFloat();
     float posY   = fields[1].GetFloat();
@@ -184,15 +185,16 @@ bool Corpse::LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields)
             SetItem(index, atoul(items[index]));
 
     SetRace(fields[7].GetUInt8());
-    SetSex(fields[8].GetUInt8());
-    SetFlags(fields[9].GetUInt8());
-    SetCorpseDynamicFlags(CorpseDynFlags(fields[10].GetUInt8()));
-    SetOwnerGUID(ObjectGuid::Create<HighGuid::Player>(fields[14].GetUInt64()));
+    SetClass(fields[8].GetUInt8());
+    SetSex(fields[9].GetUInt8());
+    SetFlags(fields[10].GetUInt8());
+    SetCorpseDynamicFlags(CorpseDynFlags(fields[11].GetUInt8()));
+    SetOwnerGUID(ObjectGuid::Create<HighGuid::Player>(fields[15].GetUInt64()));
     SetFactionTemplate(sChrRacesStore.AssertEntry(m_corpseData->RaceID)->FactionID);
 
-    m_time = time_t(fields[11].GetUInt32());
+    m_time = time_t(fields[12].GetUInt32());
 
-    uint32 instanceId  = fields[13].GetUInt32();
+    uint32 instanceId  = fields[14].GetUInt32();
 
     // place
     SetLocationInstanceId(instanceId);

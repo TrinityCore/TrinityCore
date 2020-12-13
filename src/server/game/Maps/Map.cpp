@@ -4789,8 +4789,8 @@ void Map::LoadCorpseData()
     stmt->setUInt32(0, GetId());
     stmt->setUInt32(1, GetInstanceId());
 
-    //        0     1     2     3            4      5          6          7       8       9      10        11    12          13          14
-    // SELECT posX, posY, posZ, orientation, mapId, displayId, itemCache, bytes1, bytes2, flags, dynFlags, time, corpseType, instanceId, guid FROM corpse WHERE mapId = ? AND instanceId = ?
+    //        0     1     2     3            4      5          6          7     8      9       10     11        12    13          14          15
+    // SELECT posX, posY, posZ, orientation, mapId, displayId, itemCache, race, class, gender, flags, dynFlags, time, corpseType, instanceId, guid FROM corpse WHERE mapId = ? AND instanceId = ?
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
     if (!result)
         return;
@@ -4838,8 +4838,8 @@ void Map::LoadCorpseData()
     do
     {
         Field* fields = result->Fetch();
-        CorpseType type = CorpseType(fields[12].GetUInt8());
-        ObjectGuid::LowType guid = fields[14].GetUInt64();
+        CorpseType type = CorpseType(fields[13].GetUInt8());
+        ObjectGuid::LowType guid = fields[15].GetUInt64();
         if (type >= MAX_CORPSE_TYPE || type == CORPSE_BONES)
         {
             TC_LOG_ERROR("misc", "Corpse (guid: " UI64FMTD ") have wrong corpse type (%u), not loading.", guid, type);
@@ -4935,11 +4935,10 @@ Corpse* Map::ConvertCorpseToBones(ObjectGuid const& ownerGuid, bool insignia /*=
         bones->SetDisplayId(corpse->m_corpseData->DisplayID);
         bones->SetRace(corpse->m_corpseData->RaceID);
         bones->SetSex(corpse->m_corpseData->Sex);
+        bones->SetClass(corpse->m_corpseData->Class);
         bones->SetCustomizations(Trinity::Containers::MakeIteratorPair(corpse->m_corpseData->Customizations.begin(), corpse->m_corpseData->Customizations.end()));
         bones->SetFlags(corpse->m_corpseData->Flags | CORPSE_FLAG_BONES);
         bones->SetFactionTemplate(corpse->m_corpseData->FactionTemplate);
-        for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
-            bones->SetItem(i, corpse->m_corpseData->Items[i]);
 
         bones->SetCellCoord(corpse->GetCellCoord());
         bones->Relocate(corpse->GetPositionX(), corpse->GetPositionY(), corpse->GetPositionZ(), corpse->GetOrientation());

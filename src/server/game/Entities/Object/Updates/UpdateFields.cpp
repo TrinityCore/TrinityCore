@@ -4483,9 +4483,9 @@ void CorpseData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVi
     {
         data << uint32(Items[i]);
     }
-    data << uint8(Unused);
     data << uint8(RaceID);
     data << uint8(Sex);
+    data << uint8(Class);
     data << uint32(Customizations.size());
     data << uint32(Flags);
     data << int32(FactionTemplate);
@@ -4553,15 +4553,15 @@ void CorpseData::WriteUpdate(ByteBuffer& data, UpdateMask<33> const& changesMask
         }
         if (changesMask[7])
         {
-            data << uint8(Unused);
+            data << uint8(RaceID);
         }
         if (changesMask[8])
         {
-            data << uint8(RaceID);
+            data << uint8(Sex);
         }
         if (changesMask[9])
         {
-            data << uint8(Sex);
+            data << uint8(Class);
         }
         if (changesMask[10])
         {
@@ -4596,9 +4596,9 @@ void CorpseData::ClearChangesMask()
     Base::ClearChangesMask(PartyGUID);
     Base::ClearChangesMask(GuildGUID);
     Base::ClearChangesMask(DisplayID);
-    Base::ClearChangesMask(Unused);
     Base::ClearChangesMask(RaceID);
     Base::ClearChangesMask(Sex);
+    Base::ClearChangesMask(Class);
     Base::ClearChangesMask(Flags);
     Base::ClearChangesMask(FactionTemplate);
     Base::ClearChangesMask(StateSpellVisualKitID);
