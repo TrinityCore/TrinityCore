@@ -395,6 +395,7 @@ WorldPacket const* CharFactionChangeResult::Write()
         _worldPacket.WriteBits(Display->Name.length(), 6);
         _worldPacket << uint8(Display->SexID);
         _worldPacket << uint8(Display->RaceID);
+        _worldPacket << uint32(Display->Customizations->size());
         _worldPacket.WriteString(Display->Name);
         for (ChrCustomizationChoice customization : *Display->Customizations)
             _worldPacket << customization;
