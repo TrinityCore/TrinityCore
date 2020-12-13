@@ -21,9 +21,29 @@ public:
         // TODO: Add our own rbac permission here
         std::vector<ChatCommand> commandTable = {
             { "at", rbac::RBAC_PERM_COMMAND_GPS, false, &At, ""},
-            { "clearat", rbac::RBAC_PERM_COMMAND_GPS, false, &ClearAt, ""}
+            { "clearat", rbac::RBAC_PERM_COMMAND_GPS, false, &ClearAt, ""},
+            // TODO: Fix this permission
+            { "id", rbac::RBAC_PERM_COMMAND_GPS, false, &Id, ""}
         };
         return commandTable;
+    }
+
+    static bool Id(ChatHandler* handler, char const* args)
+    {
+        Creature* target = handler->getSelectedCreature();
+        if (!target)
+        {
+            handler->SendSysMessage(LANG_SELECT_CREATURE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        Player* player = handler->GetPlayer();
+        if (player) {
+            CreatureTemplate const* cInfo = target->GetCreatureTemplate();
+            ChatHandler(player->GetSession())
+                .SendSysMessage(cInfo->Name+" "+std::to_string(cInfo->Entry));
+        }
     }
 
     static bool ClearAt(ChatHandler* handler, char const* args)
