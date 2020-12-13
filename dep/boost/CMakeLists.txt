@@ -12,15 +12,8 @@ if(WIN32)
   set(BOOST_DEBUG ON)
   if(DEFINED ENV{BOOST_ROOT})
     set(BOOST_ROOT $ENV{BOOST_ROOT})
-    if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.0)
-      set(BOOST_LIBRARYDIR ${BOOST_ROOT}/lib${PLATFORM}-msvc-12.0)
-    elseif(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.10)
-      set(BOOST_LIBRARYDIR ${BOOST_ROOT}/lib${PLATFORM}-msvc-14.0)
-    else()
-      list(APPEND BOOST_LIBRARYDIR
-        ${BOOST_ROOT}/lib${PLATFORM}-msvc-14.1
-        ${BOOST_ROOT}/lib${PLATFORM}-msvc-14.0)
-    endif()
+    list(APPEND BOOST_LIBRARYDIR
+      ${BOOST_ROOT}/lib${PLATFORM}-msvc-14.2 )
   elseif(NOT DEFINED Boost_DIR AND NOT DEFINED BOOST_ROOT AND NOT DEFINED BOOSTROOT)
     message(FATAL_ERROR "No BOOST_ROOT environment variable could be found! Please make sure it is set and the points to your Boost installation.")
   endif()
