@@ -182,6 +182,7 @@ ByteBuffer& operator<<(ByteBuffer& data, ItemModList const& itemModList)
 ByteBuffer& operator>>(ByteBuffer& data, ItemModList& itemModList)
 {
     itemModList.Values.resize(data.ReadBits(6));
+    data.ResetBitPos();
 
     for (ItemMod& itemMod : itemModList.Values)
         data >> itemMod;
@@ -248,6 +249,7 @@ ByteBuffer& operator>>(ByteBuffer& data, ItemGemData& itemGemData)
 ByteBuffer& operator>>(ByteBuffer& data, InvUpdate& invUpdate)
 {
     invUpdate.Items.resize(data.ReadBits(2));
+    data.ResetBitPos();
     for (InvUpdate::InvItem& item : invUpdate.Items)
     {
         data >> item.ContainerSlot;
