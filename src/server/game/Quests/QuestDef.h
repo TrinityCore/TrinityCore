@@ -544,7 +544,7 @@ class TC_GAME_API Quest
         std::array<uint32, QUEST_REWARD_REPUTATIONS_COUNT> RewardFactionId = { };
         std::array<int32, QUEST_REWARD_REPUTATIONS_COUNT>  RewardFactionValue = { };
         std::array<int32, QUEST_REWARD_REPUTATIONS_COUNT>  RewardFactionOverride = { };
-        std::array<uint32, QUEST_REWARD_REPUTATIONS_COUNT> RewardFactionCapIn = { };
+        std::array<int32, QUEST_REWARD_REPUTATIONS_COUNT> RewardFactionCapIn = { };
         std::array<uint32, QUEST_REWARD_CURRENCY_COUNT> RewardCurrencyId = { };
         std::array<uint32, QUEST_REWARD_CURRENCY_COUNT> RewardCurrencyCount = { };
         QuestObjectives Objectives;
