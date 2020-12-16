@@ -837,9 +837,9 @@ struct CorpseData : public IsUpdateFieldStructureTag, public HasChangesMask<33>
     UpdateField<ObjectGuid, 0, 4> PartyGUID;
     UpdateField<ObjectGuid, 0, 5> GuildGUID;
     UpdateField<uint32, 0, 6> DisplayID;
-    UpdateField<uint8, 0, 7> Unused;
-    UpdateField<uint8, 0, 8> RaceID;
-    UpdateField<uint8, 0, 9> Sex;
+    UpdateField<uint8, 0, 7> RaceID;
+    UpdateField<uint8, 0, 8> Sex;
+    UpdateField<uint8, 0, 9> Class;
     UpdateField<uint32, 0, 10> Flags;
     UpdateField<int32, 0, 11> FactionTemplate;
     UpdateField<uint32, 0, 12> StateSpellVisualKitID;
