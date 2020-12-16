@@ -78,6 +78,10 @@ void WorldSession::HandleHotfixRequest(WorldPackets::Hotfix::HotfixRequest& hotf
             {
                 std::size_t pos = hotfixQueryResponse.HotfixContent.size();
                 storage->WriteRecord(uint32(hotfixRecord.RecordID), GetSessionDbcLocale(), hotfixQueryResponse.HotfixContent);
+
+                if (std::vector<uint8> const* optionalData = sDB2Manager.GetHotfixOptionalData(hotfixRecord.TableHash, hotfixRecord.RecordID, GetSessionDbcLocale()))
+                    hotfixQueryResponse.HotfixContent.append(optionalData->data(), optionalData->size());
+
                 hotfixData.Size = hotfixQueryResponse.HotfixContent.size() - pos;
             }
             else if (std::vector<uint8> const* blobData = sDB2Manager.GetHotfixBlobData(hotfixRecord.TableHash, hotfixRecord.RecordID, GetSessionDbcLocale()))

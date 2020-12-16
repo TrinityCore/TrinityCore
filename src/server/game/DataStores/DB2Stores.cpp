@@ -360,7 +360,9 @@ typedef std::unordered_set<uint32> ToyItemIdsContainer;
 typedef std::tuple<uint16, uint8, int32> WMOAreaTableKey;
 typedef std::map<WMOAreaTableKey, WMOAreaTableEntry const*> WMOAreaTableLookupContainer;
 typedef std::pair<uint32 /*tableHash*/, int32 /*recordId*/> HotfixBlobKey;
+typedef std::pair<uint32 /*tableHash*/, int32 /*recordId*/> HotfixOptionalDataKey;
 typedef std::map<HotfixBlobKey, std::vector<uint8>> HotfixBlobMap;
+typedef std::map<HotfixOptionalDataKey, std::vector<uint8>> HotfixOptionalDataMap;
 
 namespace
 {
@@ -375,6 +377,7 @@ namespace
     StorageMap _stores;
     DB2Manager::HotfixContainer _hotfixData;
     std::array<HotfixBlobMap, TOTAL_LOCALES> _hotfixBlob;
+    std::array<HotfixOptionalDataMap, TOTAL_LOCALES> _hotfixOptionalData;
 
     AreaGroupMemberContainer _areaGroupMembers;
     ArtifactPowersContainer _artifactPowers;
@@ -1524,6 +1527,56 @@ void DB2Manager::LoadHotfixBlob(uint32 localeMask)
     TC_LOG_INFO("server.loading", ">> Loaded %d hotfix blob records in %u ms", hotfixBlobCount, GetMSTimeDiffToNow(oldMSTime));
 }
 
+void DB2Manager::LoadHotfixOptionalData(uint32 localeMask)
+{
+    uint32 oldMSTime = getMSTime();
+
+    QueryResult result = HotfixDatabase.Query("SELECT TableHash, RecordId, locale, `Data` FROM hotfix_optional_data ORDER BY TableHash");
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 hotfix optional data entries.");
+        return;
+    }
+
+    std::bitset<TOTAL_LOCALES> availableDb2Locales = localeMask;
+    uint32 hotfixOptionalDataCount = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 tableHash = fields[0].GetUInt32();
+        auto storeItr = _stores.find(tableHash);
+
+        if (storeItr != _stores.end())
+        {
+            int32 recordId = fields[1].GetInt32();
+            std::string localeName = fields[2].GetString();
+            LocaleConstant locale = GetLocaleByName(localeName);
+
+            if (!IsValidLocale(locale))
+            {
+                TC_LOG_ERROR("server.loading", "`hotfix_optional_data` contains invalid locale: %s at TableHash: 0x%X and RecordID: %d", localeName.c_str(), tableHash, recordId);
+                continue;
+            }
+
+            if (!availableDb2Locales[locale])
+                continue;
+
+            _hotfixOptionalData[locale][std::make_pair(tableHash, recordId)] = fields[3].GetBinary();
+            hotfixOptionalDataCount++;
+        }
+        else
+        {
+            TC_LOG_ERROR("server.loading", "`hotfix_optional_data` table hash 0x%X does not point to a DB2 store %s.",
+                tableHash, storeItr->second->GetFileName().c_str());
+            continue;
+        }
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded %d hotfix optional data records in %u ms", hotfixOptionalDataCount, GetMSTimeDiffToNow(oldMSTime));
+}
+
 uint32 DB2Manager::GetHotfixCount() const
 {
     return _hotfixData.size();
@@ -1539,6 +1592,13 @@ std::vector<uint8> const* DB2Manager::GetHotfixBlobData(uint32 tableHash, int32 
     ASSERT(IsValidLocale(locale), "Locale %u is invalid locale", uint32(locale));
 
     return Trinity::Containers::MapGetValuePtr(_hotfixBlob[locale], std::make_pair(tableHash, recordId));
+}
+
+std::vector<uint8> const* DB2Manager::GetHotfixOptionalData(uint32 tableHash, int32 recordId, LocaleConstant locale)
+{
+    ASSERT(IsValidLocale(locale), "Locale %u is invalid locale", uint32(locale));
+
+    return Trinity::Containers::MapGetValuePtr(_hotfixOptionalData[locale], std::make_pair(tableHash, recordId));
 }
 
 uint32 DB2Manager::GetEmptyAnimStateID() const
