@@ -182,7 +182,7 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
             for (uint8 i = 0; i < MAX_AREATRIGGER_ENTITY_DATA; ++i)
                 areaTriggerTemplate.DefaultDatas.Data[i] = fields[4 + i].GetFloat();
 
-            areaTriggerTemplate.ScriptId = sObjectMgr->GetScriptId(fields[10].GetString());
+            areaTriggerTemplate.ScriptId = sObjectMgr->GetScriptIdOrAdd(fields[10].GetString());
             if (!areaTriggerTemplate.Id.IsServerSide)
             {
                 areaTriggerTemplate.PolygonVertices = std::move(verticesByAreaTrigger[areaTriggerTemplate.Id.Id]);

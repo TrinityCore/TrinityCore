@@ -541,7 +541,7 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.RegenHealth            = fields[73].GetBool();
     creatureTemplate.MechanicImmuneMask     = fields[74].GetUInt32();
     creatureTemplate.flags_extra            = fields[75].GetUInt32();
-    creatureTemplate.ScriptID               = GetScriptId(fields[76].GetString());
+    creatureTemplate.ScriptID               = GetScriptIdOrAdd(fields[76].GetString());
 }
 
 void ObjectMgr::LoadCreatureTemplateModels()
@@ -1997,7 +1997,7 @@ void ObjectMgr::LoadCreatures()
         data.phaseId        = fields[24].GetUInt32();
         data.phaseGroup     = fields[25].GetUInt32();
         data.terrainSwapMap = fields[26].GetInt32();
-        data.scriptId       = GetScriptId(fields[27].GetString());
+        data.scriptId       = GetScriptIdOrAdd(fields[27].GetString());
         data.spawnGroupData = &_spawnGroupDataStore[0];
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.spawnPoint.GetMapId());
@@ -2463,7 +2463,7 @@ void ObjectMgr::LoadGameObjects()
             }
         }
 
-        data.scriptId = GetScriptId(fields[21].GetString());
+        data.scriptId = GetScriptIdOrAdd(fields[21].GetString());
 
         if (data.rotation.x < -1.0f || data.rotation.x > 1.0f)
         {
@@ -3187,7 +3187,7 @@ void ObjectMgr::LoadItemScriptNames()
                 continue;
             }
 
-            _itemTemplateStore[itemId].ScriptId = GetScriptId(fields[1].GetString());
+            _itemTemplateStore[itemId].ScriptId = GetScriptIdOrAdd(fields[1].GetString());
             ++count;
         } while (result->NextRow());
     }
@@ -5641,7 +5641,7 @@ void ObjectMgr::LoadSpellScriptNames()
             }
             while (spellInfo)
             {
-                _spellScriptsStore.insert(SpellScriptsContainer::value_type(spellInfo->Id, std::make_pair(GetScriptId(scriptName), true)));
+                _spellScriptsStore.insert(SpellScriptsContainer::value_type(spellInfo->Id, std::make_pair(GetScriptIdOrAdd(scriptName), true)));
                 spellInfo = spellInfo->GetNextRankSpell();
             }
         }
@@ -5650,7 +5650,7 @@ void ObjectMgr::LoadSpellScriptNames()
             if (spellInfo->IsRanked())
                 TC_LOG_ERROR("sql.sql", "Scriptname: `%s` spell (Id: %d) is ranked spell. Perhaps not all ranks are assigned to this script.", scriptName.c_str(), spellId);
 
-            _spellScriptsStore.insert(SpellScriptsContainer::value_type(spellInfo->Id, std::make_pair(GetScriptId(scriptName), true)));
+            _spellScriptsStore.insert(SpellScriptsContainer::value_type(spellInfo->Id, std::make_pair(GetScriptIdOrAdd(scriptName), true)));
         }
 
         ++count;
@@ -5835,7 +5835,7 @@ void ObjectMgr::LoadInstanceTemplate()
 
         instanceTemplate.AllowMount = fields[3].GetBool();
         instanceTemplate.Parent     = uint32(fields[1].GetUInt16());
-        instanceTemplate.ScriptId   = sObjectMgr->GetScriptId(fields[2].GetString());
+        instanceTemplate.ScriptId   = sObjectMgr->GetScriptIdOrAdd(fields[2].GetString());
 
         _instanceTemplateStore[mapID] = instanceTemplate;
 
@@ -6372,7 +6372,7 @@ void ObjectMgr::LoadAreaTriggerScripts()
             TC_LOG_ERROR("sql.sql", "AreaTrigger (ID: %u) does not exist in `AreaTrigger.dbc`.", triggerId);
             continue;
         }
-        _areaTriggerScriptStore[triggerId] = GetScriptId(scriptName);
+        _areaTriggerScriptStore[triggerId] = GetScriptIdOrAdd(scriptName);
     }
     while (result->NextRow());
 
@@ -7322,7 +7322,7 @@ void ObjectMgr::LoadGameObjectTemplate()
 
         got.ContentTuningId = fields[42].GetInt32();
         got.AIName = fields[43].GetString();
-        got.ScriptId = GetScriptId(fields[44].GetString());
+        got.ScriptId = GetScriptIdOrAdd(fields[44].GetString());
 
         // Checks
         if (!got.AIName.empty() && !sGameObjectAIRegistry->HasItem(got.AIName))
@@ -9513,18 +9513,32 @@ std::string const& ObjectMgr::GetScriptName(uint32 id) const
     return (id < _scriptNamesStore.size()) ? _scriptNamesStore[id] : empty;
 }
 
-uint32 ObjectMgr::GetScriptId(std::string const& name)
+uint32 ObjectMgr::GetScriptIdOrAdd(std::string const& name)
 {
     // use binary search to find the script name in the sorted vector
     // assume "" is the first element
     if (name.empty())
         return 0;
 
-    ScriptNameContainer::const_iterator itr = std::lower_bound(_scriptNamesStore.begin(), _scriptNamesStore.end(), name);
+    ScriptNameContainer::const_iterator itr = std::find(_scriptNamesStore.begin(), _scriptNamesStore.end(), name);
     if (itr == _scriptNamesStore.end() || *itr != name)
-        return 0;
+    {
+        _scriptNamesStore.push_back(name);
+        return _scriptNamesStore.size() - 1;
+    }
 
     return uint32(itr - _scriptNamesStore.begin());
+}
+
+bool ObjectMgr::FindScriptId(std::string const& name) const
+{
+    // use binary search to find the script name in the sorted vector
+    // assume "" is the first element
+    if (name.empty())
+        return 0;
+
+    ScriptNameContainer::const_iterator itr = std::find(_scriptNamesStore.begin(), _scriptNamesStore.end(), name);
+    return itr != _scriptNamesStore.end() && *itr == name;
 }
 
 CreatureBaseStats const* ObjectMgr::GetCreatureBaseStats(uint8 level, uint8 unitClass)
@@ -10439,7 +10453,7 @@ void ObjectMgr::LoadSceneTemplates()
         sceneTemplate.SceneId           = sceneId;
         sceneTemplate.PlaybackFlags     = fields[1].GetUInt32();
         sceneTemplate.ScenePackageId    = fields[2].GetUInt32();
-        sceneTemplate.ScriptId          = sObjectMgr->GetScriptId(fields[3].GetCString());
+        sceneTemplate.ScriptId          = sObjectMgr->GetScriptIdOrAdd(fields[3].GetCString());
 
     } while (templates->NextRow());
 

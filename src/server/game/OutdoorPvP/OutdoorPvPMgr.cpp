@@ -78,7 +78,7 @@ void OutdoorPvPMgr::InitOutdoorPvP()
         }
 
         OutdoorPvPTypes realTypeId = OutdoorPvPTypes(typeId);
-        m_OutdoorPvPDatas[realTypeId] = sObjectMgr->GetScriptId(fields[1].GetString());
+        m_OutdoorPvPDatas[realTypeId] = sObjectMgr->GetScriptIdOrAdd(fields[1].GetString());
 
         ++count;
     }

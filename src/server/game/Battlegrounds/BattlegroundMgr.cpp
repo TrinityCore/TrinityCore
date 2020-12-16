@@ -503,7 +503,7 @@ void BattlegroundMgr::LoadBattlegroundTemplates()
         float dist                   = fields[3].GetFloat();
         bgTemplate.MaxStartDistSq    = dist * dist;
         bgTemplate.Weight            = fields[4].GetUInt8();
-        bgTemplate.ScriptId          = sObjectMgr->GetScriptId(fields[5].GetString());
+        bgTemplate.ScriptId          = sObjectMgr->GetScriptIdOrAdd(fields[5].GetString());
         bgTemplate.BattlemasterEntry = bl;
 
         if (bgTemplate.Id != BATTLEGROUND_AA && bgTemplate.Id != BATTLEGROUND_RB && bgTemplate.Id != BATTLEGROUND_RANDOM_EPIC)
