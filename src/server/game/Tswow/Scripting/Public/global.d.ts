@@ -214,7 +214,7 @@ declare class TSPlayer extends TSUnit {
     FailQuest(entry : uint32) : void
     IncompleteQuest(entry : uint32) : void
     CompleteQuest(entry : uint32) : void
-    AddQuest(entry : uint32) : void
+    //AddQuest(entry : uint32) : void
     RemoveQuest(entry : uint32) : void
     Whisper(text : string,lang : uint32,receiver : TSPlayer,guid : uint64) : void
     TextEmote(text : string) : void
@@ -235,7 +235,7 @@ declare class TSPlayer extends TSUnit {
     RemoveItem(item : TSItem,itemCount : uint32,itemId : uint32) : void
     RemoveLifetimeKills(val : uint32) : void
     ResetSpellCooldown(spellId : uint32,update : bool) : void
-    ResetTypeCooldowns(category : uint32,update : bool) : void
+    //ResetTypeCooldowns(category : uint32,update : bool) : void
     ResetAllCooldowns() : void
     SendBroadcastMessage(message : string) : void
     SendAreaTriggerMessage(msg : string) : void
@@ -312,8 +312,8 @@ declare class TSCreature extends TSUnit {
     GetCorpseDelay() : uint32
     GetHomePosition() : float
     SetHomePosition(x : float,y : float,z : float,o : float) : void
-    GetAITarget(targetType : uint32,playerOnly : bool,position : uint32,dist : float,aura : int32) : TSUnit
-    GetAITargets() : TSArray<TSUnit>
+    //GetAITarget(targetType : uint32,playerOnly : bool,position : uint32,dist : float,aura : int32) : TSUnit
+    //GetAITargets() : TSArray<TSUnit>
     GetAITargetsCount() : int
     GetNPCFlags() : uint32
     GetShieldBlockValue() : uint32
@@ -488,7 +488,7 @@ declare class TSItem extends TSObject {
     IsWeaponVellum() : bool
     IsArmorVellum() : bool
     IsConjuredConsumable() : bool
-    GetItemLink(locale : uint8) : string
+    //GetItemLink(locale : uint8) : string
     GetOwnerGUID() : uint64
     GetOwner() : TSPlayer
     GetCount() : uint32
@@ -964,9 +964,9 @@ declare class TSEventHandlers {
     Formula: _hidden.Formula;
     Item: _hidden.Item;
     Unit: _hidden.Unit;
-    AreaTrigger: _hidden.AreaTrigger;
-    Vehicle: _hidden.Vehicle;
-    AchievementCriteria: _hidden.AchievementCriteria;
+    //AreaTrigger: _hidden.AreaTrigger;
+    //Vehicle: _hidden.Vehicle;
+    //AchievementCriteria: _hidden.AchievementCriteria;
     Player: _hidden.Player;
     Account: _hidden.Account;
     Guild: _hidden.Guild;
