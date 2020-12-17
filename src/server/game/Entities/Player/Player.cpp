@@ -6348,7 +6348,7 @@ void Player::RewardReputation(Quest const* quest)
         if (!rep)
             continue;
 
-        if (quest->RewardFactionCapIn[i] && rep > 0 && uint32(GetReputationMgr().GetRank(factionEntry)) >= quest->RewardFactionCapIn[i])
+        if (quest->RewardFactionCapIn[i] && rep > 0 && GetReputationMgr().GetRank(factionEntry) >= quest->RewardFactionCapIn[i])
             continue;
 
         if (quest->IsDaily())

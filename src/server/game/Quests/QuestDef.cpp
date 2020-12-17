@@ -95,7 +95,7 @@ Quest::Quest(Field* questRecord)
         RewardFactionId[i] = questRecord[69 + i * 4].GetUInt32();
         RewardFactionValue[i] = questRecord[70 + i * 4].GetInt32();
         RewardFactionOverride[i] = questRecord[71 + i * 4].GetInt32();
-        RewardFactionCapIn[i] = questRecord[72 + i * 4].GetUInt32();
+        RewardFactionCapIn[i] = questRecord[72 + i * 4].GetInt32();
     }
 
     _rewardReputationMask = questRecord[89].GetUInt32();
