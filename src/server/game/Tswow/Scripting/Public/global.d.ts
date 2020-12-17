@@ -950,6 +950,13 @@ declare namespace _hidden {
         OnChangeLeader(callback: (group : TSGroup,newLeaderGuid : uint64,oldLeaderGuid : uint64)=>void);
         OnDisband(callback: (group : TSGroup)=>void);
     }
+
+    export class Spells {
+        OnCast(spell: uint32, callback : (spell: TSSpell)=>void);
+        OnDispel(spell: uint32, callback: (spell: TSSpell, dispelType: uint32)=>void);
+        OnHit(spell: uint32, callback: (spell: TSSpell)=>void);
+        OnTick(spell: uint32, callback: (caster: TSUnit, target: TSUnit)=>void);
+    }
 }
 
 declare class TSEventHandlers {
@@ -964,4 +971,8 @@ declare class TSEventHandlers {
     Account: _hidden.Account;
     Guild: _hidden.Guild;
     Group: _hidden.Group;
+    Spells: _hidden.Spells;
 }
+
+declare function GetID(table: string, mod: string, name: string);
+declare function GetIDRange(table: string, mod: string, name: string);

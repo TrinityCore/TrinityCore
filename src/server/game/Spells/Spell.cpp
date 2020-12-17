@@ -61,6 +61,10 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+// @tswow-begin
+#include "TSSpell.h"
+#include "TSMacros.h"
+// @tswow-end
 
 extern SpellEffectHandlerFn SpellEffectHandlers[TOTAL_SPELL_EFFECTS];
 
@@ -7831,6 +7835,7 @@ void Spell::CallScriptBeforeCastHandlers()
 
 void Spell::CallScriptOnCastHandlers()
 {
+    FIRE_MAP(m_spellInfo->events,SpellOnCast,TSSpell(this)); // @tswow-line
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_ON_CAST);
@@ -7926,6 +7931,7 @@ bool Spell::CallScriptEffectHandlers(SpellEffIndex effIndex, SpellEffectHandleMo
 
 void Spell::CallScriptSuccessfulDispel(SpellEffIndex effIndex)
 {
+    FIRE_MAP(m_spellInfo->events,SpellOnDispel,TSSpell(this),(uint32)effIndex); // @tswow-line
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_EFFECT_SUCCESSFUL_DISPEL);
@@ -7953,6 +7959,7 @@ void Spell::CallScriptBeforeHitHandlers(SpellMissInfo missInfo)
 
 void Spell::CallScriptOnHitHandlers()
 {
+    FIRE_MAP(m_spellInfo->events,SpellOnHit,TSSpell(this)); // @tswow-line
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_HIT);

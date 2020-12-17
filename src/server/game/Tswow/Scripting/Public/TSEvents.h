@@ -20,6 +20,7 @@
 #include "TSPlayer.h"
 #include "TSMutable.h"
 #include "TSMutableString.h"
+#include "TSMacros.h"
 #include <cstdint>
 
 // WorldScript
@@ -142,6 +143,33 @@ EVENT_TYPE(GroupOnRemoveMember,TSGroup,uint64,uint32,uint64,TSString)
 EVENT_TYPE(GroupOnChangeLeader,TSGroup,uint64,uint64)
 EVENT_TYPE(GroupOnDisband,TSGroup)
 
+// SpellScript
+EVENT_TYPE(SpellOnCast,TSSpell)
+EVENT_TYPE(SpellOnDispel,TSSpell,uint32)
+EVENT_TYPE(SpellOnHit,TSSpell)
+EVENT_TYPE(SpellOnTick,TSUnit,TSUnit)
+
+struct TSSpellEvents {
+     EVENT(SpellOnCast)
+     EVENT(SpellOnDispel)
+     EVENT(SpellOnHit)
+     EVENT(SpellOnTick)
+};
+
+class TSSpellMap : public TSEventMap<TSSpellEvents> 
+{
+     void OnAdd(uint32_t,TSSpellEvents*);
+     void OnRemove(uint32_t);
+};
+
+struct TSCreatureEvents {
+};
+
+class TSCreatureMap : public TSEventMap<TSCreatureEvents>
+{
+     void OnAdd(uint32_t,TSCreatureEvents*);
+     void OnRemove(uint32_t);
+};
 
 struct TSEvents
 {
@@ -267,6 +295,9 @@ struct TSEvents
     EVENT(GroupOnRemoveMember)
     EVENT(GroupOnChangeLeader)
     EVENT(GroupOnDisband)
+
+    TSSpellMap Spells;
+    TSCreatureMap Creatures;
 };
 
 class TSEventHandlers
@@ -439,6 +470,15 @@ public:
          EVENT_HANDLE(Group,OnDisband)
     } Group;
 
+    struct SpellEvents : public MappedEventHandler<TSSpellMap>
+    {
+          SpellEvents* operator->(){return this;}
+          MAP_EVENT_HANDLE(Spell,OnCast)
+          MAP_EVENT_HANDLE(Spell,OnDispel)
+          MAP_EVENT_HANDLE(Spell,OnHit)
+          MAP_EVENT_HANDLE(Spell,OnTick)
+    } Spells;
+
     void LoadEvents(TSEvents* events)
     {
         Server.LoadEvents(events);
@@ -456,6 +496,7 @@ public:
         Account.LoadEvents(events);
         Guild.LoadEvents(events);
         Group.LoadEvents(events);
+        Spells.LoadEvents(&events->Spells);
     }
 
     void Unload()
@@ -475,5 +516,6 @@ public:
          Account.Unload();
          Guild.Unload();
          Group.Unload();
+         Spells.Unload();
     }
 };

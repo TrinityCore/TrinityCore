@@ -2337,6 +2337,11 @@ bool Aura::CallScriptEffectPeriodicHandlers(AuraEffect const* aurEff, AuraApplic
 
 void Aura::CallScriptEffectUpdatePeriodicHandlers(AuraEffect* aurEff)
 {
+    // @tswow-begin
+    for (auto& v : this->GetApplicationMap()) {
+        FIRE_MAP(m_spellInfo->events,SpellOnTick,this->GetCaster(), v.second->GetTarget());
+    }
+    // @tswow-end
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_UPDATE_PERIODIC);

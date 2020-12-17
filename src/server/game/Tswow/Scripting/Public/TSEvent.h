@@ -130,13 +130,38 @@ void TSEvent<TSCallback>::Remove(size_t index)
 	}
 }
 
-#define EVENT_TYPE(name,...) typedef void (*name##Type)(__VA_ARGS__);
-#define EVENT(name,...) TSEvent<name##Type> name;
-#define EVENT_HANDLE(category,name) void name(category##name##Type cb) { Add(this->events->category##name.Add(cb)); }
-#define FIRE(name,...) {for(size_t i=0;i< tsEvents.name.GetSize(); ++i) tsEvents.name.Get(i)(__VA_ARGS__);}
-#define FIRE_RETURN(name,retType,retVal,...) {retType rv = retVal; for(size_t i=0;i< tsEvents.name.GetSize(); ++i) tsEvents.name.Get(i)(__VA_ARGS__,TSMutable<retType>(&rv)); return retVal;}
+template <typename T>
+class TSEventMap {
+    std::map<uint32_t, T> map;
+public:
+    void Remove(uint32_t key)
+    {
+        OnRemove(key);
+        map.erase(key);
+    }
 
-class TSEvents;
+    virtual void OnAdd(uint32_t key, T* value) = 0;
+    virtual void OnRemove(uint32_t key) = 0;
+
+    T* Get(uint32_t key)
+    {
+        typename std::map<uint32_t, T>::iterator it = map.find(key);
+        if (it != map.end())
+        {
+            return &it->second;
+        }
+        else
+        {
+            T t;
+            map[key] = t;
+            T* v = &map[key];
+            OnAdd(key,v);
+            return v;
+        }
+   }
+};
+
+struct TSEvents;
 class EventHandler {
 protected:
 	std::vector<TSEventHandle*> handles;
@@ -158,4 +183,28 @@ public:
 	}
 };
 
+template <typename T>
+class MappedEventHandler
+{
+protected:
+	std::vector<TSEventHandle*> handles;
+	void Add(TSEventHandle* listener) { handles.push_back(listener); }
+	T* eventMap = nullptr;
+public:
+	void LoadEvents(T* eventMap)
+	{
+		this->eventMap = eventMap;
+	}
+	
+	void Unload()
+	{
+		for(TSEventHandle* g : handles)
+		{
+			g->Remove();
+			free(g);
+		}
+		handles.clear();
+	}
+};
+	
 #endif

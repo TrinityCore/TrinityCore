@@ -23,7 +23,9 @@
 #include "DBCStructure.h"
 #include "Object.h"
 #include "SpellAuraDefines.h"
-
+// @tswow-begin
+#include "TSEvents.h"
+// @tswow-end
 #include <boost/container/flat_set.hpp>
 
 class Unit;
@@ -401,6 +403,7 @@ class TC_GAME_API SpellInfo
         std::array<SpellEffectInfo, MAX_SPELL_EFFECTS> Effects;
         uint32 ExplicitTargetMask;
         SpellChainNode const* ChainEntry;
+        TSSpellEvents* events; // @tswow-line
 
         SpellInfo(SpellEntry const* spellEntry);
         ~SpellInfo();
