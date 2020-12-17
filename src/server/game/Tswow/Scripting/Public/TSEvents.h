@@ -33,7 +33,7 @@ EVENT_TYPE(WorldOnUpdate,uint32)
 // FormulaScript
 EVENT_TYPE(FormulaOnHonorCalculation,TSMutable<float>,uint8,float)
 EVENT_TYPE(FormulaOnGrayLevelCalculation,TSMutable<uint8>,uint8)
-EVENT_TYPE(FormulaOnColorCodeCalculation,TSMutable<uint32>,uint8,uint8)
+EVENT_TYPE(FormulaOnColorCodeCalculation,TSMutable<uint8>,uint8,uint8)
 EVENT_TYPE(FormulaOnZeroDifferenceCalculation,TSMutable<uint8>,uint8)
 EVENT_TYPE(FormulaOnBaseGainCalculation,TSMutable<uint32>,uint8,uint8,uint32)
 EVENT_TYPE(FormulaOnGainCalculation,TSMutable<uint32>,TSPlayer,TSUnit)

@@ -86,13 +86,13 @@ class TSFormulaScript : public FormulaScript
 {
 public:
     TSFormulaScript() : FormulaScript("TSFormulaScript"){}
-    //void OnHonorCalculation(float& honor,uint8 level,float multiplier) FIRE(FormulaOnHonorCalculation,TSMutable<float>(&honor),level,multiplier)
-    //void OnGrayLevelCalculation(uint8& grayLevel,uint8 playerLevel) FIRE(FormulaOnGrayLevelCalculation,TSMutable<uint8>(&grayLevel),playerLevel)
-    //void OnColorCodeCalculation(XPColorChar& color,uint8 playerLevel,uint8 mobLevel) FIRE(FormulaOnColorCodeCalculation,TSMutable<uint8>(&color),playerLevel,mobLevel)
-    //void OnZeroDifferenceCalculation(uint8& diff,uint8 playerLevel) FIRE(FormulaOnZeroDifferenceCalculation,TSMutable<uint8>(diff),playerLevel)
-    //void OnBaseGainCalculation(uint32& gain,uint8 playerLevel,uint8 mobLevel,ContentLevels content) FIRE(FormulaOnBaseGainCalculation,TSMutable<uint32>(gain),playerLevel,mobLevel,content)
-    //void OnGainCalculation(uint32& gain,Player* player,Unit* unit) FIRE(FormulaOnGainCalculation,TSMutable<uint32>(gain),TSPlayer(player),TSUnit(unit))
-    //void OnGroupRateCalculation(float& rate,uint32 count,bool isRaid) FIRE(FormulaOnGroupRateCalculation,TSMutable<float>(rate),count,isRaid)
+    void OnHonorCalculation(float& honor,uint8 level,float multiplier) FIRE(FormulaOnHonorCalculation,TSMutable<float>(&honor),level,multiplier)
+    void OnGrayLevelCalculation(uint8& grayLevel,uint8 playerLevel) FIRE(FormulaOnGrayLevelCalculation,TSMutable<uint8>(&grayLevel),playerLevel)
+    void OnColorCodeCalculation(XPColorChar& color,uint8 playerLevel,uint8 mobLevel) FIRE(FormulaOnColorCodeCalculation,TSMutable<uint8>(&((uint8&)color)),playerLevel,mobLevel)
+    void OnZeroDifferenceCalculation(uint8& diff,uint8 playerLevel) FIRE(FormulaOnZeroDifferenceCalculation,TSMutable<uint8>(&diff),playerLevel)
+    void OnBaseGainCalculation(uint32& gain,uint8 playerLevel,uint8 mobLevel,ContentLevels content) FIRE(FormulaOnBaseGainCalculation,TSMutable<uint32>(&gain),playerLevel,mobLevel,content)
+    void OnGainCalculation(uint32& gain,Player* player,Unit* unit) FIRE(FormulaOnGainCalculation,TSMutable<uint32>(&gain),TSPlayer(player),TSUnit(unit))
+    void OnGroupRateCalculation(float& rate,uint32 count,bool isRaid) FIRE(FormulaOnGroupRateCalculation,TSMutable<float>(&rate),count,isRaid)
 };
 
 class TSItemScript : public ItemScript
@@ -179,9 +179,9 @@ public:
     void OnLevelChanged(Player* player,uint8 oldLevel) FIRE(PlayerOnLevelChanged,TSPlayer(player),oldLevel)
     void OnFreeTalentPointsChanged(Player* player,uint32 points) FIRE(PlayerOnFreeTalentPointsChanged,TSPlayer(player),points)
     void OnTalentsReset(Player* player,bool noCost) FIRE(PlayerOnTalentsReset,TSPlayer(player),noCost)
-    //void OnMoneyChanged(Player* player,int32& amount) FIRE(PlayerOnMoneyChanged,TSPlayer(player),TSMutable<int32>(amount))
+    void OnMoneyChanged(Player* player,int32& amount) FIRE(PlayerOnMoneyChanged,TSPlayer(player),TSMutable<int32>(&amount))
     void OnMoneyLimit(Player* player,int32 amount) FIRE(PlayerOnMoneyLimit,TSPlayer(player),amount)
-    //void OnGiveXP(Player* player,uint32& amount,Unit* victim) FIRE(PlayerOnGiveXP,TSPlayer(player),TSMutable<uint32>(amount),TSUnit(victim))
+    void OnGiveXP(Player* player,uint32& amount,Unit* victim) FIRE(PlayerOnGiveXP,TSPlayer(player),TSMutable<uint32>(&amount),TSUnit(victim))
     void OnReputationChange(Player* player,uint32 factionId,int32& standing,bool incremental) FIRE(PlayerOnReputationChange,TSPlayer(player),factionId,TSMutable<int32>(&standing),incremental)
     void OnDuelRequest(Player* target,Player* challenger) FIRE(PlayerOnDuelRequest,TSPlayer(target),TSPlayer(challenger))
     void OnDuelStart(Player* player1,Player* player2) FIRE(PlayerOnDuelStart,TSPlayer(player1),TSPlayer(player2))
@@ -350,11 +350,11 @@ void TSInitializeEvents()
     new TSFormulaScript();
     new TSItemScript();
     new TSUnitScript();
-    new TSAreaTriggerScript();
-    new TSWeatherScript();
-    new TSAuctionHouseScript();
-    new TSConditionScript();
-    new TSVehicleScript();
+    //new TSAreaTriggerScript();
+    //new TSWeatherScript();
+    //new TSAuctionHouseScript();
+    //new TSConditionScript();
+    //new TSVehicleScript();
     //new TSAchievementCriteriaScript();
     new TSPlayerScript();
     new TSAccountScript();
