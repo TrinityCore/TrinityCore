@@ -14940,8 +14940,9 @@ int32 Player::GetQuestMinLevel(Quest const* quest) const
     if (Optional<ContentTuningLevels> questLevels = sDB2Manager.GetContentTuningData(quest->GetContentTuningId(), m_playerData->CtrOptions->ContentTuningConditionMask))
     {
         ChrRacesEntry const* race = sChrRacesStore.AssertEntry(getRace());
-        FactionTemplateEntry const* raceFaction = sFactionTemplateStore.LookupEntry(race->FactionID);
-        if (!raceFaction || raceFaction->FactionGroup != sContentTuningStore.AssertEntry(quest->GetContentTuningId())->GetScalingFactionGroup())
+        FactionTemplateEntry const* raceFaction = sFactionTemplateStore.AssertEntry(race->FactionID);
+        int32 questFactionGroup = sContentTuningStore.AssertEntry(quest->GetContentTuningId())->GetScalingFactionGroup();
+        if (questFactionGroup && raceFaction->FactionGroup != questFactionGroup)
             return questLevels->MaxLevel;
 
         return questLevels->MinLevelWithDelta;
