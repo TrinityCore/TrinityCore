@@ -1686,7 +1686,13 @@ void WorldSession::HandleAlterAppearance(WorldPackets::Character::AlterApperance
     _player->ModifyMoney(-cost);                     // it isn't free
     _player->UpdateCriteria(CRITERIA_TYPE_GOLD_SPENT_AT_BARBER, cost);
 
-    _player->SetNativeSex(packet.NewSex);
+    if (_player->GetNativeSex() != packet.NewSex)
+    {
+        _player->SetNativeSex(packet.NewSex);
+        _player->InitDisplayIds();
+        _player->RestoreDisplayId(false);
+    }
+
     _player->SetCustomizations(Trinity::Containers::MakeIteratorPair(packet.Customizations.begin(), packet.Customizations.end()));
 
     _player->UpdateCriteria(CRITERIA_TYPE_VISIT_BARBER_SHOP, 1);
