@@ -995,7 +995,7 @@ declare namespace _hidden {
 declare class TSEventHandlers {
     World: _hidden.World;
     Formula: _hidden.Formula;
-    Item: _hidden.Item;
+    //Item: _hidden.Item;
     Unit: _hidden.Unit;
     //AreaTrigger: _hidden.AreaTrigger;
     //Vehicle: _hidden.Vehicle;

@@ -348,7 +348,7 @@ void TSInitializeEvents()
     new TSServerScript();
     new TSWorldScript();
     new TSFormulaScript();
-    new TSItemScript();
+    //new TSItemScript();
     new TSUnitScript();
     //new TSAreaTriggerScript();
     //new TSWeatherScript();
