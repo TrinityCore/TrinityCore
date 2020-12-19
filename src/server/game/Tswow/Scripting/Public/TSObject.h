@@ -35,12 +35,20 @@
 #include "TSMain.h"
 #include "TSClasses.h"
 
+class TSPlayer;
+class TSUnit;
+class TSGameObject;
+class TSWorldObject;
+class TSCreature;
+class TSCorpse;
+
 class TC_GAME_API TSObject {
 public:
     Object* obj;
     TSObject(Object* obj);
     TSObject();
     TSObject* operator->() { return this;}
+    bool IsNull() { return obj == nullptr; };
     bool HasFlag(uint16 index, uint32 flag);
     bool IsInWorld();
     int32 GetInt32Value(uint16 index);
@@ -65,4 +73,17 @@ public:
     void SetScale(float size);
     void SetUInt64Value(uint16 index, uint64 value);
     void RemoveFlag(uint16 index, uint32 flag);
+
+    TSPlayer ToPlayer();
+    TSUnit ToUnit();
+    TSCreature ToCreature();
+    TSWorldObject ToWorldObject();
+    TSGameObject ToGameObject();
+    TSCorpse ToCorpse();
+
+    bool IsPlayer();
+    bool IsGameObject();
+    bool IsCreature();
+    bool IsUnit();
+    bool IsCorpse();
 };

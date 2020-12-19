@@ -27,6 +27,7 @@ public:
     TSGuild(Guild *guild);
     TSGuild();
     TSGuild* operator->() { return this;}
+    bool IsNull() { return guild == nullptr; };
     TSArray<TSPlayer> GetMembers();
     uint32 GetMemberCount();
     TSPlayer GetLeader();

@@ -23,5 +23,6 @@ public:
     TSSpellInfo(SpellInfo const* info);
     TSSpellInfo();
     TSSpellInfo* operator->() { return this;}
+    bool IsNull() { return info == nullptr; }
     uint32 Id();
 };

@@ -26,6 +26,7 @@ public:
     WorldObject* obj;
     TSWorldObject();
     TSWorldObject(WorldObject* obj);
+    bool IsNull() { return obj == nullptr; };
     TSWorldObject* operator->() { return this;}
     // TODO: Re-enable these
     /*

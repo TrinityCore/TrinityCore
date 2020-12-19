@@ -24,6 +24,7 @@ public:
     Aura *aura;
     TSAura(Aura *aura);
     TSAura();
+    bool IsNull() { return aura == nullptr; };
     TSAura* operator->() { return this;}
     TSUnit GetCaster();
     uint64 GetCasterGUID();

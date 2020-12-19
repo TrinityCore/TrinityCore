@@ -19,7 +19,17 @@
 
 #include "TSIncludes.h"
 #include "TSObject.h"
+#include "TSGameObject.h"
+#include "TSPlayer.h"
+#include "TSCreature.h"
+#include "TSUnit.h"
+#include "TSCorpse.h"
 
+#include "Player.h"
+#include "GameObject.h"
+#include "Creature.h"
+#include "Unit.h"
+#include "Corpse.h"
 
 TSObject::TSObject(Object *obj)
 {
@@ -341,4 +351,58 @@ void TSObject::RemoveFlag(uint16 index,uint32 flag)
     
     obj->RemoveFlag(index, flag);
 }
-    
+
+TSPlayer TSObject::ToPlayer()
+{
+    return TSPlayer((Player*)obj);
+}
+
+TSUnit TSObject::ToUnit()
+{
+    return TSUnit((Unit*)obj);
+}
+
+TSWorldObject TSObject::ToWorldObject()
+{
+    return TSWorldObject((WorldObject*)obj);
+}
+
+TSGameObject TSObject::ToGameObject()
+{
+    return TSGameObject((GameObject*)obj);
+}
+
+TSCreature TSObject::ToCreature()
+{
+    return TSCreature((Creature*)obj);
+}
+
+TSCorpse TSObject::ToCorpse()
+{
+    return TSCorpse((Corpse*)obj);
+}
+
+bool TSObject::IsPlayer()
+{
+    return obj->IsPlayer();
+}
+
+bool TSObject::IsCreature()
+{
+    return obj->IsCreature();
+}
+
+bool TSObject::IsUnit()
+{
+    return obj->IsUnit();
+}
+
+bool TSObject::IsGameObject()
+{
+    return obj->IsGameObject();
+}
+
+bool TSObject::IsCorpse()
+{
+    return obj->IsCorpse();
+}

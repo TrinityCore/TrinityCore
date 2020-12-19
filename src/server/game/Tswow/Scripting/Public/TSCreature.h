@@ -26,9 +26,11 @@
 class TC_GAME_API TSCreature : public TSUnit {
 public:
     Creature *creature;
+
     TSCreature(Creature* creature);
     TSCreature();
     TSCreature* operator->() { return this;}
+    bool IsNull() { return creature == nullptr; }
     bool IsReputationGainDisabled();
     bool CanCompleteQuest(uint32 quest_id);
     bool IsTargetableForAttack(bool mustBeDead);

@@ -46,3 +46,4 @@
 #include "TSWorldPacket.h"
 #include "TSWorldSocket.h"
 #include "TSIDs.h"
+#include "TSPosition.h"

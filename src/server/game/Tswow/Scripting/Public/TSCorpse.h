@@ -23,6 +23,7 @@
 class TC_GAME_API TSCorpse : public TSWorldObject {
 public:
     Corpse* corpse;
+    bool IsNull() { return corpse==nullptr; };
     TSCorpse(Corpse* corpse);
     TSCorpse();
     TSCorpse* operator->() { return this;}

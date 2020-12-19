@@ -26,6 +26,7 @@
 #include "Unit.h"
 #include "TSObject.h"
 #include "TSUnit.h"
+#include "TSWorldObject.h"
 
 TSSpell::TSSpell(Spell *spell)
 {
@@ -52,14 +53,9 @@ bool TSSpell::IsAutoRepeat()
  *
  * @return [Unit] caster
  */
-TSUnit TSSpell::GetCaster() 
+TSWorldObject TSSpell::GetCaster() 
 {
-    if (spell->GetCaster()->IsCreature()) {
-        return TSUnit(static_cast<Creature*>(spell->GetCaster()));
-    }
-    else {
-        return TSUnit(nullptr);
-    }
+    return TSWorldObject(spell->GetCaster());
 }
     
 /**
@@ -113,7 +109,7 @@ int32 TSSpell::GetDuration()
  * @return float y : y coordinate of the [Spell]
  * @return float z : z coordinate of the [Spell]
  */
-float TSSpell::GetTargetDest() 
+TSPosition TSSpell::GetTargetDest() 
 {
 #if defined TRINITY || AZEROTHCORE
     float x, y, z;
@@ -122,9 +118,7 @@ float TSSpell::GetTargetDest()
     float x, y, z;
     spell->m_targets.getDestination(x, y, z);
 #endif
-    return x;
-    return y;
-    return z;
+    return TSPosition(0,x,y,z,0);
 }
     
 /**

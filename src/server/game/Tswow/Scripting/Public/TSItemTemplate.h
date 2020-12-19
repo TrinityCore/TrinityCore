@@ -22,6 +22,7 @@ class TC_GAME_API TSItemTemplate {
 private:
     ItemTemplate const* info;
 public:
+    bool IsNull() { return info == nullptr; };
     TSItemTemplate(ItemTemplate const* info);
     TSItemTemplate();
     TSItemTemplate* operator->() { return this;}

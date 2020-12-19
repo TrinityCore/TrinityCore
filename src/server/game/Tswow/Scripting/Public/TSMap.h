@@ -27,6 +27,7 @@ public:
     TSMap(Map *map);
     TSMap();
     TSMap* operator->() { return this;}
+    bool IsNull() { return map == nullptr; };
     bool IsArena();
     bool IsBattleground();
     bool IsDungeon();

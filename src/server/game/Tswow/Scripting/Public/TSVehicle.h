@@ -25,6 +25,7 @@ public:
     TSVehicle(Vehicle *vehicle);
     TSVehicle();
     TSVehicle* operator->() { return this;}
+    bool IsNull() { return vehicle == nullptr; };
     bool IsOnBoard(TSUnit passenger);
     TSUnit GetOwner();
     uint32 GetEntry();

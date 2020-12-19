@@ -24,6 +24,7 @@
 class TC_GAME_API TSItem : public TSObject {
 public:
     Item* item;
+    bool IsNull() { return item == nullptr; };
     TSItem(Item* item);
     TSItem();
     TSItem* operator->() { return this;}

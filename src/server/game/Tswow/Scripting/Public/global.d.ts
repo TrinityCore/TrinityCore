@@ -34,9 +34,18 @@ declare class TSMutable<T> {
     set(value: T) : void;
 }
 
+declare class TSPosition {
+    x: float;
+    y: float;
+    z: float;
+    o: float;
+    map: uint32;
+}
+
 declare class TSMutableString extends TSMutable<string>{}
 
 declare class TSPlayer extends TSUnit {
+    IsNull() : bool
     CanTitanGrip() : bool
     HasTalent(spellId : uint32,spec : uint8) : bool
     HasAchieved(achievementId : uint32) : bool
@@ -264,6 +273,7 @@ declare class TSPlayer extends TSUnit {
 }
 
 declare class TSCorpse extends TSWorldObject {
+    IsNull() : bool
     GetOwnerGUID() : uint64
     GetGhostTime() : uint32
     GetType() : uint32
@@ -272,6 +282,7 @@ declare class TSCorpse extends TSWorldObject {
 }
 
 declare class TSCreature extends TSUnit {
+    IsNull() : bool
     IsReputationGainDisabled() : bool
     CanCompleteQuest(quest_id : uint32) : bool
     IsTargetableForAttack(mustBeDead : bool) : bool
@@ -352,7 +363,8 @@ declare class TSCreature extends TSUnit {
 }
 
 declare class TSAura {
-    GetCaster() : TSUnit
+    IsNull() : bool
+    GetCaster() : TSWorldObject
     GetCasterGUID() : uint64
     GetCasterLevel() : uint32
     GetDuration() : int32
@@ -367,6 +379,7 @@ declare class TSAura {
 }
 
 declare class TSGuild {
+    IsNull() : bool
     GetMembers() : TSArray<TSPlayer>
     GetMemberCount() : uint32
     GetLeader() : TSPlayer
@@ -386,6 +399,7 @@ declare class TSGuild {
 }
 
 declare class TSGroup {
+    IsNull() : bool
     IsLeader(guid : uint64) : bool
     IsFull() : bool
     IsRaidGroup() : bool
@@ -411,6 +425,7 @@ declare class TSGroup {
 }
 
 declare class TSWorldPacket {
+    IsNull() : bool
     GetOpcode() : uint16
     GetSize() : uint32
     SetOpcode(opcode : uint32) : void
@@ -437,6 +452,7 @@ declare class TSWorldPacket {
 }
 
 declare class TSQuest {
+    IsNull() : bool
     HasFlag(flag : uint32) : bool
     IsDaily() : bool
     IsRepeatable() : bool
@@ -451,6 +467,7 @@ declare class TSQuest {
 }
 
 declare class TSMap {
+    IsNull() : bool
     IsArena() : bool
     IsBattleground() : bool
     IsDungeon() : bool
@@ -470,6 +487,7 @@ declare class TSMap {
 }
 
 declare class TSItem extends TSObject {
+    IsNull() : bool
     IsSoulBound() : bool
     IsBoundAccountWide() : bool
     IsBoundByEnchant() : bool
@@ -525,6 +543,7 @@ declare class TSItem extends TSObject {
 }
 
 declare class TSBattleground {
+    IsNull() : bool
     GetName() : string
     GetAlivePlayersCountByTeam(team : uint32) : uint32
     GetMap() : TSMap
@@ -545,6 +564,7 @@ declare class TSBattleground {
 }
 
 declare class TSGameObject extends TSWorldObject {
+    IsNull() : bool
     HasQuest(questId : uint32) : bool
     IsSpawned() : bool
     IsTransport() : bool
@@ -566,13 +586,14 @@ declare class TSGameObject extends TSWorldObject {
 }
 
 declare class TSSpell {
+    IsNull() : bool
     IsAutoRepeat() : bool
     GetCaster() : TSUnit
     GetCastTime() : int32
     GetEntry() : uint32
     GetPowerCost() : uint32
     GetDuration() : int32
-    GetTargetDest() : float
+    GetTargetDest() : TSPosition
     GetTarget() : TSObject
     SetAutoRepeat(repeat : bool) : void
     Cast(skipCheck : bool) : void
@@ -581,6 +602,7 @@ declare class TSSpell {
 }
 
 declare class TSVehicle {
+    IsNull() : bool
     IsOnBoard(passenger : TSUnit) : bool
     GetOwner() : TSUnit
     GetEntry() : uint32
@@ -590,6 +612,7 @@ declare class TSVehicle {
 }
 
 declare class TSWorldObject extends TSObject {
+    IsNull() : bool
     GetCreaturesInRange(range : float,entry : uint32,hostile : uint32,dead : uint32) : TSArray<TSCreature>
     GetPlayersInRange(range : float,hostile : uint32,dead : uint32) : TSArray<TSPlayer>
     GetNearObjects(range : float,type : uint16,entry : uint32,hostile : uint32,dead : uint32) : TSArray<TSWorldObject>
@@ -634,6 +657,12 @@ declare class TSWorldObject extends TSObject {
 }
 
 declare class TSObject {
+    IsNull() : bool
+    IsUnit() : bool
+    IsCreature() : bool
+    IsGameObject() : bool
+    IsPlayer() : bool
+    IsCorpse() : bool
     HasFlag(index : uint16,flag : uint32) : bool
     IsInWorld() : bool
     GetInt32Value(index : uint16) : int32
@@ -666,6 +695,7 @@ declare class TSObject {
 }
 
 declare class TSUnit extends TSWorldObject {
+    IsNull() : bool
     Attack(who : TSUnit,meleeAttack : bool) : bool
     AttackStop() : bool
     IsStandState() : bool
@@ -819,14 +849,17 @@ declare class TSUnit extends TSWorldObject {
 }
 
 declare class TSItemTemplate {
+    IsNull() : bool
     Id() : uint32;
 }
 
 declare class TSSpellInfo {
+    IsNull() : bool
     Id() : uint32;
 }
 
 declare class TSSpellCastTargets {
+    IsNull() : bool
     GetUnit() : TSUnit;
 }
 

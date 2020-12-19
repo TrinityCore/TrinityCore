@@ -25,6 +25,7 @@ public:
     TSQuest();
     TSQuest(Quest const* quest);
     TSQuest* operator->() { return this;}
+    bool IsNull() { return quest == nullptr; };
     bool HasFlag(uint32 flag);
     bool IsDaily();
     bool IsRepeatable();

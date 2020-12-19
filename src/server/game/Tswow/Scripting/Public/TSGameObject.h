@@ -18,12 +18,14 @@
 
 #include "TSMain.h"
 #include "TSClasses.h"
+#include "TSWorldObject.h"
 
 class TC_GAME_API TSGameObject : public TSWorldObject {
 public:
     GameObject *go;
     TSGameObject(GameObject *go);
     TSGameObject();
+    bool IsNull() { return go == nullptr; };
     TSGameObject* operator->() { return this;}
     bool HasQuest(uint32 questId);
     bool IsSpawned();

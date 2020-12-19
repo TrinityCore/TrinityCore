@@ -25,4 +25,5 @@ public:
     TSWorldSocket(std::shared_ptr<WorldSocket> socket);
     TSWorldSocket();
     TSWorldSocket* operator->() { return this;}
+    bool IsNull() { return socket == nullptr; };
 };

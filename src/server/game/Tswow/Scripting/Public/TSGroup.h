@@ -26,6 +26,7 @@ public:
     TSGroup(Group* group);
     TSGroup();
     TSGroup* operator->() { return this;}
+    bool IsNull() { return group == nullptr; };
     bool IsLeader(uint64 guid);
     bool IsFull();
     bool IsRaidGroup();

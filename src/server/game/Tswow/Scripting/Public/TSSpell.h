@@ -18,6 +18,7 @@
 
 #include "TSMain.h"
 #include "TSClasses.h"
+#include "TSPosition.h"
 
 class TC_GAME_API TSSpell {
 public:
@@ -25,13 +26,14 @@ public:
     TSSpell(Spell *spell);
     TSSpell();
     TSSpell* operator->() { return this;}
+    bool IsNull() { return spell == nullptr; };
     bool IsAutoRepeat();
-    TSUnit  GetCaster();
+    TSWorldObject GetCaster();
     int32 GetCastTime();
     uint32 GetEntry();
     uint32 GetPowerCost();
     int32 GetDuration();
-    float GetTargetDest();
+    TSPosition GetTargetDest();
     TSObject  GetTarget();
     void SetAutoRepeat(bool repeat);
     void Cast(bool skipCheck);

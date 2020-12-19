@@ -28,6 +28,7 @@ public:
     TSUnit(Unit* unit);
     TSUnit();
     TSUnit* operator->() { return this;}
+    bool IsNull() { return unit == nullptr; }
     bool Attack(TSUnit who, bool meleeAttack);
     bool AttackStop();
     bool IsStandState();
