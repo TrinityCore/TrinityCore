@@ -974,6 +974,11 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
         if (ChrCustomizationChoiceEntry const* customizationChoice = sChrCustomizationChoiceStore.LookupEntry(reqChoice->ChrCustomizationChoiceID))
             _chrCustomizationRequiredChoices[reqChoice->ChrCustomizationReqID][customizationChoice->ChrCustomizationOptionID].push_back(reqChoice->ChrCustomizationChoiceID);
 
+    std::unordered_map<uint32, uint32> parentRaces;
+    for (ChrRacesEntry const* chrRace : sChrRacesStore)
+        if (chrRace->UnalteredVisualRaceID)
+            parentRaces[chrRace->UnalteredVisualRaceID] = chrRace->ID;
+
     for (ChrRaceXChrModelEntry const* raceModel : sChrRaceXChrModelStore)
     {
         if (ChrModelEntry const* model = sChrModelStore.LookupEntry(raceModel->ChrModelID))
@@ -981,7 +986,16 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
             _chrModelsByRaceAndGender[{ uint8(raceModel->ChrRacesID), uint8(model->Sex) }] = model;
 
             if (std::vector<ChrCustomizationOptionEntry const*> const* customizationOptionsForModel = Trinity::Containers::MapGetValuePtr(customizationOptionsByModel, model->ID))
-                _chrCustomizationOptionsByRaceAndGender[{ uint8(raceModel->ChrRacesID), uint8(model->Sex) }] = *customizationOptionsForModel;
+            {
+                std::vector<ChrCustomizationOptionEntry const*>& raceOptions = _chrCustomizationOptionsByRaceAndGender[{ uint8(raceModel->ChrRacesID), uint8(model->Sex) }];
+                raceOptions.insert(raceOptions.end(), customizationOptionsForModel->begin(), customizationOptionsForModel->end());
+
+                if (uint32 const* parentRace = Trinity::Containers::MapGetValuePtr(parentRaces, raceModel->ChrRacesID))
+                {
+                    std::vector<ChrCustomizationOptionEntry const*>& parentRaceOptions = _chrCustomizationOptionsByRaceAndGender[{ uint8(*parentRace), uint8(model->Sex) }];
+                    parentRaceOptions.insert(parentRaceOptions.end(), customizationOptionsForModel->begin(), customizationOptionsForModel->end());
+                }
+            }
 
             // link shapeshift displays to race/gender/form
             for (std::pair<uint32 const, std::pair<uint32, uint8>> const& shapeshiftOptionsForModel : Trinity::Containers::MapEqualRange(shapeshiftFormByModel, model->ID))
