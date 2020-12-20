@@ -287,6 +287,12 @@ public:
         }
     };
 
+    struct HotfixOptionalData
+    {
+        uint32 Key;
+        std::vector<uint8> Data;
+    };
+
     using HotfixContainer = std::set<HotfixRecord>;
 
     using ItemBonusList = std::vector<ItemBonusEntry const*>;
@@ -301,9 +307,11 @@ public:
 
     void LoadHotfixData();
     void LoadHotfixBlob(uint32 localeMask);
+    void LoadHotfixOptionalData(uint32 localeMask);
     uint32 GetHotfixCount() const;
     HotfixContainer const& GetHotfixData() const;
-    std::vector<uint8> const* GetHotfixBlobData(uint32 tableHash, int32 recordId, LocaleConstant locale);
+    std::vector<uint8> const* GetHotfixBlobData(uint32 tableHash, int32 recordId, LocaleConstant locale) const;
+    std::vector<HotfixOptionalData> const* GetHotfixOptionalData(uint32 tableHash, int32 recordId, LocaleConstant locale) const;
 
     uint32 GetEmptyAnimStateID() const;
     std::vector<uint32> GetAreasForGroup(uint32 areaGroupId) const;
