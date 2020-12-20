@@ -97,13 +97,17 @@ void WorldSession::HandleTrainerListOpcode(WorldPackets::NPC::Hello& packet)
     SendTrainerList(npc);
 }
 
-void WorldSession::SendTrainerList(Creature* npc)
+// @tswow-begin (Using Rochet2/Multitrainer)
+void WorldSession::SendTrainerList(Creature* npc, uint32 trainerEntry)
+// @tswow-end
 {
     // remove fake death
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    Trainer::Trainer const* trainer = sObjectMgr->GetTrainer(npc->GetEntry());
+    // @tswow-begin (Using Rochet2/Multitrainer)
+    Trainer::Trainer const* trainer = sObjectMgr->GetTrainer(trainerEntry ? trainerEntry : npc->GetEntry());
+    // @tswow-end
     if (!trainer)
     {
         TC_LOG_DEBUG("network", "WorldSession: SendTrainerList - trainer spells not found for %s", npc->GetGUID().ToString().c_str());
@@ -115,6 +119,11 @@ void WorldSession::SendTrainerList(Creature* npc)
         TC_LOG_DEBUG("network", "WorldSession: SendTrainerList - trainer %s not valid for player %s", npc->GetGUID().ToString().c_str(), GetPlayerInfo().c_str());
         return;
     }
+
+    // @tswow-begin (Using Rochet2/Multitrainer)
+    SetCurrentTrainer(trainerEntry);
+    GetPlayer()->PlayerTalkClass->GetGossipMenu().SetSenderGUID(npc->GetGUID());
+    // @tswow-end
 
     trainer->SendSpells(npc, _player, GetSessionDbLocaleIndex());
 }
@@ -130,11 +139,18 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPackets::NPC::TrainerBuySpel
         return;
     }
 
+    // @tswow-begin (Using Rochet2/Multitrainer)
+    if (packet.TrainerGUID != GetPlayer()->PlayerTalkClass->GetGossipMenu().GetSenderGUID())
+        return; // Cheating
+    // @tswow-begin (Using Rochet2/Multitrainer)
+
     // remove fake death
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    Trainer::Trainer const* trainer = sObjectMgr->GetTrainer(npc->GetEntry());
+    // @tswow-begin (Using Rochet2/Multitrainer)
+    Trainer::Trainer const* trainer = sObjectMgr->GetTrainer(GetCurrentTrainer() ? GetCurrentTrainer() : npc->GetEntry());
+    // @swow-end
     if (!trainer)
         return;
 

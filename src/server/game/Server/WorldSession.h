@@ -486,7 +486,9 @@ class TC_GAME_API WorldSession
 
         void SendNameQueryOpcode(ObjectGuid guid);
 
-        void SendTrainerList(Creature* npc);
+        // @tswow-begin (Using Rochet2/Multitrainer)
+        void SendTrainerList(Creature* npc, uint32 trainer_entry = 0);
+        // @tswow-end
         void SendListInventory(ObjectGuid guid);
         void SendShowBank(ObjectGuid guid);
         bool CanOpenMailBox(ObjectGuid guid);
@@ -561,6 +563,12 @@ class TC_GAME_API WorldSession
         // Account mute time
         bool CanSpeak() const;
         time_t m_muteTime;
+
+        // @tswow-begin (Using Rochet2/Multitrainer)
+        // Multitrainer
+        uint32 GetCurrentTrainer() const { return m_current_trainer; }
+        void SetCurrentTrainer(uint32 entry) { m_current_trainer = entry; }
+        // @tswow-end
 
         // Locales
         LocaleConstant GetSessionDbcLocale() const { return m_sessionDbcLocale; }
@@ -1184,6 +1192,10 @@ class TC_GAME_API WorldSession
         uint32 _accountId;
         std::string _accountName;
         uint8 m_expansion;
+
+        // @tswow-begin (Using Rochet2/Multitrainer)
+        uint32 m_current_trainer;
+        // @tswow-end
 
         // Warden
         std::unique_ptr<Warden> _warden;                                    // Remains NULL if Warden system is not enabled by config

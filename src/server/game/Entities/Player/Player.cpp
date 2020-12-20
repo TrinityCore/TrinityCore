@@ -14257,7 +14257,9 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
                     break;
                 case GOSSIP_OPTION_TRAINER:
                 {
-                    Trainer::Trainer const* trainer = sObjectMgr->GetTrainer(creature->GetEntry());
+                    // @tswow-begin (Using Rochet2/Multitrainer)
+                    Trainer::Trainer const* trainer = sObjectMgr->GetTrainer(itr->second.ActionMenuID ? itr->second.ActionMenuID : creature->GetEntry());
+                    // @tswow-end 
                     if (!trainer || !trainer->IsTrainerValidForPlayer(this))
                     {
                         TC_LOG_ERROR("sql.sql", "GOSSIP_OPTION_TRAINER:: Player %s %s requested wrong gossip menu: %u at Creature: %s (Entry: %u)",
@@ -14445,7 +14447,9 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
             GetSession()->SendStablePet(guid);
             break;
         case GOSSIP_OPTION_TRAINER:
-            GetSession()->SendTrainerList(source->ToCreature());
+            // @tswow-begin (Using Rochet2/Multitrainer)
+            GetSession()->SendTrainerList(source->ToCreature(), menuItemData->GossipActionMenuId);
+            // @tswow-end
             break;
         case GOSSIP_OPTION_LEARNDUALSPEC:
             if (GetSpecsCount() == 1 && GetLevel() >= sWorld->getIntConfig(CONFIG_MIN_DUALSPEC_LEVEL))
