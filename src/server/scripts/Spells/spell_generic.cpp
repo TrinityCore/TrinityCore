@@ -41,6 +41,9 @@
 #include "SpellMgr.h"
 #include "SpellScript.h"
 #include "Vehicle.h"
+// @tswow-begin (Using Rochet2/Transmog)
+#include "Transmogrification.h"
+// @tswow-end
 
 class spell_gen_absorb0_hitlimit1 : public AuraScript
 {
@@ -1025,7 +1028,14 @@ class spell_gen_clone_weapon_aura : public AuraScript
                 if (Player* player = caster->ToPlayer())
                 {
                     if (Item* mainItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
-                        target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, mainItem->GetEntry());
+                    {
+                        // @tswow-begin (Using Rochet2/Transmog)
+                        if (mainItem->transmog)
+                            target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, mainItem->transmog);
+                        else
+                            target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, mainItem->GetEntry());
+                        // @tswow-end
+                    }
                 }
                 else
                     target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, caster->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID));
@@ -1039,7 +1049,14 @@ class spell_gen_clone_weapon_aura : public AuraScript
                 if (Player* player = caster->ToPlayer())
                 {
                     if (Item* offItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
-                        target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, offItem->GetEntry());
+                    {
+                        // @tswow-begin (Using Rochet2/Transmog)
+                        if (offItem->transmog)
+                            target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, offItem->transmog);
+                        else
+                            target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, offItem->GetEntry());
+                        // @tswow-end
+                    }
                 }
                 else
                     target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, caster->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1));
@@ -1052,7 +1069,14 @@ class spell_gen_clone_weapon_aura : public AuraScript
                 if (Player* player = caster->ToPlayer())
                 {
                     if (Item* rangedItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED))
-                        target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, rangedItem->GetEntry());
+                    {
+                        // @tswow-begin (Using Rochet2/Transmog)
+                        if (rangedItem->transmog)
+                            target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, rangedItem->transmog);
+                        else
+                            target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, rangedItem->GetEntry());
+                        // @tswow-end
+                    }
                 }
                 else
                     target->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, caster->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2));

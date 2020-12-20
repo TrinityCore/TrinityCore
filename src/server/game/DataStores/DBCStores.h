@@ -144,7 +144,9 @@ TC_GAME_API extern DBCStorage <GtRegenMPPerSptEntry>         sGtRegenMPPerSptSto
 TC_GAME_API extern DBCStorage <HolidaysEntry>                sHolidaysStore;
 TC_GAME_API extern DBCStorage <ItemEntry>                    sItemStore;
 TC_GAME_API extern DBCStorage <ItemBagFamilyEntry>           sItemBagFamilyStore;
-//TC_GAME_API extern DBCStorage <ItemDisplayInfoEntry>      sItemDisplayInfoStore; -- not used currently
+// @tswow-begin (Using Rochet2/Transmog)
+TC_GAME_API extern DBCStorage <ItemDisplayInfoEntry>         sItemDisplayInfoStore;
+// @tswow-end
 TC_GAME_API extern DBCStorage <ItemExtendedCostEntry>        sItemExtendedCostStore;
 TC_GAME_API extern DBCStorage <ItemLimitCategoryEntry>       sItemLimitCategoryStore;
 TC_GAME_API extern DBCStorage <ItemRandomPropertiesEntry>    sItemRandomPropertiesStore;

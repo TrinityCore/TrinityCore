@@ -198,6 +198,10 @@ class TC_GAME_API Item : public Object
         void ClearSoulboundTradeable(Player* currentOwner);
         bool CheckSoulboundTradeExpire();
 
+        // @tswow-begin (Using Rochet2/Transmog)
+        uint32 transmog = 0;
+        // @tswow-end
+
         void BuildUpdate(UpdateDataMapType&) override;
 
         bool AddToObjectUpdate() override;

@@ -361,6 +361,9 @@ void Item::SaveToDB(CharacterDatabaseTransaction trans)
             stmt->setUInt16(++index, GetUInt32Value(ITEM_FIELD_DURABILITY));
             stmt->setUInt32(++index, GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME));
             stmt->setString(++index, m_text);
+            // @tswow-begin (Using Rochet2/Transmog)
+            stmt->setUInt32(++index, transmog);
+            // @tswow-end
             stmt->setUInt32(++index, guid);
 
             trans->Append(stmt);
@@ -497,6 +500,10 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fi
         stmt->setUInt32(3, guid);
         CharacterDatabase.Execute(stmt);
     }
+
+    // @tswow-begin (Using Rochet2/Transmog)
+    transmog = fields[15].GetUInt32();
+    // @tswow-end
 
     return true;
 }
