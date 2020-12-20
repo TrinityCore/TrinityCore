@@ -439,6 +439,11 @@ class TC_GAME_API WorldSession
         std::string const& GetPlayerName() const;
         std::string GetPlayerInfo() const;
 
+        // @tswow-begin (Using Rochet2/Multivendor)
+        uint32 GetCurrentVendor() const { return m_currentVendorEntry; }
+        void SetCurrentVendor(uint32 vendorEntry) { m_currentVendorEntry = vendorEntry; }
+        // @tswow-end
+
         ObjectGuid::LowType GetGUIDLow() const;
         void SetSecurity(AccountTypes security) { _security = security; }
         std::string const& GetRemoteAddress() const { return m_Address; }
@@ -485,11 +490,10 @@ class TC_GAME_API WorldSession
         void SendFeatureSystemStatus();
 
         void SendNameQueryOpcode(ObjectGuid guid);
-
-        // @tswow-begin (Using Rochet2/Multitrainer)
+        // @tswow-begin (Using Rochet2/Multivendor and Rochet2/Multitrainer)
         void SendTrainerList(Creature* npc, uint32 trainer_entry = 0);
+        void SendListInventory(ObjectGuid guid, uint32 vendorEntry = 0);
         // @tswow-end
-        void SendListInventory(ObjectGuid guid);
         void SendShowBank(ObjectGuid guid);
         bool CanOpenMailBox(ObjectGuid guid);
         void SendShowMailBox(ObjectGuid guid);
@@ -1239,6 +1243,9 @@ class TC_GAME_API WorldSession
         rbac::RBACData* _RBACData;
         uint32 expireTime;
         bool forceExit;
+        // @tswow-begin (Using Rochet2/Multivendor)
+        uint32 m_currentVendorEntry = 0;
+        // @tswow-end
         ObjectGuid m_currentBankerGUID;
 
         boost::circular_buffer<std::pair<int64, uint32>> _timeSyncClockDeltaQueue; // first member: clockDelta. Second member: latency of the packet exchange that was used to compute that clockDelta.
