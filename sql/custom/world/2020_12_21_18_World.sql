@@ -1,0 +1,1 @@
+UPDATE `creature` SET `spawnDifficulties` = 0 WHERE `map` = 1116;
