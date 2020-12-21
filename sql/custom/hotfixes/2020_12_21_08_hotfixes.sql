@@ -1,0 +1,3 @@
+DELETE FROM `broadcast_text` WHERE `ID` = 147229;
+INSERT INTO `broadcast_text` (`ID`, `Text`, `Text1`, `EmoteID1`, `EmoteID2`, `EmoteID3`, `EmoteDelay1`, `EmoteDelay2`, `EmoteDelay3`, `EmotesID`, `LanguageID`, `Flags`, `ConditionID`, `SoundEntriesID1`, `SoundEntriesID2`, `VerifiedBuild`) VALUES 
+(147229, '', 'It seems like only yesterday that those of us who follow the way of the Tushui pledged to fight for the Alliance. \n\nThough I have great respect for King Anduin, I must confess that I found his father a more capable sparring partner.\n\nPlease do not tell him this.\n\n<Aysa bows.>', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26972);
