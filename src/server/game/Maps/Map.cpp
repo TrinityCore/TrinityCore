@@ -4817,6 +4817,10 @@ void Map::LoadCorpseData()
         } while (phaseResult->NextRow());
     }
 
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CORPSE_CUSTOMIZATIONS);
+    stmt->setUInt32(0, GetId());
+    stmt->setUInt32(1, GetInstanceId());
+
     //        0             1                            2
     // SELECT cc.ownerGuid, cc.chrCustomizationOptionID, cc.chrCustomizationChoiceID FROM corpse_customizations cc LEFT JOIN corpse c ON cc.ownerGuid = c.guid WHERE c.mapId = ? AND c.instanceId = ?
     if (PreparedQueryResult customizationResult = CharacterDatabase.Query(stmt))
