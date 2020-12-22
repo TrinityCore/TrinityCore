@@ -144,7 +144,7 @@ enum class QuestGiverStatus : uint32
     ScriptedDefault                     = 0x80000000
 };
 
-DEFINE_ENUM_FLAG(QuestGiverStatus)
+DEFINE_ENUM_FLAG(QuestGiverStatus);
 
 enum QuestFlags : uint32
 {
