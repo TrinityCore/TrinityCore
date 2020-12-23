@@ -1188,8 +1188,8 @@ SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, S
     // SpellEquippedItemsEntry
     SpellEquippedItemsEntry const* _equipped = data.EquippedItems;
     EquippedItemClass = _equipped ? _equipped->EquippedItemClass : -1;
-    EquippedItemSubClassMask = _equipped ?_equipped->EquippedItemSubclass : -1;
-    EquippedItemInventoryTypeMask = _equipped ? _equipped->EquippedItemInvTypes : -1;
+    EquippedItemSubClassMask = _equipped ?_equipped->EquippedItemSubclass : 0;
+    EquippedItemInventoryTypeMask = _equipped ? _equipped->EquippedItemInvTypes : 0;
 
     // SpellInterruptsEntry
     if (SpellInterruptsEntry const* _interrupt = data.Interrupts)

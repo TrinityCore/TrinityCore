@@ -721,6 +721,8 @@ struct ChrRacesEntry
     int8 FemaleTextureFallbackRaceID;
     int8 FemaleTextureFallbackSex;
     int8 UnalteredVisualCustomizationRaceID;
+
+    EnumFlag<ChrRacesFlag> GetFlags() const { return static_cast<ChrRacesFlag>(Flags); }
 };
 
 #define MAX_MASTERY_SPELLS 2
