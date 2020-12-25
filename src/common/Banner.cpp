@@ -23,16 +23,17 @@ void Trinity::Banner::Show(char const* applicationName, void(*log)(char const* t
 {
     log(Trinity::StringFormat("%s (%s)", GitRevision::GetFullVersion(), applicationName).c_str());
     log("<Ctrl-C> to stop.\n");
-    log(" ______                       __");
-    log("/\\__  _\\       __          __/\\ \\__");
-    log("\\/_/\\ \\/ _ __ /\\_\\    ___ /\\_\\ \\, _\\  __  __");
-    log("   \\ \\ \\/\\`'__\\/\\ \\ /' _ `\\/\\ \\ \\ \\/ /\\ \\/\\ \\");
-    log("    \\ \\ \\ \\ \\/ \\ \\ \\/\\ \\/\\ \\ \\ \\ \\ \\_\\ \\ \\_\\ \\");
-    log("     \\ \\_\\ \\_\\  \\ \\_\\ \\_\\ \\_\\ \\_\\ \\__\\\\/`____ \\");
-    log("      \\/_/\\/_/   \\/_/\\/_/\\/_/\\/_/\\/__/ `/___/> \\");
-    log("                                 C O R E  /\\___/");
-    log("http://TrinityCore.org                    \\/__/\n");
-
+    log("\n");
+    log("################################################################################");
+    log("################################################################################");
+    log(" Core Shadowlands basé sur Trinity http://TrinityCore.org - Stitch Décembre 2020");
+    log(" ");
+    log(" Modifications principales :");
+    log(" - Races Alliées Activées par défaut (by Galathil)");
+    log(" ");
+    log("################################################################################");
+    log("################################################################################");
+    log(" ");
     if (logExtraInfo)
         logExtraInfo();
 }
