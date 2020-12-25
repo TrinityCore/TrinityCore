@@ -31,6 +31,7 @@
 #include "ObjectAccessor.h"
 #include "WorldPacket.h"
 #include <algorithm>
+#include "TemporarySummon.h"
 
 #include "Hacks/boost_1_74_fibonacci_heap.h"
 BOOST_1_74_FIBONACCI_HEAP_MSVC_COMPILE_FIX(ThreatManager::threat_list_heap::value_type)
@@ -356,9 +357,29 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
                 else
                     redirTarget = ObjectAccessor::GetUnit(*_owner, pair.first);
 
+                float redirPct = pair.second;
+
                 if (redirTarget)
                 {
-                    float amountRedirected = CalculatePct(origAmount, pair.second);
+                    if (TempSummon* tempSummonVictim = target->ToTempSummon())
+                    {
+                        if (tempSummonVictim->IsVisibleBySummonerOnly())
+                        {
+                            if (Unit* tempSummonSummoner = tempSummonVictim->GetSummonerUnit())
+                            {
+                                // Personnal Spawns from same summoner can aggro each other
+                                if (!_owner->ToTempSummon() ||
+                                    !_owner->ToTempSummon()->IsVisibleBySummonerOnly() ||
+                                    tempSummonVictim->GetSummonerGUID() != GetOwner()->ToTempSummon()->GetSummonerGUID())
+                                {
+                                    redirPct = 100;
+                                    redirTarget = tempSummonSummoner;
+                                }
+                            }
+                        }
+                    }
+
+                    float amountRedirected = CalculatePct(origAmount, redirPct);
                     AddThreat(redirTarget, amountRedirected, spell, true, true);
                     amount -= amountRedirected;
                 }
