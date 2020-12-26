@@ -25,6 +25,7 @@
 
 #include "AppenderDB.h"
 #include "Banner.h"
+#include "BigNumber.h"
 #include "Config.h"
 #include "DatabaseEnv.h"
 #include "DatabaseLoader.h"
@@ -117,7 +118,7 @@ int main(int argc, char** argv)
         {
             TC_LOG_INFO("server.bnetserver", "%s", text);
         },
-            []()
+        []()
         {
             TC_LOG_INFO("server.bnetserver", "Using configuration file %s.", sConfigMgr->GetFilename().c_str());
             TC_LOG_INFO("server.bnetserver", "Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
@@ -152,6 +153,8 @@ int main(int argc, char** argv)
     // Initialize the database connection
     if (!StartDB())
         return 1;
+
+    sSessionMgr.FixLegacyAuthHashes();
 
     // Load IP Location Database
     sIPLocation->Load();

@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "azjol_nerub.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
@@ -97,7 +98,7 @@ enum Spells
     SPELL_ANIMATE_BONES_2                   = 53336,
 };
 
-enum SummonGroups
+enum SummonGroups : uint32
 {
     SUMMON_GROUP_CRUSHER_1      = 1,
     SUMMON_GROUP_CRUSHER_2      = 2,
@@ -162,7 +163,7 @@ public:
 
         bool IsInCombatWithPlayer() const
         {
-            std::list<HostileReference*> const& refs = me->getThreatManager().getThreatList();
+            std::list<HostileReference*> const& refs = me->GetThreatManager().getThreatList();
             for (HostileReference const* hostileRef : refs)
             {
                 if (Unit const* target = hostileRef->getTarget())
@@ -278,29 +279,22 @@ public:
             _anubar.push_back(guid);
         }
 
-        void Initialize()
+        void InitializeAI() override
         {
+            BossAI::InitializeAI();
             me->SetBoundingRadius(9.0f);
             me->SetCombatReach(9.0f);
             _enteredCombat = false;
             _doorsWebbed = false;
             _lastPlayerCombatState = false;
             SetStep(0);
+        }
+
+        void JustAppeared() override
+        {
+            BossAI::JustAppeared();
             SetCombatMovement(true);
             SummonCrusherPack(SUMMON_GROUP_CRUSHER_1);
-        }
-
-        void InitializeAI() override
-        {
-            BossAI::InitializeAI();
-            if (me->IsAlive())
-                Initialize();
-        }
-
-        void JustRespawned() override
-        {
-            BossAI::JustRespawned();
-            Initialize();
         }
 
         void UpdateAI(uint32 diff) override
@@ -779,7 +773,7 @@ struct npc_hadronox_foeAI : public ScriptedAI
                         me->GetMotionMaster()->MovePoint(MOVE_DOWNSTAIRS_2, downstairsMoves2[_mySpawn]);
                         break;
                     }
-                    // intentional missing break
+                    /* fallthrough */
                 case MOVE_HADRONOX:
                 case MOVE_HADRONOX_REAL:
                 {
@@ -955,6 +949,7 @@ class spell_hadronox_periodic_summon_template_AuraScript : public AuraScript
         spell_hadronox_periodic_summon_template_AuraScript(uint32 topSpellId, uint32 bottomSpellId) : AuraScript(), _topSpellId(topSpellId), _bottomSpellId(bottomSpellId) { }
         PrepareAuraScript(spell_hadronox_periodic_summon_template_AuraScript);
 
+    private:
         bool Validate(SpellInfo const* /*spell*/) override
         {
             return ValidateSpellInfo({ _topSpellId, _bottomSpellId });
@@ -974,6 +969,8 @@ class spell_hadronox_periodic_summon_template_AuraScript : public AuraScript
             InstanceScript* instance = caster->GetInstanceScript();
             if (!instance)
                 return;
+            if (!instance->instance->HavePlayers())
+                return;
             if (instance->GetBossState(DATA_HADRONOX) == DONE)
                 GetAura()->Remove();
             else
@@ -991,7 +988,6 @@ class spell_hadronox_periodic_summon_template_AuraScript : public AuraScript
             OnEffectPeriodic += AuraEffectPeriodicFn(spell_hadronox_periodic_summon_template_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
         }
 
-    private:
         uint32 _topSpellId;
         uint32 _bottomSpellId;
 };
@@ -1096,12 +1092,7 @@ class spell_hadronox_web_doors : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                return ValidateSpellInfo(
-                {
-                    SPELL_SUMMON_CHAMPION_PERIODIC,
-                    SPELL_SUMMON_CRYPT_FIEND_PERIODIC,
-                    SPELL_SUMMON_NECROMANCER_PERIODIC
-                });
+                return ValidateSpellInfo({ SPELL_SUMMON_CHAMPION_PERIODIC, SPELL_SUMMON_CRYPT_FIEND_PERIODIC, SPELL_SUMMON_NECROMANCER_PERIODIC });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)

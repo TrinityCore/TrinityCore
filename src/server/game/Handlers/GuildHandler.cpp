@@ -23,10 +23,8 @@
 #include "GuildPackets.h"
 #include "Log.h"
 #include "ObjectMgr.h"
-#include "Opcodes.h"
 #include "Player.h"
 #include "World.h"
-#include "WorldPacket.h"
 
 void WorldSession::HandleGuildQueryOpcode(WorldPackets::Guild::QueryGuildInfo& query)
 {
@@ -296,7 +294,7 @@ void WorldSession::HandleGuildBankSwapItems(WorldPackets::Guild::GuildBankSwapIt
         // Player <-> Bank
         // Allow to work with inventory only
         if (!Player::IsInventoryPos(packet.ContainerSlot, packet.ContainerItemSlot) && !packet.AutoStore)
-            GetPlayer()->SendEquipError(EQUIP_ERR_INTERNAL_BAG_ERROR, NULL);
+            GetPlayer()->SendEquipError(EQUIP_ERR_INTERNAL_BAG_ERROR, nullptr);
         else
             guild->SwapItemsWithInventory(GetPlayer(), packet.ToSlot != 0, packet.BankTab, packet.BankSlot, packet.ContainerSlot, packet.ContainerItemSlot, packet.StackCount);
     }
@@ -388,7 +386,7 @@ void WorldSession::HandleRequestGuildRewardsList(WorldPackets::Guild::RequestGui
         std::vector<GuildReward> const& rewards = sGuildMgr->GetGuildRewards();
 
         WorldPackets::Guild::GuildRewardList rewardList;
-        rewardList.Version = uint32(time(NULL));
+        rewardList.Version = uint32(time(nullptr));
         rewardList.RewardItems.reserve(rewards.size());
 
         for (uint32 i = 0; i < rewards.size(); i++)

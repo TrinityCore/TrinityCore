@@ -122,7 +122,7 @@ class boss_gruul : public CreatureScript
                 Talk(SAY_DEATH);
             }
 
-            void SpellHitTarget(Unit* target, const SpellInfo* pSpell) override
+            void SpellHitTarget(Unit* target, SpellInfo const* pSpell) override
             {
                 //This to emulate effect1 (77) of SPELL_GROUND_SLAM, knock back to any direction
                 //It's initially wrong, since this will cause fall damage, which is by comments, not intended.
@@ -133,11 +133,11 @@ class boss_gruul : public CreatureScript
                         switch (urand(0, 1))
                         {
                             case 0:
-                                target->CastSpell(target, SPELL_MAGNETIC_PULL, true, NULL, NULL, me->GetGUID());
+                                target->CastSpell(target, SPELL_MAGNETIC_PULL, true, nullptr, nullptr, me->GetGUID());
                                 break;
 
                             case 1:
-                                target->CastSpell(target, SPELL_KNOCK_BACK, true, NULL, NULL, me->GetGUID());
+                                target->CastSpell(target, SPELL_KNOCK_BACK, true, nullptr, nullptr, me->GetGUID());
                                 break;
                         }
                     }
@@ -205,7 +205,7 @@ class boss_gruul : public CreatureScript
                     // Hurtful Strike
                     if (m_uiHurtfulStrike_Timer <= diff)
                     {
-                        Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 1);
+                        Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 1);
 
                         if (target && me->IsWithinMeleeRange(me->GetVictim()))
                             DoCast(target, SPELL_HURTFUL_STRIKE);
@@ -284,7 +284,7 @@ class spell_gruul_shatter : public SpellScriptLoader
                 if (Unit* target = GetHitUnit())
                 {
                     target->RemoveAurasDueToSpell(SPELL_STONED);
-                    target->CastSpell((Unit*)NULL, SPELL_SHATTER_EFFECT, true);
+                    target->CastSpell(nullptr, SPELL_SHATTER_EFFECT, true);
                 }
             }
 

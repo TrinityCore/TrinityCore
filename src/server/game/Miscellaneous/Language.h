@@ -222,7 +222,8 @@ enum TrinityStrings
 
     //                                    185 not used
     LANG_TRANSPORT_POSITION             = 186,
-    // Room for more level 1              187-199 not used
+    LANG_PARTIAL_GROUP_SUMMON           = 187,
+    // Room for more level 1              188-199 not used
 
     // level 2 chat
     LANG_NO_SELECTION                   = 200,
@@ -321,7 +322,15 @@ enum TrinityStrings
     LANG_COMMAND_WHISPERON              = 285,
     LANG_COMMAND_WHISPEROFF             = 286,
     LANG_COMMAND_CREATGUIDNOTFOUND      = 287,
-      // TICKET STRINGS NEED REWRITE // 288-296 FREE
+    LANG_COMMAND_NOT_DEAD_OR_NO_LOOT    = 288,
+    LANG_COMMAND_NPC_SHOWLOOT_HEADER    = 289,
+    LANG_COMMAND_NPC_SHOWLOOT_LABEL     = 290,
+    LANG_COMMAND_NPC_SHOWLOOT_ENTRY     = 291,
+    LANG_COMMAND_NPC_SHOWLOOT_MONEY     = 292,
+    LANG_COMMAND_NPC_SHOWLOOT_LABEL_2   = 293,
+    LANG_COMMAND_NPC_SHOWLOOT_SUBLABEL  = 294,
+    LANG_COMMAND_NPC_SHOWLOOT_ENTRY_2   = 295,
+      // 296 free
 
       // END
     LANG_COMMAND_SPAWNDIST              = 297,
@@ -547,7 +556,7 @@ enum TrinityStrings
     LANG_MOVEGENS_IDLE                  = 527,
     LANG_MOVEGENS_RANDOM                = 528,
     LANG_MOVEGENS_WAYPOINT              = 529,
-    LANG_MOVEGENS_ANIMAL_RANDOM         = 530,
+    //                                  = 530, not used
     LANG_MOVEGENS_CONFUSED              = 531,
     LANG_MOVEGENS_CHASE_PLAYER          = 532,
     LANG_MOVEGENS_CHASE_CREATURE        = 533,
@@ -927,7 +936,10 @@ enum TrinityStrings
     LANG_DISALLOW_TICKETS_CONFIG        = 1190,
     LANG_BAN_EXISTS                     = 1191,
 	LANG_CHANGEACCOUNT_SUCCESS          = 1192,
-    // Room for more level 3              1193-1198 not used
+    LANG_GROUP_NOT_IN_RAID_GROUP        = 1193,
+    LANG_GROUP_ROLE_CHANGED             = 1194,
+    LANG_LEADER_CANNOT_BE_ASSISTANT     = 1195,
+    // Room for more level 3              1196-1198 not used
 
     // Debug commands
     LANG_DEBUG_AREATRIGGER_LEFT         = 1999,
@@ -1042,12 +1054,26 @@ enum TrinityStrings
     LANG_DEBUG_SCENE_OBJECT_LIST        = 5068,
     LANG_DEBUG_SCENE_OBJECT_DETAIL      = 5069,
 
-    LANG_NPCINFO_UNIT_FIELD_FLAGS_2     = 5070,
-    LANG_NPCINFO_UNIT_FIELD_FLAGS_3     = 5071,
-    LANG_NPCINFO_NPC_FLAGS              = 5072,
+    // Strings added for dynamic_spawning
+    LANG_SPAWNINFO_GROUP_ID             = 5070,
+    LANG_SPAWNINFO_COMPATIBILITY_MODE   = 5071,
+    LANG_SPAWNINFO_GUIDINFO             = 5072,
+    LANG_SPAWNINFO_SPAWNID_LOCATION     = 5073,
+    LANG_SPAWNINFO_DISTANCEFROMPLAYER   = 5074,
+    LANG_SPAWNGROUP_BADGROUP            = 5075,
+    LANG_SPAWNGROUP_SPAWNCOUNT          = 5076,
+    LANG_LIST_RESPAWNS_RANGE            = 5077,
+    LANG_LIST_RESPAWNS_ZONE             = 5078,
+    LANG_LIST_RESPAWNS_LISTHEADER       = 5079,
+    LANG_LIST_RESPAWNS_OVERDUE          = 5080,
+    LANG_LIST_RESPAWNS_CREATURES        = 5081,
+    LANG_LIST_RESPAWNS_GAMEOBJECTS      = 5082,
 
-    // Room for more Trinity strings      5073-9999
+    LANG_NPCINFO_UNIT_FIELD_FLAGS_2     = 5084,
+    LANG_NPCINFO_UNIT_FIELD_FLAGS_3     = 5085,
+    LANG_NPCINFO_NPC_FLAGS              = 5086,
 
+    // Room for more Trinity strings      5087-6603
     // Level requirement notifications
     LANG_SAY_REQ                        = 6604,
     LANG_WHISPER_REQ                    = 6605,

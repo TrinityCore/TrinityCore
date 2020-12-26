@@ -19,6 +19,7 @@
 #define AllPackets_h__
 
 #include "AchievementPackets.h"
+#include "AddonPackets.h"
 #include "AreaTriggerPackets.h"
 #include "ArtifactPackets.h"
 #include "AuctionHousePackets.h"

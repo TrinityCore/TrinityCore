@@ -119,54 +119,45 @@ public:
                     {
                         // Hateful Strike targets the highest non-MT threat in melee range on 10man
                         // and the higher HP target out of the two highest non-MT threats in melee range on 25man
-                        float MostThreat = 0.0f;
-                        Unit* secondThreatTarget = NULL;
-                        Unit* thirdThreatTarget = NULL;
+                        ThreatReference* secondThreat = nullptr;
+                        ThreatReference* thirdThreat = nullptr;
 
-                        std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
-                        for (; i != me->getThreatManager().getThreatList().end(); ++i)
-                        { // find second highest
-                            Unit* target = (*i)->getTarget();
-                            if (target->IsAlive() && target != me->GetVictim() && (*i)->getThreat() >= MostThreat && me->IsWithinMeleeRange(target))
-                            {
-                                MostThreat = (*i)->getThreat();
-                                secondThreatTarget = target;
-                            }
+                        ThreatManager const& mgr = me->GetThreatManager();
+                        Unit* currentVictim = mgr.GetCurrentVictim();
+                        auto list = mgr.GetModifiableThreatList();
+                        auto it = list.begin(), end = list.end();
+                        if (it == end)
+                        {
+                            EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+                            return;
                         }
 
-                        if (secondThreatTarget && Is25ManRaid())
-                        { // find third highest
-                            MostThreat = 0.0f;
-                            i = me->getThreatManager().getThreatList().begin();
-                            for (; i != me->getThreatManager().getThreatList().end(); ++i)
-                            {
-                                Unit* target = (*i)->getTarget();
-                                if (target->IsAlive() && target != me->GetVictim() && target != secondThreatTarget && (*i)->getThreat() >= MostThreat && me->IsWithinMeleeRange(target))
-                                {
-                                    MostThreat = (*i)->getThreat();
-                                    thirdThreatTarget = target;
-                                }
-                            }
+                        if ((*it)->GetVictim() != currentVictim)
+                            secondThreat = *it;
+                        if ((!secondThreat || Is25ManRaid()) && (++it != end && (*it)->IsAvailable()))
+                        {
+                            if ((*it)->GetVictim() != currentVictim)
+                                (secondThreat ? thirdThreat : secondThreat) = *it;
+                            if (!thirdThreat && Is25ManRaid() && (++it != end && (*it)->IsAvailable()))
+                                thirdThreat = *it;
                         }
 
-                        Unit* pHatefulTarget = NULL;
-                        if (!thirdThreatTarget)
-                            pHatefulTarget = secondThreatTarget;
-                        else if (secondThreatTarget)
-                            pHatefulTarget = (secondThreatTarget->GetHealth() < thirdThreatTarget->GetHealth()) ? thirdThreatTarget : secondThreatTarget;
-
-                        if (!pHatefulTarget)
-                            pHatefulTarget = me->GetVictim();
-
-                        DoCast(pHatefulTarget, SPELL_HATEFUL_STRIKE, true);
+                        Unit* pHatefulTarget = nullptr;
+                        if (!secondThreat)
+                            pHatefulTarget = currentVictim;
+                        else if (!thirdThreat)
+                            pHatefulTarget = secondThreat->GetVictim();
+                        else
+                            pHatefulTarget = (secondThreat->GetVictim()->GetHealth() < thirdThreat->GetVictim()->GetHealth()) ? thirdThreat->GetVictim() : secondThreat->GetVictim();
 
                         // add threat to highest threat targets
-                        if (me->GetVictim() && me->IsWithinMeleeRange(me->GetVictim()))
-                            me->getThreatManager().addThreat(me->GetVictim(), HATEFUL_THREAT_AMT);
-                        if (secondThreatTarget)
-                            me->getThreatManager().addThreat(secondThreatTarget, HATEFUL_THREAT_AMT);
-                        if (thirdThreatTarget)
-                            me->getThreatManager().addThreat(thirdThreatTarget, HATEFUL_THREAT_AMT); // this will only ever be used in 25m
+                        AddThreat(currentVictim, HATEFUL_THREAT_AMT);
+                        if (secondThreat)
+                            secondThreat->AddThreat(HATEFUL_THREAT_AMT);
+                        if (thirdThreat)
+                            thirdThreat->AddThreat(HATEFUL_THREAT_AMT);
+
+                        DoCast(pHatefulTarget, SPELL_HATEFUL_STRIKE, true);
 
                         events.Repeat(Seconds(1));
                         break;

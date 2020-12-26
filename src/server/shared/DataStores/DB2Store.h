@@ -37,24 +37,24 @@ public:
     uint32 GetLayoutHash() const { return _layoutHash; }
 
     virtual bool HasRecord(uint32 id) const = 0;
-    virtual void WriteRecord(uint32 id, uint32 locale, ByteBuffer& buffer) const = 0;
+    virtual void WriteRecord(uint32 id, LocaleConstant locale, ByteBuffer& buffer) const = 0;
     virtual void EraseRecord(uint32 id) = 0;
 
     std::string const& GetFileName() const { return _fileName; }
     uint32 GetFieldCount() const { return _fieldCount; }
     DB2LoadInfo const* GetLoadInfo() const { return _loadInfo; }
 
-    virtual bool Load(std::string const& path, uint32 locale) = 0;
-    virtual bool LoadStringsFrom(std::string const& path, uint32 locale) = 0;
+    virtual void Load(std::string const& path, LocaleConstant locale) = 0;
+    virtual void LoadStringsFrom(std::string const& path, LocaleConstant locale) = 0;
     virtual void LoadFromDB() = 0;
-    virtual void LoadStringsFromDB(uint32 locale) = 0;
+    virtual void LoadStringsFromDB(LocaleConstant locale) = 0;
 
 protected:
-    void WriteRecordData(char const* entry, uint32 locale, ByteBuffer& buffer) const;
-    bool Load(std::string const& path, uint32 locale, char**& indexTable);
-    bool LoadStringsFrom(std::string const& path, uint32 locale, char** indexTable);
+    void WriteRecordData(char const* entry, LocaleConstant locale, ByteBuffer& buffer) const;
+    void Load(std::string const& path, LocaleConstant locale, char**& indexTable);
+    void LoadStringsFrom(std::string const& path, LocaleConstant locale, char** indexTable);
     void LoadFromDB(char**& indexTable);
-    void LoadStringsFromDB(uint32 locale, char** indexTable);
+    void LoadStringsFromDB(LocaleConstant locale, char** indexTable);
 
     uint32 _tableHash;
     uint32 _layoutHash;
@@ -62,7 +62,7 @@ protected:
     uint32 _fieldCount;
     DB2LoadInfo const* _loadInfo;
     char* _dataTable;
-    char* _dataTableEx;
+    char* _dataTableEx[2];
     std::vector<char*> _stringPool;
     uint32 _indexTableSize;
 };
@@ -73,20 +73,20 @@ class DB2Storage : public DB2StorageBase
     static_assert(std::is_standard_layout<T>::value, "T in DB2Storage must have standard layout.");
 
 public:
-    typedef DBStorageIterator<T> iterator;
+    using iterator = DBStorageIterator<T>;
 
     DB2Storage(char const* fileName, DB2LoadInfo const* loadInfo) : DB2StorageBase(fileName, loadInfo)
     {
-        _indexTable.AsT = nullptr;
+        _indexTable.AsChar = nullptr;
     }
 
     ~DB2Storage()
     {
-        delete[] reinterpret_cast<char*>(_indexTable.AsT);
+        delete[] _indexTable.AsChar;
     }
 
     bool HasRecord(uint32 id) const override { return id < _indexTableSize && _indexTable.AsT[id] != nullptr; }
-    void WriteRecord(uint32 id, uint32 locale, ByteBuffer& buffer) const override
+    void WriteRecord(uint32 id, LocaleConstant locale, ByteBuffer& buffer) const override
     {
         WriteRecordData(reinterpret_cast<char const*>(AssertEntry(id)), locale, buffer);
     }
@@ -98,12 +98,12 @@ public:
     T const* operator[](uint32 id) const { return LookupEntry(id); }
 
     uint32 GetNumRows() const { return _indexTableSize; }
-    bool Load(std::string const& path, uint32 locale) override
+    void Load(std::string const& path, LocaleConstant locale) override
     {
         return DB2StorageBase::Load(path, locale, _indexTable.AsChar);
     }
 
-    bool LoadStringsFrom(std::string const& path, uint32 locale) override
+    void LoadStringsFrom(std::string const& path, LocaleConstant locale) override
     {
         return DB2StorageBase::LoadStringsFrom(path, locale, _indexTable.AsChar);
     }
@@ -113,7 +113,7 @@ public:
         DB2StorageBase::LoadFromDB(_indexTable.AsChar);
     }
 
-    void LoadStringsFromDB(uint32 locale) override
+    void LoadStringsFromDB(LocaleConstant locale) override
     {
         DB2StorageBase::LoadStringsFromDB(locale, _indexTable.AsChar);
     }

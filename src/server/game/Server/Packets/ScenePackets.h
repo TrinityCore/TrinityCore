@@ -38,6 +38,7 @@ namespace WorldPackets
             int32 SceneScriptPackageID = 0;
             ObjectGuid TransportGUID;
             Position Location;
+            bool PerformTactCallbacks = false;
         };
 
         class TC_GAME_API CancelScene final : public ServerPacket

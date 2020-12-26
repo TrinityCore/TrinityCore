@@ -48,11 +48,6 @@ enum Events
     EVENT_HEALING_WAVE          = 4
 };
 
-enum Faction
-{
-    ZUMRAH_FRIENDLY_FACTION     = 35
-};
-
 class boss_zum_rah : public CreatureScript
 {
 public:
@@ -74,7 +69,7 @@ public:
 
         void Reset() override
         {
-            me->setFaction(ZUMRAH_FRIENDLY_FACTION); // areatrigger sets faction to enemy
+            me->SetFaction(FACTION_FRIENDLY); // areatrigger sets faction to enemy
             Initialize();
         }
 

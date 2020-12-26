@@ -418,8 +418,8 @@ public:
 
         void Dragonspireroomcheck()
         {
-            Creature* mob = NULL;
-            GameObject* rune = NULL;
+            Creature* mob = nullptr;
+            GameObject* rune = nullptr;
 
             for (uint8 i = 0; i < 7; ++i)
             {
@@ -527,7 +527,7 @@ class at_dragonspire_hall : public AreaTriggerScript
 public:
     at_dragonspire_hall() : AreaTriggerScript("at_dragonspire_hall") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*areaTrigger*/, bool /*entered*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
     {
         if (player && player->IsAlive())
         {
@@ -551,7 +551,7 @@ class at_blackrock_stadium : public AreaTriggerScript
 public:
     at_blackrock_stadium() : AreaTriggerScript("at_blackrock_stadium") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*areaTrigger*/, bool /*entered*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
     {
         if (player && player->IsAlive())
         {
@@ -575,10 +575,12 @@ class at_nearby_scarshield_infiltrator : public AreaTriggerScript
 public:
     at_nearby_scarshield_infiltrator() : AreaTriggerScript("at_nearby_scarshield_infiltrator") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/, bool /*entered*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*at*/, bool /*entered*/) override
     {
         if (player->IsAlive())
+        {
             if (InstanceScript* instance = player->GetInstanceScript())
+            {
                 if (Creature* infiltrator = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_SCARSHIELD_INFILTRATOR)))
                 {
                     if (player->getLevel() >= 57)
@@ -588,6 +590,8 @@ public:
 
                     return true;
                 }
+            }
+        }
 
         return false;
     }

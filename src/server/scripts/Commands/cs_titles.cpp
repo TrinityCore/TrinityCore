@@ -26,7 +26,6 @@ EndScriptData */
 #include "Chat.h"
 #include "DB2Stores.h"
 #include "Language.h"
-#include "ObjectMgr.h"
 #include "Player.h"
 #include "RBAC.h"
 
@@ -46,11 +45,11 @@ public:
             { "add",     rbac::RBAC_PERM_COMMAND_TITLES_ADD,     false, &HandleTitlesAddCommand,     "" },
             { "current", rbac::RBAC_PERM_COMMAND_TITLES_CURRENT, false, &HandleTitlesCurrentCommand, "" },
             { "remove",  rbac::RBAC_PERM_COMMAND_TITLES_REMOVE,  false, &HandleTitlesRemoveCommand,  "" },
-            { "set",     rbac::RBAC_PERM_COMMAND_TITLES_SET,     false, NULL,       "", titlesSetCommandTable },
+            { "set",     rbac::RBAC_PERM_COMMAND_TITLES_SET,     false, nullptr,       "", titlesSetCommandTable },
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "titles", rbac::RBAC_PERM_COMMAND_TITLES, false, NULL, "", titlesCommandTable },
+            { "titles", rbac::RBAC_PERM_COMMAND_TITLES, false, nullptr, "", titlesCommandTable },
         };
         return commandTable;
     }
@@ -96,7 +95,7 @@ public:
         target->SetChosenTitle(titleInfo->MaskID);
 
         handler->PSendSysMessage(LANG_TITLE_CURRENT_RES, id,
-            (target->getGender() == GENDER_MALE ? titleInfo->Name : titleInfo->Name1)->Str[handler->GetSessionDbcLocale()],
+            (target->getGender() == GENDER_MALE ? titleInfo->Name : titleInfo->Name1)[handler->GetSessionDbcLocale()],
             tNameLink.c_str());
         return true;
     }
@@ -139,7 +138,7 @@ public:
         std::string tNameLink = handler->GetNameLink(target);
 
         std::string titleNameStr = Trinity::StringFormat(
-            (target->getGender() == GENDER_MALE ? titleInfo->Name : titleInfo->Name1)->Str[handler->GetSessionDbcLocale()],
+            (target->getGender() == GENDER_MALE ? titleInfo->Name : titleInfo->Name1)[handler->GetSessionDbcLocale()],
             target->GetName().c_str()
         );
 
@@ -189,7 +188,7 @@ public:
         std::string tNameLink = handler->GetNameLink(target);
 
         std::string titleNameStr = Trinity::StringFormat(
-            (target->getGender() == GENDER_MALE ? titleInfo->Name : titleInfo->Name1)->Str[handler->GetSessionDbcLocale()],
+            (target->getGender() == GENDER_MALE ? titleInfo->Name : titleInfo->Name1)[handler->GetSessionDbcLocale()],
             target->GetName().c_str()
         );
 

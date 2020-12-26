@@ -23,8 +23,8 @@ SDCategory: Scholomance
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "scholomance.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {

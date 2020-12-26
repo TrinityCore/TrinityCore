@@ -87,7 +87,7 @@ struct WebTargetSelector : public std::unary_function<Unit*, bool>
     }
 
     private:
-        const Unit* _maexxna;
+        Unit const* _maexxna;
 };
 
 class boss_maexxna : public CreatureScript
@@ -139,7 +139,7 @@ public:
                     case EVENT_WRAP:
                     {
                         std::list<Unit*> targets;
-                        SelectTargetList(targets, WebTargetSelector(me), RAID_MODE(1, 2), SELECT_TARGET_RANDOM);
+                        SelectTargetList(targets, RAID_MODE(1, 2), SELECT_TARGET_RANDOM, 1, WebTargetSelector(me));
                         if (!targets.empty())
                         {
                             Talk(EMOTE_WEB_WRAP);
@@ -221,7 +221,7 @@ public:
             if (Unit* victim = ObjectAccessor::GetUnit(*me, victimGUID))
             {
                 visibleTimer = (me->GetDistance2d(victim)/WEB_WRAP_MOVE_SPEED + 0.5f) * IN_MILLISECONDS;
-                victim->CastSpell(victim, SPELL_WEB_WRAP, true, NULL, NULL, me->GetGUID());
+                victim->CastSpell(victim, SPELL_WEB_WRAP, true, nullptr, nullptr, me->GetGUID());
             }
         }
 

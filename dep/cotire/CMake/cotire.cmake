@@ -2259,12 +2259,19 @@ function (cotire_generate_target_script _language _configurations _target _targe
 	set (${_targetConfigScriptVar} "${_targetCotireConfigScript}" PARENT_SCOPE)
 endfunction()
 
-function (cotire_setup_pch_file_compilation _language _target _targetScript _prefixFile _pchFile _hostFile)
+function (cotire_setup_pch_file_compilation _language _target _targetScript _prefixFile _pchFile _prefixFileWasGenerated _hostFile)
 	set (_sourceFiles ${ARGN})
 	if (CMAKE_${_language}_COMPILER_ID MATCHES "MSVC|Intel")
 		# for Visual Studio and Intel, we attach the precompiled header compilation to the host file
 		# the remaining files include the precompiled header, see cotire_setup_pch_file_inclusion
 		if (_sourceFiles)
+			# unlike MSBuild, Ninja does not automatically create the directory for /Fp file
+			# so we have to do it ourselves to avoid C1083
+			if (${CMAKE_GENERATOR} STREQUAL "Ninja Multi-Config")
+				cotire_get_intermediate_dir(_baseDir)
+				add_custom_command (OUTPUT "${_baseDir}/.mkdir" COMMAND ${CMAKE_COMMAND} -E touch "${_baseDir}/.mkdir")
+				set_property (SOURCE ${_hostFile} APPEND PROPERTY OBJECT_DEPENDS "${_baseDir}/.mkdir")
+			endif()
 			set (_flags "")
 			cotire_add_pch_compilation_flags(
 				"${_language}" "${CMAKE_${_language}_COMPILER_ID}" "${CMAKE_${_language}_COMPILER_VERSION}"
@@ -2272,7 +2279,9 @@ function (cotire_setup_pch_file_compilation _language _target _targetScript _pre
 			set_property (SOURCE ${_hostFile} APPEND_STRING PROPERTY COMPILE_FLAGS " ${_flags} ")
 			set_property (SOURCE ${_hostFile} APPEND PROPERTY OBJECT_OUTPUTS "${_pchFile}")
 			# make object file generated from host file depend on prefix header
-			set_property (SOURCE ${_hostFile} APPEND PROPERTY OBJECT_DEPENDS "${_prefixFile}")
+			if (_prefixFileWasGenerated)
+				set_property (SOURCE ${_hostFile} APPEND PROPERTY OBJECT_DEPENDS "${_prefixFile}")
+			endif()
 			# mark host file as cotired to prevent it from being used in another cotired target
 			set_property (SOURCE ${_hostFile} PROPERTY COTIRE_TARGET "${_target}")
 		endif()
@@ -2355,7 +2364,7 @@ function (cotire_setup_prefix_file_inclusion _language _target _prefixFile _pref
 	if (_prefixFileWasGenerated)
 		# make object files generated from source files depend on prefix header
 		set_property (SOURCE ${_sourceFiles} APPEND PROPERTY OBJECT_DEPENDS "${_prefixFile}")
-    endif()
+	endif()
 endfunction()
 
 function (cotire_get_first_set_property_value _propertyValueVar _type _object)
@@ -2899,7 +2908,7 @@ function (cotire_process_target_language _language _configurations _target _whol
 			if (_pchFile)
 				# first file in _sourceFiles is passed as the host file
 				cotire_setup_pch_file_compilation(
-					${_language} ${_target} "${_targetConfigScript}" "${_prefixFile}" "${_pchFile}" ${_sourceFiles})
+					${_language} ${_target} "${_targetConfigScript}" "${_prefixFile}" "${_pchFile}" ${_prefixFileWasGenerated} ${_sourceFiles})
 				cotire_setup_pch_file_inclusion(
 					${_language} ${_target} ${_wholeTarget} "${_prefixFile}" "${_pchFile}" ${_sourceFiles})
 			endif()

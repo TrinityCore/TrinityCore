@@ -179,7 +179,11 @@ class spell_hallow_end_candy_pirate : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                return ValidateSpellInfo({ SPELL_HALLOWS_END_CANDY_FEMALE_DEFIAS_PIRATE, SPELL_HALLOWS_END_CANDY_MALE_DEFIAS_PIRATE });
+                return ValidateSpellInfo(
+                {
+                    SPELL_HALLOWS_END_CANDY_FEMALE_DEFIAS_PIRATE,
+                    SPELL_HALLOWS_END_CANDY_MALE_DEFIAS_PIRATE
+                });
             }
 
             void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -350,7 +354,12 @@ class spell_hallow_end_tricky_treat : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                return ValidateSpellInfo({ SPELL_TRICKY_TREAT_SPEED, SPELL_TRICKY_TREAT_TRIGGER, SPELL_UPSET_TUMMY });
+                return ValidateSpellInfo(
+                {
+                    SPELL_TRICKY_TREAT_SPEED,
+                    SPELL_TRICKY_TREAT_TRIGGER,
+                    SPELL_UPSET_TUMMY
+                });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -468,7 +477,7 @@ class spell_pilgrims_bounty_buff_food : public SpellScriptLoader
     private:
         uint32 const _triggeredSpellId;
     public:
-        spell_pilgrims_bounty_buff_food(const char* name, uint32 triggeredSpellId) : SpellScriptLoader(name), _triggeredSpellId(triggeredSpellId) { }
+        spell_pilgrims_bounty_buff_food(char const* name, uint32 triggeredSpellId) : SpellScriptLoader(name), _triggeredSpellId(triggeredSpellId) { }
 
         class spell_pilgrims_bounty_buff_food_AuraScript : public AuraScript
         {
@@ -561,7 +570,7 @@ class spell_pilgrims_bounty_feast_on : public SpellScriptLoader
                         if (Player* player = target->ToPlayer())
                         {
                             player->CastSpell(player, SPELL_ON_PLATE_EAT_VISUAL, true);
-                            caster->CastSpell(player, _spellId, true, NULL, NULL, player->GetGUID());
+                            caster->CastSpell(player, _spellId, true, nullptr, nullptr, player->GetGUID());
                         }
 
                 if (Aura* aura = caster->GetAura(GetEffectValue()))
@@ -668,17 +677,18 @@ class spell_pilgrims_bounty_well_fed : public SpellScriptLoader
         uint32 _triggeredSpellId;
 
     public:
-        spell_pilgrims_bounty_well_fed(const char* name, uint32 triggeredSpellId) : SpellScriptLoader(name), _triggeredSpellId(triggeredSpellId) { }
+        spell_pilgrims_bounty_well_fed(char const* name, uint32 triggeredSpellId) : SpellScriptLoader(name), _triggeredSpellId(triggeredSpellId) { }
 
         class spell_pilgrims_bounty_well_fed_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_pilgrims_bounty_well_fed_SpellScript);
-        private:
+
             uint32 _triggeredSpellId;
 
         public:
             spell_pilgrims_bounty_well_fed_SpellScript(uint32 triggeredSpellId) : SpellScript(), _triggeredSpellId(triggeredSpellId) { }
 
+        private:
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ _triggeredSpellId });
@@ -773,13 +783,13 @@ class spell_pilgrims_bounty_on_plate : public SpellScriptLoader
         uint32 _triggeredSpellId4;
 
     public:
-        spell_pilgrims_bounty_on_plate(const char* name, uint32 triggeredSpellId1, uint32 triggeredSpellId2, uint32 triggeredSpellId3, uint32 triggeredSpellId4) : SpellScriptLoader(name),
+        spell_pilgrims_bounty_on_plate(char const* name, uint32 triggeredSpellId1, uint32 triggeredSpellId2, uint32 triggeredSpellId3, uint32 triggeredSpellId4) : SpellScriptLoader(name),
             _triggeredSpellId1(triggeredSpellId1), _triggeredSpellId2(triggeredSpellId2), _triggeredSpellId3(triggeredSpellId3), _triggeredSpellId4(triggeredSpellId4) { }
 
         class spell_pilgrims_bounty_on_plate_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_pilgrims_bounty_on_plate_SpellScript);
-        private:
+
             uint32 _triggeredSpellId1;
             uint32 _triggeredSpellId2;
             uint32 _triggeredSpellId3;
@@ -789,7 +799,8 @@ class spell_pilgrims_bounty_on_plate : public SpellScriptLoader
             spell_pilgrims_bounty_on_plate_SpellScript(uint32 triggeredSpellId1, uint32 triggeredSpellId2, uint32 triggeredSpellId3, uint32 triggeredSpellId4) : SpellScript(),
                 _triggeredSpellId1(triggeredSpellId1), _triggeredSpellId2(triggeredSpellId2), _triggeredSpellId3(triggeredSpellId3), _triggeredSpellId4(triggeredSpellId4) { }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
+        private:
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo(
                 {
@@ -892,19 +903,19 @@ class spell_pilgrims_bounty_a_serving_of : public SpellScriptLoader
     private:
         uint32 _triggeredSpellId;
     public:
-        spell_pilgrims_bounty_a_serving_of(const char* name, uint32 triggeredSpellId) : SpellScriptLoader(name), _triggeredSpellId(triggeredSpellId) { }
+        spell_pilgrims_bounty_a_serving_of(char const* name, uint32 triggeredSpellId) : SpellScriptLoader(name), _triggeredSpellId(triggeredSpellId) { }
 
         class spell_pilgrims_bounty_a_serving_of_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_pilgrims_bounty_a_serving_of_AuraScript);
 
-        private:
             uint32 _triggeredSpellId;
 
         public:
             spell_pilgrims_bounty_a_serving_of_AuraScript(uint32 triggeredSpellId) : AuraScript(), _triggeredSpellId(triggeredSpellId) { }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
+        private:
+            bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ _triggeredSpellId });
             }
@@ -1006,6 +1017,14 @@ enum PX238WinterWondervolt
     SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_4  = 26274
 };
 
+uint32 const WonderboltTransformSpells[] =
+{
+    SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_1,
+    SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_2,
+    SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_3,
+    SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_4
+};
+
 class spell_winter_veil_px_238_winter_wondervolt : public SpellScriptLoader
 {
     public:
@@ -1017,34 +1036,20 @@ class spell_winter_veil_px_238_winter_wondervolt : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                return ValidateSpellInfo(
-                {
-                    SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_1,
-                    SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_2,
-                    SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_3,
-                    SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_4
-                });
+                return ValidateSpellInfo(WonderboltTransformSpells);
             }
 
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
 
-                uint32 const spells[4] =
-                {
-                    SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_1,
-                    SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_2,
-                    SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_3,
-                    SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_4
-                };
-
                 if (Unit* target = GetHitUnit())
                 {
-                    for (uint8 i = 0; i < 4; ++i)
-                        if (target->HasAura(spells[i]))
+                    for (uint32 spell : WonderboltTransformSpells)
+                        if (target->HasAura(spell))
                             return;
 
-                    target->CastSpell(target, spells[urand(0, 3)], true);
+                    target->CastSpell(target, Trinity::Containers::SelectRandomContainerElement(WonderboltTransformSpells), true);
                 }
             }
 
@@ -1552,7 +1557,12 @@ class spell_gen_ribbon_pole_dancer_check : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                return ValidateSpellInfo({ SPELL_HAS_FULL_MIDSUMMER_SET, SPELL_RIBBON_DANCE, SPELL_BURNING_HOT_POLE_DANCE });
+                return ValidateSpellInfo(
+                {
+                    SPELL_HAS_FULL_MIDSUMMER_SET,
+                    SPELL_RIBBON_DANCE,
+                    SPELL_BURNING_HOT_POLE_DANCE
+                });
             }
 
             void PeriodicTick(AuraEffect const* /*aurEff*/)

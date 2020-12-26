@@ -24,7 +24,6 @@
 #include "PhasingHandler.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
-#include "SpellInfo.h"
 #include "SpellScript.h"
 
 enum Texts
@@ -264,7 +263,7 @@ class ValithriaDespawner : public BasicEvent
             creature->SetRespawnDelay(10);
 
             if (CreatureData const* data = creature->GetCreatureData())
-                creature->SetPosition(data->posX, data->posY, data->posZ, data->orientation);
+                creature->UpdatePosition(data->spawnPoint);
             creature->DespawnOrUnsummon();
 
             creature->SetCorpseDelay(corpseDelay);
@@ -562,7 +561,7 @@ class npc_green_dragon_combat_trigger : public CreatureScript
 
                 // @TODO check out of bounds on all encounter creatures, evade if matched
 
-                std::list<HostileReference*> const& threatList = me->getThreatManager().getThreatList();
+                std::list<HostileReference*> const& threatList = me->GetThreatManager().getThreatList();
                 if (threatList.empty())
                 {
                     EnterEvadeMode();
@@ -1467,7 +1466,7 @@ class spell_dreamwalker_twisted_nightmares : public SpellScriptLoader
                 //    return;
 
                 if (InstanceScript* instance = GetHitUnit()->GetInstanceScript())
-                    GetHitUnit()->CastSpell((Unit*)nullptr, GetSpellInfo()->GetEffect(effIndex)->TriggerSpell, true, nullptr, nullptr, instance->GetGuidData(DATA_VALITHRIA_DREAMWALKER));
+                    GetHitUnit()->CastSpell(nullptr, GetSpellInfo()->GetEffect(effIndex)->TriggerSpell, true, nullptr, nullptr, instance->GetGuidData(DATA_VALITHRIA_DREAMWALKER));
             }
 
             void Register() override

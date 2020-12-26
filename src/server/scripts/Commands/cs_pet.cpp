@@ -27,7 +27,7 @@
 #include "SpellMgr.h"
 #include "WorldSession.h"
 
-static inline Pet* GetSelectedPlayerPetOrOwn(ChatHandler* handler)
+inline Pet* GetSelectedPlayerPetOrOwn(ChatHandler* handler)
 {
     if (Unit* target = handler->getSelectedUnit())
     {
@@ -40,6 +40,7 @@ static inline Pet* GetSelectedPlayerPetOrOwn(ChatHandler* handler)
     Player* player = handler->GetSession()->GetPlayer();
     return player ? player->GetPet() : nullptr;
 }
+
 class pet_commandscript : public CommandScript
 {
 public:
@@ -57,7 +58,7 @@ public:
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "pet", rbac::RBAC_PERM_COMMAND_PET, false, NULL, "", petCommandTable },
+            { "pet", rbac::RBAC_PERM_COMMAND_PET, false, nullptr, "", petCommandTable },
         };
         return commandTable;
     }
@@ -102,7 +103,7 @@ public:
         creatureTarget->SetHealth(0); // just for nice GM-mode view
 
         pet->SetCreatorGUID(player->GetGUID());
-        pet->setFaction(player->getFaction());
+        pet->SetFaction(player->GetFaction());
 
         if (!pet->InitStatsForLevel(creatureTarget->getLevel()))
         {
@@ -148,7 +149,7 @@ public:
 
         uint32 spellId = handler->extractSpellIdFromLink((char*)args);
 
-        if (!spellId || !sSpellMgr->GetSpellInfo(spellId))
+        if (!spellId || !sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE))
             return false;
 
         // Check if pet already has it
@@ -160,7 +161,7 @@ public:
         }
 
         // Check if spell is valid
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE);
         if (!spellInfo || !SpellMgr::IsSpellValid(spellInfo))
         {
             handler->PSendSysMessage(LANG_COMMAND_SPELL_BROKEN, spellId);

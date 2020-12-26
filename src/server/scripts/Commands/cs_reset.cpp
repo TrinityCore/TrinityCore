@@ -35,8 +35,8 @@ EndScriptData */
 #include "RBAC.h"
 #include "World.h"
 #include "WorldSession.h"
-#include <boost/thread/shared_mutex.hpp>
 #include <boost/thread/locks.hpp>
+#include <boost/thread/shared_mutex.hpp>
 
 class reset_commandscript : public CommandScript
 {
@@ -57,7 +57,7 @@ public:
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "reset", rbac::RBAC_PERM_COMMAND_RESET, true, NULL, "", resetCommandTable },
+            { "reset", rbac::RBAC_PERM_COMMAND_RESET, true, nullptr, "", resetCommandTable },
         };
         return commandTable;
     }
@@ -132,9 +132,7 @@ public:
         uint8 oldLevel = target->getLevel();
 
         // set starting level
-        uint32 startLevel = target->getClass() != CLASS_DEATH_KNIGHT
-            ? sWorld->getIntConfig(CONFIG_START_PLAYER_LEVEL)
-            : sWorld->getIntConfig(CONFIG_START_DEATH_KNIGHT_PLAYER_LEVEL);
+        uint8 startLevel = target->GetStartLevel(target->getRace(), target->getClass(), {});
 
         target->_ApplyAllLevelScaleItemMods(false);
         target->SetLevel(startLevel);

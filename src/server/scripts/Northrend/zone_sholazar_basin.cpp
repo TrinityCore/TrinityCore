@@ -66,40 +66,51 @@ class npc_vekjik : public CreatureScript
 public:
     npc_vekjik() : CreatureScript("npc_vekjik") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
+    struct npc_vekjikAI : public ScriptedAI
     {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
+        npc_vekjikAI(Creature* creature) : ScriptedAI(creature) { }
 
-        if (player->GetQuestStatus(QUEST_MAKING_PEACE) == QUEST_STATUS_INCOMPLETE)
+        bool GossipHello(Player* player) override
         {
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_VEKJIK_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            SendGossipMenuFor(player, GOSSIP_TEXTID_VEKJIK1, creature->GetGUID());
+            if (me->IsQuestGiver())
+                player->PrepareQuestMenu(me->GetGUID());
+
+            if (player->GetQuestStatus(QUEST_MAKING_PEACE) == QUEST_STATUS_INCOMPLETE)
+            {
+                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_VEKJIK_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                SendGossipMenuFor(player, GOSSIP_TEXTID_VEKJIK1, me->GetGUID());
+                return true;
+            }
+
+            SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
             return true;
         }
 
-        SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        ClearGossipMenuFor(player);
-        switch (action)
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
-            case GOSSIP_ACTION_INFO_DEF+1:
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_VEKJIK_ITEM2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                SendGossipMenuFor(player, GOSSIP_TEXTID_VEKJIK2, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+2:
-                CloseGossipMenuFor(player);
-                creature->AI()->Talk(SAY_TEXTID_VEKJIK1, player);
-                player->AreaExploredOrEventHappens(QUEST_MAKING_PEACE);
-                creature->CastSpell(player, SPELL_FREANZYHEARTS_FURY, false);
-                break;
-        }
+            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+            ClearGossipMenuFor(player);
+            switch (action)
+            {
+                case GOSSIP_ACTION_INFO_DEF + 1:
+                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_VEKJIK_ITEM2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                    SendGossipMenuFor(player, GOSSIP_TEXTID_VEKJIK2, me->GetGUID());
+                    break;
+                case GOSSIP_ACTION_INFO_DEF + 2:
+                    CloseGossipMenuFor(player);
+                    Talk(SAY_TEXTID_VEKJIK1, player);
+                    player->AreaExploredOrEventHappens(QUEST_MAKING_PEACE);
+                    DoCast(player, SPELL_FREANZYHEARTS_FURY, false);
+                    break;
+            }
 
-        return true;
+            return true;
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_vekjikAI(creature);
     }
 };
 
@@ -127,37 +138,48 @@ class npc_avatar_of_freya : public CreatureScript
 public:
     npc_avatar_of_freya() : CreatureScript("npc_avatar_of_freya") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
+    struct npc_avatar_of_freyaAI : public ScriptedAI
     {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
+        npc_avatar_of_freyaAI(Creature* creature) : ScriptedAI(creature) { }
 
-        if (player->GetQuestStatus(QUEST_FREYA_PACT) == QUEST_STATUS_INCOMPLETE)
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_AOF1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-        player->PlayerTalkClass->SendGossipMenu(GOSSIP_TEXTID_AVATAR1, creature->GetGUID());
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        ClearGossipMenuFor(player);
-        switch (action)
+        bool GossipHello(Player* player) override
         {
-        case GOSSIP_ACTION_INFO_DEF+1:
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_AOF2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-            player->PlayerTalkClass->SendGossipMenu(GOSSIP_TEXTID_AVATAR2, creature->GetGUID());
-            break;
-        case GOSSIP_ACTION_INFO_DEF+2:
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_AOF3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
-            player->PlayerTalkClass->SendGossipMenu(GOSSIP_TEXTID_AVATAR3, creature->GetGUID());
-            break;
-        case GOSSIP_ACTION_INFO_DEF+3:
-            player->CastSpell(player, SPELL_FREYA_CONVERSATION, true);
-            CloseGossipMenuFor(player);
-            break;
+            if (me->IsQuestGiver())
+                player->PrepareQuestMenu(me->GetGUID());
+
+            if (player->GetQuestStatus(QUEST_FREYA_PACT) == QUEST_STATUS_INCOMPLETE)
+                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_AOF1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+            player->PlayerTalkClass->SendGossipMenu(GOSSIP_TEXTID_AVATAR1, me->GetGUID());
+            return true;
         }
-        return true;
+
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        {
+            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+            ClearGossipMenuFor(player);
+            switch (action)
+            {
+                case GOSSIP_ACTION_INFO_DEF + 1:
+                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_AOF2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                    player->PlayerTalkClass->SendGossipMenu(GOSSIP_TEXTID_AVATAR2, me->GetGUID());
+                    break;
+                case GOSSIP_ACTION_INFO_DEF + 2:
+                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_AOF3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                    player->PlayerTalkClass->SendGossipMenu(GOSSIP_TEXTID_AVATAR3, me->GetGUID());
+                    break;
+                case GOSSIP_ACTION_INFO_DEF + 3:
+                    player->CastSpell(player, SPELL_FREYA_CONVERSATION, true);
+                    CloseGossipMenuFor(player);
+                    break;
+            }
+            return true;
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_avatar_of_freyaAI(creature);
     }
 };
 
@@ -231,9 +253,9 @@ class npc_engineer_helice : public CreatureScript
 public:
     npc_engineer_helice() : CreatureScript("npc_engineer_helice") { }
 
-    struct npc_engineer_heliceAI : public npc_escortAI
+    struct npc_engineer_heliceAI : public EscortAI
     {
-        npc_engineer_heliceAI(Creature* creature) : npc_escortAI(creature)
+        npc_engineer_heliceAI(Creature* creature) : EscortAI(creature)
         {
             Initialize();
         }
@@ -245,7 +267,7 @@ public:
 
         uint32 m_uiChatTimer;
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
 
@@ -300,7 +322,7 @@ public:
 
         void UpdateAI(uint32 uiDiff) override
         {
-            npc_escortAI::UpdateAI(uiDiff);
+            EscortAI::UpdateAI(uiDiff);
 
             if (HasEscortState(STATE_ESCORT_ESCORTING))
             {
@@ -312,27 +334,23 @@ public:
                     m_uiChatTimer -= uiDiff;
             }
         }
+
+        void QuestAccept(Player* player, Quest const* quest) override
+        {
+            if (quest->GetQuestId() == QUEST_DISASTER)
+            {
+                me->GetMotionMaster()->MoveJumpTo(0, 0.4f, 0.4f);
+                me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
+
+                Start(false, false, player->GetGUID());
+                Talk(SAY_WP_1);
+            }
+        }
     };
 
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_engineer_heliceAI(creature);
-    }
-
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_DISASTER)
-        {
-            if (npc_engineer_heliceAI* pEscortAI = CAST_AI(npc_engineer_helice::npc_engineer_heliceAI, creature->AI()))
-            {
-                creature->GetMotionMaster()->MoveJumpTo(0, 0.4f, 0.4f);
-                creature->setFaction(113);
-
-                pEscortAI->Start(false, false, player->GetGUID());
-                creature->AI()->Talk(SAY_WP_1);
-            }
-        }
-        return true;
     }
 };
 
@@ -567,55 +585,56 @@ public:
         {
             Talk(SAY_DWARF_OUCH);
         }
+
+        bool GossipHello(Player* player) override
+        {
+            if (player->GetQuestStatus(QUEST_12634) != QUEST_STATUS_INCOMPLETE)
+                return false;
+
+            if (player->GetItemCount(ITEM_ORANGE) < 1)
+                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_OPTION_ORANGE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+            if (player->GetItemCount(ITEM_BANANAS) < 2)
+                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_OPTION_BANANAS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+
+            if (player->GetItemCount(ITEM_PAPAYA) < 1)
+                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_OPTION_PAPAYA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+
+            player->PlayerTalkClass->SendGossipMenu(GOSSIP_MENU_DWARF, me->GetGUID());
+            return true;
+        }
+
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        {
+            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+            ClearGossipMenuFor(player);
+            uint32 spellId = 0;
+
+            switch (action)
+            {
+                case GOSSIP_ACTION_INFO_DEF + 1:
+                    spellId = SPELL_ADD_ORANGE;
+                    break;
+                case GOSSIP_ACTION_INFO_DEF + 2:
+                    spellId = SPELL_ADD_BANANAS;
+                    break;
+                case GOSSIP_ACTION_INFO_DEF + 3:
+                    spellId = SPELL_ADD_PAPAYA;
+                    break;
+            }
+
+            if (spellId)
+                player->CastSpell(player, spellId, true);
+
+            Talk(SAY_DWARF_HELP);
+            me->DespawnOrUnsummon();
+            return true;
+        }
     };
 
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_adventurous_dwarfAI(creature);
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (player->GetQuestStatus(QUEST_12634) != QUEST_STATUS_INCOMPLETE)
-            return false;
-
-        if (player->GetItemCount(ITEM_ORANGE) < 1)
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_OPTION_ORANGE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-        if (player->GetItemCount(ITEM_BANANAS) < 2)
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_OPTION_BANANAS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-
-        if (player->GetItemCount(ITEM_PAPAYA) < 1)
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_OPTION_PAPAYA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-
-        player->PlayerTalkClass->SendGossipMenu(GOSSIP_MENU_DWARF, creature->GetGUID());
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        ClearGossipMenuFor(player);
-        uint32 spellId = 0;
-
-        switch (action)
-        {
-            case GOSSIP_ACTION_INFO_DEF + 1:
-                spellId = SPELL_ADD_ORANGE;
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 2:
-                spellId = SPELL_ADD_BANANAS;
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 3:
-                spellId = SPELL_ADD_PAPAYA;
-                break;
-        }
-
-        if (spellId)
-            player->CastSpell(player, spellId, true);
-
-        creature->AI()->Talk(SAY_DWARF_HELP);
-        creature->DespawnOrUnsummon();
-        return true;
     }
 };
 
@@ -772,9 +791,7 @@ public:
                     Creature* crunchy = shooter->FindNearestCreature(NPC_CRUNCHY, 30);
                     Creature* bird = shooter->FindNearestCreature(NPC_THICKBIRD, 30);
 
-                    if (!bird || !crunchy)
-                        ; // fall to EVENT_MISS
-                    else
+                    if (bird && crunchy)
                     {
                         shooter->CastSpell(bird, SPELL_MISS_BIRD_APPLE);
                         bird->CastSpell(bird, SPELL_BIRD_FALL);
@@ -785,10 +802,10 @@ public:
                         crunchy->GetMotionMaster()->MovePoint(0, bird->GetPositionX(), bird->GetPositionY(),
                             bird->GetMap()->GetWaterOrGroundLevel(bird->GetPhaseShift(), bird->GetPositionX(), bird->GetPositionY(), bird->GetPositionZ()));
                         /// @todo Make crunchy perform emote eat when he reaches the bird
-
                         break;
                     }
                 }
+                    /* fallthrough */
                 case EVENT_MISS:
                 {
                     shooter->CastSpell(wilhelm, SPELL_MISS_APPLE);

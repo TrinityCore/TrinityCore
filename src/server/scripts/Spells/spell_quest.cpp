@@ -21,15 +21,15 @@
  * Scriptnames of files in this file should be prefixed with "spell_q#questID_".
  */
 
+#include "ScriptMgr.h"
 #include "CellImpl.h"
 #include "CreatureAIImpl.h"
 #include "CreatureTextMgr.h"
 #include "GridNotifiersImpl.h"
 #include "Player.h"
-#include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "SpellScript.h"
 #include "Vehicle.h"
 
 class spell_generic_quest_update_entry_SpellScript : public SpellScript
@@ -157,7 +157,7 @@ class spell_q5206_test_fetid_skull : public SpellScriptLoader
             {
                 Unit* caster = GetCaster();
                 uint32 spellId = roll_chance_i(50) ? SPELL_CREATE_RESONATING_SKULL : SPELL_CREATE_BONE_DUST;
-                caster->CastSpell(caster, spellId, true, NULL);
+                caster->CastSpell(caster, spellId, true, nullptr);
             }
 
             void Register() override
@@ -277,13 +277,13 @@ class spell_q11396_11399_force_shield_arcane_purple_x3 : public SpellScriptLoade
             void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
-                target->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                target->SetImmuneToPC(true);
                 target->AddUnitState(UNIT_STATE_ROOT);
             }
 
             void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                GetTarget()->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                GetTarget()->SetImmuneToPC(false);
             }
 
             void Register() override
@@ -608,7 +608,7 @@ class spell_q12634_despawn_fruit_tosser : public SpellScriptLoader
                 // sometimes, if you're lucky, you get a dwarf
                 if (roll_chance_i(5))
                     spellId = SPELL_SUMMON_ADVENTUROUS_DWARF;
-                GetCaster()->CastSpell(GetCaster(), spellId, true, NULL);
+                GetCaster()->CastSpell(GetCaster(), spellId, true, nullptr);
             }
 
             void Register() override
@@ -642,7 +642,7 @@ class spell_q12683_take_sputum_sample : public SpellScriptLoader
                 if (caster->HasAuraEffect(reqAuraId, 0))
                 {
                     uint32 spellId = GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue();
-                    caster->CastSpell(caster, spellId, true, NULL);
+                    caster->CastSpell(caster, spellId, true, nullptr);
                 }
             }
 
@@ -752,7 +752,7 @@ class spell_q12937_relief_for_the_fallen : public SpellScriptLoader
                 Player* caster = GetCaster()->ToPlayer();
                 if (Creature* target = GetHitCreature())
                 {
-                    caster->CastSpell(caster, SPELL_TRIGGER_AID_OF_THE_EARTHEN, true, NULL);
+                    caster->CastSpell(caster, SPELL_TRIGGER_AID_OF_THE_EARTHEN, true, nullptr);
                     caster->KilledMonsterCredit(NPC_FALLEN_EARTHEN_DEFENDER);
                     target->DespawnOrUnsummon();
                 }
@@ -1047,13 +1047,7 @@ class spell_q14112_14145_chum_the_water: public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellEntry*/) override
             {
-                return ValidateSpellInfo(
-                {
-                    SUMMON_ANGRY_KVALDIR,
-                    SUMMON_NORTH_SEA_MAKO,
-                    SUMMON_NORTH_SEA_THRESHER,
-                    SUMMON_NORTH_SEA_BLUE_SHARK
-                });
+                return ValidateSpellInfo({ SUMMON_ANGRY_KVALDIR, SUMMON_NORTH_SEA_MAKO, SUMMON_NORTH_SEA_THRESHER, SUMMON_NORTH_SEA_BLUE_SHARK });
             }
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
@@ -1669,7 +1663,7 @@ class spell_q12527_zuldrak_rat : public SpellScriptLoader
             {
                 if (GetHitAura() && GetHitAura()->GetStackAmount() >= GetSpellInfo()->StackAmount)
                 {
-                    GetHitUnit()->CastSpell((Unit*) NULL, SPELL_SUMMON_GORGED_LURKING_BASILISK, true);
+                    GetHitUnit()->CastSpell(nullptr, SPELL_SUMMON_GORGED_LURKING_BASILISK, true);
                     if (Creature* basilisk = GetHitUnit()->ToCreature())
                         basilisk->DespawnOrUnsummon();
                 }
@@ -1857,9 +1851,8 @@ class spell_q12847_summon_soul_moveto_bunny : public SpellScriptLoader
 
 enum BearFlankMaster
 {
-    SPELL_BEAR_FLANK_MASTER = 56565,
     SPELL_CREATE_BEAR_FLANK = 56566,
-    SPELL_BEAR_FLANK_FAIL = 56569
+    SPELL_BEAR_FLANK_FAIL   = 56569
 };
 
 class spell_q13011_bear_flank_master : public SpellScriptLoader
@@ -1873,7 +1866,11 @@ class spell_q13011_bear_flank_master : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                return ValidateSpellInfo({ SPELL_BEAR_FLANK_MASTER, SPELL_CREATE_BEAR_FLANK });
+                return ValidateSpellInfo(
+                {
+                    SPELL_CREATE_BEAR_FLANK,
+                    SPELL_BEAR_FLANK_FAIL
+                });
             }
 
             bool Load() override
@@ -1919,7 +1916,7 @@ class spell_q13086_cannons_target : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo) override
             {
-                return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0)->CalcValue()) });
+                return ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0)->CalcValue()) });
             }
 
             void HandleEffectDummy(SpellEffIndex /*effIndex*/)
@@ -2152,7 +2149,7 @@ class spell_q12641_death_comes_from_on_high : public SpellScriptLoader
                         return;
                 }
 
-                GetCaster()->CastSpell((Unit*)NULL, spellId, true);
+                GetCaster()->CastSpell(nullptr, spellId, true);
             }
 
             void Register() override
@@ -2218,7 +2215,7 @@ class spell_q12619_emblazon_runeblade : public SpellScriptLoader
             {
                 PreventDefaultAction();
                 if (Unit* caster = GetCaster())
-                    caster->CastSpell(caster, GetSpellInfo()->GetEffect(aurEff->GetEffIndex())->TriggerSpell, true, NULL, aurEff);
+                    caster->CastSpell(caster, GetSpellInfo()->GetEffect(aurEff->GetEffIndex())->TriggerSpell, true, nullptr, aurEff);
             }
 
             void Register() override

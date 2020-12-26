@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "GameTime.h"
 #include "ScriptMgr.h"
+#include "GameTime.h"
 #include "InstanceScript.h"
 #include "Log.h"
 #include "Map.h"
@@ -222,7 +222,7 @@ struct boss_four_horsemen_baseAI : public BossAI
                 return;
             }
             instance->SetBossState(BOSS_HORSEMEN, IN_PROGRESS);
-            Map::PlayerList const &players = me->GetMap()->GetPlayers();
+            Map::PlayerList const& players = me->GetMap()->GetPlayers();
             if (players.isEmpty()) // sanity check
                 ResetEncounter();
 
@@ -247,11 +247,7 @@ struct boss_four_horsemen_baseAI : public BossAI
                                 continue;
 
                             if (player->IsAlive())
-                            {
-                                cBoss->AddThreat(player, 0.0f);
-                                cBoss->SetInCombatWith(player);
-                                player->SetInCombatWith(cBoss);
-                            }
+                                AddThreat(player, 0.0f, cBoss);
                         }
                     }
 
@@ -276,14 +272,9 @@ struct boss_four_horsemen_baseAI : public BossAI
             for (Horseman boss : horsemen)
             {
                 if (Creature* cBoss = getHorsemanHandle(boss))
-                {
-                    cBoss->DespawnOrUnsummon();
-                    cBoss->SetRespawnTime(15);
-                }
+                    cBoss->DespawnOrUnsummon(0, Seconds(15));
                 else
-                {
                     TC_LOG_WARN("scripts", "FourHorsemenAI: Encounter resetting but horseman with id %u is not present", uint32(boss));
-                }
             }
         }
 
@@ -390,7 +381,7 @@ struct boss_four_horsemen_baseAI : public BossAI
 
     private:
         const Horseman _which;
-        const Position* _initialPath;
+        Position const* _initialPath;
         bool _myMovementFinished;
         uint8 _nextMovement;
         uint32 _timeDied;
@@ -410,19 +401,19 @@ class boss_four_horsemen_baron : public CreatureScript
             {
                 SetCombatMovement(true);
                 me->SetReactState(REACT_AGGRESSIVE);
-                ThreatManager& threat = me->getThreatManager();
-                if (threat.isThreatListEmpty())
+                ThreatManager& threat = me->GetThreatManager();
+                if (threat.IsThreatListEmpty())
                 {
                     if (Unit* nearest = me->SelectNearestPlayer(5000.0f))
                     {
-                        me->AddThreat(nearest, 1.0f);
+                        AddThreat(nearest, 1.0f);
                         AttackStart(nearest);
                     }
                     else
                         ResetEncounter();
                 }
                 else
-                    AttackStart(threat.getHostilTarget());
+                    AttackStart(threat.GetCurrentVictim());
 
                 events.ScheduleEvent(EVENT_BERSERK, Minutes(10));
                 events.ScheduleEvent(EVENT_MARK, Seconds(24));
@@ -483,19 +474,19 @@ class boss_four_horsemen_thane : public CreatureScript
             {
                 SetCombatMovement(true);
                 me->SetReactState(REACT_AGGRESSIVE);
-                ThreatManager& threat = me->getThreatManager();
-                if (threat.isThreatListEmpty())
+                ThreatManager& threat = me->GetThreatManager();
+                if (threat.IsThreatListEmpty())
                 {
                     if (Unit* nearest = me->SelectNearestPlayer(5000.0f))
                     {
-                        me->AddThreat(nearest, 1.0f);
+                        AddThreat(nearest, 1.0f);
                         AttackStart(nearest);
                     }
                     else
                         ResetEncounter();
                 }
                 else
-                    AttackStart(threat.getHostilTarget());
+                    AttackStart(threat.GetCurrentVictim());
 
                 events.ScheduleEvent(EVENT_BERSERK, Minutes(10));
                 events.ScheduleEvent(EVENT_MARK, Seconds(24));
@@ -574,7 +565,7 @@ class boss_four_horsemen_lady : public CreatureScript
                     return;
                 if (!_ourMovementFinished)
                     return;
-                if (me->getThreatManager().isThreatListEmpty())
+                if (me->GetThreatManager().IsThreatListEmpty())
                 {
                     EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
                     return;
@@ -607,7 +598,7 @@ class boss_four_horsemen_lady : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0, 45.0f, true))
+                if (Unit* target = SelectTarget(SELECT_TARGET_MINDISTANCE, 0, 45.0f, true))
                     DoCast(target, SPELL_HELPER_SHADOW_BOLT);
                 else
                 {
@@ -644,7 +635,7 @@ class boss_four_horsemen_sir : public CreatureScript
                     return;
                 if (!_ourMovementFinished)
                     return;
-                if (me->getThreatManager().isThreatListEmpty())
+                if (me->GetThreatManager().IsThreatListEmpty())
                 {
                     EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
                     return;
@@ -664,7 +655,7 @@ class boss_four_horsemen_sir : public CreatureScript
                             events.Repeat(Seconds(15));
                             break;
                         case EVENT_HOLYWRATH:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0, 45.0f, true))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_MINDISTANCE, 0, 45.0f, true))
                             {
                                 DoCast(target, SPELL_HELPER_HOLY_WRATH, true);
                                 _shouldSay = true;
@@ -677,7 +668,7 @@ class boss_four_horsemen_sir : public CreatureScript
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0, 45.0f, true))
+                if (Unit* target = SelectTarget(SELECT_TARGET_MINDISTANCE, 0, 45.0f, true))
                     DoCast(target, SPELL_HELPER_HOLY_BOLT);
                 else
                 {

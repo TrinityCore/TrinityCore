@@ -29,26 +29,24 @@ struct TC_GAME_API Position
     Position(float x = 0, float y = 0, float z = 0, float o = 0)
         : m_positionX(x), m_positionY(y), m_positionZ(z), m_orientation(NormalizeOrientation(o)) { }
 
-    Position(Position const& loc) { Relocate(loc); }
-
     // streamer tags
     struct XY;
     struct XYZ;
     struct XYZO;
     struct PackedXYZ;
 
-    template<class Tag>
+    template <class Tag>
     struct ConstStreamer
     {
         explicit ConstStreamer(Position const& pos) : Pos(&pos) { }
         Position const* Pos;
     };
 
-    template<class Tag>
+    template <class Tag>
     struct Streamer
     {
         explicit Streamer(Position& pos) : Pos(&pos) { }
-        operator ConstStreamer<Tag>() { return ConstStreamer<Tag>(*Pos); }
+        operator ConstStreamer<Tag>() const { return ConstStreamer<Tag>(*Pos); }
         Position* Pos;
     };
 
@@ -60,9 +58,9 @@ private:
     float m_orientation;
 
 public:
-    bool operator==(Position const &a) const;
+    bool operator==(Position const& a) const;
 
-    inline bool operator!=(Position const &a) const
+    inline bool operator!=(Position const& a) const
     {
         return !(operator==(a));
     }
@@ -82,7 +80,7 @@ public:
         m_positionX = x; m_positionY = y; m_positionZ = z; SetOrientation(orientation);
     }
 
-    void Relocate(Position const &pos)
+    void Relocate(Position const& pos)
     {
         m_positionX = pos.m_positionX; m_positionY = pos.m_positionY; m_positionZ = pos.m_positionZ; SetOrientation(pos.m_orientation);
     }
@@ -92,7 +90,7 @@ public:
         m_positionX = pos->m_positionX; m_positionY = pos->m_positionY; m_positionZ = pos->m_positionZ; SetOrientation(pos->m_orientation);
     }
 
-    void RelocateOffset(Position const &offset);
+    void RelocateOffset(Position const& offset);
 
     void SetOrientation(float orientation)
     {
@@ -207,17 +205,16 @@ public:
         return GetExactDist2dSq(pos) < dist * dist;
     }
 
-    bool IsInDist(float x, float y, float z, float dist) const
-    {
-        return GetExactDistSq(x, y, z) < dist * dist;
-    }
+    bool IsInDist(float x, float y, float z, float dist) const { return GetExactDistSq(x, y, z) < dist * dist; }
+    bool IsInDist(Position const& pos, float dist) const { return GetExactDistSq(pos) < dist * dist; }
+    bool IsInDist(Position const* pos, float dist) const { return GetExactDistSq(pos) < dist * dist; }
 
-    bool IsInDist(Position const* pos, float dist) const
-    {
-        return GetExactDistSq(pos) < dist * dist;
-    }
+    bool IsWithinBox(Position const& center, float xradius, float yradius, float zradius) const;
 
-    bool IsWithinBox(const Position& center, float xradius, float yradius, float zradius) const;
+    /*
+    search using this relation: dist2d < radius && abs(dz) < height
+    */
+    bool IsWithinDoubleVerticalCylinder(Position const* center, float radius, float height) const;
     bool HasInArc(float arcangle, Position const* pos, float border = 2.0f) const;
     bool HasInLine(Position const* pos, float objSize, float width) const;
     std::string ToString() const;
@@ -237,15 +234,9 @@ public:
     WorldLocation(uint32 mapId, Position const& position)
         : Position(position), m_mapId(mapId) { }
 
-    WorldLocation(WorldLocation const& loc)
-        : Position(loc), m_mapId(loc.GetMapId()) { }
-
-    void WorldRelocate(WorldLocation const& loc)
-    {
-        m_mapId = loc.GetMapId();
-        Relocate(loc);
-    }
-
+    void WorldRelocate(WorldLocation const& loc) { m_mapId = loc.GetMapId(); Relocate(loc); }
+    void WorldRelocate(WorldLocation const* loc) { m_mapId = loc->GetMapId(); Relocate(loc); }
+    void WorldRelocate(uint32 mapId, Position const& pos) { m_mapId = mapId; Relocate(pos); }
     void WorldRelocate(uint32 mapId = MAPID_INVALID, float x = 0.f, float y = 0.f, float z = 0.f, float o = 0.f)
     {
         m_mapId = mapId;

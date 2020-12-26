@@ -78,6 +78,7 @@ class TC_COMMON_API EventProcessor
         void AddEvent(BasicEvent* Event, uint64 e_time, bool set_addtime = true);
         void ModifyEventTime(BasicEvent* Event, uint64 newTime);
         uint64 CalculateTime(uint64 t_offset) const;
+        std::multimap<uint64, BasicEvent*> const& GetEvents() const { return m_events; }
 
     protected:
         uint64 m_time;

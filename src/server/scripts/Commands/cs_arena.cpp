@@ -51,7 +51,7 @@ public:
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "arena",          rbac::RBAC_PERM_COMMAND_ARENA,     false, NULL,                       "", arenaCommandTable },
+            { "arena",          rbac::RBAC_PERM_COMMAND_ARENA,     false, nullptr,                       "", arenaCommandTable },
         };
         return commandTable;
     }
@@ -62,10 +62,10 @@ public:
             return false;
 
         Player* target;
-        if (!handler->extractPlayerTarget(*args != '"' ? (char*)args : NULL, &target))
+        if (!handler->extractPlayerTarget(*args != '"' ? (char*)args : nullptr, &target))
             return false;
 
-        char* tailStr = *args != '"' ? strtok(NULL, "") : (char*)args;
+        char* tailStr = *args != '"' ? strtok(nullptr, "") : (char*)args;
         if (!tailStr)
             return false;
 
@@ -73,7 +73,7 @@ public:
         if (!name)
             return false;
 
-        char* typeStr = strtok(NULL, "");
+        char* typeStr = strtok(nullptr, "");
         if (!typeStr)
             return false;
 
@@ -171,7 +171,7 @@ public:
             return false;
         }
 
-        char const* newArenaStr = handler->extractQuotedArg(strtok(NULL, ""));
+        char const* newArenaStr = handler->extractQuotedArg(strtok(nullptr, ""));
         if (!newArenaStr)
         {
             handler->SendSysMessage(LANG_BAD_VALUE);

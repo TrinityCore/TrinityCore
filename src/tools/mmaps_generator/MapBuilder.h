@@ -38,7 +38,7 @@ namespace MMAP
 {
     struct MapTiles
     {
-        MapTiles() : m_mapId(uint32(-1)), m_tiles(NULL) {}
+        MapTiles() : m_mapId(uint32(-1)), m_tiles(nullptr) {}
 
         MapTiles(uint32 id, std::set<uint32>* tiles) : m_mapId(id), m_tiles(tiles) {}
         ~MapTiles() {}
@@ -56,7 +56,7 @@ namespace MMAP
 
     struct Tile
     {
-        Tile() : chf(NULL), solid(NULL), cset(NULL), pmesh(NULL), dmesh(NULL) {}
+        Tile() : chf(nullptr), solid(nullptr), cset(nullptr), pmesh(nullptr), dmesh(nullptr) {}
         ~Tile()
         {
             rcFreeCompactHeightfield(chf);
@@ -83,7 +83,7 @@ namespace MMAP
                 bool debugOutput         = false,
                 bool bigBaseUnit         = false,
                 int mapid                = -1,
-                const char* offMeshFilePath = NULL);
+                char const* offMeshFilePath = nullptr);
 
             ~MapBuilder();
 
@@ -133,7 +133,7 @@ namespace MMAP
 
             bool m_debugOutput;
 
-            const char* m_offMeshFilePath;
+            char const* m_offMeshFilePath;
             bool m_skipContinents;
             bool m_skipJunkMaps;
             bool m_skipBattlegrounds;

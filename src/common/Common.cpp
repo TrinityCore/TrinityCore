@@ -33,11 +33,11 @@ char const* localeNames[TOTAL_LOCALES] =
   "itIT"
 };
 
-LocaleConstant GetLocaleByName(const std::string& name)
+LocaleConstant GetLocaleByName(std::string const& name)
 {
     for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
         if (name == localeNames[i])
             return LocaleConstant(i);
 
-    return LOCALE_enUS;                                     // including enGB case
+    return TOTAL_LOCALES;
 }

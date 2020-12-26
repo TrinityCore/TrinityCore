@@ -439,7 +439,7 @@ public:
 
     bool operator()(Unit* unit) const
     {
-        return _me->GetDistance2d(unit) > 25.0f;
+        return unit->GetTypeId() == TYPEID_PLAYER && _me->GetDistance2d(unit) > 25.0f;
     }
 
 private:
@@ -454,7 +454,7 @@ public:
     struct boss_illidan_stormrageAI : public BossAI
     {
         boss_illidan_stormrageAI(Creature* creature) : BossAI(creature, DATA_ILLIDAN_STORMRAGE),
-            _intro(true), _minionsCount(0), _flameCount(0), _orientation(0.0f), _pillarIndex(0), _phase(0), _dead(false), _isDemon(false) { }
+            _minionsCount(0), _flameCount(0), _orientation(0.0f), _pillarIndex(0), _phase(0), _dead(false), _isDemon(false) { }
 
         void Reset() override
         {
@@ -470,7 +470,7 @@ public:
             _flameCount = 0;
             _phase = PHASE_1;
             _isDemon = false;
-            if (_intro && instance->GetBossState(DATA_ILLIDARI_COUNCIL) == DONE)
+            if (instance->GetData(DATA_AKAMA_ILLIDAN_INTRO) && instance->GetBossState(DATA_ILLIDARI_COUNCIL) == DONE)
                 if (Creature* akama = instance->GetCreature(DATA_AKAMA))
                     akama->AI()->DoAction(ACTION_ACTIVE_AKAMA_INTRO);
         }
@@ -524,6 +524,7 @@ public:
                     events.ScheduleEvent(EVENT_SHADOW_BLAST, Seconds(1), group);
                     events.ScheduleEvent(EVENT_FLAME_BURST, Seconds(6), group);
                     events.ScheduleEvent(EVENT_SHADOW_DEMON, Seconds(18), Seconds(30), group);
+                    break;
                 case GROUP_PHASE_4:
                     ScheduleEvents(GROUP_PHASE_3, group);
                     events.ScheduleEvent(EVENT_FRENZY, Seconds(40), group);
@@ -538,10 +539,7 @@ public:
             BossAI::JustSummoned(summon);
             if (summon->GetEntry() == NPC_ILLIDARI_ELITE)
                 if (Creature* akama = instance->GetCreature(DATA_AKAMA))
-                {
-                    summon->CombatStart(akama);
-                    summon->AddThreat(akama, 1000.0f);
-                }
+                    AddThreat(akama, 1000.0f, summon);
         }
 
         void SummonedCreatureDies(Creature* summon, Unit* /*killer*/) override
@@ -570,7 +568,7 @@ public:
                         akama->AI()->DoAction(ACTION_FREE);
                     break;
                 case ACTION_INTRO_DONE:
-                    _intro = false;
+                    instance->SetData(DATA_AKAMA_ILLIDAN_INTRO, 0);
                     break;
                 case ACTION_START_MINIONS:
                     Talk(SAY_ILLIDAN_MINION);
@@ -680,7 +678,7 @@ public:
 
         void EnterEvadeModeIfNeeded()
         {
-            Map::PlayerList const &players = me->GetMap()->GetPlayers();
+            Map::PlayerList const& players = me->GetMap()->GetPlayers();
             for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
                 if (Player* player = i->GetSource())
                     if (player->IsAlive() && !player->IsGameMaster() && CheckBoundary(player))
@@ -807,7 +805,7 @@ public:
                         events.ScheduleEvent(EVENT_ENCOUNTER_START, Seconds(3), GROUP_PHASE_ALL);
                         break;
                     case EVENT_ENCOUNTER_START:
-                        me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+                        me->SetImmuneToAll(false);
                         DoZoneInCombat();
                         if (Creature* akama = instance->GetCreature(DATA_AKAMA))
                             akama->AI()->DoAction(ACTION_START_ENCOUNTER);
@@ -864,7 +862,7 @@ public:
                         events.ScheduleEvent(EVENT_FLY_TO_RANDOM_PILLAR, Seconds(2), GROUP_PHASE_ALL);
                         break;
                     case EVENT_CHANGE_ORIENTATION:
-                        me->SetFacingTo(_orientation, true);
+                        me->SetFacingTo(_orientation);
                         break;
                     case EVENT_FLY:
                         ChangeOrientation(3.137039f);
@@ -881,7 +879,7 @@ public:
                     case EVENT_FACE_MIDDLE:
                     {
                         float angle = me->GetAngle(IllidanMiddlePoint);
-                        me->SetFacingTo(angle, true);
+                        me->SetFacingTo(angle);
                         break;
                     }
                     case EVENT_EYE_BLAST:
@@ -938,7 +936,7 @@ public:
                         events.ScheduleEvent(EVENT_SCHEDULE_DEMON_SPELLS, Seconds(15));
                         break;
                     case EVENT_SCHEDULE_DEMON_SPELLS:
-                        DoResetThreat();
+                        ResetThreatList();
                         ScheduleEvents(GROUP_PHASE_DEMON, GROUP_PHASE_DEMON);
                         break;
                     case EVENT_DEMON_TEXT:
@@ -947,7 +945,7 @@ public:
                     case EVENT_RESUME_COMBAT_DEMON:
                     {
                         uint8 group = _phase == PHASE_3 ? GROUP_PHASE_3 : GROUP_PHASE_4;
-                        DoResetThreat();
+                        ResetThreatList();
                         ScheduleEvents(group, group);
                         me->LoadEquipment(1, true);
                         break;
@@ -1025,7 +1023,6 @@ public:
         }
 
     private:
-        bool _intro;
         uint8 _minionsCount;
         uint8 _flameCount;
         float _orientation;
@@ -1059,7 +1056,7 @@ public:
             _isTeleportToMinions = false;
         }
 
-        void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
             if (gossipListId == GOSSIP_START_INTRO)
             {
@@ -1078,6 +1075,7 @@ public:
                 me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                 CloseGossipMenuFor(player);
             }
+            return false;
         }
 
         bool CanAIAttack(Unit const* who) const override
@@ -1180,7 +1178,7 @@ public:
                     break;
                 case POINT_MINIONS:
                     _events.SetPhase(PHASE_MINIONS);
-                    me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+                    me->SetImmuneToNPC(false);
                     me->SetReactState(REACT_AGGRESSIVE);
                     if (Creature* illidan = _instance->GetCreature(DATA_ILLIDAN_STORMRAGE))
                         illidan->AI()->DoAction(ACTION_START_MINIONS_WEAVE);
@@ -1252,9 +1250,9 @@ public:
                     case EVENT_AKAMA_DOOR_SUCCESS:
                         DoCastSelf(SPELL_AKAMA_DOOR_CHANNEL);
                         if (Creature* undalo = ObjectAccessor::GetCreature(*me, _spiritOfUdaloGUID))
-                            undalo->CastSpell((Unit*) nullptr, SPELL_DEATHSWORN_DOOR_CHANNEL);
+                            undalo->CastSpell(nullptr, SPELL_DEATHSWORN_DOOR_CHANNEL);
                         if (Creature* olum = ObjectAccessor::GetCreature(*me, _spiritOfOlumGUID))
-                            olum->CastSpell((Unit*) nullptr, SPELL_DEATHSWORN_DOOR_CHANNEL);
+                            olum->CastSpell(nullptr, SPELL_DEATHSWORN_DOOR_CHANNEL);
                         _events.ScheduleEvent(EVENT_AKAMA_START_SOUND, Seconds(5));
                         break;
                     case EVENT_AKAMA_START_SOUND:
@@ -1298,7 +1296,7 @@ public:
                         me->SetEmoteState(EMOTE_STATE_READY1H);
                         break;
                     case EVENT_CHANGE_ORIENTATION:
-                        me->SetFacingTo(_orientation, true);
+                        me->SetFacingTo(_orientation);
                         break;
                     case EVENT_HEALING_POTION:
                         if (me->HealthBelowPct(20))
@@ -1313,7 +1311,7 @@ public:
                         me->SetReactState(REACT_PASSIVE);
                         me->AttackStop();
                         me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
-                        me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+                        me->SetImmuneToNPC(true);
                         _events.ScheduleEvent(EVENT_AKAMA_MINIONS_MOVE, Seconds(4));
                         break;
                     case EVENT_AKAMA_MINIONS_MOVE:
@@ -2072,7 +2070,8 @@ class spell_illidan_flame_blast : public SpellScriptLoader
             void HandleBlaze(SpellEffIndex /*effIndex*/)
             {
                 Unit* target = GetHitUnit();
-                target->CastSpell(target, SPELL_BLAZE_SUMMON, true);
+                if (target->GetTypeId() == TYPEID_PLAYER)
+                    target->CastSpell(target, SPELL_BLAZE_SUMMON, true);
             }
 
             void Register() override
@@ -2305,7 +2304,6 @@ class spell_illidan_find_target : public SpellScriptLoader
                 if (Creature* caster = GetCaster()->ToCreature())
                 {
                     caster->CastSpell(target, SPELL_PARALYZE, true);
-                    caster->ClearUnitState(UNIT_STATE_CASTING);
                     caster->AI()->SetGUID(target->GetGUID(), 0);
                 }
             }

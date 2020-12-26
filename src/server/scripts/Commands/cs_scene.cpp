@@ -40,7 +40,7 @@ public:
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "scene",          rbac::RBAC_PERM_COMMAND_SCENE,              true, NULL,                             "", sceneCommandTable }
+            { "scene",          rbac::RBAC_PERM_COMMAND_SCENE,              true, nullptr,                          "", sceneCommandTable }
         };
         return commandTable;
     }
@@ -89,7 +89,7 @@ public:
             return false;
 
         char const* scenePackageIdStr = strtok((char*)args, " ");
-        char const* flagsStr = strtok(NULL, "");
+        char const* flagsStr = strtok(nullptr, "");
 
         if (!scenePackageIdStr)
             return false;

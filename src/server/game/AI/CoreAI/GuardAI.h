@@ -27,7 +27,7 @@ class TC_GAME_API GuardAI : public ScriptedAI
     public:
         explicit GuardAI(Creature* creature);
 
-        static int Permissible(Creature const* creature);
+        static int32 Permissible(Creature const* creature);
         void UpdateAI(uint32 diff) override;
         bool CanSeeAlways(WorldObject const* obj) override;
 

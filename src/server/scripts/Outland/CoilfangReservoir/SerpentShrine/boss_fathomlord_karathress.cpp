@@ -348,7 +348,7 @@ public:
 
             Creature* Pet = ObjectAccessor::GetCreature(*me, SummonedPet);
             if (Pet && Pet->IsAlive())
-                Pet->DealDamage(Pet, Pet->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                Pet->DealDamage(Pet, Pet->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
 
             SummonedPet.Clear();
 
@@ -668,7 +668,7 @@ public:
                 {
                     Cyclone->SetObjectScale(3.0f);
                     Cyclone->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
-                    Cyclone->setFaction(me->getFaction());
+                    Cyclone->SetFaction(me->GetFaction());
                     Cyclone->CastSpell(Cyclone, SPELL_CYCLONE_CYCLONE, true);
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         Cyclone->AI()->AttackStart(target);
@@ -681,9 +681,9 @@ public:
             if (Heal_Timer <= diff)
             {
                 // It can be cast on any of the mobs
-                Unit* unit = NULL;
+                Unit* unit = nullptr;
 
-                while (unit == NULL || !unit->IsAlive())
+                while (unit == nullptr || !unit->IsAlive())
                     unit = selectAdvisorUnit();
 
                 if (unit && unit->IsAlive())
@@ -698,7 +698,7 @@ public:
 
         Unit* selectAdvisorUnit()
         {
-            Unit* unit = NULL;
+            Unit* unit = nullptr;
             switch (rand32() % 4)
             {
             case 0:

@@ -22,7 +22,6 @@
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
-#include "SpellInfo.h"
 
 enum Yells
 {
@@ -84,7 +83,7 @@ class boss_faerlina : public CreatureScript
 
             void InitializeAI() override
             {
-                if (!me->isDead())
+                if (!me->isDead() && instance->GetBossState(BOSS_FAERLINA) != DONE)
                 {
                     Reset();
                     SummonAdds();
@@ -261,20 +260,19 @@ class achievement_momma_said_knock_you_out : public AchievementCriteriaScript
         }
 };
 
-class at_faerlina_entrance : public AreaTriggerScript
+class at_faerlina_entrance : public OnlyOnceAreaTriggerScript
 {
     public:
-        at_faerlina_entrance() : AreaTriggerScript("at_faerlina_entrance") { }
+        at_faerlina_entrance() : OnlyOnceAreaTriggerScript("at_faerlina_entrance") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
+        bool _OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
         {
             InstanceScript* instance = player->GetInstanceScript();
-            if (!instance || instance->GetData(DATA_HAD_FAERLINA_GREET) || instance->GetBossState(BOSS_FAERLINA) != NOT_STARTED)
+            if (!instance || instance->GetBossState(BOSS_FAERLINA) != NOT_STARTED)
                 return true;
 
             if (Creature* faerlina = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_FAERLINA)))
                 faerlina->AI()->Talk(SAY_GREET);
-            instance->SetData(DATA_HAD_FAERLINA_GREET, 1u);
 
             return true;
         }

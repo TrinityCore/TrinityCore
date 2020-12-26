@@ -23,8 +23,8 @@
 #include "PassiveAI.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "SpellScript.h"
 #include "TemporarySummon.h"
 
 enum Says
@@ -115,10 +115,16 @@ public:
 
     struct boss_teron_gorefiendAI : public BossAI
     {
-        boss_teron_gorefiendAI(Creature* creature) : BossAI(creature, DATA_TERON_GOREFIEND), _intro(false)
+        boss_teron_gorefiendAI(Creature* creature) : BossAI(creature, DATA_TERON_GOREFIEND) { }
+
+        void Reset() override
         {
-            creature->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
-            creature->SetReactState(REACT_PASSIVE);
+            _Reset();
+            if (instance->GetData(DATA_TERON_GOREFIEND_INTRO))
+            {
+                me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
+                me->SetReactState(REACT_PASSIVE);
+            }
         }
 
         void EnterCombat(Unit* /*who*/) override
@@ -142,9 +148,9 @@ public:
 
         void DoAction(int32 action) override
         {
-            if (action == ACTION_START_INTRO && !_intro && me->IsAlive())
+            if (action == ACTION_START_INTRO && me->IsAlive())
             {
-                _intro = true;
+                instance->SetData(DATA_TERON_GOREFIEND_INTRO, 0);
                 Talk(SAY_INTRO);
                 events.SetPhase(PHASE_INTRO);
                 events.ScheduleEvent(EVENT_FINISH_INTRO, Seconds(20));
@@ -193,7 +199,7 @@ public:
                         events.Repeat(Seconds(30), Seconds(40));
                         break;
                     case EVENT_SHADOW_DEATH:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true, -SPELL_SPIRITUAL_VENGEANCE))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true, true, -SPELL_SPIRITUAL_VENGEANCE))
                             DoCast(target, SPELL_SHADOW_OF_DEATH);
                         events.Repeat(Seconds(30), Seconds(35));
                         break;
@@ -216,9 +222,6 @@ public:
 
             DoMeleeAttackIfReady();
         }
-
-    private:
-        bool _intro;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -338,19 +341,16 @@ public:
         {
             if (Creature* teron = _instance->GetCreature(DATA_TERON_GOREFIEND))
             {
-                if (Unit* target = teron->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, -SPELL_SPIRITUAL_VENGEANCE))
-                {
-                    DoResetThreat();
-                    AttackStart(target);
-                    me->AddThreat(target, 1000000.0f);
-                    targetGUID = target->GetGUID();
-                }
+                Unit* target = teron->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, true, -SPELL_SPIRITUAL_VENGEANCE);
                 // He should target Vengeful Spirits only if has no other player available
-                else if (Unit* target = teron->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (!target)
+                    target = teron->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0);
+
+                if (target)
                 {
-                    DoResetThreat();
+                    ResetThreatList();
                     AttackStart(target);
-                    me->AddThreat(target, 1000000.0f);
+                    AddThreat(target, 1000000.0f);
                     targetGUID = target->GetGUID();
                 }
             }
@@ -368,12 +368,12 @@ public:
     }
 };
 
-class at_teron_gorefiend_entrance : public AreaTriggerScript
+class at_teron_gorefiend_entrance : public OnlyOnceAreaTriggerScript
 {
 public:
-    at_teron_gorefiend_entrance() : AreaTriggerScript("at_teron_gorefiend_entrance") { }
+    at_teron_gorefiend_entrance() : OnlyOnceAreaTriggerScript("at_teron_gorefiend_entrance") { }
 
-    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool entered) override
+    bool _OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool entered) override
     {
         if (!entered)
             return true;
@@ -400,13 +400,13 @@ class spell_teron_gorefiend_shadow_of_death : public SpellScriptLoader
             {
                 return ValidateSpellInfo(
                 {
-                     SPELL_SUMMON_SPIRIT,
-                     SPELL_POSSESS_SPIRIT_IMMUNE,
-                     SPELL_SPIRITUAL_VENGEANCE,
-                     SPELL_SUMMON_SKELETRON_1,
-                     SPELL_SUMMON_SKELETRON_2,
-                     SPELL_SUMMON_SKELETRON_3,
-                     SPELL_SUMMON_SKELETRON_4
+                    SPELL_SUMMON_SPIRIT,
+                    SPELL_POSSESS_SPIRIT_IMMUNE,
+                    SPELL_SPIRITUAL_VENGEANCE,
+                    SPELL_SUMMON_SKELETRON_1,
+                    SPELL_SUMMON_SKELETRON_2,
+                    SPELL_SUMMON_SKELETRON_3,
+                    SPELL_SUMMON_SKELETRON_4
                 });
             }
 

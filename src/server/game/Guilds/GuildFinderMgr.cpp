@@ -26,7 +26,7 @@
 #include "Player.h"
 #include "World.h"
 
-MembershipRequest::MembershipRequest() : _availability(0), _classRoles(0), _interests(0), _time(time(NULL))
+MembershipRequest::MembershipRequest() : _availability(0), _classRoles(0), _interests(0), _time(time(nullptr))
 {
 }
 

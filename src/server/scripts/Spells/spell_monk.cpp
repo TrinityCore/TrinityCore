@@ -132,7 +132,7 @@ class spell_monk_provoke : public SpellScript
     {
         if (GetExplTargetUnit()->GetEntry() != BlackOxStatusEntry)
         {
-            SpellInfo const* singleTarget = sSpellMgr->AssertSpellInfo(SPELL_MONK_PROVOKE_SINGLE_TARGET);
+            SpellInfo const* singleTarget = sSpellMgr->AssertSpellInfo(SPELL_MONK_PROVOKE_SINGLE_TARGET, GetCastDifficulty());
             SpellCastResult singleTargetExplicitResult = singleTarget->CheckExplicitTarget(GetCaster(), GetExplTargetUnit());
             if (singleTargetExplicitResult != SPELL_CAST_OK)
                 return singleTargetExplicitResult;

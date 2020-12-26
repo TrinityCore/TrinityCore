@@ -18,7 +18,6 @@
 #include "ScriptMgr.h"
 #include "karazhan.h"
 #include "ScriptedCreature.h"
-#include "karazhan.h"
 
 enum CuratorSays
 {
@@ -103,7 +102,7 @@ public:
             switch (eventId)
             {
                 case EVENT_HATEFUL_BOLT:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 1))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 1))
                         DoCast(target, SPELL_HATEFUL_BOLT);
                     events.Repeat(Seconds(7), Seconds(15));
                     break;

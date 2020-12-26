@@ -590,20 +590,20 @@ void Garrison::SendBlueprintAndSpecializationData()
     _owner->SendDirectMessage(data.Write());
 }
 
-void Garrison::SendBuildingLandmarks(Player* receiver) const
+void Garrison::SendMapData(Player* receiver) const
 {
-    WorldPackets::Garrison::GarrisonBuildingLandmarks buildingLandmarks;
-    buildingLandmarks.Landmarks.reserve(_plots.size());
+    WorldPackets::Garrison::GarrisonMapDataResponse mapData;
+    mapData.Buildings.reserve(_plots.size());
 
     for (auto const& p : _plots)
     {
         Plot const& plot = p.second;
         if (plot.BuildingInfo.PacketInfo)
             if (uint32 garrBuildingPlotInstId = sGarrisonMgr.GetGarrBuildingPlotInst(plot.BuildingInfo.PacketInfo->GarrBuildingID, plot.GarrSiteLevelPlotInstId))
-                buildingLandmarks.Landmarks.emplace_back(garrBuildingPlotInstId, plot.PacketInfo.PlotPos.Pos);
+                mapData.Buildings.emplace_back(garrBuildingPlotInstId, plot.PacketInfo.PlotPos.Pos);
     }
 
-    receiver->SendDirectMessage(buildingLandmarks.Write());
+    receiver->SendDirectMessage(mapData.Write());
 }
 
 Map* Garrison::FindMap() const
@@ -683,7 +683,7 @@ template<class T, void(T::*SecondaryRelocate)(float,float,float,float)>
 T* BuildingSpawnHelper(GameObject* building, ObjectGuid::LowType spawnId, Map* map)
 {
     T* spawn = new T();
-    if (!spawn->LoadFromDB(spawnId, map))
+    if (!spawn->LoadFromDB(spawnId, map, false, false))
     {
         delete spawn;
         return nullptr;

@@ -218,9 +218,9 @@ public:
             switch (type)
             {
                 case EVENT_PYRAMID:
-                    PyramidPhase=data;
+                    PyramidPhase = data;
                     break;
-            };
+            }
         }
 
         virtual void Update(uint32 diff) override

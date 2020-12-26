@@ -100,9 +100,9 @@ void Map::ScriptCommandStart(ScriptInfo const& script, uint32 delay, Object* sou
 }
 
 // Helpers for ScriptProcess method.
-inline Player* Map::_GetScriptPlayerSourceOrTarget(Object* source, Object* target, const ScriptInfo* scriptInfo) const
+inline Player* Map::_GetScriptPlayerSourceOrTarget(Object* source, Object* target, ScriptInfo const* scriptInfo) const
 {
-    Player* player = NULL;
+    Player* player = nullptr;
     if (!source && !target)
         TC_LOG_ERROR("scripts", "%s source and target objects are NULL.", scriptInfo->GetDebugInfo().c_str());
     else
@@ -122,9 +122,9 @@ inline Player* Map::_GetScriptPlayerSourceOrTarget(Object* source, Object* targe
     return player;
 }
 
-inline Creature* Map::_GetScriptCreatureSourceOrTarget(Object* source, Object* target, const ScriptInfo* scriptInfo, bool bReverse) const
+inline Creature* Map::_GetScriptCreatureSourceOrTarget(Object* source, Object* target, ScriptInfo const* scriptInfo, bool bReverse) const
 {
-    Creature* creature = NULL;
+    Creature* creature = nullptr;
     if (!source && !target)
         TC_LOG_ERROR("scripts", "%s source and target objects are NULL.", scriptInfo->GetDebugInfo().c_str());
     else
@@ -155,9 +155,9 @@ inline Creature* Map::_GetScriptCreatureSourceOrTarget(Object* source, Object* t
     return creature;
 }
 
-inline Unit* Map::_GetScriptUnit(Object* obj, bool isSource, const ScriptInfo* scriptInfo) const
+inline Unit* Map::_GetScriptUnit(Object* obj, bool isSource, ScriptInfo const* scriptInfo) const
 {
-    Unit* unit = NULL;
+    Unit* unit = nullptr;
     if (!obj)
         TC_LOG_ERROR("scripts", "%s %s object is NULL.", scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target");
     else if (!obj->isType(TYPEMASK_UNIT))
@@ -175,9 +175,9 @@ inline Unit* Map::_GetScriptUnit(Object* obj, bool isSource, const ScriptInfo* s
     return unit;
 }
 
-inline Player* Map::_GetScriptPlayer(Object* obj, bool isSource, const ScriptInfo* scriptInfo) const
+inline Player* Map::_GetScriptPlayer(Object* obj, bool isSource, ScriptInfo const* scriptInfo) const
 {
-    Player* player = NULL;
+    Player* player = nullptr;
     if (!obj)
         TC_LOG_ERROR("scripts", "%s %s object is NULL.", scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target");
     else
@@ -192,9 +192,9 @@ inline Player* Map::_GetScriptPlayer(Object* obj, bool isSource, const ScriptInf
     return player;
 }
 
-inline Creature* Map::_GetScriptCreature(Object* obj, bool isSource, const ScriptInfo* scriptInfo) const
+inline Creature* Map::_GetScriptCreature(Object* obj, bool isSource, ScriptInfo const* scriptInfo) const
 {
-    Creature* creature = NULL;
+    Creature* creature = nullptr;
     if (!obj)
         TC_LOG_ERROR("scripts", "%s %s object is NULL.", scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target");
     else
@@ -209,9 +209,9 @@ inline Creature* Map::_GetScriptCreature(Object* obj, bool isSource, const Scrip
     return creature;
 }
 
-inline WorldObject* Map::_GetScriptWorldObject(Object* obj, bool isSource, const ScriptInfo* scriptInfo) const
+inline WorldObject* Map::_GetScriptWorldObject(Object* obj, bool isSource, ScriptInfo const* scriptInfo) const
 {
-    WorldObject* pWorldObject = NULL;
+    WorldObject* pWorldObject = nullptr;
     if (!obj)
         TC_LOG_ERROR("scripts", "%s %s object is NULL.",
             scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target");
@@ -227,7 +227,7 @@ inline WorldObject* Map::_GetScriptWorldObject(Object* obj, bool isSource, const
     return pWorldObject;
 }
 
-inline void Map::_ScriptProcessDoor(Object* source, Object* target, const ScriptInfo* scriptInfo) const
+inline void Map::_ScriptProcessDoor(Object* source, Object* target, ScriptInfo const* scriptInfo) const
 {
     bool bOpen = false;
     ObjectGuid::LowType guid = scriptInfo->ToggleDoor.GOGuid;
@@ -304,7 +304,7 @@ void Map::ScriptsProcess()
     {
         ScriptAction const& step = iter->second;
 
-        Object* source = NULL;
+        Object* source = nullptr;
         if (!step.sourceGUID.IsEmpty())
         {
             switch (step.sourceGUID.GetHigh())
@@ -337,7 +337,7 @@ void Map::ScriptsProcess()
             }
         }
 
-        WorldObject* target = NULL;
+        WorldObject* target = nullptr;
         if (!step.targetGUID.IsEmpty())
         {
             switch (step.targetGUID.GetHigh())
@@ -635,30 +635,30 @@ void Map::ScriptsProcess()
                     break;
                 }
 
-                Unit* uSource = NULL;
-                Unit* uTarget = NULL;
+                Unit* uSource = nullptr;
+                Unit* uTarget = nullptr;
                 // source/target cast spell at target/source (script->datalong2: 0: s->t 1: s->s 2: t->t 3: t->s
                 switch (step.script->CastSpell.Flags)
                 {
                     case SF_CASTSPELL_SOURCE_TO_TARGET: // source -> target
-                        uSource = source ? source->ToUnit() : NULL;
-                        uTarget = target ? target->ToUnit() : NULL;
+                        uSource = source ? source->ToUnit() : nullptr;
+                        uTarget = target ? target->ToUnit() : nullptr;
                         break;
                     case SF_CASTSPELL_SOURCE_TO_SOURCE: // source -> source
-                        uSource = source ? source->ToUnit() : NULL;
+                        uSource = source ? source->ToUnit() : nullptr;
                         uTarget = uSource;
                         break;
                     case SF_CASTSPELL_TARGET_TO_TARGET: // target -> target
-                        uSource = target ? target->ToUnit() : NULL;
+                        uSource = target ? target->ToUnit() : nullptr;
                         uTarget = uSource;
                         break;
                     case SF_CASTSPELL_TARGET_TO_SOURCE: // target -> source
-                        uSource = target ? target->ToUnit() : NULL;
-                        uTarget = source ? source->ToUnit() : NULL;
+                        uSource = target ? target->ToUnit() : nullptr;
+                        uTarget = source ? source->ToUnit() : nullptr;
                         break;
                     case SF_CASTSPELL_SEARCH_CREATURE: // source -> creature with entry
-                        uSource = source ? source->ToUnit() : NULL;
-                        uTarget = uSource ? uSource->FindNearestCreature(abs(step.script->CastSpell.CreatureEntry), step.script->CastSpell.SearchRadius) : NULL;
+                        uSource = source ? source->ToUnit() : nullptr;
+                        uTarget = uSource ? uSource->FindNearestCreature(abs(step.script->CastSpell.CreatureEntry), step.script->CastSpell.SearchRadius) : nullptr;
                         break;
                 }
 
@@ -686,7 +686,7 @@ void Map::ScriptsProcess()
                 if (WorldObject* object = _GetScriptWorldObject(source, true, step.script))
                 {
                     // PlaySound.Flags bitmask: 0/1=anyone/target
-                    Player* player = NULL;
+                    Player* player = nullptr;
                     if (step.script->PlaySound.Flags & SF_PLAYSOUND_TARGET_PLAYER)
                     {
                         // Target must be Player.
@@ -715,7 +715,7 @@ void Map::ScriptsProcess()
                             pReceiver->SendNewItem(item, step.script->CreateItem.Amount, false, true);
                     }
                     else
-                        pReceiver->SendEquipError(msg, NULL, NULL, step.script->CreateItem.ItemEntry);
+                        pReceiver->SendEquipError(msg, nullptr, nullptr, step.script->CreateItem.ItemEntry);
                 }
                 break;
 
@@ -749,7 +749,7 @@ void Map::ScriptsProcess()
                     break;
                 }
 
-                Creature* cTarget = NULL;
+                Creature* cTarget = nullptr;
                 auto creatureBounds = _creatureBySpawnIdStore.equal_range(step.script->CallScript.CreatureEntry);
                 if (creatureBounds.first != creatureBounds.second)
                 {
@@ -778,7 +778,7 @@ void Map::ScriptsProcess()
                 }
 
                 // Insert script into schedule but do not start it
-                ScriptsStart(*datamap, step.script->CallScript.ScriptID, cTarget, NULL);
+                ScriptsStart(*datamap, step.script->CallScript.ScriptID, cTarget, nullptr);
                 break;
             }
 

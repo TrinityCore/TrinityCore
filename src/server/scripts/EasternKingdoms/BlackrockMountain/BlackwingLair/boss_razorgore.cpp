@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "blackwing_lair.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
@@ -149,10 +150,6 @@ public:
                         break;
                     case EVENT_CONFLAGRATION:
                         DoCastVictim(SPELL_CONFLAGRATION);
-                        // @todo is this even necessary? pretty sure AI ignores targets with disorient by default
-                        if (me->GetVictim() && me->EnsureVictim()->HasAura(SPELL_CONFLAGRATION))
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
-                                me->TauntApply(target);
                         events.ScheduleEvent(EVENT_CONFLAGRATION, 30000);
                         break;
                 }
@@ -175,20 +172,33 @@ public:
 
 class go_orb_of_domination : public GameObjectScript
 {
-public:
-    go_orb_of_domination() : GameObjectScript("go_orb_of_domination") { }
+    public:
+        go_orb_of_domination() : GameObjectScript("go_orb_of_domination") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
-    {
-        if (InstanceScript* instance = go->GetInstanceScript())
-            if (instance->GetData(DATA_EGG_EVENT) != DONE)
-                if (Creature* razorgore = instance->GetCreature(DATA_RAZORGORE_THE_UNTAMED))
+        struct go_orb_of_dominationAI : public GameObjectAI
+        {
+            go_orb_of_dominationAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
+
+            InstanceScript* instance;
+
+            bool GossipHello(Player* player) override
+            {
+                if (instance->GetData(DATA_EGG_EVENT) != DONE)
                 {
-                    razorgore->Attack(player, true);
-                    player->CastSpell(razorgore, SPELL_MINDCONTROL);
+                    if (Creature* razorgore = instance->GetCreature(DATA_RAZORGORE_THE_UNTAMED))
+                    {
+                        razorgore->Attack(player, true);
+                        player->CastSpell(razorgore, SPELL_MINDCONTROL);
+                    }
                 }
-        return true;
-    }
+                return true;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return GetBlackwingLairAI<go_orb_of_dominationAI>(go);
+        }
 };
 
 class spell_egg_event : public SpellScriptLoader

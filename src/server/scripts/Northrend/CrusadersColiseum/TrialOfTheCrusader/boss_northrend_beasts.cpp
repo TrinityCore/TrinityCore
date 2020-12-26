@@ -22,8 +22,8 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "trial_of_the_crusader.h"
 #include "Vehicle.h"
@@ -204,7 +204,8 @@ class boss_gormok : public CreatureScript
                 {
                     case 0:
                         instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
-                        me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC));
+                        me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
+                        me->SetImmuneToPC(false);
                         me->SetReactState(REACT_AGGRESSIVE);
                         me->SetInCombatWithZone();
                         break;
@@ -613,7 +614,8 @@ struct boss_jormungarAI : public BossAI
                 case EVENT_SUMMON_ACIDMAW:
                     if (Creature* acidmaw = me->SummonCreature(NPC_ACIDMAW, ToCCommonLoc[9].GetPositionX(), ToCCommonLoc[9].GetPositionY(), ToCCommonLoc[9].GetPositionZ(), 5, TEMPSUMMON_MANUAL_DESPAWN))
                     {
-                        acidmaw->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC));
+                        acidmaw->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
+                        acidmaw->SetImmuneToPC(false);
                         acidmaw->SetReactState(REACT_AGGRESSIVE);
                         acidmaw->SetInCombatWithZone();
                         acidmaw->CastSpell(acidmaw, SPELL_EMERGE);
@@ -770,7 +772,8 @@ class boss_dreadscale : public CreatureScript
                 {
                     case 0:
                         instance->DoCloseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
-                        me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC));
+                        me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
+                        me->SetImmuneToPC(false);
                         me->SetReactState(REACT_AGGRESSIVE);
                         me->SetInCombatWithZone();
                         break;
@@ -857,7 +860,7 @@ class spell_gormok_fire_bomb : public SpellScriptLoader
 
             void TriggerFireBomb(SpellEffIndex /*effIndex*/)
             {
-                if (const WorldLocation* pos = GetExplTargetDest())
+                if (WorldLocation const* pos = GetExplTargetDest())
                 {
                     if (Unit* caster = GetCaster())
                         caster->SummonCreature(NPC_FIRE_BOMB, pos->GetPositionX(), pos->GetPositionY(), pos->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 30*IN_MILLISECONDS);
@@ -943,7 +946,8 @@ class boss_icehowl : public CreatureScript
                         break;
                     case 2:
                         instance->DoUseDoorOrButton(instance->GetGuidData(GO_MAIN_GATE_DOOR));
-                        me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC));
+                        me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
+                        me->SetImmuneToPC(false);
                         me->SetReactState(REACT_AGGRESSIVE);
                         me->SetInCombatWithZone();
                         break;
@@ -1106,7 +1110,7 @@ class boss_icehowl : public CreatureScript
                         }
                         if (events.ExecuteEvent() == EVENT_TRAMPLE)
                         {
-                            Map::PlayerList const &lPlayers = me->GetMap()->GetPlayers();
+                            Map::PlayerList const& lPlayers = me->GetMap()->GetPlayers();
                             for (Map::PlayerList::const_iterator itr = lPlayers.begin(); itr != lPlayers.end(); ++itr)
                             {
                                 if (Unit* player = itr->GetSource())
@@ -1338,7 +1342,7 @@ public:
                 slowEff->ChangeAmount(newAmount);
 
                 if (newAmount <= -100 && !GetTarget()->HasAura(SPELL_PARALYSIS))
-                    GetTarget()->CastSpell(GetTarget(), SPELL_PARALYSIS, true, NULL, slowEff, GetCasterGUID());
+                    GetTarget()->CastSpell(GetTarget(), SPELL_PARALYSIS, true, nullptr, slowEff, GetCasterGUID());
             }
         }
 
@@ -1360,7 +1364,7 @@ public:
 class spell_jormungars_snakes_spray : public SpellScriptLoader
 {
 public:
-    spell_jormungars_snakes_spray(const char* name, uint32 spellId) : SpellScriptLoader(name), _spellId(spellId) { }
+    spell_jormungars_snakes_spray(char const* name, uint32 spellId) : SpellScriptLoader(name), _spellId(spellId) { }
 
     class spell_jormungars_snakes_spray_SpellScript : public SpellScript
     {
@@ -1369,6 +1373,7 @@ public:
     public:
         spell_jormungars_snakes_spray_SpellScript(uint32 spellId) : SpellScript(), _spellId(spellId) { }
 
+    private:
         bool Validate(SpellInfo const* /*spell*/) override
         {
             return ValidateSpellInfo({ _spellId });
@@ -1385,7 +1390,6 @@ public:
             OnEffectHitTarget += SpellEffectFn(spell_jormungars_snakes_spray_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
         }
 
-    private:
         uint32 _spellId;
     };
 

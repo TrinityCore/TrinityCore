@@ -1174,19 +1174,18 @@ class TC_PROTO_API ConnectionService : public ServiceBase
   static google::protobuf::ServiceDescriptor const* descriptor();
 
   // client methods --------------------------------------------------
+  void Connect(::bgs::protocol::connection::v1::ConnectRequest const* request, std::function<void(::bgs::protocol::connection::v1::ConnectResponse const*)> responseCallback, bool client = false, bool server = false);
+  void Bind(::bgs::protocol::connection::v1::BindRequest const* request, std::function<void(::bgs::protocol::connection::v1::BindResponse const*)> responseCallback, bool client = false, bool server = false);
+  void Echo(::bgs::protocol::connection::v1::EchoRequest const* request, std::function<void(::bgs::protocol::connection::v1::EchoResponse const*)> responseCallback, bool client = false, bool server = false);
+  void ForceDisconnect(::bgs::protocol::connection::v1::DisconnectNotification const* request, bool client = false, bool server = false);
+  void KeepAlive(::bgs::protocol::NoData const* request, bool client = false, bool server = false);
+  void Encrypt(::bgs::protocol::connection::v1::EncryptRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback, bool client = false, bool server = false);
+  void RequestDisconnect(::bgs::protocol::connection::v1::DisconnectRequest const* request, bool client = false, bool server = false);
 
-  void Connect(::bgs::protocol::connection::v1::ConnectRequest const* request, std::function<void(::bgs::protocol::connection::v1::ConnectResponse const*)> responseCallback);
-  void Bind(::bgs::protocol::connection::v1::BindRequest const* request, std::function<void(::bgs::protocol::connection::v1::BindResponse const*)> responseCallback);
-  void Echo(::bgs::protocol::connection::v1::EchoRequest const* request, std::function<void(::bgs::protocol::connection::v1::EchoResponse const*)> responseCallback);
-  void ForceDisconnect(::bgs::protocol::connection::v1::DisconnectNotification const* request);
-  void KeepAlive(::bgs::protocol::NoData const* request);
-  void Encrypt(::bgs::protocol::connection::v1::EncryptRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback);
-  void RequestDisconnect(::bgs::protocol::connection::v1::DisconnectRequest const* request);
-  // server methods --------------------------------------------------
-
-  void CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) override final;
+  void CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) final;
 
  protected:
+  // server methods --------------------------------------------------
   virtual uint32 HandleConnect(::bgs::protocol::connection::v1::ConnectRequest const* request, ::bgs::protocol::connection::v1::ConnectResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
   virtual uint32 HandleBind(::bgs::protocol::connection::v1::BindRequest const* request, ::bgs::protocol::connection::v1::BindResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
   virtual uint32 HandleEcho(::bgs::protocol::connection::v1::EchoRequest const* request, ::bgs::protocol::connection::v1::EchoResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);

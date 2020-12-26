@@ -64,7 +64,7 @@ bool WorldSession::CanOpenMailBox(ObjectGuid guid)
 
 void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& packet)
 {
-    if (packet.Info.Attachments.size() > MAX_MAIL_ITEMS)        // client limit
+    if (packet.Info.Attachments.size() > MAX_CLIENT_MAIL_ITEMS)        // client limit
     {
         GetPlayer()->SendMailResult(0, MAIL_SEND, MAIL_ERR_TOO_MANY_ATTACHMENTS);
         return;
@@ -534,7 +534,7 @@ void WorldSession::HandleMailTakeMoney(WorldPackets::Mail::MailTakeMoney& packet
     Player* player = _player;
 
     Mail* m = player->GetMail(packet.MailID);
-    if ((!m || m->state == MAIL_STATE_DELETED || m->deliver_time > time(NULL)) ||
+    if ((!m || m->state == MAIL_STATE_DELETED || m->deliver_time > time(nullptr)) ||
         (packet.Money > 0 && m->money != uint64(packet.Money)))
     {
         player->SendMailResult(packet.MailID, MAIL_MONEY_TAKEN, MAIL_ERR_INTERNAL_ERROR);
@@ -581,8 +581,8 @@ void WorldSession::HandleGetMailList(WorldPackets::Mail::MailGetList& packet)
         if (m->state == MAIL_STATE_DELETED || curTime < m->deliver_time)
             continue;
 
-        // max. 50 mails can be sent
-        if (response.Mails.size() < 50)
+        // max. 100 mails can be sent
+        if (response.Mails.size() < 100)
             response.Mails.emplace_back(m, player);
 
         ++response.TotalNumRecords;
@@ -623,7 +623,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPackets::Mail::MailCreateTextIt
     {
         MailTemplateEntry const* mailTemplateEntry = sMailTemplateStore.LookupEntry(m->mailTemplateId);
         ASSERT(mailTemplateEntry);
-        bodyItem->SetText(mailTemplateEntry->Body->Str[GetSessionDbcLocale()]);
+        bodyItem->SetText(mailTemplateEntry->Body[GetSessionDbcLocale()]);
     }
     else
         bodyItem->SetText(m->body);

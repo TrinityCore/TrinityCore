@@ -9,7 +9,7 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 if(WIN32)
- set(BOOST_DEBUG ON)
+  set(BOOST_DEBUG ON)
   if(DEFINED ENV{BOOST_ROOT})
     set(BOOST_ROOT $ENV{BOOST_ROOT})
     if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.0)
@@ -21,7 +21,7 @@ if(WIN32)
         ${BOOST_ROOT}/lib${PLATFORM}-msvc-14.1
         ${BOOST_ROOT}/lib${PLATFORM}-msvc-14.0)
     endif()
-  else()
+  elseif(NOT DEFINED Boost_DIR AND NOT DEFINED BOOST_ROOT AND NOT DEFINED BOOSTROOT)
     message(FATAL_ERROR "No BOOST_ROOT environment variable could be found! Please make sure it is set and the points to your Boost installation.")
   endif()
 
@@ -30,12 +30,12 @@ if(WIN32)
   set(Boost_USE_STATIC_RUNTIME     OFF)
 endif()
 
-include (CheckCXXSourceCompiles)
+if (CMAKE_VERSION VERSION_LESS "3.16.0")
+  # boost's own cmake file adds extra compile definitions that cotire fails to pick up
+  set(Boost_NO_BOOST_CMAKE ON)
+endif()
 
-check_cxx_source_compiles("
-  #include <regex>
-  int main() { std::wregex r(L\".*\"); }"
-  STD_HAS_WORKING_WREGEX)
+include (CheckCXXSourceCompiles)
 
 if (WIN32)
   # On windows the requirements are higher according to the wiki.
@@ -44,11 +44,7 @@ else()
   set(BOOST_REQUIRED_VERSION 1.58)
 endif()
 
-if (STD_HAS_WORKING_WREGEX)
-  find_package(Boost ${BOOST_REQUIRED_VERSION} REQUIRED system filesystem thread program_options iostreams)
-else()
-  find_package(Boost ${BOOST_REQUIRED_VERSION} REQUIRED system filesystem thread program_options iostreams regex)
-endif()
+find_package(Boost ${BOOST_REQUIRED_VERSION} REQUIRED system filesystem thread program_options iostreams regex)
 
 # Find if Boost was compiled in C++03 mode because it requires -DBOOST_NO_CXX11_SCOPED_ENUMS
 
@@ -84,7 +80,8 @@ target_compile_definitions(boost
     -DBOOST_OPTIONAL_USE_OLD_DEFINITION_OF_NONE
     -DBOOST_SERIALIZATION_NO_LIB
     -DBOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE
-    -DBOOST_ASIO_NO_DEPRECATED)
+    -DBOOST_ASIO_NO_DEPRECATED
+    -DBOOST_BIND_NO_PLACEHOLDERS)
 
 if (NOT boost_filesystem_copy_links_without_NO_SCOPED_ENUM)
   target_compile_definitions(boost
@@ -92,8 +89,6 @@ if (NOT boost_filesystem_copy_links_without_NO_SCOPED_ENUM)
       -DBOOST_NO_CXX11_SCOPED_ENUMS)
 endif()
 
-if (NOT STD_HAS_WORKING_WREGEX)
-  target_compile_definitions(boost
-    INTERFACE
-      -DTC_HAS_BROKEN_WSTRING_REGEX)
-endif()
+target_compile_definitions(boost
+  INTERFACE
+    -DTC_HAS_BROKEN_WSTRING_REGEX)

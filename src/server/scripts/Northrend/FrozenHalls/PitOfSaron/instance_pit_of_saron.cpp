@@ -17,7 +17,6 @@
 
 #include "ScriptMgr.h"
 #include "Creature.h"
-#include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "pit_of_saron.h"
@@ -30,9 +29,10 @@ Position const EventLeaderPos2 = {1054.368f, 107.14620f, 628.4467f, 0.0f};
 
 DoorData const Doors[] =
 {
-    {GO_ICE_WALL,   DATA_GARFROST,  DOOR_TYPE_PASSAGE },
-    {GO_ICE_WALL,   DATA_ICK,       DOOR_TYPE_PASSAGE },
-    {GO_HALLS_OF_REFLECTION_PORTCULLIS,   DATA_TYRANNUS,       DOOR_TYPE_PASSAGE },
+    { GO_ICE_WALL,                       DATA_GARFROST,  DOOR_TYPE_PASSAGE },
+    { GO_ICE_WALL,                       DATA_ICK,       DOOR_TYPE_PASSAGE },
+    { GO_HALLS_OF_REFLECTION_PORTCULLIS, DATA_TYRANNUS,  DOOR_TYPE_PASSAGE },
+    { 0,                                 0,              DOOR_TYPE_ROOM    } // END
 };
 
 class instance_pit_of_saron : public InstanceMapScript
@@ -162,28 +162,6 @@ class instance_pit_of_saron : public InstanceMapScript
                         _cavernstriggersVector.push_back(creature->GetGUID());
                         break;
                     default:
-                        break;
-                }
-            }
-
-            void OnGameObjectCreate(GameObject* go) override
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_ICE_WALL:
-                    case GO_HALLS_OF_REFLECTION_PORTCULLIS:
-                        AddDoor(go, true);
-                        break;
-                }
-            }
-
-            void OnGameObjectRemove(GameObject* go) override
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_ICE_WALL:
-                    case GO_HALLS_OF_REFLECTION_PORTCULLIS:
-                        AddDoor(go, false);
                         break;
                 }
             }

@@ -17,7 +17,7 @@
 
 #include "BattlegroundTP.h"
 
-BattlegroundTP::BattlegroundTP()
+BattlegroundTP::BattlegroundTP(BattlegroundTemplate const* battlegroundTemplate) : Battleground(battlegroundTemplate)
 {
 }
 

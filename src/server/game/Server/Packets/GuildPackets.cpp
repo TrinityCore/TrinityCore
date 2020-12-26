@@ -188,7 +188,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildRosterMemberD
     return data;
 }
 
-WorldPacket const* WorldPackets::Guild::GuildEventAwayChange::Write()
+WorldPacket const* WorldPackets::Guild::GuildEventStatusChange::Write()
 {
     _worldPacket << Guid;
     _worldPacket.WriteBit(AFK);
@@ -272,12 +272,10 @@ WorldPacket const* WorldPackets::Guild::GuildEventPlayerLeft::Write()
 {
     _worldPacket.WriteBit(Removed);
     _worldPacket.WriteBits(LeaverName.length(), 6);
-    _worldPacket.FlushBits();
 
     if (Removed)
     {
         _worldPacket.WriteBits(RemoverName.length(), 6);
-        _worldPacket.FlushBits();
 
         _worldPacket << RemoverGUID;
         _worldPacket << uint32(RemoverVirtualRealmAddress);
@@ -523,7 +521,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildRewardItem co
     data << uint32(rewardItem.ItemID);
     data << uint32(rewardItem.Unk4);
     data << uint32(rewardItem.AchievementsRequired.size());
-    data << uint64(rewardItem.RaceMask);
+    data << uint64(rewardItem.RaceMask.RawValue);
     data << int32(rewardItem.MinGuildLevel);
     data << int32(rewardItem.MinGuildRep);
     data << uint64(rewardItem.Cost);

@@ -19,6 +19,7 @@
 #define PetPackets_h__
 
 #include "Packet.h"
+#include "PetDefines.h"
 #include "Position.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
@@ -140,6 +141,16 @@ namespace WorldPackets
             std::vector<PetStableInfo> Pets;
         };
 
+        class PetStableResult final : public ServerPacket
+        {
+        public:
+            PetStableResult() : ServerPacket(SMSG_PET_STABLE_RESULT, 1) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 Result = 0;
+        };
+
         class PetLearnedSpells final : public ServerPacket
         {
         public:
@@ -237,6 +248,27 @@ namespace WorldPackets
             uint16 SpecID = 0;
         };
 
+        class PetActionFeedback final : public ServerPacket
+        {
+        public:
+            PetActionFeedback() : ServerPacket(SMSG_PET_ACTION_FEEDBACK, 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            int32 SpellID = 0;
+            ::PetActionFeedback Response = ::PetActionFeedback::None;
+        };
+
+        class PetActionSound final : public ServerPacket
+        {
+        public:
+            PetActionSound() : ServerPacket(SMSG_PET_ACTION_SOUND, 18 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid UnitGUID;
+            int32 Action = 0;
+        };
     }
 }
 

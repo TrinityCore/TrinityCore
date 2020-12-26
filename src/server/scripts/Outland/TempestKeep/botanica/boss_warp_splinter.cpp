@@ -96,7 +96,6 @@ class npc_warp_splinter_treant : public CreatureScript
 
             void MoveInLineOfSight(Unit* /*who*/) override { }
 
-
             void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim() || !me->GetVictim())
@@ -108,8 +107,8 @@ class npc_warp_splinter_treant : public CreatureScript
                             if (me->IsWithinMeleeRange(Warp))
                             {
                                 int32 CurrentHP_Treant = (int32)me->GetHealth();
-                                Warp->CastCustomSpell(Warp, SPELL_HEAL_FATHER, &CurrentHP_Treant, 0, 0, true, 0, 0, me->GetGUID());
-                                me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                                Warp->CastCustomSpell(Warp, SPELL_HEAL_FATHER, &CurrentHP_Treant, nullptr, nullptr, true, nullptr, nullptr, me->GetGUID());
+                                me->DealDamage(me, me->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
                                 return;
                             }
                             me->GetMotionMaster()->MoveFollow(Warp, 0, 0);

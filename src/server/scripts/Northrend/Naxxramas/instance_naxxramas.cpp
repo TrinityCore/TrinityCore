@@ -17,9 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "AreaBoundary.h"
-#include "Creature.h"
 #include "CreatureAI.h"
-#include "EventMap.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
@@ -43,7 +41,7 @@ BossBoundaryData const boundaries =
     /* Military Quarter */
     { BOSS_RAZUVIOUS, new ZRangeBoundary(260.0f, 287.0f) }, // will not chase onto the upper floor
     { BOSS_GOTHIK, new RectangleBoundary(2627.0f, 2764.0f, -3440.0f, -3275.0f) },
-    { BOSS_HORSEMEN, new ParallelogramBoundary(AreaBoundary::DoublePosition(2646.0, -2959.0), AreaBoundary::DoublePosition(2529.0, -3075.0), AreaBoundary::DoublePosition(2506.0, -2854.0)) },
+    { BOSS_HORSEMEN, new ParallelogramBoundary(Position(2646.0f, -2959.0f), Position(2529.0f, -3075.0f), Position(2506.0f, -2854.0f)) },
 
     /* Construct Quarter */
     { BOSS_PATCHWERK, new CircleBoundary(Position(3204.0f, -3241.4f), 240.0f) },
@@ -51,9 +49,9 @@ BossBoundaryData const boundaries =
     { BOSS_GROBBULUS, new CircleBoundary(Position(3204.0f, -3241.4f), 240.0f) },
     { BOSS_GROBBULUS, new RectangleBoundary(3295.0f, 3340.0f, -3254.2f, -3230.18f, true) }, // entrance door blocker
     { BOSS_GLUTH, new CircleBoundary(Position(3293.0f, -3142.0f), 80.0) },
-    { BOSS_GLUTH, new ParallelogramBoundary(AreaBoundary::DoublePosition(3401.0, -3149.0), AreaBoundary::DoublePosition(3261.0, -3028.0), AreaBoundary::DoublePosition(3320.0, -3267.0)) },
+    { BOSS_GLUTH, new ParallelogramBoundary(Position(3401.0f, -3149.0f), Position(3261.0f, -3028.0f), Position(3320.0f, -3267.0f)) },
     { BOSS_GLUTH, new ZRangeBoundary(285.0f, 310.0f) },
-    { BOSS_THADDIUS, new ParallelogramBoundary(AreaBoundary::DoublePosition(3478.3, -3070.0), AreaBoundary::DoublePosition(3370.0, -2961.5), AreaBoundary::DoublePosition(3580.0, -2961.5)) },
+    { BOSS_THADDIUS, new ParallelogramBoundary(Position(3478.3f, -3070.0f), Position(3370.0f, -2961.5f), Position(3580.0f, -2961.5f)) },
 
     /* Frostwyrm Lair */
     { BOSS_SAPPHIRON, new CircleBoundary(Position(3517.627f, -5255.5f), 110.0) },
@@ -123,9 +121,6 @@ class instance_naxxramas : public InstanceMapScript
                 LoadDoorData(doorData);
                 LoadObjectData(nullptr, objectData);
 
-                hadAnubRekhanGreet      = false;
-                hadFaerlinaGreet        = false;
-                hadThaddiusGreet        = false;
                 hadSapphironBirth       = false;
                 CurrentWingTaunt        = SAY_KELTHUZAD_FIRST_WING_TAUNT;
 
@@ -281,15 +276,6 @@ class instance_naxxramas : public InstanceMapScript
                         if (GameObject* gate = instance->GetGameObject(GothikGateGUID))
                             gate->SetGoState(GOState(value));
                         break;
-                    case DATA_HAD_ANUBREKHAN_GREET:
-                        hadAnubRekhanGreet = (value == 1u);
-                        break;
-                    case DATA_HAD_FAERLINA_GREET:
-                        hadFaerlinaGreet = (value == 1u);
-                        break;
-                    case DATA_HAD_THADDIUS_GREET:
-                        hadThaddiusGreet = (value == 1u);
-                        break;
                     case DATA_HAD_SAPPHIRON_BIRTH:
                         hadSapphironBirth = (value == 1u);
                         break;
@@ -302,12 +288,6 @@ class instance_naxxramas : public InstanceMapScript
             {
                 switch (id)
                 {
-                    case DATA_HAD_ANUBREKHAN_GREET:
-                        return hadAnubRekhanGreet ? 1u : 0u;
-                    case DATA_HAD_FAERLINA_GREET:
-                        return hadFaerlinaGreet ? 1u : 0u;
-                    case DATA_HAD_THADDIUS_GREET:
-                        return hadThaddiusGreet ? 1u : 0u;
                     case DATA_HAD_SAPPHIRON_BIRTH:
                         return hadSapphironBirth ? 1u : 0u;
                     default:
@@ -497,7 +477,7 @@ class instance_naxxramas : public InstanceMapScript
                             std::list<TempSummon*> spawns;
                             instance->SummonCreatureGroup(nextFroggerWave, &spawns);
                             if (!spawns.empty())
-                                (*spawns.begin())->GetMotionMaster()->MovePath(10 * NPC_FROGGER + nextFroggerWave, false);
+                                spawns.front()->GetMotionMaster()->MovePath(10 * NPC_FROGGER + nextFroggerWave, false);
                             events.Repeat(Seconds(1) + Milliseconds(666));
                             nextFroggerWave = (nextFroggerWave+1) % 3;
                             break;
@@ -553,7 +533,7 @@ class instance_naxxramas : public InstanceMapScript
                 return true;
             }
 
-            bool CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target = NULL*/, uint32 /*miscvalue1 = 0*/) override
+            bool CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target = nullptr*/, uint32 /*miscvalue1 = 0*/) override
             {
                 switch (criteria_id)
                 {
@@ -625,9 +605,6 @@ class instance_naxxramas : public InstanceMapScript
             ObjectGuid PortalsGUID[4];
             ObjectGuid KelthuzadDoorGUID;
             ObjectGuid LichKingGUID;
-            bool hadAnubRekhanGreet;
-            bool hadFaerlinaGreet;
-            bool hadThaddiusGreet;
             bool hadSapphironBirth;
             uint8 CurrentWingTaunt;
 

@@ -30,7 +30,7 @@
 #include "WorldSession.h"
 #include "WorldStatePackets.h"
 
-BattlegroundAB::BattlegroundAB()
+BattlegroundAB::BattlegroundAB(BattlegroundTemplate const* battlegroundTemplate) : Battleground(battlegroundTemplate)
 {
     m_IsInformedNearVictory = false;
     m_BuffChange = true;
@@ -375,7 +375,7 @@ void BattlegroundAB::_NodeOccupied(uint8 node, Team team)
     if (capturedNodes >= 4)
         CastSpellOnTeam(SPELL_AB_QUEST_REWARD_4_BASES, team);
 
-    Creature* trigger = !BgCreatures[node + 7] ? GetBGCreature(node + 7) : NULL; // 0-6 spirit guides
+    Creature* trigger = !BgCreatures[node + 7] ? GetBGCreature(node + 7) : nullptr; // 0-6 spirit guides
     if (!trigger)
         trigger = AddCreature(WORLD_TRIGGER, node+7, BG_AB_NodePositions[node], GetTeamIndexByTeamId(team));
 
@@ -384,7 +384,7 @@ void BattlegroundAB::_NodeOccupied(uint8 node, Team team)
     //aura should only apply to players who have accupied the node, set correct faction for trigger
     if (trigger)
     {
-        trigger->setFaction(team == ALLIANCE ? 84 : 83);
+        trigger->SetFaction(team == ALLIANCE ? FACTION_ALLIANCE_GENERIC : FACTION_HORDE_GENERIC);
         trigger->CastSpell(trigger, SPELL_HONORABLE_DEFENDER_25Y, false);
     }
 }
@@ -631,7 +631,7 @@ void BattlegroundAB::EndBattleground(uint32 winner)
     Battleground::EndBattleground(winner);
 }
 
-WorldSafeLocsEntry const* BattlegroundAB::GetClosestGraveYard(Player* player)
+WorldSafeLocsEntry const* BattlegroundAB::GetClosestGraveyard(Player* player)
 {
     TeamId teamIndex = GetTeamIndexByTeamId(player->GetTeam());
 
@@ -641,7 +641,7 @@ WorldSafeLocsEntry const* BattlegroundAB::GetClosestGraveYard(Player* player)
         if (m_Nodes[i] == teamIndex + 3)
             nodes.push_back(i);
 
-    WorldSafeLocsEntry const* good_entry = NULL;
+    WorldSafeLocsEntry const* good_entry = nullptr;
     // If so, select the closest node to place ghost on
     if (!nodes.empty())
     {
@@ -651,7 +651,7 @@ WorldSafeLocsEntry const* BattlegroundAB::GetClosestGraveYard(Player* player)
         float mindist = 999999.0f;
         for (uint8 i = 0; i < nodes.size(); ++i)
         {
-            WorldSafeLocsEntry const*entry = sObjectMgr->GetWorldSafeLoc(BG_AB_GraveyardIds[nodes[i]]);
+            WorldSafeLocsEntry const* entry = sObjectMgr->GetWorldSafeLoc(BG_AB_GraveyardIds[nodes[i]]);
             if (!entry)
                 continue;
             float dist = (entry->Loc.GetPositionX() - plr_x) * (entry->Loc.GetPositionX() - plr_x) + (entry->Loc.GetPositionY() - plr_y) * (entry->Loc.GetPositionY() - plr_y);

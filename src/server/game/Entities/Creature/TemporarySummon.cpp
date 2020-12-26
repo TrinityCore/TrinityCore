@@ -36,12 +36,12 @@ m_timer(0), m_lifetime(0), m_visibleBySummonerOnly(false)
 
 Unit* TempSummon::GetSummoner() const
 {
-    return !m_summonerGUID.IsEmpty() ? ObjectAccessor::GetUnit(*this, m_summonerGUID) : NULL;
+    return !m_summonerGUID.IsEmpty() ? ObjectAccessor::GetUnit(*this, m_summonerGUID) : nullptr;
 }
 
 Creature* TempSummon::GetSummonerCreatureBase() const
 {
-    return !m_summonerGUID.IsEmpty() ? ObjectAccessor::GetCreature(*this, m_summonerGUID) : NULL;
+    return !m_summonerGUID.IsEmpty() ? ObjectAccessor::GetCreature(*this, m_summonerGUID) : nullptr;
 }
 
 void TempSummon::Update(uint32 diff)
@@ -56,6 +56,7 @@ void TempSummon::Update(uint32 diff)
     switch (m_type)
     {
         case TEMPSUMMON_MANUAL_DESPAWN:
+        case TEMPSUMMON_DEAD_DESPAWN:
             break;
         case TEMPSUMMON_TIMED_DESPAWN:
         {
@@ -103,7 +104,7 @@ void TempSummon::Update(uint32 diff)
         case TEMPSUMMON_CORPSE_DESPAWN:
         {
             // if m_deathState is DEAD, CORPSE was skipped
-            if (m_deathState == CORPSE || m_deathState == DEAD)
+            if (m_deathState == CORPSE)
             {
                 UnSummon();
                 return;
@@ -111,19 +112,9 @@ void TempSummon::Update(uint32 diff)
 
             break;
         }
-        case TEMPSUMMON_DEAD_DESPAWN:
-        {
-            if (m_deathState == DEAD)
-            {
-                UnSummon();
-                return;
-            }
-            break;
-        }
         case TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN:
         {
-            // if m_deathState is DEAD, CORPSE was skipped
-            if (m_deathState == CORPSE || m_deathState == DEAD)
+            if (m_deathState == CORPSE)
             {
                 UnSummon();
                 return;
@@ -145,13 +136,6 @@ void TempSummon::Update(uint32 diff)
         }
         case TEMPSUMMON_TIMED_OR_DEAD_DESPAWN:
         {
-            // if m_deathState is DEAD, CORPSE was skipped
-            if (m_deathState == DEAD)
-            {
-                UnSummon();
-                return;
-            }
-
             if (!IsInCombat() && IsAlive())
             {
                 if (m_timer <= diff)
@@ -187,7 +171,7 @@ void TempSummon::InitStats(uint32 duration)
 
     if (owner && IsTrigger() && m_spells[0])
     {
-        setFaction(owner->getFaction());
+        SetFaction(owner->GetFaction());
         SetLevel(owner->getLevel());
         if (owner->GetTypeId() == TYPEID_PLAYER)
             m_ControlledByPlayer = true;
@@ -212,9 +196,9 @@ void TempSummon::InitStats(uint32 duration)
     }
 
     if (m_Properties->Faction)
-        setFaction(m_Properties->Faction);
+        SetFaction(m_Properties->Faction);
     else if (IsVehicle() && owner) // properties should be vehicle
-        setFaction(owner->getFaction());
+        SetFaction(owner->GetFaction());
 }
 
 void TempSummon::InitSummon()
@@ -307,7 +291,7 @@ void Minion::InitStats(uint32 duration)
     SetReactState(REACT_PASSIVE);
 
     SetCreatorGUID(GetOwner()->GetGUID());
-    setFaction(GetOwner()->getFaction());
+    SetFaction(GetOwner()->GetFaction());
 
     GetOwner()->SetMinion(this, true);
 }
@@ -331,7 +315,7 @@ Guardian::Guardian(SummonPropertiesEntry const* properties, Unit* owner, bool is
 {
     memset(m_statFromOwner, 0, sizeof(float)*MAX_STATS);
     m_unitTypeMask |= UNIT_MASK_GUARDIAN;
-    if (properties && (properties->Title == SUMMON_TYPE_PET || properties->Control == SUMMON_CATEGORY_PET))
+    if (properties && (SummonTitle(properties->Title) == SummonTitle::Pet || properties->Control == SUMMON_CATEGORY_PET))
     {
         m_unitTypeMask |= UNIT_MASK_CONTROLABLE_GUARDIAN;
         InitCharmInfo();
@@ -402,6 +386,6 @@ void Puppet::RemoveFromWorld()
     if (!IsInWorld())
         return;
 
-    RemoveCharmedBy(NULL);
+    RemoveCharmedBy(nullptr);
     Minion::RemoveFromWorld();
 }

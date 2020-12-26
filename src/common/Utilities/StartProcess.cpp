@@ -44,7 +44,7 @@ public:
     TCLogSink(T callback)
         : callback_(std::move(callback)) { }
 
-    std::streamsize write(const char* str, std::streamsize size)
+    std::streamsize write(char const* str, std::streamsize size)
     {
         callback_(std::string(str, size));
         return size;

@@ -15,10 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 #include "the_stockade.h"
 
 enum Says
@@ -29,7 +29,7 @@ enum Says
 
     SAY_WARDEN_1   = 0, // Yell - This ends here, Hogger!
     SAY_WARDEN_2   = 1, // Say - He's...he's dead?
-    SAY_WARDEN_3   = 2 // Say - It's simply too good to be true. You couldn't have killed him so easily!
+    SAY_WARDEN_3   = 2  // Say - It's simply too good to be true. You couldn't have killed him so easily!
 };
 
 enum Spells
@@ -51,142 +51,121 @@ enum Events
 
 enum Points
 {
-    POINT_FINISH = 0
+    POINT_FINISH = 1
 };
 
-Position const wardenthelwatermovepos = { 152.019f, 106.198f, -35.1896f, 1.082104f };
-Position const wardenthelwaterpos = { 138.369f, 78.2932f, -33.85627f, 1.082104f };
+Position const wardenThelwaterMovePoint = { 152.019f, 106.198f, -35.1896f, 1.082104f };
+Position const wardenThelwaterSpawnPosition = { 138.369f, 78.2932f, -33.85627f, 1.082104f };
 
-class boss_hogger : public CreatureScript
+// Hogger - 46254
+struct boss_hogger : public BossAI
 {
-public:
-    boss_hogger() : CreatureScript("boss_hogger") { }
+    boss_hogger(Creature* creature) : BossAI(creature, DATA_HOGGER), _hasEnraged(false) { }
 
-    struct boss_hoggerAI : public BossAI
+    void Reset() override
     {
-        boss_hoggerAI(Creature* creature) : BossAI(creature, DATA_HOGGER), _hasEnraged(false) { }
-
-        void EnterCombat(Unit* /*who*/) override
-        {
-            _EnterCombat();
-            Talk(SAY_PULL);
-            events.ScheduleEvent(EVENT_VICIOUS_SLICE, Seconds(3), Seconds(4));
-            events.ScheduleEvent(EVENT_MADDENING_CALL, Seconds(1), Seconds(2));
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            Talk(SAY_DEATH);
-            _JustDied();
-            me->SummonCreature(NPC_WARDEN_THELWATER, wardenthelwaterpos);
-        }
-
-        void JustSummoned(Creature* summon) override
-        {
-            BossAI::JustSummoned(summon);
-            if (summon->GetEntry() == NPC_WARDEN_THELWATER)
-                summon->GetMotionMaster()->MovePoint(POINT_FINISH, wardenthelwatermovepos);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_VICIOUS_SLICE:
-                        DoCastVictim(SPELL_VICIOUS_SLICE);
-                        events.Repeat(Seconds(10), Seconds(14));
-                        break;
-                    case EVENT_MADDENING_CALL:
-                        DoCast(SPELL_MADDENING_CALL);
-                        events.Repeat(Seconds(15), Seconds(20));
-                        break;
-                }
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-            }
-
-            DoMeleeAttackIfReady();
-        }
-
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
-        {
-            if (me->HealthBelowPctDamaged(30, damage) && !_hasEnraged)
-            {
-                _hasEnraged = true;
-                Talk(SAY_ENRAGE);
-                DoCastSelf(SPELL_ENRAGE);
-            }
-        }
-
-    private:
-        bool _hasEnraged;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetStormwindStockadeAI<boss_hoggerAI>(creature);
+        _hasEnraged = false;
     }
+
+    void EnterCombat(Unit* who) override
+    {
+        BossAI::EnterCombat(who);
+
+        Talk(SAY_PULL);
+
+        events.ScheduleEvent(EVENT_VICIOUS_SLICE, 3s, 4s);
+        events.ScheduleEvent(EVENT_MADDENING_CALL, 1s, 2s);
+    }
+
+    void JustDied(Unit* killer) override
+    {
+        BossAI::JustDied(killer);
+
+        Talk(SAY_DEATH);
+
+        me->SummonCreature(NPC_WARDEN_THELWATER, wardenThelwaterSpawnPosition);
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        BossAI::JustSummoned(summon);
+
+        if (summon->GetEntry() == NPC_WARDEN_THELWATER)
+            summon->GetMotionMaster()->MovePoint(POINT_FINISH, wardenThelwaterMovePoint);
+    }
+
+    void ExecuteEvent(uint32 eventId) override
+    {
+        switch (eventId)
+        {
+            case EVENT_VICIOUS_SLICE:
+                DoCastVictim(SPELL_VICIOUS_SLICE);
+                events.Repeat(10s, 14s);
+                break;
+            case EVENT_MADDENING_CALL:
+                DoCast(SPELL_MADDENING_CALL);
+                events.Repeat(15s, 20s);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    {
+        if (me->HealthBelowPctDamaged(30, damage) && !_hasEnraged)
+        {
+            _hasEnraged = true;
+
+            Talk(SAY_ENRAGE);
+            DoCastSelf(SPELL_ENRAGE);
+        }
+    }
+
+private:
+    bool _hasEnraged;
 };
 
-class npc_warden_thelwater : public CreatureScript
+// Warden Thelwater - 46409
+struct npc_warden_thelwater : public ScriptedAI
 {
-public:
-    npc_warden_thelwater() : CreatureScript("npc_warden_thelwater") {}
+    npc_warden_thelwater(Creature* creature) : ScriptedAI(creature) { }
 
-    struct npc_warden_thelwaterAI : public ScriptedAI
+    void MovementInform(uint32 type, uint32 id) override
     {
-        npc_warden_thelwaterAI(Creature* creature) : ScriptedAI(creature) {}
+        if (type != POINT_MOTION_TYPE)
+            return;
 
-        void MovementInform(uint32 type, uint32 id) override
+        if (id == POINT_FINISH)
         {
-            if (type == POINT_MOTION_TYPE && id == POINT_FINISH)
-                _events.ScheduleEvent(EVENT_SAY_WARDEN_1, Seconds(1));
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            _events.Update(diff);
-
-            while (uint32 eventId = _events.ExecuteEvent())
+            scheduler.Schedule(1s, [this](TaskContext /*context*/)
             {
-                switch (eventId)
-                {
-                    case EVENT_SAY_WARDEN_1:
-                        Talk(SAY_WARDEN_1);
-                        _events.ScheduleEvent(EVENT_SAY_WARDEN_2, Seconds(4));
-                        break;
-                    case EVENT_SAY_WARDEN_2:
-                        Talk(SAY_WARDEN_2);
-                        _events.ScheduleEvent(EVENT_SAY_WARDEN_3, Seconds(3));
-                        break;
-                    case EVENT_SAY_WARDEN_3:
-                        Talk(SAY_WARDEN_3);
-                        break;
-                }
-            }
-        }
-    private:
-        EventMap _events;
-    };
+                Talk(SAY_WARDEN_1);
+            });
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetStormwindStockadeAI<npc_warden_thelwaterAI>(creature);
+            scheduler.Schedule(5s, [this](TaskContext /*context*/)
+            {
+                Talk(SAY_WARDEN_2);
+            });
+
+            scheduler.Schedule(8s, [this](TaskContext /*context*/)
+            {
+                Talk(SAY_WARDEN_3);
+            });
+        }
     }
+
+    void UpdateAI(const uint32 diff) override
+    {
+        scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler scheduler;
 };
 
 void AddSC_boss_hogger()
 {
-    new boss_hogger();
-    new npc_warden_thelwater();
+    RegisterStormwindStockadesAI(boss_hogger);
+    RegisterStormwindStockadesAI(npc_warden_thelwater);
 }

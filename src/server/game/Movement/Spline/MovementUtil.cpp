@@ -1,18 +1,18 @@
 /*
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "MoveSplineFlag.h"
@@ -133,13 +133,13 @@ namespace Movement
         STRINGIZE(CanSwimToFlyTrans                  ), // 0x00000400
         STRINGIZE(Unk11                              ), // 0x00000800
         STRINGIZE(CanTurnWhileFalling                ), // 0x00001000
-        STRINGIZE(Unkt13                             ), // 0x00002000
+        STRINGIZE(Unk13                              ), // 0x00002000
         STRINGIZE(IgnoreMovementForces               ), // 0x00004000
         STRINGIZE(Unk15                              ), // 0x00008000
         STRINGIZE(CanDoubleJump                      ), // 0x00010000
         STRINGIZE(DoubleJump                         ), // 0x00020000
         STRINGIZE(Unk18                              ), // 0x00040000
-        STRINGIZE(Unk19                              ), // 0x00080000
+        STRINGIZE(AwaitingLoad                       ), // 0x00080000
         STRINGIZE(InterpolatedMovement               ), // 0x00100000
         STRINGIZE(InterpolatedTurning                ), // 0x00200000
         STRINGIZE(InterpolatedPitching               ), // 0x00400000
@@ -147,38 +147,38 @@ namespace Movement
 
     char const* SplineFlagNames[32] =
     {
-        STRINGIZE(AnimBit1           ), // 0x00000001
-        STRINGIZE(AnimBit2           ), // 0x00000002
-        STRINGIZE(AnimBit3           ), // 0x00000004
-        STRINGIZE(Unknown0           ), // 0x00000008
-        STRINGIZE(FallingSlow        ), // 0x00000010
-        STRINGIZE(Done               ), // 0x00000020
-        STRINGIZE(Falling            ), // 0x00000040           // Not Compartible With Trajectory Movement
-        STRINGIZE(No_Spline          ), // 0x00000080
-        STRINGIZE(Unknown1           ), // 0x00000100
-        STRINGIZE(Flying             ), // 0x00000200           // Smooth Movement(Catmullrom Interpolation Mode), Flying Animation
-        STRINGIZE(OrientationFixed   ), // 0x00000400           // Model Orientation Fixed
-        STRINGIZE(Catmullrom         ), // 0x00000800           // Used Catmullrom Interpolation Mode
-        STRINGIZE(Cyclic             ), // 0x00001000           // Movement By Cycled Spline
-        STRINGIZE(Enter_Cycle        ), // 0x00002000           // Everytime Appears With Cyclic Flag In Monster Move Packet
-        STRINGIZE(Frozen             ), // 0x00004000
-        STRINGIZE(TransportEnter     ), // 0x00008000
-        STRINGIZE(TransportExit      ), // 0x00010000
-        STRINGIZE(Unknown2           ), // 0x00020000
-        STRINGIZE(Unknown3           ), // 0x00040000
-        STRINGIZE(Backward           ), // 0x00080000           // Appears With Runmode Flag, Nodes ), // 1, Handles Orientation
-        STRINGIZE(SmoothGroundPath   ), // 0x00100000
-        STRINGIZE(CanSwim            ), // 0x00200000
-        STRINGIZE(UncompressedPath   ), // 0x00400000
-        STRINGIZE(Unknown4           ), // 0x00800000
-        STRINGIZE(Unknown5           ), // 0x01000000
-        STRINGIZE(Animation          ), // 0x02000000           // Animationid (0...3), Uint32 Time, Not Compartible With Trajectory And Fall Movement
-        STRINGIZE(Parabolic          ), // 0x04000000           // Not Compartible With Fall Movement
-        STRINGIZE(FadeObject         ), // 0x08000000
-        STRINGIZE(Steering           ), // 0x10000000
-        STRINGIZE(Unknown8           ), // 0x20000000
-        STRINGIZE(Unknown9           ), // 0x40000000
-        STRINGIZE(Unknown10          ), // 0x80000000
+        STRINGIZE(Unknown_0x1       ), // 0x00000001
+        STRINGIZE(Unknown_0x2       ), // 0x00000002
+        STRINGIZE(Unknown_0x4       ), // 0x00000004
+        STRINGIZE(Unknown_0x8       ), // 0x00000008
+        STRINGIZE(FallingSlow       ), // 0x00000010
+        STRINGIZE(Done              ), // 0x00000020
+        STRINGIZE(Falling           ), // 0x00000040           // Not Compartible With Trajectory Movement
+        STRINGIZE(No_Spline         ), // 0x00000080
+        STRINGIZE(Unknown_0x100     ), // 0x00000100
+        STRINGIZE(Flying            ), // 0x00000200           // Smooth Movement(Catmullrom Interpolation Mode), Flying Animation
+        STRINGIZE(OrientationFixed  ), // 0x00000400           // Model Orientation Fixed
+        STRINGIZE(Catmullrom        ), // 0x00000800           // Used Catmullrom Interpolation Mode
+        STRINGIZE(Cyclic            ), // 0x00001000           // Movement By Cycled Spline
+        STRINGIZE(Enter_Cycle       ), // 0x00002000           // Everytime Appears With Cyclic Flag In Monster Move Packet
+        STRINGIZE(Frozen            ), // 0x00004000
+        STRINGIZE(TransportEnter    ), // 0x00008000
+        STRINGIZE(TransportExit     ), // 0x00010000
+        STRINGIZE(Unknown_0x20000   ), // 0x00020000
+        STRINGIZE(Unknown_0x40000   ), // 0x00040000
+        STRINGIZE(Backward          ), // 0x00080000           // Appears With Runmode Flag, Nodes ), // 1, Handles Orientation
+        STRINGIZE(SmoothGroundPath  ), // 0x00100000
+        STRINGIZE(CanSwim           ), // 0x00200000
+        STRINGIZE(UncompressedPath  ), // 0x00400000
+        STRINGIZE(Unknown_0x800000  ), // 0x00800000
+        STRINGIZE(Unknown_0x1000000 ), // 0x01000000
+        STRINGIZE(Animation         ), // 0x02000000           // Animationid (0...3), Uint32 Time, Not Compartible With Trajectory And Fall Movement
+        STRINGIZE(Parabolic         ), // 0x04000000           // Not Compartible With Fall Movement
+        STRINGIZE(FadeObject        ), // 0x08000000
+        STRINGIZE(Steering          ), // 0x10000000
+        STRINGIZE(Unknown_0x20000000), // 0x20000000
+        STRINGIZE(Unknown_0x40000000), // 0x40000000
+        STRINGIZE(Unknown_0x80000000), // 0x80000000
     };
 
     template<class Flags, int N>
@@ -186,7 +186,7 @@ namespace Movement
     {
         for (int i = 0; i < N; ++i)
         {
-            if ((t & Flags(1 << i)) && names[i] != NULL)
+            if ((t & Flags(1 << i)) && names[i] != nullptr)
                 str.append(" ").append(names[i]);
         }
     }

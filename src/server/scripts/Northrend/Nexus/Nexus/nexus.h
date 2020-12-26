@@ -65,8 +65,8 @@ enum NEXGameObjectIds
     GO_TELESTRAS_CONTAINMET_SPHERE    = 188526
 };
 
-template<typename AI>
-inline AI* GetNexusAI(Creature* obj)
+template <class AI, class T>
+inline AI* GetNexusAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, NexusScriptName);
 }

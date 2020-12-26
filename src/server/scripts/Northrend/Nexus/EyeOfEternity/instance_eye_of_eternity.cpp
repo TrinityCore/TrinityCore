@@ -175,26 +175,20 @@ public:
         {
             if (Creature* malygos = instance->GetCreature(malygosGUID))
             {
-                ThreatContainer::StorageType const& threatList = malygos->getThreatManager().getThreatList();
                 for (GuidList::const_iterator itr_vortex = vortexTriggers.begin(); itr_vortex != vortexTriggers.end(); ++itr_vortex)
                 {
-                    if (threatList.empty())
-                        return;
-
                     uint8 counter = 0;
                     if (Creature* trigger = instance->GetCreature(*itr_vortex))
                     {
                         // each trigger have to cast the spell to 5 players.
-                        for (ThreatContainer::StorageType::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
+                        for (auto* ref : malygos->GetThreatManager().GetUnsortedThreatList())
                         {
                             if (counter >= 5)
                                 break;
 
-                            if (Unit* target = (*itr)->getTarget())
+                            if (Player* player = ref->GetVictim()->ToPlayer())
                             {
-                                Player* player = target->ToPlayer();
-
-                                if (!player || player->IsGameMaster() || player->HasAura(SPELL_VORTEX_4))
+                                if (player->IsGameMaster() || player->HasAura(SPELL_VORTEX_4))
                                     continue;
 
                                 player->CastSpell(trigger, SPELL_VORTEX_4, true);

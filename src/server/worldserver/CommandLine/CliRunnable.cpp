@@ -38,10 +38,10 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 
-char* command_finder(const char* text, int state)
+char* command_finder(char const* text, int state)
 {
     static size_t idx, len;
-    const char* ret;
+    char const* ret;
     std::vector<ChatCommand> const& cmd = ChatHandler::getCommandTable();
 
     if (!state)
@@ -65,12 +65,12 @@ char* command_finder(const char* text, int state)
             return strdup(ret);
     }
 
-    return ((char*)NULL);
+    return nullptr;
 }
 
-char** cli_completion(const char* text, int start, int /*end*/)
+char** cli_completion(char const* text, int start, int /*end*/)
 {
-    char** matches = NULL;
+    char** matches = nullptr;
 
     if (start)
         rl_bind_key('\t', rl_abort);
@@ -88,7 +88,7 @@ int cli_hook_func()
 
 #endif
 
-void utf8print(void* /*arg*/, const char* str)
+void utf8print(void* /*arg*/, char const* str)
 {
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
     wchar_t wtemp_buf[6000];
@@ -121,7 +121,7 @@ int kb_hit_return()
     tv.tv_usec = 0;
     FD_ZERO(&fds);
     FD_SET(STDIN_FILENO, &fds);
-    select(STDIN_FILENO+1, &fds, NULL, NULL, &tv);
+    select(STDIN_FILENO+1, &fds, nullptr, nullptr, &tv);
     return FD_ISSET(STDIN_FILENO, &fds);
 }
 #endif
@@ -158,7 +158,7 @@ void CliThread()
         rl_bind_key('\t', rl_complete);
 #endif
 
-        if (command_str != NULL)
+        if (command_str != nullptr)
         {
             for (int x=0; command_str[x]; ++x)
                 if (command_str[x] == '\r' || command_str[x] == '\n')
@@ -189,7 +189,7 @@ void CliThread()
             }
 
             fflush(stdout);
-            sWorld->QueueCliCommand(new CliCommandHolder(NULL, command.c_str(), &utf8print, &commandFinished));
+            sWorld->QueueCliCommand(new CliCommandHolder(nullptr, command.c_str(), &utf8print, &commandFinished));
 #if TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
             add_history(command.c_str());
             free(command_str);

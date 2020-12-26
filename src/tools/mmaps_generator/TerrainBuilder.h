@@ -82,9 +82,9 @@ namespace MMAP
 
             void loadMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData &meshData);
             bool loadVMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData &meshData);
-            void loadOffMeshConnections(uint32 mapID, uint32 tileX, uint32 tileY, MeshData &meshData, const char* offMeshFilePath);
+            void loadOffMeshConnections(uint32 mapID, uint32 tileX, uint32 tileY, MeshData& meshData, char const* offMeshFilePath);
 
-            bool usesLiquids() { return !m_skipLiquid; }
+            bool usesLiquids() const { return !m_skipLiquid; }
 
             // vert and triangle methods
             static void transform(std::vector<G3D::Vector3> &original, std::vector<G3D::Vector3> &transformed,
@@ -122,8 +122,8 @@ namespace MMAP
             uint8 getLiquidType(int square, const uint8 liquid_type[16][16]);
 
             // hide parameterless and copy constructor
-            TerrainBuilder();
-            TerrainBuilder(const TerrainBuilder &tb);
+            TerrainBuilder() = delete;
+            TerrainBuilder(TerrainBuilder const& tb) = delete;
     };
 }
 

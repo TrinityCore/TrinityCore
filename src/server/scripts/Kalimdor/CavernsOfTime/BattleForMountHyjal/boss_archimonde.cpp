@@ -141,7 +141,7 @@ public:
         {
             if (CheckTimer <= diff)
             {
-                if (Unit* Archimonde = ObjectAccessor::GetUnit(*me, ArchimondeGUID))
+                if (Creature* Archimonde = ObjectAccessor::GetCreature(*me, ArchimondeGUID))
                 {
                     if (Archimonde->HealthBelowPct(2) || !Archimonde->IsAlive())
                         DoCast(me, SPELL_DENOUEMENT_WISP);
@@ -390,7 +390,7 @@ public:
                     DoSpawnCreature(NPC_ANCIENT_WISP, float(rand32() % 40), float(rand32() % 40), 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                     ++WispCount;
                     if (WispCount >= 30)
-                        me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                        me->DealDamage(me, me->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
                     events.ScheduleEvent(EVENT_SUMMON_WHISP, 1500);
                     break;
                 default:
@@ -473,7 +473,7 @@ public:
                     break;
                 case NPC_DOOMFIRE:
                     summoned->CastSpell(summoned, SPELL_DOOMFIRE_SPAWN, false);
-                    summoned->CastSpell(summoned, SPELL_DOOMFIRE, true, 0, 0, me->GetGUID());
+                    summoned->CastSpell(summoned, SPELL_DOOMFIRE, true, nullptr, nullptr, me->GetGUID());
 
                     if (Unit* DoomfireSpirit = ObjectAccessor::GetUnit(*me, DoomfireSpiritGUID))
                     {

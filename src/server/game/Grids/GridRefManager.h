@@ -33,6 +33,6 @@ class GridRefManager : public RefManager<GridRefManager<OBJECT>, OBJECT>
         GridReference<OBJECT>* getLast() { return (GridReference<OBJECT>*)RefManager<GridRefManager<OBJECT>, OBJECT>::getLast(); }
 
         iterator begin() { return iterator(getFirst()); }
-        iterator end() { return iterator(NULL); }
+        iterator end() { return iterator(nullptr); }
 };
 #endif

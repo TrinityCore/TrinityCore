@@ -45,7 +45,7 @@ public:
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "event", rbac::RBAC_PERM_COMMAND_EVENT, false, NULL, "", eventCommandTable },
+            { "event", rbac::RBAC_PERM_COMMAND_EVENT, false, nullptr, "", eventCommandTable },
         };
         return commandTable;
     }
@@ -116,8 +116,8 @@ public:
         std::string endTimeStr = TimeToTimestampStr(eventData.end);
 
         uint32 delay = sGameEventMgr->NextCheck(eventId);
-        time_t nextTime = time(NULL) + delay;
-        std::string nextStr = nextTime >= eventData.start && nextTime < eventData.end ? TimeToTimestampStr(time(NULL) + delay) : "-";
+        time_t nextTime = time(nullptr) + delay;
+        std::string nextStr = nextTime >= eventData.start && nextTime < eventData.end ? TimeToTimestampStr(time(nullptr) + delay) : "-";
 
         std::string occurenceStr = secsToTimeString(eventData.occurence * MINUTE);
         std::string lengthStr = secsToTimeString(eventData.length * MINUTE);

@@ -39,8 +39,17 @@ public:
 
     std::vector<ChatCommand> GetCommands() const override
     {
+        static std::vector<ChatCommand> groupSetCommandTable =
+        {
+            { "leader",     rbac::RBAC_PERM_COMMAND_GROUP_LEADER,     false, &HandleGroupLeaderCommand,     "" },
+            { "assistant",  rbac::RBAC_PERM_COMMAND_GROUP_ASSISTANT,  false, &HandleGroupAssistantCommand,  "" },
+            { "maintank",   rbac::RBAC_PERM_COMMAND_GROUP_MAINTANK,   false, &HandleGroupMainTankCommand,   "" },
+            { "mainassist", rbac::RBAC_PERM_COMMAND_GROUP_MAINASSIST, false, &HandleGroupMainAssistCommand, "" },
+        };
+
         static std::vector<ChatCommand> groupCommandTable =
         {
+            { "set",     rbac::RBAC_PERM_COMMAND_GROUP_SET,     false, nullptr,                    "", groupSetCommandTable },
             { "leader",  rbac::RBAC_PERM_COMMAND_GROUP_LEADER,  false, &HandleGroupLeaderCommand,  "" },
             { "disband", rbac::RBAC_PERM_COMMAND_GROUP_DISBAND, false, &HandleGroupDisbandCommand, "" },
             { "remove",  rbac::RBAC_PERM_COMMAND_GROUP_REMOVE,  false, &HandleGroupRemoveCommand,  "" },
@@ -51,7 +60,7 @@ public:
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "group", rbac::RBAC_PERM_COMMAND_GROUP, false, NULL, "", groupCommandTable },
+            { "group", rbac::RBAC_PERM_COMMAND_GROUP, false, nullptr, "", groupCommandTable },
         };
         return commandTable;
     }
@@ -74,27 +83,28 @@ public:
         if (!group)
         {
             handler->PSendSysMessage(LANG_NOT_IN_GROUP, nameLink.c_str());
-            handler->SetSentErrorMessage(true);
             return false;
         }
 
         Player* gmPlayer = handler->GetSession()->GetPlayer();
-        Group* gmGroup = gmPlayer->GetGroup();
         Map* gmMap = gmPlayer->GetMap();
         bool toInstance = gmMap->Instanceable();
+        bool onlyLocalSummon = false;
 
-        // we are in instance, and can summon only player in our group with us as lead
-        if (toInstance && (
-            !gmGroup || group->GetLeaderGUID() != gmPlayer->GetGUID() ||
-            gmGroup->GetLeaderGUID() != gmPlayer->GetGUID()))
-            // the last check is a bit excessive, but let it be, just in case
+        // make sure people end up on our instance of the map, disallow far summon if intended destination is different from actual destination
+        // note: we could probably relax this further by checking permanent saves and the like, but eh
+        // :close enough:
+        if (toInstance)
         {
-            handler->SendSysMessage(LANG_CANNOT_SUMMON_TO_INST);
-            handler->SetSentErrorMessage(true);
-            return false;
+            Player* groupLeader = ObjectAccessor::GetPlayer(gmMap, group->GetLeaderGUID());
+            if (!groupLeader || (groupLeader->GetMapId() != gmMap->GetId()) || (groupLeader->GetInstanceId() != gmMap->GetInstanceId()))
+            {
+                handler->SendSysMessage(LANG_PARTIAL_GROUP_SUMMON);
+                onlyLocalSummon = true;
+            }
         }
 
-        for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+        for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
         {
             Player* player = itr->GetSource();
 
@@ -103,27 +113,28 @@ public:
 
             // check online security
             if (handler->HasLowerSecurity(player, ObjectGuid::Empty))
-                return false;
+                continue;
 
             std::string plNameLink = handler->GetNameLink(player);
 
             if (player->IsBeingTeleported())
             {
                 handler->PSendSysMessage(LANG_IS_TELEPORTED, plNameLink.c_str());
-                handler->SetSentErrorMessage(true);
-                return false;
+                continue;
             }
 
             if (toInstance)
             {
                 Map* playerMap = player->GetMap();
 
-                if (playerMap->Instanceable() && playerMap->GetInstanceId() != gmMap->GetInstanceId())
+                if (
+                    (onlyLocalSummon || (playerMap->Instanceable() && playerMap->GetId() == gmMap->GetId())) && // either no far summon allowed or we're in the same map as player (no map switch)
+                    ((playerMap->GetId() != gmMap->GetId()) || (playerMap->GetInstanceId() != gmMap->GetInstanceId())) // so we need to be in the same map and instance of the map, otherwise skip
+                    )
                 {
                     // cannot summon from instance to instance
-                    handler->PSendSysMessage(LANG_CANNOT_SUMMON_TO_INST, plNameLink.c_str());
-                    handler->SetSentErrorMessage(true);
-                    return false;
+                    handler->PSendSysMessage(LANG_CANNOT_SUMMON_INST_INST, plNameLink.c_str());
+                    continue;
                 }
             }
 
@@ -143,7 +154,7 @@ public:
 
             // before GM
             float x, y, z;
-            gmPlayer->GetClosePoint(x, y, z, player->GetObjectSize());
+            gmPlayer->GetClosePoint(x, y, z, player->GetCombatReach());
             player->TeleportTo(gmPlayer->GetMapId(), x, y, z, player->GetOrientation());
         }
 
@@ -152,8 +163,8 @@ public:
 
     static bool HandleGroupLeaderCommand(ChatHandler* handler, char const* args)
     {
-        Player* player = NULL;
-        Group* group = NULL;
+        Player* player = nullptr;
+        Group* group = nullptr;
         ObjectGuid guid;
         char* nameStr = strtok((char*)args, " ");
 
@@ -176,10 +187,69 @@ public:
         return true;
     }
 
+    static bool GroupFlagCommand(ChatHandler* handler, char const* args, GroupMemberFlags flag, const char* what)
+    {
+        Player* player = nullptr;
+        Group* group = nullptr;
+        ObjectGuid guid;
+        char* nameStr = strtok((char*)args, " ");
+
+        if (!handler->GetPlayerGroupAndGUIDByName(nameStr, player, group, guid))
+            return false;
+
+        if (!group)
+        {
+            handler->PSendSysMessage(LANG_GROUP_NOT_IN_GROUP, player->GetName().c_str());
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (!group->isRaidGroup())
+        {
+            handler->PSendSysMessage(LANG_GROUP_NOT_IN_RAID_GROUP, player->GetName().c_str());
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (flag == MEMBER_FLAG_ASSISTANT && group->IsLeader(guid))
+        {
+            handler->PSendSysMessage(LANG_LEADER_CANNOT_BE_ASSISTANT, player->GetName().c_str());
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (group->GetMemberFlags(guid) & flag)
+        {
+            group->SetGroupMemberFlag(guid, false, flag);
+            handler->PSendSysMessage(LANG_GROUP_ROLE_CHANGED, player->GetName().c_str(), "no longer", what);
+        }
+        else
+        {
+            group->SetGroupMemberFlag(guid, true, flag);
+            handler->PSendSysMessage(LANG_GROUP_ROLE_CHANGED, player->GetName().c_str(), "now", what);
+        }
+        return true;
+    }
+
+    static bool HandleGroupAssistantCommand(ChatHandler* handler, char const* args)
+    {
+        return GroupFlagCommand(handler, args, MEMBER_FLAG_ASSISTANT, "Assistant");
+    }
+
+    static bool HandleGroupMainTankCommand(ChatHandler* handler, char const* args)
+    {
+        return GroupFlagCommand(handler, args, MEMBER_FLAG_MAINTANK, "Main Tank");
+    }
+
+    static bool HandleGroupMainAssistCommand(ChatHandler* handler, char const* args)
+    {
+        return GroupFlagCommand(handler, args, MEMBER_FLAG_MAINASSIST, "Main Assist");
+    }
+
     static bool HandleGroupDisbandCommand(ChatHandler* handler, char const* args)
     {
-        Player* player = NULL;
-        Group* group = NULL;
+        Player* player = nullptr;
+        Group* group = nullptr;
         ObjectGuid guid;
         char* nameStr = strtok((char*)args, " ");
 
@@ -199,8 +269,8 @@ public:
 
     static bool HandleGroupRemoveCommand(ChatHandler* handler, char const* args)
     {
-        Player* player = NULL;
-        Group* group = NULL;
+        Player* player = nullptr;
+        Group* group = nullptr;
         ObjectGuid guid;
         char* nameStr = strtok((char*)args, " ");
 
@@ -223,14 +293,14 @@ public:
         if (!*args)
             return false;
 
-        Player* playerSource = NULL;
-        Player* playerTarget = NULL;
-        Group* groupSource = NULL;
-        Group* groupTarget = NULL;
+        Player* playerSource = nullptr;
+        Player* playerTarget = nullptr;
+        Group* groupSource = nullptr;
+        Group* groupTarget = nullptr;
         ObjectGuid guidSource;
         ObjectGuid guidTarget;
         char* nameplgrStr = strtok((char*)args, " ");
-        char* nameplStr = strtok(NULL, " ");
+        char* nameplStr = strtok(nullptr, " ");
 
         if (!handler->GetPlayerGroupAndGUIDByName(nameplgrStr, playerSource, groupSource, guidSource, true))
             return false;
@@ -272,7 +342,7 @@ public:
         ObjectGuid guidTarget;
         std::string nameTarget;
         std::string zoneName;
-        const char* onlineState = "";
+        char const* onlineState = "";
 
         // Parse the guid to uint32...
         ObjectGuid parseGUID = ObjectGuid::Create<HighGuid::Player>(strtoull(args, nullptr, 10));
@@ -288,7 +358,7 @@ public:
             return false;
 
         // Next, we need a group. So we define a group variable.
-        Group* groupTarget = NULL;
+        Group* groupTarget = nullptr;
 
         // We try to extract a group from an online player.
         if (playerTarget)
@@ -361,7 +431,7 @@ public:
                 {
                     AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->ParentAreaID);
                     if (zone)
-                        zoneName = zone->AreaName->Str[handler->GetSessionDbcLocale()];
+                        zoneName = zone->AreaName[handler->GetSessionDbcLocale()];
                 }
             }
             else

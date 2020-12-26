@@ -23,11 +23,10 @@ SDCategory: Karazhan
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "GameObject.h"
-#include "InstanceScript.h"
-#include "Item.h"
 #include "karazhan.h"
-#include "Map.h"
+#include "InstanceScript.h"
+#include "GameObject.h"
+#include "Item.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
@@ -205,18 +204,12 @@ public:
         void FlameWreathEffect()
         {
             std::vector<Unit*> targets;
-            ThreatContainer::StorageType const &t_list = me->getThreatManager().getThreatList();
-
-            if (t_list.empty())
-                return;
-
             //store the threat list in a different container
-            for (ThreatContainer::StorageType::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+            for (auto* ref : me->GetThreatManager().GetUnsortedThreatList())
             {
-                Unit* target = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid());
-                //only on alive players
-                if (target && target->IsAlive() && target->GetTypeId() == TYPEID_PLAYER)
-                    targets.push_back(target);
+                Unit* target = ref->GetVictim();
+                if (ref->GetVictim()->GetTypeId() == TYPEID_PLAYER && ref->GetVictim()->IsAlive())
+                        targets.push_back(target);
             }
 
             //cut down to size if we have more than 3 targets
@@ -428,7 +421,7 @@ public:
 
                         if (Creature* pSpawn = me->SummonCreature(CREATURE_ARAN_BLIZZARD, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 25000))
                         {
-                            pSpawn->setFaction(me->getFaction());
+                            pSpawn->SetFaction(me->GetFaction());
                             pSpawn->CastSpell(pSpawn, SPELL_CIRCULAR_BLIZZARD, false);
                         }
                         break;
@@ -446,7 +439,7 @@ public:
                     if (Creature* unit = me->SummonCreature(CREATURE_WATER_ELEMENTAL, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 90000))
                     {
                         unit->Attack(me->GetVictim(), true);
-                        unit->setFaction(me->getFaction());
+                        unit->SetFaction(me->GetFaction());
                     }
                 }
 
@@ -460,7 +453,7 @@ public:
                     if (Creature* unit = me->SummonCreature(CREATURE_SHADOW_OF_ARAN, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
                     {
                         unit->Attack(me->GetVictim(), true);
-                        unit->setFaction(me->getFaction());
+                        unit->SetFaction(me->GetFaction());
                     }
                 }
 
@@ -486,7 +479,7 @@ public:
                         Unit* unit = ObjectAccessor::GetUnit(*me, FlameWreathTarget[i]);
                         if (unit && !unit->IsWithinDist2d(FWTargPosX[i], FWTargPosY[i], 3))
                         {
-                            unit->CastSpell(unit, 20476, true, 0, 0, me->GetGUID());
+                            unit->CastSpell(unit, 20476, true, nullptr, nullptr, me->GetGUID());
                             unit->CastSpell(unit, 11027, true);
                             FlameWreathTarget[i].Clear();
                         }

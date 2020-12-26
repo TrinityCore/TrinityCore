@@ -31,35 +31,10 @@ class PlayerAI;
 class WorldObject;
 struct Position;
 
-typedef std::set<AreaBoundary const*> CreatureBoundary;
+typedef std::vector<AreaBoundary const*> CreatureBoundary;
 
 #define TIME_INTERVAL_LOOK   5000
 #define VISIBILITY_RANGE    10000
-
-//Spell targets used by SelectSpell
-enum SelectTargetType
-{
-    SELECT_TARGET_DONTCARE = 0,                             //All target types allowed
-
-    SELECT_TARGET_SELF,                                     //Only Self casting
-
-    SELECT_TARGET_SINGLE_ENEMY,                             //Only Single Enemy
-    SELECT_TARGET_AOE_ENEMY,                                //Only AoE Enemy
-    SELECT_TARGET_ANY_ENEMY,                                //AoE or Single Enemy
-
-    SELECT_TARGET_SINGLE_FRIEND,                            //Only Single Friend
-    SELECT_TARGET_AOE_FRIEND,                               //Only AoE Friend
-    SELECT_TARGET_ANY_FRIEND                                //AoE or Single Friend
-};
-
-//Spell Effects used by SelectSpell
-enum SelectEffect
-{
-    SELECT_EFFECT_DONTCARE = 0,                             //All spell effects allowed
-    SELECT_EFFECT_DAMAGE,                                   //Spell does damage
-    SELECT_EFFECT_HEALING,                                  //Spell does healing
-    SELECT_EFFECT_AURA                                      //Spell applies an aura
-};
 
 enum SCEquip
 {
@@ -82,7 +57,7 @@ class TC_GAME_API CreatureAI : public UnitAI
         Creature* DoSummonFlyer(uint32 entry, WorldObject* obj, float flightZ, float radius = 5.0f, uint32 despawnTime = 30000, TempSummonType summonType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
 
         bool CheckBoundary(Position const* who = nullptr) const;
-        void SetBoundary(CreatureBoundary const* boundary);
+
     public:
         enum EvadeReason
         {
@@ -110,7 +85,7 @@ class TC_GAME_API CreatureAI : public UnitAI
         // Called for reaction at stopping attack at no attackers or targets
         virtual void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER);
 
-        // Called for reaction at enter to combat if not in combat yet (enemy can be nullptr)
+        // Called for reaction when initially engaged
         virtual void EnterCombat(Unit* /*victim*/) { }
 
         // Called when the creature is killed
@@ -144,12 +119,10 @@ class TC_GAME_API CreatureAI : public UnitAI
         // Called when spell hits a target
         virtual void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spell*/) { }
 
-        // Called when the creature is target of hostile action: swing, hostile spell landed, fear/etc)
-        virtual void AttackedBy(Unit* /*attacker*/) { }
         virtual bool IsEscorted() const { return false; }
 
-        // Called when creature is spawned or respawned
-        virtual void JustRespawned() { }
+        // Called when creature appears in the world (spawn, respawn, grid load etc...)
+        virtual void JustAppeared() { }
 
         // Called at waypoint reached or point movement finished
         virtual void MovementInform(uint32 /*type*/, uint32 /*id*/) { }
@@ -171,15 +144,14 @@ class TC_GAME_API CreatureAI : public UnitAI
         virtual void ReceiveEmote(Player* /*player*/, uint32 /*emoteId*/) { }
 
         // Called when owner takes damage
-        virtual void OwnerAttackedBy(Unit* /*attacker*/) { }
+        virtual void OwnerAttackedBy(Unit* attacker) { _OnOwnerCombatInteraction(attacker); }
 
         // Called when owner attacks something
-        virtual void OwnerAttacked(Unit* /*target*/) { }
+        virtual void OwnerAttacked(Unit* target) { _OnOwnerCombatInteraction(target); }
 
         /// == Triggered Actions Requested ==================
 
         // Called when creature attack expected (if creature can and no have current victim)
-        // Note: for reaction at hostile action must be called AttackedBy function.
         //virtual void AttackStart(Unit*) { }
 
         // Called at World update tick
@@ -208,11 +180,17 @@ class TC_GAME_API CreatureAI : public UnitAI
         // If a PlayerAI* is returned, that AI is placed on the player instead of the default charm AI
         // Object destruction is handled by Unit::RemoveCharmedBy
         virtual PlayerAI* GetAIForCharmedPlayer(Player* /*who*/) { return nullptr; }
+        // Should return true if the NPC is target of an escort quest
+        // If onlyIfActive is set, should return true only if the escort quest is currently active
+        virtual bool IsEscortNPC(bool /*onlyIfActive*/) const { return false; }
 
         // intended for encounter design/debugging. do not use for other purposes. expensive.
-        int32 VisualizeBoundary(uint32 duration, Unit* owner=nullptr, bool fill=false) const;
+        int32 VisualizeBoundary(uint32 duration, Unit* owner = nullptr, bool fill = false) const;
         virtual bool CheckInRoom();
         CreatureBoundary const* GetBoundary() const { return _boundary; }
+        void SetBoundary(CreatureBoundary const* boundary, bool negativeBoundaries = false);
+
+        static bool IsInBounds(CreatureBoundary const& boundary, Position const* who);
 
     protected:
         virtual void MoveInLineOfSight(Unit* /*who*/);
@@ -220,12 +198,14 @@ class TC_GAME_API CreatureAI : public UnitAI
         bool _EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER);
 
         CreatureBoundary const* _boundary;
+        bool _negateBoundary;
 
     private:
         bool m_MoveInLineOfSight_locked;
+        void _OnOwnerCombatInteraction(Unit* target);
 };
 
-enum Permitions
+enum Permitions : int32
 {
     PERMIT_BASE_NO                 = -1,
     PERMIT_BASE_IDLE               = 1,

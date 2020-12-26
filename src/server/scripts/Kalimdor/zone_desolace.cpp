@@ -28,6 +28,7 @@ go_demon_portal
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "GameObjectAI.h"
 #include "MotionMaster.h"
 #include "Player.h"
 #include "ScriptedEscortAI.h"
@@ -85,7 +86,7 @@ public:
 
                     me->UpdateEntry(NPC_TAMED_KODO);
                     me->CombatStop();
-                    me->DeleteThreatList();
+                    me->GetThreatManager().ClearAllThreat();
                     me->SetSpeedRate(MOVE_RUN, 0.6f);
                     me->GetMotionMaster()->MoveFollow(caster, PET_FOLLOW_DIST, me->GetFollowAngle());
                     me->setActive(true);
@@ -101,19 +102,19 @@ public:
                 me->DespawnOrUnsummon(60000);
             }
         }
-    };
 
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (player->HasAura(SPELL_KODO_KOMBO_PLAYER_BUFF) && creature->HasAura(SPELL_KODO_KOMBO_DESPAWN_BUFF))
+        bool GossipHello(Player* player) override
         {
-            player->TalkedToCreature(creature->GetEntry(), ObjectGuid::Empty);
-            player->RemoveAurasDueToSpell(SPELL_KODO_KOMBO_PLAYER_BUFF);
-        }
+            if (player->HasAura(SPELL_KODO_KOMBO_PLAYER_BUFF) && me->HasAura(SPELL_KODO_KOMBO_DESPAWN_BUFF))
+            {
+                player->TalkedToCreature(me->GetEntry(), ObjectGuid::Empty);
+                player->RemoveAurasDueToSpell(SPELL_KODO_KOMBO_PLAYER_BUFF);
+            }
 
-        SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
-        return true;
-    }
+            SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
+            return true;
+        }
+    };
 
     CreatureAI* GetAI(Creature* creature) const override
     {

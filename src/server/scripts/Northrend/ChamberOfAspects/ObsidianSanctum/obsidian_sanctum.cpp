@@ -20,8 +20,8 @@
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
-#include "obsidian_sanctum.h"
 #include "ObjectAccessor.h"
+#include "obsidian_sanctum.h"
 #include "ScriptedCreature.h"
 #include "TemporarySummon.h"
 
@@ -219,7 +219,7 @@ struct dummy_dragonAI : public ScriptedAI
             me->SetInCombatWithZone();
             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
             {
-                me->AddThreat(target, 1.0f);
+                AddThreat(target, 1.0f);
                 me->Attack(target, true);
                 me->GetMotionMaster()->MoveChase(target);
             }
@@ -323,7 +323,7 @@ struct dummy_dragonAI : public ScriptedAI
     void JustDied(Unit* /*killer*/) override
     {
         if (!_canLoot)
-            me->SetLootRecipient(NULL);
+            me->SetLootRecipient(nullptr);
 
         uint32 spellId = 0;
 
@@ -737,7 +737,7 @@ class npc_acolyte_of_vesperon : public CreatureScript
                         vesperon->RemoveAurasDueToSpell(SPELL_TWILIGHT_TORMENT_VESP);
                 }
 
-                Map::PlayerList const &PlayerList = me->GetMap()->GetPlayers();
+                Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
 
                 if (PlayerList.isEmpty())
                     return;

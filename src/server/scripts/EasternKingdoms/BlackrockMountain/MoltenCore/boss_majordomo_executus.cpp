@@ -55,7 +55,6 @@ enum Spells
 enum Extras
 {
     OPTION_ID_YOU_CHALLENGED_US   = 0,
-    FACTION_FRIENDLY              = 35,
     MENU_OPTION_YOU_CHALLENGED_US = 4108
 };
 
@@ -110,7 +109,7 @@ class boss_majordomo : public CreatureScript
                     if (!me->FindNearestCreature(NPC_FLAMEWAKER_HEALER, 100.0f) && !me->FindNearestCreature(NPC_FLAMEWAKER_ELITE, 100.0f))
                     {
                         instance->UpdateEncounterStateForKilledCreature(me->GetEntry(), me);
-                        me->setFaction(FACTION_FRIENDLY);
+                        me->SetFaction(FACTION_FRIENDLY);
                         EnterEvadeMode();
                         Talk(SAY_DEFEAT);
                         _JustDied();
@@ -191,18 +190,19 @@ class boss_majordomo : public CreatureScript
                 }
                 else if (action == ACTION_START_RAGNAROS_ALT)
                 {
-                    me->setFaction(FACTION_FRIENDLY);
+                    me->SetFaction(FACTION_FRIENDLY);
                     me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                 }
             }
 
-            void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+            bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {
                 if (menuId == MENU_OPTION_YOU_CHALLENGED_US && gossipListId == OPTION_ID_YOU_CHALLENGED_US)
                 {
                     CloseGossipMenuFor(player);
                     DoAction(ACTION_START_RAGNAROS);
                 }
+                return false;
             }
         };
 

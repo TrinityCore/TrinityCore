@@ -346,7 +346,7 @@ class boss_halion : public CreatureScript
                             break;
                         case EVENT_METEOR_STRIKE:
                         {
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, -SPELL_TWILIGHT_REALM))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, true, -SPELL_TWILIGHT_REALM))
                             {
                                 _meteorStrikePos = target->GetPosition();
                                 me->CastSpell(_meteorStrikePos.GetPositionX(), _meteorStrikePos.GetPositionY(), _meteorStrikePos.GetPositionZ(), SPELL_METEOR_STRIKE, true, nullptr, nullptr, me->GetGUID());
@@ -357,7 +357,7 @@ class boss_halion : public CreatureScript
                         }
                         case EVENT_FIERY_COMBUSTION:
                         {
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_TWILIGHT_REALM))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, true, -SPELL_TWILIGHT_REALM))
                                 me->CastSpell(target, SPELL_FIERY_COMBUSTION, TRIGGERED_IGNORE_SET_FACING);
                             events.ScheduleEvent(EVENT_FIERY_COMBUSTION, Seconds(25));
                             break;
@@ -528,7 +528,7 @@ class boss_twilight_halion : public CreatureScript
                             events.ScheduleEvent(EVENT_BREATH, randtime(Seconds(10), Seconds(14)));
                             break;
                         case EVENT_SOUL_CONSUMPTION:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, SPELL_TWILIGHT_REALM))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, true, SPELL_TWILIGHT_REALM))
                                 me->CastSpell(target, SPELL_SOUL_CONSUMPTION, TRIGGERED_IGNORE_SET_FACING);
                             events.ScheduleEvent(EVENT_SOUL_CONSUMPTION, Seconds(20));
                             break;
@@ -567,7 +567,7 @@ class npc_halion_controller : public CreatureScript
                 _twilightDamageTaken = 0;
             }
 
-            void JustRespawned() override
+            void JustAppeared() override
             {
                 if (!_instance->GetGuidData(DATA_HALION).IsEmpty() || _instance->GetBossState(DATA_GENERAL_ZARITHRIAN) != DONE)
                     return;
@@ -734,7 +734,7 @@ class npc_halion_controller : public CreatureScript
                         case EVENT_TWILIGHT_MENDING:
                             if (_instance->GetCreature(DATA_HALION)) // Just check if physical Halion is spawned
                                 if (Creature* twilightHalion = _instance->GetCreature(DATA_TWILIGHT_HALION))
-                                    twilightHalion->CastSpell((Unit*)nullptr, SPELL_TWILIGHT_MENDING, true);
+                                    twilightHalion->CastSpell(nullptr, SPELL_TWILIGHT_MENDING, true);
                             break;
                         case EVENT_TRIGGER_BERSERK:
                             for (uint8 i = DATA_HALION; i <= DATA_TWILIGHT_HALION; i++)
@@ -765,7 +765,7 @@ class npc_halion_controller : public CreatureScript
 
             void DoCheckEvade()
             {
-                Map::PlayerList const &players = me->GetMap()->GetPlayers();
+                Map::PlayerList const& players = me->GetMap()->GetPlayers();
                 for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
                     if (Player* player = i->GetSource())
                         if (player->IsAlive() && CheckBoundary(player) && !player->IsGameMaster())
@@ -922,7 +922,7 @@ class npc_orb_carrier : public CreatureScript
                 /// However, refreshing it looks bad, so just cast the spell if
                 /// we are not channeling it.
                 if (!me->HasUnitState(UNIT_STATE_CASTING))
-                    me->CastSpell((Unit*)nullptr, SPELL_TRACK_ROTATION, false);
+                    me->CastSpell(nullptr, SPELL_TRACK_ROTATION, false);
 
                 scheduler.Update(diff);
 
@@ -1373,7 +1373,7 @@ class go_twilight_portal : public GameObjectScript
                 }
             }
 
-            bool GossipHello(Player* player, bool /*reportUse*/) override
+            bool GossipHello(Player* player) override
             {
                 if (_spellId != 0)
                     player->CastSpell(player, _spellId, true);
@@ -1388,7 +1388,7 @@ class go_twilight_portal : public GameObjectScript
                 if (!_deleted)
                 {
                     _deleted = true;
-                    go->Delete();
+                    me->Delete();
                 }
             }
 
@@ -1447,7 +1447,8 @@ class spell_halion_combustion_consumption : public SpellScriptLoader
         public:
             spell_halion_combustion_consumption_AuraScript(uint32 spellID) : AuraScript(), _markSpell(spellID) { }
 
-            bool Validate(SpellInfo const* /*spell*/) override
+        private:
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ _markSpell });
             }
@@ -1514,7 +1515,7 @@ class spell_halion_combustion_consumption_periodic : public SpellScriptLoader
                 uint32 triggerSpell = GetSpellInfo()->GetEffect(aurEff->GetEffIndex())->TriggerSpell;
                 int32 radius = caster->GetObjectScale() * M_PI * 10000 / 3;
 
-                caster->CastCustomSpell(triggerSpell, SPELLVALUE_RADIUS_MOD, radius, (Unit*)nullptr, TRIGGERED_FULL_MASK, nullptr, aurEff, caster->GetGUID());
+                caster->CastCustomSpell(triggerSpell, SPELLVALUE_RADIUS_MOD, radius, nullptr, TRIGGERED_FULL_MASK, nullptr, aurEff, caster->GetGUID());
             }
 
             void Register() override
@@ -1543,9 +1544,10 @@ class spell_halion_marks : public SpellScriptLoader
             spell_halion_marks_AuraScript(uint32 summonSpell, uint32 removeSpell) : AuraScript(),
                 _summonSpellId(summonSpell), _removeSpellId(removeSpell) { }
 
+        private:
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                return ValidateSpellInfo({ _summonSpellId });
+                return ValidateSpellInfo({ _summonSpellId, _removeSpellId });
             }
 
             /// We were purged. Force removed stacks to zero and trigger the appropriated remove handler.
@@ -1626,7 +1628,7 @@ class spell_halion_damage_aoe_summon : public SpellScriptLoader
 class spell_halion_twilight_realm_handlers : public SpellScriptLoader
 {
     public:
-        spell_halion_twilight_realm_handlers(const char* scriptName, uint32 beforeHitSpell, bool isApplyHandler) : SpellScriptLoader(scriptName),
+        spell_halion_twilight_realm_handlers(char const* scriptName, uint32 beforeHitSpell, bool isApplyHandler) : SpellScriptLoader(scriptName),
             _beforeHitSpell(beforeHitSpell), _isApplyHandler(isApplyHandler)
         { }
 
@@ -1639,6 +1641,7 @@ class spell_halion_twilight_realm_handlers : public SpellScriptLoader
                 _isApply(isApplyHandler), _beforeHitSpellId(beforeHitSpell)
             { }
 
+        private:
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ _beforeHitSpellId });
@@ -1698,11 +1701,7 @@ class spell_halion_clear_debuffs : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                return ValidateSpellInfo(
-                {
-                    SPELL_CLEAR_DEBUFFS,
-                    SPELL_TWILIGHT_REALM,
-                });
+                return ValidateSpellInfo({ SPELL_CLEAR_DEBUFFS, SPELL_TWILIGHT_REALM });
             }
 
             void HandleScript(SpellEffIndex effIndex)

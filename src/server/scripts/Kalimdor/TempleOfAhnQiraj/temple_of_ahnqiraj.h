@@ -64,10 +64,10 @@ enum AQTCreatures
     NPC_VEKNILASH           = 15275
 };
 
-template<typename AI>
-inline AI* GetAQ40AI(Creature* creature)
+template <class AI, class T>
+inline AI* GetAQ40AI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, AQ40ScriptName);
+    return GetInstanceAI<AI>(obj, AQ40ScriptName);
 }
 
 #endif

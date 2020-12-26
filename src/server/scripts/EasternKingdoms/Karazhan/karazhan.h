@@ -112,10 +112,10 @@ enum KZMisc
     OPTIONAL_BOSS_REQUIRED_DEATH_COUNT = 50
 };
 
-template<typename AI>
-inline AI* GetKarazhanAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetKarazhanAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, KZScriptName);
+    return GetInstanceAI<AI>(obj, KZScriptName);
 }
 
 #endif

@@ -47,7 +47,7 @@ void SQLQueryHolderBase::SetPreparedResult(size_t index, PreparedResultSet* resu
     if (result && !result->GetRowCount())
     {
         delete result;
-        result = NULL;
+        result = nullptr;
     }
 
     /// store the result in the holder
@@ -85,7 +85,7 @@ bool SQLQueryHolderTask::Execute()
         return false;
 
     /// execute all queries in the holder and pass the results
-    for (size_t i = 0; i < m_holder->m_queries.size(); i++)
+    for (size_t i = 0; i < m_holder->m_queries.size(); ++i)
         if (PreparedStatementBase* stmt = m_holder->m_queries[i].first)
             m_holder->SetPreparedResult(i, m_conn->Query(stmt));
 

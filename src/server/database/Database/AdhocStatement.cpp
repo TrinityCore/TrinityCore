@@ -23,7 +23,7 @@
 #include <cstring>
 
 /*! Basic, ad-hoc queries. */
-BasicStatementTask::BasicStatementTask(const char* sql, bool async) :
+BasicStatementTask::BasicStatementTask(char const* sql, bool async) :
 m_result(nullptr)
 {
     m_sql = strdup(sql);
@@ -47,7 +47,7 @@ bool BasicStatementTask::Execute()
         if (!result || !result->GetRowCount() || !result->NextRow())
         {
             delete result;
-            m_result->set_value(QueryResult(NULL));
+            m_result->set_value(QueryResult(nullptr));
             return false;
         }
 

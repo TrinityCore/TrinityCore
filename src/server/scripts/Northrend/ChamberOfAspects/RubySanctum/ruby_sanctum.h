@@ -129,7 +129,7 @@ enum RSInstanceSpell
     SPELL_BERSERK                       = 26662
 };
 
-template<typename AI, typename T>
+template <class AI, class T>
 inline AI* GetRubySanctumAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, RSScriptName);

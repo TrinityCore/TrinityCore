@@ -461,7 +461,7 @@ bool SpellChatLink::Initialize(std::istringstream& iss)
         return false;
     }
     // Validate spell
-    _spell = sSpellMgr->GetSpellInfo(spellId);
+    _spell = sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE);
     if (!_spell)
     {
         TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): got invalid spell id %u in |spell command", iss.str().c_str(), spellId);
@@ -496,10 +496,10 @@ bool SpellChatLink::ValidateName(char* buffer, char const* context)
             return false;
         }
 
-        for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
+        for (LocaleConstant i = LOCALE_enUS; i < TOTAL_LOCALES; i = LocaleConstant(i + 1))
         {
-            uint32 skillLineNameLength = strlen(skillLine->DisplayName->Str[i]);
-            if (skillLineNameLength > 0 && strncmp(skillLine->DisplayName->Str[i], buffer, skillLineNameLength) == 0)
+            uint32 skillLineNameLength = strlen(skillLine->DisplayName[i]);
+            if (skillLineNameLength > 0 && strncmp(skillLine->DisplayName[i], buffer, skillLineNameLength) == 0)
             {
                 // found the prefix, remove it to perform spellname validation below
                 // -2 = strlen(": ")
@@ -567,12 +567,12 @@ bool AchievementChatLink::ValidateName(char* buffer, char const* context)
 {
     ChatLink::ValidateName(buffer, context);
 
-    for (uint8 locale = LOCALE_enUS; locale < TOTAL_LOCALES; ++locale)
+    for (LocaleConstant locale = LOCALE_enUS; locale < TOTAL_LOCALES; locale = LocaleConstant(locale + 1))
     {
         if (locale == LOCALE_none)
             continue;
 
-        if (strcmp(_achievement->Title->Str[locale], buffer) == 0)
+        if (strcmp(_achievement->Title[locale], buffer) == 0)
             return true;
     }
 
@@ -594,7 +594,7 @@ bool TradeChatLink::Initialize(std::istringstream& iss)
         return false;
     }
     // Validate spell
-    _spell = sSpellMgr->GetSpellInfo(spellId);
+    _spell = sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE);
     if (!_spell)
     {
         TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): got invalid spell id %u in |trade command", iss.str().c_str(), spellId);
@@ -652,7 +652,7 @@ bool TalentChatLink::Initialize(std::istringstream& iss)
         return false;
     }
     // Validate talent's spell
-    _spell = sSpellMgr->GetSpellInfo(talentInfo->SpellID);
+    _spell = sSpellMgr->GetSpellInfo(talentInfo->SpellID, DIFFICULTY_NONE);
     if (!_spell)
     {
         TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): got invalid spell id %u in |trade command", iss.str().c_str(), talentInfo->SpellID);
@@ -684,7 +684,7 @@ bool EnchantmentChatLink::Initialize(std::istringstream& iss)
         return false;
     }
     // Validate spell
-    _spell = sSpellMgr->GetSpellInfo(spellId);
+    _spell = sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE);
     if (!_spell)
     {
         TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): got invalid spell id %u in |enchant command", iss.str().c_str(), spellId);
@@ -723,7 +723,7 @@ bool GlyphChatLink::Initialize(std::istringstream& iss)
         return false;
     }
     // Validate glyph's spell
-    _spell = sSpellMgr->GetSpellInfo(_glyph->SpellID);
+    _spell = sSpellMgr->GetSpellInfo(_glyph->SpellID, DIFFICULTY_NONE);
     if (!_spell)
     {
         TC_LOG_TRACE("chat.system", "ChatHandler::isValidChatMessage('%s'): got invalid spell id %u in |glyph command", iss.str().c_str(), _glyph->SpellID);

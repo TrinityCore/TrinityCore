@@ -106,13 +106,13 @@ class instance_the_eye : public InstanceMapScript
             {
                 switch (identifier)
                 {
-                case DATA_THALADREDTHEDARKENER:         return ThaladredTheDarkener;
-                case DATA_LORDSANGUINAR:                return LordSanguinar;
-                case DATA_GRANDASTROMANCERCAPERNIAN:    return GrandAstromancerCapernian;
-                case DATA_MASTERENGINEERTELONICUS:      return MasterEngineerTelonicus;
-                case DATA_KAELTHAS:                     return Kaelthas;
-                case DATA_HIGH_ASTROMANCER_SOLARIAN:    return Astromancer;
-                case DATA_ALAR:                         return Alar;
+                    case DATA_THALADREDTHEDARKENER:         return ThaladredTheDarkener;
+                    case DATA_LORDSANGUINAR:                return LordSanguinar;
+                    case DATA_GRANDASTROMANCERCAPERNIAN:    return GrandAstromancerCapernian;
+                    case DATA_MASTERENGINEERTELONICUS:      return MasterEngineerTelonicus;
+                    case DATA_KAELTHAS:                     return Kaelthas;
+                    case DATA_HIGH_ASTROMANCER_SOLARIAN:    return Astromancer;
+                    case DATA_ALAR:                         return Alar;
                 }
                 return ObjectGuid::Empty;
             }

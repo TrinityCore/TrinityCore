@@ -84,7 +84,8 @@ class TC_GAME_API ChatHandler
             return Trinity::StringFormat(GetTrinityString(entry), std::forward<Args>(args)...);
         }
 
-        bool ParseCommands(const char* text);
+        bool _ParseCommands(char const* text);
+        virtual bool ParseCommands(char const* text);
 
         static std::vector<ChatCommand> const& getCommandTable();
         static void invalidateCommandTable();
@@ -96,6 +97,7 @@ class TC_GAME_API ChatHandler
 
         // function with different implementation for chat/console
         virtual bool isAvailable(ChatCommand const& cmd) const;
+        virtual bool IsHumanReadable() const { return true; }
         virtual bool HasPermission(uint32 permission) const;
         virtual std::string GetNameLink() const;
         virtual bool needReportToTarget(Player* chr) const;
@@ -162,6 +164,7 @@ class TC_GAME_API CliHandler : public ChatHandler
         bool isAvailable(ChatCommand const& cmd) const override;
         bool HasPermission(uint32 /*permission*/) const override { return true; }
         void SendSysMessage(const char *str, bool escapeCharacters) override;
+        bool ParseCommands(char const* str) override;
         std::string GetNameLink() const override;
         bool needReportToTarget(Player* chr) const override;
         LocaleConstant GetSessionDbcLocale() const override;
@@ -170,6 +173,28 @@ class TC_GAME_API CliHandler : public ChatHandler
     private:
         void* m_callbackArg;
         Print* m_print;
+};
+
+class TC_GAME_API AddonChannelCommandHandler : public ChatHandler
+{
+    public:
+        static std::string const PREFIX;
+
+        using ChatHandler::ChatHandler;
+        bool ParseCommands(char const* str) override;
+        void SendSysMessage(char const* str, bool escapeCharacters) override;
+        using ChatHandler::SendSysMessage;
+        bool IsHumanReadable() const override { return humanReadable; }
+
+    private:
+        void Send(std::string const& msg);
+        void SendAck();
+        void SendOK();
+        void SendFailed();
+
+        char const* echo = nullptr;
+        bool hadAck = false;
+        bool humanReadable = false;
 };
 
 #endif

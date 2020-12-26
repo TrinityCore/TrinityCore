@@ -43,7 +43,7 @@ public:
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "achievement", rbac::RBAC_PERM_COMMAND_ACHIEVEMENT,  false, NULL, "", achievementCommandTable },
+            { "achievement", rbac::RBAC_PERM_COMMAND_ACHIEVEMENT,  false, nullptr, "", achievementCommandTable },
         };
         return commandTable;
     }

@@ -90,7 +90,8 @@ Channel::Channel(ObjectGuid const& guid, std::string const& name, uint32 team /*
                 Tokenizer tokens(bannedList, ' ');
                 for (auto const& token : tokens)
                 {
-                    std::string bannedGuidStr(token);
+                    // legacy db content might not have 0x prefix, account for that
+                    std::string bannedGuidStr(memcmp(token, "0x", 2) ? token + 2 : token);
                     ObjectGuid bannedGuid;
                     bannedGuid.SetRawValue(uint64(strtoull(bannedGuidStr.substr(0, 16).c_str(), nullptr, 16)), uint64(strtoull(bannedGuidStr.substr(16).c_str(), nullptr, 16)));
                     if (!bannedGuid.IsEmpty())
@@ -122,12 +123,12 @@ void Channel::GetChannelName(std::string& channelName, uint32 channelId, LocaleC
         if (!(channelEntry->Flags & CHANNEL_DBC_FLAG_GLOBAL))
         {
             if (channelEntry->Flags & CHANNEL_DBC_FLAG_CITY_ONLY)
-                channelName = Trinity::StringFormat(channelEntry->Name->Str[locale], sObjectMgr->GetTrinityString(LANG_CHANNEL_CITY, locale));
+                channelName = Trinity::StringFormat(channelEntry->Name[locale], sObjectMgr->GetTrinityString(LANG_CHANNEL_CITY, locale));
             else
-                channelName = Trinity::StringFormat(channelEntry->Name->Str[locale], ASSERT_NOTNULL(zoneEntry)->AreaName->Str[locale]);
+                channelName = Trinity::StringFormat(channelEntry->Name[locale], ASSERT_NOTNULL(zoneEntry)->AreaName[locale]);
         }
         else
-            channelName = channelEntry->Name->Str[locale];
+            channelName = channelEntry->Name[locale];
     }
 }
 
@@ -145,7 +146,7 @@ void Channel::UpdateChannelInDB() const
     {
         std::ostringstream banlist;
         for (ObjectGuid const& guid : _bannedStore)
-            banlist << guid << ' ';
+            banlist << guid.ToHexString() << ' ';
 
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHANNEL);
         stmt->setBool(0, _announceEnabled);

@@ -20,6 +20,7 @@
 #include "BattlenetRpcErrorCodes.h"
 #include "CharacterTemplateDataStore.h"
 #include "ClientConfigPackets.h"
+#include "GameTime.h"
 #include "ObjectMgr.h"
 #include "RBAC.h"
 #include "Realm.h"
@@ -35,16 +36,16 @@ void WorldSession::SendAuthResponse(uint32 code, bool queued, uint32 queuePos)
     {
         response.SuccessInfo = boost::in_place();
 
-        response.SuccessInfo->AccountExpansionLevel = GetAccountExpansion();
         response.SuccessInfo->ActiveExpansionLevel = GetExpansion();
+        response.SuccessInfo->AccountExpansionLevel = GetAccountExpansion();
         response.SuccessInfo->VirtualRealmAddress = realm.Id.GetAddress();
-        response.SuccessInfo->Time = int32(time(nullptr));
+        response.SuccessInfo->Time = int32(GameTime::GetGameTime());
 
         // Send current home realm. Also there is no need to send it later in realm queries.
         response.SuccessInfo->VirtualRealms.emplace_back(realm.Id.GetAddress(), true, false, realm.Name, realm.NormalizedName);
 
         if (HasPermission(rbac::RBAC_PERM_USE_CHARACTER_TEMPLATES))
-            for (auto const& templ : sCharacterTemplateDataStore->GetCharacterTemplates())
+            for (auto&& templ : sCharacterTemplateDataStore->GetCharacterTemplates())
                 response.SuccessInfo->Templates.push_back(&templ.second);
 
         response.SuccessInfo->AvailableClasses = &sObjectMgr->GetClassExpansionRequirements();
@@ -101,6 +102,16 @@ void WorldSession::SendFeatureSystemStatusGlueScreen()
     features.MaxCharactersPerRealm = sWorld->getIntConfig(CONFIG_CHARACTERS_PER_REALM);
     features.MinimumExpansionLevel = EXPANSION_CLASSIC;
     features.MaximumExpansionLevel = sWorld->getIntConfig(CONFIG_EXPANSION);
+
+    features.EuropaTicketSystemStatus.emplace();
+    features.EuropaTicketSystemStatus->ThrottleState.MaxTries = 10;
+    features.EuropaTicketSystemStatus->ThrottleState.PerMilliseconds = 60000;
+    features.EuropaTicketSystemStatus->ThrottleState.TryCount = 1;
+    features.EuropaTicketSystemStatus->ThrottleState.LastResetTimeBeforeNow = 111111;
+    features.EuropaTicketSystemStatus->TicketsEnabled = sWorld->getBoolConfig(CONFIG_SUPPORT_TICKETS_ENABLED);
+    features.EuropaTicketSystemStatus->BugsEnabled = sWorld->getBoolConfig(CONFIG_SUPPORT_BUGS_ENABLED);
+    features.EuropaTicketSystemStatus->ComplaintsEnabled = sWorld->getBoolConfig(CONFIG_SUPPORT_COMPLAINTS_ENABLED);
+    features.EuropaTicketSystemStatus->SuggestionsEnabled = sWorld->getBoolConfig(CONFIG_SUPPORT_SUGGESTIONS_ENABLED);
 
     SendPacket(features.Write());
 }

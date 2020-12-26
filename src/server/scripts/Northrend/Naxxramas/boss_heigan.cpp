@@ -122,7 +122,7 @@ public:
             events.ScheduleEvent(EVENT_DISRUPT, randtime(Seconds(15), Seconds(20)), 0, PHASE_FIGHT);
             events.ScheduleEvent(EVENT_FEVER, randtime(Seconds(10), Seconds(20)), 0, PHASE_FIGHT);
             events.ScheduleEvent(EVENT_DANCE, Minutes(1) + Seconds(30), 0, PHASE_FIGHT);
-            events.ScheduleEvent(EVENT_ERUPT, Seconds(15), 0, PHASE_FIGHT);
+            events.ScheduleEvent(EVENT_ERUPT, Seconds(15));
 
             _safetyDance = true;
 
@@ -171,7 +171,7 @@ public:
                         DoCast(SPELL_TELEPORT_SELF);
                         DoCastAOE(SPELL_PLAGUE_CLOUD);
                         events.ScheduleEvent(EVENT_DANCE_END, Seconds(45), 0, PHASE_DANCE);
-                        events.ScheduleEvent(EVENT_ERUPT, Seconds(10));
+                        events.RescheduleEvent(EVENT_ERUPT, Seconds(10));
                         break;
                     case EVENT_DANCE_END:
                         events.SetPhase(PHASE_FIGHT);
@@ -180,7 +180,7 @@ public:
                         events.ScheduleEvent(EVENT_DISRUPT, randtime(Seconds(10), Seconds(25)), 0, PHASE_FIGHT);
                         events.ScheduleEvent(EVENT_FEVER, randtime(Seconds(15), Seconds(20)), 0, PHASE_FIGHT);
                         events.ScheduleEvent(EVENT_DANCE, Minutes(1) + Seconds(30), 0, PHASE_FIGHT);
-                        events.ScheduleEvent(EVENT_ERUPT, Seconds(15), 0, PHASE_FIGHT);
+                        events.RescheduleEvent(EVENT_ERUPT, Seconds(15));
                         me->CastStop();
                         me->SetReactState(REACT_AGGRESSIVE);
                         DoZoneInCombat();
@@ -233,7 +233,7 @@ class spell_heigan_eruption : public SpellScriptLoader
             void HandleScript(SpellEffIndex /*eff*/)
             {
                 Unit* caster = GetCaster();
-                if (!caster || !GetHitPlayer())
+                if (!caster || !GetHitUnit())
                     return;
 
                 if (GetHitDamage() >= int32(GetHitUnit()->GetHealth()))

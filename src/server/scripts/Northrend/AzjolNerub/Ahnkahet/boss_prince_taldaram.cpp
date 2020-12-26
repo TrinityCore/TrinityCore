@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "ahnkahet.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "MotionMaster.h"
@@ -52,7 +53,8 @@ enum Spells
 enum Misc
 {
     DATA_EMBRACE_DMG                        = 20000,
-    H_DATA_EMBRACE_DMG                      = 40000
+    H_DATA_EMBRACE_DMG                      = 40000,
+    SUMMON_GROUP_CONTROLLERS                = 1
 };
 
 #define DATA_SPHERE_DISTANCE                25.0f
@@ -103,6 +105,9 @@ class boss_prince_taldaram : public CreatureScript
                 _flameSphereTargetGUID.Clear();
                 _embraceTargetGUID.Clear();
                 _embraceTakenDamage = 0;
+
+                if (!CheckSpheres())
+                    me->SummonCreatureGroup(SUMMON_GROUP_CONTROLLERS);
             }
 
             void EnterCombat(Unit* /*who*/) override
@@ -124,6 +129,10 @@ class boss_prince_taldaram : public CreatureScript
                     case NPC_FLAME_SPHERE_2:
                     case NPC_FLAME_SPHERE_3:
                         summon->AI()->SetGUID(_flameSphereTargetGUID);
+                        break;
+                    case NPC_JEDOGA_CONTROLLER:
+                        summon->CastSpell(me, SPELL_BEAM_VISUAL);
+                        break;
                     default:
                         return;
                 }
@@ -259,19 +268,21 @@ class boss_prince_taldaram : public CreatureScript
                 if (!_embraceTargetGUID.IsEmpty())
                     return ObjectAccessor::GetUnit(*me, _embraceTargetGUID);
 
-                return NULL;
+                return nullptr;
             }
 
             void RemovePrison()
             {
                 me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                summons.DespawnEntry(NPC_JEDOGA_CONTROLLER);
                 me->RemoveAurasDueToSpell(SPELL_BEAM_VISUAL);
                 me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), DATA_GROUND_POSITION_Z, me->GetOrientation());
                 DoCast(SPELL_HOVER_FALL);
                 me->SetDisableGravity(false);
                 me->GetMotionMaster()->MoveLand(0, me->GetHomePosition());
                 Talk(SAY_WARNING);
-                instance->HandleGameObject(instance->GetGuidData(DATA_PRINCE_TALDARAM_PLATFORM), true);
+                if (GameObject* platform = instance->GetGameObject(DATA_PRINCE_TALDARAM_PLATFORM))
+                    instance->HandleGameObject(platform->GetGUID(), true);
             }
 
         private:
@@ -386,33 +397,41 @@ class go_prince_taldaram_sphere : public GameObjectScript
     public:
         go_prince_taldaram_sphere() : GameObjectScript("go_prince_taldaram_sphere") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go) override
+        struct go_prince_taldaram_sphereAI : public GameObjectAI
         {
-            InstanceScript* instance = go->GetInstanceScript();
-            if (!instance)
-                return false;
+            go_prince_taldaram_sphereAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
 
-            Creature* PrinceTaldaram = ObjectAccessor::GetCreature(*go, instance->GetGuidData(DATA_PRINCE_TALDARAM));
-            if (PrinceTaldaram && PrinceTaldaram->IsAlive())
+            InstanceScript* instance;
+
+            bool GossipHello(Player* /*player*/) override
             {
-                go->AddFlag(GO_FLAG_NOT_SELECTABLE);
-                go->SetGoState(GO_STATE_ACTIVE);
-
-                switch (go->GetEntry())
+                Creature* princeTaldaram = instance->GetCreature(DATA_PRINCE_TALDARAM);
+                if (princeTaldaram && princeTaldaram->IsAlive())
                 {
-                    case GO_SPHERE_1:
-                        instance->SetData(DATA_SPHERE_1, IN_PROGRESS);
-                        PrinceTaldaram->AI()->Talk(SAY_1);
-                        break;
-                    case GO_SPHERE_2:
-                        instance->SetData(DATA_SPHERE_2, IN_PROGRESS);
-                        PrinceTaldaram->AI()->Talk(SAY_1);
-                        break;
-                }
+                    me->AddFlag(GO_FLAG_NOT_SELECTABLE);
+                    me->SetGoState(GO_STATE_ACTIVE);
 
-                ENSURE_AI(boss_prince_taldaram::boss_prince_taldaramAI, PrinceTaldaram->AI())->CheckSpheres();
+                    switch (me->GetEntry())
+                    {
+                        case GO_SPHERE_1:
+                            instance->SetData(DATA_SPHERE_1, IN_PROGRESS);
+                            princeTaldaram->AI()->Talk(SAY_1);
+                            break;
+                        case GO_SPHERE_2:
+                            instance->SetData(DATA_SPHERE_2, IN_PROGRESS);
+                            princeTaldaram->AI()->Talk(SAY_1);
+                            break;
+                    }
+
+                    ENSURE_AI(boss_prince_taldaram::boss_prince_taldaramAI, princeTaldaram->AI())->CheckSpheres();
+                }
+                return true;
             }
-            return true;
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return GetAhnKahetAI<go_prince_taldaram_sphereAI>(go);
         }
 };
 
@@ -428,12 +447,7 @@ class spell_prince_taldaram_conjure_flame_sphere : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                return ValidateSpellInfo(
-                {
-                    SPELL_FLAME_SPHERE_SUMMON_1,
-                    SPELL_FLAME_SPHERE_SUMMON_2,
-                    SPELL_FLAME_SPHERE_SUMMON_3
-                });
+                return ValidateSpellInfo({ SPELL_FLAME_SPHERE_SUMMON_1, SPELL_FLAME_SPHERE_SUMMON_2, SPELL_FLAME_SPHERE_SUMMON_3 });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)

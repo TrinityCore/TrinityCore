@@ -19,9 +19,10 @@
 #include "StringFormat.h"
 #include <CascLib.h>
 
-DB2CascFileSource::DB2CascFileSource(CASC::StorageHandle const& storage, uint32 fileDataId, bool printErrors /*= true*/)
+DB2CascFileSource::DB2CascFileSource(std::shared_ptr<CASC::Storage const> storage, uint32 fileDataId, bool printErrors /*= true*/)
 {
-    _fileHandle = CASC::OpenFile(storage, fileDataId, CASC_LOCALE_NONE, printErrors, true);
+    _storageHandle = storage;
+    _fileHandle.reset(storage->OpenFile(fileDataId, CASC_LOCALE_NONE, printErrors, true));
     _fileName = Trinity::StringFormat("FileDataId: %u", fileDataId);
 }
 
@@ -33,30 +34,38 @@ bool DB2CascFileSource::IsOpen() const
 bool DB2CascFileSource::Read(void* buffer, std::size_t numBytes)
 {
     uint32 bytesRead = 0;
-    return CASC::ReadFile(_fileHandle, buffer, numBytes, &bytesRead) && numBytes == bytesRead;
+    return _fileHandle->ReadFile(buffer, numBytes, &bytesRead) && numBytes == bytesRead;
 }
 
 int64 DB2CascFileSource::GetPosition() const
 {
-    return CASC::GetFilePointer(_fileHandle);
+    return _fileHandle->GetPointer();
 }
 
 bool DB2CascFileSource::SetPosition(int64 position)
 {
-    return CASC::SetFilePointer(_fileHandle, position);
+    return _fileHandle->SetPointer(position);
 }
 
 int64 DB2CascFileSource::GetFileSize() const
 {
-    return CASC::GetFileSize(_fileHandle);
+    return _fileHandle->GetSize();
 }
 
-CASC::FileHandle const& DB2CascFileSource::GetHandle() const
+CASC::File* DB2CascFileSource::GetNativeHandle() const
 {
-    return _fileHandle;
+    return _fileHandle.get();
 }
 
 char const* DB2CascFileSource::GetFileName() const
 {
     return _fileName.c_str();
+}
+
+DB2EncryptedSectionHandling DB2CascFileSource::HandleEncryptedSection(DB2SectionHeader const& sectionHeader) const
+{
+    if (std::shared_ptr<CASC::Storage const> storage = _storageHandle.lock())
+        return storage->HasTactKey(sectionHeader.TactId) ? DB2EncryptedSectionHandling::Process : DB2EncryptedSectionHandling::Skip;
+
+    return DB2EncryptedSectionHandling::Skip;
 }

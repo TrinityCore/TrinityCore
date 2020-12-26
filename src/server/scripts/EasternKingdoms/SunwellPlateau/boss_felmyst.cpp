@@ -186,7 +186,7 @@ public:
             Talk(YELL_KILL);
         }
 
-        void JustRespawned() override
+        void JustAppeared() override
         {
             Talk(YELL_BIRTH);
         }
@@ -198,7 +198,7 @@ public:
             instance->SetBossState(DATA_FELMYST, DONE);
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell) override
+        void SpellHit(Unit* caster, SpellInfo const* spell) override
         {
             // workaround for linked aura
             /*if (spell->Id == SPELL_VAPOR_FORCE)
@@ -217,7 +217,7 @@ public:
                     summon->CastSpell(summon, SPELL_FOG_CHARM, true);
                     summon->CastSpell(summon, SPELL_FOG_CHARM2, true);
                 }
-                me->DealDamage(caster, caster->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                me->DealDamage(caster, caster->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
             }
         }
 
@@ -362,7 +362,7 @@ public:
                 }
                 case 6:
                     me->SetFacingTo(me->GetAngle(breathX, breathY));
-                    //DoTextEmote("takes a deep breath.", NULL);
+                    //DoTextEmote("takes a deep breath.", nullptr);
                     events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 10000);
                     break;
                 case 7:
@@ -385,7 +385,7 @@ public:
                         uiFlightCount = 4;
                     break;
                 case 9:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT))
                         DoStartMovement(target);
                     else
                     {
@@ -397,7 +397,7 @@ public:
                     me->SetDisableGravity(false);
                     me->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
                     EnterPhase(PHASE_GROUND);
-                    AttackStart(SelectTarget(SELECT_TARGET_TOPAGGRO));
+                    AttackStart(SelectTarget(SELECT_TARGET_MAXTHREAT));
                     break;
             }
             ++uiFlightCount;

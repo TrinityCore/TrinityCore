@@ -394,7 +394,7 @@ namespace MMAP
 
         // make a copy of liquid vertices
         // used to pad right-bottom frame due to lost vertex data at extraction
-        float* lverts_copy = NULL;
+        float* lverts_copy = nullptr;
         if (meshData.liquidVerts.size())
         {
             lverts_copy = new float[meshData.liquidVerts.size()];
@@ -638,12 +638,12 @@ namespace MMAP
     bool TerrainBuilder::loadVMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData &meshData)
     {
         VMapManager2* vmapManager = static_cast<VMapManager2*>(VMapFactory::createOrGetVMapManager());
-        int result = vmapManager->loadSingleMap(mapID, "vmaps", tileX, tileY);
+        LoadResult result = vmapManager->loadSingleMap(mapID, "vmaps", tileX, tileY);
         bool retval = false;
 
         do
         {
-            if (result == VMAP_LOAD_RESULT_ERROR)
+            if (result != LoadResult::Success)
                 break;
 
             InstanceTreeMap instanceTrees;
@@ -652,7 +652,7 @@ namespace MMAP
             if (!instanceTrees[mapID])
                 break;
 
-            ModelInstance* models = NULL;
+            ModelInstance* models = nullptr;
             uint32 count = 0;
             instanceTrees[mapID]->getModelInstances(models, count);
 
@@ -679,17 +679,17 @@ namespace MMAP
 
                 // transform data
                 float scale = instance.iScale;
-                G3D::Matrix3 rotation = G3D::Matrix3::fromEulerAnglesXYZ(G3D::pi()*instance.iRot.z/-180.f, G3D::pi()*instance.iRot.x/-180.f, G3D::pi()*instance.iRot.y/-180.f);
+                G3D::Matrix3 rotation = G3D::Matrix3::fromEulerAnglesXYZ(G3D::pi()*instance.iRot.z / -180.f, G3D::pi() * instance.iRot.x / -180.f, G3D::pi() * instance.iRot.y / -180.f);
                 G3D::Vector3 position = instance.iPos;
-                position.x -= 32*GRID_SIZE;
-                position.y -= 32*GRID_SIZE;
+                position.x -= 32 * GRID_SIZE;
+                position.y -= 32 * GRID_SIZE;
 
                 for (std::vector<GroupModel>::iterator it = groupModels.begin(); it != groupModels.end(); ++it)
                 {
                     std::vector<G3D::Vector3> tempVertices;
                     std::vector<G3D::Vector3> transformedVertices;
                     std::vector<MeshTriangle> tempTriangles;
-                    WmoLiquid* liquid = NULL;
+                    WmoLiquid* liquid = nullptr;
 
                     it->getMeshData(tempVertices, tempTriangles, liquid);
 
@@ -886,10 +886,10 @@ namespace MMAP
     }
 
     /**************************************************************************/
-    void TerrainBuilder::loadOffMeshConnections(uint32 mapID, uint32 tileX, uint32 tileY, MeshData &meshData, const char* offMeshFilePath)
+    void TerrainBuilder::loadOffMeshConnections(uint32 mapID, uint32 tileX, uint32 tileY, MeshData &meshData, char const* offMeshFilePath)
     {
         // no meshfile input given?
-        if (offMeshFilePath == NULL)
+        if (offMeshFilePath == nullptr)
             return;
 
         FILE* fp = fopen(offMeshFilePath, "rb");

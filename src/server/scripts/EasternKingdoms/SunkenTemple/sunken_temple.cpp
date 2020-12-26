@@ -28,6 +28,7 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
@@ -42,7 +43,7 @@ class at_malfurion_stormrage : public AreaTriggerScript
 public:
     at_malfurion_stormrage() : AreaTriggerScript("at_malfurion_stormrage") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*areaTrigger*/, bool /*entered*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
     {
         if (player->GetInstanceScript() && !player->FindNearestCreature(15362, 15))
             player->SummonCreature(15362, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), -1.52f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 100000);
@@ -56,16 +57,26 @@ public:
 
 class go_atalai_statue : public GameObjectScript
 {
-public:
-    go_atalai_statue() : GameObjectScript("go_atalai_statue") { }
+    public:
+        go_atalai_statue() : GameObjectScript("go_atalai_statue") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
-    {
-        if (InstanceScript* instance = player->GetInstanceScript())
-            instance->SetData(EVENT_STATE, go->GetEntry());
-        return false;
-    }
+        struct go_atalai_statueAI : public GameObjectAI
+        {
+            go_atalai_statueAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
 
+            InstanceScript* instance;
+
+            bool GossipHello(Player* /*player*/) override
+            {
+                instance->SetData(EVENT_STATE, me->GetEntry());
+                return false;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return GetSunkenTempleAI<go_atalai_statueAI>(go);
+        }
 };
 
 void AddSC_sunken_temple()

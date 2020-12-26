@@ -116,7 +116,7 @@ class npc_millhouse_manastorm : public CreatureScript
             {
                 if (me->Attack(who, true))
                 {
-                    me->AddThreat(who, 0.0f);
+                    AddThreat(who, 0.0f);
                     me->SetInCombatWith(who);
                     who->SetInCombatWith(me);
                     me->GetMotionMaster()->MoveChase(who, 25.0f);
@@ -539,7 +539,7 @@ class npc_zerekethvoidzone : public CreatureScript
             void Reset() override
             {
                 me->SetNpcFlags(UNIT_NPC_FLAG_NONE);
-                me->setFaction(16);
+                me->SetFaction(FACTION_MONSTER_2);
                 me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
 
                 DoCast(me, SPELL_VOID_ZONE_DAMAGE);

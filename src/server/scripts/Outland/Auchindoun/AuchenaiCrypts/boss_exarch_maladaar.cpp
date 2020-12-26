@@ -228,7 +228,7 @@ public:
                 //SPELL_STOLEN_SOUL_VISUAL has shapeshift effect, but not implemented feature in Trinity for this spell.
                 summoned->CastSpell(summoned, SPELL_STOLEN_SOUL_VISUAL, false);
                 summoned->SetDisplayId(soulmodel);
-                summoned->setFaction(me->getFaction());
+                summoned->SetFaction(me->GetFaction());
 
                 if (Unit* target = ObjectAccessor::GetUnit(*me, soulholder))
                 {

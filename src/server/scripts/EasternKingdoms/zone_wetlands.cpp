@@ -39,7 +39,6 @@ EndContentData */
 enum TapokeSlim
 {
     QUEST_MISSING_DIPLO_PT11    = 1249,
-    FACTION_ENEMY               = 168,
     SPELL_STEALTH               = 1785,
     SPELL_CALL_FRIENDS          = 16457,                    //summons 1x friend
     NPC_SLIMS_FRIEND            = 4971,
@@ -56,9 +55,9 @@ public:
         return new npc_tapoke_slim_jahnAI(creature);
     }
 
-    struct npc_tapoke_slim_jahnAI : public npc_escortAI
+    struct npc_tapoke_slim_jahnAI : public EscortAI
     {
-        npc_tapoke_slim_jahnAI(Creature* creature) : npc_escortAI(creature)
+        npc_tapoke_slim_jahnAI(Creature* creature) : EscortAI(creature)
         {
             Initialize();
         }
@@ -76,7 +75,7 @@ public:
                 Initialize();
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             switch (waypointId)
             {
@@ -84,7 +83,7 @@ public:
                     if (me->HasStealthAura())
                         me->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
                     SetRun();
-                    me->setFaction(FACTION_ENEMY);
+                    me->SetFaction(FACTION_ENEMY);
                     break;
             }
         }
@@ -106,17 +105,6 @@ public:
                 summoned->AI()->AttackStart(player);
         }
 
-        void AttackedBy(Unit* pAttacker) override
-        {
-            if (me->GetVictim())
-                return;
-
-            if (me->IsFriendlyTo(pAttacker))
-                return;
-
-            AttackStart(pAttacker);
-        }
-
         void DamageTaken(Unit* /*pDoneBy*/, uint32& uiDamage) override
         {
             if (HealthBelowPct(20))
@@ -129,7 +117,7 @@ public:
 
                     me->RestoreFaction();
                     me->RemoveAllAuras();
-                    me->DeleteThreatList();
+                    me->GetThreatManager().ClearAllThreat();
                     me->CombatStop(true);
 
                     SetRun(false);
@@ -148,22 +136,30 @@ class npc_mikhail : public CreatureScript
 public:
     npc_mikhail() : CreatureScript("npc_mikhail") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
+    struct npc_mikhailAI : public ScriptedAI
     {
-        if (quest->GetQuestId() == QUEST_MISSING_DIPLO_PT11)
+        npc_mikhailAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void QuestAccept(Player* player, Quest const* quest) override
         {
-            Creature* pSlim = creature->FindNearestCreature(NPC_TAPOKE_SLIM_JAHN, 25.0f);
+            if (quest->GetQuestId() == QUEST_MISSING_DIPLO_PT11)
+            {
+                Creature* slim = me->FindNearestCreature(NPC_TAPOKE_SLIM_JAHN, 25.0f);
+                if (!slim)
+                    return;
 
-            if (!pSlim)
-                return false;
+                if (!slim->HasStealthAura())
+                    slim->CastSpell(slim, SPELL_STEALTH, true);
 
-            if (!pSlim->HasStealthAura())
-                pSlim->CastSpell(pSlim, SPELL_STEALTH, true);
-
-            if (npc_tapoke_slim_jahn::npc_tapoke_slim_jahnAI* pEscortAI = CAST_AI(npc_tapoke_slim_jahn::npc_tapoke_slim_jahnAI, pSlim->AI()))
-                pEscortAI->Start(false, false, player->GetGUID(), quest);
+                if (npc_tapoke_slim_jahn::npc_tapoke_slim_jahnAI* slimAI = CAST_AI(npc_tapoke_slim_jahn::npc_tapoke_slim_jahnAI, slim->AI()))
+                    slimAI->Start(false, false, player->GetGUID(), quest);
+            }
         }
-        return false;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_mikhailAI(creature);
     }
 };
 

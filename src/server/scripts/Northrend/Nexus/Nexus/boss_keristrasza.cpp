@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "nexus.h"
 #include "ObjectAccessor.h"
@@ -130,14 +131,14 @@ class boss_keristrasza : public CreatureScript
             {
                 if (remove)
                 {
-                    me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                    me->SetImmuneToPC(false);
                     me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                     if (me->HasAura(SPELL_FROZEN_PRISON))
                         me->RemoveAurasDueToSpell(SPELL_FROZEN_PRISON);
                 }
                 else
                 {
-                    me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                    me->SetImmuneToPC(true);
                     me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                     DoCast(me, SPELL_FROZEN_PRISON, false);
                 }
@@ -220,22 +221,31 @@ class containment_sphere : public GameObjectScript
 public:
     containment_sphere() : GameObjectScript("containment_sphere") { }
 
-    bool OnGossipHello(Player* /*player*/, GameObject* go) override
+    struct containment_sphereAI : public GameObjectAI
     {
-        InstanceScript* instance = go->GetInstanceScript();
+        containment_sphereAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
 
-        Creature* pKeristrasza = ObjectAccessor::GetCreature(*go, instance->GetGuidData(DATA_KERISTRASZA));
-        if (pKeristrasza && pKeristrasza->IsAlive())
+        InstanceScript* instance;
+
+        bool GossipHello(Player* /*player*/) override
         {
-            // maybe these are hacks :(
-            go->AddFlag(GO_FLAG_NOT_SELECTABLE);
-            go->SetGoState(GO_STATE_ACTIVE);
+            Creature* keristrasza = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KERISTRASZA));
+            if (keristrasza && keristrasza->IsAlive())
+            {
+                // maybe these are hacks :(
+                me->AddFlag(GO_FLAG_NOT_SELECTABLE);
+                me->SetGoState(GO_STATE_ACTIVE);
 
-            ENSURE_AI(boss_keristrasza::boss_keristraszaAI, pKeristrasza->AI())->CheckContainmentSpheres(true);
+                ENSURE_AI(boss_keristrasza::boss_keristraszaAI, keristrasza->AI())->CheckContainmentSpheres(true);
+            }
+            return true;
         }
-        return true;
-    }
+    };
 
+    GameObjectAI* GetAI(GameObject* go) const override
+    {
+        return GetNexusAI<containment_sphereAI>(go);
+    }
 };
 
 class spell_intense_cold : public SpellScriptLoader

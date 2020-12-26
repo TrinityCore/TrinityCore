@@ -31,7 +31,7 @@ namespace CharacterDatabaseCleaner
 
     TC_GAME_API void CleanDatabase();
 
-    TC_GAME_API void CheckUnique(const char* column, const char* table, bool (*check)(uint32));
+    TC_GAME_API void CheckUnique(char const* column, char const* table, bool (*check)(uint32));
 
     TC_GAME_API bool AchievementProgressCheck(uint32 criteria);
     TC_GAME_API bool SkillCheck(uint32 skill);

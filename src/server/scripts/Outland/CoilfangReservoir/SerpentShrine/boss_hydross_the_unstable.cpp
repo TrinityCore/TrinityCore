@@ -221,7 +221,7 @@ public:
             if (!beam)
             {
                 SummonBeams();
-                beam=true;
+                beam = true;
             }
             //Return since we have no target
             if (!UpdateVictim())
@@ -293,7 +293,7 @@ public:
                         MarkOfHydross_Count = 0;
 
                         Talk(SAY_SWITCH_TO_CLEAN);
-                        DoResetThreat();
+                        ResetThreatList();
                         SummonBeams();
 
                         // spawn 4 adds
@@ -377,7 +377,7 @@ public:
                         CorruptedForm = true;
 
                         Talk(SAY_SWITCH_TO_CORRUPT);
-                        DoResetThreat();
+                        ResetThreatList();
                         DeSummonBeams();
 
                         // spawn 4 adds

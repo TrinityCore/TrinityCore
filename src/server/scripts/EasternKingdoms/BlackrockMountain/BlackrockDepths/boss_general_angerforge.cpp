@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "blackrock_depths.h"
 #include "ScriptedCreature.h"
 
 enum Spells
@@ -130,7 +131,7 @@ class boss_general_angerforge : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new boss_general_angerforgeAI(creature);
+            return GetBlackrockDepthsAI<boss_general_angerforgeAI>(creature);
         }
 };
 

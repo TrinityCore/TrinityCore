@@ -27,7 +27,7 @@ void WorldPackets::Toy::UseToy::Read()
     _worldPacket >> Cast;
 }
 
-WorldPacket const* WorldPackets::Toy::AccountToysUpdate::Write()
+WorldPacket const* WorldPackets::Toy::AccountToyUpdate::Write()
 {
     _worldPacket.WriteBit(IsFullUpdate);
     _worldPacket.FlushBits();

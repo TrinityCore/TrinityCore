@@ -232,7 +232,7 @@ struct npc_firelands_magmakin : public ScriptedAI
         if (!target)
             return;
 
-        me->AddThreat(target, 50000000.0f);
+        AddThreat(target, 50000000.0f);
         me->TauntApply(target);
     }
 

@@ -59,7 +59,7 @@ public:
             {
                 me->CastSpell(me, SPELL_INFECTED_WOULD);
                 me->SetEntry(NPC_CORRUPTED_LASHER);
-                me->setFaction(FACTION_HOSTILE);
+                me->SetFaction(FACTION_HOSTILE);
             }
             else
             {

@@ -543,7 +543,7 @@ class spell_warr_item_t10_prot_4p_bonus : public SpellScriptLoader
 
                 Unit* target = eventInfo.GetActionTarget();
                 int32 bp0 = CalculatePct(target->GetMaxHealth(), GetSpellInfo()->GetEffect(EFFECT_1)->CalcValue());
-                target->CastCustomSpell(SPELL_WARRIOR_STOICISM, SPELLVALUE_BASE_POINT0, bp0, (Unit*)nullptr, true);
+                target->CastCustomSpell(SPELL_WARRIOR_STOICISM, SPELLVALUE_BASE_POINT0, bp0, nullptr, true);
             }
 
             void Register() override
@@ -1095,13 +1095,6 @@ class spell_warr_sweeping_strikes : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warr_sweeping_strikes_AuraScript);
 
-        public:
-            spell_warr_sweeping_strikes_AuraScript()
-            {
-                _procTarget = nullptr;
-            }
-
-        private:
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_1, SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_2 });
@@ -1138,8 +1131,7 @@ class spell_warr_sweeping_strikes : public SpellScriptLoader
                 OnEffectProc += AuraEffectProcFn(spell_warr_sweeping_strikes_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
 
-        private:
-            Unit* _procTarget;
+            Unit* _procTarget = nullptr;
         };
 
         AuraScript* GetAuraScript() const override
@@ -1203,7 +1195,7 @@ public:
             //Get the Remaining Damage from the aura (if exist)
             int32 remainingDamage = target->GetRemainingPeriodicAmount(target->GetGUID(), SPELL_WARRIOR_TRAUMA_EFFECT, SPELL_AURA_PERIODIC_DAMAGE);
             //Get 25% of damage from the spell casted (Slam & Whirlwind) plus Remaining Damage from Aura
-            int32 damage = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount()) / sSpellMgr->AssertSpellInfo(SPELL_WARRIOR_TRAUMA_EFFECT)->GetMaxTicks(DIFFICULTY_NONE)) + remainingDamage;
+            int32 damage = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount()) / sSpellMgr->AssertSpellInfo(SPELL_WARRIOR_TRAUMA_EFFECT, GetCastDifficulty())->GetMaxTicks()) + remainingDamage;
             GetCaster()->CastCustomSpell(SPELL_WARRIOR_TRAUMA_EFFECT, SPELLVALUE_BASE_POINT0, damage, target, true);
         }
 
@@ -1337,13 +1329,6 @@ class spell_warr_vigilance : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warr_vigilance_AuraScript);
 
-        public:
-            spell_warr_vigilance_AuraScript()
-            {
-                _procTarget = nullptr;
-            }
-
-        private:
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_WARRIOR_VENGEANCE });
@@ -1367,8 +1352,8 @@ class spell_warr_vigilance : public SpellScriptLoader
                 PreventDefaultAction();
                 int32 damage = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue()));
 
-                GetTarget()->CastSpell(_procTarget, SPELL_WARRIOR_VIGILANCE_PROC, true, NULL, aurEff);
-                _procTarget->CastCustomSpell(_procTarget, SPELL_WARRIOR_VENGEANCE, &damage, &damage, &damage, true, NULL, aurEff);
+                GetTarget()->CastSpell(_procTarget, SPELL_WARRIOR_VIGILANCE_PROC, true, nullptr, aurEff);
+                _procTarget->CastCustomSpell(_procTarget, SPELL_WARRIOR_VENGEANCE, &damage, &damage, &damage, true, nullptr, aurEff);
             }
             */
 
@@ -1388,8 +1373,7 @@ class spell_warr_vigilance : public SpellScriptLoader
                 OnEffectRemove += AuraEffectRemoveFn(spell_warr_vigilance_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
             }
 
-        private:
-            Unit* _procTarget;
+            Unit* _procTarget = nullptr;
         };
 
         AuraScript* GetAuraScript() const override
@@ -1398,7 +1382,7 @@ class spell_warr_vigilance : public SpellScriptLoader
         }
 };
 
-// 50725 Vigilance
+// 50725 - Vigilance (Reset Taunt Cooldown)
 class spell_warr_vigilance_trigger : public SpellScriptLoader
 {
     public:

@@ -197,7 +197,7 @@ void CreatureTextMgr::LoadCreatureTextLocales()
         std::string localeName   = fields[3].GetString();
 
         LocaleConstant locale    = GetLocaleByName(localeName);
-        if (locale == LOCALE_enUS)
+        if (!IsValidLocale(locale) || locale == LOCALE_enUS)
             continue;
 
         CreatureTextLocale& data = mLocaleTextMap[CreatureTextId(creatureId, groupId, id)];
@@ -334,7 +334,7 @@ void CreatureTextMgr::SendNonChatPacket(WorldObject* source, WorldPacket const* 
                 if (!whisperTarget || whisperTarget->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                whisperTarget->ToPlayer()->GetSession()->SendPacket(data);
+                whisperTarget->ToPlayer()->SendDirectMessage(data);
                 return;
             }
             break;
@@ -438,7 +438,7 @@ std::string CreatureTextMgr::GetLocalizedChatString(uint32 entry, uint8 gender, 
     if (groupItr == holderItr->second.end())
         return "";
 
-    if (locale > MAX_LOCALES)
+    if (locale >= TOTAL_LOCALES)
         locale = DEFAULT_LOCALE;
 
     std::string baseText = "";

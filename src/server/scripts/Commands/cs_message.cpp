@@ -50,11 +50,11 @@ public:
         };
         static std::vector<ChatCommand> channelCommandTable =
         {
-            { "set", rbac::RBAC_PERM_COMMAND_CHANNEL_SET, true, NULL, "", channelSetCommandTable },
+            { "set", rbac::RBAC_PERM_COMMAND_CHANNEL_SET, true, nullptr, "", channelSetCommandTable },
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "channel",        rbac::RBAC_PERM_COMMAND_CHANNEL,        true, NULL,                         "", channelCommandTable  },
+            { "channel",        rbac::RBAC_PERM_COMMAND_CHANNEL,        true, nullptr,                      "", channelCommandTable  },
             { "nameannounce",   rbac::RBAC_PERM_COMMAND_NAMEANNOUNCE,   true, &HandleNameAnnounceCommand,   "" },
             { "gmnameannounce", rbac::RBAC_PERM_COMMAND_GMNAMEANNOUNCE, true, &HandleGMNameAnnounceCommand, "" },
             { "announce",       rbac::RBAC_PERM_COMMAND_ANNOUNCE,       true, &HandleAnnounceCommand,       "" },
@@ -83,7 +83,7 @@ public:
             if (!channelEntry)
                 continue;
 
-            if (strstr(channelEntry->Name->Str[handler->GetSessionDbcLocale()], channelStr))
+            if (strstr(channelEntry->Name[handler->GetSessionDbcLocale()], channelStr))
             {
                 channelId = i;
                 break;
@@ -97,7 +97,7 @@ public:
             if (!entry)
                 continue;
 
-            if (strstr(entry->AreaName->Str[handler->GetSessionDbcLocale()], channelStr))
+            if (strstr(entry->AreaName[handler->GetSessionDbcLocale()], channelStr))
             {
                 zoneEntry = entry;
                 break;
@@ -239,7 +239,7 @@ public:
 
         if (argStr == "remove")
         {
-            std::string name = strtok(NULL, " ");
+            std::string name = strtok(nullptr, " ");
             if (normalizePlayerName(name))
             {
                 if (Player* player = ObjectAccessor::FindPlayerByName(name))

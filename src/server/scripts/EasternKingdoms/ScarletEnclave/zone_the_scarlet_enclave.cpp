@@ -78,14 +78,14 @@ public:
             x -= 3.5f;
             y -= 5.0f;
             me->GetMotionMaster()->Clear(false);
-            me->SetPosition(x, y, z, 0.0f);
+            me->UpdatePosition(x, y, z, 0.0f);
         }
 
         void UpdateAI(uint32 diff) override
         {
             if (FlyBackTimer <= diff)
             {
-                Player* player = NULL;
+                Player* player = nullptr;
                 if (me->IsSummon())
                     if (Unit* summoner = me->ToTempSummon()->GetSummoner())
                         player = summoner->ToPlayer();
@@ -101,7 +101,7 @@ public:
                         FlyBackTimer = 500;
                         break;
                     case 1:
-                        player->GetClosePoint(x, y, z, me->GetObjectSize());
+                        player->GetClosePoint(x, y, z, me->GetCombatReach());
                         z += 2.5f;
                         x -= 2.0f;
                         y -= 1.5f;
@@ -131,10 +131,11 @@ public:
                         break;
                 }
                 ++phase;
-            } else FlyBackTimer-=diff;
+            }
+            else
+                FlyBackTimer -= diff;
         }
     };
-
 };
 
 void AddSC_the_scarlet_enclave()

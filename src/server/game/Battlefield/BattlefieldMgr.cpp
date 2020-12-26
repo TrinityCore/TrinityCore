@@ -133,7 +133,7 @@ Battlefield* BattlefieldMgr::GetBattlefieldByQueueId(uint64 queueId)
         if (bf->GetQueueId() == queueId)
             return bf;
 
-    return NULL;
+    return nullptr;
 }
 
 ZoneScript* BattlefieldMgr::GetZoneScript(uint32 zoneId)

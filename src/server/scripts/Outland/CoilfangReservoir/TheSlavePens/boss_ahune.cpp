@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "CreatureTextMgr.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "Group.h"
 #include "InstanceScript.h"
 #include "LFGMgr.h"
@@ -25,8 +26,8 @@
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
-#include "ScriptedGossip.h"
 #include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "SpellAuraEffects.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
@@ -308,7 +309,7 @@ public:
         void Initialize()
         {
             me->SetReactState(REACT_PASSIVE);
-            me->setRegeneratingHealth(false);
+            me->SetRegenerateHealth(false);
             DoCast(me, SPELL_FROZEN_CORE_GETS_HIT);
             DoCast(me, SPELL_ICE_SPEAR_AURA);
         }
@@ -326,7 +327,8 @@ public:
         {
             if (action == ACTION_AHUNE_RETREAT)
             {
-                me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC));
+                me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                me->SetImmuneToPC(false);
                 me->RemoveAurasDueToSpell(SPELL_ICE_SPEAR_AURA);
                 _events.ScheduleEvent(EVENT_SYNCH_HEALTH, Seconds(3), 0, PHASE_TWO);
             }
@@ -334,7 +336,8 @@ public:
             {
                 _events.Reset();
                 DoCast(me, SPELL_ICE_SPEAR_AURA);
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_IMMUNE_TO_PC));
+                me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                me->SetImmuneToPC(true);
             }
         }
 
@@ -655,25 +658,32 @@ class go_ahune_ice_stone : public GameObjectScript
 public:
     go_ahune_ice_stone() : GameObjectScript("go_ahune_ice_stone") { }
 
-    bool OnGossipSelect(Player* player, GameObject* go, uint32 /*sender*/, uint32 /*action*/)
+    struct go_ahune_ice_stoneAI : public GameObjectAI
     {
-        InstanceScript* instance = go->GetInstanceScript();
-        if (!instance)
-            return false;
+        go_ahune_ice_stoneAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
 
-        ClearGossipMenuFor(player);
+        InstanceScript* instance;
 
-        if (Creature* ahuneBunny = ObjectAccessor::GetCreature(*go, instance->GetGuidData(DATA_AHUNE_BUNNY)))
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
         {
-            ahuneBunny->AI()->DoAction(ACTION_START_EVENT);
-            ahuneBunny->SetInCombatWithZone();
-        }
-        if (Creature* luma = ObjectAccessor::GetCreature(*go, instance->GetGuidData(DATA_LUMA_SKYMOTHER)))
-            luma->CastSpell(player, SPELL_SUMMONING_RHYME_AURA, true);
-        CloseGossipMenuFor(player);
-        go->Delete();
+            ClearGossipMenuFor(player);
 
-        return true;
+            if (Creature* ahuneBunny = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_AHUNE_BUNNY)))
+            {
+                ahuneBunny->AI()->DoAction(ACTION_START_EVENT);
+                ahuneBunny->SetInCombatWithZone();
+            }
+            if (Creature* luma = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_LUMA_SKYMOTHER)))
+                luma->CastSpell(player, SPELL_SUMMONING_RHYME_AURA, true);
+            CloseGossipMenuFor(player);
+            me->Delete();
+            return true;
+        }
+    };
+
+    GameObjectAI* GetAI(GameObject* go) const override
+    {
+        return GetSlavePensAI<go_ahune_ice_stoneAI>(go);
     }
 };
 
@@ -739,14 +749,14 @@ public:
             switch (aurEff->GetTickNumber())
             {
                 case 1:
-                    sCreatureTextMgr->SendChat(caster, SAY_PLAYER_TEXT_1, NULL, CHAT_MSG_SAY, LANG_UNIVERSAL, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, player);
+                    sCreatureTextMgr->SendChat(caster, SAY_PLAYER_TEXT_1, nullptr, CHAT_MSG_SAY, LANG_UNIVERSAL, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, player);
                     player->CastSpell(player, SPELL_SUMMONING_RHYME_BONFIRE, true);
                     break;
                 case 2:
-                    sCreatureTextMgr->SendChat(caster, SAY_PLAYER_TEXT_2, NULL, CHAT_MSG_SAY, LANG_UNIVERSAL, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, player);
+                    sCreatureTextMgr->SendChat(caster, SAY_PLAYER_TEXT_2, nullptr, CHAT_MSG_SAY, LANG_UNIVERSAL, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, player);
                     break;
                 case 3:
-                    sCreatureTextMgr->SendChat(caster, SAY_PLAYER_TEXT_3, NULL, CHAT_MSG_SAY, LANG_UNIVERSAL, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, player);
+                    sCreatureTextMgr->SendChat(caster, SAY_PLAYER_TEXT_3, nullptr, CHAT_MSG_SAY, LANG_UNIVERSAL, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, player);
                     Remove();
                     break;
             }

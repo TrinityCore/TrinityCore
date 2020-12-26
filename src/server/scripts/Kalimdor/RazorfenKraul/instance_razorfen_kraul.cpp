@@ -57,7 +57,7 @@ public:
             switch (go->GetEntry())
             {
                 case 21099: DoorWardGUID = go->GetGUID(); break;
-                case 20920: go->SetFaction(0); break; // big fat fugly hack
+                case 20920: go->SetFaction(FACTION_NONE); break; // big fat fugly hack
             }
         }
 

@@ -22,10 +22,10 @@ SDComment: Adds NYI
 SDCategory: Molten Core
 EndScriptData */
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "molten_core.h"
+#include "ObjectMgr.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -184,12 +184,12 @@ class npc_flamewaker_priest : public CreatureScript
                             events.ScheduleEvent(EVENT_HEAL, urand(15000, 20000));
                             break;
                         case EVENT_SHADOW_WORD_PAIN:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, -SPELL_SHADOWWORDPAIN))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, true, -SPELL_SHADOWWORDPAIN))
                                 DoCast(target, SPELL_SHADOWWORDPAIN);
                             events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, urand(18000, 26000));
                             break;
                         case EVENT_IMMOLATE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, -SPELL_IMMOLATE))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, true, -SPELL_IMMOLATE))
                                 DoCast(target, SPELL_IMMOLATE);
                             events.ScheduleEvent(EVENT_IMMOLATE, urand(15000, 25000));
                             break;

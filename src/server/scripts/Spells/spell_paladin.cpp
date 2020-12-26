@@ -89,15 +89,8 @@ class spell_pal_ardent_defender : public SpellScriptLoader
         {
             PrepareAuraScript(spell_pal_ardent_defender_AuraScript);
 
-        public:
-            spell_pal_ardent_defender_AuraScript()
-            {
-                absorbPct = 0;
-                healPct = 0;
-            }
-
-        private:
-            uint32 absorbPct, healPct;
+            uint32 _absorbPct = 0;
+            uint32 _healPct = 0;
 
             enum Spell
             {
@@ -106,15 +99,13 @@ class spell_pal_ardent_defender : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo) override
             {
-                if (!sSpellMgr->GetSpellInfo(PAL_SPELL_ARDENT_DEFENDER_HEAL))
-                    return false;
-                return true;
+                return ValidateSpellInfo({ PAL_SPELL_ARDENT_DEFENDER_HEAL });
             }
 
             bool Load() override
             {
-                healPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue();
-                absorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
+                _absorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
+                _healPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue();
                 return GetUnitOwner()->GetTypeId() == TYPEID_PLAYER;
             }
 
@@ -124,7 +115,7 @@ class spell_pal_ardent_defender : public SpellScriptLoader
                 amount = -1;
             }
 
-            void Absorb(AuraEffect* aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
+            void Absorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
             {
                 Unit* victim = GetTarget();
                 int32 remainingHealth = victim->GetHealth() - dmgInfo.GetDamage();
@@ -135,17 +126,15 @@ class spell_pal_ardent_defender : public SpellScriptLoader
                     // Cast healing spell, completely avoid damage
                     absorbAmount = dmgInfo.GetDamage();
 
-                    uint32 defenseSkillValue = victim->GetDefenseSkillValue();
+                    float defenseSkillValue = victim->GetDefenseSkillValue();
                     // Max heal when defense skill denies critical hits from raid bosses
                     // Formula: max defense at level + 140 (raiting from gear)
-                    uint32 reqDefForMaxHeal  = victim->getLevel() * 5 + 140;
-                    float pctFromDefense = (defenseSkillValue >= reqDefForMaxHeal)
-                        ? 1.0f
-                        : float(defenseSkillValue) / float(reqDefForMaxHeal);
+                    float reqDefForMaxHeal = victim->GetMaxSkillValueForLevel() + 140.0f;
+                    float defenseFactor = std::min(1.0f, defenseSkillValue / reqDefForMaxHeal);
 
-                    int32 healAmount = int32(victim->CountPctFromMaxHealth(uint32(healPct * pctFromDefense)));
-                    victim->CastCustomSpell(victim, PAL_SPELL_ARDENT_DEFENDER_HEAL, &healAmount, NULL, NULL, true, NULL, aurEff);
-                    victim->ToPlayer()->AddSpellCooldown(PAL_SPELL_ARDENT_DEFENDER_HEAL, 0, time(NULL) + 120);
+                    int32 healAmount = int32(victim->CountPctFromMaxHealth(static_cast<uint32>(lroundf(_healPct * defenseFactor))));
+                    victim->CastCustomSpell(victim, PAL_SPELL_ARDENT_DEFENDER_HEAL, &healAmount, nullptr, nullptr, true, nullptr, aurEff);
+                    victim->ToPlayer()->AddSpellCooldown(PAL_SPELL_ARDENT_DEFENDER_HEAL, 0, time(nullptr) + 120);
                 }
                 else if (remainingHealth < int32(allowedHealth))
                 {
@@ -153,7 +142,7 @@ class spell_pal_ardent_defender : public SpellScriptLoader
                     uint32 damageToReduce = (victim->GetHealth() < allowedHealth)
                         ? dmgInfo.GetDamage()
                         : allowedHealth - remainingHealth;
-                    absorbAmount = CalculatePct(damageToReduce, absorbPct);
+                    absorbAmount = CalculatePct(damageToReduce, _absorbPct);
                 }
             }
 
@@ -253,7 +242,11 @@ class spell_pal_avenging_wrath : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                return ValidateSpellInfo({ SPELL_PALADIN_SANCTIFIED_WRATH, SPELL_PALADIN_SANCTIFIED_WRATH_TALENT_R1 });
+                return ValidateSpellInfo(
+                {
+                    SPELL_PALADIN_SANCTIFIED_WRATH,
+                    SPELL_PALADIN_SANCTIFIED_WRATH_TALENT_R1
+                });
             }
 
             void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -262,7 +255,7 @@ class spell_pal_avenging_wrath : public SpellScriptLoader
                 if (AuraEffect const* aurEff = target->GetAuraEffectOfRankedSpell(SPELL_PALADIN_SANCTIFIED_WRATH_TALENT_R1, EFFECT_2))
                 {
                     int32 basepoints = aurEff->GetAmount();
-                    target->CastCustomSpell(target, SPELL_PALADIN_SANCTIFIED_WRATH, &basepoints, &basepoints, NULL, true, NULL, aurEff);
+                    target->CastCustomSpell(target, SPELL_PALADIN_SANCTIFIED_WRATH, &basepoints, &basepoints, nullptr, true, nullptr, aurEff);
                 }
             }
 
@@ -435,7 +428,7 @@ class spell_pal_divine_shield : public SpellScript
     void HandleFinalStand()
     {
         if (GetCaster()->HasAura(SPELL_PALADIN_FINAL_STAND))
-            GetCaster()->CastSpell((Unit*)nullptr, SPELL_PALADIN_FINAL_STAND_EFFECT, true);
+            GetCaster()->CastSpell(nullptr, SPELL_PALADIN_FINAL_STAND_EFFECT, true);
     }
 
     void TriggerForbearance()
@@ -616,7 +609,7 @@ class spell_pal_eye_for_an_eye : public SpellScriptLoader
                     return;
 
                 int32 damage = CalculatePct(damageInfo->GetDamage(), aurEff->GetAmount());
-                GetTarget()->CastCustomSpell(SPELL_PALADIN_EYE_FOR_AN_EYE_DAMAGE, SPELLVALUE_BASE_POINT0, damage, eventInfo.GetProcTarget(), true, NULL, aurEff);
+                GetTarget()->CastCustomSpell(SPELL_PALADIN_EYE_FOR_AN_EYE_DAMAGE, SPELLVALUE_BASE_POINT0, damage, eventInfo.GetProcTarget(), true, nullptr, aurEff);
             }
 
             void Register() override
@@ -765,7 +758,7 @@ class spell_pal_holy_shock : public SpellScriptLoader
 
             bool Validate(SpellInfo const* spellInfo) override
             {
-                SpellInfo const* firstRankSpellInfo = sSpellMgr->GetSpellInfo(SPELL_PALADIN_HOLY_SHOCK_R1);
+                SpellInfo const* firstRankSpellInfo = sSpellMgr->GetSpellInfo(SPELL_PALADIN_HOLY_SHOCK_R1, DIFFICULTY_NONE);
                 if (!firstRankSpellInfo)
                     return false;
 
@@ -843,7 +836,7 @@ class spell_pal_item_healing_discount : public SpellScriptLoader
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
-                GetTarget()->CastSpell(GetTarget(), SPELL_PALADIN_ITEM_HEALING_TRANCE, true, NULL, aurEff);
+                GetTarget()->CastSpell(GetTarget(), SPELL_PALADIN_ITEM_HEALING_TRANCE, true, nullptr, aurEff);
             }
 
             void Register() override
@@ -870,7 +863,11 @@ class spell_pal_item_t6_trinket : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                return ValidateSpellInfo({ SPELL_PALADIN_ENDURING_LIGHT, SPELL_PALADIN_ENDURING_JUDGEMENT });
+                return ValidateSpellInfo(
+                {
+                    SPELL_PALADIN_ENDURING_LIGHT,
+                    SPELL_PALADIN_ENDURING_JUDGEMENT
+                });
             }
 
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -925,6 +922,7 @@ class spell_pal_judgement : public SpellScriptLoader
         {
             PrepareSpellScript(spell_pal_judgement_SpellScript);
 
+        private:
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_PALADIN_JUDGEMENT_DAMAGE });
@@ -940,7 +938,7 @@ class spell_pal_judgement : public SpellScriptLoader
                 {
                     if ((*i)->GetSpellInfo()->GetSpellSpecific() == SPELL_SPECIFIC_SEAL && (*i)->GetEffIndex() == EFFECT_2)
                     {
-                        if (sSpellMgr->GetSpellInfo((*i)->GetAmount()))
+                        if (sSpellMgr->GetSpellInfo((*i)->GetAmount(), GetCastDifficulty()))
                         {
                             spellId = (*i)->GetAmount();
                             break;
@@ -1302,7 +1300,7 @@ class spell_pal_seal_of_righteousness : public SpellScriptLoader
                 int32 holy = GetTarget()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY);
                 holy += eventInfo.GetProcTarget()->SpellBaseDamageBonusTaken(SPELL_SCHOOL_MASK_HOLY);
                 int32 bp = int32((ap * 0.022f + 0.044f * holy) * GetTarget()->GetBaseAttackTime(BASE_ATTACK) / 1000);
-                GetTarget()->CastCustomSpell(SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS, SPELLVALUE_BASE_POINT0, bp, eventInfo.GetProcTarget(), true, NULL, aurEff);
+                GetTarget()->CastCustomSpell(SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS, SPELLVALUE_BASE_POINT0, bp, eventInfo.GetProcTarget(), true, nullptr, aurEff);
             }
 
             void Register() override
@@ -1411,9 +1409,9 @@ class spell_pal_t8_2p_bonus : public SpellScriptLoader
                 Unit* caster = eventInfo.GetActor();
                 Unit* target = eventInfo.GetProcTarget();
 
-                SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_PALADIN_HOLY_MENDING);
+                SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_PALADIN_HOLY_MENDING, GetCastDifficulty());
                 int32 amount = CalculatePct(static_cast<int32>(healInfo->GetHeal()), aurEff->GetAmount());
-                amount /= spellInfo->GetMaxTicks(DIFFICULTY_NONE);
+                amount /= spellInfo->GetMaxTicks();
                 // Add remaining ticks to damage done
                 amount += target->GetRemainingPeriodicAmount(caster->GetGUID(), SPELL_PALADIN_HOLY_MENDING, SPELL_AURA_PERIODIC_HEAL);
 

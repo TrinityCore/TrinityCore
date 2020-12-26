@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "MoveSplineInit.h"
@@ -140,9 +141,7 @@ class boss_kirtonos_the_herald : public CreatureScript
             void MovementInform(uint32 type, uint32 id) override
             {
                 if (type == WAYPOINT_MOTION_TYPE && id == POINT_KIRTONOS_LAND)
-                {
                     events.ScheduleEvent(INTRO_2, 1500);
-                }
             }
 
             void UpdateAI(uint32 diff) override
@@ -283,12 +282,22 @@ class go_brazier_of_the_herald : public GameObjectScript
     public:
         go_brazier_of_the_herald() : GameObjectScript("go_brazier_of_the_herald") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+        struct go_brazier_of_the_heraldAI : public GameObjectAI
         {
-            go->UseDoorOrButton();
-            go->PlayDirectSound(SOUND_SCREECH, 0);
-            player->SummonCreature(NPC_KIRTONOS, PosSummon[0], TEMPSUMMON_DEAD_DESPAWN, 900000);
-            return true;
+            go_brazier_of_the_heraldAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool GossipHello(Player* player) override
+            {
+                me->UseDoorOrButton();
+                me->PlayDirectSound(SOUND_SCREECH, nullptr);
+                player->SummonCreature(NPC_KIRTONOS, PosSummon[0], TEMPSUMMON_DEAD_DESPAWN, 900000);
+                return true;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return GetScholomanceAI<go_brazier_of_the_heraldAI>(go);
         }
 };
 

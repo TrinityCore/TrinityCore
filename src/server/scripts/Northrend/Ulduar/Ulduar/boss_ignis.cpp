@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "GameTime.h"
 #include "ScriptMgr.h"
+#include "GameTime.h"
 #include "InstanceScript.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
@@ -180,9 +180,10 @@ class boss_ignis : public CreatureScript
             {
                 if (summon->GetEntry() == NPC_IRON_CONSTRUCT)
                 {
-                    summon->setFaction(16);
+                    summon->SetFaction(FACTION_MONSTER_2);
                     summon->SetReactState(REACT_AGGRESSIVE);
-                    summon->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED | UNIT_FLAG_STUNNED | UNIT_FLAG_IMMUNE_TO_PC));
+                    summon->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED | UNIT_FLAG_STUNNED));
+                    summon->SetImmuneToPC(false);
                     summon->SetControlled(false, UNIT_STATE_ROOT);
                 }
 
@@ -255,7 +256,7 @@ class boss_ignis : public CreatureScript
                             if (Unit* slagPotTarget = ObjectAccessor::GetUnit(*me, _slagPotGUID))
                             {
                                 slagPotTarget->ExitVehicle();
-                                slagPotTarget = NULL;
+                                slagPotTarget = nullptr;
                                 _slagPotGUID.Clear();
                                 events.CancelEvent(EVENT_END_POT);
                             }
@@ -328,7 +329,7 @@ class npc_iron_construct : public CreatureScript
                 if (me->HasAura(RAID_MODE(SPELL_BRITTLE, SPELL_BRITTLE_25)) && damage >= 5000)
                 {
                     DoCast(SPELL_SHATTER);
-                    if (Creature* ignis = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(BOSS_IGNIS)))
+                    if (Creature* ignis = _instance->GetCreature(BOSS_IGNIS))
                         if (ignis->AI())
                             ignis->AI()->DoAction(ACTION_REMOVE_BUFF);
 

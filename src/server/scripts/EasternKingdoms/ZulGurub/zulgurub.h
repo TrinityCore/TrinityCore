@@ -20,8 +20,8 @@
 
 #include "CreatureAIImpl.h"
 
-#define DataHeader "ZG"
 #define ZGScriptName "instance_zulgurub"
+#define DataHeader "ZG"
 
 uint32 const EncounterCount = 5;
 
@@ -89,10 +89,10 @@ enum ZGGameObjectIds
     GO_THE_CACHE_OF_MADNESS_DOOR    = 208843
 };
 
-template<typename AI>
-inline AI* GetZulGurubAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetZulGurubAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, ZGScriptName);
+    return GetInstanceAI<AI>(obj, ZGScriptName);
 }
 
 #endif

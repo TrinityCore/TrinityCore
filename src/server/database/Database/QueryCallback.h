@@ -44,14 +44,8 @@ public:
     // Moves std::future from next to this object
     void SetNextQuery(QueryCallback&& next);
 
-    enum Status
-    {
-        NotReady,
-        NextStep,
-        Completed
-    };
-
-    Status InvokeIfReady();
+    // returns true when completed
+    bool InvokeIfReady();
 
 private:
     QueryCallback(QueryCallback const& right) = delete;

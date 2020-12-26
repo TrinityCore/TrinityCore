@@ -789,65 +789,21 @@ google::protobuf::ServiceDescriptor const* ChallengeListener::descriptor() {
   return ChallengeListener_descriptor_;
 }
 
-void ChallengeListener::OnExternalChallenge(::bgs::protocol::challenge::v1::ChallengeExternalRequest const* request) {
+void ChallengeListener::OnExternalChallenge(::bgs::protocol::challenge::v1::ChallengeExternalRequest const* request, bool client /*= false*/, bool server /*= false*/) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ChallengeListener.OnExternalChallenge(bgs.protocol.challenge.v1.ChallengeExternalRequest{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 3, request);
+  SendRequest(service_hash_, 3 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
-void ChallengeListener::OnExternalChallengeResult(::bgs::protocol::challenge::v1::ChallengeExternalResult const* request) {
+void ChallengeListener::OnExternalChallengeResult(::bgs::protocol::challenge::v1::ChallengeExternalResult const* request, bool client /*= false*/, bool server /*= false*/) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method ChallengeListener.OnExternalChallengeResult(bgs.protocol.challenge.v1.ChallengeExternalResult{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 4, request);
+  SendRequest(service_hash_, 4 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
-void ChallengeListener::CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) {
-  switch(methodId) {
-    case 3: {
-      ::bgs::protocol::challenge::v1::ChallengeExternalRequest request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for ChallengeListener.OnExternalChallenge server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, 3, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      uint32 status = HandleOnExternalChallenge(&request);
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method ChallengeListener.OnExternalChallenge(bgs.protocol.challenge.v1.ChallengeExternalRequest{ %s }) status %u.",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str(), status);
-      if (status)
-        SendResponse(service_hash_, 3, token, status);
-      break;
-    }
-    case 4: {
-      ::bgs::protocol::challenge::v1::ChallengeExternalResult request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for ChallengeListener.OnExternalChallengeResult server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, 4, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      uint32 status = HandleOnExternalChallengeResult(&request);
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method ChallengeListener.OnExternalChallengeResult(bgs.protocol.challenge.v1.ChallengeExternalResult{ %s }) status %u.",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str(), status);
-      if (status)
-        SendResponse(service_hash_, 4, token, status);
-      break;
-    }
-    default:
-      TC_LOG_ERROR("service.protobuf", "Bad method id %u.", methodId);
-      SendResponse(service_hash_, methodId, token, ERROR_RPC_INVALID_METHOD);
-      break;
-    }
-}
-
-uint32 ChallengeListener::HandleOnExternalChallenge(::bgs::protocol::challenge::v1::ChallengeExternalRequest const* request) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method ChallengeListener.OnExternalChallenge({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  return ERROR_RPC_NOT_IMPLEMENTED;
-}
-
-uint32 ChallengeListener::HandleOnExternalChallengeResult(::bgs::protocol::challenge::v1::ChallengeExternalResult const* request) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method ChallengeListener.OnExternalChallengeResult({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  return ERROR_RPC_NOT_IMPLEMENTED;
+void ChallengeListener::CallServerMethod(uint32 token, uint32 methodId, MessageBuffer /*buffer*/) {
+  TC_LOG_ERROR("service.protobuf", "%s Server tried to call server method %u",
+    GetCallerInfo().c_str(), methodId);
 }
 
 

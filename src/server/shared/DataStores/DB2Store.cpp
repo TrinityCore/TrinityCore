@@ -20,21 +20,23 @@
 #include "DB2DatabaseLoader.h"
 #include "DB2FileSystemSource.h"
 #include "DB2Meta.h"
+#include "StringFormat.h"
 
 DB2StorageBase::DB2StorageBase(char const* fileName, DB2LoadInfo const* loadInfo)
-    : _tableHash(0), _layoutHash(0), _fileName(fileName), _fieldCount(0), _loadInfo(loadInfo), _dataTable(nullptr), _dataTableEx(nullptr), _indexTableSize(0)
+    : _tableHash(0), _layoutHash(0), _fileName(fileName), _fieldCount(0), _loadInfo(loadInfo), _dataTable(nullptr), _dataTableEx(), _indexTableSize(0)
 {
 }
 
 DB2StorageBase::~DB2StorageBase()
 {
     delete[] _dataTable;
-    delete[] _dataTableEx;
+    delete[] _dataTableEx[0];
+    delete[] _dataTableEx[1];
     for (char* strings : _stringPool)
         delete[] strings;
 }
 
-void DB2StorageBase::WriteRecordData(char const* entry, uint32 locale, ByteBuffer& buffer) const
+void DB2StorageBase::WriteRecordData(char const* entry, LocaleConstant locale, ByteBuffer& buffer) const
 {
     if (!_loadInfo->Meta->HasIndexFieldInData())
         entry += 4;
@@ -67,12 +69,8 @@ void DB2StorageBase::WriteRecordData(char const* entry, uint32 locale, ByteBuffe
                     break;
                 case FT_STRING:
                 {
-                    LocalizedString* locStr = *(LocalizedString**)entry;
-                    if (locStr->Str[locale][0] == '\0')
-                        locale = 0;
-
-                    buffer << locStr->Str[locale];
-                    entry += sizeof(LocalizedString*);
+                    buffer << (*(LocalizedString*)entry)[locale];
+                    entry += sizeof(LocalizedString);
                     break;
                 }
                 case FT_STRING_NOT_LOCALIZED:
@@ -86,65 +84,69 @@ void DB2StorageBase::WriteRecordData(char const* entry, uint32 locale, ByteBuffe
     }
 }
 
-bool DB2StorageBase::Load(std::string const& path, uint32 locale, char**& indexTable)
+void DB2StorageBase::Load(std::string const& path, LocaleConstant locale, char**& indexTable)
 {
     indexTable = nullptr;
     DB2FileLoader db2;
     DB2FileSystemSource source(path + _fileName);
     // Check if load was successful, only then continue
-    if (!db2.Load(&source, _loadInfo))
-        return false;
+    db2.Load(&source, _loadInfo);
 
     _fieldCount = db2.GetCols();
     _tableHash = db2.GetTableHash();
     _layoutHash = db2.GetLayoutHash();
 
     // load raw non-string data
-    _dataTable = db2.AutoProduceData(_indexTableSize, indexTable, _stringPool);
+    _dataTable = db2.AutoProduceData(_indexTableSize, indexTable);
 
     // load strings from db2 data
-    if (!_stringPool.empty())
-        if (char* stringBlock = db2.AutoProduceStrings(indexTable, _indexTableSize, locale))
-            _stringPool.push_back(stringBlock);
+    if (char* stringBlock = db2.AutoProduceStrings(indexTable, _indexTableSize, locale))
+        _stringPool.push_back(stringBlock);
 
     db2.AutoProduceRecordCopies(_indexTableSize, indexTable, _dataTable);
-
-    // error in db2 file at loading if NULL
-    return indexTable != nullptr;
 }
 
-bool DB2StorageBase::LoadStringsFrom(std::string const& path, uint32 locale, char** indexTable)
+void DB2StorageBase::LoadStringsFrom(std::string const& path, LocaleConstant locale, char** indexTable)
 {
     // DB2 must be already loaded using Load
     if (!indexTable)
-        return false;
+        throw DB2FileLoadException(Trinity::StringFormat("%s was not loaded properly, cannot load strings", path.c_str()));
 
     DB2FileLoader db2;
     DB2FileSystemSource source(path + _fileName);
     // Check if load was successful, only then continue
-    if (!db2.Load(&source, _loadInfo))
-        return false;
+    db2.Load(&source, _loadInfo);
 
     // load strings from another locale db2 data
     if (_loadInfo->GetStringFieldCount(true))
         if (char* stringBlock = db2.AutoProduceStrings(indexTable, _indexTableSize, locale))
             _stringPool.push_back(stringBlock);
-
-    return true;
 }
 
 void DB2StorageBase::LoadFromDB(char**& indexTable)
 {
-    char* extraStringHolders = nullptr;
-    _dataTableEx = DB2DatabaseLoader(_fileName, _loadInfo).Load(_indexTableSize, indexTable, extraStringHolders, _stringPool);
-    if (extraStringHolders)
-        _stringPool.push_back(extraStringHolders);
+    DB2DatabaseLoader loader(_fileName, _loadInfo);
+
+    auto loadTable = [&](bool custom)
+    {
+        char* extraStringHolders = nullptr;
+        _dataTableEx[custom ? 1 : 0] = loader.Load(custom, _indexTableSize, indexTable, extraStringHolders, _stringPool);
+        if (extraStringHolders)
+            _stringPool.push_back(extraStringHolders);
+    };
+
+    loadTable(false);
+    loadTable(true);
+    _stringPool.shrink_to_fit();
 }
 
-void DB2StorageBase::LoadStringsFromDB(uint32 locale, char** indexTable)
+void DB2StorageBase::LoadStringsFromDB(LocaleConstant locale, char** indexTable)
 {
     if (!_loadInfo->GetStringFieldCount(true))
         return;
 
-    DB2DatabaseLoader(_fileName, _loadInfo).LoadStrings(locale, _indexTableSize, indexTable, _stringPool);
+    DB2DatabaseLoader loader(_fileName, _loadInfo);
+    loader.LoadStrings(false, locale, _indexTableSize, indexTable, _stringPool);
+    loader.LoadStrings(true, locale, _indexTableSize, indexTable, _stringPool);
+    _stringPool.shrink_to_fit();
 }

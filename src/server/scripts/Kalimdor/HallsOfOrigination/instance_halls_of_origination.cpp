@@ -22,6 +22,7 @@
 #include "halls_of_origination.h"
 #include "InstanceScript.h"
 #include "Map.h"
+#include <sstream>
 
 DoorData const doorData[] =
 {
@@ -61,7 +62,7 @@ class instance_halls_of_origination : public InstanceMapScript
                 {
                     case GO_ANHUURS_BRIDGE:
                         AnhuursBridgeGUID = go->GetGUID();
-                        // no break
+                        /* fallthrough */
                     case GO_DOODAD_ULDUM_ELEVATOR_COL01:
                     case GO_VAULT_OF_LIGHTS_DOOR:
                     case GO_DOODAD_ULDUM_LIGHTMACHINE_01:

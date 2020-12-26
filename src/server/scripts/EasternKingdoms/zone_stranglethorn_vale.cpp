@@ -39,8 +39,6 @@ enum Yenniku
 {
     SPELL_YENNIKUS_RELEASE   = 3607,
     QUEST_SAVING_YENNIKU     = 592,
-    FACTION_HORDE_GENERIC    = 83,
-    FACTION_TROLL_BLOODSCALP = 28
 };
 
 class npc_yenniku : public CreatureScript
@@ -75,7 +73,7 @@ public:
             me->SetEmoteState(EMOTE_STATE_NONE);
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell) override
+        void SpellHit(Unit* caster, SpellInfo const* spell) override
         {
             if (bReset || spell->Id != SPELL_YENNIKUS_RELEASE)
                 return;
@@ -85,9 +83,9 @@ public:
                 if (player->GetQuestStatus(QUEST_SAVING_YENNIKU) == QUEST_STATUS_INCOMPLETE) // Yenniku's Release
                 {
                     me->SetEmoteState(EMOTE_STATE_STUN);
-                    me->CombatStop();                      // stop combat
-                    me->DeleteThreatList();                // unsure of this
-                    me->setFaction(FACTION_HORDE_GENERIC); // horde generic
+                    me->CombatStop();                   //stop combat
+                    me->GetThreatManager().ClearAllThreat();             //unsure of this
+                    me->SetFaction(FACTION_HORDE_GENERIC);
 
                     bReset = true;
                     Reset_Timer = 60000;
@@ -105,7 +103,7 @@ public:
                 {
                     EnterEvadeMode();
                     bReset = false;
-                    me->setFaction(FACTION_TROLL_BLOODSCALP); // troll, bloodscalp
+                    me->SetFaction(FACTION_TROLL_BLOODSCALP); // troll, bloodscalp
                     return;
                 }
 
@@ -118,7 +116,7 @@ public:
                         if (player->GetTeam() == HORDE)
                         {
                             me->CombatStop();
-                            me->DeleteThreatList();
+                            me->GetThreatManager().ClearAllThreat();
                         }
                     }
                 }

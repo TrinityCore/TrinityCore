@@ -30,8 +30,8 @@ EndContentData */
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
-#include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
 #include "wailing_caverns.h"
 
 /*######
@@ -80,70 +80,16 @@ class npc_disciple_of_naralex : public CreatureScript
 public:
     npc_disciple_of_naralex() : CreatureScript("npc_disciple_of_naralex") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    struct npc_disciple_of_naralexAI : public EscortAI
     {
-        return GetWailingCavernsAI<npc_disciple_of_naralexAI>(creature);
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        ClearGossipMenuFor(player);
-        InstanceScript* instance = creature->GetInstanceScript();
-        if (action == GOSSIP_ACTION_INFO_DEF + 1)
-        {
-            CloseGossipMenuFor(player);
-            if (instance)
-                instance->SetData(TYPE_NARALEX_EVENT, IN_PROGRESS);
-
-            creature->AI()->Talk(SAY_MAKE_PREPARATIONS);
-
-            creature->setFaction(250);
-            creature->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-
-            ENSURE_AI(npc_escortAI, (creature->AI()))->Start(false, false, player->GetGUID());
-            ENSURE_AI(npc_escortAI, (creature->AI()))->SetDespawnAtFar(false);
-            ENSURE_AI(npc_escortAI, (creature->AI()))->SetDespawnAtEnd(false);
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        InstanceScript* instance = creature->GetInstanceScript();
-
-        if (instance)
-        {
-            creature->CastSpell(player, SPELL_MARK_OF_THE_WILD_RANK_2, true);
-            if ((instance->GetData(TYPE_LORD_COBRAHN) == DONE) && (instance->GetData(TYPE_LORD_PYTHAS) == DONE) &&
-                (instance->GetData(TYPE_LADY_ANACONDRA) == DONE) && (instance->GetData(TYPE_LORD_SERPENTIS) == DONE))
-            {
-                AddGossipItemFor(player, GOSSIP_OPTION_LET_EVENT_BEGIN, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                SendGossipMenuFor(player, NPC_TEXT_FANGLORDS_ARE_DEAD, creature->GetGUID());
-
-                if (!instance->GetData(TYPE_NARALEX_YELLED))
-                {
-                    creature->AI()->Talk(SAY_AT_LAST);
-                    instance->SetData(TYPE_NARALEX_YELLED, 1);
-                }
-            }
-            else
-            {
-                SendGossipMenuFor(player, NPC_TEXT_NARALEX_SLEEPS_AGAIN, creature->GetGUID());
-            }
-        }
-        return true;
-    }
-
-    struct npc_disciple_of_naralexAI : public npc_escortAI
-    {
-        npc_disciple_of_naralexAI(Creature* creature) : npc_escortAI(creature)
+        npc_disciple_of_naralexAI(Creature* creature) : EscortAI(creature)
         {
             instance = creature->GetInstanceScript();
             eventTimer = 0;
             currentEvent = 0;
             eventProgress = 0;
             me->setActive(true);
-            me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetImmuneToPC(false);
         }
 
         uint32 eventTimer;
@@ -151,7 +97,7 @@ public:
         uint32 eventProgress;
         InstanceScript* instance;
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             switch (waypointId)
             {
@@ -206,7 +152,7 @@ public:
         void UpdateAI(uint32 diff) override
         {
             if (currentEvent != TYPE_NARALEX_PART3)
-                npc_escortAI::UpdateAI(diff);
+                EscortAI::UpdateAI(diff);
 
             if (eventTimer <= diff)
             {
@@ -230,7 +176,7 @@ public:
                                 ++eventProgress;
                                 Talk(SAY_BANISH_THE_SPIRITS);
                                 DoCast(me, SPELL_SERPENTINE_CLEANSING);
-                                //CAST_AI(npc_escort::npc_escortAI, me->AI())->SetCanDefend(false);
+                                //CAST_AI(EscortAI, me->AI())->SetCanDefend(false);
                                 eventTimer = 30000;
                                 me->SummonCreature(NPC_DEVIATE_VIPER, -61.5261f, 273.676f, -92.8442f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000);
                                 me->SummonCreature(NPC_DEVIATE_VIPER, -58.4658f, 280.799f, -92.8393f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000);
@@ -239,7 +185,7 @@ public:
                             else
                             if (eventProgress == 2)
                             {
-                                //CAST_AI(npc_escort::npc_escortAI, me->AI())->SetCanDefend(true);
+                                //CAST_AI(EscortAI, me->AI())->SetCanDefend(true);
                                 Talk(SAY_CAVERNS_PURIFIED);
                                 instance->SetData(TYPE_NARALEX_PART2, DONE);
                                 if (me->HasAura(SPELL_SERPENTINE_CLEANSING))
@@ -259,7 +205,7 @@ public:
                             {
                                 ++eventProgress;
                                 eventTimer = 15000;
-                                //CAST_AI(npc_escort::npc_escortAI, me->AI())->SetCanDefend(false);
+                                //CAST_AI(EscortAI, me->AI())->SetCanDefend(false);
                                 if (Creature* naralex = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_NARALEX)))
                                     DoCast(naralex, SPELL_NARALEXS_AWAKENING, true);
                                 Talk(EMOTE_AWAKENING_RITUAL);
@@ -370,8 +316,56 @@ public:
                 }
             } else eventTimer -= diff;
         }
+
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        {
+            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+            ClearGossipMenuFor(player);
+            if (action == GOSSIP_ACTION_INFO_DEF + 1)
+            {
+                CloseGossipMenuFor(player);
+                if (instance)
+                    instance->SetData(TYPE_NARALEX_EVENT, IN_PROGRESS);
+
+                Talk(SAY_MAKE_PREPARATIONS);
+
+                me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_ACTIVE);
+                me->SetImmuneToPC(false);
+
+                Start(false, false, player->GetGUID());
+                SetDespawnAtFar(false);
+                SetDespawnAtEnd(false);
+            }
+            return true;
+        }
+
+        bool GossipHello(Player* player) override
+        {
+            DoCast(player, SPELL_MARK_OF_THE_WILD_RANK_2, true);
+            if ((instance->GetData(TYPE_LORD_COBRAHN) == DONE) && (instance->GetData(TYPE_LORD_PYTHAS) == DONE) &&
+                (instance->GetData(TYPE_LADY_ANACONDRA) == DONE) && (instance->GetData(TYPE_LORD_SERPENTIS) == DONE))
+            {
+                AddGossipItemFor(player, GOSSIP_OPTION_LET_EVENT_BEGIN, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                SendGossipMenuFor(player, NPC_TEXT_FANGLORDS_ARE_DEAD, me->GetGUID());
+
+                if (!instance->GetData(TYPE_NARALEX_YELLED))
+                {
+                    Talk(SAY_AT_LAST);
+                    instance->SetData(TYPE_NARALEX_YELLED, 1);
+                }
+            }
+            else
+            {
+                SendGossipMenuFor(player, NPC_TEXT_NARALEX_SLEEPS_AGAIN, me->GetGUID());
+            }
+            return true;
+        }
     };
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetWailingCavernsAI<npc_disciple_of_naralexAI>(creature);
+    }
 };
 
 void AddSC_wailing_caverns()

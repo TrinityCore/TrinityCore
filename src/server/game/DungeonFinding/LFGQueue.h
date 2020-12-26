@@ -52,7 +52,7 @@ struct LfgCompatibilityData
 /// Stores player or group queue info
 struct LfgQueueData
 {
-    LfgQueueData(): joinTime(time_t(time(NULL))), tanks(LFG_TANKS_NEEDED),
+    LfgQueueData(): joinTime(time_t(time(nullptr))), tanks(LFG_TANKS_NEEDED),
         healers(LFG_HEALERS_NEEDED), dps(LFG_DPS_NEEDED)
         { }
 

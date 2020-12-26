@@ -321,7 +321,7 @@ public:
 
             me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
             me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
-            me->setFaction(14);
+            me->SetFaction(FACTION_MONSTER);
         }
 
         void EnterCombat(Unit* /*who*/) override { }

@@ -23,14 +23,14 @@ SDCategory: Shadowfang Keep
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "Creature.h"
-#include "CreatureAI.h"
+#include "shadowfang_keep.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Log.h"
 #include "Map.h"
-#include "shadowfang_keep.h"
+#include "ScriptedCreature.h"
 #include "TemporarySummon.h"
+#include <sstream>
 
 #define MAX_ENCOUNTER              4
 
@@ -217,7 +217,7 @@ public:
             return str_data;
         }
 
-        void Load(const char* in) override
+        void Load(char const* in) override
         {
             if (!in)
             {
@@ -258,7 +258,7 @@ public:
                         case 1:
                         {
                             Creature* summon = pArchmage->SummonCreature(pArchmage->GetEntry(), SpawnLocation[4], TEMPSUMMON_TIMED_DESPAWN, 10000);
-                            summon->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                            summon->SetImmuneToPC(true);
                             summon->SetReactState(REACT_DEFENSIVE);
                             summon->CastSpell(summon, SPELL_ASHCROMBE_TELEPORT, true);
                             summon->AI()->Talk(SAY_ARCHMAGE);

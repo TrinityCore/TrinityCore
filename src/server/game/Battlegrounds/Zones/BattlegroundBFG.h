@@ -48,7 +48,7 @@ class BattlegroundBFGScore final : public BattlegroundScore
             }
         }
 
-        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPLogData::PVPMatchPlayerStatistics& playerData) const override
+        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics& playerData) const override
         {
             BattlegroundScore::BuildPvPLogPlayerDataPacket(playerData);
 
@@ -66,7 +66,7 @@ class BattlegroundBFGScore final : public BattlegroundScore
 class BattlegroundBFG : public Battleground
 {
     public:
-        BattlegroundBFG();
+        BattlegroundBFG(BattlegroundTemplate const* battlegroundTemplate);
         ~BattlegroundBFG();
 };
 

@@ -21,9 +21,9 @@
 #include "Define.h"
 #include "DatabaseWorkerPool.h"
 
-#include "Implementation/WorldDatabase.h"
-#include "Implementation/CharacterDatabase.h"
 #include "Implementation/LoginDatabase.h"
+#include "Implementation/CharacterDatabase.h"
+#include "Implementation/WorldDatabase.h"
 #include "Implementation/HotfixDatabase.h"
 
 #include "Field.h"

@@ -19,6 +19,7 @@
 #define DBCENUMS_H
 
 #include "Define.h"
+#include "EnumFlag.h"
 #include <array>
 
 #pragma pack(push, 1)
@@ -43,11 +44,11 @@ enum LevelLimit
     // Client expected level limitation, like as used in DBC item max levels for "until max player level"
     // use as default max player level, must be fit max level for used client
     // also see MAX_LEVEL and STRONG_MAX_LEVEL define
-    DEFAULT_MAX_LEVEL = 120,
+    DEFAULT_MAX_LEVEL = 60,
 
     // client supported max level for player/pets/etc. Avoid overflow or client stability affected.
     // also see GT_MAX_LEVEL define
-    MAX_LEVEL = 120,
+    MAX_LEVEL = 123,
 
     // Server side limitation. Base at used code requirements.
     // also see MAX_LEVEL and GT_MAX_LEVEL define
@@ -108,7 +109,7 @@ enum AreaFlags
     AREA_FLAG_SNOW                  = 0x00000001,                // snow (only Dun Morogh, Naxxramas, Razorfen Downs and Winterspring)
     AREA_FLAG_UNK1                  = 0x00000002,                // Razorfen Downs, Naxxramas and Acherus: The Ebon Hold (3.3.5a)
     AREA_FLAG_UNK2                  = 0x00000004,                // Only used for areas on map 571 (development before)
-    AREA_FLAG_SLAVE_CAPITAL         = 0x00000008,                // city and city subsones
+    AREA_FLAG_SLAVE_CAPITAL         = 0x00000008,                // city and city subzones
     AREA_FLAG_UNK3                  = 0x00000010,                // can't find common meaning
     AREA_FLAG_SLAVE_CAPITAL2        = 0x00000020,                // slave capital city flag?
     AREA_FLAG_ALLOW_DUELS           = 0x00000040,                // allow to duel here
@@ -129,12 +130,17 @@ enum AreaFlags
     AREA_FLAG_TOWN                  = 0x00200000,                // small towns with Inn
     AREA_FLAG_REST_ZONE_HORDE       = 0x00400000,                // Warsong Hold, Acherus: The Ebon Hold, New Agamand Inn, Vengeance Landing Inn, Sunreaver Pavilion (Something to do with team?)
     AREA_FLAG_REST_ZONE_ALLIANCE    = 0x00800000,                // Valgarde, Acherus: The Ebon Hold, Westguard Inn, Silver Covenant Pavilion (Something to do with team?)
-    AREA_FLAG_WINTERGRASP           = 0x01000000,                // Wintergrasp and it's subzones
+    AREA_FLAG_COMBAT                = 0x01000000,                // "combat" area (Script_GetZonePVPInfo), used
     AREA_FLAG_INSIDE                = 0x02000000,                // used for determinating spell related inside/outside questions in Map::IsOutdoors
     AREA_FLAG_OUTSIDE               = 0x04000000,                // used for determinating spell related inside/outside questions in Map::IsOutdoors
     AREA_FLAG_CAN_HEARTH_AND_RESURRECT = 0x08000000,             // Can Hearth And Resurrect From Area
     AREA_FLAG_NO_FLY_ZONE           = 0x20000000,                // Marks zones where you cannot fly
     AREA_FLAG_UNK9                  = 0x40000000
+};
+
+enum AreaFlags2
+{
+    AREA_FLAG_2_DONT_SHOW_SANCTUARY = 0x00000200,                // Hides sanctuary status from zone text color (Script_GetZonePVPInfo)
 };
 
 enum AreaMountFlags
@@ -167,7 +173,7 @@ enum ArtifactPowerFlag : uint8
 
 #define MAX_AZERITE_EMPOWERED_TIER 5
 
-#define MAX_AZERITE_ESSENCE_SLOT 3
+#define MAX_AZERITE_ESSENCE_SLOT 4
 #define MAX_AZERITE_ESSENCE_RANK 4
 
 enum class AzeriteItemMilestoneType : int32
@@ -182,7 +188,7 @@ enum AzeriteTierUnlockSetFlags
     AZERITE_TIER_UNLOCK_SET_FLAG_DEFAULT = 0x1
 };
 
-#define BATTLE_PET_SPECIES_MAX_ID 2796
+#define BATTLE_PET_SPECIES_MAX_ID 3084
 
 enum BattlemasterListFlags
 {
@@ -195,6 +201,13 @@ enum BattlemasterListFlags
     BATTLEMASTER_LIST_FLAG_FACTIONAL            = 0x40
 };
 
+enum class ChrRacesFlag : int32
+{
+    AlliedRace  = 0x80000
+};
+
+DEFINE_ENUM_FLAG(ChrRacesFlag);
+
 enum ChrSpecializationFlag
 {
     CHR_SPECIALIZATION_FLAG_CASTER                  = 0x01,
@@ -206,6 +219,30 @@ enum ChrSpecializationFlag
     CHR_SPECIALIZATION_FLAG_RECOMMENDED             = 0x40,
 };
 
+enum class ContentTuningCalcType : int32
+{
+    Base                        = 0,
+    PlusOne                     = 1,
+    PlusMaxLevelForExpansion    = 2
+};
+
+enum class ContentTuningFlag : int32
+{
+    DisabledForItem = 0x04,
+    Horde           = 0x8,
+    Alliance        = 0x10
+};
+
+DEFINE_ENUM_FLAG(ContentTuningFlag);
+
+enum class CorruptionEffectsFlag
+{
+    None        = 0,
+    Disabled    = 0x1
+};
+
+DEFINE_ENUM_FLAG(CorruptionEffectsFlag);
+
 enum CriteriaCondition
 {
     CRITERIA_CONDITION_NONE            = 0,
@@ -213,11 +250,15 @@ enum CriteriaCondition
     CRITERIA_CONDITION_UNK2            = 2,     // only used in "Complete a daily quest every day for five consecutive days"
     CRITERIA_CONDITION_BG_MAP          = 3,     // requires you to be on specific map, reset at change
     CRITERIA_CONDITION_NO_LOSE         = 4,     // only used in "Win 10 arenas without losing"
-    CRITERIA_CONDITION_UNK5            = 5,     // Have spell?
-    CRITERIA_CONDITION_UNK8            = 8,
+    CRITERIA_CONDITION_REMOVE_AURA     = 5,     // reset when this aura is removed
+    CRITERIA_CONDITION_CAST_SPELL      = 8,     // reset when casting this spell
     CRITERIA_CONDITION_NO_SPELL_HIT    = 9,     // requires the player not to be hit by specific spell
     CRITERIA_CONDITION_NOT_IN_GROUP    = 10,    // requires the player not to be in group
-    CRITERIA_CONDITION_UNK13           = 13     // unk
+    CRITERIA_CONDITION_LOSE_PET_BATTLE = 11,    // reset when losing pet battle
+    CRITERIA_CONDITION_UNK13           = 13,    // unk
+    CRITERIA_CONDITION_EVENT           = 14,
+
+    CRITERIA_CONDITION_MAX
 };
 
 enum CriteriaAdditionalCondition
@@ -489,24 +530,50 @@ enum CriteriaAdditionalCondition
     //CRITERIA_ADDITIONAL_CONDITION_UNK_265                     = 265,
     CRITERIA_ADDITIONAL_CONDITION_SELECTED_AZERITE_ESSENCE_RANK_LOWER = 266,
     CRITERIA_ADDITIONAL_CONDITION_SELECTED_AZERITE_ESSENCE_RANK_GREATER = 267,
-    //CRITERIA_ADDITIONAL_CONDITION_UNK_268                     = 268,
-    //CRITERIA_ADDITIONAL_CONDITION_UNK_269                     = 269,
+    CRITERIA_ADDITIONAL_CONDITION_SOURCE_LEVEL_IN_RANGE_CT      = 268,
+    CRITERIA_ADDITIONAL_CONDITION_TARGET_LEVEL_IN_RANGE_CT      = 269,
     //CRITERIA_ADDITIONAL_CONDITION_UNK_270                     = 270,
     //CRITERIA_ADDITIONAL_CONDITION_UNK_271                     = 271,
-    //CRITERIA_ADDITIONAL_CONDITION_UNK_272                     = 272,
-    //CRITERIA_ADDITIONAL_CONDITION_UNK_273                     = 273,
+    CRITERIA_ADDITIONAL_CONDITION_SOURCE_LEVEL_GREATER_CT       = 272, // compare levels using content tuning
+    CRITERIA_ADDITIONAL_CONDITION_TARGET_LEVEL_GREATER_CT       = 273, // compare levels using content tuning
     //CRITERIA_ADDITIONAL_CONDITION_UNK_274                     = 274,
     //CRITERIA_ADDITIONAL_CONDITION_UNK_275                     = 275,
     //CRITERIA_ADDITIONAL_CONDITION_UNK_276                     = 276,
-    //CRITERIA_ADDITIONAL_CONDITION_UNK_277                     = 277,
+    CRITERIA_ADDITIONAL_CONDITION_RAF_RECRUIT_IN_PARTY          = 277, // NYI
     //CRITERIA_ADDITIONAL_CONDITION_UNK_278                     = 278,
     //CRITERIA_ADDITIONAL_CONDITION_UNK_279                     = 279,
     CRITERIA_ADDITIONAL_CONDITION_MAP_OR_COSMETIC_MAP           = 280,
     //CRITERIA_ADDITIONAL_CONDITION_UNK_281                     = 281,
-    CRITERIA_ADDITIONAL_CONDITION_HAS_ENTITLEMENT               = 282,
-    CRITERIA_ADDITIONAL_CONDITION_HAS_QUEST_SESSION             = 283,
+    CRITERIA_ADDITIONAL_CONDITION_HAS_ENTITLEMENT               = 282, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_HAS_QUEST_SESSION             = 283, // NYI
     //CRITERIA_ADDITIONAL_CONDITION_UNK_284                     = 284,
     //CRITERIA_ADDITIONAL_CONDITION_UNK_285                     = 285,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_286                     = 286,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_287                     = 287,
+    CRITERIA_ADDITIONAL_CONDITION_COVENANT                      = 288,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_289                     = 289, // related to pvp ranking
+    CRITERIA_ADDITIONAL_CONDITION_PERMANENT_ANIMA_DIVERSION_TALENT = 290, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_SOULBIND                      = 291,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_292                     = 292,
+    CRITERIA_ADDITIONAL_CONDITION_SOURCE_AREA_OR_ZONE_IN_GROUP  = 293,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_294                     = 294,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_295                     = 295,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_296                     = 296,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_297                     = 297,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_298                     = 298,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_299                     = 299,
+    CRITERIA_ADDITIONAL_CONDITION_SOURCE_IN_SPECIFIC_CHROMIE_TIME = 300,
+    CRITERIA_ADDITIONAL_CONDITION_SOURCE_IN_ANY_CHROMIE_TIME    = 301,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_302                     = 302,
+    CRITERIA_ADDITIONAL_CONDITION_SOURCE_RUNEFORGE_LEGENDARY_KNOWN = 303,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_304                     = 304,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_305                     = 305,
+    //CRITERIA_ADDITIONAL_CONDITION_UNK_306                     = 306,
+    CRITERIA_ADDITIONAL_CONDITION_SOULBIND_CONDUIT_RANK         = 307, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_SHAPESHIFT_FORM_CUSTOMIZATION_DISPLAY = 308,
+    CRITERIA_ADDITIONAL_CONDITION_SOULBIND_MIN_CONDUITS_AT_RANK = 309, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_IS_RESTRICTED_ACCOUNT         = 310, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_SOURCE_FLYING                 = 311,
 };
 
 enum CriteriaFlags
@@ -745,10 +812,24 @@ enum CriteriaTypes : uint8
     CRITERIA_TYPE_RELIC_TALENT_UNLOCKED                 = 211,
     CRITERIA_TYPE_REACH_ACCOUNT_HONOR_LEVEL             = 213,
     CRITERIA_TYPE_HEART_OF_AZEROTH_ARTIFACT_POWER_EARNED= 214,
-    CRITERIA_TYPE_HEART_OF_AZEROTH_LEVEL_REACHED        = 215
+    CRITERIA_TYPE_HEART_OF_AZEROTH_LEVEL_REACHED        = 215,
+    CRITERIA_TYPE_MYTHIC_KEYSTONE_COMPLETED             = 216, // NYI
+    // 217 - 0 criterias
+    CRITERIA_TYPE_COMPLETE_QUEST_ACCUMULATE             = 218,
+    CRITERIA_TYPE_BOUGHT_ITEM_FROM_VENDOR               = 219,
+    CRITERIA_TYPE_SOLD_ITEM_TO_VENDOR                   = 220,
+    // 221 - 0 criterias
+    // 222 - 0 criterias
+    // 223 - 0 criterias
+    // 224 - 0 criterias
+    CRITERIA_TYPE_TRAVELLED_TO_AREA                     = 225,
+    // 226 - 0 criterias
+    // 227 - 0 criterias
+    CRITERIA_TYPE_APPLY_CONDUIT                         = 228,
+    CRITERIA_TYPE_CONVERT_ITEMS_TO_CURRENCY             = 229,
 };
 
-#define CRITERIA_TYPE_TOTAL 219
+#define CRITERIA_TYPE_TOTAL 230
 
 enum CriteriaTreeFlags : uint16
 {
@@ -772,49 +853,19 @@ enum CriteriaTreeOperator : uint8
     CRITERIA_TREE_OPERATOR_SUM_CHILDREN_WEIGHT      = 9
 };
 
-enum class CharBaseSectionVariation : uint8
+enum class ChrCustomizationOptionFlag : int32
 {
-    Skin           = 0,
-    Face           = 1,
-    FacialHair     = 2,
-    Hair           = 3,
-    Underwear      = 4,
-    CustomDisplay1 = 5,
-    CustomDisplay2 = 6,
-    CustomDisplay3 = 7,
-
-    Count
+    Disabled    = 0x4,
 };
 
-enum CharSectionFlags
+DEFINE_ENUM_FLAG(ChrCustomizationOptionFlag);
+
+enum class ChrCustomizationReqFlag : int32
 {
-    SECTION_FLAG_PLAYER = 0x01,
-    SECTION_FLAG_DEATH_KNIGHT = 0x04,
-    SECTION_FLAG_DEMON_HUNTER = 0x20,
-    SECTION_FLAG_CONDITIONAL = 0x400
+    HasRequirements = 0x1
 };
 
-enum CharSectionType
-{
-    SECTION_TYPE_SKIN_LOW_RES = 0,
-    SECTION_TYPE_FACE_LOW_RES = 1,
-    SECTION_TYPE_FACIAL_HAIR_LOW_RES = 2,
-    SECTION_TYPE_HAIR_LOW_RES = 3,
-    SECTION_TYPE_UNDERWEAR_LOW_RES = 4,
-    SECTION_TYPE_SKIN = 5,
-    SECTION_TYPE_FACE = 6,
-    SECTION_TYPE_FACIAL_HAIR = 7,
-    SECTION_TYPE_HAIR = 8,
-    SECTION_TYPE_UNDERWEAR = 9,
-    SECTION_TYPE_CUSTOM_DISPLAY_1_LOW_RES = 10,
-    SECTION_TYPE_CUSTOM_DISPLAY_1 = 11,
-    SECTION_TYPE_CUSTOM_DISPLAY_2_LOW_RES = 12,
-    SECTION_TYPE_CUSTOM_DISPLAY_2 = 13,
-    SECTION_TYPE_CUSTOM_DISPLAY_3_LOW_RES = 14,
-    SECTION_TYPE_CUSTOM_DISPLAY_3 = 15,
-
-    SECTION_TYPE_MAX
-};
+DEFINE_ENUM_FLAG(ChrCustomizationReqFlag);
 
 enum Curves
 {
@@ -860,8 +911,8 @@ enum Difficulty : uint8
     DIFFICULTY_NORMAL_WARFRONT      = 147,
     DIFFICULTY_HEROIC_WARFRONT      = 149,
     DIFFICULTY_LFR_15TH_ANNIVERSARY = 151,
-
-    MAX_DIFFICULTY
+    DIFFICULTY_VISIONS_OF_NZOTH     = 152,
+    DIFFICULTY_TEEMING_ISLAND       = 153
 };
 
 enum DifficultyFlags
@@ -951,7 +1002,8 @@ enum MapFlags
 enum AbilytyLearnType
 {
     SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE  = 1, // Spell state will update depending on skill value
-    SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN  = 2  // Spell will be learned/removed together with entire skill
+    SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN  = 2, // Spell will be learned/removed together with entire skill
+    SKILL_LINE_ABILITY_REWARDED_FROM_QUEST     = 4  // Learned as quest reward, also re-learned if missing
 };
 
 enum GlyphSlotType
@@ -994,7 +1046,7 @@ enum ItemBonusType
     ITEM_BONUS_ITEM_LEVEL                       = 1,
     ITEM_BONUS_STAT                             = 2,
     ITEM_BONUS_QUALITY                          = 3,
-    ITEM_BONUS_DESCRIPTION                      = 4,
+    ITEM_BONUS_NAME_SUBTITLE                    = 4,              // Text under name
     ITEM_BONUS_SUFFIX                           = 5,
     ITEM_BONUS_SOCKET                           = 6,
     ITEM_BONUS_APPEARANCE                       = 7,
@@ -1010,8 +1062,14 @@ enum ItemBonusType
     ITEM_BONUS_RELIC_TYPE                       = 17,
     ITEM_BONUS_OVERRIDE_REQUIRED_LEVEL          = 18,
     ITEM_BONUS_AZERITE_TIER_UNLOCK_SET          = 19,
+    ITEM_BONUS_SCRAPPING_LOOT_ID                = 20,
     ITEM_BONUS_OVERRIDE_CAN_DISENCHANT          = 21,
-    ITEM_BONUS_OVERRIDE_CAN_SCRAP               = 22
+    ITEM_BONUS_OVERRIDE_CAN_SCRAP               = 22,
+    ITEM_BONUS_ITEM_EFFECT_ID                   = 23,
+    ITEM_BONUS_MODIFIED_CRAFTING_STAT           = 25,
+    ITEM_BONUS_REQUIRED_LEVEL_CURVE             = 27,
+    ITEM_BONUS_DESCRIPTION_TEXT                 = 30,             // Item description
+    ITEM_BONUS_OVERRIDE_NAME                    = 31,             // ItemNameDescription id
 };
 
 enum class ItemContext : uint8
@@ -1074,6 +1132,7 @@ enum class ItemContext : uint8
     World_Quest_13          = 55,
     PVP_Ranked_Jackpot      = 56,
     Tournament_Realm        = 57,
+    Relinquished            = 58,
 };
 
 enum ItemLimitCategoryMode
@@ -1255,6 +1314,8 @@ enum SpellProcsPerMinuteModType
     SPELL_PPM_MOD_BATTLEGROUND  = 7
 };
 
+constexpr std::size_t MAX_POWERS_PER_SPELL = 4;
+
 enum SpellShapeshiftFormFlags
 {
     SHAPESHIFT_FORM_IS_NOT_A_SHAPESHIFT         = 0x0001,
@@ -1268,7 +1329,7 @@ enum SpellShapeshiftFormFlags
     SHAPESHIFT_FORM_PREVENT_EMOTE_SOUNDS        = 0x1000
 };
 
-#define TaxiMaskSize 311
+#define TaxiMaskSize 336
 typedef std::array<uint8, TaxiMaskSize> TaxiMask;
 
 enum TotemCategoryType
@@ -1335,7 +1396,8 @@ enum SummonPropFlags
     SUMMON_PROP_FLAG_UNK18           = 0x00020000,
     SUMMON_PROP_FLAG_UNK19           = 0x00040000,
     SUMMON_PROP_FLAG_UNK20           = 0x00080000,
-    SUMMON_PROP_FLAG_UNK21           = 0x00100000           // Totems
+    SUMMON_PROP_FLAG_UNK21           = 0x00100000,          // Totems
+    SUMMON_PROP_FLAG_COMPANION       = 0x00200000
 };
 
 #define MAX_TALENT_TIERS 7
@@ -1355,12 +1417,36 @@ enum TaxiPathNodeFlags
     TAXI_PATH_NODE_FLAG_STOP        = 0x2
 };
 
+enum class UiMapFlag : int32
+{
+    None                    = 0,
+    NoHighlight             = 0x00000001,
+    ShowOverlays            = 0x00000002,
+    ShowTaxiNodes           = 0x00000004,
+    GarrisonMap             = 0x00000008,
+    FallbackToParentMap     = 0x00000010,
+    NoHighlightTexture      = 0x00000020,
+    ShowTaskObjectives      = 0x00000040,
+    NoWorldPositions        = 0x00000080,
+    HideArchaeologyDigs     = 0x00000100,
+    Deprecated              = 0x00000200,
+    HideIcons               = 0x00000400,
+    HideVignettes           = 0x00000800,
+    ForceAllOverlayExplored = 0x00001000,
+    FlightMapShowZoomOut    = 0x00002000,
+    FlightMapAutoZoom       = 0x00004000,
+    ForceOnNavbar           = 0x00008000
+};
+
+DEFINE_ENUM_FLAG(UiMapFlag);
+
 enum UiMapSystem : int8
 {
     UI_MAP_SYSTEM_WORLD     = 0,
     UI_MAP_SYSTEM_TAXI      = 1,
     UI_MAP_SYSTEM_ADVENTURE = 2,
-    MAX_UI_MAP_SYSTEM       = 3
+    UI_MAP_SYSTEM_MINIMAP   = 3,
+    MAX_UI_MAP_SYSTEM
 };
 
 enum UiMapType : int8

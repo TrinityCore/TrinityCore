@@ -26,7 +26,7 @@ char const* GetPlainName(char const* FileName)
 {
     const char * szTemp;
 
-    if((szTemp = strrchr(FileName, '\\')) != NULL)
+    if((szTemp = strrchr(FileName, '\\')) != nullptr)
         FileName = szTemp + 1;
     return FileName;
 }
@@ -35,7 +35,7 @@ char* GetPlainName(char* FileName)
 {
     char * szTemp;
 
-    if((szTemp = strrchr(FileName, '\\')) != NULL)
+    if((szTemp = strrchr(FileName, '\\')) != nullptr)
         FileName = szTemp + 1;
     return FileName;
 }
@@ -67,14 +67,23 @@ void FixNameSpaces(char* name, size_t len)
             name[i] = '_';
 }
 
+void NormalizeFileName(char* name, size_t len)
+{
+    if (len >= 4 && !memcmp(name, "FILE", 4)) // name is FileDataId formatted, do not normalize
+        return;
+
+    FixNameCase(name, len);
+    FixNameSpaces(name, len);
+}
+
 char* GetExtension(char* FileName)
 {
     if (char* szTemp = strrchr(FileName, '.'))
         return szTemp;
-    return NULL;
+    return nullptr;
 }
 
-extern CASC::StorageHandle CascStorage;
+extern std::shared_ptr<CASC::Storage> CascStorage;
 
 ADTFile::ADTFile(std::string const& filename, bool cache) : _file(CascStorage, filename.c_str(), false)
 {
@@ -130,8 +139,7 @@ bool ADTFile::init(uint32 map_num, uint32 originalMapId)
                     std::string path(p);
 
                     char* s = GetPlainName(p);
-                    FixNameCase(s, strlen(s));
-                    FixNameSpaces(s, strlen(s));
+                    NormalizeFileName(s, strlen(s));
 
                     ModelInstanceNames.emplace_back(s);
 
@@ -154,8 +162,7 @@ bool ADTFile::init(uint32 map_num, uint32 originalMapId)
                     std::string path(p);
 
                     char* s = GetPlainName(p);
-                    FixNameCase(s, strlen(s));
-                    FixNameSpaces(s, strlen(s));
+                    NormalizeFileName(s, strlen(s));
 
                     WmoInstanceNames.emplace_back(s);
 

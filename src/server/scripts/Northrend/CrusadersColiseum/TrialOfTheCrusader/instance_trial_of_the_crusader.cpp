@@ -24,14 +24,15 @@
 #include "Player.h"
 #include "TemporarySummon.h"
 #include "trial_of_the_crusader.h"
+#include <sstream>
 
 BossBoundaryData const boundaries =
 {
-    { BOSS_BEASTS, new CircleBoundary(Position(563.26f, 139.6f), 75.0) },
-    { BOSS_JARAXXUS, new CircleBoundary(Position(563.26f, 139.6f), 75.0) },
-    { BOSS_CRUSADERS, new CircleBoundary(Position(563.26f, 139.6f), 75.0) },
-    { BOSS_VALKIRIES, new CircleBoundary(Position(563.26f, 139.6f), 75.0) },
-    { BOSS_ANUBARAK, new EllipseBoundary(Position(746.0f, 135.0f), 100.0, 75.0) }
+    { BOSS_BEASTS,    new CircleBoundary(Position(563.26f, 139.6f), 75.0)        },
+    { BOSS_JARAXXUS,  new CircleBoundary(Position(563.26f, 139.6f), 75.0)        },
+    { BOSS_CRUSADERS, new CircleBoundary(Position(563.26f, 139.6f), 75.0)        },
+    { BOSS_VALKIRIES, new CircleBoundary(Position(563.26f, 139.6f), 75.0)        },
+    { BOSS_ANUBARAK,  new EllipseBoundary(Position(746.0f, 135.0f), 100.0, 75.0) }
 };
 
 class instance_trial_of_the_crusader : public InstanceMapScript
@@ -350,7 +351,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                         {
                             --TrialCounter;
                             // decrease attempt counter at wipe
-                            Map::PlayerList const &PlayerList = instance->GetPlayers();
+                            Map::PlayerList const& PlayerList = instance->GetPlayers();
                             for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
                                 if (Player* player = itr->GetSource())
                                     player->SendUpdateWorldState(UPDATE_STATE_UI_COUNT, TrialCounter);
@@ -644,7 +645,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 return SaveDataBuffer;
             }
 
-            void Load(const char* strIn) override
+            void Load(char const* strIn) override
             {
                 if (!strIn)
                 {

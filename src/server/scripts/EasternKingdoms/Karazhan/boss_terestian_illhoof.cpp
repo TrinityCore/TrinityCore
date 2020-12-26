@@ -16,12 +16,10 @@
  */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
 #include "karazhan.h"
 #include "ObjectAccessor.h"
 #include "PassiveAI.h"
 #include "ScriptedCreature.h"
-#include "TemporarySummon.h"
 #include "SpellInfo.h"
 
 enum TerestianSays
@@ -128,7 +126,7 @@ public:
                     events.Repeat(Seconds(42));
                     break;
                 case EVENT_SHADOWBOLT:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 0))
                         DoCast(target, SPELL_SHADOW_BOLT);
                     events.Repeat(Seconds(4), Seconds(10));
                     break;

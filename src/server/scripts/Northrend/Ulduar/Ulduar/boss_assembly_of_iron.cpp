@@ -210,7 +210,7 @@ class boss_steelbreaker : public CreatureScript
                 }
                 else
                 {
-                    me->SetLootRecipient(NULL);
+                    me->SetLootRecipient(nullptr);
                     Talk(SAY_STEELBREAKER_DEATH);
                     //DoCastAOE(SPELL_SUPERCHARGE, true);
 
@@ -358,7 +358,7 @@ class boss_runemaster_molgeim : public CreatureScript
                 }
                 else
                 {
-                    me->SetLootRecipient(NULL);
+                    me->SetLootRecipient(nullptr);
                     Talk(SAY_MOLGEIM_DEATH);
                     //DoCastAOE(SPELL_SUPERCHARGE, true);
 
@@ -534,7 +534,7 @@ class boss_stormcaller_brundir : public CreatureScript
                 }
                 else
                 {
-                    me->SetLootRecipient(NULL);
+                    me->SetLootRecipient(nullptr);
                     Talk(SAY_BRUNDIR_DEATH);
                     //DoCastAOE(SPELL_SUPERCHARGE, true);
 
@@ -629,7 +629,7 @@ class boss_stormcaller_brundir : public CreatureScript
                             me->RemoveAurasDueToSpell(SPELL_LIGHTNING_TENDRILS_VISUAL);
                             DoStartMovement(me->GetVictim());
                             events.CancelEvent(EVENT_GROUND);
-                            me->getThreatManager().resetAllAggro();
+                            ResetThreatList();
                             break;
                         case EVENT_MOVE_POSITION:
                             if (me->IsWithinMeleeRange(me->GetVictim()))
@@ -735,7 +735,7 @@ class spell_assembly_rune_of_summoning : public SpellScriptLoader
             void HandlePeriodic(AuraEffect const* aurEff)
             {
                 PreventDefaultAction();
-                GetTarget()->CastSpell(GetTarget(), SPELL_RUNE_OF_SUMMONING_SUMMON, true, NULL, aurEff, GetTarget()->IsSummon() ? GetTarget()->ToTempSummon()->GetSummonerGUID() : ObjectGuid::Empty);
+                GetTarget()->CastSpell(GetTarget(), SPELL_RUNE_OF_SUMMONING_SUMMON, true, nullptr, aurEff, GetTarget()->IsSummon() ? GetTarget()->ToTempSummon()->GetSummonerGUID() : ObjectGuid::Empty);
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

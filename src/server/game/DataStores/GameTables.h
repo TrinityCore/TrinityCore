@@ -24,11 +24,6 @@
 
 enum InventoryType : uint8;
 
-struct GtArmorMitigationByLvlEntry
-{
-    float Mitigation = 0.0f;
-};
-
 struct GtArtifactKnowledgeMultiplierEntry
 {
     float Multiplier = 0.0f;
@@ -74,8 +69,8 @@ struct GtCombatRatingsEntry
     float CritMelee = 0.0f;
     float CritRanged = 0.0f;
     float CritSpell = 0.0f;
-    float MultiStrike = 0.0f;
-    float Readiness = 0.0f;
+    float Corruption = 0.0f;
+    float CorruptionResistance = 0.0f;
     float Speed = 0.0f;
     float ResilienceCritTaken = 0.0f;
     float ResiliencePlayerDamage = 0.0f;
@@ -115,41 +110,9 @@ struct GtItemSocketCostPerLevelEntry
     float SocketCost = 0.0f;
 };
 
-struct GtNpcDamageByClassEntry
-{
-    float Rogue = 0.0f;
-    float Druid = 0.0f;
-    float Hunter = 0.0f;
-    float Mage = 0.0f;
-    float Paladin = 0.0f;
-    float Priest = 0.0f;
-    float Shaman = 0.0f;
-    float Warlock = 0.0f;
-    float Warrior = 0.0f;
-    float DeathKnight = 0.0f;
-    float Monk = 0.0f;
-    float DemonHunter = 0.0f;
-};
-
 struct GtNpcManaCostScalerEntry
 {
     float Scaler = 0.0f;
-};
-
-struct GtNpcTotalHpEntry
-{
-    float Rogue = 0.0f;
-    float Druid = 0.0f;
-    float Hunter = 0.0f;
-    float Mage = 0.0f;
-    float Paladin = 0.0f;
-    float Priest = 0.0f;
-    float Shaman = 0.0f;
-    float Warlock = 0.0f;
-    float Warrior = 0.0f;
-    float DeathKnight = 0.0f;
-    float Monk = 0.0f;
-    float DemonHunter = 0.0f;
 };
 
 struct GtSpellScalingEntry
@@ -213,7 +176,6 @@ private:
     std::vector<T> _data;
 };
 
-TC_GAME_API extern GameTable<GtArmorMitigationByLvlEntry>           sArmorMitigationByLvlGameTable;
 TC_GAME_API extern GameTable<GtArtifactKnowledgeMultiplierEntry>    sArtifactKnowledgeMultiplierGameTable;
 TC_GAME_API extern GameTable<GtArtifactLevelXPEntry>                sArtifactLevelXPGameTable;
 TC_GAME_API extern GameTable<GtBarberShopCostBaseEntry>             sBarberShopCostBaseGameTable;
@@ -222,9 +184,7 @@ TC_GAME_API extern GameTable<GtCombatRatingsEntry>                  sCombatRatin
 TC_GAME_API extern GameTable<GtCombatRatingsMultByILvl>             sCombatRatingsMultByILvlGameTable;
 TC_GAME_API extern GameTable<GtHpPerStaEntry>                       sHpPerStaGameTable;
 TC_GAME_API extern GameTable<GtItemSocketCostPerLevelEntry>         sItemSocketCostPerLevelGameTable;
-TC_GAME_API extern GameTable<GtNpcDamageByClassEntry>               sNpcDamageByClassGameTable[MAX_EXPANSIONS];
 TC_GAME_API extern GameTable<GtNpcManaCostScalerEntry>              sNpcManaCostScalerGameTable;
-TC_GAME_API extern GameTable<GtNpcTotalHpEntry>                     sNpcTotalHpGameTable[MAX_EXPANSIONS];
 TC_GAME_API extern GameTable<GtSpellScalingEntry>                   sSpellScalingGameTable;
 TC_GAME_API extern GameTable<GtStaminaMultByILvl>                   sStaminaMultByILvlGameTable;
 TC_GAME_API extern GameTable<GtXpEntry>                             sXpGameTable;

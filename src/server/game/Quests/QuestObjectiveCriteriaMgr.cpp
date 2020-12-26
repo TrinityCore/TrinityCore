@@ -161,36 +161,35 @@ void QuestObjectiveCriteriaMgr::SaveToDB(CharacterDatabaseTransaction& trans)
     }
 }
 
-void QuestObjectiveCriteriaMgr::ResetCriteria(CriteriaTypes type, uint64 miscValue1, uint64 miscValue2, bool evenIfCriteriaComplete)
+void QuestObjectiveCriteriaMgr::ResetCriteria(CriteriaCondition condition, int32 failAsset, bool evenIfCriteriaComplete)
 {
-    TC_LOG_DEBUG("criteria.quest", "QuestObjectiveCriteriaMgr::ResetCriteria(%u, " UI64FMTD ", " UI64FMTD ")", type, miscValue1, miscValue2);
+    TC_LOG_DEBUG("criteria.quest", "QuestObjectiveCriteriaMgr::ResetCriteria(%u, %d, %s)", condition, failAsset, evenIfCriteriaComplete ? "true" : "false");
 
     // disable for gamemasters with GM-mode enabled
     if (_owner->IsGameMaster())
         return;
 
-    CriteriaList const& playerCriteriaList = GetCriteriaByType(type);
-    for (Criteria const* playerCriteria : playerCriteriaList)
+    if (CriteriaList const* playerCriteriaList = sCriteriaMgr->GetCriteriaByFailEvent(condition, failAsset))
     {
-        if (playerCriteria->Entry->FailEvent != miscValue1 || (playerCriteria->Entry->FailAsset && playerCriteria->Entry->FailAsset != int64(miscValue2)))
-            continue;
-
-        std::vector<CriteriaTree const*> const* trees = sCriteriaMgr->GetCriteriaTreesByCriteria(playerCriteria->ID);
-        bool allComplete = true;
-        for (CriteriaTree const* tree : *trees)
+        for (Criteria const* playerCriteria : *playerCriteriaList)
         {
-            // don't update already completed criteria if not forced
-            if (!(IsCompletedCriteriaTree(tree) && !evenIfCriteriaComplete))
+            std::vector<CriteriaTree const*> const* trees = sCriteriaMgr->GetCriteriaTreesByCriteria(playerCriteria->ID);
+            bool allComplete = true;
+            for (CriteriaTree const* tree : *trees)
             {
-                allComplete = false;
-                break;
+                // don't update already completed criteria if not forced
+                if (!(IsCompletedCriteriaTree(tree) && !evenIfCriteriaComplete))
+                {
+                    allComplete = false;
+                    break;
+                }
             }
+
+            if (allComplete)
+                continue;
+
+            RemoveCriteriaProgress(playerCriteria);
         }
-
-        if (allComplete)
-            continue;
-
-        RemoveCriteriaProgress(playerCriteria);
     }
 }
 
@@ -314,7 +313,7 @@ std::string QuestObjectiveCriteriaMgr::GetOwnerInfo() const
     return Trinity::StringFormat("%s %s", _owner->GetGUID().ToString().c_str(), _owner->GetName().c_str());
 }
 
-CriteriaList const& QuestObjectiveCriteriaMgr::GetCriteriaByType(CriteriaTypes type) const
+CriteriaList const& QuestObjectiveCriteriaMgr::GetCriteriaByType(CriteriaTypes type, uint32 /*asset*/) const
 {
     return sCriteriaMgr->GetQuestObjectiveCriteriaByType(type);
 }

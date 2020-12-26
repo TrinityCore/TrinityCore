@@ -82,7 +82,8 @@ public:
 
         void Reset() override
         {
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE));
+            me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+            me->SetImmuneToPC(true);
             events.Reset();
             // Apply auras on spawn and reset
             // DoCast(me, SPELL_FIRE_SHIELD_TRIGGER); // Need to find this in old DBC if possible
@@ -160,7 +161,8 @@ public:
                     me->CastSpell(me, SPELL_EMBERSEER_FULL_STRENGTH);
                     Talk(EMOTE_FREE_OF_BONDS);
                     Talk(YELL_FREE_OF_BONDS);
-                    me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE));
+                    me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                    me->SetImmuneToPC(false);
                     events.ScheduleEvent(EVENT_ENTER_COMBAT, 2000);
                 }
             }
@@ -253,7 +255,7 @@ public:
                         {
                             // Check to see if all players in instance have aura SPELL_EMBERSEER_START before starting event
                             bool _hasAura = true;
-                            Map::PlayerList const &players = me->GetMap()->GetPlayers();
+                            Map::PlayerList const& players = me->GetMap()->GetPlayers();
                             for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                                 if (Player* player = itr->GetSource()->ToPlayer())
                                     if (!player->HasAura(SPELL_EMBERSEER_OBJECT_VISUAL))
@@ -343,7 +345,7 @@ public:
 
         void Reset() override
         {
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+            me->SetImmuneToAll(true);
             if (Creature* Emberseer = me->FindNearestCreature(NPC_PYROGAURD_EMBERSEER, 30.0f, true))
                 Emberseer->AI()->SetData(1, 3);
         }
@@ -357,7 +359,7 @@ public:
         {
             if (data == 1 && value == 1)
             {
-                me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+                me->SetImmuneToAll(false);
                 me->InterruptSpell(CURRENT_CHANNELED_SPELL);
                 _events.CancelEvent(EVENT_ENCAGED_EMBERSEER);
             }
@@ -439,7 +441,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_blackhand_incarceratorAI(creature);
+        return GetBlackrockSpireAI<npc_blackhand_incarceratorAI>(creature);
     }
 };
 

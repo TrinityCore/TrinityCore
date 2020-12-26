@@ -483,15 +483,6 @@ class npc_anubarak_anub_ar_assassin : public CreatureScript
         {
             npc_anubarak_anub_ar_assassinAI(Creature* creature) : npc_anubarak_pet_template(creature, false), _backstabTimer(6 * IN_MILLISECONDS) { }
 
-            bool IsInBounds(Position const& jumpTo, CreatureBoundary const* boundary)
-            {
-                if (!boundary)
-                    return true;
-                for (AreaBoundary const* it : *boundary)
-                    if (!it->IsWithinBoundary(&jumpTo))
-                        return false;
-                return true;
-            }
             Position GetRandomPositionAround(Creature* anubarak)
             {
                 static float DISTANCE_MIN = 10.0f;
@@ -508,7 +499,7 @@ class npc_anubarak_anub_ar_assassin : public CreatureScript
                     Position jumpTo;
                     do
                         jumpTo = GetRandomPositionAround(anubarak);
-                    while (!IsInBounds(jumpTo, boundary));
+                    while (!CreatureAI::IsInBounds(*boundary, &jumpTo));
                     me->GetMotionMaster()->MoveJump(jumpTo, 40.0f, 40.0f);
                     DoCastSelf(SPELL_ASSASSIN_VISUAL, true);
                 }

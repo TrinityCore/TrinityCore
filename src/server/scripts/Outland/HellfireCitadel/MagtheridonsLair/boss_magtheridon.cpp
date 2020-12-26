@@ -17,16 +17,15 @@
 
 #include "ScriptMgr.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "magtheridons_lair.h"
-#include "ObjectAccessor.h"
+#include "PassiveAI.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
 #include "TemporarySummon.h"
 #include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "PassiveAI.h"
 
 enum Yells
 {
@@ -249,7 +248,8 @@ class boss_magtheridon : public CreatureScript
                             CombatStart();
                             break;
                         case EVENT_RELEASED:
-                            me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE));
+                            me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                            me->SetImmuneToPC(false);
                             me->SetInCombatWithZone();
                             instance->SetData(DATA_MANTICRON_CUBE, ACTION_ENABLE);
                             events.ScheduleEvent(EVENT_CLEAVE, Seconds(10));
@@ -458,7 +458,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_magtheridon_roomAI(creature);
+        return GetMagtheridonsLairAI<npc_magtheridon_roomAI>(creature);
     }
 };
 
@@ -467,16 +467,26 @@ class go_manticron_cube : public GameObjectScript
 public:
     go_manticron_cube() : GameObjectScript("go_manticron_cube") { }
 
-    bool OnGossipHello(Player* player, GameObject* /*go*/) override
+    struct go_manticron_cubeAI : public GameObjectAI
     {
-        if (player->HasAura(SPELL_MIND_EXHAUSTION) || player->HasAura(SPELL_SHADOW_GRASP))
+        go_manticron_cubeAI(GameObject* go) : GameObjectAI(go) { }
+
+        bool GossipHello(Player* player) override
+        {
+            if (player->HasAura(SPELL_MIND_EXHAUSTION) || player->HasAura(SPELL_SHADOW_GRASP))
+                return true;
+
+            if (Creature* trigger = player->FindNearestCreature(NPC_HELFIRE_RAID_TRIGGER, 10.0f))
+                trigger->CastSpell(nullptr, SPELL_SHADOW_GRASP_VISUAL);
+
+            player->CastSpell(nullptr, SPELL_SHADOW_GRASP, true);
             return true;
+        }
+    };
 
-        if (Creature* trigger = player->FindNearestCreature(NPC_HELFIRE_RAID_TRIGGER, 10.0f))
-            trigger->CastSpell((Unit*)nullptr, SPELL_SHADOW_GRASP_VISUAL);
-
-        player->CastSpell((Unit*)nullptr, SPELL_SHADOW_GRASP, true);
-        return true;
+    GameObjectAI* GetAI(GameObject* go) const override
+    {
+        return GetMagtheridonsLairAI<go_manticron_cubeAI>(go);
     }
 };
 
@@ -559,7 +569,11 @@ class spell_magtheridon_shadow_grasp_visual : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                return ValidateSpellInfo({ SPELL_SHADOW_CAGE, SPELL_SHADOW_GRASP_VISUAL });
+                return ValidateSpellInfo(
+                {
+                    SPELL_SHADOW_CAGE,
+                    SPELL_SHADOW_GRASP_VISUAL
+                });
             }
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

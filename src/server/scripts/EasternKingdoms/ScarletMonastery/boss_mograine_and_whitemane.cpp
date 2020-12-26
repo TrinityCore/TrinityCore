@@ -161,7 +161,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* /*who*/, const SpellInfo* spell) override
+        void SpellHit(Unit* /*who*/, SpellInfo const* spell) override
         {
             //When hit with resurrection say text
             if (spell->Id == SPELL_SCARLETRESURRECTION)
@@ -332,7 +332,7 @@ public:
             //If we are <75% hp cast healing spells at self or Mograine
             if (Heal_Timer <= diff)
             {
-                Creature* target = NULL;
+                Creature* target = nullptr;
 
                 if (!HealthAbovePct(75))
                     target = me;

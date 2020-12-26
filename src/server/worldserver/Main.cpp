@@ -219,6 +219,9 @@ extern int main(int argc, char** argv)
     if (!StartDB())
         return 1;
 
+    if (vm.count("update-databases-only"))
+        return 0;
+
     std::shared_ptr<void> dbHandle(nullptr, [](void*) { StopDB(); });
 
     // Set server offline (not connectable)
@@ -335,9 +338,9 @@ extern int main(int argc, char** argv)
         TC_LOG_INFO("server.worldserver", "Starting up anti-freeze thread (%u seconds max stuck time)...", coreStuckTime);
     }
 
-    TC_LOG_INFO("server.worldserver", "%s (worldserver-daemon) ready...", GitRevision::GetFullVersion());
-
     sScriptMgr->OnStartup();
+
+    TC_LOG_INFO("server.worldserver", "%s (worldserver-daemon) ready...", GitRevision::GetFullVersion());
 
     WorldUpdateLoop();
 
@@ -513,9 +516,9 @@ bool LoadRealmInfo()
     {
         realm.Id = realmListRealm->Id;
         realm.Build = realmListRealm->Build;
-        realm.ExternalAddress = Trinity::make_unique<boost::asio::ip::address>(*realmListRealm->ExternalAddress);
-        realm.LocalAddress = Trinity::make_unique<boost::asio::ip::address>(*realmListRealm->LocalAddress);
-        realm.LocalSubnetMask = Trinity::make_unique<boost::asio::ip::address>(*realmListRealm->LocalSubnetMask);
+        realm.ExternalAddress = std::make_unique<boost::asio::ip::address>(*realmListRealm->ExternalAddress);
+        realm.LocalAddress = std::make_unique<boost::asio::ip::address>(*realmListRealm->LocalAddress);
+        realm.LocalSubnetMask = std::make_unique<boost::asio::ip::address>(*realmListRealm->LocalSubnetMask);
         realm.Port = realmListRealm->Port;
         realm.Name = realmListRealm->Name;
         realm.NormalizedName = realmListRealm->NormalizedName;
@@ -603,6 +606,7 @@ variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, s
         ("version,v", "print version build info")
         ("config,c", value<fs::path>(&configFile)->default_value(fs::absolute(_TRINITY_CORE_CONFIG)),
                      "use <arg> as configuration file")
+        ("update-databases-only,u", "updates databases only")
         ;
 #ifdef _WIN32
     options_description win("Windows platform specific options");

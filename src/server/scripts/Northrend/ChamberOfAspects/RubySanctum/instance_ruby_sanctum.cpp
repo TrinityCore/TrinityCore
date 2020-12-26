@@ -72,7 +72,6 @@ ObjectData const gameObjectData[] =
     { 0,                        0                           } //END
 };
 
-
 class instance_ruby_sanctum : public InstanceMapScript
 {
     public:
@@ -176,7 +175,10 @@ class instance_ruby_sanctum : public InstanceMapScript
             {
                 if (GetBossState(DATA_SAVIANA_RAGEFIRE) == DONE && GetBossState(DATA_BALTHARUS_THE_WARBORN) == DONE)
                     if (Creature* zarithrian = GetCreature(DATA_GENERAL_ZARITHRIAN))
-                        zarithrian->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE));
+                    {
+                        zarithrian->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                        zarithrian->SetImmuneToPC(false);
+                    }
             }
 
             void SetData(uint32 type, uint32 data) override

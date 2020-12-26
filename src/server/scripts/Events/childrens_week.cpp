@@ -676,7 +676,7 @@ class npc_the_etymidian : public CreatureScript
                 Initialize();
             }
 
-            void sQuestReward(Player* /*player*/, Quest const* quest, uint32 /*opt*/) override
+            void QuestReward(Player* /*player*/, Quest const* quest, uint32 /*opt*/) override
             {
                 if (quest->GetQuestId() != QUEST_THE_ACTIVATION_RUNE)
                     return;

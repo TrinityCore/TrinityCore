@@ -41,6 +41,6 @@ else()
     message(STATUS "Git version too old : ${_GIT_VERSION}")
     message(FATAL_ERROR "
       Git was found but is OUTDATED - did you forget to install a recent version, or setting the path to it?
-      Observe that for revision hash/date to work you need at least version ${_REQUIRED_GIT_VERSION}")
+      Observe that for revision hash/date to work you need at least version ${_REQUIRED_GIT_VERSION}, found ${_GIT_VERSION}")
   endif()
 endif()

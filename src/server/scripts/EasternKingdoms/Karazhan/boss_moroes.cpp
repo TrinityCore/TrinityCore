@@ -23,8 +23,8 @@ SDCategory: Karazhan
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
 #include "karazhan.h"
+#include "InstanceScript.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "TemporarySummon.h"
@@ -299,14 +299,8 @@ public:
 
                 if (Blind_Timer <= diff)
                 {
-                    std::list<Unit*> targets;
-                    SelectTargetList(targets, 5, SELECT_TARGET_RANDOM, me->GetCombatReach()*5, true);
-                    for (std::list<Unit*>::const_iterator i = targets.begin(); i != targets.end(); ++i)
-                        if (!me->IsWithinMeleeRange(*i))
-                        {
-                            DoCast(*i, SPELL_BLIND);
-                            break;
-                        }
+                    if (Unit* target = SelectTarget(SELECT_TARGET_MINDISTANCE, 0, 0.0f, true, false))
+                      DoCast(target, SPELL_BLIND);
                     Blind_Timer = 40000;
                 } else Blind_Timer -= diff;
             }

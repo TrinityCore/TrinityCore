@@ -936,7 +936,7 @@ struct BattlegroundICScore final : public BattlegroundScore
             }
         }
 
-        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPLogData::PVPMatchPlayerStatistics& playerData) const override
+        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics& playerData) const override
         {
             BattlegroundScore::BuildPvPLogPlayerDataPacket(playerData);
 
@@ -954,7 +954,7 @@ struct BattlegroundICScore final : public BattlegroundScore
 class BattlegroundIC : public Battleground
 {
     public:
-        BattlegroundIC();
+        BattlegroundIC(BattlegroundTemplate const* battlegroundTemplate);
         ~BattlegroundIC();
 
         /* inherited from BattlegroundClass */
@@ -973,7 +973,7 @@ class BattlegroundIC : public Battleground
 
         void DestroyGate(Player* player, GameObject* go) override;
 
-        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player) override;
+        WorldSafeLocsEntry const* GetClosestGraveyard(Player* player) override;
         WorldSafeLocsEntry const* GetExploitTeleportLocation(Team team) override;
 
         /* Scorekeeping */

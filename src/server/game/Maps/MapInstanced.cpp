@@ -45,7 +45,7 @@ void MapInstanced::InitVisibilityDistance()
     }
 }
 
-void MapInstanced::Update(const uint32 t)
+void MapInstanced::Update(uint32 t)
 {
     // take care of loaded GridMaps (when unused, unload it!)
     Map::Update(t);
@@ -74,7 +74,7 @@ void MapInstanced::Update(const uint32 t)
     }
 }
 
-void MapInstanced::DelayedUpdate(const uint32 diff)
+void MapInstanced::DelayedUpdate(uint32 diff)
 {
     for (InstancedMaps::iterator i = m_InstancedMaps.begin(); i != m_InstancedMaps.end(); ++i)
         i->second->DelayedUpdate(diff);
@@ -111,7 +111,7 @@ void MapInstanced::UnloadAll()
 - create the instance if it's not created already
 - the player is not actually added to the instance (only in InstanceMap::Add)
 */
-Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player, uint32 loginInstanceId)
+Map* MapInstanced::CreateInstanceForPlayer(uint32 mapId, Player* player, uint32 loginInstanceId /*= 0*/)
 {
     if (GetId() != mapId || !player)
         return nullptr;
@@ -191,7 +191,7 @@ Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player, u
             //ASSERT(!FindInstanceMap(NewInstanceId));
             map = FindInstanceMap(newInstanceId);
             if (!map)
-                map = CreateInstance(newInstanceId, NULL, diff, player->GetTeamId());
+                map = CreateInstance(newInstanceId, nullptr, diff, player->GetTeamId());
         }
     }
     else
@@ -211,13 +211,13 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save,
     std::lock_guard<std::mutex> lock(_mapLock);
 
     // make sure we have a valid map id
-    const MapEntry* entry = sMapStore.LookupEntry(GetId());
+    MapEntry const* entry = sMapStore.LookupEntry(GetId());
     if (!entry)
     {
         TC_LOG_ERROR("maps", "CreateInstance: no entry for map %d", GetId());
         ABORT();
     }
-    const InstanceTemplate* iTemplate = sObjectMgr->GetInstanceTemplate(GetId());
+    InstanceTemplate const* iTemplate = sObjectMgr->GetInstanceTemplate(GetId());
     if (!iTemplate)
     {
         TC_LOG_ERROR("maps", "CreateInstance: no instance template for map %d", GetId());
@@ -235,7 +235,7 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save,
     map->LoadRespawnTimes();
     map->LoadCorpseData();
 
-    bool load_data = save != NULL;
+    bool load_data = save != nullptr;
     map->CreateInstanceData(load_data);
     if (InstanceScenario* instanceScenario = sScenarioMgr->CreateInstanceScenario(map, team))
         map->SetInstanceScenario(instanceScenario);

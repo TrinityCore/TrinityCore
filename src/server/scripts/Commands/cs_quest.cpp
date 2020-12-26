@@ -26,6 +26,7 @@ EndScriptData */
 #include "Chat.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "LootMgr.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "RBAC.h"
@@ -48,12 +49,12 @@ public:
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "quest", rbac::RBAC_PERM_COMMAND_QUEST,  false, NULL, "", questCommandTable },
+            { "quest", rbac::RBAC_PERM_COMMAND_QUEST,  false, nullptr, "", questCommandTable },
         };
         return commandTable;
     }
 
-    static bool HandleQuestAdd(ChatHandler* handler, const char* args)
+    static bool HandleQuestAdd(ChatHandler* handler, char const* args)
     {
         Player* player = handler->getSelectedPlayerOrSelf();
         if (!player)
@@ -96,12 +97,12 @@ public:
 
         // ok, normal (creature/GO starting) quest
         if (player->CanAddQuest(quest, true))
-            player->AddQuestAndCheckCompletion(quest, NULL);
+            player->AddQuestAndCheckCompletion(quest, nullptr);
 
         return true;
     }
 
-    static bool HandleQuestRemove(ChatHandler* handler, const char* args)
+    static bool HandleQuestRemove(ChatHandler* handler, char const* args)
     {
         Player* player = handler->getSelectedPlayer();
         if (!player)
@@ -159,7 +160,7 @@ public:
         return true;
     }
 
-    static bool HandleQuestComplete(ChatHandler* handler, const char* args)
+    static bool HandleQuestComplete(ChatHandler* handler, char const* args)
     {
         Player* player = handler->getSelectedPlayerOrSelf();
         if (!player)
@@ -285,7 +286,7 @@ public:
             return false;
         }
 
-        player->RewardQuest(quest, 0, player);
+        player->RewardQuest(quest, LootItemType::Item, 0, player);
         return true;
     }
 };

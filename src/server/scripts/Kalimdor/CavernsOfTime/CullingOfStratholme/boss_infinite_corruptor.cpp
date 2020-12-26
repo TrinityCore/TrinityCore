@@ -55,7 +55,7 @@ class boss_infinite_corruptor : public CreatureScript
 
                 if (Creature* guardian = me->FindNearestCreature(NPC_GUARDIAN_OF_TIME, 100.0f))
                 {
-                    DoCast((Unit*)NULL, SPELL_CORRUPTION_OF_TIME_CHANNEL, false);
+                    DoCast(nullptr, SPELL_CORRUPTION_OF_TIME_CHANNEL, false);
                     guardian->CastSpell(guardian, SPELL_CORRUPTION_OF_TIME_TARGET, false);
                 }
             }

@@ -18,7 +18,7 @@
 #include "ReactorAI.h"
 #include "Creature.h"
 
-int ReactorAI::Permissible(const Creature* creature)
+int32 ReactorAI::Permissible(Creature const* creature)
 {
     if (creature->IsCivilian() || creature->IsNeutralToAll())
         return PERMIT_BASE_REACTIVE;

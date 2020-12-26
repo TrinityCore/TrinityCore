@@ -28,9 +28,9 @@ Script Data End */
 #include "Mail.h"
 #include "Map.h"
 #include "MotionMaster.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "Player.h"
 
 /*******************************************************
  * npc_mageguard_dalaran
@@ -169,16 +169,15 @@ class npc_minigob_manabonk : public CreatureScript
             Player* SelectTargetInDalaran()
             {
                 std::vector<Player*> PlayerInDalaranList;
-                PlayerInDalaranList.clear();
 
-                Map::PlayerList const &players = me->GetMap()->GetPlayers();
+                Map::PlayerList const& players = me->GetMap()->GetPlayers();
                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                     if (Player* player = itr->GetSource()->ToPlayer())
                         if (player->GetZoneId() == ZONE_DALARAN && !player->IsFlying() && !player->IsMounted() && !player->IsGameMaster())
                             PlayerInDalaranList.push_back(player);
 
                 if (PlayerInDalaranList.empty())
-                    return NULL;
+                    return nullptr;
                 return Trinity::Containers::SelectRandomContainerElement(PlayerInDalaranList);
             }
 

@@ -19,16 +19,17 @@
 #include "AuthenticationPackets.h"
 #include "BattlenetRpcErrorCodes.h"
 #include "CharacterPackets.h"
+#include "CryptoHash.h"
+#include "CryptoRandom.h"
 #include "DatabaseEnv.h"
 #include "Errors.h"
-#include "HmacHash.h"
+#include "HMAC.h"
 #include "IPLocation.h"
 #include "PacketLog.h"
 #include "RealmList.h"
 #include "RBAC.h"
 #include "ScriptMgr.h"
-#include "SessionKeyGeneration.h"
-#include "SHA256.h"
+#include "SessionKeyGenerator.h"
 #include "Util.h"
 #include "World.h"
 #include "WorldPacket.h"
@@ -72,8 +73,8 @@ WorldSocket::WorldSocket(tcp::socket&& socket) : Socket(std::move(socket)),
     _type(CONNECTION_TYPE_REALM), _key(0), _OverSpeedPings(0),
     _worldSession(nullptr), _authed(false), _sendBufferSize(4096), _compressionStream(nullptr)
 {
-    _serverChallenge.SetRand(8 * 16);
-    memset(_encryptKey, 0, sizeof(_encryptKey));
+    Trinity::Crypto::GetRandomBytes(_serverChallenge);
+    _encryptKey.fill(0);
     _headerBuffer.Resize(sizeof(PacketHeader));
 }
 
@@ -92,7 +93,7 @@ void WorldSocket::Start()
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP_INFO);
     stmt->setString(0, ip_address);
 
-    _queryProcessor.AddQuery(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSocket::CheckIpCallback, this, std::placeholders::_1)));
+    _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSocket::CheckIpCallback, this, std::placeholders::_1)));
 }
 
 void WorldSocket::CheckIpCallback(PreparedQueryResult result)
@@ -173,11 +174,11 @@ void WorldSocket::InitializeHandler(boost::system::error_code error, std::size_t
             }
 
             _compressionStream = new z_stream();
-            _compressionStream->zalloc = (alloc_func)NULL;
-            _compressionStream->zfree = (free_func)NULL;
-            _compressionStream->opaque = (voidpf)NULL;
+            _compressionStream->zalloc = (alloc_func)nullptr;
+            _compressionStream->zfree = (free_func)nullptr;
+            _compressionStream->opaque = (voidpf)nullptr;
             _compressionStream->avail_in = 0;
-            _compressionStream->next_in = NULL;
+            _compressionStream->next_in = nullptr;
             int32 z_res = deflateInit2(_compressionStream, sWorld->getIntConfig(CONFIG_COMPRESSION), Z_DEFLATED, -15, 8, Z_DEFAULT_STRATEGY);
             if (z_res != Z_OK)
             {
@@ -230,19 +231,16 @@ bool WorldSocket::Update()
     if (!BaseSocket::Update())
         return false;
 
-    _queryProcessor.ProcessReadyQueries();
+    _queryProcessor.ProcessReadyCallbacks();
 
     return true;
 }
 
 void WorldSocket::HandleSendAuthSession()
 {
-    BigNumber dosChallenge;
-    dosChallenge.SetRand(32 * 8);
-
     WorldPackets::Auth::AuthChallenge challenge;
-    memcpy(challenge.Challenge.data(), _serverChallenge.AsByteArray(16).get(), 16);
-    memcpy(challenge.DosChallenge.data(), dosChallenge.AsByteArray(32).get(), 32);
+    challenge.Challenge = _serverChallenge;
+    memcpy(challenge.DosChallenge.data(), Trinity::Crypto::GetRandomBytes<32>().data(), 32);
     challenge.DosZeroBits = 1;
 
     SendPacketAndLogOpcode(*challenge.Write());
@@ -424,7 +422,10 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
             return ReadDataHandlerResult::WaitingForQuery;
         }
         case CMSG_KEEP_ALIVE:
+            sessionGuard.lock();
             LogOpcodeText(opcode, sessionGuard);
+            if (_worldSession)
+                _worldSession->ResetTimeOutTime(true);
             break;
         case CMSG_LOG_DISCONNECT:
             LogOpcodeText(opcode, sessionGuard);
@@ -448,9 +449,9 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
             HandleConnectToFailed(connectToFailed);
             break;
         }
-        case CMSG_ENABLE_ENCRYPTION_ACK:
+        case CMSG_ENTER_ENCRYPTED_MODE_ACK:
             LogOpcodeText(opcode, sessionGuard);
-            HandleEnableEncryptionAck();
+            HandleEnterEncryptedModeAck();
             break;
         default:
         {
@@ -471,9 +472,8 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
                 break;
             }
 
-            // Our Idle timer will reset on any non PING opcodes.
-            // Catches people idling on the login screen and any lingering ingame connections.
-            _worldSession->ResetTimeOutTime();
+            // Our Idle timer will reset on any non PING opcodes on login screen, allowing us to catch people idling.
+            _worldSession->ResetTimeOutTime(false);
 
             // Copy the packet to the heap before enqueuing
             _worldSession->QueuePacket(new WorldPacket(std::move(packet)));
@@ -618,15 +618,15 @@ struct AccountInfo
 
     explicit AccountInfo(Field* fields)
     {
-        //           0             1           2          3                4            5           6          7            8     9     10          11
-        // SELECT a.id, a.sessionkey, ba.last_ip, ba.locked, ba.lock_country, a.expansion, a.mutetime, ba.locale, a.recruiter, a.os, ba.id, aa.gmLevel,
+        //           0              1           2          3                4            5           6          7            8     9     10                11
+        // SELECT a.id, a.session_key, ba.last_ip, ba.locked, ba.lock_country, a.expansion, a.mutetime, ba.locale, a.recruiter, a.os, ba.id, aa.SecurityLevel,
         //                                                              12                                                            13    14
         // bab.unbandate > UNIX_TIMESTAMP() OR bab.unbandate = bab.bandate, ab.unbandate > UNIX_TIMESTAMP() OR ab.unbandate = ab.bandate, r.id
-        // FROM account a LEFT JOIN battlenet_accounts ba ON a.battlenet_account = ba.id LEFT JOIN account_access aa ON a.id = aa.id AND aa.RealmID IN (-1, ?)
+        // FROM account a LEFT JOIN battlenet_accounts ba ON a.battlenet_account = ba.id LEFT JOIN account_access aa ON a.id = aa.AccountID AND aa.RealmID IN (-1, ?)
         // LEFT JOIN battlenet_account_bans bab ON ba.id = bab.id LEFT JOIN account_banned ab ON a.id = ab.id LEFT JOIN account r ON a.id = r.recruiter
-        // WHERE a.username = ? ORDER BY aa.RealmID DESC LIMIT 1
+        // WHERE a.username = ? AND LENGTH(a.session_key) = 40 ORDER BY aa.RealmID DESC LIMIT 1
         Game.Id = fields[0].GetUInt32();
-        HexStrToByteArray(fields[1].GetString(), Game.KeyData.data());
+        Game.KeyData = fields[1].GetBinary<64>();
         BattleNet.LastIP = fields[2].GetString();
         BattleNet.IsLockedToIP = fields[3].GetBool();
         BattleNet.LockCountry = fields[4].GetString();
@@ -653,7 +653,7 @@ void WorldSocket::HandleAuthSession(std::shared_ptr<WorldPackets::Auth::AuthSess
     stmt->setInt32(0, int32(realm.Id.Realm));
     stmt->setString(1, authSession->RealmJoinTicket);
 
-    _queryProcessor.AddQuery(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSocket::HandleAuthSessionCallback, this, authSession, std::placeholders::_1)));
+    _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSocket::HandleAuthSessionCallback, this, authSession, std::placeholders::_1)));
 }
 
 void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::AuthSession> authSession, PreparedQueryResult result)
@@ -681,7 +681,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
     // For hook purposes, we get Remoteaddress at this point.
     std::string address = GetRemoteIpAddress().to_string();
 
-    SHA256Hash digestKeyHash;
+    Trinity::Crypto::SHA256 digestKeyHash;
     digestKeyHash.UpdateData(account.Game.KeyData.data(), account.Game.KeyData.size());
     if (account.Game.OS == "Wn64")
         digestKeyHash.UpdateData(buildInfo->Win64AuthSeed.data(), buildInfo->Win64AuthSeed.size());
@@ -690,44 +690,41 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
 
     digestKeyHash.Finalize();
 
-    HmacSha256 hmac(digestKeyHash.GetLength(), digestKeyHash.GetDigest());
-    hmac.UpdateData(authSession->LocalChallenge.data(), authSession->LocalChallenge.size());
-    hmac.UpdateData(_serverChallenge.AsByteArray(16).get(), 16);
+    Trinity::Crypto::HMAC_SHA256 hmac(digestKeyHash.GetDigest());
+    hmac.UpdateData(authSession->LocalChallenge);
+    hmac.UpdateData(_serverChallenge);
     hmac.UpdateData(AuthCheckSeed, 16);
     hmac.Finalize();
 
     // Check that Key and account name are the same on client and server
-    if (memcmp(hmac.GetDigest(), authSession->Digest.data(), authSession->Digest.size()) != 0)
+    if (memcmp(hmac.GetDigest().data(), authSession->Digest.data(), authSession->Digest.size()) != 0)
     {
         TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Authentication failed for account: %u ('%s') address: %s", account.Game.Id, authSession->RealmJoinTicket.c_str(), address.c_str());
         DelayedCloseSocket();
         return;
     }
 
-    SHA256Hash keyData;
+    Trinity::Crypto::SHA256 keyData;
     keyData.UpdateData(account.Game.KeyData.data(), account.Game.KeyData.size());
     keyData.Finalize();
 
-    HmacSha256 sessionKeyHmac(keyData.GetLength(), keyData.GetDigest());
-    sessionKeyHmac.UpdateData(_serverChallenge.AsByteArray(16).get(), 16);
-    sessionKeyHmac.UpdateData(authSession->LocalChallenge.data(), authSession->LocalChallenge.size());
+    Trinity::Crypto::HMAC_SHA256 sessionKeyHmac(keyData.GetDigest());
+    sessionKeyHmac.UpdateData(_serverChallenge);
+    sessionKeyHmac.UpdateData(authSession->LocalChallenge);
     sessionKeyHmac.UpdateData(SessionKeySeed, 16);
     sessionKeyHmac.Finalize();
 
-    uint8 sessionKey[40];
-    SessionKeyGenerator<SHA256Hash> sessionKeyGenerator(sessionKeyHmac.GetDigest(), sessionKeyHmac.GetLength());
-    sessionKeyGenerator.Generate(sessionKey, 40);
+    SessionKeyGenerator<Trinity::Crypto::SHA256> sessionKeyGenerator(sessionKeyHmac.GetDigest());
+    sessionKeyGenerator.Generate(_sessionKey.data(), 40);
 
-    _sessionKey.SetBinary(sessionKey, 40);
-
-    HmacSha256 encryptKeyGen(40, sessionKey);
-    encryptKeyGen.UpdateData(authSession->LocalChallenge.data(), authSession->LocalChallenge.size());
-    encryptKeyGen.UpdateData(_serverChallenge.AsByteArray(16).get(), 16);
+    Trinity::Crypto::HMAC_SHA256 encryptKeyGen(_sessionKey);
+    encryptKeyGen.UpdateData(authSession->LocalChallenge);
+    encryptKeyGen.UpdateData(_serverChallenge);
     encryptKeyGen.UpdateData(EncryptionKeySeed, 16);
     encryptKeyGen.Finalize();
 
     // only first 16 bytes of the hmac are used
-    memcpy(_encryptKey, encryptKeyGen.GetDigest(), 16);
+    memcpy(_encryptKey.data(), encryptKeyGen.GetDigest().data(), 16);
 
     // As we don't know if attempted login process by ip works, we update last_attempt_ip right away
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LAST_ATTEMPT_IP);
@@ -737,7 +734,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
     // This also allows to check for possible "hack" attempts on account
 
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_INFO_CONTINUED_SESSION);
-    stmt->setString(0, _sessionKey.AsHexStr());
+    stmt->setBinary(0, _sessionKey);
     stmt->setUInt32(1, account.Game.Id);
     LoginDatabase.Execute(stmt);
 
@@ -802,7 +799,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
     //! Negative mutetime indicates amount of seconds to be muted effective on next login - which is now.
     if (mutetime < 0)
     {
-        mutetime = time(NULL) + llabs(mutetime);
+        mutetime = time(nullptr) + llabs(mutetime);
 
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME_LOGIN);
         stmt->setInt64(0, mutetime);
@@ -850,9 +847,9 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
 
     // Initialize Warden system only if it is enabled by config
     if (wardenActive)
-        _worldSession->InitWarden(&_sessionKey);
+        _worldSession->InitWarden(_sessionKey);
 
-    _queryProcessor.AddQuery(_worldSession->LoadPermissionsAsync().WithPreparedCallback(std::bind(&WorldSocket::LoadSessionPermissionsCallback, this, std::placeholders::_1)));
+    _queryProcessor.AddCallback(_worldSession->LoadPermissionsAsync().WithPreparedCallback(std::bind(&WorldSocket::LoadSessionPermissionsCallback, this, std::placeholders::_1)));
     AsyncRead();
 }
 
@@ -861,7 +858,7 @@ void WorldSocket::LoadSessionPermissionsCallback(PreparedQueryResult result)
     // RBAC must be loaded before adding session to check for skip queue permission
     _worldSession->GetRBACData()->LoadFromDBCallback(result);
 
-    SendPacketAndLogOpcode(*WorldPackets::Auth::EnableEncryption(_encryptKey, true).Write());
+    SendPacketAndLogOpcode(*WorldPackets::Auth::EnterEncryptedMode(_encryptKey.data(), true).Write());
 }
 
 void WorldSocket::HandleAuthContinuedSession(std::shared_ptr<WorldPackets::Auth::AuthContinuedSession> authSession)
@@ -881,7 +878,7 @@ void WorldSocket::HandleAuthContinuedSession(std::shared_ptr<WorldPackets::Auth:
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_CONTINUED_SESSION);
     stmt->setUInt32(0, accountId);
 
-    _queryProcessor.AddQuery(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSocket::HandleAuthContinuedSessionCallback, this, authSession, std::placeholders::_1)));
+    _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt).WithPreparedCallback(std::bind(&WorldSocket::HandleAuthContinuedSessionCallback, this, authSession, std::placeholders::_1)));
 }
 
 void WorldSocket::HandleAuthContinuedSessionCallback(std::shared_ptr<WorldPackets::Auth::AuthContinuedSession> authSession, PreparedQueryResult result)
@@ -899,32 +896,32 @@ void WorldSocket::HandleAuthContinuedSessionCallback(std::shared_ptr<WorldPacket
     uint32 accountId = uint32(key.Fields.AccountId);
     Field* fields = result->Fetch();
     std::string login = fields[0].GetString();
-    _sessionKey.SetHexStr(fields[1].GetCString());
+    _sessionKey = fields[1].GetBinary<SESSION_KEY_LENGTH>();
 
-    HmacSha256 hmac(40, _sessionKey.AsByteArray(40).get());
+    Trinity::Crypto::HMAC_SHA256 hmac(_sessionKey);
     hmac.UpdateData(reinterpret_cast<uint8 const*>(&authSession->Key), sizeof(authSession->Key));
-    hmac.UpdateData(authSession->LocalChallenge.data(), authSession->LocalChallenge.size());
-    hmac.UpdateData(_serverChallenge.AsByteArray(16).get(), 16);
+    hmac.UpdateData(authSession->LocalChallenge);
+    hmac.UpdateData(_serverChallenge);
     hmac.UpdateData(ContinuedSessionSeed, 16);
     hmac.Finalize();
 
-    if (memcmp(hmac.GetDigest(), authSession->Digest.data(), authSession->Digest.size()))
+    if (memcmp(hmac.GetDigest().data(), authSession->Digest.data(), authSession->Digest.size()))
     {
         TC_LOG_ERROR("network", "WorldSocket::HandleAuthContinuedSession: Authentication failed for account: %u ('%s') address: %s", accountId, login.c_str(), GetRemoteIpAddress().to_string().c_str());
         DelayedCloseSocket();
         return;
     }
 
-    HmacSha256 encryptKeyGen(40, _sessionKey.AsByteArray(40).get());
-    encryptKeyGen.UpdateData(authSession->LocalChallenge.data(), authSession->LocalChallenge.size());
-    encryptKeyGen.UpdateData(_serverChallenge.AsByteArray(16).get(), 16);
+    Trinity::Crypto::HMAC_SHA256 encryptKeyGen(_sessionKey);
+    encryptKeyGen.UpdateData(authSession->LocalChallenge);
+    encryptKeyGen.UpdateData(_serverChallenge);
     encryptKeyGen.UpdateData(EncryptionKeySeed, 16);
     encryptKeyGen.Finalize();
 
     // only first 16 bytes of the hmac are used
-    memcpy(_encryptKey, encryptKeyGen.GetDigest(), 16);
+    memcpy(_encryptKey.data(), encryptKeyGen.GetDigest().data(), 16);
 
-    SendPacketAndLogOpcode(*WorldPackets::Auth::EnableEncryption(_encryptKey, true).Write());
+    SendPacketAndLogOpcode(*WorldPackets::Auth::EnterEncryptedMode(_encryptKey.data(), true).Write());
     AsyncRead();
 }
 
@@ -966,7 +963,7 @@ void WorldSocket::HandleConnectToFailed(WorldPackets::Auth::ConnectToFailed& con
     }
 }
 
-void WorldSocket::HandleEnableEncryptionAck()
+void WorldSocket::HandleEnterEncryptedModeAck()
 {
     _authCrypt.Init(_encryptKey);
     if (_type == CONNECTION_TYPE_REALM)

@@ -93,7 +93,6 @@ enum Misc
 
     DATA_OHGANOT_SO_FAST        = 5762,
 
-    FACTION_NONE                = 1665
 };
 
 enum SummonGroups
@@ -144,7 +143,7 @@ class boss_mandokir : public CreatureScript
                     {
                         if (Creature* chainedSpirit = ObjectAccessor::GetCreature(*me, *itr))
                             if (chainedSpirit->GetEntry() == NPC_CHAINED_SPIRIT && chainedSpirit->AI())
-                                chainedSpirit->setFaction(FACTION_NONE);
+                                chainedSpirit->SetFaction(FACTION_NONE);
                     }
                 }
 
@@ -503,8 +502,8 @@ class spell_mandokir_bloodletting : public SpellScriptLoader
 
                 int32 damage = std::max<int32>(7500, target->CountPctFromCurHealth(aurEff->GetAmount()));
 
-                caster->CastCustomSpell(target, SPELL_BLOODLETTING_DAMAGE, &damage, 0, 0, true);
-                target->CastCustomSpell(caster, SPELL_BLOODLETTING_HEAL, &damage, 0, 0, true);
+                caster->CastCustomSpell(target, SPELL_BLOODLETTING_DAMAGE, &damage, nullptr, nullptr, true);
+                target->CastCustomSpell(caster, SPELL_BLOODLETTING_HEAL, &damage, nullptr, nullptr, true);
             }
 
             void Register() override
@@ -554,7 +553,7 @@ class DevastatingSlamTargetSelector : public std::unary_function<Unit *, bool>
 
         bool operator() (WorldObject* target)
         {
-            if (target == _victim && _me->getThreatManager().getThreatList().size() > 1)
+            if (target == _victim && _me->GetThreatManager().getThreatList().size() > 1)
                 return true;
 
             if (target->GetTypeId() != TYPEID_PLAYER)
@@ -681,8 +680,8 @@ class spell_mandokir_ohgan_orders_trigger : public SpellScriptLoader
                     // HACK: research better way
                     caster->ClearUnitState(UNIT_STATE_CASTING);
                     caster->GetMotionMaster()->Clear();
-                    caster->DeleteThreatList();
-                    caster->AddThreat(target, 50000000.0f);
+                    caster->GetThreatManager().ClearAllThreat();
+                    caster->GetThreatManager().AddThreat(target, 50000000.0f);
                     caster->TauntApply(target);
                 }
             }
@@ -714,7 +713,7 @@ class spell_mandokir_reanimate_ohgan : public SpellScriptLoader
                 {
                     target->RemoveAura(SPELL_PERMANENT_FEIGN_DEATH);
                     target->CastSpell(target, SPELL_OHGAN_HEART_VISUAL, true);
-                    target->CastSpell((Unit*)NULL, SPELL_OHGAN_ORDERS, true);
+                    target->CastSpell(nullptr, SPELL_OHGAN_ORDERS, true);
                 }
             }
 

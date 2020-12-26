@@ -19,6 +19,7 @@
 #include "CombatAI.h"
 #include "CreatureTextMgr.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "Log.h"
 #include "MotionMaster.h"
 #include "MoveSplineInit.h"
@@ -128,8 +129,8 @@ public:
         {
             Initialize();
             events.Reset();
-            me->setFaction(7);
-            me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetFaction(FACTION_CREATURE);
+            me->SetImmuneToPC(true);
             me->SetStandState(UNIT_STAND_STATE_KNEEL);
             me->LoadEquipment(0, true);
         }
@@ -193,7 +194,7 @@ public:
                         TC_LOG_ERROR("scripts", "npc_unworthy_initiateAI: unable to find anchor!");
 
                     float dist = 99.0f;
-                    GameObject* prison = NULL;
+                    GameObject* prison = nullptr;
 
                     for (uint8 i = 0; i < 12; ++i)
                     {
@@ -234,8 +235,8 @@ public:
                         wait_timer -= diff;
                     else
                     {
-                        me->setFaction(14);
-                        me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                        me->SetFaction(FACTION_MONSTER);
+                        me->SetImmuneToPC(false);
                         phase = PHASE_ATTACKING;
 
                         if (Player* target = ObjectAccessor::GetPlayer(*me, playerGUID))
@@ -322,22 +323,31 @@ public:
 
 class go_acherus_soul_prison : public GameObjectScript
 {
-public:
-    go_acherus_soul_prison() : GameObjectScript("go_acherus_soul_prison") { }
+    public:
+        go_acherus_soul_prison() : GameObjectScript("go_acherus_soul_prison") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
-    {
-        if (Creature* anchor = go->FindNearestCreature(29521, 15))
+        struct go_acherus_soul_prisonAI : public GameObjectAI
         {
-            ObjectGuid prisonerGUID = anchor->AI()->GetGUID();
-            if (!prisonerGUID.IsEmpty())
-                if (Creature* prisoner = ObjectAccessor::GetCreature(*player, prisonerGUID))
-                    ENSURE_AI(npc_unworthy_initiate::npc_unworthy_initiateAI, prisoner->AI())->EventStart(anchor, player);
+            go_acherus_soul_prisonAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool GossipHello(Player* player) override
+            {
+                if (Creature* anchor = me->FindNearestCreature(29521, 15))
+                {
+                    ObjectGuid prisonerGUID = anchor->AI()->GetGUID();
+                    if (!prisonerGUID.IsEmpty())
+                        if (Creature* prisoner = ObjectAccessor::GetCreature(*player, prisonerGUID))
+                            ENSURE_AI(npc_unworthy_initiate::npc_unworthy_initiateAI, prisoner->AI())->EventStart(anchor, player);
+                }
+
+                return false;
+            }
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_acherus_soul_prisonAI(go);
         }
-
-        return false;
-    }
-
 };
 
  /*######
@@ -474,55 +484,13 @@ enum Says_VBM
 
 enum Misc_VBN
 {
-    QUEST_DEATH_CHALLENGE       = 12733,
-    FACTION_HOSTILE             = 2068
+    QUEST_DEATH_CHALLENGE = 12733
 };
 
 class npc_death_knight_initiate : public CreatureScript
 {
 public:
     npc_death_knight_initiate() : CreatureScript("npc_death_knight_initiate") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        ClearGossipMenuFor(player);
-        if (action == GOSSIP_ACTION_INFO_DEF)
-        {
-            CloseGossipMenuFor(player);
-
-            if (player->IsInCombat() || creature->IsInCombat())
-                return true;
-
-            if (npc_death_knight_initiateAI* pInitiateAI = CAST_AI(npc_death_knight_initiate::npc_death_knight_initiateAI, creature->AI()))
-            {
-                if (pInitiateAI->m_bIsDuelInProgress)
-                    return true;
-            }
-
-            creature->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
-            creature->RemoveUnitFlag(UNIT_FLAG_UNK_15);
-
-            player->CastSpell(creature, SPELL_DUEL, false);
-            player->CastSpell(player, SPELL_DUEL_FLAG, true);
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (player->GetQuestStatus(QUEST_DEATH_CHALLENGE) == QUEST_STATUS_INCOMPLETE && creature->IsFullHealth())
-        {
-            if (player->HealthBelowPct(10))
-                return true;
-
-            if (player->IsInCombat() || creature->IsInCombat())
-                return true;
-
-            AddGossipItemFor(player, Player::GetDefaultGossipMenuForSource(creature), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-            SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
-        }
-        return true;
-    }
 
     struct npc_death_knight_initiateAI : public CombatAI
     {
@@ -553,7 +521,7 @@ public:
             me->AddUnitFlag(UNIT_FLAG_UNK_15);
         }
 
-        void SpellHit(Unit* pCaster, const SpellInfo* pSpell) override
+        void SpellHit(Unit* pCaster, SpellInfo const* pSpell) override
         {
             if (!m_bIsDuelInProgress && pSpell->Id == SPELL_DUEL)
             {
@@ -594,7 +562,7 @@ public:
                 {
                     if (m_uiDuelTimer <= uiDiff)
                     {
-                        me->setFaction(FACTION_HOSTILE);
+                        me->SetFaction(FACTION_UNDEAD_SCOURGE_2);
 
                         if (Unit* unit = ObjectAccessor::GetUnit(*me, m_uiDuelerGUID))
                             AttackStart(unit);
@@ -625,6 +593,45 @@ public:
             /// @todo spells
 
             CombatAI::UpdateAI(uiDiff);
+        }
+
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        {
+            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+            ClearGossipMenuFor(player);
+            if (action == GOSSIP_ACTION_INFO_DEF)
+            {
+                CloseGossipMenuFor(player);
+
+                if (player->IsInCombat() || me->IsInCombat())
+                    return true;
+
+                if (m_bIsDuelInProgress)
+                    return true;
+
+                me->SetImmuneToPC(false);
+                me->RemoveUnitFlag(UNIT_FLAG_UNK_15);
+
+                player->CastSpell(me, SPELL_DUEL, false);
+                player->CastSpell(player, SPELL_DUEL_FLAG, true);
+            }
+            return true;
+        }
+
+        bool GossipHello(Player* player) override
+        {
+            if (player->GetQuestStatus(QUEST_DEATH_CHALLENGE) == QUEST_STATUS_INCOMPLETE && me->IsFullHealth())
+            {
+                if (player->HealthBelowPct(10))
+                    return true;
+
+                if (player->IsInCombat() || me->IsInCombat())
+                    return true;
+
+                AddGossipItemFor(player, Player::GetDefaultGossipMenuForSource(me), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+                SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
+            }
+            return true;
         }
     };
 
@@ -759,16 +766,17 @@ public:
     {
         npc_salanar_the_horsemanAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+        bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
         {
             if (menuId == GOSSIP_SALANAR_MENU && gossipListId == GOSSIP_SALANAR_OPTION)
             {
                 player->CastSpell(player, SPELL_REALM_OF_SHADOWS, true);
                 player->PlayerTalkClass->SendCloseGossip();
             }
+            return false;
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell) override
+        void SpellHit(Unit* caster, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_DELIVER_STOLEN_HORSE)
             {
@@ -780,7 +788,7 @@ public:
                         {
                             charmer->RemoveAurasDueToSpell(SPELL_EFFECT_STOLEN_HORSE);
                             caster->RemoveNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
-                            caster->setFaction(35);
+                            caster->SetFaction(FACTION_FRIENDLY);
                             DoCast(caster, SPELL_CALL_DARK_RIDER, true);
                             if (Creature* Dark_Rider = me->FindNearestCreature(NPC_DARK_RIDER_OF_ACHERUS, 15))
                                 ENSURE_AI(npc_dark_rider_of_acherus::npc_dark_rider_of_acherusAI, Dark_Rider->AI())->InitDespawnHorse(caster);
@@ -872,7 +880,7 @@ public:
             {
                 deathcharger->AddNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
                 deathcharger->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
-                deathcharger->setFaction(2096);
+                deathcharger->SetFaction(2096);
             }
         }
     };
@@ -1060,7 +1068,7 @@ class npc_scarlet_miner_cart : public CreatureScript
                 if (apply)
                 {
                     _playerGUID = who->GetGUID();
-                    me->CastSpell((Unit*)NULL, SPELL_SUMMON_MINER, true);
+                    me->CastSpell(nullptr, SPELL_SUMMON_MINER, true);
                 }
                 else
                 {
@@ -1096,9 +1104,9 @@ class npc_scarlet_miner : public CreatureScript
     public:
         npc_scarlet_miner() : CreatureScript("npc_scarlet_miner") { }
 
-        struct npc_scarlet_minerAI : public npc_escortAI
+        struct npc_scarlet_minerAI : public EscortAI
         {
-            npc_scarlet_minerAI(Creature* creature) : npc_escortAI(creature)
+            npc_scarlet_minerAI(Creature* creature) : EscortAI(creature)
             {
                 Initialize();
                 me->SetReactState(REACT_PASSIVE);
@@ -1127,7 +1135,7 @@ class npc_scarlet_miner : public CreatureScript
 
             void InitWaypoint()
             {
-                AddWaypoint(1, 2389.03f,     -5902.74f,     109.014f, 5000);
+                AddWaypoint(1, 2389.03f,     -5902.74f,     109.014f, 0.f, 5000);
                 AddWaypoint(2, 2341.812012f, -5900.484863f, 102.619743f);
                 AddWaypoint(3, 2306.561279f, -5901.738281f, 91.792419f);
                 AddWaypoint(4, 2300.098389f, -5912.618652f, 86.014885f);
@@ -1146,7 +1154,7 @@ class npc_scarlet_miner : public CreatureScript
                     AddWaypoint(14, 2172.516602f, -6146.752441f, 1.074235f);
                     AddWaypoint(15, 2138.918457f, -6158.920898f, 1.342926f);
                     AddWaypoint(16, 2129.866699f, -6174.107910f, 4.380779f);
-                    AddWaypoint(17, 2117.709473f, -6193.830078f, 13.3542f, 10000);
+                    AddWaypoint(17, 2117.709473f, -6193.830078f, 13.3542f, 0.f, 10000);
                 }
                 else
                 {
@@ -1154,7 +1162,7 @@ class npc_scarlet_miner : public CreatureScript
                     AddWaypoint(14, 2234.265625f, -6163.741211f, 0.916021f);
                     AddWaypoint(15, 2268.071777f, -6158.750977f, 1.822252f);
                     AddWaypoint(16, 2270.028320f, -6176.505859f, 6.340538f);
-                    AddWaypoint(17, 2271.739014f, -6195.401855f, 13.3542f, 10000);
+                    AddWaypoint(17, 2271.739014f, -6195.401855f, 13.3542f, 0.f, 10000);
                 }
             }
 
@@ -1165,7 +1173,7 @@ class npc_scarlet_miner : public CreatureScript
                 SetDespawnAtFar(false);
             }
 
-            void WaypointReached(uint32 waypointId) override
+            void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
             {
                 switch (waypointId)
                 {
@@ -1215,7 +1223,7 @@ class npc_scarlet_miner : public CreatureScript
                     else
                         IntroTimer -= diff;
                 }
-                npc_escortAI::UpdateAI(diff);
+                EscortAI::UpdateAI(diff);
             }
         };
 

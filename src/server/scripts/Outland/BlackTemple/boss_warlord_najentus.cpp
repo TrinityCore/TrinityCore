@@ -17,6 +17,8 @@
 
 #include "ScriptMgr.h"
 #include "black_temple.h"
+#include "GameObjectAI.h"
+#include "GridNotifiers.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "ObjectAccessor.h"
@@ -24,7 +26,6 @@
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
-#include "GridNotifiers.h"
 
 enum Texts
 {
@@ -90,7 +91,7 @@ public:
             Talk(SAY_DEATH);
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_HURL_SPINE && me->HasAura(SPELL_TIDAL_SHIELD))
             {
@@ -175,16 +176,29 @@ class go_najentus_spine : public GameObjectScript
 public:
     go_najentus_spine() : GameObjectScript("go_najentus_spine") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
+    struct go_najentus_spineAI : public GameObjectAI
     {
-        if (InstanceScript* instance = go->GetInstanceScript())
+        go_najentus_spineAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
+
+        InstanceScript* instance;
+
+        bool GossipHello(Player* player) override
+        {
             if (Creature* najentus = instance->GetCreature(DATA_HIGH_WARLORD_NAJENTUS))
+            {
                 if (ENSURE_AI(boss_najentus::boss_najentusAI, najentus->AI())->RemoveImpalingSpine())
                 {
-                    go->CastSpell(player, SPELL_CREATE_NAJENTUS_SPINE, true);
-                    go->Delete();
+                    me->CastSpell(player, SPELL_CREATE_NAJENTUS_SPINE, true);
+                    me->Delete();
                 }
-        return true;
+            }
+            return true;
+        }
+    };
+
+    GameObjectAI* GetAI(GameObject* go) const override
+    {
+        return GetBlackTempleAI<go_najentus_spineAI>(go);
     }
 };
 

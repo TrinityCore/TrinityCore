@@ -15,14 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "AreaBoundary.h"
 #include "ScriptMgr.h"
-#include "Creature.h"
-#include "CreatureAI.h"
+#include "AreaBoundary.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "magtheridons_lair.h"
 #include "Map.h"
+#include "ScriptedCreature.h"
 
 BossBoundaryData const boundaries =
 {
@@ -55,7 +54,7 @@ ObjectData const gameObjectData[] =
     { 0,                            0                           } //END
 };
 
-static DataTypes const collapseObjectDatas[] =
+static MLDataTypes const collapseObjectDatas[] =
 {
     DATA_MAGTHERIDON_COLUMN_0,
     DATA_MAGTHERIDON_COLUMN_1,
@@ -68,7 +67,7 @@ static DataTypes const collapseObjectDatas[] =
 class instance_magtheridons_lair : public InstanceMapScript
 {
     public:
-        instance_magtheridons_lair() : InstanceMapScript("instance_magtheridons_lair", 544) { }
+        instance_magtheridons_lair() : InstanceMapScript(MLScriptName, 544) { }
 
         struct instance_magtheridons_lair_InstanceMapScript : public InstanceScript
         {
@@ -116,8 +115,8 @@ class instance_magtheridons_lair : public InstanceMapScript
                             HandleGameObject(ObjectGuid::Empty, value == ACTION_ENABLE ? true : false, hall);
                         break;
                     case DATA_COLLAPSE_2:
-                        for (DataTypes data : collapseObjectDatas)
-                            if (GameObject* go = GetGameObject(data))
+                        for (MLDataTypes type : collapseObjectDatas)
+                            if (GameObject* go = GetGameObject(type))
                                 HandleGameObject(ObjectGuid::Empty, value == ACTION_ENABLE ? true : false, go);
                         break;
                     case DATA_CALL_WARDERS:

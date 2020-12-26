@@ -323,7 +323,7 @@ public:
 
             if (Unit* target = me->SelectNearestPlayer(200.0f))
             {
-                me->AddThreat(target, 0.0f);
+                AddThreat(target, 0.0f);
                 me->SetInCombatWith(target);
                 target->SetInCombatWith(me);
                 DoStartMovement(target);

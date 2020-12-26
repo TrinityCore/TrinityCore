@@ -49,8 +49,8 @@ MySQLConnectionInfo::MySQLConnectionInfo(std::string const& infoString)
 MySQLConnection::MySQLConnection(MySQLConnectionInfo& connInfo) :
 m_reconnecting(false),
 m_prepareError(false),
-m_queue(NULL),
-m_Mysql(NULL),
+m_queue(nullptr),
+m_Mysql(nullptr),
 m_connectionInfo(connInfo),
 m_connectionFlags(CONNECTION_SYNCH) { }
 
@@ -58,11 +58,11 @@ MySQLConnection::MySQLConnection(ProducerConsumerQueue<SQLOperation*>* queue, My
 m_reconnecting(false),
 m_prepareError(false),
 m_queue(queue),
-m_Mysql(NULL),
+m_Mysql(nullptr),
 m_connectionInfo(connInfo),
 m_connectionFlags(CONNECTION_ASYNC)
 {
-    m_worker = Trinity::make_unique<DatabaseWorker>(m_queue, this);
+    m_worker = std::make_unique<DatabaseWorker>(m_queue, this);
 }
 
 MySQLConnection::~MySQLConnection()
@@ -87,7 +87,7 @@ void MySQLConnection::Close()
 uint32 MySQLConnection::Open()
 {
     MYSQL *mysqlInit;
-    mysqlInit = mysql_init(NULL);
+    mysqlInit = mysql_init(nullptr);
     if (!mysqlInit)
     {
         TC_LOG_ERROR("sql.sql", "Could not initialize Mysql connection to database `%s`", m_connectionInfo.database.c_str());
@@ -106,12 +106,12 @@ uint32 MySQLConnection::Open()
         unsigned int opt = MYSQL_PROTOCOL_PIPE;
         mysql_options(mysqlInit, MYSQL_OPT_PROTOCOL, (char const*)&opt);
         port = 0;
-        unix_socket = 0;
+        unix_socket = nullptr;
     }
     else                                                    // generic case
     {
         port = atoi(m_connectionInfo.port_or_socket.c_str());
-        unix_socket = 0;
+        unix_socket = nullptr;
     }
     #else
     if (m_connectionInfo.host == ".")                                           // socket use option (Unix/Linux)
@@ -165,7 +165,7 @@ bool MySQLConnection::PrepareStatements()
     return !m_prepareError;
 }
 
-bool MySQLConnection::Execute(const char* sql)
+bool MySQLConnection::Execute(char const* sql)
 {
     if (!m_Mysql)
         return false;
@@ -294,18 +294,18 @@ bool MySQLConnection::_Query(PreparedStatementBase* stmt, MySQLResult** pResult,
     return true;
 }
 
-ResultSet* MySQLConnection::Query(const char* sql)
+ResultSet* MySQLConnection::Query(char const* sql)
 {
     if (!sql)
-        return NULL;
+        return nullptr;
 
-    MySQLResult* result = NULL;
-    MySQLField* fields = NULL;
+    MySQLResult* result = nullptr;
+    MySQLField* fields = nullptr;
     uint64 rowCount = 0;
     uint32 fieldCount = 0;
 
     if (!_Query(sql, &result, &fields, &rowCount, &fieldCount))
-        return NULL;
+        return nullptr;
 
     return new ResultSet(result, fields, rowCount, fieldCount);
 }
@@ -394,7 +394,7 @@ int MySQLConnection::ExecuteTransaction(std::shared_ptr<TransactionBase> transac
             break;
             case SQL_ELEMENT_RAW:
             {
-                const char* sql = data.element.query;
+                char const* sql = data.element.query;
                 ASSERT(sql);
                 if (!Execute(sql))
                 {
@@ -486,18 +486,18 @@ void MySQLConnection::PrepareStatement(uint32 index, std::string const& sql, Con
             m_prepareError = true;
         }
         else
-            m_stmts[index] = Trinity::make_unique<MySQLPreparedStatement>(reinterpret_cast<MySQLStmt*>(stmt), sql);
+            m_stmts[index] = std::make_unique<MySQLPreparedStatement>(reinterpret_cast<MySQLStmt*>(stmt), sql);
     }
 }
 
 PreparedResultSet* MySQLConnection::Query(PreparedStatementBase* stmt)
 {
-    MySQLResult* result = NULL;
+    MySQLResult* result = nullptr;
     uint64 rowCount = 0;
     uint32 fieldCount = 0;
 
     if (!_Query(stmt, &result, &rowCount, &fieldCount))
-        return NULL;
+        return nullptr;
 
     if (mysql_more_results(m_Mysql))
     {
@@ -513,7 +513,6 @@ bool MySQLConnection::_HandleMySQLErrno(uint32 errNo, uint8 attempts /*= 5*/)
         case CR_SERVER_GONE_ERROR:
         case CR_SERVER_LOST:
         case CR_SERVER_LOST_EXTENDED:
-        {
             if (m_Mysql)
             {
                 TC_LOG_ERROR("sql.sql", "Lost the connection to the MySQL server!");
@@ -521,9 +520,7 @@ bool MySQLConnection::_HandleMySQLErrno(uint32 errNo, uint8 attempts /*= 5*/)
                 mysql_close(m_Mysql);
                 m_Mysql = nullptr;
             }
-
-            /*no break*/
-        }
+            /* fallthrough */
         case CR_CONN_HOST_ERROR:
         {
             TC_LOG_INFO("sql.sql", "Attempting to reconnect to the MySQL server...");

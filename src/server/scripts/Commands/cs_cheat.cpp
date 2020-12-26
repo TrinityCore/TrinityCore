@@ -51,12 +51,12 @@ public:
 
         static std::vector<ChatCommand> commandTable =
         {
-            { "cheat",          rbac::RBAC_PERM_COMMAND_CHEAT, false, NULL, "", cheatCommandTable },
+            { "cheat",          rbac::RBAC_PERM_COMMAND_CHEAT, false, nullptr, "", cheatCommandTable },
         };
         return commandTable;
     }
 
-    static bool HandleGodModeCheatCommand(ChatHandler* handler, const char* args)
+    static bool HandleGodModeCheatCommand(ChatHandler* handler, char const* args)
     {
         if (!handler->GetSession() && !handler->GetSession()->GetPlayer())
             return false;
@@ -82,7 +82,7 @@ public:
         return false;
     }
 
-    static bool HandleCasttimeCheatCommand(ChatHandler* handler, const char* args)
+    static bool HandleCasttimeCheatCommand(ChatHandler* handler, char const* args)
     {
         if (!handler->GetSession() && !handler->GetSession()->GetPlayer())
             return false;
@@ -108,7 +108,7 @@ public:
         return false;
     }
 
-    static bool HandleCoolDownCheatCommand(ChatHandler* handler, const char* args)
+    static bool HandleCoolDownCheatCommand(ChatHandler* handler, char const* args)
     {
         if (!handler->GetSession() && !handler->GetSession()->GetPlayer())
             return false;
@@ -134,7 +134,7 @@ public:
         return false;
     }
 
-    static bool HandlePowerCheatCommand(ChatHandler* handler, const char* args)
+    static bool HandlePowerCheatCommand(ChatHandler* handler, char const* args)
     {
         if (!handler->GetSession() && !handler->GetSession()->GetPlayer())
             return false;
@@ -160,12 +160,12 @@ public:
         return false;
     }
 
-    static bool HandleCheatStatusCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleCheatStatusCommand(ChatHandler* handler, char const* /*args*/)
     {
         Player* player = handler->GetSession()->GetPlayer();
 
-        const char* enabled = "ON";
-        const char* disabled = "OFF";
+        char const* enabled = "ON";
+        char const* disabled = "OFF";
 
         handler->SendSysMessage(LANG_COMMAND_CHEAT_STATUS);
         handler->PSendSysMessage(LANG_COMMAND_CHEAT_GOD, player->GetCommandStatus(CHEAT_GOD) ? enabled : disabled);
@@ -177,7 +177,7 @@ public:
         return true;
     }
 
-    static bool HandleWaterWalkCheatCommand(ChatHandler* handler, const char* args)
+    static bool HandleWaterWalkCheatCommand(ChatHandler* handler, char const* args)
     {
         if (!handler->GetSession() && !handler->GetSession()->GetPlayer())
             return false;
@@ -206,7 +206,7 @@ public:
         return false;
     }
 
-    static bool HandleTaxiCheatCommand(ChatHandler* handler, const char* args)
+    static bool HandleTaxiCheatCommand(ChatHandler* handler, char const* args)
     {
 
         std::string argstr = (char*)args;

@@ -101,10 +101,10 @@ class npc_voljin_zulaman : public CreatureScript
                 _gongCount = 0;
             }
 
-            void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+            bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {
                 if (_instance->GetData(DATA_ZULAMAN_STATE) != NOT_STARTED)
-                    return;
+                    return true;
 
                 if (me->GetCreatureTemplate()->GossipMenuId == menuId && !gossipListId)
                 {
@@ -116,6 +116,7 @@ class npc_voljin_zulaman : public CreatureScript
                     Talk(SAY_INTRO_1, player);
                     me->SetWalk(true);
                 }
+                return false;
             }
 
             void DoAction(int32 action) override
@@ -180,7 +181,7 @@ class npc_voljin_zulaman : public CreatureScript
                             break;
                         case EVENT_START_DOOR_OPENING_7:
                             if (Creature* hexLordTrigger = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_HEXLORD_TRIGGER)))
-                                sCreatureTextMgr->SendChat(hexLordTrigger, SAY_HEXLOR_INTRO, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
+                                sCreatureTextMgr->SendChat(hexLordTrigger, SAY_HEXLOR_INTRO, nullptr, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
                             break;
                         default:
                             break;

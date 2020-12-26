@@ -28,7 +28,7 @@ typedef bool (*EKEY_ENTRY_CALLBACK)(TCascStorage * hs, CASC_INDEX_HEADER & InHea
 // Local functions
 
 // "data.iXY"
-static bool IsIndexFileName_V1(const TCHAR * szFileName)
+static bool IsIndexFileName_V1(LPCTSTR szFileName)
 {
     // Check if the name looks like a valid index file
     return (_tcslen(szFileName) == 8 &&
@@ -36,7 +36,7 @@ static bool IsIndexFileName_V1(const TCHAR * szFileName)
             _tcsspn(szFileName + 6, szAllowedHexChars) == 2);
 }
 
-static bool IsIndexFileName_V2(const TCHAR * szFileName)
+static bool IsIndexFileName_V2(LPCTSTR szFileName)
 {
     // Check if the name looks like a valid index file
     return (_tcslen(szFileName) == 14 &&
@@ -50,8 +50,8 @@ static bool IndexDirectory_OnFileFound(
 {
     TCascStorage * hs = (TCascStorage *)pvContext;
     PCASC_INDEX pIndexFile;
-    DWORD IndexValue = 0;
     DWORD IndexVersion = 0;
+    DWORD IndexValue = 0;
 
     // Auto-detect the format of the index file name
     if(hs->szIndexFormat == NULL)
@@ -71,9 +71,9 @@ static bool IndexDirectory_OnFileFound(
             return false;
 
         // Get the main index from the first two digits
-        if(ConvertStringToInt32(szFileName, 2, &IndexValue) != ERROR_SUCCESS)
+        if(ConvertStringToInt(szFileName + 0, 2, IndexValue) != ERROR_SUCCESS)
             return false;
-        if(ConvertStringToInt32(szFileName + 2, 8, &IndexVersion) != ERROR_SUCCESS)
+        if(ConvertStringToInt(szFileName + 2, 8, IndexVersion) != ERROR_SUCCESS)
             return false;
     }
     else if(hs->szIndexFormat == szIndexFormat_V1)
@@ -83,9 +83,9 @@ static bool IndexDirectory_OnFileFound(
             return false;
 
         // Get the main index from the first two digits
-        if(ConvertDigitToInt32(szFileName + 6, &IndexValue) != ERROR_SUCCESS)
+        if(ConvertStringToInt(szFileName + 6, 1, IndexValue) != ERROR_SUCCESS)
             return false;
-        if(ConvertDigitToInt32(szFileName + 7, &IndexVersion) != ERROR_SUCCESS)
+        if(ConvertStringToInt(szFileName + 7, 1, IndexVersion) != ERROR_SUCCESS)
             return false;
     }
     else
@@ -116,7 +116,7 @@ static bool IndexDirectory_OnFileFound(
     return true;
 }
 
-static TCHAR * CreateIndexFileName(TCascStorage * hs, DWORD IndexValue, DWORD IndexVersion)
+static LPTSTR CreateIndexFileName(TCascStorage * hs, DWORD IndexValue, DWORD IndexVersion)
 {
     TCHAR szPlainName[0x40];
 
@@ -167,6 +167,7 @@ static LPBYTE CaptureGuardedBlock2(LPBYTE pbFileData, LPBYTE pbFileEnd, size_t E
     PFILE_INDEX_GUARDED_BLOCK pBlock = (PFILE_INDEX_GUARDED_BLOCK)pbFileData;
     LPBYTE pbEntryPtr;
     size_t EntryCount;
+    unsigned int HashBlizzGet = 0;
     unsigned int HashHigh = 0;
     unsigned int HashLow = 0;
 
@@ -177,7 +178,10 @@ static LPBYTE CaptureGuardedBlock2(LPBYTE pbFileData, LPBYTE pbFileEnd, size_t E
     if (pBlock->BlockSize == 0 || (pbFileData + sizeof(FILE_INDEX_GUARDED_BLOCK) + pBlock->BlockSize) > pbFileEnd)
         return NULL;
 
-    // Compute the hash entry-by-entry
+    //
+    // Verify the hash from the Blizzard Downloader
+    //
+
     pbEntryPtr = pbFileData + sizeof(FILE_INDEX_GUARDED_BLOCK);
     EntryCount = pBlock->BlockSize / EntryLength;
     for (size_t i = 0; i < EntryCount; i++)
@@ -187,13 +191,39 @@ static LPBYTE CaptureGuardedBlock2(LPBYTE pbFileData, LPBYTE pbFileEnd, size_t E
     }
 
     // Verify hash
-    if (HashHigh != pBlock->BlockHash)
-        return NULL;
+    if (HashHigh == pBlock->BlockHash)
+    {
+        // Give the output
+        if (PtrBlockSize != NULL)
+            PtrBlockSize[0] = pBlock->BlockSize;
+        return (LPBYTE)(pBlock + 1);
+    }
 
-    // Give the output
-    if (PtrBlockSize != NULL)
-        PtrBlockSize[0] = pBlock->BlockSize;
-    return (LPBYTE)(pBlock + 1);
+    //
+    // Verify the hash from the Blizzget tool, which calculates the hash differently
+    // https://github.com/d07RiV/blizzget/blob/master/src/ngdp.cpp
+    // Function void DataStorage::writeIndex()
+    //
+
+    pbEntryPtr = pbFileData + sizeof(FILE_INDEX_GUARDED_BLOCK);
+    EntryCount = pBlock->BlockSize / EntryLength;
+    for (size_t i = 0; i < EntryCount; i++)
+    {
+        HashBlizzGet = hashlittle(pbEntryPtr, EntryLength, HashBlizzGet);
+        pbEntryPtr += EntryLength;
+    }
+
+    // Verify hash
+    if (HashBlizzGet == pBlock->BlockHash)
+    {
+        // Give the output
+        if (PtrBlockSize != NULL)
+            PtrBlockSize[0] = pBlock->BlockSize;
+        return (LPBYTE)(pBlock + 1);
+    }
+
+    // Hash mismatch
+    return NULL;
 }
 
 // Third method of checking a guarded block; There is 32-bit hash, followed by EKey entry
@@ -286,8 +316,9 @@ static DWORD LoadIndexItems(TCascStorage * hs, CASC_INDEX_HEADER & InHeader, EKE
 
     while((pbEKeyEntry + EntryLength) <= pbEKeyEnd)
     {
-        // DOWNLOAD in HOTS
-        //BREAK_ON_XKEY3(EKeyEntry.EKey, 0x09, 0xF3, 0xCD);
+        // ENCODING for Starcraft II Beta
+        BREAK_ON_XKEY3(pbEKeyEntry, 0x8b, 0x0d, 0x9a);
+
         if(!PfnEKeyEntry(hs, InHeader, pbEKeyEntry))
             return ERROR_INDEX_PARSING_DONE;
 
@@ -487,17 +518,17 @@ static bool InsertEncodingEKeyToMap(TCascStorage * hs, CASC_INDEX_HEADER &, LPBY
     return true;
 }
 
-static DWORD ProcessLocalIndexFiles(TCascStorage * hs, EKEY_ENTRY_CALLBACK PfnEKeyEntry)
+static DWORD ProcessLocalIndexFiles(TCascStorage * hs, EKEY_ENTRY_CALLBACK PfnEKeyEntry, DWORD dwIndexCount)
 {
     DWORD dwErrCode = ERROR_SUCCESS;
 
     // Load each index file
-    for(DWORD i = 0; i < CASC_INDEX_COUNT; i++)
+    for(DWORD i = 0; i < dwIndexCount; i++)
     {
         CASC_INDEX & IndexFile = hs->IndexFiles[i];
 
         // Inform the user about what we are doing
-        if(InvokeProgressCallback(hs, "Loading index files", NULL, i, CASC_INDEX_COUNT))
+        if(InvokeProgressCallback(hs, "Loading index files", NULL, i, dwIndexCount))
         {
             dwErrCode = ERROR_CANCELLED;
             break;
@@ -520,6 +551,7 @@ static DWORD ProcessLocalIndexFiles(TCascStorage * hs, EKEY_ENTRY_CALLBACK PfnEK
 static DWORD LoadLocalIndexFiles(TCascStorage * hs)
 {
     ULONGLONG TotalSize = 0;
+    DWORD dwIndexCount = 0;
     DWORD dwErrCode;
 
     // Inform the user about what we are doing
@@ -529,6 +561,10 @@ static DWORD LoadLocalIndexFiles(TCascStorage * hs)
     // Perform the directory scan
     if((dwErrCode = ScanIndexDirectory(hs->szIndexPath, IndexDirectory_OnFileFound, hs)) == ERROR_SUCCESS)
     {
+        // If no index file was found, we cannot load anything
+        if(hs->szIndexFormat == NULL)
+            return ERROR_FILE_NOT_FOUND;
+
         // Load each index file
         for(DWORD i = 0; i < CASC_INDEX_COUNT; i++)
         {
@@ -541,16 +577,28 @@ static DWORD LoadLocalIndexFiles(TCascStorage * hs)
 
             // WoW6 actually reads THE ENTIRE file to memory. Verified on Mac build (x64).
             if((IndexFile.pbFileData = LoadFileToMemory(IndexFile.szFileName, &cbFileData)) == NULL)
-                return ERROR_NOT_ENOUGH_MEMORY;
+            {
+                // Storages downloaded by Blizzget tool don't have all index files present
+                if((dwErrCode = GetCascError()) == ERROR_FILE_NOT_FOUND)
+                {
+                    dwErrCode = ERROR_SUCCESS;
+                    break;
+                }
+
+                return dwErrCode;
+            }
+
+            // Add to the total size of the index files
             IndexFile.cbFileData = cbFileData;
             TotalSize += cbFileData;
+            dwIndexCount++;
         }
 
         // Build the map of EKey -> IndexEKeyEntry
         dwErrCode = hs->IndexEKeyMap.Create((size_t)(TotalSize / sizeof(FILE_EKEY_ENTRY)), CASC_EKEY_SIZE, 0);
         if(dwErrCode == ERROR_SUCCESS)
         {
-            dwErrCode = ProcessLocalIndexFiles(hs, InsertEncodingEKeyToMap);
+            dwErrCode = ProcessLocalIndexFiles(hs, InsertEncodingEKeyToMap, dwIndexCount);
         }
     }
 

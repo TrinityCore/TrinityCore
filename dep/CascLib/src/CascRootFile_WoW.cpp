@@ -413,7 +413,7 @@ struct TRootHandler_WoW : public TFileTreeRoot
                     nLength = ListFile_GetNext(pSearch->pCache, szFileName, _countof(szFileName), &FileDataId);
                     if(nLength == 0)
                     {
-                        if(GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+                        if(GetCascError() == ERROR_INSUFFICIENT_BUFFER)
                             continue;
                         break;
                     }
@@ -435,7 +435,7 @@ struct TRootHandler_WoW : public TFileTreeRoot
                     nLength = ListFile_GetNextLine(pSearch->pCache, szFileName, _countof(szFileName));
                     if(nLength == 0)
                     {
-                        if(GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+                        if(GetCascError() == ERROR_INSUFFICIENT_BUFFER)
                             continue;
                         break;
                     }

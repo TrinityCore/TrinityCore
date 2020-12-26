@@ -46,7 +46,7 @@ void WorldPackets::Artifact::ConfirmArtifactRespec::Read()
     _worldPacket >> NpcGUID;
 }
 
-WorldPacket const* WorldPackets::Artifact::ArtifactForgeOpened::Write()
+WorldPacket const* WorldPackets::Artifact::OpenArtifactForge::Write()
 {
     _worldPacket << ArtifactGUID;
     _worldPacket << ForgeGUID;
@@ -54,7 +54,7 @@ WorldPacket const* WorldPackets::Artifact::ArtifactForgeOpened::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Artifact::ArtifactRespecConfirm::Write()
+WorldPacket const* WorldPackets::Artifact::ArtifactRespecPrompt::Write()
 {
     _worldPacket << ArtifactGUID;
     _worldPacket << NpcGUID;

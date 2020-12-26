@@ -19,6 +19,7 @@
 #define PartyPackets_h__
 
 #include "Packet.h"
+#include "AuthenticationPackets.h"
 #include "ObjectGuid.h"
 #include "Group.h"
 #include "Optional.h"
@@ -67,22 +68,19 @@ namespace WorldPackets
             bool MightCRZYou = false;
             bool MustBeBNetFriend = false;
             bool AllowMultipleRoles = false;
-            bool Unk2 = false;
+            bool QuestSessionActive = false;
             uint16 Unk1 = 0;
 
             bool CanAccept = false;
 
             // Inviter
+            Auth::VirtualRealmInfo InviterRealm;
             ObjectGuid InviterGUID;
             ObjectGuid InviterBNetAccountId;
             std::string InviterName;
 
             // Realm
             bool IsXRealm = false;
-            bool IsLocal = true;
-            uint32 InviterVirtualRealmAddress = 0u;
-            std::string InviterRealmNameActual;
-            std::string InviterRealmNameNormalized;
 
             // Lfg
             uint32 ProposedRoles = 0;
@@ -159,7 +157,7 @@ namespace WorldPackets
         struct PartyMemberAuraStates
         {
             int32 SpellID = 0;
-            uint8 Flags = 0;
+            uint16 Flags = 0;
             uint32 ActiveFlags = 0u;
             std::vector<float> Points;
         };
@@ -174,6 +172,13 @@ namespace WorldPackets
             int32 MaxHealth = 0;
 
             std::vector<PartyMemberAuraStates> Auras;
+        };
+
+        struct CTROptions
+        {
+            uint32 ContentTuningConditionMask = 0;
+            int32 Unused901 = 0;
+            uint32 ExpansionLevelMask = 0;
         };
 
         struct PartyMemberStats
@@ -204,12 +209,14 @@ namespace WorldPackets
             uint16 WmoGroupID = 0;
             uint32 WmoDoodadPlacementID = 0;
             int8 PartyType[2];
+
+            CTROptions ChromieTime;
         };
 
-        class PartyMemberState final : public ServerPacket
+        class PartyMemberFullState final : public ServerPacket
         {
         public:
-            PartyMemberState() : ServerPacket(SMSG_PARTY_MEMBER_STATE, 80) { }
+            PartyMemberFullState() : ServerPacket(SMSG_PARTY_MEMBER_FULL_STATE, 80) { }
 
             WorldPacket const* Write() override;
             void Initialize(Player const* player);

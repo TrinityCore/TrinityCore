@@ -207,13 +207,13 @@ class boss_grand_warlock_nethekurse : public CreatureScript
 
             void JustSummoned(Creature* summoned) override
             {
-                summoned->setFaction(16);
+                summoned->SetFaction(FACTION_MONSTER_2);
                 summoned->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                 summoned->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
 
                 //triggered spell of consumption does not properly show it's SpellVisual, wrong spellid?
                 summoned->CastSpell(summoned, SPELL_TEMPORARY_VISUAL, true);
-                summoned->CastSpell(summoned, SPELL_CONSUMPTION, false, 0, 0, me->GetGUID());
+                summoned->CastSpell(summoned, SPELL_CONSUMPTION, false, nullptr, nullptr, me->GetGUID());
             }
 
             void KilledUnit(Unit* /*victim*/) override

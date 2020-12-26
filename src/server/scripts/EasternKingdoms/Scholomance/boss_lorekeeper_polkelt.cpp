@@ -22,9 +22,9 @@ Comment:
 Category: Scholomance
 */
 
+#include "scholomance.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "scholomance.h"
 
 enum Spells
 {

@@ -61,9 +61,7 @@ enum UlduarNPCs
     NPC_SALVAGED_CHOPPER                    = 33062,
     NPC_IGNIS                               = 33118,
     NPC_RAZORSCALE                          = 33186,
-    NPC_RAZORSCALE_CONTROLLER               = 33233,
     NPC_STEELFORGED_DEFFENDER               = 33236,
-    NPC_EXPEDITION_COMMANDER                = 33210,
     NPC_XT002                               = 33293,
     NPC_XT_TOY_PILE                         = 33337,
     NPC_STEELBREAKER                        = 32867,
@@ -83,6 +81,18 @@ enum UlduarNPCs
     NPC_VEZAX                               = 33271,
     NPC_YOGG_SARON                          = 33288,
     NPC_ALGALON                             = 32871,
+
+    // Razorscale
+    NPC_DARK_RUNE_GUARDIAN                  = 33388,
+    NPC_DARK_RUNE_SENTINEL                  = 33846,
+    NPC_DARK_RUNE_WATCHER                   = 33453,
+    NPC_RAZORSCALE_SPAWNER                  = 33245,
+    NPC_EXPEDITION_COMMANDER                = 33210,
+    NPC_EXPEDITION_ENGINEER                 = 33287,
+    NPC_EXPEDITION_DEFENDER                 = 33816,
+    NPC_EXPEDITION_TRAPPER                  = 33259,
+    NPC_RAZORSCALE_CONTROLLER               = 33233,
+    NPC_RAZORSCALE_HARPOON_FIRE_STATE       = 33282,
 
     //XT002
     NPC_XS013_SCRAPBOT                      = 33343,
@@ -156,6 +166,31 @@ enum UlduarNPCs
 
     // Freya Achievement Trigger
     NPC_FREYA_ACHIEVE_TRIGGER               = 33406,
+
+    // Thorim
+    NPC_THORIM_INVISIBLE_STALKER            = 32780,
+    NPC_JORMUNGAR_BEHEMOTH                  = 32882,
+    NPC_MERCENARY_CAPTAIN_A                 = 32908,
+    NPC_MERCENARY_CAPTAIN_H                 = 32907,
+    NPC_MERCENARY_SOLDIER_A                 = 32885,
+    NPC_MERCENARY_SOLDIER_H                 = 32883,
+    NPC_DARK_RUNE_ACOLYTE_PRE               = 32886,
+    NPC_RUNIC_COLOSSUS                      = 32872,
+    NPC_RUNE_GIANT                          = 32873,
+    NPC_IRON_RING_GUARD                     = 32874,
+    NPC_IRON_HONOR_GUARD                    = 32875,
+    NPC_DARK_RUNE_CHAMPION                  = 32876,
+    NPC_DARK_RUNE_WARBRINGER                = 32877,
+    NPC_DARK_RUNE_EVOKER                    = 32878,
+    NPC_DARK_RUNE_COMMONER                  = 32904,
+    NPC_DARK_RUNE_ACOLYTE                   = 33110,
+    NPC_THORIM_EVENT_BUNNY                  = 32892,
+    NPC_LIGHTNING_ORB                       = 33138,
+    NPC_GOLEM_RIGHT_HAND_BUNNY              = 33140,
+    NPC_GOLEM_LEFT_HAND_BUNNY               = 33141,
+    NPC_SIF                                 = 33196,
+    NPC_THUNDER_ORB                         = 33378,
+    NPC_THORIM_CONTROLLER                   = 32879,
 
     // Yogg-Saron
     NPC_SARA                                = 33134,
@@ -231,6 +266,8 @@ enum UlduarGameObjects
     GO_KOLOGARN_BRIDGE                      = 194232,
     GO_KOLOGARN_DOOR                        = 194553,
 
+    GO_ANCIENT_GATE_OF_THE_KEEPERS          = 194255,
+
     // Hodir
     GO_HODIR_ENTRANCE                       = 194442,
     GO_HODIR_DOOR                           = 194634,
@@ -241,8 +278,15 @@ enum UlduarGameObjects
     GO_HODIR_CHEST                          = 194307,
 
     // Thorim
-    GO_THORIM_CHEST_HERO                    = 194315,
-    GO_THORIM_CHEST                         = 194314,
+    GO_CACHE_OF_STORMS_10                   = 194312,
+    GO_CACHE_OF_STORMS_HARDMODE_10          = 194313,
+    GO_CACHE_OF_STORMS_25                   = 194315,
+    GO_CACHE_OF_STORMS_HARDMODE_25          = 194314,
+    GO_THORIM_RUNIC_DOOR                    = 194557,
+    GO_THORIM_STONE_DOOR                    = 194558,
+    GO_THORIM_ENCOUNTER_DOOR                = 194559,
+    GO_THORIM_LEVER                         = 194264,
+    GO_THORIM_DARK_IRON_PORTCULLIS          = 194560,
 
     // Mimiron
     GO_MIMIRON_TRAM                         = 194675,
@@ -279,7 +323,7 @@ enum UlduarGameObjects
     GO_GIFT_OF_THE_OBSERVER_25              = 194822,
 };
 
-enum EventIds
+enum UUEventIds
 {
     EVENT_TOWER_OF_STORM_DESTROYED      = 21031,
     EVENT_TOWER_OF_FROST_DESTROYED      = 21032,
@@ -407,6 +451,16 @@ enum UlduarData
     DATA_ALGALON_TRAPDOOR,
     DATA_BRANN_BRONZEBEARD_ALG,
 
+    // Thorim
+    DATA_SIF,
+    DATA_THORIM_LEVER,
+    DATA_RUNIC_COLOSSUS,
+    DATA_RUNE_GIANT,
+    DATA_RUNIC_DOOR,
+    DATA_STONE_DOOR,
+    DATA_THORIM_HARDMODE,
+    DATA_THORIM_CONTROLLER,
+
     // Misc
     DATA_BRANN_BRONZEBEARD_INTRO,
     DATA_LORE_KEEPER_OF_NORGANNON,
@@ -423,10 +477,15 @@ enum UlduarWorldStates
 enum UlduarAchievementData
 {
     // FL Achievement boolean
-    DATA_UNBROKEN = 29052906, // 2905, 2906 are achievement IDs,
+    DATA_UNBROKEN               = 29052906, // 2905, 2906 are achievement IDs,
     MAX_HERALD_ARMOR_ITEMLEVEL  = 226,
-    MAX_HERALD_WEAPON_ITEMLEVEL = 232,
-    SPELL_LUMBERJACKED_CREDIT = 65296
+    MAX_HERALD_WEAPON_ITEMLEVEL = 232
+};
+
+enum UlduarSharedSpells
+{
+    SPELL_LUMBERJACKED_CREDIT    = 65296,
+    SPELL_TELEPORT_KEEPER_VISUAL = 62940  // used by keepers
 };
 
 enum UlduarEvents
@@ -445,10 +504,29 @@ enum YoggSaronIllusions
     STORMWIND_ILLUSION          = 2,
 };
 
-template<typename AI, typename T>
+class KeeperDespawnEvent : public BasicEvent
+{
+public:
+    KeeperDespawnEvent(Creature* owner, uint32 despawnTimerOffset = 500) : _owner(owner), _despawnTimer(despawnTimerOffset) { }
+
+    bool Execute(uint64 /*eventTime*/, uint32 /*updateTime*/) override
+    {
+        _owner->CastSpell(_owner, SPELL_TELEPORT_KEEPER_VISUAL);
+        _owner->DespawnOrUnsummon(1000 + _despawnTimer);
+        return true;
+    }
+
+private:
+    Creature* _owner;
+    uint32 _despawnTimer;
+};
+
+template <class AI, class T>
 inline AI* GetUlduarAI(T* obj)
 {
-    return GetInstanceAI<AI>(obj, UlduarScriptName);
+    return GetInstanceAI<AI, T>(obj, UlduarScriptName);
 }
+
+#define RegisterUlduarCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetUlduarAI)
 
 #endif

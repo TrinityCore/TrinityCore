@@ -502,7 +502,7 @@ struct TRootHandler_OW : public TFileTreeRoot
             if(FileName.szValue && CKeyStr.szValue && CKeyStr.nLength == MD5_STRING_SIZE)
             {
                 // Convert the string CKey to binary
-                if(ConvertStringToBinary(CKeyStr.szValue, MD5_STRING_SIZE, CKey) == ERROR_SUCCESS)
+                if(BinaryFromString(CKeyStr.szValue, MD5_STRING_SIZE, CKey) == ERROR_SUCCESS)
                 {
                     // Find the item in the tree
                     if((pCKeyEntry = FindCKeyEntry_CKey(hs, CKey)) != NULL)

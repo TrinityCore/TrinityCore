@@ -8133,159 +8133,27 @@ google::protobuf::ServiceDescriptor const* AccountService::descriptor() {
   return AccountService_descriptor_;
 }
 
-void AccountService::ResolveAccount(::bgs::protocol::account::v1::ResolveAccountRequest const* request, std::function<void(::bgs::protocol::account::v1::ResolveAccountResponse const*)> responseCallback) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountService.ResolveAccount(bgs.protocol.account.v1.ResolveAccountRequest{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
-    ::bgs::protocol::account::v1::ResolveAccountResponse response;
-    if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      responseCallback(&response);
-  };
-  SendRequest(service_hash_, 13, request, std::move(callback));
-}
-
-void AccountService::IsIgrAddress(::bgs::protocol::account::v1::IsIgrAddressRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountService.IsIgrAddress(bgs.protocol.account.v1.IsIgrAddressRequest{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
-    ::bgs::protocol::NoData response;
-    if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      responseCallback(&response);
-  };
-  SendRequest(service_hash_, 15, request, std::move(callback));
-}
-
-void AccountService::Subscribe(::bgs::protocol::account::v1::SubscriptionUpdateRequest const* request, std::function<void(::bgs::protocol::account::v1::SubscriptionUpdateResponse const*)> responseCallback) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountService.Subscribe(bgs.protocol.account.v1.SubscriptionUpdateRequest{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
-    ::bgs::protocol::account::v1::SubscriptionUpdateResponse response;
-    if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      responseCallback(&response);
-  };
-  SendRequest(service_hash_, 25, request, std::move(callback));
-}
-
-void AccountService::Unsubscribe(::bgs::protocol::account::v1::SubscriptionUpdateRequest const* request, std::function<void(::bgs::protocol::NoData const*)> responseCallback) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountService.Unsubscribe(bgs.protocol.account.v1.SubscriptionUpdateRequest{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
-    ::bgs::protocol::NoData response;
-    if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      responseCallback(&response);
-  };
-  SendRequest(service_hash_, 26, request, std::move(callback));
-}
-
-void AccountService::GetAccountState(::bgs::protocol::account::v1::GetAccountStateRequest const* request, std::function<void(::bgs::protocol::account::v1::GetAccountStateResponse const*)> responseCallback) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountService.GetAccountState(bgs.protocol.account.v1.GetAccountStateRequest{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
-    ::bgs::protocol::account::v1::GetAccountStateResponse response;
-    if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      responseCallback(&response);
-  };
-  SendRequest(service_hash_, 30, request, std::move(callback));
-}
-
-void AccountService::GetGameAccountState(::bgs::protocol::account::v1::GetGameAccountStateRequest const* request, std::function<void(::bgs::protocol::account::v1::GetGameAccountStateResponse const*)> responseCallback) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountService.GetGameAccountState(bgs.protocol.account.v1.GetGameAccountStateRequest{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
-    ::bgs::protocol::account::v1::GetGameAccountStateResponse response;
-    if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      responseCallback(&response);
-  };
-  SendRequest(service_hash_, 31, request, std::move(callback));
-}
-
-void AccountService::GetLicenses(::bgs::protocol::account::v1::GetLicensesRequest const* request, std::function<void(::bgs::protocol::account::v1::GetLicensesResponse const*)> responseCallback) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountService.GetLicenses(bgs.protocol.account.v1.GetLicensesRequest{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
-    ::bgs::protocol::account::v1::GetLicensesResponse response;
-    if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      responseCallback(&response);
-  };
-  SendRequest(service_hash_, 32, request, std::move(callback));
-}
-
-void AccountService::GetGameTimeRemainingInfo(::bgs::protocol::account::v1::GetGameTimeRemainingInfoRequest const* request, std::function<void(::bgs::protocol::account::v1::GetGameTimeRemainingInfoResponse const*)> responseCallback) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountService.GetGameTimeRemainingInfo(bgs.protocol.account.v1.GetGameTimeRemainingInfoRequest{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
-    ::bgs::protocol::account::v1::GetGameTimeRemainingInfoResponse response;
-    if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      responseCallback(&response);
-  };
-  SendRequest(service_hash_, 33, request, std::move(callback));
-}
-
-void AccountService::GetGameSessionInfo(::bgs::protocol::account::v1::GetGameSessionInfoRequest const* request, std::function<void(::bgs::protocol::account::v1::GetGameSessionInfoResponse const*)> responseCallback) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountService.GetGameSessionInfo(bgs.protocol.account.v1.GetGameSessionInfoRequest{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
-    ::bgs::protocol::account::v1::GetGameSessionInfoResponse response;
-    if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      responseCallback(&response);
-  };
-  SendRequest(service_hash_, 34, request, std::move(callback));
-}
-
-void AccountService::GetCAISInfo(::bgs::protocol::account::v1::GetCAISInfoRequest const* request, std::function<void(::bgs::protocol::account::v1::GetCAISInfoResponse const*)> responseCallback) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountService.GetCAISInfo(bgs.protocol.account.v1.GetCAISInfoRequest{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
-    ::bgs::protocol::account::v1::GetCAISInfoResponse response;
-    if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      responseCallback(&response);
-  };
-  SendRequest(service_hash_, 35, request, std::move(callback));
-}
-
-void AccountService::GetAuthorizedData(::bgs::protocol::account::v1::GetAuthorizedDataRequest const* request, std::function<void(::bgs::protocol::account::v1::GetAuthorizedDataResponse const*)> responseCallback) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountService.GetAuthorizedData(bgs.protocol.account.v1.GetAuthorizedDataRequest{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
-    ::bgs::protocol::account::v1::GetAuthorizedDataResponse response;
-    if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      responseCallback(&response);
-  };
-  SendRequest(service_hash_, 37, request, std::move(callback));
-}
-
-void AccountService::GetSignedAccountState(::bgs::protocol::account::v1::GetSignedAccountStateRequest const* request, std::function<void(::bgs::protocol::account::v1::GetSignedAccountStateResponse const*)> responseCallback) {
-  TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountService.GetSignedAccountState(bgs.protocol.account.v1.GetSignedAccountStateRequest{ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  std::function<void(MessageBuffer)> callback = [responseCallback](MessageBuffer buffer) -> void {
-    ::bgs::protocol::account::v1::GetSignedAccountStateResponse response;
-    if (response.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize()))
-      responseCallback(&response);
-  };
-  SendRequest(service_hash_, 44, request, std::move(callback));
-}
-
 void AccountService::CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) {
-  switch(methodId) {
+  switch(methodId & 0x3FFFFFFF) {
     case 13: {
       ::bgs::protocol::account::v1::ResolveAccountRequest request;
       if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
         TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for AccountService.ResolveAccount server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, 13, token, ERROR_RPC_MALFORMED_REQUEST);
+        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
       TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.ResolveAccount(bgs.protocol.account.v1.ResolveAccountRequest{ %s }).",
         GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
+      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
       {
         ASSERT(response->GetDescriptor() == ::bgs::protocol::account::v1::ResolveAccountResponse::descriptor());
         AccountService* self = static_cast<AccountService*>(service);
         TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.ResolveAccount() returned bgs.protocol.account.v1.ResolveAccountResponse{ %s } status %u.",
           self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
         if (!status)
-          self->SendResponse(self->service_hash_, 13, token, response);
+          self->SendResponse(self->service_hash_, methodId, token, response);
         else
-          self->SendResponse(self->service_hash_, 13, token, status);
+          self->SendResponse(self->service_hash_, methodId, token, status);
       };
       ::bgs::protocol::account::v1::ResolveAccountResponse response;
       uint32 status = HandleResolveAccount(&request, &response, continuation);
@@ -8297,21 +8165,21 @@ void AccountService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
       ::bgs::protocol::account::v1::IsIgrAddressRequest request;
       if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
         TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for AccountService.IsIgrAddress server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, 15, token, ERROR_RPC_MALFORMED_REQUEST);
+        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
       TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.IsIgrAddress(bgs.protocol.account.v1.IsIgrAddressRequest{ %s }).",
         GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
+      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
       {
         ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
         AccountService* self = static_cast<AccountService*>(service);
         TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.IsIgrAddress() returned bgs.protocol.NoData{ %s } status %u.",
           self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
         if (!status)
-          self->SendResponse(self->service_hash_, 15, token, response);
+          self->SendResponse(self->service_hash_, methodId, token, response);
         else
-          self->SendResponse(self->service_hash_, 15, token, status);
+          self->SendResponse(self->service_hash_, methodId, token, status);
       };
       ::bgs::protocol::NoData response;
       uint32 status = HandleIsIgrAddress(&request, &response, continuation);
@@ -8323,21 +8191,21 @@ void AccountService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
       ::bgs::protocol::account::v1::SubscriptionUpdateRequest request;
       if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
         TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for AccountService.Subscribe server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, 25, token, ERROR_RPC_MALFORMED_REQUEST);
+        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
       TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.Subscribe(bgs.protocol.account.v1.SubscriptionUpdateRequest{ %s }).",
         GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
+      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
       {
         ASSERT(response->GetDescriptor() == ::bgs::protocol::account::v1::SubscriptionUpdateResponse::descriptor());
         AccountService* self = static_cast<AccountService*>(service);
         TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.Subscribe() returned bgs.protocol.account.v1.SubscriptionUpdateResponse{ %s } status %u.",
           self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
         if (!status)
-          self->SendResponse(self->service_hash_, 25, token, response);
+          self->SendResponse(self->service_hash_, methodId, token, response);
         else
-          self->SendResponse(self->service_hash_, 25, token, status);
+          self->SendResponse(self->service_hash_, methodId, token, status);
       };
       ::bgs::protocol::account::v1::SubscriptionUpdateResponse response;
       uint32 status = HandleSubscribe(&request, &response, continuation);
@@ -8349,21 +8217,21 @@ void AccountService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
       ::bgs::protocol::account::v1::SubscriptionUpdateRequest request;
       if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
         TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for AccountService.Unsubscribe server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, 26, token, ERROR_RPC_MALFORMED_REQUEST);
+        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
       TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.Unsubscribe(bgs.protocol.account.v1.SubscriptionUpdateRequest{ %s }).",
         GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
+      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
       {
         ASSERT(response->GetDescriptor() == ::bgs::protocol::NoData::descriptor());
         AccountService* self = static_cast<AccountService*>(service);
         TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.Unsubscribe() returned bgs.protocol.NoData{ %s } status %u.",
           self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
         if (!status)
-          self->SendResponse(self->service_hash_, 26, token, response);
+          self->SendResponse(self->service_hash_, methodId, token, response);
         else
-          self->SendResponse(self->service_hash_, 26, token, status);
+          self->SendResponse(self->service_hash_, methodId, token, status);
       };
       ::bgs::protocol::NoData response;
       uint32 status = HandleUnsubscribe(&request, &response, continuation);
@@ -8375,21 +8243,21 @@ void AccountService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
       ::bgs::protocol::account::v1::GetAccountStateRequest request;
       if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
         TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for AccountService.GetAccountState server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, 30, token, ERROR_RPC_MALFORMED_REQUEST);
+        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
       TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetAccountState(bgs.protocol.account.v1.GetAccountStateRequest{ %s }).",
         GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
+      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
       {
         ASSERT(response->GetDescriptor() == ::bgs::protocol::account::v1::GetAccountStateResponse::descriptor());
         AccountService* self = static_cast<AccountService*>(service);
         TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetAccountState() returned bgs.protocol.account.v1.GetAccountStateResponse{ %s } status %u.",
           self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
         if (!status)
-          self->SendResponse(self->service_hash_, 30, token, response);
+          self->SendResponse(self->service_hash_, methodId, token, response);
         else
-          self->SendResponse(self->service_hash_, 30, token, status);
+          self->SendResponse(self->service_hash_, methodId, token, status);
       };
       ::bgs::protocol::account::v1::GetAccountStateResponse response;
       uint32 status = HandleGetAccountState(&request, &response, continuation);
@@ -8401,21 +8269,21 @@ void AccountService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
       ::bgs::protocol::account::v1::GetGameAccountStateRequest request;
       if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
         TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for AccountService.GetGameAccountState server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, 31, token, ERROR_RPC_MALFORMED_REQUEST);
+        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
       TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetGameAccountState(bgs.protocol.account.v1.GetGameAccountStateRequest{ %s }).",
         GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
+      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
       {
         ASSERT(response->GetDescriptor() == ::bgs::protocol::account::v1::GetGameAccountStateResponse::descriptor());
         AccountService* self = static_cast<AccountService*>(service);
         TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetGameAccountState() returned bgs.protocol.account.v1.GetGameAccountStateResponse{ %s } status %u.",
           self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
         if (!status)
-          self->SendResponse(self->service_hash_, 31, token, response);
+          self->SendResponse(self->service_hash_, methodId, token, response);
         else
-          self->SendResponse(self->service_hash_, 31, token, status);
+          self->SendResponse(self->service_hash_, methodId, token, status);
       };
       ::bgs::protocol::account::v1::GetGameAccountStateResponse response;
       uint32 status = HandleGetGameAccountState(&request, &response, continuation);
@@ -8427,21 +8295,21 @@ void AccountService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
       ::bgs::protocol::account::v1::GetLicensesRequest request;
       if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
         TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for AccountService.GetLicenses server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, 32, token, ERROR_RPC_MALFORMED_REQUEST);
+        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
       TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetLicenses(bgs.protocol.account.v1.GetLicensesRequest{ %s }).",
         GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
+      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
       {
         ASSERT(response->GetDescriptor() == ::bgs::protocol::account::v1::GetLicensesResponse::descriptor());
         AccountService* self = static_cast<AccountService*>(service);
         TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetLicenses() returned bgs.protocol.account.v1.GetLicensesResponse{ %s } status %u.",
           self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
         if (!status)
-          self->SendResponse(self->service_hash_, 32, token, response);
+          self->SendResponse(self->service_hash_, methodId, token, response);
         else
-          self->SendResponse(self->service_hash_, 32, token, status);
+          self->SendResponse(self->service_hash_, methodId, token, status);
       };
       ::bgs::protocol::account::v1::GetLicensesResponse response;
       uint32 status = HandleGetLicenses(&request, &response, continuation);
@@ -8453,21 +8321,21 @@ void AccountService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
       ::bgs::protocol::account::v1::GetGameTimeRemainingInfoRequest request;
       if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
         TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for AccountService.GetGameTimeRemainingInfo server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, 33, token, ERROR_RPC_MALFORMED_REQUEST);
+        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
       TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetGameTimeRemainingInfo(bgs.protocol.account.v1.GetGameTimeRemainingInfoRequest{ %s }).",
         GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
+      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
       {
         ASSERT(response->GetDescriptor() == ::bgs::protocol::account::v1::GetGameTimeRemainingInfoResponse::descriptor());
         AccountService* self = static_cast<AccountService*>(service);
         TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetGameTimeRemainingInfo() returned bgs.protocol.account.v1.GetGameTimeRemainingInfoResponse{ %s } status %u.",
           self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
         if (!status)
-          self->SendResponse(self->service_hash_, 33, token, response);
+          self->SendResponse(self->service_hash_, methodId, token, response);
         else
-          self->SendResponse(self->service_hash_, 33, token, status);
+          self->SendResponse(self->service_hash_, methodId, token, status);
       };
       ::bgs::protocol::account::v1::GetGameTimeRemainingInfoResponse response;
       uint32 status = HandleGetGameTimeRemainingInfo(&request, &response, continuation);
@@ -8479,21 +8347,21 @@ void AccountService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
       ::bgs::protocol::account::v1::GetGameSessionInfoRequest request;
       if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
         TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for AccountService.GetGameSessionInfo server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, 34, token, ERROR_RPC_MALFORMED_REQUEST);
+        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
       TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetGameSessionInfo(bgs.protocol.account.v1.GetGameSessionInfoRequest{ %s }).",
         GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
+      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
       {
         ASSERT(response->GetDescriptor() == ::bgs::protocol::account::v1::GetGameSessionInfoResponse::descriptor());
         AccountService* self = static_cast<AccountService*>(service);
         TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetGameSessionInfo() returned bgs.protocol.account.v1.GetGameSessionInfoResponse{ %s } status %u.",
           self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
         if (!status)
-          self->SendResponse(self->service_hash_, 34, token, response);
+          self->SendResponse(self->service_hash_, methodId, token, response);
         else
-          self->SendResponse(self->service_hash_, 34, token, status);
+          self->SendResponse(self->service_hash_, methodId, token, status);
       };
       ::bgs::protocol::account::v1::GetGameSessionInfoResponse response;
       uint32 status = HandleGetGameSessionInfo(&request, &response, continuation);
@@ -8505,21 +8373,21 @@ void AccountService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
       ::bgs::protocol::account::v1::GetCAISInfoRequest request;
       if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
         TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for AccountService.GetCAISInfo server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, 35, token, ERROR_RPC_MALFORMED_REQUEST);
+        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
       TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetCAISInfo(bgs.protocol.account.v1.GetCAISInfoRequest{ %s }).",
         GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
+      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
       {
         ASSERT(response->GetDescriptor() == ::bgs::protocol::account::v1::GetCAISInfoResponse::descriptor());
         AccountService* self = static_cast<AccountService*>(service);
         TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetCAISInfo() returned bgs.protocol.account.v1.GetCAISInfoResponse{ %s } status %u.",
           self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
         if (!status)
-          self->SendResponse(self->service_hash_, 35, token, response);
+          self->SendResponse(self->service_hash_, methodId, token, response);
         else
-          self->SendResponse(self->service_hash_, 35, token, status);
+          self->SendResponse(self->service_hash_, methodId, token, status);
       };
       ::bgs::protocol::account::v1::GetCAISInfoResponse response;
       uint32 status = HandleGetCAISInfo(&request, &response, continuation);
@@ -8531,21 +8399,21 @@ void AccountService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
       ::bgs::protocol::account::v1::GetAuthorizedDataRequest request;
       if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
         TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for AccountService.GetAuthorizedData server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, 37, token, ERROR_RPC_MALFORMED_REQUEST);
+        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
       TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetAuthorizedData(bgs.protocol.account.v1.GetAuthorizedDataRequest{ %s }).",
         GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
+      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
       {
         ASSERT(response->GetDescriptor() == ::bgs::protocol::account::v1::GetAuthorizedDataResponse::descriptor());
         AccountService* self = static_cast<AccountService*>(service);
         TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetAuthorizedData() returned bgs.protocol.account.v1.GetAuthorizedDataResponse{ %s } status %u.",
           self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
         if (!status)
-          self->SendResponse(self->service_hash_, 37, token, response);
+          self->SendResponse(self->service_hash_, methodId, token, response);
         else
-          self->SendResponse(self->service_hash_, 37, token, status);
+          self->SendResponse(self->service_hash_, methodId, token, status);
       };
       ::bgs::protocol::account::v1::GetAuthorizedDataResponse response;
       uint32 status = HandleGetAuthorizedData(&request, &response, continuation);
@@ -8557,21 +8425,21 @@ void AccountService::CallServerMethod(uint32 token, uint32 methodId, MessageBuff
       ::bgs::protocol::account::v1::GetSignedAccountStateRequest request;
       if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
         TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for AccountService.GetSignedAccountState server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, 44, token, ERROR_RPC_MALFORMED_REQUEST);
+        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
         return;
       }
       TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetSignedAccountState(bgs.protocol.account.v1.GetSignedAccountStateRequest{ %s }).",
         GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
+      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
       {
         ASSERT(response->GetDescriptor() == ::bgs::protocol::account::v1::GetSignedAccountStateResponse::descriptor());
         AccountService* self = static_cast<AccountService*>(service);
         TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountService.GetSignedAccountState() returned bgs.protocol.account.v1.GetSignedAccountStateResponse{ %s } status %u.",
           self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
         if (!status)
-          self->SendResponse(self->service_hash_, 44, token, response);
+          self->SendResponse(self->service_hash_, methodId, token, response);
         else
-          self->SendResponse(self->service_hash_, 44, token, status);
+          self->SendResponse(self->service_hash_, methodId, token, status);
       };
       ::bgs::protocol::account::v1::GetSignedAccountStateResponse response;
       uint32 status = HandleGetSignedAccountState(&request, &response, continuation);
@@ -8671,117 +8539,33 @@ google::protobuf::ServiceDescriptor const* AccountListener::descriptor() {
   return AccountListener_descriptor_;
 }
 
-void AccountListener::OnAccountStateUpdated(::bgs::protocol::account::v1::AccountStateNotification const* request) {
+void AccountListener::OnAccountStateUpdated(::bgs::protocol::account::v1::AccountStateNotification const* request, bool client /*= false*/, bool server /*= false*/) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountListener.OnAccountStateUpdated(bgs.protocol.account.v1.AccountStateNotification{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 1, request);
+  SendRequest(service_hash_, 1 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
-void AccountListener::OnGameAccountStateUpdated(::bgs::protocol::account::v1::GameAccountStateNotification const* request) {
+void AccountListener::OnGameAccountStateUpdated(::bgs::protocol::account::v1::GameAccountStateNotification const* request, bool client /*= false*/, bool server /*= false*/) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountListener.OnGameAccountStateUpdated(bgs.protocol.account.v1.GameAccountStateNotification{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 2, request);
+  SendRequest(service_hash_, 2 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
-void AccountListener::OnGameAccountsUpdated(::bgs::protocol::account::v1::GameAccountNotification const* request) {
+void AccountListener::OnGameAccountsUpdated(::bgs::protocol::account::v1::GameAccountNotification const* request, bool client /*= false*/, bool server /*= false*/) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountListener.OnGameAccountsUpdated(bgs.protocol.account.v1.GameAccountNotification{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 3, request);
+  SendRequest(service_hash_, 3 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
-void AccountListener::OnGameSessionUpdated(::bgs::protocol::account::v1::GameAccountSessionNotification const* request) {
+void AccountListener::OnGameSessionUpdated(::bgs::protocol::account::v1::GameAccountSessionNotification const* request, bool client /*= false*/, bool server /*= false*/) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method AccountListener.OnGameSessionUpdated(bgs.protocol.account.v1.GameAccountSessionNotification{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 4, request);
+  SendRequest(service_hash_, 4 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
-void AccountListener::CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) {
-  switch(methodId) {
-    case 1: {
-      ::bgs::protocol::account::v1::AccountStateNotification request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for AccountListener.OnAccountStateUpdated server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, 1, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      uint32 status = HandleOnAccountStateUpdated(&request);
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountListener.OnAccountStateUpdated(bgs.protocol.account.v1.AccountStateNotification{ %s }) status %u.",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str(), status);
-      if (status)
-        SendResponse(service_hash_, 1, token, status);
-      break;
-    }
-    case 2: {
-      ::bgs::protocol::account::v1::GameAccountStateNotification request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for AccountListener.OnGameAccountStateUpdated server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, 2, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      uint32 status = HandleOnGameAccountStateUpdated(&request);
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountListener.OnGameAccountStateUpdated(bgs.protocol.account.v1.GameAccountStateNotification{ %s }) status %u.",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str(), status);
-      if (status)
-        SendResponse(service_hash_, 2, token, status);
-      break;
-    }
-    case 3: {
-      ::bgs::protocol::account::v1::GameAccountNotification request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for AccountListener.OnGameAccountsUpdated server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, 3, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      uint32 status = HandleOnGameAccountsUpdated(&request);
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountListener.OnGameAccountsUpdated(bgs.protocol.account.v1.GameAccountNotification{ %s }) status %u.",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str(), status);
-      if (status)
-        SendResponse(service_hash_, 3, token, status);
-      break;
-    }
-    case 4: {
-      ::bgs::protocol::account::v1::GameAccountSessionNotification request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for AccountListener.OnGameSessionUpdated server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, 4, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      uint32 status = HandleOnGameSessionUpdated(&request);
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method AccountListener.OnGameSessionUpdated(bgs.protocol.account.v1.GameAccountSessionNotification{ %s }) status %u.",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str(), status);
-      if (status)
-        SendResponse(service_hash_, 4, token, status);
-      break;
-    }
-    default:
-      TC_LOG_ERROR("service.protobuf", "Bad method id %u.", methodId);
-      SendResponse(service_hash_, methodId, token, ERROR_RPC_INVALID_METHOD);
-      break;
-    }
-}
-
-uint32 AccountListener::HandleOnAccountStateUpdated(::bgs::protocol::account::v1::AccountStateNotification const* request) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method AccountListener.OnAccountStateUpdated({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  return ERROR_RPC_NOT_IMPLEMENTED;
-}
-
-uint32 AccountListener::HandleOnGameAccountStateUpdated(::bgs::protocol::account::v1::GameAccountStateNotification const* request) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method AccountListener.OnGameAccountStateUpdated({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  return ERROR_RPC_NOT_IMPLEMENTED;
-}
-
-uint32 AccountListener::HandleOnGameAccountsUpdated(::bgs::protocol::account::v1::GameAccountNotification const* request) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method AccountListener.OnGameAccountsUpdated({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  return ERROR_RPC_NOT_IMPLEMENTED;
-}
-
-uint32 AccountListener::HandleOnGameSessionUpdated(::bgs::protocol::account::v1::GameAccountSessionNotification const* request) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method AccountListener.OnGameSessionUpdated({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  return ERROR_RPC_NOT_IMPLEMENTED;
+void AccountListener::CallServerMethod(uint32 token, uint32 methodId, MessageBuffer /*buffer*/) {
+  TC_LOG_ERROR("service.protobuf", "%s Server tried to call server method %u",
+    GetCallerInfo().c_str(), methodId);
 }
 
 

@@ -81,7 +81,7 @@ class boss_doomlord_kazzak : public CreatureScript
                 _events.ScheduleEvent(EVENT_BERSERK, 180000);
             }
 
-            void JustRespawned() override
+            void JustAppeared() override
             {
                 Talk(SAY_INTRO);
             }
@@ -200,7 +200,7 @@ class spell_mark_of_kazzak : public SpellScriptLoader
 
                 if (target->GetPower(POWER_MANA) == 0)
                 {
-                    target->CastSpell(target, SPELL_MARK_OF_KAZZAK_DAMAGE, true, NULL, aurEff);
+                    target->CastSpell(target, SPELL_MARK_OF_KAZZAK_DAMAGE, true, nullptr, aurEff);
                     // Remove aura
                     SetDuration(0);
                 }

@@ -70,7 +70,7 @@ class CASC_CSV
     ~CASC_CSV();
 
     DWORD Load(LPBYTE pbData, size_t cbData);
-    DWORD Load(const TCHAR * szFileName);
+    DWORD Load(LPCTSTR szFileName);
     bool LoadNextLine();
 
     const CASC_CSV_COLUMN & operator[](const char * szColumnName) const;

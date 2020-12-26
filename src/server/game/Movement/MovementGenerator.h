@@ -33,14 +33,13 @@ class TC_GAME_API MovementGenerator
 
         virtual void Initialize(Unit*) = 0;
         virtual void Finalize(Unit*) = 0;
-
         virtual void Reset(Unit*) = 0;
-
-        virtual bool Update(Unit*, uint32 time_diff) = 0;
-
+        virtual bool Update(Unit*, uint32 diff) = 0;
         virtual MovementGeneratorType GetMovementGeneratorType() const = 0;
 
-        virtual void unitSpeedChanged() { }
+        virtual void UnitSpeedChanged() { }
+        virtual void Pause(uint32/* timer = 0*/) { } // timer in ms
+        virtual void Resume(uint32/* overrideTimer = 0*/) { } // timer in ms
 
         // used by Evade code for select point to evade with expected restart default movement
         virtual bool GetResetPosition(Unit*, float& /*x*/, float& /*y*/, float& /*z*/) { return false; }
@@ -52,42 +51,47 @@ class MovementGeneratorMedium : public MovementGenerator
     public:
         void Initialize(Unit* u) override
         {
-            //u->AssertIsType<T>();
             (static_cast<D*>(this))->DoInitialize(static_cast<T*>(u));
         }
 
         void Finalize(Unit* u) override
         {
-            //u->AssertIsType<T>();
             (static_cast<D*>(this))->DoFinalize(static_cast<T*>(u));
         }
 
         void Reset(Unit* u) override
         {
-            //u->AssertIsType<T>();
             (static_cast<D*>(this))->DoReset(static_cast<T*>(u));
         }
 
         bool Update(Unit* u, uint32 time_diff) override
         {
-            //u->AssertIsType<T>();
             return (static_cast<D*>(this))->DoUpdate(static_cast<T*>(u), time_diff);
         }
 };
 
-struct SelectableMovement : public FactoryHolder<MovementGenerator, MovementGeneratorType>
+typedef FactoryHolder<MovementGenerator, Unit, MovementGeneratorType> MovementGeneratorCreator;
+
+template<class Movement>
+struct MovementGeneratorFactory : public MovementGeneratorCreator
 {
-    SelectableMovement(MovementGeneratorType mgt) : FactoryHolder<MovementGenerator, MovementGeneratorType>(mgt) { }
+    MovementGeneratorFactory(MovementGeneratorType movementGeneratorType) : MovementGeneratorCreator(movementGeneratorType) { }
+
+    MovementGenerator* Create(Unit* /*object*/) const override
+    {
+        return new Movement();
+    }
 };
 
-template<class REAL_MOVEMENT>
-struct MovementGeneratorFactory : public SelectableMovement
+struct IdleMovementFactory : public MovementGeneratorCreator
 {
-    MovementGeneratorFactory(MovementGeneratorType mgt) : SelectableMovement(mgt) { }
+    IdleMovementFactory() : MovementGeneratorCreator(IDLE_MOTION_TYPE) { }
 
-    MovementGenerator* Create(void *) const override;
+    MovementGenerator* Create(Unit* object) const override;
 };
 
-typedef FactoryHolder<MovementGenerator, MovementGeneratorType> MovementGeneratorCreator;
-typedef FactoryHolder<MovementGenerator, MovementGeneratorType>::FactoryHolderRegistry MovementGeneratorRegistry;
+typedef MovementGeneratorCreator::FactoryHolderRegistry MovementGeneratorRegistry;
+
+#define sMovementGeneratorRegistry MovementGeneratorRegistry::instance()
+
 #endif

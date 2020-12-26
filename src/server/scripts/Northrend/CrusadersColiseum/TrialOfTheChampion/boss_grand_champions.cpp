@@ -96,7 +96,7 @@ const Point MovementPoint[] =
 */
 void AggroAllPlayers(Creature* temp)
 {
-    Map::PlayerList const &PlList = temp->GetMap()->GetPlayers();
+    Map::PlayerList const& PlList = temp->GetMap()->GetPlayers();
 
     if (PlList.isEmpty())
             return;
@@ -110,11 +110,10 @@ void AggroAllPlayers(Creature* temp)
 
             if (player->IsAlive())
             {
-                temp->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC));
+                temp->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                temp->SetImmuneToPC(true);
                 temp->SetReactState(REACT_AGGRESSIVE);
-                temp->SetInCombatWith(player);
-                player->SetInCombatWith(temp);
-                temp->AddThreat(player, 0.0f);
+                temp->EngageWithTarget(player);
             }
         }
     }
@@ -152,9 +151,9 @@ class generic_vehicleAI_toc5 : public CreatureScript
 public:
     generic_vehicleAI_toc5() : CreatureScript("generic_vehicleAI_toc5") { }
 
-    struct generic_vehicleAI_toc5AI : public npc_escortAI
+    struct generic_vehicleAI_toc5AI : public EscortAI
     {
-        generic_vehicleAI_toc5AI(Creature* creature) : npc_escortAI(creature)
+        generic_vehicleAI_toc5AI(Creature* creature) : EscortAI(creature)
         {
             Initialize();
             SetDespawnAtEnd(false);
@@ -212,7 +211,7 @@ public:
                 Start(false, true);
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             switch (waypointId)
             {
@@ -239,7 +238,7 @@ public:
 
         void UpdateAI(uint32 uiDiff) override
         {
-            npc_escortAI::UpdateAI(uiDiff);
+            EscortAI::UpdateAI(uiDiff);
 
             if (!UpdateVictim())
                 return;
@@ -262,8 +261,8 @@ public:
                         Player* player = itr->GetSource();
                         if (player && !player->IsGameMaster() && me->IsInRange(player, 8.0f, 25.0f, false))
                         {
-                            DoResetThreat();
-                            me->AddThreat(player, 1.0f);
+                            ResetThreatList();
+                            AddThreat(player, 1.0f);
                             DoCast(player, SPELL_CHARGE);
                             break;
                         }
@@ -329,7 +328,8 @@ public:
 
             me->SetReactState(REACT_PASSIVE);
             // THIS IS A HACK, SHOULD BE REMOVED WHEN THE EVENT IS FULL SCRIPTED
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC));
+            me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+            me->SetImmuneToPC(true);
         }
 
         void Initialize()
@@ -408,8 +408,8 @@ public:
                         Player* player = itr->GetSource();
                         if (player && !player->IsGameMaster() && me->IsInRange(player, 8.0f, 25.0f, false))
                         {
-                            DoResetThreat();
-                            me->AddThreat(player, 5.0f);
+                            ResetThreatList();
+                            AddThreat(player, 5.0f);
                             DoCast(player, SPELL_INTERCEPT);
                             break;
                         }
@@ -466,7 +466,8 @@ public:
 
             me->SetReactState(REACT_PASSIVE);
             // THIS IS A HACK, SHOULD BE REMOVED WHEN THE EVENT IS FULL SCRIPTED
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC));
+            me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+            me->SetImmuneToPC(true);
         }
 
         void Initialize()
@@ -609,7 +610,8 @@ public:
 
             me->SetReactState(REACT_PASSIVE);
             // THIS IS A HACK, SHOULD BE REMOVED WHEN THE EVENT IS FULL SCRIPTED
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC));
+            me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+            me->SetImmuneToPC(true);
         }
 
         void Initialize()
@@ -760,7 +762,8 @@ public:
 
             me->SetReactState(REACT_PASSIVE);
             // THIS IS A HACK, SHOULD BE REMOVED WHEN THE EVENT IS FULL SCRIPTED
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC));
+            me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+            me->SetImmuneToPC(true);
         }
 
         void Initialize()
@@ -846,7 +849,7 @@ public:
 
             if (uiShootTimer <= uiDiff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 30.0f))
+                if (Unit* target = SelectTarget(SELECT_TARGET_MAXDISTANCE, 0, 30.0f))
                 {
                     uiTargetGUID = target->GetGUID();
                     DoCast(target, SPELL_SHOOT);
@@ -920,7 +923,8 @@ public:
 
             me->SetReactState(REACT_PASSIVE);
             // THIS IS A HACK, SHOULD BE REMOVED WHEN THE EVENT IS FULL SCRIPTED
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC));
+            me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+            me->SetImmuneToPC(true);
         }
 
         void Initialize()

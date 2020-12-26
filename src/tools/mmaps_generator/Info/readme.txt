@@ -1,4 +1,4 @@
-Generator command line args
+R"(Generator command line args
 
 --threads           [#]             Max number of threads used by the generator
                                     Default: 3
@@ -53,6 +53,7 @@ Generator command line args
                                     this command will build the map regardless of --skip* option settings
                                     if you do not specify a map number, builds all maps that pass the filters specified by --skip* options
 
+--help                              This message
 
 examples:
 
@@ -67,3 +68,4 @@ builds all tiles of map 0
 
 movement_extractor 0 --tile 34,46
 builds only tile 34,46 of map 0 (this is the southern face of blackrock mountain)
+)"

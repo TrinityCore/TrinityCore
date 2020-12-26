@@ -19,6 +19,7 @@
 #include "Creature.h"
 #include "Player.h"
 
+uint32 GetGossipActionFor(Player* player, uint32 gossipListId) { return player->PlayerTalkClass->GetGossipOptionAction(gossipListId); }
 void ClearGossipMenuFor(Player* player) { player->PlayerTalkClass->ClearMenus(); }
 // Using provided text, not from DB
 void AddGossipItemFor(Player* player, uint32 icon, std::string const& text, uint32 sender, uint32 action) { player->PlayerTalkClass->GetGossipMenu().AddMenuItem(-1, icon, text, sender, action, "", 0); }

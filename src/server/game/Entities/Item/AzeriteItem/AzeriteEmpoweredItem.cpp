@@ -19,6 +19,7 @@
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "Player.h"
+#include "UpdateData.h"
 
 AzeriteEmpoweredItem::AzeriteEmpoweredItem()
 {
@@ -182,6 +183,41 @@ void AzeriteEmpoweredItem::BuildValuesUpdate(ByteBuffer* data, Player const* tar
         m_azeriteEmpoweredItemData->WriteUpdate(*data, flags, this, target);
 
     data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
+}
+
+void AzeriteEmpoweredItem::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
+    UF::ItemData::Mask const& requestedItemMask, UF::AzeriteEmpoweredItemData::Mask const& requestedAzeriteEmpoweredItemMask, Player const* target) const
+{
+    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
+    UpdateMask<NUM_CLIENT_OBJECT_TYPES> valuesMask;
+    if (requestedObjectMask.IsAnySet())
+        valuesMask.Set(TYPEID_OBJECT);
+
+    UF::ItemData::Mask itemMask = requestedItemMask;
+    m_itemData->FilterDisallowedFieldsMaskForFlag(itemMask, flags);
+    if (itemMask.IsAnySet())
+        valuesMask.Set(TYPEID_ITEM);
+
+    if (requestedAzeriteEmpoweredItemMask.IsAnySet())
+        valuesMask.Set(TYPEID_AZERITE_EMPOWERED_ITEM);
+
+    ByteBuffer buffer = PrepareValuesUpdateBuffer();
+    std::size_t sizePos = buffer.wpos();
+    buffer << uint32(0);
+    buffer << uint32(valuesMask.GetBlock(0));
+
+    if (valuesMask[TYPEID_OBJECT])
+        m_objectData->WriteUpdate(buffer, requestedObjectMask, true, this, target);
+
+    if (valuesMask[TYPEID_ITEM])
+        m_itemData->WriteUpdate(buffer, itemMask, true, this, target);
+
+    if (valuesMask[TYPEID_AZERITE_EMPOWERED_ITEM])
+        m_azeriteEmpoweredItemData->WriteUpdate(buffer, requestedAzeriteEmpoweredItemMask, true, this, target);
+
+    buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
+
+    data->AddUpdateBlock(buffer);
 }
 
 void AzeriteEmpoweredItem::ClearUpdateMask(bool remove)

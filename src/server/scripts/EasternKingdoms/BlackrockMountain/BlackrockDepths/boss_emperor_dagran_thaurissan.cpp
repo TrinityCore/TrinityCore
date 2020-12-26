@@ -75,7 +75,7 @@ class boss_emperor_dagran_thaurissan : public CreatureScript
                 if (Creature* moira = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_MOIRA)))
                 {
                     moira->AI()->EnterEvadeMode();
-                    moira->setFaction(35);
+                    moira->SetFaction(FACTION_FRIENDLY);
                 }
             }
 

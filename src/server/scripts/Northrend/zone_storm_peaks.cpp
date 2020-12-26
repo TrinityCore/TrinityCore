@@ -48,11 +48,11 @@ class npc_injured_goblin : public CreatureScript
 public:
     npc_injured_goblin() : CreatureScript("npc_injured_goblin") { }
 
-    struct npc_injured_goblinAI : public npc_escortAI
+    struct npc_injured_goblinAI : public EscortAI
     {
-        npc_injured_goblinAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_injured_goblinAI(Creature* creature) : EscortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -80,36 +80,35 @@ public:
                 player->FailQuest(QUEST_BITTER_DEPARTURE);
         }
 
-       void UpdateAI(uint32 uiDiff) override
+        void UpdateAI(uint32 uiDiff) override
         {
-            npc_escortAI::UpdateAI(uiDiff);
+            EscortAI::UpdateAI(uiDiff);
             if (!UpdateVictim())
                 return;
             DoMeleeAttackIfReady();
         }
 
-       void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+        bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
         {
             if (menuId == GOSSIP_ID && gossipListId == GOSSIP_OPTION_ID)
             {
                 CloseGossipMenuFor(player);
-                me->setFaction(113);
+                me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
                 Start(true, true, player->GetGUID());
             }
+            return false;
+        }
+
+        void QuestAccept(Player* /*player*/, Quest const* quest) override
+        {
+            if (quest->GetQuestId() == QUEST_BITTER_DEPARTURE)
+                Talk(SAY_QUEST_ACCEPT);
         }
     };
 
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_injured_goblinAI(creature);
-    }
-
-    bool OnQuestAccept(Player* /*player*/, Creature* creature, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_BITTER_DEPARTURE)
-            creature->AI()->Talk(SAY_QUEST_ACCEPT);
-
-        return false;
     }
 };
 
@@ -129,38 +128,49 @@ class npc_roxi_ramrocket : public CreatureScript
 public:
     npc_roxi_ramrocket() : CreatureScript("npc_roxi_ramrocket") { }
 
-    bool OnGossipHello(Player* player, Creature* creature) override
+    struct npc_roxi_ramrocketAI : public ScriptedAI
     {
-        //Quest Menu
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
+        npc_roxi_ramrocketAI(Creature* creature) : ScriptedAI(creature) { }
 
-        //Trainer Menu
-        if (creature->IsTrainer())
-            AddGossipItemFor(player, GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
-
-        //Vendor Menu
-        if (creature->IsVendor())
-            if (player->HasSpell(SPELL_MECHANO_HOG) || player->HasSpell(SPELL_MEKGINEERS_CHOPPER))
-                AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-
-        SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        ClearGossipMenuFor(player);
-        switch (action)
+        bool GossipHello(Player* player) override
         {
-        case GOSSIP_ACTION_TRAIN:
-            player->GetSession()->SendTrainerList(creature, TRAINER_ID_ROXI_RAMROCKET);
-            break;
-        case GOSSIP_ACTION_TRADE:
-            player->GetSession()->SendListInventory(creature->GetGUID());
-            break;
+            //Quest Menu
+            if (me->IsQuestGiver())
+                player->PrepareQuestMenu(me->GetGUID());
+
+            //Trainer Menu
+            if (me->IsTrainer())
+                AddGossipItemFor(player, GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
+
+            //Vendor Menu
+            if (me->IsVendor())
+                if (player->HasSpell(SPELL_MECHANO_HOG) || player->HasSpell(SPELL_MEKGINEERS_CHOPPER))
+                    AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+
+            SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
+            return true;
         }
-        return true;
+
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        {
+            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+            ClearGossipMenuFor(player);
+            switch (action)
+            {
+                case GOSSIP_ACTION_TRAIN:
+                    player->GetSession()->SendTrainerList(me, TRAINER_ID_ROXI_RAMROCKET);
+                    break;
+                case GOSSIP_ACTION_TRADE:
+                    player->GetSession()->SendListInventory(me->GetGUID());
+                    break;
+            }
+            return true;
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_roxi_ramrocketAI(creature);
     }
 };
 
@@ -202,7 +212,7 @@ public:
             me->CastSpell(me, SPELL_ICE_PRISON, true);
         }
 
-        void JustRespawned() override
+        void JustAppeared() override
         {
             Reset();
         }
@@ -216,7 +226,7 @@ public:
                 me->DespawnOrUnsummon();
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell) override
+        void SpellHit(Unit* caster, SpellInfo const* spell) override
         {
             if (spell->Id != SPELL_ICE_LANCE)
                 return;
@@ -337,9 +347,9 @@ class npc_icefang : public CreatureScript
 public:
     npc_icefang() : CreatureScript("npc_icefang") { }
 
-    struct npc_icefangAI : public npc_escortAI
+    struct npc_icefangAI : public EscortAI
     {
-        npc_icefangAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_icefangAI(Creature* creature) : EscortAI(creature) { }
 
         void AttackStart(Unit* /*who*/) override { }
         void EnterCombat(Unit* /*who*/) override { }
@@ -354,13 +364,12 @@ public:
             }
         }
 
-        void WaypointReached(uint32 /*waypointId*/) override { }
         void JustDied(Unit* /*killer*/) override { }
         void OnCharmed(bool /*apply*/) override { }
 
         void UpdateAI(uint32 diff) override
         {
-            npc_escortAI::UpdateAI(diff);
+            EscortAI::UpdateAI(diff);
 
             if (!UpdateVictim())
                 return;
@@ -481,11 +490,12 @@ public:
             objectCounter = 0;
         }
 
-        void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
         {
             CloseGossipMenuFor(player);
             playerGUID = player->GetGUID();
             events.ScheduleEvent(EVENT_SCRIPT_1, 100);
+            return false;
         }
 
         void UpdateAI(uint32 diff) override
@@ -709,7 +719,7 @@ public:
 
             InitSpellsForPhase();
 
-            me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetImmuneToPC(false);
         }
 
         void DoAction(int32 action) override
@@ -748,7 +758,7 @@ public:
 
             _playerGuid = caster->GetGUID();
             DoCastAOE(SPELL_FULL_HEAL_MANA, true);
-            me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetImmuneToPC(true);
 
             me->GetMotionMaster()->MovePoint(POINT_START_FIGHT, *caster);
         }
@@ -1118,13 +1128,6 @@ class spell_close_rift : public SpellScriptLoader
         {
             PrepareAuraScript(spell_close_rift_AuraScript);
 
-        public:
-            spell_close_rift_AuraScript()
-            {
-                _counter = 0;
-            }
-
-        private:
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_DESPAWN_RIFT });
@@ -1133,7 +1136,7 @@ class spell_close_rift : public SpellScriptLoader
             void HandlePeriodic(AuraEffect const* /* aurEff */)
             {
                 if (++_counter == 5)
-                    GetTarget()->CastSpell((Unit*)NULL, SPELL_DESPAWN_RIFT, true);
+                    GetTarget()->CastSpell(nullptr, SPELL_DESPAWN_RIFT, true);
             }
 
             void Register() override
@@ -1142,7 +1145,7 @@ class spell_close_rift : public SpellScriptLoader
             }
 
         private:
-            uint8 _counter;
+            uint8 _counter = 0;
 
         };
 
@@ -1324,14 +1327,12 @@ public:
 
         bool Validate(SpellInfo const* spellInfo) override
         {
-            if (!sSpellMgr->GetSpellInfo(spellInfo->GetEffect(EFFECT_0)->CalcValue()))
-                return false;
-            return true;
+            return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0)->CalcValue()) });
         }
 
         void HandleScript(SpellEffIndex /*effIndex*/)
         {
-            GetHitUnit()->CastSpell((Unit*)nullptr, GetEffectValue(), true);
+            GetHitUnit()->CastSpell(nullptr, GetEffectValue(), true);
         }
 
         void Register() override
@@ -1402,7 +1403,7 @@ public: spell_claw_swipe_check() : SpellScriptLoader("spell_claw_swipe_check") {
                     }
                 }
 
-                GetTarget()->CastSpell((Unit*)nullptr, aurEff->GetAmount(), false);
+                GetTarget()->CastSpell(nullptr, aurEff->GetAmount(), false);
             }
 
             void Register() override
@@ -1430,9 +1431,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_FATAL_STRIKE_DAMAGE))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_FATAL_STRIKE_DAMAGE });
         }
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -1447,7 +1446,7 @@ public:
                 return;
             }
 
-            GetCaster()->CastSpell((Unit*)nullptr, SPELL_FATAL_STRIKE_DAMAGE, true);
+            GetCaster()->CastSpell(nullptr, SPELL_FATAL_STRIKE_DAMAGE, true);
         }
 
         void Register() override
@@ -1509,14 +1508,12 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_FIGHT_WYRM))
-                return false;
-            return true;
+            return ValidateSpellInfo({ SPELL_FIGHT_WYRM });
         }
 
         void HandleDummy(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            GetTarget()->CastSpell((Unit*)nullptr, SPELL_FIGHT_WYRM, true);
+            GetTarget()->CastSpell(nullptr, SPELL_FIGHT_WYRM, true);
         }
 
         void Register() override

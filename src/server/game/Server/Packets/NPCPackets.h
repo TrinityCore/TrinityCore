@@ -24,6 +24,9 @@
 #include "Position.h"
 #include <array>
 
+enum class GossipOptionStatus : uint8;
+enum class GossipOptionRewardType : uint8;
+
 namespace WorldPackets
 {
     namespace NPC
@@ -45,26 +48,42 @@ namespace WorldPackets
             ObjectGuid Unit;
         };
 
+        struct TreasureItem
+        {
+            GossipOptionRewardType Type = GossipOptionRewardType(0);
+            int32 ID = 0;
+            int32 Quantity = 0;
+        };
+
+        struct TreasureLootList
+        {
+            std::vector<TreasureItem> Items;
+        };
+
         struct ClientGossipOptions
         {
             int32 ClientOption  = 0;
             uint8 OptionNPC     = 0;
             uint8 OptionFlags   = 0;
             int32 OptionCost    = 0;
+            GossipOptionStatus Status = GossipOptionStatus(0);
             std::string Text;
             std::string Confirm;
+            TreasureLootList Treasure;
+            Optional<int32> SpellID;
         };
 
         struct ClientGossipText
         {
             int32 QuestID       = 0;
+            int32 ContentTuningID = 0;
             int32 QuestType     = 0;
-            int32 QuestLevel    = 0;
-            int32 QuestMaxScalingLevel = 0;
             bool Repeatable     = false;
             std::string QuestTitle;
             int32 QuestFlags[2] = { };
         };
+
+        ByteBuffer& operator<<(ByteBuffer& data, ClientGossipText const& gossipText);
 
         class GossipMessage final : public ServerPacket
         {
@@ -113,6 +132,7 @@ namespace WorldPackets
             int32 StackCount                = 0;
             int32 ExtendedCostID            = 0;
             int32 PlayerConditionFailed     = 0;
+            bool Locked                     = false;
             bool DoNotFilterOnVendor        = false;
             bool Refundable                 = false;
         };

@@ -33,6 +33,7 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "CellImpl.h"
+#include "GameObjectAI.h"
 #include "GridNotifiersImpl.h"
 #include "Log.h"
 #include "MotionMaster.h"
@@ -106,7 +107,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell) override
+        void SpellHit(Unit* caster, SpellInfo const* spell) override
         {
             if (spell->SpellFamilyFlags[2] & 0x80000000 && !_tappedBySpell)
             {
@@ -187,7 +188,6 @@ enum Overgrind
     AREA_COVE       = 3579,
     AREA_ISLE       = 3639,
     QUEST_GNOMERCY  = 9537,
-    FACTION_HOSTILE = 14,
     SPELL_DYNAMITE  = 7978
 };
 
@@ -201,7 +201,7 @@ public:
         npc_engineer_spark_overgrindAI(Creature* creature) : ScriptedAI(creature)
         {
             Initialize();
-            NormFaction = creature->getFaction();
+            NormFaction = creature->GetFaction();
             NpcFlags = NPCFlags(creature->m_unitData->NpcFlags[0]);
         }
 
@@ -220,7 +220,7 @@ public:
         {
             Initialize();
 
-            me->setFaction(NormFaction);
+            me->SetFaction(NormFaction);
             me->SetNpcFlags(NpcFlags);
         }
 
@@ -229,11 +229,12 @@ public:
             Talk(ATTACK_YELL, who);
         }
 
-        void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
         {
             CloseGossipMenuFor(player);
-            me->setFaction(FACTION_HOSTILE);
+            me->SetFaction(FACTION_MONSTER);
             me->Attack(player, true);
+            return false;
         }
 
         void UpdateAI(uint32 diff) override
@@ -337,8 +338,7 @@ enum Magwin
     EVENT_STAND                 = 3,
     EVENT_TALK_END              = 4,
     EVENT_COWLEN_TALK           = 5,
-    QUEST_A_CRY_FOR_HELP        = 9528,
-    FACTION_QUEST               = 113
+    QUEST_A_CRY_FOR_HELP        = 9528
 };
 
 class npc_magwin : public CreatureScript
@@ -346,9 +346,9 @@ class npc_magwin : public CreatureScript
 public:
     npc_magwin() : CreatureScript("npc_magwin") { }
 
-    struct npc_magwinAI : public npc_escortAI
+    struct npc_magwinAI : public EscortAI
     {
-        npc_magwinAI(Creature* creature) : npc_escortAI(creature) { }
+        npc_magwinAI(Creature* creature) : EscortAI(creature) { }
 
         void Reset() override
         {
@@ -360,7 +360,7 @@ public:
             Talk(SAY_AGGRO, who);
         }
 
-        void sQuestAccept(Player* player, Quest const* quest) override
+        void QuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_A_CRY_FOR_HELP)
             {
@@ -369,7 +369,7 @@ public:
             }
         }
 
-        void WaypointReached(uint32 waypointId) override
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
             if (Player* player = GetPlayerForEscort())
             {
@@ -403,12 +403,12 @@ public:
                     case EVENT_ACCEPT_QUEST:
                         if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
                             Talk(SAY_START, player);
-                        me->setFaction(FACTION_QUEST);
+                        me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
                         _events.ScheduleEvent(EVENT_START_ESCORT, Seconds(1));
                         break;
                     case EVENT_START_ESCORT:
                         if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
-                            npc_escortAI::Start(true, false, player->GetGUID());
+                            EscortAI::Start(true, false, player->GetGUID());
                         _events.ScheduleEvent(EVENT_STAND, Seconds(2));
                         break;
                     case EVENT_STAND: // Remove kneel standstate. Using a separate delayed event because it causes unwanted delay before starting waypoint movement.
@@ -426,7 +426,7 @@ public:
                 }
             }
 
-            npc_escortAI::UpdateEscortAI(diff);
+            EscortAI::UpdateEscortAI(diff);
         }
 
     private:
@@ -532,8 +532,8 @@ public:
                     return 1000;
                 case 2:
                     Talk(GEEZLE_SAY_1, Spark);
-                    Spark->SetInFront(me);
-                    me->SetInFront(Spark);
+                    Spark->SetFacingToObject(me);
+                    me->SetFacingToObject(Spark);
                     return 5000;
                 case 3:
                     Spark->AI()->Talk(SPARK_SAY_2);
@@ -632,19 +632,29 @@ class go_ravager_cage : public GameObjectScript
 public:
     go_ravager_cage() : GameObjectScript("go_ravager_cage") { }
 
-    bool OnGossipHello(Player* player, GameObject* go) override
+    struct go_ravager_cageAI : public GameObjectAI
     {
-        go->UseDoorOrButton();
-        if (player->GetQuestStatus(QUEST_STRENGTH_ONE) == QUEST_STATUS_INCOMPLETE)
+        go_ravager_cageAI(GameObject* go) : GameObjectAI(go) { }
+
+        bool GossipHello(Player* player) override
         {
-            if (Creature* ravager = go->FindNearestCreature(NPC_DEATH_RAVAGER, 5.0f, true))
+            me->UseDoorOrButton();
+            if (player->GetQuestStatus(QUEST_STRENGTH_ONE) == QUEST_STATUS_INCOMPLETE)
             {
-                ravager->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
-                ravager->SetReactState(REACT_AGGRESSIVE);
-                ravager->AI()->AttackStart(player);
+                if (Creature* ravager = me->FindNearestCreature(NPC_DEATH_RAVAGER, 5.0f, true))
+                {
+                    ravager->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                    ravager->SetReactState(REACT_AGGRESSIVE);
+                    ravager->AI()->AttackStart(player);
+                }
             }
+            return true;
         }
-        return true;
+    };
+
+    GameObjectAI* GetAI(GameObject* go) const override
+    {
+        return new go_ravager_cageAI(go);
     }
 };
 
@@ -802,19 +812,29 @@ class go_bristlelimb_cage : public GameObjectScript
     public:
         go_bristlelimb_cage() : GameObjectScript("go_bristlelimb_cage") { }
 
-        bool OnGossipHello(Player* player, GameObject* go) override
+        struct go_bristlelimb_cageAI : public GameObjectAI
         {
-            go->SetGoState(GO_STATE_READY);
-            if (player->GetQuestStatus(QUEST_THE_PROPHECY_OF_AKIDA) == QUEST_STATUS_INCOMPLETE)
+            go_bristlelimb_cageAI(GameObject* go) : GameObjectAI(go) { }
+
+            bool GossipHello(Player* player) override
             {
-                if (Creature* capitive = go->FindNearestCreature(NPC_STILLPINE_CAPITIVE, 5.0f, true))
+                me->SetGoState(GO_STATE_READY);
+                if (player->GetQuestStatus(QUEST_THE_PROPHECY_OF_AKIDA) == QUEST_STATUS_INCOMPLETE)
                 {
-                    go->ResetDoorOrButton();
-                    ENSURE_AI(npc_stillpine_capitive::npc_stillpine_capitiveAI, capitive->AI())->StartMoving(player);
-                    return false;
+                    if (Creature* capitive = me->FindNearestCreature(NPC_STILLPINE_CAPITIVE, 5.0f, true))
+                    {
+                        me->ResetDoorOrButton();
+                        ENSURE_AI(npc_stillpine_capitive::npc_stillpine_capitiveAI, capitive->AI())->StartMoving(player);
+                        return false;
+                    }
                 }
+                return true;
             }
-            return true;
+        };
+
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return new go_bristlelimb_cageAI(go);
         }
 };
 

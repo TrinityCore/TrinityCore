@@ -47,9 +47,6 @@ enum NAXEncounter
 enum NAXData
 {
     DATA_GOTHIK_GATE,
-    DATA_HAD_ANUBREKHAN_GREET,
-    DATA_HAD_FAERLINA_GREET,
-    DATA_HAD_THADDIUS_GREET,
     DATA_HAD_SAPPHIRON_BIRTH,
 
     DATA_HORSEMEN_CHECK_ACHIEVEMENT_CREDIT,
@@ -218,7 +215,8 @@ enum NAXInstanceTexts
     SAY_DIALOGUE_SAPPHIRON_LICH_KING2 = 2
 };
 
-template<typename AI, typename T>
+
+template <class AI, class T>
 inline AI* GetNaxxramasAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, NaxxramasScriptName);

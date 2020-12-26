@@ -16,15 +16,15 @@
  */
 
 #include "ScriptMgr.h"
-#include "GameObject.h"
 #include "InstanceScript.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
+#include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "utgarde_pinnacle.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
 
 enum Spells
 {
@@ -292,7 +292,7 @@ public:
                 }
                 case ACTION_START_FIGHT:
                     me->RemoveAurasDueToSpell(SPELL_FREEZE);
-                    me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                    me->SetImmuneToPC(false);
                     DoZoneInCombat();
                     if (Creature* orb = ObjectAccessor::GetCreature(*me, _orb))
                         orb->DespawnOrUnsummon(1000);
@@ -345,7 +345,7 @@ struct PalehoofMinionsBossAI : public BossAI
         if (actionId == ACTION_START_FIGHT)
         {
             me->RemoveAurasDueToSpell(SPELL_FREEZE);
-            me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetImmuneToPC(false);
             DoZoneInCombat();
         }
     }
@@ -560,19 +560,30 @@ class go_palehoof_sphere : public GameObjectScript
 public:
     go_palehoof_sphere() : GameObjectScript("go_palehoof_sphere") { }
 
-    bool OnGossipHello(Player* /*player*/, GameObject* go) override
+    struct go_palehoof_sphereAI : public GameObjectAI
     {
-        if (InstanceScript* instance = go->GetInstanceScript())
+        go_palehoof_sphereAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
+
+        InstanceScript* instance;
+
+        bool GossipHello(Player* /*player*/) override
         {
             if (Creature* palehoof = instance->GetCreature(DATA_GORTOK_PALEHOOF))
+            {
                 if (palehoof->IsAlive() && instance->GetBossState(DATA_GORTOK_PALEHOOF) != DONE)
                 {
-                    go->SetFlags(GO_FLAG_NOT_SELECTABLE);
-                    go->SetGoState(GO_STATE_ACTIVE);
+                    me->SetFlags(GO_FLAG_NOT_SELECTABLE);
+                    me->SetGoState(GO_STATE_ACTIVE);
                     palehoof->AI()->DoAction(ACTION_START_ENCOUNTER);
                 }
+            }
+            return true;
         }
-        return true;
+    };
+
+    GameObjectAI* GetAI(GameObject* go) const override
+    {
+        return GetUtgardePinnacleAI<go_palehoof_sphereAI>(go);
     }
 };
 

@@ -220,7 +220,7 @@ class boss_devourer_of_souls : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* /*target*/, const SpellInfo* spell) override
+            void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
             {
                 if (spell->Id == H_SPELL_PHANTOM_BLAST)
                     threeFaced = false;
@@ -309,7 +309,7 @@ class boss_devourer_of_souls : public CreatureScript
 
                         case EVENT_WAILING_SOULS_TICK:
                             beamAngle += beamAngleDiff;
-                            me->SetFacingTo(beamAngle, true);
+                            me->SetFacingTo(beamAngle);
                             me->StopMoving();
 
                             DoCast(me, SPELL_WAILING_SOULS);

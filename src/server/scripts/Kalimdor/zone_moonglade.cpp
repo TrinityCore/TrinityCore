@@ -52,7 +52,7 @@ public:
     {
         npc_omenAI(Creature* creature) : ScriptedAI(creature)
         {
-            me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetImmuneToPC(true);
             me->GetMotionMaster()->MovePoint(1, 7549.977f, -2855.137f, 456.9678f);
         }
 
@@ -66,7 +66,7 @@ public:
             if (pointId == 1)
             {
                 me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
-                me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetImmuneToPC(false);
                 if (Player* player = me->SelectNearestPlayer(40.0f))
                     AttackStart(player);
             }
@@ -84,7 +84,7 @@ public:
             DoCast(SPELL_OMEN_SUMMON_SPOTLIGHT);
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
         {
             if (spell->Id == SPELL_ELUNE_CANDLE)
             {

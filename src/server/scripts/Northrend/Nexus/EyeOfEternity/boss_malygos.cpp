@@ -30,7 +30,6 @@ Script Data End */
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
-#include "Spell.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
@@ -173,12 +172,6 @@ enum Movements
 enum Seats
 {
     SEAT_0       = 0
-};
-
-enum Factions
-{
-    // Needed for melee hover disks /when Nexus Lords die/
-    FACTION_FRIENDLY         = 35
 };
 
 enum Actions
@@ -381,7 +374,7 @@ public:
 
             me->SetDisableGravity(true);
             me->SetAnimTier(UnitBytes1_Flags(UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER), false);
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+            me->SetImmuneToAll(true);
             me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
             // TO DO: find what in core is making boss slower than in retail (when correct speed data) or find missing movement flag update or forced spline change
             me->SetSpeedRate(MOVE_FLIGHT, _flySpeed * 0.25f);
@@ -471,7 +464,7 @@ public:
                         pos.m_positionZ = alexstraszaBunny->GetPositionZ();
                         alexstraszaBunny->GetNearPoint2D(pos.m_positionX, pos.m_positionY, 30.0f, alexstraszaBunny->GetAngle(me));
                         me->GetMotionMaster()->MoveLand(POINT_LAND_P_ONE, pos);
-                        me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+                        me->SetImmuneToAll(false);
                         me->SetReactState(REACT_AGGRESSIVE);
                         me->SetInCombatWithZone();
                         events.ScheduleEvent(EVENT_LAND_START_ENCOUNTER, 7*IN_MILLISECONDS, 1, PHASE_NOT_STARTED);
@@ -960,7 +953,7 @@ public:
                     case EVENT_SURGE_OF_POWER_P_THREE:
                         if (GetDifficulty() == DIFFICULTY_10_N)
                         {
-                            if (Unit* tempSurgeTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, false, SPELL_RIDE_RED_DRAGON_BUDDY))
+                            if (Unit* tempSurgeTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, false, true, SPELL_RIDE_RED_DRAGON_BUDDY))
                             {
                                 if (Vehicle* drakeVehicle = tempSurgeTarget->GetVehicleKit())
                                 {
@@ -984,7 +977,7 @@ public:
                         events.ScheduleEvent(EVENT_SURGE_OF_POWER_P_THREE, urand(9, 18)*IN_MILLISECONDS, 0, PHASE_THREE);
                         break;
                     case EVENT_STATIC_FIELD:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 60.0f, false, SPELL_RIDE_RED_DRAGON_BUDDY))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 60.0f, false, true, SPELL_RIDE_RED_DRAGON_BUDDY))
                             DoCast(target, SPELL_STATIC_FIELD_MISSLE, true);
 
                         events.ScheduleEvent(EVENT_STATIC_FIELD, urand(15, 30)*IN_MILLISECONDS, 0, PHASE_THREE);
@@ -1214,7 +1207,7 @@ public:
                     me->SetCanFly(false);
                 }
 
-                me->setFaction(FACTION_FRIENDLY);
+                me->SetFaction(FACTION_FRIENDLY);
                 me->RemoveAllAuras();
             }
         }
@@ -1837,19 +1830,17 @@ class spell_malygos_vortex_visual : public SpellScriptLoader
             {
                 if (Creature* caster = GetCaster()->ToCreature())
                 {
-                    ThreatContainer::StorageType const& m_threatlist = caster->getThreatManager().getThreatList();
-                    for (ThreatContainer::StorageType::const_iterator itr = m_threatlist.begin(); itr!= m_threatlist.end(); ++itr)
+                    for (ThreatReference const* ref : caster->GetThreatManager().GetUnsortedThreatList())
                     {
-                        if (Unit* target = (*itr)->getTarget())
+                        if (Player* targetPlayer = ref->GetVictim()->ToPlayer())
                         {
-                            Player* targetPlayer = target->ToPlayer();
-                            if (!targetPlayer || targetPlayer->IsGameMaster())
+                            if (targetPlayer->IsGameMaster())
                                 continue;
 
                             if (InstanceScript* instance = caster->GetInstanceScript())
                             {
                                 // Teleport spell - I'm not sure but might be it must be cast by each vehicle when it's passenger leaves it.
-                                if (Creature* trigger = caster->GetMap()->GetCreature(instance->GetGuidData(DATA_TRIGGER)))
+                                if (Creature* trigger = ObjectAccessor::GetCreature(*caster, instance->GetGuidData(DATA_TRIGGER)))
                                     trigger->CastSpell(targetPlayer, SPELL_VORTEX_6, true);
                             }
                         }
@@ -1985,7 +1976,7 @@ class spell_scion_of_eternity_arcane_barrage : public SpellScriptLoader
 
             bool Load() override
             {
-                return GetCaster()->GetTypeId() == TYPEID_UNIT && GetCaster()->GetInstanceScript() != NULL;
+                return GetCaster()->GetTypeId() == TYPEID_UNIT && GetCaster()->GetInstanceScript() != nullptr;
             }
 
             void FilterMeleeHoverDiskPassangers(std::list<WorldObject*>& targets)
@@ -2154,7 +2145,7 @@ class spell_alexstrasza_bunny_destroy_platform_event : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                GetCaster()->CastSpell((Unit*)NULL, SPELL_SUMMON_RED_DRAGON_BUDDY_F_CAST);
+                GetCaster()->CastSpell(nullptr, SPELL_SUMMON_RED_DRAGON_BUDDY_F_CAST);
             }
 
             void Register() override
@@ -2283,7 +2274,7 @@ class spell_malygos_surge_of_power_warning_selector_25 : public SpellScriptLoade
 
             void ExecuteMainSpell()
             {
-                GetCaster()->ToCreature()->CastSpell((Unit*)NULL, SPELL_SURGE_OF_POWER_PHASE_3_25);
+                GetCaster()->ToCreature()->CastSpell(nullptr, SPELL_SURGE_OF_POWER_PHASE_3_25);
             }
 
             void Register() override

@@ -107,7 +107,7 @@ class npc_av_marshal_or_warmaster : public CreatureScript
                 events.ScheduleEvent(EVENT_CHECK_RESET, 5000);
             }
 
-            void JustRespawned() override
+            void JustAppeared() override
             {
                 Reset();
             }

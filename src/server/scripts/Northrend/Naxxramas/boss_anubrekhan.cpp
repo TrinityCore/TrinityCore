@@ -17,8 +17,8 @@
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
-#include "naxxramas.h"
 #include "ObjectAccessor.h"
+#include "naxxramas.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 
@@ -96,7 +96,7 @@ public:
 
         void InitializeAI() override
         {
-            if (!me->isDead())
+            if (!me->isDead() && instance->GetBossState(BOSS_ANUBREKHAN) != DONE)
             {
                 Reset();
                 SummonGuards();
@@ -238,20 +238,19 @@ public:
 
 };
 
-class at_anubrekhan_entrance : public AreaTriggerScript
+class at_anubrekhan_entrance : public OnlyOnceAreaTriggerScript
 {
     public:
-        at_anubrekhan_entrance() : AreaTriggerScript("at_anubrekhan_entrance") { }
+        at_anubrekhan_entrance() : OnlyOnceAreaTriggerScript("at_anubrekhan_entrance") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
+        bool _OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
         {
             InstanceScript* instance = player->GetInstanceScript();
-            if (!instance || instance->GetData(DATA_HAD_ANUBREKHAN_GREET) || instance->GetBossState(BOSS_ANUBREKHAN) != NOT_STARTED)
+            if (!instance || instance->GetBossState(BOSS_ANUBREKHAN) != NOT_STARTED)
                 return true;
 
             if (Creature* anub = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_ANUBREKHAN)))
                 anub->AI()->Talk(SAY_GREET);
-            instance->SetData(DATA_HAD_ANUBREKHAN_GREET, 1u);
 
             return true;
         }

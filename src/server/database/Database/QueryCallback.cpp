@@ -175,7 +175,7 @@ void QueryCallback::SetNextQuery(QueryCallback&& next)
     MoveFrom(this, std::move(next));
 }
 
-QueryCallback::Status QueryCallback::InvokeIfReady()
+bool QueryCallback::InvokeIfReady()
 {
     QueryCallbackData& callback = _callbacks.front();
     auto checkStateAndReturnCompletion = [this]()
@@ -185,15 +185,15 @@ QueryCallback::Status QueryCallback::InvokeIfReady()
         if (_callbacks.empty())
         {
             ASSERT(!hasNext);
-            return Completed;
+            return true;
         }
 
         // abort chain
         if (!hasNext)
-            return Completed;
+            return true;
 
         ASSERT(_isPrepared == _callbacks.front()._isPrepared);
-        return NextStep;
+        return false;
     };
 
     if (!_isPrepared)
@@ -217,5 +217,5 @@ QueryCallback::Status QueryCallback::InvokeIfReady()
         }
     }
 
-    return NotReady;
+    return false;
 }

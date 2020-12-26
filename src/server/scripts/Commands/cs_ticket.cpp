@@ -22,16 +22,14 @@ Comment: All ticket related commands
 Category: commandscripts
 EndScriptData */
 
+#include "ScriptMgr.h"
 #include "AccountMgr.h"
 #include "CharacterCache.h"
 #include "Chat.h"
-#include "Config.h"
 #include "Language.h"
 #include "ObjectMgr.h"
-#include "Opcodes.h"
 #include "Player.h"
 #include "Realm.h"
-#include "ScriptMgr.h"
 #include "SupportMgr.h"
 #include "World.h"
 #include "WorldSession.h"
@@ -111,7 +109,7 @@ bool ticket_commandscript::HandleTicketAssignToCommand(ChatHandler* handler, cha
     char* ticketIdStr = strtok((char*)args, " ");
     uint32 ticketId = atoi(ticketIdStr);
 
-    char* targetStr = strtok(NULL, " ");
+    char* targetStr = strtok(nullptr, " ");
     if (!targetStr)
         return false;
 
@@ -156,7 +154,7 @@ bool ticket_commandscript::HandleTicketAssignToCommand(ChatHandler* handler, cha
 
     ticket->SaveToDB();
 
-    std::string msg = ticket->FormatViewMessageString(*handler, NULL, target.c_str(), NULL, NULL);
+    std::string msg = ticket->FormatViewMessageString(*handler, nullptr, target.c_str(), nullptr, nullptr);
     handler->SendGlobalGMSysMessage(msg.c_str());
     return true;
 }
@@ -194,7 +192,7 @@ bool ticket_commandscript::HandleTicketCloseByIdCommand(ChatHandler* handler, ch
 
     sSupportMgr->CloseTicket<T>(ticket->GetId(), closedByGuid);
 
-    std::string msg = ticket->FormatViewMessageString(*handler, player ? player->GetName().c_str() : "Console", NULL, NULL, NULL);
+    std::string msg = ticket->FormatViewMessageString(*handler, player ? player->GetName().c_str() : "Console", nullptr, nullptr, nullptr);
     handler->SendGlobalGMSysMessage(msg.c_str());
 
     return true;
@@ -209,7 +207,7 @@ bool ticket_commandscript::HandleTicketCommentCommand(ChatHandler* handler, char
     char* ticketIdStr = strtok((char*)args, " ");
     uint32 ticketId = atoi(ticketIdStr);
 
-    char* comment = strtok(NULL, "\n");
+    char* comment = strtok(nullptr, "\n");
     if (!comment)
         return false;
 
@@ -233,7 +231,7 @@ bool ticket_commandscript::HandleTicketCommentCommand(ChatHandler* handler, char
     ticket->SaveToDB();
     sSupportMgr->UpdateLastChange();
 
-    std::string msg = ticket->FormatViewMessageString(*handler, NULL, ticket->GetAssignedToName().c_str(), NULL, NULL);
+    std::string msg = ticket->FormatViewMessageString(*handler, nullptr, ticket->GetAssignedToName().c_str(), nullptr, nullptr);
     msg += handler->PGetParseString(LANG_COMMAND_TICKETLISTADDCOMMENT, player ? player->GetName().c_str() : "Console", comment);
     handler->SendGlobalGMSysMessage(msg.c_str());
 
@@ -274,7 +272,7 @@ bool ticket_commandscript::HandleTicketDeleteByIdCommand(ChatHandler* handler, c
         return true;
     }
 
-    std::string msg = ticket->FormatViewMessageString(*handler, NULL, NULL, NULL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetName().c_str() : "Console");
+    std::string msg = ticket->FormatViewMessageString(*handler, nullptr, nullptr, nullptr, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetName().c_str() : "Console");
     handler->SendGlobalGMSysMessage(msg.c_str());
 
     sSupportMgr->RemoveTicket<T>(ticket->GetId());
@@ -344,7 +342,7 @@ bool ticket_commandscript::HandleTicketUnAssignCommand(ChatHandler* handler, cha
     ticket->SetUnassigned();
     ticket->SaveToDB();
 
-    std::string msg = ticket->FormatViewMessageString(*handler, NULL, assignedTo.c_str(), handler->GetSession() ? handler->GetSession()->GetPlayer()->GetName().c_str() : "Console", NULL);
+    std::string msg = ticket->FormatViewMessageString(*handler, nullptr, assignedTo.c_str(), handler->GetSession() ? handler->GetSession()->GetPlayer()->GetName().c_str() : "Console", nullptr);
     handler->SendGlobalGMSysMessage(msg.c_str());
 
     return true;
@@ -412,15 +410,15 @@ std::vector<ChatCommand> ticket_commandscript::GetCommands() const
     };
     static std::vector<ChatCommand> ticketCommandTable =
     {
-        { "bug",            rbac::RBAC_PERM_COMMAND_TICKET_BUG,             true, NULL, "", ticketBugCommandTable },
-        { "complaint",      rbac::RBAC_PERM_COMMAND_TICKET_COMPLAINT,       true, NULL,              "", ticketComplaintCommandTable },
-        { "reset",          rbac::RBAC_PERM_COMMAND_TICKET_RESET,           true, NULL,                  "", ticketResetCommandTable },
-        { "suggestion",     rbac::RBAC_PERM_COMMAND_TICKET_SUGGESTION,      true, NULL,             "", ticketSuggestionCommandTable },
+        { "bug",            rbac::RBAC_PERM_COMMAND_TICKET_BUG,             true, nullptr, "", ticketBugCommandTable },
+        { "complaint",      rbac::RBAC_PERM_COMMAND_TICKET_COMPLAINT,       true, nullptr,              "", ticketComplaintCommandTable },
+        { "reset",          rbac::RBAC_PERM_COMMAND_TICKET_RESET,           true, nullptr,                  "", ticketResetCommandTable },
+        { "suggestion",     rbac::RBAC_PERM_COMMAND_TICKET_SUGGESTION,      true, nullptr,             "", ticketSuggestionCommandTable },
         { "togglesystem",   rbac::RBAC_PERM_COMMAND_TICKET_TOGGLESYSTEM,    true, &HandleToggleGMTicketSystem,              "" },
     };
     static std::vector<ChatCommand> commandTable =
     {
-        { "ticket", rbac::RBAC_PERM_COMMAND_TICKET, false, NULL, "", ticketCommandTable },
+        { "ticket", rbac::RBAC_PERM_COMMAND_TICKET, false, nullptr, "", ticketCommandTable },
     };
     return commandTable;
 }

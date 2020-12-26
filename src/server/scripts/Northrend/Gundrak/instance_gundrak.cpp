@@ -15,22 +15,24 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "Creature.h"
 #include "EventMap.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "gundrak.h"
-#include "InstanceScript.h"
 #include "Map.h"
+#include "ScriptMgr.h"
+#include <sstream>
 
 DoorData const doorData[] =
 {
     { GO_GAL_DARAH_DOOR_1,              DATA_GAL_DARAH,         DOOR_TYPE_PASSAGE },
     { GO_GAL_DARAH_DOOR_2,              DATA_GAL_DARAH,         DOOR_TYPE_PASSAGE },
-    { GO_GAL_DARAH_DOOR_3,              DATA_GAL_DARAH,         DOOR_TYPE_ROOM },
+    { GO_GAL_DARAH_DOOR_3,              DATA_GAL_DARAH,         DOOR_TYPE_ROOM    },
     { GO_ECK_THE_FEROCIOUS_DOOR,        DATA_MOORABI,           DOOR_TYPE_PASSAGE },
     { GO_ECK_THE_FEROCIOUS_DOOR_BEHIND, DATA_ECK_THE_FEROCIOUS, DOOR_TYPE_PASSAGE },
-    { 0,                                0,                      DOOR_TYPE_ROOM } // END
+    { 0,                                0,                      DOOR_TYPE_ROOM    } // END
 };
 
 ObjectData const creatureData[] =
@@ -352,18 +354,25 @@ class go_gundrak_altar : public GameObjectScript
     public:
         go_gundrak_altar() : GameObjectScript("go_gundrak_altar") { }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* go) override
+        struct go_gundrak_altarAI : public GameObjectAI
         {
-            go->AddFlag(GO_FLAG_NOT_SELECTABLE);
-            go->SetGoState(GO_STATE_ACTIVE);
+            go_gundrak_altarAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
 
-            if (InstanceScript* instance = go->GetInstanceScript())
+            InstanceScript* instance;
+
+            bool GossipHello(Player* /*player*/) override
             {
-                instance->SetData(DATA_STATUE_ACTIVATE, go->GetEntry());
+                me->AddFlag(GO_FLAG_NOT_SELECTABLE);
+                me->SetGoState(GO_STATE_ACTIVE);
+
+                instance->SetData(DATA_STATUE_ACTIVATE, me->GetEntry());
                 return true;
             }
+        };
 
-            return false;
+        GameObjectAI* GetAI(GameObject* go) const override
+        {
+            return GetGundrakAI<go_gundrak_altarAI>(go);
         }
 };
 

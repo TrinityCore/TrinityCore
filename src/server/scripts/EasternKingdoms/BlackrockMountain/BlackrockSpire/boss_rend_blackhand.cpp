@@ -191,7 +191,7 @@ public:
 
         void IsSummonedBy(Unit* /*summoner*/) override
         {
-            me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetImmuneToPC(false);
             DoZoneInCombat();
         }
 

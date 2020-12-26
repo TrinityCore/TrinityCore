@@ -42,7 +42,7 @@ void WorldSession::HandleGuildFinderAddRecruit(WorldPackets::GuildFinder::LFGuil
         return;
 
     MembershipRequest request = MembershipRequest(GetPlayer()->GetGUID(), lfGuildAddRecruit.GuildGUID, lfGuildAddRecruit.Availability,
-        lfGuildAddRecruit.ClassRoles, lfGuildAddRecruit.PlayStyle, lfGuildAddRecruit.Comment, time(NULL));
+        lfGuildAddRecruit.ClassRoles, lfGuildAddRecruit.PlayStyle, lfGuildAddRecruit.Comment, time(nullptr));
     sGuildFinderMgr->AddMembershipRequest(lfGuildAddRecruit.GuildGUID, request);
 }
 
@@ -125,8 +125,8 @@ void WorldSession::HandleGuildFinderGetApplications(WorldPackets::GuildFinder::L
         applicationData.ClassRoles = guildSettings.GetClassRoles();
         applicationData.PlayStyle = guildSettings.GetInterests();
         applicationData.Availability = guildSettings.GetAvailability();
-        applicationData.SecondsSinceCreated = time(NULL) - application->GetSubmitTime();
-        applicationData.SecondsUntilExpiration = application->GetExpiryTime() - time(NULL);
+        applicationData.SecondsSinceCreated = time(nullptr) - application->GetSubmitTime();
+        applicationData.SecondsUntilExpiration = application->GetExpiryTime() - time(nullptr);
         applicationData.Comment = application->GetComment();
     }
 

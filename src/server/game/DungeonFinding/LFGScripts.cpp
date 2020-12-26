@@ -92,7 +92,7 @@ void LFGPlayerScript::OnMapChanged(Player* player)
             return;
         }
 
-        for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+        for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
             if (Player* member = itr->GetSource())
                 player->GetSession()->SendNameQueryOpcode(member->GetGUID());
 
