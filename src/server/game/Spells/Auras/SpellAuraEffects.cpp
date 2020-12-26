@@ -3024,7 +3024,7 @@ void AuraEffect::HandleAuraControlVehicle(AuraApplication const* aurApp, uint8 m
         }
 
         bool seatChange = (mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT)                             // Seat change on the same direct vehicle
-            || target->HasAuraType(SPELL_AURA_CONTROL_VEHICLE);                                 // Seat change to a proxy vehicle (for example turret mounted on a siege engine)
+            || target->HasAuraTypeWithCaster(SPELL_AURA_CONTROL_VEHICLE, caster->GetGUID());    // Seat change to a proxy vehicle (for example turret mounted on a siege engine)
 
         if (!seatChange)
             caster->_ExitVehicle();
