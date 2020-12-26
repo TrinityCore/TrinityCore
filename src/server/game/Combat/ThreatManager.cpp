@@ -320,6 +320,23 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
             return;
         amount = 0.0f;
     }
+    else if (TempSummon* tempSummonVictim = target->ToTempSummon())
+    {
+        if (tempSummonVictim->IsVisibleBySummonerOnly())
+        {
+            if (Unit* tempSummonSummoner = tempSummonVictim->GetSummonerUnit())
+            {
+                // Personnal Spawns from same summoner can aggro each other
+                if (!_owner->ToTempSummon() ||
+                    !_owner->ToTempSummon()->IsVisibleBySummonerOnly() ||
+                    tempSummonVictim->GetSummonerGUID() != GetOwner()->ToTempSummon()->GetSummonerGUID())
+                {
+                    AddThreat(tempSummonSummoner, amount, spell, ignoreModifiers, ignoreRedirects);
+                    amount = 0.0f;
+                }
+            }
+        }
+    }
 
     // if we cannot actually have a threat list, we instead just set combat state and avoid creating threat refs altogether
     if (!CanHaveThreatList())
@@ -357,29 +374,9 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
                 else
                     redirTarget = ObjectAccessor::GetUnit(*_owner, pair.first);
 
-                float redirPct = pair.second;
-
                 if (redirTarget)
                 {
-                    if (TempSummon* tempSummonVictim = target->ToTempSummon())
-                    {
-                        if (tempSummonVictim->IsVisibleBySummonerOnly())
-                        {
-                            if (Unit* tempSummonSummoner = tempSummonVictim->GetSummonerUnit())
-                            {
-                                // Personnal Spawns from same summoner can aggro each other
-                                if (!_owner->ToTempSummon() ||
-                                    !_owner->ToTempSummon()->IsVisibleBySummonerOnly() ||
-                                    tempSummonVictim->GetSummonerGUID() != GetOwner()->ToTempSummon()->GetSummonerGUID())
-                                {
-                                    redirPct = 100;
-                                    redirTarget = tempSummonSummoner;
-                                }
-                            }
-                        }
-                    }
-
-                    float amountRedirected = CalculatePct(origAmount, redirPct);
+                    float amountRedirected = CalculatePct(origAmount, pair.second);
                     AddThreat(redirTarget, amountRedirected, spell, true, true);
                     amount -= amountRedirected;
                 }
