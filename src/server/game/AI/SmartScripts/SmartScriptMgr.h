@@ -609,6 +609,8 @@ enum SMART_ACTION
     SMART_ACTION_PLAY_SPELL_VISUAL_KIT              = 137,    // spellVisualKitId, kitType (unknown values, copypaste from packet dumps), duration
     SMART_ACTION_OVERRIDE_LIGHT                     = 138,    // zoneId, overrideLightID, transitionMilliseconds
     SMART_ACTION_OVERRIDE_WEATHER                   = 139,    // zoneId, weatherId, intensity
+    SMART_ACTION_SET_AI_ANIM_KIT                    = 140,    // DEPRECATED, DO REUSE (it was never used in any branch, treat as free action id)
+    SMART_ACTION_SET_HOVER                          = 141,    // 0/1
     SMART_ACTION_CREATE_CONVERSATION                = 143,    // conversation_template.id
     SMART_ACTION_SET_IMMUNE_PC                      = 144,    // 0/1
     SMART_ACTION_SET_IMMUNE_NPC                     = 145,    // 0/1
@@ -1233,6 +1235,11 @@ struct SmartAction
             uint32 weatherId;
             uint32 intensity;
         } overrideWeather;
+
+        struct
+        {
+            uint32 enable;
+        } setHover;
 
         struct
         {

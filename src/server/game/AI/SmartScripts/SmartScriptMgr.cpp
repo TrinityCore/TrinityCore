@@ -1762,6 +1762,11 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
 
             break;
         }
+        case SMART_ACTION_SET_AI_ANIM_KIT:
+        {
+            TC_LOG_ERROR("sql.sql", "SmartAIMgr: Deprecated action_type(%u), event_type(%u), Entry " SI64FMTD " SourceType %u Event %u, skipped.", e.GetActionType(), e.GetEventType(), e.entryOrGuid, e.GetScriptType(), e.event_id);
+            break;
+        }
         case SMART_ACTION_CREATE_CONVERSATION:
         {
             if (!sConversationDataStore->GetConversationTemplate(e.action.conversation.id))
@@ -1849,6 +1854,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_REMOVE_ALL_GAMEOBJECTS:
         case SMART_ACTION_SPAWN_SPAWNGROUP:
         case SMART_ACTION_DESPAWN_SPAWNGROUP:
+        case SMART_ACTION_SET_HOVER:
         case SMART_ACTION_ADD_TO_STORED_TARGET_LIST:
             break;
         case SMART_ACTION_BECOME_PERSONAL_CLONE_FOR_PLAYER:

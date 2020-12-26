@@ -2470,6 +2470,11 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             }
             break;
         }
+        case SMART_ACTION_SET_HOVER:
+            for (WorldObject* target : targets)
+                if (IsUnit(target))
+                    target->ToUnit()->SetHover(e.action.setHover.enable != 0);
+            break;
         case SMART_ACTION_PLAY_SPELL_VISUAL_KIT:
         {
             for (WorldObject* const target : targets)
