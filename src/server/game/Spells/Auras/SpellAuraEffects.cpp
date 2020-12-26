@@ -2954,6 +2954,7 @@ void AuraEffect::HandleAuraControlVehicle(AuraApplication const* aurApp, uint8 m
         // so this break such spells or most of them.
         // Current formula about m_amount: effect base points + dieside - 1
         // TO DO: Reasearch more about 0/0 and fix it.
+        target->SetIsSeatChange(true);
         caster->_EnterVehicle(target->GetVehicleKit(), m_amount - 1, aurApp);
     }
     else
@@ -2971,7 +2972,10 @@ void AuraEffect::HandleAuraControlVehicle(AuraApplication const* aurApp, uint8 m
         if (!(mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT))
             caster->_ExitVehicle();
         else
+        {
+            target->SetIsSeatChange(true);
             target->GetVehicleKit()->RemovePassenger(caster);  // Only remove passenger from vehicle without launching exit movement or despawning the vehicle
+        }
 
         // some SPELL_AURA_CONTROL_VEHICLE auras have a dummy effect on the player - remove them
         caster->RemoveAurasDueToSpell(GetId());

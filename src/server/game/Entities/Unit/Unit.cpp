@@ -292,7 +292,7 @@ Unit::Unit(bool isWorldObject) :
     m_removedAurasCount(0), i_motionMaster(new MotionMaster(this)), m_regenTimer(0), m_ThreatManager(this),
     m_vehicle(NULL), m_vehicleKit(NULL), m_unitTypeMask(UNIT_MASK_NONE),
     m_HostileRefManager(this), _aiAnimKitId(0), _movementAnimKitId(0), _meleeAnimKitId(0),
-    _spellHistory(new SpellHistory(this))
+    _spellHistory(new SpellHistory(this)), _isSeatChange(false)
 {
     m_objectType |= TYPEMASK_UNIT;
     m_objectTypeId = TYPEID_UNIT;
@@ -13062,9 +13062,14 @@ void Unit::_ExitVehicle(Position const* exitPosition)
     if (player)
         player->ResummonPetTemporaryUnSummonedIfAny();
 
-    if (vehicle->GetBase()->HasUnitTypeMask(UNIT_MASK_MINION) && vehicle->GetBase()->GetTypeId() == TYPEID_UNIT)
-        if (((Minion*)vehicle->GetBase())->GetOwner() == this)
-            vehicle->GetBase()->ToCreature()->DespawnOrUnsummon(1);
+    if (GetIsSeatChange())
+    {
+        if (vehicle->GetBase()->HasUnitTypeMask(UNIT_MASK_MINION) && vehicle->GetBase()->GetTypeId() == TYPEID_UNIT)
+            if (((Minion*)vehicle->GetBase())->GetOwner() == this)
+                vehicle->GetBase()->ToCreature()->DespawnOrUnsummon(1);
+    }
+    else
+        SetIsSeatChange(false);
 
     if (HasUnitTypeMask(UNIT_MASK_ACCESSORY))
     {
