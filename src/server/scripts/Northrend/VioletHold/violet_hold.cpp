@@ -119,9 +119,9 @@ enum AzureSaboteurSpells
 
 enum TrashDoorSpell
 {
-    SPELL_DESTROY_DOOR_SEAL             = 58040,
-    SPELL_PRISON_DOOR_SEAL_WEAKEN       = 58041,   // NYI, no effect
-    SPELL_DOOR_BROKEN                   = 58043    // NYI, no effect
+    SPELL_DESTROY_DOOR_SEAL             = 58040,   // > 31326 Corrupt Medivh
+    SPELL_PRISON_DOOR_SEAL_WEAKEN       = 58041,   // NYI, no effect, maybe > 32613 Medivh's Shield -5%
+    SPELL_DOOR_BROKEN                   = 58043    // NYI, no effect, maybe > 31327 Medivh Dies!
 };
 
 enum DefenseSystemSpells
@@ -137,24 +137,26 @@ enum MiscSpells
 
     SPELL_ATTACK_VIOLET_HOLD_GUARD      = 57936,   // NYI, no effect
 
-    SPELL_PORTAL_1_READY                = 57995,   // NYI, no effect
-    SPELL_PORTAL_2_READY                = 57996,   // NYI, no effect
-    SPELL_PORTAL_3_READY                = 57997,   // NYI, no effect
-    SPELL_PORTAL_4_READY                = 57998,   // NYI, no effect
-    SPELL_PORTAL_5_READY                = 57999,   // NYI, no effect
+    // Turned out almost all spells from BM were copied to create Violet Hold. Not only serverside spells and
+    // not only their effects but also attributes and icons. The scripts were also copied, possibly unchanged
+    SPELL_PORTAL_1_READY                = 57995,   // NYI, effect copied from 'Time Rift 1 Ready'
+    SPELL_PORTAL_2_READY                = 57996,   // NYI, effect copied from 'Time Rift 2 Ready'
+    SPELL_PORTAL_3_READY                = 57997,   // NYI, effect copied from 'Time Rift 3 Ready'
+    SPELL_PORTAL_4_READY                = 57998,   // NYI, effect copied from 'Time Rift 4 Ready'
+    SPELL_PORTAL_5_READY                = 57999,   // NYI, effect copied from 'Time Rift 1 Ready', only 4 portals in BM
 
-    SPELL_SUMMON_PORTAL                 = 58002,   // NYI, no effect
-    SPELL_SUMMON_PORTAL_EFFECT_1        = 58003,   // NYI, no effect
-    SPELL_SUMMON_PORTAL_EFFECT_2        = 58004,   // NYI, no effect
-    SPELL_SUMMON_PORTAL_EFFECT_3        = 58005,   // NYI, no effect
-    SPELL_SUMMON_PORTAL_EFFECT_4        = 58006,   // NYI, no effect
-    SPELL_SUMMON_PORTAL_EFFECT_5        = 58007,   // NYI, no effect
-    SPELL_PORTAL_PERIODIC               = 58008,
-    SPELL_PORTAL_CHANNEL_TRIGGER        = 58011,   // NYI, no effect
-    SPELL_PORTAL_CHANNEL                = 58012,
-    SPELL_CLOSE_PORTAL_TRIGGER          = 58014,   // NYI, no effect
-    SPELL_CLOSE_PORTAL_EFFECT           = 58018,   // NYI, no effect
-    SPELL_PORTAL_READY_PRIMER           = 58019,   // NYI, no effect
+    SPELL_SUMMON_PORTAL                 = 58002,   // NYI, effect copied from 'Summon Time Rift'
+    SPELL_SUMMON_PORTAL_EFFECT_1        = 58003,   // NYI, no effect, > Summon Time Rift Effect
+    SPELL_SUMMON_PORTAL_EFFECT_2        = 58004,   // NYI, no effect, > Summon Time Rift Effect
+    SPELL_SUMMON_PORTAL_EFFECT_3        = 58005,   // NYI, no effect, > Summon Time Rift Effect
+    SPELL_SUMMON_PORTAL_EFFECT_4        = 58006,   // NYI, no effect, > Summon Time Rift Effect
+    SPELL_SUMMON_PORTAL_EFFECT_5        = 58007,   // NYI, no effect, > Summon Time Rift Effect
+    SPELL_PORTAL_PERIODIC               = 58008,   // > Time Rift Periodic
+    SPELL_PORTAL_CHANNEL_TRIGGER        = 58011,   // NYI, effect copied from 'Time Rift Channel Trigger'
+    SPELL_PORTAL_CHANNEL                = 58012,   // > Time Rift Channel
+    SPELL_CLOSE_PORTAL_TRIGGER          = 58014,   // NYI, effect copied from 'Close Time Rift Trigger'
+    SPELL_CLOSE_PORTAL_EFFECT           = 58018,   // NYI, effect copied from 'Close Time Rift Effect'
+    SPELL_PORTAL_READY_PRIMER           = 58019,   // NYI, effect copied from 'Time Rift Ready Primer'
 
     SPELL_SUMMON_PORTAL_GUARDIAN        = 58028,   // NYI, summons 30660
     SPELL_SUMMON_PORTAL_GUARDIAN_2      = 58029,   // NYI, summons 30892
