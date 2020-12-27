@@ -2041,9 +2041,6 @@ class TC_GAME_API Unit : public WorldObject
 
         UF::UpdateField<UF::UnitData, 0, TYPEID_UNIT> m_unitData;
 
-        void SetIsSeatChange(bool seatChange /* = false*/) { _isSeatChange = seatChange; }
-        bool GetIsSeatChange() { return _isSeatChange; }
-
     protected:
         explicit Unit (bool isWorldObject);
 
@@ -2186,8 +2183,6 @@ class TC_GAME_API Unit : public WorldObject
         SpellHistory* _spellHistory;
 
         std::unique_ptr<MovementForces> _movementForces;
-
-        bool _isSeatChange;
 };
 
 namespace Trinity

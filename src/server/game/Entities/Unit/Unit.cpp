@@ -12954,14 +12954,11 @@ void Unit::_ExitVehicle(Position const* exitPosition)
     if (player)
         player->ResummonPetTemporaryUnSummonedIfAny();
 
-    if (GetIsSeatChange())
-    {
+
         if (vehicle->GetBase()->HasUnitTypeMask(UNIT_MASK_MINION) && vehicle->GetBase()->GetTypeId() == TYPEID_UNIT)
             if (((Minion*)vehicle->GetBase())->GetOwner() == this)
-                vehicle->GetBase()->ToCreature()->DespawnOrUnsummon(1);
-    }
-    else
-        SetIsSeatChange(false);
+                if (!vehicle->GetBase()->HasAuraType(SPELL_AURA_CONTROL_VEHICLE))
+                    vehicle->GetBase()->ToCreature()->DespawnOrUnsummon(1);
 
     if (HasUnitTypeMask(UNIT_MASK_ACCESSORY))
     {
