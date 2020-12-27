@@ -44,7 +44,7 @@ constexpr float CENTER_GRID_OFFSET             = (SIZE_OF_GRIDS / 2);
 #define MIN_MAP_UPDATE_DELAY                     50
 
 constexpr float SIZE_OF_GRID_CELL              = (SIZE_OF_GRIDS / MAX_NUMBER_OF_CELLS);
-                                               
+
 constexpr uint32 CENTER_GRID_CELL_ID           = (MAX_NUMBER_OF_CELLS * MAX_NUMBER_OF_GRIDS / 2);
 constexpr float CENTER_GRID_CELL_OFFSET        = (SIZE_OF_GRID_CELL / 2);
 
