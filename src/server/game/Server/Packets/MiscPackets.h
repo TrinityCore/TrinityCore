@@ -640,7 +640,8 @@ namespace WorldPackets
         {
         public:
             PlaySound() : ServerPacket(SMSG_PLAY_SOUND, 20) { }
-            PlaySound(ObjectGuid sourceObjectGuid, int32 soundKitID) : ServerPacket(SMSG_PLAY_SOUND, 20), SourceObjectGuid(sourceObjectGuid), SoundKitID(soundKitID) { }
+            PlaySound(ObjectGuid sourceObjectGuid, int32 soundKitID, int32 broadcastTextId) : ServerPacket(SMSG_PLAY_SOUND, 20),
+                SourceObjectGuid(sourceObjectGuid), SoundKitID(soundKitID), BroadcastTextID(broadcastTextId) { }
 
             WorldPacket const* Write() override;
 
