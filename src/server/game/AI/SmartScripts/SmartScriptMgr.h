@@ -631,6 +631,7 @@ struct SmartAction
             uint32 sound;
             uint32 onlySelf;
             uint32 distance;
+            uint32 keyBroadcastTextId; // UNUSED: param reserved for compatibility with master branch
         } sound;
 
         struct
