@@ -625,6 +625,8 @@ struct SmartAction
         {
             uint32 sound;
             uint32 onlySelf;
+            uint32 distance; // NYI: awaiting cherry-pick
+            uint32 keyBroadcastTextId;
         } sound;
 
         struct

@@ -359,7 +359,7 @@ void Battlefield::EndBattle(bool endByTimer)
 
 void Battlefield::DoPlaySoundToAll(uint32 soundID)
 {
-    BroadcastPacketToWar(WorldPackets::Misc::PlaySound(ObjectGuid::Empty, soundID).Write());
+    BroadcastPacketToWar(WorldPackets::Misc::PlaySound(ObjectGuid::Empty, soundID, 0).Write());
 }
 
 bool Battlefield::HasPlayer(Player* player) const
