@@ -952,3 +952,11 @@ bool Vehicle::HasPendingEventForSeat(int8 seatId) const
     }
     return false;
 }
+
+Milliseconds Vehicle::GetDespawnDelay()
+{
+    if (VehicleTemplate const* vehicleTemplate = sObjectMgr->GetVehicleTemplate(this))
+        return vehicleTemplate->DespawnDelay;
+
+    return 1ms;
+}
