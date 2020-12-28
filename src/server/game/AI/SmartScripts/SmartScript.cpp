@@ -246,13 +246,14 @@ void SmartScript::ProcessEventsFor(SMART_EVENT e, Unit* unit, uint32 var0, uint3
 
 void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, uint32 var1, bool bvar, SpellInfo const* spell, GameObject* gob)
 {
+    e.runOnce = true; //used for repeat check
+
     // calc random
     if (e.GetEventType() != SMART_EVENT_LINK && e.event.event_chance < 100 && e.event.event_chance)
     {
         if (!roll_chance_i(e.event.event_chance))
             return;
     }
-    e.runOnce = true; //used for repeat check
 
     if (unit)
         mLastInvoker = unit->GetGUID();
