@@ -605,7 +605,11 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             // If there is at least 1 failed cast and no successful casts at all, retry again on next loop
             if (failedSpellCast && !successfulSpellCast)
+            {
                 RetryLater(e, true);
+                // Don't execute linked events
+                return;
+            }
             break;
         }
         case SMART_ACTION_SELF_CAST:
