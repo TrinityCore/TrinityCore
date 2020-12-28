@@ -3790,7 +3790,6 @@ void SmartScript::RaisePriority(SmartScriptHolder& e)
     }
 }
 
-
 void SmartScript::RetryLater(SmartScriptHolder& e, bool ignoreChanceRoll)
 {
     RaisePriority(e);
@@ -3798,6 +3797,8 @@ void SmartScript::RetryLater(SmartScriptHolder& e, bool ignoreChanceRoll)
     // This allows to retry the action later without rolling again the chance roll (which might fail and end up not executing the action)
     if (ignoreChanceRoll)
         e.event.event_flags |= SMART_EVENT_FLAG_TEMP_IGNORE_CHANCE_ROLL;
+
+    e.runOnce = false;
 }
 
 void SmartScript::FillScript(SmartAIEventList e, WorldObject* obj, AreaTriggerEntry const* at)
