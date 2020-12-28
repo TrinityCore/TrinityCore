@@ -1940,6 +1940,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading UNIT_NPC_FLAG_SPELLCLICK Data..."); // must be after LoadQuests
     sObjectMgr->LoadNPCSpellClickSpells();
 
+    TC_LOG_INFO("server.loading", "Loading Vehicle Templates...");
+    sObjectMgr->LoadVehicleTemplate();                          // must be after LoadCreatureTemplates()
+
     TC_LOG_INFO("server.loading", "Loading Vehicle Template Accessories...");
     sObjectMgr->LoadVehicleTemplateAccessories();                // must be after LoadCreatureTemplates() and LoadNPCSpellClickSpells()
 
