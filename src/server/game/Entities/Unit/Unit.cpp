@@ -12957,8 +12957,7 @@ void Unit::_ExitVehicle(Position const* exitPosition)
 
         if (vehicle->GetBase()->HasUnitTypeMask(UNIT_MASK_MINION) && vehicle->GetBase()->GetTypeId() == TYPEID_UNIT)
             if (((Minion*)vehicle->GetBase())->GetOwner() == this)
-                if (!vehicle->GetBase()->HasAuraType(SPELL_AURA_CONTROL_VEHICLE))
-                    vehicle->GetBase()->ToCreature()->DespawnOrUnsummon(1);
+                vehicle->GetBase()->ToCreature()->DespawnOrUnsummon(1);
 
     if (HasUnitTypeMask(UNIT_MASK_ACCESSORY))
     {
