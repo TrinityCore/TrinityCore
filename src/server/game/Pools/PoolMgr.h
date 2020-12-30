@@ -145,6 +145,7 @@ class TC_GAME_API PoolMgr
 
         template<typename T>
         void UpdatePool(uint32 pool_id, uint64 db_guid_or_pool_id);
+        void UpdatePool(uint32 pool_id, SpawnObjectType type, uint64 spawnId);
 
     private:
         template<typename T>
