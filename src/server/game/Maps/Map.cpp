@@ -3271,6 +3271,7 @@ void Map::ProcessRespawns()
             _respawnTimes.pop();
             GetRespawnMapForType(next->type).erase(next->spawnId);
             poolQueue.emplace_back(poolId, next->type, next->spawnId);
+            delete next;
             continue;
         }
 
