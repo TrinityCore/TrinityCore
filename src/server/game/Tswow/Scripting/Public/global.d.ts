@@ -1,3 +1,4 @@
+        nrt
 /*
  * This file is part of tswow (https://github.com/tswow/).
  * Copyright (C) 2020 tswow <https://github.com/tswow/>
@@ -896,7 +897,7 @@ declare namespace _hidden {
         ModifyPeriodicDamageAurasTick(callback: (target : TSUnit,attacker : TSUnit,damage : TSMutable<uint32>)=>void);
         ModifyMeleeDamage(callback: (target : TSUnit,attacker : TSUnit,damage : TSMutable<uint32>)=>void);
         ModifySpellDamageTaken(callback: (target : TSUnit,attacker : TSUnit,damage : TSMutable<int32>)=>void);
-        ModifyVehiclePassengerExitPos(callback: (passenger : TSUnit,vehicle : TSVehicle,pos : TSMutable<Position>)=>void);
+        //ModifyVehiclePassengerExitPos(callback: (passenger : TSUnit,vehicle : TSVehicle,pos : TSMutable<Position>)=>void);
     }
 
     export class AreaTrigger {
@@ -932,8 +933,8 @@ declare namespace _hidden {
         OnDuelEnd(callback: (winner : TSPlayer,loser : TSPlayer,type : uint32)=>void);
         OnSay(callback: (player : TSPlayer,type : uint32,lang : uint32,msg : string)=>void);
         OnWhisper(callback: (player : TSPlayer,type : uint32,lang : uint32,msg : string,receiver : TSPlayer)=>void);
-        OnPartyChat(callback: (player : TSPlayer,type : uint32,lang : uint32,msg : string,group : TSGroup)=>void);
-        OnGuildChat(callback: (player : TSPlayer,type : uint32,lang : uint32,msg : string,guild : TSGuild)=>void);
+        //OnPartyChat(callback: (player : TSPlayer,type : uint32,lang : uint32,msg : string,group : TSGroup)=>void);
+        //OnGuildChat(callback: (player : TSPlayer,type : uint32,lang : uint32,msg : string,guild : TSGuild)=>void);
         // TODO: Fix chat to channel
         //OnChat(callback: (player : TSPlayer,type : uint32,lang : uint32,msg : string,channel : Channel*)=>void),
         OnEmote(callback: (player : TSPlayer,emote : uint32)=>void);
