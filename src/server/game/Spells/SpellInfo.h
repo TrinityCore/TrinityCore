@@ -403,7 +403,7 @@ class TC_GAME_API SpellInfo
         std::array<SpellEffectInfo, MAX_SPELL_EFFECTS> Effects;
         uint32 ExplicitTargetMask;
         SpellChainNode const* ChainEntry;
-        TSSpellEvents* events; // @tswow-line
+        TSSpellEvents* events = nullptr; // @tswow-line
 
         SpellInfo(SpellEntry const* spellEntry);
         ~SpellInfo();

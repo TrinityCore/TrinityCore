@@ -40,7 +40,7 @@ template <class TSCallback>
 class TSEvent
 {
 	TSEventEntry<TSCallback>* eventStart;
-	size_t size;
+	size_t size = 0;
 public:
 	TSEventHandle* Add(TSCallback callback);
 	void Remove(size_t index);
@@ -152,7 +152,7 @@ public:
         }
         else
         {
-            T t;
+			T t = T();
             map[key] = t;
             T* v = &map[key];
             OnAdd(key,v);
