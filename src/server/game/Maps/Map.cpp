@@ -3036,9 +3036,8 @@ bool Map::CheckRespawn(RespawnInfo* info)
         return false;
     }
 
-    uint32 poolId = info->spawnId ? sPoolMgr->IsPartOfAPool(info->type, info->spawnId) : 0;
     // Next, check if there's already an instance of this object that would block the respawn
-    bool doDelete = false;
+    bool alreadyExists = false;
     switch (info->type)
     {
         case SPAWN_TYPE_CREATURE:
@@ -3055,7 +3054,7 @@ bool Map::CheckRespawn(RespawnInfo* info)
                 // escort NPCs are allowed to respawn as long as all other instances are already escorting
                 if (isEscort && creature->IsEscorted())
                     continue;
-                doDelete = true;
+                alreadyExists = true;
                 break;
             }
             break;
@@ -3063,13 +3062,13 @@ bool Map::CheckRespawn(RespawnInfo* info)
         case SPAWN_TYPE_GAMEOBJECT:
             // gameobject check is simpler - they cannot be dead or escorting
             if (_gameobjectBySpawnIdStore.find(info->spawnId) != _gameobjectBySpawnIdStore.end())
-                doDelete = true;
+                alreadyExists = true;
             break;
         default:
             ABORT_MSG("Invalid spawn type %u with spawnId %u on map %u", uint32(info->type), info->spawnId, GetId());
             return true;
     }
-    if (doDelete)
+    if (alreadyExists)
     {
         info->respawnTime = 0;
         return false;
