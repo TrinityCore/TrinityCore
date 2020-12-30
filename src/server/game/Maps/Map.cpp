@@ -3268,9 +3268,10 @@ void Map::ProcessRespawns()
 
         if (uint32 poolId = sPoolMgr->IsPartOfAPool(next->type, next->spawnId)) // is this part of a pool?
         { // if yes, respawn will be handled by (external) pooling logic, just delete the respawn time
+            poolQueue.emplace_back(poolId, next->type, next->spawnId);
+
             _respawnTimes.pop();
             GetRespawnMapForType(next->type).erase(next->spawnId);
-            poolQueue.emplace_back(poolId, next->type, next->spawnId);
             delete next;
             continue;
         }
