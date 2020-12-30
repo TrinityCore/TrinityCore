@@ -246,13 +246,17 @@ void SmartScript::ProcessEventsFor(SMART_EVENT e, Unit* unit, uint32 var0, uint3
 
 void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, uint32 var1, bool bvar, SpellInfo const* spell, GameObject* gob)
 {
+    e.runOnce = true; //used for repeat check
+
     // calc random
-    if (e.GetEventType() != SMART_EVENT_LINK && e.event.event_chance < 100 && e.event.event_chance)
+    if (e.GetEventType() != SMART_EVENT_LINK && e.event.event_chance < 100 && e.event.event_chance && !(e.event.event_flags & SMART_EVENT_FLAG_TEMP_IGNORE_CHANCE_ROLL))
     {
         if (!roll_chance_i(e.event.event_chance))
             return;
     }
-    e.runOnce = true; //used for repeat check
+
+    // Remove SMART_EVENT_FLAG_TEMP_IGNORE_CHANCE_ROLL flag after processing roll chances as it's not needed anymore
+    e.event.event_flags &= ~SMART_EVENT_FLAG_TEMP_IGNORE_CHANCE_ROLL;
 
     if (unit)
         mLastInvoker = unit->GetGUID();
@@ -601,7 +605,11 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             // If there is at least 1 failed cast and no successful casts at all, retry again on next loop
             if (failedSpellCast && !successfulSpellCast)
-                RaisePriority(e);
+            {
+                RetryLater(e, true);
+                // Don't execute linked events
+                return;
+            }
             break;
         }
         case SMART_ACTION_SELF_CAST:
@@ -3780,6 +3788,17 @@ void SmartScript::RaisePriority(SmartScriptHolder& e)
         e.priority = mCurrentPriority++;
         mEventSortingRequired = true;
     }
+}
+
+void SmartScript::RetryLater(SmartScriptHolder& e, bool ignoreChanceRoll)
+{
+    RaisePriority(e);
+
+    // This allows to retry the action later without rolling again the chance roll (which might fail and end up not executing the action)
+    if (ignoreChanceRoll)
+        e.event.event_flags |= SMART_EVENT_FLAG_TEMP_IGNORE_CHANCE_ROLL;
+
+    e.runOnce = false;
 }
 
 void SmartScript::FillScript(SmartAIEventList e, WorldObject* obj, AreaTriggerEntry const* at)
