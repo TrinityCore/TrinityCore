@@ -845,3 +845,18 @@ void PoolMgr::UpdatePool(uint32 pool_id, uint32 db_guid_or_pool_id)
 template void PoolMgr::UpdatePool<Pool>(uint32 pool_id, uint32 db_guid_or_pool_id);
 template void PoolMgr::UpdatePool<GameObject>(uint32 pool_id, uint32 db_guid_or_pool_id);
 template void PoolMgr::UpdatePool<Creature>(uint32 pool_id, uint32 db_guid_or_pool_id);
+
+void PoolMgr::UpdatePool(uint32 pool_id, SpawnObjectType type, uint32 spawnId)
+{
+    switch (type)
+    {
+        case SPAWN_TYPE_CREATURE:
+            UpdatePool<Creature>(pool_id, spawnId);
+            break;
+        case SPAWN_TYPE_GAMEOBJECT:
+            UpdatePool<GameObject>(pool_id, spawnId);
+            break;
+        default:
+            ABORT_MSG("Invalid spawn type %u passed to PoolMgr::IsPartOfPool (with spawnId %u)", uint32(type), spawnId);
+    }
+}

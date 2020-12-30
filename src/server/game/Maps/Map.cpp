@@ -3249,16 +3249,6 @@ void Map::DoRespawn(SpawnObjectType type, ObjectGuid::LowType spawnId, uint32 gr
 
 void Map::ProcessRespawns()
 {
-    // defer pool hand-off until after the loop to ensure internal consistency before going to external logic
-    struct PoolQueueEntry
-    {
-        PoolQueueEntry(uint32 p, SpawnObjectType t, ObjectGuid::LowType i) : poolId(p), spawnType(t), spawnId(i) {}
-        uint32 const poolId;
-        SpawnObjectType const spawnType;
-        ObjectGuid::LowType const spawnId;
-    };
-    std::vector<PoolQueueEntry> poolQueue;
-
     time_t now = GameTime::GetGameTime();
     while (!_respawnTimes.empty())
     {
@@ -3268,23 +3258,30 @@ void Map::ProcessRespawns()
 
         if (uint32 poolId = sPoolMgr->IsPartOfAPool(next->type, next->spawnId)) // is this part of a pool?
         { // if yes, respawn will be handled by (external) pooling logic, just delete the respawn time
-            poolQueue.emplace_back(poolId, next->type, next->spawnId);
-
+            // step 1: remove entry from maps to avoid it being reachable by outside logic
             _respawnTimes.pop();
             GetRespawnMapForType(next->type).erase(next->spawnId);
+
+            // step 2: tell pooling logic to do its thing
+            sPoolMgr->UpdatePool(poolId, next->type, next->spawnId);
+
+            // step 3: get rid of the actual entry
             delete next;
-            continue;
         }
-
-        if (CheckRespawn(next)) // see if we're allowed to respawn
+        else if (CheckRespawn(next)) // see if we're allowed to respawn
         { // ok, respawn
+            // step 1: remove entry from maps to avoid it being reachable by outside logic
             _respawnTimes.pop();
             GetRespawnMapForType(next->type).erase(next->spawnId);
+
+            // step 2: do the respawn, which involves external logic
             DoRespawn(next->type, next->spawnId, next->gridId);
+
+            // step 3: get rid of the actual entry
             delete next;
         }
         else if (!next->respawnTime)
-        { // just remove respawn entry without rescheduling
+        { // just remove this respawn entry without rescheduling
             _respawnTimes.pop();
             GetRespawnMapForType(next->type).erase(next->spawnId);
             delete next;
@@ -3294,22 +3291,6 @@ void Map::ProcessRespawns()
             ASSERT(now < next->respawnTime); // infinite loop guard
             _respawnTimes.decrease(next->handle);
             SaveRespawnInfoDB(*next);
-        }
-    }
-
-    // ok, now that every is safely stashed away again, tell pooling system to do its thing
-    for (PoolQueueEntry entry : poolQueue)
-    {
-        switch (entry.spawnType)
-        {
-            case SPAWN_TYPE_GAMEOBJECT:
-                sPoolMgr->UpdatePool<GameObject>(entry.poolId, entry.spawnId);
-                break;
-            case SPAWN_TYPE_CREATURE:
-                sPoolMgr->UpdatePool<Creature>(entry.poolId, entry.spawnId);
-                break;
-            default:
-                ABORT_MSG("Invalid spawn type %u (spawnid %u) on map %u", uint32(entry.spawnType), entry.spawnId, GetId());
         }
     }
 }
