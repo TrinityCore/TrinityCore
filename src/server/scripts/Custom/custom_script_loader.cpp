@@ -18,6 +18,7 @@
 // This is where scripts' loading functions should be declared:
 void AddSC_npc_levels();
 void AddSC_Player_Even_Action();
+void AddSC_npc_innkeeper_new();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -25,4 +26,5 @@ void AddCustomScripts()
 {
     AddSC_npc_levels();
     AddSC_Player_Even_Action();
+    AddSC_npc_innkeeper_new();
 }
