@@ -138,629 +138,531 @@ QuaternionData const WhelpCageBaseRot = QuaternionData(0.0f, 0.0f, -0.366501f, 0
 Position const WhelpCagePos     = { -346.672f, -723.26f,  888.106f, 5.53269f };
 QuaternionData const WhelpCageRot = QuaternionData(0.0f, 0.0f, -0.366501f, 0.930418f);
 
-class boss_halfus_wyrmbreaker : public CreatureScript
+struct boss_halfus_wyrmbreaker final : public BossAI
 {
-    public:
-        boss_halfus_wyrmbreaker() : CreatureScript("boss_halfus_wyrmbreaker") { }
+    boss_halfus_wyrmbreaker(Creature* creature) : BossAI(creature, DATA_HALFUS_WYRMBREAKER), _announcedOrphanedEmeraldWhelpBinding(false), _furiousRoarEnabled(false),
+        _furiousRoarCount(0), _theOnlyEscapeAchievementState(NOT_STARTED) { }
 
-        struct boss_halfus_wyrmbreakerAI : public BossAI
+    void JustAppeared() override
+    {
+        instance->SetData(DATA_CAST_DRAGON_BUFFS, DRAGON_BUFFS_HALFUS_WYRMBREAKER);
+
+        if (GameObject* cageBase = me->SummonGameObject(GO_WHELP_CAGE_BASE, WhelpCageBasePos, WhelpCageBaseRot, WEEK, GO_SUMMON_TIMED_DESPAWN))
+            _cageBaseGUID = cageBase->GetGUID();
+
+        if (GameObject* cage = me->SummonGameObject(GO_WHELP_CAGE, WhelpCagePos, WhelpCageRot, WEEK, GO_SUMMON_TIMED_DESPAWN))
+            _cageGUID = cage->GetGUID();
+
+        if (Map* map = me->GetMap())
         {
-            boss_halfus_wyrmbreakerAI(Creature* creature) : BossAI(creature, DATA_HALFUS_WYRMBREAKER)
-            {
-                Initialize();
-            }
-
-            void Initialize()
-            {
-                _announcedOrphanedEmeraldWhelpBinding = false;
-                _furiousRoarEnabled = false;
-                _furiousRoarCount = 0;
-                _theOnlyEscapeAchievementState = NOT_STARTED;
-            }
-
-            void JustAppeared() override
-            {
-                instance->SetData(DATA_CAST_DRAGON_BUFFS, DRAGON_BUFFS_HALFUS_WYRMBREAKER);
-
-                if (GameObject* cageBase = me->SummonGameObject(GO_WHELP_CAGE_BASE, WhelpCageBasePos, WhelpCageBaseRot, WEEK, GO_SUMMON_TIMED_DESPAWN))
-                    _cageBaseGUID = cageBase->GetGUID();
-
-                if (GameObject* cage = me->SummonGameObject(GO_WHELP_CAGE, WhelpCagePos, WhelpCageRot, WEEK, GO_SUMMON_TIMED_DESPAWN))
-                    _cageGUID = cage->GetGUID();
-
-                if (Map* map = me->GetMap())
-                {
-                    map->SummonCreature(NPC_NETHER_SCION, NetherScionPos);
-                    map->SummonCreature(NPC_SLATE_DRAGON, SlateDragonPos);
-                    map->SummonCreature(NPC_STORM_RIDER, StormRiderPos);
-                    map->SummonCreature(NPC_TIME_WARDEN, TimeWardenPos);
-                }
-
-                for (uint8 i = 0; i < 8; i++)
-                    DoSummon(NPC_ORPHANED_EMERALD_WELP, OrphanedEmeraldWhelpPositions[i]);
-
-                for (uint8 i = 0; i < 14; i++)
-                    DoSummon(NPC_SPIKE, SpikePositions[i]);
-
-                DoSummon(NPC_PROTO_BEHEMOTH, ProtoBehemothPos);
-            }
-
-            void JustEngagedWith(Unit* who) override
-            {
-                BossAI::JustEngagedWith(who);
-                Talk(SAY_AGGRO);
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-                events.ScheduleEvent(EVENT_BERSERK, 10min);
-
-                if (Creature* protoBehemoth = instance->GetCreature(DATA_PROTO_BEHEMOTH))
-                    protoBehemoth->AI()->DoZoneInCombat();
-
-                if (instance->GetData(DATA_DRAGON_CAGE_ENABLED))
-                    if (GameObject* cage = ObjectAccessor::GetGameObject(*me, _cageGUID))
-                        cage->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-
-                if (me->HasAura(SPELL_SHADOW_WRAPPED))
-                    events.ScheduleEvent(EVENT_SHADOW_NOVA, Seconds(7));
-            }
-
-            void KilledUnit(Unit* victim) override
-            {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
-                    Talk(SAY_SLAY);
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-
-                if (GameObject* cage = ObjectAccessor::GetGameObject(*me, _cageGUID))
-                    cage->DespawnOrUnsummon();
-
-                if (GameObject* cageBase = ObjectAccessor::GetGameObject(*me, _cageBaseGUID))
-                    cageBase->DespawnOrUnsummon();
-            }
-
-            void EnterEvadeMode(EvadeReason /*why*/) override
-            {
-                _EnterEvadeMode();
-                summons.DespawnAll();
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-
-                if (GameObject* cage = ObjectAccessor::GetGameObject(*me, _cageGUID))
-                    cage->DespawnOrUnsummon();
-
-                if (GameObject* cageBase = ObjectAccessor::GetGameObject(*me, _cageBaseGUID))
-                    cageBase->DespawnOrUnsummon();
-
-                _DespawnAtEvade();
-            }
-
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
-            {
-                if (!caster)
-                    return;
-
-                switch (spell->Id)
-                {
-                    case SPELL_BIND_WILL:
-                        if (caster->GetEntry() == NPC_ORPHANED_EMERALD_WELP && !_announcedOrphanedEmeraldWhelpBinding)
-                        {
-                            Talk(SAY_ANNOUNCE_BIND_DRAGON, caster);
-                            _announcedOrphanedEmeraldWhelpBinding = true;
-                        }
-                        else if (caster->GetEntry() != NPC_ORPHANED_EMERALD_WELP)
-                            Talk(SAY_ANNOUNCE_BIND_DRAGON, caster);
-                        break;
-                    case SPELL_DRAGONS_VENGEANCE:
-                        if (_theOnlyEscapeAchievementState == NOT_STARTED)
-                        {
-                            _theOnlyEscapeAchievementState = IN_PROGRESS;
-                            events.ScheduleEvent(EVENT_RESET_ACHIEVEMT, Seconds(10));
-                        }
-                        else if (_theOnlyEscapeAchievementState == IN_PROGRESS)
-                        {
-                            _theOnlyEscapeAchievementState = DONE;
-                            events.CancelEvent(EVENT_RESET_ACHIEVEMT);
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
-            {
-                if (me->HealthBelowPct(50) && !_furiousRoarEnabled)
-                {
-                    events.ScheduleEvent(EVENT_FURIOUS_ROAR, Milliseconds(1));
-                    _furiousRoarEnabled = true;
-                }
-            }
-
-            void DoAction(int32 action) override
-            {
-                switch (action)
-                {
-                    case ACTION_ENABLE_MALEVOLENT_STRIKES:
-                        me->AddAura(SPELL_MALEVOLENT_STRIKES, me);
-                        break;
-                    case ACTION_ENABLE_FRENZIED_ASSAULT:
-                        me->AddAura(SPELL_FRENZIED_ASSAULT, me);
-                        break;
-                    case ACTION_ENABLE_SHADOW_NOVA:
-                        me->AddAura(SPELL_SHADOW_WRAPPED, me);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            uint32 GetData(uint32 type) const override
-            {
-                if (type == DATA_THE_ONLY_ESCAPE)
-                    return _theOnlyEscapeAchievementState;
-
-                return 0;
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING) || me->HasUnitState(UNIT_STATE_STUNNED))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_SHADOW_NOVA:
-                            DoCastAOE(SPELL_SHADOW_NOVA);
-                            events.Repeat(Seconds(8));
-                            break;
-                        case EVENT_FURIOUS_ROAR:
-                            if (_furiousRoarCount == 0)
-                                Talk(SAY_ANNOUNCE_FURIOUS_ROAR);
-
-                            if (_furiousRoarCount != 2)
-                            {
-                                DoCastAOE(SPELL_FURIOUS_ROAR);
-                                events.Repeat(Seconds(3));
-                                _furiousRoarCount++;
-                            }
-                            else
-                            {
-                                DoCastAOE(SPELL_FURIOUS_ROAR);
-                                events.Repeat(Seconds(25));
-                                _furiousRoarCount = 0;
-                            }
-                            break;
-                        case EVENT_RESET_ACHIEVEMT:
-                            _theOnlyEscapeAchievementState = NOT_STARTED;
-                            break;
-                        case EVENT_BERSERK:
-                            DoCastSelf(SPELL_BERSERK, true);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            ObjectGuid _cageGUID;
-            ObjectGuid _cageBaseGUID;
-            bool _announcedOrphanedEmeraldWhelpBinding;
-            bool _furiousRoarEnabled;
-            uint8 _theOnlyEscapeAchievementState;
-            uint8 _furiousRoarCount;
-        };
-
-        CreatureAI* GetAI(Creature *creature) const override
-        {
-            return GetBastionOfTwilightAI<boss_halfus_wyrmbreakerAI>(creature);
+            map->SummonCreature(NPC_NETHER_SCION, NetherScionPos);
+            map->SummonCreature(NPC_SLATE_DRAGON, SlateDragonPos);
+            map->SummonCreature(NPC_STORM_RIDER, StormRiderPos);
+            map->SummonCreature(NPC_TIME_WARDEN, TimeWardenPos);
         }
-};
 
-class npc_halfus_proto_behemoth : public CreatureScript
-{
-    public:
-        npc_halfus_proto_behemoth() : CreatureScript("npc_halfus_proto_behemoth") { }
+        for (uint8 i = 0; i < 8; i++)
+            DoSummon(NPC_ORPHANED_EMERALD_WELP, OrphanedEmeraldWhelpPositions[i]);
 
-        struct npc_halfus_proto_behemothAI : public PassiveAI
+        for (uint8 i = 0; i < 14; i++)
+            DoSummon(NPC_SPIKE, SpikePositions[i]);
+
+        DoSummon(NPC_PROTO_BEHEMOTH, ProtoBehemothPos);
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        Talk(SAY_AGGRO);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+        events.ScheduleEvent(EVENT_BERSERK, 10min);
+
+        if (Creature* protoBehemoth = instance->GetCreature(DATA_PROTO_BEHEMOTH))
+            protoBehemoth->AI()->DoZoneInCombat();
+
+        if (instance->GetData(DATA_DRAGON_CAGE_ENABLED))
+            if (GameObject* cage = ObjectAccessor::GetGameObject(*me, _cageGUID))
+                cage->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+
+        if (me->HasAura(SPELL_SHADOW_WRAPPED))
+            events.ScheduleEvent(EVENT_SHADOW_NOVA, Seconds(7));
+    }
+
+    void KilledUnit(Unit* victim) override
+    {
+        if (victim->GetTypeId() == TYPEID_PLAYER)
+            Talk(SAY_SLAY);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+
+        if (GameObject* cage = ObjectAccessor::GetGameObject(*me, _cageGUID))
+            cage->DespawnOrUnsummon();
+
+        if (GameObject* cageBase = ObjectAccessor::GetGameObject(*me, _cageBaseGUID))
+            cageBase->DespawnOrUnsummon();
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        _EnterEvadeMode();
+        summons.DespawnAll();
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+
+        if (GameObject* cage = ObjectAccessor::GetGameObject(*me, _cageGUID))
+            cage->DespawnOrUnsummon();
+
+        if (GameObject* cageBase = ObjectAccessor::GetGameObject(*me, _cageBaseGUID))
+            cageBase->DespawnOrUnsummon();
+
+        _DespawnAtEvade();
+    }
+
+    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    {
+        if (!caster)
+            return;
+
+        switch (spell->Id)
         {
-            npc_halfus_proto_behemothAI(Creature* creature) : PassiveAI(creature), _instance(creature->GetInstanceScript()) { }
-
-            void JustEngagedWith(Unit* /*who*/) override
-            {
-                _events.ScheduleEvent(EVENT_FIREBALL, Seconds(1));
-
-                if (me->HasAura(SPELL_DANCING_FLAMES))
-                    _events.ScheduleEvent(EVENT_FIREBALL_BARRAGE, Seconds(13));
-
-                if (me->HasAura(SPELL_SUPERHEATED_BREATH))
-                    _events.ScheduleEvent(EVENT_SCORCHING_BREATH, Seconds(24));
-            }
-
-            void JustAppeared() override
-            {
-                _instance->SetData(DATA_CAST_DRAGON_BUFFS, DRAGON_BUFFS_PROTO_BEHEMOTH);
-            }
-
-            void DoAction(int32 action) override
-            {
-                switch (action)
+            case SPELL_BIND_WILL:
+                if (caster->GetEntry() == NPC_ORPHANED_EMERALD_WELP && !_announcedOrphanedEmeraldWhelpBinding)
                 {
-                    case ACTION_CAST_DRAGONS_VENGEANCE:
-                        DoCastSelf(SPELL_DRAGONS_VENGEANCE, true);
-                        break;
-                    case ACTION_ENABLE_SCORCHING_BREATH:
-                        me->AddAura(SPELL_SUPERHEATED_BREATH, me);
-                        break;
-                    case ACTION_ENABLE_FIREBALL_BARRAGE:
-                        me->AddAura(SPELL_DANCING_FLAMES, me);
-                        break;
-                    default:
-                        break;
+                    Talk(SAY_ANNOUNCE_BIND_DRAGON, caster);
+                    _announcedOrphanedEmeraldWhelpBinding = true;
                 }
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                _events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = _events.ExecuteEvent())
+                else if (caster->GetEntry() != NPC_ORPHANED_EMERALD_WELP)
+                    Talk(SAY_ANNOUNCE_BIND_DRAGON, caster);
+                break;
+            case SPELL_DRAGONS_VENGEANCE:
+                if (_theOnlyEscapeAchievementState == NOT_STARTED)
                 {
-                    switch (eventId)
-                    {
-                        case EVENT_FIREBALL:
-                            DoCastAOE(SPELL_FIREBALL);
-                            _events.Repeat(Seconds(2) + Milliseconds(500));
-                            break;
-                        case EVENT_FIREBALL_BARRAGE:
-                            DoCastSelf(SPELL_FIREBALL_BARRAGE);
-                            _events.Repeat(Seconds(31));
-                            break;
-                        case EVENT_SCORCHING_BREATH:
-                            DoCastSelf(SPELL_SCORCHING_BREATH);
-                            _events.Repeat(Seconds(31));
-                            break;
-                        default:
-                            break;
-                    }
+                    _theOnlyEscapeAchievementState = IN_PROGRESS;
+                    events.ScheduleEvent(EVENT_RESET_ACHIEVEMT, Seconds(10));
                 }
-            }
-
-        private:
-            EventMap _events;
-            InstanceScript* _instance;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetBastionOfTwilightAI<npc_halfus_proto_behemothAI>(creature);
+                else if (_theOnlyEscapeAchievementState == IN_PROGRESS)
+                {
+                    _theOnlyEscapeAchievementState = DONE;
+                    events.CancelEvent(EVENT_RESET_ACHIEVEMT);
+                }
+                break;
+            default:
+                break;
         }
-};
+    }
 
-class npc_halfus_enslaved_dragon : public CreatureScript
-{
-    public:
-        npc_halfus_enslaved_dragon() : CreatureScript("npc_halfus_enslaved_dragon") { }
-
-        struct npc_halfus_enslaved_dragonAI : public ScriptedAI
+    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+    {
+        if (me->HealthBelowPct(50) && !_furiousRoarEnabled)
         {
-            npc_halfus_enslaved_dragonAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
+            events.ScheduleEvent(EVENT_FURIOUS_ROAR, 1ms);
+            _furiousRoarEnabled = true;
+        }
+    }
 
-            void Reset() override
+    void DoAction(int32 action) override
+    {
+        switch (action)
+        {
+            case ACTION_ENABLE_MALEVOLENT_STRIKES:
+                me->AddAura(SPELL_MALEVOLENT_STRIKES, me);
+                break;
+            case ACTION_ENABLE_FRENZIED_ASSAULT:
+                me->AddAura(SPELL_FRENZIED_ASSAULT, me);
+                break;
+            case ACTION_ENABLE_SHADOW_NOVA:
+                me->AddAura(SPELL_SHADOW_WRAPPED, me);
+                break;
+            default:
+                break;
+        }
+    }
+
+    uint32 GetData(uint32 type) const override
+    {
+        if (type == DATA_THE_ONLY_ESCAPE)
+            return _theOnlyEscapeAchievementState;
+
+        return 0;
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING) || me->HasUnitState(UNIT_STATE_STUNNED))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
             {
-                _events.Reset();
+                case EVENT_SHADOW_NOVA:
+                    DoCastAOE(SPELL_SHADOW_NOVA);
+                    events.Repeat(8s);
+                    break;
+                case EVENT_FURIOUS_ROAR:
+                    if (_furiousRoarCount == 0)
+                        Talk(SAY_ANNOUNCE_FURIOUS_ROAR);
 
-                if (_instance->GetData(DATA_UNRESPONSIVE_DRAGON_FIRST) == me->GetEntry()
-                    || _instance->GetData(DATA_UNRESPONSIVE_DRAGON_SECOND) == me->GetEntry())
-                {
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                    if (me->GetEntry() == NPC_ORPHANED_EMERALD_WELP)
-                        DoCastSelf(SPELL_UNRESPONSIVE_WHELP, true);
+                    if (_furiousRoarCount != 2)
+                    {
+                        DoCastAOE(SPELL_FURIOUS_ROAR);
+                        events.Repeat(3s);
+                        _furiousRoarCount++;
+                    }
                     else
-                        DoCastSelf(SPELL_UNRESPONSIVE_DRAGON, true);
-                }
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                me->SetDisableGravity(false);
-                me->SendSetPlayHoverAnim(false);
-                me->DespawnOrUnsummon(Seconds(6));
-
-                if (me->GetEntry() != NPC_ORPHANED_EMERALD_WELP)
-                    if (Creature* protoBehemoth = _instance->GetCreature(DATA_PROTO_BEHEMOTH))
-                        protoBehemoth->AI()->DoAction(ACTION_CAST_DRAGONS_VENGEANCE);
-            }
-
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
-            {
-                if (spell->HasEffect(SPELL_EFFECT_SEND_EVENT))
-                {
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-                    me->RemoveAllAuras();
-                    _events.ScheduleEvent(EVENT_LIFTOFF, Milliseconds(1));
-                }
-                else if (spell->Id == SPELL_BIND_WILL_TRIGGERED)
-                    if (Player* player = me->SelectNearestPlayer(100.0f))
-                        me->AI()->AttackStart(player);
-            }
-
-            void DoAction(int32 action) override
-            {
-                if (action == ACTION_MOVE_OUT_OF_CAGE)
-                    _events.ScheduleEvent(EVENT_MOVE_OUT_OF_CAGE, Milliseconds(250));
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                UpdateVictim();
-
-                _events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
                     {
-                        case EVENT_LIFTOFF:
-                        {
-                            Position pos = me->GetPosition();
-                            pos.m_positionZ += 5.5f;
-                            me->GetMotionMaster()->MoveTakeoff(0, pos);
-                            _events.ScheduleEvent(EVENT_CAST_DEBUFF, Seconds(1) + Milliseconds(800));
-                            break;
-                        }
-                        case EVENT_MOVE_OUT_OF_CAGE:
-                        {
-                            float angle = me->GetOrientation();
-                            float x = me->GetPositionX() + cos(angle) * 20.0f;
-                            float y = me->GetPositionY() + sin(angle) * 20.0f;
-                            float z = 888.1f;
-                            me->GetMotionMaster()->MovePoint(0, x, y, z, true);
-                            _events.ScheduleEvent(EVENT_CAST_DEBUFF, Seconds(2) + Milliseconds(600));
-                            break;
-                        }
-                        case EVENT_CAST_DEBUFF:
-                        {
-                            Creature* halfus = _instance->GetCreature(DATA_HALFUS_WYRMBREAKER);
-                            Creature* protoBehemoth = _instance->GetCreature(DATA_PROTO_BEHEMOTH);
+                        DoCastAOE(SPELL_FURIOUS_ROAR);
+                        events.Repeat(25s);
+                        _furiousRoarCount = 0;
+                    }
+                    break;
+                case EVENT_RESET_ACHIEVEMT:
+                    _theOnlyEscapeAchievementState = NOT_STARTED;
+                    break;
+                case EVENT_BERSERK:
+                    DoCastSelf(SPELL_BERSERK, true);
+                    break;
+                default:
+                    break;
+            }
+        }
 
-                            if (!halfus || !protoBehemoth)
-                                break;
+        DoMeleeAttackIfReady();
+    }
 
-                            if (me->GetEntry() != NPC_ORPHANED_EMERALD_WELP)
-                            {
-                                me->SetDisableGravity(true);
-                                me->SetHover(true);
-                            }
+private:
+    ObjectGuid _cageGUID;
+    ObjectGuid _cageBaseGUID;
+    bool _announcedOrphanedEmeraldWhelpBinding;
+    bool _furiousRoarEnabled;
+    uint8 _theOnlyEscapeAchievementState;
+    uint8 _furiousRoarCount;
+};
 
-                            switch (me->GetEntry())
-                            {
-                                case NPC_NETHER_SCION_ENCOUNTER:
-                                    me->SetFacingToObject(halfus);
-                                    DoCastSelf(SPELL_NETHER_BLINDNESS, true);
-                                    break;
-                                case NPC_SLATE_DRAGON_ENCOUNTER:
-                                    me->SetFacingToObject(halfus);
-                                    DoCastSelf(SPELL_STONE_TOUCH, true);
-                                    break;
-                                case NPC_STORM_RIDER_ENCOUNTER:
-                                    me->SetFacingToObject(halfus);
-                                    DoCastSelf(SPELL_CYCLONE_WINDS, true);
-                                    break;
-                                case NPC_TIME_WARDEN_ENCOUNTER:
-                                    me->SetFacingToObject(protoBehemoth);
-                                    DoCastSelf(SPELL_TIME_DILATION, true);
-                                    break;
-                                case NPC_ORPHANED_EMERALD_WELP:
-                                    me->SetFacingToObject(protoBehemoth);
-                                    DoCastSelf(SPELL_ATROPHIC_POISON, true);
-                                    break;
-                                default:
-                                    break;
-                            }
-                            _events.ScheduleEvent(EVENT_BIND_TO_HALFUS_WILL, Seconds(1) + Milliseconds(850));
+struct npc_halfus_proto_behemoth final : public PassiveAI
+{
+    npc_halfus_proto_behemoth(Creature* creature) : PassiveAI(creature), _instance(creature->GetInstanceScript()) {}
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _events.ScheduleEvent(EVENT_FIREBALL, 1s);
+
+        if (me->HasAura(SPELL_DANCING_FLAMES))
+            _events.ScheduleEvent(EVENT_FIREBALL_BARRAGE, 13s);
+
+        if (me->HasAura(SPELL_SUPERHEATED_BREATH))
+            _events.ScheduleEvent(EVENT_SCORCHING_BREATH, 24s);
+    }
+
+    void JustAppeared() override
+    {
+        _instance->SetData(DATA_CAST_DRAGON_BUFFS, DRAGON_BUFFS_PROTO_BEHEMOTH);
+    }
+
+    void DoAction(int32 action) override
+    {
+        switch (action)
+        {
+            case ACTION_CAST_DRAGONS_VENGEANCE:
+                DoCastSelf(SPELL_DRAGONS_VENGEANCE, true);
+                break;
+            case ACTION_ENABLE_SCORCHING_BREATH:
+                me->AddAura(SPELL_SUPERHEATED_BREATH, me);
+                break;
+            case ACTION_ENABLE_FIREBALL_BARRAGE:
+                me->AddAura(SPELL_DANCING_FLAMES, me);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_FIREBALL:
+                    DoCastAOE(SPELL_FIREBALL);
+                    _events.Repeat(2s + 500ms);
+                    break;
+                case EVENT_FIREBALL_BARRAGE:
+                    DoCastSelf(SPELL_FIREBALL_BARRAGE);
+                    _events.Repeat(31s);
+                    break;
+                case EVENT_SCORCHING_BREATH:
+                    DoCastSelf(SPELL_SCORCHING_BREATH);
+                    _events.Repeat(31s);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+    InstanceScript* _instance;
+};
+
+struct npc_halfus_enslaved_dragon final : public ScriptedAI
+{
+    npc_halfus_enslaved_dragon(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) {}
+
+    void Reset() override
+    {
+        _events.Reset();
+
+        if (_instance->GetData(DATA_UNRESPONSIVE_DRAGON_FIRST) == me->GetEntry()
+            || _instance->GetData(DATA_UNRESPONSIVE_DRAGON_SECOND) == me->GetEntry())
+        {
+            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            if (me->GetEntry() == NPC_ORPHANED_EMERALD_WELP)
+                DoCastSelf(SPELL_UNRESPONSIVE_WHELP, true);
+            else
+                DoCastSelf(SPELL_UNRESPONSIVE_DRAGON, true);
+        }
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        me->SetDisableGravity(false);
+        me->SendSetPlayHoverAnim(false);
+        me->DespawnOrUnsummon(6s);
+
+        if (me->GetEntry() != NPC_ORPHANED_EMERALD_WELP)
+            if (Creature* protoBehemoth = _instance->GetCreature(DATA_PROTO_BEHEMOTH))
+                protoBehemoth->AI()->DoAction(ACTION_CAST_DRAGONS_VENGEANCE);
+    }
+
+    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    {
+        if (spell->HasEffect(SPELL_EFFECT_SEND_EVENT))
+        {
+            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+            me->RemoveAllAuras();
+            _events.ScheduleEvent(EVENT_LIFTOFF, 1ms);
+        }
+        else if (spell->Id == SPELL_BIND_WILL_TRIGGERED)
+            if (Player* player = me->SelectNearestPlayer(100.0f))
+                me->AI()->AttackStart(player);
+    }
+
+    void DoAction(int32 action) override
+    {
+        if (action == ACTION_MOVE_OUT_OF_CAGE)
+            _events.ScheduleEvent(EVENT_MOVE_OUT_OF_CAGE, 250ms);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        UpdateVictim();
+
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_LIFTOFF:
+                {
+                    Position pos = me->GetPosition();
+                    pos.m_positionZ += 5.5f;
+                    me->GetMotionMaster()->MoveTakeoff(0, pos);
+                    _events.ScheduleEvent(EVENT_CAST_DEBUFF, 1s + 800ms);
+                    break;
+                }
+                case EVENT_MOVE_OUT_OF_CAGE:
+                {
+                    float angle = me->GetOrientation();
+                    float x = me->GetPositionX() + cos(angle) * 20.0f;
+                    float y = me->GetPositionY() + sin(angle) * 20.0f;
+                    float z = 888.1f;
+                    me->GetMotionMaster()->MovePoint(0, x, y, z, true);
+                    _events.ScheduleEvent(EVENT_CAST_DEBUFF, 2s + 600ms);
+                    break;
+                }
+                case EVENT_CAST_DEBUFF:
+                {
+                    Creature* halfus = _instance->GetCreature(DATA_HALFUS_WYRMBREAKER);
+                    Creature* protoBehemoth = _instance->GetCreature(DATA_PROTO_BEHEMOTH);
+
+                    if (!halfus || !protoBehemoth)
+                        break;
+
+                    if (me->GetEntry() != NPC_ORPHANED_EMERALD_WELP)
+                    {
+                        me->SetDisableGravity(true);
+                        me->SetHover(true);
+                    }
+
+                    switch (me->GetEntry())
+                    {
+                        case NPC_NETHER_SCION_ENCOUNTER:
+                            me->SetFacingToObject(halfus);
+                            DoCastSelf(SPELL_NETHER_BLINDNESS, true);
                             break;
-                        }
-                        case EVENT_BIND_TO_HALFUS_WILL:
-                            if (_instance->GetCreature(DATA_HALFUS_WYRMBREAKER))
-                                DoCastSelf(SPELL_BIND_WILL, true);
+                        case NPC_SLATE_DRAGON_ENCOUNTER:
+                            me->SetFacingToObject(halfus);
+                            DoCastSelf(SPELL_STONE_TOUCH, true);
+                            break;
+                        case NPC_STORM_RIDER_ENCOUNTER:
+                            me->SetFacingToObject(halfus);
+                            DoCastSelf(SPELL_CYCLONE_WINDS, true);
+                            break;
+                        case NPC_TIME_WARDEN_ENCOUNTER:
+                            me->SetFacingToObject(protoBehemoth);
+                            DoCastSelf(SPELL_TIME_DILATION, true);
+                            break;
+                        case NPC_ORPHANED_EMERALD_WELP:
+                            me->SetFacingToObject(protoBehemoth);
+                            DoCastSelf(SPELL_ATROPHIC_POISON, true);
                             break;
                         default:
                             break;
                     }
+                    _events.ScheduleEvent(EVENT_BIND_TO_HALFUS_WILL, 1s + 850ms);
+                    break;
                 }
-
-                DoMeleeAttackIfReady();
+                case EVENT_BIND_TO_HALFUS_WILL:
+                    if (_instance->GetCreature(DATA_HALFUS_WYRMBREAKER))
+                        DoCastSelf(SPELL_BIND_WILL, true);
+                    break;
+                default:
+                    break;
             }
-        private:
-            EventMap _events;
-            InstanceScript* _instance;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetBastionOfTwilightAI<npc_halfus_enslaved_dragonAI>(creature);
         }
+
+        DoMeleeAttackIfReady();
+    }
+private:
+    EventMap _events;
+    InstanceScript* _instance;
 };
 
-class go_halfus_whelp_cage : public GameObjectScript
+struct go_halfus_whelp_cage final : public GameObjectAI
 {
-    public:
-        go_halfus_whelp_cage() : GameObjectScript("go_halfus_whelp_cage") { }
+    go_halfus_whelp_cage(GameObject* go) : GameObjectAI(go), _instance(go->GetInstanceScript()) {}
 
-        struct go_halfus_whelp_cageAI : public GameObjectAI
-        {
-            go_halfus_whelp_cageAI(GameObject* go) : GameObjectAI(go), _instance(go->GetInstanceScript()) { }
+    bool OnReportUse(Player* /*player*/) override
+    {
+        me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+        _instance->SetData(DATA_OPEN_ORPHANED_EMERALD_WHELP_CAGE, DONE);
+        return true;
+    }
 
-            bool OnReportUse(Player* /*player*/) override
-            {
-                me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                _instance->SetData(DATA_OPEN_ORPHANED_EMERALD_WHELP_CAGE, DONE);
-                return true;
-            }
-
-        private:
-            InstanceScript* _instance;
-        };
-
-        GameObjectAI* GetAI(GameObject* go) const override
-        {
-            return GetBastionOfTwilightAI<go_halfus_whelp_cageAI>(go);
-        }
+private:
+    InstanceScript* _instance;
 };
 
-class spell_halfus_bind_will : public SpellScriptLoader
+class spell_halfus_bind_will final : public SpellScript
 {
-    public:
-        spell_halfus_bind_will() : SpellScriptLoader("spell_halfus_bind_will") { }
+    void HandleHit(SpellEffIndex effIndex)
+    {
+        if (Unit* caster = GetCaster())
+            if (Unit* target = GetHitUnit())
+                target->CastSpell(caster, GetSpellInfo()->Effects[effIndex].BasePoints, true);
+    }
 
-        class spell_halfus_bind_will_SpellScript : public SpellScript
-        {
-            void HandleHit(SpellEffIndex effIndex)
-            {
-                if (Unit* caster = GetCaster())
-                    if (Unit* target = GetHitUnit())
-                        target->CastSpell(caster, GetSpellInfo()->Effects[effIndex].BasePoints, true);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget.Register(&spell_halfus_bind_will_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_halfus_bind_will_SpellScript();
-        }
+    void Register() override
+    {
+        OnEffectHitTarget.Register(&spell_halfus_bind_will::HandleHit, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
 };
 
-class spell_halfus_fireball : public SpellScriptLoader
+class spell_halfus_fireball final : public SpellScript
 {
-    public:
-        spell_halfus_fireball() : SpellScriptLoader("spell_halfus_fireball") { }
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_FIREBALL_BARRAGE_FAST,
+                SPELL_FIREBALL_BARRAGE_SLOW
+            });
+    }
 
-        class spell_halfus_fireball_SpellScript : public SpellScript
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
+
+        Trinity::Containers::RandomResize(targets, 1);
+    }
+
+    void HandleHit(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
         {
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo(
-                    {
-                        SPELL_FIREBALL_BARRAGE_FAST,
-                        SPELL_FIREBALL_BARRAGE_SLOW
-                    });
-            }
-
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                if (targets.empty())
-                    return;
-
-                Trinity::Containers::RandomResize(targets, 1);
-            }
-
-            void HandleHit(SpellEffIndex /*effIndex*/)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    if (!caster->HasAura(SPELL_TIME_DILATION))
-                        caster->CastSpell(GetHitUnit(), SPELL_FIREBALL_BARRAGE_FAST, true);
-                    else
-                        caster->CastSpell(GetHitUnit(), SPELL_FIREBALL_BARRAGE_SLOW, true);
-                }
-            }
-
-            void Register() override
-            {
-                OnObjectAreaTargetSelect.Register(&spell_halfus_fireball_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
-                OnEffectHitTarget.Register(&spell_halfus_fireball_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_halfus_fireball_SpellScript();
+            if (!caster->HasAura(SPELL_TIME_DILATION))
+                caster->CastSpell(GetHitUnit(), SPELL_FIREBALL_BARRAGE_FAST, true);
+            else
+                caster->CastSpell(GetHitUnit(), SPELL_FIREBALL_BARRAGE_SLOW, true);
         }
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect.Register(&spell_halfus_fireball::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+        OnEffectHitTarget.Register(&spell_halfus_fireball::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
 };
 
-class spell_halfus_stone_touch : public SpellScriptLoader
+class spell_halfus_stone_touch final : public AuraScript
 {
-    public:
-        spell_halfus_stone_touch() : SpellScriptLoader("spell_halfus_stone_touch") { }
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PARALYSIS });
+    }
 
-        class spell_halfus_stone_touch_AuraScript : public AuraScript
-        {
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_PARALYSIS });
-            }
+    void HandlePeriodic(AuraEffect const* /*aurEff*/)
+    {
+        if (Unit* caster = GetTarget())
+            caster->CastSpell(caster, SPELL_PARALYSIS, true);
+    }
 
-            void HandlePeriodic(AuraEffect const* /*aurEff*/)
-            {
-                if (Unit* caster = GetTarget())
-                    caster->CastSpell(caster, SPELL_PARALYSIS, true);
-            }
-
-            void Register() override
-            {
-                OnEffectPeriodic.Register(&spell_halfus_stone_touch_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_halfus_stone_touch_AuraScript();
-        }
+    void Register() override
+    {
+        OnEffectPeriodic.Register(&spell_halfus_stone_touch::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
 };
 
-class spell_halfus_cyclone_winds : public SpellScriptLoader
+class spell_halfus_cyclone_winds final : public SpellScript
 {
-    public:
-        spell_halfus_cyclone_winds() : SpellScriptLoader("spell_halfus_cyclone_winds") { }
-
-        class spell_halfus_cyclone_winds_SpellScript : public SpellScript
+    void SetDestPosition(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
         {
-            void SetDestPosition(SpellEffIndex /*effIndex*/)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    float angle = caster->GetOrientation();
-                    float x = caster->GetPositionX() + cos(angle) * 7.0f;
-                    float y = caster->GetPositionY() + sin(angle) * 7.0f;
-                    float z = caster->GetPositionZ();
+            float angle = caster->GetOrientation();
+            float x = caster->GetPositionX() + cos(angle) * 7.0f;
+            float y = caster->GetPositionY() + sin(angle) * 7.0f;
+            float z = caster->GetPositionZ();
 
-                    const_cast<WorldLocation*>(GetExplTargetDest())->Relocate(x, y, z);
-                    GetHitDest()->Relocate(x, y, z);
-                }
-            }
-
-            void Register()
-            {
-                OnEffectLaunch.Register(&spell_halfus_cyclone_winds_SpellScript::SetDestPosition, EFFECT_0, SPELL_EFFECT_SUMMON);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_halfus_cyclone_winds_SpellScript();
+            const_cast<WorldLocation*>(GetExplTargetDest())->Relocate(x, y, z);
+            GetHitDest()->Relocate(x, y, z);
         }
+    }
+
+    void Register()
+    {
+        OnEffectLaunch.Register(&spell_halfus_cyclone_winds::SetDestPosition, EFFECT_0, SPELL_EFFECT_SUMMON);
+    }
 };
 
 class DancingFlamesDistanceCheck
@@ -776,40 +678,29 @@ class DancingFlamesDistanceCheck
         Unit* _caster;
 };
 
-class spell_halfus_dancing_flames : public SpellScriptLoader
+class spell_halfus_dancing_flames final : public SpellScript
 {
-    public:
-        spell_halfus_dancing_flames() : SpellScriptLoader("spell_halfus_dancing_flames") { }
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
 
-        class spell_halfus_dancing_flames_SpellScript : public SpellScript
-        {
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                if (targets.empty())
-                    return;
+        if (Unit* caster = GetCaster())
+            targets.remove_if(DancingFlamesDistanceCheck(caster));
 
-                if (Unit* caster = GetCaster())
-                    targets.remove_if(DancingFlamesDistanceCheck(caster));
+        if (targets.empty())
+            return;
 
-                if (targets.empty())
-                    return;
+        Trinity::Containers::RandomResize(targets, 1);
+    }
 
-                Trinity::Containers::RandomResize(targets, 1);
-            }
-
-            void Register() override
-            {
-                OnObjectAreaTargetSelect.Register(&spell_halfus_dancing_flames_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_halfus_dancing_flames_SpellScript();
-        }
+    void Register() override
+    {
+        OnObjectAreaTargetSelect.Register(&spell_halfus_dancing_flames::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+    }
 };
 
-class achievement_the_only_escape : public AchievementCriteriaScript
+class achievement_the_only_escape final : public AchievementCriteriaScript
 {
     public:
         achievement_the_only_escape() : AchievementCriteriaScript("achievement_the_only_escape") { }
@@ -825,14 +716,14 @@ class achievement_the_only_escape : public AchievementCriteriaScript
 
 void AddSC_boss_halfus_wyrmbreaker()
 {
-    new boss_halfus_wyrmbreaker();
-    new npc_halfus_proto_behemoth();
-    new npc_halfus_enslaved_dragon();
-    new go_halfus_whelp_cage();
-    new spell_halfus_bind_will();
-    new spell_halfus_fireball();
-    new spell_halfus_stone_touch();
-    new spell_halfus_cyclone_winds();
-    new spell_halfus_dancing_flames();
+    RegisterBastionOfTwilightCreatureAI(boss_halfus_wyrmbreaker);
+    RegisterBastionOfTwilightCreatureAI(npc_halfus_proto_behemoth);
+    RegisterBastionOfTwilightCreatureAI(npc_halfus_enslaved_dragon);
+    RegisterGameObjectAI(go_halfus_whelp_cage);
+    RegisterSpellScript(spell_halfus_bind_will);
+    RegisterSpellScript(spell_halfus_fireball);
+    RegisterSpellScript(spell_halfus_stone_touch);
+    RegisterSpellScript(spell_halfus_cyclone_winds);
+    RegisterSpellScript(spell_halfus_dancing_flames);
     new achievement_the_only_escape();
 }

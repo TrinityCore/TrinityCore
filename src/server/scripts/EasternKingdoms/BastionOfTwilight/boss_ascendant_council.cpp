@@ -313,1583 +313,1418 @@ Position const terrastraMiddlePosition  = { -1009.37f,  -583.4302f, 831.901f  };
 Position const feludiusMiddlePosition   = { -1007.965f, -583.4254f, 831.901f  };
 Position const ingaciousMiddlePosition  = { -1009.373f, -582.0148f, 831.9003f };
 
-class boss_ascendant_council_controller : public CreatureScript
+struct boss_ascendant_council_controller final : public BossAI
 {
-    public:
-        boss_ascendant_council_controller() : CreatureScript("boss_ascendant_council_controller") { }
+    boss_ascendant_council_controller(Creature* creature) : BossAI(creature, DATA_ASCENDANT_COUNCIL) { }
 
-        struct boss_ascendant_council_controllerAI : public BossAI
+    bool CanAIAttack(Unit const* /*victim*/) const override { return false; }
+
+    void Reset() override
+    {
+        if (instance->GetBossState(DATA_ASCENDANT_COUNCIL) != DONE)
         {
-            boss_ascendant_council_controllerAI(Creature* creature) : BossAI(creature, DATA_ASCENDANT_COUNCIL) { }
+            events.ScheduleEvent(EVENT_RESET_BOSS_STATE, 1ms);
+            events.SetPhase(PHASE_FELUDIUS_IGNACIOUS);
+        }
+    }
 
-            bool CanAIAttack(Unit const* /*victim*/) const override { return false; }
+    void DoAction(int32 action) override
+    {
+        switch (action)
+        {
+            case ACTION_START_ENCOUNTER:
+                if (instance->GetBossState(DATA_ASCENDANT_COUNCIL) == IN_PROGRESS)
+                    break;
 
-            void Reset() override
-            {
-                if (instance->GetBossState(DATA_ASCENDANT_COUNCIL) != DONE)
+                instance->SetBossState(DATA_ASCENDANT_COUNCIL, IN_PROGRESS);
+
+                if (Creature* feludius = instance->GetCreature(DATA_FELUDIUS))
                 {
-                    events.ScheduleEvent(EVENT_RESET_BOSS_STATE, Milliseconds(1));
-                    events.SetPhase(PHASE_FELUDIUS_IGNACIOUS);
+                    feludius->AI()->DoZoneInCombat();
+                    instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, feludius, 3);
                 }
-            }
 
-            void DoAction(int32 action) override
-            {
-                switch (action)
+                if (Creature* ignacious = instance->GetCreature(DATA_IGNACIOUS))
                 {
-                    case ACTION_START_ENCOUNTER:
-                        if (instance->GetBossState(DATA_ASCENDANT_COUNCIL) == IN_PROGRESS)
-                            break;
+                    ignacious->AI()->DoZoneInCombat();
+                    instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, ignacious, 4);
+                }
 
-                        instance->SetBossState(DATA_ASCENDANT_COUNCIL, IN_PROGRESS);
+                if (Creature* arion = instance->GetCreature(DATA_ARION))
+                {
+                    arion->SetInCombatWithZone();
+                    if (IsHeroic())
+                        arion->AI()->DoAction(ACTION_SCHEDULE_HEROIC_ABILITY);
+                }
 
+                if (Creature* terrastra = instance->GetCreature(DATA_TERRASTRA))
+                {
+                    terrastra->SetInCombatWithZone();
+                    if (IsHeroic())
+                        terrastra->AI()->DoAction(ACTION_SCHEDULE_HEROIC_ABILITY);
+                }
+
+                events.ScheduleEvent(EVENT_PREPARE_ULTIMATE_ABILITY, 15s, 0, PHASE_FELUDIUS_IGNACIOUS);
+
+                break;
+            case ACTION_STOP_ENCOUNTER:
+                if (Creature* feludius = instance->GetCreature(DATA_FELUDIUS))
+                {
+                    instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, feludius);
+                    feludius->AI()->DoAction(ACTION_DESPAWN);
+                }
+
+                if (Creature* ignacious = instance->GetCreature(DATA_IGNACIOUS))
+                {
+                    instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, ignacious);
+                    ignacious->AI()->DoAction(ACTION_DESPAWN);
+                }
+
+                if (Creature* arion = instance->GetCreature(DATA_ARION))
+                {
+                    instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, arion);
+                    arion->AI()->DoAction(ACTION_DESPAWN);
+                }
+
+                if (Creature* terrastra = instance->GetCreature(DATA_TERRASTRA))
+                {
+                    instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, terrastra);
+                    terrastra->AI()->DoAction(ACTION_DESPAWN);
+                }
+
+                if (Creature* elementiumMonstrosity = instance->GetCreature(DATA_ELEMENTIUM_MONSTROSITY))
+                {
+                    instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, elementiumMonstrosity);
+                    elementiumMonstrosity->DespawnOrUnsummon();
+                }
+
+                RemoveAurasFromPlayers();
+                instance->SetBossState(DATA_ASCENDANT_COUNCIL, FAIL);
+                events.Reset();
+                events.SetPhase(PHASE_FELUDIUS_IGNACIOUS);
+                events.ScheduleEvent(EVENT_RESET_BOSS_STATE, 30s);
+                break;
+            case ACTION_SWITCH_COUNCILLORS:
+                if (!events.IsInPhase(PHASE_ARION_TERRASTRA) && !events.IsInPhase(PHASE_ELEMENTIUM_MONSTROSITY))
+                {
+                    if (Creature* feludius = instance->GetCreature(DATA_FELUDIUS))
+                    {
+                        feludius->AI()->DoAction(ACTION_CHANGE_PLACES);
+                        if (IsHeroic())
+                            feludius->AI()->DoAction(ACTION_SCHEDULE_HEROIC_ABILITY);
+                    }
+
+                    if (Creature* ignacious = instance->GetCreature(DATA_IGNACIOUS))
+                    {
+                        ignacious->AI()->DoAction(ACTION_CHANGE_PLACES);
+                        if (IsHeroic())
+                            ignacious->AI()->DoAction(ACTION_SCHEDULE_HEROIC_ABILITY);
+                    }
+
+                    if (Creature* arion = instance->GetCreature(DATA_ARION))
+                        arion->AI()->DoAction(ACTION_CHANGE_PLACES);
+
+                    if (Creature* terrastra = instance->GetCreature(DATA_TERRASTRA))
+                        terrastra->AI()->DoAction(ACTION_CHANGE_PLACES);
+
+                    events.CancelEvent(EVENT_PREPARE_ULTIMATE_ABILITY);
+                    events.SetPhase(PHASE_ARION_TERRASTRA);
+                }
+                break;
+            case ACTION_UNITE_COUNCILLORS:
+                if (!events.IsInPhase(PHASE_ELEMENTIUM_MONSTROSITY))
+                {
+                    if (Creature* feludius = instance->GetCreature(DATA_FELUDIUS))
+                        feludius->AI()->DoAction(ACTION_PREPARE_FUSION);
+
+                    if (Creature* ignacious = instance->GetCreature(DATA_IGNACIOUS))
+                        ignacious->AI()->DoAction(ACTION_PREPARE_FUSION);
+
+                    if (Creature* arion = instance->GetCreature(DATA_ARION))
+                        arion->AI()->DoAction(ACTION_PREPARE_FUSION);
+
+                    if (Creature* terrastra = instance->GetCreature(DATA_TERRASTRA))
+                        terrastra->AI()->DoAction(ACTION_PREPARE_FUSION);
+
+                    events.ScheduleEvent(EVENT_SUMMON_ELEMENTIUM_MONSTROSITY, Seconds(14) + Milliseconds(500));
+                    events.SetPhase(PHASE_ELEMENTIUM_MONSTROSITY);
+                }
+                break;
+            case ACTION_FINISH_ENCOUNTER:
+                if (Creature* elementiumMonstrosity = instance->GetCreature(DATA_ELEMENTIUM_MONSTROSITY))
+                    instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, elementiumMonstrosity);
+
+                RemoveAurasFromPlayers();
+                instance->SetBossState(DATA_ASCENDANT_COUNCIL, DONE);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        events.Update(diff);
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_RESET_BOSS_STATE:
+                    instance->SetBossState(DATA_ASCENDANT_COUNCIL, NOT_STARTED);
+                    DoSummon(BOSS_FELUDIUS, feludiusSpawnPos);
+                    DoSummon(BOSS_IGNACIOUS, ignaciousSpawnPos);
+                    DoSummon(BOSS_ARION, arionSpawnPos);
+                    DoSummon(BOSS_TERRASTRA, terrastraSpawnPos);
+                    break;
+                case EVENT_SUMMON_ELEMENTIUM_MONSTROSITY:
+                    if (Creature* feludius = instance->GetCreature(DATA_FELUDIUS))
+                        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, feludius);
+
+                    if (Creature* ignacious = instance->GetCreature(DATA_IGNACIOUS))
+                        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, ignacious);
+
+                    if (Creature* arion = instance->GetCreature(DATA_ARION))
+                        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, arion);
+
+                    if (Creature* terrastra = instance->GetCreature(DATA_TERRASTRA))
+                        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, terrastra);
+
+                    if (SummonPropertiesEntry const* entry = sSummonPropertiesStore.LookupEntry(PROPERTY_DEFAULT))
+                        me->GetMap()->SummonCreature(BOSS_ELEMENTIUM_MONSTROSITY, me->GetPosition(), entry, 0, me);
+                    break;
+                case EVENT_PREPARE_ULTIMATE_ABILITY:
+                    if (events.IsInPhase(PHASE_FELUDIUS_IGNACIOUS))
+                    {
                         if (Creature* feludius = instance->GetCreature(DATA_FELUDIUS))
-                        {
-                            feludius->AI()->DoZoneInCombat();
-                            instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, feludius, 3);
-                        }
+                            feludius->AI()->DoAction(ACTION_PREPARE_ULTIMATE_ABILITY);
 
                         if (Creature* ignacious = instance->GetCreature(DATA_IGNACIOUS))
-                        {
-                            ignacious->AI()->DoZoneInCombat();
-                            instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, ignacious, 4);
-                        }
+                            ignacious->AI()->DoAction(ACTION_PREPARE_ULTIMATE_ABILITY);
 
-                        if (Creature* arion = instance->GetCreature(DATA_ARION))
-                        {
-                            arion->SetInCombatWithZone();
-                            if (IsHeroic())
-                                arion->AI()->DoAction(ACTION_SCHEDULE_HEROIC_ABILITY);
-                        }
-
-                        if (Creature* terrastra = instance->GetCreature(DATA_TERRASTRA))
-                        {
-                            terrastra->SetInCombatWithZone();
-                            if (IsHeroic())
-                                terrastra->AI()->DoAction(ACTION_SCHEDULE_HEROIC_ABILITY);
-                        }
-
-                        events.ScheduleEvent(EVENT_PREPARE_ULTIMATE_ABILITY, 15s, 0, PHASE_FELUDIUS_IGNACIOUS);
-
-                        break;
-                    case ACTION_STOP_ENCOUNTER:
-                        if (Creature* feludius = instance->GetCreature(DATA_FELUDIUS))
-                        {
-                            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, feludius);
-                            feludius->AI()->DoAction(ACTION_DESPAWN);
-                        }
-
-                        if (Creature* ignacious = instance->GetCreature(DATA_IGNACIOUS))
-                        {
-                            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, ignacious);
-                            ignacious->AI()->DoAction(ACTION_DESPAWN);
-                        }
-
-                        if (Creature* arion = instance->GetCreature(DATA_ARION))
-                        {
-                            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, arion);
-                            arion->AI()->DoAction(ACTION_DESPAWN);
-                        }
-
-                        if (Creature* terrastra = instance->GetCreature(DATA_TERRASTRA))
-                        {
-                            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, terrastra);
-                            terrastra->AI()->DoAction(ACTION_DESPAWN);
-                        }
-
-                        if (Creature* elementiumMonstrosity = instance->GetCreature(DATA_ELEMENTIUM_MONSTROSITY))
-                        {
-                            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, elementiumMonstrosity);
-                            elementiumMonstrosity->DespawnOrUnsummon();
-                        }
-
-                        RemoveAurasFromPlayers();
-                        instance->SetBossState(DATA_ASCENDANT_COUNCIL, FAIL);
-                        events.Reset();
-                        events.SetPhase(PHASE_FELUDIUS_IGNACIOUS);
-                        events.ScheduleEvent(EVENT_RESET_BOSS_STATE, 30s);
-                        break;
-                    case ACTION_SWITCH_COUNCILLORS:
-                        if (!events.IsInPhase(PHASE_ARION_TERRASTRA) && !events.IsInPhase(PHASE_ELEMENTIUM_MONSTROSITY))
-                        {
-                            if (Creature* feludius = instance->GetCreature(DATA_FELUDIUS))
-                            {
-                                feludius->AI()->DoAction(ACTION_CHANGE_PLACES);
-                                if (IsHeroic())
-                                    feludius->AI()->DoAction(ACTION_SCHEDULE_HEROIC_ABILITY);
-                            }
-
-                            if (Creature* ignacious = instance->GetCreature(DATA_IGNACIOUS))
-                            {
-                                ignacious->AI()->DoAction(ACTION_CHANGE_PLACES);
-                                if (IsHeroic())
-                                    ignacious->AI()->DoAction(ACTION_SCHEDULE_HEROIC_ABILITY);
-                            }
-
-                            if (Creature* arion = instance->GetCreature(DATA_ARION))
-                                arion->AI()->DoAction(ACTION_CHANGE_PLACES);
-
-                            if (Creature* terrastra = instance->GetCreature(DATA_TERRASTRA))
-                                terrastra->AI()->DoAction(ACTION_CHANGE_PLACES);
-
-                            events.CancelEvent(EVENT_PREPARE_ULTIMATE_ABILITY);
-                            events.SetPhase(PHASE_ARION_TERRASTRA);
-                        }
-                        break;
-                    case ACTION_UNITE_COUNCILLORS:
-                        if (!events.IsInPhase(PHASE_ELEMENTIUM_MONSTROSITY))
-                        {
-                            if (Creature* feludius = instance->GetCreature(DATA_FELUDIUS))
-                                feludius->AI()->DoAction(ACTION_PREPARE_FUSION);
-
-                            if (Creature* ignacious = instance->GetCreature(DATA_IGNACIOUS))
-                                ignacious->AI()->DoAction(ACTION_PREPARE_FUSION);
-
-                            if (Creature* arion = instance->GetCreature(DATA_ARION))
-                                arion->AI()->DoAction(ACTION_PREPARE_FUSION);
-
-                            if (Creature* terrastra = instance->GetCreature(DATA_TERRASTRA))
-                                terrastra->AI()->DoAction(ACTION_PREPARE_FUSION);
-
-                            events.ScheduleEvent(EVENT_SUMMON_ELEMENTIUM_MONSTROSITY, Seconds(14) + Milliseconds(500));
-                            events.SetPhase(PHASE_ELEMENTIUM_MONSTROSITY);
-                        }
-                        break;
-                    case ACTION_FINISH_ENCOUNTER:
-                        if (Creature* elementiumMonstrosity = instance->GetCreature(DATA_ELEMENTIUM_MONSTROSITY))
-                            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, elementiumMonstrosity);
-
-                        RemoveAurasFromPlayers();
-                        instance->SetBossState(DATA_ASCENDANT_COUNCIL, DONE);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                events.Update(diff);
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_RESET_BOSS_STATE:
-                            instance->SetBossState(DATA_ASCENDANT_COUNCIL, NOT_STARTED);
-                            DoSummon(BOSS_FELUDIUS, feludiusSpawnPos);
-                            DoSummon(BOSS_IGNACIOUS, ignaciousSpawnPos);
-                            DoSummon(BOSS_ARION, arionSpawnPos);
-                            DoSummon(BOSS_TERRASTRA, terrastraSpawnPos);
-                            break;
-                        case EVENT_SUMMON_ELEMENTIUM_MONSTROSITY:
-                            if (Creature* feludius = instance->GetCreature(DATA_FELUDIUS))
-                                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, feludius);
-
-                            if (Creature* ignacious = instance->GetCreature(DATA_IGNACIOUS))
-                                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, ignacious);
-
-                            if (Creature* arion = instance->GetCreature(DATA_ARION))
-                                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, arion);
-
-                            if (Creature* terrastra = instance->GetCreature(DATA_TERRASTRA))
-                                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, terrastra);
-
-                            if (SummonPropertiesEntry const* entry = sSummonPropertiesStore.LookupEntry(PROPERTY_DEFAULT))
-                                me->GetMap()->SummonCreature(BOSS_ELEMENTIUM_MONSTROSITY, me->GetPosition(), entry, 0, me);
-                            break;
-                        case EVENT_PREPARE_ULTIMATE_ABILITY:
-                            if (events.IsInPhase(PHASE_FELUDIUS_IGNACIOUS))
-                            {
-                                if (Creature* feludius = instance->GetCreature(DATA_FELUDIUS))
-                                    feludius->AI()->DoAction(ACTION_PREPARE_ULTIMATE_ABILITY);
-
-                                if (Creature* ignacious = instance->GetCreature(DATA_IGNACIOUS))
-                                    ignacious->AI()->DoAction(ACTION_PREPARE_ULTIMATE_ABILITY);
-
-                                events.Repeat(30s);
-                            }
-                            break;
-                        default:
-                            break;
+                        events.Repeat(30s);
                     }
-                }
-
-                DoMeleeAttackIfReady();
+                    break;
+                default:
+                    break;
             }
-
-        private:
-            void RemoveAurasFromPlayers()
-            {
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_STATIC_OVERLOAD);
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GRAVITY_CORE);
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SWIRLING_WINDS);
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GROUNDED);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetBastionOfTwilightAI<boss_ascendant_council_controllerAI>(creature);
         }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    void RemoveAurasFromPlayers()
+    {
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_STATIC_OVERLOAD);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GRAVITY_CORE);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SWIRLING_WINDS);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GROUNDED);
+    }
 };
 
-class npc_feludius : public CreatureScript
+struct npc_feludius final : public ScriptedAI
 {
-    public:
-        npc_feludius() : CreatureScript("npc_feludius") { }
+    npc_feludius(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _summons(me) {}
 
-        struct npc_feludiusAI : public ScriptedAI
+    void Reset() override
+    {
+        me->MakeInterruptable(false);
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
+            controller->AI()->DoAction(ACTION_START_ENCOUNTER);
+
+        Talk(SAY_ENGAGE);
+        _events.ScheduleEvent(EVENT_HEART_OF_ICE, 15s + 500ms);
+        _events.ScheduleEvent(EVENT_HYDRO_LANCE, 8s + 500ms);
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
+            controller->AI()->DoAction(ACTION_STOP_ENCOUNTER);
+    }
+
+    void KilledUnit(Unit* who) override
+    {
+        if (who->GetTypeId() == TYPEID_PLAYER)
+            Talk(SAY_SLAY);
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        _summons.Summon(summon);
+    }
+
+    void DamageTaken(Unit* attacker, uint32& damage) override
+    {
+        if (attacker->HasAura(SPELL_FLAME_IMBUED))
+            damage *= 2;
+
+        if (me->HealthBelowPctDamaged(25, damage))
+            if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
+                controller->AI()->DoAction(ACTION_SWITCH_COUNCILLORS);
+
+        // Do not allow to kill any of the councillors
+        if (damage >= me->GetHealth())
+            damage = me->GetHealth() - 1;
+    }
+
+    void DoAction(int32 action) override
+    {
+        switch (action)
         {
-            npc_feludiusAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _summons(me) { }
-
-            void Reset() override
-            {
-                me->MakeInterruptable(false);
-            }
-
-            void JustEngagedWith(Unit* /*who*/) override
-            {
-                if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
-                    controller->AI()->DoAction(ACTION_START_ENCOUNTER);
-
-                Talk(SAY_ENGAGE);
-                _events.ScheduleEvent(EVENT_HEART_OF_ICE, 15s + 500ms);
-                _events.ScheduleEvent(EVENT_HYDRO_LANCE, 8s + 500ms);
-            }
-
-            void EnterEvadeMode(EvadeReason /*why*/) override
-            {
-                if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
-                    controller->AI()->DoAction(ACTION_STOP_ENCOUNTER);
-            }
-
-            void KilledUnit(Unit* who) override
-            {
-                if (who->GetTypeId() == TYPEID_PLAYER)
-                    Talk(SAY_SLAY);
-            }
-
-            void JustSummoned(Creature* summon) override
-            {
-                _summons.Summon(summon);
-            }
-
-            void DamageTaken(Unit* attacker, uint32& damage) override
-            {
-                if (attacker->HasAura(SPELL_FLAME_IMBUED))
-                    damage *= 2;
-
-                if (me->HealthBelowPctDamaged(25, damage))
-                    if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
-                        controller->AI()->DoAction(ACTION_SWITCH_COUNCILLORS);
-
-                // Do not allow to kill any of the councillors
-                if (damage >= me->GetHealth())
-                    damage = me->GetHealth() - 1;
-            }
-
-            void DoAction(int32 action) override
-            {
-                switch (action)
-                {
-                    case ACTION_CHANGE_PLACES:
-                        _events.Reset();
-                        me->AttackStop();
-                        me->SetReactState(REACT_PASSIVE);
-                        me->CastStop();
-                        _events.ScheduleEvent(EVENT_EXPLOSION_DND, 2s + 700ms);
-                        break;
-                    case ACTION_PREPARE_FUSION:
-                        _events.Reset();
-                        me->SetWalk(true);
-                        me->CastStop();
-                        _summons.DespawnAll();
-                        _events.ScheduleEvent(EVENT_TELEPORT_PREPARE_FUSION, 1s + 200ms);
-                        break;
-                    case ACTION_SCHEDULE_HEROIC_ABILITY:
-                        _events.ScheduleEvent(EVENT_FROZEN_ORB, 24s);
-                        break;
-                    case ACTION_PREPARE_ULTIMATE_ABILITY:
-                        _events.ScheduleEvent(EVENT_WATER_BOMB, 2s);
-                        _events.ScheduleEvent(EVENT_GLACIATE, 15s);
-                        break;
-                    case ACTION_DESPAWN:
-                        _summons.DespawnAll();
-                        me->DespawnOrUnsummon();
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason /*reason*/) override
-            {
-                if (spell->Id == SPELL_HYDRO_LANCE)
-                    me->MakeInterruptable(false);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                _events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_GLACIATE:
-                            Talk(SAY_ABILITY);
-                            Talk(SAY_ANNOUNCE_ABILITY);
-                            DoCastAOE(SPELL_GLACIATE);
-                            break;
-                        case EVENT_HEART_OF_ICE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
-                                DoCast(target, SPELL_HEART_OF_ICE);
-                            _events.Repeat(24s);
-                            break;
-                        case EVENT_WATER_BOMB:
-                            DoCastAOE(SPELL_WATER_BOMB_AOE, true);
-                            DoCastAOE(SPELL_WATER_BOMB);
-                            break;
-                        case EVENT_HYDRO_LANCE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
-                            {
-                                me->MakeInterruptable(true);
-                                DoCast(target, SPELL_HYDRO_LANCE);
-                            }
-                            _events.Repeat(13s);
-                            break;
-                        case EVENT_EXPLOSION_DND:
-                            DoCastSelf(SPELL_FROST_EXPLOSION_DND);
-                            _events.ScheduleEvent(EVENT_SWITCH_POSITIONS, 1s + 200ms);
-                            break;
-                        case EVENT_SWITCH_POSITIONS:
-                            DoCastSelf(SPELL_TELEPORT_RIGHT_BALCONY);
-                            DoCastSelf(SPELL_CLEAR_ALL_DEBUFFS);
-                            break;
-                        case EVENT_TELEPORT_PREPARE_FUSION:
-                            DoCastSelf(SPELL_TELEPORT_WATER);
-                            _events.ScheduleEvent(EVENT_FACE_CONTROLLER, 100ms);
-                            _events.ScheduleEvent(EVENT_MOVE_TO_MIDDLE, 6s + 300ms);
-                            break;
-                        case EVENT_FACE_CONTROLLER:
-                            if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
-                                me->SetFacingToObject(controller);
-                            break;
-                        case EVENT_MOVE_TO_MIDDLE:
-                            Talk(SAY_FUSION);
-                            me->GetMotionMaster()->MovePoint(POINT_NONE, feludiusMiddlePosition, true);
-                            break;
-                        case EVENT_FROZEN_ORB:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                                DoCast(target, SPELL_FROZEN_ORB);
-                            _events.Repeat(20s);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            EventMap _events;
-            InstanceScript* _instance;
-            SummonList _summons;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetBastionOfTwilightAI<npc_feludiusAI>(creature);
-        }
-};
-
-class npc_ignacious : public CreatureScript
-{
-    public:
-        npc_ignacious() : CreatureScript("npc_ignacious") { }
-
-        struct npc_ignaciousAI : public ScriptedAI
-        {
-            npc_ignaciousAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _summons(me) { }
-
-            void Reset() override
-            {
-                me->MakeInterruptable(false);
-            }
-
-            void JustEngagedWith(Unit* /*who*/) override
-            {
-                if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
-                    controller->AI()->DoAction(ACTION_START_ENCOUNTER);
-
-                _events.ScheduleEvent(EVENT_TALK_ENGAGE, 5s);
-                _events.ScheduleEvent(EVENT_FLAME_TORRENT, 8s + 500ms);
-                _events.ScheduleEvent(EVENT_BURNING_BLOOD, 30s);
-            }
-
-            void EnterEvadeMode(EvadeReason /*why*/) override
-            {
-                if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
-                    controller->AI()->DoAction(ACTION_STOP_ENCOUNTER);
-            }
-
-            void KilledUnit(Unit* who) override
-            {
-                if (who->GetTypeId() == TYPEID_PLAYER)
-                    Talk(SAY_SLAY);
-            }
-
-            void JustSummoned(Creature* summon) override
-            {
-                _summons.Summon(summon);
-
-                if (summon->GetEntry() == NPC_INFERNO_RUSH)
-                    _infernoRushGUIDs.push_back(summon->GetGUID());
-            }
-
-            void DamageTaken(Unit* attacker, uint32& damage) override
-            {
-                if (attacker->HasAura(SPELL_FROST_IMBUED))
-                    damage *= 2;
-
-                if (me->HealthBelowPctDamaged(25, damage))
-                    if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
-                        controller->AI()->DoAction(ACTION_SWITCH_COUNCILLORS);
-
-                // Do not allow to kill any of the councillors
-                if (damage >= me->GetHealth())
-                    damage = me->GetHealth() - 1;
-            }
-
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
-            {
-                if (spell->Id == SPELL_AEGIS_OF_FLAME)
-                    Talk(SAY_ABILITY);
-            }
-
-            void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason reason) override
-            {
-                if (spell->Id == SPELL_RISING_FLAMES && (reason == SPELL_FINISHED_CANCELED || reason == SPELL_FINISHED_CHANNELING_COMPLETE))
-                    me->MakeInterruptable(false);
-            }
-
-            void DoAction(int32 action) override
-            {
-                switch (action)
-                {
-                    case ACTION_CAST_INFERNO_RUSH:
-                    {
-                        Unit* target = me->GetVictim();
-
-                        if (Unit* previousVictim = ObjectAccessor::GetUnit(*me, _lastVictimGuid))
-                            target = previousVictim;
-
-                        if (target)
-                        {
-                            _infernoRushGUIDs.clear();
-                            float distance = me->GetDistance(target);
-                            float angle = me->GetAngle(target);
-                            Position pos = me->GetPosition();
-
-                            if (distance > 6.0f)
-                            {
-                                for (uint32 i = 6; i < uint32(distance); i += 6)
-                                {
-                                    float x = pos.GetPositionX() + cos(angle) * i;
-                                    float y = pos.GetPositionY() + sin(angle) * i;
-                                    float z = pos.GetPositionZ();
-                                    float floor = me->GetMapHeight(x, y, z);
-                                    me->CastSpell({ x, y, floor }, SPELL_INFERNO_RUSH_SUMMON, true);
-                                }
-                            }
-
-                            DoCast(target, SPELL_INFERNO_RUSH, true);
-                            _events.ScheduleEvent(EVENT_IGNITE_INFERNO_RUSH, 2s);
-                        }
-                        break;
-                    }
-                    case ACTION_CHANGE_PLACES:
-                        _events.Reset();
-                        me->AttackStop();
-                        me->SetReactState(REACT_PASSIVE);
-                        me->CastStop();
-                        _events.ScheduleEvent(EVENT_EXPLOSION_DND, 2s + 700ms);
-                        break;
-                    case ACTION_PREPARE_FUSION:
-                        _events.Reset();
-                        me->SetWalk(true);
-                        me->CastStop();
-                        _summons.DespawnAll();
-                        _events.ScheduleEvent(EVENT_TELEPORT_PREPARE_FUSION, 1s + 200ms);
-                        break;
-                    case ACTION_SCHEDULE_HEROIC_ABILITY:
-                        _events.ScheduleEvent(EVENT_FLAME_STRIKE, 32s);
-                        break;
-                    case ACTION_PREPARE_ULTIMATE_ABILITY:
-                        _events.ScheduleEvent(EVENT_INFERNO_LEAP, 500ms);
-                        _events.ScheduleEvent(EVENT_AEGIS_OF_FLAME, 16s + 500ms);
-                        if (Aura* aura = me->GetAura(SPELL_RISING_FLAMES))
-                            if (int32(_events.GetTimeUntilEvent(EVENT_FLAME_TORRENT)) < aura->GetDuration())
-                                _events.RescheduleEvent(EVENT_FLAME_TORRENT, aura->GetDuration() + 1000);
-                        break;
-                    case ACTION_DESPAWN:
-                        _summons.DespawnAll();
-                        me->DespawnOrUnsummon();
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                _events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_TALK_ENGAGE:
-                            Talk(SAY_ENGAGE);
-                            break;
-                        case EVENT_AEGIS_OF_FLAME:
-                            // Making sure that Ignacious has finished his Inferno Leap
-                            if (me->GetReactState() == REACT_PASSIVE)
-                            {
-                                _events.Repeat(1s);
-                                break;
-                            }
-
-                            if (SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
-                            {
-                                me->MakeInterruptable(true);
-                                DoCastSelf(SPELL_AEGIS_OF_FLAME);
-                                _events.ScheduleEvent(EVENT_RISING_FLAMES, 3s + 500ms);
-                            }
-                            break;
-                        case EVENT_RISING_FLAMES:
-                            Talk(SAY_ANNOUNCE_ABILITY);
-                            me->StopMoving();
-                            DoCastSelf(SPELL_RISING_FLAMES);
-                            break;
-                        case EVENT_FLAME_TORRENT:
-                            if (_events.GetTimeUntilEvent(EVENT_AEGIS_OF_FLAME) < 3000 || _events.GetTimeUntilEvent(EVENT_RISING_FLAMES) < 3500
-                                || me->GetSpellHistory()->HasCooldown(SPELL_FLAME_TORRENT) || me->HasReactState(REACT_PASSIVE))
-                            {
-                                _events.Repeat(1s);
-                                break;
-                            }
-
-                            me->StopMoving();
-                            DoCastSelf(SPELL_FLAME_TORRENT);
-                            _events.Repeat(10s);
-                            break;
-                        case EVENT_BURNING_BLOOD:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
-                                DoCast(target, SPELL_BURNING_BLOOD);
-                            _events.Repeat(21s);
-                            break;
-                        case EVENT_INFERNO_LEAP:
-                            if (me->GetSpellHistory()->HasCooldown(SPELL_INFERNO_LEAP))
-                            {
-                                _events.Repeat(1s);
-                                break;
-                            }
-
-                            if (Unit* target = SelectTarget(SELECT_TARGET_MAXDISTANCE, 0, 60.0f, true))
-                            {
-                                if (Unit* victim = me->GetVictim())
-                                    _lastVictimGuid = victim->GetGUID();
-
-                                me->AttackStop();
-                                me->SetReactState(REACT_PASSIVE);
-                                DoCast(target, SPELL_INFERNO_LEAP);
-                            }
-                            break;
-                        case EVENT_IGNITE_INFERNO_RUSH:
-                            for (ObjectGuid guid : _infernoRushGUIDs)
-                                if (Creature* infernoRush = ObjectAccessor::GetCreature(*me, guid))
-                                    infernoRush->CastSpell(infernoRush, SPELL_INFERNO_RUSH_AURA);
-
-                            me->SetReactState(REACT_AGGRESSIVE);
-                            break;
-                        case EVENT_EXPLOSION_DND:
-                            DoCastSelf(SPELL_FIRE_EXPLOSION_DND);
-                            _events.ScheduleEvent(EVENT_SWITCH_POSITIONS, 1s + 200ms);
-                            break;
-                        case EVENT_SWITCH_POSITIONS:
-                            DoCastSelf(SPELL_TELEPORT_LEFT_BALCONY);
-                            DoCastSelf(SPELL_CLEAR_ALL_DEBUFFS);
-                            break;
-                        case EVENT_TELEPORT_PREPARE_FUSION:
-                            DoCastSelf(SPELL_TELEPORT_FIRE);
-                            _events.ScheduleEvent(EVENT_FACE_CONTROLLER, 100ms);
-                            _events.ScheduleEvent(EVENT_MOVE_TO_MIDDLE, 9s + 900ms);
-                            break;
-                        case EVENT_FACE_CONTROLLER:
-                            if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
-                                me->SetFacingToObject(controller);
-                            break;
-                        case EVENT_MOVE_TO_MIDDLE:
-                            Talk(SAY_FUSION);
-                            me->GetMotionMaster()->MovePoint(POINT_NONE, feludiusMiddlePosition, true);
-                            break;
-                        case EVENT_FLAME_STRIKE:
-                            DoCastAOE(SPELL_FLAME_STRIKE_TARGETING, true);
-                            _events.Repeat(20s);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            EventMap _events;
-            InstanceScript* _instance;
-            SummonList _summons;
-            ObjectGuid _lastVictimGuid;
-            GuidVector _infernoRushGUIDs;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetBastionOfTwilightAI<npc_ignaciousAI>(creature);
-        }
-};
-
-class npc_arion : public CreatureScript
-{
-    public:
-        npc_arion() : CreatureScript("npc_arion") { }
-
-        struct npc_arionAI : public ScriptedAI
-        {
-            npc_arionAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _summons(me) { }
-
-            void Reset() override
-            {
+            case ACTION_CHANGE_PLACES:
+                _events.Reset();
+                me->AttackStop();
                 me->SetReactState(REACT_PASSIVE);
-                me->MakeInterruptable(false);
-                _events.SetPhase(PHASE_FELUDIUS_IGNACIOUS);
-            }
-
-            void EnterEvadeMode(EvadeReason /*why*/) override
-            {
-                if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
-                    controller->AI()->DoAction(ACTION_STOP_ENCOUNTER);
-            }
-
-            void KilledUnit(Unit* who) override
-            {
-                if (who->GetTypeId() == TYPEID_PLAYER)
-                    Talk(SAY_SLAY);
-            }
-
-            void JustSummoned(Creature* summon) override
-            {
-                _summons.Summon(summon);
-            }
-
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
-            {
-                if (me->HealthBelowPctDamaged(25, damage))
-                    if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
-                        controller->AI()->DoAction(ACTION_UNITE_COUNCILLORS);
-
-                // Do not allow to kill any of the councillors
-                if (damage >= me->GetHealth())
-                    damage = me->GetHealth() - 1;
-            }
-
-            void DoAction(int32 action) override
-            {
-                switch (action)
-                {
-                    case ACTION_CHANGE_PLACES:
-                        _events.CancelEvent(EVENT_STATIC_OVERLOAD);
-                        _events.ScheduleEvent(EVENT_TALK_ENGAGE, 1ms);
-                        _events.ScheduleEvent(EVENT_SWITCH_POSITIONS, 3s);
-                        break;
-                    case ACTION_CAST_LIGHTNING_BLAST:
-                        _events.ScheduleEvent(EVENT_LIGHTNING_BLAST, 2s);
-                        break;
-                    case ACTION_PREPARE_FUSION:
-                        _events.Reset();
-                        me->AttackStop();
-                        me->SetReactState(REACT_PASSIVE);
-                        me->CastStop();
-                        me->SetWalk(true);
-                        _summons.DespawnAll();
-                        DoCastSelf(SPELL_CLEAR_ALL_DEBUFFS);
-                        _events.ScheduleEvent(EVENT_TELEPORT_PREPARE_FUSION, 1s + 200ms);
-                        break;
-                    case ACTION_SCHEDULE_HEROIC_ABILITY:
-                        _events.ScheduleEvent(EVENT_STATIC_OVERLOAD, 19s + 700ms);
-                        break;
-                    case ACTION_DESPAWN:
-                        _summons.DespawnAll();
-                        me->DespawnOrUnsummon();
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason /*reason*/) override
-            {
-                if (spell->Id == SPELL_LIGHTNING_BLAST)
-                    me->MakeInterruptable(false);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim() && !_events.IsInPhase(PHASE_FELUDIUS_IGNACIOUS))
-                    return;
-
-                _events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_TALK_ENGAGE:
-                            Talk(SAY_ENGAGE);
-                            break;
-                        case EVENT_SWITCH_POSITIONS:
-                            _instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 2);
-                            DoCastSelf(SPELL_TELEPORT_LEFT_FLOOR);
-                            _events.ScheduleEvent(EVENT_ATTACK_PLAYERS, 100ms);
-                            break;
-                        case EVENT_ATTACK_PLAYERS:
-                            _events.SetPhase(PHASE_ARION_TERRASTRA);
-                            _events.ScheduleEvent(EVENT_CALL_WINDS, 9s + 300ms);
-                            _events.ScheduleEvent(EVENT_THUNDERSHOCK_PRE_WARNING, 55s + 700ms);
-                            _events.ScheduleEvent(EVENT_LIGHTNING_ROD, 17s + 900ms);
-                            _events.ScheduleEvent(EVENT_DISPERSE, 20s + 500ms);
-                            me->SetReactState(REACT_AGGRESSIVE);
-                            DoZoneInCombat();
-                            break;
-                        case EVENT_CALL_WINDS:
-                            Talk(SAY_ABILITY);
-                            DoCastSelf(SPELL_CALL_WINDS);
-                            _events.Repeat(31s + 500ms);
-                            break;
-                        case EVENT_THUNDERSHOCK:
-                            Talk(SAY_ANNOUNCE_ABILITY);
-                            DoCastAOE(SPELL_THUNDERSHOCK);
-                            break;
-                        case EVENT_THUNDERSHOCK_PRE_WARNING:
-                            if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
-                                controller->AI()->Talk(SAY_ANNOUNCE_THUNDERSHOCK_WARNING);
-                            _events.Repeat(1min);
-                            _events.ScheduleEvent(EVENT_THUNDERSHOCK, 10s);
-                            break;
-                        case EVENT_LIGHTNING_ROD:
-                            DoCastAOE(SPELL_LIGHTNING_ROD);
-                            _events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 8s, 10s);
-                            _events.Repeat(19s + 400ms);
-                            break;
-                        case EVENT_CHAIN_LIGHTNING:
-                            DoCastAOE(SPELL_CHAIN_LIGHTNING_TARGETING);
-                            break;
-                        case EVENT_DISPERSE:
-                            me->AttackStop();
-                            me->SetReactState(REACT_PASSIVE);
-                            DoCastAOE(SPELL_DISPERSE);
-                            _events.Repeat(24s);
-                            break;
-                        case EVENT_LIGHTNING_BLAST:
-                            me->SetReactState(REACT_AGGRESSIVE);
-                            if (Unit* victim = me->GetVictim())
-                                AttackStart(victim);
-
-                            me->MakeInterruptable(true);
-                            DoCastAOE(SPELL_LIGHTNING_BLAST);
-                            break;
-                        case EVENT_TELEPORT_PREPARE_FUSION:
-                            DoCastSelf(SPELL_TELEPORT_AIR);
-                            _events.ScheduleEvent(EVENT_FACE_CONTROLLER, 100ms);
-                            _events.ScheduleEvent(EVENT_MOVE_TO_MIDDLE, 200ms);
-                            break;
-                        case EVENT_FACE_CONTROLLER:
-                            if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
-                                me->SetFacingToObject(controller);
-                            break;
-                        case EVENT_MOVE_TO_MIDDLE:
-                            Talk(SAY_FUSION);
-                            me->GetMotionMaster()->MovePoint(POINT_NONE, feludiusMiddlePosition, true);
-                            break;
-                        case EVENT_STATIC_OVERLOAD:
-                            DoCastAOE(SPELL_STATIC_OVERLOAD, true);
-                            _events.Repeat(20s);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            EventMap _events;
-            InstanceScript* _instance;
-            SummonList _summons;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetBastionOfTwilightAI<npc_arionAI>(creature);
-        }
-};
-
-class npc_terrastra : public CreatureScript
-{
-    public:
-        npc_terrastra() : CreatureScript("npc_terrastra") { }
-
-        struct npc_terrastraAI : public ScriptedAI
-        {
-            npc_terrastraAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _summons(me) { }
-
-            void Reset() override
-            {
-                me->SetReactState(REACT_PASSIVE);
-                _events.SetPhase(PHASE_FELUDIUS_IGNACIOUS);
-            }
-
-            void EnterEvadeMode(EvadeReason /*why*/) override
-            {
-                if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
-                    controller->AI()->DoAction(ACTION_STOP_ENCOUNTER);
-            }
-
-            void KilledUnit(Unit* who) override
-            {
-                if (who->GetTypeId() == TYPEID_PLAYER)
-                    Talk(SAY_SLAY);
-            }
-
-            void JustSummoned(Creature* summon) override
-            {
-                _summons.Summon(summon);
-            }
-
-            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
-            {
-                if (me->HealthBelowPctDamaged(25, damage))
-                    if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
-                        controller->AI()->DoAction(ACTION_UNITE_COUNCILLORS);
-
-                // Do not allow to kill any of the councillors
-                if (damage >= me->GetHealth())
-                    damage = me->GetHealth() - 1;
-            }
-
-            void DoAction(int32 action) override
-            {
-                switch (action)
-                {
-                    case ACTION_CHANGE_PLACES:
-                        _events.CancelEvent(EVENT_GRAVITY_CORE);
-                        _events.ScheduleEvent(EVENT_TALK_ENGAGE, 3s + 100ms);
-                        _events.ScheduleEvent(EVENT_SWITCH_POSITIONS, 3s);
-                        break;
-                    case ACTION_PREPARE_FUSION:
-                        _events.Reset();
-                        me->AttackStop();
-                        me->SetReactState(REACT_PASSIVE);
-                        me->CastStop();
-                        me->SetWalk(true);
-                        _summons.DespawnAll();
-                        DoCastAOE(SPELL_ELEMENTAL_STASIS);
-                        DoCastSelf(SPELL_CLEAR_ALL_DEBUFFS);
-                        _events.ScheduleEvent(EVENT_TELEPORT_PREPARE_FUSION, 1s + 200ms);
-                        break;
-                    case ACTION_SCHEDULE_HEROIC_ABILITY:
-                        _events.ScheduleEvent(EVENT_GRAVITY_CORE, 22s + 700ms);
-                        break;
-                    case ACTION_DESPAWN:
-                        _summons.DespawnAll();
-                        me->DespawnOrUnsummon();
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim() && !_events.IsInPhase(PHASE_FELUDIUS_IGNACIOUS))
-                    return;
-
-                _events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_TALK_ENGAGE:
-                            Talk(SAY_ENGAGE);
-                            break;
-                        case EVENT_SWITCH_POSITIONS:
-                            _instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 2);
-                            DoCastSelf(SPELL_TELEPORT_RIGHT_FLOOR);
-                            _events.ScheduleEvent(EVENT_ATTACK_PLAYERS, 100ms);
-                            break;
-                        case EVENT_ATTACK_PLAYERS:
-                            _events.SetPhase(PHASE_ARION_TERRASTRA);
-                            _events.ScheduleEvent(EVENT_GRAVITY_WELL, 6s + 900ms);
-                            _events.ScheduleEvent(EVENT_HARDEN_SKIN, 22s + 700ms);
-                            _events.ScheduleEvent(EVENT_QUAKE_PRE_WARNING, 19s + 200ms);
-                            _events.ScheduleEvent(EVENT_QUAKE, 27s + 500ms);
-                            _events.ScheduleEvent(EVENT_ERUPTION, 9s + 300ms);
-                            me->SetReactState(REACT_AGGRESSIVE);
-                            DoZoneInCombat();
-                            break;
-                        case EVENT_GRAVITY_WELL:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                                DoCast(target, SPELL_GRAVITY_WELL);
-                            _events.Repeat(17s);
-                            break;
-                        case EVENT_HARDEN_SKIN:
-                            DoCastSelf(SPELL_HARDEN_SKIN);
-                            _events.Repeat(43s + 800ms);
-                            break;
-                        case EVENT_QUAKE:
-                            Talk(SAY_ANNOUNCE_ABILITY);
-                            Talk(SAY_ABILITY);
-                            DoCastAOE(SPELL_QUAKE);
-                            _events.Repeat(1min + 8s);
-                            _events.ScheduleEvent(EVENT_QUAKE_PRE_WARNING, 59s + 700ms);
-                            break;
-                        case EVENT_QUAKE_PRE_WARNING:
-                            if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
-                                controller->AI()->Talk(SAY_ANNOUNCE_QUAKE_WARNING);
-                            break;
-                        case EVENT_ERUPTION:
-                            DoCastSelf(SPELL_ERUPTION_DUMMY);
-                            _events.Repeat(17s);
-                            break;
-                        case EVENT_TELEPORT_PREPARE_FUSION:
-                            DoCastSelf(SPELL_TELEPORT_EARTH);
-                            _events.ScheduleEvent(EVENT_FACE_CONTROLLER, 200ms);
-                            _events.ScheduleEvent(EVENT_MOVE_TO_MIDDLE, 3s + 900ms);
-                            break;
-                        case EVENT_FACE_CONTROLLER:
-                            if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
-                                me->SetFacingToObject(controller);
-                            break;
-                        case EVENT_MOVE_TO_MIDDLE:
-                            Talk(SAY_FUSION);
-                            me->GetMotionMaster()->MovePoint(POINT_NONE, feludiusMiddlePosition, true);
-                            break;
-                        case EVENT_GRAVITY_CORE:
-                            DoCastAOE(SPELL_GRAVITY_CORE, true);
-                            _events.Repeat(20s);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            EventMap _events;
-            InstanceScript* _instance;
-            SummonList _summons;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetBastionOfTwilightAI<npc_terrastraAI>(creature);
-        }
-};
-
-class npc_elementium_monstrosity : public CreatureScript
-{
-    public:
-        npc_elementium_monstrosity() : CreatureScript("npc_elementium_monstrosity") { }
-
-        struct npc_elementium_monstrosityAI : public ScriptedAI
-        {
-            npc_elementium_monstrosityAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _summons(me)
-            {
-                Initialize();
-            }
-
-            void Initialize()
-            {
-                _mergedHealth = 0;
-                _mergedTargets = 0;
-                _liquidIceCount = 0;
-                _achievementEnligible = true;
-                me->SetReactState(REACT_PASSIVE);
-            }
-
-            void EnterEvadeMode(EvadeReason /*why*/) override
-            {
-                _summons.DespawnAll();
-                if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
-                    controller->AI()->DoAction(ACTION_STOP_ENCOUNTER);
-            }
-
-            void IsSummonedBy(Unit* /*summoner*/) override
-            {
-                DoZoneInCombat();
-                DoCastSelf(SPELL_TWILIGHT_EXPLOSION_DND);
-                DoCastSelf(SPELL_MERGE_HEALTH);
-                Talk(SAY_SUMMONED);
-                _events.SetPhase(PHASE_INTRO);
-                _events.ScheduleEvent(EVENT_APPLY_PERIODIC_EFFECTS, 1s + 500ms);
-                _events.ScheduleEvent(EVENT_ATTACK_PLAYERS, 3s + 800ms);
-                _events.ScheduleEvent(EVENT_LAVA_SEED, 19s + 700ms);
-                _events.ScheduleEvent(EVENT_GRAVITY_CRUSH, 32s + 900ms);
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
-                    controller->AI()->DoAction(ACTION_FINISH_ENCOUNTER);
-
-                _summons.DespawnAll();
-                Talk(SAY_DEATH);
-            }
-
-            void KilledUnit(Unit* who) override
-            {
-                if (who->GetTypeId() == TYPEID_PLAYER)
-                    Talk(SAY_SLAY);
-            }
-
-            void JustSummoned(Creature* summon) override
-            {
-                _summons.Summon(summon);
-
-                if (summon->GetEntry() == NPC_LIQUID_ICE)
-                {
-                    _liquidIceCount++;
-                    if (_liquidIceCount == 2)
-                        _achievementEnligible = false;
-                }
-            }
-
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
-            {
-                if (spell->Id == SPELL_MERGE_HEALTH)
-                {
-                    _mergedHealth += target->GetHealth();
-                    _mergedTargets++;
-
-                    if (Creature* creature = target->ToCreature())
-                        creature->DespawnOrUnsummon();
-
-                    if (_mergedTargets == 4)
-                    {
-                        me->SetHealth(_mergedHealth);
-                        _instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
-                    }
-                }
-            }
-
-            uint32 GetData(uint32 type) const override
-            {
-                if (type == DATA_ELEMENTARY)
-                    return _achievementEnligible;
-
-                return 0;
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim() && !_events.IsInPhase(PHASE_INTRO))
-                    return;
-
-                _events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_ATTACK_PLAYERS:
-                            me->SetReactState(REACT_AGGRESSIVE);
-                            break;
-                        case EVENT_APPLY_PERIODIC_EFFECTS:
-                            DoCastSelf(SPELL_ELECTRIC_INSTABILITY);
-                            DoCastSelf(SPELL_CRYOGENIC_AURA);
-                            break;
-                        case EVENT_LAVA_SEED:
-                            Talk(SAY_LAVA_SEED);
-                            DoCastAOE(SPELL_LAVA_SEED);
-                            _events.Repeat(21s + 700ms);
-                            break;
-                        case EVENT_GRAVITY_CRUSH:
-                            me->StopMoving();
-                            DoCastAOE(SPELL_GRAVITY_CRUSH);
-                            _events.Repeat(24s, 28s);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            EventMap _events;
-            InstanceScript* _instance;
-            SummonList _summons;
-            uint32 _mergedHealth;
-            uint8 _mergedTargets;
-            uint8 _liquidIceCount;
-            bool _achievementEnligible;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetBastionOfTwilightAI<npc_elementium_monstrosityAI>(creature);
-        }
-};
-
-class npc_ascendant_council_violent_cyclone : public CreatureScript
-{
-    public:
-        npc_ascendant_council_violent_cyclone() : CreatureScript("npc_ascendant_council_violent_cyclone") { }
-
-        struct npc_ascendant_council_violent_cycloneAI : public ScriptedAI
-        {
-            npc_ascendant_council_violent_cycloneAI(Creature* creature) : ScriptedAI(creature)
-            {
-                Initialize();
-            }
-
-            void Initialize()
-            {
-                _targetPositions.clear();
-            }
-
-            void IsSummonedBy(Unit* /*summoner*/) override
-            {
+                me->CastStop();
+                _events.ScheduleEvent(EVENT_EXPLOSION_DND, 2s + 700ms);
+                break;
+            case ACTION_PREPARE_FUSION:
+                _events.Reset();
                 me->SetWalk(true);
-                _events.ScheduleEvent(EVENT_CYCLONE_AGGRO, 2s + 300ms);
-            }
+                me->CastStop();
+                _summons.DespawnAll();
+                _events.ScheduleEvent(EVENT_TELEPORT_PREPARE_FUSION, 1s + 200ms);
+                break;
+            case ACTION_SCHEDULE_HEROIC_ABILITY:
+                _events.ScheduleEvent(EVENT_FROZEN_ORB, 24s);
+                break;
+            case ACTION_PREPARE_ULTIMATE_ABILITY:
+                _events.ScheduleEvent(EVENT_WATER_BOMB, 2s);
+                _events.ScheduleEvent(EVENT_GLACIATE, 15s);
+                break;
+            case ACTION_DESPAWN:
+                _summons.DespawnAll();
+                me->DespawnOrUnsummon();
+                break;
+            default:
+                break;
+        }
+    }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+    void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason /*reason*/) override
+    {
+        if (spell->Id == SPELL_HYDRO_LANCE)
+            me->MakeInterruptable(false);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
             {
-                // According to sniffs the cyclone uses the positions of the Ascendant Council Target Stalkers
-                // as potential waypoints so he stays within a certain area rather than moving arround the room
-                if (spell->Id == SPELL_CYCLONE_AGGRO)
-                {
-                    _targetPositions.push_back(target->GetPosition());
-                    _events.RescheduleEvent(EVENT_MOVE_CYCLONE, 100ms);
-                }
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                _events.Update(diff);
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
+                case EVENT_GLACIATE:
+                    Talk(SAY_ABILITY);
+                    Talk(SAY_ANNOUNCE_ABILITY);
+                    DoCastAOE(SPELL_GLACIATE);
+                    break;
+                case EVENT_HEART_OF_ICE:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
+                        DoCast(target, SPELL_HEART_OF_ICE);
+                    _events.Repeat(24s);
+                    break;
+                case EVENT_WATER_BOMB:
+                    DoCastAOE(SPELL_WATER_BOMB_AOE, true);
+                    DoCastAOE(SPELL_WATER_BOMB);
+                    break;
+                case EVENT_HYDRO_LANCE:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
                     {
-                        case EVENT_CYCLONE_AGGRO:
-                            DoCastAOE(SPELL_CYCLONE_AGGRO);
-                            break;
-                        case EVENT_MOVE_CYCLONE:
+                        me->MakeInterruptable(true);
+                        DoCast(target, SPELL_HYDRO_LANCE);
+                    }
+                    _events.Repeat(13s);
+                    break;
+                case EVENT_EXPLOSION_DND:
+                    DoCastSelf(SPELL_FROST_EXPLOSION_DND);
+                    _events.ScheduleEvent(EVENT_SWITCH_POSITIONS, 1s + 200ms);
+                    break;
+                case EVENT_SWITCH_POSITIONS:
+                    DoCastSelf(SPELL_TELEPORT_RIGHT_BALCONY);
+                    DoCastSelf(SPELL_CLEAR_ALL_DEBUFFS);
+                    break;
+                case EVENT_TELEPORT_PREPARE_FUSION:
+                    DoCastSelf(SPELL_TELEPORT_WATER);
+                    _events.ScheduleEvent(EVENT_FACE_CONTROLLER, 100ms);
+                    _events.ScheduleEvent(EVENT_MOVE_TO_MIDDLE, 6s + 300ms);
+                    break;
+                case EVENT_FACE_CONTROLLER:
+                    if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
+                        me->SetFacingToObject(controller);
+                    break;
+                case EVENT_MOVE_TO_MIDDLE:
+                    Talk(SAY_FUSION);
+                    me->GetMotionMaster()->MovePoint(POINT_NONE, feludiusMiddlePosition, true);
+                    break;
+                case EVENT_FROZEN_ORB:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                        DoCast(target, SPELL_FROZEN_ORB);
+                    _events.Repeat(20s);
+                    break;
+                default:
+                    break;
+            }
+        }
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+    InstanceScript* _instance;
+    SummonList _summons;
+};
+
+struct npc_ignacious final : public ScriptedAI
+{
+    npc_ignacious(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _summons(me) { }
+
+    void Reset() override
+    {
+        me->MakeInterruptable(false);
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
+            controller->AI()->DoAction(ACTION_START_ENCOUNTER);
+
+        _events.ScheduleEvent(EVENT_TALK_ENGAGE, 5s);
+        _events.ScheduleEvent(EVENT_FLAME_TORRENT, 8s + 500ms);
+        _events.ScheduleEvent(EVENT_BURNING_BLOOD, 30s);
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
+            controller->AI()->DoAction(ACTION_STOP_ENCOUNTER);
+    }
+
+    void KilledUnit(Unit* who) override
+    {
+        if (who->GetTypeId() == TYPEID_PLAYER)
+            Talk(SAY_SLAY);
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        _summons.Summon(summon);
+
+        if (summon->GetEntry() == NPC_INFERNO_RUSH)
+            _infernoRushGUIDs.push_back(summon->GetGUID());
+    }
+
+    void DamageTaken(Unit* attacker, uint32& damage) override
+    {
+        if (attacker->HasAura(SPELL_FROST_IMBUED))
+            damage *= 2;
+
+        if (me->HealthBelowPctDamaged(25, damage))
+            if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
+                controller->AI()->DoAction(ACTION_SWITCH_COUNCILLORS);
+
+        // Do not allow to kill any of the councillors
+        if (damage >= me->GetHealth())
+            damage = me->GetHealth() - 1;
+    }
+
+    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_AEGIS_OF_FLAME)
+            Talk(SAY_ABILITY);
+    }
+
+    void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason reason) override
+    {
+        if (spell->Id == SPELL_RISING_FLAMES && (reason == SPELL_FINISHED_CANCELED || reason == SPELL_FINISHED_CHANNELING_COMPLETE))
+            me->MakeInterruptable(false);
+    }
+
+    void DoAction(int32 action) override
+    {
+        switch (action)
+        {
+            case ACTION_CAST_INFERNO_RUSH:
+            {
+                Unit* target = me->GetVictim();
+
+                if (Unit* previousVictim = ObjectAccessor::GetUnit(*me, _lastVictimGuid))
+                    target = previousVictim;
+
+                if (target)
+                {
+                    _infernoRushGUIDs.clear();
+                    float distance = me->GetDistance(target);
+                    float angle = me->GetAngle(target);
+                    Position pos = me->GetPosition();
+
+                    if (distance > 6.0f)
+                    {
+                        for (uint32 i = 6; i < uint32(distance); i += 6)
                         {
-                            std::vector<Position> potentialDestinations;
-                            for (Position pos : _targetPositions)
-                            {
-                                if (me->GetDistance(pos) > 30.0f)
-                                    potentialDestinations.push_back(pos);
-                            }
-
-                            if (!potentialDestinations.empty())
-                            {
-                                Position destination = Trinity::Containers::SelectRandomContainerElement(potentialDestinations);
-                                me->GetMotionMaster()->MovePoint(POINT_NONE, destination, true);
-                            }
-
-                            _events.Repeat(10s, 14s);
-                            break;
+                            float x = pos.GetPositionX() + cos(angle) * i;
+                            float y = pos.GetPositionY() + sin(angle) * i;
+                            float z = pos.GetPositionZ();
+                            float floor = me->GetMapHeight(x, y, z);
+                            me->CastSpell({ x, y, floor }, SPELL_INFERNO_RUSH_SUMMON, true);
                         }
-                        default:
-                            break;
                     }
+
+                    DoCast(target, SPELL_INFERNO_RUSH, true);
+                    _events.ScheduleEvent(EVENT_IGNITE_INFERNO_RUSH, 2s);
                 }
+                break;
             }
-
-        private:
-            EventMap _events;
-            std::vector<Position> _targetPositions;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetBastionOfTwilightAI<npc_ascendant_council_violent_cycloneAI>(creature);
-        }
-};
-
-class npc_ascendant_council_gravity_well : public CreatureScript
-{
-    public:
-        npc_ascendant_council_gravity_well() : CreatureScript("npc_ascendant_council_gravity_well") { }
-
-        struct npc_ascendant_council_gravity_wellAI : public ScriptedAI
-        {
-            npc_ascendant_council_gravity_wellAI(Creature* creature) : ScriptedAI(creature) { }
-
-            void IsSummonedBy(Unit* /*summoner*/) override
-            {
-                DoCastSelf(SPELL_GRAVITY_WELL_PRE_VISUAL);
-                _events.ScheduleEvent(EVENT_MAGNETIC_PULL, 3s + 400ms);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                _events.Update(diff);
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_MAGNETIC_PULL:
-                            me->RemoveAurasDueToSpell(SPELL_GRAVITY_WELL_PRE_VISUAL);
-                            DoCastSelf(SPELL_MAGNETIC_PULL_PERIODIC);
-                            DoCastSelf(SPELL_MAGNETIC_PULL_SLOW);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-
-        private:
-            EventMap _events;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetBastionOfTwilightAI<npc_ascendant_council_gravity_wellAI>(creature);
-        }
-};
-
-class npc_ascendant_council_eruption_target : public CreatureScript
-{
-    public:
-        npc_ascendant_council_eruption_target() : CreatureScript("npc_ascendant_council_eruption_target") { }
-
-        struct npc_ascendant_council_eruption_targetAI : public ScriptedAI
-        {
-            npc_ascendant_council_eruption_targetAI(Creature* creature) : ScriptedAI(creature) { }
-
-            void IsSummonedBy(Unit* /*summoner*/) override
-            {
-                DoCastSelf(SPELL_ERUPTION_PRE_VISUAL);
-                _events.ScheduleEvent(EVENT_ERUPTION_DAMAGE, 3s + 900ms);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                _events.Update(diff);
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_ERUPTION_DAMAGE:
-                            me->RemoveAurasDueToSpell(SPELL_ERUPTION_PRE_VISUAL);
-                            me->DespawnOrUnsummon(6s + 400ms);
-                            if (TempSummon* summon = me->ToTempSummon())
-                                if (Unit* summoner = summon->GetSummoner())
-                                    summoner->CastSpell(me, SPELL_ERUPTION_DAMAGE, true);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-
-        private:
-            EventMap _events;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetBastionOfTwilightAI<npc_ascendant_council_eruption_targetAI>(creature);
-        }
-};
-
-class npc_ascendant_council_plume_stalker : public CreatureScript
-{
-    public:
-        npc_ascendant_council_plume_stalker() : CreatureScript("npc_ascendant_council_plume_stalker") { }
-
-        struct npc_ascendant_council_plume_stalkerAI : public ScriptedAI
-        {
-            npc_ascendant_council_plume_stalkerAI(Creature* creature) : ScriptedAI(creature) { }
-
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
-            {
-                if (spell->Id == SPELL_LAVA_SEED_DUMMY)
-                {
-                    me->StopMoving();
-                    _events.ScheduleEvent(EVENT_LAVA_PLUME, 1s + 100ms);
-                }
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                _events.Update(diff);
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_LAVA_PLUME:
-                            DoCastAOE(SPELL_LAVA_PLUME);
-                            _events.ScheduleEvent(EVENT_CLEAR_LAVA_SEED_DUMMY_AURA, 1s + 100ms);
-                            _events.ScheduleEvent(EVENT_MOVE_PLUME, 2s + 300ms);
-                            break;
-                        case EVENT_CLEAR_LAVA_SEED_DUMMY_AURA:
-                            me->RemoveAurasDueToSpell(SPELL_LAVA_SEED_DUMMY);
-                            break;
-                        case EVENT_MOVE_PLUME:
-                        {
-                            Position pos = me->GetHomePosition();
-                            me->MovePosition(pos, 5.0f, frand(0.0f, float(M_PI * 2)));
-                            me->GetMotionMaster()->MovePoint(POINT_NONE, pos, true);
-                            break;
-                        }
-                        default:
-                            break;
-                    }
-                }
-            }
-
-        private:
-            EventMap _events;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetBastionOfTwilightAI<npc_ascendant_council_plume_stalkerAI>(creature);
-        }
-};
-
-class npc_ascendant_council_gravity_crush : public CreatureScript
-{
-    public:
-        npc_ascendant_council_gravity_crush() : CreatureScript("npc_ascendant_council_gravity_crush") { }
-
-        struct npc_ascendant_council_gravity_crushAI : public ScriptedAI
-        {
-            npc_ascendant_council_gravity_crushAI(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript()) { }
-
-            void IsSummonedBy(Unit* summoner) override
-            {
-                if (!summoner)
-                    return;
-
-                summoner->CastSpell(me, SPELL_GRAVITY_CRUSH_RIDE_VEHICLE, true);
-                _events.ScheduleEvent(EVENT_MOVE_UP, 1s + 200ms);
-
-                if (Creature* elementiumMonstrosity = _instance->GetCreature(DATA_ELEMENTIUM_MONSTROSITY))
-                    elementiumMonstrosity->AI()->JustSummoned(me);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                _events.Update(diff);
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_MOVE_UP:
-                        {
-                            Position pos = me->GetPosition();
-                            pos.m_positionZ += 30.0f;
-                            me->GetMotionMaster()->MovePoint(POINT_NONE, pos, false);
-                            break;
-                        }
-                        default:
-                            break;
-                    }
-                }
-            }
-
-        private:
-            EventMap _events;
-            InstanceScript* _instance;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetBastionOfTwilightAI<npc_ascendant_council_gravity_crushAI>(creature);
-        }
-};
-
-class npc_ascendant_council_frozen_orb : public CreatureScript
-{
-    public:
-        npc_ascendant_council_frozen_orb() : CreatureScript("npc_ascendant_council_frozen_orb") { }
-
-        struct npc_ascendant_council_frozen_orbAI : public ScriptedAI
-        {
-            npc_ascendant_council_frozen_orbAI(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript())
-            {
-                Initialize();
-            }
-
-            void Initialize()
-            {
-                _targetGUID = ObjectGuid::Empty;
+            case ACTION_CHANGE_PLACES:
+                _events.Reset();
+                me->AttackStop();
                 me->SetReactState(REACT_PASSIVE);
-            }
+                me->CastStop();
+                _events.ScheduleEvent(EVENT_EXPLOSION_DND, 2s + 700ms);
+                break;
+            case ACTION_PREPARE_FUSION:
+                _events.Reset();
+                me->SetWalk(true);
+                me->CastStop();
+                _summons.DespawnAll();
+                _events.ScheduleEvent(EVENT_TELEPORT_PREPARE_FUSION, 1s + 200ms);
+                break;
+            case ACTION_SCHEDULE_HEROIC_ABILITY:
+                _events.ScheduleEvent(EVENT_FLAME_STRIKE, 32s);
+                break;
+            case ACTION_PREPARE_ULTIMATE_ABILITY:
+                _events.ScheduleEvent(EVENT_INFERNO_LEAP, 500ms);
+                _events.ScheduleEvent(EVENT_AEGIS_OF_FLAME, 16s + 500ms);
+                if (Aura* aura = me->GetAura(SPELL_RISING_FLAMES))
+                    if (int32(_events.GetTimeUntilEvent(EVENT_FLAME_TORRENT)) < aura->GetDuration())
+                        _events.RescheduleEvent(EVENT_FLAME_TORRENT, aura->GetDuration() + 1000);
+                break;
+            case ACTION_DESPAWN:
+                _summons.DespawnAll();
+                me->DespawnOrUnsummon();
+                break;
+            default:
+                break;
+        }
+    }
 
-            void IsSummonedBy(Unit* /*summoner*/) override
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
             {
-                DoCastAOE(SPELL_FROZEN_ORB_TARGETING);
-                if (Creature* feludius = _instance->GetCreature(DATA_FELUDIUS))
-                    feludius->AI()->JustSummoned(me);
-            }
-
-            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
-            {
-                switch (spell->Id)
-                {
-                    case SPELL_FROZEN_ORB_TARGETING:
-                        _targetGUID = target->GetGUID();
-                        _events.ScheduleEvent(EVENT_PURSUE_TARGET, 2s);
-                        break;
-                    case SPELL_FROZEN_ORB_DUMMY:
-                        if (target->GetGUID() == _targetGUID)
-                        {
-                            me->GetMotionMaster()->Clear();
-                            me->RemoveAllAuras();
-                            DoCastAOE(SPELL_GLACIATE_FROST_ORB);
-                            me->DespawnOrUnsummon(1s + 900ms);
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                _events.Update(diff);
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
+                case EVENT_TALK_ENGAGE:
+                    Talk(SAY_ENGAGE);
+                    break;
+                case EVENT_AEGIS_OF_FLAME:
+                    // Making sure that Ignacious has finished his Inferno Leap
+                    if (me->GetReactState() == REACT_PASSIVE)
                     {
-                        case EVENT_PURSUE_TARGET:
-                            if (Unit* target = ObjectAccessor::GetUnit(*me, _targetGUID))
-                            {
-                                Talk(SAY_ANNOUNCE_PURSUE_PLAYER, target);
-                                DoCast(target, SPELL_FROST_BEACON);
-                                me->ClearUnitState(UNIT_STATE_CASTING);
-                                me->GetMotionMaster()->MoveFollow(target, 0.0f, 0.0f, false, false, true);
-                                _events.ScheduleEvent(EVENT_INCREASE_SPEED, 1s);
-                            }
-                            break;
-                        case EVENT_INCREASE_SPEED:
-                            DoCastSelf(SPELL_FROZEN_ORB_INCREASE_SPEED, true);
-                            _events.Repeat(1s);
-                            break;
-                        default:
-                            break;
+                        _events.Repeat(1s);
+                        break;
                     }
-                }
+
+                    if (SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
+                    {
+                        me->MakeInterruptable(true);
+                        DoCastSelf(SPELL_AEGIS_OF_FLAME);
+                        _events.ScheduleEvent(EVENT_RISING_FLAMES, 3s + 500ms);
+                    }
+                    break;
+                case EVENT_RISING_FLAMES:
+                    Talk(SAY_ANNOUNCE_ABILITY);
+                    me->StopMoving();
+                    DoCastSelf(SPELL_RISING_FLAMES);
+                    break;
+                case EVENT_FLAME_TORRENT:
+                    if (_events.GetTimeUntilEvent(EVENT_AEGIS_OF_FLAME) < 3000 || _events.GetTimeUntilEvent(EVENT_RISING_FLAMES) < 3500
+                        || me->GetSpellHistory()->HasCooldown(SPELL_FLAME_TORRENT) || me->HasReactState(REACT_PASSIVE))
+                    {
+                        _events.Repeat(1s);
+                        break;
+                    }
+
+                    me->StopMoving();
+                    DoCastSelf(SPELL_FLAME_TORRENT);
+                    _events.Repeat(10s);
+                    break;
+                case EVENT_BURNING_BLOOD:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
+                        DoCast(target, SPELL_BURNING_BLOOD);
+                    _events.Repeat(21s);
+                    break;
+                case EVENT_INFERNO_LEAP:
+                    if (me->GetSpellHistory()->HasCooldown(SPELL_INFERNO_LEAP))
+                    {
+                        _events.Repeat(1s);
+                        break;
+                    }
+
+                    if (Unit* target = SelectTarget(SELECT_TARGET_MAXDISTANCE, 0, 60.0f, true))
+                    {
+                        if (Unit* victim = me->GetVictim())
+                            _lastVictimGuid = victim->GetGUID();
+
+                        me->AttackStop();
+                        me->SetReactState(REACT_PASSIVE);
+                        DoCast(target, SPELL_INFERNO_LEAP);
+                    }
+                    break;
+                case EVENT_IGNITE_INFERNO_RUSH:
+                    for (ObjectGuid guid : _infernoRushGUIDs)
+                        if (Creature* infernoRush = ObjectAccessor::GetCreature(*me, guid))
+                            infernoRush->CastSpell(infernoRush, SPELL_INFERNO_RUSH_AURA);
+
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    break;
+                case EVENT_EXPLOSION_DND:
+                    DoCastSelf(SPELL_FIRE_EXPLOSION_DND);
+                    _events.ScheduleEvent(EVENT_SWITCH_POSITIONS, 1s + 200ms);
+                    break;
+                case EVENT_SWITCH_POSITIONS:
+                    DoCastSelf(SPELL_TELEPORT_LEFT_BALCONY);
+                    DoCastSelf(SPELL_CLEAR_ALL_DEBUFFS);
+                    break;
+                case EVENT_TELEPORT_PREPARE_FUSION:
+                    DoCastSelf(SPELL_TELEPORT_FIRE);
+                    _events.ScheduleEvent(EVENT_FACE_CONTROLLER, 100ms);
+                    _events.ScheduleEvent(EVENT_MOVE_TO_MIDDLE, 9s + 900ms);
+                    break;
+                case EVENT_FACE_CONTROLLER:
+                    if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
+                        me->SetFacingToObject(controller);
+                    break;
+                case EVENT_MOVE_TO_MIDDLE:
+                    Talk(SAY_FUSION);
+                    me->GetMotionMaster()->MovePoint(POINT_NONE, feludiusMiddlePosition, true);
+                    break;
+                case EVENT_FLAME_STRIKE:
+                    DoCastAOE(SPELL_FLAME_STRIKE_TARGETING, true);
+                    _events.Repeat(20s);
+                    break;
+                default:
+                    break;
             }
-
-        private:
-            EventMap _events;
-            InstanceScript* _instance;
-            ObjectGuid _targetGUID;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetBastionOfTwilightAI<npc_ascendant_council_frozen_orbAI>(creature);
         }
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+    InstanceScript* _instance;
+    SummonList _summons;
+    ObjectGuid _lastVictimGuid;
+    GuidVector _infernoRushGUIDs;
 };
 
-class npc_ascendant_council_flame_strike : public CreatureScript
+struct npc_arion final : public ScriptedAI
 {
-    public:
-        npc_ascendant_council_flame_strike() : CreatureScript("npc_ascendant_council_flame_strike") { }
+    npc_arion(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _summons(me) { }
 
-        struct npc_ascendant_council_flame_strikeAI : public ScriptedAI
+    void Reset() override
+    {
+        me->SetReactState(REACT_PASSIVE);
+        me->MakeInterruptable(false);
+        _events.SetPhase(PHASE_FELUDIUS_IGNACIOUS);
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
+            controller->AI()->DoAction(ACTION_STOP_ENCOUNTER);
+    }
+
+    void KilledUnit(Unit* who) override
+    {
+        if (who->GetTypeId() == TYPEID_PLAYER)
+            Talk(SAY_SLAY);
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        _summons.Summon(summon);
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    {
+        if (me->HealthBelowPctDamaged(25, damage))
+            if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
+                controller->AI()->DoAction(ACTION_UNITE_COUNCILLORS);
+
+        // Do not allow to kill any of the councillors
+        if (damage >= me->GetHealth())
+            damage = me->GetHealth() - 1;
+    }
+
+    void DoAction(int32 action) override
+    {
+        switch (action)
         {
-            npc_ascendant_council_flame_strikeAI(Creature* creature) : ScriptedAI(creature) { }
-
-            void IsSummonedBy(Unit* summoner) override
-            {
-                DoCastAOE(SPELL_FLAME_STRIKE_PRE_VISUAL);
-                summoner->CastSpell(me, SPELL_FLAME_STRIKE);
-            }
-
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
-            {
-                if (spell->Id == SPELL_FLAME_STRIKE)
-                {
-                    me->RemoveAurasDueToSpell(SPELL_FLAME_STRIKE_PRE_VISUAL);
-                    DoCastAOE(SPELL_FLAME_STRIKE_PERIODIC);
-                }
-            }
-
-            void SpellHitTarget(Unit* target, SpellInfo const* /*spell*/) override
-            {
-                if (target->GetEntry() == NPC_FROZEN_ORB)
-                {
-                    target->GetMotionMaster()->Clear();
-                    target->RemoveAllAuras();
-                    target->ToCreature()->DespawnOrUnsummon(2s + 300ms);
-                    me->RemoveAllAuras();
-                    me->DespawnOrUnsummon(2s + 300ms);
-                }
-            }
-
-            void UpdateAI(uint32 /*diff*/) override
-            {
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetBastionOfTwilightAI<npc_ascendant_council_flame_strikeAI>(creature);
+            case ACTION_CHANGE_PLACES:
+                _events.CancelEvent(EVENT_STATIC_OVERLOAD);
+                _events.ScheduleEvent(EVENT_TALK_ENGAGE, 1ms);
+                _events.ScheduleEvent(EVENT_SWITCH_POSITIONS, 3s);
+                break;
+            case ACTION_CAST_LIGHTNING_BLAST:
+                _events.ScheduleEvent(EVENT_LIGHTNING_BLAST, 2s);
+                break;
+            case ACTION_PREPARE_FUSION:
+                _events.Reset();
+                me->AttackStop();
+                me->SetReactState(REACT_PASSIVE);
+                me->CastStop();
+                me->SetWalk(true);
+                _summons.DespawnAll();
+                DoCastSelf(SPELL_CLEAR_ALL_DEBUFFS);
+                _events.ScheduleEvent(EVENT_TELEPORT_PREPARE_FUSION, 1s + 200ms);
+                break;
+            case ACTION_SCHEDULE_HEROIC_ABILITY:
+                _events.ScheduleEvent(EVENT_STATIC_OVERLOAD, 19s + 700ms);
+                break;
+            case ACTION_DESPAWN:
+                _summons.DespawnAll();
+                me->DespawnOrUnsummon();
+                break;
+            default:
+                break;
         }
+    }
+
+    void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason /*reason*/) override
+    {
+        if (spell->Id == SPELL_LIGHTNING_BLAST)
+            me->MakeInterruptable(false);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim() && !_events.IsInPhase(PHASE_FELUDIUS_IGNACIOUS))
+            return;
+
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_TALK_ENGAGE:
+                    Talk(SAY_ENGAGE);
+                    break;
+                case EVENT_SWITCH_POSITIONS:
+                    _instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 2);
+                    DoCastSelf(SPELL_TELEPORT_LEFT_FLOOR);
+                    _events.ScheduleEvent(EVENT_ATTACK_PLAYERS, 100ms);
+                    break;
+                case EVENT_ATTACK_PLAYERS:
+                    _events.SetPhase(PHASE_ARION_TERRASTRA);
+                    _events.ScheduleEvent(EVENT_CALL_WINDS, 9s + 300ms);
+                    _events.ScheduleEvent(EVENT_THUNDERSHOCK_PRE_WARNING, 55s + 700ms);
+                    _events.ScheduleEvent(EVENT_LIGHTNING_ROD, 17s + 900ms);
+                    _events.ScheduleEvent(EVENT_DISPERSE, 20s + 500ms);
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    DoZoneInCombat();
+                    break;
+                case EVENT_CALL_WINDS:
+                    Talk(SAY_ABILITY);
+                    DoCastSelf(SPELL_CALL_WINDS);
+                    _events.Repeat(31s + 500ms);
+                    break;
+                case EVENT_THUNDERSHOCK:
+                    Talk(SAY_ANNOUNCE_ABILITY);
+                    DoCastAOE(SPELL_THUNDERSHOCK);
+                    break;
+                case EVENT_THUNDERSHOCK_PRE_WARNING:
+                    if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
+                        controller->AI()->Talk(SAY_ANNOUNCE_THUNDERSHOCK_WARNING);
+                    _events.Repeat(1min);
+                    _events.ScheduleEvent(EVENT_THUNDERSHOCK, 10s);
+                    break;
+                case EVENT_LIGHTNING_ROD:
+                    DoCastAOE(SPELL_LIGHTNING_ROD);
+                    _events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 8s, 10s);
+                    _events.Repeat(19s + 400ms);
+                    break;
+                case EVENT_CHAIN_LIGHTNING:
+                    DoCastAOE(SPELL_CHAIN_LIGHTNING_TARGETING);
+                    break;
+                case EVENT_DISPERSE:
+                    me->AttackStop();
+                    me->SetReactState(REACT_PASSIVE);
+                    DoCastAOE(SPELL_DISPERSE);
+                    _events.Repeat(24s);
+                    break;
+                case EVENT_LIGHTNING_BLAST:
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    if (Unit* victim = me->GetVictim())
+                        AttackStart(victim);
+
+                    me->MakeInterruptable(true);
+                    DoCastAOE(SPELL_LIGHTNING_BLAST);
+                    break;
+                case EVENT_TELEPORT_PREPARE_FUSION:
+                    DoCastSelf(SPELL_TELEPORT_AIR);
+                    _events.ScheduleEvent(EVENT_FACE_CONTROLLER, 100ms);
+                    _events.ScheduleEvent(EVENT_MOVE_TO_MIDDLE, 200ms);
+                    break;
+                case EVENT_FACE_CONTROLLER:
+                    if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
+                        me->SetFacingToObject(controller);
+                    break;
+                case EVENT_MOVE_TO_MIDDLE:
+                    Talk(SAY_FUSION);
+                    me->GetMotionMaster()->MovePoint(POINT_NONE, feludiusMiddlePosition, true);
+                    break;
+                case EVENT_STATIC_OVERLOAD:
+                    DoCastAOE(SPELL_STATIC_OVERLOAD, true);
+                    _events.Repeat(20s);
+                    break;
+                default:
+                    break;
+            }
+        }
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+    InstanceScript* _instance;
+    SummonList _summons;
 };
 
-class spell_feludius_water_bomb_targeting : public SpellScript
+struct npc_terrastra final : public ScriptedAI
+{
+    npc_terrastra(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _summons(me) { }
+
+    void Reset() override
+    {
+        me->SetReactState(REACT_PASSIVE);
+        _events.SetPhase(PHASE_FELUDIUS_IGNACIOUS);
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
+            controller->AI()->DoAction(ACTION_STOP_ENCOUNTER);
+    }
+
+    void KilledUnit(Unit* who) override
+    {
+        if (who->GetTypeId() == TYPEID_PLAYER)
+            Talk(SAY_SLAY);
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        _summons.Summon(summon);
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    {
+        if (me->HealthBelowPctDamaged(25, damage))
+            if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
+                controller->AI()->DoAction(ACTION_UNITE_COUNCILLORS);
+
+        // Do not allow to kill any of the councillors
+        if (damage >= me->GetHealth())
+            damage = me->GetHealth() - 1;
+    }
+
+    void DoAction(int32 action) override
+    {
+        switch (action)
+        {
+            case ACTION_CHANGE_PLACES:
+                _events.CancelEvent(EVENT_GRAVITY_CORE);
+                _events.ScheduleEvent(EVENT_TALK_ENGAGE, 3s + 100ms);
+                _events.ScheduleEvent(EVENT_SWITCH_POSITIONS, 3s);
+                break;
+            case ACTION_PREPARE_FUSION:
+                _events.Reset();
+                me->AttackStop();
+                me->SetReactState(REACT_PASSIVE);
+                me->CastStop();
+                me->SetWalk(true);
+                _summons.DespawnAll();
+                DoCastAOE(SPELL_ELEMENTAL_STASIS);
+                DoCastSelf(SPELL_CLEAR_ALL_DEBUFFS);
+                _events.ScheduleEvent(EVENT_TELEPORT_PREPARE_FUSION, 1s + 200ms);
+                break;
+            case ACTION_SCHEDULE_HEROIC_ABILITY:
+                _events.ScheduleEvent(EVENT_GRAVITY_CORE, 22s + 700ms);
+                break;
+            case ACTION_DESPAWN:
+                _summons.DespawnAll();
+                me->DespawnOrUnsummon();
+                break;
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim() && !_events.IsInPhase(PHASE_FELUDIUS_IGNACIOUS))
+            return;
+
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_TALK_ENGAGE:
+                    Talk(SAY_ENGAGE);
+                    break;
+                case EVENT_SWITCH_POSITIONS:
+                    _instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 2);
+                    DoCastSelf(SPELL_TELEPORT_RIGHT_FLOOR);
+                    _events.ScheduleEvent(EVENT_ATTACK_PLAYERS, 100ms);
+                    break;
+                case EVENT_ATTACK_PLAYERS:
+                    _events.SetPhase(PHASE_ARION_TERRASTRA);
+                    _events.ScheduleEvent(EVENT_GRAVITY_WELL, 6s + 900ms);
+                    _events.ScheduleEvent(EVENT_HARDEN_SKIN, 22s + 700ms);
+                    _events.ScheduleEvent(EVENT_QUAKE_PRE_WARNING, 19s + 200ms);
+                    _events.ScheduleEvent(EVENT_QUAKE, 27s + 500ms);
+                    _events.ScheduleEvent(EVENT_ERUPTION, 9s + 300ms);
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    DoZoneInCombat();
+                    break;
+                case EVENT_GRAVITY_WELL:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                        DoCast(target, SPELL_GRAVITY_WELL);
+                    _events.Repeat(17s);
+                    break;
+                case EVENT_HARDEN_SKIN:
+                    DoCastSelf(SPELL_HARDEN_SKIN);
+                    _events.Repeat(43s + 800ms);
+                    break;
+                case EVENT_QUAKE:
+                    Talk(SAY_ANNOUNCE_ABILITY);
+                    Talk(SAY_ABILITY);
+                    DoCastAOE(SPELL_QUAKE);
+                    _events.Repeat(1min + 8s);
+                    _events.ScheduleEvent(EVENT_QUAKE_PRE_WARNING, 59s + 700ms);
+                    break;
+                case EVENT_QUAKE_PRE_WARNING:
+                    if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
+                        controller->AI()->Talk(SAY_ANNOUNCE_QUAKE_WARNING);
+                    break;
+                case EVENT_ERUPTION:
+                    DoCastSelf(SPELL_ERUPTION_DUMMY);
+                    _events.Repeat(17s);
+                    break;
+                case EVENT_TELEPORT_PREPARE_FUSION:
+                    DoCastSelf(SPELL_TELEPORT_EARTH);
+                    _events.ScheduleEvent(EVENT_FACE_CONTROLLER, 200ms);
+                    _events.ScheduleEvent(EVENT_MOVE_TO_MIDDLE, 3s + 900ms);
+                    break;
+                case EVENT_FACE_CONTROLLER:
+                    if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
+                        me->SetFacingToObject(controller);
+                    break;
+                case EVENT_MOVE_TO_MIDDLE:
+                    Talk(SAY_FUSION);
+                    me->GetMotionMaster()->MovePoint(POINT_NONE, feludiusMiddlePosition, true);
+                    break;
+                case EVENT_GRAVITY_CORE:
+                    DoCastAOE(SPELL_GRAVITY_CORE, true);
+                    _events.Repeat(20s);
+                    break;
+                default:
+                    break;
+            }
+        }
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+    InstanceScript* _instance;
+    SummonList _summons;
+};
+
+struct npc_elementium_monstrosity final : public ScriptedAI
+{
+    npc_elementium_monstrosity(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _summons(me), _mergedHealth(0),
+        _mergedTargets(0), _liquidIceCount(0), _achievementEnligible(true)
+    {
+        me->SetReactState(REACT_PASSIVE);
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        _summons.DespawnAll();
+        if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
+            controller->AI()->DoAction(ACTION_STOP_ENCOUNTER);
+    }
+
+    void IsSummonedBy(Unit* /*summoner*/) override
+    {
+        DoZoneInCombat();
+        DoCastSelf(SPELL_TWILIGHT_EXPLOSION_DND);
+        DoCastSelf(SPELL_MERGE_HEALTH);
+        Talk(SAY_SUMMONED);
+        _events.SetPhase(PHASE_INTRO);
+        _events.ScheduleEvent(EVENT_APPLY_PERIODIC_EFFECTS, 1s + 500ms);
+        _events.ScheduleEvent(EVENT_ATTACK_PLAYERS, 3s + 800ms);
+        _events.ScheduleEvent(EVENT_LAVA_SEED, 19s + 700ms);
+        _events.ScheduleEvent(EVENT_GRAVITY_CRUSH, 32s + 900ms);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        if (Creature* controller = _instance->GetCreature(DATA_ASCENDANT_COUNCIL_CONTROLLER))
+            controller->AI()->DoAction(ACTION_FINISH_ENCOUNTER);
+
+        _summons.DespawnAll();
+        Talk(SAY_DEATH);
+    }
+
+    void KilledUnit(Unit* who) override
+    {
+        if (who->GetTypeId() == TYPEID_PLAYER)
+            Talk(SAY_SLAY);
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        _summons.Summon(summon);
+
+        if (summon->GetEntry() == NPC_LIQUID_ICE)
+        {
+            _liquidIceCount++;
+            if (_liquidIceCount == 2)
+                _achievementEnligible = false;
+        }
+    }
+
+    void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_MERGE_HEALTH)
+        {
+            _mergedHealth += target->GetHealth();
+            _mergedTargets++;
+
+            if (Creature* creature = target->ToCreature())
+                creature->DespawnOrUnsummon();
+
+            if (_mergedTargets == 4)
+            {
+                me->SetHealth(_mergedHealth);
+                _instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
+            }
+        }
+    }
+
+    uint32 GetData(uint32 type) const override
+    {
+        if (type == DATA_ELEMENTARY)
+            return _achievementEnligible;
+
+        return 0;
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim() && !_events.IsInPhase(PHASE_INTRO))
+            return;
+
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_ATTACK_PLAYERS:
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    break;
+                case EVENT_APPLY_PERIODIC_EFFECTS:
+                    DoCastSelf(SPELL_ELECTRIC_INSTABILITY);
+                    DoCastSelf(SPELL_CRYOGENIC_AURA);
+                    break;
+                case EVENT_LAVA_SEED:
+                    Talk(SAY_LAVA_SEED);
+                    DoCastAOE(SPELL_LAVA_SEED);
+                    _events.Repeat(21s + 700ms);
+                    break;
+                case EVENT_GRAVITY_CRUSH:
+                    me->StopMoving();
+                    DoCastAOE(SPELL_GRAVITY_CRUSH);
+                    _events.Repeat(24s, 28s);
+                    break;
+                default:
+                    break;
+            }
+        }
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+    InstanceScript* _instance;
+    SummonList _summons;
+    uint32 _mergedHealth;
+    uint8 _mergedTargets;
+    uint8 _liquidIceCount;
+    bool _achievementEnligible;
+};
+
+struct npc_ascendant_council_violent_cyclone final : public ScriptedAI
+{
+    npc_ascendant_council_violent_cyclone(Creature* creature) : ScriptedAI(creature) { }
+
+    void IsSummonedBy(Unit* /*summoner*/) override
+    {
+        me->SetWalk(true);
+        _events.ScheduleEvent(EVENT_CYCLONE_AGGRO, 2s + 300ms);
+    }
+
+    void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+    {
+        // According to sniffs the cyclone uses the positions of the Ascendant Council Target Stalkers
+        // as potential waypoints so he stays within a certain area rather than moving arround the room
+        if (spell->Id == SPELL_CYCLONE_AGGRO)
+        {
+            _targetPositions.push_back(target->GetPosition());
+            _events.RescheduleEvent(EVENT_MOVE_CYCLONE, 100ms);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_CYCLONE_AGGRO:
+                    DoCastAOE(SPELL_CYCLONE_AGGRO);
+                    break;
+                case EVENT_MOVE_CYCLONE:
+                {
+                    std::vector<Position> potentialDestinations;
+                    for (Position pos : _targetPositions)
+                    {
+                        if (me->GetDistance(pos) > 30.0f)
+                            potentialDestinations.push_back(pos);
+                    }
+
+                    if (!potentialDestinations.empty())
+                    {
+                        Position destination = Trinity::Containers::SelectRandomContainerElement(potentialDestinations);
+                        me->GetMotionMaster()->MovePoint(POINT_NONE, destination, true);
+                    }
+
+                    _events.Repeat(10s, 14s);
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+    std::vector<Position> _targetPositions;
+};
+
+struct npc_ascendant_council_gravity_well final : public ScriptedAI
+{
+    npc_ascendant_council_gravity_well(Creature* creature) : ScriptedAI(creature) { }
+
+    void IsSummonedBy(Unit* /*summoner*/) override
+    {
+        DoCastSelf(SPELL_GRAVITY_WELL_PRE_VISUAL);
+        _events.ScheduleEvent(EVENT_MAGNETIC_PULL, 3s + 400ms);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_MAGNETIC_PULL:
+                    me->RemoveAurasDueToSpell(SPELL_GRAVITY_WELL_PRE_VISUAL);
+                    DoCastSelf(SPELL_MAGNETIC_PULL_PERIODIC);
+                    DoCastSelf(SPELL_MAGNETIC_PULL_SLOW);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+};
+
+struct npc_ascendant_council_eruption_target final : public ScriptedAI
+{
+    npc_ascendant_council_eruption_target(Creature* creature) : ScriptedAI(creature) { }
+
+    void IsSummonedBy(Unit* /*summoner*/) override
+    {
+        DoCastSelf(SPELL_ERUPTION_PRE_VISUAL);
+        _events.ScheduleEvent(EVENT_ERUPTION_DAMAGE, 3s + 900ms);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_ERUPTION_DAMAGE:
+                    me->RemoveAurasDueToSpell(SPELL_ERUPTION_PRE_VISUAL);
+                    me->DespawnOrUnsummon(6s + 400ms);
+                    if (TempSummon* summon = me->ToTempSummon())
+                        if (Unit* summoner = summon->GetSummoner())
+                            summoner->CastSpell(me, SPELL_ERUPTION_DAMAGE, true);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+};
+
+struct npc_ascendant_council_plume_stalker final : public ScriptedAI
+{
+    npc_ascendant_council_plume_stalker(Creature* creature) : ScriptedAI(creature) { }
+
+    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_LAVA_SEED_DUMMY)
+        {
+            me->StopMoving();
+            _events.ScheduleEvent(EVENT_LAVA_PLUME, 1s + 100ms);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_LAVA_PLUME:
+                    DoCastAOE(SPELL_LAVA_PLUME);
+                    _events.ScheduleEvent(EVENT_CLEAR_LAVA_SEED_DUMMY_AURA, 1s + 100ms);
+                    _events.ScheduleEvent(EVENT_MOVE_PLUME, 2s + 300ms);
+                    break;
+                case EVENT_CLEAR_LAVA_SEED_DUMMY_AURA:
+                    me->RemoveAurasDueToSpell(SPELL_LAVA_SEED_DUMMY);
+                    break;
+                case EVENT_MOVE_PLUME:
+                {
+                    Position pos = me->GetHomePosition();
+                    me->MovePosition(pos, 5.0f, frand(0.0f, float(M_PI * 2)));
+                    me->GetMotionMaster()->MovePoint(POINT_NONE, pos, true);
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+};
+
+struct npc_ascendant_council_gravity_crush final : public ScriptedAI
+{
+    npc_ascendant_council_gravity_crush(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript()) { }
+
+    void IsSummonedBy(Unit* summoner) override
+    {
+        if (!summoner)
+            return;
+
+        summoner->CastSpell(me, SPELL_GRAVITY_CRUSH_RIDE_VEHICLE, true);
+        _events.ScheduleEvent(EVENT_MOVE_UP, 1s + 200ms);
+
+        if (Creature* elementiumMonstrosity = _instance->GetCreature(DATA_ELEMENTIUM_MONSTROSITY))
+            elementiumMonstrosity->AI()->JustSummoned(me);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_MOVE_UP:
+                {
+                    Position pos = me->GetPosition();
+                    pos.m_positionZ += 30.0f;
+                    me->GetMotionMaster()->MovePoint(POINT_NONE, pos, false);
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+    InstanceScript* _instance;
+};
+
+struct npc_ascendant_council_frozen_orb final : public ScriptedAI
+{
+    npc_ascendant_council_frozen_orb(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript())
+    {
+        me->SetReactState(REACT_PASSIVE);
+    }
+
+    void IsSummonedBy(Unit* /*summoner*/) override
+    {
+        DoCastAOE(SPELL_FROZEN_ORB_TARGETING);
+        if (Creature* feludius = _instance->GetCreature(DATA_FELUDIUS))
+            feludius->AI()->JustSummoned(me);
+    }
+
+    void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+    {
+        switch (spell->Id)
+        {
+            case SPELL_FROZEN_ORB_TARGETING:
+                _targetGUID = target->GetGUID();
+                _events.ScheduleEvent(EVENT_PURSUE_TARGET, 2s);
+                break;
+            case SPELL_FROZEN_ORB_DUMMY:
+                if (target->GetGUID() == _targetGUID)
+                {
+                    me->GetMotionMaster()->Clear();
+                    me->RemoveAllAuras();
+                    DoCastAOE(SPELL_GLACIATE_FROST_ORB);
+                    me->DespawnOrUnsummon(1s + 900ms);
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_PURSUE_TARGET:
+                    if (Unit* target = ObjectAccessor::GetUnit(*me, _targetGUID))
+                    {
+                        Talk(SAY_ANNOUNCE_PURSUE_PLAYER, target);
+                        DoCast(target, SPELL_FROST_BEACON);
+                        me->ClearUnitState(UNIT_STATE_CASTING);
+                        me->GetMotionMaster()->MoveFollow(target, 0.0f, 0.0f, false, false, true);
+                        _events.ScheduleEvent(EVENT_INCREASE_SPEED, 1s);
+                    }
+                    break;
+                case EVENT_INCREASE_SPEED:
+                    DoCastSelf(SPELL_FROZEN_ORB_INCREASE_SPEED, true);
+                    _events.Repeat(1s);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+    InstanceScript* _instance;
+    ObjectGuid _targetGUID;
+};
+
+struct npc_ascendant_council_flame_strike final : public ScriptedAI
+{
+    npc_ascendant_council_flame_strike(Creature* creature) : ScriptedAI(creature) { }
+
+    void IsSummonedBy(Unit* summoner) override
+    {
+        DoCastAOE(SPELL_FLAME_STRIKE_PRE_VISUAL);
+        summoner->CastSpell(me, SPELL_FLAME_STRIKE);
+    }
+
+    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_FLAME_STRIKE)
+        {
+            me->RemoveAurasDueToSpell(SPELL_FLAME_STRIKE_PRE_VISUAL);
+            DoCastAOE(SPELL_FLAME_STRIKE_PERIODIC);
+        }
+    }
+
+    void SpellHitTarget(Unit* target, SpellInfo const* /*spell*/) override
+    {
+        if (target->GetEntry() == NPC_FROZEN_ORB)
+        {
+            target->GetMotionMaster()->Clear();
+            target->RemoveAllAuras();
+            target->ToCreature()->DespawnOrUnsummon(2s + 300ms);
+            me->RemoveAllAuras();
+            me->DespawnOrUnsummon(2s + 300ms);
+        }
+    }
+
+    void UpdateAI(uint32 /*diff*/) override
+    {
+    }
+};
+
+class spell_feludius_water_bomb_targeting final : public SpellScript
 {
     void HandleHit(SpellEffIndex effIndex)
     {
@@ -1904,7 +1739,7 @@ class spell_feludius_water_bomb_targeting : public SpellScript
     }
 };
 
-class spell_feludius_water_bomb : public SpellScript
+class spell_feludius_water_bomb final : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -1926,7 +1761,7 @@ class spell_feludius_water_bomb : public SpellScript
     }
 };
 
-class spell_feludius_glaciate : public SpellScript
+class spell_feludius_glaciate final : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -1970,7 +1805,7 @@ class spell_feludius_glaciate : public SpellScript
     }
 };
 
-class spell_feludius_heart_of_ice : public AuraScript
+class spell_feludius_heart_of_ice final : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -2005,7 +1840,7 @@ class spell_feludius_heart_of_ice : public AuraScript
     }
 };
 
-class spell_feludius_frost_imbued : public SpellScript
+class spell_feludius_frost_imbued final : public SpellScript
 {
     void FilterTargets(std::list<WorldObject*>& targets)
     {
@@ -2021,7 +1856,7 @@ class spell_feludius_frost_imbued : public SpellScript
     }
 };
 
-class spell_feludius_frost_imbued_AuraScript : public AuraScript
+class spell_feludius_frost_imbued_AuraScript final : public AuraScript
 {
     bool CheckProc(ProcEventInfo& /*eventInfo*/)
     {
@@ -2044,7 +1879,7 @@ class spell_feludius_frost_imbued_AuraScript : public AuraScript
     }
 };
 
-class spell_feludius_frozen_orb_targeting : public SpellScript
+class spell_feludius_frozen_orb_targeting final : public SpellScript
 {
     void FilterTargets(std::list<WorldObject*>& targets)
     {
@@ -2060,7 +1895,7 @@ class spell_feludius_frozen_orb_targeting : public SpellScript
     }
 };
 
-class spell_ignacious_rising_flames : public AuraScript
+class spell_ignacious_rising_flames final : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -2089,7 +1924,7 @@ class spell_ignacious_rising_flames : public AuraScript
     }
 };
 
-class spell_ignacious_burning_blood : public AuraScript
+class spell_ignacious_burning_blood final : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -2124,7 +1959,7 @@ class spell_ignacious_burning_blood : public AuraScript
     }
 };
 
-class spell_ignacious_flame_imbued : public SpellScript
+class spell_ignacious_flame_imbued final : public SpellScript
 {
     void FilterTargets(std::list<WorldObject*>& targets)
     {
@@ -2140,7 +1975,7 @@ class spell_ignacious_flame_imbued : public SpellScript
     }
 };
 
-class spell_ignacious_flame_imbued_AuraScript : public AuraScript
+class spell_ignacious_flame_imbued_AuraScript final : public AuraScript
 {
     bool CheckProc(ProcEventInfo& /*eventInfo*/)
     {
@@ -2163,7 +1998,7 @@ class spell_ignacious_flame_imbued_AuraScript : public AuraScript
     }
 };
 
-class spell_ignacious_inferno_leap : public SpellScript
+class spell_ignacious_inferno_leap final : public SpellScript
 {
     void HandleInfernoRush()
     {
@@ -2179,7 +2014,7 @@ class spell_ignacious_inferno_leap : public SpellScript
     }
 };
 
-class spell_ignacious_inferno_rush : public SpellScript
+class spell_ignacious_inferno_rush final : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -2203,7 +2038,7 @@ class spell_ignacious_inferno_rush : public SpellScript
     }
 };
 
-class spell_ignacious_flame_strike : public SpellScript
+class spell_ignacious_flame_strike final : public SpellScript
 {
     void FilterTargets(std::list<WorldObject*>& targets)
     {
@@ -2226,7 +2061,7 @@ class spell_ignacious_flame_strike : public SpellScript
     }
 };
 
-class spell_arion_lashing_winds : public SpellScript
+class spell_arion_lashing_winds final : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -2255,7 +2090,7 @@ class spell_arion_lashing_winds : public SpellScript
     }
 };
 
-class spell_arion_thundershock : public SpellScript
+class spell_arion_thundershock final : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -2274,7 +2109,7 @@ class spell_arion_thundershock : public SpellScript
     }
 };
 
-class spell_arion_lightning_rod : public SpellScript
+class spell_arion_lightning_rod final : public SpellScript
 {
     void FilterTargets(std::list<WorldObject*>& targets)
     {
@@ -2291,7 +2126,7 @@ class spell_arion_lightning_rod : public SpellScript
     }
 };
 
-class spell_arion_chain_lightning_targeting : public SpellScript
+class spell_arion_chain_lightning_targeting final : public SpellScript
 {
     void HandleHit(SpellEffIndex effIndex)
     {
@@ -2328,7 +2163,7 @@ class ArionDisperseDistanceCheck
         Unit* arion;
 };
 
-class spell_arion_disperse : public SpellScript
+class spell_arion_disperse final : public SpellScript
 {
     void FilterTargets(std::list<WorldObject*>& targets)
     {
@@ -2362,7 +2197,7 @@ class spell_arion_disperse : public SpellScript
     }
 };
 
-class spell_arion_lightning_blast : public SpellScript
+class spell_arion_lightning_blast final : public SpellScript
 {
     void FilterTargets(std::list<WorldObject*>& targets)
     {
@@ -2379,7 +2214,7 @@ class spell_arion_lightning_blast : public SpellScript
     }
 };
 
-class spell_arion_lightning_blast_dummy : public SpellScript
+class spell_arion_lightning_blast_dummy final : public SpellScript
 {
     void FilterTargets(std::list<WorldObject*>& targets)
     {
@@ -2395,7 +2230,7 @@ class spell_arion_lightning_blast_dummy : public SpellScript
     }
 };
 
-class spell_arion_static_overload : public SpellScript
+class spell_arion_static_overload final : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -2421,7 +2256,7 @@ class spell_arion_static_overload : public SpellScript
     }
 };
 
-class spell_arion_static_overload_triggered : public SpellScript
+class spell_arion_static_overload_triggered final : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -2446,7 +2281,7 @@ class spell_arion_static_overload_triggered : public SpellScript
     }
 };
 
-class spell_terrastra_gravity_well : public SpellScript
+class spell_terrastra_gravity_well final : public SpellScript
 {
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
@@ -2468,7 +2303,7 @@ class spell_terrastra_gravity_well : public SpellScript
     }
 };
 
-class spell_terrastra_harden_skin : public AuraScript
+class spell_terrastra_harden_skin final : public AuraScript
 {
     bool Load() override
     {
@@ -2503,7 +2338,7 @@ private:
     }
 };
 
-class spell_terrastra_quake : public SpellScript
+class spell_terrastra_quake final : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -2524,7 +2359,7 @@ class spell_terrastra_quake : public SpellScript
     }
 };
 
-class spell_terrastra_eruption : public SpellScript
+class spell_terrastra_eruption final : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -2555,7 +2390,7 @@ class spell_terrastra_eruption : public SpellScript
     }
 };
 
-class spell_terrastra_gravity_core : public SpellScript
+class spell_terrastra_gravity_core final : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -2581,7 +2416,7 @@ class spell_terrastra_gravity_core : public SpellScript
     }
 };
 
-class spell_terrastra_gravity_core_triggered : public SpellScript
+class spell_terrastra_gravity_core_triggered final : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -2606,7 +2441,7 @@ class spell_terrastra_gravity_core_triggered : public SpellScript
     }
 };
 
-class spell_elementium_monstrosity_lava_seed : public SpellScript
+class spell_elementium_monstrosity_lava_seed final : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -2625,7 +2460,7 @@ class spell_elementium_monstrosity_lava_seed : public SpellScript
     }
 };
 
-class spell_elementium_monstrosity_cryogenic_aura : public AuraScript
+class spell_elementium_monstrosity_cryogenic_aura final : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -2657,7 +2492,7 @@ class spell_elementium_monstrosity_cryogenic_aura : public AuraScript
     }
 };
 
-class spell_elementium_monstrosity_liquid_ice : public AuraScript
+class spell_elementium_monstrosity_liquid_ice final : public AuraScript
 {
     void HandlePeriodic(AuraEffect const* aurEff)
     {
@@ -2676,7 +2511,7 @@ class spell_elementium_monstrosity_liquid_ice : public AuraScript
     }
 };
 
-class spell_elementium_monstrosity_electric_instability : public SpellScript
+class spell_elementium_monstrosity_electric_instability final : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -2715,7 +2550,7 @@ class spell_elementium_monstrosity_electric_instability : public SpellScript
     }
 };
 
-class spell_elementium_monstrosity_gravity_crush : public SpellScript
+class spell_elementium_monstrosity_gravity_crush final : public SpellScript
 {
     void FilterTargets(std::list<WorldObject*>& targets)
     {
@@ -2736,7 +2571,7 @@ class spell_elementium_monstrosity_gravity_crush : public SpellScript
     }
 };
 
-class achievement_elementary : public AchievementCriteriaScript
+class achievement_elementary final : public AchievementCriteriaScript
 {
     public:
         achievement_elementary() : AchievementCriteriaScript("achievement_elementary") { }
@@ -2755,19 +2590,19 @@ class achievement_elementary : public AchievementCriteriaScript
 
 void AddSC_boss_ascendant_council()
 {
-    new boss_ascendant_council_controller();
-    new npc_feludius();
-    new npc_ignacious();
-    new npc_arion();
-    new npc_terrastra();
-    new npc_elementium_monstrosity();
-    new npc_ascendant_council_violent_cyclone();
-    new npc_ascendant_council_gravity_well();
-    new npc_ascendant_council_eruption_target();
-    new npc_ascendant_council_plume_stalker();
-    new npc_ascendant_council_gravity_crush();
-    new npc_ascendant_council_frozen_orb();
-    new npc_ascendant_council_flame_strike();
+    RegisterBastionOfTwilightCreatureAI(boss_ascendant_council_controller);
+    RegisterBastionOfTwilightCreatureAI(npc_feludius);
+    RegisterBastionOfTwilightCreatureAI(npc_ignacious);
+    RegisterBastionOfTwilightCreatureAI(npc_arion);
+    RegisterBastionOfTwilightCreatureAI(npc_terrastra);
+    RegisterBastionOfTwilightCreatureAI(npc_elementium_monstrosity);
+    RegisterBastionOfTwilightCreatureAI(npc_ascendant_council_violent_cyclone);
+    RegisterBastionOfTwilightCreatureAI(npc_ascendant_council_gravity_well);
+    RegisterBastionOfTwilightCreatureAI(npc_ascendant_council_eruption_target);
+    RegisterBastionOfTwilightCreatureAI(npc_ascendant_council_plume_stalker);
+    RegisterBastionOfTwilightCreatureAI(npc_ascendant_council_gravity_crush);
+    RegisterBastionOfTwilightCreatureAI(npc_ascendant_council_frozen_orb);
+    RegisterBastionOfTwilightCreatureAI(npc_ascendant_council_flame_strike);
     RegisterSpellScript(spell_feludius_water_bomb_targeting);
     RegisterSpellScript(spell_feludius_water_bomb);
     RegisterSpellScript(spell_feludius_glaciate);

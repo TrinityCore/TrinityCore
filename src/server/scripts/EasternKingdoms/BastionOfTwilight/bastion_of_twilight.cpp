@@ -41,7 +41,7 @@ enum PhaseTwist
     SPELL_PHASED_BURN = 85799
 };
 
-struct npc_bot_invisible_stalker_phase_twist : public NullCreatureAI
+struct npc_bot_invisible_stalker_phase_twist final : public NullCreatureAI
 {
     npc_bot_invisible_stalker_phase_twist(Creature* creature) : NullCreatureAI(creature) { }
 
@@ -108,77 +108,56 @@ private:
     std::vector<Creature*> _phaseTwisterVector;
 };
 
-class at_theralion_and_valiona_intro : public AreaTriggerScript
+enum ChogallEvent
 {
-    public:
-        at_theralion_and_valiona_intro() : AreaTriggerScript("at_theralion_and_valiona_intro") { }
-
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
-        {
-            if (InstanceScript* instance = player->GetInstanceScript())
-                instance->SetData(DATA_AT_THERALION_AND_VALIONA_INTRO, IN_PROGRESS);
-            return true;
-        }
+    // Texts
+    SAY_HALFUS_INTRO = 0,
+    SAY_HALFUS_DEAD  = 1
 };
 
-class at_ascendant_council_intro_1 : public AreaTriggerScript
+struct npc_bot_chogall final : public NullCreatureAI
 {
-    public:
-        at_ascendant_council_intro_1() : AreaTriggerScript("at_ascendant_council_intro_1") { }
+    npc_bot_chogall(Creature* creature) : NullCreatureAI(creature) { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
+    void DoAction(int32 action) override
+    {
+        switch (action)
         {
-            if (InstanceScript* instance = player->GetInstanceScript())
-                instance->SetData(DATA_AT_ASCENDANT_COUNCIL_INTRO_1, IN_PROGRESS);
-            return true;
+            case ACTION_TALK_HALFUS_WYRMBREAKER_INTRO:
+                Talk(SAY_HALFUS_INTRO);
+                break;
+            case ACTION_TALK_HALFUS_WYRMBREAKER_DEAD:
+                Talk(SAY_HALFUS_DEAD);
+                break;
+            default:
+                break;
         }
+    }
 };
 
-class at_ascendant_council_intro_2 : public AreaTriggerScript
+class at_bot_intro_events final : public OnlyOnceAreaTriggerScript
 {
-    public:
-        at_ascendant_council_intro_2() : AreaTriggerScript("at_ascendant_council_intro_2") { }
+public:
+    at_bot_intro_events(char const* scriptName, uint32 dataType) : OnlyOnceAreaTriggerScript(scriptName), _dataType(dataType) { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
-        {
-            if (InstanceScript* instance = player->GetInstanceScript())
-                instance->SetData(DATA_AT_ASCENDANT_COUNCIL_INTRO_2, IN_PROGRESS);
-            return true;
-        }
-};
-
-class at_ascendant_council_intro_3 : public AreaTriggerScript
-{
-    public:
-        at_ascendant_council_intro_3() : AreaTriggerScript("at_ascendant_council_intro_3") { }
-
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
-        {
-            if (InstanceScript* instance = player->GetInstanceScript())
-                instance->SetData(DATA_AT_ASCENDANT_COUNCIL_INTRO_3, IN_PROGRESS);
-            return true;
-        }
-};
-
-class at_chogall_intro : public AreaTriggerScript
-{
-    public:
-        at_chogall_intro() : AreaTriggerScript("at_chogall_intro") { }
-
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
-        {
-            if (InstanceScript* instance = player->GetInstanceScript())
-                instance->SetData(DATA_AT_CHOGALL_INTRO, IN_PROGRESS);
-            return true;
-        }
+    bool _OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+    {
+        if (InstanceScript* instance = player->GetInstanceScript())
+            instance->SetData(_dataType, IN_PROGRESS);
+        return true;
+    }
+private:
+    uint32 _dataType;
 };
 
 void AddSC_bastion_of_twilight()
 {
     RegisterBastionOfTwilightCreatureAI(npc_bot_invisible_stalker_phase_twist);
-    new at_theralion_and_valiona_intro();
-    new at_ascendant_council_intro_1();
-    new at_ascendant_council_intro_2();
-    new at_ascendant_council_intro_3();
-    new at_chogall_intro();
+    RegisterBastionOfTwilightCreatureAI(npc_bot_chogall);
+    new at_bot_intro_events("at_halfus_wyrmbreaker_intro", DATA_AT_HALFUS_WYRMBREAKER_INTRO);
+    new at_bot_intro_events("at_theralion_and_valiona_intro", DATA_AT_THERALION_AND_VALIONA_INTRO);
+    new at_bot_intro_events("at_ascendant_council_intro_1", DATA_AT_ASCENDANT_COUNCIL_INTRO_1);
+    new at_bot_intro_events("at_ascendant_council_intro_2", DATA_AT_ASCENDANT_COUNCIL_INTRO_2);
+    new at_bot_intro_events("at_ascendant_council_intro_3", DATA_AT_ASCENDANT_COUNCIL_INTRO_3);
+    new at_bot_intro_events("at_chogall_intro", DATA_AT_CHOGALL_INTRO);
 }

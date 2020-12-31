@@ -41,6 +41,7 @@ ObjectData const creatureData[] =
     { NPC_PROTO_BEHEMOTH,               DATA_PROTO_BEHEMOTH                 },
     { NPC_ASCENDANT_COUNCIL_CONTROLLER, DATA_ASCENDANT_COUNCIL_CONTROLLER   },
     { NPC_CORRUPTION,                   DATA_CORRUPTION                     },
+    { NPC_CHOGALL,                      DATA_CHOGALL_EVENT                  },
     { 0,                                0                                   } // END
 };
 
@@ -73,12 +74,12 @@ uint32 HalfusDragonEntries[] =
 
 Position const BreathFlightTargetStalkerSortPos = { -740.677f, -592.328f, 859.455f };
 
-class instance_bastion_of_twilight : public InstanceMapScript
+class instance_bastion_of_twilight final : public InstanceMapScript
 {
     public:
         instance_bastion_of_twilight() : InstanceMapScript(BoTScriptName, 671) { }
 
-        struct instance_bastion_of_twilight_InstanceMapScript : public InstanceScript
+        struct instance_bastion_of_twilight_InstanceMapScript final : public InstanceScript
         {
             instance_bastion_of_twilight_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
@@ -89,7 +90,6 @@ class instance_bastion_of_twilight : public InstanceMapScript
                 _unresponsiveDragonEntryFirst = 0;
                 _unresponsiveDragonEntrySecond = 0;
                 _deadOrphanedEmeraldWhelps = 0;
-                _lastAreatriggerIndex = 0;
                 _fullHeroicId = instance->IsHeroic();
                 GenerateHalfusDragonData();
             }
@@ -234,18 +234,22 @@ class instance_bastion_of_twilight : public InstanceMapScript
                             events.CancelEvent(EVENT_CAST_DANCING_FLAMES);
                         }
                         else if (state == DONE)
+                        {
                             events.CancelEvent(EVENT_CAST_DANCING_FLAMES);
+                            if (Creature* chogall = GetCreature(DATA_CHOGALL_EVENT))
+                                chogall->AI()->DoAction(ACTION_TALK_HALFUS_WYRMBREAKER_DEAD);
+                        }
                         break;
                     case DATA_THERALION_AND_VALIONA:
                         if (state == FAIL)
                         {
                             for (ObjectGuid guid : _valionaDummyGUIDs)
                                 if (Creature* creature = instance->GetCreature(guid))
-                                    creature->DespawnOrUnsummon(Milliseconds(0), Seconds(30));
+                                    creature->DespawnOrUnsummon(0ms, 30s);
 
                             for (ObjectGuid guid : _unstableTwilightGUIDs)
                                 if (Creature* creature = instance->GetCreature(guid))
-                                    creature->DespawnOrUnsummon(Milliseconds(0), Seconds(30));
+                                    creature->DespawnOrUnsummon(0ms, 30s);
 
                             _valionaDummyGUIDs.clear();
                             _collapsingTwilightPortalGUIDs.clear();
@@ -326,15 +330,13 @@ class instance_bastion_of_twilight : public InstanceMapScript
                                 if (orphanedEmeraldWhelp->GetEntry() == NPC_ORPHANED_EMERALD_WELP)
                                     orphanedEmeraldWhelp->AI()->DoAction(ACTION_MOVE_OUT_OF_CAGE);
                         break;
-                    case DATA_AT_HALFUS_INTRO:
-                        if (_lastAreatriggerIndex < AT_INDEX_HALFUS_WYRMBREAKER_INTRO)
-                        {
-                            _lastAreatriggerIndex = AT_INDEX_HALFUS_WYRMBREAKER_INTRO;
-                            SaveToDB();
-                        }
+                    case DATA_AT_HALFUS_WYRMBREAKER_INTRO:
+                        if (GetBossState(DATA_HALFUS_WYRMBREAKER) != DONE)
+                            if (Creature* chogall = GetCreature(DATA_CHOGALL_EVENT))
+                                chogall->AI()->DoAction(ACTION_TALK_HALFUS_WYRMBREAKER_INTRO);
                         break;
                     case DATA_AT_THERALION_AND_VALIONA_INTRO:
-                        if (_lastAreatriggerIndex < AT_INDEX_THERALION_AND_VALIONA_INTRO)
+                        if (GetBossState(DATA_THERALION_AND_VALIONA) != DONE)
                         {
                             if (Creature* chogall = GetCreature(DATA_CHOGALL))
                                 chogall->AI()->DoAction(ACTION_TALK_THERALION_AND_VALIONA_INTRO);
@@ -344,50 +346,27 @@ class instance_bastion_of_twilight : public InstanceMapScript
 
                             if (Creature* valiona = GetCreature(DATA_VALIONA))
                                 valiona->AI()->DoAction(ACTION_START_ARGUMENT_INTRO);
-
-                            _lastAreatriggerIndex = AT_INDEX_THERALION_AND_VALIONA_INTRO;
-                            SaveToDB();
                         }
                         break;
                     case DATA_AT_ASCENDANT_COUNCIL_INTRO_1:
-                        if (_lastAreatriggerIndex < AT_INDEX_ASCENDANT_COUNCIL_INTRO_1)
-                        {
+                        if (GetBossState(DATA_ASCENDANT_COUNCIL) != DONE)
                             if (Creature* chogall = GetCreature(DATA_CHOGALL))
                                 chogall->AI()->DoAction(ACTION_TALK_ASCENDANT_COUNCIL_INTRO_1);
-
-                            _lastAreatriggerIndex = AT_INDEX_ASCENDANT_COUNCIL_INTRO_1;
-                            SaveToDB();
-                        }
                         break;
                     case DATA_AT_ASCENDANT_COUNCIL_INTRO_2:
-                        if (_lastAreatriggerIndex < AT_INDEX_ASCENDANT_COUNCIL_INTRO_2)
-                        {
+                        if (GetBossState(DATA_ASCENDANT_COUNCIL) != DONE)
                             if (Creature* chogall = GetCreature(DATA_CHOGALL))
                                 chogall->AI()->DoAction(ACTION_TALK_ASCENDANT_COUNCIL_INTRO_2);
-
-                            _lastAreatriggerIndex = AT_INDEX_ASCENDANT_COUNCIL_INTRO_2;
-                            SaveToDB();
-                        }
                         break;
                     case DATA_AT_ASCENDANT_COUNCIL_INTRO_3:
-                        if (_lastAreatriggerIndex < AT_INDEX_ASCENDANT_COUNCIL_INTRO_3)
-                        {
+                        if (GetBossState(DATA_ASCENDANT_COUNCIL) != DONE)
                             if (Creature* chogall = GetCreature(DATA_CHOGALL))
                                 chogall->AI()->DoAction(ACTION_TALK_ASCENDANT_COUNCIL_INTRO_3);
-
-                            _lastAreatriggerIndex = AT_INDEX_ASCENDANT_COUNCIL_INTRO_3;
-                            SaveToDB();
-                        }
                         break;
                     case DATA_AT_CHOGALL_INTRO:
-                        if (_lastAreatriggerIndex < AT_INDEX_CHOGALL_INTRO)
-                        {
+                        if (GetBossState(DATA_CHOGALL) != DONE)
                             if (Creature* chogall = GetCreature(DATA_CHOGALL))
                                 chogall->AI()->DoAction(ACTION_TALK_CHOGALL_INTRO);
-
-                            _lastAreatriggerIndex = AT_INDEX_CHOGALL_INTRO;
-                            SaveToDB();
-                        }
                         break;
                     default:
                         break;
@@ -464,7 +443,6 @@ class instance_bastion_of_twilight : public InstanceMapScript
             {
                 data << _unresponsiveDragonEntryFirst << ' '
                     << _unresponsiveDragonEntrySecond << ' '
-                    << _lastAreatriggerIndex << ' '
                     << _fullHeroicId;
             }
 
@@ -472,7 +450,6 @@ class instance_bastion_of_twilight : public InstanceMapScript
             {
                 data >> _unresponsiveDragonEntryFirst;
                 data >> _unresponsiveDragonEntrySecond;
-                data >> _lastAreatriggerIndex;
                 data >> _fullHeroicId;
 
                 if (_unresponsiveDragonEntryFirst && _unresponsiveDragonEntrySecond)
@@ -505,7 +482,6 @@ class instance_bastion_of_twilight : public InstanceMapScript
             uint32 _unresponsiveDragonEntryFirst;
             uint32 _unresponsiveDragonEntrySecond;
             uint8 _deadOrphanedEmeraldWhelps;
-            uint8 _lastAreatriggerIndex;
             uint8 _fullHeroicId;
         };
 

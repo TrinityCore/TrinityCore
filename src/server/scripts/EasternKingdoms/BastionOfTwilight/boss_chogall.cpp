@@ -290,7 +290,7 @@ class TeleportAfterFallEvent : public BasicEvent
         Creature* _owner;
 };
 
-struct boss_chogall : public BossAI
+struct boss_chogall final : public BossAI
 {
     boss_chogall(Creature* creature) : BossAI(creature, DATA_CHOGALL)
     {
@@ -578,7 +578,7 @@ class SpilledBloodAuraEvent : public BasicEvent
         Creature* _owner;
 };
 
-struct npc_chogall_corrupting_adherent : public ScriptedAI
+struct npc_chogall_corrupting_adherent final : public ScriptedAI
 {
     npc_chogall_corrupting_adherent(Creature* creature) : ScriptedAI(creature)
     {
@@ -666,7 +666,7 @@ private:
     EventMap _events;
 };
 
-struct npc_chogall_blood_of_the_old_god : public ScriptedAI
+struct npc_chogall_blood_of_the_old_god final : public ScriptedAI
 {
     npc_chogall_blood_of_the_old_god(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript())
     {
@@ -724,7 +724,7 @@ private:
     InstanceScript* _instance;
 };
 
-struct npc_chogall_portal : public ScriptedAI
+struct npc_chogall_portal final : public ScriptedAI
 {
     npc_chogall_portal(Creature* creature) : ScriptedAI(creature) { }
 
@@ -759,7 +759,7 @@ private:
     EventMap _events;
 };
 
-struct npc_chogall_elemental : public PassiveAI
+struct npc_chogall_elemental final : public PassiveAI
 {
     npc_chogall_elemental(Creature* creature) : PassiveAI(creature), _instance(me->GetInstanceScript()) { }
 
@@ -816,7 +816,7 @@ private:
     InstanceScript* _instance;
 };
 
-struct npc_chogall_malformation : public ScriptedAI
+struct npc_chogall_malformation final : public ScriptedAI
 {
     npc_chogall_malformation(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript()) { }
 
@@ -848,7 +848,7 @@ private:
     InstanceScript* _instance;
 };
 
-struct npc_chogall_darkened_creation : public ScriptedAI
+struct npc_chogall_darkened_creation final : public ScriptedAI
 {
     npc_chogall_darkened_creation(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript())
     {
@@ -904,7 +904,7 @@ private:
     InstanceScript* _instance;
 };
 
-struct npc_chogall_spiked_tentacle : public ScriptedAI
+struct npc_chogall_spiked_tentacle final : public ScriptedAI
 {
     npc_chogall_spiked_tentacle(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript())
     {
@@ -957,7 +957,7 @@ private:
     InstanceScript* _instance;
 };
 
-class spell_chogall_absorb_elemental_reverse_cast : public SpellScript
+class spell_chogall_absorb_elemental_reverse_cast final : public SpellScript
 {
     void HandleScriptEffect(SpellEffIndex effIndex)
     {
@@ -970,7 +970,7 @@ class spell_chogall_absorb_elemental_reverse_cast : public SpellScript
     }
 };
 
-class spell_chogall_absorb_elemental : public SpellScript
+class spell_chogall_absorb_elemental final : public SpellScript
 {
     void HandleScriptEffect(SpellEffIndex effIndex)
     {
@@ -984,7 +984,7 @@ class spell_chogall_absorb_elemental : public SpellScript
     }
 };
 
-class spell_chogall_absorb_elemental_heroic : public SpellScript
+class spell_chogall_absorb_elemental_heroic final : public SpellScript
 {
     void HandleScriptEffect(SpellEffIndex effIndex)
     {
@@ -998,7 +998,7 @@ class spell_chogall_absorb_elemental_heroic : public SpellScript
     }
 };
 
-class spell_chogall_absorb_elemental_heroic_AuraScript : public AuraScript
+class spell_chogall_absorb_elemental_heroic_AuraScript final : public AuraScript
 {
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
@@ -1018,7 +1018,7 @@ class spell_chogall_absorb_elemental_heroic_AuraScript : public AuraScript
     }
 };
 
-class spell_chogall_elemental_power : public AuraScript
+class spell_chogall_elemental_power final : public AuraScript
 {
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
@@ -1033,7 +1033,7 @@ class spell_chogall_elemental_power : public AuraScript
     }
 };
 
-class spell_chogall_flaming_destruction_heroic : public AuraScript
+class spell_chogall_flaming_destruction_heroic final : public AuraScript
 {
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
@@ -1060,7 +1060,7 @@ class spell_chogall_flaming_destruction_heroic : public AuraScript
     }
 };
 
-class spell_chogall_empowered_shadows_heroic : public AuraScript
+class spell_chogall_empowered_shadows_heroic final : public AuraScript
 {
     void HandlePeriodic(AuraEffect const* aurEff)
     {
@@ -1083,7 +1083,7 @@ class spell_chogall_empowered_shadows_heroic : public AuraScript
     }
 };
 
-class spell_chogall_summon_corrupted_adherent : public SpellScript
+class spell_chogall_summon_corrupted_adherent final : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -1134,7 +1134,7 @@ class CorruptorDeathStateCheck
 
 };
 
-class spell_chogall_fester_blood : public SpellScript
+class spell_chogall_fester_blood final : public SpellScript
 {
     void FilterAliveTargets(std::list<WorldObject*>& targets)
     {
@@ -1159,7 +1159,7 @@ class spell_chogall_fester_blood : public SpellScript
     }
 };
 
-class spell_chogall_fester_blood_summon : public SpellScript
+class spell_chogall_fester_blood_summon final : public SpellScript
 {
     void HandleScriptEffect(SpellEffIndex effIndex)
     {
@@ -1173,7 +1173,7 @@ class spell_chogall_fester_blood_summon : public SpellScript
     }
 };
 
-class spell_chogall_conversion : public SpellScript
+class spell_chogall_conversion final : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -1208,7 +1208,7 @@ class spell_chogall_conversion : public SpellScript
     }
 };
 
-class spell_chogall_worshipping : public AuraScript
+class spell_chogall_worshipping final : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -1242,7 +1242,7 @@ class spell_chogall_worshipping : public AuraScript
     }
 };
 
-class spell_chogall_consume_blood_of_the_old_god : public AuraScript
+class spell_chogall_consume_blood_of_the_old_god final : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -1271,7 +1271,7 @@ class spell_chogall_consume_blood_of_the_old_god : public AuraScript
     }
 };
 
-class spell_chogall_consume_blood_of_the_old_god_triggered : public SpellScript
+class spell_chogall_consume_blood_of_the_old_god_triggered final : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -1293,7 +1293,7 @@ class spell_chogall_consume_blood_of_the_old_god_triggered : public SpellScript
     }
 };
 
-class spell_chogall_corruption_significant : public SpellScript
+class spell_chogall_corruption_significant final : public SpellScript
 {
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
@@ -1306,7 +1306,7 @@ class spell_chogall_corruption_significant : public SpellScript
     }
 };
 
-class spell_chogall_corruption_normal : public SpellScript
+class spell_chogall_corruption_normal final : public SpellScript
 {
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
@@ -1319,7 +1319,7 @@ class spell_chogall_corruption_normal : public SpellScript
     }
 };
 
-class spell_chogall_corruption_normal_alternative : public SpellScript
+class spell_chogall_corruption_normal_alternative final : public SpellScript
 {
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
@@ -1332,7 +1332,7 @@ class spell_chogall_corruption_normal_alternative : public SpellScript
     }
 };
 
-class spell_chogall_corruption_of_the_old_god : public SpellScript
+class spell_chogall_corruption_of_the_old_god final : public SpellScript
 {
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
@@ -1345,7 +1345,7 @@ class spell_chogall_corruption_of_the_old_god : public SpellScript
     }
 };
 
-class spell_chogall_corruption_sickness : public AuraScript
+class spell_chogall_corruption_sickness final : public AuraScript
 {
     void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
@@ -1359,7 +1359,7 @@ class spell_chogall_corruption_sickness : public AuraScript
     }
 };
 
-class spell_chogall_corruption_malformation : public AuraScript
+class spell_chogall_corruption_malformation final : public AuraScript
 {
     void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
@@ -1398,7 +1398,7 @@ class VehicleCheck
         Unit* passenger;
 };
 
-class spell_chogall_shadow_bolt : public SpellScript
+class spell_chogall_shadow_bolt final : public SpellScript
 {
     void FilterTargets(std::list<WorldObject*>& targets)
     {
@@ -1416,7 +1416,7 @@ class spell_chogall_shadow_bolt : public SpellScript
     }
 };
 
-class spell_chogall_debilitating_beam : public AuraScript
+class spell_chogall_debilitating_beam final : public AuraScript
 {
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
@@ -1429,7 +1429,7 @@ class spell_chogall_debilitating_beam : public AuraScript
     }
 };
 
-class achievement_the_abyss_will_gaze_into_you : public AchievementCriteriaScript
+class achievement_the_abyss_will_gaze_into_you final : public AchievementCriteriaScript
 {
     public:
         achievement_the_abyss_will_gaze_into_you() : AchievementCriteriaScript("achievement_the_abyss_will_gaze_into_you") { }

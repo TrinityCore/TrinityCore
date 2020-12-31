@@ -46,17 +46,18 @@ enum BoTDataTypes
     DATA_ELEMENTIUM_MONSTROSITY         = 12,
     DATA_ASCENDANT_COUNCIL_CONTROLLER   = 13,
     DATA_CORRUPTION                     = 14,
+    DATA_CHOGALL_EVENT                  = 15,
 
     // GameObject Types
-    DATA_GRIM_BATOL_RAID_TRAP_DOOR      = 15,
+    DATA_GRIM_BATOL_RAID_TRAP_DOOR      = 16,
 
     // Areatriggers
-    DATA_AT_HALFUS_INTRO                = 16,
-    DATA_AT_THERALION_AND_VALIONA_INTRO = 17,
-    DATA_AT_ASCENDANT_COUNCIL_INTRO_1   = 18,
-    DATA_AT_ASCENDANT_COUNCIL_INTRO_2   = 19,
-    DATA_AT_ASCENDANT_COUNCIL_INTRO_3   = 20,
-    DATA_AT_CHOGALL_INTRO               = 21,
+    DATA_AT_HALFUS_WYRMBREAKER_INTRO    = 17,
+    DATA_AT_THERALION_AND_VALIONA_INTRO = 18,
+    DATA_AT_ASCENDANT_COUNCIL_INTRO_1   = 19,
+    DATA_AT_ASCENDANT_COUNCIL_INTRO_2   = 20,
+    DATA_AT_ASCENDANT_COUNCIL_INTRO_3   = 21,
+    DATA_AT_CHOGALL_INTRO               = 22,
 
     // Encounter Related
     /*Halfus Wyrmbreaker*/
@@ -79,16 +80,6 @@ enum BoTDataStates
 {
     DRAGON_BUFFS_HALFUS_WYRMBREAKER,
     DRAGON_BUFFS_PROTO_BEHEMOTH,
-};
-
-enum BoTAreatriggerIndex
-{
-    AT_INDEX_HALFUS_WYRMBREAKER_INTRO       = 1,
-    AT_INDEX_THERALION_AND_VALIONA_INTRO    = 2,
-    AT_INDEX_ASCENDANT_COUNCIL_INTRO_1      = 3,
-    AT_INDEX_ASCENDANT_COUNCIL_INTRO_2      = 4,
-    AT_INDEX_ASCENDANT_COUNCIL_INTRO_3      = 5,
-    AT_INDEX_CHOGALL_INTRO                  = 6,
 };
 
 enum BoTCreatures
@@ -145,6 +136,7 @@ enum BoTCreatures
     NPC_SPIKED_TENTACLE_TRIGGER         = 50265,
 
     // Generic Creatures
+    NPC_CHOGALL                         = 46965,
     NPC_INVISIBLE_STALKER               = 42098,
     NPC_TWILIGHT_PHASE_SHIFTER          = 45267
 };
@@ -178,7 +170,8 @@ enum BoTActions
     ACTION_START_ARGUMENT_INTRO             = 1,
 
     // Cho'Gall (Non-Boss version)
-    ACTION_TALK_INTRO_HALFUS_WYRMBREAKER    = 1,
+    ACTION_TALK_HALFUS_WYRMBREAKER_INTRO    = 1,
+    ACTION_TALK_HALFUS_WYRMBREAKER_DEAD     = 2,
 
     // Cho'Gall (Boss)
     ACTION_TALK_THERALION_AND_VALIONA_INTRO = 1,
