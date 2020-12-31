@@ -141,7 +141,7 @@ QuaternionData const WhelpCageRot = QuaternionData(0.0f, 0.0f, -0.366501f, 0.930
 struct boss_halfus_wyrmbreaker final : public BossAI
 {
     boss_halfus_wyrmbreaker(Creature* creature) : BossAI(creature, DATA_HALFUS_WYRMBREAKER), _announcedOrphanedEmeraldWhelpBinding(false), _furiousRoarEnabled(false),
-        _furiousRoarCount(0), _theOnlyEscapeAchievementState(NOT_STARTED) { }
+        _theOnlyEscapeAchievementState(NOT_STARTED), _furiousRoarCount(0) { }
 
     void JustAppeared() override
     {
