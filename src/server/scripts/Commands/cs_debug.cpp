@@ -191,7 +191,9 @@ public:
             return false;
         }
 
-        uint32 soundId = atoul(args);
+        char const* soundIdToken = strtok((char*)args, " ");
+
+        uint32 soundId = atoul(soundIdToken);
 
         if (!sSoundKitStore.LookupEntry(soundId))
         {
@@ -210,10 +212,15 @@ public:
             return false;
         }
 
+        uint32 broadcastTextId = 0;
+        char const* broadcastTextIdToken = strtok(nullptr, " ");
+        if (broadcastTextIdToken)
+            broadcastTextId = atoul(broadcastTextIdToken);
+
         if (player->GetTarget().IsEmpty())
             unit->PlayDistanceSound(soundId, player);
         else
-            unit->PlayDirectSound(soundId, player);
+            unit->PlayDirectSound(soundId, player, broadcastTextId);
 
         handler->PSendSysMessage(LANG_YOU_HEAR_SOUND, soundId);
         return true;
