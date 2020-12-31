@@ -1824,12 +1824,12 @@ public:
         Cell::VisitGridObjects(player, worker, player->GetGridActivationRange());
 
         // Now handle any that had despawned, but had respawn time logged.
-        std::vector<RespawnInfo*> data;
+        std::vector<RespawnInfo const*> data;
         player->GetMap()->GetRespawnInfo(data, SPAWN_TYPEMASK_ALL);
         if (!data.empty())
         {
             uint32 const gridId = Trinity::ComputeGridCoord(player->GetPositionX(), player->GetPositionY()).GetId();
-            for (RespawnInfo* info : data)
+            for (RespawnInfo const* info : data)
                 if (info->gridId == gridId)
                     player->GetMap()->Respawn(info->type, info->spawnId);
         }

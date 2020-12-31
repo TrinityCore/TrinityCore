@@ -775,18 +775,18 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void DeleteRespawnInfoFromDB(SpawnObjectType type, ObjectGuid::LowType spawnId, CharacterDatabaseTransaction dbTrans = nullptr);
 
     public:
-        void GetRespawnInfo(std::vector<RespawnInfo*>& respawnData, SpawnObjectTypeMask types) const;
-        RespawnInfo* GetRespawnInfo(SpawnObjectType type, ObjectGuid::LowType spawnId) const;
+        void GetRespawnInfo(std::vector<RespawnInfo const*>& respawnData, SpawnObjectTypeMask types) const;
+        RespawnInfo const* GetRespawnInfo(SpawnObjectType type, ObjectGuid::LowType spawnId) const;
         void Respawn(SpawnObjectType type, ObjectGuid::LowType spawnId, CharacterDatabaseTransaction dbTrans = nullptr)
         {
-            if (RespawnInfo* info = GetRespawnInfo(type, spawnId))
+            if (RespawnInfo const* info = GetRespawnInfo(type, spawnId))
                 Respawn(info, dbTrans);
         }
-        void Respawn(RespawnInfo* info, CharacterDatabaseTransaction dbTrans = nullptr);
+        void Respawn(RespawnInfo const* info, CharacterDatabaseTransaction dbTrans = nullptr);
         void RemoveRespawnTime(SpawnObjectType type, ObjectGuid::LowType spawnId, CharacterDatabaseTransaction dbTrans = nullptr, bool alwaysDeleteFromDB = false)
         {
-            if (RespawnInfo* info = GetRespawnInfo(type, spawnId))
-                DeleteRespawnInfo(info, dbTrans);
+            if (RespawnInfo const* info = GetRespawnInfo(type, spawnId))
+                DeleteRespawnInfo(const_cast<RespawnInfo*>(info), dbTrans);
             // Some callers might need to make sure the database doesn't contain any respawn time
             else if (alwaysDeleteFromDB)
                 DeleteRespawnInfoFromDB(type, spawnId, dbTrans);
