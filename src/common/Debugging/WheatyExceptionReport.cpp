@@ -561,10 +561,16 @@ PEXCEPTION_POINTERS pExceptionInfo)
         {
             PVOID exceptionObject = reinterpret_cast<PVOID>(pExceptionRecord->ExceptionInformation[1]);
             ThrowInfo const* throwInfo = reinterpret_cast<ThrowInfo const*>(pExceptionRecord->ExceptionInformation[2]);
+#if _EH_RELATIVE_TYPEINFO
+            // When _EH_RELATIVE_TYPEINFO is defined, the pointers need to be retrieved with some pointer math
             auto resolveExceptionRVA = [pExceptionRecord](int32 rva) -> DWORD_PTR
             {
                 return rva + (pExceptionRecord->NumberParameters >= 4 ? pExceptionRecord->ExceptionInformation[3] : 0);
             };
+#else
+            // Otherwise the pointers are already there in the API types
+            auto resolveExceptionRVA = [](void const* input) -> void const* { return input; };
+#endif
 
             CatchableTypeArray const* catchables = reinterpret_cast<CatchableTypeArray const*>(resolveExceptionRVA(throwInfo->pCatchableTypeArray));
             CatchableType const* catchable = catchables->nCatchableTypes ? reinterpret_cast<CatchableType const*>(resolveExceptionRVA(catchables->arrayOfCatchableTypes[0])) : nullptr;
