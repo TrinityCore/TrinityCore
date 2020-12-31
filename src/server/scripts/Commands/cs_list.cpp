@@ -712,7 +712,7 @@ public:
                 handler->PSendSysMessage(LANG_LIST_RESPAWNS_ZONE, type == SPAWN_TYPE_CREATURE ? stringCreature : stringGameobject, zoneName, zoneId);
 
             handler->PSendSysMessage(LANG_LIST_RESPAWNS_LISTHEADER);
-            std::vector<RespawnInfo*> respawns;
+            std::vector<RespawnInfo const*> respawns;
             map->GetRespawnInfo(respawns, SpawnObjectTypeMask(1 << type));
             for (RespawnInfo const* ri : respawns)
             {
