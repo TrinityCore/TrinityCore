@@ -1,6 +1,6 @@
 //##############################################################################################
-// Stitch Decembre 2020 - version 1.0 , wow 9.0.2.36949
-// npc_changer - PNJ 15000142 : change race , faction , apparence gratuitement
+// Stitch Decembre 2020 - npc_changer - version 1.0 , wow 9.0.2.36949
+// PNJ 15000142 : change race , faction , apparence 
 //##############################################################################################
 
 #include "ScriptMgr.h"

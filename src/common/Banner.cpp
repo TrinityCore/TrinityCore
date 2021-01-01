@@ -27,10 +27,14 @@ void Trinity::Banner::Show(char const* applicationName, void(*log)(char const* t
     log("################################################################################");
     log("################################################################################");
     log(" Core Shadowlands basé sur Trinity http://TrinityCore.org - Stitch Décembre 2020");
+    log(" Remerciements a Noc et Galathil pour leurs aides");
     log(" ");
     log(" Modifications principales :");
     log(" - Races Alliées Activées par défaut (by Galathil)");
-    log(" ");
+    log(" - Action suite a un événement Joueur (Apprentissage,connexion,levelup,zone...");
+    log(" - PNJ change race , faction , apparence");
+    log(" - PNJ Lieux de depart chez une race allié ou instant level 10");
+    log(" - Aubergiste donne foyer et une pierre de foyer");
     log("################################################################################");
     log("################################################################################");
     log(" ");

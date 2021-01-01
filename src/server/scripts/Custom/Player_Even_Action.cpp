@@ -1,6 +1,6 @@
 //###################################################################################################################################################################
-// Stitch Decembre 2020 - version 1.0 , wow 9.0.2.36949 
-// Player_Even_Action_handler : Action (Apprentissage, ajout d'item,etc) suite a un événement Joueur (connexion,levelup,zone, création) suivant la classe ou la race
+// Stitch Decembre 2020 - Player_Even_Action_handler - version 1.0 , wow 9.0.2.36949 
+// Action (Apprentissage, ajout d'item,etc) suite a un événement Joueur (connexion,levelup,zone, création) suivant la classe ou la race
 //###################################################################################################################################################################
 
 //#include "Config.h"
@@ -61,7 +61,7 @@ case CLASS_HUNTER:
         player->LearnSpell(9321, true);     // Contrôle du familier
         player->LearnSpell(6991, true);     // Nourrir le familier
         player->LearnSpell(136, true);      // Guérison du familier - ne s'apprend pas ?!
-        player->LearnSpell(33976, true);    // Guérison du familier : temporaire : parce que 136 ne veux pas s'apprendre 
+        player->LearnSpell(33976, true);    // Guérison du familier : temporaire : parce que 136 ne veux pas s'apprendre seul
         player->LearnSpell(982, true);      // Ressusciter le familier
         player->LearnSpell(1515, true);     // Apprivoiser une bête
         player->LearnSpell(1462, true);     // Connaissance des bêtes
