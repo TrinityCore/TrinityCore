@@ -57,7 +57,7 @@ enum RBACPermissions
     RBAC_PERM_JOIN_RANDOM_BG                                 = 4,
     RBAC_PERM_JOIN_ARENAS                                    = 5,
     RBAC_PERM_JOIN_DUNGEON_FINDER                            = 6,
-    //  7 - reuse
+    RBAC_PERM_IGNORE_IDLE_CONNECTION                         = 7,
     //  8 - reuse
     //  9 - reuse
     RBAC_PERM_USE_CHARACTER_TEMPLATES                        = 10,
@@ -778,6 +778,14 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_DEBUG_THREATINFO                       = 870, // reserved
     RBAC_PERM_COMMAND_DEBUG_INSTANCESPAWN                    = 871, // reserved
     RBAC_PERM_COMMAND_SERVER_DEBUG                           = 872,
+    RBAC_PERM_COMMAND_RELOAD_CREATURE_MOVEMENT_OVERRIDE      = 873,
+    // 874 previously used, do not reuse
+    RBAC_PERM_COMMAND_LOOKUP_MAP_ID                          = 875,
+    RBAC_PERM_COMMAND_LOOKUP_ITEM_ID                         = 876,
+    RBAC_PERM_COMMAND_LOOKUP_QUEST_ID                        = 877,
+    // 878-879 previously used, do not reuse
+    RBAC_PERM_COMMAND_PDUMP_COPY                             = 880,
+    RBAC_PERM_COMMAND_RELOAD_VEHICLE_TEMPLATE                = 881,
     //
     // IF YOU ADD NEW PERMISSIONS, ADD THEM IN 3.3.5 BRANCH AS WELL!
     //
