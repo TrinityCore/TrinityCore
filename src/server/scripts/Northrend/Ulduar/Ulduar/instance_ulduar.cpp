@@ -961,6 +961,9 @@ class instance_ulduar : public InstanceMapScript
                     _summonObservationRingKeeper[3] = true;
 
                 data >> _CoUAchivePlayerDeathMask;
+                
+                if (GetBossState(DATA_ASSEMBLY_OF_IRON) != DONE)
+                    instance->SpawnGroupSpawn(SPAWN_GROUP_ASSEMBLY_OF_IRON, true);
             }
 
             void Update(uint32 diff) override
