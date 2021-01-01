@@ -3127,11 +3127,11 @@ bool Map::CheckRespawn(RespawnInfo* info)
         }
         case SPAWN_TYPE_GAMEOBJECT:
             // gameobject check is simpler - they cannot be dead or escorting
-            if (_gameobjectBySpawnIdStore.find(info->spawnId) != _gameobjectBySpawnIdStore.end())
+            if (_gameObjectBySpawnIdStore.find(info->spawnId) != _gameObjectBySpawnIdStore.end())
                 alreadyExists = true;
             break;
         default:
-            ABORT_MSG("Invalid spawn type %u with spawnId %u on map %u", uint32(info->type), info->spawnId, GetId());
+            ASSERT(false, "Invalid spawn type %u with spawnId %u on map %u", uint32(info->type), info->spawnId, GetId());
             return true;
     }
     if (alreadyExists)

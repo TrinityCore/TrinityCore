@@ -859,6 +859,6 @@ void PoolMgr::UpdatePool(uint32 pool_id, SpawnObjectType type, uint32 spawnId)
             UpdatePool<GameObject>(pool_id, spawnId);
             break;
         default:
-            ABORT_MSG("Invalid spawn type %u passed to PoolMgr::IsPartOfPool (with spawnId %u)", uint32(type), spawnId);
+            ASSERT(false, "Invalid spawn type %u passed to PoolMgr::IsPartOfPool (with spawnId %u)", uint32(type), spawnId);
     }
 }
