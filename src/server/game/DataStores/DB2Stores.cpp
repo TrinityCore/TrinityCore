@@ -196,6 +196,7 @@ DB2Storage<LockEntry>                           sLockStore("Lock.db2", LockLoadI
 DB2Storage<MailTemplateEntry>                   sMailTemplateStore("MailTemplate.db2", MailTemplateLoadInfo::Instance());
 DB2Storage<MapEntry>                            sMapStore("Map.db2", MapLoadInfo::Instance());
 DB2Storage<MapDifficultyEntry>                  sMapDifficultyStore("MapDifficulty.db2", MapDifficultyLoadInfo::Instance());
+DB2Storage<MapDifficultyXConditionEntry>        sMapDifficultyXConditionStore("MapDifficultyXCondition.db2", MapDifficultyXConditionLoadInfo::Instance());
 DB2Storage<ModifierTreeEntry>                   sModifierTreeStore("ModifierTree.db2", ModifierTreeLoadInfo::Instance());
 DB2Storage<MountCapabilityEntry>                sMountCapabilityStore("MountCapability.db2", MountCapabilityLoadInfo::Instance());
 DB2Storage<MountEntry>                          sMountStore("Mount.db2", MountLoadInfo::Instance());
@@ -418,6 +419,7 @@ namespace
     ItemSetSpellContainer _itemSetSpells;
     ItemSpecOverridesContainer _itemSpecOverrides;
     DB2Manager::MapDifficultyContainer _mapDifficulties;
+    std::unordered_map<uint32, DB2Manager::MapDifficultyConditionsContainer> _mapDifficultyConditions;
     std::unordered_map<uint32, MountEntry const*> _mountsBySpellId;
     MountCapabilitiesByTypeContainer _mountCapabilitiesByType;
     MountDisplaysCointainer _mountDisplays;
@@ -725,6 +727,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sMailTemplateStore);
     LOAD_DB2(sMapStore);
     LOAD_DB2(sMapDifficultyStore);
+    LOAD_DB2(sMapDifficultyXConditionStore);
     LOAD_DB2(sModifierTreeStore);
     LOAD_DB2(sMountCapabilityStore);
     LOAD_DB2(sMountStore);
@@ -1124,6 +1127,20 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     for (MapDifficultyEntry const* entry : sMapDifficultyStore)
         _mapDifficulties[entry->MapID][entry->DifficultyID] = entry;
     _mapDifficulties[0][0] = _mapDifficulties[1][0]; // map 0 is missing from MapDifficulty.dbc so we cheat a bit
+
+    std::vector<MapDifficultyXConditionEntry const*> mapDifficultyConditions;
+    mapDifficultyConditions.reserve(sMapDifficultyXConditionStore.GetNumRows());
+    for (MapDifficultyXConditionEntry const* mapDifficultyCondition : sMapDifficultyXConditionStore)
+        mapDifficultyConditions.push_back(mapDifficultyCondition);
+
+    std::sort(mapDifficultyConditions.begin(), mapDifficultyConditions.end(), [](MapDifficultyXConditionEntry const* left, MapDifficultyXConditionEntry const* right)
+    {
+        return left->OrderIndex < right->OrderIndex;
+    });
+
+    for (MapDifficultyXConditionEntry const* mapDifficultyCondition : mapDifficultyConditions)
+        if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(mapDifficultyCondition->PlayerConditionID))
+            _mapDifficultyConditions[mapDifficultyCondition->MapDifficultyID].emplace_back(mapDifficultyCondition->ID, playerCondition);
 
     for (MountEntry const* mount : sMountStore)
         _mountsBySpellId[mount->SourceSpellID] = mount;
@@ -2555,6 +2572,11 @@ MapDifficultyEntry const* DB2Manager::GetDownscaledMapDifficultyData(uint32 mapI
 
     difficulty = Difficulty(tmpDiff);
     return mapDiff;
+}
+
+DB2Manager::MapDifficultyConditionsContainer const* DB2Manager::GetMapDifficultyConditions(uint32 mapDifficultyId) const
+{
+    return Trinity::Containers::MapGetValuePtr(_mapDifficultyConditions, mapDifficultyId);
 }
 
 MountEntry const* DB2Manager::GetMount(uint32 spellId) const

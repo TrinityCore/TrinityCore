@@ -3561,6 +3561,23 @@ struct MapDifficultyLoadInfo
     }
 };
 
+struct MapDifficultyXConditionLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_STRING, "FailureDescription" },
+            { false, FT_INT, "PlayerConditionID" },
+            { true, FT_INT, "OrderIndex" },
+            { false, FT_INT, "MapDifficultyID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, MapDifficultyXConditionMeta::Instance(), HOTFIX_SEL_MAP_DIFFICULTY_X_CONDITION);
+        return &loadInfo;
+    }
+};
+
 struct ModifierTreeLoadInfo
 {
     static DB2LoadInfo const* Instance()
