@@ -20169,65 +20169,84 @@ void Player::SendRaidInfo()
 
 bool Player::Satisfy(AccessRequirement const* ar, uint32 target_map, bool report)
 {
-    if (!IsGameMaster() && ar)
+    if (!IsGameMaster())
     {
         uint8 LevelMin = 0;
         uint8 LevelMax = 0;
+        int32 failedMapDifficultyXCondition = 0;
+        uint32 missingItem = 0;
+        uint32 missingQuest = 0;
+        uint32 missingAchievement = 0;
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(target_map);
         if (!mapEntry)
             return false;
 
-        if (!sWorld->getBoolConfig(CONFIG_INSTANCE_IGNORE_LEVEL))
-        {
-            if (ar->levelMin && getLevel() < ar->levelMin)
-                LevelMin = ar->levelMin;
-            if (ar->levelMax && getLevel() > ar->levelMax)
-                LevelMax = ar->levelMax;
-        }
-
-        uint32 missingItem = 0;
-        if (ar->item)
-        {
-            if (!HasItemCount(ar->item) &&
-                (!ar->item2 || !HasItemCount(ar->item2)))
-                missingItem = ar->item;
-        }
-        else if (ar->item2 && !HasItemCount(ar->item2))
-            missingItem = ar->item2;
-
-        if (DisableMgr::IsDisabledFor(DISABLE_TYPE_MAP, target_map, this))
-        {
-            GetSession()->SendNotification("%s", GetSession()->GetTrinityString(LANG_INSTANCE_CLOSED));
-            return false;
-        }
-
-        uint32 missingQuest = 0;
-        if (GetTeam() == ALLIANCE && ar->quest_A && !GetQuestRewardStatus(ar->quest_A))
-            missingQuest = ar->quest_A;
-        else if (GetTeam() == HORDE && ar->quest_H && !GetQuestRewardStatus(ar->quest_H))
-            missingQuest = ar->quest_H;
-
-        uint32 missingAchievement = 0;
-        Player* leader = this;
-        ObjectGuid leaderGuid = GetGroup() ? GetGroup()->GetLeaderGUID() : GetGUID();
-        if (leaderGuid != GetGUID())
-            leader = ObjectAccessor::FindPlayer(leaderGuid);
-
-        if (ar->achievement)
-            if (!leader || !leader->HasAchieved(ar->achievement))
-                missingAchievement = ar->achievement;
-
         Difficulty target_difficulty = GetDifficultyID(mapEntry);
         MapDifficultyEntry const* mapDiff = sDB2Manager.GetDownscaledMapDifficultyData(target_map, target_difficulty);
-        if (LevelMin || LevelMax || missingItem || missingQuest || missingAchievement)
+        if (!sWorld->getBoolConfig(CONFIG_INSTANCE_IGNORE_LEVEL))
+        {
+            if (DB2Manager::MapDifficultyConditionsContainer const* mapDifficultyConditions = sDB2Manager.GetMapDifficultyConditions(mapDiff->ID))
+            {
+                for (auto&& itr : *mapDifficultyConditions)
+                {
+                    if (!ConditionMgr::IsPlayerMeetingCondition(this, itr.second))
+                    {
+                        failedMapDifficultyXCondition = itr.first;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (ar)
+        {
+            if (!sWorld->getBoolConfig(CONFIG_INSTANCE_IGNORE_LEVEL))
+            {
+                if (ar->levelMin && getLevel() < ar->levelMin)
+                    LevelMin = ar->levelMin;
+                if (ar->levelMax && getLevel() > ar->levelMax)
+                    LevelMax = ar->levelMax;
+            }
+
+            if (ar->item)
+            {
+                if (!HasItemCount(ar->item) &&
+                    (!ar->item2 || !HasItemCount(ar->item2)))
+                    missingItem = ar->item;
+            }
+            else if (ar->item2 && !HasItemCount(ar->item2))
+                missingItem = ar->item2;
+
+            if (DisableMgr::IsDisabledFor(DISABLE_TYPE_MAP, target_map, this))
+            {
+                GetSession()->SendNotification("%s", GetSession()->GetTrinityString(LANG_INSTANCE_CLOSED));
+                return false;
+            }
+
+            if (GetTeam() == ALLIANCE && ar->quest_A && !GetQuestRewardStatus(ar->quest_A))
+                missingQuest = ar->quest_A;
+            else if (GetTeam() == HORDE && ar->quest_H && !GetQuestRewardStatus(ar->quest_H))
+                missingQuest = ar->quest_H;
+
+            Player* leader = this;
+            ObjectGuid leaderGuid = GetGroup() ? GetGroup()->GetLeaderGUID() : GetGUID();
+            if (leaderGuid != GetGUID())
+                leader = ObjectAccessor::FindPlayer(leaderGuid);
+
+            if (ar->achievement)
+                if (!leader || !leader->HasAchieved(ar->achievement))
+                    missingAchievement = ar->achievement;
+        }
+
+        if (LevelMin || LevelMax || failedMapDifficultyXCondition || missingItem || missingQuest || missingAchievement)
         {
             if (report)
             {
                 if (missingQuest && !ar->questFailedText.empty())
                     ChatHandler(GetSession()).PSendSysMessage("%s", ar->questFailedText.c_str());
-                else if (mapDiff->Message[sWorld->GetDefaultDbcLocale()][0] != '\0') // if (missingAchievement) covered by this case
-                    SendTransferAborted(target_map, TRANSFER_ABORT_DIFFICULTY, target_difficulty);
+                else if (mapDiff->Message[sWorld->GetDefaultDbcLocale()][0] != '\0' || failedMapDifficultyXCondition) // if (missingAchievement) covered by this case
+                    SendTransferAborted(target_map, TRANSFER_ABORT_DIFFICULTY, target_difficulty, failedMapDifficultyXCondition);
                 else if (missingItem)
                     GetSession()->SendNotification(GetSession()->GetTrinityString(LANG_LEVEL_MINREQUIRED_AND_ITEM), LevelMin, ASSERT_NOTNULL(sObjectMgr->GetItemTemplate(missingItem))->GetName(GetSession()->GetSessionDbcLocale()));
                 else if (LevelMin)
@@ -24396,12 +24415,13 @@ void Player::SendUpdateToOutOfRangeGroupMembers()
         pet->ResetGroupUpdateFlag();
 }
 
-void Player::SendTransferAborted(uint32 mapid, TransferAbortReason reason, uint8 arg) const
+void Player::SendTransferAborted(uint32 mapid, TransferAbortReason reason, uint8 arg /*= 0*/, int32 mapDifficultyXConditionID /*= 0*/) const
 {
     WorldPackets::Movement::TransferAborted transferAborted;
     transferAborted.MapID = mapid;
     transferAborted.Arg = arg;
     transferAborted.TransfertAbort = reason;
+    transferAborted.MapDifficultyXConditionID = mapDifficultyXConditionID;
     SendDirectMessage(transferAborted.Write());
 }
 
