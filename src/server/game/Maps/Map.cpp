@@ -3093,11 +3093,11 @@ bool Map::CheckRespawn(RespawnInfo* info)
     return true;
 }
 
-void Map::Respawn(RespawnInfo const* info, CharacterDatabaseTransaction dbTrans)
+void Map::Respawn(RespawnInfo* info, CharacterDatabaseTransaction dbTrans)
 {
     if (info->respawnTime <= GameTime::GetGameTime())
         return;
-    const_cast<RespawnInfo*>(info)->respawnTime = GameTime::GetGameTime();
+    info->respawnTime = GameTime::GetGameTime();
     _respawnTimes.increase(info->handle);
     SaveRespawnInfoDB(*info, dbTrans);
 }
@@ -3173,7 +3173,7 @@ void Map::GetRespawnInfo(std::vector<RespawnInfo const*>& respawnData, SpawnObje
         PushRespawnInfoFrom(respawnData, _gameObjectRespawnTimesBySpawnId);
 }
 
-RespawnInfo const* Map::GetRespawnInfo(SpawnObjectType type, ObjectGuid::LowType spawnId) const
+RespawnInfo* Map::GetRespawnInfo(SpawnObjectType type, ObjectGuid::LowType spawnId) const
 {
     RespawnInfoMap const& map = GetRespawnMapForType(type);
     auto it = map.find(spawnId);
