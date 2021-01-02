@@ -2696,7 +2696,8 @@ CreatureMovementData const& Creature::GetMovementTemplate() const
 
 bool Creature::CanEnterWater() const
 {
-    if (IsPet())
+    // Player controlled units are allowed go enter water
+    if (IsPet() || HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
         return true;
     return GetMovementTemplate().IsSwimAllowed();
 }
