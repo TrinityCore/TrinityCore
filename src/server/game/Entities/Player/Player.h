@@ -1058,7 +1058,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetObjectScale(float scale) override;
 
         bool TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options = 0);
-        bool TeleportTo(WorldLocation const &loc, uint32 options = 0);
+        bool TeleportTo(uint32 mapid, Position const& pos, uint32 options = 0);
+        bool TeleportTo(WorldLocation const& loc, uint32 options = 0);
+        bool SeamlessTeleportToMap(uint32 mapid, uint32 options = 0);
         bool TeleportToBGEntryPoint();
 
         bool HasSummonPending() const;
@@ -2377,6 +2379,29 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         SceneMgr& GetSceneMgr() { return m_sceneMgr; }
         RestMgr& GetRestMgr() const { return *_restMgr; }
+
+        struct MovieDelayedTeleport
+        {
+            uint32 movieId;
+            WorldLocation loc;
+        };
+
+        std::vector<MovieDelayedTeleport> MovieDelayedTeleports;
+
+        void AddMovieDelayedTeleport(uint32 movieId, uint32 mapID, float x, float y, float z, float o)
+        {
+            MovieDelayedTeleport data;
+            data.movieId = movieId;
+            data.loc = WorldLocation(mapID);
+            data.loc.Relocate(x, y, z, o);
+
+            MovieDelayedTeleports.push_back(data);
+        }
+
+        void AddMovieDelayedTeleport(uint32 movieId, uint32 mapID, Position pos)
+        {
+            AddMovieDelayedTeleport(movieId, mapID, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
+        }
 
         void SendPlayerChoice(ObjectGuid sender, int32 choiceId);
 
