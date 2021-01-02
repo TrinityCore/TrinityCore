@@ -2015,11 +2015,11 @@ Position pos(x, y, z);
 void TSUnit::SendUnitWhisper(TSString msg,uint32 lang,TSPlayer _receiver,bool bossWhisper)
 {
     auto receiver = _receiver.player;
-    if (std::string(msg).length() > 0)
+    if (msg.get_length() > 0)
 #ifdef TRINITY
-        unit->Whisper(msg.std_str(), (Language)lang, receiver, bossWhisper);
+        unit->Whisper(msg._value.c_str(), (Language)lang, receiver, bossWhisper);
 #else
-        unit->MonsterWhisper(msg.c_str(), receiver, bossWhisper);
+        unit->MonsterWhisper(msg._value.c_str(), receiver, bossWhisper);
 #endif
 }
     

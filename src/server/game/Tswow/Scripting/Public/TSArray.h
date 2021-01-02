@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <functional>
 #include <vector>
+#include <iostream>
 
 template <typename T>
 struct TSArrayKeys
@@ -139,7 +140,7 @@ public:
 
     int lastIndexOf(const T& e)
     {
-        for (int i = get_length()-1; i >= 0; --i)
+        for (int i = get_length() - 1; i >= 0; --i)
         {
             if (vec[i] == e)
             {
@@ -188,21 +189,16 @@ public:
         vec[index] = value;
     }
 
-    TSArray<T> filter(std::function<bool(T)> p)
-    {
-        std::vector<T> result;
-        std::copy_if(vec.begin(), vec.end(), std::back_inserter(result), p);
-        return TSArray(result);
-    }
-
     TSArray<T> filter(std::function<bool(T, size_t)> p)
     {
         std::vector<T> result;
-        auto first = &(vec)[0];
-        std::copy_if(vec.begin(), vec.end(), std::back_inserter(result), [=](auto& v) {
-            auto index = &v - first;
-            return p(v, index);
-        });
+        for(int i=0;i<get_length();++i)
+        {
+            if(p(vec[i],i))
+            {
+                result.push_back(vec[i]);
+            }
+        }
         return TSArray(result);
     }
 
@@ -273,7 +269,7 @@ public:
 
     void insert(uint32_t position, T value)
     {
-        vec.insert(vec.begin()+position, value);
+        vec.insert(vec.begin() + position, value);
     }
 
     TSArray<T> concat(TSArray<T> addition)
@@ -283,30 +279,28 @@ public:
         clone.vec.insert(clone.end(), addition->begin(), addition->end());
         return clone;
     }
-};
 
-template <typename T>
-std::ostream& operator<<(std::ostream& os, TSArray<T>* arr)
-{
-    os << (*arr);
-    return os;
-}
-
-template <typename T>
-std::ostream& operator<<(std::ostream& os, TSArray<T> arr)
-{
-    os << "[";
-    for (int i = 0; i < arr.get_length(); ++i)
+    friend std::ostream& operator<<(std::ostream& os, TSArray<T> arr)
     {
-        if (i < arr.get_length() - 1)
+        os << "[";
+        for (int i = 0; i < arr.get_length(); ++i)
         {
-            os << arr[i] << ",";
+            if (i < arr.get_length() - 1)
+            {
+                os << arr[i] << ",";
+            }
+            else
+            {
+                os << arr[i];
+            }
         }
-        else
-        {
-            os << arr[i];
-        }
+        os << "]";
+        return os;
     }
-    os << "]";
-    return os;
-}
+
+    friend std::ostream& operator<<(std::ostream& os, TSArray<T>* arr)
+    {
+        os << (*arr);
+        return os;
+    }
+};

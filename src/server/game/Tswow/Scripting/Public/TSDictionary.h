@@ -17,6 +17,7 @@
 #pragma once
 
 #include <map>
+#include <iostream>
 
 template <typename K, typename V>
 struct TSDictionary {
@@ -34,7 +35,7 @@ public:
     }
 
     auto contains(K key) {
-        return _map.find(key)!=_map.end();
+        return _map.find(key) != _map.end();
     }
 
     auto get_length() {
@@ -49,6 +50,11 @@ public:
     auto set(K key, V value)
     {
         _map[key] = value;
+    }
+
+    constexpr TSDictionary* operator->()
+    {
+        return this;
     }
 
     auto filter(std::function<bool(K, V)> p)
@@ -85,32 +91,30 @@ public:
             p(it->first, it->second);
         }
     }
-};
 
-template <typename K, typename V>
-std::ostream& operator<<(std::ostream& os, const TSDictionary<K, V> * map)
-{
-    os << (*map);
-    return os;
-}
-
-template <typename K, typename V>
-std::ostream& operator<<(std::ostream& os, const TSDictionary<K,V> map)
-{
-    os << "{" << std::endl;
-    uint32_t ctr = 0;
-    for (auto& g : map._map) {
-        if (++ctr < map._map.size())
-        {
-            os << "    " << g.first << ":" << g.second << "," << std::endl;
-        }
-        else
-        {
-            os << "    " << g.first << ":" << g.second << std::endl;
-        }
+    friend std::ostream& operator<<(std::ostream& os, const TSDictionary<K, V>* map)
+    {
+        os << (*map);
+        return os;
     }
-    os << "}";
-    return os;
-}
+
+    friend std::ostream& operator<<(std::ostream& os, const TSDictionary<K, V> map)
+    {
+        os << "{\n";
+        uint32_t ctr = 0;
+        for (auto& g : map._map) {
+            if (++ctr < map._map.size())
+            {
+                os << "    " << g.first << ":" << g.second << ",\n";
+            }
+            else
+            {
+                os << "    " << g.first << ":" << g.second << "\n";
+            }
+        }
+        os << "}";
+        return os;
+    }
+};
 
 #define MakeDictionary TSDictionary

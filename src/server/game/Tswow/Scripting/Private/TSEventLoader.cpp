@@ -330,7 +330,7 @@ void LoadIDs()
             ++i;
             curstr[strlen] = NULL;
             TSString table = TSString(std::string(curstr));
-            TSString name = TSString(table + JSTR(":") + std::string(curstr + namepos));
+            TSString name = TSString(table + JSTR(":") + JSTR(curstr + namepos));
             strlen = 0;
             int low = atoi(curstr + lowpos);
             int high = atoi(curstr + hipos);

@@ -1,9 +1,27 @@
+#pragma once
+
 #include <string>
 #include <algorithm>
 #include "TSArray.h"
 #include "TSDictionary.h"
 
 #define JSTR(quote) TSString(quote)
+
+#define STR_OP(cls,conv) friend TSString operator+(const TSString& lhs, cls) \
+{                                                                     \
+    return TSString(lhs._value + conv);                               \
+}                                                                     \
+                                                                      \
+friend TSString operator+(cls, const TSString& rhs)                   \
+{                                                                     \
+    return TSString(conv + rhs._value);                               \
+}                                                                     \
+                                                                      \
+friend TSString& operator+=(TSString& lhs, cls)                       \
+{                                                                     \
+    lhs._value += conv;                                               \
+    return lhs;                                                       \
+}                                                                     \
 
 typedef wchar_t char_t;
 
@@ -23,6 +41,10 @@ struct TSString {
 
     auto std_str() {
         return this->_value;
+    }
+
+    bool operator<(const TSString& str) const {
+        return _value < str._value;
     }
 
     friend std::ostream& operator<<(std::ostream& os, TSString val)
@@ -176,7 +198,7 @@ struct TSString {
 
     TSString charAt(int index)
     {
-        return substring(index, index+1);
+        return substring(index, index + 1);
     }
 
     TSString operator+(TSString rhs)
@@ -184,174 +206,160 @@ struct TSString {
         return TSString(_value + rhs._value);
     }
 
+    bool operator==(TSString rhs)
+    {
+        return _value == rhs._value;
+    }
+
+
     TSString& operator+=(const TSString rhs)
     {
         _value += rhs._value;
         return *this;
     }
 
-    bool operator<(const TSString& str) const {
-        return _value < str._value;
-    }
 
     operator const char* () { return _value.c_str(); }
     operator std::string() const { return _value; }
+
+    STR_OP(const uint8_t v, std::to_string(v))
+        STR_OP(const int8_t v, std::to_string(v))
+        STR_OP(const uint16_t v, std::to_string(v))
+        STR_OP(const int16_t v, std::to_string(v))
+        STR_OP(const uint32_t v, std::to_string(v))
+        STR_OP(const int32_t v, std::to_string(v))
+        STR_OP(const uint64_t v, std::to_string(v))
+        STR_OP(const int64_t v, std::to_string(v))
+        STR_OP(const float v, std::to_string(v))
+        STR_OP(const double v, std::to_string(v))
+        STR_OP(const std::string v, v)
+        STR_OP(const char* v, v)
+
+        template <typename T>
+    friend TSString& operator+=(TSString& lhs, TSArray<T>* arr)
+    {
+        lhs._value += str(*arr)._value;
+        return lhs;
+    }
+
+    template <typename T>
+    friend TSString operator+(const TSString& lhs, const TSArray<T>* arr)
+    {
+        return TSString(lhs._value + str(*arr)._value);
+    }
+
+    template <typename T>
+    friend TSString operator+(const TSArray<T>* arr, const TSString& rhs)
+    {
+        return TSString(str(*arr)._value + rhs._value);
+    }
+
+    template <typename K, typename V>
+    friend TSString& operator+=(TSString& lhs, TSDictionary<K, V>* map)
+    {
+        lhs._value += str(*map)._value;
+        return lhs;
+    }
+
+    template <typename K, typename V>
+    friend TSString operator+(const TSString& lhs, const TSDictionary<K, V>* map)
+    {
+        return TSString(lhs._value + str(*map)._value);
+    }
+
+    template <typename K, typename V>
+    friend TSString operator+(const TSDictionary<K, V>* arr, const TSString& rhs)
+    {
+        return TSString(str(*arr)._value + rhs._value);
+    }
+
+    template <typename T>
+    friend TSString& operator+=(TSString& lhs, TSArray<T> arr)
+    {
+        lhs._value += str(arr)._value;
+        return lhs;
+    }
+
+    template <typename T>
+    friend TSString operator+(const TSString& lhs, const TSArray<T> arr)
+    {
+        return TSString(lhs._value + str(arr)._value);
+    }
+
+    template <typename T>
+    friend TSString operator+(const TSArray<T> arr, const TSString& rhs)
+    {
+        return TSString(str(arr)._value + rhs._value);
+    }
+
+    template <typename K, typename V>
+    friend TSString& operator+=(TSString& lhs, TSDictionary<K, V> map)
+    {
+        lhs._value += str(map)._value;
+        return lhs;
+    }
+
+    template <typename K, typename V>
+    friend TSString operator+(const TSString& lhs, const TSDictionary<K, V> map)
+    {
+        return TSString(lhs._value + str(map)._value);
+    }
+
+    template <typename K, typename V>
+    friend TSString operator+(const TSDictionary<K, V> arr, const TSString& rhs)
+    {
+        return TSString(str(arr)._value + rhs._value);
+    }
+
+    friend bool operator==(const TSString& lhs, const TSString& rhs)
+    {
+        return lhs._value == rhs._value;
+    }
+
+    friend bool operator!=(const TSString& lhs, const TSString& rhs)
+    {
+        return !(lhs._value == rhs._value);
+    }
+
+    template <typename T>
+    friend TSString str(TSArray<T> arr)
+    {
+        TSString str = JSTR("[");
+        for (int i = 0; i < arr.get_length(); ++i)
+        {
+            if (i < arr.get_length() - 1)
+            {
+                str += arr[i];
+            }
+            else
+            {
+                str += arr[i] + JSTR(",");
+            }
+        }
+        return str + JSTR("]");
+    }
+
+    template <typename K, typename V>
+    friend TSString str(TSDictionary<K, V> dict)
+    {
+        TSString str = JSTR("{");
+        if (dict.get_length() > 0)
+        {
+            str = str + JSTR("\n");
+        }
+
+        int ctr = 0;
+        for (auto& e : dict._map)
+        {
+            if (++ctr >= dict.get_length())
+            {
+                str += JSTR("    ") + e.first + JSTR(":") + e.second + JSTR("\n");
+            }
+            else
+            {
+                str += JSTR("    ") + e.first + JSTR(":") + e.second + JSTR(",\n");
+            }
+        }
+        return str + JSTR("}");
+    }
 };
-
-#define STR_OP(cls,conv) TSString operator+(const TSString& lhs, cls) \
-{                                                                     \
-    return TSString(lhs._value + conv);                               \
-}                                                                     \
-                                                                      \
-TSString operator+(cls, const TSString& rhs)                          \
-{                                                                     \
-    return TSString(conv + rhs._value);                               \
-}                                                                     \
-                                                                      \
-TSString& operator+=(TSString& lhs, cls)                              \
-{                                                                     \
-    lhs._value += conv;                                               \
-    return lhs;                                                       \
-}                                                                     \
-
-template <typename T>
-TSString& operator+=(TSString& lhs, TSArray<T> * arr)
-{
-    lhs._value += str(*arr)._value;
-    return *lhs;
-}
-
-template <typename T>
-TSString operator+(const TSString& lhs, const TSArray<T> * arr)
-{
-    return TSString(lhs._value + str(*arr)._value);
-}
-
-template <typename T>
-TSString operator+(const TSArray<T> * arr, const TSString& rhs)
-{
-    return TSString(str(*arr)._value + rhs._value);
-}
-
-template <typename K, typename V>
-TSString& operator+=(TSString& lhs, TSDictionary<K, V> * map)
-{
-    lhs._value += str(*map)._value;
-    return lhs;
-}
-
-template <typename K, typename V>
-TSString operator+(const TSString& lhs, const TSDictionary<K, V> * map)
-{
-    return TSString(lhs._value + str(*map)._value);
-}
-
-template <typename K, typename V>
-TSString operator+(const TSDictionary<K, V> * arr, const TSString& rhs)
-{
-    return TSString(str(*arr)._value + rhs._value);
-}
-
-template <typename T>
-TSString& operator+=(TSString& lhs, TSArray<T> arr)
-{
-    lhs._value += str(arr)._value;
-    return *lhs;
-}
-
-template <typename T>
-TSString operator+(const TSString& lhs, const TSArray<T> arr) 
-{
-    return TSString(lhs._value + str(arr)._value);
-}
-
-template <typename T>
-TSString operator+(const TSArray<T> arr, const TSString& rhs)
-{
-    return TSString(str(arr)._value + rhs._value);
-}
-
-template <typename K, typename V>
-TSString& operator+=(TSString& lhs, TSDictionary<K,V> map)
-{
-    lhs._value += str(map)._value;
-    return lhs;
-}
-
-template <typename K, typename V>
-TSString operator+(const TSString& lhs, const TSDictionary<K,V> map)
-{
-    return TSString(lhs._value + str(map)._value);
-}
-
-template <typename K, typename V>
-TSString operator+(const TSDictionary<K,V> arr, const TSString& rhs)
-{
-    return TSString(str(arr)._value + rhs._value);
-}
-
-bool operator==(const TSString& lhs, const TSString& rhs)
-{
-    return lhs._value == rhs._value;
-}
-
-bool operator!=(const TSString& lhs, const TSString& rhs)
-{
-    return !(lhs == rhs);
-}
-
-template <typename T>
-TSString str(TSArray<T> arr)
-{
-    TSString str = "[";
-    for (int i = 0; i < arr.size(); ++i)
-    {
-        if (i < arr.size() - 1)
-        {
-            str += arr[i];
-        }
-        else
-        {
-            str += arr[i] + JSTR(",");
-        }
-    }
-    return str+JSTR("]");
-}
-
-template <typename K, typename V>
-TSString str(TSDictionary<K, V> dict)
-{
-    TSString str = JSTR("{");
-    if (dict.get_length() > 0)
-    {
-        str = str + JSTR("\n");
-    }
-
-    int ctr = 0;
-    for (auto& e : dict._map)
-    {
-        if (++ctr >= dict.get_length())
-        {
-            str += JSTR("    ") + e.first + JSTR(":") + e.second + JSTR("\n");
-        }
-        else
-        {
-            str += JSTR("    ") + e.first + JSTR(":") + e.second + JSTR(",\n");
-        }
-    }
-    return str + JSTR("}");
-}
-
-
-STR_OP(const uint8_t v, std::to_string(v))
-STR_OP(const int8_t v, std::to_string(v))
-STR_OP(const uint16_t v, std::to_string(v))
-STR_OP(const int16_t v, std::to_string(v))
-STR_OP(const uint32_t v, std::to_string(v))
-STR_OP(const int32_t v, std::to_string(v))
-STR_OP(const uint64_t v, std::to_string(v))
-STR_OP(const int64_t v, std::to_string(v))
-STR_OP(const float v, std::to_string(v))
-STR_OP(const double v, std::to_string(v))
-STR_OP(const std::string v, v)
-STR_OP(const char* v, v)
