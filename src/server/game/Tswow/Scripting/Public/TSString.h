@@ -223,19 +223,19 @@ struct TSString {
     operator std::string() const { return _value; }
 
     STR_OP(const uint8_t v, std::to_string(v))
-        STR_OP(const int8_t v, std::to_string(v))
-        STR_OP(const uint16_t v, std::to_string(v))
-        STR_OP(const int16_t v, std::to_string(v))
-        STR_OP(const uint32_t v, std::to_string(v))
-        STR_OP(const int32_t v, std::to_string(v))
-        STR_OP(const uint64_t v, std::to_string(v))
-        STR_OP(const int64_t v, std::to_string(v))
-        STR_OP(const float v, std::to_string(v))
-        STR_OP(const double v, std::to_string(v))
-        STR_OP(const std::string v, v)
-        STR_OP(const char* v, v)
+    STR_OP(const int8_t v, std::to_string(v))
+    STR_OP(const uint16_t v, std::to_string(v))
+    STR_OP(const int16_t v, std::to_string(v))
+    STR_OP(const uint32_t v, std::to_string(v))
+    STR_OP(const int32_t v, std::to_string(v))
+    STR_OP(const uint64_t v, std::to_string(v))
+    STR_OP(const int64_t v, std::to_string(v))
+    STR_OP(const float v, std::to_string(v))
+    STR_OP(const double v, std::to_string(v))
+    STR_OP(const std::string v, v)
+    STR_OP(const char* v, v)
 
-        template <typename T>
+    template <typename T>
     friend TSString& operator+=(TSString& lhs, TSArray<T>* arr)
     {
         lhs._value += str(*arr)._value;
