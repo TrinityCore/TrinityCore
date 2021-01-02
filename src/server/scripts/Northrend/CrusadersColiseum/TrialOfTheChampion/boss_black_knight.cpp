@@ -195,7 +195,7 @@ public:
                         {
                             if (uiDeathRespiteTimer <= uiDiff)
                             {
-                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
                                 {
                                     if (target->IsAlive())
                                         DoCast(target, SPELL_DEATH_RESPITE);
@@ -223,7 +223,7 @@ public:
                             }
                             if (uiDesecration <= uiDiff)
                             {
-                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
                                 {
                                     if (target->IsAlive())
                                         DoCast(target, SPELL_DESECRATION);
@@ -250,7 +250,7 @@ public:
                     } else uiDeathBiteTimer -= uiDiff;
                     if (uiMarkedDeathTimer <= uiDiff)
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
                         {
                             if (target->IsAlive())
                                 DoCast(target, SPELL_MARKED_DEATH);
@@ -290,7 +290,7 @@ public:
         {
             DoCast(me, SPELL_KILL_CREDIT);
 
-            instance->SetData(BOSS_BLACK_KNIGHT, DONE);
+            instance->SetBossState(BOSS_BLACK_KNIGHT, DONE);
         }
     };
 
@@ -331,7 +331,7 @@ public:
 
             if (uiAttackTimer <= uiDiff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 100, true))
                 {
                     if (target->IsAlive())
                         DoCast(target, (SPELL_LEAP));

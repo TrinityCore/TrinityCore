@@ -92,7 +92,7 @@ MailDraft& MailDraft::AddItem(Item* item)
     m_items[item->GetGUID().GetCounter()] = item; return *this;
 }
 
-void MailDraft::prepareItems(Player* receiver, SQLTransaction& trans)
+void MailDraft::prepareItems(Player* receiver, CharacterDatabaseTransaction trans)
 {
     if (!m_mailTemplateId || !m_mailTemplateItemsNeed)
         return;
@@ -122,7 +122,7 @@ void MailDraft::prepareItems(Player* receiver, SQLTransaction& trans)
     }
 }
 
-void MailDraft::deleteIncludedItems(SQLTransaction& trans, bool inDB /*= false*/ )
+void MailDraft::deleteIncludedItems(CharacterDatabaseTransaction trans, bool inDB /*= false*/ )
 {
     for (MailItemMap::iterator mailItemIter = m_items.begin(); mailItemIter != m_items.end(); ++mailItemIter)
     {
@@ -130,7 +130,7 @@ void MailDraft::deleteIncludedItems(SQLTransaction& trans, bool inDB /*= false*/
 
         if (inDB)
         {
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
             stmt->setUInt32(0, item->GetGUID().GetCounter());
             trans->Append(stmt);
         }
@@ -141,7 +141,7 @@ void MailDraft::deleteIncludedItems(SQLTransaction& trans, bool inDB /*= false*/
     m_items.clear();
 }
 
-void MailDraft::SendReturnToSender(uint32 sender_acc, ObjectGuid::LowType sender_guid, ObjectGuid::LowType receiver_guid, SQLTransaction& trans)
+void MailDraft::SendReturnToSender(uint32 sender_acc, ObjectGuid::LowType sender_guid, ObjectGuid::LowType receiver_guid, CharacterDatabaseTransaction trans)
 {
     ObjectGuid receiverGuid(HighGuid::Player, receiver_guid);
     Player* receiver = ObjectAccessor::FindConnectedPlayer(receiverGuid);
@@ -170,7 +170,7 @@ void MailDraft::SendReturnToSender(uint32 sender_acc, ObjectGuid::LowType sender
             Item* item = mailItemIter->second;
             item->SaveToDB(trans);                      // item not in inventory and can be save standalone
             // owner in data will set at mail receive and item extracting
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ITEM_OWNER);
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ITEM_OWNER);
             stmt->setUInt32(0, receiver_guid);
             stmt->setUInt32(1, item->GetGUID().GetCounter());
             trans->Append(stmt);
@@ -184,7 +184,7 @@ void MailDraft::SendReturnToSender(uint32 sender_acc, ObjectGuid::LowType sender
     SendMailTo(trans, MailReceiver(receiver, receiver_guid), MailSender(MAIL_NORMAL, sender_guid), MAIL_CHECK_MASK_RETURNED, deliver_delay);
 }
 
-void MailDraft::SendMailTo(SQLTransaction& trans, MailReceiver const& receiver, MailSender const& sender, MailCheckMask checked, uint32 deliver_delay)
+void MailDraft::SendMailTo(CharacterDatabaseTransaction trans, MailReceiver const& receiver, MailSender const& sender, MailCheckMask checked, uint32 deliver_delay)
 {
     Player* pReceiver = receiver.GetPlayer();               // can be NULL
     Player* pSender = ObjectAccessor::FindPlayerByLowGUID(sender.GetSenderId());
@@ -218,7 +218,7 @@ void MailDraft::SendMailTo(SQLTransaction& trans, MailReceiver const& receiver, 
 
     // Add to DB
     uint8 index = 0;
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_MAIL);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_MAIL);
     stmt->setUInt32(  index, mailId);
     stmt->setUInt8 (++index, uint8(sender.GetMailMessageType()));
     stmt->setInt8  (++index, int8(sender.GetStationery()));
@@ -250,48 +250,40 @@ void MailDraft::SendMailTo(SQLTransaction& trans, MailReceiver const& receiver, 
     {
         pReceiver->AddNewMailDeliverTime(deliver_time);
 
-        if (pReceiver->IsMailsLoaded())
+        Mail* m = new Mail;
+        m->messageID = mailId;
+        m->mailTemplateId = GetMailTemplateId();
+        m->subject = GetSubject();
+        m->body = GetBody();
+        m->money = GetMoney();
+        m->COD = GetCOD();
+
+        for (MailItemMap::const_iterator mailItemIter = m_items.begin(); mailItemIter != m_items.end(); ++mailItemIter)
         {
-            Mail* m = new Mail;
-            m->messageID = mailId;
-            m->mailTemplateId = GetMailTemplateId();
-            m->subject = GetSubject();
-            m->body = GetBody();
-            m->money = GetMoney();
-            m->COD = GetCOD();
-
-            for (MailItemMap::const_iterator mailItemIter = m_items.begin(); mailItemIter != m_items.end(); ++mailItemIter)
-            {
-                Item* item = mailItemIter->second;
-                m->AddItem(item->GetGUID().GetCounter(), item->GetEntry());
-            }
-
-            m->messageType = sender.GetMailMessageType();
-            m->stationery = sender.GetStationery();
-            m->sender = sender.GetSenderId();
-            m->receiver = receiver.GetPlayerGUIDLow();
-            m->expire_time = expire_time;
-            m->deliver_time = deliver_time;
-            m->checked = checked;
-            m->state = MAIL_STATE_UNCHANGED;
-
-            pReceiver->AddMail(m);                           // to insert new mail to beginning of maillist
-
-            if (!m_items.empty())
-            {
-                for (MailItemMap::iterator mailItemIter = m_items.begin(); mailItemIter != m_items.end(); ++mailItemIter)
-                    pReceiver->AddMItem(mailItemIter->second);
-            }
+            Item* item = mailItemIter->second;
+            m->AddItem(item->GetGUID().GetCounter(), item->GetEntry());
         }
-        else if (!m_items.empty())
+
+        m->messageType = sender.GetMailMessageType();
+        m->stationery = sender.GetStationery();
+        m->sender = sender.GetSenderId();
+        m->receiver = receiver.GetPlayerGUIDLow();
+        m->expire_time = expire_time;
+        m->deliver_time = deliver_time;
+        m->checked = checked;
+        m->state = MAIL_STATE_UNCHANGED;
+
+        pReceiver->AddMail(m);                           // to insert new mail to beginning of maillist
+
+        if (!m_items.empty())
         {
-            SQLTransaction temp = SQLTransaction(nullptr);
-            deleteIncludedItems(temp);
+            for (MailItemMap::iterator mailItemIter = m_items.begin(); mailItemIter != m_items.end(); ++mailItemIter)
+                pReceiver->AddMItem(mailItemIter->second);
         }
     }
     else if (!m_items.empty())
     {
-        SQLTransaction temp = SQLTransaction(nullptr);
+        CharacterDatabaseTransaction temp = CharacterDatabaseTransaction(nullptr);
         deleteIncludedItems(temp);
     }
 }

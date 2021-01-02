@@ -205,7 +205,7 @@ class boss_keleseth : public CreatureScript
                             events.ScheduleEvent(EVENT_SHADOWBOLT, 2s, 3s);
                             break;
                         case EVENT_FROST_TOMB:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, true, -SPELL_FROST_TOMB))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true, true, -SPELL_FROST_TOMB))
                             {
                                 Talk(SAY_FROST_TOMB);
                                 Talk(SAY_FROST_TOMB_EMOTE, target);
@@ -297,7 +297,7 @@ class npc_vrykul_skeleton : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_DECREPIFY:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, true, -SPELL_DECREPIFY))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true, true, -SPELL_DECREPIFY))
                                 DoCast(target, SPELL_DECREPIFY);
                             events.ScheduleEvent(EVENT_DECREPIFY, 1s, 5s);
                             break;
@@ -353,7 +353,7 @@ class spell_frost_tomb : public SpellScriptLoader
                     if (Unit* caster = GetCaster())
                         if (caster->IsAlive())
                             if (Creature* creature = caster->ToCreature())
-                                creature->DespawnOrUnsummon(1000);
+                                creature->DespawnOrUnsummon(1s);
             }
 
             void Register() override

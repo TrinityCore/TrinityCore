@@ -38,6 +38,7 @@ namespace WorldPackets
 class Aura;
 class AuraEffect;
 class Corpse;
+class DamageInfo;
 class DynamicObject;
 class DynObjAura;
 class GameObject;
@@ -110,6 +111,13 @@ enum SpellRangeFlag
     SPELL_RANGE_DEFAULT             = 0,
     SPELL_RANGE_MELEE               = 1,     //melee
     SPELL_RANGE_RANGED              = 2      //hunter range and ranged weapon
+};
+
+enum SpellFinishReason : uint8
+{
+    SPELL_FINISHED_SUCCESSFUL_CAST      = 0, // spell has sucessfully launched
+    SPELL_FINISHED_CANCELED             = 1, // spell has been canceled (interrupts)
+    SPELL_FINISHED_CHANNELING_COMPLETE  = 2  // spell channeling has been finished
 };
 
 struct TC_GAME_API SpellDestination
@@ -342,6 +350,7 @@ class TC_GAME_API Spell
         void EffectSendTaxi(SpellEffIndex effIndex);
         void EffectKnockBack(SpellEffIndex effIndex);
         void EffectPullTowards(SpellEffIndex effIndex);
+        void EffectPullTowardsDest(SpellEffIndex effIndex);
         void EffectDispelMechanic(SpellEffIndex effIndex);
         void EffectResurrectPet(SpellEffIndex effIndex);
         void EffectDestroyAllTotems(SpellEffIndex effIndex);
@@ -470,6 +479,7 @@ class TC_GAME_API Spell
         static void SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 castCount, SpellCastResult result, SpellCustomErrors customError = SPELL_CUSTOM_ERROR_NONE, uint32* param1 = nullptr, uint32* param2 = nullptr);
         void SendCastResult(SpellCastResult result, uint32* param1 = nullptr, uint32* param2 = nullptr) const;
         void SendPetCastResult(SpellCastResult result);
+        void SendMountResult(MountResult result);
         void SendSpellStart();
         void SendSpellGo();
         void SendSpellCooldown();
@@ -489,7 +499,7 @@ class TC_GAME_API Spell
         void SendChannelStart(uint32 duration);
         void SendResurrectRequest(Player* target);
 
-        void HandleEffects(Unit* pUnitTarget, Item* pItemTarget, GameObject* pGOTarget, uint32 i, SpellEffectHandleMode mode);
+        void HandleEffects(Unit* pUnitTarget, Item* pItemTarget, GameObject* pGoTarget, Corpse* pCorpseTarget, uint32 i, SpellEffectHandleMode mode);
         void HandleThreatSpells();
 
         SpellInfo const* const m_spellInfo;
@@ -560,6 +570,7 @@ class TC_GAME_API Spell
         Spell** m_selfContainer;                            // pointer to our spell container (if applicable)
 
         std::string GetDebugInfo() const;
+        void CallScriptOnResistAbsorbCalculateHandlers(DamageInfo const& damageInfo, uint32& resistAmount, int32& absorbAmount);
 
     protected:
         bool HasGlobalCooldown() const;
@@ -614,12 +625,13 @@ class TC_GAME_API Spell
         Unit* unitTarget;
         Item* itemTarget;
         GameObject* gameObjTarget;
+        Corpse* m_corpseTarget;
         WorldLocation* destTarget;
         int32 damage;
         SpellMissInfo targetMissInfo;
         SpellEffectHandleMode effectHandleMode;
         // used in effects handlers
-        Unit* unitCaster;
+        Unit* GetUnitCasterForEffectHandlers() const;
         UnitAura* _spellAura;
         DynObjAura* _dynObjAura;
 
@@ -705,6 +717,15 @@ class TC_GAME_API Spell
         };
         std::vector<ItemTargetInfo> m_UniqueItemInfo;
 
+        struct CorpseTargetInfo : public TargetInfoBase
+        {
+            void DoTargetSpellHit(Spell* spell, uint8 effIndex) override;
+
+            ObjectGuid TargetGUID;
+            uint64 TimeDelay = 0ULL;
+        };
+        std::vector<CorpseTargetInfo> m_UniqueCorpseTargetInfo;
+
         template <class Container>
         void DoProcessTargetContainer(Container& targetContainer);
 
@@ -713,6 +734,7 @@ class TC_GAME_API Spell
         void AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid = true, bool implicit = true, Position const* losPosition = nullptr);
         void AddGOTarget(GameObject* target, uint32 effectMask);
         void AddItemTarget(Item* item, uint32 effectMask);
+        void AddCorpseTarget(Corpse* target, uint32 effectMask);
         void AddDestTarget(SpellDestination const& dest, uint32 effIndex);
 
         SpellMissInfo PreprocessSpellHit(Unit* unit, bool scaleAura, TargetInfo& targetInfo);

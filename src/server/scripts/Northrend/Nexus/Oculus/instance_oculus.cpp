@@ -43,7 +43,7 @@ class instance_oculus : public InstanceMapScript
 
         struct instance_oculus_InstanceMapScript : public InstanceScript
         {
-            instance_oculus_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_oculus_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
@@ -184,7 +184,7 @@ class instance_oculus : public InstanceMapScript
                             FreeDragons();
                             if (Creature* varos = instance->GetCreature(VarosGUID))
                                 varos->SetPhaseMask(1, true);
-                            events.ScheduleEvent(EVENT_VAROS_INTRO, 15000);
+                            events.ScheduleEvent(EVENT_VAROS_INTRO, 15s);
                         }
                         break;
                     case DATA_VAROS:

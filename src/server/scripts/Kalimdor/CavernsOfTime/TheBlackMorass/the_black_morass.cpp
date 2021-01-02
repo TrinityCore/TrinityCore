@@ -28,29 +28,79 @@
 
 enum MedivhBm
 {
-    SAY_ENTER               = 0,                    //where does this belong?
-    SAY_INTRO               = 1,
-    SAY_WEAK75              = 2,
-    SAY_WEAK50              = 3,
-    SAY_WEAK25              = 4,
-    SAY_DEATH               = 5,
-    SAY_WIN                 = 6,
-    SAY_ORCS_ENTER          = 7,
-    SAY_ORCS_ANSWER         = 8,
+    SAY_ENTER                            = 0,        // where does this belong?
+    SAY_INTRO                            = 1,
+    SAY_WEAK75                           = 2,
+    SAY_WEAK50                           = 3,
+    SAY_WEAK25                           = 4,
+    SAY_DEATH                            = 5,
+    SAY_WIN                              = 6,
+    SAY_ORCS_ENTER                       = 7,
+    SAY_ORCS_ANSWER                      = 8,
 
-    SPELL_CHANNEL           = 31556,
-    SPELL_PORTAL_RUNE       = 32570,                      //aura(portal on ground effect)
+    SPELL_CHANNEL                        = 31556,
+    SPELL_PORTAL_RUNE                    = 32570,    // aura(portal on ground effect)
 
-    SPELL_BLACK_CRYSTAL     = 32563,                      //aura
-    SPELL_PORTAL_CRYSTAL    = 32564,                      //summon
+    SPELL_BLACK_CRYSTAL                  = 32563,    // aura
+    SPELL_PORTAL_CRYSTAL                 = 32564,    // summon
 
-    SPELL_BANISH_PURPLE     = 32566,                      //aura
-    SPELL_BANISH_GREEN      = 32567,                      //aura
+    SPELL_BANISH_PURPLE                  = 32566,    // aura
+    SPELL_BANISH_GREEN                   = 32567,    // aura
 
-    SPELL_CORRUPT           = 31326,
-    SPELL_CORRUPT_AEONUS    = 37853,
+    SPELL_CORRUPT                        = 31326,
+    SPELL_CORRUPT_AEONUS                 = 37853,
 
-    C_COUNCIL_ENFORCER      = 17023
+    // NYI
+    SPELL_SUMMON_INFINITE_WHELP          = 37606,
+    SPELL_SUMMON_INFINITE_ASSASSIN       = 31318,
+    SPELL_SUMMON_INFINITE_ASSASSIN_2     = 36229,
+    SPELL_SUMMON_INFINITE_CHRONOMANCER   = 31421,
+    SPELL_SUMMON_INFINITE_CHRONOMANCER_2 = 36231,
+    SPELL_SUMMON_INFINITE_EXECUTIONER    = 33363,
+    SPELL_SUMMON_INFINITE_EXECUTIONER_2  = 36232,
+    SPELL_SUMMON_INFINITE_VANQUISHER     = 33364,
+    SPELL_SUMMON_INFINITE_VANQUISHER_2   = 36233,
+
+    SPELL_SUMMON_RIFT_LORD               = 31321,
+    SPELL_SUMMON_RIFT_LORD_2             = 36234,
+    SPELL_SUMMON_RIFT_KEEPER             = 36235,
+    SPELL_SUMMON_RIFT_KEEPER_2           = 36236,
+
+    SPELL_SUMMON_CHRONO_LORD_DEJA        = 31391,
+    SPELL_SUMMON_TEMPORUS                = 31392,
+    SPELL_SUMMON_AEONUS                  = 31393,
+    SPELL_SUMMON_INFINITE_CHRONO_LORD    = 37177,
+    SPELL_SUMMON_INFINITE_TIMEREAVER     = 37178,
+
+    SPELL_SUMMON_TIME_RIFT_PERIODIC_90   = 31353,
+    SPELL_SUMMON_TIME_RIFT_PERIODIC_120  = 31632,
+    SPELL_SUMMON_TIME_RIFT_PERIODIC_45   = 31636,
+    SPELL_SUMMON_TIME_RIFT_PERIODIC_75   = 31637,
+    SPELL_SUMMON_TIME_RIFT_PERIODIC_30   = 34188,
+    SPELL_SUMMON_TIME_RIFT_PERIODIC_5    = 35143,
+    SPELL_SUMMON_TIME_RIFT_EFFECT_1      = 31354,
+    SPELL_SUMMON_TIME_RIFT_EFFECT_2      = 31355,
+    SPELL_SUMMON_TIME_RIFT_EFFECT_3      = 31356,
+    SPELL_SUMMON_TIME_RIFT_EFFECT_4      = 31357,
+    SPELL_SUMMON_TIME_RIFT               = 39041,
+    SPELL_TIME_RIFT_1_READY              = 39570,
+    SPELL_TIME_RIFT_2_READY              = 39571,
+    SPELL_TIME_RIFT_3_READY              = 39572,
+    SPELL_TIME_RIFT_4_READY              = 39573,
+    SPELL_CLOSE_TIME_RIFT_TRIGGER        = 31322,
+    SPELL_CLOSE_TIME_RIFT_EFFECT         = 31323,
+    SPELL_TIME_RIFT_READY_PRIMER         = 31352,
+    SPELL_TIME_RIFT_CHANNEL              = 31387,
+    SPELL_TIME_RIFT_CHANNEL_TRIGGER      = 31388,
+    SPELL_TIME_RIFT_PERIODIC             = 31320,
+
+    SPELL_MEDIVH_LIVES                   = 31395,
+    SPELL_MEDIVH_DIES                    = 31327,
+    SPELL_MEDIVH_SHIELD                  = 32613,
+
+    SPELL_THE_BLACK_MORASS_COMPLETE      = 37215,
+
+    C_COUNCIL_ENFORCER                   = 17023
 };
 
 class npc_medivh_bm : public CreatureScript
@@ -140,15 +190,15 @@ public:
 
         void JustEngagedWith(Unit* /*who*/) override { }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
             if (SpellCorrupt_Timer)
                 return;
 
-            if (spell->Id == SPELL_CORRUPT_AEONUS)
+            if (spellInfo->Id == SPELL_CORRUPT_AEONUS)
                 SpellCorrupt_Timer = 1000;
 
-            if (spell->Id == SPELL_CORRUPT)
+            if (spellInfo->Id == SPELL_CORRUPT)
                 SpellCorrupt_Timer = 3000;
         }
 
@@ -307,7 +357,7 @@ public:
             //normalize Z-level if we can, if rift is not at ground level.
             pos.m_positionZ = std::max(me->GetMap()->GetHeight(pos.m_positionX, pos.m_positionY, MAX_HEIGHT), me->GetMap()->GetWaterLevel(pos.m_positionX, pos.m_positionY));
 
-            if (Unit* Summon = DoSummon(creature_entry, pos, 30000, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT))
+            if (Unit* Summon = DoSummon(creature_entry, pos, 30s, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT))
                 if (Unit* temp = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_MEDIVH)))
                     AddThreat(temp, 0.0f, Summon);
         }

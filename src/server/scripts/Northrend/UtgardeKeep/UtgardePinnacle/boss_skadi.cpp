@@ -199,14 +199,14 @@ public:
         void SpawnFirstWave()
         {
             for (uint8 i = 0; i < FIRST_WAVE_MAX_WARRIORS; i++)
-                if (Creature* summon = me->SummonCreature(NPC_YMIRJAR_WARRIOR, SpawnLoc, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000))
+                if (Creature* summon = me->SummonCreature(NPC_YMIRJAR_WARRIOR, SpawnLoc, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5s))
                     summon->GetMotionMaster()->MovePoint(POINT_0, FirstWaveLocations[i]);
 
-            if (Creature* crea = me->SummonCreature(NPC_YMIRJAR_WITCH_DOCTOR, SpawnLoc, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000))
+            if (Creature* crea = me->SummonCreature(NPC_YMIRJAR_WITCH_DOCTOR, SpawnLoc, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5s))
                 crea->GetMotionMaster()->MovePoint(POINT_0, FirstWaveLocations[10]);
-            if (Creature* crea = me->SummonCreature(NPC_YMIRJAR_HARPOONER, SpawnLoc, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000))
+            if (Creature* crea = me->SummonCreature(NPC_YMIRJAR_HARPOONER, SpawnLoc, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5s))
                 crea->GetMotionMaster()->MovePoint(POINT_0, FirstWaveLocations[11]);
-            if (Creature* crea = me->SummonCreature(NPC_YMIRJAR_HARPOONER, SpawnLoc, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000))
+            if (Creature* crea = me->SummonCreature(NPC_YMIRJAR_HARPOONER, SpawnLoc, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5s))
                 crea->GetMotionMaster()->MovePoint(POINT_0, FirstWaveLocations[12]);
 
             firstWaveSummoned = true;
@@ -278,7 +278,7 @@ public:
                         })
                         .Schedule(Seconds(11), [this](TaskContext poisonedSpear)
                         {
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random))
                                 DoCast(target, SPELL_POISONED_SPEAR);
                             poisonedSpear.Repeat();
                         })
@@ -372,7 +372,6 @@ public:
             me->SetFarVisible(true);
             me->SetCanFly(true);
             me->SetDisableGravity(true);
-            me->SetByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
 
             _scheduler.Schedule(Seconds(2), [this](TaskContext /*context*/)
             {
@@ -445,9 +444,9 @@ public:
             }
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
-            if (spell->Id == SPELL_LAUNCH_HARPOON)
+            if (spellInfo->Id == SPELL_LAUNCH_HARPOON)
                 if (Creature* skadi = _instance->GetCreature(DATA_SKADI_THE_RUTHLESS))
                     skadi->AI()->DoAction(ACTION_HARPOON_HIT);
         }
@@ -609,7 +608,7 @@ public:
             _scheduler
                 .Schedule(Seconds(13), [this](TaskContext net)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_MAXDISTANCE, 0, 30, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::MaxDistance, 0, 30, true))
                         DoCast(target, SPELL_NET);
                     net.Repeat();
                 })
@@ -987,7 +986,7 @@ void AddSC_boss_skadi()
     new spell_skadi_reset_check();
     new spell_skadi_launch_harpoon();
     new spell_skadi_poisoned_spear();
-    RegisterAuraScript(spell_skadi_ride_vehicle);
+    RegisterSpellScript(spell_skadi_ride_vehicle);
     new spell_summon_gauntlet_mobs_periodic();
     new achievement_girl_love_to_skadi();
     new at_skadi_gaunlet();

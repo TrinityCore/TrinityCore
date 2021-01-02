@@ -134,7 +134,7 @@ public:
             instance->SetBossState(DATA_BRUTALLUS, DONE);
             float x, y, z;
             me->GetPosition(x, y, z);
-            me->SummonCreature(NPC_FELMYST, x, y, z + 30, me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0);
+            me->SummonCreature(NPC_FELMYST, x, y, z + 30, me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN);
         }
 
         void EnterEvadeMode(EvadeReason why) override
@@ -321,7 +321,7 @@ public:
 
             if (BurnTimer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, true, -SPELL_BURN))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true, true, -SPELL_BURN))
                     target->CastSpell(target, SPELL_BURN, true);
                 BurnTimer = urand(60000, 180000);
             } else BurnTimer -= diff;

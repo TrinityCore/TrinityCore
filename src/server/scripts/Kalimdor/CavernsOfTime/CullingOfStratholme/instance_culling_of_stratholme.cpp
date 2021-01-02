@@ -268,7 +268,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
 
         struct instance_culling_of_stratholme_InstanceMapScript : public InstanceScript
         {
-            instance_culling_of_stratholme_InstanceMapScript(Map* map) : InstanceScript(map), _currentState(JUST_STARTED), _infiniteGuardianTimeout(0), _waveCount(0), _currentSpawnLoc(0)
+            instance_culling_of_stratholme_InstanceMapScript(InstanceMap* map) : InstanceScript(map), _currentState(JUST_STARTED), _infiniteGuardianTimeout(0), _waveCount(0), _currentSpawnLoc(0)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
@@ -759,7 +759,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                     {
                         if (creature->GetSpawnId())
                             creature->SetRespawnTime(1);
-                        creature->DespawnOrUnsummon(0, 1s);
+                        creature->DespawnOrUnsummon(0s, 1s);
                     }
 
                     SpawnInfiniteCorruptor();

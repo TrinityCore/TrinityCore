@@ -321,7 +321,7 @@ class boss_thekal : public CreatureScript
                             events.ScheduleEvent(EVENT_FORCEPUNCH, 16s, 21s, 0, PHASE_TWO);
                             break;
                         case EVENT_CHARGE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.f, true))
                             {
                                 ResetThreatList();
                                 AttackStart(target);

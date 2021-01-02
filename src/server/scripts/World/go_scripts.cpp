@@ -16,27 +16,15 @@
  */
 
 /* ContentData
-go_cat_figurine (the "trap" version of GO, two different exist)
-go_barov_journal
 go_ethereum_prison
 go_ethereum_stasis
-go_shrine_of_the_birds
 go_southfury_moonstone
-go_orb_of_command
 go_resonite_cask
-go_tablet_of_madness
 go_tablet_of_the_seven
 go_tele_to_dalaran_crystal
 go_tele_to_violet_stand
-go_scourge_cage
-go_jotunheim_cage
-go_table_theka
 go_soulwell
-go_bashir_crystalforge
-go_soulwell
-go_dragonflayer_cage
 go_amberpine_outhouse
-go_hive_pod
 go_veil_skith_cage
 go_toy_train_set
 go_bells
@@ -61,65 +49,6 @@ EndContentData */
 #include "WorldSession.h"
 
 /*######
-## go_cat_figurine
-######*/
-
-enum CatFigurine
-{
-    SPELL_SUMMON_GHOST_SABER    = 5968,
-};
-
-class go_cat_figurine : public GameObjectScript
-{
-public:
-    go_cat_figurine() : GameObjectScript("go_cat_figurine") { }
-
-    struct go_cat_figurineAI : public GameObjectAI
-    {
-        go_cat_figurineAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool GossipHello(Player* player) override
-        {
-            player->CastSpell(player, SPELL_SUMMON_GHOST_SABER, true);
-            return false;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_cat_figurineAI(go);
-    }
-};
-
-/*######
-## go_barov_journal
-######*/
-
-class go_barov_journal : public GameObjectScript
-{
-public:
-    go_barov_journal() : GameObjectScript("go_barov_journal") { }
-
-    struct go_barov_journalAI : public GameObjectAI
-    {
-        go_barov_journalAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool GossipHello(Player* player) override
-        {
-            if (player->HasSkill(SKILL_TAILORING) && player->GetBaseSkillValue(SKILL_TAILORING) >= 280 && !player->HasSpell(26086))
-                player->CastSpell(player, 26095, false);
-
-            return true;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_barov_journalAI(go);
-    }
-};
-
-/*######
 ## go_gilded_brazier (Paladin First Trail quest (9678))
 ######*/
 
@@ -138,13 +67,13 @@ public:
     {
         go_gilded_brazierAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             if (me->GetGoType() == GAMEOBJECT_TYPE_GOOBER)
             {
                 if (player->GetQuestStatus(QUEST_THE_FIRST_TRIAL) == QUEST_STATUS_INCOMPLETE)
                 {
-                    if (Creature* Stillblade = player->SummonCreature(NPC_STILLBLADE, 8106.11f, -7542.06f, 151.775f, 3.02598f, TEMPSUMMON_DEAD_DESPAWN, 60000))
+                    if (Creature* Stillblade = player->SummonCreature(NPC_STILLBLADE, 8106.11f, -7542.06f, 151.775f, 3.02598f, TEMPSUMMON_DEAD_DESPAWN, 1min))
                         Stillblade->AI()->AttackStart(player);
                 }
             }
@@ -155,62 +84,6 @@ public:
     GameObjectAI* GetAI(GameObject* go) const override
     {
         return new go_gilded_brazierAI(go);
-    }
-};
-
-/*######
-## go_orb_of_command
-######*/
-
-class go_orb_of_command : public GameObjectScript
-{
-public:
-    go_orb_of_command() : GameObjectScript("go_orb_of_command") { }
-
-    struct go_orb_of_commandAI : public GameObjectAI
-    {
-        go_orb_of_commandAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool GossipHello(Player* player) override
-        {
-            if (player->GetQuestRewardStatus(7761))
-                player->CastSpell(player, 23460, true);
-
-            return true;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_orb_of_commandAI(go);
-    }
-};
-
-/*######
-## go_tablet_of_madness
-######*/
-
-class go_tablet_of_madness : public GameObjectScript
-{
-public:
-    go_tablet_of_madness() : GameObjectScript("go_tablet_of_madness") { }
-
-    struct go_tablet_of_madnessAI : public GameObjectAI
-    {
-        go_tablet_of_madnessAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool GossipHello(Player* player) override
-        {
-            if (player->HasSkill(SKILL_ALCHEMY) && player->GetSkillValue(SKILL_ALCHEMY) >= 300 && !player->HasSpell(24266))
-                player->CastSpell(player, 24267, false);
-
-            return true;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_tablet_of_madnessAI(go);
     }
 };
 
@@ -228,7 +101,7 @@ public:
         go_tablet_of_the_sevenAI(GameObject* go) : GameObjectAI(go) { }
 
         /// @todo use gossip option ("Transcript the Tablet") instead, if Trinity adds support.
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             if (me->GetGoType() != GAMEOBJECT_TYPE_QUESTGIVER)
                 return true;
@@ -243,34 +116,6 @@ public:
     GameObjectAI* GetAI(GameObject* go) const override
     {
         return new go_tablet_of_the_sevenAI(go);
-    }
-};
-
-/*#####
-## go_jump_a_tron
-######*/
-
-class go_jump_a_tron : public GameObjectScript
-{
-public:
-    go_jump_a_tron() : GameObjectScript("go_jump_a_tron") { }
-
-    struct go_jump_a_tronAI : public GameObjectAI
-    {
-        go_jump_a_tronAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool GossipHello(Player* player) override
-        {
-            if (player->GetQuestStatus(10111) == QUEST_STATUS_INCOMPLETE)
-                player->CastSpell(player, 33382, true);
-
-            return true;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_jump_a_tronAI(go);
     }
 };
 
@@ -303,13 +148,13 @@ public:
     {
         go_ethereum_prisonAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             me->UseDoorOrButton();
             int Random = rand32() % (sizeof(NpcPrisonEntry) / sizeof(uint32));
 
             if (Creature* creature = player->SummonCreature(NpcPrisonEntry[Random], me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetAbsoluteAngle(player),
-                TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
+                TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30s))
             {
                 if (!creature->IsHostileTo(player))
                 {
@@ -317,7 +162,7 @@ public:
                     {
                         uint32 Spell = 0;
 
-                        switch (pFaction->faction)
+                        switch (pFaction->Faction)
                         {
                             case 1011: Spell = SPELL_REP_LC; break;
                             case 935: Spell = SPELL_REP_SHAT; break;
@@ -363,13 +208,13 @@ public:
     {
         go_ethereum_stasisAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             me->UseDoorOrButton();
             int Random = rand32() % (sizeof(NpcStasisEntry) / sizeof(uint32));
 
             player->SummonCreature(NpcStasisEntry[Random], me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetAbsoluteAngle(player),
-                TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+                TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30s);
 
             return false;
         }
@@ -399,10 +244,10 @@ public:
     {
         go_resonite_caskAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* /*player*/) override
+        bool OnGossipHello(Player* /*player*/) override
         {
             if (me->GetGoType() == GAMEOBJECT_TYPE_GOOBER)
-                me->SummonCreature(NPC_GOGGEROC, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 300000);
+                me->SummonCreature(NPC_GOGGEROC, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5min);
 
             return false;
         }
@@ -411,62 +256,6 @@ public:
     GameObjectAI* GetAI(GameObject* go) const override
     {
         return new go_resonite_caskAI(go);
-    }
-};
-
-/*######
-## go_shrine_of_the_birds
-######*/
-
-enum ShrineOfTheBirds
-{
-    NPC_HAWK_GUARD      = 22992,
-    NPC_EAGLE_GUARD     = 22993,
-    NPC_FALCON_GUARD    = 22994,
-    GO_SHRINE_HAWK      = 185551,
-    GO_SHRINE_EAGLE     = 185547,
-    GO_SHRINE_FALCON    = 185553
-};
-
-class go_shrine_of_the_birds : public GameObjectScript
-{
-public:
-    go_shrine_of_the_birds() : GameObjectScript("go_shrine_of_the_birds") { }
-
-    struct go_shrine_of_the_birdsAI : public GameObjectAI
-    {
-        go_shrine_of_the_birdsAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool GossipHello(Player* player) override
-        {
-            uint32 BirdEntry = 0;
-
-            float fX, fY, fZ;
-            me->GetClosePoint(fX, fY, fZ, me->GetCombatReach(), INTERACTION_DISTANCE);
-
-            switch (me->GetEntry())
-            {
-                case GO_SHRINE_HAWK:
-                    BirdEntry = NPC_HAWK_GUARD;
-                    break;
-                case GO_SHRINE_EAGLE:
-                    BirdEntry = NPC_EAGLE_GUARD;
-                    break;
-                case GO_SHRINE_FALCON:
-                    BirdEntry = NPC_FALCON_GUARD;
-                    break;
-            }
-
-            if (BirdEntry)
-                player->SummonCreature(BirdEntry, fX, fY, fZ, me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
-
-            return false;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_shrine_of_the_birdsAI(go);
     }
 };
 
@@ -490,12 +279,12 @@ public:
     {
         go_southfury_moonstoneAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             //implicitTarget=48 not implemented as of writing this code, and manual summon may be just ok for our purpose
             //player->CastSpell(player, SPELL_SUMMON_RIZZLE, false);
 
-            if (Creature* creature = player->SummonCreature(NPC_RIZZLE, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0))
+            if (Creature* creature = player->SummonCreature(NPC_RIZZLE, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_DEAD_DESPAWN))
                 creature->CastSpell(player, SPELL_BLACKJACK, false);
 
             return false;
@@ -529,7 +318,7 @@ public:
     {
         go_tele_to_dalaran_crystalAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             if (player->GetQuestRewardStatus(QUEST_TELE_CRYSTAL_FLAG))
                 return false;
@@ -558,7 +347,7 @@ public:
     {
         go_tele_to_violet_standAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             if (player->GetQuestRewardStatus(QUEST_LEARN_LEAVE_RETURN) || player->GetQuestStatus(QUEST_LEARN_LEAVE_RETURN) == QUEST_STATUS_INCOMPLETE)
                 return false;
@@ -570,146 +359,6 @@ public:
     GameObjectAI* GetAI(GameObject* go) const override
     {
         return new go_tele_to_violet_standAI(go);
-    }
-};
-
-/*######
-## go_fel_crystalforge
-######*/
-
-#define GOSSIP_FEL_CRYSTALFORGE_TEXT 31000
-#define GOSSIP_FEL_CRYSTALFORGE_ITEM_TEXT_RETURN 31001
-#define GOSSIP_FEL_CRYSTALFORGE_ITEM_1 "Purchase 1 Unstable Flask of the Beast for the cost of 10 Apexis Shards"
-#define GOSSIP_FEL_CRYSTALFORGE_ITEM_5 "Purchase 5 Unstable Flask of the Beast for the cost of 50 Apexis Shards"
-#define GOSSIP_FEL_CRYSTALFORGE_ITEM_RETURN "Use the fel crystalforge to make another purchase."
-
-enum FelCrystalforge
-{
-    SPELL_CREATE_1_FLASK_OF_BEAST   = 40964,
-    SPELL_CREATE_5_FLASK_OF_BEAST   = 40965,
-};
-
-class go_fel_crystalforge : public GameObjectScript
-{
-public:
-    go_fel_crystalforge() : GameObjectScript("go_fel_crystalforge") { }
-
-    struct go_fel_crystalforgeAI : public GameObjectAI
-    {
-        go_fel_crystalforgeAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool GossipHello(Player* player) override
-        {
-            if (me->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER) /* != GAMEOBJECT_TYPE_QUESTGIVER) */
-                player->PrepareQuestMenu(me->GetGUID()); /* return true*/
-
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_FEL_CRYSTALFORGE_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_FEL_CRYSTALFORGE_ITEM_5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-            SendGossipMenuFor(player, GOSSIP_FEL_CRYSTALFORGE_TEXT, me->GetGUID());
-
-            return true;
-        }
-
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
-        {
-            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
-            ClearGossipMenuFor(player);
-            switch (action)
-            {
-                case GOSSIP_ACTION_INFO_DEF:
-                    player->CastSpell(player, SPELL_CREATE_1_FLASK_OF_BEAST, false);
-                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_FEL_CRYSTALFORGE_ITEM_RETURN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                    SendGossipMenuFor(player, GOSSIP_FEL_CRYSTALFORGE_ITEM_TEXT_RETURN, me->GetGUID());
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 1:
-                    player->CastSpell(player, SPELL_CREATE_5_FLASK_OF_BEAST, false);
-                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_FEL_CRYSTALFORGE_ITEM_RETURN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                    SendGossipMenuFor(player, GOSSIP_FEL_CRYSTALFORGE_ITEM_TEXT_RETURN, me->GetGUID());
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 2:
-                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_FEL_CRYSTALFORGE_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_FEL_CRYSTALFORGE_ITEM_5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                    SendGossipMenuFor(player, GOSSIP_FEL_CRYSTALFORGE_TEXT, me->GetGUID());
-                    break;
-            }
-            return true;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_fel_crystalforgeAI(go);
-    }
-};
-
-/*######
-## go_bashir_crystalforge
-######*/
-
-#define GOSSIP_BASHIR_CRYSTALFORGE_TEXT 31100
-#define GOSSIP_BASHIR_CRYSTALFORGE_ITEM_TEXT_RETURN 31101
-#define GOSSIP_BASHIR_CRYSTALFORGE_ITEM_1 "Purchase 1 Unstable Flask of the Sorcerer for the cost of 10 Apexis Shards"
-#define GOSSIP_BASHIR_CRYSTALFORGE_ITEM_5 "Purchase 5 Unstable Flask of the Sorcerer for the cost of 50 Apexis Shards"
-#define GOSSIP_BASHIR_CRYSTALFORGE_ITEM_RETURN "Use the bashir crystalforge to make another purchase."
-
-enum BashirCrystalforge
-{
-    SPELL_CREATE_1_FLASK_OF_SORCERER   = 40968,
-    SPELL_CREATE_5_FLASK_OF_SORCERER   = 40970,
-};
-
-class go_bashir_crystalforge : public GameObjectScript
-{
-public:
-    go_bashir_crystalforge() : GameObjectScript("go_bashir_crystalforge") { }
-
-    struct go_bashir_crystalforgeAI : public GameObjectAI
-    {
-        go_bashir_crystalforgeAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool GossipHello(Player* player) override
-        {
-            if (me->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER) /* != GAMEOBJECT_TYPE_QUESTGIVER) */
-                player->PrepareQuestMenu(me->GetGUID()); /* return true*/
-
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_BASHIR_CRYSTALFORGE_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_BASHIR_CRYSTALFORGE_ITEM_5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-            SendGossipMenuFor(player, GOSSIP_BASHIR_CRYSTALFORGE_TEXT, me->GetGUID());
-
-            return true;
-        }
-
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
-        {
-            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
-            ClearGossipMenuFor(player);
-            switch (action)
-            {
-                case GOSSIP_ACTION_INFO_DEF:
-                    player->CastSpell(player, SPELL_CREATE_1_FLASK_OF_SORCERER, false);
-                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_BASHIR_CRYSTALFORGE_ITEM_RETURN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                    SendGossipMenuFor(player, GOSSIP_BASHIR_CRYSTALFORGE_ITEM_TEXT_RETURN, me->GetGUID());
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 1:
-                    player->CastSpell(player, SPELL_CREATE_5_FLASK_OF_SORCERER, false);
-                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_BASHIR_CRYSTALFORGE_ITEM_RETURN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                    SendGossipMenuFor(player, GOSSIP_BASHIR_CRYSTALFORGE_ITEM_TEXT_RETURN, me->GetGUID());
-                    break;
-                case GOSSIP_ACTION_INFO_DEF + 2:
-                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_BASHIR_CRYSTALFORGE_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_BASHIR_CRYSTALFORGE_ITEM_5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                    SendGossipMenuFor(player, GOSSIP_BASHIR_CRYSTALFORGE_TEXT, me->GetGUID());
-                    break;
-            }
-            return true;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_bashir_crystalforgeAI(go);
     }
 };
 
@@ -743,7 +392,7 @@ public:
     {
         go_matrix_punchographAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             switch (me->GetEntry())
             {
@@ -789,80 +438,6 @@ public:
 };
 
 /*######
-## go_scourge_cage
-######*/
-
-enum ScourgeCage
-{
-    NPC_SCOURGE_PRISONER = 25610
-};
-
-class go_scourge_cage : public GameObjectScript
-{
-public:
-    go_scourge_cage() : GameObjectScript("go_scourge_cage") { }
-
-    struct go_scourge_cageAI : public GameObjectAI
-    {
-        go_scourge_cageAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool GossipHello(Player* player) override
-        {
-            me->UseDoorOrButton();
-            if (Creature* pNearestPrisoner = me->FindNearestCreature(NPC_SCOURGE_PRISONER, 5.0f, true))
-            {
-                player->KilledMonsterCredit(NPC_SCOURGE_PRISONER, pNearestPrisoner->GetGUID());
-                pNearestPrisoner->DisappearAndDie();
-            }
-
-            return true;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_scourge_cageAI(go);
-    }
-};
-
-/*######
-## go_arcane_prison
-######*/
-
-enum ArcanePrison
-{
-    QUEST_PRISON_BREAK                  = 11587,
-    SPELL_ARCANE_PRISONER_KILL_CREDIT   = 45456
-};
-
-class go_arcane_prison : public GameObjectScript
-{
-public:
-    go_arcane_prison() : GameObjectScript("go_arcane_prison") { }
-
-    struct go_arcane_prisonAI : public GameObjectAI
-    {
-        go_arcane_prisonAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool GossipHello(Player* player) override
-        {
-            if (player->GetQuestStatus(QUEST_PRISON_BREAK) == QUEST_STATUS_INCOMPLETE)
-            {
-                me->SummonCreature(25318, 3485.089844f, 6115.7422188f, 70.966812f, 0, TEMPSUMMON_TIMED_DESPAWN, 60000);
-                player->CastSpell(player, SPELL_ARCANE_PRISONER_KILL_CREDIT, true);
-                return true;
-            }
-            return false;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_arcane_prisonAI(go);
-    }
-};
-
-/*######
 ## go_blood_filled_orb
 ######*/
 
@@ -881,10 +456,10 @@ public:
     {
         go_blood_filled_orbAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             if (me->GetGoType() == GAMEOBJECT_TYPE_GOOBER)
-                player->SummonCreature(NPC_ZELEMAR, -369.746f, 166.759f, -21.50f, 5.235f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+                player->SummonCreature(NPC_ZELEMAR, -369.746f, 166.759f, -21.50f, 5.235f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30s);
 
             return true;
         }
@@ -893,143 +468,6 @@ public:
     GameObjectAI* GetAI(GameObject* go) const override
     {
         return new go_blood_filled_orbAI(go);
-    }
-};
-
-/*######
-## go_jotunheim_cage
-######*/
-
-enum JotunheimCage
-{
-    NPC_EBON_BLADE_PRISONER_HUMAN   = 30186,
-    NPC_EBON_BLADE_PRISONER_NE      = 30194,
-    NPC_EBON_BLADE_PRISONER_TROLL   = 30196,
-    NPC_EBON_BLADE_PRISONER_ORC     = 30195,
-
-    SPELL_SUMMON_BLADE_KNIGHT_H     = 56207,
-    SPELL_SUMMON_BLADE_KNIGHT_NE    = 56209,
-    SPELL_SUMMON_BLADE_KNIGHT_ORC   = 56212,
-    SPELL_SUMMON_BLADE_KNIGHT_TROLL = 56214
-};
-
-class go_jotunheim_cage : public GameObjectScript
-{
-public:
-    go_jotunheim_cage() : GameObjectScript("go_jotunheim_cage") { }
-
-    struct go_jotunheim_cageAI : public GameObjectAI
-    {
-        go_jotunheim_cageAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool GossipHello(Player* player) override
-        {
-            me->UseDoorOrButton();
-            Creature* pPrisoner = me->FindNearestCreature(NPC_EBON_BLADE_PRISONER_HUMAN, 5.0f, true);
-            if (!pPrisoner)
-            {
-                pPrisoner = me->FindNearestCreature(NPC_EBON_BLADE_PRISONER_TROLL, 5.0f, true);
-                if (!pPrisoner)
-                {
-                    pPrisoner = me->FindNearestCreature(NPC_EBON_BLADE_PRISONER_ORC, 5.0f, true);
-                    if (!pPrisoner)
-                        pPrisoner = me->FindNearestCreature(NPC_EBON_BLADE_PRISONER_NE, 5.0f, true);
-                }
-            }
-            if (!pPrisoner || !pPrisoner->IsAlive())
-                return false;
-
-            pPrisoner->DisappearAndDie();
-            player->KilledMonsterCredit(NPC_EBON_BLADE_PRISONER_HUMAN);
-            switch (pPrisoner->GetEntry())
-            {
-                case NPC_EBON_BLADE_PRISONER_HUMAN:
-                    player->CastSpell(player, SPELL_SUMMON_BLADE_KNIGHT_H, true);
-                    break;
-                case NPC_EBON_BLADE_PRISONER_NE:
-                    player->CastSpell(player, SPELL_SUMMON_BLADE_KNIGHT_NE, true);
-                    break;
-                case NPC_EBON_BLADE_PRISONER_TROLL:
-                    player->CastSpell(player, SPELL_SUMMON_BLADE_KNIGHT_TROLL, true);
-                    break;
-                case NPC_EBON_BLADE_PRISONER_ORC:
-                    player->CastSpell(player, SPELL_SUMMON_BLADE_KNIGHT_ORC, true);
-                    break;
-            }
-            return true;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_jotunheim_cageAI(go);
-    }
-};
-
-enum TableTheka
-{
-    GOSSIP_TABLE_THEKA = 1653,
-
-    QUEST_SPIDER_GOLD = 2936
-};
-
-class go_table_theka : public GameObjectScript
-{
-public:
-    go_table_theka() : GameObjectScript("go_table_theka") { }
-
-    struct go_table_thekaAI : public GameObjectAI
-    {
-        go_table_thekaAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool GossipHello(Player* player) override
-        {
-            if (player->GetQuestStatus(QUEST_SPIDER_GOLD) == QUEST_STATUS_INCOMPLETE)
-                player->AreaExploredOrEventHappens(QUEST_SPIDER_GOLD);
-
-            SendGossipMenuFor(player, GOSSIP_TABLE_THEKA, me->GetGUID());
-            return true;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_table_thekaAI(go);
-    }
-};
-
-/*######
-## go_inconspicuous_landmark
-######*/
-
-enum InconspicuousLandmark
-{
-    SPELL_SUMMON_PIRATES_TREASURE_AND_TRIGGER_MOB    = 11462,
-    ITEM_CUERGOS_KEY                                 = 9275,
-};
-
-class go_inconspicuous_landmark : public GameObjectScript
-{
-public:
-    go_inconspicuous_landmark() : GameObjectScript("go_inconspicuous_landmark") { }
-
-    struct go_inconspicuous_landmarkAI : public GameObjectAI
-    {
-        go_inconspicuous_landmarkAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool GossipHello(Player* player) override
-        {
-            if (player->HasItemCount(ITEM_CUERGOS_KEY))
-                return false;
-
-            player->CastSpell(player, SPELL_SUMMON_PIRATES_TREASURE_AND_TRIGGER_MOB, true);
-            return true;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_inconspicuous_landmarkAI(go);
     }
 };
 
@@ -1098,7 +536,7 @@ class go_soulwell : public GameObjectScript
                 _stoneId = spellInfo->Effects[EFFECT_0].ItemType;
             }
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 Unit* owner = me->GetOwner();
                 if (_stoneSpell == 0 || _stoneId == 0)
@@ -1135,67 +573,6 @@ class go_soulwell : public GameObjectScript
 };
 
 /*######
-## Quest 11255: Prisoners of Wyrmskull
-## go_dragonflayer_cage
-######*/
-
-enum PrisonersOfWyrmskull
-{
-    QUEST_PRISONERS_OF_WYRMSKULL                  = 11255,
-    NPC_PRISONER_PRIEST                           = 24086,
-    NPC_PRISONER_MAGE                             = 24088,
-    NPC_PRISONER_WARRIOR                          = 24089,
-    NPC_PRISONER_PALADIN                          = 24090
-};
-
-class go_dragonflayer_cage : public GameObjectScript
-{
-public:
-    go_dragonflayer_cage() : GameObjectScript("go_dragonflayer_cage") { }
-
-    struct go_dragonflayer_cageAI : public GameObjectAI
-    {
-        go_dragonflayer_cageAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool GossipHello(Player* player) override
-        {
-            me->UseDoorOrButton();
-            if (player->GetQuestStatus(QUEST_PRISONERS_OF_WYRMSKULL) != QUEST_STATUS_INCOMPLETE)
-                return true;
-
-            Creature* pPrisoner = me->FindNearestCreature(NPC_PRISONER_PRIEST, 2.0f);
-            if (!pPrisoner)
-            {
-                pPrisoner = me->FindNearestCreature(NPC_PRISONER_MAGE, 2.0f);
-                if (!pPrisoner)
-                {
-                    pPrisoner = me->FindNearestCreature(NPC_PRISONER_WARRIOR, 2.0f);
-                    if (!pPrisoner)
-                        pPrisoner = me->FindNearestCreature(NPC_PRISONER_PALADIN, 2.0f);
-                }
-            }
-
-            if (!pPrisoner || !pPrisoner->IsAlive())
-                return true;
-
-            Quest const* qInfo = sObjectMgr->GetQuestTemplate(QUEST_PRISONERS_OF_WYRMSKULL);
-            if (qInfo)
-            {
-                /// @todo prisoner should help player for a short period of time
-                player->KilledMonsterCredit(qInfo->RequiredNpcOrGo[0]);
-                pPrisoner->DisappearAndDie();
-            }
-            return true;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_dragonflayer_cageAI(go);
-    }
-};
-
-/*######
 ## go_amberpine_outhouse
 ######*/
 
@@ -1223,7 +600,7 @@ public:
     {
         go_amberpine_outhouseAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             QuestStatus status = player->GetQuestStatus(QUEST_DOING_YOUR_DUTY);
             if (status == QUEST_STATUS_INCOMPLETE || status == QUEST_STATUS_COMPLETE || status == QUEST_STATUS_REWARDED)
@@ -1237,7 +614,7 @@ public:
             return true;
         }
 
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
             uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
             ClearGossipMenuFor(player);
@@ -1270,41 +647,6 @@ public:
     }
 };
 
-/*######
-## Quest 1126: Hive in the Tower
-## go_hive_pod
-######*/
-
-enum Hives
-{
-    QUEST_HIVE_IN_THE_TOWER                       = 9544,
-    NPC_HIVE_AMBUSHER                             = 13301
-};
-
-class go_hive_pod : public GameObjectScript
-{
-public:
-    go_hive_pod() : GameObjectScript("go_hive_pod") { }
-
-    struct go_hive_podAI : public GameObjectAI
-    {
-        go_hive_podAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool GossipHello(Player* player) override
-        {
-            player->SendLoot(me->GetGUID(), LOOT_CORPSE);
-            me->SummonCreature(NPC_HIVE_AMBUSHER, me->GetPositionX() + 1, me->GetPositionY(), me->GetPositionZ(), me->GetAbsoluteAngle(player), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
-            me->SummonCreature(NPC_HIVE_AMBUSHER, me->GetPositionX(), me->GetPositionY() + 1, me->GetPositionZ(), me->GetAbsoluteAngle(player), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
-            return true;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_hive_podAI(go);
-    }
-};
-
 class go_massive_seaforium_charge : public GameObjectScript
 {
     public:
@@ -1314,7 +656,7 @@ class go_massive_seaforium_charge : public GameObjectScript
         {
             go_massive_seaforium_chargeAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* /*player*/) override
+            bool OnGossipHello(Player* /*player*/) override
             {
                 me->SetLootState(GO_JUST_DEACTIVATED);
                 return true;
@@ -1347,7 +689,7 @@ class go_veil_skith_cage : public GameObjectScript
        {
            go_veil_skith_cageAI(GameObject* go) : GameObjectAI(go) { }
 
-           bool GossipHello(Player* player) override
+           bool OnGossipHello(Player* player) override
            {
                me->UseDoorOrButton();
                if (player->GetQuestStatus(QUEST_MISSING_FRIENDS) == QUEST_STATUS_INCOMPLETE)
@@ -1357,7 +699,7 @@ class go_veil_skith_cage : public GameObjectScript
                    for (Creature* creature : childrenList)
                    {
                        player->KilledMonsterCredit(NPC_CAPTIVE_CHILD, creature->GetGUID());
-                       creature->DespawnOrUnsummon(5000);
+                       creature->DespawnOrUnsummon(5s);
                        creature->GetMotionMaster()->MovePoint(1, me->GetPositionX() + 5, me->GetPositionY(), me->GetPositionZ());
                        creature->AI()->Talk(SAY_FREE_0);
                        creature->GetMotionMaster()->Clear();
@@ -1394,7 +736,7 @@ public:
     {
         go_frostblade_shrineAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             me->UseDoorOrButton(10);
             if (!player->HasAura(SPELL_RECENT_MEDITATION))
@@ -1433,7 +775,7 @@ public:
     {
         go_midsummer_bonfireAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
         {
             player->CastSpell(player, STAMP_OUT_BONFIRE_QUEST_COMPLETE, true);
             CloseGossipMenuFor(player);
@@ -1472,7 +814,7 @@ public:
     {
         go_midsummer_ribbon_poleAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             if (Creature* creature = me->FindNearestCreature(NPC_POLE_RIBBON_BUNNY, 10.0f))
             {
@@ -1544,16 +886,12 @@ enum BrewfestMusic
     EVENT_BREWFESTGOBLIN03 = 11815 // 0.28 min
 };
 
-// These are in seconds
-enum BrewfestMusicTime
-{
-    EVENT_BREWFESTDWARF01_TIME = 95000,
-    EVENT_BREWFESTDWARF02_TIME = 155000,
-    EVENT_BREWFESTDWARF03_TIME = 23000,
-    EVENT_BREWFESTGOBLIN01_TIME = 68000,
-    EVENT_BREWFESTGOBLIN02_TIME = 93000,
-    EVENT_BREWFESTGOBLIN03_TIME = 28000
-};
+constexpr Seconds EVENT_BREWFESTDWARF01_TIME = 95s;
+constexpr Seconds EVENT_BREWFESTDWARF02_TIME = 155s;
+constexpr Seconds EVENT_BREWFESTDWARF03_TIME = 23s;
+constexpr Seconds EVENT_BREWFESTGOBLIN01_TIME = 68s;
+constexpr Seconds EVENT_BREWFESTGOBLIN02_TIME = 93s;
+constexpr Seconds EVENT_BREWFESTGOBLIN03_TIME = 28s;
 
 enum BrewfestMusicAreas
 {
@@ -1584,7 +922,7 @@ public:
     struct go_brewfest_musicAI : public GameObjectAI
     {
         uint32 rnd = 0;
-        uint32 musicTime = 1000;
+        Milliseconds musicTime = 1s;
 
         go_brewfest_musicAI(GameObject* go) : GameObjectAI(go)
         {
@@ -1898,22 +1236,25 @@ public:
 
 enum BellHourlySoundFX
 {
-    BELLTOLLHORDE          = 6595, // Horde
-    BELLTOLLTRIBAL         = 6675,
-    BELLTOLLALLIANCE       = 6594, // Alliance
-    BELLTOLLNIGHTELF       = 6674,
-    BELLTOLLDWARFGNOME     = 7234,
-    BELLTOLLKHARAZHAN      = 9154 // Kharazhan
+    BELLTOLLHORDE      = 6595, // Undercity
+    BELLTOLLTRIBAL     = 6675, // Orgrimma/Thunderbluff
+    BELLTOLLALLIANCE   = 6594, // Stormwind
+    BELLTOLLNIGHTELF   = 6674, // Darnassus
+    BELLTOLLDWARFGNOME = 7234, // Ironforge
+    BELLTOLLKHARAZHAN  = 9154  // Kharazhan
 };
 
-enum BellHourlySoundAreas
+enum BellHourlySoundZones
 {
-    UNDERCITY_AREA         = 1497,
-    IRONFORGE_1_AREA       = 809,
-    IRONFORGE_2_AREA       = 1,
-    DARNASSUS_AREA         = 1657,
-    TELDRASSIL_ZONE        = 141,
-    KHARAZHAN_MAPID        = 532
+    TIRISFAL_ZONE            = 85,
+    UNDERCITY_ZONE           = 1497,
+    DUN_MOROGH_ZONE          = 1,
+    IRONFORGE_ZONE           = 1537,
+    TELDRASSIL_ZONE          = 141,
+    DARNASSUS_ZONE           = 1657,
+    ASHENVALE_ZONE           = 331,
+    HILLSBRAD_FOOTHILLS_ZONE = 267,
+    DUSKWOOD_ZONE            = 10
 };
 
 enum BellHourlyObjects
@@ -1940,25 +1281,49 @@ public:
 
         void InitializeAI() override
         {
+            uint32 zoneId = me->GetZoneId();
+
             switch (me->GetEntry())
             {
                 case GO_HORDE_BELL:
-                    _soundId = me->GetAreaId() == UNDERCITY_AREA ? BELLTOLLHORDE : BELLTOLLTRIBAL;
+                {
+                    switch (zoneId)
+                    {
+                        case TIRISFAL_ZONE:
+                        case UNDERCITY_ZONE:
+                        case HILLSBRAD_FOOTHILLS_ZONE:
+                        case DUSKWOOD_ZONE:
+                            _soundId = BELLTOLLHORDE;  // undead bell sound
+                            break;
+                        default:
+                            _soundId = BELLTOLLTRIBAL; // orc drum sound
+                            break;
+                    }
                     break;
+                }
                 case GO_ALLIANCE_BELL:
                 {
-                    if (me->GetAreaId() == IRONFORGE_1_AREA || me->GetAreaId() == IRONFORGE_2_AREA)
-                        _soundId = BELLTOLLDWARFGNOME;
-                    else if (me->GetAreaId() == DARNASSUS_AREA || me->GetZoneId() == TELDRASSIL_ZONE)
-                        _soundId = BELLTOLLNIGHTELF;
-                    else
-                        _soundId = BELLTOLLALLIANCE;
-
+                    switch (zoneId)
+                    {
+                        case IRONFORGE_ZONE:
+                        case DUN_MOROGH_ZONE:
+                            _soundId = BELLTOLLDWARFGNOME; // horn sound
+                            break;
+                        case DARNASSUS_ZONE:
+                        case TELDRASSIL_ZONE:
+                        case ASHENVALE_ZONE:
+                            _soundId = BELLTOLLNIGHTELF;   // nightelf bell sound
+                            break;
+                        default:
+                            _soundId = BELLTOLLALLIANCE;   // human bell sound
+                    }
                     break;
                 }
                 case GO_KHARAZHAN_BELL:
+                {
                     _soundId = BELLTOLLKHARAZHAN;
                     break;
+                }
             }
         }
 
@@ -1969,7 +1334,11 @@ public:
                 time_t time = GameTime::GetGameTime();
                 tm localTm;
                 localtime_r(&time, &localTm);
-                uint8 _rings = (localTm.tm_hour - 1) % 12 + 1;
+                uint8 _rings = (localTm.tm_hour) % 12;
+                if (_rings == 0) // 00:00 and 12:00
+                {
+                    _rings = 12;
+                }
 
                 for (auto i = 0; i < _rings; ++i)
                     _events.ScheduleEvent(EVENT_RING_BELL, Seconds(i * 4 + 1));
@@ -2005,33 +1374,18 @@ public:
 
 void AddSC_go_scripts()
 {
-    new go_cat_figurine();
-    new go_barov_journal();
     new go_gilded_brazier();
-    new go_orb_of_command();
-    new go_shrine_of_the_birds();
     new go_southfury_moonstone();
-    new go_tablet_of_madness();
     new go_tablet_of_the_seven();
-    new go_jump_a_tron();
     new go_ethereum_prison();
     new go_ethereum_stasis();
     new go_resonite_cask();
     new go_tele_to_dalaran_crystal();
     new go_tele_to_violet_stand();
-    new go_fel_crystalforge();
-    new go_bashir_crystalforge();
     new go_matrix_punchograph();
-    new go_scourge_cage();
-    new go_arcane_prison();
     new go_blood_filled_orb();
-    new go_jotunheim_cage();
-    new go_table_theka();
-    new go_inconspicuous_landmark();
     new go_soulwell();
-    new go_dragonflayer_cage();
     new go_amberpine_outhouse();
-    new go_hive_pod();
     new go_massive_seaforium_charge();
     new go_veil_skith_cage();
     new go_frostblade_shrine();

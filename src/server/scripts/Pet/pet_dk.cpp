@@ -57,12 +57,14 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
                 Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, 30.0f);
                 Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, targets, u_check);
                 Cell::VisitAllObjects(me, searcher, 30.0f);
-                for (std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
-                    if ((*iter)->HasAura(SPELL_DK_SUMMON_GARGOYLE_1, ownerGuid))
+                for (Unit* target : targets)
+                {
+                    if (target->HasAura(SPELL_DK_SUMMON_GARGOYLE_1, ownerGuid))
                     {
-                        me->Attack((*iter), false);
+                        me->Attack(target, false);
                         break;
                     }
+                }
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -73,13 +75,13 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
             }
 
             // Fly away when dismissed
-            void SpellHit(Unit* source, SpellInfo const* spell) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
             {
-                if (spell->Id != SPELL_DK_DISMISS_GARGOYLE || !me->IsAlive())
+                if (spellInfo->Id != SPELL_DK_DISMISS_GARGOYLE || !me->IsAlive())
                     return;
 
                 Unit* owner = me->GetOwner();
-                if (!owner || owner != source)
+                if (!owner || owner != caster)
                     return;
 
                 // Stop Fighting

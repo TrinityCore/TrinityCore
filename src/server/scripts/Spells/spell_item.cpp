@@ -2710,7 +2710,7 @@ class spell_item_crystal_prison_dummy_dnd : public SpellScript
         if (Creature* target = GetHitCreature())
             if (target->isDead() && !target->IsPet())
             {
-                GetCaster()->SummonGameObject(OBJECT_IMPRISONED_DOOMGUARD, *target, QuaternionData(), uint32(target->GetRespawnTime() - GameTime::GetGameTime()));
+                GetCaster()->SummonGameObject(OBJECT_IMPRISONED_DOOMGUARD, *target, QuaternionData(), Seconds(target->GetRespawnTime() - GameTime::GetGameTime()));
                 target->DespawnOrUnsummon();
             }
     }
@@ -3604,7 +3604,7 @@ class spell_item_toy_train_set_pulse : public SpellScript
         {
             target->HandleEmoteCommand(EMOTE_ONESHOT_TRAIN);
             if (EmotesTextSoundEntry const* soundEntry = FindTextSoundEmoteFor(TEXT_EMOTE_TRAIN, target->GetRace(), target->GetNativeGender()))
-                target->PlayDistanceSound(soundEntry->SoundId);
+                target->PlayDistanceSound(soundEntry->SoundID);
         }
     }
 
@@ -4296,18 +4296,18 @@ void AddSC_item_spell_scripts()
     // 23075 Mithril Mechanical Dragonling
     new spell_item_trigger_spell("spell_item_mithril_mechanical_dragonling", SPELL_MITHRIL_MECHANICAL_DRAGONLING);
 
-    RegisterAuraScript(spell_item_aegis_of_preservation);
-    RegisterAuraScript(spell_item_absorb_eye_of_grillok);
-    RegisterAuraScript(spell_item_alchemists_stone);
+    RegisterSpellScript(spell_item_aegis_of_preservation);
+    RegisterSpellScript(spell_item_absorb_eye_of_grillok);
+    RegisterSpellScript(spell_item_alchemists_stone);
     new spell_item_anger_capacitor<8>("spell_item_tiny_abomination_in_a_jar");
     new spell_item_anger_capacitor<7>("spell_item_tiny_abomination_in_a_jar_hero");
-    RegisterAuraScript(spell_item_arcane_shroud);
-    RegisterAuraScript(spell_item_aura_of_madness);
-    RegisterAuraScript(spell_item_dementia);
+    RegisterSpellScript(spell_item_arcane_shroud);
+    RegisterSpellScript(spell_item_aura_of_madness);
+    RegisterSpellScript(spell_item_dementia);
     RegisterSpellScript(spell_item_brittle_armor);
-    RegisterAuraScript(spell_item_blessing_of_ancient_kings);
-    RegisterAuraScript(spell_item_valanyr_hammer_of_ancient_kings);
-    RegisterAuraScript(spell_item_deadly_precision);
+    RegisterSpellScript(spell_item_blessing_of_ancient_kings);
+    RegisterSpellScript(spell_item_valanyr_hammer_of_ancient_kings);
+    RegisterSpellScript(spell_item_deadly_precision);
     RegisterSpellScript(spell_item_deadly_precision_dummy);
     new spell_item_deathbringers_will<SPELL_STRENGTH_OF_THE_TAUNKA, SPELL_AGILITY_OF_THE_VRYKUL, SPELL_POWER_OF_THE_TAUNKA, SPELL_AIM_OF_THE_IRON_DWARVES, SPELL_SPEED_OF_THE_VRYKUL>("spell_item_deathbringers_will_normal");
     new spell_item_deathbringers_will<SPELL_STRENGTH_OF_THE_TAUNKA_HERO, SPELL_AGILITY_OF_THE_VRYKUL_HERO, SPELL_POWER_OF_THE_TAUNKA_HERO, SPELL_AIM_OF_THE_IRON_DWARVES_HERO, SPELL_SPEED_OF_THE_VRYKUL_HERO>("spell_item_deathbringers_will_heroic");
@@ -4316,45 +4316,45 @@ void AddSC_item_spell_scripts()
     new spell_item_defibrillate("spell_item_goblin_jumper_cables", 67, SPELL_GOBLIN_JUMPER_CABLES_FAIL);
     new spell_item_defibrillate("spell_item_goblin_jumper_cables_xl", 50, SPELL_GOBLIN_JUMPER_CABLES_XL_FAIL);
     new spell_item_defibrillate("spell_item_gnomish_army_knife", 33);
-    RegisterAuraScript(spell_item_desperate_defense);
+    RegisterSpellScript(spell_item_desperate_defense);
     RegisterSpellScript(spell_item_deviate_fish);
-    RegisterAuraScript(spell_item_discerning_eye_beast_dummy);
+    RegisterSpellScript(spell_item_discerning_eye_beast_dummy);
     RegisterSpellScript(spell_item_echoes_of_light);
-    RegisterAuraScript(spell_item_extract_gas);
-    RegisterAuraScript(spell_item_fate_rune_of_unsurpassed_vigor);
+    RegisterSpellScript(spell_item_extract_gas);
+    RegisterSpellScript(spell_item_fate_rune_of_unsurpassed_vigor);
     RegisterSpellScript(spell_item_flask_of_the_north);
-    RegisterAuraScript(spell_item_frozen_shadoweave);
+    RegisterSpellScript(spell_item_frozen_shadoweave);
     RegisterSpellScript(spell_item_gnomish_death_ray);
-    RegisterAuraScript(spell_item_harm_prevention_belt);
-    RegisterAuraScript(spell_item_healing_touch_refund);
+    RegisterSpellScript(spell_item_harm_prevention_belt);
+    RegisterSpellScript(spell_item_healing_touch_refund);
     new spell_item_heartpierce<SPELL_INVIGORATION_ENERGY, SPELL_INVIGORATION_MANA, SPELL_INVIGORATION_RAGE, SPELL_INVIGORATION_RP>("spell_item_heartpierce");
     new spell_item_heartpierce<SPELL_INVIGORATION_ENERGY_HERO, SPELL_INVIGORATION_MANA_HERO, SPELL_INVIGORATION_RAGE_HERO, SPELL_INVIGORATION_RP_HERO>("spell_item_heartpierce_hero");
-    RegisterAuraScript(spell_item_crystal_spire_of_karabor);
+    RegisterSpellScript(spell_item_crystal_spire_of_karabor);
     RegisterSpellScript(spell_item_make_a_wish);
-    RegisterAuraScript(spell_item_mark_of_conquest);
+    RegisterSpellScript(spell_item_mark_of_conquest);
     RegisterSpellScript(spell_item_mercurial_shield);
     RegisterSpellScript(spell_item_mingos_fortune_generator);
-    RegisterAuraScript(spell_item_necrotic_touch);
+    RegisterSpellScript(spell_item_necrotic_touch);
     RegisterSpellScript(spell_item_net_o_matic);
     RegisterSpellScript(spell_item_noggenfogger_elixir);
-    RegisterAuraScript(spell_item_pendant_of_the_violet_eye);
-    RegisterAuraScript(spell_item_persistent_shield);
-    RegisterAuraScript(spell_item_pet_healing);
+    RegisterSpellScript(spell_item_pendant_of_the_violet_eye);
+    RegisterSpellScript(spell_item_persistent_shield);
+    RegisterSpellScript(spell_item_pet_healing);
     RegisterSpellScript(spell_item_piccolo_of_the_flaming_fire);
-    RegisterAuraScript(spell_item_power_circle);
+    RegisterSpellScript(spell_item_power_circle);
     RegisterSpellScript(spell_item_savory_deviate_delight);
     RegisterSpellScript(spell_item_scroll_of_recall);
     RegisterSpellScript(spell_item_dimensional_ripper_everlook);
     RegisterSpellScript(spell_item_ultrasafe_transporter);
     RegisterSpellScript(spell_item_dimensional_ripper_area52);
-    RegisterAuraScript(spell_item_unsated_craving);
-    RegisterAuraScript(spell_item_shadows_fate);
-    RegisterAuraScript(spell_item_shadowmourne);
-    RegisterAuraScript(spell_item_shadowmourne_soul_fragment);
+    RegisterSpellScript(spell_item_unsated_craving);
+    RegisterSpellScript(spell_item_shadows_fate);
+    RegisterSpellScript(spell_item_shadowmourne);
+    RegisterSpellScript(spell_item_shadowmourne_soul_fragment);
     RegisterSpellScript(spell_item_six_demon_bag);
-    RegisterAuraScript(spell_item_swift_hand_justice_dummy);
-    RegisterAuraScript(spell_item_totem_of_flowing_water);
-    RegisterAuraScript(spell_item_the_eye_of_diminution);
+    RegisterSpellScript(spell_item_swift_hand_justice_dummy);
+    RegisterSpellScript(spell_item_totem_of_flowing_water);
+    RegisterSpellScript(spell_item_the_eye_of_diminution);
     RegisterSpellScript(spell_item_underbelly_elixir);
     RegisterSpellScript(spell_item_worn_troll_dice);
     RegisterSpellScript(spell_item_red_rider_air_rifle);
@@ -4366,7 +4366,7 @@ void AddSC_item_spell_scripts()
     RegisterSpellScript(spell_item_vanquished_clutches);
 
     RegisterSpellScript(spell_item_ashbringer);
-    RegisterAuraScript(spell_magic_eater_food);
+    RegisterSpellScript(spell_magic_eater_food);
     RegisterSpellScript(spell_item_shimmering_vessel);
     RegisterSpellScript(spell_item_purify_helboar_meat);
     RegisterSpellScript(spell_item_crystal_prison_dummy_dnd);
@@ -4379,7 +4379,7 @@ void AddSC_item_spell_scripts()
     RegisterSpellScript(spell_item_impale_leviroth);
     RegisterSpellScript(spell_item_brewfest_mount_transformation);
     RegisterSpellScript(spell_item_nitro_boosts);
-    RegisterAuraScript(spell_item_nitro_boosts_backfire);
+    RegisterSpellScript(spell_item_nitro_boosts_backfire);
     RegisterSpellScript(spell_item_teach_language);
     RegisterSpellScript(spell_item_rocket_boots);
     RegisterSpellScript(spell_item_runic_healing_injector);
@@ -4391,20 +4391,20 @@ void AddSC_item_spell_scripts()
     RegisterSpellScript(spell_item_greatmothers_soulcatcher);
     new spell_item_shard_of_the_scale<SPELL_PURIFIED_CAUTERIZING_HEAL, SPELL_PURIFIED_SEARING_FLAMES>("spell_item_purified_shard_of_the_scale");
     new spell_item_shard_of_the_scale<SPELL_SHINY_CAUTERIZING_HEAL, SPELL_SHINY_SEARING_FLAMES>("spell_item_shiny_shard_of_the_scale");
-    RegisterAuraScript(spell_item_soul_preserver);
+    RegisterSpellScript(spell_item_soul_preserver);
     new spell_item_sunwell_neck<SPELL_LIGHTS_WRATH, SPELL_ARCANE_BOLT>("spell_item_sunwell_exalted_caster_neck");
     new spell_item_sunwell_neck<SPELL_LIGHTS_STRENGTH, SPELL_ARCANE_STRIKE>("spell_item_sunwell_exalted_melee_neck");
     new spell_item_sunwell_neck<SPELL_LIGHTS_WARD, SPELL_ARCANE_INSIGHT>("spell_item_sunwell_exalted_tank_neck");
     new spell_item_sunwell_neck<SPELL_LIGHTS_SALVATION, SPELL_ARCANE_SURGE>("spell_item_sunwell_exalted_healer_neck");
     RegisterSpellScript(spell_item_toy_train_set_pulse);
-    RegisterAuraScript(spell_item_death_choice);
+    RegisterSpellScript(spell_item_death_choice);
     new spell_item_trinket_stack("spell_item_lightning_capacitor", SPELL_LIGHTNING_CAPACITOR_STACK, SPELL_LIGHTNING_CAPACITOR_TRIGGER);
     new spell_item_trinket_stack("spell_item_thunder_capacitor", SPELL_THUNDER_CAPACITOR_STACK, SPELL_THUNDER_CAPACITOR_TRIGGER);
     new spell_item_trinket_stack("spell_item_toc25_normal_caster_trinket", SPELL_TOC25_CASTER_TRINKET_NORMAL_STACK, SPELL_TOC25_CASTER_TRINKET_NORMAL_TRIGGER);
     new spell_item_trinket_stack("spell_item_toc25_heroic_caster_trinket", SPELL_TOC25_CASTER_TRINKET_HEROIC_STACK, SPELL_TOC25_CASTER_TRINKET_HEROIC_TRIGGER);
-    RegisterAuraScript(spell_item_darkmoon_card_greatness);
-    RegisterAuraScript(spell_item_charm_witch_doctor);
-    RegisterAuraScript(spell_item_mana_drain);
+    RegisterSpellScript(spell_item_darkmoon_card_greatness);
+    RegisterSpellScript(spell_item_charm_witch_doctor);
+    RegisterSpellScript(spell_item_mana_drain);
     RegisterSpellScript(spell_item_taunt_flag_targeting);
     RegisterSpellScript(spell_item_mirrens_drinking_hat);
     RegisterSpellScript(spell_item_mind_control_cap);

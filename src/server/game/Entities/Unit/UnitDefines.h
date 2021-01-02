@@ -77,13 +77,14 @@ enum UnitBytes2Offsets : uint8
     UNIT_BYTES_2_OFFSET_SHAPESHIFT_FORM = 3
 };
 
-// byte flags value (UNIT_FIELD_BYTES_1, 3)
-enum UnitBytes1_Flags : uint8
+// UNIT_FIELD_BYTES_1 (UNIT_BYTES_1_OFFSET_ANIM_TIER)
+enum class AnimationTier : uint8
 {
-    UNIT_BYTE1_FLAG_ALWAYS_STAND    = 0x01,
-    UNIT_BYTE1_FLAG_HOVER           = 0x02,
-    UNIT_BYTE1_FLAG_UNK_3           = 0x04,
-    UNIT_BYTE1_FLAG_ALL             = 0xFF
+    Ground      = 0, // plays ground tier animations
+    Swim        = 1, // falls back to ground tier animations, not handled by the client, should never appear in sniffs, will prevent tier change animations from playing correctly if used
+    Hover       = 2, // plays flying tier animations or falls back to ground tier animations, automatically enables hover clientside when entering visibility with this value
+    Fly         = 3, // plays flying tier animations
+    Submerged   = 4
 };
 
 // low byte (0 from 0..3) of UNIT_FIELD_BYTES_2
@@ -324,7 +325,7 @@ struct DeclinedName
     std::string name[MAX_DECLINED_NAME_CASES];
 };
 
-enum ActiveStates
+enum ActiveStates : uint8
 {
     ACT_PASSIVE  = 0x01,                                    // 0x01 - passive
     ACT_DISABLED = 0x81,                                    // 0x80 - castable
@@ -334,12 +335,13 @@ enum ActiveStates
     ACT_DECIDE   = 0x00                                     // custom
 };
 
-enum ReactStates
+enum ReactStates : uint8
 {
     REACT_PASSIVE    = 0,
     REACT_DEFENSIVE  = 1,
     REACT_AGGRESSIVE = 2
 };
+
 inline char const* DescribeReactState(ReactStates state)
 {
     switch (state)

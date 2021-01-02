@@ -82,6 +82,8 @@ class TC_GAME_API AuraApplication
         bool IsNeedClientUpdate() const { return _needClientUpdate;}
         void BuildUpdatePacket(ByteBuffer& data, bool remove) const;
         void ClientUpdate(bool remove = false);
+
+        std::string GetDebugInfo() const;
 };
 
 // Caches some information about caster (because it may no longer exist)
@@ -101,7 +103,7 @@ class TC_GAME_API Aura
         typedef std::unordered_map<ObjectGuid, AuraApplication*> ApplicationMap;
 
         static uint8 BuildEffectMaskForOwner(SpellInfo const* spellProto, uint8 availableEffectMask, WorldObject* owner);
-        static Aura* TryRefreshStackOrCreate(AuraCreateInfo& createInfo);
+        static Aura* TryRefreshStackOrCreate(AuraCreateInfo& createInfo, bool updateEffectMask = true);
         static Aura* TryCreate(AuraCreateInfo& createInfo);
         static Aura* Create(AuraCreateInfo& createInfo);
         explicit Aura(AuraCreateInfo const& createInfo);
@@ -213,13 +215,13 @@ class TC_GAME_API Aura
         bool CheckAreaTarget(Unit* target);
         bool CanStackWith(Aura const* existingAura) const;
 
-        bool IsProcOnCooldown(std::chrono::steady_clock::time_point now) const;
-        void AddProcCooldown(std::chrono::steady_clock::time_point cooldownEnd);
+        bool IsProcOnCooldown(TimePoint now) const;
+        void AddProcCooldown(TimePoint cooldownEnd);
         void ResetProcCooldown();
         bool IsUsingCharges() const { return m_isUsingCharges; }
         void SetUsingCharges(bool val) { m_isUsingCharges = val; }
-        void PrepareProcToTrigger(AuraApplication* aurApp, ProcEventInfo& eventInfo, std::chrono::steady_clock::time_point now);
-        uint8 GetProcEffectMask(AuraApplication* aurApp, ProcEventInfo& eventInfo, std::chrono::steady_clock::time_point now) const;
+        void PrepareProcToTrigger(AuraApplication* aurApp, ProcEventInfo& eventInfo, TimePoint now);
+        uint8 GetProcEffectMask(AuraApplication* aurApp, ProcEventInfo& eventInfo, TimePoint now) const;
         float CalcProcChance(SpellProcEntry const& procEntry, ProcEventInfo& eventInfo) const;
         void TriggerProcOnEvent(uint8 procEffectMask, AuraApplication* aurApp, ProcEventInfo& eventInfo);
 
@@ -296,7 +298,7 @@ class TC_GAME_API Aura
 
         ChargeDropEvent* m_dropEvent;
 
-        std::chrono::steady_clock::time_point m_procCooldown;
+        TimePoint m_procCooldown;
 
     private:
         std::vector<AuraApplication*> _removedApplications;

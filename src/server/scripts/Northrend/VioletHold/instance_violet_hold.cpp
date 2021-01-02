@@ -195,7 +195,7 @@ class instance_violet_hold : public InstanceMapScript
 
         struct instance_violet_hold_InstanceMapScript : public InstanceScript
         {
-            instance_violet_hold_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_violet_hold_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
@@ -742,7 +742,7 @@ class instance_violet_hold : public InstanceMapScript
                                 guard->SetImmuneToAll(true);
                             }
                         }
-                        /* fallthrough */
+                        [[fallthrough]];
                     default:
                         if (boss->isDead())
                         {
@@ -768,7 +768,7 @@ class instance_violet_hold : public InstanceMapScript
                             FirstBossId = urand(DATA_MORAGG, DATA_ZURAMAT);
                         if (Creature* sinclari = GetCreature(DATA_SINCLARI))
                         {
-                            sinclari->SummonCreature(NPC_TELEPORTATION_PORTAL_INTRO, PortalIntroPositions[3], TEMPSUMMON_TIMED_DESPAWN, 3000);
+                            sinclari->SummonCreature(NPC_TELEPORTATION_PORTAL_INTRO, PortalIntroPositions[3], TEMPSUMMON_TIMED_DESPAWN, 3s);
                             sinclari->SummonCreature(NPC_SABOTEOUR, SaboteurSpawnLocation, TEMPSUMMON_DEAD_DESPAWN);
                         }
                         break;
@@ -780,14 +780,14 @@ class instance_violet_hold : public InstanceMapScript
                             } while (SecondBossId == FirstBossId);
                         if (Creature* sinclari = GetCreature(DATA_SINCLARI))
                         {
-                            sinclari->SummonCreature(NPC_TELEPORTATION_PORTAL_INTRO, PortalIntroPositions[3], TEMPSUMMON_TIMED_DESPAWN, 3000);
+                            sinclari->SummonCreature(NPC_TELEPORTATION_PORTAL_INTRO, PortalIntroPositions[3], TEMPSUMMON_TIMED_DESPAWN, 3s);
                             sinclari->SummonCreature(NPC_SABOTEOUR, SaboteurSpawnLocation, TEMPSUMMON_DEAD_DESPAWN);
                         }
                         break;
                     case 18:
                         if (Creature* sinclari = GetCreature(DATA_SINCLARI))
                         {
-                            sinclari->SummonCreature(NPC_TELEPORTATION_PORTAL_INTRO, PortalIntroPositions[4], TEMPSUMMON_TIMED_DESPAWN, 6000);
+                            sinclari->SummonCreature(NPC_TELEPORTATION_PORTAL_INTRO, PortalIntroPositions[4], TEMPSUMMON_TIMED_DESPAWN, 6s);
                             if (Creature* cyanigosa = sinclari->SummonCreature(NPC_CYANIGOSA, CyanigosaSpawnLocation, TEMPSUMMON_DEAD_DESPAWN))
                                 cyanigosa->CastSpell(cyanigosa, SPELL_CYANIGOSA_ARCANE_POWER_STATE, true);
                             ScheduleCyanigosaIntro();

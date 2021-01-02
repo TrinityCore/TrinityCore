@@ -20,9 +20,7 @@
 #include "SmartEnum.h"
 #include <stdexcept>
 
-namespace Trinity
-{
-namespace Impl
+namespace Trinity::Impl::EnumUtilsImpl
 {
 
 /***************************************************************\
@@ -113,6 +111,47 @@ TC_API_EXPORT UnitFlags EnumUtils<UnitFlags>::FromIndex(size_t index)
     }
 }
 
+template <>
+TC_API_EXPORT size_t EnumUtils<UnitFlags>::ToIndex(UnitFlags value)
+{
+    switch (value)
+    {
+        case UNIT_FLAG_SERVER_CONTROLLED: return 0;
+        case UNIT_FLAG_NON_ATTACKABLE: return 1;
+        case UNIT_FLAG_REMOVE_CLIENT_CONTROL: return 2;
+        case UNIT_FLAG_PLAYER_CONTROLLED: return 3;
+        case UNIT_FLAG_RENAME: return 4;
+        case UNIT_FLAG_PREPARATION: return 5;
+        case UNIT_FLAG_UNK_6: return 6;
+        case UNIT_FLAG_NOT_ATTACKABLE_1: return 7;
+        case UNIT_FLAG_IMMUNE_TO_PC: return 8;
+        case UNIT_FLAG_IMMUNE_TO_NPC: return 9;
+        case UNIT_FLAG_LOOTING: return 10;
+        case UNIT_FLAG_PET_IN_COMBAT: return 11;
+        case UNIT_FLAG_PVP: return 12;
+        case UNIT_FLAG_SILENCED: return 13;
+        case UNIT_FLAG_CANNOT_SWIM: return 14;
+        case UNIT_FLAG_SWIMMING: return 15;
+        case UNIT_FLAG_NON_ATTACKABLE_2: return 16;
+        case UNIT_FLAG_PACIFIED: return 17;
+        case UNIT_FLAG_STUNNED: return 18;
+        case UNIT_FLAG_IN_COMBAT: return 19;
+        case UNIT_FLAG_TAXI_FLIGHT: return 20;
+        case UNIT_FLAG_DISARMED: return 21;
+        case UNIT_FLAG_CONFUSED: return 22;
+        case UNIT_FLAG_FLEEING: return 23;
+        case UNIT_FLAG_POSSESSED: return 24;
+        case UNIT_FLAG_NOT_SELECTABLE: return 25;
+        case UNIT_FLAG_SKINNABLE: return 26;
+        case UNIT_FLAG_MOUNT: return 27;
+        case UNIT_FLAG_UNK_28: return 28;
+        case UNIT_FLAG_UNK_29: return 29;
+        case UNIT_FLAG_SHEATHE: return 30;
+        case UNIT_FLAG_IMMUNE: return 31;
+        default: throw std::out_of_range("value");
+    }
+}
+
 /**************************************************************\
 |* data for enum 'NPCFlags' in 'UnitDefines.h' auto-generated *|
 \**************************************************************/
@@ -190,5 +229,40 @@ TC_API_EXPORT NPCFlags EnumUtils<NPCFlags>::FromIndex(size_t index)
         default: throw std::out_of_range("index");
     }
 }
+
+template <>
+TC_API_EXPORT size_t EnumUtils<NPCFlags>::ToIndex(NPCFlags value)
+{
+    switch (value)
+    {
+        case UNIT_NPC_FLAG_GOSSIP: return 0;
+        case UNIT_NPC_FLAG_QUESTGIVER: return 1;
+        case UNIT_NPC_FLAG_UNK1: return 2;
+        case UNIT_NPC_FLAG_UNK2: return 3;
+        case UNIT_NPC_FLAG_TRAINER: return 4;
+        case UNIT_NPC_FLAG_TRAINER_CLASS: return 5;
+        case UNIT_NPC_FLAG_TRAINER_PROFESSION: return 6;
+        case UNIT_NPC_FLAG_VENDOR: return 7;
+        case UNIT_NPC_FLAG_VENDOR_AMMO: return 8;
+        case UNIT_NPC_FLAG_VENDOR_FOOD: return 9;
+        case UNIT_NPC_FLAG_VENDOR_POISON: return 10;
+        case UNIT_NPC_FLAG_VENDOR_REAGENT: return 11;
+        case UNIT_NPC_FLAG_REPAIR: return 12;
+        case UNIT_NPC_FLAG_FLIGHTMASTER: return 13;
+        case UNIT_NPC_FLAG_SPIRITHEALER: return 14;
+        case UNIT_NPC_FLAG_SPIRITGUIDE: return 15;
+        case UNIT_NPC_FLAG_INNKEEPER: return 16;
+        case UNIT_NPC_FLAG_BANKER: return 17;
+        case UNIT_NPC_FLAG_PETITIONER: return 18;
+        case UNIT_NPC_FLAG_TABARDDESIGNER: return 19;
+        case UNIT_NPC_FLAG_BATTLEMASTER: return 20;
+        case UNIT_NPC_FLAG_AUCTIONEER: return 21;
+        case UNIT_NPC_FLAG_STABLEMASTER: return 22;
+        case UNIT_NPC_FLAG_GUILD_BANKER: return 23;
+        case UNIT_NPC_FLAG_SPELLCLICK: return 24;
+        case UNIT_NPC_FLAG_PLAYER_VEHICLE: return 25;
+        case UNIT_NPC_FLAG_MAILBOX: return 26;
+        default: throw std::out_of_range("value");
+    }
 }
 }

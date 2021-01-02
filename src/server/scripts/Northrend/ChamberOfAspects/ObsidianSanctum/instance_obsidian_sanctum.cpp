@@ -19,7 +19,6 @@
 #include "AreaBoundary.h"
 #include "Creature.h"
 #include "InstanceScript.h"
-#include "Map.h"
 #include "obsidian_sanctum.h"
 
 /* Obsidian Sanctum encounters:
@@ -38,7 +37,7 @@ public:
 
     struct instance_obsidian_sanctum_InstanceMapScript : public InstanceScript
     {
-        instance_obsidian_sanctum_InstanceMapScript(Map* map) : InstanceScript(map)
+        instance_obsidian_sanctum_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);

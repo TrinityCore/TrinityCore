@@ -898,7 +898,7 @@ public:
             {
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     _exorcismCooldown = 0;
-                else if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                else if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                 {
                     DoCast(target, SPELL_EXORCISM);
                     _exorcismCooldown = urandms(7, 14);
@@ -1074,7 +1074,7 @@ public:
                             DoCast(citizen, SPELL_CRUSADER_STRIKE, TRIGGERED_IGNORE_SET_FACING);
                         if (Creature* resident = me->FindNearestCreature(NPC_RESIDENT, 100.0f, true))
                         {
-                            resident->SetFlag(UNIT_NPC_EMOTESTATE, EMOTE_STATE_COWER);
+                            resident->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_COWER);
                             resident->AI()->Talk(RP2_LINE_RESIDENT1, ObjectAccessor::GetUnit(*me, _eventStarterGuid));
                         }
                         break;
@@ -1095,28 +1095,17 @@ public:
                         me->GetCreatureListWithEntryInGrid(nearbyVictims, urand(0, 1) ? NPC_CITIZEN : NPC_RESIDENT, 60.0f);
                         if (!nearbyVictims.empty())
                         {
-                            std::list<Creature*>::iterator it = nearbyVictims.begin();
-                            std::advance(it, urand(0, nearbyVictims.size()-1));
-                            Emote emote;
-                            switch (urand(0, 3))
+                            Emote emotes[] =
                             {
-                                case 0:
-                                    emote = EMOTE_ONESHOT_TALK;
-                                    break;
-                                case 1:
-                                    emote = EMOTE_ONESHOT_EXCLAMATION;
-                                    break;
-                                case 2:
-                                    emote = EMOTE_ONESHOT_RUDE;
-                                    break;
-                                case 3:
-                                    emote = EMOTE_ONESHOT_ROAR;
-                                    break;
-                                default:
-                                    break;
-                            }
-                            if ((*it)->IsAlive())
-                                (*it)->HandleEmoteCommand(emote);
+                                EMOTE_ONESHOT_TALK,
+                                EMOTE_ONESHOT_EXCLAMATION,
+                                EMOTE_ONESHOT_RUDE,
+                                EMOTE_ONESHOT_ROAR
+                            };
+
+                            Creature* victim = Trinity::Containers::SelectRandomContainerElement(nearbyVictims);
+                            if (victim->IsAlive())
+                                victim->HandleEmoteCommand(Trinity::Containers::SelectRandomContainerElement(emotes));
                         }
                         break;
                     }
@@ -1160,7 +1149,7 @@ public:
                         break;
                     case RP2_EVENT_MALGANIS_LEAVE2:
                         if (Creature* malganis = me->FindNearestCreature(NPC_MALGANIS, 80.0f, true))
-                            malganis->DespawnOrUnsummon(0);
+                            malganis->DespawnOrUnsummon();
                         if (Creature* bunny = me->FindNearestCreature(NPC_MALGANIS_BUNNY, 80.0f, true))
                             bunny->CastSpell(bunny, SPELL_SHADOWSTEP_VISUAL);
                         break;
@@ -1496,6 +1485,7 @@ public:
                             chromie->AI()->Talk(RP5_LINE_CHROMIE0);
                             chromie->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
                         }
+                        break;
                     default:
                         break;
                 }
@@ -1605,7 +1595,7 @@ public:
                 instance->SetGuidData(command, cause->GetGUID());
         }
 
-        bool GossipSelect(Player* player, uint32 /*sender*/, uint32 listId) override
+        bool OnGossipSelect(Player* player, uint32 /*sender*/, uint32 listId) override
         {
             uint32 const action = GetGossipActionFor(player, listId);
             TC_LOG_TRACE("scripts.cos", "npc_arthas_stratholmeAI::GossipSelect: '%s' selects action '%u' on '%s'", player->GetGUID().ToString().c_str(), action, me->GetGUID().ToString().c_str());
@@ -1618,7 +1608,7 @@ public:
             return true;
         }
 
-        bool GossipHello(Player* /*player*/) override
+        bool OnGossipHello(Player* /*player*/) override
         {
             return false;
         }

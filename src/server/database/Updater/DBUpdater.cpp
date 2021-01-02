@@ -40,10 +40,10 @@ std::string DBUpdaterUtil::GetCorrectedMySQLExecutable()
 bool DBUpdaterUtil::CheckExecutable()
 {
     boost::filesystem::path exe(GetCorrectedMySQLExecutable());
-    if (!exists(exe))
+    if (!is_regular_file(exe))
     {
         exe = Trinity::SearchExecutableInPath("mysql");
-        if (!exe.empty() && exists(exe))
+        if (!exe.empty() && is_regular_file(exe))
         {
             // Correct the path to the cli
             corrected_path() = absolute(exe).generic_string();
@@ -188,7 +188,7 @@ bool DBUpdater<T>::Create(DatabaseWorkerPool<T>& pool)
     try
     {
         DBUpdater<T>::ApplyFile(pool, pool.GetConnectionInfo()->host, pool.GetConnectionInfo()->user, pool.GetConnectionInfo()->password,
-            pool.GetConnectionInfo()->port_or_socket, "", temp);
+            pool.GetConnectionInfo()->port_or_socket, "", pool.GetConnectionInfo()->ssl, temp);
     }
     catch (UpdateException&)
     {
@@ -323,58 +323,59 @@ template<class T>
 void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, Path const& path)
 {
     DBUpdater<T>::ApplyFile(pool, pool.GetConnectionInfo()->host, pool.GetConnectionInfo()->user, pool.GetConnectionInfo()->password,
-        pool.GetConnectionInfo()->port_or_socket, pool.GetConnectionInfo()->database, path);
+        pool.GetConnectionInfo()->port_or_socket, pool.GetConnectionInfo()->database, pool.GetConnectionInfo()->ssl, path);
 }
 
 template<class T>
 void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& host, std::string const& user,
-    std::string const& password, std::string const& port_or_socket, std::string const& database, Path const& path)
+    std::string const& password, std::string const& port_or_socket, std::string const& database, std::string const& ssl,
+    Path const& path)
 {
     std::vector<std::string> args;
-    args.reserve(8);
-
-    // args[0] represents the program name
-    args.push_back("mysql");
+    args.reserve(7);
 
     // CLI Client connection info
-    args.push_back("-h" + host);
-    args.push_back("-u" + user);
+    args.emplace_back("-h" + host);
+    args.emplace_back("-u" + user);
 
     if (!password.empty())
-        args.push_back("-p" + password);
+        args.emplace_back("-p" + password);
 
     // Check if we want to connect through ip or socket (Unix only)
 #ifdef _WIN32
 
     if (host == ".")
-        args.push_back("--protocol=PIPE");
+        args.emplace_back("--protocol=PIPE");
     else
-        args.push_back("-P" + port_or_socket);
+        args.emplace_back("-P" + port_or_socket);
 
 #else
 
     if (!std::isdigit(port_or_socket[0]))
     {
         // We can't check if host == "." here, because it is named localhost if socket option is enabled
-        args.push_back("-P0");
-        args.push_back("--protocol=SOCKET");
-        args.push_back("-S" + port_or_socket);
+        args.emplace_back("-P0");
+        args.emplace_back("--protocol=SOCKET");
+        args.emplace_back("-S" + port_or_socket);
     }
     else
         // generic case
-        args.push_back("-P" + port_or_socket);
+        args.emplace_back("-P" + port_or_socket);
 
 #endif
 
     // Set the default charset to utf8
-    args.push_back("--default-character-set=utf8");
+    args.emplace_back("--default-character-set=utf8");
 
     // Set max allowed packet to 1 GB
-    args.push_back("--max-allowed-packet=1GB");
+    args.emplace_back("--max-allowed-packet=1GB");
+
+    if (ssl == "ssl")
+        args.emplace_back("--ssl");
 
     // Database
     if (!database.empty())
-        args.push_back(database);
+        args.emplace_back(database);
 
     // Invokes a mysql process which doesn't leak credentials to logs
     int const ret = Trinity::StartProcess(DBUpdaterUtil::GetCorrectedMySQLExecutable(), args,

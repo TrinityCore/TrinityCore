@@ -22,7 +22,8 @@
 enum Spells
 {
     SPELL_CURSE_OF_BLOOD        = 24673,
-    SPELL_ILLUSION              = 17773
+    SPELL_ILLUSION              = 17773,
+    SPELL_DROP_JOURNAL          = 26096
 };
 
 enum Events
@@ -51,7 +52,7 @@ public:
         void JustSummoned(Creature* summoned) override
         {
             // Illusions should attack a random target.
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                 summoned->AI()->AttackStart(target);
 
             summoned->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true); // Not sure if this is correct.
@@ -67,6 +68,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             Summons.DespawnAll();
+            DoCastSelf(SPELL_DROP_JOURNAL, true);
         }
 
         void UpdateAI(uint32 diff) override

@@ -184,9 +184,9 @@ class boss_magtheridon : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_SHADOW_CAGE)
+                if (spellInfo->Id == SPELL_SHADOW_CAGE)
                     Talk(SAY_BANISHED);
             }
 
@@ -387,7 +387,7 @@ class npc_hellfire_channeler : public CreatureScript
                             _events.Repeat(Seconds(15), Seconds(20));
                             break;
                         case EVENT_FEAR:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
                                 DoCast(target, SPELL_FEAR);
                             _events.Repeat(Seconds(25), Seconds(40));
                             break;
@@ -475,7 +475,7 @@ public:
     {
         go_manticron_cubeAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             if (player->HasAura(SPELL_MIND_EXHAUSTION) || player->HasAura(SPELL_SHADOW_GRASP))
                 return true;

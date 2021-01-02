@@ -56,9 +56,9 @@ class boss_the_maker : public CreatureScript
                 BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
 
-                events.ScheduleEvent(EVENT_ACID_SPRAY, 15000);
+                events.ScheduleEvent(EVENT_ACID_SPRAY, 15s);
                 events.ScheduleEvent(EVENT_EXPLODING_BREAKER, 6s);
-                events.ScheduleEvent(EVENT_DOMINATION, 120000);
+                events.ScheduleEvent(EVENT_DOMINATION, 120s);
                 events.ScheduleEvent(EVENT_KNOCKDOWN, 10s);
             }
 
@@ -83,14 +83,14 @@ class boss_the_maker : public CreatureScript
                         events.ScheduleEvent(EVENT_ACID_SPRAY, 15s, 23s);
                         break;
                     case EVENT_EXPLODING_BREAKER:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 30.0f, true))
                             DoCast(target, SPELL_EXPLODING_BREAKER);
                         events.ScheduleEvent(EVENT_EXPLODING_BREAKER, 4s, 12s);
                         break;
                     case EVENT_DOMINATION:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                             DoCast(target, SPELL_DOMINATION);
-                        events.ScheduleEvent(EVENT_DOMINATION, 120000);
+                        events.ScheduleEvent(EVENT_DOMINATION, 120s);
                         break;
                     case EVENT_KNOCKDOWN:
                         DoCastVictim(SPELL_KNOCKDOWN);

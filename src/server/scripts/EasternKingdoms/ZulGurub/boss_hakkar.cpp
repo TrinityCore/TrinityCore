@@ -126,7 +126,7 @@ class boss_hakkar : public CreatureScript
                             events.ScheduleEvent(EVENT_CORRUPTED_BLOOD, 30s, 45s);
                             break;
                         case EVENT_CAUSE_INSANITY:
-                            // DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_CAUSE_INSANITY);
+                            // DoCast(SelectTarget(SelectTargetMethod::Random, 0, 100, true), SPELL_CAUSE_INSANITY);
                             // events.ScheduleEvent(EVENT_CAUSE_INSANITY, 35s, 45s);
                             break;
                         case EVENT_WILL_OF_HAKKAR:
@@ -134,9 +134,9 @@ class boss_hakkar : public CreatureScript
                             // Mind Control is only triggered when there is more than one unit currently fighting Hakkar, including pets/guardians
                             // But it is only actually cast on the player with the highest threat
                             std::list<Unit*> unitList;
-                            SelectTargetList(unitList, 2, SELECT_TARGET_MAXTHREAT, 0, 0.0f, false);
+                            SelectTargetList(unitList, 2, SelectTargetMethod::MaxThreat, 0, 0.0f, false);
                             if (unitList.size() > 1)
-                                DoCast(SelectTarget(SELECT_TARGET_MAXTHREAT, 0, 100, true), SPELL_WILL_OF_HAKKAR);
+                                DoCast(SelectTarget(SelectTargetMethod::MaxThreat, 0, 100, true), SPELL_WILL_OF_HAKKAR);
                             events.ScheduleEvent(EVENT_WILL_OF_HAKKAR, 25s, 35s);
                             break;
                         }
@@ -188,7 +188,7 @@ class at_zulgurub_entrance : public OnlyOnceAreaTriggerScript
 public:
     at_zulgurub_entrance() : OnlyOnceAreaTriggerScript("at_zulgurub_entrance") { }
 
-    bool _OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger) override
+    bool TryHandleOnce(Player* player, AreaTriggerEntry const* areaTrigger) override
     {
         InstanceScript* instance = player->GetInstanceScript();
         if (!instance || instance->GetBossState(DATA_HAKKAR) == DONE)
@@ -196,7 +196,7 @@ public:
 
         if (Creature* hakkar = instance->GetCreature(DATA_HAKKAR))
         {
-            switch (areaTrigger->id)
+            switch (areaTrigger->ID)
             {
                 case AREA_TRIGGER_1:
                     hakkar->AI()->Talk(SAY_ENTRANCE);

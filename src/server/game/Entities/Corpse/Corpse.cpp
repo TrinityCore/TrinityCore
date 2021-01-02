@@ -95,11 +95,11 @@ bool Corpse::Create(ObjectGuid::LowType guidlow, Player* owner)
 void Corpse::SaveToDB()
 {
     // prevent DB data inconsistence problems and duplicates
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     DeleteFromDB(trans);
 
     uint16 index = 0;
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CORPSE);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CORPSE);
     stmt->setUInt32(index++, GetOwnerGUID().GetCounter());                            // guid
     stmt->setFloat (index++, GetPositionX());                                         // posX
     stmt->setFloat (index++, GetPositionY());                                         // posY
@@ -122,14 +122,14 @@ void Corpse::SaveToDB()
     CharacterDatabase.CommitTransaction(trans);
 }
 
-void Corpse::DeleteFromDB(SQLTransaction& trans)
+void Corpse::DeleteFromDB(CharacterDatabaseTransaction trans)
 {
     DeleteFromDB(GetOwnerGUID(), trans);
 }
 
-void Corpse::DeleteFromDB(ObjectGuid const& ownerGuid, SQLTransaction& trans)
+void Corpse::DeleteFromDB(ObjectGuid const& ownerGuid, CharacterDatabaseTransaction trans)
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CORPSE);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CORPSE);
     stmt->setUInt32(0, ownerGuid.GetCounter());
     CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
@@ -165,7 +165,11 @@ bool Corpse::LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields)
 
     SetObjectScale(1.0f);
     SetUInt32Value(CORPSE_FIELD_DISPLAY_ID, fields[5].GetUInt32());
-    _LoadIntoDataField(fields[6].GetString(), CORPSE_FIELD_ITEM, EQUIPMENT_SLOT_END);
+    if (!_LoadIntoDataField(fields[6].GetString(), CORPSE_FIELD_ITEM, EQUIPMENT_SLOT_END))
+    {
+        TC_LOG_ERROR("entities.player", "Corpse (%s, owner: %s) is not created, given equipment info is not valid ('%s')",
+            GetGUID().ToString().c_str(), GetOwnerGUID().ToString().c_str(), fields[6].GetString().c_str());
+    }
     SetUInt32Value(CORPSE_FIELD_BYTES_1, fields[7].GetUInt32());
     SetUInt32Value(CORPSE_FIELD_BYTES_2, fields[8].GetUInt32());
     SetUInt32Value(CORPSE_FIELD_GUILD, fields[9].GetUInt32());

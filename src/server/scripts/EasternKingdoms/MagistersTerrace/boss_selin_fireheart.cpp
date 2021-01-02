@@ -191,12 +191,12 @@ class boss_selin_fireheart : public CreatureScript
                             _scheduledEvents = false;
                             break;
                         case EVENT_DRAIN_MANA:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 45.0f, true))
                                 DoCast(target, SPELL_DRAIN_MANA);
                             events.ScheduleEvent(EVENT_DRAIN_MANA, 10s, 0, PHASE_NORMAL);
                             break;
                         case EVENT_DRAIN_LIFE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 20.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 20.0f, true))
                                 DoCast(target, SPELL_DRAIN_LIFE);
                             events.ScheduleEvent(EVENT_DRAIN_LIFE, 10s, 0, PHASE_NORMAL);
                             break;
@@ -227,16 +227,16 @@ class boss_selin_fireheart : public CreatureScript
                     if (events.IsInPhase(PHASE_NORMAL) && !_scheduledEvents)
                     {
                         _scheduledEvents = true;
-                        uint32 timer = urand(3000, 7000);
+                        Milliseconds timer = randtime(3s, 7s);
                         events.ScheduleEvent(EVENT_DRAIN_LIFE, timer, 0, PHASE_NORMAL);
 
                         if (IsHeroic())
                         {
-                            events.ScheduleEvent(EVENT_DRAIN_CRYSTAL, urand(10000, 15000), 0, PHASE_NORMAL);
-                            events.ScheduleEvent(EVENT_DRAIN_MANA, timer + 5000, 0, PHASE_NORMAL);
+                            events.ScheduleEvent(EVENT_DRAIN_CRYSTAL, 10s, 15s, 0, PHASE_NORMAL);
+                            events.ScheduleEvent(EVENT_DRAIN_MANA, timer + 5s, 0, PHASE_NORMAL);
                         }
                         else
-                            events.ScheduleEvent(EVENT_DRAIN_CRYSTAL, urand(20000, 25000), 0, PHASE_NORMAL);
+                            events.ScheduleEvent(EVENT_DRAIN_CRYSTAL, 20s, 25s, 0, PHASE_NORMAL);
                     }
                 }
 

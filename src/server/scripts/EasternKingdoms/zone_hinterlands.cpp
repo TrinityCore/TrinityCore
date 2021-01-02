@@ -18,12 +18,11 @@
 /* ScriptData
 SDName: Hinterlands
 SD%Complete: 100
-SDComment: Quest support: 863, 2742
+SDComment: Quest support: 2742
 SDCategory: The Hinterlands
 EndScriptData */
 
 /* ContentData
-npc_oox09hl
 npc_rinji
 EndContentData */
 
@@ -32,105 +31,6 @@ EndContentData */
 #include "MotionMaster.h"
 #include "Player.h"
 #include "ScriptedEscortAI.h"
-
-/*######
-## npc_oox09hl
-######*/
-
-enum OOX
-{
-    SAY_OOX_START           = 0,
-    SAY_OOX_AGGRO           = 1,
-    SAY_OOX_AMBUSH          = 2,
-    SAY_OOX_AMBUSH_REPLY    = 3,
-    SAY_OOX_END             = 4,
-    QUEST_RESQUE_OOX_09     = 836,
-    NPC_MARAUDING_OWL       = 7808,
-    NPC_VILE_AMBUSHER       = 7809
-};
-
-class npc_oox09hl : public CreatureScript
-{
-public:
-    npc_oox09hl() : CreatureScript("npc_oox09hl") { }
-
-    struct npc_oox09hlAI : public EscortAI
-    {
-        npc_oox09hlAI(Creature* creature) : EscortAI(creature) { }
-
-        void Reset() override { }
-
-        void JustEngagedWith(Unit* who) override
-        {
-            if (who->GetEntry() == NPC_MARAUDING_OWL || who->GetEntry() == NPC_VILE_AMBUSHER)
-                return;
-
-            Talk(SAY_OOX_AGGRO);
-        }
-
-        void JustSummoned(Creature* summoned) override
-        {
-            summoned->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
-        }
-
-        void QuestAccept(Player* player, Quest const* quest) override
-        {
-            if (quest->GetQuestId() == QUEST_RESQUE_OOX_09)
-            {
-                me->SetStandState(UNIT_STAND_STATE_STAND);
-                me->SetFaction(player->GetTeam() == ALLIANCE ? FACTION_ESCORTEE_A_PASSIVE : FACTION_ESCORTEE_H_PASSIVE);
-                Talk(SAY_OOX_START, player);
-                EscortAI::Start(false, false, player->GetGUID(), quest);
-            }
-        }
-
-        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
-        {
-            switch (waypointId)
-            {
-                case 26:
-                    Talk(SAY_OOX_AMBUSH);
-                    break;
-                case 43:
-                    Talk(SAY_OOX_AMBUSH);
-                    break;
-                case 64:
-                    Talk(SAY_OOX_END);
-                    if (Player* player = GetPlayerForEscort())
-                        player->GroupEventHappens(QUEST_RESQUE_OOX_09, me);
-                    break;
-            }
-        }
-
-        void WaypointStarted(uint32 pointId, uint32 /*pathId*/) override
-        {
-            switch (pointId)
-            {
-                case 27:
-                    for (uint8 i = 0; i < 3; ++i)
-                    {
-                        const Position src = {147.927444f, -3851.513428f, 130.893f, 0};
-                        Position dst = me->GetRandomPoint(src, 7.0f);
-                        DoSummon(NPC_MARAUDING_OWL, dst, 25000, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
-                    }
-                    break;
-                case 44:
-                    for (uint8 i = 0; i < 3; ++i)
-                    {
-                        const Position src = {-141.151581f, -4291.213867f, 120.130f, 0};
-                        Position dst = me->GetRandomPoint(src, 7.0f);
-                        me->SummonCreature(NPC_VILE_AMBUSHER, dst, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 25000);
-                    }
-                    break;
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_oox09hlAI(creature);
-    }
-};
 
 /*######
 ## npc_rinji
@@ -219,11 +119,11 @@ public:
             if (!_first)
                 spawnId = 1;
 
-            me->SummonCreature(NPC_RANGER, AmbushSpawn[spawnId], TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
+            me->SummonCreature(NPC_RANGER, AmbushSpawn[spawnId], TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 1min);
 
             for (int i = 0; i < 2; ++i)
             {
-                me->SummonCreature(NPC_OUTRUNNER, AmbushSpawn[spawnId], TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
+                me->SummonCreature(NPC_OUTRUNNER, AmbushSpawn[spawnId], TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 1min);
             }
         }
 
@@ -233,7 +133,7 @@ public:
             summoned->GetMotionMaster()->MovePoint(0, AmbushMoveTo[spawnId]);
         }
 
-        void QuestAccept(Player* player, Quest const* quest) override
+        void OnQuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_RINJI_TRAPPED)
             {
@@ -324,6 +224,5 @@ public:
 
 void AddSC_hinterlands()
 {
-    new npc_oox09hl();
     new npc_rinji();
 }

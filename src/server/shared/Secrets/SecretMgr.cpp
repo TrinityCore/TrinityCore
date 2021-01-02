@@ -110,7 +110,7 @@ void SecretMgr::AttemptLoad(Secrets i, LogLevel errorLevel, std::unique_lock<std
     auto const& info = secret_info[i];
     Optional<std::string> oldDigest;
     {
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_SECRET_DIGEST);
+        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_SECRET_DIGEST);
         stmt->setUInt32(0, i);
         PreparedQueryResult result = LoginDatabase.Query(stmt);
         if (result)
@@ -169,7 +169,7 @@ void SecretMgr::AttemptLoad(Secrets i, LogLevel errorLevel, std::unique_lock<std
 
 Optional<std::string> SecretMgr::AttemptTransition(Secrets i, Optional<BigNumber> const& newSecret, Optional<BigNumber> const& oldSecret, bool hadOldSecret) const
 {
-    SQLTransaction trans = LoginDatabase.BeginTransaction();
+    LoginDatabaseTransaction trans = LoginDatabase.BeginTransaction();
 
     switch (i)
     {
@@ -190,15 +190,15 @@ Optional<std::string> SecretMgr::AttemptTransition(Secrets i, Optional<BigNumber
                     if (!oldSecret)
                         return Trinity::StringFormat("Cannot decrypt old TOTP tokens - add config key '%s' to authserver.conf!", secret_info[i].oldKey);
 
-                    bool success = Trinity::Crypto::AEDecrypt<Trinity::Crypto::AES>(totpSecret, oldSecret->AsByteArray<Trinity::Crypto::AES::KEY_SIZE_BYTES>());
+                    bool success = Trinity::Crypto::AEDecrypt<Trinity::Crypto::AES>(totpSecret, oldSecret->ToByteArray<Trinity::Crypto::AES::KEY_SIZE_BYTES>());
                     if (!success)
                         return Trinity::StringFormat("Cannot decrypt old TOTP tokens - value of '%s' is incorrect for some users!", secret_info[i].oldKey);
                 }
 
                 if (newSecret)
-                    Trinity::Crypto::AEEncryptWithRandomIV<Trinity::Crypto::AES>(totpSecret, newSecret->AsByteArray<Trinity::Crypto::AES::KEY_SIZE_BYTES>());
+                    Trinity::Crypto::AEEncryptWithRandomIV<Trinity::Crypto::AES>(totpSecret, newSecret->ToByteArray<Trinity::Crypto::AES::KEY_SIZE_BYTES>());
 
-                PreparedStatement* updateStmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
+                LoginDatabasePreparedStatement* updateStmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET);
                 updateStmt->setBinary(0, totpSecret);
                 updateStmt->setUInt32(1, id);
                 trans->Append(updateStmt);
@@ -212,7 +212,7 @@ Optional<std::string> SecretMgr::AttemptTransition(Secrets i, Optional<BigNumber
 
     if (hadOldSecret)
     {
-        PreparedStatement* deleteStmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_SECRET_DIGEST);
+        LoginDatabasePreparedStatement* deleteStmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_SECRET_DIGEST);
         deleteStmt->setUInt32(0, i);
         trans->Append(deleteStmt);
     }
@@ -225,7 +225,7 @@ Optional<std::string> SecretMgr::AttemptTransition(Secrets i, Optional<BigNumber
         if (!hash)
             return std::string("Failed to hash new secret");
 
-        PreparedStatement* insertStmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_SECRET_DIGEST);
+        LoginDatabasePreparedStatement* insertStmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_SECRET_DIGEST);
         insertStmt->setUInt32(0, i);
         insertStmt->setString(1, *hash);
         trans->Append(insertStmt);

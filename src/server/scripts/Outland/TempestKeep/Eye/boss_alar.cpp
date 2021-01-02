@@ -181,7 +181,7 @@ class boss_alar : public CreatureScript
             void JustSummoned(Creature* summon) override
             {
                 if (summon->GetEntry() == CREATURE_EMBER_OF_ALAR)
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         summon->AI()->AttackStart(target);
             }
 
@@ -217,9 +217,9 @@ class boss_alar : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit*, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_DIVE_BOMB_VISUAL)
+                if (spellInfo->Id == SPELL_DIVE_BOMB_VISUAL)
                 {
                     me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
                     me->SetDisplayId(11686);
@@ -310,7 +310,7 @@ class boss_alar : public CreatureScript
                                 WaitTimer = 4000;
                                 return;
                             case WE_DIVE:
-                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                 {
                                     me->RemoveAurasDueToSpell(SPELL_DIVE_BOMB_VISUAL);
                                     DoCast(target, SPELL_DIVE_BOMB, true);
@@ -334,7 +334,7 @@ class boss_alar : public CreatureScript
                                 return;
                             case WE_SUMMON:
                                 for (uint8 i = 0; i < 2; ++i)
-                                    DoSpawnCreature(CREATURE_EMBER_OF_ALAR, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                                    DoSpawnCreature(CREATURE_EMBER_OF_ALAR, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
                                 me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);
                                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 me->SetDisplayId(me->GetNativeDisplayId());
@@ -373,7 +373,7 @@ class boss_alar : public CreatureScript
                         {
                             if (urand(0, 4)) // next platform
                             {
-                                DoSpawnCreature(CREATURE_EMBER_OF_ALAR, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                                DoSpawnCreature(CREATURE_EMBER_OF_ALAR, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
                                 if (cur_wp == 3)
                                     cur_wp = 0;
                                 else
@@ -399,7 +399,7 @@ class boss_alar : public CreatureScript
                 {
                     if (Charge_Timer <= diff)
                     {
-                        Unit* target= SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);
+                        Unit* target= SelectTarget(SelectTargetMethod::Random, 1, 100, true);
                         if (target)
                             DoCast(target, SPELL_CHARGE);
                         Charge_Timer = 30000;
@@ -431,9 +431,9 @@ class boss_alar : public CreatureScript
 
                     if (FlamePatch_Timer <= diff)
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         {
-                            Creature* Summoned = me->SummonCreature(CREATURE_FLAME_PATCH_ALAR, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 120000);
+                            Creature* Summoned = me->SummonCreature(CREATURE_FLAME_PATCH_ALAR, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 2min);
                             if (Summoned)
                             {
                                 Summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -622,5 +622,5 @@ void AddSC_boss_alar()
     new boss_alar();
     new npc_ember_of_alar();
     new npc_flame_patch_alar();
-    RegisterAuraScript(spell_alar_flame_quills);
+    RegisterSpellScript(spell_alar_flame_quills);
 }

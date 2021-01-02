@@ -52,7 +52,6 @@ enum Say
 
 enum Spells
 {
-    SPELL_FEL_IMMOLATION            = 36051,
     SPELL_FELFIRE_SHOCK             = 35759,
     SPELL_KNOCK_AWAY                = 36512,
     SPELL_FELFIRE_LINE_UP           = 35770,
@@ -98,7 +97,6 @@ class boss_wrath_scryer_soccothrates : public CreatureScript
                 preFight = false;
                 dalliahTaunt = false;
                 dalliahDeath = false;
-                DoCast(me, SPELL_FEL_IMMOLATION);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -134,7 +132,7 @@ class boss_wrath_scryer_soccothrates : public CreatureScript
                     instance->SetData(DATA_CONVERSATION, DONE);
 
                     preFight = true;
-                    events.ScheduleEvent(EVENT_PREFIGHT_1, 2000);
+                    events.ScheduleEvent(EVENT_PREFIGHT_1, 2s);
                 }
             }
 
@@ -166,38 +164,38 @@ class boss_wrath_scryer_soccothrates : public CreatureScript
                                 case EVENT_PREFIGHT_1:
                                     if (Creature* dalliah = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_DALLIAH)))
                                         dalliah->AI()->Talk(SAY_DALLIAH_CONVO_1);
-                                    events.ScheduleEvent(EVENT_PREFIGHT_2, 3000);
+                                    events.ScheduleEvent(EVENT_PREFIGHT_2, 3s);
                                     break;
                                 case EVENT_PREFIGHT_2:
                                     Talk(SAY_SOCCOTHRATES_CONVO_2);
-                                    events.ScheduleEvent(EVENT_PREFIGHT_3, 3000);
+                                    events.ScheduleEvent(EVENT_PREFIGHT_3, 3s);
                                     break;
                                 case EVENT_PREFIGHT_3:
                                     if (Creature* dalliah = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_DALLIAH)))
                                         dalliah->AI()->Talk(SAY_DALLIAH_CONVO_2);
-                                    events.ScheduleEvent(EVENT_PREFIGHT_4, 6000);
+                                    events.ScheduleEvent(EVENT_PREFIGHT_4, 6s);
                                     break;
                                 case EVENT_PREFIGHT_4:
                                     Talk(SAY_SOCCOTHRATES_CONVO_3);
-                                    events.ScheduleEvent(EVENT_PREFIGHT_5, 2000);
+                                    events.ScheduleEvent(EVENT_PREFIGHT_5, 2s);
                                     break;
                                 case EVENT_PREFIGHT_5:
                                     if (Creature* dalliah = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_DALLIAH)))
                                         dalliah->AI()->Talk(SAY_DALLIAH_CONVO_3);
-                                    events.ScheduleEvent(EVENT_PREFIGHT_6, 3000);
+                                    events.ScheduleEvent(EVENT_PREFIGHT_6, 3s);
                                     break;
                                 case EVENT_PREFIGHT_6:
                                     Talk(SAY_SOCCOTHRATES_CONVO_4);
-                                    events.ScheduleEvent(EVENT_PREFIGHT_7, 2000);
+                                    events.ScheduleEvent(EVENT_PREFIGHT_7, 2s);
                                     break;
                                 case EVENT_PREFIGHT_7:
                                     if (Creature* dalliah = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_DALLIAH)))
                                         dalliah->GetMotionMaster()->MovePoint(0, 118.6048f, 96.84852f, 22.44115f);
-                                    events.ScheduleEvent(EVENT_PREFIGHT_8, 4000);
+                                    events.ScheduleEvent(EVENT_PREFIGHT_8, 4s);
                                     break;
                                 case EVENT_PREFIGHT_8:
                                     me->GetMotionMaster()->MovePoint(0, 122.1035f, 192.7203f, 22.44115f);
-                                    events.ScheduleEvent(EVENT_PREFIGHT_9, 4000);
+                                    events.ScheduleEvent(EVENT_PREFIGHT_9, 4s);
                                     break;
                                 case EVENT_PREFIGHT_9:
                                     if (Creature* dalliah = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_DALLIAH)))

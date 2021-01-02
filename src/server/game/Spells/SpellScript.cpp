@@ -21,7 +21,6 @@
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
 #include "SpellMgr.h"
-#include "SpellMgr.h"
 #include "Unit.h"
 #include <sstream>
 #include <string>
@@ -197,6 +196,16 @@ SpellScript::CheckCastHandler::CheckCastHandler(SpellCheckCastFnType checkCastHa
 SpellCastResult SpellScript::CheckCastHandler::Call(SpellScript* spellScript)
 {
     return (spellScript->*_checkCastHandlerScript)();
+}
+
+SpellScript::OnCalculateResistAbsorbHandler::OnCalculateResistAbsorbHandler(SpellOnResistAbsorbCalculateFnType onResistAbsorbCalculateHandlerScript)
+{
+    pOnCalculateResistAbsorbHandlerScript = onResistAbsorbCalculateHandlerScript;
+}
+
+void SpellScript::OnCalculateResistAbsorbHandler::Call(SpellScript* spellScript, DamageInfo const& damageInfo, uint32& resistAmount, int32& absorbAmount)
+{
+    return (spellScript->*pOnCalculateResistAbsorbHandlerScript)(damageInfo, resistAmount, absorbAmount);
 }
 
 SpellScript::EffectHandler::EffectHandler(SpellEffectFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName)
@@ -540,6 +549,16 @@ GameObject* SpellScript::GetHitGObj() const
         return nullptr;
     }
     return m_spell->gameObjTarget;
+}
+
+Corpse* SpellScript::GetHitCorpse() const
+{
+    if (!IsInTargetHook())
+    {
+        TC_LOG_ERROR("scripts", "Script: `%s` Spell: `%u`: function SpellScript::GetHitCorpse was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
+        return nullptr;
+    }
+    return m_spell->m_corpseTarget;
 }
 
 WorldLocation* SpellScript::GetHitDest() const
@@ -1020,7 +1039,7 @@ bool AuraScript::_IsDefaultActionPrevented()
         case AURA_SCRIPT_HOOK_EFFECT_PROC:
             return m_defaultActionPrevented;
         default:
-            ASSERT(false && "AuraScript::_IsDefaultActionPrevented is called in a wrong place");
+            ABORT_MSG("AuraScript::_IsDefaultActionPrevented is called in a wrong place");
             return false;
     }
 }

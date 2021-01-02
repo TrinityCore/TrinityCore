@@ -104,9 +104,9 @@ void SummonList::RemoveNotExisting()
 
 bool SummonList::HasEntry(uint32 entry) const
 {
-    for (StorageType::const_iterator i = _storage.begin(); i != _storage.end(); ++i)
+    for (ObjectGuid const& guid : _storage)
     {
-        Creature* summon = ObjectAccessor::GetCreature(*_me, *i);
+        Creature* summon = ObjectAccessor::GetCreature(*_me, guid);
         if (summon && summon->GetEntry() == entry)
             return true;
     }
@@ -116,7 +116,7 @@ bool SummonList::HasEntry(uint32 entry) const
 
 void SummonList::DoActionImpl(int32 action, StorageType const& summons)
 {
-    for (auto const& guid : summons)
+    for (ObjectGuid const& guid : summons)
     {
         Creature* summon = ObjectAccessor::GetCreature(*_me, guid);
         if (summon && summon->IsAIEnabled())
@@ -283,7 +283,7 @@ void ScriptedAI::ForceCombatStopForCreatureEntry(std::vector<uint32> creatureEnt
         ForceCombatStopForCreatureEntry(entry, maxSearchRange, samePhase, reset);
 }
 
-Creature* ScriptedAI::DoSpawnCreature(uint32 entry, float offsetX, float offsetY, float offsetZ, float angle, uint32 type, uint32 despawntime)
+Creature* ScriptedAI::DoSpawnCreature(uint32 entry, float offsetX, float offsetY, float offsetZ, float angle, uint32 type, Milliseconds despawntime)
 {
     return me->SummonCreature(entry, me->GetPositionX() + offsetX, me->GetPositionY() + offsetY, me->GetPositionZ() + offsetZ, angle, TempSummonType(type), despawntime);
 }
@@ -317,9 +317,9 @@ SpellInfo const* ScriptedAI::SelectSpell(Unit* target, uint32 school, uint32 mec
     SpellInfo const* tempSpell = nullptr;
 
     // Check if each spell is viable(set it to null if not)
-    for (uint32 i = 0; i < MAX_CREATURE_SPELLS; i++)
+    for (uint32 spell : me->m_spells)
     {
-        tempSpell = sSpellMgr->GetSpellInfo(me->m_spells[i]);
+        tempSpell = sSpellMgr->GetSpellInfo(spell);
 
         // This spell doesn't exist
         if (!tempSpell)
@@ -327,11 +327,11 @@ SpellInfo const* ScriptedAI::SelectSpell(Unit* target, uint32 school, uint32 mec
 
         // Targets and Effects checked first as most used restrictions
         // Check the spell targets if specified
-        if (targets && !(SpellSummary[me->m_spells[i]].Targets & (1 << (targets-1))))
+        if (targets && !(SpellSummary[spell].Targets & (1 << (targets-1))))
             continue;
 
         // Check the type of spell if we are looking for a specific spell type
-        if (effects && !(SpellSummary[me->m_spells[i]].Effects & (1 << (effects-1))))
+        if (effects && !(SpellSummary[spell].Effects & (1 << (effects-1))))
             continue;
 
         // Check for school if specified
@@ -405,9 +405,8 @@ void ScriptedAI::DoTeleportAll(float x, float y, float z, float o)
     if (!map->IsDungeon())
         return;
 
-    Map::PlayerList const& PlayerList = map->GetPlayers();
-    for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
-        if (Player* player = itr->GetSource())
+    for (MapReference const& mapref : map->GetPlayers())
+        if (Player* player = mapref.GetSource())
             if (player->IsAlive())
                 player->TeleportTo(me->GetMapId(), x, y, z, o, TELE_TO_NOT_LEAVE_COMBAT);
 }
@@ -594,12 +593,12 @@ bool BossAI::CanAIAttack(Unit const* target) const
     return IsInBoundary(target);
 }
 
-void BossAI::_DespawnAtEvade(Seconds delayToRespawn, Creature* who)
+void BossAI::_DespawnAtEvade(Seconds delayToRespawn /*= 30s*/, Creature* who /*= nullptr*/)
 {
-    if (delayToRespawn < Seconds(2))
+    if (delayToRespawn < 2s)
     {
         TC_LOG_ERROR("scripts.ai", "BossAI::_DespawnAtEvade: called with delay of %ld seconds, defaulting to 2 (me: %s)", delayToRespawn.count(), me->GetGUID().ToString().c_str());
-        delayToRespawn = Seconds(2);
+        delayToRespawn = 2s;
     }
 
     if (!who)
@@ -612,7 +611,7 @@ void BossAI::_DespawnAtEvade(Seconds delayToRespawn, Creature* who)
         return;
     }
 
-    who->DespawnOrUnsummon(0, Seconds(delayToRespawn));
+    who->DespawnOrUnsummon(0s, delayToRespawn);
 
     if (instance && who == me)
         instance->SetBossState(_bossId, FAIL);
@@ -638,7 +637,7 @@ void WorldBossAI::_JustDied()
 
 void WorldBossAI::_JustEngagedWith()
 {
-    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
+    Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true);
     if (target)
         AttackStart(target);
 }
@@ -646,7 +645,7 @@ void WorldBossAI::_JustEngagedWith()
 void WorldBossAI::JustSummoned(Creature* summon)
 {
     summons.Summon(summon);
-    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
+    Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true);
     if (target)
         summon->AI()->AttackStart(target);
 }

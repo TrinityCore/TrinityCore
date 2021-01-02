@@ -166,17 +166,17 @@ void WorldSession::HandleBfEntryInviteResponse(WorldPacket& recvData)
 }
 
 /**
- * @fn void WorldSession::HandleBfExitRequest(WorldPacket& recvData)
+ * @fn void WorldSession::HandleBfQueueExitRequest(WorldPacket& recvData)
  *
  * @brief Send by client when exited battlefield
  */
-void WorldSession::HandleBfExitRequest(WorldPacket& recvData)
+void WorldSession::HandleBfQueueExitRequest(WorldPacket& recvData)
 {
     uint32 battleId;
 
     recvData >> battleId;
 
-    TC_LOG_DEBUG("misc", "HandleBfExitRequest: battleId: %u ", battleId);
+    TC_LOG_DEBUG("misc", "HandleBfQueueExitRequest: battleId: %u ", battleId);
 
     Battlefield* bf = sBattlefieldMgr->GetBattlefieldByBattleId(battleId);
     if (!bf)

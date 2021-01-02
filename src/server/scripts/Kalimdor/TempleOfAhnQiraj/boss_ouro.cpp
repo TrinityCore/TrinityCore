@@ -123,7 +123,7 @@ public:
             //ChangeTarget_Timer
             if (Submerged && ChangeTarget_Timer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoTeleportTo(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
 
                 ChangeTarget_Timer = urand(10000, 20000);

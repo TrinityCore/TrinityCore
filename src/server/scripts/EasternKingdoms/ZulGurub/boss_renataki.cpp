@@ -80,7 +80,7 @@ class boss_renataki : public CreatureScript
                 {
                     if (_ambushTimer <= diff)
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                         {
                             DoTeleportTo(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
                             DoCast(target, SPELL_AMBUSH);
@@ -113,7 +113,7 @@ class boss_renataki : public CreatureScript
                 {
                     if (_aggroTimer <= diff)
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                         {
                             if (GetThreat(me->GetVictim()))
                                 ModifyThreatByPercent(me->GetVictim(), -50);

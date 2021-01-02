@@ -298,7 +298,7 @@ class npc_chromie_start : public CreatureScript
                     _instance->SetData(DATA_SKIP_TO_PURGE, 1);
             }
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 if (me->IsQuestGiver())
                     player->PrepareQuestMenu(me->GetGUID());
@@ -344,7 +344,7 @@ class npc_chromie_start : public CreatureScript
                 return true;
             }
 
-            bool GossipSelect(Player* player, uint32 /*sender*/, uint32 listId) override
+            bool OnGossipSelect(Player* player, uint32 /*sender*/, uint32 listId) override
             {
                 uint32 const action = GetGossipActionFor(player, listId);
                 ClearGossipMenuFor(player);
@@ -360,7 +360,7 @@ class npc_chromie_start : public CreatureScript
                         break;
                     case GOSSIP_OFFSET_SKIP_1:
                         AdvanceDungeonFar();
-                        // intentional missing break
+                        [[fallthrough]];
                     case GOSSIP_OFFSET_TELEPORT:
                         CloseGossipMenuFor(player);
                         me->CastSpell(player, SPELL_TELEPORT_PLAYER);
@@ -407,7 +407,7 @@ class npc_chromie_start : public CreatureScript
                 return false;
             }
 
-            void QuestAccept(Player* /*player*/, Quest const* quest) override
+            void OnQuestAccept(Player* /*player*/, Quest const* quest) override
             {
                 if (quest->GetQuestId() == QUEST_DISPELLING_ILLUSIONS)
                     AdvanceDungeon();
@@ -504,7 +504,7 @@ class npc_chromie_middle : public CreatureScript
                     Instance->SetGuidData(DATA_UTHER_START, player->GetGUID());
             }
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 if (me->IsQuestGiver())
                     player->PrepareQuestMenu(me->GetGUID());
@@ -515,7 +515,7 @@ class npc_chromie_middle : public CreatureScript
                 return true;
             }
 
-            bool GossipSelect(Player* player, uint32 /*sender*/, uint32 listId) override
+            bool OnGossipSelect(Player* player, uint32 /*sender*/, uint32 listId) override
             {
                 uint32 const action = GetGossipActionFor(player, listId);
                 ClearGossipMenuFor(player);
@@ -617,7 +617,7 @@ struct npc_martha_goslin : public CreatureScript
             InterruptTimer = 12000;
             SplineChainMovementGenerator::GetResumeInfo(ResumeInfo, me);
             me->GetMotionMaster()->Clear();
-            me->SetFlag(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
         }
 
         void MovementInform(uint32 type, uint32 id) override
@@ -627,12 +627,12 @@ struct npc_martha_goslin : public CreatureScript
                 switch (id)
                 {
                     case MOVEID_EVENT1:
-                        me->SetFlag(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
+                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
                         me->SetFacingTo(marthaIdleOrientation1, true);
                         Events.ScheduleEvent(EVENT_MARTHA_IDLE2, Seconds(9), Seconds(15));
                         break;
                     case MOVEID_EVENT2:
-                        me->SetFlag(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
+                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
                         me->SetFacingTo(marthaIdleOrientation2, true);
                         Events.ScheduleEvent(EVENT_MARTHA_IDLE1, Seconds(9), Seconds(15));
                         break;
@@ -669,11 +669,11 @@ struct npc_martha_goslin : public CreatureScript
                 switch (eventId)
                 {
                     case EVENT_MARTHA_IDLE1:
-                        me->SetFlag(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
                         me->GetMotionMaster()->MoveAlongSplineChain(MOVEID_EVENT1, CHAIN_MARTHA_IDLE1, true);
                         break;
                     case EVENT_MARTHA_IDLE2:
-                        me->SetFlag(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
                         me->GetMotionMaster()->MoveAlongSplineChain(MOVEID_EVENT2, CHAIN_MARTHA_IDLE2, true);
                         break;
                     default:
@@ -684,7 +684,7 @@ struct npc_martha_goslin : public CreatureScript
 
         void JustAppeared() override
         {
-            me->SetFlag(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
+            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
             Events.RescheduleEvent(EVENT_MARTHA_IDLE2, Seconds(5), Seconds(10));
         }
 
@@ -1407,9 +1407,9 @@ public:
             current = candidate;
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
-            if (!_crateRevealed && spell->Id == SPELL_ARCANE_DISRUPTION)
+            if (!_crateRevealed && spellInfo->Id == SPELL_ARCANE_DISRUPTION)
             {
                 _crateRevealed = true;
                 if (InstanceScript* instance = me->GetInstanceScript())
@@ -1420,7 +1420,7 @@ public:
                     // Replace suspicious crate with plagued crate
                     if (GameObject* crate = me->FindNearestGameObject(GO_SUSPICIOUS_CRATE, 5.0f))
                     {
-                        crate->SummonGameObject(GO_PLAGUED_CRATE, *crate, crate->GetWorldRotation(), DAY);
+                        crate->SummonGameObject(GO_PLAGUED_CRATE, *crate, crate->GetWorldRotation(), 1_days);
                         crate->Delete();
                     }
                     if (GameObject* highlight = me->FindNearestGameObject(GO_CRATE_HIGHLIGHT, 5.0f))

@@ -37,7 +37,7 @@ struct DBCPosition3D
 };
 
 #pragma pack(pop)
-enum LevelLimit
+enum LevelLimit : uint8
 {
     // Client expected level limitation, like as used in DBC item max levels for "until max player level"
     // use as default max player level, must be fit max level for used client
@@ -264,7 +264,7 @@ enum AreaFlags
     AREA_FLAG_UNUSED2            = 0x00020000,                // Unused in 3.3.5a
     AREA_FLAG_CONTESTED_AREA     = 0x00040000,                // On PvP servers these areas are considered contested, even though the zone it is contained in is a Horde/Alliance territory.
     AREA_FLAG_UNK4               = 0x00080000,                // Valgarde and Acherus: The Ebon Hold
-    AREA_FLAG_LOWLEVEL           = 0x00100000,                // used for some starting areas with area_level <= 15
+    AREA_FLAG_LOWLEVEL           = 0x00100000,                // used for some starting areas with ExplorationLevel <= 15
     AREA_FLAG_TOWN               = 0x00200000,                // small towns with Inn
     AREA_FLAG_REST_ZONE_HORDE    = 0x00400000,                // Instead of using areatriggers, the zone will act as one for Horde players (Warsong Hold, Acherus: The Ebon Hold, New Agamand Inn, Vengeance Landing Inn, Sunreaver Pavilion, etc)
     AREA_FLAG_REST_ZONE_ALLIANCE = 0x00800000,                // Instead of using areatriggers, the zone will act as one for Alliance players (Valgarde, Acherus: The Ebon Hold, Westguard Inn, Silver Covenant Pavilion, etc)
@@ -415,7 +415,7 @@ enum SummonPropFlags
     SUMMON_PROP_FLAG_UNK2            = 0x00000002,          // 616 spells in 3.0.3, something friendly
     SUMMON_PROP_FLAG_UNK3            = 0x00000004,          // 22 spells in 3.0.3, no idea...
     SUMMON_PROP_FLAG_UNK4            = 0x00000008,          // 49 spells in 3.0.3, some mounts
-    SUMMON_PROP_FLAG_UNK5            = 0x00000010,          // 25 spells in 3.0.3, quest related?
+    SUMMON_PROP_FLAG_PERSONAL_SPAWN  = 0x00000010,          // Personal Spawn (creature visible only by summoner)
     SUMMON_PROP_FLAG_UNK6            = 0x00000020,          // 0 spells in 3.3.5, unused
     SUMMON_PROP_FLAG_UNK7            = 0x00000040,          // 12 spells in 3.0.3, no idea
     SUMMON_PROP_FLAG_UNK8            = 0x00000080,          // 4 spells in 3.0.3, no idea
@@ -433,7 +433,7 @@ enum SummonPropFlags
 #define MAX_PET_TALENT_RANK 3                               // use in calculations, expected <= MAX_TALENT_RANK
 #define MAX_TALENT_TABS 3
 
-#define TaxiMaskSize 14
+static constexpr size_t TaxiMaskSize = 14;
 typedef std::array<uint32, TaxiMaskSize> TaxiMask;
 
 enum TotemCategoryType

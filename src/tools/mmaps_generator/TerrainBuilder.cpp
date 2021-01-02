@@ -404,7 +404,6 @@ namespace MMAP
                 useTerrain = true;
                 useLiquid = true;
                 uint8 liquidType = MAP_LIQUID_TYPE_NO_WATER;
-                // FIXME: "warning: the address of ‘liquid_type’ will always evaluate as ‘true’"
 
                 // if there is no liquid, don't use liquid
                 if (!meshData.liquidVerts.size() || !ltriangles.size())

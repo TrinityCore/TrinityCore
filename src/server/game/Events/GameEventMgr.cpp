@@ -200,8 +200,8 @@ void GameEventMgr::StopEvent(uint16 event_id, bool overwrite)
             for (itr = data.conditions.begin(); itr != data.conditions.end(); ++itr)
                 itr->second.done = 0;
 
-            SQLTransaction trans = CharacterDatabase.BeginTransaction();
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ALL_GAME_EVENT_CONDITION_SAVE);
+            CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ALL_GAME_EVENT_CONDITION_SAVE);
             stmt->setUInt8(0, uint8(event_id));
             trans->Append(stmt);
 
@@ -866,12 +866,12 @@ void GameEventMgr::LoadFromDB()
         }
     }
 
-    TC_LOG_INFO("server.loading", "Loading Game Event Battleground Data...");
+    TC_LOG_INFO("server.loading", "Loading Game Event Battleground Holiday Data...");
     {
         uint32 oldMSTime = getMSTime();
 
-        //                                                   0         1
-        QueryResult result = WorldDatabase.Query("SELECT eventEntry, bgflag FROM game_event_battleground_holiday");
+        //                                               0           1
+        QueryResult result = WorldDatabase.Query("SELECT EventEntry, BattlegroundID FROM game_event_battleground_holiday");
 
         if (!result)
             TC_LOG_INFO("server.loading", ">> Loaded 0 battleground holidays in game events. DB table `game_event_battleground_holiday` is empty.");
@@ -983,9 +983,9 @@ void GameEventMgr::LoadHolidayDates()
         if (uint32 duration = fields[3].GetUInt32())
             entry->Duration[0] = duration;
 
-        auto itr = std::lower_bound(modifiedHolidays.begin(), modifiedHolidays.end(), entry->Id);
-        if (itr == modifiedHolidays.end() || *itr != entry->Id)
-            modifiedHolidays.insert(itr, entry->Id);
+        auto itr = std::lower_bound(modifiedHolidays.begin(), modifiedHolidays.end(), entry->ID);
+        if (itr == modifiedHolidays.end() || *itr != entry->ID)
+            modifiedHolidays.insert(itr, entry->ID);
         ++count;
 
     } while (result->NextRow());
@@ -1205,7 +1205,7 @@ void GameEventMgr::UpdateEventNPCFlags(uint16 event_id)
     for (NPCFlagList::iterator itr = mGameEventNPCFlags[event_id].begin(); itr != mGameEventNPCFlags[event_id].end(); ++itr)
         // get the creature data from the low guid to get the entry, to be able to find out the whole guid
         if (CreatureData const* data = sObjectMgr->GetCreatureData(itr->first))
-            creaturesByMap[data->spawnPoint.GetMapId()].insert(itr->first);
+            creaturesByMap[data->mapId].insert(itr->first);
 
     for (auto const& p : creaturesByMap)
     {
@@ -1232,10 +1232,10 @@ void GameEventMgr::UpdateEventNPCFlags(uint16 event_id)
 
 void GameEventMgr::UpdateBattlegroundSettings()
 {
-    uint32 mask = 0;
-    for (ActiveEvents::const_iterator itr = m_ActiveEvents.begin(); itr != m_ActiveEvents.end(); ++itr)
-        mask |= mGameEventBattlegroundHolidays[*itr];
-    sBattlegroundMgr->SetHolidayWeekends(mask);
+    sBattlegroundMgr->ResetHolidays();
+
+    for (uint16 activeEventId : m_ActiveEvents)
+        sBattlegroundMgr->SetHolidayActive(mGameEventBattlegroundHolidays[activeEventId]);
 }
 
 void GameEventMgr::UpdateEventNPCVendor(uint16 event_id, bool activate)
@@ -1268,7 +1268,7 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
             sObjectMgr->AddCreatureToGrid(*itr, data);
 
             // Spawn if necessary (loaded grids only)
-            Map* map = sMapMgr->CreateBaseMap(data->spawnPoint.GetMapId());
+            Map* map = sMapMgr->CreateBaseMap(data->mapId);
             map->RemoveRespawnTime(SPAWN_TYPE_CREATURE, *itr);
             // We use spawn coords to spawn
             if (!map->Instanceable() && map->IsGridLoaded(data->spawnPoint))
@@ -1296,7 +1296,7 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
             sObjectMgr->AddGameobjectToGrid(*itr, data);
             // Spawn if necessary (loaded grids only)
             // this base map checked as non-instanced and then only existed
-            Map* map = sMapMgr->CreateBaseMap(data->spawnPoint.GetMapId());
+            Map* map = sMapMgr->CreateBaseMap(data->mapId);
             map->RemoveRespawnTime(SPAWN_TYPE_GAMEOBJECT, *itr);
             // We use current coords to unspawn, not spawn coords since creature can have changed grid
             if (!map->Instanceable() && map->IsGridLoaded(data->spawnPoint))
@@ -1347,7 +1347,7 @@ void GameEventMgr::GameEventUnspawn(int16 event_id)
         {
             sObjectMgr->RemoveCreatureFromGrid(*itr, data);
 
-            sMapMgr->DoForAllMapsWithMapId(data->spawnPoint.GetMapId(), [&itr](Map* map)
+            sMapMgr->DoForAllMapsWithMapId(data->mapId, [&itr](Map* map)
             {
                 map->RemoveRespawnTime(SPAWN_TYPE_CREATURE, *itr);
                 auto creatureBounds = map->GetCreatureBySpawnIdStore().equal_range(*itr);
@@ -1378,7 +1378,7 @@ void GameEventMgr::GameEventUnspawn(int16 event_id)
         {
             sObjectMgr->RemoveGameobjectFromGrid(*itr, data);
 
-            sMapMgr->DoForAllMapsWithMapId(data->spawnPoint.GetMapId(), [&itr](Map* map)
+            sMapMgr->DoForAllMapsWithMapId(data->mapId, [&itr](Map* map)
             {
                 map->RemoveRespawnTime(SPAWN_TYPE_GAMEOBJECT, *itr);
                 auto gameobjectBounds = map->GetGameObjectBySpawnIdStore().equal_range(*itr);
@@ -1399,7 +1399,7 @@ void GameEventMgr::GameEventUnspawn(int16 event_id)
 
     for (IdList::iterator itr = mGameEventPoolIds[internal_event_id].begin(); itr != mGameEventPoolIds[internal_event_id].end(); ++itr)
     {
-        sPoolMgr->DespawnPool(*itr);
+        sPoolMgr->DespawnPool(*itr, true);
     }
 }
 
@@ -1413,7 +1413,7 @@ void GameEventMgr::ChangeEquipOrModel(int16 event_id, bool activate)
             continue;
 
         // Update if spawned
-        sMapMgr->DoForAllMapsWithMapId(data->spawnPoint.GetMapId(), [&itr, activate](Map* map)
+        sMapMgr->DoForAllMapsWithMapId(data->mapId, [&itr, activate](Map* map)
 
         {
             auto creatureBounds = map->GetCreatureBySpawnIdStore().equal_range(itr->first);
@@ -1585,10 +1585,10 @@ void GameEventMgr::UpdateWorldStates(uint16 event_id, bool Activate)
         if (bgTypeId != BATTLEGROUND_TYPE_NONE)
         {
             BattlemasterListEntry const* bl = sBattlemasterListStore.LookupEntry(bgTypeId);
-            if (bl && bl->HolidayWorldStateId)
+            if (bl && bl->HolidayWorldState)
             {
                 WorldPackets::WorldState::UpdateWorldState worldstate;
-                worldstate.VariableID = bl->HolidayWorldStateId;
+                worldstate.VariableID = bl->HolidayWorldState;
                 worldstate.Value = Activate ? 1 : 0;
                 sWorld->SendGlobalMessage(worldstate.Write());
             }
@@ -1627,9 +1627,9 @@ void GameEventMgr::HandleQuestComplete(uint32 quest_id)
                 if (citr->second.done > citr->second.reqNum)
                     citr->second.done = citr->second.reqNum;
                 // save the change to db
-                SQLTransaction trans = CharacterDatabase.BeginTransaction();
+                CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
-                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GAME_EVENT_CONDITION_SAVE);
+                CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GAME_EVENT_CONDITION_SAVE);
                 stmt->setUInt8(0, uint8(event_id));
                 stmt->setUInt32(1, condition);
                 trans->Append(stmt);
@@ -1672,9 +1672,9 @@ bool GameEventMgr::CheckOneGameEventConditions(uint16 event_id)
 
 void GameEventMgr::SaveWorldEventStateToDB(uint16 event_id)
 {
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GAME_EVENT_SAVE);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GAME_EVENT_SAVE);
     stmt->setUInt8(0, uint8(event_id));
     trans->Append(stmt);
 
@@ -1843,8 +1843,8 @@ bool IsHolidayActive(HolidayIds id)
     return false;
 }
 
-bool IsEventActive(uint16 event_id)
+bool IsEventActive(uint16 eventId)
 {
     GameEventMgr::ActiveEvents const& ae = sGameEventMgr->GetActiveEventList();
-    return ae.find(event_id) != ae.end();
+    return ae.find(eventId) != ae.end();
 }

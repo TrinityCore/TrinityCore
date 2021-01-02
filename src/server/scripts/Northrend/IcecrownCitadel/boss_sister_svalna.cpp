@@ -336,7 +336,7 @@ struct boss_sister_svalna : public BossAI
         _JustDied();
         Talk(SAY_SVALNA_DEATH);
 
-        uint64 delay = 1;
+        Milliseconds delay = 1ms;
         for (uint8 itr = 0; itr < 4; ++itr)
         {
             if (Creature* crusader = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_CAPTAIN_ARNATH + itr)))
@@ -344,7 +344,7 @@ struct boss_sister_svalna : public BossAI
                 if (crusader->IsAlive() && crusader->GetEntry() == crusader->GetCreatureData()->id)
                 {
                     crusader->m_Events.AddEvent(new CaptainSurviveTalk(crusader), crusader->m_Events.CalculateTime(delay));
-                    delay += 6000;
+                    delay += 6s;
                 }
             }
         }
@@ -402,11 +402,14 @@ struct boss_sister_svalna : public BossAI
                 DoCastSelf(SPELL_CARESS_OF_DEATH, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_MAX_TARGETS, 1));
                 break;
             case ACTION_START_GAUNTLET:
-                me->setActive(true);
-                me->SetFarVisible(true);
-                _isEventInProgress = true;
-                me->SetImmuneToAll(true);
-                events.ScheduleEvent(EVENT_SVALNA_START, 25s);
+                if (me->IsAlive())
+                {
+                    me->setActive(true);
+                    me->SetFarVisible(true);
+                    _isEventInProgress = true;
+                    me->SetImmuneToAll(true);
+                    events.ScheduleEvent(EVENT_SVALNA_START, 25s);
+                }
                 break;
             case ACTION_RESURRECT_CAPTAINS:
                 events.ScheduleEvent(EVENT_SVALNA_RESURRECT, 7s);
@@ -424,9 +427,9 @@ struct boss_sister_svalna : public BossAI
         }
     }
 
-    void SpellHit(Unit* caster, SpellInfo const* spell) override
+    void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
     {
-        if (spell->Id == SPELL_HURL_SPEAR && me->HasAura(SPELL_AETHER_SHIELD))
+        if (spellInfo->Id == SPELL_HURL_SPEAR && me->HasAura(SPELL_AETHER_SHIELD))
         {
             me->RemoveAurasDueToSpell(SPELL_AETHER_SHIELD);
             Talk(EMOTE_SVALNA_BROKEN_SHIELD, caster);
@@ -446,17 +449,21 @@ struct boss_sister_svalna : public BossAI
         me->SetHover(false);
     }
 
-    void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+    void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
     {
-        switch (spell->Id)
+        Unit* unitTarget = target->ToUnit();
+        if (!unitTarget)
+            return;
+
+        switch (spellInfo->Id)
         {
             case SPELL_IMPALING_SPEAR_KILL:
-                Unit::Kill(me, target);
+                Unit::Kill(me, unitTarget);
                 break;
             case SPELL_IMPALING_SPEAR:
-                if (TempSummon* summon = target->SummonCreature(NPC_IMPALING_SPEAR, *target))
+                if (TempSummon* summon = unitTarget->SummonCreature(NPC_IMPALING_SPEAR, *unitTarget))
                 {
-                    Talk(EMOTE_SVALNA_IMPALE, target);
+                    Talk(EMOTE_SVALNA_IMPALE, unitTarget);
                     CastSpellExtraArgs args;
                     args.AddSpellBP0(1);
                     summon->CastSpell(target, VEHICLE_SPELL_RIDE_HARDCODED, args);
@@ -494,7 +501,7 @@ struct boss_sister_svalna : public BossAI
                     Talk(SAY_SVALNA_AGGRO);
                     break;
                 case EVENT_IMPALING_SPEAR:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, true, -SPELL_IMPALING_SPEAR))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true, true, -SPELL_IMPALING_SPEAR))
                     {
                         DoCast(me, SPELL_AETHER_SHIELD);
                         DoCast(target, SPELL_IMPALING_SPEAR);
@@ -537,7 +544,7 @@ struct npc_crok_scourgebane : public EscortAI
     void Reset() override
     {
         _events.Reset();
-        _events.ScheduleEvent(EVENT_SCOURGE_STRIKE, urand(7500, 12500));
+        _events.ScheduleEvent(EVENT_SCOURGE_STRIKE, 7500ms, 12500ms);
         _events.ScheduleEvent(EVENT_DEATH_STRIKE, 25s, 30s);
         me->SetReactState(REACT_DEFENSIVE);
         Initialize();
@@ -560,8 +567,8 @@ struct npc_crok_scourgebane : public EscortAI
                 svalna->AI()->DoAction(ACTION_START_GAUNTLET);
 
             Talk(SAY_CROK_INTRO_1);
-            _events.ScheduleEvent(EVENT_ARNATH_INTRO_2, 7000);
-            _events.ScheduleEvent(EVENT_CROK_INTRO_3, 14000);
+            _events.ScheduleEvent(EVENT_ARNATH_INTRO_2, 7s);
+            _events.ScheduleEvent(EVENT_CROK_INTRO_3, 14s);
             _events.ScheduleEvent(EVENT_START_PATHING, 35s);
             me->setActive(true);
             me->SetFarVisible(true);
@@ -884,9 +891,9 @@ public:
         Reset();
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
     {
-        if (spell->Id == SPELL_REVIVE_CHAMPION && !IsUndead)
+        if (spellInfo->Id == SPELL_REVIVE_CHAMPION && !IsUndead)
         {
             IsUndead = true;
             me->setDeathState(JUST_RESPAWNED);
@@ -911,7 +918,7 @@ public:
 
             Talk(SAY_CAPTAIN_RESURRECTED);
             me->UpdateEntry(newEntry, me->GetCreatureData());
-            DoCast(me, SPELL_UNDEATH, true);
+            DoCastSelf(SPELL_UNDEATH, true);
         }
     }
 
@@ -973,7 +980,7 @@ struct npc_captain_arnath : public npc_argent_captainAI
                     Events.ScheduleEvent(EVENT_ARNATH_SMITE, 4s, 7s);
                     break;
                 case EVENT_ARNATH_DOMINATE_MIND:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
                         DoCast(target, SPELL_DOMINATE_MIND);
                     Events.ScheduleEvent(EVENT_ARNATH_DOMINATE_MIND, 28s, 37s);
                     break;
@@ -1043,7 +1050,7 @@ struct npc_captain_brandon : public npc_argent_captainAI
                     Events.ScheduleEvent(EVENT_BRANDON_JUDGEMENT_OF_COMMAND, 8s, 13s);
                     break;
                 case EVENT_BRANDON_HAMMER_OF_BETRAYAL:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
                         DoCast(target, SPELL_HAMMER_OF_BETRAYAL);
                     Events.ScheduleEvent(EVENT_BRANDON_HAMMER_OF_BETRAYAL, 45s, 60s);
                     break;
@@ -1102,7 +1109,7 @@ struct npc_captain_grondel : public npc_argent_captainAI
                     Events.ScheduleEvent(EVENT_GRONDEL_SUNDER_ARMOR, 5s, 17s);
                     break;
                 case EVENT_GRONDEL_CONFLAGRATION:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                         DoCast(target, SPELL_CONFLAGRATION);
                     Events.ScheduleEvent(EVENT_GRONDEL_CONFLAGRATION, 10s, 15s);
                     break;
@@ -1147,17 +1154,17 @@ struct npc_captain_rupert : public npc_argent_captainAI
             switch (eventId)
             {
                 case EVENT_RUPERT_FEL_IRON_BOMB:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_FEL_IRON_BOMB);
                     Events.ScheduleEvent(EVENT_RUPERT_FEL_IRON_BOMB, 15s, 20s);
                     break;
                 case EVENT_RUPERT_MACHINE_GUN:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
                         DoCast(target, SPELL_MACHINE_GUN);
                     Events.ScheduleEvent(EVENT_RUPERT_MACHINE_GUN, 25s, 30s);
                     break;
                 case EVENT_RUPERT_ROCKET_LAUNCH:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
                         DoCast(target, SPELL_ROCKET_LAUNCH);
                     Events.ScheduleEvent(EVENT_RUPERT_ROCKET_LAUNCH, 10s, 15s);
                     break;
@@ -1192,7 +1199,7 @@ struct npc_frostwing_ymirjar_vrykul : public ScriptedAI
         {
             case NPC_YMIRJAR_FROSTBINDER:
                 me->RemoveAurasDueToSpell(SPELL_ARCTIC_CHILL);
-            /* fallthrough */
+                [[fallthrough]];
             case NPC_YMIRJAR_DEATHBRINGER:
                 _OOCevents.ScheduleEvent(EVENT_YMIRJAR_SPIRIT_STREAM, 10s, 20s);
                 break;
@@ -1306,7 +1313,7 @@ struct npc_frostwing_ymirjar_vrykul : public ScriptedAI
                     _events.Repeat(10s, 20s);
                     break;
                 case EVENT_YMIRJAR_TWISTED_WINDS:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.f, true))
                         DoCast(target, SPELL_TWISTED_WINDS);
                     _events.Repeat(10s, 20s);
                     break;
@@ -1327,12 +1334,12 @@ struct npc_frostwing_ymirjar_vrykul : public ScriptedAI
                     _events.Repeat(20s, 30s);
                     break;
                 case EVENT_YMIRJAR_ICE_TRAP:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 20.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 20.0f, true))
                         DoCast(target, SPELL_ICE_TRAP);
                     _events.Repeat(15s, 20s);
                     break;
                 case EVENT_YMIRJAR_VOLLEY:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 40.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 40.0f, true))
                         DoCast(target, SPELL_VOLLEY);
                     _events.Repeat(10s, 20s);
                     break;
@@ -1349,7 +1356,7 @@ struct npc_frostwing_ymirjar_vrykul : public ScriptedAI
                     _events.Repeat(10s, 20s);
                     break;
                 case EVENT_YMIRJAR_BANISH:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 20.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 20.0f, true))
                         DoCast(target, SPELL_BANISH);
                     _events.Repeat(10s, 20s);
                     break;
@@ -1399,7 +1406,7 @@ struct npc_impaling_spear : public CreatureAI
         {
             _vehicleCheckTimer = 500;
             if (!me->GetVehicle())
-                me->DespawnOrUnsummon(100);
+                me->DespawnOrUnsummon(100ms);
         }
         else
             _vehicleCheckTimer -= diff;
@@ -1461,7 +1468,7 @@ class spell_svalna_remove_spear : public SpellScript
         {
             if (Unit* vehicle = target->GetVehicleBase())
                 vehicle->RemoveAurasDueToSpell(SPELL_IMPALING_SPEAR);
-            target->DespawnOrUnsummon(1);
+            target->DespawnOrUnsummon(1ms);
         }
     }
 
@@ -1495,7 +1502,7 @@ void AddSC_boss_sister_svalna()
     RegisterIcecrownCitadelCreatureAI(npc_captain_rupert);
     RegisterIcecrownCitadelCreatureAI(npc_frostwing_ymirjar_vrykul);
     RegisterIcecrownCitadelCreatureAI(npc_impaling_spear);
-    new spell_trigger_spell_from_caster("spell_svalna_caress_of_death", SPELL_IMPALING_SPEAR_KILL);
+    RegisterSpellScriptWithArgs(spell_trigger_spell_from_caster, "spell_svalna_caress_of_death", SPELL_IMPALING_SPEAR_KILL);
     RegisterSpellScript(spell_svalna_revive_champion);
     RegisterSpellScript(spell_svalna_remove_spear);
     new at_icc_start_frostwing_gauntlet();

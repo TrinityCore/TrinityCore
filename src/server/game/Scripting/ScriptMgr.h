@@ -20,16 +20,18 @@
 
 #include "Common.h"
 #include "ObjectGuid.h"
+#include "Tuples.h"
+#include "Types.h"
 #include <vector>
 
 class AccountMgr;
 class AuctionHouseObject;
 class Aura;
 class AuraScript;
+class Battlefield;
 class Battleground;
 class BattlegroundMap;
 class Channel;
-class ChatCommand;
 class Creature;
 class CreatureAI;
 class DynamicObject;
@@ -71,10 +73,13 @@ struct ItemTemplate;
 struct MapEntry;
 struct Position;
 
+namespace Trinity::ChatCommands { struct ChatCommandBuilder; }
+
 enum BattlegroundTypeId : uint32;
 enum ContentLevels : uint8;
 enum Difficulty : uint8;
 enum DuelCompleteType : uint8;
+enum Emote : uint32;
 enum QuestStatus : uint8;
 enum RemoveMethod : uint8;
 enum ShutdownExitCode : uint32;
@@ -419,6 +424,8 @@ class TC_GAME_API CreatureScript : public ScriptObject
         CreatureScript(char const* name);
 
     public:
+        // Called when an unit exits a vehicle
+        virtual void ModifyVehiclePassengerExitPos(Unit* /*passenger*/, Vehicle* /*vehicle*/, Position& /*pos*/) { }
 
         // Called when a CreatureAI object is needed for the creature.
         virtual CreatureAI* GetAI(Creature* /*creature*/) const = 0;
@@ -456,9 +463,21 @@ class TC_GAME_API OnlyOnceAreaTriggerScript : public AreaTriggerScript
         bool OnTrigger(Player* /*player*/, AreaTriggerEntry const* /*trigger*/) final override;
 
     protected:
-        virtual bool _OnTrigger(Player* /*player*/, AreaTriggerEntry const* /*trigger*/) = 0;
+        // returns true if the trigger was successfully handled, false if we should try again next time
+        virtual bool TryHandleOnce(Player* /*player*/, AreaTriggerEntry const* /*trigger*/) = 0;
         void ResetAreaTriggerDone(InstanceScript* /*instance*/, uint32 /*triggerId*/);
         void ResetAreaTriggerDone(Player const* /*player*/, AreaTriggerEntry const* /*trigger*/);
+};
+
+class TC_GAME_API BattlefieldScript : public ScriptObject
+{
+    protected:
+
+        BattlefieldScript(char const* name);
+
+    public:
+
+        virtual Battlefield* GetBattlefield() const = 0;
 };
 
 class TC_GAME_API BattlegroundScript : public ScriptObject
@@ -494,7 +513,7 @@ class TC_GAME_API CommandScript : public ScriptObject
     public:
 
         // Should return a pointer to a valid command table (ChatCommand array) to be used by ChatHandler.
-        virtual std::vector<ChatCommand> GetCommands() const = 0;
+        virtual std::vector<Trinity::ChatCommands::ChatCommandBuilder> GetCommands() const = 0;
 };
 
 class TC_GAME_API WeatherScript : public ScriptObject, public UpdatableScript<Weather>
@@ -668,7 +687,7 @@ class TC_GAME_API PlayerScript : public ScriptObject
         virtual void OnChat(Player* /*player*/, uint32 /*type*/, uint32 /*lang*/, std::string& /*msg*/, Channel* /*channel*/) { }
 
         // Both of the below are called on emote opcodes.
-        virtual void OnEmote(Player* /*player*/, uint32 /*emote*/) { }
+        virtual void OnEmote(Player* /*player*/, Emote /*emote*/) { }
 
         virtual void OnTextEmote(Player* /*player*/, uint32 /*textEmote*/, uint32 /*emoteNum*/, ObjectGuid /*guid*/) { }
 
@@ -707,6 +726,9 @@ class TC_GAME_API PlayerScript : public ScriptObject
 
         // Called after a player's quest status has been changed
         virtual void OnQuestStatusChange(Player* /*player*/, uint32 /*questId*/) { }
+
+        // Called when a player completes a movie
+        virtual void OnMovieComplete(Player* /*player*/, uint32 /*movieId*/) { }
 
         // Called when a player presses release when he died
         virtual void OnPlayerRepop(Player* /*player*/) { }
@@ -933,6 +955,10 @@ class TC_GAME_API ScriptMgr
 
         bool OnAreaTrigger(Player* player, AreaTriggerEntry const* trigger);
 
+    public: /* BattlefieldScript */
+
+        Battlefield* CreateBattlefield(uint32 scriptId);
+
     public: /* BattlegroundScript */
 
         Battleground* CreateBattleground(BattlegroundTypeId typeId);
@@ -943,7 +969,7 @@ class TC_GAME_API ScriptMgr
 
     public: /* CommandScript */
 
-        std::vector<ChatCommand> GetChatCommands();
+        std::vector<Trinity::ChatCommands::ChatCommandBuilder> GetChatCommands();
 
     public: /* WeatherScript */
 
@@ -1006,7 +1032,7 @@ class TC_GAME_API ScriptMgr
         void OnPlayerChat(Player* player, uint32 type, uint32 lang, std::string& msg, Group* group);
         void OnPlayerChat(Player* player, uint32 type, uint32 lang, std::string& msg, Guild* guild);
         void OnPlayerChat(Player* player, uint32 type, uint32 lang, std::string& msg, Channel* channel);
-        void OnPlayerEmote(Player* player, uint32 emote);
+        void OnPlayerEmote(Player* player, Emote emote);
         void OnPlayerTextEmote(Player* player, uint32 textEmote, uint32 emoteNum, ObjectGuid guid);
         void OnPlayerSpellCast(Player* player, Spell* spell, bool skipCheck);
         void OnPlayerLogin(Player* player, bool firstLogin);
@@ -1019,6 +1045,7 @@ class TC_GAME_API ScriptMgr
         void OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newArea);
         void OnQuestObjectiveProgress(Player* player, Quest const* quest, uint32 objectiveIndex, uint16 progress);
         void OnQuestStatusChange(Player* player, uint32 questId);
+        void OnMovieComplete(Player* player, uint32 movieId);
         void OnPlayerRepop(Player* player);
 
     public: /* AccountScript */
@@ -1070,33 +1097,49 @@ class TC_GAME_API ScriptMgr
         std::string _currentContext;
 };
 
-template <class S>
-class GenericSpellScriptLoader : public SpellScriptLoader
+namespace Trinity::SpellScripts
 {
-    public:
-        GenericSpellScriptLoader(char const* name) : SpellScriptLoader(name) { }
-        SpellScript* GetSpellScript() const override { return new S(); }
-};
-#define RegisterSpellScript(spell_script) new GenericSpellScriptLoader<spell_script>(#spell_script)
+    template<typename T>
+    using is_SpellScript = std::is_base_of<SpellScript, T>;
 
-template <class A>
-class GenericAuraScriptLoader : public SpellScriptLoader
-{
-    public:
-        GenericAuraScriptLoader(char const* name) : SpellScriptLoader(name) { }
-        AuraScript* GetAuraScript() const override { return new A(); }
-};
-#define RegisterAuraScript(aura_script) new GenericAuraScriptLoader<aura_script>(#aura_script)
+    template<typename T>
+    using is_AuraScript = std::is_base_of<AuraScript, T>;
+}
 
-template <class S, class A>
+template <typename... Ts>
 class GenericSpellAndAuraScriptLoader : public SpellScriptLoader
 {
-    public:
-        GenericSpellAndAuraScriptLoader(char const* name) : SpellScriptLoader(name) { }
-        SpellScript* GetSpellScript() const override { return new S(); }
-        AuraScript* GetAuraScript() const override { return new A(); }
+    using SpellScriptType = typename Trinity::find_type_if_t<Trinity::SpellScripts::is_SpellScript, Ts...>;
+    using AuraScriptType = typename Trinity::find_type_if_t<Trinity::SpellScripts::is_AuraScript, Ts...>;
+    using ArgsType = typename Trinity::find_type_if_t<Trinity::is_tuple, Ts...>;
+
+public:
+    GenericSpellAndAuraScriptLoader(char const* name, ArgsType&& args) : SpellScriptLoader(name), _args(std::move(args)) { }
+
+private:
+    SpellScript* GetSpellScript() const override
+    {
+        if constexpr (!std::is_same_v<SpellScriptType, Trinity::find_type_end>)
+            return Trinity::new_from_tuple<SpellScriptType>(_args);
+        else
+            return nullptr;
+    }
+
+    AuraScript* GetAuraScript() const override
+    {
+        if constexpr (!std::is_same_v<AuraScriptType, Trinity::find_type_end>)
+            return Trinity::new_from_tuple<AuraScriptType>(_args);
+        else
+            return nullptr;
+    }
+
+    ArgsType _args;
 };
-#define RegisterSpellAndAuraScriptPair(spell_script, aura_script) new GenericSpellAndAuraScriptLoader<spell_script, aura_script>(#spell_script)
+
+#define RegisterSpellScriptWithArgs(spell_script, script_name, ...) new GenericSpellAndAuraScriptLoader<spell_script, decltype(std::make_tuple(__VA_ARGS__))>(script_name, std::make_tuple(__VA_ARGS__))
+#define RegisterSpellScript(spell_script) RegisterSpellScriptWithArgs(spell_script, #spell_script)
+#define RegisterSpellAndAuraScriptPairWithArgs(script_1, script_2, script_name, ...) new GenericSpellAndAuraScriptLoader<script_1, script_2, decltype(std::make_tuple(__VA_ARGS__))>(script_name, std::make_tuple(__VA_ARGS__))
+#define RegisterSpellAndAuraScriptPair(script_1, script_2) RegisterSpellAndAuraScriptPairWithArgs(script_1, script_2, #script_1)
 
 template <class AI>
 class GenericCreatureScript : public CreatureScript

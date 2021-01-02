@@ -25,9 +25,6 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 
-#include <boost/thread/shared_mutex.hpp>
-#include <boost/thread/locks.hpp>
-
 #include <unordered_map>
 
 namespace
@@ -47,9 +44,9 @@ LootItemStorage* LootItemStorage::instance()
     return &instance;
 }
 
-boost::shared_mutex* LootItemStorage::GetLock()
+std::shared_mutex* LootItemStorage::GetLock()
 {
-    static boost::shared_mutex _lock;
+    static std::shared_mutex _lock;
     return &_lock;
 }
 
@@ -59,8 +56,8 @@ void LootItemStorage::LoadStorageFromDB()
     _lootItemStore.clear();
     uint32 count = 0;
 
-    SQLTransaction trans = SQLTransaction(nullptr);
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ITEMCONTAINER_ITEMS);
+    CharacterDatabaseTransaction trans = CharacterDatabaseTransaction(nullptr);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ITEMCONTAINER_ITEMS);
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
     if (result)
     {
@@ -140,7 +137,7 @@ bool LootItemStorage::LoadStoredLoot(Item* item, Player* player)
 
     // read
     {
-        boost::shared_lock<boost::shared_mutex> lock(*GetLock());
+        std::shared_lock<std::shared_mutex> lock(*GetLock());
 
         auto itr = _lootItemStore.find(loot->containerID);
         if (itr == _lootItemStore.end())
@@ -191,7 +188,7 @@ bool LootItemStorage::LoadStoredLoot(Item* item, Player* player)
 void LootItemStorage::RemoveStoredMoneyForContainer(uint32 containerId)
 {
     // write
-    boost::unique_lock<boost::shared_mutex> lock(*GetLock());
+    std::unique_lock<std::shared_mutex> lock(*GetLock());
 
     auto itr = _lootItemStore.find(containerId);
     if (itr == _lootItemStore.end())
@@ -204,12 +201,12 @@ void LootItemStorage::RemoveStoredLootForContainer(uint32 containerId)
 {
     // write
     {
-        boost::unique_lock<boost::shared_mutex> lock(*GetLock());
+        std::unique_lock<std::shared_mutex> lock(*GetLock());
         _lootItemStore.erase(containerId);
     }
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_ITEMS);
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_ITEMS);
     stmt->setUInt32(0, containerId);
     trans->Append(stmt);
 
@@ -223,7 +220,7 @@ void LootItemStorage::RemoveStoredLootForContainer(uint32 containerId)
 void LootItemStorage::RemoveStoredLootItemForContainer(uint32 containerId, uint32 itemId, uint32 count)
 {
     // write
-    boost::unique_lock<boost::shared_mutex> lock(*GetLock());
+    std::unique_lock<std::shared_mutex> lock(*GetLock());
 
     auto itr = _lootItemStore.find(containerId);
     if (itr == _lootItemStore.end())
@@ -240,7 +237,7 @@ void LootItemStorage::AddNewStoredLoot(Loot* loot, Player* player)
 
     // read
     {
-        boost::shared_lock<boost::shared_mutex> lock(*GetLock());
+        std::shared_lock<std::shared_mutex> lock(*GetLock());
 
         auto itr = _lootItemStore.find(loot->containerID);
         if (itr != _lootItemStore.end())
@@ -252,11 +249,11 @@ void LootItemStorage::AddNewStoredLoot(Loot* loot, Player* player)
 
     StoredLootContainer container(loot->containerID);
 
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     if (loot->gold)
         container.AddMoney(loot->gold, trans);
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_ITEMS);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_ITEMS);
     stmt->setUInt32(0, loot->containerID);
     trans->Append(stmt);
 
@@ -282,18 +279,18 @@ void LootItemStorage::AddNewStoredLoot(Loot* loot, Player* player)
 
     // write
     {
-        boost::unique_lock<boost::shared_mutex> lock(*GetLock());
+        std::unique_lock<std::shared_mutex> lock(*GetLock());
         _lootItemStore.emplace(loot->containerID, std::move(container));
     }
 }
 
-void StoredLootContainer::AddLootItem(LootItem const& lootItem, SQLTransaction& trans)
+void StoredLootContainer::AddLootItem(LootItem const& lootItem, CharacterDatabaseTransaction trans)
 {
     _lootItems.emplace(std::piecewise_construct, std::forward_as_tuple(lootItem.itemid), std::forward_as_tuple(lootItem));
     if (!trans)
         return;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEMCONTAINER_ITEMS);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEMCONTAINER_ITEMS);
 
     // container_id, item_id, item_count, follow_rules, ffa, blocked, counted, under_threshold, needs_quest, rnd_prop, rnd_suffix
     stmt->setUInt32(0, _containerId);
@@ -310,13 +307,13 @@ void StoredLootContainer::AddLootItem(LootItem const& lootItem, SQLTransaction& 
     trans->Append(stmt);
 }
 
-void StoredLootContainer::AddMoney(uint32 money, SQLTransaction& trans)
+void StoredLootContainer::AddMoney(uint32 money, CharacterDatabaseTransaction trans)
 {
     _money = money;
     if (!trans)
         return;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_MONEY);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_MONEY);
     stmt->setUInt32(0, _containerId);
     trans->Append(stmt);
 
@@ -330,7 +327,7 @@ void StoredLootContainer::RemoveMoney()
 {
     _money = 0;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_MONEY);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_MONEY);
     stmt->setUInt32(0, _containerId);
     CharacterDatabase.Execute(stmt);
 }
@@ -348,7 +345,7 @@ void StoredLootContainer::RemoveItem(uint32 itemId, uint32 count)
     }
 
     // Deletes a single item associated with an openable item from the DB
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_ITEM);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_ITEM);
     stmt->setUInt32(0, _containerId);
     stmt->setUInt32(1, itemId);
     stmt->setUInt32(2, count);

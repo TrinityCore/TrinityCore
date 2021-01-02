@@ -87,7 +87,7 @@ public:
             Talk(SAY_AGGRO);
             events.ScheduleEvent(EVENT_ARCANE_VOLLEY, 5s);
             events.ScheduleEvent(EVENT_POLYMORPH, 8s);
-            events.ScheduleEvent(EVENT_BLINK, 35000);
+            events.ScheduleEvent(EVENT_BLINK, 35s);
             if (IsHeroic())
                 events.ScheduleEvent(EVENT_SLOW, 15s, 30s);
         }
@@ -99,10 +99,10 @@ public:
                 case EVENT_POLYMORPH:
                     // Second top aggro in normal, random target in heroic.
                     if (IsHeroic())
-                        DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_POLYMORPH);
+                        DoCast(SelectTarget(SelectTargetMethod::Random, 0), SPELL_POLYMORPH);
                     else
-                        DoCast(SelectTarget(SELECT_TARGET_MAXTHREAT, 1), SPELL_POLYMORPH);
-                    events.ScheduleEvent(EVENT_POLYMORPH, urand(15000, 17500));
+                        DoCast(SelectTarget(SelectTargetMethod::MaxThreat, 1), SPELL_POLYMORPH);
+                    events.ScheduleEvent(EVENT_POLYMORPH, 15s, 17500ms);
                     break;
                 case EVENT_ARCANE_VOLLEY:
                     DoCast(me, SPELL_ARCANE_VOLLEY);

@@ -86,13 +86,13 @@ class npc_xerestrasza : public CreatureScript
                     me->SetWalk(true);
                     me->GetMotionMaster()->MovePoint(0, xerestraszaMovePos);
 
-                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_1, 16000);
-                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_2, 25000);
-                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_3, 32000);
-                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_4, 42000);
-                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_5, 51000);
-                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_6, 61000);
-                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_7, 69000);
+                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_1, 16s);
+                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_2, 25s);
+                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_3, 32s);
+                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_4, 42s);
+                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_5, 51s);
+                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_6, 61s);
+                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_7, 69s);
                 }
                 else if (action == ACTION_INTRO_BALTHARUS && !_introDone)
                 {
@@ -159,7 +159,7 @@ class at_baltharus_plateau : public OnlyOnceAreaTriggerScript
     public:
         at_baltharus_plateau() : OnlyOnceAreaTriggerScript("at_baltharus_plateau") { }
 
-        bool _OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+        bool TryHandleOnce(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
         {
             // Only trigger once
             if (InstanceScript* instance = player->GetInstanceScript())

@@ -35,6 +35,10 @@
 #include "PointMovementGenerator.h"
 #include "RBAC.h"
 
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 class mmaps_commandscript : public CommandScript
 {
 public:
@@ -83,9 +87,9 @@ public:
         if (para && strcmp(para, "true") == 0)
             useStraightPath = true;
 
-        bool useStraightLine = false;
-        if (para && strcmp(para, "line") == 0)
-            useStraightLine = true;
+        bool useRaycast = false;
+        if (para && (strcmp(para, "line") == 0 || strcmp(para, "ray") == 0 || strcmp(para, "raycast") == 0))
+            useRaycast = true;
 
         // unit locations
         float x, y, z;
@@ -94,11 +98,12 @@ public:
         // path
         PathGenerator path(target);
         path.SetUseStraightPath(useStraightPath);
-        bool result = path.CalculatePath(x, y, z, false, useStraightLine);
+        path.SetUseRaycast(useRaycast);
+        bool result = path.CalculatePath(x, y, z, false);
 
         Movement::PointsArray const& pointPath = path.GetPath();
         handler->PSendSysMessage("%s's path to %s:", target->GetName().c_str(), player->GetName().c_str());
-        handler->PSendSysMessage("Building: %s", useStraightPath ? "StraightPath" : useStraightLine ? "Raycast" : "SmoothPath");
+        handler->PSendSysMessage("Building: %s", useStraightPath ? "StraightPath" : useRaycast ? "Raycast" : "SmoothPath");
         handler->PSendSysMessage("Result: %s - Length: %zu - Type: %u", (result ? "true" : "false"), pointPath.size(), path.GetPathType());
 
         G3D::Vector3 const& start = path.GetStartPosition();
@@ -113,7 +118,7 @@ public:
             handler->PSendSysMessage("Enable GM mode to see the path points.");
 
         for (uint32 i = 0; i < pointPath.size(); ++i)
-            player->SummonCreature(VISUAL_WAYPOINT, pointPath[i].x, pointPath[i].y, pointPath[i].z, 0, TEMPSUMMON_TIMED_DESPAWN, 9000);
+            player->SummonCreature(VISUAL_WAYPOINT, pointPath[i].x, pointPath[i].y, pointPath[i].z, 0, TEMPSUMMON_TIMED_DESPAWN, 9s);
 
         return true;
     }
@@ -129,7 +134,7 @@ public:
         int32 gy = 32 - player->GetPositionY() / SIZE_OF_GRIDS;
 
         handler->PSendSysMessage("%03u%02i%02i.mmtile", player->GetMapId(), gx, gy);
-        handler->PSendSysMessage("gridloc [%i, %i]", gy, gx);
+        handler->PSendSysMessage("tileloc [%i, %i]", gy, gx);
 
         // calculate navmesh tile location
         dtNavMesh const* navmesh = MMAP::MMapFactory::createOrGetMMapManager()->GetNavMesh(handler->GetSession()->GetPlayer()->GetMapId());
@@ -171,7 +176,7 @@ public:
                 if (tile)
                 {
                     handler->PSendSysMessage("Dt     [%02i,%02i]", tile->header->x, tile->header->y);
-                    return false;
+                    return true;
                 }
             }
 

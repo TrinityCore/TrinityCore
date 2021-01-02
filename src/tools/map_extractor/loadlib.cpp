@@ -75,7 +75,7 @@ bool FileLoader::prepareLoadedData()
 
 void FileLoader::free()
 {
-    if (data) delete[] data;
+    delete[] data;
     data = 0;
     data_size = 0;
     version = 0;

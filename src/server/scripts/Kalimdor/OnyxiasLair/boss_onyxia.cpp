@@ -174,7 +174,7 @@ public:
         void JustSummoned(Creature* summoned) override
         {
             DoZoneInCombat(summoned);
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                 summoned->AI()->AttackStart(target);
 
             switch (summoned->GetEntry())
@@ -196,14 +196,14 @@ public:
             Talk(SAY_KILL);
         }
 
-        void SpellHit(Unit* /*pCaster*/, SpellInfo const* Spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
-            if (Spell->Id == SPELL_BREATH_EAST_TO_WEST ||
-                Spell->Id == SPELL_BREATH_WEST_TO_EAST ||
-                Spell->Id == SPELL_BREATH_SE_TO_NW ||
-                Spell->Id == SPELL_BREATH_NW_TO_SE ||
-                Spell->Id == SPELL_BREATH_SW_TO_NE ||
-                Spell->Id == SPELL_BREATH_NE_TO_SW)
+            if (spellInfo->Id == SPELL_BREATH_EAST_TO_WEST ||
+                spellInfo->Id == SPELL_BREATH_WEST_TO_EAST ||
+                spellInfo->Id == SPELL_BREATH_SE_TO_NW ||
+                spellInfo->Id == SPELL_BREATH_NW_TO_SE ||
+                spellInfo->Id == SPELL_BREATH_SW_TO_NE ||
+                spellInfo->Id == SPELL_BREATH_NE_TO_SW)
             {
                 PointData = GetMoveData();
                 MovePoint = PointData->LocIdEnd;
@@ -230,14 +230,13 @@ public:
                     case 9:
                         me->SetCanFly(false);
                         me->SetDisableGravity(false);
-                        me->RemoveByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                         if (Creature* trigger = ObjectAccessor::GetCreature(*me, triggerGUID))
                             Unit::Kill(me, trigger);
                         me->SetReactState(REACT_AGGRESSIVE);
                         // tank selection based on phase one. If tank is not there i take nearest one
                         if (Unit* tank = ObjectAccessor::GetUnit(*me, tankGUID))
                             me->GetMotionMaster()->MoveChase(tank);
-                        else if (Unit* newtarget = SelectTarget(SELECT_TARGET_MINDISTANCE, 0))
+                        else if (Unit* newtarget = SelectTarget(SelectTargetMethod::MinDistance, 0))
                             me->GetMotionMaster()->MoveChase(newtarget);
                         events.ScheduleEvent(EVENT_BELLOWING_ROAR, 5s);
                         events.ScheduleEvent(EVENT_FLAME_BREATH, 10s, 20s);
@@ -248,7 +247,6 @@ public:
                     case 10:
                         me->SetCanFly(true);
                         me->SetDisableGravity(true);
-                        me->SetByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_ANIM_TIER, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                         me->SetFacingTo(me->GetOrientation() + float(M_PI));
                         if (Creature * trigger = me->SummonCreature(NPC_TRIGGER, MiddleRoomLocation, TEMPSUMMON_CORPSE_DESPAWN))
                             triggerGUID = trigger->GetGUID();
@@ -257,8 +255,8 @@ public:
                         Talk(SAY_PHASE_2_TRANS);
                         instance->SetData(DATA_ONYXIA_PHASE, Phase);
                         events.ScheduleEvent(EVENT_WHELP_SPAWN, 5s);
-                        events.ScheduleEvent(EVENT_LAIR_GUARD, 15000);
-                        events.ScheduleEvent(EVENT_DEEP_BREATH, 75000);
+                        events.ScheduleEvent(EVENT_LAIR_GUARD, 15s);
+                        events.ScheduleEvent(EVENT_DEEP_BREATH, 75s);
                         events.ScheduleEvent(EVENT_MOVEMENT, 10s);
                         events.ScheduleEvent(EVENT_FIREBALL, 18s);
                         break;
@@ -274,20 +272,20 @@ public:
             }
         }
 
-        void SpellHitTarget(Unit* target, SpellInfo const* Spell) override
+        void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
         {
             //Workaround - Couldn't find a way to group this spells (All Eruption)
-            if (((Spell->Id >= 17086 && Spell->Id <= 17095) ||
-                (Spell->Id == 17097) ||
-                (Spell->Id >= 18351 && Spell->Id <= 18361) ||
-                (Spell->Id >= 18564 && Spell->Id <= 18576) ||
-                (Spell->Id >= 18578 && Spell->Id <= 18607) ||
-                (Spell->Id == 18609) ||
-                (Spell->Id >= 18611 && Spell->Id <= 18628) ||
-                (Spell->Id >= 21132 && Spell->Id <= 21133) ||
-                (Spell->Id >= 21135 && Spell->Id <= 21139) ||
-                (Spell->Id >= 22191 && Spell->Id <= 22202) ||
-                (Spell->Id >= 22267 && Spell->Id <= 22268)) &&
+            if (((spellInfo->Id >= 17086 && spellInfo->Id <= 17095) ||
+                (spellInfo->Id == 17097) ||
+                (spellInfo->Id >= 18351 && spellInfo->Id <= 18361) ||
+                (spellInfo->Id >= 18564 && spellInfo->Id <= 18576) ||
+                (spellInfo->Id >= 18578 && spellInfo->Id <= 18607) ||
+                (spellInfo->Id == 18609) ||
+                (spellInfo->Id >= 18611 && spellInfo->Id <= 18628) ||
+                (spellInfo->Id >= 21132 && spellInfo->Id <= 21133) ||
+                (spellInfo->Id >= 21135 && spellInfo->Id <= 21139) ||
+                (spellInfo->Id >= 22191 && spellInfo->Id <= 22202) ||
+                (spellInfo->Id >= 22267 && spellInfo->Id <= 22268)) &&
                 (target->GetTypeId() == TYPEID_PLAYER))
             {
                 instance->SetData(DATA_SHE_DEEP_BREATH_MORE, FAIL);
@@ -427,7 +425,7 @@ public:
                                 Talk(EMOTE_BREATH);
                                 if (PointData) /// @todo: In what cases is this null? What should we do?
                                     DoCast(me, PointData->SpellId);
-                                events.ScheduleEvent(EVENT_DEEP_BREATH, 75000);
+                                events.ScheduleEvent(EVENT_DEEP_BREATH, 75s);
                             }
                             else
                                 events.ScheduleEvent(EVENT_DEEP_BREATH, 1s);
@@ -443,7 +441,7 @@ public:
 
                                 me->GetMotionMaster()->MovePoint(PointData->LocId, PointData->fX, PointData->fY, PointData->fZ);
                                 IsMoving = true;
-                                events.ScheduleEvent(EVENT_MOVEMENT, 25000);
+                                events.ScheduleEvent(EVENT_MOVEMENT, 25s);
                             }
                             else
                                 events.ScheduleEvent(EVENT_MOVEMENT, 500ms);
@@ -451,7 +449,7 @@ public:
                         case EVENT_FIREBALL:         // Phase PHASE_BREATH
                             if (!IsMoving)
                             {
-                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                     DoCast(target, SPELL_FIREBALL);
                                 events.ScheduleEvent(EVENT_FIREBALL, 8s);
                             }

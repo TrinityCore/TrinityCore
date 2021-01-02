@@ -29,6 +29,10 @@ EndScriptData */
 #include "Player.h"
 #include "RBAC.h"
 
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 class titles_commandscript : public CommandScript
 {
 public:
@@ -92,9 +96,9 @@ public:
         std::string tNameLink = handler->GetNameLink(target);
 
         target->SetTitle(titleInfo);                            // to be sure that title now known
-        target->SetUInt32Value(PLAYER_CHOSEN_TITLE, titleInfo->bit_index);
+        target->SetUInt32Value(PLAYER_CHOSEN_TITLE, titleInfo->MaskID);
 
-        handler->PSendSysMessage(LANG_TITLE_CURRENT_RES, id, target->GetNativeGender() == GENDER_MALE ? titleInfo->nameMale[handler->GetSessionDbcLocale()] : titleInfo->nameFemale[handler->GetSessionDbcLocale()], tNameLink.c_str());
+        handler->PSendSysMessage(LANG_TITLE_CURRENT_RES, id, target->GetNativeGender() == GENDER_MALE ? titleInfo->Name[handler->GetSessionDbcLocale()] : titleInfo->Name1[handler->GetSessionDbcLocale()], tNameLink.c_str());
 
         return true;
     }
@@ -137,7 +141,7 @@ public:
         std::string tNameLink = handler->GetNameLink(target);
 
         char titleNameStr[80];
-        snprintf(titleNameStr, 80, target->GetNativeGender() == GENDER_MALE ? titleInfo->nameMale[handler->GetSessionDbcLocale()] : titleInfo->nameFemale[handler->GetSessionDbcLocale()], target->GetName().c_str());
+        snprintf(titleNameStr, 80, target->GetNativeGender() == GENDER_MALE ? titleInfo->Name[handler->GetSessionDbcLocale()] : titleInfo->Name1[handler->GetSessionDbcLocale()], target->GetName().c_str());
 
         target->SetTitle(titleInfo);
         handler->PSendSysMessage(LANG_TITLE_ADD_RES, id, titleNameStr, tNameLink.c_str());
@@ -185,7 +189,7 @@ public:
         std::string tNameLink = handler->GetNameLink(target);
 
         char titleNameStr[80];
-        snprintf(titleNameStr, 80, target->GetNativeGender() == GENDER_MALE ? titleInfo->nameMale[handler->GetSessionDbcLocale()] : titleInfo->nameFemale[handler->GetSessionDbcLocale()], target->GetName().c_str());
+        snprintf(titleNameStr, 80, target->GetNativeGender() == GENDER_MALE ? titleInfo->Name[handler->GetSessionDbcLocale()] : titleInfo->Name1[handler->GetSessionDbcLocale()], target->GetName().c_str());
 
         handler->PSendSysMessage(LANG_TITLE_REMOVE_RES, id, titleNameStr, tNameLink.c_str());
 
@@ -224,7 +228,7 @@ public:
 
         for (uint32 i = 1; i < sCharTitlesStore.GetNumRows(); ++i)
             if (CharTitlesEntry const* tEntry = sCharTitlesStore.LookupEntry(i))
-                titles2 &= ~(uint64(1) << tEntry->bit_index);
+                titles2 &= ~(uint64(1) << tEntry->MaskID);
 
         titles &= ~titles2;                                     // remove non-existing titles
 

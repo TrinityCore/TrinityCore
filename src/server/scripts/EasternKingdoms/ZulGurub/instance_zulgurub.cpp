@@ -18,7 +18,6 @@
 #include "zulgurub.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
-#include "Map.h"
 #include "ScriptMgr.h"
 
 DoorData const doorData[] =
@@ -36,12 +35,14 @@ ObjectData const creatureData[] =
     { NPC_ARLOKK,             DATA_ARLOKK },
     { NPC_PRIESTESS_MARLI,    DATA_MARLI },
     { NPC_VILEBRANCH_SPEAKER, DATA_VILEBRANCH_SPEAKER },
-    { NPC_HAKKAR,             DATA_HAKKAR }
+    { NPC_HAKKAR,             DATA_HAKKAR },
+    { 0,                      0 } // END
 };
 
 ObjectData const gameobjectData[] =
 {
-    { GO_GONG_OF_BETHEKK, DATA_GONG_BETHEKK }
+    { GO_GONG_OF_BETHEKK, DATA_GONG_BETHEKK },
+    { 0,                  0 } // END
 };
 
 class instance_zulgurub : public InstanceMapScript
@@ -50,7 +51,7 @@ class instance_zulgurub : public InstanceMapScript
 
         struct instance_zulgurub_InstanceMapScript : public InstanceScript
         {
-            instance_zulgurub_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_zulgurub_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);

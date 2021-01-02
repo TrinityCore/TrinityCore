@@ -308,7 +308,7 @@ class boss_halion : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*who*/, SpellInfo const* spellInfo) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
                 if (spellInfo->Id == SPELL_TWILIGHT_MENDING)
                     Talk(SAY_REGENERATE);
@@ -351,7 +351,7 @@ class boss_halion : public CreatureScript
                             break;
                         case EVENT_METEOR_STRIKE:
                         {
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, true, -SPELL_TWILIGHT_REALM))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true, true, -SPELL_TWILIGHT_REALM))
                             {
                                 _meteorStrikePos = target->GetPosition();
                                 me->CastSpell(_meteorStrikePos, SPELL_METEOR_STRIKE, me->GetGUID());
@@ -362,7 +362,7 @@ class boss_halion : public CreatureScript
                         }
                         case EVENT_FIERY_COMBUSTION:
                         {
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, true, -SPELL_TWILIGHT_REALM))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true, true, -SPELL_TWILIGHT_REALM))
                                 me->CastSpell(target, SPELL_FIERY_COMBUSTION, TRIGGERED_IGNORE_SET_FACING);
                             events.ScheduleEvent(EVENT_FIERY_COMBUSTION, 25s);
                             break;
@@ -492,9 +492,9 @@ class boss_twilight_halion : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*who*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
-                switch (spell->Id)
+                switch (spellInfo->Id)
                 {
                     case SPELL_TWILIGHT_DIVISION:
                         if (Creature* controller = instance->GetCreature(DATA_HALION_CONTROLLER))
@@ -535,7 +535,7 @@ class boss_twilight_halion : public CreatureScript
                             events.ScheduleEvent(EVENT_BREATH, randtime(Seconds(10), Seconds(14)));
                             break;
                         case EVENT_SOUL_CONSUMPTION:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, true, SPELL_TWILIGHT_REALM))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true, true, SPELL_TWILIGHT_REALM))
                                 me->CastSpell(target, SPELL_SOUL_CONSUMPTION, TRIGGERED_IGNORE_SET_FACING);
                             events.ScheduleEvent(EVENT_SOUL_CONSUMPTION, 20s);
                             break;
@@ -634,7 +634,7 @@ class npc_halion_controller : public CreatureScript
                 _instance->SetBossState(DATA_HALION, FAIL);
                 _summons.DespawnAll();
 
-                me->DespawnOrUnsummon(0, 30s);
+                me->DespawnOrUnsummon(0s, 30s);
             }
 
             void DoAction(int32 action) override
@@ -1040,7 +1040,7 @@ class npc_meteor_strike_initial : public CreatureScript
                         angle[i] = Position::NormalizeOrientation(angle[i]);
                         me->SetOrientation(angle[i]);
                         Position newPos = me->GetNearPosition(10.0f, 0.0f); // Exact distance
-                        if (Creature* meteor = me->SummonCreature(NPC_METEOR_STRIKE_NORTH + i, newPos, TEMPSUMMON_TIMED_DESPAWN, 30000))
+                        if (Creature* meteor = me->SummonCreature(NPC_METEOR_STRIKE_NORTH + i, newPos, TEMPSUMMON_TIMED_DESPAWN, 30s))
                             _meteorList.push_back(meteor);
                     }
                 }
@@ -1110,7 +1110,7 @@ class npc_meteor_strike : public CreatureScript
                 if (_events.ExecuteEvent() == EVENT_SPAWN_METEOR_FLAME)
                 {
                     Position pos = me->GetNearPosition(5.0f, frand(-static_cast<float>(M_PI / 6.0f), static_cast<float>(M_PI / 6.0f)));
-                    if (Creature* flame = me->SummonCreature(NPC_METEOR_STRIKE_FLAME, pos, TEMPSUMMON_TIMED_DESPAWN, 25000))
+                    if (Creature* flame = me->SummonCreature(NPC_METEOR_STRIKE_FLAME, pos, TEMPSUMMON_TIMED_DESPAWN, 25s))
                         flame->AI()->SetGUID(me->GetGUID());
                 }
             }
@@ -1170,7 +1170,7 @@ class npc_meteor_strike_flame : public CreatureScript
                     return;
 
                 Position pos = me->GetNearPosition(5.0f, frand(-static_cast<float>(M_PI / 6.0f), static_cast<float>(M_PI / 6.0f)));
-                if (Creature* flame = me->SummonCreature(NPC_METEOR_STRIKE_FLAME, pos, TEMPSUMMON_TIMED_DESPAWN, 25000))
+                if (Creature* flame = me->SummonCreature(NPC_METEOR_STRIKE_FLAME, pos, TEMPSUMMON_TIMED_DESPAWN, 25s))
                     flame->AI()->SetGUID(_rootOwnerGuid);
             }
 
@@ -1292,7 +1292,7 @@ class npc_living_inferno : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                me->DespawnOrUnsummon(1);
+                me->DespawnOrUnsummon(1ms);
             }
 
             void UpdateAI(uint32 diff) override
@@ -1329,7 +1329,7 @@ class npc_living_ember : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                me->DespawnOrUnsummon(1);
+                me->DespawnOrUnsummon(1ms);
             }
         };
 
@@ -1367,7 +1367,7 @@ class go_twilight_portal : public GameObjectScript
                 }
             }
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 if (_spellId != 0)
                     player->CastSpell(player, _spellId, true);

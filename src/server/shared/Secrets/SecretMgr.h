@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
- 
+
 #ifndef __TRINITY_SECRETMGR_H__
 #define __TRINITY_SECRETMGR_H__
 

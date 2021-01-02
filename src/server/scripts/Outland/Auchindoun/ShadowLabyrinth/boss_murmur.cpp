@@ -73,7 +73,7 @@ class boss_murmur : public CreatureScript
                 events.ScheduleEvent(EVENT_MAGNETIC_PULL, 15s, 30s);
                 if (IsHeroic())
                 {
-                    events.ScheduleEvent(EVENT_THUNDERING_STORM, 15000);
+                    events.ScheduleEvent(EVENT_THUNDERING_STORM, 15s);
                     events.ScheduleEvent(EVENT_SONIC_SHOCK, 10s);
                 }
 
@@ -105,7 +105,7 @@ class boss_murmur : public CreatureScript
                             events.ScheduleEvent(EVENT_RESONANCE, 1500ms);
                             break;
                         case EVENT_MURMURS_TOUCH:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 80.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 80.0f, true))
                                 DoCast(target, SPELL_MURMURS_TOUCH);
                             events.ScheduleEvent(EVENT_MURMURS_TOUCH, 25s, 35s);
                             break;
@@ -117,7 +117,7 @@ class boss_murmur : public CreatureScript
                             }
                             break;
                         case EVENT_MAGNETIC_PULL:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                             {
                                 DoCast(target, SPELL_MAGNETIC_PULL);
                                 events.ScheduleEvent(EVENT_MAGNETIC_PULL, 15s, 30s);
@@ -127,10 +127,10 @@ class boss_murmur : public CreatureScript
                             break;
                         case EVENT_THUNDERING_STORM:
                             DoCastAOE(SPELL_THUNDERING_STORM, true);
-                            events.ScheduleEvent(EVENT_THUNDERING_STORM, 15000);
+                            events.ScheduleEvent(EVENT_THUNDERING_STORM, 15s);
                             break;
                         case EVENT_SONIC_SHOCK:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 20.0f, false))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 20.0f, false))
                                 DoCast(target, SPELL_SONIC_SHOCK);
                             events.ScheduleEvent(EVENT_SONIC_SHOCK, 10s, 20s);
                             break;

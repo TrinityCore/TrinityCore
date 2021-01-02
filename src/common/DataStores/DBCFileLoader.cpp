@@ -153,10 +153,10 @@ uint32 DBCFileLoader::GetFormatRecordSize(char const* format, int32* index_pos)
             case FT_NA_BYTE:
                 break;
             case FT_LOGIC:
-                ASSERT(false && "Attempted to load DBC files that do not have field types that match what is in the core. Check DBCfmt.h or your DBC files.");
+                ABORT_MSG("Attempted to load DBC files that do not have field types that match what is in the core. Check DBCfmt.h or your DBC files.");
                 break;
             default:
-                ASSERT(false && "Unknown field format character in DBCfmt.h");
+                ABORT_MSG("Unknown field format character in DBCfmt.h");
                 break;
         }
     }
@@ -243,14 +243,14 @@ char* DBCFileLoader::AutoProduceData(char const* format, uint32& records, char**
                     offset += sizeof(char*);
                     break;
                 case FT_LOGIC:
-                    ASSERT(false && "Attempted to load DBC files that do not have field types that match what is in the core. Check DBCfmt.h or your DBC files.");
+                    ABORT_MSG("Attempted to load DBC files that do not have field types that match what is in the core. Check DBCfmt.h or your DBC files.");
                     break;
                 case FT_NA:
                 case FT_NA_BYTE:
                 case FT_SORT:
                     break;
                 default:
-                    ASSERT(false && "Unknown field format character in DBCfmt.h");
+                    ABORT_MSG("Unknown field format character in DBCfmt.h");
                     break;
             }
         }
@@ -298,14 +298,14 @@ char* DBCFileLoader::AutoProduceStrings(char const* format, char* dataTable)
                     break;
                  }
                  case FT_LOGIC:
-                     ASSERT(false && "Attempted to load DBC files that does not have field types that match what is in the core. Check DBCfmt.h or your DBC files.");
+                     ABORT_MSG("Attempted to load DBC files that does not have field types that match what is in the core. Check DBCfmt.h or your DBC files.");
                      break;
                  case FT_NA:
                  case FT_NA_BYTE:
                  case FT_SORT:
                      break;
                  default:
-                     ASSERT(false && "Unknown field format character in DBCfmt.h");
+                     ABORT_MSG("Unknown field format character in DBCfmt.h");
                      break;
             }
         }

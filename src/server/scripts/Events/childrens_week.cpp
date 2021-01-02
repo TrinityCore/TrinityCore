@@ -676,7 +676,7 @@ class npc_the_etymidian : public CreatureScript
                 Initialize();
             }
 
-            void QuestReward(Player* /*player*/, Quest const* quest, uint32 /*opt*/) override
+            void OnQuestReward(Player* /*player*/, Quest const* quest, uint32 /*opt*/) override
             {
                 if (quest->GetQuestId() != QUEST_THE_ACTIVATION_RUNE)
                     return;
@@ -947,7 +947,7 @@ class at_bring_your_orphan_to : public AreaTriggerScript
             uint32 questId = 0;
             uint32 orphanId = 0;
 
-            switch (trigger->id)
+            switch (trigger->ID)
             {
                 case AT_DOWN_AT_THE_DOCKS:
                     questId = QUEST_DOWN_AT_THE_DOCKS;
@@ -1046,26 +1046,15 @@ class npc_cw_area_trigger : public CreatureScript
                                         if (player->GetQuestStatus(QUEST_NOW_WHEN_I_GROW_UP) == QUEST_STATUS_COMPLETE)
                                             if (Creature* samuro = me->FindNearestCreature(25151, 20.0f))
                                             {
-                                                uint32 emote = 0;
-                                                switch (urand(1, 5))
-                                                {
-                                                    case 1:
-                                                        emote = EMOTE_ONESHOT_WAVE;
-                                                        break;
-                                                    case 2:
-                                                        emote = EMOTE_ONESHOT_ROAR;
-                                                        break;
-                                                    case 3:
-                                                        emote = EMOTE_ONESHOT_FLEX;
-                                                        break;
-                                                    case 4:
-                                                        emote = EMOTE_ONESHOT_SALUTE;
-                                                        break;
-                                                    case 5:
-                                                        emote = EMOTE_ONESHOT_DANCE;
-                                                        break;
-                                                }
-                                                samuro->HandleEmoteCommand(emote);
+                                                Emote const emotes[] =
+                                                    {
+                                                        EMOTE_ONESHOT_WAVE,
+                                                        EMOTE_ONESHOT_ROAR,
+                                                        EMOTE_ONESHOT_FLEX,
+                                                        EMOTE_ONESHOT_SALUTE,
+                                                        EMOTE_ONESHOT_DANCE
+                                                    };
+                                                samuro->HandleEmoteCommand(Trinity::Containers::SelectRandomContainerElement(emotes));
                                             }
                                     }
                                     break;

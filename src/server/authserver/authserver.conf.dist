@@ -184,13 +184,16 @@ IPLocationFile = ""
 #
 #    LoginDatabaseInfo
 #        Description: Database connection settings for the realm server.
-#        Example:     "hostname;port;username;password;database"
+#        Example:     "hostname;port;username;password;database;ssl"
 #                     ".;some_number;username;password;database" - (Use named pipes on Windows
 #                                                                 "enable-named-pipe" to [mysqld]
 #                                                                 section my.ini)
 #                     ".;/path/to/unix_socket;username;password;database" - (use Unix sockets on
 #                                                                           Unix/Linux)
 #        Default:     "127.0.0.1;3306;trinity;trinity;auth"
+#
+#    The SSL option will enable TLS when connecting to the specified database. If not provided or
+#    any value other than 'ssl' is set, TLS will not be used.
 
 LoginDatabaseInfo = "127.0.0.1;3306;trinity;trinity;auth"
 

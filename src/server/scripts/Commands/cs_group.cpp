@@ -29,6 +29,10 @@
 #include "RBAC.h"
 #include "WorldSession.h"
 
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 class group_commandscript : public CommandScript
 {
 public:
@@ -361,7 +365,7 @@ public:
         // If not, we extract it from the SQL.
         if (!groupTarget)
         {
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GROUP_MEMBER);
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GROUP_MEMBER);
             stmt->setUInt32(0, guidTarget.GetCounter());
             PreparedQueryResult resultGroup = CharacterDatabase.Query(stmt);
             if (resultGroup)
@@ -423,9 +427,9 @@ public:
                 AreaTableEntry const* area = sAreaTableStore.LookupEntry(p->GetAreaId());
                 if (area)
                 {
-                    AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->zone);
+                    AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->ParentAreaID);
                     if (zone)
-                        zoneName = zone->area_name[locale];
+                        zoneName = zone->AreaName[locale];
                 }
             }
             else

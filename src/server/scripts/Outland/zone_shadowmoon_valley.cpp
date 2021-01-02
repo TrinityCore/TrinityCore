@@ -91,7 +91,7 @@ public:
 
         void SummonInfernal()
         {
-            if (Creature* infernal = me->SummonCreature(NPC_INFERNAL_ATTACKER, me->GetPositionX(), me->GetPositionY(), ground + 0.05f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000))
+            if (Creature* infernal = me->SummonCreature(NPC_INFERNAL_ATTACKER, me->GetPositionX(), me->GetPositionY(), ground + 0.05f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 1min))
                 infernalGUID = infernal->GetGUID();
             else
                 infernalGUID = ObjectGuid::Empty;
@@ -162,9 +162,9 @@ public:
                 caster->AI()->SetData(TYPE_INFERNAL, DATA_DIED);
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
-            if (spell->Id == SPELL_SUMMON_INFERNAL)
+            if (spellInfo->Id == SPELL_SUMMON_INFERNAL)
             {
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_NOT_SELECTABLE);
                 me->SetImmuneToPC(false);
@@ -250,14 +250,14 @@ public:
             Initialize();
         }
 
-        void SpellHit(Unit* pCaster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
         {
             if (bCanEat || bIsEating)
                 return;
 
-            if (pCaster->GetTypeId() == TYPEID_PLAYER && spell->Id == SPELL_PLACE_CARCASS && !me->HasAura(SPELL_JUST_EATEN))
+            if (caster->GetTypeId() == TYPEID_PLAYER && spellInfo->Id == SPELL_PLACE_CARCASS && !me->HasAura(SPELL_JUST_EATEN))
             {
-                uiPlayerGUID = pCaster->GetGUID();
+                uiPlayerGUID = caster->GetGUID();
                 bCanEat = true;
             }
         }
@@ -346,8 +346,13 @@ enum EnshlavedNetherwingDrake
 
     // Creatures
     NPC_DRAGONMAW_SUBJUGATOR        = 21718,
-    NPC_ESCAPE_DUMMY                = 22317
+    NPC_ESCAPE_DUMMY                = 22317,
 
+    // Quests
+    QUEST_THE_FORCE_OF_NELTHARAKU   = 10854,
+
+    // Movement
+    POINT_MOVE_UP                   = 1
 };
 
 class npc_enslaved_netherwing_drake : public CreatureScript
@@ -355,44 +360,34 @@ class npc_enslaved_netherwing_drake : public CreatureScript
 public:
     npc_enslaved_netherwing_drake() : CreatureScript("npc_enslaved_netherwing_drake") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_enslaved_netherwing_drakeAI(creature);
-    }
-
     struct npc_enslaved_netherwing_drakeAI : public ScriptedAI
     {
         npc_enslaved_netherwing_drakeAI(Creature* creature) : ScriptedAI(creature)
         {
             Tapped = false;
-            Reset();
+            FlyTimer = 10 * IN_MILLISECONDS;
         }
-
-        ObjectGuid PlayerGUID;
-        uint32 FlyTimer;
-        bool Tapped;
 
         void Reset() override
         {
             if (!Tapped)
                 me->SetFaction(FACTION_ORC_DRAGONMAW);
 
-            FlyTimer = 10000;
             me->SetDisableGravity(false);
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
         {
-            if (!caster)
+            Player* playerCaster = caster->ToPlayer();
+            if (!playerCaster)
                 return;
 
-            if (caster->GetTypeId() == TYPEID_PLAYER && spell->Id == SPELL_HIT_FORCE_OF_NELTHARAKU && !Tapped)
+            if (spellInfo->Id == SPELL_HIT_FORCE_OF_NELTHARAKU && !Tapped)
             {
                 Tapped = true;
-                PlayerGUID = caster->GetGUID();
+                PlayerGUID = playerCaster->GetGUID();
 
                 me->SetFaction(FACTION_FLAYER_HUNTER);
-                DoCast(caster, SPELL_FORCE_OF_NELTHARAKU, true);
 
                 Unit* Dragonmaw = me->FindNearestCreature(NPC_DRAGONMAW_SUBJUGATOR, 50);
                 if (Dragonmaw)
@@ -401,7 +396,8 @@ public:
                     AttackStart(Dragonmaw);
                 }
 
-                me->GetThreatManager().ClearThreat(caster);
+                FlyTimer = 10 * IN_MILLISECONDS;
+                me->GetThreatManager().ClearThreat(playerCaster);
             }
         }
 
@@ -413,15 +409,9 @@ public:
             if (id == 1)
             {
                 if (PlayerGUID)
-                {
-                    Unit* player = ObjectAccessor::GetUnit(*me, PlayerGUID);
-                    if (player)
-                        DoCast(player, SPELL_FORCE_OF_NELTHARAKU, true);
-
                     PlayerGUID.Clear();
-                }
 
-                me->DespawnOrUnsummon(1);
+                me->DespawnOrUnsummon(1ms);
             }
         }
 
@@ -437,16 +427,9 @@ public:
                         if (PlayerGUID)
                         {
                             Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID);
-                            if (player && player->GetQuestStatus(10854) == QUEST_STATUS_INCOMPLETE)
+                            if (player && player->GetQuestStatus(QUEST_THE_FORCE_OF_NELTHARAKU) == QUEST_STATUS_INCOMPLETE)
                             {
                                 DoCast(player, SPELL_FORCE_OF_NELTHARAKU, true);
-                                /*
-                                float x, y, z;
-                                me->GetPosition(x, y, z);
-
-                                float dx, dy, dz;
-                                me->GetRandomPoint(x, y, z, 20, dx, dy, dz);
-                                dz += 20; // so it's in the air, not ground*/
 
                                 Position pos;
                                 if (Unit* EscapeDummy = me->FindNearestCreature(NPC_ESCAPE_DUMMY, 30))
@@ -457,8 +440,9 @@ public:
                                     pos.m_positionZ += 25;
                                 }
 
+                                me->SetCanFly(true);
                                 me->SetDisableGravity(true);
-                                me->GetMotionMaster()->MovePoint(1, pos);
+                                me->GetMotionMaster()->MoveTakeoff(POINT_MOVE_UP, pos);
                             }
                         }
                     } else FlyTimer -= diff;
@@ -468,98 +452,17 @@ public:
 
             DoMeleeAttackIfReady();
         }
+
+    private:
+        ObjectGuid PlayerGUID;
+        uint32 FlyTimer;
+        bool Tapped;
     };
-};
-
-/*#####
-# npc_dragonmaw_peon
-#####*/
-
-class npc_dragonmaw_peon : public CreatureScript
-{
-public:
-    npc_dragonmaw_peon() : CreatureScript("npc_dragonmaw_peon") { }
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return new npc_dragonmaw_peonAI(creature);
+        return new npc_enslaved_netherwing_drakeAI(creature);
     }
-
-    struct npc_dragonmaw_peonAI : public ScriptedAI
-    {
-        npc_dragonmaw_peonAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            PlayerGUID.Clear();
-            Tapped = false;
-            PoisonTimer = 0;
-        }
-
-        ObjectGuid PlayerGUID;
-        bool Tapped;
-        uint32 PoisonTimer;
-
-        void Reset() override
-        {
-            Initialize();
-        }
-
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
-        {
-            if (!caster)
-                return;
-
-            if (caster->GetTypeId() == TYPEID_PLAYER && spell->Id == 40468 && !Tapped)
-            {
-                PlayerGUID = caster->GetGUID();
-
-                Tapped = true;
-                float x, y, z;
-                caster->GetClosePoint(x, y, z, me->GetCombatReach());
-
-                me->SetWalk(false);
-                me->GetMotionMaster()->MovePoint(1, x, y, z);
-            }
-        }
-
-        void MovementInform(uint32 type, uint32 id) override
-        {
-            if (type != POINT_MOTION_TYPE)
-                return;
-
-            if (id)
-            {
-                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_EAT);
-                PoisonTimer = 15000;
-            }
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (PoisonTimer)
-            {
-                if (PoisonTimer <= diff)
-                {
-                    if (PlayerGUID)
-                    {
-                        Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID);
-                        if (player && player->GetQuestStatus(11020) == QUEST_STATUS_INCOMPLETE)
-                            player->KilledMonsterCredit(23209);
-                    }
-                    PoisonTimer = 0;
-                    me->KillSelf();
-                } else PoisonTimer -= diff;
-            }
-            if (!UpdateVictim())
-                return;
-
-            DoMeleeAttackIfReady();
-        }
-    };
 };
 
 /*####
@@ -682,7 +585,7 @@ public:
         void DoSpawnAssassin()
         {
             //unknown where they actually appear
-            DoSummon(NPC_COILSKAR_ASSASSIN, me, 15.0f, 5000, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT);
+            DoSummon(NPC_COILSKAR_ASSASSIN, me, 15.0f, 5s, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT);
         }
 
         void JustEngagedWith(Unit* who) override
@@ -720,7 +623,7 @@ public:
             }
         }
 
-        void QuestAccept(Player* player, Quest const* quest) override
+        void OnQuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_ESCAPE_COILSCAR)
             {
@@ -1231,7 +1134,7 @@ public:
             {
                 if (SpellTimer1 <= diff)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     {
                         if (target->GetTypeId() == TYPEID_PLAYER)
                         {
@@ -1283,7 +1186,7 @@ void npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI::SummonNextWave()
 
     for (uint8 i = 0; i < count; ++i)
     {
-        Creature* Spawn = me->SummonCreature(WavesInfo[WaveCount].CreatureId, SpawnLocation[locIndex + i], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
+        Creature* Spawn = me->SummonCreature(WavesInfo[WaveCount].CreatureId, SpawnLocation[locIndex + i], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 1min);
         ++LiveCount;
 
         if (Spawn)
@@ -1332,8 +1235,11 @@ void npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI::SummonNextWave()
         }
     }
     ++WaveCount;
-    WaveTimer = WavesInfo[WaveCount].SpawnTimer;
-    AnnounceTimer = WavesInfo[WaveCount].YellTimer;
+    if (WaveCount < 4)
+    {
+        WaveTimer = WavesInfo[WaveCount].SpawnTimer;
+        AnnounceTimer = WavesInfo[WaveCount].YellTimer;
+    }
 }
 
 /*#####
@@ -1349,7 +1255,7 @@ public:
     {
         go_crystal_prisonAI(GameObject* go) : GameObjectAI(go) { }
 
-        void QuestAccept(Player* player, Quest const* quest) override
+        void OnQuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_BATTLE_OF_THE_CRIMSON_WATCH)
             {
@@ -1566,7 +1472,7 @@ public:
             Unit* totemOspirits = nullptr;
 
             if (entry != 0)
-                Summoned = DoSpawnCreature(entry, 0, 0, 1, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 5000);
+                Summoned = DoSpawnCreature(entry, 0, 0, 1, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 5s);
 
             // FIND TOTEM, PROCESS QUEST
             if (Summoned)
@@ -1661,9 +1567,9 @@ public:
             }
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
-            if (spell->Id == SPELL_WHISTLE)
+            if (spellInfo->Id == SPELL_WHISTLE)
             {
                 if (Creature* boar = me->FindNearestCreature(NPC_BOAR_ENTRY, 30.0f))
                 {
@@ -1686,7 +1592,6 @@ void AddSC_shadowmoon_valley()
     new npc_infernal_attacker();
     new npc_mature_netherwing_drake();
     new npc_enslaved_netherwing_drake();
-    new npc_dragonmaw_peon();
     new npc_earthmender_wilda();
     new npc_lord_illidan_stormrage();
     new go_crystal_prison();

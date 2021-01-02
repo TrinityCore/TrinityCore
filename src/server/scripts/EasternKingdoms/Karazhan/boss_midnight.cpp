@@ -109,7 +109,7 @@ public:
 
             scheduler.Schedule(Seconds(25), Seconds(45), [this](TaskContext task)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target,SPELL_INTANGIBLE_PRESENCE);
 
                 task.Repeat(Seconds(25), Seconds(45));
@@ -222,12 +222,12 @@ public:
                 std::bind(&BossAI::DoMeleeAttackIfReady, this));
         }
 
-        void SpellHit(Unit* /*source*/, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
-            if (spell->Mechanic == MECHANIC_DISARM)
+            if (spellInfo->Mechanic == MECHANIC_DISARM)
                 Talk(SAY_DISARMED);
 
-            if (spell->Id == SPELL_MOUNT)
+            if (spellInfo->Id == SPELL_MOUNT)
             {
                 if (Creature* midnight = ObjectAccessor::GetCreature(*me, _midnightGUID))
                 {

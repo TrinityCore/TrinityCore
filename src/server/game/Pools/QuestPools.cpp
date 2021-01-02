@@ -48,15 +48,15 @@ static void RegeneratePool(QuestPool& pool)
     }
 }
 
-static void SaveToDB(QuestPool const& pool, SQLTransaction trans)
+static void SaveToDB(QuestPool const& pool, CharacterDatabaseTransaction trans)
 {
-    PreparedStatement* delStmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_POOL_QUEST_SAVE);
+    CharacterDatabasePreparedStatement* delStmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_POOL_QUEST_SAVE);
     delStmt->setUInt32(0, pool.poolId);
     trans->Append(delStmt);
 
     for (uint32 questId : pool.activeQuests)
     {
-        PreparedStatement* insStmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_POOL_QUEST_SAVE);
+        CharacterDatabasePreparedStatement* insStmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_POOL_QUEST_SAVE);
         insStmt->setUInt32(0, pool.poolId);
         insStmt->setUInt32(1, questId);
         trans->Append(insStmt);
@@ -150,10 +150,10 @@ void QuestPoolMgr::LoadFromDB()
                 (*it->second.first)[it->second.second].activeQuests.insert(questId);
             } while (result->NextRow());
 
-            SQLTransaction trans = CharacterDatabase.BeginTransaction();
+            CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
             for (uint32 poolId : unknownPoolIds)
             {
-                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_POOL_QUEST_SAVE);
+                CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_POOL_QUEST_SAVE);
                 stmt->setUInt32(0, poolId);
                 trans->Append(stmt);
             }
@@ -162,7 +162,7 @@ void QuestPoolMgr::LoadFromDB()
     }
 
     // post-processing and sanity checks
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     for (auto pair : lookup)
     {
         if (!pair.second.first)
@@ -258,7 +258,7 @@ void QuestPoolMgr::LoadFromDB()
 
 void QuestPoolMgr::Regenerate(std::vector<QuestPool>& pools)
 {
-    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     for (QuestPool& pool : pools)
     {
         RegeneratePool(pool);

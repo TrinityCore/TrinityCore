@@ -197,7 +197,7 @@ public:
 
                     if (Creature* spotlight = me->SummonCreature(NPC_SPOTLIGHT,
                         me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.0f,
-                        TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000))
+                        TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 1min))
                     {
                         spotlight->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         spotlight->CastSpell(spotlight, SPELL_SPOTLIGHT, false);
@@ -274,7 +274,7 @@ public:
                 uint32 entry = ((uint32)Spawns[index][0]);
                 float PosX = Spawns[index][1];
 
-                if (Creature* creature = me->SummonCreature(entry, PosX, SPAWN_Y, SPAWN_Z, SPAWN_O, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, HOUR*2*IN_MILLISECONDS))
+                if (Creature* creature = me->SummonCreature(entry, PosX, SPAWN_Y, SPAWN_Z, SPAWN_O, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 2h))
                 {
                     // In case database has bad flags
                     creature->SetUInt32Value(UNIT_FIELD_FLAGS, 0);
@@ -329,7 +329,6 @@ public:
 
                         if (RaidWiped)
                         {
-                            RaidWiped = true;
                             EnterEvadeMode();
                             return;
                         }
@@ -340,7 +339,7 @@ public:
             }
         }
 
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
             uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
             ClearGossipMenuFor(player);
@@ -376,7 +375,7 @@ public:
             return true;
         }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             // Check for death of Moroes and if opera event is not done already
             if (instance->GetBossState(DATA_MOROES) == DONE && instance->GetBossState(DATA_OPERA_PERFORMANCE) != DONE)
@@ -499,7 +498,7 @@ public:
         {
             Step = 1;
             EventStarted = true;
-            Creature* Arcanagos = me->SummonCreature(NPC_ARCANAGOS, ArcanagosPos[0], ArcanagosPos[1], ArcanagosPos[2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000);
+            Creature* Arcanagos = me->SummonCreature(NPC_ARCANAGOS, ArcanagosPos[0], ArcanagosPos[1], ArcanagosPos[2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20s);
             if (!Arcanagos)
                 return;
             ArcanagosGUID = Arcanagos->GetGUID();

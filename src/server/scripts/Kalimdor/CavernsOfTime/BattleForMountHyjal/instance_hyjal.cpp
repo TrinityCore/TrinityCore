@@ -62,7 +62,7 @@ public:
 
     struct instance_mount_hyjal_InstanceMapScript : public InstanceScript
     {
-        instance_mount_hyjal_InstanceMapScript(Map* map) : InstanceScript(map)
+        instance_mount_hyjal_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
         {
             SetHeaders(DataHeader);
             LoadObjectData(creatureData, nullptr);
@@ -216,7 +216,7 @@ public:
                             for (GuidList::const_iterator itr = m_uiAncientGemGUID.begin(); itr != m_uiAncientGemGUID.end(); ++itr)
                             {
                                 //don't know how long it expected
-                                DoRespawnGameObject(*itr, DAY);
+                                DoRespawnGameObject(*itr, 24h);
                             }
                         }
                     }

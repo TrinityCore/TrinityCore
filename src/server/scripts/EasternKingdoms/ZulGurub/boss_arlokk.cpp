@@ -127,11 +127,11 @@ class boss_arlokk : public CreatureScript
             void JustEngagedWith(Unit* who) override
             {
                 BossAI::JustEngagedWith(who);
-                events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, urand(7000, 9000), 0, PHASE_ONE);
-                events.ScheduleEvent(EVENT_GOUGE, urand(12000, 15000), 0, PHASE_ONE);
+                events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 7s, 9s, 0, PHASE_ONE);
+                events.ScheduleEvent(EVENT_GOUGE, 12s, 15s, 0, PHASE_ONE);
                 events.ScheduleEvent(EVENT_SUMMON_PROWLERS, 6s, 0, PHASE_ALL);
-                events.ScheduleEvent(EVENT_MARK_OF_ARLOKK, urand(9000, 11000), 0, PHASE_ALL);
-                events.ScheduleEvent(EVENT_TRANSFORM, urand(15000, 20000), 0, PHASE_ONE);
+                events.ScheduleEvent(EVENT_MARK_OF_ARLOKK, 9s, 11s, 0, PHASE_ALL);
+                events.ScheduleEvent(EVENT_TRANSFORM, 15s, 20s, 0, PHASE_ONE);
                 Talk(SAY_AGGRO);
 
                 // Sets up list of Panther spawners to cast on
@@ -165,7 +165,7 @@ class boss_arlokk : public CreatureScript
                 BossAI::EnterEvadeMode(why);
                 if (GameObject* object = instance->GetGameObject(DATA_GONG_BETHEKK))
                     object->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                me->DespawnOrUnsummon(4000);
+                me->DespawnOrUnsummon(4s);
             }
 
             void SetData(uint32 id, uint32 /*value*/) override
@@ -192,7 +192,7 @@ class boss_arlokk : public CreatureScript
                     {
                         case EVENT_SHADOW_WORD_PAIN:
                             DoCastVictim(SPELL_SHADOW_WORD_PAIN, true);
-                            events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, urand(5000, 7000), 0, PHASE_ONE);
+                            events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 5s, 7s, 0, PHASE_ONE);
                             break;
                         case EVENT_GOUGE:
                             DoCastVictim(SPELL_GOUGE, true);
@@ -218,7 +218,7 @@ class boss_arlokk : public CreatureScript
                             break;
                         case EVENT_MARK_OF_ARLOKK:
                         {
-                            Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, urand(1, 3), 0.0f, false, true, -SPELL_MARK_OF_ARLOKK);
+                            Unit* target = SelectTarget(SelectTargetMethod::MaxThreat, urand(1, 3), 0.0f, false, true, -SPELL_MARK_OF_ARLOKK);
                             if (!target)
                                 target = me->GetVictim();
                             if (target)
@@ -226,7 +226,7 @@ class boss_arlokk : public CreatureScript
                                 DoCast(target, SPELL_MARK_OF_ARLOKK, true);
                                 Talk(SAY_FEAST_PROWLER, target);
                             }
-                            events.ScheduleEvent(EVENT_MARK_OF_ARLOKK, urand(120000, 130000));
+                            events.ScheduleEvent(EVENT_MARK_OF_ARLOKK, 120s, 130s);
                             break;
                         }
                         case EVENT_TRANSFORM:
@@ -253,28 +253,28 @@ class boss_arlokk : public CreatureScript
                             DoCast(me, SPELL_SUPER_INVIS);
                             me->SetWalk(false);
                             me->GetMotionMaster()->MovePoint(0, frand(-11551.0f, -11508.0f), frand(-1638.0f, -1617.0f), me->GetPositionZ());
-                            events.ScheduleEvent(EVENT_VANISH_2, 9000, 0, PHASE_ONE);
+                            events.ScheduleEvent(EVENT_VANISH_2, 9s, 0, PHASE_ONE);
                             break;
                         case EVENT_VANISH_2:
                             DoCast(me, SPELL_VANISH);
                             DoCast(me, SPELL_SUPER_INVIS);
-                            events.ScheduleEvent(EVENT_VISIBLE, urand(7000, 10000), 0, PHASE_ONE);
+                            events.ScheduleEvent(EVENT_VISIBLE, 7s, 10s, 0, PHASE_ONE);
                             break;
                         case EVENT_VISIBLE:
                             me->SetReactState(REACT_AGGRESSIVE);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                 AttackStart(target);
                             me->RemoveAura(SPELL_SUPER_INVIS);
                             me->RemoveAura(SPELL_VANISH);
-                            events.ScheduleEvent(EVENT_RAVAGE, urand(10000, 14000), 0, PHASE_TWO);
-                            events.ScheduleEvent(EVENT_TRANSFORM_BACK, urand(15000, 18000), 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_RAVAGE, 10s, 14s, 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_TRANSFORM_BACK, 15s, 18s, 0, PHASE_TWO);
                             events.SetPhase(PHASE_TWO);
                             me->ApplyStatPctModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, DamageIncrease); // hack
                             break;
                         case EVENT_RAVAGE:
                             DoCastVictim(SPELL_RAVAGE, true);
-                            events.ScheduleEvent(EVENT_RAVAGE, urand(10000, 14000), 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_RAVAGE, 10s, 14s, 0, PHASE_TWO);
                             break;
                         case EVENT_TRANSFORM_BACK:
                         {
@@ -289,9 +289,9 @@ class boss_arlokk : public CreatureScript
                             me->UpdateDamagePhysical(BASE_ATTACK);
                             */
                             me->ApplyStatPctModifier(UNIT_MOD_DAMAGE_MAINHAND, TOTAL_PCT, DamageDecrease); // hack
-                            events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, urand(4000, 7000), 0, PHASE_ONE);
-                            events.ScheduleEvent(EVENT_GOUGE, urand(12000, 15000), 0, PHASE_ONE);
-                            events.ScheduleEvent(EVENT_TRANSFORM, urand(16000, 20000), 0, PHASE_ONE);
+                            events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 4s, 7s, 0, PHASE_ONE);
+                            events.ScheduleEvent(EVENT_GOUGE, 12s, 15s, 0, PHASE_ONE);
+                            events.ScheduleEvent(EVENT_TRANSFORM, 16s, 20s, 0, PHASE_ONE);
                             events.SetPhase(PHASE_ONE);
                             break;
                         }
@@ -375,10 +375,14 @@ class npc_zulian_prowler : public CreatureScript
                 me->RemoveAura(SPELL_SNEAK_RANK_1_2);
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_MARK_OF_ARLOKK_TRIGGER) // Should only hit if line of sight
-                    me->Attack(caster, true);
+                Unit* unitCaster = caster->ToUnit();
+                if (!unitCaster)
+                    return;
+
+                if (spellInfo->Id == SPELL_MARK_OF_ARLOKK_TRIGGER) // Should only hit if line of sight
+                    me->Attack(unitCaster, true);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -388,7 +392,7 @@ class npc_zulian_prowler : public CreatureScript
                     if (arlokk->IsAlive())
                         arlokk->GetAI()->SetData(_sideData, 0);
                 }
-                me->DespawnOrUnsummon(4000);
+                me->DespawnOrUnsummon(4s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -406,7 +410,7 @@ class npc_zulian_prowler : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_ATTACK:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0.0f, 100, false))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0.0f, 100, false))
                                 me->Attack(target, true);
                             break;
                         default:
@@ -445,11 +449,11 @@ class go_gong_of_bethekk : public GameObjectScript
         {
             go_gong_of_bethekkAI(GameObject* go) : GameObjectAI(go) { }
 
-            bool GossipHello(Player* /*player*/) override
+            bool OnGossipHello(Player* /*player*/) override
             {
                 me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                 me->SendCustomAnim(0);
-                me->SummonCreature(NPC_ARLOKK, PosSummonArlokk[0], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 600000);
+                me->SummonCreature(NPC_ARLOKK, PosSummonArlokk[0], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10min);
                 return true;
             }
         };

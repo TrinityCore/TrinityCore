@@ -18,13 +18,15 @@
 #ifndef __AUTHSESSION_H__
 #define __AUTHSESSION_H__
 
+#include "AsyncCallbackProcessor.h"
 #include "BigNumber.h"
 #include "ByteBuffer.h"
 #include "Common.h"
+#include "CryptoHash.h"
 #include "Optional.h"
 #include "Socket.h"
+#include "SRP6.h"
 #include "QueryResult.h"
-#include "QueryCallbackProcessor.h"
 #include <memory>
 #include <boost/asio/ip/tcp.hpp>
 
@@ -87,14 +89,11 @@ private:
     void ReconnectChallengeCallback(PreparedQueryResult result);
     void RealmListCallback(PreparedQueryResult result);
 
-    void SetVSFields(const std::string& rI);
+    bool VerifyVersion(uint8 const* a, int32 aLength, Trinity::Crypto::SHA1::Digest const& versionProof, bool isReconnect);
 
-    bool VerifyVersion(uint8 const* a, int32 aLength, uint8 const* versionProof, bool isReconnect);
-
-    BigNumber N, s, g, v;
-    BigNumber b, B;
-    BigNumber K;
-    BigNumber _reconnectProof;
+    Optional<Trinity::Crypto::SRP6> _srp6;
+    SessionKey _sessionKey;
+    std::array<uint8, 16> _reconnectProof;
 
     AuthStatus _status;
     AccountInfo _accountInfo;

@@ -20,9 +20,7 @@
 #include "SmartEnum.h"
 #include <stdexcept>
 
-namespace Trinity
-{
-namespace Impl
+namespace Trinity::Impl::EnumUtilsImpl
 {
 
 /*******************************************************************\
@@ -52,5 +50,15 @@ TC_API_EXPORT SpawnObjectType EnumUtils<SpawnObjectType>::FromIndex(size_t index
         default: throw std::out_of_range("index");
     }
 }
+
+template <>
+TC_API_EXPORT size_t EnumUtils<SpawnObjectType>::ToIndex(SpawnObjectType value)
+{
+    switch (value)
+    {
+        case SPAWN_TYPE_CREATURE: return 0;
+        case SPAWN_TYPE_GAMEOBJECT: return 1;
+        default: throw std::out_of_range("value");
+    }
 }
 }

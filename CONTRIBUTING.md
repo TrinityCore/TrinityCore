@@ -7,18 +7,18 @@ Contributing is not only about creating fixes, but also reporting bugs. Before r
 Issues
 ======
 
-Read [this](https://www.trinitycore.org/f/topic/37-the-trinitycore-issuetracker-and-you/) before creating a ticket.  
-If you have problems with TrinityCore installation, read [this](https://www.trinitycore.org/f/topic/1518-trouble-with-your-trinity-install-readme-1st-faqs/).
+Read [this](https://community.trinitycore.org/topic/37-the-trinitycore-issuetracker-and-you/) before creating a ticket.  
+If you have problems with TrinityCore installation, read [this](https://community.trinitycore.org/topic/13962-trouble-with-your-trinity-install-starting-login-readme-1st-faqs/).
 
 Mandatory things when creating a ticket:  
 ========================================
 
 - Branch  
-- commit hash (if you get something like TrinityCore rev. unknown 1970-01-01 00:00:00 +0000 (Archived branch) (Win64, Release), please read this [post](https://www.trinitycore.org/f/topic/345-howto-properly-install-git-on-windows-fix-trinitycore-rev-1970-01-01-000000-0000/) or clone this repository instead downloading the source code.  
+- commit hash (if you get something like TrinityCore rev. unknown 1970-01-01 00:00:00 +0000 (Archived branch) (Win64, Release), please read this [post](https://community.trinitycore.org/topic/345-howto-properly-install-git-on-windows-fix-trinitycore-rev-1970-01-01-000000-0000/) or clone this repository instead downloading the source code.  
 - entries of affected creatures / items / quests with a link to the relevant wowhead page.  
 - clear title and description of the bug - if your english is very bad, please use google translate or yandex to translate to english and include one text in your native language.
 
-When reporting a crash, you MUST compile in debug mode because release dumps are useless (not enough information) - if you don't know how to compile in debug, read [this](https://www.trinitycore.org/f/topic/1518-trouble-with-your-trinity-install-readme-1st-faqs/#entry47672)
+When reporting a crash, you MUST compile in debug mode because release dumps are useless (not enough information) - if you don't know how to compile in debug, read [this](https://community.trinitycore.org/topic/13962-trouble-with-your-trinity-install-starting-login-readme-1st-faqs/?tab=comments#comment-47672)
 
 We sugest the title and body to have the next style:
 
@@ -39,8 +39,8 @@ Creating Pull Requests:
 
 
 When creating patches read:
-- [TrinityCore Development Standards](https://www.trinitycore.org/f/topic/6-trinitycore-developing-standards/)
-- [WDB Fields](https://www.trinitycore.org/f/topic/58-wdb-fields/)
+- [TrinityCore Development Standards](https://trinitycore.atlassian.net/wiki/spaces/tc/pages/2130103/C+Development+Standards)
+- [WDB Fields](https://community.trinitycore.org/topic/58-wdb-fields/)
 - [Git Squash](https://ariejan.net/2011/07/05/git-squash-your-latests-commits-into-one/)
 
 

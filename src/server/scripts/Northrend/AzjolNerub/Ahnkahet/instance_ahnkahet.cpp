@@ -59,7 +59,7 @@ class instance_ahnkahet : public InstanceMapScript
 
         struct instance_ahnkahet_InstanceScript : public InstanceScript
         {
-            instance_ahnkahet_InstanceScript(Map* map) : InstanceScript(map)
+            instance_ahnkahet_InstanceScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
@@ -172,5 +172,5 @@ class spell_combined_toxins : public AuraScript
 void AddSC_instance_ahnkahet()
 {
     new instance_ahnkahet();
-    RegisterAuraScript(spell_combined_toxins);
+    RegisterSpellScript(spell_combined_toxins);
 }

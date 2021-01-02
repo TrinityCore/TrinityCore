@@ -167,7 +167,7 @@ bool OutdoorPvPSI::HandleDropFlag(Player* player, uint32 spellId)
                 if (atEntry)
                 {
                     // 5.0f is safe-distance
-                    if (player->GetDistance(atEntry->x, atEntry->y, atEntry->z) > 5.0f + atEntry->radius)
+                    if (player->GetDistance(atEntry->Pos.X, atEntry->Pos.Y, atEntry->Pos.Z) > 5.0f + atEntry->Radius)
                     {
                         // he dropped it further, summon mound
                         GameObject* go = new GameObject;
@@ -196,7 +196,7 @@ bool OutdoorPvPSI::HandleDropFlag(Player* player, uint32 spellId)
                 if (atEntry)
                 {
                     // 5.0f is safe-distance
-                    if (player->GetDistance(atEntry->x, atEntry->y, atEntry->z) > 5.0f + atEntry->radius)
+                    if (player->GetDistance(atEntry->Pos.X, atEntry->Pos.Y, atEntry->Pos.Z) > 5.0f + atEntry->Radius)
                     {
                         // he dropped it further, summon mound
                         GameObject* go = new GameObject;

@@ -43,7 +43,7 @@ class instance_pit_of_saron : public InstanceMapScript
 
         struct instance_pit_of_saron_InstanceScript : public InstanceScript
         {
-            instance_pit_of_saron_InstanceScript(Map* map) : InstanceScript(map)
+            instance_pit_of_saron_InstanceScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
@@ -138,8 +138,10 @@ class instance_pit_of_saron : public InstanceMapScript
                         return _teamInInstance == ALLIANCE ? NPC_FREED_SLAVE_3_ALLIANCE : NPC_FREED_SLAVE_3_HORDE;
                     case NPC_RESCUED_SLAVE_HORDE:
                         return _teamInInstance == ALLIANCE ? NPC_RESCUED_SLAVE_ALLIANCE : NPC_RESCUED_SLAVE_HORDE;
+                    case NPC_GORKUN_IRONSKULL_1:
+                        return _teamInInstance == ALLIANCE ? NPC_MARTIN_VICTUS_1 : NPC_GORKUN_IRONSKULL_1;
                     case NPC_GORKUN_IRONSKULL_2:
-                        return _teamInInstance == ALLIANCE ? NPC_MARTIN_VICTUS_1 : NPC_GORKUN_IRONSKULL_2;
+                        return _teamInInstance == ALLIANCE ? NPC_MARTIN_VICTUS_2 : NPC_GORKUN_IRONSKULL_2;
                     default:
                         return entry;
                 }
@@ -155,7 +157,7 @@ class instance_pit_of_saron : public InstanceMapScript
                     case DATA_GARFROST:
                         if (state == DONE)
                         {
-                            if (Creature* summoner = instance->GetCreature(_garfrostGUID))
+                            if (instance->GetCreature(_garfrostGUID))
                             {
                                 if (_teamInInstance == ALLIANCE)
                                 {
@@ -164,7 +166,7 @@ class instance_pit_of_saron : public InstanceMapScript
                                 }
                                 else
                                 {
-                                    if (TempSummon* summon = instance->SummonCreature(NPC_GORKUN_IRONSKULL_2, SlaveLeaderPos))
+                                    if (TempSummon* summon = instance->SummonCreature(NPC_GORKUN_IRONSKULL_1, SlaveLeaderPos))
                                         summon->SetTempSummonType(TEMPSUMMON_MANUAL_DESPAWN);
                                 }
                             }
@@ -173,7 +175,7 @@ class instance_pit_of_saron : public InstanceMapScript
                     case DATA_TYRANNUS:
                         if (state == DONE)
                         {
-                            if (Creature* summoner = instance->GetCreature(_tyrannusGUID))
+                            if (instance->GetCreature(_tyrannusGUID))
                             {
                                 if (_teamInInstance == ALLIANCE)
                                 {
@@ -266,7 +268,7 @@ class instance_pit_of_saron : public InstanceMapScript
                     if (Creature* trigger = instance->GetCreature(guid))
                     {
                         if (activate)
-                            trigger->m_Events.AddEvent(new ScheduledIcicleSummons(trigger), trigger->m_Events.CalculateTime(1000));
+                            trigger->m_Events.AddEvent(new ScheduledIcicleSummons(trigger), trigger->m_Events.CalculateTime(1s));
                         else
                             trigger->m_Events.KillAllEvents(false);
                     }

@@ -145,16 +145,6 @@ enum NorthrendBeasts
     ICEHOWL_DONE         = 3001
 };
 
-enum AnnouncerMessages
-{
-    MSG_BEASTS    = 724001,
-    MSG_JARAXXUS  = 724002,
-    MSG_CRUSADERS = 724003,
-    MSG_VALKIRIES = 724004,
-    MSG_LICH_KING = 724005,
-    MSG_ANUBARAK  = 724006
-};
-
 enum TCRCreatureIds
 {
     NPC_BARRETT_BEASTS               = 34816,

@@ -218,10 +218,10 @@ extern int main(int argc, char** argv)
     if (!StartDB())
         return 1;
 
+    std::shared_ptr<void> dbHandle(nullptr, [](void*) { StopDB(); });
+
     if (vm.count("update-databases-only"))
         return 0;
-
-    std::shared_ptr<void> dbHandle(nullptr, [](void*) { StopDB(); });
 
     // Set server offline (not connectable)
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, realm.Id.Realm);
@@ -370,7 +370,7 @@ void ShutdownCLIThread(std::thread* cliThread)
         {
             // if CancelSynchronousIo() fails, print the error and try with old way
             DWORD errorCode = GetLastError();
-            LPSTR errorBuffer;
+            LPCSTR errorBuffer;
 
             DWORD formatReturnCode = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
                                                    nullptr, errorCode, 0, (LPTSTR)&errorBuffer, 0, nullptr);
@@ -380,7 +380,7 @@ void ShutdownCLIThread(std::thread* cliThread)
             TC_LOG_DEBUG("server.worldserver", "Error cancelling I/O of CliThread, error code %u, detail: %s", uint32(errorCode), errorBuffer);
 
             if (!formatReturnCode)
-                LocalFree(errorBuffer);
+                LocalFree((LPSTR)errorBuffer);
 
             // send keyboard input to safely unblock the CLI thread
             INPUT_RECORD b[4];
@@ -426,6 +426,10 @@ void WorldUpdateLoop()
     uint32 realCurrTime = 0;
     uint32 realPrevTime = getMSTime();
 
+    LoginDatabase.WarnAboutSyncQueries(true);
+    CharacterDatabase.WarnAboutSyncQueries(true);
+    WorldDatabase.WarnAboutSyncQueries(true);
+
     ///- While we have not World::m_stopEvent, update the world
     while (!World::IsStopped())
     {
@@ -451,6 +455,10 @@ void WorldUpdateLoop()
             Sleep(1000);
 #endif
     }
+
+    LoginDatabase.WarnAboutSyncQueries(false);
+    CharacterDatabase.WarnAboutSyncQueries(false);
+    WorldDatabase.WarnAboutSyncQueries(false);
 }
 
 void SignalHandler(boost::system::error_code const& error, int /*signalNumber*/)
@@ -509,36 +517,36 @@ bool LoadRealmInfo(Trinity::Asio::IoContext& ioContext)
     if (!result)
         return false;
 
-    boost::asio::ip::tcp::resolver resolver(ioContext);
+    Trinity::Asio::Resolver resolver(ioContext);
 
     Field* fields = result->Fetch();
     realm.Name = fields[1].GetString();
-    Optional<boost::asio::ip::tcp::endpoint> externalAddress = Trinity::Net::Resolve(resolver, boost::asio::ip::tcp::v4(), fields[2].GetString(), "");
+    Optional<boost::asio::ip::tcp::endpoint> externalAddress = resolver.Resolve(boost::asio::ip::tcp::v4(), fields[2].GetString(), "");
     if (!externalAddress)
     {
         TC_LOG_ERROR("server.worldserver", "Could not resolve address %s", fields[2].GetString().c_str());
         return false;
     }
 
-    realm.ExternalAddress = Trinity::make_unique<boost::asio::ip::address>(externalAddress->address());
+    realm.ExternalAddress = std::make_unique<boost::asio::ip::address>(externalAddress->address());
 
-    Optional<boost::asio::ip::tcp::endpoint> localAddress = Trinity::Net::Resolve(resolver, boost::asio::ip::tcp::v4(), fields[3].GetString(), "");
+    Optional<boost::asio::ip::tcp::endpoint> localAddress = resolver.Resolve(boost::asio::ip::tcp::v4(), fields[3].GetString(), "");
     if (!localAddress)
     {
         TC_LOG_ERROR("server.worldserver", "Could not resolve address %s", fields[3].GetString().c_str());
         return false;
     }
 
-    realm.LocalAddress = Trinity::make_unique<boost::asio::ip::address>(localAddress->address());
+    realm.LocalAddress = std::make_unique<boost::asio::ip::address>(localAddress->address());
 
-    Optional<boost::asio::ip::tcp::endpoint> localSubmask = Trinity::Net::Resolve(resolver, boost::asio::ip::tcp::v4(), fields[4].GetString(), "");
+    Optional<boost::asio::ip::tcp::endpoint> localSubmask = resolver.Resolve(boost::asio::ip::tcp::v4(), fields[4].GetString(), "");
     if (!localSubmask)
     {
         TC_LOG_ERROR("server.worldserver", "Could not resolve address %s", fields[4].GetString().c_str());
         return false;
     }
 
-    realm.LocalSubnetMask = Trinity::make_unique<boost::asio::ip::address>(localSubmask->address());
+    realm.LocalSubnetMask = std::make_unique<boost::asio::ip::address>(localSubmask->address());
 
     realm.Port = fields[5].GetUInt16();
     realm.Type = fields[6].GetUInt8();

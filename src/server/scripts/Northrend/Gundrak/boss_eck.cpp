@@ -78,7 +78,7 @@ class boss_eck : public CreatureScript
             {
                 if (!_berserk && me->HealthBelowPctDamaged(20, damage))
                 {
-                    events.RescheduleEvent(EVENT_BERSERK, 1000);
+                    events.RescheduleEvent(EVENT_BERSERK, 1s);
                     _berserk = true;
                 }
             }
@@ -96,7 +96,7 @@ class boss_eck : public CreatureScript
                         events.ScheduleEvent(EVENT_SPIT, 6s, 14s);
                         break;
                     case EVENT_SPRING:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 35.0f, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 35.0f, true))
                             DoCast(target, RAND(SPELL_ECK_SPRING_1, SPELL_ECK_SPRING_2));
                         events.ScheduleEvent(EVENT_SPRING, 5s, 10s);
                         break;

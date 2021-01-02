@@ -169,6 +169,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         static void SetGoArtKit(uint8 artkit, GameObject* go, ObjectGuid::LowType lowguid = 0);
 
         void SetPhaseMask(uint32 newPhaseMask, bool update) override;
+
         void EnableCollision(bool enable);
 
         void Use(Unit* user);

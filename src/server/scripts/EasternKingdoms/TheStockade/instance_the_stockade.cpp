@@ -24,7 +24,6 @@ gets instead the deserter debuff.
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
-#include "Map.h"
 
 class instance_the_stockade : public InstanceMapScript
 {
@@ -38,7 +37,7 @@ public:
 
     struct instance_the_stockade_InstanceMapScript : public InstanceScript
     {
-        instance_the_stockade_InstanceMapScript(Map* map) : InstanceScript(map) { }
+        instance_the_stockade_InstanceMapScript(InstanceMap* map) : InstanceScript(map) { }
     };
 };
 

@@ -76,4 +76,6 @@ inline AI* GetBlackfathomDeepsAI(T* obj)
     return GetInstanceAI<AI>(obj, BFDScriptName);
 }
 
+#define RegisterBlackfathomDeepsCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetBlackfathomDeepsAI)
+
 #endif // BFD_H_

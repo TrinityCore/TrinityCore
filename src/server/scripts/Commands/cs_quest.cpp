@@ -33,6 +33,10 @@ EndScriptData */
 #include "ReputationMgr.h"
 #include "World.h"
 
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 class quest_commandscript : public CommandScript
 {
 public:
@@ -266,7 +270,7 @@ public:
         if (sWorld->getBoolConfig(CONFIG_QUEST_ENABLE_QUEST_TRACKER)) // check if Quest Tracker is enabled
         {
             // prepare Quest Tracker datas
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_QUEST_TRACK_GM_COMPLETE);
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_QUEST_TRACK_GM_COMPLETE);
             stmt->setUInt32(0, quest->GetQuestId());
             stmt->setUInt32(1, player->GetGUID().GetCounter());
 

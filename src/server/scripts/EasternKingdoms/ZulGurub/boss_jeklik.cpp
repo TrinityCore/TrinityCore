@@ -142,32 +142,32 @@ class boss_jeklik : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_CHARGE_JEKLIK:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.f, true))
                             {
                                 DoCast(target, SPELL_CHARGE);
                                 AttackStart(target);
                             }
-                            events.ScheduleEvent(EVENT_CHARGE_JEKLIK, urand(15000, 30000), 0, PHASE_ONE);
+                            events.ScheduleEvent(EVENT_CHARGE_JEKLIK, 15s, 30s, 0, PHASE_ONE);
                             break;
                         case EVENT_SONIC_BURST:
                             DoCastVictim(SPELL_SONICBURST);
-                            events.ScheduleEvent(EVENT_SONIC_BURST, urand(8000, 13000), 0, PHASE_ONE);
+                            events.ScheduleEvent(EVENT_SONIC_BURST, 8s, 13s, 0, PHASE_ONE);
                             break;
                         case EVENT_SCREECH:
                             DoCastVictim(SPELL_SCREECH);
-                            events.ScheduleEvent(EVENT_SCREECH, urand(18000, 26000), 0, PHASE_ONE);
+                            events.ScheduleEvent(EVENT_SCREECH, 18s, 26s, 0, PHASE_ONE);
                             break;
                         case EVENT_SPAWN_BATS:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.f, true))
                                 for (uint8 i = 0; i < 6; ++i)
-                                    if (TempSummon* bat = me->SummonCreature(NPC_BLOODSEEKER_BAT, SpawnBat[i], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000))
+                                    if (TempSummon* bat = me->SummonCreature(NPC_BLOODSEEKER_BAT, SpawnBat[i], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15s))
                                         bat->AI()->AttackStart(target);
                             events.ScheduleEvent(EVENT_SPAWN_BATS, 1min, 0, PHASE_ONE);
                             break;
                         case EVENT_SHADOW_WORD_PAIN:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.f, true))
                                 DoCast(target, SPELL_SHADOW_WORD_PAIN);
-                            events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, urand(12000, 18000), 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 12s, 18s, 0, PHASE_TWO);
                             break;
                         case EVENT_MIND_FLAY:
                             DoCastVictim(SPELL_MIND_FLAY);
@@ -176,18 +176,18 @@ class boss_jeklik : public CreatureScript
                         case EVENT_CHAIN_MIND_FLAY:
                             me->InterruptNonMeleeSpells(false);
                             DoCastVictim(SPELL_CHAIN_MIND_FLAY);
-                            events.ScheduleEvent(EVENT_CHAIN_MIND_FLAY, urand(15000, 30000), 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_CHAIN_MIND_FLAY, 15s, 30s, 0, PHASE_TWO);
                             break;
                         case EVENT_GREATER_HEAL:
                             me->InterruptNonMeleeSpells(false);
                             DoCast(me, SPELL_GREATERHEAL);
-                            events.ScheduleEvent(EVENT_GREATER_HEAL, urand(25000, 35000), 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_GREATER_HEAL, 25s, 35s, 0, PHASE_TWO);
                             break;
                         case EVENT_SPAWN_FLYING_BATS:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.f, true))
-                                if (TempSummon* flyingBat = me->SummonCreature(NPC_FRENZIED_BAT, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ() + 15.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.f, true))
+                                if (TempSummon* flyingBat = me->SummonCreature(NPC_FRENZIED_BAT, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ() + 15.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15s))
                                     flyingBat->AI()->AttackStart(target);
-                            events.ScheduleEvent(EVENT_SPAWN_FLYING_BATS, urand(10000, 15000), 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_SPAWN_FLYING_BATS, 10s, 15s, 0, PHASE_TWO);
                             break;
                         default:
                             break;
@@ -240,7 +240,7 @@ class npc_batrider : public CreatureScript
 
                 if (_bombTimer <= diff)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.f, true))
                     {
                         DoCast(target, SPELL_BOMB);
                         _bombTimer = 5000;

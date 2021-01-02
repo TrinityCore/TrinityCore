@@ -26,6 +26,7 @@ EndScriptData */
 #include "hellfire_ramparts.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
 #include "TemporarySummon.h"
@@ -110,10 +111,10 @@ class boss_nazan : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* target, SpellInfo const* entry) override
+            void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
             {
-                if (target && entry->Id == uint32(SPELL_FIREBALL))
-                    me->SummonCreature(NPC_LIQUID_FIRE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 30000);
+                if (spellInfo->Id == uint32(SPELL_FIREBALL))
+                    me->SummonCreature(NPC_LIQUID_FIRE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 30s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -123,7 +124,7 @@ class boss_nazan : public CreatureScript
 
                 if (Fireball_Timer <= diff)
                 {
-                    if (Unit* victim = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* victim = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(victim, SPELL_FIREBALL, true);
                     Fireball_Timer = urand(4000, 7000);
                 }
@@ -141,7 +142,7 @@ class boss_nazan : public CreatureScript
                         me->SetDisableGravity(false);
                         me->SetWalk(true);
                         me->GetMotionMaster()->Clear();
-                        if (Unit* victim = SelectTarget(SELECT_TARGET_MINDISTANCE, 0))
+                        if (Unit* victim = SelectTarget(SelectTargetMethod::MinDistance, 0))
                             AttackStart(victim);
                         DoStartMovement(me->GetVictim());
                         Talk(EMOTE);
@@ -346,10 +347,14 @@ class boss_vazruden_the_herald : public CreatureScript
             {
                 if (!summoned)
                 {
-                    if (Creature* Vazruden = me->SummonCreature(NPC_VAZRUDEN, VazrudenMiddle[0], VazrudenMiddle[1], VazrudenMiddle[2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 6000000))
+                    if (Creature* Vazruden = me->SummonCreature(NPC_VAZRUDEN, VazrudenMiddle[0], VazrudenMiddle[1], VazrudenMiddle[2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 100min))
                         VazrudenGUID = Vazruden->GetGUID();
-                    if (Creature* Nazan = me->SummonCreature(NPC_NAZAN, VazrudenMiddle[0], VazrudenMiddle[1], VazrudenMiddle[2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 6000000))
+                    if (Creature* Nazan = me->SummonCreature(NPC_NAZAN, VazrudenMiddle[0], VazrudenMiddle[1], VazrudenMiddle[2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 100min))
+                    {
                         NazanGUID = Nazan->GetGUID();
+                        if (Player* player = Nazan->SelectNearestPlayer(60.0f))
+                            Nazan->AI()->AttackStart(player);
+                    }
                     summoned = true;
                     me->SetVisible(false);
                     me->AddUnitState(UNIT_STATE_ROOT);
@@ -435,6 +440,10 @@ class boss_vazruden_the_herald : public CreatureScript
                                 EnterEvadeMode();
                                 return;
                             }
+                        }
+                        if (!(Nazan && Nazan->IsAlive()) && !(Vazruden && Vazruden->IsAlive()))
+                        {
+                            me->DisappearAndDie();
                         }
                         check = 2000;
                     }

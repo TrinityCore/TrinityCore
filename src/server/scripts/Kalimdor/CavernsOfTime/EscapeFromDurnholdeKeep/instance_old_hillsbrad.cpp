@@ -53,7 +53,7 @@ public:
 
     struct instance_old_hillsbrad_InstanceMapScript : public InstanceScript
     {
-        instance_old_hillsbrad_InstanceMapScript(Map* map) : InstanceScript(map)
+        instance_old_hillsbrad_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
         {
             SetHeaders(DataHeader);
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
@@ -146,7 +146,7 @@ public:
                         if (mBarrelCount == 5)
                         {
                             UpdateQuestCredit();
-                            player->SummonCreature(DRAKE_ENTRY, 2128.43f, 71.01f, 64.42f, 1.74f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 1800000);
+                            player->SummonCreature(DRAKE_ENTRY, 2128.43f, 71.01f, 64.42f, 1.74f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 30min);
                             m_auiEncounter[0] = DONE;
                         }
                     }

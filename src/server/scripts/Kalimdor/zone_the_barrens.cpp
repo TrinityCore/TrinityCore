@@ -41,42 +41,6 @@ EndContentData */
 #include "TemporarySummon.h"
 
 /*######
-## npc_beaten_corpse
-######*/
-
-enum BeatenCorpse
-{
-    GOSSIP_OPTION_ID_BEATEN_CORPSE  = 0,
-    GOSSIP_MENU_OPTION_INSPECT_BODY = 2871
-};
-
-class npc_beaten_corpse : public CreatureScript
-{
-    public:
-        npc_beaten_corpse() : CreatureScript("npc_beaten_corpse") { }
-
-        struct npc_beaten_corpseAI : public ScriptedAI
-        {
-            npc_beaten_corpseAI(Creature* creature) : ScriptedAI(creature) { }
-
-            bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
-            {
-                if (menuId == GOSSIP_MENU_OPTION_INSPECT_BODY && gossipListId == GOSSIP_OPTION_ID_BEATEN_CORPSE)
-                {
-                    CloseGossipMenuFor(player);
-                    player->TalkedToCreature(me->GetEntry(), me->GetGUID());
-                }
-                return false;
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return new npc_beaten_corpseAI(creature);
-        }
-};
-
-/*######
 # npc_gilthares
 ######*/
 
@@ -150,7 +114,7 @@ public:
             }
         }
 
-        void QuestAccept(Player* player, Quest const* quest) override
+        void OnQuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_FREE_FROM_HOLD)
             {
@@ -220,17 +184,17 @@ public:
             me->RemoveAllAuras();
             me->CombatStop(true);
             me->StopMoving();
-            
+
             EngagementOver();
-            
+
             me->GetMotionMaster()->MoveIdle();
             me->SetFaction(FACTION_FRIENDLY);
             me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
         }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
         {
-            if (spell->Id == SPELL_FLARE || spell->Id == SPELL_FOLLY)
+            if (spellInfo->Id == SPELL_FLARE || spellInfo->Id == SPELL_FOLLY)
             {
                 ++FlareCount;
 
@@ -414,7 +378,7 @@ public:
 
                         for (uint8 i = 0; i < 6; ++i)
                         {
-                            Creature* creature = me->SummonCreature(NPC_AFFRAY_CHALLENGER, AffrayChallengerLoc[i], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
+                            Creature* creature = me->SummonCreature(NPC_AFFRAY_CHALLENGER, AffrayChallengerLoc[i], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10min);
                             if (!creature)
                                 continue;
                             creature->SetFaction(35);
@@ -466,7 +430,7 @@ public:
                         }
                         else if (Wave >= 6 && !EventBigWill)
                         {
-                            if (Creature* creature = me->SummonCreature(NPC_BIG_WILL, -1722, -4341, 6.12f, 6.26f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 480000))
+                            if (Creature* creature = me->SummonCreature(NPC_BIG_WILL, -1722, -4341, 6.12f, 6.26f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 8min))
                             {
                                 BigWill = creature->GetGUID();
                                 //creature->GetMotionMaster()->MovePoint(0, -1693, -4343, 4.32f);
@@ -552,10 +516,10 @@ public:
                     SetRun(false);
                     break;
                 case 17:
-                    if (Creature* temp = me->SummonCreature(NPC_MERCENARY, 1128.489f, -3037.611f, 92.701f, 1.472f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000))
+                    if (Creature* temp = me->SummonCreature(NPC_MERCENARY, 1128.489f, -3037.611f, 92.701f, 1.472f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 2min))
                     {
                         temp->AI()->Talk(SAY_MERCENARY);
-                        me->SummonCreature(NPC_MERCENARY, 1160.172f, -2980.168f, 97.313f, 3.690f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                        me->SummonCreature(NPC_MERCENARY, 1160.172f, -2980.168f, 97.313f, 3.690f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 2min);
                     }
                     break;
                 case 24:
@@ -625,7 +589,7 @@ public:
                     {
                         player->GroupEventHappens(QUEST_ESCAPE, me);
                         me->DespawnOrUnsummon(5min);
-                        me->SummonCreature(NPC_PILOT_WIZZ, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 180000);
+                        me->SummonCreature(NPC_PILOT_WIZZ, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 3min);
                     }
                     break;
             }
@@ -634,7 +598,7 @@ public:
             PostEventTimer = 5000;
         }
 
-        void QuestAccept(Player* player, Quest const* quest) override
+        void OnQuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_ESCAPE)
             {
@@ -655,7 +619,6 @@ public:
 
 void AddSC_the_barrens()
 {
-    new npc_beaten_corpse();
     new npc_gilthares();
     new npc_taskmaster_fizzule();
     new npc_twiggy_flathead();

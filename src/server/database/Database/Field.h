@@ -20,6 +20,9 @@
 
 #include "Define.h"
 #include "DatabaseEnvFwd.h"
+#include <array>
+#include <string>
+#include <string_view>
 #include <vector>
 
 enum class DatabaseFieldTypes : uint8
@@ -34,6 +37,17 @@ enum class DatabaseFieldTypes : uint8
     Decimal,
     Date,
     Binary
+};
+
+struct QueryResultFieldMetadata
+{
+    char const* TableName = nullptr;
+    char const* TableAlias = nullptr;
+    char const* Name = nullptr;
+    char const* Alias = nullptr;
+    char const* TypeName = nullptr;
+    uint32 Index = 0;
+    DatabaseFieldTypes Type = DatabaseFieldTypes::Null;
 };
 
 /**
@@ -92,54 +106,43 @@ class TC_DATABASE_API Field
         double GetDouble() const;
         char const* GetCString() const;
         std::string GetString() const;
+        std::string_view GetStringView() const;
         std::vector<uint8> GetBinary() const;
+        template <size_t S>
+        std::array<uint8, S> GetBinary() const
+        {
+            std::array<uint8, S> buf;
+            GetBinarySizeChecked(buf.data(), S);
+            return buf;
+        }
+
 
         bool IsNull() const
         {
             return data.value == nullptr;
         }
 
-        struct Metadata
-        {
-            char const* TableName;
-            char const* TableAlias;
-            char const* Name;
-            char const* Alias;
-            char const* Type;
-            uint32 Index;
-        };
-
     protected:
-        #pragma pack(push, 1)
         struct
         {
-            uint32 length;            // Length (prepared strings only)
-            void* value;              // Actual data in memory
-            DatabaseFieldTypes type;  // Field type
-            bool raw;                 // Raw bytes? (Prepared statement or ad hoc)
+            char const* value;          // Actual data in memory
+            uint32 length;              // Length
+            bool raw;                   // Raw bytes? (Prepared statement or ad hoc)
          } data;
-        #pragma pack(pop)
 
-        void SetByteValue(void* newValue, DatabaseFieldTypes newType, uint32 length);
-        void SetStructuredValue(char* newValue, DatabaseFieldTypes newType, uint32 length);
-
-        void CleanUp()
-        {
-            // Field does not own the data if fetched with prepared statement
-            if (!data.raw)
-                delete[] ((char*)data.value);
-            data.value = nullptr;
-        }
+        void SetByteValue(char const* newValue, uint32 length);
+        void SetStructuredValue(char const* newValue, uint32 length);
 
         bool IsType(DatabaseFieldTypes type) const;
 
         bool IsNumeric() const;
 
     private:
-        #ifdef TRINITY_STRICT_DATABASE_TYPE_CHECKS
-        void SetMetadata(MySQLField* field, uint32 fieldIndex);
-        Metadata meta;
-        #endif
+        QueryResultFieldMetadata const* meta;
+        void LogWrongType(char const* getter) const;
+        void SetMetadata(QueryResultFieldMetadata const* fieldMeta);
+
+        void GetBinarySizeChecked(uint8* buf, size_t size) const;
 };
 
 #endif

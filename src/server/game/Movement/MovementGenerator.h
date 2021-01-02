@@ -69,6 +69,8 @@ class TC_GAME_API MovementGenerator
         // used by Evade code for select point to evade with expected restart default movement
         virtual bool GetResetPosition(Unit*, float&/* x*/, float&/* y*/, float&/* z*/) { return false; }
 
+        virtual void NotifyAIOnFinalize(Unit*);
+
         void AddFlag(uint16 const flag) { Flags |= flag; }
         bool HasFlag(uint16 const flag) const { return (Flags & flag) != 0; }
         void RemoveFlag(uint16 const flag) { Flags &= ~flag; }

@@ -100,7 +100,13 @@ public:
         {
             instance = creature->GetInstanceScript();
             creature->RestoreFaction();
-            Reset();
+            Initialize();
+        }
+
+        void Initialize()
+        {
+            uiTimer = 0;
+            uiPhase = 0;
         }
 
         InstanceScript* instance;
@@ -115,8 +121,7 @@ public:
         {
             if (!HasEscortState(STATE_ESCORT_ESCORTING))
             {
-                uiTimer = 0;
-                uiPhase = 0;
+                Initialize();
 
                 RestoreAll();
 
@@ -125,7 +130,7 @@ public:
             }
         }
 
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
             if (gossipListId == 0)
             {
@@ -157,7 +162,7 @@ public:
             {
                 if (GameObject* go = ObjectAccessor::GetGameObject(*me, *itr))
                 {
-                    if (Creature* trigger = go->SummonTrigger(go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), 0, 1))
+                    if (Creature* trigger = go->SummonTrigger(go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), 0, 1ms))
                     {
                         //visual effects are not working!
                         trigger->CastSpell(trigger, 11542, true);
@@ -292,19 +297,19 @@ public:
             switch (uiCase)
             {
                 case 1:
-                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[1], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[4], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[5], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[6], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[7], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[8], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[9], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
+                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30min);
+                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[1], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30min);
+                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30min);
+                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30min);
+                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[4], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30min);
+                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[5], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30min);
+                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[6], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30min);
+                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[7], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30min);
+                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[8], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30min);
+                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[9], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30min);
                     break;
                 case 2:
-                    if (GameObject* go = me->SummonGameObject(183410, -533.140f, -105.322f, -156.016f, 0.f, QuaternionData(), 1))
+                    if (GameObject* go = me->SummonGameObject(183410, -533.140f, -105.322f, -156.016f, 0.f, QuaternionData(), 1s))
                     {
                         GoSummonList.push_back(go->GetGUID());
                         go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE); //We can't use it!
@@ -312,28 +317,28 @@ public:
                     Summon(3);
                     break;
                 case 3:
-                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[1], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
+                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30min);
+                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[1], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30min);
+                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30min);
+                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30min);
                     Talk(SAY_BLASTMASTER_7);
                     break;
                 case 4:
-                    if (GameObject* go = me->SummonGameObject(183410, -542.199f, -96.854f, -155.790f, 0.f, QuaternionData(), 1))
+                    if (GameObject* go = me->SummonGameObject(183410, -542.199f, -96.854f, -155.790f, 0.f, QuaternionData(), 1s))
                     {
                         GoSummonList.push_back(go->GetGUID());
                         go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     }
                     break;
                 case 5:
-                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[10], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[11], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[12], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[13], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[14], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
+                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[10], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30min);
+                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[11], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30min);
+                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[12], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30min);
+                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[13], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30min);
+                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[14], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30min);
                     break;
                 case 6:
-                    if (GameObject* go = me->SummonGameObject(183410, -507.820f, -103.333f, -151.353f, 0.f, QuaternionData(), 1))
+                    if (GameObject* go = me->SummonGameObject(183410, -507.820f, -103.333f, -151.353f, 0.f, QuaternionData(), 1s))
                     {
                         GoSummonList.push_back(go->GetGUID());
                         go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE); //We can't use it!
@@ -341,21 +346,21 @@ public:
                     }
                     break;
                 case 7:
-                    if (GameObject* go = me->SummonGameObject(183410, -511.829f, -86.249f, -151.431f, 0.f, QuaternionData(), 1))
+                    if (GameObject* go = me->SummonGameObject(183410, -511.829f, -86.249f, -151.431f, 0.f, QuaternionData(), 1s))
                     {
                         GoSummonList.push_back(go->GetGUID());
                         go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE); //We can't use it!
                     }
                     break;
                 case 8:
-                    if (Creature* grubbis = me->SummonCreature(NPC_GRUBBIS, SpawnPosition[15], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000))
+                    if (Creature* grubbis = me->SummonCreature(NPC_GRUBBIS, SpawnPosition[15], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30min))
                         grubbis->AI()->Talk(SAY_GRUBBIS);
-                    me->SummonCreature(NPC_CHOMPER, SpawnPosition[16], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
+                    me->SummonCreature(NPC_CHOMPER, SpawnPosition[16], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30min);
                     break;
                 case 9:
-                    me->SummonGameObject(GO_RED_ROCKET, SpawnPosition[17], QuaternionData(), 7200);
-                    me->SummonGameObject(GO_RED_ROCKET, SpawnPosition[18], QuaternionData(), 7200);
-                    me->SummonGameObject(GO_RED_ROCKET, SpawnPosition[19], QuaternionData(), 7200);
+                    me->SummonGameObject(GO_RED_ROCKET, SpawnPosition[17], QuaternionData(), 2h);
+                    me->SummonGameObject(GO_RED_ROCKET, SpawnPosition[18], QuaternionData(), 2h);
+                    me->SummonGameObject(GO_RED_ROCKET, SpawnPosition[19], QuaternionData(), 2h);
                     break;
             }
         }

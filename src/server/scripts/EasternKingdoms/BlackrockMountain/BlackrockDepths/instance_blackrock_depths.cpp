@@ -90,7 +90,7 @@ public:
 
     struct instance_blackrock_depths_InstanceMapScript : public InstanceScript
     {
-        instance_blackrock_depths_InstanceMapScript(Map* map) : InstanceScript(map)
+        instance_blackrock_depths_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
         {
             SetHeaders(DataHeader);
             memset(&encounter, 0, sizeof(encounter));
@@ -415,7 +415,7 @@ public:
 
         void TombOfSevenEnd()
         {
-            DoRespawnGameObject(GoChestGUID, DAY);
+            DoRespawnGameObject(GoChestGUID, 24h);
             HandleGameObject(GoTombExitGUID, true);//event done, open exit door
             HandleGameObject(GoTombEnterGUID, true);//event done, open entrance door
             TombEventStarterGUID.Clear();

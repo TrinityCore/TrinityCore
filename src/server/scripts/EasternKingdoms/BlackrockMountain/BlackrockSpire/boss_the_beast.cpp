@@ -85,10 +85,10 @@ struct boss_the_beast : public BossAI
             me->GetMotionMaster()->MovePath(BEAST_MOVEMENT_ID, true);
     }
 
-    void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
     {
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            if (spell->Effects[i].IsEffect(SPELL_EFFECT_SKINNING))
+            if (spellInfo->Effects[i].IsEffect(SPELL_EFFECT_SKINNING))
                 if (!me->IsAlive()) // can that even happen?
                     DoCastAOE(SPELL_FINKLE_IS_EINHORN, true);
     }
@@ -131,7 +131,7 @@ struct boss_the_beast : public BossAI
                         if (Creature* orc = ObjectAccessor::GetCreature(*me, guid))
                         {
                             orc->GetMotionMaster()->MovePoint(1, orc->GetRandomPoint(OrcsRunawayPosition, 5.0f));
-                            orc->m_Events.AddEvent(new OrcDeathEvent(orc), me->m_Events.CalculateTime(6 * IN_MILLISECONDS));
+                            orc->m_Events.AddEvent(new OrcDeathEvent(orc), me->m_Events.CalculateTime(6s));
                             orc->SetReactState(REACT_PASSIVE);
                         }
                     }
@@ -175,7 +175,7 @@ struct boss_the_beast : public BossAI
                     events.Repeat(Seconds(10));
                     break;
                 case EVENT_IMMOLATE:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.f, true))
                         DoCast(target, SPELL_IMMOLATE);
                     events.Repeat(Seconds(8));
                     break;
@@ -184,7 +184,7 @@ struct boss_the_beast : public BossAI
                     events.Repeat(Seconds(20));
                     break;
                 case EVENT_BERSERKER_CHARGE:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 38.f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 38.f, true))
                         DoCast(target, SPELL_BERSERKER_CHARGE);
                     events.Repeat(Seconds(15), Seconds(23));
                     break;

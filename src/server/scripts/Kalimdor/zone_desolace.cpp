@@ -24,9 +24,6 @@ EndScriptData */
 
 /* ContentData
 npc_aged_dying_ancient_kodo
-go_iruxos
-npc_dalinda_malem
-go_demon_portal
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -77,40 +74,44 @@ public:
             }
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
         {
-            if (spell->Id == SPELL_KODO_KOMBO_ITEM)
+            Unit* unitCaster = caster->ToUnit();
+            if (!unitCaster)
+                return;
+
+            if (spellInfo->Id == SPELL_KODO_KOMBO_ITEM)
             {
-                if (!(caster->HasAura(SPELL_KODO_KOMBO_PLAYER_BUFF) || me->HasAura(SPELL_KODO_KOMBO_DESPAWN_BUFF))
+                if (!(unitCaster->HasAura(SPELL_KODO_KOMBO_PLAYER_BUFF) || me->HasAura(SPELL_KODO_KOMBO_DESPAWN_BUFF))
                     && (me->GetEntry() == NPC_AGED_KODO || me->GetEntry() == NPC_DYING_KODO || me->GetEntry() == NPC_ANCIENT_KODO))
                 {
-                    caster->CastSpell(caster, SPELL_KODO_KOMBO_PLAYER_BUFF, true);
+                    unitCaster->CastSpell(unitCaster, SPELL_KODO_KOMBO_PLAYER_BUFF, true);
                     DoCast(me, SPELL_KODO_KOMBO_DESPAWN_BUFF, true);
 
                     me->UpdateEntry(NPC_TAMED_KODO);
                     me->CombatStop();
                     me->SetFaction(FACTION_FRIENDLY);
                     me->SetSpeedRate(MOVE_RUN, 0.6f);
-                    
+
                     EngagementOver();
-                    
-                    me->GetMotionMaster()->MoveFollow(caster, PET_FOLLOW_DIST, me->GetFollowAngle());
+
+                    me->GetMotionMaster()->MoveFollow(unitCaster, PET_FOLLOW_DIST, me->GetFollowAngle());
                     me->setActive(true);
                     me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
             }
-            else if (spell->Id == SPELL_KODO_KOMBO_GOSSIP)
+            else if (spellInfo->Id == SPELL_KODO_KOMBO_GOSSIP)
             {
                 me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
                 me->GetMotionMaster()->Clear();
                 me->GetMotionMaster()->MoveIdle();
                 me->setActive(false);
-                me->DespawnOrUnsummon(60000);
+                me->DespawnOrUnsummon(60s);
             }
         }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             if (player->HasAura(SPELL_KODO_KOMBO_PLAYER_BUFF) && me->HasAura(SPELL_KODO_KOMBO_DESPAWN_BUFF))
             {
@@ -130,43 +131,7 @@ public:
 
 };
 
-/*######
-## go_iruxos
-## Hand of Iruxos
-######*/
-
-enum Iruxos
-{
-    QUEST_HAND_IRUXOS   = 5381,
-    NPC_DEMON_SPIRIT    = 11876
-};
-
-class go_iruxos : public GameObjectScript
-{
-    public:
-        go_iruxos() : GameObjectScript("go_iruxos") { }
-
-        struct go_iruxosAI : public GameObjectAI
-        {
-            go_iruxosAI(GameObject* go) : GameObjectAI(go) { }
-
-            bool GossipHello(Player* player) override
-            {
-                if (player->GetQuestStatus(QUEST_HAND_IRUXOS) == QUEST_STATUS_INCOMPLETE && !me->FindNearestCreature(NPC_DEMON_SPIRIT, 25.0f, true))
-                    player->SummonCreature(NPC_DEMON_SPIRIT, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
-
-                return true;
-            }
-        };
-
-        GameObjectAI* GetAI(GameObject* go) const override
-        {
-            return new go_iruxosAI(go);
-        }
-};
-
 void AddSC_desolace()
 {
     new npc_aged_dying_ancient_kodo();
-    new go_iruxos();
 }

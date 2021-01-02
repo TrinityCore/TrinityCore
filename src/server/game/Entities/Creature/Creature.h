@@ -65,6 +65,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void AddToWorld() override;
         void RemoveFromWorld() override;
 
+        float GetNativeObjectScale() const override;
         void SetObjectScale(float scale) override;
         void SetDisplayId(uint32 modelId) override;
 
@@ -82,7 +83,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         void Update(uint32 time) override;                         // overwrited Unit::Update
         void GetRespawnPosition(float &x, float &y, float &z, float* ori = nullptr, float* dist = nullptr) const;
-        bool IsSpawnedOnTransport() const { return m_creatureData && m_creatureData->spawnPoint.GetMapId() != GetMapId(); }
+        bool IsSpawnedOnTransport() const { return m_creatureData && m_creatureData->mapId != GetMapId(); }
 
         void SetCorpseDelay(uint32 delay) { m_corpseDelay = delay; }
         uint32 GetCorpseDelay() const { return m_corpseDelay; }
@@ -97,8 +98,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         CreatureMovementData const& GetMovementTemplate() const;
         bool CanWalk() const { return GetMovementTemplate().IsGroundAllowed(); }
         bool CanEnterWater() const override;
-        bool CanFly()  const override { return GetMovementTemplate().IsFlightAllowed(); }
-        bool CanHover() const { return GetMovementTemplate().Ground == CreatureGroundMovementType::Hover; }
+        bool CanFly()  const override { return GetMovementTemplate().IsFlightAllowed() || IsFlying(); }
+        bool CanHover() const { return GetMovementTemplate().Ground == CreatureGroundMovementType::Hover || IsHovering(); }
 
         MovementGeneratorType GetDefaultMovementType() const override { return m_defaultMovementType; }
         void SetDefaultMovementType(MovementGeneratorType mgt) { m_defaultMovementType = mgt; }
@@ -146,12 +147,12 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         CreatureAI* AI() const { return reinterpret_cast<CreatureAI*>(GetAI()); }
 
         bool SetWalk(bool enable) override;
-        bool SetDisableGravity(bool disable, bool packetOnly = false) override;
+        bool SetDisableGravity(bool disable, bool packetOnly = false, bool updateAnimationTier = true) override;
         bool SetSwim(bool enable) override;
         bool SetCanFly(bool enable, bool packetOnly = false) override;
         bool SetWaterWalking(bool enable, bool packetOnly = false) override;
         bool SetFeatherFall(bool enable, bool packetOnly = false) override;
-        bool SetHover(bool enable, bool packetOnly = false) override;
+        bool SetHover(bool enable, bool packetOnly = false, bool updateAnimationTier = true) override;
 
         uint32 GetShieldBlockValue() const override;
 
@@ -232,7 +233,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         Unit* SelectNearestTarget(float dist = 0, bool playerOnly = false) const;
         Unit* SelectNearestTargetInAttackDistance(float dist = 0) const;
-        Unit* SelectNearestHostileUnitInAggroRange(bool useLOS = false) const;
+        Unit* SelectNearestHostileUnitInAggroRange(bool useLOS = false, bool ignoreCivilians = false) const;
 
         void DoFleeToGetAssistance();
         void CallForHelp(float fRadius);
@@ -245,8 +246,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         void RemoveCorpse(bool setSpawnTime = true, bool destroyForNearbyPlayers = true);
 
-        void DespawnOrUnsummon(uint32 msTimeToDespawn = 0, Seconds forceRespawnTime = 0s);
-        void DespawnOrUnsummon(Milliseconds time, Seconds forceRespawnTime = 0s) { DespawnOrUnsummon(uint32(time.count()), forceRespawnTime); }
+        void DespawnOrUnsummon(Milliseconds timeToDespawn = 0s, Seconds forceRespawnTime = 0s);
 
         time_t const& GetRespawnTime() const { return m_respawnTime; }
         time_t GetRespawnTimeEx() const;
@@ -257,8 +257,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         uint32 GetRespawnDelay() const { return m_respawnDelay; }
         void SetRespawnDelay(uint32 delay) { m_respawnDelay = delay; }
 
-        float GetRespawnRadius() const { return m_respawnradius; }
-        void SetRespawnRadius(float dist) { m_respawnradius = dist; }
+        float GetWanderDistance() const { return m_wanderDistance; }
+        void SetWanderDistance(float dist) { m_wanderDistance = dist; }
 
         void DoImmediateBoundaryCheck() { m_boundaryCheckTime = 0; }
         uint32 GetCombatPulseDelay() const { return m_combatPulseDelay; }
@@ -283,13 +283,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         virtual uint32 GetPetAutoSpellOnPos(uint8 pos) const;
         float GetPetChaseDistance() const;
 
-        void SetCannotReachTarget(bool cannotReach)
-        {
-            if (cannotReach == m_cannotReachTarget)
-                return;
-            m_cannotReachTarget = cannotReach;
-            m_cannotReachTimer = 0;
-        }
+        void SetCannotReachTarget(bool cannotReach);
         bool CanNotReachTarget() const { return m_cannotReachTarget; }
 
         void SetHomePosition(float x, float y, float z, float o) { m_homePosition.Relocate(x, y, z, o); }
@@ -315,7 +309,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         CreatureGroup* GetFormation() { return m_formation; }
         void SetFormation(CreatureGroup* formation) { m_formation = formation; }
         bool IsFormationLeader() const;
-        void SignalFormationMovement(Position const& destination, uint32 id = 0, uint32 moveType = 0, bool orientation = false);
+        void SignalFormationMovement();
         bool IsFormationLeaderMoveAllowed() const;
 
         void SetDisableReputationGain(bool disable) { DisableReputationGain = disable; }
@@ -387,7 +381,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         time_t m_respawnTime;                               // (secs) time of next respawn
         uint32 m_respawnDelay;                              // (secs) delay between corpse disappearance and respawning
         uint32 m_corpseDelay;                               // (secs) delay between death and corpse disappearance
-        float m_respawnradius;
+        float m_wanderDistance;
         uint32 m_boundaryCheckTime;                         // (msecs) remaining time for next evade boundary check
         uint32 m_combatPulseTime;                           // (msecs) remaining time for next zone-in-combat pulse
         uint32 m_combatPulseDelay;                          // (secs) how often the creature puts the entire zone in combat (only works in dungeons)

@@ -328,11 +328,11 @@ namespace VMAP
 
     void StaticMapTree::UnloadMap(VMapManager2* vm)
     {
-        for (loadedSpawnMap::iterator i = iLoadedSpawns.begin(); i != iLoadedSpawns.end(); ++i)
+        for (std::pair<uint32 const, uint32>& iLoadedSpawn : iLoadedSpawns)
         {
-            iTreeValues[i->first].setUnloaded();
-            for (uint32 refCount = 0; refCount < i->second; ++refCount)
-                vm->releaseModelInstance(iTreeValues[i->first].name);
+            iTreeValues[iLoadedSpawn.first].setUnloaded();
+            for (uint32 refCount = 0; refCount < iLoadedSpawn.second; ++refCount)
+                vm->releaseModelInstance(iTreeValues[iLoadedSpawn.first].name);
         }
         iLoadedSpawns.clear();
         iLoadedTiles.clear();

@@ -19,7 +19,8 @@
 #define ICECROWN_CITADEL_H_
 
 #include "CreatureAIImpl.h"
-#include "ScriptMgr.h"
+#include "SpellDefines.h"
+#include "SpellScript.h"
 
 #define ICCScriptName "instance_icecrown_citadel"
 #define DataHeader "IC"
@@ -31,6 +32,7 @@ enum ICSharedSpells
 {
     SPELL_BERSERK                       = 26662,
     SPELL_BERSERK2                      = 47008,
+    SPELL_REPUTATION_BOSS_KILL          = 73843,
 
     // Deathbound Ward
     SPELL_STONEFORM                     = 70733,
@@ -116,7 +118,8 @@ enum ICDataTypes
     DATA_BLOOD_QUEEN_LANA_THEL_COUNCIL = 42,
     DATA_BLOOD_PRINCE_COUNCIL_INTRO    = 43,
     DATA_SINDRAGOSA_INTRO              = 44,
-    DATA_FACTION_BUFF                  = 45 // used by conditions
+    DATA_FACTION_BUFF                  = 45, // used by conditions
+    DATA_NERUBAR_BROODKEEPER_EVENT     = 46
 };
 
 enum ICCreaturesIds
@@ -146,6 +149,7 @@ enum ICCreaturesIds
     NPC_MURADIN_BRONZEBEARD_QUEST               = 38607,
     NPC_UTHER_THE_LIGHTBRINGER_QUEST            = 38608,
     NPC_LADY_SYLVANAS_WINDRUNNER_QUEST          = 38609,
+    NPC_NERUBAR_BROODKEEPER                     = 36725,
 
     // Weekly quests
     NPC_INFILTRATOR_MINCHAR                     = 38471,
@@ -475,6 +479,9 @@ enum ICAchievementCriteriaIds
 
 enum ICSharedActions
 {
+    // Nerub'ar Broodkeeper event
+    ACTION_NERUBAR_FALL          = 1,
+
     // Icecrown Gunship Battle
     ACTION_ENEMY_GUNSHIP_TALK   = -369390,
     ACTION_EXIT_SHIP            = -369391,
@@ -528,9 +535,10 @@ enum ICWorldStatesICC
     WORLDSTATE_ATTEMPTS_MAX         = 4942
 };
 
-enum ICAreaIds
+enum ICMisc
 {
-    AREA_ICECROWN_CITADEL   = 4812
+    AREA_ICECROWN_CITADEL   = 4812,
+    AT_NERUBAR_BROODKEEPER  = 5611
 };
 
 struct Position;
@@ -548,16 +556,20 @@ extern Position const SpiritWardenSpawn;
 uint32 const WeeklyNPCs = 9;
 uint32 const MaxHeroicAttempts = 50;
 
-class spell_trigger_spell_from_caster : public SpellScriptLoader
+class spell_trigger_spell_from_caster : public SpellScript
 {
-    public:
-        spell_trigger_spell_from_caster(char const* scriptName, uint32 triggerId, TriggerCastFlags triggerFlags);
-        spell_trigger_spell_from_caster(char const* scriptName, uint32 triggerId);
-        SpellScript* GetSpellScript() const override;
+    PrepareSpellScript(spell_trigger_spell_from_caster);
 
-    private:
-        uint32 _triggerId;
-        TriggerCastFlags _triggerFlags;
+public:
+    spell_trigger_spell_from_caster(uint32 triggerId, TriggerCastFlags triggerFlags = TRIGGERED_FULL_MASK);
+
+private:
+    bool Validate(SpellInfo const* spell) override;
+    void HandleTrigger();
+    void Register() override;
+
+    uint32 _triggerId;
+    TriggerCastFlags _triggerFlags;
 };
 
 template <class AI, class T>

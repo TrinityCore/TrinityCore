@@ -262,18 +262,22 @@ Position const SpawnLocation[] =
 
 struct WaveData
 {
-    uint8 SpawnCount, UsedSpawnPoint;
-    uint32 CreatureId, SpawnTimer, YellTimer, DespTimer;
+    uint8 SpawnCount;
+    uint8 UsedSpawnPoint;
+    uint32 CreatureId;
+    uint32 SpawnTimer;
+    uint32 YellTimer;
+    Milliseconds DespTimer;
     int32 WaveTextId;
 };
 
 static WaveData WavesInfo[5] =
 {
-    {30,  0, 15423, 0, 0, 24000, 0},    // Kaldorei Soldier
-    { 3, 35, 15424, 0, 0, 24000, 0},    // Anubisath Conqueror
-    {12, 38, 15414, 0, 0, 24000, 0},    // Qiraji Wasps
-    { 6, 50, 15422, 0, 0, 24000, 0},    // Qiraji Tanks
-    {15, 15, 15423, 0, 0, 24000, 0}     // Kaldorei Soldier
+    {30,  0, 15423, 0, 0, 24s, 0},    // Kaldorei Soldier
+    { 3, 35, 15424, 0, 0, 24s, 0},    // Anubisath Conqueror
+    {12, 38, 15414, 0, 0, 24s, 0},    // Qiraji Wasps
+    { 6, 50, 15422, 0, 0, 24s, 0},    // Qiraji Tanks
+    {15, 15, 15423, 0, 0, 24s, 0}     // Kaldorei Soldier
 
 };
 
@@ -509,11 +513,11 @@ public:
                         DoCast(player, SPELL_CALL_PRISMATIC_BARRIER, true);
                         break;
                     case 37:
-                        me->SummonGameObject(GO_GATE_OF_AHN_QIRAJ, Position(-8130.f, 1525.f, 17.5f, 0.f), QuaternionData(), 0);
+                        me->SummonGameObject(GO_GATE_OF_AHN_QIRAJ, Position(-8130.f, 1525.f, 17.5f, 0.f), QuaternionData(), 0s);
                         break;
                     case 38:
                         DoCast(player, SPELL_CALL_GLYPHS_OF_WARDING, true);
-                        me->SummonGameObject(GO_GLYPH_OF_AHN_QIRAJ, Position(-8130.f, 1525.f, 17.5f, 0.f), QuaternionData(), 0);
+                        me->SummonGameObject(GO_GLYPH_OF_AHN_QIRAJ, Position(-8130.f, 1525.f, 17.5f, 0.f), QuaternionData(), 0s);
                         break;
                     case 39:
                         Talk(ANACHRONOS_SAY_5, Fandral);
@@ -522,7 +526,7 @@ public:
                         Fandral->CastSpell(me, SPELL_CALL_ANCIENTS, true);
                         break;
                     case 41:
-                        Fandral->SummonGameObject(GO_ROOTS_OF_AHN_QIRAJ, Position(-8130.f, 1525.f, 17.5f, 0.f), QuaternionData(), 0);
+                        Fandral->SummonGameObject(GO_ROOTS_OF_AHN_QIRAJ, Position(-8130.f, 1525.f, 17.5f, 0.f), QuaternionData(), 0s);
                         Fandral->AI()->Talk(FANDRAL_SAY_3);
                         break;
                     case 42:
@@ -838,7 +842,7 @@ public:
 
             for (uint8 i = locIndex; i <= count; ++i)
             {
-                uint32 desptimer = WavesInfo[WaveCount].DespTimer;
+                Milliseconds desptimer = WavesInfo[WaveCount].DespTimer;
 
                 if (Creature* spawn = me->SummonCreature(WavesInfo[WaveCount].CreatureId, SpawnLocation[i], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, desptimer))
                 {
@@ -967,17 +971,17 @@ public:
     {
         go_crystalline_tearAI(GameObject* go) : GameObjectAI(go) { }
 
-        void QuestAccept(Player* player, Quest const* quest) override
+        void OnQuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_A_PAWN_ON_THE_ETERNAL_BOARD)
             {
                 if (Creature* trigger = me->FindNearestCreature(ANACHRONOS_QUEST_TRIGGER_INVISIBLE, 100))
                 {
-                    Unit* Merithra = trigger->SummonCreature(NPC_MERITHRA_OF_THE_DREAM, -8034.535f, 1535.14f, 2.61f, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
-                    Unit* Caelestrasz = trigger->SummonCreature(NPC_CAELESTRASZ, -8032.767f, 1533.148f, 2.61f, 1.5f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
-                    Unit* Arygos = trigger->SummonCreature(NPC_ARYGOS, -8034.52f, 1537.843f, 2.61f, 5.7f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
-                    /* Unit* Fandral = */ trigger->SummonCreature(NPC_FANDRAL_STAGHELM, -8028.462f, 1535.843f, 2.61f, 3.141592f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
-                    Creature* Anachronos = trigger->SummonCreature(NPC_ANACHRONOS, -8028.75f, 1538.795f, 2.61f, 4, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
+                    Unit* Merithra = trigger->SummonCreature(NPC_MERITHRA_OF_THE_DREAM, -8034.535f, 1535.14f, 2.61f, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220s);
+                    Unit* Caelestrasz = trigger->SummonCreature(NPC_CAELESTRASZ, -8032.767f, 1533.148f, 2.61f, 1.5f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220s);
+                    Unit* Arygos = trigger->SummonCreature(NPC_ARYGOS, -8034.52f, 1537.843f, 2.61f, 5.7f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220s);
+                    /* Unit* Fandral = */ trigger->SummonCreature(NPC_FANDRAL_STAGHELM, -8028.462f, 1535.843f, 2.61f, 3.141592f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220s);
+                    Creature* Anachronos = trigger->SummonCreature(NPC_ANACHRONOS, -8028.75f, 1538.795f, 2.61f, 4, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220s);
 
                     if (Merithra)
                     {
@@ -1211,7 +1215,7 @@ class go_wind_stone : public GameObjectScript
                 void SummonNPC(GameObject* go, Player* player, uint32 npc, uint32 spell)
                 {
                     go->CastSpell(player, spell);
-                    TempSummon* summons = go->SummonCreature(npc, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), player->GetOrientation() - float(M_PI), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10 * 60 * 1000);
+                    TempSummon* summons = go->SummonCreature(npc, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), player->GetOrientation() - float(M_PI), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10min);
                     summons->CastSpell(summons, SPELL_SPAWN_IN, false);
                     switch (summons->GetEntry())
                     {
@@ -1240,7 +1244,7 @@ class go_wind_stone : public GameObjectScript
                 }
 
             public:
-                bool GossipHello(Player* player) override
+                bool OnGossipHello(Player* player) override
                 {
                     uint8 rank = GetPlayerRank(player);
 
@@ -1318,7 +1322,7 @@ class go_wind_stone : public GameObjectScript
                     return true;
                 }
 
-                bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+                bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
                 {
                     uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
                     ClearGossipMenuFor(player);
@@ -1435,5 +1439,5 @@ void AddSC_silithus()
     new npc_anachronos_the_ancient();
     new npc_qiraj_war_spawn();
     new go_wind_stone();
-    RegisterAuraScript(spell_silithus_summon_cultist_periodic);
+    RegisterSpellScript(spell_silithus_summon_cultist_periodic);
 }

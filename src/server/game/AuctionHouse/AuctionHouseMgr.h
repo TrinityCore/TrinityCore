@@ -72,6 +72,12 @@ enum AuctionHouses
     AUCTIONHOUSE_NEUTRAL        = 7
 };
 
+enum AuctionEntryFlag : uint8
+{
+    AUCTION_ENTRY_FLAG_NONE         = 0x0,
+    AUCTION_ENTRY_FLAG_GM_LOG_BUYER = 0x1  // write transaction to gm log file for buyer (optimization flag - avoids querying database for offline player permissions)
+};
+
 struct TC_GAME_API AuctionEntry
 {
     uint32 Id;
@@ -89,18 +95,20 @@ struct TC_GAME_API AuctionEntry
     uint32 etime;
     std::unordered_set<ObjectGuid> bidders;
     AuctionHouseEntry const* auctionHouseEntry;             // in AuctionHouse.dbc
+    AuctionEntryFlag Flags;
 
     // helpers
     uint8 GetHouseId() const { return houseId; }
     uint32 GetAuctionCut() const;
     uint32 GetAuctionOutBid() const;
     bool BuildAuctionInfo(WorldPacket & data, Item* sourceItem = nullptr) const;
-    void DeleteFromDB(SQLTransaction& trans) const;
-    void SaveToDB(SQLTransaction& trans) const;
+    void DeleteFromDB(CharacterDatabaseTransaction trans) const;
+    void SaveToDB(CharacterDatabaseTransaction trans) const;
     bool LoadFromDB(Field* fields);
     std::string BuildAuctionMailSubject(MailAuctionAnswers response) const;
-    static std::string BuildAuctionMailBody(ObjectGuid::LowType lowGuid, uint32 bid, uint32 buyout, uint32 deposit, uint32 cut);
-
+    static std::string BuildAuctionWonMailBody(ObjectGuid guid, uint32 bid, uint32 buyout);
+    static std::string BuildAuctionSoldMailBody(ObjectGuid guid, uint32 bid, uint32 buyout, uint32 deposit, uint32 consignment);
+    static std::string BuildAuctionInvoiceMailBody(ObjectGuid guid, uint32 bid, uint32 buyout, uint32 deposit, uint32 consignment, uint32 moneyDelay, uint32 eta);
 };
 
 //this class is used as auctionhouse instance
@@ -175,12 +183,12 @@ class TC_GAME_API AuctionHouseMgr
         }
 
         //auction messages
-        void SendAuctionWonMail(AuctionEntry* auction, SQLTransaction& trans);
-        void SendAuctionSalePendingMail(AuctionEntry* auction, SQLTransaction& trans);
-        void SendAuctionSuccessfulMail(AuctionEntry* auction, SQLTransaction& trans);
-        void SendAuctionExpiredMail(AuctionEntry* auction, SQLTransaction& trans);
-        void SendAuctionOutbiddedMail(AuctionEntry* auction, uint32 newPrice, Player* newBidder, SQLTransaction& trans);
-        void SendAuctionCancelledToBidderMail(AuctionEntry* auction, SQLTransaction& trans);
+        void SendAuctionWonMail(AuctionEntry* auction, CharacterDatabaseTransaction trans);
+        void SendAuctionSalePendingMail(AuctionEntry* auction, CharacterDatabaseTransaction trans);
+        void SendAuctionSuccessfulMail(AuctionEntry* auction, CharacterDatabaseTransaction trans);
+        void SendAuctionExpiredMail(AuctionEntry* auction, CharacterDatabaseTransaction trans);
+        void SendAuctionOutbiddedMail(AuctionEntry* auction, uint32 newPrice, Player* newBidder, CharacterDatabaseTransaction trans);
+        void SendAuctionCancelledToBidderMail(AuctionEntry* auction, CharacterDatabaseTransaction trans);
 
         static uint32 GetAuctionDeposit(AuctionHouseEntry const* entry, uint32 time, Item* pItem, uint32 count);
         static AuctionHouseEntry const* GetAuctionHouseEntry(uint32 factionTemplateId);
@@ -192,7 +200,7 @@ class TC_GAME_API AuctionHouseMgr
         void LoadAuctions();
 
         void AddAItem(Item* it);
-        bool RemoveAItem(ObjectGuid::LowType id, bool deleteItem = false, SQLTransaction* trans = nullptr);
+        bool RemoveAItem(ObjectGuid::LowType id, bool deleteItem = false, CharacterDatabaseTransaction* trans = nullptr);
         bool PendingAuctionAdd(Player* player, AuctionEntry* aEntry);
         uint32 PendingAuctionCount(Player const* player) const;
         void PendingAuctionProcess(Player* player);

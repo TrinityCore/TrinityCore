@@ -17,6 +17,9 @@
 
 #include "AppenderConsole.h"
 #include "LogMessage.h"
+#include "SmartEnum.h"
+#include "StringFormat.h"
+#include "StringConvert.h"
 #include "Util.h"
 #include <sstream>
 
@@ -24,17 +27,17 @@
   #include <Windows.h>
 #endif
 
-AppenderConsole::AppenderConsole(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags, std::vector<char const*> extraArgs)
+AppenderConsole::AppenderConsole(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags, std::vector<std::string_view> const& args)
     : Appender(id, name, level, flags), _colored(false)
 {
     for (uint8 i = 0; i < NUM_ENABLED_LOG_LEVELS; ++i)
-        _colors[i] = ColorTypes(MaxColors);
+        _colors[i] = ColorTypes(NUM_COLOR_TYPES);
 
-    if (!extraArgs.empty())
-        InitColors(extraArgs[0]);
+    if (3 < args.size())
+        InitColors(name, args[3]);
 }
 
-void AppenderConsole::InitColors(std::string const& str)
+void AppenderConsole::InitColors(std::string const& name, std::string_view str)
 {
     if (str.empty())
     {
@@ -42,23 +45,23 @@ void AppenderConsole::InitColors(std::string const& str)
         return;
     }
 
-    int color[NUM_ENABLED_LOG_LEVELS];
-
-    std::istringstream ss(str);
-
-    for (uint8 i = 0; i < NUM_ENABLED_LOG_LEVELS; ++i)
+    std::vector<std::string_view> colorStrs = Trinity::Tokenize(str, ' ', false);
+    if (colorStrs.size() != NUM_ENABLED_LOG_LEVELS)
     {
-        ss >> color[i];
-
-        if (!ss)
-            return;
-
-        if (color[i] < 0 || color[i] >= MaxColors)
-            return;
+        throw InvalidAppenderArgsException(Trinity::StringFormat("Log::CreateAppenderFromConfig: Invalid color data '%s' for console appender %s (expected %u entries, got %zu)",
+            std::string(str).c_str(), name.c_str(), NUM_ENABLED_LOG_LEVELS, colorStrs.size()));
     }
 
     for (uint8 i = 0; i < NUM_ENABLED_LOG_LEVELS; ++i)
-        _colors[i] = ColorTypes(color[i]);
+    {
+        if (Optional<uint8> color = Trinity::StringTo<uint8>(colorStrs[i]); color && EnumUtils::IsValid<ColorTypes>(*color))
+            _colors[i] = static_cast<ColorTypes>(*color);
+        else
+        {
+            throw InvalidAppenderArgsException(Trinity::StringFormat("Log::CreateAppenderFromConfig: Invalid color '%s' for log level %s on console appender %s",
+                std::string(colorStrs[i]).c_str(), EnumUtils::ToTitle(static_cast<LogLevel>(i)), name.c_str()));
+        }
+    }
 
     _colored = true;
 }
@@ -66,7 +69,7 @@ void AppenderConsole::InitColors(std::string const& str)
 void AppenderConsole::SetColor(bool stdout_stream, ColorTypes color)
 {
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
-    static WORD WinColorFG[MaxColors] =
+    static WORD WinColorFG[NUM_COLOR_TYPES] =
     {
         0,                                                  // BLACK
         FOREGROUND_RED,                                     // RED
@@ -127,7 +130,7 @@ void AppenderConsole::SetColor(bool stdout_stream, ColorTypes color)
         BG_WHITE
     };
 
-    static uint8 UnixColorFG[MaxColors] =
+    static uint8 UnixColorFG[NUM_COLOR_TYPES] =
     {
         FG_BLACK,                                          // BLACK
         FG_RED,                                            // RED
@@ -146,7 +149,7 @@ void AppenderConsole::SetColor(bool stdout_stream, ColorTypes color)
         FG_WHITE                                           // LWHITE
     };
 
-    fprintf((stdout_stream? stdout : stderr), "\x1b[%d%sm", UnixColorFG[color], (color >= YELLOW && color < MaxColors ? ";1" : ""));
+    fprintf((stdout_stream? stdout : stderr), "\x1b[%d%sm", UnixColorFG[color], (color >= YELLOW && color < NUM_COLOR_TYPES ? ";1" : ""));
     #endif
 }
 
@@ -185,7 +188,7 @@ void AppenderConsole::_write(LogMessage const* message)
                index = 0;
                break;
             case LOG_LEVEL_ERROR:
-                /* fallthrough */
+                [[fallthrough]];
             default:
                index = 1;
                break;

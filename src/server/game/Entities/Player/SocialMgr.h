@@ -142,7 +142,7 @@ class SocialMgr
         // Misc
         void RemovePlayerSocial(ObjectGuid const& guid) { _socialMap.erase(guid); }
 
-        void GetFriendInfo(Player* player, ObjectGuid const& friendGUID, FriendInfo& friendInfo);
+        static void GetFriendInfo(Player* player, ObjectGuid const& friendGUID, FriendInfo& friendInfo);
 
         // Packet send's
         void SendFriendStatus(Player* player, FriendsResult result, ObjectGuid const& friendGuid, bool broadcast = false);

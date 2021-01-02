@@ -128,10 +128,10 @@ class boss_archaedas : public CreatureScript
                 me->SetControlled(false, UNIT_STATE_ROOT);
             }
 
-            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
                 // Being woken up from the altar, start the awaken sequence
-                if (spell->Id == SPELL_ARCHAEDAS_AWAKEN)
+                if (spellInfo->Id == SPELL_ARCHAEDAS_AWAKEN)
                 {
                     Talk(SAY_AGGRO);
                     iAwakenTimer = 4000;
@@ -279,10 +279,10 @@ class npc_archaedas_minions : public CreatureScript
                 bAmIAwake = true;
             }
 
-            void SpellHit(Unit * /*caster*/, SpellInfo const* spell) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
                 // time to wake up, start animation
-                if (spell->Id == SPELL_ARCHAEDAS_AWAKEN)
+                if (spellInfo->Id == SPELL_ARCHAEDAS_AWAKEN)
                 {
                     iAwakenTimer = 5000;
                     bWakingUp = true;
@@ -406,7 +406,7 @@ class go_altar_of_archaedas : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 player->CastSpell(player, SPELL_BOSS_OBJECT_VISUAL, false);
 

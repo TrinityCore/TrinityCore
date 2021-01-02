@@ -29,6 +29,8 @@
 namespace VMAP
 {
     class WorldModel;
+    struct AreaInfo;
+    struct LocationInfo;
     enum class ModelIgnoreFlags : uint32;
 }
 
@@ -38,6 +40,8 @@ struct GameObjectDisplayInfoEntry;
 class TC_COMMON_API GameObjectModelOwnerBase
 {
 public:
+    virtual ~GameObjectModelOwnerBase() = default;
+
     virtual bool IsSpawned() const = 0;
     virtual uint32 GetDisplayId() const = 0;
     virtual uint32 GetPhaseMask() const = 0;
@@ -45,12 +49,11 @@ public:
     virtual float GetOrientation() const = 0;
     virtual float GetScale() const = 0;
     virtual void DebugVisualizeCorner(G3D::Vector3 const& /*corner*/) const = 0;
-    virtual ~GameObjectModelOwnerBase() { }
 };
 
 class TC_COMMON_API GameObjectModel /*, public Intersectable*/
 {
-    GameObjectModel() : phasemask(0), iInvScale(0), iScale(0), iModel(nullptr) { }
+    GameObjectModel() : phasemask(0), iInvScale(0), iScale(0), iModel(nullptr), isWmo(false) { }
 public:
     std::string name;
 
@@ -65,8 +68,12 @@ public:
     void enable(uint32 ph_mask) { phasemask = ph_mask;}
 
     bool isEnabled() const {return phasemask != 0;}
+    bool isMapObject() const { return isWmo; }
 
     bool intersectRay(const G3D::Ray& Ray, float& MaxDist, bool StopAtFirstHit, uint32 ph_mask, VMAP::ModelIgnoreFlags ignoreFlags) const;
+    void intersectPoint(G3D::Vector3 const& point, VMAP::AreaInfo& info, uint32 ph_mask) const;
+    bool GetLocationInfo(G3D::Vector3 const& point, VMAP::LocationInfo& info, uint32 ph_mask) const;
+    bool GetLiquidLevel(G3D::Vector3 const& point, VMAP::LocationInfo& info, float& liqHeight) const;
 
     static GameObjectModel* Create(std::unique_ptr<GameObjectModelOwnerBase> modelOwner, std::string const& dataPath);
 
@@ -83,6 +90,7 @@ private:
     float iScale;
     VMAP::WorldModel* iModel;
     std::unique_ptr<GameObjectModelOwnerBase> owner;
+    bool isWmo;
 };
 
 TC_COMMON_API void LoadGameObjectModelList(std::string const& dataPath);

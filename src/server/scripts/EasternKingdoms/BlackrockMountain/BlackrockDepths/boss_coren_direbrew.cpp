@@ -118,7 +118,7 @@ struct boss_coren_direbrew : public BossAI
 {
     boss_coren_direbrew(Creature* creature) : BossAI(creature, DATA_COREN) { }
 
-    bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+    bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
     {
         if (menuId != GOSSIP_ID)
             return false;
@@ -317,7 +317,7 @@ struct npc_coren_direbrew_sisters : public ScriptedAI
         })
             .Schedule(Seconds(2), [this](TaskContext mugChuck)
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, false, true, -SPELL_HAS_DARK_BREWMAIDENS_BREW))
+            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, false, true, -SPELL_HAS_DARK_BREWMAIDENS_BREW))
                 DoCast(target, SPELL_CHUCK_MUG);
             mugChuck.Repeat(Seconds(4));
         });
@@ -593,7 +593,7 @@ void AddSC_boss_coren_direbrew()
     RegisterSpellScript(spell_direbrew_summon_mole_machine_target_picker);
     RegisterSpellScript(spell_send_mug_target_picker);
     RegisterSpellScript(spell_request_second_mug);
-    RegisterAuraScript(spell_send_mug_control_aura);
-    RegisterAuraScript(spell_barreled_control_aura);
-    RegisterAuraScript(spell_direbrew_disarm);
+    RegisterSpellScript(spell_send_mug_control_aura);
+    RegisterSpellScript(spell_barreled_control_aura);
+    RegisterSpellScript(spell_direbrew_disarm);
 }

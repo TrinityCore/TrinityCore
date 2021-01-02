@@ -142,14 +142,14 @@ ObjectData const objectData[] =
     { 0,                               0                         }
 };
 
-UlduarKeeperDespawnEvent::UlduarKeeperDespawnEvent(Creature* owner, uint32 despawnTimerOffset) : _owner(owner), _despawnTimer(despawnTimerOffset)
+UlduarKeeperDespawnEvent::UlduarKeeperDespawnEvent(Creature* owner, Milliseconds despawnTimerOffset) : _owner(owner), _despawnTimer(despawnTimerOffset)
 {
 }
 
 bool UlduarKeeperDespawnEvent::Execute(uint64 /*eventTime*/, uint32 /*updateTime*/)
 {
     _owner->CastSpell(_owner, SPELL_TELEPORT_KEEPER_VISUAL);
-    _owner->DespawnOrUnsummon(1000 + _despawnTimer);
+    _owner->DespawnOrUnsummon(1s + _despawnTimer);
     return true;
 }
 
@@ -771,7 +771,7 @@ class instance_ulduar : public InstanceMapScript
                         DoUpdateWorldState(WORLD_STATE_ALGALON_TIMER_ENABLED, 1);
                         DoUpdateWorldState(WORLD_STATE_ALGALON_DESPAWN_TIMER, 60);
                         _algalonTimer = 60;
-                        _events.ScheduleEvent(EVENT_DESPAWN_ALGALON, 3600000);
+                        _events.ScheduleEvent(EVENT_DESPAWN_ALGALON, 1h);
                         _events.ScheduleEvent(EVENT_UPDATE_ALGALON_TIMER, 1min);
                         break;
                     case DATA_ALGALON_SUMMON_STATE:
@@ -891,6 +891,7 @@ class instance_ulduar : public InstanceMapScript
                         return keepersCount <= 1;
                     case CRITERIA_ALONE_IN_THE_DARKNESS_10:
                     case CRITERIA_ALONE_IN_THE_DARKNESS_25:
+                    case REALM_FIRST_DEATHS_DEMISE:
                         return keepersCount == 0;
                     case CRITERIA_C_O_U_LEVIATHAN_10:
                     case CRITERIA_C_O_U_LEVIATHAN_25:
@@ -1031,7 +1032,7 @@ class instance_ulduar : public InstanceMapScript
                 {
                     vehicle->RemoveAllPassengers();
                     vehicleCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    vehicleCreature->DespawnOrUnsummon(5 * MINUTE * IN_MILLISECONDS);
+                    vehicleCreature->DespawnOrUnsummon(5min);
                 }
             }
 

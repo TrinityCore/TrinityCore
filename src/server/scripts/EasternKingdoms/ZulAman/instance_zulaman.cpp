@@ -103,7 +103,7 @@ class instance_zulaman : public InstanceMapScript
 
         struct instance_zulaman_InstanceMapScript : public InstanceScript
         {
-            instance_zulaman_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_zulaman_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(MAX_ENCOUNTER);
@@ -159,7 +159,7 @@ class instance_zulaman : public InstanceMapScript
 
                 if (Player* player = playerList.getFirst()->GetSource())
                 {
-                    if (Unit* hostage = player->SummonCreature(HostageInfo[num].npc, HostageInfo[num].pos, TEMPSUMMON_DEAD_DESPAWN, 0))
+                    if (Unit* hostage = player->SummonCreature(HostageInfo[num].npc, HostageInfo[num].pos, TEMPSUMMON_DEAD_DESPAWN))
                     {
                         hostage->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         hostage->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);

@@ -18,20 +18,22 @@
 /* ScriptData
 SDName: Terokkar_Forest
 SD%Complete: 85
-SDComment: Quest support: 9889, 10051, 10052.
+SDComment: Quest support: 9889
 SDCategory: Terokkar Forest
 EndScriptData */
 
 /* ContentData
 npc_unkor_the_ruthless
-npc_isla_starmane
 EndContentData */
 
 #include "ScriptMgr.h"
 #include "GameObject.h"
 #include "Group.h"
+#include "Map.h"
 #include "Player.h"
 #include "ScriptedEscortAI.h"
+#include "Spell.h"
+#include "SpellScript.h"
 #include "WorldSession.h"
 
 /*######
@@ -159,104 +161,24 @@ public:
     };
 };
 
-/*######
-## npc_isla_starmane
-######*/
-enum IslaStarmaneData
+// 40655 - Skyguard Flare
+class spell_skyguard_flare : public SpellScript
 {
-    SAY_PROGRESS_1               = 0,
-    SAY_PROGRESS_2               = 1,
-    SAY_PROGRESS_3               = 2,
-    SAY_PROGRESS_4               = 3,
-    GO_DISTANCE                  = 10,
-    ESCAPE_FROM_FIREWING_POINT_A = 10051,
-    ESCAPE_FROM_FIREWING_POINT_H = 10052,
-    SPELL_TRAVEL_FORM_CAT        = 32447,
-    GO_CAGE                      = 182794
-};
+    PrepareSpellScript(spell_skyguard_flare);
 
-class npc_isla_starmane : public CreatureScript
-{
-public:
-    npc_isla_starmane() : CreatureScript("npc_isla_starmane") { }
-
-    struct npc_isla_starmaneAI : public EscortAI
+    void ModDestHeight(SpellDestination& dest)
     {
-        npc_isla_starmaneAI(Creature* creature) : EscortAI(creature) { }
+        dest._position.m_positionZ = GetCaster()->GetMap()->GetHeight(dest._position.GetPositionX(), dest._position.GetPositionY(), MAX_HEIGHT);
+    }
 
-        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
-        {
-            Player* player = GetPlayerForEscort();
-            if (!player)
-                return;
-
-            switch (waypointId)
-            {
-                case 0:
-                    if (GameObject* Cage = me->FindNearestGameObject(GO_CAGE, GO_DISTANCE))
-                        Cage->SetGoState(GO_STATE_ACTIVE);
-                    break;
-                case 2:
-                    Talk(SAY_PROGRESS_1, player);
-                    break;
-                case 5:
-                    Talk(SAY_PROGRESS_2, player);
-                    break;
-                case 6:
-                    Talk(SAY_PROGRESS_3, player);
-                    break;
-                case 29:
-                    Talk(SAY_PROGRESS_4, player);
-                    if (player->GetTeam() == ALLIANCE)
-                        player->GroupEventHappens(ESCAPE_FROM_FIREWING_POINT_A, me);
-                    else if (player->GetTeam() == HORDE)
-                        player->GroupEventHappens(ESCAPE_FROM_FIREWING_POINT_H, me);
-                    me->SetFacingToObject(player);
-                    break;
-                case 30:
-                    me->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
-                    break;
-                case 31:
-                    DoCast(me, SPELL_TRAVEL_FORM_CAT);
-                    me->SetWalk(false);
-                    break;
-            }
-        }
-
-        void Reset() override
-        {
-            me->RestoreFaction();
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            if (Player* player = GetPlayerForEscort())
-            {
-                if (player->GetTeam() == ALLIANCE)
-                    player->FailQuest(ESCAPE_FROM_FIREWING_POINT_A);
-                else if (player->GetTeam() == HORDE)
-                    player->FailQuest(ESCAPE_FROM_FIREWING_POINT_H);
-            }
-        }
-
-        void QuestAccept(Player* player, Quest const* quest) override
-        {
-            if (quest->GetQuestId() == ESCAPE_FROM_FIREWING_POINT_H || quest->GetQuestId() == ESCAPE_FROM_FIREWING_POINT_A)
-            {
-                Start(true, false, player->GetGUID());
-                me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
+    void Register() override
     {
-        return new npc_isla_starmaneAI(creature);
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_skyguard_flare::ModDestHeight, EFFECT_0, TARGET_DEST_TARGET_RANDOM);
     }
 };
 
 void AddSC_terokkar_forest()
 {
     new npc_unkor_the_ruthless();
-    new npc_isla_starmane();
+    RegisterSpellScript(spell_skyguard_flare);
 }

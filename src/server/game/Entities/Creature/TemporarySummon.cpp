@@ -28,7 +28,7 @@
 
 TempSummon::TempSummon(SummonPropertiesEntry const* properties, WorldObject* owner, bool isWorldObject) :
 Creature(isWorldObject), m_Properties(properties), m_type(TEMPSUMMON_MANUAL_DESPAWN),
-m_timer(0), m_lifetime(0), m_canFollowOwner(true)
+m_timer(0), m_lifetime(0), m_canFollowOwner(true), m_visibleBySummonerOnly(false)
 {
     if (owner)
         m_summonerGUID = owner->GetGUID();
@@ -252,7 +252,7 @@ void TempSummon::UnSummon(uint32 msTime)
     {
         ForcedUnsummonDelayEvent* pEvent = new ForcedUnsummonDelayEvent(*this);
 
-        m_Events.AddEvent(pEvent, m_Events.CalculateTime(msTime));
+        m_Events.AddEvent(pEvent, m_Events.CalculateTime(Milliseconds(msTime)));
         return;
     }
 
@@ -360,7 +360,7 @@ void Minion::setDeathState(DeathState s)
 
 bool Minion::IsGuardianPet() const
 {
-    return IsPet() || (m_Properties && m_Properties->Category == SUMMON_CATEGORY_PET);
+    return IsPet() || (m_Properties && m_Properties->Control == SUMMON_CATEGORY_PET);
 }
 
 std::string Minion::GetDebugInfo() const
@@ -377,7 +377,7 @@ Guardian::Guardian(SummonPropertiesEntry const* properties, Unit* owner, bool is
 {
     memset(m_statFromOwner, 0, sizeof(float)*MAX_STATS);
     m_unitTypeMask |= UNIT_MASK_GUARDIAN;
-    if (properties && (properties->Type == SUMMON_TYPE_PET || properties->Category == SUMMON_CATEGORY_PET))
+    if (properties && (properties->Title == SUMMON_TYPE_PET || properties->Control == SUMMON_CATEGORY_PET))
     {
         m_unitTypeMask |= UNIT_MASK_CONTROLABLE_GUARDIAN;
         InitCharmInfo();

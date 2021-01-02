@@ -169,9 +169,9 @@ void PetAI::UpdateAI(uint32 diff)
                 // No enemy, check friendly
                 if (!spellUsed)
                 {
-                    for (GuidSet::const_iterator tar = _allySet.begin(); tar != _allySet.end(); ++tar)
+                    for (ObjectGuid target : _allySet)
                     {
-                        Unit* ally = ObjectAccessor::GetUnit(*me, *tar);
+                        Unit* ally = ObjectAccessor::GetUnit(*me, target);
 
                         //only buff targets that are in combat, unless the spell can only be cast while out of combat
                         if (!ally)
@@ -218,8 +218,8 @@ void PetAI::UpdateAI(uint32 diff)
         }
 
         // deleted cached Spell objects
-        for (TargetSpellList::const_iterator itr = targetSpellStore.begin(); itr != targetSpellStore.end(); ++itr)
-            delete itr->second;
+        for (std::pair<Unit*, Spell*> const& unitspellpair : targetSpellStore)
+            delete unitspellpair.second;
     }
 
     // Update speed as needed to prevent dropping too far behind and despawning
@@ -349,7 +349,7 @@ Unit* PetAI::SelectNextTarget(bool allowAutoSelect) const
     if (me->HasReactState(REACT_AGGRESSIVE) && allowAutoSelect)
     {
         if (!me->GetCharmInfo()->IsReturning() || me->GetCharmInfo()->IsFollowing() || me->GetCharmInfo()->IsAtStay())
-            if (Unit* nearTarget = me->SelectNearestHostileUnitInAggroRange(true))
+            if (Unit* nearTarget = me->SelectNearestHostileUnitInAggroRange(true, true))
                 return nearTarget;
     }
 
@@ -365,6 +365,12 @@ void PetAI::HandleReturnMovement()
     // such as "Eyes of the Beast"
     if (me->IsCharmed())
         return;
+
+    if (!me->GetCharmInfo())
+    {
+        TC_LOG_WARN("scripts.ai.petai", "me->GetCharmInfo() is NULL in PetAI::HandleReturnMovement(). Debug info: %s", GetDebugInfo().c_str());
+        return;
+    }
 
     if (me->GetCharmInfo()->HasCommandState(COMMAND_STAY))
     {
@@ -419,7 +425,7 @@ void PetAI::DoAttack(Unit* target, bool chase)
 
             if (me->HasUnitState(UNIT_STATE_FOLLOW))
                 me->GetMotionMaster()->Remove(FOLLOW_MOTION_TYPE);
-            
+
             // Pets with ranged attacks should not care about the chase angle at all.
             float chaseDistance = me->GetPetChaseDistance();
             float angle = chaseDistance == 0.f ? float(M_PI) : 0.f;
@@ -492,7 +498,7 @@ bool PetAI::CanAttack(Unit* target)
 
     if (!me->GetCharmInfo())
     {
-        TC_LOG_ERROR("scripts.ai.petai", "me->GetCharmInfo() is NULL in PetAI::CanAttack(). Debug info: %s", GetDebugInfo().c_str());
+        TC_LOG_WARN("scripts.ai.petai", "me->GetCharmInfo() is NULL in PetAI::CanAttack(). Debug info: %s", GetDebugInfo().c_str());
         return false;
     }
 
@@ -629,6 +635,14 @@ void PetAI::UpdateAllies()
     }
     else // remove group
         _allySet.insert(owner->GetGUID());
+}
+
+void PetAI::OnCharmed(bool isNew)
+{
+    if (me->IsCharmed())
+        me->GetMotionMaster()->MoveFollow(me->GetCharmer(), PET_FOLLOW_DIST, me->GetFollowAngle());
+
+    CreatureAI::OnCharmed(isNew);
 }
 
 void PetAI::ClearCharmInfoFlags()

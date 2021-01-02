@@ -69,7 +69,7 @@ public:
 
     struct instance_sunken_temple_InstanceMapScript : public InstanceScript
     {
-        instance_sunken_temple_InstanceMapScript(Map* map) : InstanceScript(map)
+        instance_sunken_temple_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
         {
             SetHeaders(DataHeader);
             State = 0;
@@ -177,16 +177,16 @@ public:
 
         void UseStatue(GameObject* go)
         {
-            go->SummonGameObject(GO_ATALAI_LIGHT1, *go, QuaternionData(), 0);
+            go->SummonGameObject(GO_ATALAI_LIGHT1, *go, QuaternionData(), 0s);
             go->SetUInt32Value(GAMEOBJECT_FLAGS, 4);
         }
 
         void UseLastStatue(GameObject* go)
         {
             for (uint8 i = 0; i < nStatues; ++i)
-                go->SummonGameObject(GO_ATALAI_LIGHT2, statuePositions[i], QuaternionData(), 0);
+                go->SummonGameObject(GO_ATALAI_LIGHT2, statuePositions[i], QuaternionData(), 0s);
 
-            go->SummonCreature(NPC_ATALALARION, atalalarianPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 600000);
+            go->SummonCreature(NPC_ATALALARION, atalalarianPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10min);
         }
 
          void SetData(uint32 type, uint32 data) override

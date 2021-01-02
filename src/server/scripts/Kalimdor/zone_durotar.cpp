@@ -341,9 +341,9 @@ class npc_troll_volunteer : public CreatureScript
                     me->DespawnOrUnsummon();
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_AOE_TURNIN && caster->GetEntry() == NPC_URUZIN && !_complete)
+                if (spellInfo->Id == SPELL_AOE_TURNIN && caster->GetEntry() == NPC_URUZIN && !_complete)
                 {
                     _complete = true;    // Preventing from giving credit twice
                     DoCast(me, SPELL_TURNIN);

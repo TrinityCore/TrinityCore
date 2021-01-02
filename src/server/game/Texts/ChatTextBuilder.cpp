@@ -23,13 +23,13 @@
 void Trinity::BroadcastTextBuilder::operator()(WorldPacket& data, LocaleConstant locale) const
 {
     BroadcastText const* bct = sObjectMgr->GetBroadcastText(_textId);
-    ChatHandler::BuildChatPacket(data, _msgType, bct ? Language(bct->Language) : LANG_UNIVERSAL, _source, _target, bct ? bct->GetText(locale, _gender) : "", _achievementId, "", locale);
+    ChatHandler::BuildChatPacket(data, _msgType, bct ? Language(bct->LanguageID) : LANG_UNIVERSAL, _source, _target, bct ? bct->GetText(locale, _gender) : "", _achievementId, "", locale);
 }
 
 size_t Trinity::BroadcastTextBuilder::operator()(WorldPacket* data, LocaleConstant locale) const
 {
     BroadcastText const* bct = sObjectMgr->GetBroadcastText(_textId);
-    return ChatHandler::BuildChatPacket(*data, _msgType, bct ? Language(bct->Language) : LANG_UNIVERSAL, _source, _target, bct ? bct->GetText(locale, _gender) : "", _achievementId, "", locale);
+    return ChatHandler::BuildChatPacket(*data, _msgType, bct ? Language(bct->LanguageID) : LANG_UNIVERSAL, _source, _target, bct ? bct->GetText(locale, _gender) : "", _achievementId, "", locale);
 }
 
 void Trinity::CustomChatTextBuilder::operator()(WorldPacket& data, LocaleConstant locale) const

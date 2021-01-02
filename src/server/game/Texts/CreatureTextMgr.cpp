@@ -88,7 +88,7 @@ void CreatureTextMgr::LoadCreatureTexts()
     mTextMap.clear(); // for reload case
     //all currently used temp texts are NOT reset
 
-    PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CREATURE_TEXT);
+    WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CREATURE_TEXT);
     PreparedQueryResult result = WorldDatabase.Query(stmt);
 
     if (!result)
@@ -193,14 +193,13 @@ void CreatureTextMgr::LoadCreatureTextLocales()
         uint32 groupId           = fields[1].GetUInt8();
         uint32 id                = fields[2].GetUInt8();
         std::string localeName   = fields[3].GetString();
-        std::string text         = fields[4].GetString();
 
-        CreatureTextLocale& data = mLocaleTextMap[CreatureTextId(creatureId, groupId, id)];
         LocaleConstant locale    = GetLocaleByName(localeName);
         if (locale == LOCALE_enUS)
             continue;
 
-        ObjectMgr::AddLocaleString(text, locale, data.Text);
+        CreatureTextLocale& data = mLocaleTextMap[CreatureTextId(creatureId, groupId, id)];
+        ObjectMgr::AddLocaleString(fields[4].GetString(), locale, data.Text);
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u creature localized texts in %u ms", uint32(mLocaleTextMap.size()), GetMSTimeDiffToNow(oldMSTime));
@@ -383,7 +382,7 @@ void CreatureTextMgr::SendNonChatPacket(WorldObject* source, WorldPacket const* 
     source->SendMessageToSetInRange(data, dist, true);
 }
 
-void CreatureTextMgr::SendEmote(Unit* source, uint32 emote)
+void CreatureTextMgr::SendEmote(Unit* source, Emote emote)
 {
     if (!source)
         return;

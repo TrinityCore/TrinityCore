@@ -56,7 +56,7 @@ class instance_stratholme : public InstanceMapScript
 
         struct instance_stratholme_InstanceMapScript : public InstanceScript
         {
-            instance_stratholme_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_stratholme_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
 
@@ -256,7 +256,7 @@ class instance_stratholme : public InstanceMapScript
                                 if (EncounterState[0] == IN_PROGRESS || EncounterState[0] == FAIL)
                                     break;
                                 EncounterState[0] = data;
-                                events.ScheduleEvent(EVENT_BARON_RUN, 2700000);
+                                events.ScheduleEvent(EVENT_BARON_RUN, 45min);
                                 TC_LOG_DEBUG("scripts", "Instance Stratholme: Baron run in progress.");
                                 break;
                             case FAIL:
@@ -346,7 +346,7 @@ class instance_stratholme : public InstanceMapScript
                                 //a bit itchy, it should close the door after 10 secs, but it doesn't. skipping it for now.
                                 //UpdateGoState(ziggurat4GUID, 0, true);
                                 if (Creature* pBaron = instance->GetCreature(baronGUID))
-                                    pBaron->SummonCreature(NPC_RAMSTEIN, 4032.84f, -3390.24f, 119.73f, 4.71f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 1800000);
+                                    pBaron->SummonCreature(NPC_RAMSTEIN, 4032.84f, -3390.24f, 119.73f, 4.71f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 30min);
                                 TC_LOG_DEBUG("scripts", "Instance Stratholme: Ramstein spawned.");
                             }
                             else
@@ -497,7 +497,7 @@ class instance_stratholme : public InstanceMapScript
                             if (Creature* baron = instance->GetCreature(baronGUID))
                             {
                                 for (uint8 i = 0; i < 4; ++i)
-                                    baron->SummonCreature(NPC_BLACK_GUARD, 4032.84f, -3390.24f, 119.73f, 4.71f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 1800000);
+                                    baron->SummonCreature(NPC_BLACK_GUARD, 4032.84f, -3390.24f, 119.73f, 4.71f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 30min);
 
                                 HandleGameObject(ziggurat4GUID, true);
                                 HandleGameObject(ziggurat5GUID, true);

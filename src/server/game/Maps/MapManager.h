@@ -38,27 +38,27 @@ class TC_GAME_API MapManager
         Map* CreateMap(uint32 mapId, Player* player, uint32 loginInstanceId=0);
         Map* FindMap(uint32 mapId, uint32 instanceId) const;
 
-        uint32 GetAreaId(uint32 mapid, float x, float y, float z) const
+        uint32 GetAreaId(uint32 phaseMask, uint32 mapid, float x, float y, float z) const
         {
             Map const* m = const_cast<MapManager*>(this)->CreateBaseMap(mapid);
-            return m->GetAreaId(x, y, z);
+            return m->GetAreaId(phaseMask, x, y, z);
         }
-        uint32 GetAreaId(uint32 mapid, Position const& pos) const { return GetAreaId(mapid, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()); }
-        uint32 GetAreaId(WorldLocation const& loc) const { return GetAreaId(loc.GetMapId(), loc); }
-        uint32 GetZoneId(uint32 mapid, float x, float y, float z) const
+        uint32 GetAreaId(uint32 phaseMask, uint32 mapid, Position const& pos) const { return GetAreaId(phaseMask, mapid, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()); }
+        uint32 GetAreaId(uint32 phaseMask, WorldLocation const& loc) const { return GetAreaId(phaseMask, loc.GetMapId(), loc); }
+        uint32 GetZoneId(uint32 phaseMask, uint32 mapid, float x, float y, float z) const
         {
             Map const* m = const_cast<MapManager*>(this)->CreateBaseMap(mapid);
-            return m->GetZoneId(x, y, z);
+            return m->GetZoneId(phaseMask, x, y, z);
         }
-        uint32 GetZoneId(uint32 mapid, Position const& pos) const { return GetZoneId(mapid, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()); }
-        uint32 GetZoneId(WorldLocation const& loc) const { return GetZoneId(loc.GetMapId(), loc); }
-        void GetZoneAndAreaId(uint32& zoneid, uint32& areaid, uint32 mapid, float x, float y, float z) const
+        uint32 GetZoneId(uint32 phaseMask, uint32 mapid, Position const& pos) const { return GetZoneId(phaseMask, mapid, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()); }
+        uint32 GetZoneId(uint32 phaseMask, WorldLocation const& loc) const { return GetZoneId(phaseMask, loc.GetMapId(), loc); }
+        void GetZoneAndAreaId(uint32 phaseMask, uint32& zoneid, uint32& areaid, uint32 mapid, float x, float y, float z) const
         {
             Map const* m = const_cast<MapManager*>(this)->CreateBaseMap(mapid);
-            m->GetZoneAndAreaId(zoneid, areaid, x, y, z);
+            m->GetZoneAndAreaId(phaseMask, zoneid, areaid, x, y, z);
         }
-        void GetZoneAndAreaId(uint32& zoneid, uint32& areaid, uint32 mapid, Position const& pos) const { GetZoneAndAreaId(zoneid, areaid, mapid, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()); }
-        void GetZoneAndAreaId(uint32& zoneid, uint32& areaid, WorldLocation const& loc) const { GetZoneAndAreaId(zoneid, areaid, loc.GetMapId(), loc); }
+        void GetZoneAndAreaId(uint32 phaseMask, uint32& zoneid, uint32& areaid, uint32 mapid, Position const& pos) const { GetZoneAndAreaId(phaseMask, zoneid, areaid, mapid, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ()); }
+        void GetZoneAndAreaId(uint32 phaseMask, uint32& zoneid, uint32& areaid, WorldLocation const& loc) const { GetZoneAndAreaId(phaseMask, zoneid, areaid, loc.GetMapId(), loc); }
 
         void Initialize(void);
         void Update(uint32);
@@ -101,9 +101,14 @@ class TC_GAME_API MapManager
             return IsValidMAP(mapid, false) && Trinity::IsValidMapCoord(x, y, z, o);
         }
 
+        static bool IsValidMapCoord(uint32 mapid, Position const& pos)
+        {
+            return IsValidMapCoord(mapid, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
+        }
+
         static bool IsValidMapCoord(WorldLocation const& loc)
         {
-            return IsValidMapCoord(loc.GetMapId(), loc.GetPositionX(), loc.GetPositionY(), loc.GetPositionZ(), loc.GetOrientation());
+            return IsValidMapCoord(loc.GetMapId(), loc);
         }
 
         void DoDelayedMovesAndRemoves();

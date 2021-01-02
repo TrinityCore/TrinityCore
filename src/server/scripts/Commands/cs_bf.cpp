@@ -27,82 +27,63 @@ EndScriptData */
 #include "Chat.h"
 #include "RBAC.h"
 
+using namespace Trinity::ChatCommands;
+
 class bf_commandscript : public CommandScript
 {
 public:
     bf_commandscript() : CommandScript("bf_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    ChatCommandTable GetCommands() const override
     {
-        static std::vector<ChatCommand> battlefieldcommandTable =
+        static ChatCommandTable battlefieldcommandTable =
         {
-            { "start",          rbac::RBAC_PERM_COMMAND_BF_START,  false, &HandleBattlefieldStart,  "" },
-            { "stop",           rbac::RBAC_PERM_COMMAND_BF_STOP,   false, &HandleBattlefieldEnd,    "" },
-            { "switch",         rbac::RBAC_PERM_COMMAND_BF_SWITCH, false, &HandleBattlefieldSwitch, "" },
-            { "timer",          rbac::RBAC_PERM_COMMAND_BF_TIMER,  false, &HandleBattlefieldTimer,  "" },
-            { "enable",         rbac::RBAC_PERM_COMMAND_BF_ENABLE, false, &HandleBattlefieldEnable, "" },
+            { "start",      HandleBattlefieldStart,  rbac::RBAC_PERM_COMMAND_BF_START,  Console::No },
+            { "stop",       HandleBattlefieldEnd,    rbac::RBAC_PERM_COMMAND_BF_STOP,   Console::No },
+            { "switch",     HandleBattlefieldSwitch, rbac::RBAC_PERM_COMMAND_BF_SWITCH, Console::No },
+            { "timer",      HandleBattlefieldTimer,  rbac::RBAC_PERM_COMMAND_BF_TIMER,  Console::No },
+            { "enable",     HandleBattlefieldEnable, rbac::RBAC_PERM_COMMAND_BF_ENABLE, Console::No },
         };
-        static std::vector<ChatCommand> commandTable =
+        static ChatCommandTable commandTable =
         {
-            { "bf",             rbac::RBAC_PERM_COMMAND_BF,        false, nullptr,                     "", battlefieldcommandTable },
+            { "bf", battlefieldcommandTable },
         };
         return commandTable;
     }
 
-    static bool HandleBattlefieldStart(ChatHandler* handler, char const* args)
+    static bool HandleBattlefieldStart(ChatHandler* handler, uint32 battleId)
     {
-        uint32 battleid = 0;
-        char* battleid_str = strtok((char*)args, " ");
-        if (!battleid_str)
-            return false;
-
-        battleid = atoi(battleid_str);
-
-        Battlefield* bf = sBattlefieldMgr->GetBattlefieldByBattleId(battleid);
+        Battlefield* bf = sBattlefieldMgr->GetBattlefieldByBattleId(battleId);
 
         if (!bf)
             return false;
 
         bf->StartBattle();
 
-        if (battleid == 1)
+        if (battleId == 1)
             handler->SendGlobalGMSysMessage("Wintergrasp (Command start used)");
 
         return true;
     }
 
-    static bool HandleBattlefieldEnd(ChatHandler* handler, char const* args)
+    static bool HandleBattlefieldEnd(ChatHandler* handler, uint32 battleId)
     {
-        uint32 battleid = 0;
-        char* battleid_str = strtok((char*)args, " ");
-        if (!battleid_str)
-            return false;
-
-        battleid = atoi(battleid_str);
-
-        Battlefield* bf = sBattlefieldMgr->GetBattlefieldByBattleId(battleid);
+        Battlefield* bf = sBattlefieldMgr->GetBattlefieldByBattleId(battleId);
 
         if (!bf)
             return false;
 
         bf->EndBattle(true);
 
-        if (battleid == 1)
+        if (battleId == 1)
             handler->SendGlobalGMSysMessage("Wintergrasp (Command stop used)");
 
         return true;
     }
 
-    static bool HandleBattlefieldEnable(ChatHandler* handler, char const* args)
+    static bool HandleBattlefieldEnable(ChatHandler* handler, uint32 battleId)
     {
-        uint32 battleid = 0;
-        char* battleid_str = strtok((char*)args, " ");
-        if (!battleid_str)
-            return false;
-
-        battleid = atoi(battleid_str);
-
-        Battlefield* bf = sBattlefieldMgr->GetBattlefieldByBattleId(battleid);
+        Battlefield* bf = sBattlefieldMgr->GetBattlefieldByBattleId(battleId);
 
         if (!bf)
             return false;
@@ -110,63 +91,43 @@ public:
         if (bf->IsEnabled())
         {
             bf->ToggleBattlefield(false);
-            if (battleid == 1)
+            if (battleId == 1)
                 handler->SendGlobalGMSysMessage("Wintergrasp is disabled");
         }
         else
         {
             bf->ToggleBattlefield(true);
-            if (battleid == 1)
+            if (battleId == 1)
                 handler->SendGlobalGMSysMessage("Wintergrasp is enabled");
         }
 
         return true;
     }
 
-    static bool HandleBattlefieldSwitch(ChatHandler* handler, char const* args)
+    static bool HandleBattlefieldSwitch(ChatHandler* handler, uint32 battleId)
     {
-        uint32 battleid = 0;
-        char* battleid_str = strtok((char*)args, " ");
-        if (!battleid_str)
-            return false;
-
-        battleid = atoi(battleid_str);
-
-        Battlefield* bf = sBattlefieldMgr->GetBattlefieldByBattleId(battleid);
+        Battlefield* bf = sBattlefieldMgr->GetBattlefieldByBattleId(battleId);
 
         if (!bf)
             return false;
 
         bf->EndBattle(false);
-        if (battleid == 1)
+        if (battleId == 1)
             handler->SendGlobalGMSysMessage("Wintergrasp (Command switch used)");
 
         return true;
     }
 
-    static bool HandleBattlefieldTimer(ChatHandler* handler, char const* args)
+    static bool HandleBattlefieldTimer(ChatHandler* handler, uint32 battleId, uint32 time)
     {
-        uint32 battleid = 0;
-        uint32 time = 0;
-        char* battleid_str = strtok((char*)args, " ");
-        if (!battleid_str)
-            return false;
-        char* time_str = strtok(nullptr, " ");
-        if (!time_str)
-            return false;
-
-        battleid = atoi(battleid_str);
-
-        time = atoi(time_str);
-
-        Battlefield* bf = sBattlefieldMgr->GetBattlefieldByBattleId(battleid);
+        Battlefield* bf = sBattlefieldMgr->GetBattlefieldByBattleId(battleId);
 
         if (!bf)
             return false;
 
         bf->SetTimer(time * IN_MILLISECONDS);
         bf->SendInitWorldStatesToAll();
-        if (battleid == 1)
+        if (battleId == 1)
             handler->SendGlobalGMSysMessage("Wintergrasp (Command timer used)");
 
         return true;

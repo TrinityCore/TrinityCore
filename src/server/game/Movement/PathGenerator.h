@@ -25,6 +25,7 @@
 #include <G3D/Vector3.h>
 
 class Unit;
+class WorldObject;
 
 // 74*4.0f=296y number_of_points*interval = max_path_len
 // this is way more than actual evade range
@@ -40,30 +41,33 @@ class Unit;
 
 enum PathType
 {
-    PATHFIND_BLANK          = 0x00,   // path not built yet
-    PATHFIND_NORMAL         = 0x01,   // normal path
-    PATHFIND_SHORTCUT       = 0x02,   // travel through obstacles, terrain, air, etc (old behavior)
-    PATHFIND_INCOMPLETE     = 0x04,   // we have partial path to follow - getting closer to target
-    PATHFIND_NOPATH         = 0x08,   // no valid path at all or error in generating one
-    PATHFIND_NOT_USING_PATH = 0x10,   // used when we are either flying/swiming or on map w/o mmaps
-    PATHFIND_SHORT          = 0x20,   // path is longer or equal to its limited path length
-    PATHFIND_FARFROMPOLY    = 0x40,   // start of end positions are far from the mmap poligon
+    PATHFIND_BLANK             = 0x00,   // path not built yet
+    PATHFIND_NORMAL            = 0x01,   // normal path
+    PATHFIND_SHORTCUT          = 0x02,   // travel through obstacles, terrain, air, etc (old behavior)
+    PATHFIND_INCOMPLETE        = 0x04,   // we have partial path to follow - getting closer to target
+    PATHFIND_NOPATH            = 0x08,   // no valid path at all or error in generating one
+    PATHFIND_NOT_USING_PATH    = 0x10,   // used when we are either flying/swiming or on map w/o mmaps
+    PATHFIND_SHORT             = 0x20,   // path is longer or equal to its limited path length
+    PATHFIND_FARFROMPOLY_START = 0x40,   // start position is far from the mmap poligon
+    PATHFIND_FARFROMPOLY_END   = 0x80,   // end positions is far from the mmap poligon
+    PATHFIND_FARFROMPOLY       = PATHFIND_FARFROMPOLY_START | PATHFIND_FARFROMPOLY_END, // start or end positions are far from the mmap poligon
 };
 
 class TC_GAME_API PathGenerator
 {
     public:
-        explicit PathGenerator(Unit const* owner);
+        explicit PathGenerator(WorldObject const* owner);
         ~PathGenerator();
 
         // Calculate the path from owner to given destination
         // return: true if new path was calculated, false otherwise (no change needed)
-        bool CalculatePath(float destX, float destY, float destZ, bool forceDest = false, bool straightLine = false);
+        bool CalculatePath(float destX, float destY, float destZ, bool forceDest = false);
         bool IsInvalidDestinationZ(Unit const* target) const;
 
         // option setters - use optional
         void SetUseStraightPath(bool useStraightPath) { _useStraightPath = useStraightPath; }
         void SetPathLengthLimit(float distance) { _pointPathLimit = std::min<uint32>(uint32(distance/SMOOTH_PATH_STEP_SIZE), MAX_POINT_PATH_LENGTH); }
+        void SetUseRaycast(bool useRaycast) { _useRaycast = useRaycast; }
 
         // result getters
         G3D::Vector3 const& GetStartPosition() const { return _startPosition; }
@@ -88,13 +92,13 @@ class TC_GAME_API PathGenerator
         bool _useStraightPath;  // type of path will be generated
         bool _forceDestination; // when set, we will always arrive at given point
         uint32 _pointPathLimit; // limit point path size; min(this, MAX_POINT_PATH_LENGTH)
-        bool _straightLine;     // use raycast if true for a straight line path
+        bool _useRaycast;       // use raycast if true for a straight line path
 
         G3D::Vector3 _startPosition;        // {x, y, z} of current location
         G3D::Vector3 _endPosition;          // {x, y, z} of the destination
         G3D::Vector3 _actualEndPosition;    // {x, y, z} of the closest possible point to given destination
 
-        Unit const* const _sourceUnit;          // the unit that is moving
+        WorldObject const* const _source;       // the object that is moving
         dtNavMesh const* _navMesh;              // the nav mesh
         dtNavMeshQuery const* _navMeshQuery;    // the nav mesh query used to find the path
 
@@ -134,6 +138,8 @@ class TC_GAME_API PathGenerator
         dtStatus FindSmoothPath(float const* startPos, float const* endPos,
                               dtPolyRef const* polyPath, uint32 polyPathSize,
                               float* smoothPath, int* smoothPathSize, uint32 smoothPathMaxSize);
+
+        void AddFarFromPolyFlags(bool startFarFromPoly, bool endFarFromPoly);
 };
 
 #endif

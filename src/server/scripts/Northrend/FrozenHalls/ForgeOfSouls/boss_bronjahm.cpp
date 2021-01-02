@@ -86,7 +86,7 @@ class boss_bronjahm : public CreatureScript
                 events.SetPhase(PHASE_1);
                 events.ScheduleEvent(EVENT_SHADOW_BOLT, 2s);
                 events.ScheduleEvent(EVENT_MAGIC_BANE, 8s, 20s);
-                events.ScheduleEvent(EVENT_CORRUPT_SOUL, urand(25000, 35000), 0, PHASE_1);
+                events.ScheduleEvent(EVENT_CORRUPT_SOUL, 25s, 35s, 0, PHASE_1);
             }
 
             void JustReachedHome() override
@@ -120,8 +120,8 @@ class boss_bronjahm : public CreatureScript
                 {
                     events.SetPhase(PHASE_2);
                     DoCast(me, SPELL_TELEPORT);
-                    events.ScheduleEvent(EVENT_FEAR, urand(12000, 16000), 0, PHASE_2);
-                    events.ScheduleEvent(EVENT_SOULSTORM, 100, 0, PHASE_2);
+                    events.ScheduleEvent(EVENT_FEAR, 12s, 16s, 0, PHASE_2);
+                    events.ScheduleEvent(EVENT_SOULSTORM, 100ms, 0, PHASE_2);
                 }
             }
 
@@ -185,12 +185,12 @@ class boss_bronjahm : public CreatureScript
                             }
                             break;
                         case EVENT_CORRUPT_SOUL:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
                             {
                                 Talk(SAY_CORRUPT_SOUL);
                                 DoCast(target, SPELL_CORRUPT_SOUL);
                             }
-                            events.ScheduleEvent(EVENT_CORRUPT_SOUL, urand(25000, 35000), 0, PHASE_1);
+                            events.ScheduleEvent(EVENT_CORRUPT_SOUL, 25s, 35s, 0, PHASE_1);
                             break;
                         case EVENT_SOULSTORM:
                             Talk(SAY_SOUL_STORM);
@@ -199,7 +199,7 @@ class boss_bronjahm : public CreatureScript
                             break;
                         case EVENT_FEAR:
                             me->CastSpell(nullptr, SPELL_FEAR, { SPELLVALUE_MAX_TARGETS, 1 });
-                            events.ScheduleEvent(EVENT_FEAR, urand(8000, 12000), 0, PHASE_2);
+                            events.ScheduleEvent(EVENT_FEAR, 8s, 12s, 0, PHASE_2);
                             break;
                         default:
                             break;

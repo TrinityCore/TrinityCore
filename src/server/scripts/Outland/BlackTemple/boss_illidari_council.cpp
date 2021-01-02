@@ -347,7 +347,7 @@ struct boss_gathios_the_shatterer : public IllidariCouncilBossAI
                 events.Repeat(Seconds(30));
                 break;
             case EVENT_HAMMER_OF_JUSTICE:
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, HammerTargetSelector(me)))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, HammerTargetSelector(me)))
                     DoCast(target, SPELL_HAMMER_OF_JUSTICE);
                 events.Repeat(Seconds(20));
                 break;
@@ -394,13 +394,13 @@ struct boss_high_nethermancer_zerevor : public IllidariCouncilBossAI
         switch (eventId)
         {
             case EVENT_FLAMESTRIKE:
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target, SPELL_FLAMESTRIKE);
                 Talk(SAY_COUNCIL_SPECIAL);
                 events.Repeat(Seconds(40));
                 break;
             case EVENT_BLIZZARD:
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target, SPELL_BLIZZARD);
                 events.Repeat(Seconds(15), Seconds(40));
                 break;
@@ -408,7 +408,7 @@ struct boss_high_nethermancer_zerevor : public IllidariCouncilBossAI
                 _canUseArcaneExplosion = true;
                 break;
             case EVENT_ARCANE_EXPLOSION:
-                if (_canUseArcaneExplosion && SelectTarget(SELECT_TARGET_RANDOM, 0, 10.0f))
+                if (_canUseArcaneExplosion && SelectTarget(SelectTargetMethod::Random, 0, 10.0f))
                 {
                     DoCastSelf(SPELL_ARCANE_EXPLOSION);
                     _canUseArcaneExplosion = false;
@@ -631,7 +631,7 @@ class spell_illidari_council_deadly_strike : public AuraScript
     {
         PreventDefaultAction();
 
-        if (Unit* victim = GetTarget()->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, true))
+        if (Unit* victim = GetTarget()->GetAI()->SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true, true))
             GetTarget()->CastSpell(victim, SPELL_DEADLY_POISON, aurEff);
     }
 
@@ -812,12 +812,12 @@ void AddSC_boss_illidari_council()
     RegisterBlackTempleCreatureAI(npc_veras_vanish_effect);
     RegisterSpellScript(spell_illidari_council_empyreal_balance);
     RegisterSpellScript(spell_illidari_council_empyreal_equivalency);
-    RegisterAuraScript(spell_illidari_council_balance_of_power);
-    RegisterAuraScript(spell_illidari_council_deadly_strike);
-    RegisterAuraScript(spell_illidari_council_deadly_poison);
-    RegisterAuraScript(spell_illidari_council_vanish);
-    RegisterAuraScript(spell_illidari_council_reflective_shield);
+    RegisterSpellScript(spell_illidari_council_balance_of_power);
+    RegisterSpellScript(spell_illidari_council_deadly_strike);
+    RegisterSpellScript(spell_illidari_council_deadly_poison);
+    RegisterSpellScript(spell_illidari_council_vanish);
+    RegisterSpellScript(spell_illidari_council_reflective_shield);
     RegisterSpellScript(spell_illidari_council_judgement);
-    RegisterAuraScript(spell_illidari_council_seal);
-    RegisterAuraScript(spell_illidari_dampen_magic);
+    RegisterSpellScript(spell_illidari_council_seal);
+    RegisterSpellScript(spell_illidari_dampen_magic);
 }

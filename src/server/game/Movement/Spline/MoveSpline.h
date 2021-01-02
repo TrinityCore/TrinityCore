@@ -22,6 +22,8 @@
 #include "MoveSplineInitArgs.h"
 #include <G3D/Vector3.h>
 
+enum class AnimationTier : uint8;
+
 namespace Movement
 {
     struct Location : public Vector3
@@ -68,6 +70,7 @@ namespace Movement
         int32           effect_start_time;
         int32           point_Idx;
         int32           point_Idx_offset;
+        float           velocity;
 
         void init_spline(MoveSplineInitArgs const& args);
 
@@ -86,6 +89,7 @@ namespace Movement
         int32 Duration() const { return spline.length(); }
         MySpline const& _Spline() const { return spline; }
         int32 _currentSplineIdx() const { return point_Idx; }
+        float Velocity() const { return velocity; }
         void _Finalize();
         void _Interrupt() { splineflags.done = true; }
 
@@ -120,6 +124,9 @@ namespace Movement
         Vector3 FinalDestination() const { return Initialized() ? spline.getPoint(spline.last()) : Vector3(); }
         Vector3 CurrentDestination() const { return Initialized() ? spline.getPoint(point_Idx + 1) : Vector3(); }
         int32 currentPathIdx() const;
+
+        bool HasAnimation() const { return splineflags.animation; }
+        AnimationTier GetAnimationTier() const { return static_cast<AnimationTier>(splineflags.animTier); }
 
         bool onTransport;
         std::string ToString() const;

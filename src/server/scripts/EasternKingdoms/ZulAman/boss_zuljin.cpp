@@ -264,7 +264,7 @@ class boss_zuljin : public CreatureScript
             {
                 for (uint8 i = 0; i < 4; ++i)
                 {
-                    if (Creature* creature = me->SummonCreature(SpiritInfo[i].entry, SpiritInfo[i].pos, TEMPSUMMON_DEAD_DESPAWN, 0))
+                    if (Creature* creature = me->SummonCreature(SpiritInfo[i].entry, SpiritInfo[i].pos, TEMPSUMMON_DEAD_DESPAWN))
                     {
                         creature->CastSpell(creature, SPELL_SPIRIT_AURA, true);
                         creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -320,14 +320,14 @@ class boss_zuljin : public CreatureScript
                             DoCast(me, SPELL_ENERGY_STORM, true); // enemy aura
                             for (uint8 i = 0; i < 4; ++i)
                             {
-                                Creature* Vortex = DoSpawnCreature(CREATURE_FEATHER_VORTEX, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                                Creature* Vortex = DoSpawnCreature(CREATURE_FEATHER_VORTEX, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0s);
                                 if (Vortex)
                                 {
                                     Vortex->CastSpell(Vortex, SPELL_CYCLONE_PASSIVE, true);
                                     Vortex->CastSpell(Vortex, SPELL_CYCLONE_VISUAL, true);
                                     Vortex->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                     Vortex->SetSpeedRate(MOVE_RUN, 1.0f);
-                                    Vortex->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0));
+                                    Vortex->AI()->AttackStart(SelectTarget(SelectTargetMethod::Random, 0));
                                     DoZoneInCombat(Vortex);
                                 }
                             }
@@ -392,7 +392,7 @@ class boss_zuljin : public CreatureScript
 
                         if (Grievous_Throw_Timer <= diff)
                         {
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
                                 DoCast(target, SPELL_GRIEVOUS_THROW, false);
                             Grievous_Throw_Timer = 10000;
                         }
@@ -426,7 +426,7 @@ class boss_zuljin : public CreatureScript
                         {
                             if (!TankGUID)
                             {
-                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                 {
                                     if (me->GetVictim())
                                         TankGUID = me->EnsureVictim()->GetGUID();
@@ -446,7 +446,7 @@ class boss_zuljin : public CreatureScript
                                     if (!target || !target->isTargetableForAttack())
                                         target = ObjectAccessor::GetUnit(*me, TankGUID);
                                     if (!target || !target->isTargetableForAttack())
-                                        target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                                        target = SelectTarget(SelectTargetMethod::Random, 0);
                                     if (target)
                                     {
                                         AttackStart(target);
@@ -482,7 +482,7 @@ class boss_zuljin : public CreatureScript
                         {
                             if (!TankGUID)
                             {
-                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                 {
                                     TankGUID = me->EnsureVictim()->GetGUID();
                                     me->SetSpeedRate(MOVE_RUN, 5.0f);
@@ -496,7 +496,7 @@ class boss_zuljin : public CreatureScript
                                 Unit* target = me->GetVictim();
                                 if (!target || !target->isTargetableForAttack())
                                 {
-                                    target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                                    target = SelectTarget(SelectTargetMethod::Random, 0);
                                     AttackStart(target);
                                 }
                                 if (target)
@@ -513,7 +513,7 @@ class boss_zuljin : public CreatureScript
                                             TankGUID.Clear();
                                         }
                                         else
-                                            AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0));
+                                            AttackStart(SelectTarget(SelectTargetMethod::Random, 0));
                                     }
                                 }
                                 else
@@ -537,7 +537,7 @@ class boss_zuljin : public CreatureScript
 
                         if (Pillar_Of_Fire_Timer <= diff)
                         {
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                 DoCast(target, SPELL_SUMMON_PILLAR);
                             Pillar_Of_Fire_Timer = 10000;
                         }
@@ -546,7 +546,7 @@ class boss_zuljin : public CreatureScript
 
                         if (Flame_Breath_Timer <= diff)
                         {
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                 me->SetFacingToObject(target);
                             DoCast(me, SPELL_FLAME_BREATH);
                             Flame_Breath_Timer = 10000;
@@ -582,17 +582,21 @@ class npc_zuljin_vortex : public CreatureScript
 
             void JustEngagedWith(Unit* /*target*/) override { }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell) override
+            void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
             {
-                if (spell->Id == SPELL_ZAP_INFORM)
-                    DoCast(caster, SPELL_ZAP_DAMAGE, true);
+                Unit* unitCaster = caster->ToUnit();
+                if (!unitCaster)
+                    return;
+
+                if (spellInfo->Id == SPELL_ZAP_INFORM)
+                    DoCast(unitCaster, SPELL_ZAP_DAMAGE, true);
             }
 
             void UpdateAI(uint32 /*diff*/) override
             {
                 //if the vortex reach the target, it change his target to another player
                 if (me->IsWithinMeleeRange(me->GetVictim()))
-                    AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0));
+                    AttackStart(SelectTarget(SelectTargetMethod::Random, 0));
             }
         };
 

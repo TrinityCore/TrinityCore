@@ -91,7 +91,7 @@ class boss_cyanigosa : public CreatureScript
 
                 scheduler.Schedule(Seconds(15), [this](TaskContext task)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 45.0f, true))
                         DoCast(target, SPELL_BLIZZARD);
                     task.Repeat();
                 });
@@ -112,7 +112,7 @@ class boss_cyanigosa : public CreatureScript
                 {
                     scheduler.Schedule(Seconds(30), [this](TaskContext task)
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 50.0f, true))
                             DoCast(target, SPELL_MANA_DESTRUCTION);
                         task.Repeat();
                     });

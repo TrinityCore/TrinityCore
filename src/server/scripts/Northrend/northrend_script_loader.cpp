@@ -71,6 +71,7 @@ void AddSC_boss_faerlina();
 void AddSC_boss_heigan();
 void AddSC_boss_gothik();
 void AddSC_boss_thaddius();
+void AddSC_naxxramas();
 void AddSC_instance_naxxramas();
 // The Nexus Nexus
 void AddSC_boss_nexus_commanders();
@@ -133,6 +134,7 @@ void AddSC_boss_palehoof();
 void AddSC_boss_skadi();
 void AddSC_boss_ymiron();
 void AddSC_instance_utgarde_pinnacle();
+void AddSC_utgarde_pinnacle();
 // Vault of Archavon
 void AddSC_boss_archavon();
 void AddSC_boss_emalon();
@@ -264,6 +266,7 @@ void AddNorthrendScripts()
     AddSC_boss_heigan();
     AddSC_boss_gothik();
     AddSC_boss_thaddius();
+    AddSC_naxxramas();
     AddSC_instance_naxxramas();
     // The Nexus: Nexus
     AddSC_boss_nexus_commanders();
@@ -326,6 +329,7 @@ void AddNorthrendScripts()
     AddSC_boss_skadi();
     AddSC_boss_ymiron();
     AddSC_instance_utgarde_pinnacle();
+    AddSC_utgarde_pinnacle();
     // Vault of Archavon
     AddSC_boss_archavon();
     AddSC_boss_emalon();

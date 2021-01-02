@@ -112,7 +112,7 @@ class boss_nethermancer_sepethrea : public CreatureScript
                             break;
                         case EVENT_ARCANE_BLAST:
                             DoCastVictim(SPELL_ARCANE_BLAST, true);
-                            events.ScheduleEvent(EVENT_ARCANE_BLAST, 15000);
+                            events.ScheduleEvent(EVENT_ARCANE_BLAST, 15s);
                             break;
                         case EVENT_DRAGONS_BREATH:
                             DoCastVictim(SPELL_DRAGONS_BREATH, true);
@@ -206,7 +206,7 @@ class npc_ragin_flames : public CreatureScript
 
                     if (!onlyonce)
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                             me->GetMotionMaster()->MoveChase(target);
                         onlyonce = true;
                     }

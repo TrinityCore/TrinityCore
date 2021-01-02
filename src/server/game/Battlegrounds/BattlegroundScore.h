@@ -87,7 +87,7 @@ struct BattlegroundScore
                     HealingDone += value;
                     break;
                 default:
-                    ASSERT(false && "Not implemented Battleground score type!");
+                    ABORT_MSG("Not implemented Battleground score type!");
                     break;
             }
         }

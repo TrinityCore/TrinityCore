@@ -211,7 +211,7 @@ public:
                 switch (pointId)
                 {
                     case POINT_INTRO_START:
-                        me->RemoveByteFlag(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_STAND_STATE, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                        me->SetStandState(UNIT_STAND_STATE_STAND);
                         events.ScheduleEvent(EVENT_START_INTRO_PATH, Milliseconds(1));
                         break;
                     case POINT_INTRO_END:
@@ -276,7 +276,7 @@ public:
                     DoCastAOE(SPELL_BELLOWING_ROAR);
                     break;
                 case EVENT_CHARRED_EARTH:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                         DoCast(target, SPELL_CHARRED_EARTH);
                     events.Repeat(Seconds(18), Seconds(21));
                     break;
@@ -285,7 +285,7 @@ public:
                     events.Repeat(Seconds(6), Seconds(15));
                     break;
                 case EVENT_DISTRACTING_ASH:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                         DoCast(target, SPELL_DISTRACTING_ASH);
                     break;
                 case EVENT_EMOTE_BREATH:
@@ -323,7 +323,7 @@ public:
                     break;
                 case EVENT_RAIN_OF_BONES:
                     ResetThreatList();
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                     {
                         me->SetFacingToObject(target);
                         DoCast(target, SPELL_RAIN_OF_BONES);
@@ -334,17 +334,17 @@ public:
                     events.Repeat(Seconds(28), Seconds(40));
                     break;
                 case EVENT_SMOKING_BLAST:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                         DoCast(target, SPELL_SMOKING_BLAST);
                     events.Repeat(Milliseconds(1400));
                     break;
                 case EVENT_SMOKING_BLAST_T:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                         DoCast(target, SPELL_SMOKING_BLAST_T);
                     events.Repeat(Seconds(5), Seconds(7));
                     break;
                 case EVENT_TAIL_SWEEP:
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                         if (!me->HasInArc(float(M_PI), target))
                             DoCast(target, SPELL_TAIL_SWEEP);
                     events.Repeat(Seconds(20), Seconds(30));
@@ -428,7 +428,7 @@ class go_blackened_urn : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* /*player*/) override
+            bool OnGossipHello(Player* /*player*/) override
             {
                 if (me->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE))
                     return false;

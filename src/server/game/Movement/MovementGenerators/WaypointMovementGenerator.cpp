@@ -55,6 +55,10 @@ void WaypointMovementGenerator<Creature>::Pause(uint32 timer/* = 0*/)
 {
     if (timer)
     {
+        // Don't try to paused an already paused generator
+        if (HasFlag(MOVEMENTGENERATOR_FLAG_PAUSED))
+            return;
+
         AddFlag(MOVEMENTGENERATOR_FLAG_TIMED_PAUSED);
         _nextMoveTime.Reset(timer);
         RemoveFlag(MOVEMENTGENERATOR_FLAG_PAUSED);
@@ -114,10 +118,6 @@ void WaypointMovementGenerator<Creature>::DoInitialize(Creature* owner)
     owner->StopMoving();
 
     _nextMoveTime.Reset(1000);
-
-    // inform AI
-    if (CreatureAI* AI = owner->AI())
-        AI->WaypointPathStarted(_path->id);
 }
 
 void WaypointMovementGenerator<Creature>::DoReset(Creature* owner)
@@ -329,7 +329,6 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
 
     ASSERT(_currentNode < _path->nodes.size(), "WaypointMovementGenerator::StartMove: tried to reference a node id (%u) which is not included in path (%u)", _currentNode, _path->id);
     WaypointNode const &waypoint = _path->nodes[_currentNode];
-    Position formationDest(waypoint.x, waypoint.y, waypoint.z, (waypoint.orientation && waypoint.delay) ? waypoint.orientation : 0.0f);
 
     RemoveFlag(MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_INFORM_ENABLED | MOVEMENTGENERATOR_FLAG_TIMED_PAUSED);
 
@@ -339,15 +338,7 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
 
     //! If creature is on transport, we assume waypoints set in DB are already transport offsets
     if (transportPath)
-    {
         init.DisableTransportPathTransformations();
-        if (TransportBase* trans = owner->GetDirectTransport())
-        {
-            float orientation = formationDest.GetOrientation();
-            trans->CalculatePassengerPosition(formationDest.m_positionX, formationDest.m_positionY, formationDest.m_positionZ, &orientation);
-            formationDest.SetOrientation(orientation);
-        }
-    }
 
     //! Do not use formationDest here, MoveTo requires transport offsets due to DisableTransportPathTransformations() call
     //! but formationDest contains global coordinates
@@ -360,10 +351,10 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
     switch (waypoint.moveType)
     {
         case WAYPOINT_MOVE_TYPE_LAND:
-            init.SetAnimation(Movement::ToGround);
+            init.SetAnimation(AnimationTier::Ground);
             break;
         case WAYPOINT_MOVE_TYPE_TAKEOFF:
-            init.SetAnimation(Movement::ToFly);
+            init.SetAnimation(AnimationTier::Hover);
             break;
         case WAYPOINT_MOVE_TYPE_RUN:
             init.SetWalk(false);
@@ -378,7 +369,7 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
     init.Launch();
 
     // inform formation
-    owner->SignalFormationMovement(formationDest, waypoint.id, waypoint.moveType, (waypoint.orientation && waypoint.delay) ? true : false);
+    owner->SignalFormationMovement();
 }
 
 bool WaypointMovementGenerator<Creature>::ComputeNextNode()

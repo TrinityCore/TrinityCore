@@ -52,7 +52,7 @@ class instance_blood_furnace : public InstanceMapScript
 
         struct instance_blood_furnace_InstanceMapScript : public InstanceScript
         {
-            instance_blood_furnace_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_blood_furnace_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
@@ -183,19 +183,19 @@ class instance_blood_furnace : public InstanceMapScript
             void ResetPrisons()
             {
                 ResetPrisoners(PrisonersCell5);
-                PrisonerCounter5 = PrisonersCell5.size();
+                PrisonerCounter5 = uint8(PrisonersCell5.size());
                 HandleGameObject(PrisonCellGUIDs[DATA_PRISON_CELL5 - DATA_PRISON_CELL1], false);
 
                 ResetPrisoners(PrisonersCell6);
-                PrisonerCounter6 = PrisonersCell6.size();
+                PrisonerCounter6 = uint8(PrisonersCell6.size());
                 HandleGameObject(PrisonCellGUIDs[DATA_PRISON_CELL6 - DATA_PRISON_CELL1], false);
 
                 ResetPrisoners(PrisonersCell7);
-                PrisonerCounter7 = PrisonersCell7.size();
+                PrisonerCounter7 = uint8(PrisonersCell7.size());
                 HandleGameObject(PrisonCellGUIDs[DATA_PRISON_CELL7 - DATA_PRISON_CELL1], false);
 
                 ResetPrisoners(PrisonersCell8);
-                PrisonerCounter8 = PrisonersCell8.size();
+                PrisonerCounter8 = uint8(PrisonersCell8.size());
                 HandleGameObject(PrisonCellGUIDs[DATA_PRISON_CELL8 - DATA_PRISON_CELL1], false);
             }
 
@@ -235,12 +235,12 @@ class instance_blood_furnace : public InstanceMapScript
 
                 if (posX >= 405.0f && posX <= 423.0f && posZ <= 17)
                 {
-                    if (posY >= 106.0f && posY <= 123.0f && posZ <= 17)
+                    if (posY >= 106.0f && posY <= 123.0f)
                     {
                         PrisonersCell5.insert(creature->GetGUID());
                         ++PrisonerCounter5;
                     }
-                    else if (posY >= 76.0f && posY <= 91.0f && posZ <= 17)
+                    else if (posY >= 76.0f && posY <= 91.0f)
                     {
                         PrisonersCell6.insert(creature->GetGUID());
                         ++PrisonerCounter6;
@@ -249,12 +249,12 @@ class instance_blood_furnace : public InstanceMapScript
                 }
                 else if (posX >= 490.0f && posX <= 506.0f && posZ <= 17)
                 {
-                    if (posY >= 106.0f && posY <= 123.0f && posZ <= 17)
+                    if (posY >= 106.0f && posY <= 123.0f)
                     {
                         PrisonersCell7.insert(creature->GetGUID());
                         ++PrisonerCounter7;
                     }
-                    else if (posY >= 76.0f && posY <= 91.0f && posZ <= 17)
+                    else if (posY >= 76.0f && posY <= 91.0f)
                     {
                         PrisonersCell8.insert(creature->GetGUID());
                         ++PrisonerCounter8;

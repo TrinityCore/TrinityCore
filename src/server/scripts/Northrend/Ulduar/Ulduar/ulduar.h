@@ -366,6 +366,8 @@ enum UlduarAchievementCriteriaIds
     CRITERIA_ALONE_IN_THE_DARKNESS_25        = 10417,
     CRITERIA_HERALD_OF_TITANS                = 10678,
 
+    REALM_FIRST_DEATHS_DEMISE                = 10279,
+
     // Champion of Ulduar
     CRITERIA_C_O_U_LEVIATHAN_10              = 10042,
     CRITERIA_C_O_U_IGNIS_10                  = 10342,
@@ -513,13 +515,13 @@ class Creature;
 class UlduarKeeperDespawnEvent : public BasicEvent
 {
     public:
-        UlduarKeeperDespawnEvent(Creature* owner, uint32 despawnTimerOffset = 500);
+        UlduarKeeperDespawnEvent(Creature* owner, Milliseconds despawnTimerOffset = 500ms);
 
         bool Execute(uint64 /*eventTime*/, uint32 /*updateTime*/) override;
 
     private:
         Creature* _owner;
-        uint32 _despawnTimer;
+        Milliseconds _despawnTimer;
 };
 
 template <class AI, class T>

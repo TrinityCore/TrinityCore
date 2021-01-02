@@ -52,6 +52,7 @@ class TC_GAME_API Vehicle : public TransportBase
         bool HasEmptySeat(int8 seatId) const;
         Unit* GetPassenger(int8 seatId) const;
         SeatMap::const_iterator GetNextEmptySeat(int8 seatId, bool next) const;
+        VehicleSeatAddon const* GetSeatAddonForSeatOfPassenger(Unit const* passenger) const;
         uint8 GetAvailableSeatCount() const;
 
         bool AddPassenger(Unit* passenger, int8 seatId = -1);
@@ -60,6 +61,7 @@ class TC_GAME_API Vehicle : public TransportBase
         void RelocatePassengers();
         void RemoveAllPassengers();
         bool IsVehicleInUse() const;
+        bool IsControllableVehicle() const;
 
         void SetLastShootPos(Position const& pos) { _lastShootPos.Relocate(pos); }
         Position const& GetLastShootPos() const { return _lastShootPos; }

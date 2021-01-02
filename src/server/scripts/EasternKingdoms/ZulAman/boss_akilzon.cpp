@@ -122,7 +122,7 @@ class boss_akilzon : public CreatureScript
                 events.ScheduleEvent(EVENT_CALL_LIGHTNING, 10s, 20s);    // totaly random timer. can't find any info on this
                 events.ScheduleEvent(EVENT_ELECTRICAL_STORM, 1min);                // 60 seconds(bosskillers)
                 events.ScheduleEvent(EVENT_RAIN, 47s, 52s);
-                events.ScheduleEvent(EVENT_ENRAGE, 10*MINUTE*IN_MILLISECONDS);      // 10 minutes till enrage(bosskillers)
+                events.ScheduleEvent(EVENT_ENRAGE, 10min);      // 10 minutes till enrage(bosskillers)
 
                 Talk(SAY_AGGRO);
             }
@@ -186,7 +186,7 @@ class boss_akilzon : public CreatureScript
                     {
                         x = 343.0f + rand32() % 60;
                         y = 1380.0f + rand32() % 60;
-                        if (Unit* trigger = me->SummonTrigger(x, y, z, 0, 2000))
+                        if (Unit* trigger = me->SummonTrigger(x, y, z, 0, 2s))
                         {
                             trigger->SetFaction(FACTION_FRIENDLY);
                             trigger->SetMaxHealth(100000);
@@ -233,7 +233,7 @@ class boss_akilzon : public CreatureScript
                     {
                         case EVENT_STATIC_DISRUPTION:
                             {
-                            Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
+                            Unit* target = SelectTarget(SelectTargetMethod::Random, 1);
                             if (!target)
                                 target = me->GetVictim();
                             if (target)
@@ -248,7 +248,7 @@ class boss_akilzon : public CreatureScript
                             }
                         case EVENT_GUST_OF_WIND:
                             {
-                                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
+                                Unit* target = SelectTarget(SelectTargetMethod::Random, 1);
                                 if (!target)
                                     target = me->GetVictim();
                                 if (target)
@@ -262,7 +262,7 @@ class boss_akilzon : public CreatureScript
                             break;
                         case EVENT_ELECTRICAL_STORM:
                             {
-                                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50, true);
+                                Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 50, true);
                                 if (!target)
                                 {
                                     EnterEvadeMode();
@@ -281,7 +281,7 @@ class boss_akilzon : public CreatureScript
                                 }
                                 */
 
-                                Unit* Cloud = me->SummonTrigger(x, y, me->GetPositionZ()+16, 0, 15000);
+                                Unit* Cloud = me->SummonTrigger(x, y, me->GetPositionZ()+16, 0, 15s);
                                 if (Cloud)
                                     {
                                         CloudGUID = Cloud->GetGUID();
@@ -331,7 +331,7 @@ class boss_akilzon : public CreatureScript
                                 Unit* bird = ObjectAccessor::GetUnit(*me, BirdGUIDs[i]);
                                 if (!bird) //they despawned on die
                                 {
-                                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                                     {
                                         x = target->GetPositionX() + irand(-10, 10);
                                         y = target->GetPositionY() + irand(-10, 10);
@@ -339,7 +339,7 @@ class boss_akilzon : public CreatureScript
                                         if (z > 95)
                                             z = 95.0f - urand(0, 5);
                                     }
-                                    Creature* creature = me->SummonCreature(NPC_SOARING_EAGLE, x, y, z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                                    Creature* creature = me->SummonCreature(NPC_SOARING_EAGLE, x, y, z, 0, TEMPSUMMON_CORPSE_DESPAWN);
                                     if (creature)
                                     {
                                         AddThreat(me->GetVictim(), 1.0f, creature);
@@ -436,7 +436,7 @@ class npc_akilzon_eagle : public CreatureScript
 
                 if (arrived)
                 {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     {
                         float x, y, z;
                         if (EagleSwoop_Timer)

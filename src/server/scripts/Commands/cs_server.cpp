@@ -40,6 +40,7 @@ EndScriptData */
 #include "UpdateTime.h"
 #include "Util.h"
 #include "VMapFactory.h"
+#include "VMapManager2.h"
 #include "World.h"
 #include "WorldSession.h"
 
@@ -48,6 +49,10 @@ EndScriptData */
 #include <boost/filesystem/operations.hpp>
 #include <openssl/crypto.h>
 #include <openssl/opensslv.h>
+
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 
 class server_commandscript : public CommandScript
 {
@@ -84,7 +89,6 @@ public:
 
         static std::vector<ChatCommand> serverSetCommandTable =
         {
-            { "difftime", rbac::RBAC_PERM_COMMAND_SERVER_SET_DIFFTIME, true, &HandleServerSetDiffTimeCommand, "" },
             { "loglevel", rbac::RBAC_PERM_COMMAND_SERVER_SET_LOGLEVEL, true, &HandleServerSetLogLevelCommand, "" },
             { "motd",     rbac::RBAC_PERM_COMMAND_SERVER_SET_MOTD,     true, &HandleServerSetMotdCommand,     "" },
             { "closed",   rbac::RBAC_PERM_COMMAND_SERVER_SET_CLOSED,   true, &HandleServerSetClosedCommand,   "" },
@@ -138,7 +142,7 @@ public:
         handler->PSendSysMessage("%s", GitRevision::GetFullVersion());
         handler->PSendSysMessage("Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
         handler->PSendSysMessage("Using Boost version: %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
-        handler->PSendSysMessage("Using MySQL version: %s", MySQL::GetLibraryVersion());
+        handler->PSendSysMessage("Using MySQL version: %u", MySQL::GetLibraryVersion());
         handler->PSendSysMessage("Using CMake version: %s", GitRevision::GetCMakeVersion());
 
         handler->PSendSysMessage("Compiled on: %s", GitRevision::GetHostOSVersion());
@@ -423,39 +427,12 @@ public:
     }
 
     // Set the level of logging
-    static bool HandleServerSetLogLevelCommand(ChatHandler* /*handler*/, char const* args)
+    static bool HandleServerSetLogLevelCommand(ChatHandler* /*handler*/, std::string const& type, std::string const& name, int32 level)
     {
-        if (!*args)
+        if (name.empty() || level < 0 || (type != "a" && type != "l"))
             return false;
 
-        char* type = strtok((char*)args, " ");
-        char* name = strtok(nullptr, " ");
-        char* level = strtok(nullptr, " ");
-
-        if (!type || !name || !level || *name == '\0' || *level == '\0' || (*type != 'a' && *type != 'l'))
-            return false;
-
-        sLog->SetLogLevel(name, level, *type == 'l');
-        return true;
-    }
-
-    // set diff time record interval
-    static bool HandleServerSetDiffTimeCommand(ChatHandler* /*handler*/, char const* args)
-    {
-        if (!*args)
-            return false;
-
-        char* newTimeStr = strtok((char*)args, " ");
-        if (!newTimeStr)
-            return false;
-
-        int32 newTime = atoi(newTimeStr);
-        if (newTime < 0)
-            return false;
-
-        sWorldUpdateTime.SetRecordUpdateTimeInterval(newTime);
-        printf("Record diff every %i ms\n", newTime);
-
+        sLog->SetLogLevel(name, level, type == "l");
         return true;
     }
 

@@ -81,7 +81,7 @@ public:
                 case 1:
                     Talk(SAY_WP_3);
                     me->CastSpell({ 5918.33f, 5372.91f, -98.770f }, SPELL_EXPLODE_CRYSTAL, true);
-                    me->SummonGameObject(184743, 5918.33f, 5372.91f, -98.770f, 0, QuaternionData(), TEMPSUMMON_MANUAL_DESPAWN);     //approx 3 to 4 seconds
+                    me->SummonGameObject(184743, 5918.33f, 5372.91f, -98.770f, 0, QuaternionData(), 3s, GO_SUMMON_TIMED_DESPAWN);
                     me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
                     break;
                 case 2:
@@ -92,7 +92,7 @@ public:
                     break;
                 case 8:
                     me->CastSpell({ 5887.37f, 5379.39f, -91.289f }, SPELL_EXPLODE_CRYSTAL, true);
-                    me->SummonGameObject(184743, 5887.37f, 5379.39f, -91.289f, 0, QuaternionData(), TEMPSUMMON_MANUAL_DESPAWN);      //approx 3 to 4 seconds
+                    me->SummonGameObject(184743, 5887.37f, 5379.39f, -91.289f, 0, QuaternionData(), 3s, GO_SUMMON_TIMED_DESPAWN);
                     me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
                     break;
                 case 9:
@@ -137,7 +137,7 @@ public:
             }
         }
 
-        void QuestAccept(Player* player, Quest const* quest) override
+        void OnQuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_DISASTER)
             {
@@ -304,7 +304,7 @@ public:
                 sayTimer -= diff;
         }
 
-        void SpellHit(Unit* caster, SpellInfo const* spellInfo) override
+        void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
         {
             if (spellInfo->Id != SPELL_OFFER)
                 return;
@@ -504,9 +504,7 @@ public:
                     Creature* crunchy = shooter->FindNearestCreature(NPC_CRUNCHY, 30);
                     Creature* bird = shooter->FindNearestCreature(NPC_THICKBIRD, 30);
 
-                    if (!bird || !crunchy)
-                        ; // fall to EVENT_MISS
-                    else
+                    if (bird && crunchy)
                     {
                         shooter->CastSpell(bird, SPELL_MISS_BIRD_APPLE);
                         bird->CastSpell(bird, SPELL_BIRD_FALL);
@@ -517,11 +515,10 @@ public:
                         crunchy->GetMotionMaster()->MovePoint(0, bird->GetPositionX(), bird->GetPositionY(),
                             bird->GetMap()->GetWaterOrGroundLevel(bird->GetPhaseMask(), bird->GetPositionX(), bird->GetPositionY(), bird->GetPositionZ()));
                         /// @todo Make crunchy perform emote eat when he reaches the bird
-
                         break;
                     }
+                    [[fallthrough]];
                 }
-                /* fallthrough */
                 case EVENT_MISS:
                 {
                     shooter->CastSpell(wilhelm, SPELL_MISS_APPLE);
@@ -578,16 +575,16 @@ public:
     {
         npc_haiphoonAI(Creature* creature) : VehicleAI(creature) { }
 
-        void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+        void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
         {
             if (target == me)
                 return;
 
-            if (spell->Id == SPELL_DEVOUR_WIND && me->GetCharmerOrOwnerPlayerOrPlayerItself())
+            if (spellInfo->Id == SPELL_DEVOUR_WIND && me->GetCharmerOrOwnerPlayerOrPlayerItself())
             {
                 me->UpdateEntry(NPC_HAIPHOON_AIR);
             }
-            else if (spell->Id == SPELL_DEVOUR_WATER && me->GetCharmerOrOwnerPlayerOrPlayerItself())
+            else if (spellInfo->Id == SPELL_DEVOUR_WATER && me->GetCharmerOrOwnerPlayerOrPlayerItself())
             {
                 me->UpdateEntry(NPC_HAIPHOON_WATER);
             }
@@ -597,110 +594,6 @@ public:
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_haiphoonAI(creature);
-    }
-};
-
-/*######
-## Quest: Reconnaissance Flight (12671)
-######*/
-enum ReconnaissanceFlight
-{
-    NPC_PLANE       = 28710, // Vic's Flying Machine
-    NPC_PILOT       = 28646,
-
-    VIC_SAY_0       = 0,
-    VIC_SAY_1       = 1,
-    VIC_SAY_2       = 2,
-    VIC_SAY_3       = 3,
-    VIC_SAY_4       = 4,
-    VIC_SAY_5       = 5,
-    VIC_SAY_6       = 6,
-    PLANE_EMOTE     = 0,
-
-    SPELL_ENGINE    = 52255, // Engine on Fire
-
-    SPELL_LAND      = 52226, // Land Flying Machine
-    SPELL_CREDIT    = 53328 // Land Flying Machine Credit
-};
-
-class npc_vics_flying_machine : public CreatureScript
-{
-public:
-    npc_vics_flying_machine() : CreatureScript("npc_vics_flying_machine") { }
-
-    struct npc_vics_flying_machineAI : public VehicleAI
-    {
-        npc_vics_flying_machineAI(Creature* creature) : VehicleAI(creature) { }
-
-        void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
-        {
-            if (apply && passenger->GetTypeId() == TYPEID_PLAYER)
-            {
-                /// @workaround - Because accessory gets unmounted when using vehicle_template_accessory.
-                /// When vehicle spawns accessory is mounted to seat 0,but when player mounts
-                /// he uses the same seat (instead of mounting to seat 1) kicking the accessory out.
-                passenger->ChangeSeat(1, false);
-                me->GetVehicleKit()->InstallAccessory(NPC_PILOT, 0, true, TEMPSUMMON_DEAD_DESPAWN, 0);
-                me->GetMotionMaster()->MovePath(NPC_PLANE, false);
-            }
-        }
-
-        void MovementInform(uint32 type, uint32 id) override
-        {
-            if (type != WAYPOINT_MOTION_TYPE)
-                return;
-
-            if (Creature* pilot = GetClosestCreatureWithEntry(me, NPC_PILOT, 10))
-                switch (id)
-                {
-                    case 5:
-                        pilot->AI()->Talk(VIC_SAY_0);
-                        break;
-                    case 11:
-                        pilot->AI()->Talk(VIC_SAY_1);
-                        break;
-                    case 12:
-                        pilot->AI()->Talk(VIC_SAY_2);
-                        break;
-                    case 14:
-                        pilot->AI()->Talk(VIC_SAY_3);
-                        break;
-                    case 15:
-                        pilot->AI()->Talk(VIC_SAY_4);
-                        break;
-                    case 17:
-                        pilot->AI()->Talk(VIC_SAY_5);
-                        break;
-                    case 21:
-                        pilot->AI()->Talk(VIC_SAY_6);
-                        break;
-                    case 25:
-                        Talk(PLANE_EMOTE);
-                        DoCast(SPELL_ENGINE);
-                        me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FORCE_MOVEMENT);
-                        break;
-                }
-        }
-
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
-        {
-            if (spell->Id == SPELL_LAND)
-            {
-                Unit* passenger = me->GetVehicleKit()->GetPassenger(1); // player should be on seat 1
-                if (passenger && passenger->GetTypeId() == TYPEID_PLAYER)
-                {
-                    passenger->CastSpell(passenger, SPELL_CREDIT, true);
-                    passenger->ExitVehicle();
-                }
-            }
-        }
-
-        void UpdateAI(uint32 /*diff*/) override { }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_vics_flying_machineAI(creature);
     }
 };
 
@@ -800,7 +693,6 @@ void AddSC_sholazar_basin()
     new spell_q12620_the_lifewarden_wrath();
     new spell_q12589_shoot_rjr();
     new npc_haiphoon();
-    new npc_vics_flying_machine();
     new spell_shango_tracks();
     RegisterSpellScript(spell_q12611_deathbolt);
 }

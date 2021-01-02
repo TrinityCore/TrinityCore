@@ -18,6 +18,7 @@
 #ifndef QuestPackets_h__
 #define QuestPackets_h__
 
+#include "ObjectGuid.h"
 #include "Packet.h"
 #include "QuestDef.h"
 
@@ -69,6 +70,7 @@ namespace WorldPackets
             uint32 RequiredPlayerKills      = 0;
             uint32 RewardTalents            = 0;
             int32  RewardArenaPoints        = 0;
+            uint32 RewardFactionFlags       = 0;
 
             uint32 RewardItems[QUEST_REWARDS_COUNT] = { };
             uint32 RewardAmount[QUEST_REWARDS_COUNT] = { };
@@ -107,6 +109,80 @@ namespace WorldPackets
                 WorldPacket const* Write() override;
 
                 QuestInfo Info;
+        };
+
+        struct QuestChoiceItem
+        {
+            QuestChoiceItem(uint32 itemID, uint32 quantity, uint32 displayID) : ItemID(itemID), Quantity(quantity),
+                                                                                DisplayID(displayID) { }
+            uint32 ItemID = 0;
+            uint32 Quantity = 0;
+            uint32 DisplayID = 0;
+        };
+
+        struct QuestRewards
+        {
+            std::vector<QuestChoiceItem> UnfilteredChoiceItems;
+            std::vector<QuestChoiceItem> RewardItems;
+            uint32 RewardMoney = 0;
+            uint32 RewardXPDifficulty = 0;
+            uint32 RewardHonor = 0;
+            float RewardKillHonor = 0.f;
+            uint32 RewardDisplaySpell = 0;
+            int32 RewardSpell = 0;
+            uint32 RewardTitleId = 0;
+            uint32 RewardTalents = 0;
+            uint32 RewardArenaPoints = 0;
+            uint32 RewardFactionFlags = 0;
+            std::array<uint32, QUEST_REPUTATIONS_COUNT> RewardFactionID = { };
+            std::array<int32, QUEST_REPUTATIONS_COUNT> RewardFactionValue = { };
+            std::array<int32, QUEST_REPUTATIONS_COUNT> RewardFactionValueOverride = { };
+        };
+
+        struct QuestDescEmote
+        {
+            QuestDescEmote(int32 type, uint32 delay) : Type(type), Delay(delay) { }
+            uint32 Type;
+            uint32 Delay;
+        };
+
+        class QuestGiverQuestDetails final : public ServerPacket
+        {
+        public:
+            QuestGiverQuestDetails() : ServerPacket(SMSG_QUEST_GIVER_QUEST_DETAILS, 1000) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid QuestGiverGUID;
+            ObjectGuid InformUnit;
+            uint32 QuestID = 0;
+            std::string Title;
+            std::string Details;
+            std::string Objectives;
+            bool AutoLaunched = false;
+            uint32 Flags = 0;
+            uint32 SuggestedGroupNum = 0;
+            bool StartCheat = false;
+            QuestRewards Rewards;
+            std::vector<QuestDescEmote> DescEmotes;
+        };
+
+        class QuestGiverOfferRewardMessage final : public ServerPacket
+        {
+        public:
+            QuestGiverOfferRewardMessage() : ServerPacket(SMSG_QUEST_GIVER_OFFER_REWARD_MESSAGE, 600) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid QuestGiverGUID;
+            uint32 QuestID = 0;
+            std::string Title;
+            std::string RewardText;
+            bool AutoLaunched = false;
+            uint32 Flags = 0;
+            uint32 SuggestedGroupNum = 0;
+            std::vector<QuestDescEmote> Emotes;
+            QuestRewards Rewards;
         };
     }
 }

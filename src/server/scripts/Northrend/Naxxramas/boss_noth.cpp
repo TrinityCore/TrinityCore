@@ -89,31 +89,24 @@ public:
             events.SetPhase(PHASE_NONE);
         }
 
-        void EnterEvadeMode(EvadeReason /*why*/) override
+        void EnterEvadeMode(EvadeReason why) override
         {
-            Reset(); // teleport back first
-            _EnterEvadeMode();
+            // in case we reset during balcony phase
+            if (events.IsInPhase(PHASE_BALCONY))
+                DoCastAOE(SPELL_TELEPORT_BACK);
+            BossAI::EnterEvadeMode(why);
         }
 
         void Reset() override
         {
-            if (!me->IsAlive())
-                return;
+            _Reset();
 
-            // in case we reset during balcony phase
-            if (events.IsInPhase(PHASE_BALCONY))
-            {
-                DoCastAOE(SPELL_TELEPORT_BACK);
-                me->SetReactState(REACT_AGGRESSIVE);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                me->SetImmuneToPC(false);
-            }
+            me->SetReactState(REACT_AGGRESSIVE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
             balconyCount = 0;
             events.SetPhase(PHASE_NONE);
             justBlinked = false;
-
-            _Reset();
         }
 
         void JustEngagedWith(Unit* who) override
@@ -130,7 +123,7 @@ public:
             DoZoneInCombat();
 
             if (!me->IsThreatened())
-                Reset();
+                EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
             else
             {
                 uint8 timeGround;
@@ -246,7 +239,6 @@ public:
                         events.SetPhase(PHASE_BALCONY);
                         me->SetReactState(REACT_PASSIVE);
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        me->SetImmuneToPC(true);
                         me->AttackStop();
                         me->StopMoving();
                         me->RemoveAllAuras();
@@ -303,7 +295,6 @@ public:
                         break;
                     case EVENT_GROUND_ATTACKABLE:
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        me->SetImmuneToPC(false);
                         me->SetReactState(REACT_AGGRESSIVE);
                         break;
                 }
