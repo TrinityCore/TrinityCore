@@ -17,6 +17,7 @@
 #pragma once
 
 #include <string>
+#include "TSString.h"
 
 class TSMutableString
 {

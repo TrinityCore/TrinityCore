@@ -1,17 +1,17 @@
 /*
  * This file is part of tswow (https://github.com/tswow/).
  * Copyright (C) 2020 tswow <https://github.com/tswow/>
- * 
- * This program is free software: you can redistribute it and/or 
- * modify it under the terms of the GNU General Public License as 
+ *
+ * This program is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, version 3.
- * 
- * This program is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License 
+ *
+ * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 #pragma once
@@ -59,7 +59,7 @@ struct TSArrayKeys
     }
 };
 
-template <typename T>
+template <class T>
 struct TSArray {
     std::vector<T> vec;
 
@@ -80,23 +80,30 @@ public:
         this->vec = vec;
     }
 
+    template <typename T>
+    T join(T delim)
+    {
+        T str;
+        for (int i = 0; i < this->get_length(); ++i)
+        {
+            str = str + vec[i];
+            if (i < this->get_length() - 1)
+            {
+                str = str + delim;
+            }
+        }
+        return str;
+    }
+
     auto pop() {
-        return vec.pop_back();
+        auto value = vec[vec.size() - 1];
+        vec.pop_back();
+        return value;
     }
 
     constexpr TSArray* operator->()
     {
         return this;
-    }
-
-    std::ostream& operator<<(std::ostream& os)
-    {
-        os << "[";
-        for (auto& g : this) {
-            os << g << ",";
-        }
-        os << "]";
-        return os;
     }
 
     template <typename... Args>
@@ -106,21 +113,48 @@ public:
         vec.insert(vec.cbegin() + position, { args... });
     }
 
+    template <typename... Args>
+    void unshift(Args... args)
+    {
+        vec.insert(vec.cbegin(), { args... });
+    }
+
+
     TSArray slice(size_t first, size_t last)
     {
-        return TSArray(std::vector<T>(vec.cbegin() + first, vec.cbegin() + last + 1));
+        return TSArray(std::vector<T>(vec.cbegin() + first, vec.cbegin() + last));
     }
 
     int indexOf(const T& e)
     {
-        return vec.cend() - std::find(vec.cbegin(), vec.cend(), e) - 1;
+        for (int i = 0; i < get_length(); ++i)
+        {
+            if (vec[i] == e)
+            {
+                return i;
+            }
+        }
+        return -1;
     }
+
+    int lastIndexOf(const T& e)
+    {
+        for (int i = get_length()-1; i >= 0; --i)
+        {
+            if (vec[i] == e)
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+
 
     bool removeElement(const T& e)
     {
-        return vec.erase(std::find(vec.cbegin(), vec.cend(), e)) != vec.cend();
+        auto res = vec.erase(std::find(vec.cbegin(), vec.cend(), e)) != vec.cend();
+        return res;
     }
-
 
     auto keys() {
         return TSArrayKeys<size_t>(vec.size());
@@ -146,14 +180,22 @@ public:
         return vec[index];
     }
 
-    TSArray filter(std::function<bool(T)> p)
+    auto get(int index) {
+        return vec[index];
+    }
+
+    auto set(int index, T value) {
+        vec[index] = value;
+    }
+
+    TSArray<T> filter(std::function<bool(T)> p)
     {
         std::vector<T> result;
         std::copy_if(vec.begin(), vec.end(), std::back_inserter(result), p);
         return TSArray(result);
     }
 
-    TSArray filter(std::function<bool(T, size_t)> p)
+    TSArray<T> filter(std::function<bool(T, size_t)> p)
     {
         std::vector<T> result;
         auto first = &(vec)[0];
@@ -169,7 +211,7 @@ public:
     {
         std::vector< decltype(p(T())) > result;
         std::transform(vec.begin(), vec.end(), std::back_inserter(result), [=](auto& v) {
-            return mutable_(p)(v);
+            return (p)(v);
         });
         return TSArray< decltype(p(T())) >(result);
     }
@@ -181,7 +223,7 @@ public:
         auto first = &(vec)[0];
         std::transform(vec.begin(), vec.end(), std::back_inserter(result), [=](auto& v) {
             auto index = &v - first;
-            return mutable_(p)(v, index);
+            return (p)(v, index);
         });
         return TSArray< decltype(p(T(), 0)) >(result);
     }
@@ -189,22 +231,22 @@ public:
     template <typename P>
     auto reduce(P p)
     {
-        // TODO enable (clang++ doesn't like reduce even in c++17)
-        return this[0];
-        //return std::reduce(vec.begin(), vec.end(), 0, p);
+        auto cur = this[0];
+        for (int i = 0; i < this.get_length(); ++i) {
+            cur = p(cur, this.get(i), i);
+        }
+        return cur;
     }
 
     template <typename P, typename I>
     auto reduce(P p, I initial)
     {
-        // TODO enable (clang++ doesn't like reduce even in c++17)
-        return initial;
-        //return std::reduce(vec.begin(), vec.end(), initial, p);
-    }
-
-    void forEach(std::function<void(T)> p)
-    {
-        std::for_each(vec.begin(), vec.end(), p);
+        I cur = initial;
+        for (int i = 0; i < this->vec.size(); ++i)
+        {
+            cur = p(cur, get(i), i);
+        }
+        return cur;
     }
 
     void forEach(std::function<void(T, size_t)> p)
@@ -221,4 +263,50 @@ public:
             vec.push_back(item);
         }
     }
+
+    T shift()
+    {
+        T value = vec[0];
+        vec.erase(vec.begin());
+        return value;
+    }
+
+    void insert(uint32_t position, T value)
+    {
+        vec.insert(vec.begin()+position, value);
+    }
+
+    TSArray<T> concat(TSArray<T> addition)
+    {
+        TSArray<T> clone;
+        clone.vec.insert(clone.end(), this->begin(), this->end());
+        clone.vec.insert(clone.end(), addition->begin(), addition->end());
+        return clone;
+    }
 };
+
+template <typename T>
+std::ostream& operator<<(std::ostream& os, TSArray<T>* arr)
+{
+    os << (*arr);
+    return os;
+}
+
+template <typename T>
+std::ostream& operator<<(std::ostream& os, TSArray<T> arr)
+{
+    os << "[";
+    for (int i = 0; i < arr.get_length(); ++i)
+    {
+        if (i < arr.get_length() - 1)
+        {
+            os << arr[i] << ",";
+        }
+        else
+        {
+            os << arr[i];
+        }
+    }
+    os << "]";
+    return os;
+}
