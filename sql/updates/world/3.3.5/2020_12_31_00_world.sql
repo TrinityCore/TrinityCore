@@ -9,7 +9,7 @@ CREATE TABLE `vehicle_template` (
 ) ENGINE=MyISAM;
 
 DELETE FROM `command` WHERE `name`='reload vehicle_template';
-INSERT INTO `command` (`name`,`permission`,`help`) VALUES
-('reload vehicle_template', 881, "Syntax: .reload vehicle_template
+INSERT INTO `command` (`name`,`help`) VALUES
+('reload vehicle_template', "Syntax: .reload vehicle_template
 
 Reloads vehicle template definitions from the database.");
