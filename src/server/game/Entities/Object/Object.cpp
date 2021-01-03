@@ -188,7 +188,6 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     if (target == this)                                      // building packet for yourself
         flags |= UPDATEFLAG_SELF;
 
-
     if (isType(TYPEMASK_UNIT))
     {
         if (ToUnit()->GetVictim())

@@ -90,7 +90,6 @@ enum XPColorChar : uint8;
 
 #define VISIBLE_RANGE       166.0f                          //MAX visible range (size of grid)
 
-
 /*
     @todo Add more script type classes.
 

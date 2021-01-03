@@ -705,7 +705,6 @@ struct PlayerInfo
     std::unique_ptr<PlayerLevelInfo[]> levelInfo;
 };
 
-
 typedef std::multimap<int32, uint32> ExclusiveQuestGroups; // exclusiveGroupId -> quest
 typedef std::pair<ExclusiveQuestGroups::const_iterator, ExclusiveQuestGroups::const_iterator> ExclusiveQuestGroupsBounds;
 

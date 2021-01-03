@@ -628,7 +628,6 @@ class spell_pal_divine_storm_dummy : public SpellScriptLoader
         {
             PrepareSpellScript(spell_pal_divine_storm_dummy_SpellScript);
 
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_PALADIN_DIVINE_STORM_HEAL });

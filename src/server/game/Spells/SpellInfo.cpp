@@ -3471,7 +3471,6 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, uint8 effIndex, std::unor
                 return false;
     }
 
-
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         switch (spellInfo->Effects[i].Effect)

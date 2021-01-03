@@ -164,7 +164,6 @@ public:
     }
 };
 
-
 /*####
 ## npc_released_offspring_harkoa
 ####*/

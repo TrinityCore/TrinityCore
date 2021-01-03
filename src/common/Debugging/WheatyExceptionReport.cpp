@@ -56,7 +56,6 @@ bool WheatyExceptionReport::alreadyCrashed;
 std::mutex WheatyExceptionReport::alreadyCrashedLock;
 WheatyExceptionReport::pRtlGetVersion WheatyExceptionReport::RtlGetVersion;
 
-
 // Declare global instance of class
 WheatyExceptionReport g_WheatyExceptionReport;
 
@@ -1285,7 +1284,6 @@ bool logChildren)
             dataKind == DataIsGlobal ||
             dataKind == DataIsStaticMember)
             continue;
-
 
         symbolDetails.top().HasChildren = true;
         if (!logChildren)

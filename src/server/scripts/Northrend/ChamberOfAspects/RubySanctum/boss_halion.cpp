@@ -1901,8 +1901,6 @@ class spell_halion_blazing_aura : public SpellScriptLoader
         }
 };
 
-
-
 void AddSC_boss_halion()
 {
     new boss_halion();

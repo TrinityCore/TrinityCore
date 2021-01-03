@@ -2583,7 +2583,6 @@ void SpellMgr::LoadSpellInfoStore()
         }
     }
 
-
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo store in %u ms", GetMSTimeDiffToNow(oldMSTime));
 }
 
@@ -3524,7 +3523,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         // should also affect Flash Heal
         spellInfo->Effects[EFFECT_0].SpellClassMask[0] |= 0x800;
     });
-
 
     // Crafty's Ultra-Advanced Proto-Typical Shortening Blaster
     ApplySpellFix({ 51912 }, [](SpellInfo* spellInfo)

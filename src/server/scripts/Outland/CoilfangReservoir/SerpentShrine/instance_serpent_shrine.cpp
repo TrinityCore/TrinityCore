@@ -48,7 +48,6 @@ enum Misc
     MIN_KILLS                       = 30
 };
 
-
 //NOTE: there are 6 platforms
 //there should be 3 shatterers and 2 priestess on all platforms, total of 30 elites, else it won't work!
 //delete all other elites not on platforms! these mobs should only be on those platforms nowhere else.

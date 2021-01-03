@@ -122,7 +122,6 @@ enum PetMisc
     OVERLOAD_DISTANCE       = 28
 };
 
-
 //Thaddius
 enum ThaddiusYells
 {
@@ -1242,7 +1241,6 @@ class achievement_thaddius_shocking : public AchievementCriteriaScript
             return target && target->GetAI() && target->GetAI()->GetData(DATA_POLARITY_CROSSED);
         }
 };
-
 
 void AddSC_boss_thaddius()
 {

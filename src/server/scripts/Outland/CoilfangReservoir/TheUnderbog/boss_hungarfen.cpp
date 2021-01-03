@@ -148,7 +148,6 @@ public:
 
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
-
         void AttackStart(Unit* /*who*/) override { }
 
         void JustEngagedWith(Unit* /*who*/) override { }

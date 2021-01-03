@@ -68,7 +68,6 @@ enum HydrossTheUnstable
     ENTRY_BEAM_DUMMY            = 21934
 };
 
-
 #define HYDROSS_X                   -239.439f
 #define HYDROSS_Y                   -363.481f
 

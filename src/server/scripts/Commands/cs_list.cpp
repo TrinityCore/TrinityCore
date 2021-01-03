@@ -666,7 +666,6 @@ public:
     }
 };
 
-
 void AddSC_list_commandscript()
 {
     new list_commandscript();

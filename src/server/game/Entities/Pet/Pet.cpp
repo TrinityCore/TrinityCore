@@ -692,7 +692,6 @@ void Pet::Update(uint32 diff)
     Creature::Update(diff);
 }
 
-
 void Pet::LoseHappiness()
 {
     uint32 curValue = GetPower(POWER_HAPPINESS);

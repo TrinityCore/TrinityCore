@@ -1240,7 +1240,6 @@ class TC_GAME_API WorldSession
         // Packets cooldown
         time_t _calendarEventCreationCooldown;
 
-
         WorldSession(WorldSession const& right) = delete;
         WorldSession& operator=(WorldSession const& right) = delete;
 };

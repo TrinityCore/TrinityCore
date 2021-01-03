@@ -1886,7 +1886,6 @@ bool Creature::CanStartAttack(Unit const* who, bool force) const
     return IsWithinLOSInMap(who);
 }
 
-
 bool Creature::CheckNoGrayAggroConfig(uint32 playerLevel, uint32 creatureLevel) const
 {
     if (Trinity::XP::GetColorCode(playerLevel, creatureLevel) != XP_GRAY)

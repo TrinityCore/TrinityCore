@@ -97,7 +97,6 @@ enum SpellFamilyFlag
     SPELLFAMILYFLAG_SHAMAN_TOTEM_EFFECTS    = 0x04000000  // Seems to be linked to most totems and some totem effects
 };
 
-
 #define SPELL_LINKED_MAX_SPELLS  200000
 
 enum SpellLinkedType
@@ -107,7 +106,6 @@ enum SpellLinkedType
     SPELL_LINK_AURA     = 2 * 200000,   // +: aura; -: immune
     SPELL_LINK_REMOVE   = 0
 };
-
 
 // Spell proc event related declarations (accessed using SpellMgr functions)
 enum ProcFlags

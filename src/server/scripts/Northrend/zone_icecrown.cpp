@@ -446,7 +446,6 @@ public:
 
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
-
         void JustSummoned(Creature* Summoned) override
         {
             Summons.Summon(Summoned);

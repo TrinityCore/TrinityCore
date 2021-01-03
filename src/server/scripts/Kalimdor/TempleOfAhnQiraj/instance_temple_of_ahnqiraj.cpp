@@ -38,7 +38,6 @@ ObjectData const creatureData[] =
     { 0,             0              } // END
 };
 
-
 DoorData const doorData[] =
 {
     { AQ40_DOOR_1, DATA_SARTURA,       DOOR_TYPE_PASSAGE },

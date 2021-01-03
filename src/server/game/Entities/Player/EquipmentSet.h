@@ -54,5 +54,4 @@ struct EquipmentSetInfo
 
 typedef std::map<uint64, EquipmentSetInfo> EquipmentSetContainer;
 
-
 #endif // EquipmentSet_h__
