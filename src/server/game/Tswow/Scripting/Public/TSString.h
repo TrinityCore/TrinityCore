@@ -35,6 +35,11 @@ struct TSString {
 
     }
 
+    constexpr TSString* operator->()
+    {
+        return this;
+    }
+
     auto c_str() {
         return this->_value.c_str();
     }
