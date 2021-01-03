@@ -1785,7 +1785,7 @@ INSERT INTO `rbac_permissions` VALUES
 (877,'Command: lookup quest id'),
 (878,'Command: debug questreset'),
 (879,'Command: debug poolstatus'),
-(880,'Command: pdump copy');
+(880,'Command: pdump copy'),
 (881,'Command: reload vehicle_template');
 /*!40000 ALTER TABLE `rbac_permissions` ENABLE KEYS */;
 UNLOCK TABLES;
