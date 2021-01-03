@@ -356,10 +356,11 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void AtEngage(Unit* target) override;
         void AtDisengage() override;
 
-        bool HasSwimFlagOutOfCombat() const
+        bool HasSwimmingFlagOutOfCombat() const
         {
-            return _hasSwimFlagOutOfCombat;
+            return !_isMissingSwimmingFlagOutOfCombat;
         }
+        void RefreshSwimmingFlag(bool recheck = false);
 
         std::string GetDebugInfo() const override;
 
@@ -445,7 +446,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool _regenerateHealth; // Set on creation
         bool _regenerateHealthLock; // Dynamically set
 
-        bool _hasSwimFlagOutOfCombat;
+        bool _isMissingSwimmingFlagOutOfCombat;
 };
 
 class TC_GAME_API AssistDelayEvent : public BasicEvent
