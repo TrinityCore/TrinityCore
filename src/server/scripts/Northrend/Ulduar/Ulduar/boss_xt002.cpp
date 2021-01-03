@@ -502,7 +502,6 @@ struct npc_pummeller : public ScriptedAI
             return;
         }
 
-
         if (Creature* xt002 = _instance->GetCreature(BOSS_XT002))
             xt002->AI()->JustSummoned(me);
 

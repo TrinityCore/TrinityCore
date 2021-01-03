@@ -2201,7 +2201,6 @@ void Group::ResetInstances(uint8 method, bool isRaid, bool isLegacy, Player* Sen
                 CharacterDatabase.Execute(stmt);
             }
 
-
             itr = difficultyItr->second.erase(itr);
             // this unloads the instance save unless online players are bound to it
             // (eg. permanent binds or GM solo binds)

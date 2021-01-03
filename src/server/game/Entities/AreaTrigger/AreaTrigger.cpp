@@ -1000,7 +1000,6 @@ void AreaTrigger::AI_Destroy()
     _ai.reset();
 }
 
-
 void AreaTrigger::BuildValuesCreate(ByteBuffer* data, Player const* target) const
 {
     UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);

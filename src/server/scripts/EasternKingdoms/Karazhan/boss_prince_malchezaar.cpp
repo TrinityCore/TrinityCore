@@ -124,7 +124,6 @@ public:
         void JustEngagedWith(Unit* /*who*/) override { }
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
-
         void UpdateAI(uint32 diff) override
         {
             if (HellfireTimer)

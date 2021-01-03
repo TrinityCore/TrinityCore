@@ -1539,7 +1539,6 @@ class TC_GAME_API Unit : public WorldObject
         float m_modSpellHitChance;
         int32 m_baseSpellCritChance;
 
-
         uint32 m_baseAttackSpeed[MAX_ATTACK];
         float m_modAttackSpeedPct[MAX_ATTACK];
         uint32 m_attackTimer[MAX_ATTACK];

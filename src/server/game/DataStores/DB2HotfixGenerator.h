@@ -63,7 +63,6 @@ private:
         }
     }
 
-
     DB2Storage<T>& _storage;
     uint32 _count;
 };

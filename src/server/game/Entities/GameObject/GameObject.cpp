@@ -1025,7 +1025,6 @@ void GameObject::Update(uint32 diff)
             else
                 AddObjectToRemoveList();
 
-
             break;
         }
     }

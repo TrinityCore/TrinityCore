@@ -453,7 +453,6 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
         }
     }
 
-
     // set initial homebind position
     SetHomebind(*this, GetAreaId());
 
@@ -14118,7 +14117,6 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
     if (pEnchant->RequiredSkillID > 0 && pEnchant->RequiredSkillRank > GetSkillValue(pEnchant->RequiredSkillID))
         return;
 
-
     // If we're dealing with a gem inside a prismatic socket we need to check the prismatic socket requirements
     // rather than the gem requirements itself. If the socket has no color it is a prismatic socket.
     if ((slot == SOCK_ENCHANTMENT_SLOT || slot == SOCK_ENCHANTMENT_SLOT_2 || slot == SOCK_ENCHANTMENT_SLOT_3))
@@ -16442,7 +16440,6 @@ bool Player::GetQuestRewardStatus(uint32 quest_id) const
     {
         if (qInfo->IsSeasonal() && !qInfo->IsRepeatable())
             return !SatisfyQuestSeasonal(qInfo, false);
-
 
         // for repeatable quests: rewarded field is set after first reward only to prevent getting XP more than once
         if (!qInfo->IsRepeatable())

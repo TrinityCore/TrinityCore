@@ -43,7 +43,6 @@ static constexpr char _luaEvalPostfix[] = ",'GUILD')end";
 
 static_assert((sizeof(_luaEvalPrefix)-1 + sizeof(_luaEvalMidfix)-1 + sizeof(_luaEvalPostfix)-1 + WARDEN_MAX_LUA_CHECK_LENGTH) == 255);
 
-
 WardenWin::WardenWin() : Warden(), _serverTicks(0)
 {
     for (WardenCheckCategory category : EnumUtils::Iterate<WardenCheckCategory>())

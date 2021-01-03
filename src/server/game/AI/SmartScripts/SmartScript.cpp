@@ -2551,7 +2551,6 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         ENSURE_AI(SmartAI, summon->AI())->SetTimedActionList(e, e.entryOrGuid, privateObjectOwner, e.event_id + 1);
             };
 
-
             // if target is position then targets container was empty
             if (e.GetTargetType() != SMART_TARGET_POSITION)
             {

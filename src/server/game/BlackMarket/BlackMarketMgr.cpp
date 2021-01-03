@@ -496,7 +496,6 @@ void BlackMarketEntry::PlaceBid(uint64 bid, Player* player, CharacterDatabaseTra
 
     player->ModifyMoney(-static_cast<int64>(bid));
 
-
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_BLACKMARKET_AUCTIONS);
 
     stmt->setUInt64(0, _currentBid);

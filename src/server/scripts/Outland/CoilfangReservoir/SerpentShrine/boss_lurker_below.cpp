@@ -45,7 +45,6 @@ enum Spells
     SPELL_SUBMERGE          = 37550,
     SPELL_EMERGE            = 20568,
 
-
     // Ambusher spells
     SPELL_SPREAD_SHOT       = 37790,
     SPELL_SHOOT             = 37770,

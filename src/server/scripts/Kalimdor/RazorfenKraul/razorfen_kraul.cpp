@@ -225,7 +225,6 @@ public:
                 DoFindNewTubber();
         }
 
-
         bool IsMovementActive;
         ObjectGuid TargetTubberGUID;
     };

@@ -1743,7 +1743,6 @@ LfgLockMap LFGMgr::GetLockedDungeons(ObjectGuid guid)
                 if (player->GetTeam() == HORDE && ar->quest_H && !player->GetQuestRewardStatus(ar->quest_H))
                     return LFG_LOCKSTATUS_QUEST_NOT_COMPLETED;
 
-
                 if (ar->item)
                 {
                     if (!player->HasItemCount(ar->item) && (!ar->item2 || !player->HasItemCount(ar->item2)))

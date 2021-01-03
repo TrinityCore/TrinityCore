@@ -136,7 +136,6 @@ public:
         void JustEngagedWith(Unit* /*who*/) override { }
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
-
         void JustDied(Unit* killer) override
         {
             if (!killer || killer->GetTypeId() != TYPEID_PLAYER)
@@ -264,7 +263,6 @@ public:
 
         void JustEngagedWith(Unit* /*who*/) override { }
         void MoveInLineOfSight(Unit* /*who*/) override { }
-
 
         void JustDied(Unit* /*killer*/) override
         {

@@ -202,7 +202,6 @@ class npc_hearthsinger_forresten_cot : public CreatureScript
                 }
             }
 
-
         private:
             InstanceScript const* const _instance;
             EventMap _events;
@@ -1458,7 +1457,6 @@ public:
         return GetCullingOfStratholmeAI<npc_crate_helperAI>(creature);
     }
 };
-
 
 void AddSC_culling_of_stratholme()
 {

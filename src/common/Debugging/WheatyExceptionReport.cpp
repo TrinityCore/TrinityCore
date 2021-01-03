@@ -1294,7 +1294,6 @@ bool logChildren)
             dataKind == DataIsStaticMember)
             continue;
 
-
         symbolDetails.top().HasChildren = true;
         if (!logChildren)
         {

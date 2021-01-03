@@ -164,8 +164,6 @@ bool ticket_commandscript::HandleTicketAssignToCommand(ChatHandler* handler, cha
     return true;
 }
 
-
-
 template<typename T>
 bool ticket_commandscript::HandleTicketCloseByIdCommand(ChatHandler* handler, char const* args)
 {
@@ -284,7 +282,6 @@ bool ticket_commandscript::HandleTicketDeleteByIdCommand(ChatHandler* handler, c
 
     return true;
 }
-
 
 template<typename T>
 bool ticket_commandscript::HandleTicketResetCommand(ChatHandler* handler, char const* /*args*/)

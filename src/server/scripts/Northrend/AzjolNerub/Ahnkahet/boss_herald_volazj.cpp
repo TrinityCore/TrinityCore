@@ -126,7 +126,6 @@ struct boss_volazj : public BossAI
         if (me->HasUnitFlag(UNIT_FLAG_NOT_SELECTABLE))
             damage = 0;
 
-
         if ((GetHealthPct(0) >= 66 && GetHealthPct(damage) < 66)||
             (GetHealthPct(0) >= 33 && GetHealthPct(damage) < 33))
         {

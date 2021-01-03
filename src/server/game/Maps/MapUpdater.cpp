@@ -22,7 +22,6 @@
 
 #include <mutex>
 
-
 class MapUpdateRequest
 {
     private:

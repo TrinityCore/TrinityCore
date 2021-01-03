@@ -238,7 +238,6 @@ private:
     bool _inCombat;
 };
 
-
 struct IllidariCouncilBossAI : public BossAI
 {
     IllidariCouncilBossAI(Creature* creature, uint32 bossId) : BossAI(creature, bossId), _bossId(bossId)

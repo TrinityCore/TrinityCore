@@ -99,8 +99,6 @@ public:
         // "kill" original creature
         creatureTarget->DespawnOrUnsummon();
 
-
-
         // prepare visual effect for levelup
         pet->SetLevel(player->GetLevel() - 1);
 

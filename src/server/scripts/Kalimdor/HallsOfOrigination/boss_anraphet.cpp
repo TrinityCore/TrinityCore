@@ -82,7 +82,6 @@ enum Spells
 
     SPELL_CRUMBLING_RUIN                = 75609,
 
-
     SPELL_NEMESIS_STRIKE                = 75604,
 
     SPELL_OMEGA_STANCE_SUMMON           = 77106,

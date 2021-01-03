@@ -852,7 +852,6 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
     if (veSeat->HasFlag(VEHICLE_SEAT_FLAG_DISABLE_GRAVITY))
         Passenger->SetDisableGravity(true);
 
-
     float o = veSeatAddon ? veSeatAddon->SeatOrientationOffset : 0.f;
     float x = veSeat->AttachmentOffset.X;
     float y = veSeat->AttachmentOffset.Y;

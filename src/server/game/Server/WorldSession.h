@@ -1607,7 +1607,6 @@ class TC_GAME_API WorldSession
         void HandleBfQueueInviteResponse(WorldPackets::Battlefield::BFMgrQueueInviteResponse& bfMgrQueueInviteResponse);
         void HandleBfQueueExitRequest(WorldPackets::Battlefield::BFMgrQueueExitRequest& bfMgrQueueExitRequest);
 
-
         void HandleMinimapPingOpcode(WorldPackets::Party::MinimapPingClient& packet);
         void HandleRandomRollOpcode(WorldPackets::Misc::RandomRollClient& packet);
         void HandleFarSightOpcode(WorldPackets::Misc::FarSight& packet);

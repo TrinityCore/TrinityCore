@@ -198,7 +198,6 @@ void CharacterCache::UpdateCharacterInfoDeleted(ObjectGuid const& guid, bool del
         itr->second.Name = *name;
 }
 
-
 /*
 Getters
 */

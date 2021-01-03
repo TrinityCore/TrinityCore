@@ -50,7 +50,6 @@ class npc_pet_shaman_earth_elemental : public CreatureScript
         {
             npc_pet_shaman_earth_elementalAI(Creature* creature) : ScriptedAI(creature) { }
 
-
             void Reset() override
             {
                 _events.Reset();

@@ -310,7 +310,6 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
     {
         bool allow = false;
 
-
         // allow casting of unknown spells for special lock cases
         if (GameObject* go = targets.GetGOTarget())
             if (go->GetSpellForLock(caster->ToPlayer()) == spellInfo)
@@ -556,7 +555,6 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPackets::Spells::GetMirrorI
         mirrorImageComponentedData.RaceID = creator->GetRace();
         mirrorImageComponentedData.Gender = creator->GetGender();
         mirrorImageComponentedData.ClassID = creator->GetClass();
-
 
         for (UF::ChrCustomizationChoice const& customization : player->m_playerData->Customizations)
             mirrorImageComponentedData.Customizations.push_back(customization);

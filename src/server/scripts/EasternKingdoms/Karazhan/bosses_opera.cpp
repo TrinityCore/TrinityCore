@@ -1007,7 +1007,6 @@ enum JulianneRomulo
     ROMULO_Y                        = -1758,
 };
 
-
 enum RAJPhase
 {
     PHASE_JULIANNE      = 0,

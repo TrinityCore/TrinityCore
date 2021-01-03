@@ -215,7 +215,6 @@ void BattlefieldTB::OnPlayerJoinWar(Player* player)
         player->CastSpell(player, SPELL_TOWER_ATTACK_BONUS, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_AURA_STACK, GetData(BATTLEFIELD_TB_DATA_TOWERS_DESTROYED)));
 }
 
-
 void BattlefieldTB::OnPlayerLeaveWar(Player* player)
 {
     RemoveAurasFromPlayer(player);

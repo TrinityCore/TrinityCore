@@ -58,7 +58,6 @@
 # Redistribution and use is allowed according to the terms of the BSD license.
 # For details see the accompanying COPYING-CMAKE-SCRIPTS file.
 
-
 MACRO(NORMALIZE_VERSION _requested_version _normalized_version)
     STRING(REGEX MATCH "[^0-9]*[0-9]+\\.[0-9]+\\.[0-9]+.*" _threePartMatch "${_requested_version}")
     if(_threePartMatch)

@@ -274,7 +274,6 @@ class npc_pit_of_saron_icicle : public CreatureScript
         }
 };
 
-
 class spell_pos_ice_shards : public SpellScriptLoader
 {
     public:

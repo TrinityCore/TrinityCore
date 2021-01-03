@@ -119,7 +119,6 @@ enum SpellFamilyFlag
     SPELLFAMILYFLAG_SHAMAN_TOTEM_EFFECTS        = 0x04000000  // Seems to be linked to most totems and some totem effects
 };
 
-
 #define SPELL_LINKED_MAX_SPELLS  200000
 
 enum SpellLinkedType
@@ -129,7 +128,6 @@ enum SpellLinkedType
     SPELL_LINK_AURA     = 2 * 200000,   // +: aura; -: immune
     SPELL_LINK_REMOVE   = 0
 };
-
 
 // Spell proc event related declarations (accessed using SpellMgr functions)
 enum ProcFlags : uint32
@@ -300,7 +298,6 @@ enum ProcAttributes : uint32
     PROC_ATTR_REQ_POWER_COST            = 0x0000004, // requires triggering spell to have a power cost for aura proc
     PROC_ATTR_REQ_SPELLMOD              = 0x0000008, // requires triggering spell to be affected by proccing aura to drop charges
     PROC_ATTR_USE_STACKS_FOR_CHARGES    = 0x0000010, // consuming proc drops a stack from proccing aura instead of charge
-
 
     PROC_ATTR_REDUCE_PROC_60            = 0x0000080, // aura should have a reduced chance to proc if level of proc Actor > 60
     PROC_ATTR_CANT_PROC_FROM_ITEM_CAST  = 0x0000100, // do not allow aura proc if proc is caused by a spell casted by item

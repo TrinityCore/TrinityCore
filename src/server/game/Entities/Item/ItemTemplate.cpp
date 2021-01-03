@@ -98,7 +98,6 @@ uint32 ItemTemplate::GetSkill() const
         0, SKILL_CLOTH, SKILL_LEATHER, SKILL_MAIL, SKILL_PLATE_MAIL, 0, SKILL_SHIELD, 0, 0, 0, 0
     };
 
-
     switch (GetClass())
     {
         case ITEM_CLASS_WEAPON:

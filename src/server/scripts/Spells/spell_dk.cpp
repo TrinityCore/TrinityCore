@@ -430,7 +430,6 @@ class spell_dk_death_grip_initial : public SpellScript
     }
 };
 
-
 // 48743 - Death Pact
 class spell_dk_death_pact : public AuraScript
 {

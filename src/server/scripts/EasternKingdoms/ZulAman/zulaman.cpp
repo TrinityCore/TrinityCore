@@ -221,7 +221,6 @@ class npc_voljin_zulaman : public CreatureScript
         }
 };
 
-
 void AddSC_zulaman()
 {
     new npc_voljin_zulaman();

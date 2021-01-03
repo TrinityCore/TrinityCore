@@ -72,7 +72,6 @@ class instance_utgarde_pinnacle : public InstanceMapScript
                 LoadObjectData(creatureData, gameObjectData);
             }
 
-
             void OnGameObjectCreate(GameObject* go) override
             {
                 InstanceScript::OnGameObjectCreate(go);

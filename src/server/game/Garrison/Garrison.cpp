@@ -69,7 +69,6 @@ bool Garrison::LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blue
             time_t timeBuilt = fields[2].GetInt64();
             bool active = fields[3].GetBool();
 
-
             Plot* plot = GetPlot(plotInstanceId);
             if (!plot)
                 continue;

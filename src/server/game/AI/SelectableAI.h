@@ -42,5 +42,4 @@ private:
     bool _isDBAllowed;
 };
 
-
 #endif // SelectableAI_h__

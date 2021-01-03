@@ -2127,7 +2127,6 @@ class spell_illidan_demon_transform1 : public AuraScript
     }
 };
 
-
 // 40398 - Demon Transform 2
 class spell_illidan_demon_transform2 : public AuraScript
 {

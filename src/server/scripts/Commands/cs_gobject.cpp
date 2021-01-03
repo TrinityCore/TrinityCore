@@ -164,7 +164,6 @@ public:
         Player* player = handler->GetSession()->GetPlayer();
         Seconds spawntm(spawntime.value_or(300));
 
-
         if (!sObjectMgr->GetGameObjectTemplate(objectId))
         {
             handler->PSendSysMessage(LANG_GAMEOBJECT_NOT_EXIST, objectId);

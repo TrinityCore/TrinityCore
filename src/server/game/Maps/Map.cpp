@@ -67,7 +67,6 @@ BOOST_1_74_FIBONACCI_HEAP_MSVC_COMPILE_FIX(RespawnListContainer::value_type)
 
 GridState* si_GridStates[MAX_GRID_STATE];
 
-
 ZoneDynamicInfo::ZoneDynamicInfo() : MusicId(0), DefaultWeather(nullptr), WeatherId(WEATHER_STATE_FINE),
     Intensity(0.0f) { }
 

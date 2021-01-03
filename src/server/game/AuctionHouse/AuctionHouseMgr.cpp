@@ -1959,7 +1959,6 @@ void AuctionHouseObject::SendAuctionExpired(AuctionPosting const* auction, Chara
         if (owner)
             owner->GetSession()->SendAuctionClosedNotification(auction, 0.0f, false);
 
-
         auto itemItr = auction->Items.begin();
         while (itemItr != auction->Items.end())
         {

@@ -256,7 +256,6 @@ void WorldPackets::Party::SetPartyAssignment::Read()
     Set = _worldPacket.ReadBit();
 }
 
-
 void WorldPackets::Party::SetRole::Read()
 {
     _worldPacket >> PartyIndex;

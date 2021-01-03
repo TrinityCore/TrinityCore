@@ -578,7 +578,6 @@ void World::LoadConfigSettings(bool reload)
         sSupportMgr->SetSuggestionSystemStatus(m_bool_configs[CONFIG_SUPPORT_SUGGESTIONS_ENABLED]);
     }
 
-
     ///- Get string for new logins (newly created characters)
     SetNewCharString(sConfigMgr->GetStringDefault("PlayerStart.String", ""));
 

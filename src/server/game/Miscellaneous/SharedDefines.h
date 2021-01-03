@@ -2525,7 +2525,6 @@ enum SpellImmunity
     MAX_SPELL_IMMUNITY
 };
 
-
 // target enum name consist of:
 // TARGET_[OBJECT_TYPE]_[REFERENCE_TYPE(skipped for caster)]_[SELECTION_TYPE(skipped for default)]_[additional specifiers(friendly, BACK_LEFT, etc.]
 enum Targets
@@ -7820,7 +7819,6 @@ enum WorldState : uint32
     WS_BATTLEFIELD_TB_EAST_DAMAGED_ALLIANCE  = 5447,
     WS_BATTLEFIELD_TB_EAST_INTACT_NEUTRAL    = 5451,
     WS_BATTLEFIELD_TB_EAST_DAMAGED_NEUTRAL   = 5452,
-
 
     WS_CURRENCY_RESET_TIME      = 20001,                     // Next arena distribution time
     WS_WEEKLY_QUEST_RESET_TIME  = 20002,                     // Next weekly quest reset time
