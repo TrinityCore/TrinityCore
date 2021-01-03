@@ -1050,7 +1050,7 @@ declare namespace _hidden {
         OnReceiveEmote(callback: (creature: TSCreature, player: TSPlayer, emote: uint32)=>void);
         OnOwnerAttacked(callback: (creature: TSCreature, attacker: TSUnit)=>void);
         OnOwnerAttacks(callback: (creature: TSCreature, target: TSUnit)=>void);
-        OnCorpseRemoved(callback: (creature: TSCreature, delay: uint32)=>void);b
+        OnCorpseRemoved(callback: (creature: TSCreature, delay: uint32)=>void);
 
         OnWaypointStarted(callback: (creature: TSCreature, id: uint32, path: uint32)=>void);
         OnWaypointReached(callback: (creature: TSCreature, id: uint32, path: uint32)=>void);
