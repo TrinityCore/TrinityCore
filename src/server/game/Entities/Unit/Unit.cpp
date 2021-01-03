@@ -12782,9 +12782,6 @@ bool Unit::IsFalling() const
 
 bool Unit::CanSwim() const
 {
-    if (!CanEnterWater())
-        return false;
-
     // Mirror client behavior, if this method returns false then client will not use swimming animation and for players will apply gravity as if there was no water
     if (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CANNOT_SWIM))
         return false;

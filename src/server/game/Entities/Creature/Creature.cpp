@@ -2683,7 +2683,7 @@ void Creature::UpdateMovementFlags()
     if (!isInAir)
         RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING);
 
-    SetSwim(GetMovementTemplate().IsSwimAllowed() && IsInWater());
+    SetSwim(CanSwim() && IsInWater());
 }
 
 CreatureMovementData const& Creature::GetMovementTemplate() const
@@ -2694,11 +2694,22 @@ CreatureMovementData const& Creature::GetMovementTemplate() const
     return GetCreatureTemplate()->Movement;
 }
 
+bool Creature::CanSwim() const
+{
+    if (Unit::CanSwim())
+        return true;
+
+    if (IsPet())
+        return true;
+
+    return false;
+}
+
 bool Creature::CanEnterWater() const
 {
-    // Player controlled units are allowed go enter water
-    if (IsPet() || HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED))
+    if (CanSwim())
         return true;
+
     return GetMovementTemplate().IsSwimAllowed();
 }
 
