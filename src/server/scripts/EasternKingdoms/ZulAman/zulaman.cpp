@@ -349,7 +349,6 @@ class npc_harrison_jones : public CreatureScript
         }
 };
 
-
 void AddSC_zulaman()
 {
     new npc_zulaman_hostage();

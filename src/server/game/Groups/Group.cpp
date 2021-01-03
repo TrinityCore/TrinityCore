@@ -2218,7 +2218,6 @@ void Group::ResetInstances(uint8 method, bool isRaid, Player* SendMsgTo)
                 CharacterDatabase.Execute(stmt);
             }
 
-
             // i don't know for sure if hash_map iterators
             m_boundInstances[diff].erase(itr);
             itr = m_boundInstances[diff].begin();
@@ -2501,7 +2500,6 @@ bool Group::HasFreeSlotSubGroup(uint8 subgroup) const
 {
     return (m_subGroupsCounts && m_subGroupsCounts[subgroup] < MAXGROUPSIZE);
 }
-
 
 uint8 Group::GetMemberGroup(ObjectGuid guid) const
 {

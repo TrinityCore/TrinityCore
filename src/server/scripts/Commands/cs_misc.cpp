@@ -1654,8 +1654,6 @@ public:
             banReason     = fields[3].GetString();
         }
 
-
-
         // Can be used to query data from Characters database
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PINFO_XP);
         stmt->setUInt32(0, lowguid);

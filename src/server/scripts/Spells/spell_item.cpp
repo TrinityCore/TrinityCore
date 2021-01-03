@@ -2730,7 +2730,6 @@ enum ReindeerTransformation
     SPELL_REINDEER_60                           = 25858,
 };
 
-
 class spell_item_reindeer_transformation : public SpellScript
 {
     PrepareSpellScript(spell_item_reindeer_transformation);

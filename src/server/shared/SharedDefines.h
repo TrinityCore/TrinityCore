@@ -1427,7 +1427,6 @@ enum SpellImmunity
     MAX_SPELL_IMMUNITY
 };
 
-
 // target enum name consist of:
 // TARGET_[OBJECT_TYPE]_[REFERENCE_TYPE(skipped for caster)]_[SELECTION_TYPE(skipped for default)]_[additional specifiers(friendly, BACK_LEFT, etc.]
 enum Targets

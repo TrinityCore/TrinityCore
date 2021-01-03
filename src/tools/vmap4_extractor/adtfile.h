@@ -50,7 +50,6 @@ namespace ADT
 }
 #pragma pack(pop)
 
-
 class ADTFile
 {
 private:

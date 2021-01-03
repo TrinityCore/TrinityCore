@@ -470,7 +470,6 @@ class spell_apothecary_validate_area : public SpellScriptLoader
                 targets.push_back(target);
             }
 
-
             void HandleScript(SpellEffIndex /*effindex*/)
             {
                 GetHitUnit()->CastSpell(GetHitUnit(), SPELL_BUNNY_LOCKDOWN, true);

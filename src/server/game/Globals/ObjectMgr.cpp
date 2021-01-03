@@ -2314,7 +2314,6 @@ ObjectGuid::LowType ObjectMgr::AddGameObjectData(uint32 entry, uint32 mapId, Pos
     return spawnId;
 }
 
-
 ObjectGuid::LowType ObjectMgr::AddCreatureData(uint32 entry, uint32 mapId, Position const& pos, uint32 spawntimedelay /*= 0*/)
 {
     CreatureTemplate const* cInfo = GetCreatureTemplate(entry);
@@ -3969,7 +3968,6 @@ void ObjectMgr::LoadPlayerInfo()
             TC_LOG_INFO("server.loading", ">> Loaded %u custom player create items in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
         }
     }
-
 
     // Load playercreate skills
     TC_LOG_INFO("server.loading", "Loading Player Create Skill Data...");
@@ -6131,7 +6129,6 @@ void ObjectMgr::LoadGossipText()
         "text7_0, text7_1, BroadcastTextID7, lang7, Probability7, EmoteDelay7_0, Emote7_0, EmoteDelay7_1, Emote7_1, EmoteDelay7_2, Emote7_2 "
         "FROM npc_text");
 
-
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 npc texts, table is empty!");
@@ -6189,7 +6186,6 @@ void ObjectMgr::LoadGossipText()
                     TC_LOG_ERROR("sql.sql", "GossipText (Id: %u) in table `npc_text` has non-existing or incompatible BroadcastTextID%u %u.", id, i, gOption.BroadcastTextID);
                     gOption.BroadcastTextID = 0;
                 }
-
 
             }
         }
@@ -7046,7 +7042,6 @@ void ObjectMgr::RemoveGraveyardLink(uint32 id, uint32 zoneId, uint32 team, bool 
     }
 
     bool found = false;
-
 
     for (; range.first != range.second; ++range.first)
     {
@@ -9679,7 +9674,6 @@ std::string const& ObjectMgr::GetScriptName(uint32 id) const
     static std::string const empty = "";
     return (id < _scriptNamesStore.size()) ? _scriptNamesStore[id] : empty;
 }
-
 
 uint32 ObjectMgr::GetScriptId(std::string const& name)
 {

@@ -131,7 +131,6 @@ public:
 
 #define sMetric Metric::instance()
 
-
 template<typename LoggerType>
 class MetricStopWatch
 {
