@@ -619,8 +619,9 @@ declare class TSVehicle {
 declare class TSWorldObject extends TSObject {
     IsNull() : bool
     GetCreaturesInRange(range : float,entry : uint32,hostile : uint32,dead : uint32) : TSArray<TSCreature>
+    GetUnitsInRange(range : float,hostile : uint32,dead : uint32) : TSArray<TSUnit>
     GetPlayersInRange(range : float,hostile : uint32,dead : uint32) : TSArray<TSPlayer>
-    GetNearObjects(range : float,type : uint16,entry : uint32,hostile : uint32,dead : uint32) : TSArray<TSWorldObject>
+    GetObjectsInRange(range : float,type : uint16,entry : uint32,hostile : uint32,dead : uint32) : TSArray<TSWorldObject>
     GetGameObjectsInRange(range : float,entry : uint32,hostile : uint32) : TSArray<TSGameObject>
     GetName() : string
     GetMap() : TSMap
@@ -638,7 +639,6 @@ declare class TSWorldObject extends TSObject {
     GetNearestPlayer(range : float,hostile : uint32,dead : uint32) : TSPlayer
     GetNearestGameObject(range : float,entry : uint32,hostile : uint32) : TSGameObject
     GetNearestCreature(range : float,entry : uint32,hostile : uint32,dead : uint32) : TSCreature
-    GetNearObject(range : float,type : uint16,entry : uint32,hostile : uint32,dead : uint32) : TSWorldObject
     GetDistance(target : TSWorldObject,X : float,Y : float,Z : float) : float
     GetDistance2d(target : TSWorldObject,X : float,Y : float) : float
     GetRelativePoint(dist : float,rad : float) : float
@@ -775,8 +775,6 @@ declare class TSUnit extends TSWorldObject {
     GetRaceAsString(locale : uint8) : string
     GetFaction() : uint32
     GetAura(spellID : uint32) : TSAura
-    GetFriendlyUnitsInRange(range : float) : TSArray<TSUnit>
-    GetUnfriendlyUnitsInRange(range : float) : TSArray<TSUnit>
     GetVehicleKit() : TSVehicle
     GetVehicle() : TSVehicle
     GetCritterGUID() : uint64

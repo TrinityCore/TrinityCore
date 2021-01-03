@@ -28,17 +28,15 @@ public:
     TSWorldObject(WorldObject* obj);
     bool IsNull() { return obj == nullptr; };
     TSWorldObject* operator->() { return this;}
-    // TODO: Re-enable these
-    /*
     TSArray<TSCreature> GetCreaturesInRange(float range, uint32 entry, uint32 hostile, uint32 dead);
     TSArray<TSPlayer> GetPlayersInRange(float range, uint32 hostile, uint32 dead);
-    TSArray<TSWorldObject> GetNearObjects(float range, uint16 type, uint32 entry, uint32 hostile, uint32 dead);
+    TSArray<TSUnit> GetUnitsInRange(float range, uint32 hostile, uint32 dead);
     TSArray<TSGameObject> GetGameObjectsInRange(float range, uint32 entry, uint32 hostile);
-    TSPlayer  GetNearestPlayer(float range, uint32 hostile, uint32 dead);
-    TSGameObject  GetNearestGameObject(float range, uint32 entry, uint32 hostile);
-    TSCreature  GetNearestCreature(float range, uint32 entry, uint32 hostile, uint32 dead);
-    TSWorldObject  GetNearObject(float range, uint16 type, uint32 entry, uint32 hostile, uint32 dead);
-    */
+
+    TSPlayer GetNearestPlayer(float range, uint32 hostile, uint32 dead);
+    TSGameObject GetNearestGameObject(float range, uint32 entry, uint32 hostile);
+    TSCreature GetNearestCreature(float range, uint32 entry, uint32 hostile, uint32 dead);
+
     float GetDistance(TSWorldObject target, float X, float Y, float Z);
     float GetDistance2d(TSWorldObject target, float X, float Y);
     TSGameObject  SummonGameObject(uint32 entry, float x, float y, float z, float o, uint32 respawnDelay);

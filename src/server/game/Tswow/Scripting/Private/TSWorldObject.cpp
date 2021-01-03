@@ -27,6 +27,10 @@
 #include "TSWorldPacket.h"
 #include "TSWorldObject.h"
 #include "TSMap.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
 
 TSWorldObject::TSWorldObject(WorldObject *obj) : TSObject(obj)
 {
@@ -709,4 +713,174 @@ void TSWorldObject::PlayDistanceSound(uint32 soundId,TSPlayer _player)
         obj->PlayDistanceSound(soundId, player);
     else
         obj->PlayDistanceSound(soundId);
+}
+
+// (From ElunaUtil.h/cpp)
+// Doesn't get self
+class WorldObjectInRangeCheck
+{
+public:
+    WorldObjectInRangeCheck(bool nearest, WorldObject const* obj, float range,
+        uint16 typeMask = 0, uint32 entry = 0, uint32 hostile = 0, uint32 dead = 0);
+    WorldObject const& GetFocusObject() const;
+    bool operator()(WorldObject* u);
+
+    WorldObject const* const i_obj;
+    Unit const* i_obj_unit;
+    FactionTemplateEntry const* i_obj_fact;
+    uint32 const i_hostile; // 0 both, 1 hostile, 2 friendly
+    uint32 const i_entry;
+    float i_range;
+    uint16 const i_typeMask;
+    uint32 const i_dead; // 0 both, 1 alive, 2 dead
+    bool const i_nearest;
+};
+
+WorldObjectInRangeCheck::WorldObjectInRangeCheck(bool nearest, WorldObject const* obj, float range,
+    uint16 typeMask, uint32 entry, uint32 hostile, uint32 dead) :
+    i_obj(obj), i_obj_unit(nullptr), i_obj_fact(nullptr), i_hostile(hostile), i_entry(entry), i_range(range), i_typeMask(typeMask), i_dead(dead), i_nearest(nearest)
+{
+    i_obj_unit = i_obj->ToUnit();
+    if (!i_obj_unit)
+        if (GameObject const* go = i_obj->ToGameObject())
+            i_obj_unit = go->GetOwner();
+    if (!i_obj_unit)
+        i_obj_fact = sFactionTemplateStore.LookupEntry(14);
+}
+
+WorldObject const& WorldObjectInRangeCheck::GetFocusObject() const
+{
+    return *i_obj;
+}
+
+bool WorldObjectInRangeCheck::operator()(WorldObject* u)
+{
+    if (i_typeMask && !u->isType(TypeMask(i_typeMask)))
+        return false;
+    if (i_entry && u->GetEntry() != i_entry)
+        return false;
+    if (i_obj->GetGUID() == u->GetGUID())
+        return false;
+    if (!i_obj->IsWithinDistInMap(u, i_range))
+        return false;
+    Unit const* target = u->ToUnit();
+    if (!target)
+        if (GameObject const* go = u->ToGameObject())
+            target = go->GetOwner();
+    if (target)
+    {
+#ifdef CMANGOS
+        if (i_dead && (i_dead == 1) != target->isAlive())
+            return false;
+#else
+        if (i_dead && (i_dead == 1) != target->IsAlive())
+            return false;
+#endif
+        if (i_hostile)
+        {
+            if (!i_obj_unit)
+            {
+                if (i_obj_fact)
+                {
+#if defined TRINITY || AZEROTHCORE
+                    if ((i_obj_fact->IsHostileTo(*target->GetFactionTemplateEntry())) != (i_hostile == 1))
+                        return false;
+#else
+                    if ((i_obj_fact->IsHostileTo(*target->getFactionTemplateEntry())) != (i_hostile == 1))
+                        return false;
+#endif
+                }
+                else if (i_hostile == 1)
+                    return false;
+            }
+            else if ((i_hostile == 1) != i_obj_unit->IsHostileTo(target))
+                return false;
+        }
+    }
+    if (i_nearest)
+        i_range = i_obj->GetDistance(u);
+    return true;
+}
+
+TSArray<TSCreature> TSWorldObject::GetCreaturesInRange(float range, uint32 entry, uint32 hostile, uint32 dead)
+{
+    TSArray<TSCreature> arr;
+    std::list<Creature*> list;
+    WorldObjectInRangeCheck checker(false, obj, range, TYPEMASK_UNIT, entry, hostile, dead);
+    Trinity::CreatureListSearcher<WorldObjectInRangeCheck> searcher(obj, list, checker);
+    Cell::VisitAllObjects(obj, searcher, range);
+    for (std::list<Creature*>::const_iterator it = list.begin(); it != list.end(); ++it)
+    {
+        arr.push(TSCreature(*it));
+    }
+    return arr;
+}
+
+TSArray<TSUnit> TSWorldObject::GetUnitsInRange(float range, uint32 hostile, uint32 dead)
+{
+    TSArray<TSUnit> arr;
+    std::list<Unit*> list;
+    WorldObjectInRangeCheck checker(false, obj, range, TYPEMASK_UNIT, 0, hostile, dead);
+    Trinity::UnitListSearcher<WorldObjectInRangeCheck> searcher(obj, list, checker);
+    Cell::VisitAllObjects(obj, searcher, range);
+    for (std::list<Unit*>::const_iterator it = list.begin(); it != list.end(); ++it)
+    {
+        arr.push(TSUnit(*it));
+    }
+    return arr;
+}
+
+TSArray<TSPlayer> TSWorldObject::GetPlayersInRange(float range, uint32 hostile, uint32 dead)
+{
+    TSArray<TSPlayer> arr;
+    std::list<Player*> list;
+    WorldObjectInRangeCheck checker(false, obj, range, TYPEMASK_PLAYER, 0, hostile, dead);
+    Trinity::PlayerListSearcher<WorldObjectInRangeCheck> searcher(obj, list, checker);
+    Cell::VisitAllObjects(obj, searcher, range);
+    for (std::list<Player*>::const_iterator it = list.begin(); it != list.end(); ++it)
+    {
+        arr.push(TSPlayer(*it));
+    }
+    return arr;
+}
+
+TSArray<TSGameObject> TSWorldObject::GetGameObjectsInRange(float range, uint32 entry, uint32 hostile)
+{
+    TSArray<TSGameObject> arr;
+    std::list<GameObject*> list;
+    WorldObjectInRangeCheck checker(false, obj, range, TYPEMASK_GAMEOBJECT, entry, hostile);
+    Trinity::GameObjectListSearcher<WorldObjectInRangeCheck> searcher(obj, list, checker);
+    Cell::VisitAllObjects(obj, searcher, range);
+    for (std::list<GameObject*>::const_iterator it = list.begin(); it != list.end(); ++it)
+    {
+        arr.push(TSGameObject(*it));
+    }
+    return arr;
+}
+
+TSPlayer TSWorldObject::GetNearestPlayer(float range, uint32 hostile, uint32 dead)
+{
+    Unit* target = NULL;
+    WorldObjectInRangeCheck checker(true, obj, range, TYPEMASK_PLAYER, 0, hostile, dead);
+    Trinity::UnitLastSearcher<WorldObjectInRangeCheck> searcher(obj, target, checker);
+    Cell::VisitAllObjects(obj, searcher, range);
+    return target ? TSPlayer(target->ToPlayer()) : TSPlayer(nullptr);
+}
+
+TSGameObject TSWorldObject::GetNearestGameObject(float range, uint32 entry, uint32 hostile)
+{
+    GameObject* target = NULL;
+    WorldObjectInRangeCheck checker(true, obj, range, TYPEMASK_GAMEOBJECT, entry, hostile);
+    Trinity::GameObjectLastSearcher<WorldObjectInRangeCheck> searcher(obj, target, checker);
+    Cell::VisitAllObjects(obj, searcher, range);
+    return target ? TSGameObject(target->ToGameObject()) : TSGameObject(nullptr);
+}
+
+TSCreature TSWorldObject::GetNearestCreature(float range, uint32 entry, uint32 hostile, uint32 dead)
+{
+    Unit* target = NULL;
+    WorldObjectInRangeCheck checker(true, obj, range, TYPEMASK_UNIT, entry, hostile);
+    Trinity::UnitLastSearcher<WorldObjectInRangeCheck> searcher(obj, target, checker);
+    Cell::VisitAllObjects(obj, searcher, range);
+    return target ? TSCreature(target->ToCreature()) : TSCreature(nullptr);
 }
