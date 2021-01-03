@@ -937,8 +937,8 @@ declare namespace _hidden {
         OnDuelEnd(callback: (winner : TSPlayer,loser : TSPlayer,type : uint32)=>void);
         OnSay(callback: (player : TSPlayer,type : uint32,lang : uint32,msg : string)=>void);
         OnWhisper(callback: (player : TSPlayer,type : uint32,lang : uint32,msg : string,receiver : TSPlayer)=>void);
-        //OnPartyChat(callback: (player : TSPlayer,type : uint32,lang : uint32,msg : string,group : TSGroup)=>void);
-        //OnGuildChat(callback: (player : TSPlayer,type : uint32,lang : uint32,msg : string,guild : TSGuild)=>void);
+        OnChatGroup(callback: (player : TSPlayer,type : uint32,lang : uint32,msg : string,group : TSGroup)=>void);
+        OnChatGuild(callback: (player : TSPlayer,type : uint32,lang : uint32,msg : string,guild : TSGuild)=>void);
         // TODO: Fix chat to channel
         //OnChat(callback: (player : TSPlayer,type : uint32,lang : uint32,msg : string,channel : Channel*)=>void),
         OnEmote(callback: (player : TSPlayer,emote : uint32)=>void);
