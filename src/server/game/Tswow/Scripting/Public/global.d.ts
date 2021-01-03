@@ -621,7 +621,6 @@ declare class TSWorldObject extends TSObject {
     GetCreaturesInRange(range : float,entry : uint32,hostile : uint32,dead : uint32) : TSArray<TSCreature>
     GetUnitsInRange(range : float,hostile : uint32,dead : uint32) : TSArray<TSUnit>
     GetPlayersInRange(range : float,hostile : uint32,dead : uint32) : TSArray<TSPlayer>
-    GetObjectsInRange(range : float,type : uint16,entry : uint32,hostile : uint32,dead : uint32) : TSArray<TSWorldObject>
     GetGameObjectsInRange(range : float,entry : uint32,hostile : uint32) : TSArray<TSGameObject>
     GetName() : string
     GetMap() : TSMap
