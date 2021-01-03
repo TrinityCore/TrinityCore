@@ -76,6 +76,13 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include <cmath>
+// @tswow-begin
+#include "TSEventLoader.h"
+#include "TSUnit.h"
+#include "TSCreature.h"
+#include "TSSpellInfo.h"
+#include "TSMacros.h"
+// @tswow-end
 
 float baseMoveSpeed[MAX_MOVE_TYPE] =
 {
@@ -698,9 +705,15 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
     if (attacker != victim && damagetype != DOT)
     {
         for (Unit* controlled : victim->m_Controlled)
+            // @tswow-begin
             if (Creature* cControlled = controlled->ToCreature())
+            {
+                FIRE_MAP(cControlled->GetCreatureTemplate()->events,CreatureOnOwnerAttacked,TSCreature(cControlled),TSUnit(attacker));
+
                 if (CreatureAI* controlledAI = cControlled->AI())
                     controlledAI->OwnerAttackedBy(attacker);
+            }
+            // @tswow-end
     }
 
     if (Player* player = victim->ToPlayer())
@@ -3020,6 +3033,13 @@ void Unit::InterruptSpell(CurrentSpellTypes spellType, bool withDelayed, bool wi
             m_currentSpells[spellType] = nullptr;
             spell->SetReferencedFromCurrent(false);
         }
+
+        // @tswow-begin
+        if(Creature *c = ToCreature())
+        {
+            FIRE_MAP(c->GetCreatureTemplate()->events,CreatureOnSpellCastFinished,TSCreature(c),TSSpellInfo(spell->GetSpellInfo()),SPELL_FINISHED_CANCELED);
+        }
+        // @tswow-end
 
         if (GetTypeId() == TYPEID_UNIT && IsAIEnabled())
             ToCreature()->AI()->OnSpellCastFinished(spell->GetSpellInfo(), SPELL_FINISHED_CANCELED);
@@ -5603,9 +5623,15 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
     if (GetTypeId() == TYPEID_PLAYER)
     {
         for (Unit* controlled : m_Controlled)
+            // @tswow-begin
             if (Creature* cControlled = controlled->ToCreature())
+            {
+                FIRE_MAP(cControlled->GetCreatureTemplate()->events,CreatureOnOwnerAttacks,TSCreature(cControlled),TSUnit(victim));
+
                 if (CreatureAI* controlledAI = cControlled->AI())
                     controlledAI->OwnerAttacked(victim);
+            }
+            // @tswow-end
     }
 
     return true;
@@ -9455,6 +9481,14 @@ uint32 Unit::GetCreatePowerValue(Powers power) const
 
 void Unit::AIUpdateTick(uint32 diff)
 {
+    // @tswow-begin
+    if(Creature* c = ToCreature())
+    {
+        m_aiLocked = true;
+        FIRE_MAP(c->GetCreatureTemplate()->events,CreatureOnUpdateAI,TSCreature(c),diff);
+        m_aiLocked = false;
+    }
+    // @tswow-end
     if (UnitAI* ai = GetAI())
     {
         m_aiLocked = true;
@@ -9636,6 +9670,12 @@ void Unit::UpdateCharmAI()
 
         ASSERT(newAI);
         SetAI(newAI);
+        // @tswow-begin
+        if(Creature* c = ToCreature())
+        {
+            FIRE_MAP(c->GetCreatureTemplate()->events,CreatureOnCharmed,TSCreature(c), true);
+        }
+        // @tswow-end
         newAI->OnCharmed(true);
     }
     else
@@ -9643,6 +9683,12 @@ void Unit::UpdateCharmAI()
         RestoreDisabledAI();
         // Hack: this is required because we want to call OnCharmed(true) on the restored AI
         RefreshAI();
+        // @tswow-begin
+        if(Creature* c = ToCreature())
+        {
+            FIRE_MAP(c->GetCreatureTemplate()->events,CreatureOnCharmed,TSCreature(c), true);
+        }
+        // @tswow-end
         if (UnitAI* ai = GetAI())
             ai->OnCharmed(true);
     }
@@ -11054,6 +11100,14 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
             plrVictim->SendDurabilityLoss();
         }
         // Call KilledUnit for creatures
+        // @tswow-begin
+        if(Creature* c = attacker->ToCreature())
+        {
+            // @tswow-begin
+            FIRE_MAP(c->GetCreatureTemplate()->events,CreatureOnKilledUnit,TSCreature(c),TSUnit(victim));
+            // @tswow-end
+        }
+        // @tswow-end
         if (attacker && attacker->GetTypeId() == TYPEID_UNIT && attacker->IsAIEnabled())
             attacker->ToCreature()->AI()->KilledUnit(victim);
 
@@ -11087,10 +11141,20 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
         if (CreatureAI* ai = creature->AI())
             ai->JustDied(attacker);
 
+        // @tswow-begin
+        FIRE_MAP(creature->GetCreatureTemplate()->events,CreatureOnDeath,TSCreature(creature),TSUnit(attacker));
+        // @tswow-end
+
         if (TempSummon * summon = creature->ToTempSummon())
         {
             if (WorldObject * summoner = summon->GetSummoner())
             {
+                // @tswow-begin
+                if(Creature *c = summoner->ToCreature())
+                {
+                    FIRE_MAP(c->GetCreatureTemplate()->events,CreatureOnSummonDies,TSCreature(c),TSCreature(summon),TSUnit(attacker));
+                }
+                // @tswow-end
                 if (summoner->ToCreature() && summoner->ToCreature()->IsAIEnabled())
                     summoner->ToCreature()->AI()->SummonedCreatureDies(creature, attacker);
                 else if (summoner->ToGameObject() && summoner->ToGameObject()->AI())
@@ -11611,6 +11675,13 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
 
     if ((GetTypeId() != TYPEID_PLAYER) || (charmer->GetTypeId() != TYPEID_PLAYER))
     {
+        // @tswow-begin
+        if(Creature* c = ToCreature())
+        {
+            FIRE_MAP(c->GetCreatureTemplate()->events,CreatureOnCharmed,TSCreature(c), false);
+        }
+        // @tswow-begin
+
         // AI will schedule its own change if appropriate
         if (UnitAI* ai = GetAI())
             ai->OnCharmed(false);
@@ -11714,6 +11785,13 @@ void Unit::RemoveCharmedBy(Unit* charmer)
 
     if (GetTypeId() != TYPEID_PLAYER || charmer->GetTypeId() == TYPEID_UNIT)
     {
+        // @tswow-begin
+        if(Creature* c = ToCreature())
+        {
+            FIRE_MAP(c->GetCreatureTemplate()->events,CreatureOnCharmed,TSCreature(c),false);
+        }
+        // @tswow-begin
+
         if (UnitAI* charmedAI = GetAI())
             charmedAI->OnCharmed(false); // AI will potentially schedule a charm ai update
         else
@@ -12526,6 +12604,12 @@ void Unit::HandleSpellClick(Unit* clicker, int8 seatId /*= -1*/)
     }
 
     Creature* creature = ToCreature();
+    // @tswow-begin
+    if(creature)
+    {
+        FIRE_MAP(creature->GetCreatureTemplate()->events,CreatureOnSpellClick,TSCreature(creature),TSUnit(clicker),spellClickHandled);
+    }
+    // @tswow-end
     if (creature && creature->IsAIEnabled())
         creature->AI()->OnSpellClick(clicker, spellClickHandled);
 }

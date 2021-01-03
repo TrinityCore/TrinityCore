@@ -24,6 +24,11 @@
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
 #include "Vehicle.h"
+// @tswow-begin
+#include "TSEventLoader.h"
+#include "TSCreature.h"
+#include "TSMacros.h"
+// @tswow-end
 
 template<class T>
 HomeMovementGenerator<T>::HomeMovementGenerator()
@@ -148,6 +153,12 @@ void HomeMovementGenerator<Creature>::DoFinalize(Creature* owner, bool active, b
         owner->LoadCreaturesAddon();
         if (owner->IsVehicle())
             owner->GetVehicleKit()->Reset(true);
+        // @tswow-begin
+        if(Creature* c = owner->ToCreature())
+        {
+            FIRE_MAP(c->GetCreatureTemplate()->events,CreatureOnReachedHome,TSCreature(c));
+        }
+        // @tswow-end
         owner->AI()->JustReachedHome();
     }
 }

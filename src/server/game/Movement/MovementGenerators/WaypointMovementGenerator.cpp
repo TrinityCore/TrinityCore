@@ -27,6 +27,12 @@
 #include "ObjectMgr.h"
 #include "Transport.h"
 #include "WaypointManager.h"
+// @tswow-begin
+#include "TSUnit.h"
+#include "TSCreature.h"
+#include "TSMacros.h"
+#include "TSEventLoader.h"
+// @tswow-end
 
 WaypointMovementGenerator<Creature>::WaypointMovementGenerator(uint32 pathId, bool repeating) : _nextMoveTime(0), _pathId(pathId), _repeating(repeating), _loadedFromDB(true)
 {
@@ -254,6 +260,10 @@ void WaypointMovementGenerator<Creature>::OnArrived(Creature* owner)
         owner->GetMap()->ScriptsStart(sWaypointScripts, waypoint.eventId, owner, nullptr);
     }
 
+    // @tswow-begin
+    FIRE_MAP(owner->GetCreatureTemplate()->events,CreatureOnWaypointReached,TSCreature(owner),waypoint.id,_path->id);
+    // @tswow-end
+
     // inform AI
     if (CreatureAI* AI = owner->AI())
     {
@@ -284,6 +294,10 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
         {
             ASSERT(_currentNode < _path->nodes.size(), "WaypointMovementGenerator::StartMove: tried to reference a node id (%u) which is not included in path (%u)", _currentNode, _path->id);
 
+            // @tswow-begin
+            FIRE_MAP(owner->GetCreatureTemplate()->events,CreatureOnWaypointStarted,TSCreature(owner),_path->nodes[_currentNode].id, _path->id);
+            // @tswow-end
+
             // inform AI
             if (CreatureAI* AI = owner->AI())
                 AI->WaypointStarted(_path->nodes[_currentNode].id, _path->id);
@@ -312,6 +326,10 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
             AddFlag(MOVEMENTGENERATOR_FLAG_FINALIZED);
             owner->UpdateCurrentWaypointInfo(0, 0);
 
+            // @tswow-begin
+            FIRE_MAP(owner->GetCreatureTemplate()->events,CreatureOnWaypointPathEnded,TSCreature(owner),waypoint.id,_path->id);
+            // @tswow-end
+
             // inform AI
             if (CreatureAI* AI = owner->AI())
                 AI->WaypointPathEnded(waypoint.id, _path->id);
@@ -321,6 +339,10 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
     else if (!HasFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED))
     {
         AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED);
+
+        // @tswow-begin
+        FIRE_MAP(owner->GetCreatureTemplate()->events,CreatureOnWaypointStarted,TSCreature(owner),_path->nodes[_currentNode].id, _path->id);
+        // @tswow-end
 
         // inform AI
         if (CreatureAI* AI = owner->AI())

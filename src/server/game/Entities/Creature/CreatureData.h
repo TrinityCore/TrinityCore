@@ -27,6 +27,9 @@
 #include <unordered_map>
 #include <vector>
 #include <cmath>
+// @tswow-begin
+#include "TSEvents.h"
+// @tswow-end
 
 struct ItemTemplate;
 enum class VisibilityDistanceType : uint8;
@@ -208,6 +211,7 @@ struct TC_GAME_API CreatureTemplate
     uint32  GetFirstValidModelId() const;
     uint32  GetFirstInvisibleModel() const;
     uint32  GetFirstVisibleModel() const;
+    TSCreatureEvents* events = nullptr; // @tswow-line
 
     // helpers
     SkillType GetRequiredLootSkill() const

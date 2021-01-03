@@ -15,6 +15,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 #include "ScriptMgr.h"
+#include "ObjectMgr.h"
 #include "Player.h"
 #include "TSEvents.h"
 #include "TSEventLoader.h"
@@ -44,6 +45,11 @@
 
 TSEvents tsEvents;
 std::map<std::string,TSEventHandlers> eventHandlers;
+
+TSEvents* GetTSEvents()
+{
+    return &tsEvents;
+}
 
 TSEventHandlers* TSLoadEventHandler(boost::filesystem::path const& name)
 {
@@ -261,7 +267,7 @@ void TSSpellMap::OnRemove(uint32_t key)
 
 void TSCreatureMap::OnAdd(uint32_t key, TSCreatureEvents* events)
 {
-
+    const_cast<CreatureTemplate*>(sObjectMgr->GetCreatureTemplate(key))->events = events;
 }
 
 void TSCreatureMap::OnRemove(uint32_t key)

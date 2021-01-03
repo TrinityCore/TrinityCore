@@ -989,11 +989,76 @@ declare namespace _hidden {
         OnDisband(callback: (group : TSGroup)=>void);
     }
 
-    export class Spells {
+    export class SpellID {
         OnCast(spell: uint32, callback : (spell: TSSpell)=>void);
         OnDispel(spell: uint32, callback: (spell: TSSpell, dispelType: uint32)=>void);
         OnHit(spell: uint32, callback: (spell: TSSpell)=>void);
         OnTick(spell: uint32, callback: (caster: TSUnit, target: TSUnit)=>void);
+    }
+
+    export class Spells {
+        OnCast(callback : (spell: TSSpell)=>void);
+        OnDispel(callback: (spell: TSSpell, dispelType: uint32)=>void);
+        OnHit(callback: (spell: TSSpell)=>void);
+        OnTick(callback: (caster: TSUnit, target: TSUnit)=>void);
+    }
+
+    export class CreatureID {
+        OnMoveInLOS(creature: uint32, callback: (creature: TSCreature, seen: TSUnit)=>void);
+        OnJustEnteredCombat(creature: uint32, callback: (creature: TSCreature, target: TSUnit)=>void);
+        OnDeath(creature: uint32, callback: (creature: TSCreature, killer: TSUnit)=>void);
+        OnKilledUnit(creature: uint32, callback: (creature: TSCreature, killed: TSUnit)=>void);
+        OnSummoned(creature: uint32, callback: (creature: TSCreature, summon: TSCreature)=>void);
+        OnIsSummoned(creature: uint32, callback: (creature: TSCreature, summoner: TSWorldObject)=>void);
+        OnSummonDespawn(creature: uint32, callback: (creature: TSCreature, summon: TSCreature)=>void);
+        OnSummonDies(creature: uint32, callback: (creature: TSCreature, summon: TSCreature, killer: TSUnit)=>void);
+        OnHitBySpell(creature: uint32, callback: (creature: TSCreature, caster: TSWorldObject, spellInfo: TSSpellInfo)=>void);
+        OnSpellHitTarget(creature: uint32, callback: (creature: TSCreature, target: TSWorldObject, spellInfo: TSSpellInfo)=>void);
+        OnSpellCastFinished(creature: uint32, callback: (creature: TSCreature, spellInfo: TSSpellInfo, reason: uint32)=>void);
+        OnJustAppeared(creature: uint32, callback: (creature: TSCreature)=>void);
+        OnCharmed(creature: uint32, callback: (creature: TSCreature, isNew: boolean)=>void);
+        OnReachedHome(creature: uint32, callback: (creature: TSCreature)=>void);
+        OnReceiveEmote(creature: uint32, callback: (creature: TSCreature, player: TSPlayer, emote: uint32)=>void);
+        OnOwnerAttacked(creature: uint32, callback: (creature: TSCreature, attacker: TSUnit)=>void);
+        OnOwnerAttacks(creature: uint32, callback: (creature: TSCreature, target: TSUnit)=>void);
+        OnCorpseRemoved(creature: uint32, callback: (creature: TSCreature, delay: uint32)=>void);b
+
+        OnWaypointStarted(creature: uint32, callback: (creature: TSCreature, id: uint32, path: uint32)=>void);
+        OnWaypointReached(creature: uint32, callback: (creature: TSCreature, id: uint32, path: uint32)=>void);
+        OnWaypointPathEnded(creature: uint32, callback: (creature: TSCreature, id: uint32, path: uint32)=>void);
+        OnPassengerBoarded(creature: uint32, callback: (creature: TSCreature, passenger: TSUnit, seatId: int8, isFirst: boolean)=>void);
+
+        OnSpellClick(creature: uint32, callback: (creature: TSCreature, clicker: TSUnit, isFirst: boolean)=>void);
+        OnUpdateAI(creature: uint32, callback: (creature: TSCreature, diff: uint32)=>void);
+    }
+
+    export class Creatures {
+        OnMoveInLOS(callback: (creature: TSCreature, seen: TSUnit)=>void);
+        OnJustEnteredCombat(callback: (creature: TSCreature, target: TSUnit)=>void);
+        OnDeath(callback: (creature: TSCreature, killer: TSUnit)=>void);
+        OnKilledUnit(callback: (creature: TSCreature, killed: TSUnit)=>void);
+        OnSummoned(callback: (creature: TSCreature, summon: TSCreature)=>void);
+        OnIsSummoned(callback: (creature: TSCreature, summoner: TSWorldObject)=>void);
+        OnSummonDespawn(callback: (creature: TSCreature, summon: TSCreature)=>void);
+        OnSummonDies(callback: (creature: TSCreature, summon: TSCreature, killer: TSUnit)=>void);
+        OnHitBySpell(callback: (creature: TSCreature, caster: TSWorldObject, spellInfo: TSSpellInfo)=>void);
+        OnSpellHitTarget(callback: (creature: TSCreature, target: TSWorldObject, spellInfo: TSSpellInfo)=>void);
+        OnSpellCastFinished(callback: (creature: TSCreature, spellInfo: TSSpellInfo, reason: uint32)=>void);
+        OnJustAppeared(callback: (creature: TSCreature)=>void);
+        OnCharmed(callback: (creature: TSCreature, isNew: boolean)=>void);
+        OnReachedHome(callback: (creature: TSCreature)=>void);
+        OnReceiveEmote(callback: (creature: TSCreature, player: TSPlayer, emote: uint32)=>void);
+        OnOwnerAttacked(callback: (creature: TSCreature, attacker: TSUnit)=>void);
+        OnOwnerAttacks(callback: (creature: TSCreature, target: TSUnit)=>void);
+        OnCorpseRemoved(callback: (creature: TSCreature, delay: uint32)=>void);b
+
+        OnWaypointStarted(callback: (creature: TSCreature, id: uint32, path: uint32)=>void);
+        OnWaypointReached(callback: (creature: TSCreature, id: uint32, path: uint32)=>void);
+        OnWaypointPathEnded(callback: (creature: TSCreature, id: uint32, path: uint32)=>void);
+        OnPassengerBoarded(callback: (creature: TSCreature, passenger: TSUnit, seatId: int8, isFirst: boolean)=>void);
+
+        OnSpellClick(callback: (creature: TSCreature, clicker: TSUnit, isFirst: boolean)=>void);
+        OnUpdateAI(callback: (creature: TSCreature, diff: uint32)=>void);
     }
 }
 
@@ -1010,6 +1075,9 @@ declare class TSEventHandlers {
     Guild: _hidden.Guild;
     Group: _hidden.Group;
     Spells: _hidden.Spells;
+    Creatures: _hidden.Creatures;
+    CreatureID: _hidden.CreatureID;
+    SpellID: _hidden.SpellID;
 }
 
 declare class TSDictionary<K,V> {

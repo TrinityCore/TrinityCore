@@ -23,6 +23,12 @@
 #include "Transport.h"
 #include "ObjectAccessor.h"
 #include "CellImpl.h"
+// @tswow-begin
+#include "TSEventLoader.h"
+#include "TSUnit.h"
+#include "TSCreature.h"
+#include "TSMacros.h"
+// @tswow-end
 
 using namespace Trinity;
 
@@ -132,6 +138,9 @@ inline void CreatureUnitRelocationWorker(Creature* c, Unit* u)
 
     if (!c->HasUnitState(UNIT_STATE_SIGHTLESS))
     {
+        // @tswow-begin
+        FIRE_MAP(c->GetCreatureTemplate()->events,CreatureOnMoveInLOS,TSCreature(c),TSUnit(u));
+        // @tswow-end
         if (c->IsAIEnabled() && c->CanSeeOrDetect(u, false, true))
             c->AI()->MoveInLineOfSight_Safe(u);
         else

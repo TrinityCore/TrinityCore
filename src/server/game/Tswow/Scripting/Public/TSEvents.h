@@ -162,7 +162,60 @@ class TSSpellMap : public TSEventMap<TSSpellEvents>
      void OnRemove(uint32_t);
 };
 
+// CreatureScript
+EVENT_TYPE(CreatureOnMoveInLOS,TSCreature,TSUnit)
+EVENT_TYPE(CreatureOnJustEnteredCombat,TSCreature,TSUnit)
+EVENT_TYPE(CreatureOnJustEngagedWith,TSCreature,TSUnit)
+EVENT_TYPE(CreatureOnDeath,TSCreature,TSUnit)
+EVENT_TYPE(CreatureOnKilledUnit,TSCreature,TSUnit)
+EVENT_TYPE(CreatureOnSummoned,TSCreature,TSCreature)
+EVENT_TYPE(CreatureOnIsSummoned,TSCreature,TSWorldObject)
+EVENT_TYPE(CreatureOnSummonDespawn,TSCreature,TSCreature)
+EVENT_TYPE(CreatureOnSummonDies,TSCreature,TSCreature,TSUnit)
+EVENT_TYPE(CreatureOnHitBySpell,TSCreature,TSWorldObject,TSSpellInfo)
+EVENT_TYPE(CreatureOnSpellHitTarget,TSCreature,TSWorldObject,TSSpellInfo)
+EVENT_TYPE(CreatureOnSpellCastFinished,TSCreature,TSSpellInfo,uint32)
+EVENT_TYPE(CreatureOnJustAppeared,TSCreature)
+EVENT_TYPE(CreatureOnCharmed,TSCreature, bool)
+EVENT_TYPE(CreatureOnReachedHome,TSCreature)
+EVENT_TYPE(CreatureOnReceiveEmote,TSCreature,TSPlayer,uint32)
+EVENT_TYPE(CreatureOnOwnerAttacked,TSCreature,TSUnit)
+EVENT_TYPE(CreatureOnOwnerAttacks,TSCreature,TSUnit)
+EVENT_TYPE(CreatureOnCorpseRemoved,TSCreature,uint32)
+
+EVENT_TYPE(CreatureOnWaypointStarted,TSCreature,uint32,uint32)
+EVENT_TYPE(CreatureOnWaypointReached,TSCreature,uint32,uint32)
+EVENT_TYPE(CreatureOnWaypointPathEnded,TSCreature,uint32,uint32)
+EVENT_TYPE(CreatureOnPassengerBoarded,TSCreature,TSUnit,int8,bool)
+EVENT_TYPE(CreatureOnSpellClick,TSCreature,TSUnit,bool)
+EVENT_TYPE(CreatureOnUpdateAI,TSCreature,uint32)
+
 struct TSCreatureEvents {
+     EVENT(CreatureOnMoveInLOS)
+     EVENT(CreatureOnJustEnteredCombat)
+     EVENT(CreatureOnJustEngagedWith)
+     EVENT(CreatureOnDeath)
+     EVENT(CreatureOnKilledUnit)
+     EVENT(CreatureOnSummoned)
+     EVENT(CreatureOnIsSummoned)
+     EVENT(CreatureOnSummonDespawn)
+     EVENT(CreatureOnSummonDies)
+     EVENT(CreatureOnHitBySpell)
+     EVENT(CreatureOnSpellHitTarget)
+     EVENT(CreatureOnSpellCastFinished)
+     EVENT(CreatureOnJustAppeared)
+     EVENT(CreatureOnCharmed)
+     EVENT(CreatureOnReachedHome)
+     EVENT(CreatureOnReceiveEmote)
+     EVENT(CreatureOnOwnerAttacked)
+     EVENT(CreatureOnOwnerAttacks)
+     EVENT(CreatureOnCorpseRemoved)
+     EVENT(CreatureOnWaypointStarted)
+     EVENT(CreatureOnWaypointReached)
+     EVENT(CreatureOnWaypointPathEnded)
+     EVENT(CreatureOnPassengerBoarded)
+     EVENT(CreatureOnSpellClick)
+     EVENT(CreatureOnUpdateAI)
 };
 
 class TSCreatureMap : public TSEventMap<TSCreatureEvents>
@@ -295,6 +348,39 @@ struct TSEvents
     EVENT(GroupOnRemoveMember)
     EVENT(GroupOnChangeLeader)
     EVENT(GroupOnDisband)
+
+    // CreatureScript
+    EVENT(CreatureOnMoveInLOS)
+    EVENT(CreatureOnJustEnteredCombat)
+    EVENT(CreatureOnJustEngagedWith)
+    EVENT(CreatureOnDeath)
+    EVENT(CreatureOnKilledUnit)
+    EVENT(CreatureOnSummoned)
+    EVENT(CreatureOnIsSummoned)
+    EVENT(CreatureOnSummonDespawn)
+    EVENT(CreatureOnSummonDies)
+    EVENT(CreatureOnHitBySpell)
+    EVENT(CreatureOnSpellHitTarget)
+    EVENT(CreatureOnSpellCastFinished)
+    EVENT(CreatureOnJustAppeared)
+    EVENT(CreatureOnCharmed)
+    EVENT(CreatureOnReachedHome)
+    EVENT(CreatureOnReceiveEmote)
+    EVENT(CreatureOnOwnerAttacked)
+    EVENT(CreatureOnOwnerAttacks)
+    EVENT(CreatureOnCorpseRemoved)
+    EVENT(CreatureOnWaypointStarted)
+    EVENT(CreatureOnWaypointReached)
+    EVENT(CreatureOnWaypointPathEnded)
+    EVENT(CreatureOnPassengerBoarded)
+    EVENT(CreatureOnSpellClick)
+    EVENT(CreatureOnUpdateAI)
+
+    // SpellScript
+    EVENT(SpellOnCast)
+    EVENT(SpellOnDispel)
+    EVENT(SpellOnHit)
+    EVENT(SpellOnTick)
 
     TSSpellMap Spells;
     TSCreatureMap Creatures;
@@ -470,14 +556,84 @@ public:
          EVENT_HANDLE(Group,OnDisband)
     } Group;
 
-    struct SpellEvents : public MappedEventHandler<TSSpellMap>
+     struct SpellEvents : public EventHandler
     {
           SpellEvents* operator->(){return this;}
+          EVENT_HANDLE(Spell,OnCast)
+          EVENT_HANDLE(Spell,OnDispel)
+          EVENT_HANDLE(Spell,OnHit)
+          EVENT_HANDLE(Spell,OnTick)
+    } Spells;
+
+    struct SpellIDEvents : public MappedEventHandler<TSSpellMap>
+    {
+          SpellIDEvents* operator->(){return this;}
           MAP_EVENT_HANDLE(Spell,OnCast)
           MAP_EVENT_HANDLE(Spell,OnDispel)
           MAP_EVENT_HANDLE(Spell,OnHit)
           MAP_EVENT_HANDLE(Spell,OnTick)
-    } Spells;
+    } SpellID;
+
+     struct CreatureEvents: public EventHandler
+    {
+          CreatureEvents* operator->(){return this;}
+          EVENT_HANDLE(Creature,OnMoveInLOS)
+          EVENT_HANDLE(Creature,OnJustEnteredCombat)
+          EVENT_HANDLE(Creature,OnJustEngagedWith)
+          EVENT_HANDLE(Creature,OnDeath)
+          EVENT_HANDLE(Creature,OnKilledUnit)
+          EVENT_HANDLE(Creature,OnSummoned)
+          EVENT_HANDLE(Creature,OnIsSummoned)
+          EVENT_HANDLE(Creature,OnSummonDespawn)
+          EVENT_HANDLE(Creature,OnSummonDies)
+          EVENT_HANDLE(Creature,OnHitBySpell)
+          EVENT_HANDLE(Creature,OnSpellHitTarget)
+          EVENT_HANDLE(Creature,OnSpellCastFinished)
+          EVENT_HANDLE(Creature,OnJustAppeared)
+          EVENT_HANDLE(Creature,OnCharmed)
+          EVENT_HANDLE(Creature,OnReachedHome)
+          EVENT_HANDLE(Creature,OnReceiveEmote)
+          EVENT_HANDLE(Creature,OnOwnerAttacked)
+          EVENT_HANDLE(Creature,OnOwnerAttacks)
+          EVENT_HANDLE(Creature,OnCorpseRemoved)
+          EVENT_HANDLE(Creature,OnWaypointStarted)
+          EVENT_HANDLE(Creature,OnWaypointReached)
+          EVENT_HANDLE(Creature,OnWaypointPathEnded)
+          EVENT_HANDLE(Creature,OnPassengerBoarded)
+          EVENT_HANDLE(Creature,OnSpellClick)
+          EVENT_HANDLE(Creature,OnUpdateAI)
+    } Creatures;
+
+    struct CreatureIDEvents : public MappedEventHandler<TSCreatureMap>
+    {
+          CreatureIDEvents* operator->(){return this;}
+          MAP_EVENT_HANDLE(Creature,OnMoveInLOS)
+          MAP_EVENT_HANDLE(Creature,OnJustEnteredCombat)
+          MAP_EVENT_HANDLE(Creature,OnJustEngagedWith)
+          MAP_EVENT_HANDLE(Creature,OnDeath)
+          MAP_EVENT_HANDLE(Creature,OnKilledUnit)
+          MAP_EVENT_HANDLE(Creature,OnSummoned)
+          MAP_EVENT_HANDLE(Creature,OnIsSummoned)
+          MAP_EVENT_HANDLE(Creature,OnSummonDespawn)
+          MAP_EVENT_HANDLE(Creature,OnSummonDies)
+          MAP_EVENT_HANDLE(Creature,OnHitBySpell)
+          MAP_EVENT_HANDLE(Creature,OnSpellHitTarget)
+          MAP_EVENT_HANDLE(Creature,OnSpellCastFinished)
+          MAP_EVENT_HANDLE(Creature,OnJustAppeared)
+          MAP_EVENT_HANDLE(Creature,OnCharmed)
+          MAP_EVENT_HANDLE(Creature,OnReachedHome)
+          MAP_EVENT_HANDLE(Creature,OnReceiveEmote)
+          MAP_EVENT_HANDLE(Creature,OnOwnerAttacked)
+          MAP_EVENT_HANDLE(Creature,OnOwnerAttacks)
+          MAP_EVENT_HANDLE(Creature,OnCorpseRemoved)
+          MAP_EVENT_HANDLE(Creature,OnWaypointStarted)
+          MAP_EVENT_HANDLE(Creature,OnWaypointReached)
+          MAP_EVENT_HANDLE(Creature,OnWaypointPathEnded)
+          MAP_EVENT_HANDLE(Creature,OnPassengerBoarded)
+          MAP_EVENT_HANDLE(Creature,OnSpellClick)
+          MAP_EVENT_HANDLE(Creature,OnUpdateAI)
+    } CreatureID;
+
 
     void LoadEvents(TSEvents* events)
     {
@@ -496,7 +652,10 @@ public:
         Account.LoadEvents(events);
         Guild.LoadEvents(events);
         Group.LoadEvents(events);
-        Spells.LoadEvents(&events->Spells);
+        SpellID.LoadEvents(&events->Spells);
+        CreatureID.LoadEvents(&events->Creatures);
+        Creatures.LoadEvents(events);
+        Spells.LoadEvents(events);
     }
 
     void Unload()
@@ -516,6 +675,9 @@ public:
          Account.Unload();
          Guild.Unload();
          Group.Unload();
+         SpellID.Unload();
+         CreatureID.Unload();
          Spells.Unload();
+         Creatures.Unload();
     }
 };

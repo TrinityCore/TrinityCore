@@ -20,6 +20,11 @@
 #include "Unit.h"
 #include "CreatureAI.h"
 #include "Player.h"
+// @tswow-begin
+#include "TSEventLoader.h"
+#include "TSCreature.h"
+#include "TSMacros.h"
+// @tswow-end
 
 /*static*/ bool CombatManager::CanBeginCombat(Unit const* a, Unit const* b)
 {
@@ -306,6 +311,12 @@ void CombatManager::EndAllPvPCombat()
 
 /*static*/ void CombatManager::NotifyAICombat(Unit* me, Unit* other)
 {
+    // @tswow-begin
+    if(Creature *c = me->ToCreature())
+    {
+        FIRE_MAP(c->GetCreatureTemplate()->events,CreatureOnJustEnteredCombat,TSCreature(c->ToCreature()),TSUnit(other));
+    }
+    // @tswow-end
     if (UnitAI* ai = me->GetAI())
         ai->JustEnteredCombat(other);
 }

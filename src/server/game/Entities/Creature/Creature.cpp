@@ -52,6 +52,12 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include <G3D/g3dmath.h>
+// @tswow-begin
+#include "TSUnit.h"
+#include "TSCreature.h"
+#include "TSMacros.h"
+#include "TSEventLoader.h"
+// @tswow-end
 
 std::string CreatureMovementData::ToString() const
 {
@@ -369,6 +375,9 @@ void Creature::RemoveCorpse(bool setSpawnTime, bool destroyForNearbyPlayers)
         RemoveAllAuras();
         loot.clear();
         uint32 respawnDelay = m_respawnDelay;
+        //@tswow-begin
+        FIRE_MAP(GetCreatureTemplate()->events,CreatureOnCorpseRemoved,TSCreature(this),respawnDelay);
+        //@tswow-end
         if (CreatureAI* ai = AI())
             ai->CorpseRemoved(respawnDelay);
 
@@ -405,6 +414,10 @@ void Creature::RemoveCorpse(bool setSpawnTime, bool destroyForNearbyPlayers)
     }
     else
     {
+        //@tswow-begin
+        FIRE_MAP(GetCreatureTemplate()->events,CreatureOnCorpseRemoved,TSCreature(this),m_respawnDelay);
+        //@tswow-end
+
         if (CreatureAI* ai = AI())
             ai->CorpseRemoved(m_respawnDelay);
 
@@ -658,6 +671,9 @@ void Creature::Update(uint32 diff)
         if (m_respawnCompatibilityMode && m_vehicleKit)
             m_vehicleKit->Reset();
         m_triggerJustAppeared = false;
+        // @tswow-begin
+        FIRE_MAP(GetCreatureTemplate()->events,CreatureOnJustAppeared,TSCreature(this));
+        // @tswow-end
         AI()->JustAppeared();
     }
 
@@ -3308,6 +3324,10 @@ void Creature::AtEngage(Unit* target)
     MovementGeneratorType const movetype = GetMotionMaster()->GetCurrentMovementGeneratorType();
     if (movetype == WAYPOINT_MOTION_TYPE || movetype == POINT_MOTION_TYPE || (IsAIEnabled() && AI()->IsEscorted()))
         SetHomePosition(GetPosition());
+
+    // @tswow-begin
+    FIRE_MAP(GetCreatureTemplate()->events,CreatureOnJustEngagedWith,TSCreature(this),TSUnit(target));
+    // @tswow-end
 
     if (CreatureAI* ai = AI())
         ai->JustEngagedWith(target);

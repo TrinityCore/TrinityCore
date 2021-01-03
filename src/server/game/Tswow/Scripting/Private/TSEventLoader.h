@@ -24,4 +24,6 @@ void TSInitializeEvents();
 TSEventHandlers* TSLoadEventHandler(boost::filesystem::path const& name);
 void TSUnloadEventHandler(boost::filesystem::path const& name);
 
+TSEvents* GetTSEvents();
+
 #endif

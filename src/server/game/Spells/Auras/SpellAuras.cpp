@@ -37,6 +37,9 @@
 #include "Vehicle.h"
 #include "World.h"
 #include "WorldPacket.h"
+// @tswow-begin
+#include "TSEventLoader.h"
+// @tswow-end
 
 AuraCreateInfo::AuraCreateInfo(SpellInfo const* spellInfo, uint8 auraEffMask, WorldObject* owner) :
     _spellInfo(spellInfo), _auraEffectMask(auraEffMask), _owner(owner)

@@ -41,6 +41,12 @@
 #include "Trainer.h"
 #include "World.h"
 #include "WorldPacket.h"
+// @tswow-begin
+#include "TSQuest.h"
+#include "TSPlayer.h"
+#include "TSCreature.h"
+#include "TSMacros.h"
+// @tswow-end
 
 enum StableResultCode
 {

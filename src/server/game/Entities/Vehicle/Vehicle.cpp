@@ -32,6 +32,12 @@
 #include "TemporarySummon.h"
 #include "Unit.h"
 #include "Util.h"
+// @tswow-begin
+#include "TSUnit.h"
+#include "TSCreature.h"
+#include "TSMacros.h"
+#include "TSEventLoader.h"
+// @tswow-end
 
 Vehicle::Vehicle(Unit* unit, VehicleEntry const* vehInfo, uint32 creatureEntry) :
 UsableSeatNum(0), _me(unit), _vehicleInfo(vehInfo), _creatureEntry(creatureEntry), _status(STATUS_NONE), _lastShootPos()
@@ -532,6 +538,13 @@ Vehicle* Vehicle::RemovePassenger(Unit* unit)
     if (unit->IsFlying())
         _me->CastSpell(unit, VEHICLE_SPELL_PARACHUTE, true);
 
+    // @tswow-begin
+    if(Creature* creature = _me->ToCreature())
+    {
+        FIRE_MAP(creature->GetCreatureTemplate()->events,CreatureOnPassengerBoarded,TSCreature(creature),TSUnit(unit),seat->first,false);
+    }
+    // @tswow-end
+
     if (_me->GetTypeId() == TYPEID_UNIT && _me->ToCreature()->IsAIEnabled())
         _me->ToCreature()->AI()->PassengerBoarded(unit, seat->first, false);
 
@@ -896,6 +909,9 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
 
     if (Creature* creature = Target->GetBase()->ToCreature())
     {
+        // @tswow-begin
+        FIRE_MAP(creature->GetCreatureTemplate()->events,CreatureOnPassengerBoarded,TSCreature(creature),TSUnit(Passenger),Seat->first,true);
+        // @tswow-end
         if (CreatureAI* ai = creature->AI())
             ai->PassengerBoarded(Passenger, Seat->first, true);
 

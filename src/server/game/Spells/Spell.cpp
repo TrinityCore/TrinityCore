@@ -62,7 +62,12 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 // @tswow-begin
+#include "TSEventLoader.h"
 #include "TSSpell.h"
+#include "TSSpellInfo.h"
+#include "TSUnit.h"
+#include "TSCreature.h"
+#include "TSWorldObject.h"
 #include "TSMacros.h"
 // @tswow-end
 
@@ -2602,6 +2607,19 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
 
     if (_spellHitTarget)
     {
+        // @tswow-begin
+        if(Creature* target = _spellHitTarget->ToCreature())
+        {
+            FIRE_MAP(target->GetCreatureTemplate()->events,CreatureOnHitBySpell,TSCreature(target),TSWorldObject(spell->m_caster),TSSpellInfo(spell->m_spellInfo));
+        }
+
+        if(Creature* caster = spell->m_caster->ToCreature())
+        {
+            FIRE_MAP(caster->GetCreatureTemplate()->events,CreatureOnSpellHitTarget,TSCreature(caster), TSWorldObject(_spellHitTarget),TSSpellInfo(spell->m_spellInfo));
+        }
+
+        // @tswow-end
+
         //AI functions
         if (Creature* cHitTarget = _spellHitTarget->ToCreature())
             if (CreatureAI* hitTargetAI = cHitTarget->AI())
@@ -3281,9 +3299,13 @@ void Spell::_cast(bool skipCheck)
         if (GetSpellInfo()->DmgClass != SPELL_DAMAGE_CLASS_NONE)
             if (Unit* target = m_targets.GetUnitTarget())
                 for (Unit* controlled : playerCaster->m_Controlled)
-                    if (Creature* cControlled = controlled->ToCreature())
+                    // @tswow-begin
+                    if (Creature* cControlled = controlled->ToCreature()){
+                        FIRE_MAP(cControlled->GetCreatureTemplate()->events,CreatureOnOwnerAttacks,TSCreature(cControlled),TSUnit(target));
                         if (CreatureAI* controlledAI = cControlled->AI())
                                 controlledAI->OwnerAttacked(target);
+                    }
+                    // @tswow-end
     }
 
     SetExecutedCurrently(true);
@@ -3507,6 +3529,13 @@ void Spell::_cast(bool skipCheck)
         hitMask |= PROC_HIT_NORMAL;
 
     Unit::ProcSkillsAndAuras(m_originalCaster, nullptr, procAttacker, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_CAST, hitMask, this, nullptr, nullptr);
+
+    // @tswow-begin
+    if(Creature* caster = m_originalCaster->ToCreature())
+    {
+        FIRE_MAP(caster->GetCreatureTemplate()->events,CreatureOnSpellCastFinished,TSCreature(caster),GetSpellInfo(),SPELL_FINISHED_SUCCESSFUL_CAST);
+    }
+    // @tswow-end
 
     // Call CreatureAI hook OnSpellCastFinished
     if (Creature* caster = m_originalCaster->ToCreature())
@@ -3828,6 +3857,13 @@ void Spell::update(uint32 difftime)
             {
                 SendChannelUpdate(0);
                 finish();
+
+                // @tswow-begin
+                if(Creature* caster = m_originalCaster->ToCreature())
+                {
+                    FIRE_MAP(caster->GetCreatureTemplate()->events,CreatureOnSpellCastFinished,TSCreature(caster),TSSpellInfo(m_spellInfo),SPELL_FINISHED_CHANNELING_COMPLETE);
+                }
+                // @tswow-end
 
                 // We call the hook here instead of in Spell::finish because we only want to call it for completed channeling. Everything else is handled by interrupts
                 if (Creature* creatureCaster = m_caster->ToCreature())

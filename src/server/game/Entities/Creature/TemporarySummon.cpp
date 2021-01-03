@@ -25,6 +25,11 @@
 #include "ObjectAccessor.h"
 #include "Pet.h"
 #include "Player.h"
+// @tswow-begin
+#include "TSUnit.h"
+#include "TSCreature.h"
+#include "TSMacros.h"
+// @tswow-end
 
 TempSummon::TempSummon(SummonPropertiesEntry const* properties, WorldObject* owner, bool isWorldObject) :
 Creature(isWorldObject), m_Properties(properties), m_type(TEMPSUMMON_MANUAL_DESPAWN),
@@ -223,6 +228,10 @@ void TempSummon::InitSummon()
     {
         if (owner->GetTypeId() == TYPEID_UNIT)
         {
+            // @tswow-begin
+            FIRE_MAP(owner->ToCreature()->GetCreatureTemplate()->events,CreatureOnSummoned,TSCreature(owner->ToCreature()),TSCreature(this));
+            // @tswow-end
+
             if (owner->ToCreature()->IsAIEnabled())
                 owner->ToCreature()->AI()->JustSummoned(this);
         }
@@ -231,6 +240,9 @@ void TempSummon::InitSummon()
             if (owner->ToGameObject()->AI())
                 owner->ToGameObject()->AI()->JustSummoned(this);
         }
+        // @tswow-begin
+        FIRE_MAP(this->GetCreatureTemplate()->events,CreatureOnIsSummoned,TSCreature(this),TSWorldObject(owner));
+        // @tswow-end
         if (IsAIEnabled())
             AI()->IsSummonedBy(owner);
     }
@@ -266,6 +278,14 @@ void TempSummon::UnSummon(uint32 msTime)
 
     if (WorldObject * owner = GetSummoner())
     {
+        // @tswow-begin
+        if(Creature *c = owner->ToCreature())
+        {
+            // @tswow-begin
+            FIRE_MAP(c->GetCreatureTemplate()->events,CreatureOnSummonDespawn,TSCreature(c),TSCreature(this));
+            // @tswow-end
+        }
+        // @tswow-end
         if (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsAIEnabled())
             owner->ToCreature()->AI()->SummonedCreatureDespawn(this);
         else if (owner->GetTypeId() == TYPEID_GAMEOBJECT && owner->ToGameObject()->AI())

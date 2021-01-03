@@ -43,6 +43,12 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include <algorithm>
+// @tswow-begin
+#include "TSUnit.h"
+#include "TSCreature.h"
+#include "TSMacros.h"
+#include "TSEventLoader.h"
+// @tswow-end
 
 inline bool isNasty(uint8 c)
 {
@@ -670,6 +676,13 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket& recvData)
     cell.Visit(p, message, *GetPlayer()->GetMap(), *GetPlayer(), sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE));
 
     GetPlayer()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE, text_emote, 0, unit);
+
+    // @tswow-begin
+    if(Creature* c = unit->ToCreature())
+    {
+        FIRE_MAP(c->GetCreatureTemplate()->events,CreatureOnReceiveEmote,TSCreature(c),TSPlayer(GetPlayer()),text_emote);
+    }
+    // @tswow-end
 
     //Send scripted event call
     if (unit && unit->GetTypeId() == TYPEID_UNIT && ((Creature*)unit)->AI())
