@@ -21,6 +21,7 @@ done
 
 declare -A multiLineRegexChecks=(
     ["TC_LOG_[^;]+GetCounter"]="Use ObjectGuid::ToString().c_str() method instead of ObjectGuid::GetCounter() when logging. Check the lines above"
+    ["\n\n\n"]="Multiple blank lines detected, keep only one. Check the files above"
 )
 for check in ${!multiLineRegexChecks[@]}; do
     echo "  Checking RegEx: '${check}'"
