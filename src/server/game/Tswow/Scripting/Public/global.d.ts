@@ -1082,6 +1082,7 @@ declare class TSDictionary<K,V> {
     set(key: K, value: V);
     contains(key: K): boolean;
     forEach(callback: (key: K, value: V)=>void);
+    keys(): TSArray<K>
     reduce<T>(callback: (previous: T,key: K, value: V)=>T, initial: T) : T;
     filter(callback: (key: K, value: V)=>boolean): TSDictionary<K,V>
 }

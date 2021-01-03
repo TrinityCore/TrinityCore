@@ -18,6 +18,7 @@
 
 #include <map>
 #include <iostream>
+#include "TSArray.h"
 
 template <typename K, typename V>
 struct TSDictionary {
@@ -55,6 +56,16 @@ public:
     constexpr TSDictionary* operator->()
     {
         return this;
+    }
+
+    TSArray<K> keys()
+    {
+        TSArray<K> array;
+        for(auto& entry: _map)
+        {
+            array.push(entry.first);
+        }
+        return array;
     }
 
     auto filter(std::function<bool(K, V)> p)
