@@ -18,8 +18,11 @@
 
 #include <iostream>
 #include "TSArray.h"
+#include "TSStringify.h"
 
-#define _COMMA_ ,
+#define _CM_ ,
+#define _TN_ typename
+#define _ST_ stringify
 
 #ifdef UNICODE
 #define LOG(targs,args,ops) template < targs > \
@@ -73,29 +76,35 @@ static struct Console
         return this;
     }
 
-    LOG(typename A, A a, a)
+    LOG(_TN_ A, A a, _ST_(a))
 
-    LOG(typename A _COMMA_ typename B, A a _COMMA_ B b, a << " " << b)
+    LOG(_TN_ A _CM_ _TN_ B, A a _CM_ B b, _ST_(a) << " " << _ST_(b))
 
-    LOG(typename A _COMMA_ typename B _COMMA_ typename C, A a _COMMA_ B b _COMMA_ C c, a << " " << b << " " << c)
+    LOG(_TN_ A _CM_ _TN_ B _CM_ _TN_ C, A a _CM_ B b _CM_ C c, _ST_(a) << " " << _ST_(b) << " " << _ST_(c))
 
-    LOG(typename A _COMMA_ typename B _COMMA_ typename C _COMMA_ typename D, A a _COMMA_ B b _COMMA_ C c _COMMA_ D d, a << " " << b << " " << c << " " << d)
+    LOG(_TN_ A _CM_ _TN_ B _CM_ _TN_ C _CM_ _TN_ D, A a _CM_ B b _CM_ C c _CM_ D d, _ST_(a) << " " << _ST_(b) << " " << _ST_(c) << " " << _ST_(d))
 
-    LOG(typename A _COMMA_ typename B _COMMA_ typename C _COMMA_ typename D _COMMA_ typename E, A a _COMMA_ B b _COMMA_ C c _COMMA_ D d _COMMA_ E e, a << " " << b << " " << c << " " << d << " " << e)
+    LOG(_TN_ A _CM_ _TN_ B _CM_ _TN_ C _CM_ _TN_ D _CM_ _TN_ E, A a _CM_ B b _CM_ C c _CM_ D d _CM_ E e, _ST_(a) << " " << _ST_(b) << " " << _ST_(c) << " " << _ST_(d) << " " << _ST_(e))
 
-    LOG(typename A _COMMA_ typename B _COMMA_ typename C _COMMA_ typename D _COMMA_ typename E _COMMA_ typename F, A a _COMMA_ B b _COMMA_ C c _COMMA_ D d _COMMA_ E e _COMMA_ F f, a << " " << b << " " << c << " " << d << " " << e << " " << f)
+    LOG(_TN_ A _CM_ _TN_ B _CM_ _TN_ C _CM_ _TN_ D _CM_ _TN_ E _CM_ _TN_ F, A a _CM_ B b _CM_ C c _CM_ D d _CM_ E e _CM_ F f, _ST_(a) << " " << _ST_(b) << " " << _ST_(c) << " " << _ST_(d) << " " << _ST_(e) << " " << _ST_(f))
 
-    LOG(typename A _COMMA_ typename B _COMMA_ typename C _COMMA_ typename D _COMMA_ typename E _COMMA_ typename F _COMMA_ typename G, A a _COMMA_ B b _COMMA_ C c _COMMA_ D d _COMMA_ E e _COMMA_ F f _COMMA_ G g, a << " " << b << " " << c << " " << d << " " << e << " " << f << " " << g)
+    LOG(_TN_ A _CM_ _TN_ B _CM_ _TN_ C _CM_ _TN_ D _CM_ _TN_ E _CM_ _TN_ F _CM_ _TN_ G, A a _CM_ B b _CM_ C c _CM_ D d _CM_ E e _CM_ F f _CM_ G g, _ST_(a) << " " << _ST_(b) << " " << _ST_(c) << " " << _ST_(d) << " " << _ST_(e) << " " << _ST_(f) << " " << _ST_(g))
 
-    LOG(typename A _COMMA_ typename B _COMMA_ typename C _COMMA_ typename D _COMMA_ typename E _COMMA_ typename F _COMMA_ typename G _COMMA_ typename H, A a _COMMA_ B b _COMMA_ C c _COMMA_ D d _COMMA_ E e _COMMA_ F f _COMMA_ G g _COMMA_ H h, a << " " << b << " " << c << " " << d << " " << e << " " << f << " " << g << " " << h)
+    LOG(_TN_ A _CM_ _TN_ B _CM_ _TN_ C _CM_ _TN_ D _CM_ _TN_ E _CM_ _TN_ F _CM_ _TN_ G _CM_ _TN_ H, A a _CM_ B b _CM_ C c _CM_ D d _CM_ E e _CM_ F f _CM_ G g _CM_ H h, _ST_(a) << " " << _ST_(b) << " " << _ST_(c) << " " << _ST_(d) << " " << _ST_(e) << " " << _ST_(f) << " " << _ST_(g) << " " << _ST_(h))
 
-    LOG(typename A _COMMA_ typename B _COMMA_ typename C _COMMA_ typename D _COMMA_ typename E _COMMA_ typename F _COMMA_ typename G _COMMA_ typename H _COMMA_ typename I, A a _COMMA_ B b _COMMA_ C c _COMMA_ D d _COMMA_ E e _COMMA_ F f _COMMA_ G g _COMMA_ H h _COMMA_ I i, a << " " << b << " " << c << " " << d << " " << e << " " << f << " " << g << " " << h << " " << i)
+    LOG(_TN_ A _CM_ _TN_ B _CM_ _TN_ C _CM_ _TN_ D _CM_ _TN_ E _CM_ _TN_ F _CM_ _TN_ G _CM_ _TN_ H _CM_ _TN_ I, A a _CM_ B b _CM_ C c _CM_ D d _CM_ E e _CM_ F f _CM_ G g _CM_ H h _CM_ I i, _ST_(a) << " " << _ST_(b) << " " << _ST_(c) << " " << _ST_(d) << " " << _ST_(e) << " " << _ST_(f) << " " << _ST_(g) << " " << _ST_(h) << " " << _ST_(i))
 
-    LOG(typename A _COMMA_ typename B _COMMA_ typename C _COMMA_ typename D _COMMA_ typename E _COMMA_ typename F _COMMA_ typename G _COMMA_ typename H _COMMA_ typename I _COMMA_ typename J, A a _COMMA_ B b _COMMA_ C c _COMMA_ D d _COMMA_ E e _COMMA_ F f _COMMA_ G g _COMMA_ H h _COMMA_ I i _COMMA_ J j, a << " " << b << " " << c << " " << d << " " << e << " " << f << " " << g << " " << h << " " << i << " " << j)
+    LOG(_TN_ A _CM_ _TN_ B _CM_ _TN_ C _CM_ _TN_ D _CM_ _TN_ E _CM_ _TN_ F _CM_ _TN_ G _CM_ _TN_ H _CM_ _TN_ I _CM_ _TN_ J, A a _CM_ B b _CM_ C c _CM_ D d _CM_ E e _CM_ F f _CM_ G g _CM_ H h _CM_ I i _CM_ J j, _ST_(a) << " " << _ST_(b) << " " << _ST_(c) << " " << _ST_(d) << " " << _ST_(e) << " " << _ST_(f) << " " << _ST_(g) << " " << _ST_(h) << " " << _ST_(i) << " " << _ST_(j))
 
-    LOG(typename A _COMMA_ typename B _COMMA_ typename C _COMMA_ typename D _COMMA_ typename E _COMMA_ typename F _COMMA_ typename G _COMMA_ typename H _COMMA_ typename I _COMMA_ typename J _COMMA_ typename K, A a _COMMA_ B b _COMMA_ C c _COMMA_ D d _COMMA_ E e _COMMA_ F f _COMMA_ G g _COMMA_ H h _COMMA_ I i _COMMA_ J j _COMMA_ K k, a << " " << b << " " << c << " " << d << " " << e << " " << f << " " << g << " " << h << " " << i << " " << j << " " << k)
+    LOG(_TN_ A _CM_ _TN_ B _CM_ _TN_ C _CM_ _TN_ D _CM_ _TN_ E _CM_ _TN_ F _CM_ _TN_ G _CM_ _TN_ H _CM_ _TN_ I _CM_ _TN_ J _CM_ _TN_ K, A a _CM_ B b _CM_ C c _CM_ D d _CM_ E e _CM_ F f _CM_ G g _CM_ H h _CM_ I i _CM_ J j _CM_ K k, _ST_(a) << " " << _ST_(b) << " " << _ST_(c) << " " << _ST_(d) << " " << _ST_(e) << " " << _ST_(f) << " " << _ST_(g) << " " << _ST_(h) << " " << _ST_(i) << " " << _ST_(j) << " " << _ST_(k))
 
-    LOG(typename A _COMMA_ typename B _COMMA_ typename C _COMMA_ typename D _COMMA_ typename E _COMMA_ typename F _COMMA_ typename G _COMMA_ typename H _COMMA_ typename I _COMMA_ typename J _COMMA_ typename K _COMMA_ typename L, A a _COMMA_ B b _COMMA_ C c _COMMA_ D d _COMMA_ E e _COMMA_ F f _COMMA_ G g _COMMA_ H h _COMMA_ I i _COMMA_ J j _COMMA_ K k _COMMA_ L l, a << " " << b << " " << c << " " << d << " " << e << " " << f << " " << g << " " << h << " " << i << " " << j << " " << k << " " << l)
+    LOG(_TN_ A _CM_ _TN_ B _CM_ _TN_ C _CM_ _TN_ D _CM_ _TN_ E _CM_ _TN_ F _CM_ _TN_ G _CM_ _TN_ H _CM_ _TN_ I _CM_ _TN_ J _CM_ _TN_ K _CM_ _TN_ L, A a _CM_ B b _CM_ C c _CM_ D d _CM_ E e _CM_ F f _CM_ G g _CM_ H h _CM_ I i _CM_ J j _CM_ K k _CM_ L l, _ST_(a) << " " << _ST_(b) << " " << _ST_(c) << " " << _ST_(d) << " " << _ST_(e) << " " << _ST_(f) << " " << _ST_(g) << " " << _ST_(h) << " " << _ST_(i) << " " << _ST_(j) << " " << _ST_(k) << " " << _ST_(l))
 
-    LOG(typename A _COMMA_ typename B _COMMA_ typename C _COMMA_ typename D _COMMA_ typename E _COMMA_ typename F _COMMA_ typename G _COMMA_ typename H _COMMA_ typename I _COMMA_ typename J _COMMA_ typename K _COMMA_ typename L _COMMA_ typename M, A a _COMMA_ B b _COMMA_ C c _COMMA_ D d _COMMA_ E e _COMMA_ F f _COMMA_ G g _COMMA_ H h _COMMA_ I i _COMMA_ J j _COMMA_ K k _COMMA_ L l _COMMA_ M m, a << " " << b << " " << c << " " << d << " " << e << " " << f << " " << g << " " << h << " " << i << " " << j << " " << k << " " << l << " " << m)
+    LOG(_TN_ A _CM_ _TN_ B _CM_ _TN_ C _CM_ _TN_ D _CM_ _TN_ E _CM_ _TN_ F _CM_ _TN_ G _CM_ _TN_ H _CM_ _TN_ I _CM_ _TN_ J _CM_ _TN_ K _CM_ _TN_ L _CM_ _TN_ M, A a _CM_ B b _CM_ C c _CM_ D d _CM_ E e _CM_ F f _CM_ G g _CM_ H h _CM_ I i _CM_ J j _CM_ K k _CM_ L l _CM_ M m, _ST_(a) << " " << _ST_(b) << " " << _ST_(c) << " " << _ST_(d) << " " << _ST_(e) << " " << _ST_(f) << " " << _ST_(g) << " " << _ST_(h) << " " << _ST_(i) << " " << _ST_(j) << " " << _ST_(k) << " " << _ST_(l) << " " << _ST_(m))
+
+    LOG(_TN_ A _CM_ _TN_ B _CM_ _TN_ C _CM_ _TN_ D _CM_ _TN_ E _CM_ _TN_ F _CM_ _TN_ G _CM_ _TN_ H _CM_ _TN_ I _CM_ _TN_ J _CM_ _TN_ K _CM_ _TN_ L _CM_ _TN_ M _CM_ _TN_ N,A a _CM_ B b _CM_ C c _CM_ D d _CM_ E e _CM_ F f _CM_ G g _CM_ H h _CM_ I i _CM_ J j _CM_ K k _CM_ L l _CM_ M m _CM_ N n,_ST_(a)<< " " << _ST_(b)<< " " << _ST_(c)<< " " << _ST_(d)<< " " << _ST_(e)<< " " << _ST_(f)<< " " << _ST_(g)<< " " << _ST_(h)<< " " << _ST_(i)<< " " << _ST_(j)<< " " << _ST_(k)<< " " << _ST_(l)<< " " << _ST_(m)<< " " << _ST_(n))
+
+    LOG(_TN_ A _CM_ _TN_ B _CM_ _TN_ C _CM_ _TN_ D _CM_ _TN_ E _CM_ _TN_ F _CM_ _TN_ G _CM_ _TN_ H _CM_ _TN_ I _CM_ _TN_ J _CM_ _TN_ K _CM_ _TN_ L _CM_ _TN_ M _CM_ _TN_ N _CM_ _TN_ O,A a _CM_ B b _CM_ C c _CM_ D d _CM_ E e _CM_ F f _CM_ G g _CM_ H h _CM_ I i _CM_ J j _CM_ K k _CM_ L l _CM_ M m _CM_ N n _CM_ O o,_ST_(a)<< " " << _ST_(b)<< " " << _ST_(c)<< " " << _ST_(d)<< " " << _ST_(e)<< " " << _ST_(f)<< " " << _ST_(g)<< " " << _ST_(h)<< " " << _ST_(i)<< " " << _ST_(j)<< " " << _ST_(k)<< " " << _ST_(l)<< " " << _ST_(m)<< " " << _ST_(n)<< " " << _ST_(o))
+
+    LOG(_TN_ A _CM_ _TN_ B _CM_ _TN_ C _CM_ _TN_ D _CM_ _TN_ E _CM_ _TN_ F _CM_ _TN_ G _CM_ _TN_ H _CM_ _TN_ I _CM_ _TN_ J _CM_ _TN_ K _CM_ _TN_ L _CM_ _TN_ M _CM_ _TN_ N _CM_ _TN_ O _CM_ _TN_ P,A a _CM_ B b _CM_ C c _CM_ D d _CM_ E e _CM_ F f _CM_ G g _CM_ H h _CM_ I i _CM_ J j _CM_ K k _CM_ L l _CM_ M m _CM_ N n _CM_ O o _CM_ P p,_ST_(a)<< " " << _ST_(b)<< " " << _ST_(c)<< " " << _ST_(d)<< " " << _ST_(e)<< " " << _ST_(f)<< " " << _ST_(g)<< " " << _ST_(h)<< " " << _ST_(i)<< " " << _ST_(j)<< " " << _ST_(k)<< " " << _ST_(l)<< " " << _ST_(m)<< " " << _ST_(n)<< " " << _ST_(o)<< " " << _ST_(p))
 } console;

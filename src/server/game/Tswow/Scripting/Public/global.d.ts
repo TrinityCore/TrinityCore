@@ -1118,6 +1118,10 @@ declare class DBTable {
     load(): boolean;
 }
 
+declare class TSClass {
+    stringify(indention?: int): string;
+}
+
 declare function QueryWorld(query: string): TSDatabaseResult;
 declare function QueryCharacters(query: string): TSDatabaseResult;
 declare function QueryAuth(query: string): TSDatabaseResult;

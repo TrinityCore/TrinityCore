@@ -48,3 +48,4 @@
 #include "TSIDs.h"
 #include "TSPosition.h"
 #include "TSClass.h"
+#include "TSStringify.h"
