@@ -75,8 +75,9 @@ jobs:
           command: |
             cd bin/check_install/bin
             image_prefix=$(echo $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME-$CIRCLE_BRANCH-worldserver | tr '[:upper:]' '[:lower:]')
-            docker build --file '../../contrib/Docker/worldserver.Dockerfile' --force-rm --tag $image_prefix:$CIRCLE_SHA1 --tag image_prefix:latest
-            docker save image_prefix:$CIRCLE_SHA1 | gzip > docker-worldserver.tar.gz
+            echo $image_prefix
+            docker build --file '../../contrib/Docker/worldserver.Dockerfile' --force-rm --tag $image_prefix:$CIRCLE_SHA1 --tag $image_prefix:latest
+            docker save $image_prefix:$CIRCLE_SHA1 | gzip > docker-worldserver.tar.gz
       - store_artifacts:
           path: bin/check_install/bin/docker-worldserver.tar.gz
   nopch:
