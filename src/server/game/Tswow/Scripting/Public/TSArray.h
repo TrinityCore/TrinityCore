@@ -126,6 +126,11 @@ public:
         return TSArray(std::vector<T>(vec.cbegin() + first, vec.cbegin() + last));
     }
 
+    bool includes(const T& e)
+    {
+        return indexOf(e)!=-1;
+    }
+
     int indexOf(const T& e)
     {
         for (int i = 0; i < get_length(); ++i)
