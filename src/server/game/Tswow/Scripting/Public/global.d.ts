@@ -1091,3 +1091,26 @@ declare function MakeDictionary<K,V>(obj: {[key: string]: V}) : TSDictionary<K,V
 
 declare function GetID(table: string, mod: string, name: string);
 declare function GetIDRange(table: string, mod: string, name: string);
+
+declare class TSDatabaseResult {
+    GetUInt8(index: int): uint8;
+    GetUInt16(index: int): uint16;
+    GetUInt32(index: int): uint32;
+    GetUInt64(index: int): uint64;
+
+    GetInt8(index: int): int8;
+    GetInt16(index: int): int16;
+    GetInt32(index: int): int32;
+    GetInt64(index: int): int64;
+
+    GetFloat(index: int): float;
+    GetDouble(index: int): double;
+    GetString(index: int): string;
+
+    GetRow(): boolean;
+    IsValid(): boolean;
+}
+
+declare function QueryWorld(query: string): TSDatabaseResult;
+declare function QueryCharacters(query: string): TSDatabaseResult;
+declare function QueryAuth(query: string): TSDatabaseResult;
