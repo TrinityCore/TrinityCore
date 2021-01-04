@@ -120,8 +120,8 @@ jobs:
           name: Create docker images
           command: |
             cd bin/check_install/bin
-            docker build --file '../../contrib/Docker/worldserver.Dockerfile' --force-rm --tag $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME-$CIRCLE_BRANCH-worldserver:$CIRCLE_SHA1 --tag $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME-$CIRCLE_BRANCH-worldserver:latest
-            docker save $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME-$CIRCLE_BRANCH-worldserver:$CIRCLE_SHA1 | gzip > docker-worldserver.tar.gz
+            # docker build --file '../../contrib/Docker/worldserver.Dockerfile' --force-rm --tag $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME-$CIRCLE_BRANCH-worldserver:$CIRCLE_SHA1 --tag $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME-$CIRCLE_BRANCH-worldserver:latest
+            # docker save $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME-$CIRCLE_BRANCH-worldserver:$CIRCLE_SHA1 | gzip > docker-worldserver.tar.gz
       - store_artifacts:
           path: bin/check_install/bin/docker-worldserver.tar.gz
       - save_cache:
