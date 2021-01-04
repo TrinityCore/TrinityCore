@@ -932,7 +932,7 @@ declare namespace _hidden {
         OnDuelRequest(callback: (target : TSPlayer,challenger : TSPlayer)=>void);
         OnDuelStart(callback: (player1 : TSPlayer,player2 : TSPlayer)=>void);
         OnDuelEnd(callback: (winner : TSPlayer,loser : TSPlayer,type : uint32)=>void);
-        OnSay(callback: (player : TSPlayer,type : uint32,lang : uint32,msg : string)=>void);
+        OnSay(callback: (player : TSPlayer,type : uint32,lang : uint32,msg : TSMutableString)=>void);
         OnWhisper(callback: (player : TSPlayer,type : uint32,lang : uint32,msg : string,receiver : TSPlayer)=>void);
         OnChatGroup(callback: (player : TSPlayer,type : uint32,lang : uint32,msg : string,group : TSGroup)=>void);
         OnChatGuild(callback: (player : TSPlayer,type : uint32,lang : uint32,msg : string,guild : TSGuild)=>void);
@@ -1111,6 +1111,19 @@ declare class TSDatabaseResult {
     IsValid(): boolean;
 }
 
+declare class DBTable {
+    saveQuery(): string;
+    loadQuery(): string;
+    save(): void;
+    load(): boolean;
+}
+
 declare function QueryWorld(query: string): TSDatabaseResult;
 declare function QueryCharacters(query: string): TSDatabaseResult;
 declare function QueryAuth(query: string): TSDatabaseResult;
+
+declare function WorldTable(classTarget: any)
+declare function CharactersTable(classTarget: any)
+declare function AuthTable(classTarget: any)
+declare function Field(fieldTarget: any, name: any)
+declare function PrimaryKey(pkTarget: any, name: any)
