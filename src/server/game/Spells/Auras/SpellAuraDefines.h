@@ -416,7 +416,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_SPELL_CATEGORY_COOLDOWN                  = 341,  // Modifies cooldown of all spells using affected category
     SPELL_AURA_MOD_MELEE_RANGED_HASTE_2                     = 342,
     SPELL_AURA_MOD_MELEE_DAMAGE_FROM_CASTER                 = 343,  // NYI
-    SPELL_AURA_MOD_AUTOATTACK_DAMAGE                        = 344,  // NYI
+    SPELL_AURA_MOD_AUTOATTACK_DAMAGE                        = 344,
     SPELL_AURA_BYPASS_ARMOR_FOR_CASTER                      = 345,
     SPELL_AURA_ENABLE_ALT_POWER                             = 346,  // NYI
     SPELL_AURA_MOD_SPELL_COOLDOWN_BY_HASTE                  = 347,
