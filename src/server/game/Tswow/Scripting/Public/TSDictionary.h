@@ -22,35 +22,41 @@
 
 template <typename K, typename V>
 struct TSDictionary {
-    std::map<K, V> _map;
-
+    std::shared_ptr<std::map<K, V>> _map;
 public:
     TSDictionary() {
-
+        _map = std::make_shared<std::map<K, V>>();
     }
 
     TSDictionary(std::initializer_list<std::pair<K, V>> list) {
-        for (auto& pair : list) {
-            _map.insert(pair);
+        _map = std::make_shared<std::map<K, V>>();
+        for (auto& item : list)
+        {
+            _map->insert(item);
         }
     }
 
+    template <typename T>
+    bool operator ==(T value) { return _map == value; }
+
+    operator bool() { return _map == nullptr; }
+
     auto contains(K key) {
-        return _map.find(key) != _map.end();
+        return _map->find(key) != _map->end();
     }
 
     auto get_length() {
-        return _map.size();
+        return _map->size();
     }
 
     auto get(K key)
     {
-        return _map[key];
+        return (*_map)[key];
     }
 
     auto set(K key, V value)
     {
-        _map[key] = value;
+        (*_map)[key] = value;
     }
 
     constexpr TSDictionary* operator->()
@@ -61,9 +67,10 @@ public:
     TSArray<K> keys()
     {
         TSArray<K> array;
-        for(auto& entry: _map)
+        typename std::map<K, V>::iterator it;
+        for (it = _map->begin(); it != _map->end(); ++it)
         {
-            array.push(entry.first);
+            array.push(it->first);
         }
         return array;
     }
@@ -72,7 +79,7 @@ public:
     {
         TSDictionary<K, V> dest;
         typename std::map<K, V>::iterator it;
-        for (it = _map.begin(); it != _map.end(); ++it)
+        for (it = _map->begin(); it != _map->end(); ++it)
         {
             if (p(it->first, it->second))
             {
@@ -87,7 +94,7 @@ public:
     {
         I cur = initial;
         typename std::map<K, V>::iterator it;
-        for (it = _map.begin(); it != _map.end(); ++it)
+        for (it = _map->begin(); it != _map->end(); ++it)
         {
             cur = p(cur, it->first, it->second);
         }
@@ -97,34 +104,10 @@ public:
     void forEach(std::function<void(K, V)> p)
     {
         typename std::map<K, V>::iterator it;
-        for (it = _map.begin(); it != _map.end(); ++it)
+        for (it = _map->begin(); it != _map->end(); ++it)
         {
             p(it->first, it->second);
         }
-    }
-
-    friend std::ostream& operator<<(std::ostream& os, const TSDictionary<K, V>* map)
-    {
-        os << (*map);
-        return os;
-    }
-
-    friend std::ostream& operator<<(std::ostream& os, const TSDictionary<K, V> map)
-    {
-        os << "{\n";
-        uint32_t ctr = 0;
-        for (auto& g : map._map) {
-            if (++ctr < map._map.size())
-            {
-                os << "    " << g.first << ":" << g.second << ",\n";
-            }
-            else
-            {
-                os << "    " << g.first << ":" << g.second << "\n";
-            }
-        }
-        os << "}";
-        return os;
     }
 };
 

@@ -62,23 +62,24 @@ struct TSArrayKeys
 
 template <class T>
 struct TSArray {
-    std::vector<T> vec;
+    std::shared_ptr<std::vector<T>> vec;
 
 public:
     TSArray() {
-
+        this->vec = std::make_shared<std::vector<T>>(0);
     }
 
     TSArray(size_t size) {
-        this->vec = std::vector<T>(size);
+        this->vec = std::make_shared<std::vector<T>>(size);
     }
 
     TSArray(std::initializer_list<T> list) {
-        this->vec = list;
+        this->vec = std::make_shared<std::vector<T>>(list);
     }
 
     TSArray(std::vector<T> vec) {
-        this->vec = vec;
+        // copies the vector
+        this->vec = std::make_shared<std::vector<T>>(vec);
     }
 
     template <typename T>
@@ -87,7 +88,7 @@ public:
         T str;
         for (int i = 0; i < this->get_length(); ++i)
         {
-            str = str + vec[i];
+            str = str + (*vec)[i];
             if (i < this->get_length() - 1)
             {
                 str = str + delim;
@@ -97,8 +98,8 @@ public:
     }
 
     auto pop() {
-        auto value = vec[vec.size() - 1];
-        vec.pop_back();
+        auto value = (*vec)[vec->size() - 1];
+        vec->pop_back();
         return value;
     }
 
@@ -110,32 +111,32 @@ public:
     template <typename... Args>
     void splice(size_t position, size_t size, Args... args)
     {
-        vec.erase(vec.cbegin() + position, vec.cbegin() + position + size);
-        vec.insert(vec.cbegin() + position, { args... });
+        vec->erase(vec->cbegin() + position, vec->cbegin() + position + size);
+        vec->insert(vec->cbegin() + position, { args... });
     }
 
     template <typename... Args>
     void unshift(Args... args)
     {
-        vec.insert(vec.cbegin(), { args... });
+        vec->insert(vec->cbegin(), { args... });
     }
 
 
     TSArray slice(size_t first, size_t last)
     {
-        return TSArray(std::vector<T>(vec.cbegin() + first, vec.cbegin() + last));
+        return TSArray(std::vector<T>(vec->cbegin() + first, vec->cbegin() + last));
     }
 
     bool includes(const T& e)
     {
-        return indexOf(e)!=-1;
+        return indexOf(e) != -1;
     }
 
     int indexOf(const T& e)
     {
         for (int i = 0; i < get_length(); ++i)
         {
-            if (vec[i] == e)
+            if ((*vec)[i] == e)
             {
                 return i;
             }
@@ -147,7 +148,7 @@ public:
     {
         for (int i = get_length() - 1; i >= 0; --i)
         {
-            if (vec[i] == e)
+            if ((*vec)[i] == e)
             {
                 return i;
             }
@@ -158,50 +159,50 @@ public:
 
     bool removeElement(const T& e)
     {
-        auto res = vec.erase(std::find(vec.cbegin(), vec.cend(), e)) != vec.cend();
+        auto res = vec->erase(std::find(vec->cbegin(), vec->cend(), e)) != vec->cend();
         return res;
     }
 
     auto keys() {
-        return TSArrayKeys<size_t>(vec.size());
+        return TSArrayKeys<size_t>(vec->size());
     }
 
     auto begin() {
-        return vec.begin();
+        return vec->begin();
     }
 
     auto end() {
-        return vec.end();
+        return vec->end();
     }
 
     auto get_length() {
-        return vec.size();
+        return vec->size();
     }
 
     auto operator[](int index) {
-        return vec[index];
+        return (*vec)[index];
     }
 
     auto operator[](int index) const {
-        return vec[index];
+        return (*vec)[index];
     }
 
     auto get(int index) {
-        return vec[index];
+        return (*vec)[index];
     }
 
     auto set(int index, T value) {
-        vec[index] = value;
+        (*vec)[index] = value;
     }
 
     TSArray<T> filter(std::function<bool(T, size_t)> p)
     {
         std::vector<T> result;
-        for(int i=0;i<get_length();++i)
+        for (int i = 0; i < get_length(); ++i)
         {
-            if(p(vec[i],i))
+            if (p((*vec)[i], i))
             {
-                result.push_back(vec[i]);
+                result.push_back((*vec)[i]);
             }
         }
         return TSArray(result);
@@ -211,7 +212,7 @@ public:
     auto map(F p)->TSArray< decltype(p(T())) >
     {
         std::vector< decltype(p(T())) > result;
-        std::transform(vec.begin(), vec.end(), std::back_inserter(result), [=](auto& v) {
+        std::transform(vec->begin(), vec->end(), std::back_inserter(result), [=](auto& v) {
             return (p)(v);
         });
         return TSArray< decltype(p(T())) >(result);
@@ -221,8 +222,8 @@ public:
     auto map(F p)->TSArray< decltype(p(T(), 0)) >
     {
         std::vector< decltype(p(T(), 0)) > result;
-        auto first = &(vec)[0];
-        std::transform(vec.begin(), vec.end(), std::back_inserter(result), [=](auto& v) {
+        auto first = &((*vec)[0]);
+        std::transform(vec->begin(), vec->end(), std::back_inserter(result), [=](auto& v) {
             auto index = &v - first;
             return (p)(v, index);
         });
@@ -243,7 +244,7 @@ public:
     auto reduce(P p, I initial)
     {
         I cur = initial;
-        for (int i = 0; i < this->vec.size(); ++i)
+        for (int i = 0; i < this->vec->size(); ++i)
         {
             cur = p(cur, get(i), i);
         }
@@ -252,8 +253,8 @@ public:
 
     void forEach(std::function<void(T, size_t)> p)
     {
-        for (int i = 0; i < vec.size(); ++i) {
-            p(vec[i], i);
+        for (int i = 0; i < vec->size(); ++i) {
+            p((*vec)[i], i);
         }
     }
 
@@ -261,27 +262,27 @@ public:
     void push(Args...args) {
         for (const auto& item : { args... })
         {
-            vec.push_back(item);
+            vec->push_back(item);
         }
     }
 
     T shift()
     {
-        T value = vec[0];
-        vec.erase(vec.begin());
+        T value = (*vec)[0];
+        vec->erase(vec->begin());
         return value;
     }
 
     void insert(uint32_t position, T value)
     {
-        vec.insert(vec.begin() + position, value);
+        vec->insert(vec->begin() + position, value);
     }
 
     TSArray<T> concat(TSArray<T> addition)
     {
         TSArray<T> clone;
-        clone.vec.insert(clone.end(), this->begin(), this->end());
-        clone.vec.insert(clone.end(), addition->begin(), addition->end());
+        clone.vec->insert(clone.end(), this->begin(), this->end());
+        clone.vec->insert(clone.end(), addition->begin(), addition->end());
         return clone;
     }
 
@@ -292,11 +293,11 @@ public:
         {
             if (i < arr.get_length() - 1)
             {
-                os << arr[i] << ",";
+                os << arr.get(i) << ",";
             }
             else
             {
-                os << arr[i];
+                os << arr(i);
             }
         }
         os << "]";
