@@ -113,3 +113,12 @@ WorldPacket const* WorldPackets::Combat::SAttackStop::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Combat::PvPCredit::Write()
+{
+    _worldPacket << int32(Honor);
+    _worldPacket << Target;
+    _worldPacket << int32(Rank);
+
+    return &_worldPacket;
+}

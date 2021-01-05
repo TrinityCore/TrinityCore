@@ -140,6 +140,18 @@ namespace WorldPackets
             ObjectGuid Victim;
             bool NowDead = false; // sent as int32 prior to 6.x
         };
+
+        class PvPCredit final : public ServerPacket
+        {
+        public:
+            PvPCredit() : ServerPacket(SMSG_PVP_CREDIT, 8 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Target;
+            int32 Honor = 0;
+            int32 Rank = 0;
+        };
     }
 }
 

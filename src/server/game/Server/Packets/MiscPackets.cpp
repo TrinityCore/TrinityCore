@@ -450,3 +450,18 @@ WorldPacket const* WorldPackets::Misc::LoadCUFProfiles::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::DeathReleaseLoc::Write()
+{
+    _worldPacket << int32(MapID);
+    _worldPacket << Loc;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Misc::BinderConfirm::Write()
+{
+    _worldPacket << Unit;
+
+    return &_worldPacket;
+}
