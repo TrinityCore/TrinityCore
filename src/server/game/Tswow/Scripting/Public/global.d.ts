@@ -1132,4 +1132,4 @@ declare function AuthTable(classTarget: any)
 declare function Field(fieldTarget: any, name: any)
 declare function PrimaryKey(pkTarget: any, name: any)
 
-declare function LoadRow<T extends DBTable>(cls: {new (...args: any[]): T}, query: string)
+declare function LoadRows<T extends DBTable>(cls: {new (...args: any[]): T}, query: string): TSArray<T>
