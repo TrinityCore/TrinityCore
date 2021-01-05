@@ -79,7 +79,7 @@ jobs:
             cp -r ../../../contrib/Docker/Dockerfile .
             image_prefix=$(echo $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME-$(echo $CIRCLE_BRANCH | tr '/' '-') | tr '[:upper:]' '[:lower:]')
             echo $image_prefix
-            docker build --file worldserver.Dockerfile --force-rm --tag $image_prefix:$CIRCLE_SHA1 --tag $image_prefix:latest .
+            docker build --file Dockerfile --force-rm --tag $image_prefix:$CIRCLE_SHA1 --tag $image_prefix:latest .
             docker save $image_prefix:$CIRCLE_SHA1 | gzip > ../../../docker.tar.gz
       - store_artifacts:
           path: docker.tar.gz
