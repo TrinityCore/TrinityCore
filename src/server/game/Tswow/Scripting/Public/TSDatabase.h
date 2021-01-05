@@ -44,3 +44,5 @@ public:
 TC_GAME_API std::shared_ptr<TSDatabaseResult> QueryWorld(TSString query);
 TC_GAME_API std::shared_ptr<TSDatabaseResult> QueryCharacters(TSString query);
 TC_GAME_API std::shared_ptr<TSDatabaseResult> QueryAuth(TSString query);
+
+#define LoadRow(cls,query) cls::Load(query)
