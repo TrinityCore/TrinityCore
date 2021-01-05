@@ -4,6 +4,19 @@
 [worldserver]
 
 ###################################################################################################
+# REGLAGES CUSTOM DU REPACK
+# 
+# Affecte a la guilde par defaut un nouveau perso suivant sont camp . 
+# La guilde peut etre la meme pour les les 2 camps.
+# Voir la table characters-guild->guildid pour guildid de guilde
+# Guilde_Par_Defaut_Horde			= guildid
+# Guilde_Par_Defaut_Alliance 	= guildid
+Guilde_Par_Defaut_Horde			= 1
+Guilde_Par_Defaut_Alliance 	= 1
+
+
+
+###################################################################################################
 # SECTION INDEX
 #
 #    EXAMPLE CONFIG

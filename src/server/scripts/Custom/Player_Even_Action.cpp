@@ -9,7 +9,23 @@
 #include "Map.h"
 #include "WorldSession.h"
 #include "GameEventMgr.h"
+#include "Channel.h"
+#include "ChannelMgr.h"
+#include "Chat.h"
+#include "ChatPackets.h"
 #include "ChatTextBuilder.h"
+#include "Config.h"
+#include "Unit.h"
+#include "World.h"
+#include "WorldPacket.h"
+#include "WorldSession.h"
+#include "Guild.h"
+#include "GuildFinderMgr.h"
+#include "GuildMgr.h"
+#include "DatabaseEnv.h"
+
+
+
 
 namespace {
 
@@ -18,17 +34,30 @@ class Player_Even_Action_handler : public PlayerScript {
 public:
     Player_Even_Action_handler() : PlayerScript("Player_Even_Action_handler") {}
 
+    // Routines de test d"evenements ##################################################################################
+
+    // Connexion d'un joueur ou 1ere connexion joueur
     void OnLogin(Player* player, bool firstLogin) override
     {
-        player_levelup_classes_races(player);
+        Apprentissage_Ou_Additem_Suivant_classes_races(player);
+
+        // 1ere connexion joueur
+        if (firstLogin)
+        {
+        Guilde_Par_Defaut_Pour_Tous(player);
+        }
 	}
+
+    // Au level up
     virtual void OnLevelChanged(Player* player, uint8 /*oldLevel*/) 
     {
-        player_levelup_classes_races(player);
+        Apprentissage_Ou_Additem_Suivant_classes_races(player);
     }
 
 
 
+
+    // Sans action pour le moment
     void OnPlayerEnterZone(Player* player, uint32 newZone, uint32 newArea)
     {
     }
@@ -36,10 +65,30 @@ public:
     {
     }
 
+    ////// TMP a voir/vérifier : public: /* CreatureScript */
+    // void OnAccountLogin(uint32 /*accountId*/) {}
+    // void OnPlayerEnter(map, player) {}
+    // void OnPlayerSpellCast(Player* player, Spell* spell, bool skipCheck) {}
+    // void OnPlayerLogin(Player* player, bool firstLogin) {}
+    // void OnPlayerRepop(Player* player) {}
+    // void OnPlayerRepop(Player* player) {}
+    // void OnPlayerKilledByCreature(Creature* /*killer*/, Player* /*killed*/) { }
+    // void OnCreatureKill(Player* /*killer*/, Creature* /*killed*/) { }
+    // void OnLogout(Player* /*player*/) { }
+    // void OnCreate(Player* /*player*/) { }
+    // void OnMapChanged(Player* /*player*/) { }
+    //  void OnPlayerUpdate     Player->has     Player->is
+    // void Player::Update(uint32 p_time)
+    // void Player::KillPlayer()
+    // void UpdateAI(uint32 diff) override ---> if (CanSpawn)
 
 
-    void player_levelup_classes_races(Player* player)
-{
+
+    // Routines d'actions suite a un évènement ########################################################################
+
+    // 
+    void Apprentissage_Ou_Additem_Suivant_classes_races(Player* player)
+    {
     uint8 _team = player->GetTeamId();      // TeamId team
     uint8 _class = player->getClass();
     uint8 _level = player->getLevel();
@@ -174,16 +223,37 @@ case RACE_MECHAGNOME:               // Mécagnome a2
     break;
 
 }
-}
+    }
+    void Guilde_Par_Defaut_Pour_Tous(Player* player)
+        // Voir la table characters-guild->guildid pour l'id de guilde
+    {
+    uint32 guildID;
+    if (player->GetTeam() == HORDE)
+    {
+        guildID = sConfigMgr->GetIntDefault("Guilde_Par_Defaut_Horde", 0);
+        ChatHandler(player->GetSession()).SendSysMessage("|cffffffff> Vous avez rejoint la guilde par defaut de la Horde. '/gquit' pour la quiter <");
+    }
+    else
+    {
+        guildID = sConfigMgr->GetIntDefault("Guilde_Par_Defaut_Alliance", 0);
+        ChatHandler(player->GetSession()).SendSysMessage("|cffffffff> Vous avez rejoint la guilde par defaut de l'Alliance. '/gquit' pour la quiter <");
+    }
+
+    if (!guildID) return;
+
+    Guild* targetGuild = sGuildMgr->GetGuildById(guildID);
+    if (targetGuild)
+    {
+        ObjectGuid playerGuid = player->GetGUID();
+        CharacterDatabaseTransaction trans(nullptr);
+        targetGuild->AddMember(trans, player->GetGUID());
+    }
+    }
+
+
 
 private:
 	std::map<ObjectGuid, int> _unitDifficulty;
-
-
-
-
-
-
 };
 
 }
