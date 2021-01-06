@@ -2286,7 +2286,7 @@ uint32 Unit::CalculateDamage(WeaponAttackType attType, bool normalized, bool add
                 break;
             case BASE_ATTACK:
                 minDamage = m_unitData->MinDamage;
-                maxDamage = m_unitData->MaxRangedDamage;
+                maxDamage = m_unitData->MaxDamage;
                 if (IsInFeralForm())
                 {
                     minDamage += m_unitData->MinOffHandDamage;
