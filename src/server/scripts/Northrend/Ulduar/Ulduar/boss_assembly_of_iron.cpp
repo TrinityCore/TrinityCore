@@ -22,6 +22,7 @@
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
+#include "SpellAuraEffects.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
 #include "Spell.h"
@@ -37,7 +38,8 @@ enum Spells
 
     // Steelbreaker
     SPELL_HIGH_VOLTAGE                          = 61890,
-    SPELL_STATIC_DISRUPTION                     = 44008,
+    SPELL_STATIC_DISRUPTION                     = 61911,
+    SPELL_STATIC_DISRUPTION_TRIGGERED           = 61912,
     SPELL_ELECTRICAL_CHARGE                     = 61902,
     SPELL_FUSION_PUNCH                          = 61903,
     SPELL_OVERWHELMING_POWER                    = 64637,
@@ -59,6 +61,9 @@ enum Spells
     SPELL_LIGHTNING_TENDRILS_VISUAL             = 61883,
     SPELL_STORMSHIELD                           = 64187,
     SPELL_RANDOM_AGGRO_PERIODIC                 = 61906,
+
+    // Lightning Elemental
+    SPELL_LIGHTNING_ELEMENTAL_PASSIVE           = 62052
 };
 
 // Needed for OnSpellCastFinished hook in Stormcaller Brundir's script
@@ -77,7 +82,6 @@ enum Events
     EVENT_SHIELD_OF_RUNES,
     EVENT_RUNE_OF_DEATH,
     EVENT_RUNE_OF_SUMMONING,
-    EVENT_LIGHTNING_BLAST,
 
     // Stormcaller Brundir
     EVENT_MOVE_INTRO,
@@ -99,7 +103,7 @@ enum Phases : uint8
 
 enum Actions
 {
-    ACTION_SUPERCHARGE  = 1,
+    ACTION_SUPERCHARGE = 1,
     ACTION_ADD_CHARGE,
     ACTION_BERSERK_TRIGGERED
 };
@@ -168,7 +172,7 @@ namespace AOIEncounterHelper
     {
         instance->DoRemoveAurasDueToSpellOnPlayers(sSpellMgr->GetSpellIdForDifficulty(SPELL_FUSION_PUNCH, creature));
         instance->DoRemoveAurasDueToSpellOnPlayers(sSpellMgr->GetSpellIdForDifficulty(SPELL_OVERWHELMING_POWER, creature));
-        instance->DoRemoveAurasDueToSpellOnPlayers(sSpellMgr->GetSpellIdForDifficulty(SPELL_STATIC_DISRUPTION, creature));
+        instance->DoRemoveAurasDueToSpellOnPlayers(sSpellMgr->GetSpellIdForDifficulty(SPELL_STATIC_DISRUPTION_TRIGGERED, creature));
     }
 }
 
@@ -290,9 +294,9 @@ struct boss_steelbreaker : public ScriptedAI
                 case EVENT_STATIC_DISRUPTION:
                 {
                     // Steelbreaker prefers ranged targets above melee targets but falls back to melee targets if no ranged target is available
-                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, -10.f);
+                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, -10.f, true);
                     if (!target)
-                        target = SelectTarget(SELECT_TARGET_RANDOM);
+                        target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.f, true);
 
                     DoCast(target, SPELL_STATIC_DISRUPTION);
                     _events.Repeat(20s, 40s);
@@ -736,6 +740,8 @@ struct npc_assembly_lightning_elemental : public ScriptedAI
 
     void JustAppeared() override
     {
+        DoCastSelf(SPELL_LIGHTNING_ELEMENTAL_PASSIVE);
+
         if (Unit* target = me->SelectNearestTarget(100.f, true))
             me->EngageWithTarget(target);
     }
@@ -746,18 +752,18 @@ struct npc_assembly_lightning_elemental : public ScriptedAI
     }
 };
 
-class spell_shield_of_runes : public AuraScript
+class spell_assembly_shield_of_runes : public AuraScript
 {
-    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
         if (Unit* caster = GetCaster())
-            if (!GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::Expired))
+            if (!GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::ByEnemySpell) && aurEff->GetAmount() <= 0)
                 caster->CastSpell(caster, SPELL_SHIELD_OF_RUNES_BUFF, false);
     }
 
     void Register() override
     {
-        AfterEffectRemove.Register(&spell_shield_of_runes::AfterRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove.Register(&spell_assembly_shield_of_runes::AfterRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -820,7 +826,7 @@ class spell_assembly_supercharge : public SpellScript
 {
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        targets.remove_if([this](WorldObject const* target)->bool
+        targets.remove_if([&](WorldObject const* target)
         {
             Unit const* unitTarget = target->ToUnit();
             return (!unitTarget || unitTarget == GetCaster() || unitTarget->isDead());
@@ -836,6 +842,7 @@ class spell_assembly_supercharge : public SpellScript
 
     void Register() override
     {
+        OnObjectAreaTargetSelect.Register(&spell_assembly_supercharge::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ENTRY);
         OnEffectHitTarget.Register(&spell_assembly_supercharge::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
@@ -893,7 +900,7 @@ void AddSC_boss_assembly_of_iron()
     RegisterUlduarCreatureAI(boss_runemaster_molgeim);
     RegisterUlduarCreatureAI(boss_stormcaller_brundir);
     RegisterUlduarCreatureAI(npc_assembly_lightning_elemental);
-    RegisterSpellScript(spell_shield_of_runes);
+    RegisterSpellScript(spell_assembly_shield_of_runes);
     RegisterSpellScript(spell_assembly_meltdown);
     RegisterSpellScript(spell_assembly_rune_of_summoning);
     RegisterSpellScript(spell_assembly_random_aggro_periodic);
