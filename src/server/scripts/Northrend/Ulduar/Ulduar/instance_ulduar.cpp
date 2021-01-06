@@ -258,7 +258,7 @@ class instance_ulduar : public InstanceMapScript
                     instance->SummonCreature(NPC_MIMIRON_YS, YSKeepersPos[3]);
             }
 
-            // This hook is being called when the instance is created for the first time without a instance safe. Handle the Assembly of Iron initial spawn procedure in here.
+            // This hook is being called when the instance is created for the first time without a instance save. Handle the Assembly of Iron initial spawn procedure in here.
             void Create() override
             {
                 SetBossState(DATA_ASSEMBLY_OF_IRON, NOT_STARTED);

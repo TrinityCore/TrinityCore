@@ -757,7 +757,7 @@ class spell_assembly_shield_of_runes : public AuraScript
     void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
         if (Unit* caster = GetCaster())
-            if (!GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::ByEnemySpell) && aurEff->GetAmount() <= 0)
+            if (GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::ByEnemySpell) && aurEff->GetAmount() <= 0)
                 caster->CastSpell(caster, SPELL_SHIELD_OF_RUNES_BUFF, false);
     }
 
