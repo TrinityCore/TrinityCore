@@ -23,9 +23,15 @@
 #include "GuildFinderMgr.h"
 #include "GuildMgr.h"
 #include "DatabaseEnv.h"
+#include "SpellAuraEffects.h"
+#include "SpellHistory.h"
+#include "SpellMgr.h"
+#include "SpellScript.h"
 
-
-
+uint32 SPELL_POUR_REZ = 95750;               // Résurrection de Pierre d'âme - 3026 95750
+uint32 SPELL_POUR_VISUEL = 14867;
+uint32 PERTE_DE_DURABILITE = 45317;         //  Perte de 10 % de la durabilité
+uint32 DISPARITION6S = 35205;
 
 namespace {
 
@@ -45,6 +51,7 @@ public:
         if (firstLogin)
         {
         Guilde_Par_Defaut_Pour_Tous(player);
+        Apprentissage_Rez_sur_son_corp(player);
         }
 	}
 
@@ -57,39 +64,40 @@ public:
 
 
 
+
     // Sans action pour le moment
     void OnPlayerEnterZone(Player* player, uint32 newZone, uint32 newArea)
     {
     }
-    void OnPlayerCreate(Player* player)
+    void OnPlayerUpdate(Player* player, uint32 p_time)
     {
+        if (!player->IsInWorld()) { return; }
     }
 
     ////// TMP a voir/vérifier : public: /* CreatureScript */
-    // void OnAccountLogin(uint32 /*accountId*/) {}
+    // 
     // void OnPlayerEnter(map, player) {}
-    // void OnPlayerSpellCast(Player* player, Spell* spell, bool skipCheck) {}
     // void OnPlayerLogin(Player* player, bool firstLogin) {}
     // void OnPlayerRepop(Player* player) {}
-    // void OnPlayerRepop(Player* player) {}
-    // void OnPlayerKilledByCreature(Creature* /*killer*/, Player* /*killed*/) { }
+    // void OnPlayerKilledByCreature(Creature* /*killer*/, Player* player/*killed*/) {}
     // void OnCreatureKill(Player* /*killer*/, Creature* /*killed*/) { }
     // void OnLogout(Player* /*player*/) { }
     // void OnCreate(Player* /*player*/) { }
     // void OnMapChanged(Player* /*player*/) { }
-    //  void OnPlayerUpdate     Player->has     Player->is
+    // void OnPlayerUpdate     Player->has     Player->is
     // void Player::Update(uint32 p_time)
     // void Player::KillPlayer()
     // void UpdateAI(uint32 diff) override ---> if (CanSpawn)
-
-
+    // void Player::OnCombatExit()
+    // void OnPlayerSpellCast(Player* player, Spell* spell, bool skipCheck) {}
+    // void OnAccountLogin(uint32 /*accountId*/) {}
 
     // Routines d'actions suite a un évènement ########################################################################
 
     // 
     void Apprentissage_Ou_Additem_Suivant_classes_races(Player* player)
     {
-    uint8 _team = player->GetTeamId();      // TeamId team
+    uint8 _team = player->GetTeamId();      
     uint8 _class = player->getClass();
     uint8 _level = player->getLevel();
     uint8 _race = player->getRace();
@@ -162,7 +170,7 @@ case CLASS_DEMON_HUNTER:
     break;
 }
 
-    switch (_race)
+switch (_race)
 {
 case RACE_HUMAN:
     break;
@@ -227,28 +235,38 @@ case RACE_MECHAGNOME:               // Mécagnome a2
     void Guilde_Par_Defaut_Pour_Tous(Player* player)
         // Voir la table characters-guild->guildid pour l'id de guilde
     {
-    uint32 guildID;
-    if (player->GetTeam() == HORDE)
-    {
-        guildID = sConfigMgr->GetIntDefault("Guilde_Par_Defaut_Horde", 0);
-        ChatHandler(player->GetSession()).SendSysMessage("|cffffffff> Vous avez rejoint la guilde par defaut de la Horde. '/gquit' pour la quiter <");
-    }
-    else
-    {
-        guildID = sConfigMgr->GetIntDefault("Guilde_Par_Defaut_Alliance", 0);
-        ChatHandler(player->GetSession()).SendSysMessage("|cffffffff> Vous avez rejoint la guilde par defaut de l'Alliance. '/gquit' pour la quiter <");
-    }
+        uint32 guildID;
+        if (player->GetTeam() == HORDE)
+        {
+            guildID = sConfigMgr->GetIntDefault("Guilde_Par_Defaut_Horde", 0);
+            ChatHandler(player->GetSession()).SendSysMessage("|cffffffff> Vous avez rejoint la guilde par defaut de la Horde. '/gquit' pour la quiter <");
+        }
+        else
+        {
+            guildID = sConfigMgr->GetIntDefault("Guilde_Par_Defaut_Alliance", 0);
+            ChatHandler(player->GetSession()).SendSysMessage("|cffffffff> Vous avez rejoint la guilde par defaut de l'Alliance. '/gquit' pour la quiter <");
+        }
 
-    if (!guildID) return;
+        if (!guildID) return;
 
-    Guild* targetGuild = sGuildMgr->GetGuildById(guildID);
-    if (targetGuild)
+        Guild* targetGuild = sGuildMgr->GetGuildById(guildID);
+        if (targetGuild)
+        {
+            ObjectGuid playerGuid = player->GetGUID();
+            CharacterDatabaseTransaction trans(nullptr);
+            targetGuild->AddMember(trans, player->GetGUID());
+        }
+    }
+    void Apprentissage_Rez_sur_son_corp(Player* player)
     {
-        ObjectGuid playerGuid = player->GetGUID();
-        CharacterDatabaseTransaction trans(nullptr);
-        targetGuild->AddMember(trans, player->GetGUID());
+        uint8 rez = sConfigMgr->GetIntDefault("REZ_SUR_SON_CORP", 0);
+        if (rez == 1)
+        {
+            player->LearnSpell(SPELL_POUR_REZ, true);      // Résurrection de Pierre d'âme
+        }
     }
-    }
+    
+
 
 
 

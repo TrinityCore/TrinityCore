@@ -35,6 +35,9 @@ void Trinity::Banner::Show(char const* applicationName, void(*log)(char const* t
     log(" - PNJ change race , faction , apparence");
     log(" - PNJ Lieux de depart chez une race allié ou instant level 10");
     log(" - Aubergiste donne foyer et une pierre de foyer");
+    log(" - Guilde auto a la creation d'un perso (Horde ou Alliance");
+    log(" - Resurrection sur son corp (apprentissage spell)");
+    log(" ");
     log("################################################################################");
     log("################################################################################");
     log(" ");
