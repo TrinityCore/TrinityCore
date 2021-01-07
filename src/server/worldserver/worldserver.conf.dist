@@ -4,6 +4,27 @@
 [worldserver]
 
 ###################################################################################################
+# REGLAGES CUSTOM DU REPACK
+# 
+# Affecte a la guilde par defaut un nouveau perso suivant sont camp . 
+# La guilde peut etre la meme pour les les 2 camps.
+# Voir la table characters-guild->guildid pour guildid de guilde
+# Guilde_Par_Defaut_Horde			= guildid
+# Guilde_Par_Defaut_Alliance 	= guildid
+Guilde_Par_Defaut_Horde			= 1
+Guilde_Par_Defaut_Alliance 	= 1
+
+# Ressuciter sur son corp 1 ou 0
+REZ_SUR_SON_CORP = 1
+
+
+
+
+
+
+
+###################################################################################################
+###################################################################################################
 # SECTION INDEX
 #
 #    EXAMPLE CONFIG
@@ -892,17 +913,17 @@ StartPlayerLevel = 1
 #    StartDeathKnightPlayerLevel
 #        Description: Starting level for death knights after creation.
 #        Range:       1-MaxPlayerLevel
-#        Default:     8
+#        Default:     10
 
-StartDeathKnightPlayerLevel = 8
+StartDeathKnightPlayerLevel = 10
 
 #
 #    StartDemonHunterPlayerLevel
 #        Description: Staring level for demon hunters after creation.
 #        Range:       1-MaxPlayerLevel
-#        Default:     8
+#        Default:     10
 
-StartDemonHunterPlayerLevel = 8
+StartDemonHunterPlayerLevel = 10
 
 #
 #    StartAlliedRacePlayerLevel
