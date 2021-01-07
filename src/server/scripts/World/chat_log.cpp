@@ -119,7 +119,7 @@ class ChatLogScript : public PlayerScript
             }
         }
 
-        void OnChat(Player* player, uint32 /*type*/, uint32 /*lang*/, std::string& msg, Channel* channel) override
+        void OnChat(Player* player, uint32 /*type*/, uint32 lang, std::string& msg, Channel* channel) override
         {
             bool isSystem = channel &&
                             (channel->HasFlag(CHANNEL_FLAG_TRADE) ||
@@ -128,12 +128,14 @@ class ChatLogScript : public PlayerScript
                              channel->HasFlag(CHANNEL_FLAG_LFG));
 
             if (isSystem)
-                TC_LOG_DEBUG("chat.log.system", "Player %s tells channel %s: %s",
+            {
+                TC_LOG_CHAT("system", "Player %s tells channel %s: %s",
                     player->GetName().c_str(), channel->GetName().c_str(), msg.c_str());
+            }
             else
             {
                 std::string channelName = channel ? channel->GetName() : "<unknown>";
-                TC_LOG_DEBUG("chat.log.channel." + channelName, "Player %s tells channel %s: %s",
+                TC_LOG_CHAT("channel." + channelName, "Player %s tells channel %s: %s",
                     player->GetName().c_str(), channelName.c_str(), msg.c_str());
             }
         }
