@@ -31,6 +31,7 @@
 #include "SpellAuras.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
+#include "SpellPackets.h"
 #include "Unit.h"
 #include "Util.h"
 #include "WorldPacket.h"
@@ -338,14 +339,13 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     /// @todo pets should be summoned from real cast instead of just faking it?
     if (petInfo->CreatedBySpellId)
     {
-        WorldPacket data(SMSG_SPELL_GO, (8+8+4+4+2));
-        data << owner->GetPackGUID();
-        data << owner->GetPackGUID();
-        data << uint8(0);
-        data << uint32(petInfo->CreatedBySpellId);
-        data << uint32(256); // CAST_FLAG_UNKNOWN3
-        data << uint32(0);
-        owner->SendMessageToSet(&data, true);
+        WorldPackets::Spells::SpellGo spellGo;
+        spellGo.Cast.CasterGUID = owner->GetGUID();
+        spellGo.Cast.CasterUnit = owner->GetGUID();
+        spellGo.Cast.SpellID = petInfo->CreatedBySpellId;
+        spellGo.Cast.CastFlags = CAST_FLAG_UNKNOWN_9;
+        spellGo.Cast.CastTime = GameTime::GetGameTimeMS();
+        owner->SendMessageToSet(spellGo.Write(), true);
     }
 
     owner->SetMinion(this, true);
@@ -359,8 +359,8 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     if (owner->GetTypeId() == TYPEID_PLAYER && isControlled() && !isTemporarySummoned() && (getPetType() == SUMMON_PET || getPetType() == HUNTER_PET))
         owner->ToPlayer()->SetLastPetNumber(petInfo->PetNumber);
 
-    owner->GetSession()->AddQueryHolderCallback(CharacterDatabase.DelayQueryHolder(new PetLoadQueryHolder(ownerid, petInfo->PetNumber)))
-        .AfterComplete([this, owner, session = owner->GetSession(), isTemporarySummon, current, lastSaveTime = petInfo->LastSaveTime](SQLQueryHolderBase* holder)
+    owner->GetSession()->AddQueryHolderCallback(CharacterDatabase.DelayQueryHolder(std::make_shared<PetLoadQueryHolder>(ownerid, petInfo->PetNumber)))
+        .AfterComplete([this, owner, session = owner->GetSession(), isTemporarySummon, current, lastSaveTime = petInfo->LastSaveTime](SQLQueryHolderBase const& holder)
     {
         if (session->GetPlayer() != owner || owner->GetPet() != this)
             return;
@@ -372,14 +372,14 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
         InitTalentForLevel();                                   // set original talents points before spell loading
 
         uint32 timediff = uint32(GameTime::GetGameTime() - lastSaveTime);
-        _LoadAuras(holder->GetPreparedResult(PetLoadQueryHolder::AURAS), timediff);
+        _LoadAuras(holder.GetPreparedResult(PetLoadQueryHolder::AURAS), timediff);
 
         // load action bar, if data broken will fill later by default spells.
         if (!isTemporarySummon)
         {
-            _LoadSpells(holder->GetPreparedResult(PetLoadQueryHolder::SPELLS));
+            _LoadSpells(holder.GetPreparedResult(PetLoadQueryHolder::SPELLS));
             InitTalentForLevel();                               // re-init to check talent count
-            GetSpellHistory()->LoadFromDB<Pet>(holder->GetPreparedResult(PetLoadQueryHolder::COOLDOWNS));
+            GetSpellHistory()->LoadFromDB<Pet>(holder.GetPreparedResult(PetLoadQueryHolder::COOLDOWNS));
             LearnPetPassives();
             InitLevelupSpellsForLevel();
             if (GetMap()->IsBattleArena())
@@ -401,7 +401,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
 
         if (getPetType() == HUNTER_PET)
         {
-            if (PreparedQueryResult result = holder->GetPreparedResult(PetLoadQueryHolder::DECLINED_NAMES))
+            if (PreparedQueryResult result = holder.GetPreparedResult(PetLoadQueryHolder::DECLINED_NAMES))
             {
                 m_declinedname = std::make_unique<DeclinedName>();
                 Field* fields = result->Fetch();
@@ -691,7 +691,6 @@ void Pet::Update(uint32 diff)
     }
     Creature::Update(diff);
 }
-
 
 void Pet::LoseHappiness()
 {
@@ -1164,7 +1163,7 @@ void Pet::_LoadSpells(PreparedQueryResult result)
     }
 }
 
-void Pet::_SaveSpells(CharacterDatabaseTransaction& trans)
+void Pet::_SaveSpells(CharacterDatabaseTransaction trans)
 {
     for (PetSpellMap::iterator itr = m_spells.begin(), next = m_spells.begin(); itr != m_spells.end(); itr = next)
     {
@@ -1290,7 +1289,7 @@ void Pet::_LoadAuras(PreparedQueryResult result, uint32 timediff)
     }
 }
 
-void Pet::_SaveAuras(CharacterDatabaseTransaction& trans)
+void Pet::_SaveAuras(CharacterDatabaseTransaction trans)
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PET_AURAS);
     stmt->setUInt32(0, m_charmInfo->GetPetNumber());
@@ -2030,7 +2029,7 @@ std::string Pet::GetDebugInfo() const
     std::stringstream sstr;
     sstr << Guardian::GetDebugInfo() << "\n"
         << std::boolalpha
-        << "PetType: " << std::to_string(getPetType())
+        << "PetType: " << std::to_string(getPetType()) << " "
         << "PetNumber: " << m_charmInfo->GetPetNumber();
     return sstr.str();
 }

@@ -20,11 +20,13 @@
 
 #include "Define.h"
 #include "Errors.h"
+#include "Optional.h"
 
 #include <array>
 #include <string>
 #include <string_view>
 #include <sstream>
+#include <typeinfo>
 #include <utility>
 #include <vector>
 
@@ -35,35 +37,19 @@ enum class TimeFormat : uint8
     Numeric         // 1:2:3:4
 };
 
-class TC_COMMON_API Tokenizer
+namespace Trinity
 {
-public:
-    typedef std::vector<char const*> StorageType;
+    TC_COMMON_API std::vector<std::string_view> Tokenize(std::string_view str, char sep, bool keepEmpty);
 
-    typedef StorageType::size_type size_type;
+    /* this would return string_view into temporary otherwise */
+    std::vector<std::string_view> Tokenize(std::string&&, char, bool) = delete;
+    std::vector<std::string_view> Tokenize(std::string const&&, char, bool) = delete;
 
-    typedef StorageType::const_iterator const_iterator;
-    typedef StorageType::reference reference;
-    typedef StorageType::const_reference const_reference;
+    /* the delete overload means we need to make this explicit */
+    inline std::vector<std::string_view> Tokenize(char const* str, char sep, bool keepEmpty) { return Tokenize(std::string_view(str ? str : ""), sep, keepEmpty); }
+}
 
-public:
-    Tokenizer(std::string_view src, char const sep, uint32 vectorReserve = 0, bool keepEmptyStrings = true);
-    ~Tokenizer() { delete[] m_str; }
-
-    const_iterator begin() const { return m_storage.begin(); }
-    const_iterator end() const { return m_storage.end(); }
-
-    size_type size() const { return m_storage.size(); }
-
-    reference operator [] (size_type i) { return m_storage[i]; }
-    const_reference operator [] (size_type i) const { return m_storage[i]; }
-
-private:
-    char* m_str;
-    StorageType m_storage;
-};
-
-TC_COMMON_API int32 MoneyStringToMoney(std::string const& moneyString);
+TC_COMMON_API Optional<int32> MoneyStringToMoney(std::string const& moneyString);
 
 TC_COMMON_API struct tm* localtime_r(time_t const* time, struct tm *result);
 TC_COMMON_API time_t LocalTimeToUTCTime(time_t time);
@@ -345,16 +331,20 @@ inline std::vector<uint8> HexStrToByteVector(std::string_view str, bool reverse 
     return buf;
 }
 
-TC_COMMON_API bool StringToBool(std::string_view str);
-
 TC_COMMON_API bool StringEqualI(std::string_view str1, std::string_view str2);
-TC_COMMON_API bool StringStartsWith(std::string_view haystack, std::string_view needle);
+inline bool StringStartsWith(std::string_view haystack, std::string_view needle) { return (haystack.substr(0, needle.length()) == needle); }
+inline bool StringStartsWithI(std::string_view haystack, std::string_view needle) { return StringEqualI(haystack.substr(0, needle.length()), needle); }
 TC_COMMON_API bool StringContainsStringI(std::string_view haystack, std::string_view needle);
 template <typename T>
 inline bool ValueContainsStringI(std::pair<T, std::string_view> const& haystack, std::string_view needle)
 {
     return StringContainsStringI(haystack.second, needle);
 }
+TC_COMMON_API bool StringCompareLessI(std::string_view a, std::string_view b);
+
+struct StringCompareLessI_T {
+    bool operator()(std::string_view a, std::string_view b) const { return StringCompareLessI(a, b); }
+};
 
 // simple class for not-modifyable list
 template <typename T>
@@ -559,5 +549,11 @@ Ret* Coalesce(T1* first, T*... rest)
     else
         return static_cast<Ret*>(first);
 }
+
+TC_COMMON_API std::string GetTypeName(std::type_info const&);
+template <typename T>
+std::string GetTypeName() { return GetTypeName(typeid(T)); }
+template <typename T>
+std::enable_if_t<!std::is_same_v<std::decay_t<T>, std::type_info>, std::string> GetTypeName(T&& v) { return GetTypeName(typeid(v)); }
 
 #endif

@@ -548,7 +548,7 @@ void AchievementMgr::DeleteFromDB(ObjectGuid guid)
     CharacterDatabase.CommitTransaction(trans);
 }
 
-void AchievementMgr::SaveToDB(CharacterDatabaseTransaction& trans)
+void AchievementMgr::SaveToDB(CharacterDatabaseTransaction trans)
 {
     if (!m_completedAchievements.empty())
     {
@@ -992,7 +992,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILLLINE_SPELLS:
             {
                 uint32 spellCount = 0;
-                for (std::pair<uint32 const, PlayerSpell*>& spellIter : GetPlayer()->GetSpellMap())
+                for (std::pair<uint32 const, PlayerSpell> const& spellIter : GetPlayer()->GetSpellMap())
                 {
                     SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellIter.first);
                     for (SkillLineAbilityMap::const_iterator skillIter = bounds.first; skillIter != bounds.second; ++skillIter)
@@ -1020,7 +1020,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LINE:
             {
                 uint32 spellCount = 0;
-                for (std::pair<uint32 const, PlayerSpell*>& spellIter : GetPlayer()->GetSpellMap())
+                for (std::pair<uint32 const, PlayerSpell> const& spellIter : GetPlayer()->GetSpellMap())
                 {
                     SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellIter.first);
                     for (SkillLineAbilityMap::const_iterator skillIter = bounds.first; skillIter != bounds.second; ++skillIter)

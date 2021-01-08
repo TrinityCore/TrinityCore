@@ -821,7 +821,7 @@ class npc_grandmother : public CreatureScript
         {
             npc_grandmotherAI(Creature* creature) : ScriptedAI(creature) { }
 
-            bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+            bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {
                 if (menuId == OPTION_WHAT_PHAT_LEWTS_YOU_HAVE && gossipListId == 0)
                 {
@@ -1006,7 +1006,6 @@ enum JulianneRomulo
     ROMULO_X                        = -10900,
     ROMULO_Y                        = -1758,
 };
-
 
 enum RAJPhase
 {

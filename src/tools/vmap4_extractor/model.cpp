@@ -133,7 +133,6 @@ bool Model::ConvertToVMAPModel(const char * outfilename)
     return true;
 }
 
-
 Vec3D fixCoordSystem(Vec3D const& v)
 {
     return Vec3D(v.x, v.z, -v.y);
@@ -263,4 +262,3 @@ void Doodad::ExtractSet(WMODoodadData const& doodadData, ADT::MODF const& wmo, u
         fwrite(ModelInstName, sizeof(char), nlen, pDirfile);
     }
 }
-

@@ -27,6 +27,7 @@ EndScriptData */
 #include "BattlefieldMgr.h"
 #include "BattlegroundMgr.h"
 #include "CellImpl.h"
+#include "Channel.h"
 #include "Chat.h"
 #include "GameTime.h"
 #include "GossipDef.h"
@@ -51,88 +52,80 @@ EndScriptData */
 #include <set>
 
 using namespace Trinity::ChatCommands;
+
 class debug_commandscript : public CommandScript
 {
 public:
     debug_commandscript() : CommandScript("debug_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    ChatCommandTable GetCommands() const override
     {
-        static std::vector<ChatCommand> debugPlayCommandTable =
+        static ChatCommandTable debugPlayCommandTable =
         {
-            { "cinematic",     rbac::RBAC_PERM_COMMAND_DEBUG_PLAY_CINEMATIC, false, &HandleDebugPlayCinematicCommand,   "" },
-            { "movie",         rbac::RBAC_PERM_COMMAND_DEBUG_PLAY_MOVIE,     false, &HandleDebugPlayMovieCommand,       "" },
-            { "sound",         rbac::RBAC_PERM_COMMAND_DEBUG_PLAY_SOUND,     false, &HandleDebugPlaySoundCommand,       "" },
-            { "music",         rbac::RBAC_PERM_COMMAND_DEBUG_PLAY_MUSIC,     false, &HandleDebugPlayMusicCommand,       "" },
+            { "cinematic",          HandleDebugPlayCinematicCommand,        rbac::RBAC_PERM_COMMAND_DEBUG,  Console::No },
+            { "movie",              HandleDebugPlayMovieCommand,            rbac::RBAC_PERM_COMMAND_DEBUG,  Console::No },
+            { "sound",              HandleDebugPlaySoundCommand,            rbac::RBAC_PERM_COMMAND_DEBUG,  Console::No },
+            { "music",              HandleDebugPlayMusicCommand,            rbac::RBAC_PERM_COMMAND_DEBUG,  Console::No },
         };
-        static std::vector<ChatCommand> debugSendCommandTable =
+        static ChatCommandTable debugSendCommandTable =
         {
-            { "buyerror",      rbac::RBAC_PERM_COMMAND_DEBUG_SEND_BUYERROR,      false, &HandleDebugSendBuyErrorCommand,        "" },
-            { "channelnotify", rbac::RBAC_PERM_COMMAND_DEBUG_SEND_CHANNELNOTIFY, false, &HandleDebugSendChannelNotifyCommand,   "" },
-            { "chatmessage",   rbac::RBAC_PERM_COMMAND_DEBUG_SEND_CHATMESSAGE,   false, &HandleDebugSendChatMsgCommand,         "" },
-            { "equiperror",    rbac::RBAC_PERM_COMMAND_DEBUG_SEND_EQUIPERROR,    false, &HandleDebugSendEquipErrorCommand,      "" },
-            { "largepacket",   rbac::RBAC_PERM_COMMAND_DEBUG_SEND_LARGEPACKET,   false, &HandleDebugSendLargePacketCommand,     "" },
-            { "opcode",        rbac::RBAC_PERM_COMMAND_DEBUG_SEND_OPCODE,        false, &HandleDebugSendOpcodeCommand,          "" },
-            { "qpartymsg",     rbac::RBAC_PERM_COMMAND_DEBUG_SEND_QPARTYMSG,     false, &HandleDebugSendQuestPartyMsgCommand,   "" },
-            { "qinvalidmsg",   rbac::RBAC_PERM_COMMAND_DEBUG_SEND_QINVALIDMSG,   false, &HandleDebugSendQuestInvalidMsgCommand, "" },
-            { "sellerror",     rbac::RBAC_PERM_COMMAND_DEBUG_SEND_SELLERROR,     false, &HandleDebugSendSellErrorCommand,       "" },
-            { "setphaseshift", rbac::RBAC_PERM_COMMAND_DEBUG_SEND_SETPHASESHIFT, false, &HandleDebugSendSetPhaseShiftCommand,   "" },
-            { "spellfail",     rbac::RBAC_PERM_COMMAND_DEBUG_SEND_SPELLFAIL,     false, &HandleDebugSendSpellFailCommand,       "" },
+            { "buyerror",           HandleDebugSendBuyErrorCommand,        rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "channelnotify",      HandleDebugSendChannelNotifyCommand,   rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "chatmessage",        HandleDebugSendChatMsgCommand,         rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "equiperror",         HandleDebugSendEquipErrorCommand,      rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "largepacket",        HandleDebugSendLargePacketCommand,     rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "opcode",             HandleDebugSendOpcodeCommand,          rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "qpartymsg",          HandleDebugSendQuestPartyMsgCommand,   rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "qinvalidmsg",        HandleDebugSendQuestInvalidMsgCommand, rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "sellerror",          HandleDebugSendSellErrorCommand,       rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "setphaseshift",      HandleDebugSendSetPhaseShiftCommand,   rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "spellfail",          HandleDebugSendSpellFailCommand,       rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
         };
-        static std::vector<ChatCommand> debugAsanCommandTable =
+        static ChatCommandTable debugCommandTable =
         {
-            { "memoryleak",    rbac::RBAC_PERM_COMMAND_DEBUG_ASAN,               true,  &HandleDebugMemoryLeak,         "" },
-            { "outofbounds",   rbac::RBAC_PERM_COMMAND_DEBUG_ASAN,               true,  &HandleDebugOutOfBounds,        "" },
+            { "setbit",             HandleDebugSet32BitCommand,            rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "threat",             HandleDebugThreatListCommand,          rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "threatinfo",         HandleDebugThreatInfoCommand,          rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "combat",             HandleDebugCombatListCommand,          rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "anim",               HandleDebugAnimCommand,                rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "arena",              HandleDebugArenaCommand,               rbac::RBAC_PERM_COMMAND_DEBUG,   Console::Yes },
+            { "bg",                 HandleDebugBattlegroundCommand,        rbac::RBAC_PERM_COMMAND_DEBUG,   Console::Yes },
+            { "getitemstate",       HandleDebugGetItemStateCommand,        rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "lootrecipient",      HandleDebugGetLootRecipientCommand,    rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "getvalue",           HandleDebugGetValueCommand,            rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "getitemvalue",       HandleDebugGetItemValueCommand,        rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "Mod32Value",         HandleDebugMod32ValueCommand,          rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "play",               debugPlayCommandTable },
+            { "send",               debugSendCommandTable },
+            { "setaurastate",       HandleDebugSetAuraStateCommand,        rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "setitemvalue",       HandleDebugSetItemValueCommand,        rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "setvalue",           HandleDebugSetValueCommand,            rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "spawnvehicle",       HandleDebugSpawnVehicleCommand,        rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "entervehicle",       HandleDebugEnterVehicleCommand,        rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "worldstate",         HandleDebugUpdateWorldStateCommand,    rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "update",             HandleDebugUpdateCommand,              rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "itemexpire",         HandleDebugItemExpireCommand,          rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "areatriggers",       HandleDebugAreaTriggersCommand,        rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "los",                HandleDebugLoSCommand,                 rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "moveflags",          HandleDebugMoveflagsCommand,           rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "transport",          HandleDebugTransportCommand,           rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "loadcells",          HandleDebugLoadCellsCommand,           rbac::RBAC_PERM_COMMAND_DEBUG,   Console::Yes },
+            { "boundary",           HandleDebugBoundaryCommand,            rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "raidreset",          HandleDebugRaidResetCommand,           rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "neargraveyard",      HandleDebugNearGraveyard,              rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "instancespawn",      HandleDebugInstanceSpawns,             rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "dummy",              HandleDebugDummyCommand,               rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
+            { "asan memoryleak",    HandleDebugMemoryLeak,                 rbac::RBAC_PERM_COMMAND_DEBUG,   Console::Yes },
+            { "asan outofbounds",   HandleDebugOutOfBounds,                rbac::RBAC_PERM_COMMAND_DEBUG,   Console::Yes },
+            { "guidlimits",         HandleDebugGuidLimitsCommand,          rbac::RBAC_PERM_COMMAND_DEBUG,   Console::Yes },
+            { "objectcount",        HandleDebugObjectCountCommand,         rbac::RBAC_PERM_COMMAND_DEBUG,   Console::Yes },
+            { "questreset",         HandleDebugQuestResetCommand,          rbac::RBAC_PERM_COMMAND_DEBUG,   Console::Yes },
+            { "warden force",       HandleDebugWardenForce,                rbac::RBAC_PERM_COMMAND_DEBUG,   Console::Yes }
         };
-        static std::vector<ChatCommand> debugWardenCommandTable =
+        static ChatCommandTable commandTable =
         {
-            { "force",         rbac::RBAC_PERM_COMMAND_DEBUG,                    true,  &HandleDebugWardenForce,        "" }
-        };
-        static std::vector<ChatCommand> debugCommandTable =
-        {
-            { "setbit",        rbac::RBAC_PERM_COMMAND_DEBUG_SETBIT,        false, &HandleDebugSet32BitCommand,         "" },
-            { "threat",        rbac::RBAC_PERM_COMMAND_DEBUG_THREAT,        false, &HandleDebugThreatListCommand,       "" },
-            { "threatinfo",    rbac::RBAC_PERM_COMMAND_DEBUG_THREATINFO,    false, &HandleDebugThreatInfoCommand,       "" },
-            { "combat",        rbac::RBAC_PERM_COMMAND_DEBUG_COMBAT,        false, &HandleDebugCombatListCommand,       "" },
-            { "anim",          rbac::RBAC_PERM_COMMAND_DEBUG_ANIM,          false, &HandleDebugAnimCommand,             "" },
-            { "arena",         rbac::RBAC_PERM_COMMAND_DEBUG_ARENA,         true,  &HandleDebugArenaCommand,            "" },
-            { "bg",            rbac::RBAC_PERM_COMMAND_DEBUG_BG,            true,  &HandleDebugBattlegroundCommand,     "" },
-            { "getitemstate",  rbac::RBAC_PERM_COMMAND_DEBUG_GETITEMSTATE,  false, &HandleDebugGetItemStateCommand,     "" },
-            { "lootrecipient", rbac::RBAC_PERM_COMMAND_DEBUG_LOOTRECIPIENT, false, &HandleDebugGetLootRecipientCommand, "" },
-            { "getvalue",      rbac::RBAC_PERM_COMMAND_DEBUG_GETVALUE,      false, &HandleDebugGetValueCommand,         "" },
-            { "getitemvalue",  rbac::RBAC_PERM_COMMAND_DEBUG_GETITEMVALUE,  false, &HandleDebugGetItemValueCommand,     "" },
-            { "Mod32Value",    rbac::RBAC_PERM_COMMAND_DEBUG_MOD32VALUE,    false, &HandleDebugMod32ValueCommand,       "" },
-            { "play",          rbac::RBAC_PERM_COMMAND_DEBUG_PLAY,          false, nullptr,                             "", debugPlayCommandTable },
-            { "send",          rbac::RBAC_PERM_COMMAND_DEBUG_SEND,          false, nullptr,                             "", debugSendCommandTable },
-            { "setaurastate",  rbac::RBAC_PERM_COMMAND_DEBUG_SETAURASTATE,  false, &HandleDebugSetAuraStateCommand,     "" },
-            { "setitemvalue",  rbac::RBAC_PERM_COMMAND_DEBUG_SETITEMVALUE,  false, &HandleDebugSetItemValueCommand,     "" },
-            { "setvalue",      rbac::RBAC_PERM_COMMAND_DEBUG_SETVALUE,      false, &HandleDebugSetValueCommand,         "" },
-            { "spawnvehicle",  rbac::RBAC_PERM_COMMAND_DEBUG_SPAWNVEHICLE,  false, &HandleDebugSpawnVehicleCommand,     "" },
-            { "setvid",        rbac::RBAC_PERM_COMMAND_DEBUG_SETVID,        false, &HandleDebugSetVehicleIdCommand,     "" },
-            { "entervehicle",  rbac::RBAC_PERM_COMMAND_DEBUG_ENTERVEHICLE,  false, &HandleDebugEnterVehicleCommand,     "" },
-            { "worldstate",    rbac::RBAC_PERM_COMMAND_DEBUG_WORLDSTATE,    false, &HandleDebugUpdateWorldStateCommand, "" },
-            { "update",        rbac::RBAC_PERM_COMMAND_DEBUG_UPDATE,        false, &HandleDebugUpdateCommand,           "" },
-            { "itemexpire",    rbac::RBAC_PERM_COMMAND_DEBUG_ITEMEXPIRE,    false, &HandleDebugItemExpireCommand,       "" },
-            { "areatriggers",  rbac::RBAC_PERM_COMMAND_DEBUG_AREATRIGGERS,  false, &HandleDebugAreaTriggersCommand,     "" },
-            { "los",           rbac::RBAC_PERM_COMMAND_DEBUG_LOS,           false, &HandleDebugLoSCommand,              "" },
-            { "moveflags",     rbac::RBAC_PERM_COMMAND_DEBUG_MOVEFLAGS,     false, &HandleDebugMoveflagsCommand,        "" },
-            { "transport",     rbac::RBAC_PERM_COMMAND_DEBUG_TRANSPORT,     false, &HandleDebugTransportCommand,        "" },
-            { "loadcells",     rbac::RBAC_PERM_COMMAND_DEBUG_LOADCELLS,     false, &HandleDebugLoadCellsCommand,        "" },
-            { "boundary",      rbac::RBAC_PERM_COMMAND_DEBUG_BOUNDARY,      false, &HandleDebugBoundaryCommand,         "" },
-            { "raidreset",     rbac::RBAC_PERM_COMMAND_INSTANCE_UNBIND,     false, &HandleDebugRaidResetCommand,        "" },
-            { "neargraveyard", rbac::RBAC_PERM_COMMAND_NEARGRAVEYARD,       false, &HandleDebugNearGraveyard,           "" },
-            { "instancespawn", rbac::RBAC_PERM_COMMAND_DEBUG_INSTANCESPAWN, false, &HandleDebugInstanceSpawns,          "" },
-            { "dummy",         rbac::RBAC_PERM_COMMAND_DEBUG_DUMMY,         false, &HandleDebugDummyCommand,            "" },
-            { "asan",          rbac::RBAC_PERM_COMMAND_DEBUG_ASAN,          true,  nullptr,                             "", debugAsanCommandTable },
-            { "guidlimits",    rbac::RBAC_PERM_COMMAND_DEBUG,               true,  &HandleDebugGuidLimitsCommand,       "" },
-            { "objectcount",   rbac::RBAC_PERM_COMMAND_DEBUG,               true,  &HandleDebugObjectCountCommand,      "" },
-            { "questreset",    rbac::RBAC_PERM_COMMAND_DEBUG_QUESTRESET,    true,  &HandleDebugQuestResetCommand,       "" },
-            { "warden",        rbac::RBAC_PERM_COMMAND_DEBUG,               true,  nullptr,                             "", debugWardenCommandTable }
-        };
-        static std::vector<ChatCommand> commandTable =
-        {
-            { "debug",         rbac::RBAC_PERM_COMMAND_DEBUG,               true,  nullptr,                             "", debugCommandTable },
-            { "wpgps",         rbac::RBAC_PERM_COMMAND_WPGPS,               false, &HandleWPGPSCommand,                 "" },
+            { "debug",              debugCommandTable },
+            { "wpgps",              HandleWPGPSCommand,                    rbac::RBAC_PERM_COMMAND_DEBUG,   Console::No },
         };
         return commandTable;
     }
@@ -161,7 +154,7 @@ public:
             handler->PSendSysMessage("%u waypoints dumped", flyByCameras->size());
         }
 
-        handler->GetSession()->GetPlayer()->SendCinematicStart(cinematicId);
+        handler->GetPlayer()->SendCinematicStart(cinematicId);
         return true;
     }
 
@@ -175,7 +168,7 @@ public:
             return false;
         }
 
-        handler->GetSession()->GetPlayer()->SendMovieStart(movieId);
+        handler->GetPlayer()->SendMovieStart(movieId);
         return true;
     }
 
@@ -189,7 +182,7 @@ public:
             return false;
         }
 
-        Player* player = handler->GetSession()->GetPlayer();
+        Player* player = handler->GetPlayer();
 
         Unit* unit = handler->getSelectedUnit();
         if (!unit)
@@ -218,7 +211,7 @@ public:
             return false;
         }
 
-        Player* player = handler->GetSession()->GetPlayer();
+        Player* player = handler->GetPlayer();
 
         player->PlayDirectMusic(musicId, player);
 
@@ -226,65 +219,36 @@ public:
         return true;
     }
 
-    static bool HandleDebugSendSpellFailCommand(ChatHandler* handler, char const* args)
+    static bool HandleDebugSendSpellFailCommand(ChatHandler* handler, SpellCastResult result, Optional<uint32> failArg1, Optional<uint32> failArg2)
     {
-        if (!*args)
-            return false;
-
-        char* result = strtok((char*)args, " ");
-        if (!result)
-            return false;
-
-        uint8 failNum = (uint8)atoi(result);
-        if (failNum == 0 && *result != '0')
-            return false;
-
-        char* fail1 = strtok(nullptr, " ");
-        uint8 failArg1 = fail1 ? (uint8)atoi(fail1) : 0;
-
-        char* fail2 = strtok(nullptr, " ");
-        uint8 failArg2 = fail2 ? (uint8)atoi(fail2) : 0;
-
         WorldPacket data(SMSG_CAST_FAILED, 5);
         data << uint8(0);
-        data << uint32(133);
-        data << uint8(failNum);
-        if (fail1 || fail2)
-            data << uint32(failArg1);
-        if (fail2)
-            data << uint32(failArg2);
+        data << uint32(133); // Spell "Fireball"
+        data << uint8(result);
+        if (failArg1 || failArg2)
+            data << uint32(failArg1.value_or(0));
+        if (failArg2)
+            data << uint32(*failArg2);
 
         handler->GetSession()->SendPacket(&data);
         return true;
     }
 
-    static bool HandleDebugSendEquipErrorCommand(ChatHandler* handler, char const* args)
+    static bool HandleDebugSendEquipErrorCommand(ChatHandler* handler, InventoryResult error)
     {
-        if (!*args)
-            return false;
-
-        InventoryResult msg = InventoryResult(atoi(args));
-        handler->GetSession()->GetPlayer()->SendEquipError(msg, nullptr, nullptr);
+        handler->GetPlayer()->SendEquipError(error, nullptr, nullptr);
         return true;
     }
 
-    static bool HandleDebugSendSellErrorCommand(ChatHandler* handler, char const* args)
+    static bool HandleDebugSendSellErrorCommand(ChatHandler* handler, SellResult error)
     {
-        if (!*args)
-            return false;
-
-        SellResult msg = SellResult(atoi(args));
-        handler->GetSession()->GetPlayer()->SendSellError(msg, nullptr, ObjectGuid::Empty, 0);
+        handler->GetPlayer()->SendSellError(error, nullptr, ObjectGuid::Empty, 0);
         return true;
     }
 
-    static bool HandleDebugSendBuyErrorCommand(ChatHandler* handler, char const* args)
+    static bool HandleDebugSendBuyErrorCommand(ChatHandler* handler, BuyResult error)
     {
-        if (!*args)
-            return false;
-
-        BuyResult msg = BuyResult(atoi(args));
-        handler->GetSession()->GetPlayer()->SendBuyError(msg, nullptr, 0, 0);
+        handler->GetPlayer()->SendBuyError(error, nullptr, 0, 0);
         return true;
     }
 
@@ -293,7 +257,7 @@ public:
         Unit* unit = handler->getSelectedUnit();
         Player* player = nullptr;
         if (!unit || (unit->GetTypeId() != TYPEID_PLAYER))
-            player = handler->GetSession()->GetPlayer();
+            player = handler->GetPlayer();
         else
             player = unit->ToPlayer();
 
@@ -461,13 +425,13 @@ public:
 
     static bool HandleDebugUpdateWorldStateCommand(ChatHandler* handler, uint32 variable, uint32 value)
     {
-        handler->GetSession()->GetPlayer()->SendUpdateWorldState(variable, value);
+        handler->GetPlayer()->SendUpdateWorldState(variable, value);
         return true;
     }
 
     static bool HandleDebugAreaTriggersCommand(ChatHandler* handler)
     {
-        Player* player = handler->GetSession()->GetPlayer();
+        Player* player = handler->GetPlayer();
         if (!player->isDebugAreaTriggers)
         {
             handler->PSendSysMessage(LANG_DEBUG_AREATRIGGER_ON);
@@ -481,40 +445,28 @@ public:
         return true;
     }
 
-    static bool HandleDebugSendChannelNotifyCommand(ChatHandler* handler, char const* args)
+    static bool HandleDebugSendChannelNotifyCommand(ChatHandler* handler, ChatNotify type)
     {
-        if (!*args)
-            return false;
-
-        char const* name = "test";
-        uint8 code = atoi(args);
-
         WorldPacket data(SMSG_CHANNEL_NOTIFY, (1+10));
-        data << code;                                           // notify type
-        data << name;                                           // channel name
+        data << uint8(type);
+        data << "test";
         data << uint32(0);
         data << uint32(0);
         handler->GetSession()->SendPacket(&data);
         return true;
     }
 
-    static bool HandleDebugSendChatMsgCommand(ChatHandler* handler, char const* args)
+    static bool HandleDebugSendChatMsgCommand(ChatHandler* handler, ChatMsg type)
     {
-        if (!*args)
-            return false;
-
-        char const* msg = "testtest";
-        uint8 type = atoi(args);
         WorldPacket data;
-        ChatHandler::BuildChatPacket(data, ChatMsg(type), LANG_UNIVERSAL, handler->GetSession()->GetPlayer(), handler->GetSession()->GetPlayer(), msg, 0, "chan");
+        ChatHandler::BuildChatPacket(data, type, LANG_UNIVERSAL, handler->GetPlayer(), handler->GetPlayer(), "testtest", 0, "chan");
         handler->GetSession()->SendPacket(&data);
         return true;
     }
 
-    static bool HandleDebugSendQuestPartyMsgCommand(ChatHandler* handler, char const* args)
+    static bool HandleDebugSendQuestPartyMsgCommand(ChatHandler* handler, QuestShareMessages msg)
     {
-        uint32 msg = atoul(args);
-        handler->GetSession()->GetPlayer()->SendPushToPartyResponse(handler->GetSession()->GetPlayer(), msg);
+        handler->GetPlayer()->SendPushToPartyResponse(handler->GetPlayer(), msg);
         return true;
     }
 
@@ -530,10 +482,9 @@ public:
         return true;
     }
 
-    static bool HandleDebugSendQuestInvalidMsgCommand(ChatHandler* handler, char const* args)
+    static bool HandleDebugSendQuestInvalidMsgCommand(ChatHandler* handler, QuestFailedReason msg)
     {
-        QuestFailedReason msg = static_cast<QuestFailedReason>(atoul(args));
-        handler->GetSession()->GetPlayer()->SendCanTakeQuestResponse(msg);
+        handler->GetPlayer()->SendCanTakeQuestResponse(msg);
         return true;
     }
 
@@ -560,7 +511,7 @@ public:
 
         Player* player = handler->getSelectedPlayer();
         if (!player)
-            player = handler->GetSession()->GetPlayer();
+            player = handler->GetPlayer();
 
         if (!listQueue && !checkAll)
         {
@@ -819,7 +770,7 @@ public:
     {
         Unit* target = handler->getSelectedUnit();
         if (!target)
-            target = handler->GetSession()->GetPlayer();
+            target = handler->GetPlayer();
 
         ThreatManager& mgr = target->GetThreatManager();
         if (!target->IsAlive())
@@ -979,7 +930,7 @@ public:
     {
         Unit* target = handler->getSelectedUnit();
         if (!target)
-            target = handler->GetSession()->GetPlayer();
+            target = handler->GetPlayer();
 
         handler->PSendSysMessage("Combat refs: (Combat state: %d | Manager state: %d)", target->IsInCombat(), target->GetCombatManager().HasCombat());
         for (auto const& ref : target->GetCombatManager().GetPvPCombatRefs())
@@ -995,25 +946,6 @@ public:
         return true;
     }
 
-    static bool HandleDebugSetVehicleIdCommand(ChatHandler* handler, char const* args)
-    {
-        Unit* target = handler->getSelectedUnit();
-        if (!target || target->IsVehicle())
-            return false;
-
-        if (!args)
-            return false;
-
-        char* i = strtok((char*)args, " ");
-        if (!i)
-            return false;
-
-        uint32 id = (uint32)atoi(i);
-        //target->SetVehicleId(id);
-        handler->PSendSysMessage("Vehicle id set to %u", id);
-        return true;
-    }
-
     static bool HandleDebugEnterVehicleCommand(ChatHandler* handler, uint32 entry, Optional<int8> seatId)
     {
         Unit* target = handler->getSelectedUnit();
@@ -1024,13 +956,13 @@ public:
             seatId = -1;
 
         if (!entry)
-            handler->GetSession()->GetPlayer()->EnterVehicle(target, *seatId);
+            handler->GetPlayer()->EnterVehicle(target, *seatId);
         else
         {
             Creature* passenger = nullptr;
-            Trinity::AllCreaturesOfEntryInRange check(handler->GetSession()->GetPlayer(), entry, 20.0f);
-            Trinity::CreatureSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(handler->GetSession()->GetPlayer(), passenger, check);
-            Cell::VisitAllObjects(handler->GetSession()->GetPlayer(), searcher, 30.0f);
+            Trinity::AllCreaturesOfEntryInRange check(handler->GetPlayer(), entry, 20.0f);
+            Trinity::CreatureSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(handler->GetPlayer(), passenger, check);
+            Cell::VisitAllObjects(handler->GetPlayer(), searcher, 30.0f);
             if (!passenger || passenger == target)
                 return false;
             passenger->EnterVehicle(target, *seatId);
@@ -1042,11 +974,11 @@ public:
 
     static bool HandleDebugSpawnVehicleCommand(ChatHandler* handler, uint32 entry, Optional<uint32> id)
     {
-        float x, y, z, o = handler->GetSession()->GetPlayer()->GetOrientation();
-        handler->GetSession()->GetPlayer()->GetClosePoint(x, y, z, handler->GetSession()->GetPlayer()->GetCombatReach());
+        float x, y, z, o = handler->GetPlayer()->GetOrientation();
+        handler->GetPlayer()->GetClosePoint(x, y, z, handler->GetPlayer()->GetCombatReach());
 
         if (!id)
-            return handler->GetSession()->GetPlayer()->SummonCreature(entry, x, y, z, o) != nullptr;
+            return handler->GetPlayer()->SummonCreature(entry, x, y, z, o) != nullptr;
 
         CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(entry);
 
@@ -1060,9 +992,9 @@ public:
 
         Creature* v = new Creature();
 
-        Map* map = handler->GetSession()->GetPlayer()->GetMap();
+        Map* map = handler->GetPlayer()->GetMap();
 
-        if (!v->Create(map->GenerateLowGuid<HighGuid::Vehicle>(), map, handler->GetSession()->GetPlayer()->GetPhaseMask(), entry, { x, y, z, o }, nullptr, *id))
+        if (!v->Create(map->GenerateLowGuid<HighGuid::Vehicle>(), map, handler->GetPlayer()->GetPhaseMask(), entry, { x, y, z, o }, nullptr, *id))
         {
             delete v;
             return false;
@@ -1075,10 +1007,9 @@ public:
 
     static bool HandleDebugSendLargePacketCommand(ChatHandler* handler)
     {
-        char const* stuffingString = "This is a dummy string to push the packet's size beyond 128000 bytes. ";
         std::ostringstream ss;
         while (ss.str().size() < 128000)
-            ss << stuffingString;
+            ss << "This is a dummy string to push the packet's size beyond 128000 bytes. ";
         handler->SendSysMessage(ss.str().c_str());
         return true;
     }
@@ -1091,7 +1022,7 @@ public:
 
     static bool HandleDebugGetItemValueCommand(ChatHandler* handler, ObjectGuid::LowType guid, uint32 index)
     {
-        Item* i = handler->GetSession()->GetPlayer()->GetItemByGuid(ObjectGuid(HighGuid::Item, 0, guid));
+        Item* i = handler->GetPlayer()->GetItemByGuid(ObjectGuid(HighGuid::Item, 0, guid));
 
         if (!i)
             return false;
@@ -1108,7 +1039,7 @@ public:
 
     static bool HandleDebugSetItemValueCommand(ChatHandler* handler, ObjectGuid::LowType guid, uint32 index, uint32 value)
     {
-        Item* i = handler->GetSession()->GetPlayer()->GetItemByGuid(ObjectGuid(HighGuid::Item, 0, guid));
+        Item* i = handler->GetPlayer()->GetItemByGuid(ObjectGuid(HighGuid::Item, 0, guid));
 
         if (!i)
             return false;
@@ -1123,13 +1054,13 @@ public:
 
     static bool HandleDebugItemExpireCommand(ChatHandler* handler, ObjectGuid::LowType guid)
     {
-        Item* i = handler->GetSession()->GetPlayer()->GetItemByGuid(ObjectGuid(HighGuid::Item, guid));
+        Item* i = handler->GetPlayer()->GetItemByGuid(ObjectGuid(HighGuid::Item, guid));
 
         if (!i)
             return false;
 
-        handler->GetSession()->GetPlayer()->DestroyItem(i->GetBagSlot(), i->GetSlot(), true);
-        sScriptMgr->OnItemExpire(handler->GetSession()->GetPlayer(), i->GetTemplate());
+        handler->GetPlayer()->DestroyItem(i->GetBagSlot(), i->GetSlot(), true);
+        sScriptMgr->OnItemExpire(handler->GetPlayer(), i->GetTemplate());
 
         return true;
     }
@@ -1149,7 +1080,7 @@ public:
     {
         if (Unit* unit = handler->getSelectedUnit())
         {
-            Player* player = handler->GetSession()->GetPlayer();
+            Player* player = handler->GetPlayer();
             handler->PSendSysMessage("Checking LoS %s -> %s:", player->GetName().c_str(), unit->GetName().c_str());
             handler->PSendSysMessage("    VMAP LoS: %s", player->IsWithinLOSInMap(unit, LINEOFSIGHT_CHECK_VMAP) ? "clear" : "obstructed");
             handler->PSendSysMessage("    GObj LoS: %s", player->IsWithinLOSInMap(unit, LINEOFSIGHT_CHECK_GOBJECT) ? "clear" : "obstructed");
@@ -1159,15 +1090,8 @@ public:
         return false;
     }
 
-    static bool HandleDebugSetAuraStateCommand(ChatHandler* handler, char const* args)
+    static bool HandleDebugSetAuraStateCommand(ChatHandler* handler, Optional<AuraStateType> state, bool apply)
     {
-        if (!*args)
-        {
-            handler->SendSysMessage(LANG_BAD_VALUE);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
         Unit* unit = handler->getSelectedUnit();
         if (!unit)
         {
@@ -1176,16 +1100,15 @@ public:
             return false;
         }
 
-        int32 state = atoi((char*)args);
         if (!state)
         {
             // reset all states
-            for (int i = 1; i <= 32; ++i)
-                unit->ModifyAuraState(AuraStateType(i), false);
+            for (AuraStateType s : EnumUtils::Iterate<AuraStateType>())
+                unit->ModifyAuraState(s, false);
             return true;
         }
 
-        unit->ModifyAuraState(AuraStateType(abs(state)), state > 0);
+        unit->ModifyAuraState(*state, apply);
         return true;
     }
 
@@ -1253,16 +1176,16 @@ public:
 
     static bool HandleDebugMod32ValueCommand(ChatHandler* handler, uint32 index, uint32 value)
     {
-        if (index >= handler->GetSession()->GetPlayer()->GetValuesCount())
+        if (index >= handler->GetPlayer()->GetValuesCount())
         {
-            handler->PSendSysMessage(LANG_TOO_BIG_INDEX, index, handler->GetSession()->GetPlayer()->GetGUID().GetCounter(), handler->GetSession()->GetPlayer()->GetValuesCount());
+            handler->PSendSysMessage(LANG_TOO_BIG_INDEX, index, handler->GetPlayer()->GetGUID().GetCounter(), handler->GetPlayer()->GetValuesCount());
             return false;
         }
 
-        uint32 currentValue = handler->GetSession()->GetPlayer()->GetUInt32Value(index);
+        uint32 currentValue = handler->GetPlayer()->GetUInt32Value(index);
 
         currentValue += value;
-        handler->GetSession()->GetPlayer()->SetUInt32Value(index, currentValue);
+        handler->GetPlayer()->SetUInt32Value(index, currentValue);
 
         handler->PSendSysMessage(LANG_CHANGE_32BIT_FIELD, index, currentValue);
 
@@ -1325,63 +1248,54 @@ public:
         return true;
     }
 
-    static bool HandleDebugMoveflagsCommand(ChatHandler* handler, char const* args)
+    static bool HandleDebugMoveflagsCommand(ChatHandler* handler, Optional<uint32> moveFlags, Optional<uint32> moveFlagsExtra)
     {
         Unit* target = handler->getSelectedUnit();
         if (!target)
-            target = handler->GetSession()->GetPlayer();
+            target = handler->GetPlayer();
 
-        if (!*args)
+        if (!moveFlags)
         {
             //! Display case
             handler->PSendSysMessage(LANG_MOVEFLAGS_GET, target->GetUnitMovementFlags(), target->GetExtraUnitMovementFlags());
         }
         else
         {
-            char* mask1 = strtok((char*)args, " ");
-            if (!mask1)
-                return false;
-
-            char* mask2 = strtok(nullptr, " \n");
-
-            uint32 moveFlags = (uint32)atoi(mask1);
-
             static uint32 const FlagsWithHandlers = MOVEMENTFLAG_MASK_HAS_PLAYER_STATUS_OPCODE |
                                                     MOVEMENTFLAG_WALKING | MOVEMENTFLAG_SWIMMING |
                                                     MOVEMENTFLAG_SPLINE_ENABLED;
 
-            bool unhandledFlag = ((moveFlags ^ target->GetUnitMovementFlags()) & ~FlagsWithHandlers) != 0;
+            bool unhandledFlag = ((*moveFlags ^ target->GetUnitMovementFlags()) & ~FlagsWithHandlers) != 0;
 
-            target->SetWalk((moveFlags & MOVEMENTFLAG_WALKING) != 0);
-            target->SetDisableGravity((moveFlags & MOVEMENTFLAG_DISABLE_GRAVITY) != 0);
-            target->SetSwim((moveFlags & MOVEMENTFLAG_SWIMMING) != 0);
-            target->SetCanFly((moveFlags & MOVEMENTFLAG_CAN_FLY) != 0);
-            target->SetWaterWalking((moveFlags & MOVEMENTFLAG_WATERWALKING) != 0);
-            target->SetFeatherFall((moveFlags & MOVEMENTFLAG_FALLING_SLOW) != 0);
-            target->SetHover((moveFlags & MOVEMENTFLAG_HOVER) != 0);
+            target->SetWalk((*moveFlags & MOVEMENTFLAG_WALKING) != 0);
+            target->SetDisableGravity((*moveFlags & MOVEMENTFLAG_DISABLE_GRAVITY) != 0);
+            target->SetSwim((*moveFlags & MOVEMENTFLAG_SWIMMING) != 0);
+            target->SetCanFly((*moveFlags & MOVEMENTFLAG_CAN_FLY) != 0);
+            target->SetWaterWalking((*moveFlags & MOVEMENTFLAG_WATERWALKING) != 0);
+            target->SetFeatherFall((*moveFlags & MOVEMENTFLAG_FALLING_SLOW) != 0);
+            target->SetHover((*moveFlags & MOVEMENTFLAG_HOVER) != 0);
 
-            if (moveFlags & (MOVEMENTFLAG_DISABLE_GRAVITY | MOVEMENTFLAG_CAN_FLY))
-                moveFlags &= ~MOVEMENTFLAG_FALLING;
+            if (*moveFlags & (MOVEMENTFLAG_DISABLE_GRAVITY | MOVEMENTFLAG_CAN_FLY))
+                *moveFlags &= ~MOVEMENTFLAG_FALLING;
 
-            if (moveFlags & MOVEMENTFLAG_ROOT)
+            if (*moveFlags & MOVEMENTFLAG_ROOT)
             {
                 target->SetControlled(true, UNIT_STATE_ROOT);
-                moveFlags &= ~MOVEMENTFLAG_MASK_MOVING;
+                *moveFlags &= ~MOVEMENTFLAG_MASK_MOVING;
             }
 
-            if (target->HasUnitMovementFlag(MOVEMENTFLAG_SPLINE_ENABLED) && !(moveFlags & MOVEMENTFLAG_SPLINE_ENABLED))
+            if (target->HasUnitMovementFlag(MOVEMENTFLAG_SPLINE_ENABLED) && !(*moveFlags & MOVEMENTFLAG_SPLINE_ENABLED))
                 target->StopMoving();
 
             if (unhandledFlag)
-                target->SetUnitMovementFlags(moveFlags);
+                target->SetUnitMovementFlags(*moveFlags);
 
-            if (mask2)
+            if (moveFlagsExtra)
             {
-                uint32 moveFlagsExtra = uint32(atoi(mask2));
-                target->SetExtraUnitMovementFlags(moveFlagsExtra);
+                target->SetExtraUnitMovementFlags(*moveFlagsExtra);
             }
 
-            if (mask2 || unhandledFlag)
+            if (moveFlagsExtra || unhandledFlag)
                 target->SendMovementFlagUpdate();
 
             handler->PSendSysMessage(LANG_MOVEFLAGS_SET, target->GetUnitMovementFlags(), target->GetExtraUnitMovementFlags());
@@ -1392,7 +1306,7 @@ public:
 
     static bool HandleWPGPSCommand(ChatHandler* handler)
     {
-        Player* player = handler->GetSession()->GetPlayer();
+        Player* player = handler->GetPlayer();
 
         TC_LOG_INFO("sql.dev", "(@PATH, XX, %.3f, %.3f, %.5f, %.5f, 0, 0, 0, 100, 0),", player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation());
 
@@ -1402,7 +1316,7 @@ public:
 
     static bool HandleDebugTransportCommand(ChatHandler* handler, std::string operation)
     {
-        Transport* transport = handler->GetSession()->GetPlayer()->GetTransport();
+        Transport* transport = handler->GetPlayer()->GetTransport();
         if (!transport)
             return false;
 
@@ -1426,28 +1340,51 @@ public:
         return true;
     }
 
-    static bool HandleDebugLoadCellsCommand(ChatHandler* handler, Optional<uint32> mapId)
+    static bool HandleDebugLoadCellsCommand(ChatHandler* handler, Optional<uint32> mapId, Optional<uint32> tileX, Optional<uint32> tileY)
     {
-        Player* player = handler->GetSession()->GetPlayer();
-        if (!player)
-            return false;
-
         Map* map = nullptr;
         if (mapId)
+        {
             map = sMapMgr->FindBaseNonInstanceMap(*mapId);
+        }
+        else if (Player* player = handler->GetPlayer())
+        {
+            // Fallback to player's map if no map has been specified
+            map = player->GetMap();
+        }
 
         if (!map)
-            map = player->GetMap();
+            return false;
 
-        handler->PSendSysMessage("Loading all cells (mapId: %u). Current next GameObject %u, Creature %u", map->GetId(), map->GetMaxLowGuid<HighGuid::GameObject>(), map->GetMaxLowGuid<HighGuid::Unit>());
-        map->LoadAllCells();
-        handler->PSendSysMessage("Cells loaded (mapId: %u) After load - Next GameObject %u, Creature %u", map->GetId(), map->GetMaxLowGuid<HighGuid::GameObject>(), map->GetMaxLowGuid<HighGuid::Unit>());
+        // Load 1 single tile if specified, otherwise load the whole map
+        if (tileX && tileY)
+        {
+            handler->PSendSysMessage("Loading cell (mapId: %u tile: %u, %u). Current GameObjects " SZFMTD ", Creatures " SZFMTD,
+                map->GetId(), *tileX, *tileY, map->GetObjectsStore().Size<GameObject>(), map->GetObjectsStore().Size<Creature>());
+
+            // Some unit convertions to go from TileXY to GridXY to WorldXY
+            float x = ((float(64 - 1 - *tileX) - 0.5f - CENTER_GRID_ID) * SIZE_OF_GRIDS) + (CENTER_GRID_OFFSET * 2);
+            float y = ((float(64 - 1 - *tileY) - 0.5f - CENTER_GRID_ID) * SIZE_OF_GRIDS) + (CENTER_GRID_OFFSET * 2);
+            map->LoadGrid(x, y);
+
+            handler->PSendSysMessage("Cell loaded (mapId: %u tile: %u, %u) After load - GameObject " SZFMTD ", Creatures " SZFMTD,
+                map->GetId(), *tileX, *tileY, map->GetObjectsStore().Size<GameObject>(), map->GetObjectsStore().Size<Creature>());
+        }
+        else
+        {
+            handler->PSendSysMessage("Loading all cells (mapId: %u). Current GameObjects " SZFMTD ", Creatures " SZFMTD, map->GetId(), map->GetObjectsStore().Size<GameObject>(), map->GetObjectsStore().Size<Creature>());
+
+            map->LoadAllCells();
+
+            handler->PSendSysMessage("Cells loaded (mapId: %u) After load - GameObject " SZFMTD ", Creatures " SZFMTD, map->GetId(), map->GetObjectsStore().Size<GameObject>(), map->GetObjectsStore().Size<Creature>());
+        }
+
         return true;
     }
 
-    static bool HandleDebugBoundaryCommand(ChatHandler* handler, Optional<ExactSequence<'f', 'i', 'l','l'>> fill, Optional<uint32> durationArg)
+    static bool HandleDebugBoundaryCommand(ChatHandler* handler, Optional<EXACT_SEQUENCE("fill")> fill, Optional<uint32> durationArg)
     {
-        Player* player = handler->GetSession()->GetPlayer();
+        Player* player = handler->GetPlayer();
         if (!player)
             return false;
         Creature* target = handler->getSelectedCreature();
@@ -1550,9 +1487,9 @@ public:
         return true;
     }
 
-    static bool HandleDebugNearGraveyard(ChatHandler* handler, Optional<ExactSequence<'l', 'i', 'n', 'k', 'e', 'd'>> linked)
+    static bool HandleDebugNearGraveyard(ChatHandler* handler, Optional<EXACT_SEQUENCE("linked")> linked)
     {
-        Player* player = handler->GetSession()->GetPlayer();
+        Player* player = handler->GetPlayer();
         WorldSafeLocsEntry const* nearestLoc = nullptr;
 
         if (linked)
@@ -1597,18 +1534,18 @@ public:
         return true;
     }
 
-    static bool HandleDebugInstanceSpawns(ChatHandler* handler, char const* args)
+    static bool HandleDebugInstanceSpawns(ChatHandler* handler, Variant<uint32, EXACT_SEQUENCE("explain")> optArg)
     {
-        Player const* const player = handler->GetSession()->GetPlayer();
+        Player const* const player = handler->GetPlayer();
         if (!player)
             return false;
 
         bool explain = false;
         uint32 groupID = 0;
-        if (!stricmp(args, "explain"))
-            explain = true;
+        if (optArg.holds_alternative<uint32>())
+            groupID = optArg.get<uint32>();
         else
-            groupID = atoi(args);
+            explain = true;
 
         if (groupID && !sObjectMgr->GetSpawnGroupData(groupID))
         {
@@ -1706,7 +1643,7 @@ public:
         return true;
     }
 
-    static bool HandleDebugOutOfBounds([[maybe_unused]] ChatHandler* handler, CommandArgs* /*args*/)
+    static bool HandleDebugOutOfBounds([[maybe_unused]] ChatHandler* handler)
     {
 #ifdef ASAN
         uint8 stack_array[10] = {};
@@ -1852,7 +1789,7 @@ public:
             handler->PSendSysMessage("Entry: %u Count: %u", p.first, p.second);
     }
 
-    static bool HandleDebugDummyCommand(ChatHandler* handler, CommandArgs* /*args*/)
+    static bool HandleDebugDummyCommand(ChatHandler* handler)
     {
         handler->SendSysMessage("This command does nothing right now. Edit your local core (cs_debug.cpp) to make it do whatever you need for testing.");
         return true;

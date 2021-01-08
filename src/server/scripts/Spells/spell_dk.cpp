@@ -1845,7 +1845,6 @@ class spell_dk_pestilence : public SpellScriptLoader
         }
 };
 
-
 // 48266 - Blood Presence
 // 48263 - Frost Presence
 // 48265 - Unholy Presence

@@ -184,7 +184,7 @@ public:
             _RavenousworgGUID.Clear();
         }
 
-        void QuestAccept(Player* player, Quest const* quest) override
+        void OnQuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_PERILOUS_ADVENTURE)
             {
@@ -240,7 +240,6 @@ public:
         void EnterEvadeMode(EvadeReason /*why*/) override { }
 
         void MoveInLineOfSight(Unit* /*who*/) override { }
-
 
         void UpdateAI(uint32 /*diff*/) override
         {
@@ -775,7 +774,7 @@ public:
                 }
             }
 
-            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+            bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
             {
                 DoCast(player, SPELL_SUMMON_ASHWOOD_BRAND);
                 return false;

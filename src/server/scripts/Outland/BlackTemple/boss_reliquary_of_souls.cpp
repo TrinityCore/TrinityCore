@@ -656,6 +656,12 @@ struct npc_reliquary_combat_trigger : public ScriptedAI
     {
         SetCombatMovement(false);
         creature->m_SightDistance = 70.0f;
+        SetBoundary(_instance->GetBossBoundary(DATA_RELIQUARY_OF_SOULS));
+    }
+
+    bool CanAIAttack(Unit const* who) const override
+    {
+        return ScriptedAI::CanAIAttack(who) && IsInBoundary(who);
     }
 
     void Reset() override
@@ -753,7 +759,6 @@ class spell_reliquary_of_souls_submerge : public AuraScript
     {
         GetTarget()->SetByteValue(UNIT_FIELD_BYTES_1, UNIT_BYTES_1_OFFSET_STAND_STATE, UNIT_STAND_STATE_STAND);
     }
-
 
     void Register() override
     {

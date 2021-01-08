@@ -48,7 +48,6 @@ enum Misc
     MIN_KILLS                       = 30
 };
 
-
 //NOTE: there are 6 platforms
 //there should be 3 shatterers and 2 priestess on all platforms, total of 30 elites, else it won't work!
 //delete all other elites not on platforms! these mobs should only be on those platforms nowhere else.
@@ -73,7 +72,7 @@ class go_bridge_console : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* /*player*/) override
+            bool OnGossipHello(Player* /*player*/) override
             {
                 if (instance)
                     instance->SetData(DATA_CONTROL_CONSOLE, DONE);
@@ -94,7 +93,7 @@ class instance_serpent_shrine : public InstanceMapScript
 
         struct instance_serpentshrine_cavern_InstanceMapScript : public InstanceScript
         {
-            instance_serpentshrine_cavern_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_serpentshrine_cavern_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));

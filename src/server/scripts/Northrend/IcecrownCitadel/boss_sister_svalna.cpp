@@ -467,7 +467,7 @@ struct boss_sister_svalna : public BossAI
                     CastSpellExtraArgs args;
                     args.AddSpellBP0(1);
                     summon->CastSpell(target, VEHICLE_SPELL_RIDE_HARDCODED, args);
-                    summon->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_UNK1 | UNIT_FLAG2_ALLOW_ENEMY_INTERACT);
+                    summon->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_ALLOW_ENEMY_INTERACT);
                 }
                 break;
             default:
@@ -1502,7 +1502,7 @@ void AddSC_boss_sister_svalna()
     RegisterIcecrownCitadelCreatureAI(npc_captain_rupert);
     RegisterIcecrownCitadelCreatureAI(npc_frostwing_ymirjar_vrykul);
     RegisterIcecrownCitadelCreatureAI(npc_impaling_spear);
-    new spell_trigger_spell_from_caster("spell_svalna_caress_of_death", SPELL_IMPALING_SPEAR_KILL);
+    RegisterSpellScriptWithArgs(spell_trigger_spell_from_caster, "spell_svalna_caress_of_death", SPELL_IMPALING_SPEAR_KILL);
     RegisterSpellScript(spell_svalna_revive_champion);
     RegisterSpellScript(spell_svalna_remove_spear);
     new at_icc_start_frostwing_gauntlet();

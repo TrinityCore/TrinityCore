@@ -19,6 +19,7 @@
 #include "Common.h"
 #include "Containers.h"
 #include "IpAddress.h"
+#include "StringConvert.h"
 #include "StringFormat.h"
 #include <utf8.h>
 #include <algorithm>
@@ -28,6 +29,7 @@
 #include <cctype>
 #include <cstdarg>
 #include <ctime>
+#include <boost/core/demangle.hpp>
 
 #if TRINITY_COMPILER == TRINITY_COMPILER_GNU
   #include <sys/socket.h>
@@ -35,39 +37,22 @@
   #include <arpa/inet.h>
 #endif
 
-Tokenizer::Tokenizer(std::string_view src, const char sep, uint32 vectorReserve /*= 0*/, bool keepEmptyStrings /*= true*/)
+std::vector<std::string_view> Trinity::Tokenize(std::string_view str, char sep, bool keepEmpty)
 {
-    m_str = new char[src.length() + 1];
-    memcpy(m_str, src.data(), src.length() + 1);
+    std::vector<std::string_view> tokens;
 
-    if (vectorReserve)
-        m_storage.reserve(vectorReserve);
-
-    char* posold = m_str;
-    char* posnew = m_str;
-
-    for (;;)
+    size_t start = 0;
+    for (size_t end = str.find(sep); end != std::string_view::npos; end = str.find(sep, start))
     {
-        if (*posnew == sep)
-        {
-            if (keepEmptyStrings || posold != posnew)
-                m_storage.push_back(posold);
-
-            posold = posnew + 1;
-            *posnew = '\0';
-        }
-        else if (*posnew == '\0')
-        {
-            // Hack like, but the old code accepted these kind of broken strings,
-            // so changing it would break other things
-            if (posold != posnew)
-                m_storage.push_back(posold);
-
-            break;
-        }
-
-        ++posnew;
+        if (keepEmpty || (start < end))
+            tokens.push_back(str.substr(start, end - start));
+        start = end+1;
     }
+
+    if (keepEmpty || (start < str.length()))
+        tokens.push_back(str.substr(start));
+
+    return tokens;
 }
 
 #if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
@@ -210,32 +195,43 @@ std::string secsToTimeString(uint64 timeInSecs, TimeFormat timeFormat, bool hour
     return ss.str();
 }
 
-int32 MoneyStringToMoney(std::string const& moneyString)
+Optional<int32> MoneyStringToMoney(std::string const& moneyString)
 {
     int32 money = 0;
 
-    if (!(std::count(moneyString.begin(), moneyString.end(), 'g') == 1 ||
-        std::count(moneyString.begin(), moneyString.end(), 's') == 1 ||
-        std::count(moneyString.begin(), moneyString.end(), 'c') == 1))
-        return 0; // Bad format
+    bool hadG = false;
+    bool hadS = false;
+    bool hadC = false;
 
-    Tokenizer tokens(moneyString, ' ');
-    for (char const* token : tokens)
+    for (std::string_view token : Trinity::Tokenize(moneyString, ' ', false))
     {
-        std::string tokenString(token);
-        size_t gCount = std::count(tokenString.begin(), tokenString.end(), 'g');
-        size_t sCount = std::count(tokenString.begin(), tokenString.end(), 's');
-        size_t cCount = std::count(tokenString.begin(), tokenString.end(), 'c');
-        if (gCount + sCount + cCount != 1)
-            return 0;
+        uint32 unit;
+        switch (token[token.length() - 1])
+        {
+            case 'g':
+                if (hadG) return std::nullopt;
+                hadG = true;
+                unit = 100 * 100;
+                break;
+            case 's':
+                if (hadS) return std::nullopt;
+                hadS = true;
+                unit = 100;
+                break;
+            case 'c':
+                if (hadC) return std::nullopt;
+                hadC = true;
+                unit = 1;
+                break;
+            default:
+                return std::nullopt;
+        }
 
-        uint32 amount = strtoul(token, nullptr, 10);
-        if (gCount == 1)
-            money += amount * 100 * 100;
-        else if (sCount == 1)
-            money += amount * 100;
-        else if (cCount == 1)
-            money += amount;
+        Optional<uint32> amount = Trinity::StringTo<uint32>(token.substr(0, token.length() - 1));
+        if (amount)
+            money += (unit * *amount);
+        else
+            return std::nullopt;
     }
 
     return money;
@@ -474,22 +470,22 @@ std::wstring GetMainPartOfName(std::wstring const& wname, uint32 declension)
         return wname;
 
     // Important: end length must be <= MAX_INTERNAL_PLAYER_NAME-MAX_PLAYER_NAME (3 currently)
-    static std::wstring const a_End    = { wchar_t(0x0430), wchar_t(0x0000) };
-    static std::wstring const o_End    = { wchar_t(0x043E), wchar_t(0x0000) };
-    static std::wstring const ya_End   = { wchar_t(0x044F), wchar_t(0x0000) };
-    static std::wstring const ie_End   = { wchar_t(0x0435), wchar_t(0x0000) };
-    static std::wstring const i_End    = { wchar_t(0x0438), wchar_t(0x0000) };
-    static std::wstring const yeru_End = { wchar_t(0x044B), wchar_t(0x0000) };
-    static std::wstring const u_End    = { wchar_t(0x0443), wchar_t(0x0000) };
-    static std::wstring const yu_End   = { wchar_t(0x044E), wchar_t(0x0000) };
-    static std::wstring const oj_End   = { wchar_t(0x043E), wchar_t(0x0439), wchar_t(0x0000) };
-    static std::wstring const ie_j_End = { wchar_t(0x0435), wchar_t(0x0439), wchar_t(0x0000) };
-    static std::wstring const io_j_End = { wchar_t(0x0451), wchar_t(0x0439), wchar_t(0x0000) };
-    static std::wstring const o_m_End  = { wchar_t(0x043E), wchar_t(0x043C), wchar_t(0x0000) };
-    static std::wstring const io_m_End = { wchar_t(0x0451), wchar_t(0x043C), wchar_t(0x0000) };
-    static std::wstring const ie_m_End = { wchar_t(0x0435), wchar_t(0x043C), wchar_t(0x0000) };
-    static std::wstring const soft_End = { wchar_t(0x044C), wchar_t(0x0000) };
-    static std::wstring const j_End    = { wchar_t(0x0439), wchar_t(0x0000) };
+    static std::wstring const a_End    = { wchar_t(0x0430)                  };
+    static std::wstring const o_End    = { wchar_t(0x043E)                  };
+    static std::wstring const ya_End   = { wchar_t(0x044F)                  };
+    static std::wstring const ie_End   = { wchar_t(0x0435)                  };
+    static std::wstring const i_End    = { wchar_t(0x0438)                  };
+    static std::wstring const yeru_End = { wchar_t(0x044B)                  };
+    static std::wstring const u_End    = { wchar_t(0x0443)                  };
+    static std::wstring const yu_End   = { wchar_t(0x044E)                  };
+    static std::wstring const oj_End   = { wchar_t(0x043E), wchar_t(0x0439) };
+    static std::wstring const ie_j_End = { wchar_t(0x0435), wchar_t(0x0439) };
+    static std::wstring const io_j_End = { wchar_t(0x0451), wchar_t(0x0439) };
+    static std::wstring const o_m_End  = { wchar_t(0x043E), wchar_t(0x043C) };
+    static std::wstring const io_m_End = { wchar_t(0x0451), wchar_t(0x043C) };
+    static std::wstring const ie_m_End = { wchar_t(0x0435), wchar_t(0x043C) };
+    static std::wstring const soft_End = { wchar_t(0x044C)                  };
+    static std::wstring const j_End    = { wchar_t(0x0439)                  };
 
     static std::array<std::array<std::wstring const*, 7>, 6> const dropEnds = {{
         { &a_End,  &o_End,    &ya_End,   &ie_End,  &soft_End, &j_End,    nullptr },
@@ -651,27 +647,23 @@ void Trinity::Impl::HexStrToByteArray(std::string_view str, uint8* out, size_t o
     }
 }
 
-bool StringToBool(std::string_view str)
+bool StringEqualI(std::string_view a, std::string_view b)
 {
-    return ((str == "1") || StringEqualI(str, "true") || StringEqualI(str, "yes"));
-}
-
-bool StringEqualI(std::string_view str1, std::string_view str2)
-{
-    return std::equal(str1.begin(), str1.end(), str2.begin(), str2.end(),
-                      [](char a, char b)
-                      {
-                          return std::tolower(a) == std::tolower(b);
-                      });
-}
-
-bool StringStartsWith(std::string_view haystack, std::string_view needle)
-{
-    return (haystack.rfind(needle, 0) == 0);
+    return std::equal(a.begin(), a.end(), b.begin(), b.end(), [](char c1, char c2) { return std::tolower(c1) == std::tolower(c2); });
 }
 
 bool StringContainsStringI(std::string_view haystack, std::string_view needle)
 {
     return haystack.end() !=
-        std::search(haystack.begin(), haystack.end(), needle.begin(), needle.end(), [](char c1, char c2) { return std::toupper(c1) == std::toupper(c2); });
+        std::search(haystack.begin(), haystack.end(), needle.begin(), needle.end(), [](char c1, char c2) { return std::tolower(c1) == std::tolower(c2); });
+}
+
+bool StringCompareLessI(std::string_view a, std::string_view b)
+{
+    return std::lexicographical_compare(a.begin(), a.end(), b.begin(), b.end(), [](char c1, char c2) { return std::tolower(c1) < std::tolower(c2); });
+}
+
+std::string GetTypeName(std::type_info const& info)
+{
+    return boost::core::demangle(info.name());
 }

@@ -343,7 +343,7 @@ class TC_GAME_API UnitAI
         UnitAI& operator=(UnitAI const& right) = delete;
 
         ThreatManager& GetThreatManager();
-        void SortByDistance(std::list<Unit*> list, bool ascending = true);
+        void SortByDistance(std::list<Unit*>& list, bool ascending = true);
 };
 
 #endif

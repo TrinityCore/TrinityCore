@@ -191,26 +191,27 @@ namespace Trinity
 
     // Generic base class to insert elements into arbitrary containers using push_back
     template<typename Type>
-    class ContainerInserter {
+    class ContainerInserter
+    {
         using InserterType = void(*)(void*, Type&&);
 
         void* ref;
         InserterType inserter;
 
-        // MSVC workaround
-        template<typename T>
-        static void InserterOf(void* ref, Type&& type)
-        {
-            static_cast<T*>(ref)->push_back(std::move(type));
-        }
-
     protected:
         template<typename T>
-        ContainerInserter(T& ref_) : ref(&ref_), inserter(&InserterOf<T>) { }
-
-        void Insert(Type type)
+        ContainerInserter(T& ref_) : ref(&ref_)
         {
-            inserter(ref, std::move(type));
+            inserter = [](void* containerRaw, Type&& object)
+            {
+                T* container = reinterpret_cast<T*>(containerRaw);
+                container->insert(container->end(), std::move(object));
+            };
+        }
+
+        void Insert(Type object)
+        {
+            inserter(ref, std::move(object));
         }
     };
 
@@ -735,11 +736,11 @@ namespace Trinity
     class NearestGameObjectEntryInObjectRangeCheck
     {
         public:
-            NearestGameObjectEntryInObjectRangeCheck(WorldObject const& obj, uint32 entry, float range) : i_obj(obj), i_entry(entry), i_range(range) { }
+            NearestGameObjectEntryInObjectRangeCheck(WorldObject const& obj, uint32 entry, float range, bool spawnedOnly = true) : i_obj(obj), i_entry(entry), i_range(range), i_spawnedOnly(spawnedOnly) { }
 
             bool operator()(GameObject* go)
             {
-                if (go->isSpawned() && go->GetEntry() == i_entry && go->GetGUID() != i_obj.GetGUID() && i_obj.IsWithinDistInMap(go, i_range))
+                if ((!i_spawnedOnly || go->isSpawned()) && go->GetEntry() == i_entry && go->GetGUID() != i_obj.GetGUID() && i_obj.IsWithinDistInMap(go, i_range))
                 {
                     i_range = i_obj.GetDistance(go);        // use found GO range as new range limit for next check
                     return true;
@@ -751,6 +752,7 @@ namespace Trinity
             WorldObject const& i_obj;
             uint32 i_entry;
             float  i_range;
+            bool   i_spawnedOnly;
 
             // prevent clone this object
             NearestGameObjectEntryInObjectRangeCheck(NearestGameObjectEntryInObjectRangeCheck const&) = delete;
@@ -1139,7 +1141,8 @@ namespace Trinity
                     return;
 
                 // too far
-                if (!u->IsWithinDistInMap(i_funit, i_range))
+                // Don't use combat reach distance, range must be an absolute value, otherwise the chain aggro range will be too big
+                if (!u->IsWithinDistInMap(i_funit, i_range, true, false, false))
                     return;
 
                 // only if see assisted creature's enemy
@@ -1272,7 +1275,8 @@ namespace Trinity
                     return false;
 
                 // too far
-                if (!i_funit->IsWithinDistInMap(u, i_range))
+                // Don't use combat reach distance, range must be an absolute value, otherwise the chain aggro range will be too big
+                if (!i_funit->IsWithinDistInMap(u, i_range, true, false, false))
                     return false;
 
                 // only if see assisted creature
@@ -1301,7 +1305,8 @@ namespace Trinity
                 if (!u->CanAssistTo(i_obj, i_enemy))
                     return false;
 
-                if (!i_obj->IsWithinDistInMap(u, i_range))
+                // Don't use combat reach distance, range must be an absolute value, otherwise the chain aggro range will be too big
+                if (!i_obj->IsWithinDistInMap(u, i_range, true, false, false))
                     return false;
 
                 if (!i_obj->IsWithinLOSInMap(u))

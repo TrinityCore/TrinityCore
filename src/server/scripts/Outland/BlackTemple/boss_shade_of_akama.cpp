@@ -198,7 +198,6 @@ static float const MIDDLE_OF_ROOM    = 400.0f;
 static float const FACE_THE_DOOR     = 0.08726646f;
 static float const FACE_THE_PLATFORM = 3.118662f;
 
-
 struct boss_shade_of_akama : public BossAI
 {
     boss_shade_of_akama(Creature* creature) : BossAI(creature, DATA_SHADE_OF_AKAMA)
@@ -533,7 +532,7 @@ struct npc_akama_shade : public ScriptedAI
                 shade->AI()->EnterEvadeMode(EVADE_REASON_OTHER);
     }
 
-    bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+    bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
     {
         if (gossipListId == 0)
         {
@@ -794,7 +793,6 @@ struct npc_ashtongue_defender : public ScriptedAI
         _events.ScheduleEvent(EVENT_DEBILITATING_STRIKE, 10s, 16s);
         _events.ScheduleEvent(EVENT_WINDFURY, 8s, 12s);
     }
-
 
     void UpdateAI(uint32 diff) override
     {

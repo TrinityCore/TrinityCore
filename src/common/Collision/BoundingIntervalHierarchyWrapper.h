@@ -23,7 +23,6 @@
 #include <G3D/Array.h>
 #include <G3D/Set.h>
 
-
 template<class T, class BoundsFunc = BoundsTrait<T> >
 class BIHWrap
 {

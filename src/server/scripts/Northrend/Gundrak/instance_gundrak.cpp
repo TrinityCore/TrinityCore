@@ -64,7 +64,7 @@ class instance_gundrak : public InstanceMapScript
 
         struct instance_gundrak_InstanceMapScript : public InstanceScript
         {
-            instance_gundrak_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_gundrak_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
@@ -360,7 +360,7 @@ class go_gundrak_altar : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* /*player*/) override
+            bool OnGossipHello(Player* /*player*/) override
             {
                 me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                 me->SetGoState(GO_STATE_ACTIVE);

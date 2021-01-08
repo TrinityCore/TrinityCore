@@ -311,6 +311,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
         AH->deposit = deposit;
         AH->etime = etime;
         AH->auctionHouseEntry = auctionHouseEntry;
+        AH->Flags = AUCTION_ENTRY_FLAG_NONE;
 
         TC_LOG_INFO("network", "CMSG_AUCTION_SELL_ITEM: Player %s %s is selling item %s entry %u %s with count %u with initial bid %u with buyout %u and with time %u (in sec) in auctionhouse %u",
             _player->GetName().c_str(), _player->GetGUID().ToString().c_str(), item->GetTemplate()->Name1.c_str(), item->GetEntry(), item->GetGUID().ToString().c_str(), item->GetCount(), bid, buyout, auctionTime, AH->GetHouseId());
@@ -368,6 +369,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
         AH->deposit = deposit;
         AH->etime = etime;
         AH->auctionHouseEntry = auctionHouseEntry;
+        AH->Flags = AUCTION_ENTRY_FLAG_NONE;
 
         TC_LOG_INFO("network", "CMSG_AUCTION_SELL_ITEM: Player %s %s is selling item %s entry %u %s with count %u with initial bid %u with buyout %u and with time %u (in sec) in auctionhouse %u",
             _player->GetName().c_str(), _player->GetGUID().ToString().c_str(), newItem->GetTemplate()->Name1.c_str(), newItem->GetEntry(), newItem->GetGUID().ToString().c_str(), newItem->GetCount(), bid, buyout, auctionTime, AH->GetHouseId());
@@ -507,12 +509,18 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket& recvData)
 
         auction->bidder = player->GetGUID().GetCounter();
         auction->bid = price;
+        if (HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE))
+            auction->Flags = AuctionEntryFlag(auction->Flags | AUCTION_ENTRY_FLAG_GM_LOG_BUYER);
+        else
+            auction->Flags = AuctionEntryFlag(auction->Flags & ~AUCTION_ENTRY_FLAG_GM_LOG_BUYER);
+
         GetPlayer()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_AUCTION_BID, price);
 
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_AUCTION_BID);
         stmt->setUInt32(0, auction->bidder);
         stmt->setUInt32(1, auction->bid);
         stmt->setUInt32(2, auction->Id);
+        stmt->setUInt8(3, auction->Flags);
         trans->Append(stmt);
 
         if (auction->bidders.find(player->GetGUID()) == auction->bidders.end())
@@ -540,6 +548,11 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket& recvData)
         }
         auction->bidder = player->GetGUID().GetCounter();
         auction->bid = auction->buyout;
+        if (HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE))
+            auction->Flags = AuctionEntryFlag(auction->Flags | AUCTION_ENTRY_FLAG_GM_LOG_BUYER);
+        else
+            auction->Flags = AuctionEntryFlag(auction->Flags & ~AUCTION_ENTRY_FLAG_GM_LOG_BUYER);
+
         GetPlayer()->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_AUCTION_BID, auction->buyout);
 
         //- Mails must be under transaction control too to prevent data loss

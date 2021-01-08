@@ -480,7 +480,7 @@ enum SMART_ACTION
     SMART_ACTION_ALLOW_COMBAT_MOVEMENT              = 21,     // AllowCombatMovement (0 = stop combat based movement, anything else continue attacking)
     SMART_ACTION_SET_EVENT_PHASE                    = 22,     // Phase
     SMART_ACTION_INC_EVENT_PHASE                    = 23,     // Value (may be negative to decrement phase, should not be 0)
-    SMART_ACTION_EVADE                              = 24,     // No Params
+    SMART_ACTION_EVADE                              = 24,     // toRespawnPosition (0 = Move to RespawnPosition, 1 = Move to last stored home position)
     SMART_ACTION_FLEE_FOR_ASSIST                    = 25,     // With Emote
     SMART_ACTION_CALL_GROUPEVENTHAPPENS             = 26,     // QuestID
     SMART_ACTION_COMBAT_STOP                        = 27,     //
@@ -596,8 +596,10 @@ enum SMART_ACTION
     SMART_ACTION_PLAY_SPELL_VISUAL_KIT              = 137,    // spellVisualKitId (RESERVED, PENDING CHERRYPICK)
     SMART_ACTION_OVERRIDE_LIGHT                     = 138,    // zoneId, overrideLightID, transitionMilliseconds
     SMART_ACTION_OVERRIDE_WEATHER                   = 139,    // zoneId, weatherId, intensity
+    SMART_ACTION_SET_AI_ANIM_KIT                    = 140,    // don't use on 3.3.5a
+    SMART_ACTION_SET_HOVER                          = 141,    // 0/1
 
-    SMART_ACTION_END                                = 140
+    SMART_ACTION_END                                = 142
 };
 
 struct SmartAction
@@ -629,6 +631,7 @@ struct SmartAction
             uint32 sound;
             uint32 onlySelf;
             uint32 distance;
+            uint32 keyBroadcastTextId; // UNUSED: param reserved for compatibility with master branch
         } sound;
 
         struct
@@ -1177,6 +1180,16 @@ struct SmartAction
             uint32 intensity;
         } overrideWeather;
 
+        struct
+        {
+            uint32 enable;
+        } setHover;
+
+        struct
+        {
+            uint32 toRespawnPosition;
+        } evade;
+
         //! Note for any new future actions
         //! All parameters must have type uint32
 
@@ -1526,7 +1539,10 @@ enum SmartEventFlags
     SMART_EVENT_FLAG_WHILE_CHARMED         = 0x200,                     //Event occurs even if AI owner is charmed
 
     SMART_EVENT_FLAG_DIFFICULTY_ALL        = (SMART_EVENT_FLAG_DIFFICULTY_0|SMART_EVENT_FLAG_DIFFICULTY_1|SMART_EVENT_FLAG_DIFFICULTY_2|SMART_EVENT_FLAG_DIFFICULTY_3),
-    SMART_EVENT_FLAGS_ALL                  = (SMART_EVENT_FLAG_NOT_REPEATABLE|SMART_EVENT_FLAG_DIFFICULTY_ALL|SMART_EVENT_FLAG_RESERVED_5|SMART_EVENT_FLAG_RESERVED_6|SMART_EVENT_FLAG_DEBUG_ONLY|SMART_EVENT_FLAG_DONT_RESET|SMART_EVENT_FLAG_WHILE_CHARMED)
+    SMART_EVENT_FLAGS_ALL                  = (SMART_EVENT_FLAG_NOT_REPEATABLE|SMART_EVENT_FLAG_DIFFICULTY_ALL|SMART_EVENT_FLAG_RESERVED_5|SMART_EVENT_FLAG_RESERVED_6|SMART_EVENT_FLAG_DEBUG_ONLY|SMART_EVENT_FLAG_DONT_RESET|SMART_EVENT_FLAG_WHILE_CHARMED),
+
+    // Temp flags, used only at runtime, never stored in DB
+    SMART_EVENT_FLAG_TEMP_IGNORE_CHANCE_ROLL = 0x40000000,              //Event occurs no matter what roll_chance_i(e.event.event_chance) returns.
 };
 
 enum SmartCastFlags

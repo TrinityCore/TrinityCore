@@ -83,7 +83,6 @@ public:
             _Reset();
         }
 
-
         void JustDied(Unit* /*killer*/) override
         {
             if (instance->GetData(DATA_BUG_TRIO_DEATH) < 2)// Unlootable if death

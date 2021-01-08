@@ -48,7 +48,6 @@ public:
     void   AddGroup(Group* group);
     void   RemoveGroup(Group* group);
 
-
 protected:
     ObjectGuid::LowType           NextGroupId;
     uint32           NextGroupDbStoreId;

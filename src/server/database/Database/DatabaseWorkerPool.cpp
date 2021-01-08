@@ -226,13 +226,13 @@ QueryCallback DatabaseWorkerPool<T>::AsyncQuery(PreparedStatement<T>* stmt)
 }
 
 template <class T>
-SQLQueryHolderCallback DatabaseWorkerPool<T>::DelayQueryHolder(SQLQueryHolder<T>* holder)
+SQLQueryHolderCallback DatabaseWorkerPool<T>::DelayQueryHolder(std::shared_ptr<SQLQueryHolder<T>> holder)
 {
     SQLQueryHolderTask* task = new SQLQueryHolderTask(holder);
     // Store future result before enqueueing - task might get already processed and deleted before returning from this method
     QueryResultHolderFuture result = task->GetFuture();
     Enqueue(task);
-    return result;
+    return { std::move(holder), std::move(result) };
 }
 
 template <class T>

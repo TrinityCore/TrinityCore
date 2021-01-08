@@ -27,7 +27,8 @@
 class Player;
 struct AreaTableEntry;
 
-enum ChatNotify
+// EnumUtils: DESCRIBE THIS
+enum ChatNotify : uint8
 {
     CHAT_JOINED_NOTICE                = 0x00,           //+ "%s joined channel.";
     CHAT_LEFT_NOTICE                  = 0x01,           //+ "%s left channel.";
@@ -223,7 +224,6 @@ class TC_GAME_API Channel
 
         bool IsOn(ObjectGuid who) const { return _playersStore.find(who) != _playersStore.end(); }
         bool IsBanned(ObjectGuid guid) const { return _bannedStore.find(guid) != _bannedStore.end(); }
-
 
         uint8 GetPlayerFlags(ObjectGuid guid) const
         {

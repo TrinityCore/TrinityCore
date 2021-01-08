@@ -46,7 +46,6 @@ enum Spells
     SPELL_SUBMERGE          = 37550,
     SPELL_EMERGE            = 20568,
 
-
     // Ambusher spells
     SPELL_SPREAD_SHOT       = 37790,
     SPELL_SHOOT             = 37770,
@@ -458,7 +457,7 @@ class go_strange_pool : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 // 25%
                 if (!urand(0, 3))

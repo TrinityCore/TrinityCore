@@ -45,6 +45,17 @@ namespace WorldPackets
 
             uint32 EmoteID = 0;
         };
+
+        class ChatServerMessage final : public ServerPacket
+        {
+        public:
+            ChatServerMessage() : ServerPacket(SMSG_CHAT_SERVER_MESSAGE, 4 + 20) { }
+
+            WorldPacket const* Write() override;
+
+            int32 MessageID = 0;
+            std::string StringParam;
+        };
     }
 }
 

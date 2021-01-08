@@ -40,6 +40,7 @@ EndScriptData */
 #include "UpdateTime.h"
 #include "Util.h"
 #include "VMapFactory.h"
+#include "VMapManager2.h"
 #include "World.h"
 #include "WorldSession.h"
 
@@ -48,6 +49,10 @@ EndScriptData */
 #include <boost/filesystem/operations.hpp>
 #include <openssl/crypto.h>
 #include <openssl/opensslv.h>
+
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 
 class server_commandscript : public CommandScript
 {

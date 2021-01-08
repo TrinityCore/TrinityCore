@@ -405,7 +405,6 @@ class spell_warr_execute : public SpellScriptLoader
                     if (AuraEffect* aurEff = caster->GetAuraEffect(SPELL_WARRIOR_GLYPH_OF_EXECUTION, EFFECT_0))
                         rageUsed += aurEff->GetAmount() * 10;
 
-
                     int32 bp = GetEffectValue() + int32(rageUsed * spellInfo->Effects[effIndex].DamageMultiplier + caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.2f);
                     CastSpellExtraArgs args(GetOriginalCaster()->GetGUID());
                     args.AddSpellBP0(bp);

@@ -52,7 +52,6 @@ enum Say
 
 enum Spells
 {
-    SPELL_FEL_IMMOLATION            = 36051,
     SPELL_FELFIRE_SHOCK             = 35759,
     SPELL_KNOCK_AWAY                = 36512,
     SPELL_FELFIRE_LINE_UP           = 35770,
@@ -98,7 +97,6 @@ class boss_wrath_scryer_soccothrates : public CreatureScript
                 preFight = false;
                 dalliahTaunt = false;
                 dalliahDeath = false;
-                DoCast(me, SPELL_FEL_IMMOLATION);
             }
 
             void JustDied(Unit* /*killer*/) override

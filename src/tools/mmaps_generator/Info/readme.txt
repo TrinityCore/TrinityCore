@@ -53,7 +53,6 @@ Generator command line args
                                     this command will build the map regardless of --skip* option settings
                                     if you do not specify a map number, builds all maps that pass the filters specified by --skip* options
 
-
 examples:
 
 movement_extractor

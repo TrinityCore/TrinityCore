@@ -849,7 +849,7 @@ void WorldSession::SendTutorialsData()
     SendPacket(&data);
 }
 
-void WorldSession::SaveTutorialsData(CharacterDatabaseTransaction &trans)
+void WorldSession::SaveTutorialsData(CharacterDatabaseTransaction trans)
 {
     if (!(m_TutorialsChanged & TUTORIALS_FLAG_CHANGED))
         return;
@@ -1176,6 +1176,7 @@ void WorldSession::SendAddonsInfo()
         data.append(itr->VersionMD5, sizeof(itr->VersionMD5));
         data << uint32(itr->Timestamp);
         data << uint32(1);  // IsBanned
+        bannedAddonCount++;
     }
 
     data.put<uint32>(sizePos, bannedAddonCount);
@@ -1276,24 +1277,23 @@ public:
 
 void WorldSession::InitializeSession()
 {
-    AccountInfoQueryHolderPerRealm* realmHolder = new AccountInfoQueryHolderPerRealm();
+    std::shared_ptr<AccountInfoQueryHolderPerRealm> realmHolder = std::make_shared<AccountInfoQueryHolderPerRealm>();
     if (!realmHolder->Initialize(GetAccountId()))
     {
-        delete realmHolder;
         SendAuthResponse(AUTH_SYSTEM_ERROR, false);
         return;
     }
 
-    AddQueryHolderCallback(CharacterDatabase.DelayQueryHolder(realmHolder)).AfterComplete([this](SQLQueryHolderBase* holder)
+    AddQueryHolderCallback(CharacterDatabase.DelayQueryHolder(realmHolder)).AfterComplete([this](SQLQueryHolderBase const& holder)
     {
-        InitializeSessionCallback(static_cast<AccountInfoQueryHolderPerRealm*>(holder));
+        InitializeSessionCallback(static_cast<AccountInfoQueryHolderPerRealm const&>(holder));
     });
 }
 
-void WorldSession::InitializeSessionCallback(CharacterDatabaseQueryHolder* realmHolder)
+void WorldSession::InitializeSessionCallback(CharacterDatabaseQueryHolder const& realmHolder)
 {
-    LoadAccountData(realmHolder->GetPreparedResult(AccountInfoQueryHolderPerRealm::GLOBAL_ACCOUNT_DATA), GLOBAL_CACHE_MASK);
-    LoadTutorialsData(realmHolder->GetPreparedResult(AccountInfoQueryHolderPerRealm::TUTORIALS));
+    LoadAccountData(realmHolder.GetPreparedResult(AccountInfoQueryHolderPerRealm::GLOBAL_ACCOUNT_DATA), GLOBAL_CACHE_MASK);
+    LoadTutorialsData(realmHolder.GetPreparedResult(AccountInfoQueryHolderPerRealm::TUTORIALS));
 
     if (!m_inQueue)
         SendAuthResponse(AUTH_OK, true);
@@ -1306,8 +1306,6 @@ void WorldSession::InitializeSessionCallback(CharacterDatabaseQueryHolder* realm
     SendAddonsInfo();
     SendClientCacheVersion(sWorld->getIntConfig(CONFIG_CLIENTCACHE_VERSION));
     SendTutorialsData();
-
-    delete realmHolder;
 }
 
 rbac::RBACData* WorldSession::GetRBACData()
@@ -1388,7 +1386,6 @@ bool WorldSession::DosProtection::EvaluateOpcode(WorldPacket& p, time_t time) co
             return true;
     }
 }
-
 
 uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) const
 {

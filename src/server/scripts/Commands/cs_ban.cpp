@@ -35,45 +35,51 @@ EndScriptData */
 #include "World.h"
 #include "WorldSession.h"
 
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
+using namespace Trinity::ChatCommands;
+
 class ban_commandscript : public CommandScript
 {
 public:
     ban_commandscript() : CommandScript("ban_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    ChatCommandTable GetCommands() const override
     {
-        static std::vector<ChatCommand> unbanCommandTable =
+        static ChatCommandTable unbanCommandTable =
         {
-            { "account",        rbac::RBAC_PERM_COMMAND_UNBAN_ACCOUNT,       true,  &HandleUnBanAccountCommand,          "" },
-            { "character",      rbac::RBAC_PERM_COMMAND_UNBAN_CHARACTER,     true,  &HandleUnBanCharacterCommand,        "" },
-            { "playeraccount",  rbac::RBAC_PERM_COMMAND_UNBAN_PLAYERACCOUNT, true,  &HandleUnBanAccountByCharCommand,    "" },
-            { "ip",             rbac::RBAC_PERM_COMMAND_UNBAN_IP,            true,  &HandleUnBanIPCommand,               "" },
+            { "account",        HandleUnBanAccountCommand,              rbac::RBAC_PERM_COMMAND_UNBAN_ACCOUNT,          Console::Yes },
+            { "character",      HandleUnBanCharacterCommand,            rbac::RBAC_PERM_COMMAND_UNBAN_CHARACTER,        Console::Yes },
+            { "playeraccount",  HandleUnBanAccountByCharCommand,        rbac::RBAC_PERM_COMMAND_UNBAN_PLAYERACCOUNT,    Console::Yes },
+            { "ip",             HandleUnBanIPCommand,                   rbac::RBAC_PERM_COMMAND_UNBAN_IP,               Console::Yes },
         };
-        static std::vector<ChatCommand> banlistCommandTable =
+        static ChatCommandTable banlistCommandTable =
         {
-            { "account",        rbac::RBAC_PERM_COMMAND_BANLIST_ACCOUNT,   true,  &HandleBanListAccountCommand,        "" },
-            { "character",      rbac::RBAC_PERM_COMMAND_BANLIST_CHARACTER, true,  &HandleBanListCharacterCommand,      "" },
-            { "ip",             rbac::RBAC_PERM_COMMAND_BANLIST_IP,        true,  &HandleBanListIPCommand,             "" },
+            { "account",        HandleBanListAccountCommand,            rbac::RBAC_PERM_COMMAND_BANLIST_ACCOUNT,        Console::Yes },
+            { "character",      HandleBanListCharacterCommand,          rbac::RBAC_PERM_COMMAND_BANLIST_CHARACTER,      Console::Yes },
+            { "ip",             HandleBanListIPCommand,                 rbac::RBAC_PERM_COMMAND_BANLIST_IP,             Console::Yes },
         };
-        static std::vector<ChatCommand> baninfoCommandTable =
+        static ChatCommandTable baninfoCommandTable =
         {
-            { "account",        rbac::RBAC_PERM_COMMAND_BANINFO_ACCOUNT,   true,  &HandleBanInfoAccountCommand,        "" },
-            { "character",      rbac::RBAC_PERM_COMMAND_BANINFO_CHARACTER, true,  &HandleBanInfoCharacterCommand,      "" },
-            { "ip",             rbac::RBAC_PERM_COMMAND_BANINFO_IP,        true,  &HandleBanInfoIPCommand,             "" },
+            { "account",        HandleBanInfoAccountCommand,            rbac::RBAC_PERM_COMMAND_BANINFO_ACCOUNT,        Console::Yes },
+            { "character",      HandleBanInfoCharacterCommand,          rbac::RBAC_PERM_COMMAND_BANINFO_CHARACTER,      Console::Yes },
+            { "ip",             HandleBanInfoIPCommand,                 rbac::RBAC_PERM_COMMAND_BANINFO_IP,             Console::Yes },
         };
-        static std::vector<ChatCommand> banCommandTable =
+        static ChatCommandTable banCommandTable =
         {
-            { "account",        rbac::RBAC_PERM_COMMAND_BAN_ACCOUNT,       true,  &HandleBanAccountCommand,            "" },
-            { "character",      rbac::RBAC_PERM_COMMAND_BAN_CHARACTER,     true,  &HandleBanCharacterCommand,          "" },
-            { "playeraccount",  rbac::RBAC_PERM_COMMAND_BAN_PLAYERACCOUNT, true,  &HandleBanAccountByCharCommand,      "" },
-            { "ip",             rbac::RBAC_PERM_COMMAND_BAN_IP,            true,  &HandleBanIPCommand,                 "" },
+            { "account",        HandleBanAccountCommand,                rbac::RBAC_PERM_COMMAND_BAN_ACCOUNT,            Console::Yes },
+            { "character",      HandleBanCharacterCommand,              rbac::RBAC_PERM_COMMAND_BAN_CHARACTER,          Console::Yes },
+            { "playeraccount",  HandleBanAccountByCharCommand,          rbac::RBAC_PERM_COMMAND_BAN_PLAYERACCOUNT,      Console::Yes },
+            { "ip",             HandleBanIPCommand,                     rbac::RBAC_PERM_COMMAND_BAN_IP,                 Console::Yes },
         };
-        static std::vector<ChatCommand> commandTable =
+        static ChatCommandTable commandTable =
         {
-            { "ban",            rbac::RBAC_PERM_COMMAND_BAN,     true,  nullptr,                                "", banCommandTable },
-            { "baninfo",        rbac::RBAC_PERM_COMMAND_BANINFO, true,  nullptr,                                "", baninfoCommandTable },
-            { "banlist",        rbac::RBAC_PERM_COMMAND_BANLIST, true,  nullptr,                                "", banlistCommandTable },
-            { "unban",          rbac::RBAC_PERM_COMMAND_UNBAN,   true,  nullptr,                                "", unbanCommandTable },
+            { "ban",        banCommandTable },
+            { "baninfo",    baninfoCommandTable },
+            { "banlist",    banlistCommandTable },
+            { "unban",      unbanCommandTable },
         };
         return commandTable;
     }
@@ -382,7 +388,6 @@ public:
         handler->PSendSysMessage(LANG_BANINFO_IPENTRY,
             fields[0].GetCString(), fields[1].GetCString(), permanent ? handler->GetTrinityString(LANG_BANINFO_NEVER) : fields[2].GetCString(),
             permanent ? handler->GetTrinityString(LANG_BANINFO_INFINITE) : secsToTimeString(fields[3].GetUInt64(), TimeFormat::ShortText).c_str(), fields[4].GetCString(), fields[5].GetCString());
-
 
         return true;
     }

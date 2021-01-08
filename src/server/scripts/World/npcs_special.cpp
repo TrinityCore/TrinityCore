@@ -274,13 +274,13 @@ public:
             }
         }
 
-        void QuestAccept(Player* /*player*/, Quest const* quest) override
+        void OnQuestAccept(Player* /*player*/, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_CLUCK)
                 Reset();
         }
 
-        void QuestReward(Player* /*player*/, Quest const* quest, uint32 /*opt*/) override
+        void OnQuestReward(Player* /*player*/, Quest const* quest, uint32 /*opt*/) override
         {
             if (quest->GetQuestId() == QUEST_CLUCK)
                 Reset();
@@ -745,7 +745,7 @@ public:
 
         void JustEngagedWith(Unit* /*who*/) override { }
 
-        void QuestAccept(Player* player, Quest const* quest) override
+        void OnQuestAccept(Player* player, Quest const* quest) override
         {
             if ((quest->GetQuestId() == 6624) || (quest->GetQuestId() == 6622))
                 BeginEvent(player);
@@ -1184,59 +1184,6 @@ public:
     }
 };
 
-enum TonkMine
-{
-    SPELL_TONK_MINE_DETONATE    = 25099
-};
-
-class npc_tonk_mine : public CreatureScript
-{
-public:
-    npc_tonk_mine() : CreatureScript("npc_tonk_mine") { }
-
-    struct npc_tonk_mineAI : public ScriptedAI
-    {
-        npc_tonk_mineAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-            me->SetReactState(REACT_PASSIVE);
-        }
-
-        void Initialize()
-        {
-            ExplosionTimer = 3000;
-        }
-
-        uint32 ExplosionTimer;
-
-        void Reset() override
-        {
-            Initialize();
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override { }
-        void AttackStart(Unit* /*who*/) override { }
-        void MoveInLineOfSight(Unit* /*who*/) override { }
-
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (ExplosionTimer <= diff)
-            {
-                DoCast(me, SPELL_TONK_MINE_DETONATE, true);
-                me->setDeathState(DEAD); // unsummon it
-            }
-            else
-                ExplosionTimer -= diff;
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_tonk_mineAI(creature);
-    }
-};
-
 enum TournamentPennantSpells
 {
     SPELL_PENNANT_STORMWIND_ASPIRANT        = 62595,
@@ -1513,20 +1460,9 @@ class npc_brewfest_reveler : public CreatureScript
         }
 };
 
-enum TrainingDummy
-{
-    NPC_ADVANCED_TARGET_DUMMY                  = 2674,
-    NPC_TARGET_DUMMY                           = 2673
-};
-
 struct npc_training_dummy : NullCreatureAI
 {
-    npc_training_dummy(Creature* creature) : NullCreatureAI(creature)
-    {
-        uint32 const entry = me->GetEntry();
-        if (entry == NPC_TARGET_DUMMY || entry == NPC_ADVANCED_TARGET_DUMMY)
-            me->DespawnOrUnsummon(16s);
-    }
+    npc_training_dummy(Creature* creature) : NullCreatureAI(creature) { }
 
     void DamageTaken(Unit* attacker, uint32& damage) override
     {
@@ -1606,7 +1542,7 @@ class npc_wormhole : public CreatureScript
                 Initialize();
             }
 
-            bool GossipHello(Player* player) override
+            bool OnGossipHello(Player* player) override
             {
                 if (me->IsSummon())
                 {
@@ -1628,7 +1564,7 @@ class npc_wormhole : public CreatureScript
                 return true;
             }
 
-            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+            bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
             {
                 uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
                 ClearGossipMenuFor(player);
@@ -1693,7 +1629,7 @@ public:
     {
         npc_pet_trainerAI(Creature* creature) : ScriptedAI(creature) { }
 
-        bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+        bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
         {
             if (menuId == MENU_ID_PET_UNLEARN && gossipListId == OPTION_ID_PLEASE_DO)
             {
@@ -1731,7 +1667,7 @@ public:
     {
         npc_experienceAI(Creature* creature) : ScriptedAI(creature) { }
 
-        bool GossipHello(Player* player) override
+        bool OnGossipHello(Player* player) override
         {
             if (player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN)) // not gaining XP
             {
@@ -1746,7 +1682,7 @@ public:
             return true;
         }
 
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
             uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
             ClearGossipMenuFor(player);
@@ -2228,9 +2164,9 @@ class npc_stable_master : public CreatureScript
         {
             npc_stable_masterAI(Creature* creature) : SmartAI(creature) { }
 
-            bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+            bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {
-                SmartAI::GossipSelect(player, menuId, gossipListId);
+                SmartAI::OnGossipSelect(player, menuId, gossipListId);
                 if (menuId != STABLE_MASTER_GOSSIP_SUB_MENU)
                     return false;
 
@@ -2483,7 +2419,7 @@ public:
                 });
         }
 
-        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
             switch (gossipListId)
             {
@@ -2680,7 +2616,6 @@ void AddSC_npcs_special()
     new npc_garments_of_quests();
     new npc_guardian();
     new npc_steam_tonk();
-    new npc_tonk_mine();
     new npc_tournament_mount();
     new npc_brewfest_reveler();
     RegisterCreatureAI(npc_training_dummy);

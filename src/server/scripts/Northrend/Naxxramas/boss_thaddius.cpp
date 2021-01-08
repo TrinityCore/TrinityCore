@@ -122,7 +122,6 @@ enum PetMisc
     OVERLOAD_DISTANCE       = 28
 };
 
-
 //Thaddius
 enum ThaddiusYells
 {
@@ -1219,7 +1218,7 @@ class at_thaddius_entrance : public OnlyOnceAreaTriggerScript
     public:
         at_thaddius_entrance() : OnlyOnceAreaTriggerScript("at_thaddius_entrance") { }
 
-        bool _OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+        bool TryHandleOnce(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
         {
             InstanceScript* instance = player->GetInstanceScript();
             if (!instance || instance->GetBossState(BOSS_THADDIUS) == DONE)
@@ -1242,7 +1241,6 @@ class achievement_thaddius_shocking : public AchievementCriteriaScript
             return target && target->GetAI() && target->GetAI()->GetData(DATA_POLARITY_CROSSED);
         }
 };
-
 
 void AddSC_boss_thaddius()
 {

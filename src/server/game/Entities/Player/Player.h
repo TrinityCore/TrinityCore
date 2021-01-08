@@ -150,7 +150,7 @@ struct SpellModifier
 };
 
 typedef std::unordered_map<uint32, PlayerTalent*> PlayerTalentMap;
-typedef std::unordered_map<uint32, PlayerSpell*> PlayerSpellMap;
+typedef std::unordered_map<uint32, PlayerSpell> PlayerSpellMap;
 typedef std::unordered_set<SpellModifier*> SpellModContainer;
 
 typedef std::unordered_map<uint32 /*instanceId*/, time_t/*releaseTime*/> InstanceTimeMap;
@@ -473,7 +473,6 @@ enum QuestSaveType
 
 //               quest
 typedef std::map<uint32, QuestSaveType> QuestStatusSaveMap;
-
 
 enum QuestSlotOffsets
 {
@@ -1029,16 +1028,16 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void RemovePetAura(PetAura const* petSpell);
 
         /// Handles said message in regular chat based on declared language and in config pre-defined Range.
-        void Say(std::string const& text, Language language, WorldObject const* = nullptr) override;
+        void Say(std::string_view text, Language language, WorldObject const* = nullptr) override;
         void Say(uint32 textId, WorldObject const* target = nullptr) override;
         /// Handles yelled message in regular chat based on declared language and in config pre-defined Range.
-        void Yell(std::string const& text, Language language, WorldObject const* = nullptr) override;
+        void Yell(std::string_view text, Language language, WorldObject const* = nullptr) override;
         void Yell(uint32 textId, WorldObject const* target = nullptr) override;
         /// Outputs an universal text which is supposed to be an action.
-        void TextEmote(std::string const& text, WorldObject const* = nullptr, bool = false) override;
+        void TextEmote(std::string_view text, WorldObject const* = nullptr, bool = false) override;
         void TextEmote(uint32 textId, WorldObject const* target = nullptr, bool isBossEmote = false) override;
         /// Handles whispers from Addons and players based on sender, receiver's guid and language.
-        void Whisper(std::string const& text, Language language, Player* receiver, bool = false) override;
+        void Whisper(std::string_view text, Language language, Player* receiver, bool = false) override;
         void Whisper(uint32 textId, Player* target, bool isBossWhisper = false) override;
 
         /*********************************************************/
@@ -1297,7 +1296,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendQuestTimerFailed(uint32 questId) const;
         void SendCanTakeQuestResponse(QuestFailedReason msg) const;
         void SendQuestConfirmAccept(Quest const* quest, Player* pReceiver) const;
-        void SendPushToPartyResponse(Player const* player, uint8 msg) const;
+        void SendPushToPartyResponse(Player const* player, QuestShareMessages msg) const;
         void SendQuestUpdateAddItem(Quest const* quest, uint32 itemIdx, uint16 count) const;
         void SendQuestUpdateAddCreatureOrGo(Quest const* quest, ObjectGuid guid, uint32 creatureOrGOIdx, uint16 oldCount, uint16 addCount);
         void SendQuestUpdateAddPlayer(Quest const* quest, uint16 oldCount, uint16 addCount);
@@ -1320,12 +1319,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         /***                   LOAD SYSTEM                     ***/
         /*********************************************************/
 
-        bool LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder* holder);
+        bool LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& holder);
         bool IsLoading() const override;
 
         void Initialize(ObjectGuid::LowType guid);
-        static uint32 GetUInt32ValueFromArray(Tokenizer const& data, uint16 index);
-        static float  GetFloatValueFromArray(Tokenizer const& data, uint16 index);
         static uint32 GetZoneIdFromDB(ObjectGuid guid);
         static bool   LoadPositionFromDB(uint32& mapid, float& x, float& y, float& z, float& o, bool& in_flight, ObjectGuid guid);
 
@@ -1338,12 +1335,11 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void SaveToDB(bool create = false);
         void SaveToDB(CharacterDatabaseTransaction trans, bool create = false);
-        void SaveInventoryAndGoldToDB(CharacterDatabaseTransaction& trans);                    // fast save function for item/money cheating preventing
-        void SaveGoldToDB(CharacterDatabaseTransaction& trans) const;
+        void SaveInventoryAndGoldToDB(CharacterDatabaseTransaction trans);                    // fast save function for item/money cheating preventing
+        void SaveGoldToDB(CharacterDatabaseTransaction trans) const;
 
-        static void SetUInt32ValueInArray(Tokenizer& data, uint16 index, uint32 value);
-        static void Customize(CharacterCustomizeInfo const* customizeInfo, CharacterDatabaseTransaction& trans);
-        static void SavePositionInDB(WorldLocation const& loc, uint16 zoneId, ObjectGuid guid, CharacterDatabaseTransaction& trans);
+        static void Customize(CharacterCustomizeInfo const* customizeInfo, CharacterDatabaseTransaction trans);
+        static void SavePositionInDB(WorldLocation const& loc, uint16 zoneId, ObjectGuid guid, CharacterDatabaseTransaction trans);
 
         static void DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRealmChars = true, bool deleteFinally = false);
         static void DeleteOldCharacters();
@@ -1389,8 +1385,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetMailSize() { return m_mail.size();}
         Mail* GetMail(uint32 id);
 
-        PlayerMails::iterator GetMailBegin() { return m_mail.begin();}
-        PlayerMails::iterator GetMailEnd() { return m_mail.end();}
+        PlayerMails const& GetMails() const { return m_mail; }
 
         void SendItemRetrievalMail(uint32 itemEntry, uint32 count); // Item retrieval mails sent by The Postmaster (34337), used in multiple places.
 
@@ -1432,7 +1427,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void LearnDefaultSkill(uint32 skillId, uint16 rank);
         void LearnQuestRewardedSpells();
         void LearnQuestRewardedSpells(Quest const* quest);
-        void LearnSpellHighestRank(uint32 spellid);
         void AddTemporarySpell(uint32 spellId);
         void RemoveTemporarySpell(uint32 spellId);
         void SetReputation(uint32 factionentry, uint32 value);
@@ -1482,6 +1476,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         template <class T>
         void ApplySpellMod(uint32 spellId, SpellModOp op, T& basevalue, Spell* spell = nullptr) const;
         static void ApplyModToSpell(SpellModifier* mod, Spell* spell);
+        static bool HasSpellModApplied(SpellModifier* mod, Spell* spell);
         void SetSpellModTakingSpell(Spell* spell, bool apply);
 
         void RemoveArenaSpellCooldowns(bool removeActivePetCooldowns = false);
@@ -1691,7 +1686,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SpawnCorpseBones(bool triggerSave = true);
         Corpse* CreateCorpse();
         void KillPlayer();
-        static void OfflineResurrect(ObjectGuid const& guid, CharacterDatabaseTransaction& trans);
+        static void OfflineResurrect(ObjectGuid const& guid, CharacterDatabaseTransaction trans);
         bool HasCorpse() const { return _corpseLocation.GetMapId() != MAPID_INVALID; }
         WorldLocation GetCorpseLocation() const { return _corpseLocation; }
         uint32 GetResurrectionSpellId();
@@ -2163,11 +2158,11 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool IsInWhisperWhiteList(ObjectGuid guid);
         void RemoveFromWhisperWhiteList(ObjectGuid guid) { WhisperList.remove(guid); }
 
-        bool SetDisableGravity(bool disable, bool packetOnly /* = false */) override;
+        bool SetDisableGravity(bool disable, bool packetOnly /* = false */, bool updateAnimationTier = true) override;
         bool SetCanFly(bool apply, bool packetOnly = false) override;
         bool SetWaterWalking(bool apply, bool packetOnly = false) override;
         bool SetFeatherFall(bool apply, bool packetOnly = false) override;
-        bool SetHover(bool enable, bool packetOnly = false) override;
+        bool SetHover(bool enable, bool packetOnly = false, bool updateAnimationTier = true) override;
 
         bool CanFly() const override { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_CAN_FLY); }
 
@@ -2254,23 +2249,23 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         /***                   SAVE SYSTEM                     ***/
         /*********************************************************/
 
-        void _SaveActions(CharacterDatabaseTransaction& trans);
-        void _SaveAuras(CharacterDatabaseTransaction& trans);
-        void _SaveInventory(CharacterDatabaseTransaction& trans);
-        void _SaveMail(CharacterDatabaseTransaction& trans);
-        void _SaveQuestStatus(CharacterDatabaseTransaction& trans);
-        void _SaveDailyQuestStatus(CharacterDatabaseTransaction& trans);
-        void _SaveWeeklyQuestStatus(CharacterDatabaseTransaction& trans);
-        void _SaveMonthlyQuestStatus(CharacterDatabaseTransaction& trans);
-        void _SaveSeasonalQuestStatus(CharacterDatabaseTransaction& trans);
-        void _SaveSkills(CharacterDatabaseTransaction& trans);
-        void _SaveSpells(CharacterDatabaseTransaction& trans);
-        void _SaveEquipmentSets(CharacterDatabaseTransaction& trans);
-        void _SaveBGData(CharacterDatabaseTransaction& trans);
-        void _SaveGlyphs(CharacterDatabaseTransaction& trans) const;
-        void _SaveTalents(CharacterDatabaseTransaction& trans);
-        void _SaveStats(CharacterDatabaseTransaction& trans) const;
-        void _SaveInstanceTimeRestrictions(CharacterDatabaseTransaction& trans);
+        void _SaveActions(CharacterDatabaseTransaction trans);
+        void _SaveAuras(CharacterDatabaseTransaction trans);
+        void _SaveInventory(CharacterDatabaseTransaction trans);
+        void _SaveMail(CharacterDatabaseTransaction trans);
+        void _SaveQuestStatus(CharacterDatabaseTransaction trans);
+        void _SaveDailyQuestStatus(CharacterDatabaseTransaction trans);
+        void _SaveWeeklyQuestStatus(CharacterDatabaseTransaction trans);
+        void _SaveMonthlyQuestStatus(CharacterDatabaseTransaction trans);
+        void _SaveSeasonalQuestStatus(CharacterDatabaseTransaction trans);
+        void _SaveSkills(CharacterDatabaseTransaction trans);
+        void _SaveSpells(CharacterDatabaseTransaction trans);
+        void _SaveEquipmentSets(CharacterDatabaseTransaction trans);
+        void _SaveBGData(CharacterDatabaseTransaction trans);
+        void _SaveGlyphs(CharacterDatabaseTransaction trans) const;
+        void _SaveTalents(CharacterDatabaseTransaction trans);
+        void _SaveStats(CharacterDatabaseTransaction trans) const;
+        void _SaveInstanceTimeRestrictions(CharacterDatabaseTransaction trans);
 
         /*********************************************************/
         /***              ENVIRONMENTAL SYSTEM                 ***/
@@ -2437,7 +2432,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         InventoryResult CanStoreItem_InBag(uint8 bag, ItemPosCountVec& dest, ItemTemplate const* pProto, uint32& count, bool merge, bool non_specialized, Item* pSrcItem, uint8 skip_bag, uint8 skip_slot) const;
         InventoryResult CanStoreItem_InInventorySlots(uint8 slot_begin, uint8 slot_end, ItemPosCountVec& dest, ItemTemplate const* pProto, uint32& count, bool merge, Item* pSrcItem, uint8 skip_bag, uint8 skip_slot) const;
         Item* _StoreItem(uint16 pos, Item* pItem, uint32 count, bool clone, bool update);
-        Item* _LoadItem(CharacterDatabaseTransaction& trans, uint32 zoneId, uint32 timeDiff, Field* fields);
+        Item* _LoadItem(CharacterDatabaseTransaction trans, uint32 zoneId, uint32 timeDiff, Field* fields);
 
         CinematicMgr* _cinematicMgr;
 

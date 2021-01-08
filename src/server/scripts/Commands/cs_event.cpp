@@ -37,18 +37,18 @@ class event_commandscript : public CommandScript
 public:
     event_commandscript() : CommandScript("event_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    ChatCommandTable GetCommands() const override
     {
-        static std::vector<ChatCommand> eventCommandTable =
+        static ChatCommandTable eventCommandTable =
         {
-            { "activelist", rbac::RBAC_PERM_COMMAND_EVENT_ACTIVELIST, true, &HandleEventActiveListCommand, "" },
-            { "start",      rbac::RBAC_PERM_COMMAND_EVENT_START,      true, &HandleEventStartCommand,      "" },
-            { "stop",       rbac::RBAC_PERM_COMMAND_EVENT_STOP,       true, &HandleEventStopCommand,       "" },
-            { "info",       rbac::RBAC_PERM_COMMAND_EVENT,            true, &HandleEventInfoCommand,       "" },
+            { "activelist", HandleEventActiveListCommand, rbac::RBAC_PERM_COMMAND_EVENT_ACTIVELIST, Console::Yes },
+            { "start",      HandleEventStartCommand,      rbac::RBAC_PERM_COMMAND_EVENT_START,      Console::Yes },
+            { "stop",       HandleEventStopCommand,       rbac::RBAC_PERM_COMMAND_EVENT_STOP,       Console::Yes },
+            { "info",       HandleEventInfoCommand,       rbac::RBAC_PERM_COMMAND_EVENT_INFO,       Console::Yes },
         };
-        static std::vector<ChatCommand> commandTable =
+        static ChatCommandTable commandTable =
         {
-            { "event", rbac::RBAC_PERM_COMMAND_EVENT, false, nullptr, "", eventCommandTable },
+            { "event", eventCommandTable },
         };
         return commandTable;
     }

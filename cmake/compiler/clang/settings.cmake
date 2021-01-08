@@ -11,6 +11,31 @@ else()
   message(STATUS "Clang: Minimum version required is ${CLANG_EXPECTED_VERSION}, found ${CMAKE_CXX_COMPILER_VERSION} - ok!")
 endif()
 
+# This tests for a bug in clang-7 that causes linkage to fail for 64-bit from_chars (in some configurations)
+# If the clang requirement is bumped to >= clang-8, you can remove this check, as well as
+# the associated ifdef block in src/common/Utilities/StringConvert.h
+include(CheckCXXSourceCompiles)
+
+check_cxx_source_compiles("
+#include <charconv>
+#include <cstdint>
+
+int main()
+{
+    uint64_t n;
+    char const c[] = \"0\";
+    std::from_chars(c, c+1, n);
+    return static_cast<int>(n);
+}
+" CLANG_HAVE_PROPER_CHARCONV)
+
+if (NOT CLANG_HAVE_PROPER_CHARCONV)
+  message(STATUS "Clang: Detected from_chars bug for 64-bit integers, workaround enabled")
+  target_compile_definitions(trinity-compile-option-interface
+  INTERFACE
+    -DTRINITY_NEED_CHARCONV_WORKAROUND)
+endif()
+
 if(WITH_WARNINGS)
   target_compile_options(trinity-warning-interface
     INTERFACE
@@ -49,7 +74,53 @@ if(ASAN)
       -fsanitize-recover=address
       -fsanitize-address-use-after-scope)
 
-  message(STATUS "Clang: Enabled Address Sanitizer")
+  message(STATUS "Clang: Enabled Address Sanitizer ASan")
+endif()
+
+if(MSAN)
+  target_compile_options(trinity-compile-option-interface
+    INTERFACE
+      -fno-omit-frame-pointer
+      -fsanitize=memory
+      -fsanitize-memory-track-origins
+      -mllvm
+      -msan-keep-going=1)
+
+  target_link_options(trinity-compile-option-interface
+    INTERFACE
+      -fno-omit-frame-pointer
+      -fsanitize=memory
+      -fsanitize-memory-track-origins)
+
+  message(STATUS "Clang: Enabled Memory Sanitizer MSan")
+endif()
+
+if(UBSAN)
+  target_compile_options(trinity-compile-option-interface
+    INTERFACE
+      -fno-omit-frame-pointer
+      -fsanitize=undefined)
+
+  target_link_options(trinity-compile-option-interface
+    INTERFACE
+      -fno-omit-frame-pointer
+      -fsanitize=undefined)
+
+  message(STATUS "Clang: Enabled Undefined Behavior Sanitizer UBSan")
+endif()
+
+if(TSAN)
+  target_compile_options(trinity-compile-option-interface
+    INTERFACE
+      -fno-omit-frame-pointer
+      -fsanitize=thread)
+
+  target_link_options(trinity-compile-option-interface
+    INTERFACE
+      -fno-omit-frame-pointer
+      -fsanitize=thread)
+
+  message(STATUS "Clang: Enabled Thread Sanitizer TSan")
 endif()
 
 # -Wno-narrowing needed to suppress a warning in g3d

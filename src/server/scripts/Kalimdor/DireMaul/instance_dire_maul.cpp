@@ -24,7 +24,6 @@ gets instead the deserter debuff.
 
 #include "GameObject.h"
 #include "InstanceScript.h"
-#include "Map.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
@@ -76,7 +75,7 @@ public:
 
     struct instance_dire_maul_InstanceMapScript : public InstanceScript
     {
-        instance_dire_maul_InstanceMapScript(Map* map) : InstanceScript(map)
+        instance_dire_maul_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
