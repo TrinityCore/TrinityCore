@@ -24,6 +24,7 @@ gets instead the deserter debuff.
 
 #include "GameObject.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
