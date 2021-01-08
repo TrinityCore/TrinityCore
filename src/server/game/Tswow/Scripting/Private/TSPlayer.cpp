@@ -2771,8 +2771,40 @@ void TSPlayer::Say(TSString _text,uint32 lang)
 void TSPlayer::GiveXP(uint32 xp,TSUnit _victim)
 {
     auto victim = _victim.unit;
-    
     player->GiveXP(xp, victim);
+}
+
+/**
+ * Sets the [Player] experience
+ * 
+ * @param uint32 xp : experience to set
+ */
+void TSPlayer::SetXP(uint32 xp)
+{
+    uint32 nextLvlXP = player->GetUInt32Value(PLAYER_NEXT_LEVEL_XP);
+    uint32 newXP = player->GetXP() + xp;
+    uint8 level = player->GetLevel();
+
+    while (newXP >= nextLvlXP && !player->IsMaxLevel())
+    {
+        newXP -= nextLvlXP;
+        if (!player->IsMaxLevel())
+            player->GiveLevel(level + 1);
+        level = player->GetLevel();
+        nextLvlXP = player->GetUInt32Value(PLAYER_NEXT_LEVEL_XP);
+    }
+
+    player->SetXP(newXP);
+}
+
+void TSPlayer::AddXP(uint32 xp)
+{
+    SetXP(GetXP()+xp);
+}
+
+uint32 TSPlayer::GetXP()
+{
+    return player->GetXP();
 }
     
 /**

@@ -212,6 +212,9 @@ public:
 	void Yell(TSString text, uint32 lang);
 	void Say(TSString text, uint32 lang);
 	void GiveXP(uint32 xp, TSUnit victim);
+	void SetXP(uint32 xp);
+	uint32 GetXP();
+	void AddXP();
 	void ToggleDND();
 	void ToggleAFK();
 	TSItem EquipItem(TSItem item, uint32 slot, uint32 entry);
