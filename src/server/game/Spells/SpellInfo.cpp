@@ -850,8 +850,6 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry)
     _auraState = AURA_STATE_NONE;
 
     _allowedMechanicMask = 0;
-
-    _isHeartbeatProcOrPeriodic = (ProcFlags & PROC_FLAG_HEARTBEAT) != 0;
 }
 
 SpellInfo::~SpellInfo()
@@ -1250,7 +1248,7 @@ bool SpellInfo::HasInitialAggro() const
 
 bool SpellInfo::IsHeartbeatProcOrPeriodic() const
 {
-    return _isHeartbeatProcOrPeriodic;
+    return (ProcFlags & PROC_FLAG_HEARTBEAT) != 0;
 }
 
 WeaponAttackType SpellInfo::GetAttackType() const

@@ -554,8 +554,6 @@ class TC_GAME_API SpellInfo
 
         uint32 _allowedMechanicMask;
 
-        bool _isHeartbeatProcOrPeriodic;
-
         std::array<ImmunityInfo, MAX_SPELL_EFFECTS> _immunityInfo;
 };
 
