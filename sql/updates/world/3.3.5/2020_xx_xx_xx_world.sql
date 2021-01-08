@@ -1,4 +1,5 @@
 -- Template Updates
+UPDATE `creature_template` SET `flags_extra`=`flags_extra`|0x00002000 WHERE `entry`=33705;
 UPDATE `creature_template` SET `flags_extra`= `flags_extra` | 512 WHERE `entry` IN (32857, 33694);
 UPDATE `creature_template` SET `speed_run`= 1.42857 WHERE `entry`= 33694;
 UPDATE `creature_template` SET `speed_run`= 1.28571 WHERE `entry`= 33692;
@@ -31,6 +32,15 @@ UPDATE `creature` SET `position_x`= 1592.9392, `position_y`= 120.38715, `positio
 UPDATE `creature_model_info` SET `BoundingRadius`= 6.22840118408203125 WHERE `DisplayID`= 28344; -- Steelbreaker
 UPDATE `creature_model_info` SET `CombatReach`= 0, `BoundingRadius`= 1.330477356910705566 WHERE `DisplayID`= 28324; -- Stormcaller Brundir
 
+-- Rune of Death
+DELETE FROM `spelldifficulty_dbc` WHERE `id`=62269;
+INSERT INTO `spelldifficulty_dbc`(`id`, `spellid0`, `spellid1`) VALUES
+(62269, 62269, 63490);
+-- Overload 10 (61869) and 25 (63481) has same trigger spell effect 61878 (10 mode), it need set 63480 in 25 mode
+DELETE FROM `spelldifficulty_dbc` WHERE `id`=61878;
+INSERT INTO `spelldifficulty_dbc`(`id`, `spellid0`, `spellid1`) VALUES
+(61878, 61878, 63480);
+
 -- Conditions
 DELETE FROM `conditions` WHERE `SourceEntry` IN (61942, 61975, 61920, 64320) AND `SourceTypeOrReferenceId`= 13;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ScriptName`, `Comment`) VALUES
@@ -44,7 +54,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (13, 7, 64320, 0, 2, 31, 0, 3, 32857, 0, 0, 0, '', 'Rune of Power - Target Stormcaller Brundir');
 
 -- Spell Scripts
-DELETE FROM `spell_script_names` WHERE `ScriptName` IN 
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN
 ('spell_assembly_supercharge',
 'spell_assembly_berserk',
 'spell_assembly_random_aggro_periodic',
