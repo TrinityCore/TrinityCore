@@ -2465,6 +2465,19 @@ void Aura::CallScriptEffectSplitHandlers(AuraEffect* aurEff, AuraApplication con
     }
 }
 
+void Aura::CallScriptTargetHeartbeatHandlers(AuraApplication const* aurApp)
+{
+    for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
+    {
+        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_TARGET_HEARTBEAT, aurApp);
+        auto hookItrEnd = (*scritr)->OnTargetHeartbeat.end(), hookItr = (*scritr)->OnTargetHeartbeat.begin();
+        for (; hookItr != hookItrEnd; ++hookItr)
+            hookItr->Call(*scritr);
+
+        (*scritr)->_FinishScriptCall();
+    }
+}
+
 bool Aura::CallScriptCheckProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo)
 {
     bool result = true;
@@ -2716,6 +2729,24 @@ void UnitAura::AddStaticApplication(Unit* target, uint8 effMask)
         return;
 
     _staticApplications[target->GetGUID()] |= effMask;
+}
+
+void UnitAura::OnTargetHeartbeat(AuraApplication* aurApp)
+{
+    // Eat/Drinking heartbeat animation; Need to find a way to move this in spell script
+    {
+        SpellSpecificType specific = GetSpellInfo()->GetSpellSpecific();
+        if (specific == SPELL_SPECIFIC_FOOD || specific == SPELL_SPECIFIC_FOOD_AND_DRINK)
+            aurApp->GetTarget()->SendPlaySpellVisual(SPELL_VISUAL_KIT_FOOD);
+        else if (specific == SPELL_SPECIFIC_DRINK)
+            aurApp->GetTarget()->SendPlaySpellVisual(SPELL_VISUAL_KIT_DRINK);
+    }
+
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        if (AuraEffect* aurEff = m_effects[i])
+            aurEff->OnTargetHeartbeat(aurApp);
+
+    CallScriptTargetHeartbeatHandlers(aurApp);
 }
 
 DynObjAura::DynObjAura(AuraCreateInfo const& createInfo)

@@ -384,6 +384,8 @@ Unit::Unit(bool isWorldObject) :
     _isWalkingBeforeCharm = false;
     _instantCast = false;
     _isIgnoringCombat = false;
+
+    m_heartBeatTimer.Reset(SECONDS_PER_HEARTBEAT * IN_MILLISECONDS);
 }
 
 ////////////////////////////////////////////////////////////
@@ -472,6 +474,8 @@ void Unit::Update(uint32 p_time)
     if (!GetAI() && (GetTypeId() != TYPEID_PLAYER || (IsCharmed() && GetCharmerGUID().IsCreature())))
         UpdateCharmAI();
     RefreshAI();
+
+    Heartbeat(p_time);
 }
 
 bool Unit::haveOffhandWeapon() const
@@ -497,20 +501,6 @@ void Unit::UpdateSplineMovement(uint32 t_diff)
 
     movespline->updateState(t_diff);
     bool arrived = movespline->Finalized();
-
-    if (movespline->isCyclic())
-    {
-        m_splineSyncTimer.Update(t_diff);
-        if (m_splineSyncTimer.Passed())
-        {
-            m_splineSyncTimer.Reset(5000); // Retail value, do not change
-
-            WorldPacket data(SMSG_FLIGHT_SPLINE_SYNC, 4 + GetPackGUID().size());
-            Movement::PacketBuilder::WriteSplineSync(*movespline, data);
-            data.appendPackGUID(GetGUID());
-            SendMessageToSet(&data, true);
-        }
-    }
 
     if (arrived)
     {
@@ -555,6 +545,33 @@ void Unit::InterruptMovementBasedAuras()
 
     if (_positionUpdateInfo.Relocated && !GetVehicle())
         RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOVE);
+}
+
+void Unit::Heartbeat(uint32 p_time)
+{
+    m_heartBeatTimer.Update(p_time);
+    if (m_heartBeatTimer.Passed())
+        m_heartBeatTimer.Reset(SECONDS_PER_HEARTBEAT * IN_MILLISECONDS);
+    else
+        return;
+
+    SendFlightSplineSyncIfNeeded();
+
+    for (AuraApplicationMap::iterator iter = m_appliedAuras.begin(); iter != m_appliedAuras.end(); ++iter)
+        iter->second->GetBase()->OnTargetHeartbeat(iter->second);
+
+    Unit::ProcSkillsAndAuras(this, nullptr, PROC_FLAG_HEARTBEAT, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
+}
+
+void Unit::SendFlightSplineSyncIfNeeded()
+{
+    if (movespline->Finalized() || !movespline->isCyclic())
+        return;
+
+    WorldPacket data(SMSG_FLIGHT_SPLINE_SYNC, 4 + GetPackGUID().size());
+    Movement::PacketBuilder::WriteSplineSync(*movespline, data);
+    data.appendPackGUID(GetGUID());
+    SendMessageToSet(&data, true);
 }
 
 void Unit::DisableSpline()
@@ -10993,7 +11010,7 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
     }
 
     if (!victim->IsCritter())
-        Unit::ProcSkillsAndAuras(attacker, victim, PROC_FLAG_KILL, PROC_FLAG_KILLED, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
+        Unit::ProcSkillsAndAuras(attacker, victim, PROC_FLAG_KILL, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
 
     // Proc auras on death - must be before aura/combat remove
     Unit::ProcSkillsAndAuras(victim, victim, PROC_FLAG_NONE, PROC_FLAG_DEATH, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);

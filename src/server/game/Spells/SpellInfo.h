@@ -459,6 +459,7 @@ class TC_GAME_API SpellInfo
         bool IsRangedWeaponSpell() const;
         bool IsAutoRepeatRangedSpell() const;
         bool HasInitialAggro() const;
+        bool IsHeartbeatProcOrPeriodic() const;
 
         WeaponAttackType GetAttackType() const;
 
@@ -552,6 +553,8 @@ class TC_GAME_API SpellInfo
         SpellDiminishInfo _diminishInfoTriggered;
 
         uint32 _allowedMechanicMask;
+
+        bool _isHeartbeatProcOrPeriodic;
 
         std::array<ImmunityInfo, MAX_SPELL_EFFECTS> _immunityInfo;
 };

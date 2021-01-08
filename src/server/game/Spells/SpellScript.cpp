@@ -957,6 +957,16 @@ void AuraScript::EffectSplitHandler::Call(AuraScript* auraScript, AuraEffect* au
     (auraScript->*pEffectHandlerScript)(aurEff, dmgInfo, splitAmount);
 }
 
+AuraScript::AuraTargetHeartbeatHandler::AuraTargetHeartbeatHandler(AuraTargetHeartbeatFnType handlerScript)
+{
+    _HandlerScript = handlerScript;
+}
+
+void AuraScript::AuraTargetHeartbeatHandler::Call(AuraScript* auraScript)
+{
+    (auraScript->*_HandlerScript)();
+}
+
 AuraScript::CheckProcHandler::CheckProcHandler(AuraCheckProcFnType handlerScript)
 {
     _HandlerScript = handlerScript;
@@ -1247,6 +1257,7 @@ Unit* AuraScript::GetTarget() const
         case AURA_SCRIPT_HOOK_EFFECT_MANASHIELD:
         case AURA_SCRIPT_HOOK_EFFECT_AFTER_MANASHIELD:
         case AURA_SCRIPT_HOOK_EFFECT_SPLIT:
+        case AURA_SCRIPT_HOOK_TARGET_HEARTBEAT:
         case AURA_SCRIPT_HOOK_CHECK_PROC:
         case AURA_SCRIPT_HOOK_CHECK_EFFECT_PROC:
         case AURA_SCRIPT_HOOK_PREPARE_PROC:

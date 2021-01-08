@@ -518,7 +518,7 @@ bool SpellMgr::CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcE
                 return false;
 
     // always trigger for these types
-    if (eventInfo.GetTypeMask() & (PROC_FLAG_KILLED | PROC_FLAG_KILL | PROC_FLAG_DEATH))
+    if (eventInfo.GetTypeMask() & (PROC_FLAG_KILL | PROC_FLAG_DEATH))
         return true;
 
     // do triggered cast checks
@@ -2972,10 +2972,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Some spells have no amplitude set
     {
         ApplySpellFix({
-            6727,  // Poison Mushroom
-            7288,  // Immolate Cumulative (TEST) (Rank 1)
-            7291,  // Food (TEST)
-            7331,  // Healing Aura (TEST) (Rank 1)
             /*
             30400, // Nether Beam - Perseverance
                 Blizzlike to have it disabled? DBC says:
@@ -3004,13 +3000,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         // Vomit
         ApplySpellFix({ 43327 }, [](SpellInfo* spellInfo)
         {
-            spellInfo->Effects[EFFECT_1].Amplitude = 1 * IN_MILLISECONDS;
-        });
-
-        // Strider Presence
-        ApplySpellFix({ 4312 }, [](SpellInfo* spellInfo)
-        {
-            spellInfo->Effects[EFFECT_0].Amplitude = 1 * IN_MILLISECONDS;
             spellInfo->Effects[EFFECT_1].Amplitude = 1 * IN_MILLISECONDS;
         });
 
@@ -4742,16 +4731,10 @@ void SpellMgr::LoadSpellInfoCorrections()
         2479,  // Honorless Target
         3232,  // Gouge Stun Test
         3409,  // Crippling Poison
-        4312,  // Strider Presence
-        5707,  // Lifestone Regeneration
         5760,  // Mind-numbing Poison
-        6727,  // Poison Mushroom
         6940,  // Hand of Sacrifice (handled remove in split hook)
         6984,  // Frost Shot (Rank 2)
         7164,  // Defensive Stance
-        7288,  // Immolate Cumulative (TEST) (Rank 1)
-        7291,  // Food (TEST)
-        7331,  // Healing Aura (TEST) (Rank 1)
         7366,  // Berserker Stance
         7824,  // Blacksmithing Skill +10
         12551, // Frost Shot

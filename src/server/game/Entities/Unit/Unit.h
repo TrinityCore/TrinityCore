@@ -40,6 +40,8 @@
 #define MAX_AGGRO_RESET_TIME 10 // in seconds
 #define MAX_AGGRO_RADIUS 45.0f  // yards
 
+#define SECONDS_PER_HEARTBEAT 5
+
 enum VictimState
 {
     VICTIMSTATE_INTACT         = 0, // set when attacker misses
@@ -1789,6 +1791,10 @@ class TC_GAME_API Unit : public WorldObject
         void UpdateSplinePosition();
         void InterruptMovementBasedAuras();
 
+        // Internal unit timer. Based on research retail server behavior.
+        void Heartbeat(uint32 p_time);
+        void SendFlightSplineSyncIfNeeded();
+
         // player or player's pet
         float GetCombatRatingReduction(CombatRating cr) const;
         uint32 GetCombatRatingDamageReduction(CombatRating cr, float rate, float cap, uint32 damage) const;
@@ -1808,7 +1814,7 @@ class TC_GAME_API Unit : public WorldObject
 
         uint32 m_state;                                     // Even derived shouldn't modify
         uint32 m_lastManaUse;                               // msecs
-        TimeTracker m_splineSyncTimer;
+        TimeTracker m_heartBeatTimer;
 
         DiminishingReturn m_Diminishing[DIMINISHING_MAX];
 

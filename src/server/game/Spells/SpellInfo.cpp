@@ -850,6 +850,8 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry)
     _auraState = AURA_STATE_NONE;
 
     _allowedMechanicMask = 0;
+
+    _isHeartbeatProcOrPeriodic = (ProcFlags & PROC_FLAG_HEARTBEAT) != 0;
 }
 
 SpellInfo::~SpellInfo()
@@ -1244,6 +1246,11 @@ bool SpellInfo::IsAutoRepeatRangedSpell() const
 bool SpellInfo::HasInitialAggro() const
 {
     return !(HasAttribute(SPELL_ATTR1_NO_THREAT) || HasAttribute(SPELL_ATTR3_NO_INITIAL_AGGRO));
+}
+
+bool SpellInfo::IsHeartbeatProcOrPeriodic() const
+{
+    return _isHeartbeatProcOrPeriodic;
 }
 
 WeaponAttackType SpellInfo::GetAttackType() const
