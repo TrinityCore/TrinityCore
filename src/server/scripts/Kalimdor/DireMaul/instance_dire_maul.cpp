@@ -189,11 +189,8 @@ public:
                         GetCreatureListWithEntryInGrid(creatureList, crystal, CrystalMobs[j], 30.0f);
                         for (std::list<Creature*>::iterator itr = creatureList.begin(); itr != creatureList.end(); ++itr)
                         {
-                            if (Creature* creature = *itr)
-                            {
-                                _crystalCreatureGUIDs[i][creatureCount] = creature->GetGUID();
-                                ++creatureCount;
-                            }
+                            _crystalCreatureGUIDs[i][creatureCount] = (*itr)->GetGUID();
+                            ++creatureCount;
                         }
                     }
                 }
