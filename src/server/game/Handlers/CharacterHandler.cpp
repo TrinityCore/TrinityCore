@@ -434,7 +434,7 @@ void WorldSession::HandleCharEnum(CharacterDatabaseQueryHolder* holder)
         WorldPackets::Character::EnumCharactersResult::RaceUnlock raceUnlock;
         raceUnlock.RaceID = requirement.first;
         raceUnlock.HasExpansion = GetAccountExpansion() >= requirement.second.Expansion;
-        raceUnlock.HasAchievement = requirement.second.AchievementId == 0;                                       //Stitch Races Alliées Activées par défaut (by Galathil)
+        raceUnlock.HasAchievement = requirement.second.AchievementId == 0;                              //Stitch Races Alliées Activées par défaut (by Galathil)
         charEnum.RaceUnlockData.push_back(raceUnlock);
     }
 

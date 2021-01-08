@@ -560,11 +560,10 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
 
 
 
-    // Stitch vitesse de deplacement des creatures par type & famille
-    // UPDATE `creature_template` SET `speed_walk` = 1, `speed_run` = 1 WHERE `speed_walk` <1.5 AND `type` = 4 OR `type` = 5 OR `type` =  6 OR `type` =  9 OR `type` = 8 OR `type` = 12 OR `type` = 13 OR `type` = 14 OR `type` = 7 OR `type` = 10 OR `type` = 1;
+    //Stitch vitesse de deplacement des creatures par type & famille
     uint16 Crtype = GetCreatureTemplate()->type;
     uint16 Crfamily = GetCreatureTemplate()->family;
-    uint16 Crspeed = GetCreatureTemplate()->speed_walk;
+    float Crspeed = GetCreatureTemplate()->speed_walk;
 
     // TYPE
         //elementaire ,	Mort-vivant

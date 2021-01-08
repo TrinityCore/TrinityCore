@@ -1,5 +1,5 @@
 //###################################################################################################################################################################
-// Stitch Decembre 2020 - Player_Even_Action_handler - version 1.0 , wow 9.0.2.36949 
+//Stitch Decembre 2020 - Player_Even_Action_handler - version 1.0 , wow 9.0.2.36949 
 // Action (Apprentissage, ajout d'item,etc) suite a un événement Joueur (connexion,levelup,zone, création) suivant la classe ou la race
 //###################################################################################################################################################################
 

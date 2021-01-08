@@ -1,5 +1,5 @@
 //########################################################################################################################
-// Stitch Decembre 2020 - npc_level - version 1.0 , wow 9.0.2.36949 
+//Stitch Decembre 2020 - npc_level - version 1.0 , wow 9.0.2.36949 
 // PNJ 15000386 : Choix au level 1 : Lieux de depart chez une race allié avec réputation & equipements ou instant level 10
 //########################################################################################################################
 
@@ -407,7 +407,7 @@ public:
 
                 break;
 
-                //Stitch : Choix du lieu de depart
+                // Choix du lieu de depart
             case GOSSIP_ACTION_INFO_DEF + 7:
                 SetSkill_Death_Knight(player, _class);
 
@@ -578,5 +578,5 @@ public:
 };
 void AddSC_npc_levels()
 {
-	new npc_level();						//Stitch Choix du level et lieu de départ 
+	new npc_level();
 }

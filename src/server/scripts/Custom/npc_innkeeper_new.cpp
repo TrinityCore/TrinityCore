@@ -1,5 +1,5 @@
 //###################################################################################################################################################################
-// Stitch Decembre 2020 - npc_innkeeper_new - version 1.0 , wow 9.0.2.36949 
+//Stitch Decembre 2020 - npc_innkeeper_new - version 1.0 , wow 9.0.2.36949 
 // Remplace l'aubergiste bugué , donne une pierre de foyer
 // UPDATE `creature_template` SET `ScriptName` = 'npc_innkeeper_new' WHERE `subname` LIKE '%innkeeper%';
 //###################################################################################################################################################################
