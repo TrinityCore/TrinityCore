@@ -138,7 +138,7 @@ class TC_GAME_API Aura
         void UpdateOwner(uint32 diff, WorldObject* owner);
         void Update(uint32 diff, Unit* caster);
 
-        virtual void OnTargetHeartbeat(AuraApplication* aurApp) { }
+        virtual void OnTargetHeartbeat(AuraApplication* /*aurApp*/) { }
 
         time_t GetApplyTime() const { return m_applyTime; }
         int32 GetMaxDuration() const { return m_maxDuration; }
