@@ -19,6 +19,9 @@
 #define PartyPackets_h__
 
 #include "Packet.h"
+#include "ObjectGuid.h"
+
+class Player;
 
 namespace WorldPackets
 {
