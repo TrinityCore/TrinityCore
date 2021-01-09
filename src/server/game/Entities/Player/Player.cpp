@@ -5875,6 +5875,8 @@ ActionButton const* Player::GetActionButton(uint8 button)
 
 bool Player::UpdatePosition(float x, float y, float z, float orientation, bool teleport)
 {
+    uint32 oldWmoGroupId = GetWMOGroupId();
+
     if (!Unit::UpdatePosition(x, y, z, orientation, teleport))
         return false;
 
@@ -5893,9 +5895,16 @@ bool Player::UpdatePosition(float x, float y, float z, float orientation, bool t
         m_needsZoneUpdate = false;
     }
 
-    // group update
+    // Add group update flags
     if (GetGroup())
+    {
+        // Position has changed
         SetGroupUpdateFlag(GROUP_UPDATE_FLAG_POSITION);
+
+        // Player is no longer on a WMO that belongs to the same area
+        if (oldWmoGroupId != GetWMOGroupId())
+            SetGroupUpdateFlag(GROUP_UPDATE_FLAG_WMO_GROUP_ID);
+    }
 
     CheckAreaExploreAndOutdoor();
 

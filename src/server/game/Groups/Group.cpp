@@ -34,6 +34,7 @@
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
+#include "PartyPackets.h"
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "Random.h"
@@ -1812,15 +1813,15 @@ void Group::UpdatePlayerOutOfRange(Player* player)
     if (!player || !player->IsInWorld())
         return;
 
-    WorldPacket data;
-    player->GetSession()->BuildPartyMemberStatsChangedPacket(player, &data);
+    WorldPackets::Party::PartyMemberState packet;
+    packet.Initialize(player);
 
     Player* member;
     for (GroupReference* itr = GetFirstMember(); itr != nullptr; itr = itr->next())
     {
         member = itr->GetSource();
         if (member && member != player && (!member->IsInMap(player) || !member->IsWithinDist(player, member->GetSightRange(), false)))
-            member->SendDirectMessage(&data);
+            member->SendDirectMessage(packet.Write());
     }
 }
 

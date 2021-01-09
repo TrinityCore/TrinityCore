@@ -12435,6 +12435,10 @@ void Unit::OnPhaseChange()
 {
     if (!IsInWorld())
         return;
+
+    // Inform player groups that a member's phase has changed so the next PartyMemberState packet will update the phasing accordingly
+    if (IsPlayer() && ToPlayer()->GetGroup())
+        ToPlayer()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PHASE);
 }
 
 void Unit::UpdateObjectVisibility(bool forced)

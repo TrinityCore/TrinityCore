@@ -1155,7 +1155,7 @@ bool Object::PrintIndexError(uint32 index, bool set) const
 WorldObject::WorldObject(bool isWorldObject) : WorldLocation(), LastUsedScriptID(0),
 m_name(""), m_isActive(false), m_isFarVisible(false), m_isWorldObject(isWorldObject), m_zoneScript(nullptr),
 m_transport(nullptr), m_zoneId(0), m_areaId(0), m_staticFloorZ(VMAP_INVALID_HEIGHT), m_outdoors(true), m_liquidStatus(LIQUID_MAP_NO_WATER),
-m_currMap(nullptr), m_InstanceId(0), _dbPhase(0), m_notifyflags(0),
+m_wmoGroupID(0), m_currMap(nullptr), m_InstanceId(0), _dbPhase(0), m_notifyflags(0),
 m_aiAnimKitId(0), m_movementAnimKitId(0), m_meleeAnimKitId(0)
 {
     m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE | GHOST_VISIBILITY_GHOST);
@@ -1261,6 +1261,7 @@ void WorldObject::ProcessPositionDataChanged(PositionFullTerrainStatus const& da
     m_outdoors = data.outdoors;
     m_staticFloorZ = data.floorZ;
     m_liquidStatus = data.liquidStatus;
+    m_wmoGroupID = data.areaInfo.is_initialized() ? data.areaInfo->groupId : 0;
 }
 
 void WorldObject::AddToWorld()

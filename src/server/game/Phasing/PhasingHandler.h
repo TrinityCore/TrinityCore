@@ -27,6 +27,13 @@ class PhaseShift;
 class Player;
 class WorldObject;
 class WorldPacket;
+namespace WorldPackets
+{
+    namespace Party
+    {
+        struct PartyMemberPhaseStates;
+    }
+}
 
 class TC_GAME_API PhasingHandler
 {
@@ -48,7 +55,7 @@ public:
 
     static void SendToPlayer(Player const* player, PhaseShift const& phaseShift);
     static void SendToPlayer(Player const* player);
-    static void FillPartyMemberPhase(WorldPacket* data, PhaseShift const& phaseShift);
+    static void FillPartyMemberPhase(WorldPackets::Party::PartyMemberPhaseStates* partyMemberPhases, PhaseShift const& phaseShift);
 
     static PhaseShift const& GetEmptyPhaseShift();
     static void InitDbPhaseShift(PhaseShift& phaseShift, uint8 phaseUseFlags, uint16 phaseId, uint32 phaseGroupId);

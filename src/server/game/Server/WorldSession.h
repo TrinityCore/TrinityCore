@@ -546,8 +546,6 @@ class TC_GAME_API WorldSession
         void SendNotInArenaTeamPacket(uint8 type);
         void SendPetitionShowList(ObjectGuid guid);
 
-        void BuildPartyMemberStatsChangedPacket(Player* player, WorldPacket* data);
-
         void DoLootRelease(ObjectGuid lguid);
 
         // Account mute time

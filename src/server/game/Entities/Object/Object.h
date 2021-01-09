@@ -324,6 +324,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void GetZoneAndAreaId(uint32& zoneid, uint32& areaid) const { zoneid = m_zoneId, areaid = m_areaId; }
         bool IsOutdoors() const { return m_outdoors; }
         ZLiquidStatus GetLiquidStatus() const { return m_liquidStatus; }
+        uint32 GetWMOGroupId() const { return m_wmoGroupID; }
 
         InstanceScript* GetInstanceScript() const;
 
@@ -502,6 +503,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         float m_staticFloorZ;
         bool m_outdoors;
         ZLiquidStatus m_liquidStatus;
+        uint32 m_wmoGroupID;
 
         //these functions are used mostly for Relocate() and Corpse/Player specific stuff...
         //use them ONLY in LoadFromDB()/Create() funcs and nowhere else!

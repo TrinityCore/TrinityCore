@@ -24,6 +24,7 @@
 #include "Map.h"
 #include "MiscPackets.h"
 #include "ObjectMgr.h"
+#include "PartyPackets.h"
 #include "PhaseShift.h"
 #include "Player.h"
 #include "SpellAuraEffects.h"
@@ -416,12 +417,12 @@ void PhasingHandler::SendToPlayer(Player const* player)
     SendToPlayer(player, player->GetPhaseShift());
 }
 
-void PhasingHandler::FillPartyMemberPhase(WorldPacket* data, PhaseShift const& phaseShift)
+void PhasingHandler::FillPartyMemberPhase(WorldPackets::Party::PartyMemberPhaseStates* partyMemberPhases, PhaseShift const& phaseShift)
 {
-    *data << int32(phaseShift.Flags.AsUnderlyingType());
-    *data << int32(phaseShift.Phases.size());
-    for (auto itr = phaseShift.Phases.begin(); itr != phaseShift.Phases.end(); ++itr)
-        *data << int16(itr->Id);
+    partyMemberPhases->PhaseShiftFlags = phaseShift.Flags.AsUnderlyingType();
+    partyMemberPhases->List.reserve(phaseShift.Phases.size());
+    std::transform(phaseShift.Phases.begin(), phaseShift.Phases.end(), std::back_inserter(partyMemberPhases->List),
+        [](PhaseShift::PhaseRef const& phase) -> uint16 { return phase.Id; });
 }
 
 PhaseShift const& PhasingHandler::GetEmptyPhaseShift()
