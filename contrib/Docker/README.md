@@ -13,14 +13,15 @@ The instructions below expect basic knowledge about how to configure TrinityCore
     ```
 1. Copy the .conf files from TrinityCore GitHub repository to a local folder that will be passed as mapped volume to docker
 1. Set the MySQL host in the .conf files to use the unix socket of MySQL, i.e.: ```".;/var/run/mysqld/mysqld.sock;username;password;database```
-1. Start authserver or worldserver as desired
+1. Set the "DataDir" config in worldserver.conf to ```"/trinity/data"```
+1. Start authserver or worldserver as desired, mapping the required volumes
     - authserver
         ```
-        docker run --entrypoint=authserver --volume=/host/path/to/configs:/etc/TrinityCore --volume=/var/run/mysqld/mysqld.sock:/var/run/mysqld/mysqld.sock -p=3724:3724 "image name" --config /etc/TrinityCore/authserver.conf
+        docker run --entrypoint=authserver -it --volume=/host/path/to/configs:/etc/TrinityCore --volume=/var/run/mysqld/mysqld.sock:/var/run/mysqld/mysqld.sock -p=3724:3724 "image name" --config /etc/TrinityCore/authserver.conf
         ```
     - worldserver
         ```
-        docker run --entrypoint=worldserver --volume=/host/path/to/configs:/etc/TrinityCore--volume=/var/run/mysqld/mysqld.sock:/var/run/mysqld/mysqld.sock -p=8085:8085 "image name" --config /etc/TrinityCore/worldserver.conf
+        docker run --entrypoint=worldserver -it --volume=/host/path/to/configs:/etc/TrinityCore --volume=/var/run/mysqld/mysqld.sock:/var/run/mysqld/mysqld.sock --volume=/path/to/data/directory:/trinity/data -p=8085:8085 "image name" --config /etc/TrinityCore/worldserver.conf
         ```
     Change the ports and other parameters as needed. Consult Docker documentation for additional details about possible configuration settings.
 
