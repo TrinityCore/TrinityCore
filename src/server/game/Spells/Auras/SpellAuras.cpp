@@ -2764,8 +2764,8 @@ void UnitAura::CheckHeartbeatResist(AuraApplication* aurApp)
         return;
 
     target->RemoveAura(aurApp);
-    TC_LOG_DEBUG("spells.aura.heartbeatresist", "UnitAura::CheckHeartbeatResist: Creature [%s] has resisted aura %u casted by player [%s] on heartbeat with %u percent chance",
-        target->GetGUID().ToString(), m_spellInfo->Id, GetCasterGUID().ToString(), breakPct);
+    TC_LOG_DEBUG("spells", "UnitAura::CheckHeartbeatResist: Creature [%s] has resisted aura %u casted by player [%s] on heartbeat with %u percent chance.",
+        target->GetGUID().ToString().c_str(), m_spellInfo->Id, GetCasterGUID().ToString().c_str(), breakPct);
 }
 
 DynObjAura::DynObjAura(AuraCreateInfo const& createInfo)
