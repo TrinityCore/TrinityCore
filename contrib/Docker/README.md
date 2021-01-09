@@ -22,7 +22,22 @@ The instructions below expect basic knowledge about how to configure TrinityCore
         ```
         docker run --entrypoint=worldserver --volume=/host/path/to/configs:/etc/TrinityCore--volume=/var/run/mysqld/mysqld.sock:/var/run/mysqld/mysqld.sock -p=8085:8085 "image name" --config /etc/TrinityCore/worldserver.conf
         ```
-    Change the ports and other parameters as needed. Consult Docker documentation for additional details about possible configuration settings
+    Change the ports and other parameters as needed. Consult Docker documentation for additional details about possible configuration settings.
+
+## Content
+The image contains:
+- authserver
+- mapextractor
+- mmaps_generator
+- vmap4asembler
+- vmap4extractor
+- worldserver
+- README&#46;md
+
+You can explore the image using
+```
+docker run --entrypoint=/bin/bash -it "image name"
+```
 
 ## Limitations:
 - Database auto-updater: no instructions are given in this README to get the database auto-updater to work. Either apply the updates manually or investigate how to get it to work (most likely some additional --volume parameters should be passed)
