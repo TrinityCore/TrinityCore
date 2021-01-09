@@ -1,8 +1,11 @@
 FROM trinitycore/circle-ci:3.3.5-buildpacks-focal
 
 #Setup
-COPY worldserver /usr/local/bin/
 COPY authserver /usr/local/bin/
-ENTRYPOINT [ "worldserver" ]
-#docker run "image name" --entrypoint=authserver --config authserver.conf
-#docker run "image name" --entrypoint=worldserver --config worldserver.conf
+COPY mapextractor /usr/local/bin/
+COPY mmaps_generator /usr/local/bin/
+COPY vmap4asembler /usr/local/bin/
+COPY vmap4extractor /usr/local/bin/
+COPY worldserver /usr/local/bin/
+COPY README.md /
+ENTRYPOINT [ "echo Check the README.md file for instructions"]
