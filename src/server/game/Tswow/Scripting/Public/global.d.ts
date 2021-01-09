@@ -751,7 +751,7 @@ declare class TSUnit extends TSWorldObject {
     GetCreatorGUID() : uint64
     GetCharmerGUID() : uint64
     GetCharmGUID() : uint64
-    GetPetGUID() : uint64
+    GetPetGUID(index?: number) : uint64
     GetControllerGUID() : uint64
     GetControllerGUIDS() : uint64
     GetStat(stat : uint32) : float
