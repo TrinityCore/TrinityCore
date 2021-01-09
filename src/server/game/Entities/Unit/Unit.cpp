@@ -557,8 +557,12 @@ void Unit::Heartbeat(uint32 p_time)
 
     SendFlightSplineSyncIfNeeded();
 
-    for (AuraApplicationMap::iterator iter = m_appliedAuras.begin(); iter != m_appliedAuras.end(); ++iter)
-        iter->second->GetBase()->OnTargetHeartbeat(iter->second);
+    for (AuraApplicationMap::iterator iter = m_appliedAuras.begin(); iter != m_appliedAuras.end();)
+    {
+        AuraApplication* aurApp = iter->second;
+        ++iter;
+        aurApp->GetBase()->OnTargetHeartbeat(aurApp);
+    }
 
     Unit::ProcSkillsAndAuras(this, nullptr, PROC_FLAG_HEARTBEAT, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
 }

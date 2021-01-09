@@ -2733,11 +2733,39 @@ void UnitAura::AddStaticApplication(Unit* target, uint8 effMask)
 
 void UnitAura::OnTargetHeartbeat(AuraApplication* aurApp)
 {
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (AuraEffect* aurEff = m_effects[i])
-            aurEff->OnTargetHeartbeat(aurApp);
-
+    DoForAllEffects([aurApp](AuraEffect* aurEff) -> void { aurEff->OnTargetHeartbeat(aurApp); });
     CallScriptTargetHeartbeatHandlers(aurApp);
+    CheckHeartbeatResist(aurApp);
+}
+
+void UnitAura::CheckHeartbeatResist(AuraApplication* aurApp)
+{
+    if (!m_spellInfo->HasAttribute(SPELL_ATTR0_HEARTBEAT_RESIST_CHECK))
+        return;
+
+    if (GetCasterGUID().GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    Unit* target = aurApp->GetTarget();
+    if (!target->IsCreature())
+        return;
+
+    int64 maxDuration       = m_maxDuration / IN_MILLISECONDS;
+    int64 durationPassed    = (m_maxDuration - m_duration) / IN_MILLISECONDS;
+    uint32 resistance       = target->GetResistance(GetFirstSchoolInMask(m_spellInfo->GetSchoolMask()));
+    uint32 breakPct         = 0;
+
+    if (m_spellInfo->GetSchoolMask() == SPELL_SCHOOL_MASK_NORMAL)
+        breakPct = 100 * (durationPassed * durationPassed) / (maxDuration * maxDuration);
+    else
+        breakPct = 5 + (uint32)floor(100 * (resistance / powf(target->GetLevel(), 1.441f) * 0.10));
+
+    if (!roll_chance_i(breakPct))
+        return;
+
+    target->RemoveAura(aurApp);
+    TC_LOG_DEBUG("spells.aura.heartbeatresist", "UnitAura::CheckHeartbeatResist: Creature [%s] has resisted aura %u casted by player [%s] on heartbeat with %u percent chance",
+        target->GetGUID().ToString(), m_spellInfo->Id, GetCasterGUID().ToString(), breakPct);
 }
 
 DynObjAura::DynObjAura(AuraCreateInfo const& createInfo)

@@ -203,6 +203,7 @@ class TC_GAME_API Aura
         uint8 GetEffectMask() const { uint8 effMask = 0; for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i) if (m_effects[i]) effMask |= 1<<i; return effMask; }
         void RecalculateAmountOfEffects();
         void HandleAllEffects(AuraApplication * aurApp, uint8 mode, bool apply);
+        void DoForAllEffects(std::function<void(AuraEffect*)> const& worker) { for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i) if (m_effects[i]) worker(m_effects[i]); }
 
         // Helpers for targets
         ApplicationMap const& GetApplicationMap() { return m_applications; }
@@ -327,6 +328,7 @@ class TC_GAME_API UnitAura : public Aura
         void AddStaticApplication(Unit* target, uint8 effMask);
 
         void OnTargetHeartbeat(AuraApplication* aurApp) override;
+        void CheckHeartbeatResist(AuraApplication* aurApp);
 
     private:
         DiminishingGroup m_AuraDRGroup;               // Diminishing
