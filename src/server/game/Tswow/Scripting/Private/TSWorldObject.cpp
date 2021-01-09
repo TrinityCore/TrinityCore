@@ -31,6 +31,8 @@
 #include "CellImpl.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
+#include "ObjectGuid.h"
+#include "TSCorpse.h"
 
 TSWorldObject::TSWorldObject(WorldObject *obj) : TSObject(obj)
 {
@@ -883,4 +885,29 @@ TSCreature TSWorldObject::GetNearestCreature(float range, uint32 entry, uint32 h
     Trinity::UnitLastSearcher<WorldObjectInRangeCheck> searcher(obj, target, checker);
     Cell::VisitAllObjects(obj, searcher, range);
     return target ? TSCreature(target->ToCreature()) : TSCreature(nullptr);
+}
+
+TSGameObject TSWorldObject::GetGameObject(uint64 guid)
+{
+    return TSGameObject(ObjectAccessor::GetGameObject(*obj,ObjectGuid(guid)));
+}
+
+TSCorpse TSWorldObject::GetCorpse(uint64 guid)
+{
+    return TSCorpse(ObjectAccessor::GetCorpse(*obj,ObjectGuid(guid)));
+}
+
+TSUnit TSWorldObject::GetUnit(uint64 guid)
+{
+    return TSUnit(ObjectAccessor::GetUnit(*obj,ObjectGuid(guid)));
+}
+
+TSCreature TSWorldObject::GetCreature(uint64 guid)
+{
+    return TSCreature(ObjectAccessor::GetCreature(*obj,ObjectGuid(guid)));
+}
+
+TSPlayer TSWorldObject::GetPlayer(uint64 guid)
+{
+    return TSPlayer(ObjectAccessor::GetPlayer(*obj,ObjectGuid(guid)));
 }

@@ -655,10 +655,10 @@ uint64 TSUnit::GetCharmGUID()
  *
  * @return uint64 petGUID
  */
-uint64 TSUnit::GetPetGUID() 
+uint64 TSUnit::GetPetGUID(uint32 summonSlot) 
 {
 #if defined TRINITY || AZEROTHCORE
-    return unit->GetPetGUID();
+    return unit->m_SummonSlot[summonSlot];
 #else
     return unit->GetPetGuid();
 #endif

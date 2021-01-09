@@ -658,6 +658,12 @@ declare class TSWorldObject extends TSObject {
     PlayMusic(musicid : uint32,player : TSPlayer) : void
     PlayDirectSound(soundId : uint32,player : TSPlayer) : void
     PlayDistanceSound(soundId : uint32,player : TSPlayer) : void    
+
+    GetGameObject(guid: uint64): TSGameObject
+    GetCorpse(guid: uint64): TSCorpse
+    GetUnit(guid: uint64): TSUnit
+    GetCreature(guid: uint64): TSCreature
+    GetPlayer(guid: uint64): TSPlayer
 }
 
 declare class TSObject {

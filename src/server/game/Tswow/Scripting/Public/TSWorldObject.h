@@ -76,4 +76,10 @@ public:
     bool IsWithinDist2d(float x, float y, float dist);
     bool IsInRange2d(float x, float y, float minrange, float maxrange);
     bool IsInRange3d(float x, float y, float z, float minrange, float maxrange);
+
+    TSGameObject GetGameObject(uint64 guid);
+    TSCorpse GetCorpse(uint64 guid);
+    TSUnit GetUnit(uint64 guid);
+    TSCreature GetCreature(uint64 guid);
+    TSPlayer GetPlayer(uint64 guid);
 };
