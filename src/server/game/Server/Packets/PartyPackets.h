@@ -20,6 +20,7 @@
 
 #include "Packet.h"
 #include "ObjectGuid.h"
+#include "OptionalFwd.h"
 
 class Player;
 
