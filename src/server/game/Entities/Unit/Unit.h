@@ -40,7 +40,7 @@
 #define MAX_AGGRO_RESET_TIME 10 // in seconds
 #define MAX_AGGRO_RADIUS 45.0f  // yards
 
-#define SECONDS_PER_HEARTBEAT 5
+static Seconds const SECONDS_PER_HEARTBEAT = 5s;
 
 enum VictimState
 {

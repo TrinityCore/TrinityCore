@@ -385,7 +385,7 @@ Unit::Unit(bool isWorldObject) :
     _instantCast = false;
     _isIgnoringCombat = false;
 
-    m_heartBeatTimer.Reset(SECONDS_PER_HEARTBEAT * IN_MILLISECONDS);
+    m_heartBeatTimer.Reset(SECONDS_PER_HEARTBEAT);
 }
 
 ////////////////////////////////////////////////////////////
@@ -551,7 +551,7 @@ void Unit::Heartbeat(uint32 p_time)
 {
     m_heartBeatTimer.Update(p_time);
     if (m_heartBeatTimer.Passed())
-        m_heartBeatTimer.Reset(SECONDS_PER_HEARTBEAT * IN_MILLISECONDS);
+        m_heartBeatTimer.Reset(SECONDS_PER_HEARTBEAT);
     else
         return;
 
