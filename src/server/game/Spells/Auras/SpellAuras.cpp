@@ -2733,15 +2733,6 @@ void UnitAura::AddStaticApplication(Unit* target, uint8 effMask)
 
 void UnitAura::OnTargetHeartbeat(AuraApplication* aurApp)
 {
-    // Eat/Drinking heartbeat animation; Need to find a way to move this in spell script
-    {
-        SpellSpecificType specific = GetSpellInfo()->GetSpellSpecific();
-        if (specific == SPELL_SPECIFIC_FOOD || specific == SPELL_SPECIFIC_FOOD_AND_DRINK)
-            aurApp->GetTarget()->SendPlaySpellVisual(SPELL_VISUAL_KIT_FOOD);
-        else if (specific == SPELL_SPECIFIC_DRINK)
-            aurApp->GetTarget()->SendPlaySpellVisual(SPELL_VISUAL_KIT_DRINK);
-    }
-
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         if (AuraEffect* aurEff = m_effects[i])
             aurEff->OnTargetHeartbeat(aurApp);

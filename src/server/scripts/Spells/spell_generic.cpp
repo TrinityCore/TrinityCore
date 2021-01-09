@@ -4319,6 +4319,27 @@ class spell_gen_cannon_blast : public SpellScript
     }
 };
 
+class spell_gen_food_or_drink : public AuraScript
+{
+    PrepareAuraScript(spell_gen_food_or_drink);
+
+public:
+    spell_gen_food_or_drink(bool isFood) : AuraScript(), _isFood(isFood) { }
+
+    void HandleTargetHeartbeat()
+    {
+        GetTarget()->SendPlaySpellVisual(_isFood ? SPELL_VISUAL_KIT_FOOD : SPELL_VISUAL_KIT_DRINK);
+    }
+
+    void Register() override
+    {
+        OnTargetHeartbeat += AuraTargetHeartbeatFn(spell_gen_food_or_drink::HandleTargetHeartbeat);
+    }
+
+private:
+    bool _isFood;
+};
+
 void AddSC_generic_spell_scripts()
 {
     RegisterSpellScript(spell_gen_absorb0_hitlimit1);
@@ -4451,4 +4472,6 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_freezing_circle);
     RegisterSpellScript(spell_gen_charmed_unit_spell_cooldown);
     RegisterSpellScript(spell_gen_cannon_blast);
+    RegisterSpellScriptWithArgs(spell_gen_food_or_drink, "spell_gen_food", true);
+    RegisterSpellScriptWithArgs(spell_gen_food_or_drink, "spell_gen_drink", false);
 }
