@@ -2797,16 +2797,16 @@ void TSPlayer::SetXP(uint32 xp)
     player->SetXP(newXP);
 }
 
-void TSPlayer::AddXP(uint32 xp)
-{
-    SetXP(GetXP()+xp);
-}
-
 uint32 TSPlayer::GetXP()
 {
     return player->GetXP();
 }
-    
+
+void TSPlayer::AddXP(uint32 xp)
+{
+    this->SetXP(this->GetXP()+xp);
+}
+
 /**
  * Toggle the [Player]s 'Do Not Disturb' flag
  */

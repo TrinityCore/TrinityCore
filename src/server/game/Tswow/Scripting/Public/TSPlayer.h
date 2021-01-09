@@ -214,7 +214,7 @@ public:
 	void GiveXP(uint32 xp, TSUnit victim);
 	void SetXP(uint32 xp);
 	uint32 GetXP();
-	void AddXP();
+	void AddXP(uint32 xp);
 	void ToggleDND();
 	void ToggleAFK();
 	TSItem EquipItem(TSItem item, uint32 slot, uint32 entry);
