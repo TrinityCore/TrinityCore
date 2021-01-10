@@ -18923,6 +18923,20 @@ InstancePlayerBind* Player::GetBoundInstance(uint32 mapid, Difficulty difficulty
     return nullptr;
 }
 
+InstancePlayerBind const* Player::GetBoundInstance(uint32 mapid, Difficulty difficulty, bool withExpired) const
+{
+    // some instances only have one difficulty
+    MapDifficulty const* mapDiff = sDBCManager.GetDownscaledMapDifficultyData(mapid, difficulty);
+    if (!mapDiff)
+        return nullptr;
+
+    BoundInstancesMap::const_iterator itr = m_boundInstances[difficulty].find(mapid);
+    if (itr != m_boundInstances[difficulty].end())
+        if (itr->second.extendState || withExpired)
+            return &itr->second;
+    return nullptr;
+}
+
 InstanceSave* Player::GetInstanceSave(uint32 mapid, bool raid)
 {
     InstancePlayerBind* pBind = GetBoundInstance(mapid, GetDifficulty(raid));
@@ -23520,11 +23534,11 @@ void Player::SendUpdateToOutOfRangeGroupMembers()
 
 void Player::SendTransferAborted(uint32 mapid, TransferAbortReason reason, uint8 arg) const
 {
-    WorldPacket data(SMSG_TRANSFER_ABORTED, 4+2);
-    data << uint32(mapid);
-    data << uint8(reason); // transfer abort reason
-    data << uint8(arg);
-    SendDirectMessage(&data);
+    WorldPackets::Movement::TransferAborted packet;
+    packet.MapID = mapid;
+    packet.TransfertAbort = reason; // transfer abort reason
+    packet.Arg = arg;
+    SendDirectMessage(packet.Write());
 }
 
 void Player::SendInstanceResetWarning(uint32 mapid, Difficulty difficulty, uint32 time, bool welcome) const
@@ -23542,17 +23556,17 @@ void Player::SendInstanceResetWarning(uint32 mapid, Difficulty difficulty, uint3
     else
         type = RAID_INSTANCE_WARNING_MIN_SOON;
 
-    WorldPacket data(SMSG_RAID_INSTANCE_MESSAGE, 4+4+4+4);
-    data << uint32(type);
-    data << uint32(mapid);
-    data << uint32(difficulty);                             // difficulty
-    data << uint32(time);
-    if (type == RAID_INSTANCE_WELCOME)
-    {
-        data << uint8(0);                                   // is locked
-        data << uint8(0);                                   // is extended, ignored if prev field is 0
-    }
-    SendDirectMessage(&data);
+    WorldPackets::Instance::RaidInstanceMessage raidInstanceMessage;
+    raidInstanceMessage.Type = type;
+    raidInstanceMessage.MapID = mapid;
+    raidInstanceMessage.Difficulty = difficulty;
+    raidInstanceMessage.TimeLeft = time;
+    if (InstancePlayerBind const* bind = GetBoundInstance(mapid, difficulty))
+        raidInstanceMessage.Locked = bind->perm;
+    else
+        raidInstanceMessage.Locked = false;
+    raidInstanceMessage.Extended = false;
+    SendDirectMessage(raidInstanceMessage.Write());
 }
 
 void Player::ApplyEquipCooldown(Item* pItem)

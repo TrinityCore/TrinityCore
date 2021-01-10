@@ -483,6 +483,15 @@ WorldPacket const* WorldPackets::Movement::FlightSplineSync::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Movement::TransferAborted::Write()
+{
+    _worldPacket << uint32(MapID);
+    _worldPacket << uint8(TransfertAbort);
+    _worldPacket << uint8(Arg);
+
+    return &_worldPacket;
+}
+
 ByteBuffer& WorldPackets::operator<<(ByteBuffer& data, Movement::MovementSpline const& movementSpline)
 {
     data << int8(movementSpline.Face);

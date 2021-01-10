@@ -236,6 +236,18 @@ namespace WorldPackets
             ObjectGuid Guid;
             float SplineDist = 0.0f;
         };
+
+        class TransferAborted final : public ServerPacket
+        {
+        public:
+            TransferAborted() : ServerPacket(SMSG_TRANSFER_ABORTED, 4 + 1 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 MapID = 0;
+            uint8 TransfertAbort;
+            uint8 Arg = 0;
+        };
     }
 
     ByteBuffer& operator<<(ByteBuffer& data, Movement::MovementSpline const& movementSpline);

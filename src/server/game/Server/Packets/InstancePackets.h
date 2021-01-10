@@ -67,6 +67,44 @@ namespace WorldPackets
 
             std::vector<InstanceLock> LockList;
         };
+
+        class RaidInstanceMessage final : public ServerPacket
+        {
+        public:
+            RaidInstanceMessage() : ServerPacket(SMSG_RAID_INSTANCE_MESSAGE, 1 + 4 + 4 + 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            bool Locked = false;
+            bool Extended = false;
+            uint8 Type = 0;
+            uint32 MapID = 0;
+            uint32 Difficulty = 0;
+            int32 TimeLeft = 0;
+        };
+
+        class PendingRaidLock final : public ServerPacket
+        {
+        public:
+            PendingRaidLock() : ServerPacket(SMSG_PENDING_RAID_LOCK, 4 + 4 + 1 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            int32 TimeUntilLock = 0;
+            uint32 CompletedMask = 0;
+            bool Extending = false;
+            bool WarningOnly = false;
+        };
+
+        class InstanceSaveCreated final : public ServerPacket
+        {
+        public:
+            InstanceSaveCreated() : ServerPacket(SMSG_INSTANCE_SAVE_CREATED, 4) { }
+
+            WorldPacket const* Write() override;
+
+            bool Gm = false;
+        };
     }
 }
 

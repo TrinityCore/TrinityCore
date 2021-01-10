@@ -16,6 +16,7 @@
  */
 
 #include "InstancePackets.h"
+#include "Player.h"
 
 WorldPacket const* WorldPackets::Instance::UpdateLastInstance::Write()
 {
@@ -51,6 +52,39 @@ WorldPacket const* WorldPackets::Instance::InstanceInfo::Write()
 
     for (InstanceLock const& instanceLock : LockList)
         _worldPacket << instanceLock;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Instance::RaidInstanceMessage::Write()
+{
+    _worldPacket << int32(Type);
+    _worldPacket << int32(MapID);
+    _worldPacket << int32(Difficulty);
+    _worldPacket << int32(TimeLeft);
+
+    if (Type == RAID_INSTANCE_WELCOME)
+    {
+        _worldPacket << bool(Extended);
+        _worldPacket << bool(Locked);
+    }
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Instance::PendingRaidLock::Write()
+{
+    _worldPacket << int32(TimeUntilLock);
+    _worldPacket << uint32(CompletedMask);
+    _worldPacket << bool(Extending);
+    _worldPacket << bool(WarningOnly);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Instance::InstanceSaveCreated::Write()
+{
+    _worldPacket << uint32(Gm);
 
     return &_worldPacket;
 }

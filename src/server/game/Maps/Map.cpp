@@ -28,6 +28,7 @@
 #include "GridStates.h"
 #include "Group.h"
 #include "InstanceScript.h"
+#include "InstancePackets.h"
 #include "Log.h"
 #include "MapInstanced.h"
 #include "MapManager.h"
@@ -3965,12 +3966,12 @@ bool InstanceMap::AddPlayerToMap(Player* player)
                         // players also become permanently bound when they enter
                         if (groupBind->perm)
                         {
-                            WorldPacket data(SMSG_INSTANCE_LOCK_WARNING_QUERY, 10);
-                            data << uint32(60000);
-                            data << uint32(i_data ? i_data->GetCompletedEncounterMask() : 0);
-                            data << uint8(0);
-                            data << uint8(0); // events it throws:  1 : INSTANCE_LOCK_WARNING   0 : INSTANCE_LOCK_STOP / INSTANCE_LOCK_START
-                            player->SendDirectMessage(&data);
+                            WorldPackets::Instance::PendingRaidLock pendingRaidLock;
+                            pendingRaidLock.TimeUntilLock = 60000;
+                            pendingRaidLock.CompletedMask = i_data ? i_data->GetCompletedEncounterMask() : 0;
+                            pendingRaidLock.Extending = false;
+                            pendingRaidLock.WarningOnly = false; // events it throws:  1 : INSTANCE_LOCK_WARNING   0 : INSTANCE_LOCK_STOP / INSTANCE_LOCK_START
+                            player->SendDirectMessage(pendingRaidLock.Write());
                             player->SetPendingBind(mapSave->GetInstanceId(), 60000);
                         }
                     }
@@ -4162,9 +4163,9 @@ void InstanceMap::PermBindAllPlayers()
         else
         {
             player->BindToInstance(save, true);
-            WorldPacket data(SMSG_INSTANCE_SAVE_CREATED, 4);
-            data << uint32(0);
-            player->SendDirectMessage(&data);
+            WorldPackets::Instance::InstanceSaveCreated data;
+            data.Gm = player->IsGameMaster();
+            player->SendDirectMessage(data.Write());
             player->GetSession()->SendCalendarRaidLockout(save, true);
 
             // if group leader is in instance, group also gets bound
