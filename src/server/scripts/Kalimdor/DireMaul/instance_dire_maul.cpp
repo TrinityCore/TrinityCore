@@ -267,7 +267,6 @@ public:
         }
 
 protected:
-        InstanceScript* _instance;
         EventMap _events;
         std::array<ObjectGuid, 5> _crystalGUIDs;
         std::array<std::array<ObjectGuid, 4>, 5> _crystalCreatureGUIDs; // 5 different Crystals, maximum of 4 Creatures
