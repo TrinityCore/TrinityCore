@@ -18,7 +18,6 @@
 #include "ScriptMgr.h"
 #include "Creature.h"
 #include "InstanceScript.h"
-#include "Map.h"
 #include "the_botanica.h"
 
 class instance_the_botanica : public InstanceMapScript
@@ -28,7 +27,7 @@ class instance_the_botanica : public InstanceMapScript
 
         struct instance_the_botanica_InstanceMapScript : public InstanceScript
         {
-            instance_the_botanica_InstanceMapScript(Map* map) : InstanceScript(map)
+            instance_the_botanica_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
             }
