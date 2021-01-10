@@ -202,9 +202,8 @@ public:
         {
             for (uint8 i = 0; i < _crystalGUIDs.size(); ++i)
             {
-                GameObject* go = nullptr;
                 bool _mobAlive = false;
-                go = instance->GetGameObject(_crystalGUIDs[i]);
+                GameObject* go = instance->GetGameObject(_crystalGUIDs[i]);
                 if (!go)
                     continue;
 
@@ -212,10 +211,12 @@ public:
                 {
                     for (uint8 j = 0; j < _crystalCreatureGUIDs[i].size(); ++j)
                     {
-                        Creature* mob = nullptr;
-                        mob = instance->GetCreature(_crystalCreatureGUIDs[i][j]);
+                        Creature* mob = instance->GetCreature(_crystalCreatureGUIDs[i][j]);
                         if (mob && mob->IsAlive())
+                        {
                             _mobAlive = true;
+                            break;
+                        }
                     }
                 }
 
