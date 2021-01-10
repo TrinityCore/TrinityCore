@@ -4902,6 +4902,17 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Attributes |= SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY;
     });
 
+    ApplySpellFix({
+        31365,  // Self Fear
+        31797,  // Banish Self
+        32974,  // Cinematic - Mind Control (Rank 1)
+        32976,  // Cinematic - Mind Control (Rank 1)
+        38456   // Banish Self
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Attributes &= ~SPELL_ATTR0_HEARTBEAT_RESIST_CHECK;
+    });
+
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {
         SpellInfo* spellInfo = mSpellInfoMap[i];
