@@ -7,10 +7,12 @@
 #include "ScriptedGossip.h"
 #include "ScriptedCreature.h"
 #include "CreatureAIImpl.h"
+#include "SpellMgr.h"
 #include "MotionMaster.h"
 #include "Group.h"
 #include "DatabaseEnv.h"
 #include "Mail.h"
+#include "Custom/AI/CustomAI.h"
 
 enum NPCs
 {
@@ -32,16 +34,22 @@ enum NPCs
 
 enum Spells
 {
-	SPELL_SIMPLE_TELEPORT   = 100032,
-	SPELL_TELEPORT          = 51347,
-	SPELL_TELEPORT_EFFECT   = 70525,
-	SPELL_TELEPORT_ANIM     = 70527,
-	SPELL_REMEMBER_SHADOW   = 100042,
-	SPELL_REMEMBER_SUMMON   = 23017,
-	SPELL_ALPHA_75_PCT      = 44822,
-	SPELL_SPOT_SCALED       = 50236,
-	SPELL_MAGIC_TRACKS      = 100049,
-	SPELL_DETECT_MAGIC      = 100045
+	SPELL_SIMPLE_TELEPORT       = 100032,
+	SPELL_TELEPORT              = 51347,
+	SPELL_TELEPORT_EFFECT       = 70525,
+	SPELL_TELEPORT_ANIM         = 70527,
+	SPELL_REMEMBER_SHADOW       = 100042,
+	SPELL_REMEMBER_SUMMON       = 23017,
+	SPELL_ALPHA_75_PCT          = 44822,
+	SPELL_SPOT_SCALED           = 50236,
+	SPELL_MAGIC_TRACKS          = 100049,
+	SPELL_DETECT_MAGIC          = 100045,
+
+    SPELL_FLASH_HEAL            = 100015,
+    SPELL_SMITE                 = 100016,
+    SPELL_POWER_WORD_SHIELD     = 100017,
+    SPELL_HOLY_FIRE             = 100018,
+    SPELL_PW_PAIN               = 100103
 };
 
 enum Misc
@@ -1039,21 +1047,65 @@ class dalaran_jaina_anduin : public CreatureScript
 
 class dalaran_anduin_wrynn : public CreatureScript
 {
-public:
-dalaran_anduin_wrynn() : CreatureScript("dalaran_anduin_wrynn")
-{
-}
+    public:
+    dalaran_anduin_wrynn() : CreatureScript("dalaran_anduin_wrynn") { }
 
-struct dalaran_anduin_wrynnAI : public ScriptedAI
+struct dalaran_anduin_wrynnAI : public CustomAI
 {
-    dalaran_anduin_wrynnAI(Creature* creature) : ScriptedAI(creature)
+    dalaran_anduin_wrynnAI(Creature* creature) : CustomAI(creature)
     {
-        Initialize();
+        wordOfPowerPain = sSpellMgr->AssertSpellInfo(SPELL_PW_PAIN);
     }
 
-    void Initialize()
+    void JustEngagedWith(Unit* who)
     {
+        scheduler
+            .Schedule(5ms, [this](TaskContext heal)
+            {
+                if (Unit* target = DoSelectBelowHpPctFriendly(30.0f, 50, false))
+                {
+                    CastSpellExtraArgs args;
+                    args.AddSpellBP0(18000);
 
+                    me->InterruptNonMeleeSpells(true);
+                    DoCast(target, SPELL_FLASH_HEAL, args);
+                    heal.Repeat(4s);
+                }
+                else
+                {
+                    heal.Repeat(1s);
+                }
+            })
+            .Schedule(5ms, [this](TaskContext power_word_shield)
+            {
+                if (!me->HasAura(SPELL_POWER_WORD_SHIELD))
+                {
+                    me->InterruptNonMeleeSpells(true);
+                    DoCastSelf(SPELL_POWER_WORD_SHIELD);
+                    power_word_shield.Repeat(1min);
+                }
+                else
+                {
+                    power_word_shield.Repeat(5ms);
+                }
+            })
+            .Schedule(5ms, [this](TaskContext word_power_pain)
+            {
+                if (Unit* target = DoFindEnemyMissingDot(50.0f, wordOfPowerPain))
+                    DoCast(target, SPELL_PW_PAIN);
+                word_power_pain.Repeat(1s);
+            })
+            .Schedule(5ms, [this](TaskContext smite)
+            {
+                DoCastVictim(SPELL_SMITE);
+                smite.Repeat(5s);
+            })
+            .Schedule(8s, [this](TaskContext holy_fire)
+            {
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                    DoCast(target, SPELL_HOLY_FIRE);
+                holy_fire.Repeat(10s, 15s);
+            });
     }
 
     void OnQuestAccept(Player* player, Quest const* quest) override
@@ -1081,18 +1133,8 @@ struct dalaran_anduin_wrynnAI : public ScriptedAI
         }
     }
 
-    void Reset() override
-    {
-        Initialize();
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        if (!UpdateVictim())
-            return;
-
-        DoMeleeAttackIfReady();
-    }
+    private:
+    const SpellInfo* wordOfPowerPain;
 
     void SendMailToPlayer(Player* player) const
     {
