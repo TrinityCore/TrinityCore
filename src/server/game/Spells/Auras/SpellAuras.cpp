@@ -2740,6 +2740,9 @@ void UnitAura::OnTargetHeartbeat(AuraApplication* aurApp)
 
 void UnitAura::CheckHeartbeatResist(AuraApplication* aurApp)
 {
+    if (!sWorld->getBoolConfig(CONFIG_HEARTBEAT_RESIST_ENABLED))
+        return;
+
     if (!m_spellInfo->HasAttribute(SPELL_ATTR0_HEARTBEAT_RESIST_CHECK))
         return;
 
