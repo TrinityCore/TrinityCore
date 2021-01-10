@@ -475,7 +475,12 @@ void Unit::Update(uint32 p_time)
         UpdateCharmAI();
     RefreshAI();
 
-    Heartbeat(p_time);
+    m_heartBeatTimer.Update(p_time);
+    if (m_heartBeatTimer.Passed())
+    {
+        m_heartBeatTimer.Reset(SECONDS_PER_HEARTBEAT);
+        Heartbeat();
+    }
 }
 
 bool Unit::haveOffhandWeapon() const
@@ -547,18 +552,9 @@ void Unit::InterruptMovementBasedAuras()
         RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOVE);
 }
 
-void Unit::Heartbeat(uint32 p_time)
+void Unit::Heartbeat()
 {
-    m_heartBeatTimer.Update(p_time);
-    if (m_heartBeatTimer.Passed())
-        m_heartBeatTimer.Reset(SECONDS_PER_HEARTBEAT);
-    else
-        return;
-
     SendFlightSplineSyncIfNeeded();
-
-    if (Player* player = ToPlayer())
-        player->SendUpdateToOutOfRangeGroupMembers();
 
     for (AuraApplicationMap::iterator iter = m_appliedAuras.begin(); iter != m_appliedAuras.end();)
     {

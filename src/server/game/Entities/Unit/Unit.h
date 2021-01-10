@@ -1785,15 +1785,14 @@ class TC_GAME_API Unit : public WorldObject
         virtual void AtEngage(Unit* /*target*/) {}
         virtual void AtDisengage() {}
 
+        virtual void Heartbeat();
+
     private:
 
         void UpdateSplineMovement(uint32 t_diff);
         void UpdateSplinePosition();
-        void InterruptMovementBasedAuras();
-
-        // Internal unit timer. Based on research retail server behavior.
-        void Heartbeat(uint32 p_time);
         void SendFlightSplineSyncIfNeeded();
+        void InterruptMovementBasedAuras();
 
         // player or player's pet
         float GetCombatRatingReduction(CombatRating cr) const;

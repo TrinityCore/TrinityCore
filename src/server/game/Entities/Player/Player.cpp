@@ -19117,6 +19117,12 @@ bool Player::IsInstanceLoginGameMasterException() const
         return false;
 }
 
+void Player::Heartbeat()
+{
+    Unit::Heartbeat();
+    SendUpdateToOutOfRangeGroupMembers();
+}
+
 bool Player::CheckInstanceValidity(bool /*isLogin*/)
 {
     // game masters' instances are always valid
