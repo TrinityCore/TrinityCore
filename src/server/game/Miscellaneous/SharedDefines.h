@@ -4337,6 +4337,16 @@ enum class PursuingType : uint8
     Max         = 3
 };
 
+
+enum RaidGroupReason
+{
+    RAID_GROUP_ERR_NONE                 = 0,
+    RAID_GROUP_ERR_LOWLEVEL             = 1, // "You are too low level to enter this instance."
+    RAID_GROUP_ERR_ONLY                 = 2, // "You must be in a raid group to enter this instance."
+    RAID_GROUP_ERR_FULL                 = 3, // "The instance is full."
+    RAID_GROUP_ERR_REQUIREMENTS_UNMATCH = 4  // "You do not meet the requirements to enter this instance."
+};
+
 #define MAX_CREATURE_SPELL_DATA_SLOT 4
 
 #endif

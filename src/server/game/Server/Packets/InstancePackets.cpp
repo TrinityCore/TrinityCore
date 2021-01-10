@@ -88,3 +88,11 @@ WorldPacket const* WorldPackets::Instance::InstanceSaveCreated::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Instance::RaidGroupOnly::Write()
+{
+    _worldPacket << int32(Delay);
+    _worldPacket << uint32(Reason);
+
+    return &_worldPacket;
+}

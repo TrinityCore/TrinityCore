@@ -1614,6 +1614,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetReputation(uint32 factionentry) const;
         std::string GetGuildName() const;
         void SendSpellCategoryCooldowns() const;
+        void SendRaidGroupOnlyMessage(RaidGroupReason reason, int32 delay) const;
 
         // Talents
         uint32 GetFreeTalentPoints() const { return _talentMgr->FreeTalentPoints; }

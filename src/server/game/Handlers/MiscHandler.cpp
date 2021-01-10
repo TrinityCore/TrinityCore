@@ -474,14 +474,14 @@ void WorldSession::HandleRequestCemeteryList(WorldPacket& /*recvPacket*/)
         return;
     }
 
-    WorldPacket data(SMSG_REQUEST_CEMETERY_LIST_RESPONSE, 4 + 4 * graveyardIds.size());
-    data.WriteBit(0); // Is MicroDungeon (WorldMapFrame.lua)
+    WorldPackets::Misc::RequestCemeteryListResponse packet;
+    packet.IsGossipTriggered = false;
+    packet.CemeteryID.reserve(graveyardIds.size());
 
-    data.WriteBits(graveyardIds.size(), 24);
     for (uint32 id : graveyardIds)
-        data << id;
+        packet.CemeteryID.push_back(id);
 
-    SendPacket(&data);
+    SendPacket(packet.Write());
 }
 
 void WorldSession::HandleSetSelectionOpcode(WorldPacket& recvData)
@@ -718,11 +718,8 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recvData)
                     break;
                 case Map::CANNOT_ENTER_NOT_IN_RAID:
                 {
-                    WorldPacket data(SMSG_RAID_GROUP_ONLY, 4 + 4);
-                    data << uint32(0);
-                    data << uint32(2); // You must be in a raid group to enter this instance.
-                    player->SendDirectMessage(&data);
                     TC_LOG_DEBUG("maps", "MAP: Player '%s' must be in a raid group to enter instance map %d", player->GetName().c_str(), at->target_mapId);
+                    player->SendRaidGroupOnlyMessage(RAID_GROUP_ERR_ONLY, 0);
                     reviveAtTrigger = true;
                     break;
                 }
@@ -988,13 +985,13 @@ void WorldSession::HandleSetActionBarToggles(WorldPacket& recvData)
 
 void WorldSession::HandlePlayedTime(WorldPacket& recvData)
 {
-    uint8 unk1;
-    recvData >> unk1;                                      // 0 or 1 expected
+    uint8 TriggerScriptEvent;
+    recvData >> TriggerScriptEvent; // 0 or 1 expected
 
     WorldPackets::Character::PlayedTime packet;
     packet.TotalTime = _player->GetTotalPlayedTime();
     packet.LevelTime = _player->GetLevelPlayedTime();
-    packet.TriggerEvent = bool(unk1); // 0 - will not show in chat frame
+    packet.TriggerEvent = bool(TriggerScriptEvent); // 0 - will not show in chat frame
     SendPacket(packet.Write());
 }
 

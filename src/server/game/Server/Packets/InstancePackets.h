@@ -105,6 +105,17 @@ namespace WorldPackets
 
             bool Gm = false;
         };
+
+        class RaidGroupOnly final : public ServerPacket
+        {
+        public:
+            RaidGroupOnly() : ServerPacket(SMSG_RAID_GROUP_ONLY, 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Reason = 0;
+            int32 Delay = 0;
+        };
     }
 }
 

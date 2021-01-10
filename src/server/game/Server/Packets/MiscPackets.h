@@ -497,6 +497,17 @@ namespace WorldPackets
 
             ObjectGuid Unit;
         };
+
+        class RequestCemeteryListResponse final : public ServerPacket
+        {
+        public:
+            RequestCemeteryListResponse() : ServerPacket(SMSG_REQUEST_CEMETERY_LIST_RESPONSE, 1) { }
+
+            WorldPacket const* Write() override;
+
+            bool IsGossipTriggered = false;
+            std::vector<uint32> CemeteryID;
+        };
     }
 }
 

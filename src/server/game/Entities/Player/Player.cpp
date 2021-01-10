@@ -22495,13 +22495,8 @@ void Player::UpdateHomebindTime(uint32 time)
     if (m_InstanceValid || IsGameMaster())
     {
         if (m_HomebindTimer)                                 // instance valid, but timer not reset
-        {
-            // hide reminder
-            WorldPacket data(SMSG_RAID_GROUP_ONLY, 4+4);
-            data << uint32(0);
-            data << uint32(0);
-            SendDirectMessage(&data);
-        }
+            SendRaidGroupOnlyMessage(RAID_GROUP_ERR_NONE, 0);
+
         // instance is valid, reset homebind timer
         m_HomebindTimer = 0;
     }
@@ -22520,10 +22515,7 @@ void Player::UpdateHomebindTime(uint32 time)
         // instance is invalid, start homebind timer
         m_HomebindTimer = 60000;
         // send message to player
-        WorldPacket data(SMSG_RAID_GROUP_ONLY, 4+4);
-        data << uint32(m_HomebindTimer);
-        data << uint32(1);
-        SendDirectMessage(&data);
+        SendRaidGroupOnlyMessage(RAID_GROUP_ERR_REQUIREMENTS_UNMATCH, m_HomebindTimer);
         TC_LOG_DEBUG("maps", "Player::UpdateHomebindTime: Player '%s' (%s) will be teleported to homebind in 60 seconds",
             GetName().c_str(), GetGUID().ToString().c_str());
     }
@@ -28229,6 +28221,15 @@ void Player::SendSpellCategoryCooldowns() const
     }
 
     SendDirectMessage(cooldowns.Write());
+}
+
+void Player::SendRaidGroupOnlyMessage(RaidGroupReason reason, int32 delay) const
+{
+    WorldPackets::Instance::RaidGroupOnly raidGroupOnly;
+    raidGroupOnly.Delay = delay;
+    raidGroupOnly.Reason = reason;
+
+    SendDirectMessage(raidGroupOnly.Write());
 }
 
 void Player::SetRestFlag(RestFlag restFlag, uint32 triggerId /*= 0*/)
