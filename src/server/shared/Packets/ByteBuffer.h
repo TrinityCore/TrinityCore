@@ -236,6 +236,12 @@ class TC_SHARED_API ByteBuffer
             }
         }
 
+        ByteBuffer& operator<<(bool value)
+        {
+            append<uint8>(value ? 1 : 0);
+            return *this;
+        }
+
         ByteBuffer &operator<<(uint8 value)
         {
             append<uint8>(value);
