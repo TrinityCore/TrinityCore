@@ -557,6 +557,9 @@ void Unit::Heartbeat(uint32 p_time)
 
     SendFlightSplineSyncIfNeeded();
 
+    if (Player* player = ToPlayer())
+        player->SendUpdateToOutOfRangeGroupMembers();
+
     for (AuraApplicationMap::iterator iter = m_appliedAuras.begin(); iter != m_appliedAuras.end();)
     {
         AuraApplication* aurApp = iter->second;

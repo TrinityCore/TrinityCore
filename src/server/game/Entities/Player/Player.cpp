@@ -404,8 +404,6 @@ Player::Player(WorldSession* session): Unit(true)
 
     m_achievementMgr = new AchievementMgr(this);
     m_reputationMgr = new ReputationMgr(this);
-
-    m_groupUpdateTimer.Reset(5000);
 }
 
 Player::~Player()
@@ -1319,14 +1317,6 @@ void Player::Update(uint32 p_time)
                 SetRuneTimer(i, std::min(uint32(2500), timer));
             }
         }
-    }
-
-    // group update
-    m_groupUpdateTimer.Update(p_time);
-    if (m_groupUpdateTimer.Passed())
-    {
-        SendUpdateToOutOfRangeGroupMembers();
-        m_groupUpdateTimer.Reset(5000);
     }
 
     Pet* pet = GetPet();
