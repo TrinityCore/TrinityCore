@@ -19121,6 +19121,7 @@ void Player::Heartbeat()
 {
     Unit::Heartbeat();
     SendUpdateToOutOfRangeGroupMembers();
+    sScriptMgr->OnHeartbeat(this);
 }
 
 bool Player::CheckInstanceValidity(bool /*isLogin*/)
