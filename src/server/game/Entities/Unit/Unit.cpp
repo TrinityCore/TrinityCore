@@ -564,6 +564,9 @@ void Unit::Heartbeat()
     }
 
     Unit::ProcSkillsAndAuras(this, nullptr, PROC_FLAG_HEARTBEAT, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
+
+    if (UnitAI* ai = GetAI())
+        ai->OnHeartbeat();
 }
 
 void Unit::SendFlightSplineSyncIfNeeded()
