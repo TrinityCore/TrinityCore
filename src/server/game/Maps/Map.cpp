@@ -3475,7 +3475,7 @@ bool Map::SpawnGroupSpawn(uint32 groupId, bool ignoreRespawn, bool force, std::v
     for (SpawnData const* data : toSpawn)
     {
         // don't spawn if the current map difficulty is not used by the spawn
-        if (!(data->spawnMask & GetSpawnMode()))
+        if (!(data->spawnMask & (1 << GetSpawnMode())))
             continue;
 
         // don't spawn if the grid isn't loaded (will be handled in grid loader)
