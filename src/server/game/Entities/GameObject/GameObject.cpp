@@ -860,6 +860,12 @@ void GameObject::Update(uint32 diff)
     }
 }
 
+void GameObject::Heartbeat()
+{
+    if (AI())
+        AI()->OnHeartbeat();
+}
+
 GameObjectOverride const* GameObject::GetGameObjectOverride() const
 {
     if (m_spawnId)

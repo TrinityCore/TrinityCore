@@ -974,6 +974,18 @@ m_currMap(nullptr), m_InstanceId(0), m_phaseMask(PHASEMASK_NORMAL), m_notifyflag
 {
     m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE | GHOST_VISIBILITY_GHOST);
     m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE);
+
+    m_heartBeatTimer.Reset(SECONDS_PER_HEARTBEAT);
+}
+
+void WorldObject::Update(uint32 time_diff)
+{
+    m_heartBeatTimer.Update(time_diff);
+    if (m_heartBeatTimer.Passed())
+    {
+        m_heartBeatTimer.Reset(SECONDS_PER_HEARTBEAT);
+        Heartbeat();
+    }
 }
 
 void WorldObject::SetWorldObject(bool on)

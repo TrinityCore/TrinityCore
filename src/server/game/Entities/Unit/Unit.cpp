@@ -384,8 +384,6 @@ Unit::Unit(bool isWorldObject) :
     _isWalkingBeforeCharm = false;
     _instantCast = false;
     _isIgnoringCombat = false;
-
-    m_heartBeatTimer.Reset(SECONDS_PER_HEARTBEAT);
 }
 
 ////////////////////////////////////////////////////////////
@@ -474,13 +472,6 @@ void Unit::Update(uint32 p_time)
     if (!GetAI() && (GetTypeId() != TYPEID_PLAYER || (IsCharmed() && GetCharmerGUID().IsCreature())))
         UpdateCharmAI();
     RefreshAI();
-
-    m_heartBeatTimer.Update(p_time);
-    if (m_heartBeatTimer.Passed())
-    {
-        m_heartBeatTimer.Reset(SECONDS_PER_HEARTBEAT);
-        Heartbeat();
-    }
 }
 
 bool Unit::haveOffhandWeapon() const

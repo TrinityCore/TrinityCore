@@ -40,8 +40,6 @@
 #define MAX_AGGRO_RESET_TIME 10 // in seconds
 #define MAX_AGGRO_RADIUS 45.0f  // yards
 
-static Seconds const SECONDS_PER_HEARTBEAT = 5s;
-
 enum VictimState
 {
     VICTIMSTATE_INTACT         = 0, // set when attacker misses
@@ -1785,7 +1783,7 @@ class TC_GAME_API Unit : public WorldObject
         virtual void AtEngage(Unit* /*target*/) {}
         virtual void AtDisengage() {}
 
-        virtual void Heartbeat();
+        void Heartbeat() override;
 
     private:
 
@@ -1813,7 +1811,6 @@ class TC_GAME_API Unit : public WorldObject
 
         uint32 m_state;                                     // Even derived shouldn't modify
         uint32 m_lastManaUse;                               // msecs
-        TimeTracker m_heartBeatTimer;
 
         DiminishingReturn m_Diminishing[DIMINISHING_MAX];
 
