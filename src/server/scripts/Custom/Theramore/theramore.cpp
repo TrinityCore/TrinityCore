@@ -374,26 +374,36 @@ class npc_jaina_theramore : public CreatureScript
                     DoCastVictim(SPELL_FIREBALL);
                     fireball.Repeat(2s);
                 })
-                .Schedule(8s, [this](TaskContext talk)
-                {
-                    me->AI()->Talk(RAND(SAY_CASTING_1, SAY_CASTING_2, SAY_CASTING_3));
-                    talk.Repeat(24s, 1min);
-                })
                 .Schedule(14s, [this](TaskContext blizzard)
                 {
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                    {
-                        me->AI()->Talk(RAND(SAY_BLIZZARD_1, SAY_BLIZZARD_2));
                         DoCast(target, SPELL_BLIZZARD);
-                    }
                     blizzard.Repeat(6s, 15s);
                 });
+        }
+
+        void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason reason) override
+        {
+            switch (spell->Id)
+            {
+                case SPELL_BLIZZARD:
+                    if (reason == SPELL_FINISHED_SUCCESSFUL_CAST)
+                        me->AI()->Talk(RAND(SAY_BLIZZARD_1, SAY_BLIZZARD_2));
+                    break;
+                default:
+                    if (reason == SPELL_FINISHED_SUCCESSFUL_CAST && roll_chance_i(30))
+                        me->AI()->Talk(RAND(SAY_CASTING_1, SAY_CASTING_2, SAY_CASTING_3));
+                    break;
+            }
         }
 
         void JustDied(Unit* /*killer*/) override
         {
             scheduler.CancelAll();
             events.Reset();
+
+            if (playerForQuest)
+                playerForQuest->FailQuest(QUEST_PREPARE_FOR_WAR);
         }
 
         void UpdateAI(uint32 diff) override

@@ -49,7 +49,8 @@ enum Spells
     SPELL_SMITE                 = 100016,
     SPELL_POWER_WORD_SHIELD     = 100017,
     SPELL_HOLY_FIRE             = 100018,
-    SPELL_PW_PAIN               = 100103
+    SPELL_PW_PAIN               = 100103,
+    SPELL_PW_BARRIER            = 100104,
 };
 
 enum Misc
@@ -1089,11 +1090,11 @@ struct dalaran_anduin_wrynnAI : public CustomAI
                     power_word_shield.Repeat(5ms);
                 }
             })
-            .Schedule(5ms, [this](TaskContext word_power_pain)
+            .Schedule(5ms, [this](TaskContext power_word_pain)
             {
                 if (Unit* target = DoFindEnemyMissingDot(50.0f, wordOfPowerPain))
                     DoCast(target, SPELL_PW_PAIN);
-                word_power_pain.Repeat(1s);
+                power_word_pain.Repeat(1s);
             })
             .Schedule(5ms, [this](TaskContext smite)
             {
@@ -1105,6 +1106,11 @@ struct dalaran_anduin_wrynnAI : public CustomAI
                 if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target, SPELL_HOLY_FIRE);
                 holy_fire.Repeat(10s, 15s);
+            })
+            .Schedule(25s, [this](TaskContext power_word_barrier)
+            {
+                me->CastSpell(me->GetPosition(), SPELL_PW_BARRIER);
+                power_word_barrier.Repeat(60s, 80s);
             });
     }
 

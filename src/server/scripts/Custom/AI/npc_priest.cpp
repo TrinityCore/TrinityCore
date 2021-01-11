@@ -26,7 +26,8 @@ enum Spells
     SPELL_PRAYER_OF_MENDING     = 48113,
     SPELL_MASS_DISPEL           = 32375,
     SPELL_ETERNAL_AFFECTION     = 30878,
-    SPELL_WEAKENED_SOUL         = 6788
+    SPELL_WEAKENED_SOUL         = 6788,
+    SPELL_POWER_WORD_BARRIER    = 100104
 };
 
 enum Phase
@@ -229,6 +230,18 @@ class npc_priest : public CreatureScript
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_HOLY_FIRE);
                     holy_fire.Repeat(5s, 10s);
+                })
+                .Schedule(25s, PHASE_COMBAT, [this](TaskContext power_word_barrier)
+                {
+                    if (Unit* target = DoSelectLowestHpFriendly(true))
+                    {
+                        me->CastSpell(target->GetPosition(), SPELL_POWER_WORD_BARRIER);
+                        power_word_barrier.Repeat(60s, 80s);
+                    }
+                    else
+                    {
+                        power_word_barrier.Repeat(5ms);
+                    }
                 })
                 .Schedule(2s, PHASE_HEALING, [this](TaskContext mass_dispel)
                 {

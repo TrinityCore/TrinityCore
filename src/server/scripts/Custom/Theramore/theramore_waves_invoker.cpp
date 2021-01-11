@@ -401,6 +401,9 @@ class theramore_waves_invoker : public CreatureScript
                         temp->GetMotionMaster()->MovePoint(0, dest, false);
                     }
 
+                    temp->SetMaxHealth(temp->GetMaxHealth() * 1.3f);
+                    temp->SetHealth(temp->GetMaxHealth());
+
                     hordes[i] = temp->GetGUID();
                 }
             }
@@ -410,7 +413,7 @@ class theramore_waves_invoker : public CreatureScript
 
         void SendJainaWarning(uint8 spawnNumber)
         {
-            uint8 groupId;
+            uint8 groupId = 0;
             Position position;
             switch (spawnNumber)
             {
@@ -437,6 +440,12 @@ class theramore_waves_invoker : public CreatureScript
             jaina->SetHomePosition(position);
             jaina->AI()->Talk(JAINA_SAY_WAVE_ALERT);
             jaina->AI()->Talk(groupId);
+
+            if (playerForQuest)
+            {
+                Position playerPos = GetRandomPosition(position, 3.f);
+                playerForQuest->NearTeleportTo(playerPos);
+            }
         }
 
         Position GetRandomPosition(Position center, float dist)
