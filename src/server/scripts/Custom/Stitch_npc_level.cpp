@@ -1,5 +1,5 @@
 //########################################################################################################################
-//Stitch Decembre 2020 - npc_level - version 1.0 , wow 9.0.2.36949 
+//Stitch Decembre 2020 - npc_level - version 1.1 , wow 9.0.2.36949 
 // PNJ 15000386 : Choix au level 1 : Lieux de depart chez une race allié avec réputation & equipements ou instant level 10
 //########################################################################################################################
 
@@ -18,7 +18,6 @@ public:
     {
         npc_levelAI(Creature* creature) : ScriptedAI(creature) { }
 
-    //bool OnGossipHello(Player* player, Creature* creature)
         bool GossipHello(Player* player) override
 	{
         ClearGossipMenuFor(player);//////
@@ -131,7 +130,7 @@ public:
                     player->TeleportTo(0, -8867.68f, 673.373f, 97.9034f, 0.0f); // tp Hurlevent 
                 else
                     player->TeleportTo(1, 1633.33f, -4439.11f, 17.7588f, 0.0f); // tp Orgrimmar 
-
+                Retire_Aura_Defaut(player);
                 break;
             case GOSSIP_ACTION_INFO_DEF + 2: // level 58
 
@@ -181,7 +180,7 @@ public:
                     player->TeleportTo(0, -8867.68f, 673.373f, 97.9034f, 0.0f); // tp Hurlevent 
                 else
                     player->TeleportTo(1, 1633.33f, -4439.11f, 17.7588f, 0.0f); // tp Orgrimmar 
-
+                Retire_Aura_Defaut(player);
                 break;
             case GOSSIP_ACTION_INFO_DEF + 3: // level 68
 
@@ -235,7 +234,7 @@ public:
                     player->TeleportTo(0, -8867.68f, 673.373f, 97.9034f, 0.0f); // tp Hurlevent 
                 else
                     player->TeleportTo(1, 1633.33f, -4439.11f, 17.7588f, 0.0f); // tp Orgrimmar 
-
+                Retire_Aura_Defaut(player);
                 break;
             case GOSSIP_ACTION_INFO_DEF + 4: // level 80
 
@@ -291,7 +290,7 @@ public:
                     player->TeleportTo(0, -8867.68f, 673.373f, 97.9034f, 0.0f); // tp Hurlevent 
                 else
                     player->TeleportTo(1, 1633.33f, -4439.11f, 17.7588f, 0.0f); // tp Orgrimmar 
-
+                Retire_Aura_Defaut(player);
                 break;
             case GOSSIP_ACTION_INFO_DEF + 5: // level 85
 
@@ -347,7 +346,7 @@ public:
                     player->TeleportTo(0, -8867.68f, 673.373f, 97.9034f, 0.0f); // tp Hurlevent 
                 else
                     player->TeleportTo(1, 1633.33f, -4439.11f, 17.7588f, 0.0f); // tp Orgrimmar 
-
+                Retire_Aura_Defaut(player);
                 break;
 
             case GOSSIP_ACTION_INFO_DEF + 6: // level 90
@@ -404,7 +403,7 @@ public:
                     player->TeleportTo(0, -8867.68f, 673.373f, 97.9034f, 0.0f);	// tp Hurlevent 		
                 else
                     player->TeleportTo(1, 1633.33f, -4439.11f, 17.7588f, 0.0f);	// tp Orgrimmar 
-
+                Retire_Aura_Defaut(player);
                 break;
 
                 // Choix du lieu de depart
@@ -420,7 +419,7 @@ public:
                 else
                     // Teleportation
                     player->TeleportTo(1, -618.518f, -4251.67f, 38.718f, 4.72222f);			// Orc	
-
+                Retire_Aura_Defaut(player);
                 break;
 
             case GOSSIP_ACTION_INFO_DEF + 8:
@@ -444,7 +443,7 @@ public:
                 else
                     // Teleportation
                     player->TeleportTo(0, 1699.85f, 1706.56f, 135.928f, 4.88839f);			// Mort Vivant	
-
+                Retire_Aura_Defaut(player);
                 break;
 
             case GOSSIP_ACTION_INFO_DEF + 9:
@@ -459,7 +458,7 @@ public:
                 else
                     // Teleportation
                     player->TeleportTo(1, -2915.55f, -257.347f, 59.2693f, 0.302378f);		// Tauren	
-
+                Retire_Aura_Defaut(player);
                 break;
 
             case GOSSIP_ACTION_INFO_DEF + 10:
@@ -472,7 +471,7 @@ public:
                 else
                     // Teleportation
                     player->TeleportTo(1, -1171.45f, -5263.65f, 0.847728f, 5.78945f);		// Troll	
-
+                Retire_Aura_Defaut(player);
                 break;
 
             case GOSSIP_ACTION_INFO_DEF + 11:
@@ -487,13 +486,13 @@ public:
                 else
                     // Teleportation
                     player->TeleportTo(530, 10349.6f, -6357.29f, 33.4026f, 5.31605f);		// Elfe de Sang	
-
+                Retire_Aura_Defaut(player);
                 break;
 
             case GOSSIP_ACTION_INFO_DEF + 12:
                 if (team == TEAM_HORDE)
                 {
-
+                    Retire_Aura_Defaut(player);
                 }
                 break;
 
@@ -533,10 +532,12 @@ public:
                 if (player->GetReputation(947) != reputworgendesneiges) { player->SetReputation(947, reputworgendesneiges); }	// Thrallmar
 
                 player->LearnSpell(300172, true); // Worgen des neiges
+                Retire_Aura_Defaut(player);
                 break;
 
             }
-            CloseGossipMenuFor(player); //
+
+            CloseGossipMenuFor(player); 
             player->SaveToDB();
             return true;
         }
@@ -569,6 +570,13 @@ public:
             player->LearnSpell(53428, true); // Destrier de la mort cramoisi lvl 10
         }
 	}
+    void Retire_Aura_Defaut(Player* player)
+    {
+        // Retire certaines auras appliquées par defaut
+        player->RemoveAurasDueToSpell(80653);         // Gnome : Irradié 80653
+        player->RemoveAurasDueToSpell(71033);         // Troll : Calme du novice 71033
+        player->RemoveAurasDueToSpell(107027);        // Pandaren - See Quest Invis 20 107027
+    }
 };
 
     CreatureAI* GetAI(Creature* creature) const override
