@@ -33,6 +33,7 @@
 #include "SpellDefines.h"
 #include "UpdateFields.h"
 #include "UpdateMask.h"
+#include "Timer.h"
 #include <list>
 #include <set>
 #include <unordered_map>
