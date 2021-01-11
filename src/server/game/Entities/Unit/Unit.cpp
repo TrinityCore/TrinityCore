@@ -3130,7 +3130,7 @@ bool Unit::isInBackInMap(Unit const* target, float distance, float arc) const
 bool Unit::isInAccessiblePlaceFor(Creature const* c) const
 {
     if (IsInWater())
-        return c->CanSwim();
+        return c->CanEnterWater();
     else
         return c->CanWalk() || c->CanFly();
 }
@@ -13271,9 +13271,9 @@ bool Unit::CanSwim() const
         return true;
     if (HasFlag(UNIT_FIELD_FLAGS_2, 0x1000000))
         return false;
-    if (IsPet() && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT))
+    if (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT))
         return true;
-    return HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_RENAME | UNIT_FLAG_UNK_15);
+    return HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_RENAME | UNIT_FLAG_SWIMMING);
 }
 
 void Unit::NearTeleportTo(Position const& pos, bool casting /*= false*/)

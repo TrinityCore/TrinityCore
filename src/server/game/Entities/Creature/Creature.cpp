@@ -267,7 +267,7 @@ m_respawnDelay(300), m_corpseDelay(60), m_respawnradius(0.0f), m_boundaryCheckTi
 m_defaultMovementType(IDLE_MOTION_TYPE), m_spawnId(0), m_equipmentId(0), m_originalEquipmentId(0), m_AlreadyCallAssistance(false),
 m_AlreadySearchedAssistance(false), m_regenHealth(true), m_cannotReachTarget(false), m_cannotReachTimer(0), m_AI_locked(false), m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),
 m_originalEntry(0), m_homePosition(), m_transportHomePosition(), m_creatureInfo(nullptr), m_creatureData(nullptr), _waypointPathId(0), _currentWaypointNodeInfo(0, 0), _cyclicSplinePathId(0),
-m_formation(nullptr), m_triggerJustAppeared(true), m_respawnCompatibilityMode(false)
+m_formation(nullptr), m_triggerJustAppeared(true), m_respawnCompatibilityMode(false), _isMissingSwimmingFlagOutOfCombat(false)
 {
     m_valuesCount = UNIT_END;
 
@@ -2722,6 +2722,36 @@ CreatureMovementData const& Creature::GetMovementTemplate() const
     return GetCreatureTemplate()->Movement;
 }
 
+bool Creature::CanSwim() const
+{
+    if (Unit::CanSwim())
+        return true;
+
+    if (IsPet())
+        return true;
+
+    return false;
+}
+
+bool Creature::CanEnterWater() const
+{
+    if (CanSwim())
+        return true;
+
+    return GetMovementTemplate().IsSwimAllowed();
+}
+
+void Creature::RefreshSwimmingFlag(bool recheck)
+{
+    if (!_isMissingSwimmingFlagOutOfCombat || recheck)
+        _isMissingSwimmingFlagOutOfCombat = !HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SWIMMING);
+
+    // Check if the creature has UNIT_FLAG_SWIMMING and add it if it's missing
+    // Creatures must be able to chase a target in water if they can enter water
+    if (_isMissingSwimmingFlagOutOfCombat && CanEnterWater())
+        SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SWIMMING);
+}
+
 void Creature::AllLootRemovedFromCorpse()
 {
     if (loot.loot_type != LOOT_SKINNING && !IsPet() && GetCreatureTemplate()->SkinLootId && hasLootRecipient())
@@ -3014,8 +3044,7 @@ void Creature::UpdateMovementFlags()
     if (!isInAir)
         RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING);
 
-    if (GetMovementTemplate().IsSwimAllowed())
-        SetSwim(IsInWater());
+    SetSwim(CanSwim() && IsInWater());
 }
 
 void Creature::SetObjectScale(float scale)
@@ -3249,6 +3278,8 @@ void Creature::AtEngage(Unit* target)
 
     if (!(GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_MOUNTED_COMBAT_ALLOWED))
         Dismount();
+
+    RefreshSwimmingFlag();
 
     MovementGeneratorType const movetype = GetMotionMaster()->GetCurrentMovementGeneratorType();
     if (movetype == WAYPOINT_MOTION_TYPE || movetype == POINT_MOTION_TYPE || (IsAIEnabled && AI()->IsEscorted()))

@@ -95,7 +95,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         CreatureMovementData const& GetMovementTemplate() const;
         bool CanWalk() const { return GetMovementTemplate().IsGroundAllowed(); }
-        bool CanSwim() const override { return GetMovementTemplate().IsSwimAllowed() || IsPet(); }
+        bool CanSwim() const override;
+        bool CanEnterWater() const override;
         bool CanFly()  const override { return GetMovementTemplate().IsFlightAllowed() || IsFlying(); }
         bool CanHover() const { return GetMovementTemplate().Ground == CreatureGroundMovementType::Hover || IsHovering(); }
         bool SetDisableGravity(bool disable, bool packetOnly = false, bool updateAnimationTier = true) override;
@@ -366,6 +367,12 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void AtEngage(Unit* target) override;
         void AtDisengage() override;
 
+        bool HasSwimmingFlagOutOfCombat() const
+        {
+            return !_isMissingSwimmingFlagOutOfCombat;
+        }
+        void RefreshSwimmingFlag(bool recheck = false);
+
     protected:
         bool CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, CreatureData const* data = nullptr, uint32 vehId = 0);
         bool InitEntry(uint32 entry, CreatureData const* data = nullptr);
@@ -446,6 +453,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         } _spellFocusInfo;
 
         CreatureTextRepeatGroup m_textRepeat;
+
+        bool _isMissingSwimmingFlagOutOfCombat;
 };
 
 class TC_GAME_API AssistDelayEvent : public BasicEvent

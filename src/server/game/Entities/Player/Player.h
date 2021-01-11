@@ -2374,6 +2374,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendMovementSetCollisionHeight(float height, UpdateCollisionHeightReason reason);
 
         bool CanFly() const override { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_CAN_FLY); }
+        bool CanEnterWater() const override { return true; }
 
         std::string GetMapAreaAndZoneString() const;
         std::string GetCoordsMapAreaAndZoneString() const;

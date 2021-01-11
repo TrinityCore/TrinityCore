@@ -81,6 +81,9 @@ void HomeMovementGenerator<Creature>::DoFinalize(Creature* owner)
 {
     if (_arrived)
     {
+        if (!owner->HasSwimmingFlagOutOfCombat())
+            owner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SWIMMING);
+
         owner->ClearUnitState(UNIT_STATE_EVADE);
         owner->SetWalk(true);
         owner->LoadCreaturesAddon();
