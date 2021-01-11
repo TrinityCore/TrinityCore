@@ -22,6 +22,7 @@
 #include "TSString.h"
 #include "TSUnit.h"
 #include "TSClasses.h"
+#include "TSPosition.h"
 
 class TC_GAME_API TSCreature : public TSUnit {
 public:
@@ -70,7 +71,7 @@ public:
     uint32 GetScriptId();
     uint32 GetCreatureSpellCooldownDelay(uint32 spell);
     uint32 GetCorpseDelay();
-    float GetHomePosition();
+    TSPosition GetHomePosition();
     void SetHomePosition(float x, float y, float z, float o);
     TSUnit GetAITarget(uint32 targetType, bool playerOnly, uint32 position, float dist, int32 aura);
     TSArray<TSUnit> GetAITargets();

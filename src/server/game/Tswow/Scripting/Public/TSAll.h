@@ -49,3 +49,4 @@
 #include "TSPosition.h"
 #include "TSClass.h"
 #include "TSStringify.h"
+#include "TSMath.h"

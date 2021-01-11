@@ -34,6 +34,7 @@
 #include "ObjectGuid.h"
 #include "TSCorpse.h"
 
+
 TSWorldObject::TSWorldObject(WorldObject *obj) : TSObject(obj)
 {
     this->obj = obj;
@@ -300,14 +301,10 @@ float TSWorldObject::GetDistance2d(TSWorldObject _target,float X,float Y)
  * @return float y
  * @return float z
  */
-float TSWorldObject::GetRelativePoint(float dist,float rad) 
-{
-    
+TSPosition TSWorldObject::GetRelativePoint(float dist,float rad) {
     float x, y, z;
     obj->GetClosePoint(x, y, z, 0.0f, dist, rad);
-    return x;
-    return y;
-    return z;
+    return TSPosition(GetMap()->GetMapId(), x,y,z,0);
 }
     
 /**
@@ -910,4 +907,9 @@ TSCreature TSWorldObject::GetCreature(uint64 guid)
 TSPlayer TSWorldObject::GetPlayer(uint64 guid)
 {
     return TSPlayer(ObjectAccessor::GetPlayer(*obj,ObjectGuid(guid)));
+}
+
+TSPosition TSWorldObject::GetPosition()
+{
+    return TSPosition(GetMap()->GetMapId(),GetX(),GetY(),GetZ(),GetO());
 }

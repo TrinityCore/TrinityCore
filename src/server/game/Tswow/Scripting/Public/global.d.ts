@@ -326,7 +326,7 @@ declare class TSCreature extends TSUnit {
     GetScriptId() : uint32
     GetCreatureSpellCooldownDelay(spell : uint32) : uint32
     GetCorpseDelay() : uint32
-    GetHomePosition() : float
+    GetHomePosition() : TSPosition
     SetHomePosition(x : float,y : float,z : float,o : float) : void
     //GetAITarget(targetType : uint32,playerOnly : bool,position : uint32,dist : float,aura : int32) : TSUnit
     //GetAITargets() : TSArray<TSUnit>
@@ -634,13 +634,13 @@ declare class TSWorldObject extends TSObject {
     GetY() : float
     GetZ() : float
     GetO() : float
-    GetLocation() : float
+    GetLocation() : TSPosition
     GetNearestPlayer(range : float,hostile : uint32,dead : uint32) : TSPlayer
     GetNearestGameObject(range : float,entry : uint32,hostile : uint32) : TSGameObject
     GetNearestCreature(range : float,entry : uint32,hostile : uint32,dead : uint32) : TSCreature
     GetDistance(target : TSWorldObject,X : float,Y : float,Z : float) : float
     GetDistance2d(target : TSWorldObject,X : float,Y : float) : float
-    GetRelativePoint(dist : float,rad : float) : float
+    GetRelativePoint(dist : float,rad : float) : TSPosition
     SendPacket(data : TSWorldPacket) : void
     SummonGameObject(entry : uint32,x : float,y : float,z : float,o : float,respawnDelay : uint32) : TSGameObject
     SpawnCreature(entry : uint32,x : float,y : float,z : float,o : float,spawnType : uint32,despawnTimer : uint32) : TSCreature

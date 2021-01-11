@@ -30,6 +30,7 @@
 #include "CreatureAI.h"
 #include "MotionMaster.h"
 #include "Player.h"
+#include "TSMap.h"
 
 TSCreature::TSCreature(Creature *creature) : TSUnit(creature)
 {
@@ -601,7 +602,7 @@ uint32 TSCreature::GetCorpseDelay()
  * @return float z
  * @return float o
  */
-float TSCreature::GetHomePosition() 
+TSPosition TSCreature::GetHomePosition() 
 {
     float x, y, z, o;
 #if defined TRINITY || AZEROTHCORE
@@ -609,10 +610,7 @@ float TSCreature::GetHomePosition()
 #else
     creature->GetRespawnCoord(x, y, z, &o);
 #endif
-    return x;
-    return y;
-    return z;
-    return o;
+    return TSPosition(GetMap()->GetMapId(),x,y,z,o);
 }
     
 /**

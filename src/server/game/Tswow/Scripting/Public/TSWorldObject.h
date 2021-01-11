@@ -20,6 +20,7 @@
 #include "TSString.h"
 #include "TSClasses.h"
 #include "TSObject.h"
+#include "TSPosition.h"
 
 class TC_GAME_API TSWorldObject : public TSObject {
 public:
@@ -69,9 +70,10 @@ public:
     float GetY();
     float GetZ();
     float GetO();
+    TSPosition GetPosition();
     // TODO: Fix
     //GetExactDistance(TSWorldObject _target, float x1, float y1, float z1);
-    float GetRelativePoint(float dist, float rad);
+    TSPosition GetRelativePoint(float dist, float rad);
     bool IsWithinDist3d(float x, float y, float z, float dist);
     bool IsWithinDist2d(float x, float y, float dist);
     bool IsInRange2d(float x, float y, float minrange, float maxrange);
