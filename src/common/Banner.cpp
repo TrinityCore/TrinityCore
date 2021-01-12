@@ -23,16 +23,25 @@ void Trinity::Banner::Show(char const* applicationName, void(*log)(char const* t
 {
     log(Trinity::StringFormat("%s (%s)", GitRevision::GetFullVersion(), applicationName).c_str());
     log("<Ctrl-C> to stop.\n");
-    log(" ______                       __");
-    log("/\\__  _\\       __          __/\\ \\__");
-    log("\\/_/\\ \\/ _ __ /\\_\\    ___ /\\_\\ \\, _\\  __  __");
-    log("   \\ \\ \\/\\`'__\\/\\ \\ /' _ `\\/\\ \\ \\ \\/ /\\ \\/\\ \\");
-    log("    \\ \\ \\ \\ \\/ \\ \\ \\/\\ \\/\\ \\ \\ \\ \\ \\_\\ \\ \\_\\ \\");
-    log("     \\ \\_\\ \\_\\  \\ \\_\\ \\_\\ \\_\\ \\_\\ \\__\\\\/`____ \\");
-    log("      \\/_/\\/_/   \\/_/\\/_/\\/_/\\/_/\\/__/ `/___/> \\");
-    log("                                 C O R E  /\\___/");
-    log("http://TrinityCore.org                    \\/__/\n");
-
+    log("\n");
+    log("################################################################################");
+    log("################################################################################");
+    log(" Core 902-36949 Shadowlands  - Stitch Décembre 2020 - Janvier 2021");
+    log(" Basé sur le core Trinity http://TrinityCore.org");
+    log(" Remerciements a Noc et Galathil pour leurs aides");
+    log("\n");
+    log(" Modifications principales :");
+    log(" - Races Alliées Activées par défaut (by Galathil)");
+    log(" - Action suite a un événement Joueur (Apprentissage,connexion,levelup,zone...");
+    log(" - PNJ change race , faction , apparence");
+    log(" - PNJ Lieux de depart chez une race allié ou instant level 10");
+    log(" - Aubergiste donne foyer et une pierre de foyer");
+    log(" - Guilde auto a la creation d'un perso (Horde ou Alliance");
+    log(" - Resurrection sur son corp (apprentissage spell)");
+    log("\n");
+    log("################################################################################");
+    log("################################################################################");
+    log(" ");
     if (logExtraInfo)
         logExtraInfo();
 }
