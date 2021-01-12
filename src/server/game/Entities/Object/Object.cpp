@@ -981,9 +981,9 @@ m_currMap(nullptr), m_InstanceId(0), m_phaseMask(PHASEMASK_NORMAL), m_notifyflag
 void WorldObject::Update(uint32 time_diff)
 {
     m_heartBeatTimer.Update(time_diff);
-    if (m_heartBeatTimer.Passed())
+    while (m_heartBeatTimer.Passed())
     {
-        m_heartBeatTimer.Reset(SECONDS_PER_HEARTBEAT);
+        m_heartBeatTimer.Reset(m_heartBeatTimer.GetExpiry() + SECONDS_PER_HEARTBEAT);
         Heartbeat();
     }
 }
