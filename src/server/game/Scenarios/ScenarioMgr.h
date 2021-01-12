@@ -25,8 +25,8 @@
 #include <unordered_map>
 #include <vector>
 
+class InstanceMap;
 class InstanceScenario;
-class Map;
 struct ScenarioEntry;
 struct ScenarioStepEntry;
 
@@ -105,7 +105,7 @@ private:
 public:
     static ScenarioMgr* Instance();
 
-    InstanceScenario* CreateInstanceScenario(Map const* map, TeamId team) const;
+    InstanceScenario* CreateInstanceScenario(InstanceMap const* map, TeamId team) const;
 
     void LoadDBData();
     void LoadDB2Data();
