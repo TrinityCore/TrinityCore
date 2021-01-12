@@ -34,7 +34,6 @@
 #include "ObjectGuid.h"
 #include "TSCorpse.h"
 
-
 TSWorldObject::TSWorldObject(WorldObject *obj) : TSObject(obj)
 {
     this->obj = obj;
@@ -371,13 +370,11 @@ TSGameObject  TSWorldObject::SummonGameObject(uint32 entry,float x,float y,float
 {
 #ifdef TRINITY
     QuaternionData rot = QuaternionData::fromEulerAnglesZYX(o, 0.f, 0.f);
-     // TODO Fix
-    return TSGameObject(nullptr);
-     //return TSGameObject(obj->SummonGameObject(entry, Position(x, y, z, o), rot, respawnDelay));
+    return TSGameObject(obj->SummonGameObject(entry, Position(x, y, z, o), rot, std::chrono::seconds(respawnDelay)));
 #elif AZEROTHCORE
-     return TSGameObject(obj->SummonGameObject(entry, x, y, z, o, 0, 0, 0, 0, respawnDelay));
+    return TSGameObject(obj->SummonGameObject(entry, x, y, z, o, 0, 0, 0, 0, std::chrono::seconds(respawnDelay)));
 #else
-     return TSGameObject(obj->SummonGameObject(entry, x, y, z, o, respawnDelay));
+    return TSGameObject(obj->SummonGameObject(entry, x, y, z, o, std::chrono::seconds(respawnDelay)));
 #endif
 }
     
@@ -449,9 +446,8 @@ TSCreature  TSWorldObject::SpawnCreature(uint32 entry,float x,float y,float z,fl
             break;
 #endif
     }
-    // TODO Fix
-    //return TSCreature(obj->SummonCreature(entry, x, y, z, o, type, despawnTimer));
-    return TSCreature(nullptr);
+    auto c = (Creature*) (obj->SummonCreature(entry, x, y, z, o, type, std::chrono::milliseconds(despawnTimer)));
+    return TSCreature(c);
 }
     
 /**
