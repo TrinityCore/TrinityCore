@@ -41,5 +41,4 @@ docker run --entrypoint=/bin/bash -it "image name"
 ```
 
 ## Limitations:
-- Database auto-updater: no instructions are given in this README to get the database auto-updater to work. Either apply the updates manually or investigate how to get it to work (most likely some additional --volume parameters should be passed)
 - Database connection: the instructions provided expect MySQL to run on the host machine. Change ```docker run``` parameters and .conf settings to fit your scenario
