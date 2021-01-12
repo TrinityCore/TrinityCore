@@ -16,20 +16,20 @@
  */
 
 #include "InstanceScenario.h"
-#include "DatabaseEnv.h"
+#include "Containers.h"
 #include "DB2Stores.h"
 #include "GameTime.h"
-#include "Log.h"
+#include "InstanceScript.h"
 #include "Map.h"
+#include "ObjectMgr.h"
 #include "Player.h"
+#include "ScenarioMgr.h"
+#include "StringFormat.h"
 
-// TODO
-// Do not save to db except for scenario type 3 (SCENARIO_TYPE_USE_DUNGEON_DISPLAY)
-
-InstanceScenario::InstanceScenario(Map const* map, ScenarioData const* scenarioData) : Scenario(scenarioData), _map(map)
+InstanceScenario::InstanceScenario(InstanceMap const* map, ScenarioData const* scenarioData) : Scenario(scenarioData), _map(map)
 {
     ASSERT(_map);
-    LoadInstanceData(_map->GetInstanceId());
+    LoadInstanceData();
 
     Map::PlayerList const& players = map->GetPlayers();
     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
@@ -37,124 +37,67 @@ InstanceScenario::InstanceScenario(Map const* map, ScenarioData const* scenarioD
             SendScenarioState(player);
 }
 
-void InstanceScenario::SaveToDB()
+void InstanceScenario::LoadInstanceData()
 {
-    if (_criteriaProgress.empty())
+    InstanceScript const* instanceScript = _map->GetInstanceScript();
+    if (!instanceScript)
         return;
 
-    DifficultyEntry const* difficultyEntry = sDifficultyStore.LookupEntry(_map->GetDifficultyID());
-    if (!difficultyEntry || difficultyEntry->Flags & DIFFICULTY_FLAG_CHALLENGE_MODE) // Map should have some sort of "CanSave" boolean that returns whether or not the map is savable. (Challenge modes cannot be saved for example)
-        return;
+    std::vector<CriteriaTree const*> criteriaTrees;
 
-    uint32 id = _map->GetInstanceId();
-    if (!id)
+    CriteriaList const& killCreatureCriteria = sCriteriaMgr->GetScenarioCriteriaByTypeAndScenario(CriteriaType::KillCreature, _data->Entry->ID);
+    if (!killCreatureCriteria.empty())
     {
-        TC_LOG_DEBUG("scenario", "Scenario::SaveToDB: Can not save scenario progress without an instance save. Map::GetInstanceId() did not return an instance save.");
-        return;
+        if (std::vector<InstanceSpawnGroupInfo> const* spawnGroups = sObjectMgr->GetInstanceSpawnGroupsForMap(_map->GetId()))
+        {
+            std::unordered_map<uint32, uint64> despawnedCreatureCountsById;
+            for (InstanceSpawnGroupInfo const& spawnGroup : *spawnGroups)
+            {
+                if (instanceScript->GetBossState(spawnGroup.BossStateId) != DONE)
+                    continue;
+
+                bool isDespawned = !((1 << DONE) & spawnGroup.BossStates) || (spawnGroup.Flags & InstanceSpawnGroupInfo::FLAG_BLOCK_SPAWN);
+                if (isDespawned)
+                    for (auto const& [spawnGroupId, spawn] : sObjectMgr->GetSpawnMetadataForGroup(spawnGroup.SpawnGroupId))
+                        if (SpawnData const* spawnData = spawn->ToSpawnData())
+                        ++despawnedCreatureCountsById[spawnData->id];
+            }
+
+            for (Criteria const* criteria : killCreatureCriteria)
+            {
+                // count creatures in despawned spawn groups
+                if (uint64* progress = Trinity::Containers::MapGetValuePtr(despawnedCreatureCountsById, criteria->Entry->Asset.CreatureID))
+                {
+                    SetCriteriaProgress(criteria, *progress, nullptr, PROGRESS_SET);
+
+                    if (CriteriaTreeList const* trees = sCriteriaMgr->GetCriteriaTreesByCriteria(criteria->ID))
+                        for (CriteriaTree const* tree : *trees)
+                            criteriaTrees.push_back(tree);
+                }
+            }
+        }
     }
 
-    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
-    for (auto iter = _criteriaProgress.begin(); iter != _criteriaProgress.end(); ++iter)
+    for (Criteria const* criteria : sCriteriaMgr->GetScenarioCriteriaByTypeAndScenario(CriteriaType::DefeatDungeonEncounter, _data->Entry->ID))
     {
-        if (!iter->second.Changed)
+        if (!instanceScript->IsEncounterCompleted(criteria->Entry->Asset.DungeonEncounterID))
             continue;
 
-        Criteria const* criteria = sCriteriaMgr->GetCriteria(iter->first);
-        switch (CriteriaType(criteria->Entry->Type))
-        {
-            // Blizzard only appears to store creature kills and dungeon encounters
-            case CriteriaType::KillCreature:
-            case CriteriaType::DefeatDungeonEncounter:
-                break;
-            default:
-                continue;
-        }
+        SetCriteriaProgress(criteria, 1, nullptr, PROGRESS_SET);
 
-        if (iter->second.Counter)
-        {
-            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_SCENARIO_INSTANCE_CRITERIA);
-            stmt->setUInt32(0, id);
-            stmt->setUInt32(1, iter->first);
-            trans->Append(stmt);
-
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_SCENARIO_INSTANCE_CRITERIA);
-            stmt->setUInt32(0, id);
-            stmt->setUInt32(1, iter->first);
-            stmt->setUInt64(2, iter->second.Counter);
-            stmt->setInt64(3, iter->second.Date);
-            trans->Append(stmt);
-        }
-
-        iter->second.Changed = false;
+        if (CriteriaTreeList const* trees = sCriteriaMgr->GetCriteriaTreesByCriteria(criteria->ID))
+            for (CriteriaTree const* tree : *trees)
+                criteriaTrees.push_back(tree);
     }
 
-    CharacterDatabase.CommitTransaction(trans);
-}
-
-void InstanceScenario::LoadInstanceData(uint32 instanceId)
-{
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_SCENARIO_INSTANCE_CRITERIA_FOR_INSTANCE);
-    stmt->setUInt32(0, instanceId);
-
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
-    if (result)
+    for (CriteriaTree const* tree : criteriaTrees)
     {
-        CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
-        time_t now = GameTime::GetGameTime();
+        ScenarioStepEntry const* step = tree->ScenarioStep;
+        if (!step)
+            continue;
 
-        std::vector<CriteriaTree const*> criteriaTrees;
-        do
-        {
-            Field* fields = result->Fetch();
-            uint32 id = fields[0].GetUInt32();
-            uint64 counter = fields[1].GetUInt64();
-            time_t date = fields[2].GetInt64();
-
-            Criteria const* criteria = sCriteriaMgr->GetCriteria(id);
-            if (!criteria)
-            {
-                // Removing non-existing criteria data for all instances
-                TC_LOG_ERROR("criteria.instancescenarios", "Removing scenario criteria %u data from the table `instance_scenario_progress`.", id);
-
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_SCENARIO_INSTANCE_CRITERIA);
-                stmt->setUInt32(0, instanceId);
-                stmt->setUInt32(1, uint32(id));
-                trans->Append(stmt);
-                continue;
-            }
-
-            if (criteria->Entry->StartTimer && time_t(date + criteria->Entry->StartTimer) < now)
-                continue;
-
-            switch (CriteriaType(criteria->Entry->Type))
-            {
-                // Blizzard appears to only stores creatures killed progress for unknown reasons. Either technical shortcoming or intentional
-                case CriteriaType::KillCreature:
-                case CriteriaType::DefeatDungeonEncounter:
-                    break;
-                default:
-                    continue;
-            }
-
-            SetCriteriaProgress(criteria, counter, nullptr, PROGRESS_SET);
-
-            if (CriteriaTreeList const* trees = sCriteriaMgr->GetCriteriaTreesByCriteria(criteria->ID))
-                for (CriteriaTree const* tree : *trees)
-                    criteriaTrees.push_back(tree);
-        }
-        while (result->NextRow());
-
-        CharacterDatabase.CommitTransaction(trans);
-
-        for (CriteriaTree const* tree : criteriaTrees)
-        {
-            ScenarioStepEntry const* step = tree->ScenarioStep;
-            if (!step)
-                continue;
-
-            if (IsCompletedCriteriaTree(tree))
-                SetStepState(step, SCENARIO_STEP_DONE);
-        }
+        if (IsCompletedCriteriaTree(tree))
+            SetStepState(step, SCENARIO_STEP_DONE);
     }
 }
 

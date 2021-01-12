@@ -360,8 +360,6 @@ class TC_GAME_API InstanceScript : public ZoneScript
         void LoadDungeonEncounterData(uint32 bossId, std::array<uint32, MAX_DUNGEON_ENCOUNTERS_PER_BOSS> const& dungeonEncounterIds);
         void UpdateEncounterState(EncounterCreditType type, uint32 creditEntry, Unit* source);
 
-        void SaveToDB();
-
         std::string headers;
         std::vector<BossInfo> bosses;
         std::vector<PersistentInstanceScriptValueBase*> _persistentScriptValues;
