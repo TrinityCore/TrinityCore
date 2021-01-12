@@ -17,11 +17,11 @@ The instructions below expect basic knowledge about how to configure TrinityCore
 1. Start authserver or worldserver as desired, mapping the required volumes
     - authserver
         ```
-        docker run --entrypoint=authserver -it --volume=/host/path/to/configs:/etc/TrinityCore --volume=/var/run/mysqld/mysqld.sock:/var/run/mysqld/mysqld.sock -p=3724:3724 "image name" --config /etc/TrinityCore/authserver.conf
+        docker run --entrypoint=authserver -it --volume=/host/path/to/configs:/home/circleci/project/bin/check_install/etc --volume=/var/run/mysqld/mysqld.sock:/var/run/mysqld/mysqld.sock -p=3724:3724 "image name"
         ```
     - worldserver
         ```
-        docker run --entrypoint=worldserver -it --volume=/host/path/to/configs:/etc/TrinityCore --volume=/var/run/mysqld/mysqld.sock:/var/run/mysqld/mysqld.sock --volume=/path/to/data/directory:/trinity/data -p=8085:8085 "image name" --config /etc/TrinityCore/worldserver.conf
+        docker run --entrypoint=worldserver -it --volume=/host/path/to/configs:/home/circleci/project/bin/check_install/etc --volume=/var/run/mysqld/mysqld.sock:/var/run/mysqld/mysqld.sock --volume=/path/to/data/directory:/trinity/data -p=8085:8085 "image name"
         ```
     Change the ports and other parameters as needed. Consult Docker documentation for additional details about possible configuration settings.
 
