@@ -428,6 +428,8 @@ void GameObject::Update(uint32 diff)
     else if (!AIM_Initialize())
         TC_LOG_ERROR("misc", "Could not initialize GameObjectAI");
 
+    WorldObject::Update(diff);
+
     if (m_despawnDelay)
     {
         if (m_despawnDelay > diff)

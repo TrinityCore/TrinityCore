@@ -472,6 +472,8 @@ void Unit::Update(uint32 p_time)
     if (!GetAI() && (GetTypeId() != TYPEID_PLAYER || (IsCharmed() && GetCharmerGUID().IsCreature())))
         UpdateCharmAI();
     RefreshAI();
+
+    WorldObject::Update(p_time);
 }
 
 bool Unit::haveOffhandWeapon() const
