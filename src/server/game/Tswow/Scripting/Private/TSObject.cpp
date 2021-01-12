@@ -384,25 +384,25 @@ TSCorpse TSObject::ToCorpse()
 
 bool TSObject::IsPlayer()
 {
-    return obj->IsPlayer();
+    return obj != nullptr && obj->IsPlayer();
 }
 
 bool TSObject::IsCreature()
 {
-    return obj->IsCreature();
+    return obj != nullptr && obj->IsCreature();
 }
 
 bool TSObject::IsUnit()
 {
-    return obj->IsUnit();
+    return obj != nullptr && obj->IsUnit();
 }
 
 bool TSObject::IsGameObject()
 {
-    return obj->IsGameObject();
+    return obj != nullptr && obj->IsGameObject();
 }
 
 bool TSObject::IsCorpse()
 {
-    return obj->IsCorpse();
+    return obj != nullptr && obj->IsCorpse();
 }
