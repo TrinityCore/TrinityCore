@@ -258,8 +258,44 @@ bool TSItem::IsConjuredConsumable()
  */
 TSString TSItem::GetItemLink(uint8 locale)
 {
-    // TODO: Fix
-    return JSTR("");
+
+    const ItemTemplate* temp = item->GetTemplate();
+    std::string name = temp->Name1;
+    if (ItemLocale const* il = eObjectMgr->GetItemLocale(temp->ItemId))
+        ObjectMgr::GetLocaleString(il->Name, static_cast<LocaleConstant>(locale), name);
+
+    if (int32 itemRandPropId = item->GetItemRandomPropertyId())
+    {
+        std::array<char const*, 16> const* suffix = NULL;
+        if (itemRandPropId < 0)
+        {
+            const ItemRandomSuffixEntry* itemRandEntry = sItemRandomSuffixStore.LookupEntry(-item->GetItemRandomPropertyId());
+            if (itemRandEntry) suffix = &itemRandEntry->Name;
+        } 
+        else
+        {
+            const ItemRandomPropertiesEntry* itemRandEntry = sItemRandomPropertiesStore.LookupEntry(item->GetItemRandomPropertyId());
+            if (itemRandEntry) suffix = &itemRandEntry->Name;
+        }
+
+        if(suffix)
+        {
+            name += ' ';
+            name += (*suffix)[(name != temp->Name1) ? locale : uint8(DEFAULT_LOCALE)];
+        }
+    }
+
+    std::ostringstream oss;
+    oss << "|c" << std::hex << ItemQualityColors[temp->Quality] << std::dec <<
+        "|Hitem:" << temp->ItemId << ":" <<
+        item->GetEnchantmentId(PERM_ENCHANTMENT_SLOT) << ":" <<
+        item->GetEnchantmentId(SOCK_ENCHANTMENT_SLOT) << ":" <<
+        item->GetEnchantmentId(SOCK_ENCHANTMENT_SLOT_2) << ":" <<
+        item->GetEnchantmentId(SOCK_ENCHANTMENT_SLOT_3) << ":" <<
+        item->GetEnchantmentId(BONUS_ENCHANTMENT_SLOT) << ":" <<
+        item->GetItemRandomPropertyId() << ":" << item->GetItemSuffixFactor() << ":" <<
+        (uint32)item->GetOwner()->GetLevel() << "|h[" << name << "]|h|r";
+    return TSString(oss.str());
 }
     
 uint64 TSItem::GetOwnerGUID() 
