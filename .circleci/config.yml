@@ -77,6 +77,7 @@ jobs:
           command: |
             cd bin/check_install/bin
             cp -r ../../../contrib/Docker/* .
+            cp -r ../../../sql ./sql
             image_prefix=$(echo $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME-$(echo $CIRCLE_BRANCH | tr '/' '-') | tr '[:upper:]' '[:lower:]')
             echo $image_prefix
             docker build --file Dockerfile --force-rm --tag $image_prefix:$CIRCLE_SHA1 --tag $image_prefix:latest .
