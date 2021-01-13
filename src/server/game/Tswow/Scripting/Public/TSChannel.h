@@ -25,6 +25,7 @@ public:
     Channel* channel;
     TSChannel(Channel* channel);
     TSChannel();
+    TSChannel* operator->() { return this;}
     TSString GetName(uint32 locale = 0);
     uint32 GetID();
     bool IsConstant();
