@@ -111,7 +111,7 @@ public:
                 player->AddItem(1710, 1);               // Potion de soin
                 player->SetSkill(906, 0, 300, 300);     //
                 player->LearnSpell(33388, true);        // Apprenti cavalier lvl 10
-                player->LearnSpell(49322, true);        // Zhévra rapide
+                //player->LearnSpell(49322, true);        // Zhévra rapide
 
                 SetSkill_Worgen(player, _race);
 
@@ -139,7 +139,7 @@ public:
                 player->SetSkill(906, 0, 300, 300); //
                 player->LearnSpell(33388, true);	// Apprenti cavalier lvl 20
                 player->LearnSpell(33391, true);	// Compagnon cavalier lvl 40
-                player->LearnSpell(49322, true);	// Zhévra rapide
+                //player->LearnSpell(49322, true);	// Zhévra rapide
 
                 SetSkill_Worgen(player, _race);
 
@@ -191,7 +191,7 @@ public:
                 player->LearnSpell(34090, true); // Expert cavalier 60
                 player->LearnSpell(54197, true); // Vol par temps froid lvl 68 
                 player->LearnSpell(90267, true); // Licence de maître de vol lvl 60 - Kalimdor et Tréfonds
-                player->LearnSpell(49322, true); // Zhévra rapide
+                //player->LearnSpell(49322, true); // Zhévra rapide
 
                 SetSkill_Worgen(player, _race);
 
@@ -247,7 +247,7 @@ public:
                 player->LearnSpell(90265, true); // Maître cavalier lvl 80 
                 player->LearnSpell(54197, true); // Vol par temps froid lvl 68 
                 player->LearnSpell(90267, true); // Licence de maître de vol lvl 60 - Kalimdor et Tréfonds
-                player->LearnSpell(49322, true); // Zhévra rapide
+                //player->LearnSpell(49322, true); // Zhévra rapide
 
                 SetSkill_Worgen(player, _race);
 
@@ -303,7 +303,7 @@ public:
                 player->LearnSpell(90265, true); // Maître cavalier lvl 80 
                 player->LearnSpell(54197, true); // Vol par temps froid lvl 68 
                 player->LearnSpell(90267, true); // Licence de maître de vol lvl 60 - Kalimdor et Tréfonds
-                player->LearnSpell(49322, true); // Zhévra rapide
+                //player->LearnSpell(49322, true); // Zhévra rapide
 
                 SetSkill_Worgen(player, _race);
 
@@ -360,7 +360,7 @@ public:
                 player->LearnSpell(90265, true); // Maître cavalier lvl 80 
                 player->LearnSpell(54197, true); // Vol par temps froid lvl 68 
                 player->LearnSpell(90267, true); // Licence de maître de vol lvl 60 - Kalimdor et Tréfonds
-                player->LearnSpell(49322, true); // Zhévra rapide
+                //player->LearnSpell(49322, true); // Zhévra rapide
 
                 SetSkill_Worgen(player, _race);
 
