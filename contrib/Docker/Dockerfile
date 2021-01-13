@@ -1,9 +1,7 @@
 FROM trinitycore/circle-ci:3.3.5-buildpacks-focal
 
 #Setup
-USER root
-RUN chmod 777 /
-USER circleci
+WORKDIR $HOME
 COPY README.md /
 COPY --chown=circleci:circleci sql /home/circleci/project/sql
 COPY ["authserver", "mapextractor", "mmaps_generator", "vmap4assembler", "vmap4extractor", "worldserver", "/usr/local/bin/"]

@@ -42,7 +42,7 @@ docker run --entrypoint=/bin/bash -it "image name"
 
 You can export the logs from the container with
 ```
-docker cp "container name":/path.log name.log
+docker cp "container name":name.log name.log
 ```
 
 For more instructions please check docker official documentation.
