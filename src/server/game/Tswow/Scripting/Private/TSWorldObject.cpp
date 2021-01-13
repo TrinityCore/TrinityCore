@@ -166,24 +166,7 @@ float TSWorldObject::GetO()
 {
     return obj->GetOrientation();
 }
-    
-/**
- * Returns the coordinates and orientation of the [WorldObject]
- *
- * @return float x : x coordinate of the [WorldObject]
-#endif
-    
-    TSArray<TSWorldObject> tbl;
-    uint32 i = 0;
-    
-    for (std::list<WorldObject*>::const_iterator it = list.begin(); it != list.end(); ++it)
-    {
-        tbl.push(TSWorldObject(*it));
-    }
 
-    return tbl;
-}
-    
 /**
  * Returns the distance from this [WorldObject] to another [WorldObject], or from this [WorldObject] to a point in 3d space.
  *
@@ -211,46 +194,6 @@ float TSWorldObject::GetDistance(TSWorldObject _target,float X,float Y,float Z)
 }
     
 /**
- * Returns the distance from this [WorldObject] to another [WorldObject], or from this [WorldObject] to a point in 3d space.
- *
- * The function does not take into account the given object sizes, which means only the object coordinates are compared. See also [WorldObject:GetDistance], [WorldObject:GetDistance2d]
- *
- * @proto dist = (obj)
- * @proto dist = (x, y, z)
- *
- * @param [WorldObject] obj
- * @param float x : the X-coordinate of the point
- * @param float y : the Y-coordinate of the point
- * @param float z : the Z-coordinate of the point
- *
- * @return float dist : the distance in yards
- */
-
-/*
-float TSWorldObject::GetExactDistance(TSWorldObject _target, float x1, float y1, float z1)
-{
-    auto target = _target.obj;
-    float x, y, z;
-    obj->GetPosition(x, y, z);
-    if (target)
-    {
-        float x2, y2, z2;
-        target->GetPosition(x2, y2, z2);
-        x -= x2;
-        y -= y2;
-        z -= z2;
-    }
-    else
-    {
-        x -= x1;
-        y -= y1;
-        z -= z1;
-    }
-    return std::sqrt(x*x + y*y + z*z);
-}
-*/
-    
-/**
  * Returns the distance from this [WorldObject] to another [WorldObject], or from this [WorldObject] to a point in 2d space.
  *
  * The function takes into account the given object sizes. See also [WorldObject:GetDistance], [WorldObject:GetExactDistance2d]
@@ -274,22 +217,7 @@ float TSWorldObject::GetDistance2d(TSWorldObject _target,float X,float Y)
         return obj->GetDistance2d(X, Y);
     }
 }
-    
-/**
- * Returns the distance from this [WorldObject] to another [WorldObject], or from this [WorldObject] to a point in 2d space.
- *
- * The function does not take into account the given object sizes, which means only the object coordinates are compared. See also [WorldObject:GetDistance], [WorldObject:GetDistance2d]
- *
- * @proto dist = (obj)
- * @proto dist = (x, y)
- *
- * @param [WorldObject] obj
- * @param float x : the X-coordinate of the point
- * @param float y : the Y-coordinate of the point
- *
- * @return float dist : the distance in yards
- */
-    
+
 /**
  * Returns the x, y and z of a point dist away from the [WorldObject].
  *
