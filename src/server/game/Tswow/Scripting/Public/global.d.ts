@@ -49,6 +49,26 @@ interface Array<T> {
 
 declare class TSMutableString extends TSMutable<string>{}
 
+declare class TSChatChannel {
+    GetName(locale?: uint32) : string;
+    GetID() : uint32;
+    IsConstant(): bool;
+    IsLFG(): bool;
+    IsAnnounce(): bool;
+    SetAnnounce(announce: bool): void;
+    SetDirty();
+    SetPassword(password: string): void;
+    CheckPassword(password: string): bool;
+    GetNumPlayers(): uint32;
+    GetFlags(): uint8;
+    HasFlag(flag: uint8): bool;
+    JoinChannel(player: TSPlayer, send?: boolean): void;
+    SetInvisible(player: TSPlayer, on: bool): void;
+    SetOwner(guid: uint64, exclaim?: bool): void;
+    Say(guid: uint64, what: string, lang: uint32): void;
+    
+}
+
 declare class TSPlayer extends TSUnit {
     IsNull() : bool
 
@@ -6032,8 +6052,7 @@ declare namespace _hidden {
         OnWhisper(callback: (player : TSPlayer,type : uint32,lang : uint32,msg : string,receiver : TSPlayer)=>void);
         OnChatGroup(callback: (player : TSPlayer,type : uint32,lang : uint32,msg : string,group : TSGroup)=>void);
         OnChatGuild(callback: (player : TSPlayer,type : uint32,lang : uint32,msg : string,guild : TSGuild)=>void);
-        // TODO: Fix chat to channel
-        //OnChat(callback: (player : TSPlayer,type : uint32,lang : uint32,msg : string,channel : Channel*)=>void),
+        OnChat(callback: (player : TSPlayer,type : uint32,lang : uint32,msg : string,channel : TSChatChannel)=>void);
         OnEmote(callback: (player : TSPlayer,emote : uint32)=>void);
         OnTextEmote(callback: (player : TSPlayer,textEmote : uint32,emoteNum : uint32,guid : uint64)=>void);
         OnSpellCast(callback: (player : TSPlayer,spell : TSSpell,skipCheck : bool)=>void);

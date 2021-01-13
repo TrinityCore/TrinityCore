@@ -50,3 +50,4 @@
 #include "TSClass.h"
 #include "TSStringify.h"
 #include "TSMath.h"
+#include "TSChannel.h"

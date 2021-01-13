@@ -54,3 +54,4 @@ class Unit;
 class Vehicle;
 class WorldObject;
 class WorldPacket;
+class Channel;

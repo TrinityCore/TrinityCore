@@ -21,6 +21,7 @@
 #include "TSMutable.h"
 #include "TSMutableString.h"
 #include "TSMacros.h"
+#include "TSChannel.h"
 #include <cstdint>
 
 // WorldScript
@@ -98,7 +99,7 @@ EVENT_TYPE(PlayerOnSay,TSPlayer,uint32,uint32,TSMutableString)
 EVENT_TYPE(PlayerOnWhisper,TSPlayer,uint32,uint32,TSMutableString,TSPlayer)
 EVENT_TYPE(PlayerOnChatGroup,TSPlayer,uint32,uint32,TSMutableString,TSGroup)
 EVENT_TYPE(PlayerOnChatGuild,TSPlayer,uint32,uint32,TSMutableString,TSGuild)
-//EVENT_TYPE(PlayerOnChat,TSPlayer,uint32,uint32,TSString,Channel*)
+EVENT_TYPE(PlayerOnChat,TSPlayer,uint32,uint32,TSMutableString,TSChannel)
 EVENT_TYPE(PlayerOnEmote,TSPlayer,uint32)
 EVENT_TYPE(PlayerOnTextEmote,TSPlayer,uint32,uint32,uint64)
 EVENT_TYPE(PlayerOnSpellCast,TSPlayer,TSSpell,bool)
@@ -304,7 +305,7 @@ struct TSEvents
     EVENT(PlayerOnWhisper)
     EVENT(PlayerOnChatGroup)
     EVENT(PlayerOnChatGuild)
-    //EVENT(PlayerOnChat) // <-- On Chat Channel
+    EVENT(PlayerOnChat) // <-- On Chat Channel
     EVENT(PlayerOnEmote)
     EVENT(PlayerOnTextEmote)
     EVENT(PlayerOnSpellCast)
@@ -501,7 +502,7 @@ public:
          EVENT_HANDLE(Player,OnWhisper)
          EVENT_HANDLE(Player,OnChatGroup)
          EVENT_HANDLE(Player,OnChatGuild)
-         //EVENT_HANDLE(Player,OnChat)
+         EVENT_HANDLE(Player,OnChat)
          EVENT_HANDLE(Player,OnEmote)
          EVENT_HANDLE(Player,OnTextEmote)
          EVENT_HANDLE(Player,OnSpellCast)

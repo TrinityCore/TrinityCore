@@ -40,6 +40,7 @@
 #include "SpellMgr.h"
 #include "SpellInfo.h"
 #include "TSIds.h"
+#include "TSChannel.h"
 #include <fstream>
 #include <map>
 
@@ -196,7 +197,7 @@ public:
     void OnChat(Player* player,uint32 type,uint32 lang,std::string& msg,Player* receiver) FIRE(PlayerOnWhisper,TSPlayer(player),type,lang,TSMutableString(&msg),TSPlayer(receiver))
     void OnChat(Player* player,uint32 type,uint32 lang,std::string& msg,Group* group) FIRE(PlayerOnChatGroup,TSPlayer(player),type,lang,TSMutableString(&msg),TSGroup(group))
     void OnChat(Player* player,uint32 type,uint32 lang,std::string& msg,Guild* guild) FIRE(PlayerOnChatGuild,TSPlayer(player),type,lang,TSMutableString(&msg),TSGuild(guild))
-    //void OnChat(Player* player,uint32 type,uint32 lang,std::string& msg,Channel* channel) FIRE(PlayerOnChat,TSPlayer(player),type,lang,TSMutableString(&msg),channel)
+    void OnChat(Player* player,uint32 type,uint32 lang,std::string& msg,Channel* channel) FIRE(PlayerOnChat,TSPlayer(player),type,lang,TSMutableString(&msg),TSChannel(channel))
     void OnEmote(Player* player,Emote emote) FIRE(PlayerOnEmote,TSPlayer(player),emote)
     void OnTextEmote(Player* player,uint32 textEmote,uint32 emoteNum,ObjectGuid guid) FIRE(PlayerOnTextEmote,TSPlayer(player),textEmote,emoteNum,guid.GetRawValue())
     void OnSpellCast(Player* player,Spell* spell,bool skipCheck) FIRE(PlayerOnSpellCast,TSPlayer(player),TSSpell(spell),skipCheck)
