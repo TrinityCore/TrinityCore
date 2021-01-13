@@ -40,5 +40,12 @@ You can explore the image using
 docker run --entrypoint=/bin/bash -it "image name"
 ```
 
+You can export the logs from the container with
+```
+docker cp "container name":/path.log name.log
+```
+
+For more instructions please check docker official documentation.
+
 ## Limitations:
 - Database connection: the instructions provided expect MySQL to run on the host machine. Change ```docker run``` parameters and .conf settings to fit your scenario
