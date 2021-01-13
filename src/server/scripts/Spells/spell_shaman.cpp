@@ -1437,13 +1437,15 @@ class spell_sha_ancestral_healing : public SpellScriptLoader
 
                 if (Unit* target = eventInfo.GetHealInfo()->GetTarget())
                 {
-                    int32 heal = CalculatePct(eventInfo.GetHealInfo()->GetHeal(), aurEff->GetAmount());
-                    uint32 health = target->GetMaxHealth();
-                    if (Aura* oldVigor = target->GetAura(SPELL_SHAMAN_ANCESTRAL_VIGOR, GetTarget()->GetGUID()))
-                        health -= oldVigor->GetEffect(EFFECT_0)->GetAmount();
+                    int32 healBonus = CalculatePct(eventInfo.GetHealInfo()->GetHeal(), aurEff->GetAmount());
+                    int32 healthCap = CalculatePct(target->GetMaxHealth(), 10);
 
-                    int32 bp = std::min<int32>(heal, CalculatePct(health, aurEff->GetAmount()));
-                    GetUnitOwner()->CastSpell(target, SPELL_SHAMAN_ANCESTRAL_VIGOR, CastSpellExtraArgs(aurEff).AddSpellBP0(bp));
+                    if (Aura* oldVigor = target->GetAura(SPELL_SHAMAN_ANCESTRAL_VIGOR, GetTarget()->GetGUID()))
+                        healBonus += oldVigor->GetEffect(EFFECT_0)->GetAmount();
+
+                    healBonus = std::min(healBonus, healthCap);
+
+                    GetUnitOwner()->CastSpell(target, SPELL_SHAMAN_ANCESTRAL_VIGOR, CastSpellExtraArgs(aurEff).AddSpellBP0(healBonus));
                 }
             }
 
