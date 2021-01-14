@@ -197,6 +197,7 @@ struct npc_headless_horseman_head : public PassiveAI
     void HandleInitialSetup()
     {
         DoCastSelf(SPELL_HEADLESS_HORSEMAN_C_HEAD_STUN);
+        me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
         _phase = PHASE_1;
         _events.SetPhase(PHASE_1);
     }
@@ -206,7 +207,6 @@ struct npc_headless_horseman_head : public PassiveAI
         _events.Reset();
         me->GetMotionMaster()->Clear();
         HandleInitialSetup();
-        me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
         PassiveAI::JustReachedHome();
     }
 
