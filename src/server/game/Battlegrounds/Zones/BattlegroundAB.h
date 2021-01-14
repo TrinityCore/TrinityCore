@@ -221,11 +221,11 @@ enum BG_AB_ExploitTeleportLocations
 
 Position const BG_AB_NodePositions[BG_AB_DYNAMIC_NODES_COUNT] =
 {
-    {1185.566f, 1184.629f, -56.36329f, 2.303831f},         // stables
-    {990.1131f, 1008.73f, --42.60328f, 0.8203033},         // blacksmith
-    {818.0089f, 842.3543f, -56.54062f, 3.176533f},         // farm
-    {808.8463f, 1185.417f,  11.92161f, 5.619962f},         // lumber mill
-    {1147.091f, 816.8362f, -98.39896f, 6.056293f}          // gold mine
+    {1166.785f, 1200.132f, -56.70859f, 0.9075713f},         // stables
+    {977.0156f, 1046.616f, -44.80923f, -2.600541f},         // blacksmith
+    {806.1821f, 874.2723f, -55.99371f, -2.303835f},         // farm
+    {856.1419f, 1148.902f, 11.18469f, -2.303835f},          // lumber mill
+    {1146.923f, 848.1782f, -110.917f, -0.7330382f}          // gold mine
 };
 
 // x, y, z, o, rot0, rot1, rot2, rot3
@@ -245,11 +245,11 @@ const uint32 BG_AB_GraveyardIds[BG_AB_ALL_NODES_COUNT] = {895, 894, 893, 897, 89
 // x, y, z, o
 const float BG_AB_BuffPositions[BG_AB_DYNAMIC_NODES_COUNT][4] =
 {
-    {1185.71f, 1185.24f, -56.36f, 2.56f},                   // stables
-    {990.75f, 1008.18f, -42.60f, 2.43f},                    // blacksmith
-    {817.66f, 843.34f, -56.54f, 3.01f},                     // farm
-    {807.46f, 1189.16f, 11.92f, 5.44f},                     // lumber mill
-    {1146.62f, 816.94f, -98.49f, 6.14f}                     // gold mine
+    {1185.566f, 1184.629f, -56.36329f, 2.303831f},         // stables
+    {990.1131f, 1008.73f, --42.60328f, 0.8203033},         // blacksmith
+    {818.0089f, 842.3543f, -56.54062f, 3.176533f},         // farm
+    {808.8463f, 1185.417f,  11.92161f, 5.619962f},         // lumber mill
+    {1147.091f, 816.8362f, -98.39896f, 6.056293f}          // gold mine
 };
 
 Position const BG_AB_SpiritGuidePos[BG_AB_ALL_NODES_COUNT] =
