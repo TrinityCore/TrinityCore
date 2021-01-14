@@ -39,10 +39,9 @@ You can explore the image using
 ```
 docker run --entrypoint=/bin/bash -it "image name"
 ```
-
-You can export the logs from the container with
+Note that the WORKDIR is set to /home/circleci and by default all logs will be saved in that folder. You can export the logs from the container with
 ```
-docker cp "container name":name.log name.log
+docker cp "container name":/home/circleci/name.log name.log
 ```
 
 For more instructions please check docker official documentation.
