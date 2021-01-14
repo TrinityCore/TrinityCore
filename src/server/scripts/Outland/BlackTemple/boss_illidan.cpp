@@ -823,7 +823,7 @@ public:
                         events.Repeat(Seconds(12));
                         break;
                     case EVENT_PARASITIC_SHADOWFIEND:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                             DoCast(target, SPELL_PARASITIC_SHADOWFIEND);
                         events.Repeat(Seconds(30));
                         break;

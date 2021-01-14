@@ -181,8 +181,6 @@ class TC_GAME_API SmartAI : public CreatureAI
         void QuestReward(Player* player, Quest const* quest, uint32 opt) override;
         void OnGameEvent(bool start, uint16 eventId) override;
 
-        uint32 mEscortQuestID;
-
         void SetDespawnTime (uint32 t, uint32 r = 0)
         {
             mDespawnTime = t;
@@ -197,6 +195,8 @@ class TC_GAME_API SmartAI : public CreatureAI
         void SetWPPauseTimer(uint32 time) { _waypointPauseTimer = time; }
 
         void SetGossipReturn(bool val) { _gossipReturn = val; }
+
+        void SetEscortQuest(uint32 questID) { mEscortQuestID = questID; }
 
     private:
         bool AssistPlayerInCombatAgainst(Unit* who);
@@ -246,6 +246,8 @@ class TC_GAME_API SmartAI : public CreatureAI
 
         // Gossip
         bool _gossipReturn;
+
+        uint32 mEscortQuestID;
 };
 
 class TC_GAME_API SmartGameObjectAI : public GameObjectAI
