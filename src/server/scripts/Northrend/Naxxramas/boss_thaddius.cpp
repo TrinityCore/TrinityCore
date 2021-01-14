@@ -379,7 +379,6 @@ struct boss_thaddius : public BossAI
                         me->CastSpell(me, SPELL_THADDIUS_SPARK_VISUAL, true);
                         ballLightningUnlocked = false;
                         me->RemoveAura(SPELL_THADDIUS_INACTIVE_VISUAL);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
                         me->SetImmuneToPC(false);
                         DoZoneInCombat();
 
