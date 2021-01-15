@@ -44,7 +44,7 @@ CyclicMovementGenerator<Creature>::CyclicMovementGenerator(WaypointPath const* p
         _velocity = *velocity;
 }
 
-CyclicMovementGenerator<Creature>::CyclicMovementGenerator() : _path(nullptr), _moveTimer(0)
+CyclicMovementGenerator<Creature>::CyclicMovementGenerator() : _path(nullptr), _moveTimer(0), _stalled(false)
 {
 }
 
