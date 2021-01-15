@@ -1,5 +1,5 @@
 
-Developpement World of Warcraft of Warcraft Custom .
+Developpement World of Warcraft Custom .
 
 Ce projet a pour but le debug de World of Warcraft et l'amelioration de celui ci aussi bien sur l'aspect cosmetique que la jouabilite orienté solo.
 Ce projet ne cherche pas a rendre le jeu blizz ou fun mais plutot different de ce qui peut ce faire habituellement c'est a dire une jouabilite plus solo et ainsi raviver le regard des plus blases .
