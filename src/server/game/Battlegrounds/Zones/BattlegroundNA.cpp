@@ -18,33 +18,11 @@
 #include "BattlegroundNA.h"
 #include "Log.h"
 #include "Player.h"
-#include "WorldPacket.h"
 #include "WorldStatePackets.h"
 
-BattlegroundNA::BattlegroundNA()
+BattlegroundNA::BattlegroundNA(BattlegroundTemplate const* battlegroundTemplate) : Arena(battlegroundTemplate)
 {
     BgObjects.resize(BG_NA_OBJECT_MAX);
-}
-
-void BattlegroundNA::PostUpdateImpl(uint32 diff)
-{
-    if (GetStatus() != STATUS_IN_PROGRESS)
-        return;
-
-    _events.Update(diff);
-
-    while (uint32 eventId = _events.ExecuteEvent())
-    {
-        switch (eventId)
-        {
-            case BG_NA_EVENT_REMOVE_DOORS:
-                for (uint32 i = BG_NA_OBJECT_DOOR_1; i <= BG_NA_OBJECT_DOOR_2; ++i)
-                    DelObject(i);
-                break;
-            default:
-                break;
-        }
-    }
 }
 
 void BattlegroundNA::StartingEventCloseDoors()
@@ -57,13 +35,12 @@ void BattlegroundNA::StartingEventOpenDoors()
 {
     for (uint32 i = BG_NA_OBJECT_DOOR_1; i <= BG_NA_OBJECT_DOOR_2; ++i)
         DoorOpen(i);
-    _events.ScheduleEvent(BG_NA_EVENT_REMOVE_DOORS, BG_NA_REMOVE_DOORS_TIMER);
 
     for (uint32 i = BG_NA_OBJECT_BUFF_1; i <= BG_NA_OBJECT_BUFF_2; ++i)
         SpawnBGObject(i, 60);
 }
 
-void BattlegroundNA::HandleAreaTrigger(Player* player, uint32 trigger)
+void BattlegroundNA::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
@@ -74,15 +51,14 @@ void BattlegroundNA::HandleAreaTrigger(Player* player, uint32 trigger)
         case 4537:                                          // buff trigger?
             break;
         default:
-            Battleground::HandleAreaTrigger(player, trigger);
+            Battleground::HandleAreaTrigger(player, trigger, entered);
             break;
     }
 }
 
 void BattlegroundNA::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    packet.Worldstates.emplace_back(2577, 1); // BATTLEGROUND_NAGRAND_ARENA_SHOW
-
+    packet.Worldstates.emplace_back(0xa11, 1);
     Arena::FillInitialWorldStates(packet);
 }
 

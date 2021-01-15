@@ -37,6 +37,9 @@
 #    define _GLIBCXX_SYNCHRONIZATION_HAPPENS_BEFORE(A) ANNOTATE_HAPPENS_BEFORE(A)
 #    define _GLIBCXX_SYNCHRONIZATION_HAPPENS_AFTER(A)  ANNOTATE_HAPPENS_AFTER(A)
 #  endif
+#  if defined(VALGRIND)
+#    include <valgrind/memcheck.h>
+#  endif
 #endif
 
 #include <cstddef>
@@ -109,6 +112,12 @@
 #  define TC_COMMON_API TC_API_IMPORT
 #endif
 
+#ifdef TRINITY_API_EXPORT_PROTO
+#  define TC_PROTO_API TC_API_EXPORT
+#else
+#  define TC_PROTO_API TC_API_IMPORT
+#endif
+
 #ifdef TRINITY_API_EXPORT_DATABASE
 #  define TC_DATABASE_API TC_API_EXPORT
 #else
@@ -135,9 +144,6 @@
 
 #define SZFMTD "%" PRIuPTR
 
-#define STRING_VIEW_FMT "%.*s"
-#define STRING_VIEW_FMT_ARG(str) static_cast<int>((str).length()), (str).data()
-
 typedef int64_t int64;
 typedef int32_t int32;
 typedef int16_t int16;
@@ -146,5 +152,16 @@ typedef uint64_t uint64;
 typedef uint32_t uint32;
 typedef uint16_t uint16;
 typedef uint8_t uint8;
+
+enum DBCFormer
+{
+    FT_STRING = 's',                                        // LocalizedString*
+    FT_STRING_NOT_LOCALIZED = 'S',                          // char*
+    FT_FLOAT = 'f',                                         // float
+    FT_INT = 'i',                                           // uint32
+    FT_BYTE = 'b',                                          // uint8
+    FT_SHORT = 'h',                                         // uint16
+    FT_LONG = 'l'                                           // uint64
+};
 
 #endif //TRINITY_DEFINE_H

@@ -64,9 +64,9 @@ public:
             {
                 if (state == FAIL)
                 {
-                    for (GuidList::const_iterator itr_trigger = portalTriggers.begin(); itr_trigger != portalTriggers.end(); ++itr_trigger)
+                    for (ObjectGuid const& portalTriggerGuid : portalTriggers)
                     {
-                        if (Creature* trigger = instance->GetCreature(*itr_trigger))
+                        if (Creature* trigger = instance->GetCreature(portalTriggerGuid))
                         {
                             // just in case
                             trigger->RemoveAllAuras();
@@ -77,7 +77,7 @@ public:
                     SpawnGameObject(GO_EXIT_PORTAL, exitPortalPosition);
 
                     if (GameObject* platform = instance->GetGameObject(platformGUID))
-                        platform->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
+                        platform->RemoveFlag(GO_FLAG_DESTROYED);
                 }
                 else if (state == DONE)
                     SpawnGameObject(GO_EXIT_PORTAL, exitPortalPosition);
@@ -89,14 +89,8 @@ public:
         // There is no other way afaik...
         void SpawnGameObject(uint32 entry, Position const& pos)
         {
-            GameObject* go = new GameObject();
-            if (!go->Create(instance->GenerateLowGuid<HighGuid::GameObject>(), entry, instance, PHASEMASK_NORMAL, pos, QuaternionData(), 255, GO_STATE_READY))
-            {
-                delete go;
-                return;
-            }
-
-            instance->AddToMap(go);
+            if (GameObject* go = GameObject::CreateGameObject(entry, instance, pos, QuaternionData::fromEulerAnglesZYX(pos.GetOrientation(), 0.0f, 0.0f), 255, GO_STATE_READY))
+                instance->AddToMap(go);
         }
 
         void OnGameObjectCreate(GameObject* go) override
@@ -167,7 +161,7 @@ public:
                     alexstraszaBunny->CastSpell(alexstraszaBunny, SPELL_IRIS_OPENED);
 
                 if (GameObject* iris = instance->GetGameObject(irisGUID))
-                    iris->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+                    iris->AddFlag(GO_FLAG_IN_USE);
 
                 if (Creature* malygos = instance->GetCreature(malygosGUID))
                     malygos->AI()->DoAction(0); // ACTION_LAND_ENCOUNTER_START
@@ -238,7 +232,7 @@ public:
                     PowerSparksHandling();
                     break;
                 case DATA_RESPAWN_IRIS:
-                    SpawnGameObject(instance->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL ? GO_FOCUSING_IRIS_10 : GO_FOCUSING_IRIS_25, focusingIrisPosition);
+                    SpawnGameObject(instance->GetDifficultyID() == DIFFICULTY_10_N ? GO_FOCUSING_IRIS_10 : GO_FOCUSING_IRIS_25, focusingIrisPosition);
                     break;
             }
         }

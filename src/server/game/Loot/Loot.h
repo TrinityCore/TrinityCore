@@ -20,6 +20,8 @@
 
 #include "Define.h"
 #include "ConditionMgr.h"
+#include "DBCEnums.h"
+#include "ItemEnchantmentMgr.h"
 #include "ObjectGuid.h"
 #include "RefManager.h"
 #include "SharedDefines.h"
@@ -31,6 +33,14 @@ class LootStore;
 class Player;
 struct Loot;
 struct LootStoreItem;
+
+namespace WorldPackets
+{
+    namespace Loot
+    {
+        class LootResponse;
+    }
+}
 
 enum RollType
 {
@@ -52,7 +62,7 @@ enum RollMask
     ROLL_ALL_TYPE_MASK          = 0x0F
 };
 
-#define MAX_NR_LOOT_ITEMS 18
+#define MAX_NR_LOOT_ITEMS 16
 // note: the client cannot show more than 16 items total
 #define MAX_NR_QUEST_ITEMS 32
 // unrelated to the number of quest items shown, just for reserve
@@ -60,10 +70,9 @@ enum RollMask
 enum LootMethod : uint8
 {
     FREE_FOR_ALL      = 0,
-    ROUND_ROBIN       = 1,
     MASTER_LOOT       = 2,
     GROUP_LOOT        = 3,
-    NEED_BEFORE_GREED = 4
+    PERSONAL_LOOT     = 5
 };
 
 enum PermissionTypes
@@ -72,7 +81,6 @@ enum PermissionTypes
     GROUP_PERMISSION            = 1,
     MASTER_PERMISSION           = 2,
     RESTRICTED_PERMISSION       = 3,
-    ROUND_ROBIN_PERMISSION      = 4,
     OWNER_PERMISSION            = 5,
     NONE_PERMISSION             = 6
 };
@@ -109,7 +117,8 @@ enum LootError : uint8
     LOOT_ERROR_MASTER_UNIQUE_ITEM       = 13,   // Player has too many of that item already
     LOOT_ERROR_MASTER_OTHER             = 14,   // Can't assign item to that player
     LOOT_ERROR_ALREADY_PICKPOCKETED     = 15,   // Your target has already had its pockets picked
-    LOOT_ERROR_NOT_WHILE_SHAPESHIFTED   = 16    // You can't do that while shapeshifted.
+    LOOT_ERROR_NOT_WHILE_SHAPESHIFTED   = 16,   // You can't do that while shapeshifted.
+    LOOT_ERROR_NO_LOOT                  = 17    // There is no loot.
 };
 
 // type of Loot Item in Loot View
@@ -117,19 +126,20 @@ enum LootSlotType
 {
     LOOT_SLOT_TYPE_ALLOW_LOOT   = 0,                        // player can loot the item.
     LOOT_SLOT_TYPE_ROLL_ONGOING = 1,                        // roll is ongoing. player cannot loot.
-    LOOT_SLOT_TYPE_MASTER       = 2,                        // item can only be distributed by group loot master.
-    LOOT_SLOT_TYPE_LOCKED       = 3,                        // item is shown in red. player cannot loot.
+    LOOT_SLOT_TYPE_MASTER       = 3,                        // item can only be distributed by group loot master.
+    LOOT_SLOT_TYPE_LOCKED       = 2,                        // item is shown in red. player cannot loot.
     LOOT_SLOT_TYPE_OWNER        = 4                         // ignore binding confirmation and etc, for single player looting
 };
 
 struct TC_GAME_API LootItem
 {
     uint32  itemid;
-    uint32  randomSuffix;
-    int32   randomPropertyId;
-    ConditionContainer conditions;                          // additional loot condition
+    ItemRandomBonusListId randomBonusListId;
+    std::vector<int32> BonusListIDs;
+    ItemContext context;
+    ConditionContainer conditions;                               // additional loot condition
     GuidSet allowedGUIDs;
-    ObjectGuid rollWinnerGUID;                              // Stores the guid of person who won loot, if his bags are full only he can see the item in loot list!
+    ObjectGuid rollWinnerGUID;                                   // Stores the guid of person who won loot, if his bags are full only he can see the item in loot list!
     uint8   count             : 8;
     bool    is_looted         : 1;
     bool    is_blocked        : 1;
@@ -144,12 +154,11 @@ struct TC_GAME_API LootItem
     explicit LootItem(LootStoreItem const& li);
 
     // Empty constructor for creating an empty LootItem to be filled in with DB data
-    LootItem() : itemid(0), randomSuffix(0), randomPropertyId(0), count(0), is_looted(false), is_blocked(false),
-                 freeforall(false), is_underthreshold(false), is_counted(false), needs_quest(false), follow_loot_rules(false)
-                 { };
+    LootItem() : itemid(0), randomBonusListId(0), context(ItemContext::NONE), count(0), is_looted(false), is_blocked(false),
+                 freeforall(false), is_underthreshold(false), is_counted(false), needs_quest(false), follow_loot_rules(false) { };
 
     // Basic checks for player/item compatibility - if false no chance to see the item in the loot
-    bool AllowedForPlayer(Player const* player, bool isGivenByMasterLooter = false) const;
+    bool AllowedForPlayer(Player const* player) const;
     void AddAllowedLooter(Player const* player);
     GuidSet const& GetAllowedLooters() const { return allowedGUIDs; }
 };
@@ -166,44 +175,37 @@ struct NotNormalLootItem
         : index(_index), is_looted(_islooted) { }
 };
 
-struct Loot;
-class LootTemplate;
-
 typedef std::vector<NotNormalLootItem> NotNormalLootItemList;
 typedef std::vector<LootItem> LootItemList;
 typedef std::unordered_map<ObjectGuid, NotNormalLootItemList*> NotNormalLootItemMap;
 
+//=====================================================
+
 class LootValidatorRef : public Reference<Loot, LootValidatorRef>
 {
-    public:
-        LootValidatorRef() { }
-        void targetObjectDestroyLink() override { }
-        void sourceObjectDestroyLink() override { }
+public:
+    LootValidatorRef() { }
+    void targetObjectDestroyLink() override { }
+    void sourceObjectDestroyLink() override { }
 };
 
 //=====================================================
 
 class LootValidatorRefManager : public RefManager<Loot, LootValidatorRef>
 {
-    public:
-        typedef LinkedListHead::Iterator< LootValidatorRef > iterator;
+public:
+    typedef LinkedListHead::Iterator<LootValidatorRef> iterator;
 
-        LootValidatorRef* getFirst() { return (LootValidatorRef*)RefManager<Loot, LootValidatorRef>::getFirst(); }
+    LootValidatorRef* getFirst() { return (LootValidatorRef*)RefManager<Loot, LootValidatorRef>::getFirst(); }
 
-        iterator begin() { return iterator(getFirst()); }
-        iterator end()   { return iterator(nullptr); }
+    iterator begin() { return iterator(getFirst()); }
+    iterator end() { return iterator(nullptr); }
 };
 
 //=====================================================
-struct LootView;
-
-ByteBuffer& operator<<(ByteBuffer& b, LootItem const& li);
-ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv);
 
 struct TC_GAME_API Loot
 {
-    friend ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv);
-
     NotNormalLootItemMap const& GetPlayerQuestItems() const { return PlayerQuestItems; }
     NotNormalLootItemMap const& GetPlayerFFAItems() const { return PlayerFFAItems; }
     NotNormalLootItemMap const& GetPlayerNonQuestNonFFAConditionalItems() const { return PlayerNonQuestNonFFAConditionalItems; }
@@ -213,16 +215,18 @@ struct TC_GAME_API Loot
     uint32 gold;
     uint8 unlootedCount;
     ObjectGuid roundRobinPlayer;                            // GUID of the player having the Round-Robin ownership for the loot. If 0, round robin owner has released.
-    ObjectGuid lootOwnerGUID;
     LootType loot_type;                                     // required for achievement system
     uint8 maxDuplicates;                                    // Max amount of items with the same entry that can drop (default is 1; on 25 man raid mode 3)
 
-    // GUIDLow of container that holds this loot (item_instance.entry)
+    // GUID of container that holds this loot (item_instance.entry)
     //  Only set for inventory items that can be right-click looted
-    uint32 containerID;
+    ObjectGuid containerID;
 
     Loot(uint32 _gold = 0);
     ~Loot();
+
+    ObjectGuid const& GetGUID() const { return _GUID; }
+    void SetGUID(ObjectGuid const& guid) { _GUID = guid; }
 
     // if loot becomes invalid this reference is used to inform the listener
     void addLootValidatorRef(LootValidatorRef* pLootValidatorRef)
@@ -242,39 +246,60 @@ struct TC_GAME_API Loot
     void RemoveLooter(ObjectGuid GUID) { PlayersLooting.erase(GUID); }
 
     void generateMoneyLoot(uint32 minAmount, uint32 maxAmount);
-    bool FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bool personal, bool noEmptyError = false, uint16 lootMode = LOOT_MODE_DEFAULT);
+    bool FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bool personal, bool noEmptyError = false, uint16 lootMode = LOOT_MODE_DEFAULT, ItemContext context = ItemContext::NONE);
 
     // Inserts the item into the loot (called by LootTemplate processors)
     void AddItem(LootStoreItem const & item);
 
+    LootItem const* GetItemInSlot(uint32 lootSlot) const;
     LootItem* LootItemInSlot(uint32 lootslot, Player* player, NotNormalLootItem** qitem = nullptr, NotNormalLootItem** ffaitem = nullptr, NotNormalLootItem** conditem = nullptr);
     uint32 GetMaxSlotInLootFor(Player* player) const;
     bool hasItemForAll() const;
-    bool hasItemFor(Player* player) const;
+    bool hasItemFor(Player const* player) const;
     bool hasOverThresholdItem() const;
 
-    private:
-        void FillNotNormalLootFor(Player* player, bool presentAtLooting);
-        NotNormalLootItemList* FillFFALoot(Player* player);
-        NotNormalLootItemList* FillQuestLoot(Player* player);
-        NotNormalLootItemList* FillNonQuestNonFFAConditionalLoot(Player* player, bool presentAtLooting);
+    // Builds data for SMSG_LOOT_RESPONSE
+    void BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* viewer, PermissionTypes permission = ALL_PERMISSION) const;
 
-        GuidSet PlayersLooting;
-        NotNormalLootItemMap PlayerQuestItems;
-        NotNormalLootItemMap PlayerFFAItems;
-        NotNormalLootItemMap PlayerNonQuestNonFFAConditionalItems;
+private:
 
-        // All rolls are registered here. They need to know, when the loot is not valid anymore
-        LootValidatorRefManager i_LootValidatorRefManager;
+    void FillNotNormalLootFor(Player* player, bool presentAtLooting);
+    NotNormalLootItemList* FillFFALoot(Player* player);
+    NotNormalLootItemList* FillQuestLoot(Player* player);
+    NotNormalLootItemList* FillNonQuestNonFFAConditionalLoot(Player* player, bool presentAtLooting);
+
+    GuidSet PlayersLooting;
+    NotNormalLootItemMap PlayerQuestItems;
+    NotNormalLootItemMap PlayerFFAItems;
+    NotNormalLootItemMap PlayerNonQuestNonFFAConditionalItems;
+
+    // All rolls are registered here. They need to know, when the loot is not valid anymore
+    LootValidatorRefManager i_LootValidatorRefManager;
+
+    // Loot GUID
+    ObjectGuid _GUID;
+    ItemContext _itemContext;
 };
 
-struct LootView
+class TC_GAME_API AELootResult
 {
-    Loot &loot;
-    Player* viewer;
-    PermissionTypes permission;
-    LootView(Loot &_loot, Player* _viewer, PermissionTypes _permission = ALL_PERMISSION)
-        : loot(_loot), viewer(_viewer), permission(_permission) { }
+public:
+    struct ResultValue
+    {
+        Item* item;
+        uint8 count;
+        LootType lootType;
+    };
+
+    typedef std::vector<ResultValue> OrderedStorage;
+
+    void Add(Item* item, uint8 count, LootType lootType);
+
+    OrderedStorage::const_iterator begin() const;
+    OrderedStorage::const_iterator end() const;
+
+    OrderedStorage _byOrder;
+    std::unordered_map<Item*, OrderedStorage::size_type> _byItem;
 };
 
 #endif // Loot_h__

@@ -18,7 +18,7 @@
 #ifndef ADT_H
 #define ADT_H
 
-#include "loadlib.h"
+#include "Define.h"
 
 #define TILESIZE (533.33333f)
 #define CHUNKSIZE ((TILESIZE) / 16.0f)
@@ -44,29 +44,25 @@ enum LiquidType
 //
 // Adt file height map chunk
 //
-class adt_MCVT
+struct adt_MCVT
 {
     union{
         uint32 fcc;
         char   fcc_txt[4];
     };
     uint32 size;
-public:
     float height_map[(ADT_CELL_SIZE+1)*(ADT_CELL_SIZE+1)+ADT_CELL_SIZE*ADT_CELL_SIZE];
-
-    bool  prepareLoadedData();
 };
 
 //
 // Adt file liquid map chunk (old)
 //
-class adt_MCLQ
+struct adt_MCLQ
 {
     union{
         uint32 fcc;
         char   fcc_txt[4];
     };
-public:
     uint32 size;
     float height1;
     float height2;
@@ -83,27 +79,32 @@ public:
     // == 0x0F - not show liquid
     uint8 flags[ADT_CELL_SIZE][ADT_CELL_SIZE];
     uint8 data[84];
-    bool  prepareLoadedData();
 };
 
 //
 // Adt file cell chunk
 //
-class adt_MCNK
+struct adt_MCNK
 {
     union{
         uint32 fcc;
         char   fcc_txt[4];
     };
-public:
     uint32 size;
     uint32 flags;
     uint32 ix;
     uint32 iy;
     uint32 nLayers;
     uint32 nDoodadRefs;
-    uint32 offsMCVT;        // height map
-    uint32 offsMCNR;        // Normal vectors for each vertex
+    union
+    {
+        struct
+        {
+            uint32 offsMCVT;        // height map
+            uint32 offsMCNR;        // Normal vectors for each vertex
+        } offsets;
+        uint8 HighResHoles[8];
+    } union_5_3_0;
     uint32 offsMCLY;        // Texture layer definitions
     uint32 offsMCRF;        // A list of indices into the parent file's MDDF chunk
     uint32 offsMCAL;        // Alpha maps for additional texture layers
@@ -129,61 +130,25 @@ public:
     uint32 offsMCCV;         // offsColorValues in WotLK
     uint32 props;
     uint32 effectId;
-
-    bool   prepareLoadedData();
-    adt_MCVT *getMCVT()
-    {
-        if (offsMCVT)
-            return (adt_MCVT *)((uint8 *)this + offsMCVT);
-        return 0;
-    }
-    adt_MCLQ *getMCLQ()
-    {
-        if (offsMCLQ)
-            return (adt_MCLQ *)((uint8 *)this + offsMCLQ);
-        return 0;
-    }
 };
 
-//
-// Adt file grid chunk
-//
-class adt_MCIN
-{
-    union{
-        uint32 fcc;
-        char   fcc_txt[4];
-    };
-public:
-    uint32 size;
-    struct adt_CELLS{
-        uint32 offsMCNK;
-        uint32 size;
-        uint32 flags;
-        uint32 asyncId;
-    } cells[ADT_CELLS_PER_GRID][ADT_CELLS_PER_GRID];
-
-    bool   prepareLoadedData();
-    // offset from begin file (used this-84)
-    adt_MCNK *getMCNK(int x, int y)
-    {
-        if (cells[x][y].offsMCNK)
-            return (adt_MCNK *)((uint8 *)this + cells[x][y].offsMCNK - 84);
-        return 0;
-    }
-};
+#define ADT_LIQUID_HEADER_FULL_LIGHT   0x01
+#define ADT_LIQUID_HEADER_NO_HIGHT     0x02
 
 enum class LiquidVertexFormatType : uint16
 {
     HeightDepth             = 0,
     HeightTextureCoord      = 1,
     Depth                   = 2,
+    HeightDepthTextureCoord = 3,
+    Unk4                    = 4,
+    Unk5                    = 5
 };
 
 struct adt_liquid_instance
 {
     uint16 LiquidType;              // Index from LiquidType.db2
-    LiquidVertexFormatType LiquidVertexFormat;
+    uint16 LiquidVertexFormat;      // Id from LiquidObject.db2 if >= 42
     float MinHeightLevel;
     float MaxHeightLevel;
     uint8 OffsetX;
@@ -193,10 +158,10 @@ struct adt_liquid_instance
     uint32 OffsetExistsBitmap;
     uint32 OffsetVertexData;
 
-    uint8 GetOffsetX() const { return OffsetX; }
-    uint8 GetOffsetY() const { return OffsetY; }
-    uint8 GetWidth() const { return Width; }
-    uint8 GetHeight() const { return Height; }
+    uint8 GetOffsetX() const { return LiquidVertexFormat < 42 ? OffsetX : 0; }
+    uint8 GetOffsetY() const { return LiquidVertexFormat < 42 ? OffsetY : 0; }
+    uint8 GetWidth() const { return LiquidVertexFormat < 42 ? Width : 8; }
+    uint8 GetHeight() const { return LiquidVertexFormat < 42 ? Height : 8; }
 };
 
 struct adt_liquid_attributes
@@ -208,9 +173,8 @@ struct adt_liquid_attributes
 //
 // Adt file liquid data chunk (new)
 //
-class adt_MH2O
+struct adt_MH2O
 {
-public:
     union{
         uint32 fcc;
         char   fcc_txt[4];
@@ -222,8 +186,6 @@ public:
         uint32 used;
         uint32 OffsetAttributes;
     } liquid[ADT_CELLS_PER_GRID][ADT_CELLS_PER_GRID];
-
-    bool   prepareLoadedData();
 
     adt_liquid_instance const* GetLiquidInstance(int32 x, int32 y) const
     {
@@ -245,7 +207,7 @@ public:
 
     uint16 GetLiquidType(adt_liquid_instance const* h) const
     {
-        if (h->LiquidVertexFormat == LiquidVertexFormatType::Depth)
+        if (GetLiquidVertexFormat(h) == LiquidVertexFormatType::Depth)
             return 2;
 
         return h->LiquidType;
@@ -255,14 +217,20 @@ public:
     {
         if (!h->OffsetVertexData)
             return 0.0f;
+        if (GetLiquidVertexFormat(h) == LiquidVertexFormatType::Depth)
+            return 0.0f;
 
-        switch (h->LiquidVertexFormat)
+        switch (GetLiquidVertexFormat(h))
         {
             case LiquidVertexFormatType::HeightDepth:
             case LiquidVertexFormatType::HeightTextureCoord:
+            case LiquidVertexFormatType::HeightDepthTextureCoord:
                 return ((float const*)((uint8*)this + 8 + h->OffsetVertexData))[pos];
             case LiquidVertexFormatType::Depth:
                 return 0.0f;
+            case LiquidVertexFormatType::Unk4:
+            case LiquidVertexFormatType::Unk5:
+                return ((float const*)((uint8*)this + 8 + h->OffsetVertexData + 4))[pos * 2];
             default:
                 break;
         }
@@ -275,7 +243,7 @@ public:
         if (!h->OffsetVertexData)
             return -1;
 
-        switch (h->LiquidVertexFormat)
+        switch (GetLiquidVertexFormat(h))
         {
             case LiquidVertexFormatType::HeightDepth:
                 return ((int8 const*)((int8 const*)this + 8 + h->OffsetVertexData + (h->GetWidth() + 1) * (h->GetHeight() + 1) * 4))[pos];
@@ -283,6 +251,12 @@ public:
                 return 0;
             case LiquidVertexFormatType::Depth:
                 return ((int8 const*)((uint8*)this + 8 + h->OffsetVertexData))[pos];
+            case LiquidVertexFormatType::HeightDepthTextureCoord:
+                return ((int8 const*)((int8 const*)this + 8 + h->OffsetVertexData + (h->GetWidth() + 1) * (h->GetHeight() + 1) * 8))[pos];
+            case LiquidVertexFormatType::Unk4:
+                return ((int8 const*)((uint8*)this + 8 + h->OffsetVertexData))[pos * 8];
+            case LiquidVertexFormatType::Unk5:
+                return 0;
             default:
                 break;
         }
@@ -294,13 +268,17 @@ public:
         if (!h->OffsetVertexData)
             return nullptr;
 
-        switch (h->LiquidVertexFormat)
+        switch (GetLiquidVertexFormat(h))
         {
             case LiquidVertexFormatType::HeightDepth:
             case LiquidVertexFormatType::Depth:
+            case LiquidVertexFormatType::Unk4:
                 return nullptr;
             case LiquidVertexFormatType::HeightTextureCoord:
+            case LiquidVertexFormatType::HeightDepthTextureCoord:
                 return (uint16 const*)((uint8 const*)this + 8 + h->OffsetVertexData + 4 * ((h->GetWidth() + 1) * (h->GetHeight() + 1) + pos));
+            case LiquidVertexFormatType::Unk5:
+                return (uint16 const*)((uint8 const*)this + 8 + h->OffsetVertexData + 8 * ((h->GetWidth() + 1) * (h->GetHeight() + 1) + pos));
             default:
                 break;
         }
@@ -314,19 +292,17 @@ public:
         else
             return 0xFFFFFFFFFFFFFFFFuLL;
     }
+
+    LiquidVertexFormatType GetLiquidVertexFormat(adt_liquid_instance const* liquidInstance) const;
 };
 
-//
-// Adt file min/max height chunk
-//
-class adt_MFBO
+struct adt_MFBO
 {
     union
     {
         uint32 fcc;
         char   fcc_txt[4];
     };
-public:
     uint32 size;
     struct plane
     {
@@ -334,65 +310,6 @@ public:
     };
     plane max;
     plane min;
-
-    bool prepareLoadedData();
-};
-
-//
-// Adt file header chunk
-//
-class adt_MHDR
-{
-    union{
-        uint32 fcc;
-        char   fcc_txt[4];
-    };
-public:
-    uint32 size;
-
-    uint32 flags;
-    uint32 offsMCIN;           // MCIN
-    uint32 offsTex;            // MTEX
-    uint32 offsModels;         // MMDX
-    uint32 offsModelsIds;      // MMID
-    uint32 offsMapObejcts;     // MWMO
-    uint32 offsMapObejctsIds;  // MWID
-    uint32 offsDoodsDef;       // MDDF
-    uint32 offsObjectsDef;     // MODF
-    uint32 offsMFBO;           // MFBO
-    uint32 offsMH2O;           // MH2O
-    uint32 data1;
-    uint32 data2;
-    uint32 data3;
-    uint32 data4;
-    uint32 data5;
-    bool prepareLoadedData();
-    adt_MCIN* getMCIN()
-    {
-        return reinterpret_cast<adt_MCIN*>(reinterpret_cast<uint8*>(&flags) + offsMCIN);
-    }
-    adt_MH2O* getMH2O()
-    {
-        if (offsMH2O)
-            return reinterpret_cast<adt_MH2O*>(reinterpret_cast<uint8*>(&flags) + offsMH2O);
-        return nullptr;
-    }
-    adt_MFBO* getMFBO()
-    {
-        if (flags & 1 && offsMFBO)
-            return reinterpret_cast<adt_MFBO*>(reinterpret_cast<uint8*>(&flags) + offsMFBO);
-        return nullptr;
-    }
-};
-
-class ADT_file : public FileLoader{
-public:
-    bool prepareLoadedData();
-    ADT_file();
-    ~ADT_file();
-    void free();
-
-    adt_MHDR *a_grid;
 };
 
 #pragma pack(pop)

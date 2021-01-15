@@ -29,7 +29,8 @@ namespace WorldPackets
         public:
             struct WorldStateInfo
             {
-                WorldStateInfo(int32 variableID, int32 value) : VariableID(variableID), Value(value) { }
+                WorldStateInfo(int32 variableID, int32 value)
+                    : VariableID(variableID), Value(value) { }
 
                 int32 VariableID;
                 int32 Value;
@@ -39,9 +40,9 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            int32 MapID = 0;
-            int32 ZoneID = 0;
-            int32 AreaID = 0;
+            int32 AreaID    = 0; ///< ZoneId
+            int32 SubareaID = 0; ///< AreaId
+            int32 MapID     = 0; ///< MapId
 
             std::vector<WorldStateInfo> Worldstates;
         };
@@ -49,12 +50,13 @@ namespace WorldPackets
         class UpdateWorldState final : public ServerPacket
         {
         public:
-            UpdateWorldState() : ServerPacket(SMSG_UPDATE_WORLD_STATE, 4 + 4) { }
+            UpdateWorldState();
 
             WorldPacket const* Write() override;
 
-            int32 VariableID = 0;
-            int32 Value = 0;
+            int32 Value       = 0;
+            bool Hidden   = false; ///< @todo: research
+            uint32 VariableID = 0;
         };
     }
 }

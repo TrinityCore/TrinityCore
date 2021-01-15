@@ -20,9 +20,10 @@
 
 #include "Common.h"
 
-TC_GAME_API void LoadRandomEnchantmentsTable();
-TC_GAME_API int32 GenerateItemRandomPropertyId(uint32 item_id);
-TC_GAME_API uint32 GetItemEnchantMod(int32 entry);
-TC_GAME_API uint32 GenerateEnchSuffixFactor(uint32 item_id);
+using ItemRandomBonusListId = uint32;
+
+TC_GAME_API void LoadItemRandomBonusListTemplates();
+TC_GAME_API ItemRandomBonusListId GenerateItemRandomBonusListId(uint32 item_id);
+TC_GAME_API uint32 GetRandomPropertyPoints(uint32 itemLevel, uint32 quality, uint32 inventoryType, uint32 subclass);
 
 #endif

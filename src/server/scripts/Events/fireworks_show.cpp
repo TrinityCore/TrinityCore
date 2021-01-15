@@ -804,15 +804,15 @@ public:
             // Start
             if ((localTm.tm_min == 0 && localTm.tm_sec == 0) && !_started && (IsHolidayActive(HOLIDAY_FIREWORKS_SPECTACULAR) || IsEventActive(GAME_EVENT_NEW_YEAR)))
             {
-                _events.ScheduleEvent(EVENT_CHEER, 1s);
-                _events.ScheduleEvent(EVENT_FIRE, 1s);
+                _events.ScheduleEvent(EVENT_CHEER, Seconds(1));
+                _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
                 _started = true;
             }
 
             // Event is active
             if ((localTm.tm_min >= 0 && localTm.tm_sec >= 1 && localTm.tm_min <= 9 && localTm.tm_sec <= 59 && !_started) && (IsHolidayActive(HOLIDAY_FIREWORKS_SPECTACULAR) || IsEventActive(GAME_EVENT_NEW_YEAR)))
             {
-                _events.ScheduleEvent(EVENT_FIRE, 1s);
+                _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
                 _started = true;
             }
 
@@ -820,7 +820,7 @@ public:
             if ((localTm.tm_min == 10 && localTm.tm_sec == 0) && _started == true)
             {
                 _started = false;
-                _events.ScheduleEvent(EVENT_CHEER, 1s);
+                _events.ScheduleEvent(EVENT_CHEER, Seconds(1));
                 _events.CancelEvent(EVENT_FIRE);
             }
 
@@ -828,17 +828,17 @@ public:
             if ((localTm.tm_min == 10 && localTm.tm_sec == 30 && localTm.tm_hour == 0) && IsEventActive(GAME_EVENT_NEW_YEAR) && _big == true)
             {
                 _big = false;
-                _events.ScheduleEvent(EVENT_CHEER, 1s);
-                _events.ScheduleEvent(EVENT_FIRE, 1s);
-                _events.ScheduleEvent(EVENT_FIRE, 1s);
-                _events.ScheduleEvent(EVENT_FIRE, 1s);
-                _events.ScheduleEvent(EVENT_FIRE, 1s);
-                _events.ScheduleEvent(EVENT_FIRE, 1s);
-                _events.ScheduleEvent(EVENT_FIRE, 1s);
-                _events.ScheduleEvent(EVENT_FIRE, 1s);
-                _events.ScheduleEvent(EVENT_FIRE, 1s);
-                _events.ScheduleEvent(EVENT_FIRE, 1s);
-                _events.ScheduleEvent(EVENT_FIRE, 1s);
+                _events.ScheduleEvent(EVENT_CHEER, Seconds(1));
+                _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
+                _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
+                _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
+                _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
+                _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
+                _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
+                _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
+                _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
+                _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
+                _events.ScheduleEvent(EVENT_FIRE, Seconds(1));
             }
 
             while (uint32 eventId = _events.ExecuteEvent())
@@ -860,7 +860,7 @@ public:
 
                             if (_big)
                             {
-                                if (GameObject* firework = me->SummonGameObject(FireworksBIGOnlyPicker(), rndpos, QuaternionData(0.f, 0.f, rndrot, rndrot2), 5min))
+                                if (GameObject* firework = me->SummonGameObject(FireworksBIGOnlyPicker(), rndpos, QuaternionData(0.f, 0.f, rndrot, rndrot2), 300))
                                 {
                                     firework->SetRespawnTime(0);
                                     firework->Delete();
@@ -868,7 +868,7 @@ public:
                             }
                             else
                             {
-                                if (GameObject* firework = me->SummonGameObject(FireworksPicker(), rndpos, QuaternionData(0.f, 0.f, rndrot, rndrot2), 5min))
+                                if (GameObject* firework = me->SummonGameObject(FireworksPicker(), rndpos, QuaternionData(0.f, 0.f, rndrot, rndrot2), 300))
                                 {
                                     firework->SetRespawnTime(0);
                                     firework->Delete();
@@ -877,7 +877,7 @@ public:
                         }
 
                         if (_started == true)
-                            _events.ScheduleEvent(EVENT_FIRE, 1s, 2s);
+                            _events.ScheduleEvent(EVENT_FIRE, Seconds(1), Seconds(2));
 
                         break;
                     }

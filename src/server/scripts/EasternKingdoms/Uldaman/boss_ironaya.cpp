@@ -65,7 +65,7 @@ class boss_ironaya : public CreatureScript
                 Initialize();
             }
 
-            void JustEngagedWith(Unit* /*who*/) override { }
+            void EnterCombat(Unit* /*who*/) override { }
 
             void UpdateAI(uint32 uiDiff) override
             {

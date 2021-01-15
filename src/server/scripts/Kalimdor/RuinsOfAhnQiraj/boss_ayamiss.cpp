@@ -19,7 +19,6 @@
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
-#include "Player.h"
 #include "ruins_of_ahnqiraj.h"
 #include "ScriptedCreature.h"
 
@@ -109,7 +108,7 @@ class boss_ayamiss : public CreatureScript
                         who->GetMotionMaster()->MovePoint(POINT_PARALYZE, AltarPos);
                         break;
                     case NPC_HORNET:
-                        if (Unit* target = SelectTarget(SelectTargetMethod::Random))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                             who->AI()->AttackStart(target);
                         break;
                 }
@@ -137,15 +136,15 @@ class boss_ayamiss : public CreatureScript
                 BossAI::EnterEvadeMode(why);
             }
 
-            void JustEngagedWith(Unit* attacker) override
+            void EnterCombat(Unit* attacker) override
             {
-                BossAI::JustEngagedWith(attacker);
+                BossAI::EnterCombat(attacker);
 
-                events.ScheduleEvent(EVENT_STINGER_SPRAY, 20s, 30s);
-                events.ScheduleEvent(EVENT_POISON_STINGER, 5s);
-                events.ScheduleEvent(EVENT_SUMMON_SWARMER, 5s);
-                events.ScheduleEvent(EVENT_SWARMER_ATTACK, 1min);
-                events.ScheduleEvent(EVENT_PARALYZE, 15s);
+                events.ScheduleEvent(EVENT_STINGER_SPRAY, urand(20000, 30000));
+                events.ScheduleEvent(EVENT_POISON_STINGER, 5000);
+                events.ScheduleEvent(EVENT_SUMMON_SWARMER, 5000);
+                events.ScheduleEvent(EVENT_SWARMER_ATTACK, 60000);
+                events.ScheduleEvent(EVENT_PARALYZE, 15000);
 
                 me->SetCanFly(true);
                 me->SetDisableGravity(true);
@@ -170,8 +169,8 @@ class boss_ayamiss : public CreatureScript
                         me->GetMotionMaster()->MovePoint(POINT_GROUND, VictimPos);
                     }
                     ResetThreatList();
-                    events.ScheduleEvent(EVENT_LASH, 5s, 8s);
-                    events.ScheduleEvent(EVENT_TRASH, 3s, 6s);
+                    events.ScheduleEvent(EVENT_LASH, urand(5000, 8000));
+                    events.ScheduleEvent(EVENT_TRASH, urand(3000, 6000));
                     events.CancelEvent(EVENT_POISON_STINGER);
                 }
                 else
@@ -192,45 +191,45 @@ class boss_ayamiss : public CreatureScript
                     {
                         case EVENT_STINGER_SPRAY:
                             DoCast(me, SPELL_STINGER_SPRAY);
-                            events.ScheduleEvent(EVENT_STINGER_SPRAY, 15s, 20s);
+                            events.ScheduleEvent(EVENT_STINGER_SPRAY, urand(15000, 20000));
                             break;
                         case EVENT_POISON_STINGER:
                             DoCastVictim(SPELL_POISON_STINGER);
-                            events.ScheduleEvent(EVENT_POISON_STINGER, 2s, 3s);
+                            events.ScheduleEvent(EVENT_POISON_STINGER, urand(2000, 3000));
                             break;
                         case EVENT_PARALYZE:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0, true))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
                             {
                                 DoCast(target, SPELL_PARALYZE);
                                 instance->SetGuidData(DATA_PARALYZED, target->GetGUID());
                                 uint8 Index = urand(0, 1);
-                                me->SummonCreature(NPC_LARVA, LarvaPos[Index], TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30s);
+                                me->SummonCreature(NPC_LARVA, LarvaPos[Index], TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
                             }
-                            events.ScheduleEvent(EVENT_PARALYZE, 15s);
+                            events.ScheduleEvent(EVENT_PARALYZE, 15000);
                             break;
                         case EVENT_SWARMER_ATTACK:
                             for (GuidList::iterator i = _swarmers.begin(); i != _swarmers.end(); ++i)
                                 if (Creature* swarmer = ObjectAccessor::GetCreature(*me, *i))
-                                    if (Unit* target = SelectTarget(SelectTargetMethod::Random))
+                                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                         swarmer->AI()->AttackStart(target);
 
                             _swarmers.clear();
-                            events.ScheduleEvent(EVENT_SWARMER_ATTACK, 1min);
+                            events.ScheduleEvent(EVENT_SWARMER_ATTACK, 60000);
                             break;
                         case EVENT_SUMMON_SWARMER:
                         {
                             Position Pos = me->GetRandomPoint(SwarmerPos, 80.0f);
                             me->SummonCreature(NPC_SWARMER, Pos);
-                            events.ScheduleEvent(EVENT_SUMMON_SWARMER, 5s);
+                            events.ScheduleEvent(EVENT_SUMMON_SWARMER, 5000);
                             break;
                         }
                         case EVENT_TRASH:
                             DoCastVictim(SPELL_TRASH);
-                            events.ScheduleEvent(EVENT_TRASH, 5s, 7s);
+                            events.ScheduleEvent(EVENT_TRASH, urand(5000, 7000));
                             break;
                         case EVENT_LASH:
                             DoCastVictim(SPELL_LASH);
-                            events.ScheduleEvent(EVENT_LASH, 8s, 15s);
+                            events.ScheduleEvent(EVENT_LASH, urand(8000, 15000));
                             break;
                     }
                 }
@@ -261,14 +260,13 @@ class npc_hive_zara_larva : public CreatureScript
 
             void MovementInform(uint32 type, uint32 id) override
             {
-                if (type == POINT_MOTION_TYPE)
-                    if (id == POINT_PARALYZE)
-                        if (Player* target = ObjectAccessor::GetPlayer(*me, _instance->GetGuidData(DATA_PARALYZED)))
+                if (type == POINT_MOTION_TYPE && id == POINT_PARALYZE)
+                    if (Unit* target = ObjectAccessor::GetUnit(*me, _instance->GetGuidData(DATA_PARALYZED)))
+                        if (target->GetTypeId() == TYPEID_PLAYER)
                             DoCast(target, SPELL_FEED); // Omnomnom
             }
 
             void MoveInLineOfSight(Unit* who) override
-
             {
                 if (_instance->GetBossState(DATA_AYAMISS) == IN_PROGRESS)
                     return;

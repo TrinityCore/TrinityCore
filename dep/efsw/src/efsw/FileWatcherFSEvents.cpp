@@ -3,7 +3,6 @@
 #include <efsw/System.hpp>
 #include <efsw/Debug.hpp>
 #include <efsw/String.hpp>
-#include <efsw/Lock.hpp>
 
 #if EFSW_PLATFORM == EFSW_PLATFORM_FSEVENTS
 
@@ -15,11 +14,11 @@ namespace efsw
 int getOSXReleaseNumber()
 {
 	static int osxR = -1;
-	
+
 	if ( -1 == osxR )
 	{
 		struct utsname os;
-		
+
 		if ( -1 != uname( &os ) ) {
 			std::string release( os.release );
 			
@@ -84,10 +83,6 @@ FileWatcherFSEvents::FileWatcherFSEvents( FileWatcher * parent ) :
 
 FileWatcherFSEvents::~FileWatcherFSEvents()
 {
-	mInitOK = false;
-
-	efSAFE_DELETE( mThread );
-
 	WatchMap::iterator iter = mWatches.begin();
 
 	for( ; iter != mWatches.end(); ++iter )
@@ -98,6 +93,15 @@ FileWatcherFSEvents::~FileWatcherFSEvents()
 	}
 
 	mWatches.clear();
+
+	mInitOK = false;
+	
+	if ( NULL != mRunLoopRef )
+	{
+		CFRunLoopStop( mRunLoopRef );
+	}
+
+	efSAFE_DELETE( mThread );
 }
 
 WatchID FileWatcherFSEvents::addWatch( const std::string& directory, FileWatchListener* watcher, bool recursive )
@@ -161,15 +165,16 @@ WatchID FileWatcherFSEvents::addWatch( const std::string& directory, FileWatchLi
 	
 	pWatch->init();
 
-	Lock lock( mWatchesLock );
+	mWatchesLock.lock();
 	mWatches.insert(std::make_pair(mLastWatchID, pWatch));
+	mWatchesLock.unlock();
 
 	return pWatch->ID;
 }
 
 void FileWatcherFSEvents::removeWatch(const std::string& directory)
 {
-	Lock lock( mWatchesLock );
+	mWatchesLock.lock();
 
 	WatchMap::iterator iter = mWatches.begin();
 
@@ -181,11 +186,13 @@ void FileWatcherFSEvents::removeWatch(const std::string& directory)
 			return;
 		}
 	}
+
+	mWatchesLock.unlock();
 }
 
 void FileWatcherFSEvents::removeWatch(WatchID watchid)
 {
-	Lock lock( mWatchesLock );
+	mWatchesLock.lock();
 
 	WatchMap::iterator iter = mWatches.find( watchid );
 
@@ -199,6 +206,8 @@ void FileWatcherFSEvents::removeWatch(WatchID watchid)
 	efDEBUG( "Removed watch %s\n", watch->Directory.c_str() );
 
 	efSAFE_DELETE( watch );
+
+	mWatchesLock.unlock();
 }
 
 void FileWatcherFSEvents::watch()
@@ -218,7 +227,7 @@ void FileWatcherFSEvents::run()
 	{
 		if ( !mNeedInit.empty() )
 		{
-			for ( std::list<WatcherFSEvents*>::iterator it = mNeedInit.begin(); it != mNeedInit.end(); ++it )
+			for ( std::list<WatcherFSEvents*>::iterator it = mNeedInit.begin(); it != mNeedInit.end(); it++ )
 			{
 				(*it)->initAsync();
 			}
@@ -228,9 +237,6 @@ void FileWatcherFSEvents::run()
 
 		CFRunLoopRunInMode( kCFRunLoopDefaultMode, 0.5, kCFRunLoopRunTimedOut );
 	}
-
-	CFRunLoopStop( mRunLoopRef );
-	mRunLoopRef = NULL;
 }
 
 void FileWatcherFSEvents::handleAction(Watcher* watch, const std::string& filename, unsigned long action, std::string oldFilename)
@@ -242,19 +248,21 @@ std::list<std::string> FileWatcherFSEvents::directories()
 {
 	std::list<std::string> dirs;
 
-	Lock lock( mWatchesLock );
+	mWatchesLock.lock();
 
-	for ( WatchMap::iterator it = mWatches.begin(); it != mWatches.end(); ++it )
+	for ( WatchMap::iterator it = mWatches.begin(); it != mWatches.end(); it++ )
 	{
 		dirs.push_back( std::string( it->second->Directory ) );
 	}
+
+	mWatchesLock.unlock();
 
 	return dirs;
 }
 
 bool FileWatcherFSEvents::pathInWatches( const std::string& path )
 {
-	for ( WatchMap::iterator it = mWatches.begin(); it != mWatches.end(); ++it )
+	for ( WatchMap::iterator it = mWatches.begin(); it != mWatches.end(); it++ )
 	{
 		if ( it->second->Directory == path )
 		{

@@ -17,7 +17,6 @@
 
 #include "Config.h"
 #include "Log.h"
-#include "StringConvert.h"
 #include "Util.h"
 #include <boost/property_tree/ini_parser.hpp>
 #include <algorithm>
@@ -29,65 +28,41 @@ namespace bpt = boost::property_tree;
 namespace
 {
     std::string _filename;
-    std::vector<std::string> _additonalFiles;
     std::vector<std::string> _args;
     bpt::ptree _config;
     std::mutex _configLock;
-
-    bool LoadFile(std::string const& file, bpt::ptree& fullTree, std::string& error)
-    {
-        try
-        {
-            bpt::ini_parser::read_ini(file, fullTree);
-
-            if (fullTree.empty())
-            {
-                error = "empty file (" + file + ")";
-                return false;
-            }
-        }
-        catch (bpt::ini_parser::ini_parser_error const& e)
-        {
-            if (e.line() == 0)
-                error = e.message() + " (" + e.filename() + ")";
-            else
-                error = e.message() + " (" + e.filename() + ":" + std::to_string(e.line()) + ")";
-            return false;
-        }
-
-        return true;
-    }
 }
 
-bool ConfigMgr::LoadInitial(std::string file, std::vector<std::string> args,
+bool ConfigMgr::LoadInitial(std::string const& file, std::vector<std::string> args,
                             std::string& error)
 {
     std::lock_guard<std::mutex> lock(_configLock);
 
-    _filename = std::move(file);
-    _args = std::move(args);
+    _filename = file;
+    _args = args;
 
-    bpt::ptree fullTree;
-    if (!LoadFile(_filename, fullTree, error))
+    try
+    {
+        bpt::ptree fullTree;
+        bpt::ini_parser::read_ini(file, fullTree);
+
+        if (fullTree.empty())
+        {
+            error = "empty file (" + file + ")";
+            return false;
+        }
+
+        // Since we're using only one section per config file, we skip the section and have direct property access
+        _config = fullTree.begin()->second;
+    }
+    catch (bpt::ini_parser::ini_parser_error const& e)
+    {
+        if (e.line() == 0)
+            error = e.message() + " (" + e.filename() + ")";
+        else
+            error = e.message() + " (" + e.filename() + ":" + std::to_string(e.line()) + ")";
         return false;
-
-    // Since we're using only one section per config file, we skip the section and have direct property access
-    _config = fullTree.begin()->second;
-
-    return true;
-}
-
-bool ConfigMgr::LoadAdditionalFile(std::string file, bool keepOnReload, std::string& error)
-{
-    bpt::ptree fullTree;
-    if (!LoadFile(file, fullTree, error))
-        return false;
-
-    for (bpt::ptree::value_type const& child : fullTree.begin()->second)
-        _config.put_child(bpt::ptree::path_type(child.first, '/'), child.second);
-
-    if (keepOnReload)
-        _additonalFiles.emplace_back(std::move(file));
+    }
 
     return true;
 }
@@ -98,21 +73,13 @@ ConfigMgr* ConfigMgr::instance()
     return &instance;
 }
 
-bool ConfigMgr::Reload(std::vector<std::string>& errors)
+bool ConfigMgr::Reload(std::string& error)
 {
-    std::string error;
-    if (!LoadInitial(_filename, std::move(_args), error))
-        errors.push_back(std::move(error));
-
-    for (std::string const& additionalFile : _additonalFiles)
-        if (!LoadAdditionalFile(additionalFile, false, error))
-            errors.push_back(std::move(error));
-
-    return errors.empty();
+    return LoadInitial(_filename, std::move(_args), error);
 }
 
 template<class T>
-T ConfigMgr::GetValueDefault(std::string const& name, T def, bool quiet) const
+T ConfigMgr::GetValueDefault(std::string const& name, T def) const
 {
     try
     {
@@ -120,11 +87,8 @@ T ConfigMgr::GetValueDefault(std::string const& name, T def, bool quiet) const
     }
     catch (bpt::ptree_bad_path const&)
     {
-        if (!quiet)
-        {
-            TC_LOG_WARN("server.loading", "Missing name %s in config file %s, add \"%s = %s\" to this file",
-                name.c_str(), _filename.c_str(), name.c_str(), std::to_string(def).c_str());
-        }
+        TC_LOG_WARN("server.loading", "Missing name %s in config file %s, add \"%s = %s\" to this file",
+            name.c_str(), _filename.c_str(), name.c_str(), std::to_string(def).c_str());
     }
     catch (bpt::ptree_bad_data const&)
     {
@@ -136,7 +100,7 @@ T ConfigMgr::GetValueDefault(std::string const& name, T def, bool quiet) const
 }
 
 template<>
-std::string ConfigMgr::GetValueDefault<std::string>(std::string const& name, std::string def, bool quiet) const
+std::string ConfigMgr::GetValueDefault<std::string>(std::string const& name, std::string def) const
 {
     try
     {
@@ -144,11 +108,8 @@ std::string ConfigMgr::GetValueDefault<std::string>(std::string const& name, std
     }
     catch (bpt::ptree_bad_path const&)
     {
-        if (!quiet)
-        {
-            TC_LOG_WARN("server.loading", "Missing name %s in config file %s, add \"%s = %s\" to this file",
-                name.c_str(), _filename.c_str(), name.c_str(), def.c_str());
-        }
+        TC_LOG_WARN("server.loading", "Missing name %s in config file %s, add \"%s = %s\" to this file",
+            name.c_str(), _filename.c_str(), name.c_str(), def.c_str());
     }
     catch (bpt::ptree_bad_data const&)
     {
@@ -159,36 +120,33 @@ std::string ConfigMgr::GetValueDefault<std::string>(std::string const& name, std
     return def;
 }
 
-std::string ConfigMgr::GetStringDefault(std::string const& name, const std::string& def, bool quiet) const
+std::string ConfigMgr::GetStringDefault(std::string const& name, const std::string& def) const
 {
-    std::string val = GetValueDefault(name, def, quiet);
+    std::string val = GetValueDefault(name, def);
     val.erase(std::remove(val.begin(), val.end(), '"'), val.end());
     return val;
 }
 
-bool ConfigMgr::GetBoolDefault(std::string const& name, bool def, bool quiet) const
+bool ConfigMgr::GetBoolDefault(std::string const& name, bool def) const
 {
-    std::string val = GetValueDefault(name, std::string(def ? "1" : "0"), quiet);
+    std::string val = GetValueDefault(name, std::string(def ? "1" : "0"));
     val.erase(std::remove(val.begin(), val.end(), '"'), val.end());
-    Optional<bool> boolVal = Trinity::StringTo<bool>(val);
-    if (boolVal)
-        return *boolVal;
-    else
-    {
-        TC_LOG_ERROR("server.loading", "Bad value defined for name %s in config file %s, going to use '%s' instead",
-            name.c_str(), _filename.c_str(), def ? "true" : "false");
-        return def;
-    }
+    return StringToBool(val);
 }
 
-int ConfigMgr::GetIntDefault(std::string const& name, int def, bool quiet) const
+int32 ConfigMgr::GetIntDefault(std::string const& name, int32 def) const
 {
-    return GetValueDefault(name, def, quiet);
+    return GetValueDefault(name, def);
 }
 
-float ConfigMgr::GetFloatDefault(std::string const& name, float def, bool quiet) const
+int64 ConfigMgr::GetInt64Default(std::string const& name, int64 def) const
 {
-    return GetValueDefault(name, def, quiet);
+    return GetValueDefault(name, def);
+}
+
+float ConfigMgr::GetFloatDefault(std::string const& name, float def) const
+{
+    return GetValueDefault(name, def);
 }
 
 std::string const& ConfigMgr::GetFilename()

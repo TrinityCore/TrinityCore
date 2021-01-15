@@ -19,10 +19,10 @@
 #define _AUTH_BIGNUMBER_H
 
 #include "Define.h"
-#include <array>
 #include <memory>
 #include <string>
 #include <vector>
+#include "advstd.h" // data/size
 
 struct bignum_st;
 
@@ -44,7 +44,7 @@ class TC_COMMON_API BigNumber
         void SetQword(uint64);
         void SetBinary(uint8 const* bytes, int32 len, bool littleEndian = true);
         template <typename Container>
-        auto SetBinary(Container const& c, bool littleEndian = true) -> std::enable_if_t<!std::is_pointer_v<std::decay_t<Container>>> { SetBinary(std::data(c), std::size(c), littleEndian); }
+        auto SetBinary(Container const& c, bool littleEndian = true) -> std::enable_if_t<!advstd::is_pointer_v<std::decay_t<Container>>> { SetBinary(advstd::data(c), advstd::size(c), littleEndian); }
         bool SetHexStr(char const* str);
         bool SetHexStr(std::string const& str) { return SetHexStr(str.c_str()); }
 

@@ -53,7 +53,7 @@ Since it's very unlikely that your Pull Request will be merged on the day that y
 Wiki
 ====
 
-The wiki is located at [http://trinitycore.info](http://trinitycore.info).
+The wiki is located at [https://trinitycore.info](https://trinitycore.info).
 
 You are welcome to create an account and help us improve and extend the wiki.
 
@@ -62,7 +62,8 @@ Requirements
 ============
 
 
-Software requirements are available in the [wiki](http://www.trinitycore.info/display/tc/Requirements) for
+Software requirements are available in the [wiki](https://www.trinitycore.info/display/tc/Requirements) for
 Windows, Linux and Mac OSX.
+
 
 If you choose Linux, we recommend to use Debian 8, since it's the Linux that we use to test compilations.

@@ -27,14 +27,14 @@ WatcherFSEvents::WatcherFSEvents( WatchID id, std::string directory, FileWatchLi
 
 WatcherFSEvents::~WatcherFSEvents()
 {
+	if ( initializedAsync )
+	{
+		FSEventStreamStop( FSStream );
+		FSEventStreamInvalidate( FSStream );
+	}
+
 	if ( NULL != FSStream )
 	{
-		if ( initializedAsync )
-		{
-			FSEventStreamStop( FSStream );
-		}
-
-		FSEventStreamInvalidate( FSStream );
 		FSEventStreamRelease( FSStream );
 	}
 

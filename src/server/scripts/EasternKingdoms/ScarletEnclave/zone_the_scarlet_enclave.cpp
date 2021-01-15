@@ -69,16 +69,15 @@ public:
         void Reset() override
         {
             me->setActive(true);
-            me->SetFarVisible(true);
             me->SetVisible(false);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             me->SetCanFly(true);
 
             me->GetPosition(x, y, z);
             z += 4.0f;
             x -= 3.5f;
             y -= 5.0f;
-            me->GetMotionMaster()->Clear();
+            me->GetMotionMaster()->Clear(false);
             me->UpdatePosition(x, y, z, 0.0f);
         }
 
@@ -88,7 +87,7 @@ public:
             {
                 Player* player = nullptr;
                 if (me->IsSummon())
-                    if (Unit* summoner = me->ToTempSummon()->GetSummonerUnit())
+                    if (Unit* summoner = me->ToTempSummon()->GetSummoner())
                         player = summoner->ToPlayer();
 
                 if (!player)

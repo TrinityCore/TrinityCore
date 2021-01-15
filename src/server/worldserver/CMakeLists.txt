@@ -14,15 +14,14 @@ CollectSourceFiles(
   # Exclude
   ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders)
 
-list(APPEND PRIVATE_SOURCES ${sources_windows})
-
-if(WIN32)
-  if(MSVC)
+if( WIN32 )
+  list(APPEND PRIVATE_SOURCES ${sources_windows})
+  if ( MSVC )
     list(APPEND PRIVATE_SOURCES worldserver.rc)
   endif()
 endif()
 
-if(USE_COREPCH)
+if (USE_COREPCH)
   set(PRIVATE_PCH_HEADER PrecompiledHeaders/worldPCH.h)
 endif()
 
@@ -32,13 +31,13 @@ add_executable(worldserver
   ${PRIVATE_SOURCES}
 )
 
-if(NOT WIN32)
+if( NOT WIN32 )
   set_target_properties(worldserver PROPERTIES
     COMPILE_DEFINITIONS _TRINITY_CORE_CONFIG="${CONF_DIR}/worldserver.conf"
   )
 endif()
 
-if(UNIX AND NOT NOJEM AND NOT APPLE)
+if( UNIX AND NOT NOJEM AND NOT APPLE )
   set(worldserver_LINK_FLAGS "-pthread -lncurses ${worldserver_LINK_FLAGS}")
 endif()
 
@@ -50,7 +49,6 @@ target_link_libraries(worldserver
   PUBLIC
     scripts
     game
-    gsoap
     readline)
 
 CollectIncludeDirectories(
@@ -71,17 +69,17 @@ set_target_properties(worldserver
         "server")
 
 # Add all dynamic projects as dependency to the worldserver
-if(WORLDSERVER_DYNAMIC_SCRIPT_MODULES_DEPENDENCIES)
+if (WORLDSERVER_DYNAMIC_SCRIPT_MODULES_DEPENDENCIES)
   add_dependencies(worldserver ${WORLDSERVER_DYNAMIC_SCRIPT_MODULES_DEPENDENCIES})
 endif()
 
-if(COPY_CONF AND WIN32)
-  if("${CMAKE_MAKE_PROGRAM}" MATCHES "MSBuild")
+if( WIN32 )
+  if ( "${CMAKE_MAKE_PROGRAM}" MATCHES "MSBuild" )
     add_custom_command(TARGET worldserver
       POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/worldserver.conf.dist ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
     )
-  elseif(MINGW)
+  elseif ( MINGW )
     add_custom_command(TARGET worldserver
       POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/worldserver.conf.dist ${CMAKE_BINARY_DIR}/bin/
@@ -89,19 +87,15 @@ if(COPY_CONF AND WIN32)
   endif()
 endif()
 
-if(UNIX)
+if( UNIX )
   install(TARGETS worldserver DESTINATION bin)
-  if(COPY_CONF)
-    install(FILES worldserver.conf.dist DESTINATION ${CONF_DIR})
-  endif()
-elseif(WIN32)
+  install(FILES worldserver.conf.dist DESTINATION ${CONF_DIR})
+elseif( WIN32 )
   install(TARGETS worldserver DESTINATION "${CMAKE_INSTALL_PREFIX}")
-  if(COPY_CONF)
-    install(FILES worldserver.conf.dist DESTINATION "${CMAKE_INSTALL_PREFIX}")
-  endif()
+  install(FILES worldserver.conf.dist DESTINATION "${CMAKE_INSTALL_PREFIX}")
 endif()
 
 # Generate precompiled header
-if(USE_COREPCH)
+if( USE_COREPCH )
   add_cxx_pch(worldserver ${PRIVATE_PCH_HEADER})
 endif()

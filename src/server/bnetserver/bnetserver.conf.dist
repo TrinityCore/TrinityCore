@@ -1,0 +1,403 @@
+###############################################
+# Trinity Core Auth Server configuration file #
+###############################################
+[bnetserver]
+
+###################################################################################################
+# SECTION INDEX
+#
+#    EXAMPLE CONFIG
+#    AUTH SERVER SETTINGS
+#    MYSQL SETTINGS
+#    UPDATE SETTINGS
+#    LOGGING SYSTEM SETTINGS
+#
+###################################################################################################
+
+###################################################################################################
+# EXAMPLE CONFIG
+#
+#    Variable
+#        Description: Brief description what the variable is doing.
+#        Important:   Annotation for important things about this variable.
+#        Example:     "Example, i.e. if the value is a string"
+#        Default:     10 - (Enabled|Comment|Variable name in case of grouped config options)
+#                     0  - (Disabled|Comment|Variable name in case of grouped config options)
+#
+# Note to developers:
+# - Copy this example to keep the formatting.
+# - Line breaks should be at column 100.
+###################################################################################################
+
+###################################################################################################
+# AUTH SERVER SETTINGS
+#
+#    LogsDir
+#        Description: Logs directory setting.
+#        Important:   LogsDir needs to be quoted, as the string might contain space characters.
+#                     Logs directory must exists, or log file creation will be disabled.
+#        Default:     "" - (Log files will be stored in the current path)
+
+LogsDir = ""
+
+#
+#    MaxPingTime
+#        Description: Time (in minutes) between database pings.
+#        Default:     30
+
+MaxPingTime = 30
+
+#
+#    BattlenetPort
+#        Description: TCP port to reach the auth server for battle.net connections.
+#        Default:     1119
+
+BattlenetPort = 1119
+
+#
+#    LoginREST.Port
+#        Description: TCP port to reach the REST login method.
+#        Default:     8081
+#
+#    LoginREST.ExternalAddress
+#        Description: IP address sent to clients connecting from outside the network where bnetserver runs
+#                     Set it to your external IP address
+#
+#    LoginREST.LocalAddress
+#        Description: IP address sent to clients connecting from inside the network where bnetserver runs
+#                     Set it to your local IP address (common 192.168.x.x network)
+#                     or leave it at default value 127.0.0.1 if connecting directly to the internet without a router
+#
+#    LoginREST.TicketDuration
+#        Description: Determines how long the login ticket is valid (in seconds)
+#                     When using client -launcherlogin feature it is recommended to set it to a high value (like a week)
+#
+
+LoginREST.Port = 8081
+LoginREST.ExternalAddress=127.0.0.1
+LoginREST.LocalAddress=127.0.0.1
+LoginREST.TicketDuration=3600
+
+#
+#
+#    BindIP
+#        Description: Bind auth server to IP/hostname
+#        Default:     "0.0.0.0" - (Bind to all IPs on the system)
+
+BindIP = "0.0.0.0"
+
+#
+#    PidFile
+#        Description: Auth server PID file.
+#        Example:     "./bnetserver.pid"  - (Enabled)
+#        Default:     ""                  - (Disabled)
+
+PidFile = ""
+
+#
+#    CertificatesFile
+#        Description: Certificates file.
+#        Example:     "/etc/ssl/certs/bnetserver.cert.pem"
+#        Default:     "./bnetserver.cert.pem"
+
+CertificatesFile = "./bnetserver.cert.pem"
+
+#
+#    PrivateKeyFile
+#        Description: Private key file.
+#        Example:     "/etc/ssl/private/bnetserver.key.pem"
+#        Default:     "./bnetserver.key.pem"
+
+PrivateKeyFile = "./bnetserver.key.pem"
+
+#
+#    UseProcessors
+#        Description: Processors mask for Windows and Linux based multi-processor systems.
+#        Example:     A computer with 2 CPUs:
+#                     1 - 1st CPU only, 2 - 2nd CPU only, 3 - 1st and 2nd CPU, because 1 | 2 is 3
+#        Default:     0  - (Selected by OS)
+#                     1+ - (Bit mask value of selected processors)
+
+UseProcessors = 0
+
+#
+#    ProcessPriority
+#        Description: Process priority setting for Windows and Linux based systems.
+#        Details:     On Linux, a nice value of -15 is used. (requires superuser). On Windows, process is set to HIGH class.
+#        Default:     0 - (Normal)
+#                     1 - (High)
+
+ProcessPriority = 0
+
+#
+#    RealmsStateUpdateDelay
+#        Description: Time (in seconds) between realm list updates.
+#        Default:     10
+#                     0  - (Disabled)
+
+RealmsStateUpdateDelay = 10
+
+#
+#    WrongPass.MaxCount
+#        Description: Number of login attemps with wrong password before the account or IP will be
+#                     banned.
+#        Default:     0  - (Disabled)
+#                     1+ - (Enabled)
+
+WrongPass.MaxCount = 0
+
+#
+#    WrongPass.BanTime
+#        Description: Time (in seconds) for banning account or IP for invalid login attempts.
+#        Default:     600 - (10 minutes)
+#                     0   - (Permanent ban)
+
+WrongPass.BanTime = 600
+
+#
+#    WrongPass.BanType
+#        Description: Ban type for invalid login attempts.
+#        Default:     0 - (Ban IP)
+#                     1 - (Ban Account)
+
+WrongPass.BanType = 0
+
+#
+#    WrongPass.Logging
+#        Description: Additionally log attempted wrong password logging
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+WrongPass.Logging = 0
+
+#
+#    BanExpiryCheckInterval
+#        Description: Time (in seconds) between checks for expired bans
+#        Default:     60
+
+BanExpiryCheckInterval = 60
+
+#
+#    SourceDirectory
+#        Description: The path to your TrinityCore source directory.
+#                     If the path is left empty, the built-in CMAKE_SOURCE_DIR is used.
+#        Example:     "../TrinityCore"
+#        Default:     ""
+
+SourceDirectory  = ""
+
+#
+#    MySQLExecutable
+#        Description: The path to your mysql cli binary.
+#                     If the path is left empty, built-in path from cmake is used.
+#        Example:     "C:/Program Files/MySQL/MySQL Server 5.6/bin/mysql.exe"
+#                     "mysql.exe"
+#                     "/usr/bin/mysql"
+#        Default:     ""
+
+MySQLExecutable = ""
+
+#
+#    IPLocationFile
+#        Description: The path to your IP2Location database CSV file.
+#        Example:     "C:/Trinity/IP2LOCATION-LITE-DB1.CSV"
+#                     "/home/trinity/IP2LOCATION-LITE-DB1.CSV"
+#        Default:     ""  - (Disabled)
+
+IPLocationFile = ""
+
+#
+###################################################################################################
+
+###################################################################################################
+# MYSQL SETTINGS
+#
+#    LoginDatabaseInfo
+#        Description: Database connection settings for the realm server.
+#        Example:     "hostname;port;username;password;database"
+#                     ".;somenumber;username;password;database" - (Use named pipes on Windows
+#                                                                 "enable-named-pipe" to [mysqld]
+#                                                                 section my.ini)
+#                     ".;/path/to/unix_socket;username;password;database" - (use Unix sockets on
+#                                                                           Unix/Linux)
+#        Default:     "127.0.0.1;3306;trinity;trinity;auth"
+
+LoginDatabaseInfo = "127.0.0.1;3306;trinity;trinity;auth"
+
+#
+#    LoginDatabase.WorkerThreads
+#        Description: The amount of worker threads spawned to handle asynchronous (delayed) MySQL
+#                     statements. Each worker thread is mirrored with its own connection to the
+#                     MySQL server and their own thread on the MySQL server.
+#        Default:     1
+
+LoginDatabase.WorkerThreads = 1
+
+#
+#    LoginDatabase.SynchThreads
+#        Description: The amount of MySQL connections spawned to handle.
+#        Default:     1 - (LoginDatabase.SynchThreads)
+
+LoginDatabase.SynchThreads  = 1
+
+#
+###################################################################################################
+
+###################################################################################################
+# UPDATE SETTINGS
+#
+#    Updates.EnableDatabases
+#        Description: A mask that describes which databases shall be updated.
+#
+#        Following flags are available
+#           DATABASE_LOGIN     = 1, // Auth database
+#
+#        Default:     0  - (All Disabled)
+#                     1  - (All Enabled)
+
+Updates.EnableDatabases = 0
+
+#
+#    Updates.AutoSetup
+#        Description: Auto populate empty databases.
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+Updates.AutoSetup   = 1
+
+#
+#    Updates.Redundancy
+#        Description: Perform data redundancy checks through hashing
+#                     to detect changes on sql updates and reapply it.
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+Updates.Redundancy  = 1
+
+#
+#    Updates.ArchivedRedundancy
+#        Description: Check hashes of archived updates (slows down startup).
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+Updates.ArchivedRedundancy = 0
+
+#
+#    Updates.AllowRehash
+#        Description: Inserts the current file hash in the database if it is left empty.
+#                     Useful if you want to mark a file as applied but you don't know its hash.
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+Updates.AllowRehash = 1
+
+#
+#    Updates.CleanDeadRefMaxCount
+#        Description: Cleans dead/ orphaned references that occur if an update was removed or renamed and edited in one step.
+#                     It only starts the clean up if the count of the missing updates is below or equal the Updates.CleanDeadRefMaxCount value.
+#                     This way prevents erasing of the update history due to wrong source directory state (maybe wrong branch or bad revision).
+#                     Disable this if you want to know if the database is in a possible "dirty state".
+#        Default:     3 - (Enabled)
+#                     0 - (Disabled)
+#                    -1 - (Enabled - unlimited)
+
+Updates.CleanDeadRefMaxCount = 3
+
+#
+###################################################################################################
+
+###################################################################################################
+#
+#  LOGGING SYSTEM SETTINGS
+#
+#  Appender config values: Given a appender "name"
+#    Appender.name
+#        Description: Defines 'where to log'
+#        Format:      Type,LogLevel,Flags,optional1,optional2,optional3
+#
+#                     Type
+#                         0 - (None)
+#                         1 - (Console)
+#                         2 - (File)
+#                         3 - (DB)
+#
+#                     LogLevel
+#                         0 - (Disabled)
+#                         1 - (Trace)
+#                         2 - (Debug)
+#                         3 - (Info)
+#                         4 - (Warn)
+#                         5 - (Error)
+#                         6 - (Fatal)
+#
+#                     Flags:
+#                         0 - None
+#                         1 - Prefix Timestamp to the text
+#                         2 - Prefix Log Level to the text
+#                         4 - Prefix Log Filter type to the text
+#                         8 - Append timestamp to the log file name. Format: YYYY-MM-DD_HH-MM-SS (Only used with Type = 2)
+#                        16 - Make a backup of existing file before overwrite (Only used with Mode = w)
+#
+#                     Colors (read as optional1 if Type = Console)
+#                         Format: "fatal error warn info debug trace"
+#                         0 - BLACK
+#                         1 - RED
+#                         2 - GREEN
+#                         3 - BROWN
+#                         4 - BLUE
+#                         5 - MAGENTA
+#                         6 - CYAN
+#                         7 - GREY
+#                         8 - YELLOW
+#                         9 - LRED
+#                        10 - LGREEN
+#                        11 - LBLUE
+#                        12 - LMAGENTA
+#                        13 - LCYAN
+#                        14 - WHITE
+#                         Example: "13 11 9 5 3 1"
+#
+#                     File: Name of the file (read as optional1 if Type = File)
+#                         Allows to use one "%s" to create dynamic files
+#
+#                     Mode: Mode to open the file (read as optional2 if Type = File)
+#                          a - (Append)
+#                          w - (Overwrite)
+#
+#                     MaxFileSize: Maximum file size of the log file before creating a new log file
+#                     (read as optional3 if Type = File)
+#                         Size is measured in bytes expressed in a 64-bit unsigned integer.
+#                         Maximum value is 4294967295 (4 gb). Leave blank for no limit.
+#                         NOTE: Does not work with dynamic filenames.
+#                         Example:  536870912 (512 mb)
+#
+
+Appender.Console=1,2,0
+Appender.Bnet=2,2,0,Bnet.log,w
+
+#  Logger config values: Given a logger "name"
+#    Logger.name
+#        Description: Defines 'What to log'
+#        Format:      LogLevel,AppenderList
+#
+#                     LogLevel
+#                         0 - (Disabled)
+#                         1 - (Trace)
+#                         2 - (Debug)
+#                         3 - (Info)
+#                         4 - (Warn)
+#                         5 - (Error)
+#                         6 - (Fatal)
+#
+#                     AppenderList: List of appenders linked to logger
+#                     (Using spaces as separator).
+#
+
+Logger.root=3,Console Bnet
+Logger.realmlist=3,Console Bnet
+Logger.session=3,Console Bnet
+Logger.session.packets=3,Console Bnet
+Logger.sql.updates=3,Console Bnet
+
+#
+###################################################################################################

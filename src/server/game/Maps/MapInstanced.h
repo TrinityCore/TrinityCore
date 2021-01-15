@@ -22,6 +22,8 @@
 #include "InstanceSaveMgr.h"
 #include "DBCEnums.h"
 
+class GarrisonMap;
+
 class TC_GAME_API MapInstanced : public Map
 {
     friend class MapManager;
@@ -46,28 +48,14 @@ class TC_GAME_API MapInstanced : public Map
         }
         bool DestroyInstance(InstancedMaps::iterator &itr);
 
-        void AddGridMapReference(GridCoord const& p)
-        {
-            ++GridMapReference[p.x_coord][p.y_coord];
-            SetUnloadReferenceLock(GridCoord((MAX_NUMBER_OF_GRIDS - 1) - p.x_coord, (MAX_NUMBER_OF_GRIDS - 1) - p.y_coord), true);
-        }
-
-        void RemoveGridMapReference(GridCoord const& p)
-        {
-            --GridMapReference[p.x_coord][p.y_coord];
-            if (!GridMapReference[p.x_coord][p.y_coord])
-                SetUnloadReferenceLock(GridCoord((MAX_NUMBER_OF_GRIDS - 1) - p.x_coord, (MAX_NUMBER_OF_GRIDS - 1) - p.y_coord), false);
-        }
-
         InstancedMaps &GetInstancedMaps() { return m_InstancedMaps; }
         virtual void InitVisibilityDistance() override;
 
     private:
-        InstanceMap* CreateInstance(uint32 InstanceId, InstanceSave* save, Difficulty difficulty, TeamId InstanceTeam);
+        InstanceMap* CreateInstance(uint32 InstanceId, InstanceSave* save, Difficulty difficulty, TeamId team);
         BattlegroundMap* CreateBattleground(uint32 InstanceId, Battleground* bg);
+        GarrisonMap* CreateGarrison(uint32 instanceId, Player* owner);
 
         InstancedMaps m_InstancedMaps;
-
-        uint16 GridMapReference[MAX_NUMBER_OF_GRIDS][MAX_NUMBER_OF_GRIDS];
 };
 #endif

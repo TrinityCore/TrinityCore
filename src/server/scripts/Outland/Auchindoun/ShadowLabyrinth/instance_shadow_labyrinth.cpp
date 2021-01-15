@@ -184,8 +184,8 @@ GuidUnorderedSet const* GetBlackheartDummies(InstanceScript const* s)
 {
     if (auto* script = dynamic_cast<instance_shadow_labyrinth::instance_shadow_labyrinth_InstanceMapScript const*>(s))
         return &script->GetBlackheartDummies();
-    return nullptr;
 
+    return nullptr;
 }
 
 void AddSC_instance_shadow_labyrinth()

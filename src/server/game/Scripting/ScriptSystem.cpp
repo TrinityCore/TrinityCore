@@ -94,9 +94,9 @@ void SystemMgr::LoadScriptSplineChains()
 
     m_mSplineChainsMap.clear();
 
-    //                                                   0      1        2         3                 4            5
-    QueryResult resultMeta = WorldDatabase.Query("SELECT entry, chainId, splineId, expectedDuration, msUntilNext, velocity FROM script_spline_chain_meta ORDER BY entry asc, chainId asc, splineId asc");
-    //                                                 0      1        2         3     4  5  6
+    //                                                     0       1        2             3               4
+    QueryResult resultMeta = WorldDatabase.Query("SELECT entry, chainId, splineId, expectedDuration, msUntilNext FROM script_spline_chain_meta ORDER BY entry asc, chainId asc, splineId asc");
+    //                                                  0       1         2       3   4  5  6
     QueryResult resultWP = WorldDatabase.Query("SELECT entry, chainId, splineId, wpId, x, y, z FROM script_spline_chain_waypoints ORDER BY entry asc, chainId asc, splineId asc, wpId asc");
     if (!resultMeta || !resultWP)
     {
@@ -121,8 +121,7 @@ void SystemMgr::LoadScriptSplineChains()
 
             uint32 expectedDuration = fieldsMeta[3].GetUInt32();
             uint32 msUntilNext = fieldsMeta[4].GetUInt32();
-            float velocity = fieldsMeta[5].GetFloat();
-            chain.emplace_back(expectedDuration, msUntilNext, velocity);
+            chain.emplace_back(expectedDuration, msUntilNext);
 
             if (splineId == 0)
                 ++chainCount;
@@ -174,9 +173,9 @@ WaypointPath const* SystemMgr::GetPath(uint32 creatureEntry) const
 std::vector<SplineChainLink> const* SystemMgr::GetSplineChain(uint32 entry, uint16 chainId) const
 {
     auto it = m_mSplineChainsMap.find({ entry, chainId });
-    if (it == m_mSplineChainsMap.end())
-        return nullptr;
-    return &it->second;
+    if (it != m_mSplineChainsMap.end())
+        return &it->second;
+    return nullptr;
 }
 
 std::vector<SplineChainLink> const* SystemMgr::GetSplineChain(Creature const* who, uint16 id) const

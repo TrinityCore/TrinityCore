@@ -115,7 +115,7 @@ public:
             instance->SetBossState(DATA_BRUTALLUS, NOT_STARTED);
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(YELL_AGGRO);
 
@@ -134,7 +134,7 @@ public:
             instance->SetBossState(DATA_BRUTALLUS, DONE);
             float x, y, z;
             me->GetPosition(x, y, z);
-            me->SummonCreature(NPC_FELMYST, x, y, z + 30, me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN);
+            me->SummonCreature(NPC_FELMYST, x, y, z + 30, me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0);
         }
 
         void EnterEvadeMode(EvadeReason why) override
@@ -152,11 +152,10 @@ public:
             {
                 Madrigosa->Respawn();
                 Madrigosa->setActive(true);
-                Madrigosa->SetFarVisible(true);
                 IsIntro = true;
                 Madrigosa->SetMaxHealth(me->GetMaxHealth());
                 Madrigosa->SetHealth(me->GetMaxHealth());
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                 me->Attack(Madrigosa, true);
                 Madrigosa->Attack(me, true);
             }
@@ -170,7 +169,7 @@ public:
 
         void EndIntro()
         {
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             Intro = false;
             IsIntro = false;
         }
@@ -234,7 +233,7 @@ public:
                     ++IntroPhase;
                     break;
                 case 7:
-                    Unit::Kill(me, Madrigosa);
+                    me->Kill(Madrigosa);
                     Madrigosa->AI()->Talk(YELL_MADR_DEATH);
                     me->SetFullHealth();
                     me->AttackStop();
@@ -321,7 +320,7 @@ public:
 
             if (BurnTimer <= diff)
             {
-                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true, true, -SPELL_BURN))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, true, -SPELL_BURN))
                     target->CastSpell(target, SPELL_BURN, true);
                 BurnTimer = urand(60000, 180000);
             } else BurnTimer -= diff;

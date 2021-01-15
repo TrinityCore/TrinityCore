@@ -21,6 +21,17 @@ void AddSC_boss_balinda();
 void AddSC_boss_drekthar();
 void AddSC_boss_galvangar();
 void AddSC_boss_vanndar();
+void AddSC_boss_alizabal();                  //Baradin Hold
+void AddSC_boss_occuthar();
+void AddSC_boss_pit_lord_argaloth();
+void AddSC_instance_baradin_hold();
+void AddSC_boss_romogg_bonecrusher();        //Blackrock Caverns
+void AddSC_boss_corla();
+void AddSC_boss_karsh_steelbender();
+void AddSC_boss_beauty();
+void AddSC_boss_ascendant_lord_obsidius();
+void AddSC_blackrock_caverns();
+void AddSC_instance_blackrock_caverns();
 void AddSC_blackrock_depths();               //Blackrock Depths
 void AddSC_boss_ambassador_flamelash();
 void AddSC_boss_draganthaurissan();
@@ -59,7 +70,6 @@ void AddSC_instance_blackwing_lair();
 void AddSC_deadmines();                      //Deadmines
 void AddSC_instance_deadmines();
 void AddSC_boss_mr_smite();
-void AddSC_boss_vancleef();
 void AddSC_gnomeregan();                     //Gnomeregan
 void AddSC_instance_gnomeregan();
 void AddSC_boss_attumen();                   //Karazhan
@@ -151,44 +161,46 @@ void AddSC_boss_ironaya();
 void AddSC_uldaman();
 void AddSC_instance_uldaman();
 void AddSC_instance_the_stockade();          //The Stockade
+void AddSC_boss_hogger();
+void AddSC_boss_randolph_moloch();
+void AddSC_boss_lord_overheat();
 void AddSC_boss_akilzon();                   //Zul'Aman
 void AddSC_boss_halazzi();
 void AddSC_boss_hex_lord_malacrass();
 void AddSC_boss_janalai();
 void AddSC_boss_nalorakk();
-void AddSC_boss_zuljin();
+void AddSC_boss_daakara();
 void AddSC_instance_zulaman();
 void AddSC_zulaman();
-void AddSC_boss_jeklik();                    //Zul'Gurub
-void AddSC_boss_venoxis();
-void AddSC_boss_marli();
-void AddSC_boss_mandokir();
-void AddSC_boss_gahzranka();
-void AddSC_boss_thekal();
-void AddSC_boss_arlokk();
-void AddSC_boss_jindo();
-void AddSC_boss_hakkar();
-void AddSC_boss_grilek();
+void AddSC_boss_grilek();                   // Zul'Gurub
 void AddSC_boss_hazzarah();
+void AddSC_boss_jindo_the_godbreaker();
+void AddSC_boss_kilnara();
+void AddSC_boss_mandokir();
 void AddSC_boss_renataki();
+void AddSC_boss_venoxis();
 void AddSC_boss_wushoolay();
+void AddSC_boss_zanzil();
 void AddSC_instance_zulgurub();
 //void AddSC_alterac_mountains();
-//void AddSC_arathi_highlands();
+void AddSC_arathi_highlands();
 void AddSC_blasted_lands();
+void AddSC_burning_steppes();
+void AddSC_dun_morogh();
+void AddSC_dun_morogh_area_coldridge_valley();
 void AddSC_duskwood();
 //void AddSC_eastern_plaguelands();
-//void AddSC_ghostlands();
-void AddSC_goldshire();
+void AddSC_ghostlands();
 void AddSC_hinterlands();
-void AddSC_isle_of_queldanas();
-//void AddSC_redridge_mountains();
-//void AddSC_silverpine_forest();
+void AddSC_redridge_mountains();
+void AddSC_silverpine_forest();
 void AddSC_stormwind_city();
-//void AddSC_swamp_of_sorrows();
+void AddSC_swamp_of_sorrows();
 void AddSC_tirisfal_glades();
+void AddSC_tol_barad();
 void AddSC_undercity();
-//void AddSC_western_plaguelands();
+void AddSC_western_plaguelands();
+void AddSC_wetlands();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -199,6 +211,17 @@ void AddEasternKingdomsScripts()
     AddSC_boss_drekthar();
     AddSC_boss_galvangar();
     AddSC_boss_vanndar();
+    AddSC_boss_alizabal();                  //Baradin Hold
+    AddSC_boss_occuthar();
+    AddSC_boss_pit_lord_argaloth();
+    AddSC_instance_baradin_hold();
+    AddSC_boss_romogg_bonecrusher();        //Blackrock Caverns
+    AddSC_boss_corla();
+    AddSC_boss_karsh_steelbender();
+    AddSC_boss_beauty();
+    AddSC_boss_ascendant_lord_obsidius();
+    AddSC_blackrock_caverns();
+    AddSC_instance_blackrock_caverns();
     AddSC_blackrock_depths();               //Blackrock Depths
     AddSC_boss_ambassador_flamelash();
     AddSC_boss_draganthaurissan();
@@ -236,7 +259,6 @@ void AddEasternKingdomsScripts()
     AddSC_instance_blackwing_lair();
     AddSC_deadmines();                      //Deadmines
     AddSC_boss_mr_smite();
-    AddSC_boss_vancleef();
     AddSC_instance_deadmines();
     AddSC_gnomeregan();                     //Gnomeregan
     AddSC_instance_gnomeregan();
@@ -325,6 +347,9 @@ void AddEasternKingdomsScripts()
     AddSC_boss_kiljaeden();
     AddSC_sunwell_plateau();
     AddSC_instance_the_stockade();          //The Stockade
+    AddSC_boss_hogger();
+    AddSC_boss_randolph_moloch();
+    AddSC_boss_lord_overheat();
     AddSC_boss_archaedas();                 //Uldaman
     AddSC_boss_ironaya();
     AddSC_uldaman();
@@ -334,37 +359,37 @@ void AddEasternKingdomsScripts()
     AddSC_boss_hex_lord_malacrass();
     AddSC_boss_janalai();
     AddSC_boss_nalorakk();
-    AddSC_boss_zuljin();
+    AddSC_boss_daakara();
     AddSC_instance_zulaman();
     AddSC_zulaman();
-    AddSC_boss_jeklik();                    //Zul'Gurub
-    AddSC_boss_venoxis();
-    AddSC_boss_marli();
-    AddSC_boss_mandokir();
-    AddSC_boss_gahzranka();
-    AddSC_boss_thekal();
-    AddSC_boss_arlokk();
-    AddSC_boss_jindo();
-    AddSC_boss_hakkar();
-    AddSC_boss_grilek();
+    AddSC_boss_grilek();                    // Zul'Gurub
     AddSC_boss_hazzarah();
+    AddSC_boss_jindo_the_godbreaker();
+    AddSC_boss_kilnara();
+    AddSC_boss_mandokir();
     AddSC_boss_renataki();
+    AddSC_boss_venoxis();
     AddSC_boss_wushoolay();
+    AddSC_boss_zanzil();
     AddSC_instance_zulgurub();
+
     //AddSC_alterac_mountains();
-    //AddSC_arathi_highlands();
+    AddSC_arathi_highlands();
     AddSC_blasted_lands();
+    AddSC_burning_steppes();
+    AddSC_dun_morogh();
+    AddSC_dun_morogh_area_coldridge_valley();
     AddSC_duskwood();
     //AddSC_eastern_plaguelands();
-    //AddSC_ghostlands();
-    AddSC_goldshire();
+    AddSC_ghostlands();
     AddSC_hinterlands();
-    AddSC_isle_of_queldanas();
-    //AddSC_redridge_mountains();
-    //AddSC_silverpine_forest();
+    AddSC_redridge_mountains();
+    AddSC_silverpine_forest();
     AddSC_stormwind_city();
-    //AddSC_swamp_of_sorrows();
+    AddSC_swamp_of_sorrows();
     AddSC_tirisfal_glades();
+    AddSC_tol_barad();
     AddSC_undercity();
-    //AddSC_western_plaguelands();
+    AddSC_western_plaguelands();
+    AddSC_wetlands();
 }

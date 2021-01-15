@@ -18,26 +18,25 @@
 #ifndef TRINITY_PLAYERAI_H
 #define TRINITY_PLAYERAI_H
 
-#include "Common.h"
 #include "UnitAI.h"
 
-class Creature;
-class Player;
 class Spell;
-class Unit;
 
 class TC_GAME_API PlayerAI : public UnitAI
 {
     public:
         explicit PlayerAI(Player* player);
 
+        void OnCharmed(bool /*apply*/) override { } // charm AI application for players is handled by Unit::SetCharmedBy / Unit::RemoveCharmedBy
+
         Creature* GetCharmer() const;
 
         // helper functions to determine player info
-        // Return values range from 0 (left-most spec) to 2 (right-most spec). If two specs have the same number of talent points, the left-most of those specs is returned.
-        uint8 GetSpec(Player const* who = nullptr) const;
-        bool IsHealer(Player const* who = nullptr) const;
-        bool IsRangedAttacker(Player const* who = nullptr) const;
+        uint16 GetSpec(Player const* who = nullptr) const;
+        static bool IsPlayerHealer(Player const* who);
+        bool IsHealer(Player const* who = nullptr) const { return (!who || who == me) ? _isSelfHealer : IsPlayerHealer(who); }
+        static bool IsPlayerRangedAttacker(Player const* who);
+        bool IsRangedAttacker(Player const* who = nullptr) const { return (!who || who == me) ? _isSelfRangedAttacker : IsPlayerRangedAttacker(who); }
 
     protected:
         struct TargetedSpell : public std::pair<Spell*, Unit*>
@@ -87,7 +86,7 @@ class TC_GAME_API PlayerAI : public UnitAI
         void CancelAllShapeshifts();
 
     private:
-        uint8 const _selfSpec;
+        uint16 const _selfSpec;
         bool const _isSelfHealer;
         bool _isSelfRangedAttacker;
 };
@@ -97,7 +96,7 @@ class TC_GAME_API SimpleCharmedPlayerAI : public PlayerAI
     public:
         SimpleCharmedPlayerAI(Player* player) : PlayerAI(player), _castCheckTimer(2500), _chaseCloser(false), _forceFacing(true), _isFollowing(false) { }
         void UpdateAI(uint32 diff) override;
-        void OnCharmed(bool isNew) override;
+        void OnCharmed(bool apply) override;
 
     protected:
         bool CanAIAttack(Unit const* who) const override;

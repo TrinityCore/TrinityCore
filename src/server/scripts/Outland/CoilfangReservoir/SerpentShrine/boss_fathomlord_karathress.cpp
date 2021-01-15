@@ -146,7 +146,8 @@ public:
             RAdvisors[2] = instance->GetGuidData(DATA_CARIBDIS);
             // Respawn of the 3 Advisors
             for (uint8 i = 0; i < MAX_ADVISORS; ++i)
-                if (RAdvisors[i])
+            {
+                if (!RAdvisors[i].IsEmpty())
                 {
                     Creature* advisor = ObjectAccessor::GetCreature(*me, RAdvisors[i]);
                     if (advisor && !advisor->IsAlive())
@@ -156,6 +157,7 @@ public:
                         advisor->GetMotionMaster()->MoveTargetedHome();
                     }
                 }
+            }
 
             instance->SetData(DATA_KARATHRESSEVENT, NOT_STARTED);
         }
@@ -208,10 +210,10 @@ public:
             instance->SetData(DATA_FATHOMLORDKARATHRESSEVENT, DONE);
 
             //support for quest 10944
-            me->SummonCreature(SEER_OLUM, OLUM_X, OLUM_Y, OLUM_Z, OLUM_O, TEMPSUMMON_TIMED_DESPAWN, 1h);
+            me->SummonCreature(SEER_OLUM, OLUM_X, OLUM_Y, OLUM_Z, OLUM_O, TEMPSUMMON_TIMED_DESPAWN, 3600000);
         }
 
-        void JustEngagedWith(Unit* who) override
+        void EnterCombat(Unit* who) override
         {
             StartEvent(who);
         }
@@ -243,7 +245,7 @@ public:
             if (CataclysmicBolt_Timer <= diff)
             {
                 //select a random unit other than the main tank
-                Unit* target = SelectTarget(SelectTargetMethod::Random, 1);
+                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
 
                 //if there aren't other units, cast on the tank
                 if (!target)
@@ -274,7 +276,8 @@ public:
                 BlessingOfTides = true;
                 bool continueTriggering = false;
                 for (uint8 i = 0; i < MAX_ADVISORS; ++i)
-                    if (Advisors[i])
+                {
+                    if (!Advisors[i].IsEmpty())
                     {
                         Creature* advisor = ObjectAccessor::GetCreature(*me, Advisors[i]);
                         if (advisor && advisor->IsAlive())
@@ -283,6 +286,8 @@ public:
                             break;
                         }
                     }
+                }
+
                 if (continueTriggering)
                 {
                     DoCast(me, SPELL_BLESSING_OF_THE_TIDES);
@@ -343,7 +348,7 @@ public:
 
             Creature* Pet = ObjectAccessor::GetCreature(*me, SummonedPet);
             if (Pet && Pet->IsAlive())
-                Pet->KillSelf();
+                Pet->DealDamage(Pet, Pet->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
 
             SummonedPet.Clear();
 
@@ -356,7 +361,7 @@ public:
                 ENSURE_AI(boss_fathomlord_karathress::boss_fathomlord_karathressAI, Karathress->AI())->EventSharkkisDeath();
         }
 
-        void JustEngagedWith(Unit* who) override
+        void EnterCombat(Unit* who) override
         {
             instance->SetGuidData(DATA_KARATHRESSEVENT_STARTER, who->GetGUID());
             instance->SetData(DATA_KARATHRESSEVENT, IN_PROGRESS);
@@ -425,9 +430,9 @@ public:
                     pet_id = CREATURE_FATHOM_SPOREBAT;
                 }
                 //DoCast(me, spell_id, true);
-                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
-                    if (Creature* Pet = DoSpawnCreature(pet_id, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15s))
+                    if (Creature* Pet = DoSpawnCreature(pet_id, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000))
                     {
                         Pet->AI()->AttackStart(target);
                         SummonedPet = Pet->GetGUID();
@@ -488,7 +493,7 @@ public:
                 ENSURE_AI(boss_fathomlord_karathress::boss_fathomlord_karathressAI, Karathress->AI())->EventTidalvessDeath();
         }
 
-        void JustEngagedWith(Unit* who) override
+        void EnterCombat(Unit* who) override
         {
             instance->SetGuidData(DATA_KARATHRESSEVENT_STARTER, who->GetGUID());
             instance->SetData(DATA_KARATHRESSEVENT, IN_PROGRESS);
@@ -610,7 +615,7 @@ public:
                 ENSURE_AI(boss_fathomlord_karathress::boss_fathomlord_karathressAI, Karathress->AI())->EventCaribdisDeath();
         }
 
-        void JustEngagedWith(Unit* who) override
+        void EnterCombat(Unit* who) override
         {
             instance->SetGuidData(DATA_KARATHRESSEVENT_STARTER, who->GetGUID());
             instance->SetData(DATA_KARATHRESSEVENT, IN_PROGRESS);
@@ -659,13 +664,13 @@ public:
                 //DoCast(me, SPELL_SUMMON_CYCLONE); // Doesn't work
                 Cyclone_Timer = 30000 + rand32() % 10000;
 
-                if (Creature* Cyclone = me->SummonCreature(CREATURE_CYCLONE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), float(rand32() % 5), TEMPSUMMON_TIMED_DESPAWN, 15s))
+                if (Creature* Cyclone = me->SummonCreature(CREATURE_CYCLONE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), float(rand32() % 5), TEMPSUMMON_TIMED_DESPAWN, 15000))
                 {
                     Cyclone->SetObjectScale(3.0f);
-                    Cyclone->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    Cyclone->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                     Cyclone->SetFaction(me->GetFaction());
                     Cyclone->CastSpell(Cyclone, SPELL_CYCLONE_CYCLONE, true);
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         Cyclone->AI()->AttackStart(target);
                 }
             }
@@ -681,7 +686,8 @@ public:
                 while (unit == nullptr || !unit->IsAlive())
                     unit = selectAdvisorUnit();
 
-                DoCast(unit, SPELL_HEAL);
+                if (unit && unit->IsAlive())
+                    DoCast(unit, SPELL_HEAL);
                 Heal_Timer = 60000;
             }
             else

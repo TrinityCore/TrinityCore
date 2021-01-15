@@ -16,8 +16,8 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "blackfathom_deeps.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -38,10 +38,10 @@ public:
     {
         boss_gelihastAI(Creature* creature) : BossAI(creature, DATA_GELIHAST) { }
 
-        void JustEngagedWith(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
-            BossAI::JustEngagedWith(who);
-            events.ScheduleEvent(EVENT_THROW_NET, 2s, 4s);
+            _EnterCombat();
+            events.ScheduleEvent(EVENT_THROW_NET, urand(2000, 4000));
         }
 
         void UpdateAI(uint32 diff) override
@@ -56,7 +56,7 @@ public:
                 if (eventId == EVENT_THROW_NET)
                 {
                     DoCastVictim(SPELL_NET);
-                    events.ScheduleEvent(EVENT_THROW_NET, 4s, 7s);
+                    events.ScheduleEvent(EVENT_THROW_NET, urand(4000, 7000));
                 }
             }
 

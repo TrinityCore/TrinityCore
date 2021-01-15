@@ -102,7 +102,7 @@ class npc_ioc_gunship_captain : public CreatureScript
                 if (action == ACTION_GUNSHIP_READY)
                 {
                     DoCast(me, SPELL_SIMPLE_TELEPORT);
-                    _events.ScheduleEvent(EVENT_TALK, 3s);
+                    _events.ScheduleEvent(EVENT_TALK, 3000);
                 }
             }
 
@@ -114,7 +114,7 @@ class npc_ioc_gunship_captain : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_TALK:
-                            _events.ScheduleEvent(EVENT_DESPAWN, 1s);
+                            _events.ScheduleEvent(EVENT_DESPAWN, 1000);
                             Talk(SAY_ONBOARD);
                             DoCast(me, SPELL_TELEPORT_VISUAL_ONLY);
                             break;
@@ -190,9 +190,8 @@ class spell_ioc_parachute_ic : public SpellScriptLoader
 
             void HandleTriggerSpell(AuraEffect const* /*aurEff*/)
             {
-                PreventDefaultAction();
                 if (Player* target = GetTarget()->ToPlayer())
-                    if (target->m_movementInfo.fallTime > 2000 && !target->GetTransport())
+                    if (target->m_movementInfo.GetFallTime() > 2000 && !target->GetTransport())
                         target->CastSpell(target, SPELL_PARACHUTE_IC, true);
             }
 
@@ -211,13 +210,13 @@ class spell_ioc_parachute_ic : public SpellScriptLoader
 class StartLaunchEvent : public BasicEvent
 {
     public:
-        StartLaunchEvent(Position const& pos, ObjectGuid::LowType lowGuid) : _pos(pos), _lowGuid(lowGuid)
+        StartLaunchEvent(Position const& pos, ObjectGuid const& guid) : _pos(pos), _guid(guid)
         {
         }
 
         bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
-            Player* player = ObjectAccessor::FindPlayerByLowGUID(_lowGuid);
+            Player* player = ObjectAccessor::FindPlayer(_guid);
             if (!player || !player->GetVehicle())
                 return true;
 
@@ -232,7 +231,7 @@ class StartLaunchEvent : public BasicEvent
 
     private:
         Position _pos;
-        ObjectGuid::LowType _lowGuid;
+        ObjectGuid _guid;
 };
 
 class spell_ioc_launch : public SpellScriptLoader
@@ -249,7 +248,7 @@ class spell_ioc_launch : public SpellScriptLoader
                 if (!GetCaster()->ToCreature() || !GetExplTargetDest())
                     return;
 
-                GetCaster()->ToCreature()->m_Events.AddEvent(new StartLaunchEvent(*GetExplTargetDest(), GetHitPlayer()->GetGUID().GetCounter()), GetCaster()->ToCreature()->m_Events.CalculateTime(2500ms));
+                GetCaster()->ToCreature()->m_Events.AddEvent(new StartLaunchEvent(*GetExplTargetDest(), GetHitPlayer()->GetGUID()), GetCaster()->ToCreature()->m_Events.CalculateTime(2500));
             }
 
             void Register() override

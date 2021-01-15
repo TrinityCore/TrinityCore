@@ -20,10 +20,9 @@
 #include "Log.h"
 #include "Player.h"
 #include "Random.h"
-#include "WorldPacket.h"
 #include "WorldStatePackets.h"
 
-BattlegroundDS::BattlegroundDS()
+BattlegroundDS::BattlegroundDS(BattlegroundTemplate const* battlegroundTemplate) : Arena(battlegroundTemplate)
 {
     BgObjects.resize(BG_DS_OBJECT_MAX);
     BgCreatures.resize(BG_DS_NPC_MAX);
@@ -59,7 +58,7 @@ void BattlegroundDS::PostUpdateImpl(uint32 diff)
                 DoorOpen(BG_DS_OBJECT_WATER_1);
                 DoorOpen(BG_DS_OBJECT_WATER_2);
                 _events.CancelEvent(BG_DS_EVENT_WATERFALL_KNOCKBACK);
-                _events.ScheduleEvent(BG_DS_EVENT_WATERFALL_WARNING, BG_DS_WATERFALL_TIMER_MIN, BG_DS_WATERFALL_TIMER_MAX);
+                _events.ScheduleEvent(BG_DS_EVENT_WATERFALL_WARNING, urand(BG_DS_WATERFALL_TIMER_MIN, BG_DS_WATERFALL_TIMER_MAX));
                 break;
             case BG_DS_EVENT_WATERFALL_KNOCKBACK:
                 // Repeat knockback while the waterfall still active
@@ -105,7 +104,7 @@ void BattlegroundDS::StartingEventOpenDoors()
     for (uint32 i = BG_DS_OBJECT_BUFF_1; i <= BG_DS_OBJECT_BUFF_2; ++i)
         SpawnBGObject(i, 60);
 
-    _events.ScheduleEvent(BG_DS_EVENT_WATERFALL_WARNING, BG_DS_WATERFALL_TIMER_MIN, BG_DS_WATERFALL_TIMER_MAX);
+    _events.ScheduleEvent(BG_DS_EVENT_WATERFALL_WARNING, urand(BG_DS_WATERFALL_TIMER_MIN, BG_DS_WATERFALL_TIMER_MAX));
     //for (uint8 i = 0; i < BG_DS_PIPE_KNOCKBACK_TOTAL_COUNT; ++i)
     //    _events.ScheduleEvent(BG_DS_EVENT_PIPE_KNOCKBACK, BG_DS_PIPE_KNOCKBACK_FIRST_DELAY + i * BG_DS_PIPE_KNOCKBACK_DELAY);
 
@@ -123,7 +122,7 @@ void BattlegroundDS::StartingEventOpenDoors()
             player->RemoveAurasDueToSpell(SPELL_WARL_DEMONIC_CIRCLE);
 }
 
-void BattlegroundDS::HandleAreaTrigger(Player* player, uint32 trigger)
+void BattlegroundDS::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
@@ -141,15 +140,14 @@ void BattlegroundDS::HandleAreaTrigger(Player* player, uint32 trigger)
                 _pipeKnockBackCount = 0;
             break;
         default:
-            Battleground::HandleAreaTrigger(player, trigger);
+            Battleground::HandleAreaTrigger(player, trigger, entered);
             break;
     }
 }
 
 void BattlegroundDS::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    packet.Worldstates.emplace_back(3610, 1); // ARENA_WORLD_STATE_ALIVE_PLAYERS_SHOW
-
+    packet.Worldstates.emplace_back(3610, 1);
     Arena::FillInitialWorldStates(packet);
 }
 

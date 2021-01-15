@@ -109,7 +109,7 @@ public:
 
             scheduler.Schedule(Seconds(25), Seconds(45), [this](TaskContext task)
             {
-                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(target,SPELL_INTANGIBLE_PRESENCE);
 
                 task.Repeat(Seconds(25), Seconds(45));
@@ -159,7 +159,7 @@ public:
             BossAI::JustSummoned(summon);
         }
 
-        void IsSummonedBy(WorldObject* summoner) override
+        void IsSummonedBy(Unit* summoner) override
         {
             if (summoner->GetEntry() == NPC_MIDNIGHT)
                 _phase = PHASE_ATTUMEN_ENGAGES;
@@ -198,18 +198,18 @@ public:
             }
         }
 
-        void JustDied(Unit* /*killer*/) override
+        void JustDied(Unit* killer) override
         {
             Talk(SAY_DEATH);
             if (Unit* midnight = ObjectAccessor::GetUnit(*me, _midnightGUID))
                 midnight->KillSelf();
 
-            _JustDied();
+            BossAI::JustDied(killer);
         }
 
-        void SetGUID(ObjectGuid const& guid, int32 id) override
+        void SetGUID(ObjectGuid guid, int32 data) override
         {
-            if (id == NPC_MIDNIGHT)
+            if (data == NPC_MIDNIGHT)
                 _midnightGUID = guid;
         }
 
@@ -222,12 +222,12 @@ public:
                 std::bind(&BossAI::DoMeleeAttackIfReady, this));
         }
 
-        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+        void SpellHit(Unit* /*source*/, SpellInfo const* spell) override
         {
-            if (spellInfo->Mechanic == MECHANIC_DISARM)
+            if (spell->Mechanic == MECHANIC_DISARM)
                 Talk(SAY_DISARMED);
 
-            if (spellInfo->Id == SPELL_MOUNT)
+            if (spell->Id == SPELL_MOUNT)
             {
                 if (Creature* midnight = ObjectAccessor::GetCreature(*me, _midnightGUID))
                 {
@@ -337,9 +337,9 @@ public:
             BossAI::JustSummoned(summon);
         }
 
-        void JustEngagedWith(Unit* who) override
+        void EnterCombat(Unit* who) override
         {
-            BossAI::JustEngagedWith(who);
+            BossAI::EnterCombat(who);
 
             scheduler.Schedule(Seconds(15), Seconds(25), [this](TaskContext task)
             {

@@ -24,8 +24,8 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
-#include "ScriptedCreature.h"
 #include "old_hillsbrad.h"
+#include "ScriptedCreature.h"
 
 /*######################
 # boss_captain_skarloc #
@@ -89,7 +89,7 @@ public:
             Initialize();
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) override
         {
             //This is not correct. Should taunt Thrall before engage in combat
             Talk(SAY_TAUNT1);

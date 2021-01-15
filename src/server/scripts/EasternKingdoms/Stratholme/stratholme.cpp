@@ -39,8 +39,6 @@ EndContentData */
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
 #include "stratholme.h"
 
 /*######
@@ -58,7 +56,7 @@ class go_gauntlet_gate : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool OnGossipHello(Player* player) override
+            bool GossipHello(Player* player) override
             {
                 if (instance->GetData(TYPE_BARON_RUN) != NOT_STARTED)
                     return false;
@@ -144,11 +142,11 @@ public:
             Initialize();
         }
 
-        void JustEngagedWith(Unit* /*who*/) override { }
+        void EnterCombat(Unit* /*who*/) override { }
 
-        void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
+        void SpellHit(Unit* caster, SpellInfo const* spell) override
         {
-            if (Tagged || spellInfo->Id != SPELL_EGAN_BLASTER)
+            if (Tagged || spell->Id != SPELL_EGAN_BLASTER)
                 return;
 
             Player* player = caster->ToPlayer();
@@ -170,7 +168,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             if (Tagged)
-                me->SummonCreature(NPC_FREED, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 5min);
+                me->SummonCreature(NPC_FREED, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 300000);
         }
 
         void UpdateAI(uint32 diff) override
@@ -200,9 +198,8 @@ public:
 
 enum GhostlyCitizenSpells
 {
-    SPELL_HAUNTING_PHANTOM        = 16336,
-    SPELL_DEBILITATING_TOUCH      = 16333,
-    SPELL_SLAP                    = 6754
+    SPELL_HAUNTING_PHANTOM  = 16336,
+    SPELL_SLAP              = 6754
 };
 
 class npc_spectral_ghostly_citizen : public CreatureScript
@@ -225,14 +222,10 @@ public:
         void Initialize()
         {
             Die_Timer = 5000;
-            HauntingTimer = 8000;
-            TouchTimer = 2000;
             Tagged = false;
         }
 
         uint32 Die_Timer;
-        uint32 HauntingTimer;
-        uint32 TouchTimer;
         bool Tagged;
 
         void Reset() override
@@ -240,11 +233,11 @@ public:
             Initialize();
         }
 
-        void JustEngagedWith(Unit* /*who*/) override { }
+        void EnterCombat(Unit* /*who*/) override { }
 
-        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
         {
-            if (!Tagged && spellInfo->Id == SPELL_EGAN_BLASTER)
+            if (!Tagged && spell->Id == SPELL_EGAN_BLASTER)
                 Tagged = true;
         }
 
@@ -256,7 +249,7 @@ public:
                 {
                      //100%, 50%, 33%, 25% chance to spawn
                      if (urand(1, i) == 1)
-                         DoSummon(NPC_RESTLESS, me, 20.0f, 10min);
+                         DoSummon(NPC_RESTLESS, me, 20.0f, 600000);
                 }
             }
         }
@@ -272,24 +265,6 @@ public:
 
             if (!UpdateVictim())
                 return;
-
-            //HauntingTimer
-            if (HauntingTimer <= diff)
-            {
-                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                    DoCast(target, SPELL_HAUNTING_PHANTOM);
-                HauntingTimer = 11000;
-            }
-            else HauntingTimer -= diff;
-
-            //TouchTimer
-            if (TouchTimer <= diff)
-            {
-                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                    DoCast(target, SPELL_DEBILITATING_TOUCH);
-                TouchTimer = 7000;
-            }
-            else TouchTimer -= diff;
 
             DoMeleeAttackIfReady();
         }
@@ -322,81 +297,9 @@ public:
 
 };
 
-class spell_ysida_saved_credit : public SpellScript
-{
-    PrepareSpellScript(spell_ysida_saved_credit);
-
-    bool Validate(SpellInfo const* /*spell*/) override
-    {
-        return ValidateSpellInfo({ SPELL_YSIDA_SAVED });
-    }
-
-    void FilterTargets(std::list<WorldObject*>& targets)
-    {
-        targets.remove_if([](WorldObject* obj)
-        {
-            return obj->GetTypeId() != TYPEID_PLAYER;
-        });
-    }
-
-    void HandleScript(SpellEffIndex /*effIndex*/)
-    {
-        if (Player* player = GetHitUnit()->ToPlayer())
-        {
-            player->AreaExploredOrEventHappens(QUEST_DEAD_MAN_PLEA);
-            player->KilledMonsterCredit(NPC_YSIDA);
-        }
-    }
-
-    void Register() override
-    {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ysida_saved_credit::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
-        OnEffectHitTarget += SpellEffectFn(spell_ysida_saved_credit::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
-enum HauntingPhantoms
-{
-    SPELL_SUMMON_SPITEFUL_PHANTOM = 16334,
-    SPELL_SUMMON_WRATH_PHANTOM    = 16335
-};
-
-class spell_stratholme_haunting_phantoms : public AuraScript
-{
-    PrepareAuraScript(spell_stratholme_haunting_phantoms);
-
-    void CalcPeriodic(AuraEffect const* /*aurEff*/, bool& isPeriodic, int32& amplitude)
-    {
-        isPeriodic = true;
-        amplitude = irand(30, 90) * IN_MILLISECONDS;
-    }
-
-    void HandleDummyTick(AuraEffect const* /*aurEff*/)
-    {
-        if (roll_chance_i(50))
-            GetTarget()->CastSpell(nullptr, SPELL_SUMMON_SPITEFUL_PHANTOM, true);
-        else
-            GetTarget()->CastSpell(nullptr, SPELL_SUMMON_WRATH_PHANTOM, true);
-    }
-
-    void HandleUpdatePeriodic(AuraEffect* aurEff)
-    {
-        aurEff->CalculatePeriodic(GetCaster());
-    }
-
-    void Register() override
-    {
-        DoEffectCalcPeriodic += AuraEffectCalcPeriodicFn(spell_stratholme_haunting_phantoms::CalcPeriodic, EFFECT_0, SPELL_AURA_DUMMY);
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_stratholme_haunting_phantoms::HandleDummyTick, EFFECT_0, SPELL_AURA_DUMMY);
-        OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_stratholme_haunting_phantoms::HandleUpdatePeriodic, EFFECT_0, SPELL_AURA_DUMMY);
-    }
-};
-
 void AddSC_stratholme()
 {
     new go_gauntlet_gate();
     new npc_restless_soul();
     new npc_spectral_ghostly_citizen();
-    RegisterSpellScript(spell_ysida_saved_credit);
-    RegisterSpellScript(spell_stratholme_haunting_phantoms);
 }

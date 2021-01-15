@@ -106,9 +106,9 @@ public:
             SetBubbled(false);
         }
 
-        void JustEngagedWith(Unit* who) override
+        void EnterCombat(Unit* /* victim */) override
         {
-            BossAI::JustEngagedWith(who);
+            _EnterCombat();
             Talk(SAY_AGGRO);
 
             SetCrystalsStatus(true);
@@ -153,12 +153,12 @@ public:
                 {
                     case EVENT_SUMMON_MINIONS:
                         DoCast(SPELL_SUMMON_MINIONS);
-                        events.ScheduleEvent(EVENT_SUMMON_MINIONS, 15s);
+                        events.ScheduleEvent(EVENT_SUMMON_MINIONS, 15000);
                         break;
                     case EVENT_ATTACK:
-                        if (Unit* victim = SelectTarget(SelectTargetMethod::Random))
+                        if (Unit* victim = SelectTarget(SELECT_TARGET_RANDOM))
                             DoCast(victim, RAND(SPELL_ARCANE_BLAST, SPELL_BLIZZARD, SPELL_FROSTBOLT, SPELL_WRATH_OF_MISERY));
-                        events.ScheduleEvent(EVENT_ATTACK, 3s);
+                        events.ScheduleEvent(EVENT_ATTACK, 3000);
                         break;
                     default:
                         break;
@@ -203,15 +203,13 @@ public:
             _bubbled = state;
             if (!state)
             {
-                if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     me->CastStop();
             }
             else
             {
-                if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                 DoCast(SPELL_ARCANE_FIELD);
             }
         }
@@ -219,7 +217,10 @@ public:
         void SetSummonerStatus(bool active)
         {
             for (uint8 i = 0; i < 4; i++)
-                if (ObjectGuid guid = instance->GetGuidData(summoners[i].data))
+            {
+                ObjectGuid guid = instance->GetGuidData(summoners[i].data);
+                if (!guid.IsEmpty())
+                {
                     if (Creature* crystalChannelTarget = ObjectAccessor::GetCreature(*me, guid))
                     {
                         if (active)
@@ -227,14 +228,19 @@ public:
                         else
                             crystalChannelTarget->AI()->Reset();
                     }
+                }
+            }
         }
 
         void SetCrystalsStatus(bool active)
         {
             for (uint8 i = 0; i < 4; i++)
-                if (ObjectGuid guid = instance->GetGuidData(DATA_NOVOS_CRYSTAL_1 + i))
+            {
+                ObjectGuid guid = instance->GetGuidData(DATA_NOVOS_CRYSTAL_1 + i);
+                if (!guid.IsEmpty())
                     if (GameObject* crystal = ObjectAccessor::GetGameObject(*me, guid))
                         SetCrystalStatus(crystal, active);
+            }
         }
 
         void SetCrystalStatus(GameObject* crystal, bool active)
@@ -252,24 +258,32 @@ public:
         void CrystalHandlerDied()
         {
             for (uint8 i = 0; i < 4; i++)
-                if (ObjectGuid guid = instance->GetGuidData(DATA_NOVOS_CRYSTAL_1 + i))
+            {
+                ObjectGuid guid = instance->GetGuidData(DATA_NOVOS_CRYSTAL_1 + i);
+                if (!guid.IsEmpty())
+                {
                     if (GameObject* crystal = ObjectAccessor::GetGameObject(*me, guid))
+                    {
                         if (crystal->GetGoState() == GO_STATE_ACTIVE)
                         {
                             SetCrystalStatus(crystal, false);
                             break;
                         }
+                    }
+                }
+            }
 
+            ObjectGuid guid = instance->GetGuidData(DATA_NOVOS_SUMMONER_4);
             if (++_crystalHandlerCount >= 4)
             {
                 Talk(SAY_ARCANE_FIELD);
                 SetSummonerStatus(false);
                 SetBubbled(false);
-                events.ScheduleEvent(EVENT_ATTACK, 3s);
+                events.ScheduleEvent(EVENT_ATTACK, 3000);
                 if (IsHeroic())
-                    events.ScheduleEvent(EVENT_SUMMON_MINIONS, 15s);
+                    events.ScheduleEvent(EVENT_SUMMON_MINIONS, 15000);
             }
-            else if (ObjectGuid guid = instance->GetGuidData(DATA_NOVOS_SUMMONER_4))
+            else if (!guid.IsEmpty())
                 if (Creature* crystalChannelTarget = ObjectAccessor::GetCreature(*me, guid))
                     crystalChannelTarget->AI()->SetData(SPELL_SUMMON_CRYSTAL_HANDLER, 15000);
         }
@@ -333,9 +347,12 @@ public:
         void JustSummoned(Creature* summon) override
         {
             if (InstanceScript* instance = me->GetInstanceScript())
-                if (ObjectGuid guid = instance->GetGuidData(DATA_NOVOS))
+            {
+                ObjectGuid guid = instance->GetGuidData(DATA_NOVOS);
+                if (!guid.IsEmpty())
                     if (Creature* novos = ObjectAccessor::GetCreature(*me, guid))
                         novos->AI()->JustSummoned(summon);
+            }
 
             if (summon)
                 summon->GetMotionMaster()->MovePath(summon->GetEntry() * 100, false);

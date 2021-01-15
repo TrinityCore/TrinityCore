@@ -20,7 +20,6 @@
 
 #include "Battleground.h"
 #include "BattlegroundScore.h"
-#include "GameObjectData.h"
 #include "Object.h"
 
 #define BG_AV_CAPTIME                    240000  //4:00
@@ -89,7 +88,7 @@ enum BG_AV_Sounds
     ally wins
 8192:
     ally tower destroy(only iceblood - found a bug^^)
-    ally tower defend
+    ally tower  defend
     horde tower defend
 8213
 horde:
@@ -107,7 +106,7 @@ horde:
     AV_SOUND_HORDE_GOOD                     = 8213,
     AV_SOUND_BOTH_TOWER_DEFEND              = 8192,
 
-    AV_SOUND_ALLIANCE_CAPTAIN               = 8232, //gets called when someone attacks them and at the beginning after 5min+rand(x)*10sec (maybe buff)
+    AV_SOUND_ALLIANCE_CAPTAIN               = 8232, //gets called when someone attacks them and at the beginning after 3min+rand(x)*10sec (maybe buff)
     AV_SOUND_HORDE_CAPTAIN                  = 8333
 };
 
@@ -543,14 +542,8 @@ Position const BG_AV_ObjectPos[AV_OPLACE_MAX] =
 
 Position const BG_AV_DoorPositons[2] =
 {
-    {794.64310f, -493.4745f, 99.77789f, -0.122173f}, //alliance
-    {-1382.057f, -545.9169f, 54.90467f, 0.7679439f}  //horde
-};
-
-QuaternionData const BG_AV_DoorRotation[2] =
-{
-    {0.0f, 0.0f, -0.06104851f, 0.9981348f}, //alliance
-    {0.0f, 0.0f, 0.374606100f, 0.9271840f}  //horde
+    {780.487f, -493.024f, 99.9553f, 3.0976f},   //alliance
+    {-1375.193f, -538.981f, 55.2824f, 0.72178f} //horde
 };
 
 //creaturestuff starts here
@@ -1003,19 +996,19 @@ Position const BG_AV_CreaturePos[AV_CPLACE_MAX] =
 
 enum BG_AV_CreatureIds
 {
-    AV_NPC_A_GRAVEDEFENSE0 = 0,     // stormpike Defender
-    AV_NPC_A_GRAVEDEFENSE1 = 1,     // seasoned defender
-    AV_NPC_A_GRAVEDEFENSE2 = 2,     // veteran defender
-    AV_NPC_A_GRAVEDEFENSE3 = 3,     // champion defender
-    AV_NPC_A_TOWERDEFENSE  = 4,     // stormpike bowman
+    AV_NPC_A_TOWERDEFENSE  = 0,     // stormpike bowman
+    AV_NPC_A_GRAVEDEFENSE0 = 1,     // stormpike Defender
+    AV_NPC_A_GRAVEDEFENSE1 = 2,     // seasoned defender
+    AV_NPC_A_GRAVEDEFENSE2 = 3,     // veteran defender
+    AV_NPC_A_GRAVEDEFENSE3 = 4,     // champion defender
     AV_NPC_A_CAPTAIN       = 5,     // balinda
     AV_NPC_A_BOSS          = 6,     // vanndar
 
-    AV_NPC_H_GRAVEDEFENSE0 = 7,     // frostwolf guardian
-    AV_NPC_H_GRAVEDEFENSE1 = 8,     // seasoned guardian
-    AV_NPC_H_GRAVEDEFENSE2 = 9,     // veteran guardian
-    AV_NPC_H_GRAVEDEFENSE3 = 10,    // champion guardian
-    AV_NPC_H_TOWERDEFENSE  = 11,    // frostwolf bowman
+    AV_NPC_H_TOWERDEFENSE  = 7,     // frostwolf bowman
+    AV_NPC_H_GRAVEDEFENSE0 = 8,     // frostwolf guardian
+    AV_NPC_H_GRAVEDEFENSE1 = 9,     // seasoned guardian
+    AV_NPC_H_GRAVEDEFENSE2 = 10,    // veteran guardian
+    AV_NPC_H_GRAVEDEFENSE3 = 11,    // champion guardian
     AV_NPC_H_CAPTAIN       = 12,    // galvangar
     AV_NPC_H_BOSS          = 13,    // drek thar
 
@@ -1492,7 +1485,8 @@ enum BG_AV_Objectives
     AV_OBJECTIVE_ASSAULT_TOWER      = 61,
     AV_OBJECTIVE_ASSAULT_GRAVEYARD  = 63,
     AV_OBJECTIVE_DEFEND_TOWER       = 64,
-    AV_OBJECTIVE_DEFEND_GRAVEYARD   = 65
+    AV_OBJECTIVE_DEFEND_GRAVEYARD   = 65,
+    AV_OBJECTIVE_SECONDARY_OBJECTIVE= 82
 };
 
 struct StaticNodeInfo
@@ -1552,6 +1546,12 @@ enum Texts
     TEXT_SNIVVLE_RANDOM                 = 0
 };
 
+enum BG_AV_ExploitTeleportLocations
+{
+    AV_EXPLOIT_TELEPORT_LOCATION_ALLIANCE = 3664,
+    AV_EXPLOIT_TELEPORT_LOCATION_HORDE = 3665
+};
+
 struct BG_AV_NodeInfo
 {
     BG_AV_States State;
@@ -1570,7 +1570,7 @@ struct BattlegroundAVScore final : public BattlegroundScore
     friend class BattlegroundAV;
 
     protected:
-        BattlegroundAVScore(ObjectGuid playerGuid) : BattlegroundScore(playerGuid), GraveyardsAssaulted(0), GraveyardsDefended(0), TowersAssaulted(0), TowersDefended(0), MinesCaptured(0) { }
+        BattlegroundAVScore(ObjectGuid playerGuid, uint32 team) : BattlegroundScore(playerGuid, team), GraveyardsAssaulted(0), GraveyardsDefended(0), TowersAssaulted(0), TowersDefended(0), MinesCaptured(0) { }
 
         void UpdateScore(uint32 type, uint32 value) override
         {
@@ -1597,7 +1597,16 @@ struct BattlegroundAVScore final : public BattlegroundScore
             }
         }
 
-        void BuildObjectivesBlock(WorldPacket& data) final override;
+        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics& playerData) const override
+        {
+            BattlegroundScore::BuildPvPLogPlayerDataPacket(playerData);
+
+            playerData.Stats.emplace_back(AV_OBJECTIVE_ASSAULT_GRAVEYARD, GraveyardsAssaulted);
+            playerData.Stats.emplace_back(AV_OBJECTIVE_DEFEND_GRAVEYARD, GraveyardsDefended);
+            playerData.Stats.emplace_back(AV_OBJECTIVE_ASSAULT_TOWER, TowersAssaulted);
+            playerData.Stats.emplace_back(AV_OBJECTIVE_DEFEND_TOWER, TowersDefended);
+            playerData.Stats.emplace_back(AV_OBJECTIVE_SECONDARY_OBJECTIVE, MinesCaptured);
+        }
 
         uint32 GetAttr1() const final override { return GraveyardsAssaulted; }
         uint32 GetAttr2() const final override { return GraveyardsDefended; }
@@ -1615,7 +1624,7 @@ struct BattlegroundAVScore final : public BattlegroundScore
 class BattlegroundAV : public Battleground
 {
     public:
-        BattlegroundAV();
+        BattlegroundAV(BattlegroundTemplate const* battlegroundTemplate);
         ~BattlegroundAV();
 
         /* inherited from BattlegroundClass */
@@ -1624,7 +1633,7 @@ class BattlegroundAV : public Battleground
         void StartingEventOpenDoors() override;
 
         void RemovePlayer(Player* player, ObjectGuid guid, uint32 team) override;
-        void HandleAreaTrigger(Player* player, uint32 trigger) override;
+        void HandleAreaTrigger(Player* player, uint32 trigger, bool entered) override;
         bool SetupBattleground() override;
         void ResetBGSubclass() override;
 
@@ -1642,6 +1651,7 @@ class BattlegroundAV : public Battleground
         void EndBattleground(uint32 winner) override;
 
         WorldSafeLocsEntry const* GetClosestGraveyard(Player* player) override;
+        WorldSafeLocsEntry const* GetExploitTeleportLocation(Team team) override;
 
         // Achievement: Av perfection and Everything counts
         bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* source, Unit const* target = nullptr, uint32 miscvalue1 = 0) override;

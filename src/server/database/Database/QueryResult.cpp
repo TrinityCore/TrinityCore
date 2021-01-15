@@ -385,6 +385,19 @@ void ResultSet::CleanUp()
     }
 }
 
+void PreparedResultSet::CleanUp()
+{
+    if (m_metadataResult)
+        mysql_free_result(m_metadataResult);
+
+    if (m_rBind)
+    {
+        delete[](char*)m_rBind->buffer;
+        delete[] m_rBind;
+        m_rBind = nullptr;
+    }
+}
+
 Field const& ResultSet::operator[](std::size_t index) const
 {
     ASSERT(index < _fieldCount);
@@ -402,17 +415,4 @@ Field const& PreparedResultSet::operator[](std::size_t index) const
     ASSERT(m_rowPosition < m_rowCount);
     ASSERT(index < m_fieldCount);
     return m_rows[uint32(m_rowPosition) * m_fieldCount + index];
-}
-
-void PreparedResultSet::CleanUp()
-{
-    if (m_metadataResult)
-        mysql_free_result(m_metadataResult);
-
-    if (m_rBind)
-    {
-        delete[](char*)m_rBind->buffer;
-        delete[] m_rBind;
-        m_rBind = nullptr;
-    }
 }

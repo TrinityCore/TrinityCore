@@ -1,0 +1,83 @@
+syntax = "proto2";
+
+package JSON.RealmList;
+
+option optimize_for = CODE_SIZE;
+
+message RealmListTicketIdentity {
+  required fixed32 gameAccountID = 1;
+  required uint32 gameAccountRegion = 2;
+}
+
+message ClientVersion {
+  required uint32 versionMajor = 1;
+  required uint32 versionMinor = 2;
+  required uint32 versionRevision = 3;
+  required fixed32 versionBuild = 4;
+}
+
+message ClientInformation {
+  required fixed32 platform = 1;
+  required string buildVariant = 2;
+  required fixed32 type = 3;
+  required string timeZone = 4;
+  required uint32 currentTime = 5;
+  required fixed32 textLocale = 6;
+  required fixed32 audioLocale = 7;
+  required fixed32 versionDataBuild = 8;
+  required ClientVersion version = 9;
+  required bytes secret = 10;
+  required fixed32 clientArch = 11;
+  required string systemVersion = 12;
+  required fixed32 platformType = 13;
+  required fixed32 systemArch = 14;
+}
+
+message RealmListTicketClientInformation {
+  required ClientInformation info = 1;
+}
+
+message RealmCharacterCountEntry {
+  required fixed32 wowRealmAddress = 1;
+  required uint32 count = 2;
+}
+
+message RealmCharacterCountList {
+  repeated RealmCharacterCountEntry counts = 1;
+}
+
+message RealmEntry {
+  required fixed32 wowRealmAddress = 1;
+  required uint32 cfgTimezonesID = 2;
+  required uint32 populationState = 3;
+  required uint32 cfgCategoriesID = 4;
+  required ClientVersion version = 5;
+  required uint32 cfgRealmsID = 6;
+  required uint32 flags = 7;
+  required string name = 8;
+  required uint32 cfgConfigsID = 9;
+  required uint32 cfgLanguagesID = 10;
+}
+
+message RealmState {
+  optional RealmEntry update = 1;
+  required bool deleting = 2;
+}
+
+message RealmListUpdates {
+  repeated RealmState updates = 1;
+}
+
+message IPAddress {
+  required string ip = 1;
+  required uint32 port = 2;
+}
+
+message RealmIPAddressFamily {
+  required uint32 family = 1;
+  repeated IPAddress addresses = 2;
+}
+
+message RealmListServerIPAddresses {
+  repeated RealmIPAddressFamily families = 1;
+}

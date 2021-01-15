@@ -20,7 +20,6 @@
 #include "Creature.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
-#include "Map.h"
 
 DoorData const doorData[] =
 {
@@ -49,8 +48,6 @@ class instance_arcatraz : public InstanceMapScript
 
             void OnCreatureCreate(Creature* creature) override
             {
-                InstanceScript::OnCreatureCreate(creature);
-
                 switch (creature->GetEntry())
                 {
                     case NPC_DALLIAH:
@@ -61,9 +58,6 @@ class instance_arcatraz : public InstanceMapScript
                         break;
                     case NPC_MELLICHAR:
                         MellicharGUID = creature->GetGUID();
-                        break;
-                    case NPC_MILLHOUSE:
-                        MillhouseGUID = creature->GetGUID();
                         break;
                     default:
                         break;
@@ -172,15 +166,6 @@ class instance_arcatraz : public InstanceMapScript
                             SetData(DATA_WARDEN_4, NOT_STARTED);
                             SetData(DATA_WARDEN_5, NOT_STARTED);
                         }
-                        else if (state == DONE)
-                        {
-                            if (!instance->IsHeroic())
-                                break;
-
-                            if (Creature* millhouse = instance->GetCreature(MillhouseGUID))
-                                if (millhouse->IsAlive())
-                                    DoCastSpellOnPlayers(SPELL_QID_10886);
-                        }
                         break;
                     default:
                         break;
@@ -194,7 +179,6 @@ class instance_arcatraz : public InstanceMapScript
             ObjectGuid StasisPodGUIDs[5];
             ObjectGuid MellicharGUID;
             ObjectGuid WardensShieldGUID;
-            ObjectGuid MillhouseGUID;
 
             uint8 ConversationState;
             uint8 StasisPodStates[5];

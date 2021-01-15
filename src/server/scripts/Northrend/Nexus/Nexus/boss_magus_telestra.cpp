@@ -133,7 +133,7 @@ public:
         {
             Initialize();
 
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
             me->SetVisible(true);
 
             instance->SetBossState(DATA_MAGUS_TELESTRA, NOT_STARTED);
@@ -142,7 +142,7 @@ public:
                 me->AddAura(SPELL_WEAR_CHRISTMAS_HAT, me);
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
 
@@ -152,7 +152,7 @@ public:
         void JustDied(Unit* /*killer*/) override
         {
             Talk(SAY_DEATH);
-            me->SetVisible(true);
+
             instance->SetBossState(DATA_MAGUS_TELESTRA, DONE);
         }
 
@@ -186,7 +186,7 @@ public:
 
         ObjectGuid SplitPersonality(uint32 entry)
         {
-            if (Creature* Summoned = me->SummonCreature(entry, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1s))
+            if (Creature* Summoned = me->SummonCreature(entry, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1*IN_MILLISECONDS))
             {
                 switch (entry)
                 {
@@ -206,7 +206,7 @@ public:
                         break;
                     }
                 }
-                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     Summoned->AI()->AttackStart(target);
                 return Summoned->GetGUID();
             }
@@ -247,7 +247,7 @@ public:
                 me->AttackStop();
                 if (uiIsWaitingToAppearTimer <= diff)
                 {
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                     bIsWaitingToAppear = false;
                 } else uiIsWaitingToAppearTimer -= diff;
                 return;
@@ -284,7 +284,7 @@ public:
                 me->CastStop();
                 me->RemoveAllAuras();
                 me->SetVisible(false);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                 uiFireMagusGUID = SplitPersonality(NPC_FIRE_MAGUS);
                 uiFrostMagusGUID = SplitPersonality(NPC_FROST_MAGUS);
                 uiArcaneMagusGUID = SplitPersonality(NPC_ARCANE_MAGUS);
@@ -301,7 +301,7 @@ public:
                 me->CastStop();
                 me->RemoveAllAuras();
                 me->SetVisible(false);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                 uiFireMagusGUID = SplitPersonality(NPC_FIRE_MAGUS);
                 uiFrostMagusGUID = SplitPersonality(NPC_FROST_MAGUS);
                 uiArcaneMagusGUID = SplitPersonality(NPC_ARCANE_MAGUS);
@@ -325,7 +325,7 @@ public:
 
             if (uiIceNovaTimer <= diff)
             {
-                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     DoCast(target, SPELL_ICE_NOVA, false);
                     uiCooldown = 1500;
@@ -345,7 +345,7 @@ public:
 
             if (uiFireBombTimer <= diff)
             {
-                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     DoCast(target, SPELL_FIREBOMB, false);
                     uiCooldown = 2*IN_MILLISECONDS;

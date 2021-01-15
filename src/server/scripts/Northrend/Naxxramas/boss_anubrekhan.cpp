@@ -143,7 +143,7 @@ public:
         void KilledUnit(Unit* victim) override
         {
             if (victim->GetTypeId() == TYPEID_PLAYER)
-                victim->CastSpell(victim, SPELL_SUMMON_CORPSE_SCARABS_PLR, me->GetGUID());
+                victim->CastSpell(victim, SPELL_SUMMON_CORPSE_SCARABS_PLR, true, nullptr, nullptr, me->GetGUID());
 
             Talk(SAY_SLAY);
         }
@@ -153,12 +153,12 @@ public:
             _JustDied();
 
             // start achievement timer (kill Maexna within 20 min)
-            instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+            instance->DoStartCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
 
-        void JustEngagedWith(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
-            BossAI::JustEngagedWith(who);
+            _EnterCombat();
             Talk(SAY_AGGRO);
 
             summons.DoZoneInCombat();
@@ -167,7 +167,7 @@ public:
             events.ScheduleEvent(EVENT_IMPALE, randtime(Seconds(10), Seconds(20)), 0, PHASE_NORMAL);
             events.ScheduleEvent(EVENT_SCARABS, randtime(Seconds(20), Seconds(30)), 0, PHASE_NORMAL);
             events.ScheduleEvent(EVENT_LOCUST, Minutes(1)+randtime(Seconds(40), Seconds(60)), 0, PHASE_NORMAL);
-            events.ScheduleEvent(EVENT_BERSERK, 10min);
+            events.ScheduleEvent(EVENT_BERSERK, Minutes(10));
 
             if (!Is25ManRaid())
                 events.ScheduleEvent(EVENT_SPAWN_GUARD, randtime(Seconds(15), Seconds(20)));
@@ -185,9 +185,8 @@ public:
                 switch (eventId)
                 {
                     case EVENT_IMPALE:
-                        if (events.GetTimeUntilEvent(EVENT_LOCUST) < 5s)
-                            break; // don't chain impale tank -> locust swarm
-                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                        if (events.GetTimeUntilEvent(EVENT_LOCUST) < 5 * IN_MILLISECONDS) break; // don't chain impale tank -> locust swarm
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(target, SPELL_IMPALE);
                         else
                             EnterEvadeMode();
@@ -197,13 +196,12 @@ public:
                     case EVENT_SCARABS:
                         if (!guardCorpses.empty())
                         {
-                            if (ObjectGuid target = Trinity::Containers::SelectRandomContainerElement(guardCorpses))
-                                if (Creature* creatureTarget = ObjectAccessor::GetCreature(*me, target))
-                                {
-                                    creatureTarget->CastSpell(creatureTarget, SPELL_SUMMON_CORPSE_SCARABS_MOB, me->GetGUID());
-                                    creatureTarget->AI()->Talk(EMOTE_SCARAB);
-                                    creatureTarget->DespawnOrUnsummon();
-                                }
+                            if (Creature* creatureTarget = ObjectAccessor::GetCreature(*me, Trinity::Containers::SelectRandomContainerElement(guardCorpses)))
+                            {
+                                creatureTarget->CastSpell(creatureTarget, SPELL_SUMMON_CORPSE_SCARABS_MOB, true, nullptr, nullptr, me->GetGUID());
+                                creatureTarget->AI()->Talk(EMOTE_SCARAB);
+                                creatureTarget->DespawnOrUnsummon();
+                            }
                         }
                         events.Repeat(randtime(Seconds(40), Seconds(60)));
                         break;
@@ -212,7 +210,7 @@ public:
                         events.SetPhase(PHASE_SWARM);
                         DoCast(me, SPELL_LOCUST_SWARM);
 
-                        events.ScheduleEvent(EVENT_SPAWN_GUARD, 3s);
+                        events.ScheduleEvent(EVENT_SPAWN_GUARD, Seconds(3));
                         events.ScheduleEvent(EVENT_LOCUST_ENDS, RAID_MODE(Seconds(19), Seconds(23)));
                         events.Repeat(Minutes(1)+Seconds(30));
                         break;
@@ -226,7 +224,7 @@ public:
                         break;
                     case EVENT_BERSERK:
                         DoCast(me, SPELL_BERSERK, true);
-                        events.ScheduleEvent(EVENT_BERSERK, 10min);
+                        events.ScheduleEvent(EVENT_BERSERK, Minutes(10));
                         break;
                 }
             }
@@ -245,7 +243,7 @@ class at_anubrekhan_entrance : public OnlyOnceAreaTriggerScript
     public:
         at_anubrekhan_entrance() : OnlyOnceAreaTriggerScript("at_anubrekhan_entrance") { }
 
-        bool TryHandleOnce(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+        bool _OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
         {
             InstanceScript* instance = player->GetInstanceScript();
             if (!instance || instance->GetBossState(BOSS_ANUBREKHAN) != NOT_STARTED)

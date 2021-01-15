@@ -16,56 +16,10 @@
  */
 
 // This is where scripts' loading functions should be declared:
-// Theramore
-void AddSC_theramore();
-void AddSC_theramore_waves_invoker();
-void AddSC_npc_priest();
-void AddSC_npc_archmages();
-void AddSC_npc_shaman();
-void AddSC_npc_felcaster();
-void AddSC_npc_hag();
-void AddSC_theramore_wounded_event();
-void AddSC_npc_warrior();
-void AddSC_npc_paladin();
-void AddSC_theramore_ruins();
-void AddSC_dalaran_jaina_anduin();
-void AddSC_dalaran_jaina_purge();
-void AddSC_npcs_sunreaver();
-void AddSC_action_update_phase();
-void AddSC_jaina_affray_isle();
-void AddSC_stormwind_final_event();
 
-// Tristam Catacombs
-void AddSC_instance_tristam_catacombs();
-void AddSC_tristam_catacombs();
-void AddSC_npc_antonn_grave();
-void AddSC_npc_skeletons();
 
 // The name of this function should match:
+// void Add${NameOfDirectory}Scripts()
 void AddCustomScripts()
 {
-    // Theramore
-    AddSC_theramore();
-    AddSC_theramore_waves_invoker();
-    AddSC_npc_priest();
-	AddSC_npc_archmages();
-    AddSC_npc_shaman();
-    AddSC_npc_felcaster();
-    AddSC_npc_hag();
-    AddSC_theramore_wounded_event();
-    AddSC_npc_warrior();
-    AddSC_npc_paladin();
-    AddSC_theramore_ruins();
-    AddSC_dalaran_jaina_anduin();
-    AddSC_dalaran_jaina_purge();
-    AddSC_npcs_sunreaver();
-    AddSC_action_update_phase();
-    AddSC_jaina_affray_isle();
-    AddSC_stormwind_final_event();
-
-    // Tristam Catacombs
-    AddSC_instance_tristam_catacombs();
-    AddSC_tristam_catacombs();
-    AddSC_npc_antonn_grave();
-    AddSC_npc_skeletons();
 }

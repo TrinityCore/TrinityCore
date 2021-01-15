@@ -17,6 +17,7 @@
 
 #include "SkillDiscovery.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "Log.h"
 #include "Player.h"
 #include "Random.h"
@@ -25,6 +26,7 @@
 #include "Util.h"
 #include "World.h"
 #include <map>
+#include <sstream>
 
 struct SkillDiscoveryEntry
 {
@@ -55,7 +57,7 @@ void LoadSkillDiscoveryTable()
 
     if (!result)
     {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 skill discovery definitions. DB table `skill_discovery_template` is empty.");
+        TC_LOG_ERROR("server.loading", ">> Loaded 0 skill discovery definitions. DB table `skill_discovery_template` is empty.");
         return;
     }
 
@@ -83,7 +85,7 @@ void LoadSkillDiscoveryTable()
         if (reqSkillOrSpell > 0)                            // spell case
         {
             uint32 absReqSkillOrSpell = uint32(reqSkillOrSpell);
-            SpellInfo const* reqSpellInfo = sSpellMgr->GetSpellInfo(absReqSkillOrSpell);
+            SpellInfo const* reqSpellInfo = sSpellMgr->GetSpellInfo(absReqSkillOrSpell, DIFFICULTY_NONE);
             if (!reqSpellInfo)
             {
                 if (reportedReqSpells.find(absReqSkillOrSpell) == reportedReqSpells.end())
@@ -138,9 +140,9 @@ void LoadSkillDiscoveryTable()
         TC_LOG_ERROR("sql.sql", "Some items can't be successfully discovered, their chance field value is < 0.000001 in the `skill_discovery_template` DB table. List:\n%s", ssNonDiscoverableEntries.str().c_str());
 
     // report about empty data for explicit discovery spells
-    for (uint32 spell_id = 1; spell_id < sSpellMgr->GetSpellInfoStoreSize(); ++spell_id)
+    for (SpellNameEntry const* spellNameEntry : sSpellNameStore)
     {
-        SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(spell_id);
+        SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(spellNameEntry->ID, DIFFICULTY_NONE);
         if (!spellEntry)
             continue;
 
@@ -148,8 +150,8 @@ void LoadSkillDiscoveryTable()
         if (!spellEntry->IsExplicitDiscovery())
             continue;
 
-        if (SkillDiscoveryStore.find(int32(spell_id)) == SkillDiscoveryStore.end())
-            TC_LOG_ERROR("sql.sql", "Spell (ID: %u) has got 100%% chance random discovery ability, but does not have data in the `skill_discovery_template` table.", spell_id);
+        if (SkillDiscoveryStore.find(int32(spellEntry->Id)) == SkillDiscoveryStore.end())
+            TC_LOG_ERROR("sql.sql", "Spell (ID: %u) has got 100%% chance random discovery ability, but does not have data in the `skill_discovery_template` table.", spellEntry->Id);
     }
 
     TC_LOG_INFO("server.loading", ">> Loaded %u skill discovery definitions in %u ms.", count, GetMSTimeDiffToNow(oldMSTime));
@@ -203,19 +205,6 @@ bool HasDiscoveredAllSpells(uint32 spellId, Player* player)
             return false;
 
     return true;
-}
-
-bool HasDiscoveredAnySpell(uint32 spellId, Player* player)
-{
-    SkillDiscoveryMap::const_iterator tab = SkillDiscoveryStore.find(int32(spellId));
-    if (tab == SkillDiscoveryStore.end())
-        return false;
-
-    for (SkillDiscoveryList::const_iterator item_iter = tab->second.begin(); item_iter != tab->second.end(); ++item_iter)
-        if (player->HasSpell(item_iter->spellId))
-            return true;
-
-    return false;
 }
 
 uint32 GetSkillDiscoverySpell(uint32 skillId, uint32 spellId, Player* player)

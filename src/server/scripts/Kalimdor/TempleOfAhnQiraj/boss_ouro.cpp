@@ -45,9 +45,9 @@ public:
         return GetAQ40AI<boss_ouroAI>(creature);
     }
 
-    struct boss_ouroAI : public BossAI
+    struct boss_ouroAI : public ScriptedAI
     {
-        boss_ouroAI(Creature* creature) : BossAI(creature, DATA_OURO)
+        boss_ouroAI(Creature* creature) : ScriptedAI(creature)
         {
             Initialize();
         }
@@ -78,13 +78,11 @@ public:
         void Reset() override
         {
             Initialize();
-            _Reset();
         }
 
-        void JustEngagedWith(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
             DoCastVictim(SPELL_BIRTH);
-            BossAI::JustEngagedWith(who);
         }
 
         void UpdateAI(uint32 diff) override
@@ -112,7 +110,7 @@ public:
             {
                 //Cast
                 me->HandleEmoteCommand(EMOTE_ONESHOT_SUBMERGE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                 me->SetFaction(FACTION_FRIENDLY);
                 DoCast(me, SPELL_DIRTMOUND_PASSIVE);
 
@@ -123,7 +121,10 @@ public:
             //ChangeTarget_Timer
             if (Submerged && ChangeTarget_Timer <= diff)
             {
-                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                Unit* target = nullptr;
+                target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+
+                if (target)
                     DoTeleportTo(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
 
                 ChangeTarget_Timer = urand(10000, 20000);
@@ -132,7 +133,7 @@ public:
             //Back_Timer
             if (Submerged && Back_Timer <= diff)
             {
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                 me->SetFaction(FACTION_MONSTER);
 
                 DoCastVictim(SPELL_GROUND_RUPTURE);

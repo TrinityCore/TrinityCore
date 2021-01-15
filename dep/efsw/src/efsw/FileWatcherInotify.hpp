@@ -64,8 +64,6 @@ class FileWatcherInotify : public FileWatcherImpl
 		void removeWatchLocked(WatchID watchid);
 
 		void checkForNewWatcher( Watcher* watch, std::string fpath );
-
-		Watcher * watcherContainsDirectory( std::string dir );
 };
 
 }

@@ -28,38 +28,22 @@ class WorldPacket;
 enum OBJECT_UPDATE_TYPE
 {
     UPDATETYPE_VALUES               = 0,
-    UPDATETYPE_MOVEMENT             = 1,
-    UPDATETYPE_CREATE_OBJECT        = 2,
-    UPDATETYPE_CREATE_OBJECT2       = 3,
-    UPDATETYPE_OUT_OF_RANGE_OBJECTS = 4,
-    UPDATETYPE_NEAR_OBJECTS         = 5
-};
-
-enum OBJECT_UPDATE_FLAGS
-{
-    UPDATEFLAG_NONE                 = 0x0000,
-    UPDATEFLAG_SELF                 = 0x0001,
-    UPDATEFLAG_TRANSPORT            = 0x0002,
-    UPDATEFLAG_HAS_TARGET           = 0x0004,
-    UPDATEFLAG_UNKNOWN              = 0x0008,
-    UPDATEFLAG_LOWGUID              = 0x0010,
-    UPDATEFLAG_LIVING               = 0x0020,
-    UPDATEFLAG_STATIONARY_POSITION  = 0x0040,
-    UPDATEFLAG_VEHICLE              = 0x0080,
-    UPDATEFLAG_POSITION             = 0x0100,
-    UPDATEFLAG_ROTATION             = 0x0200
+    UPDATETYPE_CREATE_OBJECT        = 1,
+    UPDATETYPE_CREATE_OBJECT2       = 2,
+    UPDATETYPE_OUT_OF_RANGE_OBJECTS = 3,
 };
 
 class UpdateData
 {
     public:
-        UpdateData();
-        UpdateData(UpdateData&& right) : m_blockCount(right.m_blockCount),
+        UpdateData(uint32 map);
+        UpdateData(UpdateData&& right) : m_map(right.m_map), m_blockCount(right.m_blockCount),
             m_outOfRangeGUIDs(std::move(right.m_outOfRangeGUIDs)),
             m_data(std::move(right.m_data))
         {
         }
 
+        void AddDestroyObject(ObjectGuid guid);
         void AddOutOfRangeGUID(GuidSet& guids);
         void AddOutOfRangeGUID(ObjectGuid guid);
         void AddUpdateBlock(ByteBuffer const& block);
@@ -70,11 +54,11 @@ class UpdateData
         GuidSet const& GetOutOfRangeGUIDs() const { return m_outOfRangeGUIDs; }
 
     protected:
+        uint32 m_map;
         uint32 m_blockCount;
+        GuidSet m_destroyGUIDs;
         GuidSet m_outOfRangeGUIDs;
         ByteBuffer m_data;
-
-        void Compress(void* dst, uint32 *dst_size, void* src, int src_size);
 
         UpdateData(UpdateData const& right) = delete;
         UpdateData& operator=(UpdateData const& right) = delete;

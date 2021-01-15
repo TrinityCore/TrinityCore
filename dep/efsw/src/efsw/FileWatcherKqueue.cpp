@@ -15,7 +15,6 @@
 #include <efsw/System.hpp>
 #include <efsw/Debug.hpp>
 #include <efsw/WatcherGeneric.hpp>
-#include <efsw/Lock.hpp>
 
 namespace efsw
 {
@@ -44,6 +43,8 @@ FileWatcherKqueue::~FileWatcherKqueue()
 	mWatches.clear();
 
 	mInitOK = false;
+
+	mThread->wait();
 
 	efSAFE_DELETE( mThread );
 }
@@ -97,10 +98,9 @@ WatchID FileWatcherKqueue::addWatch(const std::string& directory, FileWatchListe
 
 		WatcherKqueue * watch = new WatcherKqueue( ++mLastWatchID, dir, watcher, recursive, this );
 
-		{
-			Lock lock( mWatchesLock );
-			mWatches.insert(std::make_pair(mLastWatchID, watch));
-		}
+		mWatchesLock.lock();
+		mWatches.insert(std::make_pair(mLastWatchID, watch));
+		mWatchesLock.unlock();
 
 		watch->addAll();
 
@@ -118,10 +118,11 @@ WatchID FileWatcherKqueue::addWatch(const std::string& directory, FileWatchListe
 			// Probably the folder has too many files, create a generic watcher
 			if ( EACCES != le )
 			{
-				WatcherGeneric * genericWatch = new WatcherGeneric( ++mLastWatchID, dir, watcher, this, recursive );
+				WatcherGeneric * watch = new WatcherGeneric( ++mLastWatchID, dir, watcher, this, recursive );
 
-				Lock lock( mWatchesLock );
-				mWatches.insert(std::make_pair(mLastWatchID, genericWatch));
+				mWatchesLock.lock();
+				mWatches.insert(std::make_pair(mLastWatchID, watch));
+				mWatchesLock.unlock();
 			}
 			else
 			{
@@ -141,8 +142,9 @@ WatchID FileWatcherKqueue::addWatch(const std::string& directory, FileWatchListe
 
 		WatcherGeneric * watch = new WatcherGeneric( ++mLastWatchID, dir, watcher, this, recursive );
 
-		Lock lock( mWatchesLock );
+		mWatchesLock.lock();
 		mWatches.insert(std::make_pair(mLastWatchID, watch));
+		mWatchesLock.unlock();
 	}
 
 	return mLastWatchID;
@@ -150,7 +152,7 @@ WatchID FileWatcherKqueue::addWatch(const std::string& directory, FileWatchListe
 
 void FileWatcherKqueue::removeWatch(const std::string& directory)
 {
-	Lock lock( mWatchesLock );
+	mWatchesLock.lock();
 
 	WatchMap::iterator iter = mWatches.begin();
 
@@ -162,11 +164,13 @@ void FileWatcherKqueue::removeWatch(const std::string& directory)
 			return;
 		}
 	}
+
+	mWatchesLock.unlock();
 }
 
 void FileWatcherKqueue::removeWatch(WatchID watchid)
 {
-	Lock lock( mWatchesLock );
+	mWatchesLock.lock();
 
 	WatchMap::iterator iter = mWatches.find(watchid);
 
@@ -178,6 +182,8 @@ void FileWatcherKqueue::removeWatch(WatchID watchid)
 	mWatches.erase(iter);
 
 	efSAFE_DELETE( watch );
+
+	mWatchesLock.unlock();
 }
 
 bool FileWatcherKqueue::isAddingWatcher() const
@@ -198,14 +204,14 @@ void FileWatcherKqueue::run()
 {
 	do
 	{
-		{
-			Lock lock( mWatchesLock );
+		mWatchesLock.lock();
 
-			for ( WatchMap::iterator it = mWatches.begin(); it != mWatches.end(); ++it )
-			{
-				it->second->watch();
-			}
+		for ( WatchMap::iterator it = mWatches.begin(); it != mWatches.end(); ++it )
+		{
+			it->second->watch();
 		}
+
+		mWatchesLock.unlock();
 
 		System::sleep( 500 );
 	} while( mInitOK );
@@ -219,14 +225,16 @@ std::list<std::string> FileWatcherKqueue::directories()
 {
 	std::list<std::string> dirs;
 
-	Lock lock( mWatchesLock );
+	mWatchesLock.lock();
 
 	WatchMap::iterator it = mWatches.begin();
 
-	for ( ; it != mWatches.end(); ++it )
+	for ( ; it != mWatches.end(); it++ )
 	{
 		dirs.push_back( it->second->Directory );
 	}
+
+	mWatchesLock.unlock();
 
 	return dirs;
 }
@@ -235,7 +243,7 @@ bool FileWatcherKqueue::pathInWatches( const std::string& path )
 {
 	WatchMap::iterator it = mWatches.begin();
 
-	for ( ; it != mWatches.end(); ++it )
+	for ( ; it != mWatches.end(); it++ )
 	{
 		if ( it->second->Directory == path )
 		{

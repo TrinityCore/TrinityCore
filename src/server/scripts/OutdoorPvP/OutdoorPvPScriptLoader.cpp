@@ -16,7 +16,6 @@
  */
 
 // This is where scripts' loading functions should be declared:
-void AddSC_outdoorpvp_ep();
 void AddSC_outdoorpvp_hp();
 void AddSC_outdoorpvp_na();
 void AddSC_outdoorpvp_si();
@@ -27,7 +26,6 @@ void AddSC_outdoorpvp_zm();
 // void Add${NameOfDirectory}Scripts()
 void AddOutdoorPvPScripts()
 {
-    AddSC_outdoorpvp_ep();
     AddSC_outdoorpvp_hp();
     AddSC_outdoorpvp_na();
     AddSC_outdoorpvp_si();

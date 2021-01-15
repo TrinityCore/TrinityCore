@@ -20,7 +20,7 @@
 
 #include "ZoneScript.h"
 #include "Common.h"
-#include "Duration.h"
+#include <iosfwd>
 #include <map>
 #include <memory>
 #include <set>
@@ -31,6 +31,17 @@
 #define OUT_LOAD_INST_DATA_COMPLETE    TC_LOG_DEBUG("scripts", "Instance Data Load for Instance %s (Map %d, Instance Id: %d) is complete.", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
 #define OUT_LOAD_INST_DATA_FAIL        TC_LOG_ERROR("scripts", "Unable to load Instance Data for Instance %s (Map %d, Instance Id: %d).", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
 
+class AreaBoundary;
+class Creature;
+class GameObject;
+class InstanceMap;
+class ModuleReference;
+class Player;
+class Unit;
+struct InstanceSpawnGroupInfo;
+enum CriteriaTypes : uint8;
+enum CriteriaTimedTypes : uint8;
+enum EncounterCreditType : uint8;
 namespace WorldPackets
 {
     namespace WorldState
@@ -39,32 +50,21 @@ namespace WorldPackets
     }
 }
 
-class AreaBoundary;
-class Creature;
-class GameObject;
-class InstanceMap;
-struct InstanceSpawnGroupInfo;
-class ModuleReference;
-class Player;
-class Unit;
-class WorldPacket;
-enum AchievementCriteriaTypes : uint8;
-enum AchievementCriteriaTimedTypes : uint8;
-enum EncounterCreditType : uint8;
-
 enum EncounterFrameType
 {
-    ENCOUNTER_FRAME_ENGAGE              = 0,
-    ENCOUNTER_FRAME_DISENGAGE           = 1,
-    ENCOUNTER_FRAME_UPDATE_PRIORITY     = 2,
-    ENCOUNTER_FRAME_ADD_TIMER           = 3,
-    ENCOUNTER_FRAME_ENABLE_OBJECTIVE    = 4,
-    ENCOUNTER_FRAME_UPDATE_OBJECTIVE    = 5,
-    ENCOUNTER_FRAME_DISABLE_OBJECTIVE   = 6,
-    ENCOUNTER_FRAME_UNK7                = 7 // Seems to have something to do with sorting the encounter units
+    ENCOUNTER_FRAME_SET_COMBAT_RES_LIMIT    = 0,
+    ENCOUNTER_FRAME_RESET_COMBAT_RES_LIMIT  = 1,
+    ENCOUNTER_FRAME_ENGAGE                  = 2,
+    ENCOUNTER_FRAME_DISENGAGE               = 3,
+    ENCOUNTER_FRAME_UPDATE_PRIORITY         = 4,
+    ENCOUNTER_FRAME_ADD_TIMER               = 5,
+    ENCOUNTER_FRAME_ENABLE_OBJECTIVE        = 6,
+    ENCOUNTER_FRAME_UPDATE_OBJECTIVE        = 7,
+    ENCOUNTER_FRAME_DISABLE_OBJECTIVE       = 8,
+    ENCOUNTER_FRAME_UNK7                    = 9,    // Seems to have something to do with sorting the encounter units
+    ENCOUNTER_FRAME_ADD_COMBAT_RES_LIMIT    = 10
 };
 
-// EnumUtils: DESCRIBE THIS
 enum EncounterState
 {
     NOT_STARTED   = 0,
@@ -161,6 +161,11 @@ class TC_GAME_API InstanceScript : public ZoneScript
 
         InstanceMap* instance;
 
+        // On creation, NOT load.
+        // PLEASE INITIALIZE FIELDS IN THE CONSTRUCTOR INSTEAD !!!
+        // KEEPING THIS METHOD ONLY FOR BACKWARD COMPATIBILITY !!!
+        virtual void Initialize() { }
+
         // On instance load, exactly ONE of these methods will ALWAYS be called:
         // if we're starting without any saved instance data
         virtual void Create();
@@ -173,6 +178,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
         void SaveToDB();
 
         virtual void Update(uint32 /*diff*/) { }
+        void UpdateCombatResurrection(uint32 /*diff*/);
 
         // Used by the map's CannotEnter function.
         // This is to prevent players from entering during boss encounters.
@@ -194,8 +200,6 @@ class TC_GAME_API InstanceScript : public ZoneScript
 
         // Called when a player successfully enters the instance.
         virtual void OnPlayerEnter(Player* /*player*/) { }
-        // Called when a player successfully leaves the instance.
-        virtual void OnPlayerLeave(Player* /*player*/) { }
 
         // Handle open / close objects
         // * use HandleGameObject(0, boolen, GO); in OnObjectCreate in instance scripts
@@ -207,7 +211,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
         void DoCloseDoorOrButton(ObjectGuid guid);
 
         // Respawns a GO having negative spawntimesecs in gameobject-table
-        void DoRespawnGameObject(ObjectGuid guid, Seconds timeToDespawn = 1min);
+        void DoRespawnGameObject(ObjectGuid guid, uint32 timeToDespawn = MINUTE);
 
         // Sends world state update to all players in instance
         void DoUpdateWorldState(uint32 worldstateId, uint32 worldstateValue);
@@ -216,19 +220,17 @@ class TC_GAME_API InstanceScript : public ZoneScript
         void DoSendNotifyToInstance(char const* format, ...);
 
         // Update Achievement Criteria for all players in instance
-        void DoUpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 = 0, uint32 miscValue2 = 0, Unit* unit = nullptr);
+        void DoUpdateCriteria(CriteriaTypes type, uint32 miscValue1 = 0, uint32 miscValue2 = 0, Unit* unit = nullptr);
 
         // Start/Stop Timed Achievement Criteria for all players in instance
-        void DoStartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry);
-        void DoStopTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry);
+        void DoStartCriteriaTimer(CriteriaTimedTypes type, uint32 entry);
+        void DoStopCriteriaTimer(CriteriaTimedTypes type, uint32 entry);
 
         // Remove Auras due to Spell on all players in instance
-        void DoRemoveAurasDueToSpellOnPlayers(uint32 spell, bool includePets = false, bool includeControlled = false);
-        void DoRemoveAurasDueToSpellOnPlayer(Player* player, uint32 spell, bool includePets = false, bool includeControlled = false);
+        void DoRemoveAurasDueToSpellOnPlayers(uint32 spell);
 
         // Cast spell on all players in instance
-        void DoCastSpellOnPlayers(uint32 spell, bool includePets = false, bool includeControlled = false);
-        void DoCastSpellOnPlayer(Player* player, uint32 spell, bool includePets = false, bool includeControlled = false);
+        void DoCastSpellOnPlayers(uint32 spell);
 
         // Return wether server allow two side groups or not
         static bool ServerAllowsTwoSideGroups();
@@ -255,16 +257,39 @@ class TC_GAME_API InstanceScript : public ZoneScript
         // Returns completed encounters mask for packets
         uint32 GetCompletedEncounterMask() const { return completedEncounters; }
 
-        void SendEncounterUnit(uint32 type, Unit* unit = nullptr, uint8 param1 = 0, uint8 param2 = 0);
+        // Sets the entrance location (WorldSafeLoc) id
+        void SetEntranceLocation(uint32 worldSafeLocationId);
 
-        virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) { }
+        // Sets a temporary entrance that does not get saved to db
+        void SetTemporaryEntranceLocation(uint32 worldSafeLocationId) { _temporaryEntranceId = worldSafeLocationId; }
 
-        uint32 GetEncounterCount() const { return bosses.size(); }
+        // Get's the current entrance id
+        uint32 GetEntranceLocation() const { return _temporaryEntranceId ? _temporaryEntranceId : _entranceId; }
 
         // Only used by areatriggers that inherit from OnlyOnceAreaTriggerScript
         void MarkAreaTriggerDone(uint32 id) { _activatedAreaTriggers.insert(id); }
         void ResetAreaTriggerDone(uint32 id) { _activatedAreaTriggers.erase(id); }
         bool IsAreaTriggerDone(uint32 id) const { return _activatedAreaTriggers.find(id) != _activatedAreaTriggers.end(); }
+
+        void SendEncounterUnit(uint32 type, Unit* unit = nullptr, uint8 priority = 0);
+        void SendEncounterStart(uint32 inCombatResCount = 0, uint32 maxInCombatResCount = 0, uint32 inCombatResChargeRecovery = 0, uint32 nextCombatResChargeTime = 0);
+        void SendEncounterEnd();
+
+        void SendBossKillCredit(uint32 encounterId);
+
+        virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) { }
+
+        // ReCheck PhaseTemplate related conditions
+        void UpdatePhasing();
+
+        uint32 GetEncounterCount() const { return uint32(bosses.size()); }
+
+        void InitializeCombatResurrections(uint8 charges = 1, uint32 interval = 0);
+        void AddCombatResurrectionCharge();
+        void UseCombatResurrection();
+        void ResetCombatResurrections();
+        uint8 GetCombatResurrectionCharges() const { return _combatResurrectionCharges; }
+        uint32 GetCombatResurrectionChargeInterval() const;
 
     protected:
         void SetHeaders(std::string const& dataHeaders);
@@ -314,13 +339,16 @@ class TC_GAME_API InstanceScript : public ZoneScript
         uint32 completedEncounters; // completed encounter mask, bit indexes are DungeonEncounter.dbc boss numbers, used for packets
         std::vector<InstanceSpawnGroupInfo> const* const _instanceSpawnGroups;
         std::unordered_set<uint32> _activatedAreaTriggers;
+        uint32 _entranceId;
+        uint32 _temporaryEntranceId;
+        uint32 _combatResurrectionTimer;
+        uint8 _combatResurrectionCharges; // the counter for available battle resurrections
+        bool _combatResurrectionTimerStarted;
 
     #ifdef TRINITY_API_USE_DYNAMIC_LINKING
         // Strong reference to the associated script module
         std::shared_ptr<ModuleReference> module_reference;
     #endif // #ifndef TRINITY_API_USE_DYNAMIC_LINKING
-
-        friend class debug_commandscript;
 };
 
 #endif // TRINITY_INSTANCE_DATA_H

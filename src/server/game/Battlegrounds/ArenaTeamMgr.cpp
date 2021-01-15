@@ -20,9 +20,7 @@
 #include "World.h"
 #include "Log.h"
 #include "DatabaseEnv.h"
-#include "Language.h"
 #include "Player.h"
-#include "ObjectAccessor.h"
 
 ArenaTeamMgr::ArenaTeamMgr()
 {
@@ -47,30 +45,36 @@ ArenaTeam* ArenaTeamMgr::GetArenaTeamById(uint32 arenaTeamId) const
     ArenaTeamContainer::const_iterator itr = ArenaTeamStore.find(arenaTeamId);
     if (itr != ArenaTeamStore.end())
         return itr->second;
+
     return nullptr;
 }
 
-ArenaTeam* ArenaTeamMgr::GetArenaTeamByName(std::string_view arenaTeamName) const
+ArenaTeam* ArenaTeamMgr::GetArenaTeamByName(const std::string& arenaTeamName) const
 {
-    for (auto [teamId, team] : ArenaTeamStore)
-        if (StringEqualI(arenaTeamName, team->GetName()))
-            return team;
+    std::string search = arenaTeamName;
+    std::transform(search.begin(), search.end(), search.begin(), ::toupper);
+    for (ArenaTeamContainer::const_iterator itr = ArenaTeamStore.begin(); itr != ArenaTeamStore.end(); ++itr)
+    {
+        std::string teamName = itr->second->GetName();
+        std::transform(teamName.begin(), teamName.end(), teamName.begin(), ::toupper);
+        if (search == teamName)
+            return itr->second;
+    }
     return nullptr;
 }
 
 ArenaTeam* ArenaTeamMgr::GetArenaTeamByCaptain(ObjectGuid guid) const
 {
-    for (auto [teamId, team] : ArenaTeamStore)
-        if (team->GetCaptain() == guid)
-            return team;
+    for (ArenaTeamContainer::const_iterator itr = ArenaTeamStore.begin(); itr != ArenaTeamStore.end(); ++itr)
+        if (itr->second->GetCaptain() == guid)
+            return itr->second;
+
     return nullptr;
 }
 
 void ArenaTeamMgr::AddArenaTeam(ArenaTeam* arenaTeam)
 {
-    ArenaTeam*& team = ArenaTeamStore[arenaTeam->GetId()];
-    ASSERT((team == nullptr) || (team == arenaTeam), "Duplicate arena team with ID %u", arenaTeam->GetId());
-    team = arenaTeam;
+    ArenaTeamStore[arenaTeam->GetId()] = arenaTeam;
 }
 
 void ArenaTeamMgr::RemoveArenaTeam(uint32 arenaTeamId)
@@ -133,57 +137,4 @@ void ArenaTeamMgr::LoadArenaTeams()
     while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded %u arena teams in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-}
-
-void ArenaTeamMgr::DistributeArenaPoints()
-{
-    // Used to distribute arena points based on last week's stats
-    sWorld->SendWorldText(LANG_DIST_ARENA_POINTS_START);
-
-    sWorld->SendWorldText(LANG_DIST_ARENA_POINTS_ONLINE_START);
-
-    // Temporary structure for storing maximum points to add values for all players
-    std::map<uint32, uint32> PlayerPoints;
-
-    // At first update all points for all team members
-    for (auto [teamId, team] : ArenaTeamStore)
-        team->UpdateArenaPointsHelper(PlayerPoints);
-
-    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
-
-    CharacterDatabasePreparedStatement* stmt;
-
-    // Cycle that gives points to all players
-    for (std::map<uint32, uint32>::iterator playerItr = PlayerPoints.begin(); playerItr != PlayerPoints.end(); ++playerItr)
-    {
-        // Add points to player if online
-        if (Player* player = ObjectAccessor::FindConnectedPlayer(ObjectGuid(HighGuid::Player, playerItr->first)))
-            player->ModifyArenaPoints(playerItr->second, trans);
-        else    // Update database
-        {
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_CHAR_ARENA_POINTS);
-            stmt->setUInt32(0, playerItr->second);
-            stmt->setUInt32(1, playerItr->first);
-            trans->Append(stmt);
-        }
-    }
-
-    CharacterDatabase.CommitTransaction(trans);
-
-    PlayerPoints.clear();
-
-    sWorld->SendWorldText(LANG_DIST_ARENA_POINTS_ONLINE_END);
-
-    sWorld->SendWorldText(LANG_DIST_ARENA_POINTS_TEAM_START);
-    for (auto [teamId, team] : ArenaTeamStore)
-    {
-        if (team->FinishWeek())
-            team->SaveToDB();
-
-        team->NotifyStatsChanged();
-    }
-
-    sWorld->SendWorldText(LANG_DIST_ARENA_POINTS_TEAM_END);
-
-    sWorld->SendWorldText(LANG_DIST_ARENA_POINTS_END);
 }

@@ -19,27 +19,23 @@
 #define TRINITY_ARENA_SCORE_H
 
 #include "BattlegroundScore.h"
-#include <sstream>
 
 struct TC_GAME_API ArenaScore : public BattlegroundScore
 {
     friend class Arena;
 
     protected:
-        ArenaScore(ObjectGuid playerGuid, uint32 team) : BattlegroundScore(playerGuid), TeamId(team == ALLIANCE ? PVP_TEAM_ALLIANCE : PVP_TEAM_HORDE) { }
+        ArenaScore(ObjectGuid playerGuid, uint32 team);
 
-        void AppendToPacket(WorldPacket& data) final override;
-        void BuildObjectivesBlock(WorldPacket& data) final override;
+        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics& playerData) const override;
 
         // For Logging purpose
-        std::string ToString() const override
-        {
-            std::ostringstream stream;
-            stream << "Damage done: " << DamageDone << ", Healing done: " << HealingDone << ", Killing blows: " << KillingBlows;
-            return stream.str();
-        }
+        std::string ToString() const override;
 
-        uint8 TeamId; // PvPTeamId
+        uint32 PreMatchRating = 0;
+        uint32 PreMatchMMR = 0;
+        uint32 PostMatchRating = 0;
+        uint32 PostMatchMMR = 0;
 };
 
 struct TC_GAME_API ArenaTeamScore
@@ -48,30 +44,15 @@ struct TC_GAME_API ArenaTeamScore
     friend class Battleground;
 
     protected:
-        ArenaTeamScore() : RatingChange(0), MatchmakerRating(0) { }
+        ArenaTeamScore();
+        virtual ~ArenaTeamScore();
 
-        virtual ~ArenaTeamScore() { }
+        void Assign(uint32 preMatchRating, uint32 postMatchRating, uint32 preMatchMMR, uint32 postMatchMMR);
 
-        void Reset()
-        {
-            RatingChange = 0;
-            MatchmakerRating = 0;
-            TeamName.clear();
-        }
-
-        void Assign(int32 ratingChange, uint32 matchMakerRating, std::string const& teamName)
-        {
-            RatingChange = ratingChange;
-            MatchmakerRating = matchMakerRating;
-            TeamName = teamName;
-        }
-
-        void BuildRatingInfoBlock(WorldPacket& data);
-        void BuildTeamInfoBlock(WorldPacket& data);
-
-        int32 RatingChange;
-        uint32 MatchmakerRating;
-        std::string TeamName;
+        uint32 PreMatchRating = 0;
+        uint32 PostMatchRating = 0;
+        uint32 PreMatchMMR = 0;
+        uint32 PostMatchMMR = 0;
 };
 
 #endif // TRINITY_ARENA_SCORE_H

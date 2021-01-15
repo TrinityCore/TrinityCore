@@ -16,7 +16,6 @@
  */
 
 #include "ScriptMgr.h"
-#include "GameTime.h"
 #include "InstanceScript.h"
 #include "vault_of_archavon.h"
 
@@ -65,13 +64,13 @@ class instance_vault_of_archavon : public InstanceMapScript
                 switch (type)
                 {
                     case DATA_ARCHAVON:
-                        ArchavonDeath = GameTime::GetGameTime();
+                        ArchavonDeath = time(nullptr);
                         break;
                     case DATA_EMALON:
-                        EmalonDeath = GameTime::GetGameTime();
+                        EmalonDeath = time(nullptr);
                         break;
                     case DATA_KORALON:
-                        KoralonDeath = GameTime::GetGameTime();
+                        KoralonDeath = time(nullptr);
                         break;
                     default:
                         return true;

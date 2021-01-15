@@ -19,7 +19,7 @@
 #include "InstanceScript.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "SpellAuras.h"
+#include "SpellAuraEffects.h"
 #include "SpellScript.h"
 #include "sunwell_plateau.h"
 
@@ -248,7 +248,7 @@ public:
         {
             _Reset();
             Initialize();
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
             me->SetVisible(true);
         }
 
@@ -276,9 +276,9 @@ public:
             });
         }
 
-        void JustEngagedWith(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
-            BossAI::JustEngagedWith(who);
+            _EnterCombat();
             DoCast(me, SPELL_OPEN_PORTAL_PERIODIC, true);
             DoCast(me, SPELL_DARKNESS_PERIODIC, true);
             DoCast(me, SPELL_NEGATIVE_ENERGY_PERIODIC, true);
@@ -295,7 +295,7 @@ public:
                 _phase = PHASE_TWO;
                 me->RemoveAllAuras();
                 DoCast(me, SPELL_OPEN_ALL_PORTALS, true);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
 
                 scheduler.Schedule(Seconds(6), [this](TaskContext /*context*/)
                 {
@@ -350,12 +350,12 @@ public:
         {
             DoCast(summon, SPELL_SUMMON_VOID_SENTINEL_SUMMONER_VISUAL, true);
 
-            summon->m_Events.AddEvent(new VoidSpawnSummon(summon), summon->m_Events.CalculateTime(1500ms));
+            summon->m_Events.AddEvent(new VoidSpawnSummon(summon), summon->m_Events.CalculateTime(1500));
         }
 
-        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
         {
-            switch (spellInfo->Id)
+            switch (spell->Id)
             {
                 case SPELL_OPEN_ALL_PORTALS:
                     DoCastAOE(SPELL_OPEN_PORTAL, true);
@@ -402,17 +402,17 @@ public:
 
         void Initialize()
         {
-            me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
+            me->SetDisplayFromModel(1);
             me->SetReactState(REACT_PASSIVE);
             DoCast(me, SPELL_DARKFIEND_SKIN, true);
 
             _scheduler.Schedule(Seconds(2), [this](TaskContext /*context*/)
             {
                 me->SetReactState(REACT_AGGRESSIVE);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
 
                 if (Creature* _summoner = ObjectAccessor::GetCreature(*me, _summonerGUID))
-                    if (Unit* target = _summoner->AI()->SelectTarget(SelectTargetMethod::Random, 0))
+                    if (Unit* target = _summoner->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0))
                         AttackStart(target);
             });
 
@@ -428,7 +428,7 @@ public:
             });
         }
 
-        void IsSummonedBy(WorldObject* summoner) override
+        void IsSummonedBy(Unit* summoner) override
         {
             _summonerGUID = summoner->GetGUID();
         }
@@ -466,13 +466,13 @@ public:
             _instance = me->GetInstanceScript();
         }
 
-        void IsSummonedBy(WorldObject* /*summoner*/) override
+        void IsSummonedBy(Unit* /*summoner*/) override
         {
             if (Creature* muru = _instance->GetCreature(DATA_MURU))
                 muru->AI()->JustSummoned(me);
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) override
         {
             DoCast(me, SPELL_SHADOW_PULSE_PERIODIC, true);
 
@@ -656,7 +656,7 @@ class spell_dark_fiend_skin : public SpellScriptLoader
                     target->AttackStop();
                     target->StopMoving();
                     target->CastSpell(target, SPELL_DARKFIEND_VISUAL, true);
-                    target->DespawnOrUnsummon(3s);
+                    target->DespawnOrUnsummon(3000);
                 }
             }
 

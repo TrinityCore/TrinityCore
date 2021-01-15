@@ -19,6 +19,7 @@
 #define DEF_SHATTERED_H
 
 #include "CreatureAIImpl.h"
+#include "Position.h"
 
 #define SHScriptName "instance_shattered_halls"
 #define DataHeader "SH"
@@ -90,7 +91,7 @@ enum SHActions
     ACTION_EXECUTIONER_TAUNT = 1
 };
 
-extern Position const Executioner;
+Position const Executioner = { 152.8524f, -83.63912f, 2.021005f, 0.06981317f };
 
 struct FactionSpawnerHelper
 {

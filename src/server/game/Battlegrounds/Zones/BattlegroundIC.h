@@ -466,6 +466,12 @@ enum BG_IC_MaxSpawns
     MAX_CAPTAIN_SPAWNS_PER_FACTION                      = 2,
 };
 
+enum BG_IC_ExploitTeleportLocations
+{
+    IC_EXPLOIT_TELEPORT_LOCATION_ALLIANCE = 3986,
+    IC_EXPLOIT_TELEPORT_LOCATION_HORDE = 3983
+};
+
 const ICNpc BG_IC_NpcSpawnlocs[MAX_NORMAL_NPCS_SPAWNS] =
 {
     {BG_IC_NPC_OVERLORD_AGMAR, NPC_OVERLORD_AGMAR, TEAM_HORDE, 1295.44f, -765.733f, 70.0541f, 0.0f}, //Overlord Agmar 1
@@ -912,7 +918,7 @@ struct BattlegroundICScore final : public BattlegroundScore
     friend class BattlegroundIC;
 
     protected:
-        BattlegroundICScore(ObjectGuid playerGuid) : BattlegroundScore(playerGuid), BasesAssaulted(0), BasesDefended(0) { }
+        BattlegroundICScore(ObjectGuid playerGuid, uint32 team) : BattlegroundScore(playerGuid, team), BasesAssaulted(0), BasesDefended(0) { }
 
         void UpdateScore(uint32 type, uint32 value) override
         {
@@ -930,7 +936,13 @@ struct BattlegroundICScore final : public BattlegroundScore
             }
         }
 
-        void BuildObjectivesBlock(WorldPacket& data) final override;
+        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics& playerData) const override
+        {
+            BattlegroundScore::BuildPvPLogPlayerDataPacket(playerData);
+
+            playerData.Stats.emplace_back(IC_OBJECTIVE_ASSAULT_BASE, BasesAssaulted);
+            playerData.Stats.emplace_back(IC_OBJECTIVE_DEFEND_BASE, BasesDefended);
+        }
 
         uint32 GetAttr1() const final override { return BasesAssaulted; }
         uint32 GetAttr2() const final override { return BasesDefended; }
@@ -942,7 +954,7 @@ struct BattlegroundICScore final : public BattlegroundScore
 class BattlegroundIC : public Battleground
 {
     public:
-        BattlegroundIC();
+        BattlegroundIC(BattlegroundTemplate const* battlegroundTemplate);
         ~BattlegroundIC();
 
         /* inherited from BattlegroundClass */
@@ -952,7 +964,7 @@ class BattlegroundIC : public Battleground
         void PostUpdateImpl(uint32 diff) override;
 
         void RemovePlayer(Player* player, ObjectGuid guid, uint32 team) override;
-        void HandleAreaTrigger(Player* player, uint32 trigger) override;
+        void HandleAreaTrigger(Player* player, uint32 trigger, bool entered) override;
         bool SetupBattleground() override;
         void SpawnLeader(uint32 teamid);
         void HandleKillUnit(Creature* unit, Player* killer) override;
@@ -962,6 +974,7 @@ class BattlegroundIC : public Battleground
         void DestroyGate(Player* player, GameObject* go) override;
 
         WorldSafeLocsEntry const* GetClosestGraveyard(Player* player) override;
+        WorldSafeLocsEntry const* GetExploitTeleportLocation(Team team) override;
 
         /* Scorekeeping */
         void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;

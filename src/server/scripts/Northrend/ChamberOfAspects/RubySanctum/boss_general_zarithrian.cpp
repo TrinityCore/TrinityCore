@@ -78,7 +78,7 @@ class boss_general_zarithrian : public CreatureScript
                 _Reset();
                 if (instance->GetBossState(DATA_SAVIANA_RAGEFIRE) == DONE && instance->GetBossState(DATA_BALTHARUS_THE_WARBORN) == DONE)
                 {
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                     me->SetImmuneToPC(false);
                 }
             }
@@ -88,13 +88,13 @@ class boss_general_zarithrian : public CreatureScript
                 return (instance->GetBossState(DATA_SAVIANA_RAGEFIRE) == DONE && instance->GetBossState(DATA_BALTHARUS_THE_WARBORN) == DONE && BossAI::CanAIAttack(target));
             }
 
-            void JustEngagedWith(Unit* who) override
+            void EnterCombat(Unit* /*who*/) override
             {
-                BossAI::JustEngagedWith(who);
+                _EnterCombat();
                 Talk(SAY_AGGRO);
-                events.ScheduleEvent(EVENT_CLEAVE, 8s);
-                events.ScheduleEvent(EVENT_INTIDMDATING_ROAR, 14s);
-                events.ScheduleEvent(EVENT_SUMMON_ADDS, 15s);
+                events.ScheduleEvent(EVENT_CLEAVE, Seconds(8));
+                events.ScheduleEvent(EVENT_INTIDMDATING_ROAR, Seconds(14));
+                events.ScheduleEvent(EVENT_SUMMON_ADDS, Seconds(15));
                 if (Is25ManRaid())
                     events.ScheduleEvent(EVENT_SUMMON_ADDS2, Seconds(16));
             }
@@ -128,10 +128,10 @@ class boss_general_zarithrian : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                events.Update(diff);
-
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
+
+                events.Update(diff);
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
@@ -139,7 +139,7 @@ class boss_general_zarithrian : public CreatureScript
                     {
                         case EVENT_SUMMON_ADDS:
                             Talk(SAY_ADDS);
-                            [[fallthrough]];
+                            /* fallthrough */
                         case EVENT_SUMMON_ADDS2:
                         {
                             if (Creature* stalker1 = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ZARITHRIAN_SPAWN_STALKER_1)))
@@ -157,7 +157,7 @@ class boss_general_zarithrian : public CreatureScript
                             break;
                         case EVENT_CLEAVE:
                             DoCastVictim(SPELL_CLEAVE_ARMOR);
-                            events.ScheduleEvent(EVENT_CLEAVE, 15s);
+                            events.ScheduleEvent(EVENT_CLEAVE, Seconds(15));
                             break;
                         default:
                             break;
@@ -194,15 +194,15 @@ class npc_onyx_flamecaller : public CreatureScript
                 MoveToGeneral();
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void EnterCombat(Unit* /*who*/) override
             {
-                _events.ScheduleEvent(EVENT_BLAST_NOVA, 17s);
-                _events.ScheduleEvent(EVENT_LAVA_GOUT, 3s);
+                _events.ScheduleEvent(EVENT_BLAST_NOVA, Seconds(17));
+                _events.ScheduleEvent(EVENT_LAVA_GOUT, Seconds(3));
             }
 
             void EnterEvadeMode(EvadeReason /*why*/) override { }
 
-            void IsSummonedBy(WorldObject* /*summoner*/) override
+            void IsSummonedBy(Unit* /*summoner*/) override
             {
                 // Let Zarithrian count as summoner.
                 if (Creature* zarithrian = _instance->GetCreature(DATA_GENERAL_ZARITHRIAN))
@@ -214,7 +214,7 @@ class npc_onyx_flamecaller : public CreatureScript
                 if (type != SPLINE_CHAIN_MOTION_TYPE && pointId != POINT_GENERAL_ROOM)
                     return;
 
-                DoZoneInCombat();
+                me->SetInCombatWithZone();
             }
 
             void MoveToGeneral()

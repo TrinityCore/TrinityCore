@@ -31,5 +31,4 @@ namespace FactorySelector
     TC_GAME_API MovementGenerator* SelectMovementGenerator(Unit* unit);
     TC_GAME_API GameObjectAI* SelectGameObjectAI(GameObject* go);
 }
-
 #endif

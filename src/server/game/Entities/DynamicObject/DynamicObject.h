@@ -38,10 +38,19 @@ class TC_GAME_API DynamicObject : public WorldObject, public GridObject<DynamicO
         DynamicObject(bool isWorldObject);
         ~DynamicObject();
 
+    protected:
+        void BuildValuesCreate(ByteBuffer* data, Player const* target) const override;
+        void BuildValuesUpdate(ByteBuffer* data, Player const* target) const override;
+        void ClearUpdateMask(bool remove) override;
+
+    public:
+        void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
+            UF::DynamicObjectData::Mask const& requestedDynamicObjectMask, Player const* target) const;
+
         void AddToWorld() override;
         void RemoveFromWorld() override;
 
-        bool CreateDynamicObject(ObjectGuid::LowType guidlow, Unit* caster, uint32 spellId, Position const& pos, float radius, DynamicObjectType type);
+        bool CreateDynamicObject(ObjectGuid::LowType guidlow, Unit* caster, SpellInfo const* spell, Position const& pos, float radius, DynamicObjectType type, SpellCastVisual spellVisual);
         void Update(uint32 p_time) override;
         void Remove();
         void SetDuration(int32 newDuration);
@@ -52,14 +61,14 @@ class TC_GAME_API DynamicObject : public WorldObject, public GridObject<DynamicO
         void SetCasterViewpoint();
         void RemoveCasterViewpoint();
         Unit* GetCaster() const { return _caster; }
-        uint32 GetFaction() const override;
         void BindToCaster();
         void UnbindFromCaster();
-        uint32 GetSpellId() const { return GetUInt32Value(DYNAMICOBJECT_SPELLID); }
+        uint32 GetSpellId() const { return m_dynamicObjectData->SpellID; }
         SpellInfo const* GetSpellInfo() const;
-        ObjectGuid GetCasterGUID() const { return GetGuidValue(DYNAMICOBJECT_CASTER); }
-        ObjectGuid GetOwnerGUID() const override { return GetCasterGUID(); }
-        float GetRadius() const { return GetFloatValue(DYNAMICOBJECT_RADIUS); }
+        ObjectGuid GetCasterGUID() const { return m_dynamicObjectData->Caster; }
+        float GetRadius() const { return m_dynamicObjectData->Radius; }
+
+        UF::UpdateField<UF::DynamicObjectData, 0, TYPEID_DYNAMICOBJECT> m_dynamicObjectData;
 
     protected:
         Aura* _aura;

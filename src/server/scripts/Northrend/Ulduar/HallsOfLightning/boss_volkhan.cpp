@@ -28,7 +28,6 @@ EndScriptData */
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
-#include "SpellMgr.h"
 
 enum Texts
 {
@@ -117,17 +116,17 @@ public:
             DespawnGolem();
             m_lGolemGUIDList.clear();
             events.SetPhase(PHASE_INTRO);
-            events.ScheduleEvent(EVENT_FORGE_CAST, 2s, 0, PHASE_INTRO);
+            events.ScheduleEvent(EVENT_FORGE_CAST, 2 * IN_MILLISECONDS, 0, PHASE_INTRO);
         }
 
-        void JustEngagedWith(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
             events.SetPhase(PHASE_NORMAL);
-            events.ScheduleEvent(EVENT_PAUSE, 3500ms, 0, PHASE_NORMAL);
-            events.ScheduleEvent(EVENT_SHATTERING_STOMP, 0s, 0, PHASE_NORMAL);
-            events.ScheduleEvent(EVENT_SHATTER, 5s, 0, PHASE_NORMAL);
-            BossAI::JustEngagedWith(who);
+            events.ScheduleEvent(EVENT_PAUSE,            3.5 * IN_MILLISECONDS, 0, PHASE_NORMAL);
+            events.ScheduleEvent(EVENT_SHATTERING_STOMP,   0 * IN_MILLISECONDS, 0, PHASE_NORMAL);
+            events.ScheduleEvent(EVENT_SHATTER,            5 * IN_MILLISECONDS, 0, PHASE_NORMAL);
+            _EnterCombat();
         }
 
         void AttackStart(Unit* who) override
@@ -197,11 +196,11 @@ public:
             {
                 m_lGolemGUIDList.push_back(summoned->GetGUID());
 
-                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     summoned->GetMotionMaster()->MoveFollow(target, 0.0f, 0.0f);
 
                 // Why healing when just summoned?
-                summoned->CastSpell(summoned, SPELL_HEAT, CastSpellExtraArgs().SetOriginalCaster(me->GetGUID()));
+                summoned->CastSpell(summoned, SPELL_HEAT, false, nullptr, nullptr, me->GetGUID());
             }
         }
 
@@ -249,7 +248,7 @@ public:
 
                             m_bHasTemper = false;
                             m_bIsStriking = false;
-                            events.ScheduleEvent(EVENT_PAUSE, 3500ms, 0, PHASE_NORMAL);
+                            events.ScheduleEvent(EVENT_PAUSE, 3.5 * IN_MILLISECONDS, 0, PHASE_NORMAL);
                         }
                         break;
                     case EVENT_SHATTERING_STOMP:
@@ -261,21 +260,21 @@ public:
                             DoCast(me, SPELL_SHATTERING_STOMP);
 
                             Talk(EMOTE_SHATTER);
+                            events.ScheduleEvent(EVENT_SHATTERING_STOMP, 30 * IN_MILLISECONDS, 0, PHASE_NORMAL);
                             m_bCanShatterGolem = true;
                         }
-                        events.ScheduleEvent(EVENT_SHATTERING_STOMP, 30s, 0, PHASE_NORMAL);
                         break;
                     case EVENT_SHATTER:
                         if (m_bCanShatterGolem)
                         {
                             ShatterGolem();
-                            events.ScheduleEvent(EVENT_SHATTER, 3s, 0, PHASE_NORMAL);
+                            events.ScheduleEvent(EVENT_SHATTER, 3 * IN_MILLISECONDS, 0, PHASE_NORMAL);
                             m_bCanShatterGolem = false;
                         }
                         break;
                     case EVENT_FORGE_CAST:
                         DoCast(me, SPELL_FORGE_VISUAL);
-                        events.ScheduleEvent(EVENT_FORGE_CAST, 15s, 0, PHASE_INTRO);
+                        events.ScheduleEvent(EVENT_FORGE_CAST, 15 * IN_MILLISECONDS, 0, PHASE_INTRO);
                         break;
                     default:
                         break;
@@ -284,10 +283,6 @@ public:
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
             }
-
-            // All the events below happen during the PHASE_NORMAL phase and shouldn't be executed before that
-            if (!events.IsInPhase(PHASE_NORMAL))
-                return;
 
             // Health check
             if (!m_bCanShatterGolem && me->HealthBelowPct(100 - 20 * m_uiHealthAmountModifier))
@@ -331,7 +326,7 @@ public:
                     // 4 - Wait for delay to expire
                     if (m_uiDelay_Timer <= diff)
                     {
-                        if (Unit* target = SelectTarget(SelectTargetMethod::MaxThreat, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 0))
                         {
                             me->SetReactState(REACT_AGGRESSIVE);
                             me->SetInCombatWith(target);
@@ -398,8 +393,8 @@ public:
         void Initialize()
         {
             m_bIsFrozen = false;
-            events.ScheduleEvent(EVENT_BLAST, 20s);
-            events.ScheduleEvent(EVENT_IMMOLATION, 5s);
+            events.ScheduleEvent(EVENT_BLAST,      20 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_IMMOLATION,  5 * IN_MILLISECONDS);
         }
 
         bool m_bIsFrozen;
@@ -422,29 +417,29 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+        void DamageTaken(Unit* /*pDoneBy*/, uint32 &uiDamage) override
         {
-            if (damage >= me->GetHealth())
+            if (uiDamage > me->GetHealth())
             {
                 me->UpdateEntry(NPC_BRITTLE_GOLEM);
                 me->SetHealth(1);
-                damage = 0;
+                uiDamage = 0;
                 me->RemoveAllAuras();
                 me->AttackStop();
-                // me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED); // Set in DB
-                // me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE); // Set in DB
+                // me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);  //Set in DB
+                // me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE); //Set in DB
                 if (me->IsNonMeleeSpellCast(false))
                     me->InterruptNonMeleeSpells(false);
-
-                me->GetMotionMaster()->Clear();
+                if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == CHASE_MOTION_TYPE)
+                    me->GetMotionMaster()->MovementExpired();
                 m_bIsFrozen = true;
             }
         }
 
-        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+        void SpellHit(Unit* /*pCaster*/, SpellInfo const* pSpell) override
         {
             // This is the dummy effect of the spells
-            if (spellInfo->Id == sSpellMgr->GetSpellIdForDifficulty(SPELL_SHATTER, me))
+            if (pSpell->Id == SPELL_SHATTER)
                 if (me->GetEntry() == NPC_BRITTLE_GOLEM)
                     me->DespawnOrUnsummon();
         }
@@ -466,11 +461,11 @@ public:
                 {
                     case EVENT_BLAST:
                         DoCast(me, SPELL_BLAST_WAVE);
-                        events.ScheduleEvent(EVENT_BLAST, 20s);
+                        events.ScheduleEvent(EVENT_BLAST, 20 * IN_MILLISECONDS);
                         break;
                     case EVENT_IMMOLATION:
                         DoCastVictim(SPELL_IMMOLATION_STRIKE);
-                        events.ScheduleEvent(EVENT_BLAST, 5s);
+                        events.ScheduleEvent(EVENT_BLAST, 5 * IN_MILLISECONDS);
                         break;
                     default:
                         break;

@@ -1,0 +1,37 @@
+;
+; Export file for Windows
+; Copyright (c) 2015 Ladislav Zezula
+; ladik@zezula.net
+;
+
+LIBRARY CascLib.dll
+
+EXPORTS
+
+    CascOpenStorage
+    CascOpenStorageEx
+    CascOpenOnlineStorage
+    CascGetStorageInfo
+    CascCloseStorage
+
+    CascOpenFile
+    CascOpenLocalFile
+    CascGetFileInfo
+    CascGetFileSize
+    CascGetFileSize64
+    CascSetFilePointer
+    CascSetFilePointer64
+    CascReadFile
+    CascCloseFile
+
+    CascFindFirstFile
+    CascFindNextFile
+    CascFindClose
+
+    CascAddEncryptionKey
+    CascAddStringEncryptionKey
+    CascFindEncryptionKey
+    CascGetNotFoundEncryptionKey
+
+    GetLastError=Kernel32.GetLastError
+    SetLastError=Kernel32.SetLastError

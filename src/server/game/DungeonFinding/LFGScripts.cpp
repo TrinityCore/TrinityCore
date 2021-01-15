@@ -25,8 +25,8 @@
 #include "LFGMgr.h"
 #include "Log.h"
 #include "Map.h"
-#include "Player.h"
 #include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptMgr.h"
 #include "SharedDefines.h"
 #include "WorldSession.h"
@@ -42,10 +42,7 @@ void LFGPlayerScript::OnLogout(Player* player)
         return;
 
     if (!player->GetGroup())
-    {
-        player->GetSession()->SendLfgLfrList(false);
         sLFGMgr->LeaveLfg(player->GetGUID());
-    }
     else if (player->GetSession()->PlayerDisconnected())
         sLFGMgr->LeaveLfg(player->GetGUID(), true);
 }
@@ -78,7 +75,7 @@ void LFGPlayerScript::OnMapChanged(Player* player)
 {
     Map const* map = player->GetMap();
 
-    if (sLFGMgr->inLfgDungeonMap(player->GetGUID(), map->GetId(), map->GetDifficulty()))
+    if (sLFGMgr->inLfgDungeonMap(player->GetGUID(), map->GetId(), map->GetDifficultyID()))
     {
         Group* group = player->GetGroup();
         // This function is also called when players log in
@@ -90,7 +87,7 @@ void LFGPlayerScript::OnMapChanged(Player* player)
             sLFGMgr->LeaveLfg(player->GetGUID());
             player->RemoveAurasDueToSpell(LFG_SPELL_LUCK_OF_THE_DRAW);
             player->TeleportTo(player->m_homebindMapId, player->m_homebindX, player->m_homebindY, player->m_homebindZ, 0.0f);
-            TC_LOG_ERROR("lfg", "LFGPlayerScript::OnMapChanged, Player %s %s is in LFG dungeon map but does not have a valid group! "
+            TC_LOG_ERROR("lfg", "LFGPlayerScript::OnMapChanged, Player %s (%s) is in LFG dungeon map but does not have a valid group! "
                 "Teleporting to homebind.", player->GetName().c_str(), player->GetGUID().ToString().c_str());
             return;
         }
@@ -189,12 +186,10 @@ void LFGGroupScript::OnRemoveMember(Group* group, ObjectGuid guid, RemoveMethod 
         if (method == GROUP_REMOVEMETHOD_LEAVE && state == LFG_STATE_DUNGEON &&
             players >= LFG_GROUP_KICK_VOTES_NEEDED)
             player->CastSpell(player, LFG_SPELL_DUNGEON_DESERTER, true);
-        else if (method == GROUP_REMOVEMETHOD_KICK_LFG)
-            player->RemoveAurasDueToSpell(LFG_SPELL_DUNGEON_COOLDOWN);
         //else if (state == LFG_STATE_BOOT)
             // Update internal kick cooldown of kicked
 
-        player->GetSession()->SendLfgUpdateParty(LfgUpdateData(LFG_UPDATETYPE_LEADER_UNK1));
+        player->GetSession()->SendLfgUpdateStatus(LfgUpdateData(LFG_UPDATETYPE_LEADER_UNK1), true);
         if (isLFG && player->GetMap()->IsDungeon())            // Teleport player out the dungeon
             sLFGMgr->TeleportPlayer(player, true);
     }
@@ -241,7 +236,7 @@ void LFGGroupScript::OnInviteMember(Group* group, ObjectGuid guid)
     // No gguid ==  new group being formed
     // No leader == after group creation first invite is new leader
     // leader and no gguid == first invite after leader is added to new group (this is the real invite)
-    if (leader && !gguid)
+    if (!leader.IsEmpty() && gguid.IsEmpty())
         sLFGMgr->LeaveLfg(leader);
 }
 

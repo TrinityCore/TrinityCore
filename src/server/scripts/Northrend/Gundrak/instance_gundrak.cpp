@@ -22,8 +22,8 @@
 #include "GameObjectAI.h"
 #include "gundrak.h"
 #include "Map.h"
-#include "Player.h"
 #include "ScriptMgr.h"
+#include <sstream>
 
 DoorData const doorData[] =
 {
@@ -99,7 +99,7 @@ class instance_gundrak : public InstanceMapScript
                         if (GetBossState(DATA_SLAD_RAN) == DONE)
                         {
                             if (SladRanStatueState == GO_STATE_ACTIVE)
-                                go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                             else
                                 go->SetGoState(GO_STATE_ACTIVE);
                         }
@@ -108,7 +108,7 @@ class instance_gundrak : public InstanceMapScript
                         if (GetBossState(DATA_MOORABI) == DONE)
                         {
                             if (MoorabiStatueState == GO_STATE_ACTIVE)
-                                go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                             else
                                 go->SetGoState(GO_STATE_ACTIVE);
                         }
@@ -117,7 +117,7 @@ class instance_gundrak : public InstanceMapScript
                         if (GetBossState(DATA_DRAKKARI_COLOSSUS) == DONE)
                         {
                             if (DrakkariColossusStatueState == GO_STATE_ACTIVE)
-                                go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                             else
                                 go->SetGoState(GO_STATE_ACTIVE);
                         }
@@ -129,7 +129,7 @@ class instance_gundrak : public InstanceMapScript
                         go->SetGoState(MoorabiStatueState);
                         break;
                     case GO_GAL_DARAH_STATUE:
-                        go->SetGoState(CheckRequiredBosses(DATA_GAL_DARAH) ? GO_STATE_DESTROYED : GO_STATE_READY);
+                        go->SetGoState(CheckRequiredBosses(DATA_GAL_DARAH) ? GO_STATE_ACTIVE_ALTERNATIVE : GO_STATE_READY);
                         break;
                     case GO_DRAKKARI_COLOSSUS_STATUE:
                         go->SetGoState(DrakkariColossusStatueState);
@@ -159,7 +159,7 @@ class instance_gundrak : public InstanceMapScript
                     DwellerGUIDs.erase(unit->GetGUID());
 
                     if (DwellerGUIDs.empty())
-                        unit->SummonCreature(NPC_ECK_THE_FEROCIOUS, EckSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300s);
+                        unit->SummonCreature(NPC_ECK_THE_FEROCIOUS, EckSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300 * IN_MILLISECONDS);
                 }
             }
 
@@ -173,17 +173,17 @@ class instance_gundrak : public InstanceMapScript
                     case DATA_SLAD_RAN:
                         if (state == DONE)
                             if (GameObject* go = GetGameObject(DATA_SLAD_RAN_ALTAR))
-                                go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                         break;
                     case DATA_DRAKKARI_COLOSSUS:
                         if (state == DONE)
                             if (GameObject* go = GetGameObject(DATA_DRAKKARI_COLOSSUS_ALTAR))
-                                go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                         break;
                     case DATA_MOORABI:
                         if (state == DONE)
                             if (GameObject* go = GetGameObject(DATA_MOORABI_ALTAR))
-                                go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                         break;
                     default:
                         break;
@@ -204,9 +204,9 @@ class instance_gundrak : public InstanceMapScript
                             return false;
                         break;
                     case DATA_GAL_DARAH:
-                        if (SladRanStatueState != GO_STATE_DESTROYED
-                            || DrakkariColossusStatueState != GO_STATE_DESTROYED
-                            || MoorabiStatueState != GO_STATE_DESTROYED)
+                        if (SladRanStatueState != GO_STATE_ACTIVE_ALTERNATIVE
+                            || DrakkariColossusStatueState != GO_STATE_ACTIVE_ALTERNATIVE
+                            || MoorabiStatueState != GO_STATE_ACTIVE_ALTERNATIVE)
                             return false;
                         break;
                     default:
@@ -311,7 +311,7 @@ class instance_gundrak : public InstanceMapScript
                             break;
                         case DATA_BRIDGE:
                             for (uint32 type = DATA_SLAD_RAN_STATUE; type <= DATA_GAL_DARAH_STATUE; ++type)
-                                ToggleGameObject(type, GO_STATE_DESTROYED);
+                                ToggleGameObject(type, GO_STATE_ACTIVE_ALTERNATIVE);
                             ToggleGameObject(DATA_TRAPDOOR, GO_STATE_READY);
                             ToggleGameObject(DATA_COLLISION, GO_STATE_ACTIVE);
                             SaveToDB();
@@ -360,9 +360,9 @@ class go_gundrak_altar : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool OnGossipHello(Player* /*player*/) override
+            bool GossipHello(Player* /*player*/) override
             {
-                me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                me->AddFlag(GO_FLAG_NOT_SELECTABLE);
                 me->SetGoState(GO_STATE_ACTIVE);
 
                 instance->SetData(DATA_STATUE_ACTIVATE, me->GetEntry());

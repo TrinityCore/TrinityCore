@@ -1,1 +1,0 @@
-int ns1__executeCommand(char* command, char** result);

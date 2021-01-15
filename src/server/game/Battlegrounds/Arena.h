@@ -18,6 +18,7 @@
 #ifndef TRINITY_ARENA_H
 #define TRINITY_ARENA_H
 
+#include "ArenaScore.h"
 #include "Battleground.h"
 
 enum ArenaBroadcastTexts
@@ -47,7 +48,7 @@ enum ArenaWorldStates
 class TC_GAME_API Arena : public Battleground
 {
     protected:
-        Arena();
+        Arena(BattlegroundTemplate const* battlegroundTemplate);
 
         void AddPlayer(Player* player) override;
         void RemovePlayer(Player* /*player*/, ObjectGuid /*guid*/, uint32 /*team*/) override;
@@ -57,10 +58,14 @@ class TC_GAME_API Arena : public Battleground
 
         void HandleKillPlayer(Player* player, Player* killer) override;
 
+        void BuildPvPLogDataPacket(WorldPackets::Battleground::PVPMatchStatistics& pvpLogData) const override;
+
     private:
         void RemovePlayerAtLeave(ObjectGuid guid, bool transport, bool sendPacket) override;
         void CheckWinConditions() override;
         void EndBattleground(uint32 winner) override;
+
+        ArenaTeamScore _arenaTeamScores[BG_TEAMS_COUNT];
 };
 
 #endif // TRINITY_ARENA_H

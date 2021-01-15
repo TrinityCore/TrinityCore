@@ -21,7 +21,7 @@
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
-#include "ScriptedCreature.h"
+#include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
 #include "SpellAuraEffects.h"
 #include "SpellAuras.h"
@@ -38,8 +38,8 @@ enum DrakuruShackles
 {
     NPC_RAGECLAW                             = 29686,
     QUEST_TROLLS_IS_GONE_CRAZY               = 12861,
-    SPELL_CHAIN_OF_THE_SCURGE_RIGHT          = 54990,
-    SPELL_CHAIN_OF_THE_SCURGE_LEFT           = 55009,
+    SPELL_LEFT_CHAIN                         = 59951,
+    SPELL_RIGHT_CHAIN                        = 59952,
     SPELL_UNLOCK_SHACKLE                     = 55083,
     SPELL_FREE_RAGECLAW                      = 55223
 };
@@ -56,12 +56,12 @@ public:
         void Reset() override
         {
             _rageclawGUID.Clear();
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
 
             float x, y, z;
             me->GetClosePoint(x, y, z, me->GetCombatReach() / 3, 0.1f);
 
-            if (Creature* summon = me->SummonCreature(NPC_RAGECLAW, x, y, z, 0, TEMPSUMMON_DEAD_DESPAWN, 1s))
+            if (Creature* summon = me->SummonCreature(NPC_RAGECLAW, x, y, z, 0, TEMPSUMMON_DEAD_DESPAWN, 1000))
             {
                 _rageclawGUID = summon->GetGUID();
                 LockRageclaw(summon);
@@ -73,31 +73,32 @@ public:
             // pointer check not needed
             me->SetFacingToObject(rageclaw);
             rageclaw->SetFacingToObject(me);
+
+            DoCast(rageclaw, SPELL_LEFT_CHAIN, true);
+            DoCast(rageclaw, SPELL_RIGHT_CHAIN, true);
         }
 
-        void UnlockRageclaw(Creature* rageclaw)
+        void UnlockRageclaw(Unit* who, Creature* rageclaw)
         {
+            if (!who)
+                return;
+
             // pointer check not needed
             DoCast(rageclaw, SPELL_FREE_RAGECLAW, true);
 
             me->setDeathState(DEAD);
         }
 
-        void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
+        void SpellHit(Unit* caster, SpellInfo const* spell) override
         {
-            Player* playerCaster = caster->ToPlayer();
-            if (!playerCaster)
-                return;
-
-            if (spellInfo->Id == SPELL_UNLOCK_SHACKLE)
+            if (spell->Id == SPELL_UNLOCK_SHACKLE)
             {
-                if (playerCaster->GetQuestStatus(QUEST_TROLLS_IS_GONE_CRAZY) == QUEST_STATUS_INCOMPLETE)
+                if (caster->ToPlayer()->GetQuestStatus(QUEST_TROLLS_IS_GONE_CRAZY) == QUEST_STATUS_INCOMPLETE)
                 {
                     if (Creature* rageclaw = ObjectAccessor::GetCreature(*me, _rageclawGUID))
                     {
-                        UnlockRageclaw(rageclaw);
-                        playerCaster->KilledMonster(rageclaw->GetCreatureTemplate(), _rageclawGUID);
-                        me->RemoveAurasDueToSpell(SPELL_CHAIN_OF_THE_SCURGE_RIGHT);
+                        UnlockRageclaw(caster, rageclaw);
+                        caster->ToPlayer()->KilledMonster(rageclaw->GetCreatureTemplate(), _rageclawGUID);
                         me->DespawnOrUnsummon();
                     }
                     else
@@ -123,6 +124,7 @@ public:
 enum Rageclaw
 {
     SPELL_UNSHACKLED                         = 55085,
+    SPELL_KNEEL                              = 39656,
     SAY_RAGECLAW                             = 0
 };
 
@@ -138,22 +140,23 @@ public:
         void Reset() override
         {
             me->SetFaction(FACTION_FRIENDLY);
-            DoCast(me, SPELL_CHAIN_OF_THE_SCURGE_RIGHT, true);
+            DoCast(me, SPELL_KNEEL, true); // Little Hack for kneel - Thanks Illy :P
         }
 
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
-        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
         {
-            if (spellInfo->Id == SPELL_FREE_RAGECLAW)
+            if (spell->Id == SPELL_FREE_RAGECLAW)
             {
-                me->RemoveAurasDueToSpell(SPELL_CHAIN_OF_THE_SCURGE_LEFT);
-                me->SetStandState(UNIT_STAND_STATE_STAND);
+                me->RemoveAurasDueToSpell(SPELL_LEFT_CHAIN);
+                me->RemoveAurasDueToSpell(SPELL_RIGHT_CHAIN);
+                me->RemoveAurasDueToSpell(SPELL_KNEEL);
                 me->SetFaction(me->GetCreatureTemplate()->faction);
                 DoCast(me, SPELL_UNSHACKLED, true);
                 Talk(SAY_RAGECLAW);
                 me->GetMotionMaster()->MoveRandom(10);
-                me->DespawnOrUnsummon(10s);
+                me->DespawnOrUnsummon(10000);
             }
         }
     };
@@ -235,8 +238,8 @@ public:
 
         void Reset() override
         {
-            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_COWER);
+            me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+            me->SetEmoteState(EMOTE_STATE_COWER);
             Initialize();
         }
 
@@ -249,15 +252,15 @@ public:
                 switch (eventId)
                 {
                     case EVENT_RECRUIT_1:
-                        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+                        me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                        me->SetEmoteState(EMOTE_ONESHOT_NONE);
                         Talk(SAY_RECRUIT);
-                        _events.ScheduleEvent(EVENT_RECRUIT_2, 3s);
+                        _events.ScheduleEvent(EVENT_RECRUIT_2, 3000);
                         break;
                     case EVENT_RECRUIT_2:
                         me->SetWalk(true);
                         me->GetMotionMaster()->MovePoint(0, me->GetPositionX() + (std::cos(_heading) * 10), me->GetPositionY() + (std::sin(_heading) * 10), me->GetPositionZ());
-                        me->DespawnOrUnsummon(5s);
+                        me->DespawnOrUnsummon(5000);
                         break;
                     default:
                         break;
@@ -268,9 +271,9 @@ public:
                 return;
         }
 
-        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
         {
-            _events.ScheduleEvent(EVENT_RECRUIT_1, 100ms);
+            _events.ScheduleEvent(EVENT_RECRUIT_1, 100);
             CloseGossipMenuFor(player);
             me->CastSpell(player, SPELL_QUEST_CREDIT, true);
             me->SetFacingToObject(player);
@@ -309,7 +312,7 @@ public:
     {
         go_scourge_enclosureAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool OnGossipHello(Player* player) override
+        bool GossipHello(Player* player) override
         {
             me->UseDoorOrButton();
             if (player->GetQuestStatus(QUEST_OUR_ONLY_HOPE) == QUEST_STATUS_INCOMPLETE)
@@ -318,7 +321,7 @@ public:
                 {
                     player->KilledMonsterCredit(gymerDummy->GetEntry(), gymerDummy->GetGUID());
                     gymerDummy->CastSpell(gymerDummy, SPELL_GYMER_LOCK_EXPLOSION, true);
-                    gymerDummy->DespawnOrUnsummon(4s);
+                    gymerDummy->DespawnOrUnsummon(4 * IN_MILLISECONDS);
                 }
             }
             return true;
@@ -481,7 +484,7 @@ public:
             {
                 _playerGUID.Clear();
                 _getingredienttry = 0;
-                _events.ScheduleEvent(EVENT_TURN_TO_POT, 15s, 26s);
+                _events.ScheduleEvent(EVENT_TURN_TO_POT, urand(15000, 26000));
             }
 
             void SetData(uint32 type, uint32 data) override
@@ -491,16 +494,16 @@ public:
                    {
                         case 2:
                         case 3:
-                            _events.ScheduleEvent(EVENT_EASY_123, 100ms);
+                            _events.ScheduleEvent(EVENT_EASY_123, 100);
                             break;
                         case 4:
-                            _events.ScheduleEvent(EVENT_MEDIUM_4, 100ms);
+                            _events.ScheduleEvent(EVENT_MEDIUM_4, 100);
                             break;
                         case 5:
-                            _events.ScheduleEvent(EVENT_MEDIUM_5, 100ms);
+                            _events.ScheduleEvent(EVENT_MEDIUM_5, 100);
                             break;
                         case 6:
-                            _events.ScheduleEvent(EVENT_HARD_6, 100ms);
+                            _events.ScheduleEvent(EVENT_HARD_6, 100);
                             break;
                         default:
                             break;
@@ -517,13 +520,13 @@ public:
                     {
                         case EVENT_TURN_TO_POT:
                             me->SetFacingTo(6.230825f);
-                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING_NO_SHEATHE);
-                            _events.ScheduleEvent(EVENT_TURN_BACK, 11s);
+                            me->SetEmoteState(EMOTE_STATE_USE_STANDING_NO_SHEATHE);
+                            _events.ScheduleEvent(EVENT_TURN_BACK, 11000);
                             break;
                         case EVENT_TURN_BACK:
                             me->SetFacingTo(4.886922f);
-                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
-                            _events.ScheduleEvent(EVENT_TURN_TO_POT, 25s, 41s);
+                            me->SetEmoteState(EMOTE_STATE_NONE);
+                            _events.ScheduleEvent(EVENT_TURN_TO_POT, urand(25000, 41000));
                             break;
                         case EVENT_EASY_123:
                             if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
@@ -563,13 +566,13 @@ public:
                 }
             }
 
-            bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
             {
                 CloseGossipMenuFor(player);
                 DoCast(player, SPELL_ALCHEMIST_APPRENTICE_INVISBUFF);
                 _playerGUID = player->GetGUID();
                 _getingredienttry = 1;
-                _events.ScheduleEvent(EVENT_EASY_123, 100ms);
+                _events.ScheduleEvent(EVENT_EASY_123, 100);
                 return false;
             }
 
@@ -594,7 +597,7 @@ public:
     {
         go_finklesteins_cauldronAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool OnGossipHello(Player* player) override
+        bool GossipHello(Player* player) override
         {
             player->CastSpell(player, SPELL_POT_CHECK);
             return true;
@@ -718,7 +721,7 @@ class spell_random_ingredient : public SpellScriptLoader
                     SPELL_FETCH_CRYSTALLIZED_HOGSNOT,       SPELL_HAVE_CRYSTALLIZED_HOGSNOT,
                     SPELL_FETCH_CRUSHED_BASILISK_CRYSTALS,  SPELL_HAVE_CRUSHED_BASILISK_CRYSTALS,
                     SPELL_FETCH_TROLLBANE,                  SPELL_HAVE_TROLLBANE,
-                    SPELL_FETCH_FROZEN_SPIDER_ICHOR,        SPELL_HAVE_FROZEN_SPIDER_ICHOR,
+                    SPELL_FETCH_FROZEN_SPIDER_ICHOR,        SPELL_HAVE_FROZEN_SPIDER_ICHOR
                 });
             }
 
@@ -743,7 +746,7 @@ class spell_random_ingredient : public SpellScriptLoader
 
                     if (Creature* finklestein = GetClosestCreatureWithEntry(player, NPC_FINKLESTEIN, 25.0f))
                     {
-                        finklestein->CastSpell(player, FetchIngredients[ingredient][0], true);
+                        finklestein->CastSpell(player, FetchIngredients[ingredient][0], true, nullptr);
                         finklestein->AI()->Talk(FetchIngredients[ingredient][3], player);
                     }
                 }
@@ -797,7 +800,7 @@ class spell_pot_check : public SpellScriptLoader
                     SPELL_FETCH_CRYSTALLIZED_HOGSNOT,       SPELL_HAVE_CRYSTALLIZED_HOGSNOT,
                     SPELL_FETCH_CRUSHED_BASILISK_CRYSTALS,  SPELL_HAVE_CRUSHED_BASILISK_CRYSTALS,
                     SPELL_FETCH_TROLLBANE,                  SPELL_HAVE_TROLLBANE,
-                    SPELL_FETCH_FROZEN_SPIDER_ICHOR,        SPELL_HAVE_FROZEN_SPIDER_ICHOR,
+                    SPELL_FETCH_FROZEN_SPIDER_ICHOR,        SPELL_HAVE_FROZEN_SPIDER_ICHOR
                 });
             }
 
@@ -926,22 +929,16 @@ public:
             Reset();
         }
 
-        void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
+        void SpellHit(Unit* caster, SpellInfo const* spell) override
         {
-            Unit* unitCaster = caster->ToUnit();
-            if (!unitCaster)
+            if (spell->Id != GYMERS_GRAB)
                 return;
 
-            if (spellInfo->Id != GYMERS_GRAB)
-                return;
-
-            if (Vehicle* veh = unitCaster->GetVehicleKit())
-            {
+            if (Vehicle* veh = caster->GetVehicleKit())
                 if (veh->GetAvailableSeatCount() != 0)
-                {
-                    me->CastSpell(caster, RIDE_VEHICLE, true);
-                    me->CastSpell(caster, HEALING_WINDS, true);
-                }
+            {
+                me->CastSpell(caster, RIDE_VEHICLE, true);
+                me->CastSpell(caster, HEALING_WINDS, true);
             }
         }
     };
@@ -949,100 +946,6 @@ public:
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_storm_cloudAI(creature);
-    }
-};
-
-enum ScourgeDisguise
-{
-    SPELL_SCOURGE_DISGUISE             = 51966,
-    SPELL_SCOURGE_DISGUISE_INSTABILITY = 51971,
-    SPELL_SCOURGE_DISGUISE_EXPIRING    = 52010,
-    SPELL_DROP_DISGUISE                = 54089,
-    TEXT_DISGUISE_WARNING              = 28891
-};
-
-class spell_scourge_disguise : public AuraScript
-{
-    PrepareAuraScript(spell_scourge_disguise);
-
-    void ApplyEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        Unit* target = GetTarget();
-        target->CastSpell(target, SPELL_SCOURGE_DISGUISE_INSTABILITY, true);
-    }
-
-    void RemoveEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        Unit* target = GetTarget();
-        target->RemoveAura(SPELL_SCOURGE_DISGUISE_INSTABILITY);
-    }
-
-    void Register() override
-    {
-        OnEffectRemove += AuraEffectRemoveFn(spell_scourge_disguise::RemoveEffect, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
-        OnEffectApply += AuraEffectApplyFn(spell_scourge_disguise::ApplyEffect, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
-    }
-};
-
-class spell_scourge_disguise_instability : public AuraScript
-{
-    PrepareAuraScript(spell_scourge_disguise_instability);
-
-    void CalcPeriodic(AuraEffect const* /*aurEff*/, bool& isPeriodic, int32& amplitude)
-    {
-        isPeriodic = true;
-        amplitude = irand(30, 240) * IN_MILLISECONDS;
-    }
-
-    void HandleDummyTick(AuraEffect const* /*aurEff*/)
-    {
-        GetTarget()->CastSpell(GetTarget(), SPELL_SCOURGE_DISGUISE_EXPIRING, true);
-    }
-
-    void HandleUpdatePeriodic(AuraEffect* aurEff)
-    {
-        aurEff->CalculatePeriodic(GetCaster());
-    }
-
-    void Register() override
-    {
-        DoEffectCalcPeriodic += AuraEffectCalcPeriodicFn(spell_scourge_disguise_instability::CalcPeriodic, EFFECT_0, SPELL_AURA_DUMMY);
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_scourge_disguise_instability::HandleDummyTick, EFFECT_0, SPELL_AURA_DUMMY);
-        OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_scourge_disguise_instability::HandleUpdatePeriodic, EFFECT_0, SPELL_AURA_DUMMY);
-    }
-};
-
-class spell_scourge_disguise_expiring : public AuraScript
-{
-    PrepareAuraScript(spell_scourge_disguise_expiring);
-
-    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        if (Player* player = GetTarget()->ToPlayer())
-            if (player->HasAura(SPELL_SCOURGE_DISGUISE))
-                player->Unit::Whisper(TEXT_DISGUISE_WARNING, player, true);
-    }
-
-    void Register() override
-    {
-        OnEffectApply += AuraEffectApplyFn(spell_scourge_disguise_expiring::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-    }
-};
-
-class spell_drop_disguise : public SpellScript
-{
-    PrepareSpellScript(spell_drop_disguise);
-
-    void HandleHit()
-    {
-        if (Unit* target = GetHitUnit())
-            if (target->HasAura(SPELL_SCOURGE_DISGUISE))
-                target->CastSpell(target, SPELL_SCOURGE_DISGUISE_EXPIRING, true);
-    }
-
-    void Register() override
-    {
-        AfterHit += SpellHitFn(spell_drop_disguise::HandleHit);
     }
 };
 
@@ -1060,8 +963,4 @@ void AddSC_zuldrak()
     new spell_pot_check();
     new spell_fetch_ingredient_aura();
     new npc_storm_cloud();
-    RegisterSpellScript(spell_scourge_disguise);
-    RegisterSpellScript(spell_scourge_disguise_instability);
-    RegisterSpellScript(spell_scourge_disguise_expiring);
-    RegisterSpellScript(spell_drop_disguise);
 }

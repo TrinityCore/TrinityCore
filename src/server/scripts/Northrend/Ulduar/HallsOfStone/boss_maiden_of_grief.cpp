@@ -68,7 +68,7 @@ class boss_maiden_of_grief : public CreatureScript
                 events.ScheduleEvent(EVENT_SHOCK_OF_SORROW, 20s, 25s);
                 events.ScheduleEvent(EVENT_PILLAR_OF_WOE, 5s, 15s);
 
-                instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_GOOD_GRIEF_START_EVENT);
+                instance->DoStopCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_GOOD_GRIEF_START_EVENT);
             }
 
             void JustEngagedWith(Unit* who) override
@@ -76,7 +76,7 @@ class boss_maiden_of_grief : public CreatureScript
                 BossAI::JustEngagedWith(who);
                 Talk(SAY_AGGRO);
 
-                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_GOOD_GRIEF_START_EVENT);
+                instance->DoStartCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_GOOD_GRIEF_START_EVENT);
             }
 
             void KilledUnit(Unit* who) override

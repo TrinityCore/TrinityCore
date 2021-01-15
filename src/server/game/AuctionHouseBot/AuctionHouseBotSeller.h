@@ -21,6 +21,7 @@
 #include "Define.h"
 #include "ItemTemplate.h"
 #include "AuctionHouseBot.h"
+#include <array>
 
 struct ItemToSell
 {
@@ -29,7 +30,7 @@ struct ItemToSell
 };
 
 typedef std::vector<ItemToSell> ItemsToSellArray;
-typedef std::vector<std::vector<uint32>> AllItemsArray;
+typedef std::array<std::array<uint32, MAX_ITEM_CLASS>, MAX_ITEM_QUALITY> AllItemsArray;
 
 struct SellerItemInfo
 {
@@ -129,7 +130,7 @@ public:
     void AddNewAuctions(SellerConfiguration& config);
     void SetItemsRatio(uint32 al, uint32 ho, uint32 ne);
     void SetItemsRatioForHouse(AuctionHouseType house, uint32 val);
-    void SetItemsAmount(std::array<uint32, MAX_AUCTION_QUALITY> const& amounts);
+    void SetItemsAmount(uint32(&vals)[MAX_AUCTION_QUALITY]);
     void SetItemsAmountForQuality(AuctionQuality quality, uint32 val);
     void LoadConfig();
 
@@ -141,7 +142,7 @@ private:
     void LoadSellerValues(SellerConfiguration& config);
     uint32 SetStat(SellerConfiguration& config);
     bool GetItemsToSell(SellerConfiguration& config, ItemsToSellArray& itemsToSellArray, AllItemsArray const& addedItem);
-    void SetPricesOfItem(ItemTemplate const* itemProto, SellerConfiguration& config, uint32& buyp, uint32& bidp, uint32 stackcnt);
+    void SetPricesOfItem(ItemTemplate const* itemProto, SellerConfiguration& config, uint32& buyout, uint32& bid, uint32 stackcnt);
     uint32 GetStackSizeForItem(ItemTemplate const* itemProto, SellerConfiguration& config) const;
     void LoadItemsQuantity(SellerConfiguration& config);
     static uint32 GetBuyModifier(ItemTemplate const* prototype);

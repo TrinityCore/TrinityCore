@@ -36,11 +36,9 @@ EndScriptData */
 #include "Player.h"
 #include "RBAC.h"
 #include "Realm.h"
-#include "ServerMotd.h"
 #include "UpdateTime.h"
 #include "Util.h"
 #include "VMapFactory.h"
-#include "VMapManager2.h"
 #include "World.h"
 #include "WorldSession.h"
 
@@ -49,10 +47,6 @@ EndScriptData */
 #include <boost/filesystem/operations.hpp>
 #include <openssl/crypto.h>
 #include <openssl/opensslv.h>
-
-#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
 
 class server_commandscript : public CommandScript
 {
@@ -89,6 +83,7 @@ public:
 
         static std::vector<ChatCommand> serverSetCommandTable =
         {
+            { "difftime", rbac::RBAC_PERM_COMMAND_SERVER_SET_DIFFTIME, true, &HandleServerSetDiffTimeCommand, "" },
             { "loglevel", rbac::RBAC_PERM_COMMAND_SERVER_SET_LOGLEVEL, true, &HandleServerSetLogLevelCommand, "" },
             { "motd",     rbac::RBAC_PERM_COMMAND_SERVER_SET_MOTD,     true, &HandleServerSetMotdCommand,     "" },
             { "closed",   rbac::RBAC_PERM_COMMAND_SERVER_SET_CLOSED,   true, &HandleServerSetClosedCommand,   "" },
@@ -142,7 +137,7 @@ public:
         handler->PSendSysMessage("%s", GitRevision::GetFullVersion());
         handler->PSendSysMessage("Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
         handler->PSendSysMessage("Using Boost version: %i.%i.%i", BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100);
-        handler->PSendSysMessage("Using MySQL version: %u", MySQL::GetLibraryVersion());
+        handler->PSendSysMessage("Using MySQL version: %s", MySQL::GetLibraryVersion());
         handler->PSendSysMessage("Using CMake version: %s", GitRevision::GetCMakeVersion());
 
         handler->PSendSysMessage("Compiled on: %s", GitRevision::GetHostOSVersion());
@@ -152,21 +147,23 @@ public:
             handler->SendSysMessage("Automatic database updates are disabled for all databases!");
         else
         {
-            static char const* const databaseNames[3 /*TOTAL_DATABASES*/] =
+            static char const* const databaseNames[] =
             {
                 "Auth",
                 "Characters",
-                "World"
+                "World",
+                "Hotfixes"
             };
+            static size_t constexpr databaseCount = std::extent<decltype(databaseNames)>::value;
 
             std::string availableUpdateDatabases;
-            for (uint32 i = 0; i < 3 /* TOTAL_DATABASES*/; ++i)
+            for (uint32 i = 0; i < databaseCount; ++i)
             {
                 if (!(updateFlags & (1 << i)))
                     continue;
 
                 availableUpdateDatabases += databaseNames[i];
-                if (i != 3 /*TOTAL_DATABASES*/ - 1)
+                if (i != databaseCount - 1)
                     availableUpdateDatabases += ", ";
             }
 
@@ -204,7 +201,7 @@ public:
         for (std::string const& subDir : subDirs)
         {
             boost::filesystem::path mapPath(dataDir);
-            mapPath /= subDir;
+            mapPath.append(subDir);
 
             if (!boost::filesystem::exists(mapPath))
             {
@@ -278,7 +275,10 @@ public:
     // Display the 'Message of the day' for the realm
     static bool HandleServerMotdCommand(ChatHandler* handler, char const* /*args*/)
     {
-        handler->PSendSysMessage(LANG_MOTD_CURRENT, Motd::GetMotd());
+        std::string motd;
+        for (std::string const& line : sWorld->GetMotd())
+            motd += line;
+        handler->PSendSysMessage(LANG_MOTD_CURRENT, motd.c_str());
         return true;
     }
 
@@ -400,7 +400,7 @@ public:
     // Define the 'Message of the day' for the realm
     static bool HandleServerSetMotdCommand(ChatHandler* handler, char const* args)
     {
-        Motd::SetMotd(args);
+        sWorld->SetMotd(args);
         handler->PSendSysMessage(LANG_MOTD_NEW, args);
         return true;
     }
@@ -427,12 +427,39 @@ public:
     }
 
     // Set the level of logging
-    static bool HandleServerSetLogLevelCommand(ChatHandler* /*handler*/, std::string const& type, std::string const& name, int32 level)
+    static bool HandleServerSetLogLevelCommand(ChatHandler* /*handler*/, char const* args)
     {
-        if (name.empty() || level < 0 || (type != "a" && type != "l"))
+        if (!*args)
             return false;
 
-        sLog->SetLogLevel(name, level, type == "l");
+        char* type = strtok((char*)args, " ");
+        char* name = strtok(nullptr, " ");
+        char* level = strtok(nullptr, " ");
+
+        if (!type || !name || !level || *name == '\0' || *level == '\0' || (*type != 'a' && *type != 'l'))
+            return false;
+
+        sLog->SetLogLevel(name, level, *type == 'l');
+        return true;
+    }
+
+    // set diff time record interval
+    static bool HandleServerSetDiffTimeCommand(ChatHandler* /*handler*/, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        char* newTimeStr = strtok((char*)args, " ");
+        if (!newTimeStr)
+            return false;
+
+        int32 newTime = atoi(newTimeStr);
+        if (newTime < 0)
+            return false;
+
+        sWorldUpdateTime.SetRecordUpdateTimeInterval(newTime);
+        printf("Record diff every %i ms\n", newTime);
+
         return true;
     }
 

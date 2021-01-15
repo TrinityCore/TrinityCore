@@ -19,22 +19,15 @@
 #define TRINITY_TIMER_H
 
 #include "Define.h"
-#include "Duration.h"
-
-inline std::chrono::steady_clock::time_point GetApplicationStartTime()
-{
-    using namespace std::chrono;
-
-    static const steady_clock::time_point ApplicationStartTime = steady_clock::now();
-
-    return ApplicationStartTime;
-}
+#include <chrono>
 
 inline uint32 getMSTime()
 {
     using namespace std::chrono;
 
-    return uint32(duration_cast<milliseconds>(steady_clock::now() - GetApplicationStartTime()).count());
+    static const steady_clock::time_point ApplicationStartTime = steady_clock::now();
+
+    return uint32(duration_cast<milliseconds>(steady_clock::now() - ApplicationStartTime).count());
 }
 
 inline uint32 getMSTimeDiff(uint32 oldMSTime, uint32 newMSTime)
@@ -44,14 +37,6 @@ inline uint32 getMSTimeDiff(uint32 oldMSTime, uint32 newMSTime)
         return (0xFFFFFFFF - oldMSTime) + newMSTime;
     else
         return newMSTime - oldMSTime;
-}
-
-inline uint32 getMSTimeDiff(uint32 oldMSTime, std::chrono::steady_clock::time_point newTime)
-{
-    using namespace std::chrono;
-
-    uint32 newMSTime = uint32(duration_cast<milliseconds>(newTime - GetApplicationStartTime()).count());
-    return getMSTimeDiff(oldMSTime, newMSTime);
 }
 
 inline uint32 GetMSTimeDiffToNow(uint32 oldMSTime)
@@ -115,41 +100,69 @@ private:
 struct TimeTracker
 {
 public:
-    TimeTracker(int32 expiry = 0) : _expiryTime(expiry) { }
-    TimeTracker(Milliseconds expiry) : _expiryTime(expiry) { }
 
-    void Update(int32 diff)
+    TimeTracker(time_t expiry)
+        : i_expiryTime(expiry)
     {
-        Update(Milliseconds(diff));
     }
 
-    void Update(Milliseconds diff)
+    void Update(time_t diff)
     {
-        _expiryTime -= diff;
+        i_expiryTime -= diff;
     }
 
     bool Passed() const
     {
-        return _expiryTime <= 0s;
+        return i_expiryTime <= 0;
     }
 
-    void Reset(int32 expiry)
+    void Reset(time_t interval)
     {
-        Reset(Milliseconds(expiry));
+        i_expiryTime = interval;
     }
 
-    void Reset(Milliseconds expiry)
+    time_t GetExpiry() const
     {
-        _expiryTime = expiry;
-    }
-
-    Milliseconds GetExpiry() const
-    {
-        return _expiryTime;
+        return i_expiryTime;
     }
 
 private:
-    Milliseconds _expiryTime;
+
+    time_t i_expiryTime;
+};
+
+struct TimeTrackerSmall
+{
+public:
+
+    TimeTrackerSmall(uint32 expiry = 0)
+        : i_expiryTime(expiry)
+    {
+    }
+
+    void Update(int32 diff)
+    {
+        i_expiryTime -= diff;
+    }
+
+    bool Passed() const
+    {
+        return i_expiryTime <= 0;
+    }
+
+    void Reset(uint32 interval)
+    {
+        i_expiryTime = interval;
+    }
+
+    int32 GetExpiry() const
+    {
+        return i_expiryTime;
+    }
+
+private:
+
+    int32 i_expiryTime;
 };
 
 struct PeriodicTimer

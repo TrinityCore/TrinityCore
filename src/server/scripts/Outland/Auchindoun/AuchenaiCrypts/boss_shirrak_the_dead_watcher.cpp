@@ -88,7 +88,7 @@ public:
             Initialize();
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) override
         { }
 
         void JustSummoned(Creature* summoned) override
@@ -97,7 +97,7 @@ public:
             {
                 summoned->CastSpell(summoned, SPELL_FOCUS_FIRE_VISUAL, false);
                 summoned->SetFaction(me->GetFaction());
-                summoned->SetLevel(me->GetLevel());
+                summoned->SetLevel(me->getLevel());
                 summoned->AddUnitState(UNIT_STATE_ROOT);
 
                 if (Unit* pFocusedTarget = ObjectAccessor::GetUnit(*me, FocusedTargetGUID))
@@ -151,11 +151,11 @@ public:
             if (FocusFire_Timer <= diff)
             {
                 // Summon Focus Fire & Emote
-                Unit* target = SelectTarget(SelectTargetMethod::Random, 1);
+                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
                 if (target && target->GetTypeId() == TYPEID_PLAYER && target->IsAlive())
                 {
                     FocusedTargetGUID = target->GetGUID();
-                    me->SummonCreature(NPC_FOCUS_FIRE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 5500ms);
+                    me->SummonCreature(NPC_FOCUS_FIRE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 5500);
                     Talk(EMOTE_FOCUSED, target);
                 }
                 FocusFire_Timer = 15000 + (rand32() % 5000);
@@ -198,7 +198,7 @@ public:
             Initialize();
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) override
         { }
 
         void UpdateAI(uint32 diff) override

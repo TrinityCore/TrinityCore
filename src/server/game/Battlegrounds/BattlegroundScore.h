@@ -18,14 +18,13 @@
 #ifndef TRINITY_BATTLEGROUND_SCORE_H
 #define TRINITY_BATTLEGROUND_SCORE_H
 
-#include "Errors.h"
+#include "BattlegroundPackets.h"
 #include "ObjectGuid.h"
-#include "SharedDefines.h"
-
-class WorldPacket;
+#include <string>
 
 enum ScoreType
 {
+    // ALL
     SCORE_KILLING_BLOWS         = 1,
     SCORE_DEATHS                = 2,
     SCORE_HONORABLE_KILLS       = 3,
@@ -33,7 +32,7 @@ enum ScoreType
     SCORE_DAMAGE_DONE           = 5,
     SCORE_HEALING_DONE          = 6,
 
-    // WS and EY
+    // WS, EY and TP
     SCORE_FLAG_CAPTURES         = 7,
     SCORE_FLAG_RETURNS          = 8,
 
@@ -59,41 +58,12 @@ struct BattlegroundScore
     friend class Battleground;
 
     protected:
-        BattlegroundScore(ObjectGuid playerGuid) : PlayerGuid(playerGuid), KillingBlows(0), Deaths(0),
-            HonorableKills(0), BonusHonor(0), DamageDone(0), HealingDone(0) { }
+        BattlegroundScore(ObjectGuid playerGuid, uint32 team);
+        virtual ~BattlegroundScore();
 
-        virtual ~BattlegroundScore() { }
+        virtual void UpdateScore(uint32 type, uint32 value);
 
-        virtual void UpdateScore(uint32 type, uint32 value)
-        {
-            switch (type)
-            {
-                case SCORE_KILLING_BLOWS:   // Killing blows
-                    KillingBlows += value;
-                    break;
-                case SCORE_DEATHS:          // Deaths
-                    Deaths += value;
-                    break;
-                case SCORE_HONORABLE_KILLS: // Honorable kills
-                    HonorableKills += value;
-                    break;
-                case SCORE_BONUS_HONOR:     // Honor bonus
-                    BonusHonor += value;
-                    break;
-                case SCORE_DAMAGE_DONE:     // Damage Done
-                    DamageDone += value;
-                    break;
-                case SCORE_HEALING_DONE:    // Healing Done
-                    HealingDone += value;
-                    break;
-                default:
-                    ABORT_MSG("Not implemented Battleground score type!");
-                    break;
-            }
-        }
-
-        virtual void AppendToPacket(WorldPacket& data);
-        virtual void BuildObjectivesBlock(WorldPacket& /*data*/) = 0;
+        virtual void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics& playerData) const;
 
         // For Logging purpose
         virtual std::string ToString() const { return ""; }
@@ -112,6 +82,7 @@ struct BattlegroundScore
         virtual uint32 GetAttr5() const { return 0; }
 
         ObjectGuid PlayerGuid;
+        uint8 TeamId; // BattlegroundTeamId
 
         // Default score, present in every type
         uint32 KillingBlows;

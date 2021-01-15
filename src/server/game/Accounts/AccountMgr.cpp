@@ -42,7 +42,7 @@ AccountMgr* AccountMgr::instance()
     return &instance;
 }
 
-AccountOpResult AccountMgr::CreateAccount(std::string username, std::string password, std::string email /*= ""*/)
+AccountOpResult AccountMgr::CreateAccount(std::string username, std::string password, std::string email /*= ""*/, uint32 bnetAccountId /*= 0*/, uint8 bnetIndex /*= 0*/)
 {
     if (utf8length(username) > MAX_ACCOUNT_STR)
         return AccountOpResult::AOR_NAME_TOO_LONG;                           // username's too long
@@ -60,11 +60,22 @@ AccountOpResult AccountMgr::CreateAccount(std::string username, std::string pass
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT);
 
     stmt->setString(0, username);
-    auto [salt, verifier] = Trinity::Crypto::SRP6::MakeRegistrationData(username, password);
-    stmt->setBinary(1, salt);
-    stmt->setBinary(2, verifier);
+    std::pair<Trinity::Crypto::SRP6::Salt, Trinity::Crypto::SRP6::Verifier> registrationData = Trinity::Crypto::SRP6::MakeRegistrationData(username, password);
+    stmt->setBinary(1, registrationData.first);
+    stmt->setBinary(2, registrationData.second);
     stmt->setString(3, email);
     stmt->setString(4, email);
+
+    if (bnetAccountId && bnetIndex)
+    {
+        stmt->setUInt32(5, bnetAccountId);
+        stmt->setUInt8(6, bnetIndex);
+    }
+    else
+    {
+        stmt->setNull(5);
+        stmt->setNull(6);
+    }
 
     LoginDatabase.DirectExecute(stmt); // Enforce saving, otherwise AddGroup can fail
 
@@ -95,14 +106,14 @@ AccountOpResult AccountMgr::DeleteAccount(uint32 accountId)
     {
         do
         {
-            ObjectGuid guid(HighGuid::Player, (*result)[0].GetUInt32());
+            ObjectGuid guid = ObjectGuid::Create<HighGuid::Player>((*result)[0].GetUInt64());
 
             // Kick if player is online
             if (Player* p = ObjectAccessor::FindConnectedPlayer(guid))
             {
                 WorldSession* s = p->GetSession();
-                s->KickPlayer("AccountMgr::DeleteAccount Deleting the account"); // mark session to remove at next session list update
-                s->LogoutPlayer(false); // logout player without waiting next session list update
+                s->KickPlayer();                            // mark session to remove at next session list update
+                s->LogoutPlayer(false);                     // logout player without waiting next session list update
             }
 
             Player::DeleteFromDB(guid, accountId, false);       // no need to update realm characters
@@ -149,6 +160,13 @@ AccountOpResult AccountMgr::DeleteAccount(uint32 accountId)
     return AccountOpResult::AOR_OK;
 }
 
+// Do not use this. Use the appropriate methods on Trinity::Crypto::SRP6 to do whatever you are trying to do.
+// See issue #25157.
+static std::string CalculateShaPassHash_DEPRECATED_DONOTUSE(std::string const& name, std::string const& password)
+{
+    return ByteArrayToHexStr(Trinity::Crypto::SHA1::GetDigestOf(name, ":", password));
+}
+
 AccountOpResult AccountMgr::ChangeUsername(uint32 accountId, std::string newUsername, std::string newPassword)
 {
     // Check if accounts exists
@@ -173,12 +191,19 @@ AccountOpResult AccountMgr::ChangeUsername(uint32 accountId, std::string newUser
     stmt->setUInt32(1, accountId);
     LoginDatabase.Execute(stmt);
 
-    auto [salt, verifier] = Trinity::Crypto::SRP6::MakeRegistrationData(newUsername, newPassword);
+    std::pair<Trinity::Crypto::SRP6::Salt, Trinity::Crypto::SRP6::Verifier> registrationData = Trinity::Crypto::SRP6::MakeRegistrationData(newUsername, newPassword);
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGON);
-    stmt->setBinary(0, salt);
-    stmt->setBinary(1, verifier);
+    stmt->setBinary(0, registrationData.first);
+    stmt->setBinary(1, registrationData.second);
     stmt->setUInt32(2, accountId);
     LoginDatabase.Execute(stmt);
+
+    {
+        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGON_LEGACY);
+        stmt->setString(0, CalculateShaPassHash_DEPRECATED_DONOTUSE(newUsername, newPassword));
+        stmt->setUInt32(1, accountId);
+        LoginDatabase.Execute(stmt);
+    }
 
     return AccountOpResult::AOR_OK;
 }
@@ -201,13 +226,20 @@ AccountOpResult AccountMgr::ChangePassword(uint32 accountId, std::string newPass
 
     Utf8ToUpperOnlyLatin(username);
     Utf8ToUpperOnlyLatin(newPassword);
-    auto [salt, verifier] = Trinity::Crypto::SRP6::MakeRegistrationData(username, newPassword);
+    std::pair<Trinity::Crypto::SRP6::Salt, Trinity::Crypto::SRP6::Verifier> registrationData = Trinity::Crypto::SRP6::MakeRegistrationData(username, newPassword);
 
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGON);
-    stmt->setBinary(0, salt);
-    stmt->setBinary(1, verifier);
-    stmt->setUInt32(2, accountId);;
+    stmt->setBinary(0, registrationData.first);
+    stmt->setBinary(1, registrationData.second);
+    stmt->setUInt32(2, accountId);
     LoginDatabase.Execute(stmt);
+
+    {
+        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGON_LEGACY);
+        stmt->setString(0, CalculateShaPassHash_DEPRECATED_DONOTUSE(username, newPassword));
+        stmt->setUInt32(1, accountId);
+        LoginDatabase.Execute(stmt);
+    }
 
     sScriptMgr->OnPasswordChange(accountId);
     return AccountOpResult::AOR_OK;
@@ -273,13 +305,22 @@ AccountOpResult AccountMgr::ChangeRegEmail(uint32 accountId, std::string newEmai
     return AccountOpResult::AOR_OK;
 }
 
-uint32 AccountMgr::GetId(std::string_view username)
+uint32 AccountMgr::GetId(std::string const& username)
 {
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_ACCOUNT_ID_BY_USERNAME);
-    stmt->setStringView(0, username);
+    stmt->setString(0, username);
     PreparedQueryResult result = LoginDatabase.Query(stmt);
 
     return (result) ? (*result)[0].GetUInt32() : 0;
+}
+
+uint32 AccountMgr::GetSecurity(uint32 accountId)
+{
+    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_ACCOUNT_ACCESS_GMLEVEL);
+    stmt->setUInt32(0, accountId);
+    PreparedQueryResult result = LoginDatabase.Query(stmt);
+
+    return (result) ? (*result)[0].GetUInt8() : uint32(SEC_PLAYER);
 }
 
 uint32 AccountMgr::GetSecurity(uint32 accountId, int32 realmId)
@@ -290,17 +331,6 @@ uint32 AccountMgr::GetSecurity(uint32 accountId, int32 realmId)
     PreparedQueryResult result = LoginDatabase.Query(stmt);
 
     return (result) ? (*result)[0].GetUInt8() : uint32(SEC_PLAYER);
-}
-
-QueryCallback AccountMgr::GetSecurityAsync(uint32 accountId, int32 realmId, std::function<void(uint32)> callback)
-{
-    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_GMLEVEL_BY_REALMID);
-    stmt->setUInt32(0, accountId);
-    stmt->setInt32(1, realmId);
-    return LoginDatabase.AsyncQuery(stmt).WithPreparedCallback([callback = std::move(callback)](PreparedQueryResult result)
-    {
-        callback(result ? uint32((*result)[0].GetUInt8()) : uint32(SEC_PLAYER));
-    });
 }
 
 bool AccountMgr::GetName(uint32 accountId, std::string& name)
@@ -550,7 +580,7 @@ bool AccountMgr::HasPermission(uint32 accountId, uint32 permissionId, uint32 rea
         return false;
     }
 
-    rbac::RBACData rbac(accountId, "", realmId, GetSecurity(accountId, realmId));
+    rbac::RBACData rbac(accountId, "", realmId, GetSecurity(accountId));
     rbac.LoadFromDB();
     bool hasPermission = rbac.HasPermission(permissionId);
 
@@ -561,8 +591,8 @@ bool AccountMgr::HasPermission(uint32 accountId, uint32 permissionId, uint32 rea
 
 void AccountMgr::ClearRBAC()
 {
-    for (std::pair<uint32 const, rbac::RBACPermission*>& permission : _permissions)
-        delete permission.second;
+    for (rbac::RBACPermissionsContainer::iterator itr = _permissions.begin(); itr != _permissions.end(); ++itr)
+        delete itr->second;
 
     _permissions.clear();
     _defaultPermissions.clear();

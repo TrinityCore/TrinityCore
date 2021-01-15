@@ -18,14 +18,6 @@ ThreadImpl::ThreadImpl( Thread *owner )
 	}
 }
 
-ThreadImpl::~ThreadImpl()
-{
-	if ( mThread )
-	{
-		CloseHandle( mThread );
-	}
-}
-
 void ThreadImpl::wait()
 {
 	// Wait for the thread to finish, no timeout

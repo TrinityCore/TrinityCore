@@ -33,7 +33,6 @@ EndScriptData */
 #include "serpent_shrine.h"
 #include "Spell.h"
 #include "TemporarySummon.h"
-#include "WorldSession.h"
 
 enum LadyVashj
 {
@@ -74,11 +73,6 @@ enum LadyVashj
 #define SPOREBAT_Y                  -925.297761f
 #define SPOREBAT_Z                  77.176567f
 #define SPOREBAT_O                  5.223932f
-
-
-
-#define TEXT_NOT_INITIALIZED          "Instance script not initialized"
-#define TEXT_ALREADY_DEACTIVATED      "Already deactivated"
 
 float ElementPos[8][4] =
 {
@@ -157,7 +151,7 @@ public:
             Intro = false;
             JustCreated = true;
             CanAttack = false;
-            creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE); // set it only once on Creature create (no need do intro if wiped)
+            creature->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE); // set it only once on Creature create (no need do intro if wiped)
         }
 
         void Initialize()
@@ -216,7 +210,7 @@ public:
 
             for (uint8 i = 0; i < 4; ++i)
             {
-                if (ShieldGeneratorChannel[i])
+                if (!ShieldGeneratorChannel[i].IsEmpty())
                 {
                     if (Unit* remo = ObjectAccessor::GetUnit(*me, ShieldGeneratorChannel[i]))
                     {
@@ -259,14 +253,14 @@ public:
             instance->SetData(DATA_LADYVASHJEVENT, IN_PROGRESS);
         }
 
-        void JustEngagedWith(Unit* who) override
+        void EnterCombat(Unit* who) override
         {
             // remove old tainted cores to prevent cheating in phase 2
             Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
             for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
                 if (Player* player = itr->GetSource())
                     player->DestroyItemCount(31088, 1, true);
-            StartEvent(); // this is JustEngagedWith(), so were are 100% in combat, start the event
+            StartEvent(); // this is EnterCombat(), so were are 100% in combat, start the event
 
             if (Phase != 2)
                 AttackStart(who);
@@ -327,7 +321,7 @@ public:
                 if (AggroTimer <= diff)
                 {
                     CanAttack = true;
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                     AggroTimer=19000;
                 }
                 else
@@ -363,7 +357,7 @@ public:
                 {
                     // Static Charge
                     // Used on random people (only 1 person at any given time) in Phases 1 and 3, it's a debuff doing 2775 to 3225 Nature damage to the target and everybody in about 5 yards around it, every 1 seconds for 30 seconds. It can be removed by Cloak of Shadows, Iceblock, Divine Shield, etc, but not by Cleanse or Dispel Magic.
-                    Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 200, true);
+                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true);
                     if (target && !target->HasAura(SPELL_STATIC_CHARGE_TRIGGER))
                         DoCast(target, SPELL_STATIC_CHARGE_TRIGGER); // cast Static Charge every 2 seconds for 20 seconds
 
@@ -402,7 +396,7 @@ public:
                         DoTeleportTo(MIDDLE_X, MIDDLE_Y, MIDDLE_Z);
 
                         for (uint8 i = 0; i < 4; ++i)
-                            if (Creature* creature = me->SummonCreature(SHIED_GENERATOR_CHANNEL, ShieldGeneratorChannelPos[i][0],  ShieldGeneratorChannelPos[i][1],  ShieldGeneratorChannelPos[i][2],  ShieldGeneratorChannelPos[i][3], TEMPSUMMON_CORPSE_DESPAWN))
+                            if (Creature* creature = me->SummonCreature(SHIED_GENERATOR_CHANNEL, ShieldGeneratorChannelPos[i][0],  ShieldGeneratorChannelPos[i][1],  ShieldGeneratorChannelPos[i][2],  ShieldGeneratorChannelPos[i][3], TEMPSUMMON_CORPSE_DESPAWN, 0))
                                 ShieldGeneratorChannel[i] = creature->GetGUID();
 
                         Talk(SAY_PHASE2);
@@ -414,8 +408,8 @@ public:
                     // SummonSporebatTimer
                     if (SummonSporebatTimer <= diff)
                     {
-                        if (Creature* sporebat = me->SummonCreature(TOXIC_SPOREBAT, SPOREBAT_X, SPOREBAT_Y, SPOREBAT_Z, SPOREBAT_O, TEMPSUMMON_CORPSE_DESPAWN))
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                        if (Creature* sporebat = me->SummonCreature(TOXIC_SPOREBAT, SPOREBAT_X, SPOREBAT_Y, SPOREBAT_Z, SPOREBAT_O, TEMPSUMMON_CORPSE_DESPAWN, 0))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 sporebat->AI()->AttackStart(target);
 
                         // summon sporebats faster and faster
@@ -462,7 +456,7 @@ public:
                 {
                     // Forked Lightning
                     // Used constantly in Phase 2, it shoots out completely randomly targeted bolts of lightning which hit everybody in a roughtly 60 degree cone in front of Vashj for 2313-2687 nature damage.
-                    Unit* target = SelectTarget(SelectTargetMethod::Random, 0);
+                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
                     if (!target)
                         target = me->GetVictim();
@@ -475,7 +469,7 @@ public:
                 // EnchantedElementalTimer
                 if (EnchantedElementalTimer <= diff)
                 {
-                    me->SummonCreature(ENCHANTED_ELEMENTAL, ElementPos[EnchantedElementalPos][0], ElementPos[EnchantedElementalPos][1], ElementPos[EnchantedElementalPos][2], ElementPos[EnchantedElementalPos][3], TEMPSUMMON_CORPSE_DESPAWN);
+                    me->SummonCreature(ENCHANTED_ELEMENTAL, ElementPos[EnchantedElementalPos][0], ElementPos[EnchantedElementalPos][1], ElementPos[EnchantedElementalPos][2], ElementPos[EnchantedElementalPos][3], TEMPSUMMON_CORPSE_DESPAWN, 0);
 
                     if (EnchantedElementalPos == 7)
                         EnchantedElementalPos = 0;
@@ -489,7 +483,7 @@ public:
                 if (TaintedElementalTimer <= diff)
                 {
                     uint32 pos = rand32() % 8;
-                    me->SummonCreature(TAINTED_ELEMENTAL, ElementPos[pos][0], ElementPos[pos][1], ElementPos[pos][2], ElementPos[pos][3], TEMPSUMMON_DEAD_DESPAWN);
+                    me->SummonCreature(TAINTED_ELEMENTAL, ElementPos[pos][0], ElementPos[pos][1], ElementPos[pos][2], ElementPos[pos][3], TEMPSUMMON_DEAD_DESPAWN, 0);
 
                     TaintedElementalTimer = 120000;
                 } else TaintedElementalTimer -= diff;
@@ -498,10 +492,10 @@ public:
                 if (CoilfangEliteTimer <= diff)
                 {
                     uint32 pos = rand32() % 3;
-                    Creature* coilfangElite = me->SummonCreature(COILFANG_ELITE, CoilfangElitePos[pos][0], CoilfangElitePos[pos][1], CoilfangElitePos[pos][2], CoilfangElitePos[pos][3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
+                    Creature* coilfangElite = me->SummonCreature(COILFANG_ELITE, CoilfangElitePos[pos][0], CoilfangElitePos[pos][1], CoilfangElitePos[pos][2], CoilfangElitePos[pos][3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
                     if (coilfangElite)
                     {
-                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             coilfangElite->AI()->AttackStart(target);
                         else if (me->GetVictim())
                             coilfangElite->AI()->AttackStart(me->GetVictim());
@@ -513,9 +507,9 @@ public:
                 if (CoilfangStriderTimer <= diff)
                 {
                     uint32 pos = rand32() % 3;
-                    if (Creature* CoilfangStrider = me->SummonCreature(COILFANG_STRIDER, CoilfangStriderPos[pos][0], CoilfangStriderPos[pos][1], CoilfangStriderPos[pos][2], CoilfangStriderPos[pos][3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s))
+                    if (Creature* CoilfangStrider = me->SummonCreature(COILFANG_STRIDER, CoilfangStriderPos[pos][0], CoilfangStriderPos[pos][1], CoilfangStriderPos[pos][2], CoilfangStriderPos[pos][3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
                     {
-                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             CoilfangStrider->AI()->AttackStart(target);
                         else if (me->GetVictim())
                             CoilfangStrider->AI()->AttackStart(me->GetVictim());
@@ -606,7 +600,7 @@ public:
             VashjGUID = instance->GetGuidData(DATA_LADYVASHJ);
         }
 
-        void JustEngagedWith(Unit* /*who*/) override { }
+        void EnterCombat(Unit* /*who*/) override { }
 
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
@@ -686,7 +680,7 @@ public:
                 ENSURE_AI(boss_lady_vashj::boss_lady_vashjAI, vashj->AI())->EventTaintedElementalDeath();
         }
 
-        void JustEngagedWith(Unit* who) override
+        void EnterCombat(Unit* who) override
         {
             AddThreat(who, 0.1f);
         }
@@ -696,7 +690,7 @@ public:
             // PoisonBoltTimer
             if (PoisonBoltTimer <= diff)
             {
-                Unit* target = SelectTarget(SelectTargetMethod::Random, 0);
+                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
                 if (target && target->IsWithinDistInMap(me, 30))
                     DoCast(target, SPELL_POISON_BOLT);
@@ -788,9 +782,9 @@ public:
             // toxic spores
             if (BoltTimer <= diff)
             {
-                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
-                    if (Creature* trig = me->SummonCreature(TOXIC_SPORES_TRIGGER, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 30s))
+                    if (Creature* trig = me->SummonCreature(TOXIC_SPORES_TRIGGER, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 30000))
                     {
                         trig->SetFaction(FACTION_MONSTER);
                         trig->CastSpell(trig, SPELL_TOXIC_SPORES, true);
@@ -855,7 +849,7 @@ public:
             Initialize();
             me->SetDisplayId(11686); // invisible
 
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
         }
 
         void MoveInLineOfSight(Unit* /*who*/) override { }
@@ -888,14 +882,11 @@ class item_tainted_core : public ItemScript
 public:
     item_tainted_core() : ItemScript("item_tainted_core") { }
 
-    bool OnUse(Player* player, Item* /*item*/, SpellCastTargets const& targets) override
+    bool OnUse(Player* player, Item* /*item*/, SpellCastTargets const& targets, ObjectGuid /*castId*/) override
     {
         InstanceScript* instance = player->GetInstanceScript();
         if (!instance)
-        {
-            player->GetSession()->SendNotification(TEXT_NOT_INITIALIZED);
             return true;
-        }
 
         Creature* vashj = ObjectAccessor::GetCreature((*player), instance->GetGuidData(DATA_LADYVASHJ));
         if (vashj && (ENSURE_AI(boss_lady_vashj::boss_lady_vashjAI, vashj->AI())->Phase == 2))
@@ -927,10 +918,7 @@ public:
                 }
 
                 if (instance->GetData(identifier))
-                {
-                    player->GetSession()->SendNotification(TEXT_ALREADY_DEACTIVATED);
                     return true;
-                }
 
                 // get and remove channel
                 if (Unit* channel = ObjectAccessor::GetCreature(*vashj, ENSURE_AI(boss_lady_vashj::boss_lady_vashjAI, vashj->AI())->ShieldGeneratorChannel[channelIdentifier]))

@@ -15,22 +15,21 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "zulgurub.h"
-#include "ScriptedCreature.h"
+#include "ObjectMgr.h"
 #include "ScriptMgr.h"
-#include "TemporarySummon.h"
+#include "ScriptedCreature.h"
+#include "zulgurub.h"
+
+enum Yells
+{
+};
 
 enum Spells
 {
-    SPELL_MANABURN = 26046,
-    SPELL_SLEEP = 24664
 };
 
 enum Events
 {
-    EVENT_MANABURN = 1,
-    EVENT_SLEEP = 2,
-    EVENT_ILLUSIONS = 3
 };
 
 class boss_hazzarah : public CreatureScript
@@ -40,24 +39,20 @@ class boss_hazzarah : public CreatureScript
 
         struct boss_hazzarahAI : public BossAI
         {
-            boss_hazzarahAI(Creature* creature) : BossAI(creature, DATA_EDGE_OF_MADNESS) { }
+            boss_hazzarahAI(Creature* creature) : BossAI(creature, DATA_HAZZARAH)
+            {
+            }
 
             void Reset() override
             {
-                _Reset();
+            }
+
+            void EnterCombat(Unit* /*who*/) override
+            {
             }
 
             void JustDied(Unit* /*killer*/) override
             {
-                _JustDied();
-            }
-
-            void JustEngagedWith(Unit* who) override
-            {
-                BossAI::JustEngagedWith(who);
-                events.ScheduleEvent(EVENT_MANABURN, 4s, 10s);
-                events.ScheduleEvent(EVENT_SLEEP, 10s, 18s);
-                events.ScheduleEvent(EVENT_ILLUSIONS, 10s, 18s);
             }
 
             void UpdateAI(uint32 diff) override
@@ -69,30 +64,11 @@ class boss_hazzarah : public CreatureScript
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
-
+                /*
                 while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
-                        case EVENT_MANABURN:
-                            DoCastVictim(SPELL_MANABURN, true);
-                            events.ScheduleEvent(EVENT_MANABURN, 8s, 16s);
-                            break;
-                        case EVENT_SLEEP:
-                            DoCastVictim(SPELL_SLEEP, true);
-                            events.ScheduleEvent(EVENT_SLEEP, 12s, 20s);
-                            break;
-                        case EVENT_ILLUSIONS:
-                            // We will summon 3 illusions that will spawn on a random gamer and attack this gamer
-                            // We will just use one model for the beginning
-                            for (uint8 i = 0; i < 3; ++i)
-                            {
-                                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.f, true))
-                                    if (TempSummon* illusion = me->SummonCreature(NPC_NIGHTMARE_ILLUSION, target->GetPosition(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30s))
-                                        illusion->AI()->AttackStart(target);
-                            }
-                            events.ScheduleEvent(EVENT_ILLUSIONS, 15s, 25s);
-                            break;
                         default:
                             break;
                     }
@@ -100,6 +76,7 @@ class boss_hazzarah : public CreatureScript
                     if (me->HasUnitState(UNIT_STATE_CASTING))
                         return;
                 }
+                */
 
                 DoMeleeAttackIfReady();
             }

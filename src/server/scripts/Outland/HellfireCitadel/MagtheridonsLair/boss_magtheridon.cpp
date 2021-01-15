@@ -23,8 +23,8 @@
 #include "PassiveAI.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
-#include "SpellAuraEffects.h"
 #include "SpellInfo.h"
+#include "TemporarySummon.h"
 #include "SpellScript.h"
 
 enum Yells
@@ -139,9 +139,10 @@ class boss_magtheridon : public CreatureScript
 
             void CombatStart()
             {
+                events.SetPhase(PHASE_2);
                 events.CancelEvent(EVENT_START_FIGHT);
                 events.CancelEvent(EVENT_NEARLY_EMOTE);
-                events.ScheduleEvent(EVENT_RELEASED, 6s);
+                events.ScheduleEvent(EVENT_RELEASED, Seconds(6));
                 Talk(EMOTE_BREAKS_FREE, me);
                 Talk(SAY_FREE);
                 me->RemoveAurasDueToSpell(SPELL_SHADOW_CAGE_C);
@@ -176,17 +177,17 @@ class boss_magtheridon : public CreatureScript
                     events.SetPhase(PHASE_1);
                     Talk(EMOTE_WEAKEN, me);
                     summons.DoZoneInCombat(NPC_HELLFIRE_CHANNELLER);
-                    events.ScheduleEvent(EVENT_START_FIGHT, 2min);
-                    events.ScheduleEvent(EVENT_NEARLY_EMOTE, 1min);
+                    events.ScheduleEvent(EVENT_START_FIGHT, Minutes(2));
+                    events.ScheduleEvent(EVENT_NEARLY_EMOTE, Seconds(60));
                     events.CancelEvent(EVENT_TAUNT);
                     instance->SetBossState(DATA_MAGTHERIDON, IN_PROGRESS);
                     instance->SetData(DATA_CALL_WARDERS, ACTION_ENABLE);
                 }
             }
 
-            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
             {
-                if (spellInfo->Id == SPELL_SHADOW_CAGE)
+                if (spell->Id == SPELL_SHADOW_CAGE)
                     Talk(SAY_BANISHED);
             }
 
@@ -200,7 +201,7 @@ class boss_magtheridon : public CreatureScript
                     Talk(SAY_COLLAPSE);
                     instance->SetData(DATA_COLLAPSE, ACTION_ENABLE);
                     DoCastAOE(SPELL_CAMERA_SHAKE);
-                    events.ScheduleEvent(EVENT_COLLAPSE, 6s);
+                    events.ScheduleEvent(EVENT_COLLAPSE, Seconds(6));
                 }
             }
 
@@ -219,13 +220,10 @@ class boss_magtheridon : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (!events.IsInPhase(PHASE_BANISH) && !events.IsInPhase(PHASE_1) && !UpdateVictim())
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
@@ -239,38 +237,37 @@ class boss_magtheridon : public CreatureScript
                             events.Repeat(Seconds(10));
                             break;
                         case EVENT_BLAZE:
-                            DoCastAOE(SPELL_BLAZE_TARGET, { SPELLVALUE_MAX_TARGETS, 1 });
+                            me->CastCustomSpell(SPELL_BLAZE_TARGET, SPELLVALUE_MAX_TARGETS, 1);
                             events.Repeat(Seconds(20));
                             break;
                         case EVENT_QUAKE:
-                            DoCastAOE(SPELL_QUAKE, { SPELLVALUE_MAX_TARGETS, 5 });
+                            me->CastCustomSpell(SPELL_QUAKE, SPELLVALUE_MAX_TARGETS, 5);
                             events.Repeat(Seconds(60));
                             break;
                         case EVENT_START_FIGHT:
                             CombatStart();
                             break;
                         case EVENT_RELEASED:
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                            me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                             me->SetImmuneToPC(false);
-                            DoZoneInCombat();
-                            events.SetPhase(PHASE_2);
+                            me->SetInCombatWithZone();
                             instance->SetData(DATA_MANTICRON_CUBE, ACTION_ENABLE);
-                            events.ScheduleEvent(EVENT_CLEAVE, 10s);
-                            events.ScheduleEvent(EVENT_BLAST_NOVA, 1min);
-                            events.ScheduleEvent(EVENT_BLAZE, 20s);
-                            events.ScheduleEvent(EVENT_QUAKE, 35s);
-                            events.ScheduleEvent(EVENT_BERSERK, 20min);
+                            events.ScheduleEvent(EVENT_CLEAVE, Seconds(10));
+                            events.ScheduleEvent(EVENT_BLAST_NOVA, Seconds(60));
+                            events.ScheduleEvent(EVENT_BLAZE, Seconds(20));
+                            events.ScheduleEvent(EVENT_QUAKE, Seconds(35));
+                            events.ScheduleEvent(EVENT_BERSERK, Minutes(20));
                             break;
                         case EVENT_COLLAPSE:
                             instance->SetData(DATA_COLLAPSE_2, ACTION_ENABLE);
-                            events.ScheduleEvent(EVENT_DEBRIS_KNOCKDOWN, 4s);
+                            events.ScheduleEvent(EVENT_DEBRIS_KNOCKDOWN, Seconds(4));
                             break;
                         case EVENT_DEBRIS_KNOCKDOWN:
                             if (Creature* trigger = instance->GetCreature(DATA_WORLD_TRIGGER))
                             {
                                 trigger->CastSpell(trigger, SPELL_DEBRIS_KNOCKDOWN, true);
                                 me->SetReactState(REACT_AGGRESSIVE);
-                                events.ScheduleEvent(EVENT_DEBRIS, 20s);
+                                events.ScheduleEvent(EVENT_DEBRIS, Seconds(20));
                             }
                             break;
                         case EVENT_DEBRIS:
@@ -296,6 +293,9 @@ class boss_magtheridon : public CreatureScript
                     if (me->HasUnitState(UNIT_STATE_CASTING))
                         return;
                 }
+
+                if (!UpdateVictim())
+                    return;
 
                 DoMeleeAttackIfReady();
             }
@@ -330,27 +330,23 @@ class npc_hellfire_channeler : public CreatureScript
                 me->SetReactState(REACT_DEFENSIVE);
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void EnterCombat(Unit* /*who*/) override
             {
                 me->InterruptNonMeleeSpells(false);
 
                 if (Creature* magtheridon = _instance->GetCreature(DATA_MAGTHERIDON))
                     magtheridon->AI()->DoAction(ACTION_START_CHANNELERS_EVENT);
 
-                _events.ScheduleEvent(EVENT_SHADOWBOLT, 20s);
-                _events.ScheduleEvent(EVENT_CHECK_FRIEND, 1s);
-                _events.ScheduleEvent(EVENT_ABYSSAL, 30s);
-                _events.ScheduleEvent(EVENT_FEAR, 15s, 20s);
+                _events.ScheduleEvent(EVENT_SHADOWBOLT, Seconds(20));
+                _events.ScheduleEvent(EVENT_CHECK_FRIEND, Seconds(1));
+                _events.ScheduleEvent(EVENT_ABYSSAL, Seconds(30));
+                _events.ScheduleEvent(EVENT_FEAR, Seconds(15), Seconds(20));
 
             }
 
             void JustDied(Unit* /*killer*/) override
             {
                 DoCastAOE(SPELL_SOUL_TRANSFER);
-
-                // Channelers killed by "Hit Kill" need trigger combat event too. It's needed for Cata+
-                if (Creature* magtheridon = _instance->GetCreature(DATA_MAGTHERIDON))
-                    magtheridon->AI()->DoAction(ACTION_START_CHANNELERS_EVENT);
             }
 
             void JustSummoned(Creature* summon) override
@@ -358,7 +354,7 @@ class npc_hellfire_channeler : public CreatureScript
                 if (Creature* magtheridon = _instance->GetCreature(DATA_MAGTHERIDON))
                     magtheridon->AI()->JustSummoned(summon);
 
-                DoZoneInCombat(summon);
+                summon->SetInCombatWithZone();
             }
 
             void EnterEvadeMode(EvadeReason /*why*/) override
@@ -387,7 +383,7 @@ class npc_hellfire_channeler : public CreatureScript
                             _events.Repeat(Seconds(15), Seconds(20));
                             break;
                         case EVENT_FEAR:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                                 DoCast(target, SPELL_FEAR);
                             _events.Repeat(Seconds(25), Seconds(40));
                             break;
@@ -398,7 +394,7 @@ class npc_hellfire_channeler : public CreatureScript
                                 {
                                     DoCast(target, SPELL_DARK_MENDING);
                                     _canCastDarkMending = false;
-                                    _events.ScheduleEvent(EVENT_DARK_MENDING, 10s, 20s);
+                                    _events.ScheduleEvent(EVENT_DARK_MENDING, Seconds(10), Seconds(20));
                                 }
                             }
                             _events.Repeat(Seconds(1));
@@ -475,7 +471,7 @@ public:
     {
         go_manticron_cubeAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool OnGossipHello(Player* player) override
+        bool GossipHello(Player* player) override
         {
             if (player->HasAura(SPELL_MIND_EXHAUSTION) || player->HasAura(SPELL_SHADOW_GRASP))
                 return true;
@@ -504,7 +500,7 @@ class spell_magtheridon_blaze_target : public SpellScriptLoader
         {
             PrepareSpellScript(spell_magtheridon_blaze_target_SpellScript);
 
-            bool Validate(SpellInfo const* /*spell*/) override
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_BLAZE });
             }
@@ -537,7 +533,7 @@ class spell_magtheridon_shadow_grasp : public SpellScriptLoader
         {
             PrepareAuraScript(spell_magtheridon_shadow_grasp_AuraScript);
 
-            bool Validate(SpellInfo const* /*spell*/) override
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_MIND_EXHAUSTION });
             }
@@ -571,7 +567,7 @@ class spell_magtheridon_shadow_grasp_visual : public SpellScriptLoader
         {
             PrepareAuraScript(spell_magtheridon_shadow_grasp_visual_AuraScript);
 
-            bool Validate(SpellInfo const* /*spell*/) override
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo(
                 {

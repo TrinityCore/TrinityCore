@@ -51,8 +51,7 @@ enum BRSDataTypes
     DATA_HALL_RUNE_5                = 20,
     DATA_HALL_RUNE_6                = 21,
     DATA_HALL_RUNE_7                = 22,
-    DATA_SCARSHIELD_INFILTRATOR     = 23,
-    DATA_BLACKHAND_INCARCERATOR     = 24
+    DATA_SCARSHIELD_INFILTRATOR     = 23
 };
 
 enum BRSCreaturesIds
@@ -76,8 +75,7 @@ enum BRSCreaturesIds
     NPC_BLACKHAND_VETERAN           = 9819,
     NPC_BLACKHAND_INCARCERATOR      = 10316,
     NPC_LORD_VICTOR_NEFARIUS        = 10162,
-    NPC_SCARSHIELD_INFILTRATOR      = 10299,
-    NPC_FINKLE_EINHORN              = 10776
+    NPC_SCARSHIELD_INFILTRATOR      = 10299
 };
 
 enum BRSAdditionalData
@@ -87,8 +85,7 @@ enum BRSAdditionalData
     EVENT_PYROGUARD_EMBERSEER       = 4884,
     AREATRIGGER                     = 1,
     AREATRIGGER_DRAGONSPIRE_HALL    = 2046,
-    AREATRIGGER_BLACKROCK_STADIUM   = 2026,
-    SAY_FINKLE_GANG                 = 0
+    AREATRIGGER_BLACKROCK_STADIUM   = 2026
 };
 
 enum BRSGameObjectsIds
@@ -130,7 +127,5 @@ inline AI* GetBlackrockSpireAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, BRSScriptName);
 }
-
-#define RegisterBlackrockSpireCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetBlackrockSpireAI)
 
 #endif

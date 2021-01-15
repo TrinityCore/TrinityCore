@@ -301,6 +301,12 @@ enum BG_SA_Objects
     BG_SA_MAXOBJ = BG_SA_BOMB+68
 };
 
+enum BG_SA_Objectives
+{
+    BG_SA_GATES_DESTROYED       = 231,
+    BG_SA_DEMOLISHERS_DESTROYED = 232
+};
+
 Position const BG_SA_ObjSpawnlocs[BG_SA_MAXOBJ] =
 {
     { 1411.57f, 108.163f, 28.692f, 5.441f },
@@ -521,7 +527,7 @@ struct BattlegroundSAScore final : public BattlegroundScore
     friend class BattlegroundSA;
 
     protected:
-        BattlegroundSAScore(ObjectGuid playerGuid) : BattlegroundScore(playerGuid), DemolishersDestroyed(0), GatesDestroyed(0) { }
+        BattlegroundSAScore(ObjectGuid playerGuid, uint32 team) : BattlegroundScore(playerGuid, team), DemolishersDestroyed(0), GatesDestroyed(0) { }
 
         void UpdateScore(uint32 type, uint32 value) override
         {
@@ -539,7 +545,13 @@ struct BattlegroundSAScore final : public BattlegroundScore
             }
         }
 
-        void BuildObjectivesBlock(WorldPacket& data) final override;
+        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics& playerData) const override
+        {
+            BattlegroundScore::BuildPvPLogPlayerDataPacket(playerData);
+
+            playerData.Stats.emplace_back(BG_SA_DEMOLISHERS_DESTROYED, DemolishersDestroyed);
+            playerData.Stats.emplace_back(BG_SA_GATES_DESTROYED, GatesDestroyed);
+        }
 
         uint32 GetAttr1() const final override { return DemolishersDestroyed; }
         uint32 GetAttr2() const final override { return GatesDestroyed; }
@@ -552,7 +564,7 @@ struct BattlegroundSAScore final : public BattlegroundScore
 class BattlegroundSA : public Battleground
 {
     public:
-        BattlegroundSA();
+        BattlegroundSA(BattlegroundTemplate const* battlegroundTemplate);
         ~BattlegroundSA();
 
         /**
@@ -598,7 +610,7 @@ class BattlegroundSA : public Battleground
 
         /// Called when a player leave battleground
         void RemovePlayer(Player* player, ObjectGuid guid, uint32 team) override;
-        void HandleAreaTrigger(Player* Source, uint32 Trigger) override;
+        void HandleAreaTrigger(Player* source, uint32 trigger, bool entered) override;
 
         /* Scorekeeping */
 
@@ -607,6 +619,8 @@ class BattlegroundSA : public Battleground
 
         // Control Phase Shift
         bool IsSpellAllowed(uint32 spellId, Player const* player) const override;
+
+        bool UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor = true) override;
 
     private:
 
@@ -699,6 +713,6 @@ class BattlegroundSA : public Battleground
         bool _gateDestroyed;
 
         // Achievement: Not Even a Scratch
-        bool _allVehiclesAlive[PVP_TEAMS_COUNT];
+        bool _allVehiclesAlive[BG_TEAMS_COUNT];
 };
 #endif

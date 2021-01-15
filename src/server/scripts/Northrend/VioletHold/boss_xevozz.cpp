@@ -18,7 +18,6 @@
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
-#include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
@@ -54,7 +53,8 @@ enum CreatureSpells
     SPELL_MAGIC_PULL                            = 50770,
     SPELL_SUMMON_PLAYERS                        = 54164,
     SPELL_POWER_BALL_VISUAL                     = 54141,
-    SPELL_POWER_BALL_DAMAGE_TRIGGER             = 54207
+    SPELL_POWER_BALL_DAMAGE_TRIGGER             = 54207,
+    SPELL_POWER_BALL_DAMAGE_TRIGGER_H           = 59476
 };
 
 enum Yells
@@ -91,9 +91,9 @@ class boss_xevozz : public CreatureScript
                 BossAI::Reset();
             }
 
-            void JustEngagedWith(Unit* who) override
+            void EnterCombat(Unit* who) override
             {
-                BossAI::JustEngagedWith(who);
+                BossAI::EnterCombat(who);
                 Talk(SAY_AGGRO);
             }
 
@@ -115,15 +115,15 @@ class boss_xevozz : public CreatureScript
                     Talk(SAY_SLAY);
             }
 
-            void JustDied(Unit* /*killer*/) override
+            void JustDied(Unit* killer) override
             {
+                BossAI::JustDied(killer);
                 Talk(SAY_DEATH);
-                _JustDied();
             }
 
-            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+            void SpellHit(Unit* /*who*/, SpellInfo const* spell) override
             {
-                if (spellInfo->Id == SPELL_ARCANE_POWER || spellInfo->Id == H_SPELL_ARCANE_POWER)
+                if (spell->Id == SPELL_ARCANE_POWER || spell->Id == H_SPELL_ARCANE_POWER)
                     Talk(SAY_SUMMON_ENERGY);
             }
 
@@ -146,7 +146,7 @@ class boss_xevozz : public CreatureScript
 
                 scheduler.Schedule(Seconds(10), Seconds(11), [this](TaskContext task)
                 {
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 45.0f, true))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
                         DoCast(target, SPELL_ARCANE_BUFFET);
                     task.Repeat(Seconds(15), Seconds(20));
                 });
@@ -205,9 +205,9 @@ class npc_ethereal_sphere : public CreatureScript
                 ScheduledTasks();
 
                 DoCast(me, SPELL_POWER_BALL_VISUAL);
-                DoCast(me, SPELL_POWER_BALL_DAMAGE_TRIGGER);
+                DoCast(me, DUNGEON_MODE(SPELL_POWER_BALL_DAMAGE_TRIGGER, SPELL_POWER_BALL_DAMAGE_TRIGGER_H));
 
-                me->DespawnOrUnsummon(40s);
+                me->DespawnOrUnsummon(40000);
             }
 
             void DoAction(int32 action) override
@@ -233,7 +233,7 @@ class npc_ethereal_sphere : public CreatureScript
                         if (me->IsWithinDist(xevozz, 3.0f))
                         {
                             DoCastAOE(SPELL_ARCANE_POWER);
-                            me->DespawnOrUnsummon(8s);
+                            me->DespawnOrUnsummon(8000);
                             return;
                         }
                     }

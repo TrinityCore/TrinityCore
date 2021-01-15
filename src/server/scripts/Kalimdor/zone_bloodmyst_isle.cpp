@@ -59,7 +59,7 @@ public:
 
         void Reset() override { }
 
-        void JustEngagedWith(Unit* /*who*/) override { }
+        void EnterCombat(Unit* /*who*/) override { }
 
         void AttackStart(Unit* /*who*/) override { }
 
@@ -67,9 +67,6 @@ public:
 
         void JustDied(Unit* killer) override
         {
-            if (!killer)
-                return;
-
             uint32 spawnCreatureID = 0;
 
             switch (urand(0, 2))
@@ -85,7 +82,7 @@ public:
                     break;
             }
 
-            me->SummonCreature(spawnCreatureID, 0.0f, 0.0f, 0.0f, me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1min);
+            me->SummonCreature(spawnCreatureID, 0.0f, 0.0f, 0.0f, me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
         }
     };
 
@@ -250,31 +247,27 @@ public:
         void Reset() override
         {
             _events.Reset();
-            me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
+            me->SetDisplayFromModel(1);
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) override
         {
-            _events.ScheduleEvent(EVENT_UPPERCUT, 15s);
-            _events.ScheduleEvent(EVENT_IMMOLATE, 10s);
-            _events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 5s);
+            _events.ScheduleEvent(EVENT_UPPERCUT,      15 * IN_MILLISECONDS);
+            _events.ScheduleEvent(EVENT_IMMOLATE,      10 * IN_MILLISECONDS);
+            _events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 5 * IN_MILLISECONDS);
         }
 
         void JustDied(Unit* killer) override
         {
             me->SetObjectScale(1.0f);
             _events.Reset();
-
-            if (!killer)
-                return;
-
             if (Creature* legoso = me->FindNearestCreature(NPC_LEGOSO, SIZE_OF_GRIDS))
             {
                 Group* group = me->GetLootRecipientGroup();
 
                 if (killer->GetGUID() == legoso->GetGUID() ||
                     (group && group->IsMember(killer->GetGUID())) ||
-                    killer->GetGUID().GetCounter() == legoso->AI()->GetData(DATA_EVENT_STARTER_GUID))
+                    killer->GetGUID() == legoso->AI()->GetGUID(DATA_EVENT_STARTER_GUID))
                     legoso->AI()->DoAction(ACTION_LEGOSO_SIRONAS_KILLED);
             }
         }
@@ -292,15 +285,15 @@ public:
                 {
                     case EVENT_UPPERCUT:
                         DoCastVictim(SPELL_UPPERCUT);
-                        _events.ScheduleEvent(EVENT_UPPERCUT, 10s, 12s);
+                        _events.ScheduleEvent(EVENT_UPPERCUT, urand(10, 12) * IN_MILLISECONDS);
                         break;
                     case EVENT_IMMOLATE:
                         DoCastVictim(SPELL_IMMOLATE);
-                        _events.ScheduleEvent(EVENT_IMMOLATE, 15s, 20s);
+                        _events.ScheduleEvent(EVENT_IMMOLATE, urand(15, 20) * IN_MILLISECONDS);
                         break;
                     case EVENT_CURSE_OF_BLOOD:
                         DoCastVictim(SPELL_CURSE_OF_BLOOD);
-                        _events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, 20s, 25s);
+                        _events.ScheduleEvent(EVENT_CURSE_OF_BLOOD, urand(20, 25) * IN_MILLISECONDS);
                         break;
                     default:
                         break;
@@ -318,13 +311,10 @@ public:
                 {
                     DoCast(me, SPELL_SIRONAS_CHANNELING);
                     std::list<Creature*> BeamList;
-                    _beamGuidList.clear();
                     me->GetCreatureListWithEntryInGrid(BeamList, NPC_BLOODMYST_TESLA_COIL, SIZE_OF_GRIDS);
-                    for (std::list<Creature*>::iterator itr = BeamList.begin(); itr != BeamList.end(); ++itr)
-                    {
-                        _beamGuidList.push_back((*itr)->GetGUID());
-                        (*itr)->CastSpell(*itr, SPELL_BLOODMYST_TESLA);
-                    }
+                    if (!BeamList.empty())
+                        for (std::list<Creature*>::iterator itr = BeamList.begin(); itr != BeamList.end(); ++itr)
+                            (*itr)->CastSpell(*itr, SPELL_BLOODMYST_TESLA);
                     break;
                 }
                 case ACTION_SIRONAS_CHANNEL_STOP:
@@ -333,11 +323,8 @@ public:
                     std::list<Creature*> creatureList;
                     GetCreatureListWithEntryInGrid(creatureList, me, NPC_BLOODMYST_TESLA_COIL, 500.0f);
                     if (!creatureList.empty())
-                    {
                         for (std::list<Creature*>::iterator itr = creatureList.begin(); itr != creatureList.end(); ++itr)
                             (*itr)->InterruptNonMeleeSpells(true, SPELL_BLOODMYST_TESLA);
-                    }
-                    break;
                 }
                 default:
                     break;
@@ -345,7 +332,6 @@ public:
         }
 
     private:
-        GuidList _beamGuidList;
         EventMap _events;
     };
 
@@ -371,55 +357,50 @@ public:
             Initialize();
         }
 
-        void OnQuestAccept(Player* player, Quest const* quest) override
-        {
-            if (quest->GetQuestId() == QUEST_ENDING_THEIR_WORLD)
-            {
-                SetData(DATA_EVENT_STARTER_GUID, player->GetGUID().GetCounter());
-                Start(true, true, player->GetGUID(), quest);
-            }
-        }
-
-        uint32 GetData(uint32 id) const override
-        {
-            switch (id)
-            {
-                case DATA_EVENT_STARTER_GUID:
-                    return _eventStarterGuidLow;
-                default:
-                    return 0;
-            }
-        }
-
-        void SetData(uint32 data, uint32 value) override
-        {
-            switch (data)
-            {
-                case DATA_EVENT_STARTER_GUID:
-                    _eventStarterGuidLow = value;
-                    break;
-                default:
-                    break;
-            }
-        }
-
         void Initialize()
         {
             _phase = PHASE_NONE;
             _moveTimer = 0;
-            _eventStarterGuidLow = 0;
+        }
+
+        void QuestAccept(Player* player, Quest const* quest) override
+        {
+            if (quest->GetQuestId() == QUEST_ENDING_THEIR_WORLD)
+            {
+                SetGUID(player->GetGUID(), DATA_EVENT_STARTER_GUID);
+                Start(true, true, player->GetGUID(), quest);
+            }
+        }
+
+        ObjectGuid GetGUID(int32 type) const override
+        {
+            if (type == DATA_EVENT_STARTER_GUID)
+                return _eventStarterGuid;
+
+            return ObjectGuid::Empty;
+        }
+
+        void SetGUID(ObjectGuid guid, int32 type) override
+        {
+            switch (type)
+            {
+                case DATA_EVENT_STARTER_GUID:
+                    _eventStarterGuid = guid;
+                    break;
+                default:
+                    break;
+            }
         }
 
         void Reset() override
         {
-            Initialize();
             me->SetCanDualWield(true);
-
+            Initialize();
             _events.Reset();
-            _events.ScheduleEvent(EVENT_FROST_SHOCK, 1s);
-            _events.ScheduleEvent(EVENT_HEALING_SURGE, 5s);
-            _events.ScheduleEvent(EVENT_SEARING_TOTEM, 15s);
-            _events.ScheduleEvent(EVENT_STRENGTH_OF_EARTH_TOTEM, 20s);
+            _events.ScheduleEvent(EVENT_FROST_SHOCK, 1 * IN_MILLISECONDS);
+            _events.ScheduleEvent(EVENT_HEALING_SURGE, 5 * IN_MILLISECONDS);
+            _events.ScheduleEvent(EVENT_SEARING_TOTEM, 15 * IN_MILLISECONDS);
+            _events.ScheduleEvent(EVENT_STRENGTH_OF_EARTH_TOTEM, 20 * IN_MILLISECONDS);
         }
 
         void UpdateAI(uint32 diff) override
@@ -434,18 +415,18 @@ public:
                     {
                         case EVENT_FROST_SHOCK:
                             DoCastVictim(SPELL_FROST_SHOCK);
-                            _events.DelayEvents(1s);
-                            _events.ScheduleEvent(EVENT_FROST_SHOCK, 10s, 15s);
+                            _events.DelayEvents(1 * IN_MILLISECONDS);
+                            _events.ScheduleEvent(EVENT_FROST_SHOCK, urand(10, 15) * IN_MILLISECONDS);
                             break;
                         case EVENT_SEARING_TOTEM:
                             DoCast(me, SPELL_SEARING_TOTEM);
-                            _events.DelayEvents(1s);
-                            _events.ScheduleEvent(EVENT_SEARING_TOTEM, 110s, 130s);
+                            _events.DelayEvents(1 * IN_MILLISECONDS);
+                            _events.ScheduleEvent(EVENT_SEARING_TOTEM, urand(110, 130) * IN_MILLISECONDS);
                             break;
                         case EVENT_STRENGTH_OF_EARTH_TOTEM:
                             DoCast(me, SPELL_STRENGTH_OF_EARTH_TOTEM);
-                            _events.DelayEvents(1s);
-                            _events.ScheduleEvent(EVENT_STRENGTH_OF_EARTH_TOTEM, 110s, 130s);
+                            _events.DelayEvents(1 * IN_MILLISECONDS);
+                            _events.ScheduleEvent(EVENT_STRENGTH_OF_EARTH_TOTEM, urand(110, 130) * IN_MILLISECONDS);
                             break;
                         case EVENT_HEALING_SURGE:
                         {
@@ -458,10 +439,10 @@ public:
                             if (target)
                             {
                                 DoCast(target, SPELL_HEALING_SURGE);
-                                _events.ScheduleEvent(EVENT_HEALING_SURGE, 10s);
+                                _events.ScheduleEvent(EVENT_HEALING_SURGE, 10 * IN_MILLISECONDS);
                             }
                             else
-                                _events.ScheduleEvent(EVENT_HEALING_SURGE, 2s);
+                                _events.ScheduleEvent(EVENT_HEALING_SURGE, 2 * IN_MILLISECONDS);
                             break;
                         }
                         default:
@@ -518,7 +499,7 @@ public:
                             _explosivesGuids.clear();
                             for (uint8 i = 0; i != MAX_EXPLOSIVES; ++i)
                             {
-                                if (GameObject* explosive = me->SummonGameObject(GO_DRAENEI_EXPLOSIVES_1, ExplosivesPos[0][i], QuaternionData(), 0s))
+                                if (GameObject* explosive = me->SummonGameObject(GO_DRAENEI_EXPLOSIVES_1, ExplosivesPos[0][i], QuaternionData::fromEulerAnglesZYX(ExplosivesPos[0][i].GetOrientation(), 0.0f, 0.0f), 0))
                                     _explosivesGuids.push_back(explosive->GetGUID());
                             }
                             me->HandleEmoteCommand(EMOTE_ONESHOT_NONE); // reset anim state
@@ -614,7 +595,7 @@ public:
                             _explosivesGuids.clear();
                             for (uint8 i = 0; i != MAX_EXPLOSIVES; ++i)
                             {
-                                if (GameObject* explosive = me->SummonGameObject(GO_DRAENEI_EXPLOSIVES_2, ExplosivesPos[1][i], QuaternionData(), 0s))
+                                if (GameObject* explosive = me->SummonGameObject(GO_DRAENEI_EXPLOSIVES_2, ExplosivesPos[1][i], QuaternionData::fromEulerAnglesZYX(ExplosivesPos[1][i].GetOrientation(), 0.0f, 0.0f), 0))
                                     _explosivesGuids.push_back(explosive->GetGUID());
                             }
                             Talk(SAY_LEGOSO_15);
@@ -813,7 +794,7 @@ public:
     private:
         int8 _phase;
         uint32 _moveTimer;
-        ObjectGuid::LowType _eventStarterGuidLow;
+        ObjectGuid _eventStarterGuid;
         GuidList _explosivesGuids;
         EventMap _events;
     };

@@ -16,14 +16,12 @@
  */
 
 #include "TerrainBuilder.h"
-
 #include "MapBuilder.h"
 #include "MapDefines.h"
 #include "MapTree.h"
 #include "ModelInstance.h"
 #include "VMapFactory.h"
 #include "VMapManager2.h"
-#include <map>
 
 // ******************************************
 // Map file format defines
@@ -77,8 +75,6 @@ struct map_liquidHeader
 #define MAP_LIQUID_TYPE_MAGMA       0x04
 #define MAP_LIQUID_TYPE_SLIME       0x08
 #define MAP_LIQUID_TYPE_DARK_WATER  0x10
-
-uint32 GetLiquidFlags(uint32 liquidId);
 
 namespace MMAP
 {
@@ -136,9 +132,19 @@ namespace MMAP
     bool TerrainBuilder::loadMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData &meshData, Spot portion)
     {
         char mapFileName[255];
-        sprintf(mapFileName, "maps/%03u%02u%02u.map", mapID, tileY, tileX);
+        sprintf(mapFileName, "maps/%04u_%02u_%02u.map", mapID, tileY, tileX);
 
         FILE* mapFile = fopen(mapFileName, "rb");
+        if (!mapFile)
+        {
+            int32 parentMapId = static_cast<VMapManager2*>(VMapFactory::createOrGetVMapManager())->getParentMapId(mapID);
+            if (parentMapId != -1)
+            {
+                sprintf(mapFileName, "maps/%04d_%02u_%02u.map", parentMapId, tileY, tileX);
+                mapFile = fopen(mapFileName, "rb");
+            }
+        }
+
         if (!mapFile)
             return false;
 
@@ -170,7 +176,7 @@ namespace MMAP
         }
 
         // data used later
-        uint16 holes[16][16];
+        uint8 holes[16][16][8];
         memset(holes, 0, sizeof(holes));
         uint16 liquid_entry[16][16];
         memset(liquid_entry, 0, sizeof(liquid_entry));
@@ -604,22 +610,17 @@ namespace MMAP
         coord[2] = v[index2];
     }
 
-    static uint16 holetab_h[4] = {0x1111, 0x2222, 0x4444, 0x8888};
-    static uint16 holetab_v[4] = {0x000F, 0x00F0, 0x0F00, 0xF000};
-
     /**************************************************************************/
-    bool TerrainBuilder::isHole(int square, const uint16 holes[16][16])
+    bool TerrainBuilder::isHole(int square, uint8 const holes[16][16][8])
     {
         int row = square / 128;
         int col = square % 128;
         int cellRow = row / 8;     // 8 squares per cell
         int cellCol = col / 8;
-        int holeRow = row % 8 / 2;
-        int holeCol = (square - (row * 128 + cellCol * 8)) / 2;
+        int holeRow = row % 8;
+        int holeCol = (square - (row * 128 + cellCol * 8));
 
-        uint16 hole = holes[cellRow][cellCol];
-
-        return (hole & holetab_h[holeCol] & holetab_v[holeRow]) != 0;
+        return (holes[cellRow][cellCol][holeRow] & (1 << holeCol)) != 0;
     }
 
     /**************************************************************************/
@@ -636,17 +637,17 @@ namespace MMAP
     /**************************************************************************/
     bool TerrainBuilder::loadVMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData &meshData)
     {
-        VMapManager2* vmapManager = new VMapManager2();
-        int result = vmapManager->loadMap("vmaps", mapID, tileX, tileY);
+        VMapManager2* vmapManager = static_cast<VMapManager2*>(VMapFactory::createOrGetVMapManager());
+        LoadResult result = vmapManager->loadSingleMap(mapID, "vmaps", tileX, tileY);
         bool retval = false;
 
         do
         {
-            if (result == VMAP_LOAD_RESULT_ERROR)
+            if (result != LoadResult::Success)
                 break;
 
             InstanceTreeMap instanceTrees;
-            ((VMapManager2*)vmapManager)->getInstanceMapTree(instanceTrees);
+            vmapManager->getInstanceMapTree(instanceTrees);
 
             if (!instanceTrees[mapID])
                 break;
@@ -674,7 +675,7 @@ namespace MMAP
                 worldModel->getGroupModels(groupModels);
 
                 // all M2s need to have triangle indices reversed
-                bool isM2 = instance.name.find(".m2") != std::string::npos || instance.name.find(".M2") != std::string::npos;
+                bool isM2 = (instance.flags & MOD_M2) != 0;
 
                 // transform data
                 float scale = instance.iScale;
@@ -715,7 +716,7 @@ namespace MMAP
                         uint8 type = NAV_AREA_EMPTY;
 
                         // convert liquid type to NavTerrain
-                        uint32 liquidFlags = GetLiquidFlags(liquid->GetType());
+                        uint32 liquidFlags = vmapManager->GetLiquidFlagsPtr(liquid->GetType());
                         if ((liquidFlags & (MAP_LIQUID_TYPE_WATER | MAP_LIQUID_TYPE_OCEAN)) != 0)
                             type = NAV_AREA_WATER;
                         else if ((liquidFlags & (MAP_LIQUID_TYPE_MAGMA | MAP_LIQUID_TYPE_SLIME)) != 0)
@@ -732,7 +733,7 @@ namespace MMAP
                         {
                             for (uint32 y = 0; y < vertsY; ++y)
                             {
-                                vert = G3D::Vector3(corner.x + x * GRID_PART_SIZE, corner.y + y * GRID_PART_SIZE, data[y*vertsX + x]);
+                                vert = G3D::Vector3(corner.x + x * GRID_PART_SIZE, corner.y + y * GRID_PART_SIZE, data[y * vertsX + x]);
                                 vert = vert * rotation * scale + position;
                                 vert.x *= -1.f;
                                 vert.y *= -1.f;
@@ -746,7 +747,7 @@ namespace MMAP
                         {
                             for (uint32 y = 0; y < tilesY; ++y)
                             {
-                                if ((flags[x + y*tilesX] & 0x0f) != 0x0f)
+                                if ((flags[x + y * tilesX] & 0x0f) != 0x0f)
                                 {
                                     square = x * tilesY + y;
                                     idx1 = square + x;
@@ -767,12 +768,12 @@ namespace MMAP
                         }
 
                         uint32 liqOffset = meshData.liquidVerts.size() / 3;
-                        for (uint32 j = 0; j < liqVerts.size(); ++j)
-                            meshData.liquidVerts.append(liqVerts[j].y, liqVerts[j].z, liqVerts[j].x);
+                        for (uint32 i = 0; i < liqVerts.size(); ++i)
+                            meshData.liquidVerts.append(liqVerts[i].y, liqVerts[i].z, liqVerts[i].x);
 
-                        for (uint32 j = 0; j < liqTris.size() / 3; ++j)
+                        for (uint32 i = 0; i < liqTris.size() / 3; ++i)
                         {
-                            meshData.liquidTris.append(liqTris[j * 3 + 1] + liqOffset, liqTris[j * 3 + 2] + liqOffset, liqTris[j * 3] + liqOffset);
+                            meshData.liquidTris.append(liqTris[i * 3 + 1] + liqOffset, liqTris[i * 3 + 2] + liqOffset, liqTris[i * 3] + liqOffset);
                             meshData.liquidType.append(type);
                         }
                     }
@@ -781,8 +782,7 @@ namespace MMAP
         }
         while (false);
 
-        vmapManager->unloadMap(mapID, tileX, tileY);
-        delete vmapManager;
+        vmapManager->unloadSingleMap(mapID, tileX, tileY);
 
         return retval;
     }

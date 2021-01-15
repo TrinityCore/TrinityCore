@@ -27,18 +27,25 @@
 
 enum PetitionTurns
 {
-    PETITION_TURN_OK = 0,
-    PETITION_TURN_ALREADY_IN_GUILD = 2,
-    PETITION_TURN_NEED_MORE_SIGNATURES = 4
+    PETITION_TURN_OK                    = 0,
+    PETITION_TURN_ALREADY_IN_GUILD      = 2,
+    PETITION_TURN_NEED_MORE_SIGNATURES  = 4,
+    PETITION_TURN_GUILD_PERMISSIONS     = 11,
+    PETITION_TURN_GUILD_NAME_INVALID    = 12,
+    PETITION_TURN_HAS_RESTRICTION       = 13
 };
 
 enum PetitionSigns
 {
-    PETITION_SIGN_OK = 0,
-    PETITION_SIGN_ALREADY_SIGNED = 1,
-    PETITION_SIGN_ALREADY_IN_GUILD = 2,
-    PETITION_SIGN_CANT_SIGN_OWN = 3,
-    PETITION_SIGN_NOT_SERVER = 4
+    PETITION_SIGN_OK                        = 0,
+    PETITION_SIGN_ALREADY_SIGNED            = 1,
+    PETITION_SIGN_ALREADY_IN_GUILD          = 2,
+    PETITION_SIGN_CANT_SIGN_OWN             = 3,
+    PETITION_SIGN_NOT_SERVER                = 5,
+    PETITION_SIGN_FULL                      = 8,
+    PETITION_SIGN_ALREADY_SIGNED_OTHER      = 10,
+    PETITION_SIGN_RESTRICTED_ACCOUNT_TRIAL  = 11,
+    PETITION_SIGN_HAS_RESTRICTION           = 13
 };
 
 typedef std::pair<uint32, ObjectGuid> Signature;
@@ -46,14 +53,13 @@ typedef std::vector<Signature> SignaturesVector;
 
 struct Petition
 {
-    ObjectGuid       PetitionGuid;
-    ObjectGuid       OwnerGuid;
-    CharterTypes     PetitionType;
-    std::string      PetitionName;
-    SignaturesVector Signatures;
+    ObjectGuid       petitionGuid;
+    ObjectGuid       ownerGuid;
+    std::string      petitionName;
+    SignaturesVector signatures;
 
     bool IsPetitionSignedByAccount(uint32 accountId) const;
-    void AddSignature(uint32 accountId, ObjectGuid playerGuid, bool isLoading);
+    void AddSignature(ObjectGuid petitionGuid, uint32 accountId, ObjectGuid playerGuid, bool isLoading);
     void UpdateName(std::string const& newName);
     void RemoveSignatureBySigner(ObjectGuid playerGuid);
 };
@@ -71,12 +77,12 @@ class TC_GAME_API PetitionMgr
         void LoadSignatures();
 
         // Petitions
-        void AddPetition(ObjectGuid petitionGuid, ObjectGuid ownerGuid, std::string const& name, CharterTypes type, bool isLoading);
+        void AddPetition(ObjectGuid petitionGuid, ObjectGuid ownerGuid, std::string const& name, bool isLoading);
         void RemovePetition(ObjectGuid petitionGuid);
         Petition* GetPetition(ObjectGuid petitionGuid);
-        Petition* GetPetitionByOwnerWithType(ObjectGuid ownerGuid, CharterTypes type);
-        void RemovePetitionsByOwnerAndType(ObjectGuid ownerGuid, CharterTypes type);
-        void RemoveSignaturesBySignerAndType(ObjectGuid signerGuid, CharterTypes type);
+        Petition* GetPetitionByOwner(ObjectGuid ownerGuid);
+        void RemovePetitionsByOwner(ObjectGuid ownerGuid);
+        void RemoveSignaturesBySigner(ObjectGuid signerGuid);
 };
 
 #define sPetitionMgr PetitionMgr::instance()

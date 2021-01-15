@@ -105,9 +105,9 @@ class instance_magtheridons_lair : public InstanceMapScript
                             if (GameObject* cube = instance->GetGameObject(gobGUID))
                             {
                                 if (value == ACTION_ENABLE)
-                                    cube->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                    cube->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                                 else
-                                    cube->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                                    cube->AddFlag(GO_FLAG_NOT_SELECTABLE);
                             }
                         break;
                     case DATA_COLLAPSE:
@@ -123,7 +123,7 @@ class instance_magtheridons_lair : public InstanceMapScript
                         for (ObjectGuid warderGuid : warderGUIDS)
                             if (Creature* warder = instance->GetCreature(warderGuid))
                                 if (warder->IsAlive())
-                                    warder->AI()->DoZoneInCombat();
+                                    warder->SetInCombatWithZone();
                         break;
                     default:
                         break;

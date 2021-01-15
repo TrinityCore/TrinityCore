@@ -16,15 +16,17 @@
  */
 
 #include "GuildMgr.h"
+#include "DB2Stores.h"
 #include "DatabaseEnv.h"
 #include "Guild.h"
 #include "Log.h"
 #include "ObjectMgr.h"
-#include "Util.h"
 #include "World.h"
+#include <algorithm>
 
-GuildMgr::GuildMgr() : NextGuildId(1)
-{ }
+GuildMgr::GuildMgr() : NextGuildId(UI64LIT(1))
+{
+}
 
 GuildMgr::~GuildMgr()
 {
@@ -40,6 +42,12 @@ void GuildMgr::AddGuild(Guild* guild)
 void GuildMgr::RemoveGuild(ObjectGuid::LowType guildId)
 {
     GuildStore.erase(guildId);
+}
+
+void GuildMgr::SaveGuilds()
+{
+    for (GuildContainer::iterator itr = GuildStore.begin(); itr != GuildStore.end(); ++itr)
+        itr->second->SaveToDB();
 }
 
 ObjectGuid::LowType GuildMgr::GenerateGuildId()
@@ -62,12 +70,28 @@ Guild* GuildMgr::GetGuildById(ObjectGuid::LowType guildId) const
     return nullptr;
 }
 
-Guild* GuildMgr::GetGuildByName(std::string_view guildName) const
+Guild* GuildMgr::GetGuildByGuid(ObjectGuid guid) const
 {
-    for (auto [id, guild] : GuildStore)
-        if (StringEqualI(guild->GetName(), guildName))
-            return guild;
+    // Full guids are only used when receiving/sending data to client
+    // everywhere else guild id is used
+    if (guid.IsGuild())
+        if (ObjectGuid::LowType guildId = guid.GetCounter())
+            return GetGuildById(guildId);
 
+    return nullptr;
+}
+
+Guild* GuildMgr::GetGuildByName(const std::string& guildName) const
+{
+    std::string search = guildName;
+    std::transform(search.begin(), search.end(), search.begin(), ::toupper);
+    for (GuildContainer::const_iterator itr = GuildStore.begin(); itr != GuildStore.end(); ++itr)
+    {
+        std::string gname = itr->second->GetName();
+        std::transform(gname.begin(), gname.end(), gname.begin(), ::toupper);
+        if (search == gname)
+            return itr->second;
+    }
     return nullptr;
 }
 
@@ -101,11 +125,11 @@ void GuildMgr::LoadGuilds()
     {
         uint32 oldMSTime = getMSTime();
 
-                                                     //          0          1       2             3              4              5              6
+        //          0          1       2             3              4              5              6
         QueryResult result = CharacterDatabase.Query("SELECT g.guildid, g.name, g.leaderguid, g.EmblemStyle, g.EmblemColor, g.BorderStyle, g.BorderColor, "
-                                                     //   7                  8       9       10            11           12
-                                                     "g.BackgroundColor, g.info, g.motd, g.createdate, g.BankMoney, COUNT(gbt.guildid) "
-                                                     "FROM guild g LEFT JOIN guild_bank_tab gbt ON g.guildid = gbt.guildid GROUP BY g.guildid ORDER BY g.guildid ASC");
+            //   7                  8       9       10            11          12
+            "g.BackgroundColor, g.info, g.motd, g.createdate, g.BankMoney, COUNT(gbt.guildid) "
+            "FROM guild g LEFT JOIN guild_bank_tab gbt ON g.guildid = gbt.guildid GROUP BY g.guildid ORDER BY g.guildid ASC");
 
         if (!result)
         {
@@ -157,7 +181,7 @@ void GuildMgr::LoadGuilds()
             do
             {
                 Field* fields = result->Fetch();
-                uint32 guildId = fields[0].GetUInt32();
+                uint64 guildId = fields[0].GetUInt64();
 
                 if (Guild* guild = GetGuildById(guildId))
                     guild->LoadRankFromDB(fields);
@@ -179,13 +203,13 @@ void GuildMgr::LoadGuilds()
         CharacterDatabase.DirectExecute("DELETE gm FROM guild_member gm LEFT JOIN guild g ON gm.guildId = g.guildId WHERE g.guildId IS NULL");
         CharacterDatabase.DirectExecute("DELETE gm FROM guild_member_withdraw gm LEFT JOIN guild_member g ON gm.guid = g.guid WHERE g.guid IS NULL");
 
-                                                //           0        1         2      3      4        5       6       7       8       9       10
-        QueryResult result = CharacterDatabase.Query("SELECT guildid, gm.guid, `rank` , pnote, offnote, w.tab0, w.tab1, w.tab2, w.tab3, w.tab4, w.tab5, "
-                                                //    11       12      13       14       15        16      17         18
-                                                     "w.money, c.name, c.level, c.class, c.gender, c.zone, c.account, c.logout_time "
+                                                //           0           1        2     3      4        5       6       7       8       9       10
+        QueryResult result = CharacterDatabase.Query("SELECT gm.guildid, gm.guid, `rank`, pnote, offnote, w.tab0, w.tab1, w.tab2, w.tab3, w.tab4, w.tab5, "
+                                                //    11      12      13       14      15       16       17        18      19         20
+                                                     "w.tab6, w.tab7, w.money, c.name, c.level, c.class, c.gender, c.zone, c.account, c.logout_time "
                                                      "FROM guild_member gm "
                                                      "LEFT JOIN guild_member_withdraw w ON gm.guid = w.guid "
-                                                     "LEFT JOIN characters c ON c.guid = gm.guid ORDER BY guildid ASC");
+                                                     "LEFT JOIN characters c ON c.guid = gm.guid ORDER BY gm.guildid ASC");
 
         if (!result)
             TC_LOG_INFO("server.loading", ">> Loaded 0 guild members. DB table `guild_member` is empty.");
@@ -196,7 +220,7 @@ void GuildMgr::LoadGuilds()
             do
             {
                 Field* fields = result->Fetch();
-                uint32 guildId = fields[0].GetUInt32();
+                uint64 guildId = fields[0].GetUInt64();
 
                 if (Guild* guild = GetGuildById(guildId))
                     guild->LoadMemberFromDB(fields);
@@ -230,7 +254,7 @@ void GuildMgr::LoadGuilds()
             do
             {
                 Field* fields = result->Fetch();
-                uint32 guildId = fields[0].GetUInt32();
+                uint64 guildId = fields[0].GetUInt64();
 
                 if (Guild* guild = GetGuildById(guildId))
                     guild->LoadBankRightFromDB(fields);
@@ -263,7 +287,7 @@ void GuildMgr::LoadGuilds()
             do
             {
                 Field* fields = result->Fetch();
-                uint32 guildId = fields[0].GetUInt32();
+                uint64 guildId = fields[0].GetUInt64();
 
                 if (Guild* guild = GetGuildById(guildId))
                     guild->LoadEventLogFromDB(fields);
@@ -297,7 +321,7 @@ void GuildMgr::LoadGuilds()
             do
             {
                 Field* fields = result->Fetch();
-                uint32 guildId = fields[0].GetUInt32();
+                uint64 guildId = fields[0].GetUInt64();
 
                 if (Guild* guild = GetGuildById(guildId))
                     guild->LoadBankEventLogFromDB(fields);
@@ -310,7 +334,39 @@ void GuildMgr::LoadGuilds()
         }
     }
 
-    // 7. Load all guild bank tabs
+    // 7. Load all news event logs
+    TC_LOG_INFO("server.loading", "Loading Guild News...");
+    {
+        uint32 oldMSTime = getMSTime();
+
+        CharacterDatabase.DirectPExecute("DELETE FROM guild_newslog WHERE LogGuid > %u", sWorld->getIntConfig(CONFIG_GUILD_NEWS_LOG_COUNT));
+
+                                                     //      0        1        2          3           4      5      6
+        QueryResult result = CharacterDatabase.Query("SELECT guildid, LogGuid, EventType, PlayerGuid, Flags, Value, Timestamp FROM guild_newslog ORDER BY TimeStamp DESC, LogGuid DESC");
+
+        if (!result)
+            TC_LOG_INFO("server.loading", ">> Loaded 0 guild event logs. DB table `guild_newslog` is empty.");
+        else
+        {
+            uint32 count = 0;
+            do
+            {
+                Field* fields = result->Fetch();
+                uint64 guildId = fields[0].GetUInt64();
+
+                if (Guild* guild = GetGuildById(guildId))
+                    guild->LoadGuildNewsLogFromDB(fields);
+
+                ++count;
+            }
+            while (result->NextRow());
+
+            TC_LOG_INFO("server.loading", ">> Loaded %u guild new logs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        }
+    }
+
+
+    // 8. Load all guild bank tabs
     TC_LOG_INFO("server.loading", "Loading guild bank tabs...");
     {
         uint32 oldMSTime = getMSTime();
@@ -331,7 +387,7 @@ void GuildMgr::LoadGuilds()
             do
             {
                 Field* fields = result->Fetch();
-                uint32 guildId = fields[0].GetUInt32();
+                uint64 guildId = fields[0].GetUInt64();
 
                 if (Guild* guild = GetGuildById(guildId))
                     guild->LoadBankTabFromDB(fields);
@@ -344,19 +400,30 @@ void GuildMgr::LoadGuilds()
         }
     }
 
-    // 8. Fill all guild bank tabs
-    TC_LOG_INFO("guild", "Filling bank tabs with items...");
+    // 9. Fill all guild bank tabs
+    TC_LOG_INFO("server.loading", "Filling bank tabs with items...");
     {
         uint32 oldMSTime = getMSTime();
 
         // Delete orphan guild bank items
         CharacterDatabase.DirectExecute("DELETE gbi FROM guild_bank_item gbi LEFT JOIN guild g ON gbi.guildId = g.guildId WHERE g.guildId IS NULL");
 
-                                                     //          0            1                2      3         4        5      6             7                 8           9           10
-        QueryResult result = CharacterDatabase.Query("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text, "
-                                                     //   11       12     13      14         15
-                                                     "guildid, TabId, SlotId, item_guid, itemEntry FROM guild_bank_item gbi INNER JOIN item_instance ii ON gbi.item_guid = ii.guid");
+        //           0          1            2                3      4         5        6      7             8                 9          10          11    12
+        // SELECT guid, itemEntry, creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text,
+        //                        13                  14              15                  16       17            18
+        //        battlePetSpeciesId, battlePetBreedData, battlePetLevel, battlePetDisplayId, context, bonusListIDs,
+        //                                    19                           20                           21                           22                           23
+        //        itemModifiedAppearanceAllSpecs, itemModifiedAppearanceSpec1, itemModifiedAppearanceSpec2, itemModifiedAppearanceSpec3, itemModifiedAppearanceSpec4,
+        //                                  24                         25                         26                         27                         28
+        //        spellItemEnchantmentAllSpecs, spellItemEnchantmentSpec1, spellItemEnchantmentSpec2, spellItemEnchantmentSpec3, spellItemEnchantmentSpec4,
+        //                29           30           31                32          33           34           35                36          37           38           39                40
+        //        gemItemId1, gemBonuses1, gemContext1, gemScalingLevel1, gemItemId2, gemBonuses2, gemContext2, gemScalingLevel2, gemItemId3, gemBonuses3, gemContext3, gemScalingLevel3
+        //                       41                      42
+        //        fixedScalingLevel, artifactKnowledgeLevel
+        //             43     44      45
+        //        guildid, TabId, SlotId FROM guild_bank_item gbi INNER JOIN item_instance ii ON gbi.item_guid = ii.guid
 
+        PreparedQueryResult result = CharacterDatabase.Query(CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_BANK_ITEMS));
         if (!result)
         {
             TC_LOG_INFO("server.loading", ">> Loaded 0 guild bank tab items. DB table `guild_bank_item` or `item_instance` is empty.");
@@ -367,7 +434,7 @@ void GuildMgr::LoadGuilds()
             do
             {
                 Field* fields = result->Fetch();
-                uint32 guildId = fields[11].GetUInt32();
+                uint64 guildId = fields[43].GetUInt64();
 
                 if (Guild* guild = GetGuildById(guildId))
                     guild->LoadBankItemFromDB(fields);
@@ -380,8 +447,38 @@ void GuildMgr::LoadGuilds()
         }
     }
 
-    // 9. Validate loaded guild data
-    TC_LOG_INFO("guild", "Validating data of loaded guilds...");
+    // 10. Load guild achievements
+    TC_LOG_INFO("server.loading", "Loading guild achievements...");
+    {
+        uint32 oldMSTime = getMSTime();
+
+        uint64 achievementCount = 0;
+        uint64 criteriaCount = 0;
+
+        PreparedQueryResult achievementResult;
+        PreparedQueryResult criteriaResult;
+        for (GuildContainer::const_iterator itr = GuildStore.begin(); itr != GuildStore.end(); ++itr)
+        {
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_ACHIEVEMENT);
+            stmt->setUInt64(0, itr->first);
+            achievementResult = CharacterDatabase.Query(stmt);
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_ACHIEVEMENT_CRITERIA);
+            stmt->setUInt64(0, itr->first);
+            criteriaResult = CharacterDatabase.Query(stmt);
+
+            if (achievementResult)
+                achievementCount += achievementResult->GetRowCount();
+            if (criteriaResult)
+                criteriaCount += criteriaResult->GetRowCount();
+
+            itr->second->GetAchievementMgr().LoadFromDB(achievementResult, criteriaResult);
+        }
+
+        TC_LOG_INFO("server.loading", ">> Loaded " UI64FMTD " guild achievements and " UI64FMTD " criterias in %u ms", achievementCount, criteriaCount, GetMSTimeDiffToNow(oldMSTime));
+    }
+
+    // 11. Validate loaded guild data
+    TC_LOG_INFO("misc", "Validating data of loaded guilds...");
     {
         uint32 oldMSTime = getMSTime();
 
@@ -397,11 +494,75 @@ void GuildMgr::LoadGuilds()
     }
 }
 
-void GuildMgr::ResetTimes()
+void GuildMgr::LoadGuildRewards()
 {
+    uint32 oldMSTime = getMSTime();
+
+    //                                                 0      1            2         3
+    QueryResult result  = WorldDatabase.Query("SELECT ItemID, MinGuildRep, RaceMask, Cost FROM guild_rewards");
+
+    if (!result)
+    {
+        TC_LOG_ERROR("server.loading", ">> Loaded 0 guild reward definitions. DB table `guild_rewards` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+
+    do
+    {
+        GuildReward reward;
+        Field* fields = result->Fetch();
+        reward.ItemID        = fields[0].GetUInt32();
+        reward.MinGuildRep   = fields[1].GetUInt8();
+        reward.RaceMask.RawValue = fields[2].GetUInt64();
+        reward.Cost          = fields[3].GetUInt64();
+
+        if (!sObjectMgr->GetItemTemplate(reward.ItemID))
+        {
+            TC_LOG_ERROR("server.loading", "Guild rewards constains not existing item entry %u", reward.ItemID);
+            continue;
+        }
+
+        if (reward.MinGuildRep >= MAX_REPUTATION_RANK)
+        {
+            TC_LOG_ERROR("server.loading", "Guild rewards contains wrong reputation standing %u, max is %u", uint32(reward.MinGuildRep), MAX_REPUTATION_RANK - 1);
+            continue;
+        }
+
+        WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_GUILD_REWARDS_REQ_ACHIEVEMENTS);
+        stmt->setUInt32(0, reward.ItemID);
+        PreparedQueryResult reqAchievementResult = WorldDatabase.Query(stmt);
+        if (reqAchievementResult)
+        {
+            do
+            {
+                fields = reqAchievementResult->Fetch();
+
+                uint32 requiredAchievementId = fields[0].GetUInt32();
+
+                if (!sAchievementStore.LookupEntry(requiredAchievementId))
+                {
+                    TC_LOG_ERROR("server.loading", "Guild rewards constains not existing achievement entry %u", requiredAchievementId);
+                    continue;
+                }
+
+                reward.AchievementsRequired.push_back(requiredAchievementId);
+            } while (reqAchievementResult->NextRow());
+        }
+
+        GuildRewards.push_back(reward);
+        ++count;
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded %u guild reward definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
+void GuildMgr::ResetTimes(bool week)
+{
+    CharacterDatabase.Execute(CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_MEMBER_WITHDRAW));
+
     for (GuildContainer::const_iterator itr = GuildStore.begin(); itr != GuildStore.end(); ++itr)
         if (Guild* guild = itr->second)
-            guild->ResetTimes();
-
-    CharacterDatabase.DirectExecute("TRUNCATE guild_member_withdraw");
+            guild->ResetTimes(week);
 }

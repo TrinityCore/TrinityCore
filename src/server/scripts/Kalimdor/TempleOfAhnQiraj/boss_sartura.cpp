@@ -23,10 +23,8 @@ SDCategory: Temple of Ahn'Qiraj
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "temple_of_ahnqiraj.h"
-#include "Player.h"
 
 enum Sartura
 {
@@ -38,7 +36,7 @@ enum Sartura
     SPELL_ENRAGE        = 28747,            //Not sure if right ID.
     SPELL_ENRAGEHARD    = 28798,
 
-    //Guard Spell
+//Guard Spell
     SPELL_WHIRLWINDADD  = 26038,
     SPELL_KNOCKBACK     = 26027
 };
@@ -53,9 +51,9 @@ public:
         return GetAQ40AI<boss_sarturaAI>(creature);
     }
 
-    struct boss_sarturaAI : public BossAI
+    struct boss_sarturaAI : public ScriptedAI
     {
-        boss_sarturaAI(Creature* creature) : BossAI(creature, DATA_SARTURA)
+        boss_sarturaAI(Creature* creature) : ScriptedAI(creature)
         {
             Initialize();
         }
@@ -90,19 +88,16 @@ public:
         void Reset() override
         {
             Initialize();
-            _Reset();
         }
 
-        void JustEngagedWith(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
-            BossAI::JustEngagedWith(who);
         }
 
          void JustDied(Unit* /*killer*/) override
          {
              Talk(SAY_DEATH);
-             _JustDied();
          }
 
          void KilledUnit(Unit* /*victim*/) override
@@ -121,7 +116,7 @@ public:
                 if (WhirlWindRandom_Timer <= diff)
                 {
                     //Attack random Gamers
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 100.0f, true))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true))
                     {
                         AddThreat(target, 1.0f);
                         AttackStart(target);
@@ -148,7 +143,7 @@ public:
                 if (AggroReset_Timer <= diff)
                 {
                     //Attack random Gamers
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 100.0f, true))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true))
                     {
                         AddThreat(target, 1.0f);
                         AttackStart(target);
@@ -239,7 +234,7 @@ public:
             Initialize();
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) override
         {
         }
 
@@ -262,7 +257,7 @@ public:
                 if (WhirlWindRandom_Timer <= diff)
                 {
                     //Attack random Gamers
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 100.0f, true))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true))
                     {
                         AddThreat(target, 1.0f);
                         AttackStart(target);
@@ -282,7 +277,7 @@ public:
                 if (AggroReset_Timer <= diff)
                 {
                     //Attack random Gamers
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 100.0f, true))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true))
                     {
                         AddThreat(target, 1.0f);
                         AttackStart(target);
@@ -315,25 +310,8 @@ public:
 
 };
 
-// 4052
-class at_aq_battleguard_sartura : public AreaTriggerScript
-{
-public:
-    at_aq_battleguard_sartura() : AreaTriggerScript("at_aq_battleguard_sartura") { }
-
-    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
-    {
-        if (InstanceScript* instance = player->GetInstanceScript())
-            if (Creature* sartura = instance->GetCreature(DATA_SARTURA))
-                sartura->AI()->AttackStart(player);
-
-        return true;
-    }
-};
-
 void AddSC_boss_sartura()
 {
     new boss_sartura();
     new npc_sartura_royal_guard();
-    new at_aq_battleguard_sartura();
 }

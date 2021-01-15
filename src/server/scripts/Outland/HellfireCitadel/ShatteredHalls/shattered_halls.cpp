@@ -25,14 +25,12 @@
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 
-Position const Executioner = { 152.8524f, -83.63912f, 2.021005f, 0.06981317f };
-
 class at_nethekurse_exit : public AreaTriggerScript
 {
     public:
         at_nethekurse_exit() : AreaTriggerScript("at_nethekurse_exit") { };
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const*) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const*, bool /*entered*/) override
         {
             if (InstanceScript* is = player->GetInstanceScript())
             {
@@ -105,7 +103,7 @@ class boss_shattered_executioner : public CreatureScript
 
             void JustSummoned(Creature*) override { } // avoid despawn of prisoners on death/reset
 
-            void JustDied(Unit* /*killer*/) override
+            void JustDied(Unit*) override
             {
                 _JustDied();
 
@@ -127,7 +125,7 @@ class boss_shattered_executioner : public CreatureScript
                 if (type == DATA_PRISONERS_EXECUTED && data <= 3)
                 {
                     if (Creature* victim = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FIRST_PRISONER + data - 1)))
-                        Unit::Kill(me, victim);
+                        me->Kill(victim);
 
                     if (data == 1)
                     {
@@ -145,14 +143,12 @@ class boss_shattered_executioner : public CreatureScript
                     {
                         case 3:
                             me->RemoveLootMode(LOOT_MODE_HARD_MODE_1);
-                            [[fallthrough]];
+                            /* fallthrough */
                         case 2:
                             me->RemoveLootMode(LOOT_MODE_HARD_MODE_2);
-                            [[fallthrough]];
+                            /* fallthrough */
                         case 1:
                             me->RemoveLootMode(LOOT_MODE_HARD_MODE_3);
-                            [[fallthrough]];
-                        default:
                             break;
                     }
                 }

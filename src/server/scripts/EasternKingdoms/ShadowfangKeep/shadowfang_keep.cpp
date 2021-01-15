@@ -1,4 +1,4 @@
-/*
+ /*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -56,6 +56,11 @@ enum Spells
     SPELL_DARK_OFFERING     = 7154
 };
 
+enum Creatures
+{
+    NPC_ASH                 = 3850
+};
+
 class npc_shadowfang_prisoner : public CreatureScript
 {
 public:
@@ -72,58 +77,55 @@ public:
 
         void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
-            if (Player* player = GetPlayerForEscort())
+            switch (waypointId)
             {
-                switch (waypointId)
-                {
-                    case 0:
-                        if (me->GetEntry() == NPC_ASH)
-                            Talk(SAY_FREE_AS, player);
-                        else
-                            Talk(SAY_FREE_AD, player);
-                        break;
-                    case 10:
-                        if (me->GetEntry() == NPC_ASH)
-                            Talk(SAY_OPEN_DOOR_AS, player);
-                        else
-                            Talk(SAY_OPEN_DOOR_AD, player);
-                        break;
-                    case 11:
-                        if (me->GetEntry() == NPC_ASH)
-                            DoCast(me, SPELL_UNLOCK);
-                        break;
-                    case 12:
-                        if (me->GetEntry() == NPC_ASH)
-                            Talk(SAY_POST_DOOR_AS, player);
-                        else
-                            Talk(SAY_POST1_DOOR_AD, player);
+                case 0:
+                    if (me->GetEntry() == NPC_ASH)
+                        Talk(SAY_FREE_AS);
+                    else
+                        Talk(SAY_FREE_AD);
+                    break;
+                case 10:
+                    if (me->GetEntry() == NPC_ASH)
+                        Talk(SAY_OPEN_DOOR_AS);
+                    else
+                        Talk(SAY_OPEN_DOOR_AD);
+                    break;
+                case 11:
+                    if (me->GetEntry() == NPC_ASH)
+                        DoCast(me, SPELL_UNLOCK);
+                    break;
+                case 12:
+                    if (me->GetEntry() == NPC_ASH)
+                        Talk(SAY_POST_DOOR_AS);
+                    else
+                        Talk(SAY_POST1_DOOR_AD);
 
-                        instance->SetData(TYPE_FREE_NPC, DONE);
-                        break;
-                    case 13:
-                        if (me->GetEntry() != NPC_ASH)
-                            Talk(SAY_POST2_DOOR_AD, player);
-                        break;
-                }
+                    instance->SetData(TYPE_FREE_NPC, DONE);
+                    break;
+                case 13:
+                    if (me->GetEntry() != NPC_ASH)
+                        Talk(SAY_POST2_DOOR_AD);
+                    break;
             }
         }
 
         void Reset() override { }
-        void JustEngagedWith(Unit* /*who*/) override { }
+        void EnterCombat(Unit* /*who*/) override { }
 
-        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
             uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
             ClearGossipMenuFor(player);
             if (action == GOSSIP_ACTION_INFO_DEF + 1)
             {
                 CloseGossipMenuFor(player);
-                Start(false, false, player->GetGUID());
+                Start(false, false);
             }
             return true;
         }
 
-        bool OnGossipHello(Player* player) override
+        bool GossipHello(Player* player) override
         {
             if (instance->GetData(TYPE_FREE_NPC) != DONE && instance->GetData(TYPE_RETHILGORE) == DONE)
                 AddGossipItemFor(player, Player::GetDefaultGossipMenuForSource(me), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -244,20 +246,20 @@ class boss_archmage_arugal : public CreatureScript
                     Talk(SAY_SLAY);
             }
 
-            void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spellInfo) override
+            void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell) override
             {
-                if (spellInfo->Id == SPELL_ARUGAL_CURSE)
+                if (spell->Id == SPELL_ARUGAL_CURSE)
                     Talk(SAY_TRANSFORM);
             }
 
-            void JustEngagedWith(Unit* who) override
+            void EnterCombat(Unit* /*who*/) override
             {
-                BossAI::JustEngagedWith(who);
+                _EnterCombat();
                 Talk(SAY_AGGRO);
-                events.ScheduleEvent(EVENT_CURSE, 7s);
-                events.ScheduleEvent(EVENT_TELEPORT, 15s);
-                events.ScheduleEvent(EVENT_VOID_BOLT, 1s);
-                events.ScheduleEvent(EVENT_THUNDERSHOCK, 10s);
+                events.ScheduleEvent(EVENT_CURSE, Seconds(7));
+                events.ScheduleEvent(EVENT_TELEPORT, Seconds(15));
+                events.ScheduleEvent(EVENT_VOID_BOLT, Seconds(1));
+                events.ScheduleEvent(EVENT_THUNDERSHOCK, Seconds(10));
             }
 
             void AttackStart(Unit* who) override
@@ -280,7 +282,7 @@ class boss_archmage_arugal : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_CURSE:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 30.0f, true))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 30.0f, true))
                                 DoCast(target, SPELL_ARUGAL_CURSE);
                             events.Repeat(Seconds(15));
                             break;

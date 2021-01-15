@@ -1,19 +1,19 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+* This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+*
+* This program is free software; you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the
+* Free Software Foundation; either version 2 of the License, or (at your
+* option) any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #ifndef TRINITY_SPLINECHAIN_H
 #define TRINITY_SPLINECHAIN_H
@@ -23,13 +23,12 @@
 
 struct TC_GAME_API SplineChainLink
 {
-    SplineChainLink(Movement::PointsArray const& points, uint32 expectedDuration, uint32 msToNext, float velocity) : Points(points), ExpectedDuration(expectedDuration), TimeToNext(msToNext), Velocity(velocity) { }
-    template <typename iteratorType> SplineChainLink(iteratorType begin, iteratorType end, uint32 expectedDuration, uint32 msToNext, float velocity) : Points(begin, end), ExpectedDuration(expectedDuration), TimeToNext(msToNext), Velocity(velocity) { }
-    SplineChainLink(uint32 expectedDuration, uint32 msToNext, float velocity) : Points(), ExpectedDuration(expectedDuration), TimeToNext(msToNext), Velocity(velocity) { }
+    SplineChainLink(Movement::PointsArray const& points, uint32 expectedDuration, uint32 msToNext) : Points(points), ExpectedDuration(expectedDuration), TimeToNext(msToNext) { }
+    template <typename iteratorType> SplineChainLink(iteratorType begin, iteratorType end, uint32 expectedDuration, uint32 msToNext) : Points(begin, end), ExpectedDuration(expectedDuration), TimeToNext(msToNext) { }
+    SplineChainLink(uint32 expectedDuration, uint32 msToNext) : Points(), ExpectedDuration(expectedDuration), TimeToNext(msToNext) { }
     Movement::PointsArray Points;
     uint32 ExpectedDuration;
     uint32 TimeToNext;
-    float Velocity;
 };
 
 struct TC_GAME_API SplineChainResumeInfo

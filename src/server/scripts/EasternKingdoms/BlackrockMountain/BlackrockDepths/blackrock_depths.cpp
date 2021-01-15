@@ -40,7 +40,7 @@ class go_shadowforge_brazier : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool OnGossipHello(Player* /*player*/) override
+            bool GossipHello(Player* /*player*/) override
             {
                 if (instance->GetData(TYPE_LYCEUM) == IN_PROGRESS)
                     instance->SetData(TYPE_LYCEUM, DONE);
@@ -97,7 +97,7 @@ class at_ring_of_law : public AreaTriggerScript
 public:
     at_ring_of_law() : AreaTriggerScript("at_ring_of_law") { }
 
-    bool OnTrigger(Player* player, AreaTriggerEntry const* /*at*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
     {
         if (InstanceScript* instance = player->GetInstanceScript())
         {
@@ -105,7 +105,7 @@ public:
                 return false;
 
             instance->SetData(TYPE_RING_OF_LAW, IN_PROGRESS);
-            player->SummonCreature(NPC_GRIMSTONE, 625.559f, -205.618f, -52.735f, 2.609f, TEMPSUMMON_DEAD_DESPAWN);
+            player->SummonCreature(NPC_GRIMSTONE, 625.559f, -205.618f, -52.735f, 2.609f, TEMPSUMMON_DEAD_DESPAWN, 0);
 
             return false;
         }
@@ -178,13 +178,13 @@ public:
         {
             Initialize();
 
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
         }
 
         /// @todo move them to center
         void SummonRingMob()
         {
-            if (Creature* tmp = me->SummonCreature(RingMob[MobSpawnId], 608.960f, -235.322f, -53.907f, 1.857f, TEMPSUMMON_DEAD_DESPAWN))
+            if (Creature* tmp = me->SummonCreature(RingMob[MobSpawnId], 608.960f, -235.322f, -53.907f, 1.857f, TEMPSUMMON_DEAD_DESPAWN, 0))
                 RingMobGUID[MobCount] = tmp->GetGUID();
 
             ++MobCount;
@@ -196,7 +196,7 @@ public:
         /// @todo move them to center
         void SummonRingBoss()
         {
-            if (Creature* tmp = me->SummonCreature(RingBoss[rand32() % 6], 644.300f, -175.989f, -53.739f, 3.418f, TEMPSUMMON_DEAD_DESPAWN))
+            if (Creature* tmp = me->SummonCreature(RingBoss[rand32() % 6], 644.300f, -175.989f, -53.739f, 3.418f, TEMPSUMMON_DEAD_DESPAWN, 0))
                 RingBossGUID = tmp->GetGUID();
 
             MobDeath_Timer = 2500;
@@ -248,7 +248,7 @@ public:
                 {
                     MobDeath_Timer = 2500;
 
-                    if (RingBossGUID)
+                    if (!RingBossGUID.IsEmpty())
                     {
                         Creature* boss = ObjectAccessor::GetCreature(*me, RingBossGUID);
                         if (boss && !boss->IsAlive() && boss->isDead())
@@ -317,14 +317,14 @@ public:
                         break;
                     case 6:
                         SummonRingMob();
-                        Event_Timer = 5000;
+                        Event_Timer = 0;
                         break;
                     case 7:
                         me->SetVisible(true);
                         HandleGameObject(DATA_ARENA1, false);
                         Talk(SAY_TEXT6);
                         CanWalk = true;
-                        Event_Timer = 5000;
+                        Event_Timer = 0;
                         break;
                     case 8:
                         HandleGameObject(DATA_ARENA2, true);
@@ -451,7 +451,7 @@ class npc_lokhtos_darkbargainer : public CreatureScript
         {
             npc_lokhtos_darkbargainerAI(Creature* creature) : ScriptedAI(creature) { }
 
-            bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
             {
                 uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
 
@@ -467,7 +467,7 @@ class npc_lokhtos_darkbargainer : public CreatureScript
                 return true;
             }
 
-            bool OnGossipHello(Player* player) override
+            bool GossipHello(Player* player) override
             {
                 if (me->IsQuestGiver())
                     player->PrepareQuestMenu(me->GetGUID());
@@ -600,7 +600,7 @@ public:
             EscortAI::UpdateAI(diff);
         }
 
-        void OnQuestReward(Player* /*player*/, Quest const* quest, uint32 /*item*/) override
+        void QuestReward(Player* /*player*/, Quest const* quest, uint32 /*item*/) override
         {
             if (instance->GetData(TYPE_BAR) == DONE || instance->GetData(TYPE_BAR) == SPECIAL)
                 return;

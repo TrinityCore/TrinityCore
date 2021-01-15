@@ -28,7 +28,8 @@ enum class AccountOpResult : uint8
     AOR_EMAIL_TOO_LONG,
     AOR_NAME_ALREADY_EXIST,
     AOR_NAME_NOT_EXIST,
-    AOR_DB_INTERNAL_ERROR
+    AOR_DB_INTERNAL_ERROR,
+    AOR_ACCOUNT_BAD_LINK
 };
 
 enum PasswordChangeSecurity
@@ -57,7 +58,7 @@ class TC_GAME_API AccountMgr
     public:
         static AccountMgr* instance();
 
-        AccountOpResult CreateAccount(std::string username, std::string password, std::string email = "");
+        AccountOpResult CreateAccount(std::string username, std::string password, std::string email = "", uint32 bnetAccountId = 0, uint8 bnetIndex = 0);
         static AccountOpResult DeleteAccount(uint32 accountId);
         static AccountOpResult ChangeUsername(uint32 accountId, std::string newUsername, std::string newPassword);
         static AccountOpResult ChangePassword(uint32 accountId, std::string newPassword);
@@ -66,9 +67,9 @@ class TC_GAME_API AccountMgr
         static bool CheckPassword(uint32 accountId, std::string password);
         static bool CheckEmail(uint32 accountId, std::string newEmail);
 
-        static uint32 GetId(std::string_view username);
+        static uint32 GetId(std::string const& username);
+        static uint32 GetSecurity(uint32 accountId);
         static uint32 GetSecurity(uint32 accountId, int32 realmId);
-        [[nodiscard]] static QueryCallback GetSecurityAsync(uint32 accountId, int32 realmId, std::function<void(uint32)> callback);
         static bool GetName(uint32 accountId, std::string& name);
         static bool GetEmail(uint32 accountId, std::string& email);
         static uint32 GetCharactersCount(uint32 accountId);

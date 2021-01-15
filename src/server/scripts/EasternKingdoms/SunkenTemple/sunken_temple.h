@@ -25,7 +25,7 @@
 
 enum STEvents
 {
-    EVENT_STATE       = 1
+    EVENT_STATE = 1
 };
 
 template <class AI, class T>

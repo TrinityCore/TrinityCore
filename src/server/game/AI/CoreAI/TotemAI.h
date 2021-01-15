@@ -19,23 +19,25 @@
 #define TRINITY_TOTEMAI_H
 
 #include "CreatureAI.h"
-#include "PassiveAI.h"
 #include "Timer.h"
 
 class Creature;
 class Totem;
 
-class TC_GAME_API TotemAI : public NullCreatureAI
+class TC_GAME_API TotemAI : public CreatureAI
 {
     public:
-        explicit TotemAI(Creature* creature);
 
+        explicit TotemAI(Creature* c);
+
+        void MoveInLineOfSight(Unit* who) override;
         void AttackStart(Unit* victim) override;
+        void EnterEvadeMode(EvadeReason /*why*/) override;
 
         void UpdateAI(uint32 diff) override;
         static int32 Permissible(Creature const* creature);
 
     private:
-        ObjectGuid _victimGUID;
+        ObjectGuid i_victimGuid;
 };
 #endif

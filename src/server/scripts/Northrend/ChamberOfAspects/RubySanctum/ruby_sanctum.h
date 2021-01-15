@@ -117,7 +117,7 @@ enum RSGameObjectsIds
     GO_BURNING_TREE_4                       = 203037
 };
 
-enum RSWorldStatesRS
+enum RSWorldStates
 {
     WORLDSTATE_CORPOREALITY_MATERIAL = 5049,
     WORLDSTATE_CORPOREALITY_TWILIGHT = 5050,

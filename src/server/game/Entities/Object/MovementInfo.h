@@ -20,13 +20,15 @@
 
 #include "ObjectGuid.h"
 #include "Position.h"
+#include <algorithm>
+#include <vector>
 
 struct MovementInfo
 {
     // common
     ObjectGuid guid;
     uint32 flags;
-    uint16 flags2;
+    uint32 flags2;
     Position pos;
     uint32 time;
 
@@ -39,29 +41,31 @@ struct MovementInfo
             pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
             seat = -1;
             time = 0;
-            time2 = 0;
+            prevTime = 0;
+            vehicleId = 0;
         }
 
         ObjectGuid guid;
         Position pos;
         int8 seat;
         uint32 time;
-        uint32 time2;
+        uint32 prevTime;
+        uint32 vehicleId;
     } transport;
 
     // swimming/flying
     float pitch;
-
-    // falling
-    uint32 fallTime;
 
     // jumping
     struct JumpInfo
     {
         void Reset()
         {
+            fallTime = 0;
             zspeed = sinAngle = cosAngle = xyspeed = 0.0f;
         }
+
+        uint32 fallTime;
 
         float zspeed, sinAngle, cosAngle, xyspeed;
 
@@ -71,7 +75,7 @@ struct MovementInfo
     float splineElevation;
 
     MovementInfo() :
-        guid(), flags(0), flags2(0), time(0), pitch(0.0f), fallTime(0), splineElevation(0.0f)
+        flags(0), flags2(0), time(0), pitch(0.0f), splineElevation(0.0f)
     {
         pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
         transport.Reset();
@@ -84,13 +88,81 @@ struct MovementInfo
     void RemoveMovementFlag(uint32 flag) { flags &= ~flag; }
     bool HasMovementFlag(uint32 flag) const { return (flags & flag) != 0; }
 
-    uint16 GetExtraMovementFlags() const { return flags2; }
-    void AddExtraMovementFlag(uint16 flag) { flags2 |= flag; }
-    bool HasExtraMovementFlag(uint16 flag) const { return (flags2 & flag) != 0; }
+    uint32 GetExtraMovementFlags() const { return flags2; }
+    void SetExtraMovementFlags(uint32 flag) { flags2 = flag; }
+    void AddExtraMovementFlag(uint32 flag) { flags2 |= flag; }
+    void RemoveExtraMovementFlag(uint32 flag) { flags2 &= ~flag; }
+    bool HasExtraMovementFlag(uint32 flag) const { return (flags2 & flag) != 0; }
 
-    void SetFallTime(uint32 val) { fallTime = val; }
+    uint32 GetFallTime() const { return jump.fallTime; }
+    void SetFallTime(uint32 fallTime) { jump.fallTime = fallTime; }
+
+    void ResetTransport()
+    {
+        transport.Reset();
+    }
+
+    void ResetJump()
+    {
+        jump.Reset();
+    }
 
     void OutDebug();
+};
+
+struct MovementForce
+{
+    ObjectGuid ID;
+    TaggedPosition<Position::XYZ> Origin;
+    TaggedPosition<Position::XYZ> Direction;
+    uint32 TransportID = 0;
+    float Magnitude = 0.0f;
+    uint8 Type = 0;
+};
+
+class MovementForces
+{
+public:
+    using Container = std::vector<MovementForce>;
+
+    Container const* GetForces() const { return &_forces; }
+    bool Add(MovementForce const& newForce)
+    {
+        auto itr = FindMovementForce(newForce.ID);
+        if (itr == _forces.end())
+        {
+            _forces.push_back(newForce);
+            return true;
+        }
+
+        return false;
+    }
+
+    bool Remove(ObjectGuid id)
+    {
+        auto itr = FindMovementForce(id);
+        if (itr != _forces.end())
+        {
+            _forces.erase(itr);
+            return true;
+        }
+
+        return false;
+    }
+
+    float GetModMagnitude() const { return _modMagnitude; }
+    void SetModMagnitude(float modMagnitude) { _modMagnitude = modMagnitude; }
+
+    bool IsEmpty() const { return _forces.empty() && _modMagnitude == 1.0f; }
+
+private:
+    Container::iterator FindMovementForce(ObjectGuid id)
+    {
+        return std::find_if(_forces.begin(), _forces.end(), [id](MovementForce const& force) { return force.ID == id; });
+    }
+
+    Container _forces;
+    float _modMagnitude = 1.0f;
 };
 
 #endif // MovementInfo_h__

@@ -15,18 +15,27 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/* ScriptData
+SDName: Sholazar_Basin
+SD%Complete: 100
+SDComment: Quest support: 11253, 11241.
+SDCategory: howling_fjord
+EndScriptData */
+
+/* ContentData
+npc_plaguehound_tracker
+npc_apothecary_hanes
+EndContentData */
+
 #include "ScriptMgr.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
-#include "QuestDef.h"
-#include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
-#include "Vehicle.h"
 
 /*######
 ## npc_apothecary_hanes
@@ -80,8 +89,8 @@ public:
 
         void StartEscort(Player* player)
         {
-            events.ScheduleEvent(EVENT_BEGIN, 2s);
-            events.ScheduleEvent(EVENT_START_ESCORT, 6s);
+            events.ScheduleEvent(EVENT_BEGIN, Seconds(2));
+            events.ScheduleEvent(EVENT_START_ESCORT, Seconds(6));
             _player = player->GetGUID();
         }
 
@@ -89,7 +98,7 @@ public:
         {
             PotTimer = 10000; //10 sec cooldown on potion
             events.Reset();
-            events.ScheduleEvent(EVENT_EMOTE_BEG, 2s);
+            events.ScheduleEvent(EVENT_EMOTE_BEG, Seconds(2));
             me->SetStandState(UNIT_STAND_STATE_KNEEL);
             _player = ObjectGuid();
         }
@@ -121,7 +130,7 @@ public:
                 } else PotTimer -= diff;
             }
 
-            if (IsActiveAttacker() && UpdateVictim())
+            if (GetAttack() && UpdateVictim())
                 DoMeleeAttackIfReady();
 
             EscortAI::UpdateAI(diff);
@@ -137,7 +146,7 @@ public:
                 {
                     case EVENT_EMOTE_BEG:
                         me->HandleEmoteCommand(EMOTE_ONESHOT_BEG);
-                        events.ScheduleEvent(EVENT_EMOTE_BEG, 25s);
+                        events.ScheduleEvent(EVENT_EMOTE_BEG, Seconds(25));
                         break;
                     case EVENT_BEGIN:
                         if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
@@ -195,32 +204,31 @@ public:
 
         void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
         {
-            Player* player = GetPlayerForEscort();
-            if (!player)
+            if (!GetPlayerForEscort())
                 return;
 
             switch (waypointId)
             {
                 case 1:
                     events.ScheduleEvent(EVENT_TALK_1, Seconds(3));
-                    events.ScheduleEvent(EVENT_KNEEL, 5s);
+                    events.ScheduleEvent(EVENT_KNEEL, Seconds(5));
                     events.ScheduleEvent(EVENT_TALK_2, Seconds(6));
                     me->SetStandState(UNIT_STAND_STATE_STAND);
                     break;
                 case 12:
-                    events.ScheduleEvent(EVENT_BURN_CRATES, 1s);
+                    events.ScheduleEvent(EVENT_BURN_CRATES, Seconds(1));
                     events.ScheduleEvent(EVENT_TALK_3, Seconds(3));
                     break;
                 case 20:
-                    events.ScheduleEvent(EVENT_BURN_CRATES, 0s);
+                    events.ScheduleEvent(EVENT_BURN_CRATES, 0);
                     break;
                 case 21:
-                    events.ScheduleEvent(EVENT_BURN_CRATES, 0s);
+                    events.ScheduleEvent(EVENT_BURN_CRATES, 0);
                     events.ScheduleEvent(EVENT_TALK_4, Seconds(3));
                     break;
                 case 28:
-                    events.ScheduleEvent(EVENT_BURN_CRATES, 0s);
-                    events.ScheduleEvent(EVENT_LAUGH, 7s);
+                    events.ScheduleEvent(EVENT_BURN_CRATES, 0);
+                    events.ScheduleEvent(EVENT_LAUGH, Seconds(7));
                     events.ScheduleEvent(EVENT_TALK_5, Seconds(9));
                     events.ScheduleEvent(EVENT_TALK_6, Seconds(17));
                     break;
@@ -236,7 +244,7 @@ public:
             }
         }
 
-        void OnQuestAccept(Player* player, Quest const* quest) override
+        void QuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_TRAIL_OF_FIRE)
                 StartEscort(player);
@@ -250,177 +258,243 @@ public:
 };
 
 /*######
+## npc_plaguehound_tracker
+######*/
+
+enum Plaguehound
+{
+    QUEST_SNIFF_OUT_ENEMY        = 11253
+};
+
+class npc_plaguehound_tracker : public CreatureScript
+{
+public:
+    npc_plaguehound_tracker() : CreatureScript("npc_plaguehound_tracker") { }
+
+    struct npc_plaguehound_trackerAI : public EscortAI
+    {
+        npc_plaguehound_trackerAI(Creature* creature) : EscortAI(creature) { }
+
+        void Reset() override
+        {
+            ObjectGuid summonerGUID;
+
+            if (me->IsSummon())
+                if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+                    if (summoner->GetTypeId() == TYPEID_PLAYER)
+                        summonerGUID = summoner->GetGUID();
+
+            if (!summonerGUID)
+                return;
+
+            me->SetWalk(true);
+            Start(false, false, summonerGUID);
+        }
+
+        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
+        {
+            if (waypointId != 26)
+                return;
+
+            me->DespawnOrUnsummon();
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_plaguehound_trackerAI(creature);
+    }
+};
+
+/*######
+## npc_razael_and_lyana
+######*/
+
+#define GOSSIP_RAZAEL_REPORT "High Executor Anselm wants a report on the situation."
+#define GOSSIP_LYANA_REPORT "High Executor Anselm requests your report."
+
+enum Razael
+{
+    QUEST_REPORTS_FROM_THE_FIELD = 11221,
+    NPC_RAZAEL = 23998,
+    NPC_LYANA = 23778,
+    GOSSIP_TEXTID_RAZAEL1 = 11562,
+    GOSSIP_TEXTID_RAZAEL2 = 11564,
+    GOSSIP_TEXTID_LYANA1 = 11586,
+    GOSSIP_TEXTID_LYANA2 = 11588
+};
+
+class npc_razael_and_lyana : public CreatureScript
+{
+public:
+    npc_razael_and_lyana() : CreatureScript("npc_razael_and_lyana") { }
+
+    struct npc_razael_and_lyanaAI : public ScriptedAI
+    {
+        npc_razael_and_lyanaAI(Creature* creature) : ScriptedAI(creature) { }
+
+        bool GossipHello(Player* player) override
+        {
+            if (me->IsQuestGiver())
+                player->PrepareQuestMenu(me->GetGUID());
+
+            if (player->GetQuestStatus(QUEST_REPORTS_FROM_THE_FIELD) == QUEST_STATUS_INCOMPLETE)
+            {
+                switch (me->GetEntry())
+                {
+                    case NPC_RAZAEL:
+                        if (!player->GetReqKillOrCastCurrentCount(QUEST_REPORTS_FROM_THE_FIELD, NPC_RAZAEL))
+                        {
+                            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_RAZAEL_REPORT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                            SendGossipMenuFor(player, GOSSIP_TEXTID_RAZAEL1, me->GetGUID());
+                            return true;
+                        }
+                        break;
+                    case NPC_LYANA:
+                        if (!player->GetReqKillOrCastCurrentCount(QUEST_REPORTS_FROM_THE_FIELD, NPC_LYANA))
+                        {
+                            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_LYANA_REPORT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                            SendGossipMenuFor(player, GOSSIP_TEXTID_LYANA1, me->GetGUID());
+                            return true;
+                        }
+                        break;
+                }
+            }
+            SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
+            return true;
+        }
+
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        {
+            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+            ClearGossipMenuFor(player);
+            switch (action)
+            {
+                case GOSSIP_ACTION_INFO_DEF + 1:
+                    SendGossipMenuFor(player, GOSSIP_TEXTID_RAZAEL2, me->GetGUID());
+                    player->TalkedToCreature(NPC_RAZAEL, me->GetGUID());
+                    break;
+                case GOSSIP_ACTION_INFO_DEF + 2:
+                    SendGossipMenuFor(player, GOSSIP_TEXTID_LYANA2, me->GetGUID());
+                    player->TalkedToCreature(NPC_LYANA, me->GetGUID());
+                    break;
+            }
+            return true;
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_razael_and_lyanaAI(creature);
+    }
+};
+
+/*######
 ## npc_daegarn
 ######*/
 
 enum Daegarnn
 {
-    QUEST_DEFEAT_AT_RING = 11300,
-    NPC_FIRJUS = 24213,
-    NPC_JLARBORN = 24215,
-    NPC_YOROS = 24214,
-    NPC_OLUF = 23931,
-    NPC_PRISONER_1 = 24253, // looks the same but has different abilities
-    NPC_PRISONER_2 = 24254,
-    NPC_PRISONER_3 = 24255,
-    SAY_TEXT = 0
+    QUEST_DEFEAT_AT_RING            = 11300,
+
+    NPC_FIRJUS                      = 24213,
+    NPC_JLARBORN                    = 24215,
+    NPC_YOROS                       = 24214,
+    NPC_OLUF                        = 23931,
+
+    NPC_PRISONER_1                  = 24253,  // looks the same but has different abilities
+    NPC_PRISONER_2                  = 24254,
+    NPC_PRISONER_3                  = 24255,
 };
 
-static Position const daegarnSummonPosition = { 838.81f, -4678.06f, -94.182f, 0.0f };
-static Position const daegarnCenterPosition = { 801.88f, -4721.87f, -96.143f, 0.0f };
+static float afSummon[] = {838.81f, -4678.06f, -94.182f};
+static float afCenter[] = {801.88f, -4721.87f, -96.143f};
 
-/// @todo make prisoners help (unclear if summoned or using npc's from surrounding cages (summon inside small cages?))
-struct npc_daegarn : public ScriptedAI
+class npc_daegarn : public CreatureScript
 {
-    npc_daegarn(Creature* creature) : ScriptedAI(creature), _eventInProgress(false), _summons(creature)
-    {
-    }
+public:
+    npc_daegarn() : CreatureScript("npc_daegarn") { }
 
-    void Reset() override
+    /// @todo make prisoners help (unclear if summoned or using npc's from surrounding cages (summon inside small cages?))
+    struct npc_daegarnAI : public ScriptedAI
     {
-        _eventInProgress = false;
-        _playerGUID.Clear();
-        _scheduler.CancelAll();
-        _summons.DespawnAll();
-
-        _scheduler.Schedule(40s, [this](TaskContext context)
+        npc_daegarnAI(Creature* creature) : ScriptedAI(creature)
         {
-            Talk(SAY_TEXT);
-            context.Repeat(40s);
-        });
-    }
-
-    void EnterEvadeMode(EvadeReason why) override
-    {
-        if (!_EnterEvadeMode(why))
-            return;
-
-        if (!me->GetVehicle())
-        {
-            if (Unit* owner = me->GetCharmerOrOwner())
-            {
-                me->GetMotionMaster()->Clear();
-                me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle());
-            }
-            else
-            {
-                me->AddUnitState(UNIT_STATE_EVADE);
-                me->GetMotionMaster()->MoveTargetedHome();
-            }
+            Initialize();
         }
 
-        if (me->IsVehicle())
-            me->GetVehicleKit()->Reset(true);
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        _scheduler.Update(diff);
-
-        if (!UpdateVictim())
-            return;
-
-        DoMeleeAttackIfReady();
-    }
-
-    void JustSummoned(Creature* summon) override
-    {
-        _summons.Summon(summon);
-
-        if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+        void Initialize()
         {
-            if (player->IsAlive())
-            {
-                summon->SetWalk(false);
-                summon->SetHomePosition(daegarnCenterPosition);
-                summon->GetMotionMaster()->MovePoint(0, daegarnCenterPosition);
-                return;
-            }
+            bEventInProgress = false;
+            uiPlayerGUID.Clear();
         }
 
-        Reset();
-    }
+        bool bEventInProgress;
+        ObjectGuid uiPlayerGUID;
 
-    void SummonedCreatureDespawn(Creature* summon) override
-    {
-        _summons.Despawn(summon);
-    }
-
-    void SummonedCreatureDies(Creature* summon, Unit* /*killer*/) override
-    {
-        uint32 entry = 0;
-
-        _summons.Despawn(summon);
-
-        // will eventually reset the event if something goes wrong
-        switch (summon->GetEntry())
+        void Reset() override
         {
-            case NPC_FIRJUS:
-                entry = NPC_JLARBORN;
-                break;
-            case NPC_JLARBORN:
-                entry = NPC_YOROS;
-                break;
-            case NPC_YOROS:
-                entry = NPC_OLUF;
-                break;
-            case NPC_OLUF:
-                Reset();
-                return;
+            Initialize();
         }
 
-        SummonGladiator(entry);
-    }
-
-    void OnQuestAccept(Player* player, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_DEFEAT_AT_RING)
+        void StartEvent(ObjectGuid uiGUID)
         {
-            if (_eventInProgress)
+            if (bEventInProgress)
                 return;
 
-            _eventInProgress = true;
-            _playerGUID = player->GetGUID();
-            _scheduler.CancelAll();
-            _summons.DespawnAll();
-
-            _scheduler.Schedule(20s, [this](TaskContext context)
-            {
-                bool reset = true;
-                if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                {
-                    if (player->IsAlive() && player->IsEngaged())
-                    {
-                        for (auto itr = _summons.begin(); reset && itr != _summons.end(); ++itr)
-                        {
-                            Creature* summon = ObjectAccessor::GetCreature(*me, *_summons.begin());
-                            if (summon && player->IsEngagedBy(summon))
-                            {
-                                context.Repeat(5s);
-                                reset = false;
-                            }
-                        }
-                    }
-                }
-
-                if (reset)
-                    Reset();
-            });
+            uiPlayerGUID = uiGUID;
 
             SummonGladiator(NPC_FIRJUS);
         }
-    }
 
-private:
-    void SummonGladiator(uint32 entry)
+        void JustSummoned(Creature* summon) override
+        {
+            if (Player* player = ObjectAccessor::GetPlayer(*me, uiPlayerGUID))
+            {
+                if (player->IsAlive())
+                {
+                    summon->SetWalk(false);
+                    summon->GetMotionMaster()->MovePoint(0, afCenter[0], afCenter[1], afCenter[2]);
+                    summon->AI()->AttackStart(player);
+                    return;
+                }
+            }
+
+            Reset();
+        }
+
+        void SummonGladiator(uint32 uiEntry)
+        {
+            me->SummonCreature(uiEntry, afSummon[0], afSummon[1], afSummon[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30*IN_MILLISECONDS);
+        }
+
+        void SummonedCreatureDies(Creature* summoned, Unit* /*killer*/) override
+        {
+            uint32 uiEntry = 0;
+
+            // will eventually reset the event if something goes wrong
+            switch (summoned->GetEntry())
+            {
+                case NPC_FIRJUS:    uiEntry = NPC_JLARBORN; break;
+                case NPC_JLARBORN:  uiEntry = NPC_YOROS;    break;
+                case NPC_YOROS:     uiEntry = NPC_OLUF;     break;
+                case NPC_OLUF:      Reset();                return;
+            }
+
+            SummonGladiator(uiEntry);
+        }
+
+        void QuestAccept(Player* player, Quest const* quest) override
+        {
+            if (quest->GetQuestId() == QUEST_DEFEAT_AT_RING)
+                StartEvent(player->GetGUID());
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        me->SummonCreature(entry, daegarnSummonPosition, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30s);
+        return new npc_daegarnAI(creature);
     }
-
-    bool _eventInProgress;
-    ObjectGuid _playerGUID;
-    TaskScheduler _scheduler;
-    SummonList _summons;
 };
 
 enum MindlessAbomination
@@ -439,7 +513,7 @@ public:
 
         void Reset() override
         {
-            events.ScheduleEvent(EVENT_CHECK_CHARMED, 1s);
+            events.ScheduleEvent(EVENT_CHECK_CHARMED, 1000);
         }
 
         void UpdateAI(uint32 diff) override
@@ -454,7 +528,7 @@ public:
                         if (!me->IsCharmedOwnedByPlayerOrPlayer())
                             me->DespawnOrUnsummon();
                         else
-                            events.ScheduleEvent(EVENT_CHECK_CHARMED, 1s);
+                            events.ScheduleEvent(EVENT_CHECK_CHARMED, 1000);
                         break;
                 }
             }
@@ -500,6 +574,8 @@ class spell_mindless_abomination_explosion_fx_master : public SpellScriptLoader
 
                 for (uint8 i = 0; i < 10; ++i)
                     caster->CastSpell(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON);
+
+                caster->DespawnOrUnsummon(4000);
             }
 
             void Register() override
@@ -556,15 +632,15 @@ public:
         npc_riven_widow_cocoonAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() override { }
-        void JustEngagedWith(Unit* /*who*/) override { }
+        void EnterCombat(Unit* /*who*/) override { }
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
         void JustDied(Unit* killer) override
         {
-            if (!killer || killer->GetTypeId() != TYPEID_PLAYER)
-                return;
-
             Player* player = killer->ToPlayer();
+
+            if (!player)
+                return;
 
             if (roll_chance_i(20))
             {
@@ -585,7 +661,9 @@ public:
 void AddSC_howling_fjord()
 {
     new npc_apothecary_hanes();
-    RegisterCreatureAI(npc_daegarn);
+    new npc_plaguehound_tracker();
+    new npc_razael_and_lyana();
+    new npc_daegarn();
     new npc_mindless_abomination();
     new spell_mindless_abomination_explosion_fx_master();
     new npc_riven_widow_cocoon();

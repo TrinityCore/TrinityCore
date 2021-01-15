@@ -276,7 +276,7 @@ Optional<std::shared_ptr<ScriptModule>>
                          path.generic_string().c_str());
         }
 
-        return {};
+        return boost::none;
     }
 
     // Use RAII to release the library on failure.
@@ -303,7 +303,7 @@ Optional<std::shared_ptr<ScriptModule>>
         TC_LOG_ERROR("scripts.hotswap", "Could not extract all required functions from the shared library \"%s\"!",
             path.generic_string().c_str());
 
-        return {};
+        return boost::none;
     }
 }
 
@@ -369,6 +369,7 @@ static int InvokeCMakeCommand(T&&... args)
 {
     auto const executable = BuiltInConfig::GetCMakeCommand();
     return Trinity::StartProcess(executable, {
+        executable,
         std::forward<T>(args)...
     }, "scripts.hotswap");
 }
@@ -379,6 +380,7 @@ static std::shared_ptr<Trinity::AsyncProcessResult> InvokeAsyncCMakeCommand(T&&.
 {
     auto const executable = BuiltInConfig::GetCMakeCommand();
     return Trinity::StartAsyncProcess(executable, {
+        executable,
         std::forward<T>(args)...
     }, "scripts.hotswap");
 }
@@ -1357,7 +1359,7 @@ private:
                         return;
 
                     TC_LOG_INFO("scripts.hotswap", ">> Found outdated CMAKE_INSTALL_PREFIX (\"%s\"), "
-                        "worldserver is currently installed at %s",
+                        "worldserver is currently installed at %s...",
                         value.generic_string().c_str(), current_path.generic_string().c_str());
                 }
                 else

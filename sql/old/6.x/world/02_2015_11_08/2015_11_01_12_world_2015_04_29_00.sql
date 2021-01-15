@@ -1,0 +1,2 @@
+--
+UPDATE `gameobject` SET `spawnMask`=1 WHERE `guid` IN (29765,29766,29767,29768,29769,29770,29771,29774);

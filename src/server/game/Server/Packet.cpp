@@ -22,7 +22,8 @@ WorldPackets::Packet::Packet(WorldPacket&& worldPacket) : _worldPacket(std::move
 {
 }
 
-WorldPackets::ServerPacket::ServerPacket(OpcodeServer opcode, size_t initialSize /*= 200*/) : Packet(WorldPacket(opcode, initialSize))
+WorldPackets::ServerPacket::ServerPacket(OpcodeServer opcode, size_t initialSize /*= 200*/, ConnectionType connection /*= CONNECTION_TYPE_DEFAULT*/)
+    : Packet(WorldPacket(opcode, initialSize, connection))
 {
 }
 
@@ -36,8 +37,7 @@ WorldPackets::ClientPacket::ClientPacket(OpcodeClient expectedOpcode, WorldPacke
     ASSERT(GetOpcode() == expectedOpcode);
 }
 
-WorldPackets::ClientPacket::ClientPacket(WorldPacket&& packet)
-    : Packet(std::move(packet))
+WorldPackets::ClientPacket::ClientPacket(WorldPacket&& packet) : Packet(std::move(packet))
 {
 }
 

@@ -240,7 +240,7 @@ public:
         {
             if (CheckTimer <= diff)
             {
-                if (AzgalorGUID)
+                if (!AzgalorGUID.IsEmpty())
                 {
                     Creature* boss = ObjectAccessor::GetCreature(*me, AzgalorGUID);
                     if (!boss || boss->isDead())

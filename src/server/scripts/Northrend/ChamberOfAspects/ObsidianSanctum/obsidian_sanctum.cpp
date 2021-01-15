@@ -177,20 +177,19 @@ struct dummy_dragonAI : public ScriptedAI
 
     void Reset() override
     {
-        if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
 
         events.Reset();
         Initialize();
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void EnterCombat(Unit* /*who*/) override
     {
         Talk(SAY_AGGRO);
         DoZoneInCombat();
 
-        events.ScheduleEvent(EVENT_SHADOW_FISSURE, 5s);
-        events.ScheduleEvent(EVENT_SHADOW_BREATH, 20s);
+        events.ScheduleEvent(EVENT_SHADOW_FISSURE, 5000);
+        events.ScheduleEvent(EVENT_SHADOW_BREATH, 20000);
     }
 
     void SetData(uint32 type, uint32 value) override
@@ -217,8 +216,8 @@ struct dummy_dragonAI : public ScriptedAI
         if (pointId == POINT_ID_LAND)
         {
             me->GetMotionMaster()->Clear();
-            DoZoneInCombat();
-            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0, true))
+            me->SetInCombatWithZone();
+            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
             {
                 AddThreat(target, 1.0f);
                 me->Attack(target, true);
@@ -241,7 +240,7 @@ struct dummy_dragonAI : public ScriptedAI
             waypointId = 0;
         }
 
-        events.ScheduleEvent(EVENT_FREE_MOVEMENT, 500ms);
+        events.ScheduleEvent(EVENT_FREE_MOVEMENT, 500);
     }
 
     // "opens" the portal and does the "opening" whisper
@@ -251,7 +250,7 @@ struct dummy_dragonAI : public ScriptedAI
 
         // using a grid search here seem to be more efficient than caching all four guids
         // in instance script and calculate range to each.
-        GameObject* portal = me->FindNearestGameObject(GO_TWILIGHT_PORTAL, 50.0f, false);
+        GameObject* portal = me->FindNearestGameObject(GO_TWILIGHT_PORTAL, 50.0f);
 
         switch (me->GetEntry())
         {
@@ -260,21 +259,21 @@ struct dummy_dragonAI : public ScriptedAI
                 if (instance->GetBossState(DATA_SARTHARION) != IN_PROGRESS)
                 {
                     for (uint32 i = 0; i < 6; ++i)
-                        me->SummonCreature(NPC_TWILIGHT_EGG, TwilightEggs[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20s);
+                        me->SummonCreature(NPC_TWILIGHT_EGG, TwilightEggs[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000);
                 }
                 else
                 {
                     for (uint32 i = 0; i < 6; ++i)
-                        me->SummonCreature(NPC_SARTHARION_TWILIGHT_EGG, TwilightEggsSarth[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20s);
+                        me->SummonCreature(NPC_SARTHARION_TWILIGHT_EGG, TwilightEggsSarth[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000);
                 }
                 break;
             }
             case NPC_SHADRON:
             {
                 if (instance->GetBossState(DATA_SARTHARION) != IN_PROGRESS)
-                    me->SummonCreature(NPC_ACOLYTE_OF_SHADRON, AcolyteofShadron, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 28s);
+                    me->SummonCreature(NPC_ACOLYTE_OF_SHADRON, AcolyteofShadron, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 28000);
                 else
-                    me->SummonCreature(NPC_ACOLYTE_OF_SHADRON, AcolyteofShadron2, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 28s);
+                    me->SummonCreature(NPC_ACOLYTE_OF_SHADRON, AcolyteofShadron2, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 28000);
 
                 break;
             }
@@ -282,7 +281,7 @@ struct dummy_dragonAI : public ScriptedAI
             {
                 if (instance->GetBossState(DATA_SARTHARION) != IN_PROGRESS)
                 {
-                    if (Creature* acolyte = me->SummonCreature(NPC_ACOLYTE_OF_VESPERON, AcolyteofVesperon, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20s))
+                    if (Creature* acolyte = me->SummonCreature(NPC_ACOLYTE_OF_VESPERON, AcolyteofVesperon, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
                     {
                         me->InterruptNonMeleeSpells(true);
                         acolyte->InterruptNonMeleeSpells(true);
@@ -291,7 +290,7 @@ struct dummy_dragonAI : public ScriptedAI
                 }
                 else
                 {
-                    if (Creature* acolyte = me->SummonCreature(NPC_ACOLYTE_OF_VESPERON, AcolyteofVesperon2, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20s))
+                    if (Creature* acolyte = me->SummonCreature(NPC_ACOLYTE_OF_VESPERON, AcolyteofVesperon2, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
                     {
                         me->InterruptNonMeleeSpells(true);
                         acolyte->InterruptNonMeleeSpells(true);
@@ -385,14 +384,14 @@ struct dummy_dragonAI : public ScriptedAI
         switch (eventId)
         {
             case EVENT_SHADOW_FISSURE:
-                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                     DoCast(target, SPELL_SHADOW_FISSURE);
-                events.ScheduleEvent(eventId, 15s, 20s);
+                events.ScheduleEvent(eventId, urand(15000, 20000));
                 break;
             case EVENT_SHADOW_BREATH:
                 Talk(SAY_BREATH);
                 DoCastVictim(SPELL_SHADOW_BREATH);
-                events.ScheduleEvent(eventId, 20s, 25s);
+                events.ScheduleEvent(eventId, urand(20000, 25000));
                 break;
             default:
                 break;
@@ -426,11 +425,11 @@ public:
             dummy_dragonAI::Reset();
         }
 
-        void JustEngagedWith(Unit* who) override
+        void EnterCombat(Unit* who) override
         {
-            dummy_dragonAI::JustEngagedWith(who);
+            dummy_dragonAI::EnterCombat(who);
 
-            events.ScheduleEvent(EVENT_HATCH_EGGS, 30s);
+            events.ScheduleEvent(EVENT_HATCH_EGGS, 30000);
         }
 
         void UpdateAI(uint32 diff) override
@@ -450,7 +449,7 @@ public:
                 {
                     case EVENT_HATCH_EGGS:
                         OpenPortal();
-                        events.ScheduleEvent(EVENT_HATCH_EGGS, 30s);
+                        events.ScheduleEvent(EVENT_HATCH_EGGS, 30000);
                         break;
                     default:
                         dummy_dragonAI::ExecuteEvent(eventId);
@@ -494,11 +493,11 @@ public:
             instance->SetBossState(DATA_PORTAL_OPEN, NOT_STARTED);
         }
 
-        void JustEngagedWith(Unit* who) override
+        void EnterCombat(Unit* who) override
         {
-            dummy_dragonAI::JustEngagedWith(who);
+            dummy_dragonAI::EnterCombat(who);
 
-            events.ScheduleEvent(EVENT_ACOLYTE_SHADRON, 1min);
+            events.ScheduleEvent(EVENT_ACOLYTE_SHADRON, 60000);
         }
 
         void UpdateAI(uint32 diff) override
@@ -518,7 +517,7 @@ public:
                 {
                     case EVENT_ACOLYTE_SHADRON:
                         if (instance->GetBossState(DATA_PORTAL_OPEN) == NOT_STARTED)
-                            events.ScheduleEvent(EVENT_ACOLYTE_SHADRON, 10s);
+                            events.ScheduleEvent(EVENT_ACOLYTE_SHADRON, 10000);
                         else
                         {
                             if (me->HasAura(SPELL_GIFT_OF_TWILIGTH_SHA))
@@ -528,7 +527,7 @@ public:
 
                             instance->SetBossState(DATA_PORTAL_OPEN, IN_PROGRESS);
 
-                            events.ScheduleEvent(EVENT_ACOLYTE_SHADRON, 60s, 65s);
+                            events.ScheduleEvent(EVENT_ACOLYTE_SHADRON, urand(60000, 65000));
                         }
                         break;
                     default:
@@ -565,11 +564,11 @@ public:
             dummy_dragonAI::Reset();
         }
 
-        void JustEngagedWith(Unit* who) override
+        void EnterCombat(Unit* who) override
         {
-            dummy_dragonAI::JustEngagedWith(who);
+            dummy_dragonAI::EnterCombat(who);
 
-            events.ScheduleEvent(EVENT_ACOLYTE_VESPERON, 1min);
+            events.ScheduleEvent(EVENT_ACOLYTE_VESPERON, 60000);
         }
 
         void UpdateAI(uint32 diff) override
@@ -589,12 +588,12 @@ public:
                 {
                     case EVENT_ACOLYTE_VESPERON:
                         if (instance->GetBossState(DATA_PORTAL_OPEN) == IN_PROGRESS)
-                            events.ScheduleEvent(EVENT_ACOLYTE_VESPERON, 10s);
+                            events.ScheduleEvent(EVENT_ACOLYTE_VESPERON, 10000);
                         else
                         {
                             OpenPortal();
                             DoCastVictim(SPELL_TWILIGHT_TORMENT_VESP);
-                            events.ScheduleEvent(EVENT_ACOLYTE_VESPERON, 60s, 70s);
+                            events.ScheduleEvent(EVENT_ACOLYTE_VESPERON, urand(60000, 70000));
                         }
                         break;
                     default:
@@ -632,7 +631,7 @@ class npc_acolyte_of_shadron : public CreatureScript
             void Reset() override
             {
                 // Despawn the NPC automatically after 28 seconds
-                me->DespawnOrUnsummon(28s);
+                me->DespawnOrUnsummon(28000);
 
                 //if not solo fight, buff main boss, else place debuff on mini-boss. both spells TARGET_SCRIPT
                 if (instance->GetBossState(DATA_SARTHARION) == IN_PROGRESS)
@@ -718,7 +717,7 @@ class npc_acolyte_of_vesperon : public CreatureScript
             void Reset() override
             {
                 // Despawn the NPC automatically after 28 seconds
-                me->DespawnOrUnsummon(28s);
+                me->DespawnOrUnsummon(28000);
 
                 me->AddAura(SPELL_TWILIGHT_SHIFT_ENTER, me);
 
@@ -756,9 +755,9 @@ class npc_acolyte_of_vesperon : public CreatureScript
                         i->GetSource()->RemoveAurasDueToSpell(SPELL_TWILIGHT_TORMENT_VESP);
                 }
 
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TWILIGHT_TORMENT_VESP_ACO, true, true);
-                instance->DoRemoveAurasDueToSpellOnPlayers(57935, true, true);
-                instance->DoRemoveAurasDueToSpellOnPlayers(58835, true, true); // Components of spell Twilight Torment
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TWILIGHT_TORMENT_VESP_ACO);
+                instance->DoRemoveAurasDueToSpellOnPlayers(57935);
+                instance->DoRemoveAurasDueToSpellOnPlayers(58835); // Components of spell Twilight Torment
             }
 
             void UpdateAI(uint32 /*diff*/) override
@@ -805,7 +804,7 @@ public:
         {
             me->AddAura(SPELL_TWILIGHT_SHIFT_ENTER, me);
 
-            events.ScheduleEvent(EVENT_TWILIGHT_EGGS, 20s);
+            events.ScheduleEvent(EVENT_TWILIGHT_EGGS, 20000);
         }
 
         void SpawnWhelps()
@@ -813,15 +812,15 @@ public:
             me->RemoveAllAuras();
 
             if (instance->GetBossState(DATA_SARTHARION) != IN_PROGRESS)
-                me->SummonCreature(NPC_TWILIGHT_WHELP, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 1min);
+                me->SummonCreature(NPC_TWILIGHT_WHELP, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
             else
-                me->SummonCreature(NPC_SARTHARION_TWILIGHT_WHELP, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 1min);
-            me->KillSelf();
+                me->SummonCreature(NPC_SARTHARION_TWILIGHT_WHELP, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
+            me->DealDamage(me, me->GetHealth());
         }
 
         void JustSummoned(Creature* who) override
         {
-            DoZoneInCombat(who);
+            who->SetInCombatWithZone();
         }
 
         void UpdateAI(uint32 diff) override
@@ -874,9 +873,9 @@ public:
         void Reset() override
         {
             me->SetReactState(REACT_PASSIVE);
-            events.ScheduleEvent(EVENT_TSUNAMI_TIMER, 100ms);
-            events.ScheduleEvent(EVENT_TSUNAMI_BUFF, 1s);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+            events.ScheduleEvent(EVENT_TSUNAMI_TIMER, 100);
+            events.ScheduleEvent(EVENT_TSUNAMI_BUFF, 1000);
+            me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
         }
 
         void UpdateAI(uint32 diff) override
@@ -889,12 +888,12 @@ public:
                 {
                     case EVENT_TSUNAMI_TIMER:
                         DoCast(me, SPELL_FLAME_TSUNAMI_DMG_AURA);
-                        events.ScheduleEvent(EVENT_TSUNAMI_TIMER, 500ms);
+                        events.ScheduleEvent(EVENT_TSUNAMI_TIMER, 500);
                         break;
                     case EVENT_TSUNAMI_BUFF:
                         if (Unit* lavaBlaze = GetClosestCreatureWithEntry(me, NPC_LAVA_BLAZE, 10.0f, true))
                             lavaBlaze->CastSpell(lavaBlaze, SPELL_FLAME_TSUNAMI_BUFF, true);
-                        events.ScheduleEvent(EVENT_TSUNAMI_BUFF, 1s);
+                        events.ScheduleEvent(EVENT_TSUNAMI_BUFF, 1000);
                         break;
                 }
             }
@@ -933,10 +932,10 @@ public:
 
         void Reset() override
         {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+            me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
             me->AddAura(46265, me); // Wrong, can't find proper visual
             me->AddAura(69422, me);
-            events.ScheduleEvent(EVENT_VOID_BLAST, 5s);
+            events.ScheduleEvent(EVENT_VOID_BLAST, 5000);
         }
 
         void UpdateAI(uint32 diff) override
@@ -982,13 +981,14 @@ public:
     {
         npc_twilight_whelpAI(Creature* creature) : ScriptedAI(creature)
         {
+            Reset();
         }
 
         void Reset() override
         {
             me->RemoveAllAuras();
-            DoZoneInCombat();
-            events.ScheduleEvent(EVENT_FADE_ARMOR, 1s);
+            me->SetInCombatWithZone();
+            events.ScheduleEvent(EVENT_FADE_ARMOR, 1000);
         }
 
         void UpdateAI(uint32 diff) override
@@ -1002,7 +1002,7 @@ public:
             if (events.ExecuteEvent() == EVENT_FADE_ARMOR)
             {
                 DoCastVictim(SPELL_FADE_ARMOR);
-                events.ScheduleEvent(EVENT_FADE_ARMOR, 5s, 10s);
+                events.ScheduleEvent(EVENT_FADE_ARMOR, urand(5000, 10000));
             }
 
             DoMeleeAttackIfReady();

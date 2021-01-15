@@ -20,6 +20,7 @@
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "utgarde_keep.h"
+#include <sstream>
 
 DoorData const doorData[] =
 {
@@ -32,7 +33,7 @@ MinionData const minionData[] =
 {
     { NPC_SKARVALD,     DATA_SKARVALD_DALRONN },
     { NPC_DALRONN,      DATA_SKARVALD_DALRONN },
-    { 0,                0 }
+    { 0,                0                     } // END
 };
 
 class instance_utgarde_keep : public InstanceMapScript

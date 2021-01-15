@@ -15,60 +15,251 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Felwood
-SD%Complete: 95
-SDComment: Quest support: 7632
-SDCategory: Felwood
-EndScriptData */
-
-/* ContentData
-at_ancient_leaf
-EndContentData */
-
 #include "ScriptMgr.h"
-#include "Map.h"
+#include "MotionMaster.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
+#include "SpellScript.h"
 
 /*######
-## at_ancient_leaf
+## npc_whisperwind_lasher
 ######*/
 
-enum AncientMisc
+enum WhisperwindLasher
 {
-    QUEST_ANCIENT_LEAF      = 7632,
-    NPC_VARTRUS             = 14524,
-    NPC_STOMA               = 14525,
-    NPC_HASTAT              = 14526,
-    CREATURE_GROUP_ANCIENTS = 1
+    EVENT_CHECK_OOC        = 1,
+    SPELL_INFECTED_WOULD   = 52225,
+    SPELL_STAND            = 37752,
+    NPC_WHISPERWIND_LASHER = 47747,
+    NPC_CORRUPTED_LASHER   = 48387,
+    FACTION_HOSTILE        = 14,
+    CHANCE_HOSTILE         = 30
 };
 
-class at_ancient_leaf : public AreaTriggerScript
+class npc_whisperwind_lasher : public CreatureScript
 {
-    public:
-        at_ancient_leaf() : AreaTriggerScript("at_ancient_leaf") { }
+public:
+    npc_whisperwind_lasher() : CreatureScript("npc_whisperwind_lasher") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) override
+    struct npc_whisperwind_lasherAI : public ScriptedAI
+    {
+        npc_whisperwind_lasherAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void Reset() override
         {
-            if (player->IsGameMaster() || !player->IsAlive())
-                return false;
+            lasherClicked = false;
+        }
 
-            // Handle Call Ancients event start - The area trigger summons 3 ancients
-            if ((player->GetQuestStatus(QUEST_ANCIENT_LEAF) == QUEST_STATUS_COMPLETE) || (player->GetQuestStatus(QUEST_ANCIENT_LEAF) == QUEST_STATUS_REWARDED))
+        void OnSpellClick(Unit* clicker, bool& result) override
+        {
+            if (!result)
+                return;
+
+            if (roll_chance_i(CHANCE_HOSTILE))
             {
-                // If ancients are already spawned, skip the rest
-                if (GetClosestCreatureWithEntry(player, NPC_VARTRUS, 50.0f) || GetClosestCreatureWithEntry(player, NPC_STOMA, 50.0f) || GetClosestCreatureWithEntry(player, NPC_HASTAT, 50.0f))
-                    return true;
-
-                player->GetMap()->SummonCreatureGroup(CREATURE_GROUP_ANCIENTS);
+                me->CastSpell(me, SPELL_INFECTED_WOULD);
+                me->SetEntry(NPC_CORRUPTED_LASHER);
+                me->SetFaction(FACTION_HOSTILE);
             }
-            return false;
+            else
+            {
+                me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+            }
+
+            me->RemoveNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
+            me->CastSpell(me, SPELL_STAND);
+            me->GetMotionMaster()->MoveRandom(8.0f);
+            events.ScheduleEvent(EVENT_CHECK_OOC, 20000);
+            lasherClicked = true;
+
+            if (Player* player = clicker->ToPlayer())
+                player->KilledMonsterCredit(NPC_WHISPERWIND_LASHER);
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (!lasherClicked)
+                return;
+
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case EVENT_CHECK_OOC:
+                    if (!me->IsInCombat())
+                        me->DespawnOrUnsummon();
+                    else
+                        events.ScheduleEvent(EVENT_CHECK_OOC, 5000);
+                    break;
+                }
+            }
+            DoMeleeAttackIfReady();
+        }
+
+    private:
+        EventMap events;
+        bool lasherClicked = false;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_whisperwind_lasherAI(creature);
+    }
+};
+
+/*#####
+# Spell 88254 "Swipe Honey" scripted for quest 27989 "Ruumbo Demands Honey"
+#####*/
+
+enum SwipeHoney
+{
+    NPC_HONEY_BUNNY = 47308,
+    ITEM_HONEY_GLOB = 62820,
+    SPELL_BEES      = 94064
+};
+
+class spell_swipe_honey : public SpellScriptLoader
+{
+public:
+    spell_swipe_honey() : SpellScriptLoader("spell_swipe_honey") { }
+
+    class spell_swipe_honey_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_swipe_honey_SpellScript);
+
+        SpellCastResult CheckTarget()
+        {
+            if (GetCaster()->FindNearestCreature(NPC_HONEY_BUNNY, 5.0f, true))
+                return SPELL_CAST_OK;
+            return SPELL_FAILED_OUT_OF_RANGE;
+        }
+
+        void HandleDummy(SpellEffIndex /* effIndex */)
+        {
+            if (Creature* honey = GetCaster()->FindNearestCreature(NPC_HONEY_BUNNY, 5.0f, true))
+            {
+                if (Player* player = GetCaster()->ToPlayer())
+                {
+                    player->AddItem(ITEM_HONEY_GLOB, 1);
+
+                    if (urand(1, 100) < 30)
+                        honey->CastSpell(player, SPELL_BEES);
+                    else
+                        honey->DespawnOrUnsummon();
+                }
+            }
+        }
+
+        void Register() override
+        {
+            OnCheckCast += SpellCheckCastFn(spell_swipe_honey_SpellScript::CheckTarget);
+            OnEffectHitTarget += SpellEffectFn(spell_swipe_honey_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_swipe_honey_SpellScript();
+    }
+};
+
+/*#####
+# Spell 88425 "Bees! BEES!" scripted for quest 27989 "Ruumbo Demands Honey"
+#####*/
+
+enum BeesBEES
+{
+    BOSS_EMOTE_BEES = 0,
+    SPELL_BEES_BEES = 88425
+};
+
+class spell_beesbees : public SpellScriptLoader
+{
+public: spell_beesbees() : SpellScriptLoader("spell_beesbees") { }
+
+        class spell_beesbees_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_beesbees_SpellScript);
+
+            void HandleScriptEffect(SpellEffIndex /* effIndex */)
+            {
+                if (Creature* honey = GetCaster()->ToCreature())
+                {
+                    if (Player* player = GetHitPlayer())
+                    {
+                        honey->AI()->Talk(BOSS_EMOTE_BEES, player);
+                        honey->CastSpell(player, SPELL_BEES_BEES);
+                        honey->DespawnOrUnsummon();
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_beesbees_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_beesbees_SpellScript();
+        }
+};
+
+/*#####
+# Spell 88665 "Ruumbo's Silly Dance" scripted for quest 27995 "Dance for Ruumbo!"
+#####*/
+
+enum RuumbosSillyDance
+{
+    NPC_DRIZZLE  = 47556,
+    NPC_FERLI    = 47558,
+    MAP_KALIMDOR = 1
+};
+
+Position const DrizzleSpawnPos = { 3852.52f, -1321.92f, 213.3353f, 5.72468f };
+Position const FerliSpawnPos = { 3850.44f, -1323.34f, 213.2113f, 5.637414f };
+
+class spell_ruumbos_silly_dance : public SpellScriptLoader
+{
+public: spell_ruumbos_silly_dance() : SpellScriptLoader("spell_ruumbos_silly_dance") { }
+
+        class spell_ruumbos_silly_dance_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_ruumbos_silly_dance_SpellScript);
+
+            void HandleScriptEffect(SpellEffIndex /* effIndex */)
+            {
+                if (Player* player = GetHitPlayer())
+                {
+                    player->SetEmoteState(EMOTE_STATE_DANCE);
+
+                    if (player->GetMapId() == MAP_KALIMDOR)
+                    {
+                        player->SummonCreature(NPC_DRIZZLE, DrizzleSpawnPos, TEMPSUMMON_TIMED_DESPAWN, 20000);
+                        player->SummonCreature(NPC_FERLI, FerliSpawnPos, TEMPSUMMON_TIMED_DESPAWN, 20000);
+                    }
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_ruumbos_silly_dance_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_ruumbos_silly_dance_SpellScript();
         }
 };
 
 void AddSC_felwood()
 {
-    new at_ancient_leaf();
+    new npc_whisperwind_lasher();
+    new spell_swipe_honey();
+    new spell_beesbees();
+    new spell_ruumbos_silly_dance();
 }

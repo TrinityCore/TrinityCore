@@ -24,12 +24,11 @@
 #include "Language.h"
 #include "LFGMgr.h"
 #include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 #include "Player.h"
 #include "RBAC.h"
 
-using namespace Trinity::ChatCommands;
-
-void PrintPlayerInfo(ChatHandler* handler, Player const* player)
+void GetPlayerInfo(ChatHandler* handler, Player* player)
 {
     if (!player)
         return;
@@ -40,7 +39,7 @@ void PrintPlayerInfo(ChatHandler* handler, Player const* player)
     std::string const& state = lfg::GetStateString(sLFGMgr->GetState(guid));
     handler->PSendSysMessage(LANG_LFG_PLAYER_INFO, player->GetName().c_str(),
         state.c_str(), uint8(dungeons.size()), lfg::ConcatenateDungeons(dungeons).c_str(),
-        lfg::GetRolesString(sLFGMgr->GetRoles(guid)).c_str(), sLFGMgr->GetComment(guid).c_str());
+        lfg::GetRolesString(sLFGMgr->GetRoles(guid)).c_str());
 }
 
 class lfg_commandscript : public CommandScript
@@ -48,63 +47,66 @@ class lfg_commandscript : public CommandScript
 public:
     lfg_commandscript() : CommandScript("lfg_commandscript") { }
 
-    ChatCommandTable GetCommands() const override
+    std::vector<ChatCommand> GetCommands() const override
     {
-        static ChatCommandTable lfgCommandTable =
+        static std::vector<ChatCommand> lfgCommandTable =
         {
-            { "player",     HandleLfgPlayerInfoCommand,     rbac::RBAC_PERM_COMMAND_LFG_PLAYER,     Console::No },
-            { "group",      HandleLfgGroupInfoCommand,      rbac::RBAC_PERM_COMMAND_LFG_GROUP,      Console::No },
-            { "queue",      HandleLfgQueueInfoCommand,      rbac::RBAC_PERM_COMMAND_LFG_QUEUE,      Console::Yes },
-            { "clean",      HandleLfgCleanCommand,          rbac::RBAC_PERM_COMMAND_LFG_CLEAN,      Console::Yes },
-            { "options",    HandleLfgOptionsCommand,        rbac::RBAC_PERM_COMMAND_LFG_OPTIONS,    Console::Yes },
+            {  "player", rbac::RBAC_PERM_COMMAND_LFG_PLAYER,  false, &HandleLfgPlayerInfoCommand, "" },
+            {   "group", rbac::RBAC_PERM_COMMAND_LFG_GROUP,   false, &HandleLfgGroupInfoCommand,  "" },
+            {   "queue", rbac::RBAC_PERM_COMMAND_LFG_QUEUE,   true,  &HandleLfgQueueInfoCommand,  "" },
+            {   "clean", rbac::RBAC_PERM_COMMAND_LFG_CLEAN,   true,  &HandleLfgCleanCommand,      "" },
+            { "options", rbac::RBAC_PERM_COMMAND_LFG_OPTIONS, true,  &HandleLfgOptionsCommand,    "" },
         };
 
-        static ChatCommandTable commandTable =
+        static std::vector<ChatCommand> commandTable =
         {
-            { "lfg", lfgCommandTable },
+            { "lfg", rbac::RBAC_PERM_COMMAND_LFG, true, nullptr, "", lfgCommandTable },
         };
         return commandTable;
     }
 
-    static bool HandleLfgPlayerInfoCommand(ChatHandler* handler, Optional<PlayerIdentifier> player)
+    static bool HandleLfgPlayerInfoCommand(ChatHandler* handler, char const* args)
     {
-        if (!player)
-            player = PlayerIdentifier::FromTargetOrSelf(handler);
-        if (!player)
+        Player* target = nullptr;
+        std::string playerName;
+        if (!handler->extractPlayerTarget((char*)args, &target, nullptr, &playerName))
             return false;
 
-        if (Player* target = player->GetConnectedPlayer())
-        {
-            PrintPlayerInfo(handler, target);
-            return true;
-        }
-
-        return false;
+        GetPlayerInfo(handler, target);
+        return true;
     }
 
-    static bool HandleLfgGroupInfoCommand(ChatHandler* handler, Optional<PlayerIdentifier> player)
+    static bool HandleLfgGroupInfoCommand(ChatHandler* handler, char const* args)
     {
-        if (!player)
-            player = PlayerIdentifier::FromTargetOrSelf(handler);
-        if (!player)
+        Player* playerTarget;
+        ObjectGuid guidTarget;
+        std::string nameTarget;
+
+        ObjectGuid parseGUID = ObjectGuid::Create<HighGuid::Player>(uint64(atoull(args)));
+
+        if (sCharacterCache->GetCharacterNameByGuid(parseGUID, nameTarget))
+        {
+            playerTarget = ObjectAccessor::FindPlayer(parseGUID);
+            guidTarget = parseGUID;
+        }
+        else if (!handler->extractPlayerTarget((char*)args, &playerTarget, &guidTarget, &nameTarget))
             return false;
 
         Group* groupTarget = nullptr;
 
-        if (Player* target = player->GetConnectedPlayer())
-            groupTarget = target->GetGroup();
+        if (playerTarget)
+            groupTarget = playerTarget->GetGroup();
         else
         {
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GROUP_MEMBER);
-            stmt->setUInt32(0, player->GetGUID().GetCounter());
+            stmt->setUInt64(0, guidTarget.GetCounter());
             PreparedQueryResult resultGroup = CharacterDatabase.Query(stmt);
             if (resultGroup)
                 groupTarget = sGroupMgr->GetGroupByDbStoreId((*resultGroup)[0].GetUInt32());
         }
-
         if (!groupTarget)
         {
-            handler->PSendSysMessage(LANG_LFG_NOT_IN_GROUP, player->GetName().c_str());
+            handler->PSendSysMessage(LANG_LFG_NOT_IN_GROUP, nameTarget.c_str());
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -114,11 +116,14 @@ public:
         handler->PSendSysMessage(LANG_LFG_GROUP_INFO, groupTarget->isLFGGroup(),
             state.c_str(), sLFGMgr->GetDungeon(guid));
 
-        for (Group::MemberSlot const& slot : groupTarget->GetMemberSlots())
+        Group::MemberSlotList const& members = groupTarget->GetMemberSlots();
+
+        for (Group::MemberSlotList::const_iterator itr = members.begin(); itr != members.end(); ++itr)
         {
-            Player* p = ObjectAccessor::FindPlayer(slot.guid);
+            Group::MemberSlot const& slot = *itr;
+            Player* p = ObjectAccessor::FindPlayer((*itr).guid);
             if (p)
-                PrintPlayerInfo(handler, p);
+                GetPlayerInfo(handler, p);
             else
                 handler->PSendSysMessage("%s is offline.", slot.name.c_str());
         }
@@ -126,24 +131,32 @@ public:
         return true;
     }
 
-    static bool HandleLfgOptionsCommand(ChatHandler* handler, Optional<uint32> optionsArg)
+    static bool HandleLfgOptionsCommand(ChatHandler* handler, char const* args)
     {
-        if (optionsArg)
+        int32 options = -1;
+        if (char* str = strtok((char*)args, " "))
         {
-            sLFGMgr->SetOptions(*optionsArg);
+            int32 tmp = atoi(str);
+            if (tmp > -1)
+                options = tmp;
+        }
+
+        if (options != -1)
+        {
+            sLFGMgr->SetOptions(options);
             handler->PSendSysMessage(LANG_LFG_OPTIONS_CHANGED);
         }
         handler->PSendSysMessage(LANG_LFG_OPTIONS, sLFGMgr->GetOptions());
         return true;
     }
 
-    static bool HandleLfgQueueInfoCommand(ChatHandler* handler, Tail full)
+    static bool HandleLfgQueueInfoCommand(ChatHandler* handler, char const* args)
     {
-        handler->SendSysMessage(sLFGMgr->DumpQueueInfo(!full.empty()).c_str(), true);
+        handler->SendSysMessage(sLFGMgr->DumpQueueInfo(*args != '\0').c_str(), true);
         return true;
     }
 
-    static bool HandleLfgCleanCommand(ChatHandler* handler)
+    static bool HandleLfgCleanCommand(ChatHandler* handler, char const* /*args*/)
     {
         handler->PSendSysMessage(LANG_LFG_CLEAN);
         sLFGMgr->Clean();

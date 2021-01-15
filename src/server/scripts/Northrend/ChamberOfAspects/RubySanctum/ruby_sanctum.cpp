@@ -71,7 +71,7 @@ class npc_xerestrasza : public CreatureScript
             void Reset() override
             {
                 _events.Reset();
-                me->RemoveFlag(UNIT_NPC_FLAGS, GOSSIP_OPTION_QUESTGIVER);
+                me->RemoveNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
             }
 
             void DoAction(int32 action) override
@@ -79,20 +79,19 @@ class npc_xerestrasza : public CreatureScript
                 if (action == ACTION_BALTHARUS_DEATH)
                 {
                     me->setActive(true);
-                    me->SetFarVisible(true);
                     _isIntro = false;
 
                     Talk(SAY_XERESTRASZA_EVENT);
                     me->SetWalk(true);
                     me->GetMotionMaster()->MovePoint(0, xerestraszaMovePos);
 
-                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_1, 16s);
-                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_2, 25s);
-                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_3, 32s);
-                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_4, 42s);
-                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_5, 51s);
-                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_6, 61s);
-                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_7, 69s);
+                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_1, 16000);
+                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_2, 25000);
+                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_3, 32000);
+                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_4, 42000);
+                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_5, 51000);
+                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_6, 61000);
+                    _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_7, 69000);
                 }
                 else if (action == ACTION_INTRO_BALTHARUS && !_introDone)
                 {
@@ -131,10 +130,9 @@ class npc_xerestrasza : public CreatureScript
                             Talk(SAY_XERESTRASZA_EVENT_6);
                             break;
                         case EVENT_XERESTRASZA_EVENT_7:
-                            me->SetFlag(UNIT_NPC_FLAGS, GOSSIP_OPTION_QUESTGIVER);
+                            me->AddNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
                             Talk(SAY_XERESTRASZA_EVENT_7);
                             me->setActive(false);
-                            me->SetFarVisible(false);
                             break;
                         default:
                             break;
@@ -159,7 +157,7 @@ class at_baltharus_plateau : public OnlyOnceAreaTriggerScript
     public:
         at_baltharus_plateau() : OnlyOnceAreaTriggerScript("at_baltharus_plateau") { }
 
-        bool TryHandleOnce(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+        bool _OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
         {
             // Only trigger once
             if (InstanceScript* instance = player->GetInstanceScript())
@@ -198,11 +196,7 @@ class spell_ruby_sanctum_rallying_shout : public SpellScriptLoader
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (_targetCount && !GetCaster()->HasAura(SPELL_RALLY))
-                {
-                    CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                    args.AddSpellMod(SPELLVALUE_AURA_STACK, _targetCount);
-                    GetCaster()->CastSpell(GetCaster(), SPELL_RALLY, args);
-                }
+                    GetCaster()->CastCustomSpell(SPELL_RALLY, SPELLVALUE_AURA_STACK, _targetCount, GetCaster(), TRIGGERED_FULL_MASK);
             }
 
             void Register() override

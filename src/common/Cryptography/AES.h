@@ -22,7 +22,9 @@
 #include <array>
 #include <openssl/evp.h>
 
-namespace Trinity::Crypto
+namespace Trinity
+{
+namespace Crypto
 {
     class TC_COMMON_API AES
     {
@@ -46,6 +48,7 @@ namespace Trinity::Crypto
         EVP_CIPHER_CTX* _ctx;
         bool _encrypting;
     };
+}
 }
 
 #endif // Trinity_AES_h__

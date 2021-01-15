@@ -34,7 +34,7 @@ MinionData const minionData[] =
     { NPC_OLM_THE_SUMMONER,     DATA_MAULGAR },
     { NPC_KIGGLER_THE_CRAZED,   DATA_MAULGAR },
     { NPC_BLINDEYE_THE_SEER,    DATA_MAULGAR },
-    { 0, 0 }
+    { 0,                        0            } // END
 };
 
 class instance_gruuls_lair : public InstanceMapScript
@@ -60,6 +60,12 @@ class instance_gruuls_lair : public InstanceMapScript
                 {
                     case NPC_MAULGAR:
                         MaulgarGUID = creature->GetGUID();
+                        /* fallthrough */
+                    case NPC_KROSH_FIREHAND:
+                    case NPC_OLM_THE_SUMMONER:
+                    case NPC_KIGGLER_THE_CRAZED:
+                    case NPC_BLINDEYE_THE_SEER:
+                        AddMinion(creature, true);
                         break;
                     default:
                         break;

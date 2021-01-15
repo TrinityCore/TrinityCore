@@ -15,26 +15,28 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "LootItemStorage.h"
 #include "DatabaseEnv.h"
 #include "Item.h"
 #include "ItemTemplate.h"
 #include "Log.h"
-#include "Loot.h"
+#include "LootItemStorage.h"
 #include "LootMgr.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+
+#include <boost/thread/shared_mutex.hpp>
+#include <boost/thread/locks.hpp>
 
 #include <unordered_map>
 
 namespace
 {
-    std::unordered_map<uint32, StoredLootContainer> _lootItemStore;
+    std::unordered_map<uint64, StoredLootContainer> _lootItemStore;
 }
 
 StoredLootItem::StoredLootItem(LootItem const& lootItem) : ItemId(lootItem.itemid), Count(lootItem.count), FollowRules(lootItem.follow_loot_rules),
 FFA(lootItem.freeforall), Blocked(lootItem.is_blocked), Counted(lootItem.is_counted), UnderThreshold(lootItem.is_underthreshold),
-NeedsQuest(lootItem.needs_quest), RandomPropertyId(lootItem.randomPropertyId), RandomSuffix(lootItem.randomSuffix)
+NeedsQuest(lootItem.needs_quest), RandomBonusListId(lootItem.randomBonusListId), Context(lootItem.context), BonusListIDs(lootItem.BonusListIDs)
 {
 }
 
@@ -44,9 +46,9 @@ LootItemStorage* LootItemStorage::instance()
     return &instance;
 }
 
-std::shared_mutex* LootItemStorage::GetLock()
+boost::shared_mutex* LootItemStorage::GetLock()
 {
-    static std::shared_mutex _lock;
+    static boost::shared_mutex _lock;
     return &_lock;
 }
 
@@ -65,7 +67,7 @@ void LootItemStorage::LoadStorageFromDB()
         {
             Field* fields = result->Fetch();
 
-            uint32 key = fields[0].GetUInt32();
+            uint64 key = fields[0].GetUInt64();
             auto itr = _lootItemStore.find(key);
             if (itr == _lootItemStore.end())
             {
@@ -86,8 +88,13 @@ void LootItemStorage::LoadStorageFromDB()
             lootItem.is_counted = fields[6].GetBool();
             lootItem.is_underthreshold = fields[7].GetBool();
             lootItem.needs_quest = fields[8].GetBool();
-            lootItem.randomPropertyId = fields[9].GetInt32();
-            lootItem.randomSuffix = fields[10].GetUInt32();
+            lootItem.randomBonusListId = fields[9].GetUInt32();
+            lootItem.context = ItemContext(fields[10].GetUInt8());
+            Tokenizer bonusLists(fields[11].GetString(), ' ');
+            std::transform(bonusLists.begin(), bonusLists.end(), std::back_inserter(lootItem.BonusListIDs), [](char const* token)
+                {
+                    return int32(strtol(token, nullptr, 10));
+                });
 
             storedContainer.AddLootItem(lootItem, trans);
 
@@ -108,7 +115,7 @@ void LootItemStorage::LoadStorageFromDB()
         {
             Field* fields = result->Fetch();
 
-            uint32 key = fields[0].GetUInt32();
+            uint64 key = fields[0].GetUInt64();
             auto itr = _lootItemStore.find(key);
             if (itr == _lootItemStore.end())
             {
@@ -137,9 +144,9 @@ bool LootItemStorage::LoadStoredLoot(Item* item, Player* player)
 
     // read
     {
-        std::shared_lock<std::shared_mutex> lock(*GetLock());
+        boost::shared_lock<boost::shared_mutex> lock(*GetLock());
 
-        auto itr = _lootItemStore.find(loot->containerID);
+        auto itr = _lootItemStore.find(loot->containerID.GetCounter());
         if (itr == _lootItemStore.end())
             return false;
 
@@ -162,8 +169,9 @@ bool LootItemStorage::LoadStoredLoot(Item* item, Player* player)
             li.is_counted = storedItemPair.second.Counted;
             li.is_underthreshold = storedItemPair.second.UnderThreshold;
             li.needs_quest = storedItemPair.second.NeedsQuest;
-            li.randomPropertyId = storedItemPair.second.RandomPropertyId;
-            li.randomSuffix = storedItemPair.second.RandomSuffix;
+            li.randomBonusListId = storedItemPair.second.RandomBonusListId;
+            li.context = storedItemPair.second.Context;
+            li.BonusListIDs = storedItemPair.second.BonusListIDs;
 
             // Copy the extra loot conditions from the item in the loot template
             lt->CopyConditions(&li);
@@ -185,10 +193,10 @@ bool LootItemStorage::LoadStoredLoot(Item* item, Player* player)
     return true;
 }
 
-void LootItemStorage::RemoveStoredMoneyForContainer(uint32 containerId)
+void LootItemStorage::RemoveStoredMoneyForContainer(uint64 containerId)
 {
     // write
-    std::unique_lock<std::shared_mutex> lock(*GetLock());
+    boost::unique_lock<boost::shared_mutex> lock(*GetLock());
 
     auto itr = _lootItemStore.find(containerId);
     if (itr == _lootItemStore.end())
@@ -197,30 +205,30 @@ void LootItemStorage::RemoveStoredMoneyForContainer(uint32 containerId)
     itr->second.RemoveMoney();
 }
 
-void LootItemStorage::RemoveStoredLootForContainer(uint32 containerId)
+void LootItemStorage::RemoveStoredLootForContainer(uint64 containerId)
 {
     // write
     {
-        std::unique_lock<std::shared_mutex> lock(*GetLock());
+        boost::unique_lock<boost::shared_mutex> lock(*GetLock());
         _lootItemStore.erase(containerId);
     }
 
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_ITEMS);
-    stmt->setUInt32(0, containerId);
+    stmt->setUInt64(0, containerId);
     trans->Append(stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_MONEY);
-    stmt->setUInt32(0, containerId);
+    stmt->setUInt64(0, containerId);
     trans->Append(stmt);
 
     CharacterDatabase.CommitTransaction(trans);
 }
 
-void LootItemStorage::RemoveStoredLootItemForContainer(uint32 containerId, uint32 itemId, uint32 count)
+void LootItemStorage::RemoveStoredLootItemForContainer(uint64 containerId, uint32 itemId, uint32 count)
 {
     // write
-    std::unique_lock<std::shared_mutex> lock(*GetLock());
+    boost::unique_lock<boost::shared_mutex> lock(*GetLock());
 
     auto itr = _lootItemStore.find(containerId);
     if (itr == _lootItemStore.end())
@@ -237,24 +245,24 @@ void LootItemStorage::AddNewStoredLoot(Loot* loot, Player* player)
 
     // read
     {
-        std::shared_lock<std::shared_mutex> lock(*GetLock());
+        boost::shared_lock<boost::shared_mutex> lock(*GetLock());
 
-        auto itr = _lootItemStore.find(loot->containerID);
+        auto itr = _lootItemStore.find(loot->containerID.GetCounter());
         if (itr != _lootItemStore.end())
         {
-            TC_LOG_ERROR("misc", "Trying to store item loot by player: %s for container id: %u that is already in storage!", player->GetGUID().ToString().c_str(), loot->containerID);
+            TC_LOG_ERROR("misc", "Trying to store item loot by player: %s for container id: %lu that is already in storage!", player->GetGUID().ToString().c_str(), loot->containerID.GetCounter());
             return;
         }
     }
 
-    StoredLootContainer container(loot->containerID);
+    StoredLootContainer container(loot->containerID.GetCounter());
 
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     if (loot->gold)
         container.AddMoney(loot->gold, trans);
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_ITEMS);
-    stmt->setUInt32(0, loot->containerID);
+    stmt->setUInt64(0, loot->containerID.GetCounter());
     trans->Append(stmt);
 
     for (LootItem const& li : loot->items)
@@ -279,12 +287,12 @@ void LootItemStorage::AddNewStoredLoot(Loot* loot, Player* player)
 
     // write
     {
-        std::unique_lock<std::shared_mutex> lock(*GetLock());
-        _lootItemStore.emplace(loot->containerID, std::move(container));
+        boost::unique_lock<boost::shared_mutex> lock(*GetLock());
+        _lootItemStore.emplace(loot->containerID.GetCounter(), std::move(container));
     }
 }
 
-void StoredLootContainer::AddLootItem(LootItem const& lootItem, CharacterDatabaseTransaction trans)
+void StoredLootContainer::AddLootItem(LootItem const& lootItem, CharacterDatabaseTransaction& trans)
 {
     _lootItems.emplace(std::piecewise_construct, std::forward_as_tuple(lootItem.itemid), std::forward_as_tuple(lootItem));
     if (!trans)
@@ -293,7 +301,7 @@ void StoredLootContainer::AddLootItem(LootItem const& lootItem, CharacterDatabas
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEMCONTAINER_ITEMS);
 
     // container_id, item_id, item_count, follow_rules, ffa, blocked, counted, under_threshold, needs_quest, rnd_prop, rnd_suffix
-    stmt->setUInt32(0, _containerId);
+    stmt->setUInt64(0, _containerId);
     stmt->setUInt32(1, lootItem.itemid);
     stmt->setUInt32(2, lootItem.count);
     stmt->setBool(3, lootItem.follow_loot_rules);
@@ -302,23 +310,27 @@ void StoredLootContainer::AddLootItem(LootItem const& lootItem, CharacterDatabas
     stmt->setBool(6, lootItem.is_counted);
     stmt->setBool(7, lootItem.is_underthreshold);
     stmt->setBool(8, lootItem.needs_quest);
-    stmt->setInt32(9, lootItem.randomPropertyId);
-    stmt->setUInt32(10, lootItem.randomSuffix);
+    stmt->setInt32(9, lootItem.randomBonusListId);
+    stmt->setUInt8(10, AsUnderlyingType(lootItem.context));
+    std::ostringstream bonusListIDs;
+    for (int32 bonusListID : lootItem.BonusListIDs)
+        bonusListIDs << bonusListID << ' ';
+    stmt->setString(11, bonusListIDs.str());
     trans->Append(stmt);
 }
 
-void StoredLootContainer::AddMoney(uint32 money, CharacterDatabaseTransaction trans)
+void StoredLootContainer::AddMoney(uint32 money, CharacterDatabaseTransaction& trans)
 {
     _money = money;
     if (!trans)
         return;
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_MONEY);
-    stmt->setUInt32(0, _containerId);
+    stmt->setUInt64(0, _containerId);
     trans->Append(stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEMCONTAINER_MONEY);
-    stmt->setUInt32(0, _containerId);
+    stmt->setUInt64(0, _containerId);
     stmt->setUInt32(1, _money);
     trans->Append(stmt);
 }
@@ -328,7 +340,7 @@ void StoredLootContainer::RemoveMoney()
     _money = 0;
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_MONEY);
-    stmt->setUInt32(0, _containerId);
+    stmt->setUInt64(0, _containerId);
     CharacterDatabase.Execute(stmt);
 }
 
@@ -346,7 +358,7 @@ void StoredLootContainer::RemoveItem(uint32 itemId, uint32 count)
 
     // Deletes a single item associated with an openable item from the DB
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_ITEM);
-    stmt->setUInt32(0, _containerId);
+    stmt->setUInt64(0, _containerId);
     stmt->setUInt32(1, itemId);
     stmt->setUInt32(2, count);
     CharacterDatabase.Execute(stmt);

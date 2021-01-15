@@ -89,8 +89,8 @@ enum Spells
     // Anub'ar Skirmisher
     SPELL_CHARGE                    = 52538,
     SPELL_BACKSTAB                  = 52540,
-    SPELL_FIXATE_TRIGGER            = 52536,
-    SPELL_FIXATE_TRIGGERED          = 52537,
+    SPELL_FIXTATE_TRIGGER           = 52536,
+    SPELL_FIXTATE_TRIGGERED         = 52537,
 
     // Anub'ar Shadowcaster
     SPELL_SHADOW_BOLT               = 52534,
@@ -169,24 +169,24 @@ class boss_krik_thir : public CreatureScript
                     Talk(SAY_SLAY);
             }
 
-            void JustDied(Unit* /*killer*/) override
+            void JustDied(Unit* killer) override
             {
                 summons.clear();
-                _JustDied();
+                BossAI::JustDied(killer);
                 Talk(SAY_DEATH);
             }
 
-            void JustEngagedWith(Unit* who) override
+            void EnterCombat(Unit* who) override
             {
                 _petsInCombat = false;
                 me->SetReactState(REACT_AGGRESSIVE);
                 summons.DoZoneInCombat();
 
                 events.CancelEvent(EVENT_SEND_GROUP);
-                events.ScheduleEvent(EVENT_SWARM, 5s);
+                events.ScheduleEvent(EVENT_SWARM, Seconds(5));
                 events.ScheduleEvent(EVENT_MIND_FLAY, randtime(Seconds(1), Seconds(3)));
 
-                BossAI::JustEngagedWith(who);
+                BossAI::EnterCombat(who);
             }
 
             void MoveInLineOfSight(Unit* who) override
@@ -198,7 +198,7 @@ class boss_krik_thir : public CreatureScript
                 }
 
                 if (me->CanStartAttack(who, false) && me->IsWithinDistInMap(who, me->GetAttackDistance(who) + me->m_CombatDistance))
-                    JustEngagedWith(who);
+                    EnterCombat(who);
             }
 
             void EnterEvadeMode(EvadeReason /*why*/) override
@@ -237,7 +237,7 @@ class boss_krik_thir : public CreatureScript
                             break;
                         _petsInCombat = true;
                         Talk(SAY_AGGRO);
-                        events.ScheduleEvent(EVENT_SEND_GROUP, 70s);
+                        events.ScheduleEvent(EVENT_SEND_GROUP, Seconds(70));
                         break;
                     case ACTION_PET_EVADE:
                         EnterEvadeMode(EVADE_REASON_OTHER);
@@ -258,7 +258,7 @@ class boss_krik_thir : public CreatureScript
                 if (me->HealthBelowPct(10) && !_hadFrenzy)
                 {
                     _hadFrenzy = true;
-                    events.ScheduleEvent(EVENT_FRENZY, 1s);
+                    events.ScheduleEvent(EVENT_FRENZY, Seconds(1));
                 }
 
                 while (uint32 eventId = events.ExecuteEvent())
@@ -294,15 +294,15 @@ class boss_krik_thir : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+            void SpellHit(Unit* /*whose*/, SpellInfo const* spell) override
             {
-                if (spellInfo->Id == SPELL_SUBBOSS_AGGRO_TRIGGER)
+                if (spell->Id == SPELL_SUBBOSS_AGGRO_TRIGGER)
                     DoZoneInCombat();
             }
 
-            void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spellInfo) override
+            void SpellHitTarget(Unit* /*who*/, SpellInfo const* spell) override
             {
-                if (spellInfo->Id == SPELL_SUBBOSS_AGGRO_TRIGGER)
+                if (spell->Id == SPELL_SUBBOSS_AGGRO_TRIGGER)
                     Talk(SAY_SEND_GROUP);
             }
 
@@ -322,8 +322,8 @@ struct npc_gatewatcher_petAI : public ScriptedAI
 {
     npc_gatewatcher_petAI(Creature* creature, bool isWatcher) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _petGroup(0), _isWatcher(isWatcher) { }
 
-    virtual void _JustEngagedWith() = 0;
-    void JustEngagedWith(Unit* who) override
+    virtual void _EnterCombat() = 0;
+    void EnterCombat(Unit* who) override
     {
         if (_isWatcher)
         {
@@ -348,9 +348,8 @@ struct npc_gatewatcher_petAI : public ScriptedAI
                 if (Creature* summoner = meSummon->GetSummonerCreatureBase())
                     summoner->AI()->DoAction(ACTION_PET_ENGAGED);
         }
-        _JustEngagedWith();
-        ScriptedAI::JustEngagedWith(who);
-        me->SetCombatPulseDelay(5);
+        _EnterCombat();
+        ScriptedAI::EnterCombat(who);
     }
 
     void SetData(uint32 data, uint32 value) override
@@ -378,12 +377,12 @@ struct npc_gatewatcher_petAI : public ScriptedAI
         }
 
         if (me->CanStartAttack(who, false) && me->IsWithinDistInMap(who, me->GetAttackDistance(who) + me->m_CombatDistance))
-            JustEngagedWith(who);
+            EnterCombat(who);
     }
 
-    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    void SpellHit(Unit* /*whose*/, SpellInfo const* spell) override
     {
-        if (spellInfo->Id == SPELL_SUBBOSS_AGGRO_TRIGGER)
+        if (spell->Id == SPELL_SUBBOSS_AGGRO_TRIGGER)
             DoZoneInCombat();
     }
 
@@ -420,7 +419,7 @@ class npc_watcher_gashra : public CreatureScript
                 _events.Reset();
             }
 
-            void _JustEngagedWith() override
+            void _EnterCombat() override
             {
                 _events.ScheduleEvent(EVENT_ENRAGE, randtime(Seconds(3), Seconds(5)));
                 _events.ScheduleEvent(EVENT_WEB_WRAP, randtime(Seconds(16), Seconds(19)));
@@ -453,7 +452,7 @@ class npc_watcher_gashra : public CreatureScript
                             _events.Repeat(randtime(Seconds(12), Seconds(20)));
                             break;
                         case EVENT_WEB_WRAP:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f))
                                 DoCast(target, SPELL_WEB_WRAP);
                             _events.Repeat(randtime(Seconds(13), Seconds(19)));
                             break;
@@ -498,7 +497,7 @@ class npc_watcher_narjil : public CreatureScript
                 _events.Reset();
             }
 
-            void _JustEngagedWith() override
+            void _EnterCombat() override
             {
                 _events.ScheduleEvent(EVENT_BLINDING_WEBS, randtime(Seconds(13), Seconds(18)));
                 _events.ScheduleEvent(EVENT_WEB_WRAP, randtime(Seconds(3), Seconds(5)));
@@ -531,7 +530,7 @@ class npc_watcher_narjil : public CreatureScript
                             _events.Repeat(randtime(Seconds(23), Seconds(27)));
                             break;
                         case EVENT_WEB_WRAP:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                                 DoCast(target, SPELL_WEB_WRAP);
                             _events.Repeat(randtime(Seconds(13), Seconds(19)));
                             break;
@@ -576,7 +575,7 @@ class npc_watcher_silthik : public CreatureScript
                 _events.Reset();
             }
 
-            void _JustEngagedWith() override
+            void _EnterCombat() override
             {
                 _events.ScheduleEvent(EVENT_POISON_SPRAY, randtime(Seconds(16), Seconds(19)));
                 _events.ScheduleEvent(EVENT_WEB_WRAP, randtime(Seconds(7), Seconds(11)));
@@ -609,7 +608,7 @@ class npc_watcher_silthik : public CreatureScript
                             _events.Repeat(randtime(Seconds(13), Seconds(19)));
                             break;
                         case EVENT_WEB_WRAP:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                                 DoCast(target, SPELL_WEB_WRAP);
                             _events.Repeat(randtime(Seconds(13), Seconds(17)));
                             break;
@@ -652,7 +651,7 @@ class npc_anub_ar_warrior : public CreatureScript
                 _events.Reset();
             }
 
-            void _JustEngagedWith() override
+            void _EnterCombat() override
             {
                 _events.ScheduleEvent(EVENT_CLEAVE, randtime(Seconds(7), Seconds(9)));
                 _events.ScheduleEvent(EVENT_STRIKE, randtime(Seconds(5), Seconds(10)));
@@ -712,7 +711,7 @@ class npc_anub_ar_skirmisher : public CreatureScript
                 _events.Reset();
             }
 
-            void _JustEngagedWith() override
+            void _EnterCombat() override
             {
                 _events.ScheduleEvent(EVENT_ANUBAR_CHARGE, randtime(Seconds(6), Seconds(8)));
                 _events.ScheduleEvent(EVENT_BACKSTAB, randtime(Seconds(7), Seconds(9)));
@@ -733,7 +732,7 @@ class npc_anub_ar_skirmisher : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_ANUBAR_CHARGE:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                 DoCast(target, SPELL_CHARGE);
                             _events.Repeat(randtime(Seconds(20), Seconds(25)));
                             break;
@@ -753,14 +752,10 @@ class npc_anub_ar_skirmisher : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
+            void SpellHitTarget(Unit* target, SpellInfo const* spell) override
             {
-                Unit* unitTarget = target->ToUnit();
-                if (!unitTarget)
-                    return;
-
-                if (spellInfo->Id == SPELL_CHARGE)
-                    DoCast(unitTarget, SPELL_FIXATE_TRIGGER);
+                if (spell->Id == SPELL_CHARGE && target)
+                    DoCast(target, SPELL_FIXTATE_TRIGGER);
             }
         };
 
@@ -784,9 +779,9 @@ class npc_anub_ar_shadowcaster : public CreatureScript
                 _events.Reset();
             }
 
-            void _JustEngagedWith() override
+            void _EnterCombat() override
             {
-                _events.ScheduleEvent(EVENT_SHADOW_BOLT, 4s);
+                _events.ScheduleEvent(EVENT_SHADOW_BOLT, Seconds(4));
                 _events.ScheduleEvent(EVENT_SHADOW_NOVA, randtime(Seconds(10), Seconds(14)));
             }
 
@@ -805,7 +800,7 @@ class npc_anub_ar_shadowcaster : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_SHADOW_BOLT:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                 DoCast(target, SPELL_SHADOW_BOLT);
                             _events.Repeat(randtime(Seconds(2), Seconds(4)));
                             break;
@@ -903,7 +898,7 @@ class npc_gatewatcher_web_wrap : public CreatureScript
             void JustDied(Unit* /*killer*/) override
             {
                 if (TempSummon* meSummon = me->ToTempSummon())
-                    if (Unit* summoner = meSummon->GetSummonerUnit())
+                    if (Unit* summoner = meSummon->GetSummoner())
                         summoner->RemoveAurasDueToSpell(SPELL_WEB_WRAP_WRAPPED);
             }
         };
@@ -966,35 +961,35 @@ class spell_gatewatcher_subboss_trigger : public SpellScriptLoader
         }
 };
 
-class spell_anub_ar_skirmisher_fixate : public SpellScriptLoader
+class spell_anub_ar_skirmisher_fixtate : public SpellScriptLoader
 {
     public:
-        spell_anub_ar_skirmisher_fixate() : SpellScriptLoader("spell_anub_ar_skirmisher_fixate") { }
+        spell_anub_ar_skirmisher_fixtate() : SpellScriptLoader("spell_anub_ar_skirmisher_fixtate") { }
 
-        class spell_anub_ar_skirmisher_fixate_SpellScript : public SpellScript
+        class spell_anub_ar_skirmisher_fixtate_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_anub_ar_skirmisher_fixate_SpellScript);
+            PrepareSpellScript(spell_anub_ar_skirmisher_fixtate_SpellScript);
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                return ValidateSpellInfo({ SPELL_FIXATE_TRIGGERED });
+                return ValidateSpellInfo({ SPELL_FIXTATE_TRIGGERED });
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* target = GetHitUnit())
-                    target->CastSpell(GetCaster(), SPELL_FIXATE_TRIGGERED, true);
+                    target->CastSpell(GetCaster(), SPELL_FIXTATE_TRIGGERED, true);
             }
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_anub_ar_skirmisher_fixate_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_anub_ar_skirmisher_fixtate_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
         SpellScript* GetSpellScript() const override
         {
-            return new spell_anub_ar_skirmisher_fixate_SpellScript();
+            return new spell_anub_ar_skirmisher_fixtate_SpellScript();
         }
 };
 
@@ -1076,7 +1071,7 @@ void AddSC_boss_krik_thir()
     new npc_gatewatcher_web_wrap();
 
     new spell_gatewatcher_subboss_trigger();
-    new spell_anub_ar_skirmisher_fixate();
+    new spell_anub_ar_skirmisher_fixtate();
     new spell_gatewatcher_web_wrap();
 
     new achievement_watch_him_die();

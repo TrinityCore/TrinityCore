@@ -17,11 +17,8 @@
 
 #include "ScriptMgr.h"
 #include "forge_of_souls.h"
-#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "SpellAuras.h"
-#include "SpellScript.h"
 
 enum Events
 {
@@ -71,11 +68,6 @@ enum Phase
     PHASE_INTRO,
 };
 
-enum ForgeSpells
-{
-    SPELL_LETHARGY = 69133
-};
-
 class npc_sylvanas_fos : public CreatureScript
 {
 public:
@@ -86,16 +78,13 @@ public:
         npc_sylvanas_fosAI(Creature* creature) : ScriptedAI(creature)
         {
             Initialize();
-            instance = me->GetInstanceScript();
-            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
         }
 
         void Initialize()
         {
             phase = PHASE_NORMAL;
         }
-
-        InstanceScript* instance;
 
         EventMap events;
         Phase phase;
@@ -106,15 +95,15 @@ public:
             Initialize();
         }
 
-        bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+        bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
         {
             if (menuId == MENU_ID_SYLVANAS && gossipListId == GOSSIP_OPTION_ID)
             {
                 CloseGossipMenuFor(player);
                 phase = PHASE_INTRO;
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                 events.Reset();
-                events.ScheduleEvent(EVENT_INTRO_1, 1s);
+                events.ScheduleEvent(EVENT_INTRO_1, 1000);
             }
             return false;
         }
@@ -128,27 +117,27 @@ public:
                 {
                     case EVENT_INTRO_1:
                         Talk(SAY_SYLVANAS_INTRO_1);
-                        events.ScheduleEvent(EVENT_INTRO_2, 11500ms);
+                        events.ScheduleEvent(EVENT_INTRO_2, 11500);
                         break;
 
                     case EVENT_INTRO_2:
                         Talk(SAY_SYLVANAS_INTRO_2);
-                        events.ScheduleEvent(EVENT_INTRO_3, 10500ms);
+                        events.ScheduleEvent(EVENT_INTRO_3, 10500);
                         break;
 
                     case EVENT_INTRO_3:
                         Talk(SAY_SYLVANAS_INTRO_3);
-                        events.ScheduleEvent(EVENT_INTRO_4, 9500ms);
+                        events.ScheduleEvent(EVENT_INTRO_4, 9500);
                         break;
 
                     case EVENT_INTRO_4:
                         Talk(SAY_SYLVANAS_INTRO_4);
-                        events.ScheduleEvent(EVENT_INTRO_5, 10500ms);
+                        events.ScheduleEvent(EVENT_INTRO_5, 10500);
                         break;
 
                     case EVENT_INTRO_5:
                         Talk(SAY_SYLVANAS_INTRO_5);
-                        events.ScheduleEvent(EVENT_INTRO_6, 9500ms);
+                        events.ScheduleEvent(EVENT_INTRO_6, 9500);
                         break;
 
                     case EVENT_INTRO_6:
@@ -184,16 +173,13 @@ public:
         npc_jaina_fosAI(Creature* creature) : ScriptedAI(creature)
         {
             Initialize();
-            instance = me->GetInstanceScript();
-            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            me->AddNpcFlag(UNIT_NPC_FLAG_GOSSIP);
         }
 
         void Initialize()
         {
             phase = PHASE_NORMAL;
         }
-
-        InstanceScript* instance;
 
         EventMap events;
         Phase phase;
@@ -204,15 +190,15 @@ public:
             Initialize();
         }
 
-        bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+        bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
         {
             if (menuId == MENU_ID_JAINA && gossipListId == GOSSIP_OPTION_ID)
             {
                 CloseGossipMenuFor(player);
                 phase = PHASE_INTRO;
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                 events.Reset();
-                events.ScheduleEvent(EVENT_INTRO_1, 1s);
+                events.ScheduleEvent(EVENT_INTRO_1, 1000);
             }
             return false;
         }
@@ -226,37 +212,37 @@ public:
                 {
                     case EVENT_INTRO_1:
                         Talk(SAY_JAINA_INTRO_1);
-                        events.ScheduleEvent(EVENT_INTRO_2, 8s);
+                        events.ScheduleEvent(EVENT_INTRO_2, 8000);
                         break;
 
                     case EVENT_INTRO_2:
                         Talk(SAY_JAINA_INTRO_2);
-                        events.ScheduleEvent(EVENT_INTRO_3, 8500ms);
+                        events.ScheduleEvent(EVENT_INTRO_3, 8500);
                         break;
 
                     case EVENT_INTRO_3:
                         Talk(SAY_JAINA_INTRO_3);
-                        events.ScheduleEvent(EVENT_INTRO_4, 8s);
+                        events.ScheduleEvent(EVENT_INTRO_4, 8000);
                         break;
 
                     case EVENT_INTRO_4:
                         Talk(SAY_JAINA_INTRO_4);
-                        events.ScheduleEvent(EVENT_INTRO_5, 10s);
+                        events.ScheduleEvent(EVENT_INTRO_5, 10000);
                         break;
 
                     case EVENT_INTRO_5:
                         Talk(SAY_JAINA_INTRO_5);
-                        events.ScheduleEvent(EVENT_INTRO_6, 8s);
+                        events.ScheduleEvent(EVENT_INTRO_6, 8000);
                         break;
 
                     case EVENT_INTRO_6:
                         Talk(SAY_JAINA_INTRO_6);
-                        events.ScheduleEvent(EVENT_INTRO_7, 12s);
+                        events.ScheduleEvent(EVENT_INTRO_7, 12000);
                         break;
 
                     case EVENT_INTRO_7:
                         Talk(SAY_JAINA_INTRO_7);
-                        events.ScheduleEvent(EVENT_INTRO_8, 8s);
+                        events.ScheduleEvent(EVENT_INTRO_8, 8000);
                         break;
 
                     case EVENT_INTRO_8:
@@ -283,34 +269,8 @@ public:
     }
 };
 
-// 69131 - Soul Sickness
-class spell_forge_of_souls_soul_sickness : public AuraScript
-{
-    PrepareAuraScript(spell_forge_of_souls_soul_sickness);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_LETHARGY });
-    }
-
-    void HandleStun(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
-    {
-        if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
-        {
-            Unit* target = GetTarget();
-            target->CastSpell(target, SPELL_LETHARGY, aurEff);
-        }
-    }
-
-    void Register() override
-    {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_forge_of_souls_soul_sickness::HandleStun, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-    }
-};
-
 void AddSC_forge_of_souls()
 {
     new npc_sylvanas_fos();
     new npc_jaina_fos();
-    RegisterSpellScript(spell_forge_of_souls_soul_sickness);
 }

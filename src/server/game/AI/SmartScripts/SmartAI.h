@@ -25,22 +25,25 @@
 #include "SmartScript.h"
 #include "WaypointDefines.h"
 
-enum SmartEscortState : uint8
+enum SmartEscortState
 {
-    SMART_ESCORT_NONE       = 0x00, // nothing in progress
-    SMART_ESCORT_ESCORTING  = 0x01, // escort is in progress
-    SMART_ESCORT_RETURNING  = 0x02, // escort is returning after being in combat
-    SMART_ESCORT_PAUSED     = 0x04  // will not proceed with waypoints before state is removed
+    SMART_ESCORT_NONE       = 0x000,                        //nothing in progress
+    SMART_ESCORT_ESCORTING  = 0x001,                        //escort is in progress
+    SMART_ESCORT_RETURNING  = 0x002,                        //escort is returning after being in combat
+    SMART_ESCORT_PAUSED     = 0x004                         //will not proceed with waypoints before state is removed
 };
 
-static float constexpr SMART_ESCORT_MAX_PLAYER_DIST = 60.f;
-static float constexpr SMART_MAX_AID_DIST = SMART_ESCORT_MAX_PLAYER_DIST / 2.f;
+enum SmartEscortVars
+{
+    SMART_ESCORT_MAX_PLAYER_DIST        = 60,
+    SMART_MAX_AID_DIST    = SMART_ESCORT_MAX_PLAYER_DIST / 2
+};
 
 class TC_GAME_API SmartAI : public CreatureAI
 {
     public:
         ~SmartAI() { }
-        explicit SmartAI(Creature* creature);
+        explicit SmartAI(Creature* c);
 
         // core related
         static int32 Permissible(Creature const* /*creature*/) { return PERMIT_BASE_NO; }
@@ -52,50 +55,33 @@ class TC_GAME_API SmartAI : public CreatureAI
         void StartPath(bool run = false, uint32 pathId = 0, bool repeat = false, Unit* invoker = nullptr, uint32 nodeId = 1);
         bool LoadPath(uint32 entry);
         void PausePath(uint32 delay, bool forced = false);
-        bool CanResumePath();
         void StopPath(uint32 DespawnTime = 0, uint32 quest = 0, bool fail = false);
         void EndPath(bool fail = false);
         void ResumePath();
-        bool HasEscortState(uint32 escortState) const
-        {
-            return (_escortState & escortState) != 0;
-        }
-        void AddEscortState(uint32 escortState)
-        {
-            _escortState |= escortState;
-        }
-        void RemoveEscortState(uint32 escortState)
-        {
-            _escortState &= ~escortState;
-        }
-        void SetAutoAttack(bool on)
-        {
-            _canAutoAttack = on;
-        }
-        void SetCombatMove(bool on, bool stopMoving = false);
-        bool CanCombatMove()
-        {
-            return _canCombatMove;
-        }
+        bool HasEscortState(uint32 uiEscortState) const { return (_escortState & uiEscortState) != 0; }
+        void AddEscortState(uint32 uiEscortState) { _escortState |= uiEscortState; }
+        void RemoveEscortState(uint32 uiEscortState) { _escortState &= ~uiEscortState; }
+        void SetAutoAttack(bool on) { mCanAutoAttack = on; }
+        void SetCombatMove(bool on);
+        bool CanCombatMove() { return mCanCombatMove; }
         void SetFollow(Unit* target, float dist = 0.0f, float angle = 0.0f, uint32 credit = 0, uint32 end = 0, uint32 creditType = 0);
         void StopFollow(bool complete);
         bool IsEscortInvokerInRange();
 
         void WaypointStarted(uint32 nodeId, uint32 pathId) override;
         void WaypointReached(uint32 nodeId, uint32 pathId) override;
-        void WaypointPathEnded(uint32 nodeId, uint32 pathId) override;
 
-        void SetTimedActionList(SmartScriptHolder& e, uint32 entry, Unit* invoker);
-        SmartScript* GetScript()
-        {
-            return &_script;
-        }
+        void SetScript9(SmartScriptHolder& e, uint32 entry, Unit* invoker);
+        SmartScript* GetScript() { return &mScript; }
+
+        // Called when creature is spawned or respawned
+        void JustAppeared() override;
 
         // Called at reaching home after evade, InitializeAI(), EnterEvadeMode() for resetting variables
         void JustReachedHome() override;
 
         // Called for reaction at enter to combat if not in combat yet (enemy can be nullptr)
-        void JustEngagedWith(Unit* enemy) override;
+        void EnterCombat(Unit* enemy) override;
 
         // Called for reaction at stopping attack at no attackers or targets
         void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override;
@@ -109,9 +95,6 @@ class TC_GAME_API SmartAI : public CreatureAI
         // Called when the creature summon successfully other creature
         void JustSummoned(Creature* creature) override;
 
-        // Called when a summoned unit dies
-        void SummonedCreatureDies(Creature* summon, Unit* killer) override;
-
         // Tell creature to attack and follow the victim
         void AttackStart(Unit* who) override;
 
@@ -119,10 +102,10 @@ class TC_GAME_API SmartAI : public CreatureAI
         void MoveInLineOfSight(Unit* who) override;
 
         // Called when hit by a spell
-        void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override;
+        void SpellHit(Unit* unit, SpellInfo const* spellInfo) override;
 
         // Called when spell hits a target
-        void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override;
+        void SpellHitTarget(Unit* target, SpellInfo const* spellInfo) override;
 
         // Called at any Damage from any attacker (before damage apply)
         void DamageTaken(Unit* doneBy, uint32& damage) override;
@@ -140,7 +123,7 @@ class TC_GAME_API SmartAI : public CreatureAI
         void MovementInform(uint32 MovementType, uint32 Data) override;
 
         // Called when creature is summoned by another unit
-        void IsSummonedBy(WorldObject* summoner) override;
+        void IsSummonedBy(Unit* summoner) override;
 
         // Called at any Damage to any victim (before damage apply)
         void DamageDealt(Unit* doneTo, uint32& damage, DamageEffectType /*damagetype*/) override;
@@ -154,14 +137,14 @@ class TC_GAME_API SmartAI : public CreatureAI
         // Called when a Player/Creature enters the creature (vehicle)
         void PassengerBoarded(Unit* who, int8 seatId, bool apply) override;
 
-        // Called when gets initialized
+        // Called when gets initialized, when creature is added to world
         void InitializeAI() override;
 
-        // Called once creature is fully added to world
-        void JustAppeared() override;
-
         // Called when creature gets charmed by another unit
-        void OnCharmed(bool isNew) override;
+        void OnCharmed(bool apply) override;
+
+        // Called when victim is in line of sight
+        bool CanAIAttack(Unit const* who) const override;
 
         // Used in scripts to share variables
         void DoAction(int32 param = 0) override;
@@ -170,11 +153,10 @@ class TC_GAME_API SmartAI : public CreatureAI
         uint32 GetData(uint32 id = 0) const override;
 
         // Used in scripts to share variables
-        void SetData(uint32 id, uint32 value) override { SetData(id, value, nullptr); }
-        void SetData(uint32 id, uint32 value, Unit* invoker);
+        void SetData(uint32 id, uint32 value) override;
 
         // Used in scripts to share variables
-        void SetGUID(ObjectGuid const& guid, int32 id = 0) override;
+        void SetGUID(ObjectGuid guid, int32 id = 0) override;
 
         // Used in scripts to share variables
         ObjectGuid GetGUID(int32 id = 0) const override;
@@ -190,62 +172,50 @@ class TC_GAME_API SmartAI : public CreatureAI
 
         void SetEvadeDisabled(bool disable = true);
 
-        void SetInvincibilityHpLevel(uint32 level)
-        {
-            _invincibilityHPLevel = level;
-        }
+        void SetInvincibilityHpLevel(uint32 level) { mInvincibilityHpLevel = level; }
 
-        bool OnGossipHello(Player* player) override;
-        bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override;
-        bool OnGossipSelectCode(Player* player, uint32 menuId, uint32 gossipListId, char const* code) override;
-        void OnQuestAccept(Player* player, Quest const* quest) override;
-        void OnQuestReward(Player* player, Quest const* quest, uint32 opt) override;
+        bool GossipHello(Player* player) override;
+        bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override;
+        bool GossipSelectCode(Player* player, uint32 menuId, uint32 gossipListId, char const* code) override;
+        void QuestAccept(Player* player, Quest const* quest) override;
+        void QuestReward(Player* player, Quest const* quest, uint32 opt) override;
         void OnGameEvent(bool start, uint16 eventId) override;
 
-        void SetDespawnTime (uint32 t)
+        void SetDespawnTime (uint32 t, uint32 r = 0)
         {
-            _despawnTime = t;
-            _despawnState = t ? 1 : 0;
-        }
-        void StartDespawn()
-        {
-            _despawnState = 2;
+            mDespawnTime = t;
+            mRespawnTime = r;
+            mDespawnState = t ? 1 : 0;
         }
 
-        void OnSpellClick(Unit* clicker, bool spellClickHandled) override;
+        void StartDespawn() { mDespawnState = 2; }
 
-        void SetWPPauseTimer(uint32 time)
-        {
-            _waypointPauseTimer = time;
-        }
+        void OnSpellClick(Unit* clicker, bool& result) override;
 
-        void SetGossipReturn(bool val)
-        {
-            _gossipReturn = val;
-        }
+        void SetWPPauseTimer(uint32 time) { _waypointPauseTimer = time; }
 
-        void SetEscortQuest(uint32 questID)
-        {
-            _escortQuestId = questID;
-        }
+        void SetGossipReturn(bool val) { _gossipReturn = val; }
+
+        void SetEscortQuest(uint32 questID) { mEscortQuestID = questID; }
 
     private:
         bool AssistPlayerInCombatAgainst(Unit* who);
         void ReturnToLastOOCPos();
-        void CheckConditions(uint32 diff);
-        void UpdatePath(uint32 diff);
-        void UpdateFollow(uint32 diff);
+        void UpdatePath(const uint32 diff);
         void UpdateDespawn(uint32 diff);
+        // Vehicle conditions
+        void CheckConditions(uint32 diff);
 
-        SmartScript _script;
-        bool _charmed;
-        uint32 _followCreditType;
-        uint32 _followArrivedTimer;
-        uint32 _followCredit;
-        uint32 _followArrivedEntry;
-        ObjectGuid _followGUID;
-        float _followDistance;
-        float _followAngle;
+        SmartScript mScript;
+
+        bool mIsCharmed;
+        uint32 mFollowCreditType;
+        uint32 mFollowArrivedTimer;
+        uint32 mFollowCredit;
+        uint32 mFollowArrivedEntry;
+        ObjectGuid mFollowGuid;
+        float mFollowDist;
+        float mFollowAngle;
 
         uint32 _escortState;
         uint32 _escortNPCFlags;
@@ -259,73 +229,57 @@ class TC_GAME_API SmartAI : public CreatureAI
         bool _OOCReached;
         bool _waypointPathEnded;
 
-        bool _run;
-        bool _evadeDisabled;
-        bool _canAutoAttack;
-        bool _canCombatMove;
-        uint32 _invincibilityHPLevel;
+        bool mRun;
+        bool mEvadeDisabled;
+        bool mCanAutoAttack;
+        bool mCanCombatMove;
+        uint32 mInvincibilityHpLevel;
 
-        uint32 _despawnTime;
-        uint32 _despawnState;
+        uint32 mDespawnTime;
+        uint32 mRespawnTime;
+        uint32 mDespawnState;
+        bool mJustReset;
 
         // Vehicle conditions
-        bool _vehicleConditions;
-        uint32 _vehicleConditionsTimer;
+        bool mHasConditions;
+        uint32 mConditionsTimer;
 
         // Gossip
         bool _gossipReturn;
 
-        uint32 _escortQuestId;
+        uint32 mEscortQuestID;
 };
 
 class TC_GAME_API SmartGameObjectAI : public GameObjectAI
 {
     public:
-        SmartGameObjectAI(GameObject* go) : GameObjectAI(go), _gossipReturn(false) { }
+        SmartGameObjectAI(GameObject* g) : GameObjectAI(g), _gossipReturn(false) { }
         ~SmartGameObjectAI() { }
 
         void UpdateAI(uint32 diff) override;
         void InitializeAI() override;
         void Reset() override;
-        SmartScript* GetScript()
-        {
-            return &_script;
-        }
-        static int32 Permissible(GameObject const* /*go*/)
-        {
-            return PERMIT_BASE_NO;
-        }
+        SmartScript* GetScript() { return &mScript; }
+        static int32 Permissible(GameObject const* /*go*/) { return PERMIT_BASE_NO; }
 
-        bool OnGossipHello(Player* player) override;
-        bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override;
-        bool OnGossipSelectCode(Player* player, uint32 menuId, uint32 gossipListId, char const* code) override;
-        void OnQuestAccept(Player* player, Quest const* quest) override;
-        void OnQuestReward(Player* player, Quest const* quest, uint32 opt) override;
+        bool GossipHello(Player* player) override;
         bool OnReportUse(Player* player) override;
-        void Destroyed(WorldObject* attacker, uint32 eventId) override;
-        void SetData(uint32 id, uint32 value, Unit* invoker);
-        void SetData(uint32 id, uint32 value) override { SetData(id, value, nullptr); }
-        void SetTimedActionList(SmartScriptHolder& e, uint32 entry, Unit* invoker);
+        bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override;
+        bool GossipSelectCode(Player* player, uint32 menuId, uint32 gossipListId, char const* code) override;
+        void QuestAccept(Player* player, Quest const* quest) override;
+        void QuestReward(Player* player, Quest const* quest, uint32 opt) override;
+        void Destroyed(Player* player, uint32 eventId) override;
+        void SetData(uint32 id, uint32 value) override;
+        void SetScript9(SmartScriptHolder& e, uint32 entry, Unit* invoker);
         void OnGameEvent(bool start, uint16 eventId) override;
         void OnLootStateChanged(uint32 state, Unit* unit) override;
         void EventInform(uint32 eventId) override;
-
-        // Called when hit by a spell
-        void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override;
-
-        // Called when the gameobject summon successfully other creature
-        void JustSummoned(Creature* creature) override;
-
-        // Called when a summoned unit dies
-        void SummonedCreatureDies(Creature* summon, Unit* killer) override;
-
-        // Called when a summoned creature dissapears (UnSommoned)
-        void SummonedCreatureDespawn(Creature* unit) override;
+        void SpellHit(Unit* unit, SpellInfo const* spellInfo) override;
 
         void SetGossipReturn(bool val) { _gossipReturn = val; }
 
     private:
-        SmartScript _script;
+        SmartScript mScript;
 
         // Gossip
         bool _gossipReturn;

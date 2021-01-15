@@ -54,7 +54,7 @@ enum blySpells
     SPELL_REVENGE              = 12170
 };
 
-#define GOSSIP_BLY                  "That's it!  I'm tired of helping you out.  It's time we settled things on the battlefield!"
+#define GOSSIP_BLY                  "[PH] In that case, I will take my reward!"
 
 class npc_sergeant_bly : public CreatureScript
 {
@@ -160,7 +160,7 @@ public:
                    crew->SetFaction(FACTION_MONSTER);
         }
 
-        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
             uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
             ClearGossipMenuFor(player);
@@ -173,7 +173,7 @@ public:
             return true;
         }
 
-        bool OnGossipHello(Player* player) override
+        bool GossipHello(Player* player) override
         {
             if (instance->GetData(EVENT_PYRAMID) == PYRAMID_KILLED_ALL_TROLLS)
             {
@@ -210,7 +210,7 @@ public:
 
         InstanceScript* instance;
 
-        bool OnGossipHello(Player* /*player*/) override
+        bool GossipHello(Player* /*player*/) override
         {
             instance->SetData(EVENT_PYRAMID, PYRAMID_CAGES_OPEN);
             //set bly & co to aggressive & start moving to top of stairs
@@ -260,7 +260,7 @@ enum weegliSays
     SAY_WEEGLI_OK_I_GO          = 1
 };
 
-#define GOSSIP_WEEGLI               "Will you blow up that door now?"
+#define GOSSIP_WEEGLI               "[PH] Please blow up the door."
 
 class npc_weegli_blastfuse : public CreatureScript
 {
@@ -351,7 +351,7 @@ public:
             }
         }
 
-        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+        bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
             uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
             ClearGossipMenuFor(player);
@@ -364,7 +364,7 @@ public:
             return true;
         }
 
-        bool OnGossipHello(Player* player) override
+        bool GossipHello(Player* player) override
         {
             switch (instance->GetData(EVENT_PYRAMID))
             {
@@ -409,17 +409,17 @@ public:
     {
         go_shallow_graveAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool OnGossipHello(Player* /*player*/) override
+        bool GossipHello(Player* /*player*/) override
         {
             // randomly summon a zombie or dead hero the first time a grave is used
             if (me->GetUseCount() == 0)
             {
                 uint32 randomchance = urand(0, 100);
                 if (randomchance < CHANCE_ZOMBIE)
-                    me->SummonCreature(NPC_ZOMBIE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30s);
+                    me->SummonCreature(NPC_ZOMBIE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
                 else
                     if ((randomchance - CHANCE_ZOMBIE) < CHANCE_DEAD_HERO)
-                        me->SummonCreature(NPC_DEAD_HERO, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30s);
+                        me->SummonCreature(NPC_DEAD_HERO, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
             }
             me->AddUse();
             return false;
@@ -438,7 +438,8 @@ public:
 
 enum zumrahConsts
 {
-    ZUMRAH_ID = 7271
+    ZUMRAH_ID = 7271,
+    ZUMRAH_HOSTILE_FACTION = 37
 };
 
 class at_zumrah : public AreaTriggerScript
@@ -446,14 +447,14 @@ class at_zumrah : public AreaTriggerScript
 public:
     at_zumrah() : AreaTriggerScript("at_zumrah") { }
 
-    bool OnTrigger(Player* player, AreaTriggerEntry const* /*at*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
     {
         Creature* pZumrah = player->FindNearestCreature(ZUMRAH_ID, 30.0f);
 
         if (!pZumrah)
             return false;
 
-        pZumrah->SetFaction(FACTION_TROLL_FROSTMANE);
+        pZumrah->SetFaction(ZUMRAH_HOSTILE_FACTION);
         return true;
     }
 

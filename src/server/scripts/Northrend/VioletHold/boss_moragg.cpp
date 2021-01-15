@@ -27,7 +27,9 @@ enum Spells
     SPELL_CORROSIVE_SALIVA                     = 54527,
     SPELL_OPTIC_LINK                           = 54396,
     SPELL_RAY_OF_PAIN                          = 54438,
+    SPELL_RAY_OF_PAIN_H                        = 59523,
     SPELL_RAY_OF_SUFFERING                     = 54442,
+    SPELL_RAY_OF_SUFFERING_H                   = 59524,
 
     // Visual
     SPELL_OPTIC_LINK_LEVEL_1                   = 54393,
@@ -43,16 +45,6 @@ class boss_moragg : public CreatureScript
         struct boss_moraggAI : public BossAI
         {
             boss_moraggAI(Creature* creature) : BossAI(creature, DATA_MORAGG) { }
-
-            void Reset() override
-            {
-                BossAI::Reset();
-            }
-
-            void JustEngagedWith(Unit* who) override
-            {
-                BossAI::JustEngagedWith(who);
-            }
 
             void JustReachedHome() override
             {
@@ -73,13 +65,13 @@ class boss_moragg : public CreatureScript
             {
                 scheduler.Async([this]
                 {
-                    DoCast(me, SPELL_RAY_OF_PAIN);
-                    DoCast(me, SPELL_RAY_OF_SUFFERING);
+                    DoCast(me, DUNGEON_MODE(SPELL_RAY_OF_PAIN, SPELL_RAY_OF_PAIN_H));
+                    DoCast(me, DUNGEON_MODE(SPELL_RAY_OF_SUFFERING, SPELL_RAY_OF_SUFFERING_H));
                 });
 
                 scheduler.Schedule(Seconds(15), [this](TaskContext task)
                 {
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 50.0f, true))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
                         DoCast(target, SPELL_OPTIC_LINK);
                     task.Repeat(Seconds(25));
                 });
@@ -111,12 +103,14 @@ class spell_moragg_ray : public SpellScriptLoader
             {
                 PreventDefaultAction();
 
-                if (UnitAI* AI = GetTarget()->GetAI())
-                    if (Unit* target = AI->SelectTarget(SelectTargetMethod::Random, 0, 45.0f, true))
-                    {
-                        uint32 triggerSpell = GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
-                        GetTarget()->CastSpell(target, triggerSpell, aurEff);
-                    }
+                if (!GetTarget()->IsAIEnabled)
+                    return;
+
+                if (Unit* target = GetTarget()->GetAI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
+                {
+                    uint32 triggerSpell = aurEff->GetSpellEffectInfo()->TriggerSpell;
+                    GetTarget()->CastSpell(target, triggerSpell, TRIGGERED_FULL_MASK, nullptr, aurEff);
+                }
             }
 
             void Register() override
@@ -140,17 +134,27 @@ public:
     {
         PrepareAuraScript(spell_moragg_optic_link_AuraScript);
 
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo(
+            {
+                SPELL_OPTIC_LINK_LEVEL_3,
+                SPELL_OPTIC_LINK_LEVEL_2,
+                SPELL_OPTIC_LINK_LEVEL_1
+            });
+        }
+
         void OnPeriodic(AuraEffect const* aurEff)
         {
             if (Unit* caster = GetCaster())
             {
                 if (aurEff->GetTickNumber() >= 8)
-                    caster->CastSpell(GetTarget(), SPELL_OPTIC_LINK_LEVEL_3, aurEff);
+                    caster->CastSpell(GetTarget(), SPELL_OPTIC_LINK_LEVEL_3, TRIGGERED_FULL_MASK, nullptr, aurEff);
 
                 if (aurEff->GetTickNumber() >= 4)
-                    caster->CastSpell(GetTarget(), SPELL_OPTIC_LINK_LEVEL_2, aurEff);
+                    caster->CastSpell(GetTarget(), SPELL_OPTIC_LINK_LEVEL_2, TRIGGERED_FULL_MASK, nullptr, aurEff);
 
-                caster->CastSpell(GetTarget(), SPELL_OPTIC_LINK_LEVEL_1, aurEff);
+                caster->CastSpell(GetTarget(), SPELL_OPTIC_LINK_LEVEL_1, TRIGGERED_FULL_MASK, nullptr, aurEff);
             }
         }
 

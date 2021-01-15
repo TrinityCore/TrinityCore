@@ -22,42 +22,62 @@
 #include "SQLOperation.h"
 #include <future>
 #include <vector>
-#include <variant>
+
+#ifdef __APPLE__
+#undef TYPE_BOOL
+#endif
+
+//- Union for data buffer (upper-level bind -> queue -> lower-level bind)
+union PreparedStatementDataUnion
+{
+    bool boolean;
+    uint8 ui8;
+    int8 i8;
+    uint16 ui16;
+    int16 i16;
+    uint32 ui32;
+    int32 i32;
+    uint64 ui64;
+    int64 i64;
+    float f;
+    double d;
+};
+
+//- This enum helps us differ data held in above union
+enum PreparedStatementValueType
+{
+    TYPE_BOOL,
+    TYPE_UI8,
+    TYPE_UI16,
+    TYPE_UI32,
+    TYPE_UI64,
+    TYPE_I8,
+    TYPE_I16,
+    TYPE_I32,
+    TYPE_I64,
+    TYPE_FLOAT,
+    TYPE_DOUBLE,
+    TYPE_STRING,
+    TYPE_BINARY,
+    TYPE_NULL
+};
 
 struct PreparedStatementData
 {
-    std::variant<
-        bool,
-        uint8,
-        uint16,
-        uint32,
-        uint64,
-        int8,
-        int16,
-        int32,
-        int64,
-        float,
-        double,
-        std::string,
-        std::vector<uint8>,
-        std::nullptr_t
-    > data;
-
-    template<typename T>
-    static std::string ToString(T value);
-
-    static std::string ToString(bool value);
-    static std::string ToString(uint8 value);
-    static std::string ToString(int8 value);
-    static std::string ToString(std::string const& value);
-    static std::string ToString(std::vector<uint8> const& value);
-    static std::string ToString(std::nullptr_t);
+    PreparedStatementDataUnion data;
+    PreparedStatementValueType type;
+    std::vector<uint8> binary;
 };
+
+//- Forward declare
+class MySQLPreparedStatement;
 
 //- Upper-level class that is used in code
 class TC_DATABASE_API PreparedStatementBase
 {
     friend class PreparedStatementTask;
+    friend class MySQLPreparedStatement;
+    friend class MySQLConnection;
 
     public:
         explicit PreparedStatementBase(uint32 index, uint8 capacity);
@@ -76,7 +96,6 @@ class TC_DATABASE_API PreparedStatementBase
         void setFloat(const uint8 index, const float value);
         void setDouble(const uint8 index, const double value);
         void setString(const uint8 index, const std::string& value);
-        void setStringView(const uint8 index, const std::string_view value);
         void setBinary(const uint8 index, const std::vector<uint8>& value);
         template <size_t Size>
         void setBinary(const uint8 index, std::array<uint8, Size> const& value)
@@ -86,9 +105,12 @@ class TC_DATABASE_API PreparedStatementBase
         }
 
         uint32 GetIndex() const { return m_index; }
-        std::vector<PreparedStatementData> const& GetParameters() const { return statement_data; }
 
     protected:
+        void BindParameters(MySQLPreparedStatement* stmt);
+
+    protected:
+        MySQLPreparedStatement* m_stmt;
         uint32 m_index;
 
         //- Buffer of parameters, not tied to MySQL in any way yet

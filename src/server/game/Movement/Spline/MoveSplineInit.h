@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 #ifndef TRINITYSERVER_MOVESPLINEINIT_H
 #define TRINITYSERVER_MOVESPLINEINIT_H
@@ -22,10 +22,15 @@
 
 class Unit;
 
-enum class AnimationTier : uint8;
-
 namespace Movement
 {
+    enum AnimType
+    {
+        ToGround    = 0, // 460 = ToGround, index of AnimationData.dbc
+        FlyToFly    = 1, // 461 = FlyToFly?
+        ToFly       = 2, // 458 = ToFly
+        FlyToGround = 3  // 463 = FlyToGround
+    };
 
     // Transforms coordinates from global to transport offsets
     class TC_GAME_API TransportPathTransform
@@ -47,8 +52,6 @@ namespace Movement
     public:
 
         explicit MoveSplineInit(Unit* m);
-        MoveSplineInit(MoveSplineInit&& init) = default;
-
         ~MoveSplineInit();
         MoveSplineInit(MoveSplineInit const&) = delete;
         MoveSplineInit& operator=(MoveSplineInit const&) = delete;
@@ -70,7 +73,7 @@ namespace Movement
         /* Plays animation after movement done
          * can't be combined with parabolic movement
          */
-        void SetAnimation(AnimationTier anim);
+        void SetAnimation(AnimType anim);
 
         /* Adds final facing animation
          * sets unit's facing to specified point/angle after all path done
@@ -100,27 +103,39 @@ namespace Movement
          * if not enabled linear spline mode will be choosen. Disabled by default
          */
         void SetSmooth();
-        /* Enables CatmullRom spline interpolation mode, enables flying animation. Disabled by default
+
+        /* Waypoints in packets will be sent without compression
+         */
+        void SetUncompressed();
+
+        /* Enables flying animation. Disabled by default
          */
         void SetFly();
+
         /* Enables walk mode. Disabled by default
          */
         void SetWalk(bool enable);
+
         /* Makes movement cyclic. Disabled by default
          */
         void SetCyclic();
+
         /* Enables falling mode. Disabled by default
          */
         void SetFall();
+
         /* Enters transport. Disabled by default
          */
         void SetTransportEnter();
+
         /* Exits transport. Disabled by default
          */
         void SetTransportExit();
+
         /* Inverses unit model orientation. Disabled by default
          */
         void SetBackward();
+
         /* Fixes unit's model rotation. Disabled by default
          */
         void SetOrientationFixed(bool enable);
@@ -131,6 +146,8 @@ namespace Movement
          * velocity shouldn't be negative
          */
         void SetVelocity(float velocity);
+
+        void SetSpellEffectExtraData(SpellEffectExtraData const& spellEffectExtraData);
 
         PointsArray& Path() { return args.path; }
 
@@ -146,8 +163,8 @@ namespace Movement
     inline void MoveSplineInit::SetFly() { args.flags.EnableFlying(); }
     inline void MoveSplineInit::SetWalk(bool enable) { args.walk = enable; }
     inline void MoveSplineInit::SetSmooth() { args.flags.EnableCatmullRom(); }
+    inline void MoveSplineInit::SetUncompressed() { args.flags.uncompressedPath = true; }
     inline void MoveSplineInit::SetCyclic() { args.flags.cyclic = true; }
-    inline void MoveSplineInit::SetFall() { args.flags.EnableFalling(); }
     inline void MoveSplineInit::SetVelocity(float vel) { args.velocity = vel; args.HasVelocity = true; }
     inline void MoveSplineInit::SetBackward() { args.flags.backward = true; }
     inline void MoveSplineInit::SetTransportEnter() { args.flags.EnableTransportEnter(); }
@@ -161,12 +178,19 @@ namespace Movement
         args.flags.EnableParabolic();
     }
 
-    inline void MoveSplineInit::SetAnimation(AnimationTier anim)
+    inline void MoveSplineInit::SetAnimation(AnimType anim)
     {
         args.time_perc = 0.f;
-        args.flags.EnableAnimation((uint8)anim);
+        args.animTier.emplace();
+        args.animTier->AnimTier = anim;
+        args.flags.EnableAnimation();
     }
 
     inline void MoveSplineInit::DisableTransportPathTransformations() { args.TransformForTransport = false; }
+
+    inline void MoveSplineInit::SetSpellEffectExtraData(SpellEffectExtraData const& spellEffectExtraData)
+    {
+        args.spellEffectExtra = spellEffectExtraData;
+    }
 }
 #endif // TRINITYSERVER_MOVESPLINEINIT_H

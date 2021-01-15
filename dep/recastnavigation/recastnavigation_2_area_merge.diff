@@ -1,0 +1,25 @@
+diff --git a/dep/recastnavigation/Recast/Source/RecastRasterization.cpp b/dep/recastnavigation/Recast/Source/RecastRasterization.cpp
+index a4cef74909..2ffffae8b0 100644
+--- a/dep/recastnavigation/Recast/Source/RecastRasterization.cpp
++++ b/dep/recastnavigation/Recast/Source/RecastRasterization.cpp
+@@ -122,16 +122,16 @@ static bool addSpan(rcHeightfield& hf, const int x, const int y,
+ 		}
+ 		else
+ 		{
++			// Merge flags.
++			if (rcAbs((int)s->smax - (int)cur->smax) <= flagMergeThr)
++				s->area = rcMax(s->area, cur->area);
++
+ 			// Merge spans.
+ 			if (cur->smin < s->smin)
+ 				s->smin = cur->smin;
+ 			if (cur->smax > s->smax)
+ 				s->smax = cur->smax;
+ 			
+-			// Merge flags.
+-			if (rcAbs((int)s->smax - (int)cur->smax) <= flagMergeThr)
+-				s->area = rcMax(s->area, cur->area);
+-			
+ 			// Remove current span.
+ 			rcSpan* next = cur->next;
+ 			freeSpan(hf, cur);

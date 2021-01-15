@@ -23,12 +23,16 @@
 #include "Errors.h"
 #include <array>
 #include <string>
-#include <string_view>
+//#include <string_view>
 #include <openssl/evp.h>
+#include <cstring>
+#include "advstd.h" // data/size
 
 class BigNumber;
 
-namespace Trinity::Impl
+namespace Trinity
+{
+namespace Impl
 {
     struct GenericHashImpl
     {
@@ -58,11 +62,26 @@ namespace Trinity::Impl
                 return hash.GetDigest();
             }
 
+        private: // c++17
+            template <typename T>
+            static void UpdateData_OLDCPP(GenericHash& hash, T const& data)
+            {
+                hash.UpdateData(data);
+            }
+
+            template <typename T, typename... TRest>
+            static void UpdateData_OLDCPP(GenericHash& hash, T const& data, TRest&&... rest)
+            {
+                hash.UpdateData(data);
+                UpdateData_OLDCPP(hash, std::forward<TRest>(rest)...);
+            }
+
+        public:
             template <typename... Ts>
-            static auto GetDigestOf(Ts&&... pack) -> std::enable_if_t<!(std::is_integral_v<std::decay_t<Ts>> || ...), Digest>
+            static auto GetDigestOf(Ts&&... pack) -> std::enable_if_t<advstd::conjunction<advstd::negation<std::is_integral<Ts>>...>::value, Digest>
             {
                 GenericHash hash;
-                (hash.UpdateData(std::forward<Ts>(pack)), ...);
+                UpdateData_OLDCPP(hash, std::forward<Ts>(pack)...);
                 hash.Finalize();
                 return hash.GetDigest();
             }
@@ -86,11 +105,11 @@ namespace Trinity::Impl
                 int result = EVP_DigestUpdate(_ctx, data, len);
                 ASSERT(result == 1);
             }
-            void UpdateData(std::string_view str) { UpdateData(reinterpret_cast<uint8 const*>(str.data()), str.size()); }
-            void UpdateData(std::string const& str) { UpdateData(std::string_view(str)); } /* explicit overload to avoid using the container template */
-            void UpdateData(char const* str) { UpdateData(std::string_view(str)); } /* explicit overload to avoid using the container template */
+            // c++17 void UpdateData(std::string_view str) { UpdateData(reinterpret_cast<uint8 const*>(str.data()), str.size()); }
+            void UpdateData(std::string const& str) { UpdateData(str.c_str()); } /* explicit overload to avoid using the container template */
+            void UpdateData(char const* str) { UpdateData(reinterpret_cast<uint8 const*>(str), strlen(str)); } /* explicit overload to avoid using the container template */
             template <typename Container>
-            void UpdateData(Container const& c) { UpdateData(std::data(c), std::size(c)); }
+            void UpdateData(Container const& c) { UpdateData(advstd::data(c), advstd::size(c)); }
 
             void Finalize()
             {
@@ -109,11 +128,15 @@ namespace Trinity::Impl
             Digest _digest = { };
     };
 }
+}
 
-namespace Trinity::Crypto
+namespace Trinity
+{
+namespace Crypto
 {
     using SHA1 = Trinity::Impl::GenericHash<EVP_sha1, Constants::SHA1_DIGEST_LENGTH_BYTES>;
     using SHA256 = Trinity::Impl::GenericHash<EVP_sha256, Constants::SHA256_DIGEST_LENGTH_BYTES>;
+}
 }
 
 #endif

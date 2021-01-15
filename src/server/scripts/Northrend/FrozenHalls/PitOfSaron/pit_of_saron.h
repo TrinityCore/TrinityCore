@@ -85,8 +85,8 @@ enum POSCreatureIds
     NPC_RESCUED_SLAVE_HORDE                     = 36889,
     NPC_MARTIN_VICTUS_1                         = 37591,
     NPC_MARTIN_VICTUS_2                         = 37580,
-    NPC_GORKUN_IRONSKULL_1                      = 37592,
-    NPC_GORKUN_IRONSKULL_2                      = 37581,
+    NPC_GORKUN_IRONSKULL_1                      = 37581,
+    NPC_GORKUN_IRONSKULL_2                      = 37592,
 
     NPC_FORGEMASTER_STALKER                     = 36495,
     NPC_EXPLODING_ORB                           = 36610,
@@ -102,15 +102,13 @@ enum POSGameObjectIds
     GO_HALLS_OF_REFLECTION_PORTCULLIS           = 201848
 };
 
-enum POSSpellsIcicle
+enum SpellsIcicle
 {
     SPELL_ICICLE_SUMMON                 = 69424,
     SPELL_ICICLE_FALL_TRIGGER           = 69426,
     SPELL_ICICLE_FALL_VISUAL            = 69428,
     SPELL_DONT_LOOK_UP_ACHIEV_CREDIT    = 72845
 };
-
-class Creature;
 
 class ScheduledIcicleSummons : public BasicEvent
 {
@@ -128,7 +126,5 @@ inline AI* GetPitOfSaronAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, PoSScriptName);
 }
-
-#define RegisterPitOfSaronCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetPitOfSaronAI)
 
 #endif // PIT_OF_SARON_H_

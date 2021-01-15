@@ -22,7 +22,6 @@
 #include "AsioHacksFwd.h"
 #include "LogCommon.h"
 #include "StringFormat.h"
-
 #include <memory>
 #include <unordered_map>
 #include <vector>
@@ -41,18 +40,16 @@ namespace Trinity
 
 #define LOGGER_ROOT "root"
 
-typedef Appender*(*AppenderCreatorFn)(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags, std::vector<std::string_view> const& extraArgs);
+typedef Appender*(*AppenderCreatorFn)(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags, std::vector<char const*>&& extraArgs);
 
 template <class AppenderImpl>
-Appender* CreateAppender(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags, std::vector<std::string_view> const& extraArgs)
+Appender* CreateAppender(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags, std::vector<char const*>&& extraArgs)
 {
-    return new AppenderImpl(id, name, level, flags, extraArgs);
+    return new AppenderImpl(id, name, level, flags, std::forward<std::vector<char const*>>(extraArgs));
 }
 
 class TC_COMMON_API Log
 {
-    typedef std::unordered_map<std::string, Logger> LoggerMap;
-
     private:
         Log();
         ~Log();
@@ -69,7 +66,7 @@ class TC_COMMON_API Log
         void LoadFromConfig();
         void Close();
         bool ShouldLog(std::string const& type, LogLevel level) const;
-        bool SetLogLevel(std::string const& name, int32 level, bool isLogger = true);
+        bool SetLogLevel(std::string const& name, char const* level, bool isLogger = true);
 
         template<typename Format, typename... Args>
         inline void outMessage(std::string const& filter, LogLevel const level, Format&& fmt, Args&&... args)
@@ -93,7 +90,8 @@ class TC_COMMON_API Log
         template<class AppenderImpl>
         void RegisterAppender()
         {
-            RegisterAppender(AppenderImpl::type, &CreateAppender<AppenderImpl>);
+            using Index = typename AppenderImpl::TypeIndex;
+            RegisterAppender(Index::value, &CreateAppender<AppenderImpl>);
         }
 
         std::string const& GetLogsDir() const { return m_logsDir; }
@@ -104,7 +102,7 @@ class TC_COMMON_API Log
         void write(std::unique_ptr<LogMessage>&& msg) const;
 
         Logger const* GetLoggerByType(std::string const& type) const;
-        Appender* GetAppenderByName(std::string_view name);
+        Appender* GetAppenderByName(std::string const& name);
         uint8 NextAppenderId();
         void CreateAppenderFromConfig(std::string const& name);
         void CreateLoggerFromConfig(std::string const& name);
@@ -142,9 +140,7 @@ class TC_COMMON_API Log
         } \
     }
 
-#ifdef PERFORMANCE_PROFILING
-#define TC_LOG_MESSAGE_BODY(filterType__, level__, ...) ((void)0)
-#elif TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
+#if TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
 void check_args(char const*, ...) ATTR_PRINTF(1, 2);
 void check_args(std::string const&, ...);
 

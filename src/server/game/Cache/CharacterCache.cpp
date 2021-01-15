@@ -72,7 +72,7 @@ void CharacterCache::LoadCharacterCacheStorage()
     _characterCacheStore.clear();
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = CharacterDatabase.Query("SELECT guid, name, account, race, gender, class, level FROM characters");
+    QueryResult result = CharacterDatabase.Query("SELECT guid, name, account, race, gender, class, level, deleteDate FROM characters");
     if (!result)
     {
         TC_LOG_INFO("server.loading", "No character name data loaded, empty query");
@@ -82,8 +82,8 @@ void CharacterCache::LoadCharacterCacheStorage()
     do
     {
         Field* fields = result->Fetch();
-        AddCharacterCacheEntry(ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt32()) /*guid*/, fields[2].GetUInt32() /*account*/, fields[1].GetString() /*name*/,
-            fields[4].GetUInt8() /*gender*/, fields[3].GetUInt8() /*race*/, fields[5].GetUInt8() /*class*/, fields[6].GetUInt8() /*level*/);
+        AddCharacterCacheEntry(ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64()) /*guid*/, fields[2].GetUInt32() /*account*/, fields[1].GetString() /*name*/,
+            fields[4].GetUInt8() /*gender*/, fields[3].GetUInt8() /*race*/, fields[5].GetUInt8() /*class*/, fields[6].GetUInt8() /*level*/, fields[7].GetUInt32() != 0);
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", "Loaded character infos for " SZFMTD " characters in %u ms", _characterCacheStore.size(), GetMSTimeDiffToNow(oldMSTime));
@@ -92,7 +92,7 @@ void CharacterCache::LoadCharacterCacheStorage()
 /*
 Modifying functions
 */
-void CharacterCache::AddCharacterCacheEntry(ObjectGuid const& guid, uint32 accountId, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level)
+void CharacterCache::AddCharacterCacheEntry(ObjectGuid const& guid, uint32 accountId, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level, bool isDeleted)
 {
     CharacterCacheEntry& data = _characterCacheStore[guid];
     data.Guid = guid;
@@ -105,6 +105,7 @@ void CharacterCache::AddCharacterCacheEntry(ObjectGuid const& guid, uint32 accou
     data.GuildId = 0;                           // Will be set in guild loading or guild setting
     for (uint8 i = 0; i < MAX_ARENA_SLOT; ++i)
         data.ArenaTeamId[i] = 0;                // Will be set in arena teams loading
+    data.IsDeleted = isDeleted;
 
     // Fill Name to Guid Store
     _characterCacheByNameStore[name] = &data;
@@ -116,7 +117,7 @@ void CharacterCache::DeleteCharacterCacheEntry(ObjectGuid const& guid, std::stri
     _characterCacheByNameStore.erase(name);
 }
 
-void CharacterCache::UpdateCharacterData(ObjectGuid const& guid, std::string const& name, Optional<uint8> gender /*= {}*/, Optional<uint8> race /*= {}*/)
+void CharacterCache::UpdateCharacterData(ObjectGuid const& guid, std::string const& name, uint8* gender /*= nullptr*/, uint8* race /*= nullptr*/)
 {
     auto itr = _characterCacheStore.find(guid);
     if (itr == _characterCacheStore.end())
@@ -131,12 +132,22 @@ void CharacterCache::UpdateCharacterData(ObjectGuid const& guid, std::string con
     if (race)
         itr->second.Race = *race;
 
-    WorldPackets::Misc::InvalidatePlayer packet(guid);
-    sWorld->SendGlobalMessage(packet.Write());
+    WorldPackets::Misc::InvalidatePlayer invalidatePlayer;
+    invalidatePlayer.Guid = guid;
+    sWorld->SendGlobalMessage(invalidatePlayer.Write());
 
     // Correct name -> pointer storage
     _characterCacheByNameStore.erase(oldName);
     _characterCacheByNameStore[name] = &itr->second;
+}
+
+void CharacterCache::UpdateCharacterGender(ObjectGuid const& guid, uint8 gender)
+{
+    auto itr = _characterCacheStore.find(guid);
+    if (itr == _characterCacheStore.end())
+        return;
+
+    itr->second.Sex = gender;
 }
 
 void CharacterCache::UpdateCharacterLevel(ObjectGuid const& guid, uint8 level)
@@ -172,9 +183,21 @@ void CharacterCache::UpdateCharacterArenaTeamId(ObjectGuid const& guid, uint8 sl
     if (itr == _characterCacheStore.end())
         return;
 
-    ASSERT(slot < 3);
     itr->second.ArenaTeamId[slot] = arenaTeamId;
 }
+
+void CharacterCache::UpdateCharacterInfoDeleted(ObjectGuid const& guid, bool deleted, std::string const* name /*=nullptr*/)
+{
+    auto itr = _characterCacheStore.find(guid);
+    if (itr == _characterCacheStore.end())
+        return;
+
+    itr->second.IsDeleted = deleted;
+
+    if (name)
+        itr->second.Name = *name;
+}
+
 
 /*
 Getters
@@ -272,7 +295,17 @@ uint32 CharacterCache::GetCharacterArenaTeamIdByGuid(ObjectGuid guid, uint8 type
     if (itr == _characterCacheStore.end())
         return 0;
 
-    uint8 slot = ArenaTeam::GetSlotByType(type);
-    ASSERT(slot < 3);
-    return itr->second.ArenaTeamId[slot];
+    return itr->second.ArenaTeamId[ArenaTeam::GetSlotByType(type)];
 }
+
+bool CharacterCache::GetCharacterNameAndClassByGUID(ObjectGuid guid, std::string& name, uint8& _class) const
+{
+    auto itr = _characterCacheStore.find(guid);
+    if (itr == _characterCacheStore.end())
+        return false;
+
+    name = itr->second.Name;
+    _class = itr->second.Class;
+    return true;
+}
+

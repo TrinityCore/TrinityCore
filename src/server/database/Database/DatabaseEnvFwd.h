@@ -30,6 +30,7 @@ using QueryResultFuture = std::future<QueryResult>;
 using QueryResultPromise = std::promise<QueryResult>;
 
 class CharacterDatabaseConnection;
+class HotfixDatabaseConnection;
 class LoginDatabaseConnection;
 class WorldDatabaseConnection;
 
@@ -39,6 +40,7 @@ template<typename T>
 class PreparedStatement;
 
 using CharacterDatabasePreparedStatement = PreparedStatement<CharacterDatabaseConnection>;
+using HotfixDatabasePreparedStatement = PreparedStatement<HotfixDatabaseConnection>;
 using LoginDatabasePreparedStatement = PreparedStatement<LoginDatabaseConnection>;
 using WorldDatabasePreparedStatement = PreparedStatement<WorldDatabaseConnection>;
 
@@ -68,21 +70,21 @@ template<typename T>
 using SQLTransaction = std::shared_ptr<Transaction<T>>;
 
 using CharacterDatabaseTransaction = SQLTransaction<CharacterDatabaseConnection>;
+using HotfixDatabaseTransaction = SQLTransaction<HotfixDatabaseConnection>;
 using LoginDatabaseTransaction = SQLTransaction<LoginDatabaseConnection>;
 using WorldDatabaseTransaction = SQLTransaction<WorldDatabaseConnection>;
 
 class SQLQueryHolderBase;
-using QueryResultHolderFuture = std::future<void>;
-using QueryResultHolderPromise = std::promise<void>;
+using QueryResultHolderFuture = std::future<SQLQueryHolderBase*>;
+using QueryResultHolderPromise = std::promise<SQLQueryHolderBase*>;
 
 template<typename T>
 class SQLQueryHolder;
 
 using CharacterDatabaseQueryHolder = SQLQueryHolder<CharacterDatabaseConnection>;
+using HotfixDatabaseQueryHolder = SQLQueryHolder<HotfixDatabaseConnection>;
 using LoginDatabaseQueryHolder = SQLQueryHolder<LoginDatabaseConnection>;
 using WorldDatabaseQueryHolder = SQLQueryHolder<WorldDatabaseConnection>;
-
-class SQLQueryHolderCallback;
 
 // mysql
 struct MySQLHandle;

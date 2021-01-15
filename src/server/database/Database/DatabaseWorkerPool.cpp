@@ -22,6 +22,7 @@
 #include "Implementation/LoginDatabase.h"
 #include "Implementation/WorldDatabase.h"
 #include "Implementation/CharacterDatabase.h"
+#include "Implementation/HotfixDatabase.h"
 #include "Log.h"
 #include "MySQLPreparedStatement.h"
 #include "PreparedStatement.h"
@@ -33,10 +34,6 @@
 #include "Transaction.h"
 #include "MySQLWorkaround.h"
 #include <mysqld_error.h>
-#ifdef TRINITY_DEBUG
-#include <sstream>
-#include <boost/stacktrace.hpp>
-#endif
 
 #define MIN_MYSQL_SERVER_VERSION 50100u
 #define MIN_MYSQL_CLIENT_VERSION 50100u
@@ -58,8 +55,8 @@ DatabaseWorkerPool<T>::DatabaseWorkerPool()
 {
     WPFatal(mysql_thread_safe(), "Used MySQL library isn't thread-safe.");
     WPFatal(mysql_get_client_version() >= MIN_MYSQL_CLIENT_VERSION, "TrinityCore does not support MySQL versions below 5.1");
-    WPFatal(mysql_get_client_version() == MYSQL_VERSION_ID, "Used MySQL library version (%s id %lu) does not match the version id used to compile TrinityCore (id %u). Search on forum for TCE00011.",
-        mysql_get_client_info(), mysql_get_client_version(), MYSQL_VERSION_ID);
+    WPFatal(mysql_get_client_version() == MYSQL_VERSION_ID, "Used MySQL library version (%s) does not match the version used to compile TrinityCore (%s). Search on forum for TCE00011.",
+        mysql_get_client_info(), MYSQL_SERVER_VERSION);
 }
 
 template <class T>
@@ -153,7 +150,7 @@ bool DatabaseWorkerPool<T>::PrepareStatements()
                 if (_preparedStatementSize[i] > 0)
                     continue;
 
-                if (MySQLPreparedStatement* stmt = connection->m_stmts[i].get())
+                if (MySQLPreparedStatement * stmt = connection->m_stmts[i].get())
                 {
                     uint32 const paramCount = stmt->GetParameterCount();
 
@@ -226,13 +223,13 @@ QueryCallback DatabaseWorkerPool<T>::AsyncQuery(PreparedStatement<T>* stmt)
 }
 
 template <class T>
-SQLQueryHolderCallback DatabaseWorkerPool<T>::DelayQueryHolder(std::shared_ptr<SQLQueryHolder<T>> holder)
+QueryResultHolderFuture DatabaseWorkerPool<T>::DelayQueryHolder(SQLQueryHolder<T>* holder)
 {
     SQLQueryHolderTask* task = new SQLQueryHolderTask(holder);
     // Store future result before enqueueing - task might get already processed and deleted before returning from this method
     QueryResultHolderFuture result = task->GetFuture();
     Enqueue(task);
-    return { std::move(holder), std::move(result) };
+    return result;
 }
 
 template <class T>
@@ -305,7 +302,6 @@ void DatabaseWorkerPool<T>::DirectCommitTransaction(SQLTransaction<T>& transacti
     /// @todo More elegant way
     if (errorCode == ER_LOCK_DEADLOCK)
     {
-        //todo: handle multiple sync threads deadlocking in a similar way as async threads
         uint8 loopBreaker = 5;
         for (uint8 i = 0; i < loopBreaker; ++i)
         {
@@ -416,22 +412,13 @@ void DatabaseWorkerPool<T>::Enqueue(SQLOperation* op)
 template <class T>
 T* DatabaseWorkerPool<T>::GetFreeConnection()
 {
-#ifdef TRINITY_DEBUG
-    if (_warnSyncQueries)
-    {
-        std::ostringstream ss;
-        ss << boost::stacktrace::stacktrace();
-        TC_LOG_WARN("sql.performances", "Sync query at:\n%s", ss.str().c_str());
-    }
-#endif
-
     uint8 i = 0;
     auto const num_cons = _connections[IDX_SYNCH].size();
     T* connection = nullptr;
     //! Block forever until a connection is free
     for (;;)
     {
-        connection = _connections[IDX_SYNCH][++i % num_cons].get();
+        connection = _connections[IDX_SYNCH][i++ % num_cons].get();
         //! Must be matched with t->Unlock() or you will get deadlocks
         if (connection->LockIfReady())
             break;
@@ -506,3 +493,4 @@ void DatabaseWorkerPool<T>::ExecuteOrAppend(SQLTransaction<T>& trans, PreparedSt
 template class TC_DATABASE_API DatabaseWorkerPool<LoginDatabaseConnection>;
 template class TC_DATABASE_API DatabaseWorkerPool<WorldDatabaseConnection>;
 template class TC_DATABASE_API DatabaseWorkerPool<CharacterDatabaseConnection>;
+template class TC_DATABASE_API DatabaseWorkerPool<HotfixDatabaseConnection>;

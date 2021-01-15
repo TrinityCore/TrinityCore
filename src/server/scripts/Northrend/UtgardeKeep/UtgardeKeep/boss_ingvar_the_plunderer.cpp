@@ -113,7 +113,7 @@ class boss_ingvar_the_plunderer : public CreatureScript
             {
                 if (me->GetEntry() != NPC_INGVAR)
                     me->UpdateEntry(NPC_INGVAR);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
                 me->SetImmuneToPC(false);
 
                 _Reset();
@@ -124,13 +124,13 @@ class boss_ingvar_the_plunderer : public CreatureScript
                 if (damage >= me->GetHealth() && events.IsInPhase(PHASE_HUMAN))
                 {
                     events.SetPhase(PHASE_EVENT);
-                    events.ScheduleEvent(EVENT_SUMMON_BANSHEE, 3s, 0, PHASE_EVENT);
+                    events.ScheduleEvent(EVENT_SUMMON_BANSHEE, 3 * IN_MILLISECONDS, 0, PHASE_EVENT);
 
                     me->RemoveAllAuras();
                     me->StopMoving();
                     DoCast(me, SPELL_INGVAR_FEIGN_DEATH, true);
 
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                    me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
                     me->SetImmuneToPC(true, true);
 
                     Talk(SAY_DEATH);
@@ -151,21 +151,21 @@ class boss_ingvar_the_plunderer : public CreatureScript
                 me->RemoveAura(SPELL_INGVAR_FEIGN_DEATH);
                 DoCast(me, SPELL_INGVAR_TRANSFORM, true);
                 me->UpdateEntry(NPC_INGVAR_UNDEAD);
-                events.ScheduleEvent(EVENT_JUST_TRANSFORMED, 500ms, 0, PHASE_EVENT);
+                events.ScheduleEvent(EVENT_JUST_TRANSFORMED, IN_MILLISECONDS / 2, 0, PHASE_EVENT);
             }
 
-            void JustEngagedWith(Unit* who) override
+            void EnterCombat(Unit* /*who*/) override
             {
-                if (events.IsInPhase(PHASE_EVENT) || events.IsInPhase(PHASE_UNDEAD)) // ingvar gets multiple JustEngagedWith calls
+                if (events.IsInPhase(PHASE_EVENT) || events.IsInPhase(PHASE_UNDEAD)) // ingvar gets multiple EnterCombat calls
                     return;
-                BossAI::JustEngagedWith(who);
+                _EnterCombat();
 
                 Talk(SAY_AGGRO);
                 events.SetPhase(PHASE_HUMAN);
-                events.ScheduleEvent(EVENT_CLEAVE, 6s, 12s, 0, PHASE_HUMAN);
-                events.ScheduleEvent(EVENT_STAGGERING_ROAR, 18s, 21s, 0, PHASE_HUMAN);
-                events.ScheduleEvent(EVENT_ENRAGE, 7s, 14s, 0, PHASE_HUMAN);
-                events.ScheduleEvent(EVENT_SMASH, 12s, 17s, 0, PHASE_HUMAN);
+                events.ScheduleEvent(EVENT_CLEAVE, urand(6, 12)*IN_MILLISECONDS, 0, PHASE_HUMAN);
+                events.ScheduleEvent(EVENT_STAGGERING_ROAR, urand(18, 21)*IN_MILLISECONDS, 0, PHASE_HUMAN);
+                events.ScheduleEvent(EVENT_ENRAGE, urand(7, 14)*IN_MILLISECONDS, 0, PHASE_HUMAN);
+                events.ScheduleEvent(EVENT_SMASH, urand(12, 17)*IN_MILLISECONDS, 0, PHASE_HUMAN);
             }
 
             void AttackStart(Unit* who) override
@@ -184,10 +184,10 @@ class boss_ingvar_the_plunderer : public CreatureScript
             void ScheduleSecondPhase()
             {
                 events.SetPhase(PHASE_UNDEAD);
-                events.ScheduleEvent(EVENT_DARK_SMASH, 14s, 18s, 0, PHASE_UNDEAD);
-                events.ScheduleEvent(EVENT_DREADFUL_ROAR, 0ms, 0, PHASE_UNDEAD);
-                events.ScheduleEvent(EVENT_WOE_STRIKE, 10s, 14s, 0, PHASE_UNDEAD);
-                events.ScheduleEvent(EVENT_SHADOW_AXE, 30s, 0, PHASE_UNDEAD);
+                events.ScheduleEvent(EVENT_DARK_SMASH, urand(14, 18)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
+                events.ScheduleEvent(EVENT_DREADFUL_ROAR, 0, 0, PHASE_UNDEAD);
+                events.ScheduleEvent(EVENT_WOE_STRIKE, urand(10, 14)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
+                events.ScheduleEvent(EVENT_SHADOW_AXE, 30*IN_MILLISECONDS, 0, PHASE_UNDEAD);
             }
 
             void KilledUnit(Unit* who) override
@@ -213,24 +213,31 @@ class boss_ingvar_the_plunderer : public CreatureScript
                         // PHASE ONE
                         case EVENT_CLEAVE:
                             DoCastVictim(SPELL_CLEAVE);
-                            events.ScheduleEvent(EVENT_CLEAVE, 6s, 12s, 0, PHASE_HUMAN);
+                            events.ScheduleEvent(EVENT_CLEAVE, urand(6, 12)*IN_MILLISECONDS, 0, PHASE_HUMAN);
                             break;
                         case EVENT_STAGGERING_ROAR:
                             DoCast(me, SPELL_STAGGERING_ROAR);
-                            events.ScheduleEvent(EVENT_STAGGERING_ROAR, 18s, 22s, 0, PHASE_HUMAN);
+                            events.ScheduleEvent(EVENT_STAGGERING_ROAR, urand(18, 22)*IN_MILLISECONDS, 0, PHASE_HUMAN);
                             break;
                         case EVENT_ENRAGE:
                             DoCast(me, SPELL_ENRAGE);
-                            events.ScheduleEvent(EVENT_ENRAGE, 7s, 14s, 0, PHASE_HUMAN);
+                            events.ScheduleEvent(EVENT_ENRAGE, urand(7, 14)*IN_MILLISECONDS, 0, PHASE_HUMAN);
                             break;
                         case EVENT_SMASH:
                             DoCastAOE(SPELL_SMASH);
-                            events.ScheduleEvent(EVENT_SMASH, 12s, 16s, 0, PHASE_HUMAN);
+                            events.ScheduleEvent(EVENT_SMASH, urand(12, 16)*IN_MILLISECONDS, 0, PHASE_HUMAN);
                             break;
                         case EVENT_JUST_TRANSFORMED:
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                            me->SetImmuneToPC(false);
                             ScheduleSecondPhase();
+                            me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
+                            me->SetImmuneToPC(false);
+                            if (Unit* target = me->GetThreatManager().SelectVictim())
+                                AttackStart(target);
+                            else
+                            {
+                                EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+                                return;
+                            }
                             Talk(SAY_AGGRO);
                             DoZoneInCombat();
                             return;
@@ -240,20 +247,20 @@ class boss_ingvar_the_plunderer : public CreatureScript
                         // PHASE TWO
                         case EVENT_DARK_SMASH:
                             DoCastVictim(SPELL_DARK_SMASH);
-                            events.ScheduleEvent(EVENT_DARK_SMASH, 12s, 16s, 0, PHASE_UNDEAD);
+                            events.ScheduleEvent(EVENT_DARK_SMASH, urand(12, 16)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
                             break;
                         case EVENT_DREADFUL_ROAR:
                             DoCast(me, SPELL_DREADFUL_ROAR);
-                            events.ScheduleEvent(EVENT_DREADFUL_ROAR, 18s, 22s, 0, PHASE_UNDEAD);
+                            events.ScheduleEvent(EVENT_DREADFUL_ROAR, urand(18, 22)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
                             break;
                         case EVENT_WOE_STRIKE:
                             DoCastVictim(SPELL_WOE_STRIKE);
-                            events.ScheduleEvent(EVENT_WOE_STRIKE, 10s, 14s, 0, PHASE_UNDEAD);
+                            events.ScheduleEvent(EVENT_WOE_STRIKE, urand(10, 14)*IN_MILLISECONDS, 0, PHASE_UNDEAD);
                             break;
                         case EVENT_SHADOW_AXE:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
                                 DoCast(target, SPELL_SHADOW_AXE_SUMMON);
-                            events.ScheduleEvent(EVENT_SHADOW_AXE, 30s, 0, PHASE_UNDEAD);
+                            events.ScheduleEvent(EVENT_SHADOW_AXE, 30*IN_MILLISECONDS, 0, PHASE_UNDEAD);
                             break;
                         default:
                             break;
@@ -312,7 +319,7 @@ class npc_annhylde_the_caller : public CreatureScript
                             ingvar->CastSpell(ingvar, SPELL_SCOURG_RESURRECTION_DUMMY, true);
                             DoCast(ingvar, SPELL_SCOURG_RESURRECTION_BEAM);
                         }
-                        _events.ScheduleEvent(EVENT_RESURRECT_1, 8s);
+                        _events.ScheduleEvent(EVENT_RESURRECT_1, 8000);
                         break;
                     case 2:
                         me->DespawnOrUnsummon();
@@ -324,7 +331,7 @@ class npc_annhylde_the_caller : public CreatureScript
 
             void AttackStart(Unit* /*who*/) override { }
             void MoveInLineOfSight(Unit* /*who*/) override { }
-            void JustEngagedWith(Unit* /*who*/) override { }
+            void EnterCombat(Unit* /*who*/) override { }
 
             void UpdateAI(uint32 diff) override
             {
@@ -340,7 +347,7 @@ class npc_annhylde_the_caller : public CreatureScript
                                 ingvar->RemoveAura(SPELL_INGVAR_FEIGN_DEATH);
                                 ingvar->CastSpell(ingvar, SPELL_SCOURG_RESURRECTION_HEAL, false);
                             }
-                            _events.ScheduleEvent(EVENT_RESURRECT_2, 3s);
+                            _events.ScheduleEvent(EVENT_RESURRECT_2, 3000);
                             break;
                         case EVENT_RESURRECT_2:
                             if (Creature* ingvar = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_INGVAR)))
@@ -398,7 +405,7 @@ class npc_ingvar_throw_dummy : public CreatureScript
                 if (type == EFFECT_MOTION_TYPE && id == EVENT_CHARGE)
                 {
                     me->CastSpell(me, SPELL_SHADOW_AXE_PERIODIC_DAMAGE, true);
-                    me->DespawnOrUnsummon(10s);
+                    me->DespawnOrUnsummon(10000);
                 }
             }
         };
@@ -463,7 +470,7 @@ class spell_ingvar_woe_strike : public SpellScriptLoader
             void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                GetTarget()->CastSpell(eventInfo.GetActor(), SPELL_WOE_STRIKE_EFFECT, aurEff);
+                GetTarget()->CastSpell(eventInfo.GetActor(), SPELL_WOE_STRIKE_EFFECT, true, nullptr, aurEff);
             }
 
             void Register() override

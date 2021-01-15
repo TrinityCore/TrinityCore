@@ -157,24 +157,24 @@ public:
             _Reset();
             me->SetReactState(REACT_AGGRESSIVE);
             instance->SetData(DATA_ONYXIA_PHASE, Phase);
-            instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+            instance->DoStopCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
 
-        void JustEngagedWith(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
-            BossAI::JustEngagedWith(who);
+            _EnterCombat();
             Talk(SAY_AGGRO);
-            events.ScheduleEvent(EVENT_FLAME_BREATH, 10s, 20s);
-            events.ScheduleEvent(EVENT_TAIL_SWEEP, 15s, 20s);
-            events.ScheduleEvent(EVENT_CLEAVE, 2s, 5s);
-            events.ScheduleEvent(EVENT_WING_BUFFET, 10s, 20s);
-            instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+            events.ScheduleEvent(EVENT_FLAME_BREATH, urand(10000, 20000));
+            events.ScheduleEvent(EVENT_TAIL_SWEEP, urand(15000, 20000));
+            events.ScheduleEvent(EVENT_CLEAVE, urand(2000, 5000));
+            events.ScheduleEvent(EVENT_WING_BUFFET, urand(10000, 20000));
+            instance->DoStartCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
 
         void JustSummoned(Creature* summoned) override
         {
-            DoZoneInCombat(summoned);
-            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+            summoned->SetInCombatWithZone();
+            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 summoned->AI()->AttackStart(target);
 
             switch (summoned->GetEntry())
@@ -184,7 +184,6 @@ public:
                     break;
                 case NPC_LAIRGUARD:
                     summoned->setActive(true);
-                    summoned->SetFarVisible(true);
                     break;
             }
             summons.Summon(summoned);
@@ -196,14 +195,14 @@ public:
             Talk(SAY_KILL);
         }
 
-        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+        void SpellHit(Unit* /*pCaster*/, SpellInfo const* Spell) override
         {
-            if (spellInfo->Id == SPELL_BREATH_EAST_TO_WEST ||
-                spellInfo->Id == SPELL_BREATH_WEST_TO_EAST ||
-                spellInfo->Id == SPELL_BREATH_SE_TO_NW ||
-                spellInfo->Id == SPELL_BREATH_NW_TO_SE ||
-                spellInfo->Id == SPELL_BREATH_SW_TO_NE ||
-                spellInfo->Id == SPELL_BREATH_NE_TO_SW)
+            if (Spell->Id == SPELL_BREATH_EAST_TO_WEST ||
+                Spell->Id == SPELL_BREATH_WEST_TO_EAST ||
+                Spell->Id == SPELL_BREATH_SE_TO_NW ||
+                Spell->Id == SPELL_BREATH_NW_TO_SE ||
+                Spell->Id == SPELL_BREATH_SW_TO_NE ||
+                Spell->Id == SPELL_BREATH_NE_TO_SW)
             {
                 PointData = GetMoveData();
                 MovePoint = PointData->LocIdEnd;
@@ -230,23 +229,25 @@ public:
                     case 9:
                         me->SetCanFly(false);
                         me->SetDisableGravity(false);
+                        me->SetAnimTier(UNIT_BYTE1_FLAG_NONE, false);
                         if (Creature* trigger = ObjectAccessor::GetCreature(*me, triggerGUID))
-                            Unit::Kill(me, trigger);
+                            me->Kill(trigger);
                         me->SetReactState(REACT_AGGRESSIVE);
                         // tank selection based on phase one. If tank is not there i take nearest one
                         if (Unit* tank = ObjectAccessor::GetUnit(*me, tankGUID))
                             me->GetMotionMaster()->MoveChase(tank);
-                        else if (Unit* newtarget = SelectTarget(SelectTargetMethod::MinDistance, 0))
+                        else if (Unit* newtarget = SelectTarget(SELECT_TARGET_MINDISTANCE, 0))
                             me->GetMotionMaster()->MoveChase(newtarget);
-                        events.ScheduleEvent(EVENT_BELLOWING_ROAR, 5s);
-                        events.ScheduleEvent(EVENT_FLAME_BREATH, 10s, 20s);
-                        events.ScheduleEvent(EVENT_TAIL_SWEEP, 15s, 20s);
-                        events.ScheduleEvent(EVENT_CLEAVE, 2s, 5s);
-                        events.ScheduleEvent(EVENT_WING_BUFFET, 15s, 30s);
+                        events.ScheduleEvent(EVENT_BELLOWING_ROAR, 5000);
+                        events.ScheduleEvent(EVENT_FLAME_BREATH, urand(10000, 20000));
+                        events.ScheduleEvent(EVENT_TAIL_SWEEP, urand(15000, 20000));
+                        events.ScheduleEvent(EVENT_CLEAVE, urand(2000, 5000));
+                        events.ScheduleEvent(EVENT_WING_BUFFET, urand(15000, 30000));
                         break;
                     case 10:
                         me->SetCanFly(true);
                         me->SetDisableGravity(true);
+                        me->SetAnimTier(UnitBytes1_Flags(UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER), false);
                         me->SetFacingTo(me->GetOrientation() + float(M_PI));
                         if (Creature * trigger = me->SummonCreature(NPC_TRIGGER, MiddleRoomLocation, TEMPSUMMON_CORPSE_DESPAWN))
                             triggerGUID = trigger->GetGUID();
@@ -254,11 +255,11 @@ public:
                         me->SetSpeedRate(MOVE_FLIGHT, 1.0f);
                         Talk(SAY_PHASE_2_TRANS);
                         instance->SetData(DATA_ONYXIA_PHASE, Phase);
-                        events.ScheduleEvent(EVENT_WHELP_SPAWN, 5s);
-                        events.ScheduleEvent(EVENT_LAIR_GUARD, 15s);
-                        events.ScheduleEvent(EVENT_DEEP_BREATH, 75s);
-                        events.ScheduleEvent(EVENT_MOVEMENT, 10s);
-                        events.ScheduleEvent(EVENT_FIREBALL, 18s);
+                        events.ScheduleEvent(EVENT_WHELP_SPAWN, 5000);
+                        events.ScheduleEvent(EVENT_LAIR_GUARD, 15000);
+                        events.ScheduleEvent(EVENT_DEEP_BREATH, 75000);
+                        events.ScheduleEvent(EVENT_MOVEMENT, 10000);
+                        events.ScheduleEvent(EVENT_FIREBALL, 18000);
                         break;
                     case 11:
                         if (PointData)
@@ -272,20 +273,20 @@ public:
             }
         }
 
-        void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
+        void SpellHitTarget(Unit* target, SpellInfo const* Spell) override
         {
             //Workaround - Couldn't find a way to group this spells (All Eruption)
-            if (((spellInfo->Id >= 17086 && spellInfo->Id <= 17095) ||
-                (spellInfo->Id == 17097) ||
-                (spellInfo->Id >= 18351 && spellInfo->Id <= 18361) ||
-                (spellInfo->Id >= 18564 && spellInfo->Id <= 18576) ||
-                (spellInfo->Id >= 18578 && spellInfo->Id <= 18607) ||
-                (spellInfo->Id == 18609) ||
-                (spellInfo->Id >= 18611 && spellInfo->Id <= 18628) ||
-                (spellInfo->Id >= 21132 && spellInfo->Id <= 21133) ||
-                (spellInfo->Id >= 21135 && spellInfo->Id <= 21139) ||
-                (spellInfo->Id >= 22191 && spellInfo->Id <= 22202) ||
-                (spellInfo->Id >= 22267 && spellInfo->Id <= 22268)) &&
+            if (((Spell->Id >= 17086 && Spell->Id <= 17095) ||
+                (Spell->Id == 17097) ||
+                (Spell->Id >= 18351 && Spell->Id <= 18361) ||
+                (Spell->Id >= 18564 && Spell->Id <= 18576) ||
+                (Spell->Id >= 18578 && Spell->Id <= 18607) ||
+                (Spell->Id == 18609) ||
+                (Spell->Id >= 18611 && Spell->Id <= 18628) ||
+                (Spell->Id >= 21132 && Spell->Id <= 21133) ||
+                (Spell->Id >= 21135 && Spell->Id <= 21139) ||
+                (Spell->Id >= 22191 && Spell->Id <= 22202) ||
+                (Spell->Id >= 22267 && Spell->Id <= 22268)) &&
                 (target->GetTypeId() == TYPEID_PLAYER))
             {
                 instance->SetData(DATA_SHE_DEEP_BREATH_MORE, FAIL);
@@ -360,24 +361,24 @@ public:
                             Cell::VisitGridObjects(me, searcher, 30.0f);
                             if (Floor)
                                 instance->SetGuidData(DATA_FLOOR_ERUPTION_GUID, Floor->GetGUID());
-                            events.ScheduleEvent(EVENT_BELLOWING_ROAR, 30s);
+                            events.ScheduleEvent(EVENT_BELLOWING_ROAR, 30000);
                             break;
                         }
                         case EVENT_FLAME_BREATH:   // Phase PHASE_START and PHASE_END
                             DoCastVictim(SPELL_FLAME_BREATH);
-                            events.ScheduleEvent(EVENT_FLAME_BREATH, 10s, 20s);
+                            events.ScheduleEvent(EVENT_FLAME_BREATH, urand(10000, 20000));
                             break;
                         case EVENT_TAIL_SWEEP:     // Phase PHASE_START and PHASE_END
                             DoCastAOE(SPELL_TAIL_SWEEP);
-                            events.ScheduleEvent(EVENT_TAIL_SWEEP, 15s, 20s);
+                            events.ScheduleEvent(EVENT_TAIL_SWEEP, urand(15000, 20000));
                             break;
                         case EVENT_CLEAVE:         // Phase PHASE_START and PHASE_END
                             DoCastVictim(SPELL_CLEAVE);
-                            events.ScheduleEvent(EVENT_CLEAVE, 2s, 5s);
+                            events.ScheduleEvent(EVENT_CLEAVE, urand(2000, 5000));
                             break;
                         case EVENT_WING_BUFFET:    // Phase PHASE_START and PHASE_END
                             DoCastVictim(SPELL_WING_BUFFET);
-                            events.ScheduleEvent(EVENT_WING_BUFFET, 15s, 30s);
+                            events.ScheduleEvent(EVENT_WING_BUFFET, urand(15000, 30000));
                             break;
                         default:
                             break;
@@ -399,7 +400,7 @@ public:
                     IsMoving = false;
                     Position const pos = me->GetHomePosition();
                     me->GetMotionMaster()->MovePoint(9, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ() + 12.0f);
-                    events.ScheduleEvent(EVENT_BELLOWING_ROAR, 30s);
+                    events.ScheduleEvent(EVENT_BELLOWING_ROAR, 30000);
                     return;
                 }
 
@@ -425,10 +426,10 @@ public:
                                 Talk(EMOTE_BREATH);
                                 if (PointData) /// @todo: In what cases is this null? What should we do?
                                     DoCast(me, PointData->SpellId);
-                                events.ScheduleEvent(EVENT_DEEP_BREATH, 75s);
+                                events.ScheduleEvent(EVENT_DEEP_BREATH, 75000);
                             }
                             else
-                                events.ScheduleEvent(EVENT_DEEP_BREATH, 1s);
+                                events.ScheduleEvent(EVENT_DEEP_BREATH, 1000);
                             break;
                         case EVENT_MOVEMENT:         // Phase PHASE_BREATH
                             if (!IsMoving && !(me->HasUnitState(UNIT_STATE_CASTING)))
@@ -441,24 +442,24 @@ public:
 
                                 me->GetMotionMaster()->MovePoint(PointData->LocId, PointData->fX, PointData->fY, PointData->fZ);
                                 IsMoving = true;
-                                events.ScheduleEvent(EVENT_MOVEMENT, 25s);
+                                events.ScheduleEvent(EVENT_MOVEMENT, 25000);
                             }
                             else
-                                events.ScheduleEvent(EVENT_MOVEMENT, 500ms);
+                                events.ScheduleEvent(EVENT_MOVEMENT, 500);
                             break;
                         case EVENT_FIREBALL:         // Phase PHASE_BREATH
                             if (!IsMoving)
                             {
-                                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                     DoCast(target, SPELL_FIREBALL);
-                                events.ScheduleEvent(EVENT_FIREBALL, 8s);
+                                events.ScheduleEvent(EVENT_FIREBALL, 8000);
                             }
                             else
-                                events.ScheduleEvent(EVENT_FIREBALL, 1s);
+                                events.ScheduleEvent(EVENT_FIREBALL, 1000);
                             break;
                         case EVENT_LAIR_GUARD:       // Phase PHASE_BREATH
                             me->SummonCreature(NPC_LAIRGUARD, SpawnLocations[2], TEMPSUMMON_CORPSE_DESPAWN);
-                            events.ScheduleEvent(EVENT_LAIR_GUARD, 30s);
+                            events.ScheduleEvent(EVENT_LAIR_GUARD, 30000);
                             break;
                         case EVENT_WHELP_SPAWN:      // Phase PHASE_BREATH
                             me->SummonCreature(NPC_WHELP, SpawnLocations[0], TEMPSUMMON_CORPSE_DESPAWN);
@@ -466,10 +467,10 @@ public:
                             if (SummonWhelpCount >= RAID_MODE(20, 40))
                             {
                                 SummonWhelpCount = 0;
-                                events.ScheduleEvent(EVENT_WHELP_SPAWN, 90s);
+                                events.ScheduleEvent(EVENT_WHELP_SPAWN, 90000);
                             }
                             else
-                                events.ScheduleEvent(EVENT_WHELP_SPAWN, 500ms);
+                                events.ScheduleEvent(EVENT_WHELP_SPAWN, 500);
                             break;
                         default:
                             break;

@@ -19,97 +19,54 @@
 #define TRINITY_MOVEMENTGENERATOR_H
 
 #include "Define.h"
-#include "FactoryHolder.h"
 #include "ObjectRegistry.h"
+#include "FactoryHolder.h"
+#include "Common.h"
+#include "MotionMaster.h"
 
-class Creature;
 class Unit;
-
-enum MovementGeneratorType : uint8;
-
-enum MovementGeneratorFlags : uint16
-{
-    MOVEMENTGENERATOR_FLAG_NONE                   = 0x000,
-    MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING = 0x001,
-    MOVEMENTGENERATOR_FLAG_INITIALIZED            = 0x002,
-    MOVEMENTGENERATOR_FLAG_SPEED_UPDATE_PENDING   = 0x004,
-    MOVEMENTGENERATOR_FLAG_INTERRUPTED            = 0x008,
-    MOVEMENTGENERATOR_FLAG_PAUSED                 = 0x010,
-    MOVEMENTGENERATOR_FLAG_TIMED_PAUSED           = 0x020,
-    MOVEMENTGENERATOR_FLAG_DEACTIVATED            = 0x040,
-    MOVEMENTGENERATOR_FLAG_INFORM_ENABLED         = 0x080,
-    MOVEMENTGENERATOR_FLAG_FINALIZED              = 0x100,
-
-    MOVEMENTGENERATOR_FLAG_TRANSITORY = MOVEMENTGENERATOR_FLAG_SPEED_UPDATE_PENDING | MOVEMENTGENERATOR_FLAG_INTERRUPTED
-};
 
 class TC_GAME_API MovementGenerator
 {
     public:
-        MovementGenerator() : Mode(0), Priority(0), Flags(MOVEMENTGENERATOR_FLAG_NONE), BaseUnitState(0) { }
         virtual ~MovementGenerator();
 
-        // on top first update
         virtual void Initialize(Unit*) = 0;
-        // on top reassign
+        virtual void Finalize(Unit*) = 0;
         virtual void Reset(Unit*) = 0;
-        // on top on MotionMaster::Update
         virtual bool Update(Unit*, uint32 diff) = 0;
-        // on current top if another movement replaces
-        virtual void Deactivate(Unit*) = 0;
-        // on movement delete
-        virtual void Finalize(Unit*, bool, bool) = 0;
         virtual MovementGeneratorType GetMovementGeneratorType() const = 0;
 
         virtual void UnitSpeedChanged() { }
-        // timer in ms
-        virtual void Pause(uint32/* timer = 0*/) { }
-        // timer in ms
-        virtual void Resume(uint32/* overrideTimer = 0*/) { }
+        virtual void Pause(uint32/* timer = 0*/) { } // timer in ms
+        virtual void Resume(uint32/* overrideTimer = 0*/) { } // timer in ms
+
         // used by Evade code for select point to evade with expected restart default movement
-        virtual bool GetResetPosition(Unit*, float&/* x*/, float&/* y*/, float&/* z*/) { return false; }
-
-        virtual void NotifyAIOnFinalize(Unit*);
-
-        void AddFlag(uint16 const flag) { Flags |= flag; }
-        bool HasFlag(uint16 const flag) const { return (Flags & flag) != 0; }
-        void RemoveFlag(uint16 const flag) { Flags &= ~flag; }
-
-        virtual std::string GetDebugInfo() const;
-
-        uint8 Mode;
-        uint8 Priority;
-        uint16 Flags;
-        uint32 BaseUnitState;
+        virtual bool GetResetPosition(Unit*, float& /*x*/, float& /*y*/, float& /*z*/) { return false; }
 };
 
 template<class T, class D>
 class MovementGeneratorMedium : public MovementGenerator
 {
     public:
-        void Initialize(Unit* owner) override
+        void Initialize(Unit* u) override
         {
-            (static_cast<D*>(this))->DoInitialize(static_cast<T*>(owner));
+            (static_cast<D*>(this))->DoInitialize(static_cast<T*>(u));
         }
 
-        void Reset(Unit* owner) override
+        void Finalize(Unit* u) override
         {
-            (static_cast<D*>(this))->DoReset(static_cast<T*>(owner));
+            (static_cast<D*>(this))->DoFinalize(static_cast<T*>(u));
         }
 
-        bool Update(Unit* owner, uint32 diff) override
+        void Reset(Unit* u) override
         {
-            return (static_cast<D*>(this))->DoUpdate(static_cast<T*>(owner), diff);
+            (static_cast<D*>(this))->DoReset(static_cast<T*>(u));
         }
 
-        void Deactivate(Unit* owner) override
+        bool Update(Unit* u, uint32 time_diff) override
         {
-            (static_cast<D*>(this))->DoDeactivate(static_cast<T*>(owner));
-        }
-
-        void Finalize(Unit* owner, bool active, bool movementInform) override
-        {
-            (static_cast<D*>(this))->DoFinalize(static_cast<T*>(owner), active, movementInform);
+            return (static_cast<D*>(this))->DoUpdate(static_cast<T*>(u), time_diff);
         }
 };
 
@@ -128,21 +85,7 @@ struct MovementGeneratorFactory : public MovementGeneratorCreator
 
 struct IdleMovementFactory : public MovementGeneratorCreator
 {
-    IdleMovementFactory();
-
-    MovementGenerator* Create(Unit* object) const override;
-};
-
-struct RandomMovementFactory : public MovementGeneratorCreator
-{
-    RandomMovementFactory();
-
-    MovementGenerator* Create(Unit* object) const override;
-};
-
-struct WaypointMovementFactory : public MovementGeneratorCreator
-{
-    WaypointMovementFactory();
+    IdleMovementFactory() : MovementGeneratorCreator(IDLE_MOTION_TYPE) { }
 
     MovementGenerator* Create(Unit* object) const override;
 };

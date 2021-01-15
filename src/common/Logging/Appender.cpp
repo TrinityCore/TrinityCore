@@ -18,7 +18,6 @@
 #include "Appender.h"
 #include "LogMessage.h"
 #include "StringFormat.h"
-
 #include <sstream>
 
 Appender::Appender(uint8 _id, std::string const& _name, LogLevel _level /* = LOG_LEVEL_DISABLED */, AppenderFlags _flags /* = APPENDER_FLAGS_NONE */):

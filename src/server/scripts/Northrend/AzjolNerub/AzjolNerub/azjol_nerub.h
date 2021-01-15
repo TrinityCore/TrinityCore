@@ -52,18 +52,18 @@ enum ANCreatureIds
     NPC_WATCHER_SILTHIK             = 28731
 };
 
-// These are passed as -action to AI's DoAction to differentiate between them and boss scripts' own actions
-enum InstanceActions
-{
-    ACTION_GATEWATCHER_GREET        = 1
-};
-
 enum ANGameObjectIds
 {
     GO_KRIKTHIR_DOOR                = 192395,
     GO_ANUBARAK_DOOR_1              = 192396,
     GO_ANUBARAK_DOOR_2              = 192397,
     GO_ANUBARAK_DOOR_3              = 192398
+};
+
+// These are passed as -action to AI's DoAction to differentiate between them and boss scripts' own actions
+enum ANInstanceActions
+{
+    ACTION_GATEWATCHER_GREET        = 1
 };
 
 template <class AI, class T>

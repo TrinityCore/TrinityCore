@@ -150,7 +150,6 @@ class boss_instructor_malicia : public CreatureScript
         {
             return GetScholomanceAI<boss_instructormaliciaAI>(creature);
         }
-
 };
 
 void AddSC_boss_instructormalicia()

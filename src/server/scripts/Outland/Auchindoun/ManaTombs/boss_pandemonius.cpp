@@ -16,8 +16,8 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "mana_tombs.h"
+#include "ScriptedCreature.h"
 
 enum Texts
 {

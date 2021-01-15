@@ -15,11 +15,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_SCRIPTEDGOSSIP_H
-#define TRINITY_SCRIPTEDGOSSIP_H
+#ifndef SC_GOSSIP_H
+#define SC_GOSSIP_H
 
+#include "Define.h"
 #include "GossipDef.h"
-#include "QuestDef.h"
+#include <string>
+
+class Creature;
+class ObjectGuid;
+class Player;
 
 // Gossip Item Text
 #define GOSSIP_TEXT_BROWSE_GOODS        "I'd like to browse your goods."
@@ -43,6 +48,7 @@ enum eTradeskill
     TRADESKILL_SKINNING                 = 13,
     TRADESKILL_JEWLCRAFTING             = 14,
     TRADESKILL_INSCRIPTION              = 15,
+    TRADESKILL_ARCHAEOLOGY              = 16,
 
     TRADESKILL_LEVEL_NONE               = 0,
     TRADESKILL_LEVEL_APPRENTICE         = 1,
@@ -51,6 +57,7 @@ enum eTradeskill
     TRADESKILL_LEVEL_ARTISAN            = 4,
     TRADESKILL_LEVEL_MASTER             = 5,
     TRADESKILL_LEVEL_GRAND_MASTER       = 6,
+    TRADESKILL_LEVEL_ILLUSTRIOUS        = 7,
 
     // Gossip defines
     GOSSIP_ACTION_TRADE                 = 1,
@@ -79,9 +86,6 @@ enum eTradeskill
     GOSSIP_SENDER_SEC_STABLEMASTER      = 10
 };
 
-class Creature;
-
-uint32 TC_GAME_API GetGossipSenderFor(Player* player, uint32 menuId);
 uint32 TC_GAME_API GetGossipActionFor(Player* player, uint32 gossipListId);
 void TC_GAME_API ClearGossipMenuFor(Player* player);
 // Using provided text, not from DB

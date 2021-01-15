@@ -23,22 +23,26 @@
 #include "ObjectGuid.h"
 #include <map>
 
-struct AuctionEntry;
 struct CalendarEvent;
+class AuctionHouseObject;
+class BlackMarketEntry;
 class Item;
 class Object;
 class Player;
 
 #define MAIL_BODY_ITEM_TEMPLATE 8383                        // - plain letter, A Dusty Unsent Letter: 889
-#define MAX_MAIL_ITEMS 12
+#define MAX_CLIENT_MAIL_ITEMS 12                            // max number of items a player is allowed to attach
+#define MAX_MAIL_ITEMS 16
 
 enum MailMessageType
 {
-    MAIL_NORMAL         = 0,
-    MAIL_AUCTION        = 2,
-    MAIL_CREATURE       = 3,                                // client send CMSG_CREATURE_QUERY on this mailmessagetype
-    MAIL_GAMEOBJECT     = 4,                                // client send CMSG_GAMEOBJECT_QUERY on this mailmessagetype
-    MAIL_CALENDAR       = 5
+    MAIL_NORMAL           = 0,
+    MAIL_AUCTION          = 2,
+    MAIL_CREATURE         = 3,                              // client send CMSG_CREATURE_QUERY on this mailmessagetype
+    MAIL_GAMEOBJECT       = 4,                              // client send CMSG_GAMEOBJECT_QUERY on this mailmessagetype
+    MAIL_CALENDAR         = 5,
+    MAIL_BLACKMARKET      = 6,
+    MAIL_COMMERCE_AUCTION = 7                               // wow token auction
 };
 
 enum MailCheckMask
@@ -88,7 +92,8 @@ class TC_GAME_API MailSender
         }
         MailSender(Object* sender, MailStationery stationery = MAIL_STATIONERY_DEFAULT);
         MailSender(CalendarEvent* sender);
-        MailSender(AuctionEntry* sender);
+        MailSender(AuctionHouseObject const* sender);
+        MailSender(BlackMarketEntry* sender);
         MailSender(Player* sender);
         MailSender(uint32 senderEntry);
     public:                                                 // Accessors
@@ -107,6 +112,7 @@ class TC_GAME_API MailReceiver
         explicit MailReceiver(ObjectGuid::LowType receiver_lowguid) : m_receiver(nullptr), m_receiver_lowguid(receiver_lowguid) { }
         MailReceiver(Player* receiver);
         MailReceiver(Player* receiver, ObjectGuid::LowType receiver_lowguid);
+        MailReceiver(Player* receiver, ObjectGuid receiverGuid);
     public:                                                 // Accessors
         Player* GetPlayer() const { return m_receiver; }
         ObjectGuid::LowType GetPlayerGUIDLow() const { return m_receiver_lowguid; }
@@ -128,22 +134,22 @@ class TC_GAME_API MailDraft
     public:                                                 // Accessors
         uint16 GetMailTemplateId() const { return m_mailTemplateId; }
         std::string const& GetSubject() const { return m_subject; }
-        uint32 GetMoney() const { return m_money; }
-        uint32 GetCOD() const { return m_COD; }
+        uint64 GetMoney() const { return m_money; }
+        uint64 GetCOD() const { return m_COD; }
         std::string const& GetBody() const { return m_body; }
 
     public:                                                 // modifiers
         MailDraft& AddItem(Item* item);
-        MailDraft& AddMoney(uint32 money) { m_money = money; return *this; }
-        MailDraft& AddCOD(uint32 COD) { m_COD = COD; return *this; }
+        MailDraft& AddMoney(uint64 money) { m_money = money; return *this; }
+        MailDraft& AddCOD(uint64 COD) { m_COD = COD; return *this; }
 
     public:                                                 // finishers
-        void SendReturnToSender(uint32 sender_acc, ObjectGuid::LowType sender_guid, ObjectGuid::LowType receiver_guid, CharacterDatabaseTransaction trans);
-        void SendMailTo(CharacterDatabaseTransaction trans, MailReceiver const& receiver, MailSender const& sender, MailCheckMask checked = MAIL_CHECK_MASK_NONE, uint32 deliver_delay = 0);
+        void SendReturnToSender(uint32 sender_acc, ObjectGuid::LowType sender_guid, ObjectGuid::LowType receiver_guid, CharacterDatabaseTransaction& trans);
+        void SendMailTo(CharacterDatabaseTransaction& trans, MailReceiver const& receiver, MailSender const& sender, MailCheckMask checked = MAIL_CHECK_MASK_NONE, uint32 deliver_delay = 0);
 
     private:
-        void deleteIncludedItems(CharacterDatabaseTransaction trans, bool inDB = false);
-        void prepareItems(Player* receiver, CharacterDatabaseTransaction trans);                // called from SendMailTo for generate mailTemplateBase items
+        void deleteIncludedItems(CharacterDatabaseTransaction& trans, bool inDB = false);
+        void prepareItems(Player* receiver, CharacterDatabaseTransaction& trans);                // called from SendMailTo for generate mailTemplateBase items
 
         uint16      m_mailTemplateId;
         bool        m_mailTemplateItemsNeed;
@@ -152,8 +158,8 @@ class TC_GAME_API MailDraft
 
         MailItemMap m_items;                                // Keep the items in a map to avoid duplicate guids (which can happen), store only low part of guid
 
-        uint32 m_money;
-        uint32 m_COD;
+        uint64 m_money;
+        uint64 m_COD;
 };
 
 struct MailItemInfo
@@ -169,7 +175,7 @@ struct TC_GAME_API Mail
     uint8 messageType;
     uint8 stationery;
     uint16 mailTemplateId;
-    ObjectGuid::LowType sender;
+    ObjectGuid::LowType sender;  // TODO: change to uint64 and store full guids
     ObjectGuid::LowType receiver;
     std::string subject;
     std::string body;
@@ -177,8 +183,8 @@ struct TC_GAME_API Mail
     std::vector<ObjectGuid::LowType> removedItems;
     time_t expire_time;
     time_t deliver_time;
-    uint32 money;
-    uint32 COD;
+    uint64 money;
+    uint64 COD;
     uint32 checked;
     MailState state;
 

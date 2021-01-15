@@ -16,8 +16,8 @@
  */
 
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "blackfathom_deeps.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
@@ -54,10 +54,10 @@ public:
             _Reset();
         }
 
-        void JustEngagedWith(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
-            BossAI::JustEngagedWith(who);
-            events.ScheduleEvent(EVENT_POISON_CLOUD, 5s, 9s);
+            _EnterCombat();
+            events.ScheduleEvent(EVENT_POISON_CLOUD, urand(5000, 9000));
         }
 
         void DamageTaken(Unit* /*atacker*/, uint32 &damage) override
@@ -75,7 +75,7 @@ public:
             {
                 case EVENT_POISON_CLOUD:
                     DoCastVictim(SPELL_POISON_CLOUD);
-                    events.ScheduleEvent(EVENT_POISON_CLOUD, 25s, 50s);
+                    events.ScheduleEvent(EVENT_POISON_CLOUD, urand(25000, 50000));
                     break;
                 default:
                     break;

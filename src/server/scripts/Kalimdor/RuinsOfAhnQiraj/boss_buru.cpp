@@ -36,8 +36,8 @@ enum Spells
     SPELL_THORNS                = 25640,
     SPELL_BURU_TRANSFORM        = 24721,
     SPELL_SUMMON_HATCHLING      = 1881,
-    SPELL_EXPLODE               = 19593,
-    SPELL_EXPLODE_2             = 5255,
+    SPELL_EGG_EXPLOSION         = 19593,
+    SPELL_EXPLOSION_DAMAGE      = 5255,
     SPELL_BURU_EGG_TRIGGER      = 26646
 };
 
@@ -84,15 +84,15 @@ class boss_buru : public CreatureScript
                 Eggs.clear();
             }
 
-            void JustEngagedWith(Unit* who) override
+            void EnterCombat(Unit* who) override
             {
-                BossAI::JustEngagedWith(who);
+                _EnterCombat();
                 Talk(EMOTE_TARGET, who);
                 DoCast(me, SPELL_THORNS);
 
-                events.ScheduleEvent(EVENT_DISMEMBER, 5s);
-                events.ScheduleEvent(EVENT_GATHERING_SPEED, 9s);
-                events.ScheduleEvent(EVENT_FULL_SPEED, 1min);
+                events.ScheduleEvent(EVENT_DISMEMBER, 5000);
+                events.ScheduleEvent(EVENT_GATHERING_SPEED, 9000);
+                events.ScheduleEvent(EVENT_FULL_SPEED, 60000);
 
                 _phase = PHASE_EGG;
             }
@@ -101,7 +101,7 @@ class boss_buru : public CreatureScript
             {
                 if (action == ACTION_EXPLODE)
                     if (_phase == PHASE_EGG)
-                        Unit::DealDamage(me, me, 45000);
+                        me->DealDamage(me, 45000);
             }
 
             void KilledUnit(Unit* victim) override
@@ -117,10 +117,10 @@ class boss_buru : public CreatureScript
 
                 me->RemoveAurasDueToSpell(SPELL_FULL_SPEED);
                 me->RemoveAurasDueToSpell(SPELL_GATHERING_SPEED);
-                events.ScheduleEvent(EVENT_GATHERING_SPEED, 9s);
-                events.ScheduleEvent(EVENT_FULL_SPEED, 1min);
+                events.ScheduleEvent(EVENT_GATHERING_SPEED, 9000);
+                events.ScheduleEvent(EVENT_FULL_SPEED, 60000);
 
-                if (Unit* victim = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
+                if (Unit* victim = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                 {
                     ResetThreatList();
                     AttackStart(victim);
@@ -132,7 +132,7 @@ class boss_buru : public CreatureScript
             {
                 ChaseNewVictim();
                 Eggs.push_back(EggGUID);
-                events.ScheduleEvent(EVENT_RESPAWN_EGG, 100s);
+                events.ScheduleEvent(EVENT_RESPAWN_EGG, 100000);
             }
 
             void UpdateAI(uint32 diff) override
@@ -148,18 +148,18 @@ class boss_buru : public CreatureScript
                     {
                         case EVENT_DISMEMBER:
                             DoCastVictim(SPELL_DISMEMBER);
-                            events.ScheduleEvent(EVENT_DISMEMBER, 5s);
+                            events.ScheduleEvent(EVENT_DISMEMBER, 5000);
                             break;
                         case EVENT_GATHERING_SPEED:
                             DoCast(me, SPELL_GATHERING_SPEED);
-                            events.ScheduleEvent(EVENT_GATHERING_SPEED, 9s);
+                            events.ScheduleEvent(EVENT_GATHERING_SPEED, 9000);
                             break;
                         case EVENT_FULL_SPEED:
                             DoCast(me, SPELL_FULL_SPEED);
                             break;
                         case EVENT_CREEPING_PLAGUE:
                             DoCast(me, SPELL_CREEPING_PLAGUE);
-                            events.ScheduleEvent(EVENT_CREEPING_PLAGUE, 6s);
+                            events.ScheduleEvent(EVENT_CREEPING_PLAGUE, 6000);
                             break;
                         case EVENT_RESPAWN_EGG:
                             if (Creature* egg = ObjectAccessor::GetCreature(*me, Eggs.front()))
@@ -207,7 +207,7 @@ class npc_buru_egg : public CreatureScript
                 SetCombatMovement(false);
             }
 
-            void JustEngagedWith(Unit* attacker) override
+            void EnterCombat(Unit* attacker) override
             {
                 if (Creature* buru = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_BURU)))
                     if (!buru->IsInCombat())
@@ -218,15 +218,14 @@ class npc_buru_egg : public CreatureScript
             {
                 if (who->GetEntry() == NPC_HATCHLING)
                     if (Creature* buru = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_BURU)))
-                        if (Unit* target = buru->AI()->SelectTarget(SelectTargetMethod::Random))
+                        if (Unit* target = buru->AI()->SelectTarget(SELECT_TARGET_RANDOM))
                             who->AI()->AttackStart(target);
             }
 
             void JustDied(Unit* /*killer*/) override
             {
-                DoCastAOE(SPELL_EXPLODE, true);
-                DoCastAOE(SPELL_EXPLODE_2, true); // Unknown purpose
-                DoCast(me, SPELL_SUMMON_HATCHLING, true);
+                DoCastAOE(SPELL_EGG_EXPLOSION, true);
+                DoCastAOE(SPELL_SUMMON_HATCHLING, true);
 
                 if (Creature* buru = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_BURU)))
                     if (boss_buru::boss_buruAI* buruAI = dynamic_cast<boss_buru::boss_buruAI*>(buru->AI()))
@@ -242,6 +241,7 @@ class npc_buru_egg : public CreatureScript
         }
 };
 
+// 19593 - Egg Explosion
 class spell_egg_explosion : public SpellScriptLoader
 {
     public:
@@ -260,7 +260,10 @@ class spell_egg_explosion : public SpellScriptLoader
             void HandleDummyHitTarget(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* target = GetHitUnit())
-                    Unit::DealDamage(GetCaster(), target, -16 * GetCaster()->GetDistance(target) + 500);
+                {
+                    int32 damage = std::max<int32>(0, -16 * GetCaster()->GetDistance(target) + 500);
+                    GetCaster()->CastCustomSpell(SPELL_EXPLOSION_DAMAGE, SPELLVALUE_BASE_POINT0, damage, target, true);
+                }
             }
 
             void Register() override

@@ -91,7 +91,6 @@ class boss_baltharus_the_warborn : public CreatureScript
                 {
                     case ACTION_INTRO_BALTHARUS:
                         me->setActive(true);
-                        me->SetFarVisible(true);
                         events.ScheduleEvent(EVENT_INTRO_TALK, Seconds(7), 0, PHASE_INTRO);
                         break;
                     case ACTION_CLONE:
@@ -107,10 +106,10 @@ class boss_baltharus_the_warborn : public CreatureScript
                 }
             }
 
-            void JustEngagedWith(Unit* who) override
+            void EnterCombat(Unit* /*who*/) override
             {
                 me->InterruptNonMeleeSpells(false);
-                BossAI::JustEngagedWith(who);
+                _EnterCombat();
                 events.Reset();
                 events.SetPhase(PHASE_COMBAT);
                 events.ScheduleEvent(EVENT_CLEAVE, Seconds(13), 0, PHASE_COMBAT);
@@ -137,12 +136,12 @@ class boss_baltharus_the_warborn : public CreatureScript
             {
                 summons.Summon(summon);
                 summon->SetHealth(me->GetHealth());
-                events.ScheduleEvent(EVENT_SUMMONS_ATTACK, 2s);
+                events.ScheduleEvent(EVENT_SUMMONS_ATTACK, Seconds(2));
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
-                if (GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
+                if (GetDifficulty() == DIFFICULTY_10_N)
                 {
                     if (me->HealthBelowPctDamaged(50, damage) && _cloneCount == 0)
                     {
@@ -184,10 +183,10 @@ class boss_baltharus_the_warborn : public CreatureScript
                 if (!events.IsInPhase(PHASE_INTRO))
                     me->SetHealth(instance->GetData(DATA_BALTHARUS_SHARED_HEALTH));
 
-                events.Update(diff);
-
                 if (!events.IsInPhase(PHASE_INTRO) && me->HasUnitState(UNIT_STATE_CASTING))
                     return;
+
+                events.Update(diff);
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
@@ -205,8 +204,8 @@ class boss_baltharus_the_warborn : public CreatureScript
                             events.Repeat(Seconds(24));
                             break;
                         case EVENT_ENERVATING_BRAND:
-                            for (uint8 i = 0; i < RAID_MODE<uint8>(2, 4, 2, 4); i++)
-                                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 45.0f, true, false, -SPELL_ENERVATING_BRAND))
+                            for (uint8 i = 0; i < RAID_MODE<uint8>(4, 8, 8, 10); i++)
+                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
                                     DoCast(target, SPELL_ENERVATING_BRAND);
                             events.Repeat(Seconds(26));
                             break;
@@ -252,13 +251,13 @@ class npc_baltharus_the_warborn_clone : public CreatureScript
                 me->SetReactState(REACT_DEFENSIVE);
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void EnterCombat(Unit* /*who*/) override
             {
                 DoZoneInCombat();
                 events.Reset();
-                events.ScheduleEvent(EVENT_CLEAVE, 11s);
-                events.ScheduleEvent(EVENT_BLADE_TEMPEST, 15s);
-                events.ScheduleEvent(EVENT_ENERVATING_BRAND, 10s);
+                events.ScheduleEvent(EVENT_CLEAVE, Seconds(11));
+                events.ScheduleEvent(EVENT_BLADE_TEMPEST, Seconds(15));
+                events.ScheduleEvent(EVENT_ENERVATING_BRAND, Seconds(10));
             }
 
             void EnterEvadeMode(EvadeReason /*why*/) override { }
@@ -274,7 +273,7 @@ class npc_baltharus_the_warborn_clone : public CreatureScript
             {
                 // This is here because DamageTaken wont trigger if the damage is deadly.
                 if (Creature* baltharus = instance->GetCreature(DATA_BALTHARUS_THE_WARBORN))
-                    Unit::Kill(killer, baltharus);
+                    killer->Kill(baltharus);
             }
 
             void UpdateAI(uint32 diff) override
@@ -302,8 +301,8 @@ class npc_baltharus_the_warborn_clone : public CreatureScript
                             events.Repeat(Seconds(24));
                             break;
                         case EVENT_ENERVATING_BRAND:
-                            for (uint8 i = 0; i < RAID_MODE<uint8>(2, 4, 2, 4); i++)
-                                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 45.0f, true, false, -SPELL_ENERVATING_BRAND))
+                            for (uint8 i = 0; i < RAID_MODE<uint8>(4, 8, 8, 10); i++)
+                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
                                     DoCast(target, SPELL_ENERVATING_BRAND);
                             events.Repeat(Seconds(26));
                             break;
@@ -335,22 +334,16 @@ class spell_baltharus_enervating_brand_trigger : public SpellScriptLoader
         {
             PrepareSpellScript(spell_baltharus_enervating_brand_trigger_SpellScript);
 
-            bool Validate(SpellInfo const* /*spell*/) override
+            void CheckDistance()
             {
-                return ValidateSpellInfo({ SPELL_SIPHONED_MIGHT });
-            }
-
-            void HandleSiphonedMight()
-            {
-                if (SpellInfo const* spellInfo = GetTriggeringSpell())
-                    if (Aura* triggerAura = GetCaster()->GetAura(spellInfo->Id))
-                        if (Unit* caster = triggerAura->GetCaster())
-                            GetHitUnit()->CastSpell(caster, SPELL_SIPHONED_MIGHT, true);
+                Unit* caster = GetCaster();
+                Unit* target = GetHitUnit();
+                target->CastSpell(caster, SPELL_SIPHONED_MIGHT, true);
             }
 
             void Register() override
             {
-                OnHit += SpellHitFn(spell_baltharus_enervating_brand_trigger_SpellScript::HandleSiphonedMight);
+                OnHit += SpellHitFn(spell_baltharus_enervating_brand_trigger_SpellScript::CheckDistance);
             }
         };
 

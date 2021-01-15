@@ -195,6 +195,12 @@ public:
             DoZoneInCombat();
         }
 
+        void IsSummonedBy(Unit* /*summoner*/) override
+        {
+            me->SetImmuneToPC(false);
+            DoZoneInCombat();
+        }
+
         void JustDied(Unit* /*killer*/) override
         {
             _JustDied();

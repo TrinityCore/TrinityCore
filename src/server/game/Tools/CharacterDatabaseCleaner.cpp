@@ -16,13 +16,15 @@
  */
 
 #include "Common.h"
-#include "AchievementMgr.h"
+#include "CriteriaHandler.h"
 #include "CharacterDatabaseCleaner.h"
 #include "DatabaseEnv.h"
-#include "DBCStores.h"
+#include "DB2Stores.h"
 #include "Log.h"
-#include "SpellMgr.h"
 #include "World.h"
+#include "SpellMgr.h"
+#include "SpellInfo.h"
+#include <sstream>
 
 void CharacterDatabaseCleaner::CleanDatabase()
 {
@@ -108,7 +110,7 @@ void CharacterDatabaseCleaner::CheckUnique(char const* column, char const* table
 
 bool CharacterDatabaseCleaner::AchievementProgressCheck(uint32 criteria)
 {
-    return sAchievementMgr->GetAchievementCriteria(criteria) != nullptr;
+    return sCriteriaMgr->GetCriteria(criteria) != nullptr;
 }
 
 void CharacterDatabaseCleaner::CleanCharacterAchievementProgress()
@@ -128,7 +130,8 @@ void CharacterDatabaseCleaner::CleanCharacterSkills()
 
 bool CharacterDatabaseCleaner::SpellCheck(uint32 spell_id)
 {
-    return sSpellMgr->GetSpellInfo(spell_id) && !GetTalentSpellPos(spell_id);
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id, DIFFICULTY_NONE);
+    return spellInfo && !spellInfo->HasAttribute(SPELL_ATTR0_CU_IS_TALENT);
 }
 
 void CharacterDatabaseCleaner::CleanCharacterSpell()
@@ -142,13 +145,13 @@ bool CharacterDatabaseCleaner::TalentCheck(uint32 talent_id)
     if (!talentInfo)
         return false;
 
-    return sTalentTabStore.LookupEntry(talentInfo->TabID) != nullptr;
+    return sChrSpecializationStore.LookupEntry(talentInfo->SpecID) != nullptr;
 }
 
 void CharacterDatabaseCleaner::CleanCharacterTalent()
 {
-    CharacterDatabase.DirectPExecute("DELETE FROM character_talent WHERE talentGroup > %u", MAX_TALENT_SPECS);
-    CheckUnique("spell", "character_talent", &TalentCheck);
+    CharacterDatabase.DirectPExecute("DELETE FROM character_talent WHERE talentGroup > %u", MAX_SPECIALIZATIONS);
+    CheckUnique("talentId", "character_talent", &TalentCheck);
 }
 
 void CharacterDatabaseCleaner::CleanCharacterQuestStatus()

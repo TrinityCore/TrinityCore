@@ -15,35 +15,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "scarlet_monastery.h"
+#include "ScriptMgr.h"
 #include "Creature.h"
-#include "CreatureAI.h"
-#include "EventMap.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
-#include "ScriptMgr.h"
-#include "TemporarySummon.h"
+#include "scarlet_monastery.h"
 
-ObjectData const creatureData[] =
+DoorData const doorData[] =
 {
-    { NPC_HEADLESS_HORSEMAN_HEAD, DATA_HORSEMAN_HEAD     },
-    { NPC_HEADLESS_HORSEMAN,      DATA_HEADLESS_HORSEMAN },
-    { NPC_FLAME_BUNNY,            DATA_FLAME_BUNNY       },
-    { NPC_EARTH_BUNNY,            DATA_EARTH_BUNNY       },
-    { NPC_SIR_THOMAS,             DATA_THOMAS            },
-    { NPC_MOGRAINE,               DATA_MOGRAINE          },
-    { NPC_VORREL,                 DATA_VORREL            },
-    { NPC_WHITEMANE,              DATA_WHITEMANE         },
-    { 0,                          0                      } // END
-};
-
-ObjectData const gameObjectData[] =
-{
-    { GO_PUMPKIN_SHRINE,        DATA_PUMPKIN_SHRINE        },
-    { GO_HIGH_INQUISITORS_DOOR, DATA_HIGH_INQUISITORS_DOOR },
-    { GO_LOOSELY_TURNED_SOIL,   DATA_LOOSELY_TURNED_SOIL   },
-    { 0,                        0                          } // END
+    { GO_HIGH_INQUISITORS_DOOR, DATA_MOGRAINE_AND_WHITE_EVENT, DOOR_TYPE_ROOM },
+    { 0,                        0,                             DOOR_TYPE_ROOM } // END
 };
 
 class instance_scarlet_monastery : public InstanceMapScript
@@ -57,93 +39,115 @@ class instance_scarlet_monastery : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
-                LoadObjectData(creatureData, gameObjectData);
-                _horsemanState = NOT_STARTED;
+                LoadDoorData(doorData);
+
+                HorsemanAdds.clear();
             }
 
-            void HandleStartEvent()
+            void OnGameObjectCreate(GameObject* go) override
             {
-                _horsemanState = IN_PROGRESS;
-                for (uint32 data : {DATA_PUMPKIN_SHRINE, DATA_LOOSELY_TURNED_SOIL})
-                    if (GameObject* gob = GetGameObject(data))
-                        gob->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                InstanceScript::OnGameObjectCreate(go);
 
-                instance->SummonCreature(NPC_HEADLESS_HORSEMAN_HEAD, HeadlessHorsemanHeadSpawnPosition);
-                instance->SummonCreature(NPC_FLAME_BUNNY, BunnySpawnPosition);
-                instance->SummonCreature(NPC_EARTH_BUNNY, EarthBunnySpawnPosition);
-                _events.ScheduleEvent(EVENT_ACTIVE_EARTH_EXPLOSION, 1s + 500ms);
-                _events.ScheduleEvent(EVENT_SPAWN_HEADLESS_HORSEMAN, 3s);
-                _events.ScheduleEvent(EVENT_DESPAWN_OBJECTS, 10s);
-                if (Creature* thomas = GetCreature(DATA_THOMAS))
-                    thomas->DespawnOrUnsummon();
-            }
-
-            void SetData(uint32 type, uint32 data) override
-            {
-                switch (type)
+                switch (go->GetEntry())
                 {
-                    case DATA_START_HORSEMAN_EVENT:
-                        if (_horsemanState != IN_PROGRESS)
-                            HandleStartEvent();
-                        break;
-                    case DATA_HORSEMAN_EVENT_STATE:
-                        _horsemanState = data;
-                        break;
-                    case DATA_PREPARE_RESET:
-                        _horsemanState = NOT_STARTED;
-                        for (uint32 data : {DATA_FLAME_BUNNY, DATA_EARTH_BUNNY})
-                            if (Creature* bunny = GetCreature(data))
-                                bunny->DespawnOrUnsummon();
+                    case GO_PUMPKIN_SHRINE:
+                        PumpkinShrineGUID = go->GetGUID();
                         break;
                     default:
                         break;
                 }
             }
 
-            uint32 GetData(uint32 type) const override
+            void OnCreatureCreate(Creature* creature) override
+            {
+                switch (creature->GetEntry())
+                {
+                    case NPC_HORSEMAN:
+                        HorsemanGUID = creature->GetGUID();
+                        break;
+                    case NPC_HEAD:
+                        HeadGUID = creature->GetGUID();
+                        break;
+                    case NPC_PUMPKIN:
+                        HorsemanAdds.insert(creature->GetGUID());
+                        break;
+                    case NPC_MOGRAINE:
+                        MograineGUID = creature->GetGUID();
+                        break;
+                    case NPC_WHITEMANE:
+                        WhitemaneGUID = creature->GetGUID();
+                        break;
+                    case NPC_VORREL:
+                        VorrelGUID = creature->GetGUID();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void SetData(uint32 type, uint32 /*data*/) override
             {
                 switch (type)
                 {
-                    case DATA_HORSEMAN_EVENT_STATE:
-                        return _horsemanState;
+                    case DATA_PUMPKIN_SHRINE:
+                        HandleGameObject(PumpkinShrineGUID, false);
+                        break;
                     default:
-                        return 0;
+                        break;
                 }
             }
 
-            void Update(uint32 diff) override
+            bool SetBossState(uint32 type, EncounterState state) override
             {
-                if (_events.Empty())
-                    return;
+                if (!InstanceScript::SetBossState(type, state))
+                    return false;
 
-                _events.Update(diff);
-
-                while (uint32 eventId = _events.ExecuteEvent())
+                switch (type)
                 {
-                    switch (eventId)
-                    {
-                        case EVENT_ACTIVE_EARTH_EXPLOSION:
-                            if (Creature* earthBunny = GetCreature(DATA_EARTH_BUNNY))
-                                earthBunny->CastSpell(earthBunny, SPELL_EARTH_EXPLOSION);
-                            break;
-                        case EVENT_SPAWN_HEADLESS_HORSEMAN:
-                            if (TempSummon* horseman = instance->SummonCreature(NPC_HEADLESS_HORSEMAN, HeadlessHorsemanSpawnPosition))
-                                horseman->AI()->DoAction(ACTION_HORSEMAN_EVENT_START);
-                            break;
-                        case EVENT_DESPAWN_OBJECTS:
-                            for (uint32 data : {DATA_PUMPKIN_SHRINE, DATA_LOOSELY_TURNED_SOIL})
-                                if (GameObject* gob = GetGameObject(data))
-                                    gob->RemoveFromWorld();
-                            break;
-                        default:
-                            break;
-                    }
+                    case DATA_HORSEMAN_EVENT:
+                        if (state == DONE)
+                        {
+                            for (ObjectGuid guid : HorsemanAdds)
+                            {
+                                Creature* add = instance->GetCreature(guid);
+                                if (add && add->IsAlive())
+                                    add->KillSelf();
+                            }
+                            HorsemanAdds.clear();
+                            HandleGameObject(PumpkinShrineGUID, false);
+                        }
+                        break;
+                    default:
+                        break;
                 }
+                return true;
             }
 
-        private:
-            EventMap _events;
-            uint32 _horsemanState;
+            ObjectGuid GetGuidData(uint32 type) const override
+            {
+                switch (type)
+                {
+                    case DATA_MOGRAINE:
+                        return MograineGUID;
+                    case DATA_WHITEMANE:
+                        return WhitemaneGUID;
+                    case DATA_VORREL:
+                        return VorrelGUID;
+                    default:
+                        break;
+                }
+                return ObjectGuid::Empty;
+            }
+
+        protected:
+            ObjectGuid PumpkinShrineGUID;
+            ObjectGuid HorsemanGUID;
+            ObjectGuid HeadGUID;
+            ObjectGuid MograineGUID;
+            ObjectGuid WhitemaneGUID;
+            ObjectGuid VorrelGUID;
+
+            GuidSet HorsemanAdds;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

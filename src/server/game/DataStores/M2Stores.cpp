@@ -15,12 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DBCStores.h"
+#include "M2Stores.h"
 #include "Common.h"
 #include "Containers.h"
+#include "DB2Stores.h"
 #include "Log.h"
 #include "M2Structure.h"
-#include "M2Stores.h"
 #include "World.h"
 #include <boost/filesystem/path.hpp>
 #include <fstream>
@@ -31,25 +31,25 @@ typedef std::vector<FlyByCamera> FlyByCameraCollection;
 std::unordered_map<uint32, FlyByCameraCollection> sFlyByCameraStore;
 
 // Convert the geomoetry from a spline value, to an actual WoW XYZ
-G3D::Vector3 TranslateLocation(G3D::Vector4 const* DBCPosition, G3D::Vector3 const* basePosition, G3D::Vector3 const* splineVector)
+G3D::Vector3 translateLocation(G3D::Vector4 const* dbcLocation, G3D::Vector3 const* basePosition, G3D::Vector3 const* splineVector)
 {
     G3D::Vector3 work;
     float x = basePosition->x + splineVector->x;
     float y = basePosition->y + splineVector->y;
     float z = basePosition->z + splineVector->z;
     float const distance = sqrt((x * x) + (y * y));
-    float angle = std::atan2(x, y) - DBCPosition->w;
+    float angle = std::atan2(x, y) - dbcLocation->w;
 
     if (angle < 0)
         angle += 2 * float(M_PI);
 
-    work.x = DBCPosition->x + (distance * sin(angle));
-    work.y = DBCPosition->y + (distance * cos(angle));
-    work.z = DBCPosition->z + z;
+    work.x = dbcLocation->x + (distance * sin(angle));
+    work.y = dbcLocation->y + (distance * cos(angle));
+    work.z = dbcLocation->z + z;
     return work;
 }
 
-// Number of cameras not used. Multiple cameras never used in 3.3.5
+// Number of cameras not used. Multiple cameras never used in 7.1.5
 bool readCamera(M2Camera const* cam, uint32 buffSize, M2Header const* header, CinematicCameraEntry const* dbcentry)
 {
     char const* buffer = reinterpret_cast<char const*>(header);
@@ -57,11 +57,11 @@ bool readCamera(M2Camera const* cam, uint32 buffSize, M2Header const* header, Ci
     FlyByCameraCollection cameras;
     FlyByCameraCollection targetcam;
 
-    G3D::Vector4 DBCData;
-    DBCData.x = dbcentry->Origin.X;
-    DBCData.y = dbcentry->Origin.Y;
-    DBCData.z = dbcentry->Origin.Z;
-    DBCData.w = dbcentry->OriginFacing;
+    G3D::Vector4 dbcData;
+    dbcData.x = dbcentry->Origin.X;
+    dbcData.y = dbcentry->Origin.Y;
+    dbcData.z = dbcentry->Origin.Z;
+    dbcData.w = dbcentry->OriginFacing;
 
     // Read target locations, only so that we can calculate orientation
     for (uint32 k = 0; k < cam->target_positions.timestamps.number; ++k)
@@ -86,7 +86,7 @@ bool readCamera(M2Camera const* cam, uint32 buffSize, M2Header const* header, Ci
             if (currPos + sizeof(M2SplineKey<G3D::Vector3>) > buffSize)
                 return false;
             // Translate co-ordinates
-            G3D::Vector3 newPos = TranslateLocation(&DBCData, &cam->target_position_base, &targPositions->p0);
+            G3D::Vector3 newPos = translateLocation(&dbcData, &cam->target_position_base, &targPositions->p0);
 
             // Add to vector
             FlyByCamera thisCam;
@@ -120,7 +120,7 @@ bool readCamera(M2Camera const* cam, uint32 buffSize, M2Header const* header, Ci
             if (currPos + sizeof(M2SplineKey<G3D::Vector3>) > buffSize)
                 return false;
             // Translate co-ordinates
-            G3D::Vector3 newPos = TranslateLocation(&DBCData, &cam->position_base, &positions->p0);
+            G3D::Vector3 newPos = translateLocation(&dbcData, &cam->position_base, &positions->p0);
 
             // Add to vector
             FlyByCamera thisCam;
@@ -145,8 +145,8 @@ bool readCamera(M2Camera const* cam, uint32 buffSize, M2Header const* header, Ci
                     lastTarget = targetcam[j];
                 }
 
-                float x, y, z;
-                lastTarget.locations.GetPosition(x, y, z);
+                float x = lastTarget.locations.GetPositionX();
+                float y = lastTarget.locations.GetPositionY();
 
                 // Now, the timestamps for target cam and position can be different. So, if they differ we interpolate
                 if (lastTarget.timeStamp != posTimestamps[i])
@@ -173,27 +173,20 @@ bool readCamera(M2Camera const* cam, uint32 buffSize, M2Header const* header, Ci
     return true;
 }
 
-void LoadM2Cameras(std::string const& dataPath)
+TC_GAME_API void LoadM2Cameras(std::string const& dataPath)
 {
     sFlyByCameraStore.clear();
     TC_LOG_INFO("server.loading", ">> Loading Cinematic Camera files");
 
+    boost::filesystem::path camerasPath = boost::filesystem::path(dataPath) / "cameras";
+
     uint32 oldMSTime = getMSTime();
-    for (CinematicCameraEntry const* dbcentry : sCinematicCameraStore)
+    for (CinematicCameraEntry const* cameraEntry : sCinematicCameraStore)
     {
-        std::string filenameWork = dataPath;
-        filenameWork.append(dbcentry->Model);
-
-        // Replace slashes (always to forward slash, because boost!)
-        std::replace(filenameWork.begin(), filenameWork.end(), '\\', '/');
-
-        boost::filesystem::path filename = filenameWork;
+        boost::filesystem::path filename = camerasPath / Trinity::StringFormat("FILE%08X.xxx", cameraEntry->FileDataID);
 
         // Convert to native format
         filename.make_preferred();
-
-        // Replace mdx to .m2
-        filename.replace_extension("m2");
 
         std::ifstream m2file(filename.string().c_str(), std::ios::in | std::ios::binary);
         if (!m2file.is_open())
@@ -204,7 +197,7 @@ void LoadM2Cameras(std::string const& dataPath)
         std::streamoff fileSize = m2file.tellg();
 
         // Reject if not at least the size of the header
-        if (static_cast<uint32>(fileSize) < sizeof(M2Header))
+        if (static_cast<uint32>(fileSize) < sizeof(M2Header) + 4)
         {
             TC_LOG_ERROR("server.loading", "Camera file %s is damaged. File is smaller than header size", filename.string().c_str());
             m2file.close();
@@ -215,12 +208,12 @@ void LoadM2Cameras(std::string const& dataPath)
         m2file.seekg(0, std::ios::beg);
         char fileCheck[5];
         m2file.read(fileCheck, 4);
-        fileCheck[4] = 0;
+        fileCheck[4] = '\0';
 
-        // Check file has correct magic (MD20)
-        if (strcmp(fileCheck, "MD20"))
+        // Check file has correct magic (MD21)
+        if (strcmp(fileCheck, "MD21"))
         {
-            TC_LOG_ERROR("server.loading", "Camera file %s is damaged. File identifier not found", filename.string().c_str());
+            TC_LOG_ERROR("server.loading", "Camera file %s is damaged. File identifier not found.", filename.string().c_str());
             m2file.close();
             continue;
         }
@@ -235,22 +228,42 @@ void LoadM2Cameras(std::string const& dataPath)
         }
         m2file.close();
 
-        // Read header
-        M2Header const* header = reinterpret_cast<M2Header const*>(buffer.data());
+        bool fileValid = true;
+        uint32 m2start = 0;
+        char const* ptr = buffer.data();
+        while (m2start + 4 < buffer.size() && memcmp(ptr, "MD20", 4) != 0)
+        {
+            ++m2start;
+            ++ptr;
+            if (m2start + sizeof(M2Header) > buffer.size())
+            {
+                fileValid = false;
+                break;
+            }
+        }
 
-        if (header->ofsCameras + sizeof(M2Camera) > static_cast<uint32>(fileSize))
+        if (!fileValid)
+        {
+            TC_LOG_ERROR("server.loading", "Camera file %s is damaged. File is smaller than header size.", filename.string().c_str());
+            continue;
+        }
+
+        // Read header
+        M2Header const* header = reinterpret_cast<M2Header const*>(buffer.data() + m2start);
+
+        if (m2start + header->ofsCameras + sizeof(M2Camera) > static_cast<uint32>(fileSize))
         {
             TC_LOG_ERROR("server.loading", "Camera file %s is damaged. Camera references position beyond file end", filename.string().c_str());
             continue;
         }
 
         // Get camera(s) - Main header, then dump them.
-        M2Camera const* cam = reinterpret_cast<M2Camera const*>(buffer.data() + header->ofsCameras);
-        if (!readCamera(cam, fileSize, header, dbcentry))
+        M2Camera const* cam = reinterpret_cast<M2Camera const*>(buffer.data() + m2start + header->ofsCameras);
+        if (!readCamera(cam, fileSize - m2start, header, cameraEntry))
             TC_LOG_ERROR("server.loading", "Camera file %s is damaged. Camera references position beyond file end", filename.string().c_str());
     }
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u cinematic waypoint sets in %u ms", (uint32)sFlyByCameraStore.size(), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " cinematic waypoint sets in %u ms", sFlyByCameraStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 std::vector<FlyByCamera> const* GetFlyByCameras(uint32 cinematicCameraId)

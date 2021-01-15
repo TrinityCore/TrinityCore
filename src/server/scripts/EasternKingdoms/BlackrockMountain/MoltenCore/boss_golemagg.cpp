@@ -26,7 +26,6 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "molten_core.h"
 #include "ObjectAccessor.h"
-#include "ObjectMgr.h"
 #include "ScriptedCreature.h"
 
 enum Texts
@@ -53,121 +52,148 @@ enum Events
     EVENT_EARTHQUAKE    = 2,
 };
 
-struct boss_golemagg : public BossAI
+class boss_golemagg : public CreatureScript
 {
-    boss_golemagg(Creature* creature) : BossAI(creature, BOSS_GOLEMAGG_THE_INCINERATOR) { }
+    public:
+        boss_golemagg() : CreatureScript("boss_golemagg") { }
 
-    void Reset() override
-    {
-        BossAI::Reset();
-        DoCast(me, SPELL_MAGMASPLASH, true);
-    }
-
-    void JustEngagedWith(Unit* victim) override
-    {
-        BossAI::JustEngagedWith(victim);
-        events.ScheduleEvent(EVENT_PYROBLAST, 7s);
-    }
-
-    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
-    {
-        if (!HealthBelowPct(10) || me->HasAura(SPELL_ENRAGE))
-            return;
-
-        DoCast(me, SPELL_ENRAGE, true);
-        events.ScheduleEvent(EVENT_EARTHQUAKE, 3s);
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        if (!UpdateVictim())
-            return;
-
-        events.Update(diff);
-
-        if (me->HasUnitState(UNIT_STATE_CASTING))
-            return;
-
-        while (uint32 eventId = events.ExecuteEvent())
+        struct boss_golemaggAI : public BossAI
         {
-            switch (eventId)
+            boss_golemaggAI(Creature* creature) : BossAI(creature, BOSS_GOLEMAGG_THE_INCINERATOR)
             {
-                case EVENT_PYROBLAST:
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                        DoCast(target, SPELL_PYROBLAST);
-                    events.ScheduleEvent(EVENT_PYROBLAST, 7s);
-                    break;
-                case EVENT_EARTHQUAKE:
-                    DoCastVictim(SPELL_EARTHQUAKE);
-                    events.ScheduleEvent(EVENT_EARTHQUAKE, 3s);
-                    break;
-                default:
-                    break;
             }
 
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-        }
+            void Reset() override
+            {
+                BossAI::Reset();
+                DoCast(me, SPELL_MAGMASPLASH, true);
+            }
 
-        DoMeleeAttackIfReady();
-    }
+            void EnterCombat(Unit* victim) override
+            {
+                BossAI::EnterCombat(victim);
+                events.ScheduleEvent(EVENT_PYROBLAST, 7000);
+            }
+
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+            {
+                if (!HealthBelowPct(10) || me->HasAura(SPELL_ENRAGE))
+                    return;
+
+                DoCast(me, SPELL_ENRAGE, true);
+                events.ScheduleEvent(EVENT_EARTHQUAKE, 3000);
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_PYROBLAST:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                DoCast(target, SPELL_PYROBLAST);
+                            events.ScheduleEvent(EVENT_PYROBLAST, 7000);
+                            break;
+                        case EVENT_EARTHQUAKE:
+                            DoCastVictim(SPELL_EARTHQUAKE);
+                            events.ScheduleEvent(EVENT_EARTHQUAKE, 3000);
+                            break;
+                        default:
+                            break;
+                    }
+
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return GetMoltenCoreAI<boss_golemaggAI>(creature);
+        }
 };
 
-struct npc_core_rager : public ScriptedAI
+class npc_core_rager : public CreatureScript
 {
-    npc_core_rager(Creature* creature) : ScriptedAI(creature)
-    {
-        _instance = creature->GetInstanceScript();
-    }
+    public:
+        npc_core_rager() : CreatureScript("npc_core_rager") { }
 
-    void Reset() override
-    {
-        _scheduler.CancelAll();
-    }
-
-    void JustEngagedWith(Unit* /*who*/) override
-    {
-        _scheduler.Schedule(7s, [this](TaskContext task) // These times are probably wrong
+        struct npc_core_ragerAI : public ScriptedAI
         {
-            DoCastVictim(SPELL_MANGLE);
-            task.Repeat(10s);
-        });
-    }
-
-    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
-    {
-        if (HealthAbovePct(50) || !_instance)
-            return;
-
-        if (Creature* pGolemagg = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(BOSS_GOLEMAGG_THE_INCINERATOR)))
-        {
-            if (pGolemagg->IsAlive())
+            npc_core_ragerAI(Creature* creature) : ScriptedAI(creature)
             {
-                me->AddAura(SPELL_GOLEMAGG_TRUST, me);
-                Talk(EMOTE_LOWHP);
-                me->SetFullHealth();
+                Initialize();
+                instance = creature->GetInstanceScript();
             }
-        }
-    }
 
-    void UpdateAI(uint32 diff) override
-    {
-        if (!UpdateVictim())
-            return;
+            void Initialize()
+            {
+                mangleTimer = 7 * IN_MILLISECONDS;                 // These times are probably wrong
+            }
 
-        _scheduler.Update(diff, [this]
+            void Reset() override
+            {
+                Initialize();
+            }
+
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
+            {
+                if (HealthAbovePct(50) || !instance)
+                    return;
+
+                if (Creature* pGolemagg = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_GOLEMAGG_THE_INCINERATOR)))
+                {
+                    if (pGolemagg->IsAlive())
+                    {
+                        me->AddAura(SPELL_GOLEMAGG_TRUST, me);
+                        Talk(EMOTE_LOWHP);
+                        me->SetFullHealth();
+                    }
+                }
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                if (!UpdateVictim())
+                    return;
+
+                // Mangle
+                if (mangleTimer <= diff)
+                {
+                    DoCastVictim(SPELL_MANGLE);
+                    mangleTimer = 10*IN_MILLISECONDS;
+                }
+                else
+                    mangleTimer -= diff;
+
+                DoMeleeAttackIfReady();
+            }
+
+        private:
+            InstanceScript* instance;
+            uint32 mangleTimer;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            DoMeleeAttackIfReady();
-        });
-    }
-
-private:
-    InstanceScript* _instance;
-    TaskScheduler _scheduler;
+            return GetMoltenCoreAI<npc_core_ragerAI>(creature);
+        }
 };
 
 void AddSC_boss_golemagg()
 {
-    RegisterMoltenCoreCreatureAI(boss_golemagg);
-    RegisterMoltenCoreCreatureAI(npc_core_rager);
+    new boss_golemagg();
+    new npc_core_rager();
 }

@@ -15,11 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "QueryHolder.h"
-#include "Errors.h"
-#include "Log.h"
 #include "MySQLConnection.h"
+#include "QueryHolder.h"
 #include "PreparedStatement.h"
+#include "Log.h"
 #include "QueryResult.h"
 
 bool SQLQueryHolderBase::SetPreparedQueryImpl(size_t index, PreparedStatementBase* stmt)
@@ -34,13 +33,13 @@ bool SQLQueryHolderBase::SetPreparedQueryImpl(size_t index, PreparedStatementBas
     return true;
 }
 
-PreparedQueryResult SQLQueryHolderBase::GetPreparedResult(size_t index) const
+PreparedQueryResult SQLQueryHolderBase::GetPreparedResult(size_t index)
 {
     // Don't call to this function if the index is of a prepared statement
-    ASSERT(index < m_queries.size(), "Query holder result index out of range, tried to access index " SZFMTD " but there are only " SZFMTD " results",
-        index, m_queries.size());
-
-    return m_queries[index].second;
+    if (index < m_queries.size())
+        return m_queries[index].second;
+    else
+        return PreparedQueryResult(nullptr);
 }
 
 void SQLQueryHolderBase::SetPreparedResult(size_t index, PreparedResultSet* result)
@@ -58,11 +57,11 @@ void SQLQueryHolderBase::SetPreparedResult(size_t index, PreparedResultSet* resu
 
 SQLQueryHolderBase::~SQLQueryHolderBase()
 {
-    for (std::pair<PreparedStatementBase*, PreparedQueryResult>& query : m_queries)
+    for (size_t i = 0; i < m_queries.size(); i++)
     {
         /// if the result was never used, free the resources
         /// results used already (getresult called) are expected to be deleted
-        delete query.first;
+        delete m_queries[i].first;
     }
 }
 
@@ -72,26 +71,24 @@ void SQLQueryHolderBase::SetSize(size_t size)
     m_queries.resize(size);
 }
 
-SQLQueryHolderTask::~SQLQueryHolderTask() = default;
+SQLQueryHolderTask::~SQLQueryHolderTask()
+{
+    if (!m_executed)
+        delete m_holder;
+}
 
 bool SQLQueryHolderTask::Execute()
 {
+    m_executed = true;
+
+    if (!m_holder)
+        return false;
+
     /// execute all queries in the holder and pass the results
     for (size_t i = 0; i < m_holder->m_queries.size(); ++i)
         if (PreparedStatementBase* stmt = m_holder->m_queries[i].first)
             m_holder->SetPreparedResult(i, m_conn->Query(stmt));
 
-    m_result.set_value();
+    m_result.set_value(m_holder);
     return true;
-}
-
-bool SQLQueryHolderCallback::InvokeIfReady()
-{
-    if (m_future.valid() && m_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
-    {
-        m_callback(*m_holder);
-        return true;
-    }
-
-    return false;
 }

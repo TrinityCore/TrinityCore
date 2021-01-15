@@ -21,12 +21,11 @@
  */
 
 #include "ScriptMgr.h"
-#include "CombatAI.h"
 #include "CellImpl.h"
+#include "CombatAI.h"
 #include "GridNotifiersImpl.h"
 #include "MotionMaster.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
 
 enum DeathKnightSpells
 {
@@ -57,14 +56,12 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
                 Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, 30.0f);
                 Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, targets, u_check);
                 Cell::VisitAllObjects(me, searcher, 30.0f);
-                for (Unit* target : targets)
-                {
-                    if (target->HasAura(SPELL_DK_SUMMON_GARGOYLE_1, ownerGuid))
+                for (std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
+                    if ((*iter)->HasAura(SPELL_DK_SUMMON_GARGOYLE_1, ownerGuid))
                     {
-                        me->Attack(target, false);
+                        me->Attack((*iter), false);
                         break;
                     }
-                }
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -75,17 +72,17 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
             }
 
             // Fly away when dismissed
-            void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
+            void SpellHit(Unit* source, SpellInfo const* spell) override
             {
-                if (spellInfo->Id != SPELL_DK_DISMISS_GARGOYLE || !me->IsAlive())
+                if (spell->Id != SPELL_DK_DISMISS_GARGOYLE || !me->IsAlive())
                     return;
 
                 Unit* owner = me->GetOwner();
-                if (!owner || owner != caster)
+                if (!owner || owner != source)
                     return;
 
                 // Stop Fighting
-                me->ApplyModFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE, true);
+                me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
 
                 // Sanctuary
                 me->CastSpell(me, SPELL_DK_SANCTUARY, true);
@@ -99,7 +96,7 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
                 float x = me->GetPositionX() + 20 * std::cos(me->GetOrientation());
                 float y = me->GetPositionY() + 20 * std::sin(me->GetOrientation());
                 float z = me->GetPositionZ() + 40;
-                me->GetMotionMaster()->Clear();
+                me->GetMotionMaster()->Clear(false);
                 me->GetMotionMaster()->MovePoint(0, x, y, z);
 
                 // Despawn as soon as possible
@@ -139,31 +136,8 @@ class npc_pet_dk_guardian : public CreatureScript
         }
 };
 
-class spell_pet_dk_gargoyle_strike : public SpellScript
-{
-    PrepareSpellScript(spell_pet_dk_gargoyle_strike);
-
-    void HandleDamageCalc(SpellEffIndex /*effIndex*/)
-    {
-        int32 damage = 60;
-        if (Unit* caster = GetCaster())
-        {
-            if (caster->GetLevel() >= 60)
-                damage += (caster->GetLevel() - 60) * 4;
-        }
-
-        SetEffectValue(damage);
-    }
-
-    void Register() override
-    {
-        OnEffectLaunchTarget += SpellEffectFn(spell_pet_dk_gargoyle_strike::HandleDamageCalc, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-    }
-};
-
 void AddSC_deathknight_pet_scripts()
 {
     new npc_pet_dk_ebon_gargoyle();
     new npc_pet_dk_guardian();
-    RegisterSpellScript(spell_pet_dk_gargoyle_strike);
 }

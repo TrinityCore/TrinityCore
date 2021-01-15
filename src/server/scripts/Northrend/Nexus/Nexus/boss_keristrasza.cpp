@@ -23,7 +23,6 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
-#include "SpellAuraEffects.h"
 #include "SpellScript.h"
 
 enum Spells
@@ -34,7 +33,7 @@ enum Spells
     SPELL_CRYSTAL_CHAINS                          = 50997,
     SPELL_ENRAGE                                  = 8599,
     SPELL_CRYSTALFIRE_BREATH                      = 48096,
-    SPELL_CRYSTALLIZE                             = 48179,
+    SPELL_CRYSTALIZE                              = 48179,
     SPELL_INTENSE_COLD                            = 48094,
     SPELL_INTENSE_COLD_TRIGGERED                  = 48095
 };
@@ -42,7 +41,7 @@ enum Spells
 enum Events
 {
     EVENT_CRYSTAL_FIRE_BREATH                     = 1,
-    EVENT_CRYSTAL_CHAINS_CRYSTALLIZE,
+    EVENT_CRYSTAL_CHAINS_CRYSTALIZE,
     EVENT_TAIL_SWEEP
 };
 
@@ -86,21 +85,21 @@ class boss_keristrasza : public CreatureScript
                 Initialize();
                 _intenseColdList.clear();
 
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
+                me->RemoveUnitFlag(UNIT_FLAG_STUNNED);
 
                 RemovePrison(CheckContainmentSpheres());
                 _Reset();
             }
 
-            void JustEngagedWith(Unit* who) override
+            void EnterCombat(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
                 DoCastAOE(SPELL_INTENSE_COLD);
-                BossAI::JustEngagedWith(who);
+                _EnterCombat();
 
-                events.ScheduleEvent(EVENT_CRYSTAL_FIRE_BREATH, 14s);
-                events.ScheduleEvent(EVENT_CRYSTAL_CHAINS_CRYSTALLIZE, DUNGEON_MODE(30s, 11s));
-                events.ScheduleEvent(EVENT_TAIL_SWEEP, 5s);
+                events.ScheduleEvent(EVENT_CRYSTAL_FIRE_BREATH, 14000);
+                events.ScheduleEvent(EVENT_CRYSTAL_CHAINS_CRYSTALIZE, DUNGEON_MODE(30000, 11000));
+                events.ScheduleEvent(EVENT_TAIL_SWEEP, 5000);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -115,21 +114,15 @@ class boss_keristrasza : public CreatureScript
                     Talk(SAY_SLAY);
             }
 
-            bool CheckContainmentSpheres(bool remove_prison = false)
+            bool CheckContainmentSpheres(bool removePrison = false)
             {
-                ContainmentSphereGUIDs[0] = instance->GetGuidData(ANOMALUS_CONTAINMENT_SPHERE);
-                ContainmentSphereGUIDs[1] = instance->GetGuidData(ORMOROKS_CONTAINMENT_SPHERE);
-                ContainmentSphereGUIDs[2] = instance->GetGuidData(TELESTRAS_CONTAINMENT_SPHERE);
-
-                for (uint8 i = 0; i < DATA_CONTAINMENT_SPHERES; ++i)
+                for (uint32 i = ANOMALUS_CONTAINMET_SPHERE; i < (ANOMALUS_CONTAINMET_SPHERE + DATA_CONTAINMENT_SPHERES); ++i)
                 {
-                    GameObject* ContainmentSphere = ObjectAccessor::GetGameObject(*me, ContainmentSphereGUIDs[i]);
-                    if (!ContainmentSphere)
-                        return false;
-                    if (ContainmentSphere->GetGoState() != GO_STATE_ACTIVE)
+                    GameObject* containmentSpheres = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(i));
+                    if (!containmentSpheres || containmentSpheres->GetGoState() != GO_STATE_ACTIVE)
                         return false;
                 }
-                if (remove_prison)
+                if (removePrison)
                     RemovePrison(true);
                 return true;
             }
@@ -139,19 +132,19 @@ class boss_keristrasza : public CreatureScript
                 if (remove)
                 {
                     me->SetImmuneToPC(false);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                     if (me->HasAura(SPELL_FROZEN_PRISON))
                         me->RemoveAurasDueToSpell(SPELL_FROZEN_PRISON);
                 }
                 else
                 {
                     me->SetImmuneToPC(true);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                     DoCast(me, SPELL_FROZEN_PRISON, false);
                 }
             }
 
-            void SetGUID(ObjectGuid const& guid, int32 id) override
+            void SetGUID(ObjectGuid guid, int32 id/* = 0 */) override
             {
                 if (id == DATA_INTENSE_COLD)
                     _intenseColdList.push_back(guid);
@@ -184,19 +177,19 @@ class boss_keristrasza : public CreatureScript
                     {
                         case EVENT_CRYSTAL_FIRE_BREATH:
                             DoCastVictim(SPELL_CRYSTALFIRE_BREATH);
-                            events.ScheduleEvent(EVENT_CRYSTAL_FIRE_BREATH, 14s);
+                            events.ScheduleEvent(EVENT_CRYSTAL_FIRE_BREATH, 14000);
                             break;
-                        case EVENT_CRYSTAL_CHAINS_CRYSTALLIZE:
+                        case EVENT_CRYSTAL_CHAINS_CRYSTALIZE:
                             DoCast(me, SPELL_TAIL_SWEEP);
-                            events.ScheduleEvent(EVENT_CRYSTAL_CHAINS_CRYSTALLIZE, 5s);
+                            events.ScheduleEvent(EVENT_CRYSTAL_CHAINS_CRYSTALIZE, 5000);
                             break;
                         case EVENT_TAIL_SWEEP:
                             Talk(SAY_CRYSTAL_NOVA);
                             if (IsHeroic())
-                                DoCast(me, SPELL_CRYSTALLIZE);
-                            else if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
+                                DoCast(me, SPELL_CRYSTALIZE);
+                            else if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                 DoCast(target, SPELL_CRYSTAL_CHAINS);
-                            events.ScheduleEvent(EVENT_TAIL_SWEEP, DUNGEON_MODE(30s, 11s));
+                            events.ScheduleEvent(EVENT_TAIL_SWEEP, DUNGEON_MODE(30000, 11000));
                             break;
                         default:
                             break;
@@ -212,7 +205,7 @@ class boss_keristrasza : public CreatureScript
         private:
             bool _intenseCold;
             bool _enrage;
-            ObjectGuid ContainmentSphereGUIDs[DATA_CONTAINMENT_SPHERES];
+
         public:
             GuidList _intenseColdList;
         };
@@ -234,13 +227,13 @@ public:
 
         InstanceScript* instance;
 
-        bool OnGossipHello(Player* /*player*/) override
+        bool GossipHello(Player* /*player*/) override
         {
             Creature* keristrasza = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KERISTRASZA));
             if (keristrasza && keristrasza->IsAlive())
             {
                 // maybe these are hacks :(
-                me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                me->AddFlag(GO_FLAG_NOT_SELECTABLE);
                 me->SetGoState(GO_STATE_ACTIVE);
 
                 ENSURE_AI(boss_keristrasza::boss_keristraszaAI, keristrasza->AI())->CheckContainmentSpheres(true);
@@ -264,9 +257,9 @@ class spell_intense_cold : public SpellScriptLoader
         {
             PrepareAuraScript(spell_intense_cold_AuraScript);
 
-            void HandlePeriodicTick(AuraEffect const* aurEff)
+            void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
             {
-                if (aurEff->GetBase()->GetStackAmount() < 2)
+                if (GetStackAmount() < 2)
                     return;
                 Unit* caster = GetCaster();
                 /// @todo the caster should be boss but not the player
@@ -299,9 +292,9 @@ class achievement_intense_cold : public AchievementCriteriaScript
             if (!target)
                 return false;
 
-            GuidList _intenseColdList = ENSURE_AI(boss_keristrasza::boss_keristraszaAI, target->ToCreature()->AI())->_intenseColdList;
+            GuidList const& _intenseColdList = ENSURE_AI(boss_keristrasza::boss_keristraszaAI, target->GetAI())->_intenseColdList;
             if (!_intenseColdList.empty())
-                for (GuidList::iterator itr = _intenseColdList.begin(); itr != _intenseColdList.end(); ++itr)
+                for (GuidList::const_iterator itr = _intenseColdList.begin(); itr != _intenseColdList.end(); ++itr)
                     if (player->GetGUID() == *itr)
                         return false;
 

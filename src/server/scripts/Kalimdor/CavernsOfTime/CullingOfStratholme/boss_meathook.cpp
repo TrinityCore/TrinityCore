@@ -15,29 +15,28 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "culling_of_stratholme.h"
-#include "InstanceScript.h"
-#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "culling_of_stratholme.h"
+#include "ScriptedCreature.h"
 
 enum Spells
 {
-    SPELL_CONSTRICTING_CHAINS = 52696,
-    SPELL_DISEASE_EXPULSION = 52666,
-    SPELL_FRENZY = 58841
+    SPELL_CONSTRICTING_CHAINS                   = 52696, //Encases the targets in chains, dealing 1800 Physical damage every 1 sec. and stunning the target for 5 sec.
+    SPELL_DISEASE_EXPULSION                     = 52666, //Meathook belches out a cloud of disease, dealing 1710 to 1890 Nature damage and interrupting the spell casting of nearby enemy targets for 4 sec.
+    SPELL_FRENZY                                = 58841 //Increases the caster's Physical damage by 10% for 30 sec.
 };
 
 enum Yells
 {
-    SAY_AGGRO = 0,
-    SAY_SLAY = 1,
-    SAY_SPAWN = 2,
-    SAY_DEATH = 3
+    SAY_AGGRO                                   = 0,
+    SAY_SLAY                                    = 1,
+    SAY_SPAWN                                   = 2,
+    SAY_DEATH                                   = 3
 };
 
 enum Events
 {
-    EVENT_CHAIN = 1,
+    EVENT_CHAIN                                 = 1,
     EVENT_DISEASE,
     EVENT_FRENZY
 };
@@ -49,22 +48,18 @@ class boss_meathook : public CreatureScript
 
         struct boss_meathookAI : public BossAI
         {
-            boss_meathookAI(Creature* creature) : BossAI(creature, DATA_MEATHOOK) { }
-
-            void InitializeAI() override
+            boss_meathookAI(Creature* creature) : BossAI(creature, DATA_MEATHOOK)
             {
                 Talk(SAY_SPAWN);
-                if (instance->GetBossState(DATA_MEATHOOK) == DONE)
-                    me->RemoveLootMode(LOOT_MODE_DEFAULT);
             }
 
-            void JustEngagedWith(Unit* who) override
+            void EnterCombat(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
-                BossAI::JustEngagedWith(who);
-                events.ScheduleEvent(EVENT_CHAIN, Seconds(7), Seconds(11));
-                events.ScheduleEvent(EVENT_DISEASE, Seconds(2));
-                events.ScheduleEvent(EVENT_FRENZY, Seconds(13), Seconds(17));
+                _EnterCombat();
+                events.ScheduleEvent(EVENT_CHAIN, urand(12000, 17000));
+                events.ScheduleEvent(EVENT_DISEASE, urand(2000, 4000));
+                events.ScheduleEvent(EVENT_FRENZY, urand(21000, 26000));
             }
 
             void ExecuteEvent(uint32 eventId) override
@@ -72,21 +67,17 @@ class boss_meathook : public CreatureScript
                 switch (eventId)
                 {
                     case EVENT_CHAIN:
-                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, -20.0f, true))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                             DoCast(target, SPELL_CONSTRICTING_CHAINS);
-                        else if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 100.0f, true))
-                            DoCast(target, SPELL_CONSTRICTING_CHAINS);
-                        else
-                            DoCastVictim(SPELL_CONSTRICTING_CHAINS);
-                        events.Repeat(Seconds(10), Seconds(15));
+                        events.ScheduleEvent(EVENT_CHAIN, urand(2000, 4000));
                         break;
                     case EVENT_DISEASE:
                         DoCastAOE(SPELL_DISEASE_EXPULSION);
-                        events.Repeat(Seconds(3)+Milliseconds(500));
+                        events.ScheduleEvent(EVENT_DISEASE, urand(1500, 4000));
                         break;
                     case EVENT_FRENZY:
                         DoCast(me, SPELL_FRENZY);
-                        events.Repeat(Seconds(13), Seconds(17));
+                        events.ScheduleEvent(EVENT_FRENZY, urand(21000, 26000));
                         break;
                     default:
                         break;
@@ -97,7 +88,6 @@ class boss_meathook : public CreatureScript
             {
                 Talk(SAY_DEATH);
                 _JustDied();
-                instance->SetData(DATA_NOTIFY_DEATH, 1);
             }
 
             void KilledUnit(Unit* victim) override

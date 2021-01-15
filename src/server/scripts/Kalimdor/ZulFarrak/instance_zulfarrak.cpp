@@ -1,4 +1,4 @@
-/*
+ /*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,7 +20,6 @@
 #include "InstanceScript.h"
 #include "Map.h"
 #include "MotionMaster.h"
-#include "Player.h"
 #include "TemporarySummon.h"
 #include "zulfarrak.h"
 
@@ -331,9 +330,11 @@ public:
                 if (pyramidSpawns[i][0] == (float)wave)
                 {
                     Position pos = {pyramidSpawns[i][2], pyramidSpawns[i][3], 8.87f, 0};
-                    TempSummon* ts = instance->SummonCreature(uint32(pyramidSpawns[i][1]), pos);
-                    ts->GetMotionMaster()->MoveRandom(10);
-                    addsAtBase.push_back(ts->GetGUID());
+                    if (TempSummon* ts = instance->SummonCreature(uint32(pyramidSpawns[i][1]), pos))
+                    {
+                        ts->GetMotionMaster()->MoveRandom(10);
+                        addsAtBase.push_back(ts->GetGUID());
+                    }
                 }
             }
         }
@@ -362,7 +363,7 @@ public:
         void SendAddsUpStairs(uint32 count)
         {
             //pop a add from list, send him up the stairs...
-            for (uint32 addCount = 0; addCount<count && !addsAtBase.empty(); addCount++)
+            for (uint32 addCount = 0; addCount < count && !addsAtBase.empty(); addCount++)
             {
                 if (Creature* add = instance->GetCreature(*addsAtBase.begin()))
                 {

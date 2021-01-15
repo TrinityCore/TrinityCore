@@ -49,8 +49,7 @@ enum AZCreatureIds
     NPC_DALLIAH                                 = 20885,
     NPC_SOCCOTHRATES                            = 20886,
     NPC_MELLICHAR                               = 20904, // skyriss will kill this unit
-    NPC_ALPHA_POD_TARGET                        = 21436,
-    NPC_MILLHOUSE                               = 20977
+    NPC_ALPHA_POD_TARGET                        = 21436
 };
 
 enum AZGameObjectIds
@@ -63,11 +62,6 @@ enum AZGameObjectIds
     GO_STASIS_POD_GAMMA                         = 183962, // pod fourth boss wave
     GO_STASIS_POD_OMEGA                         = 183965, // pod fifth boss wave
     GO_WARDENS_SHIELD                           = 184802  // shield 'protecting' mellichar
-};
-
-enum AZSpellIds
-{
-    SPELL_QID_10886                             = 39564
 };
 
 template <class AI, class T>

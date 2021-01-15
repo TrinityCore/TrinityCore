@@ -21,10 +21,15 @@ namespace lfg
 {
 
 LfgPlayerData::LfgPlayerData(): m_State(LFG_STATE_NONE), m_OldState(LFG_STATE_NONE),
-    m_Team(0), m_Group(), m_Roles(0), m_Comment(""), m_NumberOfPartyMembersAtJoin(0)
+    m_Team(0), m_Group(), m_Roles(0)
 { }
 
 LfgPlayerData::~LfgPlayerData() { }
+
+void LfgPlayerData::SetTicket(WorldPackets::LFG::RideTicket const& ticket)
+{
+    m_Ticket = ticket;
+}
 
 void LfgPlayerData::SetState(LfgState state)
 {
@@ -34,11 +39,10 @@ void LfgPlayerData::SetState(LfgState state)
         case LFG_STATE_FINISHED_DUNGEON:
             m_Roles = 0;
             m_SelectedDungeons.clear();
-            m_Comment.clear();
-            [[fallthrough]];
+            /* fallthrough */
         case LFG_STATE_DUNGEON:
             m_OldState = state;
-            [[fallthrough]];
+            /* fallthrough */
         default:
             m_State = state;
     }
@@ -69,14 +73,14 @@ void LfgPlayerData::SetRoles(uint8 roles)
     m_Roles = roles;
 }
 
-void LfgPlayerData::SetComment(std::string const& comment)
-{
-    m_Comment = comment;
-}
-
 void LfgPlayerData::SetSelectedDungeons(LfgDungeonSet const& dungeons)
 {
     m_SelectedDungeons = dungeons;
+}
+
+WorldPackets::LFG::RideTicket const& LfgPlayerData::GetTicket() const
+{
+    return m_Ticket;
 }
 
 LfgState LfgPlayerData::GetState() const
@@ -104,24 +108,9 @@ uint8 LfgPlayerData::GetRoles() const
     return m_Roles;
 }
 
-std::string const& LfgPlayerData::GetComment() const
-{
-    return m_Comment;
-}
-
 LfgDungeonSet const& LfgPlayerData::GetSelectedDungeons() const
 {
     return m_SelectedDungeons;
-}
-
-void LfgPlayerData::SetNumberOfPartyMembersAtJoin(uint8 count)
-{
-    m_NumberOfPartyMembersAtJoin = count;
-}
-
-uint8 LfgPlayerData::GetNumberOfPartyMembersAtJoin()
-{
-    return m_NumberOfPartyMembersAtJoin;
 }
 
 } // namespace lfg

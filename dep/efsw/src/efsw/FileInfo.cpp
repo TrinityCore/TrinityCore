@@ -180,27 +180,22 @@ bool FileInfo::operator==( const FileInfo& Other ) const
 	);
 }
 
-bool FileInfo::isDirectory() const
+bool FileInfo::isDirectory()
 {
 	return 0 != S_ISDIR(Permissions);
 }
 
-bool FileInfo::isRegularFile() const
+bool FileInfo::isRegularFile()
 {
 	return 0 != S_ISREG(Permissions);
 }
 
-bool FileInfo::isReadable() const
+bool FileInfo::isReadable()
 {
-#if EFSW_PLATFORM != EFSW_PLATFORM_WIN32
-	static bool isRoot = getuid() == 0;
-	return isRoot || 0 != S_ISRDBL(Permissions);
-#else
 	return 0 != S_ISRDBL(Permissions);
-#endif
 }
 
-bool FileInfo::isLink() const
+bool FileInfo::isLink()
 {
 #if EFSW_PLATFORM != EFSW_PLATFORM_WIN32
 	return S_ISLNK(Permissions);

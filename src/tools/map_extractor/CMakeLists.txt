@@ -12,7 +12,9 @@ CollectSourceFiles(
   ${CMAKE_CURRENT_SOURCE_DIR}
   PRIVATE_SOURCES)
 
-list(APPEND PRIVATE_SOURCES ${sources_windows})
+if (WIN32)
+  list(APPEND PRIVATE_SOURCES ${sources_windows})
+endif()
 
 add_executable(mapextractor
   ${PRIVATE_SOURCES}
@@ -27,8 +29,7 @@ target_link_libraries(mapextractor
   PRIVATE
     trinity-core-interface
   PUBLIC
-    common
-    mpq)
+    extractor_common)
 
 CollectIncludeDirectories(
   ${CMAKE_CURRENT_SOURCE_DIR}
@@ -45,8 +46,8 @@ set_target_properties(mapextractor
       FOLDER
         "tools")
 
-if(UNIX)
+if( UNIX )
   install(TARGETS mapextractor DESTINATION bin)
-elseif(WIN32)
+elseif( WIN32 )
   install(TARGETS mapextractor DESTINATION "${CMAKE_INSTALL_PREFIX}")
 endif()

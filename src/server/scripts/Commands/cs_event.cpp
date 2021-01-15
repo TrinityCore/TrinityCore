@@ -25,35 +25,32 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "Chat.h"
 #include "GameEventMgr.h"
-#include "GameTime.h"
 #include "Language.h"
 #include "Player.h"
 #include "RBAC.h"
-
-using namespace Trinity::ChatCommands;
 
 class event_commandscript : public CommandScript
 {
 public:
     event_commandscript() : CommandScript("event_commandscript") { }
 
-    ChatCommandTable GetCommands() const override
+    std::vector<ChatCommand> GetCommands() const override
     {
-        static ChatCommandTable eventCommandTable =
+        static std::vector<ChatCommand> eventCommandTable =
         {
-            { "activelist", HandleEventActiveListCommand, rbac::RBAC_PERM_COMMAND_EVENT_ACTIVELIST, Console::Yes },
-            { "start",      HandleEventStartCommand,      rbac::RBAC_PERM_COMMAND_EVENT_START,      Console::Yes },
-            { "stop",       HandleEventStopCommand,       rbac::RBAC_PERM_COMMAND_EVENT_STOP,       Console::Yes },
-            { "info",       HandleEventInfoCommand,       rbac::RBAC_PERM_COMMAND_EVENT_INFO,       Console::Yes },
+            { "activelist", rbac::RBAC_PERM_COMMAND_EVENT_ACTIVELIST, true, &HandleEventActiveListCommand, "" },
+            { "start",      rbac::RBAC_PERM_COMMAND_EVENT_START,      true, &HandleEventStartCommand,      "" },
+            { "stop",       rbac::RBAC_PERM_COMMAND_EVENT_STOP,       true, &HandleEventStopCommand,       "" },
+            { "info",       rbac::RBAC_PERM_COMMAND_EVENT,            true, &HandleEventInfoCommand,       "" },
         };
-        static ChatCommandTable commandTable =
+        static std::vector<ChatCommand> commandTable =
         {
-            { "event", eventCommandTable },
+            { "event", rbac::RBAC_PERM_COMMAND_EVENT, false, nullptr, "", eventCommandTable },
         };
         return commandTable;
     }
 
-    static bool HandleEventActiveListCommand(ChatHandler* handler)
+    static bool HandleEventActiveListCommand(ChatHandler* handler, char const* /*args*/)
     {
         uint32 counter = 0;
 
@@ -62,8 +59,9 @@ public:
 
         char const* active = handler->GetTrinityString(LANG_ACTIVE);
 
-        for (uint16 eventId : activeEvents)
+        for (GameEventMgr::ActiveEvents::const_iterator itr = activeEvents.begin(); itr != activeEvents.end(); ++itr)
         {
+            uint32 eventId = *itr;
             GameEventData const& eventData = events[eventId];
 
             if (handler->GetSession())
@@ -81,11 +79,21 @@ public:
         return true;
     }
 
-    static bool HandleEventInfoCommand(ChatHandler* handler, Variant<Hyperlink<gameevent>, uint16> const eventId)
+    static bool HandleEventInfoCommand(ChatHandler* handler, char const* args)
     {
+        if (!*args)
+            return false;
+
+        // id or [name] Shift-click form |color|Hgameevent:id|h[name]|h|r
+        char* id =  handler->extractKeyFromLink((char*)args, "Hgameevent");
+        if (!id)
+            return false;
+
+        uint32 eventId = atoul(id);
+
         GameEventMgr::GameEventDataMap const& events = sGameEventMgr->GetEventMap();
 
-        if (*eventId >= events.size())
+        if (eventId >= events.size())
         {
             handler->SendSysMessage(LANG_EVENT_NOT_EXIST);
             handler->SetSentErrorMessage(true);
@@ -108,8 +116,8 @@ public:
         std::string endTimeStr = TimeToTimestampStr(eventData.end);
 
         uint32 delay = sGameEventMgr->NextCheck(eventId);
-        time_t nextTime = GameTime::GetGameTime() + delay;
-        std::string nextStr = nextTime >= eventData.start && nextTime < eventData.end ? TimeToTimestampStr(GameTime::GetGameTime() + delay) : "-";
+        time_t nextTime = time(nullptr) + delay;
+        std::string nextStr = nextTime >= eventData.start && nextTime < eventData.end ? TimeToTimestampStr(time(nullptr) + delay) : "-";
 
         std::string occurenceStr = secsToTimeString(eventData.occurence * MINUTE);
         std::string lengthStr = secsToTimeString(eventData.length * MINUTE);
@@ -120,11 +128,21 @@ public:
         return true;
     }
 
-    static bool HandleEventStartCommand(ChatHandler* handler, Variant<Hyperlink<gameevent>, uint16> const eventId)
+    static bool HandleEventStartCommand(ChatHandler* handler, char const* args)
     {
+        if (!*args)
+            return false;
+
+        // id or [name] Shift-click form |color|Hgameevent:id|h[name]|h|r
+        char* id =  handler->extractKeyFromLink((char*)args, "Hgameevent");
+        if (!id)
+            return false;
+
+        uint32 eventId = atoul(id);
+
         GameEventMgr::GameEventDataMap const& events = sGameEventMgr->GetEventMap();
 
-        if (*eventId < 1 || *eventId >= events.size())
+        if (eventId < 1 || uint32(eventId) >= events.size())
         {
             handler->SendSysMessage(LANG_EVENT_NOT_EXIST);
             handler->SetSentErrorMessage(true);
@@ -151,11 +169,21 @@ public:
         return true;
     }
 
-    static bool HandleEventStopCommand(ChatHandler* handler, Variant<Hyperlink<gameevent>, uint16> const eventId)
+    static bool HandleEventStopCommand(ChatHandler* handler, char const* args)
     {
+        if (!*args)
+            return false;
+
+        // id or [name] Shift-click form |color|Hgameevent:id|h[name]|h|r
+        char* id =  handler->extractKeyFromLink((char*)args, "Hgameevent");
+        if (!id)
+            return false;
+
+        uint32 eventId = atoul(id);
+
         GameEventMgr::GameEventDataMap const& events = sGameEventMgr->GetEventMap();
 
-        if (*eventId < 1 || *eventId >= events.size())
+        if (eventId < 1 || uint32(eventId) >= events.size())
         {
             handler->SendSysMessage(LANG_EVENT_NOT_EXIST);
             handler->SetSentErrorMessage(true);

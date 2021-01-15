@@ -16,13 +16,22 @@
  */
 
 #include "Banner.h"
-#include "DBCFileLoader.h"
+#include "DB2FileLoader.h"
+#include "DB2FileSystemSource.h"
+#include "ExtractorDB2LoadInfo.h"
 #include "MapBuilder.h"
 #include "PathCommon.h"
 #include "Timer.h"
-#include "Util.h"
-#include <boost/filesystem.hpp>
+#include "VMapFactory.h"
+#include "VMapManager2.h"
+#include <boost/filesystem/operations.hpp>
 #include <unordered_map>
+#include <vector>
+
+constexpr char Readme[] =
+{
+#include "Info/readme.txt"
+};
 
 using namespace MMAP;
 
@@ -31,14 +40,14 @@ namespace
     std::unordered_map<uint32, uint8> _liquidTypes;
 }
 
-uint32 GetLiquidFlags(uint32 liquidId)
+bool checkDirectories(bool debugOutput, std::vector<std::string>& dbcLocales)
 {
-    auto itr = _liquidTypes.find(liquidId);
-    return itr != _liquidTypes.end() ? (1 << itr->second) : 0;
-}
+    if (getDirContents(dbcLocales, "dbc") == LISTFILE_DIRECTORY_NOT_FOUND || dbcLocales.empty())
+    {
+        printf("'dbc' directory is empty or does not exist\n");
+        return false;
+    }
 
-bool checkDirectories(bool debugOutput)
-{
     std::vector<std::string> dirFiles;
 
     if (getDirContents(dirFiles, "maps") == LISTFILE_DIRECTORY_NOT_FOUND || dirFiles.empty())
@@ -56,15 +65,24 @@ bool checkDirectories(bool debugOutput)
 
     dirFiles.clear();
     if (getDirContents(dirFiles, "mmaps") == LISTFILE_DIRECTORY_NOT_FOUND)
-        return boost::filesystem::create_directory("mmaps");
+    {
+        if (!boost::filesystem::create_directory("mmaps"))
+        {
+            printf("'mmaps' directory does not exist and failed to create it\n");
+            return false;
+        }
+    }
 
     dirFiles.clear();
     if (debugOutput)
     {
         if (getDirContents(dirFiles, "meshes") == LISTFILE_DIRECTORY_NOT_FOUND)
         {
-            printf("'meshes' directory does not exist (no place to put debugOutput files)\n");
-            return false;
+            if (!boost::filesystem::create_directory("meshes"))
+            {
+                printf("'meshes' directory does not exist and failed to create it (no place to put debugOutput files)\n");
+                return false;
+            }
         }
     }
 
@@ -75,8 +93,7 @@ bool handleArgs(int argc, char** argv,
                int &mapnum,
                int &tileX,
                int &tileY,
-               Optional<float>& maxAngle,
-               Optional<float>& maxAngleNotSteep,
+               float &maxAngle,
                bool &skipLiquid,
                bool &skipContinents,
                bool &skipJunkMaps,
@@ -98,22 +115,10 @@ bool handleArgs(int argc, char** argv,
                 return false;
 
             float maxangle = atof(param);
-            if (maxangle <= 90.f && maxangle >= 0.f)
+            if (maxangle <= 90.f && maxangle >= 45.f)
                 maxAngle = maxangle;
             else
                 printf("invalid option for '--maxAngle', using default\n");
-        }
-        else if (strcmp(argv[i], "--maxAngleNotSteep") == 0)
-        {
-            param = argv[++i];
-            if (!param)
-                return false;
-
-            float maxangle = atof(param);
-            if (maxangle <= 90.f && maxangle >= 0.f)
-                maxAngleNotSteep = maxangle;
-            else
-                printf("invalid option for '--maxAngleNotSteep', using default\n");
         }
         else if (strcmp(argv[i], "--threads") == 0)
         {
@@ -241,6 +246,12 @@ bool handleArgs(int argc, char** argv,
 
             offMeshInputPath = param;
         }
+        else if (!strcmp(argv[i], "--help") || !strcmp(argv[i], "-?"))
+        {
+            printf("%s\n", Readme);
+            silent = true;
+            return false;
+        }
         else
         {
             int map = atoi(argv[i]);
@@ -264,21 +275,65 @@ int finish(char const* message, int returnValue)
     return returnValue;
 }
 
-std::unordered_map<uint32, uint8> LoadLiquid()
+std::unordered_map<uint32, uint8> LoadLiquid(std::string const& locale, bool silent, int32 errorExitCode)
 {
-    DBCFileLoader liquidDbc;
+    DB2FileLoader liquidDb2;
     std::unordered_map<uint32, uint8> liquidData;
-    // format string doesnt matter as long as it has correct length (only used for mapping to structures in worldserver)
-    if (liquidDbc.Load((boost::filesystem::path("dbc") / "LiquidType.dbc").string().c_str(), "nxxixixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"))
+    DB2FileSystemSource liquidTypeSource((boost::filesystem::path("dbc") / locale / "LiquidType.db2").string());
+    try
     {
-        for (uint32 x = 0; x < liquidDbc.GetNumRows(); ++x)
+        liquidDb2.Load(&liquidTypeSource, LiquidTypeLoadInfo::Instance());
+        for (uint32 x = 0; x < liquidDb2.GetRecordCount(); ++x)
         {
-            DBCFileLoader::Record record = liquidDbc.getRecord(x);
-            liquidData[record.getUInt(0)] = record.getUInt(3);
+            DB2Record record = liquidDb2.GetRecord(x);
+            if (!record)
+                continue;
+
+            liquidData[record.GetId()] = record.GetUInt8("SoundBank");
         }
+    }
+    catch (std::exception const& e)
+    {
+        if (silent)
+            exit(errorExitCode);
+
+        exit(finish(e.what(), errorExitCode));
     }
 
     return liquidData;
+}
+
+std::unordered_map<uint32, std::vector<uint32>> LoadMap(std::string const& locale, bool silent, int32 errorExitCode)
+{
+    DB2FileLoader mapDb2;
+    std::unordered_map<uint32, std::vector<uint32>> mapData;
+    DB2FileSystemSource mapSource((boost::filesystem::path("dbc") / locale / "Map.db2").string());
+    try
+    {
+        mapDb2.Load(&mapSource, MapLoadInfo::Instance());
+        for (uint32 x = 0; x < mapDb2.GetRecordCount(); ++x)
+        {
+            DB2Record record = mapDb2.GetRecord(x);
+            if (!record)
+                continue;
+
+            mapData.emplace(std::piecewise_construct, std::forward_as_tuple(record.GetId()), std::forward_as_tuple());
+            int16 parentMapId = int16(record.GetUInt16("ParentMapID"));
+            if (parentMapId < 0)
+                parentMapId = int16(record.GetUInt16("CosmeticParentMapID"));
+            if (parentMapId != -1)
+                mapData[parentMapId].push_back(record.GetId());
+        }
+    }
+    catch (std::exception const& e)
+    {
+        if (silent)
+            exit(errorExitCode);
+
+        exit(finish(e.what(), errorExitCode));
+    }
+
+    return mapData;
 }
 
 int main(int argc, char** argv)
@@ -287,8 +342,8 @@ int main(int argc, char** argv)
 
     unsigned int threads = std::thread::hardware_concurrency();
     int mapnum = -1;
+    float maxAngle = 70.0f;
     int tileX = -1, tileY = -1;
-    Optional<float> maxAngle, maxAngleNotSteep;
     bool skipLiquid = false,
          skipContinents = false,
          skipJunkMaps = true,
@@ -300,7 +355,7 @@ int main(int argc, char** argv)
     char* file = nullptr;
 
     bool validParam = handleArgs(argc, argv, mapnum,
-                                 tileX, tileY, maxAngle, maxAngleNotSteep,
+                                 tileX, tileY, maxAngle,
                                  skipLiquid, skipContinents, skipJunkMaps, skipBattlegrounds,
                                  debugOutput, silent, bigBaseUnit, offMeshInputPath, file, threads);
 
@@ -319,15 +374,23 @@ int main(int argc, char** argv)
             return 0;
     }
 
-    if (!checkDirectories(debugOutput))
+    std::vector<std::string> dbcLocales;
+    if (!checkDirectories(debugOutput, dbcLocales))
         return silent ? -3 : finish("Press ENTER to close...", -3);
 
-    _liquidTypes = LoadLiquid();
-    if (_liquidTypes.empty())
-        return silent ? -5 : finish("Failed to load LiquidType.dbc", -5);
+    _liquidTypes = LoadLiquid(dbcLocales[0], silent, -5);
 
-    MapBuilder builder(maxAngle, maxAngleNotSteep, skipLiquid, skipContinents, skipJunkMaps,
-                       skipBattlegrounds, debugOutput, bigBaseUnit, mapnum, offMeshInputPath, threads);
+    std::unordered_map<uint32, std::vector<uint32>> mapData = LoadMap(dbcLocales[0], silent, -4);
+
+    static_cast<VMAP::VMapManager2*>(VMAP::VMapFactory::createOrGetVMapManager())->InitializeThreadUnsafe(mapData);
+    static_cast<VMAP::VMapManager2*>(VMAP::VMapFactory::createOrGetVMapManager())->GetLiquidFlagsPtr = [](uint32 liquidId) -> uint32
+    {
+        auto itr = _liquidTypes.find(liquidId);
+        return itr != _liquidTypes.end() ? (1 << itr->second) : 0;
+    };
+
+    MapBuilder builder(maxAngle, skipLiquid, skipContinents, skipJunkMaps,
+                       skipBattlegrounds, debugOutput, bigBaseUnit, mapnum, offMeshInputPath);
 
     uint32 start = getMSTime();
     if (file)
@@ -335,11 +398,13 @@ int main(int argc, char** argv)
     else if (tileX > -1 && tileY > -1 && mapnum >= 0)
         builder.buildSingleTile(mapnum, tileX, tileY);
     else if (mapnum >= 0)
-        builder.buildMaps(uint32(mapnum));
+        builder.buildMap(uint32(mapnum));
     else
-        builder.buildMaps({});
+        builder.buildAllMaps(threads);
+
+    VMAP::VMapFactory::clear();
 
     if (!silent)
-        printf("Finished. MMAPS were built in %s\n", secsToTimeString(GetMSTimeDiffToNow(start) / 1000).c_str());
+        printf("Finished. MMAPS were built in %u ms!\n", GetMSTimeDiffToNow(start));
     return 0;
 }

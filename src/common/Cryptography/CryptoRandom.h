@@ -20,15 +20,18 @@
 
 #include "Define.h"
 #include <array>
+#include "advstd.h"
 
-namespace Trinity::Crypto
+namespace Trinity
+{
+namespace Crypto
 {
     void TC_COMMON_API GetRandomBytes(uint8* buf, size_t len);
 
     template <typename Container>
     void GetRandomBytes(Container& c)
     {
-        GetRandomBytes(std::data(c), std::size(c));
+        GetRandomBytes(advstd::data(c), advstd::size(c));
     }
 
     template <size_t S>
@@ -38,6 +41,7 @@ namespace Trinity::Crypto
         GetRandomBytes(arr);
         return arr;
     }
+}
 }
 
 #endif

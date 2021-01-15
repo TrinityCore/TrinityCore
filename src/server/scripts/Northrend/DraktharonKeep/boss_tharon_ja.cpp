@@ -16,11 +16,9 @@
  */
 
 #include "ScriptMgr.h"
+#include "drak_tharon_keep.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "Player.h"
-#include "drak_tharon_keep.h"
 
 /*
  * Known Issues: Spell 49356 and 53463 will be interrupted for an unknown reason

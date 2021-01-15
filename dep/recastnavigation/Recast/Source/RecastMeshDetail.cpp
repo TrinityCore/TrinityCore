@@ -557,16 +557,15 @@ static float polyMinExtent(const float* verts, const int nverts)
 inline int prev(int i, int n) { return i-1 >= 0 ? i-1 : n-1; }
 inline int next(int i, int n) { return i+1 < n ? i+1 : 0; }
 
-static void triangulateHull(const int /*nverts*/, const float* verts, const int nhull, const int* hull, const int nin, rcIntArray& tris)
+static void triangulateHull(const int /*nverts*/, const float* verts, const int nhull, const int* hull, rcIntArray& tris)
 {
 	int start = 0, left = 1, right = nhull-1;
 	
 	// Start from an ear with shortest perimeter.
 	// This tends to favor well formed triangles as starting point.
-	float dmin = FLT_MAX;
+	float dmin = 0;
 	for (int i = 0; i < nhull; i++)
 	{
-		if (hull[i] >= nin) continue; // Ears are triangles with original vertices as middle vertex while others are actually line segments on edges
 		int pi = prev(i, nhull);
 		int ni = next(i, nhull);
 		const float* pv = &verts[hull[pi]*3];
@@ -771,7 +770,7 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 	// If the polygon minimum extent is small (sliver or small triangle), do not try to add internal points.
 	if (minExtent < sampleDist*2)
 	{
-		triangulateHull(nverts, verts, nhull, hull, nin, tris);
+		triangulateHull(nverts, verts, nhull, hull, tris);
 		return true;
 	}
 	
@@ -779,7 +778,7 @@ static bool buildPolyDetail(rcContext* ctx, const float* in, const int nin,
 	// We're using the triangulateHull instead of delaunayHull as it tends to
 	// create a bit better triangulation for long thin triangles when there
 	// are no internal points.
-	triangulateHull(nverts, verts, nhull, hull, nin, tris);
+	triangulateHull(nverts, verts, nhull, hull, tris);
 	
 	if (tris.size() == 0)
 	{
@@ -1141,8 +1140,7 @@ static void getHeightData(rcContext* ctx, const rcCompactHeightfield& chf,
 static unsigned char getEdgeFlags(const float* va, const float* vb,
 								  const float* vpoly, const int npoly)
 {
-	// The flag returned by this function matches dtDetailTriEdgeFlags in Detour.
-	// Figure out if edge (va,vb) is part of the polygon boundary.
+	// Return true if edge (va,vb) is part of the polygon.
 	static const float thrSqr = rcSqr(0.001f);
 	for (int i = 0, j = npoly-1; i < npoly; j=i++)
 	{

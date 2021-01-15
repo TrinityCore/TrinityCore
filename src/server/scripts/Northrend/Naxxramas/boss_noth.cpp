@@ -89,29 +89,36 @@ public:
             events.SetPhase(PHASE_NONE);
         }
 
-        void EnterEvadeMode(EvadeReason why) override
+        void EnterEvadeMode(EvadeReason /*why*/) override
         {
-            // in case we reset during balcony phase
-            if (events.IsInPhase(PHASE_BALCONY))
-                DoCastAOE(SPELL_TELEPORT_BACK);
-            BossAI::EnterEvadeMode(why);
+            Reset(); // teleport back first
+            _EnterEvadeMode();
         }
 
         void Reset() override
         {
-            _Reset();
+            if (!me->IsAlive())
+                return;
 
-            me->SetReactState(REACT_AGGRESSIVE);
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            // in case we reset during balcony phase
+            if (events.IsInPhase(PHASE_BALCONY))
+            {
+                DoCastAOE(SPELL_TELEPORT_BACK);
+                me->SetReactState(REACT_AGGRESSIVE);
+                me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                me->SetImmuneToPC(false);
+            }
 
             balconyCount = 0;
             events.SetPhase(PHASE_NONE);
             justBlinked = false;
+
+            _Reset();
         }
 
-        void JustEngagedWith(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
-            BossAI::JustEngagedWith(who);
+            _EnterCombat();
             Talk(SAY_AGGRO);
             EnterPhaseGround();
         }
@@ -123,7 +130,7 @@ public:
             DoZoneInCombat();
 
             if (!me->IsThreatened())
-                EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+                Reset();
             else
             {
                 uint8 timeGround;
@@ -143,7 +150,7 @@ public:
                 events.ScheduleEvent(EVENT_BALCONY, Seconds(timeGround), 0, PHASE_GROUND);
                 events.ScheduleEvent(EVENT_CURSE, randtime(Seconds(10), Seconds(25)), 0, PHASE_GROUND);
                 events.ScheduleEvent(EVENT_WARRIOR, randtime(Seconds(20), Seconds(30)), 0, PHASE_GROUND);
-                if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
+                if (GetDifficulty() == DIFFICULTY_25_N)
                     events.ScheduleEvent(EVENT_BLINK, randtime(Seconds(20), Seconds(30)), 0, PHASE_GROUND);
             }
         }
@@ -158,8 +165,7 @@ public:
         {
             summons.Summon(summon);
             summon->setActive(true);
-            summon->SetFarVisible(true);
-            summon->AI()->DoZoneInCombat();
+            summon->AI()->DoZoneInCombat(nullptr, 250.0f); // specify range to cover entire room - default 50yd is not enough
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -238,7 +244,8 @@ public:
                     case EVENT_BALCONY:
                         events.SetPhase(PHASE_BALCONY);
                         me->SetReactState(REACT_PASSIVE);
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                        me->SetImmuneToPC(true);
                         me->AttackStop();
                         me->StopMoving();
                         me->RemoveAllAuras();
@@ -294,7 +301,8 @@ public:
                         EnterPhaseGround();
                         break;
                     case EVENT_GROUND_ATTACKABLE:
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                        me->SetImmuneToPC(false);
                         me->SetReactState(REACT_AGGRESSIVE);
                         break;
                 }

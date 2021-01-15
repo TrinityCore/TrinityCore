@@ -28,7 +28,7 @@ void MySQL::Library_End()
     mysql_library_end();
 }
 
-uint32 MySQL::GetLibraryVersion()
+char const* MySQL::GetLibraryVersion()
 {
-    return MYSQL_VERSION_ID;
+    return MYSQL_SERVER_VERSION;
 }

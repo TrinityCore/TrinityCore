@@ -20,7 +20,6 @@
 
 #include "Define.h"
 #include "ObjectGuid.h"
-#include "Optional.h"
 #include <string>
 
 struct CharacterCacheEntry
@@ -34,6 +33,7 @@ struct CharacterCacheEntry
     uint8 Level;
     ObjectGuid::LowType GuildId;
     uint32 ArenaTeamId[3];
+    bool IsDeleted;
 };
 
 class TC_GAME_API CharacterCache
@@ -44,14 +44,16 @@ class TC_GAME_API CharacterCache
         static CharacterCache* instance();
 
         void LoadCharacterCacheStorage();
-        void AddCharacterCacheEntry(ObjectGuid const& guid, uint32 accountId, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level);
+        void AddCharacterCacheEntry(ObjectGuid const& guid, uint32 accountId, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level, bool isDeleted);
         void DeleteCharacterCacheEntry(ObjectGuid const& guid, std::string const& name);
 
-        void UpdateCharacterData(ObjectGuid const& guid, std::string const& name, Optional<uint8> gender = {}, Optional<uint8> race = {});
+        void UpdateCharacterData(ObjectGuid const& guid, std::string const& name, uint8* gender = nullptr, uint8* race = nullptr);
+        void UpdateCharacterGender(ObjectGuid const& guid, uint8 gender);
         void UpdateCharacterLevel(ObjectGuid const& guid, uint8 level);
         void UpdateCharacterAccountId(ObjectGuid const& guid, uint32 accountId);
         void UpdateCharacterGuildId(ObjectGuid const& guid, ObjectGuid::LowType guildId);
         void UpdateCharacterArenaTeamId(ObjectGuid const& guid, uint8 slot, uint32 arenaTeamId);
+        void UpdateCharacterInfoDeleted(ObjectGuid const& guid, bool deleted, std::string const* name = nullptr);
 
         bool HasCharacterCacheEntry(ObjectGuid const& guid) const;
         CharacterCacheEntry const* GetCharacterCacheByGuid(ObjectGuid const& guid) const;
@@ -65,6 +67,7 @@ class TC_GAME_API CharacterCache
         uint8 GetCharacterLevelByGuid(ObjectGuid guid) const;
         ObjectGuid::LowType GetCharacterGuildIdByGuid(ObjectGuid guid) const;
         uint32 GetCharacterArenaTeamIdByGuid(ObjectGuid guid, uint8 type) const;
+        bool GetCharacterNameAndClassByGUID(ObjectGuid guid, std::string& name, uint8& _class) const;
 };
 
 #define sCharacterCache CharacterCache::instance()

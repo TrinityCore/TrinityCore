@@ -64,9 +64,8 @@ enum Events
     EVENT_REVIVE_STALAGG,           // timer until stalagg is revived (if feugen still lives)
     EVENT_TRANSITION_1,             // timer until overload emote
     EVENT_TRANSITION_2,             // timer until thaddius gets zapped by the coils
-    EVENT_TRANSITION_3,             // timer until thaddius becomes attackable
-    EVENT_ENGAGE,                   // timer until thaddius engages
-    EVENT_ENABLE_BALL_LIGHTNING     // grace period after thaddius aggro after which he starts tossing ball lightning at out of range targets
+    EVENT_TRANSITION_3,             // timer until thaddius engages
+    EVENT_ENABLE_BALL_LIGHTNING     // grace period after thaddius aggro after which he starts being a baller (e.g. tossing ball lightning at out of range targets)
 };
 
 enum Misc
@@ -209,17 +208,10 @@ struct boss_thaddius : public BossAI
         {
             _JustDied();
             me->setActive(false);
-            me->SetFarVisible(false);
             if (Creature* stalagg = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_STALAGG)))
-            {
                 stalagg->setActive(false);
-                stalagg->SetFarVisible(false);
-            }
             if (Creature* feugen = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FEUGEN)))
-            {
                 feugen->setActive(false);
-                feugen->SetFarVisible(false);
-            }
             Talk(SAY_DEATH);
         }
 
@@ -248,25 +240,18 @@ struct boss_thaddius : public BossAI
                     instance->SetBossState(BOSS_THADDIUS, IN_PROGRESS);
 
                     me->setActive(true);
-                    me->SetFarVisible(true);
                     DoZoneInCombat();
                     if (Creature* stalagg = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_STALAGG)))
-                    {
                         stalagg->setActive(true);
-                        stalagg->SetFarVisible(true);
-                    }
                     if (Creature* feugen = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FEUGEN)))
-                    {
                         feugen->setActive(true);
-                        feugen->SetFarVisible(true);
-                    }
                     break;
                 case ACTION_FEUGEN_DIED:
                     if (Creature* feugen = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FEUGEN)))
                         feugen->AI()->DoAction(ACTION_FEUGEN_REVIVING_FX);
                     feugenAlive = false;
                     if (stalaggAlive)
-                        events.ScheduleEvent(EVENT_REVIVE_FEUGEN, 5s, 0, PHASE_PETS);
+                        events.ScheduleEvent(EVENT_REVIVE_FEUGEN, Seconds(5), 0, PHASE_PETS);
                     else
                         Transition();
 
@@ -276,7 +261,7 @@ struct boss_thaddius : public BossAI
                         stalagg->AI()->DoAction(ACTION_STALAGG_REVIVING_FX);
                     stalaggAlive = false;
                     if (feugenAlive)
-                        events.ScheduleEvent(EVENT_REVIVE_STALAGG, 5s, 0, PHASE_PETS);
+                        events.ScheduleEvent(EVENT_REVIVE_STALAGG, Seconds(5), 0, PHASE_PETS);
                     else
                         Transition();
 
@@ -299,11 +284,11 @@ struct boss_thaddius : public BossAI
         {
             events.SetPhase(PHASE_TRANSITION);
 
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
 
-            events.ScheduleEvent(EVENT_TRANSITION_1, 10s, 0, PHASE_TRANSITION);
-            events.ScheduleEvent(EVENT_TRANSITION_2, 12s, 0, PHASE_TRANSITION);
-            events.ScheduleEvent(EVENT_TRANSITION_3, 14s, 0, PHASE_TRANSITION);
+            events.ScheduleEvent(EVENT_TRANSITION_1, Seconds(10), 0, PHASE_TRANSITION);
+            events.ScheduleEvent(EVENT_TRANSITION_2, Seconds(12), 0, PHASE_TRANSITION);
+            events.ScheduleEvent(EVENT_TRANSITION_3, Seconds(14), 0, PHASE_TRANSITION);
         }
 
         void BeginResetEncounter()
@@ -315,12 +300,11 @@ struct boss_thaddius : public BossAI
             instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_POSITIVE_CHARGE_APPLY);
             instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_NEGATIVE_CHARGE_APPLY);
 
-            me->DespawnOrUnsummon(0s, 30s);
+            me->DespawnOrUnsummon(0, Seconds(30));
 
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
+            me->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED));
             me->SetImmuneToPC(true);
             me->setActive(false);
-            me->SetFarVisible(false);
             if (Creature* feugen = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FEUGEN)))
                 feugen->AI()->DoAction(ACTION_BEGIN_RESET_ENCOUNTER);
             if (Creature* stalagg = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_STALAGG)))
@@ -337,8 +321,8 @@ struct boss_thaddius : public BossAI
             me->SetReactState(REACT_PASSIVE);
 
             // @todo these guys should really be moved to a summon group - this is merely a hack to make them work in dynamic_spawning
-            instance->instance->Respawn(SPAWN_TYPE_CREATURE, 130958); // Stalagg
-            instance->instance->Respawn(SPAWN_TYPE_CREATURE, 130959); // Feugen
+            instance->instance->RemoveRespawnTime(SPAWN_TYPE_CREATURE, 130958, true); // Stalagg
+            instance->instance->RemoveRespawnTime(SPAWN_TYPE_CREATURE, 130959, true); // Feugen
         }
 
         void UpdateAI(uint32 diff) override
@@ -380,9 +364,18 @@ struct boss_thaddius : public BossAI
                         me->CastSpell(me, SPELL_THADDIUS_SPARK_VISUAL, true);
                         ballLightningUnlocked = false;
                         me->RemoveAura(SPELL_THADDIUS_INACTIVE_VISUAL);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
+                        me->RemoveUnitFlag(UNIT_FLAG_STUNNED);
                         me->SetImmuneToPC(false);
-                        DoZoneInCombat();
+                        me->SetReactState(REACT_AGGRESSIVE);
+
+                            DoZoneInCombat();
+                            if (Unit* closest = SelectTarget(SELECT_TARGET_MINDISTANCE, 0, 500.0f))
+                                AttackStart(closest);
+                            else // if there is no nearest target, then there is no target, meaning we should reset
+                            {
+                                BeginResetEncounter();
+                                return;
+                            }
 
                         if (Creature* feugen = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FEUGEN)))
                             feugen->AI()->DoAction(ACTION_TRANSITION_3);
@@ -393,24 +386,20 @@ struct boss_thaddius : public BossAI
 
                         Talk(SAY_AGGRO);
 
-                        events.ScheduleEvent(EVENT_ENGAGE, 2s, 0, PHASE_THADDIUS);
-                        events.ScheduleEvent(EVENT_ENABLE_BALL_LIGHTNING, 5s, 0, PHASE_THADDIUS);
-                        events.ScheduleEvent(EVENT_SHIFT, 10s, 0, PHASE_THADDIUS);
-                        events.ScheduleEvent(EVENT_CHAIN, 10s, 20s, 0, PHASE_THADDIUS);
-                        events.ScheduleEvent(EVENT_BERSERK, 6min, 0, PHASE_THADDIUS);
+                        events.ScheduleEvent(EVENT_ENABLE_BALL_LIGHTNING, Seconds(5), 0, PHASE_THADDIUS);
+                        events.ScheduleEvent(EVENT_SHIFT, Seconds(10), 0, PHASE_THADDIUS);
+                        events.ScheduleEvent(EVENT_CHAIN, randtime(Seconds(10), Seconds(20)), 0, PHASE_THADDIUS);
+                        events.ScheduleEvent(EVENT_BERSERK, Minutes(6), 0, PHASE_THADDIUS);
 
                         break;
                     case EVENT_ENABLE_BALL_LIGHTNING:
                         ballLightningUnlocked = true;
                         break;
-                    case EVENT_ENGAGE:
-                        me->SetReactState(REACT_AGGRESSIVE);
-                        break;
                     case EVENT_SHIFT:
                         me->CastStop(); // shift overrides all other spells
                         DoCastAOE(SPELL_POLARITY_SHIFT);
-                        events.ScheduleEvent(EVENT_SHIFT_TALK, 3s, PHASE_THADDIUS);
-                        events.ScheduleEvent(EVENT_SHIFT, 30s, PHASE_THADDIUS);
+                        events.ScheduleEvent(EVENT_SHIFT_TALK, Seconds(3), PHASE_THADDIUS);
+                        events.ScheduleEvent(EVENT_SHIFT, Seconds(30), PHASE_THADDIUS);
                         break;
                     case EVENT_SHIFT_TALK:
                         Talk(SAY_ELECT);
@@ -434,7 +423,6 @@ struct boss_thaddius : public BossAI
                         break;
                 }
             }
-
             if (events.IsInPhase(PHASE_THADDIUS) && !me->HasUnitState(UNIT_STATE_CASTING) && me->isAttackReady())
             {
                 if (me->IsWithinMeleeRange(me->GetVictim()))
@@ -443,7 +431,7 @@ struct boss_thaddius : public BossAI
                     DoMeleeAttackIfReady();
                 }
                 else if (ballLightningUnlocked)
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                         DoCast(target, SPELL_BALL_LIGHTNING);
             }
         }
@@ -469,26 +457,35 @@ public:
     struct npc_stalaggAI : public ScriptedAI
     {
         public:
-            npc_stalaggAI(Creature* creature) : ScriptedAI(creature),
-                instance(creature->GetInstanceScript()), powerSurgeTimer(), _myCoil(ObjectGuid::Empty), _myCoilGO(ObjectGuid::Empty), isOverloading(false), refreshBeam(false), isFeignDeath(false)
+            npc_stalaggAI(Creature* creature) : ScriptedAI(creature), _myCoil(ObjectGuid::Empty), _myCoilGO(ObjectGuid::Empty), isOverloading(false), refreshBeam(false), isFeignDeath(false)
             {
+                Initialize();
                 instance = creature->GetInstanceScript();
                 SetBoundary(instance->GetBossBoundary(BOSS_THADDIUS));
             }
 
-            void InitializeAI() override
+            void Initialize()
             {
                 if (GameObject* coil = myCoilGO())
                     coil->SetGoState(GO_STATE_ACTIVE);
 
-                powerSurgeTimer = 10 * IN_MILLISECONDS;
+                // if the encounter reset while feigning death
+                me->SetStandState(UNIT_STAND_STATE_STAND);
+                me->SetReactState(REACT_AGGRESSIVE);
+                me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                isOverloading = false;
+                isFeignDeath = false;
 
                 // force tesla coil state refresh
                 refreshBeam = true;
+
+                powerSurgeTimer = 10 * IN_MILLISECONDS;
             }
 
-            void EnterEvadeMode(EvadeReason /*reason*/) override
+            void Reset() override
             {
+                if (isFeignDeath || !me->IsAlive())
+                    return;
                 if (Creature* thaddius = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THADDIUS)))
                     thaddius->AI()->DoAction(ACTION_STALAGG_RESET);
             }
@@ -497,7 +494,14 @@ public:
             {
                 if (GameObject* coil = myCoilGO())
                     coil->SetGoState(GO_STATE_READY);
-                me->DespawnOrUnsummon(0s, 7_days); // will be force respawned by thaddius
+                me->DespawnOrUnsummon(0, Hours(24*7)); // will be force respawned by thaddius
+                me->setActive(false);
+            }
+
+            void ResetEncounter()
+            {
+                me->Respawn(true);
+                Initialize();
             }
 
             void DoAction(int32 action) override
@@ -516,19 +520,22 @@ public:
                         me->SetFullHealth();
                         me->SetStandState(UNIT_STAND_STATE_STAND);
                         me->SetReactState(REACT_AGGRESSIVE);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        me->SetControlled(false, UNIT_STATE_ROOT);
+                        me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                         Talk(EMOTE_FEIGN_REVIVE);
                         isFeignDeath = false;
 
                         refreshBeam = true; // force beam refresh
 
-                        DoZoneInCombat();
-                        if (!me->IsEngaged())
-                            BeginResetEncounter();
+                        if (Creature* feugen = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FEUGEN)))
+                            if (feugen->GetVictim())
+                            {
+                                AddThreat(feugen->EnsureVictim(), 0.0f);
+                                me->SetInCombatWith(feugen->EnsureVictim());
+                            }
                         break;
                     case ACTION_TRANSITION:
                         me->KillSelf(); // true death
+                        me->DespawnOrUnsummon(0, Hours(24*7));
 
                         if (Creature* coil = myCoil())
                         {
@@ -544,7 +551,6 @@ public:
                     case ACTION_TRANSITION_3:
                         if (GameObject* coil = myCoilGO())
                             coil->SetGoState(GO_STATE_READY);
-                        me->DespawnOrUnsummon(0s, 7_days);
                         break;
                     default:
                         break;
@@ -557,7 +563,7 @@ public:
                     Talk(SAY_STALAGG_SLAY);
             }
 
-            void JustEngagedWith(Unit* who) override
+            void EnterCombat(Unit* who) override
             {
                 Talk(SAY_STALAGG_AGGRO);
 
@@ -587,49 +593,48 @@ public:
                 if (Creature* thaddius = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THADDIUS)))
                     thaddius->AI()->DoAction(ACTION_STALAGG_DIED);
 
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                 me->RemoveAllAuras();
                 me->SetReactState(REACT_PASSIVE);
                 me->AttackStop();
-                me->SetControlled(true, UNIT_STATE_ROOT);
+                me->StopMoving();
                 me->SetStandState(UNIT_STAND_STATE_DEAD);
 
-                damage = me->GetHealth()-1;
+                damage = 0;
 
                 // force beam refresh as we just removed auras
                 refreshBeam = true;
             }
 
-            void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
+            void SpellHit(Unit* caster, SpellInfo const* spell) override
             {
-                Creature* creatureCaster = caster->ToCreature();
-                if (!creatureCaster)
+                if (!caster)
                     return;
-
-                if (spellInfo->Id != SPELL_STALAGG_TESLA_PERIODIC)
+                if (spell->Id != SPELL_STALAGG_TESLA_PERIODIC)
                     return;
                 if (!isFeignDeath && me->IsInCombat() && !me->GetHomePosition().IsInDist(me, OVERLOAD_DISTANCE))
                 {
                     if (!isOverloading)
                     {
                         isOverloading = true;
-                        creatureCaster->SetImmuneToPC(false);
-                        creatureCaster->AI()->Talk(EMOTE_TESLA_LINK_BREAKS);
+                        caster->SetImmuneToPC(false);
+                        if (Creature* creatureCaster = caster->ToCreature())
+                            creatureCaster->AI()->Talk(EMOTE_TESLA_LINK_BREAKS);
                         me->RemoveAura(SPELL_STALAGG_CHAIN_VISUAL);
                     }
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                     {
-                        creatureCaster->CastStop(SPELL_TESLA_SHOCK);
-                        creatureCaster->CastSpell(target, SPELL_TESLA_SHOCK,true);
+                        caster->CastStop(SPELL_TESLA_SHOCK);
+                        caster->CastSpell(target, SPELL_TESLA_SHOCK,true);
                     }
                 }
                 else if (isOverloading || refreshBeam)
                 {
                     isOverloading = false;
                     refreshBeam = false;
-                    creatureCaster->CastStop();
-                    creatureCaster->CastSpell(me, SPELL_STALAGG_CHAIN_VISUAL, true);
-                    creatureCaster->SetImmuneToPC(true);
+                    caster->CastStop();
+                    caster->CastSpell(me, SPELL_STALAGG_CHAIN_VISUAL, true);
+                    caster->SetImmuneToPC(true);
                 }
             }
 
@@ -660,7 +665,7 @@ public:
             Creature* myCoil()
             {
                 Creature* coil = nullptr;
-                if (_myCoil)
+                if (!_myCoil.IsEmpty())
                     coil = ObjectAccessor::GetCreature(*me, _myCoil);
                 if (!coil)
                 {
@@ -677,7 +682,7 @@ public:
             GameObject* myCoilGO()
             {
                 GameObject* coil = nullptr;
-                if (_myCoilGO)
+                if (!_myCoilGO.IsEmpty())
                     coil = ObjectAccessor::GetGameObject(*me, _myCoilGO);
                 if (!coil)
                 {
@@ -714,27 +719,36 @@ public:
     struct npc_feugenAI : public ScriptedAI
     {
         public:
-            npc_feugenAI(Creature* creature) : ScriptedAI(creature),
-                instance(creature->GetInstanceScript()), magneticPullTimer(), staticFieldTimer(), _myCoil(ObjectGuid::Empty), _myCoilGO(ObjectGuid::Empty), isOverloading(false), refreshBeam(false), isFeignDeath(false)
+            npc_feugenAI(Creature* creature) : ScriptedAI(creature), _myCoil(ObjectGuid::Empty), _myCoilGO(ObjectGuid::Empty), isOverloading(false), refreshBeam(false), isFeignDeath(false)
             {
+                Initialize();
                 instance = creature->GetInstanceScript();
                 SetBoundary(instance->GetBossBoundary(BOSS_THADDIUS));
             }
 
-            void InitializeAI() override
+            void Initialize()
             {
                 if (GameObject* coil = myCoilGO())
                     coil->SetGoState(GO_STATE_ACTIVE);
 
-                staticFieldTimer = 6 * IN_MILLISECONDS;
-                magneticPullTimer = 20 * IN_MILLISECONDS;
+                // if the encounter reset while feigning death
+                me->SetStandState(UNIT_STAND_STATE_STAND);
+                me->SetReactState(REACT_AGGRESSIVE);
+                me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                isOverloading = false;
+                isFeignDeath = false;
 
                 // force coil state to refresh
                 refreshBeam = true;
+
+                staticFieldTimer = 6 * IN_MILLISECONDS;
+                magneticPullTimer = 20 * IN_MILLISECONDS;
             }
 
-            void EnterEvadeMode(EvadeReason /*why*/) override
+            void Reset() override
             {
+                if (isFeignDeath || !me->IsAlive())
+                    return;
                 if (Creature* thaddius = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THADDIUS)))
                     thaddius->AI()->DoAction(ACTION_FEUGEN_RESET);
             }
@@ -743,7 +757,8 @@ public:
             {
                 if (GameObject* coil = myCoilGO())
                     coil->SetGoState(GO_STATE_READY);
-                me->DespawnOrUnsummon(0s, 7_days); // will be force respawned by thaddius
+                me->DespawnOrUnsummon(0, Hours(24*7)); // will be force respawned by thaddius
+                me->setActive(false);
             }
 
             void DoAction(int32 action) override
@@ -762,8 +777,7 @@ public:
                         me->SetFullHealth();
                         me->SetStandState(UNIT_STAND_STATE_STAND);
                         me->SetReactState(REACT_AGGRESSIVE);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        me->SetControlled(false, UNIT_STATE_ROOT);
+                        me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                         Talk(EMOTE_FEIGN_REVIVE);
                         isFeignDeath = false;
 
@@ -780,6 +794,7 @@ public:
                         break;
                     case ACTION_TRANSITION:
                         me->KillSelf(); // true death this time around
+                        me->DespawnOrUnsummon(0, Hours(24*7));
 
                         if (Creature* coil = myCoil())
                         {
@@ -795,8 +810,6 @@ public:
                     case ACTION_TRANSITION_3:
                         if (GameObject* coil = myCoilGO())
                             coil->SetGoState(GO_STATE_READY);
-                        me->DespawnOrUnsummon(0s, 7_days);
-                        break;
                     default:
                         break;
                 }
@@ -808,7 +821,7 @@ public:
                     Talk(SAY_FEUGEN_SLAY);
             }
 
-            void JustEngagedWith(Unit* who) override
+            void EnterCombat(Unit* who) override
             {
                 Talk(SAY_FEUGEN_AGGRO);
 
@@ -838,50 +851,48 @@ public:
                 if (Creature* thaddius = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_THADDIUS)))
                     thaddius->AI()->DoAction(ACTION_FEUGEN_DIED);
 
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->RemoveAllAuras();
                 me->SetReactState(REACT_PASSIVE);
                 me->AttackStop();
-                me->SetControlled(true, UNIT_STATE_ROOT);
+                me->StopMoving();
                 me->SetStandState(UNIT_STAND_STATE_DEAD);
+                me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
 
-                damage = me->GetHealth()-1;
+                damage = 0;
 
                 // force beam refresh as we just removed auras
                 refreshBeam = true;
             }
 
-            void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
+            void SpellHit(Unit* caster, SpellInfo const* spell) override
             {
-                Creature* creatureCaster = caster->ToCreature();
-                if (!creatureCaster)
+                if (!caster)
                     return;
-
-                if (spellInfo->Id != SPELL_FEUGEN_TESLA_PERIODIC)
+                if (spell->Id != SPELL_FEUGEN_TESLA_PERIODIC)
                     return;
-
                 if (!isFeignDeath && me->IsInCombat() && !me->GetHomePosition().IsInDist(me, OVERLOAD_DISTANCE))
                 {
                     if (!isOverloading)
                     {
                         isOverloading = true;
-                        creatureCaster->SetImmuneToPC(false);
-                        creatureCaster->AI()->Talk(EMOTE_TESLA_LINK_BREAKS);
+                        caster->SetImmuneToPC(false);
+                        if (Creature* creatureCaster = caster->ToCreature())
+                            creatureCaster->AI()->Talk(EMOTE_TESLA_LINK_BREAKS);
                         me->RemoveAura(SPELL_STALAGG_CHAIN_VISUAL);
                     }
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
-                        creatureCaster->CastStop(SPELL_TESLA_SHOCK);
-                        creatureCaster->CastSpell(target, SPELL_TESLA_SHOCK,true);
+                        caster->CastStop(SPELL_TESLA_SHOCK);
+                        caster->CastSpell(target, SPELL_TESLA_SHOCK,true);
                     }
                 }
                 else if (isOverloading || refreshBeam)
                 {
                     isOverloading = false;
                     refreshBeam = false;
-                    creatureCaster->CastStop();
-                    creatureCaster->CastSpell(me, SPELL_FEUGEN_CHAIN_VISUAL, true);
-                    creatureCaster->SetImmuneToPC(true);
+                    caster->CastStop();
+                    caster->CastSpell(me, SPELL_FEUGEN_CHAIN_VISUAL, true);
+                    caster->SetImmuneToPC(true);
                 }
             }
 
@@ -913,7 +924,7 @@ public:
             Creature* myCoil()
             {
                 Creature* coil = nullptr;
-                if (_myCoil)
+                if (!_myCoil.IsEmpty())
                     coil = ObjectAccessor::GetCreature(*me, _myCoil);
                 if (!coil)
                 {
@@ -930,7 +941,7 @@ public:
             GameObject* myCoilGO()
             {
                 GameObject* coil = nullptr;
-                if (_myCoilGO)
+                if (!_myCoilGO.IsEmpty())
                     coil = ObjectAccessor::GetGameObject(*me, _myCoilGO);
                 if (!coil)
                 {
@@ -970,7 +981,7 @@ public:
 
         void EnterEvadeMode(EvadeReason /*why*/) override { } // never stop casting due to evade
         void UpdateAI(uint32 /*diff*/) override { } // never do anything unless told
-        void JustEngagedWith(Unit* /*who*/) override { }
+        void EnterCombat(Unit* /*who*/) override { }
         void DamageTaken(Unit* /*who*/, uint32& damage) override { damage = 0; } // no, you can't kill it
     };
 };
@@ -1018,29 +1029,28 @@ class spell_thaddius_polarity_charge : public SpellScriptLoader
                 }
 
                 uint8 maxStacks = 0;
-                if (GetCaster())
-                    switch (GetCaster()->GetMap()->GetDifficulty())
-                    {
-                        case RAID_DIFFICULTY_10MAN_NORMAL:
-                            maxStacks = MAX_POLARITY_10M;
-                            break;
-                        case RAID_DIFFICULTY_25MAN_NORMAL:
-                            maxStacks = MAX_POLARITY_25M;
-                            break;
-                        default:
-                            break;
-                    }
+                switch (GetCaster()->GetMap()->GetDifficultyID())
+                {
+                    case DIFFICULTY_10_N:
+                        maxStacks = MAX_POLARITY_10M;
+                        break;
+                    case DIFFICULTY_25_N:
+                        maxStacks = MAX_POLARITY_25M;
+                        break;
+                    default:
+                        break;
+                }
 
                 uint8 stacksCount = 1; // do we get a stack for our own debuff?
                 std::list<WorldObject*>::iterator it = targetList.begin();
-                while(it != targetList.end())
+                while (it != targetList.end())
                 {
                     if ((*it)->GetTypeId() != TYPEID_PLAYER)
                     {
                         it = targetList.erase(it);
                         continue;
                     }
-                    if ((*it)->ToPlayer()->HasAura(triggeringId))
+                    if ((*it)->ToUnit()->HasAura(triggeringId))
                     {
                         it = targetList.erase(it);
                         if (stacksCount < maxStacks)
@@ -1055,11 +1065,11 @@ class spell_thaddius_polarity_charge : public SpellScriptLoader
                     ++it;
                 }
 
-                if (GetCaster() && GetCaster()->ToPlayer())
+                if (GetCaster()->GetTypeId() == TYPEID_PLAYER)
                 {
-                    if (!GetCaster()->ToPlayer()->HasAura(ampId))
-                        GetCaster()->ToPlayer()->AddAura(ampId, GetCaster());
-                    GetCaster()->ToPlayer()->SetAuraStack(ampId, GetCaster(), stacksCount);
+                    if (!GetCaster()->HasAura(ampId))
+                        GetCaster()->AddAura(ampId, GetCaster());
+                    GetCaster()->SetAuraStack(ampId, GetCaster(), stacksCount);
                 }
             }
 
@@ -1219,7 +1229,7 @@ class at_thaddius_entrance : public OnlyOnceAreaTriggerScript
     public:
         at_thaddius_entrance() : OnlyOnceAreaTriggerScript("at_thaddius_entrance") { }
 
-        bool TryHandleOnce(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+        bool _OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
         {
             InstanceScript* instance = player->GetInstanceScript();
             if (!instance || instance->GetBossState(BOSS_THADDIUS) == DONE)

@@ -96,14 +96,14 @@ class boss_faerlina : public CreatureScript
                 SummonAdds();
             }
 
-            void JustEngagedWith(Unit* who) override
+            void EnterCombat(Unit* /*who*/) override
             {
-                BossAI::JustEngagedWith(who);
+                _EnterCombat();
                 Talk(SAY_AGGRO);
                 summons.DoZoneInCombat();
                 events.ScheduleEvent(EVENT_POISON, randtime(Seconds(10), Seconds(15)));
                 events.ScheduleEvent(EVENT_FIRE, randtime(Seconds(6), Seconds(18)));
-                events.ScheduleEvent(EVENT_FRENZY, Minutes(1)+randtime(0s, Seconds(20)));
+                events.ScheduleEvent(EVENT_FRENZY, Minutes(1)+randtime(Seconds(0), Seconds(20)));
             }
 
             void Reset() override
@@ -124,17 +124,13 @@ class boss_faerlina : public CreatureScript
                 Talk(SAY_DEATH);
             }
 
-            void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
+            void SpellHit(Unit* caster, SpellInfo const* spell) override
             {
-                Unit* unitCaster = caster->ToUnit();
-                if (!unitCaster)
-                    return;
-
-                if (spellInfo->Id == SPELL_WIDOWS_EMBRACE_HELPER)
+                if (spell->Id == SPELL_WIDOWS_EMBRACE_HELPER)
                 {
                     ++_frenzyDispels;
                     Talk(EMOTE_WIDOW_EMBRACE, caster);
-                    Unit::Kill(me, unitCaster);
+                    me->Kill(caster);
                 }
             }
 
@@ -166,7 +162,7 @@ class boss_faerlina : public CreatureScript
                             events.Repeat(randtime(Seconds(8), Seconds(15)));
                             break;
                         case EVENT_FIRE:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, SPELL_RAIN_OF_FIRE);
                             events.Repeat(randtime(Seconds(6), Seconds(18)));
                             break;
@@ -177,7 +173,7 @@ class boss_faerlina : public CreatureScript
                             {
                                 DoCast(SPELL_FRENZY);
                                 Talk(EMOTE_FRENZY);
-                                events.Repeat(Minutes(1) + randtime(0s, Seconds(20)));
+                                events.Repeat(Minutes(1) + randtime(Seconds(0), Seconds(20)));
                             }
                             break;
                     }
@@ -219,10 +215,10 @@ class npc_faerlina_add : public CreatureScript
                 }
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void EnterCombat(Unit* /*who*/) override
             {
                 if (Creature* faerlina = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_FAERLINA)))
-                    faerlina->AI()->DoZoneInCombat();
+                    faerlina->AI()->DoZoneInCombat(nullptr, 250.0f);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -269,7 +265,7 @@ class at_faerlina_entrance : public OnlyOnceAreaTriggerScript
     public:
         at_faerlina_entrance() : OnlyOnceAreaTriggerScript("at_faerlina_entrance") { }
 
-        bool TryHandleOnce(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+        bool _OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool /*entered*/) override
         {
             InstanceScript* instance = player->GetInstanceScript();
             if (!instance || instance->GetBossState(BOSS_FAERLINA) != NOT_STARTED)

@@ -131,7 +131,7 @@ public:
             instance->SetBossState(DATA_EREDAR_TWINS, NOT_STARTED);
         }
 
-        void JustEngagedWith(Unit* who) override
+        void EnterCombat(Unit* who) override
         {
             DoZoneInCombat();
 
@@ -158,25 +158,21 @@ public:
                 instance->SetBossState(DATA_EREDAR_TWINS, DONE);
             }
             else
-                me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+                me->RemoveDynamicFlag(UNIT_DYNFLAG_LOOTABLE);
         }
 
-        void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
+        void SpellHitTarget(Unit* target, SpellInfo const* spell) override
         {
-            Unit* unitTarget = target->ToUnit();
-            if (!unitTarget)
-                return;
-
-            switch (spellInfo->Id)
+            switch (spell->Id)
             {
                 case SPELL_SHADOW_BLADES:
                 case SPELL_SHADOW_NOVA:
                 case SPELL_CONFOUNDING_BLOW:
                 case SPELL_SHADOW_FURY:
-                    HandleTouchedSpells(unitTarget, SPELL_DARK_TOUCHED);
+                    HandleTouchedSpells(target, SPELL_DARK_TOUCHED);
                     break;
                 case SPELL_CONFLAGRATION:
-                    HandleTouchedSpells(unitTarget, SPELL_FLAME_TOUCHED);
+                    HandleTouchedSpells(target, SPELL_FLAME_TOUCHED);
                     break;
             }
         }
@@ -232,7 +228,7 @@ public:
                     if (!me->IsNonMeleeSpellCast(false))
                     {
                         me->InterruptSpell(CURRENT_GENERIC_SPELL);
-                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(target, SPELL_CONFLAGRATION);
                         ConflagrationTimer = 30000 + (rand32() % 5000);
                     }
@@ -244,7 +240,7 @@ public:
                 {
                     if (!me->IsNonMeleeSpellCast(false))
                     {
-                        Unit* target = SelectTarget(SelectTargetMethod::Random, 0);
+                        Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                         if (target)
                             DoCast(target, SPELL_SHADOW_NOVA);
 
@@ -263,7 +259,7 @@ public:
             {
                 if (!me->IsNonMeleeSpellCast(false))
                 {
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(target, SPELL_CONFOUNDING_BLOW);
                     ConfoundingblowTimer = 20000 + (rand32() % 5000);
                 }
@@ -275,8 +271,8 @@ public:
                 Creature* temp = nullptr;
                 for (uint8 i = 0; i<3; ++i)
                 {
-                    target = SelectTarget(SelectTargetMethod::Random, 0);
-                    temp = DoSpawnCreature(NPC_SHADOW_IMAGE, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 10s);
+                    target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                    temp = DoSpawnCreature(NPC_SHADOW_IMAGE, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 10000);
                     if (temp && target)
                     {
                         AddThreat(target, 1000000.0f, temp); //don't change target(healers)
@@ -387,7 +383,7 @@ public:
             instance->SetBossState(DATA_EREDAR_TWINS, NOT_STARTED);
         }
 
-        void JustEngagedWith(Unit* who) override
+        void EnterCombat(Unit* who) override
         {
             DoZoneInCombat();
 
@@ -438,26 +434,22 @@ public:
                 instance->SetBossState(DATA_EREDAR_TWINS, DONE);
             }
             else
-                me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+                me->RemoveDynamicFlag(UNIT_DYNFLAG_LOOTABLE);
         }
 
-        void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
+        void SpellHitTarget(Unit* target, SpellInfo const* spell) override
         {
-            Unit* unitTarget = target->ToUnit();
-            if (!unitTarget)
-                return;
-
-            switch (spellInfo->Id)
+            switch (spell->Id)
             {
                 case SPELL_BLAZE:
-                    target->CastSpell(unitTarget, SPELL_BLAZE_SUMMON, true);
+                    target->CastSpell(target, SPELL_BLAZE_SUMMON, true);
                     break;
                 case SPELL_CONFLAGRATION:
                 case SPELL_FLAME_SEAR:
-                    HandleTouchedSpells(unitTarget, SPELL_FLAME_TOUCHED);
+                    HandleTouchedSpells(target, SPELL_FLAME_TOUCHED);
                     break;
                 case SPELL_SHADOW_NOVA:
-                    HandleTouchedSpells(unitTarget, SPELL_DARK_TOUCHED);
+                    HandleTouchedSpells(target, SPELL_DARK_TOUCHED);
                     break;
             }
         }
@@ -573,7 +565,7 @@ public:
                 {
                     if (!me->IsNonMeleeSpellCast(false))
                     {
-                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(target, SPELL_SHADOW_NOVA);
                         ShadownovaTimer = 30000 + (rand32() % 5000);
                     }
@@ -586,7 +578,7 @@ public:
                     if (!me->IsNonMeleeSpellCast(false))
                     {
                         me->InterruptSpell(CURRENT_GENERIC_SPELL);
-                        Unit* target = SelectTarget(SelectTargetMethod::Random, 0);
+                        Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                         if (target)
                             DoCast(target, SPELL_CONFLAGRATION);
                         ConflagrationTimer = 30000 + (rand32() % 5000);
@@ -676,31 +668,25 @@ public:
 
         void Reset() override
         {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
             Initialize();
         }
 
-        void JustEngagedWith(Unit* /*who*/) override { }
+        void EnterCombat(Unit* /*who*/) override { }
 
-        void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
+        void SpellHitTarget(Unit* target, SpellInfo const* spell) override
         {
-            Unit* unitTarget = target->ToUnit();
-            if (!unitTarget)
-                return;
-
-            switch (spellInfo->Id)
+            switch (spell->Id)
             {
                 case SPELL_SHADOW_FURY:
                 case SPELL_DARK_STRIKE:
-                    if (!unitTarget->HasAura(SPELL_DARK_FLAME))
+                    if (!target->HasAura(SPELL_DARK_FLAME))
                     {
-                        if (unitTarget->HasAura(SPELL_FLAME_TOUCHED))
+                        if (target->HasAura(SPELL_FLAME_TOUCHED))
                         {
-                            unitTarget->RemoveAurasDueToSpell(SPELL_FLAME_TOUCHED);
-                            unitTarget->CastSpell(unitTarget, SPELL_DARK_FLAME, true);
-                        }
-                        else
-                            unitTarget->CastSpell(unitTarget, SPELL_DARK_TOUCHED, true);
+                            target->RemoveAurasDueToSpell(SPELL_FLAME_TOUCHED);
+                            target->CastSpell(target, SPELL_DARK_FLAME, true);
+                        } else target->CastSpell(target, SPELL_DARK_TOUCHED, true);
                     }
                     break;
             }

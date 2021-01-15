@@ -213,8 +213,8 @@ void RBACData::LoadFromDBCallback(PreparedQueryResult result)
 
     // Add default permissions
     RBACPermissionContainer const& permissions = sAccountMgr->GetRBACDefaultPermissions(_secLevel);
-    for (uint32 permission : permissions)
-        GrantPermission(permission);
+    for (RBACPermissionContainer::const_iterator itr = permissions.begin(); itr != permissions.end(); ++itr)
+        GrantPermission(*itr);
 
     // Force calculation of permissions
     CalculateNewPermissions();
@@ -234,14 +234,14 @@ void RBACData::CalculateNewPermissions()
 
 void RBACData::AddPermissions(RBACPermissionContainer const& permsFrom, RBACPermissionContainer& permsTo)
 {
-    for (uint32 permission : permsFrom)
-        permsTo.insert(permission);
+    for (RBACPermissionContainer::const_iterator itr = permsFrom.begin(); itr != permsFrom.end(); ++itr)
+        permsTo.insert(*itr);
 }
 
 void RBACData::RemovePermissions(RBACPermissionContainer& permsFrom, RBACPermissionContainer const& permsToRemove)
 {
-    for (uint32 permission: permsToRemove)
-        permsFrom.erase(permission);
+    for (RBACPermissionContainer::const_iterator itr = permsToRemove.begin(); itr != permsToRemove.end(); ++itr)
+        permsFrom.erase(*itr);
 }
 
 void RBACData::ExpandPermissions(RBACPermissionContainer& permissions)
@@ -264,9 +264,9 @@ void RBACData::ExpandPermissions(RBACPermissionContainer& permissions)
 
         // add all linked permissions (that are not already expanded) to the list of permissions to be checked
         RBACPermissionContainer const& linkedPerms = permission->GetLinkedPermissions();
-        for (uint32 linkedPerm : linkedPerms)
-            if (permissions.find(linkedPerm) == permissions.end())
-                toCheck.insert(linkedPerm);
+        for (RBACPermissionContainer::const_iterator itr = linkedPerms.begin(); itr != linkedPerms.end(); ++itr)
+            if (permissions.find(*itr) == permissions.end())
+                toCheck.insert(*itr);
     }
 
     TC_LOG_DEBUG("rbac", "RBACData::ExpandPermissions: Expanded: %s", GetDebugPermissionString(permissions).c_str());

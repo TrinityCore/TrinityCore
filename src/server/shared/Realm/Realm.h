@@ -34,18 +34,29 @@ enum RealmFlags
     REALM_FLAG_FULL             = 0x80
 };
 
-struct TC_SHARED_API RealmHandle
+namespace Battlenet
 {
-    RealmHandle() : Realm(0) { }
-    RealmHandle(uint32 index) : Realm(index) { }
-
-    uint32 Realm;   // primary key in `realmlist` table
-
-    bool operator<(RealmHandle const& r) const
+    struct TC_SHARED_API RealmHandle
     {
-        return Realm < r.Realm;
-    }
-};
+        RealmHandle() : Region(0), Site(0), Realm(0) { }
+        RealmHandle(uint8 region, uint8 battlegroup, uint32 index)
+            : Region(region), Site(battlegroup), Realm(index) { }
+        RealmHandle(uint32 realmAddress) : Region((realmAddress >> 24) & 0xFF), Site((realmAddress >> 16) & 0xFF), Realm(realmAddress & 0xFFFF) { }
+
+        uint8 Region;
+        uint8 Site;
+        uint32 Realm;   // primary key in `realmlist` table
+
+        bool operator<(RealmHandle const& r) const
+        {
+            return Realm < r.Realm;
+        }
+
+        uint32 GetAddress() const { return (Region << 24) | (Site << 16) | uint16(Realm); }
+        std::string GetAddressString() const;
+        std::string GetSubRegionAddress() const;
+    };
+}
 
 /// Type of server, this is values from second column of Cfg_Configs.dbc
 enum RealmType
@@ -65,20 +76,26 @@ enum RealmType
 // Storage object for a realm
 struct TC_SHARED_API Realm
 {
-    RealmHandle Id;
+    Battlenet::RealmHandle Id;
     uint32 Build;
     std::unique_ptr<boost::asio::ip::address> ExternalAddress;
     std::unique_ptr<boost::asio::ip::address> LocalAddress;
     std::unique_ptr<boost::asio::ip::address> LocalSubnetMask;
     uint16 Port;
     std::string Name;
+    std::string NormalizedName;
     uint8 Type;
     RealmFlags Flags;
     uint8 Timezone;
     AccountTypes AllowedSecurityLevel;
     float PopulationLevel;
 
-    boost::asio::ip::tcp_endpoint GetAddressForClient(boost::asio::ip::address const& clientAddr) const;
+    void SetName(std::string name);
+
+    boost::asio::ip::address GetAddressForClient(boost::asio::ip::address const& clientAddr) const;
+    uint32 GetConfigId() const;
+
+    static uint32 const ConfigIdByType[MAX_CLIENT_REALM_TYPE];
 };
 
 #endif // Realm_h__

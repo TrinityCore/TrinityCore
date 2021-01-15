@@ -53,19 +53,6 @@ class instance_forge_of_souls : public InstanceMapScript
 
             void OnCreatureCreate(Creature* creature) override
             {
-                switch (creature->GetEntry())
-                {
-                    case NPC_BRONJAHM:
-                        bronjahm = creature->GetGUID();
-                        break;
-                    case NPC_DEVOURER:
-                        devourerOfSouls = creature->GetGUID();
-                        break;
-                }
-            }
-
-            uint32 GetCreatureEntry(ObjectGuid::LowType /*guidLow*/, CreatureData const* data) override
-            {
                 if (!teamInInstance)
                 {
                     Map::PlayerList const& players = instance->GetPlayers();
@@ -74,17 +61,26 @@ class instance_forge_of_souls : public InstanceMapScript
                             teamInInstance = player->GetTeam();
                 }
 
-                uint32 entry = data->id;
-                switch (entry)
+                switch (creature->GetEntry())
                 {
+                    case NPC_BRONJAHM:
+                        bronjahm = creature->GetGUID();
+                        break;
+                    case NPC_DEVOURER:
+                        devourerOfSouls = creature->GetGUID();
+                        break;
                     case NPC_SYLVANAS_PART1:
-                        return teamInInstance == ALLIANCE ? NPC_JAINA_PART1 : NPC_SYLVANAS_PART1;
+                        if (teamInInstance == ALLIANCE)
+                            creature->UpdateEntry(NPC_JAINA_PART1);
+                        break;
                     case NPC_LORALEN:
-                        return teamInInstance == ALLIANCE ? NPC_ELANDRA : NPC_LORALEN;
+                        if (teamInInstance == ALLIANCE)
+                            creature->UpdateEntry(NPC_ELANDRA);
+                        break;
                     case NPC_KALIRA:
-                        return teamInInstance == ALLIANCE ? NPC_KORELN : NPC_KALIRA;
-                    default:
-                        return entry;
+                        if (teamInInstance == ALLIANCE)
+                            creature->UpdateEntry(NPC_KORELN);
+                        break;
                 }
             }
 

@@ -23,7 +23,11 @@
 #include <string>
 
 class WorldObject;
-class WorldPacket;
+
+namespace WorldPackets
+{
+    class Packet;
+}
 
 namespace Trinity
 {
@@ -33,8 +37,7 @@ namespace Trinity
             BroadcastTextBuilder(WorldObject const* obj, ChatMsg msgType, uint32 textId, uint8 gender, WorldObject const* target = nullptr, uint32 achievementId = 0)
                 : _source(obj), _msgType(msgType), _textId(textId), _gender(gender), _target(target), _achievementId(achievementId) { }
 
-            void operator()(WorldPacket& data, LocaleConstant locale) const;
-            size_t operator()(WorldPacket* data, LocaleConstant locale) const;
+            WorldPackets::Packet* operator()(LocaleConstant locale) const;
 
         private:
             WorldObject const* _source;
@@ -48,10 +51,10 @@ namespace Trinity
     class CustomChatTextBuilder
     {
         public:
-            CustomChatTextBuilder(WorldObject const* obj, ChatMsg msgType, std::string_view text, Language language = LANG_UNIVERSAL, WorldObject const* target = nullptr)
+            CustomChatTextBuilder(WorldObject const* obj, ChatMsg msgType, std::string const& text, Language language = LANG_UNIVERSAL, WorldObject const* target = nullptr)
                 : _source(obj), _msgType(msgType), _text(text), _language(language), _target(target) { }
 
-            void operator()(WorldPacket& data, LocaleConstant locale) const;
+            WorldPackets::Packet* operator()(LocaleConstant locale) const;
 
         private:
             WorldObject const* _source;
@@ -67,7 +70,7 @@ namespace Trinity
             TrinityStringChatBuilder(WorldObject const* obj, ChatMsg msgType, uint32 textId, WorldObject const* target = nullptr, va_list* args = nullptr)
                 : _source(obj), _msgType(msgType), _textId(textId), _target(target), _args(args) { }
 
-            void operator()(WorldPacket& data, LocaleConstant locale) const;
+            WorldPackets::Packet* operator()(LocaleConstant locale) const;
 
         private:
             WorldObject const* _source;

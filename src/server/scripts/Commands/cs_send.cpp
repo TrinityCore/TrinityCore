@@ -27,10 +27,6 @@
 #include "RBAC.h"
 #include "WorldSession.h"
 
-#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-
 class send_commandscript : public CommandScript
 {
 public:
@@ -84,7 +80,7 @@ public:
         std::string text    = msgText;
 
         // from console, use non-existing sender
-        MailSender sender(MAIL_NORMAL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetGUID().GetCounter() : 0, MAIL_STATIONERY_GM);
+        MailSender sender(MAIL_NORMAL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetGUID().GetCounter() : UI64LIT(0), MAIL_STATIONERY_GM);
 
         /// @todo Fix poor design
         CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
@@ -146,7 +142,7 @@ public:
             char const* itemIdStr = strtok(itemStr, ":");
             char const* itemCountStr = strtok(nullptr, " ");
 
-            uint32 itemId = atoi(itemIdStr);
+            uint32 itemId = atoul(itemIdStr);
             if (!itemId)
                 return false;
 
@@ -159,7 +155,7 @@ public:
             }
 
             uint32 itemCount = itemCountStr ? atoi(itemCountStr) : 1;
-            if (itemCount < 1 || (item_proto->MaxCount > 0 && itemCount > uint32(item_proto->MaxCount)))
+            if (itemCount < 1 || (item_proto->GetMaxCount() > 0 && itemCount > uint32(item_proto->GetMaxCount())))
             {
                 handler->PSendSysMessage(LANG_COMMAND_INVALID_ITEM_COUNT, itemCount, itemId);
                 handler->SetSentErrorMessage(true);
@@ -183,7 +179,7 @@ public:
         }
 
         // from console show nonexisting sender
-        MailSender sender(MAIL_NORMAL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetGUID().GetCounter() : 0, MAIL_STATIONERY_GM);
+        MailSender sender(MAIL_NORMAL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetGUID().GetCounter() : UI64LIT(0), MAIL_STATIONERY_GM);
 
         // fill mail
         MailDraft draft(subject, text);
@@ -192,7 +188,7 @@ public:
 
         for (ItemPairs::const_iterator itr = items.begin(); itr != items.end(); ++itr)
         {
-            if (Item* item = Item::CreateItem(itr->first, itr->second, handler->GetSession() ? handler->GetSession()->GetPlayer() : 0))
+            if (Item* item = Item::CreateItem(itr->first, itr->second, ItemContext::NONE, handler->GetSession() ? handler->GetSession()->GetPlayer() : nullptr))
             {
                 item->SaveToDB(trans);              // Save to prevent being lost at next mail load. If send fails, the item will be deleted.
                 draft.AddItem(item);
@@ -234,7 +230,7 @@ public:
             return false;
 
         char* moneyStr = strtok(nullptr, "");
-        int32 money = moneyStr ? atoi(moneyStr) : 0;
+        int64 money = moneyStr ? atoll(moneyStr) : 0;
         if (money <= 0)
             return false;
 
@@ -243,7 +239,7 @@ public:
         std::string text    = msgText;
 
         // from console show nonexisting sender
-        MailSender sender(MAIL_NORMAL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetGUID().GetCounter() : 0, MAIL_STATIONERY_GM);
+        MailSender sender(MAIL_NORMAL, handler->GetSession() ? handler->GetSession()->GetPlayer()->GetGUID().GetCounter() : UI64LIT(0), MAIL_STATIONERY_GM);
 
         CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
@@ -278,9 +274,8 @@ public:
         }
 
         /// - Send the message
-        // Use SendAreaTriggerMessage for fastest delivery.
-        player->GetSession()->SendAreaTriggerMessage("%s", msgStr);
-        player->GetSession()->SendAreaTriggerMessage("|cffff0000[Message from administrator]:|r");
+        player->GetSession()->SendNotification("%s", msgStr);
+        player->GetSession()->SendNotification("|cffff0000[Message from administrator]:|r");
 
         // Confirmation message
         std::string nameLink = handler->GetNameLink(player);

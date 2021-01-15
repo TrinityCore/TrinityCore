@@ -115,7 +115,7 @@ public:
 
             Initialize();
 
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+            me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
             me->SetControlled(false, UNIT_STATE_ROOT);
 
             if (!me->IsVisible())
@@ -124,7 +124,7 @@ public:
             instance->SetBossState(DATA_IONAR, NOT_STARTED);
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
 
@@ -146,16 +146,16 @@ public:
                 Talk(SAY_SLAY);
         }
 
-        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
         {
-            if (spellInfo->Id == SPELL_DISPERSE)
+            if (spell->Id == SPELL_DISPERSE)
             {
                 for (uint8 i = 0; i < DATA_MAX_SPARKS; ++i)
                     me->CastSpell(me, SPELL_SUMMON_SPARK, true);
 
                 me->AttackStop();
                 me->SetVisible(false);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
                 me->SetControlled(true, UNIT_STATE_ROOT);
 
                 me->GetMotionMaster()->Clear();
@@ -202,7 +202,7 @@ public:
 
                 summoned->CastSpell(summoned, SPELL_SPARK_VISUAL_TRIGGER, true);
 
-                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     summoned->SetInCombatWith(target);
                     summoned->GetMotionMaster()->Clear();
@@ -240,7 +240,7 @@ public:
                     else if (lSparkList.empty())
                     {
                         me->SetVisible(true);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                        me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
                         me->SetControlled(false, UNIT_STATE_ROOT);
 
                         DoCast(me, SPELL_SPARK_DESPAWN, false);
@@ -260,7 +260,7 @@ public:
 
             if (uiStaticOverloadTimer <= uiDiff)
             {
-                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(target, SPELL_STATIC_OVERLOAD);
 
                 uiStaticOverloadTimer = urand(5*IN_MILLISECONDS, 6*IN_MILLISECONDS);

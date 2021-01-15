@@ -15,17 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "AIException.h"
 #include "Creature.h"
 #include "CreatureAISelector.h"
 #include "CreatureAIFactory.h"
-
+#include "Log.h"
 #include "MovementGenerator.h"
 
 #include "GameObject.h"
 #include "GameObjectAIFactory.h"
 
-#include "Log.h"
 #include "ScriptMgr.h"
 
 namespace FactorySelector
@@ -40,17 +38,17 @@ namespace FactorySelector
     template <class T>
     struct PermissibleOrderPred
     {
-        public:
-            PermissibleOrderPred(T const* obj) : _obj(obj) { }
+    public:
+        PermissibleOrderPred(T const* obj) : _obj(obj) { }
 
-            template <class Value>
-            bool operator()(Value const& left, Value const& right) const
-            {
-                return GetPermitFor(_obj, left) < GetPermitFor(_obj, right);
-            }
+        template <class Value>
+        bool operator()(Value const& left, Value const& right) const
+        {
+            return GetPermitFor(_obj, left) < GetPermitFor(_obj, right);
+        }
 
-        private:
-            T const* const _obj;
+    private:
+        T const* const _obj;
     };
 
     template <class AI, class T>
@@ -85,26 +83,17 @@ namespace FactorySelector
             return ASSERT_NOTNULL(sCreatureAIRegistry->GetRegistryItem("PetAI"))->Create(creature);
 
         // scriptname in db
-        try
-        {
-            if (CreatureAI* scriptedAI = sScriptMgr->GetCreatureAI(creature))
-                return scriptedAI;
-        }
-        catch (InvalidAIException const& e)
-        {
-            TC_LOG_ERROR("entities.unit", "Exception trying to assign script '%s' to Creature (Entry: %u), this Creature will have a default AI. Exception message: %s",
-                creature->GetScriptName().c_str(), creature->GetEntry(), e.what());
-        }
+        if (CreatureAI* scriptedAI = sScriptMgr->GetCreatureAI(creature))
+            return scriptedAI;
 
         return SelectFactory<CreatureAI>(creature)->Create(creature);
     }
 
     MovementGenerator* SelectMovementGenerator(Unit* unit)
     {
-        MovementGeneratorType type = unit->GetDefaultMovementType();
-        if (Creature* creature = unit->ToCreature())
-            if (!creature->GetPlayerMovingMe())
-                type = creature->GetDefaultMovementType();
+        MovementGeneratorType type = IDLE_MOTION_TYPE;
+        if (unit->GetTypeId() == TYPEID_UNIT)
+            type = unit->ToCreature()->GetDefaultMovementType();
 
         MovementGeneratorCreator const* mv_factory = sMovementGeneratorRegistry->GetRegistryItem(type);
         return ASSERT_NOTNULL(mv_factory)->Create(unit);

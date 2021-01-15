@@ -86,9 +86,9 @@ class boss_saviana_ragefire : public CreatureScript
                 me->SetDisableGravity(false);
             }
 
-            void JustEngagedWith(Unit* who) override
+            void EnterCombat(Unit* /*who*/) override
             {
-                BossAI::JustEngagedWith(who);
+                _EnterCombat();
                 Talk(SAY_AGGRO);
                 events.Reset();
                 events.ScheduleEvent(EVENT_ENRAGE, Seconds(20), EVENT_GROUP_LAND_PHASE);
@@ -110,7 +110,7 @@ class boss_saviana_ragefire : public CreatureScript
                 switch (point)
                 {
                     case POINT_FLIGHT:
-                        events.ScheduleEvent(EVENT_CONFLAGRATION, 1s);
+                        events.ScheduleEvent(EVENT_CONFLAGRATION, Seconds(1));
                         Talk(SAY_CONFLAGRATION);
                         break;
                     case POINT_LAND:
@@ -119,6 +119,7 @@ class boss_saviana_ragefire : public CreatureScript
                     case POINT_LAND_GROUND:
                         me->SetCanFly(false);
                         me->SetDisableGravity(false);
+                        me->SetAnimTier(UNIT_BYTE1_FLAG_NONE, false);
                         me->SetReactState(REACT_AGGRESSIVE);
                         events.ScheduleEvent(EVENT_ENRAGE, Seconds(1), EVENT_GROUP_LAND_PHASE);
                         events.ScheduleEvent(EVENT_FLAME_BREATH, Seconds(2), Seconds(4), EVENT_GROUP_LAND_PHASE);
@@ -161,6 +162,7 @@ class boss_saviana_ragefire : public CreatureScript
                         {
                             me->SetCanFly(true);
                             me->SetDisableGravity(true);
+                            me->SetAnimTier(UnitBytes1_Flags(UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER), false);
                             me->SetReactState(REACT_PASSIVE);
                             me->AttackStop();
                             Position pos;
@@ -235,7 +237,7 @@ class spell_saviana_conflagration_init : public SpellScriptLoader
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 targets.remove_if(ConflagrationTargetSelector());
-                uint8 maxSize = uint8(GetCaster()->GetMap()->GetSpawnMode() & 1 ? 6 : 3);
+                uint8 maxSize = uint8(GetCaster()->GetMap()->Is25ManRaid() ? 6 : 3);
                 if (targets.size() > maxSize)
                     Trinity::Containers::RandomResize(targets, maxSize);
             }

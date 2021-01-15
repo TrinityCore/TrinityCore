@@ -22,8 +22,7 @@
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
-#include "SpellInfo.h"
-#include "SpellScript.h"
+#include <sstream>
 
 DoorData const doorData[] =
 {
@@ -85,19 +84,19 @@ class instance_ahnkahet : public InstanceMapScript
                         if (SpheresState[0])
                         {
                             go->SetGoState(GO_STATE_ACTIVE);
-                            go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            go->AddFlag(GO_FLAG_NOT_SELECTABLE);
                         }
                         else
-                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                         break;
                     case GO_SPHERE_2:
                         if (SpheresState[1])
                         {
                             go->SetGoState(GO_STATE_ACTIVE);
-                            go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            go->AddFlag(GO_FLAG_NOT_SELECTABLE);
                         }
                         else
-                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
                         break;
                     default:
                         break;
@@ -151,26 +150,7 @@ class instance_ahnkahet : public InstanceMapScript
         }
 };
 
-// 56584 - Combined Toxins
-class spell_combined_toxins : public AuraScript
-{
-    PrepareAuraScript(spell_combined_toxins);
-
-    bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
-    {
-        // only procs on poisons (damage class check to exclude stuff like Envenom)
-        SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
-        return (spellInfo && spellInfo->Dispel == DISPEL_POISON && spellInfo->DmgClass != SPELL_DAMAGE_CLASS_MELEE);
-    }
-
-    void Register() override
-    {
-        DoCheckEffectProc += AuraCheckEffectProcFn(spell_combined_toxins::CheckProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_DAMAGE);
-    }
-};
-
 void AddSC_instance_ahnkahet()
 {
     new instance_ahnkahet();
-    RegisterSpellScript(spell_combined_toxins);
 }

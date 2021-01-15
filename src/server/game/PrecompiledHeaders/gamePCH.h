@@ -18,15 +18,16 @@
 //add here most rarely modified headers to speed up debug build compilation
 
 #include "Creature.h"
-#include "DBCStores.h"
+#include "DB2Stores.h"
 #include "DatabaseEnv.h"
 #include "Errors.h"
 #include "GameObject.h"
 #include "Log.h"
+#include "Map.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
+#include "Packet.h"
 #include "PacketUtilities.h"
 #include "Player.h"
 #include "World.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"

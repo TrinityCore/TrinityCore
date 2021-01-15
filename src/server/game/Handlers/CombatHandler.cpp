@@ -19,12 +19,11 @@
 #include "CombatPackets.h"
 #include "Common.h"
 #include "CreatureAI.h"
-#include "DBCStructure.h"
+#include "DB2Structure.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "Vehicle.h"
-#include "WorldPacket.h"
 
 void WorldSession::HandleAttackSwingOpcode(WorldPackets::Combat::AttackSwing& packet)
 {
@@ -44,7 +43,7 @@ void WorldSession::HandleAttackSwingOpcode(WorldPackets::Combat::AttackSwing& pa
         return;
     }
 
-    //! Client explicitly checks the following before sending CMSG_ATTACK_SWING packet,
+    //! Client explicitly checks the following before sending CMSG_ATTACKSWING packet,
     //! so we'll place the same check here. Note that it might be possible to reuse this snippet
     //! in other places as well.
     if (Vehicle* vehicle = _player->GetVehicle())
@@ -61,7 +60,7 @@ void WorldSession::HandleAttackSwingOpcode(WorldPackets::Combat::AttackSwing& pa
     _player->Attack(enemy, true);
 }
 
-void WorldSession::HandleAttackStopOpcode(WorldPackets::Combat::AttackStop& /*packet*/)
+void WorldSession::HandleAttackStopOpcode(WorldPackets::Combat::AttackStop& /*recvData*/)
 {
     GetPlayer()->AttackStop();
 }
@@ -74,7 +73,7 @@ void WorldSession::HandleSetSheathedOpcode(WorldPackets::Combat::SetSheathed& pa
         return;
     }
 
-    _player->SetSheath(SheathState(packet.CurrentSheathState));
+    GetPlayer()->SetSheath(SheathState(packet.CurrentSheathState));
 }
 
 void WorldSession::SendAttackStop(Unit const* enemy)

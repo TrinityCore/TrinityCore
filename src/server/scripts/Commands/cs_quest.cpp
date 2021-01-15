@@ -25,17 +25,13 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "Chat.h"
 #include "DatabaseEnv.h"
-#include "DBCStores.h"
-#include "DisableMgr.h"
+#include "DB2Stores.h"
+#include "LootMgr.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "RBAC.h"
 #include "ReputationMgr.h"
 #include "World.h"
-
-#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
 
 class quest_commandscript : public CommandScript
 {
@@ -69,7 +65,7 @@ public:
         }
 
         // .addquest #entry'
-        // number or [name] Shift-click form |color|Hquest:quest_id:quest_level|h[name]|h|r
+        // number or [name] Shift-click form |color|Hquest:quest_id:quest_level:min_level:max_level:scaling_faction|h[name]|h|r
         char* cId = handler->extractKeyFromLink((char*)args, "Hquest");
         if (!cId)
             return false;
@@ -78,7 +74,7 @@ public:
 
         Quest const* quest = sObjectMgr->GetQuestTemplate(entry);
 
-        if (!quest || DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, entry, nullptr))
+        if (!quest)
         {
             handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, entry);
             handler->SetSentErrorMessage(true);
@@ -86,21 +82,18 @@ public:
         }
 
         // check item starting quest (it can work incorrectly if added without item in inventory)
-        ItemTemplateContainer const& itc = sObjectMgr->GetItemTemplateStore();
-        auto itr = std::find_if(std::begin(itc), std::end(itc), [quest](ItemTemplateContainer::value_type const& value)
+        ItemTemplateContainer const* itc = sObjectMgr->GetItemTemplateStore();
+        ItemTemplateContainer::const_iterator result = std::find_if(itc->begin(), itc->end(), [quest](ItemTemplateContainer::value_type const& value)
         {
-            return value.second.StartQuest == quest->GetQuestId();
+            return value.second.GetStartQuest() == quest->GetQuestId();
         });
 
-        if (itr != std::end(itc))
+        if (result != itc->end())
         {
-            handler->PSendSysMessage(LANG_COMMAND_QUEST_STARTFROMITEM, entry, itr->first);
+            handler->PSendSysMessage(LANG_COMMAND_QUEST_STARTFROMITEM, entry, result->second.GetId());
             handler->SetSentErrorMessage(true);
             return false;
         }
-
-        if (player->IsActiveQuest(entry))
-            return false;
 
         // ok, normal (creature/GO starting) quest
         if (player->CanAddQuest(quest, true))
@@ -120,7 +113,7 @@ public:
         }
 
         // .removequest #entry'
-        // number or [name] Shift-click form |color|Hquest:quest_id:quest_level|h[name]|h|r
+        // number or [name] Shift-click form |color|Hquest:quest_id:quest_level:min_level:max_level:scaling_faction|h[name]|h|r
         char* cId = handler->extractKeyFromLink((char*)args, "Hquest");
         if (!cId)
             return false;
@@ -136,40 +129,35 @@ public:
             return false;
         }
 
-        if (player->GetQuestStatus(entry) != QUEST_STATUS_NONE)
+        QuestStatus oldStatus = player->GetQuestStatus(entry);
+
+        // remove all quest entries for 'entry' from quest log
+        for (uint8 slot = 0; slot < MAX_QUEST_LOG_SIZE; ++slot)
         {
-            // remove all quest entries for 'entry' from quest log
-            for (uint8 slot = 0; slot < MAX_QUEST_LOG_SIZE; ++slot)
+            uint32 logQuest = player->GetQuestSlotQuestId(slot);
+            if (logQuest == entry)
             {
-                uint32 logQuest = player->GetQuestSlotQuestId(slot);
-                if (logQuest == entry)
+                player->SetQuestSlot(slot, 0);
+
+                // we ignore unequippable quest items in this case, its' still be equipped
+                player->TakeQuestSourceItem(logQuest, false);
+
+                if (quest->HasFlag(QUEST_FLAGS_FLAGS_PVP))
                 {
-                    player->SetQuestSlot(slot, 0);
-
-                    // we ignore unequippable quest items in this case, its' still be equipped
-                    player->TakeQuestSourceItem(logQuest, false);
-
-                    if (quest->HasFlag(QUEST_FLAGS_FLAGS_PVP))
-                    {
-                        player->pvpInfo.IsHostile = player->pvpInfo.IsInHostileArea || player->HasPvPForcingQuest();
-                        player->UpdatePvPState();
-                    }
+                    player->pvpInfo.IsHostile = player->pvpInfo.IsInHostileArea || player->HasPvPForcingQuest();
+                    player->UpdatePvPState();
                 }
             }
-            player->RemoveActiveQuest(entry, false);
-            player->RemoveRewardedQuest(entry);
-
-            sScriptMgr->OnQuestStatusChange(player, entry);
-
-            handler->SendSysMessage(LANG_COMMAND_QUEST_REMOVED);
-            return true;
         }
-        else
-        {
-            handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, entry);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
+
+        player->RemoveActiveQuest(entry, false);
+        player->RemoveRewardedQuest(entry);
+
+        sScriptMgr->OnQuestStatusChange(player, entry);
+        sScriptMgr->OnQuestStatusChange(player, quest, oldStatus, QUEST_STATUS_NONE);
+
+        handler->SendSysMessage(LANG_COMMAND_QUEST_REMOVED);
+        return true;
     }
 
     static bool HandleQuestComplete(ChatHandler* handler, char const* args)
@@ -183,7 +171,7 @@ public:
         }
 
         // .quest complete #entry
-        // number or [name] Shift-click form |color|Hquest:quest_id:quest_level|h[name]|h|r
+        // number or [name] Shift-click form |color|Hquest:quest_id:quest_level:min_level:max_level:scaling_faction|h[name]|h|r
         char* cId = handler->extractKeyFromLink((char*)args, "Hquest");
         if (!cId)
             return false;
@@ -193,86 +181,74 @@ public:
         Quest const* quest = sObjectMgr->GetQuestTemplate(entry);
 
         // If player doesn't have the quest
-        if (!quest || player->GetQuestStatus(entry) == QUEST_STATUS_NONE
-            || DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, entry, nullptr))
+        if (!quest || player->GetQuestStatus(entry) == QUEST_STATUS_NONE)
         {
             handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, entry);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        // Add quest items for quests that require items
-        for (uint8 x = 0; x < QUEST_ITEM_OBJECTIVES_COUNT; ++x)
+        for (uint32 i = 0; i < quest->Objectives.size(); ++i)
         {
-            uint32 id = quest->RequiredItemId[x];
-            uint32 count = quest->RequiredItemCount[x];
-            if (!id || !count)
-                continue;
+            QuestObjective const& obj = quest->Objectives[i];
 
-            uint32 curItemCount = player->GetItemCount(id, true);
-
-            ItemPosCountVec dest;
-            uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, id, count-curItemCount);
-            if (msg == EQUIP_ERR_OK)
+            switch (obj.Type)
             {
-                Item* item = player->StoreNewItem(dest, id, true);
-                player->SendNewItem(item, count-curItemCount, true, false);
+                case QUEST_OBJECTIVE_ITEM:
+                {
+                    uint32 curItemCount = player->GetItemCount(obj.ObjectID, true);
+                    ItemPosCountVec dest;
+                    uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, obj.ObjectID, obj.Amount - curItemCount);
+                    if (msg == EQUIP_ERR_OK)
+                    {
+                        Item* item = player->StoreNewItem(dest, obj.ObjectID, true);
+                        player->SendNewItem(item, obj.Amount - curItemCount, true, false);
+                    }
+                    break;
+                }
+                case QUEST_OBJECTIVE_MONSTER:
+                {
+                    if (CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(obj.ObjectID))
+                        for (uint16 z = 0; z < obj.Amount; ++z)
+                            player->KilledMonster(creatureInfo, ObjectGuid::Empty);
+                    break;
+                }
+                case QUEST_OBJECTIVE_GAMEOBJECT:
+                {
+                    for (uint16 z = 0; z < obj.Amount; ++z)
+                        player->KillCreditGO(obj.ObjectID);
+                    break;
+                }
+                case QUEST_OBJECTIVE_MIN_REPUTATION:
+                {
+                    uint32 curRep = player->GetReputationMgr().GetReputation(obj.ObjectID);
+                    if (curRep < uint32(obj.Amount))
+                        if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(obj.ObjectID))
+                            player->GetReputationMgr().SetReputation(factionEntry, obj.Amount);
+                    break;
+                }
+                case QUEST_OBJECTIVE_MAX_REPUTATION:
+                {
+                    uint32 curRep = player->GetReputationMgr().GetReputation(obj.ObjectID);
+                    if (curRep > uint32(obj.Amount))
+                        if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(obj.ObjectID))
+                            player->GetReputationMgr().SetReputation(factionEntry, obj.Amount);
+                    break;
+                }
+                case QUEST_OBJECTIVE_MONEY:
+                {
+                    player->ModifyMoney(obj.Amount);
+                    break;
+                }
             }
         }
-
-        // All creature/GO slain/cast (not required, but otherwise it will display "Creature slain 0/10")
-        for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
-        {
-            int32 creature = quest->RequiredNpcOrGo[i];
-            uint32 creatureCount = quest->RequiredNpcOrGoCount[i];
-
-            if (creature > 0)
-            {
-                if (CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(creature))
-                    for (uint16 z = 0; z < creatureCount; ++z)
-                        player->KilledMonster(creatureInfo, ObjectGuid::Empty);
-            }
-            else if (creature < 0)
-                for (uint16 z = 0; z < creatureCount; ++z)
-                    player->KillCreditGO(creature);
-        }
-
-        // player kills
-        if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_PLAYER_KILL))
-            if (uint32 reqPlayers = quest->GetPlayersSlain())
-                player->KilledPlayerCreditForQuest(reqPlayers, quest);
-
-        // If the quest requires reputation to complete
-        if (uint32 repFaction = quest->GetRepObjectiveFaction())
-        {
-            uint32 repValue = quest->GetRepObjectiveValue();
-            uint32 curRep = player->GetReputationMgr().GetReputation(repFaction);
-            if (curRep < repValue)
-                if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(repFaction))
-                    player->GetReputationMgr().SetReputation(factionEntry, repValue);
-        }
-
-        // If the quest requires a SECOND reputation to complete
-        if (uint32 repFaction = quest->GetRepObjectiveFaction2())
-        {
-            uint32 repValue2 = quest->GetRepObjectiveValue2();
-            uint32 curRep = player->GetReputationMgr().GetReputation(repFaction);
-            if (curRep < repValue2)
-                if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(repFaction))
-                    player->GetReputationMgr().SetReputation(factionEntry, repValue2);
-        }
-
-        // If the quest requires money
-        int32 ReqOrRewMoney = quest->GetRewOrReqMoney(player);
-        if (ReqOrRewMoney < 0)
-            player->ModifyMoney(-ReqOrRewMoney);
 
         if (sWorld->getBoolConfig(CONFIG_QUEST_ENABLE_QUEST_TRACKER)) // check if Quest Tracker is enabled
         {
             // prepare Quest Tracker datas
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_QUEST_TRACK_GM_COMPLETE);
             stmt->setUInt32(0, quest->GetQuestId());
-            stmt->setUInt32(1, player->GetGUID().GetCounter());
+            stmt->setUInt64(1, player->GetGUID().GetCounter());
 
             // add to Quest Tracker
             CharacterDatabase.Execute(stmt);
@@ -293,7 +269,7 @@ public:
         }
 
         // .quest reward #entry
-        // number or [name] Shift-click form |color|Hquest:quest_id:quest_level|h[name]|h|r
+        // number or [name] Shift-click form |color|Hquest:quest_id:quest_level:min_level:max_level:scaling_faction|h[name]|h|r
         char* cId = handler->extractKeyFromLink((char*)args, "Hquest");
         if (!cId)
             return false;
@@ -303,15 +279,14 @@ public:
         Quest const* quest = sObjectMgr->GetQuestTemplate(entry);
 
         // If player doesn't have the quest
-        if (!quest || player->GetQuestStatus(entry) != QUEST_STATUS_COMPLETE
-            || DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, entry, nullptr))
+        if (!quest || player->GetQuestStatus(entry) != QUEST_STATUS_COMPLETE)
         {
             handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, entry);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        player->RewardQuest(quest, 0, player);
+        player->RewardQuest(quest, LootItemType::Item, 0, player);
         return true;
     }
 };

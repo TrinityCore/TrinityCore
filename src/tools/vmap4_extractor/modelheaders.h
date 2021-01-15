@@ -18,12 +18,8 @@
 #ifndef MODELHEADERS_H
 #define MODELHEADERS_H
 
-/* typedef unsigned char uint8;
-typedef char int8;
-typedef unsigned short uint16;
-typedef short int16;
-typedef unsigned int uint32;
-typedef int int32; */
+#include "Define.h"
+#include "vec3d.h"
 
 #pragma pack(push,1)
 
@@ -69,7 +65,10 @@ struct ModelHeader
     uint32 ofsTransLookup;
     uint32 nTexAnimLookup;
     uint32 ofsTexAnimLookup;
-    float floats[14];
+    AaBox3D boundingBox;
+    float boundingSphereRadius;
+    AaBox3D collisionBox;
+    float collisionSphereRadius;
     uint32 nBoundingTriangles;
     uint32 ofsBoundingTriangles;
     uint32 nBoundingVertices;

@@ -31,7 +31,6 @@ Script Data End */
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "WorldSession.h"
 
 /*******************************************************
  * npc_mageguard_dalaran
@@ -65,14 +64,14 @@ public:
     {
         npc_mageguard_dalaranAI(Creature* creature) : ScriptedAI(creature)
         {
-            creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            creature->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_NORMAL, true);
             creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
         }
 
         void Reset() override { }
 
-        void JustEngagedWith(Unit* /*who*/) override { }
+        void EnterCombat(Unit* /*who*/) override { }
 
         void AttackStart(Unit* /*who*/) override { }
 
@@ -89,9 +88,7 @@ public:
             if (!player || player->IsGameMaster() || player->IsBeingTeleported() ||
                 // If player has Disguise aura for quest A Meeting With The Magister or An Audience With The Arcanist, do not teleport it away but let it pass
                 player->HasAura(SPELL_SUNREAVER_DISGUISE_FEMALE) || player->HasAura(SPELL_SUNREAVER_DISGUISE_MALE) ||
-                player->HasAura(SPELL_SILVER_COVENANT_DISGUISE_FEMALE) || player->HasAura(SPELL_SILVER_COVENANT_DISGUISE_MALE) ||
-                // If player has already been teleported, don't try to teleport again
-                player->HasAura(SPELL_TRESPASSER_A) || player->HasAura(SPELL_TRESPASSER_H))
+                player->HasAura(SPELL_SILVER_COVENANT_DISGUISE_FEMALE) || player->HasAura(SPELL_SILVER_COVENANT_DISGUISE_MALE))
                 return;
 
             switch (me->GetEntry())
@@ -171,7 +168,7 @@ class npc_minigob_manabonk : public CreatureScript
             {
                 playerGuid = ObjectGuid();
                 me->SetVisible(false);
-                events.ScheduleEvent(EVENT_SELECT_TARGET, 1s);
+                events.ScheduleEvent(EVENT_SELECT_TARGET, Seconds(1));
             }
 
             void GetPlayersInDalaran(std::vector<Player*>& playerList) const
@@ -195,7 +192,7 @@ class npc_minigob_manabonk : public CreatureScript
             {
                 CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
                 int16 deliverDelay = irand(MAIL_DELIVER_DELAY_MIN, MAIL_DELIVER_DELAY_MAX);
-                MailDraft(MAIL_MINIGOB_ENTRY, true).SendMailTo(trans, MailReceiver(player), MailSender(MAIL_CREATURE, me->GetEntry()), MAIL_CHECK_MASK_NONE, deliverDelay);
+                MailDraft(MAIL_MINIGOB_ENTRY, true).SendMailTo(trans, MailReceiver(player), MailSender(MAIL_CREATURE, uint64(me->GetEntry())), MAIL_CHECK_MASK_NONE, deliverDelay);
                 CharacterDatabase.CommitTransaction(trans);
             }
 
@@ -232,15 +229,15 @@ class npc_minigob_manabonk : public CreatureScript
                         }
                         case EVENT_LAUGH_1:
                             me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH_NO_SHEATHE);
-                            events.ScheduleEvent(EVENT_WANDER, 3s);
+                            events.ScheduleEvent(EVENT_WANDER, Seconds(3));
                             break;
                         case EVENT_WANDER:
                             me->GetMotionMaster()->MoveRandom(8);
-                            events.ScheduleEvent(EVENT_PAUSE, 1min);
+                            events.ScheduleEvent(EVENT_PAUSE, Minutes(1));
                             break;
                         case EVENT_PAUSE:
                             me->GetMotionMaster()->MoveIdle();
-                            events.ScheduleEvent(EVENT_CAST, 2s);
+                            events.ScheduleEvent(EVENT_CAST, Seconds(2));
                             break;
                         case EVENT_CAST:
                             if (Player* player = me->GetMap()->GetPlayer(playerGuid))
@@ -255,11 +252,11 @@ class npc_minigob_manabonk : public CreatureScript
                             break;
                         case EVENT_LAUGH_2:
                             me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH_NO_SHEATHE);
-                            events.ScheduleEvent(EVENT_BLINK, 3s);
+                            events.ScheduleEvent(EVENT_BLINK, Seconds(3));
                             break;
                         case EVENT_BLINK:
                             DoCastSelf(SPELL_IMPROVED_BLINK);
-                            events.ScheduleEvent(EVENT_DESPAWN, 4s);
+                            events.ScheduleEvent(EVENT_DESPAWN, Seconds(4));
                             break;
                         case EVENT_DESPAWN:
                             me->AddObjectToRemoveList();

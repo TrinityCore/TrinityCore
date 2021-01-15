@@ -1,6 +1,21 @@
-# ![logo](https://community.trinitycore.org/public/style_images/1_trinitycore.png) TrinityCore (3.3.5)
+# ![logo](https://community.trinitycore.org/public/style_images/1_trinitycore.png) TrinityCore (master)
 
 [![Average time to resolve an issue](https://isitmaintained.com/badge/resolution/TrinityCore/TrinityCore.svg)](https://isitmaintained.com/project/TrinityCore/TrinityCore "Average time to resolve an issue") [![Percentage of issues still open](https://isitmaintained.com/badge/open/TrinityCore/TrinityCore.svg)](https://isitmaintained.com/project/TrinityCore/TrinityCore "Percentage of issues still open")
+
+--------------
+
+
+* [Build Status](#build-status)
+* [Introduction](#introduction)
+* [Requirements](#requirements)
+* [Install](#install)
+* [Reporting issues](#reporting-issues)
+* [Submitting fixes](#submitting-fixes)
+* [Copyright](#copyright)
+* [Authors &amp; Contributors](#authors--contributors)
+* [Links](#links)
+
+
 
 ## Build Status
 
@@ -21,7 +36,7 @@ mechanics and functionality.
 
 It is completely open source; community involvement is highly encouraged.
 
-If you wish to contribute ideas or code please visit our site linked below or
+If you wish to contribute ideas or code, please visit our site linked below or
 make pull requests to our [Github repository](https://github.com/TrinityCore/TrinityCore/pulls).
 
 For further information on the TrinityCore project, please visit our project
@@ -31,18 +46,18 @@ website at [TrinityCore.org](https://www.trinitycore.org).
 
 
 Software requirements are available in the [wiki](https://www.trinitycore.info/display/tc/Requirements) for
-Windows, Linux and OS X.
+Windows, Linux and macOS.
 
 
 ## Install
 
 Detailed installation guides are available in the [wiki](https://www.trinitycore.info/display/tc/Installation+Guide) for
-Windows, Linux and OS X.
+Windows, Linux and macOS.
 
 
 ## Reporting issues
 
-Issues can be reported via the [Github issue tracker](https://github.com/TrinityCore/TrinityCore/labels/Branch-3.3.5a).
+Issues can be reported via the [Github issue tracker](https://github.com/TrinityCore/TrinityCore/labels/Branch-master).
 
 Please take the time to review existing issues before submitting your own to
 prevent duplicates.
@@ -56,7 +71,7 @@ reports are wasteful and are subject to deletion.
 
 C++ fixes are submitted as pull requests via Github. For more information on how to
 properly submit a pull request, read the [how-to: maintain a remote fork](https://community.trinitycore.org/topic/9002-howto-maintain-a-remote-fork-for-pull-requests-tortoisegit/).
-For SQL only fixes open a ticket or if a bug report exists for the bug post on existing ticket.
+For SQL only fixes, open a ticket; if a bug report exists for the bug, post on an existing ticket.
 
 
 ## Copyright
@@ -76,3 +91,4 @@ Read file [AUTHORS](AUTHORS).
 * [Website](https://www.trinitycore.org)
 * [Wiki](https://www.trinitycore.info)
 * [Forums](https://community.trinitycore.org)
+* [Discord](https://discord.trinitycore.org/)

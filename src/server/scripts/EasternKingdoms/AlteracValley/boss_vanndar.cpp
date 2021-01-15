@@ -35,67 +35,94 @@ enum Spells
     SPELL_STORMBOLT                               = 20685 // not sure
 };
 
-struct boss_vanndar : public ScriptedAI
+class boss_vanndar : public CreatureScript
 {
-    boss_vanndar(Creature* creature) : ScriptedAI(creature) { }
+public:
+    boss_vanndar() : CreatureScript("boss_vanndar") { }
 
-    void Reset() override
+    struct boss_vanndarAI : public ScriptedAI
     {
-        _scheduler.CancelAll();
-    }
+        boss_vanndarAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Initialize();
+        }
 
-    void JustEngagedWith(Unit* /*who*/) override
-    {
-        _scheduler
-            .Schedule(3s, [this](TaskContext task)
+        void Initialize()
+        {
+            AvatarTimer = 3 * IN_MILLISECONDS;
+            ThunderclapTimer = 4 * IN_MILLISECONDS;
+            StormboltTimer = 6 * IN_MILLISECONDS;
+            ResetTimer = 5 * IN_MILLISECONDS;
+            YellTimer = urand(20 * IN_MILLISECONDS, 30 * IN_MILLISECONDS);
+        }
+
+        uint32 AvatarTimer;
+        uint32 ThunderclapTimer;
+        uint32 StormboltTimer;
+        uint32 ResetTimer;
+        uint32 YellTimer;
+
+        void Reset() override
+        {
+            Initialize();
+        }
+
+        void EnterCombat(Unit* /*who*/) override
+        {
+            Talk(YELL_AGGRO);
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (!UpdateVictim())
+                return;
+
+            if (AvatarTimer <= diff)
             {
                 DoCastVictim(SPELL_AVATAR);
-                task.Repeat(15s, 20s);
-            })
-            .Schedule(4s, [this](TaskContext task)
+                AvatarTimer =  urand(15 * IN_MILLISECONDS, 20 * IN_MILLISECONDS);
+            } else AvatarTimer -= diff;
+
+            if (ThunderclapTimer <= diff)
             {
                 DoCastVictim(SPELL_THUNDERCLAP);
-                task.Repeat(5s, 15s);
-            })
-            .Schedule(6s, [this](TaskContext task)
+                ThunderclapTimer = urand(5 * IN_MILLISECONDS, 15 * IN_MILLISECONDS);
+            } else ThunderclapTimer -= diff;
+
+            if (StormboltTimer <= diff)
             {
                 DoCastVictim(SPELL_STORMBOLT);
-                task.Repeat(10s, 25s);
-            })
-            .Schedule(20s, 30s, [this](TaskContext task)
+                StormboltTimer = urand(10 * IN_MILLISECONDS, 25 * IN_MILLISECONDS);
+            } else StormboltTimer -= diff;
+
+            if (YellTimer <= diff)
             {
                 Talk(YELL_RANDOM);
-                task.Repeat(20s, 30s);
-            })
-            .Schedule(5s, [this](TaskContext task)
+                YellTimer = urand(20 * IN_MILLISECONDS, 30 * IN_MILLISECONDS); //20 to 30 seconds
+            } else YellTimer -= diff;
+
+            // check if creature is not outside of building
+            if (ResetTimer <= diff)
             {
                 if (me->GetDistance2d(me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY()) > 50)
                 {
                     EnterEvadeMode();
                     Talk(YELL_EVADE);
                 }
-                task.Repeat();
-            });
+                ResetTimer = 5 * IN_MILLISECONDS;
+            } else ResetTimer -= diff;
 
-        Talk(YELL_AGGRO);
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        if (!UpdateVictim())
-            return;
-
-        _scheduler.Update(diff, [this]
-        {
             DoMeleeAttackIfReady();
-        });
-    }
+        }
+    };
 
-private:
-    TaskScheduler _scheduler;
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new boss_vanndarAI(creature);
+    }
 };
 
 void AddSC_boss_vanndar()
 {
-    RegisterCreatureAI(boss_vanndar);
+    new boss_vanndar;
 }

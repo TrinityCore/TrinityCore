@@ -47,13 +47,13 @@ public:
     {
         boss_flamegorAI(Creature* creature) : BossAI(creature, DATA_FLAMEGOR) { }
 
-        void JustEngagedWith(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
-            BossAI::JustEngagedWith(who);
+            _EnterCombat();
 
-            events.ScheduleEvent(EVENT_SHADOWFLAME, 10s, 20s);
-            events.ScheduleEvent(EVENT_WINGBUFFET, 30s);
-            events.ScheduleEvent(EVENT_FRENZY, 10s);
+            events.ScheduleEvent(EVENT_SHADOWFLAME, urand(10000, 20000));
+            events.ScheduleEvent(EVENT_WINGBUFFET, 30000);
+            events.ScheduleEvent(EVENT_FRENZY, 10000);
         }
 
         void UpdateAI(uint32 diff) override
@@ -72,18 +72,18 @@ public:
                 {
                     case EVENT_SHADOWFLAME:
                         DoCastVictim(SPELL_SHADOWFLAME);
-                        events.ScheduleEvent(EVENT_SHADOWFLAME, 10s, 20s);
+                        events.ScheduleEvent(EVENT_SHADOWFLAME, urand(10000, 20000));
                         break;
                     case EVENT_WINGBUFFET:
                         DoCastVictim(SPELL_WINGBUFFET);
                         if (GetThreat(me->GetVictim()))
                             ModifyThreatByPercent(me->GetVictim(), -75);
-                        events.ScheduleEvent(EVENT_WINGBUFFET, 30s);
+                        events.ScheduleEvent(EVENT_WINGBUFFET, 30000);
                         break;
                     case EVENT_FRENZY:
                         Talk(EMOTE_FRENZY);
                         DoCast(me, SPELL_FRENZY);
-                        events.ScheduleEvent(EVENT_FRENZY, 8s, 10s);
+                        events.ScheduleEvent(EVENT_FRENZY, urand(8000, 10000));
                         break;
                 }
 

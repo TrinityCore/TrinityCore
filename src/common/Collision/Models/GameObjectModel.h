@@ -35,6 +35,7 @@ namespace VMAP
 }
 
 class GameObject;
+class PhaseShift;
 struct GameObjectDisplayInfoEntry;
 
 class TC_COMMON_API GameObjectModelOwnerBase
@@ -44,7 +45,8 @@ public:
 
     virtual bool IsSpawned() const = 0;
     virtual uint32 GetDisplayId() const = 0;
-    virtual uint32 GetPhaseMask() const = 0;
+    virtual uint8 GetNameSetId() const = 0;
+    virtual bool IsInPhase(PhaseShift const& /*phaseShift*/) const = 0;
     virtual G3D::Vector3 GetPosition() const = 0;
     virtual float GetOrientation() const = 0;
     virtual float GetScale() const = 0;
@@ -53,7 +55,7 @@ public:
 
 class TC_COMMON_API GameObjectModel /*, public Intersectable*/
 {
-    GameObjectModel() : phasemask(0), iInvScale(0), iScale(0), iModel(nullptr), isWmo(false) { }
+    GameObjectModel() : _collisionEnabled(false), iInvScale(0), iScale(0), iModel(nullptr), isWmo(false) { }
 public:
     std::string name;
 
@@ -63,16 +65,15 @@ public:
 
     const G3D::Vector3& getPosition() const { return iPos;}
 
-    /**    Enables\disables collision. */
-    void disable() { phasemask = 0;}
-    void enable(uint32 ph_mask) { phasemask = ph_mask;}
-
-    bool isEnabled() const {return phasemask != 0;}
+    /* Enables/disables collision */
+    void enableCollision(bool enable) { _collisionEnabled = enable; }
+    bool isCollisionEnabled() const { return _collisionEnabled; }
     bool isMapObject() const { return isWmo; }
+    uint8 GetNameSetId() const { return owner->GetNameSetId(); }
 
-    bool intersectRay(const G3D::Ray& Ray, float& MaxDist, bool StopAtFirstHit, uint32 ph_mask, VMAP::ModelIgnoreFlags ignoreFlags) const;
-    void intersectPoint(G3D::Vector3 const& point, VMAP::AreaInfo& info, uint32 ph_mask) const;
-    bool GetLocationInfo(G3D::Vector3 const& point, VMAP::LocationInfo& info, uint32 ph_mask) const;
+    bool intersectRay(G3D::Ray const& ray, float& maxDist, bool stopAtFirstHit, PhaseShift const& phaseShift, VMAP::ModelIgnoreFlags ignoreFlags) const;
+    void intersectPoint(G3D::Vector3 const& point, VMAP::AreaInfo& info, PhaseShift const& phaseShift) const;
+    bool GetLocationInfo(G3D::Vector3 const& point, VMAP::LocationInfo& info, PhaseShift const& phaseShift) const;
     bool GetLiquidLevel(G3D::Vector3 const& point, VMAP::LocationInfo& info, float& liqHeight) const;
 
     static GameObjectModel* Create(std::unique_ptr<GameObjectModelOwnerBase> modelOwner, std::string const& dataPath);
@@ -82,7 +83,7 @@ public:
 private:
     bool initialize(std::unique_ptr<GameObjectModelOwnerBase> modelOwner, std::string const& dataPath);
 
-    uint32 phasemask;
+    bool _collisionEnabled;
     G3D::AABox iBound;
     G3D::Matrix3 iInvRot;
     G3D::Vector3 iPos;

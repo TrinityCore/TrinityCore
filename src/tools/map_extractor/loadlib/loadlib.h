@@ -19,7 +19,8 @@
 #define LOAD_LIB_H
 
 #include "Define.h"
-
+#include "CascHandles.h"
+#include <map>
 #include <string>
 
 #define FILE_FORMAT_VERSION    18
@@ -45,19 +46,48 @@ struct file_MVER
     uint32 ver;
 };
 
-class FileLoader{
+struct file_MWMO
+{
+    u_map_fcc fcc;
+    uint32 size;
+    char FileList[1];
+};
+
+class FileChunk
+{
+public:
+    FileChunk(uint8* data_, uint32 size_) : data(data_), size(size_) { }
+    ~FileChunk();
+
+    uint8* data;
+    uint32 size;
+
+    template<class T>
+    T* As() { return (T*)data; }
+    void parseSubChunks();
+    std::multimap<std::string, FileChunk*> subchunks;
+    FileChunk* GetSubChunk(std::string const& name);
+};
+
+class ChunkedFile
+{
+public:
     uint8  *data;
     uint32  data_size;
-public:
-    virtual bool prepareLoadedData();
-    uint8 *GetData()     {return data;}
-    uint32 GetDataSize() {return data_size;}
 
-    file_MVER *version;
-    FileLoader();
-    ~FileLoader();
-    bool loadFile(std::string const& fileName, bool log = true);
-    virtual void free();
+    uint8 *GetData()     { return data; }
+    uint32 GetDataSize() { return data_size; }
+
+    ChunkedFile();
+    virtual ~ChunkedFile();
+    bool prepareLoadedData();
+    bool loadFile(std::shared_ptr<CASC::Storage const> mpq, std::string const& fileName, bool log = true);
+    bool loadFile(std::shared_ptr<CASC::Storage const> mpq, uint32 fileDataId, std::string const& description, bool log = true);
+    void free();
+
+    void parseChunks();
+    std::multimap<std::string, FileChunk*> chunks;
+    FileChunk* GetChunk(std::string const& name);
 };
 
 #pragma pack(pop)

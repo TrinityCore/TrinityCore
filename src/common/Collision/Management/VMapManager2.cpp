@@ -32,6 +32,12 @@ using G3D::Vector3;
 
 namespace VMAP
 {
+    bool readChunk(FILE* rf, char* dest, const char* compare, uint32 len)
+    {
+        if (fread(dest, sizeof(char), len, rf) != len) return false;
+        return memcmp(dest, compare, len) == 0;
+    }
+
     VMapManager2::VMapManager2()
     {
         GetLiquidFlagsPtr = &GetLiquidFlagsDummy;
@@ -39,23 +45,35 @@ namespace VMAP
         thread_safe_environment = true;
     }
 
-    VMapManager2::~VMapManager2(void)
+    VMapManager2::~VMapManager2()
     {
-        for (std::pair<uint32 const, StaticMapTree*>& iInstanceMapTree : iInstanceMapTrees)
-        {
-            delete iInstanceMapTree.second;
-        }
-        for (std::pair<std::string const, ManagedModel>& iLoadedModelFile : iLoadedModelFiles)
-        {
-            delete iLoadedModelFile.second.getModel();
-        }
+        for (auto i = iInstanceMapTrees.begin(); i != iInstanceMapTrees.end(); ++i)
+            delete i->second;
+
+        for (auto i = iLoadedModelFiles.begin(); i != iLoadedModelFiles.end(); ++i)
+            delete i->second.getModel();
     }
 
-    void VMapManager2::InitializeThreadUnsafe(const std::vector<uint32>& mapIds)
+    InstanceTreeMap::const_iterator VMapManager2::GetMapTree(uint32 mapId) const
+    {
+        // return the iterator if found or end() if not found/NULL
+        auto itr = iInstanceMapTrees.find(mapId);
+        if (itr != iInstanceMapTrees.cend() && !itr->second)
+            itr = iInstanceMapTrees.cend();
+
+        return itr;
+    }
+
+    void VMapManager2::InitializeThreadUnsafe(std::unordered_map<uint32, std::vector<uint32>> const& mapData)
     {
         // the caller must pass the list of all mapIds that will be used in the VMapManager2 lifetime
-        for (uint32 const& mapId : mapIds)
-            iInstanceMapTrees.insert(InstanceTreeMap::value_type(mapId, nullptr));
+        iChildMapData = mapData;
+        for (std::pair<uint32 const, std::vector<uint32>> const& mapId : mapData)
+        {
+            iInstanceMapTrees.insert(InstanceTreeMap::value_type(mapId.first, nullptr));
+            for (uint32 childMapId : mapId.second)
+                iParentMapData[childMapId] = mapId.first;
+        }
 
         thread_safe_environment = false;
     }
@@ -75,7 +93,7 @@ namespace VMAP
     std::string VMapManager2::getMapFileName(unsigned int mapId)
     {
         std::stringstream fname;
-        fname.width(3);
+        fname.width(4);
         fname << std::setfill('0') << mapId << std::string(MAP_FILENAME_EXTENSION2);
 
         return fname.str();
@@ -86,8 +104,22 @@ namespace VMAP
         int result = VMAP_LOAD_RESULT_IGNORED;
         if (isMapLoadingEnabled())
         {
-            if (_loadMap(mapId, basePath, x, y))
-                result = VMAP_LOAD_RESULT_OK;
+            LoadResult parentLoadResult = loadSingleMap(mapId, basePath, x, y);
+            if (parentLoadResult == LoadResult::Success || parentLoadResult == LoadResult::FileNotFound)
+            {
+                if (parentLoadResult == LoadResult::Success)
+                    result = VMAP_LOAD_RESULT_OK;
+                // else VMAP_LOAD_RESULT_IGNORED
+
+                auto childMaps = iChildMapData.find(mapId);
+                if (childMaps != iChildMapData.end())
+                    for (uint32 childMapId : childMaps->second)
+                    {
+                        LoadResult childLoadResult = loadSingleMap(childMapId, basePath, x, y);
+                        if (childLoadResult != LoadResult::Success && childLoadResult != LoadResult::FileNotFound)
+                            result = VMAP_LOAD_RESULT_ERROR;
+                    }
+            }
             else
                 result = VMAP_LOAD_RESULT_ERROR;
         }
@@ -95,26 +127,16 @@ namespace VMAP
         return result;
     }
 
-    InstanceTreeMap::const_iterator VMapManager2::GetMapTree(uint32 mapId) const
-    {
-        // return the iterator if found or end() if not found/NULL
-        InstanceTreeMap::const_iterator itr = iInstanceMapTrees.find(mapId);
-        if (itr != iInstanceMapTrees.cend() && !itr->second)
-            itr = iInstanceMapTrees.cend();
-
-        return itr;
-    }
-
     // load one tile (internal use only)
-    bool VMapManager2::_loadMap(uint32 mapId, const std::string& basePath, uint32 tileX, uint32 tileY)
+    LoadResult VMapManager2::loadSingleMap(uint32 mapId, const std::string& basePath, uint32 tileX, uint32 tileY)
     {
-        InstanceTreeMap::iterator instanceTree = iInstanceMapTrees.find(mapId);
+        auto instanceTree = iInstanceMapTrees.find(mapId);
         if (instanceTree == iInstanceMapTrees.end())
         {
             if (thread_safe_environment)
                 instanceTree = iInstanceMapTrees.insert(InstanceTreeMap::value_type(mapId, nullptr)).first;
             else
-                ABORT_MSG("Invalid mapId %u tile [%u, %u] passed to VMapManager2 after startup in thread unsafe environment",
+                ASSERT(false, "Invalid mapId %u tile [%u, %u] passed to VMapManager2 after startup in thread unsafe environment",
                 mapId, tileX, tileY);
         }
 
@@ -122,10 +144,11 @@ namespace VMAP
         {
             std::string mapFileName = getMapFileName(mapId);
             StaticMapTree* newTree = new StaticMapTree(mapId, basePath);
-            if (!newTree->InitMap(mapFileName, this))
+            LoadResult treeInitResult = newTree->InitMap(mapFileName);
+            if (treeInitResult != LoadResult::Success)
             {
                 delete newTree;
-                return false;
+                return treeInitResult;
             }
             instanceTree->second = newTree;
         }
@@ -133,12 +156,22 @@ namespace VMAP
         return instanceTree->second->LoadMapTile(tileX, tileY, this);
     }
 
-    void VMapManager2::unloadMap(unsigned int mapId)
+    void VMapManager2::unloadMap(unsigned int mapId, int x, int y)
     {
-        InstanceTreeMap::iterator instanceTree = iInstanceMapTrees.find(mapId);
+        auto childMaps = iChildMapData.find(mapId);
+        if (childMaps != iChildMapData.end())
+            for (uint32 childMapId : childMaps->second)
+                unloadSingleMap(childMapId, x, y);
+
+        unloadSingleMap(mapId, x, y);
+    }
+
+    void VMapManager2::unloadSingleMap(uint32 mapId, int x, int y)
+    {
+        auto instanceTree = iInstanceMapTrees.find(mapId);
         if (instanceTree != iInstanceMapTrees.end() && instanceTree->second)
         {
-            instanceTree->second->UnloadMap(this);
+            instanceTree->second->UnloadMapTile(x, y, this);
             if (instanceTree->second->numLoadedTiles() == 0)
             {
                 delete instanceTree->second;
@@ -147,12 +180,22 @@ namespace VMAP
         }
     }
 
-    void VMapManager2::unloadMap(unsigned int mapId, int x, int y)
+    void VMapManager2::unloadMap(unsigned int mapId)
     {
-        InstanceTreeMap::iterator instanceTree = iInstanceMapTrees.find(mapId);
+        auto childMaps = iChildMapData.find(mapId);
+        if (childMaps != iChildMapData.end())
+            for (uint32 childMapId : childMaps->second)
+                unloadSingleMap(childMapId);
+
+        unloadSingleMap(mapId);
+    }
+
+    void VMapManager2::unloadSingleMap(uint32 mapId)
+    {
+        auto instanceTree = iInstanceMapTrees.find(mapId);
         if (instanceTree != iInstanceMapTrees.end() && instanceTree->second)
         {
-            instanceTree->second->UnloadMapTile(x, y, this);
+            instanceTree->second->UnloadMap(this);
             if (instanceTree->second->numLoadedTiles() == 0)
             {
                 delete instanceTree->second;
@@ -166,15 +209,13 @@ namespace VMAP
         if (!isLineOfSightCalcEnabled() || IsVMAPDisabledForPtr(mapId, VMAP_DISABLE_LOS))
             return true;
 
-        InstanceTreeMap::const_iterator instanceTree = GetMapTree(mapId);
+        auto instanceTree = GetMapTree(mapId);
         if (instanceTree != iInstanceMapTrees.end())
         {
             Vector3 pos1 = convertPositionToInternalRep(x1, y1, z1);
             Vector3 pos2 = convertPositionToInternalRep(x2, y2, z2);
             if (pos1 != pos2)
-            {
                 return instanceTree->second->isInLineOfSight(pos1, pos2, ignoreFlags);
-            }
         }
 
         return true;
@@ -188,7 +229,7 @@ namespace VMAP
     {
         if (isLineOfSightCalcEnabled() && !IsVMAPDisabledForPtr(mapId, VMAP_DISABLE_LOS))
         {
-            InstanceTreeMap::const_iterator instanceTree = GetMapTree(mapId);
+            auto instanceTree = GetMapTree(mapId);
             if (instanceTree != iInstanceMapTrees.end())
             {
                 Vector3 pos1 = convertPositionToInternalRep(x1, y1, z1);
@@ -218,7 +259,7 @@ namespace VMAP
     {
         if (isHeightCalcEnabled() && !IsVMAPDisabledForPtr(mapId, VMAP_DISABLE_HEIGHT))
         {
-            InstanceTreeMap::const_iterator instanceTree = GetMapTree(mapId);
+            auto instanceTree = GetMapTree(mapId);
             if (instanceTree != iInstanceMapTrees.end())
             {
                 Vector3 pos = convertPositionToInternalRep(x, y, z);
@@ -233,11 +274,11 @@ namespace VMAP
         return VMAP_INVALID_HEIGHT_VALUE;
     }
 
-    bool VMapManager2::getAreaInfo(uint32 mapId, float x, float y, float& z, uint32& flags, int32& adtId, int32& rootId, int32& groupId) const
+    bool VMapManager2::getAreaInfo(unsigned int mapId, float x, float y, float& z, uint32& flags, int32& adtId, int32& rootId, int32& groupId) const
     {
         if (!IsVMAPDisabledForPtr(mapId, VMAP_DISABLE_AREAFLAG))
         {
-            InstanceTreeMap::const_iterator instanceTree = GetMapTree(mapId);
+            auto instanceTree = GetMapTree(mapId);
             if (instanceTree != iInstanceMapTrees.end())
             {
                 Vector3 pos = convertPositionToInternalRep(x, y, z);
@@ -251,11 +292,11 @@ namespace VMAP
         return false;
     }
 
-    bool VMapManager2::GetLiquidLevel(uint32 mapId, float x, float y, float z, uint8 reqLiquidType, float& level, float& floor, uint32& type, uint32& mogpFlags) const
+    bool VMapManager2::GetLiquidLevel(uint32 mapId, float x, float y, float z, uint8 reqLiquidType, float& level, float& floor, uint32& type) const
     {
         if (!IsVMAPDisabledForPtr(mapId, VMAP_DISABLE_LIQUIDSTATUS))
         {
-            InstanceTreeMap::const_iterator instanceTree = GetMapTree(mapId);
+            auto instanceTree = GetMapTree(mapId);
             if (instanceTree != iInstanceMapTrees.end())
             {
                 LocationInfo info;
@@ -266,7 +307,6 @@ namespace VMAP
                     ASSERT(floor < std::numeric_limits<float>::max());
                     ASSERT(info.hitModel);
                     type = info.hitModel->GetLiquidType();  // entry from LiquidType.dbc
-                    mogpFlags = info.hitModel->GetMogpFlags();
                     if (reqLiquidType && !(GetLiquidFlagsPtr(type) & reqLiquidType))
                         return false;
                     ASSERT(info.hitInstance);
@@ -287,7 +327,7 @@ namespace VMAP
             int32 adtId, rootId, groupId;
             uint32 flags;
             if (getAreaInfo(mapId, x, y, data.floorZ, flags, adtId, rootId, groupId))
-                data.areaInfo.emplace(adtId, rootId, groupId, flags);
+                data.areaInfo = boost::in_place(adtId, rootId, groupId, flags);
             return;
         }
         InstanceTreeMap::const_iterator instanceTree = GetMapTree(mapId);
@@ -297,17 +337,15 @@ namespace VMAP
             Vector3 pos = convertPositionToInternalRep(x, y, z);
             if (instanceTree->second->GetLocationInfo(pos, info))
             {
-                ASSERT(info.hitModel);
-                ASSERT(info.hitInstance);
                 data.floorZ = info.ground_Z;
                 uint32 liquidType = info.hitModel->GetLiquidType();
                 float liquidLevel;
                 if (!reqLiquidType || (GetLiquidFlagsPtr(liquidType) & reqLiquidType))
                     if (info.hitInstance->GetLiquidLevel(pos, info, liquidLevel))
-                        data.liquidInfo.emplace(liquidType, liquidLevel);
+                        data.liquidInfo = boost::in_place(liquidType, liquidLevel);
 
                 if (!IsVMAPDisabledForPtr(mapId, VMAP_DISABLE_AREAFLAG))
-                    data.areaInfo.emplace(info.hitInstance->adtId, info.rootId, info.hitModel->GetWmoID(), info.hitModel->GetMogpFlags());
+                    data.areaInfo = boost::in_place(info.hitInstance->adtId, info.rootId, info.hitModel->GetWmoID(), info.hitModel->GetMogpFlags());
             }
         }
     }
@@ -317,17 +355,17 @@ namespace VMAP
         //! Critical section, thread safe access to iLoadedModelFiles
         std::lock_guard<std::mutex> lock(LoadedModelFilesLock);
 
-        ModelFileMap::iterator model = iLoadedModelFiles.find(filename);
+        auto model = iLoadedModelFiles.find(filename);
         if (model == iLoadedModelFiles.end())
         {
             WorldModel* worldmodel = new WorldModel();
             if (!worldmodel->readFile(basepath + filename + ".vmo"))
             {
-                VMAP_ERROR_LOG("misc", "VMapManager2: could not load '%s%s.vmo'", basepath.c_str(), filename.c_str());
+                TC_LOG_ERROR("misc", "VMapManager2: could not load '%s%s.vmo'", basepath.c_str(), filename.c_str());
                 delete worldmodel;
                 return nullptr;
             }
-            VMAP_DEBUG_LOG("maps", "VMapManager2: loading file '%s%s'", basepath.c_str(), filename.c_str());
+            TC_LOG_DEBUG("maps", "VMapManager2: loading file '%s%s'", basepath.c_str(), filename.c_str());
 
             worldmodel->Flags = flags;
 
@@ -343,15 +381,15 @@ namespace VMAP
         //! Critical section, thread safe access to iLoadedModelFiles
         std::lock_guard<std::mutex> lock(LoadedModelFilesLock);
 
-        ModelFileMap::iterator model = iLoadedModelFiles.find(filename);
+        auto model = iLoadedModelFiles.find(filename);
         if (model == iLoadedModelFiles.end())
         {
-            VMAP_ERROR_LOG("misc", "VMapManager2: trying to unload non-loaded file '%s'", filename.c_str());
+            TC_LOG_ERROR("misc", "VMapManager2: trying to unload non-loaded file '%s'", filename.c_str());
             return;
         }
         if (model->second.decRefCount() == 0)
         {
-            VMAP_DEBUG_LOG("maps", "VMapManager2: unloading file '%s'", filename.c_str());
+            TC_LOG_DEBUG("maps", "VMapManager2: unloading file '%s'", filename.c_str());
             delete model->second.getModel();
             iLoadedModelFiles.erase(model);
         }
@@ -359,12 +397,21 @@ namespace VMAP
 
     LoadResult VMapManager2::existsMap(char const* basePath, unsigned int mapId, int x, int y)
     {
-        return StaticMapTree::CanLoadMap(std::string(basePath), mapId, x, y);
+        return StaticMapTree::CanLoadMap(std::string(basePath), mapId, x, y, this);
     }
 
     void VMapManager2::getInstanceMapTree(InstanceTreeMap &instanceMapTree)
     {
         instanceMapTree = iInstanceMapTrees;
+    }
+
+    int32 VMapManager2::getParentMapId(uint32 mapId) const
+    {
+        auto itr = iParentMapData.find(mapId);
+        if (itr != iParentMapData.end())
+            return int32(itr->second);
+
+        return -1;
     }
 
 } // namespace VMAP

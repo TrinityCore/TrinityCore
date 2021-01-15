@@ -18,10 +18,8 @@
 #ifndef TrinityCore_Optional_h__
 #define TrinityCore_Optional_h__
 
-#include <optional>
-
-//! Optional helper class to wrap optional values within.
-template <class T>
-using Optional = std::optional<T>;
+#include "OptionalFwd.h"
+#include <boost/optional.hpp>
+#include <boost/utility/in_place_factory.hpp>
 
 #endif // TrinityCore_Optional_h__

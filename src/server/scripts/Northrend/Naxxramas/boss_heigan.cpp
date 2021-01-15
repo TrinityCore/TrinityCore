@@ -21,7 +21,6 @@
 #include "Map.h"
 #include "naxxramas.h"
 #include "ObjectAccessor.h"
-#include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 
@@ -30,7 +29,8 @@ enum Spells
     SPELL_DECREPIT_FEVER    = 29998, // 25-man: 55011
     SPELL_SPELL_DISRUPTION  = 29310,
     SPELL_PLAGUE_CLOUD      = 29350,
-    SPELL_TELEPORT_SELF     = 30211
+    SPELL_TELEPORT_SELF     = 30211,
+    SPELL_ERUPTION          = 29371
 };
 
 enum Yells
@@ -113,21 +113,21 @@ public:
             Talk(SAY_DEATH);
         }
 
-        void JustEngagedWith(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
-            BossAI::JustEngagedWith(who);
+            _EnterCombat();
             Talk(SAY_AGGRO);
 
             _safeSection = 0;
             events.ScheduleEvent(EVENT_DISRUPT, randtime(Seconds(15), Seconds(20)), 0, PHASE_FIGHT);
             events.ScheduleEvent(EVENT_FEVER, randtime(Seconds(10), Seconds(20)), 0, PHASE_FIGHT);
             events.ScheduleEvent(EVENT_DANCE, Minutes(1) + Seconds(30), 0, PHASE_FIGHT);
-            events.ScheduleEvent(EVENT_ERUPT, 15s);
+            events.ScheduleEvent(EVENT_ERUPT, Seconds(15));
 
             _safetyDance = true;
 
             // figure out the current GUIDs of our eruption tiles and which segment they belong in
-            std::unordered_multimap<uint32, GameObject*> const& mapGOs = me->GetMap()->GetGameObjectBySpawnIdStore();
+            std::unordered_multimap<ObjectGuid::LowType, GameObject*> const& mapGOs = me->GetMap()->GetGameObjectBySpawnIdStore();
             uint32 spawnId = firstEruptionDBGUID;
             for (uint8 section = 0; section < numSections; ++section)
             {
@@ -193,9 +193,7 @@ public:
                                     if (GameObject* tile = ObjectAccessor::GetGameObject(*me, tileGUID))
                                     {
                                         tile->SendCustomAnim(0);
-                                        CastSpellExtraArgs args;
-                                        args.OriginalCaster = me->GetGUID();
-                                        tile->CastSpell(tile, tile->GetGOInfo()->trap.spellId, args);
+                                        tile->CastSpell(nullptr, SPELL_ERUPTION);
                                     }
 
                         if (_safeSection == 0)

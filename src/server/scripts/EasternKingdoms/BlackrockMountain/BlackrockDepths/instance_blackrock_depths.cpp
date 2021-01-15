@@ -17,34 +17,31 @@
 
 #include "ScriptMgr.h"
 #include "blackrock_depths.h"
-#include "Creature.h"
-#include "CreatureAI.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Log.h"
 #include "Map.h"
 #include "MotionMaster.h"
-#include "MapReference.h"
-#include "Player.h"
+#include "ScriptedCreature.h"
+#include <sstream>
 
 #define TIMER_TOMBOFTHESEVEN    15000
 #define MAX_ENCOUNTER           6
 
 enum Creatures
 {
-    NPC_EMPEROR              = 9019,
-    NPC_PHALANX              = 9502,
-    NPC_ANGERREL             = 9035,
-    NPC_DOPEREL              = 9040,
-    NPC_HATEREL              = 9034,
-    NPC_VILEREL              = 9036,
-    NPC_SEETHREL             = 9038,
-    NPC_GLOOMREL             = 9037,
-    NPC_DOOMREL              = 9039,
-    NPC_MAGMUS               = 9938,
-    NPC_MOIRA                = 8929,
-    NPC_PRIESTESS_THAURISSAN = 10076,
-    NPC_COREN                = 23872,
+    NPC_EMPEROR             = 9019,
+    NPC_PHALANX             = 9502,
+    NPC_ANGERREL            = 9035,
+    NPC_DOPEREL             = 9040,
+    NPC_HATEREL             = 9034,
+    NPC_VILEREL             = 9036,
+    NPC_SEETHREL            = 9038,
+    NPC_GLOOMREL            = 9037,
+    NPC_DOOMREL             = 9039,
+    NPC_MAGMUS              = 9938,
+    NPC_MOIRA               = 8929,
+    NPC_COREN               = 23872
 };
 
 enum GameObjects
@@ -70,12 +67,6 @@ enum GameObjects
     GO_THRONE_ROOM          = 170575, // Throne door
     GO_SPECTRAL_CHALICE     = 164869,
     GO_CHEST_SEVEN          = 169243
-};
-
-enum Quests
-{
-    QUEST_THE_PRINCESS_SURPRISE = 4363, // Alliance
-    QUEST_THE_PRINCESS_SAVED    = 4004  // Horde
 };
 
 class instance_blackrock_depths : public InstanceMapScript
@@ -139,26 +130,13 @@ public:
         uint32 TombTimer;
         uint32 TombEventCounter;
 
-        void UpdateMoira(Creature* moira)
-        {
-            InstanceMap::PlayerList const& players = instance->GetPlayers();
-
-            for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
-                if (Player * player = i->GetSource())
-                    if ((player->GetTeamId() == TEAM_ALLIANCE && !player->IsActiveQuest(QUEST_THE_PRINCESS_SURPRISE))
-                        || (player->GetTeamId() == TEAM_HORDE && !player->IsActiveQuest(QUEST_THE_PRINCESS_SAVED)))
-                        return;
-
-            moira->UpdateEntry(NPC_PRIESTESS_THAURISSAN);
-        }
-
         void OnCreatureCreate(Creature* creature) override
         {
             switch (creature->GetEntry())
             {
                 case NPC_EMPEROR: EmperorGUID = creature->GetGUID(); break;
                 case NPC_PHALANX: PhalanxGUID = creature->GetGUID(); break;
-                case NPC_MOIRA: MoiraGUID = creature->GetGUID(); UpdateMoira(creature); break;
+                case NPC_MOIRA: MoiraGUID = creature->GetGUID(); break;
                 case NPC_COREN: CorenGUID = creature->GetGUID(); break;
                 case NPC_DOOMREL: TombBossGUIDs[0] = creature->GetGUID(); break;
                 case NPC_DOPEREL: TombBossGUIDs[1] = creature->GetGUID(); break;
@@ -373,7 +351,7 @@ public:
 
         void TombOfSevenEvent()
         {
-            if (GhostKillCount < 7 && TombBossGUIDs[TombEventCounter])
+            if (GhostKillCount < 7 && !TombBossGUIDs[TombEventCounter].IsEmpty())
             {
                 if (Creature* boss = instance->GetCreature(TombBossGUIDs[TombEventCounter]))
                 {
@@ -394,9 +372,16 @@ public:
                 if (Creature* boss = instance->GetCreature(TombBossGUIDs[i]))
                 {
                     if (!boss->IsAlive())
+                    {//do not call EnterEvadeMode(), it will create infinit loops
                         boss->Respawn();
-                    else
-                        boss->SetFaction(FACTION_FRIENDLY);
+                        boss->RemoveAllAuras();
+                        boss->GetThreatManager().ClearAllThreat();
+                        boss->CombatStop(true);
+                        boss->LoadCreaturesAddon();
+                        boss->GetMotionMaster()->MoveTargetedHome();
+                        boss->SetLootRecipient(nullptr);
+                    }
+                    boss->SetFaction(FACTION_FRIENDLY);
                 }
             }
             GhostKillCount = 0;
@@ -415,16 +400,15 @@ public:
 
         void TombOfSevenEnd()
         {
-            DoRespawnGameObject(GoChestGUID, 24h);
+            DoRespawnGameObject(GoChestGUID, DAY);
             HandleGameObject(GoTombExitGUID, true);//event done, open exit door
             HandleGameObject(GoTombEnterGUID, true);//event done, open entrance door
             TombEventStarterGUID.Clear();
             SetData(TYPE_TOMB_OF_SEVEN, DONE);
         }
-
         void Update(uint32 diff) override
         {
-            if (TombEventStarterGUID && GhostKillCount < 7)
+            if (!TombEventStarterGUID.IsEmpty() && GhostKillCount < 7)
             {
                 if (TombTimer <= diff)
                 {
@@ -444,7 +428,7 @@ public:
                     }
                 } else TombTimer -= diff;
             }
-            if (GhostKillCount >= 7 && TombEventStarterGUID)
+            if (GhostKillCount >= 7 && !TombEventStarterGUID.IsEmpty())
                 TombOfSevenEnd();
         }
     };

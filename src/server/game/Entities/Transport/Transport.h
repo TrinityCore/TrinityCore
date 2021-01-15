@@ -26,7 +26,7 @@ struct CreatureData;
 
 class TC_GAME_API Transport : public GameObject, public TransportBase
 {
-        friend Transport* TransportMgr::CreateTransport(uint32, ObjectGuid::LowType, Map*);
+        friend Transport* TransportMgr::CreateTransport(uint32, ObjectGuid::LowType, Map*, uint8, uint32, uint32);
 
         Transport();
     public:
@@ -79,8 +79,8 @@ class TC_GAME_API Transport : public GameObject, public TransportBase
             TransportBase::CalculatePassengerOffset(x, y, z, o, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
         }
 
-        uint32 GetTransportPeriod() const override { return GetUInt32Value(GAMEOBJECT_LEVEL); }
-        void SetPeriod(uint32 period) { SetUInt32Value(GAMEOBJECT_LEVEL, period); }
+        uint32 GetTransportPeriod() const override { return m_gameObjectData->Level; }
+        void SetPeriod(uint32 period) { SetLevel(period); }
         uint32 GetTimer() const { return GetGOValue()->Transport.PathProgress; }
 
         KeyFrameVec const& GetKeyFrames() const { return _transportInfo->keyFrames; }
@@ -99,8 +99,6 @@ class TC_GAME_API Transport : public GameObject, public TransportBase
 
         TransportTemplate const* GetTransportTemplate() const { return _transportInfo; }
 
-        std::string GetDebugInfo() const override;
-
     private:
         void MoveToNextWaypoint();
         float CalculateSegmentPos(float perc);
@@ -117,7 +115,7 @@ class TC_GAME_API Transport : public GameObject, public TransportBase
 
         KeyFrameVec::const_iterator _currentFrame;
         KeyFrameVec::const_iterator _nextFrame;
-        TimeTracker _positionChangeTimer;
+        TimeTrackerSmall _positionChangeTimer;
         bool _isMoving;
         bool _pendingStop;
 

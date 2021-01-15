@@ -18,7 +18,7 @@
 #ifndef TRANSPORTMGR_H
 #define TRANSPORTMGR_H
 
-#include "DBCStores.h"
+#include "DB2Stores.h"
 #include "ObjectGuid.h"
 #include <memory>
 
@@ -66,7 +66,7 @@ struct KeyFrame
     uint32 NextArriveTime;
 
     bool IsTeleportFrame() const { return Teleport; }
-    bool IsStopFrame() const { return Node->Flags == 2; }
+    bool IsStopFrame() const { return (Node->Flags & TAXI_PATH_NODE_FLAG_STOP) != 0; }
 };
 
 struct TransportTemplate
@@ -112,7 +112,7 @@ class TC_GAME_API TransportMgr
         void LoadTransportAnimationAndRotation();
 
         // Creates a transport using given GameObject template entry
-        Transport* CreateTransport(uint32 entry, ObjectGuid::LowType guid = 0, Map* map = nullptr);
+        Transport* CreateTransport(uint32 entry, ObjectGuid::LowType guid = UI64LIT(0), Map* map = nullptr, uint8 phaseUseFlags = 0, uint32 phaseId = 0, uint32 phaseGroupId = 0);
 
         // Spawns all continent transports, used at core startup
         void SpawnContinentTransports();

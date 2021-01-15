@@ -21,7 +21,7 @@
 void EventMap::Reset()
 {
     _eventMap.clear();
-    _time = TimePoint::min();
+    _time = 0;
     _phase = 0;
 }
 
@@ -33,7 +33,12 @@ void EventMap::SetPhase(uint8 phase)
         _phase = uint8(1 << (phase - 1));
 }
 
-void EventMap::ScheduleEvent(uint32 eventId, Milliseconds time, uint32 group /*= 0*/, uint8 phase /*= 0*/)
+void EventMap::ScheduleEvent(uint32 eventId, Milliseconds const& minTime, Milliseconds const& maxTime, uint32 group /*= 0*/, uint8 phase /*= 0*/)
+{
+    ScheduleEvent(eventId, urand(uint32(minTime.count()), uint32(maxTime.count())), group, phase);
+}
+
+void EventMap::ScheduleEvent(uint32 eventId, uint32 time, uint32 group /*= 0*/, uint8 phase /*= 0*/)
 {
     if (group && group <= 8)
         eventId |= (1 << (group + 15));
@@ -44,30 +49,14 @@ void EventMap::ScheduleEvent(uint32 eventId, Milliseconds time, uint32 group /*=
     _eventMap.insert(EventStore::value_type(_time + time, eventId));
 }
 
-void EventMap::ScheduleEvent(uint32 eventId, Milliseconds minTime, Milliseconds maxTime, uint32 group /*= 0*/, uint32 phase /*= 0*/)
+void EventMap::RescheduleEvent(uint32 eventId, Milliseconds const& minTime, Milliseconds const& maxTime, uint32 group /*= 0*/, uint8 phase /*= 0*/)
 {
-    ScheduleEvent(eventId, randtime(minTime, maxTime), group, phase);
+    RescheduleEvent(eventId, urand(uint32(minTime.count()), uint32(maxTime.count())), group, phase);
 }
 
-void EventMap::RescheduleEvent(uint32 eventId, Milliseconds time, uint32 group /*= 0*/, uint8 phase /*= 0*/)
+void EventMap::Repeat(uint32 minTime, uint32 maxTime)
 {
-    CancelEvent(eventId);
-    ScheduleEvent(eventId, time, group, phase);
-}
-
-void EventMap::RescheduleEvent(uint32 eventId, Milliseconds minTime, Milliseconds maxTime, uint32 group /*= 0*/, uint32 phase /*= 0*/)
-{
-    RescheduleEvent(eventId, randtime(minTime, maxTime), group, phase);
-}
-
-void EventMap::Repeat(Milliseconds time)
-{
-    _eventMap.insert(EventStore::value_type(_time + time, _lastEvent));
-}
-
-void EventMap::Repeat(Milliseconds minTime, Milliseconds maxTime)
-{
-    Repeat(randtime(minTime, maxTime));
+    Repeat(urand(minTime, maxTime));
 }
 
 uint32 EventMap::ExecuteEvent()
@@ -92,21 +81,7 @@ uint32 EventMap::ExecuteEvent()
     return 0;
 }
 
-void EventMap::DelayEvents(Milliseconds delay)
-{
-    if (Empty())
-        return;
-
-    EventStore delayed = std::move(_eventMap);
-    for (EventStore::iterator itr = delayed.begin(); itr != delayed.end();)
-    {
-        EventStore::node_type node = delayed.extract(itr++);
-        node.key() = node.key() + delay;
-        _eventMap.insert(_eventMap.end(), std::move(node));
-    }
-}
-
-void EventMap::DelayEvents(Milliseconds delay, uint32 group)
+void EventMap::DelayEvents(uint32 delay, uint32 group)
 {
     if (!group || group > 8 || Empty())
         return;
@@ -155,11 +130,23 @@ void EventMap::CancelEventGroup(uint32 group)
     }
 }
 
-Milliseconds EventMap::GetTimeUntilEvent(uint32 eventId) const
+uint32 EventMap::GetNextEventTime(uint32 eventId) const
 {
-    for (std::pair<TimePoint const, uint32> const& itr : _eventMap)
-        if (eventId == (itr.second & 0x0000FFFF))
-            return std::chrono::duration_cast<Milliseconds>(itr.first - _time);
+    if (Empty())
+        return 0;
 
-    return Milliseconds::max();
+    for (EventStore::const_iterator itr = _eventMap.begin(); itr != _eventMap.end(); ++itr)
+        if (eventId == (itr->second & 0x0000FFFF))
+            return itr->first;
+
+    return 0;
+}
+
+uint32 EventMap::GetTimeUntilEvent(uint32 eventId) const
+{
+    for (EventStore::const_iterator itr = _eventMap.begin(); itr != _eventMap.end(); ++itr)
+        if (eventId == (itr->second & 0x0000FFFF))
+            return itr->first - _time;
+
+    return std::numeric_limits<uint32>::max();
 }

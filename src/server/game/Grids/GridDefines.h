@@ -19,7 +19,6 @@
 #define TRINITY_GRIDDEFINES_H
 
 #include "Common.h"
-#include "ObjectGuid.h"
 #include "NGrid.h"
 #include <cmath>
 
@@ -30,6 +29,8 @@ class DynamicObject;
 class GameObject;
 class Pet;
 class Player;
+class AreaTrigger;
+class Conversation;
 
 #define MAX_NUMBER_OF_CELLS     8
 
@@ -57,14 +58,16 @@ class Player;
 
 // Creature used instead pet to simplify *::Visit templates (not required duplicate code for Creature->Pet case)
 typedef TYPELIST_4(Player, Creature/*pets*/, Corpse/*resurrectable*/, DynamicObject/*farsight target*/) AllWorldObjectTypes;
-typedef TYPELIST_4(GameObject, Creature/*except pets*/, DynamicObject, Corpse/*Bones*/) AllGridObjectTypes;
-typedef TYPELIST_5(Creature, GameObject, DynamicObject, Pet, Corpse) AllMapStoredObjectTypes;
+typedef TYPELIST_6(GameObject, Creature/*except pets*/, DynamicObject, Corpse/*Bones*/, AreaTrigger, Conversation) AllGridObjectTypes;
+typedef TYPELIST_7(Creature, GameObject, DynamicObject, Pet, Corpse, AreaTrigger, Conversation) AllMapStoredObjectTypes;
 
 typedef GridRefManager<Corpse>          CorpseMapType;
 typedef GridRefManager<Creature>        CreatureMapType;
 typedef GridRefManager<DynamicObject>   DynamicObjectMapType;
 typedef GridRefManager<GameObject>      GameObjectMapType;
 typedef GridRefManager<Player>          PlayerMapType;
+typedef GridRefManager<AreaTrigger>     AreaTriggerMapType;
+typedef GridRefManager<Conversation>    ConversationMapType;
 
 enum GridMapTypeMask
 {
@@ -73,7 +76,9 @@ enum GridMapTypeMask
     GRID_MAP_TYPE_MASK_DYNAMICOBJECT    = 0x04,
     GRID_MAP_TYPE_MASK_GAMEOBJECT       = 0x08,
     GRID_MAP_TYPE_MASK_PLAYER           = 0x10,
-    GRID_MAP_TYPE_MASK_ALL              = 0x1F
+    GRID_MAP_TYPE_MASK_AREATRIGGER      = 0x20,
+    GRID_MAP_TYPE_MASK_CONVERSATION     = 0x40,
+    GRID_MAP_TYPE_MASK_ALL              = 0x7F
 };
 
 typedef Grid<Player, AllWorldObjectTypes, AllGridObjectTypes> GridType;
@@ -81,7 +86,6 @@ typedef NGrid<MAX_NUMBER_OF_CELLS, Player, AllWorldObjectTypes, AllGridObjectTyp
 
 typedef TypeMapContainer<AllGridObjectTypes> GridTypeMapContainer;
 typedef TypeMapContainer<AllWorldObjectTypes> WorldTypeMapContainer;
-typedef TypeUnorderedMapContainer<AllMapStoredObjectTypes, ObjectGuid> MapStoredObjectTypesContainer;
 
 template<uint32 LIMIT>
 struct CoordPair

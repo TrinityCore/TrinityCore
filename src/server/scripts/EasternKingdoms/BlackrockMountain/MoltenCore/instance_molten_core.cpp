@@ -141,7 +141,7 @@ class instance_molten_core : public InstanceMapScript
             void SummonMajordomoExecutus()
             {
                 _executusSchedule = false;
-                if (_majordomoExecutusGUID)
+                if (!_majordomoExecutusGUID.IsEmpty())
                     return;
 
                 if (GetBossState(BOSS_MAJORDOMO_EXECUTUS) != DONE)

@@ -29,8 +29,6 @@
 #include "RBAC.h"
 #include "SpellAuras.h"
 
-using namespace Trinity::ChatCommands;
-
 enum Spells
 {
     LFG_SPELL_DUNGEON_DESERTER = 71041,
@@ -46,27 +44,27 @@ public:
     * @brief Returns the command structure for the system.
     */
 
-    ChatCommandTable GetCommands() const override
+    std::vector<ChatCommand> GetCommands() const override
     {
-        static ChatCommandTable deserterInstanceCommandTable =
+        static std::vector<ChatCommand> deserterInstanceCommandTable =
         {
-            { "add",      HandleDeserterInstanceAdd,    rbac::RBAC_PERM_COMMAND_DESERTER_INSTANCE_ADD,    Console::No },
-            { "remove",   HandleDeserterInstanceRemove, rbac::RBAC_PERM_COMMAND_DESERTER_INSTANCE_REMOVE, Console::No },
+            { "add",      rbac::RBAC_PERM_COMMAND_DESERTER_INSTANCE_ADD,    false, &HandleDeserterInstanceAdd,    "" },
+            { "remove",   rbac::RBAC_PERM_COMMAND_DESERTER_INSTANCE_REMOVE, false, &HandleDeserterInstanceRemove, "" },
         };
-        static ChatCommandTable deserterBGCommandTable =
+        static std::vector<ChatCommand> deserterBGCommandTable =
         {
-            { "add",      HandleDeserterBGAdd,    rbac::RBAC_PERM_COMMAND_DESERTER_BG_ADD,          Console::No },
-            { "remove",   HandleDeserterBGRemove, rbac::RBAC_PERM_COMMAND_DESERTER_BG_REMOVE,       Console::No },
+            { "add",      rbac::RBAC_PERM_COMMAND_DESERTER_BG_ADD,    false, &HandleDeserterBGAdd,    "" },
+            { "remove",   rbac::RBAC_PERM_COMMAND_DESERTER_BG_REMOVE, false, &HandleDeserterBGRemove, "" },
         };
 
-        static ChatCommandTable deserterCommandTable =
+        static std::vector<ChatCommand> deserterCommandTable =
         {
-            { "instance", deserterInstanceCommandTable },
-            { "bg",       deserterBGCommandTable },
+            { "instance", rbac::RBAC_PERM_COMMAND_DESERTER_INSTANCE, false, nullptr, "", deserterInstanceCommandTable },
+            { "bg",       rbac::RBAC_PERM_COMMAND_DESERTER_BG,       false, nullptr, "", deserterBGCommandTable },
         };
-        static ChatCommandTable commandTable =
+        static std::vector<ChatCommand> commandTable =
         {
-            { "deserter", deserterCommandTable },
+            { "deserter", rbac::RBAC_PERM_COMMAND_DESERTER, false, nullptr, "", deserterCommandTable },
         };
         return commandTable;
     }
@@ -78,7 +76,7 @@ public:
     * selected player, with the provided duration in seconds.
     *
     * @param handler The ChatHandler, passed by the system.
-    * @param time The provided duration in seconds.
+    * @param args The provided duration in seconds.
     * @param isInstance provided by the relaying functions, so we don't have
     * to write that much code :)
     *
@@ -91,8 +89,11 @@ public:
     * .deserter bg add 3600 (one hour)
     * @endcode
     */
-    static bool HandleDeserterAdd(ChatHandler* handler, uint32 time, bool isInstance)
+    static bool HandleDeserterAdd(ChatHandler* handler, char const* args, bool isInstance)
     {
+        if (!*args)
+            return false;
+
         Player* player = handler->getSelectedPlayer();
         if (!player)
         {
@@ -100,6 +101,14 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
+        char* timeStr = strtok((char*)args, " ");
+        if (!timeStr)
+        {
+            handler->SendSysMessage(LANG_BAD_VALUE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+        uint32 time = atoi(timeStr);
 
         if (!time)
         {
@@ -128,6 +137,7 @@ public:
     * selected player.
     *
     * @param handler The ChatHandler, passed by the system.
+    * @param args Should be nothing.
     * @param isInstance provided by the relaying functions, so we don't have
     * to write that much code :)
     *
@@ -140,7 +150,7 @@ public:
     * .deserter bg remove
     * @endcode
     */
-    static bool HandleDeserterRemove(ChatHandler* handler, bool isInstance)
+    static bool HandleDeserterRemove(ChatHandler* handler, char const* /*args*/, bool isInstance)
     {
         Player* player = handler->getSelectedPlayer();
         if (!player)
@@ -156,27 +166,27 @@ public:
     }
 
     /// @sa HandleDeserterAdd()
-    static bool HandleDeserterInstanceAdd(ChatHandler* handler, uint32 time)
+    static bool HandleDeserterInstanceAdd(ChatHandler* handler, char const* args)
     {
-        return HandleDeserterAdd(handler, time, true);
+        return HandleDeserterAdd(handler, args, true);
     }
 
     /// @sa HandleDeserterAdd()
-    static bool HandleDeserterBGAdd(ChatHandler* handler, uint32 time)
+    static bool HandleDeserterBGAdd(ChatHandler* handler, char const* args)
     {
-        return HandleDeserterAdd(handler, time, false);
+        return HandleDeserterAdd(handler, args, false);
     }
 
     /// @sa HandleDeserterRemove()
-    static bool HandleDeserterInstanceRemove(ChatHandler* handler)
+    static bool HandleDeserterInstanceRemove(ChatHandler* handler, char const* args)
     {
-        return HandleDeserterRemove(handler, true);
+        return HandleDeserterRemove(handler, args, true);
     }
 
     /// @sa HandleDeserterRemove()
-    static bool HandleDeserterBGRemove(ChatHandler* handler)
+    static bool HandleDeserterBGRemove(ChatHandler* handler, char const* args)
     {
-        return HandleDeserterRemove(handler, false);
+        return HandleDeserterRemove(handler, args, false);
     }
 };
 

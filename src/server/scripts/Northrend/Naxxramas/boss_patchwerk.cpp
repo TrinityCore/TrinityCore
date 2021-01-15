@@ -22,7 +22,7 @@
 
 enum Spells
 {
-    SPELL_HATEFUL_STRIKE                        = 28308,
+    SPELL_HATEFUL_STRIKE                        = 41926,
     SPELL_FRENZY                                = 28131,
     SPELL_BERSERK                               = 26662,
     SPELL_SLIME_BOLT                            = 32309
@@ -34,7 +34,7 @@ enum Yells
     SAY_SLAY                                    = 1,
     SAY_DEATH                                   = 2,
     EMOTE_BERSERK                               = 3,
-    EMOTE_FRENZY                                = 4
+    EMOTE_ENRAGE                                = 4
 };
 
 enum Events
@@ -78,7 +78,7 @@ public:
         {
             _Reset();
 
-            instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT);
+            instance->DoStopCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT);
         }
 
         void KilledUnit(Unit* /*Victim*/) override
@@ -93,15 +93,15 @@ public:
             Talk(SAY_DEATH);
         }
 
-        void JustEngagedWith(Unit* who) override
+        void EnterCombat(Unit* /*who*/) override
         {
-            BossAI::JustEngagedWith(who);
+            _EnterCombat();
             Enraged = false;
             Talk(SAY_AGGRO);
-            events.ScheduleEvent(EVENT_HATEFUL, 1s);
-            events.ScheduleEvent(EVENT_BERSERK, 6min);
+            events.ScheduleEvent(EVENT_HATEFUL, Seconds(1));
+            events.ScheduleEvent(EVENT_BERSERK, Minutes(6));
 
-            instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT);
+            instance->DoStartCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT);
         }
 
         void UpdateAI(uint32 diff) override
@@ -122,7 +122,7 @@ public:
                         ThreatReference* secondThreat = nullptr;
                         ThreatReference* thirdThreat = nullptr;
 
-                        ThreatManager& mgr = me->GetThreatManager();
+                        ThreatManager const& mgr = me->GetThreatManager();
                         Unit* currentVictim = mgr.GetCurrentVictim();
                         auto list = mgr.GetModifiableThreatList();
                         auto it = list.begin(), end = list.end();
@@ -165,7 +165,7 @@ public:
                     case EVENT_BERSERK:
                         DoCast(me, SPELL_BERSERK, true);
                         Talk(EMOTE_BERSERK);
-                        events.ScheduleEvent(EVENT_SLIME, 2s);
+                        events.ScheduleEvent(EVENT_SLIME, Seconds(2));
                         break;
                     case EVENT_SLIME:
                         DoCastAOE(SPELL_SLIME_BOLT, true);
@@ -177,7 +177,7 @@ public:
             if (!Enraged && HealthBelowPct(5))
             {
                 DoCast(me, SPELL_FRENZY, true);
-                Talk(EMOTE_FRENZY);
+                Talk(EMOTE_ENRAGE);
                 Enraged = true;
             }
 

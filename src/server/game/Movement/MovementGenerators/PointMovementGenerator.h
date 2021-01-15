@@ -19,46 +19,67 @@
 #define TRINITY_POINTMOVEMENTGENERATOR_H
 
 #include "MovementGenerator.h"
-#include "Optional.h"
 
 class Creature;
+namespace Movement
+{
+    struct SpellEffectExtraData;
+}
 
 template<class T>
-class PointMovementGenerator : public MovementGeneratorMedium<T, PointMovementGenerator<T>>
+class PointMovementGenerator : public MovementGeneratorMedium< T, PointMovementGenerator<T> >
 {
     public:
-        explicit PointMovementGenerator(uint32 id, float x, float y, float z, bool generatePath, float speed = 0.0f, Optional<float> finalOrient = {});
+        explicit PointMovementGenerator(uint32 id, float x, float y, float z, bool generatePath, float speed = 0.0f, Unit const* faceTarget = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr) : _movementId(id), _destination(x, y, z), _speed(speed), i_faceTarget(faceTarget), i_spellEffectExtra(spellEffectExtraData), _generatePath(generatePath), _recalculateSpeed(false), _interrupt(false) { }
 
-        MovementGeneratorType GetMovementGeneratorType() const override;
+        MovementGeneratorType GetMovementGeneratorType() const override { return POINT_MOTION_TYPE; }
 
         void DoInitialize(T*);
+        void DoFinalize(T*);
         void DoReset(T*);
         bool DoUpdate(T*, uint32);
-        void DoDeactivate(T*);
-        void DoFinalize(T*, bool, bool);
 
-        void UnitSpeedChanged() override { PointMovementGenerator<T>::AddFlag(MOVEMENTGENERATOR_FLAG_SPEED_UPDATE_PENDING); }
-
-        uint32 GetId() const { return _movementId; }
+        void UnitSpeedChanged() override { _recalculateSpeed = true; }
 
     private:
         void MovementInform(T*);
 
         uint32 _movementId;
-        float _x, _y, _z;
+        Position _destination;
         float _speed;
+        Unit const* i_faceTarget;
+        Movement::SpellEffectExtraData const* i_spellEffectExtra;
         bool _generatePath;
-        //! if set then unit will turn to specified _orient in provided _pos
-        Optional<float> _finalOrient;
+        bool _recalculateSpeed;
+        bool _interrupt;
 };
 
 class AssistanceMovementGenerator : public PointMovementGenerator<Creature>
 {
     public:
-        explicit AssistanceMovementGenerator(uint32 id, float x, float y, float z) : PointMovementGenerator<Creature>(id, x, y, z, true) { }
+        AssistanceMovementGenerator(float x, float y, float z) : PointMovementGenerator<Creature>(0, x, y, z, true) { }
 
-        void Finalize(Unit*, bool, bool) override;
-        MovementGeneratorType GetMovementGeneratorType() const override;
+        MovementGeneratorType GetMovementGeneratorType() const override { return ASSISTANCE_MOTION_TYPE; }
+        void Finalize(Unit*) override;
+};
+
+class EffectMovementGenerator : public MovementGenerator
+{
+    public:
+        explicit EffectMovementGenerator(uint32 id, uint32 arrivalSpellId = 0, ObjectGuid const& arrivalSpellTargetGuid = ObjectGuid::Empty) : _pointId(id), _arrivalSpellId(arrivalSpellId), _arrivalSpellTargetGuid(arrivalSpellTargetGuid) { }
+
+        void Initialize(Unit*) override { }
+        void Finalize(Unit*) override;
+        void Reset(Unit*) override { }
+        bool Update(Unit*, uint32) override;
+        MovementGeneratorType GetMovementGeneratorType() const override { return EFFECT_MOTION_TYPE; }
+
+    private:
+        void MovementInform(Unit*);
+
+        uint32 _pointId;
+        uint32 _arrivalSpellId;
+        ObjectGuid _arrivalSpellTargetGuid;
 };
 
 #endif

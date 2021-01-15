@@ -28,10 +28,9 @@ EndScriptData */
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "shattered_halls.h"
-#include "SpellAuraEffects.h"
 #include "SpellAuras.h"
-#include "SpellScript.h"
 #include "TemporarySummon.h"
+#include <sstream>
 
 DoorData const doorData[] =
 {
@@ -279,6 +278,7 @@ class instance_shattered_halls : public InstanceMapScript
             uint32 _team;
         };
 };
+
 
 void AddSC_instance_shattered_halls()
 {

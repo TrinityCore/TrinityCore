@@ -27,7 +27,6 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "Log.h"
 #include "Map.h"
-#include "Player.h"
 #include "razorfen_kraul.h"
 
 #define WARD_KEEPERS_NR 2
@@ -53,18 +52,6 @@ public:
         ObjectGuid DoorWardGUID;
         int WardKeeperDeath;
 
-        Player* GetPlayerInMap()
-        {
-            Map::PlayerList const& players = instance->GetPlayers();
-            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-            {
-                if (Player* player = itr->GetSource())
-                    return player;
-            }
-            TC_LOG_DEBUG("scripts", "Instance Razorfen Kraul: GetPlayerInMap, but PlayerList is empty!");
-            return nullptr;
-        }
-
         void OnGameObjectCreate(GameObject* go) override
         {
             switch (go->GetEntry())
@@ -79,7 +66,7 @@ public:
             if (WardKeeperDeath == WARD_KEEPERS_NR)
                 if (GameObject* go = instance->GetGameObject(DoorWardGUID))
                 {
-                    go->SetUInt32Value(GAMEOBJECT_FLAGS, 33);
+                    go->AddFlag(GameObjectFlags(GO_FLAG_IN_USE | GO_FLAG_NODESPAWN));
                     go->SetGoState(GO_STATE_ACTIVE);
                 }
         }

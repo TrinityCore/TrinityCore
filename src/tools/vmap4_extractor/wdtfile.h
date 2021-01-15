@@ -18,25 +18,76 @@
 #ifndef WDTFILE_H
 #define WDTFILE_H
 
-#include "mpq_libmpq04.h"
+#include "cascfile.h"
+#include "wmo.h"
+#include <memory>
 #include <string>
+#include <vector>
 
 class ADTFile;
+
+#pragma pack(push, 1)
+namespace WDT
+{
+    struct MPHD
+    {
+        uint32 Flags;
+        uint32 LgtFileDataID;
+        uint32 OccFileDataID;
+        uint32 FogsFileDataID;
+        uint32 MpvFileDataID;
+        uint32 TexFileDataID;
+        uint32 WdlFileDataID;
+        uint32 Pd4FileDataID;
+    };
+
+    struct MAIN
+    {
+        struct SMAreaInfo
+        {
+            uint32 Flag;
+            uint32 AsyncId;
+        } Data[64][64];
+    };
+
+    struct MAID
+    {
+        struct SMAreaFileIDs
+        {
+            uint32 RootADT;         // FileDataID of mapname_xx_yy.adt
+            uint32 Obj0ADT;         // FileDataID of mapname_xx_yy_obj0.adt
+            uint32 Obj1ADT;         // FileDataID of mapname_xx_yy_obj1.adt
+            uint32 Tex0ADT;         // FileDataID of mapname_xx_yy_tex0.adt
+            uint32 LodADT;          // FileDataID of mapname_xx_yy_lod.adt
+            uint32 MapTexture;      // FileDataID of mapname_xx_yy.blp
+            uint32 MapTextureN;     // FileDataID of mapname_xx_yy_n.blp
+            uint32 MinimapTexture;  // FileDataID of mapxx_yy.blp
+        } Data[64][64];
+    };
+}
+#pragma pack(pop)
 
 class WDTFile
 {
 public:
-    WDTFile(char* file_name, char* file_name1);
-    ~WDTFile(void);
-
+    WDTFile(uint32 fileDataId, std::string const& description, std::string mapName, bool cache);
+    ~WDTFile();
     bool init(uint32 mapId);
-    ADTFile* GetMap(int x, int z);
 
-    std::vector<std::string> _wmoNames;
-
+    ADTFile* GetMap(int32 x, int32 y);
+    void FreeADT(ADTFile* adt);
 private:
-    MPQFile _file;
-    std::string filename;
+    CASCFile _file;
+    WDT::MPHD _header;
+    WDT::MAIN _adtInfo;
+    std::unique_ptr<WDT::MAID> _adtFileDataIds;
+    std::string _mapName;
+    std::vector<std::string> _wmoNames;
+    struct ADTCache
+    {
+        std::unique_ptr<ADTFile> file[64][64];
+    };
+    std::unique_ptr<ADTCache> _adtCache;
 };
 
 #endif

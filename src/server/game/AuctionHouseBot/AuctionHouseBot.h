@@ -19,16 +19,14 @@
 #define AUCTION_HOUSE_BOT_H
 
 #include "Define.h"
+#include "ObjectGuid.h"
 #include "SharedDefines.h"
 #include <string>
-#include <unordered_map>
-#include <vector>
 
 class AuctionBotSeller;
 class AuctionBotBuyer;
 
 // shadow of ItemQualities with skipped ITEM_QUALITY_HEIRLOOM, anything after ITEM_QUALITY_ARTIFACT(6) in fact
-// EnumUtils: DESCRIBE THIS
 enum AuctionQuality
 {
     AUCTION_QUALITY_GRAY    = ITEM_QUALITY_POOR,
@@ -42,7 +40,6 @@ enum AuctionQuality
 
 #define MAX_AUCTION_QUALITY 7
 
-// EnumUtils: DESCRIBE THIS
 enum AuctionHouseType
 {
     AUCTION_HOUSE_NEUTRAL   = 0,
@@ -234,17 +231,18 @@ public:
 
     uint32 GetItemPerCycleBoost() const { return _itemsPerCycleBoost; }
     uint32 GetItemPerCycleNormal() const { return _itemsPerCycleNormal; }
-    uint32 GetRandChar() const;
-    uint32 GetRandCharExclude(uint32 exclude) const;
-    bool IsBotChar(uint32 characterID) const;
+    ObjectGuid GetRandChar() const;
+    ObjectGuid GetRandCharExclude(ObjectGuid exclude) const;
+    bool IsBotChar(ObjectGuid characterID) const;
     void Reload() { GetConfigFromFile(); }
 
+    uint32 GetAuctionHouseId(AuctionHouseType houseType) const;
     static char const* GetHouseTypeName(AuctionHouseType houseType);
 
 private:
     std::string _AHBotIncludes;
     std::string _AHBotExcludes;
-    std::vector<uint32> _AHBotCharacters;
+    std::vector<ObjectGuid> _AHBotCharacters;
     uint32 _itemsPerCycleBoost;
     uint32 _itemsPerCycleNormal;
 
@@ -277,8 +275,10 @@ public:
 struct AuctionHouseBotStatusInfoPerType
 {
     uint32 ItemsCount;
-    std::unordered_map<AuctionQuality, uint32> QualityInfo;
+    uint32 QualityInfo[MAX_AUCTION_QUALITY];
 };
+
+typedef AuctionHouseBotStatusInfoPerType AuctionHouseBotStatusInfo[MAX_AUCTION_HOUSE_TYPE];
 
 // This class handle both Selling and Buying method
 // (holder of AuctionBotBuyer and AuctionBotSeller objects)
@@ -299,12 +299,12 @@ public:
     // Followed method is mainly used by cs_ahbot.cpp for in-game/console command
     void SetItemsRatio(uint32 al, uint32 ho, uint32 ne);
     void SetItemsRatioForHouse(AuctionHouseType house, uint32 val);
-    void SetItemsAmount(std::array<uint32, MAX_AUCTION_QUALITY> const& amounts);
+    void SetItemsAmount(uint32(&vals)[MAX_AUCTION_QUALITY]);
     void SetItemsAmountForQuality(AuctionQuality quality, uint32 val);
     void ReloadAllConfig();
     void Rebuild(bool all);
 
-    void PrepareStatusInfos(std::unordered_map<AuctionHouseType, AuctionHouseBotStatusInfoPerType>& statusInfo);
+    void PrepareStatusInfos(AuctionHouseBotStatusInfo& statusInfo);
 private:
     void InitializeAgents();
 

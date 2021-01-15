@@ -25,7 +25,9 @@
 #include <iterator>
 #include <vector>
 
-namespace Trinity::Impl
+namespace Trinity
+{
+namespace Impl
 {
     struct CryptoGenericsImpl
     {
@@ -55,8 +57,11 @@ namespace Trinity::Impl
         }
     };
 }
+}
 
-namespace Trinity::Crypto
+namespace Trinity
+{
+namespace Crypto
 {
     template <typename Cipher>
     void AEEncryptWithRandomIV(std::vector<uint8>& data, typename Cipher::Key const& key)
@@ -106,6 +111,7 @@ namespace Trinity::Crypto
     {
         return AEDecrypt<Cipher>(data, key.ToByteArray<Cipher::KEY_SIZE_BYTES>());
     }
+}
 }
 
 #endif

@@ -17,9 +17,9 @@
 
 #include "ScriptMgr.h"
 #include "blackwing_lair.h"
-#include "InstanceScript.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
+#include "InstanceScript.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
@@ -99,10 +99,10 @@ public:
 
         void DoChangePhase()
         {
-            events.ScheduleEvent(EVENT_CLEAVE, 15s);
-            events.ScheduleEvent(EVENT_STOMP, 35s);
-            events.ScheduleEvent(EVENT_FIREBALL, 7s);
-            events.ScheduleEvent(EVENT_CONFLAGRATION, 12s);
+            events.ScheduleEvent(EVENT_CLEAVE, 15000);
+            events.ScheduleEvent(EVENT_STOMP, 35000);
+            events.ScheduleEvent(EVENT_FIREBALL, 7000);
+            events.ScheduleEvent(EVENT_CONFLAGRATION, 12000);
 
             secondPhase = true;
             me->RemoveAllAuras();
@@ -138,19 +138,19 @@ public:
                 {
                     case EVENT_CLEAVE:
                         DoCastVictim(SPELL_CLEAVE);
-                        events.ScheduleEvent(EVENT_CLEAVE, 7s, 10s);
+                        events.ScheduleEvent(EVENT_CLEAVE, urand(7000, 10000));
                         break;
                     case EVENT_STOMP:
                         DoCastVictim(SPELL_WARSTOMP);
-                        events.ScheduleEvent(EVENT_STOMP, 15s, 25s);
+                        events.ScheduleEvent(EVENT_STOMP, urand(15000, 25000));
                         break;
                     case EVENT_FIREBALL:
                         DoCastVictim(SPELL_FIREBALLVOLLEY);
-                        events.ScheduleEvent(EVENT_FIREBALL, 12s, 15s);
+                        events.ScheduleEvent(EVENT_FIREBALL, urand(12000, 15000));
                         break;
                     case EVENT_CONFLAGRATION:
                         DoCastVictim(SPELL_CONFLAGRATION);
-                        events.ScheduleEvent(EVENT_CONFLAGRATION, 30s);
+                        events.ScheduleEvent(EVENT_CONFLAGRATION, 30000);
                         break;
                 }
 
@@ -181,7 +181,7 @@ class go_orb_of_domination : public GameObjectScript
 
             InstanceScript* instance;
 
-            bool OnGossipHello(Player* player) override
+            bool GossipHello(Player* player) override
             {
                 if (instance->GetData(DATA_EGG_EVENT) != DONE)
                 {

@@ -16,29 +16,30 @@
  */
 
 #include "ChatTextBuilder.h"
-#include "Chat.h"
+#include "ChatPackets.h"
+#include "DB2Stores.h"
 #include "ObjectMgr.h"
 #include <cstdarg>
 
-void Trinity::BroadcastTextBuilder::operator()(WorldPacket& data, LocaleConstant locale) const
+WorldPackets::Packet* Trinity::BroadcastTextBuilder::operator()(LocaleConstant locale) const
 {
-    BroadcastText const* bct = sObjectMgr->GetBroadcastText(_textId);
-    ChatHandler::BuildChatPacket(data, _msgType, bct ? Language(bct->LanguageID) : LANG_UNIVERSAL, _source, _target, bct ? bct->GetText(locale, _gender) : "", _achievementId, "", locale);
+    BroadcastTextEntry const* bct = sBroadcastTextStore.LookupEntry(_textId);
+    WorldPackets::Chat::Chat* chat = new WorldPackets::Chat::Chat();
+    chat->Initialize(_msgType, bct ? Language(bct->LanguageID) : LANG_UNIVERSAL, _source, _target, bct ? DB2Manager::GetBroadcastTextValue(bct, locale, _gender) : "", _achievementId, "", locale);
+    return chat;
 }
 
-size_t Trinity::BroadcastTextBuilder::operator()(WorldPacket* data, LocaleConstant locale) const
+WorldPackets::Packet* Trinity::CustomChatTextBuilder::operator()(LocaleConstant locale) const
 {
-    BroadcastText const* bct = sObjectMgr->GetBroadcastText(_textId);
-    return ChatHandler::BuildChatPacket(*data, _msgType, bct ? Language(bct->LanguageID) : LANG_UNIVERSAL, _source, _target, bct ? bct->GetText(locale, _gender) : "", _achievementId, "", locale);
+    WorldPackets::Chat::Chat* chat = new WorldPackets::Chat::Chat();
+    chat->Initialize(_msgType, _language, _source, _target, _text, 0, "", locale);
+    return chat;
 }
 
-void Trinity::CustomChatTextBuilder::operator()(WorldPacket& data, LocaleConstant locale) const
+WorldPackets::Packet* Trinity::TrinityStringChatBuilder::operator()(LocaleConstant locale) const
 {
-    ChatHandler::BuildChatPacket(data, _msgType, _language, _source, _target, _text, 0, "", locale);
-}
+    WorldPackets::Chat::Chat* packet = new WorldPackets::Chat::Chat();
 
-void Trinity::TrinityStringChatBuilder::operator()(WorldPacket& data, LocaleConstant locale) const
-{
     char const* text = sObjectMgr->GetTrinityString(_textId, locale);
 
     if (_args)
@@ -52,8 +53,10 @@ void Trinity::TrinityStringChatBuilder::operator()(WorldPacket& data, LocaleCons
         vsnprintf(strBuffer, BufferSize, text, ap);
         va_end(ap);
 
-        ChatHandler::BuildChatPacket(data, _msgType, LANG_UNIVERSAL, _source, _target, strBuffer, 0, "", locale);
+        packet->Initialize(_msgType, LANG_UNIVERSAL, _source, _target, strBuffer, 0, "", locale);
     }
     else
-        ChatHandler::BuildChatPacket(data, _msgType, LANG_UNIVERSAL, _source, _target, text, 0, "", locale);
+        packet->Initialize(_msgType, LANG_UNIVERSAL, _source, _target, text, 0, "", locale);
+
+    return packet;
 }

@@ -26,14 +26,6 @@ enum TotemType
     TOTEM_ACTIVE     = 1,
     TOTEM_STATUE     = 2 // copied straight from MaNGOS, may need more implementation to work
 };
-// Some Totems cast spells that are not in creature DB
-#define SENTRY_TOTEM_SPELLID  6495
-
-#define SENTRY_TOTEM_ENTRY    3968
-
-// Totems spells
-#define SENTRY_STONECLAW_SPELLID  55277
-#define SENTRY_BIND_SIGHT_SPELLID  6277
 
 class TC_GAME_API Totem : public Minion
 {
@@ -58,7 +50,7 @@ class TC_GAME_API Totem : public Minion
         void UpdateAttackPowerAndDamage(bool /*ranged*/) override { }
         void UpdateDamagePhysical(WeaponAttackType /*attType*/) override { }
 
-        bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, WorldObject const* caster) const override;
+        bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index, Unit* caster) const override;
 
     protected:
         TotemType m_type;

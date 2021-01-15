@@ -121,14 +121,4 @@ bool FileSystem::isRemoteFS( const std::string& directory )
 	return Platform::FileSystem::isRemoteFS( directory );
 }
 
-bool FileSystem::changeWorkingDirectory( const std::string& directory )
-{
-	return Platform::FileSystem::changeWorkingDirectory( directory );
-}
-
-std::string FileSystem::getCurrentWorkingDirectory()
-{
-	return Platform::FileSystem::getCurrentWorkingDirectory();
-}
-
 }

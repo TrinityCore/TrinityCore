@@ -27,7 +27,6 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
-#include "ObjectMgr.h"
 
 enum Emotes
 {
@@ -61,12 +60,12 @@ class boss_baron_geddon : public CreatureScript
             {
             }
 
-            void JustEngagedWith(Unit* victim) override
+            void EnterCombat(Unit* victim) override
             {
-                BossAI::JustEngagedWith(victim);
-                events.ScheduleEvent(EVENT_INFERNO, 45s);
-                events.ScheduleEvent(EVENT_IGNITE_MANA, 30s);
-                events.ScheduleEvent(EVENT_LIVING_BOMB, 35s);
+                BossAI::EnterCombat(victim);
+                events.ScheduleEvent(EVENT_INFERNO, 45000);
+                events.ScheduleEvent(EVENT_IGNITE_MANA, 30000);
+                events.ScheduleEvent(EVENT_LIVING_BOMB, 35000);
             }
 
             void UpdateAI(uint32 diff) override
@@ -94,17 +93,17 @@ class boss_baron_geddon : public CreatureScript
                     {
                         case EVENT_INFERNO:
                             DoCast(me, SPELL_INFERNO);
-                            events.ScheduleEvent(EVENT_INFERNO, 45s);
+                            events.ScheduleEvent(EVENT_INFERNO, 45000);
                             break;
                         case EVENT_IGNITE_MANA:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true, true, -SPELL_IGNITE_MANA))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, true, -SPELL_IGNITE_MANA))
                                 DoCast(target, SPELL_IGNITE_MANA);
-                            events.ScheduleEvent(EVENT_IGNITE_MANA, 30s);
+                            events.ScheduleEvent(EVENT_IGNITE_MANA, 30000);
                             break;
                         case EVENT_LIVING_BOMB:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                                 DoCast(target, SPELL_LIVING_BOMB);
-                            events.ScheduleEvent(EVENT_LIVING_BOMB, 35s);
+                            events.ScheduleEvent(EVENT_LIVING_BOMB, 35000);
                             break;
                         default:
                             break;
@@ -136,12 +135,8 @@ class spell_baron_geddon_inferno : public SpellScriptLoader
             void OnPeriodic(AuraEffect const* aurEff)
             {
                 PreventDefaultAction();
-                static const int32 damageForTick[8] = { 500, 500, 1000, 1000, 2000, 2000, 3000, 5000 };
-                CastSpellExtraArgs args;
-                args.TriggerFlags = TRIGGERED_FULL_MASK;
-                args.TriggeringAura = aurEff;
-                args.AddSpellMod(SPELLVALUE_BASE_POINT0, damageForTick[aurEff->GetTickNumber() - 1]);
-                GetTarget()->CastSpell(nullptr, SPELL_INFERNO_DMG, args);
+                int32 damageForTick[8] = { 500, 500, 1000, 1000, 2000, 2000, 3000, 5000 };
+                GetTarget()->CastCustomSpell(SPELL_INFERNO_DMG, SPELLVALUE_BASE_POINT0, damageForTick[aurEff->GetTickNumber() - 1], nullptr, TRIGGERED_FULL_MASK, nullptr, aurEff);
             }
 
             void Register() override

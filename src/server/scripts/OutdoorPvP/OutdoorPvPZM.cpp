@@ -15,15 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "OutdoorPvPZM.h"
+#include "ScriptMgr.h"
 #include "Creature.h"
 #include "GossipDef.h"
-#include "MapManager.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
-#include "OutdoorPvPMgr.h"
+#include "OutdoorPvPZM.h"
 #include "Player.h"
-#include "ScriptMgr.h"
 #include "WorldStatePackets.h"
 
 uint8 const OutdoorPvPZMBuffZonesNum = 5;
@@ -85,19 +83,20 @@ go_type const ZMCapturePoints[ZM_NUM_BEACONS] =
     { 182522, 530, { 336.466f, 7340.26f, 41.4984f, -1.58825f }, { 0.0f, 0.0f, 0.71325f, -0.700909f } }
 };
 
-OPvPCapturePointZM_Beacon::OPvPCapturePointZM_Beacon(OutdoorPvP* pvp, ZM_BeaconType type) : OPvPCapturePoint(pvp), m_TowerType(type), m_TowerState(ZM_TOWERSTATE_N)
+OPvPCapturePointZM_Beacon::OPvPCapturePointZM_Beacon(OutdoorPvP* pvp, ZM_BeaconType type)
+: OPvPCapturePoint(pvp), m_TowerType(type), m_TowerState(ZM_TOWERSTATE_N)
 {
     SetCapturePointData(ZMCapturePoints[type].entry, ZMCapturePoints[type].map, ZMCapturePoints[type].pos, ZMCapturePoints[type].rot);
 }
 
 void OPvPCapturePointZM_Beacon::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    packet.Worldstates.emplace_back(ZMBeaconInfo[m_TowerType].ui_tower_n, (m_TowerState & ZM_TOWERSTATE_N) != 0 ? 1 : 0);
-    packet.Worldstates.emplace_back(ZMBeaconInfo[m_TowerType].map_tower_n, (m_TowerState & ZM_TOWERSTATE_N) != 0 ? 1 : 0);
-    packet.Worldstates.emplace_back(ZMBeaconInfo[m_TowerType].ui_tower_a, (m_TowerState & ZM_TOWERSTATE_A) != 0 ? 1 : 0);
-    packet.Worldstates.emplace_back(ZMBeaconInfo[m_TowerType].map_tower_a, (m_TowerState & ZM_TOWERSTATE_A) != 0 ? 1 : 0);
-    packet.Worldstates.emplace_back(ZMBeaconInfo[m_TowerType].ui_tower_h, (m_TowerState & ZM_TOWERSTATE_H) != 0 ? 1 : 0);
-    packet.Worldstates.emplace_back(ZMBeaconInfo[m_TowerType].map_tower_h, (m_TowerState & ZM_TOWERSTATE_H) != 0 ? 1 : 0);
+    packet.Worldstates.emplace_back(ZMBeaconInfo[m_TowerType].ui_tower_n, (m_TowerState & ZM_TOWERSTATE_N) != 0);
+    packet.Worldstates.emplace_back(ZMBeaconInfo[m_TowerType].map_tower_n, (m_TowerState & ZM_TOWERSTATE_N) != 0);
+    packet.Worldstates.emplace_back(ZMBeaconInfo[m_TowerType].ui_tower_a, (m_TowerState & ZM_TOWERSTATE_A) != 0);
+    packet.Worldstates.emplace_back(ZMBeaconInfo[m_TowerType].map_tower_a, 0);
+    packet.Worldstates.emplace_back(ZMBeaconInfo[m_TowerType].ui_tower_h, (m_TowerState & ZM_TOWERSTATE_H) != 0);
+    packet.Worldstates.emplace_back(ZMBeaconInfo[m_TowerType].map_tower_h, (m_TowerState & ZM_TOWERSTATE_H) != 0);
 }
 
 void OPvPCapturePointZM_Beacon::UpdateTowerState()
@@ -274,7 +273,8 @@ int32 OPvPCapturePointZM_Graveyard::HandleOpenGo(Player* player, GameObject* go)
     return retval;
 }
 
-OPvPCapturePointZM_Graveyard::OPvPCapturePointZM_Graveyard(OutdoorPvP* pvp) : OPvPCapturePoint(pvp)
+OPvPCapturePointZM_Graveyard::OPvPCapturePointZM_Graveyard(OutdoorPvP* pvp)
+: OPvPCapturePoint(pvp)
 {
     m_BothControllingFaction = 0;
     m_GraveyardState = ZM_GRAVEYARD_N;
@@ -300,13 +300,14 @@ void OPvPCapturePointZM_Graveyard::UpdateTowerState()
 
 void OPvPCapturePointZM_Graveyard::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    packet.Worldstates.emplace_back(ZM_MAP_GRAVEYARD_N, (m_GraveyardState & ZM_GRAVEYARD_N) != 0 ? 1 : 0);
-    packet.Worldstates.emplace_back(ZM_MAP_GRAVEYARD_H, (m_GraveyardState & ZM_GRAVEYARD_H) != 0 ? 1 : 0);
-    packet.Worldstates.emplace_back(ZM_MAP_GRAVEYARD_A, (m_GraveyardState & ZM_GRAVEYARD_A) != 0 ? 1 : 0);
-    packet.Worldstates.emplace_back(ZM_MAP_ALLIANCE_FLAG_READY, m_BothControllingFaction == ALLIANCE ? 1 : 0);
-    packet.Worldstates.emplace_back(ZM_MAP_ALLIANCE_FLAG_NOT_READY, m_BothControllingFaction != ALLIANCE ? 1 : 0);
-    packet.Worldstates.emplace_back(ZM_MAP_HORDE_FLAG_READY, m_BothControllingFaction == HORDE ? 1 : 0);
-    packet.Worldstates.emplace_back(ZM_MAP_HORDE_FLAG_NOT_READY, m_BothControllingFaction != HORDE ? 1 : 0);
+    packet.Worldstates.emplace_back(uint32(ZM_MAP_GRAVEYARD_N), int32((m_GraveyardState & ZM_GRAVEYARD_N) != 0));
+    packet.Worldstates.emplace_back(uint32(ZM_MAP_GRAVEYARD_H), int32((m_GraveyardState & ZM_GRAVEYARD_H) != 0));
+    packet.Worldstates.emplace_back(uint32(ZM_MAP_GRAVEYARD_A), int32((m_GraveyardState & ZM_GRAVEYARD_A) != 0));
+
+    packet.Worldstates.emplace_back(uint32(ZM_MAP_ALLIANCE_FLAG_READY), int32(m_BothControllingFaction == ALLIANCE));
+    packet.Worldstates.emplace_back(uint32(ZM_MAP_ALLIANCE_FLAG_NOT_READY), int32(m_BothControllingFaction != ALLIANCE));
+    packet.Worldstates.emplace_back(uint32(ZM_MAP_HORDE_FLAG_READY), int32(m_BothControllingFaction == HORDE));
+    packet.Worldstates.emplace_back(uint32(ZM_MAP_HORDE_FLAG_NOT_READY), int32(m_BothControllingFaction != HORDE));
 }
 
 void OPvPCapturePointZM_Graveyard::SetBeaconState(uint32 controlling_faction)
@@ -336,7 +337,7 @@ void OPvPCapturePointZM_Graveyard::SetBeaconState(uint32 controlling_faction)
         if (m_GraveyardState & ZM_GRAVEYARD_N)
         {
             // gy was neutral, thus neutral banner was spawned, it is possible that someone was taking the flag to the gy
-            if (m_FlagCarrierGUID)
+            if (!m_FlagCarrierGUID.IsEmpty())
             {
                 // remove flag from carrier, reset flag carrier guid
                 Player* p = ObjectAccessor::FindPlayer(m_FlagCarrierGUID);
@@ -356,8 +357,7 @@ void OPvPCapturePointZM_Graveyard::SetBeaconState(uint32 controlling_faction)
 
 bool OPvPCapturePointZM_Graveyard::CanTalkTo(Player* player, Creature* c, GossipMenuItems const& /*gso*/)
 {
-    std::map<uint32, uint32>::iterator itr = m_CreatureTypes.find(c->GetSpawnId());
-
+    std::map<ObjectGuid::LowType, uint32>::iterator itr = m_CreatureTypes.find(c->GetSpawnId());
     if (itr != m_CreatureTypes.end())
     {
         if (itr->second == ZM_ALLIANCE_FIELD_SCOUT && player->GetTeam() == ALLIANCE && m_BothControllingFaction == ALLIANCE && !m_FlagCarrierGUID && m_GraveyardState != ZM_GRAVEYARD_A)
@@ -370,12 +370,11 @@ bool OPvPCapturePointZM_Graveyard::CanTalkTo(Player* player, Creature* c, Gossip
 
 bool OPvPCapturePointZM_Graveyard::HandleGossipOption(Player* player, Creature* creature, uint32 /*gossipid*/)
 {
-    std::map<uint32, uint32>::iterator itr = m_CreatureTypes.find(creature->GetSpawnId());
-
+    std::map<ObjectGuid::LowType, uint32>::iterator itr = m_CreatureTypes.find(creature->GetSpawnId());
     if (itr != m_CreatureTypes.end())
     {
         // if the flag is already taken, then return
-        if (m_FlagCarrierGUID)
+        if (!m_FlagCarrierGUID.IsEmpty())
             return true;
         if (itr->second == ZM_ALLIANCE_FIELD_SCOUT)
         {
@@ -435,8 +434,7 @@ void OutdoorPvPZM::SetHordeTowersControlled(uint32 count)
 
 void OutdoorPvPZM::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    packet.Worldstates.emplace_back(ZM_WORLDSTATE_UNK_1, 1);
-
+    packet.Worldstates.emplace_back(uint32(ZM_WORLDSTATE_UNK_1), 1);
     for (OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
         itr->second->FillInitialWorldStates(packet);
 }

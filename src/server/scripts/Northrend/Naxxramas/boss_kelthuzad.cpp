@@ -15,16 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "naxxramas.h"
-#include "CommonHelpers.h"
+#include "ScriptMgr.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
+#include "naxxramas.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "PlayerAI.h"
 #include "ScriptedCreature.h"
-#include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
@@ -95,7 +94,6 @@ enum Spells
     SPELL_DETONATE_MANA                     = 27819,
     SPELL_MANA_DETONATION_DAMAGE            = 27820,
     SPELL_FROST_BLAST                       = 27808,
-    SPELL_FROST_BLAST_DMG                   = 29879,
     SPELL_CHAINS                            = 28410,
     SPELL_CHAINS_DUMMY                      = 28408, // this holds the category cooldown - the main chains spell can't have one as it is cast multiple times
 
@@ -115,7 +113,7 @@ enum SummonGroups
     SUMMON_GROUP_GUARDIAN_FIRST             = 01 /*..04 */,
     SUMMON_GROUP_MINION_FIRST               = 05 /*..11 */
 };
-static const std::initializer_list<NAXData64> portalList = { DATA_KELTHUZAD_PORTAL01, DATA_KELTHUZAD_PORTAL02, DATA_KELTHUZAD_PORTAL03, DATA_KELTHUZAD_PORTAL04 };
+static NAXData64 const portalList[] = { DATA_KELTHUZAD_PORTAL01, DATA_KELTHUZAD_PORTAL02, DATA_KELTHUZAD_PORTAL03, DATA_KELTHUZAD_PORTAL04 };
 
 enum Phases
 {
@@ -181,7 +179,7 @@ class KelThuzadCharmedPlayerAI : public SimpleCharmedPlayerAI
                 if (pTarget->HasBreakableByDamageCrowdControlAura())
                     return false;
                 // We _really_ dislike healers. So we hit them in the face. Repeatedly. Exclusively.
-                return Trinity::Helpers::Entity::IsPlayerHealer(pTarget);
+                return PlayerAI::IsPlayerHealer(pTarget);
             }
         };
 
@@ -189,16 +187,16 @@ class KelThuzadCharmedPlayerAI : public SimpleCharmedPlayerAI
         {
             if (Creature* charmer = GetCharmer())
             {
-                if (Unit* target = charmer->AI()->SelectTarget(SelectTargetMethod::Random, 0, CharmedPlayerTargetSelectPred()))
+                if (Unit* target = charmer->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, CharmedPlayerTargetSelectPred()))
                     return target;
-                if (Unit* target = charmer->AI()->SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true, true, -SPELL_CHAINS))
+                if (Unit* target = charmer->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, true, -SPELL_CHAINS))
                     return target;
             }
             return nullptr;
         }
 };
 
-struct ManaUserTargetSelector
+struct ManaUserTargetSelector : public std::unary_function<Unit*, bool>
 {
     bool operator()(Unit const* target) const
     {
@@ -226,7 +224,7 @@ public:
                     return;
                 _Reset();
                 me->SetReactState(REACT_PASSIVE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                 me->SetImmuneToPC(true);
                 _skeletonCount = 0;
                 _bansheeCount = 0;
@@ -234,12 +232,8 @@ public:
                 _abominationDeathCount = 0;
                 _phaseThree = false;
             }
-
             void EnterEvadeMode(EvadeReason /*why*/) override
             {
-                if (!me->IsAlive())
-                    return;
-
                 for (NAXData64 portalData : portalList)
                     if (GameObject* portal = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(portalData)))
                         portal->SetGoState(GO_STATE_READY);
@@ -284,13 +278,13 @@ public:
                     damage = 0;
             }
 
-            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
             {
-                if (spellInfo->Id == SPELL_CHAINS_DUMMY)
+                if (spell->Id == SPELL_CHAINS_DUMMY)
                 {
                     Talk(SAY_CHAINS);
                     std::list<Unit*> targets;
-                    SelectTargetList(targets, 3, SelectTargetMethod::Random, 0, 0.0f, true, false);
+                    SelectTargetList(targets, 3, SELECT_TARGET_RANDOM, 0, 0.0f, true, false);
                     for (Unit* target : targets)
                         DoCast(target, SPELL_CHAINS);
                 }
@@ -352,7 +346,7 @@ public:
                             else
                             {
                                 // retail uses server-side spell 28421 for this
-                                Creature* summon = me->SummonCreature(NPC_SKELETON1, GetRandomMinionSpawnPoint(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2s);
+                                Creature* summon = me->SummonCreature(NPC_SKELETON1, GetRandomMinionSpawnPoint(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2 * IN_MILLISECONDS);
                                 summon->AI()->DoZoneInCombat();
                             }
 
@@ -377,7 +371,7 @@ public:
                         {
                             ++_bansheeCount;
                             // retail uses server-side spell 28423 for this
-                            Creature* summon = me->SummonCreature(NPC_BANSHEE1, GetRandomMinionSpawnPoint(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2s);
+                            Creature* summon = me->SummonCreature(NPC_BANSHEE1, GetRandomMinionSpawnPoint(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2 * IN_MILLISECONDS);
                             summon->AI()->DoZoneInCombat();
 
                             uint8 nextTime = 0;
@@ -397,7 +391,7 @@ public:
                         {
                             ++_abominationCount;
                             // retail uses server-side spell 28422 for this
-                            Creature* summon = me->SummonCreature(NPC_ABOMINATION1, GetRandomMinionSpawnPoint(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2s);
+                            Creature* summon = me->SummonCreature(NPC_ABOMINATION1, GetRandomMinionSpawnPoint(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2 * IN_MILLISECONDS);
                             summon->AI()->DoZoneInCombat();
 
                             uint8 nextTime = 0;
@@ -431,7 +425,7 @@ public:
                         case EVENT_PHASE_TWO:
                             me->CastStop();
                             events.SetPhase(PHASE_TWO);
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                            me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                             me->SetImmuneToPC(false);
                             ResetThreatList();
                             me->SetReactState(REACT_AGGRESSIVE);
@@ -452,7 +446,7 @@ public:
                             break;
 
                         case EVENT_SHADOW_FISSURE:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                                 DoCast(target, SPELL_SHADOW_FISSURE);
                             events.Repeat(randtime(Seconds(14), Seconds(17)));
                             break;
@@ -460,14 +454,14 @@ public:
                         case EVENT_DETONATE_MANA:
                         {
                             ManaUserTargetSelector pred;
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, pred))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, pred))
                                 DoCast(target, SPELL_DETONATE_MANA);
                             events.Repeat(randtime(Seconds(30), Seconds(40)));
                             break;
                         }
 
                         case EVENT_FROST_BLAST:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
                                 DoCast(target, SPELL_FROST_BLAST);
                             events.Repeat(randtime(Seconds(25), Seconds(45)));
                             break;
@@ -606,7 +600,7 @@ struct npc_kelthuzad_minionAI : public ScriptedAI
                 kelThuzad->AI()->EnterEvadeMode(EVADE_REASON_OTHER);
         }
 
-        void JustEngagedWith(Unit* who) override
+        void EnterCombat(Unit* who) override
         {
             _movementTimer = 0; // once it's zero, it'll never get checked again
             if (!me->HasReactState(REACT_PASSIVE))
@@ -628,7 +622,7 @@ struct npc_kelthuzad_minionAI : public ScriptedAI
                 }
             me->SetReactState(REACT_AGGRESSIVE);
             AttackStart(who);
-            ScriptedAI::JustEngagedWith(who);
+            ScriptedAI::EnterCombat(who);
         }
 
         void AttackStart(Unit* who) override
@@ -645,7 +639,7 @@ struct npc_kelthuzad_minionAI : public ScriptedAI
             }
 
             if (me->CanStartAttack(who, false) && me->GetDistance2d(who) <= MINION_AGGRO_DISTANCE)
-                JustEngagedWith(who);
+                EnterCombat(who);
         }
 
         void SetData(uint32 data, uint32 value) override
@@ -814,9 +808,8 @@ public:
                         me->CombatStop();
                         me->StopMoving();
                         me->SetImmuneToPC(true);
-                        me->DespawnOrUnsummon(30s); // just in case anything interrupts the movement
+                        me->DespawnOrUnsummon(30 * IN_MILLISECONDS); // just in case anything interrupts the movement
                         me->GetMotionMaster()->MoveTargetedHome();
-                        break;
                     default:
                         break;
                 }
@@ -934,9 +927,7 @@ public:
             if (int32 mana = int32(target->GetMaxPower(POWER_MANA) / 10))
             {
                 mana = target->ModifyPower(POWER_MANA, -mana);
-                CastSpellExtraArgs args(aurEff);
-                args.AddSpellBP0(-mana * 10);
-                target->CastSpell(target, SPELL_MANA_DETONATION_DAMAGE, args);
+                target->CastCustomSpell(SPELL_MANA_DETONATION_DAMAGE, SPELLVALUE_BASE_POINT0, -mana * 10, target, true, nullptr, aurEff);
             }
         }
 
@@ -952,44 +943,15 @@ public:
     }
 };
 
-// 27808 - Frost Blast
-class spell_kelthuzad_frost_blast : public AuraScript
-{
-    PrepareAuraScript(spell_kelthuzad_frost_blast);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_FROST_BLAST_DMG });
-    }
-
-    void PeriodicTick(AuraEffect const* aurEff)
-    {
-        PreventDefaultAction();
-
-        // Stuns the target, dealing 26% of the target's maximum health in Frost damage every second for 4 sec.
-        if (Unit* caster = GetCaster())
-        {
-            CastSpellExtraArgs args(aurEff);
-            args.AddSpellBP0(GetTarget()->CountPctFromMaxHealth(26));
-            caster->CastSpell(GetTarget(), SPELL_FROST_BLAST_DMG, args);
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_kelthuzad_frost_blast::PeriodicTick, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-    }
-};
-
 class at_kelthuzad_center : public AreaTriggerScript
 {
 public:
     at_kelthuzad_center() : AreaTriggerScript("at_kelthuzad_center") { }
 
-    bool OnTrigger(Player* player, AreaTriggerEntry const* /*at*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*at*/, bool entered) override
     {
         InstanceScript* instance = player->GetInstanceScript();
-        if (!instance || instance->GetBossState(BOSS_KELTHUZAD) != NOT_STARTED)
+        if (!instance || instance->GetBossState(BOSS_KELTHUZAD) != NOT_STARTED || !entered)
             return true;
 
         if (player->IsGameMaster())
@@ -1033,7 +995,6 @@ void AddSC_boss_kelthuzad()
     new npc_kelthuzad_guardian();
     new spell_kelthuzad_chains();
     new spell_kelthuzad_detonate_mana();
-    RegisterSpellScript(spell_kelthuzad_frost_blast);
     new at_kelthuzad_center();
     new achievement_just_cant_get_enough();
 }

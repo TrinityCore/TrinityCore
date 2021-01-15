@@ -16,10 +16,10 @@
  */
 
 #include "ScriptMgr.h"
+#include "ahnkahet.h"
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
 #include "SpellScript.h"
-#include "ahnkahet.h"
 
 enum Yells
 {

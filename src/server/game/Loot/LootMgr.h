@@ -23,6 +23,8 @@
 #include "ObjectGuid.h"
 #include "SharedDefines.h"
 #include <list>
+#include <set>
+#include <unordered_map>
 #include <vector>
 
 class LootStore;
@@ -31,28 +33,33 @@ class Player;
 struct Loot;
 struct LootItem;
 
+enum class LootItemType : uint8
+{
+    Item        = 0,
+    Currency    = 1
+};
+
 struct TC_GAME_API LootStoreItem
 {
-    uint32 itemid;                                         // id of the item
-    uint32 reference;                                      // referenced TemplateleId
-    float chance;                                          // chance to drop for both quest and non-quest items, chance to be used for refs
-    uint16 lootmode;
-    bool needs_quest;                                      // quest drop (quest is required for item to drop)
-    uint8 groupid;
-    uint8 mincount;                                        // mincount for drop items
-    uint8 maxcount;                                        // max drop count for the item mincount or Ref multiplicator
-    ConditionContainer conditions;                         // additional loot condition
+    uint32  itemid;                                         // id of the item
+    uint32  reference;                                      // referenced TemplateleId
+    float   chance;                                         // chance to drop for both quest and non-quest items, chance to be used for refs
+    uint16  lootmode;
+    bool    needs_quest;                                    // quest drop (quest is required for item to drop)
+    uint8   groupid;
+    uint8   mincount;                                       // mincount for drop items
+    uint8   maxcount;                                       // max drop count for the item mincount or Ref multiplicator
+    ConditionContainer conditions;                               // additional loot condition
 
     // Constructor
     // displayid is filled in IsValid() which must be called after
-    LootStoreItem(uint32 _itemid, uint32 _reference, float _chance, bool _needs_quest, uint16 _lootmode, uint8 _groupid, int32 _mincount, uint8 _maxcount)
+    LootStoreItem(uint32 _itemid, uint32 _reference, float _chance, bool _needs_quest, uint16 _lootmode, uint8 _groupid, uint8 _mincount, uint8 _maxcount)
         : itemid(_itemid), reference(_reference), chance(_chance), lootmode(_lootmode),
         needs_quest(_needs_quest), groupid(_groupid), mincount(_mincount), maxcount(_maxcount)
          { }
 
     bool Roll(bool rate) const;                             // Checks if the entry takes it's chance (at loot generation)
-    bool IsValid(LootStore const& store, uint32 entry) const;
-                                                            // Checks correctness of values
+    bool IsValid(LootStore const& store, uint32 entry) const; // Checks correctness of values
 };
 
 typedef std::list<LootStoreItem*> LootStoreItemList;
@@ -73,11 +80,12 @@ class TC_GAME_API LootStore
         uint32 LoadAndCollectLootIds(LootIdSet& ids_set);
         void CheckLootRefs(LootIdSet* ref_set = nullptr) const; // check existence reference and remove it from ref_set
         void ReportUnusedIds(LootIdSet const& ids_set) const;
+        void ReportNonExistingId(uint32 lootId) const;
         void ReportNonExistingId(uint32 lootId, char const* ownerType, uint32 ownerId) const;
 
         bool HaveLootFor(uint32 loot_id) const { return m_LootTemplates.find(loot_id) != m_LootTemplates.end(); }
         bool HaveQuestLootFor(uint32 loot_id) const;
-        bool HaveQuestLootForPlayer(uint32 loot_id, Player* player) const;
+        bool HaveQuestLootForPlayer(uint32 loot_id, Player const* player) const;
 
         LootTemplate const* GetLootFor(uint32 loot_id) const;
         void ResetConditions();

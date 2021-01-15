@@ -30,6 +30,9 @@
 #include "Transport.h"
 #include "World.h"
 
+#include <boost/thread/shared_mutex.hpp>
+#include <boost/thread/locks.hpp>
+
 template<class T>
 void HashMapHolder<T>::Insert(T* o)
 {
@@ -37,7 +40,7 @@ void HashMapHolder<T>::Insert(T* o)
         || std::is_same<Transport, T>::value,
         "Only Player and Transport can be registered in global HashMapHolder");
 
-    std::unique_lock<std::shared_mutex> lock(*GetLock());
+    boost::unique_lock<boost::shared_mutex> lock(*GetLock());
 
     GetContainer()[o->GetGUID()] = o;
 }
@@ -45,7 +48,7 @@ void HashMapHolder<T>::Insert(T* o)
 template<class T>
 void HashMapHolder<T>::Remove(T* o)
 {
-    std::unique_lock<std::shared_mutex> lock(*GetLock());
+    boost::unique_lock<boost::shared_mutex> lock(*GetLock());
 
     GetContainer().erase(o->GetGUID());
 }
@@ -53,7 +56,7 @@ void HashMapHolder<T>::Remove(T* o)
 template<class T>
 T* HashMapHolder<T>::Find(ObjectGuid guid)
 {
-    std::shared_lock<std::shared_mutex> lock(*GetLock());
+    boost::shared_lock<boost::shared_mutex> lock(*GetLock());
 
     typename MapType::iterator itr = GetContainer().find(guid);
     return (itr != GetContainer().end()) ? itr->second : nullptr;
@@ -67,15 +70,10 @@ auto HashMapHolder<T>::GetContainer() -> MapType&
 }
 
 template<class T>
-std::shared_mutex* HashMapHolder<T>::GetLock()
+boost::shared_mutex* HashMapHolder<T>::GetLock()
 {
-    static std::shared_mutex _lock;
+    static boost::shared_mutex _lock;
     return &_lock;
-}
-
-HashMapHolder<Player>::MapType const& ObjectAccessor::GetPlayers()
-{
-    return HashMapHolder<Player>::GetContainer();
 }
 
 template class TC_GAME_API HashMapHolder<Player>;
@@ -83,28 +81,28 @@ template class TC_GAME_API HashMapHolder<Transport>;
 
 namespace PlayerNameMapHolder
 {
-    typedef std::unordered_map<std::string, Player*> MapType;
-    static MapType PlayerNameMap;
+typedef std::unordered_map<std::string, Player*> MapType;
+static MapType PlayerNameMap;
 
-    void Insert(Player* p)
-    {
-        PlayerNameMap[p->GetName()] = p;
-    }
+void Insert(Player* p)
+{
+    PlayerNameMap[p->GetName()] = p;
+}
 
-    void Remove(Player* p)
-    {
-        PlayerNameMap.erase(p->GetName());
-    }
+void Remove(Player* p)
+{
+    PlayerNameMap.erase(p->GetName());
+}
 
-    Player* Find(std::string_view name)
-    {
-        std::string charName(name);
-        if (!normalizePlayerName(charName))
-            return nullptr;
+Player* Find(std::string const& name)
+{
+    std::string charName(name);
+    if (!normalizePlayerName(charName))
+        return nullptr;
 
-        auto itr = PlayerNameMap.find(charName);
-        return (itr != PlayerNameMap.end()) ? itr->second : nullptr;
-    }
+    auto itr = PlayerNameMap.find(charName);
+    return (itr != PlayerNameMap.end()) ? itr->second : nullptr;
+}
 } // namespace PlayerNameMapHolder
 
 WorldObject* ObjectAccessor::GetWorldObject(WorldObject const& p, ObjectGuid const& guid)
@@ -113,14 +111,15 @@ WorldObject* ObjectAccessor::GetWorldObject(WorldObject const& p, ObjectGuid con
     {
         case HighGuid::Player:        return GetPlayer(p, guid);
         case HighGuid::Transport:
-        case HighGuid::Mo_Transport:
         case HighGuid::GameObject:    return GetGameObject(p, guid);
         case HighGuid::Vehicle:
-        case HighGuid::Unit:          return GetCreature(p, guid);
+        case HighGuid::Creature:      return GetCreature(p, guid);
         case HighGuid::Pet:           return GetPet(p, guid);
         case HighGuid::DynamicObject: return GetDynamicObject(p, guid);
+        case HighGuid::AreaTrigger:   return GetAreaTrigger(p, guid);
         case HighGuid::Corpse:        return GetCorpse(p, guid);
-        default:                     return nullptr;
+        case HighGuid::Conversation:  return GetConversation(p, guid);
+        default:                      return nullptr;
     }
 }
 
@@ -137,12 +136,11 @@ Object* ObjectAccessor::GetObjectByTypeMask(WorldObject const& p, ObjectGuid con
                 return GetPlayer(p, guid);
             break;
         case HighGuid::Transport:
-        case HighGuid::Mo_Transport:
         case HighGuid::GameObject:
             if (typemask & TYPEMASK_GAMEOBJECT)
                 return GetGameObject(p, guid);
             break;
-        case HighGuid::Unit:
+        case HighGuid::Creature:
         case HighGuid::Vehicle:
             if (typemask & TYPEMASK_UNIT)
                 return GetCreature(p, guid);
@@ -154,6 +152,14 @@ Object* ObjectAccessor::GetObjectByTypeMask(WorldObject const& p, ObjectGuid con
         case HighGuid::DynamicObject:
             if (typemask & TYPEMASK_DYNAMICOBJECT)
                 return GetDynamicObject(p, guid);
+            break;
+        case HighGuid::AreaTrigger:
+            if (typemask & TYPEMASK_AREATRIGGER)
+                return GetAreaTrigger(p, guid);
+            break;
+        case HighGuid::Conversation:
+            if (typemask & TYPEMASK_CONVERSATION)
+                return GetConversation(p, guid);
             break;
         case HighGuid::Corpse:
             break;
@@ -174,14 +180,29 @@ GameObject* ObjectAccessor::GetGameObject(WorldObject const& u, ObjectGuid const
     return u.GetMap()->GetGameObject(guid);
 }
 
-Transport* ObjectAccessor::GetTransport(WorldObject const& u, ObjectGuid const& guid)
+Transport* ObjectAccessor::GetTransportOnMap(WorldObject const& u, ObjectGuid const& guid)
 {
     return u.GetMap()->GetTransport(guid);
+}
+
+Transport* ObjectAccessor::GetTransport(ObjectGuid const& guid)
+{
+    return HashMapHolder<Transport>::Find(guid);
 }
 
 DynamicObject* ObjectAccessor::GetDynamicObject(WorldObject const& u, ObjectGuid const& guid)
 {
     return u.GetMap()->GetDynamicObject(guid);
+}
+
+AreaTrigger* ObjectAccessor::GetAreaTrigger(WorldObject const& u, ObjectGuid const& guid)
+{
+    return u.GetMap()->GetAreaTrigger(guid);
+}
+
+Conversation* ObjectAccessor::GetConversation(WorldObject const& u, ObjectGuid const& guid)
+{
+    return u.GetMap()->GetConversation(guid);
 }
 
 Unit* ObjectAccessor::GetUnit(WorldObject const& u, ObjectGuid const& guid)
@@ -236,7 +257,7 @@ Player* ObjectAccessor::FindPlayer(ObjectGuid const& guid)
     return player && player->IsInWorld() ? player : nullptr;
 }
 
-Player* ObjectAccessor::FindPlayerByName(std::string_view name)
+Player* ObjectAccessor::FindPlayerByName(std::string const& name)
 {
     Player* player = PlayerNameMapHolder::Find(name);
     if (!player || !player->IsInWorld())
@@ -247,7 +268,7 @@ Player* ObjectAccessor::FindPlayerByName(std::string_view name)
 
 Player* ObjectAccessor::FindPlayerByLowGUID(ObjectGuid::LowType lowguid)
 {
-    ObjectGuid guid(HighGuid::Player, lowguid);
+    ObjectGuid guid = ObjectGuid::Create<HighGuid::Player>(lowguid);
     return ObjectAccessor::FindPlayer(guid);
 }
 
@@ -256,14 +277,19 @@ Player* ObjectAccessor::FindConnectedPlayer(ObjectGuid const& guid)
     return HashMapHolder<Player>::Find(guid);
 }
 
-Player* ObjectAccessor::FindConnectedPlayerByName(std::string_view name)
+Player* ObjectAccessor::FindConnectedPlayerByName(std::string const& name)
 {
     return PlayerNameMapHolder::Find(name);
 }
 
+HashMapHolder<Player>::MapType const& ObjectAccessor::GetPlayers()
+{
+    return HashMapHolder<Player>::GetContainer();
+}
+
 void ObjectAccessor::SaveAllPlayers()
 {
-    std::shared_lock<std::shared_mutex> lock(*HashMapHolder<Player>::GetLock());
+    boost::shared_lock<boost::shared_mutex> lock(*HashMapHolder<Player>::GetLock());
 
     HashMapHolder<Player>::MapType const& m = GetPlayers();
     for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)

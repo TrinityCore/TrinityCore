@@ -20,12 +20,9 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "RBAC.h"
+#include "SocialPackets.h"
 #include "World.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
-
-PlayerSocial::PlayerSocial(): _playerGUID()
-{ }
 
 uint32 PlayerSocial::GetNumberOfSocialsWithFlag(SocialFlag flag)
 {
@@ -51,8 +48,8 @@ bool PlayerSocial::AddToSocialList(ObjectGuid const& friendGuid, SocialFlag flag
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_SOCIAL_FLAGS);
 
         stmt->setUInt8(0, itr->second.Flags);
-        stmt->setUInt32(1, GetPlayerGUID().GetCounter());
-        stmt->setUInt32(2, friendGuid.GetCounter());
+        stmt->setUInt64(1, GetPlayerGUID().GetCounter());
+        stmt->setUInt64(2, friendGuid.GetCounter());
 
         CharacterDatabase.Execute(stmt);
     }
@@ -62,8 +59,8 @@ bool PlayerSocial::AddToSocialList(ObjectGuid const& friendGuid, SocialFlag flag
 
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_SOCIAL);
 
-        stmt->setUInt32(0, GetPlayerGUID().GetCounter());
-        stmt->setUInt32(1, friendGuid.GetCounter());
+        stmt->setUInt64(0, GetPlayerGUID().GetCounter());
+        stmt->setUInt64(1, friendGuid.GetCounter());
         stmt->setUInt8(2, flag);
 
         CharacterDatabase.Execute(stmt);
@@ -84,8 +81,8 @@ void PlayerSocial::RemoveFromSocialList(ObjectGuid const& friendGuid, SocialFlag
     {
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_SOCIAL);
 
-        stmt->setUInt32(0, GetPlayerGUID().GetCounter());
-        stmt->setUInt32(1, friendGuid.GetCounter());
+        stmt->setUInt64(0, GetPlayerGUID().GetCounter());
+        stmt->setUInt64(1, friendGuid.GetCounter());
 
         CharacterDatabase.Execute(stmt);
 
@@ -96,8 +93,8 @@ void PlayerSocial::RemoveFromSocialList(ObjectGuid const& friendGuid, SocialFlag
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_SOCIAL_FLAGS);
 
         stmt->setUInt8(0, itr->second.Flags);
-        stmt->setUInt32(1, GetPlayerGUID());
-        stmt->setUInt32(2, friendGuid);
+        stmt->setUInt64(1, GetPlayerGUID().GetCounter());
+        stmt->setUInt64(2, friendGuid.GetCounter());
 
         CharacterDatabase.Execute(stmt);
     }
@@ -115,8 +112,8 @@ void PlayerSocial::SetFriendNote(ObjectGuid const& friendGuid, std::string const
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_SOCIAL_NOTE);
 
     stmt->setString(0, itr->second.Note);
-    stmt->setUInt32(1, GetPlayerGUID().GetCounter());
-    stmt->setUInt32(2, friendGuid.GetCounter());
+    stmt->setUInt64(1, GetPlayerGUID().GetCounter());
+    stmt->setUInt64(2, friendGuid.GetCounter());
 
     CharacterDatabase.Execute(stmt);
 }
@@ -125,52 +122,24 @@ void PlayerSocial::SendSocialList(Player* player, uint32 flags)
 {
     ASSERT(player);
 
-    uint32 friendsCount = 0;
-    uint32 ignoredCount = 0;
-    uint32 totalCount = 0;
+    WorldPackets::Social::ContactList contactList;
+    contactList.Flags = flags;
 
-    WorldPacket data(SMSG_CONTACT_LIST, (4 + 4 + _playerSocialMap.size() * 25)); // just can guess size
-    data << uint32(flags);                                  // 0x1 = Friendlist update. 0x2 = Ignorelist update. 0x4 = Mutelist update.
-    size_t countPos = data.wpos();
-    data << uint32(0);                                      // contacts count placeholder
-
-    for (auto& v : _playerSocialMap)
+    for (PlayerSocialMap::value_type& v : _playerSocialMap)
     {
-        uint8 contactFlags = v.second.Flags;
-        if (!(contactFlags & flags))
+        if (!(v.second.Flags & flags))
             continue;
 
-        // Check client limit for friends list
-        if (contactFlags & SOCIAL_FLAG_FRIEND)
-            if (++friendsCount > SOCIALMGR_FRIEND_LIMIT)
-                continue;
+        sSocialMgr->GetFriendInfo(player, v.first, v.second);
 
-        // Check client limit for ignore list
-        if (contactFlags & SOCIAL_FLAG_IGNORED)
-            if (++ignoredCount > SOCIALMGR_IGNORE_LIMIT)
-                continue;
+        contactList.Contacts.emplace_back(v.first, v.second);
 
-        ++totalCount;
-        SocialMgr::GetFriendInfo(player, v.first, v.second);
-
-        data << uint64(v.first);                            // player guid
-        data << uint32(contactFlags);                       // player flag (0x1 = Friend, 0x2 = Ignored, 0x4 = Muted)
-        data << v.second.Note;                              // string note
-        if (contactFlags & SOCIAL_FLAG_FRIEND)              // if IsFriend()
-        {
-            data << uint8(v.second.Status);                 // online/offline/etc?
-            if (v.second.Status)                            // if online
-            {
-                data << uint32(v.second.Area);              // player area
-                data << uint32(v.second.Level);             // player level
-                data << uint32(v.second.Class);             // player class
-            }
-        }
+        // client's friends list and ignore list limit
+        if (contactList.Contacts.size() >= (((flags & SOCIAL_FLAG_FRIEND) != 0) ? SOCIALMGR_FRIEND_LIMIT : SOCIALMGR_IGNORE_LIMIT))
+            break;
     }
 
-    data.put<uint32>(countPos, totalCount);
-
-    player->SendDirectMessage(&data);
+    player->SendDirectMessage(contactList.Write());
 }
 
 bool PlayerSocial::_HasContact(ObjectGuid const& guid, SocialFlag flags)
@@ -242,8 +211,8 @@ void SocialMgr::GetFriendInfo(Player* player, ObjectGuid const& friendGUID, Frie
         }
 
         friendInfo.Area = target->GetZoneId();
-        friendInfo.Level = target->GetLevel();
-        friendInfo.Class = target->GetClass();
+        friendInfo.Level = target->getLevel();
+        friendInfo.Class = target->getClass();
     }
 }
 
@@ -252,36 +221,13 @@ void SocialMgr::SendFriendStatus(Player* player, FriendsResult result, ObjectGui
     FriendInfo fi;
     GetFriendInfo(player, friendGuid, fi);
 
-    WorldPacket data(SMSG_FRIEND_STATUS, 9);
-    data << uint8(result);
-    data << friendGuid;
-    switch (result)
-    {
-        case FRIEND_ADDED_OFFLINE:
-        case FRIEND_ADDED_ONLINE:
-            data << fi.Note;
-            break;
-        default:
-            break;
-    }
-
-    switch (result)
-    {
-        case FRIEND_ADDED_ONLINE:
-        case FRIEND_ONLINE:
-            data << uint8(fi.Status);
-            data << uint32(fi.Area);
-            data << uint32(fi.Level);
-            data << uint32(fi.Class);
-            break;
-        default:
-            break;
-    }
+    WorldPackets::Social::FriendStatus friendStatus;
+    friendStatus.Initialize(friendGuid, result, fi);
 
     if (broadcast)
-        BroadcastToFriendListers(player, &data);
+        BroadcastToFriendListers(player, friendStatus.Write());
     else
-        player->SendDirectMessage(&data);
+        player->SendDirectMessage(friendStatus.Write());
 }
 
 void SocialMgr::BroadcastToFriendListers(Player* player, WorldPacket const* packet)
@@ -322,10 +268,11 @@ PlayerSocial* SocialMgr::LoadFromDB(PreparedQueryResult result, ObjectGuid const
         {
             Field* fields = result->Fetch();
 
-            ObjectGuid friendGuid = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt32());
+            ObjectGuid friendGuid = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64());
+            ObjectGuid friendAccountGuid = ObjectGuid::Create<HighGuid::WowAccount>(uint64(fields[1].GetUInt32()));
 
-            uint8 flag = fields[1].GetUInt8();
-            social->_playerSocialMap[friendGuid] = FriendInfo(flag, fields[2].GetString());
+            uint8 flag = fields[2].GetUInt8();
+            social->_playerSocialMap[friendGuid] = FriendInfo(friendAccountGuid, flag, fields[3].GetString());
         }
         while (result->NextRow());
     }

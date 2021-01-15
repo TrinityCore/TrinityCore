@@ -15,145 +15,169 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/* ScriptData
+SDName: Boss_Herod
+SD%Complete: 95
+SDComment: Should in addition spawn Myrmidons in the hallway outside
+SDCategory: Scarlet Monastery
+EndScriptData */
+
+#include "ScriptMgr.h"
 #include "scarlet_monastery.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
-#include "ScriptMgr.h"
 
-enum HerodSays
+enum Says
 {
-    SAY_AGGRO = 0,
-    SAY_WHIRLWIND = 1,
-    SAY_ENRAGE = 2,
-    SAY_KILL = 3,
-    EMOTE_ENRAGE = 4
+    SAY_AGGRO                   = 0,
+    SAY_WHIRLWIND               = 1,
+    SAY_ENRAGE                  = 2,
+    SAY_KILL                    = 3,
+    EMOTE_ENRAGE                = 4
 };
 
-enum HerodSpells
+enum Spells
 {
-    SPELL_RUSHINGCHARGE = 8260,
-    SPELL_CLEAVE = 15496,
-    SPELL_WHIRLWIND = 8989,
-    SPELL_FRENZY = 8269
+    SPELL_RUSHINGCHARGE         = 8260,
+    SPELL_CLEAVE                = 15496,
+    SPELL_WHIRLWIND             = 8989,
+    SPELL_FRENZY                = 8269
 };
 
-enum HerodNpcs
+enum Npcs
 {
-    NPC_SCARLET_TRAINEE = 6575,
-    NPC_SCARLET_MYRMIDON = 4295
+    NPC_SCARLET_TRAINEE         = 6575,
+    NPC_SCARLET_MYRMIDON        = 4295
 };
 
-enum HerodEvents
+enum Events
 {
-    EVENT_CLEAVE = 1,
+    EVENT_CLEAVE                = 1,
     EVENT_WHIRLWIND
 };
 
 Position const ScarletTraineePos = { 1939.18f, -431.58f, 17.09f, 6.22f };
 
-struct boss_herod : public BossAI
+class boss_herod : public CreatureScript
 {
-    boss_herod(Creature* creature) : BossAI(creature, DATA_HEROD)
-    {
-        _enrage = false;
-    }
+    public:
+        boss_herod() : CreatureScript("boss_herod") { }
 
-    void Reset() override
-    {
-        _enrage = false;
-        _Reset();
-    }
-
-    void JustEngagedWith(Unit* who) override
-    {
-        Talk(SAY_AGGRO);
-        DoCast(me, SPELL_RUSHINGCHARGE);
-        BossAI::JustEngagedWith(who);
-
-        events.ScheduleEvent(EVENT_CLEAVE, 12s);
-        events.ScheduleEvent(EVENT_WHIRLWIND, 1min);
-    }
-
-    void KilledUnit(Unit* victim) override
-    {
-        if (victim->GetTypeId() == TYPEID_PLAYER)
-            Talk(SAY_KILL);
-    }
-
-    void JustDied(Unit* /*killer*/) override
-    {
-        _JustDied();
-
-        for (uint8 itr = 0; itr < 20; ++itr)
+        struct boss_herodAI : public BossAI
         {
-            Position randomNearPosition = me->GetRandomPoint(ScarletTraineePos, 5.f);
-            randomNearPosition.SetOrientation(ScarletTraineePos.GetOrientation());
-            me->SummonCreature(NPC_SCARLET_TRAINEE, randomNearPosition, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10min);
-        }
-    }
+            boss_herodAI(Creature* creature) : BossAI(creature, DATA_HEROD)
+            {
+                _enrage = false;
+            }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
-    {
-        if (!_enrage && me->HealthBelowPctDamaged(30, damage))
+            void Reset() override
+            {
+                _enrage = false;
+                _Reset();
+            }
+
+            void EnterCombat(Unit* /*who*/) override
+            {
+                Talk(SAY_AGGRO);
+                DoCast(me, SPELL_RUSHINGCHARGE);
+                _EnterCombat();
+
+                events.ScheduleEvent(EVENT_CLEAVE, 12000);
+                events.ScheduleEvent(EVENT_WHIRLWIND, 60000);
+            }
+
+            void KilledUnit(Unit* /*victim*/) override
+            {
+                Talk(SAY_KILL);
+            }
+
+            void JustDied(Unit* /*killer*/) override
+            {
+                _JustDied();
+
+                for (uint8 i = 0; i < 20; ++i)
+                    me->SummonCreature(NPC_SCARLET_TRAINEE, ScarletTraineePos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
+            }
+
+            void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+            {
+                if (!_enrage && me->HealthBelowPctDamaged(30, damage))
+                {
+                    Talk(EMOTE_ENRAGE);
+                    Talk(SAY_ENRAGE);
+                    DoCast(me, SPELL_FRENZY);
+                    _enrage = true;
+                }
+            }
+
+            void ExecuteEvent(uint32 eventId) override
+            {
+                switch (eventId)
+                {
+                    case EVENT_CLEAVE:
+                        DoCastVictim(SPELL_CLEAVE);
+                        events.ScheduleEvent(EVENT_CLEAVE, 12000);
+                        break;
+                    case EVENT_WHIRLWIND:
+                        Talk(SAY_WHIRLWIND);
+                        DoCastVictim(SPELL_WHIRLWIND);
+                        events.ScheduleEvent(EVENT_WHIRLWIND, 30000);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            private:
+                bool _enrage;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
         {
-            Talk(EMOTE_ENRAGE);
-            Talk(SAY_ENRAGE);
-            DoCastSelf(SPELL_FRENZY);
-            _enrage = true;
+            return GetScarletMonasteryAI<boss_herodAI>(creature);
         }
-    }
-
-    void ExecuteEvent(uint32 eventId) override
-    {
-        switch (eventId)
-        {
-            case EVENT_CLEAVE:
-                DoCastVictim(SPELL_CLEAVE);
-                events.Repeat(12s);
-                break;
-            case EVENT_WHIRLWIND:
-                Talk(SAY_WHIRLWIND);
-                DoCastVictim(SPELL_WHIRLWIND);
-                events.Repeat(30s);
-                break;
-            default:
-                break;
-        }
-    }
-
-private:
-    bool _enrage;
 };
 
-struct npc_scarlet_trainee : public EscortAI
+class npc_scarlet_trainee : public CreatureScript
 {
-    npc_scarlet_trainee(Creature* creature) : EscortAI(creature)
+public:
+    npc_scarlet_trainee() : CreatureScript("npc_scarlet_trainee") { }
+
+    CreatureAI* GetAI(Creature* creature) const override
     {
-        _startTimer = urand(1000, 6000);
+        return GetScarletMonasteryAI<npc_scarlet_traineeAI>(creature);
     }
 
-    void UpdateAI(uint32 diff) override
+    struct npc_scarlet_traineeAI : public EscortAI
     {
-        if (_startTimer)
+        npc_scarlet_traineeAI(Creature* creature) : EscortAI(creature)
         {
-            if (_startTimer <= diff)
-            {
-                Start(true, true);
-                _startTimer = 0;
-            }
-            else
-                _startTimer -= diff;
+            Start_Timer = urand(1000, 6000);
         }
 
-        EscortAI::UpdateAI(diff);
-    }
+        uint32 Start_Timer;
 
-private:
-    uint32 _startTimer;
+        void Reset() override { }
+        void EnterCombat(Unit* /*who*/) override { }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (Start_Timer)
+            {
+                if (Start_Timer <= diff)
+                {
+                    Start(true, true);
+                    Start_Timer = 0;
+                } else Start_Timer -= diff;
+            }
+
+            EscortAI::UpdateAI(diff);
+        }
+    };
 };
 
 void AddSC_boss_herod()
 {
-    RegisterScarletMonasteryCreatureAI(boss_herod);
-    RegisterScarletMonasteryCreatureAI(npc_scarlet_trainee);
+    new boss_herod();
+    new npc_scarlet_trainee();
 }

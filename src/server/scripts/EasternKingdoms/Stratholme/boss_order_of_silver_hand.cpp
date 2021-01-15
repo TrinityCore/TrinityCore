@@ -24,9 +24,9 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "stratholme.h"
-#include "Player.h"
 
 /*#####
 # Additional:
@@ -104,7 +104,7 @@ public:
             }
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) override
         {
         }
 
@@ -129,7 +129,7 @@ public:
                     break;
             }
 
-            if (killer && instance->GetData(TYPE_SH_QUEST))
+            if (instance->GetData(TYPE_SH_QUEST))
             {
                 if (Player* player = killer->ToPlayer())
                     player->KilledMonsterCredit(SH_QUEST_CREDIT);

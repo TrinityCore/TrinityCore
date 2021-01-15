@@ -23,7 +23,6 @@ SDCategory: Dragonblight
 EndScriptData */
 
 /* ContentData
-npc_alexstrasza_wr_gate
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -165,8 +164,8 @@ class npc_commander_eligor_dawnbringer : public CreatureScript
                 for (ObjectGuid& guid : imageList)
                     guid.Clear();
 
-                _events.ScheduleEvent(EVENT_GET_TARGETS, 5s);
-                _events.ScheduleEvent(EVENT_START_RANDOM, 20s);
+                _events.ScheduleEvent(EVENT_GET_TARGETS, 5000);
+                _events.ScheduleEvent(EVENT_START_RANDOM, 20000);
             }
 
             void MovementInform(uint32 type, uint32 id) override
@@ -180,29 +179,24 @@ class npc_commander_eligor_dawnbringer : public CreatureScript
 
                         switch (talkWing)
                         {
-                        case 0: // Pinnacle of Naxxramas
-                            {
-                                switch (urand (0, 1))
+                            case 0: // Pinnacle of Naxxramas
+                                switch (urand(0, 1))
                                 {
                                     case 0: ChangeImage(NPC_IMAGE_OF_KELTHUZAD, MODEL_IMAGE_OF_KELTHUZAD, SAY_KELTHUZAD_1);
-                                            _events.ScheduleEvent(EVENT_KELTHUZAD_2, 8s); break;
+                                        _events.ScheduleEvent(EVENT_KELTHUZAD_2, 8000); break;
                                     case 1: ChangeImage(NPC_IMAGE_OF_SAPPHIRON, MODEL_IMAGE_OF_SAPPHIRON, SAY_SAPPHIRON); break;
                                 }
-                            }
-                            break;
-                        case 1: // Death knight wing of Naxxramas
-                            {
-                                switch (urand (0, 2))
+                                break;
+                            case 1: // Death knight wing of Naxxramas
+                                switch (urand(0, 2))
                                 {
                                     case 0: ChangeImage(NPC_IMAGE_OF_RAZUVIOUS, MODEL_IMAGE_OF_RAZUVIOUS, SAY_RAZUVIOUS); break;
                                     case 1: ChangeImage(NPC_IMAGE_OF_GOTHIK, MODEL_IMAGE_OF_GOTHIK, SAY_GOTHIK); break;
                                     case 2: ChangeImage(NPC_IMAGE_OF_THANE, MODEL_IMAGE_OF_THANE, SAY_DEATH_KNIGHTS_1);
-                                            _events.ScheduleEvent(EVENT_DEATH_KNIGHTS_2, 10s); break;
+                                        _events.ScheduleEvent(EVENT_DEATH_KNIGHTS_2, 10000); break;
                                 }
-                            }
-                            break;
-                        case 2: // Blighted abomination wing of Naxxramas
-                            {
+                                break;
+                            case 2: // Blighted abomination wing of Naxxramas
                                 switch (urand (0, 3))
                                 {
                                     case 0: ChangeImage(NPC_IMAGE_OF_PATCHWERK, MODEL_IMAGE_OF_PATCHWERK, SAY_PATCHWERK); break;
@@ -210,32 +204,27 @@ class npc_commander_eligor_dawnbringer : public CreatureScript
                                     case 2: ChangeImage(NPC_IMAGE_OF_THADDIUS, MODEL_IMAGE_OF_THADDIUS, SAY_THADDIUS); break;
                                     case 3: ChangeImage(NPC_IMAGE_OF_GLUTH, MODEL_IMAGE_OF_GLUTH, SAY_GLUTH); break;
                                 }
-                            }
-                            break;
-                        case 3: // Accursed spider wing of Naxxramas
-                            {
+                                break;
+                            case 3: // Accursed spider wing of Naxxramas
                                 switch (urand (0, 2))
                                 {
                                     case 0: ChangeImage(NPC_IMAGE_OF_ANUBREKHAN, MODEL_IMAGE_OF_ANUBREKHAN, SAY_ANUBREKHAN); break;
                                     case 1: ChangeImage(NPC_IMAGE_OF_FAERLINA, MODEL_IMAGE_OF_FAERLINA, SAY_FAERLINA); break;
                                     case 2: ChangeImage(NPC_IMAGE_OF_MAEXXNA, MODEL_IMAGE_OF_MAEXXNA, SAY_MAEXXNA); break;
                                 }
-                            }
-                            break;
-                        case 4: // Dread plague wing of Naxxramas
-                            {
+                                break;
+                            case 4: // Dread plague wing of Naxxramas
                                 switch (urand (0, 2))
                                 {
                                     case 0: ChangeImage(NPC_IMAGE_OF_NOTH, MODEL_IMAGE_OF_NOTH, SAY_NOTH); break;
                                     case 1: ChangeImage(NPC_IMAGE_OF_HEIGAN, MODEL_IMAGE_OF_HEIGAN, SAY_HEIGAN_1);
-                                            _events.ScheduleEvent(EVENT_HEIGAN_2, 8s); break;
+                                            _events.ScheduleEvent(EVENT_HEIGAN_2, 8000); break;
                                     case 2: ChangeImage(NPC_IMAGE_OF_LOATHEB, MODEL_IMAGE_OF_LOATHEB, SAY_LOATHEB); break;
                                 }
-                            }
-                            break;
-                        case 5: // Home
-                            _events.ScheduleEvent(EVENT_START_RANDOM, 30s);
-                            break;
+                                break;
+                            case 5: // Home
+                                _events.ScheduleEvent(EVENT_START_RANDOM, 30000);
+                                break;
                         }
                     }
                 }
@@ -278,7 +267,7 @@ class npc_commander_eligor_dawnbringer : public CreatureScript
                     creature->SetEntry(entry);
                     creature->SetDisplayId(model);
                     creature->CastSpell(creature, SPELL_HEROIC_IMAGE_CHANNEL);
-                    _events.ScheduleEvent(EVENT_TALK_COMPLETE, 40s);
+                    _events.ScheduleEvent(EVENT_TALK_COMPLETE, 40000);
                 }
             }
 
@@ -302,7 +291,7 @@ class npc_commander_eligor_dawnbringer : public CreatureScript
                         case EVENT_START_RANDOM:
                             talkWing = urand (0, 4);
                             Talk(talkWing);
-                            _events.ScheduleEvent(EVENT_MOVE_TO_POINT, 8s);
+                            _events.ScheduleEvent(EVENT_MOVE_TO_POINT, 8000);
                             break;
                         case EVENT_MOVE_TO_POINT:
                             me->SetWalk(true);
@@ -312,14 +301,14 @@ class npc_commander_eligor_dawnbringer : public CreatureScript
                         case EVENT_TALK_COMPLETE:
                             talkWing = 5;
                             Talk(talkWing);
-                            _events.ScheduleEvent(EVENT_MOVE_TO_POINT, 5s);
+                            _events.ScheduleEvent(EVENT_MOVE_TO_POINT, 5000);
                             break;
                         case EVENT_GET_TARGETS:
                             StoreTargets();
                             break;
                         case EVENT_KELTHUZAD_2:
                             Talk(SAY_KELTHUZAD_2);
-                            _events.ScheduleEvent(EVENT_KELTHUZAD_3, 8s);
+                            _events.ScheduleEvent(EVENT_KELTHUZAD_3, 8000);
                             break;
                         case EVENT_KELTHUZAD_3:
                             Talk(SAY_KELTHUZAD_3);
@@ -331,7 +320,7 @@ class npc_commander_eligor_dawnbringer : public CreatureScript
                                 creature->SetEntry(NPC_IMAGE_OF_BLAUMEUX);
                                 creature->SetDisplayId(MODEL_IMAGE_OF_BLAUMEUX);
                             }
-                            _events.ScheduleEvent(EVENT_DEATH_KNIGHTS_3, 10s);
+                            _events.ScheduleEvent(EVENT_DEATH_KNIGHTS_3, 10000);
                             break;
                         case EVENT_DEATH_KNIGHTS_3:
                             Talk(SAY_DEATH_KNIGHTS_3);
@@ -340,7 +329,7 @@ class npc_commander_eligor_dawnbringer : public CreatureScript
                                 creature->SetEntry(NPC_IMAGE_OF_ZELIEK);
                                 creature->SetDisplayId(MODEL_IMAGE_OF_ZELIEK);
                             }
-                            _events.ScheduleEvent(EVENT_DEATH_KNIGHTS_4, 10s);
+                            _events.ScheduleEvent(EVENT_DEATH_KNIGHTS_4, 10000);
                             break;
                         case EVENT_DEATH_KNIGHTS_4:
                             Talk(SAY_DEATH_KNIGHTS_4);
@@ -365,6 +354,16 @@ class npc_commander_eligor_dawnbringer : public CreatureScript
         {
             return new npc_commander_eligor_dawnbringerAI(creature);
         }
+};
+
+enum AlexstraszaWrGate
+{
+    // Quest
+    QUEST_RETURN_TO_AG_A    = 12499,
+    QUEST_RETURN_TO_AG_H    = 12500,
+
+    // Movie
+    MOVIE_ID_GATES          = 14
 };
 
 /*######
@@ -402,15 +401,15 @@ public:
             if (!tree || !player)
                 return;
 
-            tree->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+            tree->RemoveNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
 
             if (roll == 1) // friendly version
             {
                 tree->CastSpell(player, SPELL_CREATE_ITEM_BARK);
                 tree->AI()->Talk(SAY_WALKER_FRIENDLY, player);
-                tree->DespawnOrUnsummon(1s);
+                tree->DespawnOrUnsummon(1000);
             }
-            else // enemy version
+            else if (roll == 0) // enemy version
             {
                 tree->AI()->Talk(SAY_WALKER_ENEMY, player);
                 tree->SetFaction(FACTION_MONSTER);
@@ -447,7 +446,7 @@ public:
 
             lothalor->AI()->Talk(SAY_LOTHALOR);
             lothalor->RemoveAura(SPELL_CONFUSED);
-            lothalor->DespawnOrUnsummon(4s);
+            lothalor->DespawnOrUnsummon(4000);
         }
 
         void Register() override
@@ -470,8 +469,10 @@ enum WyrmDefenderEnum
 {
     // Quest data
     QUEST_DEFENDING_WYRMREST_TEMPLE          = 12372,
-    GOSSIP_OPTION_ID                         = 0,
-    MENU_ID                                  = 9568,
+    GOSSIP_TEXTID_DEF1                       = 12899,
+
+    // Gossip data
+    GOSSIP_TEXTID_DEF2                       = 12900,
 
     // Spells data
     SPELL_CHARACTER_SCRIPT                   = 49213,
@@ -483,6 +484,8 @@ enum WyrmDefenderEnum
     WHISPER_MOUNTED                        = 0,
     BOSS_EMOTE_ON_LOW_HEALTH               = 2
 };
+
+#define GOSSIP_ITEM_1      "We need to get into the fight. Are you ready?"
 
 class npc_wyrmrest_defender : public CreatureScript
 {
@@ -539,14 +542,14 @@ class npc_wyrmrest_defender : public CreatureScript
                 }
             }
 
-            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
             {
-                switch (spellInfo->Id)
+                switch (spell->Id)
                 {
                     case SPELL_WYRMREST_DEFENDER_MOUNT:
                         Talk(WHISPER_MOUNTED, me->GetCharmerOrOwner());
                         me->SetImmuneToAll(false);
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
+                        me->AddUnitFlag(UNIT_FLAG_PVP_ATTACKABLE);
                         break;
                     // Both below are for checking low hp warning
                     case SPELL_DEFENDER_ON_LOW_HEALTH_EMOTE:
@@ -561,20 +564,32 @@ class npc_wyrmrest_defender : public CreatureScript
                 }
             }
 
-            bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+            bool GossipHello(Player* player) override
             {
-                if (menuId == MENU_ID && gossipListId == GOSSIP_OPTION_ID)
+                if (player->GetQuestStatus(QUEST_DEFENDING_WYRMREST_TEMPLE) == QUEST_STATUS_INCOMPLETE)
                 {
-                    // Makes player cast trigger spell for 49207 on self
-                    player->CastSpell(player, SPELL_CHARACTER_SCRIPT, true);
-                    CloseGossipMenuFor(player);
+                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                    SendGossipMenuFor(player, GOSSIP_TEXTID_DEF1, me->GetGUID());
                 }
+                else
+                    SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
+
                 return true;
             }
 
-            void OnCharmed(bool /*apply*/) override
+            bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
             {
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+                ClearGossipMenuFor(player);
+                if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                {
+                    SendGossipMenuFor(player, GOSSIP_TEXTID_DEF2, me->GetGUID());
+                    // Makes player cast trigger spell for 49207 on self
+                    player->CastSpell(player, SPELL_CHARACTER_SCRIPT, true);
+                    // The gossip should not auto close
+                }
+
+                return true;
             }
         };
 
@@ -616,18 +631,18 @@ class npc_torturer_lecraft : public CreatureScript
                 _playerGUID.Clear();
             }
 
-            void JustEngagedWith(Unit* who) override
+            void EnterCombat(Unit* who) override
             {
-                _events.ScheduleEvent(EVENT_HEMORRHAGE, 5s, 8s);
-                _events.ScheduleEvent(EVENT_KIDNEY_SHOT, 12s, 15s);
+                _events.ScheduleEvent(EVENT_HEMORRHAGE, urand(5000, 8000));
+                _events.ScheduleEvent(EVENT_KIDNEY_SHOT, urand(12000, 15000));
 
                 if (Player* player = who->ToPlayer())
                     Talk (SAY_AGGRO, player);
             }
 
-            void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
+            void SpellHit(Unit* caster, SpellInfo const* spell) override
             {
-                if (spellInfo->Id != SPELL_HIGH_EXECUTORS_BRANDING_IRON)
+                if (spell->Id != SPELL_HIGH_EXECUTORS_BRANDING_IRON)
                     return;
 
                 if (Player* player = caster->ToPlayer())
@@ -663,11 +678,11 @@ class npc_torturer_lecraft : public CreatureScript
                     {
                         case EVENT_HEMORRHAGE:
                             DoCastVictim(SPELL_HEMORRHAGE);
-                            _events.ScheduleEvent(EVENT_HEMORRHAGE, 12s, 168s);
+                            _events.ScheduleEvent(EVENT_HEMORRHAGE, urand(12000, 168000));
                             break;
                         case EVENT_KIDNEY_SHOT:
                             DoCastVictim(SPELL_KIDNEY_SHOT);
-                            _events.ScheduleEvent(EVENT_KIDNEY_SHOT, 20s, 26s);
+                            _events.ScheduleEvent(EVENT_KIDNEY_SHOT, urand(20000, 26000));
                             break;
                         default:
                             break;
@@ -687,6 +702,31 @@ class npc_torturer_lecraft : public CreatureScript
         }
 };
 
+enum MessengerTorvus
+{
+    NPC_MESSENGER_TORVUS        = 26649,
+    QUEST_MESSAGE_FROM_THE_WEST = 12033,
+
+    TALK_0 = 0
+};
+
+class at_nearby_messenger_torvus : public AreaTriggerScript
+{
+public:
+    at_nearby_messenger_torvus() : AreaTriggerScript("at_nearby_messenger_torvus") { }
+
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*at*/, bool entered) override
+    {
+        if (player->IsAlive() && entered)
+            if (Quest const* quest = sObjectMgr->GetQuestTemplate(QUEST_MESSAGE_FROM_THE_WEST))
+                if (player->CanTakeQuest(quest, false))
+                    if (Creature* creature = player->FindNearestCreature(NPC_MESSENGER_TORVUS, 50.0f, true))
+                        creature->AI()->Talk(TALK_0, player);
+
+        return true;
+    }
+};
+
 void AddSC_dragonblight()
 {
     new npc_commander_eligor_dawnbringer();
@@ -694,4 +734,5 @@ void AddSC_dragonblight()
     new spell_q12096_q12092_bark();
     new npc_wyrmrest_defender();
     new npc_torturer_lecraft();
+    new at_nearby_messenger_torvus();
 }

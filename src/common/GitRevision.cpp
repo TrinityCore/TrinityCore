@@ -68,6 +68,11 @@ char const* GitRevision::GetFullDatabase()
     return _FULL_DATABASE;
 }
 
+char const* GitRevision::GetHotfixesDatabase()
+{
+    return _HOTFIXES_DATABASE;
+}
+
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
 #  ifdef _WIN64
 #    define TRINITY_PLATFORM_STR "Win64"

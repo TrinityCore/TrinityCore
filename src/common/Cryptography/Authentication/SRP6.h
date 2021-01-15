@@ -23,10 +23,12 @@
 #include "Define.h"
 #include "Common.h"
 #include "CryptoHash.h"
+#include "Optional.h"
 #include <array>
-#include <optional>
 
-namespace Trinity::Crypto
+namespace Trinity
+{
+namespace Crypto
 {
     class TC_COMMON_API SRP6
     {
@@ -40,6 +42,11 @@ namespace Trinity::Crypto
 
             static std::array<uint8, 1> const g;
             static std::array<uint8, 32> const N;
+
+            // this is the old sha_pass_hash hack
+            // YOU SHOULD NEVER STORE THIS HASH, if you do you are breaking SRP6 guarantees
+            // use MakeRegistrationData instead
+            static std::pair<Salt, Verifier> MakeRegistrationDataFromHash_DEPRECATED_DONOTUSE(SHA1::Digest const& hash);
 
             // username + password must be passed through Utf8ToUpperOnlyLatin FIRST!
             static std::pair<Salt, Verifier> MakeRegistrationData(std::string const& username, std::string const& password);
@@ -55,12 +62,13 @@ namespace Trinity::Crypto
             }
 
             SRP6(std::string const& username, Salt const& salt, Verifier const& verifier);
-            std::optional<SessionKey> VerifyChallengeResponse(EphemeralKey const& A, SHA1::Digest const& clientM);
+            Optional<SessionKey> VerifyChallengeResponse(EphemeralKey const& A, SHA1::Digest const& clientM);
 
         private:
             bool _used = false; // a single instance can only be used to verify once
 
             static Verifier CalculateVerifier(std::string const& username, std::string const& password, Salt const& salt);
+            static Verifier CalculateVerifierFromHash(SHA1::Digest const& hash, Salt const& salt);
             static SessionKey SHA1Interleave(EphemeralKey const& S);
 
             /* global algorithm parameters */
@@ -78,6 +86,7 @@ namespace Trinity::Crypto
             Salt const s; // s - the user's password salt, random, used to calculate v on registration
             EphemeralKey const B; // B = 3v + g^b
     };
+}
 }
 
 #endif

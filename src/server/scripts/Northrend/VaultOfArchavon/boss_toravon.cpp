@@ -34,30 +34,33 @@ enum Spells
     SPELL_FROZEN_ORB_AURA   = 72067,
     SPELL_RANDOM_AGGRO      = 72084,
 
-    // Frozen Orb Stalker
-    FROZEN_ORB_STALKER_AURA = 72094
+    // Frost Warder
+    SPELL_FROST_BLAST       = 72123,    // don't know cd... using 20 secs.
+    SPELL_FROZEN_MALLET_2   = 72122
 };
 
 enum Events
 {
     EVENT_FREEZING_GROUND   = 1,
     EVENT_FROZEN_ORB        = 2,
-    EVENT_WHITEOUT          = 3
+    EVENT_WHITEOUT          = 3,
+
+    EVENT_FROST_BLAST       = 4
 };
 
 struct boss_toravon : public BossAI
 {
     boss_toravon(Creature* creature) : BossAI(creature, DATA_TORAVON) { }
 
-    void JustEngagedWith(Unit* who) override
+    void EnterCombat(Unit* /*who*/) override
     {
         DoCastSelf(SPELL_FROZEN_MALLET);
 
-        events.ScheduleEvent(EVENT_FROZEN_ORB, 12s);
-        events.ScheduleEvent(EVENT_WHITEOUT, 25s);
-        events.ScheduleEvent(EVENT_FREEZING_GROUND, 7s);
+        events.ScheduleEvent(EVENT_FROZEN_ORB, Seconds(12));
+        events.ScheduleEvent(EVENT_WHITEOUT, Seconds(25));
+        events.ScheduleEvent(EVENT_FREEZING_GROUND, Seconds(7));
 
-        BossAI::JustEngagedWith(who);
+        _EnterCombat();
     }
 
     void UpdateAI(uint32 diff) override
@@ -75,19 +78,17 @@ struct boss_toravon : public BossAI
             switch (eventId)
             {
                 case EVENT_FROZEN_ORB:
-                {
-                    me->CastSpell(me, SPELL_FROZEN_ORB, CastSpellExtraArgs().AddSpellMod(SPELLVALUE_MAX_TARGETS, RAID_MODE(1, 3)));
-                    events.Repeat(32s);
+                    me->CastCustomSpell(SPELL_FROZEN_ORB, SPELLVALUE_MAX_TARGETS, RAID_MODE(1, 3), me);
+                    events.Repeat(Seconds(32));
                     break;
-                }
                 case EVENT_WHITEOUT:
                     DoCastSelf(SPELL_WHITEOUT);
-                    events.Repeat(38s);
+                    events.Repeat(Seconds(38));
                     break;
                 case EVENT_FREEZING_GROUND:
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                         DoCast(target, SPELL_FREEZING_GROUND);
-                    events.Repeat(38s);
+                    events.Repeat(Seconds(38));
                     break;
                 default:
                     break;
@@ -101,21 +102,52 @@ struct boss_toravon : public BossAI
     }
 };
 
-struct npc_frozen_orb_stalker : public ScriptedAI
+struct npc_frost_warder : public ScriptedAI
 {
-    npc_frozen_orb_stalker(Creature* creature) : ScriptedAI(creature) { }
+    npc_frost_warder(Creature* creature) : ScriptedAI(creature) { }
 
     void Reset() override
     {
-        DoCastSelf(FROZEN_ORB_STALKER_AURA);
+        _events.Reset();
     }
+
+    void EnterCombat(Unit* /*who*/) override
+    {
+        DoZoneInCombat();
+
+        DoCastSelf(SPELL_FROZEN_MALLET_2);
+
+        _events.ScheduleEvent(EVENT_FROST_BLAST, 5000);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        if (_events.ExecuteEvent() == EVENT_FROST_BLAST)
+        {
+            DoCastVictim(SPELL_FROST_BLAST);
+            _events.ScheduleEvent(EVENT_FROST_BLAST, 20000);
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
 };
 
 struct npc_frozen_orb : public ScriptedAI
 {
     npc_frozen_orb(Creature* creature) : ScriptedAI(creature) { }
 
-    void IsSummonedBy(WorldObject* /*summoner*/) override
+    void IsSummonedBy(Unit* /*summoner*/) override
     {
         DoCastSelf(SPELL_FROZEN_ORB_AURA, true);
         DoCastSelf(SPELL_FROZEN_ORB_DMG, true);
@@ -126,7 +158,7 @@ struct npc_frozen_orb : public ScriptedAI
             if (toravon->IsInCombat())
             {
                 toravon->AI()->JustSummoned(me);
-                DoZoneInCombat();
+                me->SetInCombatWithZone();
             }
             else
                 me->DespawnOrUnsummon();
@@ -147,12 +179,13 @@ class spell_toravon_random_aggro : public SpellScript
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         Creature* caster = GetCaster()->ToCreature();
+        if (!caster->IsAIEnabled)
+            return;
 
-        caster->GetThreatManager().ResetAllThreat();
+        caster->GetThreatManager().resetAllAggro();
 
-        if (CreatureAI* ai = caster->AI())
-            if (Unit* target = ai->SelectTarget(SelectTargetMethod::Random, 1))
-                caster->GetThreatManager().AddThreat(target, 1000000);
+        if (Unit* target = caster->AI()->SelectTarget(SELECT_TARGET_RANDOM, 1))
+            caster->GetThreatManager().AddThreat(target, 1000000);
     }
 
     void Register() override
@@ -164,7 +197,7 @@ class spell_toravon_random_aggro : public SpellScript
 void AddSC_boss_toravon()
 {
     RegisterVaultOfArchavonCreatureAI(boss_toravon);
-    RegisterVaultOfArchavonCreatureAI(npc_frozen_orb_stalker);
+    RegisterVaultOfArchavonCreatureAI(npc_frost_warder);
     RegisterVaultOfArchavonCreatureAI(npc_frozen_orb);
     RegisterSpellScript(spell_toravon_random_aggro);
 }

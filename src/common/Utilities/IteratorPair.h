@@ -45,6 +45,18 @@ namespace Trinity
 
     namespace Containers
     {
+        template<typename iterator>
+        constexpr Trinity::IteratorPair<iterator> MakeIteratorPair(iterator first, iterator second)
+        {
+            return { first, second };
+        }
+
+        template<typename iterator>
+        constexpr Trinity::IteratorPair<iterator> MakeIteratorPair(std::pair<iterator, iterator> iterators)
+        {
+            return iterators;
+        }
+
         template<class M>
         inline auto MapEqualRange(M& map, typename M::key_type const& key) -> IteratorPair<decltype(map.begin())>
         {

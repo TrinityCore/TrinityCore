@@ -20,7 +20,6 @@
 #include "Config.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
-#include "ServerMotd.h"
 #include "SRP6.h"
 #include "Util.h"
 #include "World.h"
@@ -74,7 +73,9 @@ void RASession::Start()
     TC_LOG_INFO("commands.ra", "User %s (IP: %s) authenticated correctly to RA", username.c_str(), GetRemoteIpAddress().c_str());
 
     // Authentication successful, send the motd
-    Send(std::string(std::string(Motd::GetMotd()) + "\r\n").c_str());
+    for (std::string const& line : sWorld->GetMotd())
+        Send(line.c_str());
+    Send("\r\n");
 
     // Read commands
     for (;;)
@@ -89,7 +90,7 @@ void RASession::Start()
     _socket.close();
 }
 
-int RASession::Send(std::string_view data)
+int RASession::Send(char const* data)
 {
     std::ostream os(&_writeBuffer);
     os << data;
@@ -136,7 +137,7 @@ bool RASession::CheckAccessLevel(const std::string& user)
 
     Field* fields = result->Fetch();
 
-    if (fields[1].GetUInt8() < sConfigMgr->GetIntDefault("Ra.MinLevel", 3))
+    if (fields[1].GetUInt8() < sConfigMgr->GetIntDefault("Ra.MinLevel", SEC_ADMINISTRATOR))
     {
         TC_LOG_INFO("commands.ra", "User %s has no privilege to login", user.c_str());
         return false;
@@ -153,12 +154,10 @@ bool RASession::CheckAccessLevel(const std::string& user)
 bool RASession::CheckPassword(const std::string& user, const std::string& pass)
 {
     std::string safe_user = user;
-    std::transform(safe_user.begin(), safe_user.end(), safe_user.begin(), ::toupper);
     Utf8ToUpperOnlyLatin(safe_user);
 
     std::string safe_pass = pass;
     Utf8ToUpperOnlyLatin(safe_pass);
-    std::transform(safe_pass.begin(), safe_pass.end(), safe_pass.begin(), ::toupper);
 
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_CHECK_PASSWORD_BY_NAME);
 
@@ -204,9 +203,9 @@ bool RASession::ProcessCommand(std::string& command)
     return false;
 }
 
-void RASession::CommandPrint(void* callbackArg, std::string_view text)
+void RASession::CommandPrint(void* callbackArg, char const* text)
 {
-    if (text.empty())
+    if (!text || !*text)
         return;
 
     RASession* session = static_cast<RASession*>(callbackArg);

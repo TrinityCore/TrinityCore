@@ -25,6 +25,7 @@
 #include "naxxramas.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
 
 /* Constants */
@@ -44,23 +45,13 @@ enum Yells
 
 enum Spells
 {
-    /* living trainee spells */
-    SPELL_DEATH_PLAGUE          = 55604,
-
     /* living knight spells */
     SPELL_SHADOW_MARK           = 27825,
-
-    /* living rider spells */
-    SPELL_SHADOW_BOLT_VOLLEY    = 27831,
-
-    /* spectral trainee spells */
-    SPELL_ARCANE_EXPLOSION      = 27989,
 
     /* spectral knight spells */
     SPELL_WHIRLWIND             = 56408,
 
     /* spectral rider spells */
-    SPELL_DRAIN_LIFE            = 27994,
     SPELL_UNHOLY_FRENZY         = 55648,
 
     /* spectral horse spells */
@@ -87,6 +78,10 @@ enum Spells
     SPELL_TELEPORT_DEAD         = 28025,
     SPELL_TELEPORT_LIVE         = 28026
 };
+#define SPELLHELPER_DEATH_PLAGUE RAID_MODE<uint32>(55604, 55645)
+#define SPELLHELPER_SHADOW_BOLT_VOLLEY RAID_MODE<uint32>(27831, 55638)
+#define SPELLHELPER_ARCANE_EXPLOSION RAID_MODE<uint32>(27989, 56407)
+#define SPELLHELPER_DRAIN_LIFE RAID_MODE<uint32>(27994, 55646)
 #define SPELLHELPER_UNHOLY_FRENZY RAID_MODE<uint32>(SPELL_UNHOLY_FRENZY,27995)
 
 enum Creatures
@@ -324,9 +319,9 @@ class boss_gothik : public CreatureScript
                 Initialize();
             }
 
-            void JustEngagedWith(Unit* who) override
+            void EnterCombat(Unit* /*who*/) override
             {
-                BossAI::JustEngagedWith(who);
+                _EnterCombat();
                 events.SetPhase(PHASE_ONE);
                 events.ScheduleEvent(EVENT_SUMMON, Seconds(25), 0, PHASE_ONE);
                 events.ScheduleEvent(EVENT_DOORS_UNLOCK, Minutes(3) + Seconds(25), 0, PHASE_ONE);
@@ -478,7 +473,7 @@ class boss_gothik : public CreatureScript
                                     for (Creature* trigger : triggers)
                                         if (trigger && trigger->GetSpawnId() == targetDBGuid)
                                         {
-                                            DoSummon(entry.first, trigger, 1.0f, 15s, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+                                            DoSummon(entry.first, trigger, 1.0f, 15 * IN_MILLISECONDS, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
                                             break;
                                         }
                                 }
@@ -522,7 +517,7 @@ class boss_gothik : public CreatureScript
                                 _lastTeleportDead = !_lastTeleportDead;
 
                                 events.CancelEvent(EVENT_BOLT);
-                                events.ScheduleEvent(EVENT_RESUME_ATTACK, 2s, 0, PHASE_TWO);
+                                events.ScheduleEvent(EVENT_RESUME_ATTACK, 2 * IN_MILLISECONDS, 0, PHASE_TWO);
                                 events.Repeat(Seconds(20));
                             }
                             break;
@@ -533,7 +528,7 @@ class boss_gothik : public CreatureScript
                             break;
                         case EVENT_RESUME_ATTACK:
                             me->SetReactState(REACT_AGGRESSIVE);
-                            events.ScheduleEvent(EVENT_BOLT, 0s, 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_BOLT, Seconds(0), 0, PHASE_TWO);
                             // return to the start of this method so victim side etc is re-evaluated
                             return UpdateAI(0u); // tail recursion for efficiency
                         case EVENT_BOLT:
@@ -584,7 +579,7 @@ struct npc_gothik_minion_baseAI : public ScriptedAI
 
         void DamageTaken(Unit* attacker, uint32 &damage) override
         { // do not allow minions to take damage before the gate is opened
-            if (!_gateIsOpen && (!attacker || !isOnSameSide(attacker)))
+            if (!_gateIsOpen && !isOnSameSide(attacker))
                 damage = 0;
         }
 
@@ -594,7 +589,7 @@ struct npc_gothik_minion_baseAI : public ScriptedAI
             {
                 case ACTION_GATE_OPENED:
                     _gateIsOpen = true;
-                    [[fallthrough]];
+                    /* fallthrough */
                 case ACTION_ACQUIRE_TARGET:
                     if (Player* target = FindEligibleTarget(me, _gateIsOpen))
                     {
@@ -659,7 +654,7 @@ class npc_gothik_minion_livingtrainee : public CreatureScript
                     _deathPlagueTimer -= diff;
                 else
                 {
-                    DoCastAOE(SPELL_DEATH_PLAGUE);
+                    DoCastAOE(SPELLHELPER_DEATH_PLAGUE);
                     _deathPlagueTimer = urandms(5, 20);
                 }
                 DoMeleeAttackIfReady();
@@ -717,7 +712,7 @@ class npc_gothik_minion_livingrider : public CreatureScript
                     _boltVolleyTimer -= diff;
                 else
                 {
-                    DoCastAOE(SPELL_SHADOW_BOLT_VOLLEY);
+                    DoCastAOE(SPELLHELPER_SHADOW_BOLT_VOLLEY);
                     _boltVolleyTimer = urandms(10, 15);
                 }
                 if (!me->HasUnitState(UNIT_STATE_CASTING))
@@ -747,7 +742,7 @@ class npc_gothik_minion_spectraltrainee : public CreatureScript
                 _explosionTimer -= diff;
             else
             {
-                DoCastAOE(SPELL_ARCANE_EXPLOSION);
+                DoCastAOE(SPELLHELPER_ARCANE_EXPLOSION);
                 _explosionTimer = 2 * IN_MILLISECONDS;
             }
             DoMeleeAttackIfReady();
@@ -839,7 +834,7 @@ class npc_gothik_minion_spectralrider : public CreatureScript
                 _drainTimer -= diff;
             else
             {
-                DoCastVictim(SPELL_DRAIN_LIFE);
+                DoCastVictim(SPELLHELPER_DRAIN_LIFE);
                 _drainTimer = urandms(10,15);
             }
 
@@ -900,7 +895,7 @@ public:
 
         void EnterEvadeMode(EvadeReason /*why*/) override { }
         void UpdateAI(uint32 /*diff*/) override { }
-        void JustEngagedWith(Unit* /*who*/) override { }
+        void EnterCombat(Unit* /*who*/) override { }
         void DamageTaken(Unit* /*who*/, uint32& damage) override { damage = 0;  }
 
         Creature* SelectRandomSkullPile()
@@ -914,10 +909,12 @@ public:
 
             return nullptr;
         }
-
-        void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
         {
-            switch (spellInfo->Id)
+            if (!spell)
+                return;
+
+            switch (spell->Id)
             {
                 case SPELL_ANCHOR_1_TRAINEE:
                     DoCastAOE(SPELL_ANCHOR_2_TRAINEE, true);
@@ -941,14 +938,14 @@ public:
                         DoCast(target, SPELL_SKULLS_RIDER, true);
                     break;
                 case SPELL_SKULLS_TRAINEE:
-                    DoSummon(NPC_DEAD_TRAINEE, me, 0.0f, 15s, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+                    DoSummon(NPC_DEAD_TRAINEE, me, 0.0f, 15 * IN_MILLISECONDS, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
                     break;
                 case SPELL_SKULLS_DK:
-                    DoSummon(NPC_DEAD_KNIGHT, me, 0.0f, 15s, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+                    DoSummon(NPC_DEAD_KNIGHT, me, 0.0f, 15 * IN_MILLISECONDS, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
                     break;
                 case SPELL_SKULLS_RIDER:
-                    DoSummon(NPC_DEAD_RIDER, me, 0.0f, 15s, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
-                    DoSummon(NPC_DEAD_HORSE, me, 0.0f, 15s, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+                    DoSummon(NPC_DEAD_RIDER, me, 0.0f, 15 * IN_MILLISECONDS, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+                    DoSummon(NPC_DEAD_HORSE, me, 0.0f, 15 * IN_MILLISECONDS, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
                     break;
             }
         }

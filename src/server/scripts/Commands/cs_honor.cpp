@@ -29,10 +29,6 @@ EndScriptData */
 #include "RBAC.h"
 #include "WorldSession.h"
 
-#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-
 class honor_commandscript : public CommandScript
 {
 public:
@@ -59,8 +55,11 @@ public:
         return commandTable;
     }
 
-    static bool HandleHonorAddCommand(ChatHandler* handler, uint32 amount)
+    static bool HandleHonorAddCommand(ChatHandler* handler, char const* args)
     {
+        if (!*args)
+            return false;
+
         Player* target = handler->getSelectedPlayer();
         if (!target)
         {
@@ -73,11 +72,12 @@ public:
         if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
             return false;
 
+        int32 amount = atoi(args);
         target->RewardHonor(nullptr, 1, amount);
         return true;
     }
 
-    static bool HandleHonorAddKillCommand(ChatHandler* handler)
+    static bool HandleHonorAddKillCommand(ChatHandler* handler, char const* /*args*/)
     {
         Unit* target = handler->getSelectedUnit();
         if (!target)
@@ -96,7 +96,7 @@ public:
         return true;
     }
 
-    static bool HandleHonorUpdateCommand(ChatHandler* handler)
+    static bool HandleHonorUpdateCommand(ChatHandler* handler, char const* /*args*/)
     {
         Player* target = handler->getSelectedPlayer();
         if (!target)

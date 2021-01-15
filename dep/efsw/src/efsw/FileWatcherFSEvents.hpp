@@ -33,7 +33,9 @@ enum FSEventEvents
 	efswFSEventStreamEventFlagItemIsSymlink			= 0x00040000,
 	efswFSEventsModified							= efswFSEventStreamEventFlagItemFinderInfoMod	|
 													  efswFSEventStreamEventFlagItemModified		|
-													  efswFSEventStreamEventFlagItemInodeMetaMod
+													  efswFSEventStreamEventFlagItemInodeMetaMod	|
+													  efswFSEventStreamEventFlagItemChangeOwner		|
+													  efswFSEventStreamEventFlagItemXattrMod
 };
 
 /// Implementation for Win32 based on ReadDirectoryChangesW.

@@ -18,33 +18,11 @@
 #include "BattlegroundRL.h"
 #include "Log.h"
 #include "Player.h"
-#include "WorldPacket.h"
 #include "WorldStatePackets.h"
 
-BattlegroundRL::BattlegroundRL()
+BattlegroundRL::BattlegroundRL(BattlegroundTemplate const* battlegroundTemplate) : Arena(battlegroundTemplate)
 {
     BgObjects.resize(BG_RL_OBJECT_MAX);
-}
-
-void BattlegroundRL::PostUpdateImpl(uint32 diff)
-{
-    if (GetStatus() != STATUS_IN_PROGRESS)
-        return;
-
-    _events.Update(diff);
-
-    while (uint32 eventId = _events.ExecuteEvent())
-    {
-        switch (eventId)
-        {
-            case BG_RL_EVENT_REMOVE_DOORS:
-                for (uint32 i = BG_RL_OBJECT_DOOR_1; i <= BG_RL_OBJECT_DOOR_2; ++i)
-                    DelObject(i);
-                break;
-            default:
-                break;
-        }
-    }
 }
 
 void BattlegroundRL::StartingEventCloseDoors()
@@ -57,13 +35,12 @@ void BattlegroundRL::StartingEventOpenDoors()
 {
     for (uint32 i = BG_RL_OBJECT_DOOR_1; i <= BG_RL_OBJECT_DOOR_2; ++i)
         DoorOpen(i);
-    _events.ScheduleEvent(BG_RL_EVENT_REMOVE_DOORS, BG_RL_REMOVE_DOORS_TIMER);
 
     for (uint32 i = BG_RL_OBJECT_BUFF_1; i <= BG_RL_OBJECT_BUFF_2; ++i)
         SpawnBGObject(i, 60);
 }
 
-void BattlegroundRL::HandleAreaTrigger(Player* player, uint32 trigger)
+void BattlegroundRL::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
@@ -74,15 +51,14 @@ void BattlegroundRL::HandleAreaTrigger(Player* player, uint32 trigger)
         case 4697:                                          // buff trigger?
             break;
         default:
-            Battleground::HandleAreaTrigger(player, trigger);
+            Battleground::HandleAreaTrigger(player, trigger, entered);
             break;
     }
 }
 
 void BattlegroundRL::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
 {
-    packet.Worldstates.emplace_back(3002, 1); // BATTELGROUND_RUINS_OF_LORDAERNON_SHOW
-
+    packet.Worldstates.emplace_back(0xbba, 1);
     Arena::FillInitialWorldStates(packet);
 }
 

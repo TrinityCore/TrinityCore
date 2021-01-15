@@ -19,8 +19,8 @@
 #define DEF_ULDUAR_H
 
 #include "CreatureAIImpl.h"
-#include "EventProcessor.h"
-#include "Position.h"
+
+struct Position;
 
 #define UlduarScriptName "instance_ulduar"
 #define DataHeader "UU"
@@ -96,7 +96,6 @@ enum UlduarNPCs
 
     //XT002
     NPC_XS013_SCRAPBOT                      = 33343,
-    NPC_HEART_OF_DECONSTRUCTOR              = 33329,
 
     // Flame Leviathan
     NPC_ULDUAR_COLOSSUS                     = 33237,
@@ -366,8 +365,6 @@ enum UlduarAchievementCriteriaIds
     CRITERIA_ALONE_IN_THE_DARKNESS_25        = 10417,
     CRITERIA_HERALD_OF_TITANS                = 10678,
 
-    REALM_FIRST_DEATHS_DEMISE                = 10279,
-
     // Champion of Ulduar
     CRITERIA_C_O_U_LEVIATHAN_10              = 10042,
     CRITERIA_C_O_U_IGNIS_10                  = 10342,
@@ -412,7 +409,6 @@ enum UlduarData
     DATA_TOY_PILE_1,
     DATA_TOY_PILE_2,
     DATA_TOY_PILE_3,
-    DATA_XT002_HEART,
 
     // Assembly of Iron
     DATA_STEELBREAKER,
@@ -454,8 +450,6 @@ enum UlduarData
     DATA_UNIVERSE_GLOBE,
     DATA_ALGALON_TRAPDOOR,
     DATA_BRANN_BRONZEBEARD_ALG,
-    DATA_GIFT_OF_THE_OBSERVER,
-    DATA_AZEROTH,
 
     // Thorim
     DATA_SIF,
@@ -510,18 +504,21 @@ enum YoggSaronIllusions
     STORMWIND_ILLUSION          = 2,
 };
 
-class Creature;
-
-class UlduarKeeperDespawnEvent : public BasicEvent
+class KeeperDespawnEvent : public BasicEvent
 {
-    public:
-        UlduarKeeperDespawnEvent(Creature* owner, Milliseconds despawnTimerOffset = 500ms);
+public:
+    KeeperDespawnEvent(Creature* owner, uint32 despawnTimerOffset = 500) : _owner(owner), _despawnTimer(despawnTimerOffset) { }
 
-        bool Execute(uint64 /*eventTime*/, uint32 /*updateTime*/) override;
+    bool Execute(uint64 /*eventTime*/, uint32 /*updateTime*/) override
+    {
+        _owner->CastSpell(_owner, SPELL_TELEPORT_KEEPER_VISUAL);
+        _owner->DespawnOrUnsummon(1000 + _despawnTimer);
+        return true;
+    }
 
-    private:
-        Creature* _owner;
-        Milliseconds _despawnTimer;
+private:
+    Creature* _owner;
+    uint32 _despawnTimer;
 };
 
 template <class AI, class T>

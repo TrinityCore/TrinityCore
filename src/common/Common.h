@@ -25,8 +25,6 @@
 #include <utility>
 
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
-#  include <ws2tcpip.h>
-
 #  if TRINITY_COMPILER == TRINITY_COMPILER_INTEL
 #    if !defined(BOOST_ASIO_HAS_MOVE)
 #      define BOOST_ASIO_HAS_MOVE
@@ -90,18 +88,38 @@ enum LocaleConstant : uint8
     LOCALE_esES = 6,
     LOCALE_esMX = 7,
     LOCALE_ruRU = 8,
+    LOCALE_none = 9,
+    LOCALE_ptBR = 10,
+    LOCALE_itIT = 11,
 
     TOTAL_LOCALES
 };
 
+const uint8 OLD_TOTAL_LOCALES = 9; /// @todo convert in simple system
 #define DEFAULT_LOCALE LOCALE_enUS
-
-#define MAX_LOCALES 8
-#define MAX_ACCOUNT_TUTORIAL_VALUES 8
 
 TC_COMMON_API extern char const* localeNames[TOTAL_LOCALES];
 
 TC_COMMON_API LocaleConstant GetLocaleByName(std::string const& name);
+
+constexpr inline bool IsValidLocale(LocaleConstant locale)
+{
+    return locale < TOTAL_LOCALES && locale != LOCALE_none;
+}
+
+#pragma pack(push, 1)
+
+struct LocalizedString
+{
+    constexpr char const* operator[](LocaleConstant locale) const
+    {
+        return Str[locale];
+    }
+
+    char const* Str[TOTAL_LOCALES];
+};
+
+#pragma pack(pop)
 
 // we always use stdlib std::max/std::min, undefine some not C++ standard defines (Win API and some other platforms)
 #ifdef max
@@ -113,11 +131,7 @@ TC_COMMON_API LocaleConstant GetLocaleByName(std::string const& name);
 #endif
 
 #ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
-
-#ifndef M_PI_4
-#define M_PI_4 0.785398163397448309616
+#define M_PI            3.14159265358979323846
 #endif
 
 #define MAX_QUERY_LEN 32*1024

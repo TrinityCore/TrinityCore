@@ -61,11 +61,11 @@ public:
 
         void Reset() override { }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) override
         {
-            events.ScheduleEvent(EVENT_SANDBREATH, 15s, 30s);
-            events.ScheduleEvent(EVENT_TIMESTOP, 10s, 15s);
-            events.ScheduleEvent(EVENT_FRENZY, 30s, 45s);
+            events.ScheduleEvent(EVENT_SANDBREATH, urand(15000, 30000));
+            events.ScheduleEvent(EVENT_TIMESTOP, urand(10000, 15000));
+            events.ScheduleEvent(EVENT_FRENZY, urand(30000, 45000));
 
             Talk(SAY_AGGRO);
         }
@@ -79,7 +79,7 @@ public:
                 if (me->IsWithinDistInMap(who, 20.0f))
                 {
                     Talk(SAY_BANISH);
-                    Unit::DealDamage(me, who, who->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
+                    me->DealDamage(who, who->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
                 }
             }
 
@@ -117,16 +117,16 @@ public:
                 {
                     case EVENT_SANDBREATH:
                         DoCastVictim(SPELL_SAND_BREATH);
-                        events.ScheduleEvent(EVENT_SANDBREATH, 15s, 25s);
+                        events.ScheduleEvent(EVENT_SANDBREATH, urand(15000, 25000));
                         break;
                     case EVENT_TIMESTOP:
                         DoCastVictim(SPELL_TIME_STOP);
-                        events.ScheduleEvent(EVENT_TIMESTOP, 20s, 35s);
+                        events.ScheduleEvent(EVENT_TIMESTOP, urand(20000, 35000));
                         break;
                     case EVENT_FRENZY:
                          Talk(EMOTE_FRENZY);
                          DoCast(me, SPELL_ENRAGE);
-                        events.ScheduleEvent(EVENT_FRENZY, 20s, 35s);
+                        events.ScheduleEvent(EVENT_FRENZY, urand(20000, 35000));
                         break;
                     default:
                         break;

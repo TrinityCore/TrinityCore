@@ -17,7 +17,6 @@
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
-#include "Map.h"
 #include "ObjectAccessor.h"
 #include "PassiveAI.h"
 #include "pit_of_saron.h"
@@ -47,10 +46,10 @@ bool ScheduledIcicleSummons::Execute(uint64 /*time*/, uint32 /*diff*/)
     if (roll_chance_i(12))
     {
         _trigger->CastSpell(_trigger, SPELL_ICICLE_SUMMON, true);
-        _trigger->m_Events.AddEvent(new ScheduledIcicleSummons(_trigger), _trigger->m_Events.CalculateTime(randtime(20s, 35s)));
+        _trigger->m_Events.AddEvent(new ScheduledIcicleSummons(_trigger), _trigger->m_Events.CalculateTime(urand(20000, 35000)));
     }
     else
-        _trigger->m_Events.AddEvent(new ScheduledIcicleSummons(_trigger), _trigger->m_Events.CalculateTime(randtime(1s, 20s)));
+        _trigger->m_Events.AddEvent(new ScheduledIcicleSummons(_trigger), _trigger->m_Events.CalculateTime(urand(1000, 20000)));
 
     return true;
 }
@@ -71,10 +70,10 @@ class npc_ymirjar_flamebearer : public CreatureScript
                 _events.Reset();
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void EnterCombat(Unit* /*who*/) override
             {
-                _events.ScheduleEvent(EVENT_FIREBALL, 4s);
-                _events.ScheduleEvent(EVENT_TACTICAL_BLINK, 15s);
+                _events.ScheduleEvent(EVENT_FIREBALL, 4000);
+                _events.ScheduleEvent(EVENT_TACTICAL_BLINK, 15000);
             }
 
             void UpdateAI(uint32 diff) override
@@ -92,15 +91,15 @@ class npc_ymirjar_flamebearer : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_FIREBALL:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, SPELL_FIREBALL);
-                            _events.RescheduleEvent(EVENT_FIREBALL, 5s);
+                            _events.RescheduleEvent(EVENT_FIREBALL, 5000);
                             break;
                         case EVENT_TACTICAL_BLINK:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, SPELL_TACTICAL_BLINK);
                             DoCast(me, SPELL_HELLFIRE);
-                            _events.RescheduleEvent(EVENT_TACTICAL_BLINK, 12s);
+                            _events.RescheduleEvent(EVENT_TACTICAL_BLINK, 12000);
                             break;
                         default:
                             break;
@@ -142,7 +141,7 @@ class npc_iceborn_protodrake : public CreatureScript
                 Initialize();
             }
 
-            void JustEngagedWith(Unit* /*who*/) override
+            void EnterCombat(Unit* /*who*/) override
             {
                 if (Vehicle* _vehicle = me->GetVehicleKit())
                     _vehicle->RemoveAllPassengers();
@@ -196,7 +195,7 @@ class npc_geist_ambusher : public CreatureScript
                 Initialize();
             }
 
-            void JustEngagedWith(Unit* who) override
+            void EnterCombat(Unit* who) override
             {
                 if (who->GetTypeId() != TYPEID_PLAYER)
                     return;
@@ -213,7 +212,7 @@ class npc_geist_ambusher : public CreatureScript
 
                 if (_leapingFaceMaulCooldown < diff)
                 {
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 5.0f, true))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 5.0f, true))
                         DoCast(target, SPELL_LEAPING_FACE_MAUL);
                     _leapingFaceMaulCooldown = urand(9000, 14000);
                 }
@@ -233,6 +232,36 @@ class npc_geist_ambusher : public CreatureScript
         }
 };
 
+class spell_trash_npc_glacial_strike : public SpellScriptLoader
+{
+    public:
+        spell_trash_npc_glacial_strike() : SpellScriptLoader("spell_trash_npc_glacial_strike") { }
+
+        class spell_trash_npc_glacial_strike_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_trash_npc_glacial_strike_AuraScript);
+
+            void PeriodicTick(AuraEffect const* /*aurEff*/)
+            {
+                if (GetTarget()->IsFullHealth())
+                {
+                    GetTarget()->RemoveAura(GetId(), ObjectGuid::Empty, 0, AURA_REMOVE_BY_ENEMY_SPELL);
+                    PreventDefaultAction();
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_trash_npc_glacial_strike_AuraScript::PeriodicTick, EFFECT_2, SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_trash_npc_glacial_strike_AuraScript();
+        }
+};
+
 class npc_pit_of_saron_icicle : public CreatureScript
 {
     public:
@@ -242,10 +271,10 @@ class npc_pit_of_saron_icicle : public CreatureScript
         {
             npc_pit_of_saron_icicleAI(Creature* creature) : PassiveAI(creature)
             {
-                me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
+                me->SetDisplayFromModel(0);
             }
 
-            void IsSummonedBy(WorldObject* summoner) override
+            void IsSummonedBy(Unit* summoner) override
             {
                 _summonerGUID = summoner->GetGUID();
 
@@ -319,8 +348,11 @@ class at_pit_cavern_entrance : public AreaTriggerScript
     public:
         at_pit_cavern_entrance() : AreaTriggerScript("at_pit_cavern_entrance") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool entered) override
         {
+            if (!entered)
+                return true;
+
             if (InstanceScript* instance = player->GetInstanceScript())
             {
                 if (instance->GetData(DATA_CAVERN_ACTIVE))
@@ -340,14 +372,17 @@ class at_pit_cavern_end : public AreaTriggerScript
 public:
     at_pit_cavern_end() : AreaTriggerScript("at_pit_cavern_end") { }
 
-    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/, bool entered) override
     {
+        if (!entered)
+            return true;
+
         if (InstanceScript* instance = player->GetInstanceScript())
         {
             instance->SetData(DATA_CAVERN_ACTIVE, 0);
 
             if (!instance->GetData(DATA_ICE_SHARDS_HIT))
-                instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_DONT_LOOK_UP_ACHIEV_CREDIT, 0, player);
+                instance->DoUpdateCriteria(CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_DONT_LOOK_UP_ACHIEV_CREDIT, 0, player);
         }
 
         return true;
@@ -360,6 +395,7 @@ void AddSC_pit_of_saron()
     new npc_iceborn_protodrake();
     new npc_geist_ambusher();
     new npc_pit_of_saron_icicle();
+    new spell_trash_npc_glacial_strike();
     new spell_pos_ice_shards();
     new at_pit_cavern_entrance();
     new at_pit_cavern_end();

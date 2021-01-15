@@ -117,7 +117,7 @@ public:
     {
         _owner->SetReactState(REACT_AGGRESSIVE);
         _owner->SetTempSummonType(TEMPSUMMON_CORPSE_DESPAWN);
-        _owner->AI()->DoZoneInCombat();
+        _owner->SetInCombatWithZone();
         return true;
     }
 
@@ -132,7 +132,7 @@ public:
 
     bool Execute(uint64 /*eventTime*/, uint32 /*diff*/) override
     {
-        _owner->CastSpell(_owner, SPELL_AWAKEN_SUBBOSS, { SPELLVALUE_MAX_TARGETS, 1 });
+        _owner->CastCustomSpell(SPELL_AWAKEN_SUBBOSS, SPELLVALUE_MAX_TARGETS, 1, _owner);
         return true;
     }
 
@@ -165,7 +165,7 @@ public:
     {
         _owner->SetWalk(false);
         _owner->GetMotionMaster()->MovePoint(0, OrbPositions[POSITION_FINAL]);
-        _owner->m_Events.AddEvent(new OrbFinalPositionEvent(_owner), _owner->m_Events.CalculateTime(10s));
+        _owner->m_Events.AddEvent(new OrbFinalPositionEvent(_owner), _owner->m_Events.CalculateTime(10000));
         return true;
     }
 
@@ -207,7 +207,7 @@ public:
             if (GameObject* go = instance->GetGameObject(DATA_GORTOK_PALEHOOF_SPHERE))
             {
                 go->SetGoState(GO_STATE_READY);
-                go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                go->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
             }
         }
 
@@ -219,13 +219,13 @@ public:
                 _orb = summon->GetGUID();
         }
 
-        void JustEngagedWith(Unit* who) override
+        void EnterCombat (Unit* /*who*/) override
         {
-            BossAI::JustEngagedWith(who);
+            _EnterCombat();
             Talk(SAY_AGGRO);
-            events.ScheduleEvent(EVENT_ARCING_SMASH, 7s);
-            events.ScheduleEvent(EVENT_IMPALE, 11s);
-            events.ScheduleEvent(EVENT_WITHERING_ROAR, 12s);
+            events.ScheduleEvent(EVENT_ARCING_SMASH, Seconds(7));
+            events.ScheduleEvent(EVENT_IMPALE, Seconds(11));
+            events.ScheduleEvent(EVENT_WITHERING_ROAR, Seconds(12));
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         }
 
@@ -238,7 +238,7 @@ public:
                     events.Repeat(Seconds(7));
                     break;
                 case EVENT_IMPALE:
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(target, SPELL_IMPALE);
                     events.Repeat(Seconds(10), Seconds(15));
                     break;
@@ -287,7 +287,7 @@ public:
                     if (_encountersCount == _dungeonMode)
                         orb->CastSpell(orb, SPELL_AWAKEN_GORTOK, true);
                     else
-                        orb->CastSpell(orb, SPELL_AWAKEN_SUBBOSS, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_MAX_TARGETS, 1));
+                        orb->CastCustomSpell(SPELL_AWAKEN_SUBBOSS, SPELLVALUE_MAX_TARGETS, 1, orb, true);
                     break;
                 }
                 case ACTION_START_FIGHT:
@@ -295,14 +295,14 @@ public:
                     me->SetImmuneToPC(false);
                     DoZoneInCombat();
                     if (Creature* orb = ObjectAccessor::GetCreature(*me, _orb))
-                        orb->DespawnOrUnsummon(1s);
+                        orb->DespawnOrUnsummon(1000);
                     break;
                 case ACTION_START_ENCOUNTER:
                     if (Creature* orb = ObjectAccessor::GetCreature(*me, _orb))
                     {
                         orb->CastSpell(orb, SPELL_ORB_VISUAL, true);
-                        orb->m_Events.AddEvent(new OrbAirPositionEvent(orb), orb->m_Events.CalculateTime(3s));
-                        orb->m_Events.AddEvent(new OrbFlyEvent(orb), orb->m_Events.CalculateTime(6s));
+                        orb->m_Events.AddEvent(new OrbAirPositionEvent(orb), orb->m_Events.CalculateTime(3000));
+                        orb->m_Events.AddEvent(new OrbFlyEvent(orb), orb->m_Events.CalculateTime(6000));
                     }
                     break;
                 default:
@@ -333,7 +333,7 @@ struct PalehoofMinionsBossAI : public BossAI
         DoCastSelf(SPELL_FREEZE, true);
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void EnterCombat(Unit* /*who*/) override
     {
         me->SetCombatPulseDelay(5);
         me->setActive(true);
@@ -374,9 +374,9 @@ public:
 
         void ScheduleTasks() override
         {
-            events.ScheduleEvent(EVENT_CRAZED, 10s);
-            events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 12s);
-            events.ScheduleEvent(EVENT_TERRIFYING_ROAR, 22s);
+            events.ScheduleEvent(EVENT_CRAZED, Seconds(10));
+            events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, Seconds(12));
+            events.ScheduleEvent(EVENT_TERRIFYING_ROAR, Seconds(22));
         }
 
         void ExecuteEvent(uint32 eventId) override
@@ -418,8 +418,8 @@ public:
 
         void ScheduleTasks() override
         {
-            events.ScheduleEvent(EVENT_MORTAL_WOUND, 6s);
-            events.ScheduleEvent(EVENT_ENRAGE, 16s);
+            events.ScheduleEvent(EVENT_MORTAL_WOUND, Seconds(6));
+            events.ScheduleEvent(EVENT_ENRAGE, Seconds(16));
             events.ScheduleEvent(EVENT_ENRAGE_2, Minutes(1) + Seconds(30));
         }
 
@@ -461,9 +461,9 @@ public:
 
         void ScheduleTasks() override
         {
-            events.ScheduleEvent(EVENT_GORE, 10s);
-            events.ScheduleEvent(EVENT_GRIEVOUS_WOUND, 12s);
-            events.ScheduleEvent(EVENT_STOMP, 5s);
+            events.ScheduleEvent(EVENT_GORE, Seconds(10));
+            events.ScheduleEvent(EVENT_GRIEVOUS_WOUND, Seconds(12));
+            events.ScheduleEvent(EVENT_STOMP, Seconds(5));
         }
 
         void ExecuteEvent(uint32 eventId) override
@@ -475,7 +475,7 @@ public:
                     events.Repeat(Seconds(19));
                     break;
                 case EVENT_GRIEVOUS_WOUND:
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                         DoCast(target, SPELL_GRIEVOUS_WOUND);
                     events.Repeat(Seconds(18));
                     break;
@@ -506,16 +506,16 @@ public:
 
         void ScheduleTasks() override
         {
-            events.ScheduleEvent(EVENT_ACID_SPIT, 6s);
-            events.ScheduleEvent(EVENT_ACID_SPLATTER, 16s);
-            events.ScheduleEvent(EVENT_POISON_BREATH, 13s);
+            events.ScheduleEvent(EVENT_ACID_SPIT, Seconds(6));
+            events.ScheduleEvent(EVENT_ACID_SPLATTER, Seconds(16));
+            events.ScheduleEvent(EVENT_POISON_BREATH, Seconds(13));
         }
 
         void JustSummoned(Creature* summon) override
         {
             if (summon->GetEntry() == NPC_JORMUNGAR_WORM)
             {
-                summon->m_Events.AddEvent(new WormAttackEvent(summon->ToTempSummon()), summon->m_Events.CalculateTime(2s));
+                summon->m_Events.AddEvent(new WormAttackEvent(summon->ToTempSummon()), summon->m_Events.CalculateTime(2000));
                 summon->GetMotionMaster()->MoveRandom(5.0f);
             }
         }
@@ -533,7 +533,7 @@ public:
                     events.Repeat(Seconds(16));
                     break;
                 case EVENT_POISON_BREATH:
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(target, SPELL_POISON_BREATH);
                     events.Repeat(Seconds(14));
                     break;
@@ -566,13 +566,13 @@ public:
 
         InstanceScript* instance;
 
-        bool OnGossipHello(Player* /*player*/) override
+        bool GossipHello(Player* /*player*/) override
         {
             if (Creature* palehoof = instance->GetCreature(DATA_GORTOK_PALEHOOF))
             {
                 if (palehoof->IsAlive() && instance->GetBossState(DATA_GORTOK_PALEHOOF) != DONE)
                 {
-                    me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    me->SetFlags(GO_FLAG_NOT_SELECTABLE);
                     me->SetGoState(GO_STATE_ACTIVE);
                     palehoof->AI()->DoAction(ACTION_START_ENCOUNTER);
                 }
@@ -663,8 +663,8 @@ class spell_palehoof_awaken_subboss : public SpellScriptLoader
             {
                 Unit* target = GetHitUnit();
                 GetCaster()->CastSpell(target, SPELL_ORB_CHANNEL);
-                target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                target->m_Events.AddEvent(new CombatStartEvent(target), target->m_Events.CalculateTime(8500ms));
+                target->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                target->m_Events.AddEvent(new CombatStartEvent(target), target->m_Events.CalculateTime(8500));
             }
 
             void Register() override
@@ -692,8 +692,8 @@ class spell_palehoof_awaken_gortok : public SpellScriptLoader
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 Unit* target = GetHitUnit();
-                target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                target->m_Events.AddEvent(new CombatStartEvent(target), target->m_Events.CalculateTime(8s));
+                target->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                target->m_Events.AddEvent(new CombatStartEvent(target), target->m_Events.CalculateTime(8000));
             }
 
             void Register() override

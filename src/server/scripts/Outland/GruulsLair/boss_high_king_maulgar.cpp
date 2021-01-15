@@ -131,7 +131,7 @@ public:
                 Talk(SAY_OGRE_DEATH);
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) override
         {
             DoZoneInCombat();
             instance->SetBossState(DATA_MAULGAR, IN_PROGRESS);
@@ -171,8 +171,8 @@ public:
                 Talk(SAY_ENRAGE);
 
                 DoCast(me, SPELL_DUAL_WIELD, true);
-                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
-                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID+1, 0);
+                me->SetVirtualItem(0, 0);
+                me->SetVirtualItem(1, 0);
             }
 
             if (Phase2)
@@ -180,7 +180,9 @@ public:
                 //Charging_Timer
                 if (Charging_Timer <= diff)
                 {
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                    Unit* target = nullptr;
+                    target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                    if (target)
                     {
                         AttackStart(target);
                         DoCast(target, SPELL_BERSERKER_C);
@@ -254,7 +256,7 @@ public:
             }
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) override
         {
             DoZoneInCombat();
             instance->SetBossState(DATA_MAULGAR, IN_PROGRESS);
@@ -290,7 +292,9 @@ public:
             //DeathCoil Timer /need correct timer
             if (DeathCoil_Timer <= diff)
             {
-                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                Unit* target = nullptr;
+                target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                if (target)
                     DoCast(target, SPELL_DEATH_COIL);
                 DeathCoil_Timer = 20000;
             } else DeathCoil_Timer -= diff;
@@ -341,7 +345,7 @@ public:
             instance->SetBossState(DATA_MAULGAR, NOT_STARTED);
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) override
         {
             DoZoneInCombat();
             instance->SetBossState(DATA_MAULGAR, IN_PROGRESS);
@@ -363,7 +367,7 @@ public:
             //GreaterPolymorph_Timer
             if (GreaterPolymorph_Timer <= diff)
             {
-                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(target, SPELL_GREATER_POLYMORPH);
 
                 GreaterPolymorph_Timer = urand(15000, 20000);
@@ -433,7 +437,7 @@ public:
             instance->SetBossState(DATA_MAULGAR, NOT_STARTED);
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) override
         {
             DoZoneInCombat();
             instance->SetBossState(DATA_MAULGAR, IN_PROGRESS);
@@ -516,7 +520,7 @@ public:
             instance->SetBossState(DATA_MAULGAR, NOT_STARTED);
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) override
         {
             DoZoneInCombat();
             instance->SetBossState(DATA_MAULGAR, IN_PROGRESS);

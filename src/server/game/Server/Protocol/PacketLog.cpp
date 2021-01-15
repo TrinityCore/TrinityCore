@@ -18,7 +18,9 @@
 #include "PacketLog.h"
 #include "Config.h"
 #include "IpAddress.h"
+#include "Realm.h"
 #include "Timer.h"
+#include "World.h"
 #include "WorldPacket.h"
 
 #pragma pack(push, 1)
@@ -89,29 +91,31 @@ void PacketLog::Initialize()
     {
         _file = fopen((logsDir + logname).c_str(), "wb");
 
-        LogHeader header;
-        header.Signature[0] = 'P'; header.Signature[1] = 'K'; header.Signature[2] = 'T';
-        header.FormatVersion = 0x0301;
-        header.SnifferId = 'T';
-        header.Build = 12340;
-        header.Locale[0] = 'e'; header.Locale[1] = 'n'; header.Locale[2] = 'U'; header.Locale[3] = 'S';
-        std::memset(header.SessionKey, 0, sizeof(header.SessionKey));
-        header.SniffStartUnixtime = time(nullptr);
-        header.SniffStartTicks = getMSTime();
-        header.OptionalDataSize = 0;
-
         if (CanLogPacket())
+        {
+            LogHeader header;
+            header.Signature[0] = 'P'; header.Signature[1] = 'K'; header.Signature[2] = 'T';
+            header.FormatVersion = 0x0301;
+            header.SnifferId = 'T';
+            header.Build = realm.Build;
+            header.Locale[0] = 'e'; header.Locale[1] = 'n'; header.Locale[2] = 'U'; header.Locale[3] = 'S';
+            std::memset(header.SessionKey, 0, sizeof(header.SessionKey));
+            header.SniffStartUnixtime = time(nullptr);
+            header.SniffStartTicks = getMSTime();
+            header.OptionalDataSize = 0;
+
             fwrite(&header, sizeof(header), 1, _file);
+        }
     }
 }
 
-void PacketLog::LogPacket(WorldPacket const& packet, Direction direction, boost::asio::ip::address const& addr, uint16 port)
+void PacketLog::LogPacket(WorldPacket const& packet, Direction direction, boost::asio::ip::address const& addr, uint16 port, ConnectionType connectionType)
 {
     std::lock_guard<std::mutex> lock(_logPacketLock);
 
     PacketHeader header;
     header.Direction = direction == CLIENT_TO_SERVER ? 0x47534d43 : 0x47534d53;
-    header.ConnectionId = 0;
+    header.ConnectionId = connectionType;
     header.ArrivalTicks = getMSTime();
 
     header.OptionalDataSize = sizeof(header.OptionalData);
@@ -128,12 +132,21 @@ void PacketLog::LogPacket(WorldPacket const& packet, Direction direction, boost:
     }
 
     header.OptionalData.SocketPort = port;
-    header.Length = packet.size() + sizeof(header.Opcode);
+    std::size_t size = packet.size();
+    if (direction == CLIENT_TO_SERVER)
+        size -= 2;
+
+    header.Length = size + sizeof(header.Opcode);
     header.Opcode = packet.GetOpcode();
 
     fwrite(&header, sizeof(header), 1, _file);
-    if (!packet.empty())
-        fwrite(packet.contents(), 1, packet.size(), _file);
+    if (size)
+    {
+        uint8 const* data = packet.contents();
+        if (direction == CLIENT_TO_SERVER)
+            data += 2;
+        fwrite(data, 1, size, _file);
+    }
 
     fflush(_file);
 }

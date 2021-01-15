@@ -3,12 +3,10 @@ target_compile_definitions(trinity-compile-option-interface
   INTERFACE
     -D_BUILD_DIRECTIVE="$<CONFIG>")
 
-set(GCC_EXPECTED_VERSION 8.3.0)
+set(GCC_EXPECTED_VERSION 6.3.0)
 
 if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS GCC_EXPECTED_VERSION)
   message(FATAL_ERROR "GCC: TrinityCore requires version ${GCC_EXPECTED_VERSION} to build but found ${CMAKE_CXX_COMPILER_VERSION}")
-else()
-  message(STATUS "GCC: Minimum version required is ${GCC_EXPECTED_VERSION}, found ${CMAKE_CXX_COMPILER_VERSION} - ok!")
 endif()
 
 if(PLATFORM EQUAL 32)
@@ -18,15 +16,13 @@ if(PLATFORM EQUAL 32)
       -msse2
       -mfpmath=sse)
 endif()
-if(NOT CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
-  target_compile_definitions(trinity-compile-option-interface
-    INTERFACE
-      -DHAVE_SSE2
-      -D__SSE2__)
-  message(STATUS "GCC: SFMT enabled, SSE2 flags forced")
-endif()
+target_compile_definitions(trinity-compile-option-interface
+  INTERFACE
+    -DHAVE_SSE2
+    -D__SSE2__)
+message(STATUS "GCC: SFMT enabled, SSE2 flags forced")
 
-if(WITH_WARNINGS)
+if( WITH_WARNINGS )
   target_compile_options(trinity-warning-interface
     INTERFACE
       -W
@@ -37,10 +33,14 @@ if(WITH_WARNINGS)
       -Wfatal-errors
       -Woverloaded-virtual)
 
+  target_compile_options(trinity-warning-interface
+    INTERFACE
+      -Wno-deprecated-copy) # warning in g3d
+
   message(STATUS "GCC: All warnings enabled")
 endif()
 
-if(WITH_COREDEBUG)
+if( WITH_COREDEBUG )
   target_compile_options(trinity-compile-option-interface
     INTERFACE
       -g3)
@@ -48,25 +48,7 @@ if(WITH_COREDEBUG)
   message(STATUS "GCC: Debug-flags set (-g3)")
 endif()
 
-if(ASAN)
-  target_compile_options(trinity-compile-option-interface
-    INTERFACE
-      -fno-omit-frame-pointer
-      -fsanitize=address
-      -fsanitize-recover=address
-      -fsanitize-address-use-after-scope)
-
-  target_link_options(trinity-compile-option-interface
-    INTERFACE
-      -fno-omit-frame-pointer
-      -fsanitize=address
-      -fsanitize-recover=address
-      -fsanitize-address-use-after-scope)
-
-  message(STATUS "GCC: Enabled Address Sanitizer")
-endif()
-
-if(BUILD_SHARED_LIBS)
+if (BUILD_SHARED_LIBS)
   target_compile_options(trinity-compile-option-interface
     INTERFACE
       -fPIC

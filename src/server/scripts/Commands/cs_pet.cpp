@@ -20,16 +20,12 @@
 #include "Language.h"
 #include "Log.h"
 #include "Map.h"
-#include "ObjectMgr.h"
 #include "Pet.h"
+#include "ObjectMgr.h"
 #include "Player.h"
 #include "RBAC.h"
 #include "SpellMgr.h"
 #include "WorldSession.h"
-
-#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
 
 inline Pet* GetSelectedPlayerPetOrOwn(ChatHandler* handler)
 {
@@ -87,7 +83,7 @@ public:
             return false;
         }
 
-        if (player->GetPetGUID())
+        if (!player->GetPetGUID().IsEmpty())
         {
             handler->PSendSysMessage("You already have a pet");
             handler->SetSentErrorMessage(true);
@@ -95,27 +91,42 @@ public:
         }
 
         // Everything looks OK, create new pet
-        Pet* pet = player->CreateTamedPetFrom(creatureTarget);
+        Pet* pet = new Pet(player, HUNTER_PET);
+        if (!pet->CreateBaseAtCreature(creatureTarget))
+        {
+            delete pet;
+            handler->PSendSysMessage("Error 1");
+            return false;
+        }
 
-        // "kill" original creature
         creatureTarget->DespawnOrUnsummon();
+        creatureTarget->SetHealth(0); // just for nice GM-mode view
 
-        uint8 level = (creatureTarget->GetLevel() < (player->GetLevel() - 5)) ? (player->GetLevel() - 5) : player->GetLevel();
+        pet->SetCreatorGUID(player->GetGUID());
+        pet->SetFaction(player->GetFaction());
+
+        if (!pet->InitStatsForLevel(creatureTarget->getLevel()))
+        {
+            TC_LOG_ERROR("misc", "InitStatsForLevel() in EffectTameCreature failed! Pet deleted.");
+            handler->PSendSysMessage("Error 2");
+            delete pet;
+            return false;
+        }
 
         // prepare visual effect for levelup
-        pet->SetUInt32Value(UNIT_FIELD_LEVEL, level - 1);
+        pet->SetLevel(creatureTarget->getLevel() - 1);
 
-        // add to world
+        pet->GetCharmInfo()->SetPetNumber(sObjectMgr->GeneratePetNumber(), true);
+        // this enables pet details window (Shift+P)
+        pet->InitPetCreateSpells();
+        pet->SetFullHealth();
+
         pet->GetMap()->AddToMap(pet->ToCreature());
 
         // visual effect for levelup
-        pet->SetUInt32Value(UNIT_FIELD_LEVEL, level);
+        pet->SetLevel(creatureTarget->getLevel());
 
-        // caster have pet now
         player->SetMinion(pet, true);
-
-        pet->InitTalentForLevel();
-
         pet->SavePetToDB(PET_SAVE_AS_CURRENT);
         player->PetSpellInitialize();
 
@@ -138,7 +149,7 @@ public:
 
         uint32 spellId = handler->extractSpellIdFromLink((char*)args);
 
-        if (!spellId || !sSpellMgr->GetSpellInfo(spellId))
+        if (!spellId || !sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE))
             return false;
 
         // Check if pet already has it
@@ -150,7 +161,7 @@ public:
         }
 
         // Check if spell is valid
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE);
         if (!spellInfo || !SpellMgr::IsSpellValid(spellInfo))
         {
             handler->PSendSysMessage(LANG_COMMAND_SPELL_BROKEN, spellId);
@@ -200,7 +211,7 @@ public:
 
         int32 level = args ? atoi(args) : 0;
         if (level == 0)
-            level = owner->GetLevel() - pet->GetLevel();
+            level = owner->getLevel() - pet->getLevel();
         if (level == 0 || level < -STRONG_MAX_LEVEL || level > STRONG_MAX_LEVEL)
         {
             handler->SendSysMessage(LANG_BAD_VALUE);
@@ -208,11 +219,11 @@ public:
             return false;
         }
 
-        int32 newLevel = pet->GetLevel() + level;
+        int32 newLevel = pet->getLevel() + level;
         if (newLevel < 1)
             newLevel = 1;
-        else if (newLevel > owner->GetLevel())
-            newLevel = owner->GetLevel();
+        else if (newLevel > owner->getLevel())
+            newLevel = owner->getLevel();
 
         pet->GivePetLevel(newLevel);
         return true;

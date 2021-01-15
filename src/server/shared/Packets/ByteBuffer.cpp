@@ -18,51 +18,31 @@
 #include "ByteBuffer.h"
 #include "Errors.h"
 #include "MessageBuffer.h"
-#include "Common.h"
 #include "Log.h"
 #include "Util.h"
-#include <utf8.h>
 #include <sstream>
 #include <ctime>
 
-ByteBuffer::ByteBuffer(MessageBuffer&& buffer) : _rpos(0), _wpos(0), _storage(buffer.Move())
+ByteBuffer::ByteBuffer(MessageBuffer&& buffer) : _rpos(0), _wpos(0), _bitpos(InitialBitPos), _curbitval(0), _storage(buffer.Move())
 {
 }
 
-ByteBufferPositionException::ByteBufferPositionException(bool add, size_t pos,
-                                                         size_t size, size_t valueSize)
+ByteBufferPositionException::ByteBufferPositionException(size_t pos, size_t size, size_t valueSize)
 {
     std::ostringstream ss;
 
-    ss << "Attempted to " << (add ? "put" : "get") << " value with size: "
+    ss << "Attempted to get value with size: "
        << valueSize << " in ByteBuffer (pos: " << pos << " size: " << size
        << ")";
 
     message().assign(ss.str());
 }
 
-ByteBufferSourceException::ByteBufferSourceException(size_t pos, size_t size,
-                                                     size_t valueSize)
-{
-    std::ostringstream ss;
-
-    ss << "Attempted to put a "
-       << (valueSize > 0 ? "NULL-pointer" : "zero-sized value")
-       << " in ByteBuffer (pos: " << pos << " size: " << size << ")";
-
-    message().assign(ss.str());
-}
-
-ByteBufferInvalidValueException::ByteBufferInvalidValueException(char const* type, char const* value)
-{
-    message().assign(Trinity::StringFormat("Invalid %s value (%s) found in ByteBuffer", type, value));
-}
-
 ByteBuffer& ByteBuffer::operator>>(float& value)
 {
     value = read<float>();
     if (!std::isfinite(value))
-        throw ByteBufferInvalidValueException("float", "infinity");
+        throw ByteBufferException();
     return *this;
 }
 
@@ -70,23 +50,8 @@ ByteBuffer& ByteBuffer::operator>>(double& value)
 {
     value = read<double>();
     if (!std::isfinite(value))
-        throw ByteBufferInvalidValueException("double", "infinity");
+        throw ByteBufferException();
     return *this;
-}
-
-std::string ByteBuffer::ReadCString(bool requireValidUtf8 /*= true*/)
-{
-    std::string value;
-    while (rpos() < size())                         // prevent crash at wrong string format in packet
-    {
-        char c = read<char>();
-        if (c == 0)
-            break;
-        value += c;
-    }
-    if (requireValidUtf8 && !utf8::is_valid(value.begin(), value.end()))
-        throw ByteBufferInvalidValueException("string", value.c_str());
-    return value;
 }
 
 uint32 ByteBuffer::ReadPackedTime()
@@ -109,6 +74,8 @@ void ByteBuffer::append(uint8 const* src, size_t cnt)
     ASSERT(src, "Attempted to put a NULL-pointer in ByteBuffer (pos: " SZFMTD " size: " SZFMTD ")", _wpos, size());
     ASSERT(cnt, "Attempted to put a zero-sized value in ByteBuffer (pos: " SZFMTD " size: " SZFMTD ")", _wpos, size());
     ASSERT(size() < 10000000);
+
+    FlushBits();
 
     size_t const newSize = _wpos + cnt;
     if (_storage.capacity() < newSize) // custom memory allocation rules
@@ -143,6 +110,22 @@ void ByteBuffer::put(size_t pos, uint8 const* src, size_t cnt)
     ASSERT(cnt, "Attempted to put a zero-sized value in ByteBuffer (pos: " SZFMTD " size: " SZFMTD ")", pos, size());
 
     std::memcpy(&_storage[pos], src, cnt);
+}
+
+void ByteBuffer::PutBits(std::size_t pos, std::size_t value, uint32 bitCount)
+{
+    ASSERT(pos + bitCount <= size() * 8, "Attempted to put %u bits in ByteBuffer (bitpos: " SZFMTD " size: " SZFMTD ")", bitCount, pos, size());
+    ASSERT(bitCount, "Attempted to put a zero bits in ByteBuffer");
+
+    for (uint32 i = 0; i < bitCount; ++i)
+    {
+        std::size_t wp = (pos + i) / 8;
+        std::size_t bit = (pos + i) % 8;
+        if ((value >> (bitCount - i - 1)) & 1)
+            _storage[wp] |= 1 << (7 - bit);
+        else
+            _storage[wp] &= ~(1 << (7 - bit));
+    }
 }
 
 void ByteBuffer::print_storage() const
