@@ -26,7 +26,7 @@ void Trinity::Banner::Show(char const* applicationName, void(*log)(char const* t
     log("\n");
     log("################################################################################");
     log("################################################################################");
-    log(" Core 902-36949 Shadowlands  - Stitch Décembre 2020 - Janvier 2021");
+    log(" Core 902-37142 Shadowlands  - Stitch Décembre 2020 - Janvier 2021");
     log(" Basé sur le core Trinity http://TrinityCore.org");
     log(" Remerciements a Noc et Galathil pour leurs aides");
     log("\n");
@@ -38,6 +38,7 @@ void Trinity::Banner::Show(char const* applicationName, void(*log)(char const* t
     log(" - Aubergiste donne foyer et une pierre de foyer");
     log(" - Guilde auto a la creation d'un perso (Horde ou Alliance");
     log(" - Resurrection sur son corp (apprentissage spell)");
+    log(" - Remplace les gossip_menu_option des Maitres, Vendeur, etc");
     log("\n");
     log("################################################################################");
     log("################################################################################");

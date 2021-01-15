@@ -20,6 +20,7 @@ void AddSC_npc_levels();
 void AddSC_Player_Even_Action();
 void AddSC_npc_innkeeper_new();
 void AddSC_npc_changer();
+void AddSC_npc_gossip_menu_option_new();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -29,4 +30,5 @@ void AddCustomScripts()
     AddSC_Player_Even_Action();
     AddSC_npc_innkeeper_new();
     AddSC_npc_changer();
+    AddSC_npc_gossip_menu_option_new();
 }
