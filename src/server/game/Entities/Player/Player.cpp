@@ -23401,7 +23401,13 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     /// SMSG_RESYNC_RUNES
     if (getClass() == CLASS_DEATH_KNIGHT)
-        ResyncRunes(0);
+    {
+        // Initialize rune cooldowns
+        ResyncRunes();
+
+        // Send already converted runes
+        SendConvertedRunes();
+    }
 
     // Spell modifiers
     SendSpellModifiers();
@@ -25448,7 +25454,7 @@ void Player::RestoreBaseRune(uint8 index)
     }
 
     ConvertRune(index, GetBaseRune(index));
-    SetRuneConvertAura(index, NULL, SPELL_AURA_NONE, NULL);
+    SetRuneConvertAura(index, nullptr, SPELL_AURA_NONE, nullptr);
 }
 
 void Player::ConvertRune(uint8 index, RuneType newType)
@@ -25462,13 +25468,32 @@ void Player::ConvertRune(uint8 index, RuneType newType)
     SendDirectMessage(packet.Write());
 }
 
-void Player::ResyncRunes(uint8 count)
+void Player::ResyncRunes()
 {
-    WorldPackets::Spells::ResyncRunes packet(count);
-    for (uint32 i = 0; i < count; ++i)
-        packet.Runes.push_back({ uint8(GetCurrentRune(i)), uint8(255 - (GetRuneCooldown(i) * 51)) });
+    WorldPackets::Spells::ResyncRunes packet;
+    for (uint8 i = 0; i < MAX_RUNES; ++i)
+    {
+        WorldPackets::Spells::ResyncRune resyncRune;
+        resyncRune.RuneType = GetCurrentRune(i);
+        resyncRune.Cooldown = uint8(GetRuneCooldown(i) * uint32(255) / uint32(RUNE_BASE_COOLDOWN));
+        packet.Runes.emplace_back(resyncRune);
+    }
 
     SendDirectMessage(packet.Write());
+}
+
+void Player::SendConvertedRunes()
+{
+    for (uint8 i = 0; i < MAX_RUNES; ++i)
+    {
+        if (GetBaseRune(i) != GetCurrentRune(i))
+        {
+            WorldPackets::Spells::ConvertRune convertRune;
+            convertRune.Index = i;
+            convertRune.Rune = GetCurrentRune(i);
+            SendDirectMessage(convertRune.Write());
+        }
+    }
 }
 
 void Player::AddRunePower(uint8 mask)

@@ -2327,7 +2327,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void RemoveRunesByAuraEffect(AuraEffect const* aura);
         void RestoreBaseRune(uint8 index);
         void ConvertRune(uint8 index, RuneType newType);
-        void ResyncRunes(uint8 count);
+        void ResyncRunes();
+        void SendConvertedRunes();
         void AddRunePower(uint8 mask);
         void InitRunes();
 

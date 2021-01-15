@@ -362,18 +362,19 @@ namespace WorldPackets
             uint8 Rune = 0;
         };
 
+        struct ResyncRune
+        {
+            uint8 RuneType = 0;
+            uint8 Cooldown = 0;
+        };
+
         class ResyncRunes final : public ServerPacket
         {
         public:
-            struct ResyncRune
-            {
-                uint8 RuneType = 0;
-                uint8 Cooldown = 0;
-            };
-
-            ResyncRunes(size_t size) : ServerPacket(SMSG_RESYNC_RUNES, 4 + 2 * size) { }
+            ResyncRunes() : ServerPacket(SMSG_RESYNC_RUNES, 4) { }
 
             WorldPacket const* Write() override;
+
             std::vector<ResyncRune> Runes;
         };
 

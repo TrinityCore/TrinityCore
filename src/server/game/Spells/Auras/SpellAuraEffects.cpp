@@ -4982,14 +4982,22 @@ void AuraEffect::HandleAuraConvertRune(AuraApplication const* aurApp, uint8 mode
     if (player->getClass() != CLASS_DEATH_KNIGHT)
         return;
 
+    /*
+    * Converts a rune into a new rune type.
+    * MiscValueA describes what rune type can be converted
+    * MiscValueB describes into what rune the eligible rune will be converted into
+    * Amount is the number of runes that will be converted if available
+    */
+
     uint32 runes = m_amount;
-    // convert number of runes specified in aura amount of rune type in miscvalue to runetype in miscvalueb
+
     if (apply)
     {
         for (uint32 i = 0; i < MAX_RUNES && runes; ++i)
         {
-            if (GetMiscValue() != player->GetCurrentRune(i))
+            if (RuneType(GetMiscValue()) != player->GetCurrentRune(i))
                 continue;
+
             if (!player->GetRuneCooldown(i))
             {
                 player->AddRuneByAuraEffect(i, RuneType(GetMiscValueB()), this, GetAuraType(), GetSpellInfo());
