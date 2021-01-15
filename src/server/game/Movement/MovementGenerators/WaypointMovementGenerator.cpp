@@ -195,7 +195,7 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* creature, bool rel
         // We have no db spline points, so we are going to fall back to default waypoint behaivior.
         if (!creature->movespline->Finalized() && _lastSplineId == creature->movespline->GetId())
         {
-            // We are still running our previous waypoint spline. Use it's final destination as starting point for our next path.
+            // We are still running our previous waypoint spline. Use its final destination as starting point for our next path.
             init.MoveTo(creature->movespline->FinalDestination(), PositionToVector3({ waypoint.X, waypoint.Y, waypoint.Z }));
             if (!init.Path().empty())
                 init.Path().insert(init.Path().begin(), PositionToVector3(creature->GetPosition()));
@@ -253,7 +253,7 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* creature, bool rel
 bool WaypointMovementGenerator<Creature>::DoUpdate(Creature* creature, uint32 diff)
 {
     // Creature has died. Do not update anymore.
-    if (!creature->IsAlive())
+    if (!creature || !creature->IsAlive())
         return true;
 
     // The creature has completed its waypoint path or the path is no longer available.
