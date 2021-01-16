@@ -81,7 +81,7 @@ static int CreateChildProcess(T waiter, std::string const& executable,
                 executable.c_str(), boost::algorithm::join(argsVector, " ").c_str());
     }
 
-    // prepare file with only read permission (boost process opens with with read_write)
+    // prepare file with only read permission (boost process opens with read_write)
     std::shared_ptr<FILE> inputFile(!input.empty() ? fopen(input.c_str(), "rb") : nullptr, [](FILE* ptr)
     {
         if (ptr != nullptr)
