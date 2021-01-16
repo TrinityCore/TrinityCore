@@ -3017,8 +3017,8 @@ void InstanceMap::UpdateInstanceLock(UpdateBossStateSaveDataEvent const& updateS
         CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
         if (entries.IsInstanceIdBound())
-            sInstanceLockMgr.UpdateSharedInstanceLock(trans,
-                { GetInstanceId(), i_data->GetSaveData(), instanceCompletedEncounters, updateSaveDataEvent.DungeonEncounter });
+            sInstanceLockMgr.UpdateSharedInstanceLock(trans, InstanceLockUpdateEvent(GetInstanceId(), i_data->GetSaveData(),
+                instanceCompletedEncounters, updateSaveDataEvent.DungeonEncounter, i_data->GetEntranceLocationForCompletedEncounters(instanceCompletedEncounters)));
 
         for (MapReference& mapReference : m_mapRefManager)
         {
@@ -3029,13 +3029,18 @@ void InstanceMap::UpdateInstanceLock(UpdateBossStateSaveDataEvent const& updateS
 
             InstanceLock const* playerLock = sInstanceLockMgr.FindActiveInstanceLock(player->GetGUID(), entries);
             std::string const* oldData = nullptr;
+            uint32 playerCompletedEncounters = 0;
             if (playerLock)
+            {
                 oldData = &playerLock->GetData()->Data;
+                playerCompletedEncounters = playerLock->GetData()->CompletedEncountersMask | (1u << updateSaveDataEvent.DungeonEncounter->Bit);
+            }
 
             bool isNewLock = !playerLock || !playerLock->GetData()->CompletedEncountersMask || playerLock->IsExpired();
 
             InstanceLock const* newLock = sInstanceLockMgr.UpdateInstanceLockForPlayer(trans, player->GetGUID(), entries,
-                { GetInstanceId(), i_data->UpdateBossStateSaveData(oldData ? *oldData : "", updateSaveDataEvent), instanceCompletedEncounters, updateSaveDataEvent.DungeonEncounter });
+                InstanceLockUpdateEvent(GetInstanceId(), i_data->UpdateBossStateSaveData(oldData ? *oldData : "", updateSaveDataEvent),
+                    instanceCompletedEncounters, updateSaveDataEvent.DungeonEncounter, i_data->GetEntranceLocationForCompletedEncounters(playerCompletedEncounters)));
 
             if (isNewLock)
             {
@@ -3062,8 +3067,8 @@ void InstanceMap::UpdateInstanceLock(UpdateAdditionalSaveDataEvent const& update
         CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
         if (entries.IsInstanceIdBound())
-            sInstanceLockMgr.UpdateSharedInstanceLock(trans,
-                { GetInstanceId(), i_data->GetSaveData(), instanceCompletedEncounters, nullptr });
+            sInstanceLockMgr.UpdateSharedInstanceLock(trans, InstanceLockUpdateEvent(GetInstanceId(), i_data->GetSaveData(),
+                instanceCompletedEncounters, nullptr, {}));
 
         for (MapReference& mapReference : m_mapRefManager)
         {
@@ -3080,7 +3085,8 @@ void InstanceMap::UpdateInstanceLock(UpdateAdditionalSaveDataEvent const& update
             bool isNewLock = !playerLock || !playerLock->GetData()->CompletedEncountersMask || playerLock->IsExpired();
 
             InstanceLock const* newLock = sInstanceLockMgr.UpdateInstanceLockForPlayer(trans, player->GetGUID(), entries,
-                { GetInstanceId(), i_data->UpdateAdditionalSaveData(oldData ? *oldData : "", updateSaveDataEvent), instanceCompletedEncounters, nullptr });
+                InstanceLockUpdateEvent(GetInstanceId(), i_data->UpdateAdditionalSaveData(oldData ? *oldData : "", updateSaveDataEvent),
+                    instanceCompletedEncounters, nullptr, {}));
 
             if (isNewLock)
             {
@@ -3106,7 +3112,7 @@ void InstanceMap::CreateInstanceLockForPlayer(Player* player)
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     InstanceLock const* newLock = sInstanceLockMgr.UpdateInstanceLockForPlayer(trans, player->GetGUID(), entries,
-        { GetInstanceId(), i_data->GetSaveData(), i_instanceLock->GetData()->CompletedEncountersMask, nullptr });
+        InstanceLockUpdateEvent(GetInstanceId(), i_data->GetSaveData(), i_instanceLock->GetData()->CompletedEncountersMask, nullptr, {}));
 
     CharacterDatabase.CommitTransaction(trans);
 

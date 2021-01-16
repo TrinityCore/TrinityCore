@@ -21,6 +21,7 @@
 #include "ZoneScript.h"
 #include "Common.h"
 #include "Duration.h"
+#include "Optional.h"
 #include <array>
 #include <map>
 #include <set>
@@ -197,6 +198,8 @@ class TC_GAME_API InstanceScript : public ZoneScript
 
         std::string UpdateBossStateSaveData(std::string const& oldData, UpdateBossStateSaveDataEvent const& event);
         std::string UpdateAdditionalSaveData(std::string const& oldData, UpdateAdditionalSaveDataEvent const& event);
+        Optional<uint32> GetEntranceLocationForCompletedEncounters(uint32 completedEncountersMask) const;
+        virtual Optional<uint32> ComputeEntranceLocationForCompletedEncounters(uint32 completedEncountersMask) const;
 
         virtual void Update(uint32 /*diff*/) { }
         void UpdateCombatResurrection(uint32 diff);
