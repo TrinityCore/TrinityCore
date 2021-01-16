@@ -3,6 +3,7 @@
       (**********************************)
       (you can delete all rows before description and after operating system when creating issue)
       For SQL fixes:
+      search for existing issues, if a bug report exist for the issue you are trying to fix and it's opened post there.
       don't modify WDB fields without supply one sniff of those fields (censure guids, character names, anything blizzard can use to identify source)
       don't use pull requests for sql only fixes, unless it's to fix one existing unable to apply file.
       don't hardcode guids.
@@ -39,7 +40,9 @@ CHANGEME 3.3.5, master or both
 
 CHANGEME Copy the result of server debug command (if you need to run it from client get prat addon)
 
-**Operating system:** CHANGEME OS
+**Operating system:** 
+
+CHANGEME OS
 
 
 <!--- Notes
