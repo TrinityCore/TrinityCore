@@ -50,6 +50,5 @@ For more instructions please check docker official documentation.
 - Database connection: the instructions provided expect MySQL to run on the host machine. Change ``docker run`` parameters and .conf settings to fit your scenario
 - To import TDB using the autoupdater:
   1. Download the TDB sql file from GitHub
-  1. ``chmod 666 TDB_name.sql`` in the host
   1. Map it with ``--volume=/path/to/TDB_full_name.sql:/home/circleci/TDB_full_name.sql`` added to the commands specified in the main steps above
   1. Run the container
