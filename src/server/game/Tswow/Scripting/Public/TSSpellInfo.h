@@ -24,5 +24,5 @@ public:
     TSSpellInfo();
     TSSpellInfo* operator->() { return this;}
     bool IsNull() { return info == nullptr; }
-    uint32 Id();
+    uint32 ID();
 };

@@ -2446,6 +2446,13 @@ declare class TSAura {
     IsNull() : bool
 
     /**
+     * Returns all active applications of this aura.
+     * 
+     * @return [TSAuraApplication[]] applications
+     */
+    GetApplications(): TSArray<TSAuraApplication>
+
+    /**
      * Returns the [Unit] that casted the [Spell] that caused this [Aura] to be applied.
      *
      * @return [Unit] caster
@@ -2537,6 +2544,40 @@ declare class TSAura {
      * Remove this [Aura] from the [Unit] it is applied to.
      */
     Remove() : void    
+}
+
+declare class TSAuraEffect {
+    GetCaster(): TSUnit;
+    GetCasterGUID(): uint64;
+    GetAura(): TSAura;
+    GetSpellInfo(): TSSpellInfo;
+    GetID(): uint32;
+    GetEffectIndex(): uint32;
+    GetAmplitude(): uint32;
+    GetMiscValueB(): int32;
+    GetMiscValue(): int32;
+    GetAuraType(): uint32;
+    GetAmount(): int32;
+    SetAmount(amount: int32): void;
+    GetPeriodicTimer(): int32;
+    SetPeriodicTimer(periodicTimer: int32): void;
+    GetTickNumber(): uint32;
+    GetRemainingTicks(): uint32;
+    GetTotalTicks(): uint32;
+    ResetPeriodic(): void;
+    ResetTicks(): void;
+    IsPeriodic(): boolean;
+}
+
+declare class TSAuraApplication {
+    GetTarget(): TSUnit;
+    GetAura(): TSAura;
+    GetSlot(): uint8;
+    GetFlags(): uint8;
+    GetEffectMask(): uint8;
+    GetAppliedEffects(): uint8;
+    IsPositive(): bool;
+    IsSelfCast(): bool;
 }
 
 declare class TSGuild {
@@ -5973,7 +6014,7 @@ declare class TSItemTemplate {
 
 declare class TSSpellInfo {
     IsNull() : bool
-    Id() : uint32;
+    ID() : uint32;
 }
 
 declare class TSSpellCastTargets {
@@ -6105,14 +6146,16 @@ declare namespace _hidden {
         OnCast(spell: uint32, callback : (spell: TSSpell)=>void);
         OnDispel(spell: uint32, callback: (spell: TSSpell, dispelType: uint32)=>void);
         OnHit(spell: uint32, callback: (spell: TSSpell)=>void);
-        OnTick(spell: uint32, callback: (caster: TSUnit, target: TSUnit)=>void);
+        OnTick(spell: uint32, callback: (effect: TSAuraEffect)=>void);
+        OnRemove(spell: uint32, callback: (effect: TSAuraEffect, application: TSAuraApplication, type: uint32)=>void);
     }
 
     export class Spells {
         OnCast(callback : (spell: TSSpell)=>void);
         OnDispel(callback: (spell: TSSpell, dispelType: uint32)=>void);
         OnHit(callback: (spell: TSSpell)=>void);
-        OnTick(callback: (caster: TSUnit, target: TSUnit)=>void);
+        OnTick(callback: (effect: TSAuraEffect)=>void);
+        OnRemove(callback: (effect: TSAuraEffect, application: TSAuraApplication, type: uint32)=>void);
     }
 
     export class CreatureID {

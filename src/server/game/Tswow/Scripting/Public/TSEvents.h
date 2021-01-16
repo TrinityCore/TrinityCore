@@ -22,6 +22,7 @@
 #include "TSMutableString.h"
 #include "TSMacros.h"
 #include "TSChannel.h"
+#include "TSAura.h"
 #include <cstdint>
 
 // WorldScript
@@ -148,13 +149,15 @@ EVENT_TYPE(GroupOnDisband,TSGroup)
 EVENT_TYPE(SpellOnCast,TSSpell)
 EVENT_TYPE(SpellOnDispel,TSSpell,uint32)
 EVENT_TYPE(SpellOnHit,TSSpell)
-EVENT_TYPE(SpellOnTick,TSUnit,TSUnit)
+EVENT_TYPE(SpellOnTick,TSAuraEffect)
+EVENT_TYPE(SpellOnRemove,TSAuraEffect,TSAuraApplication, uint32)
 
 struct TSSpellEvents {
      EVENT(SpellOnCast)
      EVENT(SpellOnDispel)
      EVENT(SpellOnHit)
      EVENT(SpellOnTick)
+     EVENT(SpellOnRemove)
 };
 
 class TSSpellMap : public TSEventMap<TSSpellEvents> 
@@ -382,6 +385,7 @@ struct TSEvents
     EVENT(SpellOnDispel)
     EVENT(SpellOnHit)
     EVENT(SpellOnTick)
+    EVENT(SpellOnRemove)
 
     TSSpellMap Spells;
     TSCreatureMap Creatures;
@@ -564,6 +568,7 @@ public:
           EVENT_HANDLE(Spell,OnDispel)
           EVENT_HANDLE(Spell,OnHit)
           EVENT_HANDLE(Spell,OnTick)
+          EVENT_HANDLE(Spell,OnRemove)
     } Spells;
 
     struct SpellIDEvents : public MappedEventHandler<TSSpellMap>
@@ -573,6 +578,7 @@ public:
           MAP_EVENT_HANDLE(Spell,OnDispel)
           MAP_EVENT_HANDLE(Spell,OnHit)
           MAP_EVENT_HANDLE(Spell,OnTick)
+          MAP_EVENT_HANDLE(Spell,OnRemove)
     } SpellID;
 
      struct CreatureEvents: public EventHandler

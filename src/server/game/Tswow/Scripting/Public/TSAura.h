@@ -19,6 +19,53 @@
 #include "TSMain.h"
 #include "TSClasses.h"
 
+class AuraEffect;
+class TC_GAME_API TSAuraEffect {
+public:
+    AuraEffect* aura;
+    TSAuraEffect(AuraEffect* aura);
+    TSAuraEffect();
+    TSAuraEffect* operator->() { return this;}
+    TSUnit GetCaster();
+    uint64 GetCasterGUID();
+    TSAura GetAura();
+    TSSpellInfo GetSpellInfo();
+    uint32 GetID();
+    uint32 GetEffectIndex();
+    uint32 GetAmplitude();
+    int32 GetMiscValueB();
+    int32 GetMiscValue();
+    uint32 GetAuraType();
+    int32 GetAmount();
+    void SetAmount(int32 amount);
+    int32 GetPeriodicTimer();
+    void SetPeriodicTimer(int32 periodicTimer);
+    uint32 GetTickNumber();
+    uint32 GetRemainingTicks();
+    uint32 GetTotalTicks();
+    void ResetPeriodic();
+    void ResetTicks();
+    bool IsPeriodic();
+};
+
+class AuraApplication;
+class TC_GAME_API TSAuraApplication {
+public:
+    AuraApplication* aura;
+    TSAuraApplication(AuraApplication* aura);
+    TSAuraApplication();
+    TSAuraApplication* operator->() { return this;}
+
+    TSUnit GetTarget();
+    TSAura GetAura();
+    uint8 GetSlot();
+    uint8 GetFlags();
+    uint8 GetEffectMask();
+    uint8 GetAppliedEffects();
+    bool IsPositive();
+    bool IsSelfCast();
+};
+
 class TC_GAME_API TSAura {
 public:
     Aura *aura;
@@ -34,6 +81,7 @@ public:
     int32 GetMaxDuration();
     uint32 GetStackAmount();
     TSWorldObject GetOwner();
+    TSArray<TSAuraApplication> GetApplications();
     void SetDuration(int32 duration);
     void SetMaxDuration(int32 duration);
     void SetStackAmount(uint8 amount);

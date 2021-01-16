@@ -21,7 +21,173 @@
 #include "TSAura.h"
 #include "TSWorldObject.h"
 #include "SpellAuras.h"
+#include "SpellAuraEffects.h"
+#include "TSSpellInfo.h"
 #include "TSUnit.h"
+
+TSAuraEffect::TSAuraEffect(AuraEffect* aura)
+{
+    this->aura = aura;
+}
+
+TSAuraEffect::TSAuraEffect()
+{
+    this->aura = nullptr;
+}
+
+TSUnit TSAuraEffect::GetCaster()
+{
+    return TSUnit(aura->GetCaster());
+}
+
+uint64 TSAuraEffect::GetCasterGUID()
+{
+    return aura->GetCasterGUID();
+}
+
+TSAura TSAuraEffect::GetAura()
+{
+    return TSAura(aura->GetBase());
+}
+
+TSSpellInfo TSAuraEffect::GetSpellInfo()
+{
+    return TSSpellInfo(aura->GetSpellInfo());
+}
+
+uint32 TSAuraEffect::GetID()
+{
+    return aura->GetId();
+}
+
+uint32 TSAuraEffect::GetEffectIndex()
+{
+    return aura->GetEffIndex();
+}
+
+uint32 TSAuraEffect::GetAmplitude()
+{
+    return aura->GetAmplitude();
+}
+
+int32 TSAuraEffect::GetMiscValueB()
+{
+    return aura->GetMiscValueB();
+}
+
+int32 TSAuraEffect::GetMiscValue()
+{
+    return aura->GetMiscValue();
+}
+
+uint32 TSAuraEffect::GetAuraType()
+{
+    return aura->GetAuraType();
+}
+
+int32 TSAuraEffect::GetAmount()
+{
+    return aura->GetAmount();
+}
+
+void TSAuraEffect::SetAmount(int32 amount)
+{
+    aura->SetAmount(amount);
+}
+
+int32 TSAuraEffect::GetPeriodicTimer()
+{
+    return aura->GetPeriodicTimer();
+}
+
+void TSAuraEffect::SetPeriodicTimer(int32 periodicTimer)
+{
+    aura->SetPeriodicTimer(periodicTimer);
+}
+
+uint32 TSAuraEffect::GetTickNumber()
+{
+    return aura->GetTickNumber();
+}
+
+uint32 TSAuraEffect::GetRemainingTicks()
+{
+    return aura->GetRemainingTicks();
+}
+
+uint32 TSAuraEffect::GetTotalTicks()
+{
+    return aura->GetTotalTicks();
+}
+
+void TSAuraEffect::ResetPeriodic()
+{
+    aura->ResetPeriodic();
+}
+
+void TSAuraEffect::ResetTicks()
+{
+    aura->ResetTicks();
+}
+
+bool TSAuraEffect::IsPeriodic()
+{
+    return aura->IsPeriodic();
+}
+
+TSAuraApplication::TSAuraApplication(AuraApplication* aura)
+{
+    this->aura = aura;
+}
+
+TSAuraApplication::TSAuraApplication()
+{
+    aura = nullptr;
+}
+
+TSUnit TSAuraApplication::GetTarget()
+{
+    return TSUnit(aura->GetTarget());
+}
+
+TSAura TSAuraApplication::GetAura()
+{
+    return aura->GetBase();
+}
+
+uint8 TSAuraApplication::GetSlot()
+{
+    return aura->GetSlot();
+}
+
+uint8 TSAuraApplication::GetFlags()
+{
+    return aura->GetFlags();
+}
+
+uint8 TSAuraApplication::GetEffectMask()
+{
+    return aura->GetEffectMask();
+}
+
+uint8 TSAuraApplication::GetAppliedEffects()
+{
+    return aura->GetEffectsToApply();
+}
+
+bool TSAuraApplication::IsPositive()
+{
+    return aura->IsPositive();
+}
+
+bool TSAuraApplication::IsSelfCast()
+{
+    return aura->IsSelfcast();
+}
+
+// =============
+//   TSAura
+// =============
 
 TSAura::TSAura(Aura *aura)
 {
@@ -31,6 +197,16 @@ TSAura::TSAura(Aura *aura)
 TSAura::TSAura()
 {
     this->aura = nullptr;
+}
+
+TSArray<TSAuraApplication> TSAura::GetApplications()
+{
+    TSArray<TSAuraApplication> array;
+    for(auto & v : aura->GetApplicationMap())
+    {
+        array.push(TSAuraApplication(v.second));
+    }
+    return array;
 }
 
 /**

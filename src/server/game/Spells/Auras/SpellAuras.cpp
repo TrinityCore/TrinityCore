@@ -39,6 +39,7 @@
 #include "WorldPacket.h"
 // @tswow-begin
 #include "TSEventLoader.h"
+#include "TSAura.h"
 // @tswow-end
 
 AuraCreateInfo::AuraCreateInfo(SpellInfo const* spellInfo, uint8 auraEffMask, WorldObject* owner) :
@@ -2273,6 +2274,9 @@ bool Aura::CallScriptEffectApplyHandlers(AuraEffect const* aurEff, AuraApplicati
 
 bool Aura::CallScriptEffectRemoveHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode)
 {
+    // @tswow-begin
+    FIRE_MAP(m_spellInfo->events,SpellOnRemove,TSAuraEffect(const_cast<AuraEffect*>(aurEff)),TSAuraApplication(const_cast<AuraApplication*>(aurApp)),mode);
+    // @tswow-end
     bool preventDefault = false;
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
@@ -2341,9 +2345,7 @@ bool Aura::CallScriptEffectPeriodicHandlers(AuraEffect const* aurEff, AuraApplic
 void Aura::CallScriptEffectUpdatePeriodicHandlers(AuraEffect* aurEff)
 {
     // @tswow-begin
-    for (auto& v : this->GetApplicationMap()) {
-        FIRE_MAP(m_spellInfo->events,SpellOnTick,this->GetCaster(), v.second->GetTarget());
-    }
+    FIRE_MAP(m_spellInfo->events,SpellOnTick,TSAuraEffect(aurEff));
     // @tswow-end
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
