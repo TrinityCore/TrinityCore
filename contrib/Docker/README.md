@@ -39,7 +39,7 @@ The image contains:
 - vmap4asembler
 - vmap4extractor
 - worldserver
-- README.md
+- README&#46;md
 
 You can explore the image using
 ```
