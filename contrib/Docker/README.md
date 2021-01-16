@@ -1,6 +1,6 @@
 # Docker
 
-The Circle CI Linux PCH job uses the Dockerfile contained in the same folder as this README to create an image with the binaries built for Linux, and stores that in the job artifacts.
+The Circle CI Linux pch job uses the Dockerfile contained in the same folder as this README to create an image with the binaries built for Linux, and stores that in the job artifacts.
 
 The instructions below expect a basic knowledge of how to configure TrinityCore and how to use Docker:
 1. Click the green tick ✔ next to each commit.
