@@ -52,7 +52,7 @@ jobs:
           command: |
             mkdir bin
             cd bin
-            cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS=dynamic -DSERVERS=1 -DNOJEM=0 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS="-Werror" -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_C_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_CXX_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_INSTALL_PREFIX=check_install -DBUILD_TESTING=1
+            cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS=static -DSERVERS=1 -DNOJEM=0 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS="-Werror" -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_C_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_CXX_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_INSTALL_PREFIX=check_install -DBUILD_TESTING=1
             cd ..
       - run:
           name: Build
@@ -70,6 +70,20 @@ jobs:
             cd bin/check_install/bin
             ./authserver --version
             ./worldserver --version
+      - setup_remote_docker:
+          version: 19.03.13
+      - run:
+          name: Create docker images
+          command: |
+            cd bin/check_install/bin
+            cp -r ../../../contrib/Docker/* .
+            cp -r ../../../sql ./sql
+            image_prefix=$(echo $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME-$(echo $CIRCLE_BRANCH | tr '/' '-') | tr '[:upper:]' '[:lower:]')
+            echo $image_prefix
+            docker build --file Dockerfile --force-rm --tag $image_prefix:$CIRCLE_SHA1 --tag $image_prefix:latest .
+            docker save $image_prefix:$CIRCLE_SHA1 | gzip > ../../../docker.tar.gz
+      - store_artifacts:
+          path: docker.tar.gz
   nopch:
     docker:
       - image: trinitycore/circle-ci:3.3.5-buildpacks-focal
