@@ -12,8 +12,8 @@ The instructions below expect basic knowledge about how to configure TrinityCore
     docker load -i docker.tar.gz
     ```
 1. Copy the .conf files from TrinityCore GitHub repository to a local folder that will be passed as mapped volume to docker
-1. Set the MySQL host in the .conf files to use the unix socket of MySQL, i.e.: ```".;/var/run/mysqld/mysqld.sock;username;password;database```
-1. Set the "DataDir" config in worldserver.conf to ```"/trinity/data"```
+1. Set the MySQL host in the .conf files to use the unix socket of MySQL, i.e.: ``".;/var/run/mysqld/mysqld.sock;username;password;database``
+1. Set the "DataDir" config in worldserver.conf to ``"/trinity/data"``
 1. Start authserver or worldserver as desired, mapping the required volumes
     - authserver
         ```
@@ -47,9 +47,9 @@ docker cp "container name":/home/circleci/name.log name.log
 For more instructions please check docker official documentation.
 
 ## Limitations:
-- Database connection: the instructions provided expect MySQL to run on the host machine. Change ```docker run``` parameters and .conf settings to fit your scenario
+- Database connection: the instructions provided expect MySQL to run on the host machine. Change ``docker run`` parameters and .conf settings to fit your scenario
 - To import TDB using the autoupdater:
   1. Download the TDB sql file from GitHub
-  1. ```chmod 666 TDB_name.sql``` in the host
-  1. Map it with ```--volume=/path/to/TDB_full_name.sql:/home/circleci/TDB_full_name.sql``` added to the commands specified in the main steps above
+  1. ``chmod 666 TDB_name.sql`` in the host
+  1. Map it with ``--volume=/path/to/TDB_full_name.sql:/home/circleci/TDB_full_name.sql`` added to the commands specified in the main steps above
   1. Run the container
