@@ -23,6 +23,7 @@
 #include "Duration.h"
 #include "Hash.h"
 #include "ObjectGuid.h"
+#include "Optional.h"
 #include <unordered_map>
 
 /*
@@ -173,8 +174,10 @@ struct TC_GAME_API MapDb2Entries
 
 struct InstanceLockUpdateEvent
 {
-    InstanceLockUpdateEvent(uint32 instanceId, std::string newData, uint32 instanceCompletedEncountersMask, DungeonEncounterEntry const* completedEncounter)
-        : InstanceId(instanceId), NewData(std::move(newData)), InstanceCompletedEncountersMask(instanceCompletedEncountersMask), CompletedEncounter(completedEncounter) { }
+    InstanceLockUpdateEvent(uint32 instanceId, std::string newData, uint32 instanceCompletedEncountersMask, DungeonEncounterEntry const* completedEncounter,
+        Optional<uint32> entranceWorldSafeLocId) :
+        InstanceId(instanceId), NewData(std::move(newData)), InstanceCompletedEncountersMask(instanceCompletedEncountersMask), CompletedEncounter(completedEncounter),
+        EntranceWorldSafeLocId(entranceWorldSafeLocId) { }
     InstanceLockUpdateEvent(InstanceLockUpdateEvent const& other) = delete;
     InstanceLockUpdateEvent(InstanceLockUpdateEvent&& other) noexcept;
 
@@ -186,6 +189,7 @@ struct InstanceLockUpdateEvent
     std::string NewData;
     uint32 InstanceCompletedEncountersMask;
     DungeonEncounterEntry const* CompletedEncounter;
+    Optional<uint32> EntranceWorldSafeLocId;
 };
 
 // TOTALLY NOT THREADSAFE YET

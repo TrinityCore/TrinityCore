@@ -521,6 +521,19 @@ std::string InstanceScript::UpdateAdditionalSaveData(std::string const& oldData,
     return writer.GetString();
 }
 
+Optional<uint32> InstanceScript::GetEntranceLocationForCompletedEncounters(uint32 completedEncountersMask) const
+{
+    if (!instance->GetMapDifficulty()->IsUsingEncounterLocks())
+        return _entranceId;
+
+    return ComputeEntranceLocationForCompletedEncounters(completedEncountersMask);
+}
+
+Optional<uint32> InstanceScript::ComputeEntranceLocationForCompletedEncounters(uint32 /*completedEncountersMask*/) const
+{
+    return { };
+}
+
 void InstanceScript::HandleGameObject(ObjectGuid guid, bool open, GameObject* go /*= nullptr*/)
 {
     if (!go)

@@ -346,6 +346,9 @@ InstanceLock* InstanceLockMgr::UpdateInstanceLockForPlayer(CharacterDatabaseTran
     if (!entries.MapDifficulty->IsUsingEncounterLocks())
         instanceLock->GetData()->CompletedEncountersMask |= updateEvent.InstanceCompletedEncountersMask;
 
+    if (updateEvent.EntranceWorldSafeLocId)
+        instanceLock->GetData()->EntranceWorldSafeLocId = *updateEvent.EntranceWorldSafeLocId;
+
     if (instanceLock->IsExpired())
     {
         ASSERT(instanceLock->IsExtended(), "Instance lock must have been extended to create instance map from it");
@@ -392,6 +395,9 @@ void InstanceLockMgr::UpdateSharedInstanceLock(CharacterDatabaseTransaction tran
         TC_LOG_DEBUG("instance.locks", "Instance %u gains completed encounter [%u-%s]",
             updateEvent.InstanceId, updateEvent.CompletedEncounter->ID, updateEvent.CompletedEncounter->Name[sWorld->GetDefaultDbcLocale()]);
     }
+
+    if (updateEvent.EntranceWorldSafeLocId)
+        sharedData->EntranceWorldSafeLocId = *updateEvent.EntranceWorldSafeLocId;
 
     trans->PAppend("DELETE FROM instance2 WHERE instanceId=%u",
         sharedData->InstanceId);
