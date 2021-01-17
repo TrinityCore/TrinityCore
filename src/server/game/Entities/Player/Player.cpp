@@ -2217,16 +2217,6 @@ void Player::RemoveFromGroup(Group* group, ObjectGuid guid, RemoveMethod method 
     group->RemoveMember(guid, method, kicker, reason);
 }
 
-uint32 Player::GetXP() const
-{
-    return m_activePlayerData->XP;
-}
-
-uint32 Player::GetXPForNextLevel() const
-{
-    return m_activePlayerData->NextLevelXP;
-}
-
 void Player::SetXP(uint32 xp)
 {
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::XP), xp);
