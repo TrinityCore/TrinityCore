@@ -14,7 +14,7 @@ The instructions below expect a basic knowledge of how to configure TrinityCore 
     ```
 
 1. Copy the .conf files from the TrinityCore GitHub repository to a local folder which will be passed on as a mapped volume to docker.
-1. Set the MySQL host in the .conf files to use the UNIX socket of MySQL, i.e.: `.;/var/run/mysqld/mysqld.sock;username;password;database`
+1. Set the MySQL host in the .conf files to use the UNIX socket of MySQL, i.e.: `".;/var/run/mysqld/mysqld.sock;username;password;database"`
 1. Set the "DataDir" config in worldserver.conf to `"/trinity/data"`
 1. Start authserver or worldserver as desired, mapping the required volumes:
 
