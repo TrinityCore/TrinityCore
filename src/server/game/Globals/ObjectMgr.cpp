@@ -468,30 +468,32 @@ void ObjectMgr::LoadCreatureTemplates()
         // 49
         "ctm.Random,"
         // 50
-        "HoverHeight,"
+        "ctm.InteractionPauseTimer,"
         // 51
-        "HealthModifier,"
+        "HoverHeight,"
         // 52
-        "ManaModifier,"
+        "HealthModifier,"
         // 53
-        "ArmorModifier,"
+        "ManaModifier,"
         // 54
-        "DamageModifier,"
+        "ArmorModifier,"
         // 55
-        "ExperienceModifier,"
+        "DamageModifier,"
         // 56
-        "RacialLeader,"
+        "ExperienceModifier,"
         // 57
-        "movementId,"
+        "RacialLeader,"
         // 58
-        "RegenHealth,"
+        "movementId,"
         // 59
-        "mechanic_immune_mask,"
+        "RegenHealth,"
         // 60
-        "spell_school_immune_mask,"
+        "mechanic_immune_mask,"
         // 61
-        "flags_extra,"
+        "spell_school_immune_mask,"
         // 62
+        "flags_extra,"
+        // 63
         "ScriptName"
         " FROM creature_template ct"
         " LEFT JOIN creature_template_movement ctm ON ct.entry = ctm.CreatureId");
@@ -595,20 +597,23 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     if (!fields[49].IsNull())
         creatureTemplate.Movement.Random = static_cast<CreatureRandomMovementType>(fields[49].GetUInt8());
 
-    creatureTemplate.HoverHeight    = fields[50].GetFloat();
-    creatureTemplate.ModHealth      = fields[51].GetFloat();
-    creatureTemplate.ModMana        = fields[52].GetFloat();
-    creatureTemplate.ModArmor       = fields[53].GetFloat();
-    creatureTemplate.ModDamage      = fields[54].GetFloat();
-    creatureTemplate.ModExperience  = fields[55].GetFloat();
-    creatureTemplate.RacialLeader   = fields[56].GetBool();
+    if (!fields[50].IsNull())
+        creatureTemplate.Movement.InteractionPauseTimer = fields[50].GetUInt32();
 
-    creatureTemplate.movementId            = fields[57].GetUInt32();
-    creatureTemplate.RegenHealth           = fields[58].GetBool();
-    creatureTemplate.MechanicImmuneMask    = fields[59].GetUInt32();
-    creatureTemplate.SpellSchoolImmuneMask = fields[60].GetUInt32();
-    creatureTemplate.flags_extra           = fields[61].GetUInt32();
-    creatureTemplate.ScriptID              = GetScriptId(fields[62].GetString());
+    creatureTemplate.HoverHeight    = fields[51].GetFloat();
+    creatureTemplate.ModHealth      = fields[52].GetFloat();
+    creatureTemplate.ModMana        = fields[53].GetFloat();
+    creatureTemplate.ModArmor       = fields[54].GetFloat();
+    creatureTemplate.ModDamage      = fields[55].GetFloat();
+    creatureTemplate.ModExperience  = fields[56].GetFloat();
+    creatureTemplate.RacialLeader   = fields[57].GetBool();
+
+    creatureTemplate.movementId            = fields[58].GetUInt32();
+    creatureTemplate.RegenHealth           = fields[59].GetBool();
+    creatureTemplate.MechanicImmuneMask    = fields[60].GetUInt32();
+    creatureTemplate.SpellSchoolImmuneMask = fields[61].GetUInt32();
+    creatureTemplate.flags_extra           = fields[62].GetUInt32();
+    creatureTemplate.ScriptID              = GetScriptId(fields[63].GetString());
 }
 
 void ObjectMgr::LoadCreatureTemplateResistances()

@@ -69,6 +69,7 @@ std::string CreatureMovementData::ToString() const
         << ", Random: " << RandomStates[AsUnderlyingType(Random)];
     if (Rooted)
         str << ", Rooted";
+    str << ", InteractionPauseTimer: " << InteractionPauseTimer;
 
     return str.str();
 }
