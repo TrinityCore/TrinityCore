@@ -24,6 +24,7 @@
 #include "Hash.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
+#include <shared_mutex>
 #include <unordered_map>
 
 /*
@@ -192,7 +193,6 @@ struct InstanceLockUpdateEvent
     Optional<uint32> EntranceWorldSafeLocId;
 };
 
-// TOTALLY NOT THREADSAFE YET
 class TC_GAME_API InstanceLockMgr
 {
 public:
@@ -283,6 +283,7 @@ private:
     static InstanceLock* FindInstanceLock(LockMap const& locks, ObjectGuid const& playerGuid, MapDb2Entries const& entries);
     InstanceLock* FindActiveInstanceLock(ObjectGuid const& playerGuid, MapDb2Entries const& entries, bool ignoreTemporary, bool ignoreExpired) const;
 
+    mutable std::shared_mutex _locksMutex;
     LockMap _temporaryInstanceLocksByPlayer; // locks stored here before any boss gets killed
     LockMap _instanceLocksByPlayer;
     std::unordered_map<uint32, std::weak_ptr<SharedInstanceLockData>> _instanceLockDataById;
