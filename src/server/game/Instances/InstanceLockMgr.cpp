@@ -144,7 +144,7 @@ void InstanceLockMgr::Load()
                 if (sharedDataItr == instanceLockDataById.end())
                 {
                     TC_LOG_ERROR("instance.locks", "Missing instance data for instance id based lock (id %u)", instanceId);
-                    CharacterDatabase.PQuery("DELETE FROM character_instance_lock WHERE instanceId = %u", instanceId);
+                    CharacterDatabase.PExecute("DELETE FROM character_instance_lock WHERE instanceId = %u", instanceId);
                     continue;
                 }
 
@@ -371,24 +371,24 @@ InstanceLock* InstanceLockMgr::UpdateInstanceLockForPlayer(CharacterDatabaseTran
             playerGuid.ToString().c_str(), updateEvent.InstanceId);
     }
 
-    // TODO: DB SAVE IN TRANSACTION
-    trans->PAppend("DELETE FROM character_instance_lock WHERE guid=" UI64FMTD " AND mapId=%u AND lockId=%d",
-        playerGuid.GetCounter(),
-        entries.MapDifficulty->MapID,
-        entries.MapDifficulty->LockID);
-    std::string escapedData = instanceLock->GetData()->Data;
-    CharacterDatabase.EscapeString(escapedData);
-    trans->PAppend("INSERT INTO character_instance_lock (guid, mapId, lockId, instanceId, difficulty, data, completedEncountersMask, entranceWorldSafeLocId, expiryTime, extended) VALUES (" UI64FMTD ", %u, %d, %u, %d, \"%s\", %u, %u, " UI64FMTD ", %d)",
-        playerGuid.GetCounter(),
-        entries.MapDifficulty->MapID,
-        entries.MapDifficulty->LockID,
-        instanceLock->GetInstanceId(),
-        entries.MapDifficulty->DifficultyID,
-        escapedData.c_str(),
-        instanceLock->GetData()->CompletedEncountersMask,
-        instanceLock->GetData()->EntranceWorldSafeLocId,
-        uint64(std::chrono::system_clock::to_time_t(instanceLock->GetExpiryTime())),
-        instanceLock->IsExtended() ? 1 : 0);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_INSTANCE_LOCK);
+    stmt->setUInt64(0, playerGuid.GetCounter());
+    stmt->setUInt32(1, entries.MapDifficulty->MapID);
+    stmt->setUInt32(2, entries.MapDifficulty->LockID);
+    trans->Append(stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_INSTANCE_LOCK);
+    stmt->setUInt64(0, playerGuid.GetCounter());
+    stmt->setUInt32(1, entries.MapDifficulty->MapID);
+    stmt->setUInt32(2, entries.MapDifficulty->LockID);
+    stmt->setUInt32(3, instanceLock->GetInstanceId());
+    stmt->setUInt8(4, entries.MapDifficulty->DifficultyID);
+    stmt->setString(5, instanceLock->GetData()->Data);
+    stmt->setUInt32(6, instanceLock->GetData()->CompletedEncountersMask);
+    stmt->setUInt32(7, instanceLock->GetData()->EntranceWorldSafeLocId);
+    stmt->setUInt64(8, uint64(std::chrono::system_clock::to_time_t(instanceLock->GetExpiryTime())));
+    stmt->setUInt8(9, instanceLock->IsExtended() ? 1 : 0);
+    trans->Append(stmt);
 
     return instanceLock;
 }
@@ -410,15 +410,16 @@ void InstanceLockMgr::UpdateSharedInstanceLock(CharacterDatabaseTransaction tran
     if (updateEvent.EntranceWorldSafeLocId)
         sharedData->EntranceWorldSafeLocId = *updateEvent.EntranceWorldSafeLocId;
 
-    trans->PAppend("DELETE FROM instance2 WHERE instanceId=%u",
-        sharedData->InstanceId);
-    std::string escapedData = sharedData->Data;
-    CharacterDatabase.EscapeString(escapedData);
-    trans->PAppend("INSERT INTO instance2 (instanceId, data, completedEncountersMask, entranceWorldSafeLocId) VALUES (%u, \"%s\", %u, %u)",
-        sharedData->InstanceId,
-        escapedData.c_str(),
-        sharedData->CompletedEncountersMask,
-        sharedData->EntranceWorldSafeLocId);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INSTANCE);
+    stmt->setUInt32(0, sharedData->InstanceId);
+    trans->Append(stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_INSTANCE);
+    stmt->setUInt32(0, sharedData->InstanceId);
+    stmt->setString(1, sharedData->Data);
+    stmt->setUInt32(2, sharedData->CompletedEncountersMask);
+    stmt->setUInt32(3, sharedData->EntranceWorldSafeLocId);
+    trans->Append(stmt);
 }
 
 void InstanceLockMgr::OnSharedInstanceLockDataDelete(uint32 instanceId)
@@ -427,7 +428,9 @@ void InstanceLockMgr::OnSharedInstanceLockDataDelete(uint32 instanceId)
         return;
 
     _instanceLockDataById.erase(instanceId);
-    CharacterDatabase.PExecute("DELETE FROM instance2 WHERE instanceId=%u", instanceId);
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INSTANCE);
+    stmt->setUInt32(0, instanceId);
+    CharacterDatabase.Execute(stmt);
     TC_LOG_DEBUG("instance.locks", "Deleting instance %u as it is no longer referenced by any player", instanceId);
 }
 
@@ -438,11 +441,13 @@ std::pair<InstanceResetTimePoint, InstanceResetTimePoint> InstanceLockMgr::Updat
     {
         InstanceResetTimePoint oldExpiryTime = instanceLock->GetEffectiveExpiryTime();
         instanceLock->SetExtended(extended);
-        CharacterDatabase.PExecute("UPDATE character_instance_lock SET extended = %d WHERE guid = " UI64FMTD " AND mapId = %u AND lockId = %d",
-            extended ? 1 : 0,
-            playerGuid.GetCounter(),
-            entries.MapDifficulty->MapID,
-            entries.MapDifficulty->LockID);
+
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_INSTANCE_LOCK_EXTENSION);
+        stmt->setUInt8(0, extended ? 1 : 0);
+        stmt->setUInt64(1, playerGuid.GetCounter());
+        stmt->setUInt32(2, entries.MapDifficulty->MapID);
+        stmt->setUInt32(3, entries.MapDifficulty->LockID);
+        CharacterDatabase.Execute(stmt);
 
         TC_LOG_DEBUG("instance.locks", "[%u-%s | %u-%s] Instance lock for %s is %s extended",
             entries.Map->ID, entries.Map->MapName[sWorld->GetDefaultDbcLocale()],
