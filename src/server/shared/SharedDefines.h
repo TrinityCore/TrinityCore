@@ -450,7 +450,7 @@ enum SpellAttr1 : uint32
     SPELL_ATTR1_CANT_TARGET_IN_COMBAT            = 0x00000100, // TITLE Target cannot be in combat
     SPELL_ATTR1_MELEE_COMBAT_START               = 0x00000200, // TITLE Starts auto-attack (client only) DESCRIPTION Caster will begin auto-attacking the target on cast
     SPELL_ATTR1_NO_THREAT                        = 0x00000400, // TITLE Does not generate threat DESCRIPTION Also does not cause target to engage
-    SPELL_ATTR1_UNK11                            = 0x00000800, // TITLE Unknown attribute 11@Attr1 DESCRIPTION Aura?
+    SPELL_ATTR1_DONT_REFRESH_DURATION_ON_RECAST  = 0x00000800, // TITLE Aura will not refresh its duration when recast
     SPELL_ATTR1_IS_PICKPOCKET                    = 0x00001000, // TITLE Pickpocket (client only)
     SPELL_ATTR1_FARSIGHT                         = 0x00002000, // TITLE Farsight aura (client only)
     SPELL_ATTR1_CHANNEL_TRACK_TARGET             = 0x00004000, // TITLE Track target while channeling DESCRIPTION While channeling, adjust facing to face target
@@ -571,7 +571,7 @@ enum SpellAttr4 : uint32
     SPELL_ATTR4_AREA_TARGET_CHAIN                = 0x00040000, // TITLE Chain area targets DESCRIPTION [NYI] Hits area targets over time instead of all at once
     SPELL_ATTR4_UNK19                            = 0x00080000, // TITLE Unknown attribute 19@Attr4
     SPELL_ATTR4_NOT_CHECK_SELFCAST_POWER         = 0x00100000, // TITLE Allow self-cast to override stronger aura (client only)
-    SPELL_ATTR4_UNK21                            = 0x00200000, // TITLE Keep when entering arena
+    SPELL_ATTR4_DONT_REMOVE_IN_ARENA             = 0x00200000, // TITLE Keep when entering arena
     SPELL_ATTR4_UNK22                            = 0x00400000, // TITLE Unknown attribute 22@Attr4
     SPELL_ATTR4_CANT_TRIGGER_ITEM_SPELLS         = 0x00800000, // TITLE Cannot trigger item spells
     SPELL_ATTR4_UNK24                            = 0x01000000, // TITLE Unknown attribute 24@Attr4 DESCRIPTION Shoot-type spell?
@@ -595,13 +595,13 @@ enum SpellAttr5 : uint32
     SPELL_ATTR5_SINGLE_TARGET_SPELL              = 0x00000020, // TITLE Single-target aura DESCRIPTION Remove previous application to another unit if applied
     SPELL_ATTR5_UNK6                             = 0x00000040, // TITLE Unknown attribute 6@Attr5
     SPELL_ATTR5_UNK7                             = 0x00000080, // TITLE Unknown attribute 7@Attr5
-    SPELL_ATTR5_UNK8                             = 0x00000100, // TITLE Unknown attribute 8@Attr5
+    SPELL_ATTR5_CANT_TARGET_PLAYER_CONTROLLED    = 0x00000100, // TITLE Cannot target player controlled units but can target players
     SPELL_ATTR5_START_PERIODIC_AT_APPLY          = 0x00000200, // TITLE Immediately do periodic tick on apply
     SPELL_ATTR5_HIDE_DURATION                    = 0x00000400, // TITLE Do not send aura duration to client
     SPELL_ATTR5_ALLOW_TARGET_OF_TARGET_AS_TARGET = 0x00000800, // TITLE Auto-target target of target (client only)
     SPELL_ATTR5_UNK12                            = 0x00001000, // TITLE Unknown attribute 12@Attr5 DESCRIPTION Cleave related?
     SPELL_ATTR5_HASTE_AFFECT_DURATION            = 0x00002000, // TITLE Duration scales with Haste Rating
-    SPELL_ATTR5_UNK14                            = 0x00004000, // TITLE Unknown attribute 14@Attr5
+    SPELL_ATTR5_NOT_USABLE_WHILE_CHARMED         = 0x00004000, // TITLE Charmed units cannot cast this spell
     SPELL_ATTR5_UNK15                            = 0x00008000, // TITLE Unknown attribute 15@Attr5 DESCRIPTION Related to multi-target spells?
     SPELL_ATTR5_UNK16                            = 0x00010000, // TITLE Unknown attribute 16@Attr5
     SPELL_ATTR5_USABLE_WHILE_FEARED              = 0x00020000, // TITLE Usable while feared

@@ -3463,7 +3463,8 @@ bool _isPositiveEffectImpl(SpellInfo const* spellInfo, uint8 effIndex, std::unor
     }
 
     // Special case: effects which determine positivity of whole spell
-    if (spellInfo->HasAttribute(SPELL_ATTR1_UNK11))
+    // Note: this check was written before the attribute name was discovered so it might require to be adjusted
+    if (spellInfo->HasAttribute(SPELL_ATTR1_DONT_REFRESH_DURATION_ON_RECAST))
     {
         // check for targets, there seems to be an assortment of dummy triggering spells that should be negative
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
