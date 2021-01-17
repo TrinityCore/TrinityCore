@@ -455,14 +455,12 @@ std::pair<InstanceResetTimePoint, InstanceResetTimePoint> InstanceLockMgr::Updat
     return { InstanceResetTimePoint::min(), InstanceResetTimePoint::min() };
 }
 
-#include "Config.h"
-
 InstanceResetTimePoint InstanceLockMgr::GetNextResetTime(MapDb2Entries const& entries)
 {
     tm dateTime = *GameTime::GetDateAndTime();
     dateTime.tm_sec = 0;
     dateTime.tm_min = 0;
-    int32 resetHour = sConfigMgr->GetIntDefault("ResetSchedule.DailyHour", 9);
+    int32 resetHour = sWorld->getIntConfig(CONFIG_RESET_SCHEDULE_HOUR);
     switch (entries.MapDifficulty->ResetInterval)
     {
         case MAP_DIFFICULTY_RESET_DAILY:
@@ -475,7 +473,7 @@ InstanceResetTimePoint InstanceLockMgr::GetNextResetTime(MapDb2Entries const& en
         }
         case MAP_DIFFICULTY_RESET_WEEKLY:
         {
-            int32 resetDay = sConfigMgr->GetIntDefault("ResetSchedule.WeeklyDay", 2);
+            int32 resetDay = sWorld->getIntConfig(CONFIG_RESET_SCHEDULE_WEEK_DAY);
             int32 daysAdjust = resetDay - dateTime.tm_wday;
             if (dateTime.tm_wday > resetDay || (dateTime.tm_wday == resetDay && dateTime.tm_hour >= resetHour))
                 daysAdjust += 7; // passed it for current week, grab time from next week

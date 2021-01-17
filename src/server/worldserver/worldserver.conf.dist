@@ -999,14 +999,6 @@ Instance.IgnoreLevel = 0
 Instance.IgnoreRaid = 0
 
 #
-#    Instance.ResetTimeHour
-#        Description: Hour of the day when the global instance reset occurs.
-#        Range:       0-23
-#        Default:     4 - (04:00 AM)
-
-Instance.ResetTimeHour = 4
-
-#
 #    Instance.UnloadDelay
 #        Description: Time (in milliseconds) before instance maps are unloaded from memory if no
 #                     characters are inside.
@@ -1023,6 +1015,22 @@ Instance.UnloadDelay = 1800000
 #                     true  - (Enabled, show)
 
 InstancesResetAnnounce = false
+
+#
+#    ResetSchedule.WeekDay
+#        Description: Day of the week when the global weekly reset occurs.
+#        Range:       0-6
+#        Default:     2 - (Tuesday)
+
+ResetSchedule.WeekDay = 2
+
+#
+#    ResetSchedule.Hour
+#        Description: Hour of the day when the global daily reset occurs.
+#        Range:       0-23
+#        Default:     8 - (08:00 AM)
+
+ResetSchedule.Hour = 8
 
 #
 #    Quests.EnableQuestTracker
