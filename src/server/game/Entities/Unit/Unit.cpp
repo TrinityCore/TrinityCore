@@ -9955,6 +9955,7 @@ void Unit::SetPower(Powers power, int32 val)
     if (maxPower < val)
         val = maxPower;
 
+    uint32 oldPower = GetPower(power);
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::Power, powerIndex), val);
 
     if (IsInWorld())
@@ -9965,6 +9966,8 @@ void Unit::SetPower(Powers power, int32 val)
         packet.Powers.emplace_back(val, power);
         SendMessageToSet(packet.Write(), GetTypeId() == TYPEID_PLAYER);
     }
+
+    CheckPowerProc(power, oldPower, val);
 
     // group update
     if (Player* player = ToPlayer())
@@ -10002,6 +10005,42 @@ void Unit::SetMaxPower(Powers power, int32 val)
 
     if (val < cur_power)
         SetPower(power, val);
+}
+
+void Unit::CheckPowerProc(Powers power, int32 oldVal, int32 newVal)
+{
+    CheckPowerProc(power, oldVal, newVal, GetAuraEffectsByType(SPELL_AURA_TRIGGER_SPELL_ON_POWER_PCT));
+    CheckPowerProc(power, oldVal, newVal, GetAuraEffectsByType(SPELL_AURA_TRIGGER_SPELL_ON_POWER_AMOUNT));
+}
+
+void Unit::CheckPowerProc(Powers power, int32 oldVal, int32 newVal, AuraEffectList effects)
+{
+    for (AuraEffect* effect : effects)
+    {
+        if (effect->GetMiscValue() == power)
+        {
+            float oldValueCheck = oldVal;
+            float newValueCheck = newVal;
+
+            if (effect->GetAuraType() == SPELL_AURA_TRIGGER_SPELL_ON_POWER_PCT)
+            {
+                if (int32 maxPower = GetMaxPower(power))
+                {
+                    oldValueCheck = GetPctOf(oldVal, maxPower);
+                    newValueCheck = GetPctOf(newVal, maxPower);
+                }
+            }
+
+            uint32 effectAmount = effect->GetAmount();
+            int32 powerProc = effect->GetMiscValueB();
+
+            if ((powerProc == POWER_PROC_UPPER && oldValueCheck < effectAmount && newValueCheck >= effectAmount) ||
+                (powerProc == POWER_PROC_LOWER && oldValueCheck > effectAmount && newValueCheck <= effectAmount))
+                CastSpell(this, effect->GetSpellEffectInfo()->TriggerSpell, true);
+            else if ((powerProc == POWER_PROC_UPPER && newValueCheck < effectAmount) || (powerProc == POWER_PROC_LOWER && newValueCheck > effectAmount))
+                RemoveAurasDueToSpell(effect->GetSpellEffectInfo()->TriggerSpell);
+        }
+    }
 }
 
 int32 Unit::GetCreatePowers(Powers power) const
