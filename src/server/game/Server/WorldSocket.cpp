@@ -126,7 +126,7 @@ bool WorldSocket::Update()
 
 void WorldSocket::HandleSendAuthSession()
 {
-    WorldPacket packet(SMSG_AUTH_CHALLENGE, 37);
+    WorldPacket packet(SMSG_AUTH_CHALLENGE, 40);
     packet << uint32(1);                                    // 1...31
     packet.append(_authSeed);
 
