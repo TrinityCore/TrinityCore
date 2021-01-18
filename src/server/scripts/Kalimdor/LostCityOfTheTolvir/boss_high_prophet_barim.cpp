@@ -25,42 +25,54 @@
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
+#include "SpellMgr.h"
 #include "SpellScript.h"
 
 enum Spells
 {
     // High Prophet Barim
-    SPELL_FIFTY_LASHINGS                = 82506,
-    SPELL_PLAGUE_OF_AGES                = 82622,
-    SPELL_HEAVENS_FURY                  = 81939,
-    SPELL_REPENTANCE                    = 82320,
-    SPELL_REPENTANCE_PULL               = 82168,
-    SPELL_REPENTANCE_STUN               = 81947,
-    SPELL_REPENTANCE_KNOCKBACK          = 82012,
-    SPELL_REPENTANCE_SCREEN_EFFECT      = 82139,
-    SPELL_WAIL_OF_DARKNESS_DUMMY        = 82195,
-    SPELL_BLAZE_OF_THE_HEAVENS          = 91181,
+    SPELL_FIFTY_LASHINGS                        = 82506,
+    SPELL_PLAGUE_OF_AGES                        = 82622,
+    SPELL_PLAGUE_OF_AGES_FIRST_LEAP             = 82637,
+    SPELL_HEAVENS_FURY                          = 81939,
+    SPELL_REPENTANCE                            = 82320,
+    SPELL_REPENTANCE_PULL                       = 82168,
+    SPELL_REPENTANCE_STUN                       = 81947,
+    SPELL_REPENTANCE_KNOCKBACK                  = 82012,
+    SPELL_REPENTANCE_PHASE_AURA                 = 82139,
+    SPELL_WAIL_OF_DARKNESS                      = 82195,
+    SPELL_BLAZE_OF_THE_HEAVENS                  = 91181,
 
     // Repentance
-    SPELL_REPENTANCE_SCRIPT_1           = 82009,
-    SPELL_REPENTANCE_SCRIPT_2           = 81960,
-    SPELL_REPENTANCE_PULL_BACK          = 82430,
+    SPELL_REPENTANCE_SCRIPT_1                   = 82009,
+    SPELL_REPENTANCE_SCRIPT_2                   = 81960,
+    SPELL_REPENTANCE_PULL_BACK                  = 82430,
 
-    // Harbinger of Darkness
-    SPELL_BIRTH                         = 26586,
-    SPELL_WAIL_OF_DARKNESS              = 82533,
-    SPELL_SOUL_SEVER                    = 82255,
-    SPELL_WAIL_OF_DARKNESS_END          = 82425,
+    // Blaze of the Heavens (Summoner)
+    SPELL_BLAZE_OF_THE_HEAVENS_GROUND_EFFECT    = 91179,
+    SPELL_BLAZE_OF_THE_HEAVENS_SUMMON           = 91180,
+
+    // Veil of Twilight (Summoner)
+    SPELL_VEIL_OF_DARKNESS_GROUND_EFFECT        = 82197,
+    SPELL_VEIL_OF_DARKNESS_SUMMON               = 82203,
+
+    // Phoenixes
+    SPELL_BIRTH                                 = 26586,
 
     // Blaze of the Heavens
-    SPELL_BLAZE_OF_THE_HEAVENS_TRIGGER  = 95248,
-    SPELL_BLAZE_OF_THE_HEAVENS_FLAME    = 91189,
-    SPELL_TRANSFORM                     = 95276,
+    SPELL_BLAZE_OF_THE_HEAVENS_PERIODIC_AURA    = 95248,
+    SPELL_BLAZE_OF_THE_HEAVENS_FLAME            = 91189,
+    SPELL_TRANSFORM                             = 95276,
+
+    // Harbinger of Darkness
+    SPELL_WAIL_OF_DARKNESS_DAMAGE               = 82533,
+    SPELL_SOUL_SEVER                            = 82255,
+    SPELL_WAIL_OF_DARKNESS_END                  = 82425,
 
     // Soul Fragment
-    SPELL_SOUL_SEVER_SCRIPT             = 82220,
-    SPELL_SOUL_FRAGMENT_DUMMY           = 82224,
-    SPELL_MERGED_SOULS                  = 82263,
+    SPELL_SOUL_SEVER_SCRIPT                     = 82220,
+    SPELL_SOUL_FRAGMENT_DUMMY                   = 82224,
+    SPELL_MERGED_SOULS                          = 82263
 };
 
 enum Events
@@ -69,25 +81,30 @@ enum Events
     EVENT_FIFTY_LASHINGS = 1,
     EVENT_PLAGUE_OF_AGES,
     EVENT_HEAVENS_FURY,
+    EVENT_REPENTANCE,
     EVENT_REPENTANCE_PULL,
     EVENT_REPENTANCE_STUN,
     EVENT_REPENTANCE_KNOCKBACK,
     EVENT_BLAZE_OF_THE_HEAVENS,
-    EVENT_COUNT_PLAYERS,
 
-    // Repentance
-    EVENT_COPY_WEAPON,
+    // Phoenix Summoner
+    EVENT_GROUND_VISUAL,
+    EVENT_SUMMON_PHOENIX,
+    EVENT_REMOVE_ALL_AURAS,
+
+    // Phoenix
+    EVENT_ENGAGE_PLAYERS,
+    EVENT_ENABLE_ATTACKS,
+
+    // Blaze of the Heavens
+    EVENT_SUMMON_FIRE_TRAIL,
+    EVENT_CHECK_HEALTH,
+    EVENT_TRANSFORMED,
 
     // Harbinger of Darkness
     EVENT_MAKE_AGGRESSIVE,
     EVENT_WAIL_OF_DARKNESS,
     EVENT_SOUL_SEVER,
-
-    // Blaze of the Heavens
-    EVENT_TRIGGER_BLAZE,
-    EVENT_SUMMON_BLAZE_FLAME,
-    EVENT_CHECK_HEALTH,
-    EVENT_TRANSFORMED,
 
     // Soul Fragment
     EVENT_MOVE_TO_HARBINGER,
@@ -96,10 +113,12 @@ enum Events
 
 enum Actions
 {
-    ACTION_PULL_BACK = 1,
-    ACTION_MAKE_PASSIVE,
-    ACTION_ATTACK_PLAYERS,
-    ACTION_BLAZE_DIED
+    // High Prophet Barim
+    ACTION_PULL_PLAYERS_BACK = 1,
+
+    // Blaze of the Heavens
+    ACTION_DISABLE_COMBAT = 1,
+    ACTION_RESUME_COMBAT
 };
 
 enum Texts
@@ -120,688 +139,621 @@ enum PhaseMisc
     PHASE_GROUP_ENCOUNTER_1 = 391
 };
 
-class boss_high_prophet_barim : public CreatureScript
+struct boss_high_prophet_barim : public BossAI
 {
-public:
-    boss_high_prophet_barim() : CreatureScript("boss_high_prophet_barim") { }
+    boss_high_prophet_barim(Creature* creature) : BossAI(creature, DATA_HIGH_PROPHET_BARIM), _repentanceStarted(false) {}
 
-    struct boss_high_prophet_barimAI : public BossAI
+    void JustEngagedWith(Unit* who) override
     {
-        boss_high_prophet_barimAI(Creature* creature) : BossAI(creature, DATA_HIGH_PROPHET_BARIM)
-        {
-            Initialize();
-        }
+        BossAI::JustEngagedWith(who);
+        Talk(SAY_AGGRO);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
+        events.ScheduleEvent(EVENT_FIFTY_LASHINGS, 8s);
+        events.ScheduleEvent(EVENT_PLAGUE_OF_AGES, 8s);
+        events.ScheduleEvent(EVENT_HEAVENS_FURY, 10s);
+        if (IsHeroic())
+            events.ScheduleEvent(EVENT_BLAZE_OF_THE_HEAVENS, 6s);
+    }
 
-        void Initialize()
-        {
-            _repentanceStarted = false;
-        }
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        Talk(SAY_DEATH);
 
-        void Reset() override
+        for (uint32 data : { DATA_BLAZE_OF_THE_HEAVENS, DATA_HARBINGER_OF_DARKNESS })
         {
-            _Reset();
-            Initialize();
-        }
-
-        void JustEngagedWith(Unit* who) override
-        {
-            BossAI::JustEngagedWith(who);
-            Talk(SAY_AGGRO);
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-            events.ScheduleEvent(EVENT_FIFTY_LASHINGS, Seconds(9));
-            events.ScheduleEvent(EVENT_PLAGUE_OF_AGES, Seconds(7) + Milliseconds(500));
-            events.ScheduleEvent(EVENT_HEAVENS_FURY, Seconds(7) + Milliseconds(500));
-            if (IsHeroic())
-                events.ScheduleEvent(EVENT_BLAZE_OF_THE_HEAVENS, Seconds(10));
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            _JustDied();
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-            if (Creature* blaze = instance->GetCreature(DATA_BLAZE_OF_THE_HEAVENS))
+            if (Creature* phoenix = instance->GetCreature(data))
             {
-                instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, blaze);
-                blaze->DespawnOrUnsummon(Milliseconds(100));
-            }
-            Talk(SAY_DEATH);
-        }
-
-        void EnterEvadeMode(EvadeReason /*why*/) override
-        {
-            _EnterEvadeMode();
-            summons.DespawnAll();
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SOUL_SEVER);
-            if (Creature* blaze = instance->GetCreature(DATA_BLAZE_OF_THE_HEAVENS))
-            {
-                blaze->AI()->EnterEvadeMode();
-                blaze->DespawnOrUnsummon(Milliseconds(700));
-            }
-            _DespawnAtEvade();
-        }
-
-        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
-        {
-            if (me->HealthBelowPct(50) && !_repentanceStarted)
-            {
-                events.Reset();
-                me->AttackStop();
-                me->SetReactState(REACT_PASSIVE);
-                me->StopMoving();
-                DoCastSelf(SPELL_REPENTANCE);
-                events.ScheduleEvent(EVENT_REPENTANCE_PULL, Seconds(1));
-                _repentanceStarted = true;
-            }
-        }
-
-        void DoAction(int32 action) override
-        {
-            switch (action)
-            {
-                case ACTION_PULL_BACK:
+                if (phoenix->IsAIEnabled)
                 {
-                    instance->SetData(DATA_REPENTEANCE_ENDED, DONE);
-                    me->RemoveAurasDueToSpell(SPELL_REPENTANCE);
-                    me->SetReactState(REACT_AGGRESSIVE);
+                    instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, phoenix);
+                    phoenix->DespawnOrUnsummon();
+                }
+            }
+        }
+    }
 
-                    summons.DespawnEntry(NPC_SOUL_FRAGMENT);
-                    instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SOUL_SEVER);
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        _EnterEvadeMode();
+
+        for (uint32 data : { DATA_BLAZE_OF_THE_HEAVENS, DATA_HARBINGER_OF_DARKNESS })
+        {
+            if (Creature* phoenix = instance->GetCreature(data))
+            {
+                if (phoenix->IsAIEnabled)
+                {
+                    instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, phoenix);
+                    phoenix->DespawnOrUnsummon();
+                }
+            }
+        }
+
+        summons.DespawnAll();
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SOUL_SEVER);
+        _DespawnAtEvade();
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        summons.Summon(summon);
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    {
+        if (me->HealthBelowPctDamaged(50, damage) && !_repentanceStarted)
+        {
+            events.Reset();
+            events.ScheduleEvent(EVENT_REPENTANCE, 1ms);
+            _repentanceStarted = true;
+        }
+    }
+
+    void DoAction(int32 action) override
+    {
+        switch (action)
+        {
+            case ACTION_PULL_PLAYERS_BACK:
+            {
+                me->RemoveAurasDueToSpell(SPELL_REPENTANCE);
+                me->SetReactState(REACT_AGGRESSIVE);
+                summons.DespawnEntry(NPC_SOUL_FRAGMENT);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SOUL_SEVER);
+
+                EntryCheckPredicate pred(NPC_REPENTANCE);
+                summons.DoAction(ACTION_PULL_PLAYERS_BACK, pred);
+
+                if (Creature* blaze = instance->GetCreature(DATA_BLAZE_OF_THE_HEAVENS))
+                    if (blaze->IsAIEnabled)
+                        blaze->AI()->DoAction(ACTION_RESUME_COMBAT);
+
+                events.ScheduleEvent(EVENT_FIFTY_LASHINGS, 2s);
+                events.ScheduleEvent(EVENT_PLAGUE_OF_AGES, 2s);
+                events.ScheduleEvent(EVENT_HEAVENS_FURY, 3s + 500ms);
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_FIFTY_LASHINGS:
+                    DoCastSelf(SPELL_FIFTY_LASHINGS);
+                    events.Repeat(34s);
+                    break;
+                case EVENT_PLAGUE_OF_AGES:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.f, true, false))
+                        DoCast(target, SPELL_PLAGUE_OF_AGES);
+                    else
+                        DoCastVictim(SPELL_PLAGUE_OF_AGES);
+                    events.Repeat(25s);
+                    break;
+                case EVENT_HEAVENS_FURY:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.f, true, false))
+                        DoCast(target, SPELL_HEAVENS_FURY);
+                    else
+                        DoCastVictim(SPELL_HEAVENS_FURY);
+                    events.Repeat(23s);
+                    break;
+                case EVENT_REPENTANCE:
+                    me->AttackStop();
+                    me->SetReactState(REACT_PASSIVE);
+                    DoCastSelf(SPELL_REPENTANCE);
+                    events.ScheduleEvent(EVENT_REPENTANCE_PULL, 1s);
 
                     if (Creature* blaze = instance->GetCreature(DATA_BLAZE_OF_THE_HEAVENS))
-                        blaze->AI()->DoAction(ACTION_ATTACK_PLAYERS);
-
-                    events.ScheduleEvent(EVENT_FIFTY_LASHINGS, Seconds(2));
-                    events.ScheduleEvent(EVENT_PLAGUE_OF_AGES, Seconds(2));
-                    events.ScheduleEvent(EVENT_HEAVENS_FURY, Seconds(3) + Milliseconds(500));
+                        if (blaze->IsAIEnabled)
+                            blaze->AI()->DoAction(ACTION_DISABLE_COMBAT);
                     break;
-                }
-                case ACTION_BLAZE_DIED:
-                    events.ScheduleEvent(EVENT_BLAZE_OF_THE_HEAVENS, Seconds(3));
+                case EVENT_REPENTANCE_PULL:
+                    Talk(SAY_REPENTEANCE);
+                    DoCastSelf(SPELL_REPENTANCE_PULL);
+                    events.ScheduleEvent(EVENT_REPENTANCE_STUN, 1s);
+                    break;
+                case EVENT_REPENTANCE_STUN:
+                    DoCastAOE(SPELL_REPENTANCE_STUN);
+                    events.ScheduleEvent(EVENT_REPENTANCE_KNOCKBACK, 6s);
+                    break;
+                case EVENT_REPENTANCE_KNOCKBACK:
+                    DoCastAOE(SPELL_REPENTANCE_KNOCKBACK);
+                    DoCastAOE(SPELL_REPENTANCE_PHASE_AURA);
+                    DoCastSelf(SPELL_WAIL_OF_DARKNESS);
+
+                    // The phoenix is in a passive state so he won't evade on his own in that state so we give him a little push here.
+                    if (Creature* blaze = instance->GetCreature(DATA_BLAZE_OF_THE_HEAVENS))
+                        if (blaze->IsAIEnabled && blaze->HasReactState(REACT_PASSIVE))
+                            blaze->AI()->EnterEvadeMode();
+                    break;
+                case EVENT_BLAZE_OF_THE_HEAVENS:
+                    DoCastSelf(SPELL_BLAZE_OF_THE_HEAVENS);
+                    break;
+                default:
+                    break;
+            }
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
+        DoMeleeAttackIfReady();
+    }
+private:
+    bool _repentanceStarted;
+};
+
+// This npc is the copy of the player when he is being pulled into the shadow realm.
+struct npc_barim_repentance : public NullCreatureAI
+{
+    npc_barim_repentance(Creature* creature) : NullCreatureAI(creature) { }
+
+    void IsSummonedBy(Unit* /*summoner*/) override
+    {
+        if (InstanceScript* instance = me->GetInstanceScript())
+            if (Creature* barim = instance->GetCreature(DATA_HIGH_PROPHET_BARIM))
+                barim->AI()->JustSummoned(me);
+
+        PhasingHandler::AddPhaseGroup(me, PHASE_GROUP_ENCOUNTER_1, true);
+
+        DoCastSelf(SPELL_REPENTANCE_SCRIPT_1);
+        me->m_Events.AddEventAtOffset([&]()
+        {
+            DoCastSelf(SPELL_REPENTANCE_SCRIPT_2);
+        }, 2s);
+    }
+
+    void DoAction(int32 action) override
+    {
+        if (action == ACTION_PULL_PLAYERS_BACK)
+        {
+            DoCastAOE(SPELL_REPENTANCE_PULL_BACK);
+            me->DespawnOrUnsummon(1s + 500ms);
+        }
+    }
+};
+
+struct npc_barim_phoenix_summoner : public NullCreatureAI
+{
+    npc_barim_phoenix_summoner(Creature* creature) : NullCreatureAI(creature), _summonBlaze(me->GetEntry() == NPC_BLAZE_OF_THE_HEAVENS_SUMMONER) {}
+
+    void JustAppeared() override
+    {
+        _events.ScheduleEvent(EVENT_GROUND_VISUAL, 1s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_GROUND_VISUAL:
+                    DoCastSelf(_summonBlaze ? SPELL_BLAZE_OF_THE_HEAVENS_GROUND_EFFECT : SPELL_VEIL_OF_DARKNESS_GROUND_EFFECT);
+                    _events.ScheduleEvent(EVENT_SUMMON_PHOENIX, 1s);
+                    break;
+                case EVENT_SUMMON_PHOENIX:
+                    DoCastSelf(_summonBlaze ? SPELL_BLAZE_OF_THE_HEAVENS_SUMMON : SPELL_VEIL_OF_DARKNESS_SUMMON);
+                    _events.ScheduleEvent(EVENT_REMOVE_ALL_AURAS, 5s);
+                    break;
+                case EVENT_REMOVE_ALL_AURAS:
+                    me->RemoveAllAuras();
+                    me->DespawnOrUnsummon(5s);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+    bool _summonBlaze;
+};
+
+struct npc_barim_harbinger_of_darkness : public ScriptedAI
+{
+    npc_barim_harbinger_of_darkness(Creature* creature) : ScriptedAI(creature)
+    {
+        me->SetReactState(REACT_PASSIVE);
+    }
+
+    void InitializeAI() override
+    {
+        _instance = me->GetInstanceScript();
+    }
+
+    void JustAppeared() override
+    {
+        DoZoneInCombat();
+        DoCastSelf(SPELL_BIRTH);
+        _instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 2);
+        _events.ScheduleEvent(EVENT_ENABLE_ATTACKS, 2s + 500ms);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        DoCastAOE(SPELL_WAIL_OF_DARKNESS_END, true);
+        me->DespawnOrUnsummon(1s + 500ms);
+
+        if (Creature* barim = _instance->GetCreature(DATA_HIGH_PROPHET_BARIM))
+            barim->AI()->DoAction(ACTION_PULL_PLAYERS_BACK);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_ENABLE_ATTACKS:
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    _events.ScheduleEvent(EVENT_WAIL_OF_DARKNESS, 5s);
+                    _events.ScheduleEvent(EVENT_SOUL_SEVER, 3s + 500ms);
+                    break;
+                case EVENT_WAIL_OF_DARKNESS:
+                    DoCastAOE(SPELL_WAIL_OF_DARKNESS_DAMAGE);
+                    _events.Repeat(2s + 500ms);
+                    break;
+                case EVENT_SOUL_SEVER:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.f, true, false))
+                        DoCast(target, SPELL_SOUL_SEVER);
+                    else
+                        DoCastVictim(SPELL_SOUL_SEVER);
+                    _events.Repeat(11s);
+                    break;
+                default:
+                    break;
+            }
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+    InstanceScript* _instance;
+};
+
+struct npc_barim_blaze_of_the_heavens : public ScriptedAI
+{
+    npc_barim_blaze_of_the_heavens(Creature* creature) : ScriptedAI(creature), _transformed(false)
+    {
+        me->SetReactState(REACT_PASSIVE);
+        PhasingHandler::ResetPhaseShift(me);
+    }
+
+    void InitializeAI() override
+    {
+        _instance = me->GetInstanceScript();
+    }
+
+    void JustAppeared() override
+    {
+        DoCastSelf(SPELL_BIRTH);
+        _events.ScheduleEvent(EVENT_ENGAGE_PLAYERS, 1s);
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 2);
+    }
+
+    void EnterEvadeMode(EvadeReason why) override
+    {
+        ScriptedAI::EnterEvadeMode(why);
+        _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        _events.Reset();
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        if (Creature* barim = _instance->GetCreature(DATA_HIGH_PROPHET_BARIM))
+            barim->AI()->JustSummoned(summon);
+
+        PhasingHandler::AddPhaseGroup(summon, PHASE_GROUP_ENCOUNTER_1, false);
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    {
+        if (damage >= me->GetHealth())
+        {
+            if (!_transformed)
+            {
+                DoCastSelf(SPELL_TRANSFORM);
+                _events.CancelEvent(EVENT_SUMMON_FIRE_TRAIL);
+                me->RemoveAurasDueToSpell(SPELL_BLAZE_OF_THE_HEAVENS_PERIODIC_AURA);
+                _transformed = true;
+            }
+
+            // The Blaze of the Heavens cannot die
+            damage = me->GetHealth() - 1;
+        }
+    }
+
+    void HealReceived(Unit* /*healer*/, uint32& heal) override
+    {
+        if (me->HealthAbovePctHealed(99, heal) && _transformed)
+        {
+            me->RemoveAurasDueToSpell(SPELL_TRANSFORM);
+            DoCastSelf(SPELL_BIRTH);
+            _events.ScheduleEvent(EVENT_ENGAGE_PLAYERS, 1s);
+            _transformed = false;
+        }
+    }
+
+    void DoAction(int32 action) override
+    {
+        switch (action)
+        {
+            case ACTION_DISABLE_COMBAT:
+                me->SetHomePosition(me->GetPosition());
+                me->AttackStop();
+                if (!_transformed)
+                    me->SetReactState(REACT_PASSIVE);
+                _events.CancelEvent(EVENT_SUMMON_FIRE_TRAIL);
+                me->RemoveAurasDueToSpell(SPELL_BLAZE_OF_THE_HEAVENS_PERIODIC_AURA);
+                break;
+            case ACTION_RESUME_COMBAT:
+                _events.ScheduleEvent(EVENT_ENGAGE_PLAYERS, 1ms);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!_transformed)
+            UpdateVictim();
+
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_ENGAGE_PLAYERS:
+                    DoZoneInCombat();
+                    _events.ScheduleEvent(EVENT_ENABLE_ATTACKS, 500ms);
+                    break;
+                case EVENT_ENABLE_ATTACKS:
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    DoCastSelf(SPELL_BLAZE_OF_THE_HEAVENS_PERIODIC_AURA);
+                    _events.ScheduleEvent(EVENT_SUMMON_FIRE_TRAIL, 1s);
+                    break;
+                case EVENT_SUMMON_FIRE_TRAIL:
+                    DoCastSelf(SPELL_BLAZE_OF_THE_HEAVENS_FLAME);
+                    _events.Repeat(5s, 6s);
                     break;
                 default:
                     break;
             }
         }
 
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_FIFTY_LASHINGS:
-                        DoCastSelf(SPELL_FIFTY_LASHINGS);
-                        events.Repeat(Seconds(40));
-                        break;
-                    case EVENT_PLAGUE_OF_AGES:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.f, true))
-                            DoCast(target, SPELL_PLAGUE_OF_AGES);
-                        events.Repeat(Seconds(25));
-                        break;
-                    case EVENT_HEAVENS_FURY:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.f, true))
-                            DoCast(target, SPELL_HEAVENS_FURY);
-                        events.Repeat(Seconds(22));
-                        break;
-                    case EVENT_REPENTANCE_PULL:
-                        Talk(SAY_REPENTEANCE);
-                        DoCastSelf(SPELL_REPENTANCE_PULL);
-                        events.ScheduleEvent(EVENT_REPENTANCE_STUN, Seconds(1) + Milliseconds(300));
-
-                        if (Creature* blaze = instance->GetCreature(DATA_BLAZE_OF_THE_HEAVENS))
-                            blaze->AI()->DoAction(ACTION_MAKE_PASSIVE);
-                        break;
-                    case EVENT_REPENTANCE_STUN:
-                        DoCastAOE(SPELL_REPENTANCE_STUN, true);
-                        events.ScheduleEvent(EVENT_REPENTANCE_KNOCKBACK, Seconds(6));
-                        break;
-                    case EVENT_REPENTANCE_KNOCKBACK:
-                        if (Creature* blaze = instance->GetCreature(DATA_BLAZE_OF_THE_HEAVENS))
-                            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, blaze);
-
-                        DoCastAOE(SPELL_REPENTANCE_KNOCKBACK);
-                        DoCastAOE(SPELL_REPENTANCE_SCREEN_EFFECT, true);
-                        DoCastSelf(SPELL_WAIL_OF_DARKNESS_DUMMY, true);
-                        break;
-                    case EVENT_BLAZE_OF_THE_HEAVENS:
-                        DoCastSelf(SPELL_BLAZE_OF_THE_HEAVENS, true);
-                        break;
-                    default:
-                        break;
-                }
-            }
-            DoMeleeAttackIfReady();
-        }
-    private:
-        bool _repentanceStarted;
-    };
-
-    CreatureAI* GetAI(Creature *creature) const override
-    {
-        return GetLostCityOfTheTolvirAI<boss_high_prophet_barimAI>(creature);
+        DoMeleeAttackIfReady();
     }
+
+private:
+    EventMap _events;
+    InstanceScript* _instance;
+    bool _transformed;
 };
 
-class npc_barim_repentance : public CreatureScript
+struct npc_barim_soul_fragment : public NullCreatureAI
 {
-public:
-    npc_barim_repentance() : CreatureScript("npc_barim_repentance") { }
+    npc_barim_soul_fragment(Creature* creature) : NullCreatureAI(creature) {}
 
-    struct npc_barim_repentanceAI : public PassiveAI
+    void InitializeAI() override
     {
-        npc_barim_repentanceAI(Creature* creature) : PassiveAI(creature), _instance(creature->GetInstanceScript()) { }
-
-        void IsSummonedBy(Unit* summoner) override
-        {
-            if (Creature* barim = _instance->GetCreature(DATA_HIGH_PROPHET_BARIM))
-                barim->AI()->JustSummoned(me);
-
-            PhasingHandler::AddPhaseGroup(me, PHASE_GROUP_ENCOUNTER_1, true);
-
-            DoCastSelf(SPELL_REPENTANCE_SCRIPT_1, true);
-            _events.ScheduleEvent(EVENT_COPY_WEAPON, Seconds(2));
-
-            if (Aura* aura = summoner->GetAura(SPELL_REPENTANCE_STUN))
-                if (AuraEffect* aurEff = aura->GetEffect(EFFECT_1))
-                    aurEff->SetPeriodic(false);
-        }
-
-        void DoAction(int32 action) override
-        {
-            if (action == ACTION_PULL_BACK)
-            {
-                DoCastAOE(SPELL_REPENTANCE_PULL_BACK, true);
-                me->DespawnOrUnsummon(Seconds(1) + Milliseconds(500));
-            }
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            _events.Update(diff);
-
-            while (uint32 eventId = _events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_COPY_WEAPON:
-                        DoCastSelf(SPELL_REPENTANCE_SCRIPT_2, true);
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-
-    private:
-        EventMap _events;
-        InstanceScript* _instance;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetLostCityOfTheTolvirAI<npc_barim_repentanceAI>(creature);
+        _instance = me->GetInstanceScript();
     }
-};
 
-class npc_barim_harbinger_of_darkness : public CreatureScript
-{
-public:
-    npc_barim_harbinger_of_darkness() : CreatureScript("npc_barim_harbinger_of_darkness") { }
-
-    struct npc_barim_harbinger_of_darknessAI : public ScriptedAI
+    void JustAppeared() override
     {
-        npc_barim_harbinger_of_darknessAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
-
-        void IsSummonedBy(Unit* /*summoner*/) override
-        {
-            me->SetReactState(REACT_PASSIVE);
-            DoZoneInCombat();
-            DoCastSelf(SPELL_BIRTH, true);
-            _events.ScheduleEvent(EVENT_WAIL_OF_DARKNESS, Seconds(6));
-            _events.ScheduleEvent(EVENT_SOUL_SEVER, Seconds(11));
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override
-        {
-            _instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-            _events.ScheduleEvent(EVENT_MAKE_AGGRESSIVE, Seconds(1) + Milliseconds(500));
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-            DoCastAOE(SPELL_WAIL_OF_DARKNESS_END, true);
-            me->DespawnOrUnsummon(Milliseconds(700));
-
-            if (Creature* barim = _instance->GetCreature(DATA_HIGH_PROPHET_BARIM))
-                barim->AI()->DoAction(ACTION_PULL_BACK);
-        }
-
-        void EnterEvadeMode(EvadeReason /*why*/) override
-        {
-            _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-            me->DespawnOrUnsummon(Milliseconds(700));
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            _events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 eventId = _events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_MAKE_AGGRESSIVE:
-                        me->SetReactState(REACT_AGGRESSIVE);
-                        if (Player* victim = me->SelectNearestPlayer(100.0f))
-                            me->AI()->AttackStart(victim);
-                        break;
-                    case EVENT_WAIL_OF_DARKNESS:
-                        DoCastAOE(SPELL_WAIL_OF_DARKNESS);
-                        _events.Repeat(Seconds(2) + Milliseconds(500));
-                        break;
-                    case EVENT_SOUL_SEVER:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.f, true))
-                            DoCast(target, SPELL_SOUL_SEVER);
-                        _events.Repeat(Seconds(11));
-                        break;
-                    default:
-                        break;
-                }
-            }
-            DoMeleeAttackIfReady();
-        }
-
-    private:
-        EventMap _events;
-        InstanceScript* _instance;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetLostCityOfTheTolvirAI<npc_barim_harbinger_of_darknessAI>(creature);
+        DoCastSelf(SPELL_SOUL_SEVER_SCRIPT);
+        DoCastSelf(SPELL_REPENTANCE_SCRIPT_2);
+        DoCastAOE(SPELL_SOUL_FRAGMENT_DUMMY);
+        _events.ScheduleEvent(EVENT_MOVE_TO_HARBINGER, 5s);
     }
-};
 
-class npc_barim_blaze_of_the_heavens : public CreatureScript
-{
-public:
-    npc_barim_blaze_of_the_heavens() : CreatureScript("npc_barim_blaze_of_the_heavens") { }
-
-    struct npc_barim_blaze_of_the_heavensAI : public ScriptedAI
+    void JustDied(Unit* /*killer*/) override
     {
-        npc_barim_blaze_of_the_heavensAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
-        {
-            Initialize();
-        }
+        me->DespawnOrUnsummon(1s);
+    }
 
-        void Initialize()
-        {
-            _isInEgg = false;
-            _isTransforming = false;
-        }
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
 
-        void IsSummonedBy(Unit* /*summoner*/) override
+        while (uint32 eventId = _events.ExecuteEvent())
         {
-            me->SetReactState(REACT_PASSIVE);
-            PhasingHandler::ResetPhaseShift(me);
-            DoZoneInCombat();
-            DoCastSelf(SPELL_BIRTH, true);
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override
-        {
-            _instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-            _events.ScheduleEvent(EVENT_MAKE_AGGRESSIVE, Seconds(1) + Milliseconds(500));
-            _events.ScheduleEvent(EVENT_TRIGGER_BLAZE, Seconds(3));
-            _events.ScheduleEvent(EVENT_SUMMON_BLAZE_FLAME, Seconds(4));
-        }
-
-        void JustSummoned(Creature* summon) override
-        {
-            if (Creature* barim = _instance->GetCreature(DATA_HIGH_PROPHET_BARIM))
-                barim->AI()->JustSummoned(summon);
-
-            PhasingHandler::AddPhaseGroup(summon, PHASE_GROUP_ENCOUNTER_1, true);
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-            me->DespawnOrUnsummon(Seconds(4));
-            if (Creature* barim = _instance->GetCreature(DATA_HIGH_PROPHET_BARIM))
-                barim->AI()->DoAction(ACTION_BLAZE_DIED);
-        }
-
-        void EnterEvadeMode(EvadeReason /*why*/) override
-        {
-            _events.Reset();
-            _instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-        }
-
-        void DoAction(int32 action) override
-        {
-            switch (action)
+            switch (eventId)
             {
-                case ACTION_ATTACK_PLAYERS:
-                    _instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-                    if (!_isInEgg)
+                case EVENT_MOVE_TO_HARBINGER:
+                    if (Creature* harbinger = _instance->GetCreature(DATA_HARBINGER_OF_DARKNESS))
                     {
-                        _events.ScheduleEvent(EVENT_MAKE_AGGRESSIVE, Seconds(1) + Milliseconds(500));
-                        _events.ScheduleEvent(EVENT_TRIGGER_BLAZE, Seconds(3));
-                        _events.ScheduleEvent(EVENT_SUMMON_BLAZE_FLAME, Seconds(4));
+                        me->GetMotionMaster()->MovePoint(0, harbinger->GetPosition());
+                        _events.ScheduleEvent(EVENT_CHECK_DISTANCE, 1s);
+                    }
+                    break;
+                case EVENT_CHECK_DISTANCE:
+                    if (me->FindNearestCreature(NPC_HARBINGER_OF_DARKNESS, 0.3f, true))
+                    {
+                        Talk(SAY_ANNOUNCE_MERGE_SOUL);
+                        me->CastStop();
+                        DoCastAOE(SPELL_MERGED_SOULS, true);
+                        me->DespawnOrUnsummon(1s);
                     }
                     else
-                        _events.ScheduleEvent(EVENT_CHECK_HEALTH, Seconds(1));
-                    break;
-                case ACTION_MAKE_PASSIVE:
-                    _events.Reset();
-                    me->AttackStop();
-                    me->StopMoving();
-                    me->RemoveAurasDueToSpell(SPELL_BLAZE_OF_THE_HEAVENS_TRIGGER);
-                    me->SetReactState(REACT_PASSIVE);
+                    {
+                        if (Creature* harbinger = _instance->GetCreature(DATA_HARBINGER_OF_DARKNESS))
+                            me->GetMotionMaster()->MovePoint(0, harbinger->GetPosition());
+                        _events.Repeat(1s);
+                    }
                     break;
                 default:
                     break;
             }
         }
-
-        void DamageTaken(Unit* /*attacker*/, uint32& damage) override
-        {
-            if (me->HealthBelowPct(1) && !_isTransforming)
-            {
-                _events.Reset();
-                _isTransforming = true;
-                _events.ScheduleEvent(EVENT_TRANSFORMED, Seconds(2) + Milliseconds(300));
-                me->RemoveAllAuras();
-                DoCastSelf(SPELL_TRANSFORM);
-            }
-
-            if (damage >= me->GetHealth() && !_isInEgg)
-                damage = me->GetHealth() - 1;
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            _events.Update(diff);
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 eventId = _events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_MAKE_AGGRESSIVE:
-                        me->SetReactState(REACT_AGGRESSIVE);
-                        if (Player* victim = me->SelectNearestPlayer(100.0f))
-                            me->AI()->AttackStart(victim);
-                        break;
-                    case EVENT_TRIGGER_BLAZE:
-                        DoCastSelf(SPELL_BLAZE_OF_THE_HEAVENS_TRIGGER, true);
-                        break;
-                    case EVENT_SUMMON_BLAZE_FLAME:
-                        if (!me->FindNearestCreature(NPC_BLAZE_OF_THE_HEAVENS_FIRE, 5.0f, true))
-                            DoCastSelf(SPELL_BLAZE_OF_THE_HEAVENS_FLAME, true);
-                        _events.Repeat(Seconds(1));
-                        break;
-                    case EVENT_TRANSFORMED:
-                        _isInEgg = true;
-                        _events.ScheduleEvent(EVENT_CHECK_HEALTH, Seconds(1));
-                        break;
-                    case EVENT_CHECK_HEALTH:
-                        if (me->GetHealthPct() == 100.0f && _isInEgg)
-                        {
-                            me->RemoveAurasDueToSpell(SPELL_TRANSFORM);
-                            DoCastSelf(SPELL_BIRTH, true);
-                            DoZoneInCombat();
-                            _events.ScheduleEvent(EVENT_MAKE_AGGRESSIVE, Seconds(1) + Milliseconds(500));
-                            _events.ScheduleEvent(EVENT_TRIGGER_BLAZE, Seconds(3));
-                            _events.ScheduleEvent(EVENT_SUMMON_BLAZE_FLAME, Seconds(4));
-                            _isInEgg = false;
-                            _isTransforming = false;
-                        }
-                        else
-                            _events.Repeat(Seconds(1));
-                        break;
-                    default:
-                        break;
-                }
-            }
-            DoMeleeAttackIfReady();
-        }
-
-    private:
-        EventMap _events;
-        InstanceScript* _instance;
-        bool _isInEgg;
-        bool _isTransforming;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetLostCityOfTheTolvirAI<npc_barim_blaze_of_the_heavensAI>(creature);
     }
+
+private:
+    EventMap _events;
+    InstanceScript* _instance;
 };
 
-class npc_barim_soul_fragment : public CreatureScript
+class spell_barim_plague_of_ages : public SpellScript
 {
 public:
-    npc_barim_soul_fragment() : CreatureScript("npc_barim_soul_fragment") { }
+    spell_barim_plague_of_ages(std::initializer_list<uint32> excludeSpellIds) : _excludeSpellIds(excludeSpellIds) {}
 
-    struct npc_barim_soul_fragmentAI : public PassiveAI
+    void FilterTargets(std::list<WorldObject*>& targets)
     {
-        npc_barim_soul_fragmentAI(Creature* creature) : PassiveAI(creature), _instance(creature->GetInstanceScript()) { }
+        if (targets.empty())
+            return;
 
-        void IsSummonedBy(Unit* /*summoner*/) override
+        targets.remove_if([&](WorldObject const* target)
         {
-            me->SetWalk(true);
-            DoCastSelf(SPELL_SOUL_SEVER_SCRIPT, true);
-            DoCastSelf(SPELL_REPENTANCE_SCRIPT_2, true);
-            DoCastAOE(SPELL_SOUL_FRAGMENT_DUMMY, true);
+            Unit const* unit = target->ToUnit();
+            if (!unit)
+                return true;
 
-            if (Creature* barim = _instance->GetCreature(DATA_HIGH_PROPHET_BARIM))
-                barim->AI()->JustSummoned(me);
+            for (uint32 spellId : _excludeSpellIds)
+                if (unit->HasAura(sSpellMgr->GetSpellIdForDifficulty(spellId, GetCaster())))
+                    return true;
 
-            _events.ScheduleEvent(EVENT_MOVE_TO_HARBINGER, Seconds(5));
-        }
+            return false;
+        });
 
-        void JustDied(Unit* /*killer*/) override
-        {
-            me->DespawnOrUnsummon(Seconds(1));
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            _events.Update(diff);
-
-            while (uint32 eventId = _events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_MOVE_TO_HARBINGER:
-                        if (Creature* harbinger = _instance->GetCreature(DATA_HARBINGER_OF_DARKNESS))
-                        {
-                            me->GetMotionMaster()->MovePoint(0, harbinger->GetPosition(), true);
-                            _events.ScheduleEvent(EVENT_CHECK_DISTANCE, Milliseconds(500));
-                        }
-                        break;
-                    case EVENT_CHECK_DISTANCE:
-                        if (me->FindNearestCreature(NPC_HARBINGER_OF_DARKNESS, 0.3f, true))
-                        {
-                            Talk(SAY_ANNOUNCE_MERGE_SOUL);
-                            me->CastStop();
-                            DoCastAOE(SPELL_MERGED_SOULS, true);
-                            me->DespawnOrUnsummon(Seconds(1));
-                        }
-                        else
-                        {
-                            if (Creature* harbinger = _instance->GetCreature(DATA_HARBINGER_OF_DARKNESS))
-                                me->GetMotionMaster()->MovePoint(0, harbinger->GetPosition(), true);
-                            _events.Repeat(Milliseconds(500));
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-
-    private:
-        EventMap _events;
-        InstanceScript* _instance;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetLostCityOfTheTolvirAI<npc_barim_soul_fragmentAI>(creature);
-    }
-};
-
-class spell_barim_plague_of_ages_first : public SpellScriptLoader
-{
-public:
-    spell_barim_plague_of_ages_first() : SpellScriptLoader("spell_barim_plague_of_ages_first") { }
-
-    class spell_barim_plague_of_ages_first_SpellScript : public SpellScript
-    {
-        void FilterTargets(std::list<WorldObject*>& targets)
-        {
-            if (targets.empty())
-                return;
-
+        if (targets.size() > 1)
             Trinity::Containers::RandomResize(targets, 1);
-        }
+    }
 
-        void Register() override
-        {
-            OnObjectAreaTargetSelect.Register(&spell_barim_plague_of_ages_first_SpellScript::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ALLY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
+    void Register() override
     {
-        return new spell_barim_plague_of_ages_first_SpellScript();
+        OnObjectAreaTargetSelect.Register(&spell_barim_plague_of_ages::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ALLY);
+    }
+protected:
+    std::initializer_list<uint32> _excludeSpellIds;
+};
+
+class spell_barim_repentance_script : public SpellScript
+{
+    void EffectScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* playerTarget = GetHitPlayer())
+            playerTarget->CastSpell(GetCaster(), GetSpellInfo()->Effects[EFFECT_0].BasePoints, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget.Register(&spell_barim_repentance_script::EffectScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
-class spell_barim_plague_of_ages_second : public SpellScriptLoader
+class spell_barim_repentance_pull : public SpellScript
 {
-public:
-    spell_barim_plague_of_ages_second() : SpellScriptLoader("spell_barim_plague_of_ages_second") { }
-
-    class spell_barim_plague_of_ages_second_SpellScript : public SpellScript
+    void HandPullEffect(SpellEffIndex effIndex)
     {
-        void FilterTargets(std::list<WorldObject*>& targets)
-        {
-            if (targets.empty())
-                return;
+        PreventHitDefaultEffect(effIndex);
+        Unit* playerTarget = GetHitPlayer();
+        Unit* barim = GetCaster();
 
-            Trinity::Containers::RandomResize(targets, 1);
-        }
+        if (!barim || !playerTarget)
+            return;
 
-        void Register() override
-        {
-            OnObjectAreaTargetSelect.Register(&spell_barim_plague_of_ages_second_SpellScript::FilterTargets, EFFECT_ALL, TARGET_UNIT_SRC_AREA_ALLY);
-        }
-    };
+        // Calculate our own destination since players should land in front of Barim instead of inside him
+        Position pos;
+        float angle = barim->GetAngle(playerTarget);
+        float distance = barim->GetCombatReach() * 2;
+        pos.m_positionX = barim->GetPositionX() + cos(angle) * distance;
+        pos.m_positionY = barim->GetPositionY() + sin(angle) * distance;
+        pos.m_positionZ = barim->GetPositionZ();
 
-    SpellScript* GetSpellScript() const
+        float speedXY = float(GetSpellInfo()->Effects[EFFECT_0].MiscValue) * 0.1f;
+        float speedZ = playerTarget->GetDistance(pos) / speedXY * 0.5f * Movement::gravity;
+        playerTarget->GetMotionMaster()->MoveJump(pos, speedXY, speedZ);
+    }
+
+    void Register() override
     {
-        return new spell_barim_plague_of_ages_second_SpellScript();
+        OnEffectHitTarget.Register(&spell_barim_repentance_pull::HandPullEffect, EFFECT_0, SPELL_EFFECT_PULL_TOWARDS);
     }
 };
 
-class spell_barim_repentance_script : public SpellScriptLoader
+class spell_barim_repentance_stun : public AuraScript
 {
-public:
-    spell_barim_repentance_script() : SpellScriptLoader("spell_barim_repentance_script") { }
-
-    class spell_barim_repentance_script_SpellScript : public SpellScript
+    void DisablePeriodic(AuraEffect const* aurEff)
     {
-        void EffectScriptEffect(SpellEffIndex /*effIndex*/)
-        {
-            if (Unit* playerTarget = GetHitPlayer())
-                playerTarget->CastSpell(GetCaster(), GetSpellInfo()->Effects[EFFECT_0].BasePoints, true);
-        }
-
-        void Register() override
-        {
-            OnEffectHitTarget.Register(&spell_barim_repentance_script_SpellScript::EffectScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_barim_repentance_script_SpellScript();
+        // We only want one copy being summoned
+        const_cast<AuraEffect*>(aurEff)->SetPeriodic(false);
     }
-};
 
-class spell_barim_repentance_pull : public SpellScriptLoader
-{
-public:
-    spell_barim_repentance_pull() : SpellScriptLoader("spell_barim_repentance_pull") { }
-
-    class spell_barim_repentance_pull_SpellScript : public SpellScript
+    void Register() override
     {
-        void HandPullEffect(SpellEffIndex effIndex)
-        {
-            PreventHitDefaultEffect(effIndex);
-            if (Unit* playerTarget = GetHitPlayer())
-            {
-                if (Unit* barim = GetCaster()) // unneeded, but we use it for readability instead of tons of GetCaster() calls
-                {
-                    // Calculate our own destination since players should land in front of Barim instead of inside him
-                    Position pos;
-                    float angle = barim->GetAngle(playerTarget);
-                    float distance = barim->GetCombatReach() * 2;
-                    pos.m_positionX = barim->GetPositionX() + cos(angle) * distance;
-                    pos.m_positionY = barim->GetPositionY() + sin(angle) * distance;
-                    pos.m_positionZ = barim->GetPositionZ();
-
-                    float speedXY = float(GetSpellInfo()->Effects[EFFECT_0].MiscValue) * 0.1f;
-                    float speedZ = playerTarget->GetDistance(pos) / speedXY * 0.5f * Movement::gravity;
-                    playerTarget->GetMotionMaster()->MoveJump(pos, speedXY, speedZ);
-                }
-            }
-        }
-
-        void Register() override
-        {
-            OnEffectHitTarget.Register(&spell_barim_repentance_pull_SpellScript::HandPullEffect, EFFECT_0, SPELL_EFFECT_PULL_TOWARDS);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_barim_repentance_pull_SpellScript();
+        OnEffectPeriodic.Register(&spell_barim_repentance_stun::DisablePeriodic, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
     }
 };
 
 void AddSC_boss_high_prophet_barim()
 {
-    new boss_high_prophet_barim();
-    new npc_barim_repentance();
-    new npc_barim_harbinger_of_darkness();
-    new npc_barim_blaze_of_the_heavens();
-    new npc_barim_soul_fragment();
-    new spell_barim_plague_of_ages_first();
-    new spell_barim_plague_of_ages_second();
-    new spell_barim_repentance_script();
-    new spell_barim_repentance_pull();
+    RegisterLostCityOfTheTolvirAI(boss_high_prophet_barim);
+    RegisterLostCityOfTheTolvirAI(npc_barim_repentance);
+    RegisterLostCityOfTheTolvirAI(npc_barim_phoenix_summoner);
+    RegisterLostCityOfTheTolvirAI(npc_barim_harbinger_of_darkness);
+    RegisterLostCityOfTheTolvirAI(npc_barim_blaze_of_the_heavens);
+    RegisterLostCityOfTheTolvirAI(npc_barim_soul_fragment);
+    RegisterSpellScriptWithArgs(spell_barim_plague_of_ages, "spell_barim_plague_of_ages_first", std::initializer_list<uint32>({ SPELL_PLAGUE_OF_AGES }));
+    RegisterSpellScriptWithArgs(spell_barim_plague_of_ages, "spell_barim_plague_of_ages_second", std::initializer_list<uint32>({ SPELL_PLAGUE_OF_AGES, SPELL_PLAGUE_OF_AGES_FIRST_LEAP }));
+    RegisterSpellScript(spell_barim_repentance_script);
+    RegisterSpellScript(spell_barim_repentance_pull);
+    RegisterSpellScript(spell_barim_repentance_stun);
 }

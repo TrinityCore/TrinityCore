@@ -117,7 +117,10 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                         creature->setActive(true);
                         break;
                     case NPC_REPENTANCE:
-                        repenteanceGUIDs.push_back(creature->GetGUID());
+                    case NPC_SOUL_FRAGMENT:
+                        if (Creature* barim = GetCreature(DATA_HIGH_PROPHET_BARIM))
+                            if (barim->IsAIEnabled)
+                                barim->AI()->JustSummoned(creature);
                         break;
                     case NPC_TOLVIR_LAND_MINE:
                         if (Creature* husam = GetCreature(DATA_GENERAL_HUSAM))
@@ -169,10 +172,6 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                         else if (state == FAIL)
                             events.ScheduleEvent(EVENT_SPAWN_AUGH, Seconds(30));
                         break;
-                    case DATA_HIGH_PROPHET_BARIM:
-                        if (state == FAIL)
-                            repenteanceGUIDs.clear();
-                        [[fallthrough]];
                     case DATA_GENERAL_HUSAM:
                     case DATA_LOCKMAW_AND_AUGH:
                         if (state == DONE && IsSiamatEnabled())
@@ -237,11 +236,6 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                                 break;
                         }
                         break;
-                    case DATA_REPENTEANCE_ENDED:
-                        for (ObjectGuid guid : repenteanceGUIDs)
-                            if (Creature* repenteance = instance->GetCreature(guid))
-                                repenteance->AI()->DoAction(ACTION_PULL_BACK);
-                        break;
                     default:
                         break;
                 }
@@ -296,7 +290,6 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
             EventMap events;
             bool heroicAughSpawned;
             GuidVector addStalkerGUIDs;
-            GuidVector repenteanceGUIDs;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
