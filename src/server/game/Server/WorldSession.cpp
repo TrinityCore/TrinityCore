@@ -785,7 +785,7 @@ void WorldSession::Handle_NULL(WorldPackets::Null& null)
 
 void WorldSession::Handle_EarlyProccess(WorldPackets::Null& null)
 {
-    TC_LOG_ERROR("network.opcode", "Received opcode %s that must be processed in WorldSocket::OnRead from %s"
+    TC_LOG_ERROR("network.opcode", "Received opcode %s that must be processed in WorldSocket::ReadDataHandler from %s"
         , GetOpcodeNameForLogging(null.GetOpcode()).c_str(), GetPlayerInfo().c_str());
 }
 
