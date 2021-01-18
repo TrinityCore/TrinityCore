@@ -1405,6 +1405,9 @@ class spell_rog_bandits_guile : public AuraScript
 
     bool CheckProc(ProcEventInfo& eventInfo)
     {
+        if (GetTarget()->HasAura(SPELL_ROGUE_DEEP_INSIGHT, GetTarget()->GetGUID()))
+            return false;
+
         return eventInfo.GetProcTarget();
     }
 
