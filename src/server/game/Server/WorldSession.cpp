@@ -1173,7 +1173,7 @@ void WorldSession::InitializeSessionCallback(LoginDatabaseQueryHolder const& hol
     if (!m_inQueue)
         SendAuthResponse(ERROR_OK, false);
     else
-        SendAuthWaitQue(0);
+        SendAuthWaitQueue(0);
 
     SetInQueue(false);
     ResetTimeOutTime(false);
