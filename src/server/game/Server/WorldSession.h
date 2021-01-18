@@ -480,7 +480,7 @@ class TC_GAME_API WorldSession
         bool Update(uint32 diff, PacketFilter& updater);
 
         /// Handle the authentication waiting queue (to be completed)
-        void SendAuthWaitQue(uint32 position);
+        void SendAuthWaitQueue(uint32 position);
 
         void SendFeatureSystemStatus();
 
