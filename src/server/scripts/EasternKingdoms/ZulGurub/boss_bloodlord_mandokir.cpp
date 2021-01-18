@@ -107,14 +107,11 @@ enum SummonGroups
 
 struct boss_bloodlord_mandokir : public BossAI
 {
-    boss_bloodlord_mandokir(Creature* creature) : BossAI(creature, DATA_BLOODLORD_MANDOKIR) { }
+    boss_bloodlord_mandokir(Creature* creature) : BossAI(creature, DATA_BLOODLORD_MANDOKIR), _ohganotSoFast(true), _reanimateOhganCooldown(false) { }
 
-    void Reset() override
+    void JustAppeared() override
     {
-        _Reset();
         me->SummonCreatureGroup(SUMMON_GROUP_CHAINED_SPIRIT);
-        _ohganotSoFast = true;
-        _reanimateOhganCooldown = false;
     }
 
     void JustEngagedWith(Unit* who) override
@@ -316,14 +313,8 @@ private:
 
 struct npc_mandokir_ohgan : public ScriptedAI
 {
-    npc_mandokir_ohgan(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript())
+    npc_mandokir_ohgan(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript()), _allowPlayerCombat(false)
     {
-        Initialize();
-    }
-
-    void Initialize()
-    {
-        _allowPlayerCombat = false;
         me->SetReactState(REACT_PASSIVE);
     }
 
@@ -596,8 +587,18 @@ class spell_mandokir_ohgan_orders : public SpellScript
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
-        if (Unit* target = GetHitUnit())
-            caster->CastSpell(target, uint32(GetEffectValue()), true);
+        if (!caster)
+            return;
+
+        Unit* target = GetHitUnit();
+        caster->CastSpell(target, uint32(GetEffectValue()), true);
+        caster->GetThreatManager().AddThreat(target, GetSpellInfo()->Effects[EFFECT_1].BasePoints, nullptr, true, true);
+        caster->GetThreatManager().FixateTarget(GetHitUnit());
+        if (Creature* creature = caster->ToCreature())
+        {
+            creature->SetReactState(REACT_AGGRESSIVE);
+            creature->EngageWithTarget(GetHitUnit());
+        }
     }
 
     void Register() override
@@ -617,10 +618,6 @@ class spell_mandokir_ohgan_orders_trigger : public SpellScript
 
         // Enabling melee attacks to kill the spirits
         caster->ClearUnitState(UNIT_STATE_CASTING);
-
-        if (Creature* creature = caster->ToCreature())
-            if (creature->IsAIEnabled)
-                creature->AI()->AttackStart(GetHitUnit());
     }
 
     void Register() override
