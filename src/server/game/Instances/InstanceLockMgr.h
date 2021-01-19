@@ -112,6 +112,9 @@ public:
 
     InstanceResetTimePoint GetEffectiveExpiryTime() const;
 
+    bool IsInUse() const { return _isInUse; }
+    void SetInUse(bool inUse) { _isInUse = inUse; }
+
 private:
     uint32 _mapId;
     Difficulty _difficultyId;
@@ -119,6 +122,7 @@ private:
     std::chrono::system_clock::time_point _expiryTime;
     bool _extended;
     InstanceLockData _data;
+    bool _isInUse;
 };
 
 struct SharedInstanceLockData : InstanceLockData
@@ -193,6 +197,12 @@ struct InstanceLockUpdateEvent
     Optional<uint32> EntranceWorldSafeLocId;
 };
 
+struct InstanceLocksStatistics
+{
+    uint32 InstanceCount = 0;   // Number of existing ID-based locks
+    uint32 PlayerCount = 0;     // Number of players that have any lock
+};
+
 class TC_GAME_API InstanceLockMgr
 {
 public:
@@ -263,6 +273,23 @@ public:
        @return pair<OldExpirationTime, NewExpirationTime>
     */
     std::pair<InstanceResetTimePoint, InstanceResetTimePoint> UpdateInstanceLockExtensionForPlayer(ObjectGuid const& playerGuid, MapDb2Entries const& entries, bool extended);
+
+    /**
+       @brief Resets instances that match given filter - for use in GM commands
+       @param playerGuid Guid of player whose locks will be removed
+       @param mapId (Optional) Map id of instance locks to reset
+       @param difficulty (Optional) Difficulty of instance locks to reset
+       @param locksReset All locks that were reset
+       @param locksFailedToReset Locks that could not be reset because they are used by existing instance map
+    */
+    void ResetInstanceLocksForPlayer(ObjectGuid const& playerGuid, Optional<uint32> mapId, Optional<Difficulty> difficulty,
+        std::vector<InstanceLock const*>* locksReset, std::vector<InstanceLock const*>* locksFailedToReset);
+
+    /**
+       @brief Retrieves instance lock statistics - for use in GM commands
+       @return Statistics info
+    */
+    InstanceLocksStatistics GetStatistics() const;
 
     static InstanceLockMgr& Instance();
 

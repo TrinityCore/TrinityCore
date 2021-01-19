@@ -29,7 +29,7 @@ InstanceLockData::InstanceLockData() = default;
 InstanceLockData::~InstanceLockData() = default;
 
 InstanceLock::InstanceLock(uint32 mapId, Difficulty difficultyId, InstanceResetTimePoint expiryTime, uint32 instanceId)
-    : _mapId(mapId), _difficultyId(difficultyId), _instanceId(instanceId), _expiryTime(expiryTime), _extended(false)
+    : _mapId(mapId), _difficultyId(difficultyId), _instanceId(instanceId), _expiryTime(expiryTime), _extended(false), _isInUse(false)
 {
 }
 
@@ -458,6 +458,60 @@ std::pair<InstanceResetTimePoint, InstanceResetTimePoint> InstanceLockMgr::Updat
     }
 
     return { InstanceResetTimePoint::min(), InstanceResetTimePoint::min() };
+}
+
+void InstanceLockMgr::ResetInstanceLocksForPlayer(ObjectGuid const& playerGuid, Optional<uint32> mapId, Optional<Difficulty> difficulty,
+    std::vector<InstanceLock const*>* locksReset, std::vector<InstanceLock const*>* locksFailedToReset)
+{
+    auto playerLocksItr = _instanceLocksByPlayer.find(playerGuid);
+    if (playerLocksItr == _instanceLocksByPlayer.end())
+        return;
+
+    for (PlayerLockMap::value_type const& playerLockPair : playerLocksItr->second)
+    {
+        if (playerLockPair.second->IsInUse())
+        {
+            locksFailedToReset->push_back(playerLockPair.second.get());
+            continue;
+        }
+
+        if (mapId && *mapId != playerLockPair.second->GetMapId())
+            continue;
+
+        if (difficulty && *difficulty != playerLockPair.second->GetDifficultyId())
+            continue;
+
+        locksReset->push_back(playerLockPair.second.get());
+    }
+
+    if (!locksReset->empty())
+    {
+        CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
+        for (InstanceLock const* instanceLock : *locksReset)
+        {
+            MapDb2Entries entries(instanceLock->GetMapId(), instanceLock->GetDifficultyId());
+            InstanceResetTimePoint newExpiryTime = GetNextResetTime(entries) - Seconds(entries.MapDifficulty->GetRaidDuration());
+            // set reset time to last reset time
+            const_cast<InstanceLock*>(instanceLock)->SetExpiryTime(newExpiryTime);
+            const_cast<InstanceLock*>(instanceLock)->SetExtended(false);
+
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_INSTANCE_LOCK_FORCE_EXPIRE);
+            stmt->setUInt64(0, uint64(std::chrono::system_clock::to_time_t(newExpiryTime)));
+            stmt->setUInt64(1, playerGuid.GetCounter());
+            stmt->setUInt32(2, entries.MapDifficulty->MapID);
+            stmt->setUInt32(3, entries.MapDifficulty->LockID);
+            trans->Append(stmt);
+        }
+        CharacterDatabase.CommitTransaction(trans);
+    }
+}
+
+InstanceLocksStatistics InstanceLockMgr::GetStatistics() const
+{
+    InstanceLocksStatistics statistics;
+    statistics.InstanceCount = _instanceLockDataById.size();
+    statistics.PlayerCount = _instanceLocksByPlayer.size();
+    return statistics;
 }
 
 InstanceResetTimePoint InstanceLockMgr::GetNextResetTime(MapDb2Entries const& entries)
