@@ -1419,8 +1419,8 @@ class spell_rog_bandits_guile : public AuraScript
         uint32 spellId = SPELL_ROGUE_SHALLOW_INSIGHT;
         int32 basepoints = 10;
 
-        // Todo: validate this for lower ranks. 3/3 requires 4 hits.
-        uint8 neededProcs = uint8(7 - GetSpellInfo()->GetRank());
+        // Todo: validate if the required number of successful procs itself changes or if the proc chance of lower ranks is taking care of it already.
+        uint8 const neededProcs = 4;
 
         // We are striking a new opponent, reset progress
         if (_recentTargetGUID != procTarget->GetGUID())
@@ -1442,6 +1442,7 @@ class spell_rog_bandits_guile : public AuraScript
         {
             spellId = SPELL_ROGUE_DEEP_INSIGHT;
             basepoints = 30;
+            _procStrikes = 0;
         }
         else if (_procStrikes >= neededProcs * 2)
         {
@@ -1449,9 +1450,9 @@ class spell_rog_bandits_guile : public AuraScript
             basepoints = 20;
         }
 
-        if (_procStrikes >= neededProcs * 3 && target->HasAura(SPELL_ROGUE_MODERATE_INSIGHT, target->GetGUID()))
+        if (spellId == SPELL_ROGUE_DEEP_INSIGHT && target->HasAura(SPELL_ROGUE_MODERATE_INSIGHT, target->GetGUID()))
             target->RemoveAurasDueToSpell(SPELL_ROGUE_MODERATE_INSIGHT, target->GetGUID());
-        else if (_procStrikes >= neededProcs * 2 && target->HasAura(SPELL_ROGUE_SHALLOW_INSIGHT, target->GetGUID()))
+        else if (spellId == SPELL_ROGUE_MODERATE_INSIGHT && target->HasAura(SPELL_ROGUE_SHALLOW_INSIGHT, target->GetGUID()))
             target->RemoveAurasDueToSpell(SPELL_ROGUE_SHALLOW_INSIGHT, target->GetGUID());
 
         target->CastSpell(target, spellId);
