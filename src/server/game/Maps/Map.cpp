@@ -2781,10 +2781,16 @@ InstanceMap::InstanceMap(uint32 id, time_t expiry, uint32 InstanceId, Difficulty
 
     sWorldStateMgr->SetValue(WS_TEAM_IN_INSTANCE_ALLIANCE, InstanceTeam == TEAM_ALLIANCE, false, this);
     sWorldStateMgr->SetValue(WS_TEAM_IN_INSTANCE_HORDE, InstanceTeam == TEAM_HORDE, false, this);
+
+    if (i_instanceLock)
+        i_instanceLock->SetInUse(true);
 }
 
 InstanceMap::~InstanceMap()
 {
+    if (i_instanceLock)
+        i_instanceLock->SetInUse(false);
+
     delete i_data;
     delete i_scenario;
 }
