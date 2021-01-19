@@ -1,0 +1,9 @@
+-- fix emotes errors
+
+UPDATE `quest_details` SET `emote1` = 0 WHERE `ID` IN (264, 9496);
+UPDATE `quest_details` SET `emote2` = 0 WHERE `ID` IN (862, 1106, 6182, 6183, 6184, 6186, 12123, 12766);
+UPDATE `quest_details` SET `emote3` = 0 WHERE `ID` IN (833, 857, 862, 6182, 6183, 6184, 6186, 7441, 9446, 9474, 9534, 9589, 9607, 9701, 9702, 
+9708, 9709, 9715, 9717, 9719, 9724, 9726, 9738, 10177, 11538);
+UPDATE `quest_details` SET `emote4` = 0 WHERE `ID` IN (833, 857, 6182, 6183, 6184, 6186, 7441, 9474, 9589, 9702, 9708, 9709, 9715, 9719, 9738, 10177, 
+11538);
+
