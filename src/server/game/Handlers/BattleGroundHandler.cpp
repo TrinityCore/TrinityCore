@@ -49,7 +49,7 @@ void WorldSession::HandleBattlemasterHelloOpcode(WorldPacket& recvData)
         return;
 
     // Stop the npc if moving
-    unit->PauseMovement(sWorld->getIntConfig(CONFIG_CREATURE_STOP_FOR_PLAYER));
+    unit->PauseMovement(unit->GetMovementTemplate().GetInteractionPauseTimer());
     unit->SetHomePosition(unit->GetPosition());
 
     BattlegroundTypeId bgTypeId = sBattlegroundMgr->GetBattleMasterBG(unit->GetEntry());
