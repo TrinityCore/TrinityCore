@@ -74,4 +74,7 @@ class TC_GAME_API TSLoot {
 
         uint32 GetMoney();
         void SetMoney(uint32 money);
+
+        uint64 GetLootOwner();
+        void SetLootOwner(uint64 owner);
 };

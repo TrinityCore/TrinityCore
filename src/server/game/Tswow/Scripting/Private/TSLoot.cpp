@@ -179,6 +179,16 @@ uint32 TSLoot::GetLootType()
     return loot->loot_type;
 }
 
+void TSLoot::SetLootOwner(uint64 owner)
+{
+    loot->lootOwnerGUID = ObjectGuid(owner);
+}
+
+uint64 TSLoot::GetLootOwner()
+{
+    return loot->lootOwnerGUID;
+}
+
 TC_GAME_API TSLootStoreItem CreateLootItem(uint32 id, uint32 reference, float chance, uint16 lootmode, bool needsQuest, uint8 groupId, uint8 minCount, uint8 maxCount)
 {
     return TSLootStoreItem()

@@ -6285,6 +6285,8 @@ declare class TSLoot {
     SetMoney(money: uint32): void;
     GetLootType(): uint32;
     GetMoney(): uint32;
+    GetLootOwner(): uint64;
+    SetLootOwner(owner: uint64);
 }
 
 declare function MakeDictionary<K,V>(obj: {[key: string]: V}) : TSDictionary<K,V>
