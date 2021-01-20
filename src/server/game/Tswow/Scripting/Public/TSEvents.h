@@ -194,7 +194,7 @@ EVENT_TYPE(CreatureOnWaypointPathEnded,TSCreature,uint32,uint32)
 EVENT_TYPE(CreatureOnPassengerBoarded,TSCreature,TSUnit,int8,bool)
 EVENT_TYPE(CreatureOnSpellClick,TSCreature,TSUnit,bool)
 EVENT_TYPE(CreatureOnUpdateAI,TSCreature,uint32)
-EVENT_TYPE(CreatureOnGenerateLoot,TSCreature,TSLoot)
+EVENT_TYPE(CreatureOnGenerateLoot,TSCreature,TSPlayer)
 
 struct TSCreatureEvents {
      EVENT(CreatureOnMoveInLOS)

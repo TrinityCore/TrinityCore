@@ -52,7 +52,7 @@ public:
     uint8 GetMaxCount();
 };
 
-TC_GAME_API TSLootStoreItem CreateLootItem(uint32 id, uint32 reference = 0, float chance = 1, uint16 lootmode = 0, bool needsQuest = false, uint8 groupId = 0, uint8 minCount = 0, uint8 maxCount = 1);
+TC_GAME_API TSLootStoreItem CreateLootItem(uint32 id, uint32 reference = 0, float chance = 100, uint16 lootmode = 0, bool needsQuest = false, uint8 groupId = 0, uint8 minCount = 1, uint8 maxCount = 1);
 
 class Loot;
 class TC_GAME_API TSLoot {

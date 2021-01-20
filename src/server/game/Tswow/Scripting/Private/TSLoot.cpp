@@ -18,6 +18,7 @@
 #include "Loot.h"
 #include "LootMgr.h"
 #include "ObjectGuid.h"
+#include "TSMath.h"
 
 TSLootStoreItem TSLootStoreItem::SetItemID(uint32 itemId)
 {
@@ -129,6 +130,14 @@ bool TSLoot::IsLooted()
 
 void TSLoot::AddItem(TSLootStoreItem item)
 {
+    if(item.chance < 100 && Math.random()*100>item.chance)
+    {
+        return;
+    }
+    // TODO: Maybe we don't need to initialize both
+    loot->items.reserve(MAX_NR_LOOT_ITEMS);
+    loot->quest_items.reserve(MAX_NR_QUEST_ITEMS);
+
     LootStoreItem storeItem(item.itemid,item.reference,item.chance,item.lootmode,item.needs_quest,item.groupid,item.mincount,item.maxcount);
     loot->AddItem(storeItem);
 }
