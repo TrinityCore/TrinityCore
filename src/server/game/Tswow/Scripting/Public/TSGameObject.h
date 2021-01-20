@@ -16,6 +16,7 @@
  */
 #pragma once
 
+#include "TSLoot.h"
 #include "TSMain.h"
 #include "TSClasses.h"
 #include "TSWorldObject.h"
@@ -45,4 +46,5 @@ public:
     void Despawn();
     void Respawn();
     void SetRespawnTime(int32 respawn);
+    TSLoot GetLoot();
 };

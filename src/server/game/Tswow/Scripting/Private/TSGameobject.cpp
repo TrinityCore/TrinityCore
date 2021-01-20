@@ -329,5 +329,7 @@ void TSGameObject::SetRespawnTime(int32 respawn)
     go->SetRespawnTime(respawn);
 }
 
-// Inherited from WorldObject
-// Inherited from Object
+TSLoot TSGameObject::GetLoot()
+{
+    return TSLoot(&go->loot);
+}

@@ -1205,7 +1205,8 @@ uint32 TSCreature::GetCreatureFamily()
         return cInfo->Family;
 #endif
 }
-    
-// Inherited from Unit
-// Inherited from WorldObject
-// Inherited from Object
+
+TSLoot TSCreature::GetLoot()
+{
+    return TSLoot(&creature->loot);
+}

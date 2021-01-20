@@ -89,5 +89,7 @@ void TSCorpse::SaveToDB()
     corpse->SaveToDB();
 }
 
-// Inherited from WorldObject
-// Inherited from Object
+TSLoot TSCorpse::GetLoot()
+{
+    return TSLoot(&corpse->loot);
+}

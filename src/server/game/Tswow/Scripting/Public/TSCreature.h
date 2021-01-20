@@ -16,6 +16,7 @@
  */
 #pragma once
 
+#include "TSLoot.h"
 #include "TSBase.h"
 #include "TSMain.h"
 #include "TSArray.h"
@@ -110,4 +111,5 @@ public:
     void RemoveLootMode(uint16 lootMode);
     void AddLootMode(uint16 lootMode);
     uint32 GetCreatureFamily();
+    TSLoot GetLoot();
 };

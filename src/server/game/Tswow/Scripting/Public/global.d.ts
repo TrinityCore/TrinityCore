@@ -1784,6 +1784,8 @@ declare class TSPlayer extends TSUnit {
 declare class TSCorpse extends TSWorldObject {
     IsNull() : bool
 
+    GetLoot(): TSLoot;
+
     /**
      * Returns the GUID of the [Player] that left the [Corpse] behind.
      *
@@ -1825,6 +1827,8 @@ declare class TSCorpse extends TSWorldObject {
 }
 
 declare class TSCreature extends TSUnit {
+    GetLoot(): TSLoot;
+
     IsNull() : bool
 
     /**
@@ -3782,6 +3786,8 @@ declare class TSBattleground {
 
 declare class TSGameObject extends TSWorldObject {
     IsNull() : bool
+
+    GetLoot(): TSLoot;
 
     /**
      * Returns 'true' if the [GameObject] can give the specified [Quest]
@@ -6245,6 +6251,36 @@ declare class TSDictionary<K,V> {
     filter(callback: (key: K, value: V)=>boolean): TSDictionary<K,V>
 }
 
+declare class TSLootStoreItem {
+    SetItemID(itemId: uint32) : TSLootStoreItem;
+    SetReference(reference: uint32) : TSLootStoreItem;
+    SetChance(chance: float) : TSLootStoreItem;
+    SetLootMode(lootMode: uint16) : TSLootStoreItem;
+    SetNeedsQuest(needsQuest: bool) : TSLootStoreItem;
+    SetGroupID(groupId: uint8) : TSLootStoreItem;
+    SetMinCount(minCount: uint8) : TSLootStoreItem;
+    SetMaxCount(maxCount: uint8) : TSLootStoreItem;
+
+    GetItemID(): uint32;
+    GetReference(): uint32;
+    GetChance(): float;
+    GetLootMode(): uint16;
+    GetNeedsQuest(): bool;
+    GetGroupID(): uint8;
+    GetMinCount(): uint8;
+    GetMaxCount(): uint8;
+}
+
+declare class TSLoot {
+    IsNull(): bool;
+    Clear(): void;
+    IsLooted(): bool;
+    AddItem(item: TSLootStoreItem): void;
+    AddItems(items: TSArray<TSLootStoreItem>);
+    AddLooter(looter: uint64): void;
+    RemoveLooter(looter: uint64): void;
+}
+
 declare function MakeDictionary<K,V>(obj: {[key: string]: V}) : TSDictionary<K,V>
 
 declare function GetID(table: string, mod: string, name: string);
@@ -6279,6 +6315,8 @@ declare class DBTable {
 declare class TSClass {
     stringify(indention?: int): string;
 }
+
+declare function CreateLootItem(id: uint32, reference?: uint32, chance?: float, lootmode?: uint16, needsQuest?: bool, groupId?: uint8, minCount?: uint8, maxCount?: uint8)
 
 declare function QueryWorld(query: string): TSDatabaseResult;
 declare function QueryCharacters(query: string): TSDatabaseResult;

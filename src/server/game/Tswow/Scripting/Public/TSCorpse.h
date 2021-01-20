@@ -16,6 +16,7 @@
  */
 #pragma once
 
+#include "TSLoot.h"
 #include "TSMain.h"
 #include "TSClasses.h"
 #include "TSWorldObject.h"
@@ -30,6 +31,7 @@ public:
     uint64 GetOwnerGUID();
     uint32 GetGhostTime();
     uint32 GetType();
+    TSLoot GetLoot();
     void ResetGhostTime();
     void SaveToDB();
 };
