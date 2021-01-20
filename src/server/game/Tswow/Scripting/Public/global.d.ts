@@ -6281,6 +6281,10 @@ declare class TSLoot {
     AddItems(items: TSArray<TSLootStoreItem>);
     AddLooter(looter: uint64): void;
     RemoveLooter(looter: uint64): void;
+    SetLootType(lootType: uint32): void;
+    SetMoney(money: uint32): void;
+    GetLootType(): uint32;
+    GetMoney(): uint32;
 }
 
 declare function MakeDictionary<K,V>(obj: {[key: string]: V}) : TSDictionary<K,V>

@@ -159,6 +159,26 @@ void TSLoot::RemoveLooter(uint64 looter)
     loot->RemoveLooter(ObjectGuid(looter));
 }
 
+void TSLoot::SetMoney(uint32 money)
+{
+    loot->gold = money;
+}
+
+uint32 TSLoot::GetMoney()
+{
+    return loot->gold;
+}
+
+void TSLoot::SetLootType(uint32 lootType)
+{
+    loot->loot_type = LootType(lootType);
+}
+
+uint32 TSLoot::GetLootType()
+{
+    return loot->loot_type;
+}
+
 TC_GAME_API TSLootStoreItem CreateLootItem(uint32 id, uint32 reference, float chance, uint16 lootmode, bool needsQuest, uint8 groupId, uint8 minCount, uint8 maxCount)
 {
     return TSLootStoreItem()

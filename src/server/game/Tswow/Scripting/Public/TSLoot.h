@@ -68,4 +68,10 @@ class TC_GAME_API TSLoot {
         void AddItems(TSArray<TSLootStoreItem> items);
         void AddLooter(uint64 looter);
         void RemoveLooter(uint64 looter);
+
+        uint32 GetLootType();
+        void SetLootType(uint32 lootType);
+
+        uint32 GetMoney();
+        void SetMoney(uint32 money);
 };
