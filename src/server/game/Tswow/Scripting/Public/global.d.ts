@@ -6165,6 +6165,7 @@ declare namespace _hidden {
     }
 
     export class CreatureID {
+        OnGenerateLoot(creature: uint32, callback: (creature: TSCreature, loot: TSLoot)=>void);
         OnMoveInLOS(creature: uint32, callback: (creature: TSCreature, seen: TSUnit)=>void);
         OnJustEnteredCombat(creature: uint32, callback: (creature: TSCreature, target: TSUnit)=>void);
         OnDeath(creature: uint32, callback: (creature: TSCreature, killer: TSUnit)=>void);
@@ -6194,6 +6195,7 @@ declare namespace _hidden {
     }
 
     export class Creatures {
+        OnGenerateLoot(callback: (creature: TSCreature, loot: TSLoot)=>void);
         OnMoveInLOS(callback: (creature: TSCreature, seen: TSUnit)=>void);
         OnJustEnteredCombat(callback: (creature: TSCreature, target: TSUnit)=>void);
         OnDeath(callback: (creature: TSCreature, killer: TSUnit)=>void);

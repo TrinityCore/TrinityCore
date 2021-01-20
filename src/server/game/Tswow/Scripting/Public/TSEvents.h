@@ -23,6 +23,7 @@
 #include "TSMacros.h"
 #include "TSChannel.h"
 #include "TSAura.h"
+#include "TSLoot.h"
 #include <cstdint>
 
 // WorldScript
@@ -193,6 +194,7 @@ EVENT_TYPE(CreatureOnWaypointPathEnded,TSCreature,uint32,uint32)
 EVENT_TYPE(CreatureOnPassengerBoarded,TSCreature,TSUnit,int8,bool)
 EVENT_TYPE(CreatureOnSpellClick,TSCreature,TSUnit,bool)
 EVENT_TYPE(CreatureOnUpdateAI,TSCreature,uint32)
+EVENT_TYPE(CreatureOnGenerateLoot,TSCreature,TSLoot)
 
 struct TSCreatureEvents {
      EVENT(CreatureOnMoveInLOS)
@@ -220,6 +222,7 @@ struct TSCreatureEvents {
      EVENT(CreatureOnPassengerBoarded)
      EVENT(CreatureOnSpellClick)
      EVENT(CreatureOnUpdateAI)
+     EVENT(CreatureOnGenerateLoot)
 };
 
 class TSCreatureMap : public TSEventMap<TSCreatureEvents>
@@ -379,6 +382,7 @@ struct TSEvents
     EVENT(CreatureOnPassengerBoarded)
     EVENT(CreatureOnSpellClick)
     EVENT(CreatureOnUpdateAI)
+    EVENT(CreatureOnGenerateLoot)
 
     // SpellScript
     EVENT(SpellOnCast)
@@ -609,6 +613,7 @@ public:
           EVENT_HANDLE(Creature,OnPassengerBoarded)
           EVENT_HANDLE(Creature,OnSpellClick)
           EVENT_HANDLE(Creature,OnUpdateAI)
+          EVENT_HANDLE(Creature,OnGenerateLoot)
     } Creatures;
 
     struct CreatureIDEvents : public MappedEventHandler<TSCreatureMap>
@@ -639,6 +644,7 @@ public:
           MAP_EVENT_HANDLE(Creature,OnPassengerBoarded)
           MAP_EVENT_HANDLE(Creature,OnSpellClick)
           MAP_EVENT_HANDLE(Creature,OnUpdateAI)
+          MAP_EVENT_HANDLE(Creature,OnGenerateLoot)
     } CreatureID;
 
 

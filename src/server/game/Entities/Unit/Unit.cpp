@@ -11008,6 +11008,10 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
             if (creature->GetLootMode() > 0)
                 loot->generateMoneyLoot(creature->GetCreatureTemplate()->mingold, creature->GetCreatureTemplate()->maxgold);
 
+            // @tswow-begin
+            FIRE_MAP(creature->GetCreatureTemplate()->events,CreatureOnGenerateLoot,TSCreature(creature),TSLoot(loot));
+            // @tswow-end
+
             if (group)
             {
                 if (hasLooterGuid)
