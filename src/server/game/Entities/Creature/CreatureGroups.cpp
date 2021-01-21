@@ -92,7 +92,7 @@ void FormationMgr::LoadCreatureFormations()
 
     if (!result)
     {
-        TC_LOG_ERROR("server.loading", ">>  Loaded 0 creatures in formations. DB table `creature_formations` is empty!");
+        TC_LOG_INFO("server.loading", ">>  Loaded 0 creatures in formations. DB table `creature_formations` is empty!");
         return;
     }
 
