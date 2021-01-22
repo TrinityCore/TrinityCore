@@ -1559,11 +1559,8 @@ bool SpellInfo::IsAllowingDeadTarget() const
         if (!effect)
             continue;
 
-        if (effect->TargetA.GetObjectType() == TARGET_OBJECT_TYPE_CORPSE ||
-            effect->TargetB.GetObjectType() == TARGET_OBJECT_TYPE_CORPSE)
-        {
+        if (effect->TargetA.GetObjectType() == TARGET_OBJECT_TYPE_CORPSE || effect->TargetB.GetObjectType() == TARGET_OBJECT_TYPE_CORPSE)
             return true;
-        }
     }
 
     return false;
