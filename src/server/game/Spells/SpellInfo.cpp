@@ -1549,7 +1549,24 @@ bool SpellInfo::IsRequiringDeadTarget() const
 
 bool SpellInfo::IsAllowingDeadTarget() const
 {
-    return HasAttribute(SPELL_ATTR2_CAN_TARGET_DEAD) || Targets & (TARGET_FLAG_CORPSE_ALLY | TARGET_FLAG_CORPSE_ENEMY | TARGET_FLAG_UNIT_DEAD);
+    if (HasAttribute(SPELL_ATTR2_CAN_TARGET_DEAD) || Targets & (TARGET_FLAG_CORPSE_ALLY | TARGET_FLAG_CORPSE_ENEMY | TARGET_FLAG_UNIT_DEAD))
+    {
+        return true;
+    }
+
+    for (SpellEffectInfo const* effect : _effects)
+    {
+        if (!effect)
+            continue;
+
+        switch (effect->TargetA.GetTarget())
+        {
+        case TARGET_CORPSE_SRC_AREA_RAID:
+            return true;
+        }
+    }
+
+    return false;
 }
 
 bool SpellInfo::IsGroupBuff() const
