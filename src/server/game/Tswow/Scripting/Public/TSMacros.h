@@ -23,3 +23,19 @@
 #define FIRE(name,...) {for(size_t i=0;i< GetTSEvents()->name.GetSize(); ++i) GetTSEvents()->name.Get(i)(__VA_ARGS__);}
 #define FIRE_RETURN(name,retType,retVal,...) {retType rv = retVal; for(size_t i=0;i< GetTSEvents()->name.GetSize(); ++i) GetTSEvents()->name.Get(i)(__VA_ARGS__,TSMutable<retType>(&rv)); return retVal;}
 #define FIRE_MAP(obj,name,...) FIRE(name,__VA_ARGS__); {if(obj) for(size_t i=0;i< obj->name.GetSize(); ++i) obj->name.Get(i)(__VA_ARGS__);}
+
+#define FIRE_BOOL(name,varname,...) \
+    for(int i=0;i<GetTSEvents()->name.GetSize(); ++i) \
+    { \
+        GetTSEvents()->name.Get(i)(__VA_ARGS__, TSMutable<bool>(&varname)); \
+        if(varname) break; \
+    }
+
+#define FIRE_BOOL_MAP(obj,name,varname,...) \
+    FIRE_BOOL(name,varname,__VA_ARGS__) \
+    if(obj && !varname) \
+    for(int i=0;i<obj->name.GetSize(); ++i) \
+    { \
+        obj->name.Get(i)(__VA_ARGS__, TSMutable<bool>(&varname)); \
+        if(varname) break; \
+    }

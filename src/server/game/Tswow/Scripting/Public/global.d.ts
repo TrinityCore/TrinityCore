@@ -6192,6 +6192,10 @@ declare namespace _hidden {
 
         OnSpellClick(creature: uint32, callback: (creature: TSCreature, clicker: TSUnit, isFirst: boolean)=>void);
         OnUpdateAI(creature: uint32, callback: (creature: TSCreature, diff: uint32)=>void);
+
+        OnGossipHello(creature: uint32, callback: (creature: TSCreature, player: TSPlayer, cancel: TSMutable<bool>)=>void)
+        OnGossipSelect(creature: uint32, callback: (creature: TSCreature, player: TSPlayer, menuId: number, selectionId: number, cancel: TSMutable<bool>)=>void)
+        OnGossipSelectCode(creature: uint32, callback: (creature: TSCreature, player: TSPlayer, menuId: number, selectionId: number, code: string, cancel: TSMutable<bool>)=>void)
     }
 
     export class Creatures {
@@ -6222,6 +6226,10 @@ declare namespace _hidden {
 
         OnSpellClick(callback: (creature: TSCreature, clicker: TSUnit, isFirst: boolean)=>void);
         OnUpdateAI(callback: (creature: TSCreature, diff: uint32)=>void);
+
+        OnGossipHello(callback: (creature: TSCreature, player: TSPlayer, cancel: TSMutable<bool>)=>void)
+        OnGossipSelect(callback: (creature: TSCreature, player: TSPlayer, menuId: number, selectionId: number, cancel: TSMutable<bool>)=>void)
+        OnGossipSelectCode(callback: (creature: TSCreature, player: TSPlayer, menuId: number, selectionId: number, code: string, cancel: TSMutable<bool>)=>void)
     }
 }
 

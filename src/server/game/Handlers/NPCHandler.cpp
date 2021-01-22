@@ -203,7 +203,11 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
     }
 
     _player->PlayerTalkClass->ClearMenus();
-    if (!unit->AI()->OnGossipHello(_player))
+    // @tswow-begin
+    bool b = false;
+    FIRE_BOOL_MAP(unit->GetCreatureTemplate()->events,CreatureOnGossipHello,b,TSCreature(unit),TSPlayer(_player));
+    if (!b && !unit->AI()->OnGossipHello(_player))
+    // @tswow-end
     {
 //        _player->TalkedToCreature(unit->GetEntry(), unit->GetGUID());
         _player->PrepareGossipMenu(unit, unit->GetCreatureTemplate()->GossipMenuId, true);

@@ -34,6 +34,14 @@
 #include "ScriptMgr.h"
 #include "World.h"
 #include "WorldPacket.h"
+// @tswow-begin
+#include "TSEventLoader.h"
+#include "TSUnit.h"
+#include "TSCreature.h"
+#include "TSSpellInfo.h"
+#include "TSMacros.h"
+#include "TSPlayer.h"
+// @tswow-end
 
 void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPacket& recvData)
 {
@@ -96,7 +104,11 @@ void WorldSession::HandleQuestgiverHelloOpcode(WorldPacket& recvData)
     creature->SetHomePosition(creature->GetPosition());
 
     _player->PlayerTalkClass->ClearMenus();
-    if (creature->AI()->OnGossipHello(_player))
+    // @tswow-begin
+    bool b = false;
+    FIRE_BOOL_MAP(creature->GetCreatureTemplate()->events,CreatureOnGossipHello,b,TSCreature(creature),TSPlayer(_player));
+    if (b || creature->AI()->OnGossipHello(_player))
+    // @tswow-end
         return;
 
     _player->PrepareGossipMenu(creature, creature->GetCreatureTemplate()->GossipMenuId, true);

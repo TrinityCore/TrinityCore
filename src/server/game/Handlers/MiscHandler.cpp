@@ -54,6 +54,14 @@
 #include "WorldPacket.h"
 #include <cstdarg>
 #include <zlib.h>
+// @tswow-begin
+#include "TSEventLoader.h"
+#include "TSUnit.h"
+#include "TSCreature.h"
+#include "TSSpellInfo.h"
+#include "TSMacros.h"
+#include "TSPlayer.h"
+// @tswow-end
 
 void WorldSession::HandleRepopRequest(WorldPackets::Misc::RepopRequest& /*packet*/)
 {
@@ -152,12 +160,16 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
     {
         if (unit)
         {
-            if (!unit->AI()->OnGossipSelectCode(_player, menuId, gossipListId, code.c_str()))
+            // @tswow-begin
+            bool b = false;
+            FIRE_BOOL_MAP(unit->GetCreatureTemplate()->events,CreatureOnGossipSelectCode,b,TSCreature(unit),TSPlayer(_player),menuId,gossipListId,TSString(code.c_str()));
+            if (!b && !unit->AI()->OnGossipSelectCode(_player, menuId, gossipListId, code.c_str()))
+            // @tswow-end
                 _player->OnGossipSelect(unit, gossipListId, menuId);
         }
         else
         {
-            if (!go->AI()->OnGossipSelectCode(_player, menuId, gossipListId, code.c_str()))
+            if (!go->AI()->OnGossipSelectCode(_player, menuId, gossipListId, TSString(code.c_str())))
                 _player->OnGossipSelect(go, gossipListId, menuId);
         }
     }
@@ -165,6 +177,10 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
     {
         if (unit)
         {
+            // @tswow-begin
+            bool b = false;
+            FIRE_BOOL_MAP(unit->GetCreatureTemplate()->events,CreatureOnGossipSelect,b,TSCreature(unit),TSPlayer(_player),menuId,gossipListId);
+            // @tswow-end
             if (!unit->AI()->OnGossipSelect(_player, menuId, gossipListId))
                 _player->OnGossipSelect(unit, gossipListId, menuId);
         }

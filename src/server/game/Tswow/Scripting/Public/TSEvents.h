@@ -196,6 +196,10 @@ EVENT_TYPE(CreatureOnSpellClick,TSCreature,TSUnit,bool)
 EVENT_TYPE(CreatureOnUpdateAI,TSCreature,uint32)
 EVENT_TYPE(CreatureOnGenerateLoot,TSCreature,TSPlayer)
 
+EVENT_TYPE(CreatureOnGossipHello,TSCreature,TSPlayer,TSMutable<bool>)
+EVENT_TYPE(CreatureOnGossipSelect,TSCreature,TSPlayer,uint32,uint32,TSMutable<bool>)
+EVENT_TYPE(CreatureOnGossipSelectCode,TSCreature,TSPlayer,uint32,uint32,TSString,TSMutable<bool>)
+
 struct TSCreatureEvents {
      EVENT(CreatureOnMoveInLOS)
      EVENT(CreatureOnJustEnteredCombat)
@@ -223,6 +227,10 @@ struct TSCreatureEvents {
      EVENT(CreatureOnSpellClick)
      EVENT(CreatureOnUpdateAI)
      EVENT(CreatureOnGenerateLoot)
+
+     EVENT(CreatureOnGossipHello)
+     EVENT(CreatureOnGossipSelect)
+     EVENT(CreatureOnGossipSelectCode)
 };
 
 class TSCreatureMap : public TSEventMap<TSCreatureEvents>
@@ -288,10 +296,8 @@ struct TSEvents
     EVENT(VehicleOnAddPassenger)
     EVENT(VehicleOnRemovePassenger)
 
-
     // AchievementCriteriaScript
     //EVENT(AchievementCriteriaOnCheck)
-
 
     // PlayerScript
     EVENT(PlayerOnPVPKill)
@@ -383,6 +389,10 @@ struct TSEvents
     EVENT(CreatureOnSpellClick)
     EVENT(CreatureOnUpdateAI)
     EVENT(CreatureOnGenerateLoot)
+
+    EVENT(CreatureOnGossipHello)
+    EVENT(CreatureOnGossipSelect)
+    EVENT(CreatureOnGossipSelectCode)
 
     // SpellScript
     EVENT(SpellOnCast)
@@ -613,7 +623,12 @@ public:
           EVENT_HANDLE(Creature,OnPassengerBoarded)
           EVENT_HANDLE(Creature,OnSpellClick)
           EVENT_HANDLE(Creature,OnUpdateAI)
+
           EVENT_HANDLE(Creature,OnGenerateLoot)
+
+          EVENT_HANDLE(Creature,OnGossipHello)
+          EVENT_HANDLE(Creature,OnGossipSelect)
+          EVENT_HANDLE(Creature,OnGossipSelectCode)
     } Creatures;
 
     struct CreatureIDEvents : public MappedEventHandler<TSCreatureMap>
@@ -645,6 +660,10 @@ public:
           MAP_EVENT_HANDLE(Creature,OnSpellClick)
           MAP_EVENT_HANDLE(Creature,OnUpdateAI)
           MAP_EVENT_HANDLE(Creature,OnGenerateLoot)
+
+          MAP_EVENT_HANDLE(Creature,OnGossipHello)
+          MAP_EVENT_HANDLE(Creature,OnGossipSelect)
+          MAP_EVENT_HANDLE(Creature,OnGossipSelectCode)
     } CreatureID;
 
 
