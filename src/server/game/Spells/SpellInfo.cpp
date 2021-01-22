@@ -1559,9 +1559,9 @@ bool SpellInfo::IsAllowingDeadTarget() const
         if (!effect)
             continue;
 
-        switch (effect->TargetA.GetTarget())
+        if (effect->TargetA.GetObjectType() == TARGET_OBJECT_TYPE_CORPSE ||
+            effect->TargetB.GetObjectType() == TARGET_OBJECT_TYPE_CORPSE)
         {
-        case TARGET_CORPSE_SRC_AREA_RAID:
             return true;
         }
     }
