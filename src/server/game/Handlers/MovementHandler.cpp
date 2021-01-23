@@ -685,7 +685,7 @@ void WorldSession::HandleTimeSyncResponse(WorldPacket& recvData)
     using the following relation:
     serverTime = clockDelta + clientTime
     */
-    int64 clockDelta = (int64)(serverTimeAtSent + lagDelay) - (int64)clientTimestamp;
+    int64 clockDelta = (int64)serverTimeAtSent + (int64)lagDelay - (int64)clientTimestamp;
     _timeSyncClockDeltaQueue.push_back(std::pair<int64, uint32>(clockDelta, roundTripDuration));
     ComputeNewClockDelta();
 }
