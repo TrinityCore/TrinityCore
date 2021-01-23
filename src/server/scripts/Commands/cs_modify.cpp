@@ -23,6 +23,7 @@ Category: commandscripts
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "CharacterCache.h"
 #include "Chat.h"
 #include "DB2Stores.h"
 #include "Log.h"
@@ -34,9 +35,8 @@ EndScriptData */
 #include "ReputationMgr.h"
 #include "SpellMgr.h"
 #include "SpellPackets.h"
-#include "WorldSession.h"
-#include "CharacterCache.h"
 #include "UpdateFields.h"
+#include "WorldSession.h"
 
 class modify_commandscript : public CommandScript
 {
@@ -927,7 +927,6 @@ public:
 
         target->SetCustomizations(Trinity::Containers::MakeIteratorPair(customizations.begin(), customizations.end()));
 
-        //
         char const* gender_full = gender ? "female" : "male";
 
         handler->PSendSysMessage(LANG_YOU_CHANGE_GENDER, handler->GetNameLink(target).c_str(), gender_full);
