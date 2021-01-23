@@ -35,6 +35,8 @@ EndScriptData */
 #include "SpellMgr.h"
 #include "SpellPackets.h"
 #include "WorldSession.h"
+#include "CharacterCache.h"
+#include "UpdateFields.h"
 
 class modify_commandscript : public CommandScript
 {
@@ -891,6 +893,30 @@ public:
         // Change display ID
         target->InitDisplayIds();
 
+        target->RestoreDisplayId(false);
+        sCharacterCache->UpdateCharacterGender(target->GetGUID(), gender);
+
+        // Generate random customizations
+        std::vector<UF::ChrCustomizationChoice> customizations;
+
+        const std::vector<const ChrCustomizationOptionEntry*> * options = sDB2Manager.GetCustomiztionOptions(target->getRace(), gender);
+        for (const ChrCustomizationOptionEntry *option : *options)
+        {
+            std::vector<ChrCustomizationChoiceEntry const*> const* choicesForOption = sDB2Manager.GetCustomiztionChoices(option->ID);
+            // take the 1st option
+            if (choicesForOption->size() > 0)
+            {
+                const ChrCustomizationChoiceEntry* choiceEntry = choicesForOption->at(0);
+                UF::ChrCustomizationChoice choice;
+                choice.ChrCustomizationOptionID = option->ID;
+                choice.ChrCustomizationChoiceID = choiceEntry->ID;
+                customizations.push_back(choice);
+            }
+        }
+
+        target->SetCustomizations(Trinity::Containers::MakeIteratorPair(customizations.begin(), customizations.end()));
+
+        //
         char const* gender_full = gender ? "female" : "male";
 
         handler->PSendSysMessage(LANG_YOU_CHANGE_GENDER, handler->GetNameLink(target).c_str(), gender_full);
