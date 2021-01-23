@@ -208,10 +208,6 @@ namespace Trinity
                     xpMod *= 1.0f - 2.0f * creature->m_PlayerDamageReq / creature->GetMaxHealth();
 
                 gain = uint32(gain * xpMod);
-
-                // Warmode buff
-                if (player->HasWarmodeEnlistedAura())
-                    gain *= player->GetWarmodeAuraMod();
             }
 
             sScriptMgr->OnGainCalculation(gain, player, u);

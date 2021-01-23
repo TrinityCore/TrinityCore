@@ -2741,8 +2741,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool IsWarModeDesired() const { return HasPlayerFlag(PLAYER_FLAGS_WAR_MODE_DESIRED); }
         bool IsWarModeActive() const { return HasPlayerFlag(PLAYER_FLAGS_WAR_MODE_ACTIVE); }
         void UpdateWarModeAuras();
-        bool HasWarmodeEnlistedAura() const { return HasAura(269083); }
-        float GetWarmodeAuraMod() const { return 1.1f; }
 
         std::string GetDebugInfo() const override;
 

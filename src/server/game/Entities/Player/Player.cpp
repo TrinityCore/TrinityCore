@@ -15716,20 +15716,17 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
     uint32 XP = GetQuestXPReward(quest);
 
     int32 moneyRew = 0;
-    float moneyMod = 1.0f;
     if (GetLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
-        GiveXP(XP * (HasWarmodeEnlistedAura() ? GetWarmodeAuraMod() : 1.0f), nullptr);
+        GiveXP(XP, nullptr);
     else
     {
         moneyRew = int32(quest->GetRewMoneyMaxLevel() * sWorld->getRate(RATE_DROP_MONEY));
-        moneyMod = GetWarmodeAuraMod();
     }
 
     moneyRew += GetQuestMoneyReward(quest);
 
     if (moneyRew)
     {
-        moneyRew *= moneyMod;
         ModifyMoney(moneyRew);
 
         if (moneyRew > 0)
@@ -29120,29 +29117,32 @@ void Player::SetWarModeDesired(bool enabled)
 
 void Player::UpdateWarModeAuras()
 {
-    uint32 buffInside = 282559;
-    uint32 buffOutside = 269083;
+    uint32 auraInside = 282559;
+    uint32 auraOutside = 269083;
+    uint32 auraOutsideMaxLvl = 289954;
 
     if (IsWarModeDesired())
     {
         bool moveInsideCity = IsTeamAlliance() ? (m_zoneId == ZONE_STORMWIND_CITY) : (m_zoneId == ZONE_ORGRIMMAR);
         if (moveInsideCity)
         {
-            RemoveAurasDueToSpell(buffOutside);
-            CastSpell(this, buffInside, true);
+            RemoveAurasDueToSpell(auraOutside);
+            RemoveAurasDueToSpell(auraOutsideMaxLvl);
+            CastSpell(this, auraInside, true);
             RemovePlayerFlag(PLAYER_FLAGS_WAR_MODE_ACTIVE);
         }
         else
         {
-            RemoveAurasDueToSpell(buffInside);
-            CastSpell(this, buffOutside, true);
+            RemoveAurasDueToSpell(auraInside);
+            CastSpell(this, IsAtMaxLevel() ? auraOutsideMaxLvl : auraOutside, true);
             AddPlayerFlag(PLAYER_FLAGS_WAR_MODE_ACTIVE);
         }
     }
     else
     {
-        RemoveAurasDueToSpell(buffOutside);
-        RemoveAurasDueToSpell(buffInside);
+        RemoveAurasDueToSpell(auraOutside);
+        RemoveAurasDueToSpell(auraOutsideMaxLvl);
+        RemoveAurasDueToSpell(auraInside);
         RemovePlayerFlag(PLAYER_FLAGS_WAR_MODE_ACTIVE);
     }
 }
