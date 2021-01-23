@@ -899,18 +899,29 @@ public:
         // Generate random customizations
         std::vector<UF::ChrCustomizationChoice> customizations;
 
-        const std::vector<const ChrCustomizationOptionEntry*> * options = sDB2Manager.GetCustomiztionOptions(target->getRace(), gender);
-        for (const ChrCustomizationOptionEntry *option : *options)
+        Classes playerClass = Classes(target->getClass());
+        std::vector<ChrCustomizationOptionEntry const*> const* options = sDB2Manager.GetCustomiztionOptions(target->getRace(), gender);
+        WorldSession const* worldSession = target->GetSession();
+        for (ChrCustomizationOptionEntry const* option : *options)
         {
+            ChrCustomizationReqEntry const* optionReq = sChrCustomizationReqStore.LookupEntry(option->ChrCustomizationReqID);
+            if (optionReq && !worldSession->MeetsChrCustomizationReq(optionReq, playerClass, false, MakeChrCustomizationChoiceRange(customizations)))
+                continue;
+
+            // Loop over the options until the first one fits
             std::vector<ChrCustomizationChoiceEntry const*> const* choicesForOption = sDB2Manager.GetCustomiztionChoices(option->ID);
-            // take the 1st option
-            if (choicesForOption->size() > 0)
+            for (ChrCustomizationChoiceEntry const* choiceForOption : *choicesForOption)
             {
+                ChrCustomizationReqEntry const* choiceReq = sChrCustomizationReqStore.LookupEntry(choiceForOption->ChrCustomizationReqID);
+                if (choiceReq && !worldSession->MeetsChrCustomizationReq(choiceReq, playerClass, false, MakeChrCustomizationChoiceRange(customizations)))
+                    continue;
+
                 const ChrCustomizationChoiceEntry* choiceEntry = choicesForOption->at(0);
                 UF::ChrCustomizationChoice choice;
                 choice.ChrCustomizationOptionID = option->ID;
                 choice.ChrCustomizationChoiceID = choiceEntry->ID;
                 customizations.push_back(choice);
+                break;
             }
         }
 
