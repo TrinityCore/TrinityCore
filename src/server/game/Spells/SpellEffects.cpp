@@ -5436,13 +5436,6 @@ void Spell::EffectSummonPersonalGameObject(SpellEffIndex effIndex)
     if (!goId)
         return;
 
-    if (!m_originalCaster)
-        return;
-
-    SpellEffectInfo const *effect = m_spellInfo->GetEffect(effIndex);
-    if (!effect)
-        return;
-
     float x, y, z;
     if (m_targets.HasDst())
         destTarget->GetPosition(x, y, z);

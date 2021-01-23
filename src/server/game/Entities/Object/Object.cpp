@@ -1453,7 +1453,7 @@ bool WorldObject::CanSeeOrDetect(WorldObject const* obj, bool ignoreStealth, boo
                         return false;
         }
 
-        if (const GameObject* go = obj->ToGameObject())
+        if (GameObject const* go = obj->ToGameObject())
             if (go->IsVisibleByUnitOnly() && GetGUID() != go->GetVisibleByUnitOnly())
                 return false;
 
