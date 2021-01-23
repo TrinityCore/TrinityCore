@@ -274,43 +274,57 @@ public:
         {
             char commentToken[2];
             ifs.get(commentToken[0]);
-            if (commentToken[0] == '/' && !ifs.eof())
+            if (ifs.eof())
+                break;
+            if (commentToken[0] == '/')
             {
                 ifs.get(commentToken[1]);
-                // /* comment
-                if (commentToken[1] == '*')
+                if (!ifs.eof())
                 {
-                    while (!ifs.eof())
+                    // /* comment
+                    if (commentToken[1] == '*')
                     {
-                        ifs.get(commentToken[0]);
-                        if (commentToken[0] == '*' && !ifs.eof())
+                        while (!ifs.eof())
                         {
-                            ifs.get(commentToken[1]);
-                            if (commentToken[1] == '/')
+                            ifs.get(commentToken[0]);
+                            if (ifs.eof())
                                 break;
-                            else
-                                ifs.putback(commentToken[1]);
+                            if (commentToken[0] == '*')
+                            {
+                                ifs.get(commentToken[1]);
+                                if (ifs.eof())
+                                    break;
+                                if (commentToken[1] == '/')
+                                    break;
+                                else
+                                    ifs.putback(commentToken[1]);
+                            }
                         }
+                        continue;
                     }
-                    continue;
+                    // line comment
+                    else if (commentToken[1] == '/')
+                    {
+                        std::string str;
+                        std::getline(ifs, str);
+                        if (ifs.eof())
+                            break;
+                        continue;
+                    }
+                    // regular data
+                    else
+                        ifs.putback(commentToken[1]);
                 }
-                // line comment
-                else if (commentToken[1] == '/')
-                {
-                    std::string str;
-                    std::getline(ifs, str);
-                    continue;
-                }
-                // regular data
-                else
-                    ifs.putback(commentToken[1]);
             }
             parsedStream.put(commentToken[0]);
         }
         ifs.close();
 
-        uint32 opcode;
+        uint32 opcode = 0;
         parsedStream >> opcode;
+
+        if (opcode == 0)
+            return false;
 
         WorldPacket data(opcode, 0);
 
