@@ -1775,6 +1775,10 @@ bool WorldObject::CanSeeOrDetect(WorldObject const* obj, bool ignoreStealth, boo
                         return false;
         }
 
+        if (GameObject const* go = obj->ToGameObject())
+            if (go->IsVisibleByUnitOnly() && GetGUID() != go->GetVisibleByUnitOnly())
+                return false;
+
         if (!viewpoint)
             viewpoint = this;
 
