@@ -233,11 +233,11 @@ struct AuthSession
     uint32 LoginServerType = 0;
     uint32 RealmID = 0;
     uint32 Build = 0;
-    std::array<uint8, 4> LocalChallenge;
+    std::array<uint8, 4> LocalChallenge = {};
     uint32 LoginServerID = 0;
     uint32 RegionID = 0;
     uint64 DosResponse = 0;
-    Trinity::Crypto::SHA1::Digest Digest;
+    Trinity::Crypto::SHA1::Digest Digest = {};
     std::string Account;
     ByteBuffer AddonInfo;
 };
