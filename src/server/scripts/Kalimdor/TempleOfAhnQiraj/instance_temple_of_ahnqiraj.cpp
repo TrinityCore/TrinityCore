@@ -46,6 +46,19 @@ DoorData const doorData[] =
     { 0,           0,                  DOOR_TYPE_ROOM    } // END
 };
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_SKERAM, {{ 709 }} },
+    { DATA_SARTURA, {{ 711 }} },
+    { DATA_FRANKRIS, {{ 712 }} },
+    { DATA_HUHURAN, {{ 714 }} },
+    { DATA_TWIN_EMPERORS, {{ 715 }} },
+    { DATA_CTHUN, {{ 717 }} },
+    { DATA_BUG_TRIO, {{ 710 }} },
+    { DATA_VISCIDUS, {{ 713 }} },
+    { DATA_OURO, {{ 716 }} }
+};
+
 class instance_temple_of_ahnqiraj : public InstanceMapScript
 {
     public:
@@ -64,6 +77,7 @@ class instance_temple_of_ahnqiraj : public InstanceMapScript
                 LoadObjectData(creatureData, nullptr);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
+                LoadDungeonEncounterData(encounters);
                 IsBossDied[0] = false;
                 IsBossDied[1] = false;
                 IsBossDied[2] = false;

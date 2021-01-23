@@ -140,6 +140,27 @@ ObjectData const objectData[] =
     { 0,                               0                         }
 };
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_FLAME_LEVIATHAN, {{ 1132 }} },
+    { DATA_IGNIS, {{ 1136 }} },
+    { DATA_RAZORSCALE, {{ 1139 }} },
+    { DATA_XT002, {{ 1142 }} },
+    { DATA_ASSEMBLY_OF_IRON, {{ 1140 }} },
+    { DATA_KOLOGARN, {{ 1137 }} },
+    { DATA_AURIAYA, {{ 1131 }} },
+    { DATA_HODIR, {{ 1135 }} },
+    { DATA_THORIM, {{ 1141 }} },
+    { DATA_FREYA, {{ 1133 }} },
+    { DATA_MIMIRON, {{ 1138 }} },
+    { DATA_VEZAX, {{ 1134 }} },
+    { DATA_YOGG_SARON, {{ 1143 }} },
+    { DATA_ALGALON, {{ 1130 }} },
+    { DATA_BRIGHTLEAF, {{ 1164 }} },
+    { DATA_IRONBRANCH, {{ 1165 }} },
+    { DATA_STONEBARK, {{ 1166 }} }
+};
+
 UlduarKeeperDespawnEvent::UlduarKeeperDespawnEvent(Creature* owner, Milliseconds despawnTimerOffset) : _owner(owner), _despawnTimer(despawnTimerOffset)
 {
 }
@@ -166,6 +187,7 @@ class instance_ulduar : public InstanceMapScript
                 LoadDoorData(doorData);
                 LoadMinionData(minionData);
                 LoadObjectData(creatureData, objectData);
+                LoadDungeonEncounterData(encounters);
 
                 _maxArmorItemLevel = 0;
                 _maxWeaponItemLevel = 0;

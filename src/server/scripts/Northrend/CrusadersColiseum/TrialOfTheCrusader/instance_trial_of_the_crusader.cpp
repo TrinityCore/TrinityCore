@@ -92,6 +92,15 @@ DoorData const doorData[] =
     { 0,                  0,                      DOOR_TYPE_ROOM } // END
 };
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_NORTHREND_BEASTS, {{ 1088 }} },
+    { DATA_JARAXXUS, {{ 1087 }} },
+    { DATA_FACTION_CRUSADERS, {{ 1086 }} },
+    { DATA_TWIN_VALKIRIES, {{ 1089 }} },
+    { DATA_ANUBARAK, {{ 1085 }} }
+};
+
 class instance_trial_of_the_crusader : public InstanceMapScript
 {
     public:
@@ -106,6 +115,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 LoadBossBoundaries(boundaries);
                 LoadObjectData(creatureData, gameObjectData);
                 LoadDoorData(doorData);
+                LoadDungeonEncounterData(encounters);
                 EventStage = 0;
                 NorthrendBeasts = NOT_STARTED;
                 NorthrendBeastsCount = 4;

@@ -49,6 +49,15 @@ BossBoundaryData const boundaries =
     { DATA_JEDOGA_SHADOWSEEKER, new ParallelogramBoundary(Position(460.365f, -661.997f, -20.985f), Position(364.958f,-790.211f, -14.207f), Position(347.436f,-657.978f,14.478f)) }
 };
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_ELDER_NADOX, {{ 1969 }} },
+    { DATA_PRINCE_TALDARAM, {{ 1966 }} },
+    { DATA_JEDOGA_SHADOWSEEKER, {{ 1967 }} },
+    { DATA_AMANITAR, {{ 1989 }} },
+    { DATA_HERALD_VOLAZJ, {{ 1968 }} }
+};
+
 class instance_ahnkahet : public InstanceMapScript
 {
     public:
@@ -63,6 +72,7 @@ class instance_ahnkahet : public InstanceMapScript
                 LoadDoorData(doorData);
                 LoadObjectData(creatureData, gameObjectData);
                 LoadBossBoundaries(boundaries);
+                LoadDungeonEncounterData(encounters);
 
                 SpheresState[0]             = 0;
                 SpheresState[1]             = 0;

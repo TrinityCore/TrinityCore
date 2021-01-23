@@ -56,6 +56,13 @@ BossBoundaryData const boundaries =
     { DATA_ANUBARAK, new CircleBoundary(Position(550.6178f, 253.5917f), 26.0f) }
 };
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_KRIKTHIR, {{ 1971 }} },
+    { DATA_HADRONOX, {{ 1972 }} },
+    { DATA_ANUBARAK, {{ 1973 }} }
+};
+
 class instance_azjol_nerub : public InstanceMapScript
 {
     public:
@@ -70,6 +77,7 @@ class instance_azjol_nerub : public InstanceMapScript
                 LoadBossBoundaries(boundaries);
                 LoadDoorData(doorData);
                 LoadObjectData(creatureData, gameobjectData);
+                LoadDungeonEncounterData(encounters);
                 GateWatcherGreet = 0;
             }
 

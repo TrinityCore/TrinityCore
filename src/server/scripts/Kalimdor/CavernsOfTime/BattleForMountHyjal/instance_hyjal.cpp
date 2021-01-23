@@ -58,6 +58,15 @@ ObjectData const creatureData[] =
     { 0,                  0                       } // END
 };
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_RAGEWINTERCHILL, {{ 618 }} },
+    { DATA_ANETHERON, {{ 619 }} },
+    { DATA_KAZROGAL, {{ 620 }} },
+    { DATA_AZGALOR, {{ 621 }} },
+    { DATA_ARCHIMONDE, {{ 622 }} }
+};
+
 class instance_hyjal : public InstanceMapScript
 {
 public:
@@ -75,6 +84,7 @@ public:
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
             LoadObjectData(creatureData, nullptr);
+            LoadDungeonEncounterData(encounters);
 
             RaidDamage = 0;
             Trash = 0;

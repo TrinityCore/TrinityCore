@@ -66,6 +66,16 @@ BossBoundaryData const boundaries =
     { DATA_KALECGOS, new BoundaryUnionBoundary(new CircleBoundary(Position(1704.9f, 928.4f), 34.0), new RectangleBoundary(1689.2f, 1713.3f, 762.2f, 1074.8f)) }
 };
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_KALECGOS, {{ 724 }} },
+    { DATA_BRUTALLUS, {{ 725 }} },
+    { DATA_FELMYST, {{ 726 }} },
+    { DATA_EREDAR_TWINS, {{ 727 }} },
+    { DATA_MURU, {{ 728 }} },
+    { DATA_KILJAEDEN, {{ 729 }} }
+};
+
 class instance_sunwell_plateau : public InstanceMapScript
 {
     public:
@@ -80,6 +90,7 @@ class instance_sunwell_plateau : public InstanceMapScript
                 LoadDoorData(doorData);
                 LoadObjectData(creatureData, nullptr);
                 LoadBossBoundaries(boundaries);
+                LoadDungeonEncounterData(encounters);
             }
 
             Player const* GetPlayerInMap() const
