@@ -7305,6 +7305,8 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
 
     UpdateZoneDependentAuras(newZone);
 
+    UpdateWarModeAuras();
+
     // call enter script hooks after everyting else has processed
     sScriptMgr->OnPlayerUpdateZone(this, newZone, newArea);
     if (oldZone != newZone)
@@ -9222,7 +9224,7 @@ void Player::SendInitWorldStates(uint32 zoneId, uint32 areaId)
         case 38: // Loch Modan
         case 40: // Westfall
         case 51: // Searing Gorge
-        case 1519: // Stormwind City
+        case ZONE_STORMWIND_CITY: // Stormwind City
         case 1537: // Ironforge
         case 2257: // Deeprun Tram
         case 3703: // Shattrath City
@@ -29076,6 +29078,63 @@ bool Player::CanEnableWarModeInArea() const
         return false;
 
     return area->Flags[1] & AREA_FLAG_2_CAN_ENABLE_WAR_MODE;
+}
+
+void Player::SetWarModeDesired(bool enabled)
+{
+    // Only allow to toggle on when in stormwind/orgrimmar, and to toggle off in any rested place.
+    // Also disallow when in combat
+    if ((enabled == IsWarModeDesired()) || IsInCombat() || !IsInRestArea())
+        return;
+
+    if (enabled && (IsTeamAlliance() ? (GetZoneId() != ZONE_STORMWIND_CITY) : (GetZoneId() != ZONE_ORGRIMMAR)))
+        return;
+
+    if (enabled)
+    {
+        AddPlayerFlag(PLAYER_FLAGS_WAR_MODE_DESIRED);
+        TogglePvpTalents(true);
+        SetPvP(true);
+        RemoveUnitFlag(UNIT_FLAG_PVP_ATTACKABLE);
+    }
+    else
+    {
+        RemovePlayerFlag(PLAYER_FLAGS_WAR_MODE_DESIRED);
+        TogglePvpTalents(false);
+        SetPvP(false);
+        AddUnitFlag(UNIT_FLAG_PVP_ATTACKABLE);
+    }
+
+    UpdateWarModeAuras();
+}
+
+void Player::UpdateWarModeAuras()
+{
+    uint32 buffInside = 282559;
+    uint32 buffOutside = 269083;
+
+    if (IsWarModeDesired())
+    {
+        bool moveInsideCity = IsTeamAlliance() ? (m_zoneId == ZONE_STORMWIND_CITY) : (m_zoneId == ZONE_ORGRIMMAR);
+        if (moveInsideCity)
+        {
+            RemoveAurasDueToSpell(buffOutside);
+            CastSpell(this, buffInside, true);
+            RemovePlayerFlag(PLAYER_FLAGS_WAR_MODE_ACTIVE);
+        }
+        else
+        {
+            RemoveAurasDueToSpell(buffInside);
+            CastSpell(this, buffOutside, true);
+            AddPlayerFlag(PLAYER_FLAGS_WAR_MODE_ACTIVE);
+        }
+    }
+    else
+    {
+        RemoveAurasDueToSpell(buffOutside);
+        RemoveAurasDueToSpell(buffInside);
+        RemovePlayerFlag(PLAYER_FLAGS_WAR_MODE_ACTIVE);
+    }
 }
 
 std::string Player::GetDebugInfo() const

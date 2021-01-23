@@ -1483,6 +1483,11 @@ void WorldSession::HandleTutorialFlag(WorldPackets::Misc::TutorialSetFlag& packe
     }
 }
 
+void WorldSession::HandleSetWarMode(WorldPackets::Character::SetWarMode& packet)
+{
+    _player->SetWarModeDesired(packet.Enable);
+}
+
 void WorldSession::HandleSetWatchedFactionOpcode(WorldPackets::Character::SetWatchedFaction& packet)
 {
     GetPlayer()->SetWatchedFactionIndex(packet.FactionIndex);
@@ -2305,12 +2310,12 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
             if (newTeamId == TEAM_ALLIANCE)
             {
                 loc.WorldRelocate(0, -8867.68f, 673.373f, 97.9034f, 0.0f);
-                zoneId = 1519;
+                zoneId = ZONE_STORMWIND_CITY;
             }
             else
             {
                 loc.WorldRelocate(1, 1633.33f, -4439.11f, 15.7588f, 0.0f);
-                zoneId = 1637;
+                zoneId = ZONE_ORGRIMMAR;
             }
 
             stmt->setUInt16(1, loc.GetMapId());

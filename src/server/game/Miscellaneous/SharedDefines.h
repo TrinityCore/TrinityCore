@@ -24,6 +24,12 @@
 
 float const GROUND_HEIGHT_TOLERANCE = 0.05f; // Extra tolerance to z position to check if it is in air or on ground.
 
+enum ZoneType : uint32
+{
+    ZONE_STORMWIND_CITY = 1519,
+    ZONE_ORGRIMMAR = 1637,
+};
+
 enum SpellEffIndex : uint8
 {
     EFFECT_0 = 0,

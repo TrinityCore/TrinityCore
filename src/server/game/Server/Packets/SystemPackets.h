@@ -135,7 +135,7 @@ namespace WorldPackets
             bool KioskModeEnabled                    = false;
             bool CompetitiveModeEnabled              = false;
             bool TokenBalanceEnabled                 = false;
-            bool WarModeFeatureEnabled               = false;
+            bool WarModeFeatureEnabled               = true;
             bool ClubsEnabled                        = false;
             bool ClubsBattleNetClubTypeAllowed       = false;
             bool ClubsCharacterClubTypeAllowed       = false;
