@@ -249,7 +249,7 @@ NonDefaultConstructible<pEffect> SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectNULL,                                     //168 SPELL_EFFECT_ALLOW_CONTROL_PET
     &Spell::EffectDestroyItem,                              //169 SPELL_EFFECT_DESTROY_ITEM
     &Spell::EffectUpdateZoneAurasAndPhases,                 //170 SPELL_EFFECT_UPDATE_ZONE_AURAS_AND_PHASES
-    &Spell::EffectNULL,                                     //171 SPELL_EFFECT_171
+    &Spell::EffectSummonPersonalGameObject,                 //171 SPELL_EFFECT_SUMMON_PERSONAL_GAMEOBJECT
     &Spell::EffectResurrectWithAura,                        //172 SPELL_EFFECT_RESURRECT_WITH_AURA
     &Spell::EffectUnlockGuildVaultTab,                      //173 SPELL_EFFECT_UNLOCK_GUILD_VAULT_TAB
     &Spell::EffectApplyAura,                                //174 SPELL_EFFECT_APPLY_AURA_ON_PET
@@ -5425,6 +5425,55 @@ void Spell::EffectUnlockGuildVaultTab(SpellEffIndex /*effIndex*/)
     Player* caster = m_caster->ToPlayer();
     if (Guild* guild = caster->GetGuild())
         guild->HandleBuyBankTab(caster->GetSession(), damage - 1); // Bank tabs start at zero internally
+}
+
+void Spell::EffectSummonPersonalGameObject(SpellEffIndex effIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
+        return;
+
+    uint32 goId = effectInfo->MiscValue;
+    if (!goId)
+        return;
+
+    float x, y, z;
+    if (m_targets.HasDst())
+        destTarget->GetPosition(x, y, z);
+    else
+        m_caster->GetClosePoint(x, y, z, DEFAULT_PLAYER_BOUNDING_RADIUS);
+
+    Map* map = m_caster->GetMap();
+    Position pos = Position(x, y, z, m_caster->GetOrientation());
+    QuaternionData rot = QuaternionData::fromEulerAnglesZYX(m_caster->GetOrientation(), 0.f, 0.f);
+    GameObject* go = GameObject::CreateGameObject(goId, map, pos, rot, 255, GO_STATE_READY);
+
+    if (!go)
+    {
+        TC_LOG_WARN("spells", "SpellEffect Failed to summon personal gameobject. SpellId %u, effect %u", m_spellInfo->Id, effIndex);
+        return;
+    }
+
+    PhasingHandler::InheritPhaseShift(go, m_caster);
+
+    int32 duration = m_spellInfo->CalcDuration(m_caster);
+
+    go->SetRespawnTime(duration > 0 ? duration / IN_MILLISECONDS : 0);
+    go->SetSpellId(m_spellInfo->Id);
+    go->SetVisibleByUnitOnly(m_caster->GetGUID());
+
+    ExecuteLogEffectSummonObject(effIndex, go);
+
+    map->AddToMap(go);
+
+    if (GameObject* linkedTrap = go->GetLinkedTrap())
+    {
+        PhasingHandler::InheritPhaseShift(linkedTrap, m_caster);
+
+        linkedTrap->SetRespawnTime(duration > 0 ? duration / IN_MILLISECONDS : 0);
+        linkedTrap->SetSpellId(m_spellInfo->Id);
+
+        ExecuteLogEffectSummonObject(effIndex, linkedTrap);
+    }
 }
 
 void Spell::EffectResurrectWithAura(SpellEffIndex effIndex)
