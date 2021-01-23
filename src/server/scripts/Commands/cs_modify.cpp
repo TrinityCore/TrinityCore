@@ -23,6 +23,7 @@ Category: commandscripts
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "CharacterCache.h"
 #include "Chat.h"
 #include "DB2Stores.h"
 #include "Log.h"
@@ -34,6 +35,7 @@ EndScriptData */
 #include "ReputationMgr.h"
 #include "SpellMgr.h"
 #include "SpellPackets.h"
+#include "UpdateFields.h"
 #include "WorldSession.h"
 
 class modify_commandscript : public CommandScript
@@ -890,6 +892,40 @@ public:
 
         // Change display ID
         target->InitDisplayIds();
+
+        target->RestoreDisplayId(false);
+        sCharacterCache->UpdateCharacterGender(target->GetGUID(), gender);
+
+        // Generate random customizations
+        std::vector<UF::ChrCustomizationChoice> customizations;
+
+        Classes playerClass = Classes(target->getClass());
+        std::vector<ChrCustomizationOptionEntry const*> const* options = sDB2Manager.GetCustomiztionOptions(target->getRace(), gender);
+        WorldSession const* worldSession = target->GetSession();
+        for (ChrCustomizationOptionEntry const* option : *options)
+        {
+            ChrCustomizationReqEntry const* optionReq = sChrCustomizationReqStore.LookupEntry(option->ChrCustomizationReqID);
+            if (optionReq && !worldSession->MeetsChrCustomizationReq(optionReq, playerClass, false, MakeChrCustomizationChoiceRange(customizations)))
+                continue;
+
+            // Loop over the options until the first one fits
+            std::vector<ChrCustomizationChoiceEntry const*> const* choicesForOption = sDB2Manager.GetCustomiztionChoices(option->ID);
+            for (ChrCustomizationChoiceEntry const* choiceForOption : *choicesForOption)
+            {
+                ChrCustomizationReqEntry const* choiceReq = sChrCustomizationReqStore.LookupEntry(choiceForOption->ChrCustomizationReqID);
+                if (choiceReq && !worldSession->MeetsChrCustomizationReq(choiceReq, playerClass, false, MakeChrCustomizationChoiceRange(customizations)))
+                    continue;
+
+                ChrCustomizationChoiceEntry const* choiceEntry = choicesForOption->at(0);
+                UF::ChrCustomizationChoice choice;
+                choice.ChrCustomizationOptionID = option->ID;
+                choice.ChrCustomizationChoiceID = choiceEntry->ID;
+                customizations.push_back(choice);
+                break;
+            }
+        }
+
+        target->SetCustomizations(Trinity::Containers::MakeIteratorPair(customizations.begin(), customizations.end()));
 
         char const* gender_full = gender ? "female" : "male";
 
