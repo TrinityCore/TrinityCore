@@ -35,6 +35,13 @@ MinionData const minionData[] =
     { 0,                0 }
 };
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_PRINCE_KELESETH, {{ 2026 }} },
+    { DATA_SKARVALD_DALRONN, {{ 2024 }} },
+    { DATA_INGVAR, {{ 2025 }} }
+};
+
 class instance_utgarde_keep : public InstanceMapScript
 {
     public:
@@ -48,6 +55,7 @@ class instance_utgarde_keep : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
                 LoadMinionData(minionData);
+                LoadDungeonEncounterData(encounters);
             }
 
             void OnCreatureCreate(Creature* creature) override

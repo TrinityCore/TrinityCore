@@ -71,6 +71,14 @@ ObjectData const gameObjectData[] =
     { 0,                        0                           } //END
 };
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_BALTHARUS_THE_WARBORN, {{ 1147 }} },
+    { DATA_SAVIANA_RAGEFIRE, {{ 1149 }} },
+    { DATA_GENERAL_ZARITHRIAN, {{ 1148 }} },
+    { DATA_HALION, {{ 1150 }} }
+};
+
 class instance_ruby_sanctum : public InstanceMapScript
 {
     public:
@@ -85,6 +93,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                 LoadBossBoundaries(boundaries);
                 LoadDoorData(doorData);
                 LoadObjectData(creatureData, gameObjectData);
+                LoadDungeonEncounterData(encounters);
                 BaltharusSharedHealth = 0;
             }
 

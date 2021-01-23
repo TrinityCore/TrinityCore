@@ -21,6 +21,18 @@
 #include "Map.h"
 #include "scholomance.h"
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_DOCTORTHEOLENKRASTINOV, {{ 458 }} },
+    { DATA_INSTRUCTORMALICIA, {{ 457 }} },
+    { DATA_LADYILLUCIABAROV, {{ 462 }} },
+    { DATA_LORDALEXEIBAROV, {{ 461 }} },
+    { DATA_LOREKEEPERPOLKELT, {{ 459 }} },
+    { DATA_THERAVENIAN, {{ 460 }} },
+    { DATA_DARKMASTERGANDLING, {{ 463 }} },
+    { DATA_KIRTONOS, {{ 451 }} }
+};
+
 Position const GandlingLoc = { 180.7712f, -5.428603f, 75.57024f, 1.291544f };
 
 class instance_scholomance : public InstanceMapScript
@@ -39,6 +51,7 @@ class instance_scholomance : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
+                LoadDungeonEncounterData(encounters);
             }
 
             void OnGameObjectCreate(GameObject* go) override

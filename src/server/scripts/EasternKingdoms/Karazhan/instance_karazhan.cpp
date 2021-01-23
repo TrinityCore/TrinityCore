@@ -44,6 +44,21 @@ EndScriptData */
 11 - Nightbane
 */
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_ATTUMEN, {{ 652 }} },
+    { DATA_MOROES, {{ 653 }} },
+    { DATA_MAIDEN_OF_VIRTUE, {{ 654 }} },
+    { DATA_OPERA_PERFORMANCE, {{ 655 }} },
+    { DATA_CURATOR, {{ 656 }} },
+    { DATA_ARAN, {{ 658 }} },
+    { DATA_TERESTIAN, {{ 657 }} },
+    { DATA_NETHERSPITE, {{ 659 }} },
+    { DATA_CHESS, {{ 660 }} },
+    { DATA_MALCHEZZAR, {{ 661 }} },
+    { DATA_NIGHTBANE, {{ 662 }} }
+};
+
 const Position OptionalSpawn[] =
 {
     { -10960.981445f, -1940.138428f, 46.178097f, 4.12f  }, // Hyakiss the Lurker
@@ -67,6 +82,7 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
+            LoadDungeonEncounterData(encounters);
 
             // 1 - OZ, 2 - HOOD, 3 - RAJ, this never gets altered.
             OperaEvent = urand(EVENT_OZ, EVENT_RAJ);

@@ -23,6 +23,16 @@
 #include "ScriptedCreature.h"
 #include "zulaman.h"
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_AKILZON, {{ 1189 }} },
+    { DATA_NALORAKK, {{ 1190 }} },
+    { DATA_JANALAI, {{ 1191 }} },
+    { DATA_HALAZZI, {{ 1192 }} },
+    { DATA_HEXLORD, {{ 1193 }} },
+    { DATA_DAAKARA, {{ 1194 }} }
+};
+
 class instance_zulaman : public InstanceMapScript
 {
     public:
@@ -35,6 +45,7 @@ class instance_zulaman : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
+                LoadDungeonEncounterData(encounters);
 
                 SpeedRunTimer           = 15;
                 ZulAmanState            = NOT_STARTED;

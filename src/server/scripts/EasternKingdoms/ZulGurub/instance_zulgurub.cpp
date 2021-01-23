@@ -30,6 +30,19 @@ DoorData const doorData[] =
     { 0,                                0,              DOOR_TYPE_ROOM }
 };
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_VENOXIS, {{ 1178 }} },
+    { DATA_MANDOKIR, {{ 1179 }} },
+    { DATA_KILNARA, {{ 1180 }} },
+    { DATA_ZANZIL, {{ 1181 }} },
+    { DATA_JINDO, {{ 1182 }} },
+    { DATA_HAZZARAH, {{ 1188 }} },
+    { DATA_RENATAKI, {{ 1188 }} },
+    { DATA_WUSHOOLAY, {{ 1188 }} },
+    { DATA_GRILEK, {{ 1188 }} }
+};
+
 class instance_zulgurub : public InstanceMapScript
 {
     public:
@@ -42,6 +55,7 @@ class instance_zulgurub : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
+                LoadDungeonEncounterData(encounters);
             }
 
             void OnCreatureCreate(Creature* creature) override

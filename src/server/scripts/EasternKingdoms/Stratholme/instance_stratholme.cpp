@@ -49,6 +49,15 @@ enum StratholmeMisc
 Position const timmyTheCruelSpawnPosition = { 3625.358f, -3188.108f, 130.3985f, 4.834562f };
 EllipseBoundary const beforeScarletGate(Position(3671.158f, -3181.79f), 60.0f, 40.0f);
 
+DungeonEncounterData const encounters[] =
+{
+    { 1, {{ 479 }} }, // Baroness Anastari
+    { 2, {{ 480 }} }, // Nerub'enkan
+    { 3, {{ 481 }} }, // Maleki the Pallid
+    { 4, {{ 483 }} }, // Ramstein the Gorger
+    { 5, {{ 484 }} }  // Lord Aurius Rivendare
+};
+
 class instance_stratholme : public InstanceMapScript
 {
     public:
@@ -60,6 +69,7 @@ class instance_stratholme : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(MAX_ENCOUNTER);
+                LoadDungeonEncounterData(encounters);
 
                 for (uint8 i = 0; i < 5; ++i)
                     IsSilverHandDead[i] = false;

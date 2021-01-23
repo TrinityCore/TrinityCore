@@ -60,6 +60,16 @@ enum Misc
 5 - Lady Vashj Event
 */
 
+DungeonEncounterData const encounters[] =
+{
+    { BOSS_HYDROSS_THE_UNSTABLE, {{ 623 }} },
+    { BOSS_THE_LURKER_BELOW, {{ 624 }} },
+    { BOSS_LEOTHERAS_THE_BLIND, {{ 625 }} },
+    { BOSS_FATHOM_LORD_KARATHRESS, {{ 626 }} },
+    { BOSS_MOROGRIM_TIDEWALKER, {{ 627 }} },
+    { BOSS_LADY_VASHJ, {{ 628 }} }
+};
+
 class go_bridge_console : public GameObjectScript
 {
     public:
@@ -96,6 +106,7 @@ class instance_serpent_shrine : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(MAX_ENCOUNTER);
+                LoadDungeonEncounterData(encounters);
 
                 StrangePool = 0;
                 Water = WATERSTATE_FRENZY;

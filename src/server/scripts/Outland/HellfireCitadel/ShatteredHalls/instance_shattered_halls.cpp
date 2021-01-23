@@ -38,6 +38,14 @@ DoorData const doorData[] =
     { 0,                               0,               DOOR_TYPE_ROOM }
 };
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_NETHEKURSE, {{ 1936 }} },
+    { DATA_PORUNG, {{ 1935 }} },
+    { DATA_OMROGG, {{ 1937 }} },
+    { DATA_KARGATH, {{ 1938 }} },
+};
+
 class instance_shattered_halls : public InstanceMapScript
 {
     public:
@@ -55,6 +63,7 @@ class instance_shattered_halls : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
+                LoadDungeonEncounterData(encounters);
                 executionTimer = 0;
                 executed = 0;
                 _team = 0;

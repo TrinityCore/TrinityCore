@@ -128,6 +128,14 @@ DoorData const doorData[] =
     { 0,                  0,              DOOR_TYPE_ROOM } // END
 };
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_MEATHOOK, {{ 2002 }} },
+    { DATA_SALRAMM, {{ 2004 }} },
+    { DATA_EPOCH, {{ 2003 }} },
+    { DATA_MAL_GANIS, {{ 2005 }} }
+};
+
 COSProgressStates GetStableStateFor(COSProgressStates const state)
 {
     switch (state)
@@ -274,6 +282,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
+                LoadDungeonEncounterData(encounters);
 
                 _currentWorldStates[WORLDSTATE_SHOW_CRATES] = _currentWorldStates[WORLDSTATE_CRATES_REVEALED] = _currentWorldStates[WORLDSTATE_WAVE_COUNT] = _currentWorldStates[WORLDSTATE_TIME_GUARDIAN_SHOW] = _currentWorldStates[WORLDSTATE_TIME_GUARDIAN] = 0;
                 _plagueCrates.reserve(NUM_PLAGUE_CRATES);

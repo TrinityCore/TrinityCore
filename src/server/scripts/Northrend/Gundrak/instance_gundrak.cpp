@@ -54,6 +54,15 @@ ObjectData const gameObjectData[] =
     { 0,                           0                             } // END
 };
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_SLAD_RAN, {{ 1978 }} },
+    { DATA_DRAKKARI_COLOSSUS, {{ 1983 }} },
+    { DATA_MOORABI, {{ 1980 }} },
+    { DATA_GAL_DARAH, {{ 1981 }} },
+    { DATA_ECK_THE_FEROCIOUS, {{ 1988 }} }
+};
+
 Position const EckSpawnPoint = { 1643.877930f, 936.278015f, 107.204948f, 0.668432f };
 
 class instance_gundrak : public InstanceMapScript
@@ -69,6 +78,7 @@ class instance_gundrak : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
                 LoadObjectData(creatureData, gameObjectData);
+                LoadDungeonEncounterData(encounters);
 
                 SladRanStatueState = GO_STATE_ACTIVE;
                 DrakkariColossusStatueState = GO_STATE_ACTIVE;

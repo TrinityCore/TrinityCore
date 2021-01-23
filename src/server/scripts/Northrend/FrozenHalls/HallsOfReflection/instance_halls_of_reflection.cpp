@@ -25,6 +25,13 @@
 #include "TemporarySummon.h"
 #include "Transport.h"
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_FALRIC, {{ 1992 }} },
+    { DATA_MARWYN, {{ 1993 }} },
+    { DATA_THE_LICH_KING_ESCAPE, {{ 1990 }} }
+};
+
 Position const JainaSpawnPos           = { 5236.659f, 1929.894f, 707.7781f, 0.8726646f }; // Jaina Spawn Position
 Position const SylvanasSpawnPos        = { 5236.667f, 1929.906f, 707.7781f, 0.8377581f }; // Sylvanas Spawn Position (sniffed)
 Position const JainaSpawnPos2          = { 5549.011f, 2257.041f, 733.0120f, 1.153993f  }; // Jaina Spawn Position 2
@@ -88,6 +95,7 @@ class instance_halls_of_reflection : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
+                LoadDungeonEncounterData(encounters);
 
                 _teamInInstance           = 0;
                 _waveCount                = 0;
