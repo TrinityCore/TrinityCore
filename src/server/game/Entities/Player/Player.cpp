@@ -15716,15 +15716,20 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
     uint32 XP = GetQuestXPReward(quest);
 
     int32 moneyRew = 0;
+    float moneyMod = 1.0f;
     if (GetLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
-        GiveXP(XP, nullptr);
+        GiveXP(XP * (HasWarmodeEnlistedAura() ? GetWarmodeAuraMod() : 1.0f), nullptr);
     else
+    {
         moneyRew = int32(quest->GetRewMoneyMaxLevel() * sWorld->getRate(RATE_DROP_MONEY));
+        moneyMod = GetWarmodeAuraMod();
+    }
 
     moneyRew += GetQuestMoneyReward(quest);
 
     if (moneyRew)
     {
+        moneyRew *= moneyMod;
         ModifyMoney(moneyRew);
 
         if (moneyRew > 0)
@@ -28940,6 +28945,11 @@ uint8 Player::GetItemLimitCategoryQuantity(ItemLimitCategoryEntry const* limitEn
     }
 
     return limit;
+}
+
+bool Player::IsAtMaxLevel() const
+{
+    return getLevel() >= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL);
 }
 
 template <typename T>

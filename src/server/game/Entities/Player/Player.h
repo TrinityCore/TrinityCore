@@ -2730,6 +2730,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void AddAuraVision(PlayerFieldByte2Flags flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::AuraVision), flags); }
         void RemoveAuraVision(PlayerFieldByte2Flags flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::AuraVision), flags); }
 
+        bool IsAtMaxLevel() const;
+
         bool IsInFriendlyArea() const;
         bool IsFriendlyArea(AreaTableEntry const* inArea) const;
 
@@ -2739,6 +2741,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool IsWarModeDesired() const { return HasPlayerFlag(PLAYER_FLAGS_WAR_MODE_DESIRED); }
         bool IsWarModeActive() const { return HasPlayerFlag(PLAYER_FLAGS_WAR_MODE_ACTIVE); }
         void UpdateWarModeAuras();
+        bool HasWarmodeEnlistedAura() const { return HasAura(269083); }
+        float GetWarmodeAuraMod() const { return 1.1f; }
 
         std::string GetDebugInfo() const override;
 
