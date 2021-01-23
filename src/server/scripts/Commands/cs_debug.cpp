@@ -1774,10 +1774,11 @@ public:
 
     static void HandleDebugObjectCountMap(ChatHandler* handler, Map* map)
     {
-        handler->PSendSysMessage("Map Id: %u Name: '%s' Instance Id: %u Creatures: " UI64FMTD " GameObjects: " UI64FMTD,
+        handler->PSendSysMessage("Map Id: %u Name: '%s' Instance Id: %u Creatures: " UI64FMTD " GameObjects: " UI64FMTD " SetActive Objects: " UI64FMTD,
             map->GetId(), map->GetMapName(), map->GetInstanceId(),
             uint64(map->GetObjectsStore().Size<Creature>()),
-            uint64(map->GetObjectsStore().Size<GameObject>()));
+            uint64(map->GetObjectsStore().Size<GameObject>()),
+            uint64(map->GetActiveNonPlayersCount()));
 
         CreatureCountWorker worker;
         TypeContainerVisitor<CreatureCountWorker, MapStoredObjectTypesContainer> visitor(worker);
