@@ -5456,7 +5456,7 @@ void Spell::EffectSummonPersonalGameObject(SpellEffIndex effIndex)
 
     if (!go)
     {
-        TC_LOG_WARN("spells", "SpellEffect Failed to summon personal game object. SpellId %u, effect %u", m_spellInfo->Id, effIndex);
+        TC_LOG_WARN("spells", "SpellEffect Failed to summon personal gameobject. SpellId %u, effect %u", m_spellInfo->Id, effIndex);
         return;
     }
 
