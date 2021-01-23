@@ -916,7 +916,7 @@ public:
                 if (choiceReq && !worldSession->MeetsChrCustomizationReq(choiceReq, playerClass, false, MakeChrCustomizationChoiceRange(customizations)))
                     continue;
 
-                const ChrCustomizationChoiceEntry* choiceEntry = choicesForOption->at(0);
+                ChrCustomizationChoiceEntry const* choiceEntry = choicesForOption->at(0);
                 UF::ChrCustomizationChoice choice;
                 choice.ChrCustomizationOptionID = option->ID;
                 choice.ChrCustomizationChoiceID = choiceEntry->ID;
