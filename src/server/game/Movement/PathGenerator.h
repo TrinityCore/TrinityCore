@@ -69,7 +69,7 @@ class TC_GAME_API PathGenerator
 
         // option setters - use optional
         void SetUseStraightPath(bool useStraightPath) { _useStraightPath = useStraightPath; }
-        void SetPathLengthLimit(float distance) { _pointPathLimit = uint32(ceilf(length / RECAST_PATH_STEP_SIZE)); }
+        void SetPathLengthLimit(float distance) { _pointPathLimit = uint32(ceilf(distance / RECAST_PATH_STEP_SIZE)); }
         void SetUseRaycast(bool useRaycast) { _useRaycast = useRaycast; }
 
         // result getters
