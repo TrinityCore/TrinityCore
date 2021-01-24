@@ -598,8 +598,9 @@ enum SMART_ACTION
     SMART_ACTION_OVERRIDE_WEATHER                   = 139,    // zoneId, weatherId, intensity
     SMART_ACTION_SET_AI_ANIM_KIT                    = 140,    // don't use on 3.3.5a
     SMART_ACTION_SET_HOVER                          = 141,    // 0/1
+    SMART_ACTION_SET_HEALTH_PCT                     = 142,    // percent
 
-    SMART_ACTION_END                                = 142
+    SMART_ACTION_END                                = 143
 };
 
 struct SmartAction
@@ -1189,6 +1190,11 @@ struct SmartAction
         {
             uint32 toRespawnPosition;
         } evade;
+
+        struct
+        {
+            uint32 percent;
+        } setHealthPct;
 
         //! Note for any new future actions
         //! All parameters must have type uint32
