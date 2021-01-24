@@ -425,21 +425,21 @@ public:
             case 0: // id
             {
                 uint32 npcId = std::stol(entry);
-                if (isValid = !!npcId)
+                if ((isValid = !!npcId))
                     whereClause << "WHERE id = '" << entry << '\'';
                 break;
             }
             case 1: // guid
             {
                 ObjectGuid::LowType guidLow = std::stoll(entry);
-                if (isValid = !!guidLow)
+                if ((isValid = !!guidLow))
                     whereClause << "WHERE guid = '" << guidLow << '\'';
                 break;
             }
             case 2: // name
             {
                 std::string name = entry;
-                if (isValid = (name.size() > 0))
+                if ((isValid = (name.size() > 0)))
                 {
                     WorldDatabase.EscapeString(name);
                     whereClause << ", creature_template WHERE creature.id = creature_template.entry AND creature_template.name LIKE '" << name << '\'';
@@ -544,6 +544,7 @@ public:
     }
 };
 
-void AddSC_tele_commandscript(){
+void AddSC_tele_commandscript()
+{
     new tele_commandscript();
 }
