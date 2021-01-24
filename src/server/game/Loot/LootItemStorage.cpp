@@ -86,8 +86,8 @@ void LootItemStorage::LoadStorageFromDB()
             lootItem.is_counted = fields[6].GetBool();
             lootItem.is_underthreshold = fields[7].GetBool();
             lootItem.needs_quest = fields[8].GetBool();
-            lootItem.randomPropertyId = fields[9].GetInt32();
-            lootItem.randomSuffix = fields[10].GetUInt32();
+            lootItem.randomPropertyId = { ItemRandomEnchantmentType(fields[9].GetUInt8()), fields[10].GetUInt32() };
+            lootItem.randomSuffix = fields[11].GetUInt32();
 
             storedContainer.AddLootItem(lootItem, trans);
 
@@ -302,8 +302,9 @@ void StoredLootContainer::AddLootItem(LootItem const& lootItem, CharacterDatabas
     stmt->setBool(6, lootItem.is_counted);
     stmt->setBool(7, lootItem.is_underthreshold);
     stmt->setBool(8, lootItem.needs_quest);
-    stmt->setInt32(9, lootItem.randomPropertyId);
-    stmt->setUInt32(10, lootItem.randomSuffix);
+    stmt->setUInt8(9, uint8(lootItem.randomPropertyId.Type));
+    stmt->setUInt32(10, lootItem.randomPropertyId.Id);
+    stmt->setUInt32(11, lootItem.randomSuffix);
     trans->Append(stmt);
 }
 

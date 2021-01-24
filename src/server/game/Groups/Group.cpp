@@ -910,7 +910,7 @@ void Group::SendLootStartRoll(uint32 countDown, uint32 mapid, Roll const& r)
     data << uint32(r.itemSlot);                             // itemslot
     data << uint32(r.itemid);                               // the itemEntryId for the item that shall be rolled for
     data << uint32(r.itemRandomSuffix);                     // randomSuffix
-    data << uint32(r.itemRandomPropId);                     // item random property ID
+    data << uint32(r.itemRandomPropId.Id);                  // item random property ID
     data << uint32(r.itemCount);                            // items in stack
     data << uint32(countDown);                              // the countdown time to choose "need" or "greed"
     data << uint8(r.rollVoteMask);                          // roll type mask
@@ -938,7 +938,7 @@ void Group::SendLootStartRollToPlayer(uint32 countDown, uint32 mapId, Player* p,
     data << uint32(r.itemSlot);                             // itemslot
     data << uint32(r.itemid);                               // the itemEntryId for the item that shall be rolled for
     data << uint32(r.itemRandomSuffix);                     // randomSuffix
-    data << uint32(r.itemRandomPropId);                     // item random property ID
+    data << uint32(r.itemRandomPropId.Id);                  // item random property ID
     data << uint32(r.itemCount);                            // items in stack
     data << uint32(countDown);                              // the countdown time to choose "need" or "greed"
     uint8 voteMask = r.rollVoteMask;
@@ -958,7 +958,7 @@ void Group::SendLootRoll(ObjectGuid sourceGuid, ObjectGuid targetGuid, int32 rol
     data << uint64(targetGuid);
     data << uint32(roll.itemid);                            // the itemEntryId for the item that shall be rolled for
     data << uint32(roll.itemRandomSuffix);                  // randomSuffix
-    data << uint32(roll.itemRandomPropId);                  // Item random property ID
+    data << uint32(roll.itemRandomPropId.Id);               // Item random property ID
     data << int32(rollNumber);                              // 0: "Need for: [item name]" - 1: "you passed on: [item name]"      Roll number
     data << uint8(rollType);                                // 0: "Need for: [item name]" 0: "You have selected need for [item name] 1: need roll 2: greed roll
     data << uint8(0);                                       // 1: "You automatically passed on: %s because you cannot loot that item." - Possibly used in need befor greed
@@ -981,9 +981,9 @@ void Group::SendLootRollWon(ObjectGuid sourceGuid, ObjectGuid targetGuid, int32 
     data << uint32(roll.itemSlot);                          // slot
     data << uint32(roll.itemid);                            // the itemEntryId for the item that shall be rolled for
     data << uint32(roll.itemRandomSuffix);                  // randomSuffix
-    data << uint32(roll.itemRandomPropId);                  // Item random property
+    data << uint32(roll.itemRandomPropId.Id);               // Item random property
     data << uint64(targetGuid);                             // guid of the player who won.
-    data << int32(rollNumber);                             // rollnumber realted to SMSG_LOOT_ROLL
+    data << int32(rollNumber);                              // rollnumber realted to SMSG_LOOT_ROLL
     data << uint8(rollType);                                // rollType related to SMSG_LOOT_ROLL
 
     for (Roll::PlayerVote::const_iterator itr = roll.playerVote.begin(); itr != roll.playerVote.end(); ++itr)
@@ -1003,7 +1003,7 @@ void Group::SendLootAllPassed(Roll const& roll)
     data << uint64(roll.itemGUID);                             // Guid of the item rolled
     data << uint32(roll.itemSlot);                             // Item loot slot
     data << uint32(roll.itemid);                               // The itemEntryId for the item that shall be rolled for
-    data << uint32(roll.itemRandomPropId);                     // Item random property ID
+    data << uint32(roll.itemRandomPropId.Id);                  // Item random property ID
     data << uint32(roll.itemRandomSuffix);                     // Item random suffix ID
 
     for (Roll::PlayerVote::const_iterator itr = roll.playerVote.begin(); itr != roll.playerVote.end(); ++itr)
@@ -1571,7 +1571,7 @@ void Group::CountTheRoll(Rolls::iterator rollI, Map* allowedMap)
                         WorldPackets::Loot::DisenchantCredit disenchantCredit;
                         disenchantCredit.Disenchanter = m_disenchantInfo.DisenchanterGUID;
                         disenchantCredit.Item.ItemID = item->itemid;
-                        disenchantCredit.Item.RandomPropertiesID = item->randomPropertyId;
+                        disenchantCredit.Item.RandomPropertiesID = item->randomPropertyId.Id;
                         disenchantCredit.Item.RandomPropertiesSeed = item->randomSuffix;
                         BroadcastPacket(disenchantCredit.Write(), false);
 

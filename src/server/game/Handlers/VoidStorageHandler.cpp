@@ -161,7 +161,7 @@ void WorldSession::HandleVoidStorageQuery(WorldPacket& recvData)
         itemData.WriteByteSeq(creatorGuid[0]);
         itemData.WriteByteSeq(creatorGuid[1]);
 
-        itemData << uint32(item->ItemRandomPropertyId);
+        itemData << uint32(item->ItemRandomPropertyId.Id);
 
         itemData.WriteByteSeq(itemId[4]);
         itemData.WriteByteSeq(itemId[5]);
@@ -333,7 +333,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
             continue;
         }
 
-        VoidStorageItem itemVS(sObjectMgr->GenerateVoidStorageItemId(), item->GetEntry(), item->GetGuidValue(ITEM_FIELD_CREATOR), item->GetItemRandomPropertyId(), item->GetItemSuffixFactor());
+        VoidStorageItem itemVS(sObjectMgr->GenerateVoidStorageItemId(), item->GetEntry(), item->GetGuidValue(ITEM_FIELD_CREATOR), item->GetItemRandomEnchantmentId(), item->GetItemSuffixFactor());
 
         uint8 slot = player->AddVoidStorageItem(itemVS);
 
@@ -463,7 +463,7 @@ void WorldSession::HandleVoidStorageTransfer(WorldPacket& recvData)
         data.WriteByteSeq(creatorGuid[2]);
         data.WriteByteSeq(itemId[7]);
 
-        data << uint32(depositItems[i].first.ItemRandomPropertyId);
+        data << uint32(depositItems[i].first.ItemRandomPropertyId.Id);
     }
 
     SendPacket(&data);

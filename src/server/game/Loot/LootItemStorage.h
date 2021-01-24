@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "DatabaseEnvFwd.h"
+#include "ItemEnchantmentMgr.h"
 
 #include <shared_mutex>
 #include <unordered_map>
@@ -40,7 +41,7 @@ struct StoredLootItem
     bool Counted;
     bool UnderThreshold;
     bool NeedsQuest;
-    int32 RandomPropertyId;
+    ItemRandomEnchantmentId RandomPropertyId;
     uint32 RandomSuffix;
 };
 

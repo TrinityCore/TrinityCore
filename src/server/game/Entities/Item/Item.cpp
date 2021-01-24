@@ -360,7 +360,8 @@ void Item::SaveToDB(CharacterDatabaseTransaction& trans)
             }
             stmt->setString(++index, ssEnchants.str());
 
-            stmt->setInt16 (++index, GetItemRandomPropertyId());
+            stmt->setUInt8(++index, uint8(GetItemRandomEnchantmentId().Type));
+            stmt->setUInt32(++index, GetItemRandomEnchantmentId().Id);
             stmt->setUInt16(++index, GetUInt32Value(ITEM_FIELD_DURABILITY));
             stmt->setUInt32(++index, GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME));
             stmt->setString(++index, m_text);
@@ -412,8 +413,8 @@ void Item::SaveToDB(CharacterDatabaseTransaction& trans)
 
 bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fields, uint32 entry)
 {
-    //                                          0            1                2      3         4        5      6             7                 8           9             10
-    //result = CharacterDatabase.PQuery("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, creationTime, text FROM item_instance WHERE guid = '%u'", guid);
+    //                                          0            1                2      3         4        5      6             7                  8                 9           10            11
+    //result = CharacterDatabase.PQuery("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyType randomPropertyId, durability, creationTime, text FROM item_instance WHERE guid = '%u'", guid);
 
     // create item before any checks for store correct guid
     // and allow use "FSetState(ITEM_REMOVED); SaveToDB();" for deleting item from DB
@@ -459,12 +460,18 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fi
     }
 
     _LoadIntoDataField(fields[6].GetString(), ITEM_FIELD_ENCHANTMENT_1_1, MAX_ENCHANTMENT_SLOT * MAX_ENCHANTMENT_OFFSET);
-    SetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, fields[7].GetInt16());
-    // recalculate suffix factor
-    if (GetItemRandomPropertyId() < 0)
+    m_randomEnchantment.Type = ItemRandomEnchantmentType(fields[7].GetUInt8());
+    m_randomEnchantment.Id = fields[8].GetUInt32();
+    if (m_randomEnchantment.Type == ItemRandomEnchantmentType::Property)
+        SetUInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, m_randomEnchantment.Id);
+    else if (m_randomEnchantment.Type == ItemRandomEnchantmentType::Suffix)
+    {
+        SetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, -int32(m_randomEnchantment.Id));
+        // recalculate suffix factor
         UpdateItemSuffixFactor();
+    }
 
-    uint32 durability = fields[8].GetUInt16();
+    uint32 durability = fields[9].GetUInt16();
     SetUInt32Value(ITEM_FIELD_DURABILITY, durability);
     // update max durability (and durability) if need
     SetUInt32Value(ITEM_FIELD_MAXDURABILITY, proto->MaxDurability);
@@ -476,8 +483,8 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid owner_guid, Field* fi
         need_save = true;
     }
 
-    SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, fields[9].GetUInt32());
-    SetText(fields[10].GetString());
+    SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, fields[10].GetUInt32());
+    SetText(fields[11].GetString());
 
     if (need_save)                                           // normal item changed state set not work at loading
     {
@@ -539,42 +546,44 @@ uint32 Item::GetSkill()
     return proto->GetSkill();
 }
 
-void Item::SetItemRandomProperties(int32 randomPropId)
+void Item::SetItemRandomProperties(ItemRandomEnchantmentId const& randomPropId)
 {
-    if (!randomPropId)
+    if (!randomPropId.Id)
         return;
 
-    if (randomPropId > 0)
+    switch (randomPropId.Type)
     {
-        ItemRandomPropertiesEntry const* item_rand = sItemRandomPropertiesStore.LookupEntry(randomPropId);
-        if (item_rand)
-        {
-            if (GetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID) != int32(item_rand->ID))
+        case ItemRandomEnchantmentType::Property:
+            if (ItemRandomPropertiesEntry const* item_rand = sItemRandomPropertiesStore.LookupEntry(randomPropId.Id))
             {
-                SetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, item_rand->ID);
-                SetState(ITEM_CHANGED, GetOwner());
+                if (GetUInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID) != randomPropId.Id)
+                {
+                    SetUInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, randomPropId.Id);
+                    SetState(ITEM_CHANGED, GetOwner());
+                }
+                for (uint32 i = PROP_ENCHANTMENT_SLOT_0; i <= PROP_ENCHANTMENT_SLOT_4; ++i)
+                    SetEnchantment(EnchantmentSlot(i), item_rand->Enchantment[i - PROP_ENCHANTMENT_SLOT_0], 0, 0);
             }
-            for (uint32 i = PROP_ENCHANTMENT_SLOT_1; i < PROP_ENCHANTMENT_SLOT_1 + 3; ++i)
-                SetEnchantment(EnchantmentSlot(i), item_rand->Enchantment[i - PROP_ENCHANTMENT_SLOT_1], 0, 0);
-        }
-    }
-    else
-    {
-        ItemRandomSuffixEntry const* item_rand = sItemRandomSuffixStore.LookupEntry(-randomPropId);
-        if (item_rand)
-        {
-            if (GetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID) != -int32(item_rand->ID) ||
-                !GetItemSuffixFactor())
+            break;
+        case ItemRandomEnchantmentType::Suffix:
+            if (ItemRandomSuffixEntry const* item_rand = sItemRandomSuffixStore.LookupEntry(randomPropId.Id))
             {
-                SetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, -int32(item_rand->ID));
-                UpdateItemSuffixFactor();
-                SetState(ITEM_CHANGED, GetOwner());
-            }
+                if (GetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID) != -int32(randomPropId.Id) || !GetItemSuffixFactor())
+                {
+                    SetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, -int32(randomPropId.Id));
+                    UpdateItemSuffixFactor();
+                    SetState(ITEM_CHANGED, GetOwner());
+                }
 
-            for (uint32 i = PROP_ENCHANTMENT_SLOT_0; i <= PROP_ENCHANTMENT_SLOT_4; ++i)
-                SetEnchantment(EnchantmentSlot(i), item_rand->Enchantment[i - PROP_ENCHANTMENT_SLOT_0], 0, 0);
-        }
+                for (uint32 i = PROP_ENCHANTMENT_SLOT_0; i <= PROP_ENCHANTMENT_SLOT_4; ++i)
+                    SetEnchantment(EnchantmentSlot(i), item_rand->Enchantment[i - PROP_ENCHANTMENT_SLOT_0], 0, 0);
+            }
+            break;
+        default:
+            break;
     }
+
+    m_randomEnchantment = randomPropId;
 }
 
 void Item::UpdateItemSuffixFactor()
@@ -993,13 +1002,13 @@ Item* Item::CloneItem(uint32 count, Player const* player /*= nullptr*/) const
     if (!newItem)
         return nullptr;
 
-    newItem->SetGuidValue(ITEM_FIELD_CREATOR, GetGuidValue(ITEM_FIELD_CREATOR));
-    newItem->SetGuidValue(ITEM_FIELD_GIFTCREATOR, GetGuidValue(ITEM_FIELD_GIFTCREATOR));
+    newItem->SetGuidValue(ITEM_FIELD_CREATOR,        GetGuidValue(ITEM_FIELD_CREATOR));
+    newItem->SetGuidValue(ITEM_FIELD_GIFTCREATOR,    GetGuidValue(ITEM_FIELD_GIFTCREATOR));
     newItem->SetUInt32Value(ITEM_FIELD_FLAGS,        GetUInt32Value(ITEM_FIELD_FLAGS) & ~(ITEM_FIELD_FLAG_REFUNDABLE | ITEM_FIELD_FLAG_BOP_TRADEABLE));
     newItem->SetUInt32Value(ITEM_FIELD_DURATION,     GetUInt32Value(ITEM_FIELD_DURATION));
     // player CAN be nullptr in which case we must not update random properties because that accesses player's item update queue
     if (player)
-        newItem->SetItemRandomProperties(GetItemRandomPropertyId());
+        newItem->SetItemRandomProperties(GetItemRandomEnchantmentId());
     return newItem;
 }
 
