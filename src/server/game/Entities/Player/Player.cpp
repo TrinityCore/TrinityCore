@@ -13585,7 +13585,7 @@ void Player::SendItemDurations()
         (*itr)->SendTimeUpdate(this);
 }
 
-void Player::SendNewItem(Item* item, uint32 quantity, bool pushed, bool created, bool broadcast)
+void Player::SendNewItem(Item* item, uint32 quantity, bool pushed, bool created, bool broadcast /*= false*/, uint32 dungeonEncounterId /*= 0*/)
 {
     if (!item)  // prevent crash
         return;
@@ -13602,7 +13602,6 @@ void Player::SendNewItem(Item* item, uint32 quantity, bool pushed, bool created,
     //packet.QuestLogItemID;
     packet.Quantity = quantity;
     packet.QuantityInInventory = GetItemCount(item->GetEntry());
-    //packet.DungeonEncounterID;
     packet.BattlePetSpeciesID = item->GetModifier(ITEM_MODIFIER_BATTLE_PET_SPECIES_ID);
     packet.BattlePetBreedID = item->GetModifier(ITEM_MODIFIER_BATTLE_PET_BREED_DATA) & 0xFFFFFF;
     packet.BattlePetBreedQuality = (item->GetModifier(ITEM_MODIFIER_BATTLE_PET_BREED_DATA) >> 24) & 0xFF;
@@ -13614,7 +13613,13 @@ void Player::SendNewItem(Item* item, uint32 quantity, bool pushed, bool created,
     packet.DisplayText = WorldPackets::Item::ItemPushResult::DISPLAY_TYPE_NORMAL;
     packet.Created = created;
     //packet.IsBonusRoll;
-    //packet.IsEncounterLoot;
+
+    if (dungeonEncounterId)
+    {
+        packet.DisplayText = WorldPackets::Item::ItemPushResult::DISPLAY_TYPE_ENCOUNTER_LOOT;
+        packet.DungeonEncounterID = dungeonEncounterId;
+        packet.IsEncounterLoot = true;
+    }
 
     if (broadcast && GetGroup() && !item->GetTemplate()->HasFlag(ITEM_FLAG3_DONT_REPORT_LOOT_LOG_TO_PARTY))
         GetGroup()->BroadcastPacket(packet.Write(), true);
@@ -25477,13 +25482,13 @@ void Player::StoreLootItem(ObjectGuid lootWorldObjectGuid, uint8 lootSlot, Loot*
         // if aeLooting then we must delay sending out item so that it appears properly stacked in chat
         if (!aeResult)
         {
-            SendNewItem(newitem, uint32(item->count), false, false, true);
+            SendNewItem(newitem, uint32(item->count), false, false, true, loot->GetDungeonEncounterId());
             UpdateCriteria(CriteriaType::LootItem, item->itemid, item->count);
             UpdateCriteria(CriteriaType::GetLootByType, item->itemid, item->count, GetLootTypeForClient(loot->loot_type));
             UpdateCriteria(CriteriaType::LootAnyItem, item->itemid, item->count);
         }
         else
-            aeResult->Add(newitem, item->count, GetLootTypeForClient(loot->loot_type));
+            aeResult->Add(newitem, item->count, GetLootTypeForClient(loot->loot_type), loot->GetDungeonEncounterId());
 
         // LootItem is being removed (looted) from the container, delete it from the DB.
         if (loot->loot_type == LOOT_ITEM)
