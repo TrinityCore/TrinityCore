@@ -667,6 +667,42 @@ Player* ChatHandler::getSelectedPlayerOrSelf()
     return targetPlayer;
 }
 
+std::string ChatHandler::extractKeyFromLink(std::string const& text, std::string const& linkType)
+{
+    size_t pos = text.find_first_not_of(" \t\b");
+    if (pos == std::string::npos)
+        return std::string();
+
+    // nont-link case
+    if (text.at(pos) != '|')
+        return text.substr(0, text.find(' '));
+
+    // [name] Shift-click form |color|linkType:key|h[name]|h|r
+    // or
+    // [name] Shift-click form |color|linkType:key:something1:...:somethingN|h[name]|h|r
+    pos = text.find_first_of('|', pos + 1); // skip color
+    if (pos == std::string::npos)
+        return std::string();
+
+    ++pos;
+    size_t linkTypeEnd = text.find_first_of(':', pos);
+    if (linkTypeEnd == std::string::npos)
+        return std::string();
+
+    std::string textLinkType = text.substr(pos, linkTypeEnd - pos);
+    if (textLinkType != linkType)
+    {
+        SendSysMessage(LANG_WRONG_LINK_TYPE);
+        return nullptr;
+    }
+
+    ++linkTypeEnd;
+    size_t keyEnd = text.find_first_of(':', linkTypeEnd);
+    std::string key = text.substr(linkTypeEnd, keyEnd - linkTypeEnd);
+
+    return key;
+}
+
 char* ChatHandler::extractKeyFromLink(char* text, char const* linkType, char** something1)
 {
     // skip empty
@@ -964,15 +1000,75 @@ ObjectGuid::LowType ChatHandler::extractLowGuidFromLink(char* text, HighGuid& gu
 std::string ChatHandler::extractPlayerNameFromLink(char* text)
 {
     // |color|Hplayer:name|h[name]|h|r
-    char* name_str = extractKeyFromLink(text, "Hplayer");
-    if (!name_str)
+    std::string name_str = extractKeyFromLink(text, "Hplayer");
+    if (name_str.empty())
         return "";
 
-    std::string name = name_str;
-    if (!normalizePlayerName(name))
+    if (!normalizePlayerName(name_str))
         return "";
 
-    return name;
+    return name_str;
+}
+
+std::string ChatHandler::extractPlayerNameFromLink(std::string const &text)
+{
+    // |color|Hplayer:name|h[name]|h|r
+    std::string name_str = extractKeyFromLink(text, "Hplayer");
+    normalizePlayerName(name_str);
+    return name_str;
+}
+
+bool ChatHandler::extractPlayerTarget(std::string const &nameStr, Player** player, ObjectGuid* player_guid /*= nullptr*/, std::string* player_name /*= nullptr*/)
+{
+    if (nameStr.size() > 0)
+    {
+        std::string name = extractPlayerNameFromLink(nameStr);
+        if (name.empty())
+        {
+            SendSysMessage(LANG_PLAYER_NOT_FOUND);
+            SetSentErrorMessage(true);
+            return false;
+        }
+
+        Player* pl = ObjectAccessor::FindPlayerByName(name);
+
+        // if allowed player pointer
+        if (player)
+            *player = pl;
+
+        // if need guid value from DB (in name case for check player existence)
+        ObjectGuid guid = !pl && (player_guid || player_name) ? sCharacterCache->GetCharacterGuidByName(name) : ObjectGuid::Empty;
+
+        // if allowed player guid (if no then only online players allowed)
+        if (player_guid)
+            *player_guid = pl ? pl->GetGUID() : guid;
+
+        if (player_name)
+            *player_name = pl || !guid.IsEmpty() ? name : "";
+    }
+    else
+    {
+        Player* pl = getSelectedPlayerOrSelf();
+        // if allowed player pointer
+        if (player)
+            *player = pl;
+        // if allowed player guid (if no then only online players allowed)
+        if (player_guid)
+            *player_guid = pl ? pl->GetGUID() : ObjectGuid::Empty;
+
+        if (player_name)
+            *player_name = pl ? pl->GetName() : "";
+    }
+
+    // some from req. data must be provided (note: name is empty if player does not exist)
+    if ((!player || !*player) && (!player_guid || !*player_guid) && (!player_name || player_name->empty()))
+    {
+        SendSysMessage(LANG_PLAYER_NOT_FOUND);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    return true;
 }
 
 bool ChatHandler::extractPlayerTarget(char* args, Player** player, ObjectGuid* player_guid /*= nullptr*/, std::string* player_name /*= nullptr*/)

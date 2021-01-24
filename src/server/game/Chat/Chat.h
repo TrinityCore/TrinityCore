@@ -118,6 +118,8 @@ class TC_GAME_API ChatHandler
         char*     extractKeyFromLink(char* text, char const* linkType, char** something1 = nullptr);
         char*     extractKeyFromLink(char* text, char const* const* linkTypes, int* found_idx, char** something1 = nullptr);
 
+        std::string     extractKeyFromLink(std::string const& text, std::string const& linkType);
+
         // if args have single value then it return in arg2 and arg1 == nullptr
         void      extractOptFirstArg(char* args, char** arg1, char** arg2);
         char*     extractQuotedArg(char* args);
@@ -127,8 +129,10 @@ class TC_GAME_API ChatHandler
         GameTele const* extractGameTeleFromLink(char* text);
         bool GetPlayerGroupAndGUIDByName(const char* cname, Player*& player, Group*& group, ObjectGuid& guid, bool offline = false);
         std::string extractPlayerNameFromLink(char* text);
+        std::string extractPlayerNameFromLink(std::string const &text);
         // select by arg (name/link) or in-game selection online/offline player or self if a creature is selected
         bool extractPlayerTarget(char* args, Player** player, ObjectGuid* player_guid = nullptr, std::string* player_name = nullptr);
+        bool extractPlayerTarget(std::string const &nameStr, Player** player, ObjectGuid* player_guid = nullptr, std::string* player_name = nullptr);
 
         std::string playerLink(std::string const& name) const { return m_session ? "|cffffffff|Hplayer:"+name+"|h["+name+"]|h|r" : name; }
         std::string GetNameLink(Player* chr) const;

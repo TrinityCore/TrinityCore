@@ -35,6 +35,9 @@ EndScriptData */
 #include "Player.h"
 #include "RBAC.h"
 #include "WorldSession.h"
+#include <boost/tokenizer.hpp>
+#include <sstream>
+#include <iterator>
 
 class tele_commandscript : public CommandScript
 {
@@ -48,6 +51,7 @@ public:
             { "add",   rbac::RBAC_PERM_COMMAND_TELE_ADD,   false, &HandleTeleAddCommand,   "" },
             { "del",   rbac::RBAC_PERM_COMMAND_TELE_DEL,    true, &HandleTeleDelCommand,   "" },
             { "name",  rbac::RBAC_PERM_COMMAND_TELE_NAME,   true, &HandleTeleNameCommand,  "" },
+            { "name2",  rbac::RBAC_PERM_COMMAND_TELE_NAME,   true, &HandleTele2Command,  "tele2 name <character> ((npcid <npcid>) | (npcguid <npcguid>))" },
             { "group", rbac::RBAC_PERM_COMMAND_TELE_GROUP, false, &HandleTeleGroupCommand, "" },
             { "",      rbac::RBAC_PERM_COMMAND_TELE,       false, &HandleTeleCommand,      "" },
         };
@@ -343,9 +347,203 @@ public:
         me->TeleportTo(tele->mapId, tele->position_x, tele->position_y, tele->position_z, tele->orientation);
         return true;
     }
+
+    static bool HandleTele2Command(ChatHandler* handler, char const* args)
+    {
+        // cmd: tele name2 <char_name> npcid|npcguid <id|guid>
+        // args: <char_name> npcid|npcguid <id>
+
+        Player* player = handler->GetSession()->GetPlayer();
+
+        typedef boost::char_separator<char> tseperator;
+        typedef boost::tokenizer<tseperator> ttokenizer;
+
+        std::string argsStr = args;
+        tseperator sep(" ");
+        ttokenizer tokens(argsStr, sep);
+        ttokenizer::iterator iter = tokens.begin();
+        if (iter == tokens.end())
+            return false;
+
+        Player* target;
+        std::string targetName;
+        std::string charName = *iter;
+        if (!handler->extractPlayerTarget(charName, &target, nullptr, &targetName))
+            return false;
+
+        if (!target)
+        {
+            handler->PSendSysMessage(LANG_BAD_VALUE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        // check online security
+        if (handler->HasLowerSecurity(target, ObjectGuid::Empty))
+            return false;
+
+        std::string nameLink = handler->playerLink(targetName);
+        if (target->IsBeingTeleported())
+        {
+            handler->PSendSysMessage(LANG_IS_TELEPORTED, nameLink.c_str());
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        // -------------
+        // npc target type. 0 = guid, 1 = id, name = 2.
+        int npcTargetType;
+        if (++iter == tokens.end())
+            return false;
+        std::string npcType = *iter;
+        if (npcType == "guid")
+            npcTargetType = 0;
+        else if (npcType == "id")
+            npcTargetType = 1;
+        else if (npcType == "name")
+            npcTargetType = 2;
+        else
+        {
+            handler->SendSysMessage(LANG_BAD_VALUE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        // npc entry (guid, id, or name)
+        if (++iter == tokens.end())
+            return false;
+        std::string rest = *iter;
+        std::string entry = handler->extractKeyFromLink(rest, "Hcreature_entry");
+        if (entry.empty())
+            return false;
+
+        // build query
+        std::ostringstream whereClause;
+        bool isValid = false;
+        switch (npcTargetType)
+        {
+            case 0: // id
+            {
+                uint32 npcId = std::stol(entry);
+                if (isValid = !!npcId)
+                    whereClause << "WHERE id = '" << entry << '\'';
+                break;
+            }
+            case 1: // guid
+            {
+                ObjectGuid::LowType guidLow = std::stoll(entry);
+                if (isValid = !!guidLow)
+                    whereClause << "WHERE guid = '" << guidLow << '\'';
+                break;
+            }
+            case 2: // name
+            {
+                std::string name = entry;
+                if (isValid = (name.size() > 0))
+                {
+                    WorldDatabase.EscapeString(name);
+                    whereClause << ", creature_template WHERE creature.id = creature_template.entry AND creature_template.name LIKE '" << name << '\'';
+                }
+                break;
+            }
+        }
+
+        if (!isValid)
+        {
+            handler->SendSysMessage(LANG_BAD_VALUE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        QueryResult result = WorldDatabase.PQuery("SELECT position_x, position_y, position_z, orientation, map FROM creature %s", whereClause.str().c_str());
+        if (!result)
+        {
+            handler->SendSysMessage(LANG_COMMAND_GOCREATNOTFOUND);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+        if (result->GetRowCount() > 1)
+            handler->SendSysMessage(LANG_COMMAND_GOCREATMULTIPLE);
+
+        Field* fields = result->Fetch();
+        float x = fields[0].GetFloat();
+        float y = fields[1].GetFloat();
+        float z = fields[2].GetFloat();
+        float o = fields[3].GetFloat();
+        uint32 mapId = fields[4].GetUInt16();
+
+        if (!MapManager::IsValidMapCoord(mapId, x, y, z, o) || sObjectMgr->IsTransportMap(mapId))
+        {
+            handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, x, y, mapId);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        Map* map = player->GetMap();
+        if (map->IsBattlegroundOrArena())
+        {
+            // only allow if gm mode is on
+            if (!player->IsGameMaster())
+            {
+                handler->PSendSysMessage(LANG_CANNOT_GO_TO_BG_GM, nameLink.c_str());
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+            // if both players are in different bgs
+            else if (target->GetBattlegroundId() && player->GetBattlegroundId() != target->GetBattlegroundId())
+                target->LeaveBattleground(false); // Note: should be changed so target gets no Deserter debuff
+
+            // all's well, set bg id
+            // when porting out from the bg, it will be reset to 0
+            target->SetBattlegroundId(player->GetBattlegroundId(), player->GetBattlegroundTypeId());
+            // remember current position as entry point for return at bg end teleportation
+            if (!target->GetMap()->IsBattlegroundOrArena())
+                target->SetBattlegroundEntryPoint();
+        }
+        else if (map->Instanceable())
+        {
+            Map* targetMap = target->GetMap();
+            Player* targetGroupLeader = nullptr;
+            if (Group* targetGroup = target->GetGroup())
+                targetGroupLeader = ObjectAccessor::GetPlayer(map, targetGroup->GetLeaderGUID());
+
+            // check if far teleport is allowed
+            if (!targetGroupLeader || (targetGroupLeader->GetMapId() != map->GetId()) || (targetGroupLeader->GetInstanceId() != map->GetInstanceId()))
+                if ((targetMap->GetId() != map->GetId()) || (targetMap->GetInstanceId() != map->GetInstanceId()))
+                {
+                    handler->PSendSysMessage(LANG_CANNOT_SUMMON_TO_INST);
+                    handler->SetSentErrorMessage(true);
+                    return false;
+                }
+
+            // check if we're already in a different instance of the same map
+            if ((targetMap->GetId() == map->GetId()) && (targetMap->GetInstanceId() != map->GetInstanceId()))
+            {
+                handler->PSendSysMessage(LANG_CANNOT_SUMMON_INST_INST, nameLink.c_str());
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+        }
+
+        handler->PSendSysMessage(LANG_SUMMONING, nameLink.c_str(), "");
+        if (handler->needReportToTarget(target))
+            ChatHandler(target->GetSession()).PSendSysMessage(LANG_SUMMONED_BY, handler->playerLink(player->GetName()).c_str());
+
+        // stop flight if need
+        if (target->IsInFlight())
+        {
+            target->GetMotionMaster()->MovementExpired();
+            target->CleanupAfterTaxiFlight();
+        }
+        // save only in non-flight case
+        else
+            target->SaveRecallPosition();
+
+        target->TeleportTo(mapId, x, y, z, o);
+        return true;
+    }
 };
 
-void AddSC_tele_commandscript()
-{
+void AddSC_tele_commandscript(){
     new tele_commandscript();
 }
