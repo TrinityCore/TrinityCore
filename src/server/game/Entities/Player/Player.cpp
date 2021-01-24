@@ -18742,7 +18742,32 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder* holder)
 
     m_achievementMgr->CheckAllAchievementCriteria(this);
     m_questObjectiveCriteriaMgr->CheckAllQuestObjectiveCriteria(this);
+
+    _PushQuests();
     return true;
+}
+
+void Player::_PushQuests()
+{
+    ObjectMgr::QuestMap const& questMap = sObjectMgr->GetQuestTemplatesAutoPush();
+
+    for (ObjectMgr::QuestMap::const_iterator it = questMap.cbegin(); it != questMap.cend(); ++it)
+    {
+        QuestStatusMap::const_iterator result = m_QuestStatus.find(it->first);
+        if (result == m_QuestStatus.end())
+        {
+            // quest isn't in m_QuestStatus, meaning the player didn't complete it nor does he have it
+            const Quest* quest = it->second;
+
+            if (quest->GetMaxLevel() > 0 && getLevel() > quest->GetMaxLevel())
+                continue;
+
+            if (getLevel() < GetQuestMinLevel(quest))
+                continue;
+
+            // TODO send packet to client to push quest. missing packet info and possibly layout
+        }
+    }
 }
 
 void Player::_LoadCUFProfiles(PreparedQueryResult result)
@@ -19555,7 +19580,7 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
     uint16 slot = 0;
 
     ////                                                       0      1       2
-    //QueryResult* result = CharacterDatabase.PQuery("SELECT quest, status, timer WHERE guid = '%u'", GetGUIDLow());
+    //QueryResult* result = CharacterDatabase.PQuery("SELECT quest, status, timer WHERE guid = '%u' AND status <> 0", GetGUIDLow());
 
     if (result)
     {

@@ -746,5 +746,6 @@ void ChoiceResponse::Read()
     _worldPacket >> ChoiceID;
     _worldPacket >> ResponseID;
 }
+
 }
 }

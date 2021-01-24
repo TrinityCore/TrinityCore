@@ -531,6 +531,8 @@ class TC_GAME_API Quest
         uint32 CalculateHonorGain(uint8 level) const;
         bool   CanIncreaseRewardedQuestCounters() const;
 
+        bool IsAutoPush() const { return HasFlagEx(QuestFlagsEx::QUEST_FLAGS_EX_AUTO_PUSH); }
+
         // multiple values
         std::vector<QuestRewardDisplaySpell> RewardDisplaySpell;
         std::array<uint32, QUEST_REWARD_ITEM_COUNT> RewardItemId = { };
