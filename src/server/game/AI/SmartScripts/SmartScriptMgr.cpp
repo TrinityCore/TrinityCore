@@ -1591,9 +1591,9 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         }
         case SMART_ACTION_SET_HEALTH_PCT:
         {
-            if (e.action.setHealthPct.percent > 100)
+            if (e.action.setHealthPct.percent > 100 || !e.action.setHealthPct.percent)
             {
-                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u is trying to set HP percent above 100 (%u), skipped.",
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u is trying to set invalid HP percent %u, skipped.",
                     e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.setHealthPct.percent);
                 return false;
             }
