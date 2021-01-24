@@ -272,7 +272,7 @@ public:
         std::stringstream parsedStream;
         while (!ifs.eof())
         {
-            char commentToken[2];
+            char commentToken[2] = {};
             ifs.get(commentToken[0]);
             if (ifs.eof())
                 break;
@@ -328,48 +328,62 @@ public:
 
         WorldPacket data(opcode, 0);
 
-        while (!parsedStream.eof())
+        while (!parsedStream.eof() && !parsedStream.fail())
         {
             std::string type;
             parsedStream >> type;
+
+            if (parsedStream.eof() || parsedStream.fail())
+                break;
 
             if (type.empty())
                 break;
 
             if (type == "uint8")
             {
-                uint16 val1;
+                uint16 val1 = 0;
                 parsedStream >> val1;
+                if (parsedStream.eof() || parsedStream.fail())
+                    return false;
                 data << uint8(val1);
             }
             else if (type == "uint16")
             {
-                uint16 val2;
+                uint16 val2 = 0;
                 parsedStream >> val2;
+                if (parsedStream.eof() || parsedStream.fail())
+                    return false;
                 data << val2;
             }
             else if (type == "uint32")
             {
-                uint32 val3;
+                uint32 val3 = 0;
                 parsedStream >> val3;
+                if (parsedStream.eof() || parsedStream.fail())
+                    return false;
                 data << val3;
             }
             else if (type == "uint64")
             {
-                uint64 val4;
+                uint64 val4 = 0;
                 parsedStream >> val4;
+                if (parsedStream.eof() || parsedStream.fail())
+                    return false;
                 data << val4;
             }
             else if (type == "float")
             {
-                float val5;
+                float val5 = 0.0f;
                 parsedStream >> val5;
+                if (parsedStream.eof() || parsedStream.fail())
+                    return false;
                 data << val5;
             }
             else if (type == "string")
             {
                 std::string val6;
                 parsedStream >> val6;
+                // empty string is allowed so no need to check eof/fail here
                 data << val6;
             }
             else if (type == "appitsguid")
@@ -387,7 +401,6 @@ public:
                 {
                     handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, 0);
                     handler->SetSentErrorMessage(true);
-                    ifs.close();
                     return false;
                 }
                 data << obj->GetPackGUID();
@@ -399,7 +412,6 @@ public:
                 {
                     handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, 0);
                     handler->SetSentErrorMessage(true);
-                    ifs.close();
                     return false;
                 }
                 data << uint64(obj->GetGUID());
