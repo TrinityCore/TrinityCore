@@ -323,7 +323,7 @@ public:
         uint32 opcode = 0;
         parsedStream >> opcode;
 
-        if (opcode == 0)
+        if (!opcode)
             return false;
 
         WorldPacket data(opcode, 0);
