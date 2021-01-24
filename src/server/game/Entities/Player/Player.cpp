@@ -18765,7 +18765,7 @@ void Player::_PushQuests()
             if (getLevel() < GetQuestMinLevel(quest))
                 continue;
 
-            // TODO send packet to client to push quest. missing packet info and possibly layout
+            AddQuest(quest, nullptr);
         }
     }
 }
