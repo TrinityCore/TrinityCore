@@ -1076,18 +1076,18 @@ struct GameObjectTemplate
 // From `gameobject_template_addon`, `gameobject_overrides`
 struct GameObjectOverride
 {
-    uint32 Faction;
-    uint32 Flags;
+    uint32 Faction = 0;
+    uint32 Flags = 0;
 };
 
 // From `gameobject_template_addon`
 struct GameObjectTemplateAddon : public GameObjectOverride
 {
-    uint32 Mingold;
-    uint32 Maxgold;
+    uint32 Mingold = 0;
+    uint32 Maxgold = 0;
     std::array<uint32, 5> ArtKits = { };
-    uint32 WorldEffectID;
-    uint32 AIAnimKitID;
+    uint32 WorldEffectID = 0;
+    uint32 AIAnimKitID = 0;
 };
 
 struct GameObjectLocale

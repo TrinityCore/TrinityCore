@@ -42,7 +42,7 @@ enum BattlegroundBEGameObjects
     BG_BE_OBJECT_TYPE_BUFF_2    = 184664
 };
 
-constexpr Seconds BG_BE_REMOVE_DOORS_TIMER = 5s;
+inline constexpr Seconds BG_BE_REMOVE_DOORS_TIMER = 5s;
 
 enum BattlegroundBEEvents
 {
