@@ -333,49 +333,56 @@ public:
             std::string type;
             parsedStream >> type;
 
-            if (parsedStream.eof() || parsedStream.fail())
-                break;
-
             if (type.empty())
                 break;
 
             if (type == "uint8")
             {
+                if (parsedStream.eof())
+                    return false;
                 uint16 val1 = 0;
                 parsedStream >> val1;
-                if (parsedStream.eof() || parsedStream.fail())
+                if (parsedStream.fail())
                     return false;
                 data << uint8(val1);
             }
             else if (type == "uint16")
             {
+                if (parsedStream.eof())
+                    return false;
                 uint16 val2 = 0;
                 parsedStream >> val2;
-                if (parsedStream.eof() || parsedStream.fail())
+                if (parsedStream.fail())
                     return false;
                 data << val2;
             }
             else if (type == "uint32")
             {
+                if (parsedStream.eof())
+                    return false;
                 uint32 val3 = 0;
                 parsedStream >> val3;
-                if (parsedStream.eof() || parsedStream.fail())
+                if (parsedStream.fail())
                     return false;
                 data << val3;
             }
             else if (type == "uint64")
             {
+                if (parsedStream.eof())
+                    return false;
                 uint64 val4 = 0;
                 parsedStream >> val4;
-                if (parsedStream.eof() || parsedStream.fail())
+                if (parsedStream.fail())
                     return false;
                 data << val4;
             }
             else if (type == "float")
             {
+                if (parsedStream.eof())
+                    return false;
                 float val5 = 0.0f;
                 parsedStream >> val5;
-                if (parsedStream.eof() || parsedStream.fail())
+                if (parsedStream.fail())
                     return false;
                 data << val5;
             }
