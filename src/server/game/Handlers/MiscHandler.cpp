@@ -169,7 +169,11 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
         }
         else
         {
-            if (!go->AI()->OnGossipSelectCode(_player, menuId, gossipListId, TSString(code.c_str())))
+            // @tswow-begin
+            bool b = false;
+            FIRE_BOOL_MAP(go->GetGOInfo()->events,GameObjectOnGossipSelectCode,b,TSGameObject(go),TSPlayer(_player),menuId,gossipListId,TSString(code.c_str()));
+            if (!b && !go->AI()->OnGossipSelectCode(_player, menuId, gossipListId, TSString(code.c_str())))
+            // @tswow-end
                 _player->OnGossipSelect(go, gossipListId, menuId);
         }
     }
@@ -186,7 +190,11 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
         }
         else
         {
-            if (!go->AI()->OnGossipSelect(_player, menuId, gossipListId))
+            // @tswow-begin
+            bool b = false;
+            FIRE_BOOL_MAP(go->GetGOInfo()->events,GameObjectOnGossipSelect,b,TSGameObject(go),TSPlayer(_player),menuId,gossipListId);
+            if (!b && !go->AI()->OnGossipSelect(_player, menuId, gossipListId))
+            // @tswow-end
                 _player->OnGossipSelect(go, gossipListId, menuId);
         }
     }

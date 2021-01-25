@@ -837,3 +837,8 @@ TSPosition TSWorldObject::GetPosition()
 {
     return TSPosition(GetMap()->GetMapId(),GetX(),GetY(),GetZ(),GetO());
 }
+
+TSTasks<TSWorldObject> TSWorldObject::GetTasks()
+{
+    return obj->tasks;
+}

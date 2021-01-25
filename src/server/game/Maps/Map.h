@@ -37,6 +37,10 @@
 #include <list>
 #include <memory>
 #include <mutex>
+// @tswow-begin
+#include "TSMap.h"
+#include "TSTask.h"
+// @tswow-end
 
 class Battleground;
 class BattlegroundMap;
@@ -325,6 +329,10 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         virtual ~Map();
 
         MapEntry const* GetEntry() const { return i_mapEntry; }
+
+        // @tswow-begin
+        TSTasks<TSMap> tasks;
+        // @tswow-end
 
         // currently unused for normal maps
         bool CanUnload(uint32 diff)

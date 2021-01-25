@@ -81,3 +81,5 @@ public:
     bool ClearEnchantment(uint32 slot);
     void SaveToDB();
 };
+
+TC_GAME_API TSItem CreateItem(uint32 entry, uint32 count = 0);

@@ -675,4 +675,9 @@ void TSItem::SaveToDB()
 #endif
 }
 
+TSItem CreateItem(uint32 entry, uint32 count)
+{
+    return TSItem(Item::CreateItem(entry,count,nullptr));
+}
+
 // Inherited functions

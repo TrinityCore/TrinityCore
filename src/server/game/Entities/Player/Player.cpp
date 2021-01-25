@@ -14949,6 +14949,9 @@ void Player::AddQuestAndCheckCompletion(Quest const* quest, Object* questGiver)
     {
         case TYPEID_UNIT:
             PlayerTalkClass->ClearMenus();
+            // @tswow-begin
+            FIRE_MAP(questGiver->ToCreature()->GetCreatureTemplate()->events,TSCreature(questGiver->ToCreature()),TSPlayer(this),TSQuest(quest));
+            // @tswow-end
             questGiver->ToCreature()->AI()->OnQuestAccept(this, quest);
             break;
         case TYPEID_ITEM:
@@ -14981,6 +14984,9 @@ void Player::AddQuestAndCheckCompletion(Quest const* quest, Object* questGiver)
         }
         case TYPEID_GAMEOBJECT:
             PlayerTalkClass->ClearMenus();
+            // @tswow-begin
+            FIRE_MAP(questGiver->ToGameObject()->GetGOInfo()->events,TSGameObject(questGiver->ToGameObject()),TSPlayer(this),TSQuest(quest));
+            // @tswow-end
             questGiver->ToGameObject()->AI()->OnQuestAccept(this, quest);
             break;
         default:

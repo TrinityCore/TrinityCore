@@ -208,28 +208,6 @@ public:
         return TSArray(result);
     }
 
-    template <typename F, class = decltype(F()(T()))>
-    auto map(F p)->TSArray< decltype(p(T())) >
-    {
-        std::vector< decltype(p(T())) > result;
-        std::transform(vec->begin(), vec->end(), std::back_inserter(result), [=](auto& v) {
-            return (p)(v);
-        });
-        return TSArray< decltype(p(T())) >(result);
-    }
-
-    template <typename F, class = decltype(F()(T(), 0))>
-    auto map(F p)->TSArray< decltype(p(T(), 0)) >
-    {
-        std::vector< decltype(p(T(), 0)) > result;
-        auto first = &((*vec)[0]);
-        std::transform(vec->begin(), vec->end(), std::back_inserter(result), [=](auto& v) {
-            auto index = &v - first;
-            return (p)(v, index);
-        });
-        return TSArray< decltype(p(T(), 0)) >(result);
-    }
-
     template <typename P>
     auto reduce(P p)
     {

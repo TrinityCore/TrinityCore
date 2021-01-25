@@ -20,94 +20,6 @@
 #include "ObjectGuid.h"
 #include "TSMath.h"
 
-TSLootStoreItem TSLootStoreItem::SetItemID(uint32 itemId)
-{
-    this->itemid = itemId;
-    return *this;
-}
-
-TSLootStoreItem TSLootStoreItem::SetReference(uint32 reference)
-{
-    this->reference = reference;
-    return *this;
-}
-
-TSLootStoreItem TSLootStoreItem::SetChance(float chance)
-{
-    this->chance = chance;
-    return *this;
-}
-
-TSLootStoreItem TSLootStoreItem::SetLootMode(uint16 lootmode)
-{
-    this->lootmode = lootmode;
-    return *this;
-}
-
-TSLootStoreItem TSLootStoreItem::SetNeedsQuest(bool needsQuest)
-{
-    this->needs_quest = needsQuest;
-    return *this;
-}
-
-TSLootStoreItem TSLootStoreItem::SetGroupID(uint8 groupId)
-{
-    this->groupid= groupId;
-    return *this;
-}
-
-TSLootStoreItem TSLootStoreItem::SetMinCount(uint8 minCount)
-{
-    this->mincount = minCount;
-    return *this;
-}
-
-TSLootStoreItem TSLootStoreItem::SetMaxCount(uint8 maxCount)
-{
-    this->maxcount = maxCount;
-    return *this;
-}
-
-uint32 TSLootStoreItem::GetItemID()
-{
-    return this->itemid;
-}
-
-uint32 TSLootStoreItem::GetReference()
-{
-    return this->reference;
-}
-
-float TSLootStoreItem::GetChance()
-{
-    return this->chance;
-}
-
-uint16 TSLootStoreItem::GetLootMode()
-{
-    return this->lootmode;
-}
-
-bool TSLootStoreItem::GetNeedsQuest()
-{
-    return this->needs_quest;
-}
-
-uint8 TSLootStoreItem::GetGroupID()
-{
-    return this->groupid;
-}
-
-uint8 TSLootStoreItem::GetMinCount()
-{
-    return this->mincount;
-}
-
-uint8 TSLootStoreItem::GetMaxCount()
-{
-    return this->maxcount;
-}
-
 TSLoot::TSLoot(Loot *loot)
 {
     this->loot = loot;
@@ -128,25 +40,11 @@ bool TSLoot::IsLooted()
     return loot->isLooted();
 }
 
-void TSLoot::AddItem(TSLootStoreItem item)
+void TSLoot::AddItem(uint32 id, uint8 minCount, uint8 maxCount, uint16 lootmode, bool needsQuest, uint8 groupId)
 {
-    if(item.chance < 100 && Math.random()*100>item.chance)
-    {
-        return;
-    }
-    // TODO: Maybe we don't need to initialize both
     loot->items.reserve(MAX_NR_LOOT_ITEMS);
     loot->quest_items.reserve(MAX_NR_QUEST_ITEMS);
-
-    LootStoreItem storeItem(item.itemid,item.reference,item.chance,item.lootmode,item.needs_quest,item.groupid,item.mincount,item.maxcount);
-    loot->AddItem(storeItem);
-}
-
-void TSLoot::AddItems(TSArray<TSLootStoreItem> items)
-{
-    for(int i=0;i<items.get_length();++i) {
-        AddItem(items->get(i));
-    }
+    loot->AddItem(LootStoreItem(id,0,100,lootmode,needsQuest,groupId,minCount,maxCount));
 }
 
 void TSLoot::AddLooter(uint64 looter)
@@ -189,15 +87,98 @@ uint64 TSLoot::GetLootOwner()
     return loot->lootOwnerGUID;
 }
 
-TC_GAME_API TSLootStoreItem CreateLootItem(uint32 id, uint32 reference, float chance, uint16 lootmode, bool needsQuest, uint8 groupId, uint8 minCount, uint8 maxCount)
+TSLootItem::TSLootItem(LootItem* item)
 {
-    return TSLootStoreItem()
-        ->SetItemID(id)
-        ->SetReference(reference)
-        ->SetChance(chance)
-        ->SetLootMode(lootmode)
-        ->SetNeedsQuest(needsQuest)
-        ->SetGroupID(groupId)
-        ->SetMinCount(minCount)
-        ->SetMaxCount(maxCount);
+    this->item = item;
+}
+
+uint32 TSLootItem::GetItemID()
+{
+    return item->itemid;
+}
+
+uint32 TSLootItem::GetRandomSuffix()
+{
+    return item->randomSuffix;
+}
+
+int32 TSLootItem::GetRandomPropertyID()
+{
+    return item->randomPropertyId;
+}
+
+uint8 TSLootItem::GetCount()
+{
+    return item->count;
+}
+
+void TSLootItem::SetItemID(uint32 id)
+{
+    item->itemid = id;
+}
+
+void TSLootItem::SetRandomSuffix(uint32 randomSuffix)
+{
+    item->randomSuffix = randomSuffix;
+}
+
+void TSLootItem::SetRandomPropertyID(int32 randomPropertyId)
+{
+    item->randomPropertyId = randomPropertyId;
+}
+
+void TSLootItem::SetCount(uint8 count)
+{
+    item->count = count;
+}
+
+uint32 TSLoot::GetItemCount()
+{
+    return loot->items.size();
+}
+
+uint32 TSLoot::GetQuestItemCount()
+{
+    return loot->quest_items.size();
+}
+
+TSLootItem TSLoot::GetItem(uint32 index)
+{
+    return TSLootItem(&loot->items[index]);
+}
+
+TSLootItem TSLoot::GetQuestItem(uint32 index)
+{
+    return TSLootItem(&loot->quest_items[index]);
+}
+
+void TSLoot::Filter(std::function<bool(TSLootItem)> predicate)
+{
+    auto it = loot->items.begin();
+    while(it != loot->items.end())
+    {
+        if(!predicate(TSLootItem(&*it)))
+        {
+            --loot->unlootedCount;
+            it = loot->items.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+
+    it = loot->quest_items.begin();
+    while(it != loot->quest_items.end())
+    {
+        if(!predicate(TSLootItem(&*it)))
+        {
+            --loot->unlootedCount;
+            it = loot->quest_items.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
 }

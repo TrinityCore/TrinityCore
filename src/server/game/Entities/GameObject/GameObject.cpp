@@ -44,6 +44,13 @@
 #include <G3D/Box.h>
 #include <G3D/CoordinateFrame.h>
 #include <G3D/Quat.h>
+// @tswow-begin
+#include "TSEventLoader.h"
+#include "TSPlayer.h"
+#include "TSGameObject.h"
+#include "TSMacros.h"
+#include "TSEvents.h"
+// @tswow-end
 
 void GameObjectTemplate::InitializeQueryData()
 {
@@ -226,6 +233,9 @@ void GameObject::AddToWorld()
         EnableCollision(toggledState);
         WorldObject::AddToWorld();
     }
+    // @tswow-begin
+    FIRE_MAP(this->GetGOInfo()->events,GameObjectOnAdd,TSGameObject(this));
+    // @tswow-end
 }
 
 void GameObject::RemoveFromWorld()
@@ -233,6 +243,9 @@ void GameObject::RemoveFromWorld()
     ///- Remove the gameobject from the accessor
     if (IsInWorld())
     {
+        // @tswow-begin
+        FIRE_MAP(this->GetGOInfo()->events,GameObjectOnRemove,TSGameObject(this));
+        // @tswow-end
         if (m_zoneScript)
             m_zoneScript->OnGameObjectRemove(this);
 
@@ -421,6 +434,10 @@ bool GameObject::Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, u
 
 void GameObject::Update(uint32 diff)
 {
+    // @tswow-begin
+    tasks.Tick(TSWorldObject(this));
+    FIRE_MAP(this->GetGOInfo()->events,GameObjectOnUpdate(this,diff));
+    // @tswow-end
     m_Events.Update(diff);
 
     if (AI())
@@ -1470,6 +1487,14 @@ void GameObject::SwitchDoorOrButton(bool activate, bool alternative /* = false *
 
 void GameObject::Use(Unit* user)
 {
+    // @tswow-begin
+    bool shouldCancel = false;
+    FIRE_MAP(GetGOInfo()->events,GameObjectOnUse,TSGameObject(this),TSUnit(user),TSMutable<bool>(&shouldCancel));
+    if(shouldCancel) 
+    {
+        return;
+    }
+    // @tswow-end
     // by default spell caster is user
     Unit* spellCaster = user;
     uint32 spellId = 0;
@@ -1484,7 +1509,11 @@ void GameObject::Use(Unit* user)
             playerUser->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
         playerUser->PlayerTalkClass->ClearMenus();
+        // @tswow-begin
+        bool b = false;
+        FIRE_BOOL_MAP(GetGOInfo()->events,GameObjectOnGossipHello,b,TSGameObject(this),TSPlayer(playerUser));
         if (AI()->OnGossipHello(playerUser))
+        // @tswow-end
             return;
     }
 
@@ -2272,6 +2301,9 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
             break;
         case GO_DESTRUCTIBLE_DAMAGED:
         {
+            // @tswow-begin
+            FIRE_MAP(GetGOInfo()->events,TSGameObject(this),TSWorldObject(attackerOrHealer));
+            // @tswow-end
             EventInform(m_goInfo->building.damagedEvent, attackerOrHealer);
             AI()->Damaged(attackerOrHealer, m_goInfo->building.damagedEvent);
 
@@ -2297,6 +2329,9 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
         }
         case GO_DESTRUCTIBLE_DESTROYED:
         {
+            // @tswow-begin
+            FIRE_MAP(GetGOInfo()->events,TSGameObject(this),TSWorldObject(attackerOrHealer));
+            // @tswow-end
             EventInform(m_goInfo->building.destroyedEvent, attackerOrHealer);
             AI()->Destroyed(attackerOrHealer, m_goInfo->building.destroyedEvent);
 
@@ -2351,7 +2386,9 @@ void GameObject::SetLootState(LootState state, Unit* unit)
         m_lootStateUnitGUID = unit->GetGUID();
     else
         m_lootStateUnitGUID.Clear();
-
+    // @tswow-begin
+    FIRE_MAP(GetGOInfo()->events,TSGameObject(this),state,TSUnit(unit));
+    // @tswow-end
     AI()->OnLootStateChanged(state, unit);
 
     // Start restock timer if the chest is partially looted or not looted at all
@@ -2380,6 +2417,9 @@ void GameObject::SetLootGenerationTime()
 void GameObject::SetGoState(GOState state)
 {
     SetByteValue(GAMEOBJECT_BYTES_1, 0, state);
+    // @tswow-begin
+    FIRE_MAP(GetGOInfo()->events,TSGameObject(this),state);
+    // @tswow-end
     if (AI())
         AI()->OnStateChanged(state);
     if (m_model && !IsTransport())

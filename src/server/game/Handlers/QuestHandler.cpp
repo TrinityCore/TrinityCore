@@ -331,6 +331,9 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
                         }
 
                         _player->PlayerTalkClass->ClearMenus();
+                        // @tswow-begin
+                        FIRE_MAP(questGiver->GetCreatureTemplate(),TSCreature(questgiver),TSPlayer(_player),TSQuest(quest),reward);
+                        // @tswow-end
                         questgiver->AI()->OnQuestReward(_player, quest, reward);
                         break;
                     }
@@ -351,6 +354,9 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
                         }
 
                         _player->PlayerTalkClass->ClearMenus();
+                        // @tswow-begin
+                        FIRE_MAP(questGiver->GetGOInfo(),TSGameObject(questGiver),TSPlayer(_player),TSQuest(quest),reward);
+                        // @tswow-end
                         questGiver->AI()->OnQuestReward(_player, quest, reward);
                         break;
                     }

@@ -26,6 +26,9 @@
 #include <array>
 #include <string>
 #include <vector>
+// @tswow-begin
+#include "TSEvents.h"
+// @tswow-end
 
 #define MAX_GAMEOBJECT_QUEST_ITEMS 6
 
@@ -421,6 +424,10 @@ struct GameObjectTemplate
     std::string AIName;
     uint32 ScriptId;
     WorldPacket QueryData[TOTAL_LOCALES];
+
+    // @tswow-begin
+    TSGameObjectEvents* events = nullptr;
+    // @tswow-end
 
     // helpers
     bool IsDespawnAtAction() const

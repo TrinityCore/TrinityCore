@@ -770,7 +770,6 @@ class TC_GAME_API Unit : public WorldObject
         UnitAI* GetTopAI() const { return i_AIs.empty() ? nullptr : i_AIs.top().get(); }
         void RefreshAI();
     public:
-
         void AddToWorld() override;
         void RemoveFromWorld() override;
 

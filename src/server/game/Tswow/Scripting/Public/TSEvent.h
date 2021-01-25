@@ -206,5 +206,7 @@ public:
 		handles.clear();
 	}
 };
+
+TC_GAME_API uint32_t GetReloads(uint32_t modid);
 	
 #endif

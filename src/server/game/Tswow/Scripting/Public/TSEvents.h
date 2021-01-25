@@ -24,6 +24,8 @@
 #include "TSChannel.h"
 #include "TSAura.h"
 #include "TSLoot.h"
+#include "TSMail.h"
+#include "TSAuction.h"
 #include <cstdint>
 
 // WorldScript
@@ -57,6 +59,7 @@ EVENT_TYPE(UnitModifyMeleeDamage,TSUnit,TSUnit,TSMutable<uint32>)
 EVENT_TYPE(UnitModifySpellDamageTaken,TSUnit,TSUnit,TSMutable<int32>)
 //EVENT_TYPE(UnitModifyVehiclePassengerExitPos,TSUnit,TSVehicle,TSMutable<Position>)
 
+
 // AreaTriggerScript
 //EVENT_TYPE(AreaTriggerOnTrigger,TSPlayer,const*, TSMutable<bool>)
 
@@ -64,10 +67,10 @@ EVENT_TYPE(UnitModifySpellDamageTaken,TSUnit,TSUnit,TSMutable<int32>)
 //EVENT_TYPE(WeatherOnChange,Weather*,WeatherState,float)
 
 // AuctionHouseScript
-//EVENT_TYPE(AuctionHouseOnAuctionAdd,AuctionHouseObject*,AuctionEntry*)
-//EVENT_TYPE(AuctionHouseOnAuctionRemove,AuctionHouseObject*,AuctionEntry*)
-//EVENT_TYPE(AuctionHouseOnAuctionSuccessful,AuctionHouseObject*,AuctionEntry*)
-//EVENT_TYPE(AuctionHouseOnAuctionExpire,AuctionHouseObject*,AuctionEntry*)
+EVENT_TYPE(AuctionHouseOnAuctionAdd,TSAuctionHouseObject,TSAuctionEntry)
+EVENT_TYPE(AuctionHouseOnAuctionRemove,TSAuctionHouseObject,TSAuctionEntry)
+EVENT_TYPE(AuctionHouseOnAuctionSuccessful,TSAuctionHouseObject,TSAuctionEntry)
+EVENT_TYPE(AuctionHouseOnAuctionExpire,TSAuctionHouseObject,TSAuctionEntry)
 
 // ConditionScript
 //EVENT_TYPE(ConditionOnConditionCheck,const*,TSMutable<ConditionSourceInfo>, TSMutable<bool>)
@@ -118,6 +121,7 @@ EVENT_TYPE(PlayerOnQuestObjectiveProgress,TSPlayer,TSQuest,uint32,uint16)
 EVENT_TYPE(PlayerOnQuestStatusChange,TSPlayer,uint32)
 EVENT_TYPE(PlayerOnMovieComplete,TSPlayer,uint32)
 EVENT_TYPE(PlayerOnPlayerRepop,TSPlayer)
+EVENT_TYPE(PlayerOnSendMail,TSPlayer,TSMailDraft,TSMutable<uint32>)
 
 // AccountScript
 EVENT_TYPE(AccountOnAccountLogin,uint32)
@@ -199,6 +203,7 @@ EVENT_TYPE(CreatureOnGenerateLoot,TSCreature,TSPlayer)
 EVENT_TYPE(CreatureOnGossipHello,TSCreature,TSPlayer,TSMutable<bool>)
 EVENT_TYPE(CreatureOnGossipSelect,TSCreature,TSPlayer,uint32,uint32,TSMutable<bool>)
 EVENT_TYPE(CreatureOnGossipSelectCode,TSCreature,TSPlayer,uint32,uint32,TSString,TSMutable<bool>)
+EVENT_TYPE(CreatureOnQuestAccept,TSCreature,TSPlayer,TSQuest)
 
 struct TSCreatureEvents {
      EVENT(CreatureOnMoveInLOS)
@@ -238,6 +243,48 @@ class TSCreatureMap : public TSEventMap<TSCreatureEvents>
      void OnAdd(uint32_t,TSCreatureEvents*);
      void OnRemove(uint32_t);
 };
+
+// GameObjectScript
+EVENT_TYPE(GameObjectOnSpawn,TSGameObject)
+EVENT_TYPE(GameObjectOnUpdate,TSGameObject,uint32)
+EVENT_TYPE(GameObjectOnDummyEffect,TSGameObject,TSUnit,uint32,uint32)
+EVENT_TYPE(GameObjectOnDialogStatus,TSGameObject,TSPlayer)
+EVENT_TYPE(GameObjectOnDestroyed,TSGameObject,TSPlayer)
+EVENT_TYPE(GameObjectOnDamaged,TSGameObject,TSWorldObject)
+EVENT_TYPE(GameObjectOnLootStateChanged,TSGameObject,uint32,TSUnit)
+EVENT_TYPE(GameObjectOnGOStateChanged,TSGameObject)
+
+EVENT_TYPE(GameObjectOnGossipHello,TSGameObject,TSPlayer,TSMutable<bool>)
+EVENT_TYPE(GameObjectOnGossipSelect,TSGameObject,TSPlayer,uint32,uint32,TSMutable<bool>)
+EVENT_TYPE(GameObjectOnGossipSelectCode,TSGameObject,TSPlayer,uint32,uint32,TSString,TSMutable<bool>)
+
+EVENT_TYPE(GameObjectOnAdd,TSGameObject)
+EVENT_TYPE(GameObjectOnRemove,TSGameObject)
+EVENT_TYPE(GameObjectOnUse,TSGameObject,TSUnit,TSMutable<bool>)
+EVENT_TYPE(GameObjectOnQuestAccept,TSGameObject,TSPlayer,TSQuest)
+EVENT_TYPE(GameObjectOnQuestReward,TSGameObject,TSPlayer,TSQuest,uint32)
+
+struct TSGameObjectEvents {
+     EVENT(GameObjectOnSpawn)
+     EVENT(GameObjectOnUpdate)
+     EVENT(GameObjectOnDummyEffect)
+     EVENT(GameObjectOnQuestAccept)
+     EVENT(GameObjectOnQuestReward)
+     EVENT(GameObjectOnDialogStatus)
+     EVENT(GameObjectOnDestroyed)
+     EVENT(GameObjectOnDamaged)
+     EVENT(GameObjectOnLootStateChanged)
+     EVENT(GameObjectOnGOStateChanged)
+     EVENT(GameObjectOnAdd)
+     EVENT(GameObjectOnRemove)
+     EVENT(GameObjectOnUse)
+};
+
+class TSGameObjectMap : public TSEventMap<TSGameObjectEvents> 
+{
+    void OnAdd(uint32_t,TSGameObjectEvents*);
+    void OnRemove(uint32_t);
+}
 
 struct TSEvents
 {
@@ -280,10 +327,10 @@ struct TSEvents
     //EVENT(WeatherOnChange)
 
     // AuctionHouseScript
-    //EVENT(AuctionHouseOnAuctionAdd)
-    //EVENT(AuctionHouseOnAuctionRemove)
-    //EVENT(AuctionHouseOnAuctionSuccessful)
-    //EVENT(AuctionHouseOnAuctionExpire)
+    EVENT(AuctionHouseOnAuctionAdd)
+    EVENT(AuctionHouseOnAuctionRemove)
+    EVENT(AuctionHouseOnAuctionSuccessful)
+    EVENT(AuctionHouseOnAuctionExpire)
 
     // ConditionScript
     //EVENT(ConditionOnConditionCheck)
@@ -334,6 +381,7 @@ struct TSEvents
     EVENT(PlayerOnQuestStatusChange)
     EVENT(PlayerOnMovieComplete)
     EVENT(PlayerOnPlayerRepop)
+    EVENT(PlayerOnSendMail)
 
     // AccountScript
     EVENT(AccountOnAccountLogin)
@@ -401,13 +449,31 @@ struct TSEvents
     EVENT(SpellOnTick)
     EVENT(SpellOnRemove)
 
+    // GameObjects
+    EVENT(GameObjectOnSpawn)
+    EVENT(GameObjectOnUpdate) // check
+    EVENT(GameObjectOnDummyEffect)
+    EVENT(GameObjectOnQuestAccept)
+    EVENT(GameObjectOnQuestReward)
+    EVENT(GameObjectOnDialogStatus)
+    EVENT(GameObjectOnDestroyed)
+    EVENT(GameObjectOnDamaged)
+    EVENT(GameObjectOnLootStateChanged)
+    EVENT(GameObjectOnGOStateChanged)
+    EVENT(GameObjectOnAdd) // check
+    EVENT(GameObjectOnRemove) // check
+    EVENT(GameObjectOnUse)
+
     TSSpellMap Spells;
     TSCreatureMap Creatures;
+    TSGameObjectMap GameObjects;
 };
 
 class TSEventHandlers
 {
 public:
+     uint32_t modid;
+
     struct ServerEvents: public EventHandler
     {
          ServerEvents* operator->() { return this;}
@@ -471,10 +537,10 @@ public:
     struct AuctionEvents: public EventHandler
     {
          AuctionEvents* operator->() { return this;}
-         //EVENT_HANDLE(AuctionHouse,OnAuctionAdd)
-         //EVENT_HANDLE(AuctionHouse,OnAuctionRemove)
-         //EVENT_HANDLE(AuctionHouse,OnAuctionSuccessful)
-         //EVENT_HANDLE(AuctionHouse,OnAuctionExpire)
+         EVENT_HANDLE(AuctionHouse,OnAuctionAdd)
+         EVENT_HANDLE(AuctionHouse,OnAuctionRemove)
+         EVENT_HANDLE(AuctionHouse,OnAuctionSuccessful)
+         EVENT_HANDLE(AuctionHouse,OnAuctionExpire)
     } AuctionHouse;
 
     struct ConditionEvents: public EventHandler
@@ -537,6 +603,7 @@ public:
          EVENT_HANDLE(Player,OnQuestStatusChange)
          EVENT_HANDLE(Player,OnMovieComplete)
          EVENT_HANDLE(Player,OnPlayerRepop)
+         EVENT_HANDLE(Player,OnSendMail)
     } Player;
 
     struct AccountEvents : public EventHandler
@@ -666,6 +733,38 @@ public:
           MAP_EVENT_HANDLE(Creature,OnGossipSelectCode)
     } CreatureID;
 
+    struct GameObjectEvents: public EventHandler {
+          EVENT_HANDLE(GameObject,OnSpawn)
+          EVENT_HANDLE(GameObject,OnUpdate)
+          EVENT_HANDLE(GameObject,OnDummyEffect)
+          EVENT_HANDLE(GameObject,OnQuestAccept)
+          EVENT_HANDLE(GameObject,OnQuestReward)
+          EVENT_HANDLE(GameObject,OnDialogStatus)
+          EVENT_HANDLE(GameObject,OnDestroyed)
+          EVENT_HANDLE(GameObject,OnDamaged)
+          EVENT_HANDLE(GameObject,OnLootStateChanged)
+          EVENT_HANDLE(GameObject,OnGOStateChanged)
+          EVENT_HANDLE(GameObject,OnAdd)
+          EVENT_HANDLE(GameObject,OnRemove)
+          EVENT_HANDLE(GameObject,OnUse)
+    } GameObjects;
+
+     struct GameObjectIDEvents: public EventHandler {
+          MAP_EVENT_HANDLE(GameObject,OnSpawn)
+          MAP_EVENT_HANDLE(GameObject,OnUpdate)
+          MAP_EVENT_HANDLE(GameObject,OnDummyEffect)
+          MAP_EVENT_HANDLE(GameObject,OnQuestAccept)
+          MAP_EVENT_HANDLE(GameObject,OnQuestReward)
+          MAP_EVENT_HANDLE(GameObject,OnDialogStatus)
+          MAP_EVENT_HANDLE(GameObject,OnDestroyed)
+          MAP_EVENT_HANDLE(GameObject,OnDamaged)
+          MAP_EVENT_HANDLE(GameObject,OnLootStateChanged)
+          MAP_EVENT_HANDLE(GameObject,OnGOStateChanged)
+          MAP_EVENT_HANDLE(GameObject,OnAdd)
+          MAP_EVENT_HANDLE(GameObject,OnRemove)
+          MAP_EVENT_HANDLE(GameObject,OnUse)
+    } GameObjectID;
+
 
     void LoadEvents(TSEvents* events)
     {
@@ -688,6 +787,8 @@ public:
         CreatureID.LoadEvents(&events->Creatures);
         Creatures.LoadEvents(events);
         Spells.LoadEvents(events);
+        GameObjects.LoadEvents(events);
+        GameObjectID.LoadEvents(&events->GameObjects);
     }
 
     void Unload()
@@ -713,3 +814,6 @@ public:
          Creatures.Unload();
     }
 };
+
+TC_GAME_API TSTasks<void*> GetTimers();
+TC_GAME_API TSEvents* GetTSEvents();

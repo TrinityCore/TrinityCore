@@ -73,6 +73,18 @@ declare class TSPlayer extends TSUnit {
     IsNull() : bool
 
     /**
+     * Immediately sends a mail to this player
+     * @param senderType 
+     * @param from 
+     * @param subject 
+     * @param body 
+     * @param money 
+     * @param cod 
+     * @param items 
+     */
+	SendMail(senderType: uint8, from: uint64, subject: string, body: string, money? : uint32, cod? : uint32, items? : TSArray<TSItem>);
+
+    /**
      * Returns 'true' if the [Player] can Titan Grip, 'false' otherwise.
      *
      * @return bool canTitanGrip
@@ -3167,6 +3179,8 @@ declare class TSQuest {
 declare class TSMap {
     IsNull() : bool
 
+    GetTasks(): TSTasks<TSMap>;
+
     /**
      * Returns `true` if the [Map] is an arena [BattleGround], `false` otherwise.
      *
@@ -4103,6 +4117,8 @@ declare class TSWorldObject extends TSObject {
     GetUnitsInRange(range : float,hostile : uint32,dead : uint32) : TSArray<TSUnit>
     GetPlayersInRange(range : float,hostile : uint32,dead : uint32) : TSArray<TSPlayer>
     GetGameObjectsInRange(range : float,entry : uint32,hostile : uint32) : TSArray<TSGameObject>
+
+    GetTasks(): TSTasks<TSWorldObject>
 
     /**
      * Returns the name of the [WorldObject]
@@ -6116,6 +6132,7 @@ declare namespace _hidden {
         OnQuestStatusChange(callback: (player : TSPlayer,questId : uint32)=>void);
         OnMovieComplete(callback: (player : TSPlayer,movieId : uint32)=>void);
         OnPlayerRepop(callback: (player : TSPlayer)=>void);
+        OnSendMail(callback: (player: TSPlayer, draft: TSMailDraft, delay: TSMutable<uint32>)=>void);
     }
 
     export class Account {
@@ -6231,6 +6248,13 @@ declare namespace _hidden {
         OnGossipSelect(callback: (creature: TSCreature, player: TSPlayer, menuId: number, selectionId: number, cancel: TSMutable<bool>)=>void)
         OnGossipSelectCode(callback: (creature: TSCreature, player: TSPlayer, menuId: number, selectionId: number, code: string, cancel: TSMutable<bool>)=>void)
     }
+
+    export class AuctionHouse {
+        OnAuctionAdd(callback: (obj: TSAuctionHouseObject, entry: TSAuctionEntry)=>void);
+        OnAuctionRemove(callback: (obj: TSAuctionHouseObject, entry: TSAuctionEntry)=>void);
+        OnAuctionSuccessful(callback: (obj: TSAuctionHouseObject, entry: TSAuctionEntry)=>void);
+        OnAuctionExpire(callback: (obj: TSAuctionHouseObject, entry: TSAuctionEntry)=>void);
+    }
 }
 
 declare class TSEventHandlers {
@@ -6249,6 +6273,7 @@ declare class TSEventHandlers {
     Creatures: _hidden.Creatures;
     CreatureID: _hidden.CreatureID;
     SpellID: _hidden.SpellID;
+    Auction: _hidden.AuctionHouse;
 }
 
 declare class TSDictionary<K,V> {
@@ -6261,32 +6286,21 @@ declare class TSDictionary<K,V> {
     filter(callback: (key: K, value: V)=>boolean): TSDictionary<K,V>
 }
 
-declare class TSLootStoreItem {
-    SetItemID(itemId: uint32) : TSLootStoreItem;
-    SetReference(reference: uint32) : TSLootStoreItem;
-    SetChance(chance: float) : TSLootStoreItem;
-    SetLootMode(lootMode: uint16) : TSLootStoreItem;
-    SetNeedsQuest(needsQuest: bool) : TSLootStoreItem;
-    SetGroupID(groupId: uint8) : TSLootStoreItem;
-    SetMinCount(minCount: uint8) : TSLootStoreItem;
-    SetMaxCount(maxCount: uint8) : TSLootStoreItem;
-
+declare class TSLootItem {
     GetItemID(): uint32;
-    GetReference(): uint32;
-    GetChance(): float;
-    GetLootMode(): uint16;
-    GetNeedsQuest(): bool;
-    GetGroupID(): uint8;
-    GetMinCount(): uint8;
-    GetMaxCount(): uint8;
+    GetRandomSuffix(): uint32;
+    GetRandomPropertyID(): uint32;
+    GetCount(): uint32;
+    SetItemID(itemId: uint32);
+    SetRandomPropertyID(propertyId: int32);
+    SetCount(count: uint8);
 }
 
 declare class TSLoot {
     IsNull(): bool;
     Clear(): void;
     IsLooted(): bool;
-    AddItem(item: TSLootStoreItem): void;
-    AddItems(items: TSArray<TSLootStoreItem>);
+    AddItem(id: uint32, minCount: uint8, maxCount: uint8, lootMode?: uint16, needsQuest?: bool, groupId?: uint8): void;
     AddLooter(looter: uint64): void;
     RemoveLooter(looter: uint64): void;
     SetLootType(lootType: uint32): void;
@@ -6295,12 +6309,117 @@ declare class TSLoot {
     GetMoney(): uint32;
     GetLootOwner(): uint64;
     SetLootOwner(owner: uint64);
+    GetItemCount(): uint32;
+    GetQuestItemCount(): uint32;
+
+    GetItem(index: uint32): TSLootItem;
+    GetQuestItem(index: uint32): TSLootItem;
+    Filter(predicate: (item: TSLootItem)=>bool);
 }
+
+declare class TSAuctionEntry {
+    GetID(): uint32;
+    GetHouseID(): uint8;
+    /**
+     * Returns the GUID of this item
+     */
+    GetItemID(): uint64;
+    /**
+     * Returns the item_template id of this item
+     */
+    GetItemEntry(): uint32;
+    GetItemCount(): uint32;
+    GetOwnerID(): uint64;
+    GetStartBid(): uint32;
+    GetBid(): uint32;
+    GetBuyout(): uint32;
+    GetExpireTime(): uint64;
+    GetBidder(): uint64;
+    GetDeposit(): uint32;
+    GetETime(): uint32;
+    GetBidders(): TSArray<uint64>
+    GetFlags(): uint32;
+    
+    SetItemID(itemId: uint64);
+    SetItemEntry(itemEntry: uint64);
+    SetItemCount(itemCount: uint32);
+    SetOwnerID(ownerId: uint64);
+    SetStartBid(startBid: uint32);
+    SetBid(bid: uint32);
+    SetBuyout(buyout: uint32);
+    SetBidder(bidder:uint64);
+    SetDeposit(deposit: uint32);
+    SetETime(eTime: uint32);
+    SetFlags(flags: uint32);
+}
+
+declare class TSAuctionHouseObject {
+    GetKeys() : TSArray<uint32>
+    GetEntry(key: uint32): TSAuctionEntry
+    RemoveAuction(key: uint32|TSAuctionEntry): bool
+    GetCount(): uint32;
+    AddAuction(entry: TSAuctionEntry);
+}
+
+declare class TSMailItemInfo {
+    GetGUID(): uint64;
+    GetItemTemplate(): uint32;
+}
+
+declare class TSMail {
+    GetID(): uint32;
+    GetType(): uint8;
+    GetTemplateID(): uint16;
+    GetSender(): uint64;
+    GetReceiver(): uint64;
+    GetState(): uint16;
+    GetMoney(): uint32;
+    GetCOD(): uint32;
+    GetChecked(): uint32;
+    GetSubject(): string;
+    GetBody(): string;
+    GetItems(): TSArray<TSMailItemInfo>
+    GetItemCount(): uint32;
+    FilterItems(predicate: (info: TSMailItemInfo)=>boolean);
+    RemoveAllItems();
+    AddItem(entry: uint32, count: uint8, player?: TSPlayer);
+    SetMoney(money: uint32)
+    SetCOD(cod: uint32)
+    SetChecked(checked: uint32)
+    SetSender(type: uint8, guid: uint64)
+    SetSubject(subject: string)
+    SetBody(body: string)
+    SetState(state: uint8)
+}
+
+declare class TSMailDraft {
+    GetTemplateID(): uint16
+    GetSubject(): string
+    GetBody(): string;
+    GetMoney(): uint32;
+    GetCOD(): uint32;
+    GetItemKeys(): TSArray<uint64>
+    GetItem(item: uint64): TSItem
+    SetTemplateID(id: uint16);
+    SetSubject(subject: string);
+    SetBody(body: string);
+    AddItem(enry: uint32, count: uint8, player?: TSPlayer);
+    FilterItems(predicate: (item: TSItem)=>boolean);
+}
+
+// Global.h
+declare function SendMail(senderType: uint8, from: uint64, subject: string, body: string, money?: uint32, cod?: uint32, delay?: uint32, items?: TSArray<TSItem>);
+// end of Global.h
 
 declare function MakeDictionary<K,V>(obj: {[key: string]: V}) : TSDictionary<K,V>
 
 declare function GetID(table: string, mod: string, name: string);
 declare function GetIDRange(table: string, mod: string, name: string);
+
+declare class TSTasks<T> {
+    AddTimer(id: uint32, name: string, time: uint32, repeats: uint32, cb: (type: T, delay: uint32)=>void)
+    RemoveTimer(name: string);
+}
 
 declare class TSDatabaseResult {
     GetUInt8(index: int): uint8;
@@ -6333,6 +6452,7 @@ declare class TSClass {
 }
 
 declare function CreateLootItem(id: uint32, reference?: uint32, chance?: float, lootmode?: uint16, needsQuest?: bool, groupId?: uint8, minCount?: uint8, maxCount?: uint8)
+declare function CreateItem(entry: uint32, count: uint32): TSItem;
 
 declare function QueryWorld(query: string): TSDatabaseResult;
 declare function QueryCharacters(query: string): TSDatabaseResult;
@@ -6343,5 +6463,9 @@ declare function CharactersTable(classTarget: any)
 declare function AuthTable(classTarget: any)
 declare function Field(fieldTarget: any, name: any)
 declare function PrimaryKey(pkTarget: any, name: any)
+
+declare function GetTimers() : TSTasks<void>
+
+declare function ModID(): uint32;
 
 declare function LoadRows<T extends DBTable>(cls: {new (...args: any[]): T}, query: string): TSArray<T>

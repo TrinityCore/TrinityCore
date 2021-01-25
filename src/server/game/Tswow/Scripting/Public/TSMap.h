@@ -20,6 +20,7 @@
 #include "TSString.h"
 #include "TSArray.h"
 #include "TSClasses.h"
+#include "TSTask.h"
 
 class TC_GAME_API TSMap {
 public:
@@ -44,4 +45,5 @@ public:
     uint32 GetAreaId(float x, float y, float z, float phasemask);
     TSWorldObject  GetWorldObject(uint64 guid);
     void SetWeather(uint32 zoneId, uint32 weatherType, float grade);
+    TSTasks<TSMap> GetTasks();
 };

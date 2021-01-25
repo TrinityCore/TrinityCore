@@ -36,6 +36,7 @@
 #include "ReputationMgr.h"
 #include "Chat.h"
 #include "GossipDef.h"
+#include "Mail.h"
 
 #include "TSUnit.h"
 #include "TSItem.h"
@@ -47,6 +48,8 @@
 #include "TSObject.h"
 #include "TSWorldPacket.h"
 #include "TSCreature.h"
+#include "TSMail.h"
+
 
 TSPlayer::TSPlayer(Player *player) : TSUnit(player)
 {
@@ -3613,11 +3616,44 @@ void TSPlayer::SendCinematicStart(uint32 CinematicSequenceId)
  */
 void TSPlayer::SendMovieStart(uint32 MovieId) 
 {
-    
     player->SendMovieStart(MovieId);
 }
 #endif
-    
+
+void TSPlayer::SendMail(uint8 senderType, uint64 from, TSString subject, TSString body, uint32 money, uint32 cod, uint32 delay, TSArray<TSItem> items) 
+{
+    MailSender sender(MailMessageType(senderType),from);
+    MailDraft draft(subject.std_str(),body.std_str());
+    draft.AddMoney(money);
+    draft.AddCOD(cod);
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
+
+    for(int i=0;i<items.get_length();++i)
+    {
+        auto item = items.get(i);
+        item->item->SaveToDB(trans);
+        draft.AddItem(item.item);
+    }
+
+    draft.SendMailTo(trans,MailReceiver(player,player->GetGUID().GetCounter()),sender, MAIL_CHECK_MASK_NONE, delay);
+    CharacterDatabase.CommitTransaction(trans);
+}
+
+TSArray<TSMail> TSPlayer::GetMails()
+{
+    TSArray<TSMail> arr;
+    for(auto &i : player->GetMails())
+    {
+        arr.push(i);
+    }
+    return arr;
+}
+
+void TSPlayer::RemoveMail(uint32 id)
+{
+    player->RemoveMail(id);
+}
+
 /*int TSPlayer::BindToInstance(lua_State* L, Player* player)
 {
 player->BindToInstance();

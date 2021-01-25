@@ -141,7 +141,9 @@ class TC_GAME_API MailDraft
         void SendReturnToSender(uint32 sender_acc, ObjectGuid::LowType sender_guid, ObjectGuid::LowType receiver_guid, CharacterDatabaseTransaction trans);
         void SendMailTo(CharacterDatabaseTransaction trans, MailReceiver const& receiver, MailSender const& sender, MailCheckMask checked = MAIL_CHECK_MASK_NONE, uint32 deliver_delay = 0);
 
-    private:
+    // @tswow-begin: change to public
+    public:
+    // @tswow-end
         void deleteIncludedItems(CharacterDatabaseTransaction trans, bool inDB = false);
         void prepareItems(Player* receiver, CharacterDatabaseTransaction trans);                // called from SendMailTo for generate mailTemplateBase items
 

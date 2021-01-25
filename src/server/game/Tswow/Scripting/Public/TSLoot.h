@@ -18,41 +18,23 @@
 
 #include "TSMain.h"
 #include "TSArray.h"
+#include <functional>
 
-class TC_GAME_API TSLootStoreItem {
-public:
-    uint32 itemid;
-    uint32 reference;
-    float chance;
-    uint16 lootmode;
-    bool needs_quest;
-    uint8 groupid;
-    uint8 mincount;
-    uint8 maxcount;
-
-    TSLootStoreItem() {};
-    TSLootStoreItem* operator->() {return this;}
-
-    TSLootStoreItem SetItemID(uint32 itemId);
-    TSLootStoreItem SetReference(uint32 reference);
-    TSLootStoreItem SetChance(float chance);
-    TSLootStoreItem SetLootMode(uint16 lootmode);
-    TSLootStoreItem SetNeedsQuest(bool needsQuest);
-    TSLootStoreItem SetGroupID(uint8 groupId);
-    TSLootStoreItem SetMinCount(uint8 min);
-    TSLootStoreItem SetMaxCount(uint8 max);
-
+struct LootItem;
+struct TC_GAME_API TSLootItem {
+    LootItem* item;
+    TSLootItem(LootItem* item);
+    TSLootItem* operator->() {return this;}
     uint32 GetItemID();
-    uint32 GetReference();
-    float GetChance();
-    uint16 GetLootMode();
-    bool GetNeedsQuest();
-    uint8 GetGroupID();
-    uint8 GetMinCount();
-    uint8 GetMaxCount();
-};
+    uint32 GetRandomSuffix();
+    int32 GetRandomPropertyID();
+    uint8 GetCount();
 
-TC_GAME_API TSLootStoreItem CreateLootItem(uint32 id, uint32 reference = 0, float chance = 100, uint16 lootmode = 0, bool needsQuest = false, uint8 groupId = 0, uint8 minCount = 1, uint8 maxCount = 1);
+    void SetItemID(uint32 itemId);
+    void SetRandomSuffix(uint32 randomSuffix);
+    void SetRandomPropertyID(int32 propertyId);
+    void SetCount(uint8 count);
+};
 
 class Loot;
 class TC_GAME_API TSLoot {
@@ -64,8 +46,7 @@ class TC_GAME_API TSLoot {
         bool IsNull() { return loot == nullptr; }
         void Clear();
         bool IsLooted();
-        void AddItem(TSLootStoreItem item);
-        void AddItems(TSArray<TSLootStoreItem> items);
+        void AddItem(uint32 id, uint8 minCount, uint8 maxCount, uint16 lootmode = 0, bool needsQuest = false, uint8 groupId = 0);
         void AddLooter(uint64 looter);
         void RemoveLooter(uint64 looter);
 
@@ -77,4 +58,12 @@ class TC_GAME_API TSLoot {
 
         uint64 GetLootOwner();
         void SetLootOwner(uint64 owner);
+
+        uint32 GetItemCount();
+        uint32 GetQuestItemCount();
+
+        TSLootItem GetItem(uint32 index);
+        TSLootItem GetQuestItem(uint32 index);
+
+        void Filter(std::function<bool(TSLootItem)> predicate);
 };

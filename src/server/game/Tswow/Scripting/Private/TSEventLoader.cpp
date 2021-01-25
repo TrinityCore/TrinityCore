@@ -41,23 +41,52 @@
 #include "SpellInfo.h"
 #include "TSIds.h"
 #include "TSChannel.h"
+#include "TSTask.h"
 #include <fstream>
 #include <map>
 
+TSTasks<void*> globalTasks;
+
+TSTasks<void*> GetTasks()
+{
+    return globalTasks;
+}
+
 TSEvents tsEvents;
 std::map<std::string,TSEventHandlers> eventHandlers;
+
+std::map<std::string,uint32_t> modIds;
+std::vector<uint32_t> reloads;
 
 TSEvents* GetTSEvents()
 {
     return &tsEvents;
 }
 
+uint32_t GetReloads(uint32_t modid)
+{
+    return reloads[modid];
+}
+
 TSEventHandlers* TSLoadEventHandler(boost::filesystem::path const& name)
 {
     std::string sname = name.string();
-    eventHandlers[sname] = TSEventHandlers();
-    eventHandlers[sname].LoadEvents(&tsEvents);
-    return &eventHandlers[sname];
+
+    uint32_t modid = 0;
+    if(modIds.find(sname) != modIds.end())
+    {
+        modid = modIds[sname];
+    }
+    else
+    {
+        modid = reloads.size();
+        reloads.push_back(0);
+    }
+
+    auto handler = &(eventHandlers[sname] = TSEventHandlers());
+    handler->modid = modid;
+    handler->LoadEvents(&tsEvents);
+    return handler;
 }
 
 void TSUnloadEventHandler(boost::filesystem::path const& name)
@@ -68,6 +97,7 @@ void TSUnloadEventHandler(boost::filesystem::path const& name)
     if(iter!=eventHandlers.end())
     {
         iter->second.Unload();
+        reloads[iter->second.modid]++;
         eventHandlers.erase(sname);
     }
 }
@@ -87,6 +117,15 @@ public:
     void OnMotdChange(std::string& newMotd) FIRE(WorldOnMotdChange,TSString(newMotd))
     void OnShutdownInitiate(ShutdownExitCode code,ShutdownMask mask) FIRE(WorldOnShutdownInitiate,code,mask)
     void OnUpdate(uint32 diff) FIRE(WorldOnUpdate,diff)
+};
+
+class TSWorldUpdater : public WorldScript {
+public:
+    TSWorldUpdater() : WorldScript("TSWorldUpdater"){}
+    void OnUpdate(uint32 diff)
+    {
+        globalTasks.Tick(nullptr);
+    }
 };
 
 class TSFormulaScript : public FormulaScript
@@ -143,10 +182,10 @@ class TSAuctionHouseScript : public AuctionHouseScript
 {
 public:
     TSAuctionHouseScript() : AuctionHouseScript("TSAuctionHouseScript"){}
-    //void OnAuctionAdd(AuctionHouseObject* ah,AuctionEntry* entry) FIRE(AuctionHouseOnAuctionAdd,ah,entry)
-    //void OnAuctionRemove(AuctionHouseObject* ah,AuctionEntry* entry) FIRE(AuctionHouseOnAuctionRemove,ah,entry)
-    //void OnAuctionSuccessful(AuctionHouseObject* ah,AuctionEntry* entry) FIRE(AuctionHouseOnAuctionSuccessful,ah,entry)
-    //void OnAuctionExpire(AuctionHouseObject* ah,AuctionEntry* entry) FIRE(AuctionHouseOnAuctionExpire,ah,entry)
+    void OnAuctionAdd(AuctionHouseObject* ah,AuctionEntry* entry) FIRE(AuctionHouseOnAuctionAdd,TSAuctionHouseObject(ah),TSAuctionEntry(entry))
+    void OnAuctionRemove(AuctionHouseObject* ah,AuctionEntry* entry) FIRE(AuctionHouseOnAuctionRemove,TSAuctionHouseObject(ah),TSAuctionEntry(entry))
+    void OnAuctionSuccessful(AuctionHouseObject* ah,AuctionEntry* entry) FIRE(AuctionHouseOnAuctionSuccessful,TSAuctionHouseObject(ah),TSAuctionEntry(entry))
+    void OnAuctionExpire(AuctionHouseObject* ah,AuctionEntry* entry) FIRE(AuctionHouseOnAuctionExpire,TSAuctionHouseObject(ah),TSAuctionEntry(entry))
 };
 
 class TSConditionScript : public ConditionScript
@@ -276,6 +315,11 @@ void TSCreatureMap::OnRemove(uint32_t key)
     
 }
 
+void TSGameObjectMap::OnAdd(uint32_t key, TSGameObjectEvents* events)
+{
+    const_cast<GameObjectTemplate*>(sObjectMgr->GetGameObjectTemplate(key))->events = events;
+}
+
 static std::map<TSString, IDRange> tables;
 IDRange GetIDRange(TSString table, TSString mod, TSString name)
 {
@@ -359,7 +403,7 @@ void TSInitializeEvents()
     new TSUnitScript();
     //new TSAreaTriggerScript();
     //new TSWeatherScript();
-    //new TSAuctionHouseScript();
+    new TSAuctionHouseScript();
     //new TSConditionScript();
     //new TSVehicleScript();
     //new TSAchievementCriteriaScript();
@@ -367,5 +411,6 @@ void TSInitializeEvents()
     new TSAccountScript();
     new TSGuildScript();
     new TSGroupScript();
+    new TSWorldUpdater();
     LoadIDs();
 };

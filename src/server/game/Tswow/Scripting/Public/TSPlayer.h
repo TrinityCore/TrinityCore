@@ -21,6 +21,7 @@
 #include "TSClasses.h"
 #include "TSUnit.h"
 
+struct TSMail;
 class TC_GAME_API TSPlayer : public TSUnit {
 public:
 	Player* player;
@@ -255,4 +256,8 @@ public:
 	TSGroup GroupCreate(TSPlayer invited);
 	void SendCinematicStart(uint32 CinematicSequenceId);
 	void SendMovieStart(uint32 MovieId);
+	void SendMail(uint8 senderType, uint64 from, TSString subject, TSString body, uint32 money = 0, uint32 cod = 0, uint32 delay = 0, TSArray<TSItem> items = TSArray<TSItem>());
+
+	TSArray<TSMail> GetMails();
+	void RemoveMail(uint32 id);
 };

@@ -211,7 +211,9 @@ struct TC_GAME_API CreatureTemplate
     uint32  GetFirstValidModelId() const;
     uint32  GetFirstInvisibleModel() const;
     uint32  GetFirstVisibleModel() const;
-    TSCreatureEvents* events = nullptr; // @tswow-line
+    // @tswow-begin
+    TSCreatureEvents* events = nullptr;
+    // @tswow-end
 
     // helpers
     SkillType GetRequiredLootSkill() const

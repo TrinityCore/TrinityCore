@@ -21,6 +21,7 @@
 #include "TSClasses.h"
 #include "TSObject.h"
 #include "TSPosition.h"
+#include "TSTask.h"
 
 class TC_GAME_API TSWorldObject : public TSObject {
 public:
@@ -84,4 +85,5 @@ public:
     TSUnit GetUnit(uint64 guid);
     TSCreature GetCreature(uint64 guid);
     TSPlayer GetPlayer(uint64 guid);
+    TSTasks<TSWorldObject> GetTasks();
 };

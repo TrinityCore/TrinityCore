@@ -36,6 +36,10 @@
 #include <list>
 #include <set>
 #include <unordered_map>
+// @tswow-begin
+#include "TSWorldObject.h"
+#include "TSTask.h"
+// @tswow-end
 
 class Corpse;
 class Creature;
@@ -288,6 +292,10 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         explicit WorldObject(bool isWorldObject); //note: here it means if it is in grid object list or world object list
     public:
         virtual ~WorldObject();
+
+        // @tswow-begin
+        TSTasks<TSWorldObject> tasks;
+        // @tswow-end
 
         virtual void Update(uint32 /*time_diff*/) { }
 
