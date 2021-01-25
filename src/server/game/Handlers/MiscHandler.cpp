@@ -36,6 +36,9 @@
 #include "GossipDef.h"
 #include "Group.h"
 #include "GuildMgr.h"
+// @tswow-begin
+#include "Item.h"
+// @tswow-end
 #include "Language.h"
 #include "Log.h"
 #include "MapManager.h"
@@ -116,6 +119,9 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
     if (_player->PlayerTalkClass->GetGossipMenu().GetSenderGUID() != guid)
         return;
 
+    // @tswow-begin
+    Item* item = nullptr;
+    // @tswow-end
     Creature* unit = nullptr;
     GameObject* go = nullptr;
     if (guid.IsCreatureOrVehicle())
@@ -136,6 +142,25 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
             return;
         }
     }
+    // @tswow-begin
+    else if (guid.IsItem())
+    {
+        item = _player->GetItemByGuid(guid);
+        if (!item || _player->IsBankPos(item->GetPos()))
+        {
+            TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - %s not found.", guid.ToString().c_str());
+            return;
+        }
+    }
+    else if (guid.IsPlayer())
+    {
+        if (guid != _player->GetGUID() || menuId != _player->PlayerTalkClass->GetGossipMenu().GetMenuId())
+        {
+            TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - %s not found.", guid.ToString().c_str());
+            return;
+        }
+    }
+    // @tswow-end
     else
     {
         TC_LOG_DEBUG("network", "WORLD: HandleGossipSelectOptionOpcode - unsupported %s.", guid.ToString().c_str());
@@ -158,27 +183,36 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
     }
     if (!code.empty())
     {
+        // @tswow-begin
         if (unit)
         {
-            // @tswow-begin
             bool b = false;
             FIRE_BOOL_MAP(unit->GetCreatureTemplate()->events,CreatureOnGossipSelectCode,b,TSCreature(unit),TSPlayer(_player),menuId,gossipListId,TSString(code.c_str()));
             if (!b && !unit->AI()->OnGossipSelectCode(_player, menuId, gossipListId, code.c_str()))
-            // @tswow-end
                 _player->OnGossipSelect(unit, gossipListId, menuId);
         }
-        else
+        else if(go)
         {
-            // @tswow-begin
             bool b = false;
             FIRE_BOOL_MAP(go->GetGOInfo()->events,GameObjectOnGossipSelectCode,b,TSGameObject(go),TSPlayer(_player),menuId,gossipListId,TSString(code.c_str()));
             if (!b && !go->AI()->OnGossipSelectCode(_player, menuId, gossipListId, TSString(code.c_str())))
-            // @tswow-end
                 _player->OnGossipSelect(go, gossipListId, menuId);
         }
+        else if(item)
+        {
+            bool b = false;
+            FIRE_BOOL_MAP(item->GetTemplate()->events,ItemOnGossipSelectCode,b,TSItem(item),TSPlayer(player),menuId,gossipListId,TSString(code.c_str()));
+            if(!b)
+                sScriptMgr->OnGossipSelectCode(_player, item, _player->PlayerTalkClass->GetGossipOptionSender(gossipListId), _player->PlayerTalkClass->GetGossipOptionAction(gossipListId), code.c_str());
+        } else {
+            FIRE(PlayerOnGossipSelectCode,TSPlayer(_player),TSPlayer(_player->PlayerTalkClass->GetGossipOptionSender(gossipListId),menuId,gossipListId));
+            sScriptMgr->OnGossipSelectCode(_player, menuId, _player->PlayerTalkClass->GetGossipOptionSender(gossipListId), _player->PlayerTalkClass->GetGossipOptionAction(gossipListId), code.c_str());
+        }
+        // @tswow-end
     }
     else
     {
+        // @tswow-begin
         if (unit)
         {
             // @tswow-begin
@@ -188,15 +222,27 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
             if (!unit->AI()->OnGossipSelect(_player, menuId, gossipListId))
                 _player->OnGossipSelect(unit, gossipListId, menuId);
         }
-        else
+        else if(go)
         {
-            // @tswow-begin
             bool b = false;
             FIRE_BOOL_MAP(go->GetGOInfo()->events,GameObjectOnGossipSelect,b,TSGameObject(go),TSPlayer(_player),menuId,gossipListId);
             if (!b && !go->AI()->OnGossipSelect(_player, menuId, gossipListId))
-            // @tswow-end
                 _player->OnGossipSelect(go, gossipListId, menuId);
+        } 
+        else if(item)
+        {
+            bool b = false;
+            FIRE_BOOL_MAP(item->GetTemplate()->events,ItemOnGossipSelect,b,TSItem(item),TSPlayer(_player),menuId,gossipListId);
+            sScriptMgr->OnGossipSelect(_player, item, _player->PlayerTalkClass->GetGossipOptionSender(gossipListId), _player->PlayerTalkClass->GetGossipOptionAction(gossipListId));
         }
+        else
+        {
+            bool b = false;
+            FIRE(PlayerOnGossipSelect,TSPlayer(_player),TSPlayer(_player->PlayerTalkClass->GetGossipOptionSender(gossiplistId)),menuId,gossipListId);
+            sScriptMgr->OnGossipSelect(_player, menuId, _player->PlayerTalkClass->GetGossipOptionSender(gossipListId), _player->PlayerTalkClass->GetGossipOptionAction(gossipListId));
+        }
+
+        //@tswow-end
     }
 }
 
