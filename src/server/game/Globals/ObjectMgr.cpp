@@ -1202,8 +1202,8 @@ void ObjectMgr::LoadGameObjectAddons()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0     1                 2                 3                 4                 5                 6                  7
-    QueryResult result = WorldDatabase.Query("SELECT guid, parent_rotation0, parent_rotation1, parent_rotation2, parent_rotation3, invisibilityType, invisibilityValue, WorldEffectID FROM gameobject_addon");
+    //                                               0     1                 2                 3                 4                 5                 6                  7              8
+    QueryResult result = WorldDatabase.Query("SELECT guid, parent_rotation0, parent_rotation1, parent_rotation2, parent_rotation3, invisibilityType, invisibilityValue, WorldEffectID, AIAnimKitID FROM gameobject_addon");
 
     if (!result)
     {
@@ -1230,6 +1230,7 @@ void ObjectMgr::LoadGameObjectAddons()
         gameObjectAddon.invisibilityType = InvisibilityType(fields[5].GetUInt8());
         gameObjectAddon.InvisibilityValue = fields[6].GetUInt32();
         gameObjectAddon.WorldEffectID = fields[7].GetUInt32();
+        gameObjectAddon.AIAnimKitID   = fields[8].GetUInt32();
 
         if (gameObjectAddon.invisibilityType >= TOTAL_INVISIBILITY_TYPES)
         {
@@ -1254,6 +1255,12 @@ void ObjectMgr::LoadGameObjectAddons()
         {
             TC_LOG_ERROR("sql.sql", "GameObject (GUID: " UI64FMTD ") has invalid WorldEffectID (%u) in `gameobject_addon`, set to 0.", guid, gameObjectAddon.WorldEffectID);
             gameObjectAddon.WorldEffectID = 0;
+        }
+
+        if (gameObjectAddon.AIAnimKitID && !sAnimKitStore.LookupEntry(gameObjectAddon.AIAnimKitID))
+        {
+            TC_LOG_ERROR("sql.sql", "GameObject (GUID: " UI64FMTD ") has invalid AIAnimKitID (%u) in `gameobject_addon`, set to 0.", guid, gameObjectAddon.AIAnimKitID);
+            gameObjectAddon.AIAnimKitID = 0;
         }
 
         ++count;
@@ -7481,8 +7488,8 @@ void ObjectMgr::LoadGameObjectTemplateAddons()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                                0       1       2      3        4        5
-    QueryResult result = WorldDatabase.Query("SELECT entry, faction, flags, mingold, maxgold, WorldEffectID FROM gameobject_template_addon");
+    //                                               0      1        2      3        4        5              6
+    QueryResult result = WorldDatabase.Query("SELECT entry, faction, flags, mingold, maxgold, WorldEffectID, AIAnimKitID FROM gameobject_template_addon");
 
     if (!result)
     {
@@ -7510,6 +7517,7 @@ void ObjectMgr::LoadGameObjectTemplateAddons()
         gameObjectAddon.mingold       = fields[3].GetUInt32();
         gameObjectAddon.maxgold       = fields[4].GetUInt32();
         gameObjectAddon.WorldEffectID = fields[5].GetUInt32();
+        gameObjectAddon.AIAnimKitID   = fields[6].GetUInt32();
 
         // checks
         if (gameObjectAddon.faction && !sFactionTemplateStore.LookupEntry(gameObjectAddon.faction))
@@ -7532,6 +7540,12 @@ void ObjectMgr::LoadGameObjectTemplateAddons()
         {
             TC_LOG_ERROR("sql.sql", "GameObject (Entry: %u) has invalid WorldEffectID (%u) defined in `gameobject_template_addon`, set to 0.", entry, gameObjectAddon.WorldEffectID);
             gameObjectAddon.WorldEffectID = 0;
+        }
+
+        if (gameObjectAddon.AIAnimKitID && !sAnimKitStore.LookupEntry(gameObjectAddon.AIAnimKitID))
+        {
+            TC_LOG_ERROR("sql.sql", "GameObject (Entry: %u) has invalid AIAnimKitID (%u) defined in `gameobject_template_addon`, set to 0.", entry, gameObjectAddon.AIAnimKitID);
+            gameObjectAddon.AIAnimKitID = 0;
         }
 
         ++count;
