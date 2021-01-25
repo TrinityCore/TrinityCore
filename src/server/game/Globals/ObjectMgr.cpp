@@ -2122,7 +2122,7 @@ void ObjectMgr::LoadCreatures()
 
         if (data.spawntimesecs > data.spawntimesecmax && data.spawntimesecmax != 0)
         {
-            TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: %u Entry: %u) with lower `spawnTimeSecMax` %u as `spawntimesecs` %u this is useles and set spawnTimeSecMax to 0", guid, data.id, data.spawntimesecmax, data.spawntimesecs);
+            TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: " UI64FMTD " Entry: %u) with lower `spawnTimeSecMax` %u as `spawntimesecs` %u this is useles and set spawnTimeSecMax to 0", guid, data.id, data.spawntimesecmax, data.spawntimesecs);
             data.spawnTimeSecMax = 0;
         }
 
