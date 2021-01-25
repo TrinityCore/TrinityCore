@@ -49,9 +49,9 @@ public:
         static std::vector<ChatCommand> teleCommandTable =
         {
             { "add",   rbac::RBAC_PERM_COMMAND_TELE_ADD,   false, &HandleTeleAddCommand,   "" },
-            { "del",   rbac::RBAC_PERM_COMMAND_TELE_DEL,    true, &HandleTeleDelCommand,   "" },
-            { "name",  rbac::RBAC_PERM_COMMAND_TELE_NAME,   true, &HandleTeleNameCommand,  "" },
-            { "name2",  rbac::RBAC_PERM_COMMAND_TELE_NAME,   true, &HandleTele2Command,  "tele2 name <character> ((npcid <npcid>) | (npcguid <npcguid>))" },
+            { "del",   rbac::RBAC_PERM_COMMAND_TELE_DEL,   true,  &HandleTeleDelCommand,   "" },
+            { "name",  rbac::RBAC_PERM_COMMAND_TELE_NAME,  true,  &HandleTeleNameCommand,  "" },
+            { "name2", rbac::RBAC_PERM_COMMAND_TELE_NAME,  true,  &HandleTele2Command,     "" },
             { "group", rbac::RBAC_PERM_COMMAND_TELE_GROUP, false, &HandleTeleGroupCommand, "" },
             { "",      rbac::RBAC_PERM_COMMAND_TELE,       false, &HandleTeleCommand,      "" },
         };
@@ -356,12 +356,11 @@ public:
         Player* player = handler->GetSession()->GetPlayer();
 
         typedef boost::char_separator<char> tseperator;
-        typedef boost::tokenizer<tseperator> ttokenizer;
+        typedef Tokenizer ttokenizer;
 
         std::string argsStr = args;
-        tseperator sep(" ");
-        ttokenizer tokens(argsStr, sep);
-        ttokenizer::iterator iter = tokens.begin();
+        ttokenizer tokens(argsStr, ' ');
+        ttokenizer::const_iterator iter = tokens.begin();
         if (iter == tokens.end())
             return false;
 
@@ -424,14 +423,14 @@ public:
         {
             case 0: // id
             {
-                uint32 npcId = std::stol(entry);
+                uint32 npcId = atoul(entry.c_str());
                 if ((isValid = !!npcId))
                     whereClause << "WHERE id = '" << entry << '\'';
                 break;
             }
             case 1: // guid
             {
-                ObjectGuid::LowType guidLow = std::stoll(entry);
+                ObjectGuid::LowType guidLow = atoull(entry.c_str());
                 if ((isValid = !!guidLow))
                     whereClause << "WHERE guid = '" << guidLow << '\'';
                 break;

@@ -1000,21 +1000,25 @@ ObjectGuid::LowType ChatHandler::extractLowGuidFromLink(char* text, HighGuid& gu
 std::string ChatHandler::extractPlayerNameFromLink(char* text)
 {
     // |color|Hplayer:name|h[name]|h|r
-    std::string name_str = extractKeyFromLink(text, "Hplayer");
-    if (name_str.empty())
+    char* name_str = extractKeyFromLink(text, "Hplayer");
+    if (!name_str)
         return "";
 
-    if (!normalizePlayerName(name_str))
+    std::string name = name_str;
+    if (!normalizePlayerName(name))
         return "";
 
-    return name_str;
+    return name;
 }
 
 std::string ChatHandler::extractPlayerNameFromLink(std::string const &text)
 {
     // |color|Hplayer:name|h[name]|h|r
     std::string name_str = extractKeyFromLink(text, "Hplayer");
-    normalizePlayerName(name_str);
+
+    if (!normalizePlayerName(name_str))
+        return "";
+
     return name_str;
 }
 
