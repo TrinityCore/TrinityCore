@@ -1047,6 +1047,7 @@ struct GameObjectTemplateAddon
     uint32  mingold;
     uint32  maxgold;
     uint32  WorldEffectID;
+    uint32  AIAnimKitID;
 };
 
 

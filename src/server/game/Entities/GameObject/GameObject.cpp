@@ -327,6 +327,12 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
             m_updateFlag.GameObject = true;
             SetWorldEffectID(m_goTemplateAddon->WorldEffectID);
         }
+
+        if (m_goTemplateAddon->AIAnimKitID)
+        {
+            m_updateFlag.AnimKit = true;
+            _animKitId = m_goTemplateAddon->AIAnimKitID;
+        }
     }
 
     SetEntry(goInfo->entry);
