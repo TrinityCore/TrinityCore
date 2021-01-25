@@ -2446,7 +2446,7 @@ void Spell::EffectUntrainTalents(SpellEffIndex /*effIndex*/)
         unitTarget->ToPlayer()->SendTalentWipeConfirm(guid);
 }
 
-void Spell::EffectTeleUnitsFaceCaster(SpellEffIndex effIndex)
+void Spell::EffectTeleUnitsFaceCaster(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
