@@ -7083,6 +7083,8 @@ void Player::UpdateArea(uint32 newArea)
     else
         _restMgr->RemoveRestFlag(REST_FLAG_IN_FACTION_AREA);
 
+    _PushQuests();
+
     UpdateCriteria(CRITERIA_TYPE_TRAVELLED_TO_AREA, newArea);
 }
 
@@ -15454,8 +15456,7 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
                     GetReputationMgr().SetVisible(factionEntry);
                 break;
             case QUEST_OBJECTIVE_CRITERIA_TREE:
-                if (quest->HasFlagEx(QUEST_FLAGS_EX_IS_WORLD_QUEST))
-                    m_questObjectiveCriteriaMgr->ResetCriteriaTree(obj.ObjectID);
+                m_questObjectiveCriteriaMgr->ResetCriteriaTree(obj.ObjectID);
                 break;
             default:
                 break;
@@ -18772,14 +18773,18 @@ void Player::_PushQuests()
         {
             // quest isn't in m_QuestStatus, meaning the player didn't complete it nor does he have it
             const Quest* quest = it->second;
+            int32 zoneOrSort = quest->GetZoneOrSort();
 
-            if (quest->GetMaxLevel() > 0 && getLevel() > quest->GetMaxLevel())
+            // If quest is part of specific zone, push it only if we're in that zone
+            if (zoneOrSort >= 0 && zoneOrSort != GetMapId())
                 continue;
 
-            if (getLevel() < GetQuestMinLevel(quest))
+            // Don't push world quests
+            if (zoneOrSort < 0 && ((-zoneOrSort) == QUEST_SORT_WORLD_QUEST))
                 continue;
 
-            AddQuest(quest, nullptr);
+            if (!quest->IsUnavailable() && CanTakeQuest(quest, false))
+                AddQuest(quest, nullptr);
         }
     }
 }

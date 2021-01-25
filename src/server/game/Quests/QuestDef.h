@@ -437,6 +437,12 @@ class TC_GAME_API Quest
         bool HasSpecialFlag(uint32 flag) const { return (_specialFlags & flag) != 0; }
         void SetSpecialFlag(uint32 flag) { _specialFlags |= flag; }
 
+        bool IsAutoPush() const { return HasFlagEx(QuestFlagsEx::QUEST_FLAGS_EX_AUTO_PUSH); }
+        bool IsWorldQuest() const { return HasFlagEx(QuestFlagsEx::QUEST_FLAGS_EX_IS_WORLD_QUEST); }
+
+        // Possibly deprecated flag
+        bool IsUnavailable() const { return HasFlag(QuestFlags::QUEST_FLAGS_UNAVAILABLE); }
+
         // table data accessors:
         uint32 GetQuestId() const { return _id; }
         uint32 GetQuestType() const { return _type; }
@@ -530,8 +536,6 @@ class TC_GAME_API Quest
         bool   IsDFQuest() const { return (_specialFlags & QUEST_SPECIAL_FLAGS_DF_QUEST) != 0; }
         uint32 CalculateHonorGain(uint8 level) const;
         bool   CanIncreaseRewardedQuestCounters() const;
-
-        bool IsAutoPush() const { return HasFlagEx(QuestFlagsEx::QUEST_FLAGS_EX_AUTO_PUSH); }
 
         // multiple values
         std::vector<QuestRewardDisplaySpell> RewardDisplaySpell;
