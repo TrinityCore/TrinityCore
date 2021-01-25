@@ -430,16 +430,22 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
             break;
     }
 
-    if (gameObjectAddon && gameObjectAddon->InvisibilityValue)
+    if (gameObjectAddon)
     {
-        m_invisibility.AddFlag(gameObjectAddon->invisibilityType);
-        m_invisibility.AddValue(gameObjectAddon->invisibilityType, gameObjectAddon->InvisibilityValue);
-    }
+        if (gameObjectAddon->InvisibilityValue)
+        {
+            m_invisibility.AddFlag(gameObjectAddon->invisibilityType);
+            m_invisibility.AddValue(gameObjectAddon->invisibilityType, gameObjectAddon->InvisibilityValue);
+        }
 
-    if (gameObjectAddon && gameObjectAddon->WorldEffectID)
-    {
-        m_updateFlag.GameObject = true;
-        SetWorldEffectID(gameObjectAddon->WorldEffectID);
+        if (gameObjectAddon->WorldEffectID)
+        {
+            m_updateFlag.GameObject = true;
+            SetWorldEffectID(gameObjectAddon->WorldEffectID);
+        }
+
+        if (gameObjectAddon->AIAnimKitID)
+            _animKitId = gameObjectAddon->AIAnimKitID;
     }
 
     LastUsedScriptID = GetGOInfo()->ScriptId;
