@@ -4323,26 +4323,81 @@ enum QuestType
     MAX_QUEST_TYPES                 = 4
 };
 
-// QuestInfo.dbc (6.0.2.18988)
+// QuestInfo.dbc (9.0.2.37176)
 enum QuestInfo
 {
-    QUEST_INFO_GROUP               = 1,
-    QUEST_INFO_CLASS               = 21,
-    QUEST_INFO_PVP                 = 41,
-    QUEST_INFO_RAID                = 62,
-    QUEST_INFO_DUNGEON             = 81,
-    QUEST_INFO_WORLD_EVENT         = 82,
-    QUEST_INFO_LEGENDARY           = 83,
-    QUEST_INFO_ESCORT              = 84,
-    QUEST_INFO_HEROIC              = 85,
-    QUEST_INFO_RAID_10             = 88,
-    QUEST_INFO_RAID_25             = 89,
-    QUEST_INFO_SCENARIO            = 98,
-    QUEST_INFO_ACCOUNT             = 102,
-    QUEST_INFO_SIDE_QUEST          = 104
+    QUEST_INFO_GROUP                                = 1,
+    QUEST_INFO_CLASS                                = 21,
+    QUEST_INFO_PVP                                  = 41,
+    QUEST_INFO_RAID                                 = 62,
+    QUEST_INFO_DUNGEON                              = 81,
+    QUEST_INFO_WORLD_EVENT                          = 82,
+    QUEST_INFO_LEGENDARY                            = 83,
+    QUEST_INFO_ESCORT                               = 84,
+    QUEST_INFO_HEROIC                               = 85,
+    QUEST_INFO_RAID_10                              = 88,
+    QUEST_INFO_RAID_25                              = 89,
+    QUEST_INFO_SCENARIO                             = 98,
+    QUEST_INFO_ACCOUNT                              = 102,
+    QUEST_INFO_SIDE_QUEST                           = 104,
+    QUEST_INFO_ARTIFACT                             = 107,
+    QUEST_INFO_WORLD_QUEST                          = 109,
+    QUEST_INFO_EPIC_WORLD_QUEST                     = 110,
+    QUEST_INFO_ELITE_WORLD_QUEST                    = 111,
+    QUEST_INFO_EPIC_ELITE_WORLD_QUEST               = 112,
+    QUEST_INFO_PVP_WORLD_QUEST                      = 113,
+    QUEST_INFO_FIRST_AID_WORLD_QUEST                = 114,
+    QUEST_INFO_BATTLE_PET_WORLD_QUEST               = 115,
+    QUEST_INFO_BLACKSMITHING_WORLD_QUEST            = 116,
+    QUEST_INFO_LEATHERWORKING_WORLD_QUEST           = 117,
+    QUEST_INFO_ALCHEMY_WORLD_QUEST                  = 118,
+    QUEST_INFO_HERBALISM_WORLD_QUEST                = 119,
+    QUEST_INFO_MINING_WORLD_QUEST                   = 120,
+    QUEST_INFO_TAILORING_WORLD_QUEST                = 121,
+    QUEST_INFO_ENGINEERING_WORLD_QUEST              = 122,
+    QUEST_INFO_ENCHANTING_WORLD_QUEST               = 123,
+    QUEST_INFO_SKINNING_WORLD_QUEST                 = 124,
+    QUEST_INFO_JEWELCRAFTING_WORLD_QUEST            = 125,
+    QUEST_INFO_INSCRIPTION_WORLD_QUEST              = 126,
+    QUEST_INFO_EMISSARY_QUEST                       = 128,
+    QUEST_INFO_ARCHEOLOGY_WORLD_QUEST               = 129,
+    QUEST_INFO_FISHING_WORLD_QUEST                  = 130,
+    QUEST_INFO_COOKING_WORLD_QUEST                  = 131,
+    QUEST_INFO_RARE_WORLD_QUEST                     = 135,
+    QUEST_INFO_RARE_ELITE_WORLD_QUEST               = 136,
+    QUEST_INFO_DUNGEON_WORLD_QUEST                  = 137,
+    QUEST_INFO_LEGION_INVASION_WORLD_QUEST          = 139,
+    QUEST_INFO_RATED_REWARD                         = 140,
+    QUEST_INFO_RAID_WORLD_QUEST                     = 141,
+    QUEST_INFO_LEGION_INVASION_ELITE_WORLD_QUEST    = 142,
+    QUEST_INFO_LEGIONFALL_CONTRIBUTION              = 143,
+    QUEST_INFO_LEGIONFALL_WORLD_QUEST               = 144,
+    QUEST_INFO_LEGIONFALL_DUNGEON_WORLD_QUEST       = 145,
+    QUEST_INFO_LEGION_INVASION_WORLD_QUEST_WRAPPER  = 146,
+    QUEST_INFO_WARFRONT_BARRENS                     = 147,
+    QUEST_INFO_PICKPOCKETING                        = 148,
+    QUEST_INFO_MAGNI_WORLD_QUEST_AZERITE            = 151,
+    QUEST_INFO_TORTOLLAN_WORLD_QUEST                = 152,
+    QUEST_INFO_WARFRONT_CONTRIBUTION                = 153,
+    QUEST_INFO_ISLAND_QUEST                         = 254,
+    QUEST_INFO_WAR_MODE                             = 255,
+    QUEST_INFO_PVP_CONQUEST                         = 256,
+    QUEST_INFO_FACTION_ASSAULT_WORLD_QUEST          = 259,
+    QUEST_INFO_FACTION_ASSAULT_ELITE_WORLD_QUEST    = 260,
+    QUEST_INFO_ISLAND_WEEKLY_QUEST                  = 261,
+    QUEST_INFO_PUBLIC_QUEST                         = 263,
+    QUEST_INFO_THREAT_OBJECTIVE                     = 264,
+    QUEST_INFO_HIDDEN_QUEST                         = 265,
+    QUEST_INFO_COMBAT_ALLY_QUEST                    = 266,
+    QUEST_INFO_PROFESSIONS                          = 267,
+    QUEST_INFO_THREAT_WRAPPER                       = 268,
+    QUEST_INFO_THREAT_EMISSARY_QUEST                = 270,
+    QUEST_INFO_CALLING_QUEST                        = 271,
+    QUEST_INFO_VENTHYR_PARTY_QUEST                  = 272,
+    QUEST_INFO_MAW_SOUL_SPAWN_TRACKER               = 273
 };
 
-// QuestSort.dbc (9.0)
+// QuestSort.dbc (9.0.2.37176)
 enum QuestSort
 {
     QUEST_SORT_EPIC                             = 1,
@@ -4499,6 +4554,7 @@ inline uint8 ClassByQuestSort(int32 QuestSort)
         case QUEST_SORT_PRIEST:         return CLASS_PRIEST;
         case QUEST_SORT_DRUID:          return CLASS_DRUID;
         case QUEST_SORT_DEATH_KNIGHT:   return CLASS_DEATH_KNIGHT;
+        case QUEST_SORT_DEMON_HUNTER:   return CLASS_DEMON_HUNTER;
     }
     return 0;
 }
