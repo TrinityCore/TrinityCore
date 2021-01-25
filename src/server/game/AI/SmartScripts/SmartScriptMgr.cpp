@@ -1767,6 +1767,16 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             TC_LOG_ERROR("sql.sql", "SmartAIMgr: Deprecated action_type(%u), event_type(%u), Entry " SI64FMTD " SourceType %u Event %u, skipped.", e.GetActionType(), e.GetEventType(), e.entryOrGuid, e.GetScriptType(), e.event_id);
             break;
         }
+        case SMART_ACTION_SET_HEALTH_PCT:
+        {
+            if (e.action.setHealthPct.percent > 100 || !e.action.setHealthPct.percent)
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u is trying to set invalid HP percent %u, skipped.",
+                    e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.setHealthPct.percent);
+                return false;
+            }
+            break;
+        }
         case SMART_ACTION_CREATE_CONVERSATION:
         {
             if (!sConversationDataStore->GetConversationTemplate(e.action.conversation.id))

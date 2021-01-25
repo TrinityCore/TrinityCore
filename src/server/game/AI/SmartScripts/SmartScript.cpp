@@ -1650,15 +1650,19 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             break;
         }
         case SMART_ACTION_TRIGGER_TIMED_EVENT:
+        {
             ProcessEventsFor((SMART_EVENT)SMART_EVENT_TIMED_EVENT_TRIGGERED, nullptr, e.action.timeEvent.id);
 
             // remove this event if not repeatable
             if (e.event.event_flags & SMART_EVENT_FLAG_NOT_REPEATABLE)
                 mRemIDs.push_back(e.action.timeEvent.id);
             break;
+        }
         case SMART_ACTION_REMOVE_TIMED_EVENT:
+        {
             mRemIDs.push_back(e.action.timeEvent.id);
             break;
+        }
         case SMART_ACTION_OVERRIDE_SCRIPT_BASE_OBJECT:
         {
             for (WorldObject* target : targets)
@@ -1687,12 +1691,16 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             break;
         }
         case SMART_ACTION_RESET_SCRIPT_BASE_OBJECT:
+        {
             ResetBaseObject();
             break;
+        }
         case SMART_ACTION_CALL_SCRIPT_RESET:
+        {
             SetPhase(0);
             OnReset();
             break;
+        }
         case SMART_ACTION_SET_RANGED_MOVEMENT:
         {
             if (!IsSmart())
@@ -2374,7 +2382,6 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             ProcessEventsFor((SMART_EVENT)SMART_EVENT_TIMED_EVENT_TRIGGERED, nullptr, eventId);
             break;
         }
-
         case SMART_ACTION_REMOVE_ALL_GAMEOBJECTS:
         {
             for (WorldObject* const target : targets)
@@ -2446,6 +2453,17 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             break;
         }
+        case SMART_ACTION_PLAY_CINEMATIC:
+        {
+            for (WorldObject* target : targets)
+            {
+                if (!IsPlayer(target))
+                    continue;
+
+                target->ToPlayer()->SendCinematicStart(e.action.cinematic.entry);
+            }
+            break;
+        }
         case SMART_ACTION_SET_MOVEMENT_SPEED:
         {
             uint32 speedInteger = e.action.movementSpeed.speedInteger;
@@ -2455,6 +2473,22 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             for (WorldObject* const target : targets)
                 if (IsCreature(target))
                     target->ToCreature()->SetSpeed(UnitMoveType(e.action.movementSpeed.movementType), speed);
+
+            break;
+        }
+        case SMART_ACTION_PLAY_SPELL_VISUAL_KIT:
+        {
+            for (WorldObject* const target : targets)
+            {
+                if (IsUnit(target))
+                {
+                    target->ToUnit()->SendPlaySpellVisualKit(e.action.spellVisualKit.spellVisualKitId, e.action.spellVisualKit.kitType,
+                        e.action.spellVisualKit.duration);
+
+                    TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_PLAY_SPELL_VISUAL_KIT: target: %s (%s), SpellVisualKit: %u",
+                        target->GetName().c_str(), target->GetGUID().ToString().c_str(), e.action.spellVisualKit.spellVisualKitId);
+                }
+            }
 
             break;
         }
@@ -2479,24 +2513,17 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             break;
         }
         case SMART_ACTION_SET_HOVER:
+        {
             for (WorldObject* target : targets)
                 if (IsUnit(target))
                     target->ToUnit()->SetHover(e.action.setHover.enable != 0);
             break;
-        case SMART_ACTION_PLAY_SPELL_VISUAL_KIT:
+        }
+        case SMART_ACTION_SET_HEALTH_PCT:
         {
-            for (WorldObject* const target : targets)
-            {
-                if (IsUnit(target))
-                {
-                    target->ToUnit()->SendPlaySpellVisualKit(e.action.spellVisualKit.spellVisualKitId, e.action.spellVisualKit.kitType,
-                        e.action.spellVisualKit.duration);
-
-                    TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_PLAY_SPELL_VISUAL_KIT: target: %s (%s), SpellVisualKit: %u",
-                        target->GetName().c_str(), target->GetGUID().ToString().c_str(), e.action.spellVisualKit.spellVisualKitId);
-                }
-            }
-
+            for (WorldObject* target : targets)
+                if (Unit* targetUnit = target->ToUnit())
+                    targetUnit->SetHealth(targetUnit->CountPctFromMaxHealth(e.action.setHealthPct.percent));
             break;
         }
         case SMART_ACTION_CREATE_CONVERSATION:
@@ -2515,17 +2542,6 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 }
             }
 
-            break;
-        }
-        case SMART_ACTION_PLAY_CINEMATIC:
-        {
-            for (WorldObject* target : targets)
-            {
-                if (!IsPlayer(target))
-                    continue;
-
-                target->ToPlayer()->SendCinematicStart(e.action.cinematic.entry);
-            }
             break;
         }
         case SMART_ACTION_ADD_TO_STORED_TARGET_LIST:
