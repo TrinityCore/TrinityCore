@@ -329,10 +329,7 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
         }
 
         if (m_goTemplateAddon->AIAnimKitID)
-        {
-            m_updateFlag.AnimKit = true;
             _animKitId = m_goTemplateAddon->AIAnimKitID;
-        }
     }
 
     SetEntry(goInfo->entry);
