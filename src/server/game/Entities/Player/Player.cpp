@@ -2378,6 +2378,8 @@ void Player::GiveLevel(uint8 level)
 
     UpdateCriteria(CRITERIA_TYPE_REACH_LEVEL);
 
+    PushQuests();
+
     sScriptMgr->OnPlayerLevelChanged(this, oldLevel);
 }
 
@@ -7083,7 +7085,7 @@ void Player::UpdateArea(uint32 newArea)
     else
         _restMgr->RemoveRestFlag(REST_FLAG_IN_FACTION_AREA);
 
-    _PushQuests();
+    PushQuests();
 
     UpdateCriteria(CRITERIA_TYPE_TRAVELLED_TO_AREA, newArea);
 }
@@ -18758,21 +18760,20 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder* holder)
     m_achievementMgr->CheckAllAchievementCriteria(this);
     m_questObjectiveCriteriaMgr->CheckAllQuestObjectiveCriteria(this);
 
-    _PushQuests();
+    PushQuests();
     return true;
 }
 
-void Player::_PushQuests()
+void Player::PushQuests()
 {
-    ObjectMgr::QuestMap const& questMap = sObjectMgr->GetQuestTemplatesAutoPush();
+    std::vector<Quest const*> const& questsAutoPush = sObjectMgr->GetQuestTemplatesAutoPush();
 
-    for (ObjectMgr::QuestMap::const_iterator it = questMap.cbegin(); it != questMap.cend(); ++it)
+    for (Quest const *quest : questsAutoPush)
     {
-        QuestStatusMap::const_iterator result = m_QuestStatus.find(it->first);
+        QuestStatusMap::const_iterator result = m_QuestStatus.find(quest->GetQuestId());
         if (result == m_QuestStatus.end())
         {
             // quest isn't in m_QuestStatus, meaning the player didn't complete it nor does he have it
-            const Quest* quest = it->second;
             int32 zoneOrSort = quest->GetZoneOrSort();
 
             // If quest is part of specific zone, push it only if we're in that zone

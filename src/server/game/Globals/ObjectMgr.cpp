@@ -4211,7 +4211,7 @@ void ObjectMgr::LoadQuests()
         _questTemplates[newQuest->GetQuestId()] = newQuest;
 
         if (newQuest->IsAutoPush())
-            _questTemplatesAutoPush[newQuest->GetQuestId()] = newQuest;
+            _questTemplatesAutoPush.push_back(newQuest);
     } while (result->NextRow());
 
     struct QuestLoaderHelper
