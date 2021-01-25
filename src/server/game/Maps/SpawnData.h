@@ -69,6 +69,7 @@ struct SpawnData
     uint32 phaseGroup = 0;
     int32 terrainSwapMap = -1;
     int32 spawntimesecs = 0;
+    int32 spawntimesecmax = 0;
     std::vector<Difficulty> spawnDifficulties;
     SpawnGroupTemplateData const* spawnGroupData = nullptr;
     uint32 scriptId = 0;

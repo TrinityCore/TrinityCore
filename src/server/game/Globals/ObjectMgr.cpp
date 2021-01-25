@@ -1927,11 +1927,11 @@ void ObjectMgr::LoadCreatures()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0              1   2    3           4           5           6            7        8             9              10
-    QueryResult result = WorldDatabase.Query("SELECT creature.guid, id, map, position_x, position_y, position_z, orientation, modelid, equipment_id, spawntimesecs, spawndist, "
-    //   11               12         13       14            15                 16          17          18                19                   20                    21
+    //                                               0              1   2    3           4           5           6            7        8             9              10                  11
+    QueryResult result = WorldDatabase.Query("SELECT creature.guid, id, map, position_x, position_y, position_z, orientation, modelid, equipment_id, spawntimesecs, spawntimesecmax, spawndist, "
+    //   12               13         14       15            16                 17          18          19                20                   21                    22
         "currentwaypoint, curhealth, curmana, MovementType, spawnDifficulties, eventEntry, pool_entry, creature.npcflag, creature.unit_flags, creature.unit_flags2, creature.unit_flags3, "
-    //   22                     23                      24                25                   26                       27
+    //   23                     24                      25                26                   27                       28
         "creature.dynamicflags, creature.phaseUseFlags, creature.phaseid, creature.phasegroup, creature.terrainSwapMap, creature.ScriptName "
         "FROM creature "
         "LEFT OUTER JOIN game_event_creature ON creature.guid = game_event_creature.guid "
@@ -1967,32 +1967,33 @@ void ObjectMgr::LoadCreatures()
             continue;
         }
 
-        CreatureData& data = _creatureDataStore[guid];
-        data.spawnId        = guid;
-        data.id             = entry;
+        CreatureData& data      = _creatureDataStore[guid];
+        data.spawnId            = guid;
+        data.id                 = entry;
         data.spawnPoint.WorldRelocate(fields[2].GetUInt16(), fields[3].GetFloat(), fields[4].GetFloat(), fields[5].GetFloat(), fields[6].GetFloat());
-        data.displayid      = fields[7].GetUInt32();
-        data.equipmentId    = fields[8].GetInt8();
-        data.spawntimesecs  = fields[9].GetUInt32();
-        data.spawndist      = fields[10].GetFloat();
-        data.currentwaypoint= fields[11].GetUInt32();
-        data.curhealth      = fields[12].GetUInt32();
-        data.curmana        = fields[13].GetUInt32();
-        data.movementType   = fields[14].GetUInt8();
-        data.spawnDifficulties      = ParseSpawnDifficulties(fields[15].GetString(), "creature", guid, data.spawnPoint.GetMapId(), spawnMasks[data.spawnPoint.GetMapId()]);
-        int16 gameEvent     = fields[16].GetInt8();
-        uint32 PoolId       = fields[17].GetUInt32();
-        data.npcflag        = fields[18].GetUInt64();
-        data.unit_flags     = fields[19].GetUInt32();
-        data.unit_flags2    = fields[20].GetUInt32();
-        data.unit_flags3    = fields[21].GetUInt32();
-        data.dynamicflags   = fields[22].GetUInt32();
-        data.phaseUseFlags  = fields[23].GetUInt8();
-        data.phaseId        = fields[24].GetUInt32();
-        data.phaseGroup     = fields[25].GetUInt32();
-        data.terrainSwapMap = fields[26].GetInt32();
-        data.scriptId       = GetScriptId(fields[27].GetString());
-        data.spawnGroupData = &_spawnGroupDataStore[0];
+        data.displayid          = fields[7].GetUInt32();
+        data.equipmentId        = fields[8].GetInt8();
+        data.spawntimesecs      = fields[9].GetUInt32();
+        data.spawntimesecmax    = fields[10].GetUInt32();
+        data.spawndist          = fields[11].GetFloat();
+        data.currentwaypoint    = fields[12].GetUInt32();
+        data.curhealth          = fields[13].GetUInt32();
+        data.curmana            = fields[14].GetUInt32();
+        data.movementType       = fields[15].GetUInt8();
+        data.spawnDifficulties  = ParseSpawnDifficulties(fields[16].GetString(), "creature", guid, data.spawnPoint.GetMapId(), spawnMasks[data.spawnPoint.GetMapId()]);
+        int16 gameEvent         = fields[17].GetInt8();
+        uint32 PoolId           = fields[18].GetUInt32();
+        data.npcflag            = fields[19].GetUInt64();
+        data.unit_flags         = fields[20].GetUInt32();
+        data.unit_flags2        = fields[21].GetUInt32();
+        data.unit_flags3        = fields[22].GetUInt32();
+        data.dynamicflags       = fields[23].GetUInt32();
+        data.phaseUseFlags      = fields[24].GetUInt8();
+        data.phaseId            = fields[25].GetUInt32();
+        data.phaseGroup         = fields[26].GetUInt32();
+        data.terrainSwapMap     = fields[27].GetInt32();
+        data.scriptId           = GetScriptId(fields[28].GetString());
+        data.spawnGroupData     = &_spawnGroupDataStore[0];
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.spawnPoint.GetMapId());
         if (!mapEntry)
@@ -2117,6 +2118,12 @@ void ObjectMgr::LoadCreatures()
                 TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: " UI64FMTD " Entry: %u) with `phasegroup` %u does not exist, set to 0", guid, data.id, data.phaseGroup);
                 data.phaseGroup = 0;
             }
+        }
+
+        if (data.spawntimesecs > data.spawntimesecmax && data.spawntimesecmax != 0)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `creature` have creature (GUID: %u Entry: %u) with lower `spawnTimeSecMax` %u as `spawntimesecs` %u this is useles and set spawnTimeSecMax to 0", guid, data.id, data.spawntimesecmax, data.spawntimesecs);
+            data.spawnTimeSecMax = 0;
         }
 
         if (data.terrainSwapMap != -1)

@@ -1367,7 +1367,10 @@ void Creature::SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDiffic
         data.spawnPoint.WorldRelocate(this);
     else
         data.spawnPoint.WorldRelocate(mapid, GetTransOffsetX(), GetTransOffsetY(), GetTransOffsetZ(), GetTransOffsetO());
-    data.spawntimesecs = m_respawnDelay;
+    if (data.spawntimesecmax > 1)
+        m_respawnDelay = urand(data.spawntimesecs, data.spawntimesecmax);
+    else
+        data.spawntimesecs = m_respawnDelay;
     // prevent add data integrity problems
     data.spawndist = GetDefaultMovementType() == IDLE_MOTION_TYPE ? 0.0f : m_respawnradius;
     data.currentwaypoint = 0;
