@@ -411,7 +411,7 @@ struct QuestLog : public IsUpdateFieldStructureTag, public HasChangesMask<31>
     UpdateField<uint32, 0, 2> StateFlags;
     UpdateField<uint32, 0, 3> EndTime;
     UpdateField<uint32, 0, 4> AcceptTime;
-    UpdateField<uint32, 0, 5> Field_10;
+    UpdateField<uint32, 0, 5> ObjectiveFlags;
     UpdateFieldArray<int16, 24, 6, 7> ObjectiveProgress;
 
     void WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const;
