@@ -58,11 +58,13 @@ void WaypointMovementGenerator<Creature>::DoInitialize(Creature* creature)
     }
 
     // Determine our first waypoint that we want to approach.
-    uint32 currentWaypointNode = creature->GetCreatureData()->currentwaypoint;
-    if (_path->Nodes.size() > currentWaypointNode)
+    if (CreatureData const* creatureData = creature->GetCreatureData())
     {
-        creature->UpdateCurrentWaypointInfo(currentWaypointNode, _path->Id);
-        _currentNode = currentWaypointNode;
+        if (_path->Nodes.size() > creatureData->currentwaypoint)
+        {
+            creature->UpdateCurrentWaypointInfo(creatureData->currentwaypoint, _path->Id);
+            _currentNode = creatureData->currentwaypoint;
+        }
     }
 
     // We launch the first movement after a initial 1s delay.
