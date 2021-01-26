@@ -62,7 +62,6 @@ public:
         {
             _Reset();
             _infused = false;
-            me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_ARCANE, true);
         }
 
         void KilledUnit(Unit* victim) override

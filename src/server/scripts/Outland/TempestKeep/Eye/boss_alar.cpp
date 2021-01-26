@@ -494,7 +494,6 @@ class npc_ember_of_alar : public CreatureScript
                 Initialize();
                 instance = creature->GetInstanceScript();
                 creature->SetDisableGravity(true);
-                creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
             }
 
             void Initialize()

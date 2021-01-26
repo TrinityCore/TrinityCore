@@ -61,12 +61,7 @@ public:
 
     struct npc_mageguard_dalaranAI : public ScriptedAI
     {
-        npc_mageguard_dalaranAI(Creature* creature) : ScriptedAI(creature)
-        {
-            creature->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
-            creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_NORMAL, true);
-            creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
-        }
+        npc_mageguard_dalaranAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() override { }
 
