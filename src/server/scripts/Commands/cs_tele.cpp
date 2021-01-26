@@ -355,7 +355,6 @@ public:
 
         Player* player = handler->GetSession()->GetPlayer();
 
-        typedef boost::char_separator<char> tseperator;
         typedef Tokenizer ttokenizer;
 
         std::string argsStr = args;
