@@ -42,7 +42,8 @@ enum LCTDataTypes
     DATA_LOCKMAW_COMBAT_ASSISTANCE  = 9,
     DATA_SERVANT_OF_SIAMAT_1        = 10,
     DATA_SERVANT_OF_SIAMAT_2        = 11,
-    DATA_SERVANT_OF_SIAMAT_3        = 12
+    DATA_SERVANT_OF_SIAMAT_3        = 12,
+    DATA_SIAMAT_ENABLED             = 13
 };
 
 enum LCTCreatureIds

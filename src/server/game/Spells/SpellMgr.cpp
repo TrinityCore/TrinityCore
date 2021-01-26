@@ -4642,18 +4642,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     });
 
     // Siamat
-    // Deflecting Winds
-    // Why would Siamat silence and pacify himself if he is suposed to cast spells?
-    ApplySpellFix({ 84589 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_DUMMY;
-    });
-    // Cloud Burst
-    ApplySpellFix({ 83790 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_40_YARDS);
-    });
-
     // Lightning Charge
     ApplySpellFix({ 91872 }, [](SpellInfo* spellInfo)
     {

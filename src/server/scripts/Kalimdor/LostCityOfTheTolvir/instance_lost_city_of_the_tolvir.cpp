@@ -99,22 +99,28 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                 heroicAughSpawned = false;
             }
 
+            void Load(char const* data) override
+            {
+                InstanceScript::Load(data);
+
+                if (IsSiamatEnabled() && GetBossState(DATA_SIAMAT) != DONE)
+                {
+                    instance->SetZoneWeather(ZONE_ID_LOST_CITY, WEATHER_STATE_HEAVY_RAIN, 1.0f);
+                    instance->SummonCreatureGroup(SUMMON_GROUP_WIND_TUNNEL);
+                }
+            }
+
             void OnCreatureCreate(Creature* creature) override
             {
                 InstanceScript::OnCreatureCreate(creature);
 
                 switch (creature->GetEntry())
                 {
-                    case BOSS_SIAMAT:
-                        creature->SetFarVisible(true);
-                        creature->setActive(true);
-                        break;
                     case NPC_ADD_STALKER:
                         addStalkerGUIDs.push_back(creature->GetGUID());
                         break;
                     case NPC_WIND_TUNNEL:
                         creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-                        creature->setActive(true);
                         break;
                     case NPC_REPENTANCE:
                     case NPC_SOUL_FRAGMENT:
@@ -126,6 +132,11 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                         if (Creature* husam = GetCreature(DATA_GENERAL_HUSAM))
                             if (husam->IsAIEnabled)
                                 husam->AI()->JustSummoned(creature);
+                        break;
+                    case NPC_MINION_OF_SIAMAT_STORM:
+                        if (Creature* siamat = GetCreature(DATA_SIAMAT))
+                            if (siamat->IsAIEnabled)
+                                siamat->AI()->JustSummoned(creature);
                         break;
                     default:
                         break;
@@ -164,13 +175,13 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                         if (!instance->IsHeroic() && state == DONE)
                             SetBossState(DATA_LOCKMAW_AND_AUGH, DONE);
                         else if (instance->IsHeroic() && state == DONE && !heroicAughSpawned)
-                            events.ScheduleEvent(EVENT_SPAWN_AUGH, Seconds(4));
+                            events.ScheduleEvent(EVENT_SPAWN_AUGH, 4s);
                         break;
                     case DATA_AUGH: // Since Augh is summoned, we need to handle his respawn here
                         if (state == DONE)
                             SetBossState(DATA_LOCKMAW_AND_AUGH, DONE);
                         else if (state == FAIL)
-                            events.ScheduleEvent(EVENT_SPAWN_AUGH, Seconds(30));
+                            events.ScheduleEvent(EVENT_SPAWN_AUGH, 30s);
                         break;
                     case DATA_GENERAL_HUSAM:
                     case DATA_LOCKMAW_AND_AUGH:
@@ -190,12 +201,9 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                             instance->SummonCreatureGroup(SUMMON_GROUP_WIND_TUNNEL);
                         }
                         break;
-                    case DATA_SIAMAT: // anti-cheat protection
-                        if (state == IN_PROGRESS && !IsSiamatEnabled())
-                            if (Creature* siamat = GetCreature(DATA_SIAMAT))
-                                siamat->AI()->EnterEvadeMode();
+                    case DATA_SIAMAT:
                         if (state == DONE)
-                            instance->SetZoneWeather(ZONE_ID_LOST_CITY, WEATHER_STATE_FOG, 1.0f);
+                            instance->SetZoneWeather(ZONE_ID_LOST_CITY, WEATHER_STATE_FOG, 0.f);
                         break;
                     default:
                         break;
@@ -242,12 +250,17 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                 }
             }
 
-            bool IsSiamatEnabled()
+            uint32 GetData(uint32 type) const override
             {
-                for (LCTDataTypes boss : { DATA_GENERAL_HUSAM, DATA_LOCKMAW_AND_AUGH, DATA_HIGH_PROPHET_BARIM })
-                    if (GetBossState(boss) != DONE)
-                        return false;
-                return true;
+                switch (type)
+                {
+                    case DATA_SIAMAT_ENABLED:
+                        return uint8(IsSiamatEnabled());
+                    default:
+                        break;
+                }
+
+                return 0;
             }
 
             void Update(uint32 diff) override
@@ -275,22 +288,18 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                 }
             }
 
-            void ReadSaveDataMore(std::istringstream& /*data*/) override
-            {
-                if (IsSiamatEnabled())
-                {
-                    if (Creature* siamat = GetCreature(DATA_SIAMAT))
-                        siamat->setActive(true);
-
-                    instance->SetZoneWeather(ZONE_ID_LOST_CITY, WEATHER_STATE_HEAVY_RAIN, 1.0f);
-                    instance->SummonCreatureGroup(SUMMON_GROUP_WIND_TUNNEL);
-                }
-            }
-
-        protected:
+        private:
             EventMap events;
             bool heroicAughSpawned;
             GuidVector addStalkerGUIDs;
+
+            bool IsSiamatEnabled() const
+            {
+                for (LCTDataTypes boss : { DATA_GENERAL_HUSAM, DATA_LOCKMAW_AND_AUGH, DATA_HIGH_PROPHET_BARIM })
+                    if (GetBossState(boss) != DONE)
+                        return false;
+                return true;
+            }
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
