@@ -4292,7 +4292,7 @@ enum HolidayIds
     HOLIDAY_HALLOWS_END                            = 324,
     HOLIDAY_LUNAR_FESTIVAL                         = 327,
     // HOLIDAY_LOVE_IS_IN_THE_AIR                     = 335, duplicated
-    HOLIDAY_MINDSUMMER_FIRE_FESTIVAL               = 341,
+    HOLIDAY_MIDSUMMER_FIRE_FESTIVAL                = 341,
     HOLIDAY_CALL_TO_ARMS_EYE_OF_STORM              = 353,
     HOLIDAY_BREWFEST                               = 372,
     HOLIDAY_PIRATES_DAY                            = 398,

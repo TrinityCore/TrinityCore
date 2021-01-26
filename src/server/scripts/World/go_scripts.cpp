@@ -1747,7 +1747,7 @@ public:
                 {
                     case EVENT_MM_START_MUSIC:
                     {
-                        if (!IsHolidayActive(HOLIDAY_MINDSUMMER_FIRE_FESTIVAL))
+                        if (!IsHolidayActive(HOLIDAY_MIDSUMMER_FIRE_FESTIVAL))
                             break;
 
                         std::vector<Player*> playersNearby;
