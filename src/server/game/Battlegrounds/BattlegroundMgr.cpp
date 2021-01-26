@@ -764,14 +764,14 @@ HolidayIds BattlegroundMgr::BGTypeToWeekendHolidayId(BattlegroundTypeId bgTypeId
 {
     switch (bgTypeId)
     {
-        case BATTLEGROUND_AV: return HOLIDAY_CALL_TO_ARMS_AV;
-        case BATTLEGROUND_EY: return HOLIDAY_CALL_TO_ARMS_EY;
-        case BATTLEGROUND_WS: return HOLIDAY_CALL_TO_ARMS_WS;
-        case BATTLEGROUND_SA: return HOLIDAY_CALL_TO_ARMS_SA;
-        case BATTLEGROUND_AB: return HOLIDAY_CALL_TO_ARMS_AB;
-        case BATTLEGROUND_IC: return HOLIDAY_CALL_TO_ARMS_IC;
-        case BATTLEGROUND_TP: return HOLIDAY_CALL_TO_ARMS_TP;
-        case BATTLEGROUND_BFG: return HOLIDAY_CALL_TO_ARMS_BFG;
+        case BATTLEGROUND_AV:  return HOLIDAY_CALL_TO_ARMS_ALTERAC_VALLEY;
+        case BATTLEGROUND_EY:  return HOLIDAY_CALL_TO_ARMS_EYE_OF_STORM;
+        case BATTLEGROUND_WS:  return HOLIDAY_CALL_TO_ARMS_WARSONG_GULCH;
+        case BATTLEGROUND_SA:  return HOLIDAY_CALL_TO_ARMS_STRAND_OF_THE_ANCIENTS;
+        case BATTLEGROUND_AB:  return HOLIDAY_CALL_TO_ARMS_ARATHI_BASIN;
+        case BATTLEGROUND_IC:  return HOLIDAY_CALL_TO_ARMS_ISLE_OF_CONQUEST;
+        case BATTLEGROUND_TP:  return HOLIDAY_CALL_TO_ARMS_TWIN_PEAKS;
+        case BATTLEGROUND_BFG: return HOLIDAY_CALL_TO_ARMS_THE_BATTLE_FOR_GILNEAS;
         default: return HOLIDAY_NONE;
     }
 }
@@ -780,14 +780,14 @@ BattlegroundTypeId BattlegroundMgr::WeekendHolidayIdToBGType(HolidayIds holiday)
 {
     switch (holiday)
     {
-        case HOLIDAY_CALL_TO_ARMS_AV: return BATTLEGROUND_AV;
-        case HOLIDAY_CALL_TO_ARMS_EY: return BATTLEGROUND_EY;
-        case HOLIDAY_CALL_TO_ARMS_WS: return BATTLEGROUND_WS;
-        case HOLIDAY_CALL_TO_ARMS_SA: return BATTLEGROUND_SA;
-        case HOLIDAY_CALL_TO_ARMS_AB: return BATTLEGROUND_AB;
-        case HOLIDAY_CALL_TO_ARMS_IC: return BATTLEGROUND_IC;
-        case HOLIDAY_CALL_TO_ARMS_TP: return BATTLEGROUND_TP;
-        case HOLIDAY_CALL_TO_ARMS_BFG: return BATTLEGROUND_BFG;
+        case HOLIDAY_CALL_TO_ARMS_ALTERAC_VALLEY:         return BATTLEGROUND_AV;
+        case HOLIDAY_CALL_TO_ARMS_EYE_OF_STORM:           return BATTLEGROUND_EY;
+        case HOLIDAY_CALL_TO_ARMS_WARSONG_GULCH:          return BATTLEGROUND_WS;
+        case HOLIDAY_CALL_TO_ARMS_STRAND_OF_THE_ANCIENTS: return BATTLEGROUND_SA;
+        case HOLIDAY_CALL_TO_ARMS_ARATHI_BASIN:           return BATTLEGROUND_AB;
+        case HOLIDAY_CALL_TO_ARMS_ISLE_OF_CONQUEST:       return BATTLEGROUND_IC;
+        case HOLIDAY_CALL_TO_ARMS_TWIN_PEAKS:             return BATTLEGROUND_TP;
+        case HOLIDAY_CALL_TO_ARMS_THE_BATTLE_FOR_GILNEAS: return BATTLEGROUND_BFG;
         default: return BATTLEGROUND_TYPE_NONE;
     }
 }
