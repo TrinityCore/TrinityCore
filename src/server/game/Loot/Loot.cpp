@@ -615,8 +615,8 @@ ByteBuffer& operator<<(ByteBuffer& b, LootItem const& li)
     b << uint32(li.itemid);
     b << uint32(li.count);                                  // nr of items of this type
     b << uint32(ASSERT_NOTNULL(sObjectMgr->GetItemTemplate(li.itemid))->GetDisplayID());
-    b << uint32(li.randomSuffix);
-    b << uint32(li.randomPropertyId.Id);
+    b << int32(li.randomSuffix);
+    b << int32(li.randomPropertyId.Type == ItemRandomEnchantmentType::Property ? li.randomPropertyId.Id : -int32(li.randomPropertyId.Id));
     //b << uint8(0);                                        // slot type - will send after this function call
     return b;
 }
