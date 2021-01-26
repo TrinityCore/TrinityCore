@@ -174,6 +174,7 @@ class instance_lost_city_of_the_tolvir : public InstanceMapScript
                         break;
                     case DATA_GENERAL_HUSAM:
                     case DATA_LOCKMAW_AND_AUGH:
+                    case DATA_HIGH_PROPHET_BARIM:
                         if (state == DONE && IsSiamatEnabled())
                         {
                             if (GameObject* platform = GetGameObject(DATA_SIAMAT_PLATFORM))
