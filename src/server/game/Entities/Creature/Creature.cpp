@@ -57,6 +57,7 @@
 #include "TSCreature.h"
 #include "TSMacros.h"
 #include "TSEventLoader.h"
+#include "TSMap.h"
 // @tswow-end
 
 std::string CreatureMovementData::ToString() const
@@ -275,6 +276,17 @@ Creature::Creature(bool isWorldObject): Unit(isWorldObject), MapObject(), m_grou
 
 void Creature::AddToWorld()
 {
+    // @tswow-begin
+    bool b = false;
+    FIRE_MAP(GetCreatureTemplate()->events,CreatureOnCreate,TSCreature(this),TSMutable<bool>(&b));
+    FIRE_MAP(GetMap()->GetEntry()->events,MapOnCreatureCreate,TSMap(GetMap()),TSCreature(this),TSMutable<bool>(&b));
+    if(b)
+    {
+        // TODO: Is this enough to stop spawning?
+        return;
+    }
+    // @tswow-end
+
     ///- Register the creature for guid lookup
     if (!IsInWorld())
     {
@@ -299,6 +311,10 @@ void Creature::RemoveFromWorld()
 {
     if (IsInWorld())
     {
+        // @tswow-begin
+        FIRE_MAP(GetCreatureTemplate()->events,CreatureOnRemove,TSCreature(this));
+        FIRE_MAP(GetMap()->GetEntry()->events,MapOnCreatureRemove,TSMap(GetMap()),TSCreature(this));
+        // @tswow-end
         if (GetZoneScript())
             GetZoneScript()->OnCreatureRemove(this);
 

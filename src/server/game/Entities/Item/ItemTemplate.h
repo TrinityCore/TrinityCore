@@ -22,6 +22,9 @@
 #include "SharedDefines.h"
 #include "WorldPacket.h"
 #include <vector>
+// @tswow-begin
+#include "TSEvents.h"
+// @tswow-end
 
 class ObjectMgr;
 
@@ -678,6 +681,9 @@ struct TC_GAME_API ItemTemplate
     uint32 FlagsCu;
     std::array<WorldPacket, TOTAL_LOCALES> QueryData;
 
+    // @tswow-begin
+    TSItemEvents* events = nullptr;
+    // @tswow-end
     // helpers
     bool CanChangeEquipStateInCombat() const;
 

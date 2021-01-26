@@ -42,6 +42,7 @@
 #include "TSIds.h"
 #include "TSChannel.h"
 #include "TSTask.h"
+#include "DBCStores.h"
 #include <fstream>
 #include <map>
 
@@ -139,17 +140,6 @@ public:
     void OnBaseGainCalculation(uint32& gain,uint8 playerLevel,uint8 mobLevel,ContentLevels content) FIRE(FormulaOnBaseGainCalculation,TSMutable<uint32>(&gain),playerLevel,mobLevel,content)
     void OnGainCalculation(uint32& gain,Player* player,Unit* unit) FIRE(FormulaOnGainCalculation,TSMutable<uint32>(&gain),TSPlayer(player),TSUnit(unit))
     void OnGroupRateCalculation(float& rate,uint32 count,bool isRaid) FIRE(FormulaOnGroupRateCalculation,TSMutable<float>(&rate),count,isRaid)
-};
-
-class TSItemScript : public ItemScript
-{
-public:
-    TSItemScript() : ItemScript("TSItemScript"){}
-    bool OnQuestAccept(Player* player,Item* item,Quest const* quest) FIRE_RETURN(ItemOnQuestAccept,bool,false,TSPlayer(player),TSItem(item),TSQuest(quest))
-    //bool OnUse(Player* player,Item* item,SpellCastTargets const& targets) FIRE_RETURN(ItemOnUse,bool,false,TSPlayer(player),TSItem(item),TSMutable<const>(targets))
-    bool OnExpire(Player* player,ItemTemplate const* proto) FIRE_RETURN(ItemOnExpire,bool,false,TSPlayer(player),TSItemTemplate(proto))
-    bool OnRemove(Player* player,Item* item) FIRE_RETURN(ItemOnRemove,bool,false,TSPlayer(player),TSItem(item))
-    bool OnCastItemCombatSpell(Player* player,Unit* victim,SpellInfo const* spellInfo,Item* item) FIRE_RETURN(ItemOnCastItemCombatSpell,bool,false,TSPlayer(player),TSUnit(victim),TSSpellInfo(spellInfo),TSItem(item))
 };
 
 class TSUnitScript : public UnitScript
@@ -320,6 +310,30 @@ void TSGameObjectMap::OnAdd(uint32_t key, TSGameObjectEvents* events)
     const_cast<GameObjectTemplate*>(sObjectMgr->GetGameObjectTemplate(key))->events = events;
 }
 
+void TSGameObjectMap::OnRemove(uint32_t key)
+{
+
+}
+
+void TSItemMap::OnAdd(uint32_t key, TSItemEvents* events)
+{
+    const_cast<ItemTemplate*>(sObjectMgr->GetItemTemplate(key))->events = events;
+}
+
+void TSItemMap::OnRemove(uint32_t key)
+{
+}
+
+void TSMapMap::OnAdd(uint32_t key, TSMapEvents* events)
+{
+    const_cast<MapEntry*>(sMapStore.LookupEntry(key))->events = events;
+}
+
+void TSMapMap::OnRemove(uint32_t key)
+{
+
+}
+
 static std::map<TSString, IDRange> tables;
 IDRange GetIDRange(TSString table, TSString mod, TSString name)
 {
@@ -399,7 +413,6 @@ void TSInitializeEvents()
     new TSServerScript();
     new TSWorldScript();
     new TSFormulaScript();
-    //new TSItemScript();
     new TSUnitScript();
     //new TSAreaTriggerScript();
     //new TSWeatherScript();

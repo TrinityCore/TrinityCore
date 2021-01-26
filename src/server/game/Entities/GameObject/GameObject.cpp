@@ -50,6 +50,7 @@
 #include "TSGameObject.h"
 #include "TSMacros.h"
 #include "TSEvents.h"
+#include "TSMap.h"
 // @tswow-end
 
 void GameObjectTemplate::InitializeQueryData()
@@ -213,6 +214,16 @@ void GameObject::AddToWorld()
     ///- Register the gameobject for guid lookup
     if (!IsInWorld())
     {
+        // @tswow-begin
+        bool b = false;
+        FIRE_MAP(GetGOInfo()->events,GameObjectOnCreate,TSGameObject(this),TSMutable<bool>(&b));
+        FIRE_MAP(GetMap()->GetEntry()->events,MapOnGameObjectCreate,TSMap(GetMap()),TSGameObject(this),TSMutable<bool>(&b));
+        if(b)
+        {
+            // TODO: Is this enough?
+            return;
+        }
+        // @tswow-end
         if (m_zoneScript)
             m_zoneScript->OnGameObjectCreate(this);
 
@@ -233,9 +244,6 @@ void GameObject::AddToWorld()
         EnableCollision(toggledState);
         WorldObject::AddToWorld();
     }
-    // @tswow-begin
-    FIRE_MAP(this->GetGOInfo()->events,GameObjectOnAdd,TSGameObject(this));
-    // @tswow-end
 }
 
 void GameObject::RemoveFromWorld()
@@ -245,6 +253,7 @@ void GameObject::RemoveFromWorld()
     {
         // @tswow-begin
         FIRE_MAP(this->GetGOInfo()->events,GameObjectOnRemove,TSGameObject(this));
+        FIRE_MAP(GetMap()->GetEntry()->events,MapOnGameObjectRemove,TSMap(GetMap()),TSGameObject(this));
         // @tswow-end
         if (m_zoneScript)
             m_zoneScript->OnGameObjectRemove(this);
@@ -436,7 +445,7 @@ void GameObject::Update(uint32 diff)
 {
     // @tswow-begin
     tasks.Tick(TSWorldObject(this));
-    FIRE_MAP(this->GetGOInfo()->events,GameObjectOnUpdate(this,diff));
+    FIRE_MAP(this->GetGOInfo()->events,GameObjectOnUpdate,TSGameObject(this),diff);
     // @tswow-end
     m_Events.Update(diff);
 
@@ -2302,7 +2311,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
         case GO_DESTRUCTIBLE_DAMAGED:
         {
             // @tswow-begin
-            FIRE_MAP(GetGOInfo()->events,TSGameObject(this),TSWorldObject(attackerOrHealer));
+            FIRE_MAP(GetGOInfo()->events,GameObjectOnDamaged,TSGameObject(this),TSWorldObject(attackerOrHealer));
             // @tswow-end
             EventInform(m_goInfo->building.damagedEvent, attackerOrHealer);
             AI()->Damaged(attackerOrHealer, m_goInfo->building.damagedEvent);
@@ -2330,7 +2339,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
         case GO_DESTRUCTIBLE_DESTROYED:
         {
             // @tswow-begin
-            FIRE_MAP(GetGOInfo()->events,TSGameObject(this),TSWorldObject(attackerOrHealer));
+            FIRE_MAP(GetGOInfo()->events,GameObjectOnDestroyed,TSGameObject(this),TSWorldObject(attackerOrHealer));
             // @tswow-end
             EventInform(m_goInfo->building.destroyedEvent, attackerOrHealer);
             AI()->Destroyed(attackerOrHealer, m_goInfo->building.destroyedEvent);
@@ -2387,7 +2396,7 @@ void GameObject::SetLootState(LootState state, Unit* unit)
     else
         m_lootStateUnitGUID.Clear();
     // @tswow-begin
-    FIRE_MAP(GetGOInfo()->events,TSGameObject(this),state,TSUnit(unit));
+    FIRE_MAP(GetGOInfo()->events,GameObjectOnLootStateChanged,TSGameObject(this),state,TSUnit(unit));
     // @tswow-end
     AI()->OnLootStateChanged(state, unit);
 
@@ -2418,7 +2427,7 @@ void GameObject::SetGoState(GOState state)
 {
     SetByteValue(GAMEOBJECT_BYTES_1, 0, state);
     // @tswow-begin
-    FIRE_MAP(GetGOInfo()->events,TSGameObject(this),state);
+    FIRE_MAP(GetGOInfo()->events,GameObjectOnGOStateChanged,TSGameObject(this),state);
     // @tswow-end
     if (AI())
         AI()->OnStateChanged(state);

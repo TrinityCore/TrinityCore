@@ -42,6 +42,13 @@
 #include "Weather.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+// @tswow-begin
+#include "TSMap.h"
+#include "TSMacros.h"
+#include "TSEvents.h"
+#include "TSItemTemplate.h"
+#include "TSSpellInfo.h"
+// @tswow-end
 
 // Trait which indicates whether this script type
 // must be assigned in the database.
@@ -1392,6 +1399,9 @@ void ScriptMgr::OnGroupRateCalculation(float& rate, uint32 count, bool isRaid)
 void ScriptMgr::OnCreateMap(Map* map)
 {
     ASSERT(map);
+    // @tswow-begin
+    FIRE_MAP(map->GetEntry()->events,MapOnCreate,TSMap(map));
+    // @tswow-end
 
     SCR_MAP_BGN(WorldMapScript, map, itr, end, entry, IsWorldMap);
         itr->second->OnCreate(map);
@@ -1551,7 +1561,11 @@ bool ScriptMgr::OnItemExpire(Player* player, ItemTemplate const* proto)
     ASSERT(proto);
 
     GET_SCRIPT_RET(ItemScript, proto->ScriptId, tmpscript, false);
-    return tmpscript->OnExpire(player, proto);
+    // @tswow-begin
+    bool b = false;
+    FIRE_MAP(proto->events,ItemOnExpire,TSItemTemplate(proto),TSPlayer(player),TSMutable<bool>(&b));
+    return b || tmpscript->OnExpire(player, proto);
+    // @tswow-end
 }
 
 bool ScriptMgr::OnItemRemove(Player* player, Item* item)
@@ -1560,7 +1574,11 @@ bool ScriptMgr::OnItemRemove(Player* player, Item* item)
     ASSERT(item);
 
     GET_SCRIPT_RET(ItemScript, item->GetScriptId(), tmpscript, false);
-    return tmpscript->OnRemove(player, item);
+    // @tswow-begin
+    bool b = false;
+    FIRE_MAP(item->GetTemplate()->events,ItemOnRemove,TSItem(item),TSPlayer(player),TSMutable<bool>(&b));
+    // @tswow-end
+    return b || tmpscript->OnRemove(player, item);
 }
 
 bool ScriptMgr::OnCastItemCombatSpell(Player* player, Unit* victim, SpellInfo const* spellInfo, Item* item)
@@ -1571,7 +1589,11 @@ bool ScriptMgr::OnCastItemCombatSpell(Player* player, Unit* victim, SpellInfo co
     ASSERT(item);
 
     GET_SCRIPT_RET(ItemScript, item->GetScriptId(), tmpscript, true);
-    return tmpscript->OnCastItemCombatSpell(player, victim, spellInfo, item);
+    // @tswow-begin
+    bool b = false;
+    FIRE_MAP(item->GetTemplate()->events,ItemOnCastSpell,TSItem(item),TSPlayer(player),TSUnit(victim),TSSpellInfo(spellInfo),TSMutable<bool>(&b));
+    // @tswow-end
+    return b || tmpscript->OnCastItemCombatSpell(player, victim, spellInfo, item);
 }
 
 // @tswow-begin

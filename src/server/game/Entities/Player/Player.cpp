@@ -105,6 +105,15 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "WorldStatePackets.h"
+// @tswow-begin
+#include "TSMacros.h"
+#include "TSEvents.h"
+#include "TSQuest.h"
+#include "TSPlayer.h"
+#include "TSCreature.h"
+#include "TSItem.h"
+#include "TSGameObject.h"
+// @tswow-end
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -14950,7 +14959,7 @@ void Player::AddQuestAndCheckCompletion(Quest const* quest, Object* questGiver)
         case TYPEID_UNIT:
             PlayerTalkClass->ClearMenus();
             // @tswow-begin
-            FIRE_MAP(questGiver->ToCreature()->GetCreatureTemplate()->events,TSCreature(questGiver->ToCreature()),TSPlayer(this),TSQuest(quest));
+            FIRE_MAP(questGiver->ToCreature()->GetCreatureTemplate()->events,CreatureOnQuestAccept,TSCreature(questGiver->ToCreature()),TSPlayer(this),TSQuest(quest));
             // @tswow-end
             questGiver->ToCreature()->AI()->OnQuestAccept(this, quest);
             break;
@@ -14958,6 +14967,9 @@ void Player::AddQuestAndCheckCompletion(Quest const* quest, Object* questGiver)
         case TYPEID_CONTAINER:
         {
             Item* item = static_cast<Item*>(questGiver);
+            // @tswow-begin
+            FIRE_MAP(item->GetTemplate()->events,ItemOnQuestAccept,TSItem(item),TSPlayer(this),TSQuest(quest));
+            // @tswow-end
             sScriptMgr->OnQuestAccept(this, item, quest);
 
             // There are two cases where the source item is not destroyed when the quest is accepted:
@@ -14985,7 +14997,7 @@ void Player::AddQuestAndCheckCompletion(Quest const* quest, Object* questGiver)
         case TYPEID_GAMEOBJECT:
             PlayerTalkClass->ClearMenus();
             // @tswow-begin
-            FIRE_MAP(questGiver->ToGameObject()->GetGOInfo()->events,TSGameObject(questGiver->ToGameObject()),TSPlayer(this),TSQuest(quest));
+            FIRE_MAP(questGiver->ToGameObject()->GetGOInfo()->events,GameObjectOnQuestAccept,TSGameObject(questGiver->ToGameObject()),TSPlayer(this),TSQuest(quest));
             // @tswow-end
             questGiver->ToGameObject()->AI()->OnQuestAccept(this, quest);
             break;

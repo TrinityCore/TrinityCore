@@ -41,6 +41,8 @@
 #include "TSSpellInfo.h"
 #include "TSMacros.h"
 #include "TSPlayer.h"
+#include "TSQuest.h"
+#include "TSGameObject.h"
 // @tswow-end
 
 void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPacket& recvData)
@@ -332,7 +334,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
 
                         _player->PlayerTalkClass->ClearMenus();
                         // @tswow-begin
-                        FIRE_MAP(questGiver->GetCreatureTemplate(),TSCreature(questgiver),TSPlayer(_player),TSQuest(quest),reward);
+                        FIRE_MAP(questgiver->GetCreatureTemplate()->events,CreatureOnQuestReward,TSCreature(questgiver),TSPlayer(_player),TSQuest(quest),reward);
                         // @tswow-end
                         questgiver->AI()->OnQuestReward(_player, quest, reward);
                         break;
@@ -355,7 +357,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
 
                         _player->PlayerTalkClass->ClearMenus();
                         // @tswow-begin
-                        FIRE_MAP(questGiver->GetGOInfo(),TSGameObject(questGiver),TSPlayer(_player),TSQuest(quest),reward);
+                        FIRE_MAP(questGiver->GetGOInfo()->events,GameObjectOnQuestReward,TSGameObject(questGiver),TSPlayer(_player),TSQuest(quest),reward);
                         // @tswow-end
                         questGiver->AI()->OnQuestReward(_player, quest, reward);
                         break;

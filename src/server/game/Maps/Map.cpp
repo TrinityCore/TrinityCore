@@ -50,6 +50,14 @@
 #include "World.h"
 #include <unordered_set>
 #include <vector>
+// @tswow-begin
+#include "TSEventLoader.h"
+#include "TSMacros.h"
+#include "TSMap.h"
+#include "TSPlayer.h"
+#include "TSCreature.h"
+#include "TSGameObject.h"
+// @tswow-end
 
 #include "Hacks/boost_1_74_fibonacci_heap.h"
 BOOST_1_74_FIBONACCI_HEAP_MSVC_COMPILE_FIX(RespawnListContainer::value_type)
@@ -606,6 +614,9 @@ bool Map::AddPlayerToMap(Player* player)
     if (player->IsAlive())
         ConvertCorpseToBones(player->GetGUID());
 
+    // @tswow-begin
+    FIRE_MAP(GetEntry()->events,MapOnPlayerEnter,TSMap(this),TSPlayer(player));
+    // @tswow-end
     sScriptMgr->OnPlayerEnterMap(this, player);
     return true;
 }
@@ -1004,6 +1015,9 @@ void Map::RemovePlayerFromMap(Player* player, bool remove)
 {
     // Before leaving map, update zone/area for stats
     player->UpdateZone(MAP_INVALID_ZONE, 0);
+    // @tswow-begin
+    FIRE_MAP(GetEntry()->events,MapOnPlayerLeave,TSMap(this),TSPlayer(player));
+    // @tswow-end
     sScriptMgr->OnPlayerLeaveMap(this, player);
 
     player->CombatStop();
@@ -3814,8 +3828,12 @@ Map::EnterState InstanceMap::CannotEnter(Player* player)
         return CANNOT_ENTER_MAX_PLAYERS;
     }
 
+    // @tswow-begin
+    bool b = false;
+    FIRE_MAP(GetEntry()->events,MapOnCheckEncounter,TSMap(this),TSPlayer(player));
     // cannot enter while an encounter is in progress (unless this is a relog, in which case it is permitted)
-    if (!player->IsLoading() && IsRaid() && GetInstanceScript() && GetInstanceScript()->IsEncounterInProgress())
+    if (b || (!player->IsLoading() && IsRaid() && GetInstanceScript() && GetInstanceScript()->IsEncounterInProgress()))
+    // @tswow-end
         return CANNOT_ENTER_ZONE_IN_COMBAT;
 
     // cannot enter if player is permanent saved to a different instance id

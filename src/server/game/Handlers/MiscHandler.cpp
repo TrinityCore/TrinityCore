@@ -64,6 +64,7 @@
 #include "TSSpellInfo.h"
 #include "TSMacros.h"
 #include "TSPlayer.h"
+#include "TSGameObject.h"
 // @tswow-end
 
 void WorldSession::HandleRepopRequest(WorldPackets::Misc::RepopRequest& /*packet*/)
@@ -201,12 +202,14 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
         else if(item)
         {
             bool b = false;
-            FIRE_BOOL_MAP(item->GetTemplate()->events,ItemOnGossipSelectCode,b,TSItem(item),TSPlayer(player),menuId,gossipListId,TSString(code.c_str()));
+            FIRE_BOOL_MAP(item->GetTemplate()->events,ItemOnGossipSelectCode,b,TSItem(item),TSPlayer(_player),menuId,gossipListId,TSString(code.c_str()));
             if(!b)
                 sScriptMgr->OnGossipSelectCode(_player, item, _player->PlayerTalkClass->GetGossipOptionSender(gossipListId), _player->PlayerTalkClass->GetGossipOptionAction(gossipListId), code.c_str());
         } else {
-            FIRE(PlayerOnGossipSelectCode,TSPlayer(_player),TSPlayer(_player->PlayerTalkClass->GetGossipOptionSender(gossipListId),menuId,gossipListId));
-            sScriptMgr->OnGossipSelectCode(_player, menuId, _player->PlayerTalkClass->GetGossipOptionSender(gossipListId), _player->PlayerTalkClass->GetGossipOptionAction(gossipListId), code.c_str());
+            bool b = false;
+            //FIRE_BOOL(PlayerOnGossipSelectCode,b,TSPlayer(_player),TSPlayer(_player->PlayerTalkClass->GetGossipOptionSender(gossipListId),menuId,gossipListId));
+            if(!b)
+                sScriptMgr->OnGossipSelectCode(_player, menuId, _player->PlayerTalkClass->GetGossipOptionSender(gossipListId), _player->PlayerTalkClass->GetGossipOptionAction(gossipListId), code.c_str());
         }
         // @tswow-end
     }
@@ -238,8 +241,9 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
         else
         {
             bool b = false;
-            FIRE(PlayerOnGossipSelect,TSPlayer(_player),TSPlayer(_player->PlayerTalkClass->GetGossipOptionSender(gossiplistId)),menuId,gossipListId);
-            sScriptMgr->OnGossipSelect(_player, menuId, _player->PlayerTalkClass->GetGossipOptionSender(gossipListId), _player->PlayerTalkClass->GetGossipOptionAction(gossipListId));
+            //FIRE_BOOL(PlayerOnGossipSelect,b,TSPlayer(_player),TSPlayer(_player->PlayerTalkClass->GetGossipOptionSender(gossiplistId)),menuId,gossipListId);
+            if(!b)
+                sScriptMgr->OnGossipSelect(_player, menuId, _player->PlayerTalkClass->GetGossipOptionSender(gossipListId), _player->PlayerTalkClass->GetGossipOptionAction(gossipListId));
         }
 
         //@tswow-end
