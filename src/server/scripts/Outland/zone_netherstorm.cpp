@@ -667,7 +667,11 @@ public:
 enum CaptainTyralius
 {
     NPC_CAPTAIN_TYRALIUS    = 20787,
+    NPC_ETHEREUM_PRISONER   = 20825,
+    SPELL_TELEPORT_VISUAL   = 51347,
     SAY_FREE                = 0,
+    ACTION_FREED            = 0,
+    EVENT_TELEPORT          = 1
 };
 
 class go_captain_tyralius_prison : public GameObjectScript
@@ -679,15 +683,26 @@ class go_captain_tyralius_prison : public GameObjectScript
         {
             go_captain_tyralius_prisonAI(GameObject* go) : GameObjectAI(go) { }
 
+            void Reset() override
+            {
+                me->SummonCreature(NPC_CAPTAIN_TYRALIUS, me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN);
+                me->SummonCreature(NPC_ETHEREUM_PRISONER, me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN);
+            }
+
             bool GossipHello(Player* player) override
             {
-                me->UseDoorOrButton();
+                me->SetRespawnTime(60);
+                me->SetLootState(GO_JUST_DEACTIVATED);
+
                 if (Creature* tyralius = me->FindNearestCreature(NPC_CAPTAIN_TYRALIUS, 1.0f))
                 {
                     player->KilledMonsterCredit(NPC_CAPTAIN_TYRALIUS);
-                    tyralius->AI()->Talk(SAY_FREE);
-                    tyralius->DespawnOrUnsummon(8000);
+                    tyralius->AI()->DoAction(ACTION_FREED);
                 }
+
+                if (Creature* prisoner = me->FindNearestCreature(NPC_ETHEREUM_PRISONER, 1.0f))
+                    prisoner->DespawnOrUnsummon(0);
+
                 return true;
             }
         };
@@ -698,6 +713,47 @@ class go_captain_tyralius_prison : public GameObjectScript
         }
 };
 
+class npc_captain_tyralius : public CreatureScript
+{
+public:
+    npc_captain_tyralius() : CreatureScript("npc_captain_tyralius") { }
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_captain_tyraliusAI(creature);
+    }
+
+    struct npc_captain_tyraliusAI : public ScriptedAI
+    {
+        npc_captain_tyraliusAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void DoAction(int32 /*action*/) override
+        {
+            Talk(SAY_FREE);
+            _events.ScheduleEvent(EVENT_TELEPORT, Seconds(5));
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            _events.Update(diff);
+
+            if (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_TELEPORT:
+                        DoCastSelf(SPELL_TELEPORT_VISUAL);
+                        me->DespawnOrUnsummon(Seconds(2));
+                        break;
+                }
+            }
+        }
+
+    private:
+        EventMap _events;
+    };
+};
+
 void AddSC_netherstorm()
 {
     new npc_commander_dawnforge();
@@ -706,4 +762,5 @@ void AddSC_netherstorm()
     new npc_bessy();
     new npc_maxx_a_million_escort();
     new go_captain_tyralius_prison();
+    new npc_captain_tyralius();
 }

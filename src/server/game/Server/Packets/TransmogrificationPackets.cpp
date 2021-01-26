@@ -22,6 +22,7 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Transmogrification::Trans
     data >> transmogItem.ItemModifiedAppearanceID;
     data >> transmogItem.Slot;
     data >> transmogItem.SpellItemEnchantmentID;
+    data >> transmogItem.SecondaryItemModifiedAppearanceID;
 
     return data;
 }

@@ -149,6 +149,18 @@ namespace advstd
     struct disjunction<B1> : B1 { };
     template <typename B1, class... Bn>
     struct disjunction<B1, Bn...> : std::conditional_t<bool(B1::value), B1, disjunction<Bn...>>  { };
+
+    template <class T>
+    constexpr T const& clamp(T const& val, T const& lo, T const& hi)
+    {
+        if (hi < val)
+            return hi;
+
+        if (val < lo)
+            return lo;
+
+        return val;
+    }
 }
 
 #endif

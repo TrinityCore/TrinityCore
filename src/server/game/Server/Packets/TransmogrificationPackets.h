@@ -31,6 +31,7 @@ namespace WorldPackets
             int32 ItemModifiedAppearanceID = 0;
             uint32 Slot = 0;
             int32 SpellItemEnchantmentID = 0;
+            int32 SecondaryItemModifiedAppearanceID = 0;
         };
 
         class TransmogrifyItems final : public ClientPacket

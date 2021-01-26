@@ -18,6 +18,7 @@
 #include "UnitAI.h"
 #include "Creature.h"
 #include "CreatureAIImpl.h"
+#include "LootMgr.h"
 #include "Map.h"
 #include "MotionMaster.h"
 #include "Player.h"
@@ -312,9 +313,14 @@ void UnitAI::FillAISpellInfo()
     });
 }
 
-uint32 UnitAI::GetDialogStatus(Player* /*player*/)
+void UnitAI::QuestReward(Player* player, Quest const* quest, uint32 opt)
 {
-    return DIALOG_STATUS_SCRIPTED_NO_STATUS;
+    QuestReward(player, quest, LootItemType::Item, opt);
+}
+
+QuestGiverStatus UnitAI::GetDialogStatus(Player* /*player*/)
+{
+    return QuestGiverStatus::ScriptedDefault;
 }
 
 ThreatManager& UnitAI::GetThreatManager()

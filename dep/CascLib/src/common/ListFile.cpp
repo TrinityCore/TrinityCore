@@ -245,7 +245,7 @@ size_t ListFile_GetNextLine(void * pvListFile, char * szBuffer, size_t nMaxChars
 
     // If we didn't read anything, set the error code
     if(nLength == 0)
-        SetLastError(dwErrCode);
+        SetCascError(dwErrCode);
     return nLength;
 }
 
@@ -282,7 +282,7 @@ size_t ListFile_GetNext(void * pvListFile, char * szBuffer, size_t nMaxChars, PD
         nLength = ListFile_GetNextLine(pvListFile, szBuffer, nMaxChars);
         if(nLength == 0)
         {
-            dwErrCode = GetLastError();
+            dwErrCode = GetCascError();
             break;
         }
 
@@ -292,7 +292,7 @@ size_t ListFile_GetNext(void * pvListFile, char * szBuffer, size_t nMaxChars, PD
     }
 
     if(dwErrCode != ERROR_SUCCESS)
-        SetLastError(dwErrCode);
+        SetCascError(dwErrCode);
     return nLength;
 }
 

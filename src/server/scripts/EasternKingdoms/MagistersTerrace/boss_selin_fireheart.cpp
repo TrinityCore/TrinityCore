@@ -65,6 +65,7 @@ enum Misc
     ACTION_SWITCH_PHASE             = 1
 };
 
+// @todo crystals should really be a DB creature summon group, having them in `creature` like this will cause tons of despawn/respawn bugs
 class boss_selin_fireheart : public CreatureScript
 {
     public:
@@ -72,23 +73,15 @@ class boss_selin_fireheart : public CreatureScript
 
         struct boss_selin_fireheartAI : public BossAI
         {
-            boss_selin_fireheartAI(Creature* creature) : BossAI(creature, DATA_SELIN)
-            {
-                _scheduledEvents = false;
-            }
+            boss_selin_fireheartAI(Creature* creature) : BossAI(creature, DATA_SELIN), _scheduledEvents(false) { }
 
             void Reset() override
             {
-                Crystals.clear();
-                me->GetCreatureListWithEntryInGrid(Crystals, NPC_FEL_CRYSTAL, 250.0f);
+                std::list<Creature*> crystals;
+                me->GetCreatureListWithEntryInGrid(crystals, NPC_FEL_CRYSTAL, 250.0f);
 
-                for (Creature* creature : Crystals)
-                {
-                    if (!creature->IsAlive())
-                        creature->Respawn();
-
-                    creature->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
-                }
+                for (Creature* creature : crystals)
+                    creature->Respawn(true);
 
                 _Reset();
                 CrystalGUID.Clear();
@@ -112,21 +105,16 @@ class boss_selin_fireheart : public CreatureScript
 
             void SelectNearestCrystal()
             {
-                if (Crystals.empty())
-                    return;
-
-                Crystals.sort(Trinity::ObjectDistanceOrderPred(me));
-                if (Creature* CrystalChosen = Crystals.front())
+                if (Creature* crystal = me->FindNearestCreature(NPC_FEL_CRYSTAL, 250.0f))
                 {
                     Talk(SAY_ENERGY);
                     Talk(EMOTE_CRYSTAL);
 
-                    DoCast(CrystalChosen, SPELL_FEL_CRYSTAL_DUMMY);
-                    CrystalGUID = CrystalChosen->GetGUID();
-                    Crystals.remove(CrystalChosen);
-
+                    DoCast(crystal, SPELL_FEL_CRYSTAL_DUMMY);
+                    CrystalGUID = crystal->GetGUID();
+                    
                     float x, y, z;
-                    CrystalChosen->GetClosePoint(x, y, z, me->GetCombatReach(), CONTACT_DISTANCE);
+                    crystal->GetClosePoint(x, y, z, me->GetCombatReach(), CONTACT_DISTANCE);
 
                     events.SetPhase(PHASE_DRAIN);
                     me->SetWalk(false);
@@ -136,14 +124,11 @@ class boss_selin_fireheart : public CreatureScript
 
             void ShatterRemainingCrystals()
             {
-                if (Crystals.empty())
-                    return;
+                std::list<Creature*> crystals;
+                me->GetCreatureListWithEntryInGrid(crystals, NPC_FEL_CRYSTAL, 250.0f);
 
-                for (Creature* crystal : Crystals)
-                {
-                    if (crystal && crystal->IsAlive())
-                        crystal->KillSelf();
-                }
+                for (Creature* crystal : crystals)
+                    crystal->KillSelf();
             }
 
             void EnterCombat(Unit* /*who*/) override
@@ -259,7 +244,6 @@ class boss_selin_fireheart : public CreatureScript
             }
 
         private:
-            std::list<Creature*> Crystals;
             ObjectGuid CrystalGUID;
             bool _scheduledEvents;
         };

@@ -52,28 +52,45 @@ namespace WorldPackets
         {
             enum ContentTuningType : uint32
             {
-                TYPE_PLAYER_TO_PLAYER               = 7, // NYI
-                TYPE_PLAYER_TO_PLAYER_HEALING       = 8,
-                TYPE_CREATURE_TO_PLAYER_DAMAGE      = 1,
-                TYPE_PLAYER_TO_CREATURE_DAMAGE      = 2,
-                TYPE_CREATURE_TO_CREATURE_DAMAGE    = 4
+                TYPE_CREATURE_TO_PLAYER_DAMAGE          = 1,
+                TYPE_PLAYER_TO_CREATURE_DAMAGE          = 2,
+                TYPE_CREATURE_TO_CREATURE_DAMAGE        = 4,
+                TYPE_PLAYER_TO_PLAYER_SANDBOX_SCALING   = 7, // NYI
+                TYPE_PLAYER_TO_PLAYER_EXPECTED_STAT     = 8,
+            };
+
+            enum ContentTuningFlags : uint32
+            {
+                NO_LEVEL_SCALING        = 0x1,
+                NO_ITEM_LEVEL_SCALING   = 0x2
             };
 
             uint32 Type = 0;
             int16 PlayerLevelDelta = 0;
-            uint16 PlayerItemLevel = 0;
-            uint16 TargetItemLevel = 0;
+            float PlayerItemLevel = 0;
+            float TargetItemLevel = 0;
             uint16 ScalingHealthItemLevelCurveID = 0;
             uint8 TargetLevel = 0;
             uint8 Expansion = 0;
             uint8 TargetMinScalingLevel = 0;
             uint8 TargetMaxScalingLevel = 0;
             int8 TargetScalingLevelDelta = 0;
-            bool ScalesWithItemLevel = false;
+            uint32 Flags = NO_LEVEL_SCALING | NO_ITEM_LEVEL_SCALING;
 
             template<class T, class U>
             bool GenerateDataForUnits(T* attacker, U* target);
         };
+
+        struct SpellCastVisual
+        {
+            int32 SpellXSpellVisualID = 0;
+            int32 ScriptVisualID = 0;
+        };
+
+        ByteBuffer& operator<<(ByteBuffer& data, SpellCastLogData const& spellCastLogData);
+        ByteBuffer& operator<<(ByteBuffer& data, ContentTuningParams const& contentTuningParams);
+        ByteBuffer& operator>>(ByteBuffer& data, SpellCastVisual& visual);
+        ByteBuffer& operator<<(ByteBuffer& data, SpellCastVisual const& visual);
     }
 
     namespace CombatLog
@@ -128,8 +145,5 @@ namespace WorldPackets
         };
     }
 }
-
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastLogData const& spellCastLogData);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::ContentTuningParams const& contentTuningParams);
 
 #endif // CombatLogPacketsCommon_h__

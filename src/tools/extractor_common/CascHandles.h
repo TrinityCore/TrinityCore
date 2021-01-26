@@ -53,6 +53,8 @@ namespace CASC
     private:
         Storage(HANDLE handle);
 
+        bool LoadOnlineTactKeys();
+
         HANDLE _handle;
     };
 

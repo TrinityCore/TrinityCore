@@ -114,6 +114,7 @@ void AuctionsBucketData::BuildBucketInfo(WorldPackets::AuctionHouse::BucketInfo*
 {
     bucketInfo->Key = Key;
     bucketInfo->MinPrice = MinPrice;
+    bucketInfo->RequiredLevel = RequiredLevel;
     bucketInfo->TotalQuantity = 0;
 
     for (AuctionPosting const* auction : Auctions)

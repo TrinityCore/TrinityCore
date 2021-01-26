@@ -599,6 +599,7 @@ public:
                     IntroTimer = 2000;
                     break;
                 case 41:
+                    SetEscortPaused(true);
                     IntroPhase = 4;
                     IntroTimer = 2000;
                     break;
@@ -625,7 +626,7 @@ public:
                             IntroTimer = 7500;
                             break;
                         case 3:
-                            me->SetReactState(REACT_AGGRESSIVE);
+                            me->SetReactState(REACT_DEFENSIVE);
                             IntroPhase = 0;
                             IntroTimer = 0;
                             break;
@@ -640,14 +641,12 @@ public:
                             IntroPhase = 6;
                             IntroTimer = 2500;
                             break;
-
                         case 6:
                             if (Player* player = GetPlayerForEscort())
                                 player->AreaExploredOrEventHappens(QUEST_ESCAPE_WINTERFIN_CAVERNS);
                             IntroPhase = 7;
                             IntroTimer = 2500;
                             break;
-
                         case 7:
                             me->DespawnOrUnsummon();
                             IntroPhase = 0;
@@ -669,8 +668,7 @@ public:
                 if (GameObject* go = me->FindNearestGameObject(GO_CAGE, 5.0f))
                 {
                     go->SetRespawnTime(0);
-                    go->SetGoType(GAMEOBJECT_TYPE_BUTTON);
-                    go->UseDoorOrButton(20);
+                    go->UseDoorOrButton(20000);
                 }
 
                 Start(true, false, player->GetGUID());
@@ -2381,6 +2379,108 @@ public:
     }
 };
 
+enum BloodsporeRuination
+{
+    NPC_BLOODMAGE_LAURITH   = 25381,
+    SAY_BLOODMAGE_LAURITH   = 0,
+    EVENT_TALK              = 1,
+    EVENT_RESET_ORIENTATION
+};
+
+class spell_q11719_bloodspore_ruination_45997 : public SpellScriptLoader
+{
+public:
+    spell_q11719_bloodspore_ruination_45997() : SpellScriptLoader("spell_q11719_bloodspore_ruination_45997") { }
+
+    class spell_q11719_bloodspore_ruination_45997_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_q11719_bloodspore_ruination_45997_SpellScript);
+
+        void HandleEffect(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* caster = GetCaster())
+                if (Creature* laurith = caster->FindNearestCreature(NPC_BLOODMAGE_LAURITH, 100.0f))
+                    laurith->AI()->SetGUID(caster->GetGUID());
+        }
+
+        void Register() override
+        {
+            OnEffectHit += SpellEffectFn(spell_q11719_bloodspore_ruination_45997_SpellScript::HandleEffect, EFFECT_1, SPELL_EFFECT_SEND_EVENT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_q11719_bloodspore_ruination_45997_SpellScript();
+    }
+};
+
+class npc_bloodmage_laurith : public CreatureScript
+{
+public:
+    npc_bloodmage_laurith() : CreatureScript("npc_bloodmage_laurith") { }
+
+    struct npc_bloodmage_laurithAI : public ScriptedAI
+    {
+        npc_bloodmage_laurithAI(Creature* creature) : ScriptedAI(creature) { }
+
+        void Reset() override
+        {
+            _events.Reset();
+            _playerGUID.Clear();
+        }
+
+        void SetGUID(ObjectGuid guid, int32 /*action*/) override
+        {
+            if (!_playerGUID.IsEmpty())
+                return;
+
+            _playerGUID = guid;
+
+            if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                me->SetFacingToObject(player);
+
+            _events.ScheduleEvent(EVENT_TALK, Seconds(1));
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (UpdateVictim())
+            {
+                DoMeleeAttackIfReady();
+                return;
+            }
+
+            _events.Update(diff);
+
+            if (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_TALK:
+                        if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                            Talk(SAY_BLOODMAGE_LAURITH, player);
+                        _playerGUID.Clear();
+                        _events.ScheduleEvent(EVENT_RESET_ORIENTATION, Seconds(5));
+                        break;
+                    case EVENT_RESET_ORIENTATION:
+                        me->SetFacingTo(me->GetHomePosition().GetOrientation());
+                        break;
+                }
+            }
+        }
+
+        private:
+            EventMap _events;
+            ObjectGuid _playerGUID;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_bloodmage_laurithAI(creature);
+    }
+};
+
 void AddSC_borean_tundra()
 {
     new npc_sinkhole_kill_credit();
@@ -2406,4 +2506,6 @@ void AddSC_borean_tundra()
     new npc_warmage_coldarra();
     new npc_hidden_cultist();
     new spell_windsoul_totem_aura();
+    new spell_q11719_bloodspore_ruination_45997();
+    new npc_bloodmage_laurith();
 }

@@ -27,6 +27,8 @@
 #include "Regex.h"
 #include "Timer.h"
 #include "Util.h"
+#include "World.h"
+#include "advstd.h"
 #include <boost/filesystem/operations.hpp>
 #include <array>
 #include <bitset>
@@ -80,14 +82,20 @@ DB2Storage<BattlePetSpeciesStateEntry>          sBattlePetSpeciesStateStore("Bat
 DB2Storage<BattlemasterListEntry>               sBattlemasterListStore("BattlemasterList.db2", BattlemasterListLoadInfo::Instance());
 DB2Storage<BroadcastTextEntry>                  sBroadcastTextStore("BroadcastText.db2", BroadcastTextLoadInfo::Instance());
 DB2Storage<Cfg_RegionsEntry>                    sCfgRegionsStore("Cfg_Regions.db2", CfgRegionsLoadInfo::Instance());
-DB2Storage<CharacterFacialHairStylesEntry>      sCharacterFacialHairStylesStore("CharacterFacialHairStyles.db2", CharacterFacialHairStylesLoadInfo::Instance());
-DB2Storage<CharBaseSectionEntry>                sCharBaseSectionStore("CharBaseSection.db2", CharBaseSectionLoadInfo::Instance());
-DB2Storage<CharSectionsEntry>                   sCharSectionsStore("CharSections.db2", CharSectionsLoadInfo::Instance());
-DB2Storage<CharStartOutfitEntry>                sCharStartOutfitStore("CharStartOutfit.db2", CharStartOutfitLoadInfo::Instance());
 DB2Storage<CharTitlesEntry>                     sCharTitlesStore("CharTitles.db2", CharTitlesLoadInfo::Instance());
+DB2Storage<CharacterLoadoutEntry>               sCharacterLoadoutStore("CharacterLoadout.db2", CharacterLoadoutLoadInfo::Instance());
+DB2Storage<CharacterLoadoutItemEntry>           sCharacterLoadoutItemStore("CharacterLoadoutItem.db2", CharacterLoadoutItemLoadInfo::Instance());
 DB2Storage<ChatChannelsEntry>                   sChatChannelsStore("ChatChannels.db2", ChatChannelsLoadInfo::Instance());
 DB2Storage<ChrClassesEntry>                     sChrClassesStore("ChrClasses.db2", ChrClassesLoadInfo::Instance());
 DB2Storage<ChrClassesXPowerTypesEntry>          sChrClassesXPowerTypesStore("ChrClassesXPowerTypes.db2", ChrClassesXPowerTypesLoadInfo::Instance());
+DB2Storage<ChrCustomizationChoiceEntry>         sChrCustomizationChoiceStore("ChrCustomizationChoice.db2", ChrCustomizationChoiceLoadInfo::Instance());
+DB2Storage<ChrCustomizationDisplayInfoEntry>    sChrCustomizationDisplayInfoStore("ChrCustomizationDisplayInfo.db2", ChrCustomizationDisplayInfoLoadInfo::Instance());
+DB2Storage<ChrCustomizationElementEntry>        sChrCustomizationElementStore("ChrCustomizationElement.db2", ChrCustomizationElementLoadInfo::Instance());
+DB2Storage<ChrCustomizationOptionEntry>         sChrCustomizationOptionStore("ChrCustomizationOption.db2", ChrCustomizationOptionLoadInfo::Instance());
+DB2Storage<ChrCustomizationReqEntry>            sChrCustomizationReqStore("ChrCustomizationReq.db2", ChrCustomizationReqLoadInfo::Instance());
+DB2Storage<ChrCustomizationReqChoiceEntry>      sChrCustomizationReqChoiceStore("ChrCustomizationReqChoice.db2", ChrCustomizationReqChoiceLoadInfo::Instance());
+DB2Storage<ChrModelEntry>                       sChrModelStore("ChrModel.db2", ChrModelLoadInfo::Instance());
+DB2Storage<ChrRaceXChrModelEntry>               sChrRaceXChrModelStore("ChrRaceXChrModel.db2", ChrRaceXChrModelLoadInfo::Instance());
 DB2Storage<ChrRacesEntry>                       sChrRacesStore("ChrRaces.db2", ChrRacesLoadInfo::Instance());
 DB2Storage<ChrSpecializationEntry>              sChrSpecializationStore("ChrSpecialization.db2", ChrSpecializationLoadInfo::Instance());
 DB2Storage<CinematicCameraEntry>                sCinematicCameraStore("CinematicCamera.db2", CinematicCameraLoadInfo::Instance());
@@ -188,6 +196,7 @@ DB2Storage<LockEntry>                           sLockStore("Lock.db2", LockLoadI
 DB2Storage<MailTemplateEntry>                   sMailTemplateStore("MailTemplate.db2", MailTemplateLoadInfo::Instance());
 DB2Storage<MapEntry>                            sMapStore("Map.db2", MapLoadInfo::Instance());
 DB2Storage<MapDifficultyEntry>                  sMapDifficultyStore("MapDifficulty.db2", MapDifficultyLoadInfo::Instance());
+DB2Storage<MapDifficultyXConditionEntry>        sMapDifficultyXConditionStore("MapDifficultyXCondition.db2", MapDifficultyXConditionLoadInfo::Instance());
 DB2Storage<ModifierTreeEntry>                   sModifierTreeStore("ModifierTree.db2", ModifierTreeLoadInfo::Instance());
 DB2Storage<MountCapabilityEntry>                sMountCapabilityStore("MountCapability.db2", MountCapabilityLoadInfo::Instance());
 DB2Storage<MountEntry>                          sMountStore("Mount.db2", MountLoadInfo::Instance());
@@ -212,6 +221,7 @@ DB2Storage<PvpTalentEntry>                      sPvpTalentStore("PvpTalent.db2",
 DB2Storage<PvpTalentCategoryEntry>              sPvpTalentCategoryStore("PvpTalentCategory.db2", PvpTalentCategoryLoadInfo::Instance());
 DB2Storage<PvpTalentSlotUnlockEntry>            sPvpTalentSlotUnlockStore("PvpTalentSlotUnlock.db2", PvpTalentSlotUnlockLoadInfo::Instance());
 DB2Storage<QuestFactionRewardEntry>             sQuestFactionRewardStore("QuestFactionReward.db2", QuestFactionRewardLoadInfo::Instance());
+DB2Storage<QuestInfoEntry>                      sQuestInfoStore("QuestInfo.db2", QuestInfoLoadInfo::Instance());
 DB2Storage<QuestMoneyRewardEntry>               sQuestMoneyRewardStore("QuestMoneyReward.db2", QuestMoneyRewardLoadInfo::Instance());
 DB2Storage<QuestPackageItemEntry>               sQuestPackageItemStore("QuestPackageItem.db2", QuestPackageItemLoadInfo::Instance());
 DB2Storage<QuestSortEntry>                      sQuestSortStore("QuestSort.db2", QuestSortLoadInfo::Instance());
@@ -221,7 +231,6 @@ DB2Storage<RandPropPointsEntry>                 sRandPropPointsStore("RandPropPo
 DB2Storage<RewardPackEntry>                     sRewardPackStore("RewardPack.db2", RewardPackLoadInfo::Instance());
 DB2Storage<RewardPackXCurrencyTypeEntry>        sRewardPackXCurrencyTypeStore("RewardPackXCurrencyType.db2", RewardPackXCurrencyTypeLoadInfo::Instance());
 DB2Storage<RewardPackXItemEntry>                sRewardPackXItemStore("RewardPackXItem.db2", RewardPackXItemLoadInfo::Instance());
-DB2Storage<ScalingStatDistributionEntry>        sScalingStatDistributionStore("ScalingStatDistribution.db2", ScalingStatDistributionLoadInfo::Instance());
 DB2Storage<ScenarioEntry>                       sScenarioStore("Scenario.db2", ScenarioLoadInfo::Instance());
 DB2Storage<ScenarioStepEntry>                   sScenarioStepStore("ScenarioStep.db2", ScenarioStepLoadInfo::Instance());
 DB2Storage<SceneScriptEntry>                    sSceneScriptStore("SceneScript.db2", SceneScriptLoadInfo::Instance());
@@ -276,6 +285,7 @@ DB2Storage<TaxiPathNodeEntry>                   sTaxiPathNodeStore("TaxiPathNode
 DB2Storage<TotemCategoryEntry>                  sTotemCategoryStore("TotemCategory.db2", TotemCategoryLoadInfo::Instance());
 DB2Storage<ToyEntry>                            sToyStore("Toy.db2", ToyLoadInfo::Instance());
 DB2Storage<TransmogHolidayEntry>                sTransmogHolidayStore("TransmogHoliday.db2", TransmogHolidayLoadInfo::Instance());
+DB2Storage<TransmogIllusionEntry>               sTransmogIllusionStore("TransmogIllusion.db2", TransmogIllusionLoadInfo::Instance());
 DB2Storage<TransmogSetEntry>                    sTransmogSetStore("TransmogSet.db2", TransmogSetLoadInfo::Instance());
 DB2Storage<TransmogSetGroupEntry>               sTransmogSetGroupStore("TransmogSetGroup.db2", TransmogSetGroupLoadInfo::Instance());
 DB2Storage<TransmogSetItemEntry>                sTransmogSetItemStore("TransmogSetItem.db2", TransmogSetItemLoadInfo::Instance());
@@ -316,9 +326,7 @@ typedef std::unordered_map<uint32 /*areaGroupId*/, std::vector<uint32/*areaId*/>
 typedef std::unordered_map<uint32, std::vector<ArtifactPowerEntry const*>> ArtifactPowersContainer;
 typedef std::unordered_map<uint32, std::unordered_set<uint32>> ArtifactPowerLinksContainer;
 typedef std::unordered_map<std::pair<uint32, uint8>, ArtifactPowerRankEntry const*> ArtifactPowerRanksContainer;
-typedef std::unordered_map<uint32, CharStartOutfitEntry const*> CharStartOutfitContainer;
 typedef ChrSpecializationEntry const* ChrSpecializationByIndexContainer[MAX_CLASSES + 1][MAX_SPECIALIZATIONS];
-typedef std::unordered_map<uint32, ChrSpecializationEntry const*> ChrSpecialzationByClassContainer;
 typedef std::unordered_map<uint32 /*curveID*/, std::vector<CurvePointEntry const*>> CurvePointsContainer;
 typedef std::map<std::tuple<uint32, uint8, uint8, uint8>, EmotesTextSoundEntry const*> EmotesTextSoundContainer;
 typedef std::unordered_map<uint32, std::vector<uint32>> FactionTeamContainer;
@@ -354,6 +362,7 @@ typedef std::tuple<uint16, uint8, int32> WMOAreaTableKey;
 typedef std::map<WMOAreaTableKey, WMOAreaTableEntry const*> WMOAreaTableLookupContainer;
 typedef std::pair<uint32 /*tableHash*/, int32 /*recordId*/> HotfixBlobKey;
 typedef std::map<HotfixBlobKey, std::vector<uint8>> HotfixBlobMap;
+using AllowedHotfixOptionalData = std::pair<uint32 /*optional data key*/, bool(*)(std::vector<uint8> const& data) /*validator*/>;
 
 namespace
 {
@@ -368,6 +377,8 @@ namespace
     StorageMap _stores;
     DB2Manager::HotfixContainer _hotfixData;
     std::array<HotfixBlobMap, TOTAL_LOCALES> _hotfixBlob;
+    std::unordered_multimap<uint32 /*tableHash*/, AllowedHotfixOptionalData> _allowedHotfixOptionalData;
+    std::array<std::map<HotfixBlobKey, std::vector<DB2Manager::HotfixOptionalData>>, TOTAL_LOCALES> _hotfixOptionalData;
 
     AreaGroupMemberContainer _areaGroupMembers;
     ArtifactPowersContainer _artifactPowers;
@@ -380,12 +391,13 @@ namespace
     std::unordered_map<uint32 /*azeritePowerSetId*/, std::vector<AzeritePowerSetMemberEntry const*>> _azeritePowers;
     std::unordered_map<std::pair<uint32 /*azeriteUnlockSetId*/, ItemContext>, std::array<uint8, MAX_AZERITE_EMPOWERED_TIER>> _azeriteTierUnlockLevels;
     std::unordered_map<std::pair<uint32 /*itemId*/, ItemContext>, AzeriteUnlockMappingEntry const*> _azeriteUnlockMappings;
-    std::set<std::tuple<uint8, uint8, uint32>> _characterFacialHairStyles;
-    std::multimap<std::tuple<uint8, uint8, CharBaseSectionVariation>, CharSectionsEntry const*> _charSections;
-    CharStartOutfitContainer _charStartOutfits;
-    uint32 _powersByClass[MAX_CLASSES][MAX_POWERS];
+    std::array<std::array<uint32, MAX_POWERS>, MAX_CLASSES> _powersByClass;
+    std::unordered_map<uint32 /*chrCustomizationOptionId*/, std::vector<ChrCustomizationChoiceEntry const*>> _chrCustomizationChoicesByOption;
+    std::unordered_map<std::pair<uint8, uint8>, ChrModelEntry const*> _chrModelsByRaceAndGender;
+    std::map<std::tuple<uint8 /*race*/, uint8/*gender*/, uint8/*shapeshift*/>, ShapeshiftFormModelData> _chrCustomizationChoicesForShapeshifts;
+    std::unordered_map<std::pair<uint8 /*race*/, uint8/*gender*/>, std::vector<ChrCustomizationOptionEntry const*>> _chrCustomizationOptionsByRaceAndGender;
+    std::unordered_map<uint32 /*chrCustomizationReqId*/, std::unordered_map<uint32 /*chrCustomizationOptionId*/, std::vector<uint32>>> _chrCustomizationRequiredChoices;
     ChrSpecializationByIndexContainer _chrSpecializationsByIndex;
-    ChrSpecialzationByClassContainer _defaultChrSpecializationsByClass;
     CurvePointsContainer _curvePoints;
     EmotesTextSoundContainer _emoteTextSounds;
     std::unordered_map<std::pair<uint32 /*level*/, int32 /*expansion*/>, ExpectedStatEntry const*> _expectedStatsByLevel;
@@ -407,6 +419,7 @@ namespace
     ItemSetSpellContainer _itemSetSpells;
     ItemSpecOverridesContainer _itemSpecOverrides;
     DB2Manager::MapDifficultyContainer _mapDifficulties;
+    std::unordered_map<uint32, DB2Manager::MapDifficultyConditionsContainer> _mapDifficultyConditions;
     std::unordered_map<uint32, MountEntry const*> _mountsBySpellId;
     MountCapabilitiesByTypeContainer _mountCapabilitiesByType;
     MountDisplaysCointainer _mountDisplays;
@@ -600,14 +613,20 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sBattlemasterListStore);
     LOAD_DB2(sBroadcastTextStore);
     LOAD_DB2(sCfgRegionsStore);
-    LOAD_DB2(sCharacterFacialHairStylesStore);
-    LOAD_DB2(sCharBaseSectionStore);
-    LOAD_DB2(sCharSectionsStore);
-    LOAD_DB2(sCharStartOutfitStore);
     LOAD_DB2(sCharTitlesStore);
+    LOAD_DB2(sCharacterLoadoutStore);
+    LOAD_DB2(sCharacterLoadoutItemStore);
     LOAD_DB2(sChatChannelsStore);
     LOAD_DB2(sChrClassesStore);
     LOAD_DB2(sChrClassesXPowerTypesStore);
+    LOAD_DB2(sChrCustomizationChoiceStore);
+    LOAD_DB2(sChrCustomizationDisplayInfoStore);
+    LOAD_DB2(sChrCustomizationElementStore);
+    LOAD_DB2(sChrCustomizationOptionStore);
+    LOAD_DB2(sChrCustomizationReqStore);
+    LOAD_DB2(sChrCustomizationReqChoiceStore);
+    LOAD_DB2(sChrModelStore);
+    LOAD_DB2(sChrRaceXChrModelStore);
     LOAD_DB2(sChrRacesStore);
     LOAD_DB2(sChrSpecializationStore);
     LOAD_DB2(sCinematicCameraStore);
@@ -708,6 +727,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sMailTemplateStore);
     LOAD_DB2(sMapStore);
     LOAD_DB2(sMapDifficultyStore);
+    LOAD_DB2(sMapDifficultyXConditionStore);
     LOAD_DB2(sModifierTreeStore);
     LOAD_DB2(sMountCapabilityStore);
     LOAD_DB2(sMountStore);
@@ -732,6 +752,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sPvpTalentCategoryStore);
     LOAD_DB2(sPvpTalentSlotUnlockStore);
     LOAD_DB2(sQuestFactionRewardStore);
+    LOAD_DB2(sQuestInfoStore);
     LOAD_DB2(sQuestMoneyRewardStore);
     LOAD_DB2(sQuestPackageItemStore);
     LOAD_DB2(sQuestSortStore);
@@ -741,7 +762,6 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sRewardPackStore);
     LOAD_DB2(sRewardPackXCurrencyTypeStore);
     LOAD_DB2(sRewardPackXItemStore);
-    LOAD_DB2(sScalingStatDistributionStore);
     LOAD_DB2(sScenarioStore);
     LOAD_DB2(sScenarioStepStore);
     LOAD_DB2(sSceneScriptStore);
@@ -796,6 +816,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sTotemCategoryStore);
     LOAD_DB2(sToyStore);
     LOAD_DB2(sTransmogHolidayStore);
+    LOAD_DB2(sTransmogIllusionStore);
     LOAD_DB2(sTransmogSetStore);
     LOAD_DB2(sTransmogSetGroupStore);
     LOAD_DB2(sTransmogSetItemStore);
@@ -910,46 +931,13 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     ASSERT(BATTLE_PET_SPECIES_MAX_ID >= sBattlePetSpeciesStore.GetNumRows(),
         "BATTLE_PET_SPECIES_MAX_ID (%d) must be equal to or greater than %u", BATTLE_PET_SPECIES_MAX_ID, sBattlePetSpeciesStore.GetNumRows());
 
-    for (CharacterFacialHairStylesEntry const* characterFacialStyle : sCharacterFacialHairStylesStore)
-        _characterFacialHairStyles.emplace(characterFacialStyle->RaceID, characterFacialStyle->SexID, characterFacialStyle->VariationID);
-
-    std::array<CharBaseSectionVariation, SECTION_TYPE_MAX> sectionToBase = { {} };
-    for (CharBaseSectionEntry const* charBaseSection : sCharBaseSectionStore)
-    {
-        ASSERT(charBaseSection->ResolutionVariationEnum < SECTION_TYPE_MAX,
-            "SECTION_TYPE_MAX (%d) must be equal to or greater than %u", uint32(SECTION_TYPE_MAX), uint32(charBaseSection->ResolutionVariationEnum + 1));
-        ASSERT(charBaseSection->VariationEnum < AsUnderlyingType(CharBaseSectionVariation::Count),
-            "CharBaseSectionVariation::Count %u must be equal to or greater than %u", uint32(CharBaseSectionVariation::Count), uint32(charBaseSection->VariationEnum + 1));
-
-        sectionToBase[charBaseSection->ResolutionVariationEnum] = static_cast<CharBaseSectionVariation>(charBaseSection->VariationEnum);
-    }
-
-    std::map<std::tuple<uint8, uint8, CharBaseSectionVariation>, std::set<std::pair<uint8, uint8>>> addedSections;
-    for (CharSectionsEntry const* charSection : sCharSectionsStore)
-    {
-        ASSERT(charSection->BaseSection < SECTION_TYPE_MAX,
-            "SECTION_TYPE_MAX (%d) must be equal to or greater than %u", uint32(SECTION_TYPE_MAX), uint32(charSection->BaseSection + 1));
-
-        std::tuple<uint8, uint8, CharBaseSectionVariation> sectionKey{ charSection->RaceID, charSection->SexID, sectionToBase[charSection->BaseSection] };
-        std::pair<uint8, uint8> sectionCombination{ charSection->VariationIndex, charSection->ColorIndex };
-        if (addedSections[sectionKey].count(sectionCombination))
-            continue;
-
-        addedSections[sectionKey].insert(sectionCombination);
-        _charSections.insert({ sectionKey, charSection });
-    }
-
-    for (CharStartOutfitEntry const* outfit : sCharStartOutfitStore)
-        _charStartOutfits[outfit->RaceID | (outfit->ClassID << 8) | (outfit->SexID << 16)] = outfit;
-
     {
         std::set<ChrClassesXPowerTypesEntry const*, ChrClassesXPowerTypesEntryComparator> powers;
         for (ChrClassesXPowerTypesEntry const* power : sChrClassesXPowerTypesStore)
             powers.insert(power);
 
-        for (uint32 i = 0; i < MAX_CLASSES; ++i)
-            for (uint32 j = 0; j < MAX_POWERS; ++j)
-                _powersByClass[i][j] = MAX_POWERS;
+        for (std::size_t i = 0; i < _powersByClass.size(); ++i)
+            _powersByClass[i].fill(MAX_POWERS);
 
         for (ChrClassesXPowerTypesEntry const* power : powers)
         {
@@ -961,6 +949,73 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
             ASSERT(power->ClassID < MAX_CLASSES);
             ASSERT(power->PowerType < MAX_POWERS);
             _powersByClass[power->ClassID][power->PowerType] = index;
+        }
+    }
+
+    for (ChrCustomizationChoiceEntry const* customizationChoice : sChrCustomizationChoiceStore)
+        _chrCustomizationChoicesByOption[customizationChoice->ChrCustomizationOptionID].push_back(customizationChoice);
+
+    std::unordered_multimap<uint32, std::pair<uint32, uint8>> shapeshiftFormByModel;
+    std::unordered_map<uint32, ChrCustomizationDisplayInfoEntry const*> displayInfoByCustomizationChoice;
+
+    // build shapeshift form model lookup
+    for (ChrCustomizationElementEntry const* customizationElement : sChrCustomizationElementStore)
+    {
+        if (ChrCustomizationDisplayInfoEntry const* customizationDisplayInfo = sChrCustomizationDisplayInfoStore.LookupEntry(customizationElement->ChrCustomizationDisplayInfoID))
+        {
+            if (ChrCustomizationChoiceEntry const* customizationChoice = sChrCustomizationChoiceStore.LookupEntry(customizationElement->ChrCustomizationChoiceID))
+            {
+                displayInfoByCustomizationChoice[customizationElement->ChrCustomizationChoiceID] = customizationDisplayInfo;
+                if (ChrCustomizationOptionEntry const* customizationOption = sChrCustomizationOptionStore.LookupEntry(customizationChoice->ChrCustomizationOptionID))
+                    shapeshiftFormByModel.emplace(customizationOption->ChrModelID, std::make_pair(customizationOption->ID, uint8(customizationDisplayInfo->ShapeshiftFormID)));
+            }
+        }
+    }
+
+    std::unordered_map<uint32, std::vector<ChrCustomizationOptionEntry const*>> customizationOptionsByModel;
+    for (ChrCustomizationOptionEntry const* customizationOption : sChrCustomizationOptionStore)
+        customizationOptionsByModel[customizationOption->ChrModelID].push_back(customizationOption);
+
+    for (ChrCustomizationReqChoiceEntry const* reqChoice : sChrCustomizationReqChoiceStore)
+        if (ChrCustomizationChoiceEntry const* customizationChoice = sChrCustomizationChoiceStore.LookupEntry(reqChoice->ChrCustomizationChoiceID))
+            _chrCustomizationRequiredChoices[reqChoice->ChrCustomizationReqID][customizationChoice->ChrCustomizationOptionID].push_back(reqChoice->ChrCustomizationChoiceID);
+
+    std::unordered_map<uint32, uint32> parentRaces;
+    for (ChrRacesEntry const* chrRace : sChrRacesStore)
+        if (chrRace->UnalteredVisualRaceID)
+            parentRaces[chrRace->UnalteredVisualRaceID] = chrRace->ID;
+
+    for (ChrRaceXChrModelEntry const* raceModel : sChrRaceXChrModelStore)
+    {
+        if (ChrModelEntry const* model = sChrModelStore.LookupEntry(raceModel->ChrModelID))
+        {
+            _chrModelsByRaceAndGender[{ uint8(raceModel->ChrRacesID), uint8(model->Sex) }] = model;
+
+            if (std::vector<ChrCustomizationOptionEntry const*> const* customizationOptionsForModel = Trinity::Containers::MapGetValuePtr(customizationOptionsByModel, model->ID))
+            {
+                std::vector<ChrCustomizationOptionEntry const*>& raceOptions = _chrCustomizationOptionsByRaceAndGender[{ uint8(raceModel->ChrRacesID), uint8(model->Sex) }];
+                raceOptions.insert(raceOptions.end(), customizationOptionsForModel->begin(), customizationOptionsForModel->end());
+
+                if (uint32 const* parentRace = Trinity::Containers::MapGetValuePtr(parentRaces, raceModel->ChrRacesID))
+                {
+                    std::vector<ChrCustomizationOptionEntry const*>& parentRaceOptions = _chrCustomizationOptionsByRaceAndGender[{ uint8(*parentRace), uint8(model->Sex) }];
+                    parentRaceOptions.insert(parentRaceOptions.end(), customizationOptionsForModel->begin(), customizationOptionsForModel->end());
+                }
+            }
+
+            // link shapeshift displays to race/gender/form
+            for (std::pair<uint32 const, std::pair<uint32, uint8>> const& shapeshiftOptionsForModel : Trinity::Containers::MapEqualRange(shapeshiftFormByModel, model->ID))
+            {
+                ShapeshiftFormModelData& data = _chrCustomizationChoicesForShapeshifts[{ uint8(raceModel->ChrRacesID), uint8(model->Sex), shapeshiftOptionsForModel.second.second }];
+                data.OptionID = shapeshiftOptionsForModel.second.first;
+                data.Choices = Trinity::Containers::MapGetValuePtr(_chrCustomizationChoicesByOption, shapeshiftOptionsForModel.second.first);
+                if (data.Choices)
+                {
+                    data.Displays.resize(data.Choices->size());
+                    for (std::size_t i = 0; i < data.Choices->size(); ++i)
+                        data.Displays[i] = Trinity::Containers::MapGetValuePtr(displayInfoByCustomizationChoice, (*data.Choices)[i]->ID);
+                }
+            }
         }
     }
 
@@ -978,8 +1033,6 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
         }
 
         _chrSpecializationsByIndex[storageIndex][chrSpec->OrderIndex] = chrSpec;
-        if (chrSpec->Flags & CHR_SPECIALIZATION_FLAG_RECOMMENDED)
-            _defaultChrSpecializationsByClass[chrSpec->ClassID] = chrSpec;
     }
 
     for (ContentTuningXExpectedEntry const* contentTuningXExpectedStat : sContentTuningXExpectedStore)
@@ -1074,6 +1127,20 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     for (MapDifficultyEntry const* entry : sMapDifficultyStore)
         _mapDifficulties[entry->MapID][entry->DifficultyID] = entry;
     _mapDifficulties[0][0] = _mapDifficulties[1][0]; // map 0 is missing from MapDifficulty.dbc so we cheat a bit
+
+    std::vector<MapDifficultyXConditionEntry const*> mapDifficultyConditions;
+    mapDifficultyConditions.reserve(sMapDifficultyXConditionStore.GetNumRows());
+    for (MapDifficultyXConditionEntry const* mapDifficultyCondition : sMapDifficultyXConditionStore)
+        mapDifficultyConditions.push_back(mapDifficultyCondition);
+
+    std::sort(mapDifficultyConditions.begin(), mapDifficultyConditions.end(), [](MapDifficultyXConditionEntry const* left, MapDifficultyXConditionEntry const* right)
+    {
+        return left->OrderIndex < right->OrderIndex;
+    });
+
+    for (MapDifficultyXConditionEntry const* mapDifficultyCondition : mapDifficultyConditions)
+        if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(mapDifficultyCondition->PlayerConditionID))
+            _mapDifficultyConditions[mapDifficultyCondition->MapDifficultyID].emplace_back(mapDifficultyCondition->ID, playerCondition);
 
     for (MountEntry const* mount : sMountStore)
         _mountsBySpellId[mount->SourceSpellID] = mount;
@@ -1247,7 +1314,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
         uiMapAssignmentByUiMap.emplace(uiMapAssignment->UiMapID, uiMapAssignment);
         if (UiMapEntry const* uiMap = sUiMapStore.LookupEntry(uiMapAssignment->UiMapID))
         {
-            ASSERT(uiMap->System < MAX_UI_MAP_SYSTEM, "MAX_TALENT_TIERS must be at least %u", uiMap->System + 1);
+            ASSERT(uiMap->System < MAX_UI_MAP_SYSTEM, "MAX_UI_MAP_SYSTEM must be at least %u", uiMap->System + 1);
             if (uiMapAssignment->MapID >= 0)
                 _uiMapAssignmentByMap[uiMap->System].emplace(uiMapAssignment->MapID, uiMapAssignment);
             if (uiMapAssignment->AreaID)
@@ -1269,12 +1336,12 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
         memset(&bounds, 0, sizeof(bounds));
         if (UiMapEntry const* parentUiMap = sUiMapStore.LookupEntry(uiMap->ParentUiMapID))
         {
-            if (parentUiMap->Flags & 0x80)
+            if (parentUiMap->GetFlags().HasFlag(UiMapFlag::NoWorldPositions))
                 continue;
 
             UiMapAssignmentEntry const* uiMapAssignment = nullptr;
             UiMapAssignmentEntry const* parentUiMapAssignment = nullptr;
-            for (auto uiMapAssignmentForMap : Trinity::Containers::MapEqualRange(uiMapAssignmentByUiMap, uiMap->ID))
+            for (std::pair<int32 const, UiMapAssignmentEntry const*> const& uiMapAssignmentForMap : Trinity::Containers::MapEqualRange(uiMapAssignmentByUiMap, uiMap->ID))
             {
                 if (uiMapAssignmentForMap.second->MapID >= 0 &&
                     uiMapAssignmentForMap.second->Region[1].X - uiMapAssignmentForMap.second->Region[0].X > 0 &&
@@ -1288,7 +1355,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
             if (!uiMapAssignment)
                 continue;
 
-            for (auto uiMapAssignmentForMap : Trinity::Containers::MapEqualRange(uiMapAssignmentByUiMap, uiMap->ParentUiMapID))
+            for (std::pair<int32 const, UiMapAssignmentEntry const*> const& uiMapAssignmentForMap : Trinity::Containers::MapEqualRange(uiMapAssignmentByUiMap, uiMap->ParentUiMapID))
             {
                 if (uiMapAssignmentForMap.second->MapID == uiMapAssignment->MapID &&
                     uiMapAssignmentForMap.second->Region[1].X - uiMapAssignmentForMap.second->Region[0].X > 0 &&
@@ -1466,7 +1533,7 @@ void DB2Manager::LoadHotfixBlob(uint32 localeMask)
         auto storeItr = _stores.find(tableHash);
         if (storeItr != _stores.end())
         {
-            TC_LOG_ERROR("server.loading", "Table hash 0x%X points to a loaded DB2 store %s, fill related table instead of hotfix_blob",
+            TC_LOG_ERROR("sql.sql", "Table hash 0x%X points to a loaded DB2 store %s, fill related table instead of hotfix_blob",
                 tableHash, storeItr->second->GetFileName().c_str());
             continue;
         }
@@ -1477,7 +1544,7 @@ void DB2Manager::LoadHotfixBlob(uint32 localeMask)
 
         if (!IsValidLocale(locale))
         {
-            TC_LOG_ERROR("server.loading", "`hotfix_blob` contains invalid locale: %s at TableHash: 0x%X and RecordID: %d", localeName.c_str(), tableHash, recordId);
+            TC_LOG_ERROR("sql.sql", "`hotfix_blob` contains invalid locale: %s at TableHash: 0x%X and RecordID: %d", localeName.c_str(), tableHash, recordId);
             continue;
         }
 
@@ -1491,6 +1558,88 @@ void DB2Manager::LoadHotfixBlob(uint32 localeMask)
     TC_LOG_INFO("server.loading", ">> Loaded %d hotfix blob records in %u ms", hotfixBlobCount, GetMSTimeDiffToNow(oldMSTime));
 }
 
+bool ValidateBroadcastTextTactKeyOptionalData(std::vector<uint8> const& data)
+{
+    return data.size() == 8 + 16;
+}
+
+void DB2Manager::LoadHotfixOptionalData(uint32 localeMask)
+{
+    // Register allowed optional data keys
+    _allowedHotfixOptionalData.emplace(sBroadcastTextStore.GetTableHash(), std::make_pair(sTactKeyStore.GetTableHash(), &ValidateBroadcastTextTactKeyOptionalData));
+
+    uint32 oldMSTime = getMSTime();
+
+    QueryResult result = HotfixDatabase.Query("SELECT TableHash, RecordId, locale, `Key`, `Data` FROM hotfix_optional_data ORDER BY TableHash");
+
+    if (!result)
+    {
+        TC_LOG_INFO("server.loading", ">> Loaded 0 hotfix optional data records.");
+        return;
+    }
+
+    std::bitset<TOTAL_LOCALES> availableDb2Locales = localeMask;
+    uint32 hotfixOptionalDataCount = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 tableHash = fields[0].GetUInt32();
+        auto allowedHotfixes = Trinity::Containers::MapEqualRange(_allowedHotfixOptionalData, tableHash);
+        if (allowedHotfixes.begin() == allowedHotfixes.end())
+        {
+            TC_LOG_ERROR("sql.sql", "Table `hotfix_optional_data` references DB2 store by hash 0x%X that is not allowed to have optional data", tableHash);
+            continue;
+        }
+
+        uint32 recordId = fields[1].GetInt32();
+        auto storeItr = _stores.find(tableHash);
+        if (storeItr == _stores.end())
+        {
+            TC_LOG_ERROR("sql.sql", "Table `hotfix_optional_data` references unknown DB2 store by hash 0x%X with RecordID: %u", tableHash, recordId);
+            continue;
+        }
+
+        std::string localeName = fields[2].GetString();
+        LocaleConstant locale = GetLocaleByName(localeName);
+
+        if (!IsValidLocale(locale))
+        {
+            TC_LOG_ERROR("sql.sql", "`hotfix_optional_data` contains invalid locale: %s at TableHash: 0x%X and RecordID: %u", localeName.c_str(), tableHash, recordId);
+            continue;
+        }
+
+        if (!availableDb2Locales[locale])
+            continue;
+
+        DB2Manager::HotfixOptionalData optionalData;
+        optionalData.Key = fields[3].GetUInt32();
+        auto allowedHotfixItr = std::find_if(allowedHotfixes.begin(), allowedHotfixes.end(), [&](std::pair<uint32 const, AllowedHotfixOptionalData> const& v)
+        {
+            return v.second.first == optionalData.Key;
+        });
+        if (allowedHotfixItr == allowedHotfixes.end())
+        {
+            TC_LOG_ERROR("sql.sql", "Table `hotfix_optional_data` references non-allowed optional data key 0x%X for DB2 store by hash 0x%X and RecordID: %u",
+                optionalData.Key, tableHash, recordId);
+            continue;
+        }
+
+        optionalData.Data = fields[4].GetBinary();
+        if (!allowedHotfixItr->second.second(optionalData.Data))
+        {
+            TC_LOG_ERROR("sql.sql", "Table `hotfix_optional_data` contains invalid data for DB2 store 0x%X, RecordID: %u and Key: 0x%X",
+                tableHash, recordId, optionalData.Key);
+            continue;
+        }
+
+        _hotfixOptionalData[locale][std::make_pair(tableHash, recordId)].push_back(std::move(optionalData));
+        hotfixOptionalDataCount++;
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded %d hotfix optional data records in %u ms", hotfixOptionalDataCount, GetMSTimeDiffToNow(oldMSTime));
+}
+
 uint32 DB2Manager::GetHotfixCount() const
 {
     return _hotfixData.size();
@@ -1501,18 +1650,23 @@ DB2Manager::HotfixContainer const& DB2Manager::GetHotfixData() const
     return _hotfixData;
 }
 
-std::vector<uint8> const* DB2Manager::GetHotfixBlobData(uint32 tableHash, int32 recordId, LocaleConstant locale)
+std::vector<uint8> const* DB2Manager::GetHotfixBlobData(uint32 tableHash, int32 recordId, LocaleConstant locale) const
 {
     ASSERT(IsValidLocale(locale), "Locale %u is invalid locale", uint32(locale));
 
     return Trinity::Containers::MapGetValuePtr(_hotfixBlob[locale], std::make_pair(tableHash, recordId));
 }
 
+std::vector<DB2Manager::HotfixOptionalData> const* DB2Manager::GetHotfixOptionalData(uint32 tableHash, int32 recordId, LocaleConstant locale) const
+{
+    ASSERT(IsValidLocale(locale), "Locale %u is invalid locale", uint32(locale));
+
+    return Trinity::Containers::MapGetValuePtr(_hotfixOptionalData[locale], std::make_pair(tableHash, recordId));
+}
+
 uint32 DB2Manager::GetEmptyAnimStateID() const
 {
-    return 1484;
-    // TEMP: well... AnimationData.db2 in 8.3.0 has more rows than max hardcoded anim id in client
-    // return sAnimationDataStore.GetNumRows();
+    return sAnimationDataStore.GetNumRows();
 }
 
 void DB2Manager::InsertNewHotfix(uint32 tableHash, uint32 recordId)
@@ -1561,20 +1715,12 @@ std::vector<ArtifactPowerEntry const*> DB2Manager::GetArtifactPowers(uint8 artif
 
 std::unordered_set<uint32> const* DB2Manager::GetArtifactPowerLinks(uint32 artifactPowerId) const
 {
-    auto itr = _artifactPowerLinks.find(artifactPowerId);
-    if (itr != _artifactPowerLinks.end())
-        return &itr->second;
-
-    return nullptr;
+    return Trinity::Containers::MapGetValuePtr(_artifactPowerLinks, artifactPowerId);
 }
 
 ArtifactPowerRankEntry const* DB2Manager::GetArtifactPowerRank(uint32 artifactPowerId, uint8 rank) const
 {
-    auto itr = _artifactPowerRanks.find({ artifactPowerId, rank });
-    if (itr != _artifactPowerRanks.end())
-        return itr->second;
-
-    return nullptr;
+    return Trinity::Containers::MapGetValuePtr(_artifactPowerRanks, { artifactPowerId, rank });
 }
 
 AzeriteEmpoweredItemEntry const* DB2Manager::GetAzeriteEmpoweredItem(uint32 itemId) const
@@ -1642,35 +1788,6 @@ char const* DB2Manager::GetBroadcastTextValue(BroadcastTextEntry const* broadcas
     return broadcastText->Text[DEFAULT_LOCALE];
 }
 
-bool DB2Manager::HasCharacterFacialHairStyle(uint8 race, uint8 gender, uint8 variationId) const
-{
-    return _characterFacialHairStyles.find(std::make_tuple(race, gender, variationId)) != _characterFacialHairStyles.end();
-}
-
-bool DB2Manager::HasCharSections(uint8 race, uint8 gender, CharBaseSectionVariation variation) const
-{
-    auto range = Trinity::Containers::MapEqualRange(_charSections, std::make_tuple(race, gender, variation));
-    return range.begin() != range.end();
-}
-
-CharSectionsEntry const* DB2Manager::GetCharSectionEntry(uint8 race, uint8 gender, CharBaseSectionVariation variation, uint8 variationIndex, uint8 colorIndex) const
-{
-    for (auto const& section : Trinity::Containers::MapEqualRange(_charSections, std::make_tuple(race, gender, variation)))
-        if (section.second->VariationIndex == variationIndex && section.second->ColorIndex == colorIndex)
-            return section.second;
-
-    return nullptr;
-}
-
-CharStartOutfitEntry const* DB2Manager::GetCharStartOutfitEntry(uint8 race, uint8 class_, uint8 gender) const
-{
-    auto itr = _charStartOutfits.find(race | (class_ << 8) | (gender << 16));
-    if (itr == _charStartOutfits.end())
-        return nullptr;
-
-    return itr->second;
-}
-
 char const* DB2Manager::GetClassName(uint8 class_, LocaleConstant locale /*= DEFAULT_LOCALE*/)
 {
     ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(class_);
@@ -1686,6 +1803,26 @@ char const* DB2Manager::GetClassName(uint8 class_, LocaleConstant locale /*= DEF
 uint32 DB2Manager::GetPowerIndexByClass(Powers power, uint32 classId) const
 {
     return _powersByClass[classId][power];
+}
+
+std::vector<ChrCustomizationChoiceEntry const*> const* DB2Manager::GetCustomiztionChoices(uint32 chrCustomizationOptionId) const
+{
+    return Trinity::Containers::MapGetValuePtr(_chrCustomizationChoicesByOption, chrCustomizationOptionId);
+}
+
+std::vector<ChrCustomizationOptionEntry const*> const* DB2Manager::GetCustomiztionOptions(uint8 race, uint8 gender) const
+{
+    return Trinity::Containers::MapGetValuePtr(_chrCustomizationOptionsByRaceAndGender, { race,gender });
+}
+
+std::unordered_map<uint32, std::vector<uint32>> const* DB2Manager::GetRequiredCustomizationChoices(uint32 chrCustomizationReqId) const
+{
+    return Trinity::Containers::MapGetValuePtr(_chrCustomizationRequiredChoices, chrCustomizationReqId);
+}
+
+ChrModelEntry const* DB2Manager::GetChrModel(uint8 race, uint8 gender) const
+{
+    return Trinity::Containers::MapGetValuePtr(_chrModelsByRaceAndGender, { race, gender });
 }
 
 char const* DB2Manager::GetChrRaceName(uint8 race, LocaleConstant locale /*= DEFAULT_LOCALE*/)
@@ -1707,11 +1844,54 @@ ChrSpecializationEntry const* DB2Manager::GetChrSpecializationByIndex(uint32 cla
 
 ChrSpecializationEntry const* DB2Manager::GetDefaultChrSpecializationForClass(uint32 class_) const
 {
-    auto itr = _defaultChrSpecializationsByClass.find(class_);
-    if (itr != _defaultChrSpecializationsByClass.end())
-        return itr->second;
+    return GetChrSpecializationByIndex(class_, INITIAL_SPECIALIZATION_INDEX);
+}
 
-    return nullptr;
+Optional<ContentTuningLevels> DB2Manager::GetContentTuningData(uint32 contentTuningId, uint32 /*replacementConditionMask*/, bool forItem /*= false*/) const
+{
+    ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(contentTuningId);
+    if (!contentTuning)
+        return {};
+
+    if (forItem && contentTuning->GetFlags().HasFlag(ContentTuningFlag::DisabledForItem))
+        return {};
+
+    auto getLevelAdjustment = [](ContentTuningCalcType type) -> int32
+    {
+        switch (type)
+        {
+            case ContentTuningCalcType::PlusOne:
+                return 1;
+            case ContentTuningCalcType::PlusMaxLevelForExpansion:
+                return GetMaxLevelForExpansion(sWorld->getIntConfig(CONFIG_EXPANSION));
+            default:
+                break;
+        }
+
+        return 0;
+    };
+
+    ContentTuningLevels levels;
+    levels.MinLevel = contentTuning->MinLevel + getLevelAdjustment(static_cast<ContentTuningCalcType>(contentTuning->MinLevelType));
+    levels.MaxLevel = contentTuning->MaxLevel + getLevelAdjustment(static_cast<ContentTuningCalcType>(contentTuning->MaxLevelType));
+    levels.MinLevelWithDelta = advstd::clamp<int32>(levels.MinLevel + contentTuning->TargetLevelDelta, 1, MAX_LEVEL);
+    levels.MaxLevelWithDelta = advstd::clamp<int32>(levels.MaxLevel + contentTuning->TargetLevelMaxDelta, 1, MAX_LEVEL);
+
+    // clamp after calculating levels with delta (delta can bring "overflown" level back into correct range)
+    levels.MinLevel = advstd::clamp<int32>(levels.MinLevel, 1, MAX_LEVEL);
+    levels.MaxLevel = advstd::clamp<int32>(levels.MaxLevel, 1, MAX_LEVEL);
+
+    if (contentTuning->TargetLevelMin)
+        levels.TargetLevelMin = contentTuning->TargetLevelMin;
+    else
+        levels.TargetLevelMin = levels.MinLevelWithDelta;
+
+    if (contentTuning->TargetLevelMax)
+        levels.TargetLevelMax = contentTuning->TargetLevelMax;
+    else
+        levels.TargetLevelMax = levels.MaxLevelWithDelta;
+
+    return levels;
 }
 
 char const* DB2Manager::GetCreatureFamilyPetName(uint32 petfamily, LocaleConstant locale)
@@ -1884,13 +2064,11 @@ float DB2Manager::GetCurveValueAt(uint32 curveId, float x) const
 
 EmotesTextSoundEntry const* DB2Manager::GetTextSoundEmoteFor(uint32 emote, uint8 race, uint8 gender, uint8 class_) const
 {
-    auto itr = _emoteTextSounds.find(EmotesTextSoundContainer::key_type(emote, race, gender, class_));
-    if (itr != _emoteTextSounds.end())
-        return itr->second;
+    if (EmotesTextSoundEntry const* emotesTextSound = Trinity::Containers::MapGetValuePtr(_emoteTextSounds, { emote, race, gender, class_ }))
+        return emotesTextSound;
 
-    itr = _emoteTextSounds.find(EmotesTextSoundContainer::key_type(emote, race, gender, uint8(0)));
-    if (itr != _emoteTextSounds.end())
-        return itr->second;
+    if (EmotesTextSoundEntry const* emotesTextSound = Trinity::Containers::MapGetValuePtr(_emoteTextSounds, { emote, race, gender, uint8(0) }))
+        return emotesTextSound;
 
     return nullptr;
 }
@@ -2010,47 +2188,27 @@ float DB2Manager::EvaluateExpectedStat(ExpectedStatType stat, uint32 level, int3
 
 std::vector<uint32> const* DB2Manager::GetFactionTeamList(uint32 faction) const
 {
-    auto itr = _factionTeams.find(faction);
-    if (itr != _factionTeams.end())
-        return &itr->second;
-
-    return nullptr;
+    return Trinity::Containers::MapGetValuePtr(_factionTeams, faction);
 }
 
 HeirloomEntry const* DB2Manager::GetHeirloomByItemId(uint32 itemId) const
 {
-    auto itr = _heirlooms.find(itemId);
-    if (itr != _heirlooms.end())
-        return itr->second;
-
-    return nullptr;
+    return Trinity::Containers::MapGetValuePtr(_heirlooms, itemId);
 }
 
 std::vector<uint32> const* DB2Manager::GetGlyphBindableSpells(uint32 glyphPropertiesId) const
 {
-    auto itr = _glyphBindableSpells.find(glyphPropertiesId);
-    if (itr != _glyphBindableSpells.end())
-        return &itr->second;
-
-    return nullptr;
+    return Trinity::Containers::MapGetValuePtr(_glyphBindableSpells, glyphPropertiesId);
 }
 
 std::vector<uint32> const* DB2Manager::GetGlyphRequiredSpecs(uint32 glyphPropertiesId) const
 {
-    auto itr = _glyphRequiredSpecs.find(glyphPropertiesId);
-    if (itr != _glyphRequiredSpecs.end())
-        return &itr->second;
-
-    return nullptr;
+    return Trinity::Containers::MapGetValuePtr(_glyphRequiredSpecs, glyphPropertiesId);
 }
 
 DB2Manager::ItemBonusList const* DB2Manager::GetItemBonusList(uint32 bonusListId) const
 {
-    auto itr = _itemBonusLists.find(bonusListId);
-    if (itr != _itemBonusLists.end())
-        return &itr->second;
-
-    return nullptr;
+    return Trinity::Containers::MapGetValuePtr(_itemBonusLists, bonusListId);
 }
 
 uint32 DB2Manager::GetItemBonusListForItemLevelDelta(int16 delta) const
@@ -2204,11 +2362,7 @@ void LoadAzeriteEmpoweredItemUnlockMappings(std::unordered_map<int32, std::vecto
 
 ItemChildEquipmentEntry const* DB2Manager::GetItemChildEquipment(uint32 itemId) const
 {
-    auto itr = _itemChildEquipment.find(itemId);
-    if (itr != _itemChildEquipment.end())
-        return itr->second;
-
-    return nullptr;
+    return Trinity::Containers::MapGetValuePtr(_itemChildEquipment, itemId);
 }
 
 ItemClassEntry const* DB2Manager::GetItemClassByOldEnum(uint32 itemClass) const
@@ -2223,11 +2377,7 @@ bool DB2Manager::HasItemCurrencyCost(uint32 itemId) const
 
 std::vector<ItemLimitCategoryConditionEntry const*> const* DB2Manager::GetItemLimitCategoryConditions(uint32 categoryId) const
 {
-    auto itr = _itemCategoryConditions.find(categoryId);
-    if (itr != _itemCategoryConditions.end())
-        return &itr->second;
-
-    return nullptr;
+    return Trinity::Containers::MapGetValuePtr(_itemCategoryConditions, categoryId);
 }
 
 uint32 DB2Manager::GetItemDisplayId(uint32 itemId, uint32 appearanceModId) const
@@ -2258,29 +2408,17 @@ ItemModifiedAppearanceEntry const* DB2Manager::GetItemModifiedAppearance(uint32 
 
 ItemModifiedAppearanceEntry const* DB2Manager::GetDefaultItemModifiedAppearance(uint32 itemId) const
 {
-    auto itr = _itemModifiedAppearancesByItem.find(itemId);
-    if (itr != _itemModifiedAppearancesByItem.end())
-        return itr->second;
-
-    return nullptr;
+    return Trinity::Containers::MapGetValuePtr(_itemModifiedAppearancesByItem, itemId);
 }
 
 std::vector<ItemSetSpellEntry const*> const* DB2Manager::GetItemSetSpells(uint32 itemSetId) const
 {
-    auto itr = _itemSetSpells.find(itemSetId);
-    if (itr != _itemSetSpells.end())
-        return &itr->second;
-
-    return nullptr;
+    return Trinity::Containers::MapGetValuePtr(_itemSetSpells, itemSetId);
 }
 
 std::vector<ItemSpecOverrideEntry const*> const* DB2Manager::GetItemSpecOverrides(uint32 itemId) const
 {
-    auto itr = _itemSpecOverrides.find(itemId);
-    if (itr != _itemSpecOverrides.end())
-        return &itr->second;
-
-    return nullptr;
+    return Trinity::Containers::MapGetValuePtr(_itemSpecOverrides, itemId);
 }
 
 LFGDungeonsEntry const* DB2Manager::GetLfgDungeon(uint32 mapId, Difficulty difficulty)
@@ -2386,13 +2524,14 @@ MapDifficultyEntry const* DB2Manager::GetDownscaledMapDifficultyData(uint32 mapI
     return mapDiff;
 }
 
+DB2Manager::MapDifficultyConditionsContainer const* DB2Manager::GetMapDifficultyConditions(uint32 mapDifficultyId) const
+{
+    return Trinity::Containers::MapGetValuePtr(_mapDifficultyConditions, mapDifficultyId);
+}
+
 MountEntry const* DB2Manager::GetMount(uint32 spellId) const
 {
-    auto itr = _mountsBySpellId.find(spellId);
-    if (itr != _mountsBySpellId.end())
-        return itr->second;
-
-    return nullptr;
+    return Trinity::Containers::MapGetValuePtr(_mountsBySpellId, spellId);
 }
 
 MountEntry const* DB2Manager::GetMountById(uint32 id) const
@@ -2402,11 +2541,7 @@ MountEntry const* DB2Manager::GetMountById(uint32 id) const
 
 DB2Manager::MountTypeXCapabilitySet const* DB2Manager::GetMountCapabilities(uint32 mountType) const
 {
-    auto itr = _mountCapabilitiesByType.find(mountType);
-    if (itr != _mountCapabilitiesByType.end())
-        return &itr->second;
-
-    return nullptr;
+    return Trinity::Containers::MapGetValuePtr(_mountCapabilitiesByType, mountType);
 }
 
 DB2Manager::MountXDisplayContainer const* DB2Manager::GetMountDisplays(uint32 mountId) const
@@ -2552,11 +2687,7 @@ uint32 DB2Manager::GetQuestUniqueBitFlag(uint32 questId)
 
 std::vector<uint32> const* DB2Manager::GetPhasesForGroup(uint32 group) const
 {
-    auto itr = _phasesByGroup.find(group);
-    if (itr != _phasesByGroup.end())
-        return &itr->second;
-
-    return nullptr;
+    return Trinity::Containers::MapGetValuePtr(_phasesByGroup, group);
 }
 
 PowerTypeEntry const* DB2Manager::GetPowerTypeEntry(Powers power) const
@@ -2593,20 +2724,17 @@ uint8 DB2Manager::GetPvpItemLevelBonus(uint32 itemId) const
 
 std::vector<RewardPackXCurrencyTypeEntry const*> const* DB2Manager::GetRewardPackCurrencyTypesByRewardID(uint32 rewardPackID) const
 {
-    auto itr = _rewardPackCurrencyTypes.find(rewardPackID);
-    if (itr != _rewardPackCurrencyTypes.end())
-        return &itr->second;
-
-    return nullptr;
+    return Trinity::Containers::MapGetValuePtr(_rewardPackCurrencyTypes, rewardPackID);
 }
 
 std::vector<RewardPackXItemEntry const*> const* DB2Manager::GetRewardPackItemsByRewardID(uint32 rewardPackID) const
 {
-    auto itr = _rewardPackItems.find(rewardPackID);
-    if (itr != _rewardPackItems.end())
-        return &itr->second;
+    return Trinity::Containers::MapGetValuePtr(_rewardPackItems, rewardPackID);
+}
 
-    return nullptr;
+ShapeshiftFormModelData const* DB2Manager::GetShapeshiftFormModelData(uint8 race, uint8 gender, uint8 form) const
+{
+    return Trinity::Containers::MapGetValuePtr(_chrCustomizationChoicesForShapeshifts, { race, gender, form });
 }
 
 std::vector<SkillLineEntry const*> const* DB2Manager::GetSkillLinesForParentSkill(uint32 parentSkillId) const
@@ -2637,11 +2765,7 @@ SkillRaceClassInfoEntry const* DB2Manager::GetSkillRaceClassInfo(uint32 skill, u
 
 std::vector<SpecializationSpellsEntry const*> const* DB2Manager::GetSpecializationSpells(uint32 specId) const
 {
-    auto itr = _specializationSpellsBySpec.find(specId);
-    if (itr != _specializationSpellsBySpec.end())
-        return &itr->second;
-
-    return nullptr;
+    return Trinity::Containers::MapGetValuePtr(_specializationSpellsBySpec, specId);
 }
 
 bool DB2Manager::IsSpecSetMember(int32 specSetId, uint32 specId) const
@@ -2995,7 +3119,7 @@ bool DB2Manager::GetUiMapPosition(float x, float y, float z, int32 mapId, int32 
 
     DBCPosition2D uiPosition
     {
-        // x any y are swapped
+        // x and y are swapped
         ((1.0f - (1.0f - relativePosition.Y)) * uiMapAssignment->UiMin.X) + ((1.0f - relativePosition.Y) * uiMapAssignment->UiMax.X),
         ((1.0f - (1.0f - relativePosition.X)) * uiMapAssignment->UiMin.Y) + ((1.0f - relativePosition.X) * uiMapAssignment->UiMax.Y)
     };
@@ -3020,10 +3144,11 @@ void DB2Manager::Zone2MapCoordinates(uint32 areaId, float& x, float& y) const
         if (assignment.second->MapID >= 0 && assignment.second->MapID != areaEntry->ContinentID)
             continue;
 
-        float tmpY = 1.0 - ((y - assignment.second->UiMin.Y) / (assignment.second->UiMax.Y - assignment.second->UiMin.Y));
-        float tmpX = 1.0 - ((x - assignment.second->UiMin.X) / (assignment.second->UiMax.X - assignment.second->UiMin.X));
-        y = ((1.0 - tmpY) * assignment.second->Region[0].X) + (tmpY * assignment.second->Region[1].X);
-        x = ((1.0 - tmpX) * assignment.second->Region[0].Y) + (tmpX * assignment.second->Region[1].Y);
+        float tmpY = (y - assignment.second->UiMax.Y) / (assignment.second->UiMin.Y - assignment.second->UiMax.Y);
+        float tmpX = (x - assignment.second->UiMax.X) / (assignment.second->UiMin.X - assignment.second->UiMax.X);
+        x = assignment.second->Region[0].X + tmpY * (assignment.second->Region[1].X - assignment.second->Region[0].X);
+        y = assignment.second->Region[0].Y + tmpX * (assignment.second->Region[1].Y - assignment.second->Region[0].Y);
+
         break;
     }
 }

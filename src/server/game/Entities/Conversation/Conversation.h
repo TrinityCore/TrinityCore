@@ -25,14 +25,6 @@
 class Unit;
 class SpellInfo;
 
-namespace UF
-{
-    inline bool operator==(ConversationLine const& left, ConversationLine const& right)
-    {
-        return left.ConversationLineID == right.ConversationLineID;
-    }
-}
-
 class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversation>
 {
     public:

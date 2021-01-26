@@ -18,6 +18,7 @@
 #include "GameObjectAI.h"
 #include "CreatureAI.h"
 #include "GameObject.h"
+#include "LootMgr.h"
 #include "QuestDef.h"
 
 int32 GameObjectAI::Permissible(GameObject const* /*go*/)
@@ -25,9 +26,14 @@ int32 GameObjectAI::Permissible(GameObject const* /*go*/)
     return PERMIT_BASE_NO;
 }
 
-uint32 GameObjectAI::GetDialogStatus(Player* /*player*/)
+void GameObjectAI::QuestReward(Player* player, Quest const* quest, uint32 opt)
 {
-    return DIALOG_STATUS_SCRIPTED_NO_STATUS;
+    QuestReward(player, quest, LootItemType::Item, opt);
+}
+
+QuestGiverStatus GameObjectAI::GetDialogStatus(Player* /*player*/)
+{
+    return QuestGiverStatus::ScriptedDefault;
 }
 
 NullGameObjectAI::NullGameObjectAI(GameObject* g) : GameObjectAI(g) { }

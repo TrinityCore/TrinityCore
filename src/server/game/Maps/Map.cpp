@@ -18,6 +18,7 @@
 #include "Map.h"
 #include "Battleground.h"
 #include "CellImpl.h"
+#include "CharacterPackets.h"
 #include "Conversation.h"
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
@@ -51,6 +52,9 @@
 #include "WeatherMgr.h"
 #include "World.h"
 #include "WorldSession.h"
+
+#include "Hacks/boost_1_74_fibonacci_heap.h"
+BOOST_1_74_FIBONACCI_HEAP_MSVC_COMPILE_FIX(RespawnListContainer::value_type)
 
 u_map_magic MapMagic        = { {'M','A','P','S'} };
 u_map_magic MapVersionMagic = { {'v','1','.','9'} };
@@ -188,6 +192,10 @@ bool Map::ExistVMap(uint32 mapid, int gx, int gy)
                 case VMAP::LoadResult::VersionMismatch:
                     TC_LOG_ERROR("maps", "VMap file '%s' couldn't be loaded", (sWorld->GetDataPath() + "vmaps/" + name).c_str());
                     TC_LOG_ERROR("maps", "This is because the version of the VMap file and the version of this module are different, please re-extract the maps with the tools compiled with this module.");
+                    return false;
+                case VMAP::LoadResult::ReadFromFileFailed:
+                    TC_LOG_ERROR("maps", "VMap file '%s' couldn't be loaded", (sWorld->GetDataPath() + "vmaps/" + name).c_str());
+                    TC_LOG_ERROR("maps", "This is because VMAP files are corrupted, please re-extract the maps with the tools compiled with this module.");
                     return false;
             }
         }
@@ -3569,6 +3577,10 @@ void Map::ApplyDynamicModeRespawnScaling(WorldObject const* obj, ObjectGuid::Low
 {
     ASSERT(mode == 1);
     ASSERT(obj->GetMap() == this);
+
+    if (IsBattlegroundOrArena())
+        return;
+
     SpawnObjectType type;
     switch (obj->GetTypeId())
     {
@@ -3583,7 +3595,7 @@ void Map::ApplyDynamicModeRespawnScaling(WorldObject const* obj, ObjectGuid::Low
     }
 
     SpawnData const* data = sObjectMgr->GetSpawnData(type, spawnId);
-    if (!data || !(data->spawnGroupData->flags & SPAWNGROUP_FLAG_DYNAMIC_SPAWN_RATE))
+    if (!data || !data->spawnGroupData || !(data->spawnGroupData->flags & SPAWNGROUP_FLAG_DYNAMIC_SPAWN_RATE))
         return;
 
     auto it = _zonePlayerCountMap.find(obj->GetZoneId());
@@ -4777,16 +4789,26 @@ time_t Map::GetLinkedRespawnTime(ObjectGuid guid) const
 
 void Map::LoadCorpseData()
 {
-    std::unordered_map<ObjectGuid::LowType, std::unordered_set<uint32>> phases;
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CORPSES);
+    stmt->setUInt32(0, GetId());
+    stmt->setUInt32(1, GetInstanceId());
 
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CORPSE_PHASES);
+    //        0     1     2     3            4      5          6          7     8      9       10     11        12    13          14          15
+    // SELECT posX, posY, posZ, orientation, mapId, displayId, itemCache, race, class, gender, flags, dynFlags, time, corpseType, instanceId, guid FROM corpse WHERE mapId = ? AND instanceId = ?
+    PreparedQueryResult result = CharacterDatabase.Query(stmt);
+    if (!result)
+        return;
+
+    std::unordered_map<ObjectGuid::LowType, std::unordered_set<uint32>> phases;
+    std::unordered_map<ObjectGuid::LowType, std::vector<UF::ChrCustomizationChoice>> customizations;
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CORPSE_PHASES);
     stmt->setUInt32(0, GetId());
     stmt->setUInt32(1, GetInstanceId());
 
     //        0          1
     // SELECT OwnerGuid, PhaseId FROM corpse_phases cp LEFT JOIN corpse c ON cp.OwnerGuid = c.guid WHERE c.mapId = ? AND c.instanceId = ?
-    PreparedQueryResult phaseResult = CharacterDatabase.Query(stmt);
-    if (phaseResult)
+    if (PreparedQueryResult phaseResult = CharacterDatabase.Query(stmt))
     {
         do
         {
@@ -4799,21 +4821,33 @@ void Map::LoadCorpseData()
         } while (phaseResult->NextRow());
     }
 
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CORPSES);
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CORPSE_CUSTOMIZATIONS);
     stmt->setUInt32(0, GetId());
     stmt->setUInt32(1, GetInstanceId());
 
-    //        0     1     2     3            4      5          6          7       8       9      10        11    12          13          14
-    // SELECT posX, posY, posZ, orientation, mapId, displayId, itemCache, bytes1, bytes2, flags, dynFlags, time, corpseType, instanceId, guid FROM corpse WHERE mapId = ? AND instanceId = ?
-    PreparedQueryResult result = CharacterDatabase.Query(stmt);
-    if (!result)
-        return;
+    //        0             1                            2
+    // SELECT cc.ownerGuid, cc.chrCustomizationOptionID, cc.chrCustomizationChoiceID FROM corpse_customizations cc LEFT JOIN corpse c ON cc.ownerGuid = c.guid WHERE c.mapId = ? AND c.instanceId = ?
+    if (PreparedQueryResult customizationResult = CharacterDatabase.Query(stmt))
+    {
+        do
+        {
+            Field* fields = customizationResult->Fetch();
+            ObjectGuid::LowType guid = fields[0].GetUInt64();
+            std::vector<UF::ChrCustomizationChoice>& customizationsForCorpse = customizations[guid];
+
+            customizationsForCorpse.emplace_back();
+            UF::ChrCustomizationChoice& choice = customizationsForCorpse.back();
+            choice.ChrCustomizationOptionID = fields[1].GetUInt32();
+            choice.ChrCustomizationChoiceID = fields[2].GetUInt32();
+
+        } while (customizationResult->NextRow());
+    }
 
     do
     {
         Field* fields = result->Fetch();
-        CorpseType type = CorpseType(fields[12].GetUInt8());
-        ObjectGuid::LowType guid = fields[14].GetUInt64();
+        CorpseType type = CorpseType(fields[13].GetUInt8());
+        ObjectGuid::LowType guid = fields[15].GetUInt64();
         if (type >= MAX_CORPSE_TYPE || type == CORPSE_BONES)
         {
             TC_LOG_ERROR("misc", "Corpse (guid: " UI64FMTD ") have wrong corpse type (%u), not loading.", guid, type);
@@ -4829,6 +4863,8 @@ void Map::LoadCorpseData()
 
         for (uint32 phaseId : phases[guid])
             PhasingHandler::AddPhase(corpse, phaseId, false);
+
+        corpse->SetCustomizations(Trinity::Containers::MakeIteratorPair(customizations[guid].begin(), customizations[guid].end()));
 
         AddCorpse(corpse);
 
@@ -4907,18 +4943,10 @@ Corpse* Map::ConvertCorpseToBones(ObjectGuid const& ownerGuid, bool insignia /*=
         bones->SetDisplayId(corpse->m_corpseData->DisplayID);
         bones->SetRace(corpse->m_corpseData->RaceID);
         bones->SetSex(corpse->m_corpseData->Sex);
-        bones->SetSkin(corpse->m_corpseData->SkinID);
-        bones->SetFace(corpse->m_corpseData->FaceID);
-        bones->SetHairStyle(corpse->m_corpseData->HairStyleID);
-        bones->SetHairColor(corpse->m_corpseData->HairColorID);
-        bones->SetFacialHairStyle(corpse->m_corpseData->FacialHairStyleID);
+        bones->SetClass(corpse->m_corpseData->Class);
+        bones->SetCustomizations(Trinity::Containers::MakeIteratorPair(corpse->m_corpseData->Customizations.begin(), corpse->m_corpseData->Customizations.end()));
         bones->SetFlags(corpse->m_corpseData->Flags | CORPSE_FLAG_BONES);
         bones->SetFactionTemplate(corpse->m_corpseData->FactionTemplate);
-        for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
-            bones->SetItem(i, corpse->m_corpseData->Items[i]);
-
-        for (uint32 i = 0; i < PLAYER_CUSTOM_DISPLAY_SIZE; ++i)
-            bones->SetCustomDisplayOption(i, corpse->m_corpseData->CustomDisplayOption[i]);
 
         bones->SetCellCoord(corpse->GetCellCoord());
         bones->Relocate(corpse->GetPositionX(), corpse->GetPositionY(), corpse->GetPositionZ(), corpse->GetOrientation());

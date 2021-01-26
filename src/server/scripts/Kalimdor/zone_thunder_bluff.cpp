@@ -40,6 +40,11 @@ enum CairneBloodhoof
     SPELL_UPPERCUT          = 22916
 };
 
+enum Sounds
+{
+    SOUND_AGGRO             = 5884
+};
+
 #define GOSSIP_HCB "I know this is rather silly but a young ward who is a bit shy would like your hoofprint."
 /// @todo verify abilities/timers
 class npc_cairne_bloodhoof : public CreatureScript
@@ -74,7 +79,10 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void EnterCombat(Unit* /*who*/) override
+        {
+            DoPlaySoundToSet(me, SOUND_AGGRO);
+        }
 
         void UpdateAI(uint32 diff) override
         {

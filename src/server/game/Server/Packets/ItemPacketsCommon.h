@@ -18,7 +18,7 @@
 #ifndef ItemPacketsCommon_h__
 #define ItemPacketsCommon_h__
 
-#include "Define.h"
+#include "ItemDefines.h"
 #include "PacketUtilities.h"
 #include "Optional.h"
 #include <vector>
@@ -38,13 +38,33 @@ namespace WorldPackets
 {
     namespace Item
     {
-        struct ItemBonusInstanceData
+        struct ItemBonuses
         {
             ItemContext Context = ItemContext(0);
             std::vector<int32> BonusListIDs;
 
-            bool operator==(ItemBonusInstanceData const& r) const;
-            bool operator!=(ItemBonusInstanceData const& r) const { return !(*this == r); }
+            bool operator==(ItemBonuses const& r) const;
+            bool operator!=(ItemBonuses const& r) const { return !(*this == r); }
+        };
+
+        struct ItemMod
+        {
+            ItemMod() = default;
+            ItemMod(int32 value, ItemModifier type) : Value(value), Type(type) { }
+
+            int32 Value = 0;
+            ItemModifier Type = MAX_ITEM_MODIFIERS;
+
+            bool operator==(ItemMod const& r) const;
+            bool operator!=(ItemMod const& r) const { return !(*this == r); }
+        };
+
+        struct ItemModList
+        {
+            Array<ItemMod, MAX_ITEM_MODIFIERS> Values;
+
+            bool operator==(ItemModList const& r) const;
+            bool operator!=(ItemModList const& r) const { return !(*this == r); }
         };
 
         struct ItemInstance
@@ -55,8 +75,8 @@ namespace WorldPackets
             void Initialize(::VoidStorageItem const* voidItem);
 
             uint32 ItemID = 0;
-            Optional<ItemBonusInstanceData> ItemBonus;
-            Optional<CompactArray<int32>> Modifications;
+            Optional<ItemBonuses> ItemBonus;
+            ItemModList Modifications;
 
             bool operator==(ItemInstance const& r) const;
             bool operator!=(ItemInstance const& r) const { return !(*this == r); }
@@ -90,17 +110,20 @@ namespace WorldPackets
     }
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemBonusInstanceData const& itemBonusInstanceData);
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Item::ItemBonusInstanceData& itemBonusInstanceData);
+namespace WorldPackets
+{
+namespace Item
+{
+ByteBuffer& operator<<(ByteBuffer& data, ItemInstance const& itemInstance);
+ByteBuffer& operator>>(ByteBuffer& data, ItemInstance& itemInstance);
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemInstance const& itemInstance);
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Item::ItemInstance& itemInstance);
+ByteBuffer& operator<<(ByteBuffer& data, ItemEnchantData const& itemEnchantData);
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemEnchantData const& itemEnchantData);
+ByteBuffer& operator<<(ByteBuffer& data, ItemGemData const& itemGemInstanceData);
+ByteBuffer& operator>>(ByteBuffer& data, ItemGemData& itemGemInstanceData);
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Item::ItemGemData const& itemGemInstanceData);
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Item::ItemGemData& itemGemInstanceData);
-
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Item::InvUpdate& invUpdate);
+ByteBuffer& operator>>(ByteBuffer& data, InvUpdate& invUpdate);
+}
+}
 
 #endif // ItemPacketsCommon_h__

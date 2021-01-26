@@ -206,8 +206,12 @@ HANDLE WINAPI CascFindFirstFile(
     // Check parameters
     if((hs = TCascStorage::IsValid(hStorage)) == NULL)
         dwErrCode = ERROR_INVALID_HANDLE;
-    if(szMask == NULL || pFindData == NULL)
+    if(pFindData == NULL)
         dwErrCode = ERROR_INVALID_PARAMETER;
+
+    // Supply default mask, if needed
+    if(szMask == NULL || szMask[0] == 0)
+        szMask = "*";
 
     // Init the search structure and search handle
     if(dwErrCode == ERROR_SUCCESS)
@@ -243,7 +247,7 @@ bool WINAPI CascFindNextFile(
     pSearch = TCascSearch::IsValid(hFind);
     if(pSearch == NULL || pFindData == NULL)
     {
-        SetLastError(ERROR_INVALID_PARAMETER);
+        SetCascError(ERROR_INVALID_PARAMETER);
         return false;
     }
 
@@ -258,7 +262,7 @@ bool WINAPI CascFindClose(HANDLE hFind)
     pSearch = TCascSearch::IsValid(hFind);
     if(pSearch == NULL)
     {
-        SetLastError(ERROR_INVALID_PARAMETER);
+        SetCascError(ERROR_INVALID_PARAMETER);
         return false;
     }
 

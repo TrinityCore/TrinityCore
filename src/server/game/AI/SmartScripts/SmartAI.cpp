@@ -32,7 +32,7 @@
 SmartAI::SmartAI(Creature* creature) : CreatureAI(creature), mIsCharmed(false), mFollowCreditType(0), mFollowArrivedTimer(0), mFollowCredit(0), mFollowArrivedEntry(0), mFollowDist(0.f), mFollowAngle(0.f),
     _escortState(SMART_ESCORT_NONE), _escortNPCFlags(0), _escortInvokerCheckTimer(1000), _currentWaypointNode(0), _waypointReached(false), _waypointPauseTimer(0), _waypointPauseForced(false), _repeatWaypointPath(false),
     _OOCReached(false), _waypointPathEnded(false), mRun(true), mEvadeDisabled(false), mCanAutoAttack(true), mCanCombatMove(true), mInvincibilityHpLevel(0), mDespawnTime(0), mDespawnState(0), mJustReset(false),
-    mConditionsTimer(0), _gossipReturn(false)
+    mConditionsTimer(0), _gossipReturn(false), mEscortQuestID(0)
 {
     mHasConditions = sConditionMgr->HasConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_CREATURE_TEMPLATE_VEHICLE, creature->GetEntry());
 }
@@ -128,9 +128,6 @@ bool SmartAI::LoadPath(uint32 entry)
 
 void SmartAI::PausePath(uint32 delay, bool forced)
 {
-    if (!HasEscortState(SMART_ESCORT_ESCORTING))
-        return;
-
     if (HasEscortState(SMART_ESCORT_PAUSED))
     {
         TC_LOG_ERROR("misc", "SmartAI::PausePath: Creature entry %u wanted to pause waypoint (current waypoint: %u) movement while already paused, ignoring.", me->GetEntry(), _currentWaypointNode);
@@ -155,9 +152,6 @@ void SmartAI::PausePath(uint32 delay, bool forced)
 
 void SmartAI::StopPath(uint32 DespawnTime, uint32 quest, bool fail)
 {
-    if (!HasEscortState(SMART_ESCORT_ESCORTING))
-        return;
-
     if (quest)
         mEscortQuestID = quest;
 
@@ -269,9 +263,6 @@ void SmartAI::ReturnToLastOOCPos()
 
 void SmartAI::UpdatePath(const uint32 diff)
 {
-    if (!HasEscortState(SMART_ESCORT_ESCORTING))
-        return;
-
     if (_escortInvokerCheckTimer < diff)
     {
         if (!IsEscortInvokerInRange())
@@ -696,10 +687,7 @@ void SmartAI::InitializeAI()
     GetScript()->OnInitialize(me);
 
     if (!me->isDead())
-    {
         GetScript()->OnReset();
-        GetScript()->ProcessEventsFor(SMART_EVENT_RESPAWN);
-    }
 }
 
 void SmartAI::OnCharmed(bool apply)
@@ -928,10 +916,6 @@ void SmartGameObjectAI::UpdateAI(uint32 diff)
 void SmartGameObjectAI::InitializeAI()
 {
     GetScript()->OnInitialize(me);
-
-    // do not call respawn event if go is not spawned
-    if (me->isSpawned())
-        GetScript()->ProcessEventsFor(SMART_EVENT_RESPAWN);
     //Reset();
 }
 

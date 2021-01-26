@@ -84,7 +84,7 @@ WorldPacket const* WorldPackets::BattlePet::BattlePetUpdates::Write()
     _worldPacket.WriteBit(PetAdded);
     _worldPacket.FlushBits();
 
-    for (auto const& pet : Pets)
+    for (BattlePet const& pet : Pets)
         _worldPacket << pet;
 
     return &_worldPacket;

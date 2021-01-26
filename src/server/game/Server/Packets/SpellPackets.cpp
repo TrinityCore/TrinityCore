@@ -95,8 +95,8 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::AuraDataInfo cons
 {
     data << auraData.CastID;
     data << int32(auraData.SpellID);
-    data << int32(auraData.SpellXSpellVisualID);
-    data << uint8(auraData.Flags);
+    data << auraData.Visual;
+    data << uint16(auraData.Flags);
     data << uint32(auraData.ActiveFlags);
     data << uint16(auraData.CastLevel);
     data << uint8(auraData.Applications);
@@ -205,15 +205,39 @@ ByteBuffer& operator>>(ByteBuffer& buffer, WorldPackets::Spells::MissileTrajecto
     return buffer;
 }
 
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Spells::SpellOptionalReagent& optionalReagent)
+{
+    data >> optionalReagent.ItemID;
+    data >> optionalReagent.Slot;
+    data >> optionalReagent.Count;
+    return data;
+}
+
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Spells::SpellExtraCurrencyCost& extraCurrencyCost)
+{
+    data >> extraCurrencyCost.CurrencyID;
+    data >> extraCurrencyCost.Count;
+    return data;
+}
+
 ByteBuffer& operator>>(ByteBuffer& buffer, WorldPackets::Spells::SpellCastRequest& request)
 {
     buffer >> request.CastID;
     buffer >> request.Misc[0];
     buffer >> request.Misc[1];
     buffer >> request.SpellID;
-    buffer >> request.SpellXSpellVisualID;
+    buffer >> request.Visual;
     buffer >> request.MissileTrajectory;
     buffer >> request.CraftingNPC;
+    request.OptionalReagents.resize(buffer.read<uint32>());
+    request.OptionalCurrencies.resize(buffer.read<uint32>());
+
+    for (WorldPackets::Spells::SpellOptionalReagent& optionalReagent : request.OptionalReagents)
+        buffer >> optionalReagent;
+
+    for (WorldPackets::Spells::SpellExtraCurrencyCost& optionalCurrency : request.OptionalCurrencies)
+        buffer >> optionalCurrency;
+
     request.SendCastFlags = buffer.ReadBits(5);
     bool hasMoveUpdate = buffer.ReadBit();
     request.Weight.resize(buffer.ReadBits(2));
@@ -372,7 +396,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastData con
     data << spellCastData.CastID;
     data << spellCastData.OriginalCastID;
     data << int32(spellCastData.SpellID);
-    data << uint32(spellCastData.SpellXSpellVisualID);
+    data << spellCastData.Visual;
     data << uint32(spellCastData.CastFlags);
     data << uint32(spellCastData.CastFlagsEx);
     data << uint32(spellCastData.CastTime);
@@ -439,6 +463,7 @@ WorldPacket const* WorldPackets::Spells::LearnedSpells::Write()
 {
     _worldPacket << uint32(SpellID.size());
     _worldPacket << uint32(FavoriteSpellID.size());
+    _worldPacket << uint32(SpecializationID);
     for (int32 spell : SpellID)
         _worldPacket << spell;
 
@@ -474,7 +499,7 @@ WorldPacket const* WorldPackets::Spells::SpellFailure::Write()
     _worldPacket << CasterUnit;
     _worldPacket << CastID;
     _worldPacket << int32(SpellID);
-    _worldPacket << uint32(SpellXSpellVisualID);
+    _worldPacket << Visual;
     _worldPacket << uint16(Reason);
 
     return &_worldPacket;
@@ -485,7 +510,7 @@ WorldPacket const* WorldPackets::Spells::SpellFailedOther::Write()
     _worldPacket << CasterUnit;
     _worldPacket << CastID;
     _worldPacket << uint32(SpellID);
-    _worldPacket << uint32(SpellXSpellVisualID);
+    _worldPacket << Visual;
     _worldPacket << uint8(Reason);
 
     return &_worldPacket;
@@ -495,7 +520,7 @@ WorldPacket const* WorldPackets::Spells::CastFailed::Write()
 {
     _worldPacket << CastID;
     _worldPacket << int32(SpellID);
-    _worldPacket << int32(SpellXSpellVisualID);
+    _worldPacket << Visual;
     _worldPacket << int32(Reason);
     _worldPacket << int32(FailedArg1);
     _worldPacket << int32(FailedArg2);
@@ -715,6 +740,8 @@ WorldPacket const* WorldPackets::Spells::CancelSpellVisualKit::Write()
 {
     _worldPacket << Source;
     _worldPacket << int32(SpellVisualKitID);
+    _worldPacket.WriteBit(MountedVisual);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
@@ -760,6 +787,8 @@ WorldPacket const* WorldPackets::Spells::PlaySpellVisualKit::Write()
     _worldPacket << int32(KitRecID);
     _worldPacket << int32(KitType);
     _worldPacket << uint32(Duration);
+    _worldPacket.WriteBit(MountedVisual);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
@@ -794,7 +823,7 @@ WorldPacket const* WorldPackets::Spells::SpellChannelStart::Write()
 {
     _worldPacket << CasterGUID;
     _worldPacket << int32(SpellID);
-    _worldPacket << int32(SpellXSpellVisualID);
+    _worldPacket << Visual;
     _worldPacket << uint32(ChannelDuration);
     _worldPacket.WriteBit(InterruptImmunities.is_initialized());
     _worldPacket.WriteBit(HealPrediction.is_initialized());
@@ -852,17 +881,16 @@ WorldPacket const* WorldPackets::Spells::MirrorImageComponentedData::Write()
 {
     _worldPacket << UnitGUID;
     _worldPacket << int32(DisplayID);
+    _worldPacket << int32(SpellVisualKitID);
     _worldPacket << uint8(RaceID);
     _worldPacket << uint8(Gender);
     _worldPacket << uint8(ClassID);
-    _worldPacket << uint8(SkinColor);
-    _worldPacket << uint8(FaceVariation);
-    _worldPacket << uint8(HairVariation);
-    _worldPacket << uint8(HairColor);
-    _worldPacket << uint8(BeardVariation);
-    _worldPacket.append(CustomDisplay.data(), CustomDisplay.size());
+    _worldPacket << uint32(Customizations.size());
     _worldPacket << GuildGUID;
     _worldPacket << uint32(ItemDisplayID.size());
+
+    for (Character::ChrCustomizationChoice const& customization : Customizations)
+        _worldPacket << customization;
 
     for (int32 itemDisplayId : ItemDisplayID)
         _worldPacket << int32(itemDisplayId);
@@ -874,6 +902,7 @@ WorldPacket const* WorldPackets::Spells::MirrorImageCreatureData::Write()
 {
     _worldPacket << UnitGUID;
     _worldPacket << int32(DisplayID);
+    _worldPacket << int32(SpellVisualKitID);
 
     return &_worldPacket;
 }
