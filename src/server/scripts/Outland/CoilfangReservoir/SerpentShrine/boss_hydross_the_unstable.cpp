@@ -188,13 +188,11 @@ public:
         {
             if (summoned->GetEntry() == ENTRY_PURE_SPAWN)
             {
-                summoned->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, true);
                 summoned->CastSpell(summoned, SPELL_ELEMENTAL_SPAWNIN, true);
                 Summons.Summon(summoned);
             }
             if (summoned->GetEntry() == ENTRY_TAINTED_SPAWN)
             {
-                summoned->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
                 summoned->CastSpell(summoned, SPELL_ELEMENTAL_SPAWNIN, true);
                 Summons.Summon(summoned);
             }

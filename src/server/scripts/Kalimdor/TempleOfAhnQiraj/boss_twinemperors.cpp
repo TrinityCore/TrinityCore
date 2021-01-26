@@ -425,8 +425,6 @@ public:
         {
             TwinReset();
             Initialize();
-                                                                //Added. Can be removed if its included in DB.
-            me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
         }
 
         void CastSpellOnBug(Creature* target) override
@@ -515,9 +513,6 @@ public:
         {
             TwinReset();
             Initialize();
-
-            //Added. Can be removed if its included in DB.
-            me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, true);
         }
 
         void CastSpellOnBug(Creature* target) override
