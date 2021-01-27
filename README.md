@@ -6,9 +6,9 @@ Ce projet ne cherche pas a rendre le jeu blizz ou fun mais plutot different de c
 
 
 Dépendances nécéssaires a la compilation: 
- - Boost 1_75_0
+ - Boost 1_73_0
  - Mysql5.7.22
  - OpenSSL 1.0.2p
- - Cmake 3.19.1
- - Visual studio 2019 16.8.3
+ - Cmake 3.19.3
+ - Visual studio 2019 16.8.4
  
