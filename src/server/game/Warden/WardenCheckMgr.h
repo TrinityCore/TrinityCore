@@ -87,15 +87,15 @@ constexpr WorldIntConfigs GetWardenCategoryCountConfig(WardenCheckCategory categ
 
 struct WardenCheck
 {
-    uint16 CheckId;
+    uint16 CheckId = 0;
     WardenCheckType Type = NONE_CHECK;
     std::vector<uint8> Data;
-    uint32 Address;                                         // PROC_CHECK, MEM_CHECK, PAGE_CHECK
-    uint8 Length;                                           // PROC_CHECK, MEM_CHECK, PAGE_CHECK
+    uint32 Address = 0;                                     // PROC_CHECK, MEM_CHECK, PAGE_CHECK
+    uint8 Length = 0;                                       // PROC_CHECK, MEM_CHECK, PAGE_CHECK
     std::string Str;                                        // LUA, MPQ, DRIVER
     std::string Comment;
     std::array<char, 4> IdStr = {};                         // LUA
-    WardenActions Action;
+    WardenActions Action = WARDEN_ACTION_LOG;
 };
 
 constexpr uint8 WARDEN_MAX_LUA_CHECK_LENGTH = 170;

@@ -778,7 +778,7 @@ void Group::ConvertLeaderInstancesToGroup(Player* player, Group* group, bool swi
 
     /* if group leader is in a non-raid dungeon map and nobody is actually bound to this map then the group can "take over" the instance *
     * (example: two-player group disbanded by disconnect where the player reconnects within 60 seconds and the group is reformed)       */
-    if (Map* playerMap = player->GetMap())
+    if (Map* playerMap = player->FindMap())
         if (!switchLeader && playerMap->IsNonRaidDungeon())
             if (InstanceSave* save = sInstanceSaveMgr->GetInstanceSave(playerMap->GetInstanceId()))
                 if (save->GetGroupCount() == 0 && save->GetPlayerCount() == 0)
@@ -2218,7 +2218,6 @@ void Group::ResetInstances(uint8 method, bool isRaid, Player* SendMsgTo)
                 CharacterDatabase.Execute(stmt);
             }
 
-
             // i don't know for sure if hash_map iterators
             m_boundInstances[diff].erase(itr);
             itr = m_boundInstances[diff].begin();
@@ -2501,7 +2500,6 @@ bool Group::HasFreeSlotSubGroup(uint8 subgroup) const
 {
     return (m_subGroupsCounts && m_subGroupsCounts[subgroup] < MAXGROUPSIZE);
 }
-
 
 uint8 Group::GetMemberGroup(ObjectGuid guid) const
 {

@@ -2132,7 +2132,6 @@ class spell_q13264_q13276_q13288_q13289_bloated_abom_feign_death : public AuraSc
     }
 };
 
-
 class spell_q13264_q13276_q13288_q13289_area_restrict_abom : public SpellScript
 {
     PrepareSpellScript(spell_q13264_q13276_q13288_q13289_area_restrict_abom);

@@ -946,6 +946,10 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
         }
     }
 
+    // check to see if victim is sitting
+    if (victim->GetStandState())
+        victim->SetStandState(UNIT_STAND_STATE_STAND);
+
     return damage;
 }
 
@@ -3127,7 +3131,7 @@ bool Unit::isInBackInMap(Unit const* target, float distance, float arc) const
 bool Unit::isInAccessiblePlaceFor(Creature const* c) const
 {
     if (IsInWater())
-        return c->CanSwim();
+        return c->CanEnterWater();
     else
         return c->CanWalk() || c->CanFly();
 }
@@ -4187,7 +4191,7 @@ void Unit::RemoveArenaAuras()
     RemoveAppliedAuras([](AuraApplication const* aurApp)
     {
         Aura const* aura = aurApp->GetBase();
-        return (!aura->GetSpellInfo()->HasAttribute(SPELL_ATTR4_UNK21)                                         // don't remove stances, shadowform, pally/hunter auras
+        return (!aura->GetSpellInfo()->HasAttribute(SPELL_ATTR4_DONT_REMOVE_IN_ARENA)                          // don't remove stances, shadowform, pally/hunter auras
             && !aura->IsPassive()                                                                              // don't remove passive auras
             && (aurApp->IsPositive() || !aura->GetSpellInfo()->HasAttribute(SPELL_ATTR3_DEATH_PERSISTENT))) || // not negative death persistent auras
             aura->GetSpellInfo()->HasAttribute(SPELL_ATTR5_REMOVE_ON_ARENA_ENTER);                             // special marker, always remove
@@ -6400,10 +6404,9 @@ void Unit::EnergizeBySpell(Unit* victim, uint32 spellId, int32 damage, Powers po
 
 void Unit::EnergizeBySpell(Unit* victim, SpellInfo const* spellInfo, int32 damage, Powers powerType)
 {
-    SendEnergizeSpellLog(victim, spellInfo->Id, damage, powerType);
-    // needs to be called after sending spell log
-    victim->ModifyPower(powerType, damage);
+    victim->ModifyPower(powerType, damage, false);
     victim->GetThreatManager().ForwardThreatForAssistingMe(this, float(damage)/2, spellInfo, true);
+    SendEnergizeSpellLog(victim, spellInfo->Id, damage, powerType);
 }
 
 uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uint32 pdamage, DamageEffectType damagetype, uint8 effIndex, Optional<float> const& donePctTotal, uint32 stack /*= 1*/) const
@@ -8347,7 +8350,7 @@ int32 Unit::GetHealthGain(int32 dVal)
 }
 
 // returns negative amount on power reduction
-int32 Unit::ModifyPower(Powers power, int32 dVal)
+int32 Unit::ModifyPower(Powers power, int32 dVal, bool withPowerUpdate /*= true*/)
 {
     int32 gain = 0;
 
@@ -8359,7 +8362,7 @@ int32 Unit::ModifyPower(Powers power, int32 dVal)
     int32 val = dVal + curPower;
     if (val <= 0)
     {
-        SetPower(power, 0);
+        SetPower(power, 0, withPowerUpdate);
         return -curPower;
     }
 
@@ -8367,12 +8370,12 @@ int32 Unit::ModifyPower(Powers power, int32 dVal)
 
     if (val < maxPower)
     {
-        SetPower(power, val);
+        SetPower(power, val, withPowerUpdate);
         gain = val - curPower;
     }
     else if (curPower != maxPower)
     {
-        SetPower(power, maxPower);
+        SetPower(power, maxPower, withPowerUpdate);
         gain = maxPower - curPower;
     }
 
@@ -9363,7 +9366,7 @@ void Unit::SetMaxHealth(uint32 val)
         SetHealth(val);
 }
 
-void Unit::SetPower(Powers power, uint32 val)
+void Unit::SetPower(Powers power, uint32 val, bool withPowerUpdate /*= true*/)
 {
     if (GetPower(power) == val)
         return;
@@ -9374,11 +9377,14 @@ void Unit::SetPower(Powers power, uint32 val)
 
     SetStatInt32Value(UNIT_FIELD_POWER1 + power, val);
 
-    WorldPacket data(SMSG_POWER_UPDATE);
-    data << GetPackGUID();
-    data << uint8(power);
-    data << uint32(val);
-    SendMessageToSet(&data, GetTypeId() == TYPEID_PLAYER);
+    if (withPowerUpdate)
+    {
+        WorldPacket data(SMSG_POWER_UPDATE, 8 + 1 + 4);
+        data << GetPackGUID();
+        data << uint8(power);
+        data << uint32(val);
+        SendMessageToSet(&data, GetTypeId() == TYPEID_PLAYER);
+    }
 
     // group update
     if (Player* player = ToPlayer())
@@ -11609,6 +11615,9 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
 
     AddUnitState(UNIT_STATE_CHARMED);
 
+    if (Creature* creature = ToCreature())
+        creature->RefreshSwimmingFlag();
+
     if ((GetTypeId() != TYPEID_PLAYER) || (charmer->GetTypeId() != TYPEID_PLAYER))
     {
         // AI will schedule its own change if appropriate
@@ -12713,7 +12722,7 @@ void Unit::_ExitVehicle(Position const* exitPosition)
 
     if (vehicle->GetBase()->HasUnitTypeMask(UNIT_MASK_MINION) && vehicle->GetBase()->GetTypeId() == TYPEID_UNIT)
         if (((Minion*)vehicle->GetBase())->GetOwner() == this)
-            vehicle->GetBase()->ToCreature()->DespawnOrUnsummon(1ms);
+            vehicle->GetBase()->ToCreature()->DespawnOrUnsummon(vehicle->GetDespawnDelay());
 
     if (HasUnitTypeMask(UNIT_MASK_ACCESSORY))
     {
@@ -12784,7 +12793,7 @@ bool Unit::CanSwim() const
         return true;
     if (HasFlag(UNIT_FIELD_FLAGS_2, 0x1000000))
         return false;
-    if (IsPet() && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT))
+    if (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT))
         return true;
     return HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_RENAME | UNIT_FLAG_SWIMMING);
 }

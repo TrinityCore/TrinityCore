@@ -26,10 +26,10 @@
 
 uint32 const EncounterCount = 9;
 
-Position const BunnySpawnPosition                = { 1776.27f, 1348.74f, 19.20f };
-Position const EarthBunnySpawnPosition           = { 1765.28f, 1347.46f, 18.55f, 6.17f };
-Position const HeadlessHorsemanSpawnPosition     = { 1765.00f, 1347.00f, 15.00f };
-Position const HeadlessHorsemanHeadSpawnPosition = { 1788.54f, 1348.05f, 18.88f }; // Guessed
+extern Position const BunnySpawnPosition;
+extern Position const EarthBunnySpawnPosition;
+extern Position const HeadlessHorsemanSpawnPosition;
+extern Position const HeadlessHorsemanHeadSpawnPosition;
 
 enum SMDataTypes
 {

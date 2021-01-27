@@ -98,11 +98,13 @@ TC_GAME_API std::atomic<uint32> World::m_worldLoopCounter(0);
 
 TC_GAME_API float World::m_MaxVisibleDistanceOnContinents = DEFAULT_VISIBILITY_DISTANCE;
 TC_GAME_API float World::m_MaxVisibleDistanceInInstances  = DEFAULT_VISIBILITY_INSTANCE;
-TC_GAME_API float World::m_MaxVisibleDistanceInBGArenas   = DEFAULT_VISIBILITY_BGARENAS;
+TC_GAME_API float World::m_MaxVisibleDistanceInBG         = DEFAULT_VISIBILITY_BGARENAS;
+TC_GAME_API float World::m_MaxVisibleDistanceInArenas     = DEFAULT_VISIBILITY_BGARENAS;
 
 TC_GAME_API int32 World::m_visibility_notify_periodOnContinents = DEFAULT_VISIBILITY_NOTIFY_PERIOD;
 TC_GAME_API int32 World::m_visibility_notify_periodInInstances  = DEFAULT_VISIBILITY_NOTIFY_PERIOD;
-TC_GAME_API int32 World::m_visibility_notify_periodInBGArenas   = DEFAULT_VISIBILITY_NOTIFY_PERIOD;
+TC_GAME_API int32 World::m_visibility_notify_periodInBG         = DEFAULT_VISIBILITY_NOTIFY_PERIOD;
+TC_GAME_API int32 World::m_visibility_notify_periodInArenas     = DEFAULT_VISIBILITY_NOTIFY_PERIOD;
 
 /// World constructor
 World::World()
@@ -463,7 +465,7 @@ bool World::RemoveQueuedPlayer(WorldSession* sess)
     // update position from iter to end()
     // iter point to first not updated socket, position store new position
     for (; iter != m_QueuedPlayer.end(); ++iter, ++position)
-        (*iter)->SendAuthWaitQue(position);
+        (*iter)->SendAuthWaitQueue(position);
 
     return found;
 }
@@ -1241,7 +1243,7 @@ void World::LoadConfigSettings(bool reload)
     if (m_int_configs[CONFIG_GUILD_BANK_EVENT_LOG_COUNT] > GUILD_BANKLOG_MAX_RECORDS)
         m_int_configs[CONFIG_GUILD_BANK_EVENT_LOG_COUNT] = GUILD_BANKLOG_MAX_RECORDS;
 
-    //visibility on continents
+    // visibility on continents
     m_MaxVisibleDistanceOnContinents = sConfigMgr->GetFloatDefault("Visibility.Distance.Continents", DEFAULT_VISIBILITY_DISTANCE);
     if (m_MaxVisibleDistanceOnContinents < 45*sWorld->getRate(RATE_CREATURE_AGGRO))
     {
@@ -1254,7 +1256,7 @@ void World::LoadConfigSettings(bool reload)
         m_MaxVisibleDistanceOnContinents = MAX_VISIBILITY_DISTANCE;
     }
 
-    //visibility in instances
+    // visibility in instances
     m_MaxVisibleDistanceInInstances = sConfigMgr->GetFloatDefault("Visibility.Distance.Instances", DEFAULT_VISIBILITY_INSTANCE);
     if (m_MaxVisibleDistanceInInstances < 45*sWorld->getRate(RATE_CREATURE_AGGRO))
     {
@@ -1267,22 +1269,36 @@ void World::LoadConfigSettings(bool reload)
         m_MaxVisibleDistanceInInstances = MAX_VISIBILITY_DISTANCE;
     }
 
-    //visibility in BG/Arenas
-    m_MaxVisibleDistanceInBGArenas = sConfigMgr->GetFloatDefault("Visibility.Distance.BGArenas", DEFAULT_VISIBILITY_BGARENAS);
-    if (m_MaxVisibleDistanceInBGArenas < 45*sWorld->getRate(RATE_CREATURE_AGGRO))
+    // visibility in BG
+    m_MaxVisibleDistanceInBG = sConfigMgr->GetFloatDefault("Visibility.Distance.BG", DEFAULT_VISIBILITY_BGARENAS);
+    if (m_MaxVisibleDistanceInBG < 45*sWorld->getRate(RATE_CREATURE_AGGRO))
     {
-        TC_LOG_ERROR("server.loading", "Visibility.Distance.BGArenas can't be less max aggro radius %f", 45*sWorld->getRate(RATE_CREATURE_AGGRO));
-        m_MaxVisibleDistanceInBGArenas = 45*sWorld->getRate(RATE_CREATURE_AGGRO);
+        TC_LOG_ERROR("server.loading", "Visibility.Distance.BG can't be less max aggro radius %f", 45*sWorld->getRate(RATE_CREATURE_AGGRO));
+        m_MaxVisibleDistanceInBG = 45*sWorld->getRate(RATE_CREATURE_AGGRO);
     }
-    else if (m_MaxVisibleDistanceInBGArenas > MAX_VISIBILITY_DISTANCE)
+    else if (m_MaxVisibleDistanceInBG > MAX_VISIBILITY_DISTANCE)
     {
-        TC_LOG_ERROR("server.loading", "Visibility.Distance.BGArenas can't be greater %f", MAX_VISIBILITY_DISTANCE);
-        m_MaxVisibleDistanceInBGArenas = MAX_VISIBILITY_DISTANCE;
+        TC_LOG_ERROR("server.loading", "Visibility.Distance.BG can't be greater %f", MAX_VISIBILITY_DISTANCE);
+        m_MaxVisibleDistanceInBG = MAX_VISIBILITY_DISTANCE;
+    }
+
+    // Visibility in Arenas
+    m_MaxVisibleDistanceInArenas = sConfigMgr->GetFloatDefault("Visibility.Distance.Arenas", DEFAULT_VISIBILITY_BGARENAS);
+    if (m_MaxVisibleDistanceInArenas < 45*sWorld->getRate(RATE_CREATURE_AGGRO))
+    {
+        TC_LOG_ERROR("server.loading", "Visibility.Distance.Arenas can't be less max aggro radius %f", 45*sWorld->getRate(RATE_CREATURE_AGGRO));
+        m_MaxVisibleDistanceInArenas = 45*sWorld->getRate(RATE_CREATURE_AGGRO);
+    }
+    else if (m_MaxVisibleDistanceInArenas > MAX_VISIBILITY_DISTANCE)
+    {
+        TC_LOG_ERROR("server.loading", "Visibility.Distance.Arenas can't be greater %f", MAX_VISIBILITY_DISTANCE);
+        m_MaxVisibleDistanceInArenas = MAX_VISIBILITY_DISTANCE;
     }
 
     m_visibility_notify_periodOnContinents = sConfigMgr->GetIntDefault("Visibility.Notify.Period.OnContinents", DEFAULT_VISIBILITY_NOTIFY_PERIOD);
-    m_visibility_notify_periodInInstances = sConfigMgr->GetIntDefault("Visibility.Notify.Period.InInstances",   DEFAULT_VISIBILITY_NOTIFY_PERIOD);
-    m_visibility_notify_periodInBGArenas = sConfigMgr->GetIntDefault("Visibility.Notify.Period.InBGArenas",    DEFAULT_VISIBILITY_NOTIFY_PERIOD);
+    m_visibility_notify_periodInInstances  = sConfigMgr->GetIntDefault("Visibility.Notify.Period.InInstances",  DEFAULT_VISIBILITY_NOTIFY_PERIOD);
+    m_visibility_notify_periodInBG         = sConfigMgr->GetIntDefault("Visibility.Notify.Period.InBG",         DEFAULT_VISIBILITY_NOTIFY_PERIOD);
+    m_visibility_notify_periodInArenas     = sConfigMgr->GetIntDefault("Visibility.Notify.Period.InArenas",     DEFAULT_VISIBILITY_NOTIFY_PERIOD);
 
     ///- Load the CharDelete related config options
     m_int_configs[CONFIG_CHARDELETE_METHOD] = sConfigMgr->GetIntDefault("CharDelete.Method", 0);
@@ -1847,6 +1863,9 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading UNIT_NPC_FLAG_SPELLCLICK Data..."); // must be after LoadQuests
     sObjectMgr->LoadNPCSpellClickSpells();
+
+    TC_LOG_INFO("server.loading", "Loading Vehicle Templates...");
+    sObjectMgr->LoadVehicleTemplate();                          // must be after LoadCreatureTemplates()
 
     TC_LOG_INFO("server.loading", "Loading Vehicle Template Accessories...");
     sObjectMgr->LoadVehicleTemplateAccessories();                // must be after LoadCreatureTemplates() and LoadNPCSpellClickSpells()

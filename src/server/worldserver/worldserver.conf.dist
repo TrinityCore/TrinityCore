@@ -2171,7 +2171,8 @@ Visibility.GroupMode = 1
 #
 #    Visibility.Distance.Continents
 #    Visibility.Distance.Instances
-#    Visibility.Distance.BGArenas
+#    Visibility.Distance.BG
+#    Visibility.Distance.Arenas
 #        Description: Visibility distance to see other players or gameobjects.
 #                     Visibility on continents on retail ~100 yards. In BG/Arenas ~533.
 #                     For instances default ~170.
@@ -2179,25 +2180,30 @@ Visibility.GroupMode = 1
 #                     Min limit is max aggro radius (45) * Rate.Creature.Aggro
 #        Default:     100 - (Visibility.Distance.Continents)
 #                     170 - (Visibility.Distance.Instances)
-#                     533 - (Visibility.Distance.BGArenas)
+#                     533 - (Visibility.Distance.BG)
+#                     533 - (Visibility.Distance.Arenas)
 
 Visibility.Distance.Continents = 100
-Visibility.Distance.Instances = 170
-Visibility.Distance.BGArenas = 533
+Visibility.Distance.Instances  = 170
+Visibility.Distance.BG         = 533
+Visibility.Distance.Arenas     = 533
 
 #
 #    Visibility.Notify.Period.OnContinents
 #    Visibility.Notify.Period.InInstances
-#    Visibility.Notify.Period.InBGArenas
+#    Visibility.Notify.Period.InBG
+#    Visibility.Notify.Period.InArenas
 #        Description: Time (in milliseconds) for visibility update period. Lower values may have
 #                     performance impact.
 #        Default:     1000 - (Visibility.Notify.Period.OnContinents)
 #                     1000 - (Visibility.Notify.Period.InInstances)
-#                     1000 - (Visibility.Notify.Period.InBGArenas)
+#                     1000 - (Visibility.Notify.Period.InBG)
+#                     1000 - (Visibility.Notify.Period.InArenas)
 
 Visibility.Notify.Period.OnContinents = 1000
 Visibility.Notify.Period.InInstances  = 1000
-Visibility.Notify.Period.InBGArenas   = 1000
+Visibility.Notify.Period.InBG         = 1000
+Visibility.Notify.Period.InArenas     = 1000
 
 #
 ###################################################################################################
@@ -2891,7 +2897,6 @@ Arena.ArenaWinRatingModifier1 = 48
 #        Default:     24
 
 Arena.ArenaWinRatingModifier2 = 24
-
 
 #
 #    Arena.ArenaLoseRatingModifier
@@ -3694,7 +3699,7 @@ AuctionHouseBot.forceIncludeItems = ""
 #       Default:     ""
 #
 
-AuctionHouseBot.forceExcludeItems = "6343,6345,6376"
+AuctionHouseBot.forceExcludeItems = "6343,6345,6376,7192"
 
 #
 #    AuctionHouseBot.Class.RandomStackRatio.*

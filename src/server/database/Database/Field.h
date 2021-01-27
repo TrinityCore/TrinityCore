@@ -116,7 +116,6 @@ class TC_DATABASE_API Field
             return buf;
         }
 
-
         bool IsNull() const
         {
             return data.value == nullptr;

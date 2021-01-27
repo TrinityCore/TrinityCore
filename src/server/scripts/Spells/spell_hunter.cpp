@@ -80,6 +80,11 @@ enum HunterSpells
     SPELL_HUNTER_WYVERN_STING_DOT_R6                = 49010
 };
 
+enum HunterSpellIcons
+{
+    SPELL_ICON_HUNTER_PET_IMPROVED_COWER            = 958
+};
+
 // 13161 - Aspect of the Beast
 class spell_hun_aspect_of_the_beast : public SpellScriptLoader
 {
@@ -960,6 +965,23 @@ class spell_hun_misdirection_proc : public SpellScriptLoader
         }
 };
 
+// 1742 - Pet Cower
+class spell_hun_pet_cower : public AuraScript
+{
+    PrepareAuraScript(spell_hun_pet_cower);
+
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    {
+        if (AuraEffect const* improvedCower = GetUnitOwner()->GetDummyAuraEffect(SPELLFAMILY_PET, SPELL_ICON_HUNTER_PET_IMPROVED_COWER, EFFECT_0))
+            AddPct(amount, improvedCower->GetAmount());
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_pet_cower::CalculateAmount, EFFECT_1, SPELL_AURA_MOD_DECREASE_SPEED);
+    }
+};
+
 // 54044 - Pet Carrion Feeder
 class spell_hun_pet_carrion_feeder : public SpellScriptLoader
 {
@@ -1698,6 +1720,7 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_masters_call();
     new spell_hun_misdirection();
     new spell_hun_misdirection_proc();
+    RegisterSpellScript(spell_hun_pet_cower);
     new spell_hun_pet_carrion_feeder();
     new spell_hun_pet_heart_of_the_phoenix();
     new spell_hun_piercing_shots();

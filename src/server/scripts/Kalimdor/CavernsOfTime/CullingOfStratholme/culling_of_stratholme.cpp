@@ -201,7 +201,6 @@ class npc_hearthsinger_forresten_cot : public CreatureScript
                 }
             }
 
-
         private:
             InstanceScript const* const _instance;
             EventMap _events;

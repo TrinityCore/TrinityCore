@@ -89,7 +89,6 @@ enum Events
     EVENT_CHARGE_PLAYER
 };
 
-
 struct boss_gurtogg_bloodboil : public BossAI
 {
     boss_gurtogg_bloodboil(Creature* creature) : BossAI(creature, DATA_GURTOGG_BLOODBOIL)
