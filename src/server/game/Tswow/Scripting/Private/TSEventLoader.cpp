@@ -45,6 +45,7 @@
 #include "DBCStores.h"
 #include <fstream>
 #include <map>
+#include "MapManager.h"
 
 TSTasks<void*> globalTasks;
 
@@ -90,16 +91,54 @@ TSEventHandlers* TSLoadEventHandler(boost::filesystem::path const& name)
     return handler;
 }
 
+static void RemoveData(WorldObject* obj)
+{
+    obj->storage.map.clear();
+    obj->tasks.timers.vec->clear();
+    obj->collisions.callbacks.clear();
+}
+
+struct RemoveWorker {
+    void Visit(std::unordered_map<ObjectGuid, Creature*>& creatureMap)
+    {
+        for(auto const& p : creatureMap)
+            RemoveData(p.second);
+    }
+
+    void Visit(std::unordered_map<ObjectGuid, GameObject*>& gameObjectMap)
+    {
+        for(auto const& p : gameObjectMap)
+            RemoveData(p.second);
+    }
+
+    template<class T>
+    void Visit(std::unordered_map<ObjectGuid, T*>&) { }
+};
+
 void TSUnloadEventHandler(boost::filesystem::path const& name)
 {
     std::string sname = name.string();
     std::map<std::string,TSEventHandlers>::iterator iter 
         = eventHandlers.find(sname);
+
     if(iter!=eventHandlers.end())
     {
         iter->second.Unload();
         reloads[iter->second.modid]++;
         eventHandlers.erase(sname);
+    }
+
+    sMapMgr->DoForAllMaps([](auto map){
+        map->tasks.timers.vec->clear();
+        map->storage.map.clear();
+        RemoveWorker worker;
+        TypeContainerVisitor<RemoveWorker, MapStoredObjectTypesContainer> visitor(worker);
+        visitor.Visit(map->GetObjectsStore());
+    });
+
+    for(auto &p : ObjectAccessor::GetPlayers())
+    {
+        RemoveData(p.second);
     }
 }
 
@@ -326,12 +365,25 @@ void TSItemMap::OnRemove(uint32_t key)
 
 void TSMapMap::OnAdd(uint32_t key, TSMapEvents* events)
 {
-    const_cast<MapEntry*>(sMapStore.LookupEntry(key))->events = events;
+    GetMapDataExtra(key)->events = events;
 }
 
 void TSMapMap::OnRemove(uint32_t key)
 {
+    
+}
 
+static std::map<uint32_t, TSMapDataExtra*> mapData;
+TSMapDataExtra* GetMapDataExtra(uint32_t id)
+{
+    if(mapData.find(id) == mapData.end())
+    {
+        return (mapData[id] = new TSMapDataExtra());
+    }
+    else
+    {
+        return mapData[id];
+    }
 }
 
 static std::map<TSString, IDRange> tables;

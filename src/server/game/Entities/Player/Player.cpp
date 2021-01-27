@@ -113,6 +113,7 @@
 #include "TSCreature.h"
 #include "TSItem.h"
 #include "TSGameObject.h"
+#include "TSCorpse.h"
 // @tswow-end
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
@@ -8466,6 +8467,10 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
                 loot->FillLoot(lootid, LootTemplates_Gameobject, this, !groupRules, false, go->GetLootMode());
                 go->SetLootGenerationTime();
 
+                // @tswow-begin
+                FIRE_MAP(go->GetGOInfo()->events,GameObjectOnGenerateLoot,TSGameObject(go),TSPlayer(this));
+                // @tswow-end
+
                 // get next RR player (for next loot)
                 if (groupRules && !go->loot.empty())
                     group->UpdateLooterGuid(go);
@@ -8575,6 +8580,9 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
 
                     break;
             }
+            // @tswow-begin
+            FIRE(PlayerOnGenerateItemLoot,TSPlayer(this),TSItem(item),TSLoot(loot),loot_type);
+            // @tswow-end
         }
     }
     else if (guid.IsCorpse())                          // remove insignia
@@ -8613,6 +8621,10 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
             permission = NONE_PERMISSION;
         else
             permission = OWNER_PERMISSION;
+
+        // @tswow-begin
+        FIRE(PlayerOnLootCorpse,TSPlayer(this),TSCorpse(bones));
+        // @tswow-end
     }
     else
     {
@@ -8637,7 +8649,11 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
         {
             if (loot->loot_type != LOOT_PICKPOCKETING)
             {
-                if (creature->CanGeneratePickPocketLoot())
+                // @tswow-begin
+                bool b = creature->CanGeneratePickPocketLoot();
+                FIRE_MAP(creature->GetCreatureTemplate()->events,CreatureOnCanGeneratePickPocketLoot,TSCreature(creature),TSPlayer(this),TSMutable<bool>(&b));
+                if (b)
+                // @tswow-end
                 {
                     creature->StartPickPocketRefillTimer();
                     loot->clear();
@@ -8650,6 +8666,9 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
                     const uint32 b = urand(0, GetLevel() / 2);
                     loot->gold = uint32(10 * (a + b) * sWorld->getRate(RATE_DROP_MONEY));
                     permission = OWNER_PERMISSION;
+                    // @tswow-begin
+                    FIRE_MAP(creature->GetCreatureTemplate()->events,CreatureOnGeneratePickPocketLoot,TSCreature(creature),TSPlayer(this),TSLoot(loot));
+                    // @tswow-end
                 }
                 else
                 {
@@ -8713,6 +8732,9 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
 
                 // Set new loot recipient
                 creature->SetLootRecipient(this, false);
+                // @tswow-begin
+                FIRE_MAP(creature->GetCreatureTemplate()->events,CreatureOnGenerateSkinningLoot,TSCreature(creature),TSPlayer(this),TSLoot(loot));
+                // @tswow-end
             }
             // set group rights only for loot_type != LOOT_SKINNING
             else

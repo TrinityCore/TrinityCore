@@ -3180,6 +3180,7 @@ declare class TSMap {
     IsNull() : bool
 
     GetTasks(): TSTasks<TSMap>;
+    GetData(): TSStorage;
 
     /**
      * Returns `true` if the [Map] is an arena [BattleGround], `false` otherwise.
@@ -4111,12 +4112,48 @@ declare class TSVehicle {
     RemovePassenger(passenger : TSUnit) : void    
 }
 
+declare class TSStorage {
+    SetObject<T>(modid: uint32, key: string, obj: T): T;
+    HasObject(modid: uint32, key: string): boolean;
+    GetObject<T>(modid: uint32, key: string, creator: ()=>T): T;
+
+    SetInt(key: string, value: uint32): uint32;
+    HasInt(key: string): boolean;
+    GetInt(key: string): uint32;
+
+    SetFloat(key: string, value: double): double;
+    HasFloat(key: string): boolean;
+    GetFloat(key: string): double;
+
+    SetString(key: string, value: string): string;
+    HasString(key: string): boolean;
+    GetString(key: string): string;
+}
+
+declare class TSCollisionEntry {
+    readonly name: string;
+    maxHIts: uint32;
+    range: float;
+    minDelay: uint64;
+    hitmap: TSDictionary<uint64,uint32>
+    Tick(value: TSWorldObject, force?: boolean)
+}
+
+declare class TSCollisions {
+    Add(modid: uint32, id: string, range: float, minDelay: uint32, maxHits: uint32, callback: (entry: TSCollisionEntry, self: TSWorldObject, collided: TSWorldObject, range: float, cancel: TSMutable<uint32>)=>void)
+    Contains(id: string): bool;
+    Get(id: string): TSCollisionEntry;
+}
+
 declare class TSWorldObject extends TSObject {
+    GetCollisions(): TSCollisions;
     IsNull() : bool
     GetCreaturesInRange(range : float,entry : uint32,hostile : uint32,dead : uint32) : TSArray<TSCreature>
     GetUnitsInRange(range : float,hostile : uint32,dead : uint32) : TSArray<TSUnit>
     GetPlayersInRange(range : float,hostile : uint32,dead : uint32) : TSArray<TSPlayer>
     GetGameObjectsInRange(range : float,entry : uint32,hostile : uint32) : TSArray<TSGameObject>
+
+    GetData(): TSStorage;
 
     GetTasks(): TSTasks<TSWorldObject>
 
@@ -6133,6 +6170,8 @@ declare namespace _hidden {
         OnMovieComplete(callback: (player : TSPlayer,movieId : uint32)=>void);
         OnPlayerRepop(callback: (player : TSPlayer)=>void);
         OnSendMail(callback: (player: TSPlayer, draft: TSMailDraft, delay: TSMutable<uint32>)=>void);
+        OnGenerateItemLoot(callback: (player: TSPlayer, item: TSItem, loot: TSLoot, type: uint32)=>void);
+        OnLootCorpse(callback: (player: TSPlayer, corpse: TSCorpse)=>void);
     }
 
     export class Account {
@@ -6218,6 +6257,16 @@ declare namespace _hidden {
         OnGossipSelectCode(creature: uint32, callback: (creature: TSCreature, player: TSPlayer, menuId: number, selectionId: number, code: string, cancel: TSMutable<bool>)=>void)
         OnQuestAccept(creature: uint32, callback: (creature: TSCreature, player: TSPlayer, quest: TSQuest)=>void)
         OnQuestReward(creature: uint32, callback: (creature: TSCreature, player: TSPlayer, quest: TSQuest, selection: uint32)=>void)
+        /**
+         * NOTE: Only use this event to enable pickpocket loot
+         * Use "CreatureOnGeneratePickPocketLoot" to actually generate loot
+         */
+        OnCanGeneratePickPocketLoot(creature: uint32, callback: (creature: TSCreature, player: TSPlayer, canGenerate: TSMutable<bool>)=>void)
+        /**
+         * NOTE: You may need to also call "OnCanGeneratePickPocketLoot" if this doesn't fire for your specific creature
+         */
+        OnGeneratePickPocketLoot(creature: uint32, callback: (creature: TSCreature, player: TSPlayer, loot: TSLoot)=>void)
+        OnGenerateSkinningLoot(creature: uint32, callback: (creature: TSCreature, player: TSPlayer, loot: TSLoot)=>void)
     }
 
     export class Creatures {
@@ -6255,6 +6304,16 @@ declare namespace _hidden {
 
         OnQuestAccept(callback: (creature: TSCreature, player: TSPlayer, quest: TSQuest)=>void)
         OnQuestReward(callback: (creature: TSCreature, player: TSPlayer, quest: TSQuest, selection: uint32)=>void)
+        /**
+         * NOTE: Only use this event to enable pickpocket loot
+         * Use "CreatureOnGeneratePickPocketLoot" to actually generate loot
+         */
+        OnCanGeneratePickPocketLoot(callback: (creature: TSCreature, player: TSPlayer, canGenerate: TSMutable<bool>)=>void)
+        /**
+         * NOTE: You may need to also call "OnCanGeneratePickPocketLoot" if this doesn't fire for your specific creature
+         */
+        OnGeneratePickPocketLoot(callback: (creature: TSCreature, player: TSPlayer, loot: TSLoot)=>void)
+        OnGenerateSkinningLoot(callback: (creature: TSCreature, player: TSPlayer, loot: TSLoot)=>void)
     }
 
     export class Items {
@@ -6293,6 +6352,8 @@ declare namespace _hidden {
         OnRemove(callback: (obj: TSGameObject)=>void)
         OnUse(callback: (obj: TSGameObject, user: TSUnit, cancel: TSMutable<boolean>)=>void)
         OnQuestAccept(callback: (obj: TSGameObject, player: TSPlayer, quest: TSQuest)=>void)
+        OnGenerateLoot(callback: (obj: TSGameObject, player: TSPlayer)=>void)
+        OnGenerateFishLoot(callback: (obj: TSGameObject, player: TSPlayer, loot: TSLoot, isFish: bool)=>void)
     }
 
     export class GameObejctID {
@@ -6510,7 +6571,7 @@ declare function GetID(table: string, mod: string, name: string);
 declare function GetIDRange(table: string, mod: string, name: string);
 
 declare class TSTasks<T> {
-    AddTimer(id: uint32, name: string, time: uint32, repeats: uint32, cb: (type: T, delay: uint32)=>void)
+    AddTimer(id: uint32, name: string, time: uint32, repeats: uint32, cb: (type: T, delay: uint32, cancel: TSMutable<bool>)=>void)
     RemoveTimer(name: string);
 }
 

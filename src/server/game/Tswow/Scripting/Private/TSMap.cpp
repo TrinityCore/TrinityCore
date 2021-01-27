@@ -317,3 +317,8 @@ TSTasks<TSMap> TSMap::GetTasks()
 {
     return map->tasks;
 }
+
+TSStorage TSMap::GetData()
+{
+    return map->storage;
+}

@@ -26,6 +26,7 @@
 #include "TSGameObject.h"
 #include "TSWorldPacket.h"
 #include "TSWorldObject.h"
+#include "TSUnit.h"
 #include "TSMap.h"
 #include "Cell.h"
 #include "CellImpl.h"
@@ -838,7 +839,137 @@ TSPosition TSWorldObject::GetPosition()
     return TSPosition(GetMap()->GetMapId(),GetX(),GetY(),GetZ(),GetO());
 }
 
-TSTasks<TSWorldObject> TSWorldObject::GetTasks()
+TSTasks<TSWorldObject>* TSWorldObject::GetTasks()
 {
-    return obj->tasks;
+    return &obj->tasks;
+}
+
+TSStorage* TSWorldObject::GetData()
+{
+    return &obj->storage;
+}
+
+TSCollisions* TSWorldObject::GetCollisions()
+{
+    return &obj->collisions;
+}
+
+TSCollisionEntry* TSCollisions::Get(TSString id)
+{
+    for(int i=0;i<callbacks.size();++i)
+    {
+        if((&callbacks[i])->name == id)
+        {
+            return &callbacks[i];
+        }
+    }
+    return nullptr;
+}
+
+bool TSCollisions::Contains(TSString id)
+{
+    for(int i=0;i<callbacks.size();++i)
+    {
+        if((&callbacks[i])->name == id)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+TSCollisionEntry::TSCollisionEntry(uint32_t modid, TSString name, float range, uint32_t minDelay,uint32_t maxHits, CollisionCallback callback)
+{
+    this->name = name;
+    this->modid = modid;
+    this->callback = callback;
+    this->lastReload = GetReloads(modid);
+    this->range = range;
+    this->maxHits = maxHits;
+    this->minDelay = minDelay;
+}
+
+bool TSCollisionEntry::Tick(TSWorldObject value, bool force)
+{
+    if(lastReload != GetReloads(modid))
+    {
+        return true;
+    }
+
+    uint64_t now = std::chrono::duration_cast<std::chrono::milliseconds>
+    (std::chrono::high_resolution_clock::now().time_since_epoch()).count(); 
+
+    if(!force && now-lastHit < minDelay)
+    {
+        return false;
+    }
+    else
+    {
+        lastHit = now;
+    }
+
+    auto units = value->GetUnitsInRange(this->range,0,0);
+
+    uint32_t cancelMode = 0;
+    for(auto &unit: *(units.vec))
+    {
+        uint32_t hits = 0;
+        if(maxHits == 0)
+        {
+
+        }
+        else if(!hitmap.contains(unit->GetGUID()))
+        {
+            hitmap.set(unit->GetGUID(),1);
+        }
+        else
+        {
+            hits = hitmap.get(unit->GetGUID());
+            hitmap.set(unit->GetGUID(),hits+1);
+        }
+
+        if(maxHits == 0 || hits < maxHits)
+        {
+            callback(this,value,unit,value->GetDistance(unit,0,0,0),TSMutable<uint32_t>(&cancelMode));
+            if(cancelMode == 2)
+            {
+                return true;
+            }
+
+            if(cancelMode == 3)
+            {
+                return false;
+            }
+        }
+    }
+    return cancelMode == 1;
+}
+
+TSCollisionEntry* TSCollisions::Add(uint32_t modid, TSString id, float range, uint32_t minDelay, uint32_t maxHits, CollisionCallback callback)
+{
+    for(int i=0;i<callbacks.size();++i)
+    {
+        if((&(callbacks[i]))->name == id)
+        {
+            return &(callbacks[i] = TSCollisionEntry(modid,id,range,minDelay,maxHits,callback));
+        }
+    }
+    callbacks.push_back(TSCollisionEntry(modid,id,range,minDelay,maxHits,callback));
+    return &(callbacks[callbacks.size()-1]);
+}
+
+void TSCollisions::Tick(TSWorldObject obj)
+{
+    auto iter = callbacks.begin();
+    while(iter!=callbacks.end())
+    {
+        if(iter->Tick(obj, false))
+        {
+            iter = callbacks.erase(iter);
+        }
+        else
+        {
+            ++iter;
+        }
+    }
 }

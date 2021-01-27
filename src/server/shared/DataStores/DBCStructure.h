@@ -1088,9 +1088,6 @@ struct MapEntry
     uint32 ExpansionID;                                     // 63
     uint32 RaidOffset;                                      // 64
     uint32 MaxPlayers;                                      // 65 max players, fallback if not present in MapDifficulty.dbc
-    // @tswow-begin
-    TSMapEvents* events = nullptr;
-    // @tswow-end
 
     // Helpers
     uint32 Expansion() const { return ExpansionID; }

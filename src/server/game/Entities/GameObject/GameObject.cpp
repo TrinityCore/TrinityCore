@@ -51,6 +51,7 @@
 #include "TSMacros.h"
 #include "TSEvents.h"
 #include "TSMap.h"
+#include "TSLoot.h"
 // @tswow-end
 
 void GameObjectTemplate::InitializeQueryData()
@@ -217,7 +218,7 @@ void GameObject::AddToWorld()
         // @tswow-begin
         bool b = false;
         FIRE_MAP(GetGOInfo()->events,GameObjectOnCreate,TSGameObject(this),TSMutable<bool>(&b));
-        FIRE_MAP(GetMap()->GetEntry()->events,MapOnGameObjectCreate,TSMap(GetMap()),TSGameObject(this),TSMutable<bool>(&b));
+        FIRE_MAP(GetMap()->GetExtraData()->events,MapOnGameObjectCreate,TSMap(GetMap()),TSGameObject(this),TSMutable<bool>(&b));
         if(b)
         {
             // TODO: Is this enough?
@@ -253,7 +254,7 @@ void GameObject::RemoveFromWorld()
     {
         // @tswow-begin
         FIRE_MAP(this->GetGOInfo()->events,GameObjectOnRemove,TSGameObject(this));
-        FIRE_MAP(GetMap()->GetEntry()->events,MapOnGameObjectRemove,TSMap(GetMap()),TSGameObject(this));
+        FIRE_MAP(GetMap()->GetExtraData()->events,MapOnGameObjectRemove,TSMap(GetMap()),TSGameObject(this));
         // @tswow-end
         if (m_zoneScript)
             m_zoneScript->OnGameObjectRemove(this);
@@ -445,6 +446,7 @@ void GameObject::Update(uint32 diff)
 {
     // @tswow-begin
     tasks.Tick(TSWorldObject(this));
+    collisions.Tick(TSWorldObject(this));
     FIRE_MAP(this->GetGOInfo()->events,GameObjectOnUpdate,TSGameObject(this),diff);
     // @tswow-end
     m_Events.Update(diff);
@@ -971,6 +973,9 @@ void GameObject::getFishLoot(Loot* fishloot, Player* loot_owner)
         if (fishloot->empty())
             fishloot->FillLoot(defaultzone, LootTemplates_Fishing, loot_owner, true, true);
     }
+    // @tswow-begin
+    FIRE_MAP(GetGOInfo()->events,GameObjectOnGenerateFishLoot, TSGameObject(this), TSPlayer(loot_owner), TSLoot(fishloot), false);
+    // @tswow-end
 }
 
 void GameObject::getFishLootJunk(Loot* fishloot, Player* loot_owner)
@@ -991,6 +996,9 @@ void GameObject::getFishLootJunk(Loot* fishloot, Player* loot_owner)
             //use zone 1 as default
             fishloot->FillLoot(defaultzone, LootTemplates_Fishing, loot_owner, true, true, LOOT_MODE_JUNK_FISH);
     }
+    // @tswow-begin
+    FIRE_MAP(GetGOInfo()->events,GameObjectOnGenerateFishLoot, TSGameObject(this), TSPlayer(loot_owner), TSLoot(fishloot), true);
+    // @tswow-end
 }
 
 void GameObject::SaveToDB()

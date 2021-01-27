@@ -37,13 +37,11 @@ struct TSTimer {
 	uint32_t lastTick;
 	uint32_t repeats;
 	uint32_t modid;
-	uint32_t reloadid;
 
 	std::function<void(T, uint32_t, TSMutable<bool>)> callback;
 	TSString name;
 	TSTimer(uint32_t modid, TSString name, uint32_t delay, uint32_t repeats, std::function<void(T, uint32_t, TSMutable<bool>)> callback)
 	{
-		this->reloadid = GetReloads(modid);
 		this->modid = modid;
 		this->delay = delay;
 		this->callback = callback;
@@ -54,11 +52,6 @@ struct TSTimer {
 
 	bool Tick(T context)
 	{
-		if (GetReloads(modid) != reloadid)
-		{
-			// Always unload if the reload id doesn't match
-			return true;
-		}
 		uint64_t n = now();
 
 		uint64_t diff = n - lastTick;
@@ -110,7 +103,6 @@ struct TSTasks {
 				return;
 			}
 		}
-
 		timers.push(TSTimer<T>(modid, name, time, repeats, callback));
 	}
 

@@ -283,6 +283,9 @@ m_unloadTimer(0), m_VisibleDistance(DEFAULT_VISIBILITY_DISTANCE),
 m_VisibilityNotifyPeriod(DEFAULT_VISIBILITY_NOTIFY_PERIOD),
 m_activeNonPlayersIter(m_activeNonPlayers.end()), _transportsUpdateIter(_transports.end()),
 i_gridExpiry(expiry),
+// @tswow-begin
+i_mapExtra(GetMapDataExtra(id)),
+// @tswow-end
 i_scriptLock(false), _respawnCheckTimer(0)
 {
     m_parentMap = (_parent ? _parent : this);
@@ -615,7 +618,7 @@ bool Map::AddPlayerToMap(Player* player)
         ConvertCorpseToBones(player->GetGUID());
 
     // @tswow-begin
-    FIRE_MAP(GetEntry()->events,MapOnPlayerEnter,TSMap(this),TSPlayer(player));
+    FIRE_MAP(GetExtraData()->events,MapOnPlayerEnter,TSMap(this),TSPlayer(player));
     // @tswow-end
     sScriptMgr->OnPlayerEnterMap(this, player);
     return true;
@@ -1016,7 +1019,7 @@ void Map::RemovePlayerFromMap(Player* player, bool remove)
     // Before leaving map, update zone/area for stats
     player->UpdateZone(MAP_INVALID_ZONE, 0);
     // @tswow-begin
-    FIRE_MAP(GetEntry()->events,MapOnPlayerLeave,TSMap(this),TSPlayer(player));
+    FIRE_MAP(GetExtraData()->events,MapOnPlayerLeave,TSMap(this),TSPlayer(player));
     // @tswow-end
     sScriptMgr->OnPlayerLeaveMap(this, player);
 
@@ -3830,7 +3833,7 @@ Map::EnterState InstanceMap::CannotEnter(Player* player)
 
     // @tswow-begin
     bool b = false;
-    FIRE_MAP(GetEntry()->events,MapOnCheckEncounter,TSMap(this),TSPlayer(player));
+    FIRE_MAP(GetExtraData()->events,MapOnCheckEncounter,TSMap(this),TSPlayer(player));
     // cannot enter while an encounter is in progress (unless this is a relog, in which case it is permitted)
     if (b || (!player->IsLoading() && IsRaid() && GetInstanceScript() && GetInstanceScript()->IsEncounterInProgress()))
     // @tswow-end

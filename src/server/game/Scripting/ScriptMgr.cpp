@@ -1400,7 +1400,7 @@ void ScriptMgr::OnCreateMap(Map* map)
 {
     ASSERT(map);
     // @tswow-begin
-    FIRE_MAP(map->GetEntry()->events,MapOnCreate,TSMap(map));
+    FIRE_MAP(map->GetExtraData()->events,MapOnCreate,TSMap(map));
     // @tswow-end
 
     SCR_MAP_BGN(WorldMapScript, map, itr, end, entry, IsWorldMap);
@@ -1560,12 +1560,13 @@ bool ScriptMgr::OnItemExpire(Player* player, ItemTemplate const* proto)
     ASSERT(player);
     ASSERT(proto);
 
-    GET_SCRIPT_RET(ItemScript, proto->ScriptId, tmpscript, false);
     // @tswow-begin
     bool b = false;
     FIRE_MAP(proto->events,ItemOnExpire,TSItemTemplate(proto),TSPlayer(player),TSMutable<bool>(&b));
-    return b || tmpscript->OnExpire(player, proto);
+    if(b) return b;
     // @tswow-end
+    GET_SCRIPT_RET(ItemScript, proto->ScriptId, tmpscript, false);
+    return tmpscript->OnExpire(player, proto);
 }
 
 bool ScriptMgr::OnItemRemove(Player* player, Item* item)
@@ -1573,12 +1574,13 @@ bool ScriptMgr::OnItemRemove(Player* player, Item* item)
     ASSERT(player);
     ASSERT(item);
 
-    GET_SCRIPT_RET(ItemScript, item->GetScriptId(), tmpscript, false);
     // @tswow-begin
     bool b = false;
     FIRE_MAP(item->GetTemplate()->events,ItemOnRemove,TSItem(item),TSPlayer(player),TSMutable<bool>(&b));
+    if(b) return b;
     // @tswow-end
-    return b || tmpscript->OnRemove(player, item);
+    GET_SCRIPT_RET(ItemScript, item->GetScriptId(), tmpscript, false);
+    return tmpscript->OnRemove(player, item);
 }
 
 bool ScriptMgr::OnCastItemCombatSpell(Player* player, Unit* victim, SpellInfo const* spellInfo, Item* item)
@@ -1588,12 +1590,13 @@ bool ScriptMgr::OnCastItemCombatSpell(Player* player, Unit* victim, SpellInfo co
     ASSERT(spellInfo);
     ASSERT(item);
 
-    GET_SCRIPT_RET(ItemScript, item->GetScriptId(), tmpscript, true);
     // @tswow-begin
     bool b = false;
     FIRE_MAP(item->GetTemplate()->events,ItemOnCastSpell,TSItem(item),TSPlayer(player),TSUnit(victim),TSSpellInfo(spellInfo),TSMutable<bool>(&b));
+    if(b) return b;
     // @tswow-end
-    return b || tmpscript->OnCastItemCombatSpell(player, victim, spellInfo, item);
+    GET_SCRIPT_RET(ItemScript, item->GetScriptId(), tmpscript, true);
+    return tmpscript->OnCastItemCombatSpell(player, victim, spellInfo, item);
 }
 
 // @tswow-begin

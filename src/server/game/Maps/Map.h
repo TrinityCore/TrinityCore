@@ -40,6 +40,8 @@
 // @tswow-begin
 #include "TSMap.h"
 #include "TSTask.h"
+#include "TSEvents.h"
+#include "TSStorage.h"
 // @tswow-end
 
 class Battleground;
@@ -331,7 +333,9 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         MapEntry const* GetEntry() const { return i_mapEntry; }
 
         // @tswow-begin
+        TSMapDataExtra* GetExtraData() { return i_mapExtra; }
         TSTasks<TSMap> tasks;
+        TSStorage storage;
         // @tswow-end
 
         // currently unused for normal maps
@@ -714,6 +718,9 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         std::mutex _gridLock;
 
         MapEntry const* i_mapEntry;
+        // @tswow-begin
+        TSMapDataExtra* i_mapExtra;
+        // @tswow-end
         uint8 i_spawnMode;
         uint32 i_InstanceId;
         uint32 m_unloadTimer;

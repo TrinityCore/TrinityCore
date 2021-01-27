@@ -37,6 +37,7 @@
 #include <set>
 #include <unordered_map>
 // @tswow-begin
+#include "TSStorage.h"
 #include "TSWorldObject.h"
 #include "TSTask.h"
 // @tswow-end
@@ -295,6 +296,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         // @tswow-begin
         TSTasks<TSWorldObject> tasks;
+        TSStorage storage;
+        TSCollisions collisions;
         // @tswow-end
 
         virtual void Update(uint32 /*time_diff*/) { }

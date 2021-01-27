@@ -22,6 +22,12 @@
 #include "TSObject.h"
 #include "TSPosition.h"
 #include "TSTask.h"
+#include "TSStorage.h"
+#include <chrono>
+#include <vector>
+
+struct TSCollisions;
+struct TSCollisionEntry;
 
 class TC_GAME_API TSWorldObject : public TSObject {
 public:
@@ -85,5 +91,35 @@ public:
     TSUnit GetUnit(uint64 guid);
     TSCreature GetCreature(uint64 guid);
     TSPlayer GetPlayer(uint64 guid);
-    TSTasks<TSWorldObject> GetTasks();
+
+    TSTasks<TSWorldObject> * GetTasks();
+    TSStorage * GetData();
+    TSCollisions * GetCollisions();
+};
+
+#define CollisionCallback std::function<void(TSCollisionEntry*,TSWorldObject,TSWorldObject,float,TSMutable<uint32_t>)> 
+
+class TC_GAME_API TSCollisionEntry {
+public:
+    TSDictionary<uint64,uint32> hitmap;
+    CollisionCallback callback;
+    TSString name;
+    uint32_t lastReload;
+    uint32_t modid;
+    uint32_t maxHits;
+    float range;
+    uint64_t minDelay;
+    uint64_t lastHit = 0;
+
+    TSCollisionEntry(uint32_t modid, TSString name, float range, uint32_t minDelay,uint32_t maxHits, CollisionCallback callback);
+    bool Tick(TSWorldObject value, bool force = true);
+};
+
+class TC_GAME_API TSCollisions {
+public:
+    std::vector<TSCollisionEntry> callbacks;
+    TSCollisionEntry* Add(uint32_t modid, TSString id, float range, uint32_t minDelay, uint32_t maxHits, CollisionCallback callback);
+    bool Contains(TSString id);
+    TSCollisionEntry* Get(TSString id);
+    void Tick(TSWorldObject obj);
 };

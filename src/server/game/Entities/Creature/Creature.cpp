@@ -279,7 +279,7 @@ void Creature::AddToWorld()
     // @tswow-begin
     bool b = false;
     FIRE_MAP(GetCreatureTemplate()->events,CreatureOnCreate,TSCreature(this),TSMutable<bool>(&b));
-    FIRE_MAP(GetMap()->GetEntry()->events,MapOnCreatureCreate,TSMap(GetMap()),TSCreature(this),TSMutable<bool>(&b));
+    FIRE_MAP(GetMap()->GetExtraData()->events,MapOnCreatureCreate,TSMap(GetMap()),TSCreature(this),TSMutable<bool>(&b));
     if(b)
     {
         // TODO: Is this enough to stop spawning?
@@ -313,7 +313,7 @@ void Creature::RemoveFromWorld()
     {
         // @tswow-begin
         FIRE_MAP(GetCreatureTemplate()->events,CreatureOnRemove,TSCreature(this));
-        FIRE_MAP(GetMap()->GetEntry()->events,MapOnCreatureRemove,TSMap(GetMap()),TSCreature(this));
+        FIRE_MAP(GetMap()->GetExtraData()->events,MapOnCreatureRemove,TSMap(GetMap()),TSCreature(this));
         // @tswow-end
         if (GetZoneScript())
             GetZoneScript()->OnCreatureRemove(this);

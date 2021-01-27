@@ -116,6 +116,9 @@ EVENT_TYPE(PlayerOnMovieComplete,TSPlayer,uint32)
 EVENT_TYPE(PlayerOnPlayerRepop,TSPlayer)
 EVENT_TYPE(PlayerOnSendMail,TSPlayer,TSMailDraft,TSMutable<uint32>)
 
+EVENT_TYPE(PlayerOnGenerateItemLoot,TSPlayer,TSItem,TSLoot,uint32)
+EVENT_TYPE(PlayerOnLootCorpse,TSPlayer,TSCorpse)
+
 EVENT_TYPE(PlayerOnGossipSelect,TSPlayer,TSPlayer,uint32_t,uint32_t,TSMutable<bool>)
 EVENT_TYPE(PlayerOnGossipSelectCode,TSPlayer,TSPlayer,uint32_t,uint32_t,TSString,TSMutable<bool>)
 
@@ -204,6 +207,10 @@ EVENT_TYPE(CreatureOnGossipSelectCode,TSCreature,TSPlayer,uint32,uint32,TSString
 EVENT_TYPE(CreatureOnQuestAccept,TSCreature,TSPlayer,TSQuest)
 EVENT_TYPE(CreatureOnQuestReward,TSCreature,TSPlayer,TSQuest,uint32)
 
+EVENT_TYPE(CreatureOnCanGeneratePickPocketLoot,TSCreature,TSPlayer,TSMutable<bool>)
+EVENT_TYPE(CreatureOnGeneratePickPocketLoot,TSCreature,TSPlayer,TSLoot)
+EVENT_TYPE(CreatureOnGenerateSkinningLoot,TSCreature,TSPlayer,TSLoot)
+
 struct TSCreatureEvents {
      EVENT(CreatureOnMoveInLOS)
      EVENT(CreatureOnJustEnteredCombat)
@@ -239,6 +246,10 @@ struct TSCreatureEvents {
      EVENT(CreatureOnGossipSelectCode)
      EVENT(CreatureOnQuestAccept)
      EVENT(CreatureOnQuestReward)
+
+     EVENT(CreatureOnCanGeneratePickPocketLoot)
+     EVENT(CreatureOnGeneratePickPocketLoot)
+     EVENT(CreatureOnGenerateSkinningLoot)
 };
 
 class TSCreatureMap : public TSEventMap<TSCreatureEvents>
@@ -295,6 +306,8 @@ EVENT_TYPE(GameObjectOnRemove,TSGameObject)
 EVENT_TYPE(GameObjectOnUse,TSGameObject,TSUnit,TSMutable<bool>)
 EVENT_TYPE(GameObjectOnQuestAccept,TSGameObject,TSPlayer,TSQuest)
 EVENT_TYPE(GameObjectOnQuestReward,TSGameObject,TSPlayer,TSQuest,uint32)
+EVENT_TYPE(GameObjectOnGenerateLoot,TSGameObject,TSPlayer)
+EVENT_TYPE(GameObjectOnGenerateFishLoot,TSGameObject,TSPlayer,TSLoot,bool)
 
 struct TSGameObjectEvents {
      EVENT(GameObjectOnUpdate)
@@ -313,6 +326,8 @@ struct TSGameObjectEvents {
      EVENT(GameObjectOnUse)
      EVENT(GameObjectOnQuestAccept)
      EVENT(GameObjectOnQuestReward)
+     EVENT(GameObjectOnGenerateLoot)
+     EVENT(GameObjectOnGenerateFishLoot)
 };
 
 class TSGameObjectMap : public TSEventMap<TSGameObjectEvents>
@@ -348,6 +363,11 @@ class TSMapMap : public TSEventMap<TSMapEvents>
     void OnAdd(uint32_t, TSMapEvents*);
     void OnRemove(uint32_t);
 };
+
+struct TSMapDataExtra {
+     TSMapEvents* events = nullptr;
+};
+TC_GAME_API TSMapDataExtra* GetMapDataExtra(uint32_t);
 
 struct TSEvents
 {
@@ -451,6 +471,8 @@ struct TSEvents
     EVENT(PlayerOnSendMail)
     EVENT(PlayerOnGossipSelect)
     EVENT(PlayerOnGossipSelectCode)
+    EVENT(PlayerOnGenerateItemLoot)
+    EVENT(PlayerOnLootCorpse)
 
     // AccountScript
     EVENT(AccountOnAccountLogin)
@@ -514,6 +536,9 @@ struct TSEvents
     EVENT(CreatureOnGossipSelectCode)
     EVENT(CreatureOnQuestAccept)
     EVENT(CreatureOnQuestReward)
+    EVENT(CreatureOnCanGeneratePickPocketLoot)
+    EVENT(CreatureOnGeneratePickPocketLoot)
+    EVENT(CreatureOnGenerateSkinningLoot)
 
     // SpellScript
     EVENT(SpellOnCast)
@@ -539,6 +564,8 @@ struct TSEvents
     EVENT(GameObjectOnUse)
     EVENT(GameObjectOnQuestAccept)
     EVENT(GameObjectOnQuestReward)
+    EVENT(GameObjectOnGenerateLoot)
+    EVENT(GameObjectOnGenerateFishLoot)
 
     // Maps
     EVENT(MapOnCreate)
@@ -685,6 +712,8 @@ public:
          EVENT_HANDLE(Player,OnSendMail)
          EVENT_HANDLE(Player,OnGossipSelect)
          EVENT_HANDLE(Player,OnGossipSelectCode)
+         EVENT_HANDLE(Player,OnGenerateItemLoot)
+         EVENT_HANDLE(Player,OnLootCorpse)
     } Player;
 
     struct AccountEvents : public EventHandler
@@ -775,6 +804,10 @@ public:
           EVENT_HANDLE(Creature,OnCreate)
           EVENT_HANDLE(Creature,OnRemove)
 
+          EVENT_HANDLE(Creature,OnCanGeneratePickPocketLoot)
+          EVENT_HANDLE(Creature,OnGeneratePickPocketLoot)
+          EVENT_HANDLE(Creature,OnGenerateSkinningLoot)
+
           EVENT_HANDLE(Creature,OnGossipHello)
           EVENT_HANDLE(Creature,OnGossipSelect)
           EVENT_HANDLE(Creature,OnGossipSelectCode)
@@ -814,6 +847,10 @@ public:
           MAP_EVENT_HANDLE(Creature,OnCreate)
           MAP_EVENT_HANDLE(Creature,OnRemove)
 
+          MAP_EVENT_HANDLE(Creature,OnCanGeneratePickPocketLoot)
+          MAP_EVENT_HANDLE(Creature,OnGeneratePickPocketLoot)
+          MAP_EVENT_HANDLE(Creature,OnGenerateSkinningLoot)
+
           MAP_EVENT_HANDLE(Creature,OnGossipHello)
           MAP_EVENT_HANDLE(Creature,OnGossipSelect)
           MAP_EVENT_HANDLE(Creature,OnGossipSelectCode)
@@ -822,6 +859,7 @@ public:
     } CreatureID;
 
     struct GameObjectEvents: public EventHandler {
+          GameObjectEvents* operator->(){return this;}
           EVENT_HANDLE(GameObject,OnUpdate)
           EVENT_HANDLE(GameObject,OnDialogStatus)
           EVENT_HANDLE(GameObject,OnDestroyed)
@@ -838,9 +876,12 @@ public:
           EVENT_HANDLE(GameObject,OnUse)
           EVENT_HANDLE(GameObject,OnQuestAccept)
           EVENT_HANDLE(GameObject,OnQuestReward)
+          EVENT_HANDLE(GameObject,OnGenerateLoot)
+          EVENT_HANDLE(GameObject,OnGenerateFishLoot)
     } GameObjects;
 
      struct GameObjectIDEvents: public MappedEventHandler<TSGameObjectMap> {
+          GameObjectIDEvents* operator->(){return this;}
           MAP_EVENT_HANDLE(GameObject,OnUpdate)
           MAP_EVENT_HANDLE(GameObject,OnDialogStatus)
           MAP_EVENT_HANDLE(GameObject,OnDestroyed)
@@ -857,9 +898,12 @@ public:
           MAP_EVENT_HANDLE(GameObject,OnUse)
           MAP_EVENT_HANDLE(GameObject,OnQuestAccept)
           MAP_EVENT_HANDLE(GameObject,OnQuestReward)
+          MAP_EVENT_HANDLE(GameObject,OnGenerateLoot)
+          MAP_EVENT_HANDLE(GameObject,OnGenerateFishLoot)
     } GameObjectID;
 
     struct MapEvents: public EventHandler {
+          MapEvents* operator->(){return this;}
           EVENT_HANDLE(Map,OnCreate)
           EVENT_HANDLE(Map,OnUpdate)
           EVENT_HANDLE(Map,OnPlayerEnter)
@@ -873,6 +917,7 @@ public:
 
     struct MapIDEvents: public MappedEventHandler<TSMapMap>
     {
+          MapIDEvents* operator->(){return this;}
           MAP_EVENT_HANDLE(Map,OnCreate)
           MAP_EVENT_HANDLE(Map,OnUpdate)
           MAP_EVENT_HANDLE(Map,OnPlayerEnter)
@@ -885,6 +930,7 @@ public:
     } MapID;
 
      struct ItemEvents: public EventHandler {
+         ItemEvents* operator->(){return this;}
          EVENT_HANDLE(Item,OnUse)
          EVENT_HANDLE(Item,OnExpire)
          EVENT_HANDLE(Item,OnRemove)
@@ -898,6 +944,7 @@ public:
      } Items;
 
     struct ItemIDEvents: public MappedEventHandler<TSItemMap> {
+         ItemIDEvents* operator->(){return this;}
          MAP_EVENT_HANDLE(Item,OnUse)
          MAP_EVENT_HANDLE(Item,OnExpire)
          MAP_EVENT_HANDLE(Item,OnRemove)
@@ -958,6 +1005,8 @@ public:
          CreatureID.Unload();
          Spells.Unload();
          Creatures.Unload();
+         GameObjects.Unload();
+         GameObjectID.Unload();
          Items.Unload();
          ItemID.Unload();
          Maps.Unload();
