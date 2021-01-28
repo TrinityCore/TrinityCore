@@ -1747,7 +1747,7 @@ public:
                 {
                     case EVENT_MM_START_MUSIC:
                     {
-                        if (!IsHolidayActive(HOLIDAY_FIRE_FESTIVAL))
+                        if (!IsHolidayActive(HOLIDAY_MIDSUMMER_FIRE_FESTIVAL))
                             break;
 
                         std::vector<Player*> playersNearby;
@@ -1811,7 +1811,7 @@ public:
                 switch (eventId)
                 {
                 case EVENT_DFM_START_MUSIC:
-                    if (!IsHolidayActive(HOLIDAY_DARKMOON_FAIRE_ELWYNN) || !IsHolidayActive(HOLIDAY_DARKMOON_FAIRE_THUNDER) || !IsHolidayActive(HOLIDAY_DARKMOON_FAIRE_SHATTRATH))
+                    if (!IsHolidayActive(HOLIDAY_DARKMOON_FAIRE))
                         break;
                     me->PlayDirectMusic(MUSIC_DARKMOON_FAIRE_MUSIC);
                     _events.ScheduleEvent(EVENT_DFM_START_MUSIC, 5000);  // Every 5 second's SMSG_PLAY_MUSIC packet (PlayDirectMusic) is pushed to the client (sniffed value)
