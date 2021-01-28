@@ -16,18 +16,86 @@
  */
 
 #include "AreaTriggerDataStore.h"
+#include "AreaTrigger.h"
 #include "AreaTriggerTemplate.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "Log.h"
+#include "MapManager.h"
 #include "ObjectMgr.h"
 #include "Timer.h"
 #include <cmath>
 
+struct AreaTriggerTemplateKey
+{
+    uint32 Id;
+    bool IsServer;
+
+    AreaTriggerTemplateKey(uint32 id, bool isServer) : Id(id), IsServer(isServer) { }
+};
+
+bool operator ==(AreaTriggerTemplateKey const& A, AreaTriggerTemplateKey const& B)
+{
+    return A.Id == B.Id && A.IsServer == B.IsServer;
+}
+
+namespace std
+{
+    template <>
+    struct hash<AreaTriggerTemplateKey>
+    {
+        std::size_t operator()(AreaTriggerTemplateKey const& value) const
+        {
+            size_t hashVal = 0;
+            Trinity::hash_combine(hashVal, value.Id);
+            Trinity::hash_combine(hashVal, value.IsServer);
+            return hashVal;
+        }
+    };
+}
+
 namespace
 {
-    std::unordered_map<uint32, AreaTriggerTemplate> _areaTriggerTemplateStore;
+    typedef std::unordered_map<uint32/*cell_id*/, std::set<ObjectGuid::LowType>> CellAreaTriggersMap;
+    typedef std::unordered_map<uint32/*mapId*/, CellAreaTriggersMap> MapAreaTriggersMap;
+    typedef std::unordered_map<uint32, AreaTriggerServerPosition> AreaTriggerSpawnMap;
+    typedef std::unordered_map<AreaTriggerTemplateKey, AreaTriggerTemplate> AreaTriggerTemplateMap;
+
+    MapAreaTriggersMap _areaTriggersGrid;
+    AreaTriggerSpawnMap _areaTriggerSpawnMap;
+    AreaTriggerTemplateMap _areaTriggerTemplateMap;
     std::unordered_map<uint32, AreaTriggerMiscTemplate> _areaTriggerTemplateSpellMisc;
+}
+
+AreaTriggerTemplate const* AreaTriggerDataStore::GetAreaTriggerServerTemplate(uint32 areaTriggerId) const
+{
+    auto itr = _areaTriggerTemplateMap.find(AreaTriggerTemplateKey(areaTriggerId, true));
+    if (itr != _areaTriggerTemplateMap.end())
+        return &itr->second;
+
+    return nullptr;
+}
+
+std::set<ObjectGuid::LowType> const* AreaTriggerDataStore::GetAreaTriggersForMapAndCell(uint32 mapId, uint32 cellId) const
+{
+    MapAreaTriggersMap::iterator iterMap = _areaTriggersGrid.find(mapId);
+    if (iterMap == _areaTriggersGrid.end())
+        return nullptr;
+
+    CellAreaTriggersMap::iterator iterCell = iterMap->second.find(cellId);
+    if (iterCell == iterMap->second.end())
+        return nullptr;
+
+    return &(iterCell->second);
+}
+
+AreaTriggerServerPosition const* AreaTriggerDataStore::GetAreaTriggerServerPosition(uint32 spawnId) const
+{
+    AreaTriggerSpawnMap::iterator iter = _areaTriggerSpawnMap.find(spawnId);
+    if (iter == _areaTriggerSpawnMap.end())
+        return nullptr;
+
+    return &(iter->second);
 }
 
 void AreaTriggerDataStore::LoadAreaTriggerTemplates()
@@ -61,6 +129,16 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
             {
                 TC_LOG_ERROR("sql.sql", "Table `areatrigger_template_actions` has invalid TargetType (%u) for AreaTriggerId %u and Param %u", targetType, areaTriggerId, action.Param);
                 continue;
+            }
+
+            if (actionType == AREATRIGGER_ACTION_TELEPORT)
+            {
+                WorldSafeLocsEntry const* safeLoc = sObjectMgr->GetWorldSafeLoc(action.Param);
+                if (!safeLoc)
+                {
+                    TC_LOG_ERROR("sql.sql", "Table `areatrigger_template_actions` has invalid entry (%u) with TargetType=Teleport and Param (%u) not a valid world safe loc entry", areaTriggerId, action.Param);
+                    continue;
+                }
             }
 
             action.TargetType = AreaTriggerActionUserTypes(targetType);
@@ -113,8 +191,8 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
         TC_LOG_INFO("server.loading", ">> Loaded 0 AreaTrigger templates splines. DB table `spell_areatrigger_splines` is empty.");
     }
 
-    //                                                      0   1     2      3      4      5      6      7      8      9
-    if (QueryResult templates = WorldDatabase.Query("SELECT Id, Type, Flags, Data0, Data1, Data2, Data3, Data4, Data5, ScriptName FROM `areatrigger_template`"))
+    //                                                      0   1         2     3      4      5      6      7      8      9      10
+    if (QueryResult templates = WorldDatabase.Query("SELECT Id, IsServer, Type, Flags, Data0, Data1, Data2, Data3, Data4, Data5, ScriptName FROM `areatrigger_template`"))
     {
         do
         {
@@ -122,7 +200,8 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
 
             AreaTriggerTemplate areaTriggerTemplate;
             areaTriggerTemplate.Id = fields[0].GetUInt32();
-            uint8 type = fields[1].GetUInt8();
+            bool isServer = fields[1].GetUInt8() == 1;
+            uint8 type = fields[2].GetUInt8();
 
             if (type >= AREATRIGGER_TYPE_MAX)
             {
@@ -131,20 +210,76 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
             }
 
             areaTriggerTemplate.Type = static_cast<AreaTriggerTypes>(type);
-            areaTriggerTemplate.Flags = fields[2].GetUInt32();
+            areaTriggerTemplate.Flags = fields[3].GetUInt32();
+
+            if (isServer && areaTriggerTemplate.Flags != 0)
+            {
+                TC_LOG_ERROR("sql.sql", "Table `areatrigger_template` has listed server-side areatrigger (Id: %u) with none-zero flags", areaTriggerTemplate.Id);
+                continue;
+            }
 
             for (uint8 i = 0; i < MAX_AREATRIGGER_ENTITY_DATA; ++i)
-                areaTriggerTemplate.DefaultDatas.Data[i] = fields[3 + i].GetFloat();
+                areaTriggerTemplate.DefaultDatas.Data[i] = fields[4 + i].GetFloat();
 
-            areaTriggerTemplate.ScriptId = sObjectMgr->GetScriptId(fields[9].GetString());
+            areaTriggerTemplate.ScriptId = sObjectMgr->GetScriptId(fields[10].GetString());
             areaTriggerTemplate.PolygonVertices = std::move(verticesByAreaTrigger[areaTriggerTemplate.Id]);
             areaTriggerTemplate.PolygonVerticesTarget = std::move(verticesTargetByAreaTrigger[areaTriggerTemplate.Id]);
             areaTriggerTemplate.Actions = std::move(actionsByAreaTrigger[areaTriggerTemplate.Id]);
+            areaTriggerTemplate.IsServerSide = isServer;
 
             areaTriggerTemplate.InitMaxSearchRadius();
-            _areaTriggerTemplateStore[areaTriggerTemplate.Id] = areaTriggerTemplate;
+            _areaTriggerTemplateMap[AreaTriggerTemplateKey(areaTriggerTemplate.Id, isServer)] = areaTriggerTemplate;
         }
         while (templates->NextRow());
+    }
+
+    // Load area trigger positions (to put them on the server)
+    //                                                      0        1   2         3      4     5     6     7        8           9              10
+    if (QueryResult templates = WorldDatabase.Query("SELECT SpawnId, Id, IsServer, MapId, PosX, PosY, PosZ, PhaseId, PhaseGroup, PhaseUseFlags, Comment FROM `areatrigger_positions`"))
+    {
+        do
+        {
+            Field* fields = templates->Fetch();
+
+            AreaTriggerServerPosition position;
+            position.SpawnId = fields[0].GetUInt64();
+            position.Id = fields[1].GetUInt32();
+            position.IsServer = fields[2].GetUInt8() == 1;
+            uint32 mapId = fields[3].GetUInt32();
+
+            float posX = fields[4].GetFloat();
+            float posY = fields[5].GetFloat();
+            float posZ = fields[6].GetFloat();
+            position.Location = WorldLocation(mapId, posX, posY, posZ);
+
+            if (!MapManager::IsValidMapCoord(position.Location))
+            {
+                TC_LOG_ERROR("sql.sql", "Table `areatrigger_srv_position` has listed an invalid position: Id: %u, IsServer: %d. MapId {%d}, Position {%f, %f, %f}",
+                    position.Id, position.IsServer, mapId, posX, posY, posZ);
+                continue;
+            }
+
+            position.PhaseId = fields[7].GetUInt32();
+            position.PhaseGroup = fields[8].GetUInt32();
+            position.PhaseUseFlags = fields[9].GetUInt8();
+
+            auto iter = _areaTriggerTemplateMap.find(AreaTriggerTemplateKey(position.Id, position.IsServer));
+            if (iter == _areaTriggerTemplateMap.end())
+            {
+                TC_LOG_ERROR("sql.sql", "Table `areatrigger_srv_position` has listed areatrigger that doesn't exist: Id: %u, IsServer: %d",
+                    position.Id, position.IsServer);
+                continue;
+            }
+
+            // Add the trigger to a map::cell map, which is later used by GridLoader to query
+            CellCoord cellCoord = Trinity::ComputeCellCoord(position.Location.GetPositionX(), position.Location.GetPositionY());
+            auto iterMap = _areaTriggersGrid.insert(MapAreaTriggersMap::value_type(mapId, CellAreaTriggersMap()));
+            auto iterCell = iterMap.first->second.insert(CellAreaTriggersMap::value_type(cellCoord.GetId(), CellGuidSet()));
+            iterCell.first->second.insert(position.SpawnId);
+
+            // add  the position to the map
+            _areaTriggerSpawnMap[position.SpawnId] = position;
+        } while (templates->NextRow());
     }
 
     //                                                                  0            1              2            3             4             5              6       7          8                  9             10
@@ -246,13 +381,13 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
         TC_LOG_INFO("server.loading", ">> Loaded 0 AreaTrigger templates circular movement infos. DB table `spell_areatrigger_circular` is empty.");
     }
 
-    TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " spell areatrigger templates in %u ms.", _areaTriggerTemplateStore.size(), GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " spell areatrigger templates in %u ms.", _areaTriggerTemplateMap.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 AreaTriggerTemplate const* AreaTriggerDataStore::GetAreaTriggerTemplate(uint32 areaTriggerId) const
 {
-    auto itr = _areaTriggerTemplateStore.find(areaTriggerId);
-    if (itr != _areaTriggerTemplateStore.end())
+    auto itr = _areaTriggerTemplateMap.find(AreaTriggerTemplateKey(areaTriggerId, false));
+    if (itr != _areaTriggerTemplateMap.end())
         return &itr->second;
 
     return nullptr;
