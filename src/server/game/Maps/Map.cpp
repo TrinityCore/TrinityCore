@@ -16,6 +16,7 @@
  */
 
 #include "Map.h"
+#include "AreaTriggerDataStore.h"
 #include "Battleground.h"
 #include "CellImpl.h"
 #include "CharacterPackets.h"

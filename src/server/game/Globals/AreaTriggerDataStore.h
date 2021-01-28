@@ -19,15 +19,21 @@
 #define AreaTriggerDataStore_h__
 
 #include "Define.h"
+#include "ObjectGuid.h"
+#include <set>
 
 class AreaTriggerTemplate;
 class AreaTriggerMiscTemplate;
+struct AreaTriggerServerPosition;
 
 class TC_GAME_API AreaTriggerDataStore
 {
 public:
     void LoadAreaTriggerTemplates();
 
+    std::set<ObjectGuid::LowType> const* GetAreaTriggersForMapAndCell(uint32 mapId, uint32 cellId) const;
+    AreaTriggerServerPosition const* GetAreaTriggerServerPosition(uint32 spawnId) const;
+    AreaTriggerTemplate const* GetAreaTriggerServerTemplate(uint32 id) const;
     AreaTriggerTemplate const* GetAreaTriggerTemplate(uint32 areaTriggerId) const;
     AreaTriggerMiscTemplate const* GetAreaTriggerMiscTemplate(uint32 spellMiscValue) const;
 

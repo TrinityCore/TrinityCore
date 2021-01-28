@@ -27,6 +27,7 @@
 #include "Log.h"
 #include "Object.h"
 #include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "ScriptMgr.h"
@@ -38,10 +39,13 @@
 #include "UpdateData.h"
 #include <G3D/AABox.h>
 
-AreaTrigger::AreaTrigger() : WorldObject(false), MapObject(), _aurEff(nullptr),
+AreaTrigger::AreaTrigger() : WorldObject(false), MapObject(),
+    _targetGuid(), _aurEff(nullptr),
     _duration(0), _totalDuration(0), _timeSinceCreated(0), _previousCheckOrientation(std::numeric_limits<float>::infinity()),
-    _isRemoved(false), _reachedDestination(true), _lastSplineIndex(0), _movementTime(0),
-    _areaTriggerMiscTemplate(nullptr), _ai()
+    _isRemoved(false), _rollPitchYaw(), _targetRollPitchYaw(), _polygonVertices(), _spline(),
+    _reachedDestination(true), _lastSplineIndex(0), _movementTime(0),
+    _orbitInfo(), _areaTriggerMiscTemplate(nullptr), _insideUnits(), _ai(),
+    _areaTriggerTemplate(nullptr)
 {
     m_objectType |= TYPEMASK_AREATRIGGER;
     m_objectTypeId = TYPEID_AREATRIGGER;
@@ -103,6 +107,8 @@ bool AreaTrigger::Create(uint32 spellMiscId, Unit* caster, Unit* target, SpellIn
         TC_LOG_ERROR("entities.areatrigger", "AreaTrigger (spellMiscId %u) not created. Invalid areatrigger miscid (%u)", spellMiscId, spellMiscId);
         return false;
     }
+
+    _areaTriggerTemplate = _areaTriggerMiscTemplate->Template;
 
     Object::_Create(ObjectGuid::Create<HighGuid::AreaTrigger>(GetMapId(), GetTemplate()->Id, caster->GetMap()->GenerateLowGuid<HighGuid::AreaTrigger>()));
 
@@ -212,10 +218,58 @@ AreaTrigger* AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Un
     return at;
 }
 
+bool AreaTrigger::LoadFromDB(uint32 spawnId, Map* map, bool /*addToMap*/, bool /*allowDuplicate*/)
+{
+    AreaTriggerServerPosition const* position = sAreaTriggerDataStore->GetAreaTriggerServerPosition(spawnId);
+    if (!position)
+        return false;
+
+    AreaTriggerTemplate const* areaTriggerTemplate = sAreaTriggerDataStore->GetAreaTriggerServerTemplate(position->Id);
+    if (!areaTriggerTemplate)
+        return false;
+
+    return CreateServer(map, areaTriggerTemplate, *position);
+}
+
+bool AreaTrigger::CreateServer(Map* map, AreaTriggerTemplate const* areaTriggerTemplate, AreaTriggerServerPosition const& position)
+{
+    SetMap(map);
+    Relocate(position.Location);
+    if (!IsPositionValid())
+    {
+        TC_LOG_ERROR("entities.areatrigger", "AreaTriggerServer (id %u) not created. Invalid coordinates (X: %f Y: %f)", areaTriggerTemplate->Id, GetPositionX(), GetPositionY());
+        return false;
+    }
+
+    _areaTriggerTemplate = areaTriggerTemplate;
+
+    Object::_Create(ObjectGuid::Create<HighGuid::AreaTrigger>(GetMapId(),
+        areaTriggerTemplate->Id, GetMap()->GenerateLowGuid<HighGuid::AreaTrigger>()));
+
+    SetEntry(areaTriggerTemplate->Id);
+
+    SetObjectScale(1.0f);
+
+    if (position.PhaseId || position.PhaseGroup || position.PhaseUseFlags)
+        PhasingHandler::InitDbPhaseShift(GetPhaseShift(), position.PhaseUseFlags, position.PhaseId, position.PhaseGroup);
+
+    UpdateShape();
+
+    AI_Initialize();
+
+    return true;
+}
+
 void AreaTrigger::Update(uint32 diff)
 {
     WorldObject::Update(diff);
     _timeSinceCreated += diff;
+
+    if (IsServerSide())
+    {
+        UpdateTargetList();
+        return;
+    }
 
     // "If" order matter here, Orbit > Attached > Splines
     if (HasOrbit())
@@ -430,7 +484,7 @@ void AreaTrigger::HandleUnitEnterExit(std::list<Unit*> const& newTargetList)
 
 AreaTriggerTemplate const* AreaTrigger::GetTemplate() const
 {
-    return _areaTriggerMiscTemplate->Template;
+    return _areaTriggerTemplate;
 }
 
 uint32 AreaTrigger::GetScriptId() const
@@ -581,11 +635,13 @@ bool UnitFitToActionRequirement(Unit* unit, Unit* caster, AreaTriggerAction cons
 
 void AreaTrigger::DoActions(Unit* unit)
 {
-    if (Unit* caster = GetCaster())
+    Unit* caster = IsServerSide() ? unit : GetCaster();
+
+    if (caster)
     {
         for (AreaTriggerAction const& action : GetTemplate()->Actions)
         {
-            if (UnitFitToActionRequirement(unit, caster, action))
+            if (IsServerSide() || UnitFitToActionRequirement(unit, caster, action))
             {
                 switch (action.ActionType)
                 {
@@ -595,6 +651,13 @@ void AreaTrigger::DoActions(Unit* unit)
                     case AREATRIGGER_ACTION_ADDAURA:
                         caster->AddAura(action.Param, unit);
                         break;
+                    case AREATRIGGER_ACTION_TELEPORT:
+                    {
+                        if (WorldSafeLocsEntry const* safeLoc = sObjectMgr->GetWorldSafeLoc(action.Param))
+                            if (Player* player = caster->ToPlayer())
+                                player->TeleportTo(safeLoc->Loc);
+                        break;
+                    }
                     default:
                         break;
                 }
