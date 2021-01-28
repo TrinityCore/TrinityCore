@@ -182,3 +182,13 @@ void TSLoot::Filter(std::function<bool(TSLootItem)> predicate)
         }
     }
 }
+
+bool TSLoot::GetGeneratesNormally()
+{
+    return loot->generateNormally;
+}
+
+void TSLoot::SetGeneratesNormally(bool generatesNormally)
+{
+    loot->generateNormally = generatesNormally;
+}

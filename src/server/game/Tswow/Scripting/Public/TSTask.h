@@ -29,6 +29,8 @@ static uint64_t now()
 		(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
 }
 
+#define TimerCallback std::function<void(TSTimer<T>*,T,uint32_t, TSMutable<bool>)>
+
 template <typename T>
 struct TSTimer {
 	TSTimer() {}
@@ -38,9 +40,9 @@ struct TSTimer {
 	uint32_t repeats;
 	uint32_t modid;
 
-	std::function<void(T, uint32_t, TSMutable<bool>)> callback;
+	TimerCallback callback;
 	TSString name;
-	TSTimer(uint32_t modid, TSString name, uint32_t delay, uint32_t repeats, std::function<void(T, uint32_t, TSMutable<bool>)> callback)
+	TSTimer(uint32_t modid, TSString name, uint32_t delay, uint32_t repeats, TimerCallback callback)
 	{
 		this->modid = modid;
 		this->delay = delay;
@@ -66,7 +68,7 @@ struct TSTimer {
 		bool stop = false;
 		for (uint64_t loop = 0; loop < loops; ++loop)
 		{
-			callback(context, diff, TSMutable<bool>(&stop));
+			callback(this,context, diff, TSMutable<bool>(&stop));
 			this->lastTick = n;
 			if(stop)
 			{
@@ -93,7 +95,7 @@ struct TSTasks {
 
 	TSTasks* operator->() { return this; }
 
-	void AddTimer(uint32_t modid, TSString name, uint32_t time, uint32_t repeats, std::function<void(T, uint32_t, TSMutable<bool>)> callback)
+	void AddTimer(uint32_t modid, TSString name, uint32_t time, uint32_t repeats, TimerCallback callback)
 	{
 		for (int i = 0; i < timers.get_length(); ++i)
 		{

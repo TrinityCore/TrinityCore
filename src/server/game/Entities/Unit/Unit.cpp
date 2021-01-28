@@ -11004,10 +11004,18 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
         if (creature)
         {
             Loot* loot = &creature->loot;
-            loot->clear();
+            // @tswow-begin
+            if(loot->generateNormally)
+            {
+                loot->clear();
+            }
+            // @tswow-end
 
             if (uint32 lootid = creature->GetCreatureTemplate()->lootid)
-                loot->FillLoot(lootid, LootTemplates_Creature, looter, false, false, creature->GetLootMode());
+                // @tswow-begin
+                if(loot->generateNormally)
+                // @tswow-end
+                    loot->FillLoot(lootid, LootTemplates_Creature, looter, false, false, creature->GetLootMode());
 
             if (creature->GetLootMode() > 0)
                 loot->generateMoneyLoot(creature->GetCreatureTemplate()->mingold, creature->GetCreatureTemplate()->maxgold);

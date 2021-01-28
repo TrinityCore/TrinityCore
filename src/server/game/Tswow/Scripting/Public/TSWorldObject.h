@@ -97,7 +97,7 @@ public:
     TSCollisions * GetCollisions();
 };
 
-#define CollisionCallback std::function<void(TSCollisionEntry*,TSWorldObject,TSWorldObject,float,TSMutable<uint32_t>)> 
+#define CollisionCallback std::function<void(TSCollisionEntry*,TSWorldObject,TSWorldObject,TSMutable<uint32_t>)> 
 
 class TC_GAME_API TSCollisionEntry {
 public:

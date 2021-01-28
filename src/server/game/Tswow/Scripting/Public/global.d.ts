@@ -4132,7 +4132,7 @@ declare class TSStorage {
 
 declare class TSCollisionEntry {
     readonly name: string;
-    maxHIts: uint32;
+    maxHits: uint32;
     range: float;
     minDelay: uint64;
     hitmap: TSDictionary<uint64,uint32>
@@ -4140,7 +4140,7 @@ declare class TSCollisionEntry {
 }
 
 declare class TSCollisions {
-    Add(modid: uint32, id: string, range: float, minDelay: uint32, maxHits: uint32, callback: (entry: TSCollisionEntry, self: TSWorldObject, collided: TSWorldObject, range: float, cancel: TSMutable<uint32>)=>void)
+    Add(modid: uint32, id: string, range: float, minDelay: uint32, maxHits: uint32, callback: (entry: TSCollisionEntry, self: TSWorldObject, collided: TSWorldObject, cancel: TSMutable<uint32>)=>void)
     Contains(id: string): bool;
     Get(id: string): TSCollisionEntry;
 }
@@ -6469,6 +6469,8 @@ declare class TSLoot {
     GetItem(index: uint32): TSLootItem;
     GetQuestItem(index: uint32): TSLootItem;
     Filter(predicate: (item: TSLootItem)=>bool);
+    GetGeneratesNormally(): bool;
+    SetGeneratesNormally(normal: bool);
 }
 
 declare class TSAuctionEntry {
@@ -6570,8 +6572,14 @@ declare function MakeDictionary<K,V>(obj: {[key: string]: V}) : TSDictionary<K,V
 declare function GetID(table: string, mod: string, name: string);
 declare function GetIDRange(table: string, mod: string, name: string);
 
+declare class TSTimer {
+    delay: uint32;
+    repeats: uint32;
+    readonly name: string;
+}
+
 declare class TSTasks<T> {
-    AddTimer(id: uint32, name: string, time: uint32, repeats: uint32, cb: (owner: T, delay: uint32, cancel: TSMutable<bool>)=>void)
+    AddTimer(id: uint32, name: string, time: uint32, repeats: uint32, cb: (timer: TSTimer,owner: T, delay: uint32, cancel: TSMutable<bool>)=>void)
     RemoveTimer(name: string);
 }
 

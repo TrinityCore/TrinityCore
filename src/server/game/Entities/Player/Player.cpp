@@ -8453,7 +8453,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
                     return;
                 }
 
-            if (lootid)
+            if (lootid && loot->generateNormally)
             {
                 loot->clear();
 

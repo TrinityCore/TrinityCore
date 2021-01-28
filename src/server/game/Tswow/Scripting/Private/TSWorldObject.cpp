@@ -930,7 +930,7 @@ bool TSCollisionEntry::Tick(TSWorldObject value, bool force)
 
         if(maxHits == 0 || hits < maxHits)
         {
-            callback(this,value,unit,value->GetDistance(unit,0,0,0),TSMutable<uint32_t>(&cancelMode));
+            callback(this,value,unit,TSMutable<uint32_t>(&cancelMode));
             if(cancelMode == 2)
             {
                 return true;

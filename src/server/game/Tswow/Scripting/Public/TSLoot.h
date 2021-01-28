@@ -66,4 +66,7 @@ class TC_GAME_API TSLoot {
         TSLootItem GetQuestItem(uint32 index);
 
         void Filter(std::function<bool(TSLootItem)> predicate);
+
+        bool GetGeneratesNormally();
+        void SetGeneratesNormally(bool normal);
 };
