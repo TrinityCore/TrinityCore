@@ -18770,23 +18770,12 @@ void Player::PushQuests()
 
     for (Quest const *quest : questsAutoPush)
     {
-        QuestStatusMap::const_iterator result = m_QuestStatus.find(quest->GetQuestId());
-        if (result == m_QuestStatus.end())
-        {
-            // quest isn't in m_QuestStatus, meaning the player didn't complete it nor does he have it
-            int32 zoneOrSort = quest->GetZoneOrSort();
+        //
+        if (quest->GetQuestTag() && quest->GetQuestTag() != QuestTagType::Tag)
+            continue;
 
-            // If quest is part of specific zone, push it only if we're in that zone
-            if (zoneOrSort >= 0 && (uint32)zoneOrSort != GetMapId())
-                continue;
-
-            // Don't push world quests
-            if (zoneOrSort < 0 && ((-zoneOrSort) == QUEST_SORT_WORLD_QUEST))
-                continue;
-
-            if (!quest->IsUnavailable() && CanTakeQuest(quest, false))
-                AddQuest(quest, nullptr);
-        }
+        if (!quest->IsUnavailable() && CanTakeQuest(quest, false))
+            AddQuest(quest, nullptr);
     }
 }
 
