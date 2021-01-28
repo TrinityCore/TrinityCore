@@ -18777,7 +18777,7 @@ void Player::PushQuests()
             int32 zoneOrSort = quest->GetZoneOrSort();
 
             // If quest is part of specific zone, push it only if we're in that zone
-            if (zoneOrSort >= 0 && zoneOrSort != GetMapId())
+            if (zoneOrSort >= 0 && (uint32)zoneOrSort != GetMapId())
                 continue;
 
             // Don't push world quests
