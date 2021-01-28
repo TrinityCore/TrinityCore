@@ -30,6 +30,7 @@ EndScriptData */
 #include "Language.h"
 #include "MapManager.h"
 #include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "PhasingHandler.h"
 #include "Player.h"
@@ -504,6 +505,7 @@ public:
             Player* targetGroupLeader = nullptr;
             if (Group* targetGroup = target->GetGroup())
                 targetGroupLeader = ObjectAccessor::GetPlayer(map, targetGroup->GetLeaderGUID());
+
 
             // check if far teleport is allowed
             if (!targetGroupLeader || (targetGroupLeader->GetMapId() != map->GetId()) || (targetGroupLeader->GetInstanceId() != map->GetInstanceId()))
