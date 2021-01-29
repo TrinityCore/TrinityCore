@@ -18775,7 +18775,7 @@ void Player::PushQuests()
             continue;
 
         if (!quest->IsUnavailable() && CanTakeQuest(quest, false))
-            AddQuest(quest, nullptr);
+            AddQuestAndCheckCompletion(quest, nullptr);
     }
 }
 
