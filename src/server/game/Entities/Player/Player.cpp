@@ -18766,11 +18766,8 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder* holder)
 
 void Player::PushQuests()
 {
-    std::vector<Quest const*> const& questsAutoPush = sObjectMgr->GetQuestTemplatesAutoPush();
-
-    for (Quest const *quest : questsAutoPush)
+    for (Quest const* quest : sObjectMgr->GetQuestTemplatesAutoPush())
     {
-        //
         if (quest->GetQuestTag() && quest->GetQuestTag() != QuestTagType::Tag)
             continue;
 
