@@ -249,17 +249,13 @@ void Battleground::_ProcessPlayerPositionBroadcast(uint32 diff)
 
         WorldPackets::Battleground::BattlegroundPlayerPositions playerPositions;
 
-        for (BattlegroundPlayerPositionSlotInfo const& info : _playerPositionInfo)
+        for (WorldPackets::Battleground::BattlegroundPlayerPosition& playerPosition : _playerPositionInfo)
         {
-            if (Player* player = ObjectAccessor::GetPlayer(GetBgMap(), info.Guid))
-            {
-                WorldPackets::Battleground::BattlegroundPlayerPosition position;
-                position.Guid = player->GetGUID();
-                position.Pos = player->GetPosition();
-                position.IconID = info.IconId;
-                position.ArenaSlot = info.ArenaSlot;
-                playerPositions.FlagCarriers.push_back(position);
-            }
+            // Update position data if we found player.
+            if (Player* player = ObjectAccessor::GetPlayer(GetBgMap(), playerPosition.Guid))
+                playerPosition.Pos = player->GetPosition();
+
+            playerPositions.FlagCarriers.push_back(playerPosition);
         }
 
         SendPacketToAll(playerPositions.Write());

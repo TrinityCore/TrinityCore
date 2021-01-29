@@ -19,6 +19,7 @@
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "Battleground.h"
+#include "BattlegroundPackets.h"
 #include "CellImpl.h"
 #include "Common.h"
 #include "DB2Stores.h"
@@ -463,8 +464,8 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleShowConfirmationPrompt,                    //394 SPELL_AURA_SHOW_CONFIRMATION_PROMPT
     &AuraEffect::HandleCreateAreaTrigger,                         //395 SPELL_AURA_AREA_TRIGGER
     &AuraEffect::HandleNULL,                                      //396 SPELL_AURA_TRIGGER_SPELL_ON_POWER_AMOUNT
-    &AuraEffect::HandleBattlegroundPlayerPosition,                //397
-    &AuraEffect::HandleBattlegroundPlayerPosition,                //398
+    &AuraEffect::HandleBattlegroundPlayerPosition,                //397 SPELL_AURA_UPDATE_BATTLEGROUND_PLAYER_POSITION
+    &AuraEffect::HandleBattlegroundPlayerPosition,                //398 SPELL_AURA_UPDATE_BATTLEGROUND_PLAYER_POSITION_2
     &AuraEffect::HandleNULL,                                      //399 SPELL_AURA_MOD_TIME_RATE
     &AuraEffect::HandleAuraModSkill,                              //400 SPELL_AURA_MOD_SKILL_2
     &AuraEffect::HandleNULL,                                      //401
@@ -6382,26 +6383,26 @@ void AuraEffect::HandleBattlegroundPlayerPosition(AuraApplication const* aurApp,
 
     if (apply)
     {
-        BattlegroundPlayerPositionSlotInfo info;
-        info.Guid = target->GetGUID();
-        info.ArenaSlot = GetMiscValue();
+        WorldPackets::Battleground::BattlegroundPlayerPosition playerPosition;
+        playerPosition.Guid = target->GetGUID();
+        playerPosition.ArenaSlot = static_cast<uint8>(GetMiscValue());
+        playerPosition.Pos = target->GetPosition();
 
         if (GetAuraType() == SPELL_AURA_UPDATE_BATTLEGROUND_PLAYER_POSITION)
-            info.IconId = target->GetTeam() == ALLIANCE ? PLAYER_POSITION_ICON_HORDE_FLAG : PLAYER_POSITION_ICON_ALLIANCE_FLAG;
+            playerPosition.IconID = target->GetTeam() == ALLIANCE ? PLAYER_POSITION_ICON_HORDE_FLAG : PLAYER_POSITION_ICON_ALLIANCE_FLAG;
         else if (GetAuraType() == SPELL_AURA_UPDATE_BATTLEGROUND_PLAYER_POSITION_2)
-            info.IconId = target->GetTeam() == ALLIANCE ? PLAYER_POSITION_ICON_ALLIANCE_FLAG : PLAYER_POSITION_ICON_HORDE_FLAG;
+            playerPosition.IconID = target->GetTeam() == ALLIANCE ? PLAYER_POSITION_ICON_ALLIANCE_FLAG : PLAYER_POSITION_ICON_HORDE_FLAG;
         else
         {
-            info.IconId = 0;
             TC_LOG_WARN("spell.auras", "Unknown aura effect %u handled by HandleBattlegroundPlayerPosition.", GetAuraType());
         }
 
-        bg->GetPlayerPositionSlotInfos().push_back(std::move(info));
+        bg->GetPlayerPositionSlotInfos().push_back(playerPosition);
     }
     else
     {
         ObjectGuid const& guid = target->GetGUID();
-        auto const& itr = std::remove_if(bg->GetPlayerPositionSlotInfos().begin(), bg->GetPlayerPositionSlotInfos().end(), [guid](BattlegroundPlayerPositionSlotInfo info)
+        auto const& itr = std::remove_if(bg->GetPlayerPositionSlotInfos().begin(), bg->GetPlayerPositionSlotInfos().end(), [guid](WorldPackets::Battleground::BattlegroundPlayerPosition const info)
         {
             return info.Guid == guid;
         });
