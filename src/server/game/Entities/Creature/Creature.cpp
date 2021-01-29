@@ -608,15 +608,15 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
     // FAMILY
     if (Crspeed == 1.0f)
     {
-        //Rhinoceros, ours, Gorille, Hydre ,Infernal
-        if (Crfamily == CREATURE_FAMILY_RHINO || Crfamily == CREATURE_FAMILY_BEAR || Crfamily == CREATURE_FAMILY_GORILLA || Crfamily == CREATURE_FAMILY_HYDRA || Crfamily == CREATURE_FAMILY_INFERNAL)
+        //Rhinoceros, ours, Gorille, Hydre ,Infernal, Mamouth
+        if (Crfamily == CREATURE_FAMILY_CLEFTHOOF || Crfamily == CREATURE_FAMILY_BEAR || Crfamily == CREATURE_FAMILY_GORILLA || Crfamily == CREATURE_FAMILY_HYDRA || Crfamily == CREATURE_FAMILY_INFERNAL || Crfamily == CREATURE_FAMILY_MAMMOTH)
         {
             SetSpeedRate(MOVE_WALK, 0.6f);				// hors combat
             SetSpeedRate(MOVE_RUN, 1.3f);				// en combat
             SetSpeedRate(MOVE_SWIM, 0.5f);				// en nageant
         }
-        // Oiseau de proie,Chauve souris,Faucon dragon, Papillon de nuit,oiseau charognard
-        if (Crfamily == CREATURE_FAMILY_BIRD_OF_PREY || Crfamily == CREATURE_FAMILY_BAT || Crfamily == CREATURE_FAMILY_DRAGONHAWK || Crfamily == CREATURE_FAMILY_MOTH || Crfamily == CREATURE_FAMILY_CARRION_BIRD)
+        // Oiseau de proie,Chauve souris,Faucon dragon, Papillon de nuit,oiseau charognard, Pterreurdactyle
+        if (Crfamily == CREATURE_FAMILY_BIRD_OF_PREY || Crfamily == CREATURE_FAMILY_BAT || Crfamily == CREATURE_FAMILY_DRAGONHAWK || Crfamily == CREATURE_FAMILY_MOTH || Crfamily == CREATURE_FAMILY_CARRION_BIRD || Crfamily == CREATURE_FAMILY_PTERRORDAX)
         {
             SetSpeedRate(MOVE_WALK, 1.5f);				// hors combat
             SetSpeedRate(MOVE_RUN, 1.5f);				// en combat
@@ -629,35 +629,35 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
             SetSpeedRate(MOVE_RUN, 1.3f);				// en combat
             SetSpeedRate(MOVE_SWIM, 0.5f);				// en nageant
         }
-        // crocodile, Crabe, Tortue, Serpent, Goule, Singe, Zombie, Basilic, Araignee, Grue,Ver
-        if (Crfamily == CREATURE_FAMILY_CROCOLISK || Crfamily == CREATURE_FAMILY_CRAB || Crfamily == CREATURE_FAMILY_TURTLE || Crfamily == CREATURE_FAMILY_SERPENT || Crfamily == CREATURE_FAMILY_GHOUL || Crfamily == CREATURE_FAMILY_MONKEY || Crfamily == CREATURE_FAMILY_ZOMBIE || Crfamily == CREATURE_FAMILY_BASILISK || Crfamily == CREATURE_FAMILY_SPIDER || Crfamily == CREATURE_FAMILY_CRANE || Crfamily == CREATURE_FAMILY_WORM)
+        // crocodile, Crabe, Tortue, Serpent, Goule, Singe, Zombie, Basilic, Araignee, Grue,Ver, Lezard, crapaud,Carapid
+        if (Crfamily == CREATURE_FAMILY_CROCOLISK || Crfamily == CREATURE_FAMILY_CRAB || Crfamily == CREATURE_FAMILY_TURTLE || Crfamily == CREATURE_FAMILY_SERPENT || Crfamily == CREATURE_FAMILY_GHOUL || Crfamily == CREATURE_FAMILY_MONKEY || Crfamily == CREATURE_FAMILY_ZOMBIE || Crfamily == CREATURE_FAMILY_BASILISK || Crfamily == CREATURE_FAMILY_SPIDER || Crfamily == CREATURE_FAMILY_CRANE || Crfamily == CREATURE_FAMILY_WORM || Crfamily == CREATURE_FAMILY_LIZARD || Crfamily == CREATURE_FAMILY_TOAD || Crfamily == CREATURE_FAMILY_CARAPID)
         {
             SetSpeedRate(MOVE_WALK, 0.4f);				// hors combat
             SetSpeedRate(MOVE_RUN, 1.0f);				// en combat
             SetSpeedRate(MOVE_SWIM, 0.5f);				// en nageant
         }
-        //Scorpion, Chevre, Cerf , Porc epic - Bovin
-        if (Crfamily == CREATURE_FAMILY_SCORPID || Crfamily == CREATURE_FAMILY_GOAT || Crfamily == CREATURE_FAMILY_STAG || Crfamily == CREATURE_FAMILY_PORCUPINE || Crfamily == CREATURE_FAMILY_RYLAK || Crfamily == 0 || Crfamily == 157) //////
-        {
-            SetSpeedRate(MOVE_WALK, 0.5f);				// hors combat
-            SetSpeedRate(MOVE_RUN, 1.2f);				// en combat
-            SetSpeedRate(MOVE_SWIM, 0.5f);				// en nageant
-        }
-        //elementaire de feu, elem. de tempete,elementaire de terre,Water Elemental
-        if (Crfamily == CREATURE_FAMILY_FIREELEMENTAL || Crfamily == CREATURE_FAMILY_STORMELEMENTAL || Crfamily == CREATURE_FAMILY_EARTHELEMENTAL || Crfamily == CREATURE_FAMILY_MTWATERELEMENTAL)
-        {
-            SetSpeedRate(MOVE_WALK, 1.8f);				// hors combat
-            SetSpeedRate(MOVE_RUN, 1.8f);				// en combat
-        }
-        //Imp , Goul , Custom , Trotteur aquatique
-        if (Crfamily == CREATURE_FAMILY_IMP || Crfamily == CREATURE_FAMILY_BEETLE || Crfamily == CREATURE_FAMILY_HORSE_CUSTOM || CREATURE_FAMILY_WATERSTRIDER)
+        //Scorpion, Chevre, Cerf , Porc epic , Bovin, Chameau
+        if (Crfamily == CREATURE_FAMILY_SCORPID || Crfamily == CREATURE_FAMILY_GRUFFHORN || Crfamily == CREATURE_FAMILY_STAG || Crfamily == CREATURE_FAMILY_RODENT || Crfamily == CREATURE_FAMILY_OXEN || Crfamily == 0 || Crfamily == 157 || Crfamily == CREATURE_FAMILY_CAMEL) //////
         {
             SetSpeedRate(MOVE_WALK, 0.5f);				// hors combat
             SetSpeedRate(MOVE_RUN, 1.0f);				// en combat
             SetSpeedRate(MOVE_SWIM, 0.5f);				// en nageant
         }
+        //elementaire de feu, elem. de tempete,elementaire de terre,Water Elemental
+        if (Crfamily == CREATURE_FAMILY_FIREELEMENTAL || Crfamily == CREATURE_FAMILY_STORMELEMENTAL || Crfamily == CREATURE_FAMILY_EARTHELEMENTAL || Crfamily == CREATURE_FAMILY_STORMELEMENTAL)
+        {
+            SetSpeedRate(MOVE_WALK, 1.8f);				// hors combat
+            SetSpeedRate(MOVE_RUN, 1.8f);				// en combat
+        }
+        //Imp , Goul , Custom , Trotteur aquatique , Courser
+        if (Crfamily == CREATURE_FAMILY_IMP || Crfamily == CREATURE_FAMILY_BEETLE || Crfamily == CREATURE_FAMILY_HORSE_CUSTOM || CREATURE_FAMILY_WATERSTRIDER || CREATURE_FAMILY_COURSER)
+        {
+            SetSpeedRate(MOVE_WALK, 0.5f);				// hors combat
+            SetSpeedRate(MOVE_RUN, 1.2f);				// en combat
+            SetSpeedRate(MOVE_SWIM, 0.5f);				// en nageant
+        }
         //Serpent des vents,Succube,Doomguard,Raie du Neant,Guepe,Seigneur du Vide
-        if (Crfamily == CREATURE_FAMILY_WIND_SERPENT || Crfamily == CREATURE_FAMILY_SUCCUBUS || Crfamily == CREATURE_FAMILY_DOOMGUARD || Crfamily == CREATURE_FAMILY_NETHER_RAY || Crfamily == CREATURE_FAMILY_WASP || Crfamily == CREATURE_FAMILY_VOIDLORD)
+        if (Crfamily == CREATURE_FAMILY_WIND_SERPENT || Crfamily == CREATURE_FAMILY_SUCCUBUS || Crfamily == CREATURE_FAMILY_DOOMGUARD || Crfamily == CREATURE_FAMILY_RAY || Crfamily == CREATURE_FAMILY_WASP || Crfamily == CREATURE_FAMILY_VOIDLORD)
         {
             SetSpeedRate(MOVE_WALK, 0.75f);				// hors combat
             SetSpeedRate(MOVE_RUN, 1.0f);				// en combat

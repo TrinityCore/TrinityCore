@@ -4291,6 +4291,7 @@ enum CreatureFamily
     CREATURE_FAMILY_CRAB                = 8,
     CREATURE_FAMILY_GORILLA             = 9,
     CREATURE_FAMILY_RAPTOR              = 11,
+    CREATURE_FAMILY_HORSE_CUSTOM        = 10,
     CREATURE_FAMILY_TALLSTRIDER         = 12,
     CREATURE_FAMILY_FELHUNTER           = 15,
     CREATURE_FAMILY_VOIDWALKER          = 16,
