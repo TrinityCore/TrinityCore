@@ -4215,7 +4215,6 @@ void ObjectMgr::LoadQuests()
 
         Quest* newQuest = new Quest(fields);
         _questTemplates[newQuest->GetQuestId()] = newQuest;
-
         if (newQuest->IsAutoPush())
             _questTemplatesAutoPush.push_back(newQuest);
     } while (result->NextRow());
