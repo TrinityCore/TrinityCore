@@ -291,14 +291,13 @@ uint32 Quest::XPValue(Player const* player) const
         if (player->getLevel() >= GetMaxLevelForExpansion(CURRENT_EXPANSION - 1) && player->GetSession()->GetExpansion() == CURRENT_EXPANSION && _expansion < CURRENT_EXPANSION)
             xp = uint32(xp / 9.0f);
 
-        if (xp <= 100)
-            xp = 5 * ((xp + 2) / 5);
-        else if (xp <= 500)
-            xp = 10 * ((xp + 5) / 10);
-        else if (xp <= 1000)
-            xp = 25 * ((xp + 12) / 25);
-        else
-            xp = 50 * ((xp + 25) / 50);
+        xp = RoundXPValue(xp);
+
+        if (sWorld->getIntConfig(CONFIG_MIN_QUEST_SCALED_XP_RATIO))
+        {
+            uint32 minScaledXP = RoundXPValue(questXp->Difficulty[_rewardXPDifficulty] * _rewardXPMultiplier) * sWorld->getIntConfig(CONFIG_MIN_QUEST_SCALED_XP_RATIO) / 100;
+            xp = std::max(minScaledXP, xp);
+        }
 
         return xp;
     }
@@ -596,4 +595,16 @@ WorldPacket Quest::BuildQueryData(LocaleConstant loc) const
     response.Info.TimeAllowed = GetLimitTime();
 
     return *response.Write();
+}
+
+uint32 Quest::RoundXPValue(uint32 xp)
+{
+    if (xp <= 100)
+        return 5 * ((xp + 2) / 5);
+    else if (xp <= 500)
+        return 10 * ((xp + 5) / 10);
+    else if (xp <= 1000)
+        return 25 * ((xp + 12) / 25);
+    else
+        return 50 * ((xp + 25) / 50);
 }
