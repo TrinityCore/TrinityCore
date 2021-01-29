@@ -248,7 +248,20 @@ void Battleground::_ProcessPlayerPositionBroadcast(uint32 diff)
         m_LastPlayerPositionBroadcast = 0;
 
         WorldPackets::Battleground::BattlegroundPlayerPositions playerPositions;
-        GetPlayerPositionData(&playerPositions.FlagCarriers);
+
+        for (BattlegroundPlayerPositionSlotInfo const& info : _playerPositionInfo)
+        {
+            if (Player* player = ObjectAccessor::GetPlayer(GetBgMap(), info.Guid))
+            {
+                WorldPackets::Battleground::BattlegroundPlayerPosition position;
+                position.Guid = player->GetGUID();
+                position.Pos = player->GetPosition();
+                position.IconID = info.IconId;
+                position.ArenaSlot = info.ArenaSlot;
+                playerPositions.FlagCarriers.push_back(position);
+            }
+        }
+
         SendPacketToAll(playerPositions.Write());
     }
 }

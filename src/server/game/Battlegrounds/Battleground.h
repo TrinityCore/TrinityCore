@@ -23,6 +23,7 @@
 #include "Position.h"
 #include "SharedDefines.h"
 #include <map>
+#include <vector>
 
 class BattlegroundMap;
 class Creature;
@@ -228,6 +229,13 @@ enum BattlegroundPlayerPositionConstants
     PLAYER_POSITION_ARENA_SLOT_3        = 4,
     PLAYER_POSITION_ARENA_SLOT_4        = 5,
     PLAYER_POSITION_ARENA_SLOT_5        = 6
+};
+
+struct BattlegroundPlayerPositionSlotInfo
+{
+    uint8 ArenaSlot = 0;
+    uint8 IconId = 0;
+    ObjectGuid Guid;
 };
 
 enum class BattlegroundQueueIdType : uint8
@@ -502,6 +510,9 @@ class TC_GAME_API Battleground
         // because BattleGrounds with different types and same level range has different m_BracketId
         uint8 GetUniqueBracketId() const;
 
+        std::vector<BattlegroundPlayerPositionSlotInfo> const& GetPlayerPositionSlotInfos() const { return _playerPositionInfo; }
+        std::vector<BattlegroundPlayerPositionSlotInfo>& GetPlayerPositionSlotInfos() { return _playerPositionInfo; }
+
     protected:
         // this method is called, when BG cannot spawn its own spirit guide, or something is wrong, It correctly ends Battleground
         void EndNow();
@@ -549,7 +560,6 @@ class TC_GAME_API Battleground
         void _ProcessJoin(uint32 diff);
         void _CheckSafePositions(uint32 diff);
         void _ProcessPlayerPositionBroadcast(uint32 diff);
-        virtual void GetPlayerPositionData(std::vector<WorldPackets::Battleground::BattlegroundPlayerPosition>* /*positions*/) const { }
 
         // Scorekeeping
         BattlegroundScoreMap PlayerScores;                // Player scores
@@ -624,5 +634,7 @@ class TC_GAME_API Battleground
 
         BattlegroundTemplate const* _battlegroundTemplate;
         PVPDifficultyEntry const* _pvpDifficultyEntry;
+
+        std::vector<BattlegroundPlayerPositionSlotInfo> _playerPositionInfo;
 };
 #endif

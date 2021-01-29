@@ -463,8 +463,8 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleShowConfirmationPrompt,                    //394 SPELL_AURA_SHOW_CONFIRMATION_PROMPT
     &AuraEffect::HandleCreateAreaTrigger,                         //395 SPELL_AURA_AREA_TRIGGER
     &AuraEffect::HandleNULL,                                      //396 SPELL_AURA_TRIGGER_SPELL_ON_POWER_AMOUNT
-    &AuraEffect::HandleNULL,                                      //397
-    &AuraEffect::HandleNULL,                                      //398
+    &AuraEffect::HandleBattlegroundPlayerPosition,                //397
+    &AuraEffect::HandleBattlegroundPlayerPosition,                //398
     &AuraEffect::HandleNULL,                                      //399 SPELL_AURA_MOD_TIME_RATE
     &AuraEffect::HandleAuraModSkill,                              //400 SPELL_AURA_MOD_SKILL_2
     &AuraEffect::HandleNULL,                                      //401
@@ -6365,6 +6365,49 @@ void AuraEffect::HandleModOverrideZonePVPType(AuraApplication const* aurApp, uin
 
     target->UpdateHostileAreaState(sAreaTableStore.LookupEntry(target->GetZoneId()));
     target->UpdatePvPState();
+}
+
+void AuraEffect::HandleBattlegroundPlayerPosition(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Player* target = aurApp->GetTarget()->ToPlayer();
+    if (!target)
+        return;
+
+    Battleground* bg = target->GetBattleground();
+    if (!bg)
+        return;
+
+    if (apply)
+    {
+        BattlegroundPlayerPositionSlotInfo info;
+        info.Guid = target->GetGUID();
+        info.ArenaSlot = GetMiscValue();
+
+        if (GetAuraType() == SPELL_AURA_UPDATE_BATTLEGROUND_PLAYER_POSITION)
+            info.IconId = target->GetTeam() == ALLIANCE ? PLAYER_POSITION_ICON_HORDE_FLAG : PLAYER_POSITION_ICON_ALLIANCE_FLAG;
+        else if (GetAuraType() == SPELL_AURA_UPDATE_BATTLEGROUND_PLAYER_POSITION_2)
+            info.IconId = target->GetTeam() == ALLIANCE ? PLAYER_POSITION_ICON_ALLIANCE_FLAG : PLAYER_POSITION_ICON_HORDE_FLAG;
+        else
+        {
+            info.IconId = 0;
+            TC_LOG_WARN("spell.auras", "Unknown aura effect %u handled by HandleBattlegroundPlayerPosition.", GetAuraType());
+        }
+
+        bg->GetPlayerPositionSlotInfos().push_back(std::move(info));
+    }
+    else
+    {
+        ObjectGuid const& guid = target->GetGUID();
+        auto const& itr = std::remove_if(bg->GetPlayerPositionSlotInfos().begin(), bg->GetPlayerPositionSlotInfos().end(), [guid](BattlegroundPlayerPositionSlotInfo info)
+        {
+            return info.Guid == guid;
+        });
+
+        bg->GetPlayerPositionSlotInfos().erase(itr, bg->GetPlayerPositionSlotInfos().end());
+    }
 }
 
 template TC_GAME_API void AuraEffect::GetTargetList(std::list<Unit*>&) const;
