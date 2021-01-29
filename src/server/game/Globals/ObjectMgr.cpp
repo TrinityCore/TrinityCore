@@ -1001,8 +1001,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         const_cast<CreatureTemplate*>(cInfo)->type = CREATURE_TYPE_HUMANOID;
     }
 
-    // must exist or used hidden but used in data horse case
-    if (cInfo->family && !sCreatureFamilyStore.LookupEntry(cInfo->family) && cInfo->family != CREATURE_FAMILY_HORSE_CUSTOM)
+    if (cInfo->family && !sCreatureFamilyStore.LookupEntry(cInfo->family))
     {
         TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has invalid creature family (%u) in `family`.", cInfo->Entry, cInfo->family);
         const_cast<CreatureTemplate*>(cInfo)->family = CREATURE_FAMILY_NONE;
