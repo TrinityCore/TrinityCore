@@ -140,6 +140,8 @@ enum HOOCreatures
     NPC_INFERNO_LEAP                = 47040,
     NPC_BLAZING_INFERNO             = 40927,
     NPC_SUN_TOUCHED_SERVANT         = 39366,
+    NPC_SUN_TOUCHED_SPRITE          = 39369,
+    NPC_SUN_TOUCHED_SPRITELING      = 39370
 };
 
 enum HOOGameObjects

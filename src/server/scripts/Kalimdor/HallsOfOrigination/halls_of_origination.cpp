@@ -33,6 +33,90 @@
 #include "Transport.h"
 #include "halls_of_origination.h"
 
+enum SunTouchedServant
+{
+    // Texts
+    SAY_EMOTE_DISPERSE         = 0,
+
+    // Spells
+    SPELL_SEARING_FLAMES        = 74101,
+    SPELL_DISPERSE_SERVANT      = 88097,
+    SPELL_DISPERSE_SPRITE       = 88100,
+    SPELL_FLAME_DISPERSION      = 76160,
+    SPELL_PYROGENICS_SPRITE     = 76158,
+    SPELL_PYROGENICS_SPRITELING = 76159,
+
+    // Events
+    EVENT_SEARING_FLAMES        = 1
+};
+
+struct npc_sun_touched_servant : public ScriptedAI
+{
+    npc_sun_touched_servant(Creature* creature) : ScriptedAI(creature), _dispersed(false) { }
+
+    void JustAppeared() override
+    {
+        if (me->GetEntry() == NPC_SUN_TOUCHED_SERVANT)
+            return;
+
+        DoCastSelf(me->GetEntry() == NPC_SUN_TOUCHED_SPRITE ? SPELL_PYROGENICS_SPRITE : SPELL_PYROGENICS_SPRITELING);
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _events.ScheduleEvent(EVENT_SEARING_FLAMES, 5s, 7s);
+    }
+
+    void EnterEvadeMode(EvadeReason why) override
+    {
+        ScriptedAI::EnterEvadeMode(why);
+        _events.Reset();
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage) override
+    {
+        if (me->GetEntry() == NPC_SUN_TOUCHED_SPRITELING)
+            return;
+
+        if (!_dispersed && me->HealthBelowPctDamaged(1, damage))
+        {
+            _dispersed = true;
+            DoCastSelf(me->GetEntry() == NPC_SUN_TOUCHED_SERVANT ? SPELL_DISPERSE_SERVANT : SPELL_DISPERSE_SPRITE);
+            Talk(SAY_EMOTE_DISPERSE);
+        }
+
+        if (damage >= me->GetHealth())
+            damage = me->GetHealth() - 1;
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_SEARING_FLAMES:
+                    DoCastVictim(SPELL_SEARING_FLAMES);
+                    _events.Repeat(8s, 14s);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+    bool _dispersed;
+};
+
 // The Maker's Lift
 enum ElevatorMisc
 {
@@ -102,10 +186,10 @@ class spell_hoo_flame_ring_visual : public SpellScript
             return;
 
         targets.remove_if([](WorldObject const* target)->bool
-            {
-                Unit const* unit = target->ToUnit();
-                return !unit || unit->GetEntry() != NPC_SUN_TOUCHED_SERVANT;
-            });
+        {
+            Unit const* unit = target->ToUnit();
+            return !unit || unit->GetEntry() != NPC_SUN_TOUCHED_SERVANT;
+        });
 
         if (targets.empty())
             return;
@@ -126,8 +210,30 @@ class spell_hoo_flame_ring_visual : public SpellScript
     }
 };
 
+class spell_hoo_disperse : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_FLAME_DISPERSION });
+    }
+
+    void HandleDeath(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->CastSpell(target, SPELL_FLAME_DISPERSION);
+        target->KillSelf(); // There is no suicide spell being shown in sniffs
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove.Register(&spell_hoo_disperse::HandleDeath, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_halls_of_origination()
 {
+    RegisterHallsOfOriginationCreatureAI(npc_sun_touched_servant);
     RegisterGameObjectAI(go_hoo_the_makers_lift_controller);
     RegisterSpellScript(spell_hoo_flame_ring_visual);
+    RegisterSpellScript(spell_hoo_disperse);
 }

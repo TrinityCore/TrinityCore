@@ -4718,6 +4718,14 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].RadiusEntry = nullptr;
     });
 
+    ApplySpellFix({
+        73847, // Summon Sun-Touched Sprite
+        73848  // Summon Sun-Touched Spriteling
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(7); // 10yd
+    });
+
     // END OF HALLS OF ORIGINATION SPELLS
 
     //
