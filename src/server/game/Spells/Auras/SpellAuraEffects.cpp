@@ -6393,9 +6393,7 @@ void AuraEffect::HandleBattlegroundPlayerPosition(AuraApplication const* aurApp,
         else if (GetAuraType() == SPELL_AURA_UPDATE_BATTLEGROUND_PLAYER_POSITION_2)
             playerPosition.IconID = target->GetTeam() == ALLIANCE ? PLAYER_POSITION_ICON_ALLIANCE_FLAG : PLAYER_POSITION_ICON_HORDE_FLAG;
         else
-        {
             TC_LOG_WARN("spell.auras", "Unknown aura effect %u handled by HandleBattlegroundPlayerPosition.", GetAuraType());
-        }
 
         bg->GetPlayerPositionSlotInfos().push_back(playerPosition);
     }
