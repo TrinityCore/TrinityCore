@@ -2378,6 +2378,8 @@ void Player::GiveLevel(uint8 level)
 
     UpdateCriteria(CRITERIA_TYPE_REACH_LEVEL);
 
+    PushQuests();
+
     sScriptMgr->OnPlayerLevelChanged(this, oldLevel);
 }
 
@@ -7082,6 +7084,8 @@ void Player::UpdateArea(uint32 newArea)
         _restMgr->SetRestFlag(REST_FLAG_IN_FACTION_AREA);
     else
         _restMgr->RemoveRestFlag(REST_FLAG_IN_FACTION_AREA);
+
+    PushQuests();
 
     UpdateCriteria(CRITERIA_TYPE_TRAVELLED_TO_AREA, newArea);
 }
@@ -15454,8 +15458,7 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
                     GetReputationMgr().SetVisible(factionEntry);
                 break;
             case QUEST_OBJECTIVE_CRITERIA_TREE:
-                if (quest->HasFlagEx(QUEST_FLAGS_EX_IS_WORLD_QUEST))
-                    m_questObjectiveCriteriaMgr->ResetCriteriaTree(obj.ObjectID);
+                m_questObjectiveCriteriaMgr->ResetCriteriaTree(obj.ObjectID);
                 break;
             default:
                 break;
@@ -18756,7 +18759,21 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder* holder)
 
     m_achievementMgr->CheckAllAchievementCriteria(this);
     m_questObjectiveCriteriaMgr->CheckAllQuestObjectiveCriteria(this);
+
+    PushQuests();
     return true;
+}
+
+void Player::PushQuests()
+{
+    for (Quest const* quest : sObjectMgr->GetQuestTemplatesAutoPush())
+    {
+        if (quest->GetQuestTag() && quest->GetQuestTag() != QuestTagType::Tag)
+            continue;
+
+        if (!quest->IsUnavailable() && CanTakeQuest(quest, false))
+            AddQuestAndCheckCompletion(quest, nullptr);
+    }
 }
 
 void Player::_LoadCUFProfiles(PreparedQueryResult result)
@@ -19569,7 +19586,7 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
     uint16 slot = 0;
 
     ////                                                       0      1       2
-    //QueryResult* result = CharacterDatabase.PQuery("SELECT quest, status, timer WHERE guid = '%u'", GetGUIDLow());
+    //QueryResult* result = CharacterDatabase.PQuery("SELECT quest, status, timer WHERE guid = '%u' AND status <> 0", GetGUIDLow());
 
     if (result)
     {
