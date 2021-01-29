@@ -1,4 +1,5 @@
 /*
+/*
  * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
@@ -726,6 +727,22 @@ void WorldSession::HandleCompleteMovie(WorldPackets::Misc::CompleteMovie& /*pack
     uint32 movie = _player->GetMovie();
     if (!movie)
         return;
+
+    auto itr = std::find_if(_player->MovieDelayedTeleports.begin(), _player->MovieDelayedTeleports.end(), [movie](const Player::MovieDelayedTeleport& elem) -> bool
+        {
+            return elem.movieId == movie;
+        });
+
+    if (itr != _player->MovieDelayedTeleports.end())
+    {
+        Player::MovieDelayedTeleport delayedTeleportData = *itr;
+        _player->MovieDelayedTeleports.erase(itr);
+
+        if (delayedTeleportData.loc.GetMapId() == _player->GetMapId())
+            _player->NearTeleportTo(delayedTeleportData.loc, false);
+        else
+            _player->TeleportTo(delayedTeleportData.loc);
+    }
 
     _player->SetMovie(0);
     sScriptMgr->OnMovieComplete(_player, movie);
