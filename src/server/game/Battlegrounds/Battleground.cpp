@@ -249,7 +249,7 @@ void Battleground::_ProcessPlayerPositionBroadcast(uint32 diff)
 
         WorldPackets::Battleground::BattlegroundPlayerPositions playerPositions;
 
-        for (WorldPackets::Battleground::BattlegroundPlayerPosition& playerPosition : _playerPositionInfo)
+        for (WorldPackets::Battleground::BattlegroundPlayerPosition& playerPosition : _playerPositions)
         {
             // Update position data if we found player.
             if (Player* player = ObjectAccessor::GetPlayer(GetBgMap(), playerPosition.Guid))

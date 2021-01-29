@@ -6395,17 +6395,17 @@ void AuraEffect::HandleBattlegroundPlayerPosition(AuraApplication const* aurApp,
         else
             TC_LOG_WARN("spell.auras", "Unknown aura effect %u handled by HandleBattlegroundPlayerPosition.", GetAuraType());
 
-        bg->GetPlayerPositionSlotInfos().push_back(playerPosition);
+        bg->GetPlayerPositions().push_back(playerPosition);
     }
     else
     {
         ObjectGuid const& guid = target->GetGUID();
-        auto const& itr = std::remove_if(bg->GetPlayerPositionSlotInfos().begin(), bg->GetPlayerPositionSlotInfos().end(), [guid](WorldPackets::Battleground::BattlegroundPlayerPosition const info)
+        auto const& itr = std::remove_if(bg->GetPlayerPositions().begin(), bg->GetPlayerPositions().end(), [guid](WorldPackets::Battleground::BattlegroundPlayerPosition const info)
         {
             return info.Guid == guid;
         });
 
-        bg->GetPlayerPositionSlotInfos().erase(itr, bg->GetPlayerPositionSlotInfos().end());
+        bg->GetPlayerPositions().erase(itr, bg->GetPlayerPositions().end());
     }
 }
 

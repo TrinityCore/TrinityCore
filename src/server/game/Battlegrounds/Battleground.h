@@ -503,8 +503,8 @@ class TC_GAME_API Battleground
         // because BattleGrounds with different types and same level range has different m_BracketId
         uint8 GetUniqueBracketId() const;
 
-        std::vector<WorldPackets::Battleground::BattlegroundPlayerPosition> const& GetPlayerPositionSlotInfos() const { return _playerPositionInfo; }
-        std::vector<WorldPackets::Battleground::BattlegroundPlayerPosition>& GetPlayerPositionSlotInfos() { return _playerPositionInfo; }
+        std::vector<WorldPackets::Battleground::BattlegroundPlayerPosition> const& GetPlayerPositions() const { return _playerPositions; }
+        std::vector<WorldPackets::Battleground::BattlegroundPlayerPosition>& GetPlayerPositions() { return _playerPositions; }
 
     protected:
         // this method is called, when BG cannot spawn its own spirit guide, or something is wrong, It correctly ends Battleground
@@ -628,6 +628,6 @@ class TC_GAME_API Battleground
         BattlegroundTemplate const* _battlegroundTemplate;
         PVPDifficultyEntry const* _pvpDifficultyEntry;
 
-        std::vector<WorldPackets::Battleground::BattlegroundPlayerPosition> _playerPositionInfo;
+        std::vector<WorldPackets::Battleground::BattlegroundPlayerPosition> _playerPositions;
 };
 #endif
