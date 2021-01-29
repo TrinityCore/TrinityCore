@@ -4163,6 +4163,7 @@ void ObjectMgr::LoadQuests()
     for (auto itr = _questTemplates.begin(); itr != _questTemplates.end(); ++itr)
         delete itr->second;
     _questTemplates.clear();
+    _questTemplatesAutoPush.clear();
     _questObjectives.clear();
 
     _exclusiveQuestGroups.clear();
@@ -4214,6 +4215,8 @@ void ObjectMgr::LoadQuests()
 
         Quest* newQuest = new Quest(fields);
         _questTemplates[newQuest->GetQuestId()] = newQuest;
+        if (newQuest->IsAutoPush())
+            _questTemplatesAutoPush.push_back(newQuest);
     } while (result->NextRow());
 
     struct QuestLoaderHelper

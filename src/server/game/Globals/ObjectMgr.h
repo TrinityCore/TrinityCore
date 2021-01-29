@@ -1098,6 +1098,7 @@ class TC_GAME_API ObjectMgr
         }
 
         QuestMap const& GetQuestTemplates() const { return _questTemplates; }
+        std::vector<Quest const*> const& GetQuestTemplatesAutoPush() const { return _questTemplatesAutoPush; }
 
         QuestObjective const* GetQuestObjective(uint32 questObjectiveId) const
         {
@@ -1701,6 +1702,7 @@ class TC_GAME_API ObjectMgr
         std::map<HighGuid, std::unique_ptr<ObjectGuidGeneratorBase>> _guidGenerators;
 
         QuestMap _questTemplates;
+        std::vector<Quest const*> _questTemplatesAutoPush;
         QuestObjectivesByIdContainer _questObjectives;
 
         typedef std::unordered_map<uint32, NpcText> NpcTextContainer;
