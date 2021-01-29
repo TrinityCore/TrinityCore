@@ -153,17 +153,19 @@ MovementGeneratorType MotionMaster::GetCurrentMovementGeneratorType() const
     return top()->GetMovementGeneratorType();
 }
 
-MovementGeneratorType MotionMaster::GetMotionSlotType(int slot) const
+MovementGeneratorType MotionMaster::GetMotionSlotType(MovementSlot slot) const
 {
-    if (!_slot[slot])
+    if (empty() || slot >= MAX_MOTION_SLOT || !_slot[slot])
         return MAX_MOTION_TYPE;
-    else
-        return _slot[slot]->GetMovementGeneratorType();
+
+    return _slot[slot]->GetMovementGeneratorType();
 }
 
-MovementGenerator* MotionMaster::GetMotionSlot(int slot) const
+MovementGenerator* MotionMaster::GetMotionSlot(MovementSlot slot) const
 {
-    ASSERT(slot >= 0);
+    if (empty() || slot >= MAX_MOTION_SLOT || !_slot[slot])
+        return nullptr;
+
     return _slot[slot];
 }
 
