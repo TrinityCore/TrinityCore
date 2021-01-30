@@ -39,13 +39,10 @@
 #include "UpdateData.h"
 #include <G3D/AABox.h>
 
-AreaTrigger::AreaTrigger() : WorldObject(false), MapObject(),
-    _targetGuid(), _aurEff(nullptr),
+AreaTrigger::AreaTrigger() : WorldObject(false), MapObject(), _aurEff(nullptr),
     _duration(0), _totalDuration(0), _timeSinceCreated(0), _previousCheckOrientation(std::numeric_limits<float>::infinity()),
-    _isRemoved(false), _rollPitchYaw(), _targetRollPitchYaw(), _polygonVertices(), _spline(),
-    _reachedDestination(true), _lastSplineIndex(0), _movementTime(0),
-    _orbitInfo(), _areaTriggerMiscTemplate(nullptr), _insideUnits(), _ai(),
-    _areaTriggerTemplate(nullptr)
+    _isRemoved(false), _reachedDestination(true), _lastSplineIndex(0), _movementTime(0),
+    _areaTriggerMiscTemplate(nullptr), _areaTriggerTemplate(nullptr)
 {
     m_objectType |= TYPEMASK_AREATRIGGER;
     m_objectTypeId = TYPEID_AREATRIGGER;
@@ -110,9 +107,9 @@ bool AreaTrigger::Create(uint32 spellMiscId, Unit* caster, Unit* target, SpellIn
 
     _areaTriggerTemplate = _areaTriggerMiscTemplate->Template;
 
-    Object::_Create(ObjectGuid::Create<HighGuid::AreaTrigger>(GetMapId(), GetTemplate()->Id, caster->GetMap()->GenerateLowGuid<HighGuid::AreaTrigger>()));
+    Object::_Create(ObjectGuid::Create<HighGuid::AreaTrigger>(GetMapId(), GetTemplate()->Id.Id, caster->GetMap()->GenerateLowGuid<HighGuid::AreaTrigger>()));
 
-    SetEntry(GetTemplate()->Id);
+    SetEntry(GetTemplate()->Id.Id);
     SetDuration(duration);
 
     SetObjectScale(1.0f);
@@ -218,44 +215,46 @@ AreaTrigger* AreaTrigger::CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Un
     return at;
 }
 
-bool AreaTrigger::LoadFromDB(uint32 spawnId, Map* map, bool /*addToMap*/, bool /*allowDuplicate*/)
+bool AreaTrigger::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool /*addToMap*/, bool /*allowDuplicate*/)
 {
-    AreaTriggerServerPosition const* position = sAreaTriggerDataStore->GetAreaTriggerServerPosition(spawnId);
+    AreaTriggerSpawn const* position = sAreaTriggerDataStore->GetAreaTriggerSpawn(spawnId);
     if (!position)
         return false;
 
-    AreaTriggerTemplate const* areaTriggerTemplate = sAreaTriggerDataStore->GetAreaTriggerServerTemplate(position->Id);
+    AreaTriggerTemplate const* areaTriggerTemplate = sAreaTriggerDataStore->GetAreaTriggerTemplate(position->Id);
     if (!areaTriggerTemplate)
         return false;
 
     return CreateServer(map, areaTriggerTemplate, *position);
 }
 
-bool AreaTrigger::CreateServer(Map* map, AreaTriggerTemplate const* areaTriggerTemplate, AreaTriggerServerPosition const& position)
+bool AreaTrigger::CreateServer(Map* map, AreaTriggerTemplate const* areaTriggerTemplate, AreaTriggerSpawn const& position)
 {
     SetMap(map);
     Relocate(position.Location);
     if (!IsPositionValid())
     {
-        TC_LOG_ERROR("entities.areatrigger", "AreaTriggerServer (id %u) not created. Invalid coordinates (X: %f Y: %f)", areaTriggerTemplate->Id, GetPositionX(), GetPositionY());
+        TC_LOG_ERROR("entities.areatrigger", "AreaTriggerServer (id %u) not created. Invalid coordinates (X: %f Y: %f)",
+            areaTriggerTemplate->Id.Id, GetPositionX(), GetPositionY());
         return false;
     }
 
     _areaTriggerTemplate = areaTriggerTemplate;
 
-    Object::_Create(ObjectGuid::Create<HighGuid::AreaTrigger>(GetMapId(),
-        areaTriggerTemplate->Id, GetMap()->GenerateLowGuid<HighGuid::AreaTrigger>()));
+    Object::_Create(ObjectGuid::Create<HighGuid::AreaTrigger>(GetMapId(), areaTriggerTemplate->Id.Id, GetMap()->GenerateLowGuid<HighGuid::AreaTrigger>()));
 
-    SetEntry(areaTriggerTemplate->Id);
+    SetEntry(areaTriggerTemplate->Id.Id);
 
     SetObjectScale(1.0f);
 
-    if (position.PhaseId || position.PhaseGroup || position.PhaseUseFlags)
+    if (position.PhaseUseFlags || position.PhaseId || position.PhaseGroup)
         PhasingHandler::InitDbPhaseShift(GetPhaseShift(), position.PhaseUseFlags, position.PhaseId, position.PhaseGroup);
 
     UpdateShape();
 
     AI_Initialize();
+
+    _ai->OnCreate();
 
     return true;
 }
@@ -265,33 +264,30 @@ void AreaTrigger::Update(uint32 diff)
     WorldObject::Update(diff);
     _timeSinceCreated += diff;
 
-    if (IsServerSide())
+    if (!IsServerSide())
     {
-        UpdateTargetList();
-        return;
-    }
-
-    // "If" order matter here, Orbit > Attached > Splines
-    if (HasOrbit())
-    {
-        UpdateOrbitPosition(diff);
-    }
-    else if (GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_ATTACHED))
-    {
-        if (Unit* target = GetTarget())
-            GetMap()->AreaTriggerRelocation(this, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation());
-    }
-    else
-        UpdateSplinePosition(diff);
-
-    if (GetDuration() != -1)
-    {
-        if (GetDuration() > int32(diff))
-            _UpdateDuration(_duration - diff);
-        else
+        // "If" order matter here, Orbit > Attached > Splines
+        if (HasOrbit())
         {
-            Remove(); // expired
-            return;
+            UpdateOrbitPosition(diff);
+        }
+        else if (GetTemplate()->HasFlag(AREATRIGGER_FLAG_HAS_ATTACHED))
+        {
+            if (Unit* target = GetTarget())
+                GetMap()->AreaTriggerRelocation(this, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation());
+        }
+        else
+            UpdateSplinePosition(diff);
+
+        if (GetDuration() != -1)
+        {
+            if (GetDuration() > int32(diff))
+                _UpdateDuration(_duration - diff);
+            else
+            {
+                Remove(); // expired
+                return;
+            }
         }
     }
 
@@ -460,7 +456,7 @@ void AreaTrigger::HandleUnitEnterExit(std::list<Unit*> const& newTargetList)
     {
         if (Player* player = unit->ToPlayer())
             if (player->isDebugAreaTriggers)
-                ChatHandler(player->GetSession()).PSendSysMessage(LANG_DEBUG_AREATRIGGER_ENTERED, GetTemplate()->Id);
+                ChatHandler(player->GetSession()).PSendSysMessage(LANG_DEBUG_AREATRIGGER_ENTERED, GetTemplate()->Id.Id);
 
         DoActions(unit);
 
@@ -473,7 +469,7 @@ void AreaTrigger::HandleUnitEnterExit(std::list<Unit*> const& newTargetList)
         {
             if (Player* player = leavingUnit->ToPlayer())
                 if (player->isDebugAreaTriggers)
-                    ChatHandler(player->GetSession()).PSendSysMessage(LANG_DEBUG_AREATRIGGER_LEFT, GetTemplate()->Id);
+                    ChatHandler(player->GetSession()).PSendSysMessage(LANG_DEBUG_AREATRIGGER_LEFT, GetTemplate()->Id.Id);
 
             UndoActions(leavingUnit);
 
@@ -872,7 +868,7 @@ void AreaTrigger::UpdateSplinePosition(uint32 diff)
         if (progress < 0.f || progress > 1.f)
         {
             TC_LOG_ERROR("entities.areatrigger", "AreaTrigger (Id: %u, SpellMiscId: %u) has wrong progress (%f) caused by curve calculation (MoveCurveId: %u)",
-                GetTemplate()->Id, GetMiscTemplate()->MiscId, progress, GetMiscTemplate()->MorphCurveId);
+                GetTemplate()->Id.Id, GetMiscTemplate()->MiscId, progress, GetMiscTemplate()->MorphCurveId);
         }
         else
             currentTimePercent = progress;

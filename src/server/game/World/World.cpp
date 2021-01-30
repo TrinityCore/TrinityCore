@@ -2034,6 +2034,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading AreaTrigger Templates...");
     sAreaTriggerDataStore->LoadAreaTriggerTemplates();
 
+    TC_LOG_INFO("server.loading", "Loading AreaTrigger Spawns...");
+    sAreaTriggerDataStore->LoadAreaTriggerSpawns();
+
     TC_LOG_INFO("server.loading", "Loading Conversation Templates...");
     sConversationDataStore->LoadConversationTemplates();
 

@@ -192,13 +192,12 @@ void ObjectGridLoader::Visit(CreatureMapType &m)
     LoadHelper(cell_guids.creatures, cellCoord, m, i_creatures, i_map);
 }
 
-void ObjectGridLoader::Visit(AreaTriggerMapType &m)
+void ObjectGridLoader::Visit(AreaTriggerMapType& m)
 {
     CellCoord cellCoord = i_cell.GetCellCoord();
     CellGuidSet const* areaTriggers = sAreaTriggerDataStore->GetAreaTriggersForMapAndCell(i_map->GetId(), cellCoord.GetId());
-    if (!areaTriggers)
-        return;
-    LoadHelper(*areaTriggers, cellCoord, m, i_areaTriggers, i_map);
+    if (areaTriggers)
+        LoadHelper(*areaTriggers, cellCoord, m, i_areaTriggers, i_map);
 }
 
 void ObjectWorldLoader::Visit(CorpseMapType& /*m*/)
