@@ -460,6 +460,8 @@ struct TC_GAME_API CastSpellExtraArgs
         friend struct CastSpellExtraArgs;
         friend class WorldObject;
 
+        void Clear() { data.clear(); }
+
     private:
         void AddMod(SpellValueMod mod, int32 val) { data.push_back({ mod, val }); }
 
