@@ -1667,7 +1667,6 @@ void World::LoadConfigSettings(bool reload)
     m_float_configs[CONFIG_CALL_TO_ARMS_5_PCT] = sConfigMgr->GetFloatDefault("Pvp.FactionBalance.Pct5", 0.6f);
     m_float_configs[CONFIG_CALL_TO_ARMS_10_PCT] = sConfigMgr->GetFloatDefault("Pvp.FactionBalance.Pct10", 0.7f);
     m_float_configs[CONFIG_CALL_TO_ARMS_20_PCT] = sConfigMgr->GetFloatDefault("Pvp.FactionBalance.Pct2", 0.8f);
-    m_float_configs[CONFIG_OVERWHELMING_ODDS_PCT] = sConfigMgr->GetFloatDefault("Pvp.FactionBalance.Overwhelming", 0.9f);
 
     // call ScriptMgr if we're reloading the configuration
     if (reload)
@@ -3861,7 +3860,6 @@ uint8 GetFactionOutnumberedRewardEffectValue(FactionOutnumberReward reward)
     uint8 baseValue = 10;
     switch (reward)
     {
-        case FactionOutnumberReward::Overwhelming:
         case FactionOutnumberReward::Percent20: return baseValue + 20;
         case FactionOutnumberReward::Percent10: return baseValue + 10;
         case FactionOutnumberReward::Percent5: return baseValue + 5;
@@ -3873,6 +3871,7 @@ uint8 GetFactionOutnumberedRewardEffectValue(FactionOutnumberReward reward)
 void World::UpdateFactionBalanceRewardSpellValues()
 {
     FactionOutnumberReward reward = _hasForcedFactionBalance ? _forcedFactionBalanceReward : _currentFactionBalanceReward;
+    // bool giveOverwhelmingQuest = reward == FactionOutnumberReward::Percent10 || reward == FactionOutnumberReward::Percent20;
 
     uint8 effectsValue = GetFactionOutnumberedRewardEffectValue(reward);
     SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(WARMODE_ENLISTED_SPELL_OUTSIDE, DIFFICULTY_NONE);
@@ -3928,12 +3927,9 @@ void World::UpdateFactionBalance()
     float callToArmsPct5 = sWorld->getFloatConfig(CONFIG_CALL_TO_ARMS_5_PCT);
     float callToArmsPct10 = sWorld->getFloatConfig(CONFIG_CALL_TO_ARMS_10_PCT);
     float callToArmsPct20 = sWorld->getFloatConfig(CONFIG_CALL_TO_ARMS_20_PCT);
-    float overwhelmingOdds = sWorld->getFloatConfig(CONFIG_OVERWHELMING_ODDS_PCT);
-
 
     TeamId factionBalance = (pct >= callToArmsPct5) ? bigTeam : TEAM_NEUTRAL;
-    FactionOutnumberReward reward = (overwhelmingOdds >= pct) ? FactionOutnumberReward::Overwhelming :
-        (callToArmsPct20 >= pct) ? FactionOutnumberReward::Percent20 :
+    FactionOutnumberReward reward = (callToArmsPct20 >= pct) ? FactionOutnumberReward::Percent20 :
         (callToArmsPct10 >= pct) ? FactionOutnumberReward::Percent10 :
         (callToArmsPct5 >= pct) ? FactionOutnumberReward::Percent5 :
         FactionOutnumberReward::None;

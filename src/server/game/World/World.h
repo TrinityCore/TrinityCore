@@ -222,7 +222,6 @@ enum WorldFloatConfigs
     CONFIG_CALL_TO_ARMS_5_PCT,
     CONFIG_CALL_TO_ARMS_10_PCT,
     CONFIG_CALL_TO_ARMS_20_PCT,
-    CONFIG_OVERWHELMING_ODDS_PCT,
     FLOAT_CONFIG_VALUE_COUNT
 };
 
@@ -580,7 +579,6 @@ enum class FactionOutnumberReward
     Percent5,
     Percent10,
     Percent20,
-    Overwhelming,
     MAX,
 };
 
