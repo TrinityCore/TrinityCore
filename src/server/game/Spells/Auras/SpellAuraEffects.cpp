@@ -6395,18 +6395,10 @@ void AuraEffect::HandleBattlegroundPlayerPosition(AuraApplication const* aurApp,
         else
             TC_LOG_WARN("spell.auras", "Unknown aura effect %u handled by HandleBattlegroundPlayerPosition.", GetAuraType());
 
-        bg->GetPlayerPositions().push_back(playerPosition);
+        bg->AddPlayerPosition(playerPosition);
     }
     else
-    {
-        ObjectGuid const& guid = target->GetGUID();
-        auto const& itr = std::remove_if(bg->GetPlayerPositions().begin(), bg->GetPlayerPositions().end(), [guid](WorldPackets::Battleground::BattlegroundPlayerPosition const info)
-        {
-            return info.Guid == guid;
-        });
-
-        bg->GetPlayerPositions().erase(itr, bg->GetPlayerPositions().end());
-    }
+        bg->RemovePlayerPosition(target->GetGUID());
 }
 
 template TC_GAME_API void AuraEffect::GetTargetList(std::list<Unit*>&) const;
