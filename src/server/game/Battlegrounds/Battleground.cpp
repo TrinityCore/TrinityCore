@@ -1678,6 +1678,11 @@ void Battleground::PSendMessageToAll(uint32 entry, ChatMsg msgType, Player const
     va_end(ap);
 }
 
+std::vector<WorldPackets::Battleground::BattlegroundPlayerPosition>& Battleground::GetPlayerPositions()
+{
+    return _playerPositions;
+}
+
 void Battleground::EndNow()
 {
     RemoveFromBGFreeSlotQueue();
@@ -1896,6 +1901,11 @@ BattlegroundBracketId Battleground::GetBracketId() const
 uint8 Battleground::GetUniqueBracketId() const
 {
     return uint8(GetMinLevel() / 5) - 1; // 10 - 1, 15 - 2, 20 - 3, etc.
+}
+
+std::vector<WorldPackets::Battleground::BattlegroundPlayerPosition> const& Battleground::GetPlayerPositions() const
+{
+    return _playerPositions;
 }
 
 uint32 Battleground::GetMaxPlayers() const
