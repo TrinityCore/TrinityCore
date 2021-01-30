@@ -85,6 +85,17 @@ constexpr WorldIntConfigs GetWardenCategoryCountConfig(WardenCheckCategory categ
     }
 }
 
+constexpr bool IsWardenCategoryInWorldOnly(WardenCheckCategory category)
+{
+    switch (category)
+    {
+        case INJECT_CHECK_CATEGORY: return false;
+        case LUA_CHECK_CATEGORY:    return true;
+        case MODDED_CHECK_CATEGORY: return false;
+        default:                    return false;
+    }
+}
+
 struct WardenCheck
 {
     uint16 CheckId = 0;
