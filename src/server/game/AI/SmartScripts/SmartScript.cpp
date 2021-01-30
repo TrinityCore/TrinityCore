@@ -2170,7 +2170,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             for (WorldObject* const target : targets)
             {
                 if (IsCreature(target))
-                    target->ToCreature()->SetCorpseDelay(e.action.corpseDelay.timer);
+                    target->ToCreature()->SetCorpseDelay(e.action.corpseDelay.timer, !e.action.corpseDelay.includeDecayRatio);
             }
 
             break;
