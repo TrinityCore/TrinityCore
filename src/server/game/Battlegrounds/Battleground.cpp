@@ -1685,7 +1685,7 @@ void Battleground::AddPlayerPosition(WorldPackets::Battleground::BattlegroundPla
 
 void Battleground::RemovePlayerPosition(ObjectGuid guid)
 {
-    auto const& itr = std::remove_if(_playerPositions.begin(), _playerPositions.end(), [guid](WorldPackets::Battleground::BattlegroundPlayerPosition const info)
+    auto itr = std::remove_if(_playerPositions.begin(), _playerPositions.end(), [guid](WorldPackets::Battleground::BattlegroundPlayerPosition const info)
     {
         return info.Guid == guid;
     });
