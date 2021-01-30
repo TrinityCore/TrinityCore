@@ -1143,6 +1143,7 @@ struct SmartAction
         struct
         {
             uint32 timer;
+            uint32 includeDecayRatio;
         } corpseDelay;
 
         struct
