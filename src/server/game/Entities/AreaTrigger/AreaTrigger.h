@@ -118,12 +118,13 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         float GetProgress() const;
 
         void UpdateTargetList();
-        void SearchUnitInSphere(std::list<Unit*>& targetList);
-        void SearchUnitInBox(std::list<Unit*>& targetList);
-        void SearchUnitInPolygon(std::list<Unit*>& targetList);
-        void SearchUnitInCylinder(std::list<Unit*>& targetList);
+        void SearchUnits(std::vector<Unit*>& targetList, float radius, bool check3D);
+        void SearchUnitInSphere(std::vector<Unit*>& targetList);
+        void SearchUnitInBox(std::vector<Unit*>& targetList);
+        void SearchUnitInPolygon(std::vector<Unit*>& targetList);
+        void SearchUnitInCylinder(std::vector<Unit*>& targetList);
         bool CheckIsInPolygon2D(Position const* pos) const;
-        void HandleUnitEnterExit(std::list<Unit*> const& targetList);
+        void HandleUnitEnterExit(std::vector<Unit*> const& targetList);
 
         void DoActions(Unit* unit);
         void UndoActions(Unit* unit);
