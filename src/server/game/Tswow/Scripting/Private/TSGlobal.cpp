@@ -43,5 +43,5 @@ void SendMail(uint8 senderType, uint64 from, uint64 to, TSString subject, TSStri
 
 void SendWorldMessage(TSString string)
 {
-    sWorld->SendServerMessage(SERVER_MSG_STRING, message);
+    sWorld->SendServerMessage(SERVER_MSG_STRING, string);
 }

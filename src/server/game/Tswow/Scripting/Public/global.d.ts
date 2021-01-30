@@ -6565,6 +6565,7 @@ declare class TSMailDraft {
 
 // Global.h
 declare function SendMail(senderType: uint8, from: uint64, subject: string, body: string, money?: uint32, cod?: uint32, delay?: uint32, items?: TSArray<TSItem>);
+declare function SendWorldMessage(message: TSString);
 // end of Global.h
 
 declare function MakeDictionary<K,V>(obj: {[key: string]: V}) : TSDictionary<K,V>
