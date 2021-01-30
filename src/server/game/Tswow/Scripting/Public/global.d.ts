@@ -4115,7 +4115,7 @@ declare class TSVehicle {
 declare class TSStorage {
     SetObject<T>(modid: uint32, key: string, obj: T): T;
     HasObject(modid: uint32, key: string): boolean;
-    GetObject<T>(modid: uint32, key: string, creator: ()=>T): T;
+    GetObject<T>(modid: uint32, key: string, creator?: ()=>T): T;
 
     SetInt(key: string, value: uint32): uint32;
     HasInt(key: string): boolean;

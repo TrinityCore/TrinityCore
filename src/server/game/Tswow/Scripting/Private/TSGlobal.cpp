@@ -19,6 +19,7 @@
 #include "Mail.h"
 #include "Item.h"
 #include "Player.h"
+#include "World.h"
 
 void SendMail(uint8 senderType, uint64 from, uint64 to, TSString subject, TSString body, uint32 money, uint32 cod, uint32 delay, TSArray<TSItem> items)
 {
@@ -38,4 +39,9 @@ void SendMail(uint8 senderType, uint64 from, uint64 to, TSString subject, TSStri
 
     draft.SendMailTo(trans,MailReceiver(player,ObjectGuid(to)),sender, MAIL_CHECK_MASK_NONE, delay);
     CharacterDatabase.CommitTransaction(trans);
+}
+
+void SendWorldMessage(TSString string)
+{
+    sWorld->SendServerMessage(SERVER_MSG_STRING, message);
 }

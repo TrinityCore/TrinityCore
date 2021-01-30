@@ -22,3 +22,4 @@
 #include "TSString.h"
 
 void TC_GAME_API SendMail(uint8 senderType, uint64 from, uint64 to, TSString subject, TSString body, uint32 money, uint32 cod, uint32 delay, TSArray<TSItem> items);
+void TC_GAME_API SendWorldMessage(TSString string);
