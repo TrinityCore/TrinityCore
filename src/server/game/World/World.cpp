@@ -3887,8 +3887,6 @@ void World::UpdateFactionBalanceRewardSpellValues()
 
 void World::UpdateFactionBalance()
 {
-    uint8 maxPlayerLevel = sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) - sWorld->getIntConfig(CONFIG_FACTION_BALANCE_LEVEL_CHECK_DIFF);
-
     // race, level
     QueryResult result = CharacterDatabase.Query(m_factionBalanceQuery.c_str());
     if (!result)
