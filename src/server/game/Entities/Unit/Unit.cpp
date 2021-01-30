@@ -5586,8 +5586,6 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
     if (creature && !IsControlledByPlayer())
     {
         EngageWithTarget(victim); // ensure that anything we're attacking has threat
-
-        creature->SendAIReaction(AI_REACTION_HOSTILE);
         creature->CallAssistance();
 
         // Remove emote state - will be restored on creature reset
