@@ -25,7 +25,6 @@
 class AccountMgr;
 class AreaTrigger;
 class AreaTriggerAI;
-class AreaTriggerTemplate;
 class AuctionHouseObject;
 class Aura;
 class AuraScript;
@@ -450,7 +449,6 @@ class TC_GAME_API AreaTriggerScript : public ScriptObject
 
         // Called when the area trigger is activated by a player.
         virtual bool OnTrigger(Player* /*player*/, AreaTriggerEntry const* /*trigger*/, bool /*entered*/) { return false; }
-        virtual bool OnTriggerServer(Player* /*player*/, AreaTriggerTemplate const* /*triggerTemplate*/, bool /*entered*/) { return false; }
 };
 
 class TC_GAME_API OnlyOnceAreaTriggerScript : public AreaTriggerScript

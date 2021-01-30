@@ -32,7 +32,7 @@ class TC_GAME_API ObjectGridLoader
 
     public:
         ObjectGridLoader(NGridType& grid, Map* map, Cell const& cell)
-            : i_cell(cell), i_grid(grid), i_map(map), i_gameObjects(0), i_creatures(0), i_corpses (0)
+            : i_cell(cell), i_grid(grid), i_map(map), i_gameObjects(0), i_creatures(0), i_corpses(0), i_areaTriggers(0)
             { }
 
         void Visit(GameObjectMapType &m);

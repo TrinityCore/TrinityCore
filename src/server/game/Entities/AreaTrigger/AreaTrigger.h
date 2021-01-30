@@ -61,16 +61,17 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
 
         AreaTriggerAI* AI() { return _ai.get(); }
 
-        bool IsServerSide() const { return _areaTriggerTemplate->IsServerSide; }
+        bool IsServerSide() const { return _areaTriggerTemplate->Id.IsServerSide; }
 
         bool IsNeverVisibleFor(WorldObject const* /*seer*/) const override { return IsServerSide(); }
 
     private:
         bool Create(uint32 spellMiscId, Unit* caster, Unit* target, SpellInfo const* spell, Position const& pos, int32 duration, SpellCastVisual spellVisual, ObjectGuid const& castId, AuraEffect const* aurEff);
-        bool CreateServer(Map* map, AreaTriggerTemplate const* areaTriggerTemplate, AreaTriggerServerPosition const& position);
+        bool CreateServer(Map* map, AreaTriggerTemplate const* areaTriggerTemplate, AreaTriggerSpawn const& position);
 
     public:
         static AreaTrigger* CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* target, SpellInfo const* spell, Position const& pos, int32 duration, SpellCastVisual spellVisual, ObjectGuid const& castId = ObjectGuid::Empty, AuraEffect const* aurEff = nullptr);
+        bool LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap, bool allowDuplicate);
 
         void Update(uint32 diff) override;
         void Remove();
@@ -111,7 +112,6 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
 
         UF::UpdateField<UF::AreaTriggerData, 0, TYPEID_AREATRIGGER> m_areaTriggerData;
 
-        bool LoadFromDB(uint32 spawnId, Map* map, bool addToMap, bool allowDuplicate);
 
     protected:
         void _UpdateDuration(int32 newDuration);
@@ -159,11 +159,10 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         Optional<AreaTriggerOrbitInfo> _orbitInfo;
 
         AreaTriggerMiscTemplate const* _areaTriggerMiscTemplate;
+        AreaTriggerTemplate const* _areaTriggerTemplate;
         GuidUnorderedSet _insideUnits;
 
         std::unique_ptr<AreaTriggerAI> _ai;
-
-        AreaTriggerTemplate const* _areaTriggerTemplate;
 };
 
 #endif

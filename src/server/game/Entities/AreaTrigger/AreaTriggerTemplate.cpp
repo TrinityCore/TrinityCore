@@ -28,12 +28,11 @@ AreaTriggerScaleInfo::AreaTriggerScaleInfo()
 
 AreaTriggerTemplate::AreaTriggerTemplate()
 {
-    Id = 0;
+    Id = { 0, false };
     Type = AREATRIGGER_TYPE_MAX;
     Flags = 0;
     ScriptId = 0;
     MaxSearchRadius = 0.0f;
-    IsServerSide = false;
 
     memset(DefaultDatas.Data, 0, sizeof(DefaultDatas.Data));
 }
