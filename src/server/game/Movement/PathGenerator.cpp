@@ -622,6 +622,10 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
 
 void PathGenerator::NormalizePath()
 {
+    if (Creature const* creature = _source->ToCreature())
+        if (creature->GetMovementTemplate().ShouldSkipHeightNormalization())
+            return;
+
     for (uint32 i = 0; i < _pathPoints.size(); ++i)
         _source->UpdateAllowedPositionZ(_pathPoints[i].x, _pathPoints[i].y, _pathPoints[i].z);
 }

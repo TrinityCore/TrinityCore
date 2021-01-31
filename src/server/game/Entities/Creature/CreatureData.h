@@ -122,11 +122,13 @@ struct TC_GAME_API CreatureMovementData
     CreatureChaseMovementType Chase;
     CreatureRandomMovementType Random;
     uint32 InteractionPauseTimer;
+    bool SkipHeightNormalization;
 
     bool IsGroundAllowed() const { return Ground != CreatureGroundMovementType::None; }
     bool IsSwimAllowed() const { return Swim; }
     bool IsFlightAllowed() const { return Flight != CreatureFlightMovementType::None; }
     bool IsRooted() const { return Rooted; }
+    bool ShouldSkipHeightNormalization() const { return SkipHeightNormalization; }
 
     CreatureChaseMovementType GetChase() const { return Chase; }
     CreatureRandomMovementType GetRandom() const { return Random; }
