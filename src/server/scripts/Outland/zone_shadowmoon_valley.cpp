@@ -58,6 +58,8 @@ enum InvisInfernalCaster
     MODEL_INVISIBLE            = 20577,
     MODEL_INFERNAL             = 17312,
     SPELL_SUMMON_INFERNAL      = 37277,
+    SPELL_SPAWN_AND_PACIFY     = 37791,
+    SPELL_TRANSFORM_INFERNAL   = 37794,
     TYPE_INFERNAL              = 1,
     DATA_DIED                  = 1
 };
@@ -152,7 +154,8 @@ public:
         void IsSummonedBy(WorldObject* summoner) override
         {
             if (summoner->ToCreature())
-                casterGUID = summoner->ToCreature()->GetGUID();;
+                casterGUID = summoner->ToCreature()->GetGUID();
+            DoCastSelf(SPELL_SPAWN_AND_PACIFY);
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -165,9 +168,12 @@ public:
         {
             if (spellInfo->Id == SPELL_SUMMON_INFERNAL)
             {
-                me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_PACIFIED | UNIT_FLAG_NOT_SELECTABLE));
+                me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                 me->SetImmuneToPC(false);
+                me->RemoveAurasDueToSpell(SPELL_SPAWN_AND_PACIFY);
+                // handle by the spell below when such auras will be not removed after evade
                 me->SetDisplayId(MODEL_INFERNAL);
+                // DoCastSelf(SPELL_TRANSFORM_INFERNAL);
             }
         }
 
