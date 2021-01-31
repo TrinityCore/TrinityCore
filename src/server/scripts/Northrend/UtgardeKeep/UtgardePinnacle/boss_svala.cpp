@@ -376,7 +376,6 @@ class boss_svala : public CreatureScript
                             break;
                         case EVENT_FINISH_RITUAL:
                             me->SetDisableGravity(false, true);
-                            me->GetMotionMaster()->MoveFall();
                             me->SetReactState(REACT_AGGRESSIVE);
                             if (Unit* target = me->SelectNearestPlayer(100.0f))
                             {
