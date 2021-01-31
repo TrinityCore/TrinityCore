@@ -349,6 +349,8 @@ class boss_svala : public CreatureScript
                             {
                                 me->InterruptNonMeleeSpells(true);
                                 me->SetReactState(REACT_PASSIVE);
+                                me->AttackStop();
+                                me->StopMoving();
                                 me->SetDisableGravity(true, true);
                                 instance->SetGuidData(DATA_SACRIFICED_PLAYER, sacrificeTarget->GetGUID());
                                 Talk(SAY_SACRIFICE_PLAYER);
@@ -359,9 +361,6 @@ class boss_svala : public CreatureScript
                             events.ScheduleEvent(EVENT_FINISH_RITUAL, 26s, 0);
                             break;
                         case EVENT_SPAWN_RITUAL_CHANNELERS:
-                            me->GetMotionMaster()->Clear();
-                            me->GetMotionMaster()->MoveIdle();
-                            me->StopMoving();
                             DoCast(me, SPELL_RITUAL_CHANNELER_1, true);
                             DoCast(me, SPELL_RITUAL_CHANNELER_2, true);
                             DoCast(me, SPELL_RITUAL_CHANNELER_3, true);
@@ -378,10 +377,7 @@ class boss_svala : public CreatureScript
                             me->SetDisableGravity(false, true);
                             me->SetReactState(REACT_AGGRESSIVE);
                             if (Unit* target = me->SelectNearestPlayer(100.0f))
-                            {
                                 AttackStart(target);
-                                me->GetMotionMaster()->MoveChase(target);
-                            }
                             events.SetPhase(NORMAL);
                             events.ScheduleEvent(EVENT_SINISTER_STRIKE, 7s, 0, NORMAL);
                             events.ScheduleEvent(EVENT_CALL_FLAMES, 10s, 20s, 0, NORMAL);
