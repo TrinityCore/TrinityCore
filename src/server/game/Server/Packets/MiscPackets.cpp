@@ -711,3 +711,13 @@ WorldPacket const* WorldPackets::Misc::StartTimer::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Misc::AdventureJournalOpenQuest::Read()
+{
+    _worldPacket >> AdventureJournalID;
+}
+
+void WorldPackets::Misc::AdventureJournalStartQuest::Read()
+{
+    _worldPacket >> QuestID;
+}

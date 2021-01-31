@@ -1144,3 +1144,22 @@ void WorldSession::HandleCloseInteraction(WorldPackets::Misc::CloseInteraction& 
     if (_player->PlayerTalkClass->GetInteractionData().SourceGuid == closeInteraction.SourceGuid)
         _player->PlayerTalkClass->GetInteractionData().Reset();
 }
+
+void WorldSession::HandleAdventureJournalOpenQuest(WorldPackets::Misc::AdventureJournalOpenQuest& packet)
+{
+    if (AdventureJournalEntry const* adventureJournalEntry = sAdventureJournalStore.LookupEntry(packet.AdventureJournalID))
+        if (Quest const* quest = sObjectMgr->GetQuestTemplate(adventureJournalEntry->QuestID))
+            if (!_player->hasQuest(adventureJournalEntry->QuestID) && _player->CanTakeQuest(quest, true))
+                if (WorldSession* session = _player->GetSession())
+                {
+                    PlayerMenu menu(session);
+                    menu.SendQuestGiverQuestDetails(quest, _player->GetGUID(), true, false);
+                }
+}
+
+void WorldSession::HandleAdventureJournalStartQuest(WorldPackets::Misc::AdventureJournalStartQuest& packet)
+{
+    if (Quest const* quest = sObjectMgr->GetQuestTemplate(packet.QuestID))
+        if (!_player->hasQuest(packet.QuestID))
+            _player->AddQuestAndCheckCompletion(quest, nullptr);
+}
