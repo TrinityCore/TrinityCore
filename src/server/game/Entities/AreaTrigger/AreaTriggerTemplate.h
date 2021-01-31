@@ -72,17 +72,10 @@ enum AreaTriggerActionUserTypes
     AREATRIGGER_ACTION_USER_MAX    = 6
 };
 
-struct AreaTriggerServerPosition
+struct AreaTriggerId
 {
-    uint64 SpawnId;
-    uint32 Id;
-    bool IsServer;
-    WorldLocation Location;
-    uint32 PhaseId;
-    uint32 PhaseGroup;
-    uint8 PhaseUseFlags;
-
-    AreaTriggerServerPosition() : SpawnId(0), Id(0), IsServer(false), Location(), PhaseId(0), PhaseGroup(0), PhaseUseFlags(0) { }
+    uint32 Id = 0;
+    bool IsServerSide = false;
 };
 
 struct AreaTriggerAction
@@ -152,7 +145,7 @@ public:
 
     void InitMaxSearchRadius();
 
-    uint32 Id;
+    AreaTriggerId Id;
     AreaTriggerTypes Type;
     uint32 Flags;
     uint32 ScriptId;
@@ -160,7 +153,6 @@ public:
     std::vector<TaggedPosition<Position::XY>> PolygonVertices;
     std::vector<TaggedPosition<Position::XY>> PolygonVerticesTarget;
     std::vector<AreaTriggerAction> Actions;
-    bool IsServerSide;
 
     union
     {
@@ -233,6 +225,16 @@ public:
 
     AreaTriggerTemplate const* Template;
     std::vector<Position> SplinePoints;
+};
+
+struct AreaTriggerSpawn
+{
+    ObjectGuid::LowType SpawnId = 0;
+    AreaTriggerId Id;
+    WorldLocation Location;
+    uint32 PhaseId = 0;
+    uint32 PhaseGroup = 0;
+    uint8 PhaseUseFlags = 0;
 };
 
 #endif
