@@ -164,7 +164,7 @@ class boss_svala : public CreatureScript
                 else
                     events.SetPhase(IDLE);
 
-                me->SetDisableGravity(false);
+                me->SetDisableGravity(false, true);
 
                 Initialize();
 
