@@ -29136,10 +29136,10 @@ void Player::UpdateWarModeAuras()
             RemoveAurasDueToSpell(auraInside);
 
             TeamId team = sWorld->GetCurrentFactionBalanceTeam();
-            if (GetTeamId() == team)
-                CastSpell(this, IsAtMaxLevel() ? auraOutsideMaxLvl : auraOutside, sWorld->GetCurrentFactionBalanceRewardSpellValues());
-            else
+            if (GetTeamId() != team)
                 CastSpell(this, IsAtMaxLevel() ? auraOutsideMaxLvl : auraOutside, true);
+            else
+                CastSpell(this, IsAtMaxLevel() ? auraOutsideMaxLvl : auraOutside, sWorld->GetCurrentFactionBalanceRewardSpellValues());
 
             AddPlayerFlag(PLAYER_FLAGS_WAR_MODE_ACTIVE);
         }

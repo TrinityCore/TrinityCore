@@ -826,6 +826,8 @@ class TC_GAME_API World
 
         CastSpellExtraArgs const& GetCurrentFactionBalanceRewardSpellValues() { return _currentFactionBalanceRewardSpellValues; }
         TeamId GetCurrentFactionBalanceTeam() const { return _hasForcedFactionBalance ? _forcedFactionBalance : _currentFactionBalance; }
+        FactionOutnumberReward GetCurrentFactionBalanceReward() const { return _hasForcedFactionBalance ? _forcedFactionBalanceReward : _currentFactionBalanceReward; }
+        bool IsCurrentFactionBalanceRewardIncludeOverwhelming() const { return GetCurrentFactionBalanceReward() == FactionOutnumberReward::Percent10 || GetCurrentFactionBalanceReward() == FactionOutnumberReward::Percent20; }
 
         void SetFactionBalanceForce(TeamId team, FactionOutnumberReward reward = FactionOutnumberReward::None);
         void SetFactionBalanceForceOff();
