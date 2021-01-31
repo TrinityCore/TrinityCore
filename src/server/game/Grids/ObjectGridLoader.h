@@ -37,9 +37,9 @@ class TC_GAME_API ObjectGridLoader
 
         void Visit(GameObjectMapType &m);
         void Visit(CreatureMapType &m);
+        void Visit(AreaTriggerMapType &m);
         void Visit(CorpseMapType &) const { }
         void Visit(DynamicObjectMapType&) const { }
-        void Visit(AreaTriggerMapType &) const { }
         void Visit(ConversationMapType &) const { }
 
         void LoadN(void);
@@ -53,6 +53,7 @@ class TC_GAME_API ObjectGridLoader
         uint32 i_gameObjects;
         uint32 i_creatures;
         uint32 i_corpses;
+        uint32 i_areaTriggers;
 };
 
 //Stop the creatures before unloading the NGrid

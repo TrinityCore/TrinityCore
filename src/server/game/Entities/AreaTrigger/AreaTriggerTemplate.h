@@ -55,9 +55,10 @@ enum AreaTriggerTypes
 
 enum AreaTriggerActionTypes
 {
-    AREATRIGGER_ACTION_CAST     = 0,
-    AREATRIGGER_ACTION_ADDAURA  = 1,
-    AREATRIGGER_ACTION_MAX      = 2
+    AREATRIGGER_ACTION_CAST        = 0,
+    AREATRIGGER_ACTION_ADDAURA     = 1,
+    AREATRIGGER_ACTION_TELEPORT    = 2,
+    AREATRIGGER_ACTION_MAX         = 3
 };
 
 enum AreaTriggerActionUserTypes
@@ -69,6 +70,19 @@ enum AreaTriggerActionUserTypes
     AREATRIGGER_ACTION_USER_PARTY  = 4,
     AREATRIGGER_ACTION_USER_CASTER = 5,
     AREATRIGGER_ACTION_USER_MAX    = 6
+};
+
+struct AreaTriggerServerPosition
+{
+    uint64 SpawnId;
+    uint32 Id;
+    bool IsServer;
+    WorldLocation Location;
+    uint32 PhaseId;
+    uint32 PhaseGroup;
+    uint8 PhaseUseFlags;
+
+    AreaTriggerServerPosition() : SpawnId(0), Id(0), IsServer(false), Location(), PhaseId(0), PhaseGroup(0), PhaseUseFlags(0) { }
 };
 
 struct AreaTriggerAction
@@ -146,6 +160,7 @@ public:
     std::vector<TaggedPosition<Position::XY>> PolygonVertices;
     std::vector<TaggedPosition<Position::XY>> PolygonVerticesTarget;
     std::vector<AreaTriggerAction> Actions;
+    bool IsServerSide;
 
     union
     {

@@ -33,6 +33,7 @@ AreaTriggerTemplate::AreaTriggerTemplate()
     Flags = 0;
     ScriptId = 0;
     MaxSearchRadius = 0.0f;
+    IsServerSide = false;
 
     memset(DefaultDatas.Data, 0, sizeof(DefaultDatas.Data));
 }
