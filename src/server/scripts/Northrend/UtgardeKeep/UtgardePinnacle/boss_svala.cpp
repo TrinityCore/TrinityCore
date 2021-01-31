@@ -119,7 +119,6 @@ enum Events
     //SACRIFICING
     EVENT_SPAWN_RITUAL_CHANNELERS,
     EVENT_RITUAL_STRIKE,
-    EVENT_RITUAL_DISARM,
     EVENT_FINISH_RITUAL
 };
 
@@ -355,10 +354,11 @@ class boss_svala : public CreatureScript
                                 instance->SetGuidData(DATA_SACRIFICED_PLAYER, sacrificeTarget->GetGUID());
                                 Talk(SAY_SACRIFICE_PLAYER);
                                 DoCast(sacrificeTarget, SPELL_RITUAL_PREPARATION);
+                                DoCast(me, SPELL_RITUAL_DISARM);
                                 DoCast(me, SPELL_RITUAL_OF_THE_SWORD);
                             }
                             events.ScheduleEvent(EVENT_SPAWN_RITUAL_CHANNELERS, 1s, 0, SACRIFICING);
-                            events.ScheduleEvent(EVENT_FINISH_RITUAL, 26s, 0);
+                            events.ScheduleEvent(EVENT_FINISH_RITUAL, 27s, 0);
                             break;
                         case EVENT_SPAWN_RITUAL_CHANNELERS:
                             DoCast(me, SPELL_RITUAL_CHANNELER_1, true);
@@ -368,10 +368,6 @@ class boss_svala : public CreatureScript
                             break;
                         case EVENT_RITUAL_STRIKE:
                             DoCast(me, SPELL_RITUAL_STRIKE_TRIGGER, true);
-                            events.ScheduleEvent(EVENT_RITUAL_DISARM, 200ms, 0, SACRIFICING);
-                            break;
-                        case EVENT_RITUAL_DISARM:
-                            DoCast(me, SPELL_RITUAL_DISARM);
                             break;
                         case EVENT_FINISH_RITUAL:
                             me->SetDisableGravity(false, true);
