@@ -159,8 +159,6 @@ class boss_svala : public CreatureScript
             {
                 _Reset();
 
-                SetCombatMovement(true);
-
                 if (_introCompleted)
                     events.SetPhase(NORMAL);
                 else
@@ -349,26 +347,27 @@ class boss_svala : public CreatureScript
                         case EVENT_RITUAL_PREPARATION:
                             if (Unit* sacrificeTarget = SelectTarget(SelectTargetMethod::Random, 0, 80.0f, true))
                             {
+                                me->InterruptNonMeleeSpells(true);
+                                me->SetReactState(REACT_PASSIVE);
                                 me->SetDisableGravity(true, true);
                                 instance->SetGuidData(DATA_SACRIFICED_PLAYER, sacrificeTarget->GetGUID());
                                 Talk(SAY_SACRIFICE_PLAYER);
                                 DoCast(sacrificeTarget, SPELL_RITUAL_PREPARATION);
-                                SetCombatMovement(false);
                                 DoCast(me, SPELL_RITUAL_OF_THE_SWORD);
                             }
                             events.ScheduleEvent(EVENT_SPAWN_RITUAL_CHANNELERS, 1s, 0, SACRIFICING);
-                            events.ScheduleEvent(EVENT_FINISH_RITUAL, 25s, 0);
+                            events.ScheduleEvent(EVENT_FINISH_RITUAL, 26s, 0);
                             break;
                         case EVENT_SPAWN_RITUAL_CHANNELERS:
+                            me->GetMotionMaster()->Clear();
+                            me->GetMotionMaster()->MoveIdle();
+                            me->StopMoving();
                             DoCast(me, SPELL_RITUAL_CHANNELER_1, true);
                             DoCast(me, SPELL_RITUAL_CHANNELER_2, true);
                             DoCast(me, SPELL_RITUAL_CHANNELER_3, true);
                             events.ScheduleEvent(EVENT_RITUAL_STRIKE, 2s, 0, SACRIFICING);
                             break;
                         case EVENT_RITUAL_STRIKE:
-                            me->StopMoving();
-                            me->GetMotionMaster()->MoveIdle();
-                            me->InterruptNonMeleeSpells(true);
                             DoCast(me, SPELL_RITUAL_STRIKE_TRIGGER, true);
                             events.ScheduleEvent(EVENT_RITUAL_DISARM, 200ms, 0, SACRIFICING);
                             break;
@@ -377,11 +376,13 @@ class boss_svala : public CreatureScript
                             break;
                         case EVENT_FINISH_RITUAL:
                             me->SetDisableGravity(false, true);
-                            SetCombatMovement(true);
-
+                            me->GetMotionMaster()->MoveFall();
+                            me->SetReactState(REACT_AGGRESSIVE);
                             if (Unit* target = me->SelectNearestPlayer(100.0f))
+                            {
                                 AttackStart(target);
-
+                                me->GetMotionMaster()->MoveChase(target);
+                            }
                             events.SetPhase(NORMAL);
                             events.ScheduleEvent(EVENT_SINISTER_STRIKE, 7s, 0, NORMAL);
                             events.ScheduleEvent(EVENT_CALL_FLAMES, 10s, 20s, 0, NORMAL);
