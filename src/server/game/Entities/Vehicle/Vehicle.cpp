@@ -856,7 +856,6 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
     if (veSeat->HasFlag(VEHICLE_SEAT_FLAG_PASSENGER_NOT_SELECTABLE))
         Passenger->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-
     float o = veSeatAddon ? veSeatAddon->SeatOrientationOffset : 0.f;
     float x = veSeat->AttachmentOffset.X;
     float y = veSeat->AttachmentOffset.Y;
@@ -952,4 +951,12 @@ bool Vehicle::HasPendingEventForSeat(int8 seatId) const
             return true;
     }
     return false;
+}
+
+Milliseconds Vehicle::GetDespawnDelay()
+{
+    if (VehicleTemplate const* vehicleTemplate = sObjectMgr->GetVehicleTemplate(this))
+        return vehicleTemplate->DespawnDelay;
+
+    return 1ms;
 }

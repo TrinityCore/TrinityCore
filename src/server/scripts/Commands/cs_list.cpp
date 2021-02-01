@@ -633,7 +633,7 @@ public:
                 handler->PSendSysMessage(LANG_LIST_RESPAWNS_ZONE, EnumUtils::ToTitle(type), zoneName, zoneId);
 
             handler->PSendSysMessage(LANG_LIST_RESPAWNS_LISTHEADER);
-            std::vector<RespawnInfo*> respawns;
+            std::vector<RespawnInfo const*> respawns;
             map->GetRespawnInfo(respawns, SpawnObjectTypeMask(1 << type));
             for (RespawnInfo const* ri : respawns)
             {
@@ -665,7 +665,6 @@ public:
         return true;
     }
 };
-
 
 void AddSC_list_commandscript()
 {

@@ -246,13 +246,17 @@ void SmartScript::ProcessEventsFor(SMART_EVENT e, Unit* unit, uint32 var0, uint3
 
 void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, uint32 var1, bool bvar, SpellInfo const* spell, GameObject* gob)
 {
+    e.runOnce = true; //used for repeat check
+
     // calc random
-    if (e.GetEventType() != SMART_EVENT_LINK && e.event.event_chance < 100 && e.event.event_chance)
+    if (e.GetEventType() != SMART_EVENT_LINK && e.event.event_chance < 100 && e.event.event_chance && !(e.event.event_flags & SMART_EVENT_FLAG_TEMP_IGNORE_CHANCE_ROLL))
     {
         if (!roll_chance_i(e.event.event_chance))
             return;
     }
-    e.runOnce = true; //used for repeat check
+
+    // Remove SMART_EVENT_FLAG_TEMP_IGNORE_CHANCE_ROLL flag after processing roll chances as it's not needed anymore
+    e.event.event_flags &= ~SMART_EVENT_FLAG_TEMP_IGNORE_CHANCE_ROLL;
 
     if (unit)
         mLastInvoker = unit->GetGUID();
@@ -601,7 +605,11 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             // If there is at least 1 failed cast and no successful casts at all, retry again on next loop
             if (failedSpellCast && !successfulSpellCast)
-                RaisePriority(e);
+            {
+                RetryLater(e, true);
+                // Don't execute linked events
+                return;
+            }
             break;
         }
         case SMART_ACTION_SELF_CAST:
@@ -1613,15 +1621,19 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             break;
         }
         case SMART_ACTION_TRIGGER_TIMED_EVENT:
+        {
             ProcessEventsFor((SMART_EVENT)SMART_EVENT_TIMED_EVENT_TRIGGERED, nullptr, e.action.timeEvent.id);
 
             // remove this event if not repeatable
             if (e.event.event_flags & SMART_EVENT_FLAG_NOT_REPEATABLE)
                 mRemIDs.push_back(e.action.timeEvent.id);
             break;
+        }
         case SMART_ACTION_REMOVE_TIMED_EVENT:
+        {
             mRemIDs.push_back(e.action.timeEvent.id);
             break;
+        }
         case SMART_ACTION_OVERRIDE_SCRIPT_BASE_OBJECT:
         {
             for (WorldObject* target : targets)
@@ -1650,12 +1662,16 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             break;
         }
         case SMART_ACTION_RESET_SCRIPT_BASE_OBJECT:
+        {
             ResetBaseObject();
             break;
+        }
         case SMART_ACTION_CALL_SCRIPT_RESET:
+        {
             SetPhase(0);
             OnReset();
             break;
+        }
         case SMART_ACTION_SET_RANGED_MOVEMENT:
         {
             if (!IsSmart())
@@ -2295,7 +2311,6 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             ProcessEventsFor((SMART_EVENT)SMART_EVENT_TIMED_EVENT_TRIGGERED, nullptr, eventId);
             break;
         }
-
         case SMART_ACTION_REMOVE_ALL_GAMEOBJECTS:
         {
             for (WorldObject* const target : targets)
@@ -2365,6 +2380,20 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction: SMART_ACTION_OVERRIDE_WEATHER: %s sets zone weather (zoneId: %u, weatherId: %u, intensity: %u)",
                     obj->GetGUID().ToString().c_str(), e.action.overrideWeather.zoneId, e.action.overrideWeather.weatherId, e.action.overrideWeather.intensity);
             }
+            break;
+        }
+        case SMART_ACTION_SET_HOVER:
+        {
+            for (WorldObject* target : targets)
+                if (IsUnit(target))
+                    target->ToUnit()->SetHover(e.action.setHover.enable != 0);
+            break;
+        }
+        case SMART_ACTION_SET_HEALTH_PCT:
+        {
+            for (WorldObject* target : targets)
+                if (Unit* targetUnit = target->ToUnit())
+                    targetUnit->SetHealth(targetUnit->CountPctFromMaxHealth(e.action.setHealthPct.percent));
             break;
         }
         default:
@@ -3775,6 +3804,17 @@ void SmartScript::RaisePriority(SmartScriptHolder& e)
         e.priority = mCurrentPriority++;
         mEventSortingRequired = true;
     }
+}
+
+void SmartScript::RetryLater(SmartScriptHolder& e, bool ignoreChanceRoll)
+{
+    RaisePriority(e);
+
+    // This allows to retry the action later without rolling again the chance roll (which might fail and end up not executing the action)
+    if (ignoreChanceRoll)
+        e.event.event_flags |= SMART_EVENT_FLAG_TEMP_IGNORE_CHANCE_ROLL;
+
+    e.runOnce = false;
 }
 
 void SmartScript::FillScript(SmartAIEventList e, WorldObject* obj, AreaTriggerEntry const* at)

@@ -488,4 +488,3 @@ void Trinity::ChatCommands::InvalidateCommandMap() { Trinity::Impl::ChatCommands
 bool Trinity::ChatCommands::TryExecuteCommand(ChatHandler& handler, std::string_view cmd) { return Trinity::Impl::ChatCommands::ChatCommandNode::TryExecuteCommand(handler, cmd); }
 void Trinity::ChatCommands::SendCommandHelpFor(ChatHandler& handler, std::string_view cmd) { Trinity::Impl::ChatCommands::ChatCommandNode::SendCommandHelpFor(handler, cmd); }
 std::vector<std::string> Trinity::ChatCommands::GetAutoCompletionsFor(ChatHandler const& handler, std::string_view cmd) { return Trinity::Impl::ChatCommands::ChatCommandNode::GetAutoCompletionsFor(handler, cmd); }
-

@@ -497,7 +497,6 @@ class go_sapphiron_birth : public GameObjectScript
         }
 };
 
-
 class spell_sapphiron_change_blizzard_target : public SpellScriptLoader
 {
     public:

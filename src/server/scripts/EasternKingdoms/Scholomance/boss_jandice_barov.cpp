@@ -55,7 +55,6 @@ public:
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                 summoned->AI()->AttackStart(target);
 
-            summoned->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true); // Not sure if this is correct.
             Summons.Summon(summoned);
         }
 

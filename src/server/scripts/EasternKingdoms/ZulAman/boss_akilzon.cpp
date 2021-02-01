@@ -413,7 +413,6 @@ class npc_akilzon_eagle : public CreatureScript
 
             void MoveInLineOfSight(Unit* /*who*/) override { }
 
-
             void MovementInform(uint32, uint32) override
             {
                 arrived = true;
