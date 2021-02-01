@@ -363,81 +363,6 @@ public:
 };
 
 /*######
-## matrix_punchograph
-######*/
-
-enum MatrixPunchograph
-{
-    ITEM_WHITE_PUNCH_CARD = 9279,
-    ITEM_YELLOW_PUNCH_CARD = 9280,
-    ITEM_BLUE_PUNCH_CARD = 9282,
-    ITEM_RED_PUNCH_CARD = 9281,
-    ITEM_PRISMATIC_PUNCH_CARD = 9316,
-    SPELL_YELLOW_PUNCH_CARD = 11512,
-    SPELL_BLUE_PUNCH_CARD = 11525,
-    SPELL_RED_PUNCH_CARD = 11528,
-    SPELL_PRISMATIC_PUNCH_CARD = 11545,
-    MATRIX_PUNCHOGRAPH_3005_A = 142345,
-    MATRIX_PUNCHOGRAPH_3005_B = 142475,
-    MATRIX_PUNCHOGRAPH_3005_C = 142476,
-    MATRIX_PUNCHOGRAPH_3005_D = 142696,
-};
-
-class go_matrix_punchograph : public GameObjectScript
-{
-public:
-    go_matrix_punchograph() : GameObjectScript("go_matrix_punchograph") { }
-
-    struct go_matrix_punchographAI : public GameObjectAI
-    {
-        go_matrix_punchographAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool OnGossipHello(Player* player) override
-        {
-            switch (me->GetEntry())
-            {
-                case MATRIX_PUNCHOGRAPH_3005_A:
-                    if (player->HasItemCount(ITEM_WHITE_PUNCH_CARD))
-                    {
-                        player->DestroyItemCount(ITEM_WHITE_PUNCH_CARD, 1, true);
-                        player->CastSpell(player, SPELL_YELLOW_PUNCH_CARD, true);
-                    }
-                    break;
-                case MATRIX_PUNCHOGRAPH_3005_B:
-                    if (player->HasItemCount(ITEM_YELLOW_PUNCH_CARD))
-                    {
-                        player->DestroyItemCount(ITEM_YELLOW_PUNCH_CARD, 1, true);
-                        player->CastSpell(player, SPELL_BLUE_PUNCH_CARD, true);
-                    }
-                    break;
-                case MATRIX_PUNCHOGRAPH_3005_C:
-                    if (player->HasItemCount(ITEM_BLUE_PUNCH_CARD))
-                    {
-                        player->DestroyItemCount(ITEM_BLUE_PUNCH_CARD, 1, true);
-                        player->CastSpell(player, SPELL_RED_PUNCH_CARD, true);
-                    }
-                    break;
-                case MATRIX_PUNCHOGRAPH_3005_D:
-                    if (player->HasItemCount(ITEM_RED_PUNCH_CARD))
-                    {
-                        player->DestroyItemCount(ITEM_RED_PUNCH_CARD, 1, true);
-                        player->CastSpell(player, SPELL_PRISMATIC_PUNCH_CARD, true);
-                    }
-                    break;
-                default:
-                    break;
-            }
-            return false;
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_matrix_punchographAI(go);
-    }
-};
-
-/*######
 ## go_blood_filled_orb
 ######*/
 
@@ -1382,7 +1307,6 @@ void AddSC_go_scripts()
     new go_resonite_cask();
     new go_tele_to_dalaran_crystal();
     new go_tele_to_violet_stand();
-    new go_matrix_punchograph();
     new go_blood_filled_orb();
     new go_soulwell();
     new go_amberpine_outhouse();
