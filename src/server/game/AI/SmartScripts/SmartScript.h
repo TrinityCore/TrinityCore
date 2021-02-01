@@ -103,6 +103,7 @@ class TC_GAME_API SmartScript
 
         void SortEvents(SmartAIEventList& events);
         void RaisePriority(SmartScriptHolder& e);
+        void RetryLater(SmartScriptHolder& e, bool ignoreChanceRoll = false);
 
         SmartAIEventList mEvents;
         SmartAIEventList mInstallEvents;

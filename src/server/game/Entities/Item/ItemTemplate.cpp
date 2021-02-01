@@ -52,7 +52,6 @@ bool ItemTemplate::CanChangeEquipStateInCombat() const
     return false;
 }
 
-
 float ItemTemplate::getDPS() const
 {
     if (!Delay)

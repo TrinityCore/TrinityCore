@@ -225,7 +225,6 @@ class TC_GAME_API Channel
         bool IsOn(ObjectGuid who) const { return _playersStore.find(who) != _playersStore.end(); }
         bool IsBanned(ObjectGuid guid) const { return _bannedStore.find(guid) != _bannedStore.end(); }
 
-
         uint8 GetPlayerFlags(ObjectGuid guid) const
         {
             PlayerContainer::const_iterator itr = _playersStore.find(guid);

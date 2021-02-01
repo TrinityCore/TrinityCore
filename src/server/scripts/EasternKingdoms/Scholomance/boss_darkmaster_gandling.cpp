@@ -245,8 +245,6 @@ Position const SummonPos[18] =
 {
     // Hall of Secrects
 
-
-
     // The Hall of the damned
     { 177.9624f, -68.23893f, 84.95197f, 3.228859f },
     { 183.7705f, -61.43489f, 84.92424f, 5.148721f },
@@ -264,8 +262,6 @@ Position const SummonPos[18] =
     { 177.7456f, -42.74745f, 75.4812f, 4.886922f },
     { 185.6157f, -42.91200f, 75.4812f, 4.45059f },
     // Vault of the Ravenian
-
-
 
 };
 

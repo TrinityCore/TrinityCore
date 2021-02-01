@@ -233,7 +233,6 @@ namespace MMAP
 
         fclose(objFile);
 
-
         char tileString[25];
         sprintf(tileString, "[%02u,%02u]: ", tileY, tileX);
         printf("%sWriting debug output...                       \r", tileString);

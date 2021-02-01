@@ -156,7 +156,6 @@ void Trinity::WorldObjectSearcher<Check>::Visit(DynamicObjectMapType &m)
     }
 }
 
-
 template<class Check>
 void Trinity::WorldObjectLastSearcher<Check>::Visit(GameObjectMapType &m)
 {

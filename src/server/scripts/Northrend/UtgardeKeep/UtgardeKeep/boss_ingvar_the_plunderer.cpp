@@ -380,8 +380,6 @@ class npc_ingvar_throw_dummy : public CreatureScript
 
             void Reset() override
             {
-                me->SetReactState(REACT_PASSIVE);
-
                 if (Creature* target = me->FindNearestCreature(NPC_THROW_TARGET, 200.0f))
                 {
                     float x, y, z;

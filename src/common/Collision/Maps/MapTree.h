@@ -22,7 +22,6 @@
 #include "BoundingIntervalHierarchy.h"
 #include <unordered_map>
 
-
 namespace VMAP
 {
     class ModelInstance;

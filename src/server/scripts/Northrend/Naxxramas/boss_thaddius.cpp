@@ -122,7 +122,6 @@ enum PetMisc
     OVERLOAD_DISTANCE       = 28
 };
 
-
 //Thaddius
 enum ThaddiusYells
 {
@@ -380,7 +379,6 @@ struct boss_thaddius : public BossAI
                         me->CastSpell(me, SPELL_THADDIUS_SPARK_VISUAL, true);
                         ballLightningUnlocked = false;
                         me->RemoveAura(SPELL_THADDIUS_INACTIVE_VISUAL);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
                         me->SetImmuneToPC(false);
                         DoZoneInCombat();
 
@@ -1242,7 +1240,6 @@ class achievement_thaddius_shocking : public AchievementCriteriaScript
             return target && target->GetAI() && target->GetAI()->GetData(DATA_POLARITY_CROSSED);
         }
 };
-
 
 void AddSC_boss_thaddius()
 {

@@ -81,17 +81,24 @@ static int CreateChildProcess(T waiter, std::string const& executable,
                 executable.c_str(), boost::algorithm::join(argsVector, " ").c_str());
     }
 
+    // prepare file with only read permission (boost process opens with read_write)
+    std::shared_ptr<FILE> inputFile(!input.empty() ? fopen(input.c_str(), "rb") : nullptr, [](FILE* ptr)
+    {
+        if (ptr != nullptr)
+            fclose(ptr);
+    });
+
     // Start the child process
     child c = [&]()
     {
-        if (!input.empty())
+        if (inputFile)
         {
             // With binding stdin
             return child{
                 exe = boost::filesystem::absolute(executable).string(),
                 args = argsVector,
                 env = environment(boost::this_process::environment()),
-                std_in = input,
+                std_in = inputFile.get(),
                 std_out = outStream,
                 std_err = errStream
             };
