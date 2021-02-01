@@ -1168,11 +1168,7 @@ void WorldSession::HandleAdventureJournalUpdateSuggestions(WorldPackets::Misc::A
 {
     // The information for the Suggested Content menu remains to be sent.
     WorldPackets::Misc::AdventureJournalDataResponse response;
-    response.OnLevelUp1 = packet.OnLevelUp;
+    // response.OnLevelUp1 = packet.OnLevelUp;
 
-    for (uint32 i = 0; i < response.NumEntries; i++)
-    {
-        int32 adventureJournalID = response.AdventureJournalDatas[i].AdventureJournalID;
-        AdventureJournalEntry const* adventureJournalEntry = sAdventureJournalStore.LookupEntry(adventureJournalID);
-    }
+    SendPacket(response.Write());
 }
