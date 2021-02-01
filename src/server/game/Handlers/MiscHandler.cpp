@@ -1155,7 +1155,7 @@ void WorldSession::HandleAdventureJournalOpenQuest(WorldPackets::Misc::Adventure
     if (!quest)
         return;
 
-    if (_player->HasQuest(adventureJournalEntry->QuestID) && _player->CanTakeQuest(quest, true))
+    if (_player->hasQuest(adventureJournalEntry->QuestID) && _player->CanTakeQuest(quest, true))
     {
         PlayerMenu menu(_player->GetSession());
         menu.SendQuestGiverQuestDetails(quest, _player->GetGUID(), true, false);
