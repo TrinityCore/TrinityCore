@@ -1164,7 +1164,10 @@ void WorldSession::HandleAdventureJournalOpenQuest(WorldPackets::Misc::Adventure
 
 void WorldSession::HandleAdventureJournalStartQuest(WorldPackets::Misc::AdventureJournalStartQuest& packet)
 {
-    if (Quest const* quest = sObjectMgr->GetQuestTemplate(packet.QuestID))
-        if (!_player->hasQuest(packet.QuestID))
-            _player->AddQuestAndCheckCompletion(quest, nullptr);
+    Quest const* quest = sObjectMgr->GetQuestTemplate(packet.QuestID)
+    if (!quest)
+        return;
+
+    if (!_player->hasQuest(packet.QuestID))
+        _player->AddQuestAndCheckCompletion(quest, nullptr);
 }
