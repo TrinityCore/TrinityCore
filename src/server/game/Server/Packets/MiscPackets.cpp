@@ -721,3 +721,24 @@ void WorldPackets::Misc::AdventureJournalStartQuest::Read()
 {
     _worldPacket >> QuestID;
 }
+
+void WorldPackets::Misc::AdventureJournalUpdateSuggestions::Read()
+{
+    OnLevelUp = _worldPacket.ReadBit();
+}
+
+WorldPacket const* WorldPackets::Misc::AdventureJournalDataResponse::Write()
+{
+    _worldPacket.WriteBit(OnLevelUp1);
+    _worldPacket.FlushBits();
+    _worldPacket << NumEntries;
+    _worldPacket << uint32(AdventureJournalDatas.size());
+
+    for (auto const& dataInfo : AdventureJournalDatas)
+    {
+        _worldPacket << dataInfo.AdventureJournalID;
+        _worldPacket << dataInfo.Priority;
+    }
+
+    return &_worldPacket;
+}

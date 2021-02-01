@@ -1163,3 +1163,17 @@ void WorldSession::HandleAdventureJournalStartQuest(WorldPackets::Misc::Adventur
         if (!_player->hasQuest(packet.QuestID))
             _player->AddQuestAndCheckCompletion(quest, nullptr);
 }
+
+void WorldSession::HandleAdventureJournalUpdateSuggestions(WorldPackets::Misc::AdventureJournalUpdateSuggestions& packet)
+{
+    // The information for the Suggested Content menu remains to be sent.
+    WorldPackets::Misc::AdventureJournalDataResponse response;
+    response.OnLevelUp1 = packet.OnLevelUp;
+    uint32 entryCount = response.NumEntries;
+
+    for (int i = 0; i < entryCount; i++)
+    {
+        int32 adventureJournalID = response.AdventureJournalDatas[i].AdventureJournalID;
+        AdventureJournalEntry const* adventureJournalEntry = sAdventureJournalStore.LookupEntry(adventureJournalID);
+    }
+}

@@ -495,6 +495,7 @@ namespace WorldPackets
         class CloseInteraction;
         class AdventureJournalOpenQuest;
         class AdventureJournalStartQuest;
+        class AdventureJournalUpdateSuggestions;
     }
 
     namespace Movement
@@ -1689,6 +1690,7 @@ class TC_GAME_API WorldSession
         void HandleCloseInteraction(WorldPackets::Misc::CloseInteraction& closeInteraction);
         void HandleAdventureJournalOpenQuest(WorldPackets::Misc::AdventureJournalOpenQuest& packet);
         void HandleAdventureJournalStartQuest(WorldPackets::Misc::AdventureJournalStartQuest& packet);
+        void HandleAdventureJournalUpdateSuggestions(WorldPackets::Misc::AdventureJournalUpdateSuggestions& packet);
 
         // Toys
         void HandleAddToy(WorldPackets::Toy::AddToy& packet);

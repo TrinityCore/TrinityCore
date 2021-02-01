@@ -927,7 +927,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint32 AdventureJournalID;
+            uint32 AdventureJournalID = 0;
         };
 
         class AdventureJournalStartQuest final : public ClientPacket
@@ -937,7 +937,35 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint32 QuestID;
+            uint32 QuestID = 0;
+        };
+
+        class AdventureJournalUpdateSuggestions final : public ClientPacket
+        {
+        public:
+            AdventureJournalUpdateSuggestions(WorldPacket&& packet) : ClientPacket(CMSG_ADVENTURE_JOURNAL_UPDATE_SUGGESTIONS, std::move(packet)) { }
+
+            void Read() override;
+
+            bool OnLevelUp = false;
+        };
+
+        class AdventureJournalDataResponse final : public ServerPacket
+        {
+        public:
+            AdventureJournalDataResponse() : ServerPacket(SMSG_ADVENTURE_JOURNAL_DATA_RESPONSE, 7) { }
+
+            WorldPacket const* Write() override;
+
+            struct AdventureJournalDataInfo
+            {
+                int32 AdventureJournalID = 0;
+                int32 Priority = 0;
+            };
+
+            bool OnLevelUp1 = false;
+            int32 NumEntries = 0;
+            std::vector<AdventureJournalDataInfo> AdventureJournalDatas;
         };
     }
 }
