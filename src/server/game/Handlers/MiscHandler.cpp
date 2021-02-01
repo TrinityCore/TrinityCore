@@ -1163,12 +1163,3 @@ void WorldSession::HandleAdventureJournalStartQuest(WorldPackets::Misc::Adventur
         if (!_player->hasQuest(packet.QuestID))
             _player->AddQuestAndCheckCompletion(quest, nullptr);
 }
-
-void WorldSession::HandleAdventureJournalUpdateSuggestions(WorldPackets::Misc::AdventureJournalUpdateSuggestions& packet)
-{
-    // The information for the Suggested Content menu remains to be sent.
-    WorldPackets::Misc::AdventureJournalDataResponse response;
-    // response.OnLevelUp1 = packet.OnLevelUp;
-
-    SendPacket(response.Write());
-}
