@@ -1147,14 +1147,19 @@ void WorldSession::HandleCloseInteraction(WorldPackets::Misc::CloseInteraction& 
 
 void WorldSession::HandleAdventureJournalOpenQuest(WorldPackets::Misc::AdventureJournalOpenQuest& packet)
 {
-    if (AdventureJournalEntry const* adventureJournalEntry = sAdventureJournalStore.LookupEntry(packet.AdventureJournalID))
-        if (Quest const* quest = sObjectMgr->GetQuestTemplate(adventureJournalEntry->QuestID))
-            if (!_player->hasQuest(adventureJournalEntry->QuestID) && _player->CanTakeQuest(quest, true))
-                if (WorldSession* session = _player->GetSession())
-                {
-                    PlayerMenu menu(session);
-                    menu.SendQuestGiverQuestDetails(quest, _player->GetGUID(), true, false);
-                }
+    auto adventureJournalEntry = sAdventureJournalStore[packet.AdventureJournalID];
+    if (!adventureJournalEntry)
+        return;
+
+    Quest const* quest = sObjectMgr->GetQuestTemplate(adventureJournalEntry->QuestID);
+    if (!quest)
+        return;
+
+    if (_player->HasQuest(adventureJournalEntry->QuestID) && _player->CanTakeQuest(quest, true))
+    {
+        PlayerMenu menu(_player->GetSession());
+        menu.SendQuestGiverQuestDetails(quest, _player->GetGUID(), true, false);
+    }
 }
 
 void WorldSession::HandleAdventureJournalStartQuest(WorldPackets::Misc::AdventureJournalStartQuest& packet)

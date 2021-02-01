@@ -729,11 +729,9 @@ void WorldPackets::Misc::AdventureJournalUpdateSuggestions::Read()
 
 WorldPacket const* WorldPackets::Misc::AdventureJournalDataResponse::Write()
 {
-    _worldPacket.WriteBit(OnLevelUp1);
+    _worldPacket.WriteBit(OnLevelUp);
     _worldPacket.FlushBits();
-    _worldPacket << NumEntries;
     _worldPacket << uint32(AdventureJournalDatas.size());
-
     for (auto const& dataInfo : AdventureJournalDatas)
     {
         _worldPacket << dataInfo.AdventureJournalID;

@@ -963,8 +963,7 @@ namespace WorldPackets
                 int32 Priority = 0;
             };
 
-            bool OnLevelUp1 = false;
-            int32 NumEntries = 0;
+            bool OnLevelUp = false;
             std::vector<AdventureJournalDataInfo> AdventureJournalDatas;
         };
     }
