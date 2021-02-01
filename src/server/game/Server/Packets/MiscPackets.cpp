@@ -734,8 +734,8 @@ WorldPacket const* WorldPackets::Misc::AdventureJournalDataResponse::Write()
     _worldPacket << uint32(AdventureJournalDatas.size());
     for (auto const& dataInfo : AdventureJournalDatas)
     {
-        _worldPacket << uint32(dataInfo.AdventureJournalID);
-        _worldPacket << dataInfo.Priority;
+        _worldPacket << int32(dataInfo.AdventureJournalID);
+        _worldPacket << int32(dataInfo.Priority);
     }
 
     return &_worldPacket;
