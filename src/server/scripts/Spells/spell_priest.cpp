@@ -1173,17 +1173,16 @@ public:
 
         void HandleEffectDummy(SpellEffIndex effIndex)
         {
-            SpellEffectInfo const *effectInfo = GetEffectInfo(effIndex);
+            SpellEffectInfo const* effectInfo = GetEffectInfo(effIndex);
             if (!effectInfo)
                 return;
 
-            Unit *caster = GetCaster();
-            if (!caster)
-                return;
-
-            Unit *target = GetExplTargetUnit();
+            Unit* target = GetExplTargetUnit();
             if (!target)
                 return;
+
+            Unit* caster = GetCaster();
+            assert(caster != null);
 
             CastPrayerOfMendingAura(caster, target, effectInfo->BasePoints);
         }
@@ -1219,19 +1218,21 @@ class spell_pri_prayer_of_mending_aura : public SpellScriptLoader
             {
                 // Caster: the player(priest) that casters the prayer of mending
                 // Owner: the player that currently has the prayer of mending aura on him
-                if (Unit* owner = GetUnitOwner())
-                    if (Unit* caster = GetCaster())
-                        if (Aura* aura = owner->GetAura(SPELL_PRIEST_PRAYER_OF_MENDING_AURA))
-                        {
-                            // Cast the spell to heal the owner
-                            caster->CastSpell(owner, SPELL_PRIEST_PRAYER_OF_MENDING_HEAL);
+                Unit* owner = GetUnitOwner();
+                assert(owner != null);
 
-                            // Only cast jump if stack is higher than 0
-                            if (aura->GetStackAmount() > 1)
-                                owner->CastSpell(owner, SPELL_PRIEST_PRAYER_OF_MENDING_JUMP, true, nullptr, nullptr, caster->GetGUID());
-                            else
-                                aura->Remove();
-                        }
+                if (Unit* caster = GetCaster())
+                    if (Aura* aura = owner->GetAura(SPELL_PRIEST_PRAYER_OF_MENDING_AURA))
+                    {
+                        // Cast the spell to heal the owner
+                        caster->CastSpell(owner, SPELL_PRIEST_PRAYER_OF_MENDING_HEAL);
+
+                        // Only cast jump if stack is higher than 0
+                        if (aura->GetStackAmount() > 1)
+                            owner->CastSpell(owner, SPELL_PRIEST_PRAYER_OF_MENDING_JUMP, true, nullptr, nullptr, caster->GetGUID());
+                        else
+                            aura->Remove();
+                    }
             }
 
             void Register() override
@@ -1266,12 +1267,14 @@ class spell_pri_prayer_of_mending_jump : public SpellScriptLoader
 
             void HandleJump(SpellEffIndex /*effIndex*/)
             {
-                Unit* origCaster; // the one that started the prayer of mending chain
-                Unit* caster; // the one that has the aura
-                Unit* target; // the target we decided should jump the aura to
-                Aura* aura;
+                Unit* caster = GetCaster(); // the one that has the aura
+                assert(caster != null);
 
-                if ((origCaster = GetOriginalCaster()) && (caster = GetCaster()) && (target = GetHitUnit()) && (aura = caster->GetAura(SPELL_PRIEST_PRAYER_OF_MENDING_AURA)))
+                Unit* origCaster = GetOriginalCaster(); // the one that started the prayer of mending chain
+                Unit* target = GetHitUnit(); // the target we decided should jump the aura to
+                Aura* aura = caster->GetAura(SPELL_PRIEST_PRAYER_OF_MENDING_AURA);
+
+                if (origCaster && target && aura)
                 {
                     // Remove the aura from the caster
                     aura->Remove();
