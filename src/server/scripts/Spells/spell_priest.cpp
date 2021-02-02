@@ -85,7 +85,10 @@ enum PriestSpells
     SPELL_PRIEST_VAMPIRIC_EMBRACE_HEAL              = 15290,
     SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL              = 64085,
     SPELL_PRIEST_VOID_SHIELD                        = 199144,
-    SPELL_PRIEST_VOID_SHIELD_EFFECT                 = 199145
+    SPELL_PRIEST_VOID_SHIELD_EFFECT                 = 199145,
+    SPELL_PRIEST_PRAYER_OF_MENDING_AURA             = 41635,
+    SPELL_PRIEST_PRAYER_OF_MENDING_HEAL             = 33110,
+    SPELL_PRIEST_PRAYER_OF_MENDING_JUMP             = 155793,
 };
 
 enum MiscSpells
@@ -1122,38 +1125,171 @@ public:
     }
 };
 
-// 33110 - Prayer of Mending Heal
-class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
+// Base class used by various prayer of mending spells
+class spell_pri_prayer_of_mending_SpellScriptBase : public SpellScript
+{
+public:
+    bool Load() override
+    {
+        m_spellInfoHeal = sSpellMgr->GetSpellInfo(SPELL_PRIEST_PRAYER_OF_MENDING_HEAL, DIFFICULTY_NONE);
+        if (!m_spellInfoHeal)
+            return false;
+
+        m_healEffectDummy = m_spellInfoHeal->GetEffect(EFFECT_0);
+        if (!m_healEffectDummy)
+            return false;
+
+        return true;
+    }
+
+    void CastPrayerOfMendingAura(Unit* caster, Unit* target, uint8 stack)
+    {
+        uint32 basePoints = caster->SpellHealingBonusDone(target, m_spellInfoHeal, m_healEffectDummy->CalcValue(caster), HEAL, m_healEffectDummy);
+        CustomSpellValues values;
+        values.AddSpellMod(SPELLVALUE_AURA_STACK, stack);
+        values.AddSpellMod(SPELLVALUE_BASE_POINT0, basePoints);
+        caster->CastCustomSpell(SPELL_PRIEST_PRAYER_OF_MENDING_AURA, values, target, TRIGGERED_FULL_MASK);
+    }
+
+protected:
+    SpellInfo const* m_spellInfoHeal;
+    SpellEffectInfo const* m_healEffectDummy;
+};
+
+// 33076 - Prayer of Mending
+class spell_pri_prayer_of_mending : public SpellScriptLoader
+{
+public:
+    spell_pri_prayer_of_mending() : SpellScriptLoader("spell_pri_prayer_of_mending") { }
+
+    class spell_pri_prayer_of_mending_SpellScript : public spell_pri_prayer_of_mending_SpellScriptBase
+    {
+        PrepareSpellScript(spell_pri_prayer_of_mending_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo({ SPELL_PRIEST_PRAYER_OF_MENDING_AURA });
+        }
+
+        void HandleEffectDummy(SpellEffIndex effIndex)
+        {
+            SpellEffectInfo const *effectInfo = GetEffectInfo(effIndex);
+            if (!effectInfo)
+                return;
+
+            Unit *caster = GetCaster();
+            if (!caster)
+                return;
+
+            Unit *target = GetExplTargetUnit();
+            if (!target)
+                return;
+
+            CastPrayerOfMendingAura(caster, target, effectInfo->BasePoints);
+        }
+
+        void Register() override
+        {
+            OnEffectHit += SpellEffectFn(spell_pri_prayer_of_mending_SpellScript::HandleEffectDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_pri_prayer_of_mending_SpellScript();
+    }
+};
+
+// 41635 - Prayer of Mending (Aura) - SPELL_PRIEST_PRAYER_OF_MENDING_AURA
+class spell_pri_prayer_of_mending_aura : public SpellScriptLoader
 {
     public:
-        spell_pri_prayer_of_mending_heal() : SpellScriptLoader("spell_pri_prayer_of_mending_heal") { }
+        spell_pri_prayer_of_mending_aura() : SpellScriptLoader("spell_pri_prayer_of_mending_aura") { }
 
-        class spell_pri_prayer_of_mending_heal_SpellScript : public SpellScript
+        class spell_pri_prayer_of_mending_aura_AuraScript : public AuraScript
         {
-            PrepareSpellScript(spell_pri_prayer_of_mending_heal_SpellScript);
+            PrepareAuraScript(spell_pri_prayer_of_mending_aura_AuraScript);
 
-            void HandleHeal(SpellEffIndex /*effIndex*/)
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                if (Unit* caster = GetOriginalCaster())
+                return ValidateSpellInfo({ SPELL_PRIEST_PRAYER_OF_MENDING_HEAL });
+            }
+
+            void HandleHeal(ProcEventInfo & /*eventInfo*/)
+            {
+                // Caster: the player(priest) that casters the prayer of mending
+                // Owner: the player that currently has the prayer of mending aura on him
+                if (Unit* owner = GetUnitOwner())
+                    if (Unit* caster = GetCaster())
+                        if (Aura* aura = owner->GetAura(SPELL_PRIEST_PRAYER_OF_MENDING_AURA))
+                        {
+                            // Cast the spell to heal the owner
+                            caster->CastSpell(owner, SPELL_PRIEST_PRAYER_OF_MENDING_HEAL);
+
+                            // Only cast jump if stack is higher than 0
+                            if (aura->GetStackAmount() > 1)
+                                owner->CastSpell(owner, SPELL_PRIEST_PRAYER_OF_MENDING_JUMP, true, nullptr, nullptr, caster->GetGUID());
+                            else
+                                aura->Remove();
+                        }
+            }
+
+            void Register() override
+            {
+                OnProc += AuraProcFn(spell_pri_prayer_of_mending_aura_AuraScript::HandleHeal);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_pri_prayer_of_mending_aura_AuraScript();
+        }
+};
+
+// 155793 - prayer of mending (Jump) - SPELL_PRIEST_PRAYER_OF_MENDING_JUMP
+class spell_pri_prayer_of_mending_jump : public SpellScriptLoader
+{
+    public:
+        spell_pri_prayer_of_mending_jump() : SpellScriptLoader("spell_pri_prayer_of_mending_jump") { }
+
+        class spell_pri_prayer_of_mending_jump_SpellScript : public spell_pri_prayer_of_mending_SpellScriptBase
+        {
+            PrepareSpellScript(spell_pri_prayer_of_mending_jump_SpellScript);
+
+            void OnTargetSelect(std::list<WorldObject*>& targets)
+            {
+                targets.remove_if([](WorldObject* worldObject)
                 {
-                    if (AuraEffect* aurEff = caster->GetAuraEffect(SPELL_PRIEST_T9_HEALING_2P, EFFECT_0))
-                    {
-                        int32 heal = GetHitHeal();
-                        AddPct(heal, aurEff->GetAmount());
-                        SetHitHeal(heal);
-                    }
+                    return !worldObject || !(worldObject->ToPlayer());
+                });
+            }
+
+            void HandleJump(SpellEffIndex /*effIndex*/)
+            {
+                Unit* origCaster; // the one that started the prayer of mending chain
+                Unit* caster; // the one that has the aura
+                Unit* target; // the target we decided should jump the aura to
+                Aura* aura;
+
+                if ((origCaster = GetOriginalCaster()) && (caster = GetCaster()) && (target = GetHitUnit()) && (aura = caster->GetAura(SPELL_PRIEST_PRAYER_OF_MENDING_AURA)))
+                {
+                    // Remove the aura from the caster
+                    aura->Remove();
+
+                    CastPrayerOfMendingAura(origCaster, target, aura->GetStackAmount() - 1);
                 }
             }
 
             void Register() override
             {
-                OnEffectHitTarget += SpellEffectFn(spell_pri_prayer_of_mending_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_prayer_of_mending_jump_SpellScript::OnTargetSelect, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+                OnEffectHitTarget += SpellEffectFn(spell_pri_prayer_of_mending_jump_SpellScript::HandleJump, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
         SpellScript* GetSpellScript() const override
         {
-            return new spell_pri_prayer_of_mending_heal_SpellScript();
+            return new spell_pri_prayer_of_mending_jump_SpellScript();
         }
 };
 
@@ -1590,7 +1726,9 @@ void AddSC_priest_spell_scripts()
     new spell_pri_penance();
     new spell_pri_phantasm();
     new spell_pri_power_word_shield();
-    new spell_pri_prayer_of_mending_heal();
+    new spell_pri_prayer_of_mending();
+    new spell_pri_prayer_of_mending_aura();
+    new spell_pri_prayer_of_mending_jump();
     new spell_pri_shadowform();
     RegisterAuraScript(spell_priest_spirit_of_redemption);
     new spell_pri_t3_4p_bonus();
