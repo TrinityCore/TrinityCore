@@ -1171,7 +1171,8 @@ void WorldSession::HandleAdventureJournalStartQuest(WorldPackets::Misc::Adventur
     AdventureJournalEntry const* adventureJournalEntry = nullptr;
     for (AdventureJournalEntry const* adventureJournal : sAdventureJournalStore)
     {
-        if (adventureJournal->QuestID == quest->GetQuestId())
+        uint32 questId = uint32(adventureJournal->QuestID);
+        if (questId == quest->GetQuestId())
         {
             adventureJournalEntry = adventureJournal;
             break;
