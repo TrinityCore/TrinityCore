@@ -1131,12 +1131,12 @@ class spell_pri_prayer_of_mending_SpellScriptBase : public SpellScript
 public:
     bool Load() override
     {
-        m_spellInfoHeal = sSpellMgr->GetSpellInfo(SPELL_PRIEST_PRAYER_OF_MENDING_HEAL, DIFFICULTY_NONE);
-        if (!m_spellInfoHeal)
+        _spellInfoHeal = sSpellMgr->GetSpellInfo(SPELL_PRIEST_PRAYER_OF_MENDING_HEAL, DIFFICULTY_NONE);
+        if (!_spellInfoHeal)
             return false;
 
-        m_healEffectDummy = m_spellInfoHeal->GetEffect(EFFECT_0);
-        if (!m_healEffectDummy)
+        _healEffectDummy = _spellInfoHeal->GetEffect(EFFECT_0);
+        if (!_healEffectDummy)
             return false;
 
         return true;
@@ -1144,7 +1144,7 @@ public:
 
     void CastPrayerOfMendingAura(Unit* caster, Unit* target, uint8 stack)
     {
-        uint32 basePoints = caster->SpellHealingBonusDone(target, m_spellInfoHeal, m_healEffectDummy->CalcValue(caster), HEAL, m_healEffectDummy);
+        uint32 basePoints = caster->SpellHealingBonusDone(target, _spellInfoHeal, _healEffectDummy->CalcValue(caster), HEAL, _healEffectDummy);
         CustomSpellValues values;
         values.AddSpellMod(SPELLVALUE_AURA_STACK, stack);
         values.AddSpellMod(SPELLVALUE_BASE_POINT0, basePoints);
@@ -1152,8 +1152,8 @@ public:
     }
 
 protected:
-    SpellInfo const* m_spellInfoHeal;
-    SpellEffectInfo const* m_healEffectDummy;
+    SpellInfo const* _spellInfoHeal;
+    SpellEffectInfo const* _healEffectDummy;
 };
 
 // 33076 - Prayer of Mending
