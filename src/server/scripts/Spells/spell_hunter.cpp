@@ -1093,7 +1093,6 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_misdirection();
     new spell_hun_misdirection_proc();
     new spell_hun_multi_shot();
-    new spell_hun_pet_carrion_feeder();
     new spell_hun_pet_heart_of_the_phoenix();
     new spell_hun_readiness();
     new spell_hun_ready_set_aim();
