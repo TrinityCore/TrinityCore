@@ -1688,9 +1688,9 @@ class TC_GAME_API WorldSession
         void HandleObjectUpdateRescuedOpcode(WorldPackets::Misc::ObjectUpdateRescued& objectUpdateRescued);
         void HandleRequestCategoryCooldowns(WorldPackets::Spells::RequestCategoryCooldowns& requestCategoryCooldowns);
         void HandleCloseInteraction(WorldPackets::Misc::CloseInteraction& closeInteraction);
-        void HandleAdventureJournalOpenQuest(WorldPackets::Misc::AdventureJournalOpenQuest& packet);
-        void HandleAdventureJournalStartQuest(WorldPackets::Misc::AdventureJournalStartQuest& packet);
-        void HandleAdventureJournalUpdateSuggestions(WorldPackets::Misc::AdventureJournalUpdateSuggestions& packet);
+        void HandleAdventureJournalOpenQuest(WorldPackets::Misc::AdventureJournalOpenQuest& adventureJournalOpenQuest);
+        void HandleAdventureJournalStartQuest(WorldPackets::Misc::AdventureJournalStartQuest& adventureJournalStartQuest);
+        void HandleAdventureJournalUpdateSuggestions(WorldPackets::Misc::AdventureJournalUpdateSuggestions& adventureJournalUpdateSuggestions);
 
         // Toys
         void HandleAddToy(WorldPackets::Toy::AddToy& packet);

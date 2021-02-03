@@ -1145,9 +1145,9 @@ void WorldSession::HandleCloseInteraction(WorldPackets::Misc::CloseInteraction& 
         _player->PlayerTalkClass->GetInteractionData().Reset();
 }
 
-void WorldSession::HandleAdventureJournalOpenQuest(WorldPackets::Misc::AdventureJournalOpenQuest& packet)
+void WorldSession::HandleAdventureJournalOpenQuest(WorldPackets::Misc::AdventureJournalOpenQuest& adventureJournalOpenQuest)
 {
-    auto adventureJournalEntry = sAdventureJournalStore[packet.AdventureJournalID];
+    auto adventureJournalEntry = sAdventureJournalStore[adventureJournalOpenQuest.AdventureJournalID];
     if (!adventureJournalEntry)
         return;
 
@@ -1162,9 +1162,9 @@ void WorldSession::HandleAdventureJournalOpenQuest(WorldPackets::Misc::Adventure
     }
 }
 
-void WorldSession::HandleAdventureJournalStartQuest(WorldPackets::Misc::AdventureJournalStartQuest& packet)
+void WorldSession::HandleAdventureJournalStartQuest(WorldPackets::Misc::AdventureJournalStartQuest& adventureJournalStartQuest)
 {
-    Quest const* quest = sObjectMgr->GetQuestTemplate(packet.QuestID);
+    Quest const* quest = sObjectMgr->GetQuestTemplate(adventureJournalStartQuest.QuestID);
     if (!quest)
         return;
 
@@ -1183,5 +1183,25 @@ void WorldSession::HandleAdventureJournalStartQuest(WorldPackets::Misc::Adventur
         return;
 
     if (!_player->hasQuest(adventureJournalEntry->QuestID) && _player->CanTakeQuest(quest, true))
-        _player->AddQuestAndCheckCompletion(quest, nullptr);
+        if(_player->MeetPlayerCondition(adventureJournalEntry->PlayerConditionID))
+            _player->AddQuestAndCheckCompletion(quest, nullptr);
+}
+
+void WorldSession::HandleAdventureJournalUpdateSuggestions(WorldPackets::Misc::AdventureJournalUpdateSuggestions& adventureJournalUpdateSuggestions)
+{
+    WorldPackets::Misc::AdventureJournalDataResponse response;
+    if (!adventureJournalUpdateSuggestions.OnLevelUp)
+        return;
+
+    response.OnLevelUp = adventureJournalUpdateSuggestions.OnLevelUp;
+    int32 count = 0;
+    for (AdventureJournalEntry const* adventureJournal : sAdventureJournalStore)
+        if (_player->MeetPlayerCondition(adventureJournal->PlayerConditionID) && count < 7)
+        {
+            response.AdventureJournalDatas[count].AdventureJournalID = int32(adventureJournal->ID);
+            response.AdventureJournalDatas[count].Priority = int32(adventureJournal->PriorityMax);
+            count++;
+        }
+
+    SendPacket(response.Write());
 }
