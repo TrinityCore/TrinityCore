@@ -453,7 +453,7 @@ enum AuraType : uint32
     SPELL_AURA_378                                          = 378,
     SPELL_AURA_MOD_MANA_REGEN_PCT                           = 379,
     SPELL_AURA_MOD_GLOBAL_COOLDOWN_BY_HASTE                 = 380,  // Allows melee abilities to benefit from haste GCD reduction
-    SPELL_AURA_381                                          = 381,
+    SPELL_AURA_MOD_DAMAGE_FROM_CASTER_PET                   = 381,  // NYI
     SPELL_AURA_MOD_PET_STAT_PCT                             = 382,  // NYI
     SPELL_AURA_IGNORE_SPELL_COOLDOWN                        = 383,  // NYI
     SPELL_AURA_384                                          = 384,
