@@ -411,7 +411,7 @@ enum AuraType : uint32
     SPELL_AURA_MOUNT_RESTRICTIONS                           = 336,
     SPELL_AURA_MOD_VENDOR_ITEMS_PRICES                      = 337,
     SPELL_AURA_MOD_DURABILITY_LOSS                          = 338,
-    SPELL_AURA_MOD_CRIT_CHANCE_FOR_CASTER                   = 339,  // NYI
+    SPELL_AURA_MOD_CRIT_CHANCE_FOR_CASTER                   = 339,
     SPELL_AURA_MOD_RESURRECTED_HEALTH_BY_GUILD_MEMBER       = 340,  // Increases health gained when resurrected by a guild member by X
     SPELL_AURA_MOD_SPELL_CATEGORY_COOLDOWN                  = 341,  // Modifies cooldown of all spells using affected category
     SPELL_AURA_MOD_MELEE_RANGED_HASTE_2                     = 342,
