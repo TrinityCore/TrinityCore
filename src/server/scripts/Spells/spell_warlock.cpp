@@ -1156,7 +1156,7 @@ class spell_warl_seed_of_corruption : public SpellScript
         targets.remove_if([&](WorldObject const* target)
         {
             if (Unit const* unitTarget = target->ToUnit())
-                if (WorldLocation* dest = const_cast<WorldLocation*>(GetExplTargetDest()))
+                if (WorldLocation const* dest = GetExplTargetDest())
                     if (!unitTarget->IsWithinLOS(dest->GetPositionX(), dest->GetPositionY(), dest->GetPositionZ()))
                         return true;
 
