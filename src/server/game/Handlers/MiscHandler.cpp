@@ -1155,7 +1155,7 @@ void WorldSession::HandleAdventureJournalOpenQuest(WorldPackets::Misc::Adventure
     if (!quest)
         return;
 
-    if (_player->hasQuest(adventureJournalEntry->QuestID) && _player->CanTakeQuest(quest, true))
+    if (_player->CanTakeQuest(quest, true))
     {
         PlayerMenu menu(_player->GetSession());
         menu.SendQuestGiverQuestDetails(quest, _player->GetGUID(), true, false);
@@ -1182,26 +1182,45 @@ void WorldSession::HandleAdventureJournalStartQuest(WorldPackets::Misc::Adventur
     if (!adventureJournalEntry)
         return;
 
-    if (!_player->hasQuest(adventureJournalEntry->QuestID) && _player->CanTakeQuest(quest, true))
-        if(_player->MeetPlayerCondition(adventureJournalEntry->PlayerConditionID))
-            _player->AddQuestAndCheckCompletion(quest, nullptr);
+    if (_player->MeetPlayerCondition(adventureJournalEntry->PlayerConditionID) && _player->CanTakeQuest(quest, true))
+        _player->AddQuestAndCheckCompletion(quest, nullptr);
 }
 
 void WorldSession::HandleAdventureJournalUpdateSuggestions(WorldPackets::Misc::AdventureJournalUpdateSuggestions& adventureJournalUpdateSuggestions)
 {
     WorldPackets::Misc::AdventureJournalDataResponse response;
-    if (!adventureJournalUpdateSuggestions.OnLevelUp)
-        return;
+    WorldPackets::Misc::AdventureJournalDataResponse::AdventureJournalDataInfo dataInfo;
+    if (adventureJournalUpdateSuggestions.OnLevelUp)
+    {
+        response.OnLevelUp = adventureJournalUpdateSuggestions.OnLevelUp;
+        int32 count = 0;
+        for (AdventureJournalEntry const* adventureJournal : sAdventureJournalStore)
+            if (_player->MeetPlayerCondition(adventureJournal->PlayerConditionID) && count < 7)
+            {
+                dataInfo.AdventureJournalID = int32(adventureJournal->ID);
+                dataInfo.Priority = int32(adventureJournal->PriorityMax);
+                response.AdventureJournalDatas.push_back(dataInfo);
+                count++;
+            }
 
-    response.OnLevelUp = adventureJournalUpdateSuggestions.OnLevelUp;
-    int32 count = 0;
-    for (AdventureJournalEntry const* adventureJournal : sAdventureJournalStore)
-        if (_player->MeetPlayerCondition(adventureJournal->PlayerConditionID) && count < 7)
+        SendPacket(response.Write());
+    }
+    else
+    {
+        if (GetPlayer()->getLevel() >= 10)
         {
-            response.AdventureJournalDatas[count].AdventureJournalID = int32(adventureJournal->ID);
-            response.AdventureJournalDatas[count].Priority = int32(adventureJournal->PriorityMax);
-            count++;
-        }
+            response.OnLevelUp = adventureJournalUpdateSuggestions.OnLevelUp;
+            int32 count = 0;
+            for (AdventureJournalEntry const* adventureJournal : sAdventureJournalStore)
+                if (_player->MeetPlayerCondition(adventureJournal->PlayerConditionID) && count < 7)
+                {
+                    dataInfo.AdventureJournalID = int32(adventureJournal->ID);
+                    dataInfo.Priority = int32(adventureJournal->PriorityMax);
+                    response.AdventureJournalDatas.push_back(dataInfo);
+                    count++;
+                }
 
-    SendPacket(response.Write());
+            SendPacket(response.Write());
+        }
+    }
 }
