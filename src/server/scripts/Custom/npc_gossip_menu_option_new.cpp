@@ -1,7 +1,52 @@
 //########################################################################################################################
-//Stitch Janvier 2021 - npc_gossip_menu_option_new - version 1.0 , wow 9.0.2.37142 
-// Remplace le gossip_menu_option des Maitres, Vendeur, etc
+//Stitch Fevrier 2021 - npc_gossip_menu_option_new - version 1.0 , wow 9.0.2.37142 
+// Remplacement des gossip_menu_option des Maitres des professions
 //########################################################################################################################
+
+/*
+UPDATE `creature_template` SET `gossip_menu_id` = 10351,`npcflag` = `npcflag`|81,`ScriptName` = "npc_gossip_menu_option_new"  WHERE `subname`="Mining Trainer";
+UPDATE `creature_template` SET `gossip_menu_id` = 10351,`npcflag` = `npcflag`|209,`ScriptName` = "npc_gossip_menu_option_new"  WHERE `subname`="Mining Trainer & Supplies";
+UPDATE `creature_trainer` SET `MenuId` = '10351' WHERE `creature_trainer`.`Trainerid` = 91;
+UPDATE `creature_template` SET `gossip_menu_id` = 7842,`npcflag` = `npcflag`|81,`ScriptName` = "npc_gossip_menu_option_new"  WHERE `subname`="Skinning Trainer";
+UPDATE `creature_trainer` SET `MenuId` = '7842' WHERE `creature_trainer`.`Trainerid` = 196;
+UPDATE `creature_template` SET `gossip_menu_id` = 7459,`npcflag` = `npcflag`|81,`ScriptName` = "npc_gossip_menu_option_new"  WHERE `subname`="Master Herbalist" OR `subname`="Herbalism Trainer";
+UPDATE `creature_trainer` SET `MenuId` = '7459' WHERE `creature_trainer`.`Trainerid` = 5000;
+UPDATE `creature_template` SET `gossip_menu_id` = 9879,`npcflag` = `npcflag`|81,`ScriptName` = "npc_gossip_menu_option_new"  WHERE `subname`="Inscription Trainer";
+UPDATE `creature_template` SET `gossip_menu_id` = 9879,`npcflag` = `npcflag`|209,`ScriptName` = "npc_gossip_menu_option_new"  WHERE `subname`="Inscription Trainer & Supplies";
+UPDATE `creature_trainer` SET `MenuId` = '9879' WHERE `creature_trainer`.`Trainerid` = 63;
+UPDATE `creature_template` SET `gossip_menu_id` = 11821, `npcflag` = `npcflag`|81, `ScriptName` = "npc_gossip_menu_option_new"  WHERE `subname`="Archaeology Trainer";
+UPDATE `creature_trainer` SET `MenuId` = '11821' WHERE `creature_trainer`.`Trainerid` = 373;
+UPDATE `creature_template` SET `gossip_menu_id` = 11821,`npcflag` = `npcflag`|81,`ScriptName` = "npc_gossip_menu_option_new"  WHERE `subname`="Archaeology Trainer";
+UPDATE `creature_trainer` SET `MenuId` = '11821' WHERE `creature_trainer`.`Trainerid` = 373;
+UPDATE `creature_template` SET `gossip_menu_id` = 5853,`npcflag` = `npcflag`|81,`ScriptName` = "npc_gossip_menu_option_new"  WHERE `subname`="Cooking Trainer";
+UPDATE `creature_template` SET `gossip_menu_id` = 5853,`npcflag` = `npcflag`|209,`ScriptName` = "npc_gossip_menu_option_new"  WHERE `subname`="Cooking Trainer & Supplies" OR `subname`="Master of Cooking";
+UPDATE `creature_trainer` SET `MenuId` = '5853' WHERE `creature_trainer`.`Trainerid` = 373;
+UPDATE `creature_template` SET `gossip_menu_id` = 10364,`npcflag` = `npcflag`|81,`ScriptName` = "npc_gossip_menu_option_new"  WHERE `subname`="Tailoring Trainer" OR `subname`="Tailoring Trainer & Dreamcloth Trader";
+UPDATE `creature_trainer` SET `MenuId` = '10364' WHERE `creature_trainer`.`Trainerid` = 163;
+UPDATE `creature_template` SET `gossip_menu_id` = 10363,`npcflag` = `npcflag`|81,`ScriptName` = "npc_gossip_menu_option_new"  WHERE `subname`="Engineering Trainer" OR `subname`="Gnomish Engineering Trainer" OR `subname`="Goblin Engineering Trainer";
+UPDATE `creature_trainer` SET `MenuId` = '10363' WHERE `creature_trainer`.`Trainerid` = 407;
+UPDATE `creature_template` SET `gossip_menu_id` = 10361,`npcflag` = `npcflag`|81,`ScriptName` = "npc_gossip_menu_option_new"  WHERE `subname`="Leatherworking Trainer";
+UPDATE `creature_trainer` SET `MenuId` = '10361' WHERE `creature_trainer`.`Trainerid` = 56;
+UPDATE `creature_template` SET `gossip_menu_id` = 10627,`npcflag` = `npcflag`|81,`ScriptName` = "npc_gossip_menu_option_new"  WHERE `subname`="Alchemy Trainer";
+UPDATE `creature_trainer` SET `MenuId` = '10627' WHERE `creature_trainer`.`Trainerid` = 122;
+UPDATE `creature_template` SET `gossip_menu_id` = 2784,`npcflag` = `npcflag`|81,`ScriptName` = "npc_gossip_menu_option_new"  WHERE `subname`="Blacksmithing Trainer";
+UPDATE `creature_template` SET `gossip_menu_id` = 2784,`npcflag` = `npcflag`|4305,`ScriptName` = "npc_gossip_menu_option_new"  WHERE `subname`="Blacksmithing Trainer & Supplies";
+UPDATE `creature_trainer` SET `MenuId` = '2784' WHERE `creature_trainer`.`Trainerid` = 27;
+UPDATE `creature_template` SET `gossip_menu_id` = 7361,`npcflag` = `npcflag`|81,`ScriptName` = "npc_gossip_menu_option_new"  WHERE `subname`="Fishing Trainer";
+UPDATE `creature_template` SET `gossip_menu_id` = 7361,`npcflag` = `npcflag`|209,`ScriptName` = "npc_gossip_menu_option_new"  WHERE `subname`="Fishing Trainer & Supplies";
+UPDATE `creature_trainer` SET `MenuId` = '7361' WHERE `creature_trainer`.`Trainerid` = 10;
+UPDATE `creature_template` SET `gossip_menu_id` = 12843,`npcflag` = `npcflag`|81,`ScriptName` = "npc_gossip_menu_option_new"  WHERE `subname`="Enchanting Trainer";
+UPDATE `creature_template` SET `gossip_menu_id` = 12843,`npcflag` = `npcflag`|209,`ScriptName` = "npc_gossip_menu_option_new"  WHERE `subname`="Enchanting Trainer & Supplies";
+UPDATE `creature_trainer` SET `MenuId` = '12843' WHERE `creature_trainer`.`Trainerid` = 62;
+UPDATE `creature_template` SET `gossip_menu_id` = 12843,`npcflag` = `npcflag`|81,`ScriptName` = "npc_gossip_menu_option_new"  WHERE `subname`="Jewelcrafting Trainer" ;
+UPDATE `creature_template` SET `gossip_menu_id` = 12843,`npcflag` = `npcflag`|209,`ScriptName` = "npc_gossip_menu_option_new"  WHERE `subname`="Jewelcrafting Trainer & Supplies";
+UPDATE `creature_trainer` SET `MenuId` = '12843' WHERE `creature_trainer`.`Trainerid` = 29;
+UPDATE `creature_template` SET `gossip_menu_id` = 10723,`npcflag` = `npcflag`|17,`ScriptName` = "npc_gossip_menu_option_new"  WHERE `subname`="Riding Trainer" OR `subname`="Flying Trainer" OR `subname`="Cold Weather Flying Trainer";
+UPDATE `creature_trainer` SET `MenuId` = '10723' WHERE `creature_trainer`.`Trainerid` = 46;
+REPLACE INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `incrtime`, `ExtendedCost`, `type`, `VerifiedBuild`) VALUES
+(31238, 0, 49177, 0, 0, 0, 1, 0);
+*/
+
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -16,12 +61,11 @@
 #define LOCALE_VENDOR_2 "Permettez-moi de regarder vos marchandises."
 #define LOCALE_TRAINER_0 "Train me"
 #define LOCALE_TRAINER_2 "Je souhaiterais une formation"
-#define LOCALE_AUBERGISTE_0 "Make this inn your home."
-#define LOCALE_AUBERGISTE_2 "Faire de cette auberge votre foyer."
+
+
 
 uint32 Npc_Emotes_A[4] = { 604, 273, 66, 1 };       // QUESTION , OUI , SALUER , PARLER
 uint32 Npc_Emotes_B[2] = { 4, 401 };                // CONTANT , DANCES_PECIAL
-uint32 ITEM_PIERRE_DE_FOYER = 6948;
 uint32 SPELL_POUR_VISUEL_GOSSIP = 14867;
 
 // GOSSIP_ICON_CHAT         GOSSIP_ICON_VENDOR      GOSSIP_ICON_TAXI        GOSSIP_ICON_TRAINER     GOSSIP_ICON_INTERACT_1   GOSSIP_ICON_INTERACT_2
@@ -57,8 +101,8 @@ public:
                 }
                 AddGossipItemFor(player, GOSSIP_ICON_VENDOR, localizedEntry, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             }
-            //-------------------------------------------------------------------------------- TRAINER
-            if (me->IsTrainer()) 
+            //-------------------------------------------------------------------------------- TRAINER PROFESSION
+            if (me->HasNpcFlag(UNIT_NPC_FLAG_TRAINER_PROFESSION))
             {
                 char const* localizedEntry;
                 switch (player->GetSession()->GetSessionDbcLocale())
@@ -69,9 +113,13 @@ public:
                 AddGossipItemFor(player, GOSSIP_ICON_TRAINER, localizedEntry, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
             }
 
+            //--------------------------------------------------------------------------------
+
+
+
 
             uint32 NPC_EMOTE_A = Npc_Emotes_A[urand(0, 3)];
-            me->HandleEmoteCommand(NPC_EMOTE_A);                                    // QUESTION , OUI , SALUER , PARLER
+            me->HandleEmoteCommand(NPC_EMOTE_A);                                            // QUESTION , OUI , SALUER , PARLER
 
             if (player->GetGossipTextId(me) != 0)
             {
@@ -83,6 +131,7 @@ public:
         bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
         {
             uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+            uint32 trainerId;
             ClearGossipMenuFor(player);
 
             switch (action)
@@ -92,10 +141,10 @@ public:
                 player->GetSession()->SendListInventory(me->GetGUID());
                 break;
             }
-            case GOSSIP_ACTION_INFO_DEF + 2: //----------------------------------------------- TRAINER
+            case GOSSIP_ACTION_INFO_DEF + 2: //----------------------------------------------- TRAINER PROFESSION
             {
                 std::string _SubName = sObjectMgr->GetCreatureTemplate(me->GetEntry())->SubName;
-                uint32 trainerId;
+
 
                 //###########################################################################################
                 //      PROFESSIONS
@@ -158,17 +207,11 @@ public:
 
                 //###########################################################################################
 
-                // --- RIDING ------------------ Competences de Monte : (Trainer  386 - 0 - 0)
-                if (_SubName == "Riding Trainer" || _SubName == "Flying Trainer")
+                // --- RIDING ------------------ Competences de Monte : (Trainer  46 - 0 - 0)
+                if (_SubName == "Riding Trainer" || _SubName == "Flying Trainer" || _SubName == "Cold Weather Flying Trainer")
                 { trainerId = 46; }
 
-                //###########################################################################################
-                //      CLASSES
-                //###########################################################################################
-                if (_SubName == "Warrior Trainer" || _SubName == "Paladin Trainer")
-                {
-                    trainerId = 0;
-                }
+
 
                 
                 if (trainerId != 0)
@@ -178,6 +221,12 @@ public:
 
                 break;
             }
+
+
+            default:
+                break;
+
+            //--------------------------------------------------------------------------------
 
 
             if (player->GetGossipTextId(me) !=0)

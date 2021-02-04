@@ -38,7 +38,7 @@ void Trinity::Banner::Show(char const* applicationName, void(*log)(char const* t
     log(" - Aubergiste donne foyer et une pierre de foyer");
     log(" - Guilde auto a la creation d'un perso (Horde ou Alliance");
     log(" - Resurrection sur son corp (apprentissage spell)");
-    log(" - Remplace les gossip_menu_option des Maitres, Vendeur, etc");
+    log(" - Remplacement des gossip_menu_option des Maitres des professions ");
     log("\n");
     log("################################################################################");
     log("################################################################################");
