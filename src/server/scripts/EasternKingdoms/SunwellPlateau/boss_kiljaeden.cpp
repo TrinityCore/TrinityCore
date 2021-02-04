@@ -467,9 +467,7 @@ public:
                     summoned->CastSpell(summoned, SPELL_SHADOW_CHANNELING, false);
                     break;
                 case NPC_ANVEENA:
-                    summoned->SetDisableGravity(true);
                     summoned->CastSpell(summoned, SPELL_ANVEENA_PRISON, true);
-                    summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     break;
                 case NPC_KILJAEDEN:
                     summoned->CastSpell(summoned, SPELL_REBIRTH, false);
