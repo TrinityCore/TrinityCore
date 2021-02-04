@@ -178,7 +178,6 @@ class npc_ragin_flames : public CreatureScript
                 void Reset() override
                 {
                     Initialize();
-                    me->SetSpeedRate(MOVE_RUN, DUNGEON_MODE(0.5f, 0.7f));
                 }
 
                 void JustEngagedWith(Unit* /*who*/) override
