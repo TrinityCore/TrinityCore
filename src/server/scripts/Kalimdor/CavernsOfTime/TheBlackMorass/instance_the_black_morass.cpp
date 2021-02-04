@@ -297,9 +297,6 @@ public:
                     TEMPSUMMON_CORPSE_DESPAWN);
                 if (temp)
                 {
-                    temp->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
-                    temp->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
-
                     if (Creature* boss = SummonedPortalBoss(temp))
                     {
                         if (boss->GetEntry() == NPC_AEONUS)

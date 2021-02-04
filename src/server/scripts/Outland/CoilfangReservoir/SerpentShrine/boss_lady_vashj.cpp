@@ -846,8 +846,6 @@ public:
         {
             Initialize();
             me->SetDisplayId(11686); // invisible
-
-            me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
         }
 
         void MoveInLineOfSight(Unit* /*who*/) override { }

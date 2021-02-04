@@ -320,8 +320,6 @@ public:
         {
             Initialize();
 
-            me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
-            me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
             me->SetFaction(FACTION_MONSTER);
         }
 
