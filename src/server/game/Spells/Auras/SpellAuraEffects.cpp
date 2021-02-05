@@ -667,7 +667,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
     }
 
     GetBase()->CallScriptEffectCalcAmountHandlers(this, amount, m_canBeRecalculated);
-    if (!GetSpellEffectInfo()->EffectAttributes.HasFlag(EFFECT_ATTRIBUTES_FLAGS_NO_SCALE_WITH_STACK))
+    if (!GetSpellEffectInfo()->EffectAttributes.HasFlag(SpellEffectAttributes::NoScaleWithStack))
         amount *= GetBase()->GetStackAmount();
     return amount;
 }

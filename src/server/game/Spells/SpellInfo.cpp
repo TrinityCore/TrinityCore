@@ -372,7 +372,7 @@ SpellImplicitTargetInfo::StaticData  SpellImplicitTargetInfo::_data[TOTAL_SPELL_
 };
 
 SpellEffectInfo::SpellEffectInfo(SpellInfo const* spellInfo, SpellEffectEntry const* _effect)
-    : EffectAttributes(EFFECT_ATTRIBUTES_FLAGS_NONE)
+    : EffectAttributes(SpellEffectAttributes::None)
 {
     ASSERT(spellInfo);
     ASSERT(_effect);

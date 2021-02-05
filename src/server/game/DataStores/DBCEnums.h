@@ -1298,6 +1298,8 @@ enum class SpellEffectAttributes
     IgnoreDuringCooldownTimeRateCalculation = 0x800000
 };
 
+DEFINE_ENUM_FLAG(SpellEffectAttributes);
+
 #define MAX_SPELL_EFFECTS 32
 #define MAX_EFFECT_MASK 0xFFFFFFFF
 
@@ -1613,13 +1615,5 @@ enum WorldStateExpressionFunctions
 
     WSE_FUNCTION_MAX,
 };
-
-enum EffectAttributesFlags
-{
-    EFFECT_ATTRIBUTES_FLAGS_NONE                            = 0x0,
-    EFFECT_ATTRIBUTES_FLAGS_NO_SCALE_WITH_STACK             = 0x40, // Base value should not be multiplied by the stack value
-};
-
-DEFINE_ENUM_FLAG(EffectAttributesFlags);
 
 #endif
