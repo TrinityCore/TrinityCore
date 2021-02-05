@@ -43,7 +43,10 @@ void WaypointMgr::Load()
         float x = fields[2].GetFloat();
         float y = fields[3].GetFloat();
         float z = fields[4].GetFloat();
-        float o = fields[5].GetFloat();
+        Optional<float> o;
+        if (!fields[5].IsNull())
+            o = fields[5].GetFloat();
+
         float velocity = fields[6].GetFloat();
 
         Trinity::NormalizeMapCoord(x);
@@ -54,7 +57,8 @@ void WaypointMgr::Load()
         waypoint.X = x;
         waypoint.Y = y;
         waypoint.Z = z;
-        waypoint.Orientation = o;
+        if (o.is_initialized())
+            waypoint.Orientation = o;
         waypoint.Velocity = velocity;
         waypoint.MoveType = fields[7].GetUInt32();
 
@@ -163,7 +167,10 @@ void WaypointMgr::ReloadPath(uint32 id)
         float x = fields[1].GetFloat();
         float y = fields[2].GetFloat();
         float z = fields[3].GetFloat();
-        float o = fields[4].GetFloat();
+        Optional<float> o;
+        if (!fields[4].IsNull())
+            o = fields[4].GetFloat();
+
         float velocity = fields[5].GetFloat();
 
         Trinity::NormalizeMapCoord(x);
@@ -174,7 +181,8 @@ void WaypointMgr::ReloadPath(uint32 id)
         waypoint.X = x;
         waypoint.Y = y;
         waypoint.Z = z;
-        waypoint.Orientation = o;
+        if (o.is_initialized())
+            waypoint.Orientation = o;
         waypoint.Velocity = velocity;
         waypoint.MoveType = fields[6].GetUInt32();
 
