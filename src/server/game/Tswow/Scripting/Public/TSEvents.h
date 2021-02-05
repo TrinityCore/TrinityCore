@@ -26,7 +26,11 @@
 #include "TSLoot.h"
 #include "TSMail.h"
 #include "TSAuction.h"
+#include "BinReader.h"
 #include <cstdint>
+
+// Addon
+EVENT_TYPE(AddonOnMessage,BinReader<uint8>)
 
 // WorldScript
 EVENT_TYPE(WorldOnOpenStateChange,bool)
@@ -371,6 +375,9 @@ TC_GAME_API TSMapDataExtra* GetMapDataExtra(uint32_t);
 
 struct TSEvents
 {
+    // AddonScript
+    EVENT(AddonOnMessage)
+
     // WorldScript
     EVENT(WorldOnOpenStateChange)
     EVENT(WorldOnConfigLoad)
@@ -957,8 +964,20 @@ public:
          MAP_EVENT_HANDLE(Item,OnGossipSelectCode)
     } ItemID;
 
+    struct AddonEvents: public EventHandler {
+         AddonEvents* operator->(){return this;}
+         EVENT_HANDLE(Addon,OnMessage)
+
+         template <typename T>
+         void _OnMessageID(uint16_t opcode, void (*func)(T*))
+         {
+               GetMessage(opcode)->listeners.push_back((void(*)(void*))func);
+         }
+    } Addon;
+
     void LoadEvents(TSEvents* events)
     {
+        Addon.LoadEvents(events);
         Server.LoadEvents(events);
         World.LoadEvents(events);
         Formula.LoadEvents(events);
@@ -987,6 +1006,7 @@ public:
 
     void Unload()
     {
+         Addon.Unload();
          Server.Unload();
          World.Unload();
          Formula.Unload();
@@ -1013,6 +1033,8 @@ public:
          MapID.Unload();
     }
 };
+
+#define OnMessageID(type,func) _OnMessageID<type>(type::opcode(),func)
 
 TC_GAME_API TSTasks<void*> GetTimers();
 TC_GAME_API TSEvents* GetTSEvents();

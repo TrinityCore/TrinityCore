@@ -60,6 +60,11 @@ std::map<std::string,TSEventHandlers> eventHandlers;
 std::map<std::string,uint32_t> modIds;
 std::vector<uint32_t> reloads;
 
+
+/** Network Message maps */
+std::map<uint16_t, MessageHandle<void>> messageMap;
+std::map<uint32_t, std::vector<uint16_t>> messageModMap;
+
 TSEvents* GetTSEvents()
 {
     return &tsEvents;
@@ -118,9 +123,21 @@ struct RemoveWorker {
 void TSUnloadEventHandler(boost::filesystem::path const& name)
 {
     std::string sname = name.string();
+    // Unload network message classes and handlers
+    auto modid = modIds[sname];
+    if(messageModMap.find(modid) != messageModMap.end())
+    {
+        auto vec = messageModMap[modid];
+        for(auto &g : vec)
+        {
+            messageMap.erase(g);
+        }
+        messageModMap.erase(modid);
+    }
+
+    // Unload events
     std::map<std::string,TSEventHandlers>::iterator iter 
         = eventHandlers.find(sname);
-
     if(iter!=eventHandlers.end())
     {
         iter->second.Unload();
@@ -128,6 +145,7 @@ void TSUnloadEventHandler(boost::filesystem::path const& name)
         eventHandlers.erase(sname);
     }
 
+    // Clean up timers and storage for creatures and gameobjects
     sMapMgr->DoForAllMaps([](auto map){
         map->tasks.timers.vec->clear();
         map->storage.map.clear();
@@ -136,6 +154,7 @@ void TSUnloadEventHandler(boost::filesystem::path const& name)
         visitor.Visit(map->GetObjectsStore());
     });
 
+    // Clean up timers and storage for players
     for(auto &p : ObjectAccessor::GetPlayers())
     {
         RemoveData(p.second);
@@ -384,6 +403,23 @@ TSMapDataExtra* GetMapDataExtra(uint32_t id)
     {
         return mapData[id];
     }
+}
+
+/** Network events */
+
+void RegisterMessage(uint32_t modid, uint16_t opcode, std::function<void*()> constructor)
+{
+    if(messageModMap.find(modid)==messageModMap.end())
+    {
+        messageModMap[modid] = std::vector<uint16_t>();
+    }
+    (&messageModMap[modid])->push_back(opcode);
+    messageMap[opcode] = MessageHandle<void>(constructor);
+}
+
+MessageHandle<void>* GetMessage(uint16_t opcode)
+{
+    return &messageMap[opcode];
 }
 
 static std::map<TSString, IDRange> tables;

@@ -6149,10 +6149,10 @@ declare namespace _hidden {
         OnDuelStart(callback: (player1 : TSPlayer,player2 : TSPlayer)=>void);
         OnDuelEnd(callback: (winner : TSPlayer,loser : TSPlayer,type : uint32)=>void);
         OnSay(callback: (player : TSPlayer,type : uint32,lang : uint32,msg : TSMutableString)=>void);
-        OnWhisper(callback: (player : TSPlayer,type : uint32,lang : uint32,msg : string,receiver : TSPlayer)=>void);
-        OnChatGroup(callback: (player : TSPlayer,type : uint32,lang : uint32,msg : string,group : TSGroup)=>void);
-        OnChatGuild(callback: (player : TSPlayer,type : uint32,lang : uint32,msg : string,guild : TSGuild)=>void);
-        OnChat(callback: (player : TSPlayer,type : uint32,lang : uint32,msg : string,channel : TSChatChannel)=>void);
+        OnWhisper(callback: (player : TSPlayer,type : uint32,lang : uint32,msg : TSMutableString,receiver : TSPlayer)=>void);
+        OnChatGroup(callback: (player : TSPlayer,type : uint32,lang : uint32,msg : TSMutableString,group : TSGroup)=>void);
+        OnChatGuild(callback: (player : TSPlayer,type : uint32,lang : uint32,msg : TSMutableString,guild : TSGuild)=>void);
+        OnChat(callback: (player : TSPlayer,type : uint32,lang : uint32,msg : TSMutableString,channel : TSChatChannel)=>void);
         OnEmote(callback: (player : TSPlayer,emote : uint32)=>void);
         OnTextEmote(callback: (player : TSPlayer,textEmote : uint32,emoteNum : uint32,guid : uint64)=>void);
         OnSpellCast(callback: (player : TSPlayer,spell : TSSpell,skipCheck : bool)=>void);
@@ -6565,7 +6565,7 @@ declare class TSMailDraft {
 
 // Global.h
 declare function SendMail(senderType: uint8, from: uint64, subject: string, body: string, money?: uint32, cod?: uint32, delay?: uint32, items?: TSArray<TSItem>);
-declare function SendWorldMessage(message: TSString);
+declare function SendWorldMessage(message: string);
 // end of Global.h
 
 declare function MakeDictionary<K,V>(obj: {[key: string]: V}) : TSDictionary<K,V>
@@ -6626,6 +6626,14 @@ declare function CharactersTable(classTarget: any)
 declare function AuthTable(classTarget: any)
 declare function Field(fieldTarget: any, name: any)
 declare function PrimaryKey(pkTarget: any, name: any)
+
+declare function Message(classTarget: any)
+declare function MsgClass(classTarget: any, name: string)
+declare function MsgClassArray(size: number): (field: any, name: any)=>void
+declare function MsgPrimitive(classTarget: any, name: string)
+declare function MsgPrimitiveArray(capacity: number): (field: any, name: any)=>void;
+declare function MsgString(size: number): (field: any, name: any)=>void
+declare function MsgStringArray(arrSize: number, stringSize: number): (field: any, name: any)=>void
 
 declare function GetTimers() : TSTasks<void>
 

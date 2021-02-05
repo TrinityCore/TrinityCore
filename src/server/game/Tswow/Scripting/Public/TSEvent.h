@@ -208,5 +208,32 @@ public:
 };
 
 TC_GAME_API uint32_t GetReloads(uint32_t modid);
+
+/** Network Messages */
+template <typename T>
+struct MessageHandle {
+    std::function<void* ()> constructor;
+    std::vector < void(*)(T*)> listeners;
+
+    MessageHandle() {}
+    MessageHandle(std::function<void* ()> constructor)
+    {
+        this->constructor = constructor;
+    }
+
+    void fire()
+    {
+        auto g = (T*) constructor();
+        for (auto& func : listeners)
+        {
+            func(g);
+        }
+        free(g);
+    }
+};
+
+void RegisterMessage(uint32_t modid, uint16_t opcode, std::function<void*()> constructor);
+
+MessageHandle<void>* GetMessage(uint16_t opcode); 
 	
 #endif
