@@ -16,6 +16,7 @@
  */
 
 #include "SmartAI.h"
+#include "AreaTrigger.h"
 #include "Creature.h"
 #include "CreatureGroups.h"
 #include "DB2Structure.h"
@@ -1094,6 +1095,41 @@ class SmartTrigger : public AreaTriggerScript
         }
 };
 
+void SmartAreaTriggerAI::OnInitialize()
+{
+    GetScript()->OnInitialize(at);
+}
+
+void SmartAreaTriggerAI::OnUpdate(uint32 diff)
+{
+    GetScript()->OnUpdate(diff);
+}
+
+void SmartAreaTriggerAI::OnUnitEnter(Unit* unit)
+{
+    GetScript()->ProcessEventsFor(SMART_EVENT_AREATRIGGER_ONTRIGGER, unit);
+}
+
+void SmartAreaTriggerAI::SetScript9(SmartScriptHolder& e, uint32 entry, Unit* invoker)
+{
+    if (invoker)
+        GetScript()->mLastInvoker = invoker->GetGUID();
+    GetScript()->SetScript9(e, entry);
+}
+
+class SmartAreaTriggerEntityScript : public AreaTriggerEntityScript
+{
+public:
+    SmartAreaTriggerEntityScript() : AreaTriggerEntityScript("SmartAreaTriggerAI")
+    {
+    }
+
+    AreaTriggerAI* GetAI(AreaTrigger* areaTrigger) const override
+    {
+        return new SmartAreaTriggerAI(areaTrigger);
+    }
+};
+
 class SmartScene : public SceneScript
 {
 public:
@@ -1131,5 +1167,6 @@ public:
 void AddSC_SmartScripts()
 {
     new SmartTrigger();
+    new SmartAreaTriggerEntityScript();
     new SmartScene();
 }

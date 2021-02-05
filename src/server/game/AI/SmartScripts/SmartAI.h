@@ -19,6 +19,7 @@
 #define TRINITY_SMARTAI_H
 
 #include "Define.h"
+#include "AreaTriggerAI.h"
 #include "CreatureAI.h"
 #include "GameObjectAI.h"
 #include "Position.h"
@@ -284,6 +285,22 @@ class TC_GAME_API SmartGameObjectAI : public GameObjectAI
 
         // Gossip
         bool _gossipReturn;
+};
+
+class TC_GAME_API SmartAreaTriggerAI : public AreaTriggerAI
+{
+public:
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnInitialize() override;
+    void OnUpdate(uint32 diff) override;
+    void OnUnitEnter(Unit* unit) override;
+
+    SmartScript* GetScript() { return &mScript; }
+    void SetScript9(SmartScriptHolder& e, uint32 entry, Unit* invoker);
+
+private:
+    SmartScript mScript;
 };
 
 /// Registers scripts required by the SAI scripting system
