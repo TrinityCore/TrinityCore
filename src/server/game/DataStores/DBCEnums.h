@@ -1298,6 +1298,8 @@ enum class SpellEffectAttributes
     IgnoreDuringCooldownTimeRateCalculation = 0x800000
 };
 
+DEFINE_ENUM_FLAG(SpellEffectAttributes);
+
 #define MAX_SPELL_EFFECTS 32
 #define MAX_EFFECT_MASK 0xFFFFFFFF
 
