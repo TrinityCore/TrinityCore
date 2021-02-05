@@ -21,6 +21,7 @@
 #include "Define.h"
 #include "SmartScriptMgr.h"
 
+class AreaTriggerTemplate;
 class Creature;
 class GameObject;
 class Player;
@@ -36,7 +37,7 @@ class TC_GAME_API SmartScript
         SmartScript();
         ~SmartScript();
 
-        void OnInitialize(WorldObject* obj, AreaTriggerEntry const* at = nullptr, SceneTemplate const* scene = nullptr);
+        void OnInitialize(WorldObject* obj, AreaTriggerEntry const* at = nullptr, AreaTriggerTemplate const* att = nullptr, SceneTemplate const* scene = nullptr);
         void GetScript();
         void FillScript(SmartAIEventList e, WorldObject* obj, AreaTriggerEntry const* at, SceneTemplate const* scene);
 
@@ -122,6 +123,7 @@ class TC_GAME_API SmartScript
         GameObject* go;
         ObjectGuid goOrigGUID;
         AreaTriggerEntry const* trigger;
+        AreaTriggerTemplate const* triggerTemplate;
         SceneTemplate const* sceneTemplate;
         SmartScriptType mScriptType;
         uint32 mEventPhase;

@@ -1191,7 +1191,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 y += e.target.y;
                 z += e.target.z;
                 o += e.target.o;
-                if (Creature* summon = summoner->SummonCreature(e.action.summonCreature.creature, x, y, z, o, (TempSummonType)e.action.summonCreature.type, e.action.summonCreature.duration))
+                if (Creature* summon = summoner->SummonCreature(e.action.summonCreature.creature, x, y, z, o, (TempSummonType)e.action.summonCreature.type, e.action.summonCreature.duration, e.action.summonCreature.personalSpawn == 1))
                     if (e.action.summonCreature.attackInvoker)
                         summon->AI()->AttackStart(target->ToUnit());
             }
@@ -1199,7 +1199,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (e.GetTargetType() != SMART_TARGET_POSITION)
                 break;
 
-            if (Creature* summon = summoner->SummonCreature(e.action.summonCreature.creature, e.target.x, e.target.y, e.target.z, e.target.o, (TempSummonType)e.action.summonCreature.type, e.action.summonCreature.duration))
+            if (Creature* summon = summoner->SummonCreature(e.action.summonCreature.creature, e.target.x, e.target.y, e.target.z, e.target.o, (TempSummonType)e.action.summonCreature.type, e.action.summonCreature.duration, e.action.summonCreature.personalSpawn == 1))
                 if (unit && e.action.summonCreature.attackInvoker)
                     summon->AI()->AttackStart(unit);
             break;
@@ -1992,8 +1992,15 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_SUMMON_CREATURE_GROUP:
         {
+            WorldObject* baseObject = GetBaseObject();
+            if (!baseObject)
+            {
+                TC_LOG_ERROR("sql.sql", "SmartScript: BaseObject in SMART_ACTION_SUMMON_CREATURE_GROUP is missing, skipping");
+                return;
+            }
+
             std::list<TempSummon*> summonList;
-            GetBaseObject()->SummonCreatureGroup(e.action.creatureGroup.group, &summonList);
+            baseObject->SummonCreatureGroup(e.action.creatureGroup.group, &summonList);
 
             for (TempSummon* summon : summonList)
                 if (unit && e.action.creatureGroup.attackInvoker)
@@ -3743,6 +3750,11 @@ void SmartScript::GetScript()
         e = sSmartScriptMgr->GetScript((int32)trigger->ID, mScriptType);
         FillScript(std::move(e), nullptr, trigger, nullptr);
     }
+    else if (triggerTemplate)
+    {
+        e = sSmartScriptMgr->GetScript((int32)triggerTemplate->Id.Id, mScriptType);
+        FillScript(std::move(e), nullptr, nullptr, nullptr);
+    }
     else if (sceneTemplate)
     {
         e = sSmartScriptMgr->GetScript(sceneTemplate->SceneId, mScriptType);
@@ -3750,7 +3762,7 @@ void SmartScript::GetScript()
     }
 }
 
-void SmartScript::OnInitialize(WorldObject* obj, AreaTriggerEntry const* at, SceneTemplate const* scene)
+void SmartScript::OnInitialize(WorldObject* obj, AreaTriggerEntry const* at, AreaTriggerTemplate const* att, SceneTemplate const* scene)
 {
     if (obj)//handle object based scripts
     {
@@ -3776,6 +3788,12 @@ void SmartScript::OnInitialize(WorldObject* obj, AreaTriggerEntry const* at, Sce
         mScriptType = SMART_SCRIPT_TYPE_AREATRIGGER;
         trigger = at;
         TC_LOG_DEBUG("scripts.ai", "SmartScript::OnInitialize: source is AreaTrigger %u", trigger->ID);
+    }
+    else if (att)
+    {
+        mScriptType = SMART_SCRIPT_TYPE_AREATRIGGER_SERVER;
+        triggerTemplate = att;
+        TC_LOG_DEBUG("scripts.ai", "SmartScript::OnInitialize: source is AreaTrigger ServerSide %u", triggerTemplate->Id.Id);
     }
     else if (scene)
     {

@@ -16,6 +16,8 @@
  */
 
 #include "SmartScriptMgr.h"
+#include "AreaTriggerDataStore.h"
+#include "AreaTriggerTemplate.h"
 #include "CreatureTextMgr.h"
 #include "DB2Stores.h"
 #include "DatabaseEnv.h"
@@ -179,6 +181,15 @@ void SmartAIMgr::LoadSmartAIFromDB()
                     if (!sAreaTriggerStore.LookupEntry((uint32)temp.entryOrGuid))
                     {
                         TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: AreaTrigger entry (%u) does not exist, skipped loading.", uint32(temp.entryOrGuid));
+                        continue;
+                    }
+                    break;
+                }
+                case SMART_SCRIPT_TYPE_AREATRIGGER_SERVER:
+                {
+                    if (!sAreaTriggerDataStore->GetAreaTriggerTemplate(AreaTriggerId((uint32)(temp.entryOrGuid), true)))
+                    {
+                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: AreaTrigger ServerSide id (%u) does not exist, skipped loading.", uint32(temp.entryOrGuid));
                         continue;
                     }
                     break;
@@ -1253,6 +1264,10 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         {
             if (!IsCreatureValid(e, e.action.summonCreature.creature))
                 return false;
+
+            if (e.action.summonCreature.personalSpawn > 1)
+                TC_LOG_WARN("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u creature summon: PersonalSpawn is higher than 1: %u",
+                    e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.summonCreature.personalSpawn);
 
             CacheSpellContainerBounds sBounds = GetSummonCreatureSpellContainerBounds(e.action.summonCreature.creature);
             for (CacheSpellContainer::const_iterator itr = sBounds.first; itr != sBounds.second; ++itr)

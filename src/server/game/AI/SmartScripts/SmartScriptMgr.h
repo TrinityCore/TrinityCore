@@ -679,6 +679,7 @@ struct SmartAction
             uint32 type;
             uint32 duration;
             uint32 attackInvoker;
+            uint32 personalSpawn;
         } summonCreature;
 
         struct
@@ -1381,7 +1382,8 @@ enum SmartScriptType
     SMART_SCRIPT_TYPE_INSTANCE = 8, //
     SMART_SCRIPT_TYPE_TIMED_ACTIONLIST = 9, //
     SMART_SCRIPT_TYPE_SCENE = 10, //done
-    SMART_SCRIPT_TYPE_MAX = 11
+    SMART_SCRIPT_TYPE_AREATRIGGER_SERVER = 11, //done
+    SMART_SCRIPT_TYPE_MAX = 12
 };
 
 enum SmartAITypeMaskId
@@ -1411,7 +1413,8 @@ const uint32 SmartAITypeMask[SMART_SCRIPT_TYPE_MAX][2] =
     {SMART_SCRIPT_TYPE_TRANSPORT,           SMART_SCRIPT_TYPE_MASK_TRANSPORT },
     {SMART_SCRIPT_TYPE_INSTANCE,            SMART_SCRIPT_TYPE_MASK_INSTANCE },
     {SMART_SCRIPT_TYPE_TIMED_ACTIONLIST,    SMART_SCRIPT_TYPE_MASK_TIMED_ACTIONLIST },
-    {SMART_SCRIPT_TYPE_SCENE,               SMART_SCRIPT_TYPE_MASK_SCENE }
+    {SMART_SCRIPT_TYPE_SCENE,               SMART_SCRIPT_TYPE_MASK_SCENE },
+    {SMART_SCRIPT_TYPE_AREATRIGGER_SERVER,  SMART_SCRIPT_TYPE_MASK_AREATRIGGER }
 };
 
 const uint32 SmartAIEventMask[SMART_EVENT_END][2] =

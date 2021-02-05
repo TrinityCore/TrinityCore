@@ -461,8 +461,13 @@ void AreaTrigger::HandleUnitEnterExit(std::vector<Unit*> const& newTargetList)
     for (Unit* unit : enteringUnits)
     {
         if (Player* player = unit->ToPlayer())
+        {
             if (player->isDebugAreaTriggers)
                 ChatHandler(player->GetSession()).PSendSysMessage(LANG_DEBUG_AREATRIGGER_ENTERED, GetTemplate()->Id.Id);
+
+            if (IsServerSide())
+                sScriptMgr->OnServerAreaTrigger(player, _areaTriggerTemplate, true);
+        }
 
         DoActions(unit);
 

@@ -76,6 +76,10 @@ struct AreaTriggerId
 {
     uint32 Id = 0;
     bool IsServerSide = false;
+
+    AreaTriggerId() : Id(0), IsServerSide(false) { }
+
+    AreaTriggerId(uint32 id, bool isServerSide) : Id(id), IsServerSide(isServerSide) { }
 };
 
 struct AreaTriggerAction

@@ -16,6 +16,7 @@
  */
 
 #include "SmartAI.h"
+#include "AreaTriggerTemplate.h"
 #include "Creature.h"
 #include "CreatureGroups.h"
 #include "DB2Structure.h"
@@ -1094,6 +1095,25 @@ class SmartTrigger : public AreaTriggerScript
         }
 };
 
+class SmartServerTrigger : public AreaTriggerServerScript
+{
+    public:
+
+        SmartServerTrigger() : AreaTriggerServerScript("SmartServerTrigger") { }
+
+        bool OnServerTrigger(Player* player, AreaTriggerTemplate const* triggerTemplate, bool /*entered*/) override
+        {
+            if (!player->IsAlive())
+                return false;
+
+            TC_LOG_DEBUG("scripts.ai", "AreaTrigger ServerSide %u is using SmartServerTrigger script", triggerTemplate->Id.Id);
+            SmartScript script;
+            script.OnInitialize(nullptr, nullptr, triggerTemplate);
+            script.ProcessEventsFor(SMART_EVENT_AREATRIGGER_ONTRIGGER, player, triggerTemplate->Id.Id);
+            return true;
+        }
+};
+
 class SmartScene : public SceneScript
 {
 public:
@@ -1102,28 +1122,28 @@ public:
     void OnSceneStart(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* sceneTemplate) override
     {
         SmartScript smartScript;
-        smartScript.OnInitialize(nullptr, nullptr, sceneTemplate);
+        smartScript.OnInitialize(nullptr, nullptr, nullptr, sceneTemplate);
         smartScript.ProcessEventsFor(SMART_EVENT_SCENE_START, player);
     }
 
     void OnSceneTriggerEvent(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* sceneTemplate, std::string const& triggerName) override
     {
         SmartScript smartScript;
-        smartScript.OnInitialize(nullptr, nullptr, sceneTemplate);
+        smartScript.OnInitialize(nullptr, nullptr, nullptr, sceneTemplate);
         smartScript.ProcessEventsFor(SMART_EVENT_SCENE_TRIGGER, player, 0, 0, false, nullptr, nullptr, triggerName);
     }
 
     void OnSceneCancel(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* sceneTemplate) override
     {
         SmartScript smartScript;
-        smartScript.OnInitialize(nullptr, nullptr, sceneTemplate);
+        smartScript.OnInitialize(nullptr, nullptr, nullptr, sceneTemplate);
         smartScript.ProcessEventsFor(SMART_EVENT_SCENE_CANCEL, player);
     }
 
     void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* sceneTemplate) override
     {
         SmartScript smartScript;
-        smartScript.OnInitialize(nullptr, nullptr, sceneTemplate);
+        smartScript.OnInitialize(nullptr, nullptr, nullptr, sceneTemplate);
         smartScript.ProcessEventsFor(SMART_EVENT_SCENE_COMPLETE, player);
     }
 };
@@ -1131,5 +1151,6 @@ public:
 void AddSC_SmartScripts()
 {
     new SmartTrigger();
+    new SmartServerTrigger();
     new SmartScene();
 }

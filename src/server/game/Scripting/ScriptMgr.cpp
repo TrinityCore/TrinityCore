@@ -83,6 +83,10 @@ struct is_script_database_bound<AreaTriggerScript>
     : std::true_type { };
 
 template<>
+struct is_script_database_bound<AreaTriggerServerScript>
+    : std::true_type { };
+
+template<>
 struct is_script_database_bound<BattlegroundScript>
     : std::true_type { };
 
@@ -1670,6 +1674,15 @@ bool ScriptMgr::OnAreaTrigger(Player* player, AreaTriggerEntry const* trigger, b
     return tmpscript->OnTrigger(player, trigger, entered);
 }
 
+bool ScriptMgr::OnServerAreaTrigger(Player* player, AreaTriggerTemplate const* trigger, bool entered)
+{
+    ASSERT(player);
+    ASSERT(trigger);
+
+    GET_SCRIPT_RET(AreaTriggerServerScript, trigger->ScriptId, tmpscript, false);
+    return tmpscript->OnServerTrigger(player, trigger, entered);
+}
+
 Battleground* ScriptMgr::CreateBattleground(BattlegroundTypeId /*typeId*/)
 {
     /// @todo Implement script-side battlegrounds.
@@ -2354,6 +2367,12 @@ AreaTriggerScript::AreaTriggerScript(char const* name)
     ScriptRegistry<AreaTriggerScript>::Instance()->AddScript(this);
 }
 
+AreaTriggerServerScript::AreaTriggerServerScript(char const* name)
+    : ScriptObject(name)
+{
+    ScriptRegistry<AreaTriggerServerScript>::Instance()->AddScript(this);
+}
+
 bool OnlyOnceAreaTriggerScript::OnTrigger(Player* player, AreaTriggerEntry const* trigger, bool entered)
 {
     uint32 const triggerId = trigger->ID;
@@ -2489,6 +2508,7 @@ template class TC_GAME_API ScriptRegistry<ItemScript>;
 template class TC_GAME_API ScriptRegistry<CreatureScript>;
 template class TC_GAME_API ScriptRegistry<GameObjectScript>;
 template class TC_GAME_API ScriptRegistry<AreaTriggerScript>;
+template class TC_GAME_API ScriptRegistry<AreaTriggerServerScript>;
 template class TC_GAME_API ScriptRegistry<BattlegroundScript>;
 template class TC_GAME_API ScriptRegistry<OutdoorPvPScript>;
 template class TC_GAME_API ScriptRegistry<CommandScript>;
