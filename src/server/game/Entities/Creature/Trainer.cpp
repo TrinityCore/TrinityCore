@@ -151,14 +151,14 @@ namespace Trainer
             if (!player->HasSpell(spellEffect->TriggerSpell))
                 knowsAllLearnedSpells = false;
 
-            if (uint32 previousRankSpellId = sSpellMgr->GetPrevSpellInChain(spellEffect->TriggerSpell))
+            if (uint32 previousRankSpellId = sSpellMgr->GetPrevSpellInChain(spellEffect->TriggerSpell, player))
                 if (!player->HasSpell(previousRankSpellId))
                     return SpellState::Unavailable;
         }
 
         if (!hasLearnSpellEffect)
         {
-            if (uint32 previousRankSpellId = sSpellMgr->GetPrevSpellInChain(trainerSpell->SpellId))
+            if (uint32 previousRankSpellId = sSpellMgr->GetPrevSpellInChain(trainerSpell->SpellId, player))
                 if (!player->HasSpell(previousRankSpellId))
                     return SpellState::Unavailable;
         }

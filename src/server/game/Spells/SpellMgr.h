@@ -644,7 +644,7 @@ class TC_GAME_API SpellMgr
         uint32 GetFirstSpellInChain(uint32 spell_id) const;
         uint32 GetLastSpellInChain(uint32 spell_id) const;
         uint32 GetNextSpellInChain(uint32 spell_id) const;
-        uint32 GetPrevSpellInChain(uint32 spell_id) const;
+        uint32 GetPrevSpellInChain(uint32 spell_id, Unit const* disableCheckUnit = nullptr) const;
         uint8 GetSpellRank(uint32 spell_id) const;
         // not strict check returns provided spell if rank not avalible
         uint32 GetSpellWithRank(uint32 spell_id, uint32 rank, bool strict = false) const;

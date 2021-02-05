@@ -66,14 +66,21 @@ public:
         };
         static std::vector<ChatCommand> disableCommandTable =
         {
-            { "add",    rbac::RBAC_PERM_COMMAND_DISABLE_ADD,    true, nullptr, "", addDisableCommandTable },
-            { "remove", rbac::RBAC_PERM_COMMAND_DISABLE_REMOVE, true, nullptr, "", removeDisableCommandTable },
+            { "add",    rbac::RBAC_PERM_COMMAND_DISABLE_ADD,    true, nullptr,                      "", addDisableCommandTable },
+            { "remove", rbac::RBAC_PERM_COMMAND_DISABLE_REMOVE, true, nullptr,                      "", removeDisableCommandTable },
+            { "reload", rbac::RBAC_PERM_COMMAND_DISABLE,        true, &HandleReloadDisablesCommand, "" },
         };
         static std::vector<ChatCommand> commandTable =
         {
             { "disable", rbac::RBAC_PERM_COMMAND_DISABLE, false, nullptr, "", disableCommandTable },
         };
         return commandTable;
+    }
+
+    static bool HandleReloadDisablesCommand(ChatHandler* handler, char const* args)
+    {
+        DisableMgr::LoadDisables();
+        return true;
     }
 
     static bool HandleAddDisables(ChatHandler* handler, char const* args, uint8 disableType)

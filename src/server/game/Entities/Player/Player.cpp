@@ -3136,6 +3136,8 @@ void Player::LearnSpell(uint32 spell_id, bool dependent, int32 fromSkill /*= 0*/
         SendDirectMessage(packet.Write());
     }
 
+    disabled |= DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, spell_id, this, 0);
+
     // learn all disabled higher ranks and required spells (recursive)
     if (disabled)
     {

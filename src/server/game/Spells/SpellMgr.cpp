@@ -16,6 +16,7 @@
  */
 
 #include "SpellMgr.h"
+#include "DisableMgr.h"
 #include "BattlefieldMgr.h"
 #include "BattlefieldWG.h"
 #include "BattlegroundMgr.h"
@@ -230,11 +231,20 @@ uint32 SpellMgr::GetNextSpellInChain(uint32 spell_id) const
     return 0;
 }
 
-uint32 SpellMgr::GetPrevSpellInChain(uint32 spell_id) const
+uint32 SpellMgr::GetPrevSpellInChain(uint32 spell_id, Unit const* disableCheckUnit /*= nullptr*/) const
 {
-    if (SpellChainNode const* node = GetSpellChainNode(spell_id))
-        if (node->prev)
+    SpellChainNode const* node = nullptr;
+
+    do
+    {
+        node = GetSpellChainNode(spell_id);
+        if (node == nullptr || node->prev == nullptr)
+            break;
+
+        if (disableCheckUnit == nullptr || !DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, node->prev->Id, disableCheckUnit, 0))
             return node->prev->Id;
+        spell_id = node->prev->Id;
+    } while (node != nullptr && node->prev != nullptr);
 
     return 0;
 }
