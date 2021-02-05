@@ -2890,6 +2890,8 @@ struct SpellEffectEntry
     flag128 EffectSpellClassMask;
     int16 ImplicitTarget[2];
     uint32 SpellID;
+
+    SpellEffectAttributes GetEffectAttributes() const { return static_cast<SpellEffectAttributes>(EffectAttributes); }
 };
 
 struct SpellEquippedItemsEntry
