@@ -21,6 +21,7 @@
 #include "DB2Structure.h"
 #include "Group.h"
 #include "Log.h"
+#include "Map.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 
@@ -224,7 +225,7 @@ void QuestObjectiveCriteriaMgr::SendAllData(Player const* /*receiver*/) const
     }
 }
 
-void QuestObjectiveCriteriaMgr::CompletedObjective(QuestObjective const* questObjective, Player* referencePlayer)
+void QuestObjectiveCriteriaMgr::CompletedObjective(QuestObjective const* questObjective, Player* /*referencePlayer*/)
 {
     if (HasCompletedObjective(questObjective))
         return;
