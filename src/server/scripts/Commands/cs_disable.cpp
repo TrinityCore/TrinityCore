@@ -77,7 +77,7 @@ public:
         return commandTable;
     }
 
-    static bool HandleReloadDisablesCommand(ChatHandler* handler, char const* args)
+    static bool HandleReloadDisablesCommand(ChatHandler* /*handler*/, char const* /*args*/)
     {
         DisableMgr::LoadDisables();
         return true;
