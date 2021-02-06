@@ -43,6 +43,7 @@ int32 irand(int32 min, int32 max)
     return int32(GetRng()->IRandom(min, max));
 }
 
+// Return a random integer between min (inclusive) and max (inclusive)
 uint32 urand(uint32 min, uint32 max)
 {
     ASSERT(max >= min);

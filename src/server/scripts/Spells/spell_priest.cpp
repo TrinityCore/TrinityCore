@@ -399,7 +399,7 @@ public:
         SpellCastResult CheckCast()
         {
             Unit* caster = GetCaster();
-            Unit* target = GetExplTargetUnit();
+            Unit* target = GetHitUnit();
 
             if (!target || (!caster->HasAura(SPELL_PRIEST_ABSOLUTION) && caster != target && target->IsFriendlyTo(caster)))
                 return SPELL_FAILED_BAD_TARGETS;
@@ -1129,6 +1129,11 @@ public:
 class spell_pri_prayer_of_mending_SpellScriptBase : public SpellScript
 {
 public:
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_PRAYER_OF_MENDING_HEAL });
+    }
+
     bool Load() override
     {
         _spellInfoHeal = sSpellMgr->GetSpellInfo(SPELL_PRIEST_PRAYER_OF_MENDING_HEAL, DIFFICULTY_NONE);
@@ -1166,23 +1171,19 @@ public:
     {
         PrepareSpellScript(spell_pri_prayer_of_mending_SpellScript);
 
-        bool Validate(SpellInfo const* /*spellInfo*/) override
+        bool Validate(SpellInfo const* spellInfo) override
         {
-            return ValidateSpellInfo({ SPELL_PRIEST_PRAYER_OF_MENDING_AURA });
+            return spell_pri_prayer_of_mending_SpellScriptBase::Validate(spellInfo) &&
+                ValidateSpellInfo({ SPELL_PRIEST_PRAYER_OF_MENDING_AURA });
         }
 
         void HandleEffectDummy(SpellEffIndex effIndex)
         {
-            SpellEffectInfo const* effectInfo = GetEffectInfo(effIndex);
-            if (!effectInfo)
-                return;
-
             Unit* target = GetExplTargetUnit();
             if (!target)
                 return;
 
-            Unit* caster = GetCaster();
-            CastPrayerOfMendingAura(caster, target, effectInfo->BasePoints);
+            CastPrayerOfMendingAura(GetCaster(), target, GetEffectValue());
         }
 
         void Register() override
@@ -1217,17 +1218,16 @@ class spell_pri_prayer_of_mending_aura : public SpellScriptLoader
                 // Caster: the player(priest) that casters the prayer of mending
                 // Owner: the player that currently has the prayer of mending aura on him
                 Unit* owner = GetUnitOwner();
-                Aura* aura = owner->GetAura(SPELL_PRIEST_PRAYER_OF_MENDING_AURA);
                 if (Unit* caster = GetCaster())
                 {
                     // Cast the spell to heal the owner
                     caster->CastSpell(owner, SPELL_PRIEST_PRAYER_OF_MENDING_HEAL);
 
                     // Only cast jump if stack is higher than 0
-                    if (aura->GetStackAmount() > 1)
-                        owner->CastSpell(owner, SPELL_PRIEST_PRAYER_OF_MENDING_JUMP, true, nullptr, nullptr, caster->GetGUID());
-                    else
-                        aura->Remove();
+                    int32 stackAmount = GetStackAmount();
+                    if (stackAmount > 1)
+                        owner->CastCustomSpell(SPELL_PRIEST_PRAYER_OF_MENDING_JUMP, SPELLVALUE_BASE_POINT0, stackAmount - 1, owner, true, nullptr, nullptr, caster->GetGUID());
+                    Remove();
                 }
             }
 
@@ -1253,28 +1253,73 @@ class spell_pri_prayer_of_mending_jump : public SpellScriptLoader
         {
             PrepareSpellScript(spell_pri_prayer_of_mending_jump_SpellScript);
 
+            enum class TargetPriority : uint8
+            {
+                InjuredPlayers,
+                InjuredPets,
+                FullHealthPlayers,
+                None,
+            };
+
             void OnTargetSelect(std::list<WorldObject*>& targets)
             {
-                targets.remove_if([](WorldObject* worldObject)
+                // find best target
+                // Make sure too exclude the player that had the aura (caster in our case)
+                Unit* owner = GetCaster();
+                TargetPriority priority = TargetPriority::None;
+                for (auto iter = targets.cbegin(); iter != targets.cend(); ++iter)
                 {
-                    return !worldObject || !(worldObject->ToPlayer());
-                });
+                    WorldObject const* worldObject = *iter;
+                    if (!worldObject || worldObject == owner)
+                        continue;
+                    if (Player const* player = worldObject->ToPlayer())
+                    {
+                        if (!player->IsFullHealth())
+                        {
+                            priority = TargetPriority::InjuredPlayers; // highest priority, no need to check anything else
+                            break;
+                        }
+                        if (priority == TargetPriority::None)
+                            priority = TargetPriority::FullHealthPlayers;
+                    }
+                    else if (Creature const* creature = worldObject->ToCreature())
+                        if (!creature->IsFullHealth())
+                            priority = TargetPriority::InjuredPets;
+                }
+                if (priority == TargetPriority::None)
+                    targets.clear();
+                else
+                {
+                    targets.remove_if([priority](WorldObject* worldObject)
+                    {
+                        if (!worldObject)
+                            return true;
+
+                        switch (priority)
+                        {
+                            case TargetPriority::InjuredPlayers: return !(worldObject->ToPlayer()) || worldObject->ToPlayer()->IsFullHealth();
+                            case TargetPriority::InjuredPets: return !(worldObject->ToCreature()) || worldObject->ToPlayer();
+                            case TargetPriority::FullHealthPlayers: return !(worldObject->ToPlayer());
+                        }
+                    });
+
+                    // choose one random target from targets
+                    if (targets.size() > 1)
+                    {
+                        uint32 chosen = urand(0, targets.size() - 1);
+                        uint32 idx = 0;
+                        targets.remove_if([chosen, &idx](WorldObject* worldObject) { return (chosen != idx++); });
+                    }
+                }
             }
 
             void HandleJump(SpellEffIndex /*effIndex*/)
             {
-                Unit* caster = GetCaster(); // the one that has the aura
                 Unit* origCaster = GetOriginalCaster(); // the one that started the prayer of mending chain
                 Unit* target = GetHitUnit(); // the target we decided should jump the aura to
-                Aura* aura = caster->GetAura(SPELL_PRIEST_PRAYER_OF_MENDING_AURA);
 
-                if (origCaster && target && aura)
-                {
-                    // Remove the aura from the caster
-                    aura->Remove();
-
-                    CastPrayerOfMendingAura(origCaster, target, aura->GetStackAmount() - 1);
-                }
+                if (origCaster && target)
+                    CastPrayerOfMendingAura(origCaster, target, GetEffectValue());
             }
 
             void Register() override
