@@ -1177,7 +1177,7 @@ public:
                 ValidateSpellInfo({ SPELL_PRIEST_PRAYER_OF_MENDING_AURA });
         }
 
-        void HandleEffectDummy(SpellEffIndex effIndex)
+        void HandleEffectDummy(SpellEffIndex /*effIndex*/)
         {
             Unit* target = GetExplTargetUnit();
             if (!target)
