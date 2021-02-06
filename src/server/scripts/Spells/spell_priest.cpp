@@ -1300,6 +1300,7 @@ class spell_pri_prayer_of_mending_jump : public SpellScriptLoader
                             case TargetPriority::InjuredPlayers: return !(worldObject->ToPlayer()) || worldObject->ToPlayer()->IsFullHealth();
                             case TargetPriority::InjuredPets: return !(worldObject->ToCreature()) || worldObject->ToPlayer();
                             case TargetPriority::FullHealthPlayers: return !(worldObject->ToPlayer());
+                            default: return true;
                         }
                     });
 

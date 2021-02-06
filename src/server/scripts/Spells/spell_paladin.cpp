@@ -24,6 +24,7 @@
 #include "ScriptMgr.h"
 #include "Group.h"
 #include "Player.h"
+#include "Random.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
