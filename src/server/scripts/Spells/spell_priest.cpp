@@ -1256,9 +1256,7 @@ class spell_pri_prayer_of_mending_jump : public SpellScriptLoader
             enum class TargetPriority : uint8
             {
                 InjuredPlayers,
-                InjuredPets,
                 FullHealthPlayers,
-                FullHealthPets,
                 None,
             };
 
@@ -1280,29 +1278,22 @@ class spell_pri_prayer_of_mending_jump : public SpellScriptLoader
                             priority = TargetPriority::InjuredPlayers; // highest priority, no need to check anything else
                             break;
                         }
-                        if (priority == TargetPriority::None || priority == TargetPriority::FullHealthPets)
-                            priority = TargetPriority::FullHealthPlayers;
+                        priority = TargetPriority::FullHealthPlayers;
                     }
-                    else if (Creature const* creature = worldObject->ToCreature())
-                        if (!creature->IsFullHealth())
-                            priority = TargetPriority::InjuredPets;
-                        else if (priority == TargetPriority::None)
-                            priority = TargetPriority::FullHealthPets;
                 }
                 if (priority == TargetPriority::None)
                     targets.clear();
                 else
                 {
-                    targets.remove_if([priority](WorldObject* worldObject)
+                    targets.remove_if([priority, owner](WorldObject* worldObject)
                     {
-                        if (!worldObject)
+                        if (!worldObject || worldObject == owner || !(worldObject->ToPlayer()))
                             return true;
 
                         switch (priority)
                         {
-                            case TargetPriority::InjuredPlayers: return !(worldObject->ToPlayer()) || worldObject->ToPlayer()->IsFullHealth();
-                            case TargetPriority::InjuredPets: return !(worldObject->ToCreature()) || worldObject->ToPlayer();
-                            case TargetPriority::FullHealthPlayers: return !(worldObject->ToPlayer());
+                            case TargetPriority::InjuredPlayers: return worldObject->ToPlayer()->IsFullHealth();
+                            case TargetPriority::FullHealthPlayers: return false;
                             default: return true;
                         }
                     });
