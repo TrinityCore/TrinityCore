@@ -3574,6 +3574,8 @@ WorldObject* SmartScript::GetBaseObject() const
         obj = me;
     else if (go)
         obj = go;
+    else if (areaTrigger)
+        obj = areaTrigger;
     return obj;
 }
 
