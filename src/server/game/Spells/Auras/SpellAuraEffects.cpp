@@ -464,8 +464,8 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleShowConfirmationPrompt,                    //394 SPELL_AURA_SHOW_CONFIRMATION_PROMPT
     &AuraEffect::HandleCreateAreaTrigger,                         //395 SPELL_AURA_AREA_TRIGGER
     &AuraEffect::HandleNULL,                                      //396 SPELL_AURA_TRIGGER_SPELL_ON_POWER_AMOUNT
-    &AuraEffect::HandleBattlegroundPlayerPosition,                //397 SPELL_AURA_UPDATE_BATTLEGROUND_PLAYER_POSITION
-    &AuraEffect::HandleBattlegroundPlayerPosition,                //398 SPELL_AURA_UPDATE_BATTLEGROUND_PLAYER_POSITION_2
+    &AuraEffect::HandleBattlegroundPlayerPosition,                //397 SPELL_AURA_BATTLEGROUND_PLAYER_POSITION_FACTIONAL
+    &AuraEffect::HandleBattlegroundPlayerPosition,                //398 SPELL_AURA_BATTLEGROUND_PLAYER_POSITION
     &AuraEffect::HandleNULL,                                      //399 SPELL_AURA_MOD_TIME_RATE
     &AuraEffect::HandleAuraModSkill,                              //400 SPELL_AURA_MOD_SKILL_2
     &AuraEffect::HandleNULL,                                      //401
@@ -6388,9 +6388,9 @@ void AuraEffect::HandleBattlegroundPlayerPosition(AuraApplication const* aurApp,
         playerPosition->ArenaSlot = static_cast<uint8>(GetMiscValue());
         playerPosition->Pos = target->GetPosition();
 
-        if (GetAuraType() == SPELL_AURA_UPDATE_BATTLEGROUND_PLAYER_POSITION)
+        if (GetAuraType() == SPELL_AURA_BATTLEGROUND_PLAYER_POSITION_FACTIONAL)
             playerPosition->IconID = target->GetTeam() == ALLIANCE ? PLAYER_POSITION_ICON_HORDE_FLAG : PLAYER_POSITION_ICON_ALLIANCE_FLAG;
-        else if (GetAuraType() == SPELL_AURA_UPDATE_BATTLEGROUND_PLAYER_POSITION_2)
+        else if (GetAuraType() == SPELL_AURA_BATTLEGROUND_PLAYER_POSITION)
             playerPosition->IconID = target->GetTeam() == ALLIANCE ? PLAYER_POSITION_ICON_ALLIANCE_FLAG : PLAYER_POSITION_ICON_HORDE_FLAG;
         else
             TC_LOG_WARN("spell.auras", "Unknown aura effect %u handled by HandleBattlegroundPlayerPosition.", GetAuraType());
