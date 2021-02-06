@@ -23,6 +23,7 @@
 #include "Position.h"
 #include "SharedDefines.h"
 #include <map>
+#include <memory>
 #include <vector>
 
 class BattlegroundMap;
@@ -503,7 +504,7 @@ class TC_GAME_API Battleground
         // because BattleGrounds with different types and same level range has different m_BracketId
         uint8 GetUniqueBracketId() const;
 
-        void AddPlayerPosition(WorldPackets::Battleground::BattlegroundPlayerPosition const position);
+        void AddPlayerPosition(std::shared_ptr<WorldPackets::Battleground::BattlegroundPlayerPosition> position);
         void RemovePlayerPosition(ObjectGuid guid);
 
     protected:
@@ -628,6 +629,6 @@ class TC_GAME_API Battleground
         BattlegroundTemplate const* _battlegroundTemplate;
         PVPDifficultyEntry const* _pvpDifficultyEntry;
 
-        std::vector<WorldPackets::Battleground::BattlegroundPlayerPosition> _playerPositions;
+        std::vector<std::shared_ptr<WorldPackets::Battleground::BattlegroundPlayerPosition>> _playerPositions;
 };
 #endif

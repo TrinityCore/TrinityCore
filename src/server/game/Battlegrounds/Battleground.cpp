@@ -138,6 +138,8 @@ Battleground::~Battleground()
 
     for (BattlegroundScoreMap::const_iterator itr = PlayerScores.begin(); itr != PlayerScores.end(); ++itr)
         delete itr->second;
+
+    _playerPositions.clear();
 }
 
 void Battleground::Update(uint32 diff)
@@ -249,13 +251,13 @@ void Battleground::_ProcessPlayerPositionBroadcast(uint32 diff)
 
         WorldPackets::Battleground::BattlegroundPlayerPositions playerPositions;
 
-        for (WorldPackets::Battleground::BattlegroundPlayerPosition& playerPosition : _playerPositions)
+        for (std::shared_ptr<WorldPackets::Battleground::BattlegroundPlayerPosition> position : _playerPositions)
         {
             // Update position data if we found player.
-            if (Player* player = ObjectAccessor::GetPlayer(GetBgMap(), playerPosition.Guid))
-                playerPosition.Pos = player->GetPosition();
+            if (Player* player = ObjectAccessor::GetPlayer(GetBgMap(), position->Guid))
+                position->Pos = player->GetPosition();
 
-            playerPositions.FlagCarriers.push_back(playerPosition);
+            playerPositions.FlagCarriers.push_back(*position);
         }
 
         SendPacketToAll(playerPositions.Write());
@@ -1678,16 +1680,16 @@ void Battleground::PSendMessageToAll(uint32 entry, ChatMsg msgType, Player const
     va_end(ap);
 }
 
-void Battleground::AddPlayerPosition(WorldPackets::Battleground::BattlegroundPlayerPosition const position)
+void Battleground::AddPlayerPosition(std::shared_ptr<WorldPackets::Battleground::BattlegroundPlayerPosition> position)
 {
-    _playerPositions.push_back(position);
+    _playerPositions.push_back(std::move(position));
 }
 
 void Battleground::RemovePlayerPosition(ObjectGuid guid)
 {
-    auto itr = std::remove_if(_playerPositions.begin(), _playerPositions.end(), [guid](WorldPackets::Battleground::BattlegroundPlayerPosition const info)
+    auto const itr = std::remove_if(_playerPositions.begin(), _playerPositions.end(), [guid](std::shared_ptr<WorldPackets::Battleground::BattlegroundPlayerPosition> const playerPosition)
     {
-        return info.Guid == guid;
+        return playerPosition->Guid == guid;
     });
 
     _playerPositions.erase(itr, _playerPositions.end());
