@@ -1255,8 +1255,8 @@ class spell_pri_prayer_of_mending_jump : public SpellScriptLoader
 
             enum class TargetPriority : uint8
             {
-                InjuredPlayers,
-                FullHealthPlayers,
+                Players,
+                Pets,
                 None,
             };
 
@@ -1271,29 +1271,28 @@ class spell_pri_prayer_of_mending_jump : public SpellScriptLoader
                     WorldObject const* worldObject = *iter;
                     if (!worldObject || worldObject == owner)
                         continue;
-                    if (Player const* player = worldObject->ToPlayer())
+                    if (worldObject->ToPlayer())
                     {
-                        if (!player->IsFullHealth())
-                        {
-                            priority = TargetPriority::InjuredPlayers; // highest priority, no need to check anything else
-                            break;
-                        }
-                        priority = TargetPriority::FullHealthPlayers;
+                        priority = TargetPriority::Players;
+                        break;
                     }
+                    else if (worldObject->ToCreature())
+                        priority = TargetPriority::Pets;
                 }
+
                 if (priority == TargetPriority::None)
                     targets.clear();
                 else
                 {
                     targets.remove_if([priority, owner](WorldObject* worldObject)
                     {
-                        if (!worldObject || worldObject == owner || !(worldObject->ToPlayer()))
+                        if (!worldObject || worldObject == owner)
                             return true;
 
                         switch (priority)
                         {
-                            case TargetPriority::InjuredPlayers: return worldObject->ToPlayer()->IsFullHealth();
-                            case TargetPriority::FullHealthPlayers: return false;
+                            case TargetPriority::Players: return !(worldObject->ToPlayer());
+                            case TargetPriority::Pets: return !(worldObject->ToCreature());
                             default: return true;
                         }
                     });
