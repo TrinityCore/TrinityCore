@@ -1258,6 +1258,7 @@ class spell_pri_prayer_of_mending_jump : public SpellScriptLoader
                 InjuredPlayers,
                 InjuredPets,
                 FullHealthPlayers,
+                FullHealthPets,
                 None,
             };
 
@@ -1279,12 +1280,14 @@ class spell_pri_prayer_of_mending_jump : public SpellScriptLoader
                             priority = TargetPriority::InjuredPlayers; // highest priority, no need to check anything else
                             break;
                         }
-                        if (priority == TargetPriority::None)
+                        if (priority == TargetPriority::None || priority == TargetPriority::FullHealthPets)
                             priority = TargetPriority::FullHealthPlayers;
                     }
                     else if (Creature const* creature = worldObject->ToCreature())
                         if (!creature->IsFullHealth())
                             priority = TargetPriority::InjuredPets;
+                        else if (priority == TargetPriority::None)
+                            priority = TargetPriority::FullHealthPets;
                 }
                 if (priority == TargetPriority::None)
                     targets.clear();
@@ -1307,9 +1310,9 @@ class spell_pri_prayer_of_mending_jump : public SpellScriptLoader
                     // choose one random target from targets
                     if (targets.size() > 1)
                     {
-                        uint32 chosen = urand(0, targets.size() - 1);
-                        uint32 idx = 0;
-                        targets.remove_if([chosen, &idx](WorldObject* /*worldObject*/) { return (chosen != idx++); });
+                        WorldObject* selected = Trinity::Containers::SelectRandomContainerElement(targets);
+                        targets.clear();
+                        targets.push_back(selected);
                     }
                 }
             }
