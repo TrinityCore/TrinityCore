@@ -112,6 +112,8 @@ Battleground::Battleground(BattlegroundTemplate const* battlegroundTemplate) : _
     StartMessageIds[BG_STARTING_EVENT_FOURTH] = BG_TEXT_BATTLE_HAS_BEGUN;
 }
 
+Battleground::Battleground(Battleground const&) = default;
+
 Battleground::~Battleground()
 {
     // remove objects and creatures

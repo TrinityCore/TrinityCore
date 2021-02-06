@@ -260,6 +260,7 @@ class TC_GAME_API Battleground
 {
     public:
         Battleground(BattlegroundTemplate const* battlegroundTemplate);
+        Battleground(Battleground const&);
         virtual ~Battleground();
 
         void Update(uint32 diff);
