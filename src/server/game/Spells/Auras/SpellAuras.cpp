@@ -1443,7 +1443,7 @@ void Aura::HandleAuraSpecificPeriodics(AuraApplication const* aurApp, Unit* cast
 
                 effect->SetDonePct(caster->SpellDamagePctDone(target, m_spellInfo, DOT)); // Calculate done percentage first!
                 effect->SetDamage(caster->SpellDamageBonusDone(target, m_spellInfo, damage, DOT, effect->GetSpellEffectInfo(), GetStackAmount()) * effect->GetDonePct());
-                effect->SetCritChance(caster->GetUnitSpellCriticalChance(target, m_spellInfo, m_spellInfo->GetSchoolMask()));
+                effect->SetCritChance(caster->GetUnitSpellCriticalChance(target, nullptr, effect, m_spellInfo->GetSchoolMask()));
                 break;
             }
             case SPELL_AURA_PERIODIC_HEAL:
@@ -1457,7 +1457,7 @@ void Aura::HandleAuraSpecificPeriodics(AuraApplication const* aurApp, Unit* cast
 
                 effect->SetDonePct(caster->SpellHealingPctDone(target, m_spellInfo)); // Calculate done percentage first!
                 effect->SetDamage(caster->SpellHealingBonusDone(target, m_spellInfo, damage, DOT, effect->GetSpellEffectInfo(), GetStackAmount()) * effect->GetDonePct());
-                effect->SetCritChance(caster->GetUnitSpellCriticalChance(target, m_spellInfo, m_spellInfo->GetSchoolMask()));
+                effect->SetCritChance(caster->GetUnitSpellCriticalChance(target, nullptr, effect, m_spellInfo->GetSchoolMask()));
                 break;
             }
             default:
@@ -2063,6 +2063,19 @@ void Aura::CallScriptEffectCalcSpellModHandlers(AuraEffect const* aurEff, SpellM
                 effItr->Call(*scritr, aurEff, spellMod);
 
         (*scritr)->_FinishScriptCall();
+    }
+}
+
+void Aura::CallScriptEffectCalcCritChanceHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, Unit* victim, float& critChance)
+{
+    for (AuraScript* loadedScript : m_loadedScripts)
+    {
+        loadedScript->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_CALC_CRIT_CHANCE, aurApp);
+        for (AuraScript::EffectCalcCritChanceHandler const& hook : loadedScript->DoEffectCalcCritChance)
+            if (hook.IsEffectAffected(m_spellInfo, aurEff->GetEffIndex()))
+                hook.Call(loadedScript, aurEff, victim, critChance);
+
+        loadedScript->_FinishScriptCall();
     }
 }
 
