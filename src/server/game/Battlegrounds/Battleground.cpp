@@ -140,6 +140,8 @@ Battleground::~Battleground()
 
     for (BattlegroundScoreMap::const_iterator itr = PlayerScores.begin(); itr != PlayerScores.end(); ++itr)
         delete itr->second;
+
+    _playerPositions.clear();
 }
 
 void Battleground::Update(uint32 diff)
@@ -1003,6 +1005,8 @@ void Battleground::Reset()
     PlayerScores.clear();
 
     ResetBGSubclass();
+
+    _playerPositions.clear();
 }
 
 void Battleground::StartBattleground()
