@@ -1309,7 +1309,7 @@ class spell_pri_prayer_of_mending_jump : public SpellScriptLoader
                     {
                         uint32 chosen = urand(0, targets.size() - 1);
                         uint32 idx = 0;
-                        targets.remove_if([chosen, &idx](WorldObject* worldObject) { return (chosen != idx++); });
+                        targets.remove_if([chosen, &idx](WorldObject* /*worldObject*/) { return (chosen != idx++); });
                     }
                 }
             }
