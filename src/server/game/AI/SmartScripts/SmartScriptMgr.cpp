@@ -1279,6 +1279,10 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             if (!IsCreatureValid(e, e.action.summonCreature.creature))
                 return false;
 
+            if (e.action.summonCreature.personalSpawn > 1)
+                TC_LOG_WARN("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u creature summon: PersonalSpawn is higher than 1: %u",
+                    e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.summonCreature.personalSpawn);
+
             CacheSpellContainerBounds sBounds = GetSummonCreatureSpellContainerBounds(e.action.summonCreature.creature);
             for (CacheSpellContainer::const_iterator itr = sBounds.first; itr != sBounds.second; ++itr)
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u creature summon: There is a summon spell for creature entry %u (SpellId: %u, effect: %u)",
