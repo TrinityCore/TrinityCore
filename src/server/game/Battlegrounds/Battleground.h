@@ -263,6 +263,8 @@ class TC_GAME_API Battleground
         Battleground(Battleground const&);
         virtual ~Battleground();
 
+        Battleground& operator=(Battleground const&) = delete;
+
         void Update(uint32 diff);
 
         virtual bool SetupBattleground()                    // must be implemented in BG subclass
