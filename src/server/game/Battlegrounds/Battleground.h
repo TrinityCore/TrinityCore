@@ -506,7 +506,7 @@ class TC_GAME_API Battleground
         // because BattleGrounds with different types and same level range has different m_BracketId
         uint8 GetUniqueBracketId() const;
 
-        void AddPlayerPosition(WorldPackets::Battleground::BattlegroundPlayerPosition const position);
+        void AddPlayerPosition(WorldPackets::Battleground::BattlegroundPlayerPosition const& position);
         void RemovePlayerPosition(ObjectGuid guid);
 
     protected:

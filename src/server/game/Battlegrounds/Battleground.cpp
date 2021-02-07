@@ -1684,16 +1684,16 @@ void Battleground::PSendMessageToAll(uint32 entry, ChatMsg msgType, Player const
     va_end(ap);
 }
 
-void Battleground::AddPlayerPosition(WorldPackets::Battleground::BattlegroundPlayerPosition const position)
+void Battleground::AddPlayerPosition(WorldPackets::Battleground::BattlegroundPlayerPosition const& position)
 {
     _playerPositions.push_back(position);
 }
 
 void Battleground::RemovePlayerPosition(ObjectGuid guid)
 {
-    auto itr = std::remove_if(_playerPositions.begin(), _playerPositions.end(), [guid](WorldPackets::Battleground::BattlegroundPlayerPosition const info)
+    auto itr = std::remove_if(_playerPositions.begin(), _playerPositions.end(), [guid](WorldPackets::Battleground::BattlegroundPlayerPosition const& playerPosition)
     {
-        return info.Guid == guid;
+        return playerPosition.Guid == guid;
     });
 
     _playerPositions.erase(itr, _playerPositions.end());
