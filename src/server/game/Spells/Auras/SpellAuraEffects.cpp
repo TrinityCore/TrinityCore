@@ -6377,7 +6377,11 @@ void AuraEffect::HandleBattlegroundPlayerPosition(AuraApplication const* aurApp,
     if (!target)
         return;
 
-    Battleground* bg = target->GetBattleground();
+    BattlegroundMap* battlegroundMap = target->GetMap()->ToBattlegroundMap();
+    if (!battlegroundMap)
+        return;
+
+    Battleground* bg = battlegroundMap->GetBG();
     if (!bg)
         return;
 
