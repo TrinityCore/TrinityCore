@@ -141,6 +141,7 @@ enum AreaFlags
 enum AreaFlags2
 {
     AREA_FLAG_2_DONT_SHOW_SANCTUARY = 0x00000200,                // Hides sanctuary status from zone text color (Script_GetZonePVPInfo)
+    AREA_FLAG_2_CAN_ENABLE_WAR_MODE = 0x00001000,                // Allows enabling war mode
 };
 
 enum AreaMountFlags
