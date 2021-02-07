@@ -1147,31 +1147,27 @@ class spell_warl_seduction : public SpellScriptLoader
 };
 
 // -27285 - Seed of Corruption
-class spell_warl_seed_of_corruption : public SpellScriptLoader
+class spell_warl_seed_of_corruption : public SpellScript
 {
-    public:
-        spell_warl_seed_of_corruption() : SpellScriptLoader("spell_warl_seed_of_corruption") { }
+    PrepareSpellScript(spell_warl_seed_of_corruption);
 
-        class spell_warl_seed_of_corruption_SpellScript : public SpellScript
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        targets.remove_if([&](WorldObject const* target)
         {
-            PrepareSpellScript(spell_warl_seed_of_corruption_SpellScript);
+            if (Unit const* unitTarget = target->ToUnit())
+                if (WorldLocation const* dest = GetExplTargetDest())
+                    if (!unitTarget->IsWithinLOS(dest->GetPositionX(), dest->GetPositionY(), dest->GetPositionZ()))
+                        return true;
 
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                if (GetExplTargetUnit())
-                    targets.remove(GetExplTargetUnit());
-            }
+            return false;
+        });
+    }
 
-            void Register() override
-            {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_warl_seed_of_corruption_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_warl_seed_of_corruption_SpellScript();
-        }
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_warl_seed_of_corruption::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+    }
 };
 
 // -27243 - Seed of Corruption
@@ -1595,7 +1591,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_nether_protection();
     new spell_warl_ritual_of_doom_effect();
     new spell_warl_seduction();
-    new spell_warl_seed_of_corruption();
+    RegisterSpellScript(spell_warl_seed_of_corruption);
     new spell_warl_seed_of_corruption_dummy();
     new spell_warl_seed_of_corruption_generic();
     new spell_warl_shadow_ward();
