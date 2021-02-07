@@ -5128,10 +5128,63 @@ float Player::GetRatingMultiplier(CombatRating cr) const
 
 float Player::GetRatingBonusValue(CombatRating cr) const
 {
-    float baseResult = float(m_activePlayerData->CombatRatings[cr]) * GetRatingMultiplier(cr);
+    float baseResult = ApplyRatingDiminishing(cr, float(m_activePlayerData->CombatRatings[cr]) * GetRatingMultiplier(cr));
     if (cr != CR_RESILIENCE_PLAYER_DAMAGE)
         return baseResult;
     return float(1.0f - pow(0.99f, baseResult)) * 100.0f;
+}
+
+float Player::ApplyRatingDiminishing(CombatRating cr, float bonusValue) const
+{
+    uint32 diminishingCurveId = 0;
+    switch (cr)
+    {
+        case CR_DODGE:
+            diminishingCurveId = sDB2Manager.GetGlobalCurveId(GlobalCurve::DodgeDiminishing);
+            break;
+        case CR_PARRY:
+            diminishingCurveId = sDB2Manager.GetGlobalCurveId(GlobalCurve::ParryDiminishing);
+            break;
+        case CR_BLOCK:
+            diminishingCurveId = sDB2Manager.GetGlobalCurveId(GlobalCurve::BlockDiminishing);
+            break;
+        case CR_CRIT_MELEE:
+        case CR_CRIT_RANGED:
+        case CR_CRIT_SPELL:
+            diminishingCurveId = sDB2Manager.GetGlobalCurveId(GlobalCurve::CritDiminishing);
+            break;
+        case CR_SPEED:
+            diminishingCurveId = sDB2Manager.GetGlobalCurveId(GlobalCurve::SpeedDiminishing);
+            break;
+        case CR_LIFESTEAL:
+            diminishingCurveId = sDB2Manager.GetGlobalCurveId(GlobalCurve::LifestealDiminishing);
+            break;
+        case CR_HASTE_MELEE:
+        case CR_HASTE_RANGED:
+        case CR_HASTE_SPELL:
+            diminishingCurveId = sDB2Manager.GetGlobalCurveId(GlobalCurve::HasteDiminishing);
+            break;
+        case CR_AVOIDANCE:
+            diminishingCurveId = sDB2Manager.GetGlobalCurveId(GlobalCurve::AvoidanceDiminishing);
+            break;
+        case CR_MASTERY:
+            diminishingCurveId = sDB2Manager.GetGlobalCurveId(GlobalCurve::MasteryDiminishing);
+            break;
+        case CR_VERSATILITY_DAMAGE_DONE:
+        case CR_VERSATILITY_HEALING_DONE:
+            diminishingCurveId = sDB2Manager.GetGlobalCurveId(GlobalCurve::VersatilityDoneDiminishing);
+            break;
+        case CR_VERSATILITY_DAMAGE_TAKEN:
+            diminishingCurveId = sDB2Manager.GetGlobalCurveId(GlobalCurve::VersatilityTakenDiminishing);
+            break;
+        default:
+            break;
+    }
+
+    if (diminishingCurveId)
+        return sDB2Manager.GetCurveValueAt(diminishingCurveId, bonusValue);
+
+    return bonusValue;
 }
 
 float Player::GetExpertiseDodgeOrParryReduction(WeaponAttackType attType) const
@@ -5224,8 +5277,8 @@ void Player::UpdateRating(CombatRating cr)
         {
             // explicit affected values
             float const multiplier = GetRatingMultiplier(cr);
-            float const oldVal = oldRating * multiplier;
-            float const newVal = amount * multiplier;
+            float const oldVal = ApplyRatingDiminishing(cr, oldRating * multiplier);
+            float const newVal = ApplyRatingDiminishing(cr, amount * multiplier);
             switch (cr)
             {
                 case CR_HASTE_MELEE:

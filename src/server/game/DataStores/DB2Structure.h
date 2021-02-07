@@ -1530,6 +1530,13 @@ struct GemPropertiesEntry
     int32 Type;
 };
 
+struct GlobalCurveEntry
+{
+    uint32 ID;
+    int32 CurveID;
+    int32 Type;
+};
+
 struct GlyphBindableSpellEntry
 {
     uint32 ID;

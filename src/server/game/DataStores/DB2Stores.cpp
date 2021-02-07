@@ -140,6 +140,7 @@ DB2Storage<GarrPlotInstanceEntry>               sGarrPlotInstanceStore("GarrPlot
 DB2Storage<GarrSiteLevelEntry>                  sGarrSiteLevelStore("GarrSiteLevel.db2", GarrSiteLevelLoadInfo::Instance());
 DB2Storage<GarrSiteLevelPlotInstEntry>          sGarrSiteLevelPlotInstStore("GarrSiteLevelPlotInst.db2", GarrSiteLevelPlotInstLoadInfo::Instance());
 DB2Storage<GemPropertiesEntry>                  sGemPropertiesStore("GemProperties.db2", GemPropertiesLoadInfo::Instance());
+DB2Storage<GlobalCurveEntry>                    sGlobalCurveStore("GlobalCurve.db2", GlobalCurveLoadInfo::Instance());
 DB2Storage<GlyphBindableSpellEntry>             sGlyphBindableSpellStore("GlyphBindableSpell.db2", GlyphBindableSpellLoadInfo::Instance());
 DB2Storage<GlyphPropertiesEntry>                sGlyphPropertiesStore("GlyphProperties.db2", GlyphPropertiesLoadInfo::Instance());
 DB2Storage<GlyphRequiredSpecEntry>              sGlyphRequiredSpecStore("GlyphRequiredSpec.db2", GlyphRequiredSpecLoadInfo::Instance());
@@ -671,6 +672,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sGarrSiteLevelStore);
     LOAD_DB2(sGarrSiteLevelPlotInstStore);
     LOAD_DB2(sGemPropertiesStore);
+    LOAD_DB2(sGlobalCurveStore);
     LOAD_DB2(sGlyphBindableSpellStore);
     LOAD_DB2(sGlyphPropertiesStore);
     LOAD_DB2(sGlyphRequiredSpecStore);
@@ -2191,9 +2193,13 @@ std::vector<uint32> const* DB2Manager::GetFactionTeamList(uint32 faction) const
     return Trinity::Containers::MapGetValuePtr(_factionTeams, faction);
 }
 
-HeirloomEntry const* DB2Manager::GetHeirloomByItemId(uint32 itemId) const
+uint32 DB2Manager::GetGlobalCurveId(GlobalCurve globalCurveType) const
 {
-    return Trinity::Containers::MapGetValuePtr(_heirlooms, itemId);
+    for (GlobalCurveEntry const* globalCurveEntry : sGlobalCurveStore)
+        if (GlobalCurve(globalCurveEntry->Type) == globalCurveType)
+            return globalCurveEntry->CurveID;
+
+    return 0;
 }
 
 std::vector<uint32> const* DB2Manager::GetGlyphBindableSpells(uint32 glyphPropertiesId) const
@@ -2204,6 +2210,11 @@ std::vector<uint32> const* DB2Manager::GetGlyphBindableSpells(uint32 glyphProper
 std::vector<uint32> const* DB2Manager::GetGlyphRequiredSpecs(uint32 glyphPropertiesId) const
 {
     return Trinity::Containers::MapGetValuePtr(_glyphRequiredSpecs, glyphPropertiesId);
+}
+
+HeirloomEntry const* DB2Manager::GetHeirloomByItemId(uint32 itemId) const
+{
+    return Trinity::Containers::MapGetValuePtr(_heirlooms, itemId);
 }
 
 DB2Manager::ItemBonusList const* DB2Manager::GetItemBonusList(uint32 bonusListId) const

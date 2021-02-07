@@ -2226,6 +2226,21 @@ struct GemPropertiesLoadInfo
     }
 };
 
+struct GlobalCurveLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "CurveID" },
+            { true, FT_INT, "Type" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, GlobalCurveMeta::Instance(), HOTFIX_SEL_GLOBAL_CURVE);
+        return &loadInfo;
+    }
+};
+
 struct GlyphBindableSpellLoadInfo
 {
     static DB2LoadInfo const* Instance()
