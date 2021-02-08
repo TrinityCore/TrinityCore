@@ -957,14 +957,14 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            struct AdventureJournalDataInfo
+            struct AdventureJournalData
             {
                 int32 AdventureJournalID = 0;
                 int32 Priority = 0;
             };
 
             bool OnLevelUp = false;
-            std::vector<AdventureJournalDataInfo> AdventureJournalDatas;
+            std::vector<AdventureJournalData> AdventureJournalDatas;
         };
     }
 }

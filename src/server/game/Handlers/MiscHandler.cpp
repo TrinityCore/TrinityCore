@@ -1189,38 +1189,20 @@ void WorldSession::HandleAdventureJournalStartQuest(WorldPackets::Misc::Adventur
 void WorldSession::HandleAdventureJournalUpdateSuggestions(WorldPackets::Misc::AdventureJournalUpdateSuggestions& adventureJournalUpdateSuggestions)
 {
     WorldPackets::Misc::AdventureJournalDataResponse response;
-    WorldPackets::Misc::AdventureJournalDataResponse::AdventureJournalDataInfo dataInfo;
-    if (adventureJournalUpdateSuggestions.OnLevelUp)
+    WorldPackets::Misc::AdventureJournalDataResponse::AdventureJournalData adventureJournalData;
+
+    if (adventureJournalUpdateSuggestions.OnLevelUp || GetPlayer()->getLevel() > 9)
     {
         response.OnLevelUp = adventureJournalUpdateSuggestions.OnLevelUp;
-        int32 count = 0;
+
         for (AdventureJournalEntry const* adventureJournal : sAdventureJournalStore)
-            if (_player->MeetPlayerCondition(adventureJournal->PlayerConditionID) && count < 7)
+            if (_player->MeetPlayerCondition(adventureJournal->PlayerConditionID))
             {
-                dataInfo.AdventureJournalID = int32(adventureJournal->ID);
-                dataInfo.Priority = int32(adventureJournal->PriorityMax);
-                response.AdventureJournalDatas.push_back(dataInfo);
-                count++;
+                adventureJournalData.AdventureJournalID = int32(adventureJournal->ID);
+                adventureJournalData.Priority = int32(adventureJournal->PriorityMax);
+                response.AdventureJournalDatas.push_back(adventureJournalData);
             }
 
         SendPacket(response.Write());
-    }
-    else
-    {
-        if (GetPlayer()->getLevel() >= 10)
-        {
-            response.OnLevelUp = adventureJournalUpdateSuggestions.OnLevelUp;
-            int32 count = 0;
-            for (AdventureJournalEntry const* adventureJournal : sAdventureJournalStore)
-                if (_player->MeetPlayerCondition(adventureJournal->PlayerConditionID) && count < 7)
-                {
-                    dataInfo.AdventureJournalID = int32(adventureJournal->ID);
-                    dataInfo.Priority = int32(adventureJournal->PriorityMax);
-                    response.AdventureJournalDatas.push_back(dataInfo);
-                    count++;
-                }
-
-            SendPacket(response.Write());
-        }
     }
 }

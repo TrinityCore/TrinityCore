@@ -732,10 +732,11 @@ WorldPacket const* WorldPackets::Misc::AdventureJournalDataResponse::Write()
     _worldPacket.WriteBit(OnLevelUp);
     _worldPacket.FlushBits();
     _worldPacket << uint32(AdventureJournalDatas.size());
-    for (auto const& dataInfo : AdventureJournalDatas)
+
+    for (auto const& adventureJournal : AdventureJournalDatas)
     {
-        _worldPacket << int32(dataInfo.AdventureJournalID);
-        _worldPacket << int32(dataInfo.Priority);
+        _worldPacket << int32(adventureJournal.AdventureJournalID);
+        _worldPacket << int32(adventureJournal.Priority);
     }
 
     return &_worldPacket;
