@@ -24754,7 +24754,8 @@ void Player::LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue)
             case SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN:
                 break;
             case SKILL_LINE_ABILITY_REWARDED_FROM_QUEST:
-                if (!ability->GetFlags().HasFlag(SKILL_LINE_ABILITY_FLAG_EXILE_REACH) || this->IsStartingInExilesReach())
+                if (!ability->GetFlags().HasFlag(SkillLineAbilityFlags::CanFallbackToLearnedOnSkillLearn) ||
+                    !spellInfo->MeetsFutureSpellPlayerCondition(this))
                     continue;
                 break;
             default:

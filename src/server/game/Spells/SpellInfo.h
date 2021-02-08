@@ -507,6 +507,7 @@ class TC_GAME_API SpellInfo
         uint32 IconFileDataId;
         uint32 ActiveIconFileDataId;
         uint32 ContentTuningId;
+        uint32 ShowFutureSpellPlayerConditionID;
         LocalizedString const* SpellName;
         float ConeAngle;
         float Width;
@@ -683,6 +684,9 @@ class TC_GAME_API SpellInfo
         bool SpellCancelsAuraEffect(AuraEffect const* aurEff) const;
 
         uint32 GetAllowedMechanicMask() const;
+
+        // Player Condition
+        bool MeetsFutureSpellPlayerCondition(Player const* player) const;
 
     private:
         // loading helpers

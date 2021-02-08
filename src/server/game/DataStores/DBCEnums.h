@@ -1006,9 +1006,10 @@ enum AbilytyLearnType
     SKILL_LINE_ABILITY_REWARDED_FROM_QUEST     = 4  // Learned as quest reward, also re-learned if missing
 };
 
-enum SkillLineAbilityFlags
+enum class SkillLineAbilityFlags
 {
-    SKILL_LINE_ABILITY_FLAG_EXILE_REACH         = 0x80, // The skill is rewarded from a quest if player started on exile's reach
+    CanFallbackToLearnedOnSkillLearn            = 0x80, // The skill is rewarded from a quest if player started on exile's reach
+
 };
 
 DEFINE_ENUM_FLAG(SkillLineAbilityFlags);
