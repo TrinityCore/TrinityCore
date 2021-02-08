@@ -3345,7 +3345,9 @@ bool Map::CheckRespawn(RespawnInfo* info)
     {
         time_t now = time(NULL);
         time_t respawnTime;
-        if (sObjectMgr->GetLinkedRespawnGuid(thisGUID) == thisGUID) // never respawn, save "something" in DB
+        if (linkedTime == std::numeric_limits<time_t>::max())
+            respawnTime = linkedTime;
+        else if (sObjectMgr->GetLinkedRespawnGuid(thisGUID) == thisGUID) // never respawn, save "something" in DB
             respawnTime = now + WEEK;
         else // set us to check again shortly after linked unit
             respawnTime = std::max<time_t>(now, linkedTime) + urand(5, 15);

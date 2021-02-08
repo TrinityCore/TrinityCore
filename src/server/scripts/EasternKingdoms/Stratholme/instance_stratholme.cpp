@@ -23,6 +23,7 @@ SDCategory: Stratholme
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "AreaBoundary.h"
 #include "Creature.h"
 #include "EventMap.h"
 #include "GameObject.h"
@@ -33,16 +34,14 @@ EndScriptData */
 #include "stratholme.h"
 #include <sstream>
 
-enum Misc
-{
-    MAX_ENCOUNTER           = 6
-};
-
 enum InstanceEvents
 {
     EVENT_BARON_RUN         = 1,
     EVENT_SLAUGHTER_SQUARE  = 2
 };
+
+Position const timmyTheCruelSpawnPosition = { 3625.358f, -3188.108f, 130.3985f, 4.834562f };
+EllipseBoundary const beforeScarletGate(Position(3671.158f, -3181.79f), 60.0f, 40.0f);
 
 class instance_stratholme : public InstanceMapScript
 {
@@ -54,16 +53,22 @@ class instance_stratholme : public InstanceMapScript
             instance_stratholme_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
+
                 for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                     EncounterState[i] = NOT_STARTED;
 
                 for (uint8 i = 0; i < 5; ++i)
                     IsSilverHandDead[i] = false;
+
+                timmySpawned = false;
+                scarletsKilled = 0;
             }
 
             uint32 EncounterState[MAX_ENCOUNTER];
+            uint8 scarletsKilled;
 
             bool IsSilverHandDead[5];
+            bool timmySpawned;
 
             ObjectGuid serviceEntranceGUID;
             ObjectGuid gauntletGate1GUID;
@@ -81,6 +86,33 @@ class instance_stratholme : public InstanceMapScript
             GuidSet crystalsGUID;
             GuidSet abomnationGUID;
             EventMap events;
+
+            void OnUnitDeath(Unit* who) override
+            {
+                switch (who->GetEntry())
+                {
+                    case NPC_CRIMSON_GUARDSMAN:
+                    case NPC_CRIMSON_CONJUROR:
+                    case NPC_CRIMSON_INITATE:
+                    case NPC_CRIMSON_GALLANT:
+                    {
+                        if (!timmySpawned)
+                        {
+                            Position pos = who->ToCreature()->GetHomePosition();
+                            // check if they're in front of the entrance
+                            if (beforeScarletGate.IsWithinBoundary(pos))
+                            {
+                                if (++scarletsKilled >= TIMMY_THE_CRUEL_CRUSADERS_REQUIRED)
+                                {
+                                    instance->SummonCreature(NPC_TIMMY_THE_CRUEL, timmyTheCruelSpawnPosition);
+                                    timmySpawned = true;
+                                }
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
 
             bool StartSlaugtherSquare()
             {

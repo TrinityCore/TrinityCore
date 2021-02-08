@@ -331,9 +331,7 @@ public:
 
                 if (!instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER).IsEmpty())
                 {
-                    Unit* victim = nullptr;
-                    victim = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER));
-                    if (victim)
+                    if (Unit* victim = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER)))
                         AddThreat(victim, 1);
                     StartEvent();
                 }
@@ -584,9 +582,7 @@ public:
                 //at this point he divides himself in two parts
                 CastConsumingMadness();
                 DespawnDemon();
-                Creature* Copy = nullptr;
-                Copy = DoSpawnCreature(DEMON_FORM, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 6000);
-                if (Copy)
+                if (Creature* Copy = DoSpawnCreature(DEMON_FORM, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 6000))
                 {
                     Demon = Copy->GetGUID();
                     if (me->GetVictim())
@@ -762,9 +758,7 @@ public:
 
             if (!me->IsInCombat() && !instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER).IsEmpty())
             {
-                Unit* victim = nullptr;
-                victim = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER));
-                if (victim)
+                if (Unit* victim = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER)))
                     AttackStart(victim);
             }
 
@@ -782,10 +776,8 @@ public:
 
             if (Mindblast_Timer <= diff)
             {
-                Unit* target = nullptr;
-                target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-
-                if (target)DoCast(target, SPELL_MINDBLAST);
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(target, SPELL_MINDBLAST);
 
                 Mindblast_Timer = urand(10000, 15000);
             } else Mindblast_Timer -= diff;
