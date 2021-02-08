@@ -19,6 +19,7 @@
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "Battleground.h"
+#include "BattlegroundPackets.h"
 #include "CellImpl.h"
 #include "Common.h"
 #include "DB2Stores.h"
@@ -463,8 +464,8 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleShowConfirmationPrompt,                    //394 SPELL_AURA_SHOW_CONFIRMATION_PROMPT
     &AuraEffect::HandleCreateAreaTrigger,                         //395 SPELL_AURA_AREA_TRIGGER
     &AuraEffect::HandleNULL,                                      //396 SPELL_AURA_TRIGGER_SPELL_ON_POWER_AMOUNT
-    &AuraEffect::HandleNULL,                                      //397
-    &AuraEffect::HandleNULL,                                      //398
+    &AuraEffect::HandleBattlegroundPlayerPosition,                //397 SPELL_AURA_BATTLEGROUND_PLAYER_POSITION_FACTIONAL
+    &AuraEffect::HandleBattlegroundPlayerPosition,                //398 SPELL_AURA_BATTLEGROUND_PLAYER_POSITION
     &AuraEffect::HandleNULL,                                      //399 SPELL_AURA_MOD_TIME_RATE
     &AuraEffect::HandleAuraModSkill,                              //400 SPELL_AURA_MOD_SKILL_2
     &AuraEffect::HandleNULL,                                      //401
@@ -6366,6 +6367,43 @@ void AuraEffect::HandleModOverrideZonePVPType(AuraApplication const* aurApp, uin
 
     target->UpdateHostileAreaState(sAreaTableStore.LookupEntry(target->GetZoneId()));
     target->UpdatePvPState();
+}
+
+void AuraEffect::HandleBattlegroundPlayerPosition(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Player* target = aurApp->GetTarget()->ToPlayer();
+    if (!target)
+        return;
+
+    BattlegroundMap* battlegroundMap = target->GetMap()->ToBattlegroundMap();
+    if (!battlegroundMap)
+        return;
+
+    Battleground* bg = battlegroundMap->GetBG();
+    if (!bg)
+        return;
+
+    if (apply)
+    {
+        WorldPackets::Battleground::BattlegroundPlayerPosition playerPosition;
+        playerPosition.Guid = target->GetGUID();
+        playerPosition.ArenaSlot = static_cast<uint8>(GetMiscValue());
+        playerPosition.Pos = target->GetPosition();
+
+        if (GetAuraType() == SPELL_AURA_BATTLEGROUND_PLAYER_POSITION_FACTIONAL)
+            playerPosition.IconID = target->GetTeam() == ALLIANCE ? PLAYER_POSITION_ICON_HORDE_FLAG : PLAYER_POSITION_ICON_ALLIANCE_FLAG;
+        else if (GetAuraType() == SPELL_AURA_BATTLEGROUND_PLAYER_POSITION)
+            playerPosition.IconID = target->GetTeam() == ALLIANCE ? PLAYER_POSITION_ICON_ALLIANCE_FLAG : PLAYER_POSITION_ICON_HORDE_FLAG;
+        else
+            TC_LOG_WARN("spell.auras", "Unknown aura effect %u handled by HandleBattlegroundPlayerPosition.", GetAuraType());
+
+        bg->AddPlayerPosition(playerPosition);
+    }
+    else
+        bg->RemovePlayerPosition(target->GetGUID());
 }
 
 template TC_GAME_API void AuraEffect::GetTargetList(std::list<Unit*>&) const;

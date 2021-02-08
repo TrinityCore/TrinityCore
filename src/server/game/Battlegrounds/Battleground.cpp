@@ -112,6 +112,8 @@ Battleground::Battleground(BattlegroundTemplate const* battlegroundTemplate) : _
     StartMessageIds[BG_STARTING_EVENT_FOURTH] = BG_TEXT_BATTLE_HAS_BEGUN;
 }
 
+Battleground::Battleground(Battleground const&) = default;
+
 Battleground::~Battleground()
 {
     // remove objects and creatures
@@ -138,6 +140,8 @@ Battleground::~Battleground()
 
     for (BattlegroundScoreMap::const_iterator itr = PlayerScores.begin(); itr != PlayerScores.end(); ++itr)
         delete itr->second;
+
+    _playerPositions.clear();
 }
 
 void Battleground::Update(uint32 diff)
@@ -248,7 +252,16 @@ void Battleground::_ProcessPlayerPositionBroadcast(uint32 diff)
         m_LastPlayerPositionBroadcast = 0;
 
         WorldPackets::Battleground::BattlegroundPlayerPositions playerPositions;
-        GetPlayerPositionData(&playerPositions.FlagCarriers);
+
+        for (WorldPackets::Battleground::BattlegroundPlayerPosition& playerPosition : _playerPositions)
+        {
+            // Update position data if we found player.
+            if (Player* player = ObjectAccessor::GetPlayer(GetBgMap(), playerPosition.Guid))
+                playerPosition.Pos = player->GetPosition();
+
+            playerPositions.FlagCarriers.push_back(playerPosition);
+        }
+
         SendPacketToAll(playerPositions.Write());
     }
 }
@@ -992,6 +1005,8 @@ void Battleground::Reset()
     PlayerScores.clear();
 
     ResetBGSubclass();
+
+    _playerPositions.clear();
 }
 
 void Battleground::StartBattleground()
@@ -1667,6 +1682,21 @@ void Battleground::PSendMessageToAll(uint32 entry, ChatMsg msgType, Player const
     BroadcastWorker(localizer);
 
     va_end(ap);
+}
+
+void Battleground::AddPlayerPosition(WorldPackets::Battleground::BattlegroundPlayerPosition const& position)
+{
+    _playerPositions.push_back(position);
+}
+
+void Battleground::RemovePlayerPosition(ObjectGuid guid)
+{
+    auto itr = std::remove_if(_playerPositions.begin(), _playerPositions.end(), [guid](WorldPackets::Battleground::BattlegroundPlayerPosition const& playerPosition)
+    {
+        return playerPosition.Guid == guid;
+    });
+
+    _playerPositions.erase(itr, _playerPositions.end());
 }
 
 void Battleground::EndNow()

@@ -469,8 +469,8 @@ enum AuraType : uint32
     SPELL_AURA_SHOW_CONFIRMATION_PROMPT                     = 394,
     SPELL_AURA_AREA_TRIGGER                                 = 395,  // NYI
     SPELL_AURA_TRIGGER_SPELL_ON_POWER_AMOUNT                = 396,  // NYI Triggers spell when health goes above (MiscA = 0) or falls below (MiscA = 1) specified percent value (once, not every time condition has meet)
-    SPELL_AURA_397                                          = 397,
-    SPELL_AURA_398                                          = 398,
+    SPELL_AURA_BATTLEGROUND_PLAYER_POSITION_FACTIONAL       = 397,
+    SPELL_AURA_BATTLEGROUND_PLAYER_POSITION                 = 398,
     SPELL_AURA_MOD_TIME_RATE                                = 399,
     SPELL_AURA_MOD_SKILL_2                                  = 400,
     SPELL_AURA_401                                          = 401,
