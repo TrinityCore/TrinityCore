@@ -1184,7 +1184,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         {
             EnumFlag<SmartActionSummonCreatureFlags> flags(static_cast<SmartActionSummonCreatureFlags>(e.action.summonCreature.flags));
             bool preferUnit = flags.HasFlag(SmartActionSummonCreatureFlags::PreferUnit);
-            WorldObject* summoner = preferUnit ? (unit ? unit : GetBaseObject()) : GetBaseObjectOrUnit(unit);
+            WorldObject* summoner = preferUnit ? unit : GetBaseObjectOrUnit(unit);
             if (!summoner)
                 break;
 
