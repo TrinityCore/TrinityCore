@@ -119,7 +119,6 @@ enum Events
     //SACRIFICING
     EVENT_SPAWN_RITUAL_CHANNELERS,
     EVENT_RITUAL_STRIKE,
-    EVENT_RITUAL_DISARM,
     EVENT_FINISH_RITUAL
 };
 
@@ -158,8 +157,6 @@ class boss_svala : public CreatureScript
             void Reset() override
             {
                 _Reset();
-
-                SetCombatMovement(true);
 
                 if (_introCompleted)
                     events.SetPhase(NORMAL);
@@ -283,11 +280,11 @@ class boss_svala : public CreatureScript
                             break;
                         }
                         case EVENT_INTRO_TRANSFORM_1:
-                            me->CastSpell(me, SPELL_SVALA_TRANSFORMING1, false);
+                            DoCastSelf(SPELL_SVALA_TRANSFORMING1);
                             events.ScheduleEvent(EVENT_INTRO_TRANSFORM_2, 6200ms, 0, INTRO);
                             break;
                         case EVENT_INTRO_TRANSFORM_2:
-                            me->CastSpell(me, SPELL_SVALA_TRANSFORMING2, false);
+                            DoCastSelf(SPELL_SVALA_TRANSFORMING2);
                             if (Creature* arthas = ObjectAccessor::GetCreature(*me, _arthasGUID))
                             {
                                 arthas->InterruptNonMeleeSpells(true);
@@ -316,7 +313,7 @@ class boss_svala : public CreatureScript
                             break;
                         case EVENT_INTRO_RELOCATE_SVALA:
                         {
-                            me->SetDisableGravity(false, true);
+                            me->SetDisableGravity(false);
                             me->SetHover(true);
                             me->GetMotionMaster()->MoveFall();
 
@@ -349,39 +346,32 @@ class boss_svala : public CreatureScript
                         case EVENT_RITUAL_PREPARATION:
                             if (Unit* sacrificeTarget = SelectTarget(SelectTargetMethod::Random, 0, 80.0f, true))
                             {
-                                me->SetDisableGravity(true, true);
+                                me->InterruptNonMeleeSpells(true);
+                                me->SetReactState(REACT_PASSIVE);
+                                me->AttackStop();
+                                me->StopMoving();
+                                me->SetDisableGravity(true);
                                 instance->SetGuidData(DATA_SACRIFICED_PLAYER, sacrificeTarget->GetGUID());
                                 Talk(SAY_SACRIFICE_PLAYER);
                                 DoCast(sacrificeTarget, SPELL_RITUAL_PREPARATION);
-                                SetCombatMovement(false);
-                                DoCast(me, SPELL_RITUAL_OF_THE_SWORD);
+                                DoCastSelf(SPELL_RITUAL_DISARM);
+                                DoCastSelf(SPELL_RITUAL_OF_THE_SWORD);
                             }
                             events.ScheduleEvent(EVENT_SPAWN_RITUAL_CHANNELERS, 1s, 0, SACRIFICING);
-                            events.ScheduleEvent(EVENT_FINISH_RITUAL, 25s, 0);
+                            events.ScheduleEvent(EVENT_FINISH_RITUAL, 27s, 0);
                             break;
                         case EVENT_SPAWN_RITUAL_CHANNELERS:
-                            DoCast(me, SPELL_RITUAL_CHANNELER_1, true);
-                            DoCast(me, SPELL_RITUAL_CHANNELER_2, true);
-                            DoCast(me, SPELL_RITUAL_CHANNELER_3, true);
+                            DoCastSelf(SPELL_RITUAL_CHANNELER_1, true);
+                            DoCastSelf(SPELL_RITUAL_CHANNELER_2, true);
+                            DoCastSelf(SPELL_RITUAL_CHANNELER_3, true);
                             events.ScheduleEvent(EVENT_RITUAL_STRIKE, 2s, 0, SACRIFICING);
                             break;
                         case EVENT_RITUAL_STRIKE:
-                            me->StopMoving();
-                            me->GetMotionMaster()->MoveIdle();
-                            me->InterruptNonMeleeSpells(true);
-                            DoCast(me, SPELL_RITUAL_STRIKE_TRIGGER, true);
-                            events.ScheduleEvent(EVENT_RITUAL_DISARM, 200ms, 0, SACRIFICING);
-                            break;
-                        case EVENT_RITUAL_DISARM:
-                            DoCast(me, SPELL_RITUAL_DISARM);
+                            DoCastSelf(SPELL_RITUAL_STRIKE_TRIGGER, true);
                             break;
                         case EVENT_FINISH_RITUAL:
-                            me->SetDisableGravity(false, true);
-                            SetCombatMovement(true);
-
-                            if (Unit* target = me->SelectNearestPlayer(100.0f))
-                                AttackStart(target);
-
+                            me->SetDisableGravity(false);
+                            me->SetReactState(REACT_AGGRESSIVE);
                             events.SetPhase(NORMAL);
                             events.ScheduleEvent(EVENT_SINISTER_STRIKE, 7s, 0, NORMAL);
                             events.ScheduleEvent(EVENT_CALL_FLAMES, 10s, 20s, 0, NORMAL);
@@ -432,7 +422,7 @@ class npc_ritual_channeler : public CreatureScript
                 Initialize();
 
                 if (IsHeroic())
-                    DoCast(me, SPELL_SHADOWS_IN_THE_DARK);
+                    DoCastSelf(SPELL_SHADOWS_IN_THE_DARK);
             }
 
             void UpdateAI(uint32 diff) override
