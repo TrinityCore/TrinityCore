@@ -1118,6 +1118,9 @@ public:
 
         void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
+            if (triggeredSpellId == m_scriptSpellId)
+                return;
+
             Player* player = GetTarget()->ToPlayer();
 
             if (triggeredSpellId) // Apply new form
