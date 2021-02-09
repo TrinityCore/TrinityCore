@@ -6439,12 +6439,18 @@ declare class TSEventHandlers {
 }
 
 declare class TSDictionary<K,V> {
-    get(key: K) : V;
+    [custom: string]: V;
+    // @ts-ignore
     set(key: K, value: V);
+    // @ts-ignore
     contains(key: K): boolean;
+    // @ts-ignore
     forEach(callback: (key: K, value: V)=>void);
+    // @ts-ignore
     keys(): TSArray<K>
+    // @ts-ignore
     reduce<T>(callback: (previous: T,key: K, value: V)=>T, initial: T) : T;
+    // @ts-ignore
     filter(callback: (key: K, value: V)=>boolean): TSDictionary<K,V>
 }
 
