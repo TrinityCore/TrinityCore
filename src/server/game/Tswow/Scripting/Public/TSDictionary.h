@@ -41,6 +41,14 @@ public:
 
     operator bool() { return _map == nullptr; }
 
+    auto &operator[](K index) const {
+        return (*_map)[index];
+    }
+
+    auto &operator[](K index) {
+        return (*_map)[index];
+    }
+
     auto contains(K key) {
         return _map->find(key) != _map->end();
     }

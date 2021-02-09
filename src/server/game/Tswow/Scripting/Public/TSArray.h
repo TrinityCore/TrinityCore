@@ -179,11 +179,11 @@ public:
         return vec->size();
     }
 
-    auto operator[](int index) {
+    auto &operator[](int index) {
         return (*vec)[index];
     }
 
-    auto operator[](int index) const {
+    auto &operator[](int index) const {
         return (*vec)[index];
     }
 

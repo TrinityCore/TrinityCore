@@ -22,7 +22,6 @@
 #include <cstdint>
 #include <functional>
 #include "TSString.h"
-#include "TSEvent.h"
 
 struct TC_GAME_API TSStorageContainer {
     uint32_t modid;

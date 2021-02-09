@@ -46,6 +46,7 @@
 #include <fstream>
 #include <map>
 #include "MapManager.h"
+#include "Base64.h"
 
 TSTasks<void*> globalTasks;
 
@@ -62,7 +63,7 @@ std::vector<uint32_t> reloads;
 
 
 /** Network Message maps */
-std::map<uint16_t, MessageHandle<void>> messageMap;
+std::vector<MessageHandle<void>> messageMap;
 std::map<uint32_t, std::vector<uint16_t>> messageModMap;
 
 TSEvents* GetTSEvents()
@@ -128,9 +129,12 @@ void TSUnloadEventHandler(boost::filesystem::path const& name)
     if(messageModMap.find(modid) != messageModMap.end())
     {
         auto vec = messageModMap[modid];
-        for(auto &g : vec)
+        for(auto g : vec)
         {
-            messageMap.erase(g);
+            if(g>messageMap.size()) {
+                continue;
+            }
+            messageMap[g] = MessageHandle<void>();
         }
         messageModMap.erase(modid);
     }
@@ -281,7 +285,41 @@ public:
     void OnDuelStart(Player* player1,Player* player2) FIRE(PlayerOnDuelStart,TSPlayer(player1),TSPlayer(player2))
     void OnDuelEnd(Player* winner,Player* loser,DuelCompleteType type) FIRE(PlayerOnDuelEnd,TSPlayer(winner),TSPlayer(loser),type)
     void OnChat(Player* player,uint32 type,uint32 lang,std::string& msg) FIRE(PlayerOnSay,TSPlayer(player),type,lang,TSMutableString(&msg))
-    void OnChat(Player* player,uint32 type,uint32 lang,std::string& msg,Player* receiver) FIRE(PlayerOnWhisper,TSPlayer(player),type,lang,TSMutableString(&msg),TSPlayer(receiver))
+    void OnChat(Player* player,uint32 type,uint32 lang,std::string& msg,Player* receiver) {
+        TSPlayer tsplayer(player);
+        FIRE(PlayerOnWhisper,tsplayer,type,lang,TSMutableString(&msg),TSPlayer(receiver))
+
+        if(player!=receiver) { return; }
+
+        char * carr = const_cast<char*>(msg.c_str());
+        if(msg.size()<=5) { return; }
+
+        if(((uint32_t*)(carr+1))[0] != 1346455379)
+        {
+            return;
+        }
+
+        uint8_t outarr[250];
+    
+        int outlen = decodeBase64((uint8_t*)(carr+1),msg.size()-1,outarr);
+
+        BinReader<uint8_t> reader(outarr,outlen);
+        FIRE(AddonOnMessage,reader);
+
+        if(outlen<=6) { return; }
+
+        if(reader.Read<uint32_t>(0)!=1007688) { return; }
+
+        uint16_t opcode = reader.Read<uint16_t>(4);
+        if(opcode>=messageMap.size()) { return; }
+
+        auto handler = &messageMap[opcode];
+        if(handler->size!=(outlen-6) || !handler->enabled) { return; }
+
+        handler->fire(tsplayer,outarr+6);
+        // Disable the message from here
+        msg = "";
+    }
     void OnChat(Player* player,uint32 type,uint32 lang,std::string& msg,Group* group) FIRE(PlayerOnChatGroup,TSPlayer(player),type,lang,TSMutableString(&msg),TSGroup(group))
     void OnChat(Player* player,uint32 type,uint32 lang,std::string& msg,Guild* guild) FIRE(PlayerOnChatGuild,TSPlayer(player),type,lang,TSMutableString(&msg),TSGuild(guild))
     void OnChat(Player* player,uint32 type,uint32 lang,std::string& msg,Channel* channel) FIRE(PlayerOnChat,TSPlayer(player),type,lang,TSMutableString(&msg),TSChannel(channel))
@@ -407,19 +445,32 @@ TSMapDataExtra* GetMapDataExtra(uint32_t id)
 
 /** Network events */
 
-void RegisterMessage(uint32_t modid, uint16_t opcode, std::function<void*()> constructor)
+void RegisterMessage(uint32_t modid, uint16_t opcode, uint8_t size, std::function<std::shared_ptr<void>(uint8_t*)> constructor)
 {
     if(messageModMap.find(modid)==messageModMap.end())
     {
         messageModMap[modid] = std::vector<uint16_t>();
     }
     (&messageModMap[modid])->push_back(opcode);
-    messageMap[opcode] = MessageHandle<void>(constructor);
+
+
+    if(opcode>=messageMap.size())
+    {
+        messageMap.resize(opcode+1);
+    }
+
+    messageMap[opcode] = MessageHandle<void>(size,constructor);
 }
 
 MessageHandle<void>* GetMessage(uint16_t opcode)
 {
     return &messageMap[opcode];
+}
+
+void AddMessageListener(uint16_t opcode, void(*func)(TSPlayer,std::shared_ptr<void>))
+{
+    if(opcode>=messageMap.size()) { return; }
+    (&messageMap[opcode])->listeners.push_back(func);
 }
 
 static std::map<TSString, IDRange> tables;

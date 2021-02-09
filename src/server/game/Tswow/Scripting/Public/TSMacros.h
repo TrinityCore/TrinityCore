@@ -39,3 +39,5 @@
         obj->name.Get(i)(__VA_ARGS__, TSMutable<bool>(&varname)); \
         if(varname) break; \
     }
+
+#define const_(a) a

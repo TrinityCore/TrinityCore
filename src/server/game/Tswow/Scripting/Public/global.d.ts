@@ -28,6 +28,7 @@ type uint64 = number;
 type int64 = number;
 type bool = boolean;
 type TSArray<T> = T[];
+type TSString = string;
 
 declare class TSMutable<T> {
     get() : T;
@@ -66,10 +67,11 @@ declare class TSChatChannel {
     SetInvisible(player: TSPlayer, on: bool): void;
     SetOwner(guid: uint64, exclaim?: bool): void;
     Say(guid: uint64, what: string, lang: uint32): void;
-    
 }
 
 declare class TSPlayer extends TSUnit {
+    SendData(data: any)
+
     IsNull() : bool
 
     /**
@@ -6404,12 +6406,18 @@ declare namespace _hidden {
         OnAuctionSuccessful(callback: (obj: TSAuctionHouseObject, entry: TSAuctionEntry)=>void);
         OnAuctionExpire(callback: (obj: TSAuctionHouseObject, entry: TSAuctionEntry)=>void);
     }
+
+    export class Addon {
+        OnMessage(callback: (reader: any)=>void);
+        OnMessageID<T>(cls: new()=>T, callback: (player: TSPlayer,message: T)=>void);
+    }
 }
 
 declare class TSEventHandlers {
     World: _hidden.World;
     Formula: _hidden.Formula;
     Unit: _hidden.Unit;
+    Addon: _hidden.Addon;
     //AreaTrigger: _hidden.AreaTrigger;
     //Vehicle: _hidden.Vehicle;
     //AchievementCriteria: _hidden.AchievementCriteria;
@@ -6582,6 +6590,25 @@ declare class TSTimer {
 declare class TSTasks<T> {
     AddTimer(id: uint32, name: string, time: uint32, repeats: uint32, cb: (timer: TSTimer,owner: T, delay: uint32, cancel: TSMutable<bool>)=>void)
     RemoveTimer(name: string);
+}
+
+declare class BinReader<L extends number> {
+    Read<T extends number>(offset: L) : T;
+    Write<T extends number>(offset: L, value: T)
+    ReadArray<T extends number>(offset: L, arr: TSArray<T>, max: L);
+    WriteArray<T extends number>(offset: L, arr: TSArray<T>, max: L);
+    ReadString(offset: L, max: L);
+    WriteString(offset: L,str: string, max: L);
+    WriteStringArray(offset: L, arr: TSArray<string>, arrMax: number, strMax: number);
+    ReadStringArray(offset: L, arr: TSArray<string>, marMax: L, strMax: L);
+    WriteDouble(offset: L, value: double);
+    ReadDouble(offset: L): double;
+    WriteArrayDouble(offset: L, arr: TSArray<double>, max: L);
+    ReadArrayDouble(offset: L, arr: TSArray<double>, max: L);
+    WriteClass<T>(offset: L, value: T);
+    ReadClass<T>(offset: L, value: T);
+    ReadClassArray<T>(offset: L, arr: TSArray<T>, max: L, ind_size: L, con : ()=>T);
+    WriteClassArray<T>(offset: L, arr: TSArray<T>, max: L, ind_size: L);
 }
 
 declare class TSDatabaseResult {

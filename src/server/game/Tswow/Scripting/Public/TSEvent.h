@@ -21,6 +21,7 @@
 #include <string>
 #include <functional>
 #include <exception>
+#include "TSPlayer.h"
 
 class TSEventHandle;
 
@@ -212,28 +213,33 @@ TC_GAME_API uint32_t GetReloads(uint32_t modid);
 /** Network Messages */
 template <typename T>
 struct MessageHandle {
-    std::function<void* ()> constructor;
-    std::vector < void(*)(T*)> listeners;
+    std::function<std::shared_ptr<void> (uint8_t*)> constructor;
+    std::vector < void(*)(TSPlayer,std::shared_ptr<T>)> listeners;
+	uint8_t size = 0;
+	bool enabled = false;
 
     MessageHandle() {}
-    MessageHandle(std::function<void* ()> constructor)
+    MessageHandle(uint8_t size,std::function<std::shared_ptr<void>(uint8_t*)> constructor)
     {
         this->constructor = constructor;
+		this->size = size;
+		this->enabled = true;
     }
 
-    void fire()
+    void fire(TSPlayer player,uint8_t * data)
     {
-        auto g = (T*) constructor();
+        auto g = std::static_pointer_cast<T>(constructor(data));
         for (auto& func : listeners)
         {
-            func(g);
+            func(player,g);
         }
-        free(g);
     }
 };
 
-void RegisterMessage(uint32_t modid, uint16_t opcode, std::function<void*()> constructor);
+TC_GAME_API void RegisterMessage(uint32_t modid, uint16_t opcode, uint8_t size, std::function<std::shared_ptr<void>(uint8_t*)> constructor);
 
-MessageHandle<void>* GetMessage(uint16_t opcode); 
+TC_GAME_API MessageHandle<void>* GetMessage(uint16_t opcode); 
+
+TC_GAME_API void AddMessageListener(uint16_t opcode,void(*func)(TSPlayer,std::shared_ptr<void>));
 	
 #endif

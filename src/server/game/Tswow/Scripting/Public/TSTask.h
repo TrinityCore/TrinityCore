@@ -20,7 +20,6 @@
 #include <chrono>
 #include "TSString.h"
 #include "TSArray.h"
-#include "TSEvent.h"
 #include "TSMutable.h"
 
 static uint64_t now()

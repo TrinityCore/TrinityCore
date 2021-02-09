@@ -37,16 +37,18 @@ public:
 		this->length = length;
 	}
 
+	BinReader* operator->(){return this;}
+
 	template <typename T>
 	T Read(L offset) { return *((T*)(arr + offset)); }
 	template <typename T>
-	void Write(L offset, T value) { *((T*)arr + offset) = value; }
+	void Write(L offset, T value) { *((T*)(arr + offset)) = value; }
 
 	template <typename T>
 	void ReadArray(L offset, TSArray<T> arr, L max)
 	{
 		L len = std::min(max,Read<L>(offset));
-		arr.vec->reserve(len);
+		arr.vec->resize(len);
 		for (L i = 0; i < len; ++i)
 		{
 			arr.set(i, Read<T>(offset+sizeof(L)+sizeof(T)*i));
@@ -57,6 +59,7 @@ public:
 	void WriteArray(L offset, TSArray<T> arr, L max)
 	{
 		L len = std::min(max, L(arr.get_length()));
+		Write<L>(offset,len);
 		for (L i = 0; i < len; ++i)
 		{
 			Write(offset+sizeof(L)+sizeof(T)*i,arr.get(i));
@@ -82,51 +85,88 @@ public:
 		Write<L>(offset, len);
 		for (L i = 0; i < len; ++i)
 		{
-			WriteString(offset + sizeof(L) + strMax * i, arr.get(i), strMax);
+			WriteString(offset + sizeof(L) + (strMax+sizeof(L)) * i, arr.get(i), strMax);
 		}
 	}
 
 	void ReadStringArray(L offset, TSArray<TSString> arr, L arrMax, L strMax)
 	{
 		auto len = std::min(Read<L>(offset), arrMax);
-		arr.vec->reserve(len);
+		arr.vec->resize(len);
 		for (L i = 0; i < len; ++i)
 		{
-			arr.set(i, ReadString(offset + sizeof(L) + strMax * i,strMax));
+			arr.set(i, ReadString(offset + sizeof(L) + (strMax+sizeof(L)) * i,strMax));
+		}
+	}
+
+	void WriteDouble(L offset, double value)
+	{
+		auto disc = std::floor(value);
+		auto frac = std::round((value-disc)*100000);
+		Write<int32_t>(offset,disc);
+		Write<int32_t>(offset+4,frac);
+	}
+
+	double ReadDouble(L offset)
+	{
+		double disc = (double) Read<int32_t>(offset);
+		double frac = ((double)Read<int32_t>(offset+4))/100000;
+		return disc+frac;
+	}
+
+	void WriteArrayDouble(L offset, TSArray<double> arr, L max)
+	{
+		L len = std::min(max,L(arr.get_length()));
+		Write<L>(offset,len);
+		for(L i = 0; i < len; ++i)
+		{
+			WriteDouble(offset+sizeof(L)+2*sizeof(uint32_t)*i,arr.get(i));
+		}
+	}
+
+	void ReadArrayDouble(L offset, TSArray<double> arr, L max)
+	{
+		L len = std::min(max,Read<L>(offset));
+		arr.vec->resize(len);
+		for(L i = 0; i < len; ++i)
+		{
+			arr.set(i,ReadDouble(offset+sizeof(L)+2*sizeof(uint32_t)*i));
 		}
 	}
 
 	template <typename T>
 	void WriteClass(L offset, std::shared_ptr<T> value)
 	{
-		value->Write(arr,offset);
+		value->Write(arr+offset);
 	}
 
 	template <typename T> 
 	void ReadClass(L offset, std::shared_ptr<T> value)
 	{
-		value->Read(arr, offset);
+		value->Read(arr+offset);
 	}
 
 	template <typename T>
-	void ReadClassArray(L offset, TSArray<std::shared_ptr<T>> arr, L max, L ind_size)
+	void ReadClassArray(L offset, TSArray<std::shared_ptr<T>> arr, L max, L ind_size, std::function<std::shared_ptr<T>()> constructor)
 	{
 		auto len = std::min(max, Read<L>(offset));
-		arr.vec->reserve(len);
+		arr.vec->resize(len);
 		for (L i = 0; i < len; ++i)
 		{
-			arr.set(i, ReadClass(offset + sizeof(L) + ind_size * i));
+			auto cls = constructor();
+			ReadClass<T>(offset+sizeof(L)+ind_size*i,cls);
+			arr.set(i,cls);
 		}
 	}
 
 	template <typename T>
 	void WriteClassArray(L offset, TSArray<std::shared_ptr<T>> arr, L max, L ind_size)
 	{
-		auto len = std::min(arr.get_length(), max);
-		Write<L>(len);
+		auto len = std::min(L(arr.get_length()), max);
+		Write<L>(offset,len);
 		for (L i = 0; i < len; ++i)
 		{
-			WriteClass(offset + sizeof(L) + ind_size * i);
+			WriteClass<T>(offset + sizeof(L) + ind_size * i,arr.get(i));
 		}
 	}
 };

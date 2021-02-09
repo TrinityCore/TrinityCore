@@ -16,10 +16,13 @@
  */
 #pragma once
 
+#include <memory>
+#include "BinReader.h"
 #include "TSMain.h"
 #include "TSString.h"
 #include "TSClasses.h"
 #include "TSUnit.h"
+#include "Base64.h"
 
 struct TSMail;
 class TC_GAME_API TSPlayer : public TSUnit {
@@ -257,6 +260,22 @@ public:
 	void SendCinematicStart(uint32 CinematicSequenceId);
 	void SendMovieStart(uint32 MovieId);
 	void SendMail(uint8 senderType, uint64 from, TSString subject, TSString body, uint32 money = 0, uint32 cod = 0, uint32 delay = 0, TSArray<TSItem> items = TSArray<TSItem>());
+
+	template <typename T>
+	void SendData(std::shared_ptr<T> value)
+	{
+		uint8_t arr[250];
+		BinReader<uint8_t> bin(arr,250);
+		bin.Write<uint32_t>(0,17688);
+		bin.Write<uint16_t>(4,value->opcode());
+		value->Write(arr+6);
+		char *carr = (char*)arr;
+		uint8_t b85arr[250];
+		
+		int b85len = encodeBase64((uint8_t*)carr,value->GetSize()+6,b85arr);
+		std::string outstr((char*)b85arr,b85len);
+		SendAddonMessage(JSTR(""),TSString(outstr),7,*this);
+	}
 
 	TSArray<TSMail> GetMails();
 	void RemoveMail(uint32 id);

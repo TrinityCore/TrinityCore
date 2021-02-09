@@ -969,9 +969,9 @@ public:
          EVENT_HANDLE(Addon,OnMessage)
 
          template <typename T>
-         void _OnMessageID(uint16_t opcode, void (*func)(T*))
+         void _OnMessageID(uint16_t opcode, void (*func)(TSPlayer,std::shared_ptr<T>))
          {
-               GetMessage(opcode)->listeners.push_back((void(*)(void*))func);
+              AddMessageListener(opcode,(void(*)(TSPlayer,std::shared_ptr<void>))func);
          }
     } Addon;
 
@@ -1034,7 +1034,7 @@ public:
     }
 };
 
-#define OnMessageID(type,func) _OnMessageID<type>(type::opcode(),func)
+#define OnMessageID(type,func) _OnMessageID<type>(type::GetID(),func)
 
 TC_GAME_API TSTasks<void*> GetTimers();
 TC_GAME_API TSEvents* GetTSEvents();
