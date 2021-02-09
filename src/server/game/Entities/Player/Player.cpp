@@ -24801,8 +24801,19 @@ void Player::LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue)
         if (!spellInfo)
             continue;
 
-        if (ability->AcquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE && ability->AcquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN)
-            continue;
+        switch (ability->AcquireMethod)
+        {
+            case SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE:
+            case SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN:
+                break;
+            case SKILL_LINE_ABILITY_REWARDED_FROM_QUEST:
+                if (!ability->GetFlags().HasFlag(SkillLineAbilityFlags::CanFallbackToLearnedOnSkillLearn) ||
+                    !spellInfo->MeetsFutureSpellPlayerCondition(this))
+                    continue;
+                break;
+            default:
+                continue;
+        }
 
         // AcquireMethod == 2 && NumSkillUps == 1 --> automatically learn riding skill spell, else we skip it (client shows riding in spellbook as trainable).
         if (skillId == SKILL_RIDING && (ability->AcquireMethod != SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN || ability->NumSkillUps != 1))
