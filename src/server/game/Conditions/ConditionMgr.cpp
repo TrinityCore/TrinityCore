@@ -308,6 +308,12 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
                 condMeets = (uint32)Player::GetDrunkenstateByValue(player->GetDrunkValue()) >= ConditionValue1;
             break;
         }
+        case CONDITION_NEAR_PERSONAL_CREATURE:
+        {
+            if (Unit const* unit = object->ToPlayer())
+                condMeets = object->FindNearestCreature(ConditionValue1, (float)ConditionValue2, bool(!ConditionValue3), unit) != nullptr;
+            break;
+        }
         case CONDITION_NEAR_CREATURE:
         {
             condMeets = object->FindNearestCreature(ConditionValue1, (float)ConditionValue2, bool(!ConditionValue3)) != nullptr;
@@ -624,6 +630,9 @@ uint32 Condition::GetSearcherTypeMaskForCondition() const
             break;
         case CONDITION_NEAR_CREATURE:
             mask |= GRID_MAP_TYPE_MASK_ALL;
+            break;
+        case CONDITION_NEAR_PERSONAL_CREATURE:
+            mask |= GRID_MAP_TYPE_MASK_CREATURE;
             break;
         case CONDITION_NEAR_GAMEOBJECT:
             mask |= GRID_MAP_TYPE_MASK_ALL;
@@ -2080,6 +2089,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
             break;
         }
         case CONDITION_NEAR_CREATURE:
+        case CONDITION_NEAR_PERSONAL_CREATURE:
         {
             if (!sObjectMgr->GetCreatureTemplate(cond->ConditionValue1))
             {
