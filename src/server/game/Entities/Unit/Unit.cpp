@@ -9511,7 +9511,6 @@ void Unit::ScheduleAIChange()
         RestoreDisabledAI();
         PushAI(nullptr); //This could actually be PopAI() to get the previous AI but it's required atm to trigger UpdateCharmAI()
     }
-    RefreshAI();
 }
 
 void Unit::RestoreDisabledAI()
