@@ -17,6 +17,7 @@
 
 #include "ObjectGridLoader.h"
 #include "AreaTrigger.h"
+#include "AreaTriggerDataStore.h"
 #include "CellImpl.h"
 #include "Conversation.h"
 #include "Corpse.h"
@@ -124,7 +125,9 @@ void LoadHelper(CellGuidSet const& guid_set, CellCoord &cell, GridRefManager<T> 
         T* obj = new T;
 
         // Don't spawn at all if there's a respawn time
-        if ((obj->GetTypeId() == TYPEID_UNIT && !map->GetCreatureRespawnTime(*i_guid)) || (obj->GetTypeId() == TYPEID_GAMEOBJECT && !map->GetGORespawnTime(*i_guid)))
+        if ((obj->GetTypeId() == TYPEID_UNIT && !map->GetCreatureRespawnTime(*i_guid)) ||
+            (obj->GetTypeId() == TYPEID_GAMEOBJECT && !map->GetGORespawnTime(*i_guid)) ||
+            (obj->GetTypeId() == TYPEID_AREATRIGGER))
         {
             ObjectGuid::LowType guid = *i_guid;
             //TC_LOG_INFO("misc", "DEBUG: LoadHelper from table: %s for (guid: %u) Loading", table, guid);
@@ -175,7 +178,7 @@ void LoadHelper(CellGuidSet const& guid_set, CellCoord &cell, GridRefManager<T> 
     }
 }
 
-void ObjectGridLoader::Visit(GameObjectMapType &m)
+void ObjectGridLoader::Visit(GameObjectMapType& m)
 {
     CellCoord cellCoord = i_cell.GetCellCoord();
     CellObjectGuids const& cell_guids = sObjectMgr->GetCellObjectGuids(i_map->GetId(), i_map->GetDifficultyID(), cellCoord.GetId());
@@ -187,6 +190,14 @@ void ObjectGridLoader::Visit(CreatureMapType &m)
     CellCoord cellCoord = i_cell.GetCellCoord();
     CellObjectGuids const& cell_guids = sObjectMgr->GetCellObjectGuids(i_map->GetId(), i_map->GetDifficultyID(), cellCoord.GetId());
     LoadHelper(cell_guids.creatures, cellCoord, m, i_creatures, i_map);
+}
+
+void ObjectGridLoader::Visit(AreaTriggerMapType& m)
+{
+    CellCoord cellCoord = i_cell.GetCellCoord();
+    CellGuidSet const* areaTriggers = sAreaTriggerDataStore->GetAreaTriggersForMapAndCell(i_map->GetId(), cellCoord.GetId());
+    if (areaTriggers)
+        LoadHelper(*areaTriggers, cellCoord, m, i_areaTriggers, i_map);
 }
 
 void ObjectWorldLoader::Visit(CorpseMapType& /*m*/)

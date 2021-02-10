@@ -19,7 +19,9 @@
 #include "AchievementPackets.h"
 #include "DatabaseEnv.h"
 #include "DB2Structure.h"
+#include "Group.h"
 #include "Log.h"
+#include "Map.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 
@@ -223,16 +225,12 @@ void QuestObjectiveCriteriaMgr::SendAllData(Player const* /*receiver*/) const
     }
 }
 
-void QuestObjectiveCriteriaMgr::CompletedObjective(QuestObjective const* questObjective, Player* referencePlayer)
+void QuestObjectiveCriteriaMgr::CompletedObjective(QuestObjective const* questObjective, Player* /*referencePlayer*/)
 {
-    // disable for gamemasters with GM-mode enabled
-    if (_owner->IsGameMaster())
-        return;
-
     if (HasCompletedObjective(questObjective))
         return;
 
-    referencePlayer->KillCreditCriteriaTreeObjective(*questObjective);
+    _owner->KillCreditCriteriaTreeObjective(*questObjective);
 
     TC_LOG_INFO("criteria.quest", "QuestObjectiveCriteriaMgr::CompletedObjective(%u). %s", questObjective->ID, GetOwnerInfo().c_str());
 
@@ -278,6 +276,21 @@ bool QuestObjectiveCriteriaMgr::CanUpdateCriteriaTree(Criteria const* criteria, 
     if (HasCompletedObjective(objective))
     {
         TC_LOG_TRACE("criteria.quest", "QuestObjectiveCriteriaMgr::CanUpdateCriteriaTree: (Id: %u Type %s Quest Objective %u) Objective already completed",
+            criteria->ID, CriteriaMgr::GetCriteriaTypeString(criteria->Entry->Type), objective->ID);
+        return false;
+    }
+
+    if (_owner->GetQuestStatus(objective->QuestID) != QUEST_STATUS_INCOMPLETE)
+    {
+        TC_LOG_TRACE("criteria.quest", "QuestObjectiveCriteriaMgr::CanUpdateCriteriaTree: (Id: %u Type %s Quest Objective %u) Not on quest",
+            criteria->ID, CriteriaMgr::GetCriteriaTypeString(criteria->Entry->Type), objective->ID);
+        return false;
+    }
+
+    Quest const* quest = ASSERT_NOTNULL(sObjectMgr->GetQuestTemplate(objective->QuestID));
+    if (_owner->GetGroup() && _owner->GetGroup()->isRaidGroup() && !quest->IsAllowedInRaid(referencePlayer->GetMap()->GetDifficultyID()))
+    {
+        TC_LOG_TRACE("criteria.quest", "QuestObjectiveCriteriaMgr::CanUpdateCriteriaTree: (Id: %u Type %s Quest Objective %u) Quest cannot be completed in raid group",
             criteria->ID, CriteriaMgr::GetCriteriaTypeString(criteria->Entry->Type), objective->ID);
         return false;
     }

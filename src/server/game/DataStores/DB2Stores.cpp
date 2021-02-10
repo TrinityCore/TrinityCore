@@ -140,6 +140,7 @@ DB2Storage<GarrPlotInstanceEntry>               sGarrPlotInstanceStore("GarrPlot
 DB2Storage<GarrSiteLevelEntry>                  sGarrSiteLevelStore("GarrSiteLevel.db2", GarrSiteLevelLoadInfo::Instance());
 DB2Storage<GarrSiteLevelPlotInstEntry>          sGarrSiteLevelPlotInstStore("GarrSiteLevelPlotInst.db2", GarrSiteLevelPlotInstLoadInfo::Instance());
 DB2Storage<GemPropertiesEntry>                  sGemPropertiesStore("GemProperties.db2", GemPropertiesLoadInfo::Instance());
+DB2Storage<GlobalCurveEntry>                    sGlobalCurveStore("GlobalCurve.db2", GlobalCurveLoadInfo::Instance());
 DB2Storage<GlyphBindableSpellEntry>             sGlyphBindableSpellStore("GlyphBindableSpell.db2", GlyphBindableSpellLoadInfo::Instance());
 DB2Storage<GlyphPropertiesEntry>                sGlyphPropertiesStore("GlyphProperties.db2", GlyphPropertiesLoadInfo::Instance());
 DB2Storage<GlyphRequiredSpecEntry>              sGlyphRequiredSpecStore("GlyphRequiredSpec.db2", GlyphRequiredSpecLoadInfo::Instance());
@@ -671,6 +672,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sGarrSiteLevelStore);
     LOAD_DB2(sGarrSiteLevelPlotInstStore);
     LOAD_DB2(sGemPropertiesStore);
+    LOAD_DB2(sGlobalCurveStore);
     LOAD_DB2(sGlyphBindableSpellStore);
     LOAD_DB2(sGlyphPropertiesStore);
     LOAD_DB2(sGlyphRequiredSpecStore);
@@ -848,13 +850,13 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     }
 
     // Check loaded DB2 files proper version
-    if (!sAreaTableStore.LookupEntry(13227) ||               // last area added in 8.3.0 (34769)
-        !sCharTitlesStore.LookupEntry(672) ||                // last char title added in 8.3.0 (34769)
-        !sGemPropertiesStore.LookupEntry(3802) ||            // last gem property added in 8.3.0 (34769)
-        !sItemStore.LookupEntry(175264) ||                   // last item added in 8.3.0 (34769)
-        !sItemExtendedCostStore.LookupEntry(6716) ||         // last item extended cost added in 8.3.0 (34769)
-        !sMapStore.LookupEntry(2292) ||                      // last map added in 8.3.0 (34769)
-        !sSpellNameStore.LookupEntry(319960))                // last spell added in 8.3.0 (34769)
+    if (!sAreaTableStore.LookupEntry(13574) ||               // last area added in 9.0.2 (37176)
+        !sCharTitlesStore.LookupEntry(694) ||                // last char title added in 9.0.2 (37176)
+        !sGemPropertiesStore.LookupEntry(3825) ||            // last gem property added in 9.0.2 (37176)
+        !sItemStore.LookupEntry(184869) ||                   // last item added in 9.0.2 (37176)
+        !sItemExtendedCostStore.LookupEntry(7048) ||         // last item extended cost added in 9.0.2 (37176)
+        !sMapStore.LookupEntry(2453) ||                      // last map added in 9.0.2 (37176)
+        !sSpellNameStore.LookupEntry(349043))                // last spell added in 9.0.2 (37176)
     {
         TC_LOG_ERROR("misc", "You have _outdated_ DB2 files. Please extract correct versions from current using client.");
         exit(1);
@@ -2191,9 +2193,13 @@ std::vector<uint32> const* DB2Manager::GetFactionTeamList(uint32 faction) const
     return Trinity::Containers::MapGetValuePtr(_factionTeams, faction);
 }
 
-HeirloomEntry const* DB2Manager::GetHeirloomByItemId(uint32 itemId) const
+uint32 DB2Manager::GetGlobalCurveId(GlobalCurve globalCurveType) const
 {
-    return Trinity::Containers::MapGetValuePtr(_heirlooms, itemId);
+    for (GlobalCurveEntry const* globalCurveEntry : sGlobalCurveStore)
+        if (GlobalCurve(globalCurveEntry->Type) == globalCurveType)
+            return globalCurveEntry->CurveID;
+
+    return 0;
 }
 
 std::vector<uint32> const* DB2Manager::GetGlyphBindableSpells(uint32 glyphPropertiesId) const
@@ -2204,6 +2210,11 @@ std::vector<uint32> const* DB2Manager::GetGlyphBindableSpells(uint32 glyphProper
 std::vector<uint32> const* DB2Manager::GetGlyphRequiredSpecs(uint32 glyphPropertiesId) const
 {
     return Trinity::Containers::MapGetValuePtr(_glyphRequiredSpecs, glyphPropertiesId);
+}
+
+HeirloomEntry const* DB2Manager::GetHeirloomByItemId(uint32 itemId) const
+{
+    return Trinity::Containers::MapGetValuePtr(_heirlooms, itemId);
 }
 
 DB2Manager::ItemBonusList const* DB2Manager::GetItemBonusList(uint32 bonusListId) const

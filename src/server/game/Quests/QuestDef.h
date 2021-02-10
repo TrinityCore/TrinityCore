@@ -437,6 +437,12 @@ class TC_GAME_API Quest
         bool HasSpecialFlag(uint32 flag) const { return (_specialFlags & flag) != 0; }
         void SetSpecialFlag(uint32 flag) { _specialFlags |= flag; }
 
+        bool IsAutoPush() const { return HasFlagEx(QUEST_FLAGS_EX_AUTO_PUSH); }
+        bool IsWorldQuest() const { return HasFlagEx(QUEST_FLAGS_EX_IS_WORLD_QUEST); }
+
+        // Possibly deprecated flag
+        bool IsUnavailable() const { return HasFlag(QUEST_FLAGS_UNAVAILABLE); }
+
         // table data accessors:
         uint32 GetQuestId() const { return _id; }
         uint32 GetQuestType() const { return _type; }
@@ -659,6 +665,9 @@ class TC_GAME_API Quest
         uint32 _rewardMailSenderEntry = 0;
         uint32 _specialFlags         = 0; // custom flags, not sniffed/WDB
         uint32 _scriptId             = 0;
+
+        // Helpers
+        static uint32 RoundXPValue(uint32 xp);
 };
 
 struct QuestStatusData

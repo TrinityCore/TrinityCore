@@ -589,12 +589,12 @@ bool IsWeaponSkill(uint32 skill);
 
 inline bool IsProfessionSkill(uint32 skill)
 {
-    return  IsPrimaryProfessionSkill(skill) || skill == SKILL_FISHING || skill == SKILL_COOKING;
+    return IsPrimaryProfessionSkill(skill) || skill == SKILL_FISHING || skill == SKILL_COOKING;
 }
 
 inline bool IsProfessionOrRidingSkill(uint32 skill)
 {
-    return  IsProfessionSkill(skill) || skill == SKILL_RIDING;
+    return IsProfessionSkill(skill) || skill == SKILL_RIDING;
 }
 
 bool IsPartOfSkillLine(uint32 skillId, uint32 spellId);

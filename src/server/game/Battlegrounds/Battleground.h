@@ -23,6 +23,7 @@
 #include "Position.h"
 #include "SharedDefines.h"
 #include <map>
+#include <vector>
 
 class BattlegroundMap;
 class Creature;
@@ -259,7 +260,10 @@ class TC_GAME_API Battleground
 {
     public:
         Battleground(BattlegroundTemplate const* battlegroundTemplate);
+        Battleground(Battleground const&);
         virtual ~Battleground();
+
+        Battleground& operator=(Battleground const&) = delete;
 
         void Update(uint32 diff);
 
@@ -502,6 +506,9 @@ class TC_GAME_API Battleground
         // because BattleGrounds with different types and same level range has different m_BracketId
         uint8 GetUniqueBracketId() const;
 
+        void AddPlayerPosition(WorldPackets::Battleground::BattlegroundPlayerPosition const& position);
+        void RemovePlayerPosition(ObjectGuid guid);
+
     protected:
         // this method is called, when BG cannot spawn its own spirit guide, or something is wrong, It correctly ends Battleground
         void EndNow();
@@ -549,7 +556,6 @@ class TC_GAME_API Battleground
         void _ProcessJoin(uint32 diff);
         void _CheckSafePositions(uint32 diff);
         void _ProcessPlayerPositionBroadcast(uint32 diff);
-        virtual void GetPlayerPositionData(std::vector<WorldPackets::Battleground::BattlegroundPlayerPosition>* /*positions*/) const { }
 
         // Scorekeeping
         BattlegroundScoreMap PlayerScores;                // Player scores
@@ -624,5 +630,7 @@ class TC_GAME_API Battleground
 
         BattlegroundTemplate const* _battlegroundTemplate;
         PVPDifficultyEntry const* _pvpDifficultyEntry;
+
+        std::vector<WorldPackets::Battleground::BattlegroundPlayerPosition> _playerPositions;
 };
 #endif

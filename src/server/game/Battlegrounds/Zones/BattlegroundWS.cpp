@@ -194,29 +194,6 @@ void BattlegroundWS::PostUpdateImpl(uint32 diff)
     }
 }
 
-void BattlegroundWS::GetPlayerPositionData(std::vector<WorldPackets::Battleground::BattlegroundPlayerPosition>* positions) const
-{
-    if (Player* player = ObjectAccessor::GetPlayer(GetBgMap(), m_FlagKeepers[TEAM_ALLIANCE]))
-    {
-        WorldPackets::Battleground::BattlegroundPlayerPosition position;
-        position.Guid = player->GetGUID();
-        position.Pos = player->GetPosition();
-        position.IconID = PLAYER_POSITION_ICON_ALLIANCE_FLAG;
-        position.ArenaSlot = PLAYER_POSITION_ARENA_SLOT_NONE;
-        positions->push_back(position);
-    }
-
-    if (Player* player = ObjectAccessor::GetPlayer(GetBgMap(), m_FlagKeepers[TEAM_HORDE]))
-    {
-        WorldPackets::Battleground::BattlegroundPlayerPosition position;
-        position.Guid = player->GetGUID();
-        position.Pos = player->GetPosition();
-        position.IconID = PLAYER_POSITION_ICON_HORDE_FLAG;
-        position.ArenaSlot = PLAYER_POSITION_ARENA_SLOT_NONE;
-        positions->push_back(position);
-    }
-}
-
 void BattlegroundWS::StartingEventCloseDoors()
 {
     for (uint32 i = BG_WS_OBJECT_DOOR_A_1; i <= BG_WS_OBJECT_DOOR_H_4; ++i)

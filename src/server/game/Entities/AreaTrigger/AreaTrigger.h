@@ -61,10 +61,17 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
 
         AreaTriggerAI* AI() { return _ai.get(); }
 
+        bool IsServerSide() const { return _areaTriggerTemplate->Id.IsServerSide; }
+
+        bool IsNeverVisibleFor(WorldObject const* /*seer*/) const override { return IsServerSide(); }
+
     private:
         bool Create(uint32 spellMiscId, Unit* caster, Unit* target, SpellInfo const* spell, Position const& pos, int32 duration, SpellCastVisual spellVisual, ObjectGuid const& castId, AuraEffect const* aurEff);
+        bool CreateServer(Map* map, AreaTriggerTemplate const* areaTriggerTemplate, AreaTriggerSpawn const& position);
+
     public:
         static AreaTrigger* CreateAreaTrigger(uint32 spellMiscId, Unit* caster, Unit* target, SpellInfo const* spell, Position const& pos, int32 duration, SpellCastVisual spellVisual, ObjectGuid const& castId = ObjectGuid::Empty, AuraEffect const* aurEff = nullptr);
+        bool LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap, bool allowDuplicate);
 
         void Update(uint32 diff) override;
         void Remove();
@@ -105,17 +112,19 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
 
         UF::UpdateField<UF::AreaTriggerData, 0, TYPEID_AREATRIGGER> m_areaTriggerData;
 
+
     protected:
         void _UpdateDuration(int32 newDuration);
         float GetProgress() const;
 
         void UpdateTargetList();
-        void SearchUnitInSphere(std::list<Unit*>& targetList);
-        void SearchUnitInBox(std::list<Unit*>& targetList);
-        void SearchUnitInPolygon(std::list<Unit*>& targetList);
-        void SearchUnitInCylinder(std::list<Unit*>& targetList);
+        void SearchUnits(std::vector<Unit*>& targetList, float radius, bool check3D);
+        void SearchUnitInSphere(std::vector<Unit*>& targetList);
+        void SearchUnitInBox(std::vector<Unit*>& targetList);
+        void SearchUnitInPolygon(std::vector<Unit*>& targetList);
+        void SearchUnitInCylinder(std::vector<Unit*>& targetList);
         bool CheckIsInPolygon2D(Position const* pos) const;
-        void HandleUnitEnterExit(std::list<Unit*> const& targetList);
+        void HandleUnitEnterExit(std::vector<Unit*> const& targetList);
 
         void DoActions(Unit* unit);
         void UndoActions(Unit* unit);
@@ -151,6 +160,7 @@ class TC_GAME_API AreaTrigger : public WorldObject, public GridObject<AreaTrigge
         Optional<AreaTriggerOrbitInfo> _orbitInfo;
 
         AreaTriggerMiscTemplate const* _areaTriggerMiscTemplate;
+        AreaTriggerTemplate const* _areaTriggerTemplate;
         GuidUnorderedSet _insideUnits;
 
         std::unique_ptr<AreaTriggerAI> _ai;

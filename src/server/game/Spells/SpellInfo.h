@@ -353,6 +353,7 @@ public:
     flag128   SpellClassMask;
     float     BonusCoefficientFromAP;
     std::vector<Condition*>* ImplicitTargetConditions;
+    EnumFlag<SpellEffectAttributes> EffectAttributes;
     // SpellScalingEntry
     struct ScalingInfo
     {
@@ -364,7 +365,8 @@ public:
     SpellEffectInfo() : _spellInfo(nullptr), EffectIndex(0), Effect(0), ApplyAuraName(0), ApplyAuraPeriod(0),
                         RealPointsPerLevel(0), BasePoints(0), PointsPerResource(0), Amplitude(0), ChainAmplitude(0),
                         BonusCoefficient(0), MiscValue(0), MiscValueB(0), Mechanic(MECHANIC_NONE), PositionFacing(0),
-                        RadiusEntry(nullptr), ChainTargets(0), ItemType(0), TriggerSpell(0), BonusCoefficientFromAP(0.0f), ImplicitTargetConditions(nullptr) { }
+                        RadiusEntry(nullptr), ChainTargets(0), ItemType(0), TriggerSpell(0), BonusCoefficientFromAP(0.0f),
+                        ImplicitTargetConditions(nullptr), EffectAttributes(SpellEffectAttributes::None) { }
     SpellEffectInfo(SpellInfo const* spellInfo, SpellEffectEntry const* effect);
 
     bool IsEffect() const;
@@ -507,6 +509,7 @@ class TC_GAME_API SpellInfo
         uint32 IconFileDataId;
         uint32 ActiveIconFileDataId;
         uint32 ContentTuningId;
+        uint32 ShowFutureSpellPlayerConditionID;
         LocalizedString const* SpellName;
         float ConeAngle;
         float Width;
@@ -683,6 +686,9 @@ class TC_GAME_API SpellInfo
         bool SpellCancelsAuraEffect(AuraEffect const* aurEff) const;
 
         uint32 GetAllowedMechanicMask() const;
+
+        // Player Condition
+        bool MeetsFutureSpellPlayerCondition(Player const* player) const;
 
     private:
         // loading helpers

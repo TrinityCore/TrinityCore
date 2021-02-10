@@ -142,7 +142,7 @@ class AccountActionIpLogger : public AccountScript
                 stmt->setUInt32(1, 0);
                 stmt->setUInt8(2, aType);
                 stmt->setUInt32(3, playerGuid);
-                stmt->setString(4, systemNote.c_str());
+                stmt->setString(4, systemNote);
                 LoginDatabase.Execute(stmt);
             }
             else // ... but for failed login, we query last_attempt_ip from account table. Which we do with an unique query
@@ -153,7 +153,7 @@ class AccountActionIpLogger : public AccountScript
                 stmt->setUInt32(1, 0);
                 stmt->setUInt8(2, aType);
                 stmt->setUInt32(3, playerGuid);
-                stmt->setString(4, systemNote.c_str());
+                stmt->setString(4, systemNote);
                 LoginDatabase.Execute(stmt);
             }
             return;
@@ -233,8 +233,8 @@ class CharacterActionIpLogger : public PlayerScript
             stmt->setUInt32(0, playerGuid);
             stmt->setUInt64(1, player->GetGUID().GetCounter());
             stmt->setUInt8(2, aType);
-            stmt->setString(3, currentIp.c_str()); // We query the ip here.
-            stmt->setString(4, systemNote.c_str());
+            stmt->setString(3, currentIp); // We query the ip here.
+            stmt->setString(4, systemNote);
             // Seeing as the time differences should be minimal, we do not get unixtime and the timestamp right now;
             // Rather, we let it be added with the SQL query.
 
@@ -292,7 +292,7 @@ public:
         stmt2->setUInt64(1, guid.GetCounter());
         stmt2->setUInt8(2, aType);
         stmt2->setUInt32(3, playerGuid);
-        stmt2->setString(4, systemNote.c_str());
+        stmt2->setString(4, systemNote);
         // Seeing as the time differences should be minimal, we do not get unixtime and the timestamp right now;
         // Rather, we let it be added with the SQL query.
 

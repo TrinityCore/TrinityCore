@@ -19,6 +19,7 @@
 #define TRINITY_SMARTAI_H
 
 #include "Define.h"
+#include "AreaTriggerAI.h"
 #include "CreatureAI.h"
 #include "GameObjectAI.h"
 #include "Position.h"
@@ -68,8 +69,10 @@ class TC_GAME_API SmartAI : public CreatureAI
         void StopFollow(bool complete);
         bool IsEscortInvokerInRange();
 
+        void WaypointPathStarted(uint32 nodeId, uint32 pathId) override;
         void WaypointStarted(uint32 nodeId, uint32 pathId) override;
         void WaypointReached(uint32 nodeId, uint32 pathId) override;
+        void WaypointPathEnded(uint32 nodeId, uint32 pathId) override;
 
         void SetScript9(SmartScriptHolder& e, uint32 entry, Unit* invoker);
         SmartScript* GetScript() { return &mScript; }
@@ -201,10 +204,10 @@ class TC_GAME_API SmartAI : public CreatureAI
     private:
         bool AssistPlayerInCombatAgainst(Unit* who);
         void ReturnToLastOOCPos();
-        void UpdatePath(const uint32 diff);
-        void UpdateDespawn(uint32 diff);
-        // Vehicle conditions
         void CheckConditions(uint32 diff);
+        void UpdatePath(uint32 diff);
+        void UpdateFollow(uint32 diff);
+        void UpdateDespawn(uint32 diff);
 
         SmartScript mScript;
 
@@ -238,7 +241,6 @@ class TC_GAME_API SmartAI : public CreatureAI
         uint32 mDespawnTime;
         uint32 mRespawnTime;
         uint32 mDespawnState;
-        bool mJustReset;
 
         // Vehicle conditions
         bool mHasConditions;
@@ -283,6 +285,22 @@ class TC_GAME_API SmartGameObjectAI : public GameObjectAI
 
         // Gossip
         bool _gossipReturn;
+};
+
+class TC_GAME_API SmartAreaTriggerAI : public AreaTriggerAI
+{
+public:
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnInitialize() override;
+    void OnUpdate(uint32 diff) override;
+    void OnUnitEnter(Unit* unit) override;
+
+    SmartScript* GetScript() { return &mScript; }
+    void SetScript9(SmartScriptHolder& e, uint32 entry, Unit* invoker);
+
+private:
+    SmartScript mScript;
 };
 
 /// Registers scripts required by the SAI scripting system

@@ -21,6 +21,7 @@
 #include "Define.h"
 #include "SmartScriptMgr.h"
 
+class AreaTrigger;
 class Creature;
 class GameObject;
 class Player;
@@ -122,6 +123,7 @@ class TC_GAME_API SmartScript
         GameObject* go;
         ObjectGuid goOrigGUID;
         AreaTriggerEntry const* trigger;
+        AreaTrigger* areaTrigger;
         SceneTemplate const* sceneTemplate;
         SmartScriptType mScriptType;
         uint32 mEventPhase;

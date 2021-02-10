@@ -63,6 +63,10 @@ void WaypointMovementGenerator<Creature>::LoadPath(Creature* creature)
     }
 
     _nextMoveTime.Reset(1000);
+
+    // inform AI
+    if (creature->AI())
+        creature->AI()->WaypointPathStarted(1, _path->id);
 }
 
 void WaypointMovementGenerator<Creature>::DoInitialize(Creature* creature)
@@ -94,6 +98,7 @@ void WaypointMovementGenerator<Creature>::OnArrived(Creature* creature)
     if (!_path || _path->nodes.empty())
         return;
 
+    ASSERT(_currentNode < _path->nodes.size(), "WaypointMovementGenerator::OnArrived: tried to reference a node id (%u) which is not included in path (%u)", _currentNode, _path->id);
     WaypointNode const &waypoint = _path->nodes.at(_currentNode);
     if (waypoint.delay)
     {
@@ -112,12 +117,10 @@ void WaypointMovementGenerator<Creature>::OnArrived(Creature* creature)
     if (creature->AI())
     {
         creature->AI()->MovementInform(WAYPOINT_MOTION_TYPE, _currentNode);
-
-        ASSERT(_currentNode < _path->nodes.size(), "WaypointMovementGenerator::OnArrived: tried to reference a node id (%u) which is not included in path (%u)", _currentNode, _path->id);
-        creature->AI()->WaypointReached(_path->nodes[_currentNode].id, _path->id);
+        creature->AI()->WaypointReached(waypoint.id, _path->id);
     }
 
-    creature->UpdateWaypointID(_currentNode);
+    creature->UpdateCurrentWaypointInfo(waypoint.id, _path->id);
 }
 
 bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
@@ -139,10 +142,11 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
 
     if (_isArrivalDone)
     {
+        ASSERT(_currentNode < _path->nodes.size(), "WaypointMovementGenerator::StartMove: tried to reference a node id (%u) which is not included in path (%u)", _currentNode, _path->id);
+        WaypointNode const &waypoint = _path->nodes.at(_currentNode);
+
         if ((_currentNode == _path->nodes.size() - 1) && !_repeating) // If that's our last waypoint
         {
-            WaypointNode const &waypoint = _path->nodes.at(_currentNode);
-
             float x = waypoint.x;
             float y = waypoint.y;
             float z = waypoint.z;
@@ -164,6 +168,11 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
                 // else if (vehicle) - this should never happen, vehicle offsets are const
             }
             _done = true;
+            creature->UpdateCurrentWaypointInfo(0, 0);
+
+            // inform AI
+            if (creature->AI())
+                creature->AI()->WaypointPathEnded(waypoint.id, _path->id);
             return true;
         }
 
@@ -171,12 +180,10 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
 
         // inform AI
         if (creature->AI())
-        {
-            ASSERT(_currentNode < _path->nodes.size(), "WaypointMovementGenerator::StartMove: tried to reference a node id (%u) which is not included in path (%u)", _currentNode, _path->id);
-            creature->AI()->WaypointStarted(_path->nodes[_currentNode].id, _path->id);
-        }
+            creature->AI()->WaypointStarted(waypoint.id, _path->id);
     }
 
+    ASSERT(_currentNode < _path->nodes.size(), "WaypointMovementGenerator::StartMove: tried to reference a node id (%u) which is not included in path (%u)", _currentNode, _path->id);
     WaypointNode const &waypoint = _path->nodes.at(_currentNode);
     Position formationDest(waypoint.x, waypoint.y, waypoint.z, (waypoint.orientation && waypoint.delay) ? waypoint.orientation : 0.0f);
 
@@ -288,6 +295,7 @@ bool WaypointMovementGenerator<Creature>::GetResetPos(Creature*, float& x, float
     if (!_path || _path->nodes.empty())
         return false;
 
+    ASSERT(_currentNode < _path->nodes.size(), "WaypointMovementGenerator::GetResetPos: tried to reference a node id (%u) which is not included in path (%u)", _currentNode, _path->id);
     WaypointNode const &waypoint = _path->nodes.at(_currentNode);
 
     x = waypoint.x;

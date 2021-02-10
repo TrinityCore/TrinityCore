@@ -372,6 +372,7 @@ SpellImplicitTargetInfo::StaticData  SpellImplicitTargetInfo::_data[TOTAL_SPELL_
 };
 
 SpellEffectInfo::SpellEffectInfo(SpellInfo const* spellInfo, SpellEffectEntry const* _effect)
+    : EffectAttributes(SpellEffectAttributes::None)
 {
     ASSERT(spellInfo);
     ASSERT(_effect);
@@ -404,6 +405,7 @@ SpellEffectInfo::SpellEffectInfo(SpellInfo const* spellInfo, SpellEffectEntry co
     Scaling.Variance = _effect->Variance;
     Scaling.ResourceCoefficient = _effect->ResourceCoefficient;
     ImplicitTargetConditions = nullptr;
+    EffectAttributes = _effect->GetEffectAttributes();
 }
 
 bool SpellEffectInfo::IsEffect() const
@@ -1125,6 +1127,7 @@ SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, S
     IconFileDataId = _misc ? _misc->SpellIconFileDataID : 0;
     ActiveIconFileDataId = _misc ? _misc->ActiveIconFileDataID : 0;
     ContentTuningId = _misc ? _misc->ContentTuningID : 0;
+    ShowFutureSpellPlayerConditionID = _misc ? _misc->ShowFutureSpellPlayerConditionID : 0;
 
     _visuals = std::move(visuals);
 
@@ -4529,4 +4532,13 @@ void SpellInfo::_UnloadImplicitTargetConditionLists()
             delete cur;
         }
     }
+}
+
+bool SpellInfo::MeetsFutureSpellPlayerCondition(Player const* player) const
+{
+    if (ShowFutureSpellPlayerConditionID == 0)
+        return false;
+
+    PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(ShowFutureSpellPlayerConditionID);
+    return !playerCondition || ConditionMgr::IsPlayerMeetingCondition(player, playerCondition);
 }
