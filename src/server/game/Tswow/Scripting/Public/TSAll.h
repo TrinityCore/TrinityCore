@@ -54,3 +54,4 @@
 #include "TSMath.h"
 #include "TSChannel.h"
 #include "BinReader.h"
+#include "TSStringConvert.h"

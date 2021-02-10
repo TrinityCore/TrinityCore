@@ -5,7 +5,7 @@
 #include "TSBase.h"
 
 template <typename T>
-TSString ToString(T val)
+TSString ToStr(T val)
 {
     return TSString(std::to_string(val));
 }

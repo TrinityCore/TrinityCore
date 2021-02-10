@@ -6671,7 +6671,7 @@ declare function MsgString(size: number): (field: any, name: any)=>void
 declare function MsgStringArray(arrSize: number, stringSize: number): (field: any, name: any)=>void
 
 // Type conversions
-declare function ToString(val: number);
+declare function ToStr(val: number);
 declare function ToUInt8(val: string): uint8;
 declare function ToInt8(val: string): int8;
 
