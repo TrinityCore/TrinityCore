@@ -793,10 +793,10 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 break;
 
             // If invoker was pet or charm
-            Player* player = unit->GetCharmerOrOwnerPlayerOrPlayerItself();
-            if (player && GetBaseObject())
+            Player* playerCharmed = unit->GetCharmerOrOwnerPlayerOrPlayerItself();
+            if (playerCharmed && GetBaseObject())
             {
-                player->GroupEventHappens(e.action.quest.quest, GetBaseObject());
+                playerCharmed->GroupEventHappens(e.action.quest.quest, GetBaseObject());
                 TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction: SMART_ACTION_CALL_GROUPEVENTHAPPENS: %s, group credit for quest %u",
                     unit->GetGUID().ToString().c_str(), e.action.quest.quest);
             }
@@ -1182,9 +1182,13 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_SUMMON_CREATURE:
         {
-            WorldObject* summoner = GetBaseObjectOrUnit(unit);
+            EnumFlag<SmartActionSummonCreatureFlags> flags(static_cast<SmartActionSummonCreatureFlags>(e.action.summonCreature.flags));
+            bool preferUnit = flags.HasFlag(SmartActionSummonCreatureFlags::PreferUnit);
+            WorldObject* summoner = preferUnit ? unit : GetBaseObjectOrUnit(unit);
             if (!summoner)
                 break;
+
+            bool personalSpawn = flags.HasFlag(SmartActionSummonCreatureFlags::PersonalSpawn);
 
             float x, y, z, o;
             for (WorldObject* target : targets)
@@ -1194,7 +1198,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 y += e.target.y;
                 z += e.target.z;
                 o += e.target.o;
-                if (Creature* summon = summoner->SummonCreature(e.action.summonCreature.creature, x, y, z, o, (TempSummonType)e.action.summonCreature.type, e.action.summonCreature.duration))
+                if (Creature* summon = summoner->SummonCreature(e.action.summonCreature.creature, x, y, z, o, (TempSummonType)e.action.summonCreature.type, e.action.summonCreature.duration, personalSpawn))
                     if (e.action.summonCreature.attackInvoker)
                         summon->AI()->AttackStart(target->ToUnit());
             }
@@ -1202,7 +1206,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (e.GetTargetType() != SMART_TARGET_POSITION)
                 break;
 
-            if (Creature* summon = summoner->SummonCreature(e.action.summonCreature.creature, e.target.x, e.target.y, e.target.z, e.target.o, (TempSummonType)e.action.summonCreature.type, e.action.summonCreature.duration))
+            if (Creature* summon = summoner->SummonCreature(e.action.summonCreature.creature, e.target.x, e.target.y, e.target.z, e.target.o, (TempSummonType)e.action.summonCreature.type, e.action.summonCreature.duration, personalSpawn))
                 if (unit && e.action.summonCreature.attackInvoker)
                     summon->AI()->AttackStart(unit);
             break;
