@@ -704,7 +704,8 @@ void SmartAI::OnCharmed(bool isNew)
 
     GetScript()->ProcessEventsFor(SMART_EVENT_CHARMED, nullptr, 0, 0, charmed);
 
-    UnitAI::OnCharmed(isNew);
+    if (!GetScript()->HasAnyEventWithFlag(SMART_EVENT_FLAG_WHILE_CHARMED)) // we can change AI if there are no events with this flag
+        UnitAI::OnCharmed(isNew);
 }
 
 void SmartAI::DoAction(int32 param)
