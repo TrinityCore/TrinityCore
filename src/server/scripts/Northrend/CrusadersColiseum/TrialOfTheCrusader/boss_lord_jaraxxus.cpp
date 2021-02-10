@@ -108,7 +108,6 @@ enum Misc
     POINT_SUMMONED          = 1
 };
 
-
 struct boss_jaraxxus : public BossAI
 {
     boss_jaraxxus(Creature* creature) : BossAI(creature, DATA_JARAXXUS) { }

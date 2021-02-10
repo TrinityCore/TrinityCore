@@ -1561,7 +1561,6 @@ void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype)
 
     /* == gem perfection handling over == */
 
-
     /* == profession specialization handling == */
 
     // init items_count to 1, since 1 item will be created regardless of specialization
@@ -1580,7 +1579,6 @@ void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype)
     num_to_add *= items_count;
 
     /* == profession specialization handling over == */
-
 
     // can the player store the new item?
     ItemPosCountVec dest;
@@ -2162,6 +2160,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
     if (m_originalCaster)
         caster = m_originalCaster;
 
+    bool personalSpawn = (properties->Flags & SUMMON_PROP_FLAG_PERSONAL_SPAWN) != 0;
     int32 duration = m_spellInfo->GetDuration();
     if (Player* modOwner = caster->GetSpellModOwner())
         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DURATION, duration);
@@ -2237,7 +2236,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                     if (!unitCaster)
                         return;
 
-                    summon = unitCaster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, unitCaster, m_spellInfo->Id);
+                    summon = unitCaster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, unitCaster, m_spellInfo->Id, 0, personalSpawn);
                     if (!summon || !summon->IsTotem())
                         return;
 
@@ -2257,7 +2256,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                     if (!unitCaster)
                         return;
 
-                    summon = unitCaster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, unitCaster, m_spellInfo->Id);
+                    summon = unitCaster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, unitCaster, m_spellInfo->Id, 0, personalSpawn);
                     if (!summon || !summon->HasUnitTypeMask(UNIT_MASK_MINION))
                         return;
 
@@ -2281,7 +2280,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                             // randomize position for multiple summons
                             pos = caster->GetRandomPoint(*destTarget, radius);
 
-                        summon = caster->SummonCreature(entry, pos, summonType, Milliseconds(duration), 0, m_spellInfo->Id);
+                        summon = caster->SummonCreature(entry, pos, summonType, Milliseconds(duration), 0, m_spellInfo->Id, personalSpawn);
                         if (!summon)
                             continue;
 
@@ -2306,7 +2305,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
             if (!unitCaster)
                 return;
 
-            summon = unitCaster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, unitCaster, m_spellInfo->Id);
+            summon = unitCaster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, unitCaster, m_spellInfo->Id, 0, personalSpawn);
             break;
         }
         case SUMMON_CATEGORY_VEHICLE:
@@ -2566,7 +2565,7 @@ void Spell::EffectUntrainTalents(SpellEffIndex /*effIndex*/)
         unitTarget->ToPlayer()->SendTalentWipeConfirm(guid);
 }
 
-void Spell::EffectTeleUnitsFaceCaster(SpellEffIndex effIndex)
+void Spell::EffectTeleUnitsFaceCaster(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -2577,12 +2576,8 @@ void Spell::EffectTeleUnitsFaceCaster(SpellEffIndex effIndex)
     if (unitTarget->IsInFlight())
         return;
 
-    float dis = m_spellInfo->Effects[effIndex].CalcRadius(m_caster);
-
-    float fx, fy, fz;
-    m_caster->GetClosePoint(fx, fy, fz, unitTarget->GetCombatReach(), dis);
-
-    unitTarget->NearTeleportTo(fx, fy, fz, -m_caster->GetOrientation(), unitTarget == m_caster);
+    if (m_targets.HasDst())
+        unitTarget->NearTeleportTo(destTarget->GetPositionX(), destTarget->GetPositionY(), destTarget->GetPositionZ(), destTarget->GetAbsoluteAngle(m_caster), unitTarget == m_caster);
 }
 
 void Spell::EffectLearnSkill(SpellEffIndex effIndex)

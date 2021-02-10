@@ -621,7 +621,8 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid, uint32 vendorEntry)
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     // Stop the npc if moving
-    vendor->PauseMovement(sWorld->getIntConfig(CONFIG_CREATURE_STOP_FOR_PLAYER));
+    if (uint32 pause = vendor->GetMovementTemplate().GetInteractionPauseTimer())
+        vendor->PauseMovement(pause);
     vendor->SetHomePosition(vendor->GetPosition());
 
     // @tswow-begin (Using Rochet2/Multivendor)

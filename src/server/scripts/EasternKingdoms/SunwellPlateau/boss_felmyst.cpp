@@ -526,11 +526,7 @@ public:
 
     struct npc_felmyst_vaporAI : public ScriptedAI
     {
-        npc_felmyst_vaporAI(Creature* creature) : ScriptedAI(creature)
-        {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            me->SetSpeedRate(MOVE_RUN, 0.8f);
-        }
+        npc_felmyst_vaporAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() override { }
         void JustEngagedWith(Unit* /*who*/) override
@@ -562,7 +558,6 @@ public:
     {
         npc_felmyst_trailAI(Creature* creature) : ScriptedAI(creature)
         {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             DoCast(me, SPELL_TRAIL_TRIGGER, true);
             me->SetTarget(me->GetGUID());
             me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 0.01f); // core bug

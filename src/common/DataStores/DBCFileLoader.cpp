@@ -43,7 +43,6 @@ bool DBCFileLoader::Load(char const* filename, char const* fmt)
         return false;
     }
 
-
     EndianConvert(header);
 
     if (header != 0x43424457)                                //'WDBC'

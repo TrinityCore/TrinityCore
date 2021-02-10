@@ -47,7 +47,6 @@ enum Netherspite
     SPELL_NETHERSPITE_ROAR      = 38684,
 };
 
-
 const float PortalCoord[3][3] =
 {
     {-11195.353516f, -1613.237183f, 278.237258f}, // Left side

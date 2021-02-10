@@ -272,49 +272,63 @@ public:
         std::stringstream parsedStream;
         while (!ifs.eof())
         {
-            char commentToken[2];
+            char commentToken[2] = {};
             ifs.get(commentToken[0]);
-            if (commentToken[0] == '/' && !ifs.eof())
+            if (ifs.eof())
+                break;
+            if (commentToken[0] == '/')
             {
                 ifs.get(commentToken[1]);
-                // /* comment
-                if (commentToken[1] == '*')
+                if (!ifs.eof())
                 {
-                    while (!ifs.eof())
+                    // /* comment
+                    if (commentToken[1] == '*')
                     {
-                        ifs.get(commentToken[0]);
-                        if (commentToken[0] == '*' && !ifs.eof())
+                        while (!ifs.eof())
                         {
-                            ifs.get(commentToken[1]);
-                            if (commentToken[1] == '/')
+                            ifs.get(commentToken[0]);
+                            if (ifs.eof())
                                 break;
-                            else
-                                ifs.putback(commentToken[1]);
+                            if (commentToken[0] == '*')
+                            {
+                                ifs.get(commentToken[1]);
+                                if (ifs.eof())
+                                    break;
+                                if (commentToken[1] == '/')
+                                    break;
+                                else
+                                    ifs.putback(commentToken[1]);
+                            }
                         }
+                        continue;
                     }
-                    continue;
+                    // line comment
+                    else if (commentToken[1] == '/')
+                    {
+                        std::string str;
+                        std::getline(ifs, str);
+                        if (ifs.eof())
+                            break;
+                        continue;
+                    }
+                    // regular data
+                    else
+                        ifs.putback(commentToken[1]);
                 }
-                // line comment
-                else if (commentToken[1] == '/')
-                {
-                    std::string str;
-                    std::getline(ifs, str);
-                    continue;
-                }
-                // regular data
-                else
-                    ifs.putback(commentToken[1]);
             }
             parsedStream.put(commentToken[0]);
         }
         ifs.close();
 
-        uint32 opcode;
+        uint32 opcode = 0;
         parsedStream >> opcode;
+
+        if (!opcode)
+            return false;
 
         WorldPacket data(opcode, 0);
 
-        while (!parsedStream.eof())
+        while (!parsedStream.eof() && !parsedStream.fail())
         {
             std::string type;
             parsedStream >> type;
@@ -324,38 +338,59 @@ public:
 
             if (type == "uint8")
             {
-                uint16 val1;
+                if (parsedStream.eof())
+                    return false;
+                uint16 val1 = 0;
                 parsedStream >> val1;
+                if (parsedStream.fail())
+                    return false;
                 data << uint8(val1);
             }
             else if (type == "uint16")
             {
-                uint16 val2;
+                if (parsedStream.eof())
+                    return false;
+                uint16 val2 = 0;
                 parsedStream >> val2;
+                if (parsedStream.fail())
+                    return false;
                 data << val2;
             }
             else if (type == "uint32")
             {
-                uint32 val3;
+                if (parsedStream.eof())
+                    return false;
+                uint32 val3 = 0;
                 parsedStream >> val3;
+                if (parsedStream.fail())
+                    return false;
                 data << val3;
             }
             else if (type == "uint64")
             {
-                uint64 val4;
+                if (parsedStream.eof())
+                    return false;
+                uint64 val4 = 0;
                 parsedStream >> val4;
+                if (parsedStream.fail())
+                    return false;
                 data << val4;
             }
             else if (type == "float")
             {
-                float val5;
+                if (parsedStream.eof())
+                    return false;
+                float val5 = 0.0f;
                 parsedStream >> val5;
+                if (parsedStream.fail())
+                    return false;
                 data << val5;
             }
             else if (type == "string")
             {
                 std::string val6;
                 parsedStream >> val6;
+                // empty string is allowed so no need to check eof/fail here
                 data << val6;
             }
             else if (type == "appitsguid")
@@ -373,7 +408,6 @@ public:
                 {
                     handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, 0);
                     handler->SetSentErrorMessage(true);
-                    ifs.close();
                     return false;
                 }
                 data << obj->GetPackGUID();
@@ -385,7 +419,6 @@ public:
                 {
                     handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, 0);
                     handler->SetSentErrorMessage(true);
-                    ifs.close();
                     return false;
                 }
                 data << uint64(obj->GetGUID());
@@ -1774,10 +1807,11 @@ public:
 
     static void HandleDebugObjectCountMap(ChatHandler* handler, Map* map)
     {
-        handler->PSendSysMessage("Map Id: %u Name: '%s' Instance Id: %u Creatures: " UI64FMTD " GameObjects: " UI64FMTD,
+        handler->PSendSysMessage("Map Id: %u Name: '%s' Instance Id: %u Creatures: " UI64FMTD " GameObjects: " UI64FMTD " SetActive Objects: " UI64FMTD,
             map->GetId(), map->GetMapName(), map->GetInstanceId(),
             uint64(map->GetObjectsStore().Size<Creature>()),
-            uint64(map->GetObjectsStore().Size<GameObject>()));
+            uint64(map->GetObjectsStore().Size<GameObject>()),
+            uint64(map->GetActiveNonPlayersCount()));
 
         CreatureCountWorker worker;
         TypeContainerVisitor<CreatureCountWorker, MapStoredObjectTypesContainer> visitor(worker);

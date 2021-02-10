@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.30, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.32, for Linux (x86_64)
 --
 -- Host: localhost    Database: auth
 -- ------------------------------------------------------
--- Server version	5.7.30-0ubuntu0.18.04.1
+-- Server version	5.7.32-0ubuntu0.18.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -893,6 +893,7 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (196,877),
 (196,878),
 (196,879),
+(196,881),
 (197,232),
 (197,236),
 (197,237),
@@ -1784,7 +1785,8 @@ INSERT INTO `rbac_permissions` VALUES
 (877,'Command: lookup quest id'),
 (878,'Command: debug questreset'),
 (879,'Command: debug poolstatus'),
-(880,'Command: pdump copy');
+(880,'Command: pdump copy'),
+(881,'Command: reload vehicle_template');
 /*!40000 ALTER TABLE `rbac_permissions` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1976,7 +1978,10 @@ INSERT INTO `updates` VALUES
 ('2020_09_15_00_auth.sql','0AA5BCA384A372DC789647F838657766D51D8CC7','ARCHIVED','2020-09-15 19:35:18',0),
 ('2020_09_17_00_auth.sql','BBC0A8B2BBED38A57A83999909EB066753A893C5','ARCHIVED','2020-09-17 00:00:00',0),
 ('2020_10_15_00_auth.sql','8A79DE7DBDF35EBDA5C261BEBF9BC8E5CFF816CE','ARCHIVED','2020-10-15 07:33:13',0),
-('2020_11_16_00_auth.sql','C0E1AAA8876DB65B2B2FA0AFD5D6CDF233020D37','ARCHIVED','2020-11-16 13:37:22',0);
+('2020_11_16_00_auth.sql','C0E1AAA8876DB65B2B2FA0AFD5D6CDF233020D37','ARCHIVED','2020-11-16 13:37:22',0),
+('2020_12_15_00_auth.sql','C416FC93AF6BC33A6CE59185CEB03B4945701233','ARCHIVED','2020-12-15 22:47:26',0),
+('2020_12_31_00_auth.sql','05C9C105D55C6588CDA0D75AE3B135B7E6B54C06','ARCHIVED','2020-12-31 12:58:21',0),
+('2021_01_15_00_auth.sql','604B8B799F031C1074314D4D8081797CC8B22FE2','ARCHIVED','2021-01-15 08:29:32',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2082,4 +2087,4 @@ SET character_set_client = @saved_cs_client;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-11-16 13:37:25
+-- Dump completed on 2021-01-15  8:29:39

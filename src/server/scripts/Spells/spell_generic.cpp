@@ -1813,7 +1813,6 @@ class spell_gen_gadgetzan_transporter_backfire : public SpellScript
     }
 };
 
-
 class spell_gen_gift_of_naaru : public AuraScript
 {
     PrepareAuraScript(spell_gen_gift_of_naaru);

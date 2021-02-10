@@ -316,7 +316,6 @@ public:
     }
 };
 
-
 void AddSC_action_ip_logger()
 {
     new AccountActionIpLogger();

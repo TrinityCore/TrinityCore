@@ -662,7 +662,6 @@ public:
                 if (Creature* Cyclone = me->SummonCreature(CREATURE_CYCLONE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), float(rand32() % 5), TEMPSUMMON_TIMED_DESPAWN, 15s))
                 {
                     Cyclone->SetObjectScale(3.0f);
-                    Cyclone->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     Cyclone->SetFaction(me->GetFaction());
                     Cyclone->CastSpell(Cyclone, SPELL_CYCLONE_CYCLONE, true);
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))

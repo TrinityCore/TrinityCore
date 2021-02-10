@@ -43,7 +43,7 @@ struct EquipmentSetInfo
         std::string SetName;
         std::string SetIcon;
         uint32 IgnoreMask = 0;                                  ///< Mask of EquipmentSlot
-        std::array<ObjectGuid, EQUIPMENT_SET_SLOTS> Pieces;
+        std::array<ObjectGuid, EQUIPMENT_SET_SLOTS> Pieces = {};
     } Data;
 
     /// Server-side data
@@ -53,6 +53,5 @@ struct EquipmentSetInfo
 #define MAX_EQUIPMENT_SET_INDEX 10                          // client limit
 
 typedef std::map<uint64, EquipmentSetInfo> EquipmentSetContainer;
-
 
 #endif // EquipmentSet_h__
