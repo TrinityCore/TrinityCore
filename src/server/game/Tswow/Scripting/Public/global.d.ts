@@ -6647,19 +6647,21 @@ declare class TSClass {
     stringify(indention?: int): string;
 }
 
+// Item functions
 declare function CreateLootItem(id: uint32, reference?: uint32, chance?: float, lootmode?: uint16, needsQuest?: bool, groupId?: uint8, minCount?: uint8, maxCount?: uint8)
 declare function CreateItem(entry: uint32, count: uint32): TSItem;
 
+// Database functions
 declare function QueryWorld(query: string): TSDatabaseResult;
 declare function QueryCharacters(query: string): TSDatabaseResult;
 declare function QueryAuth(query: string): TSDatabaseResult;
-
 declare function WorldTable(classTarget: any)
 declare function CharactersTable(classTarget: any)
 declare function AuthTable(classTarget: any)
 declare function Field(fieldTarget: any, name: any)
 declare function PrimaryKey(pkTarget: any, name: any)
 
+// Client/Server functions
 declare function Message(classTarget: any)
 declare function MsgClass(classTarget: any, name: string)
 declare function MsgClassArray(size: number): (field: any, name: any)=>void
@@ -6668,8 +6670,24 @@ declare function MsgPrimitiveArray(capacity: number): (field: any, name: any)=>v
 declare function MsgString(size: number): (field: any, name: any)=>void
 declare function MsgStringArray(arrSize: number, stringSize: number): (field: any, name: any)=>void
 
+// Type conversions
+declare function ToString(val: number);
+declare function ToUInt8(val: string): uint8;
+declare function ToInt8(val: string): int8;
+
+declare function ToUInt16(val: string): uint16;
+declare function ToInt16(val: string): int16;
+
+declare function ToUInt32(val: string): uint32;
+declare function ToInt32(val: string): int32;
+
+declare function ToUInt64(val: string): uint64;
+declare function ToInt64(val: string): int64;
+
+declare function ToDouble(val: string): double;
+declare function ToFloat(val: string): float;
+
 declare function GetTimers() : TSTasks<void>
-
 declare function ModID(): uint32;
-
 declare function LoadRows<T extends DBTable>(cls: {new (...args: any[]): T}, query: string): TSArray<T>
+
