@@ -49,4 +49,6 @@ public:
     void ConvertToRaid();
     void SetMembersGroup(uint64 guid, uint8 subGroup);
     void SetTargetIcon(uint8 icon, uint64 target, uint64 setter);
+    bool IsLFGGroup();
+    bool IsBFGroup();
 };

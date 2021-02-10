@@ -641,6 +641,26 @@ enum SelectAggroTarget
     SELECT_TARGET_NEAREST,
     SELECT_TARGET_FARTHEST
 };
+
+// Binary predicate to sort WorldObjects based on the distance to a reference WorldObject
+class ObjectDistanceOrderPred
+{
+public:
+    ObjectDistanceOrderPred(WorldObject const* pRefObj, bool ascending = true);
+    bool operator()(WorldObject const* pLeft, WorldObject const* pRight) const;
+
+    WorldObject const* m_refObj;
+    const bool m_ascending;
+};
+
+ObjectDistanceOrderPred::ObjectDistanceOrderPred(WorldObject const* pRefObj, bool ascending) : m_refObj(pRefObj), m_ascending(ascending)
+{
+}
+
+bool ObjectDistanceOrderPred::operator()(WorldObject const* pLeft, WorldObject const* pRight) const
+{
+    return m_ascending ? m_refObj->GetDistanceOrder(pLeft, pRight) : !m_refObj->GetDistanceOrder(pLeft, pRight);
+}
     
 /**
 * Returns a target from the [Creature]'s threat list based on the
@@ -669,7 +689,70 @@ enum SelectAggroTarget
 */
 TSUnit  TSCreature::GetAITarget(uint32 targetType,bool playerOnly,uint32 position,float dist,int32 aura) 
 {
-    // TODO: Fix
+    auto const& threatlist = creature->GetThreatManager().GetSortedThreatList();
+
+    std::list<Unit*> targetList;
+    
+    for (ThreatReference const* itr : threatlist)
+    {
+        Unit* target = itr->GetVictim();
+        if (!target)
+            continue;
+        if (playerOnly && target->GetTypeId() != TYPEID_PLAYER)
+            continue;
+        if (aura > 0 && !target->HasAura(aura))
+            continue;
+        else if (aura < 0 && target->HasAura(-aura))
+            continue;
+        if (dist > 0.0f && !creature->IsWithinDist(target, dist))
+            continue;
+        else if (dist < 0.0f && creature->IsWithinDist(target, -dist))
+            continue;
+        targetList.push_back(target);
+    }
+
+    if (targetList.empty())
+        return TSUnit(nullptr);
+    if (position >= targetList.size())
+        return TSUnit(nullptr);
+
+    if (targetType == SELECT_TARGET_NEAREST || targetType == SELECT_TARGET_FARTHEST)
+        targetList.sort(ObjectDistanceOrderPred(creature));
+
+    switch (targetType)
+    {
+        case SELECT_TARGET_NEAREST:
+        case SELECT_TARGET_TOPAGGRO:
+            {
+                std::list<Unit*>::const_iterator itr = targetList.begin();
+                if (position)
+                    std::advance(itr, position);
+                return TSUnit(*itr);
+            }
+            break;
+        case SELECT_TARGET_FARTHEST:
+        case SELECT_TARGET_BOTTOMAGGRO:
+            {
+                std::list<Unit*>::reverse_iterator ritr = targetList.rbegin();
+                if (position)
+                    std::advance(ritr, position);
+                return TSUnit(*ritr);
+            }
+            break;
+        case SELECT_TARGET_RANDOM:
+            {
+                std::list<Unit*>::const_iterator itr = targetList.begin();
+                if (position)
+                    std::advance(itr, urand(0, position));
+                else
+                    std::advance(itr, urand(0, targetList.size() - 1));
+                return TSUnit(*itr);
+            }
+            break;
+        default:
+            break;
+    }
+
     return TSUnit(nullptr);
 }
     

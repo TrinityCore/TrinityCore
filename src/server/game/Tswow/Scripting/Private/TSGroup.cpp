@@ -152,15 +152,15 @@ bool TSGroup::AddMember(TSPlayer _player)
     return success;
 }
     
-/*int TSGroup::IsLFGGroup(lua_State* L, Group* group) // TODO: Implementation
+bool TSGroup::IsLFGGroup()
 {
     return group->isLFGGroup();
-}*/
-    
-/*int TSGroup::IsBFGroup(lua_State* L, Group* group) // TODO: Implementation
+}
+
+bool TSGroup::IsBFGroup()
 {
     return group->isBFGroup();
-}*/
+}
     
 /**
  * Returns a table with the [Player]s in this [Group]

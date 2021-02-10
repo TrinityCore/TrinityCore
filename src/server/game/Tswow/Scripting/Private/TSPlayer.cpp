@@ -2613,7 +2613,6 @@ void TSPlayer::AddQuest(uint32 entry)
     
     Quest const* quest = eObjectMgr->GetQuestTemplate(entry);
     
-    
 #if defined TRINITY || AZEROTHCORE
     // check item starting quest (it can work incorrectly if added without item in inventory)
 #ifndef AZEROTHCORE
@@ -2621,13 +2620,22 @@ void TSPlayer::AddQuest(uint32 entry)
 
     auto itr = std::find_if(std::begin(itc), std::end(itc), [quest](ItemTemplateContainer::value_type const& value)
     {
-        // TODO: Fix
-        return false;
+        return value.second.StartQuest == quest->GetQuestId();
     });
+
+    if(itr != std::end(itc))
+    {
+        return;
+    }
     
 #else
     ItemTemplateContainer const* itc = sObjectMgr->GetItemTemplateStore();
     ItemTemplateContainer::const_iterator result = find_if(itc->begin(), itc->end(), Finder<uint32, ItemTemplate>(entry, &ItemTemplate::StartQuest));
+
+    if(itr != itc->end())
+    {
+        return;
+    }
     
 #endif
     // ok, normal (creature/GO starting) quest
@@ -2640,6 +2648,11 @@ void TSPlayer::AddQuest(uint32 entry)
         ItemPrototype const* pProto = sItemStorage.LookupEntry<ItemPrototype>(id);
         if (!pProto)
             continue;
+
+        if(pProto->StartQuest == entry)
+        {
+            return;
+        }
     
     }
     
@@ -3130,8 +3143,7 @@ void TSPlayer::ResetTypeCooldowns(uint32 category,bool update)
     player->GetSpellHistory()->ResetCooldowns([category](SpellHistory::CooldownStorageType::iterator itr) -> bool
     {
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first);
-        // TODO: Fix
-        return false;
+        return spellInfo && spellInfo->GetCategory() == category;
     }, update);
 #else
 #ifndef AZEROTHCORE
