@@ -510,7 +510,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         Creature*   SummonTrigger(float x, float y, float z, float ang, uint32 dur, CreatureAI* (*GetAI)(Creature*) = nullptr);
         void SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list = nullptr);
 
-        Creature*   FindNearestCreature(uint32 entry, float range, bool alive = true, Unit const* personalSpawnOwner = nullptr) const;
+        Creature*   FindNearestCreature(uint32 entry, float range, bool alive = true, WorldObject const* personalSpawnOwner = nullptr) const;
         GameObject* FindNearestGameObject(uint32 entry, float range) const;
         GameObject* FindNearestGameObjectOfType(GameobjectTypes type, float range) const;
         Player* SelectNearestPlayer(float distance) const;

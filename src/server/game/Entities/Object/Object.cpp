@@ -1933,7 +1933,7 @@ void WorldObject::SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list 
                 list->push_back(summon);
 }
 
-Creature* WorldObject::FindNearestCreature(uint32 entry, float range, bool alive, Unit const* personalSpawnOwner) const
+Creature* WorldObject::FindNearestCreature(uint32 entry, float range, bool alive, WorldObject const* personalSpawnOwner) const
 {
     Creature* creature = nullptr;
     Trinity::NearestCreatureEntryWithLiveStateInObjectRangeCheck checker(*this, entry, alive, range, personalSpawnOwner);

@@ -28,6 +28,7 @@
 #include "Player.h"
 #include "Spell.h"
 #include "SpellInfo.h"
+#include "TemporarySummon.h"
 #include "UnitAI.h"
 #include "UpdateData.h"
 
@@ -1307,13 +1308,13 @@ namespace Trinity
     class NearestCreatureEntryWithLiveStateInObjectRangeCheck
     {
         public:
-            NearestCreatureEntryWithLiveStateInObjectRangeCheck(WorldObject const& obj, uint32 entry, bool alive, float range, Unit const* personalSpawnOwner)
+            NearestCreatureEntryWithLiveStateInObjectRangeCheck(WorldObject const& obj, uint32 entry, bool alive, float range, WorldObject const* personalSpawnOwner)
                 : i_obj(obj), i_entry(entry), i_alive(alive), i_range(range), i_personalSpawnOwner(personalSpawnOwner) { }
 
             bool operator()(Creature* u)
             {
                 if (u->getDeathState() != DEAD && u->GetEntry() == i_entry && u->IsAlive() == i_alive && i_obj.IsWithinDistInMap(u, i_range) &&
-                    (i_personalSpawnOwner == nullptr || u->GetOwner() == i_personalSpawnOwner))
+                    (i_personalSpawnOwner == nullptr || IsPersonalSpawn(u)))
                 {
                     i_range = i_obj.GetDistance(u);         // use found unit range as new range limit for next check
                     return true;
@@ -1322,11 +1323,19 @@ namespace Trinity
             }
 
         private:
-            WorldObject const& i_obj;
-            uint32             i_entry;
-            bool               i_alive;
-            float              i_range;
-            Unit const*        i_personalSpawnOwner;
+            bool IsPersonalSpawn(Creature* creature)
+            {
+                if (TempSummon const* tempSummon = creature->ToTempSummon())
+                    if (tempSummon->IsVisibleBySummonerOnly() && i_personalSpawnOwner->GetGUID() == tempSummon->GetSummonerGUID())
+                        return true;
+                return false;
+            }
+
+            WorldObject const&      i_obj;
+            uint32                  i_entry;
+            bool                    i_alive;
+            float                   i_range;
+            WorldObject const*      i_personalSpawnOwner;
 
             // prevent clone this object
             NearestCreatureEntryWithLiveStateInObjectRangeCheck(NearestCreatureEntryWithLiveStateInObjectRangeCheck const&) = delete;
