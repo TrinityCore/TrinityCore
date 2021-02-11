@@ -276,7 +276,7 @@ enum UnitMoveType
     MOVE_PITCH_RATE     = 8
 };
 
-#define MAX_MOVE_TYPE     9
+#define MAX_MOVE_TYPE 9
 
 TC_GAME_API extern float baseMoveSpeed[MAX_MOVE_TYPE];
 TC_GAME_API extern float playerBaseMoveSpeed[MAX_MOVE_TYPE];

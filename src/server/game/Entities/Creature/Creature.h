@@ -374,6 +374,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         }
         void RefreshSwimmingFlag(bool recheck = false);
 
+        CreatureMovementInfo const& GetCreatureMovementInfo() const { return _creatureMovementInfo; }
+
     protected:
         bool CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, CreatureData const* data = nullptr, uint32 vehId = 0);
         bool InitEntry(uint32 entry, CreatureData const* data = nullptr);
@@ -428,6 +430,12 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool IsInvisibleDueToDespawn() const override;
         bool CanAlwaysSee(WorldObject const* obj) const override;
 
+        // Initializes run and walk speed override data based on movementId override values stored in `creature_movement_info` table
+        void InitializeCreatureMovementInfo(uint32 movementId);
+
+        // Initializes move speed fields based on template and override data
+        void InitializeMovementSpeeds();
+
     private:
         void ForcedDespawn(uint32 timeMSToDespawn = 0, Seconds forceRespawnTimer = 0s);
         bool CheckNoGrayAggroConfig(uint32 playerLevel, uint32 creatureLevel) const; // No aggro from gray creatures
@@ -456,6 +464,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         CreatureTextRepeatGroup m_textRepeat;
 
         bool _isMissingSwimmingFlagOutOfCombat;
+
+        CreatureMovementInfo _creatureMovementInfo;
 };
 
 class TC_GAME_API AssistDelayEvent : public BasicEvent

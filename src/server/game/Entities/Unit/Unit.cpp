@@ -8820,8 +8820,11 @@ void Unit::UpdateSpeed(UnitMoveType mtype)
         case MOVE_FLIGHT:
         {
             // Set creature speed rate
-            if (GetTypeId() == TYPEID_UNIT)
-                speed *= ToCreature()->GetCreatureTemplate()->speed_run;    // at this point, MOVE_WALK is never reached
+            if (IsCreature())
+            {
+                CreatureMovementInfo const& movementInfo = ToCreature()->GetCreatureMovementInfo();
+                speed *= movementInfo.HasRunSpeedOverriden ? (movementInfo.RunSpeed / baseMoveSpeed[MOVE_RUN]) : ToCreature()->GetCreatureTemplate()->speed_run;  // at this point, MOVE_WALK is never reached
+            }
 
             // Normalize speed by 191 aura SPELL_AURA_USE_NORMAL_MOVEMENT_SPEED if need
             /// @todo possible affect only on MOVE_RUN
@@ -8853,8 +8856,11 @@ void Unit::UpdateSpeed(UnitMoveType mtype)
     if (float minSpeedMod = (float)GetMaxPositiveAuraModifier(SPELL_AURA_MOD_MINIMUM_SPEED))
     {
         float baseMinSpeed = 1.0f;
-        if (!GetOwnerOrCreatorGUID().IsPlayer() && !IsHunterPet() && GetTypeId() == TYPEID_UNIT)
-            baseMinSpeed = ToCreature()->GetCreatureTemplate()->speed_run;
+        if (!GetOwnerOrCreatorGUID().IsPlayer() && !IsHunterPet() && IsCreature())
+        {
+            CreatureMovementInfo const& movementInfo = ToCreature()->GetCreatureMovementInfo();
+            baseMinSpeed = movementInfo.HasRunSpeedOverriden ? (movementInfo.RunSpeed / baseMoveSpeed[MOVE_RUN]) : ToCreature()->GetCreatureTemplate()->speed_run;
+        }
 
         float min_speed = CalculatePct(baseMinSpeed, minSpeedMod);
         if (speed < min_speed)

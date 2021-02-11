@@ -1892,6 +1892,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Creature Movement Overrides...");
     sObjectMgr->LoadCreatureMovementOverrides();                 // must be after LoadCreatures()
 
+    TC_LOG_INFO("server.loading", "Loading Creature Movement Info...");
+    sObjectMgr->LoadCreatureMovementInfo();                      // must be after LoadCreatureTemplates()
+
     TC_LOG_INFO("server.loading", "Loading Gameobject Data...");
     sObjectMgr->LoadGameObjects();
 

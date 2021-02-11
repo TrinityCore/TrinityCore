@@ -152,7 +152,8 @@ void WaypointMovementGenerator<Creature>::HandleMovementInformationHooks(Creatur
     creature->UpdateCurrentWaypointInfo(waypoint.Id, _path->Id);
 
     // All hooks called and infos updated. Time to increment the waypoint node id
-    _currentNode = (_currentNode + 1) % _path->Nodes.size();
+    if (_path && !_path->Nodes.empty()) // ensure that the path has not been changed in one of the hooks.
+        _currentNode = (_currentNode + 1) % _path->Nodes.size();
 
     _waypointReached = true;
 }

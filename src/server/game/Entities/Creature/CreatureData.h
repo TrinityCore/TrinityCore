@@ -382,4 +382,14 @@ struct VendorItemData
 
 typedef std::unordered_map<uint32, float /*SparringHealthLimit*/> CreatureSparringTemplateMap;
 
+struct CreatureMovementInfo
+{
+    float WalkSpeed = 0.f;
+    float RunSpeed = 0.f;
+
+    bool HasRunSpeedOverriden = false;
+    bool HasWalkSpeedOverriden = false;
+};
+
+
 #endif // CreatureData_h__

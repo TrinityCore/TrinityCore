@@ -533,6 +533,12 @@ struct CellObjectGuids
 typedef std::unordered_map<uint32/*cell_id*/, CellObjectGuids> CellObjectGuidsMap;
 typedef std::unordered_map<uint32/*(mapid, spawnMode) pair*/, CellObjectGuidsMap> MapObjectGuids;
 
+struct CreatureMovementInfoOverride
+{
+    float WalkSpeed;
+    float RunSpeed;
+};
+
 // Trinity Trainer Reference start range
 #define TRINITY_TRAINER_START_REF      200000
 
@@ -563,6 +569,7 @@ typedef std::unordered_map<uint32, NpcTextLocale> NpcTextLocaleContainer;
 typedef std::unordered_map<uint32, PageTextLocale> PageTextLocaleContainer;
 typedef std::unordered_map<uint32, uint8> TaxiNodeLevelDataContainer;
 typedef std::unordered_map<uint32, VehicleSeatAddon> VehicleSeatAddonContainer;
+typedef std::unordered_map<uint32, CreatureMovementInfoOverride> CreatureMovementInfoOverrideContainer;
 
 struct GossipMenuItemsLocale
 {
@@ -1013,6 +1020,7 @@ class TC_GAME_API ObjectMgr
         CreatureMovementData const* GetCreatureMovementOverride(ObjectGuid::LowType spawnId) const;
         ItemTemplate const* GetItemTemplate(uint32 entry) const;
         ItemTemplateContainer const* GetItemTemplateStore() const { return &_itemTemplateStore; }
+        CreatureMovementInfoOverride const* GetCreatureMovementInfoOverride(uint32 movementId) const;
 
         InstanceTemplateContainer const& GetInstanceTemplates() const { return _instanceTemplateStore; }
         InstanceTemplate const* GetInstanceTemplate(uint32 mapId) const;
@@ -1187,6 +1195,7 @@ class TC_GAME_API ObjectMgr
         void LoadCreatureModelInfo();
         void LoadEquipmentTemplates();
         void LoadCreatureMovementOverrides();
+        void LoadCreatureMovementInfo();
         void LoadGameObjectLocales();
         void LoadGameObjects();
         void LoadSpawnGroupTemplates();
@@ -1766,6 +1775,7 @@ class TC_GAME_API ObjectMgr
 
         TaxiNodeLevelDataContainer _taxiNodeLevelDataStore;
         VehicleSeatAddonContainer _vehicleSeatAddonStore;
+        CreatureMovementInfoOverrideContainer _creatureMovementInfoOverrideStore;
 
         std::set<uint32> _difficultyEntries[MAX_DIFFICULTY - 1]; // already loaded difficulty 1 value in creatures, used in CheckCreatureTemplate
         std::set<uint32> _hasDifficultyEntries[MAX_DIFFICULTY - 1]; // already loaded creatures with difficulty 1 values, used in CheckCreatureTemplate
