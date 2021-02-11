@@ -685,6 +685,7 @@ struct SmartAction
             uint32 type;
             uint32 duration;
             uint32 attackInvoker;
+            uint32 flags; // SmartActionSummonCreatureFlags // reserved, pending cherry-pick
         } summonCreature;
 
         struct
