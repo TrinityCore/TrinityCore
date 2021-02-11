@@ -29,6 +29,7 @@
 #include "LootMgr.h"
 #include "MiscPackets.h"
 #include "MotionMaster.h"
+#include "MovementPackets.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Opcodes.h"
@@ -1821,8 +1822,11 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
         HandleShapeshiftBoosts(target, false);
     }
 
-    if (target->GetTypeId() == TYPEID_PLAYER)
-        target->ToPlayer()->InitDataForForm();
+    if (Player* playerTarget = target->ToPlayer())
+    {
+        playerTarget->SendMovementSetCollisionHeight(playerTarget->GetCollisionHeight(false), WorldPackets::Movement::UpdateCollisionHeightReason::Force);
+        playerTarget->InitDataForForm();
+    }
     else
         target->UpdateDisplayPower();
 
