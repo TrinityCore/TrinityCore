@@ -33,42 +33,46 @@
 
 enum DruidSpells
 {
-    SPELL_DRUID_BLESSING_OF_THE_CLAW        = 28750,
-    SPELL_DRUID_BLESSING_OF_REMULOS         = 40445,
-    SPELL_DRUID_BLESSING_OF_ELUNE           = 40446,
-    SPELL_DRUID_BLESSING_OF_CENARIUS        = 40452,
-    SPELL_DRUID_EXHILARATE                  = 28742,
-    SPELL_DRUID_FERAL_CHARGE_BEAR           = 16979,
-    SPELL_DRUID_FERAL_CHARGE_CAT            = 49376,
-    SPELL_DRUID_FORM_AQUATIC                = 1066,
-    SPELL_DRUID_FORM_FLIGHT                 = 33943,
-    SPELL_DRUID_FORM_STAG                   = 165961,
-    SPELL_DRUID_FORM_SWIFT_FLIGHT           = 40120,
-    SPELL_DRUID_FORMS_TRINKET_BEAR          = 37340,
-    SPELL_DRUID_FORMS_TRINKET_CAT           = 37341,
-    SPELL_DRUID_FORMS_TRINKET_MOONKIN       = 37343,
-    SPELL_DRUID_FORMS_TRINKET_NONE          = 37344,
-    SPELL_DRUID_FORMS_TRINKET_TREE          = 37342,
-    SPELL_DRUID_IDOL_OF_FERAL_SHADOWS       = 34241,
-    SPELL_DRUID_IDOL_OF_WORSHIP             = 60774,
-    SPELL_DRUID_INFUSION                    = 37238,
-    SPELL_DRUID_LANGUISH                    = 71023,
-    SPELL_DRUID_LIFEBLOOM_ENERGIZE          = 64372,
-    SPELL_DRUID_LIFEBLOOM_FINAL_HEAL        = 33778,
-    SPELL_DRUID_LIVING_SEED_HEAL            = 48503,
-    SPELL_DRUID_LIVING_SEED_PROC            = 48504,
-    SPELL_DRUID_MOONFIRE_DAMAGE             = 164812,
-    SPELL_DRUID_SAVAGE_ROAR                 = 62071,
-    SPELL_DRUID_STAMPEDE_BAER_RANK_1        = 81016,
-    SPELL_DRUID_STAMPEDE_CAT_RANK_1         = 81021,
-    SPELL_DRUID_STAMPEDE_CAT_STATE          = 109881,
-    SPELL_DRUID_TRAVEL_FORM                 = 783,
-    SPELL_DRUID_REJUVENATION_T10_PROC       = 70691,
-    SPELL_DRUID_BALANCE_T10_BONUS           = 70718,
-    SPELL_DRUID_BALANCE_T10_BONUS_PROC      = 70721,
-    SPELL_DRUID_RESTORATION_T10_2P_BONUS    = 70658,
-    SPELL_DRUID_SUNFIRE_DAMAGE              = 164815,
-    SPELL_DRUID_SURVIVAL_INSTINCTS          = 50322
+    SPELL_DRUID_BLESSING_OF_THE_CLAW          = 28750,
+    SPELL_DRUID_BLESSING_OF_REMULOS           = 40445,
+    SPELL_DRUID_BLESSING_OF_ELUNE             = 40446,
+    SPELL_DRUID_BLESSING_OF_CENARIUS          = 40452,
+    SPELL_DRUID_EXHILARATE                    = 28742,
+    SPELL_DRUID_FERAL_CHARGE_BEAR             = 16979,
+    SPELL_DRUID_FERAL_CHARGE_CAT              = 49376,
+    SPELL_DRUID_FORM_AQUATIC                  = 1066,
+    SPELL_DRUID_FORM_FLIGHT                   = 33943,
+    SPELL_DRUID_FORM_STAG                     = 165961,
+    SPELL_DRUID_FORM_SWIFT_FLIGHT             = 40120,
+    SPELL_DRUID_FORMS_TRINKET_BEAR            = 37340,
+    SPELL_DRUID_FORMS_TRINKET_CAT             = 37341,
+    SPELL_DRUID_FORMS_TRINKET_MOONKIN         = 37343,
+    SPELL_DRUID_FORMS_TRINKET_NONE            = 37344,
+    SPELL_DRUID_FORMS_TRINKET_TREE            = 37342,
+    SPELL_DRUID_IDOL_OF_FERAL_SHADOWS         = 34241,
+    SPELL_DRUID_IDOL_OF_WORSHIP               = 60774,
+    SPELL_DRUID_INFUSION                      = 37238,
+    SPELL_DRUID_LANGUISH                      = 71023,
+    SPELL_DRUID_LIFEBLOOM_ENERGIZE            = 64372,
+    SPELL_DRUID_LIFEBLOOM_FINAL_HEAL          = 33778,
+    SPELL_DRUID_LIVING_SEED_HEAL              = 48503,
+    SPELL_DRUID_LIVING_SEED_PROC              = 48504,
+    SPELL_DRUID_MOONFIRE_DAMAGE               = 164812,
+    SPELL_DRUID_SAVAGE_ROAR                   = 62071,
+    SPELL_DRUID_STAMPEDE_BAER_RANK_1          = 81016,
+    SPELL_DRUID_STAMPEDE_CAT_RANK_1           = 81021,
+    SPELL_DRUID_STAMPEDE_CAT_STATE            = 109881,
+    SPELL_DRUID_TRAVEL_FORM                   = 783,
+    SPELL_DRUID_REJUVENATION_T10_PROC         = 70691,
+    SPELL_DRUID_BALANCE_T10_BONUS             = 70718,
+    SPELL_DRUID_BALANCE_T10_BONUS_PROC        = 70721,
+    SPELL_DRUID_RESTORATION_T10_2P_BONUS      = 70658,
+    SPELL_DRUID_SUNFIRE_DAMAGE                = 164815,
+    SPELL_DRUID_SURVIVAL_INSTINCTS            = 50322,
+    SPELL_DRUID_HEART_OF_THE_WILD_BALANCE     = 108291,
+    SPELL_DRUID_HEART_OF_THE_WILD_FERAL       = 108292,
+    SPELL_DRUID_HEART_OF_THE_WILD_GUARDIAN    = 108293,
+    SPELL_DRUID_HEART_OF_THE_WILD_RESTORATION = 108294,
 };
 
 // 1850 - Dash
@@ -1486,6 +1490,51 @@ public:
     }
 };
 
+class spell_dru_heart_of_the_wild_dummy_AuraScript : public AuraScript
+{
+    PrepareAuraScript(spell_dru_heart_of_the_wild_dummy_AuraScript);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_HEART_OF_THE_WILD_BALANCE, SPELL_DRUID_HEART_OF_THE_WILD_FERAL,
+            SPELL_DRUID_HEART_OF_THE_WILD_GUARDIAN, SPELL_DRUID_HEART_OF_THE_WILD_RESTORATION });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+    }
+
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        uint32 triggeredSpellId;
+
+        Player* player = GetTarget()->ToPlayer();
+        switch (player->GetPrimarySpecialization())
+        {
+            case TALENT_SPEC_DRUID_BALANCE:
+                triggeredSpellId = SPELL_DRUID_HEART_OF_THE_WILD_BALANCE;
+                break;
+            case TALENT_SPEC_DRUID_CAT:
+                triggeredSpellId = SPELL_DRUID_HEART_OF_THE_WILD_FERAL;
+                break;
+            case TALENT_SPEC_DRUID_BEAR:
+                triggeredSpellId = SPELL_DRUID_HEART_OF_THE_WILD_GUARDIAN;
+                break;
+            case TALENT_SPEC_DRUID_RESTORATION:
+                triggeredSpellId = SPELL_DRUID_HEART_OF_THE_WILD_RESTORATION;
+                break;
+        }
+
+        player->AddAura(triggeredSpellId, player);
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_dru_heart_of_the_wild_dummy_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_dash();
@@ -1516,4 +1565,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_t10_restoration_4p_bonus();
     new spell_dru_t10_restoration_4p_bonus_dummy();
     new spell_dru_wild_growth();
+    RegisterAuraScript(spell_dru_heart_of_the_wild_dummy_AuraScript);
 }
