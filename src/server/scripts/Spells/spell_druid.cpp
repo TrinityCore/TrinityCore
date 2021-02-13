@@ -68,7 +68,8 @@ enum DruidSpells
     SPELL_DRUID_BALANCE_T10_BONUS_PROC      = 70721,
     SPELL_DRUID_RESTORATION_T10_2P_BONUS    = 70658,
     SPELL_DRUID_SUNFIRE_DAMAGE              = 164815,
-    SPELL_DRUID_SURVIVAL_INSTINCTS          = 50322
+    SPELL_DRUID_SURVIVAL_INSTINCTS          = 50322,
+    SPELL_DRUID_CAT_FORM                    = 768
 };
 
 // 1850 - Dash
@@ -491,6 +492,29 @@ public:
     AuraScript* GetAuraScript() const override
     {
         return new spell_dru_predatory_strikes_AuraScript();
+    }
+};
+
+// 5215 - Prowl
+class spell_dru_prowl : public SpellScript
+{
+    PrepareSpellScript(spell_dru_prowl);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_CAT_FORM });
+    }
+
+    void HandleOnCast()
+    {
+        // Change into cat form
+        if (GetCaster()->GetShapeshiftForm() != FORM_CAT_FORM)
+            GetCaster()->CastSpell(GetCaster(), SPELL_DRUID_CAT_FORM);
+    }
+
+    void Register() override
+    {
+        BeforeCast += SpellCastFn(spell_dru_prowl::HandleOnCast);
     }
 };
 
@@ -1499,6 +1523,7 @@ void AddSC_druid_spell_scripts()
     new spell_dru_moonfire();
     new spell_dru_omen_of_clarity();
     new spell_dru_predatory_strikes();
+    RegisterSpellScript(spell_dru_prowl);
     new spell_dru_rip();
     new spell_dru_savage_roar();
     new spell_dru_stampede();
