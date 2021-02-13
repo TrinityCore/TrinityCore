@@ -7228,8 +7228,8 @@ void Player::UpdateArea(uint32 newArea)
     else
         RemovePvpFlag(UNIT_BYTE2_FLAG_SANCTUARY);
 
-    uint32 const areaRestFlag = (GetTeam() == ALLIANCE) ? AREA_FLAG_REST_ZONE_ALLIANCE : AREA_FLAG_REST_ZONE_HORDE;
-    if (area && area->Flags[0] & areaRestFlag)
+    // uint32 const areaRestFlag = (GetTeam() == ALLIANCE) ? AREA_FLAG_REST_ZONE_ALLIANCE : AREA_FLAG_REST_ZONE_HORDE;
+    if (area && IsInFactionFriendlyArea(area))
         _restMgr->SetRestFlag(REST_FLAG_IN_FACTION_AREA);
     else
         _restMgr->RemoveRestFlag(REST_FLAG_IN_FACTION_AREA);
@@ -7279,6 +7279,8 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
 
     GetMap()->SendZoneDynamicInfo(newZone, this);
 
+    UpdateWarModeAuras();
+
     UpdateHostileAreaState(zone);
 
     if (zone->Flags[0] & AREA_FLAG_CAPITAL) // Is in a capital city
@@ -7304,8 +7306,6 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
     UpdateLocalChannels(newZone);
 
     UpdateZoneDependentAuras(newZone);
-
-    UpdateWarModeAuras();
 
     // call enter script hooks after everyting else has processed
     sScriptMgr->OnPlayerUpdateZone(this, newZone, newArea);
@@ -7335,15 +7335,15 @@ void Player::UpdateHostileAreaState(AreaTableEntry const* area)
         {
             if (InBattleground() || area->Flags[0] & AREA_FLAG_COMBAT || (area->PvpCombatWorldStateID != -1 && sWorld->getWorldState(area->PvpCombatWorldStateID) != 0))
                 pvpInfo.IsInHostileArea = true;
-            else if (sWorld->IsPvPRealm() || (area->Flags[0] & AREA_FLAG_UNK3))
+            else if (CanFightOtherFaction() || (area->Flags[0] & AREA_FLAG_UNK3))
             {
                 if (area->Flags[0] & AREA_FLAG_CONTESTED_AREA)
-                    pvpInfo.IsInHostileArea = sWorld->IsPvPRealm();
+                    pvpInfo.IsInHostileArea = CanFightOtherFaction();
                 else
                 {
                     FactionTemplateEntry const* factionTemplate = GetFactionTemplateEntry();
                     if (!factionTemplate || factionTemplate->FriendGroup & area->FactionGroupMask)
-                        pvpInfo.IsInHostileArea = false;
+                        pvpInfo.IsInHostileArea = false; // friend area are considered hostile if war mode is active
                     else if (factionTemplate->EnemyGroup & area->FactionGroupMask)
                         pvpInfo.IsInHostileArea = true;
                     else
@@ -7370,7 +7370,7 @@ void Player::UpdateHostileAreaState(AreaTableEntry const* area)
     }
 
     // Treat players having a quest flagging for PvP as always in hostile area
-    pvpInfo.IsHostile = pvpInfo.IsInHostileArea || HasPvPForcingQuest();
+    pvpInfo.IsHostile = pvpInfo.IsInHostileArea || HasPvPForcingQuest() || CanFightOtherFaction();
 }
 
 //If players are too far away from the duel flag... they lose the duel
@@ -9224,7 +9224,7 @@ void Player::SendInitWorldStates(uint32 zoneId, uint32 areaId)
         case 38: // Loch Modan
         case 40: // Westfall
         case 51: // Searing Gorge
-        case ZONE_STORMWIND_CITY: // Stormwind City
+        case 1519: // Stormwind City
         case 1537: // Ironforge
         case 2257: // Deeprun Tram
         case 3703: // Shattrath City
@@ -29094,7 +29094,11 @@ void Player::SetWarModeDesired(bool enabled)
     if ((enabled == IsWarModeDesired()) || IsInCombat() || !IsInRestArea())
         return;
 
-    if (enabled && (IsTeamAlliance() ? (GetZoneId() != ZONE_STORMWIND_CITY) : (GetZoneId() != ZONE_ORGRIMMAR)))
+    if (enabled && CanEnableWarModeInArea())
+        return;
+
+    // Don't allow to chang when aura SPELL_PVP_RULES_ENABLED is on
+    if (HasAura(SPELL_PVP_RULES_ENABLED))
         return;
 
     if (enabled)
@@ -29102,54 +29106,76 @@ void Player::SetWarModeDesired(bool enabled)
         AddPlayerFlag(PLAYER_FLAGS_WAR_MODE_DESIRED);
         TogglePvpTalents(true);
         SetPvP(true);
-        RemoveUnitFlag(UNIT_FLAG_PVP_ATTACKABLE);
     }
     else
     {
         RemovePlayerFlag(PLAYER_FLAGS_WAR_MODE_DESIRED);
         TogglePvpTalents(false);
         SetPvP(false);
-        AddUnitFlag(UNIT_FLAG_PVP_ATTACKABLE);
     }
 
     UpdateWarModeAuras();
+}
+
+bool Player::IsInFactionFriendlyArea(AreaTableEntry const* inArea /* = nullptr */, AreaTableEntry const** outArea /* = nullptr */) const
+{
+    FactionTemplateEntry const* factionTemplate = GetFactionTemplateEntry();
+    if (!factionTemplate)
+        return false;
+
+    AreaTableEntry const* area = inArea;
+    if (area == nullptr)
+        area = sAreaTableStore.LookupEntry(GetAreaId());
+    if (outArea)
+        *outArea = area;
+
+    if (!(factionTemplate->FriendGroup & area->FactionGroupMask))
+        return false;
+
+    return true;
+}
+
+bool Player::CanEnableWarModeInArea() const
+{
+    AreaTableEntry const* area;
+    if (!IsInFactionFriendlyArea(nullptr, &area))
+        return false;
+
+    return area->Flags[1] & AREA_FLAG_2_CAN_ENABLE_WAR_MODE;
 }
 
 void Player::UpdateWarModeAuras()
 {
     uint32 auraInside = 282559;
     uint32 auraOutside = WARMODE_ENLISTED_SPELL_OUTSIDE;
-    uint32 auraOutsideMaxLvl = 289954;
 
     if (IsWarModeDesired())
     {
-        bool moveInsideCity = IsTeamAlliance() ? (m_zoneId == ZONE_STORMWIND_CITY) : (m_zoneId == ZONE_ORGRIMMAR);
-        if (moveInsideCity)
+        if (IsInFactionFriendlyArea())
         {
-            RemoveAurasDueToSpell(auraOutside);
-            RemoveAurasDueToSpell(auraOutsideMaxLvl);
-            CastSpell(this, auraInside, true);
             RemovePlayerFlag(PLAYER_FLAGS_WAR_MODE_ACTIVE);
+            RemoveAurasDueToSpell(auraOutside);
+            CastSpell(this, auraInside, true);
         }
         else
         {
+            AddPlayerFlag(PLAYER_FLAGS_WAR_MODE_ACTIVE);
             RemoveAurasDueToSpell(auraInside);
 
             TeamId team = sWorld->GetCurrentFactionBalanceTeam();
             if (GetTeamId() != team)
-                CastSpell(this, IsAtMaxLevel() ? auraOutsideMaxLvl : auraOutside, true);
+                CastSpell(this, auraOutside, true);
             else
-                CastSpell(this, IsAtMaxLevel() ? auraOutsideMaxLvl : auraOutside, sWorld->GetCurrentFactionBalanceRewardSpellValues());
-
-            AddPlayerFlag(PLAYER_FLAGS_WAR_MODE_ACTIVE);
+                CastSpell(this, auraOutside, sWorld->GetCurrentFactionBalanceRewardSpellValues());
         }
+        AddPvpFlag(UNIT_BYTE2_FLAG_PVP);
     }
     else
     {
         RemoveAurasDueToSpell(auraOutside);
-        RemoveAurasDueToSpell(auraOutsideMaxLvl);
         RemoveAurasDueToSpell(auraInside);
         RemovePlayerFlag(PLAYER_FLAGS_WAR_MODE_ACTIVE);
+        RemovePvpFlag(UNIT_BYTE2_FLAG_PVP);
     }
 }
 

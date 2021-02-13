@@ -3873,9 +3873,10 @@ void World::UpdateFactionBalanceRewardSpellValues()
     FactionOutnumberReward reward = _hasForcedFactionBalance ? _forcedFactionBalanceReward : _currentFactionBalanceReward;
 
     uint8 effectsValue = GetFactionOutnumberedRewardEffectValue(reward);
-    SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(WARMODE_ENLISTED_SPELL_OUTSIDE, DIFFICULTY_NONE);
     _currentFactionBalanceRewardSpellValues.SetTriggerFlags(TRIGGERED_FULL_MASK);
     _currentFactionBalanceRewardSpellValues.SpellValueOverrides.Clear();
+
+    SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(WARMODE_ENLISTED_SPELL_OUTSIDE, DIFFICULTY_NONE);
     if (spellEntry)
     {
         for (SpellEffectInfo const& spellEffectInfo : spellEntry->GetEffects())

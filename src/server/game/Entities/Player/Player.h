@@ -2625,7 +2625,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         bool MeetPlayerCondition(uint32 conditionId) const;
 
-        bool IsInRestArea() const { return HasPlayerFlag(PLAYER_FLAGS_RESTING) || HasUnitFlag2(UNIT_FLAG2_ALLOW_CHANGING_TALENTS); }
+        bool IsInRestArea() const { return HasPlayerFlag(PLAYER_FLAGS_RESTING); }
         bool HasPlayerFlag(PlayerFlags flags) const { return (*m_playerData->PlayerFlags & flags) != 0; }
         void AddPlayerFlag(PlayerFlags flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PlayerFlags), flags); }
         void RemovePlayerFlag(PlayerFlags flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PlayerFlags), flags); }
@@ -2732,6 +2732,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         bool IsAtMaxLevel() const;
 
+        bool IsInFactionFriendlyArea(AreaTableEntry const* inArea = nullptr, AreaTableEntry const** outArea = nullptr) const;
+
         bool IsInFriendlyArea() const;
         bool IsFriendlyArea(AreaTableEntry const* inArea) const;
 
@@ -2740,6 +2742,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetWarModeDesired(bool enabled);
         bool IsWarModeDesired() const { return HasPlayerFlag(PLAYER_FLAGS_WAR_MODE_DESIRED); }
         bool IsWarModeActive() const { return HasPlayerFlag(PLAYER_FLAGS_WAR_MODE_ACTIVE); }
+        bool CanFightOtherFaction() const { return HasPvpFlag(UNIT_BYTE2_FLAG_PVP); }
+        bool CanEnableWarModeInArea() const;
         void UpdateWarModeAuras();
 
         std::string GetDebugInfo() const override;

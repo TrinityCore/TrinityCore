@@ -2310,12 +2310,12 @@ void WorldSession::HandleCharRaceOrFactionChangeCallback(std::shared_ptr<WorldPa
             if (newTeamId == TEAM_ALLIANCE)
             {
                 loc.WorldRelocate(0, -8867.68f, 673.373f, 97.9034f, 0.0f);
-                zoneId = ZONE_STORMWIND_CITY;
+                zoneId = 1519;
             }
             else
             {
                 loc.WorldRelocate(1, 1633.33f, -4439.11f, 15.7588f, 0.0f);
-                zoneId = ZONE_ORGRIMMAR;
+                zoneId = 1637;
             }
 
             stmt->setUInt16(1, loc.GetMapId());

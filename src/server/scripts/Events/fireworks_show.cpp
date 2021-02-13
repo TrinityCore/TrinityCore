@@ -67,7 +67,7 @@ enum FireworksZones
 {
     STRANGLETHORN_VALE = 33,   // Booty bay
     EVERSONG_WOODS     = 3430, // Silvermoon
-    ORGRIMMAR          = ZONE_ORGRIMMAR,
+    ORGRIMMAR          = 1637,
     DUROTAR            = 14,   // Orgrimmar
     UNDERCITY          = 1497,
     TIRISFAL_GLADES    = 85,   // Undercity
@@ -76,7 +76,7 @@ enum FireworksZones
     THUNDERBLUFF       = 1638,
     DUN_MOROGH         = 1,    // Ironforge
     IRONFORGE          = 1537,
-    STORMWIND          = ZONE_STORMWIND_CITY
+    STORMWIND          = 1519,
 };
 
 std::vector<Position> const BootyBayPos =
