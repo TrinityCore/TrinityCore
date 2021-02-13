@@ -2458,7 +2458,7 @@ class spell_yogg_saron_diminsh_power : public SpellScriptLoader     // 64148
         {
             PrepareAuraScript(spell_yogg_saron_diminsh_power_AuraScript);
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+            void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
                 if (Spell* spell = GetTarget()->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
@@ -2728,7 +2728,7 @@ class spell_yogg_saron_grim_reprisal : public SpellScriptLoader     // 63305
                 return ValidateSpellInfo({ SPELL_GRIM_REPRISAL_DAMAGE });
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 DamageInfo* damageInfo = eventInfo.GetDamageInfo();

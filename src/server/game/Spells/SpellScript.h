@@ -545,7 +545,7 @@ class TC_GAME_API AuraScript : public _SpellScript
         typedef bool(CLASSNAME::*AuraCheckProcFnType)(ProcEventInfo&); \
         typedef bool(CLASSNAME::*AuraCheckEffectProcFnType)(AuraEffect const*, ProcEventInfo&); \
         typedef void(CLASSNAME::*AuraProcFnType)(ProcEventInfo&); \
-        typedef void(CLASSNAME::*AuraEffectProcFnType)(AuraEffect const*, ProcEventInfo&); \
+        typedef void(CLASSNAME::*AuraEffectProcFnType)(AuraEffect*, ProcEventInfo&); \
 
         AURASCRIPT_FUNCTION_TYPE_DEFINES(AuraScript)
 
@@ -673,7 +673,7 @@ class TC_GAME_API AuraScript : public _SpellScript
         {
             public:
                 EffectProcHandler(AuraEffectProcFnType effectHandlerScript, uint8 effIndex, uint16 effName);
-                void Call(AuraScript* auraScript, AuraEffect const* aurEff, ProcEventInfo& eventInfo);
+                void Call(AuraScript* auraScript, AuraEffect* aurEff, ProcEventInfo& eventInfo);
             private:
                 AuraEffectProcFnType _EffectHandlerScript;
         };

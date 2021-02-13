@@ -953,7 +953,7 @@ public:
             return ValidateSpellInfo({ SPELL_COLD_SLAP });
         }
 
-        void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+        void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
         {
             PreventDefaultAction();
             GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_COLD_SLAP, true);

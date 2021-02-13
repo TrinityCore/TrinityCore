@@ -301,7 +301,7 @@ class spell_dk_dancing_rune_weapon : public SpellScriptLoader
             }
 
             // This is a port of the old switch hack in Unit.cpp, it's not correct
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 Unit* caster = GetCaster();
@@ -703,7 +703,7 @@ class spell_dk_mark_of_blood : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_DK_MARK_OF_BLOOD_HEAL });
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 if (Unit* caster = GetCaster())
@@ -737,7 +737,7 @@ class spell_dk_necrosis : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_DK_NECROSIS_EFFECT });
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_DK_NECROSIS_EFFECT, true);
@@ -859,7 +859,7 @@ class spell_dk_pvp_4p_bonus : public SpellScriptLoader
                 return (spellInfo->GetAllEffectsMechanicMask() & ((1 << MECHANIC_ROOT) | (1 << MECHANIC_SNARE))) != 0;
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 eventInfo.GetActionTarget()->CastSpell(nullptr, SPELL_DK_RUNIC_RETURN, true);

@@ -46,7 +46,7 @@ class spell_dh_chaos_strike : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_CHAOS_STRIKE_ENERGIZE });
             }
 
-            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
                 GetTarget()->CastCustomSpell(SPELL_CHAOS_STRIKE_ENERGIZE, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), GetTarget(), true, nullptr, aurEff);

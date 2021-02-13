@@ -1161,7 +1161,7 @@ class spell_deathbringer_blood_beast_blood_link : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_BLOOD_LINK_DUMMY });
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 eventInfo.GetProcTarget()->CastCustomSpell(SPELL_BLOOD_LINK_DUMMY, SPELLVALUE_BASE_POINT0, 3, nullptr, true, nullptr, aurEff);

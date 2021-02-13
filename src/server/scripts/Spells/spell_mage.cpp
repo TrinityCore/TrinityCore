@@ -91,7 +91,7 @@ class spell_mage_blazing_barrier : public AuraScript
             amount = int32(caster->SpellBaseHealingBonusDone(GetSpellInfo()->GetSchoolMask()) * 7.0f);
     }
 
-    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
         Unit* caster = eventInfo.GetDamageInfo()->GetVictim();
@@ -281,7 +281,7 @@ class spell_mage_fingers_of_frost : public AuraScript
 {
     PrepareAuraScript(spell_mage_fingers_of_frost);
 
-    void SuppressWarning(AuraEffect const* /*aurEff*/, ProcEventInfo& /*procInfo*/)
+    void SuppressWarning(AuraEffect* /*aurEff*/, ProcEventInfo& /*procInfo*/)
     {
         PreventDefaultAction();
     }
@@ -318,7 +318,7 @@ class spell_mage_ice_barrier : public AuraScript
             amount += int32(caster->SpellBaseHealingBonusDone(GetSpellInfo()->GetSchoolMask()) * 10.0f);
     }
 
-    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
     {
         Unit* caster = eventInfo.GetDamageInfo()->GetVictim();
         Unit* target = eventInfo.GetDamageInfo()->GetAttacker();
@@ -429,7 +429,7 @@ class spell_mage_ignite : public AuraScript
         return eventInfo.GetProcTarget() != nullptr;
     }
 
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
 
@@ -459,7 +459,7 @@ class spell_mage_imp_mana_gems : public AuraScript
         return ValidateSpellInfo({ SPELL_MAGE_MANA_SURGE });
     }
 
-    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
         eventInfo.GetActor()->CastSpell(nullptr, SPELL_MAGE_MANA_SURGE, true);

@@ -85,7 +85,7 @@ class spell_rog_blade_flurry : public SpellScriptLoader
                 return _procTarget && eventInfo.GetDamageInfo();
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
 
@@ -191,7 +191,7 @@ class spell_rog_crippling_poison : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_ROGUE_CRIPPLING_POISON });
             }
 
-            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void OnProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_ROGUE_CRIPPLING_POISON, true, nullptr, aurEff);
@@ -764,7 +764,7 @@ class spell_rog_tricks_of_the_trade : public SpellScriptLoader
                 return _redirectTarget != nullptr;
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+            void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
 
@@ -867,7 +867,7 @@ public:
             return ValidateSpellInfo({ SPELL_ROGUE_HONOR_AMONG_THIEVES_ENERGIZE });
         }
 
-        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+        void HandleProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
         {
             PreventDefaultAction();
 

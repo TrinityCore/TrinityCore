@@ -104,7 +104,7 @@ public:
             return true;
         }
 
-        void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
         {
             PreventDefaultAction();
             int32 bp0 = CalculatePct(int32(eventInfo.GetDamageInfo()->GetDamage()), aurEff->GetAmount());
@@ -270,7 +270,7 @@ class spell_sha_earth_shield : public SpellScriptLoader
                 return true;
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            void HandleProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
 
@@ -307,7 +307,7 @@ public:
             return ValidateSpellInfo({ SPELL_SHAMAN_EARTHEN_RAGE_PERIODIC, SPELL_SHAMAN_EARTHEN_RAGE_DAMAGE });
         }
 
-        void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+        void HandleEffectProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
         {
             PreventDefaultAction();
             _procTargetGuid = eventInfo.GetProcTarget()->GetGUID();
@@ -462,7 +462,7 @@ public:
             return ValidateSpellInfo({ SPELL_SHAMAN_FLAMETONGUE_ATTACK });
         }
 
-        void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
         {
             PreventDefaultAction();
 
@@ -581,7 +581,7 @@ class spell_sha_item_lightning_shield : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD });
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD, true, nullptr, aurEff);
@@ -614,7 +614,7 @@ class spell_sha_item_lightning_shield_trigger : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD_DAMAGE });
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            void HandleProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
                 GetTarget()->CastSpell(GetTarget(), SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD_DAMAGE, true, nullptr, aurEff);
@@ -652,7 +652,7 @@ class spell_sha_item_mana_surge : public SpellScriptLoader
                 return eventInfo.GetProcSpell() != nullptr;
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
 
@@ -698,7 +698,7 @@ class spell_sha_item_t6_trinket : public SpellScriptLoader
                 });
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
@@ -760,7 +760,7 @@ class spell_sha_item_t10_elemental_2p_bonus : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_SHAMAN_ELEMENTAL_MASTERY });
             }
 
-            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
                 if (Player* target = GetTarget()->ToPlayer())
@@ -858,7 +858,7 @@ class spell_sha_lava_surge : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_SHAMAN_LAVA_SURGE });
             }
 
-            void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+            void HandleEffectProc(AuraEffect* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
                 GetTarget()->CastSpell(GetTarget(), SPELL_SHAMAN_LAVA_SURGE, true);
@@ -980,7 +980,7 @@ class spell_sha_tidal_waves : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_SHAMAN_TIDAL_WAVES });
             }
 
-            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
                 int32 basePoints0 = -aurEff->GetAmount();
@@ -1022,7 +1022,7 @@ class spell_sha_t3_6p_bonus : public SpellScriptLoader
                 });
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
 
@@ -1083,7 +1083,7 @@ class spell_sha_t8_elemental_4p_bonus : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_SHAMAN_ELECTRIFIED });
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
 
@@ -1130,7 +1130,7 @@ class spell_sha_t9_elemental_4p_bonus : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_SHAMAN_LAVA_BURST_BONUS_DAMAGE });
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
 
@@ -1172,7 +1172,7 @@ class spell_sha_t10_elemental_4p_bonus : public SpellScriptLoader
         {
             PrepareAuraScript(spell_sha_t10_elemental_4p_bonus_AuraScript);
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
 
@@ -1222,7 +1222,7 @@ class spell_sha_t10_restoration_4p_bonus : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_SHAMAN_CHAINED_HEAL });
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
 
@@ -1269,7 +1269,7 @@ public:
             return ValidateSpellInfo({ SPELL_SHAMAN_WINDFURY_ATTACK });
         }
 
-        void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
         {
             PreventDefaultAction();
 

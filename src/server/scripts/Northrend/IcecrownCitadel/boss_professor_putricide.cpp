@@ -1113,7 +1113,7 @@ class spell_putricide_ooze_tank_protection : public SpellScriptLoader
                 return effect0 && effect1 && ValidateSpellInfo({ effect0->TriggerSpell, effect1->TriggerSpell });
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
 
