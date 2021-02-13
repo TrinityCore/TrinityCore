@@ -1084,7 +1084,7 @@ void UnitData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisi
         data << float(Lifesteal);
         data << float(MinRangedDamage);
         data << float(MaxRangedDamage);
-        data << float(ManaCostModifierModifier);
+        data << float(ManaCostModifierPct);
         data << float(MaxHealthModifier);
     }
     data << float(HoverHeight);
@@ -1606,7 +1606,7 @@ void UnitData::WriteUpdate(ByteBuffer& data, UpdateMask<189> const& changesMask,
         }
         if (changesMask[101])
         {
-            data << float(ManaCostModifierModifier);
+            data << float(ManaCostModifierPct);
         }
         if (changesMask[102])
         {
@@ -1866,7 +1866,7 @@ void UnitData::ClearChangesMask()
     Base::ClearChangesMask(Lifesteal);
     Base::ClearChangesMask(MinRangedDamage);
     Base::ClearChangesMask(MaxRangedDamage);
-    Base::ClearChangesMask(ManaCostModifierModifier);
+    Base::ClearChangesMask(ManaCostModifierPct);
     Base::ClearChangesMask(MaxHealthModifier);
     Base::ClearChangesMask(HoverHeight);
     Base::ClearChangesMask(MinItemLevelCutoff);

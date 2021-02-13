@@ -353,7 +353,7 @@ struct UnitData : public IsUpdateFieldStructureTag, public HasChangesMask<189>
     UpdateField<float, 96, 98> Lifesteal;
     UpdateField<float, 96, 99> MinRangedDamage;
     UpdateField<float, 96, 100> MaxRangedDamage;
-    UpdateField<float, 96, 101> ManaCostModifierModifier;
+    UpdateField<float, 96, 101> ManaCostModifierPct;
     UpdateField<float, 96, 102> MaxHealthModifier;
     UpdateField<float, 96, 103> HoverHeight;
     UpdateField<int32, 96, 104> MinItemLevelCutoff;

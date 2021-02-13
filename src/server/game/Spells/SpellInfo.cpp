@@ -3834,9 +3834,6 @@ std::vector<SpellPowerCost> SpellInfo::CalcPowerCost(Unit const* caster, SpellSc
                 flatMod += (*i)->GetAmount();
             }
 
-            if (power->PowerType == POWER_MANA)
-                flatMod *= 1.0f + caster->m_unitData->ManaCostModifierModifier;
-
             powerCost += flatMod;
         }
 
@@ -3901,7 +3898,9 @@ std::vector<SpellPowerCost> SpellInfo::CalcPowerCost(Unit const* caster, SpellSc
             powerCost += CalculatePct(powerCost, (*i)->GetAmount());
         }
 
-        if (power->PowerType == POWER_HEALTH)
+        if (power->PowerType == POWER_MANA)
+            powerCost *= 1.0f + caster->GetManaCostModPct();
+        else if (power->PowerType == POWER_HEALTH)
         {
             healthCost += powerCost;
             continue;

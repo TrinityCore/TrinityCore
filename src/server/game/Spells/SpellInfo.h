@@ -432,6 +432,9 @@ struct SpellPowerCost
 {
     Powers Power;
     int32 Amount;
+
+    SpellPowerCost() { }
+    SpellPowerCost(Powers power, int32 amount) : Power(power), Amount(amount) { }
 };
 
 class TC_GAME_API SpellInfo

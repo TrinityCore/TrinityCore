@@ -495,7 +495,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_BATTLE_PET_XP_PCT                        = 420,  // NYI
     SPELL_AURA_MOD_ABSORB_EFFECTS_DONE_PCT                  = 421,  // NYI
     SPELL_AURA_MOD_ABSORB_EFFECTS_TAKEN_PCT                 = 422,  // NYI
-    SPELL_AURA_423                                          = 423,
+    SPELL_AURA_MOD_MANA_COST_PCT                            = 423,
     SPELL_AURA_CASTER_IGNORE_LOS                            = 424,  // NYI
     SPELL_AURA_425                                          = 425,
     SPELL_AURA_426                                          = 426,
