@@ -973,7 +973,7 @@ AuraScript::EffectProcHandler::EffectProcHandler(AuraEffectProcFnType effectHand
     _EffectHandlerScript = effectHandlerScript;
 }
 
-void AuraScript::EffectProcHandler::Call(AuraScript* auraScript, AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+void AuraScript::EffectProcHandler::Call(AuraScript* auraScript, AuraEffect* aurEff, ProcEventInfo& eventInfo)
 {
     (auraScript->*_EffectHandlerScript)(aurEff, eventInfo);
 }

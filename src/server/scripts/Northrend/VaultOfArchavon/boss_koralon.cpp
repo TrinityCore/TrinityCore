@@ -198,7 +198,7 @@ class spell_koralon_meteor_fists : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_METEOR_FISTS_DAMAGE });
             }
 
-            void TriggerFists(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void TriggerFists(AuraEffect* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_METEOR_FISTS_DAMAGE, true, nullptr, aurEff);
@@ -273,7 +273,7 @@ class spell_flame_warder_meteor_fists : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_FW_METEOR_FISTS_DAMAGE });
             }
 
-            void TriggerFists(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void TriggerFists(AuraEffect* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_FW_METEOR_FISTS_DAMAGE, true, nullptr, aurEff);

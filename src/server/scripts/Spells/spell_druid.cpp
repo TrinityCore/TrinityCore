@@ -173,7 +173,7 @@ public:
             return false;
         }
 
-        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
         {
             PreventDefaultAction();
             Unit* target = eventInfo.GetActor();
@@ -386,7 +386,7 @@ public:
             return ValidateSpellInfo({ SPELL_DRUID_LIVING_SEED_PROC });
         }
 
-        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
         {
             PreventDefaultAction();
             int32 amount = CalculatePct(eventInfo.GetHealInfo()->GetHeal(), aurEff->GetAmount());
@@ -420,7 +420,7 @@ public:
             return ValidateSpellInfo({ SPELL_DRUID_LIVING_SEED_HEAL });
         }
 
-        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+        void HandleProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
         {
             PreventDefaultAction();
             GetTarget()->CastCustomSpell(SPELL_DRUID_LIVING_SEED_HEAL, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), GetTarget(), true, nullptr, aurEff);
@@ -557,7 +557,7 @@ class spell_dru_omen_of_clarity : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_DRUID_BALANCE_T10_BONUS, SPELL_DRUID_BALANCE_T10_BONUS_PROC });
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+            void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
             {
                 Unit* target = GetTarget();
                 if (target->HasAura(SPELL_DRUID_BALANCE_T10_BONUS))
@@ -661,7 +661,7 @@ public:
             });
         }
 
-        void HandleEffectCatProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        void HandleEffectCatProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
         {
             PreventDefaultAction();
             if (GetTarget()->GetShapeshiftForm() != FORM_CAT_FORM || eventInfo.GetDamageInfo()->GetSpellInfo()->Id != SPELL_DRUID_FERAL_CHARGE_CAT)
@@ -671,7 +671,7 @@ public:
             GetTarget()->CastSpell(GetTarget(), SPELL_DRUID_STAMPEDE_CAT_STATE, true, nullptr, aurEff);
         }
 
-        void HandleEffectBearProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        void HandleEffectBearProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
         {
             PreventDefaultAction();
             if (GetTarget()->GetShapeshiftForm() != FORM_BEAR_FORM || eventInfo.GetDamageInfo()->GetSpellInfo()->Id != SPELL_DRUID_FERAL_CHARGE_BEAR)
@@ -880,7 +880,7 @@ class spell_dru_t3_6p_bonus : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_DRUID_BLESSING_OF_THE_CLAW });
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), SPELL_DRUID_BLESSING_OF_THE_CLAW, true, nullptr, aurEff);
@@ -913,7 +913,7 @@ class spell_dru_t3_8p_bonus : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_DRUID_EXHILARATE });
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 Spell const* spell = eventInfo.GetProcSpell();
@@ -958,7 +958,7 @@ class spell_dru_t4_2p_bonus : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_DRUID_INFUSION });
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 eventInfo.GetActor()->CastSpell(nullptr, SPELL_DRUID_INFUSION, true, nullptr, aurEff);
@@ -1175,7 +1175,7 @@ class spell_dru_item_t6_trinket : public SpellScriptLoader
                 });
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
@@ -1237,7 +1237,7 @@ class spell_dru_t10_balance_4p_bonus : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_DRUID_LANGUISH });
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
 
@@ -1356,7 +1356,7 @@ class spell_dru_t10_restoration_4p_bonus_dummy : public SpellScriptLoader
                 return caster->GetGroup() || caster != eventInfo.GetProcTarget();
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
 

@@ -674,7 +674,7 @@ class spell_reliquary_of_souls_aura_of_desire : public AuraScript
         return ValidateSpellInfo({ SPELL_AURA_OF_DESIRE_DAMAGE });
     }
 
-    void OnProcSpell(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    void OnProcSpell(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
         DamageInfo* damageInfo = eventInfo.GetDamageInfo();
