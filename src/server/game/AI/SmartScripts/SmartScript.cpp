@@ -62,6 +62,7 @@ SmartScript::SmartScript()
     mCurrentPriority = 0;
     mEventSortingRequired = false;
     mNestedEventsCounter = 0;
+    mAllEventFlags = 0;
 }
 
 SmartScript::~SmartScript()
@@ -4133,35 +4134,35 @@ void SmartScript::FillScript(SmartAIEventList e, WorldObject* obj, AreaTriggerEn
 
         if (scriptholder.event.event_flags & SMART_EVENT_FLAG_DIFFICULTY_ALL)//if has instance flag add only if in it
         {
-            if (obj && obj->GetMap()->IsDungeon())
+            if (!(obj && obj->GetMap()->IsDungeon()))
+                continue;
+
+            // TODO: fix it for new maps and difficulties
+            switch (obj->GetMap()->GetDifficultyID())
             {
-                // TODO: fix it for new maps and difficulties
-                switch (obj->GetMap()->GetDifficultyID())
-                {
-                    case DIFFICULTY_NORMAL:
-                    case DIFFICULTY_10_N:
-                        if (scriptholder.event.event_flags & SMART_EVENT_FLAG_DIFFICULTY_0)
-                            mEvents.emplace_back(std::move(scriptholder));
-                        break;
-                    case DIFFICULTY_HEROIC:
-                    case DIFFICULTY_25_N:
-                        if (scriptholder.event.event_flags & SMART_EVENT_FLAG_DIFFICULTY_1)
-                            mEvents.emplace_back(std::move(scriptholder));
-                        break;
-                    case DIFFICULTY_10_HC:
-                        if (scriptholder.event.event_flags & SMART_EVENT_FLAG_DIFFICULTY_2)
-                            mEvents.emplace_back(std::move(scriptholder));
-                        break;
-                    case DIFFICULTY_25_HC:
-                        if (scriptholder.event.event_flags & SMART_EVENT_FLAG_DIFFICULTY_3)
-                            mEvents.emplace_back(std::move(scriptholder));
-                        break;
-                    default:
-                        break;
-                }
+                case DIFFICULTY_NORMAL:
+                case DIFFICULTY_10_N:
+                    if (!(scriptholder.event.event_flags & SMART_EVENT_FLAG_DIFFICULTY_0))
+                        continue;
+                    break;
+                case DIFFICULTY_HEROIC:
+                case DIFFICULTY_25_N:
+                    if (!(scriptholder.event.event_flags & SMART_EVENT_FLAG_DIFFICULTY_1))
+                        continue;
+                    break;
+                case DIFFICULTY_10_HC:
+                    if (!(scriptholder.event.event_flags & SMART_EVENT_FLAG_DIFFICULTY_2))
+                        continue;
+                    break;
+                case DIFFICULTY_25_HC:
+                    if (!(scriptholder.event.event_flags & SMART_EVENT_FLAG_DIFFICULTY_3))
+                        continue;
+                    break;
+                default:
+                    break;
             }
-            continue;
         }
+        mAllEventFlags |= scriptholder.event.event_flags;
         mEvents.push_back(scriptholder);//NOTE: 'world(0)' events still get processed in ANY instance mode
     }
 }
