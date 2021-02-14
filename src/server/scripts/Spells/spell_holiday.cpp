@@ -46,11 +46,23 @@ class spell_love_is_in_the_air_romantic_picnic : public AuraScript
 {
     PrepareAuraScript(spell_love_is_in_the_air_romantic_picnic);
 
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_BASKET_CHECK,
+            SPELL_MEAL_PERIODIC,
+            SPELL_MEAL_EAT_VISUAL,
+            SPELL_DRINK_VISUAL,
+            SPELL_ROMANTIC_PICNIC_ACHIEV
+        });
+    }
+
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
         target->SetStandState(UNIT_STAND_STATE_SIT);
-        target->CastSpell(target, SPELL_MEAL_PERIODIC, false);
+        target->CastSpell(target, SPELL_MEAL_PERIODIC);
     }
 
     void OnPeriodic(AuraEffect const* /*aurEff*/)
@@ -61,13 +73,13 @@ class spell_love_is_in_the_air_romantic_picnic : public AuraScript
         // If our player is no longer sit, remove all auras
         if (target->GetStandState() != UNIT_STAND_STATE_SIT)
         {
-            target->RemoveAura(SPELL_ROMANTIC_PICNIC_ACHIEV);
+            target->RemoveAurasDueToSpell(SPELL_ROMANTIC_PICNIC_ACHIEV);
             target->RemoveAura(GetAura());
             return;
         }
 
-        target->CastSpell(target, SPELL_BASKET_CHECK, false); // unknown use, it targets Romantic Basket
-        target->CastSpell(target, RAND(SPELL_MEAL_EAT_VISUAL, SPELL_DRINK_VISUAL), false);
+        target->CastSpell(target, SPELL_BASKET_CHECK); // unknown use, it targets Romantic Basket
+        target->CastSpell(target, RAND(SPELL_MEAL_EAT_VISUAL, SPELL_DRINK_VISUAL));
 
         bool foundSomeone = false;
         // For nearby players, check if they have the same aura. If so, cast Romantic Picnic (45123)
@@ -93,7 +105,7 @@ class spell_love_is_in_the_air_romantic_picnic : public AuraScript
         }
 
         if (!foundSomeone && target->HasAura(SPELL_ROMANTIC_PICNIC_ACHIEV))
-            target->RemoveAura(SPELL_ROMANTIC_PICNIC_ACHIEV);
+            target->RemoveAurasDueToSpell(SPELL_ROMANTIC_PICNIC_ACHIEV);
     }
 
     void Register() override
