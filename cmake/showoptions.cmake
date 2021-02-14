@@ -171,6 +171,11 @@ if(WITH_STRICT_DATABASE_TYPE_CHECKS)
   add_definitions(-DTRINITY_STRICT_DATABASE_TYPE_CHECKS)
 endif()
 
+if(WITH_BOOST_STACKTRACE)
+  message("")
+  message("*** libbacktrace will be linked")
+endif()
+
 if(BUILD_SHARED_LIBS)
   message("")
   message(" *** WITH_DYNAMIC_LINKING - INFO!")

@@ -83,3 +83,13 @@ endif()
 target_compile_definitions(boost
   INTERFACE
     -DTC_HAS_BROKEN_WSTRING_REGEX)
+
+if (WITH_BOOST_STACKTRACE)
+  target_compile_definitions(boost
+    INTERFACE
+      -DBOOST_STACKTRACE_USE_BACKTRACE)
+
+  target_link_libraries(boost
+    INTERFACE
+      backtrace)
+endif()
