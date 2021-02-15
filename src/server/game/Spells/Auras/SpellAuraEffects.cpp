@@ -3905,7 +3905,7 @@ void AuraEffect::HandleModManaCostPct(AuraApplication const* aurApp, uint8 mode,
 
     Unit* target = aurApp->GetTarget();
     float pct = (float)GetAmount() / 100.0f;
-    target->AddManaCostModPct(apply ? pct : -pct);
+    target->AddManaCostMultiplier(apply ? pct : -pct);
 }
 
 void AuraEffect::HandleAuraModPowerDisplay(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -4434,11 +4434,15 @@ void AuraEffect::HandleModPowerCost(AuraApplication const* aurApp, uint8 mode, b
     if (!(mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK))
         return;
 
+    // handled in SpellInfo::CalcPowerCost, this is only for client UI
+    if (!(GetMiscValueB() & (1 << POWER_MANA)))
+        return;
+
     Unit* target = aurApp->GetTarget();
 
     for (int i = 0; i < MAX_SPELL_SCHOOL; ++i)
         if (GetMiscValue() & (1 << i))
-            target->ApplyModPowerCostModifier(SpellSchools(i), GetAmount(), apply);
+            target->ApplyModManaCostModifier(SpellSchools(i), GetAmount(), apply);
 }
 
 void AuraEffect::HandleArenaPreparation(AuraApplication const* aurApp, uint8 mode, bool apply) const
