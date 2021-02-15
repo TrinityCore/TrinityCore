@@ -342,7 +342,7 @@ CREATE TABLE `creature` (
   `unit_flags` int(10) unsigned NOT NULL DEFAULT '0',
   `dynamicflags` int(10) unsigned NOT NULL DEFAULT '0',
   `ScriptName` char(64) DEFAULT '',
-  `VerifiedBuild` smallint(5) DEFAULT '0',
+  `VerifiedBuild` int(11) DEFAULT '0',
   PRIMARY KEY (`guid`),
   KEY `idx_map` (`map`),
   KEY `idx_id` (`id`)
@@ -493,12 +493,13 @@ DROP TABLE IF EXISTS `creature_movement_override`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `creature_movement_override` (
   `SpawnId` int(10) unsigned NOT NULL DEFAULT '0',
-  `Ground` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  `Swim` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  `Flight` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `Rooted` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `Chase` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `Random` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `Ground` tinyint(3) unsigned DEFAULT NULL,
+  `Swim` tinyint(3) unsigned DEFAULT NULL,
+  `Flight` tinyint(3) unsigned DEFAULT NULL,
+  `Rooted` tinyint(3) unsigned DEFAULT NULL,
+  `Chase` tinyint(3) unsigned DEFAULT NULL,
+  `Random` tinyint(3) unsigned DEFAULT NULL,
+  `InteractionPauseTimer` int(10) unsigned DEFAULT NULL COMMENT 'Time (in milliseconds) during which creature will not move after interaction with player',
   PRIMARY KEY (`SpawnId`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -708,12 +709,13 @@ DROP TABLE IF EXISTS `creature_template_movement`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `creature_template_movement` (
   `CreatureId` int(10) unsigned NOT NULL DEFAULT '0',
-  `Ground` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  `Swim` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  `Flight` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `Rooted` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `Chase` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `Random` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `Ground` tinyint(3) unsigned DEFAULT NULL,
+  `Swim` tinyint(3) unsigned DEFAULT NULL,
+  `Flight` tinyint(3) unsigned DEFAULT NULL,
+  `Rooted` tinyint(3) unsigned DEFAULT NULL,
+  `Chase` tinyint(3) unsigned DEFAULT NULL,
+  `Random` tinyint(3) unsigned DEFAULT NULL,
+  `InteractionPauseTimer` int(10) unsigned DEFAULT NULL COMMENT 'Time (in milliseconds) during which creature will not move after interaction with player',
   PRIMARY KEY (`CreatureId`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -4042,4 +4044,4 @@ CREATE TABLE `waypoints` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-01-15  8:29:39
+-- Dump completed on 2021-02-15 12:37:51
