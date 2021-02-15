@@ -1486,6 +1486,41 @@ public:
     }
 };
 
+// 22568 - Ferocious Bite
+class spell_dru_ferocious_bite : public SpellScript
+{
+    PrepareSpellScript(spell_dru_ferocious_bite);
+
+    void HandleHitTarget(SpellEffIndex /*effIndex*/)
+    {
+        SpellEffectInfo const* eff1 = GetEffectInfo();
+        if (eff1->BasePoints == 0 || eff1->MiscValue < 0)
+            return;
+
+        // Prevent default action for power burn; we'll do it
+        PreventHitDefaultEffect(EFFECT_1);
+
+        // Calculate damage as the effect will do
+        int32 dmg = GetHitDamage();
+
+        Unit* target = GetHitUnit();
+        Unit* caster = GetCaster();
+        int32 powerGain = caster->ModifyPower(Powers(eff1->MiscValue), -eff1->BasePoints);
+
+        // power gain is in the range of [0..25]. At 25 you get 100% extra damage
+        float ratio = -(float)powerGain / eff1->BasePoints; // map from [0..BasePoints] to [0..1]
+        dmg *= 1.0f + ratio;
+
+        // Set the damage to m_damage on spell
+        SetHitDamage((int32)dmg);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dru_ferocious_bite::HandleHitTarget, EFFECT_1, SPELL_EFFECT_POWER_BURN);
+    }
+};
+
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_dash();
@@ -1516,4 +1551,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_t10_restoration_4p_bonus();
     new spell_dru_t10_restoration_4p_bonus_dummy();
     new spell_dru_wild_growth();
+    RegisterSpellScript(spell_dru_ferocious_bite);
 }
