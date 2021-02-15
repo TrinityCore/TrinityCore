@@ -7335,10 +7335,10 @@ void Player::UpdateHostileAreaState(AreaTableEntry const* area)
         {
             if (InBattleground() || area->Flags[0] & AREA_FLAG_COMBAT || (area->PvpCombatWorldStateID != -1 && sWorld->getWorldState(area->PvpCombatWorldStateID) != 0))
                 pvpInfo.IsInHostileArea = true;
-            else if (CanFightOtherFaction() || (area->Flags[0] & AREA_FLAG_UNK3))
+            else if (IsWarModeLocalActive() || (area->Flags[0] & AREA_FLAG_UNK3))
             {
                 if (area->Flags[0] & AREA_FLAG_CONTESTED_AREA)
-                    pvpInfo.IsInHostileArea = CanFightOtherFaction();
+                    pvpInfo.IsInHostileArea = IsWarModeLocalActive();
                 else
                 {
                     FactionTemplateEntry const* factionTemplate = GetFactionTemplateEntry();
@@ -7370,7 +7370,7 @@ void Player::UpdateHostileAreaState(AreaTableEntry const* area)
     }
 
     // Treat players having a quest flagging for PvP as always in hostile area
-    pvpInfo.IsHostile = pvpInfo.IsInHostileArea || HasPvPForcingQuest() || CanFightOtherFaction();
+    pvpInfo.IsHostile = pvpInfo.IsInHostileArea || HasPvPForcingQuest() || IsWarModeLocalActive();
 }
 
 //If players are too far away from the duel flag... they lose the duel
@@ -29135,6 +29135,15 @@ bool Player::IsInFactionFriendlyArea(AreaTableEntry const* inArea /* = nullptr *
     return true;
 }
 
+
+void Player::SetWarModeLocal(bool enabled)
+{
+    if (enabled)
+        AddPlayerLocalFlag(PLAYER_LOCAL_FLAG_WAR_MODE);
+    else
+        RemovePlayerLocalFlag(PLAYER_LOCAL_FLAG_WAR_MODE);
+}
+
 bool Player::CanEnableWarModeInArea() const
 {
     AreaTableEntry const* area;
@@ -29168,10 +29177,12 @@ void Player::UpdateWarModeAuras()
             else
                 CastSpell(this, auraOutside, sWorld->GetCurrentFactionBalanceRewardSpellValues());
         }
+        SetWarModeLocal(true);
         AddPvpFlag(UNIT_BYTE2_FLAG_PVP);
     }
     else
     {
+        SetWarModeLocal(false);
         RemoveAurasDueToSpell(auraOutside);
         RemoveAurasDueToSpell(auraInside);
         RemovePlayerFlag(PLAYER_FLAGS_WAR_MODE_ACTIVE);

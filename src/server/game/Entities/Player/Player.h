@@ -2742,7 +2742,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetWarModeDesired(bool enabled);
         bool IsWarModeDesired() const { return HasPlayerFlag(PLAYER_FLAGS_WAR_MODE_DESIRED); }
         bool IsWarModeActive() const { return HasPlayerFlag(PLAYER_FLAGS_WAR_MODE_ACTIVE); }
-        bool CanFightOtherFaction() const { return HasPvpFlag(UNIT_BYTE2_FLAG_PVP); }
+        bool IsWarModeLocalActive() const { return HasPvpFlag(UNIT_BYTE2_FLAG_PVP); }
+        void SetWarModeLocal(bool enabled);
         bool CanEnableWarModeInArea() const;
         void UpdateWarModeAuras();
 
