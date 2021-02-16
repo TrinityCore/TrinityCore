@@ -64,7 +64,7 @@ class boss_emperor_dagran_thaurissan : public CreatureScript
             void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
-                // me->CallForHelp(VISIBLE_RANGE); -- Only calls in line of sight, leaves ot the Units behind the pillars
+                // me->CallForHelp(VISIBLE_RANGE); -- Only calls in line of sight, leaves out the Units behind the pillars
                 _events.ScheduleEvent(EVENT_HANDOFTHAURISSAN, 4s);
                 _events.ScheduleEvent(EVENT_AVATAROFFLAME, 25s);
             }
