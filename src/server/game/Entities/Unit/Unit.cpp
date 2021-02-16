@@ -1316,6 +1316,8 @@ void Unit::CalculateMeleeDamage(Unit* victim, CalcDamageInfo* damageInfo, Weapon
             damageInfo->HitInfo     |= HITINFO_GLANCING;
             damageInfo->TargetState  = VICTIMSTATE_HIT;
             int32 leveldif = int32(victim->GetLevel()) - int32(GetLevel());
+            if (leveldif == 0)
+                leveldif = 1;
             if (leveldif > 3)
                 leveldif = 3;
 
@@ -2172,7 +2174,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit const* victim, WeaponAttackTy
     // Max 40% chance to score a glancing blow against mobs that are higher level (can do only players and pets and not with ranged weapon)
     if ((GetTypeId() == TYPEID_PLAYER || IsPet()) &&
         victim->GetTypeId() != TYPEID_PLAYER && !victim->IsPet() &&
-        GetLevel() < victim->GetLevelForTarget(this))
+        GetLevel() <= victim->GetLevelForTarget(this))
     {
         // cap possible value (with bonuses > max skill)
         int32 skill = attackerWeaponSkill;
