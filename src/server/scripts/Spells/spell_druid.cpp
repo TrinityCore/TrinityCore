@@ -1527,7 +1527,6 @@ class spell_dru_ferocious_bite : public SpellScript
         // Calculate damage as the effect will do
         int32 dmg = GetHitDamage();
 
-        Unit* target = GetHitUnit();
         Unit* caster = GetCaster();
         int32 powerGain = caster->ModifyPower(Powers(eff1->MiscValue), -eff1->BasePoints);
 
