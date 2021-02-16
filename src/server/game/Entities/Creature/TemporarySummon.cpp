@@ -44,6 +44,15 @@ Creature* TempSummon::GetSummonerCreatureBase() const
     return !m_summonerGUID.IsEmpty() ? ObjectAccessor::GetCreature(*this, m_summonerGUID) : nullptr;
 }
 
+bool TempSummon::IsPersonalSummonOfAnotherPlayer(Creature const* summon, ObjectGuid playerToCheck)
+{
+    if (TempSummon const* tempSummon = summon->ToTempSummon())
+        if (tempSummon->IsVisibleBySummonerOnly() && playerToCheck != tempSummon->GetSummonerGUID())
+            return true;
+
+    return false;
+}
+
 void TempSummon::Update(uint32 diff)
 {
     Creature::Update(diff);
