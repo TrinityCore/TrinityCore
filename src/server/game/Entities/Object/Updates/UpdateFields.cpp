@@ -1129,7 +1129,7 @@ void UnitData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisi
 
 void UnitData::WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Unit const* owner, Player const* receiver) const
 {
-    Mask allowedMaskForTarget({ 0xFFFFDFFFu, 0xE1FF7FFFu, 0x001EFFFFu, 0xFBFFFF81u, 0x03F8007Fu, 0x00000000u });
+    Mask allowedMaskForTarget({ 0xFFFFDFFFu, 0xE1FF7FFFu, 0x001EFFFFu, 0xFFFFFF81u, 0x03F8007Fu, 0x00000000u });
     AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
     WriteUpdate(data, _changesMask & allowedMaskForTarget, false, owner, receiver);
 }
