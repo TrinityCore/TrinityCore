@@ -1834,7 +1834,7 @@ void Unit::CalcAbsorbResist(DamageInfo& damageInfo)
         absorbAurEff->GetBase()->CallScriptEffectAfterAbsorbHandlers(absorbAurEff, aurApp, damageInfo, tempAbsorb);
 
         // Check if our aura is using amount to count damage
-        if (absorbAurEff->GetAmount() >= 0)
+        if (absorbAurEff->GetAmount() > 0)
         {
             // Reduce shield amount
             absorbAurEff->ChangeAmount(absorbAurEff->GetAmount() - currentAbsorb);

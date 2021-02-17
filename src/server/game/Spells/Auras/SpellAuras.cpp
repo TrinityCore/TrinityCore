@@ -191,7 +191,7 @@ void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo
 
     // send stack amount for aura which could be stacked (never 0 - causes incorrect display) or charges
     // stack amount has priority over charges (checked on retail with spell 50262)
-    auraData.Applications = aura->GetSpellInfo()->StackAmount ? aura->GetStackAmount() : aura->GetCharges();
+    auraData.Applications = aura->GetMaxStackAmount() ? aura->GetStackAmount() : aura->GetCharges();
     if (!(auraData.Flags & AFLAG_NOCASTER))
         auraData.CastUnit = aura->GetCasterGUID();
 
@@ -924,12 +924,21 @@ void Aura::SetStackAmount(uint8 stackAmount)
     SetNeedClientUpdateForTargets();
 }
 
+uint32 Aura::GetMaxStackAmount() const
+{
+    int32 maxStackAmount = m_spellInfo->StackAmount;
+    if (Player* modOwner = GetCaster()->GetSpellModOwner())
+        modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_STACK_AMOUNT2, maxStackAmount);
+    return maxStackAmount;
+}
+
 bool Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode /*= AURA_REMOVE_BY_DEFAULT*/, bool resetPeriodicTimer /*= true*/)
 {
     int32 stackAmount = m_stackAmount + num;
+    int32 maxStackAmount = int32(GetMaxStackAmount());
 
     // limit the stack amount (only on stack increase, stack amount may be changed manually)
-    if ((num > 0) && (stackAmount > int32(m_spellInfo->StackAmount)))
+    if ((num > 0) && (stackAmount > maxStackAmount))
     {
         // not stackable aura - set stack amount to 1
         if (!m_spellInfo->StackAmount)
