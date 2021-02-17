@@ -69,7 +69,9 @@ enum DruidSpells
     SPELL_DRUID_RESTORATION_T10_2P_BONUS    = 70658,
     SPELL_DRUID_SUNFIRE_DAMAGE              = 164815,
     SPELL_DRUID_SURVIVAL_INSTINCTS          = 50322,
-    SPELL_DRUID_CAT_FORM                    = 768
+    SPELL_DRUID_CAT_FORM                    = 768,
+    SPELL_DRUID_SKULL_BASH_CHARGE           = 292598,
+    SPELL_DRUID_SKULL_BASH_INTERRUPT        = 292599,
 };
 
 // 1850 - Dash
@@ -1510,6 +1512,48 @@ public:
     }
 };
 
+// 106839 - Skull Bash
+class spell_dru_skull_bash : public SpellScript
+{
+    PrepareSpellScript(spell_dru_skull_bash);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_SKULL_BASH_CHARGE });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_DRUID_SKULL_BASH_CHARGE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dru_skull_bash::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 292598 - Skull Bash Charge - SPELL_DRUID_SKULL_BASH_CHARGE
+class spell_dru_skull_bash_charge : public SpellScript
+{
+    PrepareSpellScript(spell_dru_skull_bash_charge);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_SKULL_BASH_INTERRUPT });
+    }
+
+    void HandleCharge(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_DRUID_SKULL_BASH_INTERRUPT, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dru_skull_bash_charge::HandleCharge, EFFECT_0, SPELL_EFFECT_CHARGE);
+    }
+};
+
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_dash();
@@ -1541,4 +1585,6 @@ void AddSC_druid_spell_scripts()
     new spell_dru_t10_restoration_4p_bonus();
     new spell_dru_t10_restoration_4p_bonus_dummy();
     new spell_dru_wild_growth();
+    RegisterSpellScript(spell_dru_skull_bash);
+    RegisterSpellScript(spell_dru_skull_bash_charge);
 }
