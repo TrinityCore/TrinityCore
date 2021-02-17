@@ -644,7 +644,7 @@ namespace UF
                 field._value->ClearChangesMask();
         }
 
-        UpdateMask<Bits> _changesMask;
+        Mask _changesMask;
     };
 
     class UpdateFieldHolder
