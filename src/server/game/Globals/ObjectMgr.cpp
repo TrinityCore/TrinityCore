@@ -3446,7 +3446,7 @@ void ObjectMgr::LoadPlayerInfo()
             do
             {
                 Field* fields = result->Fetch();
-                Trinity::RaceMask<uint32> raceMask = { fields[0].GetUInt32() };
+                Trinity::RaceMask<uint64> raceMask = { fields[0].GetUInt64() };
                 uint32 classMask = fields[1].GetUInt32();
                 uint32 spellId = fields[2].GetUInt32();
 
@@ -3506,7 +3506,7 @@ void ObjectMgr::LoadPlayerInfo()
             do
             {
                 Field* fields       = result->Fetch();
-                Trinity::RaceMask<uint32> raceMask = { fields[0].GetUInt32() };
+                Trinity::RaceMask<uint64> raceMask = { fields[0].GetUInt64() };
                 uint32 classMask    = fields[1].GetUInt32();
                 uint32 spellId      = fields[2].GetUInt32();
 

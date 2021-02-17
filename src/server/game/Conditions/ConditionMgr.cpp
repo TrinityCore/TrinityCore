@@ -207,7 +207,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         case CONDITION_RACE:
         {
             if (Unit* unit = object->ToUnit())
-                condMeets = Trinity::RaceMask<uint32>{ ConditionValue1 }.HasRace(unit->getRace());
+                condMeets = Trinity::RaceMask<uint64>{ ConditionValue1 }.HasRace(unit->getRace());
             break;
         }
         case CONDITION_GENDER:
