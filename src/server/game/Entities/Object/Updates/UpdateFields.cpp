@@ -336,8 +336,9 @@ void ItemData::AppendAllowedFieldsMaskForFlag(Mask& allowedMaskForTarget, EnumFl
 
 void ItemData::FilterDisallowedFieldsMaskForFlag(Mask& changesMask, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags) const
 {
-    if (!fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Owner))
-        changesMask &= { 0xFC04E4FFu, 0xFFFFFFFFu };
+    Mask allowedMaskForTarget({ 0xFC04E4FFu, 0x000000FFu });
+    AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
+    changesMask &= allowedMaskForTarget;
 }
 
 void ItemData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignoreNestedChangesMask, Item const* owner, Player const* receiver) const
@@ -718,8 +719,9 @@ void AzeriteItemData::AppendAllowedFieldsMaskForFlag(Mask& allowedMaskForTarget,
 
 void AzeriteItemData::FilterDisallowedFieldsMaskForFlag(Mask& changesMask, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags) const
 {
-    if (!fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Owner))
-        changesMask &= { 0xFFFFFC1Du };
+    Mask allowedMaskForTarget({ 0x0000001Du });
+    AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
+    changesMask &= allowedMaskForTarget;
 }
 
 void AzeriteItemData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignoreNestedChangesMask, AzeriteItem const* owner, Player const* receiver) const
@@ -1144,12 +1146,9 @@ void UnitData::AppendAllowedFieldsMaskForFlag(Mask& allowedMaskForTarget, EnumFl
 
 void UnitData::FilterDisallowedFieldsMaskForFlag(Mask& changesMask, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags) const
 {
-    if (!fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Owner))
-        changesMask &= { 0xFFFFDFFFu, 0xE1FF7FFFu, 0x001EFFFFu, 0xFBFFFF81u, 0x03F8007Fu, 0xE0000000u };
-    if (!fieldVisibilityFlags.HasFlag(UpdateFieldFlag::UnitAll))
-        changesMask &= { 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFBFFFFFFu, 0xFFF8007Fu, 0xFFFFFFFFu };
-    if (!fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Empath))
-        changesMask &= { 0xFFFFFFFFu, 0xE1FFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFF807Fu };
+    Mask allowedMaskForTarget({ 0xFFFFDFFFu, 0xE1FF7FFFu, 0x001EFFFFu, 0xFFFFFF81u, 0x03F8007Fu, 0x00000000u });
+    AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
+    changesMask &= allowedMaskForTarget;
 }
 
 void UnitData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignoreNestedChangesMask, Unit const* owner, Player const* receiver) const
@@ -2165,8 +2164,9 @@ void PlayerData::AppendAllowedFieldsMaskForFlag(Mask& allowedMaskForTarget, Enum
 
 void PlayerData::FilterDisallowedFieldsMaskForFlag(Mask& changesMask, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags) const
 {
-    if (!fieldVisibilityFlags.HasFlag(UpdateFieldFlag::PartyMember))
-        changesMask &= { 0xFFFFFFEDu, 0x00000003u, 0x00000000u, 0x00000000u, 0x00000000u, 0xFFFFFFFFu };
+    Mask allowedMaskForTarget({ 0xFFFFFFEDu, 0x00000003u, 0x00000000u, 0x00000000u, 0x00000000u, 0x01FFFFFFu });
+    AppendAllowedFieldsMaskForFlag(allowedMaskForTarget, fieldVisibilityFlags);
+    changesMask &= allowedMaskForTarget;
 }
 
 void PlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignoreNestedChangesMask, Player const* owner, Player const* receiver) const
