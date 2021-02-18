@@ -91,7 +91,7 @@ class spell_love_is_in_the_air_romantic_picnic : public AuraScript
         for (std::list<Player*>::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
         {
             if (foundSomeone)
-                continue;
+                break;
 
             if (Player* playerFound = (*itr))
             {
