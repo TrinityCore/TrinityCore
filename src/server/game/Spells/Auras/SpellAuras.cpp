@@ -1831,8 +1831,13 @@ void Aura::TriggerProcOnEvent(uint32 procEffectMask, AuraApplication* aurApp, Pr
     }
 
     // Remove aura if we've used last charge to proc
-    if (IsUsingCharges() && !GetCharges())
-        Remove();
+    if (IsUsingCharges())
+    {
+        if (!GetCharges())
+            Remove();
+    }
+    else if (ASSERT_NOTNULL(sSpellMgr->GetSpellProcEntry(m_spellInfo))->AttributesMask & PROC_ATTR_USE_STACKS_FOR_CHARGES)
+        ModStackAmount(-1);
 }
 
 float Aura::CalcPPMProcChance(Unit* actor) const
