@@ -1873,8 +1873,13 @@ void Aura::TriggerProcOnEvent(uint8 procEffectMask, AuraApplication* aurApp, Pro
     }
 
     // Remove aura if we've used last charge to proc
-    if (IsUsingCharges() && !GetCharges())
-        Remove();
+    if (IsUsingCharges())
+    {
+        if (!GetCharges())
+            Remove();
+    }
+    else if (ASSERT_NOTNULL(sSpellMgr->GetSpellProcEntry(m_spellInfo->Id))->AttributesMask & PROC_ATTR_USE_STACKS_FOR_CHARGES)
+        ModStackAmount(-1);
 }
 
 void Aura::_DeleteRemovedApplications()
