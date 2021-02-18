@@ -1743,7 +1743,7 @@ class spell_dru_earthwarden : public AuraScript
         return ValidateSpellInfo({ SPELL_DRUID_THRASH_CAT, SPELL_DRUID_THRASH_BEAR, SPELL_DRUID_EARTHWARDEN_AURA });
     }
 
-    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
     {
         Unit* owner = GetUnitOwner();
         owner->CastSpell(owner, SPELL_DRUID_EARTHWARDEN_AURA, true);
