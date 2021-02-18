@@ -169,6 +169,7 @@ class boss_high_astromancer_solarian : public CreatureScript
             {
                 Talk(SAY_AGGRO);
                 BossAI::JustEngagedWith(who);
+                me->CallForHelp(120.0f);
             }
 
             void SummonMinion(uint32 entry, float x, float y, float z)
