@@ -4282,7 +4282,7 @@ void Spell::EffectLeapBack(SpellEffIndex /*effIndex*/)
         return;
 
     float speedxy = effectInfo->MiscValue / 10.f;
-    float speedz = damage / 10.f;
+    float speedz = damage / 5.0f;
     // Disengage
     unitTarget->JumpTo(speedxy, speedz, m_spellInfo->IconFileDataId != 132572);
 
