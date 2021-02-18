@@ -90,9 +90,6 @@ class spell_love_is_in_the_air_romantic_picnic : public AuraScript
         Cell::VisitWorldObjects(target, searcher, INTERACTION_DISTANCE * 2);
         for (std::list<Player*>::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
         {
-            if (foundSomeone)
-                break;
-
             if (Player* playerFound = (*itr))
             {
                 if (target != playerFound && playerFound->HasAura(GetId()))
@@ -100,6 +97,7 @@ class spell_love_is_in_the_air_romantic_picnic : public AuraScript
                     playerFound->CastSpell(playerFound, SPELL_ROMANTIC_PICNIC_ACHIEV, true);
                     target->CastSpell(target, SPELL_ROMANTIC_PICNIC_ACHIEV, true);
                     foundSomeone = true;
+                    break;
                 }
             }
         }
