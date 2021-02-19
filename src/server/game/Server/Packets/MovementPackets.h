@@ -39,14 +39,14 @@ namespace WorldPackets
             int32 AckIndex = 0;
         };
 
+        struct ShipTransferPending
+        {
+            uint32 ID = 0;              ///< gameobject_template.entry of the transport the player is teleporting on
+            int32 OriginMapID = -1;     ///< Map id the player is currently on (before teleport)
+        };
+
         class TransferPending final : public ServerPacket
         {
-            struct ShipTransferPending
-            {
-                uint32 ID = 0;              ///< gameobject_template.entry of the transport the player is teleporting on
-                int32 OriginMapID = -1;     ///< Map id the player is currently on (before teleport)
-            };
-
         public:
             TransferPending() : ServerPacket(SMSG_TRANSFER_PENDING, 12) { }
 

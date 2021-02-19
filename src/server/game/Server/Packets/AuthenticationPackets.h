@@ -106,19 +106,19 @@ namespace WorldPackets
             bool HasFCM = false; ///< true if the account has a forced character migration pending. @todo implement
         };
 
+        struct AuthSuccessInfo
+        {
+            uint32 TimeRemain = 0; ///< the remaining game time that the account has in seconds. It is not currently implemented and probably won't ever be.
+            uint32 TimeRested = 0; ///< affects the return value of the GetBillingTimeRested() client API call, it is the number of seconds you have left until the experience points and loot you receive from creatures and quests is reduced. It is only used in the Asia region in retail, it's not implemented in TC and will probably never be.
+            uint32 TimeSecondsUntilPCKick = 0; ///< @todo research
+            uint8 AccountExpansionLevel = 0; ///< the current expansion of this account, the possible values are in @ref Expansions
+            uint8 ActiveExpansionLevel = 0; ///< the current server expansion, the possible values are in @ref Expansions
+            uint8 TimeOptions = 0; ///< controls the behavior of the client regarding billing, used in Asia realms, as they don't have monthly subscriptions, possible values are in @ref BillingPlanFlags. It is not currently implemented and will probably never be.
+        };
+
         class AuthResponse final : public ServerPacket
         {
         public:
-            struct AuthSuccessInfo
-            {
-                uint32 TimeRemain = 0; ///< the remaining game time that the account has in seconds. It is not currently implemented and probably won't ever be.
-                uint32 TimeRested = 0; ///< affects the return value of the GetBillingTimeRested() client API call, it is the number of seconds you have left until the experience points and loot you receive from creatures and quests is reduced. It is only used in the Asia region in retail, it's not implemented in TC and will probably never be.
-                uint32 TimeSecondsUntilPCKick = 0; ///< @todo research
-                uint8 AccountExpansionLevel = 0; ///< the current expansion of this account, the possible values are in @ref Expansions
-                uint8 ActiveExpansionLevel = 0; ///< the current server expansion, the possible values are in @ref Expansions
-                uint8 TimeOptions = 0; ///< controls the behavior of the client regarding billing, used in Asia realms, as they don't have monthly subscriptions, possible values are in @ref BillingPlanFlags. It is not currently implemented and will probably never be.
-            };
-
             AuthResponse() : ServerPacket(SMSG_AUTH_RESPONSE) { }
 
             WorldPacket const* Write() override;
