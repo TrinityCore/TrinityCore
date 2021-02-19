@@ -12,7 +12,6 @@ add_subdirectory(threads)
 
 if(SERVERS OR TOOLS)
   add_subdirectory(boost)
-  add_subdirectory(process)
   add_subdirectory(zlib)
   add_subdirectory(bzip2)
   add_subdirectory(g3dlite)
