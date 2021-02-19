@@ -121,7 +121,21 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastData con
     data << uint32(spellCastData.CastTime);
 
     if (spellCastData.HitInfo)
+    {
+        // Hit and miss target counts are both uint8, that limits us to 255 targets for each
+        // sending more than 255 targets crashes the client (since count sent would be wrong)
+        // Spells like 40647 (with a huge radius) can easily reach this limit (spell might need
+        // target conditions but we still need to limit the number of targets sent and keeping
+        // correct count for both hit and miss).
+        static std::size_t const PACKET_TARGET_LIMIT = std::numeric_limits<uint8>::max();
+        if (spellCastData.HitInfo->HitTargets.size() > PACKET_TARGET_LIMIT)
+            spellCastData.HitInfo->HitTargets.resize(PACKET_TARGET_LIMIT);
+
+        if (spellCastData.HitInfo->MissStatus.size() > PACKET_TARGET_LIMIT)
+            spellCastData.HitInfo->MissStatus.resize(PACKET_TARGET_LIMIT);
+
         data << *spellCastData.HitInfo;
+    }
 
     data << spellCastData.Target;
 

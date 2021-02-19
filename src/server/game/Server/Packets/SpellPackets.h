@@ -109,7 +109,7 @@ namespace WorldPackets
             uint32 CastFlagsEx = 0;
             uint32 CastTime = 0;
             SpellTargetData Target;
-            Optional<SpellHitInfo> HitInfo;
+            mutable Optional<SpellHitInfo> HitInfo;
             Optional<uint8> DestLocSpellCastIndex;
             Optional<SpellHealPrediction> Predict;
             Optional<CreatureImmunities> Immunities;
