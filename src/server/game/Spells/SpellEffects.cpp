@@ -5543,7 +5543,7 @@ void Spell::EffectSummonPersonalGameObject(SpellEffIndex effIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
-    uint32 goId = effectInfo->MiscValue;
+    uint32 goId = m_spellInfo->Effects[effIndex].MiscValue;
     if (!goId)
         return;
 
@@ -5551,16 +5551,17 @@ void Spell::EffectSummonPersonalGameObject(SpellEffIndex effIndex)
     if (m_targets.HasDst())
         destTarget->GetPosition(x, y, z);
     else
-        m_caster->GetClosePoint(x, y, z, DEFAULT_PLAYER_BOUNDING_RADIUS);
+        m_caster->GetClosePoint(x, y, z, DEFAULT_WORLD_OBJECT_SIZE);
 
     Map* map = m_caster->GetMap();
     Position pos = Position(x, y, z, m_caster->GetOrientation());
     QuaternionData rot = QuaternionData::fromEulerAnglesZYX(m_caster->GetOrientation(), 0.f, 0.f);
-    GameObject* go = GameObject::CreateGameObject(goId, map, pos, rot, 255, GO_STATE_READY);
+    GameObject* go = new GameObject();
 
-    if (!go)
+    if (!go->Create(map->GenerateLowGuid<HighGuid::GameObject>(), goId, map, pos, rot, 255, GO_STATE_READY))
     {
         TC_LOG_WARN("spells", "SpellEffect Failed to summon personal gameobject. SpellId %u, effect %u", m_spellInfo->Id, effIndex);
+        delete go;
         return;
     }
 
