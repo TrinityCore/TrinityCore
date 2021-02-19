@@ -108,7 +108,7 @@ namespace Trinity::ChatCommands
         private:
             static constexpr std::array<char, sizeof...(chars)> _storage = { chars... };
             static_assert(!_storage.empty() && (_storage.back() == '\0'), "ExactSequence parameters must be null terminated! Use the EXACT_SEQUENCE macro to make this easier!");
-            static constexpr std::string_view _string = { _storage.data() };
+            static constexpr std::string_view _string = { _storage.data(), std::string_view::traits_type::length(_storage.data()) };
     };
 
 #define EXACT_SEQUENCE(str) Trinity::ChatCommands::ExactSequence<CHATCOMMANDS_IMPL_SPLIT_LITERAL(str)>
@@ -244,7 +244,8 @@ namespace Trinity::ChatCommands
 namespace Trinity::Impl
 {
     template <typename T>
-    struct CastToVisitor {
+    struct CastToVisitor
+    {
         template <typename U>
         T operator()(U const& v) const { return v; }
     };
@@ -273,7 +274,7 @@ namespace Trinity::ChatCommands
         }
 
         template<bool C = have_operators>
-        operator std::enable_if_t<C && std::is_convertible<first_type, size_t>::value, size_t>() const
+        operator std::enable_if_t<C && !std::is_same_v<first_type, size_t> && std::is_convertible_v<first_type, size_t>, size_t>() const
         {
             return operator*();
         }

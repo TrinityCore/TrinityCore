@@ -190,7 +190,6 @@ public:
             summons.Summon(summoned);
         }
 
-
         void KilledUnit(Unit* /*victim*/) override
         {
             Talk(SAY_KILL);

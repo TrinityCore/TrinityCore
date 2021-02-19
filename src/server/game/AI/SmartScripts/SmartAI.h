@@ -52,15 +52,31 @@ class TC_GAME_API SmartAI : public CreatureAI
         void StartPath(bool run = false, uint32 pathId = 0, bool repeat = false, Unit* invoker = nullptr, uint32 nodeId = 1);
         bool LoadPath(uint32 entry);
         void PausePath(uint32 delay, bool forced = false);
+        bool CanResumePath();
         void StopPath(uint32 DespawnTime = 0, uint32 quest = 0, bool fail = false);
         void EndPath(bool fail = false);
         void ResumePath();
-        bool HasEscortState(uint32 escortState) const { return (_escortState & escortState) != 0; }
-        void AddEscortState(uint32 escortState) { _escortState |= escortState; }
-        void RemoveEscortState(uint32 escortState) { _escortState &= ~escortState; }
-        void SetAutoAttack(bool on) { _canAutoAttack = on; }
+        bool HasEscortState(uint32 escortState) const
+        {
+            return (_escortState & escortState) != 0;
+        }
+        void AddEscortState(uint32 escortState)
+        {
+            _escortState |= escortState;
+        }
+        void RemoveEscortState(uint32 escortState)
+        {
+            _escortState &= ~escortState;
+        }
+        void SetAutoAttack(bool on)
+        {
+            _canAutoAttack = on;
+        }
         void SetCombatMove(bool on, bool stopMoving = false);
-        bool CanCombatMove() { return _canCombatMove; }
+        bool CanCombatMove()
+        {
+            return _canCombatMove;
+        }
         void SetFollow(Unit* target, float dist = 0.0f, float angle = 0.0f, uint32 credit = 0, uint32 end = 0, uint32 creditType = 0);
         void StopFollow(bool complete);
         bool IsEscortInvokerInRange();
@@ -70,7 +86,10 @@ class TC_GAME_API SmartAI : public CreatureAI
         void WaypointPathEnded(uint32 nodeId, uint32 pathId) override;
 
         void SetTimedActionList(SmartScriptHolder& e, uint32 entry, Unit* invoker);
-        SmartScript* GetScript() { return &_script; }
+        SmartScript* GetScript()
+        {
+            return &_script;
+        }
 
         // Called at reaching home after evade, InitializeAI(), EnterEvadeMode() for resetting variables
         void JustReachedHome() override;
@@ -171,7 +190,10 @@ class TC_GAME_API SmartAI : public CreatureAI
 
         void SetEvadeDisabled(bool disable = true);
 
-        void SetInvincibilityHpLevel(uint32 level) { _invincibilityHPLevel = level; }
+        void SetInvincibilityHpLevel(uint32 level)
+        {
+            _invincibilityHPLevel = level;
+        }
 
         bool OnGossipHello(Player* player) override;
         bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override;
@@ -185,15 +207,27 @@ class TC_GAME_API SmartAI : public CreatureAI
             _despawnTime = t;
             _despawnState = t ? 1 : 0;
         }
-        void StartDespawn() { _despawnState = 2; }
+        void StartDespawn()
+        {
+            _despawnState = 2;
+        }
 
         void OnSpellClick(Unit* clicker, bool spellClickHandled) override;
 
-        void SetWPPauseTimer(uint32 time) { _waypointPauseTimer = time; }
+        void SetWPPauseTimer(uint32 time)
+        {
+            _waypointPauseTimer = time;
+        }
 
-        void SetGossipReturn(bool val) { _gossipReturn = val; }
+        void SetGossipReturn(bool val)
+        {
+            _gossipReturn = val;
+        }
 
-        void SetEscortQuest(uint32 questID) { _escortQuestId = questID; }
+        void SetEscortQuest(uint32 questID)
+        {
+            _escortQuestId = questID;
+        }
 
     private:
         bool AssistPlayerInCombatAgainst(Unit* who);
@@ -253,8 +287,14 @@ class TC_GAME_API SmartGameObjectAI : public GameObjectAI
         void UpdateAI(uint32 diff) override;
         void InitializeAI() override;
         void Reset() override;
-        SmartScript* GetScript() { return &_script; }
-        static int32 Permissible(GameObject const* /*go*/) { return PERMIT_BASE_NO; }
+        SmartScript* GetScript()
+        {
+            return &_script;
+        }
+        static int32 Permissible(GameObject const* /*go*/)
+        {
+            return PERMIT_BASE_NO;
+        }
 
         bool OnGossipHello(Player* player) override;
         bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override;

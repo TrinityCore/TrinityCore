@@ -286,9 +286,9 @@ enum RBACPermissions
     // 418 previously used, do not reuse
     RBAC_PERM_COMMAND_LEARN_ALL_MY                           = 419,
     RBAC_PERM_COMMAND_LEARN_ALL_MY_CLASS                     = 420,
-    RBAC_PERM_COMMAND_LEARN_ALL_MY_PETTALENTS                = 421,
+    RBAC_PERM_COMMAND_LEARN_MY_PETTALENTS                    = 421,
     RBAC_PERM_COMMAND_LEARN_ALL_MY_SPELLS                    = 422,
-    RBAC_PERM_COMMAND_LEARN_ALL_MY_TALENTS                   = 423,
+    RBAC_PERM_COMMAND_LEARN_ALL_TALENTS                      = 423,
     RBAC_PERM_COMMAND_LEARN_ALL_GM                           = 424,
     RBAC_PERM_COMMAND_LEARN_ALL_CRAFTS                       = 425,
     RBAC_PERM_COMMAND_LEARN_ALL_DEFAULT                      = 426,
@@ -743,6 +743,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_LOOKUP_QUEST_ID                        = 877,
     // 878-879 previously used, do not reuse
     RBAC_PERM_COMMAND_PDUMP_COPY                             = 880,
+    RBAC_PERM_COMMAND_RELOAD_VEHICLE_TEMPLATE                = 881,
     //
     // IF YOU ADD NEW PERMISSIONS, ADD THEM IN MASTER BRANCH AS WELL!
     //

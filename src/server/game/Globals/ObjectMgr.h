@@ -428,9 +428,11 @@ struct TC_GAME_API InstanceSpawnGroupInfo
     enum
     {
         FLAG_ACTIVATE_SPAWN = 0x01,
-        FLAG_BLOCK_SPAWN = 0x02,
+        FLAG_BLOCK_SPAWN    = 0x02,
+        FLAG_ALLIANCE_ONLY  = 0x04,
+        FLAG_HORDE_ONLY     = 0x08,
 
-        FLAG_ALL = (FLAG_ACTIVATE_SPAWN | FLAG_BLOCK_SPAWN)
+        FLAG_ALL = (FLAG_ACTIVATE_SPAWN | FLAG_BLOCK_SPAWN | FLAG_ALLIANCE_ONLY | FLAG_HORDE_ONLY)
     };
     uint8 BossStateId;
     uint8 BossStates;
@@ -703,24 +705,17 @@ struct PlayerInfo
     std::unique_ptr<PlayerLevelInfo[]> levelInfo;
 };
 
-
 typedef std::multimap<int32, uint32> ExclusiveQuestGroups; // exclusiveGroupId -> quest
 typedef std::pair<ExclusiveQuestGroups::const_iterator, ExclusiveQuestGroups::const_iterator> ExclusiveQuestGroupsBounds;
 
 struct PetLevelInfo
 {
-    PetLevelInfo() : health(0), mana(0), armor(0), minDamage(0), maxDamage(0)
-    {
-        for (uint16& stat : stats)
-            stat = 0;
-    }
-
-    uint16 stats[MAX_STATS];
-    uint16 health;
-    uint16 mana;
-    uint32 armor;
-    uint16 minDamage;
-    uint16 maxDamage;
+    uint16 stats[MAX_STATS] = {};
+    uint16 health = 0;
+    uint16 mana = 0;
+    uint32 armor = 0;
+    uint16 minDamage = 0;
+    uint16 maxDamage = 0;
 };
 
 struct MailLevelReward
@@ -1120,6 +1115,7 @@ class TC_GAME_API ObjectMgr
 
         QuestPOIWrapper const* GetQuestPOIWrapper(uint32 questId) const;
 
+        VehicleTemplate const* GetVehicleTemplate(Vehicle* veh) const;
         VehicleAccessoryList const* GetVehicleAccessoryList(Vehicle* veh) const;
 
         DungeonEncounterList const* GetDungeonEncounterList(uint32 mapId, Difficulty difficulty) const;
@@ -1196,6 +1192,7 @@ class TC_GAME_API ObjectMgr
         void LoadInstanceEncounters();
         void LoadMailLevelRewards();
         void LoadVehicleTemplateAccessories();
+        void LoadVehicleTemplate();
         void LoadVehicleAccessories();
         void LoadVehicleSeatAddon();
 
@@ -1490,6 +1487,7 @@ class TC_GAME_API ObjectMgr
         bool DeleteGameTele(std::string_view name);
 
         Trainer::Trainer const* GetTrainer(uint32 creatureId) const;
+        std::vector<Trainer::Trainer const*> const& GetClassTrainers(uint8 classId) const { return _classTrainers.at(classId); }
 
         VendorItemData const* GetNpcVendorItemList(uint32 entry) const
         {
@@ -1642,6 +1640,7 @@ class TC_GAME_API ObjectMgr
 
         SpellScriptsContainer _spellScriptsStore;
 
+        std::unordered_map<uint32, VehicleTemplate> _vehicleTemplateStore;
         VehicleAccessoryContainer _vehicleTemplateAccessoryStore;
         VehicleAccessoryContainer _vehicleAccessoryStore;
 
@@ -1727,6 +1726,7 @@ class TC_GAME_API ObjectMgr
 
         CacheVendorItemContainer _cacheVendorItemStore;
         std::unordered_map<uint32, Trainer::Trainer> _trainers;
+        std::unordered_map<uint8, std::vector<Trainer::Trainer const*>> _classTrainers;
         std::unordered_map<uint32, Trainer::Trainer const*> _creatureDefaultTrainers;
 
         std::set<uint32> _difficultyEntries[MAX_DIFFICULTY - 1]; // already loaded difficulty 1 value in creatures, used in CheckCreatureTemplate

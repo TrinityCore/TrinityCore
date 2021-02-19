@@ -75,8 +75,6 @@ enum LadyVashj
 #define SPOREBAT_Z                  77.176567f
 #define SPOREBAT_O                  5.223932f
 
-
-
 #define TEXT_NOT_INITIALIZED          "Instance script not initialized"
 #define TEXT_ALREADY_DEACTIVATED      "Already deactivated"
 
@@ -610,7 +608,6 @@ public:
 
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
-
         void UpdateAI(uint32 diff) override
         {
             if (!VashjGUID)
@@ -854,12 +851,9 @@ public:
         {
             Initialize();
             me->SetDisplayId(11686); // invisible
-
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
 
         void MoveInLineOfSight(Unit* /*who*/) override { }
-
 
         void UpdateAI(uint32 diff) override
         {

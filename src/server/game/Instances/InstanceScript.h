@@ -42,8 +42,8 @@ namespace WorldPackets
 class AreaBoundary;
 class Creature;
 class GameObject;
+class InstanceMap;
 struct InstanceSpawnGroupInfo;
-class Map;
 class ModuleReference;
 class Player;
 class Unit;
@@ -155,11 +155,11 @@ typedef std::map<uint32 /*entry*/, uint32 /*type*/> ObjectInfoMap;
 class TC_GAME_API InstanceScript : public ZoneScript
 {
     public:
-        explicit InstanceScript(Map* map);
+        explicit InstanceScript(InstanceMap* map);
 
         virtual ~InstanceScript() { }
 
-        Map* instance;
+        InstanceMap* instance;
 
         // On instance load, exactly ONE of these methods will ALWAYS be called:
         // if we're starting without any saved instance data

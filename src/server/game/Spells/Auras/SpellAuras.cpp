@@ -300,7 +300,7 @@ uint8 Aura::BuildEffectMaskForOwner(SpellInfo const* spellProto, uint8 available
     return effMask & availableEffectMask;
 }
 
-Aura* Aura::TryRefreshStackOrCreate(AuraCreateInfo& createInfo)
+Aura* Aura::TryRefreshStackOrCreate(AuraCreateInfo& createInfo, bool updateEffectMask)
 {
     ASSERT_NODEBUGINFO(createInfo.Caster || createInfo.CasterGUID);
 
@@ -331,8 +331,9 @@ Aura* Aura::TryRefreshStackOrCreate(AuraCreateInfo& createInfo)
         Unit* unit = createInfo._owner->ToUnit();
 
         // check effmask on owner application (if existing)
-        if (AuraApplication* aurApp = foundAura->GetApplicationOfTarget(unit->GetGUID()))
-            aurApp->UpdateApplyEffectMask(effMask);
+        if (updateEffectMask)
+            if (AuraApplication* aurApp = foundAura->GetApplicationOfTarget(unit->GetGUID()))
+                aurApp->UpdateApplyEffectMask(effMask);
         return foundAura;
     }
     else
@@ -1037,7 +1038,7 @@ bool Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode /*= AURA_REMOVE_B
         return true;
     }
 
-    bool refresh = stackAmount >= GetStackAmount();
+    bool refresh = stackAmount >= GetStackAmount() && (m_spellInfo->StackAmount || !m_spellInfo->HasAttribute(SPELL_ATTR1_DONT_REFRESH_DURATION_ON_RECAST));
 
     // Update stack amount
     SetStackAmount(stackAmount);

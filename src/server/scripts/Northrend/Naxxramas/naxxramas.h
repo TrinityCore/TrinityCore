@@ -212,7 +212,6 @@ enum NAXInstanceTexts
     SAY_DIALOGUE_SAPPHIRON_LICH_KING2 = 2
 };
 
-
 template <class AI, class T>
 inline AI* GetNaxxramasAI(T* obj)
 {

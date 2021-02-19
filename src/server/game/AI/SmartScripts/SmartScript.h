@@ -56,6 +56,7 @@ class TC_GAME_API SmartScript
         uint32 GetPathId() const { return mPathId; }
         WorldObject* GetBaseObject() const;
         WorldObject* GetBaseObjectOrPlayerTrigger() const;
+        bool HasAnyEventWithFlag(uint32 flag) const { return mAllEventFlags & flag; }
         static bool IsUnit(WorldObject* obj);
         static bool IsPlayer(WorldObject* obj);
         static bool IsCreature(WorldObject* obj);
@@ -103,6 +104,7 @@ class TC_GAME_API SmartScript
 
         void SortEvents(SmartAIEventList& events);
         void RaisePriority(SmartScriptHolder& e);
+        void RetryLater(SmartScriptHolder& e, bool ignoreChanceRoll = false);
 
         SmartAIEventList mEvents;
         SmartAIEventList mInstallEvents;
@@ -129,6 +131,7 @@ class TC_GAME_API SmartScript
         uint32 mCurrentPriority;
         bool mEventSortingRequired;
         uint32 mNestedEventsCounter;
+        uint32 mAllEventFlags;
 
         // Max number of nested ProcessEventsFor() calls to avoid infinite loops
         static constexpr uint32 MAX_NESTED_EVENTS = 10;

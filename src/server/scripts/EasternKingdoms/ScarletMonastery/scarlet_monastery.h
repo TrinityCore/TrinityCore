@@ -19,11 +19,17 @@
 #define SCARLET_M_
 
 #include "CreatureAIImpl.h"
+#include "Position.h"
 
 #define SMScriptName "instance_scarlet_monastery"
 #define DataHeader "SM"
 
-uint32 const EncounterCount = 10;
+uint32 const EncounterCount = 9;
+
+extern Position const BunnySpawnPosition;
+extern Position const EarthBunnySpawnPosition;
+extern Position const HeadlessHorsemanSpawnPosition;
+extern Position const HeadlessHorsemanHeadSpawnPosition;
 
 enum SMDataTypes
 {
@@ -37,32 +43,52 @@ enum SMDataTypes
 
     DATA_AZSHIR,
     DATA_SCORN,
-    DATA_HORSEMAN_EVENT, // Last defined encounter
-
-    DATA_HEAD,
-    DATA_HORSEMAN,
     DATA_MOGRAINE,
     DATA_VORREL,
     DATA_WHITEMANE,
 
+    // Headless Horseman
+    DATA_HORSEMAN_HEAD,
+    DATA_HEADLESS_HORSEMAN,
     DATA_PUMPKIN_SHRINE,
     DATA_HIGH_INQUISITORS_DOOR,
+    DATA_LOOSELY_TURNED_SOIL,
+    DATA_START_HORSEMAN_EVENT,
+    DATA_FLAME_BUNNY,
+    DATA_EARTH_BUNNY,
+    DATA_HORSEMAN_EVENT_STATE,
+    DATA_PREPARE_RESET,
+    DATA_THOMAS
 };
 
 enum SMCreatureIds
 {
-    NPC_MOGRAINE = 3976,
-    NPC_WHITEMANE = 3977,
-    NPC_VORREL = 3981,
-    NPC_HORSEMAN = 23682,
-    NPC_HEAD = 23775,
-    NPC_PUMPKIN = 23694
+    NPC_MOGRAINE               = 3976,
+    NPC_WHITEMANE              = 3977,
+    NPC_VORREL                 = 3981,
+    NPC_HEADLESS_HORSEMAN      = 23682,
+    NPC_HEADLESS_HORSEMAN_HEAD = 23775,
+    NPC_PULSING_PUMPKIN        = 23694,
+    NPC_PUMPKIN_FIEND          = 23545,
+    NPC_FLAME_BUNNY            = 23686,
+    NPC_EARTH_BUNNY            = 23758,
+    NPC_SIR_THOMAS             = 23904
+};
+
+enum SMCreatureMisc
+{
+    SPELL_EARTH_EXPLOSION         = 42373,
+    EVENT_ACTIVE_EARTH_EXPLOSION  = 1,
+    EVENT_SPAWN_HEADLESS_HORSEMAN = 2,
+    EVENT_DESPAWN_OBJECTS         = 3,
+    ACTION_HORSEMAN_EVENT_START   = 101
 };
 
 enum SMGameObjectIds
 {
     GO_HIGH_INQUISITORS_DOOR = 104600,
-    GO_PUMPKIN_SHRINE = 186267
+    GO_PUMPKIN_SHRINE        = 186267,
+    GO_LOOSELY_TURNED_SOIL   = 186314
 };
 
 template <class AI, class T>

@@ -134,6 +134,7 @@ void AddSC_boss_palehoof();
 void AddSC_boss_skadi();
 void AddSC_boss_ymiron();
 void AddSC_instance_utgarde_pinnacle();
+void AddSC_utgarde_pinnacle();
 // Vault of Archavon
 void AddSC_boss_archavon();
 void AddSC_boss_emalon();
@@ -328,6 +329,7 @@ void AddNorthrendScripts()
     AddSC_boss_skadi();
     AddSC_boss_ymiron();
     AddSC_instance_utgarde_pinnacle();
+    AddSC_utgarde_pinnacle();
     // Vault of Archavon
     AddSC_boss_archavon();
     AddSC_boss_emalon();

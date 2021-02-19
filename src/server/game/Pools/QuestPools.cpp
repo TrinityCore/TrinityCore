@@ -292,5 +292,3 @@ bool QuestPoolMgr::IsQuestActive(uint32 questId) const
 
     return (it->second->activeQuests.find(questId) != it->second->activeQuests.end());
 }
-
-

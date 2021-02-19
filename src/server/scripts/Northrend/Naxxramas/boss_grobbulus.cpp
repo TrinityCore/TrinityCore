@@ -29,6 +29,7 @@ enum Spells
     SPELL_MUTATING_EXPLOSION    = 28206,
     SPELL_POISON_CLOUD          = 28240,
     SPELL_POISON_CLOUD_PASSIVE  = 28158,
+    SPELL_PACIFY_SELF           = 19951,
     SPELL_BERSERK               = 26662
 };
 
@@ -128,6 +129,7 @@ class npc_grobbulus_poison_cloud : public CreatureScript
             {
                 // no visual when casting in ctor or Reset()
                 DoCast(me, SPELL_POISON_CLOUD_PASSIVE, true);
+                DoCast(me, SPELL_PACIFY_SELF, true);
             }
 
             void UpdateAI(uint32 /*diff*/) override { }

@@ -173,8 +173,13 @@ void Trinity::Impl::ChatCommands::ChatCommandNode::SendCommandHelp(ChatHandler& 
     {
         if (std::holds_alternative<TrinityStrings>(_help))
             handler.SendSysMessage(std::get<TrinityStrings>(_help));
-        else
+        else if (std::holds_alternative<std::string>(_help))
             handler.SendSysMessage(std::get<std::string>(_help));
+        else
+        {
+            handler.PSendSysMessage(LANG_CMD_HELP_GENERIC, STRING_VIEW_FMT_ARG(_name));
+            handler.PSendSysMessage(LANG_CMD_NO_HELP_AVAILABLE, STRING_VIEW_FMT_ARG(_name));
+        }
     }
 
     bool header = false;
@@ -483,4 +488,3 @@ void Trinity::ChatCommands::InvalidateCommandMap() { Trinity::Impl::ChatCommands
 bool Trinity::ChatCommands::TryExecuteCommand(ChatHandler& handler, std::string_view cmd) { return Trinity::Impl::ChatCommands::ChatCommandNode::TryExecuteCommand(handler, cmd); }
 void Trinity::ChatCommands::SendCommandHelpFor(ChatHandler& handler, std::string_view cmd) { Trinity::Impl::ChatCommands::ChatCommandNode::SendCommandHelpFor(handler, cmd); }
 std::vector<std::string> Trinity::ChatCommands::GetAutoCompletionsFor(ChatHandler const& handler, std::string_view cmd) { return Trinity::Impl::ChatCommands::ChatCommandNode::GetAutoCompletionsFor(handler, cmd); }
-

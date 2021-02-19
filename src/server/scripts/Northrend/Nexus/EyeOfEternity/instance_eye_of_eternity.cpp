@@ -42,7 +42,7 @@ public:
 
     struct instance_eye_of_eternity_InstanceMapScript : public InstanceScript
     {
-        instance_eye_of_eternity_InstanceMapScript(Map* map) : InstanceScript(map)
+        instance_eye_of_eternity_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
         {
             SetHeaders(DataHeader);
             SetBossNumber(MAX_ENCOUNTER);
@@ -53,6 +53,12 @@ public:
         {
             if (GetBossState(DATA_MALYGOS_EVENT) == DONE)
                 player->CastSpell(player, SPELL_SUMMOM_RED_DRAGON_BUDDY, true);
+        }
+
+        void OnPlayerLeave(Player* player) override
+        {
+            if (!player->IsAlive())
+                player->SetControlled(false, UNIT_STATE_ROOT);
         }
 
         bool SetBossState(uint32 type, EncounterState state) override

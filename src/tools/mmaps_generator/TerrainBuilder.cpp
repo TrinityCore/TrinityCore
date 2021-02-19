@@ -425,7 +425,6 @@ namespace MMAP
                         useLiquid = false;
                 }
 
-
                 // if there is no terrain, don't use terrain
                 if (!ttriangles.size())
                     useTerrain = false;
