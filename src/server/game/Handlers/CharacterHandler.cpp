@@ -1483,11 +1483,6 @@ void WorldSession::HandleTutorialFlag(WorldPackets::Misc::TutorialSetFlag& packe
     }
 }
 
-void WorldSession::HandleSetWarMode(WorldPackets::Character::SetWarMode& packet)
-{
-    _player->SetWarModeDesired(packet.Enable);
-}
-
 void WorldSession::HandleSetWatchedFactionOpcode(WorldPackets::Character::SetWatchedFaction& packet)
 {
     GetPlayer()->SetWatchedFactionIndex(packet.FactionIndex);

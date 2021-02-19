@@ -29116,19 +29116,22 @@ void Player::SetWarModeDesired(bool enabled)
     UpdateWarModeAuras();
 }
 
-bool Player::IsInFactionFriendlyArea(AreaTableEntry const* inArea /* = nullptr */, AreaTableEntry const** outArea /* = nullptr */) const
+bool Player::IsInFactionFriendlyArea() const
 {
+    if (AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(GetAreaId()))
+        return IsInFactionFriendlyArea();
+    return false;
+}
+
+bool Player::IsInFactionFriendlyArea(AreaTableEntry const* inArea) const
+{
+    ASSERT(inArea != nullptr);
+
     FactionTemplateEntry const* factionTemplate = GetFactionTemplateEntry();
     if (!factionTemplate)
         return false;
 
-    AreaTableEntry const* area = inArea;
-    if (area == nullptr)
-        area = sAreaTableStore.LookupEntry(GetAreaId());
-    if (outArea)
-        *outArea = area;
-
-    if (!(factionTemplate->FriendGroup & area->FactionGroupMask))
+    if (!(factionTemplate->FriendGroup & inArea->FactionGroupMask))
         return false;
 
     return true;
@@ -29145,8 +29148,8 @@ void Player::SetWarModeLocal(bool enabled)
 
 bool Player::CanEnableWarModeInArea() const
 {
-    AreaTableEntry const* area;
-    if (!IsInFactionFriendlyArea(nullptr, &area))
+    AreaTableEntry const* area = sAreaTableStore.LookupEntry(GetAreaId());
+    if (!area || !IsInFactionFriendlyArea(area))
         return false;
 
     return area->Flags[1] & AREA_FLAG_2_CAN_ENABLE_WAR_MODE;
