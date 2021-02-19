@@ -421,7 +421,7 @@ class spell_pal_divine_storm : public SpellScript
         if (Unit* caster = GetCaster())
         {
             int32 heal = CalculatePct(GetHitDamage(), GetSpellInfo()->Effects[EFFECT_1].CalcValue(GetCaster()));
-            caster->CastSpell(caster, SPELL_PALADIN_DIVINE_STORM_DUMMY, CastSpellExtraArgs(true).AddSpellBP0(heal));
+            caster->CastSpell(caster, SPELL_PALADIN_DIVINE_STORM_DUMMY, CastSpellExtraArgs(true).AddSpellBP0(heal).AddSpellMod(SPELLVALUE_MAX_TARGETS, 3));
         }
     }
 
@@ -1973,6 +1973,20 @@ class spell_pal_tower_of_radiance : public AuraScript
     }
 };
 
+// 20165 - Seal of Insight
+class spell_pal_seal_of_insight : public AuraScript
+{
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        return (!eventInfo.GetSpellInfo() || !eventInfo.GetSpellInfo()->IsAffectingArea());
+    }
+
+    void Register() override
+    {
+        DoCheckProc.Register(&spell_pal_seal_of_insight::CheckProc);
+    }
+};
+
 void AddSC_paladin_spell_scripts()
 {
     RegisterSpellScript(spell_pal_ardent_defender);
@@ -2016,6 +2030,7 @@ void AddSC_paladin_spell_scripts()
     RegisterSpellScript(spell_pal_protector_of_the_innocent);
     new spell_pal_righteous_defense();
     RegisterSpellScript(spell_pal_sacred_shield);
+    RegisterSpellScript(spell_pal_seal_of_insight);
     RegisterSpellScript(spell_pal_seal_of_righteousness);
     RegisterSpellScript(spell_pal_seal_of_truth);
     new spell_pal_shield_of_the_righteous();
