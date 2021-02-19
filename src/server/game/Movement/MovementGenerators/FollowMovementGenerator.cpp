@@ -158,8 +158,8 @@ static void GetFollowOffsets(uint8 followerIndex, float& distance, float& relati
 FollowMovementGenerator::FollowMovementGenerator(Unit* target, Optional<float> distance, Optional<float> angle, bool joinFormation /*= true*/, bool catchUpToTarget /*= false*/, bool faceTarget /*= false*/) :
     AbstractPursuer(PursuingType::Follow, ASSERT_NOTNULL(target)), _joinFormation(joinFormation), _catchUpToTarget(catchUpToTarget), _faceTarget(faceTarget)
 {
-    _distance = distance ? distance.get() : 0.f;
-    _angle = angle ? angle.get() : 0.f;
+    _distance = distance ? distance.value() : 0.f;
+    _angle = angle ? angle.value() : 0.f;
 }
 
 FollowMovementGenerator::~FollowMovementGenerator() { }

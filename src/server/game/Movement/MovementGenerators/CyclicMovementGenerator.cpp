@@ -34,13 +34,13 @@ inline bool CanMove(Creature const* creature)
 
 CyclicMovementGenerator<Creature>::CyclicMovementGenerator(WaypointPath const* path, Optional<bool> enforceFlight, Optional<bool> enforceWalk, Optional<float> velocity) : _path(path), _stalled(false), _moveTimer(0)
 {
-    if (enforceFlight.is_initialized())
+    if (enforceFlight.has_value())
         _enforceFlight = *enforceFlight;
 
-    if (enforceWalk.is_initialized())
+    if (enforceWalk.has_value())
         _enforceWalk = *enforceWalk;
 
-    if (velocity.is_initialized())
+    if (velocity.has_value())
         _velocity = *velocity;
 }
 
@@ -122,13 +122,13 @@ void CyclicMovementGenerator<Creature>::StartMovement(Creature* creature)
         return G3D::Vector3(node.X, node.Y, node.Z);
     });
 
-    if (flying || (_enforceFlight.is_initialized() && *_enforceFlight))
+    if (flying || (_enforceFlight.has_value() && *_enforceFlight))
     {
         init.SetFly();
         init.SetUncompressed();
     }
 
-    if (_velocity.is_initialized())
+    if (_velocity.has_value())
         init.SetVelocity(*_velocity);
     else
     {
@@ -137,7 +137,7 @@ void CyclicMovementGenerator<Creature>::StartMovement(Creature* creature)
             init.SetVelocity(velocity);
     }
 
-    if (_enforceWalk.is_initialized())
+    if (_enforceWalk.has_value())
         init.SetWalk(*_enforceWalk);
 
     init.MovebyPath(path);

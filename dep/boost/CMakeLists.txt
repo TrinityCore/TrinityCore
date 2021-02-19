@@ -77,9 +77,6 @@ target_compile_definitions(boost
     -DBOOST_DATE_TIME_NO_LIB
     -DBOOST_REGEX_NO_LIB
     -DBOOST_CHRONO_NO_LIB
-	# Due to MSVC linking error boost::none" already defined in scripts_...
-    # May be removed when the requirement is raised to boost 1.61 on windows.
-    -DBOOST_OPTIONAL_USE_OLD_DEFINITION_OF_NONE
     -DBOOST_SERIALIZATION_NO_LIB
     -DBOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE
     -DBOOST_ASIO_NO_DEPRECATED

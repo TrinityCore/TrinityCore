@@ -169,7 +169,7 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
         _nextMovementTimer.Reset(CHASE_MOVEMENT_INTERVAL);
 
         // Target has moved since we last checked its position. Handle new cases
-        if (!_lastTargetPosition || target->GetPosition() != _lastTargetPosition.get())
+        if (!_lastTargetPosition || target->GetPosition() != _lastTargetPosition.value())
         {
             // Create new snapshot of our target's position
             _lastTargetPosition = target->GetPosition();

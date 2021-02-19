@@ -353,7 +353,7 @@ void MotionMaster::MoveLand(uint32 id, Position const& pos, Optional<float> velo
     init.SetFly();
     init.SetAnimation(AnimationTier::Ground);
     if (velocity)
-        init.SetVelocity(velocity.get());
+        init.SetVelocity(velocity.value());
     Mutate(new GenericMovementGenerator(std::move(init), EFFECT_MOTION_TYPE, id), MOTION_SLOT_ACTIVE);
 }
 
@@ -367,7 +367,7 @@ void MotionMaster::MoveTakeoff(uint32 id, Position const& pos, Optional<float> v
     init.SetFly();
     init.SetAnimation(AnimationTier::Hover);
     if (velocity)
-        init.SetVelocity(velocity.get());
+        init.SetVelocity(velocity.value());
     Mutate(new GenericMovementGenerator(std::move(init), EFFECT_MOTION_TYPE, id), MOTION_SLOT_ACTIVE);
 }
 

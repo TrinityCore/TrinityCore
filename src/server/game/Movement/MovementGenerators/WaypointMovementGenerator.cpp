@@ -215,7 +215,7 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* creature, bool rel
             init.MoveTo(waypoint.X, waypoint.Y, waypoint.Z);
     }
 
-    if (waypoint.Orientation.is_initialized() && waypoint.Delay > 0)
+    if (waypoint.Orientation.has_value() && waypoint.Delay > 0)
         init.SetFacing(*waypoint.Orientation);
 
     switch (waypoint.MoveType)

@@ -314,7 +314,7 @@ namespace VMAP
             int32 adtId, rootId, groupId;
             uint32 flags;
             if (getAreaInfo(mapId, x, y, data.floorZ, flags, adtId, rootId, groupId))
-                data.areaInfo = boost::in_place(adtId, rootId, groupId, flags);
+                data.areaInfo.emplace(adtId, rootId, groupId, flags);
             return;
         }
         auto instanceTree = GetMapTree(mapId);
@@ -331,10 +331,10 @@ namespace VMAP
                 float liquidLevel;
                 if (!reqLiquidType || (GetLiquidFlagsPtr(liquidType) & reqLiquidType))
                     if (info.hitInstance->GetLiquidLevel(pos, info, liquidLevel))
-                        data.liquidInfo = boost::in_place(liquidType, liquidLevel);
+                        data.liquidInfo.emplace(liquidType, liquidLevel);
 
                 if (!IsVMAPDisabledForPtr(mapId, VMAP_DISABLE_AREAFLAG))
-                    data.areaInfo = boost::in_place(info.hitInstance->adtId, info.rootId, info.hitModel->GetWmoID(), info.hitModel->GetMogpFlags());
+                    data.areaInfo.emplace(info.hitInstance->adtId, info.rootId, info.hitModel->GetWmoID(), info.hitModel->GetMogpFlags());
             }
         }
     }

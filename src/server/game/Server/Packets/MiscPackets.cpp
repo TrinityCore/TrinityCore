@@ -24,10 +24,10 @@ WorldPacket const* WorldPackets::Misc::SetupCurrency::Write()
 
     for (Record const& data : Data)
     {
-        _worldPacket.WriteBit(data.WeeklyQuantity.is_initialized());
+        _worldPacket.WriteBit(data.WeeklyQuantity.has_value());
         _worldPacket.WriteBits(data.Flags, 4);
-        _worldPacket.WriteBit(data.MaxWeeklyQuantity.is_initialized());
-        _worldPacket.WriteBit(data.TrackedQuantity.is_initialized());
+        _worldPacket.WriteBit(data.MaxWeeklyQuantity.has_value());
+        _worldPacket.WriteBit(data.TrackedQuantity.has_value());
     }
 
     _worldPacket.FlushBits();
@@ -36,14 +36,14 @@ WorldPacket const* WorldPackets::Misc::SetupCurrency::Write()
     {
         _worldPacket << uint32(data.Quantity);
 
-        if (data.MaxWeeklyQuantity.is_initialized())
+        if (data.MaxWeeklyQuantity.has_value())
             _worldPacket << uint32(*data.MaxWeeklyQuantity);
-        if (data.TrackedQuantity.is_initialized())
+        if (data.TrackedQuantity.has_value())
             _worldPacket << uint32(*data.TrackedQuantity);
 
         _worldPacket << uint32(data.Type);
 
-        if (data.WeeklyQuantity.is_initialized())
+        if (data.WeeklyQuantity.has_value())
             _worldPacket << uint32(*data.WeeklyQuantity);
     }
 
@@ -351,9 +351,9 @@ WorldPacket const* WorldPackets::Misc::BindPointUpdate::Write()
 
 WorldPacket const* WorldPackets::Misc::WorldServerInfo::Write()
 {
-    _worldPacket.WriteBit(RestrictedAccountMaxLevel.is_initialized());
-    _worldPacket.WriteBit(RestrictedAccountMaxMoney.is_initialized());
-    _worldPacket.WriteBit(IneligibleForLootMask.is_initialized());
+    _worldPacket.WriteBit(RestrictedAccountMaxLevel.has_value());
+    _worldPacket.WriteBit(RestrictedAccountMaxMoney.has_value());
+    _worldPacket.WriteBit(IneligibleForLootMask.has_value());
     _worldPacket.FlushBits();
 
     if (IneligibleForLootMask)

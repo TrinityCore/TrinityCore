@@ -5173,7 +5173,7 @@ void Unit::SendAttackStateUpdate(CalcDamageInfo* damageInfo)
     int32 overkill = damageInfo->damage - damageInfo->target->GetHealth();
     packet.OverDamage = (overkill < 0 ? -1 : overkill);
 
-    packet.SubDmg = boost::in_place();
+    packet.SubDmg.emplace();
     packet.SubDmg->SchoolMask = damageInfo->damageSchoolMask;   // School of sub damage
     packet.SubDmg->FDamage = damageInfo->damage;                // sub damage
     packet.SubDmg->Damage = damageInfo->damage;                 // Sub Damage
@@ -7688,7 +7688,7 @@ bool Unit::IsImmunedToSpell(SpellInfo const* spellInfo, Unit* caster, Optional<u
         if (!spellInfo->Effects[i].IsEffect())
             continue;
 
-        if (effectMask && !(effectMask.get() & (1 << i)))
+        if (effectMask && !(effectMask.value() & (1 << i)))
             continue;
 
         if (!IsImmunedToSpellEffect(spellInfo, i, caster))

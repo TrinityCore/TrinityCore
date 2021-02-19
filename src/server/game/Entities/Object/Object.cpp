@@ -1261,7 +1261,7 @@ void WorldObject::ProcessPositionDataChanged(PositionFullTerrainStatus const& da
     m_outdoors = data.outdoors;
     m_staticFloorZ = data.floorZ;
     m_liquidStatus = data.liquidStatus;
-    m_wmoGroupID = data.areaInfo.is_initialized() ? data.areaInfo->groupId : 0;
+    m_wmoGroupID = data.areaInfo.has_value() ? data.areaInfo->groupId : 0;
 }
 
 void WorldObject::AddToWorld()

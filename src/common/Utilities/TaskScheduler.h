@@ -23,6 +23,7 @@
 #include "Random.h"
 #include <algorithm>
 #include <chrono>
+#include <functional>
 #include <vector>
 #include <queue>
 #include <memory>
@@ -83,7 +84,7 @@ class TC_COMMON_API TaskScheduler
 
         // Minimal Argument construct
         Task(timepoint_t const& end, duration_t const& duration, task_handler_t const& task)
-            : _end(end), _duration(duration), _group(boost::none), _repeated(0), _task(task) { }
+            : _end(end), _duration(duration), _group(std::nullopt), _repeated(0), _task(task) { }
 
         // Copy construct
         Task(Task const&) = delete;

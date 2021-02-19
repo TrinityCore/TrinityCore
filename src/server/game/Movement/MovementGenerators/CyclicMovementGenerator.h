@@ -20,7 +20,7 @@
 
 #include "MovementGenerator.h"
 #include "Timer.h"
-#include "OptionalFwd.h"
+#include "Optional.h"
 
 enum MovementGeneratorType : uint8;
 

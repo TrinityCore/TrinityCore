@@ -25,7 +25,7 @@ void WorldSession::SendAuthResponse(uint8 code, bool queued, uint32 queuePos)
 
     if (code == AUTH_OK)
     {
-        response.SuccessInfo = boost::in_place();
+        response.SuccessInfo.emplace();
 
         response.SuccessInfo->AccountExpansionLevel = GetAccountExpansion();
         response.SuccessInfo->ActiveExpansionLevel = GetExpansion();
@@ -33,7 +33,7 @@ void WorldSession::SendAuthResponse(uint8 code, bool queued, uint32 queuePos)
 
     if (queued)
     {
-        response.WaitInfo = boost::in_place();
+        response.WaitInfo.emplace();
         response.WaitInfo->WaitCount = queuePos;
     }
 

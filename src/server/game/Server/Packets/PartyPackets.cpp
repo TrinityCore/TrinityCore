@@ -145,7 +145,7 @@ void WorldPackets::Party::PartyMemberState::Initialize(Player const* player)
     {
         ::Pet* pet = player->GetPet();
 
-        MemberStats.PetStats = boost::in_place();
+        MemberStats.PetStats.emplace();
 
         MemberStats.PetStats->GUID = pet->GetGUID();
         MemberStats.PetStats->Name = pet->GetName();
@@ -259,7 +259,7 @@ WorldPacket const* WorldPackets::Party::PartyMemberState::Write()
             _worldPacket << aura;
     }
 
-    if (MemberStats.PetStats.is_initialized())
+    if (MemberStats.PetStats.has_value())
     {
         if (ChangeMask & GROUP_UPDATE_FLAG_PET_GUID)
             _worldPacket << MemberStats.PetStats->GUID;
@@ -290,10 +290,10 @@ WorldPacket const* WorldPackets::Party::PartyMemberState::Write()
     if (ChangeMask & GROUP_UPDATE_FLAG_PET_AURAS)
     {
         _worldPacket << uint8(_worldPacket.GetOpcode() == SMSG_PARTY_MEMBER_FULL_STATE);
-        _worldPacket << uint64(MemberStats.PetStats.is_initialized() ? MemberStats.PetStats->AuraMask : 0);
-        _worldPacket << uint32(MemberStats.PetStats.is_initialized() ? MemberStats.PetStats->Auras.size() : 0);
+        _worldPacket << uint64(MemberStats.PetStats.has_value() ? MemberStats.PetStats->AuraMask : 0);
+        _worldPacket << uint32(MemberStats.PetStats.has_value() ? MemberStats.PetStats->Auras.size() : 0);
 
-        if (MemberStats.PetStats.is_initialized())
+        if (MemberStats.PetStats.has_value())
             for (WorldPackets::Party::PartyMemberAuraStates const& aura : MemberStats.PetStats->Auras)
                 _worldPacket << aura;
     }

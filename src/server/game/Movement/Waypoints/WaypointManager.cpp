@@ -57,7 +57,7 @@ void WaypointMgr::Load()
         waypoint.X = x;
         waypoint.Y = y;
         waypoint.Z = z;
-        if (o.is_initialized())
+        if (o.has_value())
             waypoint.Orientation = o;
         waypoint.Velocity = velocity;
         waypoint.MoveType = fields[7].GetUInt32();
@@ -181,7 +181,7 @@ void WaypointMgr::ReloadPath(uint32 id)
         waypoint.X = x;
         waypoint.Y = y;
         waypoint.Z = z;
-        if (o.is_initialized())
+        if (o.has_value())
             waypoint.Orientation = o;
         waypoint.Velocity = velocity;
         waypoint.MoveType = fields[6].GetUInt32();

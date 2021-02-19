@@ -123,7 +123,7 @@ public:
 
         void OnPlayerEnter(Player* player) override
         {
-            if (!_teamInInstance.is_initialized())
+            if (!_teamInInstance.has_value())
             {
                 _teamInInstance = player->GetTeam();
 

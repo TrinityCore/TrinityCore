@@ -111,12 +111,12 @@ void WorldPackets::Auth::AuthSession::Read()
 
 WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
 {
-    _worldPacket.WriteBit(WaitInfo.is_initialized());
+    _worldPacket.WriteBit(WaitInfo.has_value());
 
     if (WaitInfo)
         _worldPacket.WriteBit(WaitInfo->HasFCM);
 
-    _worldPacket.WriteBit(SuccessInfo.is_initialized());
+    _worldPacket.WriteBit(SuccessInfo.has_value());
     _worldPacket.FlushBits();
 
     if (SuccessInfo)

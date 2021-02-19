@@ -881,7 +881,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
     bool europaTicketSystemEnabled = sWorld->getBoolConfig(CONFIG_ALLOW_BUG_REPORTS_AND_SUGGESTIONS);
     if (europaTicketSystemEnabled)
     {
-        features.EuropaTicketSystemStatus = boost::in_place();
+        features.EuropaTicketSystemStatus.emplace();
         features.EuropaTicketSystemStatus->TryCount = 1;
         features.EuropaTicketSystemStatus->LastResetTimeBeforeNow = 264134872; // Pulled from sniff data
         features.EuropaTicketSystemStatus->PerMilliseconds = 10;

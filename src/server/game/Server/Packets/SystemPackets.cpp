@@ -28,8 +28,8 @@ WorldPacket const* WorldPackets::System::FeatureSystemStatus::Write()
     _worldPacket.WriteBit(ItemRestorationButtonEnabled);
     _worldPacket.WriteBit(TravelPassEnabled);
     _worldPacket.WriteBit(ScrollOfResurrectionEnabled);
-    _worldPacket.WriteBit(EuropaTicketSystemStatus.is_initialized());
-    _worldPacket.WriteBit(SessionAlert.is_initialized());
+    _worldPacket.WriteBit(EuropaTicketSystemStatus.has_value());
+    _worldPacket.WriteBit(SessionAlert.has_value());
     _worldPacket.WriteBit(VoiceEnabled);
     _worldPacket.FlushBits();
 

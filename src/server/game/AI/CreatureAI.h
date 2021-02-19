@@ -196,7 +196,7 @@ class TC_GAME_API CreatureAI : public UnitAI
         /// == Gossip system ================================
 
         // Called when the dialog status between a player and the creature is requested.
-        virtual Optional<QuestGiverStatus> GetDialogStatus(Player* /*player*/) { return boost::none; }
+        virtual Optional<QuestGiverStatus> GetDialogStatus(Player* /*player*/) { return std::nullopt; }
 
         // Called when a player opens a gossip dialog with the creature.
         virtual bool GossipHello(Player* /*player*/) { return false; }

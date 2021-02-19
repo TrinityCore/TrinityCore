@@ -25,7 +25,7 @@ WorldPacket const* WorldPackets::CombatLog::AttackerStateUpdate::Write()
     _worldPacket << VictimGUID.WriteAsPacked();
     _worldPacket << int32(Damage);
     _worldPacket << int32(OverDamage);
-    _worldPacket << uint8(SubDmg.is_initialized());
+    _worldPacket << uint8(SubDmg.has_value());
 
     if (SubDmg)
     {

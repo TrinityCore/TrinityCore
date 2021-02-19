@@ -2174,7 +2174,7 @@ bool Creature::IsImmunedToSpell(SpellInfo const* spellInfo, Unit* caster, Option
         if (!spellInfo->Effects[i].IsEffect())
             continue;
 
-        if (effectMask && !(effectMask.get() & (1 << i)))
+        if (effectMask && !(effectMask.value() & (1 << i)))
             continue;
 
         if (!IsImmunedToSpellEffect(spellInfo, i, caster))

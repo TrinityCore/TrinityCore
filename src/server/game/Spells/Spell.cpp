@@ -189,7 +189,7 @@ void SpellCastTargets::Write(WorldPackets::Spells::SpellTargetData& data)
 
     if (m_targetMask & TARGET_FLAG_SOURCE_LOCATION)
     {
-        data.SrcLocation = boost::in_place();
+        data.SrcLocation.emplace();
         data.SrcLocation->Transport = m_src._transportGUID; // relative position guid here - transport for example
         if (!m_src._transportGUID.IsEmpty())
             data.SrcLocation->Location = m_src._transportOffset;
@@ -199,7 +199,7 @@ void SpellCastTargets::Write(WorldPackets::Spells::SpellTargetData& data)
 
     if (m_targetMask & TARGET_FLAG_DEST_LOCATION)
     {
-        data.DstLocation = boost::in_place();
+        data.DstLocation.emplace();
         data.DstLocation->Transport = m_dst._transportGUID; // relative position guid here - transport for example
         if (!m_dst._transportGUID.IsEmpty())
             data.DstLocation->Location = m_dst._transportOffset;
@@ -4325,7 +4325,7 @@ void Spell::SendSpellStart()
 
     if (castFlags & CAST_FLAG_RUNE_LIST)                   // rune cooldowns list
     {
-        castData.RemainingRunes = boost::in_place();
+        castData.RemainingRunes.emplace();
 
         //TODO: There is a crash caused by a spell with CAST_FLAG_RUNE_LIST casted by a creature
         //The creature is the mover of a player, so HandleCastSpellOpcode uses it as the caster
@@ -4352,13 +4352,13 @@ void Spell::SendSpellStart()
 
     if (castFlags & CAST_FLAG_PROJECTILE)
     {
-        castData.Ammo = boost::in_place();
+        castData.Ammo.emplace();
         UpdateSpellCastDataAmmo(*castData.Ammo);
     }
 
     if (castFlags & CAST_FLAG_IMMUNITY)
     {
-        castData.Immunities = boost::in_place();
+        castData.Immunities.emplace();
         castData.Immunities->School = schoolImmunityMask;
         castData.Immunities->Value = mechanicImmunityMask;
     }
@@ -4378,7 +4378,7 @@ void Spell::SendSpellStart()
             }
         }
 
-        castData.Predict = boost::in_place();
+        castData.Predict.emplace();
         castData.Predict->Points = amount;
         castData.Predict->Type = predictionType;
         castData.Predict->BeaconGUID = m_caster->GetGUID();
@@ -4443,13 +4443,13 @@ void Spell::SendSpellGo()
     castData.CastFlagsEx = m_castFlagsEx;
     castData.CastTime = GameTime::GetGameTimeMS();
 
-    castData.HitInfo = boost::in_place();
+    castData.HitInfo.emplace();
     UpdateSpellCastDataTargets(*castData.HitInfo);
     m_targets.Write(castData.Target);
 
     if (castFlags & CAST_FLAG_PROJECTILE)
     {
-        castData.Ammo = boost::in_place();
+        castData.Ammo.emplace();
         UpdateSpellCastDataAmmo(*castData.Ammo);
     }
 
@@ -4458,7 +4458,7 @@ void Spell::SendSpellGo()
 
     if (castFlags & CAST_FLAG_RUNE_LIST)                   // rune cooldowns list
     {
-        castData.RemainingRunes = boost::in_place();
+        castData.RemainingRunes.emplace();
 
         /// @todo There is a crash caused by a spell with CAST_FLAG_RUNE_LIST cast by a creature
         //The creature is the mover of a player, so HandleCastSpellOpcode uses it as the caster
@@ -4484,14 +4484,14 @@ void Spell::SendSpellGo()
 
     if (castFlags & CAST_FLAG_ADJUST_MISSILE)
     {
-        castData.MissileTrajectory = boost::in_place();
+        castData.MissileTrajectory.emplace();
         castData.MissileTrajectory->TravelTime = m_delayMoment;
         castData.MissileTrajectory->Pitch = m_targets.GetElevation();
     }
 
     if (castFlags & CAST_FLAG_VISUAL_CHAIN)
     {
-        castData.ProjectileVisuals = boost::in_place();
+        castData.ProjectileVisuals.emplace();
         /*
         castData.ProjectileVisuals->Id[0] = 0;
         castData.ProjectileVisuals->Id[1] = 0;
@@ -4845,7 +4845,7 @@ void Spell::SendChannelStart(uint32 duration)
 
     if (castFlags & CAST_FLAG_IMMUNITY)
     {
-        packet.InterruptImmunities = boost::in_place();
+        packet.InterruptImmunities.emplace();
         packet.InterruptImmunities->SchoolImmunities = schoolImmunityMask; // CastSchoolImmunities
         packet.InterruptImmunities->SchoolImmunities = mechanicImmunityMask; // CastImmunities
     }
