@@ -24,6 +24,7 @@
 #include "Optional.h"
 #include "SharedDefines.h"
 #include "Position.h"
+#include <array>
 
 enum WeatherState : uint32;
 

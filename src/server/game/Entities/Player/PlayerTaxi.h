@@ -22,6 +22,7 @@
 #include "Define.h"
 #include <deque>
 #include <iosfwd>
+#include <string>
 
 class ByteBuffer;
 
