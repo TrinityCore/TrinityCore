@@ -22,6 +22,7 @@
 #include "AchievementMgr.h"
 #include "DatabaseEnvFwd.h"
 #include "ObjectGuid.h"
+#include "RaceMask.h"
 #include "SharedDefines.h"
 #include <unordered_map>
 
@@ -252,7 +253,7 @@ struct GuildReward
 {
     uint32 ItemID;
     uint8 MinGuildRep;
-    uint64 RaceMask;
+    Trinity::RaceMask<uint64> RaceMask;
     uint64 Cost;
     std::vector<uint32> AchievementsRequired;
 };
