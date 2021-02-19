@@ -1547,40 +1547,6 @@ public:
     }
 };
 
-// 22568 - Ferocious Bite
-class spell_dru_ferocious_bite : public SpellScript
-{
-    PrepareSpellScript(spell_dru_ferocious_bite);
-
-    void HandleHitTarget(SpellEffIndex /*effIndex*/)
-    {
-        SpellEffectInfo const* eff1 = GetEffectInfo();
-        if (eff1->BasePoints == 0 || eff1->MiscValue < 0)
-            return;
-
-        // Prevent default action for power burn; we'll do it
-        PreventHitDefaultEffect(EFFECT_1);
-
-        // Calculate damage as the effect will do
-        int32 dmg = GetHitDamage();
-
-        Unit* caster = GetCaster();
-        int32 powerGain = caster->ModifyPower(Powers(eff1->MiscValue), -eff1->BasePoints);
-
-        // power gain is in the range of [0..25]. At 25 you get 100% extra damage
-        float ratio = -(float)powerGain / eff1->BasePoints; // map from [0..BasePoints] to [0..1]
-        dmg *= 1.0f + ratio;
-
-        // Set the damage to m_damage on spell
-        SetHitDamage((int32)dmg);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_dru_ferocious_bite::HandleHitTarget, EFFECT_1, SPELL_EFFECT_POWER_BURN);
-    }
-};
-
 // 99 - Incapacitating Roar
 class spell_dru_incapacitating_roar : public spell_dru_base_transformer
 {
@@ -1631,7 +1597,7 @@ protected:
     bool ToCatForm() const override { return false; }
 };
 
-// 203953 Brambles - SPELL_DRUID_BRAMBLES_PASSIVE
+// 203953 - Brambles - SPELL_DRUID_BRAMBLES_PASSIVE
 class spell_dru_brambles : public AuraScript
 {
     PrepareAuraScript(spell_dru_brambles);
@@ -1644,9 +1610,9 @@ class spell_dru_brambles : public AuraScript
     void AfterAbsorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
     {
         // reflect back damage to the attacker
-        Unit* owner = GetUnitOwner();
+        Unit* target = GetTarget();
         if (Unit* attacker = dmgInfo.GetAttacker())
-            owner->CastCustomSpell(SPELL_DRUID_BRAMBLES_REFLECT, SPELLVALUE_BASE_POINT0, absorbAmount, attacker, TRIGGERED_FULL_MASK);
+            target->CastCustomSpell(SPELL_DRUID_BRAMBLES_REFLECT, SPELLVALUE_BASE_POINT0, absorbAmount, attacker, TRIGGERED_FULL_MASK);
     }
 
     void Register() override
@@ -1655,7 +1621,7 @@ class spell_dru_brambles : public AuraScript
     }
 };
 
-// 155835 Bristling Fur
+// 155835 - Bristling Fur
 class spell_dru_bristling_fur : public AuraScript
 {
     PrepareAuraScript(spell_dru_bristling_fur);
@@ -1670,10 +1636,10 @@ class spell_dru_bristling_fur : public AuraScript
         // BristlingFurRage = 100 * Damage / MaxHealth.
         if (DamageInfo* damageInfo = eventInfo.GetDamageInfo())
         {
-            Unit* owner = GetUnitOwner();
-            uint32 rage = 100.0f * (float)damageInfo->GetDamage() / (float)owner->GetMaxHealth();
+            Unit* target = GetTarget();
+            uint32 rage = 100.0f * (float)damageInfo->GetDamage() / (float)target->GetMaxHealth();
             if (rage > 0)
-                owner->CastCustomSpell(SPELL_DRUID_BRISTLING_FUR_GAIN_RAGE, SPELLVALUE_BASE_POINT0, rage, owner, TRIGGERED_FULL_MASK);
+                target->CastCustomSpell(SPELL_DRUID_BRISTLING_FUR_GAIN_RAGE, SPELLVALUE_BASE_POINT0, rage, target, TRIGGERED_FULL_MASK);
         }
     }
 
@@ -1683,7 +1649,7 @@ class spell_dru_bristling_fur : public AuraScript
     }
 };
 
-// 252216 Tiger Dash
+// 252216 - Tiger Dash
 class spell_dru_tiger_dash: public AuraScript
 {
     PrepareAuraScript(spell_dru_tiger_dash);
@@ -1703,7 +1669,7 @@ class spell_dru_tiger_dash: public AuraScript
     }
 };
 
-// 203964 Galactic Guardian
+// 203964 - Galactic Guardian
 class spell_dru_galactic_guardian : public AuraScript
 {
     PrepareAuraScript(spell_dru_galactic_guardian);
@@ -1717,13 +1683,13 @@ class spell_dru_galactic_guardian : public AuraScript
     {
         if (DamageInfo* damageInfo = eventInfo.GetDamageInfo())
         {
-            Unit* owner = GetUnitOwner();
+            Unit* target = GetTarget();
 
             // free automatic moonfire on target
-            owner->CastSpell(damageInfo->GetVictim(), SPELL_DRUID_MOONFIRE, true);
+            target->CastSpell(damageInfo->GetVictim(), SPELL_DRUID_MOONFIRE, true);
 
             // Cast aura
-            owner->CastSpell(damageInfo->GetVictim(), SPELL_DRUID_GALACTICAL_GUARDIAN_AURA, true);
+            target->CastSpell(damageInfo->GetVictim(), SPELL_DRUID_GALACTICAL_GUARDIAN_AURA, true);
         }
     }
 
@@ -1733,7 +1699,7 @@ class spell_dru_galactic_guardian : public AuraScript
     }
 };
 
-// 203974 Earthwarden
+// 203974 - Earthwarden
 class spell_dru_earthwarden : public AuraScript
 {
     PrepareAuraScript(spell_dru_earthwarden);
@@ -1745,8 +1711,8 @@ class spell_dru_earthwarden : public AuraScript
 
     void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
     {
-        Unit* owner = GetUnitOwner();
-        owner->CastSpell(owner, SPELL_DRUID_EARTHWARDEN_AURA, true);
+        Unit* target = GetTarget();
+        target->CastSpell(target, SPELL_DRUID_EARTHWARDEN_AURA, true);
     }
 
     void Register() override
@@ -1755,7 +1721,7 @@ class spell_dru_earthwarden : public AuraScript
     }
 };
 
-// 22812 Barkskin
+// 22812 - Barkskin
 class spell_dru_barkskin : public AuraScript
 {
     PrepareAuraScript(spell_dru_barkskin);
@@ -1767,9 +1733,9 @@ class spell_dru_barkskin : public AuraScript
 
     void HandleUpdatePeriodic(AuraEffect* /*aurEff*/)
     {
-        Unit* owner = GetUnitOwner();
-        if (owner->HasAura(SPELL_DRUID_BRAMBLES_PASSIVE))
-            owner->CastSpell(owner, SPELL_DRUID_BRAMBLES_DAMAGE_AURA, true);
+        Unit* target = GetTarget();
+        if (target->HasAura(SPELL_DRUID_BRAMBLES_PASSIVE))
+            target->CastSpell(target, SPELL_DRUID_BRAMBLES_DAMAGE_AURA, true);
     }
 
     void Register() override
@@ -1810,7 +1776,6 @@ void AddSC_druid_spell_scripts()
     new spell_dru_t10_restoration_4p_bonus();
     new spell_dru_t10_restoration_4p_bonus_dummy();
     new spell_dru_wild_growth();
-    RegisterSpellScript(spell_dru_ferocious_bite);
     RegisterSpellScript(spell_dru_incapacitating_roar);
     RegisterSpellScript(spell_dru_stampeding_roar);
     RegisterSpellScript(spell_dru_thrash);
