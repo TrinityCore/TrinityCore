@@ -1914,20 +1914,6 @@ class spell_mage_deep_freeze : public SpellScript
     }
 };
 
-class spell_mage_fingers_of_frost_charges : public AuraScript
-{
-    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
-    {
-        PreventDefaultAction();
-        GetAura()->ModStackAmount(-1);
-    }
-
-    void Register() override
-    {
-        OnEffectProc.Register(&spell_mage_fingers_of_frost_charges::HandleProc, EFFECT_0, SPELL_AURA_ABILITY_IGNORE_AURASTATE);
-    }
-};
-
 // -34293 - Pyromaniac
 class spell_mage_pyromaniac : public AuraScript
 {
@@ -2203,7 +2189,6 @@ void AddSC_mage_spell_scripts()
     new spell_mage_flame_orb();
     new spell_mage_flame_orb_aoe_dummy();
     RegisterSpellScript(spell_mage_focus_magic);
-    RegisterSpellScript(spell_mage_fingers_of_frost_charges);
     RegisterSpellScript(spell_mage_frostbolt);
     RegisterSpellScript(spell_mage_frostfire_bolt);
     new spell_mage_hot_streak();
