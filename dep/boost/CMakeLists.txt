@@ -85,6 +85,16 @@ target_compile_definitions(boost
     -DTC_HAS_BROKEN_WSTRING_REGEX)
 
 if (WITH_BOOST_STACKTRACE)
+  if (BOOST_STACKTRACE_BACKTRACE_INCLUDE_FILE)
+    CHECK_INCLUDE_FILE(${BOOST_STACKTRACE_BACKTRACE_INCLUDE_FILE} HAS_BACKTRACE)
+  else()
+    CHECK_INCLUDE_FILE("backtrace.h" HAS_BACKTRACE)
+  endif()
+
+  if (NOT HAS_BACKTRACE)
+    message(FATAL_ERROR "Required header 'backtrace.h' not found. If building with a compiler other than GCC please specify the full path in the CMake option BOOST_STACKTRACE_BACKTRACE_INCLUDE_FILE")
+  endif()
+
   target_compile_definitions(boost
     INTERFACE
       -DBOOST_STACKTRACE_USE_BACKTRACE)
