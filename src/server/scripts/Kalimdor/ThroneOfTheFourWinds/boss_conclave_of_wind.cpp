@@ -915,7 +915,7 @@ struct boss_rohash : public BossAI
                     events.Repeat(2s + 100ms);
                     break;
                 case EVENT_STORM_SHIELD:
-                    if (me->GetPower(POWER_MANA) == 30)
+                    if (me->GetPower(POWER_MANA) >= 30)
                     {
                         me->SendPlaySpellVisualKit(SPELL_VISUAL_STORM_SHIELD, 0, 0);
                         DoCastSelf(SPELL_STORM_SHIELD);
