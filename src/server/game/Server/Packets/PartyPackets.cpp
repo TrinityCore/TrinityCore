@@ -109,14 +109,13 @@ void WorldPackets::Party::PartyMemberState::Initialize(Player const* player)
         MemberStats.VehicleSeat = player->GetVehicle()->GetVehicleInfo()->SeatID[player->m_movementInfo.transport.seat];
 
     // Auras
-    MemberStats.AuraMask = player->GetAuraUpdateMaskForRaid();
+    uint64 auraMask = 0;
     for (uint8 i = 0; i < MAX_AURAS; ++i)
     {
-        if (!(MemberStats.AuraMask & (uint64(1) << i)))
-            continue;
-
         if (AuraApplication const* aurApp = player->GetVisibleAura(i))
         {
+            auraMask |= (uint64(1) << i);
+
             WorldPackets::Party::PartyMemberAuraStates aura;
             aura.SpellID = aurApp->GetBase()->GetId();
             aura.Flags = aurApp->GetFlags();
@@ -134,11 +133,12 @@ void WorldPackets::Party::PartyMemberState::Initialize(Player const* player)
 
             MemberStats.Auras.push_back(aura);
         }
+
+        MemberStats.AuraMask = auraMask;
     }
 
     // Phases
     PhasingHandler::FillPartyMemberPhase(&MemberStats.Phases, player->GetPhaseShift());
-
 
     // Pet
     if (player->GetPet())
@@ -158,14 +158,13 @@ void WorldPackets::Party::PartyMemberState::Initialize(Player const* player)
         MemberStats.PetStats->MaxPower = player->GetMaxPower(player->GetPowerType());
 
         // Auras
-        MemberStats.PetStats->AuraMask = player->GetAuraUpdateMaskForRaid();
+        auraMask = 0;
         for (uint8 i = 0; i < MAX_AURAS; ++i)
         {
-            if (!(MemberStats.PetStats->AuraMask & (uint64(1) << i)))
-                continue;
-
             if (AuraApplication const* aurApp = pet->GetVisibleAura(i))
             {
+                auraMask |= (uint64(1) << i);
+
                 WorldPackets::Party::PartyMemberAuraStates aura;
                 aura.SpellID = aurApp->GetBase()->GetId();
                 aura.Flags = aurApp->GetFlags();
@@ -184,6 +183,8 @@ void WorldPackets::Party::PartyMemberState::Initialize(Player const* player)
                 MemberStats.PetStats->Auras.push_back(aura);
             }
         }
+
+        MemberStats.PetStats->AuraMask = auraMask;
     }
 }
 
