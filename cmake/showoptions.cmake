@@ -174,6 +174,10 @@ endif()
 if(WITH_BOOST_STACKTRACE)
   message("")
   message("*** libbacktrace will be linked")
+  
+  if (BOOST_STACKTRACE_BACKTRACE_INCLUDE_FILE)
+    add_definitions(-DBOOST_STACKTRACE_BACKTRACE_INCLUDE_FILE="${BOOST_STACKTRACE_BACKTRACE_INCLUDE_FILE}")
+  endif()
 endif()
 
 if(BUILD_SHARED_LIBS)
