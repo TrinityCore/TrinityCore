@@ -1156,7 +1156,7 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
                 if (blocked)
                 {
                     // double blocked amount if block is critical
-                    uint32 value = victim->GetBlockPercent();
+                    uint32 value = victim->GetBlockPercent(getLevel());
                     if (victim->isBlockCritical())
                         value *= 2; // double blocked percent
                     damageInfo->blocked = CalculatePct(damage, value);
