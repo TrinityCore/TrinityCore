@@ -402,7 +402,7 @@ class spell_devourer_of_souls_mirrored_soul_proc : public SpellScriptLoader
                 return GetCaster() && GetCaster()->IsAlive();
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 DamageInfo* damageInfo = eventInfo.GetDamageInfo();

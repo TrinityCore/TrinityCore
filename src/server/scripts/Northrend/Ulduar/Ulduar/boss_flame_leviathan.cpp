@@ -1631,6 +1631,8 @@ class FlameLeviathanPursuedTargetSelector
     };
 
     public:
+        explicit FlameLeviathanPursuedTargetSelector() { };
+
         bool operator()(WorldObject* target) const
         {
             //! No players, only vehicles. Pursue is never cast on players.

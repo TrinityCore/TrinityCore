@@ -3835,7 +3835,7 @@ std::vector<SpellPowerCost> SpellInfo::CalcPowerCost(Unit const* caster, SpellSc
             }
 
             if (power->PowerType == POWER_MANA)
-                flatMod *= 1.0f + caster->m_unitData->ManaCostModifierModifier;
+                flatMod *= 1.0f + caster->m_unitData->ManaCostMultiplier; // this is wrong
 
             powerCost += flatMod;
         }

@@ -3007,7 +3007,7 @@ class spell_the_lich_king_dark_hunger : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_DARK_HUNGER_HEAL });
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 DamageInfo* damageInfo = eventInfo.GetDamageInfo();

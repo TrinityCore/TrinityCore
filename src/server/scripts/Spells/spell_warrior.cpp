@@ -573,7 +573,7 @@ class spell_warr_lambs_to_the_slaughter : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_WARRIOR_MORTAL_STRIKE, SPELL_WARRIOR_REND });
             }
 
-            void OnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void OnProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
             {
                 if (Aura* aur = eventInfo.GetProcTarget()->GetAura(SPELL_WARRIOR_REND, GetTarget()->GetGUID()))
                     aur->SetDuration(aur->GetSpellInfo()->GetMaxDuration(), true);
@@ -797,7 +797,7 @@ class spell_warr_retaliation : public SpellScriptLoader
                 return GetTarget()->isInFront(eventInfo.GetActor(), float(M_PI)) && !GetTarget()->HasUnitState(UNIT_STATE_STUNNED);
             }
 
-            void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_WARRIOR_RETALIATION_DAMAGE, true, nullptr, aurEff);
@@ -909,7 +909,7 @@ class spell_warr_second_wind_proc : public SpellScriptLoader
                 return true;
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            void HandleProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
                 uint32 spellId = 0;
@@ -1106,7 +1106,7 @@ class spell_warr_sweeping_strikes : public SpellScriptLoader
                 return _procTarget != nullptr;
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 if (DamageInfo* damageInfo = eventInfo.GetDamageInfo())
@@ -1155,7 +1155,7 @@ class spell_warr_sword_and_board : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_WARRIOR_SHIELD_SLAM });
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+            void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
             {
                 // Remove cooldown on Shield Slam
                 if (Player* player = GetTarget()->ToPlayer())
@@ -1189,7 +1189,7 @@ public:
             return ValidateSpellInfo({ SPELL_WARRIOR_TRAUMA_EFFECT });
         }
 
-        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
         {
             Unit* target = eventInfo.GetActionTarget();
             //Get the Remaining Damage from the aura (if exist)
@@ -1261,7 +1261,7 @@ class spell_warr_victorious_state : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_WARRIOR_IMPENDING_VICTORY });
             }
 
-            void HandleOnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& procInfo)
+            void HandleOnProc(AuraEffect* /*aurEff*/, ProcEventInfo& procInfo)
             {
                 if (procInfo.GetActor()->GetTypeId() == TYPEID_PLAYER && procInfo.GetActor()->ToPlayer()->GetPrimarySpecialization() == TALENT_SPEC_WARRIOR_FURY)
                     PreventDefaultAction();
@@ -1347,7 +1347,7 @@ class spell_warr_vigilance : public SpellScriptLoader
                 return _procTarget && eventInfo.GetDamageInfo();
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 int32 damage = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue()));

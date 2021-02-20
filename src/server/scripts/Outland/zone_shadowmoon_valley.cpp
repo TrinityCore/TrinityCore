@@ -1404,7 +1404,7 @@ enum Enraged_Dpirits
     // ENRAGED EARTH SPIRIT SPELLS
     SPELL_FIERY_BOULDER                     = 38498,
     SPELL_SUMMON_ENRAGED_EARTH_SHARD        = 38365,
-    
+
     // SOULS
     NPC_EARTHEN_SOUL                        = 21073,
     NPC_FIERY_SOUL                          = 21097,

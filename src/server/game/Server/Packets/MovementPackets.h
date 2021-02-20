@@ -487,11 +487,11 @@ namespace WorldPackets
             Optional<MoveKnockBackSpeeds> Speeds;
         };
 
-        enum UpdateCollisionHeightReason : uint8
+        enum class UpdateCollisionHeightReason : uint8
         {
-            UPDATE_COLLISION_HEIGHT_SCALE = 0,
-            UPDATE_COLLISION_HEIGHT_MOUNT = 1,
-            UPDATE_COLLISION_HEIGHT_FORCE = 2
+            Scale   = 0,
+            Mount   = 1,
+            Force   = 2
         };
 
         class MoveSetCollisionHeight final : public ServerPacket
@@ -504,7 +504,7 @@ namespace WorldPackets
             float Scale = 1.0f;
             ObjectGuid MoverGUID;
             uint32 MountDisplayID = 0;
-            UpdateCollisionHeightReason Reason = UPDATE_COLLISION_HEIGHT_MOUNT;
+            UpdateCollisionHeightReason Reason = UpdateCollisionHeightReason::Scale;
             uint32 SequenceIndex = 0;
             int32 ScaleDuration = 0;
             float Height = 1.0f;
@@ -530,7 +530,7 @@ namespace WorldPackets
             void Read() override;
 
             MovementAck Data;
-            UpdateCollisionHeightReason Reason = UPDATE_COLLISION_HEIGHT_MOUNT;
+            UpdateCollisionHeightReason Reason = UpdateCollisionHeightReason::Scale;
             uint32 MountDisplayID = 0;
             float Height = 1.0f;
         };
@@ -638,7 +638,7 @@ namespace WorldPackets
             {
                 float Height = 0.0f;
                 float Scale = 0.0f;
-                UpdateCollisionHeightReason Reason = UPDATE_COLLISION_HEIGHT_MOUNT;
+                UpdateCollisionHeightReason Reason = UpdateCollisionHeightReason::Scale;
             };
 
             struct KnockBackInfo
