@@ -2508,8 +2508,7 @@ void Player::InitStatsForLevel(bool reapplyMods)
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ParryPercentage), 0.0f);
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::BlockPercentage), 0.0f);
 
-    // Static 30% damage blocked
-    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ShieldBlock), 30);
+    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ShieldBlock), 0);
 
     // Dodge percentage
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::DodgePercentage), 0.0f);
@@ -7721,7 +7720,11 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
     }
 
     if (uint32 armor = proto->GetArmor(itemLevel))
+    {
         HandleStatFlatModifier(UNIT_MOD_ARMOR, BASE_VALUE, float(armor), apply);
+        if (proto->GetClass() == ITEM_CLASS_ARMOR && proto->GetSubClass() == ITEM_SUBCLASS_ARMOR_SHIELD)
+            SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ShieldBlock), apply ? int32(armor * 2.5f) : 0);
+    }
 
     WeaponAttackType attType = GetAttackBySlot(slot, proto->GetInventoryType());
     if (attType != MAX_ATTACK && CanUseAttackType(attType))
@@ -26038,6 +26041,17 @@ void Player::ProcessTerrainStatusUpdate(ZLiquidStatus status, Optional<LiquidDat
     }
     else
         m_MirrorTimerFlags &= ~(UNDERWATER_INWATER | UNDERWATER_INLAVA | UNDERWATER_INSLIME | UNDERWATER_INDARKWATER);
+}
+
+float Player::GetBlockPercent(uint8 attackerLevel) const
+{
+    float blockArmor = float(*m_activePlayerData->ShieldBlock);
+    float armorConstant = sDB2Manager.EvaluateExpectedStat(ExpectedStatType::ArmorConstant, attackerLevel, -2, 0, CLASS_NONE);
+
+    if (!(blockArmor + armorConstant))
+        return 0;
+
+    return std::min(blockArmor / (blockArmor + armorConstant), 0.85f);
 }
 
 void Player::SetCanParry(bool value)

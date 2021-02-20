@@ -1233,7 +1233,7 @@ class TC_GAME_API Unit : public WorldObject
         int32 GetMechanicResistChance(SpellInfo const* spellInfo) const;
         bool CanUseAttackType(uint8 attacktype) const;
 
-        virtual uint32 GetBlockPercent() const { return 30; }
+        virtual float GetBlockPercent(uint8 /*attackerLevel*/) const { return 30.0f; }
 
         float GetWeaponProcChance() const;
         float GetPPMProcChance(uint32 WeaponSpeed, float PPM, SpellInfo const* spellProto) const;

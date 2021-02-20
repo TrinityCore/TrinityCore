@@ -1363,7 +1363,7 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
             damageInfo->HitInfo    |= HITINFO_BLOCK;
             damageInfo->originalDamage = damageInfo->damage;
             // 30% damage blocked, double blocked amount if block is critical
-            damageInfo->blocked_amount = CalculatePct(damageInfo->damage, damageInfo->target->isBlockCritical() ? damageInfo->target->GetBlockPercent() * 2 : damageInfo->target->GetBlockPercent());
+            damageInfo->blocked_amount = CalculatePct(damageInfo->damage, damageInfo->target->isBlockCritical() ? damageInfo->target->GetBlockPercent(getLevel()) * 2 : damageInfo->target->GetBlockPercent(getLevel()));
             damageInfo->damage      -= damageInfo->blocked_amount;
             damageInfo->cleanDamage += damageInfo->blocked_amount;
             break;
@@ -1649,7 +1649,7 @@ uint32 Unit::CalcArmorReducedDamage(Unit* attacker, Unit* victim, const uint32 d
     // Expansion and ContentTuningID necessary? Does Player get a ContentTuningID too ?
     float armorConstant = sDB2Manager.EvaluateExpectedStat(ExpectedStatType::ArmorConstant, attackerLevel, -2, 0, Classes(attacker->getClass()));
 
-    if (!armorConstant)
+    if (!(armor + armorConstant))
         return damage;
 
     float mitigation = std::min(armor / (armor + armorConstant), 0.85f);
