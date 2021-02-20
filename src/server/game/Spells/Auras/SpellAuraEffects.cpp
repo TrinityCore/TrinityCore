@@ -5966,7 +5966,7 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
 
     bool crit = roll_chance_f(GetCritChanceFor(caster, target));
     if (crit)
-        damage = Unit::SpellCriticalHealingBonus(caster, m_spellInfo, damage);
+        damage = Unit::SpellCriticalHealingBonus(caster, damage);
 
     TC_LOG_DEBUG("spells.periodic", "PeriodicTick: %s heal of %s for %u health inflicted by %u",
         GetCasterGUID().ToString().c_str(), target->GetGUID().ToString().c_str(), damage, GetId());

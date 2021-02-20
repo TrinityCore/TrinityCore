@@ -7200,7 +7200,7 @@ float Unit::SpellCritChanceTaken(Unit const* caster, SpellInfo const* spellInfo,
     return crit_bonus;
 }
 
-/*static*/ uint32 Unit::SpellCriticalHealingBonus(Unit const* caster, SpellInfo const* spellProto, uint32 damage)
+/*static*/ uint32 Unit::SpellCriticalHealingBonus(Unit const* caster, uint32 damage)
 {
     // As of Patch 4.2.0 (2011-06-28): all healing spells now crit for 200% instead of 150%
     damage *= 2;

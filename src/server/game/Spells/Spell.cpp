@@ -2616,7 +2616,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         if (crit)
         {
             hitMask |= PROC_HIT_CRITICAL;
-            addhealth = Unit::SpellCriticalHealingBonus(caster, m_spellInfo, addhealth);
+            addhealth = Unit::SpellCriticalHealingBonus(caster, addhealth);
         }
         else
             hitMask |= PROC_HIT_NORMAL;
