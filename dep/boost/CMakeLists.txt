@@ -92,7 +92,7 @@ if (WITH_BOOST_STACKTRACE)
   endif()
 
   if (NOT HAS_BACKTRACE)
-    message(FATAL_ERROR "Required header 'backtrace.h' not found. If building with a compiler other than GCC please specify the full path in the CMake option BOOST_STACKTRACE_BACKTRACE_INCLUDE_FILE")
+    message(FATAL_ERROR "Required header 'backtrace.h' not found. If building with a compiler other than GCC, please specify the full path in the CMake option BOOST_STACKTRACE_BACKTRACE_INCLUDE_FILE.")
   endif()
 
   target_compile_definitions(boost
