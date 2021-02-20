@@ -222,6 +222,7 @@ class TC_GAME_API Aura
         // helpers for aura effects
         bool HasEffect(uint8 effIndex) const { return GetEffect(effIndex) != nullptr; }
         bool HasEffectType(AuraType type) const;
+        static bool EffectTypeNeedsSendingAmount(AuraType type);
         AuraEffect* GetEffect(uint32 index) const;
         uint32 GetEffectMask() const;
         void RecalculateAmountOfEffects();

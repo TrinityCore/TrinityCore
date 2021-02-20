@@ -115,13 +115,13 @@ void AuraApplication::_InitFlags(Unit* caster, uint32 effMask)
         _flags |= positiveFound ? AFLAG_POSITIVE : AFLAG_NEGATIVE;
     }
 
-    if (GetBase()->GetSpellInfo()->HasAttribute(SPELL_ATTR8_AURA_SEND_AMOUNT) ||
-        GetBase()->HasEffectType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS) ||
-        GetBase()->HasEffectType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_TRIGGERED) ||
-        GetBase()->HasEffectType(SPELL_AURA_MOD_SPELL_CATEGORY_COOLDOWN) ||
-        GetBase()->HasEffectType(SPELL_AURA_MOD_MAX_CHARGES) ||
-        GetBase()->HasEffectType(SPELL_AURA_CHARGE_RECOVERY_MOD) ||
-        GetBase()->HasEffectType(SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER))
+    auto effectNeedsAmount = [this](AuraEffect const* effect)
+    {
+        return effect && (GetEffectsToApply() & (1 << effect->GetEffIndex())) && Aura::EffectTypeNeedsSendingAmount(effect->GetAuraType());
+    };
+
+    if (GetBase()->GetSpellInfo()->HasAttribute(SPELL_ATTR8_AURA_SEND_AMOUNT)
+        || std::find_if(GetBase()->GetAuraEffects().begin(), GetBase()->GetAuraEffects().end(), std::cref(effectNeedsAmount)) != GetBase()->GetAuraEffects().end())
         _flags |= AFLAG_SCALABLE;
 }
 
@@ -1153,6 +1153,24 @@ bool Aura::HasEffectType(AuraType type) const
         if (effect && effect->GetAuraType() == type)
             return true;
     }
+    return false;
+}
+
+bool Aura::EffectTypeNeedsSendingAmount(AuraType type)
+{
+    switch (type)
+    {
+        case SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS:
+        case SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_TRIGGERED:
+        case SPELL_AURA_MOD_SPELL_CATEGORY_COOLDOWN:
+        case SPELL_AURA_MOD_MAX_CHARGES:
+        case SPELL_AURA_CHARGE_RECOVERY_MOD:
+        case SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER:
+            return true;
+        default:
+            break;
+    }
+
     return false;
 }
 
