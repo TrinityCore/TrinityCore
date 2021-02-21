@@ -1262,8 +1262,8 @@ class spell_pri_prayer_of_mending_jump : public SpellScriptLoader
 
             void OnTargetSelect(std::list<WorldObject*>& targets)
             {
-                // find best target
-                // Make sure too exclude the player that had the aura (caster in our case)
+                // Find the best target.
+                // Make sure to exclude player wearing the aura (caster in this case)
                 Unit* owner = GetCaster();
                 TargetPriority priority = TargetPriority::None;
                 for (auto iter = targets.cbegin(); iter != targets.cend(); ++iter)
