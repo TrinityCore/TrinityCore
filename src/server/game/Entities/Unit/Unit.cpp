@@ -1372,10 +1372,21 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
         {
             damageInfo->HitInfo     |= HITINFO_GLANCING;
             damageInfo->TargetState  = VICTIMSTATE_HIT;
-            int32 leveldif = int32(victim->getLevel()) - int32(getLevel());
-            if (leveldif > 3)
+            int32 leveldif = int32(victim->getLevelForTarget(this)) - int32(getLevel());
+            if (leveldif < 0)
+            {
+                TC_LOG_DEBUG("entities.unit", "Unit::CalculateMeleeDamage: (Player) %s attacked %s. Glancing should never happen against lower level target", GetGUID().ToString().c_str(), victim->GetGUID().ToString().c_str());
+                break;
+            }
+            if (leveldif == 0)
+                leveldif = 1;
+            else if (leveldif > 3)
                 leveldif = 3;
-            float reducePercent = 1 - leveldif * 0.1f;
+
+            int32 const reductionMax = leveldif * 10;
+            int32 const reductionMin = std::max(1, reductionMax - 10);
+            float reducePercent = 1.f - irand(reductionMin, reductionMax) / 100.0f;
+
             damageInfo->cleanDamage += damageInfo->damage - uint32(reducePercent * damageInfo->damage);
             damageInfo->damage = uint32(reducePercent * damageInfo->damage);
             break;
@@ -2189,10 +2200,10 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(const Unit* victim, WeaponAttackTy
     }
 
     // 4. GLANCING
-    // Max 40% chance to score a glancing blow against mobs that are higher level (can do only players and pets and not with ranged weapon)
+    // Max 40% chance to score a glancing blow against mobs of the same or higher level (only players and pets, not for ranged weapons).
     if ((GetTypeId() == TYPEID_PLAYER || IsPet()) &&
         victim->GetTypeId() != TYPEID_PLAYER && !victim->IsPet() &&
-        getLevel() < victim->getLevelForTarget(this))
+        getLevel() <= victim->getLevelForTarget(this))
     {
         // cap possible value (with bonuses > max skill)
         int32 skill = attackerMaxSkillValueForLevel;
