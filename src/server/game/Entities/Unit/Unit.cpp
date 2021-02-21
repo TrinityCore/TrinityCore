@@ -2816,10 +2816,23 @@ float Unit::GetUnitCriticalChance(WeaponAttackType attackType, Unit const* victi
     else
         chance += victim->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_CHANCE);
 
+    chance += GetTotalAuraModifier(SPELL_AURA_MOD_CRIT_CHANCE_VERSUS_TARGET_HEALTH, [victim](AuraEffect const* aurEff)
+    {
+        return !victim->HealthBelowPct(aurEff->GetMiscValueB());
+    });
+
     chance += victim->GetTotalAuraModifier(SPELL_AURA_MOD_CRIT_CHANCE_FOR_CASTER, [this](AuraEffect const* aurEff) -> bool
     {
         return aurEff->GetCasterGUID() == GetGUID();
     });
+
+    if (TempSummon const* tempSummon = ToTempSummon())
+    {
+        chance += victim->GetTotalAuraModifier(SPELL_AURA_MOD_CRIT_CHANCE_FOR_CASTER_PET, [tempSummon](AuraEffect const* aurEff) -> bool
+        {
+            return aurEff->GetCasterGUID() == tempSummon->GetSummonerGUID();
+        });
+    }
 
     chance += victim->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE);
 
@@ -7074,6 +7087,17 @@ float Unit::GetUnitSpellCriticalChance(Unit* victim, SpellInfo const* spellProto
         {
             return aurEff->GetCasterGUID() != GetGUID();
         });
+        crit_chance += GetTotalAuraModifier(SPELL_AURA_MOD_CRIT_CHANCE_VERSUS_TARGET_HEALTH, [victim](AuraEffect const* aurEff)
+        {
+            return !victim->HealthBelowPct(aurEff->GetMiscValueB());
+        });
+        if (TempSummon const* tempSummon = ToTempSummon())
+        {
+            crit_chance += victim->GetTotalAuraModifier(SPELL_AURA_MOD_CRIT_CHANCE_FOR_CASTER_PET, [tempSummon](AuraEffect const* aurEff) -> bool
+            {
+                return aurEff->GetCasterGUID() == tempSummon->GetSummonerGUID();
+            });
+        }
     }
 
     return std::max(crit_chance, 0.0f);
