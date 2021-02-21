@@ -1190,7 +1190,7 @@ class spell_pri_prayer_of_mending_aura : public AuraScript
         if (Unit* caster = GetCaster())
         {
             // Cast the spell to heal the owner
-            caster->CastSpell(target, SPELL_PRIEST_PRAYER_OF_MENDING_HEAL, true);
+            caster->CastSpell(target, SPELL_PRIEST_PRAYER_OF_MENDING_HEAL, true, nullptr, aurEff);
 
             // Only cast jump if stack is higher than 0
             int32 stackAmount = GetStackAmount();
@@ -1215,7 +1215,6 @@ class spell_pri_prayer_of_mending_jump : public spell_pri_prayer_of_mending_Spel
     void OnTargetSelect(std::list<WorldObject*>& targets)
     {
         // Find the best target - prefer players over pets
-        Unit* owner = GetCaster();
         bool foundPlayer = false;
         for (WorldObject* worldObject : targets)
         {
@@ -1241,7 +1240,7 @@ class spell_pri_prayer_of_mending_jump : public spell_pri_prayer_of_mending_Spel
     void HandleJump(SpellEffIndex /*effIndex*/)
     {
         Unit* origCaster = GetOriginalCaster(); // the one that started the prayer of mending chain
-        Unit* target = GetHitUnit(); // the target we decided should jump the aura to
+        Unit* target = GetHitUnit(); // the target we decided the aura should jump to
 
         if (origCaster)
             CastPrayerOfMendingAura(origCaster, target, GetEffectValue());
