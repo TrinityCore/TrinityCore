@@ -276,7 +276,14 @@ class spell_pri_divine_aegis : public AuraScript
 
     bool CheckProc(ProcEventInfo& eventInfo)
     {
-        return eventInfo.GetProcTarget() != nullptr;
+        if (!eventInfo.GetProcTarget() || !eventInfo.GetSpellInfo())
+            return false;
+
+        // Prayer of Healing always triggers Divine Aegis
+        if (eventInfo.GetSpellInfo()->SpellFamilyFlags[0] & 0x200)
+            return true;
+
+        return (eventInfo.GetHitMask() & PROC_HIT_CRITICAL);
     }
 
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -294,7 +301,7 @@ class spell_pri_divine_aegis : public AuraScript
 
         absorb = std::min(absorb, int32(CalculatePct(eventInfo.GetProcTarget()->GetMaxHealth(), 40)));
 
-        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_PRIEST_DIVINE_AEGIS, CastSpellExtraArgs(aurEff).AddSpellBP0(SPELLVALUE_BASE_POINT0));
+        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_PRIEST_DIVINE_AEGIS, CastSpellExtraArgs(aurEff).AddSpellBP0(absorb));
     }
 
     void Register() override
