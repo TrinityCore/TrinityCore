@@ -3899,7 +3899,7 @@ std::vector<SpellPowerCost> SpellInfo::CalcPowerCost(Unit const* caster, SpellSc
         }
 
         if (power->PowerType == POWER_MANA)
-            powerCost = (float)powerCost * (1.0f + caster->GetManaCostMultiplier());
+            powerCost = float(powerCost) * (1.0f + caster->m_unitData->ManaCostMultiplier);
         else if (power->PowerType == POWER_HEALTH)
         {
             healthCost += powerCost;

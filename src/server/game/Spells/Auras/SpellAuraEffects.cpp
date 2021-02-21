@@ -3827,9 +3827,7 @@ void AuraEffect::HandleModManaCostPct(AuraApplication const* aurApp, uint8 mode,
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
 
-    Unit* target = aurApp->GetTarget();
-    float pct = (float)GetAmount() / 100.0f;
-    target->AddManaCostMultiplier(apply ? pct : -pct);
+    aurApp->GetTarget()->ApplyModManaCostMultiplier(GetAmount() / 100.0f, apply);
 }
 
 void AuraEffect::HandleAuraModPowerDisplay(AuraApplication const* aurApp, uint8 mode, bool apply) const
