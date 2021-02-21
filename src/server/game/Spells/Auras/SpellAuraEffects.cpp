@@ -237,7 +237,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleAuraModAttackPowerPercent,                 //166 SPELL_AURA_MOD_ATTACK_POWER_PCT
     &AuraEffect::HandleAuraModRangedAttackPowerPercent,           //167 SPELL_AURA_MOD_RANGED_ATTACK_POWER_PCT
     &AuraEffect::HandleNoImmediateEffect,                         //168 SPELL_AURA_MOD_DAMAGE_DONE_VERSUS            implemented in Unit::SpellDamageBonus, Unit::MeleeDamageBonus
-    &AuraEffect::HandleNULL,                                      //169 SPELL_AURA_SET_FFA_PVP
+    &AuraEffect::HandleSetFFAPvP,                                 //169 SPELL_AURA_SET_FFA_PVP implemented in Player::UpdatePvPState
     &AuraEffect::HandleDetectAmore,                               //170 SPELL_AURA_DETECT_AMORE       used to detect various spells that change visual of units for aura target
     &AuraEffect::HandleAuraModIncreaseSpeed,                      //171 SPELL_AURA_MOD_SPEED_NOT_STACK
     &AuraEffect::HandleAuraModIncreaseMountedSpeed,               //172 SPELL_AURA_MOD_MOUNTED_SPEED_NOT_STACK
@@ -6303,6 +6303,18 @@ void AuraEffect::HandleLinkedSummon(AuraApplication const* aurApp, uint8 mode, b
             }
         }
     }
+}
+
+void AuraEffect::HandleSetFFAPvP(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Player* target = aurApp->GetTarget()->ToPlayer();
+    if (!target)
+        return;
+
+    target->UpdatePvPState(true);
 }
 
 void AuraEffect::HandleModOverrideZonePVPType(AuraApplication const* aurApp, uint8 mode, bool apply) const

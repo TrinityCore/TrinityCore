@@ -23498,7 +23498,7 @@ void Player::UpdatePvPState(bool onlyFFA)
     /// @todo should we always synchronize UNIT_FIELD_BYTES_2, 1 of controller and controlled?
     // no, we shouldn't, those are checked for affecting player by client
     if (!pvpInfo.IsInNoPvPArea && !IsGameMaster()
-        && (pvpInfo.IsInFFAPvPArea || sWorld->IsFFAPvPRealm()))
+        && (pvpInfo.IsInFFAPvPArea || sWorld->IsFFAPvPRealm() || HasAuraType(SPELL_AURA_SET_FFA_PVP)))
     {
         if (!IsFFAPvP())
         {
