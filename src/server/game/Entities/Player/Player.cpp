@@ -5211,8 +5211,21 @@ void Player::ApplyRatingMod(CombatRating combatRating, int32 value, bool apply)
 void Player::UpdateRating(CombatRating cr)
 {
     int32 amount = m_baseRatingValue[cr];
-    AuraEffectList const& modRatingPct = GetAuraEffectsByType(SPELL_AURA_MOD_RATING_PCT);
-    for (AuraEffect const* aurEff : modRatingPct)
+    for (AuraEffect const* aurEff : GetAuraEffectsByType(SPELL_AURA_MOD_COMBAT_RATING_FROM_COMBAT_RATING))
+    {
+        if (aurEff->GetMiscValueB() & (1 << cr))
+        {
+            Optional<int16> highestRating;
+            for (uint8 dependentRating = 0; dependentRating < MAX_COMBAT_RATING; ++dependentRating)
+                if (aurEff->GetMiscValue() & (1 << dependentRating))
+                    highestRating = std::max(highestRating.value_or(m_baseRatingValue[dependentRating]), m_baseRatingValue[dependentRating]);
+
+            if (highestRating)
+                amount += int32(CalculatePct(*highestRating, aurEff->GetAmount()));
+        }
+    }
+
+    for (AuraEffect const* aurEff : GetAuraEffectsByType(SPELL_AURA_MOD_RATING_PCT))
         if (aurEff->GetMiscValue() & (1 << cr))
             amount += int32(CalculatePct(amount, aurEff->GetAmount()));
 
