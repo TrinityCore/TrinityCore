@@ -856,7 +856,7 @@ class TC_GAME_API AuraScript : public _SpellScript
         HookList<EffectProcHandler> OnEffectProc;
         // executed after aura effect proced
         // example: AfterEffectProc += AuraEffectProcFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier);
-        // where function is: void function (AuraEffect const* aurEff, ProcEventInfo& procInfo);
+        // where function is: void function (AuraEffect* aurEff, ProcEventInfo& procInfo);
         HookList<EffectProcHandler> AfterEffectProc;
         #define AuraEffectProcFn(F, I, N) EffectProcHandlerFunction(&F, I, N)
 
