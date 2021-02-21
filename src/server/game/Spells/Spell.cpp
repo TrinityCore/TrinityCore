@@ -4901,6 +4901,23 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                     && !m_spellInfo->HasAttribute(SPELL_ATTR12_IGNORE_CASTING_DISABLED)
                     && !m_caster->HasAuraTypeWithFamilyFlags(SPELL_AURA_DISABLE_CASTING_EXCEPT_ABILITIES, sChrClassesStore.AssertEntry(m_caster->getClass())->SpellClassSet, m_spellInfo->SpellFamilyFlags));
                         return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+                if (m_caster->HasAuraType(SPELL_AURA_DISABLE_ATTACKING_EXCEPT_ABILITIES))
+                {
+                    if (!m_caster->HasAuraTypeWithFamilyFlags(SPELL_AURA_DISABLE_ATTACKING_EXCEPT_ABILITIES, sChrClassesStore.AssertEntry(m_caster->getClass())->SpellClassSet, m_spellInfo->SpellFamilyFlags))
+                    {
+                        if (m_spellInfo->HasAttribute(SPELL_ATTR0_REQ_AMMO)
+                            || m_spellInfo->IsNextMeleeSwingSpell()
+                            || m_spellInfo->HasAttribute(SPELL_ATTR1_MELEE_COMBAT_START)
+                            || m_spellInfo->HasAttribute(SPELL_ATTR2_UNK20)
+                            || m_spellInfo->HasEffect(SPELL_EFFECT_ATTACK)
+                            || m_spellInfo->HasEffect(SPELL_EFFECT_NORMALIZED_WEAPON_DMG)
+                            || m_spellInfo->HasEffect(SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL)
+                            || m_spellInfo->HasEffect(SPELL_EFFECT_WEAPON_PERCENT_DAMAGE)
+                            || m_spellInfo->HasEffect(SPELL_EFFECT_WEAPON_DAMAGE))
+                            return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+                    }
+                }
             }
 
             // check if we are using a potion in combat for the 2nd+ time. Cooldown is added only after caster gets out of combat

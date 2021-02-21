@@ -5669,6 +5669,9 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
     if (HasUnitFlag(UNIT_FLAG_PACIFIED))
         return false;
 
+    if (HasAuraType(SPELL_AURA_DISABLE_ATTACKING_EXCEPT_ABILITIES))
+        return false;
+
     // nobody can attack GM in GM-mode
     if (victim->GetTypeId() == TYPEID_PLAYER)
     {
