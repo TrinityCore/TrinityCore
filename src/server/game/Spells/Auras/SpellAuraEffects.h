@@ -231,12 +231,9 @@ class TC_GAME_API AuraEffect
         void HandleModPercentStat(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModSpellDamagePercentFromStat(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModSpellHealingPercentFromStat(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleModSpellDamagePercentFromAttackPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleModSpellHealingPercentFromAttackPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModHealingDone(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModHealingDonePct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModTotalPercentStat(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleAuraModResistenceOfStatPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModExpertise(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModStatBonusPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleOverrideSpellPowerByAttackPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -246,7 +243,6 @@ class TC_GAME_API AuraEffect
         //   heal and energize
         void HandleModPowerRegen(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModPowerRegenPCT(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleModManaRegen(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModManaRegenPct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModIncreaseHealth(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModIncreaseMaxHealth(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -293,7 +289,6 @@ class TC_GAME_API AuraEffect
         void HandleModPowerCost(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleArenaPreparation(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleNoReagentUseAura(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleAuraRetainComboPoints(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //  others
         void HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleChannelDeathItem(AuraApplication const* aurApp, uint8 mode, bool apply) const;

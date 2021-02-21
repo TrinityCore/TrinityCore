@@ -24242,9 +24242,6 @@ void Player::AddComboPoints(int8 count, Spell* spell)
 
     int8 comboPoints = spell ? spell->m_comboPointGain : GetPower(POWER_COMBO_POINTS);
 
-    // without combo points lost (duration checked in aura)
-    RemoveAurasByType(SPELL_AURA_RETAIN_COMBO_POINTS);
-
     comboPoints += count;
 
     if (comboPoints > 5)
@@ -24274,9 +24271,6 @@ void Player::GainSpellComboPoints(int8 count)
 
 void Player::ClearComboPoints()
 {
-    // without combopoints lost (duration checked in aura)
-    RemoveAurasByType(SPELL_AURA_RETAIN_COMBO_POINTS);
-
     SetPower(POWER_COMBO_POINTS, 0);
 }
 

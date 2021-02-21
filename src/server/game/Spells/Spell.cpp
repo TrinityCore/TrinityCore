@@ -3754,18 +3754,7 @@ void Spell::finish(bool ok)
 
     if (IsAutoActionResetSpell())
     {
-        bool found = false;
-        Unit::AuraEffectList const& vIgnoreReset = m_caster->GetAuraEffectsByType(SPELL_AURA_IGNORE_MELEE_RESET);
-        for (Unit::AuraEffectList::const_iterator i = vIgnoreReset.begin(); i != vIgnoreReset.end(); ++i)
-        {
-            if ((*i)->IsAffectingSpell(m_spellInfo))
-            {
-                found = true;
-                break;
-            }
-        }
-
-        if (!found && !m_spellInfo->HasAttribute(SPELL_ATTR2_NOT_RESET_AUTO_ACTIONS))
+        if (!m_spellInfo->HasAttribute(SPELL_ATTR2_NOT_RESET_AUTO_ACTIONS))
         {
             m_caster->resetAttackTimer(BASE_ATTACK);
             if (m_caster->haveOffhandWeapon())
@@ -4975,9 +4964,6 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
         }
     }
 
-    if (m_caster->HasAuraTypeWithMiscvalue(SPELL_AURA_BLOCK_SPELL_FAMILY, m_spellInfo->SpellFamilyName))
-        return SPELL_FAILED_SPELL_UNAVAILABLE;
-
     bool reqCombat = true;
     Unit::AuraEffectList const& stateAuras = m_caster->GetAuraEffectsByType(SPELL_AURA_ABILITY_IGNORE_AURASTATE);
     for (Unit::AuraEffectList::const_iterator j = stateAuras.begin(); j != stateAuras.end(); ++j)
@@ -6065,7 +6051,7 @@ bool Spell::CheckSpellCancelsCharm(uint32* param1) const
 bool Spell::CheckSpellCancelsStun(uint32* param1) const
 {
     return CheckSpellCancelsAuraEffect(SPELL_AURA_MOD_STUN, param1) &&
-        CheckSpellCancelsAuraEffect(SPELL_AURA_STRANGULATE, param1);
+        CheckSpellCancelsAuraEffect(SPELL_AURA_MOD_STUN_DISABLE_GRAVITY, param1);
 }
 
 bool Spell::CheckSpellCancelsSilence(uint32* param1) const
@@ -7846,7 +7832,7 @@ void Spell::TriggerGlobalCooldown()
             m_spellInfo->HasAttribute(SPELL_ATTR0_ABILITY);
 
         // Apply haste rating
-        if (gcd > MIN_GCD && ((m_spellInfo->StartRecoveryCategory == 133 && !isMeleeOrRangedSpell) || m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_MOD_GLOBAL_COOLDOWN_BY_HASTE, m_spellInfo)))
+        if (gcd > MIN_GCD && ((m_spellInfo->StartRecoveryCategory == 133 && !isMeleeOrRangedSpell)))
         {
             gcd = int32(float(gcd) * m_caster->m_unitData->ModSpellHaste);
             RoundToInterval<int32>(gcd, MIN_GCD, MAX_GCD);

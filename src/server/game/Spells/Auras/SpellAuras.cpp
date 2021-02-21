@@ -1084,7 +1084,7 @@ void Aura::UnregisterSingleTarget()
     SetIsSingleTarget(false);
 }
 
-int32 Aura::CalcDispelChance(Unit const* auraTarget, bool offensive) const
+int32 Aura::CalcDispelChance(Unit const* /*auraTarget*/, bool /*offensive*/) const
 {
     // we assume that aura dispel chance is 100% on start
     // need formula for level difference based chance
@@ -1094,11 +1094,6 @@ int32 Aura::CalcDispelChance(Unit const* auraTarget, bool offensive) const
     if (Unit* caster = GetCaster())
         if (Player* modOwner = caster->GetSpellModOwner())
             modOwner->ApplySpellMod(GetId(), SPELLMOD_RESIST_DISPEL_CHANCE, resistChance);
-
-    // Dispel resistance from target SPELL_AURA_MOD_DISPEL_RESIST
-    // Only affects offensive dispels
-    if (offensive && auraTarget)
-        resistChance += auraTarget->GetTotalAuraModifier(SPELL_AURA_MOD_DISPEL_RESIST);
 
     RoundToInterval(resistChance, 0, 100);
     return 100 - resistChance;
