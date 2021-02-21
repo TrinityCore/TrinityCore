@@ -2004,6 +2004,11 @@ void ScriptMgr::OnPlayerCreate(Player* player)
     FOREACH_SCRIPT(PlayerScript)->OnCreate(player);
 }
 
+void ScriptMgr::OnPlayerUpdate(Player* player, uint32 diff)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnUpdate(player, diff);
+}
+
 void ScriptMgr::OnPlayerDelete(ObjectGuid guid, uint32 accountId)
 {
     FOREACH_SCRIPT(PlayerScript)->OnDelete(guid, accountId);
