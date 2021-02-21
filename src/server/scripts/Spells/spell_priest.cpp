@@ -1215,8 +1215,8 @@ class spell_pri_prayer_of_mending_aura : public SpellScriptLoader
 
             void HandleHeal(ProcEventInfo & /*eventInfo*/)
             {
-                // Caster: the player(priest) that cast the prayer of mending
-                // Target: the player that currently has the prayer of mending aura on him
+                // Caster: player(priest) that cast Prayer of Mending
+                // Target: player currently wearing Prayer of Mending aura
                 Unit* target = GetTarget();
                 if (Unit* caster = GetCaster())
                 {
