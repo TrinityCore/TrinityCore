@@ -290,8 +290,8 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //219 SPELL_AURA_ADD_FLAT_MODIFIER_BY_SPELL_LABEL
     &AuraEffect::HandleNULL,                                      //220 SPELL_AURA_MOD_ABILITY_SCHOOL_MASK
     &AuraEffect::HandleNULL,                                      //221 SPELL_AURA_MOD_DETAUNT
-    &AuraEffect::HandleNULL,                                      //222 SPELL_AURA_REMOVE_TRANSMOG_COST
-    &AuraEffect::HandleNULL,                                      //223 SPELL_AURA_REMOVE_BARBER_SHOP_COST
+    &AuraEffect::HandleNoImmediateEffect,                         //222 SPELL_AURA_REMOVE_TRANSMOG_COST implemented in WorldSession::HandleTransmogrifyItems
+    &AuraEffect::HandleNoImmediateEffect,                         //223 SPELL_AURA_REMOVE_BARBER_SHOP_COST implemented in Player::GetBarberShopCost
     &AuraEffect::HandleNULL,                                      //224 SPELL_AURA_LEARN_TALENT
     &AuraEffect::HandleNULL,                                      //225 SPELL_AURA_MOD_VISIBILITY_RANGE
     &AuraEffect::HandleNoImmediateEffect,                         //226 SPELL_AURA_PERIODIC_DUMMY implemented in AuraEffect::PeriodicTick

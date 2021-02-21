@@ -26168,6 +26168,9 @@ bool Player::CanCaptureTowerPoint() const
 
 int64 Player::GetBarberShopCost(Trinity::IteratorPair<UF::ChrCustomizationChoice const*> newCustomizations) const
 {
+    if (HasAuraType(SPELL_AURA_REMOVE_BARBER_SHOP_COST))
+        return 0;
+
     GtBarberShopCostBaseEntry const* bsc = sBarberShopCostBaseGameTable.GetRow(getLevel());
     if (!bsc)                                                // shouldn't happen
         return 0;
