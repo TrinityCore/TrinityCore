@@ -85,6 +85,8 @@ target_compile_definitions(boost
     -DTC_HAS_BROKEN_WSTRING_REGEX)
 
 if (WITH_BOOST_STACKTRACE AND NOT WIN32)
+  message("*** libbacktrace will be linked")
+
   if (BOOST_STACKTRACE_BACKTRACE_INCLUDE_FILE)
     CHECK_INCLUDE_FILE(${BOOST_STACKTRACE_BACKTRACE_INCLUDE_FILE} HAS_BACKTRACE)
   else()
