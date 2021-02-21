@@ -4899,7 +4899,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                     && !m_spellInfo->HasAttribute(SPELL_ATTR0_REQ_AMMO)
                     && !m_spellInfo->HasEffect(SPELL_EFFECT_ATTACK)
                     && !m_spellInfo->HasAttribute(SPELL_ATTR12_IGNORE_CASTING_DISABLED)
-                    && !m_caster->HasAuraTypeWithFamilyFlags(SPELL_AURA_DISABLE_CASTING_EXCEPT_ABILITIES, sChrClassesStore.AssertEntry(m_caster->getClass())->SpellClassSet, m_spellInfo->SpellFamilyFlags));
+                    && !m_caster->HasAuraTypeWithFamilyFlags(SPELL_AURA_DISABLE_CASTING_EXCEPT_ABILITIES, sChrClassesStore.AssertEntry(m_caster->getClass())->SpellClassSet, m_spellInfo->SpellFamilyFlags))
                         return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
 
                 if (m_caster->HasAuraType(SPELL_AURA_DISABLE_ATTACKING_EXCEPT_ABILITIES))
