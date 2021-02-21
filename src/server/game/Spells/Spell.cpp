@@ -4892,8 +4892,16 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
         if (m_caster->GetTypeId() == TYPEID_PLAYER)
         {
             //can cast triggered (by aura only?) spells while have this flag
-            if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_AURASTATE) && m_caster->ToPlayer()->HasPlayerFlag(PLAYER_ALLOW_ONLY_ABILITY))
-                return SPELL_FAILED_SPELL_IN_PROGRESS;
+            if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_AURASTATE))
+            {
+                // These two auras check SpellFamilyName defined by db2 class data instead of current spell SpellFamilyName
+                if (m_caster->HasAuraType(SPELL_AURA_DISABLE_CASTING_EXCEPT_ABILITIES)
+                    && !m_spellInfo->HasAttribute(SPELL_ATTR0_REQ_AMMO)
+                    && !m_spellInfo->HasEffect(SPELL_EFFECT_ATTACK)
+                    && !m_spellInfo->HasAttribute(SPELL_ATTR12_IGNORE_CASTING_DISABLED)
+                    && !m_caster->HasAuraTypeWithFamilyFlags(SPELL_AURA_DISABLE_CASTING_EXCEPT_ABILITIES, sChrClassesStore.AssertEntry(m_caster->getClass())->SpellClassSet, m_spellInfo->SpellFamilyFlags));
+                        return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+            }
 
             // check if we are using a potion in combat for the 2nd+ time. Cooldown is added only after caster gets out of combat
             if (!IsIgnoringCooldowns() && m_caster->ToPlayer()->GetLastPotionId() && m_CastItem && (m_CastItem->IsPotion() || m_spellInfo->IsCooldownStartedOnEvent()))

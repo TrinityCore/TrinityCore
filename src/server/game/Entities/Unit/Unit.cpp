@@ -673,15 +673,11 @@ void Unit::UpdateInterruptMask()
                 m_interruptMask[i] |= spell->m_spellInfo->ChannelInterruptFlags[i];
 }
 
-bool Unit::HasAuraTypeWithFamilyFlags(AuraType auraType, uint32 familyName, uint32 familyFlags) const
+bool Unit::HasAuraTypeWithFamilyFlags(AuraType auraType, uint32 familyName, flag128 familyFlags) const
 {
-    if (!HasAuraType(auraType))
-        return false;
-    AuraEffectList const& auras = GetAuraEffectsByType(auraType);
-    for (AuraEffectList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
-        if (SpellInfo const* iterSpellProto = (*itr)->GetSpellInfo())
-            if (iterSpellProto->SpellFamilyName == familyName && iterSpellProto->SpellFamilyFlags[0] & familyFlags)
-                return true;
+    for (AuraEffect const* aura : GetAuraEffectsByType(auraType))
+        if (aura->GetSpellInfo()->SpellFamilyName == familyName && aura->GetSpellInfo()->SpellFamilyFlags & familyFlags)
+            return true;
     return false;
 }
 

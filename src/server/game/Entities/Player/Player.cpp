@@ -2556,7 +2556,7 @@ void Player::InitStatsForLevel(bool reapplyMods)
     AddUnitFlag2(UNIT_FLAG2_REGENERATE_POWER);// must be set
 
     // cleanup player flags (will be re-applied if need at aura load), to avoid have ghost flag without ghost aura, for example.
-    RemovePlayerFlag(PlayerFlags(PLAYER_FLAGS_AFK | PLAYER_FLAGS_DND | PLAYER_FLAGS_GM | PLAYER_FLAGS_GHOST | PLAYER_ALLOW_ONLY_ABILITY));
+    RemovePlayerFlag(PlayerFlags(PLAYER_FLAGS_AFK | PLAYER_FLAGS_DND | PLAYER_FLAGS_GM | PLAYER_FLAGS_GHOST));
 
     RemoveVisFlags(UNIT_VIS_FLAGS_ALL);                 // one form stealth modified bytes
     RemovePvpFlag(UnitPVPStateFlags(UNIT_BYTE2_FLAG_FFA_PVP | UNIT_BYTE2_FLAG_SANCTUARY));
