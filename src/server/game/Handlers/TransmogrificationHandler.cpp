@@ -163,7 +163,7 @@ void WorldSession::HandleTransmogrifyItems(WorldPackets::Transmogrification::Tra
             resetIllusionItems.push_back(itemTransmogrified);
     }
 
-    if (cost) // 0 cost if reverting look
+    if (!player->HasAuraType(SPELL_AURA_REMOVE_TRANSMOG_COST) && cost) // 0 cost if reverting look
     {
         if (!player->HasEnoughMoney(cost))
             return;

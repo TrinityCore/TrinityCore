@@ -1467,8 +1467,12 @@ struct npc_razorscale_devouring_flame : public ScriptedAI
 
     void Reset() override
     {
-        DoCastSelf(DEVOURING_FLAME_GROUND);
+        me->SetReactState(REACT_PASSIVE);
+        DoCastSelf(DEVOURING_FLAME_GROUND, true);
     }
+
+    // Evade caused by Spell::SummonGuardian. Creature dont need evade at all, is despawned if razorscale enter in evade
+    void EnterEvadeMode(EvadeReason /*why*/) override { }
 };
 
 class go_razorscale_harpoon : public GameObjectScript

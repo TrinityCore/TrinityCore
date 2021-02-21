@@ -30,7 +30,7 @@ G3D (a commercial-grade C++ 3D engine available as Open Source (BSD License)
 
 jemalloc (a general-purpose scalable concurrent malloc-implementation)
   http://www.canonware.com/jemalloc/
-  Version: 3.6.0
+  Version: 5.0.1
 
 libreadline (command line editing library)
   https://cnswww.cns.cwru.edu/php/chet/readline/rltop.html
@@ -57,8 +57,8 @@ gSOAP (a portable development toolkit for C and C++ XML Web services and XML dat
   Version: 2.8.49
 
 recastnavigation (Recast is state of the art navigation mesh construction toolset for games)
-  https://github.com/memononen/recastnavigation
-  Version: 64385e9ed0822427bca5814d03a3f4c4d7a6db9f
+  https://github.com/recastnavigation/recastnavigation
+  Version: 2c85309280dbc9c82029e7ab16dfb01b9235c74e
 
 CascLib (An open-source implementation of library for reading CASC storage from Blizzard games since 2014)
   https://github.com/ladislav-zezula/CascLib

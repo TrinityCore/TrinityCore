@@ -278,28 +278,6 @@ class spell_mage_conjure_refreshment : public SpellScript
     }
 };
 
-// 44544 - Fingers of Frost
-class spell_mage_fingers_of_frost : public AuraScript
-{
-    PrepareAuraScript(spell_mage_fingers_of_frost);
-
-    void SuppressWarning(AuraEffect* /*aurEff*/, ProcEventInfo& /*procInfo*/)
-    {
-        PreventDefaultAction();
-    }
-
-    void DropFingersOfFrost(ProcEventInfo& /*eventInfo*/)
-    {
-        GetAura()->ModStackAmount(-1);
-    }
-
-    void Register() override
-    {
-        OnEffectProc += AuraEffectProcFn(spell_mage_fingers_of_frost::SuppressWarning, EFFECT_1, SPELL_AURA_DUMMY);
-        AfterProc += AuraProcFn(spell_mage_fingers_of_frost::DropFingersOfFrost);
-    }
-};
-
 // 11426 - Ice Barrier
 class spell_mage_ice_barrier : public AuraScript
 {
@@ -853,7 +831,6 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_cold_snap);
     RegisterSpellScript(spell_mage_cone_of_cold);
     RegisterSpellScript(spell_mage_conjure_refreshment);
-    RegisterAuraScript(spell_mage_fingers_of_frost);
     RegisterAuraScript(spell_mage_ice_barrier);
     RegisterSpellScript(spell_mage_ice_lance);
     RegisterSpellScript(spell_mage_ice_lance_damage);

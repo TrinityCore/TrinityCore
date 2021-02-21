@@ -115,13 +115,13 @@ void AuraApplication::_InitFlags(Unit* caster, uint32 effMask)
         _flags |= positiveFound ? AFLAG_POSITIVE : AFLAG_NEGATIVE;
     }
 
-    if (GetBase()->GetSpellInfo()->HasAttribute(SPELL_ATTR8_AURA_SEND_AMOUNT) ||
-        GetBase()->HasEffectType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS) ||
-        GetBase()->HasEffectType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_TRIGGERED) ||
-        GetBase()->HasEffectType(SPELL_AURA_MOD_SPELL_CATEGORY_COOLDOWN) ||
-        GetBase()->HasEffectType(SPELL_AURA_MOD_MAX_CHARGES) ||
-        GetBase()->HasEffectType(SPELL_AURA_CHARGE_RECOVERY_MOD) ||
-        GetBase()->HasEffectType(SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER))
+    auto effectNeedsAmount = [this](AuraEffect const* effect)
+    {
+        return effect && (GetEffectsToApply() & (1 << effect->GetEffIndex())) && Aura::EffectTypeNeedsSendingAmount(effect->GetAuraType());
+    };
+
+    if (GetBase()->GetSpellInfo()->HasAttribute(SPELL_ATTR8_AURA_SEND_AMOUNT)
+        || std::find_if(GetBase()->GetAuraEffects().begin(), GetBase()->GetAuraEffects().end(), std::cref(effectNeedsAmount)) != GetBase()->GetAuraEffects().end())
         _flags |= AFLAG_SCALABLE;
 }
 
@@ -191,7 +191,7 @@ void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo
 
     // send stack amount for aura which could be stacked (never 0 - causes incorrect display) or charges
     // stack amount has priority over charges (checked on retail with spell 50262)
-    auraData.Applications = aura->GetSpellInfo()->StackAmount ? aura->GetStackAmount() : aura->GetCharges();
+    auraData.Applications = aura->IsUsingStacks() ? aura->GetStackAmount() : aura->GetCharges();
     if (!(auraData.Flags & AFLAG_NOCASTER))
         auraData.CastUnit = aura->GetCasterGUID();
 
@@ -924,12 +924,28 @@ void Aura::SetStackAmount(uint8 stackAmount)
     SetNeedClientUpdateForTargets();
 }
 
+bool Aura::IsUsingStacks() const
+{
+    return m_spellInfo->StackAmount > 0;
+}
+
+uint32 Aura::CalcMaxStackAmount() const
+{
+    int32 maxStackAmount = m_spellInfo->StackAmount;
+    if (Unit* caster = GetCaster())
+        if (Player* modOwner = caster->GetSpellModOwner())
+            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_MAX_STACK_AMOUNT, maxStackAmount);
+
+    return maxStackAmount;
+}
+
 bool Aura::ModStackAmount(int32 num, AuraRemoveMode removeMode /*= AURA_REMOVE_BY_DEFAULT*/, bool resetPeriodicTimer /*= true*/)
 {
     int32 stackAmount = m_stackAmount + num;
+    int32 maxStackAmount = int32(CalcMaxStackAmount());
 
     // limit the stack amount (only on stack increase, stack amount may be changed manually)
-    if ((num > 0) && (stackAmount > int32(m_spellInfo->StackAmount)))
+    if ((num > 0) && (stackAmount > maxStackAmount))
     {
         // not stackable aura - set stack amount to 1
         if (!m_spellInfo->StackAmount)
@@ -993,6 +1009,9 @@ bool Aura::IsDeathPersistent() const
 bool Aura::CanBeSaved() const
 {
     if (IsPassive())
+        return false;
+
+    if (GetSpellInfo()->IsChanneled())
         return false;
 
     // Check if aura is single target, not only spell info
@@ -1081,7 +1100,7 @@ void Aura::UnregisterSingleTarget()
     SetIsSingleTarget(false);
 }
 
-int32 Aura::CalcDispelChance(Unit const* auraTarget, bool offensive) const
+int32 Aura::CalcDispelChance(Unit const* /*auraTarget*/, bool /*offensive*/) const
 {
     // we assume that aura dispel chance is 100% on start
     // need formula for level difference based chance
@@ -1091,11 +1110,6 @@ int32 Aura::CalcDispelChance(Unit const* auraTarget, bool offensive) const
     if (Unit* caster = GetCaster())
         if (Player* modOwner = caster->GetSpellModOwner())
             modOwner->ApplySpellMod(GetId(), SPELLMOD_RESIST_DISPEL_CHANCE, resistChance);
-
-    // Dispel resistance from target SPELL_AURA_MOD_DISPEL_RESIST
-    // Only affects offensive dispels
-    if (offensive && auraTarget)
-        resistChance += auraTarget->GetTotalAuraModifier(SPELL_AURA_MOD_DISPEL_RESIST);
 
     RoundToInterval(resistChance, 0, 100);
     return 100 - resistChance;
@@ -1150,6 +1164,24 @@ bool Aura::HasEffectType(AuraType type) const
         if (effect && effect->GetAuraType() == type)
             return true;
     }
+    return false;
+}
+
+bool Aura::EffectTypeNeedsSendingAmount(AuraType type)
+{
+    switch (type)
+    {
+        case SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS:
+        case SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_TRIGGERED:
+        case SPELL_AURA_MOD_SPELL_CATEGORY_COOLDOWN:
+        case SPELL_AURA_MOD_MAX_CHARGES:
+        case SPELL_AURA_CHARGE_RECOVERY_MOD:
+        case SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER:
+            return true;
+        default:
+            break;
+    }
+
     return false;
 }
 
@@ -1828,8 +1860,13 @@ void Aura::TriggerProcOnEvent(uint32 procEffectMask, AuraApplication* aurApp, Pr
     }
 
     // Remove aura if we've used last charge to proc
-    if (IsUsingCharges() && !GetCharges())
-        Remove();
+    if (IsUsingCharges())
+    {
+        if (!GetCharges())
+            Remove();
+    }
+    else if (ASSERT_NOTNULL(sSpellMgr->GetSpellProcEntry(m_spellInfo))->AttributesMask & PROC_ATTR_USE_STACKS_FOR_CHARGES)
+        ModStackAmount(-1);
 }
 
 float Aura::CalcPPMProcChance(Unit* actor) const

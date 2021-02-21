@@ -549,6 +549,9 @@ m_spellValue(new SpellValue(m_spellInfo, caster)), _spellEvent(nullptr)
             if (Item* pItem = m_caster->ToPlayer()->GetWeaponForAttack(RANGED_ATTACK))
                 m_spellSchoolMask = SpellSchoolMask(1 << pItem->GetTemplate()->GetDamageType());
 
+    if (Player const* modOwner = caster->GetSpellModOwner())
+        modOwner->ApplySpellMod(info->Id, SPELLMOD_STACK_AMOUNT, m_spellValue->AuraStackAmount, this);
+
     if (!originalCasterGUID.IsEmpty())
         m_originalCasterGUID = originalCasterGUID;
     else
@@ -3754,18 +3757,7 @@ void Spell::finish(bool ok)
 
     if (IsAutoActionResetSpell())
     {
-        bool found = false;
-        Unit::AuraEffectList const& vIgnoreReset = m_caster->GetAuraEffectsByType(SPELL_AURA_IGNORE_MELEE_RESET);
-        for (Unit::AuraEffectList::const_iterator i = vIgnoreReset.begin(); i != vIgnoreReset.end(); ++i)
-        {
-            if ((*i)->IsAffectingSpell(m_spellInfo))
-            {
-                found = true;
-                break;
-            }
-        }
-
-        if (!found && !m_spellInfo->HasAttribute(SPELL_ATTR2_NOT_RESET_AUTO_ACTIONS))
+        if (!m_spellInfo->HasAttribute(SPELL_ATTR2_NOT_RESET_AUTO_ACTIONS))
         {
             m_caster->resetAttackTimer(BASE_ATTACK);
             if (m_caster->haveOffhandWeapon())
@@ -4903,8 +4895,33 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
         if (m_caster->GetTypeId() == TYPEID_PLAYER)
         {
             //can cast triggered (by aura only?) spells while have this flag
-            if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_AURASTATE) && m_caster->ToPlayer()->HasPlayerFlag(PLAYER_ALLOW_ONLY_ABILITY))
-                return SPELL_FAILED_SPELL_IN_PROGRESS;
+            if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_AURASTATE))
+            {
+                // These two auras check SpellFamilyName defined by db2 class data instead of current spell SpellFamilyName
+                if (m_caster->HasAuraType(SPELL_AURA_DISABLE_CASTING_EXCEPT_ABILITIES)
+                    && !m_spellInfo->HasAttribute(SPELL_ATTR0_REQ_AMMO)
+                    && !m_spellInfo->HasEffect(SPELL_EFFECT_ATTACK)
+                    && !m_spellInfo->HasAttribute(SPELL_ATTR12_IGNORE_CASTING_DISABLED)
+                    && !m_caster->HasAuraTypeWithFamilyFlags(SPELL_AURA_DISABLE_CASTING_EXCEPT_ABILITIES, sChrClassesStore.AssertEntry(m_caster->getClass())->SpellClassSet, m_spellInfo->SpellFamilyFlags))
+                        return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+                if (m_caster->HasAuraType(SPELL_AURA_DISABLE_ATTACKING_EXCEPT_ABILITIES))
+                {
+                    if (!m_caster->HasAuraTypeWithFamilyFlags(SPELL_AURA_DISABLE_ATTACKING_EXCEPT_ABILITIES, sChrClassesStore.AssertEntry(m_caster->getClass())->SpellClassSet, m_spellInfo->SpellFamilyFlags))
+                    {
+                        if (m_spellInfo->HasAttribute(SPELL_ATTR0_REQ_AMMO)
+                            || m_spellInfo->IsNextMeleeSwingSpell()
+                            || m_spellInfo->HasAttribute(SPELL_ATTR1_MELEE_COMBAT_START)
+                            || m_spellInfo->HasAttribute(SPELL_ATTR2_UNK20)
+                            || m_spellInfo->HasEffect(SPELL_EFFECT_ATTACK)
+                            || m_spellInfo->HasEffect(SPELL_EFFECT_NORMALIZED_WEAPON_DMG)
+                            || m_spellInfo->HasEffect(SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL)
+                            || m_spellInfo->HasEffect(SPELL_EFFECT_WEAPON_PERCENT_DAMAGE)
+                            || m_spellInfo->HasEffect(SPELL_EFFECT_WEAPON_DAMAGE))
+                            return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+                    }
+                }
+            }
 
             // check if we are using a potion in combat for the 2nd+ time. Cooldown is added only after caster gets out of combat
             if (!IsIgnoringCooldowns() && m_caster->ToPlayer()->GetLastPotionId() && m_CastItem && (m_CastItem->IsPotion() || m_spellInfo->IsCooldownStartedOnEvent()))
@@ -4974,9 +4991,6 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                 return SPELL_FAILED_ONLY_STEALTHED;
         }
     }
-
-    if (m_caster->HasAuraTypeWithMiscvalue(SPELL_AURA_BLOCK_SPELL_FAMILY, m_spellInfo->SpellFamilyName))
-        return SPELL_FAILED_SPELL_UNAVAILABLE;
 
     bool reqCombat = true;
     Unit::AuraEffectList const& stateAuras = m_caster->GetAuraEffectsByType(SPELL_AURA_ABILITY_IGNORE_AURASTATE);
@@ -6065,7 +6079,7 @@ bool Spell::CheckSpellCancelsCharm(uint32* param1) const
 bool Spell::CheckSpellCancelsStun(uint32* param1) const
 {
     return CheckSpellCancelsAuraEffect(SPELL_AURA_MOD_STUN, param1) &&
-        CheckSpellCancelsAuraEffect(SPELL_AURA_STRANGULATE, param1);
+        CheckSpellCancelsAuraEffect(SPELL_AURA_MOD_STUN_DISABLE_GRAVITY, param1);
 }
 
 bool Spell::CheckSpellCancelsSilence(uint32* param1) const
@@ -7846,7 +7860,7 @@ void Spell::TriggerGlobalCooldown()
             m_spellInfo->HasAttribute(SPELL_ATTR0_ABILITY);
 
         // Apply haste rating
-        if (gcd > MIN_GCD && ((m_spellInfo->StartRecoveryCategory == 133 && !isMeleeOrRangedSpell) || m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_MOD_GLOBAL_COOLDOWN_BY_HASTE, m_spellInfo)))
+        if (gcd > MIN_GCD && ((m_spellInfo->StartRecoveryCategory == 133 && !isMeleeOrRangedSpell)))
         {
             gcd = int32(float(gcd) * m_caster->m_unitData->ModSpellHaste);
             RoundToInterval<int32>(gcd, MIN_GCD, MAX_GCD);
