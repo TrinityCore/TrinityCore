@@ -3773,14 +3773,6 @@ std::vector<SpellPowerCost> SpellInfo::CalcPowerCost(Unit const* caster, SpellSc
             continue;
         }
 
-        // If mana cost multiplier is lower than -1 we will have (at least) 100% mana reduction,
-        // hence zero power cost
-        if (power->PowerType == POWER_MANA && caster->GetManaCostMultiplier() <= -1.0f)
-        {
-            costs.push_back(SpellPowerCost(Powers(POWER_MANA), 0));
-            continue;
-        }
-
         // Base powerCost
         int32 powerCost = power->ManaCost;
         // PCT cost from total amount
@@ -3907,7 +3899,7 @@ std::vector<SpellPowerCost> SpellInfo::CalcPowerCost(Unit const* caster, SpellSc
         }
 
         if (power->PowerType == POWER_MANA)
-            powerCost = std::max(0.0f, (float)powerCost * (1.0f + caster->GetManaCostMultiplier())); // Ensure >= 0
+            powerCost = (float)powerCost * (1.0f + caster->GetManaCostMultiplier());
         else if (power->PowerType == POWER_HEALTH)
         {
             healthCost += powerCost;
