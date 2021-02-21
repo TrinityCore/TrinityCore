@@ -2556,7 +2556,7 @@ float Map::GetWaterOrGroundLevel(PhaseShift const& phaseShift, float x, float y,
     if (GetGrid(PhasingHandler::GetTerrainMapId(phaseShift, this, x, y), x, y))
     {
         // we need ground level (including grid height version) for proper return water level in point
-        float ground_z = GetHeight(phaseShift, x, y, z + collisionHeight, true, 50.0f);
+        float ground_z = GetHeight(phaseShift, x, y, z + Z_OFFSET_FIND_HEIGHT, true, 50.0f);
         if (ground)
             *ground = ground_z;
 
