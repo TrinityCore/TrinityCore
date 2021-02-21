@@ -141,6 +141,7 @@ enum AreaFlags
 enum AreaFlags2
 {
     AREA_FLAG_2_DONT_SHOW_SANCTUARY = 0x00000200,                // Hides sanctuary status from zone text color (Script_GetZonePVPInfo)
+    AREA_FLAG_2_CAN_ENABLE_WAR_MODE = 0x00001000,                // Allows enabling war mode
 };
 
 enum AreaMountFlags
@@ -976,6 +977,26 @@ enum FactionMasks
     // if none flags set then non-aggressive creature
 };
 
+enum class GlobalCurve : int32
+{
+    CritDiminishing = 0,
+    MasteryDiminishing = 1,
+    HasteDiminishing = 2,
+    SpeedDiminishing = 3,
+    AvoidanceDiminishing = 4,
+    VersatilityDoneDiminishing = 5,
+    LifestealDiminishing = 6,
+    DodgeDiminishing = 7,
+    BlockDiminishing = 8,
+    ParryDiminishing = 9,
+
+    VersatilityTakenDiminishing = 11,
+
+    ContentTuningPvpItemLevelHealthScaling = 13,
+    ContentTuningPvpLevelDamageScaling = 14,
+    ContentTuningPvpItemLevelDamageScaling = 15,
+};
+
 #define MAX_ITEM_PROTO_FLAGS 4
 #define MAX_ITEM_PROTO_ZONES 2
 #define MAX_ITEM_PROTO_SOCKETS 3
@@ -1005,6 +1026,14 @@ enum AbilytyLearnType
     SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN  = 2, // Spell will be learned/removed together with entire skill
     SKILL_LINE_ABILITY_REWARDED_FROM_QUEST     = 4  // Learned as quest reward, also re-learned if missing
 };
+
+enum class SkillLineAbilityFlags
+{
+    CanFallbackToLearnedOnSkillLearn            = 0x80, // The skill is rewarded from a quest if player started on exile's reach
+
+};
+
+DEFINE_ENUM_FLAG(SkillLineAbilityFlags);
 
 enum GlyphSlotType
 {
@@ -1287,6 +1316,18 @@ enum SpellCategoryFlags
     SPELL_CATEGORY_FLAG_COOLDOWN_STARTS_ON_EVENT            = 0x04,
     SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET     = 0x08
 };
+
+enum class SpellEffectAttributes
+{
+    None                                    = 0,
+    UnaffectedByInvulnerability             = 0x000001, // not cancelled by immunities
+    NoScaleWithStack                        = 0x000040,
+    StackAuraAmountOnRecast                 = 0x008000, // refreshing periodic auras with this attribute will add remaining damage to new aura
+    AllowAnyExplicitTarget                  = 0x100000,
+    IgnoreDuringCooldownTimeRateCalculation = 0x800000
+};
+
+DEFINE_ENUM_FLAG(SpellEffectAttributes);
 
 #define MAX_SPELL_EFFECTS 32
 #define MAX_EFFECT_MASK 0xFFFFFFFF

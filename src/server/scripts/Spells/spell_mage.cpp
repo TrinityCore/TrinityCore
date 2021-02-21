@@ -64,6 +64,8 @@ enum MageSpells
     SPELL_MAGE_ICY_VEINS                         = 12472,
     SPELL_MAGE_CHAIN_REACTION_DUMMY              = 278309,
     SPELL_MAGE_CHAIN_REACTION                    = 278310,
+    SPELL_MAGE_TOUCH_OF_THE_MAGI_AURA            = 210824,
+    SPELL_MAGE_TOUCH_OF_THE_MAGI_EXPLODE         = 210833,
 };
 
 enum MiscSpells
@@ -91,7 +93,7 @@ class spell_mage_blazing_barrier : public AuraScript
             amount = int32(caster->SpellBaseHealingBonusDone(GetSpellInfo()->GetSchoolMask()) * 7.0f);
     }
 
-    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
         Unit* caster = eventInfo.GetDamageInfo()->GetVictim();
@@ -276,28 +278,6 @@ class spell_mage_conjure_refreshment : public SpellScript
     }
 };
 
-// 44544 - Fingers of Frost
-class spell_mage_fingers_of_frost : public AuraScript
-{
-    PrepareAuraScript(spell_mage_fingers_of_frost);
-
-    void SuppressWarning(AuraEffect const* /*aurEff*/, ProcEventInfo& /*procInfo*/)
-    {
-        PreventDefaultAction();
-    }
-
-    void DropFingersOfFrost(ProcEventInfo& /*eventInfo*/)
-    {
-        GetAura()->ModStackAmount(-1);
-    }
-
-    void Register() override
-    {
-        OnEffectProc += AuraEffectProcFn(spell_mage_fingers_of_frost::SuppressWarning, EFFECT_1, SPELL_AURA_DUMMY);
-        AfterProc += AuraProcFn(spell_mage_fingers_of_frost::DropFingersOfFrost);
-    }
-};
-
 // 11426 - Ice Barrier
 class spell_mage_ice_barrier : public AuraScript
 {
@@ -318,7 +298,7 @@ class spell_mage_ice_barrier : public AuraScript
             amount += int32(caster->SpellBaseHealingBonusDone(GetSpellInfo()->GetSchoolMask()) * 10.0f);
     }
 
-    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
     {
         Unit* caster = eventInfo.GetDamageInfo()->GetVictim();
         Unit* target = eventInfo.GetDamageInfo()->GetAttacker();
@@ -429,7 +409,7 @@ class spell_mage_ignite : public AuraScript
         return eventInfo.GetProcTarget() != nullptr;
     }
 
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
 
@@ -459,7 +439,7 @@ class spell_mage_imp_mana_gems : public AuraScript
         return ValidateSpellInfo({ SPELL_MAGE_MANA_SURGE });
     }
 
-    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
         eventInfo.GetActor()->CastSpell(nullptr, SPELL_MAGE_MANA_SURGE, true);
@@ -753,6 +733,47 @@ class spell_mage_time_warp : public SpellScript
     }
 };
 
+// 210824 - Touch of the Magi (Aura)
+class spell_mage_touch_of_the_magi_aura : public AuraScript
+{
+    PrepareAuraScript(spell_mage_touch_of_the_magi_aura);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_TOUCH_OF_THE_MAGI_EXPLODE });
+    }
+
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    {
+        DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+        if (damageInfo)
+        {
+            if (damageInfo->GetAttacker() == GetCaster() && damageInfo->GetVictim() == GetTarget())
+            {
+                uint32 extra = CalculatePct(damageInfo->GetDamage(), 25);
+                if (extra > 0)
+                    aurEff->ChangeAmount(aurEff->GetAmount() + extra);
+            }
+        }
+    }
+
+    void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        int32 amount = aurEff->GetAmount();
+        if (!amount || GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+            return;
+
+        if (Unit* caster = GetCaster())
+            caster->CastCustomSpell(SPELL_MAGE_TOUCH_OF_THE_MAGI_EXPLODE, SPELLVALUE_BASE_POINT0, amount, GetTarget(), TRIGGERED_FULL_MASK);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_mage_touch_of_the_magi_aura::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_mage_touch_of_the_magi_aura::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 /* 228597 - Frostbolt
    84721  - Frozen Orb
    190357 - Blizzard */
@@ -810,7 +831,6 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_cold_snap);
     RegisterSpellScript(spell_mage_cone_of_cold);
     RegisterSpellScript(spell_mage_conjure_refreshment);
-    RegisterAuraScript(spell_mage_fingers_of_frost);
     RegisterAuraScript(spell_mage_ice_barrier);
     RegisterSpellScript(spell_mage_ice_lance);
     RegisterSpellScript(spell_mage_ice_lance_damage);
@@ -824,6 +844,7 @@ void AddSC_mage_spell_scripts()
     RegisterAuraScript(spell_mage_ring_of_frost);
     RegisterSpellAndAuraScriptPair(spell_mage_ring_of_frost_freeze, spell_mage_ring_of_frost_freeze_AuraScript);
     RegisterSpellScript(spell_mage_time_warp);
+    RegisterAuraScript(spell_mage_touch_of_the_magi_aura);
     RegisterSpellScript(spell_mage_trigger_chilled);
     RegisterSpellScript(spell_mage_water_elemental_freeze);
 }

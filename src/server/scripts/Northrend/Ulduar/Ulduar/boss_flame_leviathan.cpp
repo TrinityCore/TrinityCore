@@ -1631,6 +1631,8 @@ class FlameLeviathanPursuedTargetSelector
     };
 
     public:
+        explicit FlameLeviathanPursuedTargetSelector() { };
+
         bool operator()(WorldObject* target) const
         {
             //! No players, only vehicles. Pursue is never cast on players.
@@ -1748,7 +1750,7 @@ class spell_vehicle_throw_passenger : public SpellScriptLoader
                         {
                             // use 99 because it is 3d search
                             std::list<WorldObject*> targetList;
-                            Trinity::WorldObjectSpellAreaTargetCheck check(99, GetExplTargetDest(), GetCaster(), GetCaster(), GetSpellInfo(), TARGET_CHECK_DEFAULT, nullptr);
+                            Trinity::WorldObjectSpellAreaTargetCheck check(99, GetExplTargetDest(), GetCaster(), GetCaster(), GetSpellInfo(), TARGET_CHECK_DEFAULT, nullptr, TARGET_OBJECT_TYPE_UNIT);
                             Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellAreaTargetCheck> searcher(GetCaster(), targetList, check);
                             Cell::VisitAllObjects(GetCaster(), searcher, 99.0f);
                             float minDist = 99 * 99;

@@ -277,7 +277,7 @@ class spell_anetheron_vampiric_aura : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_VAMPIRIC_AURA_HEAL });
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 DamageInfo* damageInfo = eventInfo.GetDamageInfo();

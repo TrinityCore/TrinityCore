@@ -183,6 +183,9 @@ class TC_GAME_API Aura
         void SetStackAmount(uint8 num);
         bool ModStackAmount(int32 num, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT, bool resetPeriodicTimer = true);
 
+        uint32 CalcMaxStackAmount() const;
+        bool IsUsingStacks() const;
+
         uint8 GetCasterLevel() const { return m_casterLevel; }
 
         bool HasMoreThanOneEffectForType(AuraType auraType) const;
@@ -222,6 +225,7 @@ class TC_GAME_API Aura
         // helpers for aura effects
         bool HasEffect(uint8 effIndex) const { return GetEffect(effIndex) != nullptr; }
         bool HasEffectType(AuraType type) const;
+        static bool EffectTypeNeedsSendingAmount(AuraType type);
         AuraEffect* GetEffect(uint32 index) const;
         uint32 GetEffectMask() const;
         void RecalculateAmountOfEffects();
@@ -278,8 +282,8 @@ class TC_GAME_API Aura
         bool CallScriptPrepareProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo);
         bool CallScriptProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo);
         void CallScriptAfterProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo);
-        bool CallScriptEffectProcHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, ProcEventInfo& eventInfo);
-        void CallScriptAfterEffectProcHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, ProcEventInfo& eventInfo);
+        bool CallScriptEffectProcHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, ProcEventInfo& eventInfo);
+        void CallScriptAfterEffectProcHandlers(AuraEffect* aurEff, AuraApplication const* aurApp, ProcEventInfo& eventInfo);
 
         template <class Script>
         Script* GetScript(std::string const& scriptName) const

@@ -737,7 +737,7 @@ class spell_garothi_carnage : public AuraScript
 {
     PrepareAuraScript(spell_garothi_carnage);
 
-    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo`*/)
+    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& /*eventInfo`*/)
     {
         // Usually we could just handle this via spell_proc but since we want
         // to silence the console message because it's not a spell trigger proc, we need a script here.

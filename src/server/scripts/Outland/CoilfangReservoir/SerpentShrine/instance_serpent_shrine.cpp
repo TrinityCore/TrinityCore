@@ -148,7 +148,7 @@ class instance_serpent_shrine : public InstanceMapScript
                                         player->CastSpell(player, SPELL_SCALDINGWATER, true);
 
                                 }
-                                else if (Water == WATERSTATE_FRENZY)
+                                else
                                 {
                                     //spawn frenzy
                                     if (DoSpawnFrenzy)

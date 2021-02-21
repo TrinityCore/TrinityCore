@@ -391,8 +391,7 @@ public:
 
                                 for (uint8 i = 0; i < 3; ++i)
                                 {
-                                    Unit* target = nullptr;
-                                    target = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
                                     Creature* Orb = DoSpawnCreature(CREATURE_ARCANE_SPHERE, 5, 5, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
                                     if (Orb && target)
@@ -562,15 +561,12 @@ public:
                     Rebirth = true;
                 }
 
-                if (Rebirth)
+                if (Death_Timer <= diff)
                 {
-                    if (Death_Timer <= diff)
-                    {
-                        me->SummonCreature(CREATURE_PHOENIX_EGG, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45000);
-                        me->DisappearAndDie();
-                        Rebirth = false;
-                    } else Death_Timer -= diff;
-                }
+                    me->SummonCreature(CREATURE_PHOENIX_EGG, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45000);
+                    me->DisappearAndDie();
+                    Rebirth = false;
+                } else Death_Timer -= diff;
             }
 
             if (!UpdateVictim())

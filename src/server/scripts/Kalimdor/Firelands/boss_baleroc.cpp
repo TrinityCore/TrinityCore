@@ -701,7 +701,7 @@ class spell_baleroc_torment_AuraScript : public AuraScript
         return ValidateSpellInfo({ SPELL_VITAL_FLAME, SPELL_VITAL_SPARK, SPELL_TORMENTED });
     }
 
-    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
         Unit* healer = eventInfo.GetProcTarget();
@@ -779,7 +779,7 @@ class spell_baleroc_vital_spark : public AuraScript
         return ValidateSpellInfo({ SPELL_BLAZE_OF_GLORY, SPELL_VITAL_FLAME });
     }
 
-    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
         if (Unit* target = eventInfo.GetProcTarget())
@@ -828,8 +828,8 @@ class spell_baleroc_vital_flame : public AuraScript
 
     void Register() override
     {
-        OnEffectApply += AuraEffectApplyFn(spell_baleroc_vital_flame::OnApply, EFFECT_0, SPELL_AURA_359, AURA_EFFECT_HANDLE_REAL);
-        OnEffectRemove += AuraEffectRemoveFn(spell_baleroc_vital_flame::OnRemove, EFFECT_0, SPELL_AURA_359, AURA_EFFECT_HANDLE_REAL);
+        OnEffectApply += AuraEffectApplyFn(spell_baleroc_vital_flame::OnApply, EFFECT_0, SPELL_AURA_MOD_HEALING_DONE_VERSUS_AURASTATE, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove += AuraEffectRemoveFn(spell_baleroc_vital_flame::OnRemove, EFFECT_0, SPELL_AURA_MOD_HEALING_DONE_VERSUS_AURASTATE, AURA_EFFECT_HANDLE_REAL);
     }
 
     uint32 stacks = 0u;

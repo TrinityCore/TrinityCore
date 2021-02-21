@@ -621,6 +621,10 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PrepareStatement(HOTFIX_SEL_GEM_PROPERTIES, "SELECT ID, EnchantId, Type FROM gem_properties WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_GEM_PROPERTIES, "SELECT MAX(ID) + 1 FROM gem_properties", CONNECTION_SYNCH);
 
+    // GlobalCurve.db2
+    PrepareStatement(HOTFIX_SEL_GLOBAL_CURVE, "SELECT ID, CurveID, Type FROM global_curve WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_GLOBAL_CURVE, "SELECT MAX(ID) + 1 FROM global_curve", CONNECTION_SYNCH);
+
     // GlyphBindableSpell.db2
     PrepareStatement(HOTFIX_SEL_GLYPH_BINDABLE_SPELL, "SELECT ID, SpellID, GlyphPropertiesID FROM glyph_bindable_spell WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_GLYPH_BINDABLE_SPELL, "SELECT MAX(ID) + 1 FROM glyph_bindable_spell", CONNECTION_SYNCH);
