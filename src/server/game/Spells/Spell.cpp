@@ -549,6 +549,9 @@ m_spellValue(new SpellValue(m_spellInfo, caster)), _spellEvent(nullptr)
             if (Item* pItem = m_caster->ToPlayer()->GetWeaponForAttack(RANGED_ATTACK))
                 m_spellSchoolMask = SpellSchoolMask(1 << pItem->GetTemplate()->GetDamageType());
 
+    if (Player const* modOwner = caster->GetSpellModOwner())
+        modOwner->ApplySpellMod(info->Id, SPELLMOD_STACK_AMOUNT, m_spellValue->AuraStackAmount, this);
+
     if (!originalCasterGUID.IsEmpty())
         m_originalCasterGUID = originalCasterGUID;
     else

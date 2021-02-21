@@ -71,13 +71,13 @@ enum SpellModOp : uint8
     SPELLMOD_RESIST_DISPEL_CHANCE       = 28,
     SPELLMOD_CRIT_DAMAGE_BONUS_2        = 29, //one not used spell
     SPELLMOD_SPELL_COST_REFUND_ON_FAIL  = 30,
-    SPELLMOD_STACK_AMOUNT               = 31, // has no effect on tooltip parsing
+    SPELLMOD_STACK_AMOUNT               = 31,
     SPELLMOD_EFFECT4                    = 32,
     SPELLMOD_EFFECT5                    = 33,
     SPELLMOD_SPELL_COST2                = 34, // Used when SpellPowerEntry::PowerIndex == 1
     SPELLMOD_JUMP_DISTANCE              = 35,
     // spellmod 36
-    SPELLMOD_STACK_AMOUNT2              = 37, // same as SPELLMOD_STACK_AMOUNT but affects tooltips
+    SPELLMOD_MAX_STACK_AMOUNT           = 37,
     // spellmod 38
     SPELLMOD_SPELL_COST3                = 39
 };

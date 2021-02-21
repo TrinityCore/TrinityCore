@@ -934,7 +934,8 @@ uint32 Aura::CalcMaxStackAmount() const
     int32 maxStackAmount = m_spellInfo->StackAmount;
     if (Unit* caster = GetCaster())
         if (Player* modOwner = caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_STACK_AMOUNT2, maxStackAmount);
+            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_MAX_STACK_AMOUNT, maxStackAmount);
+
     return maxStackAmount;
 }
 

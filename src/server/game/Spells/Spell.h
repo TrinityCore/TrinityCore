@@ -304,7 +304,7 @@ struct SpellValue
     uint32    CustomBasePointsMask;
     uint32    MaxAffectedTargets;
     float     RadiusMod;
-    uint8     AuraStackAmount;
+    int32     AuraStackAmount;
 };
 
 enum SpellState
