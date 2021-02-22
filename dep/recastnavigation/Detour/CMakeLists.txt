@@ -10,6 +10,7 @@
 
 set(Detour_STAT_SRCS
     Source/DetourAlloc.cpp 
+    Source/DetourAssert.cpp 
     Source/DetourCommon.cpp 
     Source/DetourNavMesh.cpp 
     Source/DetourNavMeshBuilder.cpp 
