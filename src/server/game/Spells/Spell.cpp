@@ -5390,21 +5390,6 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
 
                 break;
             }
-            case SPELL_EFFECT_POWER_BURN:
-            case SPELL_EFFECT_POWER_DRAIN:
-            {
-                // Can be area effect, Check only for players and not check if target - caster (spell can have multiply drain/burn effects)
-                // effect target can be caster and can be different than spell target (e.g. Ferocious Bite)
-                if (effect->TargetA.GetTarget() == TARGET_UNIT_CASTER)
-                {
-                    if (m_caster->GetMaxPower(Powers(effect->MiscValue)) <= 0)
-                        return SPELL_FAILED_BAD_TARGETS;
-                    if (Unit* target = m_targets.GetUnitTarget())
-                        AddUnitTarget(target, 1 << effect->EffectIndex, true, false);
-                }
-
-                break;
-            }
             case SPELL_EFFECT_CHARGE:
             {
                 if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_AURAS) && m_caster->HasUnitState(UNIT_STATE_ROOT))
