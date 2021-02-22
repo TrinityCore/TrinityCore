@@ -5388,10 +5388,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                     if (Unit* target = m_targets.GetUnitTarget())
                         AddUnitTarget(target, 1 << effect->EffectIndex, true, false);
                 }
-                else if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                    if (Unit* target = m_targets.GetUnitTarget())
-                        if (target != m_caster && target->GetPowerType() != Powers(effect->MiscValue))
-                            return SPELL_FAILED_BAD_TARGETS;
+
                 break;
             }
             case SPELL_EFFECT_CHARGE:
