@@ -33,10 +33,13 @@
 
 enum DruidSpells
 {
-    SPELL_DRUID_BLESSING_OF_THE_CLAW        = 28750,
-    SPELL_DRUID_BLESSING_OF_REMULOS         = 40445,
-    SPELL_DRUID_BLESSING_OF_ELUNE           = 40446,
+    SPELL_DRUID_BALANCE_T10_BONUS           = 70718,
+    SPELL_DRUID_BALANCE_T10_BONUS_PROC      = 70721,
     SPELL_DRUID_BLESSING_OF_CENARIUS        = 40452,
+    SPELL_DRUID_BLESSING_OF_ELUNE           = 40446,
+    SPELL_DRUID_BLESSING_OF_REMULOS         = 40445,
+    SPELL_DRUID_BLESSING_OF_THE_CLAW        = 28750,
+    SPELL_DRUID_CAT_FORM                    = 768,
     SPELL_DRUID_EXHILARATE                  = 28742,
     SPELL_DRUID_FERAL_CHARGE_BEAR           = 16979,
     SPELL_DRUID_FERAL_CHARGE_CAT            = 49376,
@@ -49,6 +52,7 @@ enum DruidSpells
     SPELL_DRUID_FORMS_TRINKET_MOONKIN       = 37343,
     SPELL_DRUID_FORMS_TRINKET_NONE          = 37344,
     SPELL_DRUID_FORMS_TRINKET_TREE          = 37342,
+    SPELL_DRUID_GORE_PROC                   = 93622,
     SPELL_DRUID_IDOL_OF_FERAL_SHADOWS       = 34241,
     SPELL_DRUID_IDOL_OF_WORSHIP             = 60774,
     SPELL_DRUID_INFUSION                    = 37238,
@@ -57,23 +61,19 @@ enum DruidSpells
     SPELL_DRUID_LIFEBLOOM_FINAL_HEAL        = 33778,
     SPELL_DRUID_LIVING_SEED_HEAL            = 48503,
     SPELL_DRUID_LIVING_SEED_PROC            = 48504,
+    SPELL_DRUID_MANGLE                      = 33917,
     SPELL_DRUID_MOONFIRE_DAMAGE             = 164812,
+    SPELL_DRUID_REJUVENATION_T10_PROC       = 70691,
+    SPELL_DRUID_RESTORATION_T10_2P_BONUS    = 70658,
     SPELL_DRUID_SAVAGE_ROAR                 = 62071,
+    SPELL_DRUID_SKULL_BASH_CHARGE           = 221514,
+    SPELL_DRUID_SKULL_BASH_INTERRUPT        = 93985,
     SPELL_DRUID_STAMPEDE_BAER_RANK_1        = 81016,
     SPELL_DRUID_STAMPEDE_CAT_RANK_1         = 81021,
     SPELL_DRUID_STAMPEDE_CAT_STATE          = 109881,
-    SPELL_DRUID_TRAVEL_FORM                 = 783,
-    SPELL_DRUID_REJUVENATION_T10_PROC       = 70691,
-    SPELL_DRUID_BALANCE_T10_BONUS           = 70718,
-    SPELL_DRUID_BALANCE_T10_BONUS_PROC      = 70721,
-    SPELL_DRUID_RESTORATION_T10_2P_BONUS    = 70658,
     SPELL_DRUID_SUNFIRE_DAMAGE              = 164815,
     SPELL_DRUID_SURVIVAL_INSTINCTS          = 50322,
-    SPELL_DRUID_CAT_FORM                    = 768,
-    SPELL_DRUID_SKULL_BASH_CHARGE           = 292598,
-    SPELL_DRUID_SKULL_BASH_INTERRUPT        = 292599,
-    SPELL_DRUID_GORE_PROC                   = 93622,
-    SPELL_DRUID_MANGLE                      = 33917,
+    SPELL_DRUID_TRAVEL_FORM                 = 783,
 };
 
 // 1850 - Dash
@@ -1556,32 +1556,12 @@ class spell_dru_skull_bash : public SpellScript
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         GetCaster()->CastSpell(GetHitUnit(), SPELL_DRUID_SKULL_BASH_CHARGE, true);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_dru_skull_bash::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-// 292598 - Skull Bash Charge - SPELL_DRUID_SKULL_BASH_CHARGE
-class spell_dru_skull_bash_charge : public SpellScript
-{
-    PrepareSpellScript(spell_dru_skull_bash_charge);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_DRUID_SKULL_BASH_INTERRUPT });
-    }
-
-    void HandleCharge(SpellEffIndex /*effIndex*/)
-    {
         GetCaster()->CastSpell(GetHitUnit(), SPELL_DRUID_SKULL_BASH_INTERRUPT, true);
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_dru_skull_bash_charge::HandleCharge, EFFECT_0, SPELL_EFFECT_CHARGE);
+        OnEffectHitTarget += SpellEffectFn(spell_dru_skull_bash::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -1618,5 +1598,4 @@ void AddSC_druid_spell_scripts()
     new spell_dru_t10_restoration_4p_bonus_dummy();
     new spell_dru_wild_growth();
     RegisterSpellScript(spell_dru_skull_bash);
-    RegisterSpellScript(spell_dru_skull_bash_charge);
 }
