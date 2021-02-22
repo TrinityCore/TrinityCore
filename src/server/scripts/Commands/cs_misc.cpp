@@ -664,7 +664,7 @@ public:
         Group* groupTarget = playerTarget->GetGroup();
         if (!groupTarget)
             return false;
-
+        
         for (GroupReference* it = groupTarget->GetFirstMember(); it != nullptr; it = it->next())
         {
             Player* target = it->GetSource();
@@ -673,6 +673,7 @@ public:
             target->SaveToDB();
         }
 
+        return true;
     }
 
     static bool HandleDismountCommand(ChatHandler* handler)
