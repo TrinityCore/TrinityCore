@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "CharacterCache.h"
+#include "ChatCommandTags.h"
 #include "Chat.h"
 #include "DatabaseEnv.h"
 #include "DBCStores.h"
@@ -32,6 +33,8 @@
 #if TRINITY_COMPILER == TRINITY_COMPILER_GNU
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
+
+using namespace Trinity::ChatCommands;
 
 class group_commandscript : public CommandScript
 {
@@ -50,14 +53,15 @@ public:
 
         static std::vector<ChatCommand> groupCommandTable =
         {
-            { "set",     rbac::RBAC_PERM_COMMAND_GROUP_SET,     false, nullptr,                    "", groupSetCommandTable },
-            { "leader",  rbac::RBAC_PERM_COMMAND_GROUP_LEADER,  false, &HandleGroupLeaderCommand,  "" },
-            { "disband", rbac::RBAC_PERM_COMMAND_GROUP_DISBAND, false, &HandleGroupDisbandCommand, "" },
-            { "remove",  rbac::RBAC_PERM_COMMAND_GROUP_REMOVE,  false, &HandleGroupRemoveCommand,  "" },
-            { "join",    rbac::RBAC_PERM_COMMAND_GROUP_JOIN,    false, &HandleGroupJoinCommand,    "" },
-            { "list",    rbac::RBAC_PERM_COMMAND_GROUP_LIST,    false, &HandleGroupListCommand,    "" },
-            { "summon",  rbac::RBAC_PERM_COMMAND_GROUP_SUMMON,  false, &HandleGroupSummonCommand,  "" },
-            { "revive",  rbac::RBAC_PERM_COMMAND_REVIVE,        true,  &HandleGroupReviveCommand,   "" }
+            { "set",     rbac::RBAC_PERM_COMMAND_GROUP_SET,       false, nullptr,                    "", groupSetCommandTable },
+            { "leader",  rbac::RBAC_PERM_COMMAND_GROUP_LEADER,    false, &HandleGroupLeaderCommand,  "" },
+            { "disband", rbac::RBAC_PERM_COMMAND_GROUP_DISBAND,   false, &HandleGroupDisbandCommand, "" },
+            { "remove",  rbac::RBAC_PERM_COMMAND_GROUP_REMOVE,    false, &HandleGroupRemoveCommand,  "" },
+            { "join",    rbac::RBAC_PERM_COMMAND_GROUP_JOIN,      false, &HandleGroupJoinCommand,    "" },
+            { "list",    rbac::RBAC_PERM_COMMAND_GROUP_LIST,      false, &HandleGroupListCommand,    "" },
+            { "summon",  rbac::RBAC_PERM_COMMAND_GROUP_SUMMON,    false, &HandleGroupSummonCommand,  "" },
+            { "revive",  rbac::RBAC_PERM_COMMAND_REVIVE,          true,  &HandleGroupReviveCommand,  "" },
+            { "level",   rbac::RBAC_PERM_COMMAND_CHARACTER_LEVEL, true,  &HandleGroupLevelCommand,   "" }
         };
 
         static std::vector<ChatCommand> commandTable =
@@ -65,6 +69,55 @@ public:
             { "group", rbac::RBAC_PERM_COMMAND_GROUP, false, nullptr, "", groupCommandTable },
         };
         return commandTable;
+    }
+
+    static bool HandleGroupLevelCommand(ChatHandler* handler, Optional<PlayerIdentifier> player, int16 level)
+    {
+        if (!player)
+            player = PlayerIdentifier::FromTargetOrSelf(handler);
+        if (!player)
+            return false;
+
+        Player* target = player->GetConnectedPlayer();
+        Group* groupTarget = target->GetGroup();
+        if (!groupTarget)
+            return false;
+
+        for (GroupReference* it = groupTarget->GetFirstMember(); it != nullptr; it = it->next())
+        {
+            target = it->GetSource();
+
+            if (!target)
+                return false;
+
+            uint8 oldlevel = static_cast<uint8>(target->GetLevel());
+            int16 newlevel = static_cast<int16>(oldlevel) + level;
+
+            if (newlevel < 1)
+                newlevel = 1;
+
+            if (newlevel > static_cast<int16>(STRONG_MAX_LEVEL))
+                newlevel = static_cast<int16>(STRONG_MAX_LEVEL);
+
+            target->GiveLevel(static_cast<uint8>(newlevel));
+            target->InitTalentForLevel();
+            target->SetXP(0);
+
+            if (handler->needReportToTarget(target))
+            {
+                if (oldlevel == newlevel)
+                    ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_LEVEL_PROGRESS_RESET, handler->GetNameLink().c_str());
+                else if (oldlevel < static_cast<uint8>(newlevel))
+                    ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_LEVEL_UP, handler->GetNameLink().c_str(), newlevel);
+                else                                                // if (oldlevel > newlevel)
+                    ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_LEVEL_DOWN, handler->GetNameLink().c_str(), newlevel);
+            }
+            
+
+            if (!handler->GetSession() || (handler->GetSession()->GetPlayer() != player->GetConnectedPlayer()))      // including chr == NULL
+                handler->PSendSysMessage(LANG_YOU_CHANGE_LVL, handler->playerLink(*player).c_str(), newlevel);
+        }
+        return true;
     }
 
 
