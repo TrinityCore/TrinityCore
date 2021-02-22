@@ -67,7 +67,6 @@ public:
         return commandTable;
     }
 
-
     static bool HandleGroupReviveCommand(ChatHandler* handler, char const* args)
     {
         Player* playerTarget;
