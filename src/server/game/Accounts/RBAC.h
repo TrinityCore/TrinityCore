@@ -748,7 +748,6 @@ enum RBACPermissions
     // IF YOU ADD NEW PERMISSIONS, ADD THEM IN MASTER BRANCH AS WELL!
     //
     // custom permissions 1000+
-    RBAC_PERM_COMMAND_REVIVEALL                                 = 882,
     RBAC_PERM_MAX
 };
 

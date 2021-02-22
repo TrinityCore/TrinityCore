@@ -110,7 +110,6 @@ public:
             { "repairitems",      rbac::RBAC_PERM_COMMAND_REPAIRITEMS,       true, &HandleRepairitemsCommand,      "" },
             { "respawn",          rbac::RBAC_PERM_COMMAND_RESPAWN,          false, &HandleRespawnCommand,          "" },
             { "revive",           rbac::RBAC_PERM_COMMAND_REVIVE,            true, &HandleReviveCommand,           "" },
-            { "reviveall",        rbac::RBAC_PERM_COMMAND_REVIVEALL,         true, &HandleReviveAllCommand,        "" },
             { "saveall",          rbac::RBAC_PERM_COMMAND_SAVEALL,           true, &HandleSaveAllCommand,          "" },
             { "save",             rbac::RBAC_PERM_COMMAND_SAVE,             false, &HandleSaveCommand,             "" },
             { "setskill",         rbac::RBAC_PERM_COMMAND_SETSKILL,         false, &HandleSetSkillCommand,         "" },
@@ -649,28 +648,6 @@ public:
         {
             CharacterDatabaseTransaction trans(nullptr);
             Player::OfflineResurrect(targetGuid, trans);
-        }
-
-        return true;
-    }
-
-    static bool HandleReviveAllCommand(ChatHandler* handler, char const* args)
-    {
-        Player* playerTarget;
-        ObjectGuid playerTargetGuid;
-        if (!handler->extractPlayerTarget((char*)args, &playerTarget, &playerTargetGuid))
-            return false;
-
-        Group* groupTarget = playerTarget->GetGroup();
-        if (!groupTarget)
-            return false;
-        
-        for (GroupReference* it = groupTarget->GetFirstMember(); it != nullptr; it = it->next())
-        {
-            Player* target = it->GetSource();
-            target->ResurrectPlayer(target->GetSession()->HasPermission(rbac::RBAC_PERM_RESURRECT_WITH_FULL_HPS) ? 1.0f : 0.5f);
-            target->SpawnCorpseBones();
-            target->SaveToDB();
         }
 
         return true;
