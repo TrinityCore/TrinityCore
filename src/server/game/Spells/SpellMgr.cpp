@@ -1126,7 +1126,7 @@ void SpellMgr::LoadSpellLearnSpells()
         dbcLearnNode.Active = true;
         dbcLearnNode.AutoLearned = false;
 
-        mSpellLearnSpells.insert(SpellLearnSpellMap::value_type(spellLearnSpell->LearnSpellID, dbcLearnNode));
+        mSpellLearnSpells.insert(SpellLearnSpellMap::value_type(spellLearnSpell->SpellID, dbcLearnNode));
         ++dbc_count;
     }
 
