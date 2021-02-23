@@ -78,7 +78,6 @@ public:
         if (!player)
             return false;
 
-        
         Player* target = player->GetConnectedPlayer();
         if (!target)
             return false;
