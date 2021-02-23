@@ -27762,8 +27762,7 @@ void Player::ActivateTalentGroup(ChrSpecializationEntry const* spec)
 
 void Player::LoadActions(PreparedQueryResult result)
 {
-    if (result)
-        _LoadActions(result);
+    _LoadActions(result);
 
     SendActionButtons(1);
 }
