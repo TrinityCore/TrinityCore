@@ -78,7 +78,11 @@ public:
         if (!player)
             return false;
 
+        
         Player* target = player->GetConnectedPlayer();
+        if (!target)
+            return false;
+        
         Group* groupTarget = target->GetGroup();
         if (!groupTarget)
             return false;
@@ -86,36 +90,32 @@ public:
         for (GroupReference* it = groupTarget->GetFirstMember(); it != nullptr; it = it->next())
         {
             target = it->GetSource();
-
-            if (!target)
-                return false;
-
-            uint8 oldlevel = static_cast<uint8>(target->GetLevel());
-            int16 newlevel = static_cast<int16>(oldlevel) + level;
-
-            if (newlevel < 1)
-                newlevel = 1;
-
-            if (newlevel > static_cast<int16>(STRONG_MAX_LEVEL))
-                newlevel = static_cast<int16>(STRONG_MAX_LEVEL);
-
-            target->GiveLevel(static_cast<uint8>(newlevel));
-            target->InitTalentForLevel();
-            target->SetXP(0);
-
-            if (handler->needReportToTarget(target))
+            if (target)
             {
-                if (oldlevel == newlevel)
-                    ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_LEVEL_PROGRESS_RESET, handler->GetNameLink().c_str());
-                else if (oldlevel < static_cast<uint8>(newlevel))
-                    ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_LEVEL_UP, handler->GetNameLink().c_str(), newlevel);
-                else                                                // if (oldlevel > newlevel)
-                    ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_LEVEL_DOWN, handler->GetNameLink().c_str(), newlevel);
-            }
-            
 
-            if (!handler->GetSession() || (handler->GetSession()->GetPlayer() != player->GetConnectedPlayer()))      // including chr == NULL
-                handler->PSendSysMessage(LANG_YOU_CHANGE_LVL, handler->playerLink(*player).c_str(), newlevel);
+                uint8 oldlevel = static_cast<uint8>(target->GetLevel());
+                int16 newlevel = static_cast<int16>(oldlevel) + level;
+
+                if (newlevel < 1)
+                    newlevel = 1;
+
+                if (newlevel > static_cast<int16>(STRONG_MAX_LEVEL))
+                    newlevel = static_cast<int16>(STRONG_MAX_LEVEL);
+
+                target->GiveLevel(static_cast<uint8>(newlevel));
+                target->InitTalentForLevel();
+                target->SetXP(0);
+
+                if (handler->needReportToTarget(target))
+                {
+                    if (oldlevel == newlevel)
+                        ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_LEVEL_PROGRESS_RESET, handler->GetNameLink().c_str());
+                    else if (oldlevel < static_cast<uint8>(newlevel))
+                        ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_LEVEL_UP, handler->GetNameLink().c_str(), newlevel);
+                    else                                                // if (oldlevel > newlevel)
+                        ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_LEVEL_DOWN, handler->GetNameLink().c_str(), newlevel);
+                }
+            }
         }
         return true;
     }
