@@ -21,6 +21,7 @@
 #include "SharedDefines.h"
 #include "DatabaseEnvFwd.h"
 #include "GameTime.h"
+#include "SpellPackets.h"
 #include <chrono>
 #include <deque>
 #include <vector>
@@ -54,6 +55,7 @@ public:
         uint32 CategoryId = 0;
         Clock::time_point CategoryEnd;
         bool OnHold = false;
+        uint32 CooldownMS;
     };
 
     struct ChargeEntry
@@ -97,12 +99,50 @@ public:
     void AddCooldown(uint32 spellId, uint32 itemId, std::chrono::duration<Type, Period> cooldownDuration)
     {
         Clock::time_point now = GameTime::GetGameTimeSystemPoint();
-        AddCooldown(spellId, itemId, now + std::chrono::duration_cast<Clock::duration>(cooldownDuration), 0, now);
+        AddCooldown(spellId, std::chrono::duration_cast<std::chrono::duration<uint32, std::milli>>(cooldownDuration).count(),
+            itemId, now + std::chrono::duration_cast<Clock::duration>(cooldownDuration), 0, now);
     }
 
-    void AddCooldown(uint32 spellId, uint32 itemId, Clock::time_point cooldownEnd, uint32 categoryId, Clock::time_point categoryEnd, bool onHold = false);
+    void ApplyModCooldowns(flag128 spellClasMask);
+
+    template<typename Predicate>
+    void ModifyCooldowns(Predicate predicate, uint32 amount)
+    {
+        UpdateCooldowns(predicate, [amount](uint32 spellId, CooldownEntry const& spellEntry) {
+            return amount;
+        });
+    }
+
+    template<typename Predicate, typename UpdateFn>
+    void ModifyCooldowns(Predicate predicate, UpdateFn updateFn)
+    {
+        Player* playerOwner = GetPlayerOwner();
+        if (!playerOwner)
+            return;
+
+        Clock::time_point now = GameTime::GetGameTimeSystemPoint();
+
+        for (CooldownStorageType::iterator itr = _spellCooldowns.begin(); itr != _spellCooldowns.end();)
+        {
+            if (predicate(itr->first))
+            {
+                uint32 reduceCooldownBy = updateFn(itr->first, std::ref(itr->second));
+                Clock::duration offset = std::chrono::duration_cast<Clock::duration>(std::chrono::milliseconds(-reduceCooldownBy));
+
+                CooldownStorageType::iterator curr = itr;
+                ModifyCooldown(itr, offset);
+                if (itr == curr)
+                    ++itr;
+            }
+            else
+                ++itr;
+        }
+    }
+
+    void AddCooldown(uint32 spellId, uint32 cooldownMS, uint32 itemId, Clock::time_point cooldownEnd, uint32 categoryId, Clock::time_point categoryEnd, bool onHold = false);
     void ModifyCooldown(uint32 spellId, int32 cooldownModMs);
     void ModifyCooldown(uint32 spellId, Clock::duration cooldownMod);
+    void ModifyCooldown(CooldownStorageType::iterator& itr, Clock::duration cooldownMod);
     void ResetCooldown(uint32 spellId, bool update = false);
     void ResetCooldown(CooldownStorageType::iterator& itr, bool update = false);
     template<typename Predicate>

@@ -175,8 +175,8 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleAuraWaterWalk,                             //104 SPELL_AURA_WATER_WALK
     &AuraEffect::HandleAuraFeatherFall,                           //105 SPELL_AURA_FEATHER_FALL
     &AuraEffect::HandleAuraHover,                                 //106 SPELL_AURA_HOVER
-    &AuraEffect::HandleNoImmediateEffect,                         //107 SPELL_AURA_ADD_FLAT_MODIFIER implemented in AuraEffect::CalculateSpellMod()
-    &AuraEffect::HandleNoImmediateEffect,                         //108 SPELL_AURA_ADD_PCT_MODIFIER implemented in AuraEffect::CalculateSpellMod()
+    &AuraEffect::HandleAuraAddFlatModifier,                       //107 SPELL_AURA_ADD_FLAT_MODIFIER implemented in AuraEffect::CalculateSpellMod()
+    &AuraEffect::HandleAuraAddPctModifier,                        //108 SPELL_AURA_ADD_PCT_MODIFIER implemented in AuraEffect::CalculateSpellMod()
     &AuraEffect::HandleNoImmediateEffect,                         //109 SPELL_AURA_ADD_TARGET_TRIGGER
     &AuraEffect::HandleModPowerRegenPCT,                          //110 SPELL_AURA_MOD_POWER_REGEN_PERCENT implemented in Player::Regenerate, Creature::Regenerate
     &AuraEffect::HandleNoImmediateEffect,                         //111 SPELL_AURA_INTERCEPT_MELEE_RANGED_ATTACKS implemented in Unit::GetMeleeHitRedirectTarget
@@ -3628,6 +3628,20 @@ void AuraEffect::HandleAuraModMaxPower(AuraApplication const* aurApp, uint8 mode
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + power);
 
     target->HandleStatFlatModifier(unitMod, TOTAL_VALUE, float(GetAmount()), apply);
+}
+
+void AuraEffect::HandleAuraAddFlatModifier(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    AuraEffectHandleModes auraMode = (AuraEffectHandleModes)mode;
+    if (apply && GetMiscValue() == SPELLMOD_COOLDOWN)
+        aurApp->GetTarget()->GetSpellHistory()->ApplyModCooldowns(GetSpellEffectInfo()->SpellClassMask);
+}
+
+void AuraEffect::HandleAuraAddPctModifier(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    AuraEffectHandleModes auraMode = (AuraEffectHandleModes)mode;
+    if (apply && GetMiscValue() == SPELLMOD_COOLDOWN)
+        aurApp->GetTarget()->GetSpellHistory()->ApplyModCooldowns(GetSpellEffectInfo()->SpellClassMask);
 }
 
 /********************************/

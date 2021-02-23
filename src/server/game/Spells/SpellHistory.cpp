@@ -490,7 +490,7 @@ void SpellHistory::StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spel
     // self spell cooldown
     if (recTime != curTime)
     {
-        AddCooldown(spellInfo->Id, itemId, recTime, categoryId, catrecTime, onHold);
+        AddCooldown(spellInfo->Id, cooldown, itemId, recTime, categoryId, catrecTime, onHold);
 
         if (needsCooldownPacket)
         {
@@ -531,7 +531,7 @@ void SpellHistory::SendCooldownEvent(SpellInfo const* spellInfo, uint32 itemId /
         StartCooldown(spellInfo, itemId, spell);
 }
 
-void SpellHistory::AddCooldown(uint32 spellId, uint32 itemId, Clock::time_point cooldownEnd, uint32 categoryId, Clock::time_point categoryEnd, bool onHold /*= false*/)
+void SpellHistory::AddCooldown(uint32 spellId, uint32 cooldownMS, uint32 itemId, Clock::time_point cooldownEnd, uint32 categoryId, Clock::time_point categoryEnd, bool onHold /*= false*/)
 {
     CooldownEntry& cooldownEntry = _spellCooldowns[spellId];
     cooldownEntry.SpellId = spellId;
@@ -540,6 +540,7 @@ void SpellHistory::AddCooldown(uint32 spellId, uint32 itemId, Clock::time_point 
     cooldownEntry.CategoryId = categoryId;
     cooldownEntry.CategoryEnd = categoryEnd;
     cooldownEntry.OnHold = onHold;
+    cooldownEntry.CooldownMS = cooldownMS;
 
     if (categoryId)
         _categoryCooldowns[categoryId] = &cooldownEntry;
@@ -551,25 +552,32 @@ void SpellHistory::ModifyCooldown(uint32 spellId, int32 cooldownModMs)
     ModifyCooldown(spellId, offset);
 }
 
-void SpellHistory::ModifyCooldown(uint32 spellId, Clock::duration offset)
+void SpellHistory::ModifyCooldown(uint32 spellId, Clock::duration cooldownMod)
 {
     auto itr = _spellCooldowns.find(spellId);
-    if (!offset.count() || itr == _spellCooldowns.end())
+    if (!cooldownMod.count() || itr == _spellCooldowns.end())
+        return;
+    ModifyCooldown(itr, cooldownMod);
+}
+
+void SpellHistory::ModifyCooldown(CooldownStorageType::iterator& itr, Clock::duration cooldownMod)
+{
+    if (!cooldownMod.count())
         return;
 
     Clock::time_point now = GameTime::GetGameTimeSystemPoint();
 
-    if (itr->second.CooldownEnd + offset > now)
-        itr->second.CooldownEnd += offset;
+    if (itr->second.CooldownEnd + cooldownMod > now)
+        itr->second.CooldownEnd += cooldownMod;
     else
-        EraseCooldown(itr);
+        itr = EraseCooldown(itr);
 
     if (Player* playerOwner = GetPlayerOwner())
     {
         WorldPackets::Spells::ModifyCooldown modifyCooldown;
         modifyCooldown.IsPet = _owner != playerOwner;
-        modifyCooldown.SpellID = spellId;
-        modifyCooldown.DeltaTime = std::chrono::duration_cast<std::chrono::milliseconds>(offset).count();
+        modifyCooldown.SpellID = itr->first;
+        modifyCooldown.DeltaTime = std::chrono::duration_cast<std::chrono::milliseconds>(cooldownMod).count();
         playerOwner->SendDirectMessage(modifyCooldown.Write());
     }
 }
@@ -704,7 +712,7 @@ void SpellHistory::LockSpellSchool(SpellSchoolMask schoolMask, uint32 lockoutTim
         if ((schoolMask & spellInfo->GetSchoolMask()) && GetRemainingCooldown(spellInfo) < lockoutTime)
         {
             spellCooldown.SpellCooldowns.emplace_back(spellId, lockoutTime);
-            AddCooldown(spellId, 0, lockoutEnd, 0, now);
+            AddCooldown(spellId, lockoutTime, 0, lockoutEnd, 0, now);
         }
     }
 
@@ -962,6 +970,23 @@ void SpellHistory::RestoreCooldownStateAfterDuel()
 
         player->SendDirectMessage(spellCooldown.Write());
     }
+}
+
+void SpellHistory::ApplyModCooldowns(flag128 spellClasMask)
+{
+    Player* modOwner = _owner->GetSpellModOwner();
+    if (!modOwner)
+        return;
+
+    ModifyCooldowns([&spellClasMask, this](uint32 spellId) {
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, _owner->GetMap()->GetDifficultyID());
+        return spellInfo->IsAffected(spellInfo->SpellFamilyName, spellClasMask);
+    }, [modOwner](uint32 spellId, CooldownEntry const& spellEntry) {
+        uint32 totalCooldown = spellEntry.CooldownMS;
+        modOwner->ApplySpellMod(spellId, SPELLMOD_COOLDOWN, totalCooldown, nullptr);
+        uint32 reduceCooldown = spellEntry.CooldownMS - totalCooldown;
+        return reduceCooldown;
+    });
 }
 
 template void SpellHistory::LoadFromDB<Player>(PreparedQueryResult cooldownsResult, PreparedQueryResult chargesResult);
