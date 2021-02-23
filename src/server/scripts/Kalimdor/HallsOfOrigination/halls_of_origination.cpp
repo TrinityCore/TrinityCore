@@ -273,6 +273,8 @@ struct npc_hoo_brann_bronzebeard : public CreatureAI
 
         me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
         me->setActive(true);
+        _allowAreaTriggerText = false;
+        _events.CancelEvent(EVENT_ENABLE_AREA_TRIGGER_TALK);
         _events.ScheduleEvent(EVENT_INTRO_1, 2s);
 
         return true;
@@ -283,7 +285,7 @@ struct npc_hoo_brann_bronzebeard : public CreatureAI
         switch (action)
         {
             case ACTION_INTRO_AREA_TRIGGER:
-                if (_allowAreaTriggerText)
+                if (_allowAreaTriggerText && _instance->GetData(DATA_VAULT_OF_LIGHTS) == NOT_STARTED)
                 {
                     _allowAreaTriggerText = false;
                     Talk(SAY_DOOR_INTRO);
