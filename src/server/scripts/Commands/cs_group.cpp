@@ -91,7 +91,6 @@ public:
             target = it->GetSource();
             if (target)
             {
-
                 uint8 oldlevel = static_cast<uint8>(target->GetLevel());
                 int16 newlevel = static_cast<int16>(oldlevel) + level;
 
