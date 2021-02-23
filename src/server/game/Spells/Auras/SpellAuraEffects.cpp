@@ -3630,7 +3630,7 @@ void AuraEffect::HandleAuraModMaxPower(AuraApplication const* aurApp, uint8 mode
     target->HandleStatFlatModifier(unitMod, TOTAL_VALUE, float(GetAmount()), apply);
 }
 
-void AuraEffect::HandleAuraAddFlatPctModifier(AuraApplication const* aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleAuraAddFlatPctModifier(AuraApplication const* aurApp, uint8 /*mode*/, bool apply) const
 {
     if (apply && GetMiscValue() == SPELLMOD_COOLDOWN)
         aurApp->GetTarget()->GetSpellHistory()->ApplyModCooldowns(GetSpellEffectInfo()->SpellClassMask);
