@@ -33,47 +33,48 @@
 
 enum DruidSpells
 {
-    SPELL_DRUID_BALANCE_T10_BONUS           = 70718,
-    SPELL_DRUID_BALANCE_T10_BONUS_PROC      = 70721,
-    SPELL_DRUID_BLESSING_OF_CENARIUS        = 40452,
-    SPELL_DRUID_BLESSING_OF_ELUNE           = 40446,
-    SPELL_DRUID_BLESSING_OF_REMULOS         = 40445,
-    SPELL_DRUID_BLESSING_OF_THE_CLAW        = 28750,
-    SPELL_DRUID_CAT_FORM                    = 768,
-    SPELL_DRUID_EXHILARATE                  = 28742,
-    SPELL_DRUID_FERAL_CHARGE_BEAR           = 16979,
-    SPELL_DRUID_FERAL_CHARGE_CAT            = 49376,
-    SPELL_DRUID_FORM_AQUATIC                = 1066,
-    SPELL_DRUID_FORM_FLIGHT                 = 33943,
-    SPELL_DRUID_FORM_STAG                   = 165961,
-    SPELL_DRUID_FORM_SWIFT_FLIGHT           = 40120,
-    SPELL_DRUID_FORMS_TRINKET_BEAR          = 37340,
-    SPELL_DRUID_FORMS_TRINKET_CAT           = 37341,
-    SPELL_DRUID_FORMS_TRINKET_MOONKIN       = 37343,
-    SPELL_DRUID_FORMS_TRINKET_NONE          = 37344,
-    SPELL_DRUID_FORMS_TRINKET_TREE          = 37342,
-    SPELL_DRUID_GORE_PROC                   = 93622,
-    SPELL_DRUID_IDOL_OF_FERAL_SHADOWS       = 34241,
-    SPELL_DRUID_IDOL_OF_WORSHIP             = 60774,
-    SPELL_DRUID_INFUSION                    = 37238,
-    SPELL_DRUID_LANGUISH                    = 71023,
-    SPELL_DRUID_LIFEBLOOM_ENERGIZE          = 64372,
-    SPELL_DRUID_LIFEBLOOM_FINAL_HEAL        = 33778,
-    SPELL_DRUID_LIVING_SEED_HEAL            = 48503,
-    SPELL_DRUID_LIVING_SEED_PROC            = 48504,
-    SPELL_DRUID_MANGLE                      = 33917,
-    SPELL_DRUID_MOONFIRE_DAMAGE             = 164812,
-    SPELL_DRUID_REJUVENATION_T10_PROC       = 70691,
-    SPELL_DRUID_RESTORATION_T10_2P_BONUS    = 70658,
-    SPELL_DRUID_SAVAGE_ROAR                 = 62071,
-    SPELL_DRUID_SKULL_BASH_CHARGE           = 221514,
-    SPELL_DRUID_SKULL_BASH_INTERRUPT        = 93985,
-    SPELL_DRUID_STAMPEDE_BAER_RANK_1        = 81016,
-    SPELL_DRUID_STAMPEDE_CAT_RANK_1         = 81021,
-    SPELL_DRUID_STAMPEDE_CAT_STATE          = 109881,
-    SPELL_DRUID_SUNFIRE_DAMAGE              = 164815,
-    SPELL_DRUID_SURVIVAL_INSTINCTS          = 50322,
-    SPELL_DRUID_TRAVEL_FORM                 = 783,
+    SPELL_DRUID_BALANCE_T10_BONUS              = 70718,
+    SPELL_DRUID_BALANCE_T10_BONUS_PROC         = 70721,
+    SPELL_DRUID_BLESSING_OF_CENARIUS           = 40452,
+    SPELL_DRUID_BLESSING_OF_ELUNE              = 40446,
+    SPELL_DRUID_BLESSING_OF_REMULOS            = 40445,
+    SPELL_DRUID_BLESSING_OF_THE_CLAW           = 28750,
+    SPELL_DRUID_CAT_FORM                       = 768,
+    SPELL_DRUID_EXHILARATE                     = 28742,
+    SPELL_DRUID_FERAL_CHARGE_BEAR              = 16979,
+    SPELL_DRUID_FERAL_CHARGE_CAT               = 49376,
+    SPELL_DRUID_FORM_AQUATIC                   = 1066,
+    SPELL_DRUID_FORM_FLIGHT                    = 33943,
+    SPELL_DRUID_FORM_STAG                      = 165961,
+    SPELL_DRUID_FORM_SWIFT_FLIGHT              = 40120,
+    SPELL_DRUID_FORMS_TRINKET_BEAR             = 37340,
+    SPELL_DRUID_FORMS_TRINKET_CAT              = 37341,
+    SPELL_DRUID_FORMS_TRINKET_MOONKIN          = 37343,
+    SPELL_DRUID_FORMS_TRINKET_NONE             = 37344,
+    SPELL_DRUID_FORMS_TRINKET_TREE             = 37342,
+    SPELL_DRUID_GORE_PROC                      = 93622,
+    SPELL_DRUID_IDOL_OF_FERAL_SHADOWS          = 34241,
+    SPELL_DRUID_IDOL_OF_WORSHIP                = 60774,
+    SPELL_DRUID_INCARNATION_KING_OF_THE_JUNGLE = 102543,
+    SPELL_DRUID_INFUSION                       = 37238,
+    SPELL_DRUID_LANGUISH                       = 71023,
+    SPELL_DRUID_LIFEBLOOM_ENERGIZE             = 64372,
+    SPELL_DRUID_LIFEBLOOM_FINAL_HEAL           = 33778,
+    SPELL_DRUID_LIVING_SEED_HEAL               = 48503,
+    SPELL_DRUID_LIVING_SEED_PROC               = 48504,
+    SPELL_DRUID_MANGLE                         = 33917,
+    SPELL_DRUID_MOONFIRE_DAMAGE                = 164812,
+    SPELL_DRUID_REJUVENATION_T10_PROC          = 70691,
+    SPELL_DRUID_RESTORATION_T10_2P_BONUS       = 70658,
+    SPELL_DRUID_SAVAGE_ROAR                    = 62071,
+    SPELL_DRUID_SKULL_BASH_CHARGE              = 221514,
+    SPELL_DRUID_SKULL_BASH_INTERRUPT           = 93985,
+    SPELL_DRUID_STAMPEDE_BAER_RANK_1           = 81016,
+    SPELL_DRUID_STAMPEDE_CAT_RANK_1            = 81021,
+    SPELL_DRUID_STAMPEDE_CAT_STATE             = 109881,
+    SPELL_DRUID_SUNFIRE_DAMAGE                 = 164815,
+    SPELL_DRUID_SURVIVAL_INSTINCTS             = 50322,
+    SPELL_DRUID_TRAVEL_FORM                    = 783,
 };
 
 class RaidCheck
@@ -120,6 +121,56 @@ public:
     {
         return new spell_dru_dash_AuraScript();
     }
+};
+
+// 22568 - Ferocious Bite
+class spell_dru_ferocious_bite : public SpellScript
+{
+    PrepareSpellScript(spell_dru_ferocious_bite);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_INCARNATION_KING_OF_THE_JUNGLE  })
+            && sSpellMgr->AssertSpellInfo(SPELL_DRUID_INCARNATION_KING_OF_THE_JUNGLE, DIFFICULTY_NONE)->GetEffect(EFFECT_1);
+    }
+
+    void HandleHitTargetBurn(SpellEffIndex /*effIndex*/)
+    {
+        int32 newValue = int32(float(GetEffectValue()) * _damageMultiplier);
+        SetEffectValue(newValue);
+    }
+
+    void HandleHitTargetDmg(SpellEffIndex /*effIndex*/)
+    {
+        int32 newValue = int32(float(GetHitDamage()) * (1.0f + _damageMultiplier));
+        SetHitDamage(newValue);
+    }
+
+    void HandleLaunchTarget(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+
+        int32 maxExtraConsumedPower = GetEffectValue();
+
+        if (AuraEffect* auraEffect = caster->GetAuraEffect(SPELL_DRUID_INCARNATION_KING_OF_THE_JUNGLE, EFFECT_1))
+        {
+            float multiplier = 1.0f + float(auraEffect->GetAmount()) / 100.0f;
+            maxExtraConsumedPower = int32(float(maxExtraConsumedPower) * multiplier);
+            SetEffectValue(maxExtraConsumedPower);
+        }
+
+        _damageMultiplier = std::min<float>(caster->GetPower(POWER_ENERGY), maxExtraConsumedPower) / maxExtraConsumedPower;
+    }
+
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_dru_ferocious_bite::HandleLaunchTarget, EFFECT_1, SPELL_EFFECT_POWER_BURN);
+        OnEffectHitTarget += SpellEffectFn(spell_dru_ferocious_bite::HandleHitTargetBurn, EFFECT_1, SPELL_EFFECT_POWER_BURN);
+        OnEffectHitTarget += SpellEffectFn(spell_dru_ferocious_bite::HandleHitTargetDmg, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+
+private:
+    float _damageMultiplier = 0.0f;
 };
 
 // -33943 - Flight Form
@@ -1568,6 +1619,7 @@ public:
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_dash();
+    RegisterSpellScript(spell_dru_ferocious_bite);
     new spell_dru_flight_form();
     new spell_dru_forms_trinket();
     RegisterAuraScript(spell_dru_gore);
