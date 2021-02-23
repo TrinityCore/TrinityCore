@@ -170,7 +170,7 @@ class spell_dru_ferocious_bite : public SpellScript
     }
 
 private:
-    float _damageMultiplier;
+    float _damageMultiplier = 0.0f;
 };
 
 // -33943 - Flight Form
