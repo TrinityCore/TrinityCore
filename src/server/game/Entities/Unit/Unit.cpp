@@ -8504,6 +8504,9 @@ int32 Unit::ModifyPower(Powers power, int32 dVal)
     if (dVal == 0)
         return 0;
 
+    if (dVal > 0)
+        dVal *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_GAIN_PCT, power);
+
     int32 curPower = GetPower(power);
 
     int32 val = dVal + curPower;
