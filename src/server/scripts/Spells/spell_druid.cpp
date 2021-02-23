@@ -146,7 +146,7 @@ class spell_dru_ferocious_bite : public SpellScript
         SetHitDamage(newValue);
     }
 
-    void HandleLaunchTarget(SpellEffIndex effIndex)
+    void HandleLaunchTarget(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
 
