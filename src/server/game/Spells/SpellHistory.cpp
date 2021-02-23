@@ -978,15 +978,24 @@ void SpellHistory::ApplyModCooldowns(flag128 spellClasMask)
     if (!modOwner)
         return;
 
-    ModifyCooldowns([&spellClasMask, this](uint32 spellId) {
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, _owner->GetMap()->GetDifficultyID());
-        return spellInfo->IsAffected(spellInfo->SpellFamilyName, spellClasMask);
-    }, [modOwner](uint32 spellId, CooldownEntry const& spellEntry) {
-        uint32 totalCooldown = spellEntry.CooldownMS;
-        modOwner->ApplySpellMod(spellId, SPELLMOD_COOLDOWN, totalCooldown, nullptr);
-        uint32 reduceCooldown = spellEntry.CooldownMS - totalCooldown;
-        return reduceCooldown;
-    });
+    for (CooldownStorageType::iterator itr = _spellCooldowns.begin(); itr != _spellCooldowns.end();)
+    {
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first, _owner->GetMap()->GetDifficultyID());
+        if (spellInfo->IsAffected(spellInfo->SpellFamilyName, spellClasMask))
+        {
+            uint32 totalCooldown = itr->second.CooldownMS;
+            modOwner->ApplySpellMod(itr->first, SPELLMOD_COOLDOWN, totalCooldown, nullptr);
+            int32 reduceCooldownBy = int32(itr->second.CooldownMS - totalCooldown);
+            Clock::duration offset = std::chrono::duration_cast<Clock::duration>(std::chrono::milliseconds(-reduceCooldownBy));
+
+            CooldownStorageType::iterator curr = itr;
+            ModifyCooldown(itr, offset);
+            if (itr == curr)
+                ++itr;
+        }
+        else
+            ++itr;
+    }
 }
 
 template void SpellHistory::LoadFromDB<Player>(PreparedQueryResult cooldownsResult, PreparedQueryResult chargesResult);

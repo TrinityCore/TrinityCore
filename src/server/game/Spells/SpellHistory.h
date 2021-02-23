@@ -105,40 +105,6 @@ public:
 
     void ApplyModCooldowns(flag128 spellClasMask);
 
-    template<typename Predicate>
-    void ModifyCooldowns(Predicate predicate, uint32 amount)
-    {
-        UpdateCooldowns(predicate, [amount](uint32 spellId, CooldownEntry const& spellEntry) {
-            return amount;
-        });
-    }
-
-    template<typename Predicate, typename UpdateFn>
-    void ModifyCooldowns(Predicate predicate, UpdateFn updateFn)
-    {
-        Player* playerOwner = GetPlayerOwner();
-        if (!playerOwner)
-            return;
-
-        Clock::time_point now = GameTime::GetGameTimeSystemPoint();
-
-        for (CooldownStorageType::iterator itr = _spellCooldowns.begin(); itr != _spellCooldowns.end();)
-        {
-            if (predicate(itr->first))
-            {
-                uint32 reduceCooldownBy = updateFn(itr->first, std::ref(itr->second));
-                Clock::duration offset = std::chrono::duration_cast<Clock::duration>(std::chrono::milliseconds(-reduceCooldownBy));
-
-                CooldownStorageType::iterator curr = itr;
-                ModifyCooldown(itr, offset);
-                if (itr == curr)
-                    ++itr;
-            }
-            else
-                ++itr;
-        }
-    }
-
     void AddCooldown(uint32 spellId, uint32 cooldownMS, uint32 itemId, Clock::time_point cooldownEnd, uint32 categoryId, Clock::time_point categoryEnd, bool onHold = false);
     void ModifyCooldown(uint32 spellId, int32 cooldownModMs);
     void ModifyCooldown(uint32 spellId, Clock::duration cooldownMod);
