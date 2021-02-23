@@ -259,13 +259,16 @@ uint32 SpellMgr::GetSpellWithRank(uint32 spell_id, uint32 rank, bool strict) con
     return spell_id;
 }
 
-uint32 SpellMgr::GetSpellSpecId(uint32 spell_id) const
+bool SpellMgr::MatchSpellSpecId(uint32 spell_id, uint32 specId) const
 {
-    if (SpecializationSpellsEntry const* entry = sSpecializationSpellsStore.LookupEntry(spell_id))
+    SpellSpecMap::const_iterator itr = mSpellSpecMap.find(spell_id);
+    if (itr != mSpellSpecMap.cend())
     {
-        return entry->SpecID;
+        SpellSpecMap::mapped_type::const_iterator specIter = itr->second.find(specId);
+        return specIter != itr->second.cend();
     }
-    return 0;
+
+    return true;
 }
 
 Trinity::IteratorPair<SpellRequiredMap::const_iterator> SpellMgr::GetSpellsRequiredForSpellBounds(uint32 spell_id) const
@@ -4040,6 +4043,15 @@ void SpellMgr::LoadSpellTotemModel()
 
     TC_LOG_INFO("server.loading", ">> Loaded %u spell totem model records in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 
+}
+
+void SpellMgr::LoadSpellsSpecializations()
+{
+    for (SpecializationSpellsEntry const* entry : sSpecializationSpellsStore)
+        mSpellSpecMap[entry->SpellID].insert(entry->SpecID);
+
+    for (TalentEntry const* entry : sTalentStore)
+        mSpellSpecMap[entry->SpellID].insert(entry->SpecID);
 }
 
 uint32 SpellMgr::GetModelForTotem(uint32 spellId, uint8 race) const

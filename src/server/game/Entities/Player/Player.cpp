@@ -3014,10 +3014,7 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
     {
         if (!itr2->second.AutoLearned)
         {
-            // only add/learn it if we can; check spell requiremetns (spec)
-            uint32 learnSpellSpecId = sSpellMgr->GetSpellSpecId(itr2->second.Spell);
-
-            if (primarySpecId == learnSpellSpecId)
+            if (sSpellMgr->MatchSpellSpecId(itr2->second.Spell, primarySpecId))
             {
                 if (!IsInWorld() || !itr2->second.Active)       // at spells loading, no output, but allow save
                     AddSpell(itr2->second.Spell, itr2->second.Active, true, true, false);

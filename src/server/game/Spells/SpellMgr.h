@@ -626,6 +626,8 @@ struct SpellInfoLoadHelper
 
 typedef std::map<std::pair<uint32 /*SpellId*/, uint8 /*RaceId*/>, uint32 /*DisplayId*/> SpellTotemModelMap;
 
+typedef std::map<uint32, std::set<uint32>> SpellSpecMap;
+
 class TC_GAME_API SpellMgr
 {
     // Constructors
@@ -649,7 +651,7 @@ class TC_GAME_API SpellMgr
         uint8 GetSpellRank(uint32 spell_id) const;
         // not strict check returns provided spell if rank not avalible
         uint32 GetSpellWithRank(uint32 spell_id, uint32 rank, bool strict = false) const;
-        uint32 GetSpellSpecId(uint32 spell_id) const;
+        bool MatchSpellSpecId(uint32 spell_id, uint32 specId) const;
 
         // Spell Required table
         Trinity::IteratorPair<SpellRequiredMap::const_iterator> GetSpellsRequiredForSpellBounds(uint32 spell_id) const;
@@ -756,6 +758,7 @@ class TC_GAME_API SpellMgr
         void LoadSpellInfoDiminishing();
         void LoadSpellInfoImmunities();
         void LoadSpellTotemModel();
+        void LoadSpellsSpecializations();
 
     private:
         SpellDifficultySearcherMap mSpellDifficultySearcherMap;
@@ -784,6 +787,7 @@ class TC_GAME_API SpellMgr
         PetLevelupSpellMap         mPetLevelupSpellMap;
         PetDefaultSpellsMap        mPetDefaultSpellsMap;           // only spells not listed in related mPetLevelupSpellMap entry
         SpellTotemModelMap         mSpellTotemModel;
+        SpellSpecMap               mSpellSpecMap;
         std::unordered_map<uint32, BattlePetSpeciesEntry const*> mBattlePets;
 };
 

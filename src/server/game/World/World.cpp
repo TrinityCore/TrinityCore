@@ -1851,6 +1851,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Spell Group Stack Rules...");
     sSpellMgr->LoadSpellGroupStackRules();
 
+    TC_LOG_INFO("server.loading", "Loading Spells Specializations...");
+    sSpellMgr->LoadSpellsSpecializations();
+
     TC_LOG_INFO("server.loading", "Loading NPC Texts...");
     sObjectMgr->LoadNPCText();
 
