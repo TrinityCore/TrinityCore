@@ -240,8 +240,7 @@ class TC_GAME_API AuraEffect
         void HandleOverrideAttackPowerBySpellPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModVersatilityByPct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModMaxPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleAuraAddFlatModifier(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleAuraAddPctModifier(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAuraAddFlatPctModifier(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //   heal and energize
         void HandleModPowerRegen(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModPowerRegenPCT(AuraApplication const* aurApp, uint8 mode, bool apply) const;
