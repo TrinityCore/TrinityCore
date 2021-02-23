@@ -649,6 +649,7 @@ class TC_GAME_API SpellMgr
         uint8 GetSpellRank(uint32 spell_id) const;
         // not strict check returns provided spell if rank not avalible
         uint32 GetSpellWithRank(uint32 spell_id, uint32 rank, bool strict = false) const;
+        uint32 GetSpellSpecId(uint32 spell_id) const;
 
         // Spell Required table
         Trinity::IteratorPair<SpellRequiredMap::const_iterator> GetSpellsRequiredForSpellBounds(uint32 spell_id) const;

@@ -259,6 +259,15 @@ uint32 SpellMgr::GetSpellWithRank(uint32 spell_id, uint32 rank, bool strict) con
     return spell_id;
 }
 
+uint32 SpellMgr::GetSpellSpecId(uint32 spell_id) const
+{
+    if (SpecializationSpellsEntry const* entry = sSpecializationSpellsStore.LookupEntry(spell_id))
+    {
+        return entry->SpecID;
+    }
+    return 0;
+}
+
 Trinity::IteratorPair<SpellRequiredMap::const_iterator> SpellMgr::GetSpellsRequiredForSpellBounds(uint32 spell_id) const
 {
     return Trinity::Containers::MapEqualRange(mSpellReq, spell_id);

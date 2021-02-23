@@ -3009,14 +3009,21 @@ bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent
     // learn dependent spells
     SpellLearnSpellMapBounds spell_bounds = sSpellMgr->GetSpellLearnSpellMapBounds(spellId);
 
+    uint32 primarySpecId = GetPrimarySpecialization();
     for (SpellLearnSpellMap::const_iterator itr2 = spell_bounds.first; itr2 != spell_bounds.second; ++itr2)
     {
         if (!itr2->second.AutoLearned)
         {
-            if (!IsInWorld() || !itr2->second.Active)       // at spells loading, no output, but allow save
-                AddSpell(itr2->second.Spell, itr2->second.Active, true, true, false);
-            else                                            // at normal learning
-                LearnSpell(itr2->second.Spell, true);
+            // only add/learn it if we can; check spell requiremetns (spec)
+            uint32 learnSpellSpecId = sSpellMgr->GetSpellSpecId(itr2->second.Spell);
+
+            if (primarySpecId == learnSpellSpecId)
+            {
+                if (!IsInWorld() || !itr2->second.Active)       // at spells loading, no output, but allow save
+                    AddSpell(itr2->second.Spell, itr2->second.Active, true, true, false);
+                else                                            // at normal learning
+                    LearnSpell(itr2->second.Spell, true);
+            }
         }
 
         if (itr2->second.OverridesSpell && itr2->second.Active)
