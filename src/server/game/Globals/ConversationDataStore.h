@@ -56,6 +56,7 @@ struct ConversationTemplate
 
     std::vector<ConversationActorTemplate const*> Actors;
     std::vector<ObjectGuid::LowType> ActorGuids;
+    std::vector<uint32> ActorNearIds;
     std::vector<ConversationLineTemplate const*> Lines;
 
     uint32 ScriptId;

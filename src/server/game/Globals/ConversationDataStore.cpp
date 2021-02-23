@@ -38,6 +38,7 @@ void ConversationDataStore::LoadConversationTemplates()
 
     std::unordered_map<uint32, std::vector<ConversationActorTemplate const*>> actorsByConversation;
     std::unordered_map<uint32, std::vector<ObjectGuid::LowType>> actorGuidsByConversation;
+    std::unordered_map<uint32, std::vector<uint32>> actorNearIdsByConversation;
 
     if (QueryResult actorTemplates = WorldDatabase.Query("SELECT Id, CreatureId, CreatureModelId FROM conversation_actor_template"))
     {
@@ -94,7 +95,7 @@ void ConversationDataStore::LoadConversationTemplates()
         TC_LOG_INFO("server.loading", ">> Loaded 0 Conversation line templates. DB table `conversation_line_template` is empty.");
     }
 
-    if (QueryResult actors = WorldDatabase.Query("SELECT ConversationId, ConversationActorId, ConversationActorGuid, Idx FROM conversation_actors"))
+    if (QueryResult actors = WorldDatabase.Query("SELECT ConversationId, ConversationActorId, ConversationActorGuid, ConversationActorNearId, Idx FROM conversation_actors"))
     {
         uint32 oldMSTime = getMSTime();
         uint32 count = 0;
@@ -106,7 +107,8 @@ void ConversationDataStore::LoadConversationTemplates()
             uint32 conversationId         = fields[0].GetUInt32();
             uint32 actorId                = fields[1].GetUInt32();
             ObjectGuid::LowType actorGuid = fields[2].GetUInt64();
-            uint16 idx                    = fields[3].GetUInt16();
+            uint32 actorNearId            = fields[3].GetUInt32();
+            uint16 idx = fields[4].GetUInt16();
 
             if (actorId != 0 && actorGuid != 0)
             {
@@ -140,6 +142,19 @@ void ConversationDataStore::LoadConversationTemplates()
                 else
                     TC_LOG_ERROR("sql.sql", "Table `conversation_actors` references an invalid creature guid (GUID: " UI64FMTD ") for Conversation %u, skipped", actorGuid, conversationId);
             }
+            else if (actorNearId != 0)
+            {
+                if (sObjectMgr->GetCreatureTemplate(actorNearId))
+                {
+                    std::vector<uint32>& nearIds = actorNearIdsByConversation[conversationId];
+                    if (nearIds.size() <= idx)
+                        nearIds.resize(idx + 1);
+                    nearIds[idx] = actorNearId;
+                    ++count;
+                }
+                else
+                    TC_LOG_ERROR("sql.sql", "Table `conversation_actors` references an invalid creature id (%u) for Conversation %u, skipped", actorNearId, conversationId);
+            }
         }
         while (actors->NextRow());
 
@@ -167,6 +182,7 @@ void ConversationDataStore::LoadConversationTemplates()
 
             conversationTemplate.Actors = std::move(actorsByConversation[conversationTemplate.Id]);
             conversationTemplate.ActorGuids = std::move(actorGuidsByConversation[conversationTemplate.Id]);
+            conversationTemplate.ActorNearIds = std::move(actorNearIdsByConversation[conversationTemplate.Id]);
 
             ConversationLineEntry const* currentConversationLine = sConversationLineStore.LookupEntry(conversationTemplate.FirstLineId);
             if (!currentConversationLine)
