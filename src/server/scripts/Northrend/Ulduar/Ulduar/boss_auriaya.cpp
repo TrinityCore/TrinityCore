@@ -132,7 +132,7 @@ private:
 
 struct boss_auriaya : public BossAI
 {
-    boss_auriaya(Creature* creature) : BossAI(creature, BOSS_AURIAYA), _crazyCatLady(true), _nineLives(false) { }
+    boss_auriaya(Creature* creature) : BossAI(creature, DATA_AURIAYA), _crazyCatLady(true), _nineLives(false) { }
 
     void Reset() override
     {
@@ -295,7 +295,7 @@ struct npc_sanctum_sentry : public ScriptedAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        if (Creature* auriaya = _instance->GetCreature(BOSS_AURIAYA))
+        if (Creature* auriaya = _instance->GetCreature(DATA_AURIAYA))
             auriaya->AI()->DoAction(ACTION_CRAZY_CAT_LADY);
     }
 
@@ -356,7 +356,7 @@ struct npc_feral_defender : public ScriptedAI
         _events.SetPhase(PHASE_NONE);
         _events.ScheduleEvent(EVENT_START_COMBAT, 1s);
 
-        if (Creature* auriaya = _instance->GetCreature(BOSS_AURIAYA))
+        if (Creature* auriaya = _instance->GetCreature(DATA_AURIAYA))
             auriaya->AI()->JustSummoned(me);
     }
 
@@ -446,7 +446,7 @@ struct npc_feral_defender : public ScriptedAI
     void JustDied(Unit* /*killer*/) override
     {
         DoCastSelf(SPELL_SUMMON_ESSENCE, true);
-        if (Creature* auriaya = _instance->GetCreature(BOSS_AURIAYA))
+        if (Creature* auriaya = _instance->GetCreature(DATA_AURIAYA))
             auriaya->AI()->DoAction(ACTION_DEFENDER_DIED);
     }
 
@@ -467,7 +467,7 @@ struct npc_swarming_guardian : public ScriptedAI
             me->SetReactState(REACT_AGGRESSIVE);
             DoCastSelf(SPELL_AGRO_CREATOR);
         });
-        if (Creature* auriaya = _instance->GetCreature(BOSS_AURIAYA))
+        if (Creature* auriaya = _instance->GetCreature(DATA_AURIAYA))
             auriaya->AI()->JustSummoned(me);
     }
 
@@ -492,7 +492,7 @@ struct npc_seeping_essence_stalker : public ScriptedAI
     void Reset() override
     {
         DoCastSelf(SPELL_SEEPING_ESSENCE);
-        if (Creature* auriaya = _instance->GetCreature(BOSS_AURIAYA))
+        if (Creature* auriaya = _instance->GetCreature(DATA_AURIAYA))
             auriaya->AI()->JustSummoned(me);
     }
 

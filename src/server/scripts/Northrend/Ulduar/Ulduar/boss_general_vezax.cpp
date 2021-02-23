@@ -106,7 +106,7 @@ class boss_general_vezax : public CreatureScript
 
         struct boss_general_vezaxAI : public BossAI
         {
-            boss_general_vezaxAI(Creature* creature) : BossAI(creature, BOSS_VEZAX)
+            boss_general_vezaxAI(Creature* creature) : BossAI(creature, DATA_VEZAX)
             {
                 Initialize();
             }
@@ -334,7 +334,7 @@ class boss_saronite_animus : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (Creature* vezax = instance->GetCreature(BOSS_VEZAX))
+                if (Creature* vezax = instance->GetCreature(DATA_VEZAX))
                     vezax->AI()->DoAction(ACTION_ANIMUS_DIE);
             }
 
@@ -432,7 +432,7 @@ class npc_saronite_vapors : public CreatureScript
                     DoCast(me, SPELL_SARONITE_VAPORS);
                     me->DespawnOrUnsummon(30s);
 
-                    if (Creature* vezax = instance->GetCreature(BOSS_VEZAX))
+                    if (Creature* vezax = instance->GetCreature(DATA_VEZAX))
                         vezax->AI()->DoAction(ACTION_VAPORS_DIE);
                 }
             }
