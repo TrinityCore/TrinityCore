@@ -22,6 +22,7 @@
 #include "DatabaseEnvFwd.h"
 #include "GameTime.h"
 #include "SpellPackets.h"
+#include "Util.h"
 #include <chrono>
 #include <deque>
 #include <vector>
