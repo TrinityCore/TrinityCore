@@ -2218,6 +2218,7 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
         targetInfo.damage     = 0;
         targetInfo.crit       = false;
         targetInfo.scaleAura  = false;
+        targetInfo.missCondition = SPELL_MISS_NONE;
     }
 
     bool hasReflectData = targetInfo.missCondition == SPELL_MISS_REFLECT;
