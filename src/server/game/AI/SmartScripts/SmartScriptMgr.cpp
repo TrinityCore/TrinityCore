@@ -69,6 +69,13 @@ void SmartWaypointMgr::LoadFromDB()
         float y = fields[3].GetFloat();
         float z = fields[4].GetFloat();
 
+        Optional<float> o;
+        if (!fields[5].IsNull())
+            o = fields[5].GetFloat();
+
+        float velocity = fields[6].GetFloat();
+        int32 delay = fields[7].GetInt32();
+
         if (lastEntry != entry)
         {
             lastId = 1;
@@ -82,7 +89,7 @@ void SmartWaypointMgr::LoadFromDB()
 
         WaypointPath& path = _waypointStore[entry];
         path.Id = entry;
-        path.Nodes.emplace_back(id, x, y, z);
+        path.Nodes.emplace_back(id, x, y, z, o, velocity, delay);
 
         lastEntry = entry;
         ++total;
