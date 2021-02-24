@@ -215,7 +215,7 @@ class npc_flash_freeze : public CreatureScript
                  || me->EnsureVictim()->HasAura(SPELL_FLASH_FREEZE_HELPER))
                     return;
 
-                if (me->EnsureVictim()->GetGUID() != targetGUID || instance->GetBossState(BOSS_HODIR) != IN_PROGRESS)
+                if (me->EnsureVictim()->GetGUID() != targetGUID || instance->GetBossState(DATA_HODIR) != IN_PROGRESS)
                     me->DespawnOrUnsummon();
 
                 if (checkDespawnTimer <= diff)
@@ -244,7 +244,7 @@ class npc_flash_freeze : public CreatureScript
                     // Prevents to have Ice Block on other place than target is
                     me->NearTeleportTo(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation());
                     if (target->GetTypeId() == TYPEID_PLAYER)
-                        if (Creature* hodir = instance->GetCreature(BOSS_HODIR))
+                        if (Creature* hodir = instance->GetCreature(DATA_HODIR))
                             hodir->AI()->DoAction(ACTION_CHEESE_THE_FREEZE);
                 }
             }
@@ -302,7 +302,7 @@ class npc_ice_block : public CreatureScript
                     helper->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
                     helper->SetControlled(false, UNIT_STATE_ROOT);
 
-                    if (Creature* hodir = instance->GetCreature(BOSS_HODIR))
+                    if (Creature* hodir = instance->GetCreature(DATA_HODIR))
                     {
                         if (!hodir->IsInCombat())
                         {
@@ -330,7 +330,7 @@ class boss_hodir : public CreatureScript
 
         struct boss_hodirAI : public BossAI
         {
-            boss_hodirAI(Creature* creature) : BossAI(creature, BOSS_HODIR)
+            boss_hodirAI(Creature* creature) : BossAI(creature, DATA_HODIR)
             {
                 Initialize();
                 me->SetReactState(REACT_PASSIVE);
@@ -718,7 +718,7 @@ class npc_hodir_priest : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (Creature* hodir = instance->GetCreature(BOSS_HODIR))
+                if (Creature* hodir = instance->GetCreature(DATA_HODIR))
                     hodir->AI()->DoAction(ACTION_I_HAVE_THE_COOLEST_FRIENDS);
             }
 
@@ -783,7 +783,7 @@ class npc_hodir_shaman : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (Creature* hodir = instance->GetCreature(BOSS_HODIR))
+                if (Creature* hodir = instance->GetCreature(DATA_HODIR))
                     hodir->AI()->DoAction(ACTION_I_HAVE_THE_COOLEST_FRIENDS);
             }
 
@@ -847,7 +847,7 @@ class npc_hodir_druid : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (Creature* hodir = instance->GetCreature(BOSS_HODIR))
+                if (Creature* hodir = instance->GetCreature(DATA_HODIR))
                     hodir->AI()->DoAction(ACTION_I_HAVE_THE_COOLEST_FRIENDS);
             }
 
@@ -930,7 +930,7 @@ class npc_hodir_mage : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                if (Creature* hodir = instance->GetCreature(BOSS_HODIR))
+                if (Creature* hodir = instance->GetCreature(DATA_HODIR))
                     hodir->AI()->DoAction(ACTION_I_HAVE_THE_COOLEST_FRIENDS);
             }
 
