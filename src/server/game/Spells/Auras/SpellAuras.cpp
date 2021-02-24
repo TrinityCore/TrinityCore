@@ -1693,15 +1693,15 @@ void Aura::PrepareProcToTrigger(AuraApplication* aurApp, ProcEventInfo& eventInf
     if (!prepare)
         return;
 
+    SpellProcEntry const* procEntry = sSpellMgr->GetSpellProcEntry(GetId());
+    ASSERT(procEntry);
+
     // take one charge, aura expiration will be handled in Aura::TriggerProcOnEvent (if needed)
-    if (IsUsingCharges() && (!eventInfo.GetSpellInfo() || !eventInfo.GetSpellInfo()->HasAttribute(SPELL_ATTR6_DONT_CONSUME_PROC_CHARGES)))
+    if (!(procEntry->AttributesMask & PROC_ATTR_USE_STACKS_FOR_CHARGES)&& IsUsingCharges() && (!eventInfo.GetSpellInfo() || !eventInfo.GetSpellInfo()->HasAttribute(SPELL_ATTR6_DONT_CONSUME_PROC_CHARGES)))
     {
         --m_procCharges;
         SetNeedClientUpdateForTargets();
     }
-
-    SpellProcEntry const* procEntry = sSpellMgr->GetSpellProcEntry(GetId());
-    ASSERT(procEntry);
 
     // cooldowns should be added to the whole aura (see 51698 area aura)
     AddProcCooldown(now + procEntry->Cooldown);
@@ -1873,13 +1873,15 @@ void Aura::TriggerProcOnEvent(uint8 procEffectMask, AuraApplication* aurApp, Pro
     }
 
     // Remove aura if we've used last charge to proc
-    if (IsUsingCharges())
+    if (ASSERT_NOTNULL(sSpellMgr->GetSpellProcEntry(GetId()))->AttributesMask & PROC_ATTR_USE_STACKS_FOR_CHARGES)
+    {
+        ModStackAmount(-1);
+    }
+    else if (IsUsingCharges())
     {
         if (!GetCharges())
             Remove();
     }
-    else if (ASSERT_NOTNULL(sSpellMgr->GetSpellProcEntry(m_spellInfo->Id))->AttributesMask & PROC_ATTR_USE_STACKS_FOR_CHARGES)
-        ModStackAmount(-1);
 }
 
 void Aura::_DeleteRemovedApplications()
