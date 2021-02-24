@@ -1161,6 +1161,14 @@ class spell_alakir_storm_distance_check: public SpellScript
 
 class spell_alakir_lightning_script: public SpellScript
 {
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        if (targets.empty())
+            return;
+
+        Trinity::Containers::RandomResize(targets, 1);
+    }
+
     void HandleScriptEffect(SpellEffIndex effIndex)
     {
         if (Unit* caster = GetCaster())
@@ -1172,6 +1180,7 @@ class spell_alakir_lightning_script: public SpellScript
 
     void Register() override
     {
+        OnObjectAreaTargetSelect.Register(&spell_alakir_lightning_script::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
         OnEffectHitTarget.Register(&spell_alakir_lightning_script::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
