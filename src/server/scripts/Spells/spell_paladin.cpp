@@ -160,123 +160,6 @@ class spell_pal_ardent_defender : public SpellScriptLoader
 };
 */
 
-// 31821 - Aura Mastery
-class spell_pal_aura_mastery : public SpellScriptLoader
-{
-    public:
-        spell_pal_aura_mastery() : SpellScriptLoader("spell_pal_aura_mastery") { }
-
-        class spell_pal_aura_mastery_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_pal_aura_mastery_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_PALADIN_AURA_MASTERY_IMMUNE });
-            }
-
-            void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                GetTarget()->CastSpell(GetTarget(), SPELL_PALADIN_AURA_MASTERY_IMMUNE, true);
-            }
-
-            void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                GetTarget()->RemoveOwnedAura(SPELL_PALADIN_AURA_MASTERY_IMMUNE, GetCasterGUID());
-            }
-
-            void Register() override
-            {
-                AfterEffectApply += AuraEffectApplyFn(spell_pal_aura_mastery_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_pal_aura_mastery_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_pal_aura_mastery_AuraScript();
-        }
-};
-
-// 64364 - Aura Mastery Immune
-class spell_pal_aura_mastery_immune : public SpellScriptLoader
-{
-    public:
-        spell_pal_aura_mastery_immune() : SpellScriptLoader("spell_pal_aura_mastery_immune") { }
-
-        class spell_pal_aura_mastery_immune_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_pal_aura_mastery_immune_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_PALADIN_CONCENTRACTION_AURA });
-            }
-
-            bool CheckAreaTarget(Unit* target)
-            {
-                return target->HasAura(SPELL_PALADIN_CONCENTRACTION_AURA, GetCasterGUID());
-            }
-
-            void Register() override
-            {
-                DoCheckAreaTarget += AuraCheckAreaTargetFn(spell_pal_aura_mastery_immune_AuraScript::CheckAreaTarget);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_pal_aura_mastery_immune_AuraScript();
-        }
-};
-
-// 31884 - Avenging Wrath
-class spell_pal_avenging_wrath : public SpellScriptLoader
-{
-    public:
-        spell_pal_avenging_wrath() : SpellScriptLoader("spell_pal_avenging_wrath") { }
-
-        class spell_pal_avenging_wrath_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_pal_avenging_wrath_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo(
-                {
-                    SPELL_PALADIN_SANCTIFIED_WRATH,
-                    SPELL_PALADIN_SANCTIFIED_WRATH_TALENT_R1
-                });
-            }
-
-            void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                Unit* target = GetTarget();
-                if (AuraEffect const* aurEff = target->GetAuraEffectOfRankedSpell(SPELL_PALADIN_SANCTIFIED_WRATH_TALENT_R1, EFFECT_2))
-                {
-                    int32 basepoints = aurEff->GetAmount();
-                    target->CastCustomSpell(target, SPELL_PALADIN_SANCTIFIED_WRATH, &basepoints, &basepoints, nullptr, true, nullptr, aurEff);
-                }
-            }
-
-            void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                GetTarget()->RemoveAurasDueToSpell(SPELL_PALADIN_SANCTIFIED_WRATH);
-            }
-
-            void Register() override
-            {
-                OnEffectApply += AuraEffectApplyFn(spell_pal_avenging_wrath_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
-                AfterEffectRemove += AuraEffectRemoveFn(spell_pal_avenging_wrath_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_pal_avenging_wrath_AuraScript();
-        }
-};
-
 // 37877 - Blessing of Faith
 class spell_pal_blessing_of_faith : public SpellScriptLoader
 {
@@ -547,80 +430,6 @@ class spell_pal_divine_storm : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_pal_divine_storm_SpellScript();
-        }
-};
-
-// 33695 - Exorcism and Holy Wrath Damage
-class spell_pal_exorcism_and_holy_wrath_damage : public SpellScriptLoader
-{
-    public:
-        spell_pal_exorcism_and_holy_wrath_damage() : SpellScriptLoader("spell_pal_exorcism_and_holy_wrath_damage") { }
-
-        class spell_pal_exorcism_and_holy_wrath_damage_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_pal_exorcism_and_holy_wrath_damage_AuraScript);
-
-            void HandleEffectCalcSpellMod(AuraEffect const* aurEff, SpellModifier*& spellMod)
-            {
-                if (!spellMod)
-                {
-                    spellMod = new SpellModifier(aurEff->GetBase());
-                    spellMod->op = SPELLMOD_DAMAGE;
-                    spellMod->type = SPELLMOD_FLAT;
-                    spellMod->spellId = GetId();
-                    spellMod->mask[1] = 0x200002;
-                }
-
-                spellMod->value = aurEff->GetAmount();
-            }
-
-            void Register() override
-            {
-                DoEffectCalcSpellMod += AuraEffectCalcSpellModFn(spell_pal_exorcism_and_holy_wrath_damage_AuraScript::HandleEffectCalcSpellMod, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_pal_exorcism_and_holy_wrath_damage_AuraScript();
-        }
-};
-
-// -9799 - Eye for an Eye
-class spell_pal_eye_for_an_eye : public SpellScriptLoader
-{
-    public:
-        spell_pal_eye_for_an_eye() : SpellScriptLoader("spell_pal_eye_for_an_eye") { }
-
-        class spell_pal_eye_for_an_eye_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_pal_eye_for_an_eye_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_PALADIN_EYE_FOR_AN_EYE_DAMAGE });
-            }
-
-            void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
-            {
-                PreventDefaultAction();
-                DamageInfo* damageInfo = eventInfo.GetDamageInfo();
-                if (!damageInfo || !damageInfo->GetDamage())
-                    return;
-
-                int32 damage = CalculatePct(damageInfo->GetDamage(), aurEff->GetAmount());
-                GetTarget()->CastCustomSpell(SPELL_PALADIN_EYE_FOR_AN_EYE_DAMAGE, SPELLVALUE_BASE_POINT0, damage, eventInfo.GetProcTarget(), true, nullptr, aurEff);
-            }
-
-            void Register() override
-            {
-                OnEffectProc += AuraEffectProcFn(spell_pal_eye_for_an_eye_AuraScript::HandleEffectProc, EFFECT_0, m_scriptSpellId == SPELL_PALADIN_EYE_FOR_AN_EYE_RANK_1 ? SPELL_AURA_DUMMY : SPELL_AURA_PROC_TRIGGER_SPELL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_pal_eye_for_an_eye_AuraScript();
         }
 };
 
@@ -1062,151 +871,6 @@ class spell_pal_light_s_beacon : public SpellScriptLoader
         }
 };
 
-// 31789 - Righteous Defense
-class spell_pal_righteous_defense : public SpellScriptLoader
-{
-    public:
-        spell_pal_righteous_defense() : SpellScriptLoader("spell_pal_righteous_defense") { }
-
-        class spell_pal_righteous_defense_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pal_righteous_defense_SpellScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_PALADIN_RIGHTEOUS_DEFENSE_TAUNT });
-            }
-
-            SpellCastResult CheckCast()
-            {
-                Unit* caster = GetCaster();
-                if (caster->GetTypeId() != TYPEID_PLAYER)
-                    return SPELL_FAILED_DONT_REPORT;
-
-                if (Unit* target = GetExplTargetUnit())
-                {
-                    if (!target->IsFriendlyTo(caster) || target->getAttackers().empty())
-                        return SPELL_FAILED_BAD_TARGETS;
-                }
-                else
-                    return SPELL_FAILED_BAD_TARGETS;
-
-                return SPELL_CAST_OK;
-            }
-
-            void HandleTriggerSpellLaunch(SpellEffIndex effIndex)
-            {
-                PreventHitDefaultEffect(effIndex);
-            }
-
-            void HandleTriggerSpellHit(SpellEffIndex effIndex)
-            {
-                PreventHitDefaultEffect(effIndex);
-                if (Unit* target = GetHitUnit())
-                    GetCaster()->CastSpell(target, SPELL_PALADIN_RIGHTEOUS_DEFENSE_TAUNT, true);
-            }
-
-            void Register() override
-            {
-                OnCheckCast += SpellCheckCastFn(spell_pal_righteous_defense_SpellScript::CheckCast);
-                //! WORKAROUND
-                //! target select will be executed in hitphase of effect 0
-                //! so we must handle trigger spell also in hit phase (default execution in launch phase)
-                //! see issue #3718
-                OnEffectLaunchTarget += SpellEffectFn(spell_pal_righteous_defense_SpellScript::HandleTriggerSpellLaunch, EFFECT_1, SPELL_EFFECT_TRIGGER_SPELL);
-                OnEffectHitTarget += SpellEffectFn(spell_pal_righteous_defense_SpellScript::HandleTriggerSpellHit, EFFECT_1, SPELL_EFFECT_TRIGGER_SPELL);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_pal_righteous_defense_SpellScript();
-        }
-};
-
-// 85285 - Sacred Shield
-class spell_pal_sacred_shield : public SpellScriptLoader
-{
-    public:
-        spell_pal_sacred_shield() : SpellScriptLoader("spell_pal_sacred_shield") { }
-
-        class spell_pal_sacred_shield_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pal_sacred_shield_SpellScript);
-
-            SpellCastResult CheckCast()
-            {
-                Unit* caster = GetCaster();
-                if (caster->GetTypeId() != TYPEID_PLAYER)
-                    return SPELL_FAILED_DONT_REPORT;
-
-                if (!caster->HealthBelowPct(30))
-                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
-
-                return SPELL_CAST_OK;
-            }
-
-            void Register() override
-            {
-                OnCheckCast += SpellCheckCastFn(spell_pal_sacred_shield_SpellScript::CheckCast);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_pal_sacred_shield_SpellScript();
-        }
-};
-
-// 53600 - Shield of the Righteous
-/// Updated 4.3.4
-class spell_pal_shield_of_the_righteous : public SpellScriptLoader
-{
-    public:
-        spell_pal_shield_of_the_righteous() : SpellScriptLoader("spell_pal_shield_of_the_righteous") { }
-
-        class spell_pal_shield_of_the_righteous_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_pal_shield_of_the_righteous_SpellScript);
-
-            bool Load() override
-            {
-                if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
-                    return false;
-
-                if (GetCaster()->ToPlayer()->getClass() != CLASS_PALADIN)
-                    return false;
-
-                return true;
-            }
-
-            void ChangeDamage(SpellEffIndex /*effIndex*/)
-            {
-                int32 damage = GetHitDamage();
-
-                // Because 1 Holy Power (HP) is consumed when casting spell,
-                // GetPower(POWER_HOLY_POWER) will return 0 when player has 1 HP,
-                // return 1 at 2 HP, and 2 at 3 HP
-                int32 hp = GetCaster()->GetPower(POWER_HOLY_POWER);
-
-                // Holy Power Scaling: 3 times damage at 2 HP, 6 times at 3 HP
-                damage *= 0.5*hp*hp + 1.5*hp + 1;
-
-                SetHitDamage(damage);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_pal_shield_of_the_righteous_SpellScript::ChangeDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_pal_shield_of_the_righteous_SpellScript();
-        }
-};
-
 // 85256 - Templar's Verdict
 /// Updated 4.3.4
 class spell_pal_templar_s_verdict : public SpellScriptLoader
@@ -1269,50 +933,6 @@ class spell_pal_templar_s_verdict : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_pal_templar_s_verdict_SpellScript();
-        }
-};
-
-// 20154, 21084 - Seal of Righteousness - melee proc dummy (addition ${$MWS*(0.022*$AP+0.044*$SPH)} damage)
-class spell_pal_seal_of_righteousness : public SpellScriptLoader
-{
-    public:
-        spell_pal_seal_of_righteousness() : SpellScriptLoader("spell_pal_seal_of_righteousness") { }
-
-        class spell_pal_seal_of_righteousness_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_pal_seal_of_righteousness_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS });
-            }
-
-            bool CheckProc(ProcEventInfo& eventInfo)
-            {
-                return eventInfo.GetProcTarget() != nullptr;
-            }
-
-            void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
-            {
-                PreventDefaultAction();
-
-                float ap = GetTarget()->GetTotalAttackPowerValue(BASE_ATTACK);
-                int32 holy = GetTarget()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY);
-                holy += eventInfo.GetProcTarget()->SpellBaseDamageBonusTaken(SPELL_SCHOOL_MASK_HOLY);
-                int32 bp = int32((ap * 0.022f + 0.044f * holy) * GetTarget()->GetBaseAttackTime(BASE_ATTACK) / 1000);
-                GetTarget()->CastCustomSpell(SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS, SPELLVALUE_BASE_POINT0, bp, eventInfo.GetProcTarget(), true, nullptr, aurEff);
-            }
-
-            void Register() override
-            {
-                DoCheckProc += AuraCheckProcFn(spell_pal_seal_of_righteousness_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_pal_seal_of_righteousness_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_pal_seal_of_righteousness_AuraScript();
         }
 };
 
@@ -1433,17 +1053,12 @@ class spell_pal_t8_2p_bonus : public SpellScriptLoader
 void AddSC_paladin_spell_scripts()
 {
     //new spell_pal_ardent_defender();
-    new spell_pal_aura_mastery();
-    new spell_pal_aura_mastery_immune();
-    new spell_pal_avenging_wrath();
     new spell_pal_blessing_of_faith();
     RegisterSpellScript(spell_pal_blessing_of_protection);
     RegisterSpellScript(spell_pal_blinding_light);
     RegisterSpellScript(spell_pal_divine_shield);
     new spell_pal_divine_steed();
     new spell_pal_divine_storm();
-    new spell_pal_exorcism_and_holy_wrath_damage();
-    new spell_pal_eye_for_an_eye();
     new spell_pal_glyph_of_holy_light();
     new spell_pal_grand_crusader();
     new spell_pal_hand_of_sacrifice();
@@ -1453,11 +1068,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_judgement();
     RegisterSpellScript(spell_pal_lay_on_hands);
     new spell_pal_light_s_beacon();
-    new spell_pal_righteous_defense();
-    new spell_pal_sacred_shield();
-    new spell_pal_shield_of_the_righteous();
     new spell_pal_templar_s_verdict();
-    new spell_pal_seal_of_righteousness();
     new spell_pal_t3_6p_bonus();
     new spell_pal_t8_2p_bonus();
 }
