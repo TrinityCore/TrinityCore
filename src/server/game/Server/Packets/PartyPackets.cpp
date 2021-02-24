@@ -122,9 +122,9 @@ void WorldPackets::Party::PartyMemberState::Initialize(Player const* player)
 
             if (aurApp->GetFlags() & AFLAG_ANY_EFFECT_AMOUNT_SENT)
             {
-                for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
                 {
-                    if (AuraEffect const* aurEff = aurApp->GetBase()->GetEffect(i))
+                    if (AuraEffect const* aurEff = aurApp->GetBase()->GetEffect(j))
                         aura.Points.push_back(aurEff->GetAmount());
                     else
                         aura.Points.push_back(0);
@@ -171,9 +171,9 @@ void WorldPackets::Party::PartyMemberState::Initialize(Player const* player)
 
                 if (aurApp->GetFlags() & AFLAG_ANY_EFFECT_AMOUNT_SENT)
                 {
-                    for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                    for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
                     {
-                        if (AuraEffect const* aurEff = aurApp->GetBase()->GetEffect(i))
+                        if (AuraEffect const* aurEff = aurApp->GetBase()->GetEffect(j))
                             aura.Points.push_back(aurEff->GetAmount());
                         else
                             aura.Points.push_back(0);
