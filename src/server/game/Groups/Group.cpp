@@ -1547,13 +1547,14 @@ void Group::UpdatePlayerOutOfRange(Player* player)
 
     WorldPackets::Party::PartyMemberFullState packet;
     packet.Initialize(player);
+    packet.Write()
 
     Player* member;
     for (GroupReference* itr = GetFirstMember(); itr != nullptr; itr = itr->next())
     {
         member = itr->GetSource();
         if (member && member != player && (!member->IsInMap(player) || !member->IsWithinDist(player, member->GetSightRange(), false)))
-            member->SendDirectMessage(packet.Write());
+            member->SendDirectMessage(packet.GetRawPacket());
     }
 }
 
