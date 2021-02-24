@@ -297,7 +297,7 @@ Position const RazorscaleFirstPoint      = { 657.0227f, -361.1278f, 519.5406f };
 
 struct boss_razorscale : public BossAI
 {
-    boss_razorscale(Creature* creature) : BossAI(creature, BOSS_RAZORSCALE)
+    boss_razorscale(Creature* creature) : BossAI(creature, DATA_RAZORSCALE)
     {
         Initialize();
     }
@@ -688,7 +688,7 @@ struct npc_expedition_commander : public ScriptedAI
             CloseGossipMenuFor(player);
             _events.SetPhase(PHASE_COMBAT);
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            if (Creature* razorscale = _instance->GetCreature(BOSS_RAZORSCALE))
+            if (Creature* razorscale = _instance->GetCreature(DATA_RAZORSCALE))
                 razorscale->AI()->DoAction(ACTION_START_FIGHT);
             return true;
         }
@@ -1257,7 +1257,7 @@ struct npc_darkrune_watcher : public ScriptedAI
         _events.Reset();
         me->SetReactState(REACT_PASSIVE);
         _events.ScheduleEvent(EVENT_START_COMBAT, 2s);
-        if (Creature* razorscale = _instance->GetCreature(BOSS_RAZORSCALE))
+        if (Creature* razorscale = _instance->GetCreature(DATA_RAZORSCALE))
             razorscale->AI()->JustSummoned(me);
     }
 
@@ -1318,7 +1318,7 @@ struct npc_darkrune_guardian : public ScriptedAI
         _events.Reset();
         me->SetReactState(REACT_PASSIVE);
         _events.ScheduleEvent(EVENT_START_COMBAT, 2s);
-        if (Creature* razorscale = _instance->GetCreature(BOSS_RAZORSCALE))
+        if (Creature* razorscale = _instance->GetCreature(DATA_RAZORSCALE))
             razorscale->AI()->JustSummoned(me);
     }
 
@@ -1386,7 +1386,7 @@ struct npc_darkrune_sentinel : public ScriptedAI
         _events.Reset();
         me->SetReactState(REACT_PASSIVE);
         _events.ScheduleEvent(EVENT_START_COMBAT, 2s);
-        if (Creature* razorscale = _instance->GetCreature(BOSS_RAZORSCALE))
+        if (Creature* razorscale = _instance->GetCreature(DATA_RAZORSCALE))
             razorscale->AI()->JustSummoned(me);
     }
 
