@@ -52,6 +52,7 @@ namespace WorldPackets
             uint16 CurrentPower = 0;
             uint16 MaxPower = 0;
             uint64 AuraMask = 0;
+            uint32 AuraCount = 0;
             std::vector<PartyMemberAuraStates> Auras;
         };
 
@@ -71,6 +72,7 @@ namespace WorldPackets
             int16 PositionZ = 0;
             int32 VehicleSeat = 0;
             uint64 AuraMask = 0;
+            uint32 AuraCount = 0;
 
             PartyMemberPhaseStates Phases;
             std::vector<PartyMemberAuraStates> Auras;
