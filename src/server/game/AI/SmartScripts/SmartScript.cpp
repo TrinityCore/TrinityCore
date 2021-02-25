@@ -3381,40 +3381,15 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
             if (!me || !me->IsEngaged())
                 return;
 
-            ObjectVector targets;
-            switch (e.GetTargetType())
+            Unit* target = DoSelectLowestHpPctFriendly((float)e.event.friendlyHealthPct.radius, e.event.friendlyHealthPct.minHpPct, e.event.friendlyHealthPct.maxHpPct);
+            if (!target || !target->IsEngaged())
             {
-                case SMART_TARGET_CREATURE_RANGE:
-                case SMART_TARGET_CREATURE_GUID:
-                case SMART_TARGET_CREATURE_DISTANCE:
-                case SMART_TARGET_CLOSEST_CREATURE:
-                case SMART_TARGET_CLOSEST_PLAYER:
-                case SMART_TARGET_PLAYER_RANGE:
-                case SMART_TARGET_PLAYER_DISTANCE:
-                    GetTargets(targets, e);
-                    break;
-                default:
-                    return;
-            }
-
-            Unit* unitTarget = nullptr;
-            for (WorldObject* target : targets)
-            {
-                if (IsUnit(target) && me->IsFriendlyTo(target->ToUnit()) && target->ToUnit()->IsAlive() && target->ToUnit()->IsInCombat())
-                {
-                    uint32 healthPct = uint32(target->ToUnit()->GetHealthPct());
-                    if (healthPct > e.event.friendlyHealthPct.maxHpPct || healthPct < e.event.friendlyHealthPct.minHpPct)
-                        continue;
-
-                    unitTarget = target->ToUnit();
-                    break;
-                }
-            }
-
-            if (!unitTarget)
+                // if there are at least two same npcs, they will perform the same action immediately even if this is useless...
+                RecalcTimer(e, 1000, 3000);
                 return;
+            }
 
-            ProcessTimedAction(e, e.event.friendlyHealthPct.repeatMin, e.event.friendlyHealthPct.repeatMax, unitTarget);
+            ProcessTimedAction(e, e.event.friendlyHealthPct.repeatMin, e.event.friendlyHealthPct.repeatMax, target);
             break;
         }
         case SMART_EVENT_DISTANCE_CREATURE:
@@ -3845,8 +3820,21 @@ Unit* SmartScript::DoSelectLowestHpFriendly(float range, uint32 MinHPDiff)
 
     Unit* unit = nullptr;
 
-    Trinity::MostHPMissingInRange u_check(me, range, MinHPDiff);
-    Trinity::UnitLastSearcher<Trinity::MostHPMissingInRange> searcher(me, unit, u_check);
+    Trinity::FriendlyMostHPMissingInRange u_check(me, range, MinHPDiff);
+    Trinity::UnitLastSearcher<Trinity::FriendlyMostHPMissingInRange> searcher(me, unit, u_check);
+    Cell::VisitGridObjects(me, searcher, range);
+    return unit;
+}
+
+Unit* SmartScript::DoSelectLowestHpPctFriendly(float range, uint8 hpPctMin, uint8 hpPctMax)
+{
+    if (!me)
+        return nullptr;
+
+    Unit* unit = nullptr;
+
+    Trinity::FriendlyMostHPPctMissingInRange u_check(me, range, hpPctMin, hpPctMax);
+    Trinity::UnitLastSearcher<Trinity::FriendlyMostHPPctMissingInRange> searcher(me, unit, u_check);
     Cell::VisitGridObjects(me, searcher, range);
     return unit;
 }
