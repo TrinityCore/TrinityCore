@@ -4382,6 +4382,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->MaxAffectedTargets = 1;
     });
 
+    // Hungering Shadows
+    ApplySpellFix({ 84856 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->MaxAffectedTargets = 3;
+    });
+
     // ENDOF BASTION OF TWILIGHT
 
     //

@@ -135,6 +135,27 @@ struct npc_bot_chogall final : public NullCreatureAI
     }
 };
 
+static constexpr uint32 const SPELL_WYVERN_STING_PERIODIC = 24336;
+
+class spell_bot_wyvern_sting : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WYVERN_STING_PERIODIC });
+    }
+
+    void HandleAfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetTarget(), SPELL_WYVERN_STING_PERIODIC, CastSpellExtraArgs(true).AddSpellBP0(aurEff->GetAmount()));
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove.Register(&spell_bot_wyvern_sting::HandleAfterRemove, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 class at_bot_intro_events final : public OnlyOnceAreaTriggerScript
 {
 public:
@@ -154,6 +175,7 @@ void AddSC_bastion_of_twilight()
 {
     RegisterBastionOfTwilightCreatureAI(npc_bot_invisible_stalker_phase_twist);
     RegisterBastionOfTwilightCreatureAI(npc_bot_chogall);
+    RegisterSpellScript(spell_bot_wyvern_sting);
     new at_bot_intro_events("at_halfus_wyrmbreaker_intro", DATA_AT_HALFUS_WYRMBREAKER_INTRO);
     new at_bot_intro_events("at_theralion_and_valiona_intro", DATA_AT_THERALION_AND_VALIONA_INTRO);
     new at_bot_intro_events("at_ascendant_council_intro_1", DATA_AT_ASCENDANT_COUNCIL_INTRO_1);
