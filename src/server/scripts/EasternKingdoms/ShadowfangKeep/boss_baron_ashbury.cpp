@@ -131,10 +131,12 @@ struct boss_baron_ashbury : public BossAI
         if (spell->Id != SPELL_STAY_OF_EXECUTION && spell->Id != SPELL_PAIN_AND_SUFFERING)
             return;
 
-        if (reason == SPELL_FINISHED_SUCCESSFUL_CAST && (spell->Id != SPELL_STAY_OF_EXECUTION || IsHeroic()))
+        // Pain and Suffering and Heroic Stay of Execution are channeled spells and may not apply immunities on spell_go
+        if (spell->IsChanneled() && reason == SPELL_FINISHED_SUCCESSFUL_CAST)
             return;
 
         me->MakeInterruptable(false);
+
         if (spell->Id == SPELL_STAY_OF_EXECUTION)
         {
             // Failing achievement when Baron Ashbury finished channeling Stay of Execution
