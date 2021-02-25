@@ -42,7 +42,6 @@ enum DeathKnightSpells
     SPELL_DK_BLOOD_PLAGUE                       = 55078,
     SPELL_DK_BLOOD_SHIELD_ABSORB                = 77535,
     SPELL_DK_BLOOD_SHIELD_MASTERY               = 77513,
-    SPELL_DK_CORPSE_EXPLOSION_TRIGGERED         = 43999,
     SPELL_DK_DEATH_AND_DECAY_DAMAGE             = 52212,
     SPELL_DK_DEATH_COIL_DAMAGE                  = 47632,
     SPELL_DK_DEATH_GRIP_DUMMY                   = 243912,
@@ -50,14 +49,11 @@ enum DeathKnightSpells
     SPELL_DK_DEATH_GRIP_TAUNT                   = 51399,
     SPELL_DK_DEATH_STRIKE_HEAL                  = 45470,
     SPELL_DK_DEATH_STRIKE_OFFHAND               = 66188,
-    SPELL_DK_FESTERING_WOUND                    = 194310,
     SPELL_DK_FROST                              = 137006,
-    SPELL_DK_FROST_FEVER                        = 55095,
     SPELL_DK_GLYPH_OF_FOUL_MENAGERIE            = 58642,
     SPELL_DK_GLYPH_OF_THE_GEIST                 = 58640,
     SPELL_DK_GLYPH_OF_THE_SKELETON              = 146652,
     SPELL_DK_MARK_OF_BLOOD_HEAL                 = 206945,
-    SPELL_DK_NECROSIS_EFFECT                    = 216974,
     SPELL_DK_RAISE_DEAD_SUMMON                  = 52150,
     SPELL_DK_RECENTLY_USED_DEATH_STRIKE         = 180612,
     SPELL_DK_RUNIC_POWER_ENERGIZE               = 49088,
@@ -531,34 +527,6 @@ class spell_dk_death_grip_initial : public SpellScriptLoader
         }
 };
 
-// 48743 - Death Pact
-class spell_dk_death_pact : public SpellScriptLoader
-{
-    public:
-        spell_dk_death_pact() : SpellScriptLoader("spell_dk_death_pact") { }
-
-        class spell_dk_death_pact_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_dk_death_pact_AuraScript);
-
-            void HandleCalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
-            {
-                if (Unit* caster = GetCaster())
-                    amount = int32(caster->CountPctFromMaxHealth(amount));
-            }
-
-            void Register() override
-            {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_death_pact_AuraScript::HandleCalcAmount, EFFECT_1, SPELL_AURA_SCHOOL_HEAL_ABSORB);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_dk_death_pact_AuraScript();
-        }
-};
-
 // 49998 - Death Strike
 class spell_dk_death_strike : public SpellScriptLoader
 {
@@ -614,80 +582,6 @@ class spell_dk_death_strike : public SpellScriptLoader
         }
 };
 
-// 85948 - Festering Strike
-class spell_dk_festering_strike : public SpellScriptLoader
-{
-    public:
-        spell_dk_festering_strike() : SpellScriptLoader("spell_dk_festering_strike") { }
-
-        class spell_dk_festering_strike_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dk_festering_strike_SpellScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_DK_FESTERING_WOUND });
-            }
-
-            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
-            {
-                GetCaster()->CastCustomSpell(SPELL_DK_FESTERING_WOUND, SPELLVALUE_AURA_STACK, GetEffectValue(), GetHitUnit(), TRIGGERED_FULL_MASK);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_dk_festering_strike_SpellScript::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_dk_festering_strike_SpellScript();
-        }
-};
-
-// 47496 - Explode, Ghoul spell for Corpse Explosion
-class spell_dk_ghoul_explode : public SpellScriptLoader
-{
-    public:
-        spell_dk_ghoul_explode() : SpellScriptLoader("spell_dk_ghoul_explode") { }
-
-        class spell_dk_ghoul_explode_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dk_ghoul_explode_SpellScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_DK_CORPSE_EXPLOSION_TRIGGERED });
-            }
-
-            void HandleDamage(SpellEffIndex /*effIndex*/)
-            {
-                SetHitDamage(GetCaster()->CountPctFromMaxHealth(GetEffectInfo(EFFECT_2)->CalcValue(GetCaster())));
-            }
-
-            void Suicide(SpellEffIndex /*effIndex*/)
-            {
-                if (Unit* unitTarget = GetHitUnit())
-                {
-                    // Corpse Explosion (Suicide)
-                    unitTarget->CastSpell(unitTarget, SPELL_DK_CORPSE_EXPLOSION_TRIGGERED, true);
-                }
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_dk_ghoul_explode_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-                OnEffectHitTarget += SpellEffectFn(spell_dk_ghoul_explode_SpellScript::Suicide, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_dk_ghoul_explode_SpellScript();
-        }
-};
-
 // 206940 - Mark of Blood
 class spell_dk_mark_of_blood : public SpellScriptLoader
 {
@@ -719,39 +613,6 @@ class spell_dk_mark_of_blood : public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
             return new spell_dk_mark_of_blood_AuraScript();
-        }
-};
-
-// 207346 - Necrosis
-class spell_dk_necrosis : public SpellScriptLoader
-{
-    public:
-        spell_dk_necrosis() : SpellScriptLoader("spell_dk_necrosis") { }
-
-        class spell_dk_necrosis_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_dk_necrosis_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_DK_NECROSIS_EFFECT });
-            }
-
-            void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
-            {
-                PreventDefaultAction();
-                GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_DK_NECROSIS_EFFECT, true);
-            }
-
-            void Register() override
-            {
-                OnEffectProc += AuraEffectProcFn(spell_dk_necrosis_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_dk_necrosis_AuraScript();
         }
 };
 
@@ -914,39 +775,6 @@ class spell_dk_raise_dead : public SpellScriptLoader
         }
 };
 
-// 115994 - Unholy Blight
-class spell_dk_unholy_blight : public SpellScriptLoader
-{
-    public:
-        spell_dk_unholy_blight() : SpellScriptLoader("spell_dk_unholy_blight") { }
-
-        class spell_dk_unholy_blight_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dk_unholy_blight_SpellScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_DK_FROST_FEVER, SPELL_DK_BLOOD_PLAGUE });
-            }
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                GetCaster()->CastSpell(GetHitUnit(), SPELL_DK_FROST_FEVER, true);
-                GetCaster()->CastSpell(GetHitUnit(), SPELL_DK_BLOOD_PLAGUE, true);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_dk_unholy_blight_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_dk_unholy_blight_SpellScript();
-        }
-};
-
 // 55233 - Vampiric Blood
 class spell_dk_vampiric_blood : public SpellScriptLoader
 {
@@ -985,16 +813,11 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_death_coil();
     new spell_dk_death_gate();
     new spell_dk_death_grip_initial();
-    new spell_dk_death_pact();
     new spell_dk_death_strike();
-    new spell_dk_festering_strike();
-    new spell_dk_ghoul_explode();
     new spell_dk_mark_of_blood();
-    new spell_dk_necrosis();
     new spell_dk_pet_geist_transform();
     new spell_dk_pet_skeleton_transform();
     new spell_dk_pvp_4p_bonus();
     new spell_dk_raise_dead();
-    new spell_dk_unholy_blight();
     new spell_dk_vampiric_blood();
 }
