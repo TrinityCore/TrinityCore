@@ -5333,6 +5333,22 @@ class spell_gen_launch_quest_aura : public AuraScript
     }
 };
 
+// 46577 - Wounded
+class spell_gen_wounded : public SpellScript
+{
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit();
+        if (target->GetHealthPct() > 55.f)
+            target->SetHealth(CalculatePct(target->GetMaxHealth(), frand(15.f, 55.f)));
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget.Register(&spell_gen_wounded::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -5464,4 +5480,5 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_flask_of_battle);
     RegisterSpellScript(spell_gen_ghost);
     RegisterSpellScript(spell_gen_zero_energy_zero_regen);
+    RegisterSpellScript(spell_gen_wounded);
 }

@@ -1716,7 +1716,7 @@ enum TrainingDummy
     NPC_TARGET_DUMMY                           = 2673,
     NPC_SPELL_PRACTICE_CREDIT                  = 44175,
     SPELL_CHARGE                               = 100,
-    SPELL_JUDGEMENT                            = 29271,
+    SPELL_JUDGEMENT                            = 20271,
     SPELL_STEADY_SHOT                          = 56641,
     SPELL_EVISCERATE                           = 2098,
     SPELL_PRIMAL_STRIKE                        = 73899,
