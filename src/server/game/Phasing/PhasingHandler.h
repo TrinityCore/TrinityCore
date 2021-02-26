@@ -63,8 +63,8 @@ public:
 
     static uint32 GetTerrainMapId(PhaseShift const& phaseShift, Map const* map, float x, float y);
 
-    static void SetAlwaysVisible(PhaseShift& phaseShift, bool apply);
-    static void SetInversed(PhaseShift& phaseShift, bool apply);
+    static void SetAlwaysVisible(WorldObject* object, bool apply, bool updateVisibility);
+    static void SetInversed(WorldObject* object, bool apply, bool updateVisibility);
 
     static void PrintToChat(ChatHandler* chat, PhaseShift const& phaseShift);
     static std::string FormatPhases(PhaseShift const& phaseShift);

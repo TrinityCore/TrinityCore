@@ -494,22 +494,26 @@ uint32 PhasingHandler::GetTerrainMapId(PhaseShift const& phaseShift, Map const* 
     return map->GetId();
 }
 
-void PhasingHandler::SetAlwaysVisible(PhaseShift& phaseShift, bool apply)
+void PhasingHandler::SetAlwaysVisible(WorldObject* object, bool apply, bool updateVisibility)
 {
     if (apply)
-        phaseShift.Flags |= PhaseShiftFlags::AlwaysVisible;
+        object->GetPhaseShift().Flags |= PhaseShiftFlags::AlwaysVisible;
     else
-        phaseShift.Flags &= ~PhaseShiftFlags::AlwaysVisible;
+        object->GetPhaseShift().Flags &= ~PhaseShiftFlags::AlwaysVisible;
+
+    UpdateVisibilityIfNeeded(object, updateVisibility, true);
 }
 
-void PhasingHandler::SetInversed(PhaseShift& phaseShift, bool apply)
+void PhasingHandler::SetInversed(WorldObject* object, bool apply, bool updateVisibility)
 {
     if (apply)
-        phaseShift.Flags |= PhaseShiftFlags::Inverse;
+        object->GetPhaseShift().Flags |= PhaseShiftFlags::Inverse;
     else
-        phaseShift.Flags &= PhaseShiftFlags::Inverse;
+        object->GetPhaseShift().Flags &= PhaseShiftFlags::Inverse;
 
-    phaseShift.UpdateUnphasedFlag();
+    object->GetPhaseShift().UpdateUnphasedFlag();
+
+    UpdateVisibilityIfNeeded(object, updateVisibility, true);
 }
 
 void PhasingHandler::PrintToChat(ChatHandler* chat, PhaseShift const& phaseShift)
