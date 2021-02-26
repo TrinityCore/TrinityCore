@@ -4279,8 +4279,9 @@ void Spell::SendSpellStart()
     //TC_LOG_DEBUG("spells", "Sending SMSG_SPELL_START id=%u", m_spellInfo->Id);
 
     uint32 castFlags = CAST_FLAG_HAS_TRAJECTORY;
-    uint32 schoolImmunityMask = m_caster->GetSchoolImmunityMask();
-    uint32 mechanicImmunityMask = m_caster->GetMechanicImmunityMask();
+    uint32 schoolImmunityMask = m_casttime != 0 ? m_caster->GetSchoolImmunityMask() : 0;
+    uint32 mechanicImmunityMask = m_casttime != 0 ? m_spellInfo->GetMechanicImmunityMask(m_caster, false) : 0;
+
     if (schoolImmunityMask || mechanicImmunityMask)
         castFlags |= CAST_FLAG_IMMUNITY;
 
@@ -4298,8 +4299,7 @@ void Spell::SendSpellStart()
     if (m_spellInfo->RuneCostID && m_spellInfo->PowerType == POWER_RUNE)
         castFlags |= CAST_FLAG_NO_GCD; // not needed, but Blizzard sends it
 
-    if ((m_casttime && m_spellInfo->HasEffect(SPELL_EFFECT_HEAL)) || m_spellInfo->HasEffect(SPELL_EFFECT_HEAL_PCT) ||
-        m_spellInfo->HasAura(SPELL_AURA_PERIODIC_HEAL))
+    if ((m_casttime && m_spellInfo->HasEffect(SPELL_EFFECT_HEAL)) || m_spellInfo->HasAura(SPELL_AURA_PERIODIC_HEAL))
         castFlags |= CAST_FLAG_HEAL_PREDICTION;
 
     WorldPackets::Spells::SpellStart packet;
@@ -4316,8 +4316,6 @@ void Spell::SendSpellStart()
     castData.CastFlags = castFlags;
     castData.CastFlagsEx = m_castFlagsEx;
     castData.CastTime = m_casttime;
-
-    //data << uint32(m_timer);                                // delay?
 
     m_targets.Write(castData.Target);
 
@@ -4806,7 +4804,7 @@ void Spell::SendChannelStart(uint32 duration)
 
     uint32 castFlags = CAST_FLAG_HAS_TRAJECTORY;
     uint32 schoolImmunityMask = m_caster->GetSchoolImmunityMask();
-    uint32 mechanicImmunityMask = m_caster->GetMechanicImmunityMask();
+    uint32 mechanicImmunityMask = m_spellInfo->GetMechanicImmunityMask(m_caster, true);
 
     if (schoolImmunityMask || mechanicImmunityMask)
         castFlags |= CAST_FLAG_IMMUNITY;
@@ -4824,7 +4822,7 @@ void Spell::SendChannelStart(uint32 duration)
 
         for (uint8 j = 0; j < MAX_SPELL_EFFECTS; j++)
         {
-            if (spell->Effects[j].Effect == SPELL_EFFECT_HEAL || spell->Effects[j].Effect == SPELL_EFFECT_HEAL_PCT)
+            if (spell->Effects[j].Effect == SPELL_EFFECT_HEAL)
             {
                 Unit* target = m_targets.GetUnitTarget() ? m_targets.GetUnitTarget() : m_caster;
                 int32 heal = spell->Effects[j].CalcValue(m_caster);

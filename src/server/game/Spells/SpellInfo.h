@@ -593,6 +593,8 @@ class TC_GAME_API SpellInfo
 
         uint32 GetAllowedMechanicMask() const;
 
+        uint32 GetMechanicImmunityMask(Unit* caster, bool channeled) const;
+
     private:
         // loading helpers
         void _InitializeExplicitTargetMask();
