@@ -1186,7 +1186,7 @@ struct SmartAction
         struct
         {
             uint32 id;
-        } convData;
+        } conversation;
 
         //! Note for any new future actions
         //! All parameters must have type uint32

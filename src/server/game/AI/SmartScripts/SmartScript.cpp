@@ -2370,11 +2370,11 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 {
                     if (Player* playerTarget = target->ToPlayer())
                     {
-                        Conversation* conv = Conversation::CreateConversation(e.action.convData.id, playerTarget,
+                        Conversation* conversation = Conversation::CreateConversation(e.action.conversation.id, playerTarget,
                             *playerTarget, { playerTarget->GetGUID() }, nullptr);
-                        if (!conv)
+                        if (!conversation)
                             TC_LOG_WARN("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_TALK_CONVERSATION: id %u, baseObject %s, target %s - failed to create",
-                                e.action.convData.id, baseObject->GetName().c_str(), playerTarget->GetName().c_str());
+                                e.action.conversation.id, baseObject->GetName().c_str(), playerTarget->GetName().c_str());
                     }
                 }
             }
