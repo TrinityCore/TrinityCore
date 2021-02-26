@@ -1170,7 +1170,7 @@ public:
     SmartQuest() : QuestScript("SmartQuest") { }
 
     // Called when a quest status change
-    void OnQuestStatusChange(Player* player, Quest const* quest, QuestStatus oldStatus, QuestStatus newStatus)
+    void OnQuestStatusChange(Player* player, Quest const* quest, QuestStatus /*oldStatus*/, QuestStatus newStatus)
     {
         SmartScript smartScript;
         smartScript.OnInitialize(nullptr, nullptr, nullptr, quest);
