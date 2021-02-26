@@ -25,6 +25,7 @@ class AreaTrigger;
 class Creature;
 class GameObject;
 class Player;
+class Quest;
 class SpellInfo;
 class Unit;
 class WorldObject;
