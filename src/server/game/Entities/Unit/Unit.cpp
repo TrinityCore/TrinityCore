@@ -7436,15 +7436,14 @@ float Unit::SpellHealingPctDone(Unit* victim, SpellInfo const* spellProto) const
         }
     }
 
-    AuraEffectList const& mHealingFromTargetHealthPct = owner->GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_FROM_TARGET_HEALTH);
-    for (AuraEffectList::const_iterator i = mHealingFromTargetHealthPct.begin(); i != mHealingFromTargetHealthPct.end(); ++i)
+    float healthPctDiff = 100.0f - victim->GetHealthPct();
+    for (AuraEffect const* healingDonePctVsTargetHealth : owner->GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_DONE_PCT_VERSUS_TARGET_HEALTH))
     {
-        if ((*i)->IsAffectingSpell(spellProto))
-        {
-            uint32 masteryBonus = (*i)->GetAmount();
-            float healthPct = 100.0f - victim->GetHealthPct();
-            AddPct(DoneTotalMod, CalculatePct(masteryBonus, healthPct));
-        }
+        if (!healingDonePctVsTargetHealth->IsAffectingSpell(spellProto))
+            continue;
+
+        uint32 maxBonus = healingDonePctVsTargetHealth->GetAmount();
+        AddPct(DoneTotalMod, CalculatePct(maxBonus, healthPctDiff));
     }
 
     return DoneTotalMod;
