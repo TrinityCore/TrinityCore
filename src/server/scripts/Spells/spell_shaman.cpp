@@ -326,17 +326,16 @@ class spell_sha_earth_shield : public AuraScript
     {
         PreventDefaultAction();
 
-        if (Unit* caster = GetCaster())
-        {
-            Unit* target = GetTarget();
-            int32 bp = aurEff->GetAmount();
-            bp = caster->SpellHealingBonusDone(target, GetSpellInfo(), bp, HEAL, EFFECT_0);
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
 
-            if (AuraEffect const* glyphEff = caster->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, SHAMAN_ICON_ID_GLYPH_OF_EARTH_SHIELD, EFFECT_0))
-                AddPct(bp, glyphEff->GetAmount());
+        Unit* target = GetTarget();
+        int32 basePoints = caster->SpellHealingBonusDone(target, GetSpellInfo(), aurEff->GetAmount(), HEAL, EFFECT_0);
+        if (AuraEffect const* glyphEff = caster->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, SHAMAN_ICON_ID_GLYPH_OF_EARTH_SHIELD, EFFECT_0))
+            AddPct(basePoints, glyphEff->GetAmount());
 
-            target->CastSpell(target, SPELL_SHAMAN_EARTH_SHIELD_HEAL, CastSpellExtraArgs(aurEff).SetOriginalCaster(GetCasterGUID()).AddSpellBP0(bp));
-        }
+        target->CastSpell(target, SPELL_SHAMAN_EARTH_SHIELD_HEAL, CastSpellExtraArgs(aurEff).SetOriginalCaster(GetCasterGUID()).AddSpellBP0(basePoints));
     }
 
     void Register() override
