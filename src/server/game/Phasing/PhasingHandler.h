@@ -70,6 +70,8 @@ public:
     static std::string FormatPhases(PhaseShift const& phaseShift);
 
 private:
+    static void AddPhase(WorldObject* object, uint32 phaseId, ObjectGuid const& personalGuid, bool updateVisibility);
+    static void AddPhaseGroup(WorldObject* object, uint32 phaseGroupId, ObjectGuid const& personalGuid, bool updateVisibility);
     static void UpdateVisibilityIfNeeded(WorldObject* object, bool updateVisibility, bool changed);
 };
 
