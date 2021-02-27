@@ -5179,7 +5179,7 @@ void AuraEffect::HandlePreventResurrection(AuraApplication const* aurApp, uint8 
         aurApp->GetTarget()->SetByteFlag(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_FLAGS, PLAYER_FIELD_BYTE_RELEASE_TIMER);
 }
 
-void AuraEffect::HandleAuraModSpellPowerPct(AuraApplication const* aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleAuraModSpellPowerPct(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
