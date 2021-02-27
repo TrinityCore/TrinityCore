@@ -82,9 +82,9 @@ jobs:
             cd bin/check_install/bin
             cp -r ../../../contrib/Docker/* .
             cp -r ../../../sql ./sql
-            image_prefix=$(echo $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME-$(echo $CIRCLE_BRANCH | tr '/' '-') | tr '[:upper:]' '[:lower:]')
+            image_prefix=$(echo $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME | tr '[:upper:]' '[:lower:]')
             echo $image_prefix
-            docker build --file Dockerfile --force-rm --tag $image_prefix:$CIRCLE_SHA1 --tag $image_prefix:latest .
+            docker build --file Dockerfile --force-rm --tag $image_prefix:$CIRCLE_SHA1 --tag $image_prefix:$(echo $CIRCLE_BRANCH | tr '/' '-' | tr '[:upper:]' '[:lower:]') .
             docker save $image_prefix | gzip > ../../../docker.tar.gz
             if [ "$DOCKERHUB_PUSH_IMAGES" == "TRUE" ]; then
               if [ "$CIRCLE_BRANCH" == "3.3.5" ] || [ "$CIRCLE_BRANCH" == "master" ] || [ "$CIRCLE_BRANCH" == "3.3.5-dockerhub" ]; then
