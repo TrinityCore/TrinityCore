@@ -534,14 +534,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
             }
             case SPELLFAMILY_DRUID:
             {
-                // Ferocious Bite
-                if (m_caster->GetTypeId() == TYPEID_PLAYER && m_spellInfo->SpellFamilyFlags[3] & 0x1000)
-                {
-                    // converts each extra point of energy ( up to 25 energy ) into additional damage
-                    int32 energy = -(m_caster->ModifyPower(POWER_ENERGY, -25));
-                    // 25 energy = 100% more damage
-                    AddPct(damage, energy * 4);
-                }
                 break;
             }
             case SPELLFAMILY_DEATHKNIGHT:
@@ -5099,7 +5091,7 @@ void Spell::EffectGameObjectDamage(SpellEffIndex /*effIndex*/)
     FactionTemplateEntry const* casterFaction = caster->GetFactionTemplateEntry();
     FactionTemplateEntry const* targetFaction = sFactionTemplateStore.LookupEntry(gameObjTarget->GetFaction());
     // Do not allow to damage GO's of friendly factions (ie: Wintergrasp Walls/Ulduar Storm Beacons)
-    if (!targetFaction || (casterFaction && targetFaction && !casterFaction->IsFriendlyTo(targetFaction)))
+    if (!targetFaction || (casterFaction && !casterFaction->IsFriendlyTo(targetFaction)))
         gameObjTarget->ModifyHealth(-damage, caster, GetSpellInfo()->Id);
 }
 

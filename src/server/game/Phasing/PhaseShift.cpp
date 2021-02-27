@@ -82,7 +82,6 @@ PhaseShift::EraseResult<PhaseShift::UiMapPhaseIdContainer> PhaseShift::RemoveUiM
 void PhaseShift::Clear()
 {
     ClearPhases();
-    PersonalGuid.Clear();
     VisibleMapIds.clear();
     UiMapPhaseIds.clear();
 }
@@ -90,9 +89,11 @@ void PhaseShift::Clear()
 void PhaseShift::ClearPhases()
 {
     Flags &= PhaseShiftFlags::AlwaysVisible | PhaseShiftFlags::Inverse;
+    PersonalGuid.Clear();
     Phases.clear();
     NonCosmeticReferences = 0;
     CosmeticReferences = 0;
+    PersonalReferences = 0;
     DefaultReferences = 0;
     UpdateUnphasedFlag();
 }
@@ -126,12 +127,12 @@ bool PhaseShift::CanSee(PhaseShift const& other) const
         if (phaseShift.Flags.HasFlag(PhaseShiftFlags::Unphased) && !excludedPhaseShift.Flags.HasFlag(PhaseShiftFlags::InverseUnphased))
             return true;
 
-        for (auto itr = phaseShift.Phases.begin(); itr != phaseShift.Phases.end(); ++itr)
+        for (PhaseRef const& phase : phaseShift.Phases)
         {
-            if (itr->Flags.HasFlag(excludePhasesWithFlag))
+            if (phase.Flags.HasFlag(excludePhasesWithFlag))
                 continue;
 
-            auto itr2 = std::find(excludedPhaseShift.Phases.begin(), excludedPhaseShift.Phases.end(), *itr);
+            auto itr2 = std::find(excludedPhaseShift.Phases.begin(), excludedPhaseShift.Phases.end(), phase);
             if (itr2 == excludedPhaseShift.Phases.end() || itr2->Flags.HasFlag(excludePhasesWithFlag))
                 return true;
         }
@@ -158,12 +159,16 @@ void PhaseShift::ModifyPhasesReferences(PhaseContainer::iterator itr, int32 refe
         else
             DefaultReferences += references;
 
+        if (itr->Flags.HasFlag(PhaseFlags::Personal))
+            PersonalReferences += references;
+
         if (CosmeticReferences)
             Flags |= PhaseShiftFlags::NoCosmetic;
         else
             Flags &= ~PhaseShiftFlags::NoCosmetic;
 
         UpdateUnphasedFlag();
+        UpdatePersonalGuid();
     }
 }
 
@@ -175,4 +180,10 @@ void PhaseShift::UpdateUnphasedFlag()
         Flags &= ~unphasedFlag;
     else
         Flags |= unphasedFlag;
+}
+
+void PhaseShift::UpdatePersonalGuid()
+{
+    if (!PersonalReferences)
+        PersonalGuid.Clear();
 }

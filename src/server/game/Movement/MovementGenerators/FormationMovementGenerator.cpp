@@ -15,11 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "FormationMovementGenerator.h"
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
-#include "FormationMovementGenerator.h"
 
 void FormationMovementGenerator::DoInitialize(Creature* owner)
 {

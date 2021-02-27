@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "PointMovementGenerator.h"
 #include "CreatureAI.h"
 #include "Creature.h"
 #include "Player.h"
@@ -22,7 +23,6 @@
 #include "MoveSpline.h"
 #include "ObjectAccessor.h"
 #include "World.h"
-#include "PointMovementGenerator.h"
 
 //----- Point Movement Generator
 

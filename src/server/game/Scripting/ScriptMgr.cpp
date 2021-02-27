@@ -2254,6 +2254,15 @@ void ScriptMgr::OnQuestStatusChange(Player* player, Quest const* quest, QuestSta
     tmpscript->OnQuestStatusChange(player, quest, oldStatus, newStatus);
 }
 
+void ScriptMgr::OnQuestAcknowledgeAutoAccept(Player* player, Quest const* quest)
+{
+    ASSERT(player);
+    ASSERT(quest);
+
+    GET_SCRIPT(QuestScript, quest->GetScriptId(), tmpscript);
+    tmpscript->OnAcknowledgeAutoAccept(player, quest);
+}
+
 void ScriptMgr::OnQuestObjectiveChange(Player* player, Quest const* quest, QuestObjective const& objective, int32 oldAmount, int32 newAmount)
 {
     ASSERT(player);
