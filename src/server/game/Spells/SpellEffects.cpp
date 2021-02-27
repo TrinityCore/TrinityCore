@@ -1059,9 +1059,6 @@ void Spell::EffectTeleportUnits(SpellEffIndex /*effIndex*/)
     if (targetDest.GetMapId() == MAPID_INVALID)
         targetDest.m_mapId = unitTarget->GetMapId();
 
-    if (!targetDest.GetOrientation() && m_targets.GetUnitTarget())
-        targetDest.SetOrientation(m_targets.GetUnitTarget()->GetOrientation());
-
     if (targetDest.GetMapId() == unitTarget->GetMapId())
         unitTarget->NearTeleportTo(targetDest, unitTarget == m_caster);
     else if (unitTarget->GetTypeId() == TYPEID_PLAYER)
