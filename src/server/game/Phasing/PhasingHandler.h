@@ -23,6 +23,7 @@
 
 class ChatHandler;
 class Map;
+class ObjectGuid;
 class PhaseShift;
 class Player;
 class WorldObject;
