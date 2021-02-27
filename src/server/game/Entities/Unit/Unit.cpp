@@ -7266,7 +7266,7 @@ float Unit::SpellHealingPctDone(Unit* victim, SpellInfo const* spellProto) const
 
     // bonus from missing health of target
     float healthPctDiff = 100.f - victim->GetHealthPct();
-    for (AuraEffect const* healingDonePctVsTargetHealth : owner->GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_DONE_PCT_VERSUS_TARGET_HEALTH))
+    for (AuraEffect const* healingDonePctVsTargetHealth : GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_DONE_PCT_VERSUS_TARGET_HEALTH))
         if (healingDonePctVsTargetHealth->IsAffectingSpell(spellProto))
             AddPct(DoneTotalMod, CalculatePct(float(healingDonePctVsTargetHealth->GetAmount()), healthPctDiff));
 
