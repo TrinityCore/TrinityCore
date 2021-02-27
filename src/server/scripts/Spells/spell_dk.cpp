@@ -76,34 +76,6 @@ enum Misc
     NPC_DK_DANCING_RUNE_WEAPON                  = 27893
 };
 
-// 48743 - Death Pact
-class spell_dk_death_pact : public SpellScriptLoader
-{
-public:
-    spell_dk_death_pact() : SpellScriptLoader("spell_dk_death_pact") { }
-
-    class spell_dk_death_pact_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_dk_death_pact_AuraScript);
-
-        void HandleCalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
-        {
-            if (Unit* caster = GetCaster())
-                amount = int32(caster->CountPctFromMaxHealth(amount));
-        }
-
-        void Register() override
-        {
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_death_pact_AuraScript::HandleCalcAmount, EFFECT_1, SPELL_AURA_SCHOOL_HEAL_ABSORB);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_dk_death_pact_AuraScript();
-    }
-};
-
 // 70656 - Advantage (T10 4P Melee Bonus)
 class spell_dk_advantage_t10_4p : public SpellScriptLoader
 {
@@ -558,6 +530,34 @@ class spell_dk_death_grip_initial : public SpellScriptLoader
         }
 };
 
+// 48743 - Death Pact
+class spell_dk_death_pact : public SpellScriptLoader
+{
+public:
+    spell_dk_death_pact() : SpellScriptLoader("spell_dk_death_pact") { }
+
+    class spell_dk_death_pact_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dk_death_pact_AuraScript);
+
+        void HandleCalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+        {
+            if (Unit* caster = GetCaster())
+                amount = int32(caster->CountPctFromMaxHealth(amount));
+        }
+
+        void Register() override
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_death_pact_AuraScript::HandleCalcAmount, EFFECT_1, SPELL_AURA_SCHOOL_HEAL_ABSORB);
+        }
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_dk_death_pact_AuraScript();
+    }
+};
+
 // 49998 - Death Strike
 class spell_dk_death_strike : public SpellScriptLoader
 {
@@ -616,75 +616,75 @@ class spell_dk_death_strike : public SpellScriptLoader
 // 85948 - Festering Strike
 class spell_dk_festering_strike : public SpellScriptLoader
 {
-public:
-    spell_dk_festering_strike() : SpellScriptLoader("spell_dk_festering_strike") { }
+    public:
+        spell_dk_festering_strike() : SpellScriptLoader("spell_dk_festering_strike") { }
 
-    class spell_dk_festering_strike_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_dk_festering_strike_SpellScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
+        class spell_dk_festering_strike_SpellScript : public SpellScript
         {
-            return ValidateSpellInfo({ SPELL_DK_FESTERING_WOUND });
-        }
+            PrepareSpellScript(spell_dk_festering_strike_SpellScript);
 
-        void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_DK_FESTERING_WOUND });
+            }
+
+            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+            {
+                GetCaster()->CastCustomSpell(SPELL_DK_FESTERING_WOUND, SPELLVALUE_AURA_STACK, GetEffectValue(), GetHitUnit(), TRIGGERED_FULL_MASK);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_dk_festering_strike_SpellScript::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
         {
-            GetCaster()->CastCustomSpell(SPELL_DK_FESTERING_WOUND, SPELLVALUE_AURA_STACK, GetEffectValue(), GetHitUnit(), TRIGGERED_FULL_MASK);
+            return new spell_dk_festering_strike_SpellScript();
         }
-
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_dk_festering_strike_SpellScript::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_DUMMY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_dk_festering_strike_SpellScript();
-    }
 };
 
 // 47496 - Explode, Ghoul spell for Corpse Explosion
 class spell_dk_ghoul_explode : public SpellScriptLoader
 {
-public:
-    spell_dk_ghoul_explode() : SpellScriptLoader("spell_dk_ghoul_explode") { }
+    public:
+        spell_dk_ghoul_explode() : SpellScriptLoader("spell_dk_ghoul_explode") { }
 
-    class spell_dk_ghoul_explode_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_dk_ghoul_explode_SpellScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
+        class spell_dk_ghoul_explode_SpellScript : public SpellScript
         {
-            return ValidateSpellInfo({ SPELL_DK_CORPSE_EXPLOSION_TRIGGERED });
-        }
+            PrepareSpellScript(spell_dk_ghoul_explode_SpellScript);
 
-        void HandleDamage(SpellEffIndex /*effIndex*/)
-        {
-            SetHitDamage(GetCaster()->CountPctFromMaxHealth(GetEffectInfo(EFFECT_2)->CalcValue(GetCaster())));
-        }
-
-        void Suicide(SpellEffIndex /*effIndex*/)
-        {
-            if (Unit* unitTarget = GetHitUnit())
+            bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                // Corpse Explosion (Suicide)
-                unitTarget->CastSpell(unitTarget, SPELL_DK_CORPSE_EXPLOSION_TRIGGERED, true);
+                return ValidateSpellInfo({ SPELL_DK_CORPSE_EXPLOSION_TRIGGERED });
             }
-        }
 
-        void Register() override
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                SetHitDamage(GetCaster()->CountPctFromMaxHealth(GetEffectInfo(EFFECT_2)->CalcValue(GetCaster())));
+            }
+
+            void Suicide(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* unitTarget = GetHitUnit())
+                {
+                    // Corpse Explosion (Suicide)
+                    unitTarget->CastSpell(unitTarget, SPELL_DK_CORPSE_EXPLOSION_TRIGGERED, true);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_dk_ghoul_explode_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnEffectHitTarget += SpellEffectFn(spell_dk_ghoul_explode_SpellScript::Suicide, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
         {
-            OnEffectHitTarget += SpellEffectFn(spell_dk_ghoul_explode_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-            OnEffectHitTarget += SpellEffectFn(spell_dk_ghoul_explode_SpellScript::Suicide, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+            return new spell_dk_ghoul_explode_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_dk_ghoul_explode_SpellScript();
-    }
 };
 
 // 206940 - Mark of Blood
