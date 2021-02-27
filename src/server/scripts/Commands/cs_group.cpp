@@ -57,6 +57,7 @@ public:
             { "join",    rbac::RBAC_PERM_COMMAND_GROUP_JOIN,    false, &HandleGroupJoinCommand,    "" },
             { "list",    rbac::RBAC_PERM_COMMAND_GROUP_LIST,    false, &HandleGroupListCommand,    "" },
             { "summon",  rbac::RBAC_PERM_COMMAND_GROUP_SUMMON,  false, &HandleGroupSummonCommand,  "" },
+            { "revive",  rbac::RBAC_PERM_COMMAND_REVIVE,        true,  &HandleGroupReviveCommand,   "" }
         };
 
         static std::vector<ChatCommand> commandTable =
@@ -64,6 +65,31 @@ public:
             { "group", rbac::RBAC_PERM_COMMAND_GROUP, false, nullptr, "", groupCommandTable },
         };
         return commandTable;
+    }
+
+    static bool HandleGroupReviveCommand(ChatHandler* handler, char const* args)
+    {
+        Player* playerTarget;
+        ObjectGuid playerTargetGuid;
+        if (!handler->extractPlayerTarget((char*)args, &playerTarget, &playerTargetGuid))
+            return false;
+
+        Group* groupTarget = playerTarget->GetGroup();
+        if (!groupTarget)
+            return false;
+
+        for (GroupReference* it = groupTarget->GetFirstMember(); it != nullptr; it = it->next())
+        {
+            Player* target = it->GetSource();
+            if (target)
+            {
+                target->ResurrectPlayer(target->GetSession()->HasPermission(rbac::RBAC_PERM_RESURRECT_WITH_FULL_HPS) ? 1.0f : 0.5f);
+                target->SpawnCorpseBones();
+                target->SaveToDB();
+            }
+        }
+
+        return true;
     }
 
     // Summon group of player
