@@ -937,6 +937,12 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         ok = true;
     }
 
+    if (cInfo->AIName == "TotemAI")
+    {
+        TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has not-allowed `AIName` '%s' set, removing", cInfo->Entry, cInfo->AIName.c_str());
+        const_cast<CreatureTemplate*>(cInfo)->AIName.clear();
+    }
+
     if (!cInfo->AIName.empty() && !sCreatureAIRegistry->HasItem(cInfo->AIName))
     {
         TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has non-registered `AIName` '%s' set, removing", cInfo->Entry, cInfo->AIName.c_str());

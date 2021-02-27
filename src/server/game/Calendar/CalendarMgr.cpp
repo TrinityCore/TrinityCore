@@ -648,6 +648,6 @@ void CalendarMgr::SendPacketToAllEventRelatives(WorldPacket const* packet, Calen
     CalendarInviteStore invites = _invites[calendarEvent.GetEventId()];
     for (CalendarInviteStore::iterator itr = invites.begin(); itr != invites.end(); ++itr)
         if (Player* player = ObjectAccessor::FindConnectedPlayer((*itr)->GetInviteeGUID()))
-            if (!calendarEvent.IsGuildEvent() || (calendarEvent.IsGuildEvent() && player->GetGuildId() != calendarEvent.GetGuildId()))
+            if (!calendarEvent.IsGuildEvent() || player->GetGuildId() != calendarEvent.GetGuildId())
                 player->SendDirectMessage(packet);
 }

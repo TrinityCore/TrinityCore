@@ -1188,7 +1188,7 @@ public:
 
             if (IsEvent || IsOverrun)
             {
-                ENSURE_AI(hyjal_trashAI, me->AI())->SetCanAttack(false);
+                ENSURE_AI(hyjal_trashAI, me->AI())->SetActiveAttacker(false);
                 EscortAI::UpdateAI(diff);
             }
 
@@ -1309,7 +1309,7 @@ public:
 
             if (IsEvent || IsOverrun)
             {
-                ENSURE_AI(hyjal_trashAI, me->AI())->SetCanAttack(false);
+                ENSURE_AI(hyjal_trashAI, me->AI())->SetActiveAttacker(false);
                 EscortAI::UpdateAI(diff);
             }
 
