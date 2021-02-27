@@ -1572,7 +1572,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
 
             break;
         }
-        case SMART_ACTION_TALK_CONVERSATION:
+        case SMART_ACTION_CREATE_CONVERSATION:
         {
             if (!sConversationDataStore->GetConversationTemplate(e.action.conversation.id))
             {

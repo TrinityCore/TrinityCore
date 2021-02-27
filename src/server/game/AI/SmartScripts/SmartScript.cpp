@@ -2362,7 +2362,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             break;
         }
-        case SMART_ACTION_TALK_CONVERSATION:
+        case SMART_ACTION_CREATE_CONVERSATION:
         {
             if (WorldObject* baseObject = GetBaseObject())
             {
