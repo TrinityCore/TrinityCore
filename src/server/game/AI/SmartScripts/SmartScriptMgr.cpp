@@ -18,6 +18,7 @@
 #include "SmartScriptMgr.h"
 #include "AreaTriggerDataStore.h"
 #include "AreaTriggerTemplate.h"
+#include "ConversationDataStore.h"
 #include "CreatureTextMgr.h"
 #include "DB2Stores.h"
 #include "DatabaseEnv.h"
@@ -1566,6 +1567,16 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             if (!e.action.movementSpeed.speedInteger && !e.action.movementSpeed.speedFraction)
             {
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry " SI64FMTD " SourceType %u Event %u Action %u uses speed 0, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
+                return false;
+            }
+
+            break;
+        }
+        case SMART_ACTION_TALK_CONVERSATION:
+        {
+            if (!sConversationDataStore->GetConversationTemplate(e.action.conversation.id))
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: SMART_ACTION_TALK_CONVERSATION Entry " SI64FMTD " SourceType %u Event %u Action %u uses invalid entry %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.conversation.id);
                 return false;
             }
 
