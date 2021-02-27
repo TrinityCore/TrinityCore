@@ -2429,7 +2429,7 @@ CREATE TABLE `item_instance` (
   `flags` int(10) unsigned NOT NULL DEFAULT '0',
   `enchantments` text NOT NULL,
   `randomPropertyType` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `randomPropertyId` smallint(5) NOT NULL DEFAULT '0',
+  `randomPropertyId` int(10) unsigned NOT NULL DEFAULT '0',
   `durability` smallint(5) unsigned NOT NULL DEFAULT '0',
   `creationTime` int(10) unsigned NOT NULL DEFAULT '0',
   `text` text,
@@ -2465,7 +2465,7 @@ CREATE TABLE `item_loot_items` (
   `under_threshold` tinyint(1) NOT NULL DEFAULT '0',
   `needs_quest` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'quest drop',
   `rnd_type` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT 'random enchantment type',
-  `rnd_prop` int(10) NOT NULL DEFAULT '0' COMMENT 'random enchantment added when originally rolled',
+  `rnd_prop` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'random enchantment added when originally rolled',
   `rnd_suffix` int(10) NOT NULL DEFAULT '0' COMMENT 'random suffix added when originally rolled'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
