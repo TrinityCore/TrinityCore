@@ -7369,8 +7369,6 @@ float Unit::SpellHealingPctDone(Unit* victim, SpellInfo const* spellProto) const
             case 8477: // Nourish Heal Boost
             {
                 int32 modPercent = 0;
-                AuraApplicationMap const& victimAuras = victim->GetAppliedAuras();
-
                 for (auto aurAppPair : victim->GetAppliedAuras())
                 {
                     Aura const* aura = aurAppPair.second->GetBase();
