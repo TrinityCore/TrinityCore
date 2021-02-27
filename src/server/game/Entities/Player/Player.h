@@ -1797,6 +1797,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void UpdateAttackPowerAndDamage(bool ranged = false) override;
         void ApplySpellPowerBonus(int32 amount, bool apply);
         void UpdateSpellDamageAndHealingBonus();
+        void UpdateSpellHealingPercentDone();
+        void UpdateSpellHealingPercentTaken();
         void ApplyRatingMod(CombatRating cr, int32 value, bool apply);
         void UpdateRating(CombatRating cr);
         void UpdateAllRatings();

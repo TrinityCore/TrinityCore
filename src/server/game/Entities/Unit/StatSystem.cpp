@@ -183,6 +183,25 @@ void Player::UpdateSpellDamageAndHealingBonus()
     }
 }
 
+void Player::UpdateSpellHealingPercentDone()
+{
+    SetFloatValue(PLAYER_FIELD_MOD_HEALING_DONE_PCT, GetTotalAuraMultiplier(SPELL_AURA_MOD_HEALING_DONE_PERCENT));
+}
+
+void Player::UpdateSpellHealingPercentTaken()
+{
+    float TakenTotalMod = 1.f;
+    float minval = float(GetMaxNegativeAuraModifier(SPELL_AURA_MOD_HEALING_PCT));
+    if (minval)
+        AddPct(TakenTotalMod, minval);
+
+    float maxval = float(GetMaxPositiveAuraModifier(SPELL_AURA_MOD_HEALING_PCT));
+    if (maxval)
+        AddPct(TakenTotalMod, maxval);
+
+    SetFloatValue(PLAYER_FIELD_MOD_HEALING_PCT, TakenTotalMod);
+}
+
 bool Player::UpdateAllStats()
 {
     for (int8 i = STAT_STRENGTH; i < MAX_STATS; ++i)
