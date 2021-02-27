@@ -533,29 +533,29 @@ class spell_dk_death_grip_initial : public SpellScriptLoader
 // 48743 - Death Pact
 class spell_dk_death_pact : public SpellScriptLoader
 {
-public:
-    spell_dk_death_pact() : SpellScriptLoader("spell_dk_death_pact") { }
+    public:
+        spell_dk_death_pact() : SpellScriptLoader("spell_dk_death_pact") { }
 
-    class spell_dk_death_pact_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_dk_death_pact_AuraScript);
-
-        void HandleCalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+        class spell_dk_death_pact_AuraScript : public AuraScript
         {
-            if (Unit* caster = GetCaster())
-                amount = int32(caster->CountPctFromMaxHealth(amount));
-        }
+            PrepareAuraScript(spell_dk_death_pact_AuraScript);
 
-        void Register() override
+            void HandleCalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+            {
+                if (Unit* caster = GetCaster())
+                    amount = int32(caster->CountPctFromMaxHealth(amount));
+            }
+
+            void Register() override
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_death_pact_AuraScript::HandleCalcAmount, EFFECT_1, SPELL_AURA_SCHOOL_HEAL_ABSORB);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
         {
-            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_death_pact_AuraScript::HandleCalcAmount, EFFECT_1, SPELL_AURA_SCHOOL_HEAL_ABSORB);
+            return new spell_dk_death_pact_AuraScript();
         }
-    };
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_dk_death_pact_AuraScript();
-    }
 };
 
 // 49998 - Death Strike
