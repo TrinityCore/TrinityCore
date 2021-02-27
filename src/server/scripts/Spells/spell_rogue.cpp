@@ -38,9 +38,6 @@ enum RogueSpells
 {
     SPELL_ROGUE_BLADE_FLURRY                        = 13877,
     SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK           = 22482,
-    SPELL_ROGUE_CHEAT_DEATH_COOLDOWN                = 31231,
-    SPELL_ROGUE_CRIPPLING_POISON                    = 3409,
-    SPELL_ROGUE_GLYPH_OF_PREPARATION                = 56819,
     SPELL_ROGUE_KILLING_SPREE                       = 51690,
     SPELL_ROGUE_KILLING_SPREE_TELEPORT              = 57840,
     SPELL_ROGUE_KILLING_SPREE_WEAPON_DMG            = 57841,
@@ -54,12 +51,7 @@ enum RogueSpells
     SPELL_ROGUE_STEALTH_STEALTH_AURA                = 158185,
     SPELL_ROGUE_STEALTH_SHAPESHIFT_AURA             = 158188,
     SPELL_ROGUE_VANISH_AURA                         = 11327,
-    SPELL_ROGUE_PREY_ON_THE_WEAK                    = 58670,
-    SPELL_ROGUE_SHIV_TRIGGERED                      = 5940,
-    SPELL_ROGUE_TRICKS_OF_THE_TRADE_DMG_BOOST       = 57933,
     SPELL_ROGUE_TRICKS_OF_THE_TRADE_PROC            = 59628,
-    SPELL_ROGUE_SERRATED_BLADES_R1                  = 14171,
-    SPELL_ROGUE_RUPTURE                             = 1943,
     SPELL_ROGUE_HONOR_AMONG_THIEVES_ENERGIZE        = 51699,
     SPELL_ROGUE_T5_2P_SET_BONUS                     = 37169
 };
@@ -111,101 +103,6 @@ class spell_rog_blade_flurry : public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
             return new spell_rog_blade_flurry_AuraScript();
-        }
-};
-
-// 31228 - Cheat Death
-class spell_rog_cheat_death : public SpellScriptLoader
-{
-    public:
-        spell_rog_cheat_death() : SpellScriptLoader("spell_rog_cheat_death") { }
-
-        class spell_rog_cheat_death_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_rog_cheat_death_AuraScript);
-
-            uint32 absorbChance = 0;
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_ROGUE_CHEAT_DEATH_COOLDOWN });
-            }
-
-            bool Load() override
-            {
-                // 6.x has basepoint = 0 !
-                absorbChance = GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue();
-                return GetUnitOwner()->GetTypeId() == TYPEID_PLAYER;
-            }
-
-            void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
-            {
-                // Set absorbtion amount to unlimited
-                amount = -1;
-            }
-
-            void Absorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
-            {
-                Player* target = GetTarget()->ToPlayer();
-                if (dmgInfo.GetDamage() < target->GetHealth() || target->GetSpellHistory()->HasCooldown(SPELL_ROGUE_CHEAT_DEATH_COOLDOWN) || !roll_chance_i(absorbChance))
-                    return;
-
-                target->CastSpell(target, SPELL_ROGUE_CHEAT_DEATH_COOLDOWN, true);
-                target->GetSpellHistory()->AddCooldown(SPELL_ROGUE_CHEAT_DEATH_COOLDOWN, 0, std::chrono::minutes(1));
-
-                uint32 health10 = target->CountPctFromMaxHealth(10);
-
-                // hp > 10% - absorb hp till 10%
-                if (target->GetHealth() > health10)
-                    absorbAmount = dmgInfo.GetDamage() - target->GetHealth() + health10;
-                // hp lower than 10% - absorb everything
-                else
-                    absorbAmount = dmgInfo.GetDamage();
-            }
-
-            void Register() override
-            {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_rog_cheat_death_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-                OnEffectAbsorb += AuraEffectAbsorbFn(spell_rog_cheat_death_AuraScript::Absorb, EFFECT_0);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_rog_cheat_death_AuraScript();
-        }
-};
-
-// -51625 - Deadly Brew
-class spell_rog_crippling_poison : public SpellScriptLoader
-{
-    public:
-        spell_rog_crippling_poison() : SpellScriptLoader("spell_rog_crippling_poison") { }
-
-        class spell_rog_crippling_poison_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_rog_crippling_poison_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_ROGUE_CRIPPLING_POISON });
-            }
-
-            void OnProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
-            {
-                PreventDefaultAction();
-                GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_ROGUE_CRIPPLING_POISON, true, nullptr, aurEff);
-            }
-
-            void Register() override
-            {
-                OnEffectProc += AuraEffectProcFn(spell_rog_crippling_poison_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_rog_crippling_poison_AuraScript();
         }
 };
 
@@ -406,92 +303,6 @@ class spell_rog_killing_spree : public SpellScriptLoader
 };
 char constexpr const spell_rog_killing_spree::ScriptName[];
 
-// 31666 - Master of Subtlety
-class spell_rog_master_of_subtlety : public SpellScriptLoader
-{
-    public:
-        spell_rog_master_of_subtlety() : SpellScriptLoader("spell_rog_master_of_subtlety") { }
-
-        class spell_rog_master_of_subtlety_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_rog_master_of_subtlety_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT });
-            }
-
-            void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
-            {
-                Unit* target = GetTarget();
-
-                if (!target->HasAuraType(SPELL_AURA_MOD_STEALTH))
-                    target->RemoveAurasDueToSpell(SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT);
-            }
-
-            void Register() override
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_rog_master_of_subtlety_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_rog_master_of_subtlety_AuraScript();
-        }
-};
-
-// 14185 - Preparation
-class spell_rog_preparation : public SpellScriptLoader
-{
-    public:
-        spell_rog_preparation() : SpellScriptLoader("spell_rog_preparation") { }
-
-        class spell_rog_preparation_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_rog_preparation_SpellScript);
-
-            bool Load() override
-            {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-            }
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_ROGUE_GLYPH_OF_PREPARATION });
-            }
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                Unit* caster = GetCaster();
-                caster->GetSpellHistory()->ResetCooldowns([caster, this](SpellHistory::CooldownStorageType::iterator itr)
-                {
-                    SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first, GetCastDifficulty());
-                    if (spellInfo->SpellFamilyName != SPELLFAMILY_ROGUE)
-                        return false;
-
-                    return (spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_ROGUE_SHADOWSTEP ||           // Shadowstep
-                        spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG0_ROGUE_VAN_SPRINT) ||              // Vanish, Sprint
-                        // Glyph of Preparation
-                        (caster->HasAura(SPELL_ROGUE_GLYPH_OF_PREPARATION) &&
-                        (spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_ROGUE_DISMANTLE_SMOKE_BOMB ||    // Dismantle, Smoke Bomb
-                        spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG0_ROGUE_KICK));                     // Kick
-
-                }, true);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_rog_preparation_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_rog_preparation_SpellScript();
-        }
-};
-
 // 1943 - Rupture
 class spell_rog_rupture : public SpellScriptLoader
 {
@@ -541,45 +352,6 @@ class spell_rog_rupture : public SpellScriptLoader
         AuraScript* GetAuraScript() const override
         {
             return new spell_rog_rupture_AuraScript();
-        }
-};
-
-// 5938 - Shiv
-class spell_rog_shiv : public SpellScriptLoader
-{
-    public:
-        spell_rog_shiv() : SpellScriptLoader("spell_rog_shiv") { }
-
-        class spell_rog_shiv_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_rog_shiv_SpellScript);
-
-            bool Load() override
-            {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-            }
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_ROGUE_SHIV_TRIGGERED });
-            }
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                Unit* caster = GetCaster();
-                if (Unit* unitTarget = GetHitUnit())
-                    caster->CastSpell(unitTarget, SPELL_ROGUE_SHIV_TRIGGERED, true);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_rog_shiv_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_rog_shiv_SpellScript();
         }
 };
 
@@ -745,11 +517,7 @@ class spell_rog_tricks_of_the_trade : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                return ValidateSpellInfo(
-                {
-                    SPELL_ROGUE_TRICKS_OF_THE_TRADE_DMG_BOOST,
-                    SPELL_ROGUE_TRICKS_OF_THE_TRADE_PROC
-                });
+                return ValidateSpellInfo({ SPELL_ROGUE_TRICKS_OF_THE_TRADE_PROC });
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -769,7 +537,6 @@ class spell_rog_tricks_of_the_trade : public SpellScriptLoader
                 PreventDefaultAction();
 
                 Unit* target = GetTarget();
-                target->CastSpell(_redirectTarget, SPELL_ROGUE_TRICKS_OF_THE_TRADE_DMG_BOOST, true);
                 target->CastSpell(target, SPELL_ROGUE_TRICKS_OF_THE_TRADE_PROC, true);
                 Remove(AURA_REMOVE_BY_DEFAULT); // maybe handle by proc charges
             }
@@ -815,40 +582,6 @@ class spell_rog_tricks_of_the_trade_proc : public SpellScriptLoader
         {
             return new spell_rog_tricks_of_the_trade_proc_AuraScript();
         }
-};
-
-class spell_rog_serrated_blades : public SpellScriptLoader
-{
-public:
-    spell_rog_serrated_blades() : SpellScriptLoader("spell_rog_serrated_blades") { }
-
-    class spell_rog_serrated_blades_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_rog_serrated_blades_SpellScript);
-
-        void HandleHit()
-        {
-            if (AuraEffect* blade = GetCaster()->GetAuraEffectOfRankedSpell(SPELL_ROGUE_SERRATED_BLADES_R1, EFFECT_0))
-            {
-                uint32 combo = GetCaster()->ToPlayer()->GetComboPoints();
-
-                if (roll_chance_i(blade->GetAmount() * combo))
-                    if (Aura* dot = GetHitUnit()->GetAura(SPELL_ROGUE_RUPTURE, GetCaster()->GetGUID()))
-                        dot->RefreshDuration();
-
-            }
-        }
-
-        void Register() override
-        {
-            OnHit += SpellHitFn(spell_rog_serrated_blades_SpellScript::HandleHit);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_rog_serrated_blades_SpellScript();
-    }
 };
 
 // 198031 - Honor Among Thieves
@@ -964,20 +697,14 @@ public:
 void AddSC_rogue_spell_scripts()
 {
     new spell_rog_blade_flurry();
-    new spell_rog_cheat_death();
-    new spell_rog_crippling_poison();
     new spell_rog_deadly_poison();
     new spell_rog_killing_spree();
-    new spell_rog_master_of_subtlety();
-    new spell_rog_preparation();
     new spell_rog_rupture();
-    new spell_rog_shiv();
     new spell_rog_stealth();
     new spell_rog_vanish();
     new spell_rog_vanish_aura();
     new spell_rog_tricks_of_the_trade();
     new spell_rog_tricks_of_the_trade_proc();
-    new spell_rog_serrated_blades();
     new spell_rog_honor_among_thieves();
     new spell_rog_eviscerate();
     new spell_rog_envenom();
