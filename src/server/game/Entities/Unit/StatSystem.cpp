@@ -152,10 +152,24 @@ bool Player::UpdateStats(Stats stat)
 
 void Player::ApplySpellPowerBonus(int32 amount, bool apply)
 {
+    if (HasAuraType(SPELL_AURA_OVERRIDE_SPELL_POWER_BY_AP_PCT))
+        return;
+
     apply = _ModifyUInt32(apply, m_baseSpellPower, amount);
 
     // For speed just update for client
     ApplyModUInt32Value(PLAYER_FIELD_MOD_HEALING_DONE_POS, amount, apply);
+    for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
+        ApplyModUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + i, amount, apply);
+}
+
+void Player::UpdateSpellDamageAndHealingBonus()
+{
+    // Magic damage modifiers implemented in Unit::SpellDamageBonusDone
+    // This information for client side use only
+    // Get healing bonus for all schools
+    SetStatInt32Value(PLAYER_FIELD_MOD_HEALING_DONE_POS, SpellBaseHealingBonusDone(SPELL_SCHOOL_MASK_ALL));
+    // Get damage bonus for all schools
     Unit::AuraEffectList const& modDamageAuras = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_DONE);
     for (uint16 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
     {
@@ -166,36 +180,6 @@ void Player::ApplySpellPowerBonus(int32 amount, bool apply)
             return negativeMod;
         }));
         SetStatInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + i, SpellBaseDamageBonusDone(SpellSchoolMask(1 << i)) - GetInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + i));
-    }
-}
-
-void Player::UpdateSpellDamageAndHealingBonus()
-{
-    // Handle overrides first
-    AuraEffectList const& overrideSpellPowerAuras = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_SPELL_POWER_BY_AP_PCT);
-    if (!overrideSpellPowerAuras.empty())
-    {
-        for (auto itr : overrideSpellPowerAuras)
-            SetFloatValue(PLAYER_FIELD_OVERRIDE_SPELL_POWER_BY_AP_PCT, float(itr->GetAmount()));
-    }
-    else
-    {
-        // Magic damage modifiers implemented in Unit::SpellDamageBonusDone
-        // This information for client side use only
-        // Get healing bonus for all schools
-        SetStatInt32Value(PLAYER_FIELD_MOD_HEALING_DONE_POS, SpellBaseHealingBonusDone(SPELL_SCHOOL_MASK_ALL));
-        // Get damage bonus for all schools
-        Unit::AuraEffectList const& modDamageAuras = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_DONE);
-        for (uint16 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
-        {
-            SetInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + i, std::accumulate(modDamageAuras.begin(), modDamageAuras.end(), 0, [i](int32 negativeMod, AuraEffect const* aurEff)
-            {
-                if (aurEff->GetAmount() < 0 && aurEff->GetMiscValue() & (1 << i))
-                    negativeMod += aurEff->GetAmount();
-                return negativeMod;
-            }));
-            SetStatInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + i, SpellBaseDamageBonusDone(SpellSchoolMask(1 << i)) - GetInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + i));
-        }
     }
 }
 
@@ -385,7 +369,8 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
         UpdateDamagePhysical(BASE_ATTACK);
         if (CanDualWield() && haveOffhandWeapon())           //allow update offhand damage only if player knows DualWield Spec and has equipped offhand weapon
             UpdateDamagePhysical(OFF_ATTACK);
-        if (getClass() == CLASS_SHAMAN || getClass() == CLASS_PALADIN)                      // mental quickness
+
+        if (HasAuraType(SPELL_AURA_OVERRIDE_SPELL_POWER_BY_AP_PCT))
             UpdateSpellDamageAndHealingBonus();
     }
 }

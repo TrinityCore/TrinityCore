@@ -6525,7 +6525,7 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
         DoneTotal += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_FLAT_SPELL_DAMAGE_VERSUS, victim->GetCreatureTypeMask());
 
     // Done fixed damage bonus auras
-    int32 DoneAdvertisedBenefit = SpellBaseDamageBonusDone(spellProto->GetSchoolMask());
+    int32 DoneAdvertisedBenefit = SpellBaseDamageBonusDone(spellProto->GetSchoolMask(), true);
 
     // Custom scripted damage
     switch (spellProto->SpellFamilyName)
@@ -6542,12 +6542,12 @@ uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uin
         case SPELLFAMILY_WARLOCK:
             // Warlock Minions inherit 50% of their owner's spell power
             if (IsMinion() && GetOwner())
-                DoneAdvertisedBenefit = owner->SpellBaseDamageBonusDone(spellProto->GetSchoolMask()) * 0.5f;
+                DoneAdvertisedBenefit = owner->SpellBaseDamageBonusDone(spellProto->GetSchoolMask(), true) * 0.5f;
             break;
         case SPELLFAMILY_MAGE:
             // Mage Water Elementals inherit 40% of their owner's spell power
             if (IsMinion() && GetOwner())
-                DoneAdvertisedBenefit = owner->SpellBaseDamageBonusDone(spellProto->GetSchoolMask()) * 0.4f;
+                DoneAdvertisedBenefit = owner->SpellBaseDamageBonusDone(spellProto->GetSchoolMask(), true) * 0.4f;
             break;
         default:
             break;
@@ -6866,23 +6866,29 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
     return uint32(std::max(tmpDamage, 0.0f));
 }
 
-int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask) const
+int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask, bool withSpellPowerPctMod /*= false*/) const
 {
-    // Overriden spell power values block any other spellpower benefit
-    AuraEffectList const& overrideSpellPowerAuras = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_SPELL_POWER_BY_AP_PCT);
-    for (auto itr : overrideSpellPowerAuras)
-        return CalculatePct(GetTotalAttackPowerValue(BASE_ATTACK), itr->GetAmount());
+    if (IsPlayer())
+    {
+        float overrideSP = GetFloatValue(PLAYER_FIELD_OVERRIDE_SPELL_POWER_BY_AP_PCT);
+        if (overrideSP > 0.0f)
+            return int32(CalculatePct(GetTotalAttackPowerValue(BASE_ATTACK), overrideSP) + 0.5f);
+    }
 
     int32 DoneAdvertisedBenefit = GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_DAMAGE_DONE, schoolMask);
 
-    if (GetTypeId() == TYPEID_PLAYER)
+    if (Player const* player = ToPlayer())
     {
         // Base value
-        DoneAdvertisedBenefit += ToPlayer()->GetBaseSpellPowerBonus();
+        DoneAdvertisedBenefit += player->GetBaseSpellPowerBonus();
 
         // Check if we are ever using mana - PaperDollFrame.lua
         if (GetPowerIndex(POWER_MANA) != MAX_POWERS)
             DoneAdvertisedBenefit += std::max(0, int32(GetStat(STAT_INTELLECT)) - 10);  // spellpower from intellect
+
+        // Spell Power bonus from SPELL_AURA_MOD_SPELL_POWER_PCT
+        if (withSpellPowerPctMod)
+            DoneAdvertisedBenefit *= player->GetFloatValue(PLAYER_FIELD_MOD_SPELL_POWER_PCT);
 
         // Damage bonus from stats
         AuraEffectList const& mDamageDoneOfStatPercent = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_DAMAGE_OF_STAT_PERCENT);
@@ -6896,8 +6902,6 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask) const
             }
         }
 
-        // Spell power from SPELL_AURA_MOD_SPELL_POWER_PCT
-        AddPct(DoneAdvertisedBenefit, GetTotalAuraModifier(SPELL_AURA_MOD_SPELL_POWER_PCT));
         // ... and attack power
         DoneAdvertisedBenefit += static_cast<int32>(CalculatePct(GetTotalAttackPowerValue(BASE_ATTACK), GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_SPELL_DAMAGE_OF_ATTACK_POWER, schoolMask)));
     }
@@ -7242,65 +7246,24 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
 
     // done scripted mod (take it from owner)
     Unit const* owner = GetOwner() ? GetOwner() : this;
-    AuraEffectList const& mOverrideClassScript= owner->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
-    for (AuraEffectList::const_iterator i = mOverrideClassScript.begin(); i != mOverrideClassScript.end(); ++i)
+    for (AuraEffect const* overrideClassScripts : owner->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS))
     {
-        if (!(*i)->IsAffectingSpell(spellProto))
+        if (!overrideClassScripts->IsAffectingSpell(spellProto))
             continue;
-        switch ((*i)->GetMiscValue())
+
+        switch (overrideClassScripts->GetMiscValue())
         {
             case 4415: // Increased Rejuvenation Healing
             case 4953:
-            case 3736: // Hateful Totem of the Third Wind / Increased Lesser Healing Wave / LK Arena (4/5/6) Totem of the Third Wind / Savage Totem of the Third Wind
-                DoneTotal += (*i)->GetAmount();
+                DoneTotal += overrideClassScripts->GetAmount();
                 break;
-            case 47558: // Test of Faith
-            case 47559:
-            case 47560:
-                if (victim->HealthBelowPct(50))
-                    AddPct(DoneTotal, (*i)->GetAmount());
-                break;
-            case 8477: // Nourish Heal Boost
-            {
-                int32 stepPercent = (*i)->GetAmount();
-                int32 modPercent = 0;
-                AuraApplicationMap const& victimAuras = victim->GetAppliedAuras();
-                for (AuraApplicationMap::const_iterator itr = victimAuras.begin(); itr != victimAuras.end(); ++itr)
-                {
-                    Aura const* aura = itr->second->GetBase();
-                    if (aura->GetCasterGUID() != GetGUID())
-                        continue;
-                    SpellInfo const* m_spell = aura->GetSpellInfo();
-                    if (m_spell->SpellFamilyName != SPELLFAMILY_DRUID ||
-                        !(m_spell->SpellFamilyFlags[1] & 0x00000010 || m_spell->SpellFamilyFlags[0] & 0x50))
-                        continue;
-                    modPercent += stepPercent * aura->GetStackAmount();
-                }
-                AddPct(DoneTotal, modPercent);
-                break;
-            }
             default:
                 break;
         }
     }
 
-    // Custom scripted damage
-    switch (spellProto->SpellFamilyName)
-    {
-        case SPELLFAMILY_SHAMAN:
-        {
-            // Nature's Blessing
-            if (AuraEffect const* blessing = GetDummyAuraEffect(SPELLFAMILY_SHAMAN, 2012, EFFECT_0))
-                if (blessing->IsAffectingSpell(spellProto) && victim->HasAura(974, GetGUID()))
-                    AddPct(DoneTotalMod, blessing->GetAmount());
-            break;
-        }
-        default:
-            break;
-    }
-
     // Done fixed damage bonus auras
-    int32 DoneAdvertisedBenefit = SpellBaseHealingBonusDone(spellProto->GetSchoolMask());
+    int32 DoneAdvertisedBenefit = SpellBaseHealingBonusDone(spellProto->GetSchoolMask(), true);
 
     // Check for table values
     float coeff = spellProto->Effects[effIndex].BonusMultiplier;
@@ -7380,60 +7343,64 @@ float Unit::SpellHealingPctDone(Unit* victim, SpellInfo const* spellProto) const
     float DoneTotalMod = 1.0f;
 
     // Healing done percent
-    AuraEffectList const& mHealingDonePct = GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_DONE_PERCENT);
-    for (AuraEffectList::const_iterator i = mHealingDonePct.begin(); i != mHealingDonePct.end(); ++i)
-        AddPct(DoneTotalMod, (*i)->GetAmount());
+    DoneTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_HEALING_DONE_PERCENT);
 
     // done scripted mod (take it from owner)
     Unit const* owner = GetOwner() ? GetOwner() : this;
-    AuraEffectList const& mOverrideClassScript= owner->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
-    for (AuraEffectList::const_iterator i = mOverrideClassScript.begin(); i != mOverrideClassScript.end(); ++i)
+    for (AuraEffect const* overrideClassScripts : owner->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS))
     {
-        if (!(*i)->IsAffectingSpell(spellProto))
+        if (!overrideClassScripts->IsAffectingSpell(spellProto))
             continue;
 
-        switch ((*i)->GetMiscValue())
+        switch (overrideClassScripts->GetMiscValue())
         {
             case   21: // Test of Faith
             case 6935:
             case 6918:
                 if (victim->HealthBelowPct(50))
-                    AddPct(DoneTotalMod, (*i)->GetAmount());
+                    AddPct(DoneTotalMod, overrideClassScripts->GetAmount());
                 break;
             case 7798: // Glyph of Regrowth
             {
                 if (victim->GetAuraEffect(SPELL_AURA_PERIODIC_HEAL, SPELLFAMILY_DRUID, 0x40, 0, 0))
-                    AddPct(DoneTotalMod, (*i)->GetAmount());
+                    AddPct(DoneTotalMod, overrideClassScripts->GetAmount());
                 break;
             }
             case 8477: // Nourish Heal Boost
             {
-                int32 stepPercent = (*i)->GetAmount();
                 int32 modPercent = 0;
                 AuraApplicationMap const& victimAuras = victim->GetAppliedAuras();
-                for (AuraApplicationMap::const_iterator itr = victimAuras.begin(); itr != victimAuras.end(); ++itr)
+
+                for (auto aurAppPair : victim->GetAppliedAuras())
                 {
-                    Aura const* aura = itr->second->GetBase();
+                    Aura const* aura = aurAppPair.second->GetBase();
                     if (aura->GetCasterGUID() != GetGUID())
                         continue;
-                    SpellInfo const* m_spell = aura->GetSpellInfo();
-                    if (m_spell->SpellFamilyName != SPELLFAMILY_DRUID ||
-                        !(m_spell->SpellFamilyFlags[1] & 0x00000010 || m_spell->SpellFamilyFlags[0] & 0x50))
-                        continue;
-                    modPercent += stepPercent * aura->GetStackAmount();
+
+                    if (aura->GetSpellInfo()->SpellFamilyName == SPELLFAMILY_DRUID && aura->GetSpellInfo()->SpellFamilyFlags.HasFlag(0x10 | 0x40, 0x10 | 0x4000000, 0))
+                        modPercent += overrideClassScripts->GetAmount() * aura->GetStackAmount();
                 }
                 AddPct(DoneTotalMod, modPercent);
-                break;
-            }
-            case 7871: // Glyph of Lesser Healing Wave
-            {
-                if (victim->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_SHAMAN, 0, 0x00000400, 0, GetGUID()))
-                    AddPct(DoneTotalMod, (*i)->GetAmount());
                 break;
             }
             default:
                 break;
         }
+    }
+
+    // Custom scripted damage
+    switch (spellProto->SpellFamilyName)
+    {
+        case SPELLFAMILY_SHAMAN:
+        {
+            // Nature's Blessing
+            if (AuraEffect const* blessing = GetDummyAuraEffect(SPELLFAMILY_SHAMAN, 2012, EFFECT_0))
+                if (blessing->IsAffectingSpell(spellProto) && victim->HasAura(974, GetGUID()))
+                    AddPct(DoneTotalMod, blessing->GetAmount());
+            break;
+        }
+        default:
+            break;
     }
 
     float healthPctDiff = 100.f - victim->GetHealthPct();
@@ -7534,29 +7501,35 @@ uint32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, u
     return uint32(std::max(heal, 0.0f));
 }
 
-int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask) const
+int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask, bool withSpellPowerPctMod /*= false*/) const
 {
-    // Overriden spell power values block any other spellpower benefit
-    AuraEffectList const& overrideSpellPowerAuras = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_SPELL_POWER_BY_AP_PCT);
-    for (auto itr : overrideSpellPowerAuras)
-        return CalculatePct(GetTotalAttackPowerValue(BASE_ATTACK), itr->GetAmount());
+    if (IsPlayer())
+    {
+        float overrideSP = GetFloatValue(PLAYER_FIELD_OVERRIDE_SPELL_POWER_BY_AP_PCT);
+        if (overrideSP > 0.0f)
+            return int32(CalculatePct(GetTotalAttackPowerValue(BASE_ATTACK), overrideSP) + 0.5f);
+    }
 
-    int32 advertisedBenefit = 0;
-
-    AuraEffectList const& mHealingDone = GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_DONE);
-    for (AuraEffectList::const_iterator i = mHealingDone.begin(); i != mHealingDone.end(); ++i)
-        if (!(*i)->GetMiscValue() || ((*i)->GetMiscValue() & schoolMask) != 0)
-            advertisedBenefit += (*i)->GetAmount();
+    int32 advertisedBenefit = GetTotalAuraModifier(SPELL_AURA_MOD_HEALING_DONE, [schoolMask](AuraEffect const* aurEff) -> bool
+    {
+        if (!aurEff->GetMiscValue() || (aurEff->GetMiscValue() & schoolMask) != 0)
+            return true;
+        return false;
+    });
 
     // Healing bonus of spirit, intellect and strength
-    if (GetTypeId() == TYPEID_PLAYER)
+    if (Player const* player = ToPlayer())
     {
         // Base value
-        advertisedBenefit += ToPlayer()->GetBaseSpellPowerBonus();
+        advertisedBenefit += player->GetBaseSpellPowerBonus();
 
         // Check if we are ever using mana - PaperDollFrame.lua
         if (GetPowerIndex(POWER_MANA) != MAX_POWERS)
             advertisedBenefit += std::max(0, int32(GetStat(STAT_INTELLECT)) - 10);  // spellpower from intellect
+
+        // Spell Power bonus from SPELL_AURA_MOD_SPELL_POWER_PCT
+        if (withSpellPowerPctMod)
+            advertisedBenefit *= player->GetFloatValue(PLAYER_FIELD_MOD_SPELL_POWER_PCT);
 
         // Healing bonus from stats
         AuraEffectList const& mHealingDoneOfStatPercent = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_HEALING_OF_STAT_PERCENT);
@@ -7567,25 +7540,8 @@ int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask) const
             advertisedBenefit += int32(CalculatePct(GetStat(usedStat), (*i)->GetAmount()));
         }
 
-        // Spell power from SPELL_AURA_MOD_SPELL_POWER_PCT
-        AuraEffectList const& mSpellPowerPct = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_POWER_PCT);
-        for (AuraEffect const* aurEff : mSpellPowerPct)
-        {
-            int32 spellGroupVal = GetHighestExclusiveSameEffectSpellGroupValue(aurEff, SPELL_AURA_MOD_SPELL_POWER_PCT);
-            if (abs(spellGroupVal) >= abs(aurEff->GetAmount()))
-            {
-                AddPct(advertisedBenefit, spellGroupVal);
-                break;
-            }
-            else if (!spellGroupVal)
-                AddPct(advertisedBenefit, aurEff->GetAmount());
-        }
-
         // ... and attack power
-        AuraEffectList const& mHealingDonebyAP = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_HEALING_OF_ATTACK_POWER);
-        for (AuraEffectList::const_iterator i = mHealingDonebyAP.begin(); i != mHealingDonebyAP.end(); ++i)
-            if ((*i)->GetMiscValue() & schoolMask)
-                advertisedBenefit += int32(CalculatePct(GetTotalAttackPowerValue(BASE_ATTACK), (*i)->GetAmount()));
+        advertisedBenefit += CalculatePct(GetTotalAttackPowerValue(BASE_ATTACK), GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_SPELL_HEALING_OF_ATTACK_POWER, schoolMask));
     }
     return advertisedBenefit;
 }

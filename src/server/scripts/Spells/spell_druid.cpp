@@ -1940,6 +1940,32 @@ class spell_dru_skull_bash : public SpellScript
     }
 };
 
+// 50464 - Nourish
+class spell_dru_nourish : public SpellScript
+{
+    // Nourish heals for an additional 20% if Rejuvenation, Regrowth, Wild Growth or Lifebloom is on the target
+    void HandleHealBonus(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        auto periodicHealEffects = GetHitUnit()->GetAuraEffectsByType(SPELL_AURA_PERIODIC_HEAL);
+        if (std::any_of(periodicHealEffects.begin(), periodicHealEffects.end(), [caster](AuraEffect const* aurEff)
+        {
+            return (aurEff->GetCasterGUID() == caster->GetGUID()
+                && aurEff->GetSpellInfo()->SpellFamilyName == SPELLFAMILY_DRUID
+                && !aurEff->GetSpellInfo()->SpellFamilyFlags.HasFlag(0x10 | 0x40, 0x10 | 0x4000000, 0));
+        }))
+            SetHitHeal(GetHitHeal() * 1.2f);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget.Register(&spell_dru_nourish::HandleHealBonus, EFFECT_0, SPELL_EFFECT_HEAL);
+    }
+};
+
 void AddSC_druid_spell_scripts()
 {
     RegisterSpellScript(spell_dru_astral_alignment);
@@ -1969,6 +1995,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_living_seed);
     RegisterSpellScript(spell_dru_living_seed_proc);
     RegisterSpellScript(spell_dru_moonfire);
+    RegisterSpellScript(spell_dru_nourish);
     RegisterSpellScript(spell_dru_pulverize);
     RegisterSpellScript(spell_dru_rejuvenation);
     RegisterSpellScript(spell_dru_rip);
