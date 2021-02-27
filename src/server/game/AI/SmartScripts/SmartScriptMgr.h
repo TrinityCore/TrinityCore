@@ -594,7 +594,7 @@ enum SMART_ACTION
     SMART_ACTION_PLAY_CINEMATIC                     = 135,    // reserved for future uses
     SMART_ACTION_SET_MOVEMENT_SPEED                 = 136,    // movementType, speedInteger, speedFraction
     SMART_ACTION_PLAY_SPELL_VISUAL_KIT              = 137,    // spellVisualKitId, kitType (unknown values, copypaste from packet dumps), duration
-    SMART_ACTION_CREATE_CONVERSATION                = 143,    // conversation_template.id
+    SMART_ACTION_CREATE_CONVERSATION                = 143,    // conversation_template.id, baseObjectDynamicActorIdx
     SMART_ACTION_END                                = 144
 };
 
@@ -1186,6 +1186,7 @@ struct SmartAction
         struct
         {
             uint32 id;
+            uint32 baseObjectDynamicActorIdx;
         } conversation;
 
         //! Note for any new future actions
