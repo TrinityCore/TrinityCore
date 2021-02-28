@@ -1039,6 +1039,10 @@ bool Aura::CanBeSaved() const
     if (HasEffectType(SPELL_AURA_MOD_CHARM) || HasEffectType(SPELL_AURA_AOE_CHARM))
         return false;
 
+    // no battleground player positions
+    if (HasEffectType(SPELL_AURA_BATTLEGROUND_PLAYER_POSITION) || HasEffectType(SPELL_AURA_BATTLEGROUND_PLAYER_POSITION_FACTIONAL))
+        return false;
+
     // Incanter's Absorbtion - considering the minimal duration and problems with aura stacking
     // we skip saving this aura
     // Also for some reason other auras put as MultiSlot crash core on keeping them after restart,
