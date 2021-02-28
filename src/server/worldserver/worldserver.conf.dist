@@ -920,7 +920,7 @@ StartAlliedRacePlayerLevel = 10
 #        Default:     0
 #                     100 - (1 Silver)
 
-StartPlayerMoney = 0
+StartPlayerMoney = 1000
 
 #
 #    RecruitAFriend.MaxLevel
