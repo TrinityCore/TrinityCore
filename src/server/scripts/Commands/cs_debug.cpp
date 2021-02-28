@@ -78,6 +78,10 @@ public:
             { "spellfail",     rbac::RBAC_PERM_COMMAND_DEBUG_SEND_SPELLFAIL,     false, &HandleDebugSendSpellFailCommand,       "" },
             { "playerchoice",  rbac::RBAC_PERM_COMMAND_DEBUG_SEND_PLAYER_CHOICE, false, &HandleDebugSendPlayerChoiceCommand,    "" },
         };
+        static std::vector<ChatCommand> debugPvpCommandTable =
+        {
+            { "fb",            rbac::RBAC_PERM_COMMAND_DEBUG,                    false, &HandleDebugFactionBalanceCommand,      "" },
+        };
         static std::vector<ChatCommand> debugCommandTable =
         {
             { "threat",        rbac::RBAC_PERM_COMMAND_DEBUG_THREAT,        false, &HandleDebugThreatListCommand,       "" },
@@ -107,6 +111,7 @@ public:
             { "conversation" , rbac::RBAC_PERM_COMMAND_DEBUG_CONVERSATION,  false, &HandleDebugConversationCommand,     "" },
             { "worldstate" ,   rbac::RBAC_PERM_COMMAND_DEBUG,               false, &HandleDebugWorldStateCommand,       "" },
             { "wsexpression" , rbac::RBAC_PERM_COMMAND_DEBUG,               false, &HandleDebugWSExpressionCommand,     "" },
+            { "pvp",           rbac::RBAC_PERM_COMMAND_DEBUG,               false, nullptr,                             "", debugPvpCommandTable },
         };
         static std::vector<ChatCommand> commandTable =
         {
@@ -114,6 +119,80 @@ public:
             { "wpgps",         rbac::RBAC_PERM_COMMAND_WPGPS,               false, &HandleWPGPSCommand,                 "" },
         };
         return commandTable;
+    }
+
+    static bool TryExtractTeamId(std::string const &args, TeamId &outFaction)
+    {
+        if ("a" == args || "alliance" == args)
+            outFaction = TEAM_ALLIANCE;
+        else if ("h" == args || "horde" == args)
+            outFaction = TEAM_HORDE;
+        else if ("n" == args || "neutral" == args)
+            outFaction = TEAM_NEUTRAL;
+        else
+            return false;
+
+        return true;
+    }
+
+    static bool HandleDebugFactionBalanceCommand(ChatHandler* handler, char const* args)
+    {
+        // USAGE: .debug pvp fb <a|alliance|h|horde|n|neutral|o|off> [1|2|3|4]
+        // n|neutral     Sets faction balance off.
+        // a|alliance    Set faction balance to alliance. Reward level 3 (1=10%, 2=15%, 3=20%, 4=overwhelming)
+        // h|horde       Set faction balance to horde. Reward level 3 (1=10%, 2=15%, 3=20%, 4=overwhelming)
+        // o|off         Reset the faction balance and use the calculated value of it
+        if (!*args)
+        {
+            handler->SendSysMessage(LANG_BAD_VALUE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        std::string sArgs(args);
+        size_t idx = sArgs.find_first_of(' ');
+        std::string strArg1 = (idx == std::string::npos) ? sArgs : sArgs.substr(0, idx);
+        TeamId team;
+        bool isAlliance = false;
+        if ( (isAlliance = ("a" == strArg1 || "alliance" == strArg1)) || ("h" == strArg1 || "horde" == strArg1))
+        {
+            team = isAlliance ? TEAM_ALLIANCE : TEAM_HORDE;
+
+            std::string strReward = (idx == std::string::npos) ? "" : sArgs.substr(idx + 1);
+            if (strReward.empty())
+            {
+                handler->SendSysMessage(LANG_BAD_VALUE);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            FactionOutnumberReward reward;
+            uint8 rewardValue = atoul(strReward.c_str());
+            if (rewardValue >= static_cast<uint8>(FactionOutnumberReward::MAX))
+            {
+                handler->SendSysMessage(LANG_BAD_VALUE);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+            reward = static_cast<FactionOutnumberReward>(rewardValue);
+            sWorld->SetFactionBalanceForce(team, reward);
+        }
+        else if ("n" == strArg1 || "neutral" == strArg1)
+        {
+            sWorld->SetFactionBalanceForce(TEAM_NEUTRAL);
+        }
+        else if ("o" == strArg1 || "off" == strArg1)
+        {
+            sWorld->SetFactionBalanceForceOff();
+        }
+        else
+        {
+            handler->SendSysMessage(LANG_BAD_VALUE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        return true;
     }
 
     static bool HandleDebugPlayCinematicCommand(ChatHandler* handler, char const* args)
