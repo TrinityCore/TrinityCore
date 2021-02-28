@@ -6729,7 +6729,8 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
     {
         float totalBonus = (owner->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_FROM_MANA, spellProto->GetSchoolMask()) - 1.f) * 100.f;
         float manaPct = 100.f* ((float)GetPower(POWER_MANA) / GetMaxPower(POWER_MANA));
-        AddPct(DoneTotalMod, CalculatePct(totalBonus, manaPct));
+        if (totalBonus != 0.f && manaPct != 0.f)
+            AddPct(DoneTotalMod, CalculatePct(totalBonus, manaPct));
     }
 
     // Custom scripted damage
