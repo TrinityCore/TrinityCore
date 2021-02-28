@@ -277,9 +277,17 @@ public:
 
     struct HotfixRecord
     {
+        enum class Status : uint8
+        {
+            Valid           = 1,
+            RecordRemoved   = 2,
+            Invalid         = 3
+        };
+
         uint32 TableHash = 0;
         int32 RecordID = 0;
         int32 HotfixID = 0;
+        Status HotfixStatus = Status::Invalid;
 
         friend bool operator<(HotfixRecord const& left, HotfixRecord const& right)
         {
