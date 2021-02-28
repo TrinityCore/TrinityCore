@@ -55,7 +55,7 @@ WorldPacket const* DBReply::Write()
     _worldPacket << uint32(TableHash);
     _worldPacket << uint32(RecordID);
     _worldPacket << uint32(Timestamp);
-    _worldPacket.WriteBits(Status, 2);
+    _worldPacket.WriteBits(AsUnderlyingType(Status), 2);
     _worldPacket << uint32(Data.size());
     _worldPacket.append(Data);
 
