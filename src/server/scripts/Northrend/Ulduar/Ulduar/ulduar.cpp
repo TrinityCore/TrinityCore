@@ -76,7 +76,6 @@ class spell_ulduar_teleporter : public SpellScript
     }
 };
 
-
 void AddSC_ulduar()
 {
     RegisterSpellScript(spell_ulduar_teleporter);
