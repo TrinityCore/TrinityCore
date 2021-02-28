@@ -32,7 +32,7 @@ class spell_ulduar_random_aggro_periodic : public AuraScript
         if (!target->IsAIEnabled())
             return;
 
-        if (Unit* victim = target->GetAI()->SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
+        if (Unit* victim = target->GetAI()->SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true, false))
         {
             target->GetThreatManager().AddThreat(victim, 3000000.0f, nullptr, true, true);
             target->GetAI()->AttackStart(victim);
