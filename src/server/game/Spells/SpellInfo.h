@@ -532,6 +532,8 @@ class TC_GAME_API SpellInfo
         bool SpellCancelsAuraEffect(SpellInfo const* auraSpellInfo, uint8 auraEffIndex) const;
 
         uint32 GetAllowedMechanicMask() const;
+        
+        uint32 GetMechanicImmunityMask(Unit* caster) const;
 
     private:
         // loading helpers
