@@ -48,6 +48,7 @@ ObjectData const gameobjectData[] =
 {
     { GO_DOODAD_ABYSSAL_MAW_DOOR_1,             DATA_ABYSSAL_MAW_DOOR_1                 },
     { GO_DOODAD_ABYSSAL_MAW_DOOR_2,             DATA_ABYSSAL_MAW_DOOR_2                 },
+    { GO_DOODAD_ABYSSAL_MAW_DOOR_4,             DATA_ABYSSAL_MAW_DOOR_4                 },
     { GO_THRONE_OF_THE_TIDES_DEFENSE_SYSTEM,    DATA_THRONE_OF_THE_TIDES_DEFENSE_SYSTEM },
     { GO_DOODAD_INVISIBLE_DOOR_1,               DATA_INVISIBLE_DOOR_1                   },
     { GO_DOODAD_INVISIBLE_DOOR_2,               DATA_INVISIBLE_DOOR_2                   },
@@ -61,7 +62,6 @@ DoorData const doorData[] =
 {
     { GO_DOODAD_ABYSSAL_MAW_DOOR_1,     DATA_COMMANDER_ULTHOK,   DOOR_TYPE_ROOM      },
     { GO_DOODAD_ABYSSAL_MAW_DOOR_2,     DATA_COMMANDER_ULTHOK,   DOOR_TYPE_ROOM      },
-    { GO_DOODAD_ABYSSAL_MAW_DOOR_4,     DATA_COMMANDER_ULTHOK,   DOOR_TYPE_PASSAGE   },
     { GO_DOODAD_ABYSSAL_MAW_DOOR_4,     DATA_OZUMAT,             DOOR_TYPE_ROOM      },
     { 0,                                0,                       DOOR_TYPE_ROOM      } // END
 };
@@ -180,6 +180,11 @@ enum Spells
     SPELL_TELEPORTER_ACTIVE_VISUAL = 95296
 };
 
+enum SpawnGroups
+{
+    SPAWN_GROUP_ID_OZUMAT_WING_EVENT = 455
+};
+
 class instance_throne_of_the_tides : public InstanceMapScript
 {
     public:
@@ -187,13 +192,24 @@ class instance_throne_of_the_tides : public InstanceMapScript
 
         struct instance_throne_of_the_tides_InstanceMapScript : public InstanceScript
         {
-            instance_throne_of_the_tides_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
+            instance_throne_of_the_tides_InstanceMapScript(InstanceMap* map) : InstanceScript(map), _eventIndex(EVENT_INDEX_NONE), _killedTaintedSentryCount(0)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadObjectData(creatureData, gameobjectData);
                 LoadDoorData(doorData);
-                _eventIndex = EVENT_INDEX_NONE;
+            }
+
+            void Create() override
+            {
+                instance->SpawnGroupSpawn(SPAWN_GROUP_ID_OZUMAT_WING_EVENT, true);
+            }
+
+            void Load(char const* data) override
+            {
+                InstanceScript::Load(data);
+                if (GetBossState(DATA_OZUMAT) != DONE)
+                    instance->SpawnGroupSpawn(SPAWN_GROUP_ID_OZUMAT_WING_EVENT, true);
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -294,6 +310,25 @@ class instance_throne_of_the_tides : public InstanceMapScript
                             creature->CastSpell(creature, SPELL_TELEPORTER_ACTIVE_VISUAL);
                         }
                         break;
+                    case NPC_UNSTABLE_CORRUPTION:
+                    {
+                        /*
+                        * Unstable Corruption respawns every 30 seconds but their initial spawn timer has been randomized so we need to
+                        * do a little trick here by killing the first wave of spawns with randomized timers so they wont respawn all at the same time.
+                        */
+                        ObjectGuid::LowType spawnId = creature->GetSpawnId();
+                        if (!spawnId)
+                            break;
+
+                        if (_spawnedUnstableCorruptions.find(spawnId) == _spawnedUnstableCorruptions.end())
+                        {
+                            creature->m_Events.AddEventAtOffset([creature]() { creature->CastSpell(creature, SPELL_QUIET_SUICIDE); }, Seconds(urand(1, 60)));
+                            _spawnedUnstableCorruptions.insert(spawnId);
+                        }
+                        else
+                            creature->m_Events.AddEventAtOffset([creature]() { creature->CastSpell(creature, SPELL_QUIET_SUICIDE); }, 60s);
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -311,6 +346,11 @@ class instance_throne_of_the_tides : public InstanceMapScript
                     case GO_DOODAD_ABYSSAL_MAW_DOOR_1:
                         if (_eventIndex >= EVENT_INDEX_LADY_NAZJAR_GAUNTLET)
                             go->SetGoState(GO_STATE_ACTIVE);
+                        break;
+                    case GO_DOODAD_ABYSSAL_MAW_DOOR_4:
+                        // The door to Neptulon's room opens up once all four Tainted Sentries have been defeated. Until then the door remains closed.
+                        if (GetBossState(DATA_OZUMAT) != DONE)
+                            go->SetGoState(GO_STATE_READY);
                         break;
                     case GO_THRONE_OF_THE_TIDES_DEFENSE_SYSTEM:
                         if (_eventIndex < EVENT_INDEX_DEFENSE_SYSTEM_ACTIVATED && GetBossState(DATA_LADY_NAZJAR) == DONE)
@@ -475,15 +515,37 @@ class instance_throne_of_the_tides : public InstanceMapScript
 
             void OnUnitDeath(Unit* who) override
             {
-                if (who->GetTypeId() == TYPEID_PLAYER && GetBossState(DATA_OZUMAT) == IN_PROGRESS)
+                if (who->IsPlayer() && GetBossState(DATA_OZUMAT) == IN_PROGRESS)
                     events.ScheduleEvent(EVENT_CHECK_DEAD_PLAYERS, 100ms);
 
-                if (who->GetTypeId() != TYPEID_UNIT)
+                if (!who->IsCreature())
                     return;
 
-                if (who->GetEntry() == NPC_NAZJAR_INVADER_2 || who->GetEntry() == NPC_NAZJAR_SPIRITMENDER_2)
-                    if (Creature* nazjar = GetCreature(DATA_LADY_NAZJAR_GAUNTLET))
-                        nazjar->AI()->SummonedCreatureDies(who->ToCreature(), nullptr);
+                switch (who->GetEntry())
+                {
+                    case NPC_NAZJAR_INVADER_2:
+                    case NPC_NAZJAR_SPIRITMENDER_2:
+                        if (Creature* nazjar = GetCreature(DATA_LADY_NAZJAR_GAUNTLET))
+                            if (nazjar->IsAIEnabled)
+                                nazjar->AI()->SummonedCreatureDies(who->ToCreature(), nullptr);
+                        break;
+                    case NPC_TAINTED_SENTRY:
+                        ++_killedTaintedSentryCount;
+                        if (_killedTaintedSentryCount >= 4)
+                        {
+                            instance->SetSpawnGroupInactive(SPAWN_GROUP_ID_OZUMAT_WING_EVENT);
+                            if (GameObject* neptulonDoor = GetGameObject(DATA_ABYSSAL_MAW_DOOR_4))
+                                neptulonDoor->SetGoState(GO_STATE_ACTIVE);
+                        }
+                        break;
+                    case NPC_UNSTABLE_CORRUPTION:
+                        if (who->ToCreature()->GetSpawnId())
+                            who->ToCreature()->DespawnOrUnsummon(3s);
+                        break;
+                    default:
+                        break;
+ 
+                }
             }
 
             void Update(uint32 diff) override
@@ -587,11 +649,13 @@ class instance_throne_of_the_tides : public InstanceMapScript
         private:
             EventMap events;
             uint8 _eventIndex;
+            uint8 _killedTaintedSentryCount;
             ObjectGuid _fallingRocksDummyGUID;
             ObjectGuid _shockDefenseDummyGUID;
             ObjectGuid _ulthokIntroDummyGUID;
             GuidVector _geyserGUIDs;
             GuidVector _infiniteAOIDummyGUIDs;
+            std::unordered_set<ObjectGuid::LowType> _spawnedUnstableCorruptions;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

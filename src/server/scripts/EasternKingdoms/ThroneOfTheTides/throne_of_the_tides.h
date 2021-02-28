@@ -35,23 +35,24 @@ enum TotTDataTypes
     DATA_OZUMAT                             = 3,
 
     // Additional Data Types
-    DATA_CURRENT_EVENT_PROGRESS             = 4,
-    DATA_LADY_NAZJAR_GAUNTLET               = 5,
-    DATA_ABYSSAL_MAW_DOOR_1                 = 6,
-    DATA_ABYSSAL_MAW_DOOR_2                 = 7,
-    DATA_THRONE_OF_THE_TIDES_DEFENSE_SYSTEM = 8,
-    DATA_OZUMAT_VEHICLE_BIG                 = 9,
-    DATA_INVISIBLE_DOOR_1                   = 10,
-    DATA_INVISIBLE_DOOR_2                   = 11,
-    DATA_LEVIATHAN_TENTACLE_1               = 12,
-    DATA_LEVIATHAN_TENTACLE_2               = 13,
-    DATA_ABYSSAL_CORAL_CHUNK                = 14,
-    DATA_NEPTULON                           = 15,
-    DATA_OZUMAT_VEHICLE                     = 16,
-    DATA_LADY_NAZJAR_GEYSERS                = 17,
-    DATA_OZUMAT_PASSENGER                   = 18,
-    DATA_THRONE_OF_THE_TIDES_TELEPORTER_1   = 19,
-    DATA_THRONE_OF_THE_TIDES_TELEPORTER_2   = 20
+    DATA_CURRENT_EVENT_PROGRESS,
+    DATA_LADY_NAZJAR_GAUNTLET,
+    DATA_ABYSSAL_MAW_DOOR_1,
+    DATA_ABYSSAL_MAW_DOOR_2,
+    DATA_ABYSSAL_MAW_DOOR_4,
+    DATA_THRONE_OF_THE_TIDES_DEFENSE_SYSTEM,
+    DATA_OZUMAT_VEHICLE_BIG,
+    DATA_INVISIBLE_DOOR_1,
+    DATA_INVISIBLE_DOOR_2,
+    DATA_LEVIATHAN_TENTACLE_1,
+    DATA_LEVIATHAN_TENTACLE_2,
+    DATA_ABYSSAL_CORAL_CHUNK,
+    DATA_NEPTULON,
+    DATA_OZUMAT_VEHICLE,
+    DATA_LADY_NAZJAR_GEYSERS,
+    DATA_OZUMAT_PASSENGER,
+    DATA_THRONE_OF_THE_TIDES_TELEPORTER_1,
+    DATA_THRONE_OF_THE_TIDES_TELEPORTER_2
 };
 
 enum TotTCreatureIds
@@ -101,7 +102,9 @@ enum TotTCreatureIds
     NPC_FACELESS_WATCHER                    = 40936,
     NPC_GILGOBLIN_AQUAMAGE                  = 40943,
     NPC_THRONE_OF_THE_TIDES_TELEPORTER_1    = 51391, // Entrance
-    NPC_THRONE_OF_THE_TIDES_TELEPORTER_2    = 51395  // Neptulon's Rise
+    NPC_THRONE_OF_THE_TIDES_TELEPORTER_2    = 51395, // Neptulon's Rise
+    NPC_TAINTED_SENTRY                      = 40925,
+    NPC_UNSTABLE_CORRUPTION                 = 40923
 };
 
 enum TotTGameObjectIds
@@ -131,7 +134,8 @@ enum TotTSpells
     SPELL_SHOCK_DEFENSE_OZUMAT                  = 86635,
     SPELL_ULTHOK_INTRO_VISUAL_CEILING_IMPACT    = 76021,
     SPELL_ULTHOK_INTRO_JUMP                     = 82960,
-    SPELL_ULTHOK_INTRO_VISUAL_STATE             = 76017
+    SPELL_ULTHOK_INTRO_VISUAL_STATE             = 76017,
+    SPELL_QUIET_SUICIDE                         = 3617
 };
 
 enum TotTCinematic
