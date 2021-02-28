@@ -518,7 +518,7 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
         return false;
     }
 
-    uint32 displayID = ObjectMgr::ChooseDisplayId(GetCreatureTemplate(), data);
+    uint32 displayID = ObjectMgr::ChooseDisplayId(normalInfo, data);
     CreatureModelInfo const* minfo = nullptr;
     if (!data || !data->displayid)
         minfo = sObjectMgr->GetCreatureModelRandomGender(&displayID);
