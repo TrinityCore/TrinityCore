@@ -17,6 +17,7 @@
 
 #include "HotfixPackets.h"
 #include "PacketUtilities.h"
+#include "Util.h"
 
 namespace WorldPackets
 {
@@ -88,16 +89,8 @@ void HotfixRequest::Read()
 ByteBuffer& operator<<(ByteBuffer& data, HotfixConnect::HotfixData const& hotfixData)
 {
     data << hotfixData.Record;
-    if (hotfixData.Size)
-    {
-        data << uint32(*hotfixData.Size);
-        data.WriteBits(1, 2);
-    }
-    else
-    {
-        data << uint32(0);
-        data.WriteBits(3, 2);
-    }
+    data << uint32(hotfixData.Size);
+    data.WriteBits(AsUnderlyingType(hotfixData.Record.HotfixStatus), 2);
     data.FlushBits();
 
     return data;

@@ -22,6 +22,7 @@
 #include "Creature.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "FlightPathMovementGenerator.h"
 #include "Log.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
@@ -29,7 +30,6 @@
 #include "Player.h"
 #include "TaxiPackets.h"
 #include "TaxiPathGraph.h"
-#include "WaypointMovementGenerator.h"
 
 void WorldSession::HandleEnableTaxiNodeOpcode(WorldPackets::Taxi::EnableTaxiNode& enableTaxiNode)
 {

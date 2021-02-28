@@ -23,6 +23,7 @@
 
 class ChatHandler;
 class Map;
+class ObjectGuid;
 class PhaseShift;
 class Player;
 class WorldObject;
@@ -63,13 +64,15 @@ public:
 
     static uint32 GetTerrainMapId(PhaseShift const& phaseShift, Map const* map, float x, float y);
 
-    static void SetAlwaysVisible(PhaseShift& phaseShift, bool apply);
-    static void SetInversed(PhaseShift& phaseShift, bool apply);
+    static void SetAlwaysVisible(WorldObject* object, bool apply, bool updateVisibility);
+    static void SetInversed(WorldObject* object, bool apply, bool updateVisibility);
 
     static void PrintToChat(ChatHandler* chat, PhaseShift const& phaseShift);
     static std::string FormatPhases(PhaseShift const& phaseShift);
 
 private:
+    static void AddPhase(WorldObject* object, uint32 phaseId, ObjectGuid const& personalGuid, bool updateVisibility);
+    static void AddPhaseGroup(WorldObject* object, uint32 phaseGroupId, ObjectGuid const& personalGuid, bool updateVisibility);
     static void UpdateVisibilityIfNeeded(WorldObject* object, bool updateVisibility, bool changed);
 };
 

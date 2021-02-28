@@ -26,26 +26,12 @@
  */
 
 #include "MovementGenerator.h"
+#include "PathMovementBase.h"
 #include "Timer.h"
 
 class Creature;
-class Player;
 struct TaxiPathNodeEntry;
 struct WaypointPath;
-
-template<class Entity, class BasePath>
-class PathMovementBase
-{
-    public:
-        PathMovementBase() : _path(), _currentNode(0) { }
-        virtual ~PathMovementBase() { };
-
-        uint32 GetCurrentNode() const { return _currentNode; }
-
-    protected:
-        BasePath _path;
-        uint32 _currentNode;
-};
 
 template<class T>
 class WaypointMovementGenerator;
@@ -92,49 +78,6 @@ class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium<Creat
         bool _loadedFromDB;
         bool _stalled;
         bool _done;
-};
-
-/**
- * FlightPathMovementGenerator generates movement of the player for the paths
- * and hence generates ground and activities for the player.
- */
-class FlightPathMovementGenerator : public MovementGeneratorMedium<Player, FlightPathMovementGenerator>, public PathMovementBase<Player, std::vector<TaxiPathNodeEntry const*>>
-{
-    public:
-        explicit FlightPathMovementGenerator();
-
-        void LoadPath(Player* player, uint32 startNode = 0);
-        void DoInitialize(Player*);
-        void DoReset(Player*);
-        void DoFinalize(Player*);
-        bool DoUpdate(Player*, uint32);
-        MovementGeneratorType GetMovementGeneratorType() const override { return FLIGHT_MOTION_TYPE; }
-
-        std::vector<TaxiPathNodeEntry const*> const& GetPath() { return _path; }
-        uint32 GetPathAtMapEnd() const;
-        bool HasArrived() const { return (_currentNode >= _path.size()); }
-        void SetCurrentNodeAfterTeleport();
-        void SkipCurrentNode() { ++_currentNode; }
-        void DoEventIfAny(Player* player, TaxiPathNodeEntry const* node, bool departure);
-
-        bool GetResetPos(Player*, float& x, float& y, float& z);
-        void InitEndGridInfo();
-        void PreloadEndGrid();
-
-    private:
-
-        float _endGridX;                            //! X coord of last node location
-        float _endGridY;                            //! Y coord of last node location
-        uint32 _endMapId;                           //! map Id of last node location
-        uint32 _preloadTargetNode;                  //! node index where preloading starts
-
-        struct TaxiNodeChangeInfo
-        {
-            uint32 PathIndex;
-            int64 Cost;
-        };
-
-        std::deque<TaxiNodeChangeInfo> _pointsForPathSwitch;    //! node indexes and costs where TaxiPath changes
 };
 
 #endif

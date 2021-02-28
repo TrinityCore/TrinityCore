@@ -89,7 +89,7 @@ namespace WorldPackets
             struct HotfixData
             {
                 DB2Manager::HotfixRecord Record;
-                Optional<uint32> Size;
+                uint32 Size = 0;
             };
 
             HotfixConnect() : ServerPacket(SMSG_HOTFIX_CONNECT) { }
