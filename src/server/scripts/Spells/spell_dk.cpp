@@ -52,7 +52,6 @@ enum DeathKnightSpells
     SPELL_DK_DEATH_STRIKE_OFFHAND               = 66188,
     SPELL_DK_FESTERING_WOUND                    = 194310,
     SPELL_DK_FROST                              = 137006,
-    SPELL_DK_FROST_FEVER                        = 55095,
     SPELL_DK_GLYPH_OF_FOUL_MENAGERIE            = 58642,
     SPELL_DK_GLYPH_OF_THE_GEIST                 = 58640,
     SPELL_DK_GLYPH_OF_THE_SKELETON              = 146652,
@@ -914,39 +913,6 @@ class spell_dk_raise_dead : public SpellScriptLoader
         }
 };
 
-// 115994 - Unholy Blight
-class spell_dk_unholy_blight : public SpellScriptLoader
-{
-    public:
-        spell_dk_unholy_blight() : SpellScriptLoader("spell_dk_unholy_blight") { }
-
-        class spell_dk_unholy_blight_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dk_unholy_blight_SpellScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_DK_FROST_FEVER, SPELL_DK_BLOOD_PLAGUE });
-            }
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                GetCaster()->CastSpell(GetHitUnit(), SPELL_DK_FROST_FEVER, true);
-                GetCaster()->CastSpell(GetHitUnit(), SPELL_DK_BLOOD_PLAGUE, true);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_dk_unholy_blight_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_dk_unholy_blight_SpellScript();
-        }
-};
-
 // 55233 - Vampiric Blood
 class spell_dk_vampiric_blood : public SpellScriptLoader
 {
@@ -995,6 +961,5 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_pet_skeleton_transform();
     new spell_dk_pvp_4p_bonus();
     new spell_dk_raise_dead();
-    new spell_dk_unholy_blight();
     new spell_dk_vampiric_blood();
 }

@@ -71,35 +71,38 @@ void WorldSession::HandleHotfixRequest(WorldPackets::Hotfix::HotfixRequest& hotf
     hotfixQueryResponse.Hotfixes.reserve(hotfixQuery.Hotfixes.size());
     for (DB2Manager::HotfixRecord const& hotfixRecord : hotfixQuery.Hotfixes)
     {
-        if (hotfixes.find(hotfixRecord) != hotfixes.end())
+        auto serverHotfixInfo = hotfixes.find(hotfixRecord);
+        if (serverHotfixInfo != hotfixes.end())
         {
-            DB2StorageBase const* storage = sDB2Manager.GetStorage(hotfixRecord.TableHash);
+            hotfixQueryResponse.Hotfixes.emplace_back();
 
-            WorldPackets::Hotfix::HotfixConnect::HotfixData hotfixData;
-            hotfixData.Record = hotfixRecord;
-            if (storage && storage->HasRecord(uint32(hotfixRecord.RecordID)))
+            WorldPackets::Hotfix::HotfixConnect::HotfixData& hotfixData = hotfixQueryResponse.Hotfixes.back();
+            hotfixData.Record = *serverHotfixInfo;
+            if (serverHotfixInfo->HotfixStatus == DB2Manager::HotfixRecord::Status::Valid)
             {
-                std::size_t pos = hotfixQueryResponse.HotfixContent.size();
-                storage->WriteRecord(uint32(hotfixRecord.RecordID), GetSessionDbcLocale(), hotfixQueryResponse.HotfixContent);
-
-                if (std::vector<DB2Manager::HotfixOptionalData> const* optionalDataEntries = sDB2Manager.GetHotfixOptionalData(hotfixRecord.TableHash, hotfixRecord.RecordID, GetSessionDbcLocale()))
+                DB2StorageBase const* storage = sDB2Manager.GetStorage(hotfixRecord.TableHash);
+                if (storage && storage->HasRecord(uint32(hotfixRecord.RecordID)))
                 {
-                    for (DB2Manager::HotfixOptionalData const& optionalData : *optionalDataEntries)
+                    std::size_t pos = hotfixQueryResponse.HotfixContent.size();
+                    storage->WriteRecord(uint32(hotfixRecord.RecordID), GetSessionDbcLocale(), hotfixQueryResponse.HotfixContent);
+
+                    if (std::vector<DB2Manager::HotfixOptionalData> const* optionalDataEntries = sDB2Manager.GetHotfixOptionalData(hotfixRecord.TableHash, hotfixRecord.RecordID, GetSessionDbcLocale()))
                     {
-                        hotfixQueryResponse.HotfixContent << uint32(optionalData.Key);
-                        hotfixQueryResponse.HotfixContent.append(optionalData.Data.data(), optionalData.Data.size());
+                        for (DB2Manager::HotfixOptionalData const& optionalData : *optionalDataEntries)
+                        {
+                            hotfixQueryResponse.HotfixContent << uint32(optionalData.Key);
+                            hotfixQueryResponse.HotfixContent.append(optionalData.Data.data(), optionalData.Data.size());
+                        }
                     }
+
+                    hotfixData.Size = hotfixQueryResponse.HotfixContent.size() - pos;
                 }
-
-                hotfixData.Size = hotfixQueryResponse.HotfixContent.size() - pos;
+                else if (std::vector<uint8> const* blobData = sDB2Manager.GetHotfixBlobData(hotfixRecord.TableHash, hotfixRecord.RecordID, GetSessionDbcLocale()))
+                {
+                    hotfixData.Size = blobData->size();
+                    hotfixQueryResponse.HotfixContent.append(blobData->data(), blobData->size());
+                }
             }
-            else if (std::vector<uint8> const* blobData = sDB2Manager.GetHotfixBlobData(hotfixRecord.TableHash, hotfixRecord.RecordID, GetSessionDbcLocale()))
-            {
-                hotfixData.Size = blobData->size();
-                hotfixQueryResponse.HotfixContent.append(blobData->data(), blobData->size());
-            }
-
-            hotfixQueryResponse.Hotfixes.emplace_back(std::move(hotfixData));
         }
     }
 
