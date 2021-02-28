@@ -1,16 +1,16 @@
 # Docker
 
-The Circle CI Linux pch job uses the Dockerfile contained in the same folder as this README to create an image with the binaries built for Linux, and stores that in the job artifacts. For 3.3.5 and master branches, it also pushes the images to https://hub.docker.com/r/trinitycore/trinitycore
+The Circle CI Linux pch job uses the Dockerfile contained in the same folder as this README to create an image with the binaries built for Linux, and stores that in the job artifacts. For the 3.3.5 and master branches, it also pushes the images to https://hub.docker.com/r/trinitycore/trinitycore .
 
 The instructions below expect a basic knowledge of how to configure TrinityCore and how to use Docker.
 
-## Load the docker image
-For 3.3.5 and master branches, it's possible to pull the images from DockerHub.
-- For latest 3.3.5 use the following command:
+## Load the Docker image
+For the 3.3.5 and master branches, it's possible to pull the images from DockerHub.
+- For latest 3.3.5, use the following command:
   ```
   docker pull trinitycore/trinitycore:3.3.5
   ```
-- For latest master use the following command:
+- For latest master, use the following command:
   ```
   docker pull trinitycore/trinitycore:master
   ```
@@ -19,7 +19,7 @@ For 3.3.5 and master branches, it's possible to pull the images from DockerHub.
   docker pull trinitycore/trinitycore:commit_hash
   ```
 
-For Pull Requests or branches other than 3.3.5 or master, follow the steps below to load the image from Circle CI
+For Pull Requests or branches other than 3.3.5 or master, follow the steps below to load the image from Circle CI:
 1. Click the green tick ✔ next to each commit.
 1. Scroll to "ci/circleci: pch" and click "Details".
 1. Log in to Circle CI if necessary. You may have to repeat the previous steps after logging in, to reach the correct page.
@@ -30,8 +30,8 @@ For Pull Requests or branches other than 3.3.5 or master, follow the steps below
     docker load -i docker.tar.gz
     ```
 
-## Start authserver/worldserver from docker
-1. Copy the .conf files from the TrinityCore GitHub repository to a local folder which will be passed on as a mapped volume to docker.
+## Start authserver/worldserver from Docker
+1. Copy the .conf files from the TrinityCore GitHub repository to a local folder which will be passed on as a mapped volume to Docker.
 1. Set the MySQL host in the .conf files to use the UNIX socket of MySQL, i.e.: `".;/var/run/mysqld/mysqld.sock;username;password;database"`
 1. Set the "DataDir" config in worldserver.conf to `"/trinity/data"`
 1. Start authserver or worldserver as desired, mapping the required volumes:
