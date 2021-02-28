@@ -7198,6 +7198,8 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
 
     GetMap()->SendZoneDynamicInfo(newZone, this);
 
+    UpdateWarModeAuras();
+
     UpdateHostileAreaState(zone);
 
     if (zone->Flags[0] & AREA_FLAG_CAPITAL) // Is in a capital city
@@ -7252,15 +7254,15 @@ void Player::UpdateHostileAreaState(AreaTableEntry const* area)
         {
             if (InBattleground() || area->Flags[0] & AREA_FLAG_COMBAT || (area->PvpCombatWorldStateID != -1 && sWorld->getWorldState(area->PvpCombatWorldStateID) != 0))
                 pvpInfo.IsInHostileArea = true;
-            else if (sWorld->IsPvPRealm() || (area->Flags[0] & AREA_FLAG_UNK3))
+            else if (IsWarModeLocalActive() || (area->Flags[0] & AREA_FLAG_UNK3))
             {
                 if (area->Flags[0] & AREA_FLAG_CONTESTED_AREA)
-                    pvpInfo.IsInHostileArea = sWorld->IsPvPRealm();
+                    pvpInfo.IsInHostileArea = IsWarModeLocalActive();
                 else
                 {
                     FactionTemplateEntry const* factionTemplate = GetFactionTemplateEntry();
                     if (!factionTemplate || factionTemplate->FriendGroup & area->FactionGroupMask)
-                        pvpInfo.IsInHostileArea = false;
+                        pvpInfo.IsInHostileArea = false; // friend area are considered hostile if war mode is active
                     else if (factionTemplate->EnemyGroup & area->FactionGroupMask)
                         pvpInfo.IsInHostileArea = true;
                     else
@@ -7287,7 +7289,7 @@ void Player::UpdateHostileAreaState(AreaTableEntry const* area)
     }
 
     // Treat players having a quest flagging for PvP as always in hostile area
-    pvpInfo.IsHostile = pvpInfo.IsInHostileArea || HasPvPForcingQuest();
+    pvpInfo.IsHostile = pvpInfo.IsInHostileArea || HasPvPForcingQuest() || IsWarModeLocalActive();
 }
 
 //If players are too far away from the duel flag... they lose the duel
@@ -15843,7 +15845,9 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
     if (getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
         GiveXP(XP, nullptr);
     else
+    {
         moneyRew = int32(quest->GetRewMoneyMaxLevel() * sWorld->getRate(RATE_DROP_MONEY));
+    }
 
     moneyRew += GetQuestMoneyReward(quest);
 
@@ -28854,4 +28858,119 @@ uint8 Player::GetItemLimitCategoryQuantity(ItemLimitCategoryEntry const* limitEn
     }
 
     return limit;
+}
+
+
+bool Player::IsAtMaxLevel() const
+{
+    return getLevel() >= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL);
+}
+
+void Player::SetWarModeDesired(bool enabled)
+{
+    // Only allow to toggle on when in stormwind/orgrimmar, and to toggle off in any rested place.
+    // Also disallow when in combat
+    if ((enabled == IsWarModeDesired()) || IsInCombat() || !IsInRestArea())
+        return;
+
+    if (enabled && CanEnableWarModeInArea())
+        return;
+
+    // Don't allow to chang when aura SPELL_PVP_RULES_ENABLED is on
+    if (HasAura(SPELL_PVP_RULES_ENABLED))
+        return;
+
+    if (enabled)
+    {
+        AddPlayerFlag(PLAYER_FLAGS_WAR_MODE_DESIRED);
+        TogglePvpTalents(true);
+        SetPvP(true);
+    }
+    else
+    {
+        RemovePlayerFlag(PLAYER_FLAGS_WAR_MODE_DESIRED);
+        TogglePvpTalents(false);
+        SetPvP(false);
+    }
+
+    UpdateWarModeAuras();
+}
+
+bool Player::IsInFactionFriendlyArea() const
+{
+    if (AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(GetAreaId()))
+        return IsInFactionFriendlyArea();
+    return false;
+}
+
+bool Player::IsInFactionFriendlyArea(AreaTableEntry const* inArea) const
+{
+    ASSERT(inArea != nullptr);
+
+    FactionTemplateEntry const* factionTemplate = GetFactionTemplateEntry();
+    if (!factionTemplate)
+        return false;
+
+    if (!(factionTemplate->FriendGroup & inArea->FactionGroupMask))
+        return false;
+
+    return true;
+}
+
+
+void Player::SetWarModeLocal(bool enabled)
+{
+    if (enabled)
+        AddPlayerLocalFlag(PLAYER_LOCAL_FLAG_WAR_MODE);
+    else
+        RemovePlayerLocalFlag(PLAYER_LOCAL_FLAG_WAR_MODE);
+}
+
+bool Player::CanEnableWarModeInArea() const
+{
+    AreaTableEntry const* area = sAreaTableStore.LookupEntry(GetAreaId());
+    if (!area || !IsInFactionFriendlyArea(area))
+        return false;
+
+    return area->Flags[1] & AREA_FLAG_2_CAN_ENABLE_WAR_MODE;
+}
+
+void Player::UpdateWarModeAuras()
+{
+    uint32 auraInside = 282559;
+    uint32 auraOutside = WARMODE_ENLISTED_SPELL_OUTSIDE;
+
+    if (IsWarModeDesired())
+    {
+        if (IsInFactionFriendlyArea())
+        {
+            RemovePlayerFlag(PLAYER_FLAGS_WAR_MODE_ACTIVE);
+            RemoveAurasDueToSpell(auraOutside);
+            CastSpell(this, auraInside, true);
+        }
+        else
+        {
+            AddPlayerFlag(PLAYER_FLAGS_WAR_MODE_ACTIVE);
+            RemoveAurasDueToSpell(auraInside);
+
+            TeamId team = sWorld->GetCurrentFactionBalanceTeam();
+            if (GetTeamId() != team)
+                CastSpell(this, auraOutside, true);
+            else
+            {
+                CustomSpellValues const& values = sWorld->GetCurrentFactionBalanceRewardSpellValues();
+                CastCustomSpell(auraOutside, values, this, TRIGGERED_FULL_MASK);
+            }
+        }
+        SetWarModeLocal(true);
+        AddPvpFlag(UNIT_BYTE2_FLAG_PVP);
+    }
+    else
+    {
+        SetWarModeLocal(false);
+        RemoveAurasDueToSpell(auraOutside);
+        RemoveAurasDueToSpell(auraInside);
+        RemovePlayerFlag(PLAYER_FLAGS_WAR_MODE_ACTIVE);
+        RemovePvpFlag(UNIT_BYTE2_FLAG_PVP);
+    }
 }
