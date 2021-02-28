@@ -122,6 +122,7 @@ void AddSC_boss_thorim();
 void AddSC_boss_yogg_saron();
 void AddSC_boss_algalon_the_observer();
 void AddSC_instance_ulduar();
+void AddSC_ulduar();
 // Utgarde Keep - Utgarde Keep
 void AddSC_boss_keleseth();
 void AddSC_boss_skarvald_dalronn();
@@ -317,6 +318,7 @@ void AddNorthrendScripts()
     AddSC_boss_yogg_saron();
     AddSC_boss_algalon_the_observer();
     AddSC_instance_ulduar();
+    AddSC_ulduar();
     // Utgarde Keep - Utgarde Keep
     AddSC_boss_keleseth();
     AddSC_boss_skarvald_dalronn();
