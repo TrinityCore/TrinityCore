@@ -486,10 +486,10 @@ class boss_kaelthas : public CreatureScript
                         Talk(SAY_INTRO);
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-                        _advisorGuid[ADVISOR_THALADRED] = instance->GetGuidData(DATA_THALADREDTHEDARKENER);
-                        _advisorGuid[ADVISOR_SANGUINAR] = instance->GetGuidData(DATA_LORDSANGUINAR);
-                        _advisorGuid[ADVISOR_CAPERNIAN] = instance->GetGuidData(DATA_GRANDASTROMANCERCAPERNIAN);
-                        _advisorGuid[ADVISOR_TELONICUS] = instance->GetGuidData(DATA_MASTERENGINEERTELONICUS);
+                        _advisorGuid[ADVISOR_THALADRED] = instance->GetGuidData(DATA_THALADRED);
+                        _advisorGuid[ADVISOR_SANGUINAR] = instance->GetGuidData(DATA_SANGUINAR);
+                        _advisorGuid[ADVISOR_CAPERNIAN] = instance->GetGuidData(DATA_CAPERNIAN);
+                        _advisorGuid[ADVISOR_TELONICUS] = instance->GetGuidData(DATA_TELONICUS);
 
                         _phase = PHASE_INTRO;
                         instance->SetBossState(DATA_KAELTHAS, IN_PROGRESS);
