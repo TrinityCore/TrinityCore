@@ -27,6 +27,7 @@
 #include "TSObject.h"
 #include "TSUnit.h"
 #include "TSWorldObject.h"
+#include "TSSpellInfo.h"
 
 TSSpell::TSSpell(Spell *spell)
 {
@@ -156,6 +157,11 @@ TSObject  TSSpell::GetTarget()
     else if (Unit* target = spell->m_targets.getUnitTarget())
          return TSObject(target);
 #endif
+}
+
+TSSpellInfo TSSpell::GetSpellInfo()
+{
+    return TSSpellInfo(spell->GetSpellInfo());
 }
     
 /**

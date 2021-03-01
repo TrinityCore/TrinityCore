@@ -19,6 +19,7 @@
 #include "TSMain.h"
 #include "TSClasses.h"
 #include "TSPosition.h"
+#include "TSSpellInfo.h"
 
 class TC_GAME_API TSSpell {
 public:
@@ -35,6 +36,7 @@ public:
     int32 GetDuration();
     TSPosition GetTargetDest();
     TSObject  GetTarget();
+    TSSpellInfo GetSpellInfo();
     void SetAutoRepeat(bool repeat);
     void Cast(bool skipCheck);
     void Cancel();
