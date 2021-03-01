@@ -123,7 +123,7 @@ public:
         Player* target = player->GetConnectedPlayer();
         if (!target)
             return false;
-        
+
         Group* groupTarget = target->GetGroup();
         if (!groupTarget)
             return false;
