@@ -1039,6 +1039,10 @@ bool Aura::CanBeSaved() const
     if (HasEffectType(SPELL_AURA_MOD_CHARM) || HasEffectType(SPELL_AURA_AOE_CHARM))
         return false;
 
+    // no battleground player positions
+    if (HasEffectType(SPELL_AURA_BATTLEGROUND_PLAYER_POSITION) || HasEffectType(SPELL_AURA_BATTLEGROUND_PLAYER_POSITION_FACTIONAL))
+        return false;
+
     // Incanter's Absorbtion - considering the minimal duration and problems with aura stacking
     // we skip saving this aura
     // Also for some reason other auras put as MultiSlot crash core on keeping them after restart,
@@ -2324,7 +2328,7 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* c
 
         std::deque<Unit*> units;
         // non-area aura
-        if (effect->Effect == SPELL_EFFECT_APPLY_AURA || effect->Effect == SPELL_EFFECT_202)
+        if (effect->Effect == SPELL_EFFECT_APPLY_AURA)
         {
             units.push_back(GetUnitOwner());
         }
@@ -2375,6 +2379,14 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* c
                     {
                         if (Unit* pet = ObjectAccessor::GetUnit(*GetUnitOwner(), GetUnitOwner()->GetPetGUID()))
                             units.push_back(pet);
+                        break;
+                    }
+                    case SPELL_EFFECT_APPLY_AREA_AURA_SUMMONS:
+                    {
+                        units.push_back(GetUnitOwner());
+                        Trinity::WorldObjectSpellAreaTargetCheck check(radius, GetUnitOwner(), caster, GetUnitOwner(), m_spellInfo, TARGET_CHECK_SUMMONED, nullptr, TARGET_OBJECT_TYPE_UNIT);
+                        Trinity::UnitListSearcher<Trinity::WorldObjectSpellAreaTargetCheck> searcher(GetUnitOwner(), units, check);
+                        Cell::VisitAllObjects(GetUnitOwner(), searcher, radius);
                         break;
                     }
                 }
