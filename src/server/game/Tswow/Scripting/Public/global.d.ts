@@ -6077,6 +6077,7 @@ declare class TSItemTemplate {
 }
 
 declare class TSSpellInfo {
+	IsNull() : bool
     ID() : uint32
 	School() : uint32
 	BaseLevel() : uint32
