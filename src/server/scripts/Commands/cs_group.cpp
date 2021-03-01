@@ -49,6 +49,7 @@ public:
             { "assistant",  rbac::RBAC_PERM_COMMAND_GROUP_ASSISTANT,  false, &HandleGroupAssistantCommand,  "" },
             { "maintank",   rbac::RBAC_PERM_COMMAND_GROUP_MAINTANK,   false, &HandleGroupMainTankCommand,   "" },
             { "mainassist", rbac::RBAC_PERM_COMMAND_GROUP_MAINASSIST, false, &HandleGroupMainAssistCommand, "" },
+            { "level",      rbac::RBAC_PERM_COMMAND_GROUP_MAINASSIST, false, &HandleGroupSetLevelCommand,   "" }
         };
 
         static std::vector<ChatCommand> groupCommandTable =
@@ -69,6 +70,47 @@ public:
             { "group", rbac::RBAC_PERM_COMMAND_GROUP, false, nullptr, "", groupCommandTable },
         };
         return commandTable;
+    }
+
+    static bool HandleGroupSetLevelCommand(ChatHandler* handler, Optional<PlayerIdentifier> player, int16 level)
+    {
+        if (!player)
+            player = PlayerIdentifier::FromTargetOrSelf(handler);
+        if (!player)
+            return false;
+
+        Player* target = player->GetConnectedPlayer();
+        if (!target)
+            return false;
+
+        Group* groupTarget = target->GetGroup();
+        if (!groupTarget)
+            return false;
+
+        for (GroupReference* it = groupTarget->GetFirstMember(); it != nullptr; it = it->next())
+        {
+            target = it->GetSource();
+            if (target)
+            {
+                uint8 oldlevel = static_cast<uint8>(target->GetLevel());
+
+                if (level != oldlevel)
+                {
+                    target->SetLevel(static_cast<uint8>(level));
+                    target->InitTalentForLevel();
+                    target->SetXP(0);
+                }
+
+                if (handler->needReportToTarget(target))
+                {
+                    if (oldlevel < static_cast<uint8>(level))
+                        ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_LEVEL_UP, handler->GetNameLink().c_str(), level);
+                    else                                                // if (oldlevel > newlevel)
+                        ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_LEVEL_DOWN, handler->GetNameLink().c_str(), level);
+                }
+            }
+        }
+        return true;
     }
 
     static bool HandleGroupLevelCommand(ChatHandler* handler, Optional<PlayerIdentifier> player, int16 level)
