@@ -3175,7 +3175,7 @@ void AuraEffect::HandleAuraModSchoolImmunity(AuraApplication const* aurApp, uint
     else
     {
         // do not remove unit flag if there are more than this auraEffect of that kind on unit
-        if (target->HasAuraType(GetAuraType()))
+        if (target->HasAuraType(GetAuraType()) || target->HasAuraType(SPELL_AURA_DAMAGE_IMMUNITY))
             return;
         target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE);
     }
@@ -3197,7 +3197,7 @@ void AuraEffect::HandleAuraModDmgImmunity(AuraApplication const* aurApp, uint8 m
     else
     {
         // do not remove unit flag if there are more than this auraEffect of that kind on unit
-        if (target->HasAuraType(GetAuraType()))
+        if (target->HasAuraType(GetAuraType()) || target->HasAuraType(SPELL_AURA_SCHOOL_IMMUNITY))
             return;
         target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE);
     }
