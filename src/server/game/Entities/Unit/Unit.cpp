@@ -1188,7 +1188,7 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
     }
 
     // Script Hook For CalculateSpellDamageTaken -- Allow scripts to change the Damage post class mitigation calculations
-    sScriptMgr->ModifySpellDamageTaken(damageInfo->target, damageInfo->attacker, damage);
+    sScriptMgr->ModifySpellDamageTaken(damageInfo->target, damageInfo->attacker, damage, spellInfo);
 
     // Calculate absorb resist
     if (damage < 0)
@@ -7263,6 +7263,12 @@ float Unit::SpellHealingPctDone(Unit* victim, SpellInfo const* spellProto) const
 
     // Healing done percent
     DoneTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_HEALING_DONE_PERCENT);
+
+    // bonus from missing health of target
+    float healthPctDiff = 100.0f - victim->GetHealthPct();
+    for (AuraEffect const* healingDonePctVsTargetHealth : GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_DONE_PCT_VERSUS_TARGET_HEALTH))
+        if (healingDonePctVsTargetHealth->IsAffectingSpell(spellProto))
+            AddPct(DoneTotalMod, CalculatePct(float(healingDonePctVsTargetHealth->GetAmount()), healthPctDiff));
 
     return DoneTotalMod;
 }
