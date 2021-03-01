@@ -599,8 +599,9 @@ enum SMART_ACTION
     SMART_ACTION_SET_AI_ANIM_KIT                    = 140,    // don't use on 3.3.5a
     SMART_ACTION_SET_HOVER                          = 141,    // 0/1
     SMART_ACTION_SET_HEALTH_PCT                     = 142,    // percent
+    SMART_ACTION_CREATE_CONVERSATION                = 143,    // don't use on 3.3.5a
 
-    SMART_ACTION_END                                = 143
+    SMART_ACTION_END                                = 144
 };
 
 struct SmartAction

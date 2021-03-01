@@ -239,7 +239,7 @@ class ActivateLivingConstellation : public BasicEvent
 
         bool Execute(uint64 execTime, uint32 /*diff*/) override
         {
-            if (!_instance || _instance->GetBossState(BOSS_ALGALON) != IN_PROGRESS)
+            if (!_instance || _instance->GetBossState(DATA_ALGALON) != IN_PROGRESS)
                 return true;    // delete event
 
             _owner->CastSpell(nullptr, SPELL_TRIGGER_3_ADDS, TRIGGERED_FULL_MASK);
@@ -285,7 +285,7 @@ class SummonUnleashedDarkMatter : public BasicEvent
 
 struct boss_algalon_the_observer : public BossAI
 {
-    boss_algalon_the_observer(Creature* creature) : BossAI(creature, BOSS_ALGALON)
+    boss_algalon_the_observer(Creature* creature) : BossAI(creature, DATA_ALGALON)
     {
         Initialize();
         _firstPull = true;
@@ -448,7 +448,7 @@ struct boss_algalon_the_observer : public BossAI
 
     void EnterEvadeMode(EvadeReason why) override
     {
-        instance->SetBossState(BOSS_ALGALON, FAIL);
+        instance->SetBossState(DATA_ALGALON, FAIL);
         BossAI::EnterEvadeMode(why);
         me->SetImmuneToPC(false);
         me->SetSheath(SHEATH_STATE_UNARMED);
@@ -555,7 +555,7 @@ struct boss_algalon_the_observer : public BossAI
                 case EVENT_START_COMBAT:
                     Talk(SAY_ALGALON_AGGRO);
                     me->PlayDirectMusic(ENGAGE_MUSIC_ID);
-                    instance->SetBossState(BOSS_ALGALON, IN_PROGRESS);
+                    instance->SetBossState(DATA_ALGALON, IN_PROGRESS);
                     break;
                 case EVENT_INTRO_TIMER_DONE:
                 {
@@ -632,7 +632,7 @@ struct boss_algalon_the_observer : public BossAI
                     _hasYelled = false;
                     break;
                 case EVENT_OUTRO_START:
-                    instance->SetBossState(BOSS_ALGALON, DONE);
+                    instance->SetBossState(DATA_ALGALON, DONE);
                     break;
                 case EVENT_OUTRO_1:
                     me->RemoveAllAuras();
@@ -743,7 +743,7 @@ struct npc_living_constellation : public CreatureAI
         switch (action)
         {
             case ACTION_ACTIVATE_STAR:
-                if (Creature* algalon = _instance->GetCreature(BOSS_ALGALON))
+                if (Creature* algalon = _instance->GetCreature(DATA_ALGALON))
                 {
                     if (Unit* target = algalon->AI()->SelectTarget(SelectTargetMethod::Random, 0, NonTankTargetSelector(algalon)))
                     {
@@ -853,7 +853,7 @@ struct npc_collapsing_star : public PassiveAI
         if (summon->GetEntry() != NPC_BLACK_HOLE)
             return;
 
-        if (Creature* algalon = _instance->GetCreature(BOSS_ALGALON))
+        if (Creature* algalon = _instance->GetCreature(DATA_ALGALON))
             algalon->AI()->JustSummoned(summon);
 
         me->DespawnOrUnsummon(1ms);

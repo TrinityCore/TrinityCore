@@ -134,7 +134,7 @@ private:
 
 struct boss_auriaya : public BossAI
 {
-    boss_auriaya(Creature* creature) : BossAI(creature, BOSS_AURIAYA), _crazyCatLady(true), _nineLives(false) { }
+    boss_auriaya(Creature* creature) : BossAI(creature, DATA_AURIAYA), _crazyCatLady(true), _nineLives(false) { }
 
     void Reset() override
     {
@@ -233,13 +233,13 @@ struct boss_auriaya : public BossAI
             {
                 case EVENT_SONIC_SCREECH:
                     DoCastVictim(SPELL_SONIC_SCREECH);
-                    events.Repeat(Seconds(22), Seconds(30));
+                    events.Repeat(22s, 30s);
                     break;
                 case EVENT_TERRIFYING_SCREECH:
                     Talk(EMOTE_FEAR);
                     DoCastSelf(SPELL_TERRIFYING_SCREECH);
-                    events.ScheduleEvent(EVENT_BLAST, Milliseconds(1));
-                    events.Repeat(Seconds(36), Seconds(45));
+                    events.ScheduleEvent(EVENT_BLAST, 1ms);
+                    events.Repeat(36s, 45s);
                     break;
                 case EVENT_BLAST:
                     DoCastAOE(SPELL_SENTINEL_BLAST);
@@ -255,7 +255,7 @@ struct boss_auriaya : public BossAI
                 case EVENT_SWARNING_GUARDIAN:
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
                         DoCast(target, SPELL_SUMMON_SWARMING_GUARDIAN);
-                    events.Repeat(Seconds(25), Seconds(45));
+                    events.Repeat(25s, 45s);
                     break;
                 case EVENT_BERSERK:
                     DoCastSelf(SPELL_BERSERK, true);
@@ -291,13 +291,13 @@ struct npc_sanctum_sentry : public ScriptedAI
     void JustEngagedWith(Unit* /*who*/) override
     {
         _events.ScheduleEvent(EVENT_RIP, 6s);
-        _events.ScheduleEvent(EVENT_SAVAGE_POUNCE, Milliseconds(1));
+        _events.ScheduleEvent(EVENT_SAVAGE_POUNCE, 1ms);
         me->SetWalk(false);
     }
 
     void JustDied(Unit* /*killer*/) override
     {
-        if (Creature* auriaya = _instance->GetCreature(BOSS_AURIAYA))
+        if (Creature* auriaya = _instance->GetCreature(DATA_AURIAYA))
             auriaya->AI()->DoAction(ACTION_CRAZY_CAT_LADY);
     }
 
@@ -317,16 +317,16 @@ struct npc_sanctum_sentry : public ScriptedAI
             {
                 case EVENT_RIP:
                     DoCastVictim(SPELL_RIP_FLESH);
-                    _events.Repeat(Seconds(10), Seconds(12));
+                    _events.Repeat(10s, 12s);
                     break;
                 case EVENT_SAVAGE_POUNCE:
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, CatsTargetSelector(me, 10.0f, 15.0f)))
                     {
                         DoCast(target, SPELL_SAVAGE_POUNCE);
-                        _events.Repeat(Seconds(10));
+                        _events.Repeat(10s);
                         break;
                     }
-                    _events.Repeat(Seconds(1));
+                    _events.Repeat(1s);
                     break;
                 default:
                     break;
@@ -358,7 +358,7 @@ struct npc_feral_defender : public ScriptedAI
         _events.SetPhase(PHASE_NONE);
         _events.ScheduleEvent(EVENT_START_COMBAT, 1s);
 
-        if (Creature* auriaya = _instance->GetCreature(BOSS_AURIAYA))
+        if (Creature* auriaya = _instance->GetCreature(DATA_AURIAYA))
             auriaya->AI()->JustSummoned(me);
     }
 
@@ -382,22 +382,39 @@ struct npc_feral_defender : public ScriptedAI
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                         AttackStart(target);
                     _events.ScheduleEvent(EVENT_RUSH, 1s);
+                    _events.ScheduleEvent(EVENT_FERAL_POUNCE, 5s);
+                    break;
+                case EVENT_FERAL_POUNCE:
+                    if (me->GetReactState() != REACT_PASSIVE)
+                    {
+                        if (Unit* target = me->GetVictim())
+                        {
+                            float distance = me->GetDistance2d(target);
+                            if (distance > 5.0f && distance <= 45.0f)
+                            {
+                                DoCastVictim(SPELL_FERAL_POUNCE);
+                                _events.Repeat(5s);
+                                break;
+                            }
+                        }
+                    }
+                    _events.Repeat(1s);
                     break;
                 case EVENT_RUSH:
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, CatsTargetSelector(me, 10.0f, 11.0f)))
                     {
                         DoCast(target, SPELL_FERAL_RUSH, true);
-                        _events.Repeat(Seconds(5));
+                        _events.Repeat(5s);
                         break;
                     }
-                    _events.Repeat(Seconds(1));
+                    _events.Repeat(1s);
                     break;
                 case EVENT_RESPAWN_DEFENDER:
                     me->SetDisableGravity(true);
                     me->SetHover(true);
                     DoCastSelf(SPELL_DROWNED_STATE, true);
-                    _events.ScheduleEvent(EVENT_RESPAWN_DEFENDER_2, Seconds(3));
-                    _events.ScheduleEvent(EVENT_RESPAWN_DEFENDER_3, Seconds(5));
+                    _events.ScheduleEvent(EVENT_RESPAWN_DEFENDER_2, 3s);
+                    _events.ScheduleEvent(EVENT_RESPAWN_DEFENDER_3, 5s);
                     break;
                 case EVENT_RESPAWN_DEFENDER_2:
                     me->RemoveAurasDueToSpell(SPELL_DROWNED_STATE);
@@ -409,6 +426,7 @@ struct npc_feral_defender : public ScriptedAI
                     me->SetReactState(REACT_AGGRESSIVE);
                     me->SetDisableGravity(false);
                     me->SetHover(false);
+                    DoCastSelf(SPELL_RANDOM_AGRO_PERIODIC, true);
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                         AttackStart(target);
                     _events.ScheduleEvent(EVENT_RUSH, 1s);
@@ -434,6 +452,7 @@ struct npc_feral_defender : public ScriptedAI
                 me->SetReactState(REACT_PASSIVE);
                 me->AttackStop();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveAurasDueToSpell(SPELL_RANDOM_AGRO_PERIODIC);
                 DoCastSelf(SPELL_PERMANENT_FEIGN_DEATH, true);
                 DoCastSelf(SPELL_FERAL_ESSENCE_APPLICATION_REMOVAL, true);
                 DoCastSelf(SPELL_SUMMON_ESSENCE, true);
@@ -448,7 +467,7 @@ struct npc_feral_defender : public ScriptedAI
     void JustDied(Unit* /*killer*/) override
     {
         DoCastSelf(SPELL_SUMMON_ESSENCE, true);
-        if (Creature* auriaya = _instance->GetCreature(BOSS_AURIAYA))
+        if (Creature* auriaya = _instance->GetCreature(DATA_AURIAYA))
             auriaya->AI()->DoAction(ACTION_DEFENDER_DIED);
     }
 
@@ -464,12 +483,12 @@ struct npc_swarming_guardian : public ScriptedAI
     void Reset() override
     {
         me->SetReactState(REACT_PASSIVE);
-        _scheduler.Schedule(Seconds(1), [this](TaskContext /*context*/)
+        _scheduler.Schedule(1s, [this](TaskContext /*context*/)
         {
             me->SetReactState(REACT_AGGRESSIVE);
             DoCastSelf(SPELL_AGRO_CREATOR);
         });
-        if (Creature* auriaya = _instance->GetCreature(BOSS_AURIAYA))
+        if (Creature* auriaya = _instance->GetCreature(DATA_AURIAYA))
             auriaya->AI()->JustSummoned(me);
     }
 
@@ -494,7 +513,7 @@ struct npc_seeping_essence_stalker : public ScriptedAI
     void Reset() override
     {
         DoCastSelf(SPELL_SEEPING_ESSENCE);
-        if (Creature* auriaya = _instance->GetCreature(BOSS_AURIAYA))
+        if (Creature* auriaya = _instance->GetCreature(DATA_AURIAYA))
             auriaya->AI()->JustSummoned(me);
     }
 
@@ -573,45 +592,6 @@ class spell_auriaya_agro_creator : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_auriaya_agro_creator::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-// 61906 - Random Aggro Periodic (5 sec)
-class spell_auriaya_random_agro_periodic : public AuraScript
-{
-    PrepareAuraScript(spell_auriaya_random_agro_periodic);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_FERAL_POUNCE });
-    }
-
-    void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
-    {
-        Creature* owner = GetUnitOwner()->ToCreature();
-        if (!owner || !owner->IsAIEnabled() || owner->HasReactState(REACT_PASSIVE))
-            return;
-
-        bool farTarget = true;
-        Unit* target = owner->AI()->SelectTarget(SelectTargetMethod::Random, 0, CatsTargetSelector(owner, 15.0f, 25.0f));
-        if (!target)
-        {
-            farTarget = false;
-            target = owner->AI()->SelectTarget(SelectTargetMethod::Random, 0);
-        }
-
-        if (!target)
-            return;
-
-        owner->GetThreatManager().AddThreat(target, 3000000.0f, nullptr, true);
-        if (farTarget)
-            owner->CastSpell(target, SPELL_FERAL_POUNCE, true);
-        owner->AI()->AttackStart(target);
-    }
-
-    void Register() override
-    {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_auriaya_random_agro_periodic::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
@@ -704,7 +684,6 @@ void AddSC_boss_auriaya()
     RegisterSpellScript(spell_auriaya_strenght_of_the_pack);
     RegisterSpellScript(spell_auriaya_sentinel_blast);
     RegisterSpellScript(spell_auriaya_agro_creator);
-    RegisterSpellScript(spell_auriaya_random_agro_periodic);
     RegisterSpellScript(spell_auriaya_feral_essence_removal);
     RegisterSpellScript(spell_auriaya_feral_rush);
     new achievement_nine_lives();

@@ -174,9 +174,12 @@ public:
         for (GroupReference* it = groupTarget->GetFirstMember(); it != nullptr; it = it->next())
         {
             Player* target = it->GetSource();
-            target->ResurrectPlayer(target->GetSession()->HasPermission(rbac::RBAC_PERM_RESURRECT_WITH_FULL_HPS) ? 1.0f : 0.5f);
-            target->SpawnCorpseBones();
-            target->SaveToDB();
+            if (target)
+            {
+                target->ResurrectPlayer(target->GetSession()->HasPermission(rbac::RBAC_PERM_RESURRECT_WITH_FULL_HPS) ? 1.0f : 0.5f);
+                target->SpawnCorpseBones();
+                target->SaveToDB();
+            }
         }
 
         return true;
