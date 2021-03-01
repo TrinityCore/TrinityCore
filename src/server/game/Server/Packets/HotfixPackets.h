@@ -54,7 +54,7 @@ namespace WorldPackets
             uint32 TableHash = 0;
             uint32 Timestamp = 0;
             uint32 RecordID = 0;
-            uint8 Status = 3;
+            DB2Manager::HotfixRecord::Status Status = DB2Manager::HotfixRecord::Status::Invalid;
             ByteBuffer Data;
         };
 
