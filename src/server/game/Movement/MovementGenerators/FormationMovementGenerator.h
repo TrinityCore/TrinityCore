@@ -20,6 +20,8 @@
 
 #include "MovementGenerator.h"
 
+class Creature;
+
 class FormationMovementGenerator : public MovementGeneratorMedium< Creature, FormationMovementGenerator >
 {
     public:

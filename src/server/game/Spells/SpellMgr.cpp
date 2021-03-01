@@ -1087,16 +1087,17 @@ void SpellMgr::LoadSpellLearnSpells()
 
     for (SpellLearnSpellEntry const* spellLearnSpell : sSpellLearnSpellStore)
     {
-        if (!GetSpellInfo(spellLearnSpell->SpellID, DIFFICULTY_NONE))
+        if (!GetSpellInfo(spellLearnSpell->SpellID, DIFFICULTY_NONE) ||
+            !GetSpellInfo(spellLearnSpell->LearnSpellID, DIFFICULTY_NONE))
             continue;
 
-        SpellLearnSpellMapBounds db_node_bounds = dbSpellLearnSpells.equal_range(spellLearnSpell->LearnSpellID);
+        SpellLearnSpellMapBounds db_node_bounds = dbSpellLearnSpells.equal_range(spellLearnSpell->SpellID);
         bool found = false;
         for (SpellLearnSpellMap::const_iterator itr = db_node_bounds.first; itr != db_node_bounds.second; ++itr)
         {
-            if (int32(itr->second.Spell) == spellLearnSpell->SpellID)
+            if (int32(itr->second.Spell) == spellLearnSpell->LearnSpellID)
             {
-                TC_LOG_ERROR("sql.sql", "Found redundant record (entry: %u, SpellID: %u) in `spell_learn_spell`, spell added automatically from SpellLearnSpell.db2", spellLearnSpell->LearnSpellID, spellLearnSpell->SpellID);
+                TC_LOG_ERROR("sql.sql", "Found redundant record (entry: %u, SpellID: %u) in `spell_learn_spell`, spell added automatically from SpellLearnSpell.db2", spellLearnSpell->SpellID, spellLearnSpell->LearnSpellID);
                 found = true;
                 break;
             }
@@ -1106,11 +1107,11 @@ void SpellMgr::LoadSpellLearnSpells()
             continue;
 
         // Check if it is already found in Spell.dbc, ignore silently if yes
-        SpellLearnSpellMapBounds dbc_node_bounds = GetSpellLearnSpellMapBounds(spellLearnSpell->LearnSpellID);
+        SpellLearnSpellMapBounds dbc_node_bounds = GetSpellLearnSpellMapBounds(spellLearnSpell->SpellID);
         found = false;
         for (SpellLearnSpellMap::const_iterator itr = dbc_node_bounds.first; itr != dbc_node_bounds.second; ++itr)
         {
-            if (int32(itr->second.Spell) == spellLearnSpell->SpellID)
+            if (int32(itr->second.Spell) == spellLearnSpell->LearnSpellID)
             {
                 found = true;
                 break;
@@ -1121,12 +1122,12 @@ void SpellMgr::LoadSpellLearnSpells()
             continue;
 
         SpellLearnSpellNode dbcLearnNode;
-        dbcLearnNode.Spell = spellLearnSpell->SpellID;
+        dbcLearnNode.Spell = spellLearnSpell->LearnSpellID;
         dbcLearnNode.OverridesSpell = spellLearnSpell->OverridesSpellID;
         dbcLearnNode.Active = true;
         dbcLearnNode.AutoLearned = false;
 
-        mSpellLearnSpells.insert(SpellLearnSpellMap::value_type(spellLearnSpell->LearnSpellID, dbcLearnNode));
+        mSpellLearnSpells.insert(SpellLearnSpellMap::value_type(spellLearnSpell->SpellID, dbcLearnNode));
         ++dbc_count;
     }
 
@@ -2227,9 +2228,11 @@ void SpellMgr::LoadSpellAreas()
     uint32 oldMSTime = getMSTime();
 
     mSpellAreaMap.clear();                                  // need for reload case
+    mSpellAreaForAreaMap.clear();
     mSpellAreaForQuestMap.clear();
     mSpellAreaForQuestEndMap.clear();
     mSpellAreaForAuraMap.clear();
+    mSpellAreaForQuestAreaMap.clear();
 
     //                                                  0     1         2              3               4                 5          6          7       8         9
     QueryResult result = WorldDatabase.Query("SELECT spell, area, quest_start, quest_start_status, quest_end_status, quest_end, aura_spell, racemask, gender, flags FROM spell_area");

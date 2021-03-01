@@ -937,6 +937,12 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         ok = true;
     }
 
+    if (cInfo->AIName == "TotemAI")
+    {
+        TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has not-allowed `AIName` '%s' set, removing", cInfo->Entry, cInfo->AIName.c_str());
+        const_cast<CreatureTemplate*>(cInfo)->AIName.clear();
+    }
+
     if (!cInfo->AIName.empty() && !sCreatureAIRegistry->HasItem(cInfo->AIName))
     {
         TC_LOG_ERROR("sql.sql", "Creature (Entry: %u) has non-registered `AIName` '%s' set, removing", cInfo->Entry, cInfo->AIName.c_str());
@@ -10420,7 +10426,7 @@ void ObjectMgr::LoadSceneTemplates()
     uint32 oldMSTime = getMSTime();
     _sceneTemplateStore.clear();
 
-    QueryResult templates = WorldDatabase.Query("SELECT SceneId, Flags, ScriptPackageID, ScriptName FROM scene_template");
+    QueryResult templates = WorldDatabase.Query("SELECT SceneId, Flags, ScriptPackageID, Encrypted, ScriptName FROM scene_template");
 
     if (!templates)
     {
@@ -10439,7 +10445,8 @@ void ObjectMgr::LoadSceneTemplates()
         sceneTemplate.SceneId           = sceneId;
         sceneTemplate.PlaybackFlags     = fields[1].GetUInt32();
         sceneTemplate.ScenePackageId    = fields[2].GetUInt32();
-        sceneTemplate.ScriptId          = sObjectMgr->GetScriptId(fields[3].GetCString());
+        sceneTemplate.Encrypted         = fields[3].GetUInt8() != 0;
+        sceneTemplate.ScriptId          = sObjectMgr->GetScriptId(fields[4].GetCString());
 
     } while (templates->NextRow());
 

@@ -1675,15 +1675,15 @@ void Aura::PrepareProcToTrigger(AuraApplication* aurApp, ProcEventInfo& eventInf
     if (!prepare)
         return;
 
+    SpellProcEntry const* procEntry = sSpellMgr->GetSpellProcEntry(GetSpellInfo());
+    ASSERT(procEntry);
+
     // take one charge, aura expiration will be handled in Aura::TriggerProcOnEvent (if needed)
-    if (IsUsingCharges())
+    if (!(procEntry->AttributesMask & PROC_ATTR_USE_STACKS_FOR_CHARGES) && IsUsingCharges())
     {
         --m_procCharges;
         SetNeedClientUpdateForTargets();
     }
-
-    SpellProcEntry const* procEntry = sSpellMgr->GetSpellProcEntry(GetSpellInfo());
-    ASSERT(procEntry);
 
     // cooldowns should be added to the whole aura (see 51698 area aura)
     AddProcCooldown(now + procEntry->Cooldown);
@@ -1860,13 +1860,15 @@ void Aura::TriggerProcOnEvent(uint32 procEffectMask, AuraApplication* aurApp, Pr
     }
 
     // Remove aura if we've used last charge to proc
-    if (IsUsingCharges())
+    if (ASSERT_NOTNULL(sSpellMgr->GetSpellProcEntry(m_spellInfo))->AttributesMask & PROC_ATTR_USE_STACKS_FOR_CHARGES)
+    {
+        ModStackAmount(-1);
+    }
+    else if (IsUsingCharges())
     {
         if (!GetCharges())
             Remove();
     }
-    else if (ASSERT_NOTNULL(sSpellMgr->GetSpellProcEntry(m_spellInfo))->AttributesMask & PROC_ATTR_USE_STACKS_FOR_CHARGES)
-        ModStackAmount(-1);
 }
 
 float Aura::CalcPPMProcChance(Unit* actor) const
