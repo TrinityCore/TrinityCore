@@ -69,7 +69,8 @@ enum ShamanSpells
     SPELL_SHAMAN_TOTEMIC_POWER_SPELL_POWER      = 28825,
     SPELL_SHAMAN_TOTEMIC_POWER_ATTACK_POWER     = 28826,
     SPELL_SHAMAN_TOTEMIC_POWER_ARMOR            = 28827,
-    SPELL_SHAMAN_WINDFURY_ATTACK                = 25504
+    SPELL_SHAMAN_WINDFURY_ATTACK                = 25504,
+    SPELL_SHAMAN_LIQUID_MAGMA_HIT               = 192231,
 };
 
 enum MiscSpells
@@ -448,6 +449,39 @@ public:
     AuraScript* GetAuraScript() const override
     {
         return new spell_sha_flametongue_AuraScript();
+    }
+};
+
+// 73920 - Healing Rain
+class spell_sha_healing_rain : public SpellScript
+{
+    PrepareSpellScript(spell_sha_healing_rain);
+
+    void HandleEffectHitTarget(SpellEffIndex effIndex)
+    {
+        if (WorldLocation* dest = GetHitDest())
+        {
+            // Summon totem npc at target location
+            uint32 entry = 73400;
+
+            SummonPropertiesEntry props; // fake
+            props.Control = SUMMON_CATEGORY_ALLY;
+            props.Title = static_cast<int32>(SummonTitle::Totem);
+
+            int32 duration = GetSpellInfo()->CalcDuration(GetOriginalCaster());
+            TempSummon* summon = GetCaster()->GetMap()->SummonCreature(entry, *dest, &props,
+                duration, GetOriginalCaster(), GetSpellInfo()->Id, 0, false);
+            if (!summon || !summon->IsTotem())
+                return;
+
+            summon->SetCreatorGUID(GetOriginalCaster()->GetGUID());
+            GetSpell()->ExecuteLogEffectSummonObject(effIndex, summon);
+        }
+    }
+
+    void Register()
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_sha_healing_rain::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -881,6 +915,28 @@ class spell_sha_lava_surge_proc : public SpellScriptLoader
         }
 };
 
+// 192223 - Liquid Magma Totem (erupting hit spell)
+class spell_sha_liquid_magma_totem : public SpellScript
+{
+    PrepareSpellScript(spell_sha_liquid_magma_totem);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_LIQUID_MAGMA_HIT });
+    }
+
+    void HandleEffectHitTarget(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* hitUnit = GetHitUnit())
+            GetCaster()->CastSpell(hitUnit, SPELL_SHAMAN_LIQUID_MAGMA_HIT, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_sha_liquid_magma_totem::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 // 210621 - Path of Flames Spread
 class spell_sha_path_of_flames_spread : public SpellScriptLoader
 {
@@ -1279,6 +1335,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_lava_burst();
     new spell_sha_lava_surge();
     new spell_sha_lava_surge_proc();
+    RegisterSpellScript(spell_sha_liquid_magma_totem);
     new spell_sha_path_of_flames_spread();
     new spell_sha_tidal_waves();
     new spell_sha_t3_6p_bonus();
