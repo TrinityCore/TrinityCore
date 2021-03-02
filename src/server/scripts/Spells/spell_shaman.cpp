@@ -455,7 +455,7 @@ class spell_sha_flametongue_weapon : public SpellScript
         player->CastSpell(targetItem, SPELL_SHAMAN_FLAMETONGUE_WEAPON_ENCHANT, true);
     }
 
-    void Register()
+    void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_sha_flametongue_weapon::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
@@ -494,7 +494,7 @@ public:
 
     void SetSummon(TempSummon* summon)
     {
-        m_summon = summon;
+        _summon = summon;
     }
 
 private:
@@ -503,13 +503,13 @@ private:
 
     void HandleEffectPeriodic(AuraEffect const* aurEff)
     {
-        if (!m_summon)
+        if (!_summon)
             return;
 
         if (Unit* caster = GetCaster())
         {
             float x, y, z;
-            m_summon->GetPosition(x, y, z);
+            _summon->GetPosition(x, y, z);
 
             caster->CastSpell(x, y, z, SPELL_SHAMAN_HEALING_RAIN_HEAL, true, nullptr, aurEff);
         }
@@ -517,17 +517,17 @@ private:
 
     void HandleEffecRemoved(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (m_summon)
-            m_summon->DisappearAndDie();
+        if (_summon)
+            _summon->DisappearAndDie();
     }
 
-    void Register()
+    void Register() override
     {
         OnEffectRemove += AuraEffectRemoveFn(spell_sha_healing_rain_aura::HandleEffecRemoved, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_healing_rain_aura::HandleEffectPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
     }
 
-    TempSummon* m_summon;
+    TempSummon* _summon;
 };
 
 // 73920 - Healing Rain
@@ -540,34 +540,34 @@ class spell_sha_healing_rain : public SpellScript
         if (WorldLocation* dest = GetHitDest())
         {
             int32 duration = GetSpellInfo()->CalcDuration(GetOriginalCaster());
-            m_summon = GetCaster()->GetMap()->SummonCreature(NPC_HEALING_RAIN, *dest, nullptr,
+            _summon = GetCaster()->GetMap()->SummonCreature(NPC_HEALING_RAIN, *dest, nullptr,
                 duration, GetOriginalCaster(), GetSpellInfo()->Id, 0, false);
-            if (!m_summon)
+            if (!_summon)
                 return;
 
-            m_summon->SetCreatorGUID(GetOriginalCaster()->GetGUID());
-            m_summon->CastSpell(m_summon, SPELL_SHAMAN_HEALING_RAIN_VISUAL, true);
+            _summon->SetCreatorGUID(GetOriginalCaster()->GetGUID());
+            _summon->CastSpell(_summon, SPELL_SHAMAN_HEALING_RAIN_VISUAL, true);
         }
     }
 
     void HandleAura(SpellEffIndex /*effIndex*/)
     {
-        if (!m_summon)
+        if (!_summon)
             return;
 
         if (Aura* aura = GetHitAura())
             if (spell_sha_healing_rain_aura* script = aura->GetScript<spell_sha_healing_rain_aura>(spell_sha_healing_rain_aura::ScriptName))
-                script->SetSummon(m_summon);
+                script->SetSummon(_summon);
     }
 
-    void Register()
+    void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_sha_healing_rain::HandleSummon, EFFECT_0, SPELL_EFFECT_DUMMY);
         OnEffectHitTarget += SpellEffectFn(spell_sha_healing_rain::HandleAura, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
     }
 
 private:
-    TempSummon* m_summon;
+    TempSummon* _summon;
 };
 
 // 52042 - Healing Stream Totem
@@ -593,7 +593,7 @@ class spell_sha_healing_stream_totem_heal : public SpellScriptLoader
                     targets.push_back(GetOriginalCaster());
             }
 
-            void Register()
+            void Register() override
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_healing_stream_totem_heal_SpellScript::SelectTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
             }
