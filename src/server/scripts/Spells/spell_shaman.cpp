@@ -25,6 +25,7 @@
 #include "CellImpl.h"
 #include "CreatureAIImpl.h" // for RAND()
 #include "GridNotifiersImpl.h"
+#include "Item.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "SpellAuraEffects.h"
@@ -52,8 +53,12 @@ enum ShamanSpells
     SPELL_SHAMAN_FLAME_SHOCK                    = 8050,
     SPELL_SHAMAN_FLAME_SHOCK_MAELSTROM          = 188389,
     SPELL_SHAMAN_FLAMETONGUE_ATTACK             = 10444,
+    SPELL_SHAMAN_FLAMETONGUE_WEAPON_ENCHANT     = 334294,
+    SPELL_SHAMAN_FLAMETONGUE_WEAPON_AURA        = 319778,
     SPELL_SHAMAN_GATHERING_STORMS               = 198299,
     SPELL_SHAMAN_GATHERING_STORMS_BUFF          = 198300,
+    SPELL_SHAMAN_HEALING_RAIN_VISUAL            = 147490,
+    SPELL_SHAMAN_HEALING_RAIN_HEAL              = 73921,
     SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD          = 23552,
     SPELL_SHAMAN_ITEM_LIGHTNING_SHIELD_DAMAGE   = 27635,
     SPELL_SHAMAN_ITEM_MANA_SURGE                = 23571,
@@ -78,6 +83,11 @@ enum MiscSpells
     SPELL_HUNTER_INSANITY                       = 95809,
     SPELL_MAGE_TEMPORAL_DISPLACEMENT            = 80354,
     SPELL_PET_NETHERWINDS_FATIGUED              = 160455
+};
+
+enum MiscNpcs
+{
+    NPC_HEALING_RAIN                            = 73400,
 };
 
 // 108281 - Ancestral Guidance
@@ -416,40 +426,108 @@ public:
     }
 };
 
-// 194084 - Flametongue
-class spell_sha_flametongue : public SpellScriptLoader
+// 318038 - Flametongue Weapon
+class spell_sha_flametongue_weapon : public SpellScript
+{
+    PrepareSpellScript(spell_sha_flametongue_weapon);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_FLAMETONGUE_WEAPON_ENCHANT });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+    }
+
+    void HandleEffectHitTarget(SpellEffIndex /*effIndex*/)
+    {
+        Player* player = GetCaster()->ToPlayer();
+        uint8 slot = EQUIPMENT_SLOT_MAINHAND;
+        if (player->GetPrimarySpecialization() == TALENT_SPEC_SHAMAN_ENHANCEMENT)
+            slot = EQUIPMENT_SLOT_OFFHAND;
+
+        Item* targetItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot);
+        if (!targetItem || !targetItem->GetTemplate()->IsWeapon())
+            return;
+
+        player->CastSpell(targetItem, SPELL_SHAMAN_FLAMETONGUE_WEAPON_ENCHANT, true);
+    }
+
+    void Register()
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_sha_flametongue_weapon::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 319778  - Flametongue - SPELL_SHAMAN_FLAMETONGUE_WEAPON_AURA
+class spell_sha_flametongue_weapon_aura : public AuraScript
+{
+    PrepareAuraScript(spell_sha_flametongue_weapon_aura);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_FLAMETONGUE_ATTACK });
+    }
+
+    void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+
+        Unit* attacker = eventInfo.GetActor();
+        int32 damage = int32(attacker->GetTotalAttackPowerValue(BASE_ATTACK) * 0.0264f);
+        attacker->CastCustomSpell(SPELL_SHAMAN_FLAMETONGUE_ATTACK, SPELLVALUE_BASE_POINT0, damage, eventInfo.GetActionTarget(), TRIGGERED_FULL_MASK, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_sha_flametongue_weapon_aura::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 73920 - Healing Rain (Aura)
+class spell_sha_healing_rain_aura : public AuraScript
 {
 public:
-    spell_sha_flametongue() : SpellScriptLoader("spell_sha_flametongue") { }
+    static constexpr const char ScriptName[] = "spell_sha_healing_rain";
 
-    class spell_sha_flametongue_AuraScript : public AuraScript
+    void SetSummon(TempSummon* summon)
     {
-        PrepareAuraScript(spell_sha_flametongue_AuraScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            return ValidateSpellInfo({ SPELL_SHAMAN_FLAMETONGUE_ATTACK });
-        }
-
-        void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
-        {
-            PreventDefaultAction();
-
-            Unit* attacker = eventInfo.GetActor();
-            int32 damage = int32(attacker->GetTotalAttackPowerValue(BASE_ATTACK) * 0.125f / 2600 * attacker->GetBaseAttackTime(BASE_ATTACK));
-            attacker->CastCustomSpell(SPELL_SHAMAN_FLAMETONGUE_ATTACK, SPELLVALUE_BASE_POINT0, damage, eventInfo.GetActionTarget(), TRIGGERED_FULL_MASK, nullptr, aurEff);
-        }
-
-        void Register() override
-        {
-            OnEffectProc += AuraEffectProcFn(spell_sha_flametongue_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_sha_flametongue_AuraScript();
+        m_summon = summon;
     }
+
+private:
+    PrepareAuraScript(spell_sha_healing_rain_aura);
+
+
+    void HandleEffectPeriodic(AuraEffect const* aurEff)
+    {
+        if (!m_summon)
+            return;
+
+        if (Unit* caster = GetCaster())
+        {
+            float x, y, z;
+            m_summon->GetPosition(x, y, z);
+
+            caster->CastSpell(x, y, z, SPELL_SHAMAN_HEALING_RAIN_HEAL, true, nullptr, aurEff);
+        }
+    }
+
+    void HandleEffecRemoved(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (m_summon)
+            m_summon->DisappearAndDie();
+    }
+
+    void Register()
+    {
+        OnEffectRemove += AuraEffectRemoveFn(spell_sha_healing_rain_aura::HandleEffecRemoved, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_healing_rain_aura::HandleEffectPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+    }
+
+    TempSummon* m_summon;
 };
 
 // 73920 - Healing Rain
@@ -457,32 +535,39 @@ class spell_sha_healing_rain : public SpellScript
 {
     PrepareSpellScript(spell_sha_healing_rain);
 
-    void HandleEffectHitTarget(SpellEffIndex effIndex)
+    void HandleSummon(SpellEffIndex /*effIndex*/)
     {
         if (WorldLocation* dest = GetHitDest())
         {
-            // Summon totem npc at target location
-            uint32 entry = 73400;
-
-            SummonPropertiesEntry props; // fake
-            props.Control = SUMMON_CATEGORY_ALLY;
-            props.Title = static_cast<int32>(SummonTitle::Totem);
-
             int32 duration = GetSpellInfo()->CalcDuration(GetOriginalCaster());
-            TempSummon* summon = GetCaster()->GetMap()->SummonCreature(entry, *dest, &props,
+            m_summon = GetCaster()->GetMap()->SummonCreature(NPC_HEALING_RAIN, *dest, nullptr,
                 duration, GetOriginalCaster(), GetSpellInfo()->Id, 0, false);
-            if (!summon || !summon->IsTotem())
+            if (!m_summon)
                 return;
 
-            summon->SetCreatorGUID(GetOriginalCaster()->GetGUID());
-            GetSpell()->ExecuteLogEffectSummonObject(effIndex, summon);
+            m_summon->SetCreatorGUID(GetOriginalCaster()->GetGUID());
+            m_summon->CastSpell(m_summon, SPELL_SHAMAN_HEALING_RAIN_VISUAL, true);
         }
+    }
+
+    void HandleAura(SpellEffIndex /*effIndex*/)
+    {
+        if (!m_summon)
+            return;
+
+        if (Aura* aura = GetHitAura())
+            if (spell_sha_healing_rain_aura* script = aura->GetScript<spell_sha_healing_rain_aura>(spell_sha_healing_rain_aura::ScriptName))
+                script->SetSummon(m_summon);
     }
 
     void Register()
     {
-        OnEffectHitTarget += SpellEffectFn(spell_sha_healing_rain::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget += SpellEffectFn(spell_sha_healing_rain::HandleSummon, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget += SpellEffectFn(spell_sha_healing_rain::HandleAura, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
     }
+
+private:
+    TempSummon* m_summon;
 };
 
 // 52042 - Healing Stream Totem
@@ -931,8 +1016,20 @@ class spell_sha_liquid_magma_totem : public SpellScript
             GetCaster()->CastSpell(hitUnit, SPELL_SHAMAN_LIQUID_MAGMA_HIT, true);
     }
 
+    void HandleTargetSelect(std::list<WorldObject*>& targets)
+    {
+        // choose one random target from targets
+        if (targets.size() > 1)
+        {
+            WorldObject* selected = Trinity::Containers::SelectRandomContainerElement(targets);
+            targets.clear();
+            targets.push_back(selected);
+        }
+    }
+
     void Register() override
     {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_liquid_magma_totem::HandleTargetSelect, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
         OnEffectHitTarget += SpellEffectFn(spell_sha_liquid_magma_totem::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
@@ -1323,7 +1420,9 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_earthen_rage_passive();
     new spell_sha_earthen_rage_proc_aura();
     new spell_sha_elemental_blast();
-    new spell_sha_flametongue();
+    RegisterSpellScript(spell_sha_flametongue_weapon);
+    RegisterAuraScript(spell_sha_flametongue_weapon_aura);
+    RegisterSpellAndAuraScriptPair(spell_sha_healing_rain, spell_sha_healing_rain_aura);
     new spell_sha_healing_stream_totem_heal();
     new spell_sha_heroism();
     new spell_sha_item_lightning_shield();
