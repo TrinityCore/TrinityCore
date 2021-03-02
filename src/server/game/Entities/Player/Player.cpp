@@ -22424,14 +22424,12 @@ bool Player::IsAffectedBySpellmod(SpellInfo const* spellInfo, SpellModifier* mod
 }
 
 template <class T>
-void Player::ApplySpellMod(uint32 spellId, SpellModOp op, T& basevalue, Spell* spell /*= nullptr*/) const
+void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell* spell, T base, int32* flat, float* pct) const
 {
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, GetMap()->GetDifficultyID());
-    if (!spellInfo)
-        return;
+    ASSERT(flat && pct);
 
-    float totalmul = 1.0f;
-    int32 totalflat = 0;
+    *flat = 0;
+    *pct = 1.0f;
 
     // Drop charges for triggering spells instead of triggered ones
     if (m_spellModTakingSpell)
@@ -22448,7 +22446,7 @@ void Player::ApplySpellMod(uint32 spellId, SpellModOp op, T& basevalue, Spell* s
                 if (!IsAffectedBySpellmod(spellInfo, mod, spell))
                     continue;
 
-                if (basevalue < T(10000) && mod->value <= -100)
+                if (base < T(10000) && mod->value <= -100)
                 {
                     modInstantSpell = mod;
                     break;
@@ -22458,7 +22456,7 @@ void Player::ApplySpellMod(uint32 spellId, SpellModOp op, T& basevalue, Spell* s
             if (modInstantSpell)
             {
                 Player::ApplyModToSpell(modInstantSpell, spell);
-                basevalue = T(0);
+                *pct = 0.0f;
                 return;
             }
             break;
@@ -22482,7 +22480,7 @@ void Player::ApplySpellMod(uint32 spellId, SpellModOp op, T& basevalue, Spell* s
             if (modCritical)
             {
                 Player::ApplyModToSpell(modCritical, spell);
-                basevalue = T(100);
+                *flat = 100;
                 return;
             }
             break;
@@ -22496,7 +22494,7 @@ void Player::ApplySpellMod(uint32 spellId, SpellModOp op, T& basevalue, Spell* s
         if (!IsAffectedBySpellmod(spellInfo, mod, spell))
             continue;
 
-        totalflat += mod->value;
+        *flat += mod->value;
         Player::ApplyModToSpell(mod, spell);
     }
 
@@ -22506,19 +22504,36 @@ void Player::ApplySpellMod(uint32 spellId, SpellModOp op, T& basevalue, Spell* s
             continue;
 
         // skip percent mods for null basevalue (most important for spell mods with charges)
-        if (basevalue + totalflat == T(0))
+        if (base + *flat == T(0))
             continue;
 
         // special case (skip > 10sec spell casts for instant cast setting)
         if (op == SPELLMOD_CASTING_TIME)
         {
-            if (basevalue >= T(10000) && mod->value <= -100)
+            if (base >= T(10000) && mod->value <= -100)
                 continue;
         }
 
-        totalmul *= 1.0f + CalculatePct(1.0f, mod->value);
+        *pct *= 1.0f + CalculatePct(1.0f, mod->value);
         Player::ApplyModToSpell(mod, spell);
     }
+}
+
+template TC_GAME_API void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell* spell, int32 base, int32* flat, float* pct) const;
+template TC_GAME_API void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell* spell, uint32 base, int32* flat, float* pct) const;
+template TC_GAME_API void Player::GetSpellModValues(SpellInfo const* spellInfo, SpellModOp op, Spell* spell, float base, int32* flat, float* pct) const;
+
+template <class T>
+void Player::ApplySpellMod(uint32 spellId, SpellModOp op, T& basevalue, Spell* spell /*= nullptr*/) const
+{
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, GetMap()->GetDifficultyID());
+    if (!spellInfo)
+        return;
+
+    float totalmul = 1.0f;
+    int32 totalflat = 0;
+
+    GetSpellModValues(spellInfo, op, spell, basevalue, &totalflat, &totalmul);
 
     basevalue = T(float(basevalue + totalflat) * totalmul);
 }
