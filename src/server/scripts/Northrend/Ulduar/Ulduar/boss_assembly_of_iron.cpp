@@ -808,21 +808,6 @@ class spell_assembly_rune_of_summoning : public AuraScript
     }
 };
 
-class spell_assembly_random_aggro_periodic : public AuraScript
-{
-    PrepareAuraScript(spell_assembly_random_aggro_periodic);
-
-    void HandlePeriodic(AuraEffect const* /*aurEff*/)
-    {
-        GetTarget()->GetThreatManager().ResetAllThreat();
-    }
-
-    void Register() override
-    {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_assembly_random_aggro_periodic::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-    }
-};
-
 class spell_assembly_supercharge : public SpellScript
 {
     PrepareSpellScript(spell_assembly_supercharge);
@@ -909,7 +894,6 @@ void AddSC_boss_assembly_of_iron()
     RegisterSpellScript(spell_shield_of_runes);
     RegisterSpellScript(spell_assembly_meltdown);
     RegisterSpellScript(spell_assembly_rune_of_summoning);
-    RegisterSpellScript(spell_assembly_random_aggro_periodic);
     RegisterSpellScript(spell_assembly_supercharge);
     RegisterSpellScript(spell_assembly_berserk);
     RegisterSpellScript(spell_assembly_lightning_tendrils_visual);
