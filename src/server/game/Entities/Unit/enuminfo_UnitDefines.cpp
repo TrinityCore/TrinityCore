@@ -60,7 +60,7 @@ TC_API_EXPORT EnumText EnumUtils<UnitFlags>::ToString(UnitFlags value)
         case UNIT_FLAG_SKINNABLE: return { "UNIT_FLAG_SKINNABLE", "UNIT_FLAG_SKINNABLE", "" };
         case UNIT_FLAG_MOUNT: return { "UNIT_FLAG_MOUNT", "UNIT_FLAG_MOUNT", "" };
         case UNIT_FLAG_UNK_28: return { "UNIT_FLAG_UNK_28", "UNIT_FLAG_UNK_28", "" };
-        case UNIT_FLAG_UNK_29: return { "UNIT_FLAG_UNK_29", "UNIT_FLAG_UNK_29", "used in Feing Death spell" };
+        case UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT: return { "UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT", "UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT", "Prevent automatically playing emotes from parsing chat text, for example \042lol\042 in /say, ending message with ? or !, or using /yell" };
         case UNIT_FLAG_SHEATHE: return { "UNIT_FLAG_SHEATHE", "UNIT_FLAG_SHEATHE", "" };
         case UNIT_FLAG_IMMUNE: return { "UNIT_FLAG_IMMUNE", "UNIT_FLAG_IMMUNE", "Immune to damage" };
         default: throw std::out_of_range("value");
@@ -104,7 +104,7 @@ TC_API_EXPORT UnitFlags EnumUtils<UnitFlags>::FromIndex(size_t index)
         case 26: return UNIT_FLAG_SKINNABLE;
         case 27: return UNIT_FLAG_MOUNT;
         case 28: return UNIT_FLAG_UNK_28;
-        case 29: return UNIT_FLAG_UNK_29;
+        case 29: return UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT;
         case 30: return UNIT_FLAG_SHEATHE;
         case 31: return UNIT_FLAG_IMMUNE;
         default: throw std::out_of_range("index");
@@ -145,7 +145,7 @@ TC_API_EXPORT size_t EnumUtils<UnitFlags>::ToIndex(UnitFlags value)
         case UNIT_FLAG_SKINNABLE: return 26;
         case UNIT_FLAG_MOUNT: return 27;
         case UNIT_FLAG_UNK_28: return 28;
-        case UNIT_FLAG_UNK_29: return 29;
+        case UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT: return 29;
         case UNIT_FLAG_SHEATHE: return 30;
         case UNIT_FLAG_IMMUNE: return 31;
         default: throw std::out_of_range("value");

@@ -1476,13 +1476,13 @@ public:
 
         void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            GetTarget()->AddUnitFlag(UNIT_FLAG_UNK_29);
+            GetTarget()->AddUnitFlag(UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT);
             GetTarget()->AddUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
         }
 
         void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            GetTarget()->RemoveUnitFlag(UNIT_FLAG_UNK_29);
+            GetTarget()->RemoveUnitFlag(UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT);
             GetTarget()->RemoveUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
         }
 
