@@ -615,7 +615,7 @@ float SpellEffectInfo::CalcValueMultiplier(Unit* caster, Spell* spell) const
 {
     float multiplier = Amplitude;
     if (Player* modOwner = (caster ? caster->GetSpellModOwner() : nullptr))
-        modOwner->ApplySpellMod(_spellInfo->Id, SPELLMOD_VALUE_MULTIPLIER, multiplier, spell);
+        modOwner->ApplySpellMod(_spellInfo, SPELLMOD_VALUE_MULTIPLIER, multiplier, spell);
     return multiplier;
 }
 
@@ -623,7 +623,7 @@ float SpellEffectInfo::CalcDamageMultiplier(Unit* caster, Spell* spell) const
 {
     float multiplierPercent = ChainAmplitude * 100.0f;
     if (Player* modOwner = (caster ? caster->GetSpellModOwner() : nullptr))
-        modOwner->ApplySpellMod(_spellInfo->Id, SPELLMOD_DAMAGE_MULTIPLIER, multiplierPercent, spell);
+        modOwner->ApplySpellMod(_spellInfo, SPELLMOD_DAMAGE_MULTIPLIER, multiplierPercent, spell);
     return multiplierPercent / 100.0f;
 }
 
@@ -657,7 +657,7 @@ float SpellEffectInfo::CalcRadius(Unit* caster, Spell* spell) const
         radius += entry->RadiusPerLevel * caster->getLevel();
         radius = std::min(radius, entry->RadiusMax);
         if (Player* modOwner = caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(_spellInfo->Id, SPELLMOD_RADIUS, radius, spell);
+            modOwner->ApplySpellMod(_spellInfo, SPELLMOD_RADIUS, radius, spell);
     }
 
     return radius;
@@ -3650,7 +3650,7 @@ float SpellInfo::GetMaxRange(bool positive, Unit* caster, Spell* spell) const
     float range = RangeEntry->RangeMax[positive ? 1 : 0];
     if (caster)
         if (Player* modOwner = caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(Id, SPELLMOD_RANGE, range, spell);
+            modOwner->ApplySpellMod(this, SPELLMOD_RANGE, range, spell);
 
     return range;
 }
@@ -3661,7 +3661,7 @@ int32 SpellInfo::CalcDuration(Unit* caster /*= nullptr*/) const
 
     if (caster)
         if (Player* modOwner = caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(Id, SPELLMOD_DURATION, duration);
+            modOwner->ApplySpellMod(this, SPELLMOD_DURATION, duration);
 
     return duration;
 }
@@ -3863,13 +3863,13 @@ std::vector<SpellPowerCost> SpellInfo::CalcPowerCost(Unit const* caster, SpellSc
             switch (power->OrderIndex)
             {
                 case 0:
-                    modOwner->ApplySpellMod(Id, SPELLMOD_COST, powerCost, spell);
+                    modOwner->ApplySpellMod(this, SPELLMOD_COST, powerCost, spell);
                     break;
                 case 1:
-                    modOwner->ApplySpellMod(Id, SPELLMOD_SPELL_COST2, powerCost, spell);
+                    modOwner->ApplySpellMod(this, SPELLMOD_SPELL_COST2, powerCost, spell);
                     break;
                 case 2:
-                    modOwner->ApplySpellMod(Id, SPELLMOD_SPELL_COST3, powerCost, spell);
+                    modOwner->ApplySpellMod(this, SPELLMOD_SPELL_COST3, powerCost, spell);
                     break;
                 default:
                     break;
