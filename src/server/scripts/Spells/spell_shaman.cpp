@@ -476,7 +476,7 @@ class spell_sha_flametongue_weapon_aura : public AuraScript
         PreventDefaultAction();
 
         Unit* attacker = eventInfo.GetActor();
-        int32 damage = int32(attacker->GetTotalAttackPowerValue(BASE_ATTACK) * 0.0264f);
+        int32 damage = std::max(1, int32(attacker->GetTotalAttackPowerValue(BASE_ATTACK) * 0.0264f));
         attacker->CastCustomSpell(SPELL_SHAMAN_FLAMETONGUE_ATTACK, SPELLVALUE_BASE_POINT0, damage, eventInfo.GetActionTarget(), TRIGGERED_FULL_MASK, nullptr, aurEff);
     }
 
