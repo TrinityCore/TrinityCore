@@ -414,13 +414,13 @@ struct npc_xt002_heart : public NullCreatureAI
             DoCast(xt002, SPELL_RIDE_VEHICLE_EXPOSED, true);
             DoCastSelf(SPELL_HEART_OVERLOAD);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT);
         }
         else if (action == ACTION_DISPOSE_HEART)
         {
             DoCast(xt002, SPELL_HEART_RIDE_VEHICLE, true);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT);
         }
     }
 
