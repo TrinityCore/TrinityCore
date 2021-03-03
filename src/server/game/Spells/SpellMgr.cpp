@@ -2676,6 +2676,23 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
                     break;
             }
 
+            switch (effect->ApplyAuraName)
+            {
+                case SPELL_AURA_OPEN_STABLE:    // No point in saving this, since the stable dialog can't be open on aura load anyway.
+                // Auras that require both caster & target to be in world cannot be saved
+                case SPELL_AURA_CONTROL_VEHICLE:
+                case SPELL_AURA_BIND_SIGHT:
+                case SPELL_AURA_MOD_POSSESS:
+                case SPELL_AURA_MOD_POSSESS_PET:
+                case SPELL_AURA_MOD_CHARM:
+                case SPELL_AURA_AOE_CHARM:
+                // Controlled by Battleground
+                case SPELL_AURA_BATTLEGROUND_PLAYER_POSITION:
+                case SPELL_AURA_BATTLEGROUND_PLAYER_POSITION_FACTIONAL:
+                    spellInfoMutable->AttributesCu |= SPELL_ATTR0_CU_AURA_CANNOT_BE_SAVED;
+                    break;
+            }
+
             switch (effect->Effect)
             {
                 case SPELL_EFFECT_SCHOOL_DAMAGE:
