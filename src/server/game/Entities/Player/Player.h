@@ -462,6 +462,7 @@ enum PlayerLocalFlags
     PLAYER_LOCAL_FLAG_USING_PARTY_GARRISON          = 0x00000100,
     PLAYER_LOCAL_FLAG_CAN_USE_OBJECTS_MOUNTED       = 0x00000200,
     PLAYER_LOCAL_FLAG_CAN_VISIT_PARTY_GARRISON      = 0x00000400,
+	PLAYER_LOCAL_FLAG_WAR_MODE                      = 0x00000800,
     PLAYER_LOCAL_FLAG_ACCOUNT_SECURED               = 0x00001000,   // Script_IsAccountSecured
     PLAYER_LOCAL_FLAG_OVERRIDE_TRANSPORT_SERVER_TIME= 0x00008000,
     PLAYER_LOCAL_FLAG_MENTOR_RESTRICTED             = 0x00020000,
@@ -1979,6 +1980,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         static TeamId TeamIdForRace(uint8 race);
         uint32 GetTeam() const { return m_team; }
         TeamId GetTeamId() const { return m_team == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
+		bool IsTeamAlliance() const { return m_team == ALLIANCE; }
+        bool IsTeamHorde() const { return m_team == HORDE; }
         void setFactionForRace(uint8 race);
 
         void InitDisplayIds();
@@ -2446,6 +2449,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         bool MeetPlayerCondition(uint32 conditionId) const;
 
+        bool IsInRestArea() const { return HasPlayerFlag(PLAYER_FLAGS_RESTING); }
         bool HasPlayerFlag(PlayerFlags flags) const { return (*m_playerData->PlayerFlags & flags) != 0; }
         void AddPlayerFlag(PlayerFlags flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PlayerFlags), flags); }
         void RemovePlayerFlag(PlayerFlags flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PlayerFlags), flags); }
@@ -2550,6 +2554,20 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void AddAuraVision(PlayerFieldByte2Flags flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::AuraVision), flags); }
         void RemoveAuraVision(PlayerFieldByte2Flags flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::AuraVision), flags); }
 
+
+        bool IsAtMaxLevel() const;
+
+        bool IsInFactionFriendlyArea() const;
+        bool IsInFactionFriendlyArea(AreaTableEntry const* inArea) const;
+
+        void SetWarModeDesired(bool enabled);
+        bool IsWarModeDesired() const { return HasPlayerFlag(PLAYER_FLAGS_WAR_MODE_DESIRED); }
+        bool IsWarModeActive() const { return HasPlayerFlag(PLAYER_FLAGS_WAR_MODE_ACTIVE); }
+        bool IsWarModeLocalActive() const { return HasPlayerLocalFlag(PLAYER_LOCAL_FLAG_WAR_MODE); }
+        void SetWarModeLocal(bool enabled);
+        bool CanEnableWarModeInArea() const;
+        void UpdateWarModeAuras();
+		
         UF::UpdateField<UF::PlayerData, 0, TYPEID_PLAYER> m_playerData;
         UF::UpdateField<UF::ActivePlayerData, 0, TYPEID_ACTIVE_PLAYER> m_activePlayerData;
 
