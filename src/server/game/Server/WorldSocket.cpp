@@ -71,11 +71,11 @@ uint8 const WorldSocket::EncryptionKeySeed[16] = { 0xE9, 0x75, 0x3C, 0x50, 0x90,
 
 WorldSocket::WorldSocket(tcp::socket&& socket) : Socket(std::move(socket)),
     _type(CONNECTION_TYPE_REALM), _key(0), _OverSpeedPings(0),
-    _worldSession(nullptr), _authed(false), _sendBufferSize(4096), _compressionStream(nullptr)
+    _worldSession(nullptr), _authed(false), _canRequestHotfixes(true), _sendBufferSize(4096), _compressionStream(nullptr)
 {
     Trinity::Crypto::GetRandomBytes(_serverChallenge);
     _encryptKey.fill(0);
-    _headerBuffer.Resize(sizeof(PacketHeader));
+    _headerBuffer.Resize(sizeof(IncomingPacketHeader));
 }
 
 WorldSocket::~WorldSocket()
@@ -324,18 +324,26 @@ void WorldSocket::SetWorldSession(WorldSession* session)
 
 bool WorldSocket::ReadHeaderHandler()
 {
-    ASSERT(_headerBuffer.GetActiveSize() == sizeof(PacketHeader), "Header size " SZFMTD " different than expected " SZFMTD, _headerBuffer.GetActiveSize(), sizeof(PacketHeader));
+    ASSERT(_headerBuffer.GetActiveSize() == sizeof(IncomingPacketHeader), "Header size " SZFMTD " different than expected " SZFMTD, _headerBuffer.GetActiveSize(), sizeof(IncomingPacketHeader));
 
-    PacketHeader* header = reinterpret_cast<PacketHeader*>(_headerBuffer.GetReadPointer());
+    IncomingPacketHeader* header = reinterpret_cast<IncomingPacketHeader*>(_headerBuffer.GetReadPointer());
+    uint16 encryptedOpcode = header->EncryptedOpcode;
 
     if (!header->IsValidSize())
     {
-        TC_LOG_ERROR("network", "WorldSocket::ReadHeaderHandler(): client %s sent malformed packet (size: %u)",
-            GetRemoteIpAddress().to_string().c_str(), header->Size);
-        return false;
+        _authCrypt.PeekDecryptRecv(reinterpret_cast<uint8*>(&header->EncryptedOpcode), sizeof(encryptedOpcode));
+
+        // CMSG_HOTFIX_REQUEST can be much larger than normal packets, allow receiving it once per session
+        if (header->EncryptedOpcode != CMSG_HOTFIX_REQUEST || header->Size > 0x100000 || !_canRequestHotfixes)
+        {
+            TC_LOG_ERROR("network", "WorldSocket::ReadHeaderHandler(): client %s sent malformed packet (size: %u, opcode %u)",
+                GetRemoteIpAddress().to_string().c_str(), header->Size, uint32(header->EncryptedOpcode));
+            return false;
+        }
     }
 
     _packetBuffer.Resize(header->Size);
+    _packetBuffer.Write(&encryptedOpcode, sizeof(encryptedOpcode));
     return true;
 }
 
@@ -453,6 +461,9 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
             LogOpcodeText(opcode, sessionGuard);
             HandleEnterEncryptedModeAck();
             break;
+        case CMSG_HOTFIX_REQUEST:
+            _canRequestHotfixes = false;
+            /* fallthrough */
         default:
         {
             sessionGuard.lock();
