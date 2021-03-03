@@ -3741,7 +3741,7 @@ Optional<SpellPowerCost> SpellInfo::CalcPowerCost(Powers powerType, bool optiona
 {
     auto itr = std::find_if(PowerCosts.cbegin(), PowerCosts.cend(), [powerType](SpellPowerEntry const* spellPowerEntry)
     {
-        return spellPowerEntry->PowerType == powerType;
+        return spellPowerEntry && spellPowerEntry->PowerType == powerType;
     });
     if (itr == PowerCosts.cend())
         return {};
@@ -3751,6 +3751,9 @@ Optional<SpellPowerCost> SpellInfo::CalcPowerCost(Powers powerType, bool optiona
 
 Optional<SpellPowerCost> SpellInfo::CalcPowerCost(SpellPowerEntry const* power, bool optionalCost, Unit const* caster, SpellSchoolMask schoolMask, Spell* spell /*= nullptr*/) const
 {
+    if (power->RequiredAuraSpellID && !caster->HasAura(power->RequiredAuraSpellID))
+        return {};
+
     // Spell drain all exist power on cast (Only paladin lay of Hands)
     if (HasAttribute(SPELL_ATTR1_DRAIN_ALL_POWER))
     {
@@ -3954,9 +3957,6 @@ std::vector<SpellPowerCost> SpellInfo::CalcPowerCost(Unit const* caster, SpellSc
     for (SpellPowerEntry const* power : PowerCosts)
     {
         if (!power)
-            continue;
-
-        if (power->RequiredAuraSpellID && !caster->HasAura(power->RequiredAuraSpellID))
             continue;
 
         if (Optional<SpellPowerCost> cost = CalcPowerCost(power, false, caster, schoolMask, spell))
