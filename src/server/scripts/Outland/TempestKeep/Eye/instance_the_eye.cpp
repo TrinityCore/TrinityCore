@@ -22,8 +22,8 @@
 
 /* The Eye encounters:
 0 - Al'ar
-1 - Solarian
-2 - Void Reaver
+1 - Void Reaver
+2 - Solarian
 3 - Kael'thas
 */
 
@@ -37,8 +37,8 @@ DoorData const doorData[] =
 ObjectData const creatureData[] =
 {
     { NPC_ALAR,        DATA_ALAR        },
-    { NPC_SOLARIAN,    DATA_SOLARIAN    },
     { NPC_VOID_REAVER, DATA_VOID_REAVER },
+    { NPC_SOLARIAN,    DATA_SOLARIAN    },
     { NPC_KAELTHAS,    DATA_KAELTHAS    },
     { NPC_CAPERNIAN,   DATA_CAPERNIAN   },
     { NPC_SANGUINAR,   DATA_SANGUINAR   },

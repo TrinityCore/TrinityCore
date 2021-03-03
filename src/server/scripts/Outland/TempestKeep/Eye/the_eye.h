@@ -29,8 +29,8 @@ enum TEDataTypes
 {
     // Encounter States
     DATA_ALAR                           = 0,
-    DATA_SOLARIAN                       = 1,
-    DATA_VOID_REAVER                    = 2,
+    DATA_VOID_REAVER                    = 1,
+    DATA_SOLARIAN                       = 2,
     DATA_KAELTHAS                       = 3,
 
     // Additional Data
@@ -47,8 +47,8 @@ enum TEDataTypes
 enum TECreatureIds
 {
     NPC_ALAR                            = 19514,
-    NPC_SOLARIAN                        = 18805,
     NPC_VOID_REAVER                     = 19516,
+    NPC_SOLARIAN                        = 18805,
     NPC_KAELTHAS                        = 19622,
     NPC_SANGUINAR                       = 20060,
     NPC_CAPERNIAN                       = 20062,
