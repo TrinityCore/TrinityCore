@@ -767,7 +767,7 @@ int32 Aura::CalcMaxDuration(Unit* caster) const
 
     // IsPermanent() checks max duration (which we are supposed to calculate here)
     if (maxDuration != -1 && modOwner)
-        modOwner->ApplySpellMod(GetId(), SPELLMOD_DURATION, maxDuration);
+        modOwner->ApplySpellMod(GetSpellInfo(), SPELLMOD_DURATION, maxDuration);
 
     return maxDuration;
 }
@@ -777,7 +777,7 @@ void Aura::SetDuration(int32 duration, bool withMods)
     if (withMods)
         if (Unit* caster = GetCaster())
             if (Player* modOwner = caster->GetSpellModOwner())
-                modOwner->ApplySpellMod(GetId(), SPELLMOD_DURATION, duration);
+                modOwner->ApplySpellMod(GetSpellInfo(), SPELLMOD_DURATION, duration);
 
     m_duration = duration;
     SetNeedClientUpdateForTargets();
@@ -848,7 +848,7 @@ uint8 Aura::CalcMaxCharges(Unit* caster) const
 
     if (caster)
         if (Player* modOwner = caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(GetId(), SPELLMOD_CHARGES, maxProcCharges);
+            modOwner->ApplySpellMod(GetSpellInfo(), SPELLMOD_CHARGES, maxProcCharges);
 
     return uint8(maxProcCharges);
 }
@@ -934,7 +934,7 @@ uint32 Aura::CalcMaxStackAmount() const
     int32 maxStackAmount = m_spellInfo->StackAmount;
     if (Unit* caster = GetCaster())
         if (Player* modOwner = caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_MAX_STACK_AMOUNT, maxStackAmount);
+            modOwner->ApplySpellMod(m_spellInfo, SPELLMOD_MAX_STACK_AMOUNT, maxStackAmount);
 
     return maxStackAmount;
 }
@@ -1113,7 +1113,7 @@ int32 Aura::CalcDispelChance(Unit const* /*auraTarget*/, bool /*offensive*/) con
     // Apply dispel mod from aura caster
     if (Unit* caster = GetCaster())
         if (Player* modOwner = caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(GetId(), SPELLMOD_RESIST_DISPEL_CHANCE, resistChance);
+            modOwner->ApplySpellMod(GetSpellInfo(), SPELLMOD_RESIST_DISPEL_CHANCE, resistChance);
 
     RoundToInterval(resistChance, 0, 100);
     return 100 - resistChance;
@@ -1835,7 +1835,7 @@ float Aura::CalcProcChance(SpellProcEntry const& procEntry, ProcEventInfo& event
 
         // apply chance modifer aura, applies also to ppm chance (see improved judgement of light spell)
         if (Player* modOwner = caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(GetId(), SPELLMOD_CHANCE_OF_SUCCESS, chance);
+            modOwner->ApplySpellMod(GetSpellInfo(), SPELLMOD_CHANCE_OF_SUCCESS, chance);
     }
 
     // proc chance is reduced by an additional 3.333% per level past 60
