@@ -1826,7 +1826,20 @@ TempSummon* WorldObject::SummonCreature(uint32 entry, Position const& pos, TempS
 {
     if (Map* map = FindMap())
     {
-        if (TempSummon* summon = map->SummonCreature(entry, pos, nullptr, despawnTime, ToUnit(), 0, vehId, visibleBySummonerOnly))
+        Unit* summoner = ToUnit();
+
+        // If we are a TempSummon use our own summoner as the summoner
+        if (visibleBySummonerOnly)
+        {
+            Unit* selfUnit = ToUnit();
+            TempSummon* tempSummon = selfUnit ? selfUnit->ToTempSummon() : nullptr;
+
+            if (tempSummon->IsVisibleBySummonerOnly())
+                if (Unit* ownSummoner = tempSummon->GetSummoner())
+                    summoner = ownSummoner;
+        }
+
+        if (TempSummon* summon = map->SummonCreature(entry, pos, nullptr, despawnTime, summoner, 0, vehId, visibleBySummonerOnly))
         {
             summon->SetTempSummonType(despawnType);
             return summon;
