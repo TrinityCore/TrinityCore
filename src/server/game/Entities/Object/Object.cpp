@@ -1828,15 +1828,17 @@ TempSummon* WorldObject::SummonCreature(uint32 entry, Position const& pos, TempS
     {
         Unit* summoner = ToUnit();
 
-        // If we are a TempSummon use our own summoner as the summoner
-        if (visibleBySummonerOnly)
-        {
-            Unit* selfUnit = ToUnit();
-            TempSummon* tempSummon = selfUnit ? selfUnit->ToTempSummon() : nullptr;
+        // If we are a personal summon, summon a personal spawn with our summoner being the new summoner as well
+        Unit* selfUnit = ToUnit();
+        TempSummon* tempSummon = selfUnit ? selfUnit->ToTempSummon() : nullptr;
 
-            if (tempSummon->IsVisibleBySummonerOnly())
-                if (Unit* ownSummoner = tempSummon->GetSummoner())
-                    summoner = ownSummoner;
+        if (tempSummon && tempSummon->IsVisibleBySummonerOnly())
+        {
+            if (Unit* ownSummoner = tempSummon->GetSummoner())
+            {
+                summoner = ownSummoner;
+                visibleBySummonerOnly = true;
+            }
         }
 
         if (TempSummon* summon = map->SummonCreature(entry, pos, nullptr, despawnTime, summoner, 0, vehId, visibleBySummonerOnly))
