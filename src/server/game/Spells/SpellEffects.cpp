@@ -83,7 +83,7 @@ NonDefaultConstructible<pEffect> SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectSchoolDMG,                                //  2 SPELL_EFFECT_SCHOOL_DAMAGE
     &Spell::EffectDummy,                                    //  3 SPELL_EFFECT_DUMMY
     &Spell::EffectUnused,                                   //  4 SPELL_EFFECT_PORTAL_TELEPORT          unused
-    &Spell::EffectUnused,                                   //  5 SPELL_EFFECT_TELEPORT_UNITS_OLD
+    &Spell::EffectNULL,                                     //  5 SPELL_EFFECT_5
     &Spell::EffectApplyAura,                                //  6 SPELL_EFFECT_APPLY_AURA
     &Spell::EffectEnvironmentalDMG,                         //  7 SPELL_EFFECT_ENVIRONMENTAL_DAMAGE
     &Spell::EffectPowerDrain,                               //  8 SPELL_EFFECT_POWER_DRAIN
@@ -91,9 +91,9 @@ NonDefaultConstructible<pEffect> SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectHeal,                                     // 10 SPELL_EFFECT_HEAL
     &Spell::EffectBind,                                     // 11 SPELL_EFFECT_BIND
     &Spell::EffectNULL,                                     // 12 SPELL_EFFECT_PORTAL
-    &Spell::EffectUnused,                                   // 13 SPELL_EFFECT_RITUAL_BASE              unused
-    &Spell::EffectUnused,                                   // 14 SPELL_EFFECT_INCREASE_CURRENCY_CAP
-    &Spell::EffectUnused,                                   // 15 SPELL_EFFECT_RITUAL_ACTIVATE_PORTAL   unused
+    &Spell::EffectNULL,                                     // 13 SPELL_EFFECT_TELEPORT_TO_RETURN_POINT
+    &Spell::EffectNULL,                                     // 14 SPELL_EFFECT_INCREASE_CURRENCY_CAP
+    &Spell::EffectNULL,                                     // 15 SPELL_EFFECT_TELEPORT_WITH_SPELL_VISUAL_KIT_LOADING_SCREEN
     &Spell::EffectQuestComplete,                            // 16 SPELL_EFFECT_QUEST_COMPLETE
     &Spell::EffectWeaponDmg,                                // 17 SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL
     &Spell::EffectResurrect,                                // 18 SPELL_EFFECT_RESURRECT
@@ -130,7 +130,7 @@ NonDefaultConstructible<pEffect> SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectUnused,                                   // 49 SPELL_EFFECT_DETECT                   one spell: Detect
     &Spell::EffectTransmitted,                              // 50 SPELL_EFFECT_TRANS_DOOR
     &Spell::EffectUnused,                                   // 51 SPELL_EFFECT_FORCE_CRITICAL_HIT       unused
-    &Spell::EffectUnused,                                   // 52 SPELL_EFFECT_SET_MAX_BATTLE_PET_COUNT
+    &Spell::EffectNULL,                                     // 52 SPELL_EFFECT_SET_MAX_BATTLE_PET_COUNT
     &Spell::EffectEnchantItemPerm,                          // 53 SPELL_EFFECT_ENCHANT_ITEM
     &Spell::EffectEnchantItemTmp,                           // 54 SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY
     &Spell::EffectTameCreature,                             // 55 SPELL_EFFECT_TAMECREATURE
@@ -148,7 +148,7 @@ NonDefaultConstructible<pEffect> SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectHealMaxHealth,                            // 67 SPELL_EFFECT_HEAL_MAX_HEALTH
     &Spell::EffectInterruptCast,                            // 68 SPELL_EFFECT_INTERRUPT_CAST
     &Spell::EffectDistract,                                 // 69 SPELL_EFFECT_DISTRACT
-    &Spell::EffectPull,                                     // 70 SPELL_EFFECT_PULL                     one spell: Distract Move
+    &Spell::EffectNULL,                                     // 70 SPELL_EFFECT_COMPLETE_AND_REWARD_WORLD_QUEST
     &Spell::EffectPickPocket,                               // 71 SPELL_EFFECT_PICKPOCKET
     &Spell::EffectAddFarsight,                              // 72 SPELL_EFFECT_ADD_FARSIGHT
     &Spell::EffectUntrainTalents,                           // 73 SPELL_EFFECT_UNTRAIN_TALENTS
@@ -158,8 +158,8 @@ NonDefaultConstructible<pEffect> SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectScriptEffect,                             // 77 SPELL_EFFECT_SCRIPT_EFFECT
     &Spell::EffectUnused,                                   // 78 SPELL_EFFECT_ATTACK
     &Spell::EffectSanctuary,                                // 79 SPELL_EFFECT_SANCTUARY
-    &Spell::EffectAddComboPoints,                           // 80 SPELL_EFFECT_ADD_COMBO_POINTS
-    &Spell::EffectUnused,                                   // 81 SPELL_EFFECT_PUSH_ABILITY_TO_ACTION_BAR
+    &Spell::EffectNULL,                                     // 80 SPELL_EFFECT_MODIFY_FOLLOWER_ITEM_LEVEL
+    &Spell::EffectNULL,                                     // 81 SPELL_EFFECT_PUSH_ABILITY_TO_ACTION_BAR
     &Spell::EffectNULL,                                     // 82 SPELL_EFFECT_BIND_SIGHT
     &Spell::EffectDuel,                                     // 83 SPELL_EFFECT_DUEL
     &Spell::EffectStuck,                                    // 84 SPELL_EFFECT_STUCK
@@ -169,7 +169,7 @@ NonDefaultConstructible<pEffect> SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectGameObjectRepair,                         // 88 SPELL_EFFECT_GAMEOBJECT_REPAIR
     &Spell::EffectGameObjectSetDestructionState,            // 89 SPELL_EFFECT_GAMEOBJECT_SET_DESTRUCTION_STATE
     &Spell::EffectKillCreditPersonal,                       // 90 SPELL_EFFECT_KILL_CREDIT              Kill credit but only for single person
-    &Spell::EffectUnused,                                   // 91 SPELL_EFFECT_THREAT_ALL               one spell: zzOLDBrainwash
+    &Spell::EffectNULL,                                     // 91 SPELL_EFFECT_THREAT_ALL
     &Spell::EffectEnchantHeldItem,                          // 92 SPELL_EFFECT_ENCHANT_HELD_ITEM
     &Spell::EffectForceDeselect,                            // 93 SPELL_EFFECT_FORCE_DESELECT
     &Spell::EffectSelfResurrect,                            // 94 SPELL_EFFECT_SELF_RESURRECT
@@ -183,22 +183,22 @@ NonDefaultConstructible<pEffect> SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectDismissPet,                               //102 SPELL_EFFECT_DISMISS_PET
     &Spell::EffectReputation,                               //103 SPELL_EFFECT_REPUTATION
     &Spell::EffectSummonObject,                             //104 SPELL_EFFECT_SUMMON_OBJECT_SLOT1
-    &Spell::EffectUnused,                                   //105 SPELL_EFFECT_SURVEY
+    &Spell::EffectNULL,                                     //105 SPELL_EFFECT_SURVEY
     &Spell::EffectChangeRaidMarker,                         //106 SPELL_EFFECT_CHANGE_RAID_MARKER
-    &Spell::EffectUnused,                                   //107 SPELL_EFFECT_SHOW_CORPSE_LOOT
+    &Spell::EffectNULL,                                     //107 SPELL_EFFECT_SHOW_CORPSE_LOOT
     &Spell::EffectDispelMechanic,                           //108 SPELL_EFFECT_DISPEL_MECHANIC
     &Spell::EffectResurrectPet,                             //109 SPELL_EFFECT_RESURRECT_PET
     &Spell::EffectDestroyAllTotems,                         //110 SPELL_EFFECT_DESTROY_ALL_TOTEMS
     &Spell::EffectDurabilityDamage,                         //111 SPELL_EFFECT_DURABILITY_DAMAGE
-    &Spell::EffectUnused,                                   //112 SPELL_EFFECT_112
-    &Spell::EffectUnused,                                   //113 SPELL_EFFECT_113
+    &Spell::EffectNULL,                                     //112 SPELL_EFFECT_112
+    &Spell::EffectNULL,                                     //113 SPELL_EFFECT_CANCEL_CONVERSATION
     &Spell::EffectTaunt,                                    //114 SPELL_EFFECT_ATTACK_ME
     &Spell::EffectDurabilityDamagePCT,                      //115 SPELL_EFFECT_DURABILITY_DAMAGE_PCT
     &Spell::EffectSkinPlayerCorpse,                         //116 SPELL_EFFECT_SKIN_PLAYER_CORPSE       one spell: Remove Insignia, bg usage, required special corpse flags...
     &Spell::EffectSpiritHeal,                               //117 SPELL_EFFECT_SPIRIT_HEAL              one spell: Spirit Heal
     &Spell::EffectSkill,                                    //118 SPELL_EFFECT_SKILL                    professions and more
     &Spell::EffectApplyAreaAura,                            //119 SPELL_EFFECT_APPLY_AREA_AURA_PET
-    &Spell::EffectUnused,                                   //120 SPELL_EFFECT_TELEPORT_GRAVEYARD       one spell: Graveyard Teleport Test
+    &Spell::EffectNULL,                                     //120 SPELL_EFFECT_TELEPORT_GRAVEYARD
     &Spell::EffectWeaponDmg,                                //121 SPELL_EFFECT_NORMALIZED_WEAPON_DMG
     &Spell::EffectUnused,                                   //122 SPELL_EFFECT_122                      unused
     &Spell::EffectSendTaxi,                                 //123 SPELL_EFFECT_SEND_TAXI                taxi/flight related (misc value is taxi path id)
@@ -224,7 +224,7 @@ NonDefaultConstructible<pEffect> SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectApplyAreaAura,                            //143 SPELL_EFFECT_APPLY_AREA_AURA_OWNER
     &Spell::EffectKnockBack,                                //144 SPELL_EFFECT_KNOCK_BACK_DEST
     &Spell::EffectPullTowards,                              //145 SPELL_EFFECT_PULL_TOWARDS_DEST                      Black Hole Effect
-    &Spell::EffectActivateRune,                             //146 SPELL_EFFECT_ACTIVATE_RUNE
+    &Spell::EffectNULL,                                     //146 SPELL_EFFECT_RESTORE_GARRISON_TROOP_VITALITY
     &Spell::EffectQuestFail,                                //147 SPELL_EFFECT_QUEST_FAIL               quest fail
     &Spell::EffectTriggerMissileSpell,                      //148 SPELL_EFFECT_TRIGGER_MISSILE_SPELL_WITH_VALUE
     &Spell::EffectChargeDest,                               //149 SPELL_EFFECT_CHARGE_DEST
@@ -241,7 +241,7 @@ NonDefaultConstructible<pEffect> SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectForceCast,                                //160 SPELL_EFFECT_FORCE_CAST_2
     &Spell::EffectNULL,                                     //161 SPELL_EFFECT_TALENT_SPEC_COUNT        second talent spec (learn/revert)
     &Spell::EffectActivateSpec,                             //162 SPELL_EFFECT_TALENT_SPEC_SELECT       activate primary/secondary spec
-    &Spell::EffectUnused,                                   //163 SPELL_EFFECT_OBLITERATE_ITEM
+    &Spell::EffectNULL,                                     //163 SPELL_EFFECT_OBLITERATE_ITEM
     &Spell::EffectRemoveAura,                               //164 SPELL_EFFECT_REMOVE_AURA
     &Spell::EffectDamageFromMaxHealthPCT,                   //165 SPELL_EFFECT_DAMAGE_FROM_MAX_HEALTH_PCT
     &Spell::EffectGiveCurrency,                             //166 SPELL_EFFECT_GIVE_CURRENCY
@@ -253,9 +253,9 @@ NonDefaultConstructible<pEffect> SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectResurrectWithAura,                        //172 SPELL_EFFECT_RESURRECT_WITH_AURA
     &Spell::EffectUnlockGuildVaultTab,                      //173 SPELL_EFFECT_UNLOCK_GUILD_VAULT_TAB
     &Spell::EffectApplyAura,                                //174 SPELL_EFFECT_APPLY_AURA_ON_PET
-    &Spell::EffectUnused,                                   //175 SPELL_EFFECT_175  unused
+    &Spell::EffectNULL,                                     //175 SPELL_EFFECT_175
     &Spell::EffectSanctuary,                                //176 SPELL_EFFECT_SANCTUARY_2
-    &Spell::EffectNULL,                                     //177 SPELL_EFFECT_177
+    &Spell::EffectNULL,                                     //177 SPELL_EFFECT_DESPAWN_PERSISTENT_AREA_AURA
     &Spell::EffectUnused,                                   //178 SPELL_EFFECT_178 unused
     &Spell::EffectCreateAreaTrigger,                        //179 SPELL_EFFECT_CREATE_AREATRIGGER
     &Spell::EffectNULL,                                     //180 SPELL_EFFECT_UPDATE_AREATRIGGER
@@ -266,32 +266,32 @@ NonDefaultConstructible<pEffect> SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectNULL,                                     //185 SPELL_EFFECT_185
     &Spell::EffectNULL,                                     //186 SPELL_EFFECT_186
     &Spell::EffectNULL,                                     //187 SPELL_EFFECT_RANDOMIZE_ARCHAEOLOGY_DIGSITES
-    &Spell::EffectNULL,                                     //188 SPELL_EFFECT_188
+    &Spell::EffectNULL,                                     //188 SPELL_EFFECT_SUMMON_STABLED_PET_AS_GUARDIAN
     &Spell::EffectNULL,                                     //189 SPELL_EFFECT_LOOT
-    &Spell::EffectNULL,                                     //190 SPELL_EFFECT_190
+    &Spell::EffectNULL,                                     //190 SPELL_EFFECT_CHANGE_PARTY_MEMBERS
     &Spell::EffectNULL,                                     //191 SPELL_EFFECT_TELEPORT_TO_DIGSITE
     &Spell::EffectUncageBattlePet,                          //192 SPELL_EFFECT_UNCAGE_BATTLEPET
     &Spell::EffectNULL,                                     //193 SPELL_EFFECT_START_PET_BATTLE
-    &Spell::EffectNULL,                                     //194 SPELL_EFFECT_194
-    &Spell::EffectNULL,                                     //195 SPELL_EFFECT_195
-    &Spell::EffectNULL,                                     //196 SPELL_EFFECT_196
-    &Spell::EffectNULL,                                     //197 SPELL_EFFECT_197
+    &Spell::EffectUnused,                                   //194 SPELL_EFFECT_194
+    &Spell::EffectNULL,                                     //195 SPELL_EFFECT_PLAY_SCENE_SCRIPT_PACKAGE
+    &Spell::EffectNULL,                                     //196 SPELL_EFFECT_CREATE_SCENE_OBJECT
+    &Spell::EffectNULL,                                     //197 SPELL_EFFECT_CREATE_PERSONAL_SCENE_OBJECT
     &Spell::EffectPlayScene,                                //198 SPELL_EFFECT_PLAY_SCENE
-    &Spell::EffectNULL,                                     //199 SPELL_EFFECT_199
+    &Spell::EffectNULL,                                     //199 SPELL_EFFECT_DESPAWN_SUMMON
     &Spell::EffectHealBattlePetPct,                         //200 SPELL_EFFECT_HEAL_BATTLEPET_PCT
     &Spell::EffectEnableBattlePets,                         //201 SPELL_EFFECT_ENABLE_BATTLE_PETS
     &Spell::EffectApplyAreaAura,                            //202 SPELL_EFFECT_APPLY_AREA_AURA_SUMMONS
-    &Spell::EffectNULL,                                     //203 SPELL_EFFECT_203
+    &Spell::EffectRemoveAura,                               //203 SPELL_EFFECT_REMOVE_AURA_2
     &Spell::EffectNULL,                                     //204 SPELL_EFFECT_CHANGE_BATTLEPET_QUALITY
     &Spell::EffectLaunchQuestChoice,                        //205 SPELL_EFFECT_LAUNCH_QUEST_CHOICE
     &Spell::EffectNULL,                                     //206 SPELL_EFFECT_ALTER_ITEM
     &Spell::EffectNULL,                                     //207 SPELL_EFFECT_LAUNCH_QUEST_TASK
-    &Spell::EffectNULL,                                     //208 SPELL_EFFECT_208
-    &Spell::EffectNULL,                                     //209 SPELL_EFFECT_209
+    &Spell::EffectNULL,                                     //208 SPELL_EFFECT_SET_REPUTATION
+    &Spell::EffectUnused,                                   //209 SPELL_EFFECT_209
     &Spell::EffectLearnGarrisonBuilding,                    //210 SPELL_EFFECT_LEARN_GARRISON_BUILDING
     &Spell::EffectNULL,                                     //211 SPELL_EFFECT_LEARN_GARRISON_SPECIALIZATION
-    &Spell::EffectNULL,                                     //212 SPELL_EFFECT_212
-    &Spell::EffectNULL,                                     //213 SPELL_EFFECT_213
+    &Spell::EffectNULL,                                     //212 SPELL_EFFECT_REMOVE_AURA_BY_SPELL_LABEL
+    &Spell::EffectJumpDest,                                 //213 SPELL_EFFECT_JUMP_DEST_2
     &Spell::EffectCreateGarrison,                           //214 SPELL_EFFECT_CREATE_GARRISON
     &Spell::EffectNULL,                                     //215 SPELL_EFFECT_UPGRADE_CHARACTER_SPELLS
     &Spell::EffectNULL,                                     //216 SPELL_EFFECT_CREATE_SHIPMENT
@@ -299,69 +299,69 @@ NonDefaultConstructible<pEffect> SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectNULL,                                     //218 SPELL_EFFECT_218
     &Spell::EffectCreateConversation,                       //219 SPELL_EFFECT_CREATE_CONVERSATION
     &Spell::EffectAddGarrisonFollower,                      //220 SPELL_EFFECT_ADD_GARRISON_FOLLOWER
-    &Spell::EffectNULL,                                     //221 SPELL_EFFECT_221
+    &Spell::EffectNULL,                                     //221 SPELL_EFFECT_ADD_GARRISON_MISSION
     &Spell::EffectCreateHeirloomItem,                       //222 SPELL_EFFECT_CREATE_HEIRLOOM_ITEM
     &Spell::EffectNULL,                                     //223 SPELL_EFFECT_CHANGE_ITEM_BONUSES
     &Spell::EffectActivateGarrisonBuilding,                 //224 SPELL_EFFECT_ACTIVATE_GARRISON_BUILDING
     &Spell::EffectNULL,                                     //225 SPELL_EFFECT_GRANT_BATTLEPET_LEVEL
-    &Spell::EffectNULL,                                     //226 SPELL_EFFECT_226
+    &Spell::EffectNULL,                                     //226 SPELL_EFFECT_TRIGGER_ACTION_SET
     &Spell::EffectNULL,                                     //227 SPELL_EFFECT_TELEPORT_TO_LFG_DUNGEON
     &Spell::EffectNULL,                                     //228 SPELL_EFFECT_228
     &Spell::EffectNULL,                                     //229 SPELL_EFFECT_SET_FOLLOWER_QUALITY
-    &Spell::EffectNULL,                                     //230 SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL
+    &Spell::EffectNULL,                                     //230 SPELL_EFFECT_230
     &Spell::EffectNULL,                                     //231 SPELL_EFFECT_INCREASE_FOLLOWER_EXPERIENCE
     &Spell::EffectNULL,                                     //232 SPELL_EFFECT_REMOVE_PHASE
     &Spell::EffectNULL,                                     //233 SPELL_EFFECT_RANDOMIZE_FOLLOWER_ABILITIES
     &Spell::EffectNULL,                                     //234 SPELL_EFFECT_234
-    &Spell::EffectNULL,                                     //235 SPELL_EFFECT_235
+    &Spell::EffectUnused,                                   //235 SPELL_EFFECT_235
     &Spell::EffectNULL,                                     //236 SPELL_EFFECT_GIVE_EXPERIENCE
     &Spell::EffectNULL,                                     //237 SPELL_EFFECT_GIVE_RESTED_EXPERIENCE_BONUS
     &Spell::EffectNULL,                                     //238 SPELL_EFFECT_INCREASE_SKILL
     &Spell::EffectNULL,                                     //239 SPELL_EFFECT_END_GARRISON_BUILDING_CONSTRUCTION
     &Spell::EffectGiveArtifactPower,                        //240 SPELL_EFFECT_GIVE_ARTIFACT_POWER
-    &Spell::EffectNULL,                                     //241 SPELL_EFFECT_241
+    &Spell::EffectUnused,                                   //241 SPELL_EFFECT_241
     &Spell::EffectGiveArtifactPowerNoBonus,                 //242 SPELL_EFFECT_GIVE_ARTIFACT_POWER_NO_BONUS
     &Spell::EffectApplyEnchantIllusion,                     //243 SPELL_EFFECT_APPLY_ENCHANT_ILLUSION
     &Spell::EffectNULL,                                     //244 SPELL_EFFECT_LEARN_FOLLOWER_ABILITY
     &Spell::EffectUpgradeHeirloom,                          //245 SPELL_EFFECT_UPGRADE_HEIRLOOM
     &Spell::EffectNULL,                                     //246 SPELL_EFFECT_FINISH_GARRISON_MISSION
-    &Spell::EffectNULL,                                     //247 SPELL_EFFECT_ADD_GARRISON_MISSION
+    &Spell::EffectNULL,                                     //247 SPELL_EFFECT_ADD_GARRISON_MISSION_SET
     &Spell::EffectNULL,                                     //248 SPELL_EFFECT_FINISH_SHIPMENT
     &Spell::EffectNULL,                                     //249 SPELL_EFFECT_FORCE_EQUIP_ITEM
     &Spell::EffectNULL,                                     //250 SPELL_EFFECT_TAKE_SCREENSHOT
     &Spell::EffectNULL,                                     //251 SPELL_EFFECT_SET_GARRISON_CACHE_SIZE
     &Spell::EffectTeleportUnits,                            //252 SPELL_EFFECT_TELEPORT_UNITS
     &Spell::EffectGiveHonor,                                //253 SPELL_EFFECT_GIVE_HONOR
-    &Spell::EffectNULL,                                     //254 SPELL_EFFECT_254
+    &Spell::EffectNULL,                                     //254 SPELL_EFFECT_JUMP_CHARGE
     &Spell::EffectLearnTransmogSet,                         //255 SPELL_EFFECT_LEARN_TRANSMOG_SET
-    &Spell::EffectNULL,                                     //256 SPELL_EFFECT_256
-    &Spell::EffectNULL,                                     //257 SPELL_EFFECT_257
+    &Spell::EffectUnused,                                   //256 SPELL_EFFECT_256
+    &Spell::EffectUnused,                                   //257 SPELL_EFFECT_257
     &Spell::EffectNULL,                                     //258 SPELL_EFFECT_MODIFY_KEYSTONE
     &Spell::EffectRespecAzeriteEmpoweredItem,               //259 SPELL_EFFECT_RESPEC_AZERITE_EMPOWERED_ITEM
     &Spell::EffectNULL,                                     //260 SPELL_EFFECT_SUMMON_STABLED_PET
     &Spell::EffectNULL,                                     //261 SPELL_EFFECT_SCRAP_ITEM
-    &Spell::EffectNULL,                                     //262 SPELL_EFFECT_262
+    &Spell::EffectUnused,                                   //262 SPELL_EFFECT_262
     &Spell::EffectNULL,                                     //263 SPELL_EFFECT_REPAIR_ITEM
     &Spell::EffectNULL,                                     //264 SPELL_EFFECT_REMOVE_GEM
     &Spell::EffectLearnAzeriteEssencePower,                 //265 SPELL_EFFECT_LEARN_AZERITE_ESSENCE_POWER
-    &Spell::EffectNULL,                                     //266 SPELL_EFFECT_266
-    &Spell::EffectNULL,                                     //267 SPELL_EFFECT_267
+    &Spell::EffectNULL,                                     //266 SPELL_EFFECT_SET_ITEM_BONUS_LIST_GROUP_ENTRY
+    &Spell::EffectNULL,                                     //267 SPELL_EFFECT_CREATE_PRIVATE_CONVERSATION
     &Spell::EffectNULL,                                     //268 SPELL_EFFECT_APPLY_MOUNT_EQUIPMENT
-    &Spell::EffectNULL,                                     //269 SPELL_EFFECT_UPGRADE_ITEM
+    &Spell::EffectNULL,                                     //269 SPELL_EFFECT_INCREASE_ITEM_BONUS_LIST_GROUP_STEP
     &Spell::EffectNULL,                                     //270 SPELL_EFFECT_270
     &Spell::EffectApplyAreaAura,                            //271 SPELL_EFFECT_APPLY_AREA_AURA_PARTY_NONRANDOM
     &Spell::EffectNULL,                                     //272 SPELL_EFFECT_SET_COVENANT
     &Spell::EffectNULL,                                     //273 SPELL_EFFECT_CRAFT_RUNEFORGE_LEGENDARY
-    &Spell::EffectNULL,                                     //274 SPELL_EFFECT_274
-    &Spell::EffectNULL,                                     //275 SPELL_EFFECT_275
+    &Spell::EffectUnused,                                   //274 SPELL_EFFECT_274
+    &Spell::EffectUnused,                                   //275 SPELL_EFFECT_275
     &Spell::EffectNULL,                                     //276 SPELL_EFFECT_LEARN_TRANSMOG_ILLUSION
     &Spell::EffectNULL,                                     //277 SPELL_EFFECT_SET_CHROMIE_TIME
-    &Spell::EffectNULL,                                     //278 SPELL_EFFECT_270
+    &Spell::EffectNULL,                                     //278 SPELL_EFFECT_278
     &Spell::EffectNULL,                                     //279 SPELL_EFFECT_LEARN_GARR_TALENT
-    &Spell::EffectNULL,                                     //280 SPELL_EFFECT_270
+    &Spell::EffectUnused,                                   //280 SPELL_EFFECT_280
     &Spell::EffectNULL,                                     //281 SPELL_EFFECT_LEARN_SOULBIND_CONDUIT
     &Spell::EffectNULL,                                     //282 SPELL_EFFECT_CONVERT_ITEMS_TO_CURRENCY
-    &Spell::EffectNULL,                                     //283 SPELL_EFFECT_283
+    &Spell::EffectNULL,                                     //283 SPELL_EFFECT_COMPLETE_CAMPAIGN
 };
 
 void Spell::EffectNULL(SpellEffIndex /*effIndex*/)
@@ -2184,12 +2184,6 @@ void Spell::EffectDualWield(SpellEffIndex /*effIndex*/)
     unitTarget->SetCanDualWield(true);
 }
 
-void Spell::EffectPull(SpellEffIndex effIndex)
-{
-    /// @todo create a proper pull towards distract spell center for distract
-    EffectNULL(effIndex);
-}
-
 void Spell::EffectDistract(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
@@ -3490,23 +3484,6 @@ void Spell::EffectSanctuary(SpellEffIndex /*effIndex*/)
         if (m_caster->ToPlayer()->HasSpell(58426))
            m_caster->CastSpell(m_caster, 58427, true);
     }
-}
-
-void Spell::EffectAddComboPoints(SpellEffIndex /*effIndex*/)
-{
-    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
-        return;
-
-    if (!unitTarget)
-        return;
-
-    if (!m_caster->m_playerMovingMe)
-        return;
-
-    if (damage <= 0)
-        return;
-
-    m_caster->m_playerMovingMe->AddComboPoints(damage, this);
 }
 
 void Spell::EffectDuel(SpellEffIndex effIndex)
@@ -4977,44 +4954,6 @@ void Spell::EffectQuestStart(SpellEffIndex /*effIndex*/)
         }
         else
             player->PlayerTalkClass->SendQuestGiverQuestDetails(quest, player->GetGUID(), true, false);
-    }
-}
-
-void Spell::EffectActivateRune(SpellEffIndex /*effIndex*/)
-{
-    if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH)
-        return;
-
-    if (m_caster->GetTypeId() != TYPEID_PLAYER)
-        return;
-
-    Player* player = m_caster->ToPlayer();
-
-    if (player->getClass() != CLASS_DEATH_KNIGHT)
-        return;
-
-    // needed later
-    m_runesState = m_caster->ToPlayer()->GetRunesState();
-
-    uint32 count = damage;
-    if (count == 0)
-        count = 1;
-
-    // first restore fully depleted runes
-    for (int32 j = 0; j < player->GetMaxPower(POWER_RUNES) && count > 0; ++j)
-    {
-        if (player->GetRuneCooldown(j) == player->GetRuneBaseCooldown())
-        {
-            player->SetRuneCooldown(j, 0);
-            --count;
-        }
-    }
-
-    // then the rest if we still got something left
-    for (int32 j = 0; j < player->GetMaxPower(POWER_RUNES) && count > 0; ++j)
-    {
-        player->SetRuneCooldown(j, 0);
-        --count;
     }
 }
 

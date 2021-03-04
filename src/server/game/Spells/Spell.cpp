@@ -4171,9 +4171,6 @@ void Spell::SendSpellGo()
         castFlags |= CAST_FLAG_RUNE_LIST;                    // rune cooldowns list
     }
 
-    if (m_spellInfo->HasEffect(SPELL_EFFECT_ACTIVATE_RUNE))
-        castFlags |= CAST_FLAG_RUNE_LIST;                    // rune cooldowns list
-
     if (m_targets.HasTraj())
         castFlags |= CAST_FLAG_ADJUST_MISSILE;
 

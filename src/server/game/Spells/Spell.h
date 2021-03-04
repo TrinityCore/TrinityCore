@@ -338,7 +338,6 @@ class TC_GAME_API Spell
         void EffectNULL(SpellEffIndex effIndex);
         void EffectUnused(SpellEffIndex effIndex);
         void EffectDistract(SpellEffIndex effIndex);
-        void EffectPull(SpellEffIndex effIndex);
         void EffectSchoolDMG(SpellEffIndex effIndex);
         void EffectEnvironmentalDMG(SpellEffIndex effIndex);
         void EffectInstaKill(SpellEffIndex effIndex);
@@ -392,7 +391,6 @@ class TC_GAME_API Spell
         void EffectSummonObjectWild(SpellEffIndex effIndex);
         void EffectScriptEffect(SpellEffIndex effIndex);
         void EffectSanctuary(SpellEffIndex effIndex);
-        void EffectAddComboPoints(SpellEffIndex effIndex);
         void EffectDuel(SpellEffIndex effIndex);
         void EffectStuck(SpellEffIndex effIndex);
         void EffectSummonPlayer(SpellEffIndex effIndex);
@@ -449,7 +447,6 @@ class TC_GAME_API Spell
         void EffectGameObjectDamage(SpellEffIndex effIndex);
         void EffectGameObjectRepair(SpellEffIndex effIndex);
         void EffectGameObjectSetDestructionState(SpellEffIndex effIndex);
-        void EffectActivateRune(SpellEffIndex effIndex);
         void EffectCreateTamedPet(SpellEffIndex effIndex);
         void EffectDiscoverTaxi(SpellEffIndex effIndex);
         void EffectTitanGrip(SpellEffIndex effIndex);
