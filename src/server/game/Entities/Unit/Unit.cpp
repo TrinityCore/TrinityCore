@@ -3174,16 +3174,21 @@ void Unit::ProcessPositionDataChanged(PositionFullTerrainStatus const& data)
     ProcessTerrainStatusUpdate(data.liquidStatus, data.liquidInfo);
 }
 
+void Unit::SetInWater(bool inWater)
+{
+    // remove appropriate auras if we are swimming/not swimming respectively
+    if (inWater)
+        RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_NOT_ABOVEWATER);
+    else
+        RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_NOT_UNDERWATER);
+}
+
 void Unit::ProcessTerrainStatusUpdate(ZLiquidStatus status, Optional<LiquidData> const& liquidData)
 {
     if (IsFlying() || (!IsControlledByPlayer()))
         return;
 
-    // remove appropriate auras if we are swimming/not swimming respectively
-    if (status & MAP_LIQUID_STATUS_SWIMMING)
-        RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_NOT_ABOVEWATER);
-    else
-        RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_NOT_UNDERWATER);
+    SetInWater(status & MAP_LIQUID_STATUS_SWIMMING);
 
     // liquid aura handling
     LiquidTypeEntry const* curLiquid = nullptr;
