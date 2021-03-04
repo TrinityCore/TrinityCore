@@ -2039,9 +2039,9 @@ bool Player::IsUnderWater() const
         GetPositionZ() < (GetMap()->GetWaterLevel(GetPhaseShift(), GetPositionX(), GetPositionY()) - 2);
 }
 
-void Player::SetInWater(bool apply)
+void Player::SetInWater(bool inWater)
 {
-    if (m_isInWater == apply)
+    if (m_isInWater == inWater)
         return;
 
     //define player in water by opcodes
@@ -2049,11 +2049,12 @@ void Player::SetInWater(bool apply)
     //which can't swim and move guid back into ThreatList when
     //on surface.
     /// @todo exist also swimming mobs, and function must be symmetric to enter/leave water
-    m_isInWater = apply;
+    m_isInWater = inWater;
 
-    // remove auras that need water/land
-    RemoveAurasWithInterruptFlags(apply ? AURA_INTERRUPT_FLAG_NOT_ABOVEWATER : AURA_INTERRUPT_FLAG_NOT_UNDERWATER);
+    // Call base
+    Unit::SetInWater(inWater);
 
+    // Update threat tables
     getHostileRefManager().updateThreatTables();
 }
 
