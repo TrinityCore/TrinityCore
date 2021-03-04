@@ -1702,6 +1702,19 @@ class spell_steal_essence_visual : public AuraScript
     }
 };
 
+/*
+There are only 3 possible flags Feign Death auras can apply: UNIT_DYNFLAG_DEAD, UNIT_FLAG2_FEIGN_DEATH
+and UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT. Some auras can apply only 2 flags
+
+spell_gen_feign_death_all_flags applies all 3 flags
+spell_gen_feign_death_no_dyn_flag applies no UNIT_DYNFLAG_DEAD (does not make the creature appear dead)
+spell_gen_feign_death_no_prevent_emotes applies no UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT
+
+REACT_PASSIVE should be handled directly in scripts since not all creatures should be passive. Otherwise
+creature will be not able to aggro or execute MoveInLineOfSight events. Removing may cause more issues
+than already exists
+*/
+
 class spell_gen_feign_death_all_flags : public AuraScript
 {
     PrepareAuraScript(spell_gen_feign_death_all_flags);
