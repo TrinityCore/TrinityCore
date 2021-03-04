@@ -273,7 +273,7 @@ NonDefaultConstructible<pEffect> SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectUncageBattlePet,                          //192 SPELL_EFFECT_UNCAGE_BATTLEPET
     &Spell::EffectNULL,                                     //193 SPELL_EFFECT_START_PET_BATTLE
     &Spell::EffectUnused,                                   //194 SPELL_EFFECT_194
-    &Spell::EffectNULL,                                     //195 SPELL_EFFECT_PLAY_SCENE_SCRIPT_PACKAGE
+    &Spell::EffectPlaySceneScriptPackage,                   //195 SPELL_EFFECT_PLAY_SCENE_SCRIPT_PACKAGE
     &Spell::EffectNULL,                                     //196 SPELL_EFFECT_CREATE_SCENE_OBJECT
     &Spell::EffectNULL,                                     //197 SPELL_EFFECT_CREATE_PERSONAL_SCENE_OBJECT
     &Spell::EffectPlayScene,                                //198 SPELL_EFFECT_PLAY_SCENE
@@ -345,7 +345,7 @@ NonDefaultConstructible<pEffect> SpellEffects[TOTAL_SPELL_EFFECTS] =
     &Spell::EffectNULL,                                     //264 SPELL_EFFECT_REMOVE_GEM
     &Spell::EffectLearnAzeriteEssencePower,                 //265 SPELL_EFFECT_LEARN_AZERITE_ESSENCE_POWER
     &Spell::EffectNULL,                                     //266 SPELL_EFFECT_SET_ITEM_BONUS_LIST_GROUP_ENTRY
-    &Spell::EffectNULL,                                     //267 SPELL_EFFECT_CREATE_PRIVATE_CONVERSATION
+    &Spell::EffectCreatePrivateConversation,                //267 SPELL_EFFECT_CREATE_PRIVATE_CONVERSATION
     &Spell::EffectNULL,                                     //268 SPELL_EFFECT_APPLY_MOUNT_EQUIPMENT
     &Spell::EffectNULL,                                     //269 SPELL_EFFECT_INCREASE_ITEM_BONUS_LIST_GROUP_STEP
     &Spell::EffectNULL,                                     //270 SPELL_EFFECT_270
@@ -5728,6 +5728,17 @@ void Spell::EffectGiveArtifactPowerNoBonus(SpellEffIndex /*effIndex*/)
             artifact->GiveArtifactXp(damage, m_CastItem, 0);
 }
 
+void Spell::EffectPlaySceneScriptPackage(SpellEffIndex /*effIndex*/)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
+        return;
+
+    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    m_caster->ToPlayer()->GetSceneMgr().PlaySceneByPackageId(effectInfo->MiscValue, SCENEFLAG_UNK1, destTarget);
+}
+
 void Spell::EffectPlayScene(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
@@ -5832,4 +5843,15 @@ void Spell::EffectLearnAzeriteEssencePower(SpellEffIndex /*effIndex*/)
 
     azeriteItem->SetEssenceRank(effectInfo->MiscValue, effectInfo->MiscValueB);
     azeriteItem->SetState(ITEM_CHANGED, playerTarget);
+}
+
+void Spell::EffectCreatePrivateConversation(SpellEffIndex /*effIndex*/)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
+        return;
+
+    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    Conversation::CreateConversation(effectInfo->MiscValue, GetCaster(), unitTarget->GetPosition(), { unitTarget->GetGUID() }, GetSpellInfo());
 }
