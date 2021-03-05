@@ -30,30 +30,6 @@
 #include "SpellInfo.h"
 #include "TemporarySummon.h"
 
-enum VolazjSpells
-{
-    SPELL_WHISPER_AGGRO               = 60291,
-    SPELL_WHISPER_INSANITY            = 60292,
-    SPELL_WHISPER_SLAY_1              = 60293,
-    SPELL_WHISPER_SLAY_2              = 60294,
-    SPELL_WHISPER_SLAY_3              = 60295,
-    SPELL_WHISPER_DEATH_1             = 60296,
-    SPELL_WHISPER_DEATH_2             = 60297,
-
-    SPELL_INSANITY                    = 57496, // Dummy
-    INSANITY_VISUAL                   = 57561,
-    SPELL_INSANITY_TARGET             = 57508,
-    SPELL_MIND_FLAY                   = 57941,
-    SPELL_SHADOW_BOLT_VOLLEY          = 57942,
-    SPELL_SHIVER                      = 57949,
-    SPELL_CLONE_PLAYER                = 57507, // cast on player during insanity
-    SPELL_INSANITY_PHASING_1          = 57508,
-    SPELL_INSANITY_PHASING_2          = 57509,
-    SPELL_INSANITY_PHASING_3          = 57510,
-    SPELL_INSANITY_PHASING_4          = 57511,
-    SPELL_INSANITY_PHASING_5          = 57512
-};
-
 enum VolazjTexts
 {
     SAY_AGGRO                         = 0,
@@ -71,6 +47,30 @@ enum VolazjTexts
     WHISPER_SLAY_3                    = 11,
     WHISPER_DEATH_1                   = 12,
     WHISPER_DEATH_2                   = 13
+};
+
+enum VolazjSpells
+{
+    SPELL_INSANITY                    = 57496, // Dummy
+    INSANITY_VISUAL                   = 57561,
+    SPELL_INSANITY_TARGET             = 57508,
+    SPELL_MIND_FLAY                   = 57941,
+    SPELL_SHADOW_BOLT_VOLLEY          = 57942,
+    SPELL_SHIVER                      = 57949,
+    SPELL_CLONE_PLAYER                = 57507, // cast on player during insanity
+    SPELL_INSANITY_PHASING_1          = 57508,
+    SPELL_INSANITY_PHASING_2          = 57509,
+    SPELL_INSANITY_PHASING_3          = 57510,
+    SPELL_INSANITY_PHASING_4          = 57511,
+    SPELL_INSANITY_PHASING_5          = 57512,
+
+    SPELL_WHISPER_AGGRO               = 60291,
+    SPELL_WHISPER_INSANITY            = 60292,
+    SPELL_WHISPER_SLAY_1              = 60293,
+    SPELL_WHISPER_SLAY_2              = 60294,
+    SPELL_WHISPER_SLAY_3              = 60295,
+    SPELL_WHISPER_DEATH_1             = 60296,
+    SPELL_WHISPER_DEATH_2             = 60297
 };
 
 enum VolazjAchievements
