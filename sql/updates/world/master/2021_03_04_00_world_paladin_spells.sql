@@ -5,7 +5,8 @@ DELETE FROM `spell_script_names` WHERE `ScriptName` IN
  'spell_pal_selfless_healer',
  'spell_pal_crusader_might',
  'spell_pal_righteous_protector',
- 'spell_pal_moment_of_glory'); 
+ 'spell_pal_moment_of_glory',
+ 'spell_pal_righteous_verdict'); 
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (20271, 'spell_pal_judgement'),             -- Judgement Ret       (20271)
 (275779, 'spell_pal_judgement'),            -- Judgement Prot      (275779)
