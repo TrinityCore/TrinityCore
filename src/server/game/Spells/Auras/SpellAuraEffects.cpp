@@ -2547,7 +2547,7 @@ void AuraEffect::HandleAuraAllowTalentSwapping(AuraApplication const* aurApp, ui
 
     if (apply)
         target->AddUnitFlag2(UNIT_FLAG2_ALLOW_CHANGING_TALENTS);
-    else
+    else if (!target->HasAuraType(GetAuraType()))
         target->RemoveUnitFlag2(UNIT_FLAG2_ALLOW_CHANGING_TALENTS);
 }
 
