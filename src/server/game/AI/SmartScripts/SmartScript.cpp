@@ -3836,7 +3836,7 @@ void SmartScript::OnInitialize(WorldObject* obj, AreaTriggerEntry const* at, Sce
     {
         mScriptType = SMART_SCRIPT_TYPE_QUEST;
         quest = qst;
-        TC_LOG_DEBUG("scripts.ai", "SmartScript::OnInitialize: source is Quest with id %u", scene->SceneId);
+        TC_LOG_DEBUG("scripts.ai", "SmartScript::OnInitialize: source is Quest with id %u", qst->GetQuestId());
     }
     else
     {
