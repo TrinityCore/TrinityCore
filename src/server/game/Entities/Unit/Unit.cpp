@@ -7141,7 +7141,7 @@ uint32 Unit::SpellCriticalHealingBonus(SpellInfo const* spellProto, uint32 damag
 
     // adds additional damage to critBonus (from talents)
     if (Player* modOwner = GetSpellModOwner())
-        modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_CRIT_DAMAGE_BONUS, crit_bonus);
+        modOwner->ApplySpellMod(spellProto, SPELLMOD_CRIT_DAMAGE_BONUS, crit_bonus);
 
     damage += crit_bonus;
 
