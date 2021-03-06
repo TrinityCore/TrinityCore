@@ -25,6 +25,8 @@
 class Unit;
 class SpellInfo;
 
+typedef std::map<int32, ObjectGuid> ConversationActorMap;
+
 class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversation>
 {
     public:
@@ -50,8 +52,8 @@ class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversat
         int32 GetDuration() const { return _duration; }
         uint32 GetTextureKitId() const { return _textureKitId; }
 
-        static Conversation* CreateConversation(uint32 conversationEntry, Unit* creator, Position const& pos, GuidUnorderedSet&& participants, SpellInfo const* spellInfo = nullptr);
-        bool Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry, Map* map, Unit* creator, Position const& pos, GuidUnorderedSet&& participants, SpellInfo const* spellInfo = nullptr);
+        static Conversation* CreateConversation(uint32 conversationEntry, Unit* creator, Position const& pos, GuidUnorderedSet&& participants, SpellInfo const* spellInfo = nullptr, ConversationActorMap const& dynamicActors = {});
+        bool Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry, Map* map, Unit* creator, Position const& pos, GuidUnorderedSet&& participants, SpellInfo const* spellInfo = nullptr, ConversationActorMap const& dynamicActors = {});
         void AddActor(ObjectGuid const& actorGuid, uint16 actorIdx);
         void AddParticipant(ObjectGuid const& participantGuid);
 
