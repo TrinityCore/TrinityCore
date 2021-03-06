@@ -1019,49 +1019,7 @@ bool Aura::CanBeSaved() const
         if (GetSpellInfo()->IsSingleTarget())
             return false;
 
-    // No point in saving this, since the stable dialog can't be open on aura load anyway.
-    if (HasEffectType(SPELL_AURA_OPEN_STABLE))
-        return false;
-
-    // Can't save vehicle auras, it requires both caster & target to be in world
-    if (HasEffectType(SPELL_AURA_CONTROL_VEHICLE))
-        return false;
-
-    // do not save bind sight auras
-    if (HasEffectType(SPELL_AURA_BIND_SIGHT))
-        return false;
-
-    // no charming auras (taking direct control)
-    if (HasEffectType(SPELL_AURA_MOD_POSSESS) || HasEffectType(SPELL_AURA_MOD_POSSESS_PET))
-        return false;
-
-    // no charming auras can be saved
-    if (HasEffectType(SPELL_AURA_MOD_CHARM) || HasEffectType(SPELL_AURA_AOE_CHARM))
-        return false;
-
-    // no battleground player positions
-    if (HasEffectType(SPELL_AURA_BATTLEGROUND_PLAYER_POSITION) || HasEffectType(SPELL_AURA_BATTLEGROUND_PLAYER_POSITION_FACTIONAL))
-        return false;
-
-    // Incanter's Absorbtion - considering the minimal duration and problems with aura stacking
-    // we skip saving this aura
-    // Also for some reason other auras put as MultiSlot crash core on keeping them after restart,
-    // so put here only these for which you are sure they get removed
-    switch (GetId())
-    {
-        case 44413: // Incanter's Absorption
-        case 40075: // Fel Flak Fire
-        case 55849: // Power Spark
-            return false;
-    }
-
-    // When a druid logins, he doesnt have either eclipse power, nor the marker auras, nor the eclipse buffs. Dont save them.
-    if (GetId() == 67483 || GetId() == 67484 || GetId() == 48517 || GetId() == 48518)
-        return false;
-
-    // Don't save druid forms, only the dummy. It will cast the appropriate form
-    //        Swift Flight            Flight             Aquatic                Stag
-    if (GetId() == 40120 || GetId() == 33943 || GetId() == 1066 || GetId() == 165961)
+    if (GetSpellInfo()->HasAttribute(SPELL_ATTR0_CU_AURA_CANNOT_BE_SAVED))
         return false;
 
     // don't save auras removed by proc system
