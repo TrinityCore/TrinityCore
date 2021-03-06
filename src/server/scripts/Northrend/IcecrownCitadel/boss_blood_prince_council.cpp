@@ -1004,7 +1004,7 @@ class npc_ball_of_flame : public CreatureScript
                     {
                         // need to clear states now because this call is before AuraEffect is fully removed
                         me->ClearUnitState(UNIT_STATE_CASTING | UNIT_STATE_STUNNED);
-                        if (target && me->Attack(target, true))
+                        if (me->Attack(target, true))
                             me->GetMotionMaster()->MoveChase(target, 1.0f);
                     }
             }

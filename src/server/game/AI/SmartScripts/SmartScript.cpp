@@ -2363,6 +2363,25 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             break;
         }
+        case SMART_ACTION_CREATE_CONVERSATION:
+        {
+            if (WorldObject* baseObject = GetBaseObject())
+            {
+                for (WorldObject* const target : targets)
+                {
+                    if (Player* playerTarget = target->ToPlayer())
+                    {
+                        Conversation* conversation = Conversation::CreateConversation(e.action.conversation.id, playerTarget,
+                            *playerTarget, { playerTarget->GetGUID() }, nullptr);
+                        if (!conversation)
+                            TC_LOG_WARN("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_TALK_CONVERSATION: id %u, baseObject %s, target %s - failed to create",
+                                e.action.conversation.id, baseObject->GetName().c_str(), playerTarget->GetName().c_str());
+                    }
+                }
+            }
+
+            break;
+        }
         default:
             TC_LOG_ERROR("sql.sql", "SmartScript::ProcessAction: Entry " SI64FMTD " SourceType %u, Event %u, Unhandled Action type %u", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
             break;
@@ -3117,6 +3136,8 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
                 if ((e.event.los.noHostile && !me->IsHostileTo(unit)) ||
                     (!e.event.los.noHostile && me->IsHostileTo(unit)))
                 {
+                    if (e.event.los.playerOnly && unit->GetTypeId() != TYPEID_PLAYER)
+                        return;
                     RecalcTimer(e, e.event.los.cooldownMin, e.event.los.cooldownMax);
                     ProcessAction(e, unit);
                 }
@@ -3137,6 +3158,8 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
                 if ((e.event.los.noHostile && !me->IsHostileTo(unit)) ||
                     (!e.event.los.noHostile && me->IsHostileTo(unit)))
                 {
+                    if (e.event.los.playerOnly && unit->GetTypeId() != TYPEID_PLAYER)
+                        return;
                     RecalcTimer(e, e.event.los.cooldownMin, e.event.los.cooldownMax);
                     ProcessAction(e, unit);
                 }

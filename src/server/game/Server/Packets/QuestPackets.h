@@ -353,6 +353,16 @@ namespace WorldPackets
             bool FromScript = false; // 0 - standart complete quest mode with npc, 1 - auto-complete mode
         };
 
+        class QuestGiverCloseQuest final : public ClientPacket
+        {
+        public:
+            QuestGiverCloseQuest(WorldPacket&& packet) : ClientPacket(CMSG_QUEST_GIVER_CLOSE_QUEST, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 QuestID = 0;
+        };
+
         struct QuestObjectiveSimple
         {
             int32 ID        = 0;
