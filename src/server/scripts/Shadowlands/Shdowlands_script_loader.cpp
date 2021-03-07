@@ -1,27 +1,26 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-
-// This is where scripts' loading functions should be declared:
+TrinityCore 2021 
+Project ND
+*/
 
 void AddSC_zone_exiles_reach();
 
-// The name of this function should match:
-// void Add${NameOfDirectory}Scripts()
+void AddSC_zone_ardenweald();
+void AddSC_zone_bastion();
+void AddSC_zone_maldraxxus();
+void AddSC_zone_oribos();
+void AddSC_zone_revendreth();
+void AddSC_zone_the_maw();
+
+
 void AddShadowlandsScripts()
 {
     AddSC_zone_exiles_reach();
+	
+   AddSC_zone_ardenweald();
+   AddSC_zone_bastion();
+   AddSC_zone_maldraxxus();
+   AddSC_zone_oribos();
+   AddSC_zone_revendreth();
+   AddSC_zone_the_maw();
 }
