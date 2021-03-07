@@ -1054,7 +1054,7 @@ enum SpellEffectName
     SPELL_EFFECT_SCHOOL_DAMAGE                      = 2,
     SPELL_EFFECT_DUMMY                              = 3,
     SPELL_EFFECT_PORTAL_TELEPORT                    = 4, // Unused (4.3.4)
-    SPELL_EFFECT_TELEPORT_UNITS_OLD                 = 5, // Unused (7.0.3)
+    SPELL_EFFECT_5                                  = 5,
     SPELL_EFFECT_APPLY_AURA                         = 6,
     SPELL_EFFECT_ENVIRONMENTAL_DAMAGE               = 7,
     SPELL_EFFECT_POWER_DRAIN                        = 8,
@@ -1062,9 +1062,9 @@ enum SpellEffectName
     SPELL_EFFECT_HEAL                               = 10,
     SPELL_EFFECT_BIND                               = 11,
     SPELL_EFFECT_PORTAL                             = 12,
-    SPELL_EFFECT_RITUAL_BASE                        = 13, // Unused (4.3.4)
+    SPELL_EFFECT_TELEPORT_TO_RETURN_POINT           = 13, // MiscValueA = spellid of the aura holding destination
     SPELL_EFFECT_INCREASE_CURRENCY_CAP              = 14,
-    SPELL_EFFECT_RITUAL_ACTIVATE_PORTAL             = 15, // Unused (4.3.4)
+    SPELL_EFFECT_TELEPORT_WITH_SPELL_VISUAL_KIT_LOADING_SCREEN = 15, // MiscValueA = delay, MiscValueB = SpellVisualKitId
     SPELL_EFFECT_QUEST_COMPLETE                     = 16,
     SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL             = 17,
     SPELL_EFFECT_RESURRECT                          = 18,
@@ -1119,7 +1119,7 @@ enum SpellEffectName
     SPELL_EFFECT_HEAL_MAX_HEALTH                    = 67,
     SPELL_EFFECT_INTERRUPT_CAST                     = 68,
     SPELL_EFFECT_DISTRACT                           = 69,
-    SPELL_EFFECT_PULL                               = 70,
+    SPELL_EFFECT_COMPLETE_AND_REWARD_WORLD_QUEST    = 70,
     SPELL_EFFECT_PICKPOCKET                         = 71,
     SPELL_EFFECT_ADD_FARSIGHT                       = 72,
     SPELL_EFFECT_UNTRAIN_TALENTS                    = 73,
@@ -1129,7 +1129,7 @@ enum SpellEffectName
     SPELL_EFFECT_SCRIPT_EFFECT                      = 77,
     SPELL_EFFECT_ATTACK                             = 78,
     SPELL_EFFECT_SANCTUARY                          = 79,
-    SPELL_EFFECT_ADD_COMBO_POINTS                   = 80,
+    SPELL_EFFECT_MODIFY_FOLLOWER_ITEM_LEVEL         = 80,
     SPELL_EFFECT_PUSH_ABILITY_TO_ACTION_BAR         = 81,
     SPELL_EFFECT_BIND_SIGHT                         = 82,
     SPELL_EFFECT_DUEL                               = 83,
@@ -1162,7 +1162,7 @@ enum SpellEffectName
     SPELL_EFFECT_DESTROY_ALL_TOTEMS                 = 110,
     SPELL_EFFECT_DURABILITY_DAMAGE                  = 111,
     SPELL_EFFECT_112                                = 112,
-    SPELL_EFFECT_113                                = 113,
+    SPELL_EFFECT_CANCEL_CONVERSATION                = 113,
     SPELL_EFFECT_ATTACK_ME                          = 114,
     SPELL_EFFECT_DURABILITY_DAMAGE_PCT              = 115,
     SPELL_EFFECT_SKIN_PLAYER_CORPSE                 = 116,
@@ -1171,7 +1171,7 @@ enum SpellEffectName
     SPELL_EFFECT_APPLY_AREA_AURA_PET                = 119,
     SPELL_EFFECT_TELEPORT_GRAVEYARD                 = 120,
     SPELL_EFFECT_NORMALIZED_WEAPON_DMG              = 121,
-    SPELL_EFFECT_122                                = 122, // Unused (4.3.4)
+    SPELL_EFFECT_122                                = 122,
     SPELL_EFFECT_SEND_TAXI                          = 123,
     SPELL_EFFECT_PULL_TOWARDS                       = 124,
     SPELL_EFFECT_MODIFY_THREAT_PERCENT              = 125,
@@ -1195,7 +1195,7 @@ enum SpellEffectName
     SPELL_EFFECT_APPLY_AREA_AURA_OWNER              = 143,
     SPELL_EFFECT_KNOCK_BACK_DEST                    = 144,
     SPELL_EFFECT_PULL_TOWARDS_DEST                  = 145,
-    SPELL_EFFECT_ACTIVATE_RUNE                      = 146,
+    SPELL_EFFECT_RESTORE_GARRISON_TROOP_VITALITY    = 146,
     SPELL_EFFECT_QUEST_FAIL                         = 147,
     SPELL_EFFECT_TRIGGER_MISSILE_SPELL_WITH_VALUE   = 148,
     SPELL_EFFECT_CHARGE_DEST                        = 149,
@@ -1224,10 +1224,10 @@ enum SpellEffectName
     SPELL_EFFECT_RESURRECT_WITH_AURA                = 172,
     SPELL_EFFECT_UNLOCK_GUILD_VAULT_TAB             = 173, // Guild tab unlocked (guild perk)
     SPELL_EFFECT_APPLY_AURA_ON_PET                  = 174, // NYI
-    SPELL_EFFECT_175                                = 175, // Unused (4.3.4)
+    SPELL_EFFECT_175                                = 175,
     SPELL_EFFECT_SANCTUARY_2                        = 176, // NYI
-    SPELL_EFFECT_177                                = 177,
-    SPELL_EFFECT_178                                = 178, // Unused (4.3.4)
+    SPELL_EFFECT_DESPAWN_PERSISTENT_AREA_AURA       = 177,
+    SPELL_EFFECT_178                                = 178,
     SPELL_EFFECT_CREATE_AREATRIGGER                 = 179,
     SPELL_EFFECT_UPDATE_AREATRIGGER                 = 180, // NYI
     SPELL_EFFECT_REMOVE_TALENT                      = 181,
@@ -1237,32 +1237,32 @@ enum SpellEffectName
     SPELL_EFFECT_185                                = 185,
     SPELL_EFFECT_186                                = 186,
     SPELL_EFFECT_RANDOMIZE_ARCHAEOLOGY_DIGSITES     = 187, // NYI
-    SPELL_EFFECT_188                                = 188,
+    SPELL_EFFECT_SUMMON_STABLED_PET_AS_GUARDIAN     = 188,
     SPELL_EFFECT_LOOT                               = 189, // NYI, lootid in MiscValue ?
-    SPELL_EFFECT_190                                = 190,
+    SPELL_EFFECT_CHANGE_PARTY_MEMBERS               = 190, // MiscValueA = 1 is join, MiscValueA = 0 is leave - used by NPCs
     SPELL_EFFECT_TELEPORT_TO_DIGSITE                = 191, // NYI
     SPELL_EFFECT_UNCAGE_BATTLEPET                   = 192,
     SPELL_EFFECT_START_PET_BATTLE                   = 193,
     SPELL_EFFECT_194                                = 194,
-    SPELL_EFFECT_195                                = 195,
-    SPELL_EFFECT_196                                = 196,
-    SPELL_EFFECT_197                                = 197,
+    SPELL_EFFECT_PLAY_SCENE_SCRIPT_PACKAGE          = 195,
+    SPELL_EFFECT_CREATE_SCENE_OBJECT                = 196, // MiscValueA = SceneId, goes into guid as entry, SceneScriptPackageId goes into ObjectData::Entry
+    SPELL_EFFECT_CREATE_PERSONAL_SCENE_OBJECT       = 197, // MiscValueA = SceneId, goes into guid as entry, SceneScriptPackageId goes into ObjectData::Entry
     SPELL_EFFECT_PLAY_SCENE                         = 198,
-    SPELL_EFFECT_199                                = 199,
+    SPELL_EFFECT_DESPAWN_SUMMON                     = 199, // MiscValueA is some kind of unknown internal id
     SPELL_EFFECT_HEAL_BATTLEPET_PCT                 = 200, // NYI
     SPELL_EFFECT_ENABLE_BATTLE_PETS                 = 201, // NYI
     SPELL_EFFECT_APPLY_AREA_AURA_SUMMONS            = 202,
-    SPELL_EFFECT_203                                = 203,
+    SPELL_EFFECT_REMOVE_AURA_2                      = 203,
     SPELL_EFFECT_CHANGE_BATTLEPET_QUALITY           = 204,
     SPELL_EFFECT_LAUNCH_QUEST_CHOICE                = 205,
     SPELL_EFFECT_ALTER_ITEM                         = 206, // NYI
     SPELL_EFFECT_LAUNCH_QUEST_TASK                  = 207, // Starts one of the "progress bar" quests
-    SPELL_EFFECT_208                                = 208,
+    SPELL_EFFECT_SET_REPUTATION                     = 208,
     SPELL_EFFECT_209                                = 209,
     SPELL_EFFECT_LEARN_GARRISON_BUILDING            = 210,
     SPELL_EFFECT_LEARN_GARRISON_SPECIALIZATION      = 211,
-    SPELL_EFFECT_212                                = 212,
-    SPELL_EFFECT_213                                = 213,
+    SPELL_EFFECT_REMOVE_AURA_BY_SPELL_LABEL         = 212,
+    SPELL_EFFECT_JUMP_DEST_2                                = 213,
     SPELL_EFFECT_CREATE_GARRISON                    = 214,
     SPELL_EFFECT_UPGRADE_CHARACTER_SPELLS           = 215, // Unlocks boosted players' spells (ChrUpgrade*.db2)
     SPELL_EFFECT_CREATE_SHIPMENT                    = 216,
@@ -1270,16 +1270,16 @@ enum SpellEffectName
     SPELL_EFFECT_218                                = 218,
     SPELL_EFFECT_CREATE_CONVERSATION                = 219,
     SPELL_EFFECT_ADD_GARRISON_FOLLOWER              = 220,
-    SPELL_EFFECT_221                                = 221,
+    SPELL_EFFECT_ADD_GARRISON_MISSION               = 221,
     SPELL_EFFECT_CREATE_HEIRLOOM_ITEM               = 222,
     SPELL_EFFECT_CHANGE_ITEM_BONUSES                = 223,
     SPELL_EFFECT_ACTIVATE_GARRISON_BUILDING         = 224,
     SPELL_EFFECT_GRANT_BATTLEPET_LEVEL              = 225,
-    SPELL_EFFECT_226                                = 226,
+    SPELL_EFFECT_TRIGGER_ACTION_SET                 = 226,
     SPELL_EFFECT_TELEPORT_TO_LFG_DUNGEON            = 227,
     SPELL_EFFECT_228                                = 228,
     SPELL_EFFECT_SET_FOLLOWER_QUALITY               = 229,
-    SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL       = 230,
+    SPELL_EFFECT_230                                = 230,
     SPELL_EFFECT_INCREASE_FOLLOWER_EXPERIENCE       = 231,
     SPELL_EFFECT_REMOVE_PHASE                       = 232,
     SPELL_EFFECT_RANDOMIZE_FOLLOWER_ABILITIES       = 233,
@@ -1296,14 +1296,14 @@ enum SpellEffectName
     SPELL_EFFECT_LEARN_FOLLOWER_ABILITY             = 244,
     SPELL_EFFECT_UPGRADE_HEIRLOOM                   = 245,
     SPELL_EFFECT_FINISH_GARRISON_MISSION            = 246,
-    SPELL_EFFECT_ADD_GARRISON_MISSION               = 247,
+    SPELL_EFFECT_ADD_GARRISON_MISSION_SET           = 247,
     SPELL_EFFECT_FINISH_SHIPMENT                    = 248,
     SPELL_EFFECT_FORCE_EQUIP_ITEM                   = 249,
     SPELL_EFFECT_TAKE_SCREENSHOT                    = 250, // Serverside marker for selfie screenshot - achievement check
     SPELL_EFFECT_SET_GARRISON_CACHE_SIZE            = 251,
     SPELL_EFFECT_TELEPORT_UNITS                     = 252,
     SPELL_EFFECT_GIVE_HONOR                         = 253,
-    SPELL_EFFECT_254                                = 254,
+    SPELL_EFFECT_JUMP_CHARGE                        = 254,
     SPELL_EFFECT_LEARN_TRANSMOG_SET                 = 255,
     SPELL_EFFECT_256                                = 256,
     SPELL_EFFECT_257                                = 257,
@@ -1315,10 +1315,10 @@ enum SpellEffectName
     SPELL_EFFECT_REPAIR_ITEM                        = 263,
     SPELL_EFFECT_REMOVE_GEM                         = 264,
     SPELL_EFFECT_LEARN_AZERITE_ESSENCE_POWER        = 265,
-    SPELL_EFFECT_266                                = 266,
-    SPELL_EFFECT_267                                = 267,
+    SPELL_EFFECT_SET_ITEM_BONUS_LIST_GROUP_ENTRY    = 266, // Sets item bonuses to specific ItemBonusListGroupEntry id
+    SPELL_EFFECT_CREATE_PRIVATE_CONVERSATION        = 267,
     SPELL_EFFECT_APPLY_MOUNT_EQUIPMENT              = 268,
-    SPELL_EFFECT_UPGRADE_ITEM                       = 269,
+    SPELL_EFFECT_INCREASE_ITEM_BONUS_LIST_GROUP_STEP= 269, // Advances ItemBonusListGroup bonuses to next rank
     SPELL_EFFECT_270                                = 270,
     SPELL_EFFECT_APPLY_AREA_AURA_PARTY_NONRANDOM    = 271,
     SPELL_EFFECT_SET_COVENANT                       = 272,
@@ -1332,7 +1332,7 @@ enum SpellEffectName
     SPELL_EFFECT_280                                = 280,
     SPELL_EFFECT_LEARN_SOULBIND_CONDUIT             = 281,
     SPELL_EFFECT_CONVERT_ITEMS_TO_CURRENCY          = 282,
-    SPELL_EFFECT_283                                = 283,
+    SPELL_EFFECT_COMPLETE_CAMPAIGN                  = 283, // Flags all quests as completed that are assigned to campaign (MiscValueA)
     TOTAL_SPELL_EFFECTS
 };
 
