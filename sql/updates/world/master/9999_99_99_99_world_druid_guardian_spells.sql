@@ -3,6 +3,7 @@ DELETE FROM `spell_script_names` WHERE `ScriptName` IN
 ('spell_dru_incapacitating_roar',
  'spell_dru_stampeding_roar',
  'spell_dru_thrash',
+ 'spell_dru_thrash_aura',
  'spell_dru_berserk',
  'spell_dru_brambles',
  'spell_dru_barkskin',
@@ -14,6 +15,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (99, 'spell_dru_incapacitating_roar'),      -- Incapacitating Roar (99)
 (106898, 'spell_dru_stampeding_roar'),      -- Stampeding Roar (106898)
 (77758, 'spell_dru_thrash'),                -- Thrash (77758)
+(192090, 'spell_dru_thrash_aura'),			-- Thrash (192090)
 (50334, 'spell_dru_berserk'),               -- Berserk (50334)
 (203953, 'spell_dru_brambles'),             -- Berserk (50334)
 (22812, 'spell_dru_barkskin'),              -- Brambles (203953)

@@ -60,7 +60,7 @@ enum DruidSpells
     SPELL_DRUID_FORMS_TRINKET_MOONKIN          = 37343,
     SPELL_DRUID_FORMS_TRINKET_NONE             = 37344,
     SPELL_DRUID_FORMS_TRINKET_TREE             = 37342,
-    SPELL_DRUID_GALACTICAL_GUARDIAN_AURA       = 213708,
+    SPELL_DRUID_GALACTIC_GUARDIAN_AURA         = 213708,
     SPELL_DRUID_GORE_PROC                      = 93622,
     SPELL_DRUID_IDOL_OF_FERAL_SHADOWS          = 34241,
     SPELL_DRUID_IDOL_OF_WORSHIP                = 60774,
@@ -154,7 +154,7 @@ class spell_dru_barkskin : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += EffectPeriodicHandlerFunction(spell_dru_barkskin::HandlePeriodic, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_barkskin::HandlePeriodic, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
@@ -175,7 +175,13 @@ class spell_dru_brambles : public AuraScript
         return ValidateSpellInfo({ SPELL_DRUID_BRAMBLES_REFLECT, SPELL_DRUID_BRAMBLES_DAMAGE_AURA });
     }
 
-    void AfterAbsorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
+    void HandleAbsorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
+    {
+        // Prevent Removal
+        PreventDefaultAction();
+    }
+
+    void HandleAfterAbsorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
     {
         // reflect back damage to the attacker
         Unit* target = GetTarget();
@@ -185,7 +191,8 @@ class spell_dru_brambles : public AuraScript
 
     void Register() override
     {
-        AfterEffectAbsorb += AuraEffectAbsorbFn(spell_dru_brambles::AfterAbsorb, EFFECT_0);
+        OnEffectAbsorb += AuraEffectAbsorbFn(spell_dru_brambles::HandleAbsorb, EFFECT_0);
+        AfterEffectAbsorb += AuraEffectAbsorbFn(spell_dru_brambles::HandleAfterAbsorb, EFFECT_0);
     }
 };
 
@@ -442,7 +449,7 @@ class spell_dru_galactic_guardian : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DRUID_GALACTICAL_GUARDIAN_AURA });
+        return ValidateSpellInfo({ SPELL_DRUID_GALACTIC_GUARDIAN_AURA });
     }
 
     void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
@@ -455,7 +462,7 @@ class spell_dru_galactic_guardian : public AuraScript
             target->CastSpell(damageInfo->GetVictim(), SPELL_DRUID_MOONFIRE, true);
 
             // Cast aura
-            target->CastSpell(damageInfo->GetVictim(), SPELL_DRUID_GALACTICAL_GUARDIAN_AURA, true);
+            target->CastSpell(damageInfo->GetVictim(), SPELL_DRUID_GALACTIC_GUARDIAN_AURA, true);
         }
     }
 
@@ -1505,7 +1512,7 @@ class spell_dru_thrash : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DRUID_BEAR_FORM });
+        return ValidateSpellInfo({ SPELL_DRUID_THRASH_BEAR_AURA });
     }
 
     void HandleOnHitTarget(SpellEffIndex /*effIndex*/)
@@ -1515,15 +1522,35 @@ class spell_dru_thrash : public SpellScript
             Unit* caster = GetCaster();
 
             caster->CastSpell(hitUnit, SPELL_DRUID_THRASH_BEAR_AURA, TRIGGERED_FULL_MASK);
-
-            if (GetHitDamage() > 0 && caster->HasAura(SPELL_DRUID_BLOOD_FRENZY_AURA))
-                caster->CastSpell(caster, SPELL_DRUID_BLOOD_FRENZY_RAGE_GAIN, true);
         }
     }
 
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_dru_thrash::HandleOnHitTarget, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+// 192090 - Thrash (Aura) - SPELL_DRUID_THRASH_BEAR_AURA
+class spell_dru_thrash_aura : public AuraScript
+{
+    PrepareAuraScript(spell_dru_thrash_aura);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_BLOOD_FRENZY_AURA, SPELL_DRUID_BLOOD_FRENZY_RAGE_GAIN });
+    }
+
+    void HandlePeriodic(AuraEffect const* /*aurEff*/)
+    {
+        if (Unit* caster = GetCaster())
+            if (caster->HasAura(SPELL_DRUID_BLOOD_FRENZY_AURA))
+                caster->CastSpell(caster, SPELL_DRUID_BLOOD_FRENZY_RAGE_GAIN, true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_thrash_aura::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
     }
 };
 
@@ -1822,6 +1849,7 @@ void AddSC_druid_spell_scripts()
     new spell_dru_t10_restoration_4p_bonus();
     new spell_dru_t10_restoration_4p_bonus_dummy();
     RegisterSpellScript(spell_dru_thrash);
+    RegisterAuraScript(spell_dru_thrash_aura);
     new spell_dru_travel_form();
     new spell_dru_travel_form_dummy();
     RegisterAuraScript(spell_dru_tiger_dash);
