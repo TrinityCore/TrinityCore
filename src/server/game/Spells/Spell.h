@@ -338,7 +338,6 @@ class TC_GAME_API Spell
         void EffectNULL(SpellEffIndex effIndex);
         void EffectUnused(SpellEffIndex effIndex);
         void EffectDistract(SpellEffIndex effIndex);
-        void EffectPull(SpellEffIndex effIndex);
         void EffectSchoolDMG(SpellEffIndex effIndex);
         void EffectEnvironmentalDMG(SpellEffIndex effIndex);
         void EffectInstaKill(SpellEffIndex effIndex);
@@ -392,7 +391,6 @@ class TC_GAME_API Spell
         void EffectSummonObjectWild(SpellEffIndex effIndex);
         void EffectScriptEffect(SpellEffIndex effIndex);
         void EffectSanctuary(SpellEffIndex effIndex);
-        void EffectAddComboPoints(SpellEffIndex effIndex);
         void EffectDuel(SpellEffIndex effIndex);
         void EffectStuck(SpellEffIndex effIndex);
         void EffectSummonPlayer(SpellEffIndex effIndex);
@@ -449,7 +447,6 @@ class TC_GAME_API Spell
         void EffectGameObjectDamage(SpellEffIndex effIndex);
         void EffectGameObjectRepair(SpellEffIndex effIndex);
         void EffectGameObjectSetDestructionState(SpellEffIndex effIndex);
-        void EffectActivateRune(SpellEffIndex effIndex);
         void EffectCreateTamedPet(SpellEffIndex effIndex);
         void EffectDiscoverTaxi(SpellEffIndex effIndex);
         void EffectTitanGrip(SpellEffIndex effIndex);
@@ -483,11 +480,13 @@ class TC_GAME_API Spell
         void EffectUpdateZoneAurasAndPhases(SpellEffIndex effIndex);
         void EffectGiveArtifactPower(SpellEffIndex effIndex);
         void EffectGiveArtifactPowerNoBonus(SpellEffIndex effIndex);
+        void EffectPlaySceneScriptPackage(SpellEffIndex effIndex);
         void EffectPlayScene(SpellEffIndex effIndex);
         void EffectGiveHonor(SpellEffIndex effIndex);
         void EffectLearnTransmogSet(SpellEffIndex effIndex);
         void EffectRespecAzeriteEmpoweredItem(SpellEffIndex effIndex);
         void EffectLearnAzeriteEssencePower(SpellEffIndex effIndex);
+        void EffectCreatePrivateConversation(SpellEffIndex effIndex);
 
         typedef std::unordered_set<Aura*> UsedSpellMods;
 
@@ -683,6 +682,7 @@ class TC_GAME_API Spell
         SpellInfo const* GetSpellInfo() const { return m_spellInfo; }
         Difficulty GetCastDifficulty() const;
         std::vector<SpellPowerCost> const& GetPowerCost() const { return m_powerCost; }
+        bool HasPowerTypeCost(Powers power) const;
 
         bool UpdatePointers();                              // must be used at call Spell code after time delay (non triggered spell cast/update spell call/etc)
 
@@ -717,7 +717,7 @@ class TC_GAME_API Spell
         SpellSchoolMask m_spellSchoolMask;                  // Spell school (can be overwrite for some spells (wand shoot for example)
         WeaponAttackType m_attackType;                      // For weapon based attack
 
-        std::vector<SpellPowerCost> m_powerCost;       // Calculated spell cost initialized only in Spell::prepare
+        std::vector<SpellPowerCost> m_powerCost;            // Calculated spell cost initialized only in Spell::prepare
         int32 m_casttime;                                   // Calculated spell cast time initialized only in Spell::prepare
         int32 m_channeledDuration;                          // Calculated channeled spell duration in order to calculate correct pushback.
         bool m_canReflect;                                  // can reflect this spell?

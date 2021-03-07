@@ -1083,6 +1083,7 @@ class TC_GAME_API Unit : public WorldObject
         int32 CountPctFromMaxPower(Powers power, int32 pct) const { return CalculatePct(GetMaxPower(power), pct); }
         void SetPower(Powers power, int32 val);
         void SetMaxPower(Powers power, int32 val);
+        void TriggerOnPowerChangeAuras(Powers power, int32 oldVal, int32 newVal);
         inline void SetFullPower(Powers power) { SetPower(power, GetMaxPower(power)); }
         // returns the change in power
         int32 ModifyPower(Powers power, int32 val);
@@ -1221,7 +1222,7 @@ class TC_GAME_API Unit : public WorldObject
 
         void ApplyResilience(Unit const* victim, int32* damage) const;
 
-        float MeleeSpellMissChance(Unit const* victim, WeaponAttackType attType, uint32 spellId) const;
+        float MeleeSpellMissChance(Unit const* victim, WeaponAttackType attType, SpellInfo const* spellInfo) const;
         SpellMissInfo MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo) const;
         SpellMissInfo MagicSpellHitResult(Unit* victim, SpellInfo const* spellInfo) const;
         SpellMissInfo SpellHitResult(Unit* victim, SpellInfo const* spellInfo, bool canReflect = false);
@@ -2136,6 +2137,7 @@ class TC_GAME_API Unit : public WorldObject
 
         void ProcessPositionDataChanged(PositionFullTerrainStatus const& data) override;
         virtual void ProcessTerrainStatusUpdate(ZLiquidStatus status, Optional<LiquidData> const& liquidData);
+        virtual void SetInWater(bool inWater);
 
     private:
 

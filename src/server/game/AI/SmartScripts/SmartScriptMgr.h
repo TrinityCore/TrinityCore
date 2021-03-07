@@ -220,6 +220,7 @@ struct SmartEvent
             uint32 maxDist;
             uint32 cooldownMin;
             uint32 cooldownMax;
+            uint32 playerOnly;
         } los;
 
         struct
@@ -276,6 +277,11 @@ struct SmartEvent
         {
             uint32 quest;
         } quest;
+
+        struct
+        {
+            uint32 id;
+        } questObjective;
 
         struct
         {
@@ -1393,7 +1399,7 @@ enum SmartScriptType
     SMART_SCRIPT_TYPE_AREATRIGGER = 2, //done
     SMART_SCRIPT_TYPE_EVENT = 3, //
     SMART_SCRIPT_TYPE_GOSSIP = 4, //
-    SMART_SCRIPT_TYPE_QUEST = 5, //
+    SMART_SCRIPT_TYPE_QUEST = 5, //done
     SMART_SCRIPT_TYPE_SPELL = 6, //
     SMART_SCRIPT_TYPE_TRANSPORT = 7, //
     SMART_SCRIPT_TYPE_INSTANCE = 8, //

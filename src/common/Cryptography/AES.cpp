@@ -63,3 +63,25 @@ bool Trinity::Crypto::AES::Process(IV const& iv, uint8* data, size_t length, Tag
 
     return true;
 }
+
+bool Trinity::Crypto::AES::ProcessNoIntegrityCheck(IV const& iv, uint8* data, size_t partialLength)
+{
+    ASSERT(!_encrypting, "Partial encryption is not allowed");
+    ASSERT(partialLength <= std::numeric_limits<int>::max());
+    int len = static_cast<int>(partialLength);
+    if (!EVP_CipherInit_ex(_ctx, nullptr, nullptr, nullptr, iv.data(), -1))
+        return false;
+
+    int outLen;
+    if (!EVP_CipherUpdate(_ctx, data, &outLen, data, len))
+        return false;
+
+    len -= outLen;
+
+    if (!EVP_CipherFinal_ex(_ctx, data + outLen, &outLen))
+        return false;
+
+    ASSERT(len == outLen);
+
+    return true;
+}

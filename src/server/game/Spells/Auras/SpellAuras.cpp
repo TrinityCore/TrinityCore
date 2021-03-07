@@ -767,7 +767,7 @@ int32 Aura::CalcMaxDuration(Unit* caster) const
 
     // IsPermanent() checks max duration (which we are supposed to calculate here)
     if (maxDuration != -1 && modOwner)
-        modOwner->ApplySpellMod(GetId(), SPELLMOD_DURATION, maxDuration);
+        modOwner->ApplySpellMod(GetSpellInfo(), SPELLMOD_DURATION, maxDuration);
 
     return maxDuration;
 }
@@ -777,7 +777,7 @@ void Aura::SetDuration(int32 duration, bool withMods)
     if (withMods)
         if (Unit* caster = GetCaster())
             if (Player* modOwner = caster->GetSpellModOwner())
-                modOwner->ApplySpellMod(GetId(), SPELLMOD_DURATION, duration);
+                modOwner->ApplySpellMod(GetSpellInfo(), SPELLMOD_DURATION, duration);
 
     m_duration = duration;
     SetNeedClientUpdateForTargets();
@@ -848,7 +848,7 @@ uint8 Aura::CalcMaxCharges(Unit* caster) const
 
     if (caster)
         if (Player* modOwner = caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(GetId(), SPELLMOD_CHARGES, maxProcCharges);
+            modOwner->ApplySpellMod(GetSpellInfo(), SPELLMOD_CHARGES, maxProcCharges);
 
     return uint8(maxProcCharges);
 }
@@ -934,7 +934,7 @@ uint32 Aura::CalcMaxStackAmount() const
     int32 maxStackAmount = m_spellInfo->StackAmount;
     if (Unit* caster = GetCaster())
         if (Player* modOwner = caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_MAX_STACK_AMOUNT, maxStackAmount);
+            modOwner->ApplySpellMod(m_spellInfo, SPELLMOD_MAX_STACK_AMOUNT, maxStackAmount);
 
     return maxStackAmount;
 }
@@ -1019,40 +1019,7 @@ bool Aura::CanBeSaved() const
         if (GetSpellInfo()->IsSingleTarget())
             return false;
 
-    // No point in saving this, since the stable dialog can't be open on aura load anyway.
-    if (HasEffectType(SPELL_AURA_OPEN_STABLE))
-        return false;
-
-    // Can't save vehicle auras, it requires both caster & target to be in world
-    if (HasEffectType(SPELL_AURA_CONTROL_VEHICLE))
-        return false;
-
-    // do not save bind sight auras
-    if (HasEffectType(SPELL_AURA_BIND_SIGHT))
-        return false;
-
-    // no charming auras (taking direct control)
-    if (HasEffectType(SPELL_AURA_MOD_POSSESS) || HasEffectType(SPELL_AURA_MOD_POSSESS_PET))
-        return false;
-
-    // no charming auras can be saved
-    if (HasEffectType(SPELL_AURA_MOD_CHARM) || HasEffectType(SPELL_AURA_AOE_CHARM))
-        return false;
-
-    // Incanter's Absorbtion - considering the minimal duration and problems with aura stacking
-    // we skip saving this aura
-    // Also for some reason other auras put as MultiSlot crash core on keeping them after restart,
-    // so put here only these for which you are sure they get removed
-    switch (GetId())
-    {
-        case 44413: // Incanter's Absorption
-        case 40075: // Fel Flak Fire
-        case 55849: // Power Spark
-            return false;
-    }
-
-    // When a druid logins, he doesnt have either eclipse power, nor the marker auras, nor the eclipse buffs. Dont save them.
-    if (GetId() == 67483 || GetId() == 67484 || GetId() == 48517 || GetId() == 48518)
+    if (GetSpellInfo()->HasAttribute(SPELL_ATTR0_CU_AURA_CANNOT_BE_SAVED))
         return false;
 
     // don't save auras removed by proc system
@@ -1109,7 +1076,7 @@ int32 Aura::CalcDispelChance(Unit const* /*auraTarget*/, bool /*offensive*/) con
     // Apply dispel mod from aura caster
     if (Unit* caster = GetCaster())
         if (Player* modOwner = caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(GetId(), SPELLMOD_RESIST_DISPEL_CHANCE, resistChance);
+            modOwner->ApplySpellMod(GetSpellInfo(), SPELLMOD_RESIST_DISPEL_CHANCE, resistChance);
 
     RoundToInterval(resistChance, 0, 100);
     return 100 - resistChance;
@@ -1831,7 +1798,7 @@ float Aura::CalcProcChance(SpellProcEntry const& procEntry, ProcEventInfo& event
 
         // apply chance modifer aura, applies also to ppm chance (see improved judgement of light spell)
         if (Player* modOwner = caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(GetId(), SPELLMOD_CHANCE_OF_SUCCESS, chance);
+            modOwner->ApplySpellMod(GetSpellInfo(), SPELLMOD_CHANCE_OF_SUCCESS, chance);
     }
 
     // proc chance is reduced by an additional 3.333% per level past 60
@@ -2324,7 +2291,7 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* c
 
         std::deque<Unit*> units;
         // non-area aura
-        if (effect->Effect == SPELL_EFFECT_APPLY_AURA || effect->Effect == SPELL_EFFECT_202)
+        if (effect->Effect == SPELL_EFFECT_APPLY_AURA)
         {
             units.push_back(GetUnitOwner());
         }
@@ -2375,6 +2342,14 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* c
                     {
                         if (Unit* pet = ObjectAccessor::GetUnit(*GetUnitOwner(), GetUnitOwner()->GetPetGUID()))
                             units.push_back(pet);
+                        break;
+                    }
+                    case SPELL_EFFECT_APPLY_AREA_AURA_SUMMONS:
+                    {
+                        units.push_back(GetUnitOwner());
+                        Trinity::WorldObjectSpellAreaTargetCheck check(radius, GetUnitOwner(), caster, GetUnitOwner(), m_spellInfo, TARGET_CHECK_SUMMONED, nullptr, TARGET_OBJECT_TYPE_UNIT);
+                        Trinity::UnitListSearcher<Trinity::WorldObjectSpellAreaTargetCheck> searcher(GetUnitOwner(), units, check);
+                        Cell::VisitAllObjects(GetUnitOwner(), searcher, radius);
                         break;
                     }
                 }
