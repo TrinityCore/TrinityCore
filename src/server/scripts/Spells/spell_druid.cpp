@@ -72,7 +72,6 @@ enum DruidSpells
     SPELL_DRUID_LIVING_SEED_HEAL               = 48503,
     SPELL_DRUID_LIVING_SEED_PROC               = 48504,
     SPELL_DRUID_MANGLE                         = 33917,
-    SPELL_DRUID_MOONFIRE                       = 8921,
     SPELL_DRUID_MOONFIRE_DAMAGE                = 164812,
     SPELL_DRUID_REJUVENATION_T10_PROC          = 70691,
     SPELL_DRUID_RESTORATION_T10_2P_BONUS       = 70658,
@@ -87,7 +86,6 @@ enum DruidSpells
     SPELL_DRUID_THRASH_BEAR                    = 77758,
     SPELL_DRUID_THRASH_BEAR_AURA               = 192090,
     SPELL_DRUID_THRASH_CAT                     = 106830,
-    SPELL_DRUID_TRAVEL_FORM                    = 783,
 };
 
 class RaidCheck
@@ -459,7 +457,7 @@ class spell_dru_galactic_guardian : public AuraScript
             Unit* target = GetTarget();
 
             // free automatic moonfire on target
-            target->CastSpell(damageInfo->GetVictim(), SPELL_DRUID_MOONFIRE, true);
+            target->CastSpell(damageInfo->GetVictim(), SPELL_DRUID_MOONFIRE_DAMAGE, true);
 
             // Cast aura
             target->CastSpell(damageInfo->GetVictim(), SPELL_DRUID_GALACTIC_GUARDIAN_AURA, true);
@@ -795,7 +793,7 @@ public:
     }
 };
 
-//  8921 - Moonfire - SPELL_DRUID_MOONFIRE
+//  8921 - Moonfire
 class spell_dru_moonfire : public SpellScriptLoader
 {
 public:
