@@ -311,6 +311,18 @@ class TC_GAME_API Object
             SetUpdateFieldValue(setter, value);
         }
 
+        template<typename Action>
+        void DoWithSuppressingObjectUpdates(Action&& action)
+        {
+            bool wasUpdatedBeforeAction = m_objectUpdated;
+            action();
+            if (m_objectUpdated && !wasUpdatedBeforeAction)
+            {
+                RemoveFromObjectUpdate();
+                m_objectUpdated = false;
+            }
+        }
+
         void BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags) const;
         virtual UF::UpdateFieldFlag GetUpdateFieldFlagsFor(Player const* target) const;
         virtual void BuildValuesCreate(ByteBuffer* data, Player const* target) const = 0;
