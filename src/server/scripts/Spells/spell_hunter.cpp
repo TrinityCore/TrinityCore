@@ -75,6 +75,8 @@ enum HunterSpells
     SPELL_HUNTER_PIERCING_SHOTS                     = 63468,
     SPELL_HUNTER_RAPID_RECUPERATION                 = 58883,
     SPELL_HUNTER_READINESS                          = 23989,
+    SPELL_HUNTER_SIC_EM_R1                          = 83359,
+    SPELL_HUNTER_SIC_EM_R2                          = 89388,
     SPELL_HUNTER_SERPENT_STING                      = 1978,
     SPELL_HUNTER_SNIPER_TRAINING_R1                 = 53302,
     SPELL_HUNTER_SNIPER_TRAINING_BUFF_R1            = 64418,
@@ -1767,6 +1769,42 @@ class spell_hun_crouching_tiger_hidden_chimera : public AuraScript
     }
 };
 
+static std::array<uint32, 2> SicEmSpellIds =
+{
+    SPELL_HUNTER_SIC_EM_R1,
+    SPELL_HUNTER_SIC_EM_R2
+};
+
+class spell_hun_sic_em : public AuraScript
+{
+    bool Load() override
+    {
+        return GetCaster()->IsPlayer();
+    }
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+            {
+                SPELL_HUNTER_SIC_EM_R1,
+                SPELL_HUNTER_SIC_EM_R2
+            });
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        PreventDefaultAction();
+        if (Player* player = GetTarget()->ToPlayer())
+            if (Pet* pet = player->GetPet())
+                pet->CastSpell(pet, SicEmSpellIds[GetSpellInfo()->GetRank() - 1], aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectProc.Register(&spell_hun_sic_em::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 void AddSC_hunter_spell_scripts()
 {
     new spell_hun_ancient_hysteria();
@@ -1802,6 +1840,7 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_ready_set_aim();
     new spell_hun_scatter_shot();
     RegisterSpellScript(spell_hun_serpent_sting);
+    RegisterSpellScript(spell_hun_sic_em);
     new spell_hun_sniper_training();
     new spell_hun_steady_shot();
     new spell_hun_improved_steady_shot();
