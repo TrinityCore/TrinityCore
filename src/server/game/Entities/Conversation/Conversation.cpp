@@ -34,9 +34,7 @@ Conversation::Conversation() : WorldObject(false), _duration(0), _textureKitId(0
     m_updateFlag.Conversation = true;
 }
 
-Conversation::~Conversation()
-{
-}
+Conversation::~Conversation() = default;
 
 void Conversation::AddToWorld()
 {
@@ -69,9 +67,20 @@ bool Conversation::IsNeverVisibleFor(WorldObject const* seer) const
 void Conversation::Update(uint32 diff)
 {
     if (GetDuration() > int32(diff))
+    {
         _duration -= diff;
+        DoWithSuppressingObjectUpdates([&]()
+        {
+            // Only sent in CreateObject
+            ApplyModUpdateFieldValue(m_values.ModifyValue(&Conversation::m_conversationData).ModifyValue(&UF::ConversationData::Progress), int32(diff), true);
+            const_cast<UF::ConversationData&>(*m_conversationData).ClearChanged(&UF::ConversationData::Progress);
+        });
+    }
     else
+    {
         Remove(); // expired
+        return;
+    }
 
     WorldObject::Update(diff);
 }
@@ -112,6 +121,7 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
 
     SetMap(map);
     Relocate(pos);
+    RelocateStationaryPosition(pos);
 
     Object::_Create(ObjectGuid::Create<HighGuid::Conversation>(GetMapId(), conversationEntry, lowGuid));
     PhasingHandler::InheritPhaseShift(this, creator);
@@ -123,20 +133,21 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
     _duration = conversationTemplate->LastLineEndTime;
     _textureKitId = conversationTemplate->TextureKitId;
 
-    for (uint16 actorIndex = 0; actorIndex < conversationTemplate->Actors.size(); ++actorIndex)
+    for (ConversationActorTemplate const* actor : conversationTemplate->Actors)
     {
-        if (ConversationActorTemplate const* actor = conversationTemplate->Actors[actorIndex])
+        if (actor)
         {
             UF::ConversationActor& actorField = AddDynamicUpdateFieldValue(m_values.ModifyValue(&Conversation::m_conversationData).ModifyValue(&UF::ConversationData::Actors));
             actorField.CreatureID = actor->CreatureId;
             actorField.CreatureDisplayInfoID = actor->CreatureModelId;
+            actorField.Id = actor->Id;
             actorField.Type = AsUnderlyingType(ActorType::CreatureActor);
         }
     }
 
     for (uint16 actorIndex = 0; actorIndex < conversationTemplate->ActorGuids.size(); ++actorIndex)
     {
-        ObjectGuid::LowType const& actorGuid = conversationTemplate->ActorGuids[actorIndex];
+        ObjectGuid::LowType actorGuid = conversationTemplate->ActorGuids[actorIndex];
         if (!actorGuid)
             continue;
 
