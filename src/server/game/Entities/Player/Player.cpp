@@ -2627,15 +2627,9 @@ void Player::SendKnownSpells()
 
         knownSpells.KnownSpells.push_back(spell.first);
 
-        if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell.first))
-        {
-            uint32 cooldown = GetSpellHistory()->GetRemainingCooldown(spellInfo, false);
-            uint32 categoryCooldown = GetSpellHistory()->GetRemainingCategoryCooldown(spellInfo);
-
-            if (cooldown || categoryCooldown)
-                knownSpells.SpellHistoryEntries.push_back({ spellInfo->Id, 0, uint16(spellInfo->GetCategory()), int32(cooldown), int32(categoryCooldown) });
-        }
     }
+
+    GetSpellHistory()->WriteSpellHistoryEntries<Player>(knownSpells.SpellHistoryEntries);
 
     SendDirectMessage(knownSpells.Write());
 }

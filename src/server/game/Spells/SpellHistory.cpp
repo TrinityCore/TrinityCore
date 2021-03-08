@@ -26,6 +26,7 @@
 #include "Spell.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
+#include "SpellPackets.h"
 #include "World.h"
 #include "WorldPacket.h"
 
@@ -238,45 +239,35 @@ void SpellHistory::WritePacket<Pet>(WorldPacket& packet) const
 }
 
 template<>
-void SpellHistory::WritePacket<Player>(WorldPacket& packet) const
+void SpellHistory::WriteSpellHistoryEntries<Player>(std::vector<WorldPackets::Spells::SpellHistoryEntry>& spellHistoryEntries) const
 {
     Clock::time_point now = GameTime::GetGameTimeSystemPoint();
 
-    packet << uint16(_spellCooldowns.size());
-
     for (auto const& spellCooldown : _spellCooldowns)
     {
-        packet << uint32(spellCooldown.first);
-        packet << uint32(spellCooldown.second.ItemId);        // cast item id
-        packet << uint16(spellCooldown.second.CategoryId);    // spell category
+        WorldPackets::Spells::SpellHistoryEntry& historyEntry = spellHistoryEntries.emplace_back();
+
+        historyEntry.SpellID = spellCooldown.first;
+        historyEntry.ItemID = spellCooldown.second.ItemId;
+        historyEntry.Category = spellCooldown.second.CategoryId;
 
         // send infinity cooldown in special format
         if (spellCooldown.second.OnHold)
         {
-            packet << uint32(1);                              // cooldown
-            packet << uint32(0x80000000);                     // category cooldown
+            historyEntry.RecoveryTime = 1;                                  // cooldown
+            historyEntry.CategoryRecoveryTime = 0x80000000;                 // category cooldown
             continue;
         }
 
         std::chrono::milliseconds cooldownDuration = std::chrono::duration_cast<std::chrono::milliseconds>(spellCooldown.second.CooldownEnd - now);
         if (cooldownDuration.count() <= 0)
-        {
-            packet << uint32(0);
-            packet << uint32(0);
             continue;
-        }
 
         std::chrono::milliseconds categoryDuration = std::chrono::duration_cast<std::chrono::milliseconds>(spellCooldown.second.CategoryEnd - now);
         if (categoryDuration.count() >= 0)
-        {
-            packet << uint32(0);                              // cooldown
-            packet << uint32(categoryDuration.count());       // category cooldown
-        }
+            historyEntry.CategoryRecoveryTime = categoryDuration.count();   // category cooldown
         else
-        {
-            packet << uint32(cooldownDuration.count());       // cooldown
-            packet << uint32(0);                              // category cooldown
-        }
+            historyEntry.RecoveryTime = cooldownDuration.count();           // cooldown
     }
 }
 

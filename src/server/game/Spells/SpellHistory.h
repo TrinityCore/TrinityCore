@@ -33,6 +33,14 @@ class Unit;
 class WorldPacket;
 struct SpellCategoryEntry;
 
+namespace WorldPackets
+{
+    namespace Spells
+    {
+        struct SpellHistoryEntry;
+    }
+}
+
 /// Spell cooldown flags sent in SMSG_SPELL_COOLDOWN
 enum SpellCooldownFlags
 {
@@ -75,6 +83,8 @@ public:
     bool IsReady(SpellInfo const* spellInfo, uint32 itemId = 0, bool ignoreCategoryCooldown = false) const;
     template<class OwnerType>
     void WritePacket(WorldPacket& packet) const;
+    template<class OwnerType>
+    void WriteSpellHistoryEntries(std::vector<WorldPackets::Spells::SpellHistoryEntry>& spellHistoryEntries) const;
 
     // Cooldowns
     static Clock::duration const InfinityCooldownDelay;  // used for set "infinity cooldowns" for spells and check

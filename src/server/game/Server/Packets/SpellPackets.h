@@ -265,8 +265,7 @@ namespace WorldPackets
 
         struct SpellHistoryEntry
         {
-            SpellHistoryEntry(uint32 spellId, uint32 itemId, uint16 category, int32 recoveryTime, int32 categoryRecoveryTime) :
-                SpellID(spellId), ItemID(itemId), Category(category), RecoveryTime(recoveryTime), CategoryRecoveryTime(categoryRecoveryTime) { }
+            SpellHistoryEntry() { }
 
             uint32 SpellID = 0;
             uint32 ItemID = 0;
