@@ -15,7 +15,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (99, 'spell_dru_incapacitating_roar'),      -- Incapacitating Roar (99)
 (106898, 'spell_dru_stampeding_roar'),      -- Stampeding Roar (106898)
 (77758, 'spell_dru_thrash'),                -- Thrash (77758)
-(192090, 'spell_dru_thrash_aura'),			-- Thrash (192090)
+(192090, 'spell_dru_thrash_aura'),          -- Thrash (192090)
 (50334, 'spell_dru_berserk'),               -- Berserk (50334)
 (203953, 'spell_dru_brambles'),             -- Berserk (50334)
 (22812, 'spell_dru_barkskin'),              -- Brambles (203953)
@@ -37,5 +37,5 @@ INSERT INTO `spell_proc` (`SpellId`,`SchoolMask`,`SpellFamilyName`,`SpellFamilyM
 (135286, 0, 7, 0x800, 0x0, 0x0, 0x0, 0x10, 1, 2, 0x403, 0x8, 0, 0, 0, 0, 0),            -- Tooth and Claw    (135286), proc on Maul
 (155578, 0, 7, 0x0, 0x40, 0x0, 0x0, 0x10, 1, 2, 0x403, 0, 0, 0, 0, 0, 0),               -- Guardian Of Elune (155578), proc on Mangle
 (203974, 0, 7, 0x0, 0x0, 0x08000000, 0x40000000, 0x10, 1, 1, 0x403, 0, 0, 0, 0, 0, 0),  -- Earthwarden       (203974), proc on Thrash
-(48484, 1, 7, 0x1000, 0, 0, 0, 0x10, 1, 1, 0x403, 0, 0, 0, 100, 0, 0),                  -- Infected Wounds   (48484) , proc on Rake
+(48484,  1, 7, 0x1000, 0, 0, 0, 0x10, 1, 1, 0x403, 0, 0, 0, 100, 0, 0),                 -- Infected Wounds   (48484) , proc on Rake
 (345208, 1, 7, 0x800, 0x40, 0, 0, 0x10, 1, 1, 0x403, 0, 0, 0, 100, 0, 0);               -- Infected Wounds   (345208), proc on Mangle and Maul
