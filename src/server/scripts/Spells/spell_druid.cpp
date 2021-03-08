@@ -1593,7 +1593,7 @@ public:
                 PreventDefaultAction();
         }
 
-        void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
         {
             if (triggeredSpellId == m_scriptSpellId)
                 return;
@@ -1601,7 +1601,7 @@ public:
             Player* player = GetTarget()->ToPlayer();
 
             if (triggeredSpellId) // Apply new form
-                player->AddAura(triggeredSpellId, player);
+                player->CastSpell(player, triggeredSpellId, true, nullptr, aurEff);
             else // If not set, simply remove Travel Form dummy
                 player->RemoveAura(SPELL_DRUID_TRAVEL_FORM);
         }
@@ -1627,7 +1627,7 @@ public:
         if (player->IsInWater()) // Aquatic form
             return SPELL_DRUID_FORM_AQUATIC;
 
-        if (player->GetSkillValue(SKILL_RIDING) >= 225 && CheckLocationForForm(player, difficulty, requiresOutdoor, SPELL_DRUID_FORM_FLIGHT) == SPELL_CAST_OK) // Flight form
+        if (!player->IsInCombat() && player->GetSkillValue(SKILL_RIDING) >= 225 && CheckLocationForForm(player, difficulty, requiresOutdoor, SPELL_DRUID_FORM_FLIGHT) == SPELL_CAST_OK) // Flight form
             return player->GetSkillValue(SKILL_RIDING) >= 300 ? SPELL_DRUID_FORM_SWIFT_FLIGHT : SPELL_DRUID_FORM_FLIGHT;
 
         if (CheckLocationForForm(player, difficulty, requiresOutdoor, SPELL_DRUID_FORM_STAG) == SPELL_CAST_OK) // Stag form
@@ -1691,14 +1691,14 @@ public:
             return GetCaster()->GetTypeId() == TYPEID_PLAYER;
         }
 
-        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
         {
             Player* player = GetTarget()->ToPlayer();
 
             // Outdoor check already passed - Travel Form (dummy) has SPELL_ATTR0_OUTDOORS_ONLY attribute.
             uint32 triggeredSpellId = spell_dru_travel_form::GetFormSpellId(player, GetCastDifficulty(), false);
 
-            player->AddAura(triggeredSpellId, player);
+            player->CastSpell(player, triggeredSpellId, true, nullptr, aurEff);
         }
 
         void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
