@@ -936,6 +936,7 @@ void Creature::UpdatePowerRegeneration(Powers powerType)
                 SetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, 8.714059f + powerRegenMod); // Most common value in sniffs. Todo: research
             break;
         case POWER_ENERGY:
+        case POWER_FOCUS:
         {
             float regenerationRate = CalculatePct<float>(10, powerRegenModPct) + powerRegenMod;
             SetFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, regenerationRate);
