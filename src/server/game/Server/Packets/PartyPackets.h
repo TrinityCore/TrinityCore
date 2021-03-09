@@ -52,7 +52,6 @@ namespace WorldPackets
             uint16 CurrentPower = 0;
             uint16 MaxPower = 0;
             uint64 AuraMask = 0;
-            uint32 AuraCount = 0;
             std::vector<PartyMemberAuraStates> Auras;
         };
 

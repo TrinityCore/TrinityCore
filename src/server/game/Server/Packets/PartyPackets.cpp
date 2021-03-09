@@ -160,7 +160,6 @@ void WorldPackets::Party::PartyMemberState::Initialize(Player const* player)
 
         // Auras
         MemberStats.PetStats->AuraMask = pet->GetAuraUpdateMaskForRaid();
-        MemberStats.PetStats->AuraCount = pet->GetAppliedAuras().size();
         for (uint8 i = 0; i < MAX_AURAS; ++i)
         {
             if (!(MemberStats.PetStats->AuraMask & (uint64(1) << i)))
@@ -258,7 +257,7 @@ WorldPacket const* WorldPackets::Party::PartyMemberState::Write()
     {
         _worldPacket << uint8(_worldPacket.GetOpcode() == SMSG_PARTY_MEMBER_FULL_STATE);
         _worldPacket << uint64(MemberStats.AuraMask);
-        _worldPacket << uint32(MemberStats.AuraCount);
+        _worldPacket << uint32(MemberStats.Auras.size());
         for (WorldPackets::Party::PartyMemberAuraStates const& aura : MemberStats.Auras)
             _worldPacket << aura;
     }
@@ -295,7 +294,7 @@ WorldPacket const* WorldPackets::Party::PartyMemberState::Write()
     {
         _worldPacket << uint8(_worldPacket.GetOpcode() == SMSG_PARTY_MEMBER_FULL_STATE);
         _worldPacket << uint64(MemberStats.PetStats.has_value() ? MemberStats.PetStats->AuraMask : 0);
-        _worldPacket << uint32(MemberStats.PetStats.has_value() ? MemberStats.PetStats->AuraCount : 0);
+        _worldPacket << uint32(MemberStats.PetStats.has_value() ? MemberStats.PetStats->Auras.size() : 0);
 
         if (MemberStats.PetStats.has_value())
             for (WorldPackets::Party::PartyMemberAuraStates const& aura : MemberStats.PetStats->Auras)
