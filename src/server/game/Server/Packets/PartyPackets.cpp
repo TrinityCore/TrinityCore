@@ -116,9 +116,10 @@ void WorldPackets::Party::PartyMemberState::Initialize(Player const* player)
         if (!(MemberStats.AuraMask & (uint64(1) << i)))
             continue;
 
+        WorldPackets::Party::PartyMemberAuraStates aura;
+
         if (AuraApplication const* aurApp = player->GetVisibleAura(i))
         {
-            WorldPackets::Party::PartyMemberAuraStates aura;
             aura.SpellID = aurApp->GetBase()->GetId();
             aura.Flags = aurApp->GetFlags();
 
@@ -132,9 +133,9 @@ void WorldPackets::Party::PartyMemberState::Initialize(Player const* player)
                         aura.Points.push_back(0);
                 }
             }
-
-            MemberStats.Auras.push_back(aura);
         }
+
+        MemberStats.Auras.push_back(aura);
     }
 
     // Phases
@@ -165,9 +166,10 @@ void WorldPackets::Party::PartyMemberState::Initialize(Player const* player)
             if (!(MemberStats.PetStats->AuraMask & (uint64(1) << i)))
                 continue;
 
+            WorldPackets::Party::PartyMemberAuraStates aura;
+
             if (AuraApplication const* aurApp = pet->GetVisibleAura(i))
             {
-                WorldPackets::Party::PartyMemberAuraStates aura;
                 aura.SpellID = aurApp->GetBase()->GetId();
                 aura.Flags = aurApp->GetFlags();
 
@@ -182,8 +184,9 @@ void WorldPackets::Party::PartyMemberState::Initialize(Player const* player)
                     }
                 }
 
-                MemberStats.PetStats->Auras.push_back(aura);
             }
+
+            MemberStats.PetStats->Auras.push_back(aura);
         }
     }
 }
