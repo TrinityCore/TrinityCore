@@ -138,7 +138,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleAuraModStalked,                            // 68 SPELL_AURA_MOD_STALKED
     &AuraEffect::HandleNoImmediateEffect,                         // 69 SPELL_AURA_SCHOOL_ABSORB implemented in Unit::CalcAbsorbResist
     &AuraEffect::HandleNoImmediateEffect,                         // 70 SPELL_AURA_PERIODIC_WEAPON_PERCENT_DAMAGE implemented in AuraEffect::PeriodicTick
-    &AuraEffect::HandleNULL,                                      // 71 SPELL_AURA_STORE_TELEPORT_RETURN_POINT
+    &AuraEffect::HandleStoreTeleportReturnPoint,                  // 71 SPELL_AURA_STORE_TELEPORT_RETURN_POINT
     &AuraEffect::HandleNoImmediateEffect,                         // 72 SPELL_AURA_MOD_POWER_COST_SCHOOL_PCT
     &AuraEffect::HandleModPowerCost,                              // 73 SPELL_AURA_MOD_POWER_COST_SCHOOL
     &AuraEffect::HandleNoImmediateEffect,                         // 74 SPELL_AURA_REFLECT_SPELLS_SCHOOL  implemented in Unit::SpellHitResult
@@ -5956,6 +5956,21 @@ void AuraEffect::HandleBattlegroundPlayerPosition(AuraApplication const* aurApp,
     }
     else
         bg->RemovePlayerPosition(target->GetGUID());
+}
+
+void AuraEffect::HandleStoreTeleportReturnPoint(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Player* playerTarget = aurApp->GetTarget()->ToPlayer();
+    if (!playerTarget)
+        return;
+
+    if (apply)
+        playerTarget->AddStoredAuraTeleportLocation(GetSpellInfo()->Id);
+    else if (!playerTarget->GetSession()->isLogingOut())
+        playerTarget->RemoveStoredAuraTeleportLocation(GetSpellInfo()->Id);
 }
 
 template TC_GAME_API void AuraEffect::GetTargetList(std::list<Unit*>&) const;
