@@ -2365,18 +2365,17 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_CREATE_CONVERSATION:
         {
-            if (WorldObject* baseObject = GetBaseObject())
+            WorldObject* baseObject = GetBaseObject();
+
+            for (WorldObject* const target : targets)
             {
-                for (WorldObject* const target : targets)
+                if (Player* playerTarget = target->ToPlayer())
                 {
-                    if (Player* playerTarget = target->ToPlayer())
-                    {
-                        Conversation* conversation = Conversation::CreateConversation(e.action.conversation.id, playerTarget,
-                            *playerTarget, { playerTarget->GetGUID() }, nullptr);
-                        if (!conversation)
-                            TC_LOG_WARN("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_TALK_CONVERSATION: id %u, baseObject %s, target %s - failed to create",
-                                e.action.conversation.id, baseObject->GetName().c_str(), playerTarget->GetName().c_str());
-                    }
+                    Conversation* conversation = Conversation::CreateConversation(e.action.conversation.id, playerTarget,
+                        *playerTarget, { playerTarget->GetGUID() }, nullptr);
+                    if (!conversation)
+                        TC_LOG_WARN("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_CREATE_CONVERSATION: id %u, baseObject %s, target %s - failed to create conversation",
+                            e.action.conversation.id, !baseObject ? "" : baseObject->GetName().c_str(), playerTarget->GetName().c_str());
                 }
             }
 
