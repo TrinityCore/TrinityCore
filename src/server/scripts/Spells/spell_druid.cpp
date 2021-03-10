@@ -211,7 +211,7 @@ class spell_dru_bristling_fur : public AuraScript
         if (DamageInfo* damageInfo = eventInfo.GetDamageInfo())
         {
             Unit* target = GetTarget();
-            uint32 rage = 100.0f * (float)damageInfo->GetDamage() / (float)target->GetMaxHealth();
+            uint32 rage = target->GetMaxPower(POWER_RAGE) * (float)damageInfo->GetDamage() / (float)target->GetMaxHealth();
             if (rage > 0)
                 target->CastCustomSpell(SPELL_DRUID_BRISTLING_FUR_GAIN_RAGE, SPELLVALUE_BASE_POINT0, rage, target, TRIGGERED_FULL_MASK);
         }
