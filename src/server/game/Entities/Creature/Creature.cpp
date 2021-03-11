@@ -2168,7 +2168,7 @@ void Creature::LoadTemplateImmunities()
     }
 }
 
-bool Creature::IsImmunedToSpell(SpellInfo const* spellInfo, Unit* caster, Optional<uint8> effectMask /*= nullptr*/) const
+bool Creature::IsImmunedToSpell(SpellInfo const* spellInfo, Unit* caster, Optional<uint8> effectMask /*= {}*/) const
 {
     if (!spellInfo)
         return false;
@@ -2179,7 +2179,7 @@ bool Creature::IsImmunedToSpell(SpellInfo const* spellInfo, Unit* caster, Option
         if (!spellInfo->Effects[i].IsEffect())
             continue;
 
-        if (effectMask && !(effectMask.value() & (1 << i)))
+        if (effectMask && !(*effectMask & (1 << i)))
             continue;
 
         if (!IsImmunedToSpellEffect(spellInfo, i, caster))
@@ -2897,7 +2897,7 @@ uint32 Creature::UpdateVendorItemCurrentCount(VendorItem const* vItem, uint32 us
     if (itr == m_vendorItemCounts.end())
     {
         uint32 new_count = vItem->maxcount > used_count ? vItem->maxcount-used_count : 0;
-        m_vendorItemCounts.push_back(VendorItemCount(vItem->item, new_count));
+        m_vendorItemCounts.emplace_back(VendorItemCount(vItem->item, new_count));
         return new_count;
     }
 
@@ -3352,18 +3352,6 @@ bool Creature::IsEscorted() const
     if (IsAIEnabled)
         return AI()->IsEscorted();
     return false;
-}
-
-bool Creature::IsAllowedToRepostionAgainst(Unit* target) const
-{
-    // Exceptions for repositioning against a too close enemy:
-    return GetCombatReach() <= 10.0f        // 1. Creature has a too big combat reach
-        && !IsMovementPreventedByCasting()  // 2. Creature is currently casting
-        && CanFreeMove()                    // 3. Creature cannot move
-        && !GetVehicleBase()                // 4. Creature is on a vehicle
-        && !target->GetVehicleBase()        // 5. Chase target is on a vehicle
-        && !IsDungeonBoss()                 // 6. Creature is a dungeon boss
-        && !isWorldBoss();                  // 7. Creature is a world boss
 }
 
 void Creature::MakeInterruptable(bool apply)

@@ -359,7 +359,6 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool IsEscorted() const;
 
         bool CanGiveExperience() const;
-        bool IsAllowedToRepostionAgainst(Unit* target) const;
 
         void MakeInterruptable(bool apply);
 
