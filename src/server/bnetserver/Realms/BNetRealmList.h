@@ -34,15 +34,6 @@ namespace boost
     }
 }
 
-namespace Trinity
-{
-    namespace Asio
-    {
-        class IoContext;
-        class DeadlineTimer;
-    }
-}
-
 /// Storage object for the list of realms on the server
 class BNetRealmList
 {
@@ -70,7 +61,7 @@ class BNetRealmList
         RealmMap _realms;
         uint32 _updateInterval;
         std::unique_ptr<Trinity::Asio::DeadlineTimer> _updateTimer;
-        std::unique_ptr<boost::asio::ip::tcp_resolver> _resolver;
+        std::unique_ptr<Trinity::Asio::Resolver> _resolver;
         std::unique_ptr<WorldListener> _worldListener;
 };
 

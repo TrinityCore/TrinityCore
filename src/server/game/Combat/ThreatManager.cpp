@@ -33,6 +33,9 @@
 #include "WorldPacket.h"
 #include <algorithm>
 
+#include "Hacks/boost_1_74_fibonacci_heap.h"
+BOOST_1_74_FIBONACCI_HEAP_MSVC_COMPILE_FIX(ThreatManager::threat_list_heap::value_type)
+
 const CompareThreatLessThan ThreatManager::CompareThreat;
 
 void ThreatReference::AddThreat(float amount)
