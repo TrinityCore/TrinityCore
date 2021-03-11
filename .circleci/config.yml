@@ -23,7 +23,7 @@ jobs:
           command: |
             mkdir bin
             cd bin
-            cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS=dynamic -DSERVERS=1 -DNOJEM=0 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS="-Werror" -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_C_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_CXX_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_INSTALL_PREFIX=check_install
+            cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS=static -DSERVERS=1 -DNOJEM=0 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS="-Werror" -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_C_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_CXX_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_INSTALL_PREFIX=check_install
             cd ..
       - run:
           name: SQL checks
@@ -47,6 +47,20 @@ jobs:
             cd check_install/bin
             ./bnetserver --version
             ./worldserver --version
+      - setup_remote_docker:
+          version: 19.03.13
+      - run:
+          name: Create docker images
+          command: |
+            cd bin/check_install/bin
+            cp -r ../../../contrib/Docker/* .
+            cp -r ../../../sql ./sql
+            image_prefix=$(echo $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME-$(echo $CIRCLE_BRANCH | tr '/' '-') | tr '[:upper:]' '[:lower:]')
+            echo $image_prefix
+            docker build --file Dockerfile --force-rm --tag $image_prefix:$CIRCLE_SHA1 --tag $image_prefix:latest .
+            docker save $image_prefix:$CIRCLE_SHA1 | gzip > ../../../docker.tar.gz
+      - store_artifacts:
+          path: docker.tar.gz
   nopch:
     docker:
       - image: funjoker/circle-ci:4.3.4-buildpacks-focal
@@ -74,6 +88,7 @@ jobs:
             export CCACHE_CPP2=yes
             export USE_CCACHE=1
             export PATH=/usr/lib/ccache:$PATH
+            ccache -z
             ccache -s
             git config user.email "circleci@build.bot" && git config user.name "Circle CI"
             $CXX --version
