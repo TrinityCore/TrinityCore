@@ -4,5 +4,5 @@ FROM funjoker/circle-ci:4.3.4-buildpacks-focal
 WORKDIR /home/circleci
 COPY README.md /
 COPY --chown=circleci:circleci sql /home/circleci/project/sql
-COPY ["authserver", "mapextractor", "mmaps_generator", "vmap4assembler", "vmap4extractor", "worldserver", "/usr/local/bin/"]
+COPY ["bnetserver", "mapextractor", "mmaps_generator", "vmap4assembler", "vmap4extractor", "worldserver", "connection_patcher", "/usr/local/bin/"]
 ENTRYPOINT [ "echo",  "Check the README.md file for instructions"]
