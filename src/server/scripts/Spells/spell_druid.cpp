@@ -73,6 +73,7 @@ enum DruidSpells
     SPELL_DRUID_LIVING_SEED_PROC               = 48504,
     SPELL_DRUID_MANGLE                         = 33917,
     SPELL_DRUID_MOONFIRE_DAMAGE                = 164812,
+    SPELL_DRUID_PROWL                          = 5215,
     SPELL_DRUID_REJUVENATION_T10_PROC          = 70691,
     SPELL_DRUID_RESTORATION_T10_2P_BONUS       = 70658,
     SPELL_DRUID_SAVAGE_ROAR                    = 62071,
@@ -220,6 +221,22 @@ class spell_dru_bristling_fur : public AuraScript
     void Register() override
     {
         OnEffectProc += AuraEffectProcFn(spell_dru_bristling_fur::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 768 - CatForm - SPELL_DRUID_CAT_FORM
+class spell_dru_cat_form : public AuraScript
+{
+    PrepareAuraScript(spell_dru_cat_form);
+
+    void HandleAfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveOwnedAura(SPELL_DRUID_PROWL);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dru_cat_form::HandleAfterRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -1852,6 +1869,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_berserk);
     RegisterAuraScript(spell_dru_brambles);
     RegisterAuraScript(spell_dru_bristling_fur);
+    RegisterAuraScript(spell_dru_cat_form);
     new spell_dru_dash();
     RegisterAuraScript(spell_dru_earthwarden);
     RegisterSpellScript(spell_dru_ferocious_bite);
