@@ -519,7 +519,7 @@ public:
                 spellMod->op = SPELLMOD_DOT;
                 spellMod->type = SPELLMOD_FLAT;
                 spellMod->spellId = GetId();
-                spellMod->mask = GetSpellInfo()->GetEffect(aurEff->GetEffIndex())->SpellClassMask;
+                spellMod->mask = aurEff->GetSpellEffectInfo()->SpellClassMask;
             }
             spellMod->value = aurEff->GetAmount() / 7;
         }
