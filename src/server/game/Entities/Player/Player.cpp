@@ -5257,7 +5257,7 @@ void Player::GiveXpForGather(uint32 const& skillId)
 
     if (!xp || levelDiff >= 20)
         return;
-    else if (levelDiff >= 15 && levelDiff < 25)
+    else if (levelDiff >= 15)
         xp = uint32(xp * (1 - (levelDiff / 24)));
 
     xp *= sWorld->getRate(RATE_XP_KILL);
@@ -5512,7 +5512,7 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
                 _archaeology->Update();
             }
         }
-        else if (currVal && !newVal) // Deactivate skill line
+        else if (currVal) // Deactivate skill line
         {
             //remove enchantments needing this skill
             UpdateSkillEnchantments(id, currVal, 0);
@@ -5660,7 +5660,7 @@ uint16 Player::GetSkillValue(uint32 skill) const
     int32 result = int32(GetUInt16Value(PLAYER_SKILL_RANK_0 + field, offset));
     result += int32(GetUInt16Value(PLAYER_SKILL_MODIFIER_0 + field, offset));
     result += int32(GetUInt16Value(PLAYER_SKILL_TALENT_0 + field, offset));
-    return result < 0 ? 0 : result;
+    return (result < 0 ? 0 : result);
 }
 
 uint16 Player::GetMaxSkillValue(uint32 skill) const
@@ -5678,7 +5678,7 @@ uint16 Player::GetMaxSkillValue(uint32 skill) const
     int32 result = int32(GetUInt16Value(PLAYER_SKILL_MAX_RANK_0 + field, offset));
     result += int32(GetUInt16Value(PLAYER_SKILL_MODIFIER_0 + field, offset));
     result += int32(GetUInt16Value(PLAYER_SKILL_TALENT_0 + field, offset));
-    return result < 0 ? 0 : result;
+    return (result < 0 ? 0 : result);
 }
 
 uint16 Player::GetPureMaxSkillValue(uint32 skill) const
@@ -5710,7 +5710,7 @@ uint16 Player::GetBaseSkillValue(uint32 skill) const
 
     int32 result = int32(GetUInt16Value(PLAYER_SKILL_RANK_0 + field, offset));
     result += int32(GetUInt16Value(PLAYER_SKILL_TALENT_0 + field, offset));
-    return result < 0 ? 0 : result;
+    return (result < 0 ? 0 : result);
 }
 
 uint16 Player::GetPureSkillValue(uint32 skill) const
@@ -13827,9 +13827,6 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
 
             switch (itr->second.OptionType)
             {
-                case GOSSIP_OPTION_ARMORER:
-                    canTalk = false;                       // added in special mode
-                    break;
                 case GOSSIP_OPTION_SPIRITHEALER:
                     if (!isDead())
                         canTalk = false;
@@ -13869,6 +13866,7 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
                     if (getClass() != CLASS_HUNTER)
                         canTalk = false;
                     break;
+                case GOSSIP_OPTION_ARMORER:
                 case GOSSIP_OPTION_QUESTGIVER:
                     canTalk = false;
                     break;
@@ -17189,8 +17187,8 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
                 if (!Trinity::IsValidMapCoord(x, y, z, o) ||
                     // transport size limited
                     std::fabs(m_movementInfo.transport.pos.GetPositionX()) > 250.0f ||
-                    std::fabs(m_movementInfo.transport.pos.GetPositionX()) > 250.0f ||
-                    std::fabs(m_movementInfo.transport.pos.GetPositionX()) > 250.0f)
+                    std::fabs(m_movementInfo.transport.pos.GetPositionY()) > 250.0f ||
+                    std::fabs(m_movementInfo.transport.pos.GetPositionZ()) > 250.0f)
                 {
                     TC_LOG_ERROR("entities.player", "Player (%s) have invalid transport coordinates (X: %f Y: %f Z: %f O: %f). Teleport to bind location.",
                         guid.ToString().c_str(), x, y, z, o);
@@ -19068,7 +19066,6 @@ void Player::SendRaidInfo()
                 else
                     lockInfos.TimeRemaining = sInstanceSaveMgr->GetSubsequentResetTime(save->GetMapId(), save->GetDifficulty(), save->GetResetTime()) - now;
 
-                lockInfos.CompletedMask = 0;
                 if (Map* map = sMapMgr->FindMap(save->GetMapId(), save->GetInstanceId()))
                     if (InstanceScript* instanceScript = ((InstanceMap*)map)->GetInstanceScript())
                         lockInfos.CompletedMask = instanceScript->GetCompletedEncounterMask();
@@ -22182,26 +22179,23 @@ bool Player::BuyCurrencyFromVendorSlot(ObjectGuid vendorGuid, uint32 vendorSlot,
     }
 
     ModifyCurrency(currency, count, true, true);
-    if (iece)
+    for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i)
     {
-        for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i)
-        {
-            if (!iece->RequiredItem[i])
-                continue;
+        if (!iece->RequiredItem[i])
+            continue;
 
-            DestroyItemCount(iece->RequiredItem[i], iece->RequiredItemCount[i] * stacks, true);
-        }
+        DestroyItemCount(iece->RequiredItem[i], iece->RequiredItemCount[i] * stacks, true);
+    }
 
-        for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
-        {
-            if (!iece->RequiredCurrency[i])
-                continue;
+    for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
+    {
+        if (!iece->RequiredCurrency[i])
+            continue;
 
-            if (iece->RequirementFlags & (ITEM_EXT_COST_CURRENCY_REQ_IS_SEASON_EARNED_1 << i))
-                continue;
+        if (iece->RequirementFlags & (ITEM_EXT_COST_CURRENCY_REQ_IS_SEASON_EARNED_1 << i))
+            continue;
 
-            ModifyCurrency(iece->RequiredCurrency[i], -int32(iece->RequiredCurrencyCount[i]) * stacks, false, true);
-        }
+        ModifyCurrency(iece->RequiredCurrency[i], -int32(iece->RequiredCurrencyCount[i]) * stacks, false, true);
     }
 
     return true;

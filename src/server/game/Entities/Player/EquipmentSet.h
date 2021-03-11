@@ -43,8 +43,8 @@ struct EquipmentSetInfo
         uint32 IgnoreMask = 0;                                  ///< Mask of EquipmentSlot
         std::string SetName;
         std::string SetIcon;
-        std::array<ObjectGuid, EQUIPMENT_SET_SLOTS> Pieces;
-        EquipmentSetUpdateState state;
+        std::array<ObjectGuid, EQUIPMENT_SET_SLOTS> Pieces = {};
+        EquipmentSetUpdateState state = EQUIPMENT_SET_UNCHANGED;
     } Data;
 
     /// Server-side data

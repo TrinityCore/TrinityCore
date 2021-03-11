@@ -200,8 +200,8 @@ namespace WorldPackets
             uint32 SuggestedGroupNum        = 0;
             int32  AllowableRaces           = -1;
 
-            std::array<uint32, BG_TEAMS_COUNT> RequiredFactionId;  // shown in quest log as part of quest objective (same/opposite faction)
-            std::array<int32, BG_TEAMS_COUNT> RequiredFactionValue; // shown in quest log as part of quest objective (same/opposite faction)
+            std::array<uint32, BG_TEAMS_COUNT> RequiredFactionId = {};  // shown in quest log as part of quest objective (same/opposite faction)
+            std::array<int32, BG_TEAMS_COUNT> RequiredFactionValue = {}; // shown in quest log as part of quest objective (same/opposite faction)
 
             int32 RewardNextQuest           = 0;    // client will request this quest from NPC, if not 0
             uint32 RewardXPDifficulty       = 0;    // used for calculating rewarded experience
@@ -224,12 +224,12 @@ namespace WorldPackets
             uint32 PortraitGiver            = 0;
             uint32 PortraitTurnIn           = 0;
 
-            std::array<int32, QUEST_REWARDS_COUNT> RewardItems;
-            std::array<uint32, QUEST_REWARDS_COUNT> RewardAmount;
-            std::array<QuestInfoChoiceItem, QUEST_REWARD_CHOICES_COUNT> UnfilteredChoiceItems;
-            std::array<uint32, QUEST_REPUTATIONS_COUNT> RewardFactionID;
-            std::array<int32, QUEST_REPUTATIONS_COUNT> RewardFactionValue;
-            std::array<uint32, QUEST_REPUTATIONS_COUNT> RewardFactionValueOverride;
+            std::array<int32, QUEST_REWARDS_COUNT> RewardItems = {};
+            std::array<uint32, QUEST_REWARDS_COUNT> RewardAmount = {};
+            std::array<QuestInfoChoiceItem, QUEST_REWARD_CHOICES_COUNT> UnfilteredChoiceItems = {};
+            std::array<uint32, QUEST_REPUTATIONS_COUNT> RewardFactionID = {};
+            std::array<int32, QUEST_REPUTATIONS_COUNT> RewardFactionValue = {};
+            std::array<uint32, QUEST_REPUTATIONS_COUNT> RewardFactionValueOverride = {};
 
             uint32 POIContinent             = 0;
             float  POIx                     = 0.0f;
@@ -241,23 +241,23 @@ namespace WorldPackets
             std::string AreaDescription;
             std::string QuestCompletionLog;              // display in quest objectives window once all objectives are completed
 
-            std::array<int32, QUEST_OBJECTIVES_COUNT>  RequiredNpcOrGo;   // >0 Creature <0 Gameobject
-            std::array<uint32, QUEST_OBJECTIVES_COUNT> RequiredNpcOrGoCount;
+            std::array<int32, QUEST_OBJECTIVES_COUNT>  RequiredNpcOrGo = {};   // >0 Creature <0 Gameobject
+            std::array<uint32, QUEST_OBJECTIVES_COUNT> RequiredNpcOrGoCount = {};
 
-            std::array<int32, QUEST_OBJECTIVES_COUNT>  ItemDrop;
-            std::array<uint32, QUEST_OBJECTIVES_COUNT> ItemDropQuantity;
+            std::array<int32, QUEST_OBJECTIVES_COUNT>  ItemDrop = {};
+            std::array<uint32, QUEST_OBJECTIVES_COUNT> ItemDropQuantity = {};
 
-            std::array<uint32, QUEST_ITEM_OBJECTIVES_COUNT> RequiredItemId;
-            std::array<uint32, QUEST_ITEM_OBJECTIVES_COUNT> RequiredItemCount;
+            std::array<uint32, QUEST_ITEM_OBJECTIVES_COUNT> RequiredItemId = {};
+            std::array<uint32, QUEST_ITEM_OBJECTIVES_COUNT> RequiredItemCount = {};
 
             uint32 RequiredSpell            = 0;
 
-            std::array<std::string, QUEST_OBJECTIVES_COUNT> ObjectiveText;
+            std::array<std::string, QUEST_OBJECTIVES_COUNT> ObjectiveText = {};
 
-            std::array<uint32, QUEST_REWARD_CURRENCY_COUNT> RewardCurrencyID;
-            std::array<uint32, QUEST_REWARD_CURRENCY_COUNT> RewardCurrencyQty;
-            std::array<uint32, QUEST_REQUIRED_CURRENCY_COUNT> RequiredCurrencyID;
-            std::array<uint32, QUEST_REQUIRED_CURRENCY_COUNT> RequiredCurrencyQty;
+            std::array<uint32, QUEST_REWARD_CURRENCY_COUNT> RewardCurrencyID = {};
+            std::array<uint32, QUEST_REWARD_CURRENCY_COUNT> RewardCurrencyQty = {};
+            std::array<uint32, QUEST_REQUIRED_CURRENCY_COUNT> RequiredCurrencyID = {};
+            std::array<uint32, QUEST_REQUIRED_CURRENCY_COUNT> RequiredCurrencyQty = {};
 
             std::string PortraitGiverText;
             std::string PortraitGiverName;

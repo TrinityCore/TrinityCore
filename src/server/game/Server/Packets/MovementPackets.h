@@ -245,7 +245,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint32 MapID = 0;
-            uint8 TransfertAbort;
+            uint8 TransfertAbort = 0;
             uint8 Arg = 0;
         };
     }

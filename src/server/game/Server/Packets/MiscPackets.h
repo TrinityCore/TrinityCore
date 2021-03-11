@@ -169,7 +169,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid SourceObjectGUID;
-            uint32 SoundKitID;
+            uint32 SoundKitID = 0;
         };
 
         class PlayObjectSound final : public ServerPacket

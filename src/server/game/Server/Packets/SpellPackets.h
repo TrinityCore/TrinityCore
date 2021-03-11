@@ -188,7 +188,7 @@ namespace WorldPackets
             Optional<ObjectGuid> CastUnit;
             Optional<int32> Duration;
             Optional<int32> Remaining;
-            std::array<Optional<int32>, 3 /*MAX_SPELL_EFFECTS*/> Points;
+            std::array<Optional<int32>, 3 /*MAX_SPELL_EFFECTS*/> Points = {};
         };
 
         struct AuraInfo
@@ -394,8 +394,8 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            int32 SpellID;
-            int32 Superceded;
+            int32 SpellID = 0;
+            int32 Superceded = 0;
         };
 
         class AuraPointsDepleted final : public ServerPacket
