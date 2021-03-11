@@ -18,6 +18,7 @@
 #ifndef AllPackets_h__
 #define AllPackets_h__
 
+#include "ArchaeologyPackets.h"
 #include "AuthenticationPackets.h"
 #include "BattlegroundPackets.h"
 #include "CharacterPackets.h"

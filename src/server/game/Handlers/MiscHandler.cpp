@@ -16,6 +16,7 @@
  */
 
 #include "WorldSession.h"
+#include "ArchaeologyPackets.h"
 #include "AccountMgr.h"
 #include "AchievementMgr.h"
 #include "Battlefield.h"
@@ -1833,10 +1834,9 @@ void WorldSession::SendStreamingMovie()
     SendPacket(packet.Write());
 }
 
-void WorldSession::HandleRequestResearchHistory(WorldPacket & /*recv_data*/)
+void WorldSession::HandleRequestResearchHistory(WorldPackets::Archaeology::RequestResearchHistory& /*packet*/)
 {
-    if (Player* player = GetPlayer())
-        player->NotifyRequestResearchHistory();
+    _player->NotifyRequestResearchHistory();
 }
 
 void WorldSession::HandleOpeningCinematic(WorldPackets::Misc::OpeningCinematic& /*packet*/)

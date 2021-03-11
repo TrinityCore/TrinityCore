@@ -16,6 +16,7 @@
 */
 
 #include "Archaeology.h"
+#include "ArchaeologyPackets.h"
 #include "DatabaseEnv.h"
 #include "DBCStores.h"
 #include "GameTime.h"
@@ -188,6 +189,12 @@ void Archaeology::CompleteProject(uint16 projectId)
     _player->ModifyCurrency(_archData->FragId, -int32(_archData->FragCount), false, true);
     _player->DestroyItemCount(_archData->KeyId, _archData->KeyCount, true, false);
 
+    WorldPackets::Archaeology::ResearchComplete packet;
+    packet.Research.CompletionCount = 1;
+    packet.Research.FirstCompleted = GameTime::GetGameTime();
+    packet.Research.ProjectID = projectId;
+    _player->SendDirectMessage(packet.Write());
+
     if (_completedProjects.find(projectId) == _completedProjects.end())
     {
         _completedProjects[projectId].first = GameTime::GetGameTime();
@@ -216,18 +223,9 @@ void Archaeology::SetArchData(ArchData const& data)
 
 void Archaeology::SendResearchHistory()
 {
-    uint32 count = _completedProjects.size();
-    WorldPacket packet(SMSG_RESEARCH_SETUP_HISTORY, 4 + 4 + (4 + 4 + 4) * count);
-    packet.WriteBits(count, 22);
+    WorldPackets::Archaeology::SetupResearchHistory packet;
+    for (std::pair<uint16, std::pair<int32, int32>> itr : _completedProjects)
+        packet.History.emplace_back(itr.first, itr.second.second, itr.second.first);
 
-    packet.FlushBits();
-
-    for (std::map<uint16, std::pair<int32, int32> >::iterator itr = _completedProjects.begin(); itr != _completedProjects.end(); ++itr)
-    {
-        packet << int32(itr->first);
-        packet << int32(itr->second.second);
-        packet << uint32(itr->second.first);
-    }
-
-    _player->SendDirectMessage(&packet);
+    _player->SendDirectMessage(packet.Write());
 }

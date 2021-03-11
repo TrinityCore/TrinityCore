@@ -75,6 +75,11 @@ class RBACData;
 
 namespace WorldPackets
 {
+    namespace Archaeology
+    {
+        class RequestResearchHistory;
+    }
+
     namespace Auth
     {
         enum class ConnectToSerial : uint32;
@@ -1191,7 +1196,7 @@ class TC_GAME_API WorldSession
         void HandleObjectUpdateFailedOpcode(WorldPacket& recvPacket);
         void HandleRequestCategoryCooldowns(WorldPacket& recvPacket);
         void SendStreamingMovie();
-        void HandleRequestResearchHistory(WorldPacket& recv_data);
+        void HandleRequestResearchHistory(WorldPackets::Archaeology::RequestResearchHistory& packet);
         int32 HandleEnableNagleAlgorithm();
 
         // Query
