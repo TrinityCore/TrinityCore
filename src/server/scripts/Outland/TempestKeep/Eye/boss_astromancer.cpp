@@ -98,7 +98,7 @@ class boss_high_astromancer_solarian : public CreatureScript
 
         struct boss_high_astromancer_solarianAI : public BossAI
         {
-            boss_high_astromancer_solarianAI(Creature* creature) : BossAI(creature, DATA_HIGH_ASTROMANCER_SOLARIAN)
+            boss_high_astromancer_solarianAI(Creature* creature) : BossAI(creature, DATA_SOLARIAN)
             {
                 Initialize();
 
@@ -457,7 +457,7 @@ class npc_solarium_priest : public CreatureScript
                     switch (urand(0, 1))
                     {
                         case 0:
-                            target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_ASTROMANCER));
+                            target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_SOLARIAN));
                             break;
                         case 1:
                             target = me;
