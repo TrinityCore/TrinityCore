@@ -6094,8 +6094,8 @@ void ObjectMgr::LoadPageTexts()
 {
     uint32 oldMSTime = getMSTime();
 
-    //                                               0   1     2           3                  4
-    QueryResult result = WorldDatabase.Query("SELECT ID, Text, NextPageID, PlayerConditionID, Flags FROM page_text");
+    //                                               0    1     2           3                  4
+    QueryResult result = WorldDatabase.Query("SELECT ID, `Text`, NextPageID, PlayerConditionID, Flags FROM page_text");
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 page texts. DB table `page_text` is empty!");
@@ -6142,8 +6142,8 @@ void ObjectMgr::LoadPageTextLocales()
 
     _pageTextLocaleStore.clear(); // needed for reload case
 
-    //                                               0      1     2
-    QueryResult result = WorldDatabase.Query("SELECT ID, locale, Text FROM page_text_locale");
+    //                                               0      1      2
+    QueryResult result = WorldDatabase.Query("SELECT ID, locale, `Text` FROM page_text_locale");
     if (!result)
         return;
 
