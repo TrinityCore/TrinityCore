@@ -229,6 +229,11 @@ class spell_dru_cat_form : public AuraScript
 {
     PrepareAuraScript(spell_dru_cat_form);
 
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_PROWL });
+    }
+
     void HandleAfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         GetTarget()->RemoveOwnedAura(SPELL_DRUID_PROWL);
