@@ -124,10 +124,6 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPackets::Loot::LootItem& p
         }
 
         player->StoreLootItem(req.LootListID - 1, loot, aeResultPtr);
-
-        // If player is removing the last LootItem, delete the empty container.
-        if (loot->isLooted() && lguid.IsItem())
-            player->GetSession()->DoLootRelease(lguid);
     }
 
     if (aeResultPtr)
