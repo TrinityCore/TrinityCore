@@ -1,5 +1,5 @@
 -- Spell Proc
-DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_pal_auras', 'spell_gen_gift_of_naaru');
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_pal_auras', 'spell_gen_gift_of_naaru', 'spell_pri_penance_damage');
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (317920, 'spell_pal_auras'),
 (32223, 'spell_pal_auras'),
@@ -12,4 +12,5 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (59544, 'spell_gen_gift_of_naaru'), -- Priest
 (59545, 'spell_gen_gift_of_naaru'), -- Death Knight
 (59547, 'spell_gen_gift_of_naaru'), -- Shaman
-(59548, 'spell_gen_gift_of_naaru'); -- Mage
+(59548, 'spell_gen_gift_of_naaru'), -- Mage
+(47666, 'spell_pri_penance_damage');

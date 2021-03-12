@@ -552,6 +552,25 @@ class spell_pri_penance : public SpellScriptLoader
         }
 };
 
+// 47666 - Penance (Damage)
+class spell_pri_penance_damage : public SpellScript
+{
+    PrepareSpellScript(spell_pri_penance_damage);
+
+    void HandleSelectTarget(WorldObject*& target)
+    {
+        if (target == GetCaster())
+        {
+            target = nullptr;
+        }
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_pri_penance_damage::HandleSelectTarget, EFFECT_0, TARGET_UNIT_CHANNEL_TARGET);
+    }
+};
+
 // 17 - Power Word: Shield
 class spell_pri_power_word_shield : public SpellScriptLoader
 {
@@ -1128,6 +1147,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_leap_of_faith_effect_trigger();
     new spell_pri_levitate();
     new spell_pri_penance();
+    RegisterSpellScript(spell_pri_penance_damage);
     new spell_pri_power_word_shield();
     RegisterSpellScript(spell_pri_prayer_of_mending);
     RegisterAuraScript(spell_pri_prayer_of_mending_aura);

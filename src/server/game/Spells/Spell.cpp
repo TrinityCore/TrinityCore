@@ -976,13 +976,16 @@ void Spell::SelectImplicitChannelTargets(SpellEffIndex effIndex, SpellImplicitTa
             for (ObjectGuid const& channelTarget : m_originalCaster->m_unitData->ChannelObjects)
             {
                 WorldObject* target = ObjectAccessor::GetUnit(*m_caster, channelTarget);
-                CallScriptObjectTargetSelectHandlers(target, effIndex, targetType);
                 // unit target may be no longer avalible - teleported out of map for example
-                Unit* unitTarget = target ? target->ToUnit() : nullptr;
-                if (unitTarget)
-                    AddUnitTarget(unitTarget, 1 << effIndex);
-                else
+                if (!target || !target->ToUnit())
                     TC_LOG_DEBUG("spells", "SPELL: cannot find channel spell target for spell ID %u, effect %u", m_spellInfo->Id, effIndex);
+                else
+                {
+                    CallScriptObjectTargetSelectHandlers(target, effIndex, targetType);
+                    Unit* unitTarget = target ? target->ToUnit() : nullptr;
+                    if (unitTarget)
+                        AddUnitTarget(unitTarget, 1 << effIndex);
+                }
             }
             break;
         }
