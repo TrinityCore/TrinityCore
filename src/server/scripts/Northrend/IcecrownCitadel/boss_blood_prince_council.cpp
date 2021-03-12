@@ -557,7 +557,6 @@ struct BloodPrincesBossAI : public BossAI
                 me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                 me->SetImmuneToPC(false);
                 me->RemoveDynamicFlag(UNIT_DYNFLAG_DEAD);
-                me->RemoveUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
                 me->m_Events.AddEvent(new StandUpEvent(me), me->m_Events.CalculateTime(1s));
                 break;
             case ACTION_CAST_INVOCATION:
