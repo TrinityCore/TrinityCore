@@ -1334,7 +1334,7 @@ class spell_gen_gift_of_naaru : public AuraScript
             float healPct = eff1->CalcValue() / 100.0f;
             float heal = healPct * GetCaster()->GetMaxHealth();
             int32 healTick = std::floor(heal / aurEff->GetTotalTicks());
-            amount += int32(std::max(healTick, 0));
+            amount += healTick;
         }
     }
 
