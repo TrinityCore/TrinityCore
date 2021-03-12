@@ -216,29 +216,29 @@ class spell_pal_blessing_of_faith : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-if (Unit* unitTarget = GetHitUnit())
-{
-    uint32 spell_id = 0;
-    switch (unitTarget->getClass())
-    {
-    case CLASS_DRUID:
-        spell_id = SPELL_PALADIN_BLESSING_OF_LOWER_CITY_DRUID;
-        break;
-    case CLASS_PALADIN:
-        spell_id = SPELL_PALADIN_BLESSING_OF_LOWER_CITY_PALADIN;
-        break;
-    case CLASS_PRIEST:
-        spell_id = SPELL_PALADIN_BLESSING_OF_LOWER_CITY_PRIEST;
-        break;
-    case CLASS_SHAMAN:
-        spell_id = SPELL_PALADIN_BLESSING_OF_LOWER_CITY_SHAMAN;
-        break;
-    default:
-        return; // ignore for non-healing classes
-    }
-    Unit* caster = GetCaster();
-    caster->CastSpell(caster, spell_id, true);
-}
+        if (Unit* unitTarget = GetHitUnit())
+        {
+            uint32 spell_id = 0;
+            switch (unitTarget->getClass())
+            {
+                case CLASS_DRUID:
+                    spell_id = SPELL_PALADIN_BLESSING_OF_LOWER_CITY_DRUID;
+                    break;
+                case CLASS_PALADIN:
+                    spell_id = SPELL_PALADIN_BLESSING_OF_LOWER_CITY_PALADIN;
+                    break;
+                case CLASS_PRIEST:
+                    spell_id = SPELL_PALADIN_BLESSING_OF_LOWER_CITY_PRIEST;
+                    break;
+                case CLASS_SHAMAN:
+                    spell_id = SPELL_PALADIN_BLESSING_OF_LOWER_CITY_SHAMAN;
+                    break;
+                default:
+                    return; // ignore for non-healing classes
+            }
+            Unit* caster = GetCaster();
+            caster->CastSpell(caster, spell_id, true);
+        }
     }
 
     void Register() override
