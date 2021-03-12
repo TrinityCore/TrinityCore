@@ -51,6 +51,7 @@ enum DruidSpells
     SPELL_DRUID_EXHILARATE                     = 28742,
     SPELL_DRUID_FERAL_CHARGE_BEAR              = 16979,
     SPELL_DRUID_FERAL_CHARGE_CAT               = 49376,
+    SPELL_DRUID_FORM_AQUATIC_PASSIVE           = 276012,
     SPELL_DRUID_FORM_AQUATIC                   = 1066,
     SPELL_DRUID_FORM_FLIGHT                    = 33943,
     SPELL_DRUID_FORM_STAG                      = 165961,
@@ -1590,7 +1591,7 @@ public:
 
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
-            return ValidateSpellInfo({ SPELL_DRUID_FORM_STAG, SPELL_DRUID_FORM_AQUATIC, SPELL_DRUID_FORM_FLIGHT, SPELL_DRUID_FORM_SWIFT_FLIGHT });
+            return ValidateSpellInfo({ SPELL_DRUID_FORM_STAG, SPELL_DRUID_FORM_AQUATIC_PASSIVE, SPELL_DRUID_FORM_AQUATIC, SPELL_DRUID_FORM_FLIGHT, SPELL_DRUID_FORM_SWIFT_FLIGHT });
         }
 
         bool Load() override
@@ -1646,7 +1647,7 @@ public:
     static uint32 GetFormSpellId(Player const* player, Difficulty difficulty, bool requiresOutdoor)
     {
         // Check what form is appropriate
-        if (player->HasSpell(SPELL_DRUID_FORM_AQUATIC) && player->IsInWater()) // Aquatic form
+        if (player->HasSpell(SPELL_DRUID_FORM_AQUATIC_PASSIVE) && player->IsInWater()) // Aquatic form
             return SPELL_DRUID_FORM_AQUATIC;
 
         if (!player->IsInCombat() && player->GetSkillValue(SKILL_RIDING) >= 225 && CheckLocationForForm(player, difficulty, requiresOutdoor, SPELL_DRUID_FORM_FLIGHT) == SPELL_CAST_OK) // Flight form
@@ -1680,13 +1681,18 @@ public:
     {
         PrepareSpellScript(spell_dru_travel_form_dummy_SpellScript);
 
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo({ SPELL_DRUID_FORM_AQUATIC_PASSIVE, SPELL_DRUID_FORM_AQUATIC, SPELL_DRUID_FORM_STAG });
+        }
+
         SpellCastResult CheckCast()
         {
             Player* player = GetCaster()->ToPlayer();
             if (!player)
                 return SPELL_FAILED_CUSTOM_ERROR;
 
-            uint32 spellId = (player->HasSkill(SPELL_DRUID_FORM_AQUATIC) && player->IsInWater()) ? SPELL_DRUID_FORM_AQUATIC : SPELL_DRUID_FORM_STAG;
+            uint32 spellId = (player->HasSpell(SPELL_DRUID_FORM_AQUATIC_PASSIVE) && player->IsInWater()) ? SPELL_DRUID_FORM_AQUATIC : SPELL_DRUID_FORM_STAG;
 
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, GetCastDifficulty());
             return spellInfo->CheckLocation(player->GetMapId(), player->GetZoneId(), player->GetAreaId(), player);
