@@ -12310,6 +12310,28 @@ void Unit::SendPlaySpellVisualKit(uint32 id, uint32 type, uint32 duration) const
     SendMessageToSet(packet.Write(), IsPlayer());
 }
 
+void Unit::SendPlaySpellVisual(uint32 spellVisualId, Unit const* target /*= nullptr*/, Optional<Position> targetPosition /*= {}*/, float travelSpeed /*= 0.f*/, uint16 missReason /*= 0*/, uint16 reflectStatus /*= 0*/, bool speedAsTime /*= false*/) const
+{
+    if (!sSpellVisualStore.LookupEntry(spellVisualId))
+        return;
+
+    WorldPackets::Spells::PlaySpellVisual packet;
+    packet.SpellVisualID = spellVisualId;
+    packet.Source = GetGUID();
+    if (target)
+        packet.Target = target->GetGUID();
+
+    if (targetPosition)
+        packet.TargetPosition = *targetPosition;
+
+    packet.TravelSpeed = travelSpeed;
+    packet.MissReason = missReason;
+    packet.ReflectStatus = reflectStatus;
+    packet.SpeedAsTime = speedAsTime;
+
+    SendMessageToSet(packet.Write(), true);
+}
+
 void Unit::CancelSpellMissiles(uint32 spellId, bool reverseMissile /*= false*/)
 {
     bool hasMissile = false;

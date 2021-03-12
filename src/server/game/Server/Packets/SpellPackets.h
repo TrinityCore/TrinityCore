@@ -263,6 +263,23 @@ namespace WorldPackets
             uint32 Duration = 0;
         };
 
+        class PlaySpellVisual final : public ServerPacket
+        {
+        public:
+            PlaySpellVisual() : ServerPacket(SMSG_PLAY_SPELL_VISUAL, 33) { }
+
+            WorldPacket const* Write() override;
+
+            Position TargetPosition;
+            ObjectGuid Source;
+            ObjectGuid Target;
+            int32 SpellVisualID = 0;
+            float TravelSpeed = 0.0f;
+            uint16 MissReason = 0;
+            uint16 ReflectStatus = 0;
+            bool SpeedAsTime = false;
+        };
+
         struct SpellHistoryEntry
         {
             SpellHistoryEntry() { }
