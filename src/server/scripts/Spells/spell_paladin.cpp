@@ -34,6 +34,10 @@
 
 enum PaladinSpells
 {
+    SPELL_PALADIN_AURA_CONCENTRATION             = 317920,
+    SPELL_PALADIN_AURA_CRUSADER                  = 32223,
+    SPELL_PALADIN_AURA_DEVOTION                  = 465,
+    SPELL_PALADIN_AURA_RETRIBUTION               = 183435,
     SPELL_PALADIN_AVENGERS_SHIELD                = 31935,
     SPELL_PALADIN_AVENGING_WRATH                 = 31884,
     SPELL_PALADIN_BEACON_OF_LIGHT                = 53563,
@@ -43,17 +47,12 @@ enum PaladinSpells
     SPELL_PALADIN_BLESSING_OF_LOWER_CITY_PRIEST  = 37880,
     SPELL_PALADIN_BLESSING_OF_LOWER_CITY_SHAMAN  = 37881,
     SPELL_PALADIN_BLINDING_LIGHT_EFFECT          = 105421,
-    SPELL_PALADIN_CONCENTRACTION_AURA            = 19746,
-    SPELL_PALADIN_DIVINE_PURPOSE_PROC            = 90174,
     SPELL_PALADIN_DIVINE_STEED_HUMAN             = 221883,
     SPELL_PALADIN_DIVINE_STEED_DRAENEI           = 221887,
     SPELL_PALADIN_DIVINE_STEED_BLOODELF          = 221886,
     SPELL_PALADIN_DIVINE_STEED_TAUREN            = 221885,
-    SPELL_PALADIN_DIVINE_STORM_DAMAGE            = 224239,
     SPELL_PALADIN_ENDURING_LIGHT                 = 40471,
     SPELL_PALADIN_ENDURING_JUDGEMENT             = 40472,
-    SPELL_PALADIN_EYE_FOR_AN_EYE_RANK_1          = 9799,
-    SPELL_PALADIN_EYE_FOR_AN_EYE_DAMAGE          = 25997,
     SPELL_PALADIN_FINAL_STAND                    = 204077,
     SPELL_PALADIN_FINAL_STAND_EFFECT             = 204079,
     SPELL_PALADIN_FORBEARANCE                    = 25771,
@@ -72,9 +71,7 @@ enum PaladinSpells
     SPELL_PALADIN_ITEM_HEALING_TRANCE            = 37706,
     SPELL_PALADIN_JUDGEMENT_GAIN_HOLY_POWER      = 220637,
     SPELL_PALADIN_JUDGEMENT_PROT_RET_R3          = 315867,
-    SPELL_PALADIN_RIGHTEOUS_DEFENSE_TAUNT        = 31790,
     SPELL_PALADIN_RIGHTEOUS_VERDICT_AURA         = 267611,
-    SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS          = 25742,
     SPELL_PALADIN_TEMPLAR_VERDICT_DAMAGE         = 224266,
     SPELL_PALADIN_ZEAL_AURA                      = 269571,
 };
@@ -166,6 +163,41 @@ class spell_pal_ardent_defender : public SpellScriptLoader
 };
 */
 
+// 317920 - Concentration Aura - SPELL_PALADIN_AURA_CONCENTRATION
+// 32223  - Crusader Aura      - SPELL_PALADIN_AURA_CRUSADER
+// 465    - Devotion Aura      - SPELL_PALADIN_AURA_DEVOTION
+// 183435 - Retribution Aura   - SPELL_PALADIN_AURA_RETRIBUTION
+class spell_pal_auras : public SpellScript
+{
+    PrepareSpellScript(spell_pal_auras);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PALADIN_AURA_CONCENTRATION, SPELL_PALADIN_AURA_CRUSADER,
+            SPELL_PALADIN_AURA_DEVOTION, SPELL_PALADIN_AURA_RETRIBUTION });
+    }
+
+    void HandleOnCast()
+    {
+        RemoveAuraIfNotSelf(SPELL_PALADIN_AURA_CONCENTRATION);
+        RemoveAuraIfNotSelf(SPELL_PALADIN_AURA_CRUSADER);
+        RemoveAuraIfNotSelf(SPELL_PALADIN_AURA_DEVOTION);
+        RemoveAuraIfNotSelf(SPELL_PALADIN_AURA_RETRIBUTION);
+    }
+
+    void Register() override
+    {
+        OnCast += SpellCastFn(spell_pal_auras::HandleOnCast);
+    }
+
+private:
+    void RemoveAuraIfNotSelf(uint32 spellId)
+    {
+        if (spellId != GetSpellInfo()->Id)
+            GetCaster()->RemoveOwnedAura(spellId);
+    }
+};
+
 // 37877 - Blessing of Faith
 class spell_pal_blessing_of_faith : public SpellScript
 {
@@ -184,29 +216,29 @@ class spell_pal_blessing_of_faith : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        if (Unit* unitTarget = GetHitUnit())
-        {
-            uint32 spell_id = 0;
-            switch (unitTarget->getClass())
-            {
-                case CLASS_DRUID:
-                    spell_id = SPELL_PALADIN_BLESSING_OF_LOWER_CITY_DRUID;
-                    break;
-                case CLASS_PALADIN:
-                    spell_id = SPELL_PALADIN_BLESSING_OF_LOWER_CITY_PALADIN;
-                    break;
-                case CLASS_PRIEST:
-                    spell_id = SPELL_PALADIN_BLESSING_OF_LOWER_CITY_PRIEST;
-                    break;
-                case CLASS_SHAMAN:
-                    spell_id = SPELL_PALADIN_BLESSING_OF_LOWER_CITY_SHAMAN;
-                    break;
-                default:
-                    return; // ignore for non-healing classes
-            }
-            Unit* caster = GetCaster();
-            caster->CastSpell(caster, spell_id, true);
-        }
+if (Unit* unitTarget = GetHitUnit())
+{
+    uint32 spell_id = 0;
+    switch (unitTarget->getClass())
+    {
+    case CLASS_DRUID:
+        spell_id = SPELL_PALADIN_BLESSING_OF_LOWER_CITY_DRUID;
+        break;
+    case CLASS_PALADIN:
+        spell_id = SPELL_PALADIN_BLESSING_OF_LOWER_CITY_PALADIN;
+        break;
+    case CLASS_PRIEST:
+        spell_id = SPELL_PALADIN_BLESSING_OF_LOWER_CITY_PRIEST;
+        break;
+    case CLASS_SHAMAN:
+        spell_id = SPELL_PALADIN_BLESSING_OF_LOWER_CITY_SHAMAN;
+        break;
+    default:
+        return; // ignore for non-healing classes
+    }
+    Unit* caster = GetCaster();
+    caster->CastSpell(caster, spell_id, true);
+}
     }
 
     void Register() override
@@ -1074,6 +1106,7 @@ class spell_pal_zeal : public AuraScript
 void AddSC_paladin_spell_scripts()
 {
     //new spell_pal_ardent_defender();
+    RegisterSpellScript(spell_pal_auras);
     RegisterSpellScript(spell_pal_blessing_of_faith);
     RegisterSpellScript(spell_pal_blessing_of_protection);
     RegisterSpellScript(spell_pal_blinding_light);
