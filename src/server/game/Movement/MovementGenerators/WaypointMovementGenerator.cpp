@@ -186,10 +186,6 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* creature, bool rel
         // We have spline points in waypoint_data_addon table so instead of calculating a path, we append the db side spline points and run that one instead.
         int32 splineIndex = 0;
 
-        // We are re-launching our spline. We want to pick up all spline points that have not been passed yet.
-        if (!creature->movespline->Finalized() && relaunch && _lastSplineId == creature->movespline->GetId())
-            splineIndex = creature->movespline->currentPathIdx();
-
         std::vector<G3D::Vector3>::const_iterator itr = waypoint.SplinePoints.begin();
         if (splineIndex)
             std::advance(itr, splineIndex);
