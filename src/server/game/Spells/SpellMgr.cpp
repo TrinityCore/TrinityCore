@@ -49,16 +49,49 @@ namespace
                 boost::multi_index::tag<SpellIdDifficultyIndex>,
                 boost::multi_index::composite_key<
                     SpellInfo,
-                    boost::multi_index::member<SpellInfo, uint32, &SpellInfo::Id>,
-                    boost::multi_index::member<SpellInfo, Difficulty, &SpellInfo::Difficulty>
+                    boost::multi_index::member<SpellInfo, uint32 const, &SpellInfo::Id>,
+                    boost::multi_index::member<SpellInfo, Difficulty const, &SpellInfo::Difficulty>
                 >
             >,
             boost::multi_index::hashed_non_unique<
                 boost::multi_index::tag<SpellIdIndex>,
-                boost::multi_index::member<SpellInfo, uint32, &SpellInfo::Id>
+                boost::multi_index::member<SpellInfo, uint32 const, &SpellInfo::Id>
             >
         >
     > mSpellInfoMap;
+
+    struct ServersideSpellName
+    {
+        explicit ServersideSpellName(uint32 id, std::string name) : NameStorage(std::move(name))
+        {
+            Name.ID = id;
+            InitPointers();
+        }
+
+        ServersideSpellName(ServersideSpellName const& right) : NameStorage(right.NameStorage)
+        {
+            Name.ID = right.Name.ID;
+            InitPointers();
+        }
+
+        ServersideSpellName(ServersideSpellName&& right) noexcept : NameStorage(std::move(right.NameStorage))
+        {
+            Name.ID = right.Name.ID;
+            InitPointers();
+            right.InitPointers();
+        }
+
+        SpellNameEntry Name;
+        std::string NameStorage;
+
+    private:
+        void InitPointers()
+        {
+            std::fill(std::begin(Name.Name.Str), std::end(Name.Name.Str), NameStorage.c_str());
+        }
+    };
+
+    std::vector<ServersideSpellName> mServersideSpellNames;
 
     std::unordered_map<std::pair<uint32, Difficulty>, SpellProcEntry> mSpellProcMap;
 }
@@ -2585,12 +2618,243 @@ void SpellMgr::LoadSpellInfoStore()
 void SpellMgr::UnloadSpellInfoStore()
 {
     mSpellInfoMap.clear();
+    mServersideSpellNames.clear();
 }
 
 void SpellMgr::UnloadSpellInfoImplicitTargetConditionLists()
 {
     for (SpellInfo const& spellInfo : mSpellInfoMap)
         const_cast<SpellInfo&>(spellInfo)._UnloadImplicitTargetConditionLists();
+}
+
+void SpellMgr::LoadSpellInfoServerside()
+{
+    uint32 oldMSTime = getMSTime();
+
+    std::unordered_map<std::pair<uint32, Difficulty>, std::vector<SpellEffectEntry>> spellEffects;
+
+    //                                                      0        1            2             3       4           5                6
+    QueryResult effectsResult = WorldDatabase.Query("SELECT SpellID, EffectIndex, DifficultyID, Effect, EffectAura, EffectAmplitude, EffectAttributes, "
+    //   7                 8                       9                     10                  11              12              13
+        "EffectAuraPeriod, EffectBonusCoefficient, EffectChainAmplitude, EffectChainTargets, EffectItemType, EffectMechanic, EffectPointsPerResource, "
+    //   14               15                        16                  17                      18             19           20
+        "EffectPosFacing, EffectRealPointsPerLevel, EffectTriggerSpell, BonusCoefficientFromAP, PvpMultiplier, Coefficient, Variance, "
+    //   21                   22                              23                24                25                26
+        "ResourceCoefficient, GroupSizeBasePointsCoefficient, EffectBasePoints, EffectMiscValue1, EffectMiscValue2, EffectRadiusIndex1, "
+    //   27                  28                     29                     30                     31                     32
+        "EffectRadiusIndex2, EffectSpellClassMask1, EffectSpellClassMask2, EffectSpellClassMask3, EffectSpellClassMask4, ImplicitTarget1, "
+    //   33
+        "ImplicitTarget2 FROM serverside_spell_effect");
+    if (effectsResult)
+    {
+        do
+        {
+            Field* fields = effectsResult->Fetch();
+            uint32 spellId = fields[0].GetUInt32();
+            Difficulty difficulty = Difficulty(fields[2].GetUInt32());
+            SpellEffectEntry effect{ };
+            effect.EffectIndex = fields[1].GetInt32();
+            effect.Effect = fields[3].GetInt32();
+            effect.EffectAura = fields[4].GetInt16();
+            effect.EffectAmplitude = fields[5].GetFloat();
+            effect.EffectAttributes = fields[6].GetInt32();
+            effect.EffectAuraPeriod = fields[7].GetInt32();
+            effect.EffectBonusCoefficient = fields[8].GetFloat();
+            effect.EffectChainAmplitude = fields[9].GetFloat();
+            effect.EffectChainTargets = fields[10].GetInt32();
+            effect.EffectItemType = fields[11].GetInt32();
+            effect.EffectMechanic = Mechanics(fields[12].GetInt32());
+            effect.EffectPointsPerResource = fields[13].GetFloat();
+            effect.EffectPosFacing = fields[14].GetFloat();
+            effect.EffectRealPointsPerLevel = fields[15].GetFloat();
+            effect.EffectTriggerSpell = fields[16].GetInt32();
+            effect.BonusCoefficientFromAP = fields[17].GetFloat();
+            effect.PvpMultiplier = fields[18].GetFloat();
+            effect.Coefficient = fields[19].GetFloat();
+            effect.Variance = fields[20].GetFloat();
+            effect.ResourceCoefficient = fields[21].GetFloat();
+            effect.GroupSizeBasePointsCoefficient = fields[22].GetFloat();
+            effect.EffectBasePoints = fields[23].GetFloat();
+            effect.EffectMiscValue[0] = fields[24].GetInt32();
+            effect.EffectMiscValue[1] = fields[25].GetInt32();
+            effect.EffectRadiusIndex[0] = fields[26].GetUInt32();
+            effect.EffectRadiusIndex[1] = fields[27].GetUInt32();
+            effect.EffectSpellClassMask = flag128(fields[28].GetInt32(), fields[29].GetInt32(), fields[30].GetInt32(), fields[31].GetInt32());
+            effect.ImplicitTarget[0] = fields[32].GetInt16();
+            effect.ImplicitTarget[1] = fields[33].GetInt16();
+
+            auto existingSpellBounds = _GetSpellInfo(spellId);
+            if (existingSpellBounds.begin() != existingSpellBounds.end())
+            {
+                TC_LOG_ERROR("sql.sql", "Serverside spell %u difficulty %u effext index %u references a regular spell loaded from file. Adding serverside effects to existing spells is not allowed.",
+                    spellId, uint32(difficulty), effect.EffectIndex);
+                continue;
+            }
+
+            if (difficulty != DIFFICULTY_NONE && !sDifficultyStore.HasRecord(difficulty))
+            {
+                TC_LOG_ERROR("sql.sql", "Serverside spell %u effect index %u references non-existing difficulty %u, skipped",
+                    spellId, effect.EffectIndex, uint32(difficulty));
+                continue;
+            }
+
+            if (effect.EffectIndex >= MAX_SPELL_EFFECTS)
+            {
+                TC_LOG_ERROR("sql.sql", "Serverside spell %u difficulty %u has more than 32 effects, effect at index %u skipped",
+                    spellId, uint32(difficulty), effect.EffectIndex);
+                continue;
+            }
+
+            if (effect.Effect >= TOTAL_SPELL_EFFECTS)
+            {
+                TC_LOG_ERROR("sql.sql", "Serverside spell %u difficulty %u has invalid effect type %u at index %u, skipped",
+                    spellId, uint32(difficulty), effect.Effect, effect.EffectIndex);
+                continue;
+            }
+
+            if (effect.EffectAura >= int32(TOTAL_AURAS))
+            {
+                TC_LOG_ERROR("sql.sql", "Serverside spell %u difficulty %u has invalid aura type %u at index %u, skipped",
+                    spellId, uint32(difficulty), effect.EffectAura, effect.EffectIndex);
+                continue;
+            }
+
+            if (effect.ImplicitTarget[0] >= TOTAL_SPELL_TARGETS)
+            {
+                TC_LOG_ERROR("sql.sql", "Serverside spell %u difficulty %u has invalid targetA type %u at index %u, skipped",
+                    spellId, uint32(difficulty), effect.ImplicitTarget[0], effect.EffectIndex);
+                continue;
+            }
+
+            if (effect.ImplicitTarget[1] >= TOTAL_SPELL_TARGETS)
+            {
+                TC_LOG_ERROR("sql.sql", "Serverside spell %u difficulty %u has invalid targetB type %u at index %u, skipped",
+                    spellId, uint32(difficulty), effect.ImplicitTarget[1], effect.EffectIndex);
+                continue;
+            }
+
+            if (effect.EffectRadiusIndex[0] && !sSpellRadiusStore.HasRecord(effect.EffectRadiusIndex[0]))
+            {
+                TC_LOG_ERROR("sql.sql", "Serverside spell %u difficulty %u has invalid radius id %u at index %u, set to 0",
+                    spellId, uint32(difficulty), effect.EffectRadiusIndex[0], effect.EffectIndex);
+            }
+
+            if (effect.EffectRadiusIndex[1] && !sSpellRadiusStore.HasRecord(effect.EffectRadiusIndex[1]))
+            {
+                TC_LOG_ERROR("sql.sql", "Serverside spell %u difficulty %u has invalid max radius id %u at index %u, set to 0",
+                    spellId, uint32(difficulty), effect.EffectRadiusIndex[1], effect.EffectIndex);
+            }
+
+            spellEffects[{ spellId, difficulty }].push_back(std::move(effect));
+
+        } while (effectsResult->NextRow());
+    }
+
+    //                                                     0   1             2           3       4         5           6             7              8
+    QueryResult spellsResult = WorldDatabase.Query("SELECT Id, DifficultyID, CategoryId, Dispel, Mechanic, Attributes, AttributesEx, AttributesEx2, AttributesEx3, "
+    //   9              10             11             12             13             14             15              16              17              18
+        "AttributesEx4, AttributesEx5, AttributesEx6, AttributesEx7, AttributesEx8, AttributesEx9, AttributesEx10, AttributesEx11, AttributesEx12, AttributesEx13, "
+    //   19              20       21          22       23                  24                  25                 26               27
+        "AttributesEx14, Stances, StancesNot, Targets, TargetCreatureType, RequiresSpellFocus, FacingCasterFlags, CasterAuraState, TargetAuraState, "
+    //   28                      29                      30               31               32                      33                      34
+        "ExcludeCasterAuraState, ExcludeTargetAuraState, CasterAuraSpell, TargetAuraSpell, ExcludeCasterAuraSpell, ExcludeTargetAuraSpell, CastingTimeIndex, "
+    //   35            36                    37                     38                 39              40                   41
+        "RecoveryTime, CategoryRecoveryTime, StartRecoveryCategory, StartRecoveryTime, InterruptFlags, AuraInterruptFlags1, AuraInterruptFlags2, "
+    //   42                      43                      44         45          46           47            48           49        50         51
+        "ChannelInterruptFlags1, ChannelInterruptFlags2, ProcFlags, ProcChance, ProcCharges, ProcCooldown, ProcBasePPM, MaxLevel, BaseLevel, SpellLevel, "
+    //   52             53          54     55           56           57                 58                        59                             60
+        "DurationIndex, RangeIndex, Speed, LaunchDelay, StackAmount, EquippedItemClass, EquippedItemSubClassMask, EquippedItemInventoryTypeMask, ContentTuningId, "
+    //   61         62         63         64              65                  66               67                 68                 69                 70
+        "SpellName, ConeAngle, ConeWidth, MaxTargetLevel, MaxAffectedTargets, SpellFamilyName, SpellFamilyFlags1, SpellFamilyFlags2, SpellFamilyFlags3, SpellFamilyFlags4, "
+    //   71        72              73           74          75
+        "DmgClass, PreventionType, AreaGroupId, SchoolMask, ChargeCategoryId FROM serverside_spell");
+    if (spellsResult)
+    {
+        mServersideSpellNames.reserve(spellsResult->GetRowCount());
+
+        do
+        {
+            Field* fields = spellsResult->Fetch();
+            uint32 spellId = fields[0].GetUInt32();
+            Difficulty difficulty = Difficulty(fields[2].GetUInt32());
+            mServersideSpellNames.emplace_back(spellId, fields[61].GetString());
+
+            SpellInfo& spellInfo = const_cast<SpellInfo&>(*mSpellInfoMap.emplace(&mServersideSpellNames.back().Name, difficulty, spellEffects[{ spellId, difficulty }]).first);
+            spellInfo.CategoryId = fields[2].GetUInt32();
+            spellInfo.Dispel = fields[3].GetUInt32();
+            spellInfo.Mechanic = fields[4].GetUInt32();
+            spellInfo.Attributes = fields[5].GetUInt32();
+            spellInfo.AttributesEx = fields[6].GetUInt32();
+            spellInfo.AttributesEx2 = fields[7].GetUInt32();
+            spellInfo.AttributesEx3 = fields[8].GetUInt32();
+            spellInfo.AttributesEx4 = fields[9].GetUInt32();
+            spellInfo.AttributesEx5 = fields[10].GetUInt32();
+            spellInfo.AttributesEx6 = fields[11].GetUInt32();
+            spellInfo.AttributesEx7 = fields[12].GetUInt32();
+            spellInfo.AttributesEx8 = fields[13].GetUInt32();
+            spellInfo.AttributesEx9 = fields[14].GetUInt32();
+            spellInfo.AttributesEx10 = fields[15].GetUInt32();
+            spellInfo.AttributesEx11 = fields[16].GetUInt32();
+            spellInfo.AttributesEx12 = fields[17].GetUInt32();
+            spellInfo.AttributesEx13 = fields[18].GetUInt32();
+            spellInfo.AttributesEx14 = fields[19].GetUInt32();
+            spellInfo.Stances = fields[20].GetUInt64();
+            spellInfo.StancesNot = fields[21].GetUInt64();
+            spellInfo.Targets = fields[22].GetUInt32();
+            spellInfo.TargetCreatureType = fields[23].GetUInt32();
+            spellInfo.RequiresSpellFocus = fields[24].GetUInt32();
+            spellInfo.FacingCasterFlags = fields[25].GetUInt32();
+            spellInfo.CasterAuraState = fields[26].GetUInt32();
+            spellInfo.TargetAuraState = fields[27].GetUInt32();
+            spellInfo.ExcludeCasterAuraState = fields[28].GetUInt32();
+            spellInfo.ExcludeTargetAuraState = fields[29].GetUInt32();
+            spellInfo.CasterAuraSpell = fields[30].GetUInt32();
+            spellInfo.TargetAuraSpell = fields[31].GetUInt32();
+            spellInfo.ExcludeCasterAuraSpell = fields[32].GetUInt32();
+            spellInfo.ExcludeTargetAuraSpell = fields[33].GetUInt32();
+            spellInfo.CastTimeEntry = sSpellCastTimesStore.LookupEntry(fields[34].GetUInt32());
+            spellInfo.RecoveryTime = fields[35].GetUInt32();
+            spellInfo.CategoryRecoveryTime = fields[36].GetUInt32();
+            spellInfo.StartRecoveryCategory = fields[37].GetUInt32();
+            spellInfo.StartRecoveryTime = fields[38].GetUInt32();
+            spellInfo.InterruptFlags = fields[39].GetUInt32();
+            spellInfo.AuraInterruptFlags[0] = fields[40].GetUInt32();
+            spellInfo.AuraInterruptFlags[1] = fields[41].GetUInt32();
+            spellInfo.ChannelInterruptFlags[0] = fields[42].GetUInt32();
+            spellInfo.ChannelInterruptFlags[1] = fields[43].GetUInt32();
+            spellInfo.ProcFlags = fields[44].GetUInt32();
+            spellInfo.ProcChance = fields[45].GetUInt32();
+            spellInfo.ProcCharges = fields[46].GetUInt32();
+            spellInfo.ProcCooldown = fields[47].GetUInt32();
+            spellInfo.ProcBasePPM = fields[48].GetFloat();
+            spellInfo.MaxLevel = fields[49].GetUInt32();
+            spellInfo.BaseLevel = fields[50].GetUInt32();
+            spellInfo.SpellLevel = fields[51].GetUInt32();
+            spellInfo.DurationEntry = sSpellDurationStore.LookupEntry(fields[52].GetUInt32());
+            spellInfo.RangeEntry = sSpellRangeStore.LookupEntry(fields[53].GetUInt32());
+            spellInfo.Speed = fields[54].GetFloat();
+            spellInfo.LaunchDelay = fields[55].GetFloat();
+            spellInfo.StackAmount = fields[56].GetUInt32();
+            spellInfo.EquippedItemClass = fields[57].GetInt32();
+            spellInfo.EquippedItemSubClassMask = fields[58].GetInt32();
+            spellInfo.EquippedItemInventoryTypeMask = fields[59].GetInt32();
+            spellInfo.ContentTuningId = fields[60].GetUInt32();
+            spellInfo.ConeAngle = fields[62].GetFloat();
+            spellInfo.Width = fields[63].GetFloat();
+            spellInfo.MaxTargetLevel = fields[64].GetUInt32();
+            spellInfo.MaxAffectedTargets = fields[65].GetUInt32();
+            spellInfo.SpellFamilyName = fields[66].GetUInt32();
+            spellInfo.SpellFamilyFlags = flag128(fields[67].GetUInt32(), fields[68].GetUInt32(), fields[69].GetUInt32(), fields[70].GetUInt32());
+            spellInfo.DmgClass = fields[71].GetUInt32();
+            spellInfo.PreventionType = fields[72].GetUInt32();
+            spellInfo.RequiredAreasID = fields[73].GetInt32();
+            spellInfo.SchoolMask = fields[74].GetUInt32();
+            spellInfo.ChargeCategoryId = fields[75].GetUInt32();
+
+        } while (spellsResult->NextRow());
+    }
+
+    TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " serverside spells %u ms", mServersideSpellNames.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void SpellMgr::LoadSpellInfoCustomAttributes()
