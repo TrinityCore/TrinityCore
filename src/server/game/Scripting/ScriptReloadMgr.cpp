@@ -233,7 +233,7 @@ public:
     // @tswow-begin
     void AddTSScripts() const
     {
-        if(_addTSScripts)
+        if(_addTSScripts && TSShouldLoadEventHandler(GetModulePath()))
         {
             _addTSScripts(TSLoadEventHandler(GetModulePath()));
         }

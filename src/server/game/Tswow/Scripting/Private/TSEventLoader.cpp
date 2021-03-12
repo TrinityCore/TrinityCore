@@ -43,13 +43,14 @@
 #include "TSChannel.h"
 #include "TSTask.h"
 #include "DBCStores.h"
-#include <fstream>
-#include <map>
 #include "MapManager.h"
 #include "Base64.h"
+#include "Config.h"
+
+#include <fstream>
+#include <map>
 
 TSTasks<void*> globalTasks;
-
 TSTasks<void*> GetTasks()
 {
     return globalTasks;
@@ -76,10 +77,37 @@ uint32_t GetReloads(uint32_t modid)
     return reloads[modid];
 }
 
+bool TSShouldLoadEventHandler(boost::filesystem::path const& name)
+{
+    std::string name_str = name.filename().string();
+    if(name_str.size() <= 4)
+    {
+        return false;
+    }
+    name_str = name_str.substr(14,name_str.size()-18);
+    std::string data_dir =
+        sConfigMgr->GetStringDefault("DataDir","../../datasets/default");
+    auto modulesfile =
+        boost::filesystem::path(data_dir) / boost::filesystem::path("modules.txt");
+    std::ifstream f(modulesfile.string().c_str());
+    if(!f)
+    {
+        return true;
+    }
+    std::string line;
+    while (std::getline(f, line))
+    {
+        if(line == name_str)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 TSEventHandlers* TSLoadEventHandler(boost::filesystem::path const& name)
 {
     std::string sname = name.string();
-
     uint32_t modid = 0;
     if(modIds.find(sname) != modIds.end())
     {
