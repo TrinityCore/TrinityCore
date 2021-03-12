@@ -1,0 +1,1 @@
+UPDATE `spell_proc` SET `SpellFamilyMask0`= 0x200 | 0x400 | 0x800 | 0x1000 | 0x1000000 | 0x8000000 | 0x10000000, `SpellFamilyMask1`= 0x4, `SpellFamilyMask2`= 0x4 | 0x1000,`AttributesMask`= 0x2 WHERE `SpellId`= 77485;
