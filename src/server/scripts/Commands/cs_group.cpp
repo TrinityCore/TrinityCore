@@ -73,6 +73,8 @@ public:
 
     static bool HandleGroupLevelCommand(ChatHandler* handler, Optional<PlayerIdentifier> player, int16 level)
     {
+        if (level < 1)
+            return false;
         if (!player)
             player = PlayerIdentifier::FromTargetOrSelf(handler);
         if (!player)
