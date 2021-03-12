@@ -433,7 +433,8 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         bool GameObjectRespawnRelocation(GameObject* go, bool diffGridOnly);
 
         // assert print helper
-        bool CheckGridIntegrity(Creature* c, bool moved) const;
+        template <typename T>
+        static bool CheckGridIntegrity(T* object, bool moved, char const* objType);
 
         uint32 GetInstanceId() const { return i_InstanceId; }
 
@@ -659,6 +660,9 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void SetTimer(uint32 t) { i_gridExpiry = t < MIN_GRID_DELAY ? MIN_GRID_DELAY : t; }
 
         void SendInitSelf(Player* player);
+
+        template <typename T>
+        bool MapObjectCellRelocation(T* object, Cell new_cell, char const* objType);
 
         bool CreatureCellRelocation(Creature* creature, Cell new_cell);
         bool GameObjectCellRelocation(GameObject* go, Cell new_cell);
