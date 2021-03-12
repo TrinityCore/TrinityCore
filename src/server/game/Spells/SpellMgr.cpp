@@ -2777,6 +2777,13 @@ void SpellMgr::LoadSpellInfoServerside()
             Field* fields = spellsResult->Fetch();
             uint32 spellId = fields[0].GetUInt32();
             Difficulty difficulty = Difficulty(fields[2].GetUInt32());
+            if (sSpellNameStore.HasRecord(spellId))
+            {
+                TC_LOG_ERROR("sql.sql", "Serverside spell %u difficulty %u is already loaded from file. Overriding existing spells is not allowed.",
+                    spellId, uint32(difficulty));
+                continue;
+            }
+
             mServersideSpellNames.emplace_back(spellId, fields[61].GetString());
 
             SpellInfo& spellInfo = const_cast<SpellInfo&>(*mSpellInfoMap.emplace(&mServersideSpellNames.back().Name, difficulty, spellEffects[{ spellId, difficulty }]).first);
