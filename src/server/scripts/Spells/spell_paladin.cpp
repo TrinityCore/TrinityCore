@@ -1981,9 +1981,20 @@ class spell_pal_seal_of_insight : public AuraScript
         return (!eventInfo.GetSpellInfo() || !eventInfo.GetSpellInfo()->IsAffectingArea());
     }
 
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        PreventDefaultAction();
+        Unit* target = GetTarget();
+        int32 bp0 = CalculatePct(target->GetTotalAttackPowerValue(BASE_ATTACK), 15.f) + CalculatePct(target->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY), 15.f);
+        int32 bp1 = CalculatePct(target->GetCreateMana(), 4.f);
+        int32 spellId = GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
+        target->CastSpell(target, spellId, CastSpellExtraArgs(aurEff).AddSpellBP0(bp0).AddSpellMod(SPELLVALUE_BASE_POINT1, bp1));
+    }
+
     void Register() override
     {
         DoCheckProc.Register(&spell_pal_seal_of_insight::CheckProc);
+        OnEffectProc.Register(&spell_pal_seal_of_insight::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
     }
 };
 
