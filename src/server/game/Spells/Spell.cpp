@@ -5128,18 +5128,26 @@ void Spell::TakeRunePower(SpellMissInfo hitInfo)
     m_runesState = player->GetRunesState();                 // store previous state
     player->ClearLastUsedRuneMask();
 
-    int32 runeCost[NUM_RUNE_TYPES];                         // blood, frost, unholy, death
-    int32 runicPowerGain = runeCostData->RunicPower * sWorld->getRate(RATE_POWER_RUNICPOWER_INCOME);
+    std::array<int32, NUM_RUNE_TYPES> runeCost = { };        // blood, frost, unholy, death
 
     // Apply rune cost modifiers
-    for (uint32 i = 0; i < RUNE_DEATH; ++i)
+    for (uint8 i = 0; i < RUNE_DEATH; ++i)
     {
         runeCost[i] = runeCostData->RuneCost[i];
         if (Player* modOwner = m_caster->GetSpellModOwner())
             modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_COST, runeCost[i], const_cast<Spell*>(this));
     }
 
-    bool consumeRunes = hitInfo == SPELL_MISS_NONE || hitInfo == SPELL_MISS_MISS;
+    bool consumeRunes = false;
+    for (uint8 i = 0; i < RUNE_DEATH; ++i)
+        if (runeCost[i] != 0)
+            consumeRunes = true;
+
+    // If the spell does not require any rune because of power cost spell mods, the Death Knight wont gain any Runic Power (Freezing Fog for example)
+    if (!consumeRunes)
+        return;
+
+    consumeRunes = hitInfo == SPELL_MISS_NONE || hitInfo == SPELL_MISS_MISS;
     // Death Strike is special - it consumes runes on dodge and parry as well, because the healing component still goes through.
     // There is no flag to control this and it's probably tied to how Blizzard applies spell effects and auras, which we KNOW we do wrong.
     if (m_spellInfo->Id == 49998)
@@ -5159,7 +5167,7 @@ void Spell::TakeRunePower(SpellMissInfo hitInfo)
             player->SetRuneCooldown(i, consumeRunes ? uint32(RUNE_BASE_COOLDOWN) : uint32(RUNE_MISS_COOLDOWN));
             player->SetLastUsedRune(rune);
             player->SetLastUsedRuneIndex(i);
-            runeCost[rune]--;
+            --runeCost[rune];
         }
     }
 
@@ -5168,7 +5176,7 @@ void Spell::TakeRunePower(SpellMissInfo hitInfo)
 
     if (runeCost[RUNE_DEATH] > 0)
     {
-        for (uint32 i = 0; i < MAX_RUNES; ++i)
+        for (uint8 i = 0; i < MAX_RUNES; ++i)
         {
             RuneType rune = player->GetCurrentRune(i);
             if (!player->GetRuneCooldown(i) && rune == RUNE_DEATH)
@@ -5188,10 +5196,10 @@ void Spell::TakeRunePower(SpellMissInfo hitInfo)
         }
     }
 
-    // you can gain some runic power when use runes
+    // If the spell has consumed runes, runic power will be generated
     if (consumeRunes)
     {
-        if (runicPowerGain)
+        if (int32 runicPowerGain = runeCostData->RunicPower * sWorld->getRate(RATE_POWER_RUNICPOWER_INCOME))
         {
             Unit::AuraEffectList const& bonusPct = m_caster->GetAuraEffectsByType(SPELL_AURA_MOD_RUNE_REGEN_SPEED);
             for (auto i = bonusPct.begin(); i != bonusPct.end(); ++i)
