@@ -63,7 +63,7 @@ struct npc_deepholm_xariona : public ScriptedAI
         DoCastSelf(SPELL_ROGUE_CLASS_CRIT_DODGE_DEBUFF);
     }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* /*who`*/) override
     {
         _events.ScheduleEvent(EVENT_FURY_OF_THE_TWILIGHT_FLIGHT, 1s);
         _events.ScheduleEvent(EVENT_TWILIGHT_BREATH, 14s);
