@@ -46,6 +46,33 @@ struct AchievementEntry
     int32 CovenantID;
 };
 
+struct AdventureJournalEntry
+{
+    uint32 ID;
+    LocalizedString Name;
+    LocalizedString Description;
+    LocalizedString ButtonText;
+    LocalizedString RewardDescription;
+    LocalizedString ContinueDescription;
+    uint8 Type;
+    uint32 PlayerConditionID;
+    uint8 Flags;
+    uint8 ButtonActionType;
+    int32 TextureFileDataID;
+    uint16 LfgDungeonID;
+    int32 QuestID;
+    uint16 BattleMasterListID;
+    uint8 PriorityMin;
+    uint8 PriorityMax;
+    int32 ItemID;
+    uint32 ItemQuantity;
+    uint16 CurrencyType;
+    uint32 CurrencyQuantity;
+    uint16 UiMapID;
+    int32 BonusPlayerConditionID[2];
+    uint8 BonusValue[2];
+};
+
 struct AnimationDataEntry
 {
     uint32 ID;
