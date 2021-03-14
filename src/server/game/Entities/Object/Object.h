@@ -418,8 +418,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void ClearZoneScript();
         ZoneScript* GetZoneScript() const { return m_zoneScript; }
 
-        TempSummon* SummonCreature(uint32 entry, Position const& pos, TempSummonType despawnType = TEMPSUMMON_MANUAL_DESPAWN, Milliseconds despawnTime = 0s, uint32 vehId = 0, uint32 spellId = 0, bool visibleBySummonerOnly = false);
-        TempSummon* SummonCreature(uint32 entry, float x, float y, float z, float o = 0, TempSummonType despawnType = TEMPSUMMON_MANUAL_DESPAWN, Milliseconds despawnTime = 0s, bool visibleBySummonerOnly = false);
+        TempSummon* SummonCreature(uint32 entry, Position const& pos, TempSummonType despawnType = TEMPSUMMON_MANUAL_DESPAWN, Milliseconds despawnTime = 0s, uint32 vehId = 0, uint32 spellId = 0, bool personalSpawn = false);
+        TempSummon* SummonCreature(uint32 entry, float x, float y, float z, float o = 0, TempSummonType despawnType = TEMPSUMMON_MANUAL_DESPAWN, Milliseconds despawnTime = 0s, bool personalSpawn = false);
         GameObject* SummonGameObject(uint32 entry, Position const& pos, QuaternionData const& rot, Seconds respawnTime, GOSummonType summonType = GO_SUMMON_TIMED_OR_CORPSE_DESPAWN);
         GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, QuaternionData const& rot, Seconds respawnTime, GOSummonType summonType = GO_SUMMON_TIMED_OR_CORPSE_DESPAWN);
         Creature*   SummonTrigger(float x, float y, float z, float ang, Milliseconds despawnTime, CreatureAI* (*GetAI)(Creature*) = nullptr);
@@ -546,6 +546,11 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         // Event handler
         EventProcessor m_Events;
 
+        // Watcher
+        bool IsPrivateObject() const { return !_privateObjectOwner.IsEmpty(); }
+        ObjectGuid GetPrivateObjectOwner() const { return _privateObjectOwner; }
+        void SetPrivateObjectOwner(ObjectGuid const& owner) { _privateObjectOwner = owner; }
+
     protected:
         std::string m_name;
         bool m_isActive;
@@ -582,6 +587,9 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         uint32 m_phaseMask;                               // in area phase state
 
         uint16 m_notifyflags;
+
+        ObjectGuid _privateObjectOwner;
+
         virtual bool _IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D, bool incOwnRadius = true, bool incTargetRadius = true) const;
 
         bool CanNeverSee(WorldObject const* obj) const;
