@@ -685,6 +685,16 @@ namespace WorldPackets
             uint8 FactionIndex = 0;
         };
 
+        class SetWarMode final : public ClientPacket
+        {
+        public:
+            SetWarMode(WorldPacket&& packet) : ClientPacket(CMSG_SET_WAR_MODE, std::move(packet)) { }
+
+            void Read() override;
+
+            bool Enable = false;
+        };
+
         class SetFactionInactive final : public ClientPacket
         {
         public:

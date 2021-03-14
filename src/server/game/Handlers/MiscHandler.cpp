@@ -312,38 +312,43 @@ void WorldSession::HandleLogoutCancelOpcode(WorldPackets::Character::LogoutCance
 
 void WorldSession::HandleTogglePvP(WorldPackets::Misc::TogglePvP& /*packet*/)
 {
-    if (GetPlayer()->HasPlayerFlag(PLAYER_FLAGS_IN_PVP))
-    {
-        GetPlayer()->RemovePlayerFlag(PLAYER_FLAGS_IN_PVP);
-        GetPlayer()->AddPlayerFlag(PLAYER_FLAGS_PVP_TIMER);
-        if (!GetPlayer()->pvpInfo.IsHostile && GetPlayer()->IsPvP())
-            GetPlayer()->pvpInfo.EndTimer = time(nullptr); // start toggle-off
-    }
-    else
+    if (!GetPlayer()->HasPlayerFlag(PLAYER_FLAGS_IN_PVP))
     {
         GetPlayer()->AddPlayerFlag(PLAYER_FLAGS_IN_PVP);
         GetPlayer()->RemovePlayerFlag(PLAYER_FLAGS_PVP_TIMER);
         if (!GetPlayer()->IsPvP() || GetPlayer()->pvpInfo.EndTimer)
             GetPlayer()->UpdatePvP(true, true);
+    }
+    else if (!GetPlayer()->IsWarModeLocalActive())
+    {
+        GetPlayer()->RemovePlayerFlag(PLAYER_FLAGS_IN_PVP);
+        GetPlayer()->AddPlayerFlag(PLAYER_FLAGS_PVP_TIMER);
+        if (!GetPlayer()->pvpInfo.IsHostile && GetPlayer()->IsPvP())
+            GetPlayer()->pvpInfo.EndTimer = time(nullptr); // start toggle-off
     }
 }
 
 void WorldSession::HandleSetPvP(WorldPackets::Misc::SetPvP& packet)
 {
-    if (!packet.EnablePVP)
-    {
-        GetPlayer()->RemovePlayerFlag(PLAYER_FLAGS_IN_PVP);
-        GetPlayer()->AddPlayerFlag(PLAYER_FLAGS_PVP_TIMER);
-        if (!GetPlayer()->pvpInfo.IsHostile && GetPlayer()->IsPvP())
-            GetPlayer()->pvpInfo.EndTimer = time(nullptr); // start toggle-off
-    }
-    else
+    if (packet.EnablePVP)
     {
         GetPlayer()->AddPlayerFlag(PLAYER_FLAGS_IN_PVP);
         GetPlayer()->RemovePlayerFlag(PLAYER_FLAGS_PVP_TIMER);
         if (!GetPlayer()->IsPvP() || GetPlayer()->pvpInfo.EndTimer)
             GetPlayer()->UpdatePvP(true, true);
     }
+    else if (!GetPlayer()->IsWarModeLocalActive())
+    {
+        GetPlayer()->RemovePlayerFlag(PLAYER_FLAGS_IN_PVP);
+        GetPlayer()->AddPlayerFlag(PLAYER_FLAGS_PVP_TIMER);
+        if (!GetPlayer()->pvpInfo.IsHostile && GetPlayer()->IsPvP())
+            GetPlayer()->pvpInfo.EndTimer = time(nullptr); // start toggle-off
+    }
+}
+
+void WorldSession::HandleSetWarMode(WorldPackets::Character::SetWarMode& packet)
+{
+    _player->SetWarModeDesired(packet.Enable);
 }
 
 void WorldSession::HandlePortGraveyard(WorldPackets::Misc::PortGraveyard& /*packet*/)
