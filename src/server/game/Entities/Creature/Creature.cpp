@@ -3311,14 +3311,6 @@ bool Creature::IsEngaged() const
     return false;
 }
 
-void Creature::AtEnterCombat()
-{
-    Unit::AtEnterCombat();
-
-    if (GetAI() && !IsControlledByPlayer())
-        SendAIReaction(AI_REACTION_HOSTILE);
-}
-
 void Creature::AtEngage(Unit* target)
 {
     Unit::AtEngage(target);
@@ -3336,6 +3328,9 @@ void Creature::AtEngage(Unit* target)
         ai->JustEngagedWith(target);
     if (CreatureGroup* formation = GetFormation())
         formation->MemberEngagingTarget(this, target);
+
+    if (GetAI() && !IsControlledByPlayer())
+        SendAIReaction(AI_REACTION_HOSTILE);
 }
 
 void Creature::AtDisengage()
