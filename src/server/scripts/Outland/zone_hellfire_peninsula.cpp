@@ -15,19 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Hellfire_Peninsula
-SD%Complete: 100
-SDComment: Quest support: 9375, 9410, 9418, 10129, 10146, 10162, 10163, 10340, 10346, 10347, 10382 (Special flight paths) "Needs update"
-SDCategory: Hellfire Peninsula
-EndScriptData */
-
-/* ContentData
-npc_aeranas
-npc_ancestral_wolf
-npc_wounded_blood_elf
-EndContentData */
-
 #include "ScriptMgr.h"
 #include "CellImpl.h"
 #include "GridNotifiersImpl.h"
@@ -130,113 +117,6 @@ public:
     CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_aeranasAI(creature);
-    }
-};
-
-/*######
-## npc_ancestral_wolf
-######*/
-
-enum AncestralWolf
-{
-    EMOTE_WOLF_LIFT_HEAD        = 0,
-    EMOTE_WOLF_HOWL             = 1,
-    SAY_WOLF_WELCOME            = 0,
-    SPELL_ANCESTRAL_WOLF_BUFF   = 29938,
-    NPC_RYGA                    = 17123
-};
-
-class npc_ancestral_wolf : public CreatureScript
-{
-public:
-    npc_ancestral_wolf() : CreatureScript("npc_ancestral_wolf") { }
-
-    struct npc_ancestral_wolfAI : public EscortAI
-    {
-        npc_ancestral_wolfAI(Creature* creature) : EscortAI(creature) { }
-
-        void InitializeAI() override
-        {
-            if (me->GetOwner() && me->GetOwner()->GetTypeId() == TYPEID_PLAYER)
-            {
-                EscortAI::Start(false, false, me->GetOwner()->GetGUID());
-
-                me->SetSpeedRate(MOVE_WALK, 1.5f);
-
-                if (TempSummon* tempSummon = me->ToTempSummon())
-                    tempSummon->SetCanFollowOwner(false);
-            }
-            else
-                TC_LOG_ERROR("scripts", "TRINITY: npc_ancestral_wolf can not obtain owner or owner is not a player.");
-        }
-
-        void Reset() override
-        {
-        }
-
-        // Override Evade Mode event, recast buff that was removed by standard handler
-        void EnterEvadeMode(EvadeReason why) override
-        {
-            EscortAI::EnterEvadeMode(why);
-            DoCast(me, SPELL_ANCESTRAL_WOLF_BUFF, true);
-        }
-
-        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
-        {
-            switch (waypointId)
-            {
-                case 0:
-                    Talk(EMOTE_WOLF_LIFT_HEAD);
-                    break;
-                case 2:
-                    Talk(EMOTE_WOLF_HOWL);
-                    DoCast(me, SPELL_ANCESTRAL_WOLF_BUFF, true);
-                    break;
-                // Move Ryga into position
-                case 48:
-                    if (Creature* ryga = me->FindNearestCreature(NPC_RYGA, 70.0f))
-                    {
-                        if (ryga->IsAlive() && !ryga->IsInCombat())
-                        {
-                            ryga->SetWalk(true);
-                            ryga->SetSpeedRate(MOVE_WALK, 1.5f);
-                            ryga->GetMotionMaster()->MovePoint(0, 517.340698f, 3885.03975f, 190.455978f, true);
-                        }
-                    }
-                    break;
-                // Ryga Kneels and welcomes spirit wolf
-                case 50:
-                    if (Creature* ryga = me->FindNearestCreature(NPC_RYGA, 70.0f))
-                    {
-                        if (ryga->IsAlive() && !ryga->IsInCombat())
-                        {
-                            ryga->SetFacingTo(0.776773f);
-                            ryga->SetStandState(UNIT_STAND_STATE_KNEEL);
-                            ryga->AI()->Talk(SAY_WOLF_WELCOME);
-                        }
-                    }
-                    break;
-                // Ryga returns to spawn point
-                case 51:
-                    if (Creature* ryga = me->FindNearestCreature(NPC_RYGA, 70.0f))
-                    {
-                        if (ryga->IsAlive() && !ryga->IsInCombat())
-                        {
-                            float fRetX, fRetY, fRetZ, fRetO;
-                            ryga->GetRespawnPosition(fRetX, fRetY, fRetZ, &fRetO);
-                            ryga->SetHomePosition(fRetX, fRetY, fRetZ, fRetO);
-                            ryga->SetStandState(UNIT_STAND_STATE_STAND);
-                            ryga->GetMotionMaster()->MoveTargetedHome();
-                        }
-                    }
-                    break;
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_ancestral_wolfAI(creature);
     }
 };
 
@@ -1009,7 +889,6 @@ struct npc_fear_controller : public ScriptedAI
 void AddSC_hellfire_peninsula()
 {
     new npc_aeranas();
-    new npc_ancestral_wolf();
     new npc_colonel_jules();
     new npc_barada();
     new npc_magister_aledis();
