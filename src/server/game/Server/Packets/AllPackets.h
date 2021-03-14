@@ -20,6 +20,7 @@
 
 #include "AchievementPackets.h"
 #include "AddonPackets.h"
+#include "AdventureJournalPackets.h"
 #include "AreaTriggerPackets.h"
 #include "ArtifactPackets.h"
 #include "AuctionHousePackets.h"

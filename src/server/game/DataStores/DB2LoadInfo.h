@@ -53,6 +53,43 @@ struct AchievementLoadInfo
     }
 };
 
+struct AdventureJournalLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_STRING, "Name" },
+            { false, FT_STRING, "Description" },
+            { false, FT_STRING, "ButtonText" },
+            { false, FT_STRING, "RewardDescription" },
+            { false, FT_STRING, "ContinueDescription" },
+            { false, FT_BYTE, "Type" },
+            { false, FT_INT, "PlayerConditionID" },
+            { false, FT_BYTE, "Flags" },
+            { false, FT_BYTE, "ButtonActionType" },
+            { true, FT_INT, "TextureFileDataID" },
+            { false, FT_SHORT, "LfgDungeonID" },
+            { true, FT_INT, "QuestID" },
+            { false, FT_SHORT, "BattleMasterListID" },
+            { false, FT_BYTE, "PriorityMin" },
+            { false, FT_BYTE, "PriorityMax" },
+            { true, FT_INT, "ItemID" },
+            { false, FT_INT, "ItemQuantity" },
+            { false, FT_SHORT, "CurrencyType" },
+            { false, FT_INT, "CurrencyQuantity" },
+            { false, FT_SHORT, "UiMapID" },
+            { false, FT_INT, "BonusPlayerConditionID1" },
+            { false, FT_INT, "BonusPlayerConditionID2" },
+            { false, FT_BYTE, "BonusValue1" },
+            { false, FT_BYTE, "BonusValue2" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, AdventureJournalMeta::Instance(), HOTFIX_SEL_ADVENTURE_JOURNAL);
+        return &loadInfo;
+    }
+};
+
 struct AnimationDataLoadInfo
 {
     static DB2LoadInfo const* Instance()

@@ -382,10 +382,8 @@ void Aura::_InitEffects(uint32 effMask, Unit* caster, int32 *baseAmount)
     _effects.resize(GetSpellInfo()->GetEffects().size());
 
     for (SpellEffectInfo const* effect : GetSpellInfo()->GetEffects())
-    {
         if (effect && effMask & (1 << effect->EffectIndex))
-            _effects[effect->EffectIndex] = new AuraEffect(this, effect->EffectIndex, baseAmount ? baseAmount + effect->EffectIndex : nullptr, caster);
-    }
+            _effects[effect->EffectIndex] = new AuraEffect(this, effect, baseAmount ? baseAmount + effect->EffectIndex : nullptr, caster);
 }
 
 Aura::~Aura()
