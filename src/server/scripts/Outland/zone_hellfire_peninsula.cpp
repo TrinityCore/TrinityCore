@@ -240,95 +240,6 @@ public:
     }
 };
 
-/*######
-## npc_wounded_blood_elf
-######*/
-
-enum WoundedBloodElf
-{
-    SAY_ELF_START               = 0,
-    SAY_ELF_SUMMON1             = 1,
-    SAY_ELF_RESTING             = 2,
-    SAY_ELF_SUMMON2             = 3,
-    SAY_ELF_COMPLETE            = 4,
-    SAY_ELF_AGGRO               = 5,
-    QUEST_ROAD_TO_FALCON_WATCH  = 9375,
-    NPC_HAALESHI_WINDWALKER     = 16966,
-    NPC_HAALESHI_TALONGUARD     = 16967
-};
-
-class npc_wounded_blood_elf : public CreatureScript
-{
-public:
-    npc_wounded_blood_elf() : CreatureScript("npc_wounded_blood_elf") { }
-
-    struct npc_wounded_blood_elfAI : public EscortAI
-    {
-        npc_wounded_blood_elfAI(Creature* creature) : EscortAI(creature) { }
-
-        void Reset() override { }
-
-        void JustEngagedWith(Unit* /*who*/) override
-        {
-            if (HasEscortState(STATE_ESCORT_ESCORTING))
-                Talk(SAY_ELF_AGGRO);
-        }
-
-        void JustSummoned(Creature* summoned) override
-        {
-            summoned->AI()->AttackStart(me);
-        }
-
-        void OnQuestAccept(Player* player, Quest const* quest) override
-        {
-            if (quest->GetQuestId() == QUEST_ROAD_TO_FALCON_WATCH)
-            {
-                me->SetFaction(FACTION_ESCORTEE_H_PASSIVE);
-                EscortAI::Start(true, false, player->GetGUID());
-            }
-        }
-
-        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
-        {
-            Player* player = GetPlayerForEscort();
-            if (!player)
-                return;
-
-            switch (waypointId)
-            {
-                case 0:
-                    Talk(SAY_ELF_START, player);
-                    break;
-                case 9:
-                    Talk(SAY_ELF_SUMMON1, player);
-                    // Spawn two Haal'eshi Talonguard
-                    DoSpawnCreature(NPC_HAALESHI_TALONGUARD, -15, -15, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
-                    DoSpawnCreature(NPC_HAALESHI_TALONGUARD, -17, -17, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
-                    break;
-                case 13:
-                    Talk(SAY_ELF_RESTING, player);
-                    break;
-                case 14:
-                    Talk(SAY_ELF_SUMMON2, player);
-                    // Spawn two Haal'eshi Windwalker
-                    DoSpawnCreature(NPC_HAALESHI_WINDWALKER, -15, -15, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
-                    DoSpawnCreature(NPC_HAALESHI_WINDWALKER, -17, -17, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5s);
-                    break;
-                case 27:
-                    Talk(SAY_ELF_COMPLETE, player);
-                    // Award quest credit
-                    player->GroupEventHappens(QUEST_ROAD_TO_FALCON_WATCH, me);
-                    break;
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_wounded_blood_elfAI(creature);
-    }
-};
-
 enum ExorcismSpells
 {
     SPELL_JULES_GOES_PRONE     = 39283,
@@ -1099,7 +1010,6 @@ void AddSC_hellfire_peninsula()
 {
     new npc_aeranas();
     new npc_ancestral_wolf();
-    new npc_wounded_blood_elf();
     new npc_colonel_jules();
     new npc_barada();
     new npc_magister_aledis();
