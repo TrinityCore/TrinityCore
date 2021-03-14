@@ -549,6 +549,14 @@ struct ChatChannelsEntry
     int32 Ruleset;
 };
 
+struct ChrClassUIDisplayEntry
+{
+    uint32 ID;
+    uint8 ChrClassesID;
+    uint32 AdvGuidePlayerConditionID;
+    uint32 SplashPlayerConditionID;
+};
+
 struct ChrClassesEntry
 {
     LocalizedString Name;
