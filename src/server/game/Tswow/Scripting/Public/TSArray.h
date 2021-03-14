@@ -82,10 +82,10 @@ public:
         this->vec = std::make_shared<std::vector<T>>(vec);
     }
 
-    template <typename T>
-    T join(T delim)
+    template <typename G>
+    G join(G delim)
     {
-        T str;
+        G str;
         for (int i = 0; i < this->get_length(); ++i)
         {
             str = str + (*vec)[i];
@@ -212,8 +212,8 @@ public:
     auto reduce(P p)
     {
         auto cur = this[0];
-        for (int i = 0; i < this.get_length(); ++i) {
-            cur = p(cur, this.get(i), i);
+        for (int i = 0; i < get_length(); ++i) {
+            cur = p(cur, get(i), i);
         }
         return cur;
     }

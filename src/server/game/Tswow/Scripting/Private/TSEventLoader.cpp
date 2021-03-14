@@ -39,12 +39,12 @@
 #include "TSGuild.h"
 #include "SpellMgr.h"
 #include "SpellInfo.h"
-#include "TSIds.h"
+#include "TSIDs.h"
 #include "TSChannel.h"
 #include "TSTask.h"
 #include "DBCStores.h"
 #include "MapManager.h"
-#include "Base64.h"
+#include "base64.h"
 #include "Config.h"
 
 #include <fstream>
