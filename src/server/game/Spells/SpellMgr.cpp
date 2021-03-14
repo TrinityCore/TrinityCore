@@ -60,21 +60,22 @@ namespace
         >
     > mSpellInfoMap;
 
-    struct ServersideSpellName
+    class ServersideSpellName
     {
-        explicit ServersideSpellName(uint32 id, std::string name) : NameStorage(std::move(name))
+    public:
+        explicit ServersideSpellName(uint32 id, std::string name) : _nameStorage(std::move(name))
         {
             Name.ID = id;
             InitPointers();
         }
 
-        ServersideSpellName(ServersideSpellName const& right) : NameStorage(right.NameStorage)
+        ServersideSpellName(ServersideSpellName const& right) : _nameStorage(right._nameStorage)
         {
             Name.ID = right.Name.ID;
             InitPointers();
         }
 
-        ServersideSpellName(ServersideSpellName&& right) noexcept : NameStorage(std::move(right.NameStorage))
+        ServersideSpellName(ServersideSpellName&& right) noexcept : _nameStorage(std::move(right._nameStorage))
         {
             Name.ID = right.Name.ID;
             InitPointers();
@@ -82,13 +83,14 @@ namespace
         }
 
         SpellNameEntry Name;
-        std::string NameStorage;
 
     private:
         void InitPointers()
         {
-            std::fill(std::begin(Name.Name.Str), std::end(Name.Name.Str), NameStorage.c_str());
+            std::fill(std::begin(Name.Name.Str), std::end(Name.Name.Str), _nameStorage.c_str());
         }
+
+        std::string _nameStorage;
     };
 
     std::vector<ServersideSpellName> mServersideSpellNames;
@@ -2700,8 +2702,8 @@ void SpellMgr::LoadSpellInfoServerside()
 
             if (effect.EffectIndex >= MAX_SPELL_EFFECTS)
             {
-                TC_LOG_ERROR("sql.sql", "Serverside spell %u difficulty %u has more than 32 effects, effect at index %u skipped",
-                    spellId, uint32(difficulty), effect.EffectIndex);
+                TC_LOG_ERROR("sql.sql", "Serverside spell %u difficulty %u has more than %d effects, effect at index %u skipped",
+                    spellId, uint32(difficulty), MAX_SPELL_EFFECTS, effect.EffectIndex);
                 continue;
             }
 
