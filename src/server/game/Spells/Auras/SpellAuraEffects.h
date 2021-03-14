@@ -34,7 +34,7 @@ class TC_GAME_API AuraEffect
 
     public:
         ~AuraEffect();
-        AuraEffect(Aura* base, uint32 effIndex, int32 *baseAmount, Unit* caster);
+        AuraEffect(Aura* base, SpellEffectInfo const* spellEfffectInfo, int32 *baseAmount, Unit* caster);
         Unit* GetCaster() const { return GetBase()->GetCaster(); }
         ObjectGuid GetCasterGUID() const { return GetBase()->GetCasterGUID(); }
         Aura* GetBase() const { return m_base; }
@@ -47,7 +47,7 @@ class TC_GAME_API AuraEffect
 
         SpellInfo const* GetSpellInfo() const { return m_spellInfo; }
         uint32 GetId() const { return m_spellInfo->Id; }
-        uint32 GetEffIndex() const { return m_effIndex; }
+        uint32 GetEffIndex() const { return m_effectInfo->EffectIndex; }
         int32 GetBaseAmount() const { return m_baseAmount; }
         int32 GetPeriod() const { return m_period; }
 
@@ -100,31 +100,30 @@ class TC_GAME_API AuraEffect
         // add/remove SPELL_AURA_MOD_SHAPESHIFT (36) linked auras
         void HandleShapeshiftBoosts(Unit* target, bool apply) const;
 
-        SpellEffectInfo const* GetSpellEffectInfo() const { return _effectInfo; }
+        SpellEffectInfo const* GetSpellEffectInfo() const { return m_effectInfo; }
 
-        bool IsEffect() const { return _effectInfo->Effect != 0; }
-        bool IsEffect(SpellEffectName effectName) const { return _effectInfo->Effect == uint32(effectName); }
+        bool IsEffect() const { return m_effectInfo->Effect != 0; }
+        bool IsEffect(SpellEffectName effectName) const { return m_effectInfo->Effect == uint32(effectName); }
         bool IsAreaAuraEffect() const;
 
     private:
         Aura* const m_base;
 
         SpellInfo const* const m_spellInfo;
-        SpellEffectInfo const* _effectInfo;
-        int32 const m_baseAmount;
+        SpellEffectInfo const* m_effectInfo;
 
+        SpellModifier* m_spellmod;
+
+        int32 const m_baseAmount;
         int32 m_amount;
         int32 m_damage;
         float m_critChance;
         float m_donePct;
 
-        SpellModifier* m_spellmod;
-
         int32 m_periodicTimer;
         int32 m_period;
         uint32 m_tickNumber;
 
-        uint8 const m_effIndex;
         bool m_canBeRecalculated;
         bool m_isPeriodic;
 

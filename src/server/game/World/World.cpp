@@ -1758,6 +1758,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading SpellInfo store...");
     sSpellMgr->LoadSpellInfoStore();
 
+    TC_LOG_INFO("server.loading", "Loading serverside spells...");
+    sSpellMgr->LoadSpellInfoServerside();
+
     TC_LOG_INFO("server.loading", "Loading SpellInfo corrections...");
     sSpellMgr->LoadSpellInfoCorrections();
 

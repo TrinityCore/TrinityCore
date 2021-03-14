@@ -2215,7 +2215,7 @@ class spell_q12619_emblazon_runeblade : public SpellScriptLoader
             {
                 PreventDefaultAction();
                 if (Unit* caster = GetCaster())
-                    caster->CastSpell(caster, GetSpellInfo()->GetEffect(aurEff->GetEffIndex())->TriggerSpell, true, nullptr, aurEff);
+                    caster->CastSpell(caster, aurEff->GetSpellEffectInfo()->TriggerSpell, true, nullptr, aurEff);
             }
 
             void Register() override

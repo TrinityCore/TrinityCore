@@ -5950,7 +5950,7 @@ SpellCastResult Spell::CheckCasterAuras(uint32* param1) const
                 // fill up aura mechanic info to send client proper error message
                 if (param1)
                 {
-                    *param1 = aurEff->GetSpellInfo()->GetEffect(aurEff->GetEffIndex())->Mechanic;
+                    *param1 = aurEff->GetSpellEffectInfo()->Mechanic;
                     if (!*param1)
                         *param1 = aurEff->GetSpellInfo()->Mechanic;
                 }

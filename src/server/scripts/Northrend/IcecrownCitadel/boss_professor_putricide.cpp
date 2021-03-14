@@ -1308,7 +1308,7 @@ class spell_putricide_mutated_plague : public SpellScriptLoader
                 if (!caster)
                     return;
 
-                uint32 triggerSpell = GetSpellInfo()->GetEffect(aurEff->GetEffIndex())->TriggerSpell;
+                uint32 triggerSpell = aurEff->GetSpellEffectInfo()->TriggerSpell;
                 SpellInfo const* spell = sSpellMgr->AssertSpellInfo(triggerSpell, GetCastDifficulty());
 
                 int32 damage = spell->GetEffect(EFFECT_0)->CalcValue(caster);
