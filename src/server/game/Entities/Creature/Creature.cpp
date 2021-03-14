@@ -3321,7 +3321,7 @@ void Creature::AtEngage(Unit* target)
     RefreshSwimmingFlag();
 
     MovementGeneratorType const movetype = GetMotionMaster()->GetCurrentMovementGeneratorType();
-    if (movetype == WAYPOINT_MOTION_TYPE || movetype == POINT_MOTION_TYPE || (IsAIEnabled && AI()->IsEscorted()))
+    if (movetype == WAYPOINT_MOTION_TYPE || movetype == CYCLIC_SPLINE_MOTION_TYPE || movetype == POINT_MOTION_TYPE || (IsAIEnabled && AI()->IsEscorted()))
         SetHomePosition(GetPosition());
 
     if (CreatureAI* ai = AI())
