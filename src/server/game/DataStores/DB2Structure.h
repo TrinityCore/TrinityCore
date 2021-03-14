@@ -69,7 +69,7 @@ struct AdventureJournalEntry
     uint16 CurrencyType;
     uint32 CurrencyQuantity;
     uint16 UiMapID;
-    int32 BonusPlayerConditionID[2];
+    uint32 BonusPlayerConditionID[2];
     uint8 BonusValue[2];
 };
 
