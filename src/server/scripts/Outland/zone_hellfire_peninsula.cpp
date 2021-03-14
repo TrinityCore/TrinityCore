@@ -27,99 +27,6 @@
 #include "TemporarySummon.h"
 #include "WorldSession.h"
 
-/*######
-## npc_aeranas
-######*/
-
-enum Aeranas
-{
-    SAY_SUMMON                  = 0,
-    SAY_FREE                    = 1,
-    SPELL_ENVELOPING_WINDS      = 15535,
-    SPELL_SHOCK                 = 12553
-};
-
-class npc_aeranas : public CreatureScript
-{
-public:
-    npc_aeranas() : CreatureScript("npc_aeranas") { }
-
-    struct npc_aeranasAI : public ScriptedAI
-    {
-        npc_aeranasAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            faction_Timer = 8000;
-            envelopingWinds_Timer = 9000;
-            shock_Timer = 5000;
-        }
-
-        void Reset() override
-        {
-            Initialize();
-
-            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-            me->SetFaction(FACTION_FRIENDLY);
-
-            Talk(SAY_SUMMON);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (faction_Timer)
-            {
-                if (faction_Timer <= diff)
-                {
-                    me->SetFaction(FACTION_MONSTER_2);
-                    faction_Timer = 0;
-                } else faction_Timer -= diff;
-            }
-
-            if (!UpdateVictim())
-                return;
-
-            if (HealthBelowPct(30))
-            {
-                me->SetFaction(FACTION_FRIENDLY);
-                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-                me->RemoveAllAuras();
-                me->CombatStop(true);
-                EngagementOver();
-                Talk(SAY_FREE);
-                return;
-            }
-
-            if (shock_Timer <= diff)
-            {
-                DoCastVictim(SPELL_SHOCK);
-                shock_Timer = 10000;
-            } else shock_Timer -= diff;
-
-            if (envelopingWinds_Timer <= diff)
-            {
-                DoCastVictim(SPELL_ENVELOPING_WINDS);
-                envelopingWinds_Timer = 25000;
-            } else envelopingWinds_Timer -= diff;
-
-            DoMeleeAttackIfReady();
-        }
-
-    private:
-        uint32 faction_Timer;
-        uint32 envelopingWinds_Timer;
-        uint32 shock_Timer;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_aeranasAI(creature);
-    }
-};
-
 enum ExorcismSpells
 {
     SPELL_JULES_GOES_PRONE     = 39283,
@@ -888,7 +795,6 @@ struct npc_fear_controller : public ScriptedAI
 
 void AddSC_hellfire_peninsula()
 {
-    new npc_aeranas();
     new npc_colonel_jules();
     new npc_barada();
     new npc_magister_aledis();
