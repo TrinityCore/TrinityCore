@@ -18,6 +18,7 @@
 #include "WorldSession.h"
 #include "AdventureMapPackets.h"
 #include "DB2Stores.h"
+#include "ObjectMgr.h"
 #include "Player.h"
 
 void WorldSession::HandleAdventureMapStartQuest(WorldPackets::AdventureMap::AdventureMapStartQuest& startQuest)
@@ -28,7 +29,7 @@ void WorldSession::HandleAdventureMapStartQuest(WorldPackets::AdventureMap::Adve
 
     auto itr = std::find_if(sAdventureMapPOIStore.begin(), sAdventureMapPOIStore.end(), [&](AdventureMapPOIEntry const* adventureMap)
     {
-        return adventureMap->QuestID == startQuest.QuestID && _player->MeetPlayerCondition(adventureMap->PlayerConditionID);
+        return adventureMap->QuestID == uint32(startQuest.QuestID) && _player->MeetPlayerCondition(adventureMap->PlayerConditionID);
     });
 
     if (itr == sAdventureMapPOIStore.end())
