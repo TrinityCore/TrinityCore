@@ -17434,13 +17434,8 @@ int32 Player::GetQuestObjectiveData(Quest const* quest, int8 storageIndex) const
             quest->GetQuestId(), storageIndex);
 
     auto itr = m_QuestStatus.find(quest->GetQuestId());
-
     if (itr == m_QuestStatus.end())
-    {
-        TC_LOG_ERROR("entities.player.quest", "Player::GetQuestObjectiveData: Player '%s' (%s) doesn't have quest status data (QuestID: %u)",
-            GetName().c_str(), GetGUID().ToString().c_str(), quest->GetQuestId());
         return 0;
-    }
 
     QuestStatusData const& status = itr->second;
 
