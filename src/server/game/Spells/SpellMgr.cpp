@@ -1654,6 +1654,7 @@ void SpellMgr::LoadSpellProcs()
     }
 
     isTriggerAura[SPELL_AURA_DUMMY] = true;
+    isTriggerAura[SPELL_AURA_PERIODIC_DUMMY] = true;
     isTriggerAura[SPELL_AURA_MOD_CONFUSE] = true;
     isTriggerAura[SPELL_AURA_MOD_THREAT] = true;
     isTriggerAura[SPELL_AURA_MOD_STUN] = true; // Aura does not have charges but needs to be removed on trigger
