@@ -530,7 +530,13 @@ void LoadIDs()
     int lowpos = 0;
     int hipos = 0;
 
-    std::ifstream t("./ids.txt");
+    auto data_str = sConfigMgr
+        ->GetStringDefault("DataDir","../../datasets/default");
+    auto data_dir =
+          boost::filesystem::path(data_str)
+        / boost::filesystem::path("ids.txt");
+
+    std::ifstream t(data_dir);
     if (!t.good()) return;
 
     std::stringstream buffer;
