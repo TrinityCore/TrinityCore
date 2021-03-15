@@ -59,6 +59,7 @@
 #include "InstanceSaveMgr.h"
 #include "IPLocation.h"
 #include "Language.h"
+#include "LanguageMgr.h"
 #include "LFGMgr.h"
 #include "Log.h"
 #include "LootItemStorage.h"
@@ -1754,6 +1755,9 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Initializing PlayerDump tables...");
     PlayerDump::InitializeTables();
+
+    TC_LOG_INFO("server.loading", "Loading languages...");
+    sLanguageMgr->LoadLanguages();
 
     TC_LOG_INFO("server.loading", "Loading SpellInfo store...");
     sSpellMgr->LoadSpellInfoStore();

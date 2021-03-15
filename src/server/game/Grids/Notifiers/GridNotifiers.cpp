@@ -15,8 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ChatPackets.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
+#include "LanguageMgr.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "UpdateData.h"
@@ -250,15 +252,15 @@ void AIRelocationNotifier::Visit(CreatureMapType &m)
     }
 }
 
-void MessageDistDeliverer::Visit(PlayerMapType &m)
+void MessageDistDelivererBase::Visit(PlayerMapType &m)
 {
     for (PlayerMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
         Player* target = iter->GetSource();
-        if (!target->IsInPhase(i_source))
+        if (!target->IsInPhase(_source))
             continue;
 
-        if (target->GetExactDist2dSq(i_source) > i_distSq)
+        if (target->GetExactDist2dSq(_source) > _distSq)
             continue;
 
         // Send packet to all who are sharing the player's vision
@@ -275,15 +277,50 @@ void MessageDistDeliverer::Visit(PlayerMapType &m)
     }
 }
 
-void MessageDistDeliverer::Visit(CreatureMapType &m)
+void MessageDistDeliverer::SendPacket(Player* player)
+{
+    // never send packet to self
+    if (player == _source || (_team && player->GetTeam() != _team) || _skipped_receiver == player)
+        return;
+
+    if (!player->HaveAtClient(_source))
+        return;
+
+    player->SendDirectMessage(_message);
+}
+
+void ChatMessageDistDeliverer::SendPacket(Player* player)
+{
+    // never send packet to self
+    if (player == _source || !player->HaveAtClient(_source))
+        return;
+
+    // Translate
+    std::string chatMsg;
+    if (player->IsGameMaster())
+        chatMsg = _originalMsg;
+    else
+    {
+        uint16 targetPlayerLanguageSkill = player->GetSkillValue(_languageDesc.skill_id);
+        chatMsg = sLanguageMgr->Translate(_originalMsg, targetPlayerLanguageSkill, _languageDesc.lang_id);
+    }
+
+    // Send
+    WorldPackets::Chat::Chat chatPacket;
+    chatPacket.Initialize(_chatMsg, _languageDesc.lang_id, _source, player, chatMsg);
+    WorldPacket const* packet = chatPacket.Write();
+    player->SendDirectMessage(packet);
+}
+
+void MessageDistDelivererBase::Visit(CreatureMapType &m)
 {
     for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
         Creature* target = iter->GetSource();
-        if (!target->IsInPhase(i_source))
+        if (!target->IsInPhase(_source))
             continue;
 
-        if (target->GetExactDist2dSq(i_source) > i_distSq)
+        if (target->GetExactDist2dSq(_source) > _distSq)
             continue;
 
         // Send packet to all who are sharing the creature's vision
@@ -297,15 +334,15 @@ void MessageDistDeliverer::Visit(CreatureMapType &m)
     }
 }
 
-void MessageDistDeliverer::Visit(DynamicObjectMapType &m)
+void MessageDistDelivererBase::Visit(DynamicObjectMapType &m)
 {
     for (DynamicObjectMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
         DynamicObject* target = iter->GetSource();
-        if (!target->IsInPhase(i_source))
+        if (!target->IsInPhase(_source))
             continue;
 
-        if (target->GetExactDist2dSq(i_source) > i_distSq)
+        if (target->GetExactDist2dSq(_source) > _distSq)
             continue;
 
         if (Unit* caster = target->GetCaster())

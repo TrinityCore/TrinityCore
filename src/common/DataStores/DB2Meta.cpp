@@ -32,7 +32,7 @@ bool DB2Meta::HasIndexFieldInData() const
 {
     return IndexField != -1;
 }
-
+ 
 uint32 DB2Meta::GetIndexField() const
 {
     return IndexField == -1 ? 0 : uint32(IndexField);

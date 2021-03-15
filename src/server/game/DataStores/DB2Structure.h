@@ -2107,6 +2107,13 @@ struct KeychainEntry
     uint8 Key[KEYCHAIN_SIZE];
 };
 
+struct LanguageWordsEntry
+{
+    uint32 ID;
+    char const* Word;
+    uint32 LanguageID; // Language
+};
+
 struct LFGDungeonsEntry
 {
     uint32 ID;
