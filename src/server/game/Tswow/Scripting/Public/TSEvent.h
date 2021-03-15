@@ -17,11 +17,13 @@
 #ifndef TSWOW_EVENT_H
 #define TSWOW_EVENT_H
 
+#include "TSPlayer.h"
+
 #include <vector>
 #include <string>
 #include <functional>
 #include <exception>
-#include "TSPlayer.h"
+#include <cstring>
 
 class TSEventHandle;
 
