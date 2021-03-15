@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,15 +22,12 @@
 #include "AuthenticationPackets.h"
 #include "NPCHandler.h"
 #include "ObjectGuid.h"
-#include "PacketUtilities.h"
 #include "Position.h"
-#include "QuestDef.h"
 #include "SharedDefines.h"
 #include "UnitDefines.h"
 #include <array>
 
 class Player;
-struct QuestPOIData;
 
 namespace WorldPackets
 {
@@ -46,25 +43,13 @@ namespace WorldPackets
             uint32 CreatureID = 0;
         };
 
-        struct CreatureXDisplay
-        {
-            uint32 CreatureDisplayID = 0;
-            float Scale = 1.0f;
-            float Probability = 1.0f;
-        };
-
-        struct CreatureDisplayStats
-        {
-            float TotalProbability = 0.0f;
-            std::vector<CreatureXDisplay> CreatureDisplay;
-        };
-
         struct CreatureStats
         {
             CreatureStats()
             {
                 Flags.fill(0);
                 ProxyCreatureID.fill(0);
+                CreatureDisplayID.fill(0);
             }
 
             std::string Title;
@@ -73,7 +58,6 @@ namespace WorldPackets
             int32 CreatureType = 0;
             int32 CreatureFamily = 0;
             int32 Classification = 0;
-            CreatureDisplayStats Display;
             float HpMulti = 0.0f;
             float EnergyMulti = 0.0f;
             bool Leader = false;
@@ -82,11 +66,9 @@ namespace WorldPackets
             int32 HealthScalingExpansion = 0;
             uint32 RequiredExpansion = 0;
             uint32 VignetteID = 0;
-            int32 Class = 0;
-            int32 WidgetSetID = 0;
-            int32 WidgetSetUnitConditionID = 0;
             std::array<uint32, 2> Flags;
             std::array<uint32, 2> ProxyCreatureID;
+            std::array<uint32, 4> CreatureDisplayID;
             std::array<std::string, 4> Name;
             std::array<std::string, 4> NameAlt;
         };
@@ -128,7 +110,6 @@ namespace WorldPackets
             ObjectGuid BnetAccountID;
             ObjectGuid GuidActual;
             std::string Name;
-            uint64 GuildClubMemberID = 0;   // same as bgs.protocol.club.v1.MemberId.unique_id
             uint32 VirtualRealmAddress = 0;
             uint8 Race = RACE_NONE;
             uint8 Sex = GENDER_NONE;
@@ -201,8 +182,8 @@ namespace WorldPackets
 
             uint32 TextID = 0;
             bool Allow = false;
-            std::array<float, MAX_NPC_TEXT_OPTIONS> Probabilities;
-            std::array<uint32, MAX_NPC_TEXT_OPTIONS> BroadcastTextID;
+            float Probabilities[MAX_NPC_TEXT_OPTIONS];
+            uint32 BroadcastTextID[MAX_NPC_TEXT_OPTIONS];
         };
 
         class QueryGameObject final : public ClientPacket
@@ -227,7 +208,7 @@ namespace WorldPackets
             uint32 Data[MAX_GAMEOBJECT_DATA];
             float Size = 0.0f;
             std::vector<int32> QuestItems;
-            uint32 ContentTuningId = 0;
+            uint32 RequiredLevel = 0;
         };
 
         class QueryGameObjectResponse final : public ServerPacket
@@ -238,7 +219,6 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint32 GameObjectID = 0;
-            ObjectGuid Guid;
             bool Allow = false;
             GameObjectStats Stats;
         };
@@ -317,7 +297,37 @@ namespace WorldPackets
             void Read() override;
 
             int32 MissingQuestCount = 0;
-            std::array<int32, 125> MissingQuestPOIs;
+            int32 MissingQuestPOIs[50];
+        };
+
+        struct QuestPOIBlobPoint
+        {
+            int32 X = 0;
+            int32 Y = 0;
+        };
+
+        struct QuestPOIBlobData
+        {
+            int32 BlobIndex = 0;
+            int32 ObjectiveIndex = 0;
+            int32 QuestObjectiveID = 0;
+            int32 QuestObjectID = 0;
+            int32 MapID = 0;
+            int32 WorldMapAreaID = 0;
+            int32 Floor = 0;
+            int32 Priority = 0;
+            int32 Flags = 0;
+            int32 WorldEffectID = 0;
+            int32 PlayerConditionID = 0;
+            int32 SpawnTrackingID = 0;
+            std::vector<QuestPOIBlobPoint> QuestPOIBlobPointStats;
+            bool AlwaysAllowMergingBlobs = false;
+        };
+
+        struct QuestPOIData
+        {
+            int32 QuestID = 0;
+            std::vector<QuestPOIBlobData> QuestPOIBlobDataStats;
         };
 
         class QuestPOIQueryResponse final : public ServerPacket
@@ -327,7 +337,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            std::vector<QuestPOIData const*> QuestPOIDataStats;
+            std::vector<QuestPOIData> QuestPOIDataStats;
         };
 
         class QueryQuestCompletionNPCs final : public ClientPacket
@@ -337,7 +347,7 @@ namespace WorldPackets
 
             void Read() override;
 
-            Array<int32, 100> QuestCompletionNPCs;
+            std::vector<int32> QuestCompletionNPCs;
         };
 
         struct QuestCompletionNPC
@@ -435,6 +445,5 @@ namespace WorldPackets
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::PlayerGuidLookupHint const& lookupHint);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Query::PlayerGuidLookupData const& lookupData);
-ByteBuffer& operator<<(ByteBuffer& data, QuestPOIData const& questPOIData);
 
 #endif // QueryPackets_h__

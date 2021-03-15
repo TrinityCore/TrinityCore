@@ -919,6 +919,35 @@ namespace WorldPackets
             int32 TimeLeft = 0;
             int32 TotalTime = 0;
         };
+
+        class TC_GAME_API OpenAlliedRaceDetailsGiver final : public ServerPacket
+        {
+        public:
+            OpenAlliedRaceDetailsGiver() : ServerPacket(SMSG_OPEN_ALLIED_RACE_DETAILS_GIVER, 12) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Guid;
+            uint32 RaceId;
+        };
+
+        class FactionSelectUI final : public ServerPacket
+        {
+        public:
+            FactionSelectUI() : ServerPacket(SMSG_SHOW_NEUTRAL_PLAYER_FACTION_SELECT_UI, 0) { }
+
+            WorldPacket const* Write() override { return &_worldPacket; }
+        };
+
+        class FactionSelect final : public ClientPacket
+        {
+        public:
+            FactionSelect(WorldPacket&& packet) : ClientPacket(CMSG_NEUTRAL_PLAYER_SELECT_FACTION, std::move(packet)) { }
+
+            void Read() override;
+
+            uint32 FactionChoice = 0;
+        };
     }
 }
 

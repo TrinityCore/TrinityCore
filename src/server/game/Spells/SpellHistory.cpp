@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,7 +19,6 @@
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "Item.h"
-#include "Map.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
 #include "PetPackets.h"
@@ -45,7 +44,7 @@ struct SpellHistory::PersistenceHelper<Player>
     static bool ReadCooldown(Field* fields, uint32* spellId, CooldownEntry* cooldownEntry)
     {
         *spellId = fields[0].GetUInt32();
-        if (!sSpellMgr->GetSpellInfo(*spellId, DIFFICULTY_NONE))
+        if (!sSpellMgr->GetSpellInfo(*spellId))
             return false;
 
         cooldownEntry->SpellId = *spellId;
@@ -97,7 +96,7 @@ struct SpellHistory::PersistenceHelper<Pet>
     static bool ReadCooldown(Field* fields, uint32* spellId, CooldownEntry* cooldownEntry)
     {
         *spellId = fields[0].GetUInt32();
-        if (!sSpellMgr->GetSpellInfo(*spellId, DIFFICULTY_NONE))
+        if (!sSpellMgr->GetSpellInfo(*spellId))
             return false;
 
         cooldownEntry->SpellId = *spellId;
@@ -274,7 +273,7 @@ bool SpellHistory::IsReady(SpellInfo const* spellInfo, uint32 itemId /*= 0*/, bo
         if (IsSchoolLocked(spellInfo->GetSchoolMask()))
             return false;
 
-    if (HasCooldown(spellInfo, itemId, ignoreCategoryCooldown))
+    if (HasCooldown(spellInfo->Id, itemId, ignoreCategoryCooldown))
         return false;
 
     if (!HasCharge(spellInfo->ChargeCategoryId))
@@ -419,28 +418,28 @@ void SpellHistory::StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spel
         // shoot spells used equipped item cooldown values already assigned in SetBaseAttackTime(RANGED_ATTACK)
         // prevent 0 cooldowns set by another way
         if (cooldown <= 0 && categoryCooldown <= 0 && (categoryId == 76 || (spellInfo->IsAutoRepeatRangedSpell() && spellInfo->Id != 75)))
-            cooldown = _owner->m_unitData->RangedAttackRoundBaseTime;
+            cooldown = _owner->GetUInt32Value(UNIT_FIELD_RANGEDATTACKTIME);
 
         // Now we have cooldown data (if found any), time to apply mods
         if (Player* modOwner = _owner->GetSpellModOwner())
         {
             if (cooldown >= 0)
-                modOwner->ApplySpellMod(spellInfo, SPELLMOD_COOLDOWN, cooldown, spell);
+                modOwner->ApplySpellMod(spellInfo->Id, SPELLMOD_COOLDOWN, cooldown, spell);
 
             if (categoryCooldown >= 0 && !spellInfo->HasAttribute(SPELL_ATTR6_IGNORE_CATEGORY_COOLDOWN_MODS))
-                modOwner->ApplySpellMod(spellInfo, SPELLMOD_COOLDOWN, categoryCooldown, spell);
+                modOwner->ApplySpellMod(spellInfo->Id, SPELLMOD_COOLDOWN, categoryCooldown, spell);
         }
 
         if (_owner->HasAuraTypeWithAffectMask(SPELL_AURA_MOD_SPELL_COOLDOWN_BY_HASTE, spellInfo))
         {
-            cooldown = int32(cooldown * _owner->m_unitData->ModSpellHaste);
-            categoryCooldown = int32(categoryCooldown * _owner->m_unitData->ModSpellHaste);
+            cooldown = int32(cooldown * _owner->GetFloatValue(UNIT_MOD_CAST_HASTE));
+            categoryCooldown = int32(categoryCooldown * _owner->GetFloatValue(UNIT_MOD_CAST_HASTE));
         }
 
         if (_owner->HasAuraTypeWithAffectMask(SPELL_AURA_MOD_COOLDOWN_BY_HASTE_REGEN, spellInfo))
         {
-            cooldown = int32(cooldown * _owner->m_unitData->ModHasteRegen);
-            categoryCooldown = int32(categoryCooldown * _owner->m_unitData->ModHasteRegen);
+            cooldown = int32(cooldown * _owner->GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN));
+            categoryCooldown = int32(categoryCooldown * _owner->GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN));
         }
 
         if (int32 cooldownMod = _owner->GetTotalAuraModifier(SPELL_AURA_MOD_COOLDOWN))
@@ -520,7 +519,7 @@ void SpellHistory::SendCooldownEvent(SpellInfo const* spellInfo, uint32 itemId /
             player->SendDirectMessage(WorldPackets::Spells::CooldownEvent(player != _owner, categoryItr->second->SpellId).Write());
 
             if (startCooldown)
-                StartCooldown(sSpellMgr->AssertSpellInfo(categoryItr->second->SpellId, _owner->GetMap()->GetDifficultyID()), itemId, spell);
+                StartCooldown(sSpellMgr->AssertSpellInfo(categoryItr->second->SpellId), itemId, spell);
         }
 
         player->SendDirectMessage(WorldPackets::Spells::CooldownEvent(player != _owner, spellInfo->Id).Write());
@@ -634,7 +633,7 @@ bool SpellHistory::HasCooldown(SpellInfo const* spellInfo, uint32 itemId /*= 0*/
 
 bool SpellHistory::HasCooldown(uint32 spellId, uint32 itemId /*= 0*/, bool ignoreCategoryCooldown /*= false*/) const
 {
-    return HasCooldown(sSpellMgr->AssertSpellInfo(spellId, _owner->GetMap()->GetDifficultyID()), itemId, ignoreCategoryCooldown);
+    return HasCooldown(sSpellMgr->AssertSpellInfo(spellId), itemId, ignoreCategoryCooldown);
 }
 
 uint32 SpellHistory::GetRemainingCooldown(SpellInfo const* spellInfo) const
@@ -694,7 +693,7 @@ void SpellHistory::LockSpellSchool(SpellSchoolMask schoolMask, uint32 lockoutTim
     spellCooldown.Flags = SPELL_COOLDOWN_FLAG_NONE;
     for (uint32 spellId : knownSpells)
     {
-        SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(spellId, _owner->GetMap()->GetDifficultyID());
+        SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(spellId);
         if (spellInfo->IsCooldownStartedOnEvent())
             continue;
 
@@ -834,10 +833,10 @@ int32 SpellHistory::GetChargeRecoveryTime(uint32 chargeCategoryId) const
     recoveryTimeF *= _owner->GetTotalAuraMultiplierByMiscValue(SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER, chargeCategoryId);
 
     if (_owner->HasAuraType(SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE))
-        recoveryTimeF *= _owner->m_unitData->ModSpellHaste;
+        recoveryTimeF *= _owner->GetFloatValue(UNIT_MOD_CAST_HASTE);
 
     if (_owner->HasAuraType(SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE_REGEN))
-        recoveryTimeF *= _owner->m_unitData->ModHasteRegen;
+        recoveryTimeF *= _owner->GetFloatValue(UNIT_FIELD_MOD_HASTE_REGEN);
 
     return int32(std::floor(recoveryTimeF));
 }
@@ -927,7 +926,7 @@ void SpellHistory::RestoreCooldownStateAfterDuel()
         // add all profession CDs created while in duel (if any)
         for (auto const& c : _spellCooldowns)
         {
-            SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(c.first, DIFFICULTY_NONE);
+            SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(c.first);
 
             if (spellInfo->RecoveryTime > 10 * MINUTE * IN_MILLISECONDS ||
                 spellInfo->CategoryRecoveryTime > 10 * MINUTE * IN_MILLISECONDS)

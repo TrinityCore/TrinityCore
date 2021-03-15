@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,7 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
+#include "shadowfang_keep.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "InstanceScript.h"
@@ -25,7 +25,8 @@
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "shadowfang_keep.h"
+#include "ScriptMgr.h"
+#include "SpellAuraEffects.h"
 #include "SpellScript.h"
 
 enum ApothecarySpells
@@ -55,7 +56,6 @@ enum ApothecarySays
     SAY_CALL_BAXTER  = 3,
     SAY_CALL_FRYE    = 4,
     SAY_HUMMEL_DEATH = 5,
-    SAY_SUMMON_ADDS  = 6,
     SAY_BAXTER_DEATH = 0,
     SAY_FRYE_DEATH   = 0
 };
@@ -77,6 +77,8 @@ enum ApothecaryMisc
 {
     ACTION_START_EVENT          = 1,
     ACTION_START_FIGHT          = 2,
+    FACTION_APOTHECARY_HOSTILE  = 14,
+    FACTION_APOTHECARY_FRIENDLY = 35,
     GOSSIP_OPTION_START         = 0,
     GOSSIP_MENU_HUMMEL          = 10847,
     QUEST_YOUVE_BEEN_SERVED     = 14488,
@@ -100,15 +102,14 @@ class boss_apothecary_hummel : public CreatureScript
         {
             boss_apothecary_hummelAI(Creature* creature) : BossAI(creature, DATA_APOTHECARY_HUMMEL), _deadCount(0), _isDead(false) { }
 
-            bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+            void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {
                 if (menuId == GOSSIP_MENU_HUMMEL && gossipListId == GOSSIP_OPTION_START)
                 {
-                    me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     CloseGossipMenuFor(player);
                     DoAction(ACTION_START_EVENT);
                 }
-                return false;
             }
 
             void Reset() override
@@ -117,7 +118,7 @@ class boss_apothecary_hummel : public CreatureScript
                 _deadCount = 0;
                 _isDead = false;
                 events.SetPhase(PHASE_ALL);
-                me->SetFaction(FACTION_FRIENDLY);
+                me->setFaction(FACTION_APOTHECARY_FRIENDLY);
                 me->SummonCreatureGroup(1);
             }
 
@@ -135,8 +136,8 @@ class boss_apothecary_hummel : public CreatureScript
                     events.SetPhase(PHASE_INTRO);
                     events.ScheduleEvent(EVENT_HUMMEL_SAY_0, Milliseconds(1));
 
-                    me->SetImmuneToPC(true);
-                    me->SetFaction(FACTION_MONSTER);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    me->setFaction(FACTION_APOTHECARY_HOSTILE);
                     DummyEntryCheckPredicate pred;
                     summons.DoAction(ACTION_START_EVENT, pred);
                 }
@@ -153,8 +154,8 @@ class boss_apothecary_hummel : public CreatureScript
                             _isDead = true;
                             me->RemoveAurasDueToSpell(SPELL_ALLURING_PERFUME);
                             DoCastSelf(SPELL_PERMANENT_FEIGN_DEATH, true);
-                            me->AddUnitFlag(UNIT_FLAG_UNK_29);
-                            me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+                            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             Talk(SAY_HUMMEL_DEATH);
                         }
                     }
@@ -175,8 +176,8 @@ class boss_apothecary_hummel : public CreatureScript
                     Talk(SAY_HUMMEL_DEATH);
 
                 events.Reset();
-                me->RemoveUnitFlag(UNIT_FLAG_UNK_29);
-                me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 instance->SetBossState(DATA_APOTHECARY_HUMMEL, DONE);
 
                 Map::PlayerList const& players = me->GetMap()->GetPlayers();
@@ -216,14 +217,14 @@ class boss_apothecary_hummel : public CreatureScript
                             break;
                         case EVENT_START_FIGHT:
                         {
-                            me->SetImmuneToAll(false);
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
                             me->SetInCombatWithZone();
                             events.ScheduleEvent(EVENT_CALL_BAXTER, Seconds(6));
                             events.ScheduleEvent(EVENT_CALL_FRYE, Seconds(14));
                             events.ScheduleEvent(EVENT_PERFUME_SPRAY, Milliseconds(3640));
                             events.ScheduleEvent(EVENT_CHAIN_REACTION, Seconds(15));
 
-                            Talk(SAY_SUMMON_ADDS);
                             std::vector<Creature*> trashs;
                             me->GetCreatureListWithEntryInGrid(trashs, NPC_CROWN_APOTHECARY);
                             for (Creature* crea : trashs)
@@ -266,20 +267,17 @@ class boss_apothecary_hummel : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void QuestReward(Player* /*player*/, Quest const* quest, uint32 /*opt*/) override
-            {
-                if (quest->GetQuestId() == QUEST_YOUVE_BEEN_SERVED)
-                    DoAction(ACTION_START_EVENT);
-            }
-
             private:
                 uint8 _deadCount;
                 bool _isDead;
         };
 
-        CreatureAI* GetAI(Creature* creature) const override
+        bool OnQuestReward(Player* /*player*/, Creature* creature, Quest const* quest, uint32 /*opt*/) override
         {
-            return GetShadowfangKeepAI<boss_apothecary_hummelAI>(creature);
+            if (quest->GetQuestId() == QUEST_YOUVE_BEEN_SERVED)
+                creature->AI()->DoAction(ACTION_START_EVENT);
+
+            return true;
         }
 };
 
@@ -291,13 +289,14 @@ struct npc_apothecary_genericAI : public ScriptedAI
     {
         if (action == ACTION_START_EVENT)
         {
-            me->SetImmuneToPC(true);
-            me->SetFaction(FACTION_MONSTER);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+            me->setFaction(FACTION_APOTHECARY_HOSTILE);
             me->GetMotionMaster()->MovePoint(1, _movePos);
         }
         else if (action == ACTION_START_FIGHT)
         {
-            me->SetImmuneToAll(false);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
             me->SetInCombatWithZone();
         }
     }
@@ -305,7 +304,7 @@ struct npc_apothecary_genericAI : public ScriptedAI
     void MovementInform(uint32 type, uint32 pointId) override
     {
         if (type == POINT_MOTION_TYPE && pointId == 1)
-            me->SetEmoteState(EMOTE_STATE_USE_STANDING);
+            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
     }
 
 protected:
@@ -326,11 +325,6 @@ class npc_apothecary_frye : public CreatureScript
                 Talk(SAY_FRYE_DEATH);
             }
         };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetShadowfangKeepAI<npc_apothecary_fryeAI>(creature);
-        }
 };
 
 class npc_apothecary_baxter : public CreatureScript
@@ -389,11 +383,6 @@ class npc_apothecary_baxter : public CreatureScript
         private:
             EventMap _events;
         };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetShadowfangKeepAI<npc_apothecary_baxterAI>(creature);
-        }
 };
 
 // 68965 -[DND] Lingering Fumes Targetting (starter)

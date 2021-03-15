@@ -1,5 +1,6 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -43,7 +44,6 @@
 #include "World.h"
 #include "WorldSession.h"
 #include <random>
-#include <sstream>
 
 char const* const ConditionMgr::StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX] =
 {
@@ -207,7 +207,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         case CONDITION_RACE:
         {
             if (Unit* unit = object->ToUnit())
-                condMeets = Trinity::RaceMask<uint32>{ ConditionValue1 }.HasRace(unit->getRace());
+                condMeets = Trinity::RaceMask<uint64>{ ConditionValue1 }.HasRace(unit->getRace());
             break;
         }
         case CONDITION_GENDER:
@@ -1084,7 +1084,7 @@ void ConditionMgr::LoadConditions(bool isReload)
 
     if (!result)
     {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 conditions. DB table `conditions` is empty!");
+        TC_LOG_ERROR("server.loading", ">> Loaded 0 conditions. DB table `conditions` is empty!");
         return;
     }
 
@@ -1126,7 +1126,7 @@ void ConditionMgr::LoadConditions(bool isReload)
             }
             cond->ReferenceId = uint32(abs(iConditionTypeOrReference));
 
-            char const* rowType = "reference template";
+            const char* rowType = "reference template";
             if (iSourceTypeOrReferenceId >= 0)
                 rowType = "reference";
             //check for useless data
@@ -1358,110 +1358,105 @@ bool ConditionMgr::addToGossipMenuItems(Condition* cond) const
 
 bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond) const
 {
-    bool valid = false;
-    sSpellMgr->ForEachSpellInfoDifficulty(cond->SourceEntry, [&](SpellInfo const* spellInfo)
+    uint32 conditionEffMask = cond->SourceGroup;
+    SpellInfo* spellInfo = const_cast<SpellInfo*>(sSpellMgr->AssertSpellInfo(cond->SourceEntry));
+    std::list<uint32> sharedMasks;
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
-        uint32 conditionEffMask = cond->SourceGroup;
-        std::list<uint32> sharedMasks;
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        {
-            SpellEffectInfo const* effect = spellInfo->GetEffect(i);
-            if (!effect)
-                continue;
+        SpellEffectInfo const* effect = spellInfo->GetEffect(DIFFICULTY_NONE, i);
+        if (!effect)
+            continue;
 
-            // check if effect is already a part of some shared mask
-            bool found = false;
-            for (std::list<uint32>::iterator itr = sharedMasks.begin(); itr != sharedMasks.end(); ++itr)
-            {
-                if ((1 << i) & *itr)
-                {
-                    found = true;
-                    break;
-                }
-            }
-
-            if (found)
-                continue;
-
-            // build new shared mask with found effect
-            uint32 sharedMask = 1 << i;
-            ConditionContainer* cmp = effect->ImplicitTargetConditions;
-            for (uint8 effIndex = i + 1; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
-            {
-                SpellEffectInfo const* inner = spellInfo->GetEffect(effIndex);
-                if (!inner)
-                    continue;
-
-                if (inner->ImplicitTargetConditions == cmp)
-                    sharedMask |= 1 << effIndex;
-            }
-
-            sharedMasks.push_back(sharedMask);
-        }
-
+        // check if effect is already a part of some shared mask
+        bool found = false;
         for (std::list<uint32>::iterator itr = sharedMasks.begin(); itr != sharedMasks.end(); ++itr)
         {
-            // some effect indexes should have same data
-            if (uint32 commonMask = *itr & conditionEffMask)
+            if ((1 << i) & *itr)
             {
-                uint8 firstEffIndex = 0;
-                for (; firstEffIndex < MAX_SPELL_EFFECTS; ++firstEffIndex)
-                    if ((1 << firstEffIndex) & *itr)
-                        break;
-
-                if (firstEffIndex >= MAX_SPELL_EFFECTS)
-                    return;
-
-                SpellEffectInfo const* effect = spellInfo->GetEffect(firstEffIndex);
-                if (!effect)
-                    continue;
-
-                // get shared data
-                ConditionContainer* sharedList = effect->ImplicitTargetConditions;
-
-                // there's already data entry for that sharedMask
-                if (sharedList)
-                {
-                    // we have overlapping masks in db
-                    if (conditionEffMask != *itr)
-                    {
-                        TC_LOG_ERROR("sql.sql", "%s in `condition` table, has incorrect SourceGroup %u (spell effectMask) set - "
-                            "effect masks are overlapping (all SourceGroup values having given bit set must be equal) - ignoring (Difficulty %u).",
-                            cond->ToString().c_str(), cond->SourceGroup, uint32(spellInfo->Difficulty));
-                        return;
-                    }
-                }
-                // no data for shared mask, we can create new submask
-                else
-                {
-                    // add new list, create new shared mask
-                    sharedList = new ConditionContainer();
-                    bool assigned = false;
-                    for (uint8 i = firstEffIndex; i < MAX_SPELL_EFFECTS; ++i)
-                    {
-                        SpellEffectInfo const* eff = spellInfo->GetEffect(i);
-                        if (!eff)
-                            continue;
-
-                        if ((1 << i) & commonMask)
-                        {
-                            const_cast<SpellEffectInfo*>(eff)->ImplicitTargetConditions = sharedList;
-                            assigned = true;
-                        }
-                    }
-
-                    if (!assigned)
-                    {
-                        delete sharedList;
-                        break;
-                    }
-                }
-                sharedList->push_back(cond);
+                found = true;
                 break;
             }
         }
-        valid = true;
-    });
+
+        if (found)
+            continue;
+
+        // build new shared mask with found effect
+        uint32 sharedMask = 1 << i;
+        ConditionContainer* cmp = effect->ImplicitTargetConditions;
+        for (uint8 effIndex = i + 1; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
+        {
+            SpellEffectInfo const* inner = spellInfo->GetEffect(DIFFICULTY_NONE, effIndex);
+            if (!inner)
+                continue;
+
+            if (inner->ImplicitTargetConditions == cmp)
+                sharedMask |= 1 << effIndex;
+        }
+
+        sharedMasks.push_back(sharedMask);
+    }
+
+    for (std::list<uint32>::iterator itr = sharedMasks.begin(); itr != sharedMasks.end(); ++itr)
+    {
+        // some effect indexes should have same data
+        if (uint32 commonMask = *itr & conditionEffMask)
+        {
+            uint8 firstEffIndex = 0;
+            for (; firstEffIndex < MAX_SPELL_EFFECTS; ++firstEffIndex)
+                if ((1<<firstEffIndex) & *itr)
+                    break;
+
+            if (firstEffIndex >= MAX_SPELL_EFFECTS)
+                return false;
+
+            SpellEffectInfo const* effect = spellInfo->GetEffect(DIFFICULTY_NONE, firstEffIndex);
+            if (!effect)
+                continue;
+
+            // get shared data
+            ConditionContainer* sharedList = effect->ImplicitTargetConditions;
+
+            // there's already data entry for that sharedMask
+            if (sharedList)
+            {
+                // we have overlapping masks in db
+                if (conditionEffMask != *itr)
+                {
+                    TC_LOG_ERROR("sql.sql", "%s in `condition` table, has incorrect SourceGroup %u (spell effectMask) set - "
+                        "effect masks are overlapping (all SourceGroup values having given bit set must be equal) - ignoring.", cond->ToString().c_str(), cond->SourceGroup);
+                    return false;
+                }
+            }
+            // no data for shared mask, we can create new submask
+            else
+            {
+                // add new list, create new shared mask
+                sharedList = new ConditionContainer();
+                bool assigned = false;
+                for (uint8 i = firstEffIndex; i < MAX_SPELL_EFFECTS; ++i)
+                {
+                    SpellEffectInfo const* eff = spellInfo->GetEffect(DIFFICULTY_NONE, i);
+                    if (!eff)
+                        continue;
+
+                    if ((1 << i) & commonMask)
+                    {
+                        const_cast<SpellEffectInfo*>(eff)->ImplicitTargetConditions = sharedList;
+                        assigned = true;
+                    }
+                }
+
+                if (!assigned)
+                {
+                    delete sharedList;
+                    break;
+                }
+            }
+            sharedList->push_back(cond);
+            break;
+        }
+    }
     return true;
 }
 
@@ -1717,7 +1712,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
         }
         case CONDITION_SOURCE_TYPE_SPELL_IMPLICIT_TARGET:
         {
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(cond->SourceEntry, DIFFICULTY_NONE);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(cond->SourceEntry);
             if (!spellInfo)
             {
                 TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table does not exist in `spell.dbc`, ignoring.", cond->ToString().c_str());
@@ -1737,7 +1732,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
                 if (!((1 << i) & cond->SourceGroup))
                     continue;
 
-                SpellEffectInfo const* effect = spellInfo->GetEffect(i);
+                SpellEffectInfo const* effect = spellInfo->GetEffect(DIFFICULTY_NONE, i);
                 if (!effect)
                     continue;
 
@@ -1786,7 +1781,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
         case CONDITION_SOURCE_TYPE_SPELL:
         case CONDITION_SOURCE_TYPE_SPELL_PROC:
         {
-            SpellInfo const* spellProto = sSpellMgr->GetSpellInfo(cond->SourceEntry, DIFFICULTY_NONE);
+            SpellInfo const* spellProto = sSpellMgr->GetSpellInfo(cond->SourceEntry);
             if (!spellProto)
             {
                 TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table does not exist in `spell.dbc`, ignoring.", cond->ToString().c_str());
@@ -1808,7 +1803,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
                 return false;
             }
 
-            if (!sSpellMgr->GetSpellInfo(cond->SourceEntry, DIFFICULTY_NONE))
+            if (!sSpellMgr->GetSpellInfo(cond->SourceEntry))
             {
                 TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table does not exist in `spell.dbc`, ignoring.", cond->ToString().c_str());
                 return false;
@@ -1821,7 +1816,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
                 return false;
             }
 
-            if (!sSpellMgr->GetSpellInfo(cond->SourceEntry, DIFFICULTY_NONE))
+            if (!sSpellMgr->GetSpellInfo(cond->SourceEntry))
             {
                 TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table does not exist in `spell.dbc`, ignoring.", cond->ToString().c_str());
                 return false;
@@ -1865,7 +1860,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
         case CONDITION_SOURCE_TYPE_SMART_EVENT:
             break;
         case CONDITION_SOURCE_TYPE_GRAVEYARD:
-            if (!sObjectMgr->GetWorldSafeLoc(cond->SourceEntry))
+            if (!sWorldSafeLocsStore.LookupEntry(cond->SourceEntry))
             {
                 TC_LOG_ERROR("sql.sql", "%s SourceEntry in `condition` table, does not exist in WorldSafeLocs.db2, ignoring.", cond->ToString().c_str());
                 return false;
@@ -1885,7 +1880,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
     {
         case CONDITION_AURA:
         {
-            if (!sSpellMgr->GetSpellInfo(cond->ConditionValue1, DIFFICULTY_NONE))
+            if (!sSpellMgr->GetSpellInfo(cond->ConditionValue1))
             {
                 TC_LOG_ERROR("sql.sql", "%s has non existing spell (Id: %d), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1);
                 return false;
@@ -1981,7 +1976,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
                 TC_LOG_ERROR("sql.sql", "%s has invalid state mask (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue2);
                 return false;
             }
-            /* fallthrough */
+            // intentional missing break
         case CONDITION_QUESTREWARDED:
         case CONDITION_QUESTTAKEN:
         case CONDITION_QUEST_NONE:
@@ -2017,7 +2012,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         }
         case CONDITION_CLASS:
         {
-            if (cond->ConditionValue1 & ~CLASSMASK_ALL_PLAYABLE)
+            if (!(cond->ConditionValue1 & CLASSMASK_ALL_PLAYABLE))
             {
                 TC_LOG_ERROR("sql.sql", "%s has non existing classmask (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1 & ~CLASSMASK_ALL_PLAYABLE);
                 return false;
@@ -2028,7 +2023,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         {
             if (uint32(cond->ConditionValue1 & ~RACEMASK_ALL_PLAYABLE)) // uint32 works thanks to weird index remapping in racemask
             {
-                TC_LOG_ERROR("sql.sql", "%s has non existing racemask (" UI64FMTD "), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1 & ~RACEMASK_ALL_PLAYABLE);
+                TC_LOG_ERROR("sql.sql", "%s has non existing racemask (%u), skipped.", cond->ToString(true).c_str(), cond->ConditionValue1 & ~RACEMASK_ALL_PLAYABLE);
                 return false;
             }
             break;
@@ -2054,7 +2049,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         }
         case CONDITION_SPELL:
         {
-            if (!sSpellMgr->GetSpellInfo(cond->ConditionValue1, DIFFICULTY_NONE))
+            if (!sSpellMgr->GetSpellInfo(cond->ConditionValue1))
             {
                 TC_LOG_ERROR("sql.sql", "%s has non existing spell (Id: %d), skipped", cond->ToString(true).c_str(), cond->ConditionValue1);
                 return false;
@@ -2136,7 +2131,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
                     }
                     if (cond->ConditionValue3)
                     {
-                        if (GameObjectData const* goData = sObjectMgr->GetGameObjectData(cond->ConditionValue3))
+                        if (GameObjectData const* goData = sObjectMgr->GetGOData(cond->ConditionValue3))
                         {
                             if (cond->ConditionValue2 && goData->id != cond->ConditionValue2)
                             {
@@ -2547,30 +2542,11 @@ uint32 ConditionMgr::GetPlayerConditionLfgValue(Player const* player, PlayerCond
 
 bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditionEntry const* condition)
 {
-    if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(condition->ContentTuningID, player->m_playerData->CtrOptions->ContentTuningConditionMask))
-    {
-        uint8 minLevel = condition->Flags & 0x800 ? levels->MinLevelWithDelta : levels->MinLevel;
-        uint8 maxLevel = 0;
-        if (!(condition->Flags & 0x20))
-            maxLevel = condition->Flags & 0x800 ? levels->MaxLevelWithDelta : levels->MaxLevel;
+    if (condition->MinLevel && player->getLevel() < condition->MinLevel)
+        return false;
 
-        if (condition->Flags & 0x80)
-        {
-            if (minLevel && player->getLevel() >= minLevel && (!maxLevel || player->getLevel() <= maxLevel))
-                return false;
-
-            if (maxLevel && player->getLevel() <= maxLevel && (!minLevel || player->getLevel() >= minLevel))
-                return false;
-        }
-        else
-        {
-            if (minLevel && player->getLevel() < minLevel)
-                return false;
-
-            if (maxLevel && player->getLevel() > maxLevel)
-                return false;
-        }
-    }
+    if (condition->MaxLevel && player->getLevel() > condition->MaxLevel)
+        return false;
 
     if (condition->RaceMask && !condition->RaceMask.HasRace(player->getRace()))
         return false;
@@ -2581,7 +2557,7 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
     if (condition->Gender >= 0 && player->getGender() != condition->Gender)
         return false;
 
-    if (condition->NativeGender >= 0 && player->GetNativeSex() != condition->NativeGender)
+    if (condition->NativeGender >= 0 && player->GetByteValue(PLAYER_BYTES_3, PLAYER_BYTES_3_OFFSET_GENDER) != condition->NativeGender)
         return false;
 
     if (condition->PowerType != -1 && condition->PowerTypeComp)
@@ -2593,7 +2569,7 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
 
     if (condition->ChrSpecializationIndex >= 0 || condition->ChrSpecializationRole >= 0)
     {
-        if (ChrSpecializationEntry const* spec = sChrSpecializationStore.LookupEntry(player->GetPrimarySpecialization()))
+        if (ChrSpecializationEntry const* spec = sChrSpecializationStore.LookupEntry(player->GetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID)))
         {
             if (condition->ChrSpecializationIndex >= 0 && spec->OrderIndex != condition->ChrSpecializationIndex)
                 return false;
@@ -2677,10 +2653,10 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
         }
     }
 
-    if (condition->PvpMedal && !((1 << (condition->PvpMedal - 1)) & *player->m_activePlayerData->PvpMedals))
+    if (condition->PvpMedal && !((1 << (condition->PvpMedal - 1)) & player->GetUInt32Value(PLAYER_FIELD_PVP_MEDALS)))
         return false;
 
-    if (condition->LifetimeMaxPVPRank && player->m_activePlayerData->LifetimeMaxRank != condition->LifetimeMaxPVPRank)
+    if (condition->LifetimeMaxPVPRank && player->GetByteValue(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_LIFETIME_MAX_PVP_RANK) != condition->LifetimeMaxPVPRank)
         return false;
 
     if (condition->MovementFlags[0] && !(player->GetUnitMovementFlags() & condition->MovementFlags[0]))
@@ -2734,7 +2710,7 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
         results.fill(true);
         for (std::size_t i = 0; i < PrevQuestCount::value; ++i)
             if (uint32 questBit = sDB2Manager.GetQuestUniqueBitFlag(condition->PrevQuestID[i]))
-                results[i] = (player->m_activePlayerData->QuestCompleted[((questBit - 1) >> 6)] & (UI64LIT(1) << ((questBit - 1) & 63))) != 0;
+                results[i] = (player->GetUInt32Value(PLAYER_FIELD_QUEST_COMPLETED + ((questBit - 1) >> 5)) & (1 << ((questBit - 1) & 31))) != 0;
 
         if (!PlayerConditionLogic(condition->PrevQuestLogic, results))
             return false;
@@ -2818,7 +2794,7 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
         for (std::size_t i = 0; i < ExploredCount::value; ++i)
         {
             if (AreaTableEntry const* area = sAreaTableStore.LookupEntry(condition->Explored[i]))
-                if (area->AreaBit != -1 && !(player->m_activePlayerData->ExploredZones[area->AreaBit / 64] & (UI64LIT(1) << (uint32(area->AreaBit) % 64))))
+                if (area->AreaBit != -1 && !(player->GetUInt32Value(PLAYER_EXPLORED_ZONES_1 + area->AreaBit / 32) & (1 << (uint32(area->AreaBit) % 32))))
                     return false;
         }
     }
@@ -2950,22 +2926,19 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
         }
     }
 
-    if (condition->MinAvgItemLevel && int32(std::floor(player->m_playerData->AvgItemLevel[0])) < condition->MinAvgItemLevel)
+    if (condition->MinAvgItemLevel && int32(std::floor(player->GetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL))) < condition->MinAvgItemLevel)
         return false;
 
-    if (condition->MaxAvgItemLevel && int32(std::floor(player->m_playerData->AvgItemLevel[0])) > condition->MaxAvgItemLevel)
+    if (condition->MaxAvgItemLevel && int32(std::floor(player->GetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL))) > condition->MaxAvgItemLevel)
         return false;
 
-    if (condition->MinAvgEquippedItemLevel && uint32(std::floor(player->m_playerData->AvgItemLevel[1])) < condition->MinAvgEquippedItemLevel)
+    if (condition->MinAvgEquippedItemLevel && uint32(std::floor(player->GetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL + 1))) < condition->MinAvgEquippedItemLevel)
         return false;
 
-    if (condition->MaxAvgEquippedItemLevel && uint32(std::floor(player->m_playerData->AvgItemLevel[1])) > condition->MaxAvgEquippedItemLevel)
+    if (condition->MaxAvgEquippedItemLevel && uint32(std::floor(player->GetFloatValue(PLAYER_FIELD_AVG_ITEM_LEVEL + 1))) > condition->MaxAvgEquippedItemLevel)
         return false;
 
     if (condition->ModifierTreeID && !player->ModifierTreeSatisfied(condition->ModifierTreeID))
-        return false;
-
-    if (condition->CovenantID && player->m_playerData->CovenantID != condition->CovenantID)
         return false;
 
     return true;
@@ -2973,7 +2946,8 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
 
 ByteBuffer HexToBytes(const std::string& hex)
 {
-    ByteBuffer buffer(hex.length() / 2, ByteBuffer::Resize{});
+    ByteBuffer buffer;
+    buffer.resize(hex.length() / 2);
     HexStrToByteArray(hex, buffer.contents());
     return buffer;
 }
@@ -3089,7 +3063,7 @@ static int32(* const WorldStateExpressionFunctions[WSE_FUNCTION_MAX])(Player con
     // WSE_FUNCTION_WAR_MODE_ACTIVE
     [](Player const* player, uint32 /*arg1*/, uint32 /*arg2*/) -> int32
     {
-        return player->HasPlayerFlag(PLAYER_FLAGS_WAR_MODE_ACTIVE);
+        return player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM); //////?????????????????????
     },
 
     // WSE_FUNCTION_UNK17

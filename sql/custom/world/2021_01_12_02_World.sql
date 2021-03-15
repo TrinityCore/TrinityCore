@@ -1,0 +1,13 @@
+
+UPDATE `creature_template` SET `minlevel` = 110, `maxlevel` = 110, `faction` = 84, `npcflag` = 81, `speed_walk` = 1, `speed_run` = 1.142857, `unit_class` = 1, `unit_flags` = 32768, `unit_flags2` = 2048 WHERE `entry` = 133326;
+UPDATE `creature_template` SET `minlevel` = 30, `maxlevel` = 30, `faction` = 875, `npcflag` = 4225, `speed_walk` = 1, `speed_run` = 1.142857, `unit_class` = 1, `unit_flags` = 512, `unit_flags2` = 2048 WHERE `entry` = 133332;
+UPDATE `creature_template` SET `minlevel` = 90, `maxlevel` = 90, `faction` = 1733, `npcflag` = 0, `speed_walk` = 1, `speed_run` = 1.142857, `unit_class` = 8, `unit_flags` = 32768, `unit_flags2` = 2048 WHERE `entry` = 133672;
+UPDATE `creature_template` SET `minlevel` = 110, `maxlevel` = 110, `faction` = 84, `npcflag` = 0, `speed_walk` = 1, `speed_run` = 1.142857, `unit_class` = 1, `unit_flags` = 32768, `unit_flags2` = 2048 WHERE `entry` = 133431;
+UPDATE `creature_template` SET `minlevel` = 110, `maxlevel` = 110, `faction` = 84, `npcflag` = 0, `speed_walk` = 1, `speed_run` = 1.142857, `unit_class` = 1, `unit_flags` = 32768, `unit_flags2` = 2048 WHERE `entry` = 133433;
+UPDATE `creature_template` SET `minlevel` = 110, `maxlevel` = 110, `faction` = 84, `npcflag` = 0, `speed_walk` = 1, `speed_run` = 1.142857, `unit_class` = 1, `unit_flags` = 32768, `unit_flags2` = 2048 WHERE `entry` = 133441;
+UPDATE `creature_template` SET `minlevel` = 110, `maxlevel` = 110, `faction` = 84, `npcflag` = 0, `speed_walk` = 1, `speed_run` = 1.142857, `unit_class` = 1, `unit_flags` = 32768, `unit_flags2` = 2048 WHERE `entry` = 133509;
+UPDATE `creature_template` SET `minlevel` = 110, `maxlevel` = 110, `faction` = 84, `npcflag` = 81, `speed_walk` = 1, `speed_run` = 1.142857, `unit_class` = 1, `unit_flags` = 512, `unit_flags2` = 2048 WHERE `entry` = 133396;
+UPDATE `creature_template` SET `minlevel` = 110, `maxlevel` = 110, `faction` = 84, `npcflag` = 81, `speed_walk` = 1, `speed_run` = 1.142857, `unit_class` = 2, `unit_flags` = 32768, `unit_flags2` = 2048 WHERE `entry` = 133363;
+UPDATE `creature_template` SET `minlevel` = 30, `maxlevel` = 30, `faction` = 84, `npcflag` = 209, `speed_walk` = 1, `speed_run` = 1.142857, `unit_class` = 1, `unit_flags` = 512, `unit_flags2` = 2048 WHERE `entry` = 133411;
+UPDATE `creature_template` SET `gossip_menu_id` = 22173, `minlevel` = 100, `maxlevel` = 100, `faction` = 35, `npcflag` = 16777216, `speed_walk` = 1, `speed_run` = 1.142857, `unit_class` = 1, `unit_flags` = 32768, `unit_flags2` = 2048 WHERE `entry` = 112698;
+UPDATE `creature_template` SET `gossip_menu_id` = 341, `minlevel` = 110, `maxlevel` = 110, `faction` = 84, `npcflag` = 65537, `speed_walk` = 1, `speed_run` = 1.142857, `unit_class` = 8, `unit_flags` = 32768, `unit_flags2` = 2048 WHERE `entry` = 129679;

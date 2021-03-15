@@ -1,0 +1,13 @@
+* Player Race
+	- enable Allied Race
+ 
+ 
+* Requirements
+	-Boost ≥ 1.67
+	-MySQL ≥ 5.7.0
+	-OpenSSL ≥ 1.0.x
+	-CMake ≥ 3.13.4
+	-Clang  ≥ 5 (heavy recommended, especially on 7.3.5 branch) or GCC ≥ 7.1.0
+	-zlib ≥ 1.2.7
+	-MS Visual Studio (Community) ≥ 16.4 (2019) (Desktop) (Not previews)
+

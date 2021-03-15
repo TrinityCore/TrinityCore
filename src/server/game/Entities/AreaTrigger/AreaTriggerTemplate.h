@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -39,8 +39,7 @@ enum AreaTriggerFlags
     AREATRIGGER_FLAG_HAS_ANIM_ID                = 0x00080,
     AREATRIGGER_FLAG_UNK3                       = 0x00100,
     AREATRIGGER_FLAG_HAS_ANIM_KIT_ID            = 0x00200,
-    AREATRIGGER_FLAG_HAS_CIRCULAR_MOVEMENT      = 0x00400,
-    AREATRIGGER_FLAG_UNK5                       = 0x00800,
+    AREATRIGGER_FLAG_HAS_CIRCULAR_MOVEMENT      = 0x00400
 };
 
 enum AreaTriggerTypes
@@ -55,10 +54,9 @@ enum AreaTriggerTypes
 
 enum AreaTriggerActionTypes
 {
-    AREATRIGGER_ACTION_CAST        = 0,
-    AREATRIGGER_ACTION_ADDAURA     = 1,
-    AREATRIGGER_ACTION_TELEPORT    = 2,
-    AREATRIGGER_ACTION_MAX         = 3
+    AREATRIGGER_ACTION_CAST     = 0,
+    AREATRIGGER_ACTION_ADDAURA  = 1,
+    AREATRIGGER_ACTION_MAX      = 2
 };
 
 enum AreaTriggerActionUserTypes
@@ -70,12 +68,6 @@ enum AreaTriggerActionUserTypes
     AREATRIGGER_ACTION_USER_PARTY  = 4,
     AREATRIGGER_ACTION_USER_CASTER = 5,
     AREATRIGGER_ACTION_USER_MAX    = 6
-};
-
-struct AreaTriggerId
-{
-    uint32 Id = 0;
-    bool IsServerSide = false;
 };
 
 struct AreaTriggerAction
@@ -115,9 +107,9 @@ struct AreaTriggerScaleInfo
     } Data;
 };
 
-struct AreaTriggerOrbitInfo
+struct AreaTriggerCircularMovementInfo
 {
-    Optional<ObjectGuid> PathTarget;
+    Optional<ObjectGuid> TargetGUID;
     Optional<TaggedPosition<Position::XYZ>> Center;
     bool CounterClockwise = false;
     bool CanLoop = false;
@@ -145,7 +137,7 @@ public:
 
     void InitMaxSearchRadius();
 
-    AreaTriggerId Id;
+    uint32 Id;
     AreaTriggerTypes Type;
     uint32 Flags;
     uint32 ScriptId;
@@ -221,20 +213,10 @@ public:
 
     AreaTriggerScaleInfo OverrideScale;
     AreaTriggerScaleInfo ExtraScale;
-    AreaTriggerOrbitInfo OrbitInfo;
+    AreaTriggerCircularMovementInfo CircularMovementInfo;
 
     AreaTriggerTemplate const* Template;
     std::vector<Position> SplinePoints;
-};
-
-struct AreaTriggerSpawn
-{
-    ObjectGuid::LowType SpawnId = 0;
-    AreaTriggerId Id;
-    WorldLocation Location;
-    uint32 PhaseId = 0;
-    uint32 PhaseGroup = 0;
-    uint8 PhaseUseFlags = 0;
 };
 
 #endif

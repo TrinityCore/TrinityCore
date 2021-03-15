@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * Copyright (C) 2008-2017 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,16 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
 #include "GameObject.h"
-#include "GameObjectAI.h"
+#include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "karazhan.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "SpellAuraEffects.h"
 #include "SpellScript.h"
+#include "SpellAuraEffects.h"
 
 enum NightbaneSpells
 {
@@ -119,6 +118,11 @@ class boss_nightbane : public CreatureScript
 public:
     boss_nightbane() : CreatureScript("boss_nightbane") { }
 
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return GetKarazhanAI<boss_nightbaneAI>(creature);
+    }
+
     struct boss_nightbaneAI : public BossAI
     {
         boss_nightbaneAI(Creature* creature) : BossAI(creature, DATA_NIGHTBANE), _flyCount(0) { }
@@ -130,7 +134,7 @@ public:
             me->SetDisableGravity(true);
             HandleTerraceDoors(true);
             if (GameObject* urn = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_GO_BLACKENED_URN)))
-                urn->RemoveFlag(GO_FLAG_IN_USE);
+                urn->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE | GO_FLAG_NOT_SELECTABLE);
         }
 
         void EnterEvadeMode(EvadeReason why) override
@@ -157,7 +161,7 @@ public:
                 Talk(EMOTE_SUMMON);
                 events.SetPhase(PHASE_INTRO);
                 me->setActive(true);
-                me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->GetMotionMaster()->MoveAlongSplineChain(POINT_INTRO_START, SPLINE_CHAIN_INTRO_START, false);
                 HandleTerraceDoors(false);
             }
@@ -210,7 +214,7 @@ public:
                 switch (pointId)
                 {
                     case POINT_INTRO_START:
-                        me->SetAnimTier(UNIT_BYTE1_FLAG_NONE, false);
+                        me->SetStandState(UNIT_STAND_STATE_STAND);
                         events.ScheduleEvent(EVENT_START_INTRO_PATH, Milliseconds(1));
                         break;
                     case POINT_INTRO_END:
@@ -298,7 +302,7 @@ public:
                     me->GetMotionMaster()->MoveAlongSplineChain(POINT_PHASE_TWO_LANDING, SPLINE_CHAIN_SECOND_LANDING, false);
                     break;
                 case EVENT_INTRO_LANDING:
-                    me->SetImmuneToPC(false);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                     me->SetInCombatWithZone();
                     break;
                 case EVENT_LAND:
@@ -321,10 +325,10 @@ public:
                     me->GetMotionMaster()->MoveAlongSplineChain(POINT_INTRO_END, SPLINE_CHAIN_INTRO_END, false);
                     break;
                 case EVENT_RAIN_OF_BONES:
-                    ResetThreatList();
+                    DoResetThreat();
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                     {
-                        me->SetFacingToObject(target);
+                        me->SetFacingToObject(target, true);
                         DoCast(target, SPELL_RAIN_OF_BONES);
                     }
                     break;
@@ -376,11 +380,6 @@ public:
         private:
             uint8 _flyCount;
     };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetKarazhanAI<boss_nightbaneAI>(creature);
-    }
 };
 
 // 37098 - Rain of Bones
@@ -418,36 +417,25 @@ class spell_rain_of_bones : public SpellScriptLoader
 
 class go_blackened_urn : public GameObjectScript
 {
-    public:
-        go_blackened_urn() : GameObjectScript("go_blackened_urn") { }
+public:
+    go_blackened_urn() : GameObjectScript("go_blackened_urn") { }
 
-        struct go_blackened_urnAI : GameObjectAI
+    bool OnGossipHello(Player* /*player*/, GameObject* go) override
+    {
+        if (go->HasFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE))
+            return false;
+
+        InstanceScript* instance = go->GetInstanceScript();
+        if (!instance || instance->GetBossState(DATA_NIGHTBANE) == DONE || instance->GetBossState(DATA_NIGHTBANE) == IN_PROGRESS)
+            return false;
+
+        if (Creature* nightbane = ObjectAccessor::GetCreature(*go, instance->GetGuidData(DATA_NIGHTBANE)))
         {
-            go_blackened_urnAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
-
-            InstanceScript* instance;
-
-            bool GossipHello(Player* /*player*/) override
-            {
-                if (me->HasFlag(GO_FLAG_IN_USE))
-                    return false;
-
-                if (instance->GetBossState(DATA_NIGHTBANE) == DONE || instance->GetBossState(DATA_NIGHTBANE) == IN_PROGRESS)
-                    return false;
-
-                if (Creature* nightbane = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_NIGHTBANE)))
-                {
-                    me->AddFlag(GO_FLAG_IN_USE);
-                    nightbane->AI()->DoAction(ACTION_SUMMON);
-                }
-                return false;
-            }
-        };
-
-        GameObjectAI* GetAI(GameObject* go) const override
-        {
-            return GetKarazhanAI<go_blackened_urnAI>(go);
+            go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+            nightbane->AI()->DoAction(ACTION_SUMMON);
         }
+        return false;
+    }
 };
 
 void AddSC_boss_nightbane()

@@ -1,5 +1,6 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -33,7 +34,7 @@ enum SKDataTypes
     DATA_APOTHECARY_HUMMEL      = 6
 };
 
-template <class AI, class T>
+template<typename AI, typename T>
 inline AI* GetShadowfangKeepAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, SFKScriptName);

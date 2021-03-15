@@ -1,5 +1,6 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
+ * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -31,7 +32,6 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "GameObject.h"
-#include "GameObjectAI.h"
 #include "Group.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
@@ -47,48 +47,41 @@ EndContentData */
 
 class go_gauntlet_gate : public GameObjectScript
 {
-    public:
-        go_gauntlet_gate() : GameObjectScript("go_gauntlet_gate") { }
+public:
+    go_gauntlet_gate() : GameObjectScript("go_gauntlet_gate") { }
 
-        struct go_gauntlet_gateAI : public GameObjectAI
+    bool OnGossipHello(Player* player, GameObject* go) override
+    {
+        InstanceScript* instance = go->GetInstanceScript();
+
+        if (!instance)
+            return false;
+
+        if (instance->GetData(TYPE_BARON_RUN) != NOT_STARTED)
+            return false;
+
+        if (Group* group = player->GetGroup())
         {
-            go_gauntlet_gateAI(GameObject* go) : GameObjectAI(go), instance(go->GetInstanceScript()) { }
-
-            InstanceScript* instance;
-
-            bool GossipHello(Player* player) override
+            for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
             {
-                if (instance->GetData(TYPE_BARON_RUN) != NOT_STARTED)
-                    return false;
+                Player* pGroupie = itr->GetSource();
+                if (!pGroupie || !pGroupie->IsInMap(player))
+                    continue;
 
-                if (Group* group = player->GetGroup())
-                {
-                    for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
-                    {
-                        Player* pGroupie = itr->GetSource();
-                        if (!pGroupie || !pGroupie->IsInMap(player))
-                            continue;
-
-                        if (pGroupie->GetQuestStatus(QUEST_DEAD_MAN_PLEA) == QUEST_STATUS_INCOMPLETE &&
-                            !pGroupie->HasAura(SPELL_BARON_ULTIMATUM) &&
-                            pGroupie->GetMap() == me->GetMap())
-                            pGroupie->CastSpell(pGroupie, SPELL_BARON_ULTIMATUM, true);
-                    }
-                }
-                else if (player->GetQuestStatus(QUEST_DEAD_MAN_PLEA) == QUEST_STATUS_INCOMPLETE &&
+                if (pGroupie->GetQuestStatus(QUEST_DEAD_MAN_PLEA) == QUEST_STATUS_INCOMPLETE &&
+                    !pGroupie->HasAura(SPELL_BARON_ULTIMATUM) &&
+                    pGroupie->GetMap() == go->GetMap())
+                    pGroupie->CastSpell(pGroupie, SPELL_BARON_ULTIMATUM, true);
+            }
+        } else if (player->GetQuestStatus(QUEST_DEAD_MAN_PLEA) == QUEST_STATUS_INCOMPLETE &&
                     !player->HasAura(SPELL_BARON_ULTIMATUM) &&
-                    player->GetMap() == me->GetMap())
+                    player->GetMap() == go->GetMap())
                     player->CastSpell(player, SPELL_BARON_ULTIMATUM, true);
 
-                instance->SetData(TYPE_BARON_RUN, IN_PROGRESS);
-                return false;
-            }
-        };
+        instance->SetData(TYPE_BARON_RUN, IN_PROGRESS);
+        return false;
+    }
 
-        GameObjectAI* GetAI(GameObject* go) const override
-        {
-            return GetStratholmeAI<go_gauntlet_gateAI>(go);
-        }
 };
 
 /*######
@@ -116,7 +109,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetStratholmeAI<npc_restless_soulAI>(creature);
+        return new npc_restless_soulAI(creature);
     }
 
     struct npc_restless_soulAI : public ScriptedAI
@@ -144,7 +137,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) override { }
 
-        void SpellHit(Unit* caster, SpellInfo const* spell) override
+        void SpellHit(Unit* caster, const SpellInfo* spell) override
         {
             if (Tagged || spell->Id != SPELL_EGAN_BLASTER)
                 return;
@@ -209,7 +202,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const override
     {
-        return GetStratholmeAI<npc_spectral_ghostly_citizenAI>(creature);
+        return new npc_spectral_ghostly_citizenAI(creature);
     }
 
     struct npc_spectral_ghostly_citizenAI : public ScriptedAI
@@ -235,7 +228,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) override { }
 
-        void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
+        void SpellHit(Unit* /*caster*/, const SpellInfo* spell) override
         {
             if (!Tagged && spell->Id == SPELL_EGAN_BLASTER)
                 Tagged = true;

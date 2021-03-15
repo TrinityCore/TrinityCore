@@ -106,6 +106,8 @@ class TC_DATABASE_API PreparedStatementBase
 
         uint32 GetIndex() const { return m_index; }
 
+        uint32 GetIndex() const { return m_index; }
+
     protected:
         void BindParameters(MySQLPreparedStatement* stmt);
 

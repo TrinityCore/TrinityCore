@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * Copyright (C) 2008-2018 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -59,7 +59,7 @@ struct PacketHeader
 
 #pragma pack(pop)
 
-PacketLog::PacketLog() : _file(nullptr)
+PacketLog::PacketLog() : _file(NULL)
 {
     std::call_once(_initializeFlag, &PacketLog::Initialize, this);
 }
@@ -69,7 +69,7 @@ PacketLog::~PacketLog()
     if (_file)
         fclose(_file);
 
-    _file = nullptr;
+    _file = NULL;
 }
 
 PacketLog* PacketLog::instance()
@@ -100,7 +100,7 @@ void PacketLog::Initialize()
             header.Build = realm.Build;
             header.Locale[0] = 'e'; header.Locale[1] = 'n'; header.Locale[2] = 'U'; header.Locale[3] = 'S';
             std::memset(header.SessionKey, 0, sizeof(header.SessionKey));
-            header.SniffStartUnixtime = time(nullptr);
+            header.SniffStartUnixtime = time(NULL);
             header.SniffStartTicks = getMSTime();
             header.OptionalDataSize = 0;
 
@@ -141,12 +141,7 @@ void PacketLog::LogPacket(WorldPacket const& packet, Direction direction, boost:
 
     fwrite(&header, sizeof(header), 1, _file);
     if (size)
-    {
-        uint8 const* data = packet.contents();
-        if (direction == CLIENT_TO_SERVER)
-            data += 2;
-        fwrite(data, 1, size, _file);
-    }
+        fwrite(packet.contents(), 1, packet.size(), _file);
 
     fflush(_file);
 }
