@@ -38,48 +38,48 @@
 #define SPELL_DH_DOUBLE_JUMP 196055
 #define DISPLAYID_HIDDEN_MOUNT 73200
 
-enum SpellModOp : uint8
+enum class SpellModOp : uint8
 {
-    SPELLMOD_DAMAGE                     = 0,
-    SPELLMOD_DURATION                   = 1,
-    SPELLMOD_THREAT                     = 2,
-    SPELLMOD_EFFECT1                    = 3,
-    SPELLMOD_CHARGES                    = 4,
-    SPELLMOD_RANGE                      = 5,
-    SPELLMOD_RADIUS                     = 6,
-    SPELLMOD_CRITICAL_CHANCE            = 7,
-    SPELLMOD_ALL_EFFECTS                = 8,
-    SPELLMOD_NOT_LOSE_CASTING_TIME      = 9,
-    SPELLMOD_CASTING_TIME               = 10,
-    SPELLMOD_COOLDOWN                   = 11,
-    SPELLMOD_EFFECT2                    = 12,
-    SPELLMOD_IGNORE_ARMOR               = 13,
-    SPELLMOD_COST                       = 14, // Used when SpellPowerEntry::PowerIndex == 0
-    SPELLMOD_CRIT_DAMAGE_BONUS          = 15,
-    SPELLMOD_RESIST_MISS_CHANCE         = 16,
-    SPELLMOD_JUMP_TARGETS               = 17,
-    SPELLMOD_CHANCE_OF_SUCCESS          = 18,
-    SPELLMOD_ACTIVATION_TIME            = 19,
-    SPELLMOD_DAMAGE_MULTIPLIER          = 20,
-    SPELLMOD_GLOBAL_COOLDOWN            = 21,
-    SPELLMOD_DOT                        = 22,
-    SPELLMOD_EFFECT3                    = 23,
-    SPELLMOD_BONUS_MULTIPLIER           = 24,
-    // spellmod 25
-    SPELLMOD_PROC_PER_MINUTE            = 26,
-    SPELLMOD_VALUE_MULTIPLIER           = 27,
-    SPELLMOD_RESIST_DISPEL_CHANCE       = 28,
-    SPELLMOD_CRIT_DAMAGE_BONUS_2        = 29, //one not used spell
-    SPELLMOD_SPELL_COST_REFUND_ON_FAIL  = 30,
-    SPELLMOD_STACK_AMOUNT               = 31,
-    SPELLMOD_EFFECT4                    = 32,
-    SPELLMOD_EFFECT5                    = 33,
-    SPELLMOD_SPELL_COST2                = 34, // Used when SpellPowerEntry::PowerIndex == 1
-    SPELLMOD_JUMP_DISTANCE              = 35,
-    // spellmod 36
-    SPELLMOD_MAX_STACK_AMOUNT           = 37,
-    // spellmod 38
-    SPELLMOD_SPELL_COST3                = 39
+    HealingAndDamage            = 0,
+    Duration                    = 1,
+    Hate                        = 2,
+    PointsIndex0                = 3,
+    ProcCharges                 = 4,
+    Range                       = 5,
+    Radius                      = 6,
+    CritChance                  = 7,
+    Points                      = 8,
+    ResistPushback              = 9,
+    ChangeCastTime              = 10,
+    Cooldown                    = 11,
+    PointsIndex1                = 12,
+    TargetResistance            = 13,
+    PowerCost0                  = 14, // Used when SpellPowerEntry::PowerIndex == 0
+    CritDamageAndHealing        = 15,
+    HitChance                   = 16,
+    ChainTargets                = 17,
+    ProcChance                  = 18,
+    Period                      = 19,
+    ChainAmplitude              = 20,
+    StartCooldown               = 21,
+    PeriodicHealingAndDamage    = 22,
+    PointsIndex2                = 23,
+    BonusCoefficient            = 24,
+    TriggerDamage               = 25, // NYI
+    ProcFrequency               = 26,
+    Amplitude                   = 27,
+    DispelResistance            = 28,
+    CrowdDamage                 = 29, // NYI
+    PowerCostOnMiss             = 30,
+    Doses                       = 31,
+    PointsIndex3                = 32,
+    PointsIndex4                = 33,
+    PowerCost1                  = 34, // Used when SpellPowerEntry::PowerIndex == 1
+    ChainJumpDistance           = 35,
+    AreaTriggerMaxSummons       = 36, // NYI
+    MaxAuraStacks               = 37,
+    ProcCooldown                = 38,
+    PowerCost2                  = 39, // Used when SpellPowerEntry::PowerIndex == 2
 };
 
 #define MAX_SPELLMOD 40
@@ -1861,7 +1861,7 @@ class TC_GAME_API Unit : public WorldObject
         float SpellHealingPctDone(Unit* victim, SpellInfo const* spellProto) const;
         uint32 SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, uint32 healamount, DamageEffectType damagetype, SpellEffectInfo const* effect, uint32 stack = 1) const;
 
-        uint32 MeleeDamageBonusDone(Unit* pVictim, uint32 damage, WeaponAttackType attType, SpellInfo const* spellProto = nullptr);
+        uint32 MeleeDamageBonusDone(Unit* pVictim, uint32 damage, WeaponAttackType attType, DamageEffectType damagetype, SpellInfo const* spellProto = nullptr);
         uint32 MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackType attType, DamageEffectType damagetype, SpellInfo const* spellProto = nullptr);
 
         bool   isSpellBlocked(Unit* victim, SpellInfo const* spellProto, WeaponAttackType attackType = BASE_ATTACK);

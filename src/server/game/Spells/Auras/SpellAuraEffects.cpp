@@ -734,7 +734,7 @@ void AuraEffect::CalculatePeriodic(Unit* caster, bool resetPeriodicTimer /*= tru
     {
         // Apply periodic time mod
         if (modOwner)
-            modOwner->ApplySpellMod(GetSpellInfo(), SPELLMOD_ACTIVATION_TIME, _period);
+            modOwner->ApplySpellMod(GetSpellInfo(), SpellModOp::Period, _period);
 
         if (caster)
         {
@@ -897,64 +897,49 @@ void AuraEffect::ApplySpellMod(Unit* target, bool apply)
     // Auras with charges do not mod amount of passive auras
     if (GetBase()->IsUsingCharges())
         return;
+
     // reapply some passive spells after add/remove related spellmods
     // Warning: it is a dead loop if 2 auras each other amount-shouldn't happen
-    switch (GetMiscValue())
+    std::bitset<MAX_SPELL_EFFECTS> recalculateEffectMask;
+    switch (SpellModOp(GetMiscValue()))
     {
-        case SPELLMOD_ALL_EFFECTS:
-        case SPELLMOD_EFFECT1:
-        case SPELLMOD_EFFECT2:
-        case SPELLMOD_EFFECT3:
-        case SPELLMOD_EFFECT4:
-        case SPELLMOD_EFFECT5:
-        {
-            ObjectGuid guid = target->GetGUID();
-            Unit::AuraApplicationMap & auras = target->GetAppliedAuras();
-            for (Unit::AuraApplicationMap::iterator iter = auras.begin(); iter != auras.end(); ++iter)
-            {
-                Aura* aura = iter->second->GetBase();
-                // only passive and permament auras-active auras should have amount set on spellcast and not be affected
-                // if aura is cast by others, it will not be affected
-                if ((aura->IsPassive() || aura->IsPermanent()) && aura->GetCasterGUID() == guid && aura->GetSpellInfo()->IsAffectedBySpellMod(m_spellmod))
-                {
-                    if (GetMiscValue() == SPELLMOD_ALL_EFFECTS)
-                    {
-                        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                        {
-                            if (AuraEffect* aurEff = aura->GetEffect(i))
-                                aurEff->RecalculateAmount();
-                        }
-                    }
-                    else if (GetMiscValue() == SPELLMOD_EFFECT1)
-                    {
-                        if (AuraEffect* aurEff = aura->GetEffect(0))
-                            aurEff->RecalculateAmount();
-                    }
-                    else if (GetMiscValue() == SPELLMOD_EFFECT2)
-                    {
-                        if (AuraEffect* aurEff = aura->GetEffect(1))
-                            aurEff->RecalculateAmount();
-                    }
-                    else if (GetMiscValue() == SPELLMOD_EFFECT3)
-                    {
-                        if (AuraEffect* aurEff = aura->GetEffect(2))
-                            aurEff->RecalculateAmount();
-                    }
-                    else if (GetMiscValue() == SPELLMOD_EFFECT4)
-                    {
-                        if (AuraEffect* aurEff = aura->GetEffect(3))
-                            aurEff->RecalculateAmount();
-                    }
-                    else if (GetMiscValue() == SPELLMOD_EFFECT5)
-                    {
-                        if (AuraEffect* aurEff = aura->GetEffect(4))
-                            aurEff->RecalculateAmount();
-                    }
-                }
-            }
-        }
+        case SpellModOp::Points:
+            recalculateEffectMask.set();
+            break;
+        case SpellModOp::PointsIndex0:
+            recalculateEffectMask.set(EFFECT_0);
+            break;
+        case SpellModOp::PointsIndex1:
+            recalculateEffectMask.set(EFFECT_1);
+            break;
+        case SpellModOp::PointsIndex2:
+            recalculateEffectMask.set(EFFECT_2);
+            break;
+        case SpellModOp::PointsIndex3:
+            recalculateEffectMask.set(EFFECT_3);
+            break;
+        case SpellModOp::PointsIndex4:
+            recalculateEffectMask.set(EFFECT_4);
+            break;
         default:
             break;
+    }
+
+    if (recalculateEffectMask.any())
+    {
+        ObjectGuid guid = target->GetGUID();
+        Unit::AuraApplicationMap& auras = target->GetAppliedAuras();
+        for (auto iter = auras.begin(); iter != auras.end(); ++iter)
+        {
+            Aura* aura = iter->second->GetBase();
+            // only passive and permament auras-active auras should have amount set on spellcast and not be affected
+            // if aura is cast by others, it will not be affected
+            if ((aura->IsPassive() || aura->IsPermanent()) && aura->GetCasterGUID() == guid && aura->GetSpellInfo()->IsAffectedBySpellMod(m_spellmod))
+                for (size_t i = 0; i < recalculateEffectMask.size(); ++i)
+                    if (recalculateEffectMask[i])
+                        if (AuraEffect* aurEff = aura->GetEffect(i))
+                            aurEff->RecalculateAmount();
+        }
     }
 }
 
@@ -5183,7 +5168,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
             int32 weaponDamage = CalculatePct(caster->CalculateDamage(attackType, false, true), GetAmount());
 
             // Add melee damage bonuses (also check for negative)
-            uint32 damageBonusDone = caster->MeleeDamageBonusDone(target, std::max(weaponDamage, 0), attackType, GetSpellInfo());
+            uint32 damageBonusDone = caster->MeleeDamageBonusDone(target, std::max(weaponDamage, 0), attackType, DOT, GetSpellInfo());
 
             damage = target->MeleeDamageBonusTaken(caster, damageBonusDone, attackType, DOT, GetSpellInfo());
             break;
