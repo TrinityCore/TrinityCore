@@ -536,7 +536,7 @@ void LoadIDs()
           boost::filesystem::path(data_str)
         / boost::filesystem::path("ids.txt");
 
-    std::ifstream t(data_dir);
+    std::ifstream t(data_dir.string().c_str());
     if (!t.good()) return;
 
     std::stringstream buffer;

@@ -20,7 +20,7 @@
 
 // TODO: posix
 #ifndef TC_GAME_API
-#if defined(_MSV_VER)
+#if defined(_MSC_VER)
 #define TC_GAME_API __declspec(dllexport)
 #else
 #define TC_GAME_API __attribute__((visibility("default")))
