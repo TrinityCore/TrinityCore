@@ -2254,34 +2254,34 @@ enum AuraStateType
 {   // (C) used in caster aura state     (T) used in target aura state
     // (c) used in caster aura state-not (t) used in target aura state-not
     AURA_STATE_NONE                         = 0,            // C   |
-    AURA_STATE_DEFENSE                      = 1,            // C   |
-    AURA_STATE_HEALTHLESS_20_PERCENT        = 2,            // CcT |
-    AURA_STATE_BERSERKING                   = 3,            // C T |
-    AURA_STATE_FROZEN                       = 4,            //  c t| frozen target
-    AURA_STATE_JUDGEMENT                    = 5,            // C   |
-    //AURA_STATE_UNKNOWN6                   = 6,            //     | not used
-    AURA_STATE_HUNTER_PARRY                 = 7,            // C   |
-    //AURA_STATE_UNKNOWN7                   = 7,            //  c  | creature cheap shot / focused bursts spells
-    //AURA_STATE_UNKNOWN8                   = 8,            //    t| test spells
-    //AURA_STATE_UNKNOWN9                   = 9,            //     |
-    AURA_STATE_WARRIOR_VICTORY_RUSH         = 10,           // C   | warrior victory rush
-    //AURA_STATE_UNKNOWN11                  = 11,           // C  t| 60348 - Maelstrom Ready!, test spells
+    AURA_STATE_DEFENSIVE                    = 1,            // CcTt|
+    AURA_STATE_WOUNDED_20_PERCENT           = 2,            // CcT |
+    AURA_STATE_UNBALANCED                   = 3,            // CcT | NYI
+    AURA_STATE_FROZEN                       = 4,            //  c t|
+    AURA_STATE_MARKED                       = 5,            // C  t| NYI
+    AURA_STATE_WOUNDED_25_PERCENT           = 6,            //   T |
+    AURA_STATE_DEFENSIVE_2                  = 7,            // Cc  | NYI
+    AURA_STATE_BANISHED                     = 8,            //  c  | NYI
+    AURA_STATE_DAZED                        = 9,            //    t|
+    AURA_STATE_VICTORIOUS                   = 10,           // C   |
+    AURA_STATE_RAMPAGE                      = 11,           //     | NYI
     AURA_STATE_FAERIE_FIRE                  = 12,           //  c t|
-    AURA_STATE_HEALTHLESS_35_PERCENT        = 13,           // C T |
-    AURA_STATE_CONFLAGRATE                  = 14,           //   T |
-    AURA_STATE_SWIFTMEND                    = 15,           //   T |
-    AURA_STATE_DEADLY_POISON                = 16,           //   T |
-    AURA_STATE_ENRAGE                       = 17,           // C   |
-    AURA_STATE_BLEEDING                     = 18,           //    T|
-    AURA_STATE_UNKNOWN19                    = 19,           //     |
-    //AURA_STATE_UNKNOWN20                  = 20,           //  c  | only (45317 Suicide)
-    //AURA_STATE_UNKNOWN21                  = 21,           //     | not used
-    AURA_STATE_UNKNOWN22                    = 22,           // C  t| varius spells (63884, 50240)
-    AURA_STATE_HEALTH_ABOVE_75_PERCENT      = 23            // C   |
+    AURA_STATE_WOUNDED_35_PERCENT           = 13,           // CcT |
+    AURA_STATE_RAID_ENCOUNTER_2             = 14,           //  cT |
+    AURA_STATE_DRUID_PERIODIC_HEAL          = 15,           //   T |
+    AURA_STATE_ROGUE_POISONED               = 16,           //     |
+    AURA_STATE_ENRAGED                      = 17,           // C   |
+    AURA_STATE_BLEED                        = 18,           //   T |
+    AURA_STATE_VULNERABLE                   = 19,           //     | NYI
+    AURA_STATE_ARENA_PREPARATION            = 20,           //  c  |
+    AURA_STATE_WOUND_HEALTH_20_80           = 21,           //   T |
+    AURA_STATE_RAID_ENCOUNTER               = 22,           // CcTt|
+    AURA_STATE_HEALTHY_75_PERCENT           = 23,           // C   |
+    AURA_STATE_WOUND_HEALTH_35_80           = 24            //   T |
 };
 
 #define PER_CASTER_AURA_STATE_MASK (\
-    (1<<(AURA_STATE_CONFLAGRATE-1))|(1<<(AURA_STATE_DEADLY_POISON-1)))
+    (1<<(AURA_STATE_RAID_ENCOUNTER_2-1))|(1<<(AURA_STATE_ROGUE_POISONED-1)))
 
 // Spell mechanics
 enum Mechanics

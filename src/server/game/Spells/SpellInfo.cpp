@@ -2423,45 +2423,25 @@ void SpellInfo::_LoadAuraState()
 {
     _auraState = [this]()->AuraStateType
     {
-        // Seals
-        if (GetSpellSpecific() == SPELL_SPECIFIC_SEAL)
-            return AURA_STATE_JUDGEMENT;
-
-        // Conflagrate aura state on Immolate and Shadowflame
-        if (SpellFamilyName == SPELLFAMILY_WARLOCK &&
-            // Immolate
-            ((SpellFamilyFlags[0] & 4) ||
-            // Shadowflame
-            (SpellFamilyFlags[2] & 2)))
-            return AURA_STATE_CONFLAGRATE;
-
-        // Faerie Fire (druid versions)
-        if (SpellFamilyName == SPELLFAMILY_DRUID && SpellFamilyFlags[0] & 0x400)
-            return AURA_STATE_FAERIE_FIRE;
-
-        // Sting (hunter's pet ability)
+        // Faerie Fire (Feral)
         if (GetCategory() == 1133)
             return AURA_STATE_FAERIE_FIRE;
 
-        // Victorious
-        if (SpellFamilyName == SPELLFAMILY_WARRIOR &&  SpellFamilyFlags[1] & 0x00040000)
-            return AURA_STATE_WARRIOR_VICTORY_RUSH;
-
-        // Swiftmend state on Regrowth & Rejuvenation
-        if (SpellFamilyName == SPELLFAMILY_DRUID && SpellFamilyFlags[0] & 0x50)
-            return AURA_STATE_SWIFTMEND;
+        // Swiftmend state on Regrowth, Rejuvenation, Wild Growth
+        if (SpellFamilyName == SPELLFAMILY_DRUID && (SpellFamilyFlags[0] & 0x50 || SpellFamilyFlags[1] & 0x4000000))
+            return AURA_STATE_DRUID_PERIODIC_HEAL;
 
         // Deadly poison aura state
         if (SpellFamilyName == SPELLFAMILY_ROGUE && SpellFamilyFlags[0] & 0x10000)
-            return AURA_STATE_DEADLY_POISON;
+            return AURA_STATE_ROGUE_POISONED;
 
         // Enrage aura state
         if (Dispel == DISPEL_ENRAGE)
-            return AURA_STATE_ENRAGE;
+            return AURA_STATE_ENRAGED;
 
         // Bleeding aura state
         if (GetAllEffectsMechanicMask() & 1<<MECHANIC_BLEED)
-            return AURA_STATE_BLEEDING;
+            return AURA_STATE_BLEED;
 
         if (GetSchoolMask() & SPELL_SCHOOL_MASK_FROST)
             for (SpellEffectInfo const* effect : _effects)
@@ -2470,15 +2450,46 @@ void SpellInfo::_LoadAuraState()
 
         switch (Id)
         {
+            case 1064: // Dazed
+                return AURA_STATE_DAZED;
+            case 32216: // Victorious
+                return AURA_STATE_VICTORIOUS;
             case 71465: // Divine Surge
             case 50241: // Evasive Charges
-                return AURA_STATE_UNKNOWN22;
-            case 9991:  // Touch of Zanzil
-            case 35325: // Glowing Blood
-            case 35328: // Lambent Blood
-            case 35329: // Vibrant Blood
-            case 35331: // Black Blood
-            case 49163: // Perpetual Instability
+                return AURA_STATE_RAID_ENCOUNTER;
+            case 6950:   // Faerie Fire
+            case 9806:   // Phantom Strike
+            case 9991:   // Touch of Zanzil
+            case 13424:  // Faerie Fire
+            case 13752:  // Faerie Fire
+            case 16432:  // Plague Mist
+            case 20656:  // Faerie Fire
+            case 25602:  // Faerie Fire
+            case 32129:  // Faerie Fire
+            case 35325:  // Glowing Blood
+            case 35328:  // Lambent Blood
+            case 35329:  // Vibrant Blood
+            case 35331:  // Black Blood
+            case 49163:  // Perpetual Instability
+            case 65863:  // Faerie Fire
+            case 79559:  // Luxscale Light
+            case 82855:  // Dazzling
+            case 102953: // In the Rumpus
+            case 127907: // Phosphorescence
+            case 127913: // Phosphorescence
+            case 129007: // Zijin Sting
+            case 130159: // Fae Touch
+            case 142537: // Spotter Smoke
+            case 168455: // Spotted!
+            case 176905: // Super Sticky Glitter Bomb
+            case 189502: // Marked
+            case 201785: // Intruder Alert!
+            case 201786: // Intruder Alert!
+            case 201935: // Spotted!
+            case 239233: // Smoke Bomb
+            case 319400: // Glitter Burst
+            case 321470: // Dimensional Shifter Mishap
+            case 331134: // Spotted
                 return AURA_STATE_FAERIE_FIRE;
             default:
                 break;
