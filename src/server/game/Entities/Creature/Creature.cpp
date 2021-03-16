@@ -456,7 +456,7 @@ void Creature::RemoveCorpse(bool setSpawnTime, bool destroyForNearbyPlayers)
         if (setSpawnTime)
         {
             uint32 respawnDelay = m_respawnDelay;
-            m_respawnTime = std::max<time_t>(time(NULL) + respawnDelay, m_respawnTime);
+            m_respawnTime = std::max<time_t>(time(nullptr) + respawnDelay, m_respawnTime);
 
             SaveRespawnTime(0, false);
         }
@@ -2184,7 +2184,7 @@ void Creature::ForcedDespawn(uint32 timeMSToDespawn, Seconds const& forceRespawn
             uint32 respawnDelay = m_respawnDelay;
             if (uint32 scalingMode = sWorld->getIntConfig(CONFIG_RESPAWN_DYNAMICMODE))
                 GetMap()->ApplyDynamicModeRespawnScaling(this, m_spawnId, respawnDelay, scalingMode);
-            m_respawnTime = time(NULL) + respawnDelay;
+            m_respawnTime = time(nullptr) + respawnDelay;
             SaveRespawnTime();
         }
 
@@ -2456,7 +2456,7 @@ void Creature::SaveRespawnTime(uint32 forceDelay, bool savetodb)
         return;
     }
 
-    time_t thisRespawnTime = forceDelay ? time(NULL) + forceDelay : m_respawnTime;
+    time_t thisRespawnTime = forceDelay ? time(nullptr) + forceDelay : m_respawnTime;
     GetMap()->SaveRespawnTime(SPAWN_TYPE_CREATURE, m_spawnId, GetEntry(), thisRespawnTime, GetMap()->GetZoneId(GetPhaseShift(), GetHomePosition()), Trinity::ComputeGridCoord(GetHomePosition().GetPositionX(), GetHomePosition().GetPositionY()).GetId(), savetodb && m_creatureData && m_creatureData->dbData);
 }
 

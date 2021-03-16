@@ -830,6 +830,49 @@ class npc_anubarak_spike : public CreatureScript
         };
 };
 
+// 65920 - Pursuing Spikes
+// 65922 - Pursuing Spikes
+// 65923 - Pursuing Spikes
+class spell_pursuing_spikes : public AuraScript
+{
+    PrepareAuraScript(spell_pursuing_spikes);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PERMAFROST, SPELL_SPIKE_FAIL });
+    }
+
+    bool Load() override
+    {
+        return InstanceHasScript(GetUnitOwner(), ToCrScriptName);
+    }
+
+    void PeriodicTick(AuraEffect const* /*aurEff*/)
+    {
+        PreventDefaultAction();
+
+        Unit* permafrostCaster = nullptr;
+        if (Aura* permafrostAura = GetTarget()->GetAura(SPELL_PERMAFROST))
+            permafrostCaster = permafrostAura->GetCaster();
+
+        if (permafrostCaster)
+        {
+            if (Creature* permafrostCasterCreature = permafrostCaster->ToCreature())
+                permafrostCasterCreature->DespawnOrUnsummon(3000);
+
+            GetTarget()->CastSpell(nullptr, SPELL_SPIKE_FAIL, false);
+            GetTarget()->RemoveAllAuras();
+            if (Creature* targetCreature = GetTarget()->ToCreature())
+                targetCreature->DisappearAndDie();
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_pursuing_spikes::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
 class spell_impale : public SpellScriptLoader
 {
     public:
@@ -909,6 +952,7 @@ void AddSC_boss_anubarak_trial()
     new npc_anubarak_spike();
     new npc_frost_sphere();
 
+    RegisterAuraScript(spell_pursuing_spikes);
     new spell_impale();
     new spell_anubarak_leeching_swarm();
 }

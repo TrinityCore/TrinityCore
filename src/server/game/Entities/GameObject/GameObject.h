@@ -314,6 +314,8 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         uint32 GetWorldEffectID() const { return _worldEffectID; }
         void SetWorldEffectID(uint32 worldEffectID) { _worldEffectID = worldEffectID; }
 
+        void SetSpellVisualId(int32 spellVisualId, ObjectGuid activatorGuid = ObjectGuid::Empty);
+
         void AIM_Destroy();
         bool AIM_Initialize();
 

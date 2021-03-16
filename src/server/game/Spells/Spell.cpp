@@ -550,7 +550,7 @@ m_spellValue(new SpellValue(m_spellInfo, caster)), _spellEvent(nullptr)
                 m_spellSchoolMask = SpellSchoolMask(1 << pItem->GetTemplate()->GetDamageType());
 
     if (Player const* modOwner = caster->GetSpellModOwner())
-        modOwner->ApplySpellMod(info, SPELLMOD_STACK_AMOUNT, m_spellValue->AuraStackAmount, this);
+        modOwner->ApplySpellMod(info, SpellModOp::Doses, m_spellValue->AuraStackAmount, this);
 
     if (!originalCasterGUID.IsEmpty())
         m_originalCasterGUID = originalCasterGUID;
@@ -1046,7 +1046,7 @@ void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTar
             break;
         case TARGET_CHECK_ENTRY:
         case TARGET_CHECK_DEFAULT:
-            range = m_spellInfo->GetMaxRange(m_spellInfo->IsPositive(), m_caster, this);
+            range = m_spellInfo->GetMaxRange(IsPositive(), m_caster, this);
             break;
         default:
             ASSERT(false && "Spell::SelectImplicitNearbyTargets: received not implemented selection check type");
@@ -1583,7 +1583,7 @@ void Spell::SelectImplicitChainTargets(SpellEffIndex effIndex, SpellImplicitTarg
 
     uint32 maxTargets = effect->ChainTargets;
     if (Player* modOwner = m_caster->GetSpellModOwner())
-        modOwner->ApplySpellMod(m_spellInfo, SPELLMOD_JUMP_TARGETS, maxTargets, this);
+        modOwner->ApplySpellMod(m_spellInfo, SpellModOp::ChainTargets, maxTargets, this);
 
     if (maxTargets > 1)
     {
@@ -1901,7 +1901,7 @@ void Spell::SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTar
     }
 
     if (Player* modOwner = m_caster->GetSpellModOwner())
-        modOwner->ApplySpellMod(m_spellInfo, SPELLMOD_JUMP_DISTANCE, jumpRadius, this);
+        modOwner->ApplySpellMod(m_spellInfo, SpellModOp::ChainJumpDistance, jumpRadius, this);
 
     // chain lightning/heal spells and similar - allow to jump at larger distance and go out of los
     bool isBouncingFar = (m_spellInfo->HasAttribute(SPELL_ATTR4_AREA_TARGET_CHAIN)
@@ -2130,7 +2130,7 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
     // Calculate hit result
     if (m_originalCaster)
     {
-        targetInfo.missCondition = m_originalCaster->SpellHitResult(target, m_spellInfo, m_canReflect && !(m_spellInfo->IsPositive() && m_caster->IsFriendlyTo(target)));
+        targetInfo.missCondition = m_originalCaster->SpellHitResult(target, m_spellInfo, m_canReflect && !(IsPositive() && m_caster->IsFriendlyTo(target)));
         if (m_skipCheck && targetInfo.missCondition != SPELL_MISS_IMMUNE)
             targetInfo.missCondition = SPELL_MISS_NONE;
     }
@@ -2317,7 +2317,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     if (unit->IsAlive() != target->alive)
         return;
 
-    if (getState() == SPELL_STATE_DELAYED && !m_spellInfo->IsPositive() && (GameTime::GetGameTimeMS() - target->timeDelay) <= unit->m_lastSanctuaryTime)
+    if (getState() == SPELL_STATE_DELAYED && !IsPositive() && (GameTime::GetGameTimeMS() - target->timeDelay) <= unit->m_lastSanctuaryTime)
         return;                                             // No missinfo in that case
 
     // Get original caster (if exist) and calculate damage/healing from him data
@@ -2533,7 +2533,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     m_hitMask |= hitMask;
 
     // spellHitTarget can be null if spell is missed in DoSpellHitOnUnit
-    if (missInfo != SPELL_MISS_EVADE && spellHitTarget && !m_caster->IsFriendlyTo(unit) && (!m_spellInfo->IsPositive() || m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL)))
+    if (missInfo != SPELL_MISS_EVADE && spellHitTarget && !m_caster->IsFriendlyTo(unit) && (!IsPositive() || m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL)))
     {
         m_caster->CombatStart(unit, m_spellInfo->HasInitialAggro());
 
@@ -2616,7 +2616,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask)
             /// @todo this cause soul transfer bugged
             // 63881 - Malady of the Mind jump spell (Yogg-Saron)
             // 45034 - Curse of Boundless Agony jump spell (Kalecgos)
-            if (m_spellInfo->HasHitDelay() && unit->GetTypeId() == TYPEID_PLAYER && !m_spellInfo->IsPositive() && m_spellInfo->Id != 63881 && m_spellInfo->Id != 45034)
+            if (m_spellInfo->HasHitDelay() && unit->GetTypeId() == TYPEID_PLAYER && !IsPositive() && m_spellInfo->Id != 63881 && m_spellInfo->Id != 45034)
                 return SPELL_MISS_EVADE;
 
             // assisting case, healing and resurrection
@@ -2868,9 +2868,9 @@ bool Spell::UpdateChanneledTargetList()
     float range = 0;
     if (channelAuraMask)
     {
-        range = m_spellInfo->GetMaxRange(m_spellInfo->IsPositive());
+        range = m_spellInfo->GetMaxRange(IsPositive());
         if (Player* modOwner = m_caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(m_spellInfo, SPELLMOD_RANGE, range, this);
+            modOwner->ApplySpellMod(m_spellInfo, SpellModOp::Range, range, this);
 
         // add little tolerance level
         range += std::min(MAX_SPELL_RANGE_TOLERANCE, range*0.1f); // 10% but no more than MAX_SPELL_RANGE_TOLERANCE
@@ -3378,9 +3378,9 @@ void Spell::_cast(bool skipCheck)
     if (!procAttacker)
     {
         if (m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC)
-            procAttacker = m_spellInfo->IsPositive() ? PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS : PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG;
+            procAttacker = IsPositive() ? PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS : PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG;
         else
-            procAttacker = m_spellInfo->IsPositive() ? PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_POS : PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG;
+            procAttacker = IsPositive() ? PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_POS : PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG;
     }
 
     uint32 hitMask = m_hitMask;
@@ -3406,7 +3406,7 @@ void Spell::handle_immediate()
             // First mod_duration then haste - see Missile Barrage
             // Apply duration mod
             if (Player* modOwner = m_caster->GetSpellModOwner())
-                modOwner->ApplySpellMod(m_spellInfo, SPELLMOD_DURATION, duration);
+                modOwner->ApplySpellMod(m_spellInfo, SpellModOp::Duration, duration);
 
             // Apply haste mods
             m_caster->ModSpellDurationTime(m_spellInfo, duration, this);
@@ -3605,9 +3605,9 @@ void Spell::_handle_finish_phase()
     if (!procAttacker)
     {
         if (m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC)
-            procAttacker = m_spellInfo->IsPositive() ? PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS : PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG;
+            procAttacker = IsPositive() ? PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS : PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG;
         else
-            procAttacker = m_spellInfo->IsPositive() ? PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_POS : PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG;
+            procAttacker = IsPositive() ? PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_POS : PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG;
     }
 
     m_originalCaster->ProcSkillsAndAuras(nullptr, procAttacker, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_FINISH, m_hitMask, this, nullptr, nullptr);
@@ -4653,7 +4653,7 @@ void Spell::TakePower()
                                 hit = false;
                                 //lower spell cost on fail (by talent aura)
                                 if (Player* modOwner = m_caster->ToPlayer()->GetSpellModOwner())
-                                    modOwner->ApplySpellMod(m_spellInfo, SPELLMOD_SPELL_COST_REFUND_ON_FAIL, cost.Amount);
+                                    modOwner->ApplySpellMod(m_spellInfo, SpellModOp::PowerCostOnMiss, cost.Amount);
                             }
                             break;
                         }
@@ -4830,7 +4830,7 @@ void Spell::HandleThreatSpells()
             continue;
 
         // positive spells distribute threat among all units that are in combat with target, like healing
-        if (m_spellInfo->IsPositive())
+        if (IsPositive())
             target->GetThreatManager().ForwardThreatForAssistingMe(m_caster, threatToAdd, m_spellInfo);
         // for negative spells threat gets distributed among affected targets
         else
@@ -4841,7 +4841,7 @@ void Spell::HandleThreatSpells()
             target->GetThreatManager().AddThreat(m_caster, threatToAdd, m_spellInfo, true);
         }
     }
-    TC_LOG_DEBUG("spells", "Spell %u, added an additional %f threat for %s %u target(s)", m_spellInfo->Id, threat, m_spellInfo->IsPositive() ? "assisting" : "harming", uint32(m_UniqueTargetInfo.size()));
+    TC_LOG_DEBUG("spells", "Spell %u, added an additional %f threat for %s %u target(s)", m_spellInfo->Id, threat, IsPositive() ? "assisting" : "harming", uint32(m_UniqueTargetInfo.size()));
 }
 
 void Spell::HandleEffects(Unit* pUnitTarget, Item* pItemTarget, GameObject* pGOTarget, uint32 i, SpellEffectHandleMode mode)
@@ -6287,7 +6287,7 @@ std::pair<float, float> Spell::GetMinMaxRange(bool strict) const
             maxRange *= ranged->GetTemplate()->GetRangedModRange() * 0.01f;
 
     if (Player* modOwner = m_caster->GetSpellModOwner())
-        modOwner->ApplySpellMod(m_spellInfo, SPELLMOD_RANGE, maxRange, const_cast<Spell*>(this));
+        modOwner->ApplySpellMod(m_spellInfo, SpellModOp::Range, maxRange, const_cast<Spell*>(this));
 
     maxRange += rangeMod;
 
@@ -6888,7 +6888,7 @@ void Spell::Delayed() // only called in DealDamage()
     //check pushback reduce
     int32 delaytime = 500;                                  // spellcasting delay is normally 500ms
     int32 delayReduce = 100;                                // must be initialized to 100 for percent modifiers
-    m_caster->ToPlayer()->ApplySpellMod(m_spellInfo, SPELLMOD_NOT_LOSE_CASTING_TIME, delayReduce, this);
+    m_caster->ToPlayer()->ApplySpellMod(m_spellInfo, SpellModOp::ResistPushback, delayReduce, this);
     delayReduce += m_caster->GetTotalAuraModifier(SPELL_AURA_REDUCE_PUSHBACK) - 100;
     if (delayReduce >= 100)
         return;
@@ -6926,7 +6926,7 @@ void Spell::DelayedChannel()
 
     int32 delaytime = CalculatePct(duration, 25); // channeling delay is normally 25% of its time per hit
     int32 delayReduce = 100;                                    // must be initialized to 100 for percent modifiers
-    m_caster->ToPlayer()->ApplySpellMod(m_spellInfo, SPELLMOD_NOT_LOSE_CASTING_TIME, delayReduce, this);
+    m_caster->ToPlayer()->ApplySpellMod(m_spellInfo, SpellModOp::ResistPushback, delayReduce, this);
     delayReduce += m_caster->GetTotalAuraModifier(SPELL_AURA_REDUCE_PUSHBACK) - 100;
     if (delayReduce >= 100)
         return;
@@ -7179,6 +7179,11 @@ bool Spell::IsAutoActionResetSpell() const
         return false;
 
     return true;
+}
+
+bool Spell::IsPositive() const
+{
+    return m_spellInfo->IsPositive() && (!m_triggeredByAuraSpell || m_triggeredByAuraSpell->IsPositive());
 }
 
 bool Spell::IsNeedSendToClient() const
@@ -7841,7 +7846,7 @@ void Spell::TriggerGlobalCooldown()
     {
         // gcd modifier auras are applied only to own spells and only players have such mods
         if (Player* modOwner = m_caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(m_spellInfo, SPELLMOD_GLOBAL_COOLDOWN, gcd, this);
+            modOwner->ApplySpellMod(m_spellInfo, SpellModOp::StartCooldown, gcd, this);
 
         bool isMeleeOrRangedSpell = m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MELEE ||
             m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_RANGED ||

@@ -98,6 +98,11 @@ namespace WorldPackets
         class AdventureJournalUpdateSuggestions;
     }
 
+    namespace AdventureMap
+    {
+        class AdventureMapStartQuest;
+    }
+
     namespace AreaTrigger
     {
         class AreaTrigger;
@@ -1689,6 +1694,9 @@ class TC_GAME_API WorldSession
         // Adventure Journal
         void HandleAdventureJournalOpenQuest(WorldPackets::AdventureJournal::AdventureJournalOpenQuest& openQuest);
         void HandleAdventureJournalUpdateSuggestions(WorldPackets::AdventureJournal::AdventureJournalUpdateSuggestions& updateSuggestions);
+
+        // Adventure Map
+        void HandleAdventureMapStartQuest(WorldPackets::AdventureMap::AdventureMapStartQuest& startQuest);
 
         // Toys
         void HandleAddToy(WorldPackets::Toy::AddToy& packet);

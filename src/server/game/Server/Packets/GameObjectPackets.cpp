@@ -77,3 +77,12 @@ WorldPacket const* WorldPackets::GameObject::GameObjectUILink::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::GameObject::GameObjectPlaySpellVisual::Write()
+{
+    _worldPacket << ObjectGUID;
+    _worldPacket << ActivatorGUID;
+    _worldPacket << int32(SpellVisualID);
+
+    return &_worldPacket;
+}

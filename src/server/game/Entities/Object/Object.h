@@ -168,6 +168,7 @@ class TC_GAME_API Object
 
         virtual bool hasQuest(uint32 /* quest_id */) const { return false; }
         virtual bool hasInvolvedQuest(uint32 /* quest_id */) const { return false; }
+        void SetIsNewObject(bool enable) { m_isNewObject = enable; }
         virtual void BuildUpdate(UpdateDataMapType&) { }
         void BuildFieldsUpdate(Player*, UpdateDataMapType &) const;
 
@@ -346,6 +347,7 @@ class TC_GAME_API Object
     private:
         ObjectGuid m_guid;
         bool m_inWorld;
+        bool m_isNewObject;
 
         Object(Object const& right) = delete;
         Object& operator=(Object const& right) = delete;
@@ -586,6 +588,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         virtual float GetStationaryO() const { return GetOrientation(); }
 
         float GetFloorZ() const;
+        virtual float GetCollisionHeight() const { return 0.0f; }
+        float GetMidsectionHeight() const { return GetCollisionHeight() / 2.0f; }
 
         virtual uint16 GetAIAnimKitId() const { return 0; }
         virtual uint16 GetMovementAnimKitId() const { return 0; }

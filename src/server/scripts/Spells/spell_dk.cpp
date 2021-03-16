@@ -29,6 +29,7 @@
 #include "SpellHistory.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
+#include <numeric>
 
 enum DeathKnightSpells
 {
@@ -63,6 +64,7 @@ enum DeathKnightSpells
     SPELL_DK_RUNIC_RETURN                       = 61258,
     SPELL_DK_SLUDGE_BELCHER                     = 207313,
     SPELL_DK_SLUDGE_BELCHER_SUMMON              = 212027,
+    SPELL_DK_DEATH_STRIKE_ENABLER               = 89832, // Server Side
     SPELL_DK_TIGHTENING_GRASP                   = 206970,
     SPELL_DK_TIGHTENING_GRASP_SLOW              = 143375,
     SPELL_DK_UNHOLY                             = 137007,
@@ -445,37 +447,48 @@ class spell_dk_death_pact : public AuraScript
     }
 };
 
-
 // 49998 - Death Strike
 class spell_dk_death_strike : public SpellScript
 {
     PrepareSpellScript(spell_dk_death_strike);
 
-    bool Validate(SpellInfo const* /*spellInfo*/) override
+    bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo(
         {
+            SPELL_DK_DEATH_STRIKE_ENABLER,
             SPELL_DK_DEATH_STRIKE_HEAL,
             SPELL_DK_BLOOD_SHIELD_MASTERY,
             SPELL_DK_BLOOD_SHIELD_ABSORB,
-            SPELL_DK_RECENTLY_USED_DEATH_STRIKE,
             SPELL_DK_FROST,
             SPELL_DK_DEATH_STRIKE_OFFHAND
-        });
+        })
+            && spellInfo->GetEffect(EFFECT_1)
+            && spellInfo->GetEffect(EFFECT_2);
     }
 
-    void HandleHeal(SpellEffIndex /*effIndex*/)
+    void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
-        //TODO: heal = std::min(10% health, 20% of all damage taken in last 5 seconds)
-        int32 heal = CalculatePct(caster->GetMaxHealth(), GetSpellInfo()->GetEffect(EFFECT_4)->CalcValue());
-        caster->CastCustomSpell(SPELL_DK_DEATH_STRIKE_HEAL, SPELLVALUE_BASE_POINT0, heal, caster, true);
 
-        if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_DK_BLOOD_SHIELD_MASTERY, EFFECT_0))
-            caster->CastCustomSpell(SPELL_DK_BLOOD_SHIELD_ABSORB, SPELLVALUE_BASE_POINT0, CalculatePct(heal, aurEff->GetAmount()), caster);
+        if (AuraEffect* enabler = caster->GetAuraEffect(SPELL_DK_DEATH_STRIKE_ENABLER, EFFECT_0, GetCaster()->GetGUID()))
+        {
+            SpellInfo const* spellInfo = GetSpellInfo();
 
-        if (caster->HasAura(SPELL_DK_FROST))
-            caster->CastSpell(GetHitUnit(), SPELL_DK_DEATH_STRIKE_OFFHAND, true);
+            // Heals you for 25% of all damage taken in the last 5 sec,
+            int32 heal = CalculatePct(enabler->CalculateAmount(GetCaster()), spellInfo->GetEffect(EFFECT_1)->CalcValue(GetCaster()));
+            // minimum 7.0% of maximum health.
+            int32 pctOfMaxHealth = CalculatePct(spellInfo->GetEffect(EFFECT_2)->CalcValue(GetCaster()), caster->GetMaxHealth());
+            heal = std::max(heal, pctOfMaxHealth);
+
+            caster->CastCustomSpell(SPELL_DK_DEATH_STRIKE_HEAL, SPELLVALUE_BASE_POINT0, heal, caster, true);
+
+            if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_DK_BLOOD_SHIELD_MASTERY, EFFECT_0))
+                caster->CastCustomSpell(SPELL_DK_BLOOD_SHIELD_ABSORB, SPELLVALUE_BASE_POINT0, CalculatePct(heal, aurEff->GetAmount()), caster);
+
+            if (caster->HasAura(SPELL_DK_FROST))
+                caster->CastSpell(GetHitUnit(), SPELL_DK_DEATH_STRIKE_OFFHAND, true);
+        }
     }
 
     void TriggerRecentlyUsedDeathStrike()
@@ -485,31 +498,74 @@ class spell_dk_death_strike : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_dk_death_strike::HandleHeal, EFFECT_1, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
+        OnEffectLaunch += SpellEffectFn(spell_dk_death_strike::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
         AfterCast += SpellCastFn(spell_dk_death_strike::TriggerRecentlyUsedDeathStrike);
     }
 };
 
+// 89832 - Death Strike Enabler - SPELL_DK_DEATH_STRIKE_ENABLER
+class spell_dk_death_strike_enabler : public AuraScript
+{
+    PrepareAuraScript(spell_dk_death_strike_enabler);
+
+    // Amount of seconds we calculate damage over
+    constexpr static uint8 LAST_SECONDS = 5;
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetDamageInfo() != nullptr;
+    }
+
+    void Update(AuraEffect* /*aurEff*/)
+    {
+        // Move backwards all datas by one from [23][0][0][0][0] -> [0][23][0][0][0]
+        std::move_backward(_damagePerSecond.begin(), std::next(_damagePerSecond.begin(), LAST_SECONDS - 1), _damagePerSecond.end());
+        _damagePerSecond[0] = 0;
+    }
+
+    void HandleCalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    {
+        canBeRecalculated = true;
+        amount = int32(std::accumulate(_damagePerSecond.begin(), _damagePerSecond.end(), 0u));
+    }
+
+    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        _damagePerSecond[0] += eventInfo.GetDamageInfo()->GetDamage();
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_dk_death_strike_enabler::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_dk_death_strike_enabler::HandleProc, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_death_strike_enabler::HandleCalcAmount, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_dk_death_strike_enabler::Update, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+
+private:
+    std::array<uint32, LAST_SECONDS> _damagePerSecond = { };
+};
+
 // 85948 - Festering Strike
 class spell_dk_festering_strike : public SpellScript
-        {
-            PrepareSpellScript(spell_dk_festering_strike);
+{
+    PrepareSpellScript(spell_dk_festering_strike);
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_DK_FESTERING_WOUND });
-            }
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DK_FESTERING_WOUND });
+    }
 
-            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
-            {
-                GetCaster()->CastCustomSpell(SPELL_DK_FESTERING_WOUND, SPELLVALUE_AURA_STACK, GetEffectValue(), GetHitUnit(), TRIGGERED_FULL_MASK);
-            }
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastCustomSpell(SPELL_DK_FESTERING_WOUND, SPELLVALUE_AURA_STACK, GetEffectValue(), GetHitUnit(), TRIGGERED_FULL_MASK);
+    }
 
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_dk_festering_strike::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_DUMMY);
-            }
-        };
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dk_festering_strike::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_DUMMY);
+    }
+};
 
 // 47496 - Explode, Ghoul spell for Corpse Explosion
 class spell_dk_ghoul_explode : public SpellScript
@@ -731,6 +787,7 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_death_grip_initial);
     RegisterAuraScript(spell_dk_death_pact);
     RegisterSpellScript(spell_dk_death_strike);
+    RegisterAuraScript(spell_dk_death_strike_enabler);
     RegisterSpellScript(spell_dk_festering_strike);
     RegisterSpellScript(spell_dk_ghoul_explode);
     RegisterAuraScript(spell_dk_mark_of_blood);

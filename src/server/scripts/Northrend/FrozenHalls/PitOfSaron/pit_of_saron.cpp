@@ -232,36 +232,6 @@ class npc_geist_ambusher : public CreatureScript
         }
 };
 
-class spell_trash_npc_glacial_strike : public SpellScriptLoader
-{
-    public:
-        spell_trash_npc_glacial_strike() : SpellScriptLoader("spell_trash_npc_glacial_strike") { }
-
-        class spell_trash_npc_glacial_strike_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_trash_npc_glacial_strike_AuraScript);
-
-            void PeriodicTick(AuraEffect const* /*aurEff*/)
-            {
-                if (GetTarget()->IsFullHealth())
-                {
-                    GetTarget()->RemoveAura(GetId(), ObjectGuid::Empty, 0, AURA_REMOVE_BY_ENEMY_SPELL);
-                    PreventDefaultAction();
-                }
-            }
-
-            void Register() override
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_trash_npc_glacial_strike_AuraScript::PeriodicTick, EFFECT_2, SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_trash_npc_glacial_strike_AuraScript();
-        }
-};
-
 class npc_pit_of_saron_icicle : public CreatureScript
 {
     public:
@@ -395,7 +365,6 @@ void AddSC_pit_of_saron()
     new npc_iceborn_protodrake();
     new npc_geist_ambusher();
     new npc_pit_of_saron_icicle();
-    new spell_trash_npc_glacial_strike();
     new spell_pos_ice_shards();
     new at_pit_cavern_entrance();
     new at_pit_cavern_end();

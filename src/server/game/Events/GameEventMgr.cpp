@@ -1734,7 +1734,7 @@ void GameEventMgr::SetHolidayEventTime(GameEventData& event)
 
     bool singleDate = ((holiday->Date[0] >> 24) & 0x1F) == 31; // Events with fixed date within year have - 1
 
-    time_t curTime = time(NULL);
+    time_t curTime = time(nullptr);
     for (int i = 0; i < MAX_HOLIDAY_DATES && holiday->Date[i]; ++i)
     {
         uint32 date = holiday->Date[i];
