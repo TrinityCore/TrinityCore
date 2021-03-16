@@ -28,6 +28,7 @@
 #include "DB2Stores.h"
 #include "Item.h"
 #include "Log.h"
+#include "LootMgr.h"
 #include "Map.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -106,6 +107,38 @@ class spell_item_aegis_of_preservation : public AuraScript
     void Register() override
     {
         OnEffectProc += AuraEffectProcFn(spell_item_aegis_of_preservation::HandleProc, EFFECT_1, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
+enum ZezzaksShard
+{
+    SPELL_EYE_OF_GRILLOK = 38495
+};
+
+// 38554 - Absorb Eye of Grillok (31463: Zezzak's Shard)
+class spell_item_absorb_eye_of_grillok : public AuraScript
+{
+    PrepareAuraScript(spell_item_absorb_eye_of_grillok);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_EYE_OF_GRILLOK });
+    }
+
+    void PeriodicTick(AuraEffect const* aurEff)
+    {
+        PreventDefaultAction();
+
+        if (!GetCaster() || GetTarget()->GetTypeId() != TYPEID_UNIT)
+            return;
+
+        GetCaster()->CastSpell(GetCaster(), SPELL_EYE_OF_GRILLOK, true, nullptr, aurEff);
+        GetTarget()->ToCreature()->DespawnOrUnsummon();
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_item_absorb_eye_of_grillok::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
     }
 };
 
@@ -755,6 +788,37 @@ class spell_item_echoes_of_light : public SpellScript
     void Register() override
     {
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_item_echoes_of_light::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+    }
+};
+
+// 30427 - Extract Gas (23821: Zapthrottle Mote Extractor)
+class spell_item_extract_gas : public AuraScript
+{
+    PrepareAuraScript(spell_item_extract_gas);
+
+    void PeriodicTick(AuraEffect const* /*aurEff*/)
+    {
+        PreventDefaultAction();
+
+        // move loot to player inventory and despawn target
+        if (GetCaster() && GetCaster()->GetTypeId() == TYPEID_PLAYER &&
+            GetTarget()->GetTypeId() == TYPEID_UNIT &&
+            GetTarget()->ToCreature()->GetCreatureTemplate()->type == CREATURE_TYPE_GAS_CLOUD)
+        {
+            Player* player = GetCaster()->ToPlayer();
+            Creature* creature = GetTarget()->ToCreature();
+            // missing lootid has been reported on startup - just return
+            if (!creature->GetCreatureTemplate()->SkinLootId)
+                return;
+
+            player->AutoStoreLoot(creature->GetCreatureTemplate()->SkinLootId, LootTemplates_Skinning, ItemContext::NONE, true);
+            creature->DespawnOrUnsummon();
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_item_extract_gas::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
     }
 };
 
@@ -3986,6 +4050,7 @@ void AddSC_item_spell_scripts()
     new spell_item_trigger_spell("spell_item_mithril_mechanical_dragonling", SPELL_MITHRIL_MECHANICAL_DRAGONLING);
 
     RegisterAuraScript(spell_item_aegis_of_preservation);
+    RegisterAuraScript(spell_item_absorb_eye_of_grillok);
     RegisterAuraScript(spell_item_alchemist_stone);
     new spell_item_anger_capacitor<8>("spell_item_tiny_abomination_in_a_jar");
     new spell_item_anger_capacitor<7>("spell_item_tiny_abomination_in_a_jar_hero");
@@ -4005,6 +4070,7 @@ void AddSC_item_spell_scripts()
     RegisterSpellScript(spell_item_deviate_fish);
     RegisterAuraScript(spell_item_discerning_eye_beast_dummy);
     RegisterSpellScript(spell_item_echoes_of_light);
+    RegisterAuraScript(spell_item_extract_gas);
     RegisterAuraScript(spell_item_fate_rune_of_unsurpassed_vigor);
     RegisterSpellScript(spell_item_flask_of_the_north);
     RegisterAuraScript(spell_item_frozen_shadoweave);

@@ -1470,6 +1470,9 @@ void GameObject::Use(Unit* user)
 
     if (Player* playerUser = user->ToPlayer())
     {
+        if (!m_goInfo->IsUsableMounted())
+            playerUser->Dismount();
+
         playerUser->PlayerTalkClass->ClearMenus();
         if (AI()->GossipHello(playerUser))
             return;
@@ -2756,6 +2759,17 @@ void GameObject::SetAnimKitId(uint16 animKitId, bool oneshot)
     activateAnimKit.AnimKitID = animKitId;
     activateAnimKit.Maintain = !oneshot;
     SendMessageToSet(activateAnimKit.Write(), true);
+}
+
+void GameObject::SetSpellVisualId(int32 spellVisualId, ObjectGuid activatorGuid)
+{
+    SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::SpellVisualID), spellVisualId);
+
+    WorldPackets::GameObject::GameObjectPlaySpellVisual packet;
+    packet.ObjectGUID = GetGUID();
+    packet.ActivatorGUID = activatorGuid;
+    packet.SpellVisualID = spellVisualId;
+    SendMessageToSet(packet.Write(), true);
 }
 
 class GameObjectModelOwnerImpl : public GameObjectModelOwnerBase

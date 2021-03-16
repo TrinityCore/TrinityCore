@@ -516,7 +516,7 @@ public:
             if (!spellMod)
             {
                 spellMod = new SpellModifier(GetAura());
-                spellMod->op = SPELLMOD_DOT;
+                spellMod->op = SpellModOp::PeriodicHealingAndDamage;
                 spellMod->type = SPELLMOD_FLAT;
                 spellMod->spellId = GetId();
                 spellMod->mask = aurEff->GetSpellEffectInfo()->SpellClassMask;
@@ -555,6 +555,12 @@ public:
 
         void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
         {
+            if (!aurEff->GetTotalTicks())
+            {
+                amount = 0;
+                return;
+            }
+
             if (Unit* caster = GetCaster())
                 amount = int32(CalculatePct(caster->GetCreatePowers(POWER_MANA), amount) / aurEff->GetTotalTicks());
             else
@@ -1377,6 +1383,8 @@ public:
 
             SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_DRUID_LANGUISH, GetCastDifficulty());
             int32 amount = CalculatePct(static_cast<int32>(damageInfo->GetDamage()), aurEff->GetAmount());
+
+            ASSERT(spellInfo->GetMaxTicks() > 0);
             amount /= spellInfo->GetMaxTicks();
             // Add remaining ticks to damage done
             amount += target->GetRemainingPeriodicAmount(caster->GetGUID(), SPELL_DRUID_LANGUISH, SPELL_AURA_PERIODIC_DAMAGE);

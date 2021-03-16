@@ -1036,6 +1036,26 @@ class spell_sha_t3_6p_bonus : public SpellScriptLoader
         }
 };
 
+// 28820 - Lightning Shield
+class spell_sha_t3_8p_bonus : public AuraScript
+{
+    PrepareAuraScript(spell_sha_t3_8p_bonus);
+
+    void PeriodicTick(AuraEffect const* /*aurEff*/)
+    {
+        PreventDefaultAction();
+
+        // Need remove self if Lightning Shield not active
+        if (!GetTarget()->GetAuraEffect(SPELL_AURA_PROC_TRIGGER_SPELL, SPELLFAMILY_SHAMAN, flag128(0x400), GetCaster()->GetGUID()))
+            Remove();
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_t3_8p_bonus::PeriodicTick, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
 // 64928 - Item - Shaman T8 Elemental 4P Bonus
 class spell_sha_t8_elemental_4p_bonus : public SpellScriptLoader
 {
@@ -1061,6 +1081,8 @@ class spell_sha_t8_elemental_4p_bonus : public SpellScriptLoader
 
                 SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_SHAMAN_ELECTRIFIED, GetCastDifficulty());
                 int32 amount = CalculatePct(static_cast<int32>(damageInfo->GetDamage()), aurEff->GetAmount());
+
+                ASSERT(spellInfo->GetMaxTicks() > 0);
                 amount /= spellInfo->GetMaxTicks();
 
                 // Add remaining ticks to damage done
@@ -1108,6 +1130,8 @@ class spell_sha_t9_elemental_4p_bonus : public SpellScriptLoader
 
                 SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_SHAMAN_LAVA_BURST_BONUS_DAMAGE, GetCastDifficulty());
                 int32 amount = CalculatePct(static_cast<int32>(damageInfo->GetDamage()), aurEff->GetAmount());
+
+                ASSERT(spellInfo->GetMaxTicks() > 0);
                 amount /= spellInfo->GetMaxTicks();
 
                 // Add remaining ticks to damage done
@@ -1200,6 +1224,8 @@ class spell_sha_t10_restoration_4p_bonus : public SpellScriptLoader
 
                 SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_SHAMAN_CHAINED_HEAL, GetCastDifficulty());
                 int32 amount = CalculatePct(static_cast<int32>(healInfo->GetHeal()), aurEff->GetAmount());
+
+                ASSERT(spellInfo->GetMaxTicks() > 0);
                 amount /= spellInfo->GetMaxTicks();
 
                 // Add remaining ticks to healing done
@@ -1282,6 +1308,7 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_path_of_flames_spread();
     new spell_sha_tidal_waves();
     new spell_sha_t3_6p_bonus();
+    RegisterAuraScript(spell_sha_t3_8p_bonus);
     new spell_sha_t8_elemental_4p_bonus();
     new spell_sha_t9_elemental_4p_bonus();
     new spell_sha_t10_elemental_4p_bonus();

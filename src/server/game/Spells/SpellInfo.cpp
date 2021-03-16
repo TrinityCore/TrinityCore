@@ -614,7 +614,7 @@ float SpellEffectInfo::CalcValueMultiplier(Unit* caster, Spell* spell) const
 {
     float multiplier = Amplitude;
     if (Player* modOwner = (caster ? caster->GetSpellModOwner() : nullptr))
-        modOwner->ApplySpellMod(_spellInfo, SPELLMOD_VALUE_MULTIPLIER, multiplier, spell);
+        modOwner->ApplySpellMod(_spellInfo, SpellModOp::Amplitude, multiplier, spell);
     return multiplier;
 }
 
@@ -622,7 +622,7 @@ float SpellEffectInfo::CalcDamageMultiplier(Unit* caster, Spell* spell) const
 {
     float multiplierPercent = ChainAmplitude * 100.0f;
     if (Player* modOwner = (caster ? caster->GetSpellModOwner() : nullptr))
-        modOwner->ApplySpellMod(_spellInfo, SPELLMOD_DAMAGE_MULTIPLIER, multiplierPercent, spell);
+        modOwner->ApplySpellMod(_spellInfo, SpellModOp::ChainAmplitude, multiplierPercent, spell);
     return multiplierPercent / 100.0f;
 }
 
@@ -656,7 +656,7 @@ float SpellEffectInfo::CalcRadius(Unit* caster, Spell* spell) const
         radius += entry->RadiusPerLevel * caster->getLevel();
         radius = std::min(radius, entry->RadiusMax);
         if (Player* modOwner = caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(_spellInfo, SPELLMOD_RADIUS, radius, spell);
+            modOwner->ApplySpellMod(_spellInfo, SpellModOp::Radius, radius, spell);
     }
 
     return radius;
@@ -3672,7 +3672,7 @@ float SpellInfo::GetMaxRange(bool positive, Unit* caster, Spell* spell) const
     float range = RangeEntry->RangeMax[positive ? 1 : 0];
     if (caster)
         if (Player* modOwner = caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(this, SPELLMOD_RANGE, range, spell);
+            modOwner->ApplySpellMod(this, SpellModOp::Range, range, spell);
 
     return range;
 }
@@ -3683,7 +3683,7 @@ int32 SpellInfo::CalcDuration(Unit* caster /*= nullptr*/) const
 
     if (caster)
         if (Player* modOwner = caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(this, SPELLMOD_DURATION, duration);
+            modOwner->ApplySpellMod(this, SpellModOp::Duration, duration);
 
     return duration;
 }
@@ -3722,13 +3722,13 @@ uint32 SpellInfo::CalcCastTime(Spell* spell /*= nullptr*/) const
 
 uint32 SpellInfo::GetMaxTicks() const
 {
+    uint32 totalTicks = 0;
     int32 DotDuration = GetDuration();
-    if (DotDuration == 0)
-        return 1;
 
     for (SpellEffectInfo const* effect : _effects)
     {
         if (effect && effect->Effect == SPELL_EFFECT_APPLY_AURA)
+        {
             switch (effect->ApplyAuraName)
             {
                 case SPELL_AURA_PERIODIC_DAMAGE:
@@ -3745,13 +3745,19 @@ uint32 SpellInfo::GetMaxTicks() const
                 case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
                 case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
                 case SPELL_AURA_PERIODIC_HEALTH_FUNNEL:
-                    if (effect->ApplyAuraPeriod != 0)
-                        return DotDuration / effect->ApplyAuraPeriod;
+                    // skip infinite periodics
+                    if (effect->ApplyAuraPeriod > 0 && DotDuration > 0)
+                    {
+                        totalTicks = static_cast<uint32>(DotDuration) / effect->ApplyAuraPeriod;
+                        if (HasAttribute(SPELL_ATTR5_START_PERIODIC_AT_APPLY))
+                            ++totalTicks;
+                    }
                     break;
             }
+        }
     }
 
-    return 6;
+    return totalTicks;
 }
 
 uint32 SpellInfo::GetRecoveryTime() const
@@ -3904,13 +3910,13 @@ Optional<SpellPowerCost> SpellInfo::CalcPowerCost(SpellPowerEntry const* power, 
         switch (power->OrderIndex)
         {
             case 0:
-                mod = SPELLMOD_COST;
+                mod = SpellModOp::PowerCost0;
                 break;
             case 1:
-                mod = SPELLMOD_SPELL_COST2;
+                mod = SpellModOp::PowerCost1;
                 break;
             case 2:
-                mod = SPELLMOD_SPELL_COST3;
+                mod = SpellModOp::PowerCost2;
                 break;
             default:
                 break;
@@ -4487,9 +4493,11 @@ bool SpellInfo::_IsPositiveEffect(uint32 effIndex, bool deep) const
                 case SPELL_AURA_ADD_PCT_MODIFIER:
                 {
                     // non-positive mods
-                    switch (effect->MiscValue)
+                    switch (SpellModOp(effect->MiscValue))
                     {
-                        case SPELLMOD_COST:                 // dependent from bas point sign (negative -> positive)
+                        case SpellModOp::PowerCost0:                 // dependent from bas point sign (negative -> positive)
+                        case SpellModOp::PowerCost1:
+                        case SpellModOp::PowerCost2:
                             if (effect->CalcValue() > 0)
                             {
                                 if (!deep)

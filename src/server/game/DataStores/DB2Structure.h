@@ -73,6 +73,23 @@ struct AdventureJournalEntry
     uint8 BonusValue[2];
 };
 
+struct AdventureMapPOIEntry
+{
+    uint32 ID;
+    LocalizedString Title;
+    LocalizedString Description;
+    DBCPosition2D WorldPosition;
+    int8 Type;
+    uint32 PlayerConditionID;
+    uint32 QuestID;
+    uint32 LfgDungeonID;
+    int32 RewardItemID;
+    uint32 UiTextureAtlasMemberID;
+    uint32 UiTextureKitID;
+    int32 MapID;
+    uint32 AreaTableID;
+};
+
 struct AnimationDataEntry
 {
     uint32 ID;
@@ -547,6 +564,14 @@ struct ChatChannelsEntry
     int32 Flags;
     int8 FactionGroup;
     int32 Ruleset;
+};
+
+struct ChrClassUIDisplayEntry
+{
+    uint32 ID;
+    uint8 ChrClassesID;
+    uint32 AdvGuidePlayerConditionID;
+    uint32 SplashPlayerConditionID;
 };
 
 struct ChrClassesEntry

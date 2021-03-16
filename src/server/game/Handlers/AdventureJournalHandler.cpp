@@ -24,6 +24,10 @@
 
 void WorldSession::HandleAdventureJournalOpenQuest(WorldPackets::AdventureJournal::AdventureJournalOpenQuest& openQuest)
 {
+    if (ChrClassUIDisplayEntry const* uiDisplay = sDB2Manager.GetUiDisplayForClass(Classes(_player->getClass())))
+        if (!_player->MeetPlayerCondition(uiDisplay->AdvGuidePlayerConditionID))
+            return;
+
     AdventureJournalEntry const* adventureJournal = sAdventureJournalStore.LookupEntry(openQuest.AdventureJournalID);
     if (!adventureJournal)
         return;
@@ -41,6 +45,10 @@ void WorldSession::HandleAdventureJournalOpenQuest(WorldPackets::AdventureJourna
 
 void WorldSession::HandleAdventureJournalUpdateSuggestions(WorldPackets::AdventureJournal::AdventureJournalUpdateSuggestions& updateSuggestions)
 {
+    if (ChrClassUIDisplayEntry const* uiDisplay = sDB2Manager.GetUiDisplayForClass(Classes(_player->getClass())))
+        if (!_player->MeetPlayerCondition(uiDisplay->AdvGuidePlayerConditionID))
+            return;
+
     WorldPackets::AdventureJournal::AdventureJournalDataResponse response;
     response.OnLevelUp = updateSuggestions.OnLevelUp;
 

@@ -662,7 +662,7 @@ struct boss_jormungarAI : public BossAI
         events.SetPhase(PHASE_SUBMERGED);
         events.ScheduleEvent(EVENT_EMERGE, 5*IN_MILLISECONDS, 0, PHASE_SUBMERGED);
         me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
-        me->GetMotionMaster()->MovePoint(0, ToCCommonLoc[1].GetPositionX()+ frand(-40.0f, 40.0f), ToCCommonLoc[1].GetPositionY() + frand(-40.0f, 40.0f), ToCCommonLoc[1].GetPositionZ());
+        me->GetMotionMaster()->MovePoint(0, ToCCommonLoc[1].GetPositionX() + frand(-40.0f, 40.0f), ToCCommonLoc[1].GetPositionY() + frand(-40.0f, 40.0f), ToCCommonLoc[1].GetPositionZ() + me->GetMidsectionHeight());
         WasMobile = !WasMobile;
     }
 
@@ -1374,6 +1374,30 @@ public:
     }
 };
 
+// 66882 - Slime Pool
+class spell_jormungars_slime_pool : public AuraScript
+{
+    PrepareAuraScript(spell_jormungars_slime_pool);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0)->TriggerSpell });
+    }
+
+    void PeriodicTick(AuraEffect const* aurEff)
+    {
+        PreventDefaultAction();
+
+        int32 const radius = static_cast<int32>(((aurEff->GetTickNumber() / 60.f) * 0.9f + 0.1f) * 10000.f * 2.f / 3.f);
+        GetTarget()->CastCustomSpell(GetSpellInfo()->GetEffect(aurEff->GetEffIndex())->TriggerSpell, SPELLVALUE_RADIUS_MOD, radius, nullptr, true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_jormungars_slime_pool::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
 class spell_jormungars_snakes_spray : public SpellScriptLoader
 {
 public:
@@ -1460,6 +1484,7 @@ void AddSC_boss_northrend_beasts()
     new boss_dreadscale();
     new npc_slime_pool();
     new spell_jormungars_paralytic_toxin();
+    RegisterAuraScript(spell_jormungars_slime_pool);
     new spell_jormungars_snakes_spray("spell_jormungars_burning_spray", SPELL_BURNING_BILE);
     new spell_jormungars_snakes_spray("spell_jormungars_paralytic_spray", SPELL_PARALYTIC_TOXIN);
     new spell_jormungars_paralysis();

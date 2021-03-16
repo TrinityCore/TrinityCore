@@ -231,7 +231,7 @@ bool HandleNpcSpawnGroup(ChatHandler* handler, char const* args)
         else
             groupId = atoi(thisArg.c_str());
 
-        arg = strtok(NULL, " ");
+        arg = strtok(nullptr, " ");
     }
 
     Player* player = handler->GetSession()->GetPlayer();
