@@ -76,8 +76,8 @@ enum Spells
     SPELL_GUZZLE_POTIONS                    = 71893,
     SPELL_OOZE_TANK_PROTECTION              = 71770,    // protects the tank
     SPELL_CHOKING_GAS_BOMB                  = 71255,
-    SPELL_OOZE_VARIABLE                     = 74118,
-    SPELL_GAS_VARIABLE                      = 74119,
+    SPELL_OOZE_VARIABLE                     = 70352,
+    SPELL_GAS_VARIABLE                      = 70353,
     SPELL_UNBOUND_PLAGUE                    = 70911,
     SPELL_UNBOUND_PLAGUE_SEARCHER           = 70917,
     SPELL_PLAGUE_SICKNESS                   = 70953,
@@ -115,8 +115,6 @@ enum Spells
     // Unholy Infusion
     SPELL_UNHOLY_INFUSION_CREDIT            = 71518
 };
-
-#define SPELL_GASEOUS_BLOAT_HELPER RAID_MODE<uint32>(70672, 72455, 72832, 72833)
 
 enum Events
 {
