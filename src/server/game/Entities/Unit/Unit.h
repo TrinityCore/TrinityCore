@@ -1569,6 +1569,7 @@ class TC_GAME_API Unit : public WorldObject
         void _ApplyAllAuraStatMods();
 
         AuraEffectList const& GetAuraEffectsByType(AuraType type) const { return m_modAuras[type]; }
+        AuraEffectList& GetAuraEffectsByType(AuraType type) { return m_modAuras[type]; }
         AuraList      & GetSingleCastAuras()       { return m_scAuras; }
         AuraList const& GetSingleCastAuras() const { return m_scAuras; }
 

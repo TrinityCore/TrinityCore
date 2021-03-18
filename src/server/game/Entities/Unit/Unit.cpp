@@ -871,7 +871,22 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         if (victim->GetTypeId() == TYPEID_PLAYER && victim != this)
             victim->ToPlayer()->UpdateCriteria(CRITERIA_TYPE_TOTAL_DAMAGE_RECEIVED, health);
 
-        Kill(victim, durabilityLoss);
+        AuraEffectList& vAbsorbOverkill = victim->GetAuraEffectsByType(SPELL_AURA_SCHOOL_ABSORB_OVERKILL);
+        bool kill = vAbsorbOverkill.size() == 0;
+
+        DamageInfo damageInfo = DamageInfo(this, victim, damage, spellProto, damageSchoolMask, damagetype,
+            cleanDamage ? cleanDamage->attackType : BASE_ATTACK);
+        for (AuraEffect* auraEffect : vAbsorbOverkill)
+        {
+            Aura* base = auraEffect->GetBase();
+            AuraApplication const* aurApp = base->GetApplicationOfTarget(GetGUID());
+            if (!aurApp)
+                continue;
+            base->CallScriptEffectAbsorbHandlers(auraEffect, aurApp, damageInfo, damage, kill);
+        }
+
+        if (kill)
+            Kill(victim, durabilityLoss);
     }
     else
     {
