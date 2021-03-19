@@ -1014,6 +1014,21 @@ enum class ZonePVPTypeOverride : uint32
     Combat      = 4
 };
 
+enum class StorageType
+{
+    None            = 0,
+    Equipment       = 1 << 0,
+    Inventory       = 1 << 1,
+    Bank            = 1 << 2,
+    Reagent         = 1 << 3,
+    ChildEquipment  = 1 << 4,
+
+    AllEquipment    = Equipment | ChildEquipment,
+    All             = Equipment | Inventory | Bank | Reagent | ChildEquipment,
+};
+
+DEFINE_ENUM_FLAG(StorageType);
+
 class TC_GAME_API Player : public Unit, public GridObject<Player>
 {
     friend class WorldSession;
@@ -1145,6 +1160,81 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         /*********************************************************/
         /***                    STORAGE SYSTEM                 ***/
         /*********************************************************/
+
+        /// <summary>
+        /// Iterate over each item in the player storage
+        /// </summary>
+        /// <typeparam name="T">bool ItemCallback(Item* item, uint8 equipmentSlots, StorageType storageType)</typeparam>
+        /// <typeparam name="U">bool BagCallback(Bag* bag, uint8 equipmentSlots, StorageType storageType)</typeparam>
+        /// <param name="storageType">Type of storage to iterate over</param>
+        /// <param name="callback">Callback called on each item. Will continue as long as it returns true</param>
+        /// <param name="bagCallback">Callback called on each bag. Will continue as long as it returns true</param>
+        template <typename T, typename U>
+        bool ForEachStorageItem(StorageType storageType, T callback, U bagCallback) const
+        {
+            EnumFlag<StorageType> flag = storageType;
+
+            if (flag.HasFlag(StorageType::Equipment))
+                for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; i++)
+                    if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+                        if (!callback(pItem, i, StorageType::Equipment))
+                            return false;
+
+            if (flag.HasFlag(StorageType::Inventory))
+            {
+                for (uint8 i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_START + GetInventorySlotCount(); i++)
+                    if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+                        if (!callback(pItem, i, StorageType::Inventory))
+                            return false;
+
+                for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; i++)
+                    if (Bag* pBag = GetBagByPos(i))
+                        if (!bagCallback(pBag, i, StorageType::Equipment))
+                            return false;
+            }
+
+            if (flag.HasFlag(StorageType::Bank))
+            {
+                for (uint8 i = BANK_SLOT_ITEM_START; i < BANK_SLOT_BAG_END; ++i)
+                    if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+                        if (!callback(pItem, i, StorageType::Bank))
+                            return false;
+
+                for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
+                    if (Bag* pBag = GetBagByPos(i))
+                        if (!bagCallback(pBag, i, StorageType::Bank))
+                            return false;
+            }
+
+            if (flag.HasFlag(StorageType::Reagent))
+                for (uint8 i = REAGENT_SLOT_START; i < REAGENT_SLOT_END; ++i)
+                    if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+                        if (!callback(pItem, i, StorageType::Reagent))
+                            return false;
+
+            if (flag.HasFlag(StorageType::ChildEquipment))
+                for (uint8 i = CHILD_EQUIPMENT_SLOT_START; i < CHILD_EQUIPMENT_SLOT_END; ++i)
+                    if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+                        if (!callback(pItem, i, StorageType::ChildEquipment))
+                            return false;
+
+            return true;
+        }
+
+        template <typename T>
+        bool ForEachStorageItem(StorageType storageType, T callback) const
+        {
+            return ForEachStorageItem(storageType, callback, [callback](Bag* pBag, uint8 equipmentSlots, StorageType callbackStorageType) {
+                for (uint32 j = 0; j < pBag->GetBagSize(); j++)
+                    if (Item* pItem = pBag->GetItemByPos(j))
+                        if (!callback(pItem, equipmentSlots, callbackStorageType))
+                            return false;
+                return true;
+            });
+        }
+
+        void UpdateAverageItemLevelTotal();
+        void UpdateAverageItemLevelEquipped();
 
         uint8 FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) const;
         uint32 GetItemCount(uint32 item, bool inBankAlso = false, Item* skipItem = nullptr) const;
@@ -2451,6 +2541,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void AddPlayerFlagEx(PlayerFlagsEx flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PlayerFlagsEx), flags); }
         void RemovePlayerFlagEx(PlayerFlagsEx flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PlayerFlagsEx), flags); }
         void SetPlayerFlagsEx(PlayerFlagsEx flags) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::PlayerFlagsEx), flags); }
+
+        void UpdateAverageItemLevelTotal(float newItemLevel) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::AvgItemLevel, 0), newItemLevel); }
+        void UpdateAverageItemLevelEquipped(float newItemLevel) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::AvgItemLevel, 1), newItemLevel); }
 
         uint32 GetCustomizationChoice(uint32 chrCustomizationOptionId) const
         {
