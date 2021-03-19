@@ -66,9 +66,10 @@ public:
         Clock::time_point RechargeEnd;
     };
 
+    typedef std::deque<ChargeEntry> ChargeEntryCollection;
     typedef std::unordered_map<uint32 /*spellId*/, CooldownEntry> CooldownStorageType;
     typedef std::unordered_map<uint32 /*categoryId*/, CooldownEntry*> CategoryCooldownStorageType;
-    typedef std::unordered_map<uint32 /*categoryId*/, std::deque<ChargeEntry>> ChargeStorageType;
+    typedef std::unordered_map<uint32 /*categoryId*/, ChargeEntryCollection> ChargeStorageType;
     typedef std::unordered_map<uint32 /*categoryId*/, Clock::time_point> GlobalCooldownStorageType;
 
     explicit SpellHistory(Unit* owner) : _owner(owner), _schoolLockouts() { }
@@ -103,6 +104,7 @@ public:
     void AddCooldown(uint32 spellId, uint32 itemId, Clock::time_point cooldownEnd, uint32 categoryId, Clock::time_point categoryEnd, bool onHold = false);
     void ModifyCooldown(uint32 spellId, int32 cooldownModMs);
     void ModifyCooldown(uint32 spellId, Clock::duration cooldownMod);
+    void ModifySpellOrChargeCooldown(uint32 spellId, Clock::duration offset);
     void ResetCooldown(uint32 spellId, bool update = false);
     void ResetCooldown(CooldownStorageType::iterator& itr, bool update = false);
     template<typename Predicate>
@@ -135,6 +137,7 @@ public:
     bool IsSchoolLocked(SpellSchoolMask schoolMask) const;
 
     // Charges
+    void SendChargeUpdate(uint32 chargeCategoryId, ChargeEntryCollection const& chargeCollection);
     bool ConsumeCharge(uint32 chargeCategoryId);
     void RestoreCharge(uint32 chargeCategoryId);
     void ResetCharges(uint32 chargeCategoryId);
