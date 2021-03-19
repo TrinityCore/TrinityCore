@@ -69,7 +69,7 @@ std::string LanguageMgr::Translate(std::string const& msg, uint16 targetPlayerLa
     bool first = true;
     for (char const* str : tokens)
     {
-        uint32 wordHash = SStrHash(str, false, 0);
+        uint32 wordHash = SStrHash(str, true, 0);
         const char* nextPart = str;
         if (wordHash % 300 < targetPlayerLanguageSkill)
             continue;

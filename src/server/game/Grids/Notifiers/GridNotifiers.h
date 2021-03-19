@@ -123,7 +123,7 @@ namespace Trinity
     {
         WorldObject const* _source;
         float _distSq;
-        MessageDistDelivererBase(WorldObject const* src, float dist, bool own_team_only = false) : _source(src), _distSq(dist * dist) { }
+        MessageDistDelivererBase(WorldObject const* src, float dist) : _source(src), _distSq(dist * dist) { }
 
         void Visit(PlayerMapType &m);
         void Visit(CreatureMapType &m);
@@ -140,7 +140,7 @@ namespace Trinity
         Player const* _skipped_receiver;
 
         MessageDistDeliverer(WorldObject const* src, WorldPacket const* msg, float dist, bool own_team_only = false, Player const* skipped = nullptr)
-            : MessageDistDelivererBase(src, dist, own_team_only), _team(0), _message(msg), _skipped_receiver(skipped)
+            : MessageDistDelivererBase(src, dist), _team(0), _message(msg), _skipped_receiver(skipped)
         {
             if (own_team_only)
                 if (Player const* player = src->ToPlayer())
@@ -157,7 +157,7 @@ namespace Trinity
         std::string _originalMsg;
 
         ChatMessageDistDeliverer(WorldObject const* src, float dist, ChatMsg chatMsg, LanguageDesc const& languageDesc, std::string&& msg)
-            : MessageDistDelivererBase(src, dist, false)
+            : MessageDistDelivererBase(src, dist)
             , _chatMsg(chatMsg), _languageDesc(languageDesc), _originalMsg(msg)
         { }
 
