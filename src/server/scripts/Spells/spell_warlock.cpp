@@ -373,7 +373,7 @@ class spell_warl_health_funnel : public SpellScriptLoader
                 uint32 damage = caster->CountPctFromMaxHealth(aurEff->GetBaseAmount());
 
                 if (Player* modOwner = caster->GetSpellModOwner())
-                    modOwner->ApplySpellMod(GetSpellInfo(), SPELLMOD_COST, damage);
+                    modOwner->ApplySpellMod(GetSpellInfo(), SpellModOp::PowerCost0, damage);
 
                 SpellNonMeleeDamage damageInfo(caster, caster, GetSpellInfo(), GetAura()->GetSpellVisual(), GetSpellInfo()->SchoolMask, GetAura()->GetCastGUID());
                 damageInfo.periodicLog = true;

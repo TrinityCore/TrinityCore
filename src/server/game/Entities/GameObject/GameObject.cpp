@@ -1470,6 +1470,9 @@ void GameObject::Use(Unit* user)
 
     if (Player* playerUser = user->ToPlayer())
     {
+        if (!m_goInfo->IsUsableMounted())
+            playerUser->Dismount();
+
         playerUser->PlayerTalkClass->ClearMenus();
         if (AI()->GossipHello(playerUser))
             return;

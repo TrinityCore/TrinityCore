@@ -45,7 +45,7 @@ float ThreatCalcHelper::calcThreat(Unit* hatedUnit, Unit* /*hatingUnit*/, float 
                 return threat;
 
         if (Player* modOwner = hatedUnit->GetSpellModOwner())
-            modOwner->ApplySpellMod(threatSpell, SPELLMOD_THREAT, threat);
+            modOwner->ApplySpellMod(threatSpell, SpellModOp::Hate, threat);
     }
 
     return hatedUnit->ApplyTotalThreatModifier(threat, schoolMask);

@@ -614,7 +614,7 @@ float SpellEffectInfo::CalcValueMultiplier(Unit* caster, Spell* spell) const
 {
     float multiplier = Amplitude;
     if (Player* modOwner = (caster ? caster->GetSpellModOwner() : nullptr))
-        modOwner->ApplySpellMod(_spellInfo, SPELLMOD_VALUE_MULTIPLIER, multiplier, spell);
+        modOwner->ApplySpellMod(_spellInfo, SpellModOp::Amplitude, multiplier, spell);
     return multiplier;
 }
 
@@ -622,7 +622,7 @@ float SpellEffectInfo::CalcDamageMultiplier(Unit* caster, Spell* spell) const
 {
     float multiplierPercent = ChainAmplitude * 100.0f;
     if (Player* modOwner = (caster ? caster->GetSpellModOwner() : nullptr))
-        modOwner->ApplySpellMod(_spellInfo, SPELLMOD_DAMAGE_MULTIPLIER, multiplierPercent, spell);
+        modOwner->ApplySpellMod(_spellInfo, SpellModOp::ChainAmplitude, multiplierPercent, spell);
     return multiplierPercent / 100.0f;
 }
 
@@ -656,7 +656,7 @@ float SpellEffectInfo::CalcRadius(Unit* caster, Spell* spell) const
         radius += entry->RadiusPerLevel * caster->getLevel();
         radius = std::min(radius, entry->RadiusMax);
         if (Player* modOwner = caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(_spellInfo, SPELLMOD_RADIUS, radius, spell);
+            modOwner->ApplySpellMod(_spellInfo, SpellModOp::Radius, radius, spell);
     }
 
     return radius;
@@ -2423,45 +2423,25 @@ void SpellInfo::_LoadAuraState()
 {
     _auraState = [this]()->AuraStateType
     {
-        // Seals
-        if (GetSpellSpecific() == SPELL_SPECIFIC_SEAL)
-            return AURA_STATE_JUDGEMENT;
-
-        // Conflagrate aura state on Immolate and Shadowflame
-        if (SpellFamilyName == SPELLFAMILY_WARLOCK &&
-            // Immolate
-            ((SpellFamilyFlags[0] & 4) ||
-            // Shadowflame
-            (SpellFamilyFlags[2] & 2)))
-            return AURA_STATE_CONFLAGRATE;
-
-        // Faerie Fire (druid versions)
-        if (SpellFamilyName == SPELLFAMILY_DRUID && SpellFamilyFlags[0] & 0x400)
-            return AURA_STATE_FAERIE_FIRE;
-
-        // Sting (hunter's pet ability)
+        // Faerie Fire (Feral)
         if (GetCategory() == 1133)
             return AURA_STATE_FAERIE_FIRE;
 
-        // Victorious
-        if (SpellFamilyName == SPELLFAMILY_WARRIOR &&  SpellFamilyFlags[1] & 0x00040000)
-            return AURA_STATE_WARRIOR_VICTORY_RUSH;
-
-        // Swiftmend state on Regrowth & Rejuvenation
-        if (SpellFamilyName == SPELLFAMILY_DRUID && SpellFamilyFlags[0] & 0x50)
-            return AURA_STATE_SWIFTMEND;
+        // Swiftmend state on Regrowth, Rejuvenation, Wild Growth
+        if (SpellFamilyName == SPELLFAMILY_DRUID && (SpellFamilyFlags[0] & 0x50 || SpellFamilyFlags[1] & 0x4000000))
+            return AURA_STATE_DRUID_PERIODIC_HEAL;
 
         // Deadly poison aura state
         if (SpellFamilyName == SPELLFAMILY_ROGUE && SpellFamilyFlags[0] & 0x10000)
-            return AURA_STATE_DEADLY_POISON;
+            return AURA_STATE_ROGUE_POISONED;
 
         // Enrage aura state
         if (Dispel == DISPEL_ENRAGE)
-            return AURA_STATE_ENRAGE;
+            return AURA_STATE_ENRAGED;
 
         // Bleeding aura state
         if (GetAllEffectsMechanicMask() & 1<<MECHANIC_BLEED)
-            return AURA_STATE_BLEEDING;
+            return AURA_STATE_BLEED;
 
         if (GetSchoolMask() & SPELL_SCHOOL_MASK_FROST)
             for (SpellEffectInfo const* effect : _effects)
@@ -2470,15 +2450,46 @@ void SpellInfo::_LoadAuraState()
 
         switch (Id)
         {
+            case 1064: // Dazed
+                return AURA_STATE_DAZED;
+            case 32216: // Victorious
+                return AURA_STATE_VICTORIOUS;
             case 71465: // Divine Surge
             case 50241: // Evasive Charges
-                return AURA_STATE_UNKNOWN22;
-            case 9991:  // Touch of Zanzil
-            case 35325: // Glowing Blood
-            case 35328: // Lambent Blood
-            case 35329: // Vibrant Blood
-            case 35331: // Black Blood
-            case 49163: // Perpetual Instability
+                return AURA_STATE_RAID_ENCOUNTER;
+            case 6950:   // Faerie Fire
+            case 9806:   // Phantom Strike
+            case 9991:   // Touch of Zanzil
+            case 13424:  // Faerie Fire
+            case 13752:  // Faerie Fire
+            case 16432:  // Plague Mist
+            case 20656:  // Faerie Fire
+            case 25602:  // Faerie Fire
+            case 32129:  // Faerie Fire
+            case 35325:  // Glowing Blood
+            case 35328:  // Lambent Blood
+            case 35329:  // Vibrant Blood
+            case 35331:  // Black Blood
+            case 49163:  // Perpetual Instability
+            case 65863:  // Faerie Fire
+            case 79559:  // Luxscale Light
+            case 82855:  // Dazzling
+            case 102953: // In the Rumpus
+            case 127907: // Phosphorescence
+            case 127913: // Phosphorescence
+            case 129007: // Zijin Sting
+            case 130159: // Fae Touch
+            case 142537: // Spotter Smoke
+            case 168455: // Spotted!
+            case 176905: // Super Sticky Glitter Bomb
+            case 189502: // Marked
+            case 201785: // Intruder Alert!
+            case 201786: // Intruder Alert!
+            case 201935: // Spotted!
+            case 239233: // Smoke Bomb
+            case 319400: // Glitter Burst
+            case 321470: // Dimensional Shifter Mishap
+            case 331134: // Spotted
                 return AURA_STATE_FAERIE_FIRE;
             default:
                 break;
@@ -3672,7 +3683,7 @@ float SpellInfo::GetMaxRange(bool positive, Unit* caster, Spell* spell) const
     float range = RangeEntry->RangeMax[positive ? 1 : 0];
     if (caster)
         if (Player* modOwner = caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(this, SPELLMOD_RANGE, range, spell);
+            modOwner->ApplySpellMod(this, SpellModOp::Range, range, spell);
 
     return range;
 }
@@ -3683,7 +3694,7 @@ int32 SpellInfo::CalcDuration(Unit* caster /*= nullptr*/) const
 
     if (caster)
         if (Player* modOwner = caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(this, SPELLMOD_DURATION, duration);
+            modOwner->ApplySpellMod(this, SpellModOp::Duration, duration);
 
     return duration;
 }
@@ -3722,13 +3733,13 @@ uint32 SpellInfo::CalcCastTime(Spell* spell /*= nullptr*/) const
 
 uint32 SpellInfo::GetMaxTicks() const
 {
+    uint32 totalTicks = 0;
     int32 DotDuration = GetDuration();
-    if (DotDuration == 0)
-        return 1;
 
     for (SpellEffectInfo const* effect : _effects)
     {
         if (effect && effect->Effect == SPELL_EFFECT_APPLY_AURA)
+        {
             switch (effect->ApplyAuraName)
             {
                 case SPELL_AURA_PERIODIC_DAMAGE:
@@ -3745,13 +3756,19 @@ uint32 SpellInfo::GetMaxTicks() const
                 case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
                 case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
                 case SPELL_AURA_PERIODIC_HEALTH_FUNNEL:
-                    if (effect->ApplyAuraPeriod != 0)
-                        return DotDuration / effect->ApplyAuraPeriod;
+                    // skip infinite periodics
+                    if (effect->ApplyAuraPeriod > 0 && DotDuration > 0)
+                    {
+                        totalTicks = static_cast<uint32>(DotDuration) / effect->ApplyAuraPeriod;
+                        if (HasAttribute(SPELL_ATTR5_START_PERIODIC_AT_APPLY))
+                            ++totalTicks;
+                    }
                     break;
             }
+        }
     }
 
-    return 6;
+    return totalTicks;
 }
 
 uint32 SpellInfo::GetRecoveryTime() const
@@ -3904,13 +3921,13 @@ Optional<SpellPowerCost> SpellInfo::CalcPowerCost(SpellPowerEntry const* power, 
         switch (power->OrderIndex)
         {
             case 0:
-                mod = SPELLMOD_COST;
+                mod = SpellModOp::PowerCost0;
                 break;
             case 1:
-                mod = SPELLMOD_SPELL_COST2;
+                mod = SpellModOp::PowerCost1;
                 break;
             case 2:
-                mod = SPELLMOD_SPELL_COST3;
+                mod = SpellModOp::PowerCost2;
                 break;
             default:
                 break;
@@ -4487,9 +4504,11 @@ bool SpellInfo::_IsPositiveEffect(uint32 effIndex, bool deep) const
                 case SPELL_AURA_ADD_PCT_MODIFIER:
                 {
                     // non-positive mods
-                    switch (effect->MiscValue)
+                    switch (SpellModOp(effect->MiscValue))
                     {
-                        case SPELLMOD_COST:                 // dependent from bas point sign (negative -> positive)
+                        case SpellModOp::PowerCost0:                 // dependent from bas point sign (negative -> positive)
+                        case SpellModOp::PowerCost1:
+                        case SpellModOp::PowerCost2:
                             if (effect->CalcValue() > 0)
                             {
                                 if (!deep)

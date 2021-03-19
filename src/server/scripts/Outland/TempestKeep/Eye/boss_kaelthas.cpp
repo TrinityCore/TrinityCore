@@ -379,8 +379,10 @@ struct advisorbase_ai : public ScriptedAI
             me->InterruptNonMeleeSpells(false);
             me->SetHealth(0);
             me->RemoveAllAurasOnDeath();
-            me->ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, false);
-            me->ModifyAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, false);
+            me->ModifyAuraState(AURA_STATE_WOUNDED_20_PERCENT, false);
+            me->ModifyAuraState(AURA_STATE_WOUNDED_25_PERCENT, false);
+            me->ModifyAuraState(AURA_STATE_WOUNDED_35_PERCENT, false);
+            me->ModifyAuraState(AURA_STATE_WOUND_HEALTH_20_80, false);
             me->AddUnitFlag(UnitFlags(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED));
             me->SetTarget(ObjectGuid::Empty);
             me->SetStandState(UNIT_STAND_STATE_DEAD);

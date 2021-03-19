@@ -153,7 +153,7 @@ World::World()
     _guidWarn = false;
     _guidAlert = false;
     _warnDiff = 0;
-    _warnShutdownTime = time(NULL);
+    _warnShutdownTime = time(nullptr);
 }
 
 /// World destructor
