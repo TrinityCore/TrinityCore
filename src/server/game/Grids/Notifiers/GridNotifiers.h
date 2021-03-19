@@ -140,7 +140,7 @@ namespace Trinity
         Player const* _skipped_receiver;
 
         MessageDistDeliverer(WorldObject const* src, WorldPacket const* msg, float dist, bool own_team_only = false, Player const* skipped = nullptr)
-            : MessageDistDelivererBase(src, dist), _team(0), _message(msg), _skipped_receiver(skipped)
+            : MessageDistDelivererBase(src, dist), _message(msg), _team(0), _skipped_receiver(skipped)
         {
             if (own_team_only)
                 if (Player const* player = src->ToPlayer())
