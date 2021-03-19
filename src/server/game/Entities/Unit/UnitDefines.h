@@ -142,6 +142,8 @@ enum ShapeshiftForm
     FORM_SPIRIT_OWL_FORM_2          = 38,
     FORM_WISP_FORM                  = 39,
     FORM_WISP_FORM_2                = 40,
+    FORM_SOULSHAPE                  = 41,
+    FORM_FORGEBORNE_REVERIES        = 42
 };
 
 enum UnitMoveType
