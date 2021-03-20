@@ -4312,6 +4312,8 @@ void AuraEffect::HandleArenaPreparation(AuraApplication const* aurApp, uint8 mod
             return;
         target->RemoveUnitFlag(UNIT_FLAG_PREPARATION);
     }
+
+    target->ModifyAuraState(AURA_STATE_ARENA_PREPARATION, apply);
 }
 
 void AuraEffect::HandleNoReagentUseAura(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const

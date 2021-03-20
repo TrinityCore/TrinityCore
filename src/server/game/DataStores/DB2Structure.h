@@ -3171,6 +3171,8 @@ struct SpellShapeshiftFormEntry
     uint16 MountTypeID;
     uint32 CreatureDisplayID[4];
     uint32 PresetSpellID[MAX_SHAPESHIFT_SPELLS];
+
+    EnumFlag<SpellShapeshiftFormFlags> GetFlags() const { return static_cast<SpellShapeshiftFormFlags>(Flags); }
 };
 
 struct SpellTargetRestrictionsEntry
