@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,13 +24,6 @@ GameClient::GameClient(WorldSession* sessionToServer) // : unitBeingMoved(nullpt
     _activeMover = nullptr;
 }
 
-//void GameClient::InitBasePlayer(Player * player)
-//{
-//    isBasePlayerSet = true;
-//    this->currentlyControlledUnitServerPov = player;
-//    AddAllowedMover(player->GetGUID());
-//}
-//
 void GameClient::AddAllowedMover(Unit* unit)
 {
     _allowedMovers.insert(unit->GetGUID());
@@ -55,13 +48,3 @@ bool GameClient::IsAllowedToMove(ObjectGuid guid) const
 {
     return _allowedMovers.count(guid);
 }
-
-//void GameClient::SendDirectMessage(WorldPacket const * data) const
-//{
-//    _sessionToServer->SendPacket(data);
-//}
-//
-//Player * GameClient::GetBasePlayer() const
-//{
-//    return isBasePlayerSet ? _sessionToServer->GetPlayer() : nullptr;
-//}

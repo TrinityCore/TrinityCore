@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -26,7 +26,6 @@ class TC_GAME_API GameClient
 {
     public:
         GameClient(WorldSession* sessionToServer);
-       // void InitBasePlayer(Player* player);
 
         void AddAllowedMover(Unit* unit);
         void RemoveAllowedMover(Unit* unit);
@@ -36,11 +35,6 @@ class TC_GAME_API GameClient
         Unit* GetActiveMover() const { return _activeMover; }
         void SetActiveMover(Unit* activeMover) { _activeMover = activeMover; }
 
-       // void SendDirectMessage(WorldPacket const* data) const;
-
-       // // player unit origianly controlled by this client when it entered the server.
-       // Player* GetBasePlayer() const;
-
     private:
         // describe all units that this client has direct control over. Example, a player on a vehicle has client control over himself and the vehicle at the same time.
         GuidSet _allowedMovers;
@@ -49,7 +43,6 @@ class TC_GAME_API GameClient
         // in other words, this field is set by the client (as long as the change is allowed by the server)
         Unit* _activeMover;
 
-        //bool isBasePlayerSet = false;
         WorldSession* _sessionToServer;
 };
 
