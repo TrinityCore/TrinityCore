@@ -16,6 +16,7 @@
  */
 
 #include "LanguageMgr.h"
+#include "Timer.h"
 
 #include <sstream>
 
