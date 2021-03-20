@@ -26,36 +26,56 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
+#include "SpellScript.h"
 #include "SpellInfo.h"
 #include "TemporarySummon.h"
 
-enum Spells
+enum VolazjTexts
 {
-    SPELL_INSANITY                                = 57496, //Dummy
-    INSANITY_VISUAL                               = 57561,
-    SPELL_INSANITY_TARGET                         = 57508,
-    SPELL_MIND_FLAY                               = 57941,
-    SPELL_SHADOW_BOLT_VOLLEY                      = 57942,
-    SPELL_SHIVER                                  = 57949,
-    SPELL_CLONE_PLAYER                            = 57507, //cast on player during insanity
-    SPELL_INSANITY_PHASING_1                      = 57508,
-    SPELL_INSANITY_PHASING_2                      = 57509,
-    SPELL_INSANITY_PHASING_3                      = 57510,
-    SPELL_INSANITY_PHASING_4                      = 57511,
-    SPELL_INSANITY_PHASING_5                      = 57512
+    SAY_AGGRO                         = 0,
+    SAY_INSANITY                      = 1,
+    SAY_SLAY_1                        = 2,
+    SAY_SLAY_2                        = 3,
+    SAY_SLAY_3                        = 4,
+    SAY_DEATH_1                       = 5,
+    SAY_DEATH_2                       = 6,
+
+    WHISPER_AGGRO                     = 7,
+    WHISPER_INSANITY                  = 8,
+    WHISPER_SLAY_1                    = 9,
+    WHISPER_SLAY_2                    = 10,
+    WHISPER_SLAY_3                    = 11,
+    WHISPER_DEATH_1                   = 12,
+    WHISPER_DEATH_2                   = 13
 };
 
-enum Yells
+enum VolazjSpells
 {
-    SAY_AGGRO   = 0,
-    SAY_SLAY    = 1,
-    SAY_DEATH   = 2,
-    SAY_PHASE   = 3
+    SPELL_INSANITY                    = 57496, // Dummy
+    INSANITY_VISUAL                   = 57561,
+    SPELL_INSANITY_TARGET             = 57508,
+    SPELL_MIND_FLAY                   = 57941,
+    SPELL_SHADOW_BOLT_VOLLEY          = 57942,
+    SPELL_SHIVER                      = 57949,
+    SPELL_CLONE_PLAYER                = 57507, // cast on player during insanity
+    SPELL_INSANITY_PHASING_1          = 57508,
+    SPELL_INSANITY_PHASING_2          = 57509,
+    SPELL_INSANITY_PHASING_3          = 57510,
+    SPELL_INSANITY_PHASING_4          = 57511,
+    SPELL_INSANITY_PHASING_5          = 57512,
+
+    SPELL_WHISPER_AGGRO               = 60291,
+    SPELL_WHISPER_INSANITY            = 60292,
+    SPELL_WHISPER_SLAY_1              = 60293,
+    SPELL_WHISPER_SLAY_2              = 60294,
+    SPELL_WHISPER_SLAY_3              = 60295,
+    SPELL_WHISPER_DEATH_1             = 60296,
+    SPELL_WHISPER_DEATH_2             = 60297
 };
 
-enum Achievements
+enum VolazjAchievements
 {
-    ACHIEV_QUICK_DEMISE_START_EVENT               = 20382,
+    ACHIEV_QUICK_DEMISE_START_EVENT   = 20382,
 };
 
 struct boss_volazj : public BossAI
@@ -143,6 +163,8 @@ struct boss_volazj : public BossAI
             {
                 // Channel visual
                 DoCast(me, INSANITY_VISUAL, true);
+                Talk(SAY_INSANITY);
+                DoCastSelf(SPELL_WHISPER_INSANITY, true);
                 // Unattackable
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetControlled(true, UNIT_STATE_STUNNED);
@@ -183,6 +205,7 @@ struct boss_volazj : public BossAI
     {
         BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
+        DoCastSelf(SPELL_WHISPER_AGGRO);
 
         _instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_QUICK_DEMISE_START_EVENT);
     }
@@ -278,15 +301,41 @@ struct boss_volazj : public BossAI
     void JustDied(Unit* killer) override
     {
         BossAI::JustDied(killer);
-
-        Talk(SAY_DEATH);
         ResetPlayersPhaseMask();
+
+        switch (urand(0, 1))
+        {
+            case 0:
+                Talk(SAY_DEATH_1);
+                DoCastSelf(SPELL_WHISPER_DEATH_1, true);
+                break;
+            case 1:
+                Talk(SAY_DEATH_2);
+                DoCastSelf(SPELL_WHISPER_DEATH_2, true);
+                break;
+        }
     }
 
     void KilledUnit(Unit* who) override
     {
-        if (who->GetTypeId() == TYPEID_PLAYER)
-            Talk(SAY_SLAY);
+        if (who->GetTypeId() != TYPEID_PLAYER)
+            return;
+
+        switch (urand(0, 2))
+        {
+            case 0:
+                Talk(SAY_SLAY_1);
+                DoCastSelf(SPELL_WHISPER_SLAY_1);
+                break;
+            case 1:
+                Talk(SAY_SLAY_2);
+                DoCastSelf(SPELL_WHISPER_SLAY_2);
+                break;
+            case 2:
+                Talk(SAY_SLAY_3);
+                DoCastSelf(SPELL_WHISPER_SLAY_3);
+                break;
+        }
     }
 
 private:
@@ -295,7 +344,54 @@ private:
     uint32 _insanityHandled;
 };
 
+class spell_volazj_whisper : public SpellScript
+{
+    PrepareSpellScript(spell_volazj_whisper);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_WHISPER_AGGRO,
+            SPELL_WHISPER_INSANITY,
+            SPELL_WHISPER_SLAY_1,
+            SPELL_WHISPER_SLAY_2,
+            SPELL_WHISPER_SLAY_3,
+            SPELL_WHISPER_DEATH_1,
+            SPELL_WHISPER_DEATH_2
+        });
+    }
+
+    void HandleScriptEffect(SpellEffIndex /* effIndex */)
+    {
+        Unit* target = GetHitPlayer();
+        Creature* caster = GetCaster()->ToCreature();
+        if (!target || !caster)
+            return;
+
+        uint32 text = 0;
+        switch (GetSpellInfo()->Id)
+        {
+            case SPELL_WHISPER_AGGRO:    text = WHISPER_AGGRO;    break;
+            case SPELL_WHISPER_INSANITY: text = WHISPER_INSANITY; break;
+            case SPELL_WHISPER_SLAY_1:   text = WHISPER_SLAY_1;   break;
+            case SPELL_WHISPER_SLAY_2:   text = WHISPER_SLAY_2;   break;
+            case SPELL_WHISPER_SLAY_3:   text = WHISPER_SLAY_3;   break;
+            case SPELL_WHISPER_DEATH_1:  text = WHISPER_DEATH_1;  break;
+            case SPELL_WHISPER_DEATH_2:  text = WHISPER_DEATH_2;  break;
+            default: return;
+        }
+        caster->AI()->Talk(text, target);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_volazj_whisper::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_boss_volazj()
 {
     RegisterAhnKahetCreatureAI(boss_volazj);
+    RegisterSpellScript(spell_volazj_whisper);
 }
