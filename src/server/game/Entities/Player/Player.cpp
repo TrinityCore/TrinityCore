@@ -9900,8 +9900,6 @@ uint8 Player::FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) c
 InventoryResult Player::CanUnequipItems(uint32 item, uint32 count) const
 {
     InventoryResult res = EQUIP_ERR_OK;
-
-
     uint32 tempcount = 0;
     bool result = ForEachStorageItem(ItemSearchLocation::Equipment, [this, item, &res, &tempcount, count](Item* pItem, uint8 equipmentSlots, ItemSearchLocation /*location*/)
     {
@@ -10294,7 +10292,7 @@ bool Player::HasItemOrGemWithIdEquipped(uint32 item, uint32 count, uint8 except_
             {
                 if (pItem->GetEntry() == item)
                     tempcount += pItem->GetCount();
-                else if (pItem->GetSocketColor(0))
+                else if (hasGemProps && pItem->GetSocketColor(0))
                     tempcount += pItem->GetGemCountWithID(item);
 
                 if (tempcount >= count)
