@@ -369,7 +369,7 @@ class spell_volazj_whisper : public SpellScript
         if (!target || !caster)
             return;
 
-        uint32 text;
+        uint32 text = 0;
         switch (GetSpellInfo()->Id)
         {
             case SPELL_WHISPER_AGGRO:    text = WHISPER_AGGRO;    break;
