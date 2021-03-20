@@ -266,26 +266,14 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
     ObjectGuid guid;
     recvData >> guid.ReadAsPacked();
 
+    if (!IsRightUnitBeingMoved(guid))
+    {
+        recvData.rfinish();                     // prevent warnings spam
+        return;
+    }
+
     GameClient* client = GetGameClient();
     Unit* mover = client->GetActiveMover();
-
-    // the client is attempting to tamper movement data
-    if (!mover || guid != mover->GetGUID())
-    {
-        TC_LOG_WARN("entities.unit", "guid != mover->GetGUID() for the client of player %s", _player->GetName());
-        recvData.rfinish();                     // prevent warnings spam
-        return;
-    }
-
-    // This can happen if the client has lost control of a unit but hasn't received SMSG_CONTROL_UPDATE before
-    // sending this packet yet. We can just safely ignore.
-    if (!client->IsAllowedToMove(guid))
-    {
-        TC_LOG_DEBUG("entities.unit", "!client->IsAllowedToMove(guid) for the client of player %s", _player->GetName());
-        recvData.rfinish();                     // prevent warnings spam
-        return;
-    }
-
     Player* plrMover = mover->ToPlayer();
 
     // ignore, waiting processing in WorldSession::HandleMoveWorldportAckOpcode and WorldSession::HandleMoveTeleportAck
