@@ -9924,7 +9924,7 @@ InventoryResult Player::CanUnequipItems(uint32 item, uint32 count) const
         return EQUIP_ERR_OK;
 
     ItemSearchLocation location = ItemSearchLocation::Inventory | ItemSearchLocation::Bank | ItemSearchLocation::ReagentBank;
-    result = ForEachStorageItem(location, [item, &res, &tempcount, count](Item* pItem, uint8 /*equipmentSlots*/, ItemSearchLocation /*location*/)
+    result = ForEachStorageItem(location, [item, &tempcount, count](Item* pItem, uint8 /*equipmentSlots*/, ItemSearchLocation /*location*/)
     {
         if (pItem->GetEntry() == item)
         {
