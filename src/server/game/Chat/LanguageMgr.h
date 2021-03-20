@@ -55,4 +55,4 @@ class TC_GAME_API LanguageMgr
 
 #define sLanguageMgr LanguageMgr::instance()
 
-#endif 
+#endif

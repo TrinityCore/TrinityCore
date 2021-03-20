@@ -118,7 +118,7 @@ namespace Trinity
         void Visit(AreaTriggerMapType &m) { updateObjects<AreaTrigger>(m); }
         void Visit(ConversationMapType &m) { updateObjects<Conversation>(m); }
     };
-    
+
     struct TC_GAME_API MessageDistDelivererBase
     {
         WorldObject const* _source;
