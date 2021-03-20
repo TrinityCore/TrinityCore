@@ -213,15 +213,18 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recvData)
 
     recvData >> guid.ReadAsPacked();
 
+    if (!IsRightUnitBeingMoved(guid))
+    {
+        recvData.rfinish();                     // prevent warnings spam
+        return;
+    }
+
     uint32 sequenceIndex, time;
     recvData >> sequenceIndex >> time;
 
     Player* plMover = _player->GetUnitBeingMoved()->ToPlayer();
 
     if (!plMover || !plMover->IsBeingTeleportedNear())
-        return;
-
-    if (guid != plMover->GetGUID())
         return;
 
     plMover->SetSemaphoreTeleportNear(false);
@@ -266,31 +269,22 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
     GameClient* client = GetGameClient();
     Unit* mover = client->GetActiveMover();
 
-    ////ASSERT(mover != nullptr);                      // there must always be a mover
-
-    //// this can happen, in case a player gets CCed when it is moving at the same time. because of lag, by the time the player movement
-    //// reaches the server, in the eye of the server, the player shouldn't be able to move anymore.
-    if (mover == nullptr)
-    {
-        TC_LOG_WARN("entities.unit", "no mover for the client of player %s", _player->GetName());
-        recvData.rfinish();                     // prevent warnings spam
-        return;
-    }
-
-    // prevent tampered movement data
-    if (guid != mover->GetGUID())
+    // the client is attempting to tamper movement data
+    if (!mover || guid != mover->GetGUID())
     {
         TC_LOG_WARN("entities.unit", "guid != mover->GetGUID() for the client of player %s", _player->GetName());
         recvData.rfinish();                     // prevent warnings spam
         return;
     }
 
-    //if (!client->IsAllowedToMove(guid))
-    //{
-    //    TC_LOG_WARN("entities.unit", "!client->IsAllowedToMove(guid) for the client of player %s", _player->GetName());
-    //    recvData.rfinish();                     // prevent warnings spam
-    //    return;
-    //}
+    // This can happen if the client has lost control of a unit but hasn't received SMSG_CONTROL_UPDATE before
+    // sending this packet yet. We can just safely ignore.
+    if (!client->IsAllowedToMove(guid))
+    {
+        TC_LOG_DEBUG("entities.unit", "!client->IsAllowedToMove(guid) for the client of player %s", _player->GetName());
+        recvData.rfinish();                     // prevent warnings spam
+        return;
+    }
 
     Player* plrMover = mover->ToPlayer();
 
@@ -470,10 +464,9 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
 
     recvData >> guid.ReadAsPacked();
 
-    // now can skip not our packet
-    if (_player->GetGUID() != guid)
+    if (!IsRightUnitBeingMoved(guid))
     {
-        recvData.rfinish();                   // prevent warnings spam
+        recvData.rfinish();                     // prevent warnings spam
         return;
     }
 
@@ -548,17 +541,17 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPacket &recvData)
 
     // step 1: look at the list of units that this client is allowed to move. check if the client is allowed to even move the
     // unit that is mentioned in the packet. if not, either silently ignore, log this event or kick the client.
-    Unit* newActiveMover = ObjectAccessor::GetUnit(*_player, guid);
-    if (!client->IsAllowedToMove(newActiveMover))
+    if (!client->IsAllowedToMove(guid))
     {
         // @todo log or kick or do nothing depending on configuration
         TC_LOG_WARN("entities.unit", "set active mover FAILED for client of player %s. GUID %u.", _player->GetName(), guid.GetCounter());
-        TC_LOG_WARN("entities.unit", "%s %s", client->GetActiveMover() != nullptr ? "true" : "false", !client->IsAllowedToMove(newActiveMover) ? "true" : "false");
+        TC_LOG_WARN("entities.unit", "%s %s", client->GetActiveMover() != nullptr ? "true" : "false", !client->IsAllowedToMove(guid) ? "true" : "false");
         return;
     }
 
     // step 2:
     TC_LOG_WARN("entities.unit", "set active mover OK for client of player %s. GUID %u.", _player->GetName(), guid.GetCounter());
+    Unit* newActiveMover = ObjectAccessor::GetUnit(*_player, guid);
     client->SetActiveMover(newActiveMover);
 }
 
@@ -598,8 +591,11 @@ void WorldSession::HandleMoveKnockBackAck(WorldPacket& recvData)
     ObjectGuid guid;
     recvData >> guid.ReadAsPacked();
 
-    if (_player->GetUnitBeingMoved()->GetGUID() != guid)
+    if (!IsRightUnitBeingMoved(guid))
+    {
+        recvData.rfinish();                     // prevent warnings spam
         return;
+    }
 
     recvData.read_skip<uint32>();                          // unk
 
@@ -628,6 +624,12 @@ void WorldSession::HandleMoveHoverAck(WorldPacket& recvData)
     ObjectGuid guid;                                        // guid - unused
     recvData >> guid.ReadAsPacked();
 
+    if (!IsRightUnitBeingMoved(guid))
+    {
+        recvData.rfinish();                     // prevent warnings spam
+        return;
+    }
+
     recvData.read_skip<uint32>();                           // unk
 
     MovementInfo movementInfo;
@@ -642,6 +644,75 @@ void WorldSession::HandleMoveWaterWalkAck(WorldPacket& recvData)
 
     ObjectGuid guid;                                        // guid - unused
     recvData >> guid.ReadAsPacked();
+
+    if (!IsRightUnitBeingMoved(guid))
+    {
+        recvData.rfinish();                     // prevent warnings spam
+        return;
+    }
+
+    recvData.read_skip<uint32>();                           // unk
+
+    MovementInfo movementInfo;
+    ReadMovementInfo(recvData, &movementInfo);
+
+    recvData.read_skip<uint32>();                           // unk2
+}
+
+void WorldSession::HandleMoveRootAck(WorldPacket& recvData)
+{
+    TC_LOG_DEBUG("network", "CMSG_FORCE_MOVE_ROOT_ACK");
+
+    ObjectGuid guid;                                        // guid - unused
+    recvData >> guid.ReadAsPacked();
+
+    if (!IsRightUnitBeingMoved(guid))
+    {
+        recvData.rfinish();                     // prevent warnings spam
+        return;
+    }
+
+    recvData.read_skip<uint32>();                           // unk
+
+    MovementInfo movementInfo;
+    ReadMovementInfo(recvData, &movementInfo);
+
+    recvData.read_skip<uint32>();                           // unk2
+}
+
+void WorldSession::HandleFeatherFallAck(WorldPacket& recvData)
+{
+    TC_LOG_DEBUG("network", "WORLD: CMSG_MOVE_FEATHER_FALL_ACK");
+
+    ObjectGuid guid;                                        // guid - unused
+    recvData >> guid.ReadAsPacked();
+
+    if (!IsRightUnitBeingMoved(guid))
+    {
+        recvData.rfinish();                     // prevent warnings spam
+        return;
+    }
+
+    recvData.read_skip<uint32>();                           // unk
+
+    MovementInfo movementInfo;
+    ReadMovementInfo(recvData, &movementInfo);
+
+    recvData.read_skip<uint32>();                           // unk2
+}
+
+void WorldSession::HandleMoveUnRootAck(WorldPacket& recvData)
+{
+    TC_LOG_DEBUG("network", "WORLD: CMSG_FORCE_MOVE_UNROOT_ACK");
+
+    ObjectGuid guid;                                        // guid - unused
+    recvData >> guid.ReadAsPacked();
+
+    if (!IsRightUnitBeingMoved(guid))
+    {
+        recvData.rfinish();                     // prevent warnings spam
+        return;
+    }
 
     recvData.read_skip<uint32>();                           // unk
 

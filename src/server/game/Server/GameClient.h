@@ -31,6 +31,7 @@ class TC_GAME_API GameClient
         void AddAllowedMover(Unit* unit);
         void RemoveAllowedMover(Unit* unit);
         bool IsAllowedToMove(Unit* unit) const;
+        bool IsAllowedToMove(ObjectGuid guid) const;
 
         Unit* GetActiveMover() const { return _activeMover; }
         void SetActiveMover(Unit* activeMover) { _activeMover = activeMover; }
@@ -45,6 +46,7 @@ class TC_GAME_API GameClient
         GuidSet _allowedMovers;
 
         // set/unset upon receiving CMSG_SET_ACTIVE_MOVER and CMSG_MOVE_NOT_ACTIVE_MOVER by the client
+        // in other words, this field is set by the client (as long as the change is allowed by the server)
         Unit* _activeMover;
 
         //bool isBasePlayerSet = false;

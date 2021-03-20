@@ -51,6 +51,11 @@ bool GameClient::IsAllowedToMove(Unit* unit) const
     return _allowedMovers.count(unit->GetGUID());
 }
 
+bool GameClient::IsAllowedToMove(ObjectGuid guid) const
+{
+    return _allowedMovers.count(guid);
+}
+
 //void GameClient::SendDirectMessage(WorldPacket const * data) const
 //{
 //    _sessionToServer->SendPacket(data);

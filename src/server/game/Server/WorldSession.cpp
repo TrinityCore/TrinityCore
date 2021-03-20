@@ -1659,3 +1659,20 @@ void WorldSession::SendTimeSync()
     _timeSyncTimer = _timeSyncNextCounter == 0 ? 5000 : 10000;
     _timeSyncNextCounter++;
 }
+
+bool WorldSession::IsRightUnitBeingMoved(ObjectGuid guid)
+{
+    GameClient* client = GetGameClient();
+    Unit* mover = client->GetActiveMover();
+
+    // the client is attempting to tamper movement data
+    if (!mover || guid != mover->GetGUID())
+        return false;
+
+    // This can happen if the client has lost control of a unit but hasn't received SMSG_CONTROL_UPDATE before
+    // sending this packet yet. We can just safely ignore.
+    if (!client->IsAllowedToMove(guid))
+        return false;
+
+    return true;
+}
