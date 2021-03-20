@@ -44,8 +44,13 @@ void LanguageMgr::LoadLanguages()
         WordKey key = WordKey(iter->LanguageID, length);
 
         auto result = _wordsMap.insert(std::make_pair(key, WordList()));
-        result.first->second.push_back(iter->Word);
+        result.first->second.push_back(std::make_pair(iter->ID, iter->Word));
     }
+
+    // Sort every WordList
+    for (WordsMap::iterator iter = _wordsMap.begin(); iter != _wordsMap.end(); ++iter)
+        std::sort(iter->second.begin(), iter->second.end(),
+            [](WordList::value_type const& a, WordList::value_type const& b) { return a.first < b.first; });
 }
 
 LanguageMgr::WordList const* LanguageMgr::FindWordGroup(Language language, uint32 wordLen) const
@@ -69,7 +74,7 @@ std::string LanguageMgr::Translate(std::string const& msg, uint16 targetPlayerLa
     bool first = true;
     for (char const* str : tokens)
     {
-        uint32 wordHash = SStrHash(str, true, 0);
+        uint32 wordHash = SStrHash(str, true);
         const char* nextPart = str;
         if (wordHash % 300 < targetPlayerLanguageSkill)
             continue;
@@ -79,7 +84,7 @@ std::string LanguageMgr::Translate(std::string const& msg, uint16 targetPlayerLa
         if (wordGroup)
         {
             uint8 idxInsideGroup = wordHash % wordGroup->size();
-            nextPart = wordGroup->at(idxInsideGroup);
+            nextPart = wordGroup->at(idxInsideGroup).second;
         }
 
         if (first)

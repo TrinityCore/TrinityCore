@@ -204,8 +204,6 @@ void WorldSession::HandleChatMessage(ChatMsg type, uint32 lang, std::string msg,
         return;
     }
 
-
-    uint16 skillValue = sender->GetSkillValue(langDesc->skill_id);
     switch (type)
     {
         case CHAT_MSG_SAY:
