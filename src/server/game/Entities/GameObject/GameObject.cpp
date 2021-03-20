@@ -2072,7 +2072,7 @@ void GameObject::Use(Unit* user)
                 }
                 case 2: // Heart Forge
                 {
-                    Item const* item = player->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH, ITEM_SEARCH_EVERYWHERE);
+                    Item const* item = player->GetItemByEntry(ITEM_ID_HEART_OF_AZEROTH, ItemSearchLocation::Everywhere);
                     if (!item)
                         return;
 

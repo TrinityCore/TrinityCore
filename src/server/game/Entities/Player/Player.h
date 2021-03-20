@@ -664,16 +664,18 @@ struct ItemPosCount
 };
 typedef std::vector<ItemPosCount> ItemPosCountVec;
 
-enum ItemSearchLocation
+enum class ItemSearchLocation
 {
-    ITEM_SEARCH_IN_EQUIPMENT    = 0x01,
-    ITEM_SEARCH_IN_INVENTORY    = 0x02,
-    ITEM_SEARCH_IN_BANK         = 0x04,
-    ITEM_SEARCH_IN_REAGENT_BANK = 0x08,
+    Equipment       = 0x01,
+    Inventory       = 0x02,
+    Bank            = 0x04,
+    ReagentBank     = 0x08,
 
-    ITEM_SEARCH_DEFAULT     = ITEM_SEARCH_IN_EQUIPMENT | ITEM_SEARCH_IN_INVENTORY,
-    ITEM_SEARCH_EVERYWHERE  = ITEM_SEARCH_IN_EQUIPMENT | ITEM_SEARCH_IN_INVENTORY | ITEM_SEARCH_IN_BANK | ITEM_SEARCH_IN_REAGENT_BANK
+    Default         = Equipment | Inventory,
+    Everywhere      = Equipment | Inventory | Bank | ReagentBank
 };
+
+DEFINE_ENUM_FLAG(ItemSearchLocation);
 
 enum TransferAbortReason
 {
@@ -1015,21 +1017,6 @@ enum class ZonePVPTypeOverride : uint32
     Combat      = 4
 };
 
-enum class StorageType
-{
-    None            = 0,
-    Equipment       = 1 << 0,
-    Inventory       = 1 << 1,
-    Bank            = 1 << 2,
-    Reagent         = 1 << 3,
-    ChildEquipment  = 1 << 4,
-
-    AllEquipment    = Equipment | ChildEquipment,
-    All             = Equipment | Inventory | Bank | Reagent | ChildEquipment,
-};
-
-DEFINE_ENUM_FLAG(StorageType);
-
 class TC_GAME_API Player : public Unit, public GridObject<Player>
 {
     friend class WorldSession;
@@ -1165,70 +1152,70 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         /// <summary>
         /// Iterate over each item in the player storage
         /// </summary>
-        /// <typeparam name="T">bool ItemCallback(Item* item, uint8 equipmentSlots, StorageType storageType)</typeparam>
-        /// <typeparam name="U">bool BagCallback(Bag* bag, uint8 equipmentSlots, StorageType storageType)</typeparam>
-        /// <param name="storageType">Type of storage to iterate over</param>
+        /// <typeparam name="T">bool ItemCallback(Item* item, uint8 equipmentSlots, ItemSearchLocation location)</typeparam>
+        /// <typeparam name="U">bool BagCallback(Bag* bag, uint8 equipmentSlots, ItemSearchLocation location)</typeparam>
+        /// <param name="location">Locations of the items to iterate over</param>
         /// <param name="callback">Callback called on each item. Will continue as long as it returns true</param>
         /// <param name="bagCallback">Callback called on each bag. Will continue as long as it returns true</param>
         template <typename T, typename U>
-        bool ForEachStorageItem(StorageType storageType, T callback, U bagCallback) const
+        bool ForEachStorageItem(ItemSearchLocation location, T callback, U bagCallback) const
         {
-            EnumFlag<StorageType> flag = storageType;
+            EnumFlag<ItemSearchLocation> flag = location;
 
-            if (flag.HasFlag(StorageType::Equipment))
+            if (flag.HasFlag(ItemSearchLocation::Equipment))
                 for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; i++)
                     if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-                        if (!callback(pItem, i, StorageType::Equipment))
+                        if (!callback(pItem, i, ItemSearchLocation::Equipment))
                             return false;
 
-            if (flag.HasFlag(StorageType::Inventory))
+            if (flag.HasFlag(ItemSearchLocation::Inventory))
             {
                 for (uint8 i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_START + GetInventorySlotCount(); i++)
                     if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-                        if (!callback(pItem, i, StorageType::Inventory))
+                        if (!callback(pItem, i, ItemSearchLocation::Inventory))
+                            return false;
+
+                for (uint8 i = CHILD_EQUIPMENT_SLOT_START; i < CHILD_EQUIPMENT_SLOT_END; ++i)
+                    if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+                        if (!callback(pItem, i, ItemSearchLocation::Inventory))
                             return false;
 
                 for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; i++)
                     if (Bag* pBag = GetBagByPos(i))
-                        if (!bagCallback(pBag, i, StorageType::Equipment))
+                        if (!bagCallback(pBag, i, ItemSearchLocation::Inventory))
                             return false;
             }
 
-            if (flag.HasFlag(StorageType::Bank))
+            if (flag.HasFlag(ItemSearchLocation::Bank))
             {
                 for (uint8 i = BANK_SLOT_ITEM_START; i < BANK_SLOT_BAG_END; ++i)
                     if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-                        if (!callback(pItem, i, StorageType::Bank))
+                        if (!callback(pItem, i, ItemSearchLocation::Bank))
                             return false;
 
                 for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
                     if (Bag* pBag = GetBagByPos(i))
-                        if (!bagCallback(pBag, i, StorageType::Bank))
+                        if (!bagCallback(pBag, i, ItemSearchLocation::Bank))
                             return false;
             }
 
-            if (flag.HasFlag(StorageType::Reagent))
+            if (flag.HasFlag(ItemSearchLocation::ReagentBank))
                 for (uint8 i = REAGENT_SLOT_START; i < REAGENT_SLOT_END; ++i)
                     if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-                        if (!callback(pItem, i, StorageType::Reagent))
-                            return false;
-
-            if (flag.HasFlag(StorageType::ChildEquipment))
-                for (uint8 i = CHILD_EQUIPMENT_SLOT_START; i < CHILD_EQUIPMENT_SLOT_END; ++i)
-                    if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-                        if (!callback(pItem, i, StorageType::ChildEquipment))
+                        if (!callback(pItem, i, ItemSearchLocation::ReagentBank))
                             return false;
 
             return true;
         }
 
         template <typename T>
-        bool ForEachStorageItem(StorageType storageType, T callback) const
+        bool ForEachStorageItem(ItemSearchLocation location, T callback) const
         {
-            return ForEachStorageItem(storageType, callback, [callback](Bag* pBag, uint8 equipmentSlots, StorageType callbackStorageType) {
+            return ForEachStorageItem(location, callback, [callback](Bag* pBag, uint8 equipmentSlots, ItemSearchLocation callbackLocation)
+            {
                 for (uint32 j = 0; j < pBag->GetBagSize(); j++)
                     if (Item* pItem = pBag->GetItemByPos(j))
-                        if (!callback(pItem, equipmentSlots, callbackStorageType))
+                        if (!callback(pItem, equipmentSlots, callbackLocation))
                             return false;
                 return true;
             });
@@ -1241,7 +1228,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 GetItemCount(uint32 item, bool inBankAlso = false, Item* skipItem = nullptr) const;
         uint32 GetItemCountWithLimitCategory(uint32 limitCategory, Item* skipItem = nullptr) const;
         Item* GetItemByGuid(ObjectGuid guid) const;
-        Item* GetItemByEntry(uint32 entry, ItemSearchLocation where = ITEM_SEARCH_DEFAULT) const;
+        Item* GetItemByEntry(uint32 entry, ItemSearchLocation where = ItemSearchLocation::Default) const;
         std::vector<Item*> GetItemListByEntry(uint32 entry, bool inBankAlso = false) const;
         Item* GetItemByPos(uint16 pos) const;
         Item* GetItemByPos(uint8 bag, uint8 slot) const;
