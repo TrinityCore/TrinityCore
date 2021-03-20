@@ -37,6 +37,7 @@ void LanguageMgr::LoadLanguages()
     uint32 oldMSTime = getMSTime();
 
     //
+    uint32 wordsNum = 0;
     for (auto iter = sLanguageWordsStore.begin(); iter != sLanguageWordsStore.end(); ++iter)
     {
         uint8 length = std::min(18U, uint32(strlen(iter->Word)));
@@ -45,12 +46,16 @@ void LanguageMgr::LoadLanguages()
 
         auto result = _wordsMap.insert(std::make_pair(key, WordList()));
         result.first->second.push_back(std::make_pair(iter->ID, iter->Word));
+        ++wordsNum;
     }
 
     // Sort every WordList
     for (WordsMap::iterator iter = _wordsMap.begin(); iter != _wordsMap.end(); ++iter)
         std::sort(iter->second.begin(), iter->second.end(),
             [](WordList::value_type const& a, WordList::value_type const& b) { return a.first < b.first; });
+
+    // log load time
+    TC_LOG_INFO("server.loading", ">> Loaded %u word groups from %u words in %u ms", uint32(_wordsMap.size()), wordsNum, GetMSTimeDiffToNow(oldMSTime));
 }
 
 LanguageMgr::WordList const* LanguageMgr::FindWordGroup(Language language, uint32 wordLen) const

@@ -21,6 +21,7 @@
 #include "Define.h"
 #include "Language.h"
 #include <string>
+#include <vector>
 #include <unordered_map>
 
 class TC_GAME_API LanguageMgr
@@ -33,7 +34,7 @@ class TC_GAME_API LanguageMgr
     private:
         LanguageMgr();
         ~LanguageMgr();
-        
+
     // Accessors (const or static functions)
     public:
         static LanguageMgr* instance();
