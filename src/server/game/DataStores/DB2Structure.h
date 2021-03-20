@@ -2111,7 +2111,7 @@ struct LanguageWordsEntry
 {
     uint32 ID;
     char const* Word;
-    uint32 LanguageID; // Language
+    uint32 LanguageID;
 };
 
 struct LFGDungeonsEntry

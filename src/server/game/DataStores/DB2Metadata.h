@@ -7459,20 +7459,6 @@ struct KeystoneAffixMeta
     }
 };
 
-struct LanguageWordsMeta
-{
-    static DB2Meta const* Instance()
-    {
-        static DB2MetaField const fields[] =
-        {
-            { FT_STRING_NOT_LOCALIZED, 1, true },
-            { FT_INT, 1, false },
-        };
-        static DB2Meta instance(984702, -1, 2, 2, 0x364344E1, fields, -1);
-        return &instance;
-    }
-};
-
 struct LFGDungeonGroupMeta
 {
     static DB2Meta const* Instance()
@@ -7541,6 +7527,20 @@ struct LFGRoleRequirementMeta
             { FT_SHORT, 1, false },
         };
         static DB2Meta instance(982805, -1, 3, 2, 0xBE06BA12, fields, 2);
+        return &instance;
+    }
+};
+
+struct LanguageWordsMeta
+{
+    static DB2Meta const* Instance()
+    {
+        static DB2MetaField const fields[2] =
+        {
+            { FT_STRING_NOT_LOCALIZED, 1, true },
+            { FT_INT, 1, false },
+        };
+        static DB2Meta instance(984702, -1, 2, 2, 0x364344E1, fields, -1);
         return &instance;
     }
 };

@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "Language.h"
+#include "SharedDefines.h"
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -27,7 +28,7 @@
 class TC_GAME_API LanguageMgr
 {
     typedef std::pair<uint32, uint8> WordKey;
-    typedef std::vector<std::pair<uint32, char const*>> WordList;
+    typedef std::vector<char const*> WordList;
     typedef std::unordered_map<WordKey, WordList> WordsMap;
 
     // Constructors
