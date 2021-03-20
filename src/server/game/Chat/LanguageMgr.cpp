@@ -16,6 +16,8 @@
  */
 
 #include "LanguageMgr.h"
+#include "DB2Stores.h"
+#include "Log.h"
 #include "Timer.h"
 
 #include <sstream>
