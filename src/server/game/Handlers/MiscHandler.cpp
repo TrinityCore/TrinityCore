@@ -1269,28 +1269,6 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandleMoveSetCanFlyAckOpcode(WorldPacket& recvData)
-{
-    // fly mode on/off
-    TC_LOG_DEBUG("network", "WORLD: CMSG_MOVE_SET_CAN_FLY_ACK");
-
-    ObjectGuid guid;                                        // guid - unused
-    recvData >> guid.ReadAsPacked();
-
-    if (!IsRightUnitBeingMoved(guid))
-    {
-        recvData.rfinish();                     // prevent warnings spam
-        return;
-    }
-
-    recvData.read_skip<uint32>();                           // unk
-
-    MovementInfo movementInfo;
-    ReadMovementInfo(recvData, &movementInfo);
-
-    recvData.read_skip<uint32>();                           // unk2
-}
-
 void WorldSession::HandleSetTaxiBenchmarkOpcode(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "WORLD: CMSG_SET_TAXI_BENCHMARK_MODE");

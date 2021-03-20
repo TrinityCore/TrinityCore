@@ -640,6 +640,10 @@ class TC_GAME_API WorldSession
         void HandleMoveUnRootAck(WorldPacket& recvPacket);
         void HandleMoveRootAck(WorldPacket& recvPacket);
         void HandleMoveSetCanFlyAckOpcode(WorldPacket& recvData);
+        void HandleMoveSetCanTransitionBetweenSwinAndFlyAck(WorldPacket& recvData);
+        void HandleMoveGravityDisableAck(WorldPacket& recvData);
+        void HandleMoveGravityEnableAck(WorldPacket& recvData);
+        void HandleMoveSetCollisionHgtAck(WorldPacket& recvData);
 
         void HandleMountSpecialAnimOpcode(WorldPacket& recvdata);
 

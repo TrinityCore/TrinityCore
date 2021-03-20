@@ -676,8 +676,6 @@ void WorldSession::HandleMoveRootAck(WorldPacket& recvData)
 
     MovementInfo movementInfo;
     ReadMovementInfo(recvData, &movementInfo);
-
-    recvData.read_skip<uint32>();                           // unk2
 }
 
 void WorldSession::HandleFeatherFallAck(WorldPacket& recvData)
@@ -718,8 +716,107 @@ void WorldSession::HandleMoveUnRootAck(WorldPacket& recvData)
 
     MovementInfo movementInfo;
     ReadMovementInfo(recvData, &movementInfo);
+}
+
+void WorldSession::HandleMoveSetCanFlyAckOpcode(WorldPacket& recvData)
+{
+    TC_LOG_DEBUG("network", "WORLD: CMSG_MOVE_SET_CAN_FLY_ACK");
+
+    ObjectGuid guid;                                        // guid - unused
+    recvData >> guid.ReadAsPacked();
+
+    if (!IsRightUnitBeingMoved(guid))
+    {
+        recvData.rfinish();                     // prevent warnings spam
+        return;
+    }
+
+    recvData.read_skip<uint32>();                           // unk
+
+    MovementInfo movementInfo;
+    ReadMovementInfo(recvData, &movementInfo);
 
     recvData.read_skip<uint32>();                           // unk2
+}
+
+void WorldSession::HandleMoveSetCanTransitionBetweenSwinAndFlyAck(WorldPacket& recvData)
+{
+    TC_LOG_DEBUG("network", "WORLD: CMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY_ACK");
+
+    ObjectGuid guid;
+    recvData >> guid.ReadAsPacked();
+
+    if (!IsRightUnitBeingMoved(guid))
+    {
+        recvData.rfinish();                     // prevent warnings spam
+        return;
+    }
+
+    recvData.read_skip<uint32>();                           // unk
+
+    MovementInfo movementInfo;
+    ReadMovementInfo(recvData, &movementInfo);
+
+    recvData.read_skip<uint32>();                           // unk2
+}
+
+void WorldSession::HandleMoveGravityDisableAck(WorldPacket& recvData)
+{
+    TC_LOG_DEBUG("network", "WORLD: CMSG_MOVE_GRAVITY_DISABLE_ACK");
+
+    ObjectGuid guid;
+    recvData >> guid.ReadAsPacked();
+
+    if (!IsRightUnitBeingMoved(guid))
+    {
+        recvData.rfinish();                     // prevent warnings spam
+        return;
+    }
+
+    recvData.read_skip<uint32>();                           // unk
+
+    MovementInfo movementInfo;
+    ReadMovementInfo(recvData, &movementInfo);
+}
+
+void WorldSession::HandleMoveGravityEnableAck(WorldPacket& recvData)
+{
+    TC_LOG_DEBUG("network", "WORLD: CMSG_MOVE_GRAVITY_ENABLE_ACK");
+
+    ObjectGuid guid;
+    recvData >> guid.ReadAsPacked();
+
+    if (!IsRightUnitBeingMoved(guid))
+    {
+        recvData.rfinish();                     // prevent warnings spam
+        return;
+    }
+
+    recvData.read_skip<uint32>();                           // unk
+
+    MovementInfo movementInfo;
+    ReadMovementInfo(recvData, &movementInfo);
+}
+
+void WorldSession::HandleMoveSetCollisionHgtAck(WorldPacket& recvData)
+{
+    TC_LOG_DEBUG("network", "WORLD: CMSG_MOVE_SET_COLLISION_HGT_ACK");
+
+    ObjectGuid guid;
+    float  newValue;
+    recvData >> guid.ReadAsPacked();
+
+    if (!IsRightUnitBeingMoved(guid))
+    {
+        recvData.rfinish();                     // prevent warnings spam
+        return;
+    }
+
+    recvData.read_skip<uint32>();                           // movement counter
+    recvData >> newValue;
+
+    MovementInfo movementInfo;
+    ReadMovementInfo(recvData, &movementInfo);
 }
 
 void WorldSession::HandleSummonResponseOpcode(WorldPacket& recvData)
