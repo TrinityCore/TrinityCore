@@ -5144,7 +5144,7 @@ void Spell::TakeRunePower(SpellMissInfo hitInfo)
             consumeRunes = true;
 
     // If the spell does not require any rune because of power cost spell mods, the Death Knight wont gain any Runic Power (Freezing Fog for example)
-    if (!consumeRunes)
+    if (!consumeRunes && !runeCostData->NoRuneCost())
         return;
 
     consumeRunes = hitInfo == SPELL_MISS_NONE || hitInfo == SPELL_MISS_MISS;
