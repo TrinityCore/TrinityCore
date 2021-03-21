@@ -1796,7 +1796,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool UpdateGatherSkill(uint32 SkillId, uint32 SkillValue, uint32 RedLevel, uint32 Multiplicator = 1);
         bool UpdateFishingSkill();
 
-        float GetHealthBonusFromStamina();
+        float GetHealthBonusFromStamina() const;
+        Stats GetPrimaryStat() const;
 
         bool UpdateStats(Stats stat) override;
         bool UpdateAllStats() override;

@@ -255,7 +255,7 @@ void Player::UpdateArmor()
     UpdateAttackPowerAndDamage();                           // armor dependent auras update for SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR
 }
 
-float Player::GetHealthBonusFromStamina()
+float Player::GetHealthBonusFromStamina() const
 {
     // Taken from PaperDollFrame.lua - 6.0.3.19085
     float ratio = 10.0f;
@@ -265,6 +265,25 @@ float Player::GetHealthBonusFromStamina()
     float stamina = GetStat(STAT_STAMINA);
 
     return stamina * ratio;
+}
+
+Stats Player::GetPrimaryStat() const
+{
+    uint8 primaryStatPriority = [&]() -> uint8
+    {
+        if (ChrSpecializationEntry const* specialization = sChrSpecializationStore.LookupEntry(GetPrimarySpecialization()))
+            return specialization->PrimaryStatPriority;
+
+        return sChrClassesStore.AssertEntry(getClass())->PrimaryStatPriority;
+    }();
+
+    if (primaryStatPriority >= 4)
+        return STAT_STRENGTH;
+
+    if (primaryStatPriority >= 2)
+        return STAT_AGILITY;
+
+    return STAT_INTELLECT;
 }
 
 void Player::UpdateMaxHealth()
