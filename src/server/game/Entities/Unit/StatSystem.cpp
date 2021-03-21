@@ -239,24 +239,23 @@ void Player::UpdateArmor()
 {
     UnitMods unitMod = UNIT_MOD_ARMOR;
 
-    float value = GetFlatModifierValue(unitMod, BASE_VALUE);    // base armor (from items)
-    float baseValue = value;
+    float value = GetFlatModifierValue(unitMod, BASE_VALUE);    // base armor
+    value *= GetPctModifierValue(unitMod, BASE_PCT);            // armor percent
 
-    GetTotalAuraModifier(SPELL_AURA_MOD_ARMOR_PCT_FROM_STAT, [this, &baseValue](AuraEffect const* aurEff) {
+    // SPELL_AURA_MOD_ARMOR_PCT_FROM_STAT counts as base armor
+    GetTotalAuraModifier(SPELL_AURA_MOD_ARMOR_PCT_FROM_STAT, [this, &value](AuraEffect const* aurEff) {
         int32 miscValue = aurEff->GetMiscValue();
         Stats stat = (miscValue != -2) ? Stats(miscValue) : GetPrimaryStat();
-
-        int32 armorAmount = CalculatePct(GetStat(stat), aurEff->GetAmount());
-        baseValue += armorAmount;
-
+        value += CalculatePct(float(GetStat(stat)), aurEff->GetAmount());
         return true;
     });
 
-    value *= GetPctModifierValue(unitMod, BASE_PCT);           // armor percent from items
-    value += GetFlatModifierValue(unitMod, TOTAL_VALUE);
+    float baseValue = value;
+
+    value += GetFlatModifierValue(unitMod, TOTAL_VALUE);        // bonus armor from auras and items
     value *= GetPctModifierValue(unitMod, TOTAL_PCT);
 
-    SetArmor(int32(baseValue), int32(value - baseValue));
+    SetArmor(int32(value), int32(value - baseValue));
 
     Pet* pet = GetPet();
     if (pet)
