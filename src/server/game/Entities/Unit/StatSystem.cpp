@@ -109,7 +109,6 @@ bool Player::UpdateStats(Stats stat)
     switch (stat)
     {
         case STAT_AGILITY:
-            UpdateArmor();
             UpdateAllCritPercentages();
             UpdateDodgePercentage();
             break;
@@ -118,7 +117,6 @@ bool Player::UpdateStats(Stats stat)
             break;
         case STAT_INTELLECT:
             UpdateSpellCritChance();
-            UpdateArmor();                                  //SPELL_AURA_MOD_RESISTANCE_OF_INTELLECT_PERCENT, only armor currently
             break;
         default:
             break;
@@ -132,6 +130,7 @@ bool Player::UpdateStats(Stats stat)
         UpdateAttackPowerAndDamage(true);
     }
 
+    UpdateArmor();
     UpdateSpellDamageAndHealingBonus();
     UpdateManaRegen();
     return true;
@@ -242,6 +241,17 @@ void Player::UpdateArmor()
 
     float value = GetFlatModifierValue(unitMod, BASE_VALUE);    // base armor (from items)
     float baseValue = value;
+
+    GetTotalAuraModifier(SPELL_AURA_MOD_ARMOR_PCT_FROM_STAT, [this, &baseValue](AuraEffect const* aurEff) {
+        int32 miscValue = aurEff->GetMiscValue();
+        Stats stat = (miscValue != -2) ? Stats(miscValue) : GetPrimaryStat();
+
+        int32 armorAmount = CalculatePct(GetStat(stat), aurEff->GetAmount());
+        baseValue += armorAmount;
+
+        return true;
+    });
+
     value *= GetPctModifierValue(unitMod, BASE_PCT);           // armor percent from items
     value += GetFlatModifierValue(unitMod, TOTAL_VALUE);
     value *= GetPctModifierValue(unitMod, TOTAL_PCT);

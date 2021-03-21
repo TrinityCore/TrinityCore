@@ -346,7 +346,7 @@ enum AuraType : uint32
     SPELL_AURA_265                                          = 265,
     SPELL_AURA_SET_VIGNETTE                                 = 266,  // NYI
     SPELL_AURA_MOD_IMMUNE_AURA_APPLY_SCHOOL                 = 267,
-    SPELL_AURA_268                                          = 268,  // old SPELL_AURA_MOD_ATTACK_POWER_OF_STAT_PERCENT. unused 4.3.4
+    SPELL_AURA_MOD_ARMOR_PCT_FROM_STAT                      = 268,
     SPELL_AURA_MOD_IGNORE_TARGET_RESIST                     = 269,
     SPELL_AURA_MOD_SCHOOL_MASK_DAMAGE_FROM_CASTER           = 270,
     SPELL_AURA_MOD_SPELL_DAMAGE_FROM_CASTER                 = 271,
