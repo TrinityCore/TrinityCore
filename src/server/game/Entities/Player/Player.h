@@ -1208,19 +1208,11 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
             return true;
         }
 
+    private:
         template <typename T>
-        bool ForEachStorageItem(ItemSearchLocation location, T callback) const
-        {
-            return ForEachStorageItem(location, callback, [callback](Bag* pBag, uint8 equipmentSlots, ItemSearchLocation callbackLocation)
-            {
-                for (uint32 j = 0; j < pBag->GetBagSize(); j++)
-                    if (Item* pItem = pBag->GetItemByPos(j))
-                        if (!callback(pItem, equipmentSlots, callbackLocation))
-                            return false;
-                return true;
-            });
-        }
+        bool ForEachStorageItem(ItemSearchLocation location, T callback) const;
 
+    public:
         void UpdateAverageItemLevelTotal();
         void UpdateAverageItemLevelEquipped();
 

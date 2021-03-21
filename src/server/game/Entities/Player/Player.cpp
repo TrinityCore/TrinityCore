@@ -23,7 +23,6 @@
 #include "ArenaTeamMgr.h"
 #include "AzeriteEmpoweredItem.h"
 #include "AzeriteItem.h"
-#include "Bag.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "BattlefieldTB.h"
@@ -395,6 +394,19 @@ Player::~Player()
         delete _voidStorageItems[i];
 
     sWorld->DecreasePlayerCount();
+}
+
+template <typename T>
+bool Player::ForEachStorageItem(ItemSearchLocation location, T callback) const
+{
+    return ForEachStorageItem(location, callback, [callback](Bag* pBag, uint8 equipmentSlots, ItemSearchLocation callbackLocation)
+    {
+        for (uint32 j = 0; j < pBag->GetBagSize(); j++)
+            if (Item* pItem = pBag->GetItemByPos(j))
+                if (!callback(pItem, equipmentSlots, callbackLocation))
+                    return false;
+        return true;
+    });
 }
 
 void Player::CleanupsBeforeDelete(bool finalCleanup)
