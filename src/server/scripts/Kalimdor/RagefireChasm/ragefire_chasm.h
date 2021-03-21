@@ -18,6 +18,8 @@
 #ifndef RAGEFIRE_CHASM_H_
 #define RAGEFIRE_CHASM_H_
 
+#include "Define.h"
+
 #define RCScriptName "instance_ragefire_chasm"
 #define DataHeader   "RC"
 
