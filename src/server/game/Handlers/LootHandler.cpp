@@ -295,6 +295,8 @@ void WorldSession::HandleLootOpcode(WorldPackets::Loot::LootUnit& packet)
     // interrupt cast
     if (GetPlayer()->IsNonMeleeSpellCast(false))
         GetPlayer()->InterruptNonMeleeSpells(false);
+
+    GetPlayer()->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Looting);
 }
 
 void WorldSession::HandleLootReleaseOpcode(WorldPackets::Loot::LootRelease& packet)

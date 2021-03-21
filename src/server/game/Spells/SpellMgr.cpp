@@ -2828,10 +2828,10 @@ void SpellMgr::LoadSpellInfoServerside()
             spellInfo.StartRecoveryCategory = fields[37].GetUInt32();
             spellInfo.StartRecoveryTime = fields[38].GetUInt32();
             spellInfo.InterruptFlags = fields[39].GetUInt32();
-            spellInfo.AuraInterruptFlags[0] = fields[40].GetUInt32();
-            spellInfo.AuraInterruptFlags[1] = fields[41].GetUInt32();
-            spellInfo.ChannelInterruptFlags[0] = fields[42].GetUInt32();
-            spellInfo.ChannelInterruptFlags[1] = fields[43].GetUInt32();
+            spellInfo.AuraInterruptFlags = SpellAuraInterruptFlags(fields[40].GetUInt32());
+            spellInfo.AuraInterruptFlags2 = SpellAuraInterruptFlags2(fields[41].GetUInt32());
+            spellInfo.ChannelInterruptFlags = SpellAuraInterruptFlags(fields[42].GetUInt32());
+            spellInfo.ChannelInterruptFlags2 = SpellAuraInterruptFlags2(fields[43].GetUInt32());
             spellInfo.ProcFlags = fields[44].GetUInt32();
             spellInfo.ProcChance = fields[45].GetUInt32();
             spellInfo.ProcCharges = fields[46].GetUInt32();
@@ -3652,7 +3652,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Easter Lay Noblegarden Egg Aura - Interrupt flags copied from aura which this aura is linked with
     ApplySpellFix({ 61719 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AuraInterruptFlags[0] = AURA_INTERRUPT_FLAG_HITBYSPELL | AURA_INTERRUPT_FLAG_TAKE_DAMAGE;
+        spellInfo->AuraInterruptFlags = SpellAuraInterruptFlags::HostileActionReceived | SpellAuraInterruptFlags::Damage;
     });
 
     ApplySpellFix({
@@ -3727,7 +3727,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Test Ribbon Pole Channel
     ApplySpellFix({ 29726 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->InterruptFlags &= ~AURA_INTERRUPT_FLAG_CAST;
+        spellInfo->ChannelInterruptFlags &= ~SpellAuraInterruptFlags::Action;
     });
 
     // Sic'em
@@ -3870,7 +3870,8 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Spinning Up (Mimiron)
     ApplySpellFix({ 63414 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->ChannelInterruptFlags.fill(0);
+        spellInfo->ChannelInterruptFlags = SpellAuraInterruptFlags::None;
+        spellInfo->ChannelInterruptFlags2 = SpellAuraInterruptFlags2::None;
         ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
         {
             spellEffectInfo->TargetB = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
@@ -4318,7 +4319,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Threatening Gaze
     ApplySpellFix({ 24314 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AuraInterruptFlags[0] |= AURA_INTERRUPT_FLAG_CAST | AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_JUMP;
+        spellInfo->AuraInterruptFlags |= SpellAuraInterruptFlags::Action | SpellAuraInterruptFlags::Moving | SpellAuraInterruptFlags::Anim;
     });
 
     // Travel Form (dummy) - cannot be cast indoors.
@@ -4391,7 +4392,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Blaze of Glory
     ApplySpellFix({ 99252 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AuraInterruptFlags[0] |= AURA_INTERRUPT_FLAG_CHANGE_MAP;
+        spellInfo->AuraInterruptFlags |= SpellAuraInterruptFlags::LeaveWorld;
     });
     // ENDOF FIRELANDS SPELLS
 

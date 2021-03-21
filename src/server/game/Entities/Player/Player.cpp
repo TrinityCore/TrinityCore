@@ -1070,7 +1070,7 @@ void Player::Update(uint32 p_time)
             if (u->IsPvP() && (!duel || duel->opponent != u))
             {
                 UpdatePvP(true);
-                RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
+                RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::PvPActive);
             }*/
         }
     }
@@ -1494,7 +1494,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
                     InterruptNonMeleeSpells(true);
 
             //remove auras before removing from map...
-            RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags(AURA_INTERRUPT_FLAG_CHANGE_MAP | AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_TURNING));
+            RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Moving | SpellAuraInterruptFlags::Turning);
 
             if (!GetSession()->PlayerLogout() && !(options & TELE_TO_SEAMLESS))
             {
@@ -4215,6 +4215,8 @@ void Player::BuildPlayerRepop()
         CastSpell(this, 20584, true);
     CastSpell(this, 8326, true);
 
+    RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Release);
+
     // there must be SMSG.FORCE_RUN_SPEED_CHANGE, SMSG.FORCE_SWIM_SPEED_CHANGE, SMSG.MOVE_SET_WATER_WALK
     // there must be SMSG.STOP_MIRROR_TIMER
 
@@ -6046,9 +6048,9 @@ bool Player::UpdatePosition(float x, float y, float z, float orientation, bool t
         return false;
 
     //if (movementInfo.flags & MOVEMENTFLAG_MOVING)
-    //    mover->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOVE);
+    //    mover->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Moving);
     //if (movementInfo.flags & MOVEMENTFLAG_TURNING)
-    //    mover->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TURNING);
+    //    mover->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Turning);
 
     // group update
     if (GetGroup())
@@ -22864,7 +22866,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     UpdateCriteria(CRITERIA_TYPE_FLIGHT_PATHS_TAKEN, 1);
 
     // prevent stealth flight
-    //RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TALK);
+    //RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Interacting);
 
     if (sWorld->getBoolConfig(CONFIG_INSTANT_TAXI))
     {
@@ -25359,6 +25361,7 @@ void Player::SummonIfPossible(bool agree)
     m_summon_expire = 0;
 
     UpdateCriteria(CRITERIA_TYPE_ACCEPTED_SUMMONINGS, 1);
+    RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Summon);
 
     TeleportTo(m_summon_location);
 }

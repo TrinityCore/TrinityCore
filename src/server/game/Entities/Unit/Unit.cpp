@@ -298,7 +298,8 @@ Unit::Unit(bool isWorldObject) :
     IsAIEnabled(false), NeedChangeAI(false), LastCharmerGUID(),
     m_ControlledByPlayer(false), movespline(new Movement::MoveSpline()),
     i_AI(nullptr), i_disabledAI(nullptr), m_AutoRepeatFirstCast(false), m_procDeep(0),
-    m_removedAurasCount(0), i_motionMaster(new MotionMaster(this)), m_regenTimer(0), m_ThreatManager(this),
+    m_removedAurasCount(0), m_interruptMask(SpellAuraInterruptFlags::None), m_interruptMask2(SpellAuraInterruptFlags2::None),
+    i_motionMaster(new MotionMaster(this)), m_regenTimer(0), m_ThreatManager(this),
     m_vehicle(nullptr), m_vehicleKit(nullptr), m_unitTypeMask(UNIT_MASK_NONE), m_Diminishing(),
     m_HostileRefManager(this), _aiAnimKitId(0), _movementAnimKitId(0), _meleeAnimKitId(0),
     _spellHistory(new SpellHistory(this))
@@ -334,7 +335,6 @@ Unit::Unit(bool isWorldObject) :
 
     m_auraUpdateIterator = m_ownedAuras.end();
 
-    m_interruptMask.fill(0);
     m_transform = 0;
     m_canModifyStats = false;
 
@@ -664,15 +664,22 @@ void Unit::RemoveVisibleAura(AuraApplication* aurApp)
 
 void Unit::UpdateInterruptMask()
 {
-    m_interruptMask.fill(0);
+    m_interruptMask = SpellAuraInterruptFlags::None;
+    m_interruptMask2 = SpellAuraInterruptFlags2::None;
     for (AuraApplication const* aurApp : m_interruptableAuras)
-        for (std::size_t i = 0; i < m_interruptMask.size(); ++i)
-            m_interruptMask[i] |= aurApp->GetBase()->GetSpellInfo()->AuraInterruptFlags[i];
+    {
+        m_interruptMask |= aurApp->GetBase()->GetSpellInfo()->AuraInterruptFlags;
+        m_interruptMask2 |= aurApp->GetBase()->GetSpellInfo()->AuraInterruptFlags2;
+    }
 
     if (Spell* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])
+    {
         if (spell->getState() == SPELL_STATE_CASTING)
-            for (std::size_t i = 0; i < m_interruptMask.size(); ++i)
-                m_interruptMask[i] |= spell->m_spellInfo->ChannelInterruptFlags[i];
+        {
+            m_interruptMask |= spell->m_spellInfo->ChannelInterruptFlags;
+            m_interruptMask2 |= spell->m_spellInfo->ChannelInterruptFlags2;
+        }
+    }
 }
 
 bool Unit::HasAuraTypeWithFamilyFlags(AuraType auraType, uint32 familyName, flag128 familyFlags) const
@@ -688,7 +695,7 @@ bool Unit::HasBreakableByDamageAuraType(AuraType type, uint32 excludeAura) const
     AuraEffectList const& auras = GetAuraEffectsByType(type);
     for (AuraEffectList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
         if ((!excludeAura || excludeAura != (*itr)->GetSpellInfo()->Id) && //Avoid self interrupt of channeled Crowd Control spells like Seduction
-            (*itr)->GetSpellInfo()->HasAuraInterruptFlag(AURA_INTERRUPT_FLAG_TAKE_DAMAGE))
+            (*itr)->GetSpellInfo()->HasAuraInterruptFlag(SpellAuraInterruptFlags::Damage))
             return true;
     return false;
 }
@@ -748,14 +755,14 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
 
     if (damagetype != NODAMAGE)
     {
-        // interrupting auras with AURA_INTERRUPT_FLAG_DAMAGE before checking !damage (absorbed damage breaks that type of auras)
+        // interrupting auras with SpellAuraInterruptFlags::Damage before checking !damage (absorbed damage breaks that type of auras)
         if (spellProto)
         {
             if (!spellProto->HasAttribute(SPELL_ATTR4_DAMAGE_DOESNT_BREAK_AURAS))
-                victim->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TAKE_DAMAGE, spellProto->Id);
+                victim->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Damage, spellProto->Id);
         }
         else
-            victim->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TAKE_DAMAGE, 0);
+            victim->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Damage, 0);
 
        // interrupt spells with SPELL_INTERRUPT_FLAG_ABORT_ON_DMG on absorbed damage (no dots)
        if (!damage && damagetype != DOT && cleanDamage && cleanDamage->absorbed_damage)
@@ -883,7 +890,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         victim->ModifyHealth(-(int32)damage);
 
         if (damagetype == DIRECT_DAMAGE || damagetype == SPELL_DIRECT_DAMAGE)
-            victim->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_DIRECT_DAMAGE, spellProto ? spellProto->Id : 0);
+            victim->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::NonPeriodicDamage, spellProto ? spellProto->Id : 0);
 
         if (victim->GetTypeId() != TYPEID_PLAYER)
         {
@@ -930,7 +937,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
                         }
 
                 if (Spell* spell = victim->m_currentSpells[CURRENT_CHANNELED_SPELL])
-                    if (spell->getState() == SPELL_STATE_CASTING && spell->m_spellInfo->HasChannelInterruptFlag(CHANNEL_FLAG_DELAY) && damagetype != DOT)
+                    if (spell->getState() == SPELL_STATE_CASTING && spell->m_spellInfo->HasChannelInterruptFlag(SpellAuraInterruptFlags::DamageChannelDuration) && damagetype != DOT)
                         spell->DelayedChannel();
             }
         }
@@ -2014,7 +2021,7 @@ void Unit::AttackerStateUpdate(Unit* victim, WeaponAttackType attType, bool extr
         return;
 
     CombatStart(victim);
-    RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MELEE_ATTACK);
+    RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Attacking);
 
     if (attType != BASE_ATTACK && attType != OFF_ATTACK)
         return;                                             // ignore ranged case
@@ -2095,7 +2102,7 @@ void Unit::FakeAttackerStateUpdate(Unit* victim, WeaponAttackType attType /*= BA
         return;
 
     CombatStart(victim);
-    RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MELEE_ATTACK);
+    RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Attacking);
 
     if (attType != BASE_ATTACK && attType != OFF_ATTACK)
         return;                                             // ignore ranged case
@@ -3180,9 +3187,9 @@ void Unit::SetInWater(bool inWater)
 {
     // remove appropriate auras if we are swimming/not swimming respectively
     if (inWater)
-        RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_NOT_ABOVEWATER);
+        RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::UnderWater);
     else
-        RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_NOT_UNDERWATER);
+        RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::AboveWater);
 }
 
 void Unit::ProcessTerrainStatusUpdate(ZLiquidStatus status, Optional<LiquidData> const& liquidData)
@@ -3354,7 +3361,7 @@ AuraApplication * Unit::_CreateAuraApplication(Aura* aura, uint32 effMask)
     if (aurSpellInfo->HasAnyAuraInterruptFlag())
     {
         m_interruptableAuras.push_back(aurApp);
-        AddInterruptMask(aurSpellInfo->AuraInterruptFlags);
+        AddInterruptMask(aurSpellInfo->AuraInterruptFlags, aurSpellInfo->AuraInterruptFlags2);
     }
 
     if (AuraStateType aState = aura->GetSpellInfo()->GetAuraState())
@@ -3402,7 +3409,7 @@ void Unit::_ApplyAura(AuraApplication * aurApp, uint32 effMask)
         return;
 
     // Sitdown on apply aura req seated
-    if (aura->GetSpellInfo()->HasAuraInterruptFlag(AURA_INTERRUPT_FLAG_NOT_SEATED) && !IsSitState())
+    if (aura->GetSpellInfo()->HasAuraInterruptFlag(SpellAuraInterruptFlags::Standing) && !IsSitState())
         SetStandState(UNIT_STAND_STATE_SIT);
 
     Unit* caster = aura->GetCaster();
@@ -4031,10 +4038,22 @@ void Unit::RemoveNotOwnSingleTargetAuras(bool onPhaseChange /*= false*/)
     }
 }
 
+template<typename InterruptFlag>
+bool IsInterruptFlagIgnoredForSpell(InterruptFlag /*flag*/, Unit const* /*unit*/, SpellInfo const* /*spellInfo*/)
+{
+    return false;
+}
+
+template<>
+bool IsInterruptFlagIgnoredForSpell(SpellAuraInterruptFlags flag, Unit const* unit, SpellInfo const* spellInfo)
+{
+    return flag == SpellAuraInterruptFlags::Moving && unit->HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, spellInfo);
+}
+
 template <typename InterruptFlags>
 void Unit::RemoveAurasWithInterruptFlags(InterruptFlags flag, uint32 except)
 {
-    if (!(m_interruptMask[AuraInterruptFlagIndex<InterruptFlags>::value] & flag))
+    if (!HasInterruptFlag(flag))
         return;
 
     // interrupt auras
@@ -4042,8 +4061,9 @@ void Unit::RemoveAurasWithInterruptFlags(InterruptFlags flag, uint32 except)
     {
         Aura* aura = (*iter)->GetBase();
         ++iter;
-        if (aura->GetSpellInfo()->AuraInterruptFlags[AuraInterruptFlagIndex<InterruptFlags>::value] & flag && (!except || aura->GetId() != except)
-            && !(flag & AURA_INTERRUPT_FLAG_MOVE && HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, aura->GetSpellInfo())))
+        if (aura->GetSpellInfo()->HasAuraInterruptFlag(flag)
+            && (!except || aura->GetId() != except)
+            && !IsInterruptFlagIgnoredForSpell(flag, this, aura->GetSpellInfo()))
         {
             uint32 removedAuras = m_removedAurasCount;
             RemoveAura(aura, AURA_REMOVE_BY_INTERRUPT);
@@ -4055,9 +4075,9 @@ void Unit::RemoveAurasWithInterruptFlags(InterruptFlags flag, uint32 except)
     // interrupt channeled spell
     if (Spell* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])
         if (spell->getState() == SPELL_STATE_CASTING
-            && (spell->GetSpellInfo()->ChannelInterruptFlags[AuraInterruptFlagIndex<InterruptFlags>::value] & flag)
+            && spell->GetSpellInfo()->HasChannelInterruptFlag(flag)
             && spell->GetSpellInfo()->Id != except
-            && !(flag & AURA_INTERRUPT_FLAG_MOVE && HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, spell->GetSpellInfo())))
+            && !IsInterruptFlagIgnoredForSpell(flag, this, spell->GetSpellInfo()))
             InterruptNonMeleeSpells(false);
 
     UpdateInterruptMask();
@@ -4553,11 +4573,11 @@ bool Unit::HasAuraTypeWithValue(AuraType auratype, int32 value) const
 template <typename InterruptFlags>
 bool Unit::HasNegativeAuraWithInterruptFlag(InterruptFlags flag, ObjectGuid guid) const
 {
-    if (!(m_interruptMask[AuraInterruptFlagIndex<InterruptFlags>::value] & flag))
+    if (!HasInterruptFlag(flag))
         return false;
 
     for (AuraApplicationList::const_iterator iter = m_interruptableAuras.begin(); iter != m_interruptableAuras.end(); ++iter)
-        if (!(*iter)->IsPositive() && (*iter)->GetBase()->GetSpellInfo()->AuraInterruptFlags[AuraInterruptFlagIndex<InterruptFlags>::value] & flag &&
+        if (!(*iter)->IsPositive() && (*iter)->GetBase()->GetSpellInfo()->HasAuraInterruptFlag(flag) &&
             (!guid || (*iter)->GetBase()->GetCasterGUID() == guid))
             return true;
 
@@ -5439,6 +5459,13 @@ void Unit::UpdateDisplayPower()
     }
 
     SetPowerType(displayPower);
+}
+
+void Unit::SetSheath(SheathState sheathed)
+{
+    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::SheatheState), sheathed);
+    if (sheathed == SHEATH_STATE_UNARMED)
+        RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Sheathing);
 }
 
 FactionTemplateEntry const* Unit::GetFactionTemplateEntry() const
@@ -7907,7 +7934,7 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
         player->SendMovementSetCollisionHeight(player->GetCollisionHeight(), WorldPackets::Movement::UpdateCollisionHeightReason::Mount);
     }
 
-    RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOUNT);
+    RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Mount);
 }
 
 void Unit::Dismount()
@@ -7928,7 +7955,7 @@ void Unit::Dismount()
         RemoveVehicleKit();
     }
 
-    RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_NOT_MOUNTED);
+    RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Dismount);
 
     // only resummon old pet if the player is already added to a map
     // this prevents adding a pet to a not created map which would otherwise cause a crash
@@ -8120,7 +8147,7 @@ void Unit::CombatStart(Unit* target, bool initialAggro)
         || !me->duel || me->duel->opponent != who))
     {
         me->UpdatePvP(true);
-        me->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
+        me->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::PvPActive);
     }
 }
 
@@ -8178,6 +8205,7 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy)
         controlled->SetInCombatState(PvP, enemy);
     }
 
+    RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::EnteringCombat);
     ProcSkillsAndAuras(enemy, PROC_FLAG_ENTER_COMBAT, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
 }
 
@@ -8206,7 +8234,7 @@ void Unit::ClearInCombat()
     else
         ToPlayer()->OnCombatExit();
 
-    RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_LEAVE_COMBAT);
+    RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::LeavingCombat);
 }
 
 void Unit::ClearInPetCombat()
@@ -10078,6 +10106,13 @@ int32 Unit::GetCreatePowers(Powers power) const
     return 0;
 }
 
+void Unit::AddToWorld()
+{
+    WorldObject::AddToWorld();
+
+    RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::EnterWorld);
+}
+
 void Unit::RemoveFromWorld()
 {
     // cleanup
@@ -10092,6 +10127,7 @@ void Unit::RemoveFromWorld()
         RemoveCharmAuras();
         RemoveBindSightAuras();
         RemoveNotOwnSingleTargetAuras();
+        RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::LeaveWorld);
 
         RemoveAllGameObjects();
         RemoveAllDynObjects();
@@ -10875,7 +10911,7 @@ void Unit::SetStandState(UnitStandStateType state, uint32 animKitID /* = 0*/)
     SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::StandState), state);
 
     if (IsStandState())
-       RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_NOT_SEATED);
+       RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Standing);
 
     if (GetTypeId() == TYPEID_PLAYER)
     {
@@ -13162,12 +13198,12 @@ bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool tel
 
     // TODO: Check if orientation transport offset changed instead of only global orientation
     if (turn)
-        RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TURNING);
+        RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Turning);
 
     if (relocated)
     {
         if (!GetVehicle())
-            RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOVE);
+            RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Moving);
 
         // move and update visible state if need
         if (GetTypeId() == TYPEID_PLAYER)

@@ -25,6 +25,7 @@
 #include "HostileRefManager.h"
 #include "OptionalFwd.h"
 #include "SpellAuraDefines.h"
+#include "SpellDefines.h"
 #include "ThreatManager.h"
 #include "Timer.h"
 #include "UnitDefines.h"
@@ -943,6 +944,7 @@ class TC_GAME_API Unit : public WorldObject
         UnitAI* GetAI() { return i_AI; }
         void SetAI(UnitAI* newAI) { i_AI = newAI; }
 
+        void AddToWorld() override;
         void RemoveFromWorld() override;
 
         void CleanupBeforeRemoveFromMap(bool finalCleanup);
@@ -1122,7 +1124,7 @@ class TC_GAME_API Unit : public WorldObject
         void SetEmoteState(Emote emote) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::EmoteState), emote); }
 
         SheathState GetSheath() const { return SheathState(*m_unitData->SheatheState); }
-        void SetSheath(SheathState sheathed) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::SheatheState), sheathed); }
+        void SetSheath(SheathState sheathed);
 
         // faction template id
         uint32 GetFaction() const { return m_unitData->FactionTemplate; }
@@ -1797,10 +1799,12 @@ class TC_GAME_API Unit : public WorldObject
         void SetVisibleAuraUpdate(AuraApplication* aurApp) { m_visibleAurasToUpdate.insert(aurApp); }
         void RemoveVisibleAura(AuraApplication* aurApp);
 
-        void AddInterruptMask(std::array<uint32, 2> const& mask)
+        bool HasInterruptFlag(SpellAuraInterruptFlags flags) const { return m_interruptMask.HasFlag(flags); }
+        bool HasInterruptFlag(SpellAuraInterruptFlags2 flags) const { return m_interruptMask2.HasFlag(flags); }
+        void AddInterruptMask(SpellAuraInterruptFlags flags, SpellAuraInterruptFlags2 flags2)
         {
-            for (std::size_t i = 0; i < m_interruptMask.size(); ++i)
-                m_interruptMask[i] |= mask[i];
+            m_interruptMask |= flags;
+            m_interruptMask2 |= flags2;
         }
         void UpdateInterruptMask();
 
@@ -2102,7 +2106,8 @@ class TC_GAME_API Unit : public WorldObject
         AuraList m_scAuras;                        // cast singlecast auras
         AuraApplicationList m_interruptableAuras;  // auras which have interrupt mask applied on unit
         AuraStateAurasMap m_auraStateAuras;        // Used for improve performance of aura state checks on aura apply/remove
-        std::array<uint32, 2> m_interruptMask;
+        EnumFlag<SpellAuraInterruptFlags> m_interruptMask;
+        EnumFlag<SpellAuraInterruptFlags2> m_interruptMask2;
 
         float m_auraFlatModifiersGroup[UNIT_MOD_END][MODIFIER_TYPE_FLAT_END];
         float m_auraPctModifiersGroup[UNIT_MOD_END][MODIFIER_TYPE_PCT_END];
