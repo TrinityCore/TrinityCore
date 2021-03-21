@@ -562,7 +562,7 @@ enum AuraType : uint32
     SPELL_AURA_CONVERT_CONSUMED_RUNE                        = 481,
     SPELL_AURA_482                                          = 482,
     SPELL_AURA_SUPPRESS_TRANSFORMS                          = 483,  // NYI
-    SPELL_AURA_484                                          = 484,
+    SPELL_AURA_ALLOW_INTERRUPT_SPELL                        = 484,  // NYI
     SPELL_AURA_MOD_MOVEMENT_FORCE_MAGNITUDE                 = 485,
     SPELL_AURA_486                                          = 486,
     SPELL_AURA_487                                          = 487,
