@@ -12,6 +12,8 @@
 -->
 <!--
 # ![logo](http://m.qpic.cn/psc?/V52nY6a20lzs8U1Wv03f33HFbw43TrKC/bqQfVz5yrrGYSXMvKr.cqad44szbS8X0Ps9P2rb6ioZ.IEkHmy93jWFHC1wIznHyNosj8F9Zh8uGBSXiOwarjryde0sIuzb6NL3T3uLjVrQ!/b&bo=2QDRAAAAAAADByo!&rf=viewer_4) XCore (master)
+
+# ![logo](https://community.trinitycore.org/public/style_images/1_trinitycore.png) Based on TrinityCore (master)	//补充TCB的更改
 -->
 
 
@@ -38,11 +40,11 @@
 <!--
 * [Introduction](#introduction)
 -->
-* [介绍](#介绍)
+* [����](#����)
 <!--
 * [Requirements](#requirements)
 -->
-* [安装需求](#安装需求)
+* [��װ����](#��װ����)
 <!--
 * [Install](#install)
 -->
@@ -64,20 +66,20 @@
 * [Copyright](#copyright)
 -->
 
-* [版权](#版权)
+* [��Ȩ](#��Ȩ)
 
 <!--
 * [Authors &amp; Contributors](#authors--contributors)
 -->
 
-* [作者 &amp; 贡献者](#作者与贡献者)
+* [���� &amp; ������](#�����빱����)
 
-* [赞助](#赞助)
+* [����](#����)
 <!--
 * [Links](#links)
 -->
 <!--
-* [链接](#链接)
+* [����](#����)
 -->
 <!--
 * [Bugs](#bugs)
@@ -95,6 +97,8 @@
 master | 3.3.5
 :------------: | :------------:
 [![master Build Status](https://circleci.com/gh/TrinityCore/TrinityCore/tree/master.svg?style=shield)](https://circleci.com/gh/TrinityCore/TrinityCore/tree/master) | [![3.3.5 Build Status](https://circleci.com/gh/TrinityCore/TrinityCore/tree/3.3.5.svg?style=shield)](https://circleci.com/gh/TrinityCore/TrinityCore/tree/3.3.5)
+<!--[![master Build Status](https://travis-ci.org/github/Thordekk/TrinityCoreBased.svg?branch=master)](https://travis-ci.org/TrinityCore/TrinityCore) | [![3.3.5 Build Status](https://travis-ci.org/TrinityCore/TrinityCore.svg?branch=3.3.5)](https://travis-ci.org/TrinityCore/TrinityCore)-->
+//上方为TCB的地址
 [![master Build status](https://ci.appveyor.com/api/projects/status/54d0u1fxe50ad80o/branch/master?svg=true)](https://ci.appveyor.com/project/DDuarte/trinitycore/branch/master) | [![Build status](https://ci.appveyor.com/api/projects/status/54d0u1fxe50ad80o/branch/3.3.5?svg=true)](https://ci.appveyor.com/project/DDuarte/trinitycore/branch/3.3.5)
 [![master GCC Build status](https://github.com/TrinityCore/TrinityCore/actions/workflows/gcc-build.yml/badge.svg?branch=master&event=push)](https://github.com/TrinityCore/TrinityCore/actions?query=workflow%3AGCC+branch%3Amaster+event%3Apush) | [![3.3.5 GCC Build status](https://github.com/TrinityCore/TrinityCore/actions/workflows/gcc-build.yml/badge.svg?branch=3.3.5&event=push)](https://github.com/TrinityCore/TrinityCore/actions?query=workflow%3AGCC+branch%3A3.3.5+event%3Apush)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/435/badge.svg)](https://scan.coverity.com/projects/435) | [![Coverity Scan Build Status](https://scan.coverity.com/projects/4656/badge.svg)](https://scan.coverity.com/projects/4656)
@@ -105,15 +109,15 @@ master | 3.3.5
 <!--
 ## Introduction
 -->
-## 介绍
+## ����
 
-基于TrintyCore的master分支再开发<br>
+����TrintyCore��master��֧�ٿ���<br>
 (https://github.com/TrinityCore/TrinityCore)<br>
-目标有二：<br>
-一是容纳众家之长,实现完全开源、支持最新版、不断修复的服务端.<br>
-二是让国人更容易参与编译、修复、阅读、理解代码。<br>
-<!--如果觉得下载编译太麻烦,可以使用下方地址测试:http://43.143.231.120:81<br>
-服务器支持:带路人,在此表示感谢!<br>-->
+Ŀ���ж���<br>
+һ�������ڼ�֮��,ʵ����ȫ��Դ��֧�����°桢�����޸��ķ����.<br>
+�����ù��˸����ײ�����롢�޸����Ķ��������롣<br>
+<!--����������ر���̫�鷳,����ʹ���·���ַ����:http://43.143.231.120:81<br>
+������֧��:��·��,�ڴ˱�ʾ��л!<br>-->
 <!--
 TrinityCore is a *MMORPG* Framework based mostly in C++.
 
@@ -134,7 +138,7 @@ website at [TrinityCore.org](https://www.trinitycore.org).
 <!--
 ## Requirements
 -->
-## 安装需求
+## ��װ����
 
 Software requirements are available in the [wiki](https://trinitycore.info/en/install/requirements) for
 Windows, Linux and macOS.
@@ -142,7 +146,7 @@ Windows, Linux and macOS.
 <!--
 ## Install
 -->
-## 安装
+## ��װ
 Detailed installation guides are available in the [wiki](https://trinitycore.info/en/home) for
 Windows, Linux and macOS.
 
@@ -150,22 +154,22 @@ Windows, Linux and macOS.
 <!--
 ## Reporting issues
 -->
-<!--此处是弄错了,多放了
-* [报告问题](#报告问题)
+<!--�˴���Ū����,�����
+* [��������](#��������)
 
 -->
 
-## 报告问题或提交修复或讨论交流
-* [提交修复](https://github.com/xuehyc/XCore/pulls)
-* [上报BUG](https://github.com/xuehyc/XCore/discussions/30)
-* [维基](https://github.com/xuehyc/XCore/wiki)
-* [论坛](https://github.com/xuehyc/XCore/discussions)
+## ����������ύ�޸������۽���
+* [�ύ�޸�](https://github.com/xuehyc/XCore/pulls)
+* [�ϱ�BUG](https://github.com/xuehyc/XCore/discussions/30)
+* [ά��](https://github.com/xuehyc/XCore/wiki)
+* [��̳](https://github.com/xuehyc/XCore/discussions)
 
-(本页最上方的标签即是(Code右边一排,排排站的就是),找不到就点此处链接)
+(��ҳ���Ϸ��ı�ǩ����(Code�ұ�һ��,����վ�ľ���),�Ҳ����͵�˴�����)
 <!--
-如果想要上报一个问题(或BUG等),可以使用下方链接:
+�����Ҫ�ϱ�һ������(��BUG��),����ʹ���·�����:
 https://github.com/xuehyc/XCore/issues
-<br>也可以直接点击标签页"issues",当然也可以使用讨论模块.
+<br>Ҳ����ֱ�ӵ����ǩҳ"issues",��ȻҲ����ʹ������ģ��.
 
 -->
 <!--
@@ -184,8 +188,8 @@ reports are wasteful and are subject to deletion.
 -->
 
 <!--
-## 提交修复
-可以使用Pulls,Issues,或者discussesions.均在标签页.
+## �ύ�޸�
+����ʹ��Pulls,Issues,����discussesions.���ڱ�ǩҳ.
 -->
 <!--
 C++ fixes are submitted as pull requests via Github. For more information on how to
@@ -196,7 +200,7 @@ For SQL only fixes, open a ticket; if a bug report exists for the bug, post on a
 <!--
 ## Copyright
 -->
-## 版权
+## ��Ȩ
 
 License: GPL 2.0
 
@@ -205,7 +209,7 @@ Read file [COPYING](COPYING).
 <!--
 ## Authors &amp; Contributors
 -->
-## 作者与贡献者
+## �����빱����
 
 Read file [AUTHORS](AUTHORS).
 <!--
@@ -213,7 +217,7 @@ Read file [AUTHORS](AUTHORS).
 -->
 
 <!--
-## 链接
+## ����
 * [Website](https://www.trinitycore.org)
 -->
 <!--
@@ -222,21 +226,21 @@ Read file [AUTHORS](AUTHORS).
 * [Discord](https://discord.trinitycore.org/)
 -->
 <!--
-* [维基](https://github.com/xuehyc/XCore/wiki)
-* [论坛](https://github.com/xuehyc/XCore/discussions)
+* [ά��](https://github.com/xuehyc/XCore/wiki)
+* [��̳](https://github.com/xuehyc/XCore/discussions)
 -->
 <!--
 * [Discord](https://discord.trinitycore.org/)
 -->
 <!--
 ## Bugs
-可使用下方链接查看:<br>
+��ʹ���·����Ӳ鿴:<br>
 https://github.com/xuehyc/XCore/discussions/30<br>
-也可进入讨论区公告中,查看关于BUG的讨论.<br>
+Ҳ�ɽ���������������,�鿴����BUG������.<br>
 -->
 
 
-## 赞助
-[微信](https://www.kdocs.cn/l/chBq7Z1jTdU8)
-[支付宝](https://kdocs.cn/l/cspwUBM7pkBg)
+## ����
+[΢��](https://www.kdocs.cn/l/chBq7Z1jTdU8)
+[֧����](https://kdocs.cn/l/cspwUBM7pkBg)
 
