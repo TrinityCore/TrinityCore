@@ -2140,6 +2140,18 @@ void Aura::CallScriptEffectSplitHandlers(AuraEffect* aurEff, AuraApplication con
     }
 }
 
+void Aura::CallScriptEnterLeaveCombatHandlers(AuraApplication const* aurApp, bool isNowInCombat)
+{
+    for (AuraScript* loadedScript : m_loadedScripts)
+    {
+        loadedScript->_PrepareScriptCall(AURA_SCRIPT_HOOK_ENTER_LEAVE_COMBAT, aurApp);
+        for (AuraScript::EnterLeaveCombatHandler const& hook : loadedScript->OnEnterLeaveCombat)
+            hook.Call(loadedScript, isNowInCombat);
+
+        loadedScript->_FinishScriptCall();
+    }
+}
+
 bool Aura::CallScriptCheckProcHandlers(AuraApplication const* aurApp, ProcEventInfo& eventInfo)
 {
     bool result = true;

@@ -28211,6 +28211,8 @@ VoidStorageItem* Player::GetVoidStorageItem(uint64 id, uint8& slot) const
 
 void Player::OnCombatExit()
 {
+    Unit::OnCombatExit();
+
     UpdatePotionCooldown();
     m_combatExitTime = getMSTime();
 }

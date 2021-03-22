@@ -2413,7 +2413,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         VoidStorageItem* GetVoidStorageItem(uint8 slot) const;
         VoidStorageItem* GetVoidStorageItem(uint64 id, uint8& slot) const;
 
-        void OnCombatExit();
+        void OnCombatExit() override;
 
         void CreateGarrison(uint32 garrSiteId);
         void DeleteGarrison();

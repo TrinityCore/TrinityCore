@@ -509,6 +509,7 @@ enum AuraScriptHookType
     AURA_SCRIPT_HOOK_CHECK_AREA_TARGET,
     AURA_SCRIPT_HOOK_DISPEL,
     AURA_SCRIPT_HOOK_AFTER_DISPEL,
+    AURA_SCRIPT_HOOK_ENTER_LEAVE_COMBAT,
     // Spell Proc Hooks
     AURA_SCRIPT_HOOK_CHECK_PROC,
     AURA_SCRIPT_HOOK_CHECK_EFFECT_PROC,
@@ -546,6 +547,7 @@ class TC_GAME_API AuraScript : public _SpellScript
         typedef bool(CLASSNAME::*AuraCheckEffectProcFnType)(AuraEffect const*, ProcEventInfo&); \
         typedef void(CLASSNAME::*AuraProcFnType)(ProcEventInfo&); \
         typedef void(CLASSNAME::*AuraEffectProcFnType)(AuraEffect*, ProcEventInfo&); \
+        typedef void(CLASSNAME::*AuraEnterLeaveCombatFnType)(bool);
 
         AURASCRIPT_FUNCTION_TYPE_DEFINES(AuraScript)
 
@@ -677,6 +679,14 @@ class TC_GAME_API AuraScript : public _SpellScript
             private:
                 AuraEffectProcFnType _EffectHandlerScript;
         };
+        class TC_GAME_API EnterLeaveCombatHandler
+        {
+            public:
+                EnterLeaveCombatHandler(AuraEnterLeaveCombatFnType handlerScript);
+                void Call(AuraScript* auraScript, bool isNowInCombat) const;
+            private:
+                AuraEnterLeaveCombatFnType _handlerScript;
+        };
 
         #define AURASCRIPT_FUNCTION_CAST_DEFINES(CLASSNAME) \
         class CheckAreaTargetFunction : public AuraScript::CheckAreaTargetHandler { public: CheckAreaTargetFunction(AuraCheckAreaTargetFnType _pHandlerScript) : AuraScript::CheckAreaTargetHandler((AuraScript::AuraCheckAreaTargetFnType)_pHandlerScript) { } }; \
@@ -693,7 +703,8 @@ class TC_GAME_API AuraScript : public _SpellScript
         class CheckProcHandlerFunction : public AuraScript::CheckProcHandler { public: CheckProcHandlerFunction(AuraCheckProcFnType handlerScript) : AuraScript::CheckProcHandler((AuraScript::AuraCheckProcFnType)handlerScript) { } }; \
         class CheckEffectProcHandlerFunction : public AuraScript::CheckEffectProcHandler { public: CheckEffectProcHandlerFunction(AuraCheckEffectProcFnType handlerScript, uint8 effIndex, uint16 effName) : AuraScript::CheckEffectProcHandler((AuraScript::AuraCheckEffectProcFnType)handlerScript, effIndex, effName) { } }; \
         class AuraProcHandlerFunction : public AuraScript::AuraProcHandler { public: AuraProcHandlerFunction(AuraProcFnType handlerScript) : AuraScript::AuraProcHandler((AuraScript::AuraProcFnType)handlerScript) { } }; \
-        class EffectProcHandlerFunction : public AuraScript::EffectProcHandler { public: EffectProcHandlerFunction(AuraEffectProcFnType effectHandlerScript, uint8 effIndex, uint16 effName) : AuraScript::EffectProcHandler((AuraScript::AuraEffectProcFnType)effectHandlerScript, effIndex, effName) { } }
+        class EffectProcHandlerFunction : public AuraScript::EffectProcHandler { public: EffectProcHandlerFunction(AuraEffectProcFnType effectHandlerScript, uint8 effIndex, uint16 effName) : AuraScript::EffectProcHandler((AuraScript::AuraEffectProcFnType)effectHandlerScript, effIndex, effName) { } }; \
+        class EnterLeaveCombatFunction : public AuraScript::EnterLeaveCombatHandler { public: EnterLeaveCombatFunction(AuraEnterLeaveCombatFnType handlerScript) : AuraScript::EnterLeaveCombatHandler((AuraScript::AuraEnterLeaveCombatFnType)handlerScript) { } }
 
         #define PrepareAuraScript(CLASSNAME) AURASCRIPT_FUNCTION_TYPE_DEFINES(CLASSNAME) AURASCRIPT_FUNCTION_CAST_DEFINES(CLASSNAME)
 
@@ -859,6 +870,12 @@ class TC_GAME_API AuraScript : public _SpellScript
         // where function is: void function (AuraEffect* aurEff, ProcEventInfo& procInfo);
         HookList<EffectProcHandler> AfterEffectProc;
         #define AuraEffectProcFn(F, I, N) EffectProcHandlerFunction(&F, I, N)
+
+        // executed when target enters or leaves combat
+        // example: OnEnterLeaveCombat += AuraEnterLeaveCombatFn(class::function)
+        // where function is: void function (bool isNowInCombat);
+        HookList<EnterLeaveCombatHandler> OnEnterLeaveCombat;
+        #define AuraEnterLeaveCombatFn(F) EnterLeaveCombatFunction(&F)
 
         // AuraScript interface - hook/effect execution manipulators
 

@@ -1293,6 +1293,7 @@ class TC_GAME_API Unit : public WorldObject
         void ClearInCombat();
         void ClearInPetCombat();
         uint32 GetCombatTimer() const { return m_CombatTimer; }
+        virtual void OnCombatExit();
 
         bool HasAuraTypeWithFamilyFlags(AuraType auraType, uint32 familyName, flag128 familyFlags) const;
         bool virtual HasSpell(uint32 /*spellID*/) const { return false; }

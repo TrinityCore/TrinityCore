@@ -978,6 +978,16 @@ void AuraScript::EffectProcHandler::Call(AuraScript* auraScript, AuraEffect* aur
     (auraScript->*_EffectHandlerScript)(aurEff, eventInfo);
 }
 
+AuraScript::EnterLeaveCombatHandler::EnterLeaveCombatHandler(AuraEnterLeaveCombatFnType handlerScript)
+{
+    _handlerScript = handlerScript;
+}
+
+void AuraScript::EnterLeaveCombatHandler::Call(AuraScript* auraScript, bool isNowInCombat) const
+{
+    (auraScript->*_handlerScript)(isNowInCombat);
+}
+
 bool AuraScript::_Load(Aura* aura)
 {
     m_aura = aura;
@@ -1224,6 +1234,7 @@ Unit* AuraScript::GetTarget() const
         case AURA_SCRIPT_HOOK_AFTER_PROC:
         case AURA_SCRIPT_HOOK_EFFECT_PROC:
         case AURA_SCRIPT_HOOK_EFFECT_AFTER_PROC:
+        case AURA_SCRIPT_HOOK_ENTER_LEAVE_COMBAT:
             return m_auraApplication->GetTarget();
         default:
             TC_LOG_ERROR("scripts", "Script: `%s` Spell: `%u` AuraScript::GetTarget called in a hook in which the call won't have effect!", m_scriptName->c_str(), m_scriptSpellId);
