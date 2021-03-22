@@ -84,7 +84,5 @@ Read file [AUTHORS](AUTHORS).
 
 ## Links
 
-* [Website](https://www.trinitycore.org)
 * [Wiki](https://www.trinitycore.info)
-* [Forums](https://community.trinitycore.org)
-* [Discord](https://discord.trinitycore.org/)
+* [Discord](https://discord.gg/J7SqMpjyXf/)
