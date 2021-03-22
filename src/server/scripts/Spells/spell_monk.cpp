@@ -164,7 +164,7 @@ class spell_monk_provoke : public SpellScript
     }
 };
 
-// Utiliy for stagger scripts
+// Utility for stagger scripts
 Aura* FindExistingStaggerEffect(Unit* unit)
 {
     if (Aura* auraLight = unit->GetAura(SPELL_MONK_STAGGER_LIGHT))
