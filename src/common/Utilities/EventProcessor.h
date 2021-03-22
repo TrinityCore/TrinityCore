@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,6 +19,7 @@
 #define __EVENTPROCESSOR_H
 
 #include "Define.h"
+#include "Duration.h"
 #include <map>
 
 class EventProcessor;
@@ -76,9 +76,11 @@ class TC_COMMON_API EventProcessor
 
         void Update(uint32 p_time);
         void KillAllEvents(bool force);
-        void AddEvent(BasicEvent* Event, uint64 e_time, bool set_addtime = true);
-        void ModifyEventTime(BasicEvent* Event, uint64 newTime);
-        uint64 CalculateTime(uint64 t_offset) const;
+        void AddEvent(BasicEvent* event, uint64 e_time, bool set_addtime = true);
+        void AddEventAtOffset(BasicEvent* event, Milliseconds const& offset) { AddEvent(event, CalculateTime(offset.count())); }
+        void ModifyEventTime(BasicEvent* event, uint64 newTime);
+        uint64 CalculateTime(uint64 t_offset) const { return m_time + t_offset; }
+        std::multimap<uint64, BasicEvent*> const& GetEvents() const { return m_events; }
 
     protected:
         uint64 m_time;

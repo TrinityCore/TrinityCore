@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,6 +22,7 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Transmogrification::Trans
     data >> transmogItem.ItemModifiedAppearanceID;
     data >> transmogItem.Slot;
     data >> transmogItem.SpellItemEnchantmentID;
+    data >> transmogItem.SecondaryItemModifiedAppearanceID;
 
     return data;
 }
@@ -36,7 +37,7 @@ void WorldPackets::Transmogrification::TransmogrifyItems::Read()
     CurrentSpecOnly = _worldPacket.ReadBit();
 }
 
-WorldPacket const* WorldPackets::Transmogrification::TransmogCollectionUpdate::Write()
+WorldPacket const* WorldPackets::Transmogrification::AccountTransmogUpdate::Write()
 {
     _worldPacket.WriteBit(IsFullUpdate);
     _worldPacket.WriteBit(IsSetFavorite);
@@ -51,7 +52,7 @@ WorldPacket const* WorldPackets::Transmogrification::TransmogCollectionUpdate::W
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Transmogrification::OpenTransmogrifier::Write()
+WorldPacket const* WorldPackets::Transmogrification::TransmogrifyNPC::Write()
 {
     _worldPacket << Guid;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -44,12 +44,12 @@ public:
         };
         static std::vector<ChatCommand> commandTable =
         {
-            { "bf",             rbac::RBAC_PERM_COMMAND_BF,        false, NULL,                     "", battlefieldcommandTable },
+            { "bf",             rbac::RBAC_PERM_COMMAND_BF,        false, nullptr,                     "", battlefieldcommandTable },
         };
         return commandTable;
     }
 
-    static bool HandleBattlefieldStart(ChatHandler* handler, const char* args)
+    static bool HandleBattlefieldStart(ChatHandler* handler, char const* args)
     {
         uint32 battleid = 0;
         char* battleid_str = strtok((char*)args, " ");
@@ -71,7 +71,7 @@ public:
         return true;
     }
 
-    static bool HandleBattlefieldEnd(ChatHandler* handler, const char* args)
+    static bool HandleBattlefieldEnd(ChatHandler* handler, char const* args)
     {
         uint32 battleid = 0;
         char* battleid_str = strtok((char*)args, " ");
@@ -93,7 +93,7 @@ public:
         return true;
     }
 
-    static bool HandleBattlefieldEnable(ChatHandler* handler, const char* args)
+    static bool HandleBattlefieldEnable(ChatHandler* handler, char const* args)
     {
         uint32 battleid = 0;
         char* battleid_str = strtok((char*)args, " ");
@@ -123,7 +123,7 @@ public:
         return true;
     }
 
-    static bool HandleBattlefieldSwitch(ChatHandler* handler, const char* args)
+    static bool HandleBattlefieldSwitch(ChatHandler* handler, char const* args)
     {
         uint32 battleid = 0;
         char* battleid_str = strtok((char*)args, " ");
@@ -144,14 +144,14 @@ public:
         return true;
     }
 
-    static bool HandleBattlefieldTimer(ChatHandler* handler, const char* args)
+    static bool HandleBattlefieldTimer(ChatHandler* handler, char const* args)
     {
         uint32 battleid = 0;
         uint32 time = 0;
         char* battleid_str = strtok((char*)args, " ");
         if (!battleid_str)
             return false;
-        char* time_str = strtok(NULL, " ");
+        char* time_str = strtok(nullptr, " ");
         if (!time_str)
             return false;
 

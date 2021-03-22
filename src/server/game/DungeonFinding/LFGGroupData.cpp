@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -40,10 +40,11 @@ void LfgGroupData::SetState(LfgState state)
         case LFG_STATE_NONE:
             m_Dungeon = 0;
             m_KicksLeft = LFG_GROUP_MAX_KICKS;
+            /* fallthrough */
         case LFG_STATE_FINISHED_DUNGEON:
         case LFG_STATE_DUNGEON:
             m_OldState = state;
-            // No break on purpose
+            /* fallthrough */
         default:
             m_State = state;
     }

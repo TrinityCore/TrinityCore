@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -39,29 +38,25 @@
 #include <cerrno>
 #include <sys/stat.h>
 
-#ifdef WIN32
+#ifdef _WIN32
     #include <direct.h>
     #define mkdir _mkdir
 #endif
 
-//------------------------------------------------------------------------------
-// Defines
-
-#define MPQ_BLOCK_SIZE 0x1000
-
 //-----------------------------------------------------------------------------
 
-CASC::StorageHandle CascStorage;
+std::shared_ptr<CASC::Storage> CascStorage;
 
 struct MapEntry
 {
+    uint32 Id = 0;
     int32 WdtFileDataId = 0;
     int16 ParentMapID = 0;
     std::string Name;
     std::string Directory;
 };
 
-std::map<uint32, MapEntry> map_ids;
+std::vector<MapEntry> map_ids; // partitioned by parent maps first
 std::unordered_set<uint32> maps_that_are_parents;
 boost::filesystem::path input_path;
 bool preciseVectorData = false;
@@ -70,7 +65,7 @@ std::unordered_map<std::string, WMODoodadData> WmoDoodads;
 
 // Constants
 
-const char* szWorkDirWmo = "./Buildings";
+char const* szWorkDirWmo = "./Buildings";
 
 #define CASC_LOCALES_COUNT 17
 char const* CascLocaleNames[CASC_LOCALES_COUNT] =
@@ -107,7 +102,7 @@ bool OpenCascStorage(int locale)
     try
     {
         boost::filesystem::path const storage_dir(boost::filesystem::canonical(input_path) / "Data");
-        CascStorage = CASC::OpenStorage(storage_dir, WowLocaleToCascLocaleFlags[locale], CascProduct);
+        CascStorage.reset(CASC::Storage::Open(storage_dir, WowLocaleToCascLocaleFlags[locale], CascProduct));
         if (!CascStorage)
         {
             printf("error opening casc storage '%s' locale %s\n", storage_dir.string().c_str(), localeNames[locale]);
@@ -116,7 +111,7 @@ bool OpenCascStorage(int locale)
 
         return true;
     }
-    catch (boost::filesystem::filesystem_error& error)
+    catch (boost::filesystem::filesystem_error const& error)
     {
         printf("error opening casc storage : %s\n", error.what());
         return false;
@@ -128,11 +123,11 @@ uint32 GetInstalledLocalesMask()
     try
     {
         boost::filesystem::path const storage_dir(boost::filesystem::canonical(input_path) / "Data");
-        CASC::StorageHandle storage = CASC::OpenStorage(storage_dir, 0, CascProduct);
+        std::unique_ptr<CASC::Storage> storage(CASC::Storage::Open(storage_dir, 0, CascProduct));
         if (!storage)
             return false;
 
-        return CASC::GetInstalledLocalesMask(storage);
+        return storage->GetInstalledLocalesMask();
     }
     catch (boost::filesystem::filesystem_error const& error)
     {
@@ -150,7 +145,7 @@ uint32 GenerateUniqueObjectId(uint32 clientId, uint16 clientDoodadId)
 }
 
 // Local testing functions
-bool FileExists(const char* file)
+bool FileExists(char const* file)
 {
     if (FILE* n = fopen(file, "rb"))
     {
@@ -167,9 +162,7 @@ bool ExtractSingleWmo(std::string& fname)
 
     char szLocalFile[1024];
     char* plain_name = GetPlainName(&fname[0]);
-    if (fname.substr(0, 4) != "FILE")
-        FixNameCase(plain_name, strlen(plain_name));
-    FixNameSpaces(plain_name, strlen(plain_name));
+    NormalizeFileName(plain_name, strlen(plain_name));
     sprintf(szLocalFile, "%s/%s", szWorkDirWmo, plain_name);
 
     if (FileExists(szLocalFile))
@@ -178,17 +171,10 @@ bool ExtractSingleWmo(std::string& fname)
     int p = 0;
     // Select root wmo files
     char const* rchr = strrchr(plain_name, '_');
-    if (rchr != NULL)
-    {
-        char cpy[4];
-        memcpy(cpy, rchr, 4);
+    if (rchr != nullptr)
         for (int i = 0; i < 4; ++i)
-        {
-            int m = cpy[i];
-            if (isdigit(m))
+            if (isdigit(rchr[i]))
                 p++;
-        }
-    }
 
     if (p == 3)
         return true;
@@ -210,6 +196,7 @@ bool ExtractSingleWmo(std::string& fname)
     WMODoodadData& doodads = WmoDoodads[plain_name];
     std::swap(doodads, froot.DoodadData);
     int Wmo_nVertices = 0;
+    uint32 groupCount = 0;
     //printf("root has %d groups\n", froot->nGroups);
     for (std::size_t i = 0; i < froot.groupFileDataIDs.size(); ++i)
     {
@@ -222,7 +209,11 @@ bool ExtractSingleWmo(std::string& fname)
             break;
         }
 
+        if (fgroup.ShouldSkip(&froot))
+            continue;
+
         Wmo_nVertices += fgroup.ConvertToVMAPGroupWmo(output, preciseVectorData);
+        ++groupCount;
         for (uint16 groupReference : fgroup.DoodadReferences)
         {
             if (groupReference >= doodads.Spawns.size())
@@ -237,7 +228,8 @@ bool ExtractSingleWmo(std::string& fname)
     }
 
     fseek(output, 8, SEEK_SET); // store the correct no of vertices
-    fwrite(&Wmo_nVertices,sizeof(int),1,output);
+    fwrite(&Wmo_nVertices, sizeof(int), 1, output);
+    fwrite(&groupCount, sizeof(uint32), 1, output);
     fclose(output);
 
     // Delete the extracted file in the case of an error
@@ -254,12 +246,16 @@ void ParsMapFiles()
         auto itr = wdts.find(mapId);
         if (itr == wdts.end())
         {
-            uint32 fileDataId = map_ids[mapId].WdtFileDataId;
+            auto mapEntryItr = std::find_if(map_ids.begin(), map_ids.end(), [mapId](MapEntry const& mapEntry) { return mapEntry.Id == mapId; });
+            if (mapEntryItr == map_ids.end())
+                return nullptr;
+
+            uint32 fileDataId = mapEntryItr->WdtFileDataId;
             if (!fileDataId)
                 return nullptr;
 
-            std::string description = Trinity::StringFormat("WDT for map %u - %s (FileDataID %u)", mapId, map_ids[mapId].Name.c_str(), fileDataId);
-            std::string directory = map_ids[mapId].Directory;
+            std::string description = Trinity::StringFormat("WDT for map %u - %s (FileDataID %u)", mapId, mapEntryItr->Name.c_str(), fileDataId);
+            std::string directory = mapEntryItr->Directory;
             itr = wdts.emplace(std::piecewise_construct, std::forward_as_tuple(mapId), std::forward_as_tuple(fileDataId, description, std::move(directory), maps_that_are_parents.count(mapId) > 0)).first;
             if (!itr->second.init(mapId))
             {
@@ -271,12 +267,12 @@ void ParsMapFiles()
         return &itr->second;
     };
 
-    for (auto itr = map_ids.begin(); itr != map_ids.end(); ++itr)
+    for (MapEntry const& mapEntry : map_ids)
     {
-        if (WDTFile* WDT = getWDT(itr->first))
+        if (WDTFile* WDT = getWDT(mapEntry.Id))
         {
-            WDTFile* parentWDT = itr->second.ParentMapID >= 0 ? getWDT(itr->second.ParentMapID) : nullptr;
-            printf("Processing Map %u\n[", itr->first);
+            WDTFile* parentWDT = mapEntry.ParentMapID >= 0 ? getWDT(mapEntry.ParentMapID) : nullptr;
+            printf("Processing Map %u\n[", mapEntry.Id);
             for (int32 x = 0; x < 64; ++x)
             {
                 for (int32 y = 0; y < 64; ++y)
@@ -284,14 +280,14 @@ void ParsMapFiles()
                     bool success = false;
                     if (ADTFile* ADT = WDT->GetMap(x, y))
                     {
-                        success = ADT->init(itr->first, itr->first);
+                        success = ADT->init(mapEntry.Id, mapEntry.Id);
                         WDT->FreeADT(ADT);
                     }
                     if (!success && parentWDT)
                     {
                         if (ADTFile* ADT = parentWDT->GetMap(x, y))
                         {
-                            ADT->init(itr->first, itr->second.ParentMapID);
+                            ADT->init(mapEntry.Id, mapEntry.ParentMapID);
                             parentWDT->FreeADT(ADT);
                         }
                     }
@@ -374,7 +370,7 @@ static bool RetardCheck()
             if (itr->path().extension() == ".MPQ")
             {
                 printf("MPQ files found in Data directory!\n");
-                printf("This tool works only with World of Warcraft: Legion\n");
+                printf("This tool works only with World of Warcraft: Battle for Azeroth\n");
                 printf("\n");
                 printf("To extract maps for Wrath of the Lich King, rebuild tools using 3.3.5 branch!\n");
                 printf("\n");
@@ -430,7 +426,7 @@ int main(int argc, char ** argv)
         }
     }
 
-    printf("Extract %s. Beginning work ....\n\n", versionString);
+    printf("Extract %s. Beginning work ....\n", versionString);
     //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     // Create the working directory
     if (mkdir(szWorkDirWmo
@@ -454,7 +450,7 @@ int main(int argc, char ** argv)
             continue;
 
         FirstLocale = i;
-        uint32 build = CASC::GetBuildNumber(CascStorage);
+        uint32 build = CascStorage->GetBuildNumber();
         if (!build)
         {
             CascStorage.reset();
@@ -482,40 +478,61 @@ int main(int argc, char ** argv)
 
         DB2CascFileSource source(CascStorage, MapLoadInfo::Instance()->Meta->FileDataId);
         DB2FileLoader db2;
-        if (!db2.Load(&source, MapLoadInfo::Instance()))
+        try
         {
-            printf("Fatal error: Invalid Map.db2 file format! %s\n", CASC::HumanReadableCASCError(GetLastError()));
+            db2.Load(&source, MapLoadInfo::Instance());
+        }
+        catch (std::exception const& e)
+        {
+            printf("Fatal error: Invalid Map.db2 file format! %s\n%s\n", CASC::HumanReadableCASCError(GetCascError()), e.what());
             exit(1);
         }
 
+        map_ids.reserve(db2.GetRecordCount());
+        std::unordered_map<uint32, std::size_t> idToIndex;
         for (uint32 x = 0; x < db2.GetRecordCount(); ++x)
         {
             DB2Record record = db2.GetRecord(x);
             if (!record)
                 continue;
 
-            MapEntry& m = map_ids[record.GetId()];
-            m.WdtFileDataId = record.GetInt32("WdtFileDataID");
-            m.ParentMapID = int16(record.GetUInt16("ParentMapID"));
-            m.Name = record.GetString("MapName");
-            m.Directory = record.GetString("Directory");
-            if (m.ParentMapID >= 0)
-                maps_that_are_parents.insert(m.ParentMapID);
+            MapEntry map;
+            map.Id = record.GetId();
+            map.WdtFileDataId = record.GetInt32("WdtFileDataID");
+            map.ParentMapID = int16(record.GetUInt16("ParentMapID"));
+            map.Name = record.GetString("MapName");
+            map.Directory = record.GetString("Directory");
+
+            if (map.ParentMapID < 0)
+                map.ParentMapID = int16(record.GetUInt16("CosmeticParentMapID"));
+
+            if (map.ParentMapID >= 0)
+                maps_that_are_parents.insert(map.ParentMapID);
+
+            idToIndex[map.Id] = map_ids.size();
+            map_ids.push_back(map);
         }
 
         for (uint32 x = 0; x < db2.GetRecordCopyCount(); ++x)
         {
             DB2RecordCopy copy = db2.GetRecordCopy(x);
-            auto itr = map_ids.find(copy.SourceRowId);
-            if (itr != map_ids.end())
+            auto itr = idToIndex.find(copy.SourceRowId);
+            if (itr != idToIndex.end())
             {
-                MapEntry& id = map_ids[copy.NewRowId];
-                id.WdtFileDataId = itr->second.WdtFileDataId;
-                id.ParentMapID = itr->second.ParentMapID;
-                id.Name = itr->second.Name;
-                id.Directory = itr->second.Directory;
+                MapEntry map;
+                map.Id = copy.NewRowId;
+                map.WdtFileDataId = map_ids[itr->second].WdtFileDataId;
+                map.ParentMapID = map_ids[itr->second].ParentMapID;
+                map.Name = map_ids[itr->second].Name;
+                map.Directory = map_ids[itr->second].Directory;
+                map_ids.push_back(map);
             }
         }
+
+        map_ids.erase(std::remove_if(map_ids.begin(), map_ids.end(), [](MapEntry const& map) { return !map.WdtFileDataId; }), map_ids.end());
+
+        // force parent maps to be extracted first
+        std::stable_partition(map_ids.begin(), map_ids.end(), [](MapEntry const& map) { return maps_that_are_parents.count(map.Id) > 0; });
 
         printf("Done! (" SZFMTD " maps loaded)\n", map_ids.size());
         ParsMapFiles();

@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -29,7 +28,6 @@ EndScriptData */
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
-#include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "the_eye.h"
@@ -292,8 +290,8 @@ class boss_high_astromancer_solarian : public CreatureScript
                         Phase1_Timer = 50000;
                         //After these 50 seconds she portals to the middle of the room and disappears, leaving 3 light portals behind.
                         me->GetMotionMaster()->Clear();
-                        me->SetPosition(CENTER_X, CENTER_Y, CENTER_Z, CENTER_O);
-                        for (uint8 i=0; i <= 2; ++i)
+                        me->UpdatePosition(CENTER_X, CENTER_Y, CENTER_Z, CENTER_O);
+                        for (uint8 i = 0; i <= 2; ++i)
                         {
                             if (!i)
                             {
@@ -310,15 +308,15 @@ class boss_high_astromancer_solarian : public CreatureScript
                         }
                         if ((std::abs(Portals[2][0] - Portals[1][0]) < 7) && (std::abs(Portals[2][1] - Portals[1][1]) < 7))
                         {
-                            int i=1;
+                            int i = 1;
                             if (std::abs(CENTER_X + 26.0f - Portals[2][0]) < 7)
                                 i = -1;
-                            Portals[2][0] = Portals[2][0]+7*i;
+                            Portals[2][0] = Portals[2][0] + 7 * i;
                             Portals[2][1] = Portal_Y(Portals[2][0], LARGE_PORTAL_RADIUS);
                         }
-                        for (int i=0; i <= 2; ++i)
+                        for (int i = 0; i <= 2; ++i)
                         {
-                            if (Creature* Summoned = me->SummonCreature(NPC_ASTROMANCER_SOLARIAN_SPOTLIGHT, Portals[i][0], Portals[i][1], Portals[i][2], CENTER_O, TEMPSUMMON_TIMED_DESPAWN, Phase2_Timer+Phase3_Timer+AppearDelay_Timer+1700))
+                            if (Creature* Summoned = me->SummonCreature(NPC_ASTROMANCER_SOLARIAN_SPOTLIGHT, Portals[i][0], Portals[i][1], Portals[i][2], CENTER_O, TEMPSUMMON_TIMED_DESPAWN, Phase2_Timer + Phase3_Timer + AppearDelay_Timer + 1700))
                             {
                                 Summoned->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                                 Summoned->CastSpell(Summoned, SPELL_SPOTLIGHT, false);
@@ -327,7 +325,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                         AppearDelay = true;
                     }
                     else
-                        Phase1_Timer-=diff;
+                        Phase1_Timer -= diff;
                 }
                 else if (Phase == 2)
                 {
@@ -358,7 +356,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                         //15 seconds later Solarian reappears out of one of the 3 portals. Simultaneously, 2 healers appear in the two other portals.
                         int i = rand32() % 3;
                         me->GetMotionMaster()->Clear();
-                        me->SetPosition(Portals[i][0], Portals[i][1], Portals[i][2], CENTER_O);
+                        me->UpdatePosition(Portals[i][0], Portals[i][1], Portals[i][2], CENTER_O);
 
                         for (int j=0; j <= 2; j++)
                             if (j != i)
@@ -459,7 +457,7 @@ class npc_solarium_priest : public CreatureScript
 
                 if (healTimer <= diff)
                 {
-                    Unit* target = NULL;
+                    Unit* target = nullptr;
                     switch (urand(0, 1))
                     {
                         case 0:

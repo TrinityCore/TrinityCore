@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,9 +24,4 @@ WorldPackets::PacketArrayMaxCapacityException::PacketArrayMaxCapacityException(s
     std::ostringstream builder;
     builder << "Attempted to read more array elements from packet " << requestedSize << " than allowed " << sizeLimit;
     message().assign(builder.str());
-}
-
-void WorldPackets::CheckCompactArrayMaskOverflow(std::size_t index, std::size_t limit)
-{
-    ASSERT(index < limit, "Attempted to insert " SZFMTD " values into CompactArray but it can only hold " SZFMTD, index, limit);
 }

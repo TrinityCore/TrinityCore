@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
  */
 
 #include "LogMessage.h"
+#include "StringFormat.h"
 #include "Util.h"
 
 LogMessage::LogMessage(LogLevel _level, std::string const& _type, std::string&& _text)
@@ -32,12 +33,10 @@ std::string LogMessage::getTimeStr(time_t time)
 {
     tm aTm;
     localtime_r(&time, &aTm);
-    char buf[20];
-    snprintf(buf, 20, "%04d-%02d-%02d_%02d:%02d:%02d", aTm.tm_year + 1900, aTm.tm_mon + 1, aTm.tm_mday, aTm.tm_hour, aTm.tm_min, aTm.tm_sec);
-    return std::string(buf);
+    return Trinity::StringFormat("%04d-%02d-%02d_%02d:%02d:%02d", aTm.tm_year + 1900, aTm.tm_mon + 1, aTm.tm_mday, aTm.tm_hour, aTm.tm_min, aTm.tm_sec);
 }
 
-std::string LogMessage::getTimeStr()
+std::string LogMessage::getTimeStr() const
 {
     return getTimeStr(mtime);
 }

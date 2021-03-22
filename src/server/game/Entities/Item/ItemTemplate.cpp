@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -46,10 +45,10 @@ int32 const SocketColorToGemTypeMask[19] =
 
 char const* ItemTemplate::GetName(LocaleConstant locale) const
 {
-    if (!strlen(ExtendedData->Display->Str[locale]))
+    if (!strlen(ExtendedData->Display[locale]))
         return GetDefaultLocaleName();
 
-    return ExtendedData->Display->Str[locale];
+    return ExtendedData->Display[locale];
 }
 
 
@@ -113,7 +112,7 @@ uint32 ItemTemplate::GetSkill() const
 
 char const* ItemTemplate::GetDefaultLocaleName() const
 {
-    return ExtendedData->Display->Str[sWorld->GetDefaultDbcLocale()];
+    return ExtendedData->Display[sWorld->GetDefaultDbcLocale()];
 }
 
 uint32 ItemTemplate::GetArmor(uint32 itemLevel) const
@@ -176,16 +175,11 @@ uint32 ItemTemplate::GetArmor(uint32 itemLevel) const
     return uint32(shield->Quality[quality] + 0.5f);
 }
 
-void ItemTemplate::GetDamage(uint32 itemLevel, float& minDamage, float& maxDamage) const
+float ItemTemplate::GetDPS(uint32 itemLevel) const
 {
-    minDamage = maxDamage = 0.0f;
     uint32 quality = ItemQualities(GetQuality()) != ITEM_QUALITY_HEIRLOOM ? ItemQualities(GetQuality()) : ITEM_QUALITY_RARE;
     if (GetClass() != ITEM_CLASS_WEAPON || quality > ITEM_QUALITY_ARTIFACT)
-        return;
-
-    // get the right store here
-    if (GetInventoryType() > INVTYPE_RANGEDRIGHT)
-        return;
+        return 0.0f;
 
     float dps = 0.0f;
     switch (GetInventoryType())
@@ -216,7 +210,7 @@ void ItemTemplate::GetDamage(uint32 itemLevel, float& minDamage, float& maxDamag
                         dps = sItemDamageTwoHandStore.AssertEntry(itemLevel)->Quality[quality];
                     break;
                 default:
-                    return;
+                    break;
             }
             break;
         case INVTYPE_WEAPON:
@@ -228,12 +222,22 @@ void ItemTemplate::GetDamage(uint32 itemLevel, float& minDamage, float& maxDamag
                 dps = sItemDamageOneHandStore.AssertEntry(itemLevel)->Quality[quality];
             break;
         default:
-            return;
+            break;
     }
 
-    float avgDamage = dps * GetDelay() * 0.001f;
-    minDamage = (GetDmgVariance() * -0.5f + 1.0f) * avgDamage;
-    maxDamage = floor(float(avgDamage * (GetDmgVariance() * 0.5f + 1.0f) + 0.5f));
+    return dps;
+}
+
+void ItemTemplate::GetDamage(uint32 itemLevel, float& minDamage, float& maxDamage) const
+{
+    minDamage = maxDamage = 0.0f;
+    float dps = GetDPS(itemLevel);
+    if (dps > 0.0f)
+    {
+        float avgDamage = dps * GetDelay() * 0.001f;
+        minDamage = (GetDmgVariance() * -0.5f + 1.0f) * avgDamage;
+        maxDamage = floor(float(avgDamage * (GetDmgVariance() * 0.5f + 1.0f) + 0.5f));
+    }
 }
 
 bool ItemTemplate::IsUsableByLootSpecialization(Player const* player, bool alwaysAllowBoundToAccount) const

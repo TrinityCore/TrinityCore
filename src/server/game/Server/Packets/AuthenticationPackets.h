@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -25,6 +25,7 @@
 #include <unordered_map>
 
 struct CharacterTemplate;
+struct RaceClassAvailability;
 
 namespace WorldPackets
 {
@@ -117,6 +118,7 @@ namespace WorldPackets
 
         struct VirtualRealmInfo
         {
+            VirtualRealmInfo() : RealmAddress(0) { }
             VirtualRealmInfo(uint32 realmAddress, bool isHomeRealm, bool isInternalRealm, std::string const& realmNameActual, std::string const& realmNameNormalized) :
                 RealmAddress(realmAddress), RealmNameInfo(isHomeRealm, isInternalRealm, realmNameActual, realmNameNormalized) { }
 
@@ -129,7 +131,7 @@ namespace WorldPackets
         public:
             struct AuthSuccessInfo
             {
-                struct BillingInfo
+                struct GameTime
                 {
                     uint32 BillingPlan = 0;
                     uint32 TimeRemain = 0;
@@ -137,8 +139,8 @@ namespace WorldPackets
                     bool InGameRoom = false;
                 };
 
-                uint8 AccountExpansionLevel = 0; ///< the current expansion of this account, the possible values are in @ref Expansions
                 uint8 ActiveExpansionLevel = 0; ///< the current server expansion, the possible values are in @ref Expansions
+                uint8 AccountExpansionLevel = 0; ///< the current expansion of this account, the possible values are in @ref Expansions
                 uint32 TimeRested = 0; ///< affects the return value of the GetBillingTimeRested() client API call, it is the number of seconds you have left until the experience points and loot you receive from creatures and quests is reduced. It is only used in the Asia region in retail, it's not implemented in TC and will probably never be.
 
                 uint32 VirtualRealmAddress = 0; ///< a special identifier made from the Index, BattleGroup and Region.
@@ -146,12 +148,12 @@ namespace WorldPackets
                 uint32 CurrencyID = 0; ///< this is probably used for the ingame shop. @todo implement
                 int32 Time = 0;
 
-                BillingInfo Billing;
+                GameTime GameTimeInfo;
 
                 std::vector<VirtualRealmInfo> VirtualRealms;     ///< list of realms connected to this one (inclusive) @todo implement
                 std::vector<CharacterTemplate const*> Templates; ///< list of pre-made character templates.
 
-                std::unordered_map<uint8, uint8> const* AvailableClasses = nullptr; ///< the minimum AccountExpansion required to select the classes
+                std::vector<RaceClassAvailability> const* AvailableClasses = nullptr; ///< the minimum AccountExpansion required to select race/class combinations
 
                 bool IsExpansionTrial = false;
                 bool ForceCharacterTemplate = false; ///< forces the client to always use a character template when creating a new character. @see Templates. @todo implement
@@ -160,7 +162,7 @@ namespace WorldPackets
                 Optional<int32> ExpansionTrialExpiration; ///< expansion trial expiration unix timestamp
             };
 
-            AuthResponse();
+            AuthResponse() : ServerPacket(SMSG_AUTH_RESPONSE, 132) { }
 
             WorldPacket const* Write() override;
 
@@ -278,10 +280,10 @@ namespace WorldPackets
             void Read() override;
         };
 
-        class EnableEncryption final : public ServerPacket
+        class EnterEncryptedMode final : public ServerPacket
         {
         public:
-            EnableEncryption(uint8 const* encryptionKey, bool enabled) : ServerPacket(SMSG_ENABLE_ENCRYPTION, 256 + 1),
+            EnterEncryptedMode(uint8 const* encryptionKey, bool enabled) : ServerPacket(SMSG_ENTER_ENCRYPTED_MODE, 256 + 1),
                 EncryptionKey(encryptionKey), Enabled(enabled)
             {
             }
@@ -294,6 +296,7 @@ namespace WorldPackets
     }
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Auth::VirtualRealmInfo const& realmInfo);
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Auth::VirtualRealmNameInfo const& realmInfo);
 
 #endif // AuthenticationPacketsWorld_h__

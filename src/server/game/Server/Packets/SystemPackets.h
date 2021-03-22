@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -26,27 +26,27 @@ namespace WorldPackets
 {
     namespace System
     {
+        struct SavedThrottleObjectState
+        {
+            uint32 MaxTries               = 0;
+            uint32 PerMilliseconds        = 0;
+            uint32 TryCount               = 0;
+            uint32 LastResetTimeBeforeNow = 0;
+        };
+
+        struct EuropaTicketConfig
+        {
+            bool TicketsEnabled     = false;
+            bool BugsEnabled        = false;
+            bool ComplaintsEnabled  = false;
+            bool SuggestionsEnabled = false;
+
+            SavedThrottleObjectState ThrottleState;
+        };
+
         class FeatureSystemStatus final : public ServerPacket
         {
         public:
-            struct SavedThrottleObjectState
-            {
-                uint32 MaxTries               = 0;
-                uint32 PerMilliseconds        = 0;
-                uint32 TryCount               = 0;
-                uint32 LastResetTimeBeforeNow = 0;
-            };
-
-            struct EuropaTicketConfig
-            {
-                bool TicketsEnabled     = false;
-                bool BugsEnabled        = false;
-                bool ComplaintsEnabled  = false;
-                bool SuggestionsEnabled = false;
-
-                SavedThrottleObjectState ThrottleState;
-            };
-
             struct SessionAlertConfig
             {
                 int32 Delay       = 0;
@@ -81,9 +81,9 @@ namespace WorldPackets
                 float ThrottleDfBestPriority = 0.0f;
             };
 
-            struct VoiceChatProxySettings
+            struct SquelchInfo
             {
-                bool Enabled = false;
+                bool IsSquelched = false;
                 ObjectGuid BnetAccountGuid;
                 ObjectGuid GuildGuid;
             };
@@ -121,6 +121,7 @@ namespace WorldPackets
             uint32 BpayStoreProductDeliveryDelay         = 0;
             uint32 ClubsPresenceUpdateTimer              = 0;
             uint32 HiddenUIClubsPresenceUpdateTimer      = 0; ///< Timer for updating club presence when communities ui frame is hidden
+            uint32 KioskSessionMinutes                   = 0;
             bool ItemRestorationButtonEnabled        = false;
             bool CharUndeleteEnabled                 = false; ///< Implemented
             bool BpayStoreDisabledByParentalControls = false;
@@ -142,12 +143,12 @@ namespace WorldPackets
             bool VoiceChatDisabledByParentalControl  = false;
             bool VoiceChatMutedByParentalControl     = false;
             bool QuestSessionEnabled                 = false;
-            bool Unused825                           = false;
+            bool IsMuted                             = false;
             bool ClubFinderEnabled                   = false;
+            bool Unknown901CheckoutRelated           = false;
 
-            Optional<std::vector<uint8>> RaceClassExpansionLevels;
             SocialQueueConfig QuickJoinConfig;
-            VoiceChatProxySettings VoiceChatManagerSettings;
+            SquelchInfo Squelch;
             RafSystemFeatureInfo RAFSystem;
         };
 
@@ -173,6 +174,10 @@ namespace WorldPackets
             bool LiveRegionCharacterListEnabled      = false; // NYI
             bool LiveRegionCharacterCopyEnabled      = false; // NYI
             bool LiveRegionAccountCopyEnabled        = false; // NYI
+            bool LiveRegionKeyBindingsCopyEnabled    = false;
+            bool Unknown901CheckoutRelated           = false; // NYI
+            Optional<EuropaTicketConfig> EuropaTicketSystemStatus;
+            std::vector<int32> LiveRegionCharacterCopySourceRegions;
             uint32 TokenPollTimeSeconds              = 0;     // NYI
             int64 TokenBalanceAmount                 = 0;     // NYI
             int32 MaxCharactersPerRealm              = 0;
@@ -181,6 +186,7 @@ namespace WorldPackets
             int32 ActiveClassTrialBoostType          = 0;     // NYI
             int32 MinimumExpansionLevel              = 0;
             int32 MaximumExpansionLevel              = 0;
+            uint32 KioskSessionMinutes               = 0;
         };
 
         class MOTD final : public ServerPacket

@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -30,7 +29,7 @@ class TC_GAME_API PassiveAI : public CreatureAI
         void AttackStart(Unit*) override { }
         void UpdateAI(uint32) override;
 
-        static int Permissible(const Creature*) { return PERMIT_BASE_IDLE;  }
+        static int32 Permissible(Creature const* /*creature*/) { return PERMIT_BASE_NO; }
 };
 
 class TC_GAME_API PossessedAI : public CreatureAI
@@ -48,7 +47,7 @@ class TC_GAME_API PossessedAI : public CreatureAI
 
         void OnCharmed(bool /*apply*/) override;
 
-        static int Permissible(const Creature*) { return PERMIT_BASE_IDLE;  }
+        static int32 Permissible(Creature const* /*creature*/) { return PERMIT_BASE_NO; }
 };
 
 class TC_GAME_API NullCreatureAI : public CreatureAI
@@ -62,7 +61,7 @@ class TC_GAME_API NullCreatureAI : public CreatureAI
         void EnterEvadeMode(EvadeReason /*why*/) override { }
         void OnCharmed(bool /*apply*/) override { }
 
-        static int Permissible(const Creature*) { return PERMIT_BASE_IDLE;  }
+        static int32 Permissible(Creature const* creature);
 };
 
 class TC_GAME_API CritterAI : public PassiveAI
@@ -72,6 +71,8 @@ class TC_GAME_API CritterAI : public PassiveAI
 
         void DamageTaken(Unit* done_by, uint32& /*damage*/) override;
         void EnterEvadeMode(EvadeReason why) override;
+
+        static int32 Permissible(Creature const* creature);
 };
 
 class TC_GAME_API TriggerAI : public NullCreatureAI
@@ -79,6 +80,8 @@ class TC_GAME_API TriggerAI : public NullCreatureAI
     public:
         explicit TriggerAI(Creature* c) : NullCreatureAI(c) { }
         void IsSummonedBy(Unit* summoner) override;
+
+        static int32 Permissible(Creature const* creature);
 };
 
 #endif

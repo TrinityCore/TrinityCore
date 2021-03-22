@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -32,6 +32,12 @@ namespace WorldPackets
             uint32 TimeToTarget = 0;
             uint32 ElapsedTimeForMovement = 0;
             std::vector<TaggedPosition<Position::XYZ>> Points;
+        };
+
+        struct AreaTriggerMovementScriptInfo
+        {
+            uint32 SpellScriptID = 0;
+            TaggedPosition<Position::XYZ> Center;
         };
 
         class AreaTrigger final : public ClientPacket
@@ -73,12 +79,13 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             Optional<AreaTriggerSplineInfo> AreaTriggerSpline;
-            Optional<AreaTriggerCircularMovementInfo> AreaTriggerCircularMovement;
+            Optional<AreaTriggerOrbitInfo> AreaTriggerOrbit;
+            Optional<AreaTriggerMovementScriptInfo> AreaTriggerMovementScript;
             ObjectGuid TriggerGUID;
         };
     }
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, AreaTriggerCircularMovementInfo const& areaTriggerCircularMovement);
+ByteBuffer& operator<<(ByteBuffer& data, AreaTriggerOrbitInfo const& areaTriggerCircularMovement);
 
 #endif // AreaTriggerPackets_h__

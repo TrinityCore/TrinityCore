@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -63,6 +63,16 @@ namespace WorldPackets
             AllAchievements Data;
         };
 
+        class AllAccountCriteria final : public ServerPacket
+        {
+        public:
+            AllAccountCriteria() : ServerPacket(SMSG_ALL_ACCOUNT_CRITERIA) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<CriteriaProgress> Progress;
+        };
+
         class RespondInspectAchievements final : public ServerPacket
         {
         public:
@@ -88,6 +98,17 @@ namespace WorldPackets
             time_t CurrentTime = time_t(0);
             uint32 ElapsedTime = 0;
             uint32 CreationTime = 0;
+            Optional<uint64> RafAcceptanceID;
+        };
+
+        class AccountCriteriaUpdate final : public ServerPacket
+        {
+        public:
+            AccountCriteriaUpdate() : ServerPacket(SMSG_ACCOUNT_CRITERIA_UPDATE) { }
+
+            WorldPacket const* Write() override;
+
+            CriteriaProgress Progress;
         };
 
         class CriteriaDeleted final : public ServerPacket

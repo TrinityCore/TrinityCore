@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -57,7 +57,7 @@ class spell_razelikh_teleport_group : public SpellScriptLoader
                 {
                     if (Group* group = player->GetGroup())
                     {
-                        for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+                        for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
                             if (Player* member = itr->GetSource())
                                 if (member->IsWithinDistInMap(player, 20.0f) && !member->isDead())
                                     member->CastSpell(member, SPELL_TELEPORT_SINGLE_IN_GROUP, true);

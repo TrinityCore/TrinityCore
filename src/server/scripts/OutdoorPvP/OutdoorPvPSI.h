@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,22 +27,6 @@ enum OutdoorPvPSISpells
     SI_TRACES_OF_SILITHYST = 29534,
     SI_CENARION_FAVOR = 30754
 };
-
-const uint32 SI_MAX_RESOURCES = 200;
-
-const uint8 OutdoorPvPSIBuffZonesNum = 3;
-
-const uint32 OutdoorPvPSIBuffZones[OutdoorPvPSIBuffZonesNum] = { 1377, 3428, 3429 };
-
-const uint32 SI_AREATRIGGER_H = 4168;
-
-const uint32 SI_AREATRIGGER_A = 4162;
-
-const uint32 SI_TURNIN_QUEST_CM_A = 17090;
-
-const uint32 SI_TURNIN_QUEST_CM_H = 18199;
-
-const uint32 SI_SILITHYST_MOUND = 181597;
 
 enum SI_WorldStates
 {

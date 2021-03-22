@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,11 +18,8 @@
 #ifndef TrinityCore_Optional_h__
 #define TrinityCore_Optional_h__
 
+#include "OptionalFwd.h"
 #include <boost/optional.hpp>
 #include <boost/utility/in_place_factory.hpp>
-
- //! Optional helper class to wrap optional values within.
-template <typename T>
-using Optional = boost::optional<T>;
 
 #endif // TrinityCore_Optional_h__

@@ -1,7 +1,7 @@
 # Set build-directive (used in core to tell which buildtype we used)
 target_compile_definitions(trinity-compile-option-interface
   INTERFACE
-    -D_BUILD_DIRECTIVE="${CMAKE_BUILD_TYPE}")
+    -D_BUILD_DIRECTIVE="$<CONFIG>")
 
 set(GCC_EXPECTED_VERSION 6.3.0)
 
@@ -32,6 +32,10 @@ if( WITH_WARNINGS )
       -Winvalid-pch
       -Wfatal-errors
       -Woverloaded-virtual)
+
+  target_compile_options(trinity-warning-interface
+    INTERFACE
+      -Wno-deprecated-copy) # warning in g3d
 
   message(STATUS "GCC: All warnings enabled")
 endif()

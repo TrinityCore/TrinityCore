@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -102,8 +101,8 @@ namespace VMAP
 
             void InitializeThreadUnsafe(std::unordered_map<uint32, std::vector<uint32>> const& mapData);
 
-            int loadMap(const char* pBasePath, unsigned int mapId, int x, int y) override;
-            bool loadSingleMap(uint32 mapId, const std::string& basePath, uint32 tileX, uint32 tileY);
+            int loadMap(char const* pBasePath, unsigned int mapId, int x, int y) override;
+            LoadResult loadSingleMap(uint32 mapId, const std::string& basePath, uint32 tileX, uint32 tileY);
 
             void unloadMap(unsigned int mapId, int x, int y) override;
             void unloadSingleMap(uint32 mapId, int x, int y);
@@ -122,6 +121,7 @@ namespace VMAP
 
             bool getAreaInfo(unsigned int pMapId, float x, float y, float& z, uint32& flags, int32& adtId, int32& rootId, int32& groupId) const override;
             bool GetLiquidLevel(uint32 pMapId, float x, float y, float z, uint8 reqLiquidType, float& level, float& floor, uint32& type) const override;
+            void getAreaAndLiquidData(unsigned int mapId, float x, float y, float z, uint8 reqLiquidType, AreaAndLiquidData& data) const override;
 
             WorldModel* acquireModelInstance(const std::string& basepath, const std::string& filename, uint32 flags = 0);
             void releaseModelInstance(const std::string& filename);
@@ -131,7 +131,7 @@ namespace VMAP
             {
                 return getMapFileName(mapId);
             }
-            virtual LoadResult existsMap(const char* basePath, unsigned int mapId, int x, int y) override;
+            virtual LoadResult existsMap(char const* basePath, unsigned int mapId, int x, int y) override;
 
             void getInstanceMapTree(InstanceTreeMap &instanceMapTree);
 

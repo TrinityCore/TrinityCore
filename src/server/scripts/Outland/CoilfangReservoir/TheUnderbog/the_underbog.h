@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,10 +22,10 @@
 
 #define TheUndebogScriptName "instance_the_underbog"
 
-template<typename AI>
-inline AI* GetTheUnderbogAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetTheUnderbogAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, TheUndebogScriptName);
+    return GetInstanceAI<AI>(obj, TheUndebogScriptName);
 }
 
 #endif // the_underbog_h__

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -32,7 +32,7 @@ void WorldPackets::Item::BuyItem::Read()
     _worldPacket >> Muid;
     _worldPacket >> Slot;
     _worldPacket >> Item;
-    ItemType = static_cast<ItemVendorType>(_worldPacket.ReadBits(2));
+    ItemType = static_cast<ItemVendorType>(_worldPacket.ReadBits(3));
 }
 
 WorldPacket const* WorldPackets::Item::BuySucceeded::Write()
@@ -313,6 +313,18 @@ WorldPacket const* WorldPackets::Item::ItemCooldown::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* WorldPackets::Item::EnchantmentLog::Write()
+{
+    _worldPacket << Owner;
+    _worldPacket << Caster;
+    _worldPacket << ItemGUID;
+    _worldPacket << int32(ItemID);
+    _worldPacket << int32(Enchantment);
+    _worldPacket << int32(EnchantSlot);
+
+    return &_worldPacket;
+}
+
 WorldPacket const* WorldPackets::Item::ItemEnchantTimeUpdate::Write()
 {
     _worldPacket << ItemGuid;
@@ -335,7 +347,7 @@ void WorldPackets::Item::SocketGems::Read()
         _worldPacket >> gemGuid;
 }
 
-WorldPacket const* WorldPackets::Item::SocketGemsResult::Write()
+WorldPacket const* WorldPackets::Item::SocketGemsSuccess::Write()
 {
     _worldPacket << Item;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,7 +17,7 @@
 
 #include "ReferAFriendPackets.h"
 
-WorldPacket const* WorldPackets::RaF::ReferAFriendFailure::Write()
+WorldPacket const* WorldPackets::RaF::RecruitAFriendFailure::Write()
 {
     _worldPacket << int32(Reason);
     // Client uses this string only if Reason == ERR_REFER_A_FRIEND_NOT_IN_GROUP || Reason == ERR_REFER_A_FRIEND_SUMMON_OFFLINE_S

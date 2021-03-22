@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -107,13 +106,13 @@ class instance_the_eye : public InstanceMapScript
             {
                 switch (identifier)
                 {
-                case DATA_THALADREDTHEDARKENER:         return ThaladredTheDarkener;
-                case DATA_LORDSANGUINAR:                return LordSanguinar;
-                case DATA_GRANDASTROMANCERCAPERNIAN:    return GrandAstromancerCapernian;
-                case DATA_MASTERENGINEERTELONICUS:      return MasterEngineerTelonicus;
-                case DATA_KAELTHAS:                     return Kaelthas;
-                case DATA_HIGH_ASTROMANCER_SOLARIAN:    return Astromancer;
-                case DATA_ALAR:                         return Alar;
+                    case DATA_THALADREDTHEDARKENER:         return ThaladredTheDarkener;
+                    case DATA_LORDSANGUINAR:                return LordSanguinar;
+                    case DATA_GRANDASTROMANCERCAPERNIAN:    return GrandAstromancerCapernian;
+                    case DATA_MASTERENGINEERTELONICUS:      return MasterEngineerTelonicus;
+                    case DATA_KAELTHAS:                     return Kaelthas;
+                    case DATA_HIGH_ASTROMANCER_SOLARIAN:    return Astromancer;
+                    case DATA_ALAR:                         return Alar;
                 }
                 return ObjectGuid::Empty;
             }

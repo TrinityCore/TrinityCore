@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -66,11 +66,11 @@ class TC_DATABASE_API MySQLConnection
 
         bool PrepareStatements();
 
-        bool Execute(const char* sql);
+        bool Execute(char const* sql);
         bool Execute(PreparedStatementBase* stmt);
-        ResultSet* Query(const char* sql);
+        ResultSet* Query(char const* sql);
         PreparedResultSet* Query(PreparedStatementBase* stmt);
-        bool _Query(const char* sql, MySQLResult** pResult, MySQLField** pFields, uint64* pRowCount, uint32* pFieldCount);
+        bool _Query(char const* sql, MySQLResult** pResult, MySQLField** pFields, uint64* pRowCount, uint32* pFieldCount);
         bool _Query(PreparedStatementBase* stmt, MySQLResult** pResult, uint64* pRowCount, uint32* pFieldCount);
 
         void BeginTransaction();

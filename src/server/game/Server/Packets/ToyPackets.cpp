@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,7 +27,7 @@ void WorldPackets::Toy::UseToy::Read()
     _worldPacket >> Cast;
 }
 
-WorldPacket const* WorldPackets::Toy::AccountToysUpdate::Write()
+WorldPacket const* WorldPackets::Toy::AccountToyUpdate::Write()
 {
     _worldPacket.WriteBit(IsFullUpdate);
     _worldPacket.FlushBits();

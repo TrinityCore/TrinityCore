@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -39,11 +39,12 @@ bool _SpellScript::_ValidateSpellInfo(uint32 const* begin, uint32 const* end)
     bool allValid = true;
     while (begin != end)
     {
-        if (!sSpellMgr->GetSpellInfo(*begin))
+        if (!sSpellMgr->GetSpellInfo(*begin, DIFFICULTY_NONE))
         {
             TC_LOG_ERROR("scripts.spells", "_SpellScript::ValidateSpellInfo: Spell %u does not exist.", *begin);
             allValid = false;
         }
+
         ++begin;
     }
     return allValid;
@@ -685,6 +686,11 @@ void SpellScript::SetCustomCastResultMessage(SpellCustomErrors result)
     m_spell->m_customError = result;
 }
 
+Difficulty SpellScript::GetCastDifficulty() const
+{
+    return m_spell->GetCastDifficulty();
+}
+
 SpellValue const* SpellScript::GetSpellValue() const
 {
     return m_spell->m_spellValue;
@@ -692,7 +698,7 @@ SpellValue const* SpellScript::GetSpellValue() const
 
 SpellEffectInfo const* SpellScript::GetEffectInfo(SpellEffIndex effIndex) const
 {
-    return m_spell->GetEffect(effIndex);
+    return GetSpellInfo()->GetEffect(effIndex);
 }
 
 bool AuraScript::_Validate(SpellInfo const* entry)
@@ -967,7 +973,7 @@ AuraScript::EffectProcHandler::EffectProcHandler(AuraEffectProcFnType effectHand
     _EffectHandlerScript = effectHandlerScript;
 }
 
-void AuraScript::EffectProcHandler::Call(AuraScript* auraScript, AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+void AuraScript::EffectProcHandler::Call(AuraScript* auraScript, AuraEffect* aurEff, ProcEventInfo& eventInfo)
 {
     (auraScript->*_EffectHandlerScript)(aurEff, eventInfo);
 }
@@ -1229,4 +1235,9 @@ Unit* AuraScript::GetTarget() const
 AuraApplication const* AuraScript::GetTargetApplication() const
 {
     return m_auraApplication;
+}
+
+Difficulty AuraScript::GetCastDifficulty() const
+{
+    return GetAura()->GetCastDifficulty();
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -30,10 +30,6 @@ enum DefenseMessages
     TEXT_BROKEN_HILL_TAKEN_HORDE        = 14846, // '|cffffff00Broken Hill has been taken by the Horde!|r'
 };
 
-#define OutdoorPvPHPBuffZonesNum 6
-                                                         //  HP, citadel, ramparts, blood furnace, shattered halls, mag's lair
-const uint32 OutdoorPvPHPBuffZones[OutdoorPvPHPBuffZonesNum] = { 3483, 3563, 3562, 3713, 3714, 3836 };
-
 enum OutdoorPvPHPSpells
 {
     AlliancePlayerKillReward = 32155,
@@ -50,12 +46,6 @@ enum OutdoorPvPHPTowerType
     HP_TOWER_NUM = 3
 };
 
-const uint32 HP_CREDITMARKER[HP_TOWER_NUM] = {19032, 19028, 19029};
-
-const uint32 HP_CapturePointEvent_Enter[HP_TOWER_NUM] = {11404, 11396, 11388};
-
-const uint32 HP_CapturePointEvent_Leave[HP_TOWER_NUM] = {11403, 11395, 11387};
-
 enum OutdoorPvPHPWorldStates
 {
     HP_UI_TOWER_DISPLAY_A = 0x9ba,
@@ -63,32 +53,6 @@ enum OutdoorPvPHPWorldStates
 
     HP_UI_TOWER_COUNT_H = 0x9ae,
     HP_UI_TOWER_COUNT_A = 0x9ac
-};
-
-const uint32 HP_MAP_N[HP_TOWER_NUM] = {0x9b5, 0x9b2, 0x9a8};
-
-const uint32 HP_MAP_A[HP_TOWER_NUM] = {0x9b3, 0x9b0, 0x9a7};
-
-const uint32 HP_MAP_H[HP_TOWER_NUM] = {0x9b4, 0x9b1, 0x9a6};
-
-const uint32 HP_TowerArtKit_A[HP_TOWER_NUM] = {65, 62, 67};
-
-const uint32 HP_TowerArtKit_H[HP_TOWER_NUM] = {64, 61, 68};
-
-const uint32 HP_TowerArtKit_N[HP_TOWER_NUM] = {66, 63, 69};
-
-const go_type HPCapturePoints[HP_TOWER_NUM] =
-{
-    {182175, 530, -471.462f, 3451.09f, 34.6432f, 0.174533f, 0.0f, 0.0f, 0.087156f, 0.996195f},      // 0 - Broken Hill
-    {182174, 530, -184.889f, 3476.93f, 38.205f, -0.017453f, 0.0f, 0.0f, 0.008727f, -0.999962f},     // 1 - Overlook
-    {182173, 530, -290.016f, 3702.42f, 56.6729f, 0.034907f, 0.0f, 0.0f, 0.017452f, 0.999848f}     // 2 - Stadium
-};
-
-const go_type HPTowerFlags[HP_TOWER_NUM] =
-{
-    {183514, 530, -467.078f, 3528.17f, 64.7121f, 3.14159f, 0.0f, 0.0f, 1.0f, 0.0f},  // 0 broken hill
-    {182525, 530, -187.887f, 3459.38f, 60.0403f, -3.12414f, 0.0f, 0.0f, 0.999962f, -0.008727f}, // 1 overlook
-    {183515, 530, -289.610f, 3696.83f, 75.9447f, 3.12414f, 0.0f, 0.0f, 0.999962f, 0.008727f} // 2 stadium
 };
 
 class OPvPCapturePointHP : public OPvPCapturePoint

@@ -1,0 +1,31 @@
+version: 1.0.{build}
+image: Visual Studio 2019
+clone_depth: 1
+init:
+- ps: ''
+environment:
+  BOOST_ROOT: C:\Libraries\boost_1_71_0
+  OPENSSL_ROOT_DIR: C:\OpenSSL-Win64
+build_script:
+- cmd: >-
+    git config user.email "appveyor@build.bot" && git config user.name "AppVeyor"
+
+    git tag -a -m "AppVeyor build" init
+
+    md build && cd build
+
+    cmake -G"Visual Studio 16 2019" -A x64 -DSCRIPTS=dynamic -DTOOLS=True -DCMAKE_CXX_FLAGS=" /DWIN32 /D_WINDOWS /W3 /GR /EHsc /WX" -DCMAKE_C_FLAGS="/DWIN32 /D_WINDOWS /W3 /WX" ..
+
+    "%programfiles(x86)%\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin\amd64\MsBuild.exe" /nologo /m:2 /p:Configuration=RelWithDebInfo /p:Platform="X64" /verbosity:minimal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" "TrinityCore.sln"
+
+    cd bin\RelWithDebInfo\
+
+    copy "C:\Program Files\MySQL\MySQL Server 5.7\lib\libmysql.dll" libmysql.dll
+
+    copy "%OPENSSL_ROOT_DIR%\ssleay32.dll" ssleay32.dll
+
+    copy "%OPENSSL_ROOT_DIR%\libeay32.dll" libeay32.dll
+test: off
+artifacts:
+- path: build\bin\RelWithDebInfo\
+  name: TrinityCoreWin64VS2019

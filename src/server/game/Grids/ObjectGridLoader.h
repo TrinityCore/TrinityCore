@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -32,15 +31,15 @@ class TC_GAME_API ObjectGridLoader
     friend class ObjectWorldLoader;
 
     public:
-        ObjectGridLoader(NGridType &grid, Map* map, const Cell &cell)
-            : i_cell(cell), i_grid(grid), i_map(map), i_gameObjects(0), i_creatures(0), i_corpses (0)
+        ObjectGridLoader(NGridType& grid, Map* map, Cell const& cell)
+            : i_cell(cell), i_grid(grid), i_map(map), i_gameObjects(0), i_creatures(0), i_corpses(0), i_areaTriggers(0)
             { }
 
         void Visit(GameObjectMapType &m);
         void Visit(CreatureMapType &m);
+        void Visit(AreaTriggerMapType &m);
         void Visit(CorpseMapType &) const { }
         void Visit(DynamicObjectMapType&) const { }
-        void Visit(AreaTriggerMapType &) const { }
         void Visit(ConversationMapType &) const { }
 
         void LoadN(void);
@@ -54,6 +53,7 @@ class TC_GAME_API ObjectGridLoader
         uint32 i_gameObjects;
         uint32 i_creatures;
         uint32 i_corpses;
+        uint32 i_areaTriggers;
 };
 
 //Stop the creatures before unloading the NGrid

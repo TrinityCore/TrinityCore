@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -37,7 +37,7 @@ WorldPackets::Combat::SAttackStop::SAttackStop(Unit const* attacker, Unit const*
     if (victim)
     {
         Victim = victim->GetGUID();
-        NowDead = victim->isDead();
+        NowDead = !victim->IsAlive(); // using isAlive instead of isDead to catch JUST_DIED death states as well
     }
 }
 

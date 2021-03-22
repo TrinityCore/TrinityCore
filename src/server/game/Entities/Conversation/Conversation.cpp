@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -34,9 +34,7 @@ Conversation::Conversation() : WorldObject(false), _duration(0), _textureKitId(0
     m_updateFlag.Conversation = true;
 }
 
-Conversation::~Conversation()
-{
-}
+Conversation::~Conversation() = default;
 
 void Conversation::AddToWorld()
 {
@@ -69,9 +67,20 @@ bool Conversation::IsNeverVisibleFor(WorldObject const* seer) const
 void Conversation::Update(uint32 diff)
 {
     if (GetDuration() > int32(diff))
+    {
         _duration -= diff;
+        DoWithSuppressingObjectUpdates([&]()
+        {
+            // Only sent in CreateObject
+            ApplyModUpdateFieldValue(m_values.ModifyValue(&Conversation::m_conversationData).ModifyValue(&UF::ConversationData::Progress), int32(diff), true);
+            const_cast<UF::ConversationData&>(*m_conversationData).ClearChanged(&UF::ConversationData::Progress);
+        });
+    }
     else
+    {
         Remove(); // expired
+        return;
+    }
 
     WorldObject::Update(diff);
 }
@@ -112,6 +121,7 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
 
     SetMap(map);
     Relocate(pos);
+    RelocateStationaryPosition(pos);
 
     Object::_Create(ObjectGuid::Create<HighGuid::Conversation>(GetMapId(), conversationEntry, lowGuid));
     PhasingHandler::InheritPhaseShift(this, creator);
@@ -123,20 +133,21 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
     _duration = conversationTemplate->LastLineEndTime;
     _textureKitId = conversationTemplate->TextureKitId;
 
-    for (uint16 actorIndex = 0; actorIndex < conversationTemplate->Actors.size(); ++actorIndex)
+    for (ConversationActorTemplate const* actor : conversationTemplate->Actors)
     {
-        if (ConversationActorTemplate const* actor = conversationTemplate->Actors[actorIndex])
+        if (actor)
         {
             UF::ConversationActor& actorField = AddDynamicUpdateFieldValue(m_values.ModifyValue(&Conversation::m_conversationData).ModifyValue(&UF::ConversationData::Actors));
             actorField.CreatureID = actor->CreatureId;
             actorField.CreatureDisplayInfoID = actor->CreatureModelId;
+            actorField.Id = actor->Id;
             actorField.Type = AsUnderlyingType(ActorType::CreatureActor);
         }
     }
 
     for (uint16 actorIndex = 0; actorIndex < conversationTemplate->ActorGuids.size(); ++actorIndex)
     {
-        ObjectGuid::LowType const& actorGuid = conversationTemplate->ActorGuids[actorIndex];
+        ObjectGuid::LowType actorGuid = conversationTemplate->ActorGuids[actorIndex];
         if (!actorGuid)
             continue;
 
@@ -169,7 +180,7 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
     for (uint16 actorIndex : actorIndices)
     {
         UF::ConversationActor const* actor = actorIndex < m_conversationData->Actors.size() ? &m_conversationData->Actors[actorIndex] : nullptr;
-        if (!actor || (!actor->CreatureID && actor->ActorGUID.IsEmpty()))
+        if (!actor || (!actor->CreatureID && actor->ActorGUID.IsEmpty() && !actor->NoActorObject))
         {
             TC_LOG_ERROR("entities.conversation", "Failed to create conversation (Id: %u) due to missing actor (Idx: %u).", conversationEntry, actorIndex);
             return false;
@@ -224,6 +235,32 @@ void Conversation::BuildValuesUpdate(ByteBuffer* data, Player const* target) con
         m_conversationData->WriteUpdate(*data, flags, this, target);
 
     data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
+}
+
+void Conversation::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
+    UF::ConversationData::Mask const& requestedConversationMask, Player const* target) const
+{
+    UpdateMask<NUM_CLIENT_OBJECT_TYPES> valuesMask;
+    if (requestedObjectMask.IsAnySet())
+        valuesMask.Set(TYPEID_OBJECT);
+
+    if (requestedConversationMask.IsAnySet())
+        valuesMask.Set(TYPEID_CONVERSATION);
+
+    ByteBuffer buffer = PrepareValuesUpdateBuffer();
+    std::size_t sizePos = buffer.wpos();
+    buffer << uint32(0);
+    buffer << uint32(valuesMask.GetBlock(0));
+
+    if (valuesMask[TYPEID_OBJECT])
+        m_objectData->WriteUpdate(buffer, requestedObjectMask, true, this, target);
+
+    if (valuesMask[TYPEID_CONVERSATION])
+        m_conversationData->WriteUpdate(buffer, requestedConversationMask, true, this, target);
+
+    buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
+
+    data->AddUpdateBlock(buffer);
 }
 
 void Conversation::ClearUpdateMask(bool remove)

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,10 +27,10 @@ namespace WorldPackets
 {
     namespace Azerite
     {
-        class AzeriteXpGain final : public ServerPacket
+        class PlayerAzeriteItemGains final : public ServerPacket
         {
         public:
-            AzeriteXpGain() : ServerPacket(SMSG_AZERITE_XP_GAIN, 16 + 8) { }
+            PlayerAzeriteItemGains() : ServerPacket(SMSG_PLAYER_AZERITE_ITEM_GAINS, 16 + 8) { }
 
             WorldPacket const* Write() override;
 
@@ -38,20 +38,20 @@ namespace WorldPackets
             uint64 XP = 0;
         };
 
-        class AzeriteEssenceForgeOpened final : public ServerPacket
+        class OpenHeartForge final : public ServerPacket
         {
         public:
-            AzeriteEssenceForgeOpened() : ServerPacket(SMSG_AZERITE_ESSENCE_FORGE_OPENED, 16) { }
+            OpenHeartForge() : ServerPacket(SMSG_OPEN_HEART_FORGE, 16) { }
 
             WorldPacket const* Write() override;
 
             ObjectGuid ForgeGUID;
         };
 
-        class AzeriteEssenceForgeClose final : public ServerPacket
+        class CloseHeartForge final : public ServerPacket
         {
         public:
-            AzeriteEssenceForgeClose() : ServerPacket(SMSG_AZERITE_ESSENCE_FORGE_CLOSE, 0) { }
+            CloseHeartForge() : ServerPacket(SMSG_CLOSE_HEART_FORGE, 0) { }
 
             WorldPacket const* Write() override { return &_worldPacket; }
         };
@@ -77,10 +77,10 @@ namespace WorldPackets
             uint8 Slot = 0;
         };
 
-        class AzeriteEssenceSelectionResult final : public ServerPacket
+        class ActivateEssenceFailed final : public ServerPacket
         {
         public:
-            AzeriteEssenceSelectionResult() : ServerPacket(SMSG_AZERITE_ESSENCE_SELECTION_RESULT, 0) { }
+            ActivateEssenceFailed() : ServerPacket(SMSG_ACTIVATE_ESSENCE_FAILED, 1 + 4 + 4 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -113,20 +113,20 @@ namespace WorldPackets
             uint8 Slot = 0;
         };
 
-        class TC_GAME_API AzeriteEmpoweredItemEquippedStatusChanged final : public ServerPacket
+        class TC_GAME_API PlayerAzeriteItemEquippedStatusChanged final : public ServerPacket
         {
         public:
-            AzeriteEmpoweredItemEquippedStatusChanged() : ServerPacket(SMSG_AZERITE_EMPOWERED_ITEM_EQUIPPED_STATUS_CHANGED, 1) { }
+            PlayerAzeriteItemEquippedStatusChanged() : ServerPacket(SMSG_PLAYER_AZERITE_ITEM_EQUIPPED_STATUS_CHANGED, 1) { }
 
             WorldPacket const* Write() override;
 
             bool IsHeartEquipped = false;
         };
 
-        class AzeriteEmpoweredItemRespecOpen final : public ServerPacket
+        class AzeriteRespecNPC final : public ServerPacket
         {
         public:
-            AzeriteEmpoweredItemRespecOpen(ObjectGuid npcGuid) : ServerPacket(SMSG_AZERITE_EMPOWERED_ITEM_RESPEC_OPEN, 1), NpcGUID(npcGuid) { }
+            AzeriteRespecNPC(ObjectGuid npcGuid) : ServerPacket(SMSG_AZERITE_RESPEC_NPC, 1), NpcGUID(npcGuid) { }
 
             WorldPacket const* Write() override;
 

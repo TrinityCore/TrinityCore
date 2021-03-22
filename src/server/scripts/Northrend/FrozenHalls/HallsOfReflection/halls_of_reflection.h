@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -221,10 +221,10 @@ class GameObjectDeleteDelayEvent : public BasicEvent
         ObjectGuid _gameObjectGUID;
 };
 
-template<typename AI>
-inline AI* GetHallsOfReflectionAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetHallsOfReflectionAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, HoRScriptName);
+    return GetInstanceAI<AI>(obj, HoRScriptName);
 }
 
 #endif // HALLS_OF_REFLECTION_H_

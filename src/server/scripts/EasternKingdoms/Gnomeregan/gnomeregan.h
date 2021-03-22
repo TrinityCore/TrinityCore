@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -50,10 +50,10 @@ enum GNOData64
     DATA_NPC_BASTMASTER_EMI_SHORTFUSE
 };
 
-template<typename AI>
-inline AI* GetGnomereganAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetGnomereganAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, GNOScriptName);
+    return GetInstanceAI<AI>(obj, GNOScriptName);
 }
 
 #endif

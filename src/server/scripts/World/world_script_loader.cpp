@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,7 +24,7 @@ void AddSC_conversation_scripts();
 void AddSC_emerald_dragons();
 void AddSC_generic_creature();
 void AddSC_go_scripts();
-void AddSC_guards();
+void AddSC_npc_guard();
 void AddSC_item_scripts();
 void AddSC_npc_professions();
 void AddSC_npc_innkeeper();
@@ -45,7 +45,7 @@ void AddWorldScripts()
     AddSC_emerald_dragons();
     AddSC_generic_creature();
     AddSC_go_scripts();
-    AddSC_guards();
+    AddSC_npc_guard();
     AddSC_item_scripts();
     AddSC_npc_professions();
     AddSC_npc_innkeeper();

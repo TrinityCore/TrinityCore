@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -83,7 +83,6 @@ namespace WorldPackets
             uint32 RequiredExpansion = 0;
             uint32 VignetteID = 0;
             int32 Class = 0;
-            float FadeRegionRadius = 0.0f;
             int32 WidgetSetID = 0;
             int32 WidgetSetUnitConditionID = 0;
             std::array<uint32, 2> Flags;
@@ -228,7 +227,7 @@ namespace WorldPackets
             uint32 Data[MAX_GAMEOBJECT_DATA];
             float Size = 0.0f;
             std::vector<int32> QuestItems;
-            uint32 RequiredLevel = 0;
+            uint32 ContentTuningId = 0;
         };
 
         class QueryGameObjectResponse final : public ServerPacket
@@ -239,6 +238,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint32 GameObjectID = 0;
+            ObjectGuid Guid;
             bool Allow = false;
             GameObjectStats Stats;
         };
@@ -317,7 +317,7 @@ namespace WorldPackets
             void Read() override;
 
             int32 MissingQuestCount = 0;
-            std::array<int32, 100> MissingQuestPOIs;
+            std::array<int32, 125> MissingQuestPOIs;
         };
 
         class QuestPOIQueryResponse final : public ServerPacket

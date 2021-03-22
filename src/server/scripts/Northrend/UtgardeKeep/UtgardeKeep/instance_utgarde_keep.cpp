@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,6 +20,7 @@
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "utgarde_keep.h"
+#include <sstream>
 
 DoorData const doorData[] =
 {
@@ -88,6 +89,8 @@ class instance_utgarde_keep : public InstanceMapScript
 
             void OnGameObjectCreate(GameObject* go) override
             {
+                InstanceScript::OnGameObjectCreate(go);
+
                 switch (go->GetEntry())
                 {
                     case GO_BELLOW_1:
@@ -125,23 +128,6 @@ class instance_utgarde_keep : public InstanceMapScript
                     case GO_GLOWING_ANVIL_3:
                         Forges[2].AnvilGUID = go->GetGUID();
                         HandleGameObject(ObjectGuid::Empty, Forges[2].Event != NOT_STARTED, go);
-                        break;
-                    case GO_GIANT_PORTCULLIS_1:
-                    case GO_GIANT_PORTCULLIS_2:
-                        AddDoor(go, true);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void OnGameObjectRemove(GameObject* go) override
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_GIANT_PORTCULLIS_1:
-                    case GO_GIANT_PORTCULLIS_2:
-                        AddDoor(go, false);
                         break;
                     default:
                         break;

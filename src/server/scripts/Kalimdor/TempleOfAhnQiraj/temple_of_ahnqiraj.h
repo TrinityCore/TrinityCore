@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -65,10 +64,10 @@ enum AQTCreatures
     NPC_VEKNILASH           = 15275
 };
 
-template<typename AI>
-inline AI* GetAQ40AI(Creature* creature)
+template <class AI, class T>
+inline AI* GetAQ40AI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, AQ40ScriptName);
+    return GetInstanceAI<AI>(obj, AQ40ScriptName);
 }
 
 #endif

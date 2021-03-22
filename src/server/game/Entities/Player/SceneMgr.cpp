@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -62,6 +62,7 @@ uint32 SceneMgr::PlaySceneByTemplate(SceneTemplate const* sceneTemplate, Positio
     playScene.SceneScriptPackageID = sceneTemplate->ScenePackageId;
     playScene.Location             = *position;
     playScene.TransportGUID        = GetPlayer()->GetTransGUID();
+    playScene.Encrypted            = sceneTemplate->Encrypted;
 
     GetPlayer()->SendDirectMessage(playScene.Write());
 
@@ -78,6 +79,7 @@ uint32 SceneMgr::PlaySceneByPackageId(uint32 sceneScriptPackageId, uint32 playba
     sceneTemplate.SceneId           = 0;
     sceneTemplate.ScenePackageId    = sceneScriptPackageId;
     sceneTemplate.PlaybackFlags     = playbackflags;
+    sceneTemplate.Encrypted         = false;
     sceneTemplate.ScriptId          = 0;
 
     return PlaySceneByTemplate(&sceneTemplate, position);

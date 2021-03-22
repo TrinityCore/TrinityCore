@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -118,15 +118,6 @@ struct LFGuildPlayer
             _level = level;
         }
 
-        LFGuildPlayer(LFGuildPlayer const& settings) : _comment(settings.GetComment())
-        {
-            _guid = settings.GetGUID();
-            _roles = settings.GetClassRoles();
-            _availability = settings.GetAvailability();
-            _interests = settings.GetInterests();
-            _level = settings.GetLevel();
-        }
-
         ObjectGuid const& GetGUID() const         { return _guid; }
         uint8 GetClassRoles() const    { return _roles; }
         uint8 GetAvailability() const  { return _availability; }
@@ -156,9 +147,6 @@ struct LFGuildSettings : public LFGuildPlayer
 
         LFGuildSettings(bool listed, TeamId team, ObjectGuid const& guid, uint8 role, uint8 availability, uint8 interests, uint8 level, std::string& comment) :
             LFGuildPlayer(guid, role, availability, interests, level, comment), _listed(listed), _team(team) {}
-
-        LFGuildSettings(LFGuildSettings const& settings) :
-            LFGuildPlayer(settings), _listed(settings.IsListed()), _team(settings.GetTeam()) {}
 
         bool IsListed() const      { return _listed; }
         void SetListed(bool state) { _listed = state; }

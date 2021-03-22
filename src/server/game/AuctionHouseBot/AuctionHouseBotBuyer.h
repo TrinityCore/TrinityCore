@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -86,10 +86,10 @@ private:
     void LoadBuyerValues(BuyerConfiguration& config);
 
     // ahInfo can be NULL
-    bool RollBuyChance(const BuyerItemInfo* ahInfo, const Item* item, const AuctionEntry* auction, uint32 bidPrice);
-    bool RollBidChance(const BuyerItemInfo* ahInfo, const Item* item, const AuctionEntry* auction, uint32 bidPrice);
-    void PlaceBidToEntry(AuctionEntry* auction, uint32 bidPrice);
-    void BuyEntry(AuctionEntry* auction, AuctionHouseObject* auctionHouse);
+    bool RollBuyChance(BuyerItemInfo const* ahInfo, AuctionPosting const* auction);
+    bool RollBidChance(BuyerItemInfo const* ahInfo, AuctionPosting const* auction, uint32 bidPrice);
+    void PlaceBidToEntry(AuctionPosting* auction, AuctionHouseObject* auctionHouse, uint32 bidPrice);
+    void BuyEntry(AuctionPosting* auction, AuctionHouseObject* auctionHouse);
     void PrepareListOfEntry(BuyerConfiguration& config);
     uint32 GetItemInformation(BuyerConfiguration& config);
     uint32 GetVendorPrice(uint32 quality);

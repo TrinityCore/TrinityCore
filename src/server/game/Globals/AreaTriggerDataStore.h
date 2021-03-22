@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,16 +19,23 @@
 #define AreaTriggerDataStore_h__
 
 #include "Define.h"
+#include "ObjectGuid.h"
+#include <set>
 
 class AreaTriggerTemplate;
 class AreaTriggerMiscTemplate;
+struct AreaTriggerId;
+struct AreaTriggerSpawn;
 
 class TC_GAME_API AreaTriggerDataStore
 {
 public:
     void LoadAreaTriggerTemplates();
+    void LoadAreaTriggerSpawns();
 
-    AreaTriggerTemplate const* GetAreaTriggerTemplate(uint32 areaTriggerId) const;
+    std::set<ObjectGuid::LowType> const* GetAreaTriggersForMapAndCell(uint32 mapId, uint32 cellId) const;
+    AreaTriggerSpawn const* GetAreaTriggerSpawn(ObjectGuid::LowType spawnId) const;
+    AreaTriggerTemplate const* GetAreaTriggerTemplate(AreaTriggerId const& areaTriggerId) const;
     AreaTriggerMiscTemplate const* GetAreaTriggerMiscTemplate(uint32 spellMiscValue) const;
 
     static AreaTriggerDataStore* Instance();

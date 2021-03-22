@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -26,14 +26,14 @@
 class TC_DATABASE_API BasicStatementTask : public SQLOperation
 {
     public:
-        BasicStatementTask(const char* sql, bool async = false);
+        BasicStatementTask(char const* sql, bool async = false);
         ~BasicStatementTask();
 
         bool Execute() override;
         QueryResultFuture GetFuture() const { return m_result->get_future(); }
 
     private:
-        const char* m_sql;      //- Raw query to be executed
+        char const* m_sql;      //- Raw query to be executed
         bool m_has_result;
         QueryResultPromise* m_result;
 };

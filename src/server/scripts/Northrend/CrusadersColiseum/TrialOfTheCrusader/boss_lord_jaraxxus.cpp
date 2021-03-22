@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2010 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -100,7 +99,7 @@ class boss_jaraxxus : public CreatureScript
 
         struct boss_jaraxxusAI : public BossAI
         {
-            boss_jaraxxusAI(Creature* creature) : BossAI(creature, BOSS_JARAXXUS) { }
+            boss_jaraxxusAI(Creature* creature) : BossAI(creature, DATA_JARAXXUS) { }
 
             void Reset() override
             {
@@ -117,9 +116,10 @@ class boss_jaraxxus : public CreatureScript
             void JustReachedHome() override
             {
                 _JustReachedHome();
-                instance->SetBossState(BOSS_JARAXXUS, FAIL);
+                instance->SetBossState(DATA_JARAXXUS, FAIL);
                 DoCast(me, SPELL_JARAXXUS_CHAINS);
-                me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC));
+                me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                me->SetImmuneToPC(true);
             }
 
             void KilledUnit(Unit* who) override
@@ -159,12 +159,12 @@ class boss_jaraxxus : public CreatureScript
                             events.ScheduleEvent(EVENT_FEL_FIREBALL, urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS));
                             return;
                         case EVENT_FEL_LIGHTNING:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, -SPELL_LORD_HITTIN))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, true, -SPELL_LORD_HITTIN))
                                 DoCast(target, SPELL_FEL_LIGHTING);
                             events.ScheduleEvent(EVENT_FEL_LIGHTNING, urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS));
                             return;
                         case EVENT_INCINERATE_FLESH:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_LORD_HITTIN))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, true, -SPELL_LORD_HITTIN))
                             {
                                 Talk(EMOTE_INCINERATE, target);
                                 Talk(SAY_INCINERATE);
@@ -177,7 +177,7 @@ class boss_jaraxxus : public CreatureScript
                             events.ScheduleEvent(EVENT_NETHER_POWER, 40*IN_MILLISECONDS);
                             return;
                         case EVENT_LEGION_FLAME:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_LORD_HITTIN))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, true, -SPELL_LORD_HITTIN))
                             {
                                 Talk(EMOTE_LEGION_FLAME, target);
                                 DoCast(target, SPELL_LEGION_FLAME);
@@ -235,7 +235,7 @@ class npc_legion_flame : public CreatureScript
             void UpdateAI(uint32 /*diff*/) override
             {
                 UpdateVictim();
-                if (_instance->GetBossState(BOSS_JARAXXUS) != IN_PROGRESS)
+                if (_instance->GetBossState(DATA_JARAXXUS) != IN_PROGRESS)
                     me->DespawnOrUnsummon();
             }
             private:
@@ -298,7 +298,7 @@ class npc_infernal_volcano : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return new npc_infernal_volcanoAI(creature);
+            return GetTrialOfTheCrusaderAI<npc_infernal_volcanoAI>(creature);
         }
 };
 
@@ -327,7 +327,7 @@ class npc_fel_infernal : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (_instance->GetBossState(BOSS_JARAXXUS) != IN_PROGRESS)
+                if (_instance->GetBossState(DATA_JARAXXUS) != IN_PROGRESS)
                 {
                     me->DespawnOrUnsummon();
                     return;
@@ -435,7 +435,7 @@ class npc_mistress_of_pain : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (_instance->GetBossState(BOSS_JARAXXUS) != IN_PROGRESS)
+                if (_instance->GetBossState(DATA_JARAXXUS) != IN_PROGRESS)
                 {
                     me->DespawnOrUnsummon();
                     return;

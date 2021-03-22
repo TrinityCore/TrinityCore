@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,6 +21,17 @@
 PassiveAI::PassiveAI(Creature* c) : CreatureAI(c) { me->SetReactState(REACT_PASSIVE); }
 PossessedAI::PossessedAI(Creature* c) : CreatureAI(c) { me->SetReactState(REACT_PASSIVE); }
 NullCreatureAI::NullCreatureAI(Creature* c) : CreatureAI(c) { me->SetReactState(REACT_PASSIVE); }
+
+int32 NullCreatureAI::Permissible(Creature const* creature)
+{
+    if (creature->HasNpcFlag(UNIT_NPC_FLAG_SPELLCLICK))
+        return PERMIT_BASE_PROACTIVE + 50;
+
+    if (creature->IsTrigger())
+        return PERMIT_BASE_PROACTIVE;
+
+    return PERMIT_BASE_IDLE;
+}
 
 void PassiveAI::UpdateAI(uint32)
 {
@@ -77,8 +87,24 @@ void CritterAI::EnterEvadeMode(EvadeReason why)
     CreatureAI::EnterEvadeMode(why);
 }
 
+int32 CritterAI::Permissible(Creature const* creature)
+{
+    if (creature->IsCritter() && !creature->HasUnitTypeMask(UNIT_MASK_GUARDIAN))
+        return PERMIT_BASE_PROACTIVE;
+
+    return PERMIT_BASE_NO;
+}
+
 void TriggerAI::IsSummonedBy(Unit* summoner)
 {
     if (me->m_spells[0])
         me->CastSpell(me, me->m_spells[0], false, nullptr, nullptr, summoner->GetGUID());
+}
+
+int32 TriggerAI::Permissible(Creature const* creature)
+{
+    if (creature->IsTrigger() && creature->m_spells[0])
+        return PERMIT_BASE_SPECIAL;
+
+    return PERMIT_BASE_NO;
 }

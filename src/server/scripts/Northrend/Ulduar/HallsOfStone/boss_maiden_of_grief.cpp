@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -115,7 +115,7 @@ class boss_maiden_of_grief : public CreatureScript
                             events.ScheduleEvent(EVENT_STORM_OF_GRIEF, urand(15000, 20000));
                             break;
                         case EVENT_SHOCK_OF_SORROW:
-                            DoResetThreat();
+                            ResetThreatList();
                             Talk(SAY_STUN);
                             DoCastAOE(SPELL_SHOCK_OF_SORROW);
                             events.ScheduleEvent(EVENT_SHOCK_OF_SORROW, urand(20000, 30000));

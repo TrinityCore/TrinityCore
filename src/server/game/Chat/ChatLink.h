@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -113,7 +113,7 @@ protected:
 class TC_GAME_API AchievementChatLink : public ChatLink
 {
 public:
-    AchievementChatLink() : ChatLink(), _guid(0), _achievement(NULL)
+    AchievementChatLink() : ChatLink(), _guid(0), _achievement(nullptr)
     {
         memset(_data, 0, sizeof(_data));
     }
@@ -163,7 +163,7 @@ public:
 class TC_GAME_API GlyphChatLink : public SpellChatLink
 {
 public:
-    GlyphChatLink() : SpellChatLink(), _slotId(0), _glyph(NULL) { }
+    GlyphChatLink() : SpellChatLink(), _slotId(0), _glyph(nullptr) { }
     virtual bool Initialize(std::istringstream& iss) override;
 private:
     uint32 _slotId;

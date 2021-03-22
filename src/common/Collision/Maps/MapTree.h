@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -33,9 +32,10 @@ namespace VMAP
 
     struct TC_COMMON_API LocationInfo
     {
-        LocationInfo(): hitInstance(nullptr), hitModel(nullptr), ground_Z(-G3D::finf()) { }
-        const ModelInstance* hitInstance;
-        const GroupModel* hitModel;
+        LocationInfo(): rootId(-1), hitInstance(nullptr), hitModel(nullptr), ground_Z(-G3D::finf()) { }
+        int32 rootId;
+        ModelInstance const* hitInstance;
+        GroupModel const* hitModel;
         float ground_Z;
     };
 
@@ -61,8 +61,9 @@ namespace VMAP
 
             struct TileFileOpenResult
             {
-                FILE* File;
                 std::string Name;
+                FILE* File;
+                int32 UsedMapId;
             };
 
         private:
@@ -84,9 +85,9 @@ namespace VMAP
             bool getAreaInfo(G3D::Vector3 &pos, uint32 &flags, int32 &adtId, int32 &rootId, int32 &groupId) const;
             bool GetLocationInfo(const G3D::Vector3 &pos, LocationInfo &info) const;
 
-            bool InitMap(std::string const& fname);
+            LoadResult InitMap(std::string const& fname);
             void UnloadMap(VMapManager2* vm);
-            bool LoadMapTile(uint32 tileX, uint32 tileY, VMapManager2* vm);
+            LoadResult LoadMapTile(uint32 tileX, uint32 tileY, VMapManager2* vm);
             void UnloadMapTile(uint32 tileX, uint32 tileY, VMapManager2* vm);
             uint32 numLoadedTiles() const { return uint32(iLoadedTiles.size()); }
             void getModelInstances(ModelInstance* &models, uint32 &count);

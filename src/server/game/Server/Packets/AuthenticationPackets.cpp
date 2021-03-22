@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,10 +18,10 @@
 #include "AuthenticationPackets.h"
 #include "BigNumber.h"
 #include "CharacterTemplateDataStore.h"
-#include "HmacHash.h"
+#include "CryptoHash.h"
+#include "HMAC.h"
 #include "ObjectMgr.h"
 #include "RSA.h"
-#include "SHA256.h"
 #include "Util.h"
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Auth::VirtualRealmNameInfo const& virtualRealmInfo)
@@ -109,11 +109,6 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Auth::AuthWaitInfo const&
     return data;
 }
 
-WorldPackets::Auth::AuthResponse::AuthResponse()
-    : ServerPacket(SMSG_AUTH_RESPONSE, 132)
-{
-}
-
 WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
 {
     _worldPacket << uint32(Result);
@@ -134,10 +129,17 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
         _worldPacket << uint32(SuccessInfo->CurrencyID);
         _worldPacket << int32(SuccessInfo->Time);
 
-        for (auto const& klass : *SuccessInfo->AvailableClasses)
+        for (RaceClassAvailability const& raceClassAvailability : *SuccessInfo->AvailableClasses)
         {
-            _worldPacket << uint8(klass.first); /// the current class
-            _worldPacket << uint8(klass.second); /// the required Expansion
+            _worldPacket << uint8(raceClassAvailability.RaceID);
+            _worldPacket << uint32(raceClassAvailability.Classes.size());
+
+            for (ClassAvailability const& classAvailability : raceClassAvailability.Classes)
+            {
+                _worldPacket << uint8(classAvailability.ClassID);
+                _worldPacket << uint8(classAvailability.ActiveExpansionLevel);
+                _worldPacket << uint8(classAvailability.AccountExpansionLevel);
+            }
         }
 
         _worldPacket.WriteBit(SuccessInfo->IsExpansionTrial);
@@ -148,13 +150,13 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
         _worldPacket.FlushBits();
 
         {
-            _worldPacket << uint32(SuccessInfo->Billing.BillingPlan);
-            _worldPacket << uint32(SuccessInfo->Billing.TimeRemain);
-            _worldPacket << uint32(SuccessInfo->Billing.Unknown735);
+            _worldPacket << uint32(SuccessInfo->GameTimeInfo.BillingPlan);
+            _worldPacket << uint32(SuccessInfo->GameTimeInfo.TimeRemain);
+            _worldPacket << uint32(SuccessInfo->GameTimeInfo.Unknown735);
             // 3x same bit is not a mistake - preserves legacy client behavior of BillingPlanFlags::SESSION_IGR
-            _worldPacket.WriteBit(SuccessInfo->Billing.InGameRoom); // inGameRoom check in function checking which lua event to fire when remaining time is near end - BILLING_NAG_DIALOG vs IGR_BILLING_NAG_DIALOG
-            _worldPacket.WriteBit(SuccessInfo->Billing.InGameRoom); // inGameRoom lua return from Script_GetBillingPlan
-            _worldPacket.WriteBit(SuccessInfo->Billing.InGameRoom); // not used anywhere in the client
+            _worldPacket.WriteBit(SuccessInfo->GameTimeInfo.InGameRoom); // inGameRoom check in function checking which lua event to fire when remaining time is near end - BILLING_NAG_DIALOG vs IGR_BILLING_NAG_DIALOG
+            _worldPacket.WriteBit(SuccessInfo->GameTimeInfo.InGameRoom); // inGameRoom lua return from Script_GetBillingPlan
+            _worldPacket.WriteBit(SuccessInfo->GameTimeInfo.InGameRoom); // not used anywhere in the client
             _worldPacket.FlushBits();
         }
 
@@ -238,7 +240,7 @@ std::unique_ptr<Trinity::Crypto::RSA> ConnectToRSA;
 
 bool WorldPackets::Auth::ConnectTo::InitializeEncryption()
 {
-    std::unique_ptr<Trinity::Crypto::RSA> rsa = Trinity::make_unique<Trinity::Crypto::RSA>();
+    std::unique_ptr<Trinity::Crypto::RSA> rsa = std::make_unique<Trinity::Crypto::RSA>();
     if (!rsa->LoadFromString(RSAPrivateKey, Trinity::Crypto::RSA::PrivateKey{}))
         return false;
 
@@ -270,13 +272,13 @@ WorldPacket const* WorldPackets::Auth::ConnectTo::Write()
     }
 
     uint32 type = Payload.Where.Type;
-    SHA256Hash hash;
+    Trinity::Crypto::SHA256 hash;
     hash.UpdateData(whereBuffer.contents(), whereBuffer.size());
     hash.UpdateData(reinterpret_cast<uint8 const*>(&type), 4);
     hash.UpdateData(reinterpret_cast<uint8 const*>(&Payload.Port), 2);
     hash.Finalize();
 
-    ConnectToRSA->Sign(hash.GetDigest(), hash.GetLength(), Payload.Signature.data(), Trinity::Crypto::RSA::SHA256{});
+    ConnectToRSA->Sign(hash.GetDigest(), Payload.Signature.data(), Trinity::Crypto::RSA::SHA256{});
 
     _worldPacket.append(Payload.Signature.data(), Payload.Signature.size());
     _worldPacket.append(whereBuffer);
@@ -304,16 +306,16 @@ void WorldPackets::Auth::ConnectToFailed::Read()
 
 uint8 constexpr EnableEncryptionSeed[16] = { 0x90, 0x9C, 0xD0, 0x50, 0x5A, 0x2C, 0x14, 0xDD, 0x5C, 0x2C, 0xC0, 0x64, 0x14, 0xF3, 0xFE, 0xC9 };
 
-WorldPacket const* WorldPackets::Auth::EnableEncryption::Write()
+WorldPacket const* WorldPackets::Auth::EnterEncryptedMode::Write()
 {
-    HmacSha256 hash(16, EncryptionKey);
+    Trinity::Crypto::HMAC_SHA256 hash(EncryptionKey, 16);
     hash.UpdateData(reinterpret_cast<uint8 const*>(&Enabled), 1);
     hash.UpdateData(EnableEncryptionSeed, 16);
     hash.Finalize();
 
     _worldPacket.resize(_worldPacket.size() + ConnectToRSA->GetOutputSize());
 
-    ConnectToRSA->Sign(hash.GetDigest(), hash.GetLength(), _worldPacket.contents(), Trinity::Crypto::RSA::SHA256{});
+    ConnectToRSA->Sign(hash.GetDigest(), _worldPacket.contents(), Trinity::Crypto::RSA::SHA256{});
 
     _worldPacket.WriteBit(Enabled);
     _worldPacket.FlushBits();

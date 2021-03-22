@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -62,7 +62,7 @@ TC_COMMON_API std::shared_ptr<AsyncProcessResult>
                       bool secure = false);
 
 /// Searches for the given executable in the PATH variable
-/// and returns a present optional when it was found.
+/// and returns a non-empty string when it was found.
 TC_COMMON_API std::string SearchExecutableInPath(std::string const& filename);
 
 } // namespace Trinity

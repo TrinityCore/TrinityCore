@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -51,10 +51,10 @@ enum HOLGameObjectIds
     GO_LOKEN_THRONE         = 192654
 };
 
-template<typename AI>
-inline AI* GetHallsOfLightningAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetHallsOfLightningAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, HoLScriptName);
+    return GetInstanceAI<AI>(obj, HoLScriptName);
 }
 
 #endif // HALLS_OF_LIGHTNING_H_

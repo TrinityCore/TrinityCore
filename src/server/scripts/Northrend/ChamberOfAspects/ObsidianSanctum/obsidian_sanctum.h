@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -48,10 +48,10 @@ enum OSGameObjectIds
     GO_TWILIGHT_PORTAL          = 193988
 };
 
-template<typename AI>
-inline AI* GetObsidianSanctumAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetObsidianSanctumAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, OSScriptName);
+    return GetInstanceAI<AI>(obj, OSScriptName);
 }
 
 #endif // OBSIDIAN_SANCTUM_H_

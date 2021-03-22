@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,7 +20,6 @@
 #include "MotionMaster.h"
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
-#include "SpellInfo.h"
 #include "SpellScript.h"
 #include "violet_hold.h"
 
@@ -243,7 +242,7 @@ class npc_ichor_globule : public CreatureScript
 
         struct npc_ichor_globuleAI : public ScriptedAI
         {
-            npc_ichor_globuleAI(Creature* creature) : ScriptedAI(creature)
+            npc_ichor_globuleAI(Creature* creature) : ScriptedAI(creature), _splashTriggered(false)
             {
                 _instance = creature->GetInstanceScript();
                 creature->SetReactState(REACT_PASSIVE);
@@ -275,14 +274,21 @@ class npc_ichor_globule : public CreatureScript
             // this feature should be still implemented
             void DamageTaken(Unit* /*attacker*/, uint32& damage) override
             {
+                if (_splashTriggered)
+                    return;
+
                 if (damage >= me->GetHealth())
+                {
+                    _splashTriggered = true;
                     DoCastAOE(SPELL_SPLASH);
+                }
             }
 
             void UpdateAI(uint32 /*diff*/) override { }
 
         private:
             InstanceScript* _instance;
+            bool _splashTriggered;
         };
 
         CreatureAI* GetAI(Creature* creature) const override

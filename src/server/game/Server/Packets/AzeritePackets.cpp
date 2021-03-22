@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,7 +18,7 @@
 #include "AzeritePackets.h"
 #include "Util.h"
 
-WorldPacket const* WorldPackets::Azerite::AzeriteXpGain::Write()
+WorldPacket const* WorldPackets::Azerite::PlayerAzeriteItemGains::Write()
 {
     _worldPacket << ItemGUID;
     _worldPacket << uint64(XP);
@@ -26,7 +26,7 @@ WorldPacket const* WorldPackets::Azerite::AzeriteXpGain::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Azerite::AzeriteEssenceForgeOpened::Write()
+WorldPacket const* WorldPackets::Azerite::OpenHeartForge::Write()
 {
     _worldPacket << ForgeGUID;
 
@@ -44,7 +44,7 @@ void WorldPackets::Azerite::AzeriteEssenceActivateEssence::Read()
     _worldPacket >> Slot;
 }
 
-WorldPacket const* WorldPackets::Azerite::AzeriteEssenceSelectionResult::Write()
+WorldPacket const* WorldPackets::Azerite::ActivateEssenceFailed::Write()
 {
     _worldPacket.WriteBits(AsUnderlyingType(Reason), 4);
     _worldPacket.WriteBit(Slot.is_initialized());
@@ -69,7 +69,7 @@ void WorldPackets::Azerite::AzeriteEmpoweredItemSelectPower::Read()
     _worldPacket >> Slot;
 }
 
-WorldPacket const* WorldPackets::Azerite::AzeriteEmpoweredItemEquippedStatusChanged::Write()
+WorldPacket const* WorldPackets::Azerite::PlayerAzeriteItemEquippedStatusChanged::Write()
 {
     _worldPacket.WriteBit(IsHeartEquipped);
     _worldPacket.FlushBits();
@@ -77,7 +77,7 @@ WorldPacket const* WorldPackets::Azerite::AzeriteEmpoweredItemEquippedStatusChan
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Azerite::AzeriteEmpoweredItemRespecOpen::Write()
+WorldPacket const* WorldPackets::Azerite::AzeriteRespecNPC::Write()
 {
     _worldPacket << NpcGUID;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -79,7 +79,7 @@ public:
                 work = true;
         }
 
-        void SpellHit(Unit* caster, const SpellInfo* spell) override
+        void SpellHit(Unit* caster, SpellInfo const* spell) override
         {
             if (spell->Id != SPELL_AWAKEN_PEON)
                 return;
@@ -136,16 +136,7 @@ class spell_voodoo : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
-                return ValidateSpellInfo(
-                {
-                    SPELL_BREW,
-                    SPELL_GHOSTLY,
-                    SPELL_HEX1,
-                    SPELL_HEX2,
-                    SPELL_HEX3,
-                    SPELL_GROW,
-                    SPELL_LAUNCH
-                });
+                return ValidateSpellInfo({ SPELL_BREW, SPELL_GHOSTLY, SPELL_HEX1, SPELL_HEX2, SPELL_HEX3, SPELL_GROW, SPELL_LAUNCH });
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)

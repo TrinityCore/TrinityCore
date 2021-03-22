@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -97,6 +97,7 @@ enum WorldDatabaseStatements : uint32
     WORLD_DEL_DISABLES,
     WORLD_UPD_CREATURE_ZONE_AREA_DATA,
     WORLD_UPD_GAMEOBJECT_ZONE_AREA_DATA,
+    WORLD_DEL_SPAWNGROUP_MEMBER,
     WORLD_SEL_GUILD_REWARDS_REQ_ACHIEVEMENTS,
 
     MAX_WORLDDATABASE_STATEMENTS

@@ -15,7 +15,7 @@
 //-----------------------------------------------------------------------------
 // Public functions
 
-bool DirectoryExists(const TCHAR * szDirectory)
+bool DirectoryExists(LPCTSTR szDirectory)
 {
 #ifdef PLATFORM_WINDOWS
 
@@ -38,7 +38,7 @@ bool DirectoryExists(const TCHAR * szDirectory)
     return false;
 }
 
-bool MakeDirectory(const TCHAR * szDirectory)
+bool MakeDirectory(LPCTSTR szDirectory)
 {
 #ifdef PLATFORM_WINDOWS
 
@@ -60,7 +60,7 @@ int ScanIndexDirectory(
 #ifdef PLATFORM_WINDOWS
 
     WIN32_FIND_DATA wf;
-    TCHAR * szSearchMask;
+    LPTSTR szSearchMask;
     HANDLE hFind;
 
     // Prepare the search mask

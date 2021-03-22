@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,8 +23,9 @@
 #include "Util.h"
 #include "Object.h"
 #include "SpellAuraDefines.h"
-
+#include "SpellDefines.h"
 #include <boost/container/flat_set.hpp>
+#include <bitset>
 
 class Unit;
 class Player;
@@ -123,7 +124,10 @@ enum SpellTargetCheckTypes : uint8
     TARGET_CHECK_PARTY,
     TARGET_CHECK_RAID,
     TARGET_CHECK_RAID_CLASS,
-    TARGET_CHECK_PASSENGER
+    TARGET_CHECK_PASSENGER,
+    TARGET_CHECK_SUMMONED,
+    TARGET_CHECK_THREAT,
+    TARGET_CHECK_TAP
 };
 
 enum SpellTargetDirectionTypes
@@ -190,9 +194,9 @@ enum SpellCustomAttributes
     SPELL_ATTR0_CU_DIRECT_DAMAGE                 = 0x00000100,
     SPELL_ATTR0_CU_CHARGE                        = 0x00000200,
     SPELL_ATTR0_CU_PICKPOCKET                    = 0x00000400,
-    SPELL_ATTR0_CU_NEGATIVE_EFF0                 = 0x00001000,
-    SPELL_ATTR0_CU_NEGATIVE_EFF1                 = 0x00002000,
-    SPELL_ATTR0_CU_NEGATIVE_EFF2                 = 0x00004000,
+    SPELL_ATTR0_CU_DEPRECATED_NEGATIVE_EFF0      = 0x00001000, // DO NOT REUSE
+    SPELL_ATTR0_CU_DEPRECATED_NEGATIVE_EFF1      = 0x00002000, // DO NOT REUSE
+    SPELL_ATTR0_CU_DEPRECATED_NEGATIVE_EFF2      = 0x00004000, // DO NOT REUSE
     SPELL_ATTR0_CU_IGNORE_ARMOR                  = 0x00008000,
     SPELL_ATTR0_CU_REQ_TARGET_FACING_CASTER      = 0x00010000,
     SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET      = 0x00020000,
@@ -202,77 +206,7 @@ enum SpellCustomAttributes
     SPELL_ATTR0_CU_SCHOOLMASK_NORMAL_WITH_MAGIC  = 0x00200000,
     SPELL_ATTR0_CU_LIQUID_AURA                   = 0x00400000,
     SPELL_ATTR0_CU_IS_TALENT                     = 0x00800000,
-
-    SPELL_ATTR0_CU_NEGATIVE                      = SPELL_ATTR0_CU_NEGATIVE_EFF0 | SPELL_ATTR0_CU_NEGATIVE_EFF1 | SPELL_ATTR0_CU_NEGATIVE_EFF2
-};
-
-enum SpellInterruptFlags : uint32
-{
-    SPELL_INTERRUPT_FLAG_MOVEMENT     = 0x01, // why need this for instant?
-    SPELL_INTERRUPT_FLAG_PUSH_BACK    = 0x02, // push back
-    SPELL_INTERRUPT_FLAG_UNK3         = 0x04, // any info?
-    SPELL_INTERRUPT_FLAG_INTERRUPT    = 0x08, // interrupt
-    SPELL_INTERRUPT_FLAG_ABORT_ON_DMG = 0x10  // _complete_ interrupt on direct damage
-    //SPELL_INTERRUPT_UNK             = 0x20                // unk, 564 of 727 spells having this spell start with "Glyph"
-};
-
-// See SpellAuraInterruptFlags for other values definitions
-enum SpellChannelInterruptFlags : uint32
-{
-    CHANNEL_INTERRUPT_FLAG_INTERRUPT    = 0x08,  // interrupt
-    CHANNEL_FLAG_DELAY                  = 0x4000
-};
-
-enum SpellAuraInterruptFlags : uint32
-{
-    AURA_INTERRUPT_FLAG_HITBYSPELL          = 0x00000001,   // 0    removed when getting hit by a negative spell?
-    AURA_INTERRUPT_FLAG_TAKE_DAMAGE         = 0x00000002,   // 1    removed by any damage
-    AURA_INTERRUPT_FLAG_CAST                = 0x00000004,   // 2    cast any spells
-    AURA_INTERRUPT_FLAG_MOVE                = 0x00000008,   // 3    removed by any movement
-    AURA_INTERRUPT_FLAG_TURNING             = 0x00000010,   // 4    removed by any turning
-    AURA_INTERRUPT_FLAG_JUMP                = 0x00000020,   // 5    removed by jumping
-    AURA_INTERRUPT_FLAG_NOT_MOUNTED         = 0x00000040,   // 6    removed by dismounting
-    AURA_INTERRUPT_FLAG_NOT_ABOVEWATER      = 0x00000080,   // 7    removed by entering water
-    AURA_INTERRUPT_FLAG_NOT_UNDERWATER      = 0x00000100,   // 8    removed by leaving water
-    AURA_INTERRUPT_FLAG_NOT_SHEATHED        = 0x00000200,   // 9    removed by unsheathing
-    AURA_INTERRUPT_FLAG_TALK                = 0x00000400,   // 10   talk to npc / loot? action on creature
-    AURA_INTERRUPT_FLAG_USE                 = 0x00000800,   // 11   mine/use/open action on gameobject
-    AURA_INTERRUPT_FLAG_MELEE_ATTACK        = 0x00001000,   // 12   removed by attacking
-    AURA_INTERRUPT_FLAG_SPELL_ATTACK        = 0x00002000,   // 13   ???
-    AURA_INTERRUPT_FLAG_UNK14               = 0x00004000,   // 14
-    AURA_INTERRUPT_FLAG_TRANSFORM           = 0x00008000,   // 15   removed by transform?
-    AURA_INTERRUPT_FLAG_UNK16               = 0x00010000,   // 16
-    AURA_INTERRUPT_FLAG_MOUNT               = 0x00020000,   // 17   misdirect, aspect, swim speed
-    AURA_INTERRUPT_FLAG_NOT_SEATED          = 0x00040000,   // 18   removed by standing up (used by food and drink mostly and sleep/Fake Death like)
-    AURA_INTERRUPT_FLAG_CHANGE_MAP          = 0x00080000,   // 19   leaving map/getting teleported
-    AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION    = 0x00100000,   // 20   removed by auras that make you invulnerable, or make other to lose selection on you
-    AURA_INTERRUPT_FLAG_UNK21               = 0x00200000,   // 21
-    AURA_INTERRUPT_FLAG_TELEPORTED          = 0x00400000,   // 22
-    AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT    = 0x00800000,   // 23   removed by entering pvp combat
-    AURA_INTERRUPT_FLAG_DIRECT_DAMAGE       = 0x01000000,   // 24   removed by any direct damage
-    AURA_INTERRUPT_FLAG_LANDING             = 0x02000000,   // 25   removed by hitting the ground
-    AURA_INTERRUPT_FLAG_LEAVE_COMBAT        = 0x80000000,   // 31   removed by leaving combat
-
-    AURA_INTERRUPT_FLAG_NOT_VICTIM = (AURA_INTERRUPT_FLAG_HITBYSPELL | AURA_INTERRUPT_FLAG_TAKE_DAMAGE | AURA_INTERRUPT_FLAG_DIRECT_DAMAGE)
-};
-
-enum SpellAuraInterruptFlags2 : uint32
-{
-};
-
-template <typename InterruptFlag>
-struct AuraInterruptFlagIndex {};
-
-template <>
-struct AuraInterruptFlagIndex<SpellAuraInterruptFlags>
-{
-    static std::size_t constexpr value = 0;
-};
-
-template <>
-struct AuraInterruptFlagIndex<SpellAuraInterruptFlags2>
-{
-    static std::size_t constexpr value = 1;
+    SPELL_ATTR0_CU_AURA_CANNOT_BE_SAVED          = 0x01000000,
 };
 
 uint32 GetTargetFlagMask(SpellTargetObjectTypes objType);
@@ -332,8 +266,8 @@ public:
     uint32    Effect;
     uint32    ApplyAuraName;
     uint32    ApplyAuraPeriod;
-    float     RealPointsPerLevel;
     int32     BasePoints;
+    float     RealPointsPerLevel;
     float     PointsPerResource;
     float     Amplitude;
     float     ChainAmplitude;
@@ -352,6 +286,7 @@ public:
     flag128   SpellClassMask;
     float     BonusCoefficientFromAP;
     std::vector<Condition*>* ImplicitTargetConditions;
+    EnumFlag<SpellEffectAttributes> EffectAttributes;
     // SpellScalingEntry
     struct ScalingInfo
     {
@@ -360,11 +295,13 @@ public:
         float ResourceCoefficient;
     } Scaling;
 
-    SpellEffectInfo() : _spellInfo(NULL), EffectIndex(0), Effect(0), ApplyAuraName(0), ApplyAuraPeriod(0),
-                        RealPointsPerLevel(0), BasePoints(0), PointsPerResource(0), Amplitude(0), ChainAmplitude(0),
+    SpellEffectInfo() : _spellInfo(nullptr), EffectIndex(0), Effect(0), ApplyAuraName(0), ApplyAuraPeriod(0),
+                        BasePoints(0), RealPointsPerLevel(0), PointsPerResource(0), Amplitude(0), ChainAmplitude(0),
                         BonusCoefficient(0), MiscValue(0), MiscValueB(0), Mechanic(MECHANIC_NONE), PositionFacing(0),
-                        RadiusEntry(NULL), ChainTargets(0), ItemType(0), TriggerSpell(0), BonusCoefficientFromAP(0.0f), ImplicitTargetConditions(NULL) { }
-    SpellEffectInfo(SpellInfo const* spellInfo, uint8 effIndex, SpellEffectEntry const* effect);
+                        RadiusEntry(nullptr), MaxRadiusEntry(nullptr), ChainTargets(0), ItemType(0), TriggerSpell(0),
+                        BonusCoefficientFromAP(0.0f), ImplicitTargetConditions(nullptr),
+                        EffectAttributes(SpellEffectAttributes::None), Scaling() { }
+    SpellEffectInfo(SpellInfo const* spellInfo, SpellEffectEntry const& effect);
 
     bool IsEffect() const;
     bool IsEffect(SpellEffectName effectName) const;
@@ -378,12 +315,12 @@ public:
 
     int32 CalcValue(Unit const* caster = nullptr, int32 const* basePoints = nullptr, Unit const* target = nullptr, float* variance = nullptr, uint32 castItemId = 0, int32 itemLevel = -1) const;
     int32 CalcBaseValue(Unit const* caster, Unit const* target, uint32 itemId, int32 itemLevel) const;
-    float CalcValueMultiplier(Unit* caster, Spell* spell = NULL) const;
-    float CalcDamageMultiplier(Unit* caster, Spell* spell = NULL) const;
+    float CalcValueMultiplier(Unit* caster, Spell* spell = nullptr) const;
+    float CalcDamageMultiplier(Unit* caster, Spell* spell = nullptr) const;
 
     bool HasRadius() const;
     bool HasMaxRadius() const;
-    float CalcRadius(Unit* caster = NULL, Spell* = NULL) const;
+    float CalcRadius(Unit* caster = nullptr, Spell* = nullptr) const;
 
     uint32 GetProvidedTargetMask() const;
     uint32 GetMissingTargetMask(bool srcSet = false, bool destSet = false, uint32 mask = 0) const;
@@ -409,10 +346,6 @@ private:
 };
 
 typedef std::vector<SpellEffectInfo const*> SpellEffectInfoVector;
-typedef std::unordered_map<uint32, SpellEffectInfoVector> SpellEffectInfoMap;
-
-typedef std::vector<SpellEffectEntry const*> SpellEffectEntryVector;
-typedef std::unordered_map<uint32, SpellEffectEntryVector> SpellEffectEntryMap;
 
 typedef std::vector<SpellXSpellVisualEntry const*> SpellVisualVector;
 typedef std::unordered_map<uint32, SpellVisualVector> SpellVisualMap;
@@ -440,110 +373,113 @@ class TC_GAME_API SpellInfo
     friend class SpellMgr;
 
     public:
-        uint32 Id;
-        uint32 CategoryId;
-        uint32 Dispel;
-        uint32 Mechanic;
-        uint32 Attributes;
-        uint32 AttributesEx;
-        uint32 AttributesEx2;
-        uint32 AttributesEx3;
-        uint32 AttributesEx4;
-        uint32 AttributesEx5;
-        uint32 AttributesEx6;
-        uint32 AttributesEx7;
-        uint32 AttributesEx8;
-        uint32 AttributesEx9;
-        uint32 AttributesEx10;
-        uint32 AttributesEx11;
-        uint32 AttributesEx12;
-        uint32 AttributesEx13;
-        uint32 AttributesCu;
-        uint64 Stances;
-        uint64 StancesNot;
-        uint32 Targets;
-        uint32 TargetCreatureType;
-        uint32 RequiresSpellFocus;
-        uint32 FacingCasterFlags;
-        uint32 CasterAuraState;
-        uint32 TargetAuraState;
-        uint32 ExcludeCasterAuraState;
-        uint32 ExcludeTargetAuraState;
-        uint32 CasterAuraSpell;
-        uint32 TargetAuraSpell;
-        uint32 ExcludeCasterAuraSpell;
-        uint32 ExcludeTargetAuraSpell;
-        SpellCastTimesEntry const* CastTimeEntry;
-        uint32 RecoveryTime;
-        uint32 CategoryRecoveryTime;
-        uint32 StartRecoveryCategory;
-        uint32 StartRecoveryTime;
-        uint32 InterruptFlags;
-        std::array<uint32, MAX_SPELL_AURA_INTERRUPT_FLAGS> AuraInterruptFlags;
-        std::array<uint32, MAX_SPELL_AURA_INTERRUPT_FLAGS> ChannelInterruptFlags;
-        uint32 ProcFlags;
-        uint32 ProcChance;
-        uint32 ProcCharges;
-        uint32 ProcCooldown;
-        float ProcBasePPM;
+        uint32 const Id = 0;
+        ::Difficulty const Difficulty = DIFFICULTY_NONE;
+        uint32 CategoryId = 0;
+        uint32 Dispel = 0;
+        uint32 Mechanic = 0;
+        uint32 Attributes = 0;
+        uint32 AttributesEx = 0;
+        uint32 AttributesEx2 = 0;
+        uint32 AttributesEx3 = 0;
+        uint32 AttributesEx4 = 0;
+        uint32 AttributesEx5 = 0;
+        uint32 AttributesEx6 = 0;
+        uint32 AttributesEx7 = 0;
+        uint32 AttributesEx8 = 0;
+        uint32 AttributesEx9 = 0;
+        uint32 AttributesEx10 = 0;
+        uint32 AttributesEx11 = 0;
+        uint32 AttributesEx12 = 0;
+        uint32 AttributesEx13 = 0;
+        uint32 AttributesEx14 = 0;
+        uint32 AttributesCu = 0;
+        std::bitset<MAX_SPELL_EFFECTS> NegativeEffects;
+        uint64 Stances = 0;
+        uint64 StancesNot = 0;
+        uint32 Targets = 0;
+        uint32 TargetCreatureType = 0;
+        uint32 RequiresSpellFocus = 0;
+        uint32 FacingCasterFlags = 0;
+        uint32 CasterAuraState = 0;
+        uint32 TargetAuraState = 0;
+        uint32 ExcludeCasterAuraState = 0;
+        uint32 ExcludeTargetAuraState = 0;
+        uint32 CasterAuraSpell = 0;
+        uint32 TargetAuraSpell = 0;
+        uint32 ExcludeCasterAuraSpell = 0;
+        uint32 ExcludeTargetAuraSpell = 0;
+        SpellCastTimesEntry const* CastTimeEntry = nullptr;
+        uint32 RecoveryTime = 0;
+        uint32 CategoryRecoveryTime = 0;
+        uint32 StartRecoveryCategory = 0;
+        uint32 StartRecoveryTime = 0;
+        uint32 InterruptFlags = 0;
+        EnumFlag<SpellAuraInterruptFlags> AuraInterruptFlags = SpellAuraInterruptFlags::None;
+        EnumFlag<SpellAuraInterruptFlags2> AuraInterruptFlags2 = SpellAuraInterruptFlags2::None;
+        EnumFlag<SpellAuraInterruptFlags> ChannelInterruptFlags = SpellAuraInterruptFlags::None;
+        EnumFlag<SpellAuraInterruptFlags2> ChannelInterruptFlags2 = SpellAuraInterruptFlags2::None;
+        uint32 ProcFlags = 0;
+        uint32 ProcChance = 0;
+        uint32 ProcCharges = 0;
+        uint32 ProcCooldown = 0;
+        float ProcBasePPM = 0.0f;
         std::vector<SpellProcsPerMinuteModEntry const*> ProcPPMMods;
-        uint32 MaxLevel;
-        uint32 BaseLevel;
-        uint32 SpellLevel;
-        SpellDurationEntry const* DurationEntry;
-        std::vector<SpellPowerEntry const*> PowerCosts;
-        uint32 RangeIndex;
-        SpellRangeEntry const* RangeEntry;
-        float  Speed;
-        float  LaunchDelay;
-        uint32 StackAmount;
-        uint32 Totem[MAX_SPELL_TOTEMS];
-        int32  Reagent[MAX_SPELL_REAGENTS];
-        uint32 ReagentCount[MAX_SPELL_REAGENTS];
-        int32  EquippedItemClass;
-        int32  EquippedItemSubClassMask;
-        int32  EquippedItemInventoryTypeMask;
-        uint32 TotemCategory[MAX_SPELL_TOTEMS];
-        uint32 IconFileDataId;
-        uint32 ActiveIconFileDataId;
-        uint32 ContentTuningId;
-        LocalizedString const* SpellName;
-        float ConeAngle;
-        float Width;
-        uint32 MaxTargetLevel;
-        uint32 MaxAffectedTargets;
-        uint32 SpellFamilyName;
+        uint32 MaxLevel = 0;
+        uint32 BaseLevel = 0;
+        uint32 SpellLevel = 0;
+        SpellDurationEntry const* DurationEntry = nullptr;
+        std::array<SpellPowerEntry const*, MAX_POWERS_PER_SPELL> PowerCosts = {};
+        SpellRangeEntry const* RangeEntry = nullptr;
+        float Speed = 0.0f;
+        float LaunchDelay = 0.0f;
+        uint32 StackAmount = 0;
+        std::array<uint32, MAX_SPELL_TOTEMS> Totem = {};
+        std::array<uint32, MAX_SPELL_TOTEMS> TotemCategory = {};
+        std::array<int32, MAX_SPELL_REAGENTS> Reagent = {};
+        std::array<uint32, MAX_SPELL_REAGENTS> ReagentCount = {};
+        int32 EquippedItemClass = -1;
+        int32 EquippedItemSubClassMask = 0;
+        int32 EquippedItemInventoryTypeMask = 0;
+        uint32 IconFileDataId = 0;
+        uint32 ActiveIconFileDataId = 0;
+        uint32 ContentTuningId = 0;
+        uint32 ShowFutureSpellPlayerConditionID = 0;
+        LocalizedString const* SpellName = nullptr;
+        float ConeAngle = 0.0f;
+        float Width = 0.0f;
+        uint32 MaxTargetLevel = 0;
+        uint32 MaxAffectedTargets = 0;
+        uint32 SpellFamilyName = 0;
         flag128 SpellFamilyFlags;
-        uint32 DmgClass;
-        uint32 PreventionType;
-        int32  RequiredAreasID;
-        uint32 SchoolMask;
-        uint32 ChargeCategoryId;
+        uint32 DmgClass = 0;
+        uint32 PreventionType = 0;
+        int32 RequiredAreasID = -1;
+        uint32 SchoolMask = 0;
+        uint32 ChargeCategoryId = 0;
 
         // SpellScalingEntry
         struct ScalingInfo
         {
-            int32 Class;
-            uint32 MinScalingLevel;
-            uint32 MaxScalingLevel;
-            uint32 ScalesFromItemLevel;
+            int32 Class = 0;
+            uint32 MinScalingLevel = 0;
+            uint32 MaxScalingLevel = 0;
+            uint32 ScalesFromItemLevel = 0;
         } Scaling;
 
-        uint32 ExplicitTargetMask;
-        SpellChainNode const* ChainEntry;
+        uint32 ExplicitTargetMask = 0;
+        SpellChainNode const* ChainEntry = nullptr;
 
-        SpellInfo(SpellInfoLoadHelper const& data, SpellEffectEntryMap const& effectsMap, SpellVisualMap&& visuals);
+        SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, SpellInfoLoadHelper const& data, SpellVisualVector&& visuals);
+        SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, std::vector<SpellEffectEntry> const& effects);
         ~SpellInfo();
 
         uint32 GetCategory() const;
-        bool HasEffect(uint32 difficulty, SpellEffectName effect) const;
         bool HasEffect(SpellEffectName effect) const;
-        bool HasAura(uint32 difficulty, AuraType aura) const;
-        bool HasAreaAuraEffect(uint32 difficulty) const;
+        bool HasAura(AuraType aura) const;
         bool HasAreaAuraEffect() const;
         bool HasOnlyDamageEffects() const;
         bool HasTargetType(::Targets target) const;
-        bool HasTargetType(uint32 difficulty, ::Targets target) const;
 
         bool HasAttribute(SpellAttr0 attribute) const { return !!(Attributes & attribute); }
         bool HasAttribute(SpellAttr1 attribute) const { return !!(AttributesEx & attribute); }
@@ -559,31 +495,33 @@ class TC_GAME_API SpellInfo
         bool HasAttribute(SpellAttr11 attribute) const { return !!(AttributesEx11 & attribute); }
         bool HasAttribute(SpellAttr12 attribute) const { return !!(AttributesEx12 & attribute); }
         bool HasAttribute(SpellAttr13 attribute) const { return !!(AttributesEx13 & attribute); }
+        bool HasAttribute(SpellAttr14 attribute) const { return !!(AttributesEx14 & attribute); }
         bool HasAttribute(SpellCustomAttributes customAttribute) const { return !!(AttributesCu & customAttribute); }
 
         bool HasAnyAuraInterruptFlag() const;
-        bool HasAuraInterruptFlag(SpellAuraInterruptFlags flag) const { return (AuraInterruptFlags[AuraInterruptFlagIndex<SpellAuraInterruptFlags>::value] & flag) != 0; }
-        bool HasAuraInterruptFlag(SpellAuraInterruptFlags2 flag) const { return (AuraInterruptFlags[AuraInterruptFlagIndex<SpellAuraInterruptFlags2>::value] & flag) != 0; }
+        bool HasAuraInterruptFlag(SpellAuraInterruptFlags flag) const { return AuraInterruptFlags.HasFlag(flag); }
+        bool HasAuraInterruptFlag(SpellAuraInterruptFlags2 flag) const { return AuraInterruptFlags2.HasFlag(flag); }
 
-        bool HasChannelInterruptFlag(SpellChannelInterruptFlags flag) const { return (ChannelInterruptFlags[AuraInterruptFlagIndex<SpellAuraInterruptFlags>::value] & flag) != 0; }
+        bool HasChannelInterruptFlag(SpellAuraInterruptFlags flag) const { return ChannelInterruptFlags.HasFlag(flag); }
+        bool HasChannelInterruptFlag(SpellAuraInterruptFlags2 flag) const { return ChannelInterruptFlags2.HasFlag(flag); }
 
         bool IsExplicitDiscovery() const;
         bool IsLootCrafting() const;
         bool IsQuestTame() const;
-        bool IsProfession(uint32 difficulty = DIFFICULTY_NONE) const;
-        bool IsPrimaryProfession(uint32 difficulty = DIFFICULTY_NONE) const;
-        bool IsPrimaryProfessionFirstRank(uint32 difficulty = DIFFICULTY_NONE) const;
+        bool IsProfession() const;
+        bool IsPrimaryProfession() const;
+        bool IsPrimaryProfessionFirstRank() const;
         bool IsAbilityOfSkillType(uint32 skillType) const;
 
-        bool IsAffectingArea(uint32 difficulty) const;
-        bool IsTargetingArea(uint32 difficulty) const;
+        bool IsAffectingArea() const;
+        bool IsTargetingArea() const;
         bool NeedsExplicitUnitTarget() const;
-        bool NeedsToBeTriggeredByCaster(SpellInfo const* triggeringSpell, uint32 difficulty) const;
+        bool NeedsToBeTriggeredByCaster(SpellInfo const* triggeringSpell) const;
 
         bool IsPassive() const;
         bool IsAutocastable() const;
         bool IsStackableWithRanks() const;
-        bool IsPassiveStackableWithRanks(uint32 difficulty) const;
+        bool IsPassiveStackableWithRanks() const;
         bool IsMultiSlotAura() const;
         bool IsStackableOnOneSlotWithDifferentCasters() const;
         bool IsCooldownStartedOnEvent() const;
@@ -621,9 +559,9 @@ class TC_GAME_API SpellInfo
         bool IsAuraExclusiveBySpecificPerCasterWith(SpellInfo const* spellInfo) const;
 
         SpellCastResult CheckShapeshift(uint32 form) const;
-        SpellCastResult CheckLocation(uint32 map_id, uint32 zone_id, uint32 area_id, Player const* player = NULL) const;
+        SpellCastResult CheckLocation(uint32 map_id, uint32 zone_id, uint32 area_id, Player const* player = nullptr) const;
         SpellCastResult CheckTarget(Unit const* caster, WorldObject const* target, bool implicit = true) const;
-        SpellCastResult CheckExplicitTarget(Unit const* caster, WorldObject const* target, Item const* itemTarget = NULL) const;
+        SpellCastResult CheckExplicitTarget(Unit const* caster, WorldObject const* target, Item const* itemTarget = nullptr) const;
         SpellCastResult CheckVehicle(Unit const* caster) const;
         bool CheckTargetCreatureType(Unit const* target) const;
 
@@ -631,7 +569,7 @@ class TC_GAME_API SpellInfo
         uint32 GetAllEffectsMechanicMask() const;
         uint32 GetEffectMechanicMask(uint32 effIndex) const;
         uint32 GetSpellMechanicMaskByEffectMask(uint32 effectMask) const;
-        Mechanics GetEffectMechanic(uint32 effIndex, uint32 difficulty) const;
+        Mechanics GetEffectMechanic(uint32 effIndex) const;
         //bool HasAnyEffectMechanic() const;
         uint32 GetDispelMask() const;
         static uint32 GetDispelMask(DispelType type);
@@ -647,11 +585,13 @@ class TC_GAME_API SpellInfo
         int32 GetDuration() const;
         int32 GetMaxDuration() const;
 
-        uint32 GetMaxTicks(uint32 difficulty) const;
+        uint32 GetMaxTicks() const;
 
-        uint32 CalcCastTime(uint8 level = 0, Spell* spell = nullptr) const;
+        uint32 CalcCastTime(Spell* spell = nullptr) const;
         uint32 GetRecoveryTime() const;
 
+        Optional<SpellPowerCost> CalcPowerCost(Powers powerType, bool optionalCost, Unit const* caster, SpellSchoolMask schoolMask, Spell* spell = nullptr) const;
+        Optional<SpellPowerCost> CalcPowerCost(SpellPowerEntry const* power, bool optionalCost, Unit const* caster, SpellSchoolMask schoolMask, Spell* spell = nullptr) const;
         std::vector<SpellPowerCost> CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask, Spell* spell = nullptr) const;
 
         float CalcProcPPM(Unit* caster, int32 itemLevel) const;
@@ -670,9 +610,8 @@ class TC_GAME_API SpellInfo
         uint32 GetSpellXSpellVisualId(Unit const* caster = nullptr) const;
         uint32 GetSpellVisual(Unit const* caster = nullptr) const;
 
-        SpellEffectInfoVector GetEffectsForDifficulty(uint32 difficulty) const;
-        SpellEffectInfo const* GetEffect(uint32 difficulty, uint32 index) const;
-        SpellEffectInfo const* GetEffect(uint32 index) const { return GetEffect(DIFFICULTY_NONE, index); }
+        SpellEffectInfoVector const& GetEffects() const { return _effects; }
+        SpellEffectInfo const* GetEffect(uint32 index) const { return index < _effects.size() ? _effects[index] : nullptr; }
 
         // spell diminishing returns
         DiminishingGroup GetDiminishingReturnsGroupForSpell() const;
@@ -686,6 +625,9 @@ class TC_GAME_API SpellInfo
         bool SpellCancelsAuraEffect(AuraEffect const* aurEff) const;
 
         uint32 GetAllowedMechanicMask() const;
+
+        // Player Condition
+        bool MeetsFutureSpellPlayerCondition(Player const* player) const;
 
     private:
         // loading helpers
@@ -703,14 +645,13 @@ class TC_GAME_API SpellInfo
         void _UnloadSpellEffects();
 
     private:
-        SpellEffectInfoMap _effects;
-        SpellVisualMap _visuals;
-        bool _hasPowerDifficultyData;
-        SpellSpecificType _spellSpecific;
-        AuraStateType _auraState;
+        SpellEffectInfoVector _effects;
+        SpellVisualVector _visuals;
+        SpellSpecificType _spellSpecific = SPELL_SPECIFIC_NORMAL;
+        AuraStateType _auraState = AURA_STATE_NONE;
 
         SpellDiminishInfo _diminishInfo;
-        uint32 _allowedMechanicMask;
+        uint32 _allowedMechanicMask = 0;
 };
 
 #endif // _SPELLINFO_H

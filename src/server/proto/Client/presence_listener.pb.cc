@@ -701,65 +701,21 @@ google::protobuf::ServiceDescriptor const* PresenceListener::descriptor() {
   return PresenceListener_descriptor_;
 }
 
-void PresenceListener::OnSubscribe(::bgs::protocol::presence::v1::SubscribeNotification const* request) {
+void PresenceListener::OnSubscribe(::bgs::protocol::presence::v1::SubscribeNotification const* request, bool client /*= false*/, bool server /*= false*/) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method PresenceListener.OnSubscribe(bgs.protocol.presence.v1.SubscribeNotification{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 1, request);
+  SendRequest(service_hash_, 1 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
-void PresenceListener::OnStateChanged(::bgs::protocol::presence::v1::StateChangedNotification const* request) {
+void PresenceListener::OnStateChanged(::bgs::protocol::presence::v1::StateChangedNotification const* request, bool client /*= false*/, bool server /*= false*/) {
   TC_LOG_DEBUG("service.protobuf", "%s Server called client method PresenceListener.OnStateChanged(bgs.protocol.presence.v1.StateChangedNotification{ %s })",
     GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  SendRequest(service_hash_, 2, request);
+  SendRequest(service_hash_, 2 | (client ? 0x40000000 : 0) | (server ? 0x80000000 : 0), request);
 }
 
-void PresenceListener::CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) {
-  switch(methodId) {
-    case 1: {
-      ::bgs::protocol::presence::v1::SubscribeNotification request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for PresenceListener.OnSubscribe server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, 1, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      uint32 status = HandleOnSubscribe(&request);
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method PresenceListener.OnSubscribe(bgs.protocol.presence.v1.SubscribeNotification{ %s }) status %u.",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str(), status);
-      if (status)
-        SendResponse(service_hash_, 1, token, status);
-      break;
-    }
-    case 2: {
-      ::bgs::protocol::presence::v1::StateChangedNotification request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for PresenceListener.OnStateChanged server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, 2, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      uint32 status = HandleOnStateChanged(&request);
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method PresenceListener.OnStateChanged(bgs.protocol.presence.v1.StateChangedNotification{ %s }) status %u.",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str(), status);
-      if (status)
-        SendResponse(service_hash_, 2, token, status);
-      break;
-    }
-    default:
-      TC_LOG_ERROR("service.protobuf", "Bad method id %u.", methodId);
-      SendResponse(service_hash_, methodId, token, ERROR_RPC_INVALID_METHOD);
-      break;
-    }
-}
-
-uint32 PresenceListener::HandleOnSubscribe(::bgs::protocol::presence::v1::SubscribeNotification const* request) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method PresenceListener.OnSubscribe({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  return ERROR_RPC_NOT_IMPLEMENTED;
-}
-
-uint32 PresenceListener::HandleOnStateChanged(::bgs::protocol::presence::v1::StateChangedNotification const* request) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method PresenceListener.OnStateChanged({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
-  return ERROR_RPC_NOT_IMPLEMENTED;
+void PresenceListener::CallServerMethod(uint32 token, uint32 methodId, MessageBuffer /*buffer*/) {
+  TC_LOG_ERROR("service.protobuf", "%s Server tried to call server method %u",
+    GetCallerInfo().c_str(), methodId);
 }
 
 

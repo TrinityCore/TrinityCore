@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,21 +20,21 @@
 #include "WorldserverServiceDispatcher.h"
 #include "ObjectDefines.h"
 
-void WorldSession::HandleBattlenetRequest(WorldPackets::Battlenet::Request& request)
+void WorldSession::HandleBattlenetChangeRealmTicket(WorldPackets::Battlenet::ChangeRealmTicket& changeRealmTicket)
 {
-    sServiceDispatcher.Dispatch(this, request.Method.GetServiceHash(), request.Method.Token, request.Method.GetMethodId(), std::move(request.Data));
-}
+    SetRealmListSecret(changeRealmTicket.Secret);
 
-void WorldSession::HandleBattlenetRequestRealmListTicket(WorldPackets::Battlenet::RequestRealmListTicket& requestRealmListTicket)
-{
-    SetRealmListSecret(requestRealmListTicket.Secret);
-
-    WorldPackets::Battlenet::RealmListTicket realmListTicket;
-    realmListTicket.Token = requestRealmListTicket.Token;
+    WorldPackets::Battlenet::ChangeRealmTicketResponse realmListTicket;
+    realmListTicket.Token = changeRealmTicket.Token;
     realmListTicket.Allow = true;
     realmListTicket.Ticket << "WorldserverRealmListTicket";
 
     SendPacket(realmListTicket.Write());
+}
+
+void WorldSession::HandleBattlenetRequest(WorldPackets::Battlenet::Request& request)
+{
+    sServiceDispatcher.Dispatch(this, request.Method.GetServiceHash(), request.Method.Token, request.Method.GetMethodId(), std::move(request.Data));
 }
 
 void WorldSession::SendBattlenetResponse(uint32 serviceHash, uint32 methodId, uint32 token, pb::Message const* response)

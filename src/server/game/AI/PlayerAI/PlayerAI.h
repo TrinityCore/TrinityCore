@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -30,6 +30,7 @@ class TC_GAME_API PlayerAI : public UnitAI
         void OnCharmed(bool /*apply*/) override { } // charm AI application for players is handled by Unit::SetCharmedBy / Unit::RemoveCharmedBy
 
         Creature* GetCharmer() const;
+
         // helper functions to determine player info
         uint16 GetSpec(Player const* who = nullptr) const;
         static bool IsPlayerHealer(Player const* who);
@@ -93,11 +94,12 @@ class TC_GAME_API PlayerAI : public UnitAI
 class TC_GAME_API SimpleCharmedPlayerAI : public PlayerAI
 {
     public:
-        SimpleCharmedPlayerAI(Player* player) : PlayerAI(player), _castCheckTimer(500), _chaseCloser(false), _forceFacing(true) { }
+        SimpleCharmedPlayerAI(Player* player) : PlayerAI(player), _castCheckTimer(2500), _chaseCloser(false), _forceFacing(true), _isFollowing(false) { }
         void UpdateAI(uint32 diff) override;
         void OnCharmed(bool apply) override;
 
     protected:
+        bool CanAIAttack(Unit const* who) const override;
         Unit* SelectAttackTarget() const override;
 
     private:
@@ -105,6 +107,7 @@ class TC_GAME_API SimpleCharmedPlayerAI : public PlayerAI
         uint32 _castCheckTimer;
         bool _chaseCloser;
         bool _forceFacing;
+        bool _isFollowing;
 };
 
 #endif

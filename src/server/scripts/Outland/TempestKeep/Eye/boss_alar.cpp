@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -29,6 +28,7 @@ EndScriptData */
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
+#include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "the_eye.h"
 
@@ -74,6 +74,34 @@ enum WaitEventType
     WE_DIVE     = 8,
     WE_LAND     = 9,
     WE_SUMMON   = 10
+};
+
+uint32 const flameQuillsSpells[] =
+{
+    34269,
+    34270,
+    34271,
+    34272,
+    34273,
+    34274,
+    34275,
+    34276,
+    34277,
+    34278,
+    34279,
+    34280,
+    34281,
+    34282,
+    34283,
+    34284,
+    34285,
+    34286,
+    34287,
+    34288,
+    34289,
+    34314,
+    34315,
+    34316
 };
 
 class boss_alar : public CreatureScript
@@ -189,13 +217,13 @@ class boss_alar : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit*, const SpellInfo* spell) override
+            void SpellHit(Unit*, SpellInfo const* spell) override
             {
                 if (spell->Id == SPELL_DIVE_BOMB_VISUAL)
                 {
                     me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
                     me->SetDisplayId(11686);
-                    //me->SendUpdateObjectToAllExcept(NULL);
+                    //me->SendUpdateObjectToAllExcept(nullptr);
                 }
             }
 
@@ -211,7 +239,7 @@ class boss_alar : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (!me->IsInCombat()) // sometimes IsInCombat but !incombat, faction bug?
+                if (!me->IsEngaged())
                     return;
 
                 if (Berserk_Timer <= diff)
@@ -290,7 +318,7 @@ class boss_alar : public CreatureScript
                                     if (me->IsWithinDist3d(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 5.0f))
                                         dist = 5.0f;
                                     WaitTimer = 1000 + uint32(floor(dist / 80 * 1000.0f));
-                                    me->SetPosition(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f);
+                                    me->UpdatePosition(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0.0f);
                                     me->StopMoving();
                                     WaitEvent = WE_LAND;
                                     return;
@@ -328,7 +356,7 @@ class boss_alar : public CreatureScript
 
                 if (Phase1)
                 {
-                    if (me->getThreatManager().getThreatList().empty())
+                    if (!me->IsThreatened())
                     {
                         EnterEvadeMode();
                         return;
@@ -411,7 +439,7 @@ class boss_alar : public CreatureScript
                                 Summoned->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                                 Summoned->SetObjectScale(Summoned->GetObjectScale() * 2.5f);
                                 Summoned->SetDisplayId(11686);
-                                Summoned->setFaction(me->getFaction());
+                                Summoned->SetFaction(me->GetFaction());
                                 Summoned->SetLevel(me->getLevel());
                                 Summoned->CastSpell(Summoned, SPELL_FLAME_PATCH, false);
                             }
@@ -436,9 +464,7 @@ class boss_alar : public CreatureScript
                     }
                     else
                     {
-                        Unit* target = NULL;
-                        target = me->SelectNearestTargetInAttackDistance(5);
-                        if (target)
+                        if (Unit* target = me->SelectNearestTargetInAttackDistance(5))
                             AttackStart(target);
                         else
                         {
@@ -524,7 +550,7 @@ class npc_ember_of_alar : public CreatureScript
 
                 if (toDie)
                 {
-                    me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                    me->DealDamage(me, me->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
                     //me->SetVisibility(VISIBILITY_OFF);
                 }
 
@@ -561,9 +587,40 @@ class npc_flame_patch_alar : public CreatureScript
         }
 };
 
+// 34229 - Flame Quills
+class spell_alar_flame_quills : public AuraScript
+{
+    PrepareAuraScript(spell_alar_flame_quills);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(flameQuillsSpells);
+    }
+
+    bool Load() override
+    {
+        return InstanceHasScript(GetUnitOwner(), TheEyeScriptName);
+    }
+
+    void PeriodicTick(AuraEffect const* aurEff)
+    {
+        PreventDefaultAction();
+
+        // cast 24 spells 34269-34289, 34314-34316
+        for (uint32 spellId : flameQuillsSpells)
+            GetTarget()->CastSpell(nullptr, spellId, true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_alar_flame_quills::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
 void AddSC_boss_alar()
 {
     new boss_alar();
     new npc_ember_of_alar();
     new npc_flame_patch_alar();
+    RegisterAuraScript(spell_alar_flame_quills);
 }

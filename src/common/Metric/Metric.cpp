@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,10 +27,10 @@
 
 void Metric::Initialize(std::string const& realmName, Trinity::Asio::IoContext& ioContext, std::function<void()> overallStatusLogger)
 {
-    _dataStream = Trinity::make_unique<boost::asio::ip::tcp::iostream>();
+    _dataStream = std::make_unique<boost::asio::ip::tcp::iostream>();
     _realmName = FormatInfluxDBTagValue(realmName);
-    _batchTimer = Trinity::make_unique<Trinity::Asio::DeadlineTimer>(ioContext);
-    _overallStatusTimer = Trinity::make_unique<Trinity::Asio::DeadlineTimer>(ioContext);
+    _batchTimer = std::make_unique<Trinity::Asio::DeadlineTimer>(ioContext);
+    _overallStatusTimer = std::make_unique<Trinity::Asio::DeadlineTimer>(ioContext);
     _overallStatusLogger = overallStatusLogger;
     LoadFromConfigs();
 }
@@ -213,11 +213,17 @@ void Metric::ScheduleSend()
     }
 }
 
-void Metric::ForceSend()
+void Metric::Unload()
 {
     // Send what's queued only if IoContext is stopped (so only on shutdown)
     if (_enabled && Trinity::Asio::get_io_context(*_batchTimer).stopped())
+    {
+        _enabled = false;
         SendBatch();
+    }
+
+    _batchTimer->cancel();
+    _overallStatusTimer->cancel();
 }
 
 void Metric::ScheduleOverallStatusLog()
@@ -249,7 +255,7 @@ std::string Metric::FormatInfluxDBValue(std::string const& value)
     return '"' + boost::replace_all_copy(value, "\"", "\\\"") + '"';
 }
 
-std::string Metric::FormatInfluxDBValue(const char* value)
+std::string Metric::FormatInfluxDBValue(char const* value)
 {
     return FormatInfluxDBValue(std::string(value));
 }

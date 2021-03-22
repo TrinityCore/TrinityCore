@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -37,11 +36,11 @@
 #define DEFAULT_VISIBILITY_INSTANCE     170.0f                  // default visible distance in instances, 170 yards
 #define DEFAULT_VISIBILITY_BGARENAS     533.0f                  // default visible distance in BG/Arenas, roughly 533 yards
 
-#define DEFAULT_WORLD_OBJECT_SIZE       0.388999998569489f      // player size, also currently used (correctly?) for any non Unit world objects
-#define DEFAULT_COMBAT_REACH            1.5f
-#define MIN_MELEE_REACH                 2.0f
-#define NOMINAL_MELEE_RANGE             5.0f
-#define MELEE_RANGE                     (NOMINAL_MELEE_RANGE - MIN_MELEE_REACH * 2) //center to center for players
+#define DEFAULT_PLAYER_BOUNDING_RADIUS      0.388999998569489f     // player size, also currently used (correctly?) for any non Unit world objects
+#define DEFAULT_PLAYER_COMBAT_REACH         1.5f
+#define MIN_MELEE_REACH                     2.0f
+#define NOMINAL_MELEE_RANGE                 5.0f
+#define MELEE_RANGE                         (NOMINAL_MELEE_RANGE - MIN_MELEE_REACH * 2) //center to center for players
 
 enum class VisibilityDistanceType : uint8
 {

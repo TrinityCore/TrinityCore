@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+* This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -71,7 +71,9 @@ void SplineChainMovementGenerator::Initialize(Unit* me)
             SendPathSpline(me, partial);
             TC_LOG_DEBUG("movement.splinechain", "%s: Resumed spline chain generator from resume state.", me->GetGUID().ToString().c_str());
             ++_nextIndex;
-            if (!_msToNext)
+            if (_nextIndex >= _chainSize)
+                _msToNext = 0;
+            else if (!_msToNext)
                 _msToNext = 1;
             _nextFirstWP = 0;
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
  */
 
 #include "DB2Meta.h"
+#include "Common.h"
 #include "Errors.h"
 
 DB2MetaField::DB2MetaField(DBCFormer type, uint8 arraySize, bool isSigned) : Type(type), ArraySize(arraySize), IsSigned(isSigned)
@@ -66,6 +67,8 @@ uint32 DB2Meta::GetRecordSize() const
                     size += 8;
                     break;
                 case FT_STRING:
+                    size += sizeof(LocalizedString);
+                    break;
                 case FT_STRING_NOT_LOCALIZED:
                     size += sizeof(char*);
                     break;
@@ -115,6 +118,8 @@ uint32 DB2Meta::GetIndexFieldOffset() const
                     offset += 8;
                     break;
                 case FT_STRING:
+                    offset += sizeof(LocalizedString);
+                    break;
                 case FT_STRING_NOT_LOCALIZED:
                     offset += sizeof(char*);
                     break;
@@ -157,6 +162,8 @@ int32 DB2Meta::GetParentIndexFieldOffset() const
                     offset += 8;
                     break;
                 case FT_STRING:
+                    offset += sizeof(LocalizedString);
+                    break;
                 case FT_STRING_NOT_LOCALIZED:
                     offset += sizeof(char*);
                     break;

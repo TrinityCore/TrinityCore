@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://www.mangosproject.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,6 +19,7 @@
 #define TRINITY_POOLHANDLER_H
 
 #include "Define.h"
+#include "SpawnData.h"
 #include <map>
 #include <set>
 #include <unordered_map>
@@ -81,7 +81,6 @@ class TC_GAME_API PoolGroup
         bool isEmpty() const { return ExplicitlyChanced.empty() && EqualChanced.empty(); }
         void AddEntry(PoolObject& poolitem, uint32 maxentries);
         bool CheckPool() const;
-        PoolObject* RollOne(ActivePoolData& spawns, uint64 triggerFrom);
         void DespawnObject(ActivePoolData& spawns, uint64 guid=0);
         void Despawn1Object(uint64 guid);
         void SpawnObject(ActivePoolData& spawns, uint32 limit, uint64 triggerFrom);
@@ -123,6 +122,7 @@ class TC_GAME_API PoolMgr
 
         template<typename T>
         uint32 IsPartOfAPool(uint64 db_guid_or_pool_id) const;
+        uint32 IsPartOfAPool(SpawnObjectType type, uint64 spawnId) const;
 
         template<typename T>
         bool IsSpawnedObject(uint64 db_guid_or_pool_id) const { return mSpawnedData.IsActiveObject<T>(db_guid_or_pool_id); }

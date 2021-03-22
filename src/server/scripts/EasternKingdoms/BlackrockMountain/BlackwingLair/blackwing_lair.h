@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -82,10 +82,10 @@ enum BWLMisc
     DATA_EGG_EVENT
 };
 
-template<typename AI>
-inline AI* GetBlackwingLairAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetBlackwingLairAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, BWLScriptName);
+    return GetInstanceAI<AI>(obj, BWLScriptName);
 }
 
 #endif

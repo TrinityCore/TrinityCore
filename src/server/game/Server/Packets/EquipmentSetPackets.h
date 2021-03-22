@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,7 +18,7 @@
 #pragma once
 
 #include "Packet.h"
-#include "EquipementSet.h"
+#include "EquipmentSet.h"
 #include "ItemPacketsCommon.h"
 
 namespace WorldPackets
@@ -82,7 +82,7 @@ namespace WorldPackets
             };
 
             WorldPackets::Item::InvUpdate Inv;
-            EquipmentSetItem Items[EQUIPEMENT_SET_SLOTS];
+            EquipmentSetItem Items[EQUIPMENT_SET_SLOTS];
             uint64 GUID = 0; ///< Set Identifier
         };
 

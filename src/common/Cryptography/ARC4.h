@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,18 +19,31 @@
 #define _AUTH_SARC4_H
 
 #include "Define.h"
+#include <array>
 #include <openssl/evp.h>
+#include "advstd.h" // data/size
 
-class TC_COMMON_API ARC4
+namespace Trinity
 {
-    public:
-        ARC4(uint32 len);
-        ARC4(uint8* seed, uint32 len);
-        ~ARC4();
-        void Init(uint8* seed);
-        void UpdateData(int len, uint8* data);
-    private:
-        EVP_CIPHER_CTX* m_ctx;
-};
+namespace Crypto
+{
+    class TC_COMMON_API ARC4
+    {
+        public:
+            ARC4();
+            ~ARC4();
+
+            void Init(uint8 const* seed, size_t len);
+            template <typename Container>
+            void Init(Container const& c) { Init(advstd::data(c), advstd::size(c)); }
+
+            void UpdateData(uint8* data, size_t len);
+            template <typename Container>
+            void UpdateData(Container& c) { UpdateData(advstd::data(c), advstd::size(c)); }
+        private:
+            EVP_CIPHER_CTX* _ctx;
+    };
+}
+}
 
 #endif

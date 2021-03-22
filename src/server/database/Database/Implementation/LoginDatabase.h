@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -38,7 +38,8 @@ enum LoginDatabaseStatements : uint32
     LOGIN_DEL_ACCOUNT_BANNED,
     LOGIN_UPD_ACCOUNT_INFO_CONTINUED_SESSION,
     LOGIN_SEL_ACCOUNT_INFO_CONTINUED_SESSION,
-    LOGIN_UPD_VS,
+    LOGIN_UPD_LOGON,
+    LOGIN_UPD_LOGON_LEGACY,
     LOGIN_SEL_ACCOUNT_ID_BY_NAME,
     LOGIN_SEL_ACCOUNT_LIST_BY_NAME,
     LOGIN_SEL_ACCOUNT_INFO_BY_NAME,
@@ -62,7 +63,6 @@ enum LoginDatabaseStatements : uint32
     LOGIN_UPD_ACCOUNT_LOCK_COUNTRY,
     LOGIN_INS_LOG,
     LOGIN_UPD_USERNAME,
-    LOGIN_UPD_PASSWORD,
     LOGIN_UPD_EMAIL,
     LOGIN_UPD_REG_EMAIL,
     LOGIN_UPD_MUTE_TIME,
@@ -85,7 +85,7 @@ enum LoginDatabaseStatements : uint32
     LOGIN_SEL_PINFO_BANS,
     LOGIN_SEL_GM_ACCOUNTS,
     LOGIN_SEL_ACCOUNT_INFO,
-    LOGIN_SEL_ACCOUNT_ACCESS_GMLEVEL_TEST,
+    LOGIN_SEL_ACCOUNT_ACCESS_SECLEVEL_TEST,
     LOGIN_SEL_ACCOUNT_ACCESS,
     LOGIN_SEL_ACCOUNT_WHOIS,
     LOGIN_SEL_REALMLIST_SECURITY_LEVEL,

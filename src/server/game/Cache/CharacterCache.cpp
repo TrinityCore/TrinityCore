@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <http://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,6 +19,7 @@
 #include "ArenaTeam.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
+#include "MiscPackets.h"
 #include "Player.h"
 #include "Timer.h"
 #include "World.h"
@@ -81,7 +82,7 @@ void CharacterCache::LoadCharacterCacheStorage()
     do
     {
         Field* fields = result->Fetch();
-        AddCharacterCacheEntry(ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt32()) /*guid*/, fields[2].GetUInt32() /*account*/, fields[1].GetString() /*name*/,
+        AddCharacterCacheEntry(ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64()) /*guid*/, fields[2].GetUInt32() /*account*/, fields[1].GetString() /*name*/,
             fields[4].GetUInt8() /*gender*/, fields[3].GetUInt8() /*race*/, fields[5].GetUInt8() /*class*/, fields[6].GetUInt8() /*level*/, fields[7].GetUInt32() != 0);
     } while (result->NextRow());
 
@@ -131,13 +132,22 @@ void CharacterCache::UpdateCharacterData(ObjectGuid const& guid, std::string con
     if (race)
         itr->second.Race = *race;
 
-    WorldPacket data(SMSG_INVALIDATE_PLAYER, 8);
-    data << guid;
-    sWorld->SendGlobalMessage(&data);
+    WorldPackets::Misc::InvalidatePlayer invalidatePlayer;
+    invalidatePlayer.Guid = guid;
+    sWorld->SendGlobalMessage(invalidatePlayer.Write());
 
     // Correct name -> pointer storage
     _characterCacheByNameStore.erase(oldName);
     _characterCacheByNameStore[name] = &itr->second;
+}
+
+void CharacterCache::UpdateCharacterGender(ObjectGuid const& guid, uint8 gender)
+{
+    auto itr = _characterCacheStore.find(guid);
+    if (itr == _characterCacheStore.end())
+        return;
+
+    itr->second.Sex = gender;
 }
 
 void CharacterCache::UpdateCharacterLevel(ObjectGuid const& guid, uint8 level)

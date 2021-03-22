@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -38,9 +38,9 @@ template<>
 class ViewerDependentValue<UF::ObjectData::DynamicFlagsTag>
 {
 public:
-    using ValueType = UF::ObjectData::DynamicFlagsTag::ValueType;
+    using value_type = UF::ObjectData::DynamicFlagsTag::value_type;
 
-    static ValueType GetValue(ValueType dynamicFlags, Object const* object, Player const* receiver)
+    static value_type GetValue(value_type dynamicFlags, Object const* object, Player const* receiver)
     {
         if (Unit const* unit = object->ToUnit())
         {
@@ -106,17 +106,17 @@ template<>
 class ViewerDependentValue<UF::UnitData::DisplayIDTag>
 {
 public:
-    using ValueType = UF::UnitData::DisplayIDTag::ValueType;
+    using value_type = UF::UnitData::DisplayIDTag::value_type;
 
-    static ValueType GetValue(ValueType displayId, Unit const* unit, Player const* receiver)
+    static value_type GetValue(value_type displayId, Unit const* unit, Player const* receiver)
     {
         if (unit->IsCreature())
         {
             CreatureTemplate const* cinfo = unit->ToCreature()->GetCreatureTemplate();
 
             // this also applies for transform auras
-            if (SpellInfo const* transform = sSpellMgr->GetSpellInfo(unit->getTransForm()))
-                for (SpellEffectInfo const* effect : transform->GetEffectsForDifficulty(unit->GetMap()->GetDifficultyID()))
+            if (SpellInfo const* transform = sSpellMgr->GetSpellInfo(unit->getTransForm(), unit->GetMap()->GetDifficultyID()))
+                for (SpellEffectInfo const* effect : transform->GetEffects())
                     if (effect && effect->IsAura(SPELL_AURA_TRANSFORM))
                         if (CreatureTemplate const* transformInfo = sObjectMgr->GetCreatureTemplate(effect->MiscValue))
                         {
@@ -137,9 +137,9 @@ template<>
 class ViewerDependentValue<UF::UnitData::FactionTemplateTag>
 {
 public:
-    using ValueType = UF::UnitData::FactionTemplateTag::ValueType;
+    using value_type = UF::UnitData::FactionTemplateTag::value_type;
 
-    static ValueType GetValue(ValueType factionTemplate, Unit const* unit, Player const* receiver)
+    static value_type GetValue(value_type factionTemplate, Unit const* unit, Player const* receiver)
     {
         if (unit->IsControlledByPlayer() && receiver != unit && sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP) && unit->IsInRaidWith(receiver))
         {
@@ -147,7 +147,7 @@ public:
             FactionTemplateEntry const* ft2 = receiver->GetFactionTemplateEntry();
             if (ft1 && ft2 && !ft1->IsFriendlyTo(ft2))
                 // pretend that all other HOSTILE players have own faction, to allow follow, heal, rezz (trade wont work)
-                factionTemplate = receiver->getFaction();
+                factionTemplate = receiver->GetFaction();
         }
 
         return factionTemplate;
@@ -158,9 +158,9 @@ template<>
 class ViewerDependentValue<UF::UnitData::FlagsTag>
 {
 public:
-    using ValueType = UF::UnitData::FlagsTag::ValueType;
+    using value_type = UF::UnitData::FlagsTag::value_type;
 
-    static ValueType GetValue(ValueType flags, Unit const* /*unit*/, Player const* receiver)
+    static value_type GetValue(value_type flags, Unit const* /*unit*/, Player const* receiver)
     {
         // Gamemasters should be always able to select units - remove not selectable flag
         if (receiver->IsGameMaster())
@@ -174,9 +174,9 @@ template<>
 class ViewerDependentValue<UF::UnitData::AuraStateTag>
 {
 public:
-    using ValueType = UF::UnitData::AuraStateTag::ValueType;
+    using value_type = UF::UnitData::AuraStateTag::value_type;
 
-    static ValueType GetValue(ValueType /*auraState*/, Unit const* unit, Player const* receiver)
+    static value_type GetValue(value_type /*auraState*/, Unit const* unit, Player const* receiver)
     {
         // Check per caster aura states to not enable using a spell in client if specified aura is not by target
         return unit->BuildAuraStateUpdateForTarget(receiver);
@@ -187,9 +187,9 @@ template<>
 class ViewerDependentValue<UF::UnitData::PvpFlagsTag>
 {
 public:
-    using ValueType = UF::UnitData::PvpFlagsTag::ValueType;
+    using value_type = UF::UnitData::PvpFlagsTag::value_type;
 
-    static ValueType GetValue(ValueType pvpFlags, Unit const* unit, Player const* receiver)
+    static value_type GetValue(value_type pvpFlags, Unit const* unit, Player const* receiver)
     {
         if (unit->IsControlledByPlayer() && receiver != unit && sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP) && unit->IsInRaidWith(receiver))
         {
@@ -208,9 +208,9 @@ template<>
 class ViewerDependentValue<UF::UnitData::NpcFlagsTag>
 {
 public:
-    using ValueType = UF::UnitData::NpcFlagsTag::ValueType;
+    using value_type = UF::UnitData::NpcFlagsTag::value_type;
 
-    static ValueType GetValue(ValueType npcFlag, uint32 i, Unit const* unit, Player const* receiver)
+    static value_type GetValue(value_type npcFlag, uint32 i, Unit const* unit, Player const* receiver)
     {
         if (i == 0 && unit->IsCreature() && !receiver->CanSeeSpellClickOn(unit->ToCreature()))
             npcFlag &= ~UNIT_NPC_FLAG_SPELLCLICK;
@@ -223,9 +223,9 @@ template<>
 class ViewerDependentValue<UF::GameObjectData::FlagsTag>
 {
 public:
-    using ValueType = UF::GameObjectData::FlagsTag::ValueType;
+    using value_type = UF::GameObjectData::FlagsTag::value_type;
 
-    static ValueType GetValue(ValueType flags, GameObject const* gameObject, Player const* receiver)
+    static value_type GetValue(value_type flags, GameObject const* gameObject, Player const* receiver)
     {
         if (gameObject->GetGoType() == GAMEOBJECT_TYPE_CHEST)
             if (gameObject->GetGOInfo()->chest.usegrouplootrules && !gameObject->IsLootAllowedFor(receiver))
@@ -239,9 +239,9 @@ template<>
 class ViewerDependentValue<UF::GameObjectData::LevelTag>
 {
 public:
-    using ValueType = UF::GameObjectData::LevelTag::ValueType;
+    using value_type = UF::GameObjectData::LevelTag::value_type;
 
-    static ValueType GetValue(ValueType level, GameObject const* gameObject, Player const* /*receiver*/)
+    static value_type GetValue(value_type level, GameObject const* gameObject, Player const* /*receiver*/)
     {
         bool isStoppableTransport = gameObject->GetGoType() == GAMEOBJECT_TYPE_TRANSPORT && !gameObject->GetGOValue()->Transport.StopFrames->empty();
         return isStoppableTransport ? gameObject->GetGOValue()->Transport.PathProgress : level;
@@ -252,9 +252,9 @@ template<>
 class ViewerDependentValue<UF::GameObjectData::StateTag>
 {
 public:
-    using ValueType = UF::GameObjectData::StateTag::ValueType;
+    using value_type = UF::GameObjectData::StateTag::value_type;
 
-    static ValueType GetValue(ValueType state, GameObject const* gameObject, Player const* /*receiver*/)
+    static value_type GetValue(value_type state, GameObject const* gameObject, Player const* /*receiver*/)
     {
         bool isStoppableTransport = gameObject->GetGoType() == GAMEOBJECT_TYPE_TRANSPORT && !gameObject->GetGOValue()->Transport.StopFrames->empty();
         if (isStoppableTransport && gameObject->GetGoState() == GO_STATE_TRANSPORT_ACTIVE)

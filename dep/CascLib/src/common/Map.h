@@ -354,4 +354,27 @@ class CASC_MAP
                                                 // Will improve performance, as we will not hash a hash :-)
 };
 
+//-----------------------------------------------------------------------------
+// Key map interface
+
+// Maximum length of encryption key
+#define CASC_KEY_LENGTH         0x10
+#define CASC_KEY_TABLE_SIZE     0x100
+#define CASC_KEY_TABLE_MASK     (CASC_KEY_TABLE_SIZE - 1)
+
+class CASC_KEY_MAP
+{
+    public:
+
+    CASC_KEY_MAP();
+    ~CASC_KEY_MAP();
+
+    LPBYTE FindKey(ULONGLONG KeyName);
+    bool AddKey(ULONGLONG KeyName, LPBYTE Key);
+
+    protected:
+
+    void * HashTable[CASC_KEY_TABLE_SIZE];
+};
+
 #endif // __CASC_MAP_H__

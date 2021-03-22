@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,7 +23,7 @@ WorldPacketCrypt::WorldPacketCrypt() : _clientDecrypt(false), _serverEncrypt(tru
 {
 }
 
-void WorldPacketCrypt::Init(uint8 const* key)
+void WorldPacketCrypt::Init(Trinity::Crypto::AES::Key const& key)
 {
     _clientDecrypt.Init(key);
     _serverEncrypt.Init(key);
@@ -42,12 +41,24 @@ struct WorldPacketCryptIV
     std::array<uint8, 12> Value;
 };
 
-bool WorldPacketCrypt::DecryptRecv(uint8* data, size_t length, uint8 (&tag)[12])
+bool WorldPacketCrypt::PeekDecryptRecv(uint8* data, size_t length)
 {
     if (_initialized)
     {
         WorldPacketCryptIV iv{ _clientCounter, 0x544E4C43 };
-        if (!_clientDecrypt.Process(iv.Value.data(), data, length, tag))
+        if (!_clientDecrypt.ProcessNoIntegrityCheck(iv.Value, data, length))
+            return false;
+    }
+
+    return true;
+}
+
+bool WorldPacketCrypt::DecryptRecv(uint8* data, size_t length, Trinity::Crypto::AES::Tag& tag)
+{
+    if (_initialized)
+    {
+        WorldPacketCryptIV iv{ _clientCounter, 0x544E4C43 };
+        if (!_clientDecrypt.Process(iv.Value, data, length, tag))
             return false;
     }
     else
@@ -57,12 +68,12 @@ bool WorldPacketCrypt::DecryptRecv(uint8* data, size_t length, uint8 (&tag)[12])
     return true;
 }
 
-bool WorldPacketCrypt::EncryptSend(uint8* data, size_t length, uint8 (&tag)[12])
+bool WorldPacketCrypt::EncryptSend(uint8* data, size_t length, Trinity::Crypto::AES::Tag& tag)
 {
     if (_initialized)
     {
         WorldPacketCryptIV iv{ _serverCounter, 0x52565253 };
-        if (!_serverEncrypt.Process(iv.Value.data(), data, length, tag))
+        if (!_serverEncrypt.Process(iv.Value, data, length, tag))
             return false;
     }
     else

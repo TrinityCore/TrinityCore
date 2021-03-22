@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -64,8 +64,8 @@ WorldPacket const* WorldPackets::Social::ContactList::Write()
     _worldPacket.WriteBits(Contacts.size(), 8);
     _worldPacket.FlushBits();
 
-    for (size_t i = 0; i < Contacts.size(); ++i)
-        _worldPacket << Contacts[i];
+    for (ContactInfo const& contact : Contacts)
+        _worldPacket << contact;
 
     return &_worldPacket;
 }

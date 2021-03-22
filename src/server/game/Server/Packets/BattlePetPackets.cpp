@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -84,7 +84,7 @@ WorldPacket const* WorldPackets::BattlePet::BattlePetUpdates::Write()
     _worldPacket.WriteBit(PetAdded);
     _worldPacket.FlushBits();
 
-    for (auto const& pet : Pets)
+    for (BattlePet const& pet : Pets)
         _worldPacket << pet;
 
     return &_worldPacket;

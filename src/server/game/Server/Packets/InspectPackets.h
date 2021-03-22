@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,9 +18,11 @@
 #pragma once
 
 #include "Packet.h"
+#include "CharacterPackets.h"
 #include "DBCEnums.h"
 #include "ItemPacketsCommon.h"
 #include "ObjectGuid.h"
+#include "RaceMask.h"
 #include "SharedDefines.h"
 
 class Item;
@@ -77,14 +79,9 @@ namespace WorldPackets
             std::string Name;
             int32 SpecializationID = 0;
             uint8 GenderID = GENDER_NONE;
-            uint8 Skin = 0;
-            uint8 HairColor = 0;
-            uint8 HairStyle = 0;
-            uint8 FacialHairStyle = 0;
-            uint8 Face = 0;
             uint8 Race = RACE_NONE;
             uint8 ClassID = CLASS_NONE;
-            std::array<uint8, PLAYER_CUSTOM_DISPLAY_SIZE> CustomDisplay;
+            std::vector<Character::ChrCustomizationChoice> Customizations;
 
             void Initialize(Player const* player);
         };

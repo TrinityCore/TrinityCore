@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,12 +17,12 @@
 
 #include "TokenPackets.h"
 
-void WorldPackets::Token::UpdateListedAuctionableTokens::Read()
+void WorldPackets::Token::CommerceTokenGetLog::Read()
 {
     _worldPacket >> UnkInt;
 }
 
-WorldPacket const* WorldPackets::Token::UpdateListedAuctionableTokensResponse::Write()
+WorldPacket const* WorldPackets::Token::CommerceTokenGetLogResponse::Write()
 {
     _worldPacket << UnkInt;
     _worldPacket << Result;
@@ -39,12 +39,12 @@ WorldPacket const* WorldPackets::Token::UpdateListedAuctionableTokensResponse::W
     return &_worldPacket;
 }
 
-void WorldPackets::Token::RequestWowTokenMarketPrice::Read()
+void WorldPackets::Token::CommerceTokenGetMarketPrice::Read()
 {
     _worldPacket >> UnkInt;
 }
 
-WorldPacket const* WorldPackets::Token::WowTokenMarketPriceResponse::Write()
+WorldPacket const* WorldPackets::Token::CommerceTokenGetMarketPriceResponse::Write()
 {
     _worldPacket << CurrentMarketPrice;
     _worldPacket << UnkInt;

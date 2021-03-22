@@ -1,6 +1,6 @@
 target_compile_definitions(trinity-compile-option-interface
   INTERFACE
-    -D_BUILD_DIRECTIVE="${CMAKE_BUILD_TYPE}")
+    -D_BUILD_DIRECTIVE="$<CONFIG>")
 
 if(PLATFORM EQUAL 32)
   target_compile_options(trinity-compile-option-interface

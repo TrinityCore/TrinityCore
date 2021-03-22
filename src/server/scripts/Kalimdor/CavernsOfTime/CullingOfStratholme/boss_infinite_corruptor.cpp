@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -55,7 +55,7 @@ class boss_infinite_corruptor : public CreatureScript
 
                 if (Creature* guardian = me->FindNearestCreature(NPC_GUARDIAN_OF_TIME, 100.0f))
                 {
-                    DoCast((Unit*)NULL, SPELL_CORRUPTION_OF_TIME_CHANNEL, false);
+                    DoCast(nullptr, SPELL_CORRUPTION_OF_TIME_CHANNEL, false);
                     guardian->CastSpell(guardian, SPELL_CORRUPTION_OF_TIME_TARGET, false);
                 }
             }

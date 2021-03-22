@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -39,10 +39,10 @@ class CASCFile
     CASCFile& operator=(const CASCFile &f) = delete;
 
 public:
-    CASCFile(CASC::StorageHandle const& casc, const char* filename, bool warnNoExist = true);    // filenames are not case sensitive
-    CASCFile(CASC::StorageHandle const& casc, uint32 fileDataId, std::string const& description, bool warnNoExist = true);
+    CASCFile(std::shared_ptr<CASC::Storage const> casc, const char* filename, bool warnNoExist = true);    // filenames are not case sensitive
+    CASCFile(std::shared_ptr<CASC::Storage const> casc, uint32 fileDataId, std::string const& description, bool warnNoExist = true);
     ~CASCFile() { close(); }
-    void init(CASC::FileHandle const& file, const char* description);
+    void init(CASC::File* file, const char* description);
     size_t read(void* dest, size_t bytes);
     size_t getSize() { return size; }
     size_t getPos() { return pointer; }

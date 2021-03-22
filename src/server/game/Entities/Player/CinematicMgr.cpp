@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,8 @@
  */
 
 #include "CinematicMgr.h"
+#include "Containers.h"
+#include "DB2Structure.h"
 #include "M2Stores.h"
 #include "Map.h"
 #include "MotionMaster.h"
@@ -27,7 +29,8 @@ CinematicMgr::CinematicMgr(Player* playerref)
     player = playerref;
     m_cinematicDiff = 0;
     m_lastCinematicCheck = 0;
-    m_activeCinematicCameraId = 0;
+    m_activeCinematic = nullptr;
+    m_activeCinematicCameraIndex = -1;
     m_cinematicLength = 0;
     m_cinematicCamera = nullptr;
     m_remoteSightPosition = Position(0.0f, 0.0f, 0.0f);
@@ -36,17 +39,21 @@ CinematicMgr::CinematicMgr(Player* playerref)
 
 CinematicMgr::~CinematicMgr()
 {
-    if (m_cinematicCamera && m_activeCinematicCameraId)
+    if (m_cinematicCamera && m_activeCinematic)
         EndCinematic();
 }
 
-void CinematicMgr::BeginCinematic()
+void CinematicMgr::NextCinematicCamera()
 {
     // Sanity check for active camera set
-    if (m_activeCinematicCameraId == 0)
+    if (!m_activeCinematic || m_activeCinematicCameraIndex >= int32(Trinity::Containers::Size(m_activeCinematic->Camera)))
         return;
 
-    if (std::vector<FlyByCamera> const* flyByCameras = GetFlyByCameras(m_activeCinematicCameraId))
+    uint32 cinematicCameraId = m_activeCinematic->Camera[++m_activeCinematicCameraIndex];
+    if (!cinematicCameraId)
+        return;
+
+    if (std::vector<FlyByCamera> const* flyByCameras = GetFlyByCameras(cinematicCameraId))
     {
         // Initialize diff, and set camera
         m_cinematicDiff = 0;
@@ -75,12 +82,13 @@ void CinematicMgr::BeginCinematic()
 
 void CinematicMgr::EndCinematic()
 {
-    if (m_activeCinematicCameraId == 0)
+    if (!m_activeCinematic)
         return;
 
     m_cinematicDiff = 0;
     m_cinematicCamera = nullptr;
-    m_activeCinematicCameraId = 0;
+    m_activeCinematic = nullptr;
+    m_activeCinematicCameraIndex = -1;
     if (m_CinematicObject)
     {
         if (WorldObject* vpObject = player->GetViewpoint())
@@ -93,7 +101,7 @@ void CinematicMgr::EndCinematic()
 
 void CinematicMgr::UpdateCinematicLocation(uint32 /*diff*/)
 {
-    if (m_activeCinematicCameraId == 0 || !m_cinematicCamera || m_cinematicCamera->size() == 0)
+    if (!m_activeCinematic || m_activeCinematicCameraIndex == -1 || !m_cinematicCamera || m_cinematicCamera->size() == 0)
         return;
 
     Position lastPosition;

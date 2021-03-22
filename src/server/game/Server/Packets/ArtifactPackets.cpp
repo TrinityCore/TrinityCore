@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -46,7 +46,7 @@ void WorldPackets::Artifact::ConfirmArtifactRespec::Read()
     _worldPacket >> NpcGUID;
 }
 
-WorldPacket const* WorldPackets::Artifact::ArtifactForgeOpened::Write()
+WorldPacket const* WorldPackets::Artifact::OpenArtifactForge::Write()
 {
     _worldPacket << ArtifactGUID;
     _worldPacket << ForgeGUID;
@@ -54,7 +54,7 @@ WorldPacket const* WorldPackets::Artifact::ArtifactForgeOpened::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Artifact::ArtifactRespecConfirm::Write()
+WorldPacket const* WorldPackets::Artifact::ArtifactRespecPrompt::Write()
 {
     _worldPacket << ArtifactGUID;
     _worldPacket << NpcGUID;

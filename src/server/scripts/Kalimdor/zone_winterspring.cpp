@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,57 +18,24 @@
 /* ScriptData
 SDName: Winterspring
 SD%Complete: Almost Completely Emptied
-SDComment: Vendor Rivern Frostwind. Quest Support 4901
+SDComment: Quest Support 4901
 SDCategory: Winterspring
 EndScriptData */
 
 /* ContentData
-npc_rivern_frostwind
 npc_ranshalla
 go_elune_fire
 EndContentData */
 
 #include "ScriptMgr.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedEscortAI.h"
-#include "ScriptedGossip.h"
 #include "TemporarySummon.h"
 #include "WorldSession.h"
-
-/*######
-## npc_rivern_frostwind
-######*/
-
-class npc_rivern_frostwind : public CreatureScript
-{
-public:
-    npc_rivern_frostwind() : CreatureScript("npc_rivern_frostwind") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
-    {
-        ClearGossipMenuFor(player);
-        if (action == GOSSIP_ACTION_TRADE)
-            player->GetSession()->SendListInventory(creature->GetGUID());
-
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature) override
-    {
-        if (creature->IsQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (creature->IsVendor() && player->GetReputationRank(589) == REP_EXALTED)
-            AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-
-        SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
-
-        return true;
-    }
-};
 
 enum Says
 {
@@ -160,7 +126,7 @@ public:
     // The array MUST be terminated by {0, 0, 0}
     DialogueHelper(DialogueEntry const* dialogueArray) :
       _dialogueArray(dialogueArray),
-          _currentEntry(NULL),
+          _currentEntry(nullptr),
           _actionTimer(0)
       { }
       // The array MUST be terminated by {0, 0, 0, 0, 0}
@@ -204,7 +170,7 @@ protected:
     /// Will be called when a dialogue step was done
     virtual void JustDidDialogueStep(int32 /*entry*/) { }
     /// Will be called to get a speaker, MUST be implemented if not used in instances
-    virtual Creature* GetSpeakerByEntry(int32 /*entry*/) { return NULL; }
+    virtual Creature* GetSpeakerByEntry(int32 /*entry*/) { return nullptr; }
 
 private:
     void DoNextDialogueStep()
@@ -295,30 +261,10 @@ class npc_ranshalla : public CreatureScript
 {
 public:
     npc_ranshalla() : CreatureScript("npc_ranshalla") { }
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
+
+    struct npc_ranshallaAI : public EscortAI, private DialogueHelper
     {
-        if (quest->GetQuestId() == QUEST_GUARDIANS_ALTAR)
-        {
-            creature->AI()->Talk(SAY_QUEST_START);
-            creature->setFaction(FACTION_ESCORT_A_NEUTRAL_PASSIVE);
-
-            if (npc_ranshallaAI* escortAI = dynamic_cast<npc_ranshallaAI*>(creature->AI()))
-                escortAI->Start(false, false, player->GetGUID(), quest);
-
-            return true;
-        }
-
-        return false;
-    }
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_ranshallaAI(creature);
-    }
-
-    struct npc_ranshallaAI : public npc_escortAI, private DialogueHelper
-    {
-        npc_ranshallaAI(Creature* creature) : npc_escortAI(creature),
-            DialogueHelper(introDialogue)
+        npc_ranshallaAI(Creature* creature) : EscortAI(creature), DialogueHelper(introDialogue)
         {
             Initialize();
         }
@@ -402,7 +348,7 @@ public:
             StartNextDialogueText(SAY_PRIESTESS_ALTAR_3);
         }
 
-        void WaypointReached(uint32 pointId) override
+        void WaypointReached(uint32 pointId, uint32 /*pathId*/) override
         {
             switch (pointId)
             {
@@ -566,7 +512,7 @@ public:
                 case NPC_PRIESTESS_DATA_2:
                     return ObjectAccessor::GetCreature(*me, _secondPriestessGUID);
                 default:
-                    return NULL;
+                    return nullptr;
             }
 
         }
@@ -589,11 +535,28 @@ public:
             if (events.ExecuteEvent() == EVENT_RESUME)
                 StartNextDialogueText(SAY_PRIESTESS_ALTAR_3);
 
-            npc_escortAI::UpdateEscortAI(diff);
+            EscortAI::UpdateEscortAI(diff);
         }
+
+        void QuestAccept(Player* player, Quest const* quest) override
+        {
+            if (quest->GetQuestId() == QUEST_GUARDIANS_ALTAR)
+            {
+                Talk(SAY_QUEST_START);
+                me->SetFaction(FACTION_ESCORTEE_A_NEUTRAL_PASSIVE);
+
+                Start(false, false, player->GetGUID(), quest);
+            }
+        }
+
     private:
         EventMap events;
     };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_ranshallaAI(creature);
+    }
 };
 
 /*#####
@@ -604,28 +567,37 @@ class go_elune_fire : public GameObjectScript
 {
 public:
     go_elune_fire() : GameObjectScript("go_elune_fire") { }
-    bool OnGossipHello(Player* /*player*/, GameObject* go) override
+
+    struct go_elune_fireAI : public GameObjectAI
     {
-        // Check if we are using the torches or the altar
-        bool isAltar = false;
+        go_elune_fireAI(GameObject* go) : GameObjectAI(go) { }
 
-        if (go->GetEntry() == GO_ELUNE_ALTAR)
-            isAltar = true;
-
-        if (Creature* ranshalla = GetClosestCreatureWithEntry(go, NPC_RANSHALLA, 10.0f))
+        bool GossipHello(Player* /*player*/) override
         {
-            if (npc_ranshalla::npc_ranshallaAI* escortAI = dynamic_cast<npc_ranshalla::npc_ranshallaAI*>(ranshalla->AI()))
-                escortAI->DoContinueEscort(isAltar);
-        }
-        go->AddFlag(GO_FLAG_NOT_SELECTABLE);
+            // Check if we are using the torches or the altar
+            bool isAltar = false;
 
-        return false;
+            if (me->GetEntry() == GO_ELUNE_ALTAR)
+                isAltar = true;
+
+            if (Creature* ranshalla = GetClosestCreatureWithEntry(me, NPC_RANSHALLA, 10.0f))
+            {
+                if (npc_ranshalla::npc_ranshallaAI* escortAI = dynamic_cast<npc_ranshalla::npc_ranshallaAI*>(ranshalla->AI()))
+                    escortAI->DoContinueEscort(isAltar);
+            }
+            me->AddFlag(GO_FLAG_NOT_SELECTABLE);
+            return false;
+        }
+    };
+
+    GameObjectAI* GetAI(GameObject* go) const override
+    {
+        return new go_elune_fireAI(go);
     }
 };
 
 void AddSC_winterspring()
 {
-    new npc_rivern_frostwind();
     new npc_ranshalla();
     new go_elune_fire();
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -71,7 +71,6 @@ ObjectData const gameObjectData[] =
     { GO_TWILIGHT_FLAME_RING,   DATA_TWILIGHT_FLAME_RING    },
     { 0,                        0                           } //END
 };
-
 
 class instance_ruby_sanctum : public InstanceMapScript
 {
@@ -176,7 +175,10 @@ class instance_ruby_sanctum : public InstanceMapScript
             {
                 if (GetBossState(DATA_SAVIANA_RAGEFIRE) == DONE && GetBossState(DATA_BALTHARUS_THE_WARBORN) == DONE)
                     if (Creature* zarithrian = GetCreature(DATA_GENERAL_ZARITHRIAN))
-                        zarithrian->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE));
+                    {
+                        zarithrian->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+                        zarithrian->SetImmuneToPC(false);
+                    }
             }
 
             void SetData(uint32 type, uint32 data) override

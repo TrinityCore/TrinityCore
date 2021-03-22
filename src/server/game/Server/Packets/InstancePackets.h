@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -237,10 +237,10 @@ namespace WorldPackets
             uint32 CombatResChargeRecovery = 0;
         };
 
-        class BossKillCredit final : public ServerPacket
+        class BossKill final : public ServerPacket
         {
         public:
-            BossKillCredit() : ServerPacket(SMSG_BOSS_KILL_CREDIT, 4) { }
+            BossKill() : ServerPacket(SMSG_BOSS_KILL, 4) { }
 
             WorldPacket const* Write() override;
             uint32 DungeonEncounterID = 0;

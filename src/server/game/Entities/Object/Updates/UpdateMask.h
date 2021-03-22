@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -57,6 +57,14 @@ public:
     bool operator[](uint32 index) const
     {
         return (_blocks[index / 32] & (1 << (index % 32))) != 0;
+    }
+
+    bool IsAnySet() const
+    {
+        return std::any_of(std::begin(_blocksMask), std::end(_blocksMask), [](uint32 blockMask)
+        {
+            return blockMask != 0;
+        });
     }
 
     void Reset(uint32 index)

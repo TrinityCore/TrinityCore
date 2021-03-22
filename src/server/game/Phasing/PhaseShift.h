@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,7 +19,7 @@
 #define PhaseShift_h__
 
 #include "Define.h"
-#include "EnumClassFlag.h"
+#include "EnumFlag.h"
 #include "ObjectGuid.h"
 #include <boost/container/flat_set.hpp>
 #include <map>
@@ -48,6 +48,9 @@ enum class PhaseFlags : uint16
     Personal    = 0x2
 };
 
+DEFINE_ENUM_FLAG(PhaseShiftFlags);
+DEFINE_ENUM_FLAG(PhaseFlags);
+
 class TC_GAME_API PhaseShift
 {
 public:
@@ -57,7 +60,7 @@ public:
             : Id(id), Flags(flags), References(0), AreaConditions(conditions) { }
 
         uint16 Id;
-        EnumClassFlag<PhaseFlags> Flags;
+        EnumFlag<PhaseFlags> Flags;
         int32 References;
         std::vector<Condition*> const* AreaConditions;
         bool operator<(PhaseRef const& right) const { return Id < right.Id; }
@@ -78,11 +81,9 @@ public:
         typename Container::iterator Iterator;
         bool Erased;
     };
-    typedef boost::container::flat_set<PhaseRef> PhaseContainer;
-    typedef std::map<uint32, VisibleMapIdRef> VisibleMapIdContainer;
-    typedef std::map<uint32, UiMapPhaseIdRef> UiMapPhaseIdContainer;
-
-    PhaseShift() : Flags(PhaseShiftFlags::Unphased), NonCosmeticReferences(0), CosmeticReferences(0), DefaultReferences(0), IsDbPhaseShift(false) { }
+    using PhaseContainer = boost::container::flat_set<PhaseRef>;
+    using VisibleMapIdContainer = std::map<uint32, VisibleMapIdRef>;
+    using UiMapPhaseIdContainer = std::map<uint32, UiMapPhaseIdRef>;
 
     bool AddPhase(uint32 phaseId, PhaseFlags flags, std::vector<Condition*> const* areaConditions, int32 references = 1);
     EraseResult<PhaseContainer> RemovePhase(uint32 phaseId);
@@ -97,7 +98,7 @@ public:
     bool AddUiMapPhaseId(uint32 uiMapPhaseId, int32 references = 1);
     EraseResult<UiMapPhaseIdContainer> RemoveUiMapPhaseId(uint32 uiMapPhaseId);
     bool HasUiMapPhaseId(uint32 uiMapPhaseId) const { return UiMapPhaseIds.find(uiMapPhaseId) != UiMapPhaseIds.end(); }
-    UiMapPhaseIdContainer const& GetUiWorldMapAreaIdSwaps() const { return UiMapPhaseIds; }
+    UiMapPhaseIdContainer const& GetUiMapPhaseIds() const { return UiMapPhaseIds; }
 
     void Clear();
     void ClearPhases();
@@ -107,7 +108,7 @@ public:
 protected:
     friend class PhasingHandler;
 
-    EnumClassFlag<PhaseShiftFlags> Flags;
+    EnumFlag<PhaseShiftFlags> Flags = PhaseShiftFlags::Unphased;
     ObjectGuid PersonalGuid;
     PhaseContainer Phases;
     VisibleMapIdContainer VisibleMapIds;
@@ -115,10 +116,12 @@ protected:
 
     void ModifyPhasesReferences(PhaseContainer::iterator itr, int32 references);
     void UpdateUnphasedFlag();
-    int32 NonCosmeticReferences;
-    int32 CosmeticReferences;
-    int32 DefaultReferences;
-    bool IsDbPhaseShift;
+    void UpdatePersonalGuid();
+    int32 NonCosmeticReferences = 0;
+    int32 CosmeticReferences = 0;
+    int32 PersonalReferences = 0;
+    int32 DefaultReferences = 0;
+    bool IsDbPhaseShift = false;
 };
 
 #endif // PhaseShift_h__

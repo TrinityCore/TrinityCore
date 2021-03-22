@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -67,10 +67,10 @@ namespace WorldPackets
             ObjectGuid NpcGUID;
         };
 
-        class ArtifactForgeOpened final : public ServerPacket
+        class OpenArtifactForge final : public ServerPacket
         {
         public:
-            ArtifactForgeOpened() : ServerPacket(SMSG_ARTIFACT_FORGE_OPENED, 16 + 16) { }
+            OpenArtifactForge() : ServerPacket(SMSG_OPEN_ARTIFACT_FORGE, 16 + 16) { }
 
             WorldPacket const* Write() override;
 
@@ -78,10 +78,10 @@ namespace WorldPackets
             ObjectGuid ForgeGUID;
         };
 
-        class ArtifactRespecConfirm final : public ServerPacket
+        class ArtifactRespecPrompt final : public ServerPacket
         {
         public:
-            ArtifactRespecConfirm() : ServerPacket(SMSG_ARTIFACT_RESPEC_CONFIRM, 16 + 16) { }
+            ArtifactRespecPrompt() : ServerPacket(SMSG_ARTIFACT_RESPEC_PROMPT, 16 + 16) { }
 
             WorldPacket const* Write() override;
 

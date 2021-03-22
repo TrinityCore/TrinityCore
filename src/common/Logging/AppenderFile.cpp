@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,7 +22,7 @@
 
 AppenderFile::AppenderFile(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags, std::vector<char const*> extraArgs) :
     Appender(id, name, level, flags),
-    logfile(NULL),
+    logfile(nullptr),
     _logDir(sLog->GetLogsDir()),
     _maxFileSize(0),
     _fileSize(0)
@@ -97,7 +97,7 @@ FILE* AppenderFile::OpenFile(std::string const& filename, std::string const& mod
         CloseFile();
         std::string newName(fullName);
         newName.push_back('.');
-        newName.append(LogMessage::getTimeStr(time(NULL)));
+        newName.append(LogMessage::getTimeStr(time(nullptr)));
         std::replace(newName.begin(), newName.end(), ':', '-');
         rename(fullName.c_str(), newName.c_str()); // no error handling... if we couldn't make a backup, just ignore
     }
@@ -108,7 +108,7 @@ FILE* AppenderFile::OpenFile(std::string const& filename, std::string const& mod
         return ret;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 void AppenderFile::CloseFile()
@@ -116,6 +116,6 @@ void AppenderFile::CloseFile()
     if (logfile)
     {
         fclose(logfile);
-        logfile = NULL;
+        logfile = nullptr;
     }
 }

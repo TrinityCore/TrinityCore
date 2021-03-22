@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -33,6 +32,12 @@ using G3D::Vector3;
 
 namespace VMAP
 {
+    bool readChunk(FILE* rf, char* dest, const char* compare, uint32 len)
+    {
+        if (fread(dest, sizeof(char), len, rf) != len) return false;
+        return memcmp(dest, compare, len) == 0;
+    }
+
     VMapManager2::VMapManager2()
     {
         GetLiquidFlagsPtr = &GetLiquidFlagsDummy;
@@ -94,19 +99,26 @@ namespace VMAP
         return fname.str();
     }
 
-    int VMapManager2::loadMap(const char* basePath, unsigned int mapId, int x, int y)
+    int VMapManager2::loadMap(char const* basePath, unsigned int mapId, int x, int y)
     {
         int result = VMAP_LOAD_RESULT_IGNORED;
         if (isMapLoadingEnabled())
         {
-            if (loadSingleMap(mapId, basePath, x, y))
+            LoadResult parentLoadResult = loadSingleMap(mapId, basePath, x, y);
+            if (parentLoadResult == LoadResult::Success || parentLoadResult == LoadResult::FileNotFound)
             {
-                result = VMAP_LOAD_RESULT_OK;
+                if (parentLoadResult == LoadResult::Success)
+                    result = VMAP_LOAD_RESULT_OK;
+                // else VMAP_LOAD_RESULT_IGNORED
+
                 auto childMaps = iChildMapData.find(mapId);
                 if (childMaps != iChildMapData.end())
                     for (uint32 childMapId : childMaps->second)
-                        if (!loadSingleMap(childMapId, basePath, x, y))
+                    {
+                        LoadResult childLoadResult = loadSingleMap(childMapId, basePath, x, y);
+                        if (childLoadResult != LoadResult::Success && childLoadResult != LoadResult::FileNotFound)
                             result = VMAP_LOAD_RESULT_ERROR;
+                    }
             }
             else
                 result = VMAP_LOAD_RESULT_ERROR;
@@ -116,7 +128,7 @@ namespace VMAP
     }
 
     // load one tile (internal use only)
-    bool VMapManager2::loadSingleMap(uint32 mapId, const std::string& basePath, uint32 tileX, uint32 tileY)
+    LoadResult VMapManager2::loadSingleMap(uint32 mapId, const std::string& basePath, uint32 tileX, uint32 tileY)
     {
         auto instanceTree = iInstanceMapTrees.find(mapId);
         if (instanceTree == iInstanceMapTrees.end())
@@ -132,10 +144,11 @@ namespace VMAP
         {
             std::string mapFileName = getMapFileName(mapId);
             StaticMapTree* newTree = new StaticMapTree(mapId, basePath);
-            if (!newTree->InitMap(mapFileName))
+            LoadResult treeInitResult = newTree->InitMap(mapFileName);
+            if (treeInitResult != LoadResult::Success)
             {
                 delete newTree;
-                return false;
+                return treeInitResult;
             }
             instanceTree->second = newTree;
         }
@@ -306,6 +319,37 @@ namespace VMAP
         return false;
     }
 
+    void VMapManager2::getAreaAndLiquidData(unsigned int mapId, float x, float y, float z, uint8 reqLiquidType, AreaAndLiquidData& data) const
+    {
+        if (IsVMAPDisabledForPtr(mapId, VMAP_DISABLE_LIQUIDSTATUS))
+        {
+            data.floorZ = z;
+            int32 adtId, rootId, groupId;
+            uint32 flags;
+            if (getAreaInfo(mapId, x, y, data.floorZ, flags, adtId, rootId, groupId))
+                data.areaInfo = boost::in_place(adtId, rootId, groupId, flags);
+            return;
+        }
+        InstanceTreeMap::const_iterator instanceTree = GetMapTree(mapId);
+        if (instanceTree != iInstanceMapTrees.end())
+        {
+            LocationInfo info;
+            Vector3 pos = convertPositionToInternalRep(x, y, z);
+            if (instanceTree->second->GetLocationInfo(pos, info))
+            {
+                data.floorZ = info.ground_Z;
+                uint32 liquidType = info.hitModel->GetLiquidType();
+                float liquidLevel;
+                if (!reqLiquidType || (GetLiquidFlagsPtr(liquidType) & reqLiquidType))
+                    if (info.hitInstance->GetLiquidLevel(pos, info, liquidLevel))
+                        data.liquidInfo = boost::in_place(liquidType, liquidLevel);
+
+                if (!IsVMAPDisabledForPtr(mapId, VMAP_DISABLE_AREAFLAG))
+                    data.areaInfo = boost::in_place(info.hitInstance->adtId, info.rootId, info.hitModel->GetWmoID(), info.hitModel->GetMogpFlags());
+            }
+        }
+    }
+
     WorldModel* VMapManager2::acquireModelInstance(const std::string& basepath, const std::string& filename, uint32 flags/* Only used when creating the model */)
     {
         //! Critical section, thread safe access to iLoadedModelFiles
@@ -319,12 +363,12 @@ namespace VMAP
             {
                 TC_LOG_ERROR("misc", "VMapManager2: could not load '%s%s.vmo'", basepath.c_str(), filename.c_str());
                 delete worldmodel;
-                return NULL;
+                return nullptr;
             }
             TC_LOG_DEBUG("maps", "VMapManager2: loading file '%s%s'", basepath.c_str(), filename.c_str());
-            
+
             worldmodel->Flags = flags;
-            
+
             model = iLoadedModelFiles.insert(std::pair<std::string, ManagedModel>(filename, ManagedModel())).first;
             model->second.setModel(worldmodel);
         }
@@ -351,7 +395,7 @@ namespace VMAP
         }
     }
 
-    LoadResult VMapManager2::existsMap(const char* basePath, unsigned int mapId, int x, int y)
+    LoadResult VMapManager2::existsMap(char const* basePath, unsigned int mapId, int x, int y)
     {
         return StaticMapTree::CanLoadMap(std::string(basePath), mapId, x, y, this);
     }

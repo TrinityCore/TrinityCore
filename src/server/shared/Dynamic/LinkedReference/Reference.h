@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -40,7 +39,7 @@ template <class TO, class FROM> class Reference : public LinkedListElement
         // Tell our refFrom (source) object, that the link is cut (Target destroyed)
         virtual void sourceObjectDestroyLink() = 0;
     public:
-        Reference() { iRefTo = NULL; iRefFrom = NULL; }
+        Reference() { iRefTo = nullptr; iRefFrom = nullptr; }
         virtual ~Reference() { }
 
         // Create new link
@@ -49,7 +48,7 @@ template <class TO, class FROM> class Reference : public LinkedListElement
             ASSERT(fromObj);                                // fromObj MUST not be NULL
             if (isValid())
                 unlink();
-            if (toObj != NULL)
+            if (toObj != nullptr)
             {
                 iRefTo = toObj;
                 iRefFrom = fromObj;
@@ -63,8 +62,8 @@ template <class TO, class FROM> class Reference : public LinkedListElement
         {
             targetObjectDestroyLink();
             delink();
-            iRefTo = NULL;
-            iRefFrom = NULL;
+            iRefTo = nullptr;
+            iRefFrom = nullptr;
         }
 
         // Link is invalid due to destruction of referenced target object. Call comes from the refTo object
@@ -73,12 +72,12 @@ template <class TO, class FROM> class Reference : public LinkedListElement
         {
             sourceObjectDestroyLink();
             delink();
-            iRefTo = NULL;
+            iRefTo = nullptr;
         }
 
         bool isValid() const                                // Only check the iRefTo
         {
-            return iRefTo != NULL;
+            return iRefTo != nullptr;
         }
 
         Reference<TO, FROM>       * next()       { return((Reference<TO, FROM>       *) LinkedListElement::next()); }

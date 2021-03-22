@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -25,8 +25,10 @@
 #include "account_service.pb.h"
 #include "authentication_service.pb.h"
 #include "challenge_service.pb.h"
+#include "club_listener.pb.h"
 #include "club_membership_listener.pb.h"
 #include "club_membership_service.pb.h"
+#include "club_service.pb.h"
 #include "connection_service.pb.h"
 #include "friends_service.pb.h"
 #include "game_utilities_service.pb.h"
