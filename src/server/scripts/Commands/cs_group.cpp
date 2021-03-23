@@ -61,7 +61,7 @@ public:
             { "list",    rbac::RBAC_PERM_COMMAND_GROUP_LIST,      false, &HandleGroupListCommand,    "" },
             { "summon",  rbac::RBAC_PERM_COMMAND_GROUP_SUMMON,    false, &HandleGroupSummonCommand,  "" },
             { "revive",  rbac::RBAC_PERM_COMMAND_REVIVE,          true,  &HandleGroupReviveCommand,  "" },
-			{ "repair",  rbac::RBAC_PERM_COMMAND_REPAIRITEMS,	  true,  &HandleGroupRepairCommand,  "" },
+            { "repair",  rbac::RBAC_PERM_COMMAND_REPAIRITEMS,     true,  &HandleGroupRepairCommand,  "" },
             { "level",   rbac::RBAC_PERM_COMMAND_CHARACTER_LEVEL, true,  &HandleGroupLevelCommand,   "" }
         };
 
