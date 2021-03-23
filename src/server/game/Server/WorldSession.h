@@ -269,6 +269,7 @@ namespace WorldPackets
         class SetFactionInactive;
         class SetWatchedFaction;
         class SetPlayerDeclinedNames;
+        class SetCurrencyFlags;
 
         enum class LoginFailureReason : uint8;
     }
@@ -1737,6 +1738,7 @@ class TC_GAME_API WorldSession
         void HandleObjectUpdateFailedOpcode(WorldPackets::Misc::ObjectUpdateFailed& objectUpdateFailed);
         void HandleObjectUpdateRescuedOpcode(WorldPackets::Misc::ObjectUpdateRescued& objectUpdateRescued);
         void HandleRequestCategoryCooldowns(WorldPackets::Spells::RequestCategoryCooldowns& requestCategoryCooldowns);
+        void HandleSetCurrencyFlags(WorldPackets::Character::SetCurrencyFlags& packet);
         void HandleCloseInteraction(WorldPackets::Misc::CloseInteraction& closeInteraction);
         void HandleConversationLineStarted(WorldPackets::Misc::ConversationLineStarted& conversationLineStarted);
         void HandleKeyboundOverride(WorldPackets::Spells::KeyboundOverride& keyboundOverride);

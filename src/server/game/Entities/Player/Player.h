@@ -1472,6 +1472,20 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendCurrencies() const;
         /// Send conquest currency points and their cap week/arena
         void SendPvpRewards() const;
+        /// return count of currency witch has plr
+        uint32 GetCurrency(uint32 id) const;
+        /// return count of currency gaind on current week
+        uint32 GetCurrencyOnWeek(uint32 id) const;
+        /// return week cap by currency id
+        uint32 GetCurrencyWeekCap(uint32 id) const;
+        /// modify currency flag by id
+        void ModifyCurrencyFlag(uint32 id, uint8 flag);
+        /// return tracked currency count by currency id
+        uint32 GetTrackedCurrencyCount(uint32 id) const;
+        /// return presence related currency
+        bool HasCurrency(uint32 id, uint32 count) const;
+        /// initialize currency count for custom initialization at create character
+        void SetCreateCurrency(uint32 id, uint32 count, bool printLog = true);
         /// Initialize currency amount for custom initialization at create character
         void SetCreateCurrency(uint32 id, uint32 amount);
         /// Modify currency amount
@@ -2270,10 +2284,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         TeamId GetTeamId() const { return m_team == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
 
-        bool IsTeamAlliance() const { return m_team == ALLIANCE; }//后加
-        bool IsTeamHorde() const { return m_team == HORDE; }//后加
-        bool IsInAlliance() const { return m_team == ALLIANCE; }//后加
-        bool IsInHorde() const { return m_team == HORDE; }//后加
+        bool IsTeamAlliance() const { return m_team == ALLIANCE; }//���
+        bool IsTeamHorde() const { return m_team == HORDE; }//���
+        bool IsInAlliance() const { return m_team == ALLIANCE; }//���
+        bool IsInHorde() const { return m_team == HORDE; }//���
 
 
         void SetFactionForRace(uint8 race);
@@ -2734,11 +2748,11 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool SwapVoidStorageItem(uint8 oldSlot, uint8 newSlot);
         VoidStorageItem* GetVoidStorageItem(uint8 slot) const;
         VoidStorageItem* GetVoidStorageItem(uint64 id, uint8& slot) const;
-        float GetPersonnalXpRate() { return _PersonnalXpRate; }//后加
+        float GetPersonnalXpRate() { return _PersonnalXpRate; }//���
         void SetPersonnalXpRate(float PersonnalXpRate);
         std::shared_ptr<BattlePet>* GetBattlePetCombatTeam();
         bool HasBattlePetTraining();
-        //后加
+        //���
         std::shared_ptr<BattlePet> _battlePetCombatTeam[3];
         // Reagent Bank
         bool IsReagentBankUnlocked() const { return HasPlayerFlagEx(PLAYER_FLAGS_EX_REAGENT_BANK_UNLOCKED); }
@@ -2967,13 +2981,13 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
        // void UnbindInstance(BoundInstancesMap::mapped_type::iterator& itr, BoundInstancesMap::iterator& difficultyItr, bool unload);
         void UnbindInstance(BoundInstancesMap::mapped_type::iterator& itr, BoundInstancesMap::iterator& difficultyItr, bool unload = false);
 
-        //void UnbindInstance(uint32 mapid, Difficulty difficulty, bool unload);//系统自动生成
+        //void UnbindInstance(uint32 mapid, Difficulty difficulty, bool unload);//ϵͳ�Զ�����
         void UnbindInstance(uint32 mapid, Difficulty difficulty, bool unload = false);
         //void UnbindInstance(uint32 mapid, Difficulty difficulty, bool unload);
         typedef std::unordered_map<Difficulty, std::unordered_map<uint32 /*mapId*/, InstancePlayerBind>> BoundInstancesMap;
         BoundInstancesMap m_boundInstances;
-        //InstancePlayerBind* GetBoundInstance(uint32 mapid, Difficulty difficulty, bool withExpired);//系统自动定义
-        InstancePlayerBind* GetBoundInstance(uint32 mapid, Difficulty difficulty, bool withExpired = false);//后注释,发现不行
+        //InstancePlayerBind* GetBoundInstance(uint32 mapid, Difficulty difficulty, bool withExpired);//ϵͳ�Զ�����
+        InstancePlayerBind* GetBoundInstance(uint32 mapid, Difficulty difficulty, bool withExpired = false);//��ע��,���ֲ���
         InstancePlayerBind const* GetBoundInstance(uint32 mapid, Difficulty difficulty) const;
 
         void _LoadDailyQuestStatus(PreparedQueryResult result);

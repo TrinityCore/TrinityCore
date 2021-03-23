@@ -660,5 +660,11 @@ WorldPacket const * SetPlayerDeclinedNamesResult::Write()
 
     return &_worldPacket;
 }
+
+void SetCurrencyFlags::Read()
+{
+    _worldPacket >> CurrencyID;
+    _worldPacket >> Flags;
+}
 }
 }

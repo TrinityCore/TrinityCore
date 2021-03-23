@@ -7050,6 +7050,19 @@ void Player::SendCurrencies() const
     SendDirectMessage(packet.Write());
 }
 
+void Player::ModifyCurrencyFlag(uint32 id, uint8 flag)
+{
+    if (!id)
+        return;
+
+    if (_currencyStorage.find(id) == _currencyStorage.end())
+        return;
+
+    _currencyStorage[id].Flags = flag;
+    if (_currencyStorage[id].state != PLAYERCURRENCY_NEW)
+        _currencyStorage[id].state = PLAYERCURRENCY_CHANGED;
+}
+
 void Player::SendPvpRewards() const
 {
     //WorldPacket packet(SMSG_REQUEST_PVP_REWARDS_RESPONSE, 24);
