@@ -18,6 +18,15 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "PassiveAI.h"
+#include "Vehicle.h"
+
+enum VehicleSeatIds
+{
+    SEAT_1 = 0,
+    SEAT_2 = 1
+};
 
 enum Xariona
 {
@@ -155,6 +164,97 @@ private:
     uint8 _furyOfTheTwilightFlightCount;
 };
 
+enum DeepholmTheRealmOfEarth
+{
+    // Spells
+    SPELL_CAMERA_1                      = 84364,
+    SPELL_FORCECAST_AGGRA_PING          = 96123,
+    SPELL_FORCECAST_TELEPORT            = 84093,
+    SPELL_DEEPHOLM_INTRO_TAXI           = 84101,
+    SPELL_EJECT_PASSENGER_2             = 62539,
+
+    // Events
+    EVENT_PING_AGGRA                    = 1,
+    EVENT_APPROACH_MAELSTROM,
+
+    // Move Points
+    POINT_ID_INTRO_FLIGHT = 0,
+    POINT_ID_LEAVE_PLAYER,
+
+    // Creature
+    NPC_WYVERN_TEMPLE_OF_EARTH          = 45024
+};
+
+struct npc_deepholm_wyvern : public NullCreatureAI
+{
+    npc_deepholm_wyvern(Creature* creature) : NullCreatureAI(creature) { }
+
+    void PassengerBoarded(Unit* passenger, int8 seatId, bool apply) override
+    {
+        if (!passenger || !passenger->IsPlayer())
+            return;
+
+        if (apply && seatId == SEAT_2)
+        {
+            if (me->GetEntry() != NPC_WYVERN_TEMPLE_OF_EARTH)
+                DoCastSelf(SPELL_CAMERA_1);
+            else
+                me->GetMotionMaster()->MovePath(me->GetEntry() * 100, false);
+
+            _events.ScheduleEvent(EVENT_PING_AGGRA, 400ms);
+        }
+    }
+
+    void MovementInform(uint32 motionType, uint32 pointId) override
+    {
+        if (motionType != WAYPOINT_MOTION_TYPE)
+            return;
+
+        switch (pointId)
+        {
+            case POINT_ID_INTRO_FLIGHT:
+                if (me->GetEntry() != NPC_WYVERN_TEMPLE_OF_EARTH)
+                    DoCastSelf(SPELL_FORCECAST_TELEPORT);
+                else
+                    DoCastSelf(SPELL_EJECT_PASSENGER_2);
+                break;
+            case POINT_ID_LEAVE_PLAYER:
+                me->DespawnOrUnsummon(3s);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_PING_AGGRA:
+                    if (Vehicle const* vehicle = me->GetVehicleKit())
+                        if (Unit* aggra = vehicle->GetPassenger(SEAT_1))
+                            DoCast(aggra, SPELL_FORCECAST_AGGRA_PING);
+
+                    if (me->GetEntry() != NPC_WYVERN_TEMPLE_OF_EARTH)
+                        _events.ScheduleEvent(EVENT_APPROACH_MAELSTROM, 800ms);
+                    break;
+                case EVENT_APPROACH_MAELSTROM:
+                    me->GetMotionMaster()->MovePath(me->GetEntry() * 100, false);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+private:
+    EventMap _events;
+};
+
 // 95385 - Twilight Buffet Targeting
 class spell_deepholm_twilight_buffet_targeting : public SpellScript
 {
@@ -183,8 +283,29 @@ class spell_deepholm_twilight_buffet_targeting : public SpellScript
     }
 };
 
+// 84073 - Deepholm Intro Teleport
+class spell_deepholm_intro_teleport : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DEEPHOLM_INTRO_TAXI });
+    }
+
+    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_DEEPHOLM_INTRO_TAXI);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove.Register(&spell_deepholm_intro_teleport::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_deepholm()
 {
     RegisterCreatureAI(npc_deepholm_xariona);
+    RegisterCreatureAI(npc_deepholm_wyvern);
     RegisterSpellScript(spell_deepholm_twilight_buffet_targeting);
+    RegisterSpellScript(spell_deepholm_intro_teleport);
 }
