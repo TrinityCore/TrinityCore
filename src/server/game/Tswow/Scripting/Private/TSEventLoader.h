@@ -25,5 +25,5 @@ TSEventHandlers* TSLoadEventHandler(boost::filesystem::path const& name);
 bool TSShouldLoadEventHandler(boost::filesystem::path const& name);
 void TSUnloadEventHandler(boost::filesystem::path const& name);
 TSEvents* GetTSEvents();
-
+bool handleAddonNetworkMessage(Player* player,uint32 type,uint32 lang,std::string& msg,Player* receiver);
 #endif
