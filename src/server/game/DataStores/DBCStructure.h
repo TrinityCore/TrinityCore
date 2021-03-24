@@ -2261,6 +2261,8 @@ struct SpellShapeshiftFormEntry
     uint32  PresetSpellID[MAX_SHAPESHIFT_SPELLS];           // 11 - 18 spells which appear in the bar after shapeshifting
     uint32  MountTypeID;                                    // 19
     //uint32  ExitSoundEntriesID;                           // 20
+
+    EnumFlag<SpellShapeshiftFormFlags> GetFlags() const { return static_cast<SpellShapeshiftFormFlags>(Flags); }
 };
 
 // SpellShapeshift.dbc

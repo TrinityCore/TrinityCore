@@ -9394,7 +9394,7 @@ bool Unit::IsInDisallowedMountForm() const
         if (!shapeshift)
             return true;
 
-        if (!(shapeshift->Flags & 0x1))
+        if (!shapeshift->GetFlags().HasFlag(SpellShapeshiftFormFlags::Stance))
             return true;
     }
 
