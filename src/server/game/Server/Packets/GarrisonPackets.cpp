@@ -537,6 +537,79 @@ WorldPacket const* GarrisonOpenMissionNpc::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* GarrisonOpenRecruitmentNpc::Write()
+{
+    _worldPacket << NpcGUID;
+    _worldPacket << Unk1;
+    //_worldPacket << Unk2;
+    //_worldPacket << Unk3;
+    if (followers.empty())
+    {
+        for (uint8 l_Itr = 0; l_Itr < 3; ++l_Itr)
+        {
+            GarrisonFollower follower;
+            InsertGarrisonFollower(_worldPacket, follower);
+        }
+    }
+    else
+    {
+        for (GarrisonFollower follower : followers)
+        {
+            InsertGarrisonFollower(_worldPacket, follower);
+        }
+    }
+    _worldPacket << CanRecruitFollower;
+    _worldPacket << Unk4;
+    return &_worldPacket;
+}
+
+WorldPacket const* GarrisonRecruitFollowerResult::Write()
+{
+    _worldPacket << resultID;
+
+    if (followers.empty())
+    {
+        for (uint8 l_Itr = 0; l_Itr < 3; ++l_Itr)
+        {
+            GarrisonFollower follower;
+            InsertGarrisonFollower(_worldPacket, follower);
+        }
+    }
+    else
+    {
+        for (GarrisonFollower follower : followers)
+        {
+            InsertGarrisonFollower(_worldPacket, follower);
+        }
+    }
+
+    return &_worldPacket;
+}
+
+WorldPacket InsertGarrisonFollower(WorldPacket& worldPacket, GarrisonFollower follower)
+{
+    worldPacket << follower.DbID;
+    worldPacket << follower.GarrFollowerID;
+    worldPacket << follower.Quality;
+    worldPacket << follower.FollowerLevel;
+    worldPacket << follower.ItemLevelWeapon;
+    worldPacket << follower.ItemLevelArmor;
+    worldPacket << follower.Xp;
+    worldPacket << follower.Durability;
+    worldPacket << follower.CurrentBuildingID;
+
+    worldPacket << follower.CurrentMissionID;
+    worldPacket << uint32(follower.AbilityID.size());
+    worldPacket << follower.ZoneSupportSpellID;
+    worldPacket << follower.FollowerStatus;
+
+    for (auto it = follower.AbilityID.begin(); it != follower.AbilityID.end(); it++)
+        worldPacket << int32(((const GarrAbilityEntry*)*it)->ID);
+
+    worldPacket << follower.CustomName;
+    return worldPacket;
+}
+
 void WorldPackets::Garrison::GarrisonAssignFollowerToBuilding::Read()
 {
     _worldPacket >> NpcGUID;

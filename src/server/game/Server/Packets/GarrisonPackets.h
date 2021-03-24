@@ -518,6 +518,34 @@ namespace WorldPackets
             bool   unk4 = false;
             bool   preventXmlOpenMissionEvent = false;
         };
+
+        class GarrisonRecruitFollowerResult final : public ServerPacket
+        {
+        public:
+            GarrisonRecruitFollowerResult() : ServerPacket(SMSG_GARRISON_RECRUIT_FOLLOWER_RESULT, 64) { }
+
+            uint32 resultID = 0;
+            std::vector <GarrisonFollower> followers;
+
+            WorldPacket const* Write() override;
+        };
+
+        WorldPacket InsertGarrisonFollower(WorldPacket& worldPacke, WorldPackets::Garrison::GarrisonFollower follower);
+
+        class GarrisonOpenRecruitmentNpc final : public ServerPacket
+        {
+        public:
+            GarrisonOpenRecruitmentNpc() : ServerPacket(SMSG_GARRISON_OPEN_RECRUITMENT_NPC, 4) { }
+
+            ObjectGuid NpcGUID;
+            uint32 Unk1 = 0;
+            //uint32 Unk2 = 0;
+            //uint32 Unk3 = 0;
+            std::vector <GarrisonFollower> followers;
+            bool CanRecruitFollower = false;
+            bool Unk4 = false;
+            WorldPacket const* Write() override;
+        };
     }
 }
 
