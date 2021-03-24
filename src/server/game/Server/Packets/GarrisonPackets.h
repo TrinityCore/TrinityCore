@@ -449,6 +449,37 @@ namespace WorldPackets
             uint32 PlotInstanceID;
             uint64 FollowerDBID;
         };
+
+        class GarrisonAddMissionResult final : public ServerPacket
+        {
+        public:
+            GarrisonAddMissionResult() : ServerPacket(SMSG_GARRISON_ADD_MISSION_RESULT, 4) { }
+
+            uint32 GarrType = 0;
+            uint32 Result = 0;
+            uint8 State = 0;
+            GarrisonMission Mission;
+
+            std::vector<GarrisonMissionReward> Rewards;
+            std::vector<GarrisonMissionReward> BonusRewards;
+
+            bool Success = true;
+
+            WorldPacket const* Write() override;
+        };
+
+        class GarrisonCompleteMissionResult final : public ServerPacket
+        {
+        public:
+            GarrisonCompleteMissionResult() : ServerPacket(SMSG_GARRISON_COMPLETE_MISSION_RESULT, 4) { }
+
+            uint32 Result = 0;
+            GarrisonMission Mission;
+            std::map<uint64 /*followerDBID*/, uint32 /*unk*/> Followers;
+            bool Succeed = false;
+
+            WorldPacket const* Write() override;
+        };
     }
 }
 

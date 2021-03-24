@@ -483,6 +483,25 @@ WorldPacket const* GarrisonBuildingActivated::Write()
 }
 
 
+WorldPacket const* GarrisonCompleteMissionResult::Write()
+{
+    _worldPacket << Result;
+    _worldPacket << Mission;
+    _worldPacket << Mission.MissionRecID;
+    _worldPacket << uint32(Followers.size());
+
+    for (auto itr : Followers)
+    {
+        _worldPacket << itr.first;
+        _worldPacket << itr.second;
+    }
+
+    _worldPacket.WriteBit(Succeed);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
 void WorldPackets::Garrison::GarrisonAssignFollowerToBuilding::Read()
 {
     _worldPacket >> NpcGUID;
