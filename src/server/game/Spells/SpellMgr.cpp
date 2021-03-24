@@ -2827,7 +2827,7 @@ void SpellMgr::LoadSpellInfoServerside()
             spellInfo.CategoryRecoveryTime = fields[36].GetUInt32();
             spellInfo.StartRecoveryCategory = fields[37].GetUInt32();
             spellInfo.StartRecoveryTime = fields[38].GetUInt32();
-            spellInfo.InterruptFlags = fields[39].GetUInt32();
+            spellInfo.InterruptFlags = SpellInterruptFlags(fields[39].GetUInt32());
             spellInfo.AuraInterruptFlags = SpellAuraInterruptFlags(fields[40].GetUInt32());
             spellInfo.AuraInterruptFlags2 = SpellAuraInterruptFlags2(fields[41].GetUInt32());
             spellInfo.ChannelInterruptFlags = SpellAuraInterruptFlags(fields[42].GetUInt32());

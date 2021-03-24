@@ -414,7 +414,7 @@ class TC_GAME_API SpellInfo
         uint32 CategoryRecoveryTime = 0;
         uint32 StartRecoveryCategory = 0;
         uint32 StartRecoveryTime = 0;
-        uint32 InterruptFlags = 0;
+        EnumFlag<SpellInterruptFlags> InterruptFlags = SpellInterruptFlags::None;
         EnumFlag<SpellAuraInterruptFlags> AuraInterruptFlags = SpellAuraInterruptFlags::None;
         EnumFlag<SpellAuraInterruptFlags2> AuraInterruptFlags2 = SpellAuraInterruptFlags2::None;
         EnumFlag<SpellAuraInterruptFlags> ChannelInterruptFlags = SpellAuraInterruptFlags::None;
@@ -497,6 +497,8 @@ class TC_GAME_API SpellInfo
         bool HasAttribute(SpellAttr13 attribute) const { return !!(AttributesEx13 & attribute); }
         bool HasAttribute(SpellAttr14 attribute) const { return !!(AttributesEx14 & attribute); }
         bool HasAttribute(SpellCustomAttributes customAttribute) const { return !!(AttributesCu & customAttribute); }
+
+        bool CanBeInterrupted(Unit* interruptCaster, Unit* interruptTarget) const;
 
         bool HasAnyAuraInterruptFlag() const;
         bool HasAuraInterruptFlag(SpellAuraInterruptFlags flag) const { return AuraInterruptFlags.HasFlag(flag); }

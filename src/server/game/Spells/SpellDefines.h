@@ -34,15 +34,23 @@ namespace WorldPackets
     }
 }
 
-enum SpellInterruptFlags : uint32
+enum class SpellInterruptFlags : uint32
 {
-    SPELL_INTERRUPT_FLAG_MOVEMENT     = 0x01, // why need this for instant?
-    SPELL_INTERRUPT_FLAG_PUSH_BACK    = 0x02, // push back
-    SPELL_INTERRUPT_FLAG_UNK3         = 0x04, // any info?
-    SPELL_INTERRUPT_FLAG_INTERRUPT    = 0x08, // interrupt
-    SPELL_INTERRUPT_FLAG_ABORT_ON_DMG = 0x10  // _complete_ interrupt on direct damage
-    //SPELL_INTERRUPT_UNK             = 0x20                // unk, 564 of 727 spells having this spell start with "Glyph"
+    None                        = 0,
+    Movement                    = 0x00000001,
+    DamagePushbackPlayerOnly    = 0x00000002,
+    Stun                        = 0x00000004, // useless, even spells without it get interrupted
+    Combat                      = 0x00000008,
+    DamageCancelsPlayerOnly     = 0x00000010,
+    MeleeCombat                 = 0x00000020, // NYI
+    Immunity                    = 0x00000040, // NYI
+    DamageAbsorb                = 0x00000080,
+    ZeroDamageCancels           = 0x00000100,
+    DamagePushback              = 0x00000200,
+    DamageCancels               = 0x00000400
 };
+
+DEFINE_ENUM_FLAG(SpellInterruptFlags);
 
 enum class SpellAuraInterruptFlags : uint32
 {
