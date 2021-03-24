@@ -958,6 +958,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
     }
 
     pCurrChar->UpdatePositionData();
+    pCurrChar->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Login);
     pCurrChar->UpdateMountCapabilities();
     pCurrChar->SendInitialPacketsAfterAddToMap();
 

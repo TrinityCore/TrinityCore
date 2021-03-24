@@ -768,6 +768,7 @@ class TC_GAME_API Unit : public WorldObject
         UnitAI* GetAI() { return i_AI; }
         void SetAI(UnitAI* newAI) { i_AI = newAI; }
 
+        void AddToWorld() override;
         void RemoveFromWorld() override;
 
         void CleanupBeforeRemoveFromMap(bool finalCleanup);
@@ -911,7 +912,7 @@ class TC_GAME_API Unit : public WorldObject
         void ApplyCastTimePercentMod(float val, bool apply);
 
         SheathState GetSheath() const { return SheathState(GetByteValue(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_SHEATH_STATE)); }
-        virtual void SetSheath(SheathState sheathed) { SetByteValue(UNIT_FIELD_BYTES_2, UNIT_BYTES_2_OFFSET_SHEATH_STATE, sheathed); }
+        virtual void SetSheath(SheathState sheathed);
 
         // faction template id
         uint32 GetFaction() const { return GetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE); }
@@ -1293,7 +1294,8 @@ class TC_GAME_API Unit : public WorldObject
         void RemoveAurasDueToItemSpell(uint32 spellId, ObjectGuid castItemGuid);
         void RemoveAurasByType(AuraType auraType, ObjectGuid casterGUID = ObjectGuid::Empty, Aura* except = nullptr, bool negative = true, bool positive = true);
         void RemoveNotOwnLimitedTargetAuras(bool onPhaseChange = false);
-        void RemoveAurasWithInterruptFlags(uint32 flag, uint32 except = 0, Spell* interruptingSpell = nullptr);
+        template <typename InterruptFlags>
+        void RemoveAurasWithInterruptFlags(InterruptFlags flag, uint32 except = 0, Spell* interruptingSpell = nullptr);
         void RemoveAurasWithAttribute(uint32 flags);
         void RemoveAurasWithFamily(SpellFamilyNames family, uint32 familyFlag1, uint32 familyFlag2, uint32 familyFlag3, ObjectGuid casterGUID);
         void RemoveAurasWithMechanic(uint32 mechanic_mask, AuraRemoveFlags removemode = AuraRemoveFlags::ByDefault, uint32 except = 0);
@@ -1339,7 +1341,8 @@ class TC_GAME_API Unit : public WorldObject
         bool HasAuraTypeWithMiscvalue(AuraType auraType, int32 miscValue) const;
         bool HasAuraTypeWithAffectMask(AuraType auraType, SpellInfo const* affectedSpell) const;
         bool HasAuraTypeWithValue(AuraType auraType, int32 value) const;
-        bool HasNegativeAuraWithInterruptFlag(uint32 flag, ObjectGuid guid = ObjectGuid::Empty) const;
+        template <typename InterruptFlags>
+        bool HasNegativeAuraWithInterruptFlag(InterruptFlags flag, ObjectGuid guid = ObjectGuid::Empty) const;
         bool HasAuraWithMechanic(uint32 mechanicMask) const;
         bool HasStrongerAuraWithDR(SpellInfo const* auraSpellInfo, Unit* caster, bool triggered) const;
 
@@ -1484,8 +1487,13 @@ class TC_GAME_API Unit : public WorldObject
         void SetVisibleAura(uint8 slot, AuraApplication * aur);
         void RemoveVisibleAura(uint8 slot);
 
-        uint32 GetInterruptMask() const { return m_interruptMask; }
-        void AddInterruptMask(uint32 mask) { m_interruptMask |= mask; }
+        bool HasInterruptFlag(SpellAuraInterruptFlags flags) const { return m_interruptMask.HasFlag(flags); }
+        bool HasInterruptFlag(SpellAuraInterruptFlags2 flags) const { return m_interruptMask2.HasFlag(flags); }
+        void AddInterruptMask(SpellAuraInterruptFlags flags, SpellAuraInterruptFlags2 flags2)
+        {
+            m_interruptMask |= flags;
+            m_interruptMask2 |= flags2;
+        }
         void UpdateInterruptMask();
 
         virtual float GetNativeObjectScale() const { return 1.0f; }
@@ -1774,7 +1782,8 @@ class TC_GAME_API Unit : public WorldObject
         AurasBySpellIdMap m_ltAuras;               // cast limited target auras
         AuraApplicationList m_interruptableAuras;  // auras which have interrupt mask applied on unit
         AuraStateAurasMap m_auraStateAuras;        // Used for improve performance of aura state checks on aura apply/remove
-        uint32 m_interruptMask;
+        EnumFlag<SpellAuraInterruptFlags> m_interruptMask;
+        EnumFlag<SpellAuraInterruptFlags2> m_interruptMask2;
 
         float m_auraModifiersGroup[UNIT_MOD_END][MODIFIER_TYPE_END];
         float m_weaponDamage[MAX_ATTACK][2];
@@ -1809,7 +1818,7 @@ class TC_GAME_API Unit : public WorldObject
         virtual void ProcessTerrainStatusUpdate(ZLiquidStatus status, Optional<LiquidData> const& liquidData);
 
         // notifiers
-        virtual void AtEnterCombat() { }
+        virtual void AtEnterCombat();
         virtual void AtExitCombat();
 
         virtual void AtEngage(Unit* /*target*/) {}

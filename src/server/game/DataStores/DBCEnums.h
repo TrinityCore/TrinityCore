@@ -19,6 +19,7 @@
 #define DBCENUMS_H
 
 #include "Define.h"
+#include "EnumFlag.h"
 #include <array>
 
 enum LevelLimit

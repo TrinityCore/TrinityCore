@@ -3346,11 +3346,10 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].BasePoints = 0;
     });
 
-    // Easter Lay Noblegarden Egg Aura
+    // Easter Lay Noblegarden Egg Aura - Interrupt flags copied from aura which this aura is linked with
     ApplySpellFix({ 61719 }, [](SpellInfo* spellInfo)
     {
-        // Interrupt flags copied from aura which this aura is linked with
-        spellInfo->AuraInterruptFlags = AURA_INTERRUPT_FLAG_HITBYSPELL | AURA_INTERRUPT_FLAG_TAKE_DAMAGE;
+        spellInfo->AuraInterruptFlags = SpellAuraInterruptFlags::HostileActionReceived | SpellAuraInterruptFlags::Damage;
     });
 
     ApplySpellFix({
@@ -3429,7 +3428,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Test Ribbon Pole Channel
     ApplySpellFix({ 29726 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->InterruptFlags &= ~AURA_INTERRUPT_FLAG_CAST;
+        spellInfo->ChannelInterruptFlags &= ~SpellAuraInterruptFlags::Action;
     });
 
     ApplySpellFix({
@@ -3626,7 +3625,8 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 63414 }, [](SpellInfo* spellInfo)
     {
         spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
-        spellInfo->ChannelInterruptFlags = 0;
+        spellInfo->ChannelInterruptFlags = SpellAuraInterruptFlags::None;
+        spellInfo->ChannelInterruptFlags2 = SpellAuraInterruptFlags2::None;
     });
 
     // Rocket Strike (Mimiron)
@@ -4199,7 +4199,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 92426 }, [](SpellInfo* spellInfo)
     {
         spellInfo->CasterAuraSpell = 0;
-        spellInfo->AuraInterruptFlags = AURA_INTERRUPT_FLAG_HITBYSPELL | AURA_INTERRUPT_FLAG_TAKE_DAMAGE;
+        spellInfo->AuraInterruptFlags = SpellAuraInterruptFlags::Damage | SpellAuraInterruptFlags::HostileActionReceived;
     });
 
     // Rupture
@@ -4760,7 +4760,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Toxic Coagulant
     ApplySpellFix({ 93617 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AuraInterruptFlags = AURA_INTERRUPT_FLAG_MOVE;
+        spellInfo->AuraInterruptFlags = SpellAuraInterruptFlags::Moving;
     });
 
     // END OF SHADOWFANG KEEP SPELLS
@@ -4768,7 +4768,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Threatening Gaze
     ApplySpellFix({ 24314 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AuraInterruptFlags |= AURA_INTERRUPT_FLAG_CAST | AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_JUMP;
+        spellInfo->AuraInterruptFlags |= SpellAuraInterruptFlags::Action | SpellAuraInterruptFlags::Moving | SpellAuraInterruptFlags::Anim;
     });
 
     // Feral Charge (Cat Form
@@ -4819,13 +4819,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 76196 }, [](SpellInfo* spellInfo)
     {
         spellInfo->MaxAffectedTargets = 1;
-    });
-
-    // Bore
-    ApplySpellFix({ 75205 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->ChannelInterruptFlags = 0;
-        spellInfo->AuraInterruptFlags &= ~AURA_INTERRUPT_FLAG_TURNING;
     });
 
     // Twilight Portal

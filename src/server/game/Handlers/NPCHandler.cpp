@@ -194,10 +194,7 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
     if (FactionTemplateEntry const* factionTemplateEntry = sFactionTemplateStore.LookupEntry(unit->GetFaction()))
         _player->GetReputationMgr().SetVisible(factionTemplateEntry);
 
-    GetPlayer()->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TALK);
-    // remove fake death
-    //if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
-    //    GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
+    GetPlayer()->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Interacting);
 
     // Stop the npc if moving
     if (uint32 pause = unit->GetMovementTemplate().GetInteractionPauseTimer())

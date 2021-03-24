@@ -1548,7 +1548,7 @@ void AuraEffect::HandleModInvisibility(AuraApplication const* aurApp, uint8 mode
     if (apply && (mode & AURA_EFFECT_HANDLE_REAL))
     {
         // drop flag at invisibiliy in bg
-        target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
+        target->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::StealthOrInvis);
     }
     target->UpdateObjectVisibility();
 }
@@ -1613,7 +1613,7 @@ void AuraEffect::HandleModStealth(AuraApplication const* aurApp, uint8 mode, boo
     if (apply && (mode & AURA_EFFECT_HANDLE_REAL))
     {
         // drop flag at stealth in bg
-        target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
+        target->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::StealthOrInvis);
     }
     target->UpdateObjectVisibility();
 }
@@ -1720,14 +1720,7 @@ void AuraEffect::HandlePhase(AuraApplication const* aurApp, uint8 mode, bool app
     Unit* target = aurApp->GetTarget();
 
     if (apply)
-    {
         PhasingHandler::AddPhase(target, uint32(GetMiscValueB()), true);
-
-        // call functions which may have additional effects after chainging state of unit
-        // phase auras normally not expected at BG but anyway better check
-        // drop flag at invisibiliy in bg
-        target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
-    }
     else
         PhasingHandler::RemovePhase(target, uint32(GetMiscValueB()), true);
 }
@@ -1742,14 +1735,7 @@ void AuraEffect::HandlePhaseGroup(AuraApplication const* aurApp, uint8 mode, boo
     PhasingHandler::AddPhaseGroup(target, uint32(GetMiscValueB()), true);
 
     if (apply)
-    {
         PhasingHandler::AddPhaseGroup(target, uint32(GetMiscValueB()), true);
-
-        // call functions which may have additional effects after chainging state of unit
-        // phase auras normally not expected at BG but anyway better check
-        // drop flag at invisibiliy in bg
-        target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
-    }
     else
         PhasingHandler::RemovePhaseGroup(target, uint32(GetMiscValueB()), true);
 }
@@ -1890,6 +1876,10 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
             if (!transformSpellInfo || !GetSpellInfo()->IsPositive())
                 target->SetDisplayId(modelid);
         }
+
+        if (SpellShapeshiftFormEntry const* shapeshift = sSpellShapeshiftFormStore.LookupEntry(form))
+            if (!shapeshift->GetFlags().HasFlag(SpellShapeshiftFormFlags::Stance))
+                target->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Shapeshifting, GetId());
     }
     else
     {
@@ -2313,8 +2303,6 @@ void AuraEffect::HandleFeignDeath(AuraApplication const* aurApp, uint8 mode, boo
         else
             target->CombatStop(false, false);
 
-        target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
-
         // prevent interrupt message
         if (GetCasterGUID() == target->GetGUID() && target->GetCurrentSpell(CURRENT_GENERIC_SPELL))
             target->FinishSpell(CURRENT_GENERIC_SPELL, false);
@@ -2362,10 +2350,6 @@ void AuraEffect::HandleModUnattackable(AuraApplication const* aurApp, uint8 mode
 
     target->ApplyModFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_2, apply);
     target->ApplyModFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE, apply);
-
-    // call functions which may have additional effects after chainging state of unit
-    if (apply && (mode & AURA_EFFECT_HANDLE_REAL))
-        target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
 }
 
 void AuraEffect::HandleAuraModDisarm(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -3220,8 +3204,9 @@ void AuraEffect::HandleAuraModEffectImmunity(AuraApplication const* aurApp, uint
     m_spellInfo->ApplyAllSpellImmunitiesTo(target, GetEffIndex(), apply);
 
     // when removing flag aura, handle flag drop
+    // TODO: this should be handled in aura script for flag spells using AfterEffectRemove hook
     Player* player = target->ToPlayer();
-    if (!apply && player && (GetSpellInfo()->AuraInterruptFlags & AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION))
+    if (!apply && player && GetSpellInfo()->HasAuraInterruptFlag(SpellAuraInterruptFlags::StealthOrInvis))
     {
         if (player->InBattleground())
         {
@@ -3272,13 +3257,16 @@ void AuraEffect::HandleAuraModSchoolImmunity(AuraApplication const* aurApp, uint
         }
     }
 
-    if (apply && GetMiscValue() == SPELL_SCHOOL_MASK_NORMAL)
-        target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
+    // TODO: should be changed to a proc script on flag spell (they have "Taken positive" proc flags in db2)
+    {
+        if (apply && GetMiscValue() == SPELL_SCHOOL_MASK_NORMAL)
+            target->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::StealthOrInvis);
 
-    // remove all flag auras (they are positive, but they must be removed when you are immune)
-    if (GetSpellInfo()->HasAttribute(SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY)
-        && GetSpellInfo()->HasAttribute(SPELL_ATTR2_DAMAGE_REDUCED_SHIELD))
-        target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
+        // remove all flag auras (they are positive, but they must be removed when you are immune)
+        if (GetSpellInfo()->HasAttribute(SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY)
+            && GetSpellInfo()->HasAttribute(SPELL_ATTR2_DAMAGE_REDUCED_SHIELD))
+            target->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::StealthOrInvis);
+    }
 
     if (apply)
     {

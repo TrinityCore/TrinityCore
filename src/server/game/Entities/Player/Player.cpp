@@ -1139,7 +1139,7 @@ void Player::Update(uint32 p_time)
             if (u->IsPvP() && (!duel || duel->opponent != u))
             {
                 UpdatePvP(true);
-                RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
+                RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::PvPActive);
             }*/
         }
     }
@@ -1609,7 +1609,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
                     InterruptNonMeleeSpells(true);
 
             //remove auras before removing from map...
-            RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CHANGE_MAP | AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_TURNING);
+            RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Moving | SpellAuraInterruptFlags::Turning);
 
             if (!GetSession()->PlayerLogout())
             {
@@ -1867,12 +1867,12 @@ void Player::RegenerateAll(uint32 diff)
         for (auto itr = auraList.begin(); itr != auraList.end(); ++itr)
         {
             // Food emote comes above drinking emote if we have to decide (mage regen food for example)
-            if ((*itr)->GetBase()->HasEffectType(SPELL_AURA_MOD_REGEN) && (*itr)->GetSpellInfo()->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_SEATED)
+            if ((*itr)->GetBase()->HasEffectType(SPELL_AURA_MOD_REGEN) && (*itr)->GetSpellInfo()->HasAuraInterruptFlag(SpellAuraInterruptFlags::Standing))
             {
                 SendPlaySpellVisualKit(SPELL_VISUAL_KIT_FOOD, 0, 0);
                 break;
             }
-            else if ((*itr)->GetBase()->HasEffectType(SPELL_AURA_MOD_POWER_REGEN) && (*itr)->GetSpellInfo()->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_SEATED)
+            else if ((*itr)->GetBase()->HasEffectType(SPELL_AURA_MOD_POWER_REGEN) && (*itr)->GetSpellInfo()->HasAuraInterruptFlag(SpellAuraInterruptFlags::Standing))
             {
                 SendPlaySpellVisualKit(SPELL_VISUAL_KIT_DRINK, 0, 0);
                 break;
@@ -2069,7 +2069,7 @@ void Player::SetInWater(bool apply)
     m_isInWater = apply;
 
     // remove auras that need water/land
-    RemoveAurasWithInterruptFlags(apply ? AURA_INTERRUPT_FLAG_NOT_ABOVEWATER : AURA_INTERRUPT_FLAG_NOT_UNDERWATER);
+    RemoveAurasWithInterruptFlags(apply ? SpellAuraInterruptFlags::UnderWater : SpellAuraInterruptFlags::AboveWater);
 }
 
 bool Player::IsInAreaTriggerRadius(AreaTriggerEntry const* trigger) const
@@ -4082,6 +4082,8 @@ void Player::BuildPlayerRepop()
         CastSpell(this, 20584, true);
     CastSpell(this, 8326, true);
 
+    RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Release);
+
     // there must be SMSG.FORCE_RUN_SPEED_CHANGE, SMSG.FORCE_SWIM_SPEED_CHANGE, SMSG.MOVE_WATER_WALK
     // there must be SMSG.STOP_MIRROR_TIMER
 
@@ -5874,12 +5876,10 @@ bool Player::UpdatePosition(float x, float y, float z, float orientation, bool t
 
     if (!Unit::UpdatePosition(x, y, z, orientation, teleport))
         return false;
-
     //if (movementInfo.flags & MOVEMENTFLAG_MOVING)
-    //    mover->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOVE);
+    //    mover->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Moving);
     //if (movementInfo.flags & MOVEMENTFLAG_TURNING)
-    //    mover->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TURNING);
-    //AURA_INTERRUPT_FLAG_JUMP not sure
+    //    mover->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Turning);
 
     // Update player zone if needed
     if (m_needsZoneUpdate)
@@ -21814,7 +21814,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_FLIGHT_PATHS_TAKEN, 1);
 
     // prevent stealth flight
-    //RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TALK);
+    //RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Interacting);
 
     if (sWorld->getBoolConfig(CONFIG_INSTANT_TAXI))
     {
@@ -24377,6 +24377,7 @@ void Player::SummonIfPossible(bool agree)
     m_summon_expire = 0;
 
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ACCEPTED_SUMMONINGS, 1);
+    RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Summon);
 
     TeleportTo(m_summon_location);
 }

@@ -702,7 +702,7 @@ void BattlegroundTP::EventPlayerClickedOnFlag(Player* player, GameObject* target
         }
     }
 
-    player->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
+    player->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::PvPActive);
 }
 
 void BattlegroundTP::EventPlayerCapturedFlag(Player* player)
@@ -712,7 +712,7 @@ void BattlegroundTP::EventPlayerCapturedFlag(Player* player)
 
     uint32 winner = 0;
 
-    player->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
+    player->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::PvPActive);
     if (player->GetTeam() == ALLIANCE)
     {
         if (!IsHordeFlagPickedup())

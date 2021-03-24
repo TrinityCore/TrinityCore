@@ -368,8 +368,8 @@ void WorldSession::HandleMovementOpcode(uint16 opcode, MovementInfo& movementInf
         plrMover->HandleFall(movementInfo);
 
     // interrupt parachutes upon falling or landing in water
-    if (opcode == MSG_MOVE_FALL_LAND || opcode == MSG_MOVE_START_SWIM)
-        mover->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_LANDING); // Parachutes
+    if (opcode == MSG_MOVE_FALL_LAND || opcode == MSG_MOVE_START_SWIM || opcode == CMSG_MOVE_SET_CAN_FLY)
+        mover->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::LandingOrFlight); // Parachutes
 
     if (plrMover && ((movementInfo.flags & MOVEMENTFLAG_SWIMMING) != 0) != plrMover->IsInWater())
     {
@@ -402,7 +402,7 @@ void WorldSession::HandleMovementOpcode(uint16 opcode, MovementInfo& movementInf
                 if (movementInfo.pos.GetOrientation() != mover->GetOrientation())
                 {
                     mover->SetOrientation(movementInfo.pos.GetOrientation());
-                    mover->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TURNING);
+                    mover->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Turning);
                 }
             }
         }
@@ -444,7 +444,7 @@ void WorldSession::HandleMovementOpcode(uint16 opcode, MovementInfo& movementInf
 
         if (opcode == MSG_MOVE_JUMP)
         {
-            plrMover->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_JUMP, 605); // Mind Control
+            plrMover->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::Jump);
             plrMover->ProcSkillsAndAuras(nullptr, PROC_FLAG_JUMP, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_NONE, PROC_HIT_NONE, nullptr, nullptr, nullptr);
         }
     }

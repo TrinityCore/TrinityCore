@@ -817,6 +817,9 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket& recvData)
     //Send scripted event call
     if (unit && unit->GetTypeId() == TYPEID_UNIT && ((Creature*)unit)->AI())
         ((Creature*)unit)->AI()->ReceiveEmote(GetPlayer(), text_emote);
+
+    if (emote_anim != EMOTE_ONESHOT_NONE)
+        _player->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Anim);
 }
 
 void WorldSession::HandleChatIgnoredOpcode(WorldPacket& recvData)
