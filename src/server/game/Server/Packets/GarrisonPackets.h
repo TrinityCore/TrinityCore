@@ -437,6 +437,18 @@ namespace WorldPackets
 
             uint32 GarrPlotInstanceID = 0;
         };
+
+        class GarrisonAssignFollowerToBuilding final : public ClientPacket
+        {
+        public:
+            GarrisonAssignFollowerToBuilding(WorldPacket && packet) : ClientPacket(CMSG_GARRISON_ASSIGN_FOLLOWER_TO_BUILDING, std::move(packet)) { }
+            
+            void Read() override;
+            
+            ObjectGuid NpcGUID;
+            uint32 PlotInstanceID;
+            uint64 FollowerDBID;
+        };
     }
 }
 

@@ -119,3 +119,11 @@ void WorldSession::HandleTradeSkillSetFavorite(WorldPackets::Spells::TradeSkillS
 
     _player->SetSpellFavorite(tradeSkillSetFavorite.RecipeID, tradeSkillSetFavorite.IsFavorite);
 }
+
+void WorldSession::HandleUnlearnSpecialization(WorldPackets::Talent::UnlearnSpecialization& packet)
+{
+    if (GetPlayer()->GetSpecializationId() == packet.SpecializationID)
+    {
+        GetPlayer()->RemoveSpell(packet.SpecializationID);
+    }
+}

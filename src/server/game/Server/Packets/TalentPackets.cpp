@@ -121,3 +121,8 @@ WorldPacket const* WorldPackets::Talent::LearnPvpTalentFailed::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Talent::UnlearnSpecialization::Read()
+{
+    _worldPacket >> SpecializationID;
+}

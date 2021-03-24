@@ -732,6 +732,7 @@ namespace WorldPackets
         class LearnTalents;
         class LearnPvpTalents;
         class ConfirmRespecWipe;
+        class UnlearnSpecialization;
     }
 
     namespace Taxi
@@ -1509,6 +1510,7 @@ class TC_GAME_API WorldSession
         void HandleLearnPvpTalentsOpcode(WorldPackets::Talent::LearnPvpTalents& packet);
         void HandleLearnTalentsOpcode(WorldPackets::Talent::LearnTalents& packet);
         void HandleConfirmRespecWipeOpcode(WorldPackets::Talent::ConfirmRespecWipe& confirmRespecWipe);
+        void HandleUnlearnSpecialization(WorldPackets::Talent::UnlearnSpecialization& packet);
         void HandleUnlearnSkillOpcode(WorldPackets::Spells::UnlearnSkill& packet);
         void HandleTradeSkillSetFavorite(WorldPackets::Spells::TradeSkillSetFavorite const& tradeSkillSetFavorite);
 
