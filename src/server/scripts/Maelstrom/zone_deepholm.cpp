@@ -19,6 +19,7 @@
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "MotionMaster.h"
 #include "PassiveAI.h"
 #include "Vehicle.h"
 

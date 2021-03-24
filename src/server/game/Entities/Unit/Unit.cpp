@@ -4044,6 +4044,9 @@ void Unit::RemoveAurasWithInterruptFlags(InterruptFlags flag, uint32 except, Spe
     UpdateInterruptMask();
 }
 
+template TC_GAME_API void Unit::RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags flag, uint32 except, Spell* interruptingSpell);
+template TC_GAME_API void Unit::RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2 flag, uint32 except, Spell* interruptingSpell);
+
 void Unit::RemoveAurasWithFamily(SpellFamilyNames family, uint32 familyFlag1, uint32 familyFlag2, uint32 familyFlag3, ObjectGuid casterGUID)
 {
     for (AuraApplicationMap::iterator iter = m_appliedAuras.begin(); iter != m_appliedAuras.end();)
