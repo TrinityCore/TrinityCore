@@ -4292,8 +4292,9 @@ void Spell::SendSpellStart()
     if (m_spellInfo->RuneCostID && m_spellInfo->PowerType == POWER_RUNE)
         castFlags |= CAST_FLAG_NO_GCD; // not needed, but Blizzard sends it
 
-    if ((m_casttime && m_spellInfo->HasEffect(SPELL_EFFECT_HEAL)) || m_spellInfo->HasAura(SPELL_AURA_PERIODIC_HEAL))
-        castFlags |= CAST_FLAG_HEAL_PREDICTION;
+    if (m_spellInfo->HasAttribute(SPELL_ATTR8_HEAL_PREDICTION))
+        if (m_casttime || m_spellInfo->HasAura(SPELL_AURA_PERIODIC_HEAL))
+            castFlags |= CAST_FLAG_HEAL_PREDICTION;
 
     WorldPackets::Spells::SpellStart packet;
     WorldPackets::Spells::SpellCastData& castData = packet.Cast;
@@ -4356,25 +4357,7 @@ void Spell::SendSpellStart()
     }
 
     if (castFlags & CAST_FLAG_HEAL_PREDICTION)
-    {
-        uint8 predictionType = DOT;
-        int32 amount = 0;
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; i++)
-        {
-            if (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_HEAL || m_spellInfo->Effects[i].Effect == SPELL_EFFECT_HEAL_PCT)
-            {
-                Unit* target = m_targets.GetUnitTarget() ? m_targets.GetUnitTarget() : m_caster;
-                int32 heal = CalculateDamage(i, target);
-                amount += m_caster->SpellHealingBonusDone(target, m_spellInfo, heal, HEAL, i);
-                predictionType = DIRECT_DAMAGE;
-            }
-        }
-
-        castData.Predict.emplace();
-        castData.Predict->Points = amount;
-        castData.Predict->Type = predictionType;
-        castData.Predict->BeaconGUID = m_caster->GetGUID();
-    }
+        UpdateSpellHealPrediction(castData.Predict.emplace());
 
     m_caster->SendMessageToSet(packet.Write(), true);
 }
@@ -4600,6 +4583,59 @@ void Spell::UpdateSpellCastDataAmmo(WorldPackets::Spells::SpellAmmo& ammo)
     ammo.InventoryType = ammoInventoryType;
 }
 
+void Spell::UpdateSpellHealPrediction(WorldPackets::Spells::SpellHealPrediction& predict)
+{
+    Unit* target = m_targets.GetUnitTarget() ? m_targets.GetUnitTarget() : m_caster;
+    predict.Type = 0;
+
+    /*
+    * @todo: implement
+    if (AuraEffect const* beaconOfLightEffect = m_caster->GetDummyAuraEffect(SPELLFAMILY_PALADIN, 3032, EFFECT_0))
+    {
+        if (beaconOfLightEffect->GetCasterGUID() == m_caster->GetGUID())
+        {
+            predict.Type = 2;
+            predict.BeaconGUID = beaconOfLightEffect->GetBase()->GetUnitOwner()->GetGUID();
+        }
+    }
+    */
+
+    for (uint8 effIndex = 0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
+    {
+        SpellEffectInfo const& effect = m_spellInfo->Effects[effIndex];
+        if (!effect.IsEffect())
+            continue;
+
+        switch (effect.Effect)
+        {
+            case SPELL_EFFECT_HEAL:
+            case SPELL_EFFECT_HEAL_PCT:
+                predict.Points += m_caster->SpellHealingBonusDone(target, m_spellInfo, effect.CalcValue(m_caster, nullptr, target), HEAL, effIndex);
+                break;
+            case SPELL_EFFECT_APPLY_AURA:
+            {
+                switch (effect.ApplyAuraName)
+                {
+                    case SPELL_AURA_PERIODIC_HEAL:
+                        predict.Points += m_caster->SpellHealingBonusDone(target, m_spellInfo, effect.CalcValue(m_caster, nullptr, target), HEAL, effIndex) * m_spellInfo->GetMaxTicks();
+                        break;
+                    case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
+                        if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(effect.TriggerSpell))
+                            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+                                if (spell->Effects[i].Effect == SPELL_EFFECT_HEAL || spell->Effects[i].Effect == SPELL_EFFECT_HEAL_PCT)
+                                    predict.Points += m_caster->SpellHealingBonusDone(target, spell, spell->Effects[i].CalcValue(m_caster, nullptr, target), HEAL, i) * m_spellInfo->GetMaxTicks();
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            }
+            default:
+                break;
+        }
+    }
+}
+
 void Spell::SendLogExecute()
 {
     WorldPacket data(SMSG_SPELLLOGEXECUTE, (8+4+4+4+4+8));
@@ -4802,33 +4838,9 @@ void Spell::SendChannelStart(uint32 duration)
     if (schoolImmunityMask || mechanicImmunityMask)
         castFlags |= CAST_FLAG_IMMUNITY;
 
-    // Determining triggered healing spells and store their healing amount for heal prediction
-    uint32 predictedHealing = 0;
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; i++)
-    {
-        if (!m_spellInfo->Effects[i].TriggerSpell)
-            continue;
-
-        SpellInfo const* spell = sSpellMgr->GetSpellInfo(m_spellInfo->Effects[i].TriggerSpell);
-        if (!spell)
-            continue;
-
-        for (uint8 j = 0; j < MAX_SPELL_EFFECTS; j++)
-        {
-            if (spell->Effects[j].Effect == SPELL_EFFECT_HEAL)
-            {
-                Unit* target = m_targets.GetUnitTarget() ? m_targets.GetUnitTarget() : m_caster;
-                int32 heal = spell->Effects[j].CalcValue(m_caster);
-                predictedHealing += m_caster->SpellHealingBonusDone(target, spell, heal, SPELL_DIRECT_DAMAGE, j);
-            }
-        }
-    }
-
     uint8 ticks = m_spellInfo->GetMaxTicks();
     if (m_spellInfo->HasAttribute(SPELL_ATTR5_START_PERIODIC_AT_APPLY))
         ++ticks;
-
-    predictedHealing *= ticks;
 
     WorldPackets::Spells::ChannelStart packet;
     packet.CasterGUID = m_caster->GetGUID();
@@ -4842,13 +4854,12 @@ void Spell::SendChannelStart(uint32 duration)
         packet.InterruptImmunities->SchoolImmunities = mechanicImmunityMask; // CastImmunities
     }
 
-    if (predictedHealing)
+    if (m_spellInfo->HasAttribute(SPELL_ATTR8_HEAL_PREDICTION))
     {
         castFlags |= CAST_FLAG_HEAL_PREDICTION;
 
         WorldPackets::Spells::SpellHealPrediction predict;
-        predict.Type = DIRECT_DAMAGE;
-        predict.Points = predictedHealing;
+        UpdateSpellHealPrediction(predict);
         packet.HealPrediction.emplace(channelTarget, predict);
     }
 

@@ -32,6 +32,7 @@ namespace WorldPackets
         struct SpellTargetData;
         struct SpellAmmo;
         struct SpellHitInfo;
+        struct SpellHealPrediction;
     }
 }
 
@@ -756,6 +757,7 @@ class TC_GAME_API Spell
 
         void UpdateSpellCastDataTargets(WorldPackets::Spells::SpellHitInfo& data);
         void UpdateSpellCastDataAmmo(WorldPackets::Spells::SpellAmmo& data);
+        void UpdateSpellHealPrediction(WorldPackets::Spells::SpellHealPrediction& predict);
 
         SpellCastResult CanOpenLock(uint32 effIndex, uint32 lockid, SkillType& skillid, int32& reqSkillValue, int32& skillValue);
         // -------------------------------------------
