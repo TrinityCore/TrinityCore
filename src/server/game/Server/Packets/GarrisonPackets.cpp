@@ -502,6 +502,41 @@ WorldPacket const* GarrisonCompleteMissionResult::Write()
     return &_worldPacket;
 }
 
+WorldPacket const* GarrisonFollowerChangeXP::Write()
+{
+    _worldPacket << XP;
+    _worldPacket << Unk;
+    _worldPacket << OldFollower;
+    _worldPacket << NewFollower;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* GarrisonMissionBonusRollResult::Write()
+{
+    _worldPacket << Mission;
+    _worldPacket << Mission.MissionRecID;
+    _worldPacket << Result;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* GarrisonOpenMissionNpc::Write()
+{
+    _worldPacket << int32(garrType);
+    _worldPacket << int32(result);
+    _worldPacket << uint32(Missions.size());
+
+    for (auto const& missionId : Missions)
+        _worldPacket << int32(missionId);
+
+    _worldPacket.WriteBit(unk4);
+    _worldPacket.WriteBit(preventXmlOpenMissionEvent);
+    _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
 void WorldPackets::Garrison::GarrisonAssignFollowerToBuilding::Read()
 {
     _worldPacket >> NpcGUID;

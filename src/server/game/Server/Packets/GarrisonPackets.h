@@ -480,6 +480,44 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
         };
+
+        class GarrisonFollowerChangeXP final : public ServerPacket
+        {
+        public:
+            GarrisonFollowerChangeXP() : ServerPacket(SMSG_GARRISON_FOLLOWER_CHANGED_XP, 4) { }
+
+            uint32 XP = 0;
+            uint32 Unk = 0;
+            GarrisonFollower OldFollower;
+            GarrisonFollower NewFollower;
+
+            WorldPacket const* Write() override;
+        };
+
+        class GarrisonMissionBonusRollResult final : public ServerPacket
+        {
+        public:
+            GarrisonMissionBonusRollResult() : ServerPacket(SMSG_GARRISON_MISSION_BONUS_ROLL_RESULT, 4) { }
+
+            GarrisonMission Mission;
+            uint32 Result = 0;
+
+            WorldPacket const* Write() override;
+        };
+
+        class GarrisonOpenMissionNpc final : public ServerPacket
+        {
+        public:
+            GarrisonOpenMissionNpc() : ServerPacket(SMSG_GARRISON_OPEN_MISSION_NPC, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 garrType = 3;
+            uint32 result = 0;
+            std::vector<uint32 /* dbID */> Missions;
+            bool   unk4 = false;
+            bool   preventXmlOpenMissionEvent = false;
+        };
     }
 }
 
