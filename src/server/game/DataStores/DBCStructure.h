@@ -2145,6 +2145,8 @@ struct SpellCategoryEntry
     uint32 Flags;                                          // 1
     uint32 UsesPerWeek;                                    // 2
     // char* Name;                                         // 3
+
+    EnumFlag<SpellCategoryFlags> GetFlags() const { return static_cast<SpellCategoryFlags>(Flags); }
 };
 
 struct SpellDifficultyEntry

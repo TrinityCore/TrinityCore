@@ -496,12 +496,16 @@ enum SkillRaceClassInfoFlags
     SKILL_FLAG_MONO_VALUE               = 0x400     // Skill always has value 1 - clientside display flag, real value can be different
 };
 
-enum SpellCategoryFlags
+enum class SpellCategoryFlags : uint8
 {
-    SPELL_CATEGORY_FLAG_COOLDOWN_SCALES_WITH_WEAPON_SPEED   = 0x01, // unused
-    SPELL_CATEGORY_FLAG_COOLDOWN_STARTS_ON_EVENT            = 0x04,
-    SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET     = 0x08
+    None                        = 0,
+    CooldownModifiesItem        = 0x1, // NYI
+    GlobalCooldown              = 0x2, // NYI
+    CooldownEventOnLeaveCombat  = 0x4,
+    CooldownInDays              = 0x8,
 };
+
+DEFINE_ENUM_FLAG(SpellCategoryFlags);
 
 #define MAX_SPELL_EFFECTS 3
 #define MAX_EFFECT_MASK 7

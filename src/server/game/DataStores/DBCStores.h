@@ -248,7 +248,6 @@ public:
     SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, uint8 class_);
     ResponseCodes ValidateName(std::wstring const& name, LocaleConstant locale);
     EmotesTextSoundEntry const* FindTextSoundEmoteFor(uint32 emote, uint32 race, uint32 gender); 
-    static uint32 GetParentSpellCategoryId(uint32 childCategory);
 };
 
 #define sDBCManager DBCManager::Instance()

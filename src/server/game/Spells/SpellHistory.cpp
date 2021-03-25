@@ -340,15 +340,15 @@ void SpellHistory::StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spel
             }
 
             SpellCategoryEntry const* categoryEntry = sSpellCategoryStore.AssertEntry(categoryId);
-            if (categoryEntry->Flags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET)
+            if (categoryEntry->GetFlags().HasFlag(SpellCategoryFlags::CooldownInDays))
             {
-                uint32 parentCategoryId = DBCManager::GetParentSpellCategoryId(categoryEntry->ID);
-                SpellCategoryEntry const* parentCategory = sSpellCategoryStore.LookupEntry(parentCategoryId);
+                uint32 days = std::max<int32>((categoryCooldown / 1000) - 1, 0);
 
-                if (parentCategory && parentCategory->UsesPerWeek)
-                    categoryCooldown = WEEK * IN_MILLISECONDS;
-                else
-                    categoryCooldown = int32(std::chrono::duration_cast<std::chrono::milliseconds>(Clock::from_time_t(sWorld->GetNextDailyQuestsResetTime()) - Clock::now()).count());
+                // Initially start with the cooldown in plain days. Substract one day as we add the remaining cooldown until daily reset in the next step
+                categoryCooldown += int32(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::hours(days * 24)).count());
+
+                // Day based cooldowns have their reset at daily reset times so we now apply the remaining cooldown
+                categoryCooldown += int32(std::chrono::duration_cast<std::chrono::milliseconds>(Clock::from_time_t(sWorld->GetNextDailyQuestsResetTime()) - Clock::now()).count());
             }
         }
 

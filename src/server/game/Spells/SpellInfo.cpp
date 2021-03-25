@@ -1377,7 +1377,7 @@ bool SpellInfo::IsCooldownStartedOnEvent() const
     if (HasAttribute(SPELL_ATTR0_DISABLED_WHILE_ACTIVE))
         return true;
 
-    return CategoryEntry && CategoryEntry->Flags & SPELL_CATEGORY_FLAG_COOLDOWN_STARTS_ON_EVENT;
+    return CategoryEntry && CategoryEntry->GetFlags().HasFlag(SpellCategoryFlags::CooldownEventOnLeaveCombat);
 }
 
 bool SpellInfo::IsDeathPersistent() const
