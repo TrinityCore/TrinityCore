@@ -7338,10 +7338,20 @@ void Spell::DelayedChannel()
 
 bool Spell::HasPowerTypeCost(Powers power) const
 {
-    return std::find_if(m_powerCost.cbegin(), m_powerCost.cend(), [power](SpellPowerCost const& cost)
+    return GetPowerTypeCostAmount(power).has_value();
+}
+
+Optional<int32> Spell::GetPowerTypeCostAmount(Powers power) const
+{
+    auto itr = std::find_if(m_powerCost.cbegin(), m_powerCost.cend(), [power](SpellPowerCost const& cost)
     {
         return cost.Power == power;
-    }) != m_powerCost.cend();
+    });
+
+    if (itr == m_powerCost.cend())
+        return { };
+
+    return itr->Amount;
 }
 
 bool Spell::UpdatePointers()
