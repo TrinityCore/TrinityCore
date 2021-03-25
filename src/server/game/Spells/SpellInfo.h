@@ -370,7 +370,7 @@ class TC_GAME_API SpellInfo
         uint32 CategoryRecoveryTime;
         uint32 StartRecoveryCategory;
         uint32 StartRecoveryTime;
-        uint32 InterruptFlags;
+        EnumFlag<SpellInterruptFlags> InterruptFlags = SpellInterruptFlags::None;
         EnumFlag<SpellAuraInterruptFlags> AuraInterruptFlags = SpellAuraInterruptFlags::None;
         EnumFlag<SpellAuraInterruptFlags2> AuraInterruptFlags2 = SpellAuraInterruptFlags2::None;
         EnumFlag<SpellAuraInterruptFlags> ChannelInterruptFlags = SpellAuraInterruptFlags::None;
@@ -480,6 +480,8 @@ class TC_GAME_API SpellInfo
         inline bool HasAttribute(SpellAttr9 attribute)  const { return !!(AttributesEx9 & attribute); }
         inline bool HasAttribute(SpellAttr10 attribute) const { return !!(AttributesEx10 & attribute); }
         inline bool HasAttribute(SpellCustomAttributes customAttribute) const { return !!(AttributesCu & customAttribute); }
+
+        bool CanBeInterrupted(Unit* interruptTarget) const;
 
         bool HasAnyAuraInterruptFlag() const;
         bool HasAuraInterruptFlag(SpellAuraInterruptFlags flag) const { return AuraInterruptFlags.HasFlag(flag); }
@@ -603,7 +605,7 @@ class TC_GAME_API SpellInfo
 
         uint32 GetAllowedMechanicMask() const;
 
-        uint32 GetMechanicImmunityMask(Unit* caster, bool channeled) const;
+        uint32 GetMechanicImmunityMask(Unit* caster) const;
 
     private:
         // loading helpers

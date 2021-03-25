@@ -992,7 +992,8 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntry const** effe
     AuraInterruptFlags = _interrupt ? SpellAuraInterruptFlags(_interrupt->AuraInterruptFlags[0]) : SpellAuraInterruptFlags::None;
     AuraInterruptFlags2 = _interrupt? SpellAuraInterruptFlags2(_interrupt->AuraInterruptFlags[1]) : SpellAuraInterruptFlags2::None;
     ChannelInterruptFlags = _interrupt ? SpellAuraInterruptFlags(_interrupt->ChannelInterruptFlags[0] ) : SpellAuraInterruptFlags::None;
-    ChannelInterruptFlags2 =  _interrupt? SpellAuraInterruptFlags2(_interrupt->ChannelInterruptFlags[1]) : SpellAuraInterruptFlags2::None;
+    ChannelInterruptFlags2 =  _interrupt ? SpellAuraInterruptFlags2(_interrupt->ChannelInterruptFlags[1]) : SpellAuraInterruptFlags2::None;
+    InterruptFlags = _interrupt ? SpellInterruptFlags(_interrupt->InterruptFlags) : SpellInterruptFlags::None;
 
     // SpellLevelsEntry
     SpellLevelsEntry const* _levels = GetSpellLevels();
@@ -1109,6 +1110,15 @@ bool SpellInfo::HasOnlyDamageEffects() const
     }
 
     return true;
+}
+
+bool SpellInfo::CanBeInterrupted(Unit* interruptTarget) const
+{
+    return HasAttribute(SPELL_ATTR7_CAN_ALWAYS_BE_INTERRUPTED)
+        || HasChannelInterruptFlag(SpellAuraInterruptFlags::Damage | SpellAuraInterruptFlags::EnteringCombat)
+        || (interruptTarget->IsPlayer() && InterruptFlags.HasFlag(SpellInterruptFlags::DamageCancelsPlayerOnly))
+        || (!(interruptTarget->GetMechanicImmunityMask() & (1 << MECHANIC_INTERRUPT))
+        && PreventionType & SPELL_PREVENTION_TYPE_SILENCE);
 }
 
 bool SpellInfo::HasAnyAuraInterruptFlag() const
@@ -3267,20 +3277,20 @@ uint32 SpellInfo::GetAllowedMechanicMask() const
     return _allowedMechanicMask;
 }
 
-uint32 SpellInfo::GetMechanicImmunityMask(Unit* caster, bool channeled) const
+uint32 SpellInfo::GetMechanicImmunityMask(Unit* caster) const
 {
+    if (HasAttribute(SPELL_ATTR7_CAN_ALWAYS_BE_INTERRUPTED))
+        return 0;
+
     uint32 casterMechanicImmunityMask = caster->GetMechanicImmunityMask();
     uint32 mechanicImmunityMask = 0;
-    uint32 flags = channeled ? ChannelInterruptFlags.AsUnderlyingType() : InterruptFlags;
-
-    // @todo: research other interrupt flags
-    if (flags & SPELL_INTERRUPT_FLAG_INTERRUPT)
+    if (CanBeInterrupted(caster))
     {
-        if (casterMechanicImmunityMask & (1 << MECHANIC_SILENCE))
-            mechanicImmunityMask |= (1 << MECHANIC_SILENCE);
-
         if (casterMechanicImmunityMask & (1 << MECHANIC_INTERRUPT))
             mechanicImmunityMask |= (1 << MECHANIC_INTERRUPT);
+
+        if (casterMechanicImmunityMask & (1 << MECHANIC_SILENCE))
+            mechanicImmunityMask |= (1 << MECHANIC_SILENCE);
     }
 
     return mechanicImmunityMask;

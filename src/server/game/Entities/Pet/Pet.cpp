@@ -1418,7 +1418,7 @@ bool Pet::addSpell(uint32 spellId, ActiveStates active /*= ACT_DECIDE*/, PetSpel
     m_spells[spellId] = newspell;
 
     // Do not go further if this Attribute exists
-    if (spellInfo->HasAttribute(SPELL_ATTR4_UNK15) && !IsWarlockMinion())
+    if (spellInfo->HasAttribute(SPELL_ATTR4_HIDDEN_IN_SPELLBOOK) && !IsWarlockMinion())
          return true;
 
     if (spellInfo->IsPassive() && (!spellInfo->CasterAuraState || HasAuraState(AuraStateType(spellInfo->CasterAuraState))))
