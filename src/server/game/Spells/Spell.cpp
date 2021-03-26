@@ -2524,7 +2524,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         // Failed Pickpocket, reveal rogue
         if (missInfo == SPELL_MISS_RESIST && m_spellInfo->HasAttribute(SPELL_ATTR0_CU_PICKPOCKET) && unitTarget->GetTypeId() == TYPEID_UNIT)
         {
-            m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TALK);
+            m_caster->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Interacting);
             unitTarget->ToCreature()->EngageWithTarget(m_caster);
         }
     }
@@ -2609,7 +2609,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask)
             return SPELL_MISS_EVADE;
 
         if (m_caster->_IsValidAttackTarget(unit, m_spellInfo))
-            unit->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_HITBYSPELL);
+            unit->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::HostileActionReceived);
         else if (m_caster->IsFriendlyTo(unit))
         {
             // for delayed spells ignore negative spells (after duel end) for friendly targets
@@ -3016,7 +3016,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     // (even if they are interrupted on moving, spells with almost immediate effect get to have their effect processed before movement interrupter kicks in)
     // don't cancel spells which are affected by a SPELL_AURA_CAST_WHILE_WALKING effect
     if (((m_spellInfo->IsChanneled() || m_casttime) && m_caster->GetTypeId() == TYPEID_PLAYER && !(m_caster->IsCharmed() && m_caster->GetCharmerGUID().IsCreature()) && m_caster->isMoving() &&
-        m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_MOVEMENT) && !m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, m_spellInfo))
+        m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::Movement)) && !m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, m_spellInfo))
     {
         // 1. Has casttime, 2. Or doesn't have flag to allow movement during channel
         if (m_casttime || !m_spellInfo->IsMoveAllowedChannel())
@@ -3056,16 +3056,8 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     {
         // stealth must be removed at cast starting (at show channel bar)
         // skip triggered spell (item equip spell casting and other not explicit character casts/item uses)
-        if (!(_triggeredCastFlags & TRIGGERED_IGNORE_AURA_INTERRUPT_FLAGS) && m_spellInfo->IsBreakingStealth())
-        {
-            m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CAST);
-            for (SpellEffectInfo const* effect : m_spellInfo->GetEffects())
-                if (effect && effect->GetUsedTargetObjectType() == TARGET_OBJECT_TYPE_UNIT)
-                {
-                    m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_SPELL_ATTACK);
-                    break;
-                }
-        }
+        if (!(_triggeredCastFlags & TRIGGERED_IGNORE_AURA_INTERRUPT_FLAGS) && m_spellInfo->IsBreakingStealth() && !m_spellInfo->HasAttribute(SPELL_ATTR2_IGNORE_ACTION_AURA_INTERRUPT_FLAGS))
+            m_caster->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Action);
 
         m_caster->SetCurrentCastSpell(this);
         SendSpellStart();
@@ -3387,6 +3379,9 @@ void Spell::_cast(bool skipCheck)
     if (!(hitMask & PROC_HIT_CRITICAL))
         hitMask |= PROC_HIT_NORMAL;
 
+    if (!(_triggeredCastFlags & TRIGGERED_IGNORE_AURA_INTERRUPT_FLAGS) && !m_spellInfo->HasAttribute(SPELL_ATTR2_IGNORE_ACTION_AURA_INTERRUPT_FLAGS))
+        m_originalCaster->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::ActionDelayed);
+
     m_originalCaster->ProcSkillsAndAuras(nullptr, procAttacker, PROC_FLAG_NONE, PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_CAST, hitMask, this, nullptr, nullptr);
 
     // Call CreatureAI hook OnSuccessfulSpellCast
@@ -3412,14 +3407,14 @@ void Spell::handle_immediate()
             m_caster->ModSpellDurationTime(m_spellInfo, duration, this);
 
             m_spellState = SPELL_STATE_CASTING;
-            m_caster->AddInterruptMask(m_spellInfo->ChannelInterruptFlags);
+            m_caster->AddInterruptMask(m_spellInfo->ChannelInterruptFlags, m_spellInfo->ChannelInterruptFlags2);
             m_channeledDuration = duration;
             SendChannelStart(duration);
         }
         else if (duration == -1)
         {
             m_spellState = SPELL_STATE_CASTING;
-            m_caster->AddInterruptMask(m_spellInfo->ChannelInterruptFlags);
+            m_caster->AddInterruptMask(m_spellInfo->ChannelInterruptFlags, m_spellInfo->ChannelInterruptFlags2);
             SendChannelStart(duration);
         }
     }
@@ -3642,7 +3637,7 @@ void Spell::update(uint32 difftime)
     // with the exception of spells affected with SPELL_AURA_CAST_WHILE_WALKING effect
     SpellEffectInfo const* effect = m_spellInfo->GetEffect(EFFECT_0);
     if ((m_caster->GetTypeId() == TYPEID_PLAYER && m_timer != 0) &&
-        m_caster->isMoving() && (m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_MOVEMENT) &&
+        m_caster->isMoving() && (m_spellInfo->InterruptFlags.HasFlag(SpellInterruptFlags::Movement)) &&
         ((effect && effect->Effect != SPELL_EFFECT_STUCK) || !m_caster->HasUnitMovementFlag(MOVEMENTFLAG_FALLING_FAR)) &&
         !m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, m_spellInfo))
     {
@@ -5031,7 +5026,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
         // skip stuck spell to allow use it in falling case and apply spell limitations at movement
         SpellEffectInfo const* effect = m_spellInfo->GetEffect(EFFECT_0);
         if ((!m_caster->HasUnitMovementFlag(MOVEMENTFLAG_FALLING_FAR) || (effect && effect->Effect != SPELL_EFFECT_STUCK)) &&
-            (IsAutoRepeat() || m_spellInfo->HasAuraInterruptFlag(AURA_INTERRUPT_FLAG_NOT_SEATED)))
+            (IsAutoRepeat() || m_spellInfo->HasAuraInterruptFlag(SpellAuraInterruptFlags::Standing)))
             return SPELL_FAILED_MOVING;
     }
 
@@ -6338,9 +6333,6 @@ SpellCastResult Spell::CheckItems(uint32* param1 /*= nullptr*/, uint32* param2 /
     if (!player)
         return SPELL_CAST_OK;
 
-    if (m_spellInfo->HasAttribute(SPELL_ATTR2_IGNORE_ITEM_CHECK))
-        return SPELL_CAST_OK;
-
     if (!m_CastItem)
     {
         if (!m_castItemGUID.IsEmpty())
@@ -6881,10 +6873,6 @@ void Spell::Delayed() // only called in DealDamage()
     if (isDelayableNoMore())                                 // Spells may only be delayed twice
         return;
 
-    // spells not loosing casting time (slam, dynamites, bombs..)
-    //if (!(m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_DAMAGE))
-    //    return;
-
     //check pushback reduce
     int32 delaytime = 500;                                  // spellcasting delay is normally 500ms
     int32 delayReduce = 100;                                // must be initialized to 100 for percent modifiers
@@ -7171,8 +7159,7 @@ bool Spell::IsChannelActive() const
 
 bool Spell::IsAutoActionResetSpell() const
 {
-    /// @todo changed SPELL_INTERRUPT_FLAG_AUTOATTACK -> SPELL_INTERRUPT_FLAG_INTERRUPT to fix compile - is this check correct at all?
-    if (IsTriggered() || !(m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_INTERRUPT))
+    if (IsTriggered())
         return false;
 
     if (!m_casttime && m_spellInfo->HasAttribute(SPELL_ATTR6_NOT_RESET_SWING_IF_INSTANT))
@@ -7426,7 +7413,7 @@ void Spell::DoAllEffectOnLaunchTarget(TargetInfo& targetInfo, float* multiplier)
         }
     }
 
-    targetInfo.crit = m_caster->IsSpellCrit(unit, m_spellInfo, m_spellSchoolMask, m_attackType);
+    targetInfo.crit = m_caster->IsSpellCrit(unit, this, nullptr, m_spellSchoolMask, m_attackType);
 }
 
 SpellCastResult Spell::CanOpenLock(uint32 effIndex, uint32 lockId, SkillType& skillId, int32& reqSkillValue, int32& skillValue)
@@ -7703,6 +7690,18 @@ void Spell::CallScriptAfterHitHandlers()
             (*hookItr).Call(*scritr);
 
         (*scritr)->_FinishScriptCall();
+    }
+}
+
+void Spell::CallScriptCalcCritChanceHandlers(Unit* victim, float& critChance)
+{
+    for (SpellScript* loadedScript : m_loadedScripts)
+    {
+        loadedScript->_PrepareScriptCall(SPELL_SCRIPT_HOOK_CALC_CRIT_CHANCE);
+        for (SpellScript::OnCalcCritChanceHandler const& hook : loadedScript->OnCalcCritChance)
+            hook.Call(loadedScript, victim, critChance);
+
+        loadedScript->_FinishScriptCall();
     }
 }
 

@@ -534,8 +534,10 @@ public:
                 me->SetHealth(0);
                 me->StopMoving();
                 me->RemoveAllAurasOnDeath();
-                me->ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, false);
-                me->ModifyAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, false);
+                me->ModifyAuraState(AURA_STATE_WOUNDED_20_PERCENT, false);
+                me->ModifyAuraState(AURA_STATE_WOUNDED_25_PERCENT, false);
+                me->ModifyAuraState(AURA_STATE_WOUNDED_35_PERCENT, false);
+                me->ModifyAuraState(AURA_STATE_WOUND_HEALTH_20_80, false);
                 me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
                 me->ClearAllReactives();
                 me->SetTarget(ObjectGuid::Empty);

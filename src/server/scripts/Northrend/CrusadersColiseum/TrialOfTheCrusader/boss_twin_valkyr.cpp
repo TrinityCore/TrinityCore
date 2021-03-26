@@ -367,7 +367,7 @@ class boss_fjola : public CreatureScript
             {
                 SetEquipmentSlots(false, EQUIP_MAIN_1, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
                 Weapon = EQUIP_MAIN_1;
-                AuraState = AURA_STATE_UNKNOWN22;
+                AuraState = AURA_STATE_RAID_ENCOUNTER;
                 SisterNpcId = NPC_EYDIS_DARKBANE;
                 MyEmphatySpellId = SPELL_TWIN_EMPATHY_DARK;
                 OtherEssenceSpellId = SPELL_DARK_ESSENCE;
@@ -475,7 +475,7 @@ class boss_eydis : public CreatureScript
             {
                 SetEquipmentSlots(false, EQUIP_MAIN_2, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
                 Weapon = EQUIP_MAIN_2;
-                AuraState = AURA_STATE_UNKNOWN19;
+                AuraState = AURA_STATE_VULNERABLE;
                 SisterNpcId = NPC_FJOLA_LIGHTBANE;
                 MyEmphatySpellId = SPELL_TWIN_EMPATHY_LIGHT;
                 OtherEssenceSpellId = SPELL_LIGHT_ESSENCE;

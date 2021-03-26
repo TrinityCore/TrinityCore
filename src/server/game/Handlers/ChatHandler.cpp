@@ -636,6 +636,9 @@ void WorldSession::HandleTextEmoteOpcode(WorldPackets::Chat::CTextEmote& packet)
     if (unit)
         if (Creature* creature = unit->ToCreature())
             creature->AI()->ReceiveEmote(_player, packet.EmoteID);
+
+    if (emoteAnim != EMOTE_ONESHOT_NONE)
+        _player->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Anim);
 }
 
 void WorldSession::HandleChatIgnoredOpcode(WorldPackets::Chat::ChatReportIgnored& chatReportIgnored)

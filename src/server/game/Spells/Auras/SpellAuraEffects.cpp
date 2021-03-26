@@ -335,7 +335,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleUnused,                                    //265 unused (4.3.4)
     &AuraEffect::HandleNULL,                                      //266 SPELL_AURA_SET_VIGNETTE
     &AuraEffect::HandleNoImmediateEffect,                         //267 SPELL_AURA_MOD_IMMUNE_AURA_APPLY_SCHOOL         implemented in Unit::IsImmunedToSpellEffect
-    &AuraEffect::HandleUnused,                                    //268 unused (4.3.4) old SPELL_AURA_MOD_ATTACK_POWER_OF_STAT_PERCENT.
+    &AuraEffect::HandleModArmorPctFromStat,                       //268 SPELL_AURA_MOD_ARMOR_PCT_FROM_STAT              also implemented in Player::UpdateArmor()
     &AuraEffect::HandleNoImmediateEffect,                         //269 SPELL_AURA_MOD_IGNORE_TARGET_RESIST implemented in Unit::CalcAbsorbResist and CalcArmorReducedDamage
     &AuraEffect::HandleNoImmediateEffect,                         //270 SPELL_AURA_MOD_SCHOOL_MASK_DAMAGE_FROM_CASTER    implemented in Unit::SpellDamageBonusTaken and Unit::MeleeDamageBonusTaken
     &AuraEffect::HandleNoImmediateEffect,                         //271 SPELL_AURA_MOD_SPELL_DAMAGE_FROM_CASTER    implemented in Unit::SpellDamageBonusTaken and Unit::MeleeDamageBonusTaken
@@ -551,7 +551,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNoImmediateEffect,                         //481 SPELL_AURA_CONVERT_CONSUMED_RUNE implemented in Spell::TakeRunePower
     &AuraEffect::HandleNULL,                                      //482
     &AuraEffect::HandleNULL,                                      //483 SPELL_AURA_SUPPRESS_TRANSFORMS
-    &AuraEffect::HandleNULL,                                      //484
+    &AuraEffect::HandleNULL,                                      //484 SPELL_AURA_ALLOW_INTERRUPT_SPELL
     &AuraEffect::HandleModMovementForceMagnitude,                 //485 SPELL_AURA_MOD_MOVEMENT_FORCE_MAGNITUDE
     &AuraEffect::HandleNULL,                                      //486
     &AuraEffect::HandleNULL,                                      //487
@@ -1389,7 +1389,7 @@ void AuraEffect::HandleModInvisibility(AuraApplication const* aurApp, uint8 mode
     if (apply && (mode & AURA_EFFECT_HANDLE_REAL))
     {
         // drop flag at invisibiliy in bg
-        target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
+        target->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::StealthOrInvis);
     }
     target->UpdateObjectVisibility();
 }
@@ -1454,7 +1454,7 @@ void AuraEffect::HandleModStealth(AuraApplication const* aurApp, uint8 mode, boo
     if (apply && (mode & AURA_EFFECT_HANDLE_REAL))
     {
         // drop flag at stealth in bg
-        target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
+        target->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::StealthOrInvis);
     }
     target->UpdateObjectVisibility();
 }
@@ -1574,14 +1574,7 @@ void AuraEffect::HandlePhase(AuraApplication const* aurApp, uint8 mode, bool app
     Unit* target = aurApp->GetTarget();
 
     if (apply)
-    {
         PhasingHandler::AddPhase(target, uint32(GetMiscValueB()), true);
-
-        // call functions which may have additional effects after chainging state of unit
-        // phase auras normally not expected at BG but anyway better check
-        // drop flag at invisibiliy in bg
-        target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
-    }
     else
         PhasingHandler::RemovePhase(target, uint32(GetMiscValueB()), true);
 }
@@ -1594,14 +1587,7 @@ void AuraEffect::HandlePhaseGroup(AuraApplication const* aurApp, uint8 mode, boo
     Unit* target = aurApp->GetTarget();
 
     if (apply)
-    {
         PhasingHandler::AddPhaseGroup(target, uint32(GetMiscValueB()), true);
-
-        // call functions which may have additional effects after chainging state of unit
-        // phase auras normally not expected at BG but anyway better check
-        // drop flag at invisibiliy in bg
-        target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
-    }
     else
         PhasingHandler::RemovePhaseGroup(target, uint32(GetMiscValueB()), true);
 }
@@ -1686,6 +1672,9 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
             if (!transformSpellInfo || !GetSpellInfo()->IsPositive())
                 target->SetDisplayId(modelid);
         }
+
+        if (!shapeInfo->GetFlags().HasFlag(SpellShapeshiftFormFlags::Stance))
+            target->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Shapeshifting, GetId());
     }
     else
     {
@@ -2053,7 +2042,6 @@ void AuraEffect::HandleFeignDeath(AuraApplication const* aurApp, uint8 mode, boo
             }
         }
         target->CombatStop();
-        target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
 
         // prevent interrupt message
         if (GetCasterGUID() == target->GetGUID() && target->GetCurrentSpell(CURRENT_GENERIC_SPELL))
@@ -2103,10 +2091,7 @@ void AuraEffect::HandleModUnattackable(AuraApplication const* aurApp, uint8 mode
 
     // call functions which may have additional effects after chainging state of unit
     if (apply && (mode & AURA_EFFECT_HANDLE_REAL))
-    {
         target->CombatStop();
-        target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
-    }
 }
 
 void AuraEffect::HandleAuraModDisarm(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -3084,8 +3069,9 @@ void AuraEffect::HandleAuraModEffectImmunity(AuraApplication const* aurApp, uint
     m_spellInfo->ApplyAllSpellImmunitiesTo(target, GetSpellEffectInfo(), apply);
 
     // when removing flag aura, handle flag drop
+    // TODO: this should be handled in aura script for flag spells using AfterEffectRemove hook
     Player* player = target->ToPlayer();
-    if (!apply && player && GetSpellInfo()->HasAuraInterruptFlag(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION))
+    if (!apply && player && GetSpellInfo()->HasAuraInterruptFlag(SpellAuraInterruptFlags::StealthOrInvis))
     {
         if (player->InBattleground())
         {
@@ -3136,13 +3122,16 @@ void AuraEffect::HandleAuraModSchoolImmunity(AuraApplication const* aurApp, uint
         }
     }
 
-    if (apply && GetMiscValue() == SPELL_SCHOOL_MASK_NORMAL)
-        target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
+    // TODO: should be changed to a proc script on flag spell (they have "Taken positive" proc flags in db2)
+    {
+        if (apply && GetMiscValue() == SPELL_SCHOOL_MASK_NORMAL)
+            target->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::StealthOrInvis);
 
-    // remove all flag auras (they are positive, but they must be removed when you are immune)
-    if (GetSpellInfo()->HasAttribute(SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY)
-        && GetSpellInfo()->HasAttribute(SPELL_ATTR2_DAMAGE_REDUCED_SHIELD))
-        target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
+        // remove all flag auras (they are positive, but they must be removed when you are immune)
+        if (GetSpellInfo()->HasAttribute(SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY)
+            && GetSpellInfo()->HasAttribute(SPELL_ATTR2_DAMAGE_REDUCED_SHIELD))
+            target->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::StealthOrInvis);
+    }
 }
 
 void AuraEffect::HandleAuraModDmgImmunity(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -3469,6 +3458,20 @@ void AuraEffect::HandleAuraModExpertise(AuraApplication const* aurApp, uint8 mod
 
     target->ToPlayer()->UpdateExpertise(BASE_ATTACK);
     target->ToPlayer()->UpdateExpertise(OFF_ATTACK);
+}
+
+// Increase armor by <AuraEffect.BasePoints> % of your <primary stat>
+void AuraEffect::HandleModArmorPctFromStat(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
+{
+    if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
+        return;
+
+    // only players have primary stats
+    Player* player = aurApp->GetTarget()->ToPlayer();
+    if (!player)
+        return;
+
+    player->UpdateArmor();
 }
 
 void AuraEffect::HandleModStatBonusPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -4312,6 +4315,8 @@ void AuraEffect::HandleArenaPreparation(AuraApplication const* aurApp, uint8 mod
             return;
         target->RemoveUnitFlag(UNIT_FLAG_PREPARATION);
     }
+
+    target->ModifyAuraState(AURA_STATE_ARENA_PREPARATION, apply);
 }
 
 void AuraEffect::HandleNoReagentUseAura(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
@@ -5191,7 +5196,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
         }
     }
 
-    bool crit = roll_chance_f(isAreaAura ? caster->GetUnitSpellCriticalChance(target, m_spellInfo, m_spellInfo->GetSchoolMask()) : m_critChance);
+    bool crit = roll_chance_f(isAreaAura ? caster->GetUnitSpellCriticalChance(target, nullptr, this, m_spellInfo->GetSchoolMask()) : m_critChance);
 
     if (crit)
         damage = caster->SpellCriticalDamageBonus(m_spellInfo, damage, target);
@@ -5285,7 +5290,7 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
                 damage = int32(float(damage) * target->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_CREATURE_AOE_DAMAGE_AVOIDANCE, m_spellInfo->SchoolMask));
         }
 
-    bool crit = roll_chance_f(isAreaAura ? caster->GetUnitSpellCriticalChance(target, m_spellInfo, m_spellInfo->GetSchoolMask()) : m_critChance);
+    bool crit = roll_chance_f(isAreaAura ? caster->GetUnitSpellCriticalChance(target, nullptr, this, m_spellInfo->GetSchoolMask()) : m_critChance);
 
     if (crit)
         damage = caster->SpellCriticalDamageBonus(m_spellInfo, damage, target);
@@ -5426,7 +5431,7 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
         damage = target->SpellHealingBonusTaken(caster, GetSpellInfo(), damage, DOT, GetSpellEffectInfo(), GetBase()->GetStackAmount());
     }
 
-    bool crit = roll_chance_f(isAreaAura ? caster->GetUnitSpellCriticalChance(target, m_spellInfo, m_spellInfo->GetSchoolMask()) : m_critChance);
+    bool crit = roll_chance_f(isAreaAura ? caster->GetUnitSpellCriticalChance(target, nullptr, this, m_spellInfo->GetSchoolMask()) : m_critChance);
 
     if (crit)
         damage = caster->SpellCriticalHealingBonus(m_spellInfo, damage, target);
