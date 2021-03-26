@@ -171,7 +171,6 @@ enum DeepholmTheRealmOfEarth
     SPELL_CAMERA_1                      = 84364,
     SPELL_FORCECAST_AGGRA_PING          = 96123,
     SPELL_FORCECAST_TELEPORT            = 84093,
-    SPELL_DEEPHOLM_INTRO_TAXI           = 84101,
     SPELL_EJECT_PASSENGER_2             = 62539,
 
     // Events
@@ -284,29 +283,9 @@ class spell_deepholm_twilight_buffet_targeting : public SpellScript
     }
 };
 
-// 84073 - Deepholm Intro Teleport
-class spell_deepholm_intro_teleport : public AuraScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_DEEPHOLM_INTRO_TAXI });
-    }
-
-    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        GetTarget()->CastSpell(GetTarget(), SPELL_DEEPHOLM_INTRO_TAXI);
-    }
-
-    void Register() override
-    {
-        AfterEffectRemove.Register(&spell_deepholm_intro_teleport::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-    }
-};
-
 void AddSC_deepholm()
 {
     RegisterCreatureAI(npc_deepholm_xariona);
     RegisterCreatureAI(npc_deepholm_wyvern);
     RegisterSpellScript(spell_deepholm_twilight_buffet_targeting);
-    RegisterSpellScript(spell_deepholm_intro_teleport);
 }
