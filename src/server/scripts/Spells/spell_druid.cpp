@@ -48,6 +48,12 @@ enum DruidSpells
     SPELL_DRUID_BRISTLING_FUR_GAIN_RAGE        = 204031,
     SPELL_DRUID_CAT_FORM                       = 768,
     SPELL_DRUID_EARTHWARDEN_AURA               = 203975,
+    SPELL_DRUID_ECLIPSE_DUMMY                  = 79577,
+    SPELL_DRUID_ECLIPSE_LUNAR_AURA             = 48518,
+    SPELL_DRUID_ECLIPSE_LUNAR_SPELL_CNT        = 326055,
+    SPELL_DRUID_ECLIPSE_OOC                    = 329910,
+    SPELL_DRUID_ECLIPSE_SOLAR_AURA             = 48517,
+    SPELL_DRUID_ECLIPSE_SOLAR_SPELL_CNT        = 326053,
     SPELL_DRUID_EXHILARATE                     = 28742,
     SPELL_DRUID_FERAL_CHARGE_BEAR              = 16979,
     SPELL_DRUID_FERAL_CHARGE_CAT               = 49376,
@@ -249,6 +255,167 @@ public:
     AuraScript* GetAuraScript() const override
     {
         return new spell_dru_dash_AuraScript();
+    }
+};
+
+class spell_dru_eclipse_common
+{
+public:
+    static void SetSpellCount(Unit* unitOwner, uint32 spellId, uint32 amount)
+    {
+        Aura* aura = unitOwner->GetAura(spellId);
+        if (!aura)
+            unitOwner->CastCustomSpell(spellId, SPELLVALUE_AURA_STACK, amount, nullptr, TRIGGERED_FULL_MASK);
+        else
+            aura->SetStackAmount(amount);
+    }
+};
+
+// 48517 Eclipse (Solar) + 48518 Eclipse (Lunar)
+class spell_dru_eclipse_aura : public AuraScript
+{
+    PrepareAuraScript(spell_dru_eclipse_aura);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_ECLIPSE_LUNAR_SPELL_CNT, SPELL_DRUID_ECLIPSE_SOLAR_SPELL_CNT, SPELL_DRUID_ECLIPSE_DUMMY });
+    }
+
+    void HandleRemoved(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        AuraEffect const* auraEffDummy = GetTarget()->GetAuraEffect(SPELL_DRUID_ECLIPSE_DUMMY, EFFECT_0);
+        if (!auraEffDummy)
+            return;
+
+        uint32 spellId = GetSpellInfo()->Id == SPELL_DRUID_ECLIPSE_SOLAR_AURA ? SPELL_DRUID_ECLIPSE_LUNAR_SPELL_CNT : SPELL_DRUID_ECLIPSE_SOLAR_SPELL_CNT;
+        spell_dru_eclipse_common::SetSpellCount(GetTarget(), spellId, auraEffDummy->GetAmount());
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dru_eclipse_aura::HandleRemoved, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 79577 - Eclipse - SPELL_DRUID_ECLIPSE_DUMMY
+class spell_dru_eclipse_dummy : public AuraScript
+{
+    PrepareAuraScript(spell_dru_eclipse_dummy);
+
+    class InitializeEclipseCountersEvent : public BasicEvent
+    {
+    public:
+        InitializeEclipseCountersEvent(Unit* owner, uint32 count) : BasicEvent(), _owner(owner), _count(count) { }
+
+        bool Execute(uint64, uint32) override
+        {
+            spell_dru_eclipse_common::SetSpellCount(_owner, SPELL_DRUID_ECLIPSE_SOLAR_SPELL_CNT, _count);
+            spell_dru_eclipse_common::SetSpellCount(_owner, SPELL_DRUID_ECLIPSE_LUNAR_SPELL_CNT, _count);
+            return true;
+        }
+
+    private:
+        Unit* _owner;
+        uint32 _count;
+    };
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_ECLIPSE_SOLAR_SPELL_CNT, SPELL_DRUID_ECLIPSE_LUNAR_SPELL_CNT,
+            SPELL_DRUID_ECLIPSE_SOLAR_AURA, SPELL_DRUID_ECLIPSE_LUNAR_AURA });
+    }
+
+    void HandleProc(ProcEventInfo& eventInfo)
+    {
+        if (SpellInfo const* spellInfo = eventInfo.GetSpellInfo())
+        {
+            if (spellInfo->SpellFamilyFlags & flag128(0x4, 0x0, 0x0, 0x0)) // Starfire
+                OnSpellCast(SPELL_DRUID_ECLIPSE_SOLAR_SPELL_CNT, SPELL_DRUID_ECLIPSE_LUNAR_SPELL_CNT, SPELL_DRUID_ECLIPSE_SOLAR_AURA);
+            else if (spellInfo->SpellFamilyFlags & flag128(0x1, 0x0, 0x0, 0x0)) // Wrath
+                OnSpellCast(SPELL_DRUID_ECLIPSE_LUNAR_SPELL_CNT, SPELL_DRUID_ECLIPSE_SOLAR_SPELL_CNT, SPELL_DRUID_ECLIPSE_LUNAR_AURA);
+        }
+    }
+
+    void HandleApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        // counters are applied with a delay
+        GetTarget()->m_Events.AddEventAtOffset(new InitializeEclipseCountersEvent(GetTarget(), aurEff->GetAmount()), 1s);
+    }
+
+    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAura(SPELL_DRUID_ECLIPSE_SOLAR_SPELL_CNT);
+        GetTarget()->RemoveAura(SPELL_DRUID_ECLIPSE_LUNAR_SPELL_CNT);
+    }
+
+    void OnOwnerOutOfCombat(bool isNowInCombat)
+    {
+        if (!isNowInCombat)
+            GetTarget()->CastSpell(GetTarget(), SPELL_DRUID_ECLIPSE_OOC, TRIGGERED_FULL_MASK);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_dru_eclipse_dummy::HandleApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectApplyFn(spell_dru_eclipse_dummy::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnProc += AuraProcFn(spell_dru_eclipse_dummy::HandleProc);
+        OnEnterLeaveCombat += AuraEnterLeaveCombatFn(spell_dru_eclipse_dummy::OnOwnerOutOfCombat);
+    }
+
+private:
+    void OnSpellCast(uint32 cntSpellId, uint32 otherCntSpellId, uint32 eclipseAuraSpellId)
+    {
+        Unit* target = GetTarget();
+        if (Aura* aura = target->GetAura(cntSpellId))
+        {
+            uint32 remaining = aura->GetStackAmount();
+            if (remaining == 0)
+                return;
+
+            if (remaining > 1)
+                aura->SetStackAmount(remaining - 1);
+            else
+            {
+                // cast eclipse
+                target->CastSpell(target, eclipseAuraSpellId, TRIGGERED_FULL_MASK);
+
+                // Remove stacks from other one as well
+                // reset remaining power on other spellId
+                target->RemoveAura(cntSpellId);
+                target->RemoveAura(otherCntSpellId);
+            }
+        }
+    }
+};
+
+// 329910 - Eclipse out of combat - SPELL_DRUID_ECLIPSE_OOC
+class spell_dru_eclipse_ooc : public AuraScript
+{
+    PrepareAuraScript(spell_dru_eclipse_ooc);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_ECLIPSE_DUMMY, SPELL_DRUID_ECLIPSE_SOLAR_SPELL_CNT, SPELL_DRUID_ECLIPSE_LUNAR_SPELL_CNT });
+    }
+
+    void Tick(AuraEffect const* /*aurEff*/)
+    {
+        Unit* owner = GetTarget();
+        AuraEffect const* auraEffDummy = owner->GetAuraEffect(SPELL_DRUID_ECLIPSE_DUMMY, EFFECT_0);
+        if (!auraEffDummy)
+            return;
+
+        if (!owner->IsInCombat() && (!owner->HasAura(SPELL_DRUID_ECLIPSE_SOLAR_SPELL_CNT) || !owner->HasAura(SPELL_DRUID_ECLIPSE_LUNAR_SPELL_CNT)))
+        {
+            // Restore 2 stacks to each spell when out of combat
+            spell_dru_eclipse_common::SetSpellCount(owner, SPELL_DRUID_ECLIPSE_SOLAR_SPELL_CNT, auraEffDummy->GetAmount());
+            spell_dru_eclipse_common::SetSpellCount(owner, SPELL_DRUID_ECLIPSE_LUNAR_SPELL_CNT, auraEffDummy->GetAmount());
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_eclipse_ooc::Tick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
@@ -1856,6 +2023,9 @@ void AddSC_druid_spell_scripts()
     RegisterAuraScript(spell_dru_bristling_fur);
     new spell_dru_dash();
     RegisterAuraScript(spell_dru_earthwarden);
+    RegisterAuraScript(spell_dru_eclipse_aura);
+    RegisterAuraScript(spell_dru_eclipse_dummy);
+    RegisterAuraScript(spell_dru_eclipse_ooc);
     RegisterSpellScript(spell_dru_ferocious_bite);
     new spell_dru_flight_form();
     new spell_dru_forms_trinket();

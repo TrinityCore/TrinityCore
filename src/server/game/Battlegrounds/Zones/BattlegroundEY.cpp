@@ -684,7 +684,7 @@ void BattlegroundEY::EventPlayerClickedOnFlag(Player* player, GameObject* target
     SetFlagPicker(player->GetGUID());
     //get flag aura on player
     player->CastSpell(player, BG_EY_NETHERSTORM_FLAG_SPELL, true);
-    player->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
+    player->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::PvPActive);
 
     if (player->GetTeam() == ALLIANCE)
         SendBroadcastText(BG_EY_TEXT_TAKEN_FLAG, CHAT_MSG_BG_SYSTEM_ALLIANCE, player);
@@ -811,7 +811,7 @@ void BattlegroundEY::EventPlayerCapturedFlag(Player* player, uint32 BgObjectType
     m_FlagState = BG_EY_FLAG_STATE_WAIT_RESPAWN;
     player->RemoveAurasDueToSpell(BG_EY_NETHERSTORM_FLAG_SPELL);
 
-    player->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
+    player->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::PvPActive);
 
     if (player->GetTeam() == ALLIANCE)
     {
