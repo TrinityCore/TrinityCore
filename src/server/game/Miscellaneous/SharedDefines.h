@@ -412,7 +412,7 @@ enum SpellAttr1
     SPELL_ATTR1_DRAIN_ALL_POWER                  = 0x00000002, //  1 use all power (Only paladin Lay of Hands and Bunyanize)
     SPELL_ATTR1_CHANNELED_1                      = 0x00000004, //  2 clientside checked? cancelable?
     SPELL_ATTR1_CANT_BE_REDIRECTED               = 0x00000008, //  3
-    SPELL_ATTR1_UNK4                             = 0x00000010, //  4 stealth and whirlwind
+    SPELL_ATTR1_UNK4                             = 0x00000010, //  4 stealth and whirlwind // no skill increase
     SPELL_ATTR1_NOT_BREAK_STEALTH                = 0x00000020, //  5 Not break stealth
     SPELL_ATTR1_CHANNELED_2                      = 0x00000040, //  6
     SPELL_ATTR1_CANT_BE_REFLECTED                = 0x00000080, //  7

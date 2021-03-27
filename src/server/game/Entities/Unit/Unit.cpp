@@ -9259,7 +9259,10 @@ int32 Unit::CalcSpellDuration(SpellInfo const* spellProto)
     int32 duration;
 
     if (comboPoints && minduration != -1 && minduration != maxduration)
-        duration = minduration + int32((maxduration - minduration) * comboPoints / 5);
+    {
+        int32 maxComboPoints = m_playerMovingMe->GetMaxPower(POWER_COMBO_POINTS);
+        duration = minduration + int32((maxduration - minduration) * comboPoints / maxComboPoints);
+    }
     else
         duration = minduration;
 

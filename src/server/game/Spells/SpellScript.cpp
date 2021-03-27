@@ -34,20 +34,14 @@ bool _SpellScript::_Validate(SpellInfo const* entry)
     return true;
 }
 
-bool _SpellScript::_ValidateSpellInfo(uint32 const* begin, uint32 const* end)
+bool _SpellScript::_ValidateSpellInfo(uint32 spellId)
 {
-    bool allValid = true;
-    while (begin != end)
+    if (!sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE))
     {
-        if (!sSpellMgr->GetSpellInfo(*begin, DIFFICULTY_NONE))
-        {
-            TC_LOG_ERROR("scripts.spells", "_SpellScript::ValidateSpellInfo: Spell %u does not exist.", *begin);
-            allValid = false;
-        }
-
-        ++begin;
+        TC_LOG_ERROR("scripts.spells", "_SpellScript::ValidateSpellInfo: Spell %u does not exist.", spellId);
+        return false;
     }
-    return allValid;
+    return true;
 }
 
 void _SpellScript::_Register()
