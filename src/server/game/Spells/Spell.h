@@ -349,6 +349,7 @@ class TC_GAME_API Spell
         void EffectPowerDrain(SpellEffIndex effIndex);
         void EffectHeal(SpellEffIndex effIndex);
         void EffectBind(SpellEffIndex effIndex);
+        void EffectTeleportToReturnPoint(SpellEffIndex effIndex);
         void EffectHealthLeech(SpellEffIndex effIndex);
         void EffectQuestComplete(SpellEffIndex effIndex);
         void EffectCreateItem(SpellEffIndex effIndex);
