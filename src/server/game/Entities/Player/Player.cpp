@@ -155,6 +155,7 @@ Player::Player(WorldSession* session): Unit(true)
 
     m_ingametime = 0;
     m_sharedQuestId = 0;
+    m_popupQuestId = 0;
 
     m_ExtraFlags = 0;
 
@@ -14258,7 +14259,10 @@ void Player::SendPreparedQuest(ObjectGuid guid)
                 if (quest->IsAutoComplete() && quest->IsRepeatable() && !quest->IsDailyOrWeekly())
                     PlayerTalkClass->SendQuestGiverRequestItems(quest, guid, CanCompleteRepeatableQuest(quest), true);
                 else
+                {
+                    SetPopupQuestId(0);
                     PlayerTalkClass->SendQuestGiverQuestDetails(quest, guid, true, false);
+                }
             }
         }
     }
@@ -23473,7 +23477,10 @@ void Player::SendInitialPacketsAfterAddToMap()
     if (GetPlayerSharingQuest())
     {
         if (Quest const* quest = sObjectMgr->GetQuestTemplate(GetSharedQuestID()))
+        {
+            SetPopupQuestId(0);
             PlayerTalkClass->SendQuestGiverQuestDetails(quest, GetGUID(), true, false);
+        }
         else
             ClearQuestSharingInfo();
     }

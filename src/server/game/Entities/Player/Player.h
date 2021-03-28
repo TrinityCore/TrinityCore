@@ -1449,6 +1449,10 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetQuestSharingInfo(ObjectGuid guid, uint32 id) { m_playerSharingQuest = guid; m_sharedQuestId = id; }
         void ClearQuestSharingInfo() { m_playerSharingQuest = ObjectGuid::Empty; m_sharedQuestId = 0; }
 
+        // Returns the ID of the next available quest in chain of the most recently rewarded quest that has been rewarded via UI popup
+        uint32 GetPopupQuestId() const { return m_popupQuestId; }
+        void SetPopupQuestId(uint32 questId) { m_popupQuestId = questId; }
+
         uint32 GetInGameTime() const { return m_ingametime; }
         void SetInGameTime(uint32 time) { m_ingametime = time; }
 
@@ -2452,6 +2456,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         ObjectGuid m_playerSharingQuest;
         uint32 m_sharedQuestId;
+        uint32 m_popupQuestId;
         uint32 m_ingametime;
 
         /*********************************************************/

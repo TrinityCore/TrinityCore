@@ -425,6 +425,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         {
                             if (pTarget->CanTakeQuest(q, true))
                             {
+                                pTarget->SetPopupQuestId(0);
                                 pTarget->PlayerTalkClass->SendQuestGiverQuestDetails(q, pTarget->GetGUID(), true, false);
                                 TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_OFFER_QUEST: Player guidLow %u - offered quest %u",
                                     pTarget->GetGUID().GetCounter(), e.action.questOffer.questID);
@@ -434,7 +435,10 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         {
                             pTarget->AddQuestAndCheckCompletion(q, nullptr);
                             if (q->IsAutoAccept())
+                            {
+                                pTarget->SetPopupQuestId(0);
                                 pTarget->PlayerTalkClass->SendQuestGiverQuestDetails(q, pTarget->GetGUID(), true, true);
+                            }
                             TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_OFFER_QUEST: Player guidLow %u - quest %u added",
                                 pTarget->GetGUID().GetCounter(), e.action.questOffer.questID);
                         }
