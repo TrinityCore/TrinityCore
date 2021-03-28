@@ -453,8 +453,8 @@ void ThreatManager::doAddThreat(Unit* victim, float threat)
     uint32 redirectThreadPct = victim->GetRedirectThreatPercent();
     Unit* redirectTarget = victim->GetRedirectThreatTarget();
 
-    // If victim is personnal spawn, redirect all aggro to summoner
-    if (victim->IsPrivateObject() && GetOwner()->IsPrivateObject() && GetOwner()->CanSeeOrDetect(victim))
+    // If victim is personal spawn, redirect all aggro to summoner
+    if (victim->IsPrivateObject() && (!GetOwner()->IsPrivateObject() || !GetOwner()->CheckPrivateObjectOwnerVisibility(victim)))
     {
         redirectThreadPct = 100;
         redirectTarget = ObjectAccessor::GetUnit(*GetOwner(), victim->GetPrivateObjectOwner());

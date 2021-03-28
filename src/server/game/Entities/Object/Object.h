@@ -599,6 +599,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         bool IsPrivateObject() const { return !_privateObjectOwner.IsEmpty(); }
         ObjectGuid GetPrivateObjectOwner() const { return _privateObjectOwner; }
         void SetPrivateObjectOwner(ObjectGuid const& owner) { _privateObjectOwner = owner; }
+        bool CheckPrivateObjectOwnerVisibility(WorldObject const* seer) const;
 
     protected:
         std::string m_name;
