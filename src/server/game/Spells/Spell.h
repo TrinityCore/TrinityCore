@@ -349,6 +349,7 @@ class TC_GAME_API Spell
         void EffectPowerDrain(SpellEffIndex effIndex);
         void EffectHeal(SpellEffIndex effIndex);
         void EffectBind(SpellEffIndex effIndex);
+        void EffectTeleportToReturnPoint(SpellEffIndex effIndex);
         void EffectHealthLeech(SpellEffIndex effIndex);
         void EffectQuestComplete(SpellEffIndex effIndex);
         void EffectCreateItem(SpellEffIndex effIndex);
@@ -871,7 +872,7 @@ class TC_GAME_API Spell
         HitTriggerSpellList m_hitTriggerSpells;
 
         // effect helpers
-        void SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* properties, uint32 numSummons);
+        void SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* properties, uint32 numSummons, ObjectGuid privateObjectOwner);
         void CalculateJumpSpeeds(SpellEffectInfo const* effInfo, float dist, float& speedxy, float& speedz);
 
         void UpdateSpellCastDataTargets(WorldPackets::Spells::SpellCastData& data);
