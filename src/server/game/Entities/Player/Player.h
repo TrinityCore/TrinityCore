@@ -2334,6 +2334,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         /***                   GROUP SYSTEM                    ***/
         /*********************************************************/
 
+        bool IsInGroup(ObjectGuid groupGuid) const;
         Group* GetGroupInvite() const { return m_groupInvite; }
         void SetGroupInvite(Group* group) { m_groupInvite = group; }
         Group* GetGroup() { return m_group.getTarget(); }

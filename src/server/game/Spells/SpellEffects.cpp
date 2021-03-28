@@ -1892,9 +1892,20 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
     if (!m_originalCaster)
         return;
 
-    ObjectGuid privateObjectOwner;
-    if (properties->Flags & SUMMON_PROP_FLAG_PERSONAL_SPAWN)
-        privateObjectOwner = m_originalCaster->IsPrivateObject() ? m_originalCaster->GetPrivateObjectOwner() : m_originalCaster->GetGUID();
+    ObjectGuid privateObjectOwner = [&]()
+    {
+        if (!(properties->Flags & (SUMMON_PROP_FLAG_PERSONAL_SPAWN | SUMMON_PROP_FLAG_PERSONAL_GROUP_SPAWN)))
+            return ObjectGuid::Empty;
+
+        if (m_originalCaster->IsPrivateObject())
+            return m_originalCaster->GetPrivateObjectOwner();
+
+        if (properties->Flags & SUMMON_PROP_FLAG_PERSONAL_GROUP_SPAWN)
+            if (m_originalCaster->IsPlayer() && m_originalCaster->ToPlayer()->GetGroup())
+                return m_originalCaster->ToPlayer()->GetGroup()->GetGUID();
+
+        return m_originalCaster->GetGUID();
+    }();
 
     int32 duration = m_spellInfo->CalcDuration(m_originalCaster);
 

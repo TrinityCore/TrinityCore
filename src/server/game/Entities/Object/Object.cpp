@@ -1424,6 +1424,10 @@ bool WorldObject::CheckPrivateObjectOwnerVisibility(WorldObject const* seer) con
     if (_privateObjectOwner == seer->GetPrivateObjectOwner())
         return true;
 
+    if (Player const* playerSeer = seer->ToPlayer())
+        if (playerSeer->IsInGroup(_privateObjectOwner))
+            return true;
+
     return false;
 }
 
