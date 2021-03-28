@@ -376,7 +376,7 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
     }
 
     // If victim is personal spawn, redirect all aggro to summoner
-    if (target->IsPrivateObject() && GetOwner()->IsPrivateObject() && GetOwner()->CanSeeOrDetect(target))
+    if (target->IsPrivateObject() && (!GetOwner()->IsPrivateObject() || !GetOwner()->CheckPrivateObjectOwnerVisibility(target)))
     {
         if (Unit* privateObjectOwner = ObjectAccessor::GetUnit(*GetOwner(), target->GetPrivateObjectOwner()))
         {
