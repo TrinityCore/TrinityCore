@@ -4220,6 +4220,9 @@ void Spell::SendCastResult(SpellCastResult result, uint32* param1 /*= nullptr*/,
     if (result == SPELL_CAST_OK)
         return;
 
+    if (m_spellInfo->HasAttribute(SPELL_ATTR2_DONT_REPORT_SPELL_FAILURE))
+        return;
+
     if (m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
 

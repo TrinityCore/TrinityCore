@@ -432,7 +432,7 @@ enum SpellAttr2
     SPELL_ATTR2_DISPLAY_IN_STANCE_BAR            = 0x00000010, //  4 client displays icon in stance bar when learned, even if not shapeshift
     SPELL_ATTR2_AUTOREPEAT_FLAG                  = 0x00000020, //  5
     SPELL_ATTR2_CANT_TARGET_TAPPED               = 0x00000040, //  6 target must be tapped by caster
-    SPELL_ATTR2_UNK7                             = 0x00000080, //  7
+    SPELL_ATTR2_DONT_REPORT_SPELL_FAILURE        = 0x00000080, //  7 Does not send spell failure packets when the cast has failed
     SPELL_ATTR2_UNK8                             = 0x00000100, //  8 not set in 3.0.3
     SPELL_ATTR2_UNK9                             = 0x00000200, //  9
     SPELL_ATTR2_UNK10                            = 0x00000400, // 10 related to tame
