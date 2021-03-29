@@ -27,6 +27,7 @@ EndScriptData */
 #include "GridNotifiersImpl.h"
 #include "hyjal_trash.h"
 #include "hyjalAI.h"
+#include "Language.h"
 #include "InstanceScript.h"
 #include "Log.h"
 #include "MotionMaster.h"

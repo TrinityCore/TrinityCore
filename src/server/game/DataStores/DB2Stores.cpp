@@ -193,6 +193,8 @@ DB2Storage<ItemSpecEntry>                       sItemSpecStore("ItemSpec.db2", I
 DB2Storage<ItemSpecOverrideEntry>               sItemSpecOverrideStore("ItemSpecOverride.db2", ItemSpecOverrideLoadInfo::Instance());
 DB2Storage<ItemXBonusTreeEntry>                 sItemXBonusTreeStore("ItemXBonusTree.db2", ItemXBonusTreeLoadInfo::Instance());
 DB2Storage<KeychainEntry>                       sKeychainStore("Keychain.db2", KeychainLoadInfo::Instance());
+DB2Storage<LanguagesEntry>                      sLanguagesStore("Languages.db2", LanguagesLoadInfo::Instance());
+DB2Storage<LanguageWordsEntry>                  sLanguageWordsStore("LanguageWords.db2", LanguageWordsLoadInfo::Instance());
 DB2Storage<LFGDungeonsEntry>                    sLFGDungeonsStore("LFGDungeons.db2", LfgDungeonsLoadInfo::Instance());
 DB2Storage<LightEntry>                          sLightStore("Light.db2", LightLoadInfo::Instance());
 DB2Storage<LiquidTypeEntry>                     sLiquidTypeStore("LiquidType.db2", LiquidTypeLoadInfo::Instance());
@@ -729,6 +731,8 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sItemSpecOverrideStore);
     LOAD_DB2(sItemXBonusTreeStore);
     LOAD_DB2(sKeychainStore);
+    LOAD_DB2(sLanguagesStore);
+    LOAD_DB2(sLanguageWordsStore);
     LOAD_DB2(sLFGDungeonsStore);
     LOAD_DB2(sLightStore);
     LOAD_DB2(sLiquidTypeStore);
@@ -2776,6 +2780,15 @@ std::vector<SkillLineEntry const*> const* DB2Manager::GetSkillLinesForParentSkil
 std::vector<SkillLineAbilityEntry const*> const* DB2Manager::GetSkillLineAbilitiesBySkill(uint32 skillId) const
 {
     return Trinity::Containers::MapGetValuePtr(_skillLineAbilitiesBySkillupSkill, skillId);
+}
+
+SkillRaceClassInfoEntry const* DB2Manager::GetAvailableSkillRaceClassInfo(uint32 skill) const
+{
+    auto bounds = _skillRaceClassInfoBySkill.equal_range(skill);
+    for (auto itr = bounds.first; itr != bounds.second; ++itr)
+        if (itr->second->Availability == 1)
+            return itr->second;
+    return nullptr;
 }
 
 SkillRaceClassInfoEntry const* DB2Manager::GetSkillRaceClassInfo(uint32 skill, uint8 race, uint8 class_)

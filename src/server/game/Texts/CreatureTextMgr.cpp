@@ -24,6 +24,7 @@
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "GridNotifiersImpl.h"
+#include "LanguageMgr.h"
 #include "Log.h"
 #include "MiscPackets.h"
 #include "ObjectMgr.h"
@@ -130,7 +131,7 @@ void CreatureTextMgr::LoadCreatureTexts()
             }
         }
 
-        if (!GetLanguageDescByID(temp.lang))
+        if (!sLanguageMgr->IsLanguageExist(temp.lang))
         {
             TC_LOG_ERROR("sql.sql", "CreatureTextMgr: Entry %u, Group %u in table `creature_text` using Language %u but Language does not exist.", temp.creatureId, temp.groupId, uint32(temp.lang));
             temp.lang = LANG_UNIVERSAL;
@@ -207,7 +208,7 @@ void CreatureTextMgr::LoadCreatureTextLocales()
     TC_LOG_INFO("server.loading", ">> Loaded %u creature localized texts in %u ms", uint32(mLocaleTextMap.size()), GetMSTimeDiffToNow(oldMSTime));
 }
 
-uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, WorldObject const* whisperTarget /*= nullptr*/, ChatMsg msgType /*= CHAT_MSG_ADDON*/, Language language /*= LANG_ADDON*/, CreatureTextRange range /*= TEXT_RANGE_NORMAL*/, uint32 sound /*= 0*/, Team team /*= TEAM_OTHER*/, bool gmOnly /*= false*/, Player* srcPlr /*= nullptr*/)
+uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, WorldObject const* whisperTarget /*= nullptr*/, ChatMsg msgType /*= CHAT_MSG_ADDON*/, uint32 language /*= LANG_ADDON*/, CreatureTextRange range /*= TEXT_RANGE_NORMAL*/, uint32 sound /*= 0*/, Team team /*= TEAM_OTHER*/, bool gmOnly /*= false*/, Player* srcPlr /*= nullptr*/)
 {
     if (!source)
         return 0;
@@ -247,7 +248,7 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, WorldObject 
     });
 
     ChatMsg finalType = (msgType == CHAT_MSG_ADDON) ? iter->type : msgType;
-    Language finalLang = (language == LANG_ADDON) ? iter->lang : language;
+    uint32 finalLang = (language == LANG_ADDON) ? iter->lang : language;
     uint32 finalSound = iter->sound;
     if (sound)
         finalSound = sound;

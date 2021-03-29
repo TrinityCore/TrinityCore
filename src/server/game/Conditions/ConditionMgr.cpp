@@ -26,6 +26,7 @@
 #include "Group.h"
 #include "InstanceScript.h"
 #include "Item.h"
+#include "LanguageMgr.h"
 #include "LFGMgr.h"
 #include "Log.h"
 #include "LootMgr.h"
@@ -2624,9 +2625,9 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
 
     if (condition->LanguageID)
     {
-        if (LanguageDesc const* lang = GetLanguageDescByID(condition->LanguageID))
+        if (LanguageDesc const* langDesc = sLanguageMgr->GetLanguageDescById(condition->LanguageID))
         {
-            int32 languageSkill = player->GetSkillValue(lang->skill_id);
+            int32 languageSkill = player->GetSkillValue(langDesc->SkillId);
             if (!languageSkill && player->HasAuraTypeWithMiscvalue(SPELL_AURA_COMPREHEND_LANGUAGE, condition->LanguageID))
                 languageSkill = 300;
 

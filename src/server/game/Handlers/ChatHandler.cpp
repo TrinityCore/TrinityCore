@@ -28,7 +28,7 @@
 #include "Group.h"
 #include "Guild.h"
 #include "GuildMgr.h"
-#include "Language.h"
+#include "LanguageMgr.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -105,14 +105,14 @@ void WorldSession::HandleChatMessage(ChatMsg type, uint32 lang, std::string msg,
     }
 
     // prevent talking at unknown language (cheating)
-    LanguageDesc const* langDesc = GetLanguageDescByID(lang);
+    LanguageDesc const* langDesc = sLanguageMgr->GetLanguageDescById(lang);
     if (!langDesc)
     {
         SendNotification(LANG_UNKNOWN_LANGUAGE);
         return;
     }
 
-    if (langDesc->skill_id != 0 && !sender->HasSkill(langDesc->skill_id))
+    if (langDesc->SkillId != 0 && !sender->HasSkill(langDesc->SkillId))
     {
         // also check SPELL_AURA_COMPREHEND_LANGUAGE (client offers option to speak in that language)
         Unit::AuraEffectList const& langAuras = sender->GetAuraEffectsByType(SPELL_AURA_COMPREHEND_LANGUAGE);

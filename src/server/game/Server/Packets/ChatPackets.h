@@ -20,6 +20,7 @@
 
 #include "Packet.h"
 #include "Common.h"
+#include "Language.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include "PacketUtilities.h"
@@ -144,7 +145,7 @@ namespace WorldPackets
             Chat() : ServerPacket(SMSG_CHAT, 100) { }
             Chat(Chat const& chat);
 
-            void Initialize(ChatMsg chatType, Language language, WorldObject const* sender, WorldObject const* receiver, std::string message, uint32 achievementId = 0, std::string channelName = "", LocaleConstant locale = DEFAULT_LOCALE, std::string addonPrefix = "");
+            void Initialize(ChatMsg chatType, uint32 language, WorldObject const* sender, WorldObject const* receiver, std::string message, uint32 achievementId = 0, std::string channelName = "", LocaleConstant locale = DEFAULT_LOCALE, std::string addonPrefix = "");
             void SetSender(WorldObject const* sender, LocaleConstant locale);
             void SetReceiver(WorldObject const* receiver, LocaleConstant locale);
 

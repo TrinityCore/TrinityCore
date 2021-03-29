@@ -30,6 +30,7 @@ EndContentData */
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "karazhan.h"
+#include "Language.h"
 #include "Log.h"
 #include "Map.h"
 #include "MotionMaster.h"

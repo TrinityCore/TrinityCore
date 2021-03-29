@@ -19,6 +19,7 @@
 #define TRINITY_CREATURE_TEXT_MGR_H
 
 #include "Common.h"
+#include "Language.h"
 #include "SharedDefines.h"
 #include <map>
 #include <unordered_map>
@@ -46,7 +47,7 @@ struct CreatureTextEntry
     uint8 id;
     std::string text;
     ChatMsg type;
-    Language lang;
+    uint32 lang;
     float probability;
     Emote emote;
     uint32 duration;
@@ -97,7 +98,7 @@ class TC_GAME_API CreatureTextMgr
         static void SendEmote(Unit* source, uint32 emote);
 
         //if sent, returns the 'duration' of the text else 0 if error
-        uint32 SendChat(Creature* source, uint8 textGroup, WorldObject const* whisperTarget = nullptr, ChatMsg msgType = CHAT_MSG_ADDON, Language language = LANG_ADDON, CreatureTextRange range = TEXT_RANGE_NORMAL, uint32 sound = 0, Team team = TEAM_OTHER, bool gmOnly = false, Player* srcPlr = nullptr);
+        uint32 SendChat(Creature* source, uint8 textGroup, WorldObject const* whisperTarget = nullptr, ChatMsg msgType = CHAT_MSG_ADDON, uint32 language = LANG_ADDON, CreatureTextRange range = TEXT_RANGE_NORMAL, uint32 sound = 0, Team team = TEAM_OTHER, bool gmOnly = false, Player* srcPlr = nullptr);
         bool TextExist(uint32 sourceEntry, uint8 textGroup) const;
         std::string GetLocalizedChatString(uint32 entry, uint8 gender, uint8 textGroup, uint32 id, LocaleConstant locale) const;
 
