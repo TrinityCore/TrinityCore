@@ -2007,10 +2007,8 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
         if (HasEffect(SPELL_EFFECT_SELF_RESURRECT) || HasEffect(SPELL_EFFECT_RESURRECT) || HasEffect(SPELL_EFFECT_RESURRECT_NEW))
             return SPELL_FAILED_TARGET_CANNOT_BE_RESURRECTED;
 
-    if (caster->IsPlayer())
-        if (TempSummon const* summon = unitTarget->ToTempSummon())
-            if (summon->IsVisibleBySummonerOnly() && summon->GetSummonerGUID() != caster->GetGUID())
-                return SPELL_FAILED_BAD_TARGETS;
+    if (!unitTarget->CheckPrivateObjectOwnerVisibility(caster))
+        return SPELL_FAILED_BAD_TARGETS;
 
     return SPELL_CAST_OK;
 }
