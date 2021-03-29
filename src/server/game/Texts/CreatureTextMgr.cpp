@@ -24,6 +24,7 @@
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "GridNotifiersImpl.h"
+#include "LanguageMgr.h"
 #include "Log.h"
 #include "MiscPackets.h"
 #include "ObjectMgr.h"
@@ -81,7 +82,7 @@ void CreatureTextMgr::LoadCreatureTexts()
             }
         }
 
-        if (!GetLanguageDescByID(temp.lang))
+        if (!sLanguageMgr->IsLanguageExist(temp.lang))
         {
             TC_LOG_ERROR("sql.sql", "CreatureTextMgr: Entry %u, Group %u in table `creature_text` using Language %u but Language does not exist.", temp.creatureId, temp.groupId, uint32(temp.lang));
             temp.lang = LANG_UNIVERSAL;

@@ -2782,6 +2782,15 @@ std::vector<SkillLineAbilityEntry const*> const* DB2Manager::GetSkillLineAbiliti
     return Trinity::Containers::MapGetValuePtr(_skillLineAbilitiesBySkillupSkill, skillId);
 }
 
+SkillRaceClassInfoEntry const* DB2Manager::GetAvailableSkillRaceClassInfo(uint32 skill) const
+{
+    auto bounds = _skillRaceClassInfoBySkill.equal_range(skill);
+    for (auto itr = bounds.first; itr != bounds.second; ++itr)
+        if (itr->second->Availability == 1)
+            return itr->second;
+    return nullptr;
+}
+
 SkillRaceClassInfoEntry const* DB2Manager::GetSkillRaceClassInfo(uint32 skill, uint8 race, uint8 class_)
 {
     auto bounds = _skillRaceClassInfoBySkill.equal_range(skill);

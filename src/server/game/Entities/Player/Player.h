@@ -1166,6 +1166,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void Whisper(uint32 textId, Player* target, bool isBossWhisper = false) override;
         void WhisperAddon(std::string const& text, std::string const& prefix, bool isLogged, Player* receiver);
 
+        bool CanUnderstandLanguageSkillId(uint32 langSkillId) const;
+
         /*********************************************************/
         /***                    STORAGE SYSTEM                 ***/
         /*********************************************************/
@@ -1999,6 +2001,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendMessageToSetInRange(WorldPacket const* data, float dist, bool self) const override;
         void SendMessageToSetInRange(WorldPacket const* data, float dist, bool self, bool own_team_only) const;
         void SendMessageToSet(WorldPacket const* data, Player const* skipped_rcvr) const override;
+
+        void SendChatMessageToSetInRange(ChatMsg chatMsg, Language lanugageId, std::string&& text, float range);
 
         Corpse* GetCorpse() const;
         void SpawnCorpseBones(bool triggerSave = true);

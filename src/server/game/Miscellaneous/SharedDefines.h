@@ -1068,8 +1068,6 @@ enum Language
     LANG_VULPERA           = 285
 };
 
-#define LANGUAGES_COUNT   31
-
 enum TeamId
 {
     TEAM_ALLIANCE = 0,
