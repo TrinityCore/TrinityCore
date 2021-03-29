@@ -1837,7 +1837,9 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
     if (!m_originalCaster)
         return;
 
-    bool personalSpawn = (properties->Flags & SUMMON_PROP_FLAG_PERSONAL_SPAWN) != 0;
+    ObjectGuid privateObjectOwner;
+    if (properties->Flags & SUMMON_PROP_FLAG_PERSONAL_SPAWN)
+        privateObjectOwner = m_originalCaster->IsPrivateObject() ? m_originalCaster->GetPrivateObjectOwner() : m_originalCaster->GetGUID();
 
     int32 duration = m_spellInfo->GetDuration();
     if (Player* modOwner = m_originalCaster->GetSpellModOwner())
@@ -1881,7 +1883,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
 
     if (numSummons == 1)
     {
-        if (TempSummon* summon = m_caster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, m_originalCaster, m_spellInfo->Id, 0, personalSpawn, health))
+        if (TempSummon* summon = m_caster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, m_originalCaster, m_spellInfo->Id, 0, privateObjectOwner, health))
         {
             // Summoned vehicles shall be mounted right away if possible
             if (properties->Control == SUMMON_CATEGORY_VEHICLE && summon->IsVehicle())
@@ -1914,7 +1916,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
         {
             // Multiple summons are summoned at random points within the destination radius
             Position pos = m_caster->GetRandomPoint(*destTarget, radius);
-            if (TempSummon* summon = m_caster->GetMap()->SummonCreature(entry, pos, properties, duration, m_originalCaster, m_spellInfo->Id, 0, personalSpawn, health))
+            if (TempSummon* summon = m_caster->GetMap()->SummonCreature(entry, pos, properties, duration, m_originalCaster, m_spellInfo->Id, 0, privateObjectOwner, health))
                 ExecuteLogEffectSummonObject(effIndex, summon);
         }
     }
