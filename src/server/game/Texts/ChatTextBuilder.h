@@ -19,7 +19,6 @@
 #define __CHATTEXT_BUILDER_H
 
 #include "Common.h"
-#include "ChatPackets.h"
 #include "SharedDefines.h"
 #include <string>
 
