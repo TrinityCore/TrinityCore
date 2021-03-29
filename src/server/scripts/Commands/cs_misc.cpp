@@ -681,7 +681,7 @@ public:
 
     static bool HandleDismountCommand(ChatHandler* handler, char const* /*args*/)
     {
-        Player* player = handler->GetSession()->GetPlayer();
+        Player* player = handler->getSelectedPlayerOrSelf();
 
         // If player is not mounted, so go out :)
         if (!player->IsMounted())
@@ -693,7 +693,7 @@ public:
 
         if (player->IsInFlight())
         {
-            handler->SendSysMessage(LANG_YOU_IN_FLIGHT);
+            handler->SendSysMessage(LANG_CHAR_IN_FLIGHT);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -2037,15 +2037,15 @@ public:
             stmt->setInt64(0, muteTime);
         }
 
-        stmt->setString(1, muteReasonStr.c_str());
-        stmt->setString(2, muteBy.c_str());
+        stmt->setString(1, muteReasonStr);
+        stmt->setString(2, muteBy);
         stmt->setUInt32(3, accountId);
         LoginDatabase.Execute(stmt);
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_MUTE);
         stmt->setUInt32(0, accountId);
         stmt->setUInt32(1, notSpeakTime);
-        stmt->setString(2, muteBy.c_str());
-        stmt->setString(3, muteReasonStr.c_str());
+        stmt->setString(2, muteBy);
+        stmt->setString(3, muteReasonStr);
         LoginDatabase.Execute(stmt);
         std::string nameLink = handler->playerLink(targetName);
 
@@ -2182,9 +2182,9 @@ public:
         float x, y, z;
         motionMaster->GetDestination(x, y, z);
 
-        for (uint8 i = 0; i < MAX_MOTION_SLOT; ++i)
+        for (uint8 itr = 0; itr < MAX_MOTION_SLOT; ++itr)
         {
-            MovementGenerator* movementGenerator = motionMaster->GetMotionSlot(i);
+            MovementGenerator* movementGenerator = motionMaster->GetMotionSlot(MovementSlot(itr));
             if (!movementGenerator)
             {
                 handler->SendSysMessage("Empty");
@@ -2686,7 +2686,9 @@ public:
         if (!*args)
             return false;
 
-        uint32 soundId = atoul(args);
+        char const* soundIdToken = strtok((char*)args, " ");
+
+        uint32 soundId = atoul(soundIdToken);
 
         if (!sSoundKitStore.LookupEntry(soundId))
         {
@@ -2695,7 +2697,12 @@ public:
             return false;
         }
 
-        sWorld->SendGlobalMessage(WorldPackets::Misc::PlaySound(handler->GetSession()->GetPlayer()->GetGUID(), soundId).Write());
+        uint32 broadcastTextId = 0;
+        char const* broadcastTextIdToken = strtok(nullptr, " ");
+        if (broadcastTextIdToken)
+            broadcastTextId = atoul(broadcastTextIdToken);
+
+        sWorld->SendGlobalMessage(WorldPackets::Misc::PlaySound(handler->GetSession()->GetPlayer()->GetGUID(), soundId, broadcastTextId).Write());
 
         handler->PSendSysMessage(LANG_COMMAND_PLAYED_TO_ALL, soundId);
         return true;

@@ -885,3 +885,11 @@ void VehicleJoinEvent::Abort(uint64)
     if (Passenger->IsInWorld() && Passenger->HasUnitTypeMask(UNIT_MASK_ACCESSORY))
         Passenger->ToCreature()->DespawnOrUnsummon();
 }
+
+Milliseconds Vehicle::GetDespawnDelay()
+{
+    if (VehicleTemplate const* vehicleTemplate = sObjectMgr->GetVehicleTemplate(this))
+        return vehicleTemplate->DespawnDelay;
+
+    return 1ms;
+}

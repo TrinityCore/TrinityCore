@@ -46,6 +46,50 @@ struct AchievementEntry
     int32 CovenantID;
 };
 
+struct AdventureJournalEntry
+{
+    uint32 ID;
+    LocalizedString Name;
+    LocalizedString Description;
+    LocalizedString ButtonText;
+    LocalizedString RewardDescription;
+    LocalizedString ContinueDescription;
+    uint8 Type;
+    uint32 PlayerConditionID;
+    uint8 Flags;
+    uint8 ButtonActionType;
+    int32 TextureFileDataID;
+    uint16 LfgDungeonID;
+    int32 QuestID;
+    uint16 BattleMasterListID;
+    uint8 PriorityMin;
+    uint8 PriorityMax;
+    int32 ItemID;
+    uint32 ItemQuantity;
+    uint16 CurrencyType;
+    uint32 CurrencyQuantity;
+    uint16 UiMapID;
+    uint32 BonusPlayerConditionID[2];
+    uint8 BonusValue[2];
+};
+
+struct AdventureMapPOIEntry
+{
+    uint32 ID;
+    LocalizedString Title;
+    LocalizedString Description;
+    DBCPosition2D WorldPosition;
+    int8 Type;
+    uint32 PlayerConditionID;
+    uint32 QuestID;
+    uint32 LfgDungeonID;
+    int32 RewardItemID;
+    uint32 UiTextureAtlasMemberID;
+    uint32 UiTextureKitID;
+    int32 MapID;
+    uint32 AreaTableID;
+};
+
 struct AnimationDataEntry
 {
     uint32 ID;
@@ -522,6 +566,14 @@ struct ChatChannelsEntry
     int32 Ruleset;
 };
 
+struct ChrClassUIDisplayEntry
+{
+    uint32 ID;
+    uint8 ChrClassesID;
+    uint32 AdvGuidePlayerConditionID;
+    uint32 SplashPlayerConditionID;
+};
+
 struct ChrClassesEntry
 {
     LocalizedString Name;
@@ -721,6 +773,8 @@ struct ChrRacesEntry
     int8 FemaleTextureFallbackRaceID;
     int8 FemaleTextureFallbackSex;
     int8 UnalteredVisualCustomizationRaceID;
+
+    EnumFlag<ChrRacesFlag> GetFlags() const { return static_cast<ChrRacesFlag>(Flags); }
 };
 
 #define MAX_MASTERY_SPELLS 2
@@ -1528,6 +1582,13 @@ struct GemPropertiesEntry
     int32 Type;
 };
 
+struct GlobalCurveEntry
+{
+    uint32 ID;
+    int32 CurveID;
+    int32 Type;
+};
+
 struct GlyphBindableSpellEntry
 {
     uint32 ID;
@@ -2221,6 +2282,15 @@ struct MapDifficultyEntry
     }
 };
 
+struct MapDifficultyXConditionEntry
+{
+    uint32 ID;
+    LocalizedString FailureDescription;
+    uint32 PlayerConditionID;
+    int32 OrderIndex;
+    uint32 MapDifficultyID;
+};
+
 struct ModifierTreeEntry
 {
     uint32 ID;
@@ -2699,6 +2769,8 @@ struct SkillLineAbilityEntry
     int16 UniqueBit;
     int16 TradeSkillCategoryID;
     int16 SkillupSkillLineID;
+
+    EnumFlag<SkillLineAbilityFlags> GetFlags() const { return EnumFlag<SkillLineAbilityFlags>(static_cast<SkillLineAbilityFlags>(Flags)); }
 };
 
 struct SkillRaceClassInfoEntry
@@ -2879,6 +2951,8 @@ struct SpellEffectEntry
     flag128 EffectSpellClassMask;
     int16 ImplicitTarget[2];
     uint32 SpellID;
+
+    SpellEffectAttributes GetEffectAttributes() const { return static_cast<SpellEffectAttributes>(EffectAttributes); }
 };
 
 struct SpellEquippedItemsEntry
@@ -3097,6 +3171,8 @@ struct SpellShapeshiftFormEntry
     uint16 MountTypeID;
     uint32 CreatureDisplayID[4];
     uint32 PresetSpellID[MAX_SHAPESHIFT_SPELLS];
+
+    EnumFlag<SpellShapeshiftFormFlags> GetFlags() const { return static_cast<SpellShapeshiftFormFlags>(Flags); }
 };
 
 struct SpellTargetRestrictionsEntry

@@ -94,6 +94,7 @@ enum Spells
     SPELL_DETONATE_MANA                     = 27819,
     SPELL_MANA_DETONATION_DAMAGE            = 27820,
     SPELL_FROST_BLAST                       = 27808,
+    SPELL_FROST_BLAST_DMG                   = 29879,
     SPELL_CHAINS                            = 28410,
     SPELL_CHAINS_DUMMY                      = 28408, // this holds the category cooldown - the main chains spell can't have one as it is cast multiple times
 
@@ -943,6 +944,31 @@ public:
     }
 };
 
+// 27808 - Frost Blast
+class spell_kelthuzad_frost_blast : public AuraScript
+{
+    PrepareAuraScript(spell_kelthuzad_frost_blast);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_FROST_BLAST_DMG });
+    }
+
+    void PeriodicTick(AuraEffect const* aurEff)
+    {
+        PreventDefaultAction();
+
+        // Stuns the target, dealing 26% of the target's maximum health in Frost damage every second for 4 sec.
+        if (Unit* caster = GetCaster())
+            caster->CastCustomSpell(SPELL_FROST_BLAST_DMG, SPELLVALUE_BASE_POINT0, int32(GetTarget()->CountPctFromMaxHealth(26)), GetTarget(), true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_kelthuzad_frost_blast::PeriodicTick, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
 class at_kelthuzad_center : public AreaTriggerScript
 {
 public:
@@ -995,6 +1021,7 @@ void AddSC_boss_kelthuzad()
     new npc_kelthuzad_guardian();
     new spell_kelthuzad_chains();
     new spell_kelthuzad_detonate_mana();
+    RegisterAuraScript(spell_kelthuzad_frost_blast);
     new at_kelthuzad_center();
     new achievement_just_cant_get_enough();
 }

@@ -141,6 +141,7 @@ enum AreaFlags
 enum AreaFlags2
 {
     AREA_FLAG_2_DONT_SHOW_SANCTUARY = 0x00000200,                // Hides sanctuary status from zone text color (Script_GetZonePVPInfo)
+    AREA_FLAG_2_CAN_ENABLE_WAR_MODE = 0x00001000,                // Allows enabling war mode
 };
 
 enum AreaMountFlags
@@ -200,6 +201,13 @@ enum BattlemasterListFlags
     BATTLEMASTER_LIST_FLAG_BRAWL                = 0x20,
     BATTLEMASTER_LIST_FLAG_FACTIONAL            = 0x40
 };
+
+enum class ChrRacesFlag : int32
+{
+    AlliedRace  = 0x80000
+};
+
+DEFINE_ENUM_FLAG(ChrRacesFlag);
 
 enum ChrSpecializationFlag
 {
@@ -367,7 +375,7 @@ enum CriteriaAdditionalCondition
     CRITERIA_ADDITIONAL_CONDITION_TIME_IN_RANGE                 = 109, // NYI, packed time between asset and secondaryAsset
     CRITERIA_ADDITIONAL_CONDITION_REWARDED_QUEST                = 110,
     CRITERIA_ADDITIONAL_CONDITION_COMPLETED_QUEST               = 111,
-    CRITERIA_ADDITIONAL_CONDITION_COMPLETED_QUEST_OBJECTIVE     = 112, // NYI, QuestObjectiveID
+    CRITERIA_ADDITIONAL_CONDITION_COMPLETED_QUEST_OBJECTIVE     = 112, // QuestObjectiveID
     CRITERIA_ADDITIONAL_CONDITION_EXPLORED_AREA                 = 113,
     CRITERIA_ADDITIONAL_CONDITION_ITEM_COUNT_INCLUDING_BANK     = 114,
     //CRITERIA_ADDITIONAL_CONDITION_UNK_115                     = 115, // NYI
@@ -443,7 +451,7 @@ enum CriteriaAdditionalCondition
     //CRITERIA_ADDITIONAL_CONDITION_UNK_185                     = 185, // NYI
     //CRITERIA_ADDITIONAL_CONDITION_UNK_186                     = 186, // NYI
     CRITERIA_ADDITIONAL_CONDITION_GARRISON_FOLLOWER_TYPE        = 187, // NYI
-    //CRITERIA_ADDITIONAL_CONDITION_UNK_188                     = 188, // NYI
+    CRITERIA_ADDITIONAL_CONDITION_USED_LEVEL_BOOST_LESS_THAN_HOURS_AGO = 188, // NYI
     //CRITERIA_ADDITIONAL_CONDITION_UNK_189                     = 189, // NYI
     //CRITERIA_ADDITIONAL_CONDITION_UNK_190                     = 190, // NYI
     //CRITERIA_ADDITIONAL_CONDITION_UNK_191                     = 191, // NYI
@@ -851,14 +859,14 @@ enum class ChrCustomizationOptionFlag : int32
     Disabled    = 0x4,
 };
 
-DEFINE_ENUM_FLAG(ChrCustomizationOptionFlag)
+DEFINE_ENUM_FLAG(ChrCustomizationOptionFlag);
 
 enum class ChrCustomizationReqFlag : int32
 {
     HasRequirements = 0x1
 };
 
-DEFINE_ENUM_FLAG(ChrCustomizationReqFlag)
+DEFINE_ENUM_FLAG(ChrCustomizationReqFlag);
 
 enum Curves
 {
@@ -969,6 +977,26 @@ enum FactionMasks
     // if none flags set then non-aggressive creature
 };
 
+enum class GlobalCurve : int32
+{
+    CritDiminishing = 0,
+    MasteryDiminishing = 1,
+    HasteDiminishing = 2,
+    SpeedDiminishing = 3,
+    AvoidanceDiminishing = 4,
+    VersatilityDoneDiminishing = 5,
+    LifestealDiminishing = 6,
+    DodgeDiminishing = 7,
+    BlockDiminishing = 8,
+    ParryDiminishing = 9,
+
+    VersatilityTakenDiminishing = 11,
+
+    ContentTuningPvpItemLevelHealthScaling = 13,
+    ContentTuningPvpLevelDamageScaling = 14,
+    ContentTuningPvpItemLevelDamageScaling = 15,
+};
+
 #define MAX_ITEM_PROTO_FLAGS 4
 #define MAX_ITEM_PROTO_ZONES 2
 #define MAX_ITEM_PROTO_SOCKETS 3
@@ -998,6 +1026,14 @@ enum AbilytyLearnType
     SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN  = 2, // Spell will be learned/removed together with entire skill
     SKILL_LINE_ABILITY_REWARDED_FROM_QUEST     = 4  // Learned as quest reward, also re-learned if missing
 };
+
+enum class SkillLineAbilityFlags
+{
+    CanFallbackToLearnedOnSkillLearn            = 0x80, // The skill is rewarded from a quest if player started on exile's reach
+
+};
+
+DEFINE_ENUM_FLAG(SkillLineAbilityFlags);
 
 enum GlyphSlotType
 {
@@ -1281,6 +1317,18 @@ enum SpellCategoryFlags
     SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET     = 0x08
 };
 
+enum class SpellEffectAttributes
+{
+    None                                    = 0,
+    UnaffectedByInvulnerability             = 0x000001, // not cancelled by immunities
+    NoScaleWithStack                        = 0x000040,
+    StackAuraAmountOnRecast                 = 0x008000, // refreshing periodic auras with this attribute will add remaining damage to new aura
+    AllowAnyExplicitTarget                  = 0x100000,
+    IgnoreDuringCooldownTimeRateCalculation = 0x800000
+};
+
+DEFINE_ENUM_FLAG(SpellEffectAttributes);
+
 #define MAX_SPELL_EFFECTS 32
 #define MAX_EFFECT_MASK 0xFFFFFFFF
 
@@ -1309,20 +1357,30 @@ enum SpellProcsPerMinuteModType
 
 constexpr std::size_t MAX_POWERS_PER_SPELL = 4;
 
-enum SpellShapeshiftFormFlags
+enum class SpellShapeshiftFormFlags : int32
 {
-    SHAPESHIFT_FORM_IS_NOT_A_SHAPESHIFT         = 0x0001,
-    SHAPESHIFT_FORM_CANNOT_CANCEL               = 0x0002,   // player cannot cancel the aura giving this shapeshift
-    SHAPESHIFT_FORM_CAN_INTERACT                = 0x0008,   // if the form does not have SHAPESHIFT_FORM_IS_NOT_A_SHAPESHIFT then this flag must be present to allow NPC interaction
-    SHAPESHIFT_FORM_CAN_EQUIP_ITEMS             = 0x0040,   // if the form does not have SHAPESHIFT_FORM_IS_NOT_A_SHAPESHIFT then this flag allows equipping items without ITEM_FLAG_USABLE_WHEN_SHAPESHIFTED
-    SHAPESHIFT_FORM_CAN_USE_ITEMS               = 0x0080,   // if the form does not have SHAPESHIFT_FORM_IS_NOT_A_SHAPESHIFT then this flag allows using items without ITEM_FLAG_USABLE_WHEN_SHAPESHIFTED
-    SHAPESHIFT_FORM_CAN_AUTO_UNSHIFT            = 0x0100,   // clientside
-    SHAPESHIFT_FORM_PREVENT_LFG_TELEPORT        = 0x0200,
-    SHAPESHIFT_FORM_PREVENT_USING_OWN_SKILLS    = 0x0400,   // prevents using spells that don't have any shapeshift requirement
-    SHAPESHIFT_FORM_PREVENT_EMOTE_SOUNDS        = 0x1000
+    Stance                      = 0x00000001,
+    NotToggleable               = 0x00000002,   // player cannot cancel the aura giving this shapeshift
+    PersistOnDeath              = 0x00000004,
+    CanInteractNPC              = 0x00000008,   // if the form does not have SHAPESHIFT_FORM_IS_NOT_A_SHAPESHIFT then this flag must be present to allow NPC interaction
+    DontUseWeapon               = 0x00000010,
+
+    CanUseEquippedItems         = 0x00000040,   // if the form does not have SHAPESHIFT_FORM_IS_NOT_A_SHAPESHIFT then this flag allows equipping items without ITEM_FLAG_USABLE_WHEN_SHAPESHIFTED
+    CanUseItems                 = 0x00000080,   // if the form does not have SHAPESHIFT_FORM_IS_NOT_A_SHAPESHIFT then this flag allows using items without ITEM_FLAG_USABLE_WHEN_SHAPESHIFTED
+    DontAutoUnshift             = 0x00000100,   // clientside
+    ConsideredDead              = 0x00000200,
+    CanOnlyCastShapeshiftSpells = 0x00000400,   // prevents using spells that don't have any shapeshift requirement
+    StanceCancelsAtFlightmaster = 0x00000800,
+    NoEmoteSounds               = 0x00001000,
+    NoTriggerTeleport           = 0x00002000,
+    CannotChangeEquippedItems   = 0x00004000,
+
+    CannotUseGameObjects        = 0x00010000
 };
 
-#define TaxiMaskSize 336
+DEFINE_ENUM_FLAG(SpellShapeshiftFormFlags);
+
+#define TaxiMaskSize 337
 typedef std::array<uint8, TaxiMaskSize> TaxiMask;
 
 enum TotemCategoryType
@@ -1373,7 +1431,7 @@ enum SummonPropFlags
     SUMMON_PROP_FLAG_UNK2            = 0x00000002,          // 616 spells in 3.0.3, something friendly
     SUMMON_PROP_FLAG_UNK3            = 0x00000004,          // 22 spells in 3.0.3, no idea...
     SUMMON_PROP_FLAG_UNK4            = 0x00000008,          // 49 spells in 3.0.3, some mounts
-    SUMMON_PROP_FLAG_PERSONAL_SPAWN  = 0x00000010,          // Personal Spawn (creature visible only by summoner)
+    SUMMON_PROP_FLAG_PERSONAL_SPAWN  = 0x00000010,          // Only Visible to Summoner
     SUMMON_PROP_FLAG_UNK6            = 0x00000020,          // 0 spells in 3.3.5, unused
     SUMMON_PROP_FLAG_UNK7            = 0x00000040,          // 12 spells in 3.0.3, no idea
     SUMMON_PROP_FLAG_UNK8            = 0x00000080,          // 4 spells in 3.0.3, no idea
@@ -1385,7 +1443,7 @@ enum SummonPropFlags
     SUMMON_PROP_FLAG_UNK14           = 0x00002000,          // Guides, player follows
     SUMMON_PROP_FLAG_UNK15           = 0x00004000,          // Force of Nature, Shadowfiend, Feral Spirit, Summon Water Elemental
     SUMMON_PROP_FLAG_UNK16           = 0x00008000,          // Light/Dark Bullet, Soul/Fiery Consumption, Twisted Visage, Twilight Whelp. Phase related?
-    SUMMON_PROP_FLAG_UNK17           = 0x00010000,
+    SUMMON_PROP_FLAG_PERSONAL_GROUP_SPAWN = 0x00010000,     // Only Visible to Summoner's Group
     SUMMON_PROP_FLAG_UNK18           = 0x00020000,
     SUMMON_PROP_FLAG_UNK19           = 0x00040000,
     SUMMON_PROP_FLAG_UNK20           = 0x00080000,
@@ -1431,7 +1489,7 @@ enum class UiMapFlag : int32
     ForceOnNavbar           = 0x00008000
 };
 
-DEFINE_ENUM_FLAG(UiMapFlag)
+DEFINE_ENUM_FLAG(UiMapFlag);
 
 enum UiMapSystem : int8
 {
@@ -1497,6 +1555,7 @@ enum VehicleSeatFlagsB
     VEHICLE_SEAT_FLAG_B_EJECTABLE                = 0x00000020,           // ejectable
     VEHICLE_SEAT_FLAG_B_USABLE_FORCED_2          = 0x00000040,
     VEHICLE_SEAT_FLAG_B_USABLE_FORCED_3          = 0x00000100,
+    VEHICLE_SEAT_FLAG_B_PASSENGER_MIRRORS_ANIMS  = 0x00010000,           // Passenger forced to repeat all vehicle animations
     VEHICLE_SEAT_FLAG_B_KEEP_PET                 = 0x00020000,
     VEHICLE_SEAT_FLAG_B_USABLE_FORCED_4          = 0x02000000,
     VEHICLE_SEAT_FLAG_B_CAN_SWITCH               = 0x04000000,

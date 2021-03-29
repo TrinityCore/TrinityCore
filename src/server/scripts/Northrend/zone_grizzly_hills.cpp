@@ -559,6 +559,11 @@ public:
     {
         npc_venture_co_stragglerAI(Creature* creature) : ScriptedAI(creature) { }
 
+    void EnterCombat(Unit* /*who*/) override
+    {
+        _events.ScheduleEvent(EVENT_CHOP, Seconds(3), Seconds(6));
+    }
+
         void Reset() override
         {
             _playerGUID.Clear();
@@ -597,7 +602,7 @@ public:
                     case EVENT_CHOP:
                         if (UpdateVictim())
                             DoCastVictim(SPELL_CHOP);
-                        _events.ScheduleEvent(EVENT_CHOP, 10000, 12000);
+                        _events.Repeat(Seconds(10), Seconds(12));
                         break;
                     default:
                         break;
@@ -606,7 +611,6 @@ public:
 
             if (!UpdateVictim())
                 return;
-
             DoMeleeAttackIfReady();
         }
 

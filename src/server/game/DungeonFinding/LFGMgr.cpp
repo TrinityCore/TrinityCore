@@ -131,7 +131,7 @@ void LFGMgr::LoadRewards()
 
     if (!result)
     {
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 lfg dungeon rewards. DB table `lfg_dungeon_rewards` is empty!");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 lfg dungeon rewards. DB table `lfg_dungeon_rewards` is empty!");
         return;
     }
 
@@ -215,7 +215,7 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
     QueryResult result = WorldDatabase.Query("SELECT dungeonId, position_x, position_y, position_z, orientation, requiredItemLevel FROM lfg_dungeon_template");
     if (!result)
     {
-        TC_LOG_ERROR("server.loading", ">> Loaded 0 lfg dungeon templates. DB table `lfg_dungeon_template` is empty!");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 lfg dungeon templates. DB table `lfg_dungeon_template` is empty!");
         return;
     }
 
@@ -2019,7 +2019,7 @@ bool LFGMgr::IsSeasonActive(uint32 dungeonId)
         case 285: // The Headless Horseman
             return IsHolidayActive(HOLIDAY_HALLOWS_END);
         case 286: // The Frost Lord Ahune
-            return IsHolidayActive(HOLIDAY_FIRE_FESTIVAL);
+            return IsHolidayActive(HOLIDAY_MIDSUMMER_FIRE_FESTIVAL);
         case 287: // Coren Direbrew
             return IsHolidayActive(HOLIDAY_BREWFEST);
         case 288: // The Crown Chemical Co.

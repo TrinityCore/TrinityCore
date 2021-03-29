@@ -1071,7 +1071,7 @@ class spell_xt002_321_boombot_aura : public SpellScriptLoader
                 return true;
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
             {
                 InstanceScript* instance = eventInfo.GetActor()->GetInstanceScript();
                 if (!instance)

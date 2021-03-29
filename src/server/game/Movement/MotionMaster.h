@@ -125,8 +125,8 @@ class TC_GAME_API MotionMaster
         void MovementExpired(bool reset = true);
 
         MovementGeneratorType GetCurrentMovementGeneratorType() const;
-        MovementGeneratorType GetMotionSlotType(int slot) const;
-        MovementGenerator* GetMotionSlot(int slot) const;
+        MovementGeneratorType GetMotionSlotType(MovementSlot slot) const;
+        MovementGenerator* GetMotionSlot(MovementSlot slot) const;
 
         void PropagateSpeedChange();
 

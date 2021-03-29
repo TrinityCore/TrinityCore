@@ -55,9 +55,10 @@ enum AreaTriggerTypes
 
 enum AreaTriggerActionTypes
 {
-    AREATRIGGER_ACTION_CAST     = 0,
-    AREATRIGGER_ACTION_ADDAURA  = 1,
-    AREATRIGGER_ACTION_MAX      = 2
+    AREATRIGGER_ACTION_CAST        = 0,
+    AREATRIGGER_ACTION_ADDAURA     = 1,
+    AREATRIGGER_ACTION_TELEPORT    = 2,
+    AREATRIGGER_ACTION_MAX         = 3
 };
 
 enum AreaTriggerActionUserTypes
@@ -69,6 +70,12 @@ enum AreaTriggerActionUserTypes
     AREATRIGGER_ACTION_USER_PARTY  = 4,
     AREATRIGGER_ACTION_USER_CASTER = 5,
     AREATRIGGER_ACTION_USER_MAX    = 6
+};
+
+struct AreaTriggerId
+{
+    uint32 Id = 0;
+    bool IsServerSide = false;
 };
 
 struct AreaTriggerAction
@@ -138,7 +145,7 @@ public:
 
     void InitMaxSearchRadius();
 
-    uint32 Id;
+    AreaTriggerId Id;
     AreaTriggerTypes Type;
     uint32 Flags;
     uint32 ScriptId;
@@ -218,6 +225,16 @@ public:
 
     AreaTriggerTemplate const* Template;
     std::vector<Position> SplinePoints;
+};
+
+struct AreaTriggerSpawn
+{
+    ObjectGuid::LowType SpawnId = 0;
+    AreaTriggerId Id;
+    WorldLocation Location;
+    uint32 PhaseId = 0;
+    uint32 PhaseGroup = 0;
+    uint8 PhaseUseFlags = 0;
 };
 
 #endif

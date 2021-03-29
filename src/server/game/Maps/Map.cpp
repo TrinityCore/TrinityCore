@@ -496,49 +496,6 @@ void Map::SwitchGridContainers(Creature* obj, bool on)
     obj->m_isTempWorldObject = on;
 }
 
-template<>
-void Map::SwitchGridContainers(GameObject* obj, bool on)
-{
-    ASSERT(!obj->IsPermanentWorldObject());
-    CellCoord p = Trinity::ComputeCellCoord(obj->GetPositionX(), obj->GetPositionY());
-    if (!p.IsCoordValid())
-    {
-        TC_LOG_ERROR("maps", "Map::SwitchGridContainers: Object %s has invalid coordinates X:%f Y:%f grid cell [%u:%u]", obj->GetGUID().ToString().c_str(), obj->GetPositionX(), obj->GetPositionY(), p.x_coord, p.y_coord);
-        return;
-    }
-
-    Cell cell(p);
-    if (!IsGridLoaded(GridCoord(cell.data.Part.grid_x, cell.data.Part.grid_y)))
-        return;
-
-    if (sLog->ShouldLog("maps", LOG_LEVEL_DEBUG))
-    {
-        // Extract bitfield values
-        uint32 const grid_x = cell.data.Part.grid_x;
-        uint32 const grid_y = cell.data.Part.grid_y;
-
-        TC_LOG_DEBUG("maps", "Switch object %s from grid[%u, %u] %u", obj->GetGUID().ToString().c_str(), grid_x, grid_y, on);
-    }
-
-    NGridType *ngrid = getNGrid(cell.GridX(), cell.GridY());
-    ASSERT(ngrid != nullptr);
-
-    GridType &grid = ngrid->GetGridType(cell.CellX(), cell.CellY());
-
-    obj->RemoveFromGrid(); //This step is not really necessary but we want to do ASSERT in remove/add
-
-    if (on)
-    {
-        grid.AddWorldObject(obj);
-        AddWorldObject(obj);
-    }
-    else
-    {
-        grid.AddGridObject(obj);
-        RemoveWorldObject(obj);
-    }
-}
-
 template<class T>
 void Map::DeleteFromWorld(T* obj)
 {
@@ -771,7 +728,9 @@ bool Map::AddToMap(T* obj)
 
     //something, such as vehicle, needs to be update immediately
     //also, trigger needs to cast spell, if not update, cannot see visual
+    obj->SetIsNewObject(true);
     obj->UpdateObjectVisibilityOnCreate();
+    obj->SetIsNewObject(false);
     return true;
 }
 
@@ -1168,6 +1127,24 @@ void Map::RemoveFromMap(Transport* obj, bool remove)
     }
 }
 
+template <typename T>
+/*static*/ bool Map::CheckGridIntegrity(T* object, bool moved, char const* objType)
+{
+    Cell const& cur_cell = object->GetCurrentCell();
+    Cell xy_cell(object->GetPositionX(), object->GetPositionY());
+    if (xy_cell != cur_cell)
+    {
+        TC_LOG_DEBUG("maps", "%s (%s) X: %f Y: %f (%s) is in grid[%u, %u]cell[%u, %u] instead of grid[%u, %u]cell[%u, %u]",
+            objType, object->GetGUID().ToString().c_str(),
+            object->GetPositionX(), object->GetPositionY(), (moved ? "final" : "original"),
+            cur_cell.GridX(), cur_cell.GridY(), cur_cell.CellX(), cur_cell.CellY(),
+            xy_cell.GridX(), xy_cell.GridY(), xy_cell.CellX(), xy_cell.CellY());
+        return true;                                        // not crash at error, just output error in debug mode
+    }
+
+    return true;
+}
+
 void Map::PlayerRelocation(Player* player, float x, float y, float z, float orientation)
 {
     ASSERT(player);
@@ -1203,9 +1180,8 @@ void Map::PlayerRelocation(Player* player, float x, float y, float z, float orie
 
 void Map::CreatureRelocation(Creature* creature, float x, float y, float z, float ang, bool respawnRelocationOnFail)
 {
-    ASSERT(CheckGridIntegrity(creature, false));
+    ASSERT(CheckGridIntegrity(creature, false, "Creature"));
 
-    Cell old_cell = creature->GetCurrentCell();
     Cell new_cell(x, y);
 
     if (!respawnRelocationOnFail && !getNGrid(new_cell.GridX(), new_cell.GridY()))
@@ -1217,12 +1193,13 @@ void Map::CreatureRelocation(Creature* creature, float x, float y, float z, floa
     if (creature->HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
         z += creature->m_unitData->HoverHeight;
 
+    Cell old_cell = creature->GetCurrentCell();
     // delay creature move for grid/cell to grid/cell moves
     if (old_cell.DiffCell(new_cell) || old_cell.DiffGrid(new_cell))
     {
-        #ifdef TRINITY_DEBUG
+#ifdef TRINITY_DEBUG
         TC_LOG_DEBUG("maps", "Creature (%s Entry: %u) added to moving list from grid[%u, %u]cell[%u, %u] to grid[%u, %u]cell[%u, %u].", creature->GetGUID().ToString().c_str(), creature->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
-        #endif
+#endif
         AddCreatureToMoveList(creature, x, y, z, ang);
         // in diffcell/diffgrid case notifiers called at finishing move creature in Map::MoveAllCreaturesInMoveList
     }
@@ -1236,19 +1213,18 @@ void Map::CreatureRelocation(Creature* creature, float x, float y, float z, floa
         RemoveCreatureFromMoveList(creature);
     }
 
-    ASSERT(CheckGridIntegrity(creature, true));
+    ASSERT(CheckGridIntegrity(creature, true, "Creature"));
 }
 
 void Map::GameObjectRelocation(GameObject* go, float x, float y, float z, float orientation, bool respawnRelocationOnFail)
 {
-    Cell integrity_check(go->GetPositionX(), go->GetPositionY());
-    Cell old_cell = go->GetCurrentCell();
-
-    ASSERT(integrity_check == old_cell);
+    ASSERT(CheckGridIntegrity(go, false, "GameObject"));
     Cell new_cell(x, y);
 
     if (!respawnRelocationOnFail && !getNGrid(new_cell.GridX(), new_cell.GridY()))
         return;
+
+    Cell old_cell = go->GetCurrentCell();
 
     // delay creature move for grid/cell to grid/cell moves
     if (old_cell.DiffCell(new_cell) || old_cell.DiffGrid(new_cell))
@@ -1268,21 +1244,18 @@ void Map::GameObjectRelocation(GameObject* go, float x, float y, float z, float 
         RemoveGameObjectFromMoveList(go);
     }
 
-    old_cell = go->GetCurrentCell();
-    integrity_check = Cell(go->GetPositionX(), go->GetPositionY());
-    ASSERT(integrity_check == old_cell);
+    ASSERT(CheckGridIntegrity(go, true, "GameObject"));
 }
 
 void Map::DynamicObjectRelocation(DynamicObject* dynObj, float x, float y, float z, float orientation)
 {
-    Cell integrity_check(dynObj->GetPositionX(), dynObj->GetPositionY());
-    Cell old_cell = dynObj->GetCurrentCell();
-
-    ASSERT(integrity_check == old_cell);
+    ASSERT(CheckGridIntegrity(dynObj, false, "DynamicObject"));
     Cell new_cell(x, y);
 
     if (!getNGrid(new_cell.GridX(), new_cell.GridY()))
         return;
+
+    Cell old_cell = dynObj->GetCurrentCell();
 
     // delay creature move for grid/cell to grid/cell moves
     if (old_cell.DiffCell(new_cell) || old_cell.DiffGrid(new_cell))
@@ -1301,21 +1274,18 @@ void Map::DynamicObjectRelocation(DynamicObject* dynObj, float x, float y, float
         RemoveDynamicObjectFromMoveList(dynObj);
     }
 
-    old_cell = dynObj->GetCurrentCell();
-    integrity_check = Cell(dynObj->GetPositionX(), dynObj->GetPositionY());
-    ASSERT(integrity_check == old_cell);
+    ASSERT(CheckGridIntegrity(dynObj, true, "DynamicObject"));
 }
 
 void Map::AreaTriggerRelocation(AreaTrigger* at, float x, float y, float z, float orientation)
 {
-    Cell integrity_check(at->GetPositionX(), at->GetPositionY());
-    Cell old_cell = at->GetCurrentCell();
-
-    ASSERT(integrity_check == old_cell);
+    ASSERT(CheckGridIntegrity(at, false, "AreaTrigger"));
     Cell new_cell(x, y);
 
     if (!getNGrid(new_cell.GridX(), new_cell.GridY()))
         return;
+
+    Cell old_cell = at->GetCurrentCell();
 
     // delay areatrigger move for grid/cell to grid/cell moves
     if (old_cell.DiffCell(new_cell) || old_cell.DiffGrid(new_cell))
@@ -1334,9 +1304,7 @@ void Map::AreaTriggerRelocation(AreaTrigger* at, float x, float y, float z, floa
         RemoveAreaTriggerFromMoveList(at);
     }
 
-    old_cell = at->GetCurrentCell();
-    integrity_check = Cell(at->GetPositionX(), at->GetPositionY());
-    ASSERT(integrity_check == old_cell);
+    ASSERT(CheckGridIntegrity(at, true, "AreaTrigger"));
 }
 
 void Map::AddCreatureToMoveList(Creature* c, float x, float y, float z, float ang)
@@ -1596,248 +1564,87 @@ void Map::MoveAllAreaTriggersInMoveList()
     _areaTriggersToMoveLock = false;
 }
 
-bool Map::CreatureCellRelocation(Creature* c, Cell new_cell)
+template <typename T>
+bool Map::MapObjectCellRelocation(T* object, Cell new_cell, char const* objType)
 {
-    Cell const& old_cell = c->GetCurrentCell();
+    Cell const& old_cell = object->GetCurrentCell();
     if (!old_cell.DiffGrid(new_cell))                       // in same grid
     {
         // if in same cell then none do
         if (old_cell.DiffCell(new_cell))
         {
-            #ifdef TRINITY_DEBUG
-            TC_LOG_DEBUG("maps", "Creature (%s Entry: %u) moved in grid[%u, %u] from cell[%u, %u] to cell[%u, %u].", c->GetGUID().ToString().c_str(), c->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.CellX(), new_cell.CellY());
-            #endif
+#ifdef TRINITY_DEBUG
+            TC_LOG_DEBUG("maps", "%s (%s Entry: %u) moved in grid[%u, %u] from cell[%u, %u] to cell[%u, %u].", objType, object->GetGUID().ToString().c_str(), object->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.CellX(), new_cell.CellY());
+#endif
 
-            c->RemoveFromGrid();
-            AddToGrid(c, new_cell);
+            object->RemoveFromGrid();
+            AddToGrid(object, new_cell);
         }
         else
         {
-            #ifdef TRINITY_DEBUG
-            TC_LOG_DEBUG("maps", "Creature (%s Entry: %u) moved in same grid[%u, %u]cell[%u, %u].", c->GetGUID().ToString().c_str(), c->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY());
-            #endif
+#ifdef TRINITY_DEBUG
+            TC_LOG_DEBUG("maps", "%s (%s Entry: %u) moved in same grid[%u, %u]cell[%u, %u].", objType, object->GetGUID().ToString().c_str(), object->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY());
+#endif
         }
 
         return true;
     }
 
     // in diff. grids but active creature
-    if (c->isActiveObject())
+    if (object->isActiveObject())
     {
-        EnsureGridLoadedForActiveObject(new_cell, c);
+        EnsureGridLoadedForActiveObject(new_cell, object);
 
-        #ifdef TRINITY_DEBUG
-        TC_LOG_DEBUG("maps", "Active creature (%s Entry: %u) moved from grid[%u, %u]cell[%u, %u] to grid[%u, %u]cell[%u, %u].", c->GetGUID().ToString().c_str(), c->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
-        #endif
+#ifdef TRINITY_DEBUG
+        TC_LOG_DEBUG("maps", "Active %s (%s Entry: %u) moved from grid[%u, %u]cell[%u, %u] to grid[%u, %u]cell[%u, %u].", objType, object->GetGUID().ToString().c_str(), object->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
+#endif
 
-        c->RemoveFromGrid();
-        AddToGrid(c, new_cell);
+        object->RemoveFromGrid();
+        AddToGrid(object, new_cell);
 
         return true;
     }
 
-    // in diff. loaded grid normal creature
+    // in diff. loaded grid normal object
     if (IsGridLoaded(GridCoord(new_cell.GridX(), new_cell.GridY())))
     {
-        #ifdef TRINITY_DEBUG
-        TC_LOG_DEBUG("maps", "Creature (%s Entry: %u) moved from grid[%u, %u]cell[%u, %u] to grid[%u, %u]cell[%u, %u].", c->GetGUID().ToString().c_str(), c->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
-        #endif
+#ifdef TRINITY_DEBUG
+        TC_LOG_DEBUG("maps", "%s (%s Entry: %u) moved from grid[%u, %u]cell[%u, %u] to grid[%u, %u]cell[%u, %u].", objType, object->GetGUID().ToString().c_str(), object->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
+#endif
 
-        c->RemoveFromGrid();
+        object->RemoveFromGrid();
         EnsureGridCreated(GridCoord(new_cell.GridX(), new_cell.GridY()));
-        AddToGrid(c, new_cell);
+        AddToGrid(object, new_cell);
 
         return true;
     }
 
-    // fail to move: normal creature attempt move to unloaded grid
-    #ifdef TRINITY_DEBUG
-    TC_LOG_DEBUG("maps", "Creature (%s Entry: %u) attempted to move from grid[%u, %u]cell[%u, %u] to unloaded grid[%u, %u]cell[%u, %u].", c->GetGUID().ToString().c_str(), c->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
-    #endif
+    // fail to move: normal object attempt move to unloaded grid
+#ifdef TRINITY_DEBUG
+    TC_LOG_DEBUG("maps", "%s (%s Entry: %u) attempted to move from grid[%u, %u]cell[%u, %u] to unloaded grid[%u, %u]cell[%u, %u].", objType, object->GetGUID().ToString().c_str(), object->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
+#endif
+    (void)objType;
     return false;
+}
+
+bool Map::CreatureCellRelocation(Creature* c, Cell new_cell)
+{
+    return MapObjectCellRelocation(c, new_cell, "Creature");
 }
 
 bool Map::GameObjectCellRelocation(GameObject* go, Cell new_cell)
 {
-    Cell const& old_cell = go->GetCurrentCell();
-    if (!old_cell.DiffGrid(new_cell))                       // in same grid
-    {
-        // if in same cell then none do
-        if (old_cell.DiffCell(new_cell))
-        {
-            #ifdef TRINITY_DEBUG
-            TC_LOG_DEBUG("maps", "GameObject (%s Entry: %u) moved in grid[%u, %u] from cell[%u, %u] to cell[%u, %u].", go->GetGUID().ToString().c_str(), go->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.CellX(), new_cell.CellY());
-            #endif
-
-            go->RemoveFromGrid();
-            AddToGrid(go, new_cell);
-        }
-        else
-        {
-            #ifdef TRINITY_DEBUG
-            TC_LOG_DEBUG("maps", "GameObject (%s Entry: %u) moved in same grid[%u, %u]cell[%u, %u].", go->GetGUID().ToString().c_str(), go->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY());
-            #endif
-        }
-
-        return true;
-    }
-
-    // in diff. grids but active GameObject
-    if (go->isActiveObject())
-    {
-        EnsureGridLoadedForActiveObject(new_cell, go);
-
-        #ifdef TRINITY_DEBUG
-        TC_LOG_DEBUG("maps", "Active GameObject (%s Entry: %u) moved from grid[%u, %u]cell[%u, %u] to grid[%u, %u]cell[%u, %u].", go->GetGUID().ToString().c_str(), go->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
-        #endif
-
-        go->RemoveFromGrid();
-        AddToGrid(go, new_cell);
-
-        return true;
-    }
-
-    // in diff. loaded grid normal GameObject
-    if (IsGridLoaded(GridCoord(new_cell.GridX(), new_cell.GridY())))
-    {
-        #ifdef TRINITY_DEBUG
-        TC_LOG_DEBUG("maps", "GameObject (%s Entry: %u) moved from grid[%u, %u]cell[%u, %u] to grid[%u, %u]cell[%u, %u].", go->GetGUID().ToString().c_str(), go->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
-        #endif
-
-        go->RemoveFromGrid();
-        EnsureGridCreated(GridCoord(new_cell.GridX(), new_cell.GridY()));
-        AddToGrid(go, new_cell);
-
-        return true;
-    }
-
-    // fail to move: normal GameObject attempt move to unloaded grid
-    #ifdef TRINITY_DEBUG
-    TC_LOG_DEBUG("maps", "GameObject (%s Entry: %u) attempted to move from grid[%u, %u]cell[%u, %u] to unloaded grid[%u, %u]cell[%u, %u].", go->GetGUID().ToString().c_str(), go->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
-    #endif
-    return false;
+    return MapObjectCellRelocation(go, new_cell, "GameObject");
 }
 
 bool Map::DynamicObjectCellRelocation(DynamicObject* go, Cell new_cell)
 {
-    Cell const& old_cell = go->GetCurrentCell();
-    if (!old_cell.DiffGrid(new_cell))                       // in same grid
-    {
-        // if in same cell then none do
-        if (old_cell.DiffCell(new_cell))
-        {
-            #ifdef TRINITY_DEBUG
-            TC_LOG_DEBUG("maps", "DynamicObject (%s) moved in grid[%u, %u] from cell[%u, %u] to cell[%u, %u].", go->GetGUID().ToString().c_str(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.CellX(), new_cell.CellY());
-            #endif
-
-            go->RemoveFromGrid();
-            AddToGrid(go, new_cell);
-        }
-        else
-        {
-            #ifdef TRINITY_DEBUG
-            TC_LOG_DEBUG("maps", "DynamicObject (%s) moved in same grid[%u, %u]cell[%u, %u].", go->GetGUID().ToString().c_str(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY());
-            #endif
-        }
-
-        return true;
-    }
-
-    // in diff. grids but active GameObject
-    if (go->isActiveObject())
-    {
-        EnsureGridLoadedForActiveObject(new_cell, go);
-
-        #ifdef TRINITY_DEBUG
-        TC_LOG_DEBUG("maps", "Active DynamicObject (%s) moved from grid[%u, %u]cell[%u, %u] to grid[%u, %u]cell[%u, %u].", go->GetGUID().ToString().c_str(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
-        #endif
-
-        go->RemoveFromGrid();
-        AddToGrid(go, new_cell);
-
-        return true;
-    }
-
-    // in diff. loaded grid normal GameObject
-    if (IsGridLoaded(GridCoord(new_cell.GridX(), new_cell.GridY())))
-    {
-        #ifdef TRINITY_DEBUG
-        TC_LOG_DEBUG("maps", "DynamicObject (%s) moved from grid[%u, %u]cell[%u, %u] to grid[%u, %u]cell[%u, %u].", go->GetGUID().ToString().c_str(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
-        #endif
-
-        go->RemoveFromGrid();
-        EnsureGridCreated(GridCoord(new_cell.GridX(), new_cell.GridY()));
-        AddToGrid(go, new_cell);
-
-        return true;
-    }
-
-    // fail to move: normal GameObject attempt move to unloaded grid
-    #ifdef TRINITY_DEBUG
-    TC_LOG_DEBUG("maps", "DynamicObject (%s) attempted to move from grid[%u, %u]cell[%u, %u] to unloaded grid[%u, %u]cell[%u, %u].", go->GetGUID().ToString().c_str(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
-    #endif
-    return false;
+    return MapObjectCellRelocation(go, new_cell, "DynamicObject");
 }
 
 bool Map::AreaTriggerCellRelocation(AreaTrigger* at, Cell new_cell)
 {
-    Cell const& old_cell = at->GetCurrentCell();
-    if (!old_cell.DiffGrid(new_cell))                       // in same grid
-    {
-        // if in same cell then none do
-        if (old_cell.DiffCell(new_cell))
-        {
-#ifdef TRINITY_DEBUG
-            TC_LOG_DEBUG("maps", "AreaTrigger (%s) moved in grid[%u, %u] from cell[%u, %u] to cell[%u, %u].", at->GetGUID().ToString().c_str(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.CellX(), new_cell.CellY());
-#endif
-
-            at->RemoveFromGrid();
-            AddToGrid(at, new_cell);
-        }
-        else
-        {
-#ifdef TRINITY_DEBUG
-            TC_LOG_DEBUG("maps", "AreaTrigger (%s) moved in same grid[%u, %u]cell[%u, %u].", at->GetGUID().ToString().c_str(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY());
-#endif
-        }
-
-        return true;
-    }
-
-    // in diff. grids but active AreaTrigger
-    if (at->isActiveObject())
-    {
-        EnsureGridLoadedForActiveObject(new_cell, at);
-
-#ifdef TRINITY_DEBUG
-        TC_LOG_DEBUG("maps", "Active AreaTrigger (%s) moved from grid[%u, %u]cell[%u, %u] to grid[%u, %u]cell[%u, %u].", at->GetGUID().ToString().c_str(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
-#endif
-
-        at->RemoveFromGrid();
-        AddToGrid(at, new_cell);
-
-        return true;
-    }
-
-    // in diff. loaded grid normal AreaTrigger
-    if (IsGridLoaded(GridCoord(new_cell.GridX(), new_cell.GridY())))
-    {
-#ifdef TRINITY_DEBUG
-        TC_LOG_DEBUG("maps", "AreaTrigger (%s) moved from grid[%u, %u]cell[%u, %u] to grid[%u, %u]cell[%u, %u].", at->GetGUID().ToString().c_str(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
-#endif
-
-        at->RemoveFromGrid();
-        EnsureGridCreated(GridCoord(new_cell.GridX(), new_cell.GridY()));
-        AddToGrid(at, new_cell);
-
-        return true;
-    }
-
-    // fail to move: normal AreaTrigger attempt move to unloaded grid
-#ifdef TRINITY_DEBUG
-    TC_LOG_DEBUG("maps", "AreaTrigger (%s) attempted to move from grid[%u, %u]cell[%u, %u] to unloaded grid[%u, %u]cell[%u, %u].", at->GetGUID().ToString().c_str(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
-#endif
-    return false;
+    return MapObjectCellRelocation(at, new_cell, "AreaTrigger");
 }
 
 bool Map::CreatureRespawnRelocation(Creature* c, bool diffGridOnly)
@@ -3145,23 +2952,6 @@ bool Map::IsUnderWater(PhaseShift const& phaseShift, float x, float y, float z)
     return (GetLiquidStatus(phaseShift, x, y, z, MAP_LIQUID_TYPE_WATER | MAP_LIQUID_TYPE_OCEAN) & LIQUID_MAP_UNDER_WATER) != 0;
 }
 
-bool Map::CheckGridIntegrity(Creature* c, bool moved) const
-{
-    Cell const& cur_cell = c->GetCurrentCell();
-    Cell xy_cell(c->GetPositionX(), c->GetPositionY());
-    if (xy_cell != cur_cell)
-    {
-        TC_LOG_DEBUG("maps", "Creature (%s) X: %f Y: %f (%s) is in grid[%u, %u]cell[%u, %u] instead of grid[%u, %u]cell[%u, %u]",
-            c->GetGUID().ToString().c_str(),
-            c->GetPositionX(), c->GetPositionY(), (moved ? "final" : "original"),
-            cur_cell.GridX(), cur_cell.GridY(), cur_cell.CellX(), cur_cell.CellY(),
-            xy_cell.GridX(),  xy_cell.GridY(),  xy_cell.CellX(),  xy_cell.CellY());
-        return true;                                        // not crash at error, just output error in debug mode
-    }
-
-    return true;
-}
-
 char const* Map::GetMapName() const
 {
     return i_mapEntry ? i_mapEntry->MapName[sWorld->GetDefaultDbcLocale()] : "UNNAMEDMAP\x0";
@@ -3343,9 +3133,11 @@ bool Map::CheckRespawn(RespawnInfo* info)
         : ObjectGuid::Create<HighGuid::Creature>(GetId(), info->entry, info->spawnId);
     if (time_t linkedTime = GetLinkedRespawnTime(thisGUID))
     {
-        time_t now = time(NULL);
+        time_t now = time(nullptr);
         time_t respawnTime;
-        if (sObjectMgr->GetLinkedRespawnGuid(thisGUID) == thisGUID) // never respawn, save "something" in DB
+        if (linkedTime == std::numeric_limits<time_t>::max())
+            respawnTime = linkedTime;
+        else if (sObjectMgr->GetLinkedRespawnGuid(thisGUID) == thisGUID) // never respawn, save "something" in DB
             respawnTime = now + WEEK;
         else // set us to check again shortly after linked unit
             respawnTime = std::max<time_t>(now, linkedTime) + urand(5, 15);
@@ -3372,7 +3164,7 @@ bool Map::CheckRespawn(RespawnInfo* info)
     {
         if (!sScriptMgr->CanSpawn(info->spawnId, info->entry, sObjectMgr->GetCreatureData(info->spawnId), this))
         { // if a script blocks our respawn, schedule next check in a little bit
-            info->respawnTime = time(NULL) + urand(4, 7);
+            info->respawnTime = time(nullptr) + urand(4, 7);
             return false;
         }
     }
@@ -3545,7 +3337,7 @@ void Map::RemoveRespawnTime(RespawnVector& respawnData, bool doRespawn, Characte
 
 void Map::ProcessRespawns()
 {
-    time_t now = time(NULL);
+    time_t now = time(nullptr);
     while (!_respawnTimes.empty())
     {
         RespawnInfo* next = _respawnTimes.top();
@@ -3577,6 +3369,10 @@ void Map::ApplyDynamicModeRespawnScaling(WorldObject const* obj, ObjectGuid::Low
 {
     ASSERT(mode == 1);
     ASSERT(obj->GetMap() == this);
+
+    if (IsBattlegroundOrArena())
+        return;
+
     SpawnObjectType type;
     switch (obj->GetTypeId())
     {
@@ -3591,7 +3387,7 @@ void Map::ApplyDynamicModeRespawnScaling(WorldObject const* obj, ObjectGuid::Low
     }
 
     SpawnData const* data = sObjectMgr->GetSpawnData(type, spawnId);
-    if (!data || !(data->spawnGroupData->flags & SPAWNGROUP_FLAG_DYNAMIC_SPAWN_RATE))
+    if (!data || !data->spawnGroupData || !(data->spawnGroupData->flags & SPAWNGROUP_FLAG_DYNAMIC_SPAWN_RATE))
         return;
 
     auto it = _zonePlayerCountMap.find(obj->GetZoneId());
@@ -3638,7 +3434,7 @@ bool Map::SpawnGroupSpawn(uint32 groupId, bool ignoreRespawn, bool force, std::v
                     continue;
 
         time_t respawnTime = GetRespawnTime(data->type, data->spawnId);
-        if (respawnTime && respawnTime > time(NULL))
+        if (respawnTime && respawnTime > time(nullptr))
         {
             if (!force && !ignoreRespawn)
                 continue;
@@ -3797,7 +3593,7 @@ void Map::AddObjectToSwitchList(WorldObject* obj, bool on)
     ASSERT(obj->GetMapId() == GetId() && obj->GetInstanceId() == GetInstanceId());
     // i_objectsToSwitch is iterated only in Map::RemoveAllObjectsInRemoveList() and it uses
     // the contained objects only if GetTypeId() == TYPEID_UNIT , so we can return in all other cases
-    if (obj->GetTypeId() != TYPEID_UNIT && obj->GetTypeId() != TYPEID_GAMEOBJECT)
+    if (obj->GetTypeId() != TYPEID_UNIT)
         return;
 
     std::map<WorldObject*, bool>::iterator itr = i_objectsToSwitch.find(obj);
@@ -3824,9 +3620,6 @@ void Map::RemoveAllObjectsInRemoveList()
             {
                 case TYPEID_UNIT:
                     SwitchGridContainers<Creature>(obj->ToCreature(), on);
-                    break;
-                case TYPEID_GAMEOBJECT:
-                    SwitchGridContainers<GameObject>(obj->ToGameObject(), on);
                     break;
                 default:
                     break;
@@ -4816,6 +4609,10 @@ void Map::LoadCorpseData()
 
         } while (phaseResult->NextRow());
     }
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CORPSE_CUSTOMIZATIONS);
+    stmt->setUInt32(0, GetId());
+    stmt->setUInt32(1, GetInstanceId());
 
     //        0             1                            2
     // SELECT cc.ownerGuid, cc.chrCustomizationOptionID, cc.chrCustomizationChoiceID FROM corpse_customizations cc LEFT JOIN corpse c ON cc.ownerGuid = c.guid WHERE c.mapId = ? AND c.instanceId = ?

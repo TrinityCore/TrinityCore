@@ -126,23 +126,20 @@ namespace Movement
         STRINGIZE(FullSpeedPitching                  ), // 0x00000008
         STRINGIZE(Allow_Pitching                     ), // 0x00000010
         STRINGIZE(VehicleExitVoluntary               ), // 0x00000020
-        STRINGIZE(JumpSplineInAir                    ), // 0x00000040
-        STRINGIZE(AnimTierInTrans                    ), // 0x00000080
-        STRINGIZE(WaterwalkingFullPitch              ), // 0x00000100
-        STRINGIZE(VehiclePassengerIsTransitionAllowed), // 0x00000200
-        STRINGIZE(CanSwimToFlyTrans                  ), // 0x00000400
-        STRINGIZE(Unk11                              ), // 0x00000800
-        STRINGIZE(CanTurnWhileFalling                ), // 0x00001000
-        STRINGIZE(Unk13                              ), // 0x00002000
-        STRINGIZE(IgnoreMovementForces               ), // 0x00004000
+        STRINGIZE(WaterwalkingFullPitch              ), // 0x00000040
+        STRINGIZE(VehiclePassengerIsTransitionAllowed), // 0x00000080
+        STRINGIZE(CanSwimToFlyTrans                  ), // 0x00000100
+        STRINGIZE(Unk9                               ), // 0x00000200
+        STRINGIZE(CanTurnWhileFalling                ), // 0x00000400
+        STRINGIZE(IgnoreMovementForces               ), // 0x00000800
+        STRINGIZE(CanDoubleJump                      ), // 0x00001000
+        STRINGIZE(DoubleJump                         ), // 0x00002000
+        STRINGIZE(Unk14                              ), // 0x00004000
         STRINGIZE(Unk15                              ), // 0x00008000
-        STRINGIZE(CanDoubleJump                      ), // 0x00010000
-        STRINGIZE(DoubleJump                         ), // 0x00020000
-        STRINGIZE(Unk18                              ), // 0x00040000
-        STRINGIZE(AwaitingLoad                       ), // 0x00080000
-        STRINGIZE(InterpolatedMovement               ), // 0x00100000
-        STRINGIZE(InterpolatedTurning                ), // 0x00200000
-        STRINGIZE(InterpolatedPitching               ), // 0x00400000
+        STRINGIZE(AwaitingLoad                       ), // 0x00010000
+        STRINGIZE(InterpolatedMovement               ), // 0x00020000
+        STRINGIZE(InterpolatedTurning                ), // 0x00040000
+        STRINGIZE(InterpolatedPitching               ), // 0x00080000
     };
 
     char const* SplineFlagNames[32] =

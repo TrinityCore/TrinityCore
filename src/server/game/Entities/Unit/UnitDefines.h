@@ -142,6 +142,8 @@ enum ShapeshiftForm
     FORM_SPIRIT_OWL_FORM_2          = 38,
     FORM_WISP_FORM                  = 39,
     FORM_WISP_FORM_2                = 40,
+    FORM_SOULSHAPE                  = 41,
+    FORM_FORGEBORNE_REVERIES        = 42
 };
 
 enum UnitMoveType
@@ -307,7 +309,7 @@ enum MovementFlags : uint32
     MOVEMENTFLAG_SWIMMING              = 0x00100000,               // appears with fly flag also
     MOVEMENTFLAG_ASCENDING             = 0x00200000,               // press "space" when flying
     MOVEMENTFLAG_DESCENDING            = 0x00400000,
-    MOVEMENTFLAG_CAN_FLY               = 0x00800000,               // Appears when unit can fly AND also walk
+    MOVEMENTFLAG_CAN_FLY               = 0x00800000,               // Appears when unit can fly. For example, appears when a player sits on a mount.
     MOVEMENTFLAG_FLYING                = 0x01000000,               // unit is actually flying. pretty sure this is only used for players. creatures use disable_gravity
     MOVEMENTFLAG_SPLINE_ELEVATION      = 0x02000000,               // used for flight paths
     MOVEMENTFLAG_WATERWALKING          = 0x04000000,               // prevent unit from falling through water
@@ -349,24 +351,19 @@ enum MovementFlags2 : uint32
     MOVEMENTFLAG2_FULL_SPEED_PITCHING                       = 0x00000008,
     MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING                     = 0x00000010,
     MOVEMENTFLAG2_IS_VEHICLE_EXIT_VOLUNTARY                 = 0x00000020,
-    MOVEMENTFLAG2_JUMP_SPLINE_IN_AIR                        = 0x00000040,
-    MOVEMENTFLAG2_ANIM_TIER_IN_TRANS                        = 0x00000080,
-    MOVEMENTFLAG2_WATERWALKING_FULL_PITCH                   = 0x00000100, // will always waterwalk, even if facing the camera directly down
-    MOVEMENTFLAG2_VEHICLE_PASSENGER_IS_TRANSITION_ALLOWED   = 0x00000200,
-    MOVEMENTFLAG2_CAN_SWIM_TO_FLY_TRANS                     = 0x00000400,
-    MOVEMENTFLAG2_UNK11                                     = 0x00000800, // terrain normal calculation is disabled if this flag is not present, client automatically handles setting this flag
-    MOVEMENTFLAG2_CAN_TURN_WHILE_FALLING                    = 0x00001000,
-    MOVEMENTFLAG2_UNK13                                     = 0x00002000, // set automatically by the client for aura 373
-    MOVEMENTFLAG2_IGNORE_MOVEMENT_FORCES                    = 0x00004000,
-    MOVEMENTFLAG2_UNK15                                     = 0x00008000,
-    MOVEMENTFLAG2_CAN_DOUBLE_JUMP                           = 0x00010000,
-    MOVEMENTFLAG2_DOUBLE_JUMP                               = 0x00020000,
-    // these flags cannot be sent (18 bits in packet)
-    MOVEMENTFLAG2_UNK18                                     = 0x00040000,
-    MOVEMENTFLAG2_AWAITING_LOAD                             = 0x00080000,
-    MOVEMENTFLAG2_INTERPOLATED_MOVEMENT                     = 0x00100000,
-    MOVEMENTFLAG2_INTERPOLATED_TURNING                      = 0x00200000,
-    MOVEMENTFLAG2_INTERPOLATED_PITCHING                     = 0x00400000
+    MOVEMENTFLAG2_WATERWALKING_FULL_PITCH                   = 0x00000040, // will always waterwalk, even if facing the camera directly down
+    MOVEMENTFLAG2_VEHICLE_PASSENGER_IS_TRANSITION_ALLOWED   = 0x00000080,
+    MOVEMENTFLAG2_CAN_SWIM_TO_FLY_TRANS                     = 0x00000100,
+    MOVEMENTFLAG2_UNK9                                      = 0x00000200, // terrain normal calculation is disabled if this flag is not present, client automatically handles setting this flag
+    MOVEMENTFLAG2_CAN_TURN_WHILE_FALLING                    = 0x00000400,
+    MOVEMENTFLAG2_IGNORE_MOVEMENT_FORCES                    = 0x00000800,
+    MOVEMENTFLAG2_CAN_DOUBLE_JUMP                           = 0x00001000,
+    MOVEMENTFLAG2_DOUBLE_JUMP                               = 0x00002000,
+    // these flags are not sent
+    MOVEMENTFLAG2_AWAITING_LOAD                             = 0x00010000,
+    MOVEMENTFLAG2_INTERPOLATED_MOVEMENT                     = 0x00020000,
+    MOVEMENTFLAG2_INTERPOLATED_TURNING                      = 0x00040000,
+    MOVEMENTFLAG2_INTERPOLATED_PITCHING                     = 0x00080000
 };
 
 enum HitInfo

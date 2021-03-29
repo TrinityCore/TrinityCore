@@ -109,7 +109,6 @@ bool Player::UpdateStats(Stats stat)
     switch (stat)
     {
         case STAT_AGILITY:
-            UpdateArmor();
             UpdateAllCritPercentages();
             UpdateDodgePercentage();
             break;
@@ -118,7 +117,6 @@ bool Player::UpdateStats(Stats stat)
             break;
         case STAT_INTELLECT:
             UpdateSpellCritChance();
-            UpdateArmor();                                  //SPELL_AURA_MOD_RESISTANCE_OF_INTELLECT_PERCENT, only armor currently
             break;
         default:
             break;
@@ -132,6 +130,7 @@ bool Player::UpdateStats(Stats stat)
         UpdateAttackPowerAndDamage(true);
     }
 
+    UpdateArmor();
     UpdateSpellDamageAndHealingBonus();
     UpdateManaRegen();
     return true;
@@ -240,22 +239,23 @@ void Player::UpdateArmor()
 {
     UnitMods unitMod = UNIT_MOD_ARMOR;
 
-    float value = GetFlatModifierValue(unitMod, BASE_VALUE);    // base armor (from items)
+    float value = GetFlatModifierValue(unitMod, BASE_VALUE);    // base armor
+    value *= GetPctModifierValue(unitMod, BASE_PCT);            // armor percent
+
+    // SPELL_AURA_MOD_ARMOR_PCT_FROM_STAT counts as base armor
+    GetTotalAuraModifier(SPELL_AURA_MOD_ARMOR_PCT_FROM_STAT, [this, &value](AuraEffect const* aurEff) {
+        int32 miscValue = aurEff->GetMiscValue();
+        Stats stat = (miscValue != -2) ? Stats(miscValue) : GetPrimaryStat();
+        value += CalculatePct(float(GetStat(stat)), aurEff->GetAmount());
+        return true;
+    });
+
     float baseValue = value;
-    value *= GetPctModifierValue(unitMod, BASE_PCT);           // armor percent from items
-    value += GetFlatModifierValue(unitMod, TOTAL_VALUE);
 
-    //add dynamic flat mods
-    AuraEffectList const& mResbyIntellect = GetAuraEffectsByType(SPELL_AURA_MOD_RESISTANCE_OF_STAT_PERCENT);
-    for (AuraEffectList::const_iterator i = mResbyIntellect.begin(); i != mResbyIntellect.end(); ++i)
-    {
-        if ((*i)->GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL)
-            value += CalculatePct(GetStat(Stats((*i)->GetMiscValueB())), (*i)->GetAmount());
-    }
-
+    value += GetFlatModifierValue(unitMod, TOTAL_VALUE);        // bonus armor from auras and items
     value *= GetPctModifierValue(unitMod, TOTAL_PCT);
 
-    SetArmor(int32(baseValue), int32(value - baseValue));
+    SetArmor(int32(value), int32(value - baseValue));
 
     Pet* pet = GetPet();
     if (pet)
@@ -264,7 +264,7 @@ void Player::UpdateArmor()
     UpdateAttackPowerAndDamage();                           // armor dependent auras update for SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR
 }
 
-float Player::GetHealthBonusFromStamina()
+float Player::GetHealthBonusFromStamina() const
 {
     // Taken from PaperDollFrame.lua - 6.0.3.19085
     float ratio = 10.0f;
@@ -274,6 +274,25 @@ float Player::GetHealthBonusFromStamina()
     float stamina = GetStat(STAT_STAMINA);
 
     return stamina * ratio;
+}
+
+Stats Player::GetPrimaryStat() const
+{
+    uint8 primaryStatPriority = [&]() -> uint8
+    {
+        if (ChrSpecializationEntry const* specialization = sChrSpecializationStore.LookupEntry(GetPrimarySpecialization()))
+            return specialization->PrimaryStatPriority;
+
+        return sChrClassesStore.AssertEntry(getClass())->PrimaryStatPriority;
+    }();
+
+    if (primaryStatPriority >= 4)
+        return STAT_STRENGTH;
+
+    if (primaryStatPriority >= 2)
+        return STAT_AGILITY;
+
+    return STAT_INTELLECT;
 }
 
 void Player::UpdateMaxHealth()
@@ -378,9 +397,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
             if (CanDualWield() || offhand->GetTemplate()->GetFlags3() & ITEM_FLAG3_ALWAYS_ALLOW_DUAL_WIELD)
                 UpdateDamagePhysical(OFF_ATTACK);
 
-        if (HasAuraType(SPELL_AURA_MOD_SPELL_DAMAGE_OF_ATTACK_POWER) ||
-            HasAuraType(SPELL_AURA_MOD_SPELL_HEALING_OF_ATTACK_POWER) ||
-            HasAuraType(SPELL_AURA_OVERRIDE_SPELL_POWER_BY_AP_PCT))
+        if (HasAuraType(SPELL_AURA_OVERRIDE_SPELL_POWER_BY_AP_PCT))
             UpdateSpellDamageAndHealingBonus();
 
         if (pet && pet->IsPetGhoul()) // At melee attack power change for DK pet

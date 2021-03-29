@@ -134,14 +134,18 @@ enum MinigobData
 {
     ZONE_DALARAN            = 4395,
 
-    SPELL_MANABONKED        = 61834,
+    SPELL_MANABONKED        = 61839,
     SPELL_TELEPORT_VISUAL   = 51347,
     SPELL_IMPROVED_BLINK    = 61995,
 
     EVENT_SELECT_TARGET     = 1,
-    EVENT_BLINK             = 2,
-    EVENT_DESPAWN_VISUAL    = 3,
-    EVENT_DESPAWN           = 4,
+    EVENT_LAUGH_1           = 2,
+    EVENT_WANDER            = 3,
+    EVENT_PAUSE             = 4,
+    EVENT_CAST              = 5,
+    EVENT_LAUGH_2           = 6,
+    EVENT_BLINK             = 7,
+    EVENT_DESPAWN           = 8,
 
     MAIL_MINIGOB_ENTRY      = 264,
     MAIL_DELIVER_DELAY_MIN  = 5*MINUTE,
@@ -162,26 +166,29 @@ class npc_minigob_manabonk : public CreatureScript
 
             void Reset() override
             {
+                playerGuid = ObjectGuid();
                 me->SetVisible(false);
-                events.ScheduleEvent(EVENT_SELECT_TARGET, IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_SELECT_TARGET, Seconds(1));
             }
 
-            Player* SelectTargetInDalaran()
+            void GetPlayersInDalaran(std::vector<Player*>& playerList) const
             {
-                std::vector<Player*> PlayerInDalaranList;
-
                 Map::PlayerList const& players = me->GetMap()->GetPlayers();
                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                     if (Player* player = itr->GetSource()->ToPlayer())
                         if (player->GetZoneId() == ZONE_DALARAN && !player->IsFlying() && !player->IsMounted() && !player->IsGameMaster())
-                            PlayerInDalaranList.push_back(player);
+                            playerList.push_back(player);
+            }
 
+            static Player* SelectTargetInDalaran(std::vector<Player*>& PlayerInDalaranList)
+            {
                 if (PlayerInDalaranList.empty())
                     return nullptr;
+
                 return Trinity::Containers::SelectRandomContainerElement(PlayerInDalaranList);
             }
 
-            void SendMailToPlayer(Player* player)
+            void SendMailToPlayer(Player* player) const
             {
                 CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
                 int16 deliverDelay = irand(MAIL_DELIVER_DELAY_MIN, MAIL_DELIVER_DELAY_MAX);
@@ -198,30 +205,61 @@ class npc_minigob_manabonk : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_SELECT_TARGET:
+                        {
+                            std::vector<Player*> PlayerInDalaranList;
+                            GetPlayersInDalaran(PlayerInDalaranList);
+
+                            // Increases chance of event based on player count in Dalaran (100 players or more = 100% else player count%)
+                            if (PlayerInDalaranList.empty() || urand(1, 100) > PlayerInDalaranList.size())
+                                me->AddObjectToRemoveList();
+
                             me->SetVisible(true);
-                            DoCast(me, SPELL_TELEPORT_VISUAL);
-                            if (Player* player = SelectTargetInDalaran())
+                            DoCastSelf(SPELL_TELEPORT_VISUAL);
+                            if (Player* player = SelectTargetInDalaran(PlayerInDalaranList))
                             {
-                                me->NearTeleportTo(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0.0f);
+                                playerGuid = player->GetGUID();
+                                Position pos = player->GetPosition();
+                                float dist = frand(10.0f, 30.0f);
+                                float angle = frand(0.0f, 1.0f) * M_PI * 2.0f;
+                                player->MovePositionToFirstCollision(pos, dist, angle);
+                                me->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
+                            }
+                            events.ScheduleEvent(EVENT_LAUGH_1, Seconds(2));
+                            break;
+                        }
+                        case EVENT_LAUGH_1:
+                            me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH_NO_SHEATHE);
+                            events.ScheduleEvent(EVENT_WANDER, Seconds(3));
+                            break;
+                        case EVENT_WANDER:
+                            me->GetMotionMaster()->MoveRandom(8);
+                            events.ScheduleEvent(EVENT_PAUSE, Minutes(1));
+                            break;
+                        case EVENT_PAUSE:
+                            me->GetMotionMaster()->MoveIdle();
+                            events.ScheduleEvent(EVENT_CAST, Seconds(2));
+                            break;
+                        case EVENT_CAST:
+                            if (Player* player = me->GetMap()->GetPlayer(playerGuid))
+                            {
                                 DoCast(player, SPELL_MANABONKED);
                                 SendMailToPlayer(player);
                             }
-                            events.ScheduleEvent(EVENT_BLINK, 3*IN_MILLISECONDS);
+                            else
+                                me->AddObjectToRemoveList();
+
+                            events.ScheduleEvent(EVENT_LAUGH_2, Seconds(8));
+                            break;
+                        case EVENT_LAUGH_2:
+                            me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH_NO_SHEATHE);
+                            events.ScheduleEvent(EVENT_BLINK, Seconds(3));
                             break;
                         case EVENT_BLINK:
-                        {
-                            DoCast(me, SPELL_IMPROVED_BLINK);
-                            Position pos = me->GetRandomNearPosition(frand(15, 40));
-                            me->GetMotionMaster()->MovePoint(0, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
-                            events.ScheduleEvent(EVENT_DESPAWN, 3 * IN_MILLISECONDS);
-                            events.ScheduleEvent(EVENT_DESPAWN_VISUAL, 2.5*IN_MILLISECONDS);
-                            break;
-                        }
-                        case EVENT_DESPAWN_VISUAL:
-                            DoCast(me, SPELL_TELEPORT_VISUAL);
+                            DoCastSelf(SPELL_IMPROVED_BLINK);
+                            events.ScheduleEvent(EVENT_DESPAWN, Seconds(4));
                             break;
                         case EVENT_DESPAWN:
-                            me->DespawnOrUnsummon();
+                            me->AddObjectToRemoveList();
                             break;
                         default:
                             break;
@@ -230,6 +268,8 @@ class npc_minigob_manabonk : public CreatureScript
             }
 
         private:
+
+            ObjectGuid playerGuid;
             EventMap events;
     };
 

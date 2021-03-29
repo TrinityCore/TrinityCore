@@ -558,7 +558,6 @@ namespace UF
         {
             static_assert(std::is_base_of<Base, Derived>::value, "Given field argument must belong to the same structure as this HasChangesMask");
 
-            _changesMask.Reset(Bit);
             _changesMask.Reset(FirstElementBit + index);
         }
 
@@ -644,7 +643,7 @@ namespace UF
                 field._value->ClearChangesMask();
         }
 
-        UpdateMask<Bits> _changesMask;
+        Mask _changesMask;
     };
 
     class UpdateFieldHolder

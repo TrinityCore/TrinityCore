@@ -824,6 +824,8 @@ struct GameObjectTemplate
     {
         switch (type)
         {
+            case GAMEOBJECT_TYPE_MAILBOX:       return true;
+            case GAMEOBJECT_TYPE_BARBER_CHAIR:  return false;
             case GAMEOBJECT_TYPE_QUESTGIVER:    return questgiver.allowMounted != 0;
             case GAMEOBJECT_TYPE_TEXT:          return text.allowMounted != 0;
             case GAMEOBJECT_TYPE_GOOBER:        return goober.allowMounted != 0;
@@ -1041,14 +1043,14 @@ struct GameObjectTemplate
 // From `gameobject_template_addon`
 struct GameObjectTemplateAddon
 {
-    uint32  entry;
-    uint32  faction;
-    uint32  flags;
-    uint32  mingold;
-    uint32  maxgold;
-    uint32  WorldEffectID;
+    uint32 entry;
+    uint32 faction;
+    uint32 flags;
+    uint32 mingold;
+    uint32 maxgold;
+    uint32 WorldEffectID;
+    uint32 AIAnimKitID;
 };
-
 
 struct GameObjectLocale
 {
@@ -1064,6 +1066,7 @@ struct GameObjectAddon
     InvisibilityType invisibilityType;
     uint32 InvisibilityValue;
     uint32 WorldEffectID;
+    uint32 AIAnimKitID;
 };
 
 // `gameobject` table

@@ -388,7 +388,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPackets::Quest::Quest
             case TYPEID_PLAYER:
             {
                 //For AutoSubmition was added plr case there as it almost same exclute AI script cases.
-                Creature* creatureQGiver = object->ToCreature();
+                Unit* unitQGiver = object->ToUnit();
                 // Send next quest
                 if (Quest const* nextQuest = _player->GetNextQuest(packet.QuestGiverGUID, quest))
                 {
@@ -403,7 +403,8 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPackets::Quest::Quest
                 }
 
                 _player->PlayerTalkClass->ClearMenus();
-                creatureQGiver->GetAI()->QuestReward(_player, quest, packet.Choice.LootItemType, packet.Choice.Item.ItemID);
+                if (UnitAI* qGiverAI = unitQGiver->GetAI())
+                    qGiverAI->QuestReward(_player, quest, packet.Choice.LootItemType, packet.Choice.Item.ItemID);
                 break;
             }
             case TYPEID_GAMEOBJECT:
@@ -609,6 +610,18 @@ void WorldSession::HandleQuestgiverCompleteQuest(WorldPackets::Quest::QuestGiver
         else                                            // no items required
             _player->PlayerTalkClass->SendQuestGiverOfferReward(quest, packet.QuestGiverGUID, true);
     }
+}
+
+void WorldSession::HandleQuestgiverCloseQuest(WorldPackets::Quest::QuestGiverCloseQuest& questGiverCloseQuest)
+{
+    if (_player->FindQuestSlot(questGiverCloseQuest.QuestID) >= MAX_QUEST_LOG_SIZE)
+        return;
+
+    Quest const* quest = sObjectMgr->GetQuestTemplate(questGiverCloseQuest.QuestID);
+    if (!quest)
+        return;
+
+    sScriptMgr->OnQuestAcknowledgeAutoAccept(_player, quest);
 }
 
 void WorldSession::HandlePushQuestToParty(WorldPackets::Quest::PushQuestToParty& packet)

@@ -327,6 +327,9 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
             m_updateFlag.GameObject = true;
             SetWorldEffectID(m_goTemplateAddon->WorldEffectID);
         }
+
+        if (m_goTemplateAddon->AIAnimKitID)
+            _animKitId = m_goTemplateAddon->AIAnimKitID;
     }
 
     SetEntry(goInfo->entry);
@@ -427,16 +430,22 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
             break;
     }
 
-    if (gameObjectAddon && gameObjectAddon->InvisibilityValue)
+    if (gameObjectAddon)
     {
-        m_invisibility.AddFlag(gameObjectAddon->invisibilityType);
-        m_invisibility.AddValue(gameObjectAddon->invisibilityType, gameObjectAddon->InvisibilityValue);
-    }
+        if (gameObjectAddon->InvisibilityValue)
+        {
+            m_invisibility.AddFlag(gameObjectAddon->invisibilityType);
+            m_invisibility.AddValue(gameObjectAddon->invisibilityType, gameObjectAddon->InvisibilityValue);
+        }
 
-    if (gameObjectAddon && gameObjectAddon->WorldEffectID)
-    {
-        m_updateFlag.GameObject = true;
-        SetWorldEffectID(gameObjectAddon->WorldEffectID);
+        if (gameObjectAddon->WorldEffectID)
+        {
+            m_updateFlag.GameObject = true;
+            SetWorldEffectID(gameObjectAddon->WorldEffectID);
+        }
+
+        if (gameObjectAddon->AIAnimKitID)
+            _animKitId = gameObjectAddon->AIAnimKitID;
     }
 
     LastUsedScriptID = GetGOInfo()->ScriptId;
@@ -1461,6 +1470,9 @@ void GameObject::Use(Unit* user)
 
     if (Player* playerUser = user->ToPlayer())
     {
+        if (!m_goInfo->IsUsableMounted())
+            playerUser->Dismount();
+
         playerUser->PlayerTalkClass->ClearMenus();
         if (AI()->GossipHello(playerUser))
             return;
@@ -2747,6 +2759,17 @@ void GameObject::SetAnimKitId(uint16 animKitId, bool oneshot)
     activateAnimKit.AnimKitID = animKitId;
     activateAnimKit.Maintain = !oneshot;
     SendMessageToSet(activateAnimKit.Write(), true);
+}
+
+void GameObject::SetSpellVisualId(int32 spellVisualId, ObjectGuid activatorGuid)
+{
+    SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::SpellVisualID), spellVisualId);
+
+    WorldPackets::GameObject::GameObjectPlaySpellVisual packet;
+    packet.ObjectGUID = GetGUID();
+    packet.ActivatorGUID = activatorGuid;
+    packet.SpellVisualID = spellVisualId;
+    SendMessageToSet(packet.Write(), true);
 }
 
 class GameObjectModelOwnerImpl : public GameObjectModelOwnerBase

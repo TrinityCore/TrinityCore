@@ -483,7 +483,7 @@ class spell_oculus_evasive_maneuvers : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_RUBY_EVASIVE_CHARGES });
             }
 
-            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+            void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
                 GetTarget()->RemoveAuraFromStack(SPELL_RUBY_EVASIVE_CHARGES);
@@ -596,7 +596,7 @@ class spell_oculus_temporal_rift : public SpellScriptLoader
                 return ValidateSpellInfo({ SPELL_AMBER_SHOCK_CHARGE });
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 DamageInfo* damageInfo = eventInfo.GetDamageInfo();

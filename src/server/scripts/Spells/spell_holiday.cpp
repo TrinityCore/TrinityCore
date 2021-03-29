@@ -923,14 +923,14 @@ class spell_pilgrims_bounty_a_serving_of : public SpellScriptLoader
             void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
-                target->CastSpell(target, uint32(aurEff->GetBaseAmount()), true);
+                target->CastSpell(target, uint32(aurEff->GetAmount()), true);
                 HandlePlate(target, true);
             }
 
             void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
-                target->RemoveAurasDueToSpell(aurEff->GetBaseAmount());
+                target->RemoveAurasDueToSpell(aurEff->GetAmount());
                 HandlePlate(target, false);
             }
 
@@ -1491,117 +1491,175 @@ enum TorchSpells
     SPELL_TORCH_TOSSING_PRACTICE                    = 46630,
     SPELL_TORCH_TOSSING_TRAINING_SUCCESS_ALLIANCE   = 45719,
     SPELL_TORCH_TOSSING_TRAINING_SUCCESS_HORDE      = 46651,
+    SPELL_TARGET_INDICATOR_COSMETIC                 = 46901,
+    SPELL_TARGET_INDICATOR                          = 45723,
     SPELL_BRAZIERS_HIT                              = 45724
 };
 
 // 45724 - Braziers Hit!
-class spell_midsummer_braziers_hit : public SpellScriptLoader
+class spell_midsummer_braziers_hit : public AuraScript
 {
-    public:
-        spell_midsummer_braziers_hit() : SpellScriptLoader("spell_midsummer_braziers_hit") { }
+    PrepareAuraScript(spell_midsummer_braziers_hit);
 
-        class spell_midsummer_braziers_hit_AuraScript : public AuraScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
         {
-            PrepareAuraScript(spell_midsummer_braziers_hit_AuraScript);
+            SPELL_TORCH_TOSSING_TRAINING,
+            SPELL_TORCH_TOSSING_PRACTICE,
+            SPELL_TORCH_TOSSING_TRAINING_SUCCESS_ALLIANCE,
+            SPELL_TORCH_TOSSING_TRAINING_SUCCESS_HORDE
+        });
+    }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_TORCH_TOSSING_TRAINING, SPELL_TORCH_TOSSING_PRACTICE });
-            }
+    void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Player* player = GetTarget()->ToPlayer();
+        if (!player)
+            return;
 
-            void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                Player* player = GetTarget()->ToPlayer();
-                if (!player)
-                    return;
-
-                if ((player->HasAura(SPELL_TORCH_TOSSING_TRAINING) && GetStackAmount() == 8) || (player->HasAura(SPELL_TORCH_TOSSING_PRACTICE) && GetStackAmount() == 20))
-                {
-                    if (player->GetTeam() == ALLIANCE)
-                        player->CastSpell(player, SPELL_TORCH_TOSSING_TRAINING_SUCCESS_ALLIANCE, true);
-                    else if (player->GetTeam() == HORDE)
-                        player->CastSpell(player, SPELL_TORCH_TOSSING_TRAINING_SUCCESS_HORDE, true);
-                    Remove();
-                }
-            }
-
-            void Register() override
-            {
-                AfterEffectApply += AuraEffectApplyFn(spell_midsummer_braziers_hit_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AuraEffectHandleModes(AURA_EFFECT_HANDLE_REAPPLY));
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
+        if ((player->HasAura(SPELL_TORCH_TOSSING_TRAINING) && GetStackAmount() == 8) || (player->HasAura(SPELL_TORCH_TOSSING_PRACTICE) && GetStackAmount() == 20))
         {
-           return new spell_midsummer_braziers_hit_AuraScript();
+            if (player->GetTeam() == ALLIANCE)
+                player->CastSpell(player, SPELL_TORCH_TOSSING_TRAINING_SUCCESS_ALLIANCE, true);
+            else if (player->GetTeam() == HORDE)
+                player->CastSpell(player, SPELL_TORCH_TOSSING_TRAINING_SUCCESS_HORDE, true);
+            Remove();
         }
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_midsummer_braziers_hit::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAPPLY);
+    }
+};
+
+// 45907 - Torch Target Picker
+class spell_midsummer_torch_target_picker : public SpellScript
+{
+    PrepareSpellScript(spell_midsummer_torch_target_picker);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_TARGET_INDICATOR_COSMETIC, SPELL_TARGET_INDICATOR });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit();
+        target->CastSpell(target, SPELL_TARGET_INDICATOR_COSMETIC, true);
+        target->CastSpell(target, SPELL_TARGET_INDICATOR, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_midsummer_torch_target_picker::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 46054 - Torch Toss (land)
+class spell_midsummer_torch_toss_land : public SpellScript
+{
+    PrepareSpellScript(spell_midsummer_torch_toss_land);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_BRAZIERS_HIT });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetCaster(), SPELL_BRAZIERS_HIT, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_midsummer_torch_toss_land::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
 };
 
 enum RibbonPoleData
 {
-    SPELL_HAS_FULL_MIDSUMMER_SET        = 58933,
-    SPELL_BURNING_HOT_POLE_DANCE        = 58934,
-    SPELL_RIBBON_DANCE_COSMETIC         = 29726,
-    SPELL_RIBBON_DANCE                  = 29175,
-    GO_RIBBON_POLE                      = 181605,
+    SPELL_HAS_FULL_MIDSUMMER_SET      = 58933,
+    SPELL_BURNING_HOT_POLE_DANCE      = 58934,
+    SPELL_RIBBON_POLE_PERIODIC_VISUAL = 45406,
+    SPELL_RIBBON_DANCE                = 29175,
+    SPELL_TEST_RIBBON_POLE_1          = 29705,
+    SPELL_TEST_RIBBON_POLE_2          = 29726,
+    SPELL_TEST_RIBBON_POLE_3          = 29727
 };
 
-class spell_gen_ribbon_pole_dancer_check : public SpellScriptLoader
+// 29705, 29726, 29727 - Test Ribbon Pole Channel
+class spell_midsummer_test_ribbon_pole_channel : public AuraScript
 {
-    public:
-        spell_gen_ribbon_pole_dancer_check() : SpellScriptLoader("spell_gen_ribbon_pole_dancer_check") { }
+    PrepareAuraScript(spell_midsummer_test_ribbon_pole_channel);
 
-        class spell_gen_ribbon_pole_dancer_check_AuraScript : public AuraScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
         {
-            PrepareAuraScript(spell_gen_ribbon_pole_dancer_check_AuraScript);
+            SPELL_RIBBON_POLE_PERIODIC_VISUAL,
+            SPELL_BURNING_HOT_POLE_DANCE,
+            SPELL_HAS_FULL_MIDSUMMER_SET,
+            SPELL_RIBBON_DANCE
+        });
+    }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo(
-                {
-                    SPELL_HAS_FULL_MIDSUMMER_SET,
-                    SPELL_RIBBON_DANCE,
-                    SPELL_BURNING_HOT_POLE_DANCE
-                });
-            }
+    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_RIBBON_POLE_PERIODIC_VISUAL);
+    }
 
-            void PeriodicTick(AuraEffect const* /*aurEff*/)
-            {
-                Unit* target = GetTarget();
+    void PeriodicTick(AuraEffect const* /*aurEff*/)
+    {
+        Unit* target = GetTarget();
+        target->CastSpell(target, SPELL_RIBBON_POLE_PERIODIC_VISUAL, true);
 
-                // check if aura needs to be removed
-                if (!target->FindNearestGameObject(GO_RIBBON_POLE, 8.0f) || !target->HasUnitState(UNIT_STATE_CASTING))
-                {
-                    target->InterruptNonMeleeSpells(false);
-                    target->RemoveAurasDueToSpell(GetId());
-                    target->RemoveAura(SPELL_RIBBON_DANCE_COSMETIC);
-                    return;
-                }
-
-                // set xp buff duration
-                if (Aura* aur = target->GetAura(SPELL_RIBBON_DANCE))
-                {
-                    aur->SetMaxDuration(std::min(3600000, aur->GetMaxDuration() + 180000));
-                    aur->RefreshDuration();
-
-                    // reward achievement criteria
-                    if (aur->GetMaxDuration() == 3600000 && target->HasAura(SPELL_HAS_FULL_MIDSUMMER_SET))
-                        target->CastSpell(target, SPELL_BURNING_HOT_POLE_DANCE, true);
-                }
-                else
-                    target->AddAura(SPELL_RIBBON_DANCE, target);
-            }
-
-            void Register() override
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_ribbon_pole_dancer_check_AuraScript::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
+        if (Aura* aur = target->GetAura(SPELL_RIBBON_DANCE))
         {
-            return new spell_gen_ribbon_pole_dancer_check_AuraScript();
+            aur->SetMaxDuration(std::min(3600000, aur->GetMaxDuration() + 180000));
+            aur->RefreshDuration();
+
+            if (aur->GetMaxDuration() == 3600000 && target->HasAura(SPELL_HAS_FULL_MIDSUMMER_SET))
+                target->CastSpell(target, SPELL_BURNING_HOT_POLE_DANCE, true);
         }
+        else
+            target->CastSpell(target, SPELL_RIBBON_DANCE, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_midsummer_test_ribbon_pole_channel::HandleRemove, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_midsummer_test_ribbon_pole_channel::PeriodicTick, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
+// 45406 - Holiday - Midsummer, Ribbon Pole Periodic Visual
+class spell_midsummer_ribbon_pole_periodic_visual : public AuraScript
+{
+    PrepareAuraScript(spell_midsummer_ribbon_pole_periodic_visual);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_TEST_RIBBON_POLE_1,
+            SPELL_TEST_RIBBON_POLE_2,
+            SPELL_TEST_RIBBON_POLE_3
+        });
+    }
+
+    void PeriodicTick(AuraEffect const* /*aurEff*/)
+    {
+        Unit* target = GetTarget();
+        if (!target->HasAura(SPELL_TEST_RIBBON_POLE_1) && !target->HasAura(SPELL_TEST_RIBBON_POLE_2) && !target->HasAura(SPELL_TEST_RIBBON_POLE_3))
+            Remove();
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_midsummer_ribbon_pole_periodic_visual::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
 };
 
 void AddSC_holiday_spell_scripts()
@@ -1652,6 +1710,9 @@ void AddSC_holiday_spell_scripts()
     new spell_brewfest_dismount_ram();
     new spell_brewfest_barker_bunny();
     // Midsummer Fire Festival
-    new spell_midsummer_braziers_hit();
-    new spell_gen_ribbon_pole_dancer_check();
+    RegisterAuraScript(spell_midsummer_braziers_hit);
+    RegisterSpellScript(spell_midsummer_torch_target_picker);
+    RegisterSpellScript(spell_midsummer_torch_toss_land);
+    RegisterAuraScript(spell_midsummer_test_ribbon_pole_channel);
+    RegisterAuraScript(spell_midsummer_ribbon_pole_periodic_visual);
 }

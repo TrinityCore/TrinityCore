@@ -53,6 +53,69 @@ struct AchievementLoadInfo
     }
 };
 
+struct AdventureJournalLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_STRING, "Name" },
+            { false, FT_STRING, "Description" },
+            { false, FT_STRING, "ButtonText" },
+            { false, FT_STRING, "RewardDescription" },
+            { false, FT_STRING, "ContinueDescription" },
+            { false, FT_BYTE, "Type" },
+            { false, FT_INT, "PlayerConditionID" },
+            { false, FT_BYTE, "Flags" },
+            { false, FT_BYTE, "ButtonActionType" },
+            { true, FT_INT, "TextureFileDataID" },
+            { false, FT_SHORT, "LfgDungeonID" },
+            { true, FT_INT, "QuestID" },
+            { false, FT_SHORT, "BattleMasterListID" },
+            { false, FT_BYTE, "PriorityMin" },
+            { false, FT_BYTE, "PriorityMax" },
+            { true, FT_INT, "ItemID" },
+            { false, FT_INT, "ItemQuantity" },
+            { false, FT_SHORT, "CurrencyType" },
+            { false, FT_INT, "CurrencyQuantity" },
+            { false, FT_SHORT, "UiMapID" },
+            { false, FT_INT, "BonusPlayerConditionID1" },
+            { false, FT_INT, "BonusPlayerConditionID2" },
+            { false, FT_BYTE, "BonusValue1" },
+            { false, FT_BYTE, "BonusValue2" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, AdventureJournalMeta::Instance(), HOTFIX_SEL_ADVENTURE_JOURNAL);
+        return &loadInfo;
+    }
+};
+
+struct AdventureMapPoiLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_STRING, "Title" },
+            { false, FT_STRING, "Description" },
+            { false, FT_FLOAT, "WorldPositionX" },
+            { false, FT_FLOAT, "WorldPositionY" },
+            { true, FT_BYTE, "Type" },
+            { false, FT_INT, "PlayerConditionID" },
+            { false, FT_INT, "QuestID" },
+            { false, FT_INT, "LfgDungeonID" },
+            { true, FT_INT, "RewardItemID" },
+            { false, FT_INT, "UiTextureAtlasMemberID" },
+            { false, FT_INT, "UiTextureKitID" },
+            { true, FT_INT, "MapID" },
+            { false, FT_INT, "AreaTableID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, AdventureMapPOIMeta::Instance(), HOTFIX_SEL_ADVENTURE_MAP_POI);
+        return &loadInfo;
+    }
+};
+
 struct AnimationDataLoadInfo
 {
     static DB2LoadInfo const* Instance()
@@ -891,6 +954,22 @@ struct ChatChannelsLoadInfo
             { true, FT_INT, "Ruleset" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ChatChannelsMeta::Instance(), HOTFIX_SEL_CHAT_CHANNELS);
+        return &loadInfo;
+    }
+};
+
+struct ChrClassUiDisplayLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_BYTE, "ChrClassesID" },
+            { false, FT_INT, "AdvGuidePlayerConditionID" },
+            { false, FT_INT, "SplashPlayerConditionID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ChrClassUIDisplayMeta::Instance(), HOTFIX_SEL_CHR_CLASS_UI_DISPLAY);
         return &loadInfo;
     }
 };
@@ -2226,6 +2305,21 @@ struct GemPropertiesLoadInfo
     }
 };
 
+struct GlobalCurveLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "CurveID" },
+            { true, FT_INT, "Type" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, GlobalCurveMeta::Instance(), HOTFIX_SEL_GLOBAL_CURVE);
+        return &loadInfo;
+    }
+};
+
 struct GlyphBindableSpellLoadInfo
 {
     static DB2LoadInfo const* Instance()
@@ -3557,6 +3651,23 @@ struct MapDifficultyLoadInfo
             { false, FT_INT, "MapID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, MapDifficultyMeta::Instance(), HOTFIX_SEL_MAP_DIFFICULTY);
+        return &loadInfo;
+    }
+};
+
+struct MapDifficultyXConditionLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_STRING, "FailureDescription" },
+            { false, FT_INT, "PlayerConditionID" },
+            { true, FT_INT, "OrderIndex" },
+            { false, FT_INT, "MapDifficultyID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, MapDifficultyXConditionMeta::Instance(), HOTFIX_SEL_MAP_DIFFICULTY_X_CONDITION);
         return &loadInfo;
     }
 };

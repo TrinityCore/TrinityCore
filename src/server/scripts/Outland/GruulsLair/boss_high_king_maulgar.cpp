@@ -180,9 +180,7 @@ public:
                 //Charging_Timer
                 if (Charging_Timer <= diff)
                 {
-                    Unit* target = nullptr;
-                    target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                    if (target)
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
                         AttackStart(target);
                         DoCast(target, SPELL_BERSERKER_C);
@@ -292,9 +290,7 @@ public:
             //DeathCoil Timer /need correct timer
             if (DeathCoil_Timer <= diff)
             {
-                Unit* target = nullptr;
-                target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                if (target)
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(target, SPELL_DEATH_COIL);
                 DeathCoil_Timer = 20000;
             } else DeathCoil_Timer -= diff;

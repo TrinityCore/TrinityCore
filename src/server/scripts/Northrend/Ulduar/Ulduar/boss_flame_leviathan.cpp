@@ -36,6 +36,7 @@
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
 #include "Spell.h"
+#include "SpellAuraEffects.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "ulduar.h"
@@ -1466,6 +1467,54 @@ class achievement_orbit_uary : public AchievementCriteriaScript
         }
 };
 
+// 62399 Overload Circuit
+class spell_overload_circuit : public AuraScript
+{
+    PrepareAuraScript(spell_overload_circuit);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SYSTEMS_SHUTDOWN });
+    }
+
+    void PeriodicTick(AuraEffect const* /*aurEff*/)
+    {
+        if (!GetTarget()->GetMap()->IsDungeon() || int32(GetTarget()->GetAppliedAuras().count(GetId())) < (GetTarget()->GetMap()->Is25ManRaid() ? 4 : 2))
+            return;
+
+        GetTarget()->CastSpell(nullptr, SPELL_SYSTEMS_SHUTDOWN, true);
+        if (Unit* veh = GetTarget()->GetVehicleBase())
+            veh->CastSpell(nullptr, SPELL_SYSTEMS_SHUTDOWN, true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_overload_circuit::PeriodicTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+// 62292 Blaze
+class spell_tar_blaze : public AuraScript
+{
+    PrepareAuraScript(spell_tar_blaze);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0)->TriggerSpell });
+    }
+
+    void PeriodicTick(AuraEffect const* aurEff)
+    {
+        // should we use custom damage?
+        GetTarget()->CastSpell(nullptr, GetSpellInfo()->GetEffect(aurEff->GetEffIndex())->TriggerSpell, true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_tar_blaze::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
 class spell_load_into_catapult : public SpellScriptLoader
 {
     enum Spells
@@ -1631,6 +1680,8 @@ class FlameLeviathanPursuedTargetSelector
     };
 
     public:
+        explicit FlameLeviathanPursuedTargetSelector() { };
+
         bool operator()(WorldObject* target) const
         {
             //! No players, only vehicles. Pursue is never cast on players.
@@ -1748,7 +1799,7 @@ class spell_vehicle_throw_passenger : public SpellScriptLoader
                         {
                             // use 99 because it is 3d search
                             std::list<WorldObject*> targetList;
-                            Trinity::WorldObjectSpellAreaTargetCheck check(99, GetExplTargetDest(), GetCaster(), GetCaster(), GetSpellInfo(), TARGET_CHECK_DEFAULT, nullptr);
+                            Trinity::WorldObjectSpellAreaTargetCheck check(99, GetExplTargetDest(), GetCaster(), GetCaster(), GetSpellInfo(), TARGET_CHECK_DEFAULT, nullptr, TARGET_OBJECT_TYPE_UNIT);
                             Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellAreaTargetCheck> searcher(GetCaster(), targetList, check);
                             Cell::VisitAllObjects(GetCaster(), searcher, 99.0f);
                             float minDist = 99 * 99;
@@ -1822,6 +1873,8 @@ void AddSC_boss_flame_leviathan()
     new achievement_nuked_from_orbit();
     new achievement_orbit_uary();
 
+    RegisterAuraScript(spell_overload_circuit);
+    RegisterAuraScript(spell_tar_blaze);
     new spell_load_into_catapult();
     new spell_auto_repair();
     new spell_systems_shutdown();

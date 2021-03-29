@@ -28,6 +28,7 @@
 #include "DB2Stores.h"
 #include "Item.h"
 #include "Log.h"
+#include "LootMgr.h"
 #include "Map.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -97,7 +98,7 @@ class spell_item_aegis_of_preservation : public AuraScript
         return ValidateSpellInfo({ SPELL_AEGIS_HEAL });
     }
 
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
     {
         PreventDefaultAction();
         GetTarget()->CastSpell(GetTarget(), SPELL_AEGIS_HEAL, true, nullptr, aurEff);
@@ -106,6 +107,38 @@ class spell_item_aegis_of_preservation : public AuraScript
     void Register() override
     {
         OnEffectProc += AuraEffectProcFn(spell_item_aegis_of_preservation::HandleProc, EFFECT_1, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
+enum ZezzaksShard
+{
+    SPELL_EYE_OF_GRILLOK = 38495
+};
+
+// 38554 - Absorb Eye of Grillok (31463: Zezzak's Shard)
+class spell_item_absorb_eye_of_grillok : public AuraScript
+{
+    PrepareAuraScript(spell_item_absorb_eye_of_grillok);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_EYE_OF_GRILLOK });
+    }
+
+    void PeriodicTick(AuraEffect const* aurEff)
+    {
+        PreventDefaultAction();
+
+        if (!GetCaster() || GetTarget()->GetTypeId() != TYPEID_UNIT)
+            return;
+
+        GetCaster()->CastSpell(GetCaster(), SPELL_EYE_OF_GRILLOK, true, nullptr, aurEff);
+        GetTarget()->ToCreature()->DespawnOrUnsummon();
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_item_absorb_eye_of_grillok::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
     }
 };
 
@@ -143,7 +176,7 @@ class spell_item_alchemist_stone : public AuraScript
         return eventInfo.GetDamageInfo()->GetSpellInfo()->SpellFamilyName == SPELLFAMILY_POTION;
     }
 
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
 
@@ -201,7 +234,7 @@ class spell_item_anger_capacitor : public SpellScriptLoader
                 });
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 Unit* caster = eventInfo.GetActor();
@@ -291,7 +324,7 @@ class spell_item_aura_of_madness : public AuraScript
         }) && sBroadcastTextStore.LookupEntry(SAY_MADNESS);
     }
 
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
         static std::vector<uint32> const triggeredSpells[MAX_CLASSES] =
         {
@@ -382,7 +415,7 @@ class spell_item_blessing_of_ancient_kings : public AuraScript
         return eventInfo.GetProcTarget() != nullptr;
     }
 
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
 
@@ -420,7 +453,7 @@ class spell_item_deadly_precision : public AuraScript
 {
     PrepareAuraScript(spell_item_deadly_precision);
 
-    void HandleStackDrop(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+    void HandleStackDrop(AuraEffect* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
     {
         PreventDefaultAction();
         GetTarget()->RemoveAuraFromStack(GetId(), GetTarget()->GetGUID());
@@ -497,7 +530,7 @@ class spell_item_deathbringers_will : public SpellScriptLoader
                 });
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
             {
                 static std::vector<uint32> const triggeredSpells[MAX_CLASSES] =
                 {
@@ -658,7 +691,7 @@ class spell_item_desperate_defense : public AuraScript
         return ValidateSpellInfo({ SPELL_DESPERATE_RAGE });
     }
 
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
     {
         PreventDefaultAction();
         GetTarget()->CastSpell(GetTarget(), SPELL_DESPERATE_RAGE, true, nullptr, aurEff);
@@ -723,7 +756,7 @@ class spell_item_discerning_eye_beast_dummy : public AuraScript
         return ValidateSpellInfo({ SPELL_DISCERNING_EYE_BEAST });
     }
 
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
         eventInfo.GetActor()->CastSpell(nullptr, SPELL_DISCERNING_EYE_BEAST, true, nullptr, aurEff);
@@ -758,6 +791,37 @@ class spell_item_echoes_of_light : public SpellScript
     }
 };
 
+// 30427 - Extract Gas (23821: Zapthrottle Mote Extractor)
+class spell_item_extract_gas : public AuraScript
+{
+    PrepareAuraScript(spell_item_extract_gas);
+
+    void PeriodicTick(AuraEffect const* /*aurEff*/)
+    {
+        PreventDefaultAction();
+
+        // move loot to player inventory and despawn target
+        if (GetCaster() && GetCaster()->GetTypeId() == TYPEID_PLAYER &&
+            GetTarget()->GetTypeId() == TYPEID_UNIT &&
+            GetTarget()->ToCreature()->GetCreatureTemplate()->type == CREATURE_TYPE_GAS_CLOUD)
+        {
+            Player* player = GetCaster()->ToPlayer();
+            Creature* creature = GetTarget()->ToCreature();
+            // missing lootid has been reported on startup - just return
+            if (!creature->GetCreatureTemplate()->SkinLootId)
+                return;
+
+            player->AutoStoreLoot(creature->GetCreatureTemplate()->SkinLootId, LootTemplates_Skinning, ItemContext::NONE, true);
+            creature->DespawnOrUnsummon();
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_item_extract_gas::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
 // 7434 - Fate Rune of Unsurpassed Vigor
 enum FateRuneOfUnsurpassedVigor
 {
@@ -773,7 +837,7 @@ class spell_item_fate_rune_of_unsurpassed_vigor : public AuraScript
         return ValidateSpellInfo({ SPELL_UNSURPASSED_VIGOR });
     }
 
-    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
     {
         PreventDefaultAction();
         GetTarget()->CastSpell(GetTarget(), SPELL_UNSURPASSED_VIGOR, true);
@@ -864,7 +928,7 @@ class spell_item_frozen_shadoweave : public AuraScript
         return ValidateSpellInfo({ SPELL_SHADOWMEND });
     }
 
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
         DamageInfo* damageInfo = eventInfo.GetDamageInfo();
@@ -984,7 +1048,7 @@ class spell_item_heartpierce : public SpellScriptLoader
                 });
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 Unit* caster = eventInfo.GetActor();
@@ -1120,7 +1184,7 @@ class spell_item_mark_of_conquest : public AuraScript
         return ValidateSpellInfo({ SPELL_MARK_OF_CONQUEST_ENERGIZE });
     }
 
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
         if (eventInfo.GetTypeMask() & (PROC_FLAG_DONE_RANGED_AUTO_ATTACK | PROC_FLAG_DONE_SPELL_RANGED_DMG_CLASS))
         {
@@ -1202,7 +1266,7 @@ class spell_item_necrotic_touch : public AuraScript
         return eventInfo.GetProcTarget() && eventInfo.GetProcTarget()->IsAlive();
     }
 
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
         DamageInfo* damageInfo = eventInfo.GetDamageInfo();
@@ -1355,7 +1419,7 @@ class spell_item_persistent_shield : public AuraScript
         return eventInfo.GetHealInfo() && eventInfo.GetHealInfo()->GetHeal();
     }
 
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
         Unit* caster = eventInfo.GetActor();
         Unit* target = eventInfo.GetProcTarget();
@@ -1393,7 +1457,7 @@ class spell_item_pet_healing : public AuraScript
         return ValidateSpellInfo({ SPELL_HEALTH_LINK });
     }
 
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
         DamageInfo* damageInfo = eventInfo.GetDamageInfo();
@@ -1624,7 +1688,7 @@ class spell_item_shadowmourne : public AuraScript
         return eventInfo.GetProcTarget() && eventInfo.GetProcTarget()->IsAlive();
     }
 
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
         GetTarget()->CastSpell(GetTarget(), SPELL_SHADOWMOURNE_SOUL_FRAGMENT, true, nullptr, aurEff);
@@ -1778,7 +1842,7 @@ class spell_item_swift_hand_justice_dummy : public AuraScript
         return ValidateSpellInfo({ SPELL_SWIFT_HAND_OF_JUSTICE_HEAL });
     }
 
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
 
@@ -2990,7 +3054,7 @@ class spell_item_shard_of_the_scale : public SpellScriptLoader
                 });
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 Unit* caster = eventInfo.GetActor();
@@ -3038,7 +3102,7 @@ class spell_item_soul_preserver : public AuraScript
         });
     }
 
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
 
@@ -3123,7 +3187,7 @@ class spell_item_sunwell_neck : public SpellScriptLoader
                 return true;
             }
 
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
                 Player* player = eventInfo.GetActor()->ToPlayer();
@@ -3201,7 +3265,7 @@ class spell_item_death_choice : public AuraScript
         });
     }
 
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
 
@@ -3277,7 +3341,7 @@ public:
             return ValidateSpellInfo({ _stackSpell, _triggerSpell });
         }
 
-        void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+        void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
         {
             PreventDefaultAction();
 
@@ -3340,7 +3404,7 @@ class spell_item_darkmoon_card_greatness : public AuraScript
         });
     }
 
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
 
@@ -3406,7 +3470,7 @@ class spell_item_mana_drain : public AuraScript
         });
     }
 
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
 
@@ -3600,7 +3664,7 @@ class spell_item_zandalarian_charm : public SpellScriptLoader
                 return false;
             }
 
-            void HandleStackDrop(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+            void HandleStackDrop(AuraEffect* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
                 GetTarget()->RemoveAuraFromStack(_spellId);
@@ -3986,6 +4050,7 @@ void AddSC_item_spell_scripts()
     new spell_item_trigger_spell("spell_item_mithril_mechanical_dragonling", SPELL_MITHRIL_MECHANICAL_DRAGONLING);
 
     RegisterAuraScript(spell_item_aegis_of_preservation);
+    RegisterAuraScript(spell_item_absorb_eye_of_grillok);
     RegisterAuraScript(spell_item_alchemist_stone);
     new spell_item_anger_capacitor<8>("spell_item_tiny_abomination_in_a_jar");
     new spell_item_anger_capacitor<7>("spell_item_tiny_abomination_in_a_jar_hero");
@@ -4005,6 +4070,7 @@ void AddSC_item_spell_scripts()
     RegisterSpellScript(spell_item_deviate_fish);
     RegisterAuraScript(spell_item_discerning_eye_beast_dummy);
     RegisterSpellScript(spell_item_echoes_of_light);
+    RegisterAuraScript(spell_item_extract_gas);
     RegisterAuraScript(spell_item_fate_rune_of_unsurpassed_vigor);
     RegisterSpellScript(spell_item_flask_of_the_north);
     RegisterAuraScript(spell_item_frozen_shadoweave);
