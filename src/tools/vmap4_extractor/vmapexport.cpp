@@ -361,6 +361,7 @@ bool ExtractSingleWmo(std::string& fname)
                 continue;
 
             Wmo_nVertices += fgroup.ConvertToVMAPGroupWmo(output, preciseVectorData);
+            ++groupCount;
             for (uint16 groupReference : fgroup.DoodadReferences)
             {
                 if (groupReference >= doodads.Spawns.size())
