@@ -245,7 +245,7 @@ class GridObject
         GridReference<T> _gridRef;
 };
 
-template <class T_VALUES, class T_FLAGS, class FLAG_TYPE, uint8 ARRAY_SIZE>
+template <class T_VALUES, class T_FLAGS, class FLAG_TYPE, size_t ARRAY_SIZE>
 class FlaggedValuesArray32
 {
     public:
@@ -401,9 +401,9 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void ClearZoneScript();
         ZoneScript* GetZoneScript() const { return m_zoneScript; }
 
-        TempSummon* SummonCreature(uint32 entry, Position const& pos, TempSummonType despawnType = TEMPSUMMON_MANUAL_DESPAWN, uint32 despawnTime = 0, uint32 vehId = 0, bool visibleBySummonerOnly = false);
-        TempSummon* SummonCreature(uint32 entry, Position const& pos, TempSummonType despawnType, Milliseconds despawnTime, uint32 vehId = 0, bool visibleBySummonerOnly = false) { return SummonCreature(entry, pos, despawnType, uint32(despawnTime.count()), vehId, visibleBySummonerOnly); }
-        TempSummon* SummonCreature(uint32 entry, float x, float y, float z, float o = 0, TempSummonType despawnType = TEMPSUMMON_MANUAL_DESPAWN, uint32 despawnTime = 0, bool visibleBySummonerOnly = false);
+        TempSummon* SummonCreature(uint32 entry, Position const& pos, TempSummonType despawnType = TEMPSUMMON_MANUAL_DESPAWN, uint32 despawnTime = 0, uint32 vehId = 0, bool personalSpawn = false);
+        TempSummon* SummonCreature(uint32 entry, Position const& pos, TempSummonType despawnType, Milliseconds despawnTime, uint32 vehId = 0, bool personalSpawn = false) { return SummonCreature(entry, pos, despawnType, uint32(despawnTime.count()), vehId, personalSpawn); }
+        TempSummon* SummonCreature(uint32 entry, float x, float y, float z, float o = 0, TempSummonType despawnType = TEMPSUMMON_MANUAL_DESPAWN, uint32 despawnTime = 0, bool personalSpawn = false);
 
         GameObject* SummonGameObject(uint32 entry, Position const& pos, QuaternionData const& rot, uint32 respawnTime /* s */, GOSummonType summonType = GO_SUMMON_TIMED_OR_CORPSE_DESPAWN);
         GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, QuaternionData const& rot, uint32 respawnTime /* s */);
@@ -486,6 +486,11 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         uint16 GetMeleeAnimKitId() const { return m_meleeAnimKitId; }
         void SetMeleeAnimKitId(uint16 animKitId);
 
+        // Watcher
+        bool IsPrivateObject() const { return !_privateObjectOwner.IsEmpty(); }
+        ObjectGuid GetPrivateObjectOwner() const { return _privateObjectOwner; }
+        void SetPrivateObjectOwner(ObjectGuid const& owner) { _privateObjectOwner = owner; }
+
     protected:
         std::string m_name;
         bool m_isActive;
@@ -526,6 +531,9 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         int32 _dbPhase;
 
         uint16 m_notifyflags;
+
+        ObjectGuid _privateObjectOwner;
+
         virtual bool _IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D, bool incOwnRadius = true, bool incTargetRadius = true) const;
 
         bool CanNeverSee(WorldObject const* obj) const;
