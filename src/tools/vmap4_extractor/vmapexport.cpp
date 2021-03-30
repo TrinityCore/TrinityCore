@@ -144,6 +144,7 @@ bool ExtractSingleWmo(std::string& fname)
     WMODoodadData& doodads = WmoDoodads[plain_name];
     std::swap(doodads, froot.DoodadData);
     int Wmo_nVertices = 0;
+    uint32 RealNbOfGroups = froot.nGroups;
     //printf("root has %d groups\n", froot->nGroups);
     if (froot.nGroups !=0)
     {
@@ -159,6 +160,12 @@ bool ExtractSingleWmo(std::string& fname)
                 printf("Could not open all Group file for: %s\n", plain_name);
                 file_ok = false;
                 break;
+            }
+
+            if (fgroup.ShouldSkip(froot))
+            {
+                RealNbOfGroups--;
+                continue;
             }
 
             Wmo_nVertices += fgroup.ConvertToVMAPGroupWmo(output, preciseVectorData);
@@ -178,6 +185,8 @@ bool ExtractSingleWmo(std::string& fname)
 
     fseek(output, 8, SEEK_SET); // store the correct no of vertices
     fwrite(&Wmo_nVertices,sizeof(int),1,output);
+    fseek(output, 12, SEEK_SET); // store the correct no of groups
+    fwrite(&RealNbOfGroups, sizeof(uint32), 1, output);
     fclose(output);
 
     // Delete the extracted file in the case of an error
