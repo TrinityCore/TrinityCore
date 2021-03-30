@@ -2139,6 +2139,12 @@ void Spell::prepareDataForTriggerSystem()
         m_procAttacker = PROC_FLAG_DONE_PERIODIC;
         m_procVictim   = PROC_FLAG_TAKEN_PERIODIC;
     }
+
+    // Some spells may not trigger any procs at all.
+    if (m_spellInfo->HasAttribute(SPELL_ATTR3_CANT_TRIGGER_CASTER_PROCS))
+        m_procAttacker = 0;
+    if (m_spellInfo->HasAttribute(SPELL_ATTR3_CANT_TRIGGER_CASTER_PROCS))
+        m_procVictim = 0;
 }
 
 void Spell::CleanupTargetList()
@@ -2521,7 +2527,31 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     m_spellAura = nullptr; // Set aura to null for every target-make sure that pointer is not used for unit without aura applied
 
                             // Spells with this flag cannot trigger if effect is cast on self
-    bool const canEffectTrigger = !m_spellInfo->HasAttribute(SPELL_ATTR3_CANT_TRIGGER_PROC) && unitTarget->CanProc() && (CanExecuteTriggersOnHit(mask) || missInfo == SPELL_MISS_IMMUNE || missInfo == SPELL_MISS_IMMUNE2);
+    bool const canTriggerCasterProcs = [&]()
+    {
+        if (m_spellInfo->HasAttribute(SPELL_ATTR3_CANT_TRIGGER_CASTER_PROCS))
+            return false;
+
+        if (!unitTarget->CanProc())
+            return false;
+
+        if (!(CanExecuteTriggersOnHit(mask) || missInfo == SPELL_MISS_IMMUNE || missInfo == SPELL_MISS_IMMUNE2))
+            return false;
+
+        return true;
+    }();
+
+    bool const canTriggerTargetProcs = [&]()
+    {
+        if (m_spellInfo->HasAttribute(SPELL_ATTR3_CANT_TRIGGER_TARGET_PROCS))
+            return false;
+
+        if (!caster->CanProc())
+            return false;
+
+        return true;
+    }();
+
     Unit* spellHitTarget = nullptr;
 
     if (missInfo == SPELL_MISS_NONE)                          // In case spell hit target, do all effect on that target
@@ -2559,7 +2589,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         m_needComboPoints = false;
 
     // Trigger info was not filled in Spell::prepareDataForTriggerSystem - we do it now
-    if (canEffectTrigger && !procAttacker && !procVictim)
+    if ((canTriggerCasterProcs || canTriggerTargetProcs) && !procAttacker && !procVictim)
     {
         bool positive = true;
         if (m_damage > 0)
@@ -2580,34 +2610,49 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
             }
         }
 
-        switch (m_spellInfo->DmgClass)
+        if (canTriggerCasterProcs)
         {
-            case SPELL_DAMAGE_CLASS_MAGIC:
-                if (positive)
-                {
-                    procAttacker |= PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS;
-                    procVictim   |= PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS;
-                }
-                else
-                {
-                    procAttacker |= PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG;
-                    procVictim   |= PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG;
-                }
-            break;
-            case SPELL_DAMAGE_CLASS_NONE:
-                if (positive)
-                {
-                    procAttacker |= PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_POS;
-                    procVictim   |= PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_POS;
-                }
-                else
-                {
-                    procAttacker |= PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG;
-                    procVictim   |= PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_NEG;
-                }
-            break;
+            switch (m_spellInfo->DmgClass)
+            {
+                case SPELL_DAMAGE_CLASS_MAGIC:
+                    if (positive)
+                        procAttacker |= PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS;
+                    else
+                        procAttacker |= PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG;
+                    break;
+                case SPELL_DAMAGE_CLASS_NONE:
+                    if (positive)
+                        procAttacker |= PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_POS;
+                    else
+                        procAttacker |= PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        if (canTriggerTargetProcs)
+        {
+            switch (m_spellInfo->DmgClass)
+            {
+                case SPELL_DAMAGE_CLASS_MAGIC:
+                    if (positive)
+                        procVictim   |= PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS;
+                    else
+                        procVictim   |= PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG;
+                    break;
+                case SPELL_DAMAGE_CLASS_NONE:
+                    if (positive)
+                        procVictim   |= PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_POS;
+                    else
+                        procVictim   |= PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_NEG;
+                    break;
+                default:
+                    break;
+            }
         }
     }
+
     CallScriptOnHitHandlers();
 
     // All calculated do it!
@@ -2630,7 +2675,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         m_healing = healInfo.GetEffectiveHeal();
 
         // Do triggers for unit
-        if (canEffectTrigger)
+        if (canTriggerCasterProcs || canTriggerTargetProcs)
             caster->ProcSkillsAndAuras(unitTarget, procAttacker, procVictim, PROC_SPELL_TYPE_HEAL, PROC_SPELL_PHASE_HIT, hitMask, this, nullptr, &healInfo);
     }
     // Do damage and triggers
@@ -2676,7 +2721,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         }
 
         // Do triggers for unit
-        if (canEffectTrigger)
+        if (canTriggerCasterProcs || canTriggerTargetProcs)
         {
             DamageInfo spellDamageInfo(damageInfo, SPELL_DIRECT_DAMAGE, m_attackType, hitMask);
             caster->ProcSkillsAndAuras(unitTarget, procAttacker, procVictim, PROC_SPELL_TYPE_DAMAGE, PROC_SPELL_PHASE_HIT, hitMask, this, &spellDamageInfo, nullptr);
@@ -2698,7 +2743,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         SpellNonMeleeDamage damageInfo(caster, unitTarget, m_spellInfo->Id, m_spellSchoolMask);
         hitMask |= createProcHitMask(&damageInfo, missInfo);
         // Do triggers for unit
-        if (canEffectTrigger)
+        if (canTriggerCasterProcs || canTriggerTargetProcs)
         {
             DamageInfo spellNoDamageInfo(damageInfo, NODAMAGE, m_attackType, hitMask);
             caster->ProcSkillsAndAuras(unitTarget, procAttacker, procVictim, PROC_SPELL_TYPE_NO_DMG_HEAL, PROC_SPELL_PHASE_HIT, hitMask, this, &spellNoDamageInfo, nullptr);
@@ -2723,7 +2768,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     if (missInfo != SPELL_MISS_EVADE && spellHitTarget && !m_caster->IsFriendlyTo(unit) && (!m_spellInfo->IsPositive() || m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL)))
     {
         if (Unit* unitCaster = m_caster->ToUnit())
-            unitCaster->AtTargetAttacked(unit, m_spellInfo->HasInitialAggro() && !unitCaster->IsIgnoringCombat());
+            unitCaster->AtTargetAttacked(unit, m_spellInfo->CausesInitialThreat() && !unitCaster->IsIgnoringCombat());
 
         if (!unit->IsStandState())
             unit->SetStandState(UNIT_STAND_STATE_STAND);
@@ -2820,7 +2865,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
                 }
             }
 
-            if (m_originalCaster && unit->IsInCombat() && m_spellInfo->HasInitialAggro())
+            if (m_originalCaster && unit->IsInCombat() && m_spellInfo->CausesInitialThreat())
             {
                 if (m_originalCaster->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED)) // only do explicit combat forwarding for PvP enabled units
                     m_originalCaster->GetCombatManager().InheritCombatStatesFrom(unit);    // for creature v creature combat, the threat forward does it for us
@@ -3645,7 +3690,7 @@ void Spell::_cast(bool skipCheck)
 
     // Handle procs on cast
     uint32 procAttacker = m_procAttacker;
-    if (!procAttacker)
+    if (!procAttacker && !m_spellInfo->HasAttribute(SPELL_ATTR3_CANT_TRIGGER_CASTER_PROCS))
     {
         if (m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC)
             procAttacker = m_spellInfo->IsPositive() ? PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS : PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG;
@@ -3855,7 +3900,7 @@ void Spell::_handle_finish_phase()
         return;
 
     uint32 procAttacker = m_procAttacker;
-    if (!procAttacker)
+    if (!procAttacker && !m_spellInfo->HasAttribute(SPELL_ATTR3_CANT_TRIGGER_CASTER_PROCS))
     {
         if (m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MAGIC)
             procAttacker = m_spellInfo->IsPositive() ? PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS : PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG;
@@ -5291,7 +5336,7 @@ void Spell::HandleThreatSpells()
     if (m_UniqueTargetInfo.empty())
         return;
 
-    if (!m_spellInfo->HasInitialAggro())
+    if (!m_spellInfo->CausesInitialThreat())
         return;
 
     float threat = 0.0f;
@@ -5302,7 +5347,7 @@ void Spell::HandleThreatSpells()
 
         threat += threatEntry->flatMod;
     }
-    else if (!m_spellInfo->HasAttribute(SPELL_ATTR0_CU_NO_INITIAL_THREAT) && !m_spellInfo->HasAttribute(SPELL_ATTR2_NO_INITIAL_THREAT))
+    else if (!m_spellInfo->HasAttribute(SPELL_ATTR0_CU_NO_INITIAL_THREAT))
         threat += m_spellInfo->SpellLevel;
 
     // past this point only multiplicative effects occur
@@ -7727,7 +7772,7 @@ void Spell::DoAllEffectOnLaunchTarget(TargetInfo& targetInfo, float* multiplier)
     if (m_originalCaster  && targetInfo.missCondition != SPELL_MISS_EVADE
         && !m_originalCaster->IsFriendlyTo(unit)
         && (!m_spellInfo->IsPositive() || m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL))
-        && (m_spellInfo->HasInitialAggro() || unit->IsEngaged())
+        && (m_spellInfo->CausesInitialThreat() || unit->IsEngaged())
         && !m_originalCaster->IsIgnoringCombat())
         m_originalCaster->SetInCombatWith(unit);
 

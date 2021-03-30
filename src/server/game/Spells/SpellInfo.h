@@ -528,7 +528,7 @@ class TC_GAME_API SpellInfo
         bool IsBreakingStealth() const;
         bool IsRangedWeaponSpell() const;
         bool IsAutoRepeatRangedSpell() const;
-        bool HasInitialAggro() const;
+        bool CausesInitialThreat() const;
 
         WeaponAttackType GetAttackType() const;
 

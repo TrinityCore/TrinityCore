@@ -1479,9 +1479,9 @@ bool SpellInfo::IsAutoRepeatRangedSpell() const
     return HasAttribute(SPELL_ATTR2_AUTOREPEAT_FLAG);
 }
 
-bool SpellInfo::HasInitialAggro() const
+bool SpellInfo::CausesInitialThreat() const
 {
-    return !(HasAttribute(SPELL_ATTR1_NO_THREAT) || HasAttribute(SPELL_ATTR3_NO_INITIAL_AGGRO));
+    return !(HasAttribute(SPELL_ATTR1_NO_THREAT) || HasAttribute(SPELL_ATTR2_NO_INITIAL_THREAT));
 }
 
 WeaponAttackType SpellInfo::GetAttackType() const

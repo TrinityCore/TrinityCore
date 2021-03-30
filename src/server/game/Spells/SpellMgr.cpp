@@ -3247,7 +3247,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Vampiric Embrace
     ApplySpellFix({ 15290 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+        spellInfo->AttributesEx3 |= SPELL_ATTR2_NO_INITIAL_THREAT;
     });
 
     // Vampiric Touch (dispel effect)
@@ -3761,12 +3761,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 71169 }, [](SpellInfo* spellInfo)
     {
         spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
-    });
-
-    // Lock Players and Tap Chest
-    ApplySpellFix({ 72347 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->AttributesEx3 &= ~SPELL_ATTR3_NO_INITIAL_AGGRO;
     });
 
     // Lock and Load (Rank 1)
@@ -4578,7 +4572,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 76194, 91042 }, [](SpellInfo* spellInfo)
     {
         spellInfo->MaxAffectedTargets = 1;
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+        spellInfo->AttributesEx3 |= SPELL_ATTR2_NO_INITIAL_THREAT;
     });
 
     // Shadow Gale
@@ -4683,7 +4677,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Destruction Protocoll
     ApplySpellFix({ 77437 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+        spellInfo->AttributesEx3 |= SPELL_ATTR2_NO_INITIAL_THREAT;
     });
 
     // Crumbling Ruin
@@ -4774,7 +4768,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Feral Charge (Cat Form
     ApplySpellFix({ 49376 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx3 &= ~SPELL_ATTR3_CANT_TRIGGER_PROC;
+        spellInfo->AttributesEx3 &= ~SPELL_ATTR3_CANT_TRIGGER_CASTER_PROCS;
     });
 
     //
@@ -4981,7 +4975,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         97352
     }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+        spellInfo->AttributesEx3 |= SPELL_ATTR2_NO_INITIAL_THREAT;
     });
 
     // Poison Bolt Volley
@@ -5165,7 +5159,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         93299
     }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+        spellInfo->AttributesEx3 |= SPELL_ATTR2_NO_INITIAL_THREAT;
     });
 
     // Lightning Clouds
@@ -5243,7 +5237,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         106464  // Enter the Dream
     }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+        spellInfo->AttributesEx3 |= SPELL_ATTR2_NO_INITIAL_THREAT;
     });
 
     // Root
@@ -5532,7 +5526,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Debilitating Slime
     ApplySpellFix({ 77615 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+        spellInfo->AttributesEx3 |= SPELL_ATTR2_NO_INITIAL_THREAT;
     });
 
     // Dragon Orb
@@ -5642,7 +5636,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         91884
     }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+        spellInfo->AttributesEx3 |= SPELL_ATTR2_NO_INITIAL_THREAT;
         spellInfo->Effects[EFFECT_1].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_4_YARDS);
     });
 
