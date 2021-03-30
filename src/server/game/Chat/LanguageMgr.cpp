@@ -176,12 +176,12 @@ std::string LanguageMgr::Translate(std::string const& msg, uint32 sourcePlayerLa
     bool first = true;
     for (char const* str : tokens)
     {
-        uint32 wordHash = SStrHash(str, true);
         const char* nextPart = str;
         uint32 wordLen = std::min(18U, (uint32)strlen(str));
         LanguageMgr::WordList const* wordGroup = FindWordGroup(sourcePlayerLanguage, wordLen);
         if (wordGroup)
         {
+            uint32 wordHash = SStrHash(str, true);
             uint8 idxInsideGroup = wordHash % wordGroup->size();
             nextPart = wordGroup->at(idxInsideGroup);
         }
