@@ -28,6 +28,7 @@
 #include "Group.h"
 #include "Guild.h"
 #include "GuildMgr.h"
+#include "Language.h"
 #include "LanguageMgr.h"
 #include "Log.h"
 #include "ObjectAccessor.h"

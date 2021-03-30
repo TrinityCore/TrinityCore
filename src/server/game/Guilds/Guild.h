@@ -20,7 +20,6 @@
 
 #include "AchievementMgr.h"
 #include "DatabaseEnvFwd.h"
-#include "Language.h"
 #include "ObjectGuid.h"
 #include "RaceMask.h"
 #include "SharedDefines.h"

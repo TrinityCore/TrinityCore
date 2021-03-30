@@ -20,7 +20,6 @@
 
 #include "Define.h"
 #include "Hash.h"
-#include "Language.h"
 #include "SharedDefines.h"
 #include <string>
 #include <vector>

@@ -20,7 +20,6 @@
 
 #include "Packet.h"
 #include "Common.h"
-#include "Language.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include "PacketUtilities.h"

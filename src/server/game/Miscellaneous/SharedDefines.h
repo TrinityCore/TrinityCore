@@ -7458,4 +7458,12 @@ enum class MountResult : uint32
     Ok             = 10 // never sent
 };
 
+/* Languages that do not exist in .db2 files and/or are used in code */
+enum Language
+{
+    LANG_UNIVERSAL = 0,
+    LANG_ADDON = 183,
+    LANG_ADDON_LOGGED = 184,
+};
+
 #endif

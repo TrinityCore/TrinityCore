@@ -27,7 +27,6 @@ EndScriptData */
 #include "GameObjectAI.h"
 #include "Group.h"
 #include "InstanceScript.h"
-#include "Language.h"
 #include "LFGMgr.h"
 #include "Map.h"
 #include "MotionMaster.h"

@@ -19,7 +19,6 @@
 #define TRINITY_CREATURE_TEXT_MGR_H
 
 #include "Common.h"
-#include "Language.h"
 #include "SharedDefines.h"
 #include <map>
 #include <unordered_map>

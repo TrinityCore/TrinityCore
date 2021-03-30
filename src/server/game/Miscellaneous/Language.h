@@ -1163,12 +1163,4 @@ enum TrinityStrings
     LANG_INVALID_POWER_NAME                       = 11021
 };
 
-/* Languages that do not exist in .db2 files and/or are used in code */
-enum Language
-{
-    LANG_UNIVERSAL = 0,
-    LANG_ADDON = 183,
-    LANG_ADDON_LOGGED = 184,
-};
-
 #endif
