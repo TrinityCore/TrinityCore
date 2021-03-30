@@ -945,10 +945,14 @@ namespace Trinity
     class AnyFriendlyUnitInObjectRangeCheck
     {
         public:
-            AnyFriendlyUnitInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range, bool playerOnly = false) : i_obj(obj), i_funit(funit), i_range(range), i_playerOnly(playerOnly) { }
+            AnyFriendlyUnitInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range, bool playerOnly = false, bool noPlayerTarget = false) : i_obj(obj), i_funit(funit), i_range(range), i_playerOnly(playerOnly), i_noPlayerTarget(noPlayerTarget) { }
             bool operator()(Unit* u)
             {
-                if (u->IsAlive() && i_obj->IsWithinDistInMap(u, i_range) && i_funit->IsFriendlyTo(u) && (!i_playerOnly || u->GetTypeId() == TYPEID_PLAYER))
+                if (u->IsAlive()
+                    && i_obj->IsWithinDistInMap(u, i_range)
+                    && i_funit->IsFriendlyTo(u)
+                    && (!i_playerOnly || u->GetTypeId() == TYPEID_PLAYER)
+                    && (!i_noPlayerTarget || u->GetTypeId() != TYPEID_PLAYER))
                     return true;
                 else
                     return false;
@@ -958,6 +962,7 @@ namespace Trinity
             Unit const* i_funit;
             float i_range;
             bool i_playerOnly;
+            bool i_noPlayerTarget;
     };
 
     class AnyGroupedUnitInObjectRangeCheck
@@ -1052,6 +1057,9 @@ namespace Trinity
                     return false;
 
                 if (_spellInfo && _spellInfo->HasAttribute(SPELL_ATTR3_ONLY_TARGET_PLAYERS) && u->GetTypeId() != TYPEID_PLAYER)
+                    return false;
+
+                if (_spellInfo && _spellInfo->HasAttribute(SPELL_ATTR5_DONT_TARGET_PLAYERS) && u->GetTypeId() == TYPEID_PLAYER)
                     return false;
 
                 return i_funit->_IsValidAttackTarget(u, _spellInfo, i_obj->GetTypeId() == TYPEID_DYNAMICOBJECT ? i_obj : nullptr) && i_obj->IsWithinDistInMap(u, i_range);

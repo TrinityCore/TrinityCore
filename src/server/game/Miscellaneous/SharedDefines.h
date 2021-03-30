@@ -540,7 +540,7 @@ enum SpellAttr5
     SPELL_ATTR5_UNK4                             = 0x00000010, //  4
     SPELL_ATTR5_SINGLE_TARGET_SPELL              = 0x00000020, //  5 Only one target can be apply at a time
     SPELL_ATTR5_UNK6                             = 0x00000040, //  6
-    SPELL_ATTR5_UNK7                             = 0x00000080, //  7
+    SPELL_ATTR5_DONT_TARGET_PLAYERS              = 0x00000080, //  7 Not On Player
     SPELL_ATTR5_DONT_ALLOW_PET_TARGET            = 0x00000100, //  8 do not allow the following spell to affect or target pets
     SPELL_ATTR5_START_PERIODIC_AT_APPLY          = 0x00000200, //  9 begin periodic tick at aura apply
     SPELL_ATTR5_HIDE_DURATION                    = 0x00000400, // 10 do not send duration to client
