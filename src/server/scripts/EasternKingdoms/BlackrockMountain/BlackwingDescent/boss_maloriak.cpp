@@ -385,7 +385,15 @@ struct boss_maloriak : public BossAI
                         break;
                     case VIAL_GREEN:
                         if (Creature* cauldron = instance->GetCreature(DATA_CAULDRON_TRIGGER))
+                        {
+                            // According to sniffs, the cauldron stalker leaves combat after 8 seconds
+                            cauldron->m_Events.AddEventAtOffset([cauldron]()
+                            {
+                                if (cauldron->IsAIEnabled)
+                                    cauldron->AI()->EnterEvadeMode();
+                            }, 8s);
                             cauldron->CastSpell(cauldron, SPELL_DEBILITATING_SLIME_DEBUFF);
+                        }
 
                         events.ScheduleEvent(EVENT_ARCANE_STORM, 5s, 0, PHASE_ONE);
                         events.ScheduleEvent(EVENT_REMEDY, 7s + 500ms, 0, PHASE_ONE);
