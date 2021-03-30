@@ -70,7 +70,7 @@ LanguageMgr::WordList const* LanguageMgr::FindWordGroup(Language language, uint3
     return nullptr;
 }
 
-std::string LanguageMgr::Translate(std::string const& msg, uint16 targetPlayerLanguageSkill, Language sourcePlayerLanguage) const
+std::string LanguageMgr::Translate(std::string const& msg, Language sourcePlayerLanguage) const
 {
     std::stringstream result;
     Tokenizer tokens(msg, ' ');
@@ -79,8 +79,6 @@ std::string LanguageMgr::Translate(std::string const& msg, uint16 targetPlayerLa
     {
         uint32 wordHash = SStrHash(str, true);
         const char* nextPart = str;
-        if (wordHash % 300 < targetPlayerLanguageSkill)
-            continue;
 
         uint32 wordLen = std::min(18U, (uint32)strlen(str));
         LanguageMgr::WordList const* wordGroup = FindWordGroup(sourcePlayerLanguage, wordLen);

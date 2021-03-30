@@ -44,7 +44,7 @@ class TC_GAME_API LanguageMgr
         void LoadLanguages();
 
         //
-        std::string Translate(std::string const& msg, uint16 targetPlayerLanguageSkill, Language sourcePlayerLanguage) const;
+        std::string Translate(std::string const& msg, Language sourcePlayerLanguage) const;
 
         uint32 SStrHash(char const* string, bool caseInsensitive, uint32 seed = 0x7FED7FED) const;
 

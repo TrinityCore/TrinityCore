@@ -22223,6 +22223,11 @@ void Player::Whisper(std::string const& text, Language language, Player* target,
         ChatHandler(GetSession()).PSendSysMessage(LANG_PLAYER_DND, target->GetName().c_str(), target->autoReplyMsg.c_str());
 }
 
+bool Player::CanUnderstandLanguageSkillId(uint32 langSkillId) const
+{
+    return langSkillId != 0 && HasSkill(langSkillId);
+}
+
 void Player::Whisper(uint32 textId, Player* target, bool /*isBossWhisper = false*/)
 {
     if (!target)

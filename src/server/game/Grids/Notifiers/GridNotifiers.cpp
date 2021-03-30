@@ -297,13 +297,10 @@ void ChatMessageDistDeliverer::SendPacket(Player* player)
 
     // Translate
     std::string chatMsg;
-    if (player->IsGameMaster())
+    if (player->IsGameMaster() || player->CanUnderstandLanguageSkillId(_languageDesc.skill_id))
         chatMsg = _originalMsg;
     else
-    {
-        uint16 targetPlayerLanguageSkill = player->GetSkillValue(_languageDesc.skill_id);
-        chatMsg = sLanguageMgr->Translate(_originalMsg, targetPlayerLanguageSkill, _languageDesc.lang_id);
-    }
+        chatMsg = sLanguageMgr->Translate(_originalMsg, _languageDesc.lang_id);
 
     // Send
     WorldPackets::Chat::Chat chatPacket;
