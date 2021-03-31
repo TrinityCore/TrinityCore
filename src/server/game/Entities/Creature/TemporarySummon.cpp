@@ -26,7 +26,7 @@
 
 TempSummon::TempSummon(SummonPropertiesEntry const* properties, Unit* owner, bool isWorldObject) :
 Creature(isWorldObject), m_Properties(properties), m_type(TEMPSUMMON_MANUAL_DESPAWN),
-m_timer(0), m_lifetime(0), m_visibleBySummonerOnly(false)
+m_timer(0), m_lifetime(0)
 {
     if (owner)
         m_summonerGUID = owner->GetGUID();
@@ -42,15 +42,6 @@ Unit* TempSummon::GetSummoner() const
 Creature* TempSummon::GetSummonerCreatureBase() const
 {
     return !m_summonerGUID.IsEmpty() ? ObjectAccessor::GetCreature(*this, m_summonerGUID) : nullptr;
-}
-
-bool TempSummon::IsPersonalSummonOfAnotherPlayer(Creature const* summon, ObjectGuid playerToCheck)
-{
-    if (TempSummon const* tempSummon = summon->ToTempSummon())
-        if (tempSummon->IsVisibleBySummonerOnly() && playerToCheck != tempSummon->GetSummonerGUID())
-            return true;
-
-    return false;
 }
 
 void TempSummon::Update(uint32 diff)

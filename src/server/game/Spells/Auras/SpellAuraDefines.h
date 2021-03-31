@@ -149,7 +149,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_STALKED                                  = 68,
     SPELL_AURA_SCHOOL_ABSORB                                = 69,
     SPELL_AURA_PERIODIC_WEAPON_PERCENT_DAMAGE               = 70,
-    SPELL_AURA_STORE_TELEPORT_RETURN_POINT                  = 71,   // NYI
+    SPELL_AURA_STORE_TELEPORT_RETURN_POINT                  = 71,
     SPELL_AURA_MOD_POWER_COST_SCHOOL_PCT                    = 72,
     SPELL_AURA_MOD_POWER_COST_SCHOOL                        = 73,
     SPELL_AURA_REFLECT_SPELLS_SCHOOL                        = 74,
