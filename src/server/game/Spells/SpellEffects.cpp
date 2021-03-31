@@ -3817,7 +3817,7 @@ void Spell::EffectFeedPet(SpellEffIndex effIndex)
     if (levelDiff >= 30)
         return;
     else if (levelDiff >= 20)
-        pct = 12.5; // it's integer so it would round up to 12, but can't do anything else here
+        pct = int32(12.5); // we can't pass double so keeping the cast here for future references
     else if (levelDiff >= 10)
         pct = 25;
     else
