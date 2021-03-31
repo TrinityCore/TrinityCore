@@ -29,6 +29,6 @@ TSItemTemplate::TSItemTemplate()
     this->info = nullptr;
 }
 
-uint32 TSItemTemplate::Id()  {
+uint32 TSItemTemplate::ID()  {
     return info->ItemId;
 }

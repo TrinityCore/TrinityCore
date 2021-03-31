@@ -6073,7 +6073,7 @@ declare class TSUnit extends TSWorldObject {
 
 declare class TSItemTemplate {
     IsNull() : bool
-    Id() : uint32;
+    ID() : uint32;
 }
 
 declare class TSSpellInfo {
