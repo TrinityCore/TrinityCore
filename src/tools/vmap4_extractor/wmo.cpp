@@ -496,6 +496,10 @@ uint32 WMOGroup::GetLiquidTypeId(uint32 liquidTypeId)
 
 bool WMOGroup::ShouldSkip(WMORoot const* root) const
 {
+    // skip unreachable
+    if (mogpFlags & 0x80)
+        return true;
+
     // skip antiportals
     if (mogpFlags & 0x4000000)
         return true;
