@@ -3812,11 +3812,22 @@ void Spell::EffectFeedPet(SpellEffIndex effIndex)
 
     ExecuteLogEffectDestroyItem(effIndex, foodItem->GetEntry());
 
+    int32 pct;
+    int32 levelDiff = int32(pet->getLevel()) - int32(foodItem->GetTemplate()->GetBaseItemLevel());
+    if (levelDiff >= 30)
+        return;
+    else if (levelDiff >= 20)
+        pct = 12.5; // it's integer so it would round up to 12, but can't do anything else here
+    else if (levelDiff >= 10)
+        pct = 25;
+    else
+        pct = 50;
+
     uint32 count = 1;
     player->DestroyItemCount(foodItem, count, true);
     /// @todo fix crash when a spell has two effects, both pointed at the same item target
 
-    m_caster->CastSpell(pet, effectInfo->TriggerSpell, true);
+    m_caster->CastCustomSpell(pet, effectInfo->TriggerSpell, &pct, nullptr, nullptr, true);
 }
 
 void Spell::EffectDismissPet(SpellEffIndex effIndex)
