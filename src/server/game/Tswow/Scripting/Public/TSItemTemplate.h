@@ -18,6 +18,8 @@
 
 #include "TSClasses.h"
 
+class ItemTemplate;
+
 class TC_GAME_API TSItemTemplate {
 private:
     ItemTemplate const* info;
@@ -27,4 +29,89 @@ public:
     TSItemTemplate();
     TSItemTemplate* operator->() { return this;}
     uint32 ID();
+
+    uint32 Class();
+    uint32 SubClass();
+    int32  SoundOverrideSubclass();
+    TSString Name();
+    uint32 DisplayInfoID();
+    uint32 Quality();
+    uint32 Flags();
+    uint32 Flags2();
+    uint32 BuyCount();
+    int32  BuyPrice();
+    uint32 SellPrice();
+    uint32 InventoryType();
+    uint32 AllowableClass();
+    uint32 AllowableRace();
+    uint32 ItemLevel();
+    uint32 RequiredLevel();
+    uint32 RequiredSkill();
+    uint32 RequiredSkillRank();
+    uint32 RequiredSpell();
+    uint32 RequiredHonorRank();
+    uint32 RequiredCityRank();
+    uint32 RequiredReputationFaction();
+    uint32 RequiredReputationRank();
+    int32  MaxCount();
+    int32  Stackable();
+    uint32 ContainerSlots();
+    uint32 StatsCount();
+    uint32 ScalingStatDistribution();
+    uint32 ScalingStatValue();
+    uint32 Armor();
+    uint32 HolyRes();
+    uint32 FireRes();
+    uint32 NatureRes();
+    uint32 FrostRes();
+    uint32 ShadowRes();
+    uint32 ArcaneRes();
+    uint32 Delay();
+    uint32 AmmoType();
+    float  RangedModRange();
+    uint32 Bonding();
+    TSString Description();
+    uint32 PageText();
+    uint32 LanguageID();
+    uint32 PageMaterial();
+    uint32 StartQuest();
+    uint32 LockID();
+    int32  Material();
+    uint32 Sheath();
+    int32  RandomProperty();
+    int32  RandomSuffix();
+    uint32 Block();
+    uint32 ItemSet();
+    uint32 MaxDurability();
+    uint32 Area();
+    uint32 Map();
+    uint32 BagFamily();
+    uint32 TotemCategory();
+    uint32 SocketBonus();
+    uint32 GemProperties();
+    uint32 RequiredDisenchantSkill();
+    float  ArmorDamageModifier();
+    uint32 Duration();
+    uint32 ItemLimitCategory();
+    uint32 HolidayId();
+    uint32 ScriptId();
+    uint32 DisenchantID();
+    uint32 FoodType();
+    uint32 MinMoneyLoot();
+    uint32 MaxMoneyLoot();
+    uint32 FlagsCu();
+
+    bool IsCurrencyToken();
+    uint32 GetMaxStackSize();
+    float GetDPS();
+    bool CanChangeEquipStateInCombat();
+    int32 GetFeralBonus(int32 extraDPS = 0);
+    int32 GetTotalAPBonus();
+    float GetItemLevelIncludingQuality();
+    uint32 GetSkill();
+    bool IsPotion();
+    bool IsWeaponVellum();
+    bool IsArmorVellum();
+    bool IsConjuredConsumable();
+    bool HasSignature();
 };

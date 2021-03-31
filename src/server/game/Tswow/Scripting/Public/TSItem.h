@@ -20,6 +20,7 @@
 #include "TSString.h"
 #include "TSClasses.h"
 #include "TSObject.h"
+#include "TSItemTemplate.h"
 
 class TC_GAME_API TSItem : public TSObject {
 public:
@@ -46,6 +47,7 @@ public:
     bool IsWeaponVellum();
     bool IsArmorVellum();
     bool IsConjuredConsumable();
+    TSItemTemplate GetTemplate();
     TSString GetItemLink(uint8 locale);
     uint64 GetOwnerGUID();
     TSPlayer  GetOwner();

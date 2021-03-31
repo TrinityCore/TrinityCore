@@ -680,4 +680,9 @@ TSItem CreateItem(uint32 entry, uint32 count)
     return TSItem(Item::CreateItem(entry,count,nullptr));
 }
 
+TSItemTemplate TSItem::GetTemplate()
+{
+    return TSItemTemplate(item->GetTemplate());
+}
+
 // Inherited functions
