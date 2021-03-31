@@ -40,7 +40,7 @@ class CreatureTextBuilder
         {
             std::string const& text = sCreatureTextMgr->GetLocalizedChatString(_source->GetEntry(), _gender, _textGroup, _textId, locale);
             WorldPackets::Chat::Chat* chat = new WorldPackets::Chat::Chat();
-            chat->Initialize(_msgType, Language(_language), _source, _target, text, 0, "", locale);
+            chat->Initialize(_msgType, _language, _source, _target, text, 0, "", locale);
             return chat;
         }
 
@@ -64,7 +64,7 @@ class PlayerTextBuilder
         {
             std::string const& text = sCreatureTextMgr->GetLocalizedChatString(_source->GetEntry(), _gender, _textGroup, _textId, locale);
             WorldPackets::Chat::Chat* chat = new WorldPackets::Chat::Chat();
-            chat->Initialize(_msgType, Language(_language), _talker, _target, text, 0, "", locale);
+            chat->Initialize(_msgType, _language, _talker, _target, text, 0, "", locale);
             return chat;
         }
 
@@ -114,7 +114,7 @@ void CreatureTextMgr::LoadCreatureTexts()
         temp.id              = fields[2].GetUInt8();
         temp.text            = fields[3].GetString();
         temp.type            = ChatMsg(fields[4].GetUInt8());
-        temp.lang            = Language(fields[5].GetUInt8());
+        temp.lang            = fields[5].GetUInt8();
         temp.probability     = fields[6].GetFloat();
         temp.emote           = Emote(fields[7].GetUInt32());
         temp.duration        = fields[8].GetUInt32();

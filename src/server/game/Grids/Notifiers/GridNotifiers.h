@@ -157,10 +157,19 @@ namespace Trinity
         uint32 _language;
         LanguageDesc const* _languageDesc;
         std::string _originalMsg;
+        bool _isSrcGameMaster;
 
-        ChatMessageDistDeliverer(WorldObject const* src, float dist, ChatMsg chatMsg, uint32 language, LanguageDesc const* languageDesc, std::string&& msg)
+        ChatMessageDistDeliverer(Player const* player, float dist, ChatMsg chatMsg, uint32 language,
+            LanguageDesc const* languageDesc, std::string&& msg);
+
+        ChatMessageDistDeliverer(WorldObject const* src, float dist, ChatMsg chatMsg, uint32 language,
+            LanguageDesc const* languageDesc, std::string&& msg) : ChatMessageDistDeliverer(src, dist, chatMsg, language, languageDesc, std::move(msg), false)
+        { }
+
+        ChatMessageDistDeliverer(WorldObject const* src, float dist, ChatMsg chatMsg, uint32 language, LanguageDesc const* languageDesc,
+            std::string&& msg, bool isSrcGameMaster)
             : MessageDistDelivererBase(src, dist)
-            , _chatMsg(chatMsg), _language(language), _languageDesc(languageDesc), _originalMsg(msg)
+            , _chatMsg(chatMsg), _language(language), _languageDesc(languageDesc), _originalMsg(msg), _isSrcGameMaster(isSrcGameMaster)
         { }
 
         void SendPacket(Player* player) override;

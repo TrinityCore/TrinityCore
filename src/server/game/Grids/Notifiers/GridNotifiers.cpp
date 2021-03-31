@@ -277,6 +277,11 @@ void MessageDistDelivererBase::Visit(PlayerMapType &m)
     }
 }
 
+ChatMessageDistDeliverer::ChatMessageDistDeliverer(Player const* player, float dist, ChatMsg chatMsg, uint32 language,
+    LanguageDesc const* languageDesc, std::string&& msg) : ChatMessageDistDeliverer(player, dist, chatMsg,
+        language, languageDesc, std::move(msg), player->IsGameMaster())
+{ }
+
 void MessageDistDeliverer::SendPacket(Player* player)
 {
     // never send packet to self
@@ -297,7 +302,7 @@ void ChatMessageDistDeliverer::SendPacket(Player* player)
 
     // Translate
     std::string chatMsg;
-    if (player->IsGameMaster() || player->CanUnderstandLanguageSkillId(_languageDesc->SkillId))
+    if (_isSrcGameMaster || player->IsGameMaster() || _language == LANG_UNIVERSAL || player->CanUnderstandLanguageSkillId(_languageDesc->SkillId))
         chatMsg = _originalMsg;
     else
         chatMsg = sLanguageMgr->Translate(_originalMsg, _language);

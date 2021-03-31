@@ -157,15 +157,9 @@ void LanguageMgr::LoadLanguagesWords()
 
 LanguageMgr::WordList const* LanguageMgr::FindWordGroup(uint32 language, uint32 wordLen) const
 {
-    WordsMap::const_iterator iter;
-    while (wordLen > 0)
-    {
-        iter = _wordsMap.find(WordKey(language, wordLen));
-        if (iter != _wordsMap.end())
-            return &(iter->second);
-        --wordLen;
-    }
-
+    WordsMap::const_iterator iter = _wordsMap.find(WordKey(language, wordLen));
+    if (iter != _wordsMap.end())
+        return &(iter->second);
     return nullptr;
 }
 
@@ -179,7 +173,9 @@ std::string LanguageMgr::Translate(std::string const& msg, uint32 sourcePlayerLa
         const char* nextPart = str;
         uint32 wordLen = std::min(18U, (uint32)strlen(str));
         LanguageMgr::WordList const* wordGroup = FindWordGroup(sourcePlayerLanguage, wordLen);
-        if (wordGroup)
+        if (!wordGroup)
+            nextPart = "";
+        else
         {
             uint32 wordHash = SStrHash(str, true);
             uint8 idxInsideGroup = wordHash % wordGroup->size();
