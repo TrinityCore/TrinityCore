@@ -22,7 +22,7 @@
 #include "TSString.h"
 #include "TSClasses.h"
 #include "TSUnit.h"
-#include "Base64.h"
+#include "base64.h"
 
 struct TSMail;
 class TC_GAME_API TSPlayer : public TSUnit {

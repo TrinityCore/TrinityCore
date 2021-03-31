@@ -20,10 +20,9 @@ public:
     {
         // TODO: Add our own rbac permission here
         std::vector<ChatCommand> commandTable = {
-            { "at", rbac::RBAC_PERM_COMMAND_GPS, false, &At, ""},
-            { "clearat", rbac::RBAC_PERM_COMMAND_GPS, false, &ClearAt, ""},
-            // TODO: Fix this permission
-            { "id", rbac::RBAC_PERM_COMMAND_GPS, false, &Id, ""}
+            { "at", rbac::RBAC_PERM_AT, false, &At, ""},
+            { "clearat", rbac::RBAC_PERM_CLEAR_AT, false, &ClearAt, ""},
+            { "id", rbac::RBAC_PERM_ID, false, &Id, ""}
         };
         return commandTable;
     }
@@ -49,7 +48,7 @@ public:
     static bool ClearAt(ChatHandler* handler, char const* args)
     {
         std::ofstream outfile;
-        outfile.open("../positions.txt", std::ofstream::out | std::ofstream::trunc);
+        outfile.open("../../positions.txt", std::ofstream::out | std::ofstream::trunc);
         Player* player = handler->GetPlayer();
         if (player) {
             ChatHandler(player->GetSession())
@@ -82,7 +81,7 @@ public:
 
         ChatHandler(player->GetSession()).SendSysMessage(("Wrote " + str).c_str());
         std::ofstream outfile;
-        outfile.open("../positions.txt", std::ios_base::app);
+        outfile.open("../../positions.txt", std::ios_base::app);
         outfile << str << "\n";
         return true;
     }

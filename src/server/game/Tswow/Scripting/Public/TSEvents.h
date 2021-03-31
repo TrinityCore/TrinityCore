@@ -1038,3 +1038,5 @@ public:
 
 TC_GAME_API TSTasks<void*> GetTimers();
 TC_GAME_API TSEvents* GetTSEvents();
+
+void TSLoadEvents();

@@ -20,6 +20,8 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
+#include <cstring>
+#include <cmath>
 #include <cstdint>
 #include <algorithm>
 #include <memory>

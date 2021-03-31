@@ -38,3 +38,4 @@ public:
 
 TC_GAME_API IDRange GetIDRange(TSString table, TSString mod, TSString name);
 TC_GAME_API uint32 GetID(TSString table, TSString mod, TSString name);
+void LoadIDs();
