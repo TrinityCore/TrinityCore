@@ -854,6 +854,23 @@ TSCollisions* TSWorldObject::GetCollisions()
     return &obj->collisions;
 }
 
+TSENTITY_IMPL(TSWorldObject)
+
+bool TSWorldObject::HasCollision(TSString id)
+{
+    return this->GetCollisions()->Contains(id);
+}
+
+void TSWorldObject::AddCollision(uint32_t modid, TSString id, float range, uint32_t minDelay, uint32_t maxHits, CollisionCallback callback)
+{
+    this->GetCollisions()->Add(modid,id,range,minDelay,maxHits,callback);
+}
+
+TSCollisionEntry * TSWorldObject::GetCollision(TSString id)
+{
+    return this->GetCollisions()->Get(id);
+}
+
 TSCollisionEntry* TSCollisions::Get(TSString id)
 {
     for(int i=0;i<callbacks.size();++i)

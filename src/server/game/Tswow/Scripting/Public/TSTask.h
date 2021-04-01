@@ -28,7 +28,7 @@ static uint64_t now()
 		(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
 }
 
-#define TimerCallback std::function<void(TSTimer<T>*,T,uint32_t, TSMutable<bool>)>
+#define TimerCallback(T) std::function<void(TSTimer<T>*,T,uint32_t, TSMutable<bool>)>
 
 template <typename T>
 struct TSTimer {
@@ -39,9 +39,9 @@ struct TSTimer {
 	uint32_t repeats;
 	uint32_t modid;
 
-	TimerCallback callback;
+	TimerCallback(T) callback;
 	TSString name;
-	TSTimer(uint32_t modid, TSString name, uint32_t delay, uint32_t repeats, TimerCallback callback)
+	TSTimer(uint32_t modid, TSString name, uint32_t delay, uint32_t repeats, TimerCallback(T) callback)
 	{
 		this->modid = modid;
 		this->delay = delay;
@@ -94,7 +94,7 @@ struct TSTasks {
 
 	TSTasks* operator->() { return this; }
 
-	void AddTimer(uint32_t modid, TSString name, uint32_t time, uint32_t repeats, TimerCallback callback)
+	void AddTimer(uint32_t modid, TSString name, uint32_t time, uint32_t repeats, TimerCallback(T) callback)
 	{
 		for (int i = 0; i < timers.get_length(); ++i)
 		{
@@ -109,9 +109,13 @@ struct TSTasks {
 
 	void RemoveTimer(TSString name)
 	{
-		timers = timers.filter([=](TSTimer<T> &timer, size_t index) mutable {
-			return timer.name != name;
-		});
+		for(auto iter = timers.begin(); iter != timers.end(); ++iter)
+		{
+			if(iter->name == name)
+			{
+                timers.vec->erase(iter);
+			}
+		}
 	}
 
 	void Tick(T context)

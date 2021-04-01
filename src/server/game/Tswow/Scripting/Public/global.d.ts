@@ -3184,6 +3184,29 @@ declare class TSMap {
     GetTasks(): TSTasks<TSMap>;
     GetData(): TSStorage;
 
+    SetObject<T>(modid: uint32, key: string, obj: T): T;
+    HasObject(modid: uint32, key: string): boolean;
+    GetObject<T>(modid: uint32, key: string, creator?: ()=>T): T;
+
+    SetInt(key: string, value: int32): int32;
+    HasInt(key: string): boolean;
+    GetInt(key: string, def?: int32): int32;
+
+    SetUInt(key: string, value: uint32): uint32;
+    HasUInt(key: string): boolean;
+    GetUInt(key: string, def?: uint32): uint32;
+
+    SetFloat(key: string, value: double): double;
+    HasFloat(key: string): boolean;
+    GetFloat(key: string, def?: float): double;
+
+    SetString(key: string, value: string): string;
+    HasString(key: string): boolean;
+    GetString(key: string, def?: string): string;
+
+    AddTimer(modid: uint32, name: string, time: uint32, repeats: uint32, callback: TimerCallback<TSMap>)
+    RemoveTimer(name: string);
+
     /**
      * Returns `true` if the [Map] is an arena [BattleGround], `false` otherwise.
      *
@@ -4122,9 +4145,13 @@ declare class TSStorage {
     HasObject(modid: uint32, key: string): boolean;
     GetObject<T>(modid: uint32, key: string, creator?: ()=>T): T;
 
-    SetInt(key: string, value: uint32): uint32;
+    SetInt(key: string, value: int32): int32;
     HasInt(key: string): boolean;
-    GetInt(key: string): uint32;
+    GetInt(key: string): int32;
+
+    SetUInt(key: string, value: uint32): uint32;
+    HasUInt(key: string): boolean;
+    GetUInt(key: string): uint32;
 
     SetFloat(key: string, value: double): double;
     HasFloat(key: string): boolean;
@@ -4144,11 +4171,15 @@ declare class TSCollisionEntry {
     Tick(value: TSWorldObject, force?: boolean)
 }
 
+declare type TSCollisionCallback = (entry: TSCollisionEntry, self: TSWorldObject, collided: TSWorldObject, cancel: TSMutable<uint32>)=>void
+
 declare class TSCollisions {
-    Add(modid: uint32, id: string, range: float, minDelay: uint32, maxHits: uint32, callback: (entry: TSCollisionEntry, self: TSWorldObject, collided: TSWorldObject, cancel: TSMutable<uint32>)=>void)
+    Add(modid: uint32, id: string, range: float, minDelay: uint32, maxHits: uint32, callback: TSCollisionCallback)
     Contains(id: string): bool;
     Get(id: string): TSCollisionEntry;
 }
+
+declare type TimerCallback<T> = (timer: TSTimer,owner: T, delay: uint32, cancel: TSMutable<bool>)=>void
 
 declare class TSWorldObject extends TSObject {
     GetCollisions(): TSCollisions;
@@ -4157,6 +4188,33 @@ declare class TSWorldObject extends TSObject {
     GetUnitsInRange(range : float,hostile : uint32,dead : uint32) : TSArray<TSUnit>
     GetPlayersInRange(range : float,hostile : uint32,dead : uint32) : TSArray<TSPlayer>
     GetGameObjectsInRange(range : float,entry : uint32,hostile : uint32) : TSArray<TSGameObject>
+
+    AddTimer(id: uint32, name: string, time: uint32, repeats: uint32, cb: TimerCallback<TSWorldObject>)
+    RemoveTimer(name: string);
+
+    HasCollision(id: string);
+    AddCollision(modid: uint32, id: string, range: float, minDelay: uint32, maxHits: uint32, cb: TSCollisionCallback)
+    GetCollision(id: string): TSCollisionEntry
+
+    SetObject<T>(modid: uint32, key: string, obj: T): T;
+    HasObject(modid: uint32, key: string): boolean;
+    GetObject<T>(modid: uint32, key: string, creator?: ()=>T): T;
+
+    SetInt(key: string, value: int32): int32;
+    HasInt(key: string): boolean;
+    GetInt(key: string): int32;
+
+    SetUInt(key: string, value: uint32): uint32;
+    HasUInt(key: string): boolean;
+    GetUInt(key: string): uint32;
+
+    SetFloat(key: string, value: double): double;
+    HasFloat(key: string): boolean;
+    GetFloat(key: string): double;
+
+    SetString(key: string, value: string): string;
+    HasString(key: string): boolean;
+    GetString(key: string): string;
 
     GetData(): TSStorage;
 
@@ -6743,7 +6801,7 @@ declare class TSTimer {
 }
 
 declare class TSTasks<T> {
-    AddTimer(id: uint32, name: string, time: uint32, repeats: uint32, cb: (timer: TSTimer,owner: T, delay: uint32, cancel: TSMutable<bool>)=>void)
+    AddTimer(id: uint32, name: string, time: uint32, repeats: uint32, cb: TimerCallback<T>)
     RemoveTimer(name: string);
 }
 

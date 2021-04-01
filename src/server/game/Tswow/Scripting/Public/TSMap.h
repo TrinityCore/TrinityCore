@@ -22,6 +22,7 @@
 #include "TSClasses.h"
 #include "TSTask.h"
 #include "TSStorage.h"
+#include "TSEntity.h"
 
 class TC_GAME_API TSMap {
 public:
@@ -48,4 +49,5 @@ public:
     void SetWeather(uint32 zoneId, uint32 weatherType, float grade);
     TSTasks<TSMap> GetTasks();
     TSStorage GetData();
+    TSENTITY_DECL(TSMap);
 };

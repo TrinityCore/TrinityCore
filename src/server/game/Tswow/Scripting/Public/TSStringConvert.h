@@ -59,3 +59,4 @@ inline float ToFloat(TSString value)
 {
     return std::stof(value.std_str());
 }
+

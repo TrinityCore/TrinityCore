@@ -41,7 +41,8 @@ struct TC_GAME_API TSStorageContainer {
 
 struct TC_GAME_API TSStorage {
     std::map<std::string, TSStorageContainer> map;
-    std::map<std::string, uint32_t> ints;
+    std::map<std::string, int32_t> ints;
+    std::map<std::string, uint32_t> uints;
     std::map<std::string, std::string> strings;
     std::map<std::string, double> floats;
 
@@ -54,7 +55,28 @@ struct TC_GAME_API TSStorage {
         return item;
     }
 
-    uint32_t SetInt(TSString key, uint32_t value)
+    uint32_t SetUInt(TSString key, uint32_t value)
+    {
+        uints[key.std_str()] = value;
+        return value;
+    }
+
+    bool HasUInt(TSString key)
+    {
+        return uints.find(key.std_str()) != uints.end();
+    }
+
+    uint32_t GetUInt(TSString key, uint32_t def = 0)
+    {
+        auto itr = uints.find(key.std_str());
+        if(itr == uints.end())
+        {
+            return def;
+        }
+        return itr->second;
+    }
+
+    int32_t SetInt(TSString key, int32_t value)
     {
         ints[key.std_str()] = value;
         return value;
@@ -65,14 +87,25 @@ struct TC_GAME_API TSStorage {
         return ints.find(key.std_str()) != ints.end();
     }
 
-    uint32_t GetInt(TSString key)
+    int32_t GetInt(TSString key, int32_t def = 0)
     {
-        return ints[key.std_str()];
+        auto itr = ints.find(key.std_str());
+        if(itr == ints.end())
+        {
+            return def;
+        }
+
+        return itr->second;
     }
 
-    TSString GetString(TSString key)
+    TSString GetString(TSString key, TSString def = JSTR(""))
     {
-        return strings[key.std_str()];
+        auto itr = strings.find(key.std_str());
+        if(itr == strings.end())
+        {
+            return def;
+        }
+        return JSTR(itr->second);
     }
 
     bool HasString(TSString key)
@@ -97,9 +130,14 @@ struct TC_GAME_API TSStorage {
         return floats.find(key.std_str()) != floats.end();
     }
 
-    double GetFloat(TSString key)
+    double GetFloat(TSString key, float def = 0)
     {
-        return floats[key.std_str()];
+        auto itr = floats.find(key);
+        if(itr == floats.end())
+        {
+            return def;
+        }
+        return itr->second;
     }
 
     bool HasObject(uint32_t modid, TSString key)
@@ -110,13 +148,14 @@ struct TC_GAME_API TSStorage {
     template <typename T>
     std::shared_ptr<T> GetObject(uint32_t modid, TSString key, std::function<std::shared_ptr<T>()> defaultValue = nullptr)
     {
-        if(defaultValue!=nullptr && !HasObject(modid,key))
+        auto itr = map.find(key);
+        if(itr == map.end())
         {
             return SetObject(modid,key,defaultValue());
         }
         else
         {
-            return std::static_pointer_cast<T>(map[key.std_str()].ptr);
+            return std::static_pointer_cast<T>(itr->second.ptr);
         }
     }
 };

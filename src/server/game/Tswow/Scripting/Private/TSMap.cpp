@@ -313,6 +313,8 @@ TSArray<TSPlayer> TSMap::GetPlayers(uint32 team)
     return tbl;
 }
 
+TSENTITY_IMPL(TSMap)
+
 TSTasks<TSMap> TSMap::GetTasks()
 {
     return map->tasks;
