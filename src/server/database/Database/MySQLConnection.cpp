@@ -344,7 +344,7 @@ bool MySQLConnection::_Query(const char* sql, MySQLResult** pResult, MySQLField*
             TC_LOG_INFO("sql.sql", "SQL: %s", sql);
             TC_LOG_ERROR("sql.sql", "[%u] %s", lErrno, mysql_error(m_Mysql));
 
-            if (_HandleMySQLErrno(lErrno))      // If it returns true, an error was handled successfully (i.e. reconnection)
+            if (_HandleMySQLErrno(lErrno, 5, sql))      // If it returns true, an error was handled successfully (i.e. reconnection)
                 return _Query(sql, pResult, pFields, pRowCount, pFieldCount);    // We try again
 
             return false;
@@ -528,7 +528,7 @@ PreparedResultSet* MySQLConnection::Query(PreparedStatementBase* stmt)
     return new PreparedResultSet(mysqlStmt->GetSTMT(), result, rowCount, fieldCount);
 }
 
-bool MySQLConnection::_HandleMySQLErrno(uint32 errNo, uint8 attempts /*= 5*/)
+bool MySQLConnection::_HandleMySQLErrno(uint32 errNo, uint8 attempts /*= 5*/, const char* sql /*= nullptr*/)
 {
     switch (errNo)
     {
@@ -599,18 +599,22 @@ bool MySQLConnection::_HandleMySQLErrno(uint32 errNo, uint8 attempts /*= 5*/)
 
         // Outdated table or database structure - terminate core
         case ER_BAD_FIELD_ERROR:
+            TC_LOG_ERROR("sql.sql", "Bad field: Either you executed a broken TSWoW query or your database structure is not up to date: %s", sql==nullptr ? "" : sql);
+            std::this_thread::sleep_for(std::chrono::seconds(10));
+            std::abort();
+            return false;
         case ER_NO_SUCH_TABLE:
-            TC_LOG_ERROR("sql.sql", "Your database structure is not up to date. Please make sure you've executed all queries in the sql/updates folders.");
+            TC_LOG_ERROR("sql.sql", "Missing table: Either you executed a broken TSWoW query or your database structure is not up to date: %s", sql==nullptr ? "" : sql);
             std::this_thread::sleep_for(std::chrono::seconds(10));
             std::abort();
             return false;
         case ER_PARSE_ERROR:
-            TC_LOG_ERROR("sql.sql", "Error while parsing SQL. Core fix required.");
+            TC_LOG_ERROR("sql.sql", "Error while parsing SQL. Core fix required: %s", sql==nullptr ? "" : sql);
             std::this_thread::sleep_for(std::chrono::seconds(10));
             std::abort();
             return false;
         default:
-            TC_LOG_ERROR("sql.sql", "Unhandled MySQL errno %u. Unexpected behaviour possible.", errNo);
+            TC_LOG_ERROR("sql.sql", "Unhandled MySQL errno %u. Unexpected behaviour possible: %s", errNo, sql==nullptr ? "" : sql);
             return false;
     }
 }
