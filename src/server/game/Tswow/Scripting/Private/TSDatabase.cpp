@@ -17,9 +17,10 @@
 
 #include "TSDatabase.h"
 #include "DatabaseEnv.h"
+#include "MySQLConnection.h"
 #include "TSString.h"
-#include <memory>
 #include "TSConsole.h"
+#include <memory>
 
 class TC_GAME_API TSDatabaseImpl final : public TSDatabaseResult {
     Field* field = nullptr;
@@ -85,4 +86,30 @@ std::shared_ptr<TSDatabaseResult> QueryCharacters(TSString query)
 std::shared_ptr<TSDatabaseResult> QueryAuth(TSString query)
 {
     return std::make_shared<TSDatabaseImpl>(LoginDatabase.Query(query.std_str().c_str()));
+}
+
+TSDatabaseConnectionInfo::TSDatabaseConnectionInfo(MySQLConnectionInfo const* info)
+    : _info(info)
+{}
+
+TSString TSDatabaseConnectionInfo::User() { return JSTR(_info->user); }
+TSString TSDatabaseConnectionInfo::Password() { return JSTR(_info->password); }
+TSString TSDatabaseConnectionInfo::Database() { return JSTR(_info->database); }
+TSString TSDatabaseConnectionInfo::Host() { return JSTR(_info->host); }
+TSString TSDatabaseConnectionInfo::PortOrSocket() { return JSTR(_info->port_or_socket); }
+TSString TSDatabaseConnectionInfo::SSL() { return JSTR(_info->ssl); }
+
+std::shared_ptr<TSDatabaseConnectionInfo> WorldDatabaseInfo()
+{
+    return std::make_shared<TSDatabaseConnectionInfo>(WorldDatabase.GetConnectionInfo());
+}
+
+std::shared_ptr<TSDatabaseConnectionInfo> CharactersDatabaseInfo()
+{
+    return std::make_shared<TSDatabaseConnectionInfo>(CharacterDatabase.GetConnectionInfo());
+}
+
+std::shared_ptr<TSDatabaseConnectionInfo> AuthDatabaseInfo()
+{
+    return std::make_shared<TSDatabaseConnectionInfo>(LoginDatabase.GetConnectionInfo());
 }

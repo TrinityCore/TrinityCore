@@ -15,8 +15,11 @@
  */
 #pragma once
 
-#include <memory>
 #include "TSString.h"
+#include <memory>
+#include <string>
+
+struct MySQLConnectionInfo;
 
 class TC_GAME_API TSDatabaseResult : public std::enable_shared_from_this<TSDatabaseResult> {
 public:
@@ -41,8 +44,32 @@ public:
     virtual bool IsValid() = 0;
 };
 
+class TC_GAME_API TSDatabaseConnectionInfo {
+public:
+    TSDatabaseConnectionInfo() = default;
+    TSDatabaseConnectionInfo(
+        MySQLConnectionInfo const* info
+    );
+
+    TSDatabaseConnectionInfo* operator->() { return this; }
+
+    TSString User();
+    TSString Password();
+    TSString Database();
+    TSString Host();
+    TSString PortOrSocket();
+    TSString SSL();
+
+private:
+    MySQLConnectionInfo const* _info;
+};
+
 TC_GAME_API std::shared_ptr<TSDatabaseResult> QueryWorld(TSString query);
 TC_GAME_API std::shared_ptr<TSDatabaseResult> QueryCharacters(TSString query);
 TC_GAME_API std::shared_ptr<TSDatabaseResult> QueryAuth(TSString query);
+
+TC_GAME_API std::shared_ptr<TSDatabaseConnectionInfo> WorldDatabaseInfo();
+TC_GAME_API std::shared_ptr<TSDatabaseConnectionInfo> CharactersDatabaseInfo();
+TC_GAME_API std::shared_ptr<TSDatabaseConnectionInfo> AuthDatabaseInfo();
 
 #define LoadRows(cls,query) cls::Load(query)

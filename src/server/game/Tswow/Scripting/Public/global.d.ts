@@ -6862,6 +6862,20 @@ declare function CreateItem(entry: uint32, count: uint32): TSItem;
 declare function QueryWorld(query: string): TSDatabaseResult;
 declare function QueryCharacters(query: string): TSDatabaseResult;
 declare function QueryAuth(query: string): TSDatabaseResult;
+
+declare class TSDatabaseConnectionInfo {
+    User(): string
+    Password(): string
+    Database(): string
+    Host(): string
+    SSL(): string
+    PortOrSocket(): string
+}
+
+declare function WorldDatabaseInfo(): TSDatabaseConnectionInfo
+declare function CharacterDatabaseInfo(): TSDatabaseConnectionInfo
+declare function AuthDatabaseInfo(): TSDatabaseConnectionInfo
+
 declare function WorldTable(classTarget: any)
 declare function CharactersTable(classTarget: any)
 declare function AuthTable(classTarget: any)
