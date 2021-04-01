@@ -3184,9 +3184,9 @@ declare class TSMap {
     GetTasks(): TSTasks<TSMap>;
     GetData(): TSStorage;
 
-    SetObject<T>(modid: uint32, key: string, obj: T): T;
+    SetObject<T>(key: string, obj: T): T;
     HasObject(modid: uint32, key: string): boolean;
-    GetObject<T>(modid: uint32, key: string, creator?: ()=>T): T;
+    GetObject<T>(key: string, value: T): T;
 
     SetInt(key: string, value: int32): int32;
     HasInt(key: string): boolean;
@@ -3204,7 +3204,7 @@ declare class TSMap {
     HasString(key: string): boolean;
     GetString(key: string, def?: string): string;
 
-    AddTimer(modid: uint32, name: string, time: uint32, repeats: uint32, callback: TimerCallback<TSMap>)
+    AddTimer(name: string, time: uint32, repeats: uint32, callback: TimerCallback<TSMap>)
     RemoveTimer(name: string);
 
     /**
@@ -4141,9 +4141,9 @@ declare class TSVehicle {
 }
 
 declare class TSStorage {
-    SetObject<T>(modid: uint32, key: string, obj: T): T;
-    HasObject(modid: uint32, key: string): boolean;
-    GetObject<T>(modid: uint32, key: string, creator?: ()=>T): T;
+    SetObject<T>(key: string, obj: T): T;
+    HasObject(key: string): boolean;
+    GetObject<T>(key: string, creator: T): T;
 
     SetInt(key: string, value: int32): int32;
     HasInt(key: string): boolean;
@@ -4189,16 +4189,16 @@ declare class TSWorldObject extends TSObject {
     GetPlayersInRange(range : float,hostile : uint32,dead : uint32) : TSArray<TSPlayer>
     GetGameObjectsInRange(range : float,entry : uint32,hostile : uint32) : TSArray<TSGameObject>
 
-    AddTimer(id: uint32, name: string, time: uint32, repeats: uint32, cb: TimerCallback<TSWorldObject>)
+    AddTimer(name: string, time: uint32, repeats: uint32, cb: TimerCallback<TSWorldObject>)
     RemoveTimer(name: string);
 
     HasCollision(id: string);
-    AddCollision(modid: uint32, id: string, range: float, minDelay: uint32, maxHits: uint32, cb: TSCollisionCallback)
+    AddCollision(id: string, range: float, minDelay: uint32, maxHits: uint32, cb: TSCollisionCallback)
     GetCollision(id: string): TSCollisionEntry
 
-    SetObject<T>(modid: uint32, key: string, obj: T): T;
+    SetObject<T>(key: string, obj: T): T;
     HasObject(modid: uint32, key: string): boolean;
-    GetObject<T>(modid: uint32, key: string, creator?: ()=>T): T;
+    GetObject<T>(key: string, value: T): T;
 
     SetInt(key: string, value: int32): int32;
     HasInt(key: string): boolean;
@@ -6801,7 +6801,7 @@ declare class TSTimer {
 }
 
 declare class TSTasks<T> {
-    AddTimer(id: uint32, name: string, time: uint32, repeats: uint32, cb: TimerCallback<T>)
+    AddTimer(name: string, time: uint32, repeats: uint32, cb: TimerCallback<T>)
     RemoveTimer(name: string);
 }
 
