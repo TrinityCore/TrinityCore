@@ -3536,7 +3536,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_7_YARDS);
     });
 
-    // In sniff has caster and hits multiple targets
+    // In sniff caster hits multiple targets
     ApplySpellFix({
         73725, // [DND] Test Cheer
         73835, // [DND] Test Salute
@@ -3546,7 +3546,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50_YARDS); // 50yd
     });
 
-    // In sniff has caster and hits multiple targets
+    // In sniff caster hits multiple targets
     ApplySpellFix({
         73837, // [DND] Test Dance
         73886  // [DND] Test Stop Dance
