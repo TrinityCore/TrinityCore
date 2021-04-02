@@ -2337,7 +2337,7 @@ class spell_q25199_emote : public AuraScript
             default:
                 return;
         }
-        target->RemoveAurasDueToSpell(GetId());
+        Remove();
     }
 
     void Register() override
