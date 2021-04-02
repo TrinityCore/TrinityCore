@@ -35,8 +35,6 @@ void GameClient::RemoveAllowedMover(Unit* unit)
     _allowedMovers.erase(unit->GetGUID());
     if (unit->GetGameClientMovingMe() == this)
         unit->SetGameClientMovingMe(nullptr);
-    else
-        TC_LOG_ERROR("entities.player", "this should not happen"); // @TODO: add proper handling here
 }
 
 bool GameClient::IsAllowedToMove(Unit* unit) const
