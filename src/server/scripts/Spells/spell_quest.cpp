@@ -2300,6 +2300,52 @@ class spell_q12308_escape_from_silverbrook_summon_worgen : public SpellScriptLoa
         }
 };
 
+enum BasicOrdersEmote
+{
+    SPELL_TEST_SALUTE        = 73835,
+    SPELL_TEST_ROAR          = 73836,
+    SPELL_TEST_CHEER         = 73725,
+    SPELL_TEST_DANCE         = 73837,
+    SPELL_TEST_STOP_DANCE    = 73886
+};
+
+class spell_q25199_emote : public AuraScript
+{
+    PrepareAuraScript(spell_q25199_emote);
+
+    void HandlePeriodic(AuraEffect const* /*aurEff*/)
+    {
+        Unit* target = GetTarget();
+
+        switch (GetSpellInfo()->Id)
+        {
+            case SPELL_TEST_SALUTE:
+                target->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
+                break;
+            case SPELL_TEST_ROAR:
+                target->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
+                break;
+            case SPELL_TEST_CHEER:
+                target->HandleEmoteCommand(EMOTE_ONESHOT_CHEER);
+                break;
+            case SPELL_TEST_DANCE:
+                target->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_DANCE);
+                break;
+            case SPELL_TEST_STOP_DANCE:
+                target->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
+                break;
+            default:
+                return;
+        }
+        Remove();
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_q25199_emote::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
 enum DeathComesFromOnHigh
 {
     SPELL_FORGE_CREDIT                  = 51974,
@@ -2968,6 +3014,7 @@ void AddSC_quest_spell_scripts()
     RegisterSpellScript(spell_q11896_weakness_to_lightning_46444);
     new spell_q12308_escape_from_silverbrook_summon_worgen();
     new spell_q12308_escape_from_silverbrook();
+    RegisterSpellScript(spell_q25199_emote);
     new spell_q12641_death_comes_from_on_high();
     new spell_q12641_recall_eye_of_acherus();
     new spell_q12619_emblazon_runeblade();

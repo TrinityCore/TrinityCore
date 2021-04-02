@@ -3536,6 +3536,25 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_7_YARDS);
     });
 
+    // In sniff caster hits multiple targets
+    ApplySpellFix({
+        73725, // [DND] Test Cheer
+        73835, // [DND] Test Salute
+        73836  // [DND] Test Roar
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50_YARDS); // 50yd
+    });
+
+    // In sniff caster hits multiple targets
+    ApplySpellFix({
+        73837, // [DND] Test Dance
+        73886  // [DND] Test Stop Dance
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_150_YARDS); // 150yd
+    });
+
     // Master Shapeshifter: missing stance data for forms other than bear - bear version has correct data
     // To prevent aura staying on target after talent unlearned
     ApplySpellFix({ 48420 }, [](SpellInfo* spellInfo)
