@@ -3187,6 +3187,7 @@ declare class TSMap {
     SetObject<T>(key: string, obj: T): T;
     HasObject(modid: uint32, key: string): boolean;
     GetObject<T>(key: string, value: T): T;
+    GetDBObject<T>(key: string, sql: string, value: T): T;
 
     SetInt(key: string, value: int32): int32;
     HasInt(key: string): boolean;
@@ -4144,6 +4145,7 @@ declare class TSStorage {
     SetObject<T>(key: string, obj: T): T;
     HasObject(key: string): boolean;
     GetObject<T>(key: string, creator: T): T;
+    GetDBObject<T>(key: string, sql: string, creator: T): T;
 
     SetInt(key: string, value: int32): int32;
     HasInt(key: string): boolean;
@@ -4199,6 +4201,7 @@ declare class TSWorldObject extends TSObject {
     SetObject<T>(key: string, obj: T): T;
     HasObject(modid: uint32, key: string): boolean;
     GetObject<T>(key: string, value: T): T;
+    GetDBObject<T>(key: string, sql: string, value: T): T;
 
     SetInt(key: string, value: int32): int32;
     HasInt(key: string): boolean;

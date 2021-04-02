@@ -23,6 +23,8 @@
 #include <functional>
 #include "TSString.h"
 
+#define GetDBObject GetObject
+
 struct TC_GAME_API TSStorageContainer {
     uint32_t modid;
     std::shared_ptr<void> ptr;
