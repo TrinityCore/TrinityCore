@@ -36,7 +36,7 @@ TC_API_EXPORT EnumText EnumUtils<CreatureFlagsExtra>::ToString(CreatureFlagsExtr
         case CREATURE_FLAG_EXTRA_NO_PARRY: return { "CREATURE_FLAG_EXTRA_NO_PARRY", "CREATURE_FLAG_EXTRA_NO_PARRY", "creature can't parry" };
         case CREATURE_FLAG_EXTRA_NO_PARRY_HASTEN: return { "CREATURE_FLAG_EXTRA_NO_PARRY_HASTEN", "CREATURE_FLAG_EXTRA_NO_PARRY_HASTEN", "creature can't counter-attack at parry" };
         case CREATURE_FLAG_EXTRA_NO_BLOCK: return { "CREATURE_FLAG_EXTRA_NO_BLOCK", "CREATURE_FLAG_EXTRA_NO_BLOCK", "creature can't block" };
-        case CREATURE_FLAG_EXTRA_NO_CRUSH: return { "CREATURE_FLAG_EXTRA_NO_CRUSH", "CREATURE_FLAG_EXTRA_NO_CRUSH", "creature can't do crush attacks" };
+        case CREATURE_FLAG_EXTRA_NO_CRUSHING_BLOWS: return { "CREATURE_FLAG_EXTRA_NO_CRUSHING_BLOWS", "CREATURE_FLAG_EXTRA_NO_CRUSHING_BLOWS", "creature can't do crush attacks" };
         case CREATURE_FLAG_EXTRA_NO_XP_AT_KILL: return { "CREATURE_FLAG_EXTRA_NO_XP_AT_KILL", "CREATURE_FLAG_EXTRA_NO_XP_AT_KILL", "creature kill not provide XP" };
         case CREATURE_FLAG_EXTRA_TRIGGER: return { "CREATURE_FLAG_EXTRA_TRIGGER", "CREATURE_FLAG_EXTRA_TRIGGER", "trigger creature" };
         case CREATURE_FLAG_EXTRA_NO_TAUNT: return { "CREATURE_FLAG_EXTRA_NO_TAUNT", "CREATURE_FLAG_EXTRA_NO_TAUNT", "creature is immune to taunt auras and effect attack me" };
@@ -49,7 +49,7 @@ TC_API_EXPORT EnumText EnumUtils<CreatureFlagsExtra>::ToString(CreatureFlagsExtr
         case CREATURE_FLAG_EXTRA_GUARD: return { "CREATURE_FLAG_EXTRA_GUARD", "CREATURE_FLAG_EXTRA_GUARD", "Creature is guard" };
         case CREATURE_FLAG_EXTRA_UNUSED_16: return { "CREATURE_FLAG_EXTRA_UNUSED_16", "CREATURE_FLAG_EXTRA_UNUSED_16", "" };
         case CREATURE_FLAG_EXTRA_NO_CRIT: return { "CREATURE_FLAG_EXTRA_NO_CRIT", "CREATURE_FLAG_EXTRA_NO_CRIT", "creature can't do critical strikes" };
-        case CREATURE_FLAG_EXTRA_NO_SKILLGAIN: return { "CREATURE_FLAG_EXTRA_NO_SKILLGAIN", "CREATURE_FLAG_EXTRA_NO_SKILLGAIN", "creature won't increase weapon skills" };
+        case CREATURE_FLAG_EXTRA_NO_SKILL_GAINS: return { "CREATURE_FLAG_EXTRA_NO_SKILL_GAINS", "CREATURE_FLAG_EXTRA_NO_SKILL_GAINS", "creature won't increase weapon skills" };
         case CREATURE_FLAG_EXTRA_TAUNT_DIMINISH: return { "CREATURE_FLAG_EXTRA_TAUNT_DIMINISH", "CREATURE_FLAG_EXTRA_TAUNT_DIMINISH", "Taunt is a subject to diminishing returns on this creautre" };
         case CREATURE_FLAG_EXTRA_ALL_DIMINISH: return { "CREATURE_FLAG_EXTRA_ALL_DIMINISH", "CREATURE_FLAG_EXTRA_ALL_DIMINISH", "creature is subject to all diminishing returns as player are" };
         case CREATURE_FLAG_EXTRA_NO_PLAYER_DAMAGE_REQ: return { "CREATURE_FLAG_EXTRA_NO_PLAYER_DAMAGE_REQ", "CREATURE_FLAG_EXTRA_NO_PLAYER_DAMAGE_REQ", "creature does not need to take player damage for kill credit" };
@@ -80,7 +80,7 @@ TC_API_EXPORT CreatureFlagsExtra EnumUtils<CreatureFlagsExtra>::FromIndex(size_t
         case 2: return CREATURE_FLAG_EXTRA_NO_PARRY;
         case 3: return CREATURE_FLAG_EXTRA_NO_PARRY_HASTEN;
         case 4: return CREATURE_FLAG_EXTRA_NO_BLOCK;
-        case 5: return CREATURE_FLAG_EXTRA_NO_CRUSH;
+        case 5: return CREATURE_FLAG_EXTRA_NO_CRUSHING_BLOWS;
         case 6: return CREATURE_FLAG_EXTRA_NO_XP_AT_KILL;
         case 7: return CREATURE_FLAG_EXTRA_TRIGGER;
         case 8: return CREATURE_FLAG_EXTRA_NO_TAUNT;
@@ -93,7 +93,7 @@ TC_API_EXPORT CreatureFlagsExtra EnumUtils<CreatureFlagsExtra>::FromIndex(size_t
         case 15: return CREATURE_FLAG_EXTRA_GUARD;
         case 16: return CREATURE_FLAG_EXTRA_UNUSED_16;
         case 17: return CREATURE_FLAG_EXTRA_NO_CRIT;
-        case 18: return CREATURE_FLAG_EXTRA_NO_SKILLGAIN;
+        case 18: return CREATURE_FLAG_EXTRA_NO_SKILL_GAINS;
         case 19: return CREATURE_FLAG_EXTRA_TAUNT_DIMINISH;
         case 20: return CREATURE_FLAG_EXTRA_ALL_DIMINISH;
         case 21: return CREATURE_FLAG_EXTRA_NO_PLAYER_DAMAGE_REQ;
@@ -121,7 +121,7 @@ TC_API_EXPORT size_t EnumUtils<CreatureFlagsExtra>::ToIndex(CreatureFlagsExtra v
         case CREATURE_FLAG_EXTRA_NO_PARRY: return 2;
         case CREATURE_FLAG_EXTRA_NO_PARRY_HASTEN: return 3;
         case CREATURE_FLAG_EXTRA_NO_BLOCK: return 4;
-        case CREATURE_FLAG_EXTRA_NO_CRUSH: return 5;
+        case CREATURE_FLAG_EXTRA_NO_CRUSHING_BLOWS: return 5;
         case CREATURE_FLAG_EXTRA_NO_XP_AT_KILL: return 6;
         case CREATURE_FLAG_EXTRA_TRIGGER: return 7;
         case CREATURE_FLAG_EXTRA_NO_TAUNT: return 8;
@@ -134,7 +134,7 @@ TC_API_EXPORT size_t EnumUtils<CreatureFlagsExtra>::ToIndex(CreatureFlagsExtra v
         case CREATURE_FLAG_EXTRA_GUARD: return 15;
         case CREATURE_FLAG_EXTRA_UNUSED_16: return 16;
         case CREATURE_FLAG_EXTRA_NO_CRIT: return 17;
-        case CREATURE_FLAG_EXTRA_NO_SKILLGAIN: return 18;
+        case CREATURE_FLAG_EXTRA_NO_SKILL_GAINS: return 18;
         case CREATURE_FLAG_EXTRA_TAUNT_DIMINISH: return 19;
         case CREATURE_FLAG_EXTRA_ALL_DIMINISH: return 20;
         case CREATURE_FLAG_EXTRA_NO_PLAYER_DAMAGE_REQ: return 21;
