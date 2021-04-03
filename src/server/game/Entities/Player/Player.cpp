@@ -355,8 +355,6 @@ Player::Player(WorldSession* session): Unit(true)
     // Player summoning
     m_summon_expire = 0;
 
-    m_unitMovedByMe = this;
-    m_playerMovingMe = this;
     m_seer = this;
 
     m_homebindMapId = 0;
@@ -22347,7 +22345,7 @@ bool Player::IsNeverVisible() const
 bool Player::CanAlwaysSee(WorldObject const* obj) const
 {
     // Always can see self
-    if (GetUnitBeingMoved() == obj)
+    if (GetCharmedOrSelf() == obj)
         return true;
 
     if (ObjectGuid guid = GetGuidValue(PLAYER_FARSIGHT))
@@ -22721,8 +22719,6 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     /// SMSG_RESYNC_RUNES
     ResyncRunes();
-
-    SetMovedUnit(this);
 
     GetSession()->GetGameClient()->AddAllowedMover(this);
 }
@@ -24042,13 +24038,7 @@ void Player::SetClientControl(Unit* target, bool allowMove)
             SetViewpoint(target, true);
     }
 
-    SetMovedUnit(target);
-
-    GameClient* client = GetSession()->GetGameClient();
-    if (allowMove)
-        client->AddAllowedMover(target);
-    else
-        client->RemoveAllowedMover(target);
+    GetGameClient()->SetMovedUnit(target, allowMove);
 }
 
 void Player::UpdateZoneDependentAuras(uint32 newZone)
@@ -26968,4 +26958,9 @@ std::string Player::GetDebugInfo() const
     std::stringstream sstr;
     sstr << Unit::GetDebugInfo();
     return sstr.str();
+}
+
+GameClient* Player::GetGameClient() const
+{
+    return GetSession()->GetGameClient();
 }

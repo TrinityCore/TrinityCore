@@ -977,8 +977,8 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
     */
 
     REMOVE_VIOLATING_FLAGS(mi->HasMovementFlag(MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY) && GetSecurity() == SEC_PLAYER &&
-        !GetPlayer()->GetUnitBeingMoved()->HasAuraType(SPELL_AURA_FLY) &&
-        !GetPlayer()->GetUnitBeingMoved()->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED),
+        !GetPlayer()->GetCharmedOrSelf()->HasAuraType(SPELL_AURA_FLY) &&
+        !GetPlayer()->GetCharmedOrSelf()->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED),
         MOVEMENTFLAG_FLYING | MOVEMENTFLAG_CAN_FLY);
 
     //! Cannot fly and fall at the same time

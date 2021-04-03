@@ -46,3 +46,11 @@ bool GameClient::IsAllowedToMove(ObjectGuid guid) const
 {
     return _allowedMovers.count(guid);
 }
+
+void GameClient::SetMovedUnit(Unit* target, bool allowMove)
+{
+    if (allowMove)
+        AddAllowedMover(target);
+    else
+        RemoveAllowedMover(target);
+}

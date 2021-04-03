@@ -222,7 +222,9 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recvData)
     uint32 sequenceIndex, time;
     recvData >> sequenceIndex >> time;
 
-    Player* plMover = _player->GetUnitBeingMoved()->ToPlayer();
+    GameClient* client = GetGameClient();
+    Unit* mover = client->GetActiveMover();
+    Player* plMover = mover->ToPlayer();
 
     if (!plMover || !plMover->IsBeingTeleportedNear())
         return;
@@ -829,21 +831,14 @@ void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket& recvData)
     recvData >> guid.ReadAsPacked();
     recvData >> timeSkipped;
 
-    Unit* mover = GetPlayer()->m_unitMovedByMe;
-
-    if (!mover)
+    if (!IsRightUnitBeingMoved(guid))
     {
-        TC_LOG_WARN("entities.player", "WorldSession::HandleMoveTimeSkippedOpcode wrong mover state from the unit moved by the player %s", GetPlayer()->GetGUID().ToString().c_str());
+        recvData.rfinish();                     // prevent warnings spam
         return;
     }
 
-    // prevent tampered movement data
-    if (guid != mover->GetGUID())
-    {
-        TC_LOG_WARN("entities.player", "WorldSession::HandleMoveTimeSkippedOpcode wrong guid from the unit moved by the player %s", GetPlayer()->GetGUID().ToString().c_str());
-        return;
-    }
-
+    GameClient* client = GetGameClient();
+    Unit* mover = client->GetActiveMover();
     mover->m_movementInfo.time += timeSkipped;
 
     WorldPacket data(MSG_MOVE_TIME_SKIPPED, recvData.size());

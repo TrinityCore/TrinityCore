@@ -6186,7 +6186,7 @@ SpellCastResult Spell::CheckCasterAuras(uint32* param1) const
     if (unitCaster->GetCharmerGUID())
     {
         if (Unit* charmer = unitCaster->GetCharmer())
-            if (charmer->GetUnitBeingMoved() != unitCaster && !CheckSpellCancelsCharm(param1))
+            if (charmer->GetCharmed() != unitCaster && !CheckSpellCancelsCharm(param1))
                 result = SPELL_FAILED_CHARMED;
     }
     */

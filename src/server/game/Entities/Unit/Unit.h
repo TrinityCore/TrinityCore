@@ -1185,6 +1185,7 @@ class TC_GAME_API Unit : public WorldObject
         void RemoveAllControlled();
 
         bool IsCharmed() const { return !GetCharmerGUID().IsEmpty(); }
+        bool IsCharming() const { return !GetCharmedGUID().IsEmpty(); }
         bool isPossessed() const { return HasUnitState(UNIT_STATE_POSSESSED); }
         bool isPossessedByPlayer() const;
         bool isPossessing() const;
@@ -1194,16 +1195,12 @@ class TC_GAME_API Unit : public WorldObject
         CharmInfo* InitCharmInfo();
         void DeleteCharmInfo();
 
+        // base client control of this unit (possess effects, vehicles and similar). Not affected by temporary CC.
         bool isCharmerOrSelfPlayer() const;
         Unit* GetCharmerOrSelf();
         Player* GetCharmerOrSelfPlayer();
-
-        // all of these are for DIRECT CLIENT CONTROL only
-        void SetMovedUnit(Unit* target);
-        // returns the unit that this player IS CONTROLLING
-        Unit* GetUnitBeingMoved() const { return m_unitMovedByMe; }
-        // returns the player that this unit is BEING CONTROLLED BY
-        Player* GetPlayerMovingMe() const { return m_playerMovingMe; }
+        Unit* GetCharmedOrSelf() { return IsCharming() ? GetCharmed() : this; }
+        const Unit* GetCharmedOrSelf() const { return IsCharming() ? GetCharmed() : this; }
 
         // real time client control status of this unit (possess effects, vehicles and similar). For example, if this unit is a player temporarly under fear, it will return false.
         bool IsMovedByClient() const { return _gameClientMovingMe != nullptr; }
@@ -1762,8 +1759,6 @@ class TC_GAME_API Unit : public WorldObject
 
         float m_speed_rate[MAX_MOVE_TYPE];
 
-        Unit* m_unitMovedByMe;    // only ever set for players, and only for direct client control
-        Player* m_playerMovingMe; // only set for direct client control (possess effects, vehicles and similar)
         Unit* m_charmer; // Unit that is charming ME
         Unit* m_charmed; // Unit that is being charmed BY ME
         CharmInfo* m_charmInfo;
