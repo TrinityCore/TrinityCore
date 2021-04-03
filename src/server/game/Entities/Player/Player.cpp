@@ -1351,6 +1351,9 @@ void Player::Update(uint32 p_time)
     if (IsHasDelayedTeleport() && IsAlive())
         TeleportTo(m_teleport_dest, m_teleport_options);
 
+    TC_LOG_INFO("custom", "'%s' IsMovedByClient(): %s", GetName().c_str(), IsMovedByClient() ? "true" : "false");
+    TC_LOG_INFO("custom", "'%s' IsCharming(): %s", GetName().c_str(), IsCharming() ? "true" : "false");
+    TC_LOG_INFO("custom", "'%s' IsCharmed(): %s", GetName().c_str(), IsCharmed() ? "true" : "false");
 }
 
 void Player::setDeathState(DeathState s)
