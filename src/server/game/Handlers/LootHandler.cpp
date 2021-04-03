@@ -314,7 +314,9 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
 
     if (player->GetLootGUID() == lguid)
         player->SetLootGUID(ObjectGuid::Empty);
+
     player->SendLootRelease(lguid);
+    player->RemoveAELootedWorldObject(lguid);
 
     player->RemoveUnitFlag(UNIT_FLAG_LOOTING);
 
@@ -384,7 +386,7 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
         ItemTemplate const* proto = pItem->GetTemplate();
 
         // destroy only 5 items from stack in case prospecting and milling
-        if (proto->GetFlags() & (ITEM_FLAG_IS_PROSPECTABLE | ITEM_FLAG_IS_MILLABLE))
+        if (pItem->loot.loot_type == LOOT_PROSPECTING || pItem->loot.loot_type == LOOT_MILLING)
         {
             pItem->m_lootGenerated = false;
             pItem->loot.clear();
@@ -441,7 +443,6 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
 
     //Player is not looking at loot list, he doesn't need to see updates on the loot list
     loot->RemoveLooter(player->GetGUID());
-    player->RemoveAELootedObject(loot->GetGUID());
 }
 
 void WorldSession::DoLootReleaseAll()
