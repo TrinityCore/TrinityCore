@@ -37,7 +37,7 @@ TC_API_EXPORT EnumText EnumUtils<CreatureFlagsExtra>::ToString(CreatureFlagsExtr
         case CREATURE_FLAG_EXTRA_NO_PARRY_HASTEN: return { "CREATURE_FLAG_EXTRA_NO_PARRY_HASTEN", "CREATURE_FLAG_EXTRA_NO_PARRY_HASTEN", "creature can't counter-attack at parry" };
         case CREATURE_FLAG_EXTRA_NO_BLOCK: return { "CREATURE_FLAG_EXTRA_NO_BLOCK", "CREATURE_FLAG_EXTRA_NO_BLOCK", "creature can't block" };
         case CREATURE_FLAG_EXTRA_NO_CRUSHING_BLOWS: return { "CREATURE_FLAG_EXTRA_NO_CRUSHING_BLOWS", "CREATURE_FLAG_EXTRA_NO_CRUSHING_BLOWS", "creature can't do crush attacks" };
-        case CREATURE_FLAG_EXTRA_NO_XP_AT_KILL: return { "CREATURE_FLAG_EXTRA_NO_XP_AT_KILL", "CREATURE_FLAG_EXTRA_NO_XP_AT_KILL", "creature kill not provide XP" };
+        case CREATURE_FLAG_EXTRA_NO_XP: return { "CREATURE_FLAG_EXTRA_NO_XP", "CREATURE_FLAG_EXTRA_NO_XP", "creature kill not provide XP" };
         case CREATURE_FLAG_EXTRA_TRIGGER: return { "CREATURE_FLAG_EXTRA_TRIGGER", "CREATURE_FLAG_EXTRA_TRIGGER", "trigger creature" };
         case CREATURE_FLAG_EXTRA_NO_TAUNT: return { "CREATURE_FLAG_EXTRA_NO_TAUNT", "CREATURE_FLAG_EXTRA_NO_TAUNT", "creature is immune to taunt auras and effect attack me" };
         case CREATURE_FLAG_EXTRA_NO_MOVE_FLAGS_UPDATE: return { "CREATURE_FLAG_EXTRA_NO_MOVE_FLAGS_UPDATE", "CREATURE_FLAG_EXTRA_NO_MOVE_FLAGS_UPDATE", "creature won't update movement flags" };
@@ -81,7 +81,7 @@ TC_API_EXPORT CreatureFlagsExtra EnumUtils<CreatureFlagsExtra>::FromIndex(size_t
         case 3: return CREATURE_FLAG_EXTRA_NO_PARRY_HASTEN;
         case 4: return CREATURE_FLAG_EXTRA_NO_BLOCK;
         case 5: return CREATURE_FLAG_EXTRA_NO_CRUSHING_BLOWS;
-        case 6: return CREATURE_FLAG_EXTRA_NO_XP_AT_KILL;
+        case 6: return CREATURE_FLAG_EXTRA_NO_XP;
         case 7: return CREATURE_FLAG_EXTRA_TRIGGER;
         case 8: return CREATURE_FLAG_EXTRA_NO_TAUNT;
         case 9: return CREATURE_FLAG_EXTRA_NO_MOVE_FLAGS_UPDATE;
@@ -122,7 +122,7 @@ TC_API_EXPORT size_t EnumUtils<CreatureFlagsExtra>::ToIndex(CreatureFlagsExtra v
         case CREATURE_FLAG_EXTRA_NO_PARRY_HASTEN: return 3;
         case CREATURE_FLAG_EXTRA_NO_BLOCK: return 4;
         case CREATURE_FLAG_EXTRA_NO_CRUSHING_BLOWS: return 5;
-        case CREATURE_FLAG_EXTRA_NO_XP_AT_KILL: return 6;
+        case CREATURE_FLAG_EXTRA_NO_XP: return 6;
         case CREATURE_FLAG_EXTRA_TRIGGER: return 7;
         case CREATURE_FLAG_EXTRA_NO_TAUNT: return 8;
         case CREATURE_FLAG_EXTRA_NO_MOVE_FLAGS_UPDATE: return 9;
