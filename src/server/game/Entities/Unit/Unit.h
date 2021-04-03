@@ -1194,6 +1194,10 @@ class TC_GAME_API Unit : public WorldObject
         CharmInfo* InitCharmInfo();
         void DeleteCharmInfo();
 
+        bool isCharmerOrSelfPlayer() const;
+        Unit* GetCharmerOrSelf();
+        Player* GetCharmerOrSelfPlayer();
+
         // all of these are for DIRECT CLIENT CONTROL only
         void SetMovedUnit(Unit* target);
         // returns the unit that this player IS CONTROLLING

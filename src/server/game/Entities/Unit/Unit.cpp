@@ -6271,6 +6271,30 @@ bool Unit::isPossessing() const
         return false;
 }
 
+bool Unit::isCharmerOrSelfPlayer() const
+{
+    if (IsCharmed())
+        return GetCharmerGUID().IsPlayer();
+    else
+        return IsPlayer();
+}
+
+Unit* Unit::GetCharmerOrSelf()
+{
+    if (IsCharmed())
+        return GetCharmer();
+    else
+        return this;
+}
+
+Player* Unit::GetCharmerOrSelfPlayer()
+{
+    if (IsCharmed())
+        return ToPlayer(GetCharmer());
+    else
+        return ToPlayer();
+}
+
 Unit* Unit::GetNextRandomRaidMemberOrPet(float radius)
 {
     Player* player = nullptr;
@@ -11436,11 +11460,8 @@ void Unit::SetFeared(bool apply)
     }
 
     // block / allow control to real player in control (eg charmer)
-    if (GetTypeId() == TYPEID_PLAYER)
-    {
-        if (m_playerMovingMe)
-            m_playerMovingMe->SetClientControl(this, !apply);
-    }
+    if (GetCharmerOrSelfPlayer())
+        GetCharmerOrSelfPlayer()->SetClientControl(this, !apply);
 }
 
 void Unit::SetConfused(bool apply)
@@ -11461,11 +11482,8 @@ void Unit::SetConfused(bool apply)
     }
 
     // block / allow control to real player in control (eg charmer)
-    if (GetTypeId() == TYPEID_PLAYER)
-    {
-        if (m_playerMovingMe)
-            m_playerMovingMe->SetClientControl(this, !apply);
-    }
+    if (GetCharmerOrSelfPlayer())
+        GetCharmerOrSelfPlayer()->SetClientControl(this, !apply);
 }
 
 bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* aurApp)
