@@ -37,11 +37,11 @@ TC_API_EXPORT EnumText EnumUtils<CreatureFlagsExtra>::ToString(CreatureFlagsExtr
         case CREATURE_FLAG_EXTRA_NO_PARRY_HASTEN: return { "CREATURE_FLAG_EXTRA_NO_PARRY_HASTEN", "CREATURE_FLAG_EXTRA_NO_PARRY_HASTEN", "creature can't counter-attack at parry" };
         case CREATURE_FLAG_EXTRA_NO_BLOCK: return { "CREATURE_FLAG_EXTRA_NO_BLOCK", "CREATURE_FLAG_EXTRA_NO_BLOCK", "creature can't block" };
         case CREATURE_FLAG_EXTRA_NO_CRUSHING_BLOWS: return { "CREATURE_FLAG_EXTRA_NO_CRUSHING_BLOWS", "CREATURE_FLAG_EXTRA_NO_CRUSHING_BLOWS", "creature can't do crush attacks" };
-        case CREATURE_FLAG_EXTRA_NO_XP: return { "CREATURE_FLAG_EXTRA_NO_XP", "CREATURE_FLAG_EXTRA_NO_XP", "creature kill not provide XP" };
+        case CREATURE_FLAG_EXTRA_NO_XP: return { "CREATURE_FLAG_EXTRA_NO_XP", "CREATURE_FLAG_EXTRA_NO_XP", "creature kill does not provide XP" };
         case CREATURE_FLAG_EXTRA_TRIGGER: return { "CREATURE_FLAG_EXTRA_TRIGGER", "CREATURE_FLAG_EXTRA_TRIGGER", "trigger creature" };
-        case CREATURE_FLAG_EXTRA_NO_TAUNT: return { "CREATURE_FLAG_EXTRA_NO_TAUNT", "CREATURE_FLAG_EXTRA_NO_TAUNT", "creature is immune to taunt auras and effect attack me" };
+        case CREATURE_FLAG_EXTRA_NO_TAUNT: return { "CREATURE_FLAG_EXTRA_NO_TAUNT", "CREATURE_FLAG_EXTRA_NO_TAUNT", "creature is immune to taunt auras and 'attack me' effects" };
         case CREATURE_FLAG_EXTRA_NO_MOVE_FLAGS_UPDATE: return { "CREATURE_FLAG_EXTRA_NO_MOVE_FLAGS_UPDATE", "CREATURE_FLAG_EXTRA_NO_MOVE_FLAGS_UPDATE", "creature won't update movement flags" };
-        case CREATURE_FLAG_EXTRA_GHOST_VISIBILITY: return { "CREATURE_FLAG_EXTRA_GHOST_VISIBILITY", "CREATURE_FLAG_EXTRA_GHOST_VISIBILITY", "creature will be only visible for dead players" };
+        case CREATURE_FLAG_EXTRA_GHOST_VISIBILITY: return { "CREATURE_FLAG_EXTRA_GHOST_VISIBILITY", "CREATURE_FLAG_EXTRA_GHOST_VISIBILITY", "creature will only be visible to dead players" };
         case CREATURE_FLAG_EXTRA_USE_OFFHAND_ATTACK: return { "CREATURE_FLAG_EXTRA_USE_OFFHAND_ATTACK", "CREATURE_FLAG_EXTRA_USE_OFFHAND_ATTACK", "creature will use offhand attacks" };
         case CREATURE_FLAG_EXTRA_NO_SELL_VENDOR: return { "CREATURE_FLAG_EXTRA_NO_SELL_VENDOR", "CREATURE_FLAG_EXTRA_NO_SELL_VENDOR", "players can't sell items to this vendor" };
         case CREATURE_FLAG_EXTRA_IGNORE_COMBAT: return { "CREATURE_FLAG_EXTRA_IGNORE_COMBAT", "CREATURE_FLAG_EXTRA_IGNORE_COMBAT", "creature is not allowed to enter combat" };
@@ -50,8 +50,8 @@ TC_API_EXPORT EnumText EnumUtils<CreatureFlagsExtra>::ToString(CreatureFlagsExtr
         case CREATURE_FLAG_EXTRA_UNUSED_16: return { "CREATURE_FLAG_EXTRA_UNUSED_16", "CREATURE_FLAG_EXTRA_UNUSED_16", "" };
         case CREATURE_FLAG_EXTRA_NO_CRIT: return { "CREATURE_FLAG_EXTRA_NO_CRIT", "CREATURE_FLAG_EXTRA_NO_CRIT", "creature can't do critical strikes" };
         case CREATURE_FLAG_EXTRA_NO_SKILL_GAINS: return { "CREATURE_FLAG_EXTRA_NO_SKILL_GAINS", "CREATURE_FLAG_EXTRA_NO_SKILL_GAINS", "creature won't increase weapon skills" };
-        case CREATURE_FLAG_EXTRA_TAUNT_DIMINISH: return { "CREATURE_FLAG_EXTRA_TAUNT_DIMINISH", "CREATURE_FLAG_EXTRA_TAUNT_DIMINISH", "Taunt is a subject to diminishing returns on this creautre" };
-        case CREATURE_FLAG_EXTRA_ALL_DIMINISH: return { "CREATURE_FLAG_EXTRA_ALL_DIMINISH", "CREATURE_FLAG_EXTRA_ALL_DIMINISH", "creature is subject to all diminishing returns as player are" };
+        case CREATURE_FLAG_EXTRA_TAUNT_DIMINISH: return { "CREATURE_FLAG_EXTRA_TAUNT_DIMINISH", "CREATURE_FLAG_EXTRA_TAUNT_DIMINISH", "Taunt is subject to diminishing returns on this creature" };
+        case CREATURE_FLAG_EXTRA_ALL_DIMINISH: return { "CREATURE_FLAG_EXTRA_ALL_DIMINISH", "CREATURE_FLAG_EXTRA_ALL_DIMINISH", "creature is subject to all diminishing returns as players are" };
         case CREATURE_FLAG_EXTRA_NO_PLAYER_DAMAGE_REQ: return { "CREATURE_FLAG_EXTRA_NO_PLAYER_DAMAGE_REQ", "CREATURE_FLAG_EXTRA_NO_PLAYER_DAMAGE_REQ", "creature does not need to take player damage for kill credit" };
         case CREATURE_FLAG_EXTRA_UNUSED_22: return { "CREATURE_FLAG_EXTRA_UNUSED_22", "CREATURE_FLAG_EXTRA_UNUSED_22", "" };
         case CREATURE_FLAG_EXTRA_UNUSED_23: return { "CREATURE_FLAG_EXTRA_UNUSED_23", "CREATURE_FLAG_EXTRA_UNUSED_23", "" };
