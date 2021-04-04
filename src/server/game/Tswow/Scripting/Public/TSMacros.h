@@ -20,23 +20,23 @@
 #define EVENT(name,...) TSEvent<name##Type> name;
 #define EVENT_HANDLE(category,name) void name(category##name##Type cb) { Add(this->events->category##name.Add(cb)); }
 #define MAP_EVENT_HANDLE(category,name) void name(uint32 id, category##name##Type cb) { Add(this->eventMap->Get(id)->category##name.Add(cb));}
-#define FIRE(name,...) {for(size_t i=0;i< GetTSEvents()->name.GetSize(); ++i) GetTSEvents()->name.Get(i)(__VA_ARGS__);}
-#define FIRE_RETURN(name,retType,retVal,...) {retType rv = retVal; for(size_t i=0;i< GetTSEvents()->name.GetSize(); ++i) GetTSEvents()->name.Get(i)(__VA_ARGS__,TSMutable<retType>(&rv)); return retVal;}
-#define FIRE_MAP(obj,name,...) FIRE(name,__VA_ARGS__); {if(obj) for(size_t i=0;i< obj->name.GetSize(); ++i) obj->name.Get(i)(__VA_ARGS__);}
+#define FIRE(name,...) {for(size_t __fire_i=0;__fire_i< GetTSEvents()->name.GetSize(); ++__fire_i) GetTSEvents()->name.Get(__fire_i)(__VA_ARGS__);}
+#define FIRE_RETURN(name,retType,retVal,...) {retType rv = retVal; for(size_t __fire_i=0;__fire_i< GetTSEvents()->name.GetSize(); ++__fire_i) GetTSEvents()->name.Get(__fire_i)(__VA_ARGS__,TSMutable<retType>(&rv)); return retVal;}
+#define FIRE_MAP(obj,name,...) FIRE(name,__VA_ARGS__); {if(obj) for(size_t __fire_i=0;__fire_i< obj->name.GetSize(); ++__fire_i) obj->name.Get(__fire_i)(__VA_ARGS__);}
 
 #define FIRE_BOOL(name,varname,...) \
-    for(int i=0;i<GetTSEvents()->name.GetSize(); ++i) \
+    for(int __fire_i=0;__fire_i<GetTSEvents()->name.GetSize(); ++__fire_i) \
     { \
-        GetTSEvents()->name.Get(i)(__VA_ARGS__, TSMutable<bool>(&varname)); \
+        GetTSEvents()->name.Get(__fire_i)(__VA_ARGS__, TSMutable<bool>(&varname)); \
         if(varname) break; \
     }
 
 #define FIRE_BOOL_MAP(obj,name,varname,...) \
     FIRE_BOOL(name,varname,__VA_ARGS__) \
     if(obj && !varname) \
-    for(int i=0;i<obj->name.GetSize(); ++i) \
+    for(int __fire_i=0;__fire_i<obj->name.GetSize(); ++__fire_i) \
     { \
-        obj->name.Get(i)(__VA_ARGS__, TSMutable<bool>(&varname)); \
+        obj->name.Get(__fire_i)(__VA_ARGS__, TSMutable<bool>(&varname)); \
         if(varname) break; \
     }
 
