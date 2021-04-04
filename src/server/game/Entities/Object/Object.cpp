@@ -51,6 +51,11 @@
 #include "World.h"
 // @tswow-begin
 #include "TotemCreature.h"
+#include "TSEvents.h"
+#include "TSUnit.h"
+#include "TSSpellInfo.h"
+#include "TSMutable.h"
+#include "TSWorldObject.h"
 // @tswow-end
 #include <G3D/Vector3.h>
 
@@ -2499,6 +2504,15 @@ SpellMissInfo WorldObject::MagicSpellHitResult(Unit* victim, SpellInfo const* sp
     if (Unit const* unit = ToUnit())
         HitChance += int32(unit->m_modSpellHitChance * 100.0f);
 
+    // @tswow-begin
+    FIRE(FormulaOnSpellReflect
+        , TSWorldObject(const_cast<WorldObject*>(this))
+        , TSUnit(victim)
+        , TSSpellInfo(spellInfo)
+        , TSMutable<int32>(&HitChance)
+        );
+    // @tswow-end
+
     RoundToInterval(HitChance, 0, 10000);
 
     int32 tmp = 10000 - HitChance;
@@ -2531,6 +2545,15 @@ SpellMissInfo WorldObject::MagicSpellHitResult(Unit* victim, SpellInfo const* sp
             resist_chance += int32(Unit::CalculateAverageResistReduction(this, spellInfo->GetSchoolMask(), victim, spellInfo) * 10000.f); // 100 for spell calculations, and 100 for return value percentage
     }
 
+    // @tswow-begin
+    FIRE(FormulaOnSpellResist
+        , TSWorldObject(const_cast<WorldObject*>(this))
+        , TSUnit(victim)
+        , TSSpellInfo(spellInfo)
+        , TSMutable<int32>(&resist_chance)
+        );
+    // @tswow-end
+
     // Roll chance
     if (resist_chance > 0 && rand < (tmp += resist_chance))
         return SPELL_MISS_RESIST;
@@ -2539,6 +2562,14 @@ SpellMissInfo WorldObject::MagicSpellHitResult(Unit* victim, SpellInfo const* sp
     if (!victim->HasUnitState(UNIT_STATE_CONTROLLED) && (victim->HasInArc(float(M_PI), this) || victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION)))
     {
         int32 deflect_chance = victim->GetTotalAuraModifier(SPELL_AURA_DEFLECT_SPELLS) * 100;
+        // @tswow-begin
+        FIRE(FormulaOnSpellResist
+            , TSWorldObject(const_cast<WorldObject*>(this))
+            , TSUnit(victim)
+            , TSSpellInfo(spellInfo)
+            , TSMutable<int32>(&deflect_chance)
+            );
+        // @tswow-end
         if (deflect_chance > 0 && rand < (tmp += deflect_chance))
             return SPELL_MISS_DEFLECT;
     }
@@ -2582,7 +2613,14 @@ SpellMissInfo WorldObject::SpellHitResult(Unit* victim, SpellInfo const* spellIn
     {
         int32 reflectchance = victim->GetTotalAuraModifier(SPELL_AURA_REFLECT_SPELLS);
         reflectchance += victim->GetTotalAuraModifierByMiscMask(SPELL_AURA_REFLECT_SPELLS_SCHOOL, spellInfo->GetSchoolMask());
-
+        // @tswow-begin
+        FIRE(FormulaOnSpellReflect
+            , TSWorldObject(const_cast<WorldObject*>(this))
+            , TSUnit(victim)
+            , TSSpellInfo(spellInfo)
+            , TSMutable<int32>(&reflectchance)
+            );
+        // @tswow-end
         if (reflectchance > 0 && roll_chance_i(reflectchance))
             return SPELL_MISS_REFLECT;
     }

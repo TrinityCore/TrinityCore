@@ -26,6 +26,7 @@
 #include "TSLoot.h"
 #include "TSMail.h"
 #include "TSAuction.h"
+#include "TSDamageInfo.h"
 #include "BinReader.h"
 #include <cstdint>
 
@@ -47,6 +48,27 @@ EVENT_TYPE(FormulaOnZeroDifferenceCalculation,TSMutable<uint8>,uint8)
 EVENT_TYPE(FormulaOnBaseGainCalculation,TSMutable<uint32>,uint8,uint8,uint32)
 EVENT_TYPE(FormulaOnGainCalculation,TSMutable<uint32>,TSPlayer,TSUnit)
 EVENT_TYPE(FormulaOnGroupRateCalculation,TSMutable<float>,uint32,bool)
+EVENT_TYPE(FormulaOnMeleeDamageEarly,TSMeleeDamageInfo,uint32,uint32,TSMutable<uint32>)
+EVENT_TYPE(FormulaOnMeleeDamageLate,TSMeleeDamageInfo,uint32,uint32,TSMutable<uint32>)
+EVENT_TYPE(FormulaOnSpellDamageEarly,TSSpellDamageInfo,TSSpell,uint32,bool,TSMutable<int32>)
+EVENT_TYPE(FormulaOnSpellDamageLate,TSSpellDamageInfo,TSSpell,uint32,bool,TSMutable<uint32>)
+EVENT_TYPE(FormulaOnPeriodicDamage,TSAuraEffect,TSMutable<uint32>)
+EVENT_TYPE(FormulaOnSpellCrit,TSSpell,TSMutable<float>)
+EVENT_TYPE(FormulaOnSpellAuraCrit,TSAuraEffect,TSMutable<float>)
+EVENT_TYPE(FormulaOnMeleeCrit,TSUnit,TSUnit,uint32,TSMutable<float>)
+EVENT_TYPE(FormulaOnSpellReflect,TSWorldObject,TSUnit,TSSpellInfo,TSMutable<int32>)
+EVENT_TYPE(FormulaOnSpellHit,TSWorldObject,TSUnit,TSSpellInfo,TSMutable<int32>)
+EVENT_TYPE(FormulaOnSpellResist,TSWorldObject,TSUnit,TSSpellInfo,TSMutable<int32>)
+EVENT_TYPE(FormulaOnSpellDeflect,TSWorldObject,TSUnit,TSSpellInfo,TSMutable<int32>)
+EVENT_TYPE(FormulaOnMeleeOutcome
+     , TSUnit
+     , TSUnit
+     , uint32
+     , TSMutable<float>
+     , TSMutable<float>
+     , TSMutable<float>
+     , TSMutable<float>
+     , TSMutable<float>);
 
 // UnitScript
 EVENT_TYPE(UnitOnHeal,TSUnit,TSUnit,TSMutable<uint32>)
@@ -393,6 +415,19 @@ struct TSEvents
     EVENT(FormulaOnBaseGainCalculation)
     EVENT(FormulaOnGainCalculation)
     EVENT(FormulaOnGroupRateCalculation)
+    EVENT(FormulaOnMeleeDamageEarly)
+    EVENT(FormulaOnMeleeDamageLate)
+    EVENT(FormulaOnSpellDamageEarly)
+    EVENT(FormulaOnSpellDamageLate)
+    EVENT(FormulaOnPeriodicDamage)
+    EVENT(FormulaOnSpellCrit)
+    EVENT(FormulaOnSpellAuraCrit)
+    EVENT(FormulaOnMeleeCrit)
+    EVENT(FormulaOnSpellHit)
+    EVENT(FormulaOnSpellResist)
+    EVENT(FormulaOnSpellReflect)
+    EVENT(FormulaOnSpellDeflect)
+    EVENT(FormulaOnMeleeOutcome)
 
     // ItemScript
     EVENT(ItemOnUse)
@@ -622,6 +657,19 @@ public:
          EVENT_HANDLE(Formula,OnBaseGainCalculation)
          EVENT_HANDLE(Formula,OnGainCalculation)
          EVENT_HANDLE(Formula,OnGroupRateCalculation)
+         EVENT_HANDLE(Formula,OnMeleeDamageEarly)
+         EVENT_HANDLE(Formula,OnMeleeDamageLate)
+         EVENT_HANDLE(Formula,OnSpellDamageEarly)
+         EVENT_HANDLE(Formula,OnSpellDamageLate)
+         EVENT_HANDLE(Formula,OnPeriodicDamage)
+         EVENT_HANDLE(Formula,OnSpellCrit)
+         EVENT_HANDLE(Formula,OnSpellAuraCrit)
+         EVENT_HANDLE(Formula,OnMeleeCrit)
+         EVENT_HANDLE(Formula,OnSpellReflect)
+         EVENT_HANDLE(Formula,OnSpellHit)
+         EVENT_HANDLE(Formula,OnSpellResist)
+         EVENT_HANDLE(Formula,OnSpellDeflect)
+         EVENT_HANDLE(Formula,OnMeleeOutcome)
     } Formula;
 
     struct UnitEvents: public EventHandler

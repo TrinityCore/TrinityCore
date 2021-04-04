@@ -6310,6 +6310,57 @@ declare namespace _hidden {
         OnBaseGainCalculation(callback: (gain : TSMutable<uint32>,playerLevel : uint8,mobLevel : uint8,content : uint32)=>void);
         OnGainCalculation(callback: (gain : TSMutable<uint32>,player : TSPlayer,unit : TSUnit)=>void);
         OnGroupRateCalculation(callback: (rate : TSMutable<float>,count : uint32,isRaid : bool)=>void);
+        OnMeleeDamageEarly(callback: (melee: TSMeleeDamageInfo, type: uint32, index: uint32, damage: TSMutable<uint32>)=>void);
+        OnMeleeDamageLate(callback: (melee: TSMeleeDamageInfo, type: uint32, index: uint32, damage: TSMutable<uint32>)=>void);
+        OnSpellDamageEarly(callback: (info: TSSpellDamageInfo, spell: TSSpell, type: uint32, isCrit: bool, damage: TSMutable<int32>)=>void);
+        OnSpellDamageLate(callback: (info: TSSpellDamageInfo, spell: TSSpell, type: uint32, isCrit: bool, damage: TSMutable<uint32>)=>void);
+        OnPeriodicDamage(callback: (aura: TSAuraEffect, damage: TSMutable<uint32>)=>void);
+
+        /**
+         * critChance should be between 0 and 1
+         */
+        OnSpellCrit(callback: (spell: TSSpell, critChance: TSMutable<float>)=>void);
+        /**
+         * critChance should be between 0 and 1
+         */
+        OnSpellAuraCrit(callback: (spell: TSAuraEffect, critChance: TSMutable<float>)=>void);
+
+        /**
+         * reflectChance should be an integer between 0 and 10000
+         */
+        OnSpellReflect(callback: (attacker: TSWorldObject, victim: TSUnit, info: TSSpellInfo, reflectChance: TSMutable<int32>)=>void)
+
+        /**
+         * hitChance should be an integer between 0 and 10000
+         */
+        OnSpellHit(callback: (attacker: TSWorldObject, victim: TSUnit, info: TSSpellInfo, hitChance: TSMutable<int32>)=>void)
+
+        /**
+         * resistChance should be an integer between 0 and 10000
+         */
+        OnSpellResist(callback: (attacker: TSWorldObject, victim: TSUnit, info: TSSpellInfo, resistChance: TSMutable<int32>)=>void)
+
+        /**
+         * deflectChance should be an integer between 0 and 10000
+         */
+        OnSpellDeflect(callback: (attacker: TSWorldObject, victim: TSUnit, info: TSSpellInfo, deflectChance: TSMutable<int32>)=>void)
+
+        /**
+         * - missChance should be between 0 and 1
+         * - critChance should be between 0 and 100
+         * - dodgeChance should be between 0 and 100
+         * - parryChance should be between 0 and 100
+         */
+        OnMeleeOutcome(callback: (
+              attacker: TSUnit
+            , victim: TSUnit
+            , attackType: uint32
+            , missChance: TSMutable<float>
+            , critChance: TSMutable<float>
+            , dodgeChance: TSMutable<float>
+            , blockChance : TSMutable<float>
+            , parryChance: TSMutable<float>
+            )=>void)
     }
 
     export class Item {
@@ -6664,6 +6715,14 @@ declare class TSDictionary<K,V> {
     filter(callback: (key: K, value: V)=>boolean): TSDictionary<K,V>
 }
 
+declare class TSDBDict<K,V> {
+    set(key: K, value: V);
+    contains(key: K): boolean;
+    get(key: K): V;
+}
+
+declare function MakeDBDict<K,V>(): TSDBDict<K,V>;
+
 declare class TSLootItem {
     GetItemID(): uint32;
     GetRandomSuffix(): uint32;
@@ -6873,6 +6932,43 @@ declare class TSDatabaseConnectionInfo {
     Host(): string
     SSL(): string
     PortOrSocket(): string
+}
+
+declare class TSMeleeDamageInfo {
+    GetAttacker(): TSUnit;
+    GetTarget(): TSUnit;
+    GetSchool1(): uint32;
+    GetSchool2(): uint32;
+    GetDamage1(): uint32;
+    GetDamage2(): uint32;
+    GetAbsorb1(): uint32;
+    GetAbsorb2(): uint32;
+    GetResist1(): uint32;
+    GetResist2(): uint32;
+    GetBlocked(): uint32;
+    GetHitInfo(): uint32;
+    GetAttackType(): uint32;
+    GetProcAttacker(): uint32;
+    GetProcVictim(): uint32;
+    GetCleanDamage(): uint32;
+    GetMeleeHitOutcome(): uint8;
+}
+
+declare class TSSpellDamageInfo {
+    GetAttacker(): TSUnit;
+    GetTarget(): TSUnit;
+    GetSpellID(): uint32;
+    GetDamage(): uint32;
+    GetOverkill(): uint32;
+    GetSchoolMask(): uint32;
+    GetAbsorb(): uint32;
+    GetResist(): uint32;
+    GetPeriodicLog(): bool;
+    GetUnused(): bool;
+    GetBlocked(): uint32;
+    GetHitInfo(): uint32;
+    GetCleanDamage(): uint32;
+    GetFullBlock(): bool;
 }
 
 declare function WorldDatabaseInfo(): TSDatabaseConnectionInfo

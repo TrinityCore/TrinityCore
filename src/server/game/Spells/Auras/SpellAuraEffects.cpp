@@ -43,6 +43,11 @@
 #include "Vehicle.h"
 #include "WorldPacket.h"
 #include <numeric>
+// @tswow-begin
+#include "TSAura.h"
+#include "TSEvents.h"
+#include "TSMutable.h"
+// @tswow-end
 
 //
 // EFFECT HANDLER NOTES
@@ -5097,12 +5102,15 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
         return;
 
     CleanDamage cleanDamage = CleanDamage(0, 0, BASE_ATTACK, MELEE_HIT_NORMAL);
-
+    
     // ignore negative values (can be result apply spellmods to aura damage
     uint32 damage = std::max(GetAmount(), 0);
 
     // Script Hook For HandlePeriodicDamageAurasTick -- Allow scripts to change the Damage pre class mitigation calculations
     sScriptMgr->ModifyPeriodicDamageAurasTick(target, caster, damage);
+    // @tswow-begin
+    FIRE(FormulaOnPeriodicDamage,TSAuraEffect(const_cast<AuraEffect*>(this)),TSMutable<uint32>(&damage));
+    // @tswow-end
 
     if (GetAuraType() == SPELL_AURA_PERIODIC_DAMAGE)
     {
@@ -5136,7 +5144,11 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
 
     damage = target->SpellDamageBonusTaken(caster, GetSpellInfo(), damage, DOT);
 
-    bool crit = roll_chance_f(GetCritChanceFor(caster, target));
+    // @tswow-begin
+    float crit_chance = GetCritChanceFor(caster,target);
+    FIRE(FormulaOnSpellAuraCrit,TSAuraEffect(const_cast<AuraEffect*>(this)),TSMutable<float>(&crit_chance));
+    bool crit = roll_chance_f(crit_chance);
+    // @tswow-end
     if (crit)
         damage = Unit::SpellCriticalDamageBonus(caster, m_spellInfo, damage, target);
 
@@ -5215,13 +5227,20 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
 
     // Script Hook For HandlePeriodicDamageAurasTick -- Allow scripts to change the Damage pre class mitigation calculations
     sScriptMgr->ModifyPeriodicDamageAurasTick(target, caster, damage);
+    // @tswow-begin
+    FIRE(FormulaOnPeriodicDamage,TSAuraEffect(const_cast<AuraEffect*>(this)),TSMutable<uint32>(&damage));
+    // @tswow-end
 
     // dynobj auras must always have a caster
     if (GetBase()->GetType() == DYNOBJ_AURA_TYPE)
         damage = ASSERT_NOTNULL(caster)->SpellDamageBonusDone(target, GetSpellInfo(), damage, DOT, GetEffIndex(), { }, GetBase()->GetStackAmount());
     damage = target->SpellDamageBonusTaken(caster, GetSpellInfo(), damage, DOT);
 
-    bool crit = roll_chance_f(GetCritChanceFor(caster, target));
+    // @tswow-begin
+    float crit_chance = GetCritChanceFor(caster,target);
+    FIRE(FormulaOnSpellAuraCrit,TSAuraEffect(const_cast<AuraEffect*>(this)),TSMutable<float>(&crit_chance));
+    bool crit = roll_chance_f(crit_chance);
+    // @tswow-end
     if (crit)
         damage = Unit::SpellCriticalDamageBonus(caster, m_spellInfo, damage, target);
 
@@ -5340,6 +5359,9 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
 
     // Script Hook For HandlePeriodicHealAurasTick -- Allow scripts to change the Damage pre class mitigation calculations
     sScriptMgr->ModifyPeriodicDamageAurasTick(target, caster, damage);
+    // @tswow-begin
+    FIRE(FormulaOnPeriodicDamage,TSAuraEffect(const_cast<AuraEffect*>(this)),TSMutable<uint32>(&damage));
+    // @tswow-end
 
     if (GetAuraType() == SPELL_AURA_OBS_MOD_HEALTH)
         damage = uint32(target->CountPctFromMaxHealth(damage));
@@ -5352,7 +5374,11 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
 
     damage = target->SpellHealingBonusTaken(caster, GetSpellInfo(), damage, DOT);
 
-    bool crit = roll_chance_f(GetCritChanceFor(caster, target));
+    // @tswow-begin
+    float crit_chance = GetCritChanceFor(caster,target);
+    FIRE(FormulaOnSpellAuraCrit,TSAuraEffect(const_cast<AuraEffect*>(this)),TSMutable<float>(&crit_chance));
+    bool crit = roll_chance_f(crit_chance);
+    // @tswow-end
     if (crit)
         damage = Unit::SpellCriticalHealingBonus(caster, m_spellInfo, damage, target);
 

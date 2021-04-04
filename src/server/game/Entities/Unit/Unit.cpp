@@ -78,9 +78,11 @@
 #include <cmath>
 // @tswow-begin
 #include "TSEventLoader.h"
+#include "TSDamageInfo.h"
 #include "TSUnit.h"
 #include "TSCreature.h"
 #include "TSSpellInfo.h"
+#include "TSSpell.h"
 #include "TSMacros.h"
 // @tswow-end
 
@@ -989,6 +991,15 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
     SpellSchoolMask damageSchoolMask = SpellSchoolMask(damageInfo->schoolMask);
     uint32 crTypeMask = victim->GetCreatureTypeMask();
 
+    // @tswow-begin
+    FIRE(FormulaOnSpellDamageEarly
+        , TSSpellDamageInfo(damageInfo)
+        , TSSpell(spell)
+        , attackType
+        , crit
+        , TSMutable<int32>(&damage));
+    // @tswow-end
+
     // Spells with SPELL_ATTR4_FIXED_DAMAGE ignore resilience because their damage is based off another spell's damage.
     if (!spellInfo->HasAttribute(SPELL_ATTR4_FIXED_DAMAGE))
     {
@@ -1101,6 +1112,14 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
         damageInfo->HitInfo |= (damageInfo->damage - damageInfo->resist == 0 ? HITINFO_FULL_RESIST : HITINFO_PARTIAL_RESIST);
 
     damageInfo->damage = dmgInfo.GetDamage();
+    // @tswow-begin
+    FIRE(FormulaOnSpellDamageLate
+        , TSSpellDamageInfo(damageInfo)
+        , TSSpell(spell)
+        , attackType
+        , crit
+        , TSMutable<uint32>(&damageInfo->damage));
+    // @tswow-end
 }
 
 void Unit::DealSpellDamage(SpellNonMeleeDamage* damageInfo, bool durabilityLoss)
@@ -1208,6 +1227,13 @@ void Unit::CalculateMeleeDamage(Unit* victim, CalcDamageInfo* damageInfo, Weapon
 
         // Script Hook For CalculateMeleeDamage -- Allow scripts to change the Damage pre class mitigation calculations
         sScriptMgr->ModifyMeleeDamage(damageInfo->Target, damageInfo->Attacker, damage);
+        // @tswow-begin
+        FIRE(FormulaOnMeleeDamageEarly
+            , TSMeleeDamageInfo(damageInfo)
+            , attackType
+            , i
+            , TSMutable<uint32>(&damage));
+        // @tswow-end
 
         // Calculate armor reduction
         if (Unit::IsDamageReducedByArmor(SpellSchoolMask(damageInfo->Damages[i].DamageSchoolMask)))
@@ -1399,6 +1425,14 @@ void Unit::CalculateMeleeDamage(Unit* victim, CalcDamageInfo* damageInfo, Weapon
         }
         else // Impossible get negative result but....
             damageInfo->Damages[i].Damage = 0;
+
+        // @tswow-begin
+        FIRE(FormulaOnMeleeDamageLate
+            , TSMeleeDamageInfo(damageInfo)
+            , attackType
+            , i
+            , TSMutable<uint32>(&damageInfo->Damages[i].Damage));
+        // @tswow-end
     }
 
     // set proper HitInfo flags
@@ -2128,14 +2162,33 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit const* victim, WeaponAttackTy
     int32 const victimDefenseSkill = victim->GetDefenseSkillValue(this);
 
     // Miss chance based on melee
-    int32 miss_chance = int32(MeleeSpellMissChance(victim, attType, attackerWeaponSkill - victimMaxSkillValueForLevel, 0) * 100.0f);
+    // @tswow-begin
+    float miss_chance_f = MeleeSpellMissChance(victim, attType, attackerWeaponSkill - victimMaxSkillValueForLevel, 0);
 
     // Critical hit chance
-    int32 crit_chance = int32(GetUnitCriticalChanceAgainst(attType, victim) * 100.0f);
+    float crit_chance_f = GetUnitCriticalChanceAgainst(attType, victim);
 
-    int32 dodge_chance = int32(GetUnitDodgeChance(attType, victim) * 100.0f);
-    int32 block_chance = int32(GetUnitBlockChance(attType, victim) * 100.0f);
-    int32 parry_chance = int32(GetUnitParryChance(attType, victim) * 100.0f);
+    float dodge_chance_f = GetUnitDodgeChance(attType, victim);
+    float block_chance_f = GetUnitBlockChance(attType, victim);
+    float parry_chance_f = GetUnitParryChance(attType, victim);
+
+    FIRE(FormulaOnMeleeOutcome
+        , TSUnit(const_cast<Unit*>(this))
+        , TSUnit(const_cast<Unit*>(victim))
+        , attType
+        , TSMutable<float>(&miss_chance_f)
+        , TSMutable<float>(&crit_chance_f)
+        , TSMutable<float>(&dodge_chance_f)
+        , TSMutable<float>(&block_chance_f)
+        , TSMutable<float>(&parry_chance_f)
+        );
+
+    int32 miss_chance = int32(miss_chance_f*100.0f);
+    int32 crit_chance = int32(crit_chance_f*100.0f);
+    int32 dodge_chance = int32(dodge_chance_f*100.0f);
+    int32 block_chance = int32(block_chance_f*100.0f);
+    int32 parry_chance = int32(parry_chance_f*100.0f);
+    // @tswow-end
 
     // melee attack table implementation
     // outcome priority:
@@ -2775,6 +2828,13 @@ float Unit::GetUnitCriticalChanceTaken(Unit const* attacker, WeaponAttackType at
     }
 
     chance += skillBonus;
+    // @tswow-begin
+    FIRE(FormulaOnMeleeCrit
+        , TSUnit(const_cast<Unit*>(attacker))
+        , TSUnit(const_cast<Unit*>(this))
+        , attackType
+        , TSMutable<float>(&chance));
+    // @tswow-end
     return std::max(chance, 0.f);
 }
 

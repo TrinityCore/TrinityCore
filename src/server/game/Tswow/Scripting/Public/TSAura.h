@@ -20,6 +20,7 @@
 #include "TSClasses.h"
 
 class AuraEffect;
+
 class TC_GAME_API TSAuraEffect {
 public:
     AuraEffect* aura;
