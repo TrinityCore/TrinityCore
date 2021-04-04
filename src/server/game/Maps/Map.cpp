@@ -103,12 +103,12 @@ void Map::DiscoverGridMapFiles()
     if (FILE* tileList = fopen(tileListName.c_str(), "rb"))
     {
         u_map_magic mapMagic = { };
-        u_map_magic versionMagic = { };
+        uint32 versionMagic = { };
         uint32 build;
         char tilesData[MAX_NUMBER_OF_GRIDS * MAX_NUMBER_OF_GRIDS] = { };
         if (fread(mapMagic.data(), mapMagic.size(), 1, tileList) == 1
             && mapMagic == MapMagic
-            && fread(versionMagic.data(), versionMagic.size(), 1, tileList) == 1
+            && fread(&versionMagic, sizeof(versionMagic), 1, tileList) == 1
             && versionMagic == MapVersionMagic
             && fread(&build, sizeof(build), 1, tileList) == 1
             && fread(&tilesData[0], MAX_NUMBER_OF_GRIDS * MAX_NUMBER_OF_GRIDS, 1, tileList) == 1)
@@ -157,8 +157,8 @@ bool Map::ExistMap(uint32 mapid, int gx, int gy, bool log /*= true*/)
             if (header.mapMagic != MapMagic || header.versionMagic != MapVersionMagic)
             {
                 if (log)
-                    TC_LOG_ERROR("maps", "Map file '%s' is from an incompatible map version (%.*s %.*s), %.*s %.*s is expected. Please pull your source, recompile tools and recreate maps using the updated mapextractor, then replace your old map files with new files. If you still have problems search on forum for error TCE00018.",
-                        fileName.c_str(), 4, header.mapMagic.data(), 4, header.versionMagic.data(), 4, MapMagic.data(), 4, MapVersionMagic.data());
+                    TC_LOG_ERROR("maps", "Map file '%s' is from an incompatible map version (%.*s v%u), %.*s v%u is expected. Please pull your source, recompile tools and recreate maps using the updated mapextractor, then replace your old map files with new files. If you still have problems search on forum for error TCE00018.",
+                        fileName.c_str(), 4, header.mapMagic.data(), header.versionMagic, 4, MapMagic.data(), MapVersionMagic);
             }
             else
                 ret = true;
@@ -1927,8 +1927,8 @@ GridMap::LoadResult GridMap::loadData(char const* filename)
         return LoadResult::Ok;
     }
 
-    TC_LOG_ERROR("maps", "Map file '%s' is from an incompatible map version (%.*s %.*s), %.*s %.*s is expected. Please pull your source, recompile tools and recreate maps using the updated mapextractor, then replace your old map files with new files. If you still have problems search on forum for error TCE00018.",
-        filename, 4, header.mapMagic.data(), 4, header.versionMagic.data(), 4, MapMagic.data(), 4, MapVersionMagic.data());
+    TC_LOG_ERROR("maps", "Map file '%s' is from an incompatible map version (%.*s v%u), %.*s v%u is expected. Please pull your source, recompile tools and recreate maps using the updated mapextractor, then replace your old map files with new files. If you still have problems search on forum for error TCE00018.",
+        filename, 4, header.mapMagic.data(), header.versionMagic, 4, MapMagic.data(), MapVersionMagic);
     fclose(in);
     return LoadResult::InvalidFile;
 }

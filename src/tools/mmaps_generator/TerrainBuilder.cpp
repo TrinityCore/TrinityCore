@@ -26,8 +26,6 @@
 
 namespace MMAP
 {
-    char const* MAP_VERSION_MAGIC = "v1.9";
-
     TerrainBuilder::TerrainBuilder(bool skipLiquid) : m_skipLiquid (skipLiquid){ }
     TerrainBuilder::~TerrainBuilder() { }
 
