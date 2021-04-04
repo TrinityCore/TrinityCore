@@ -218,7 +218,7 @@ struct TC_GAME_API CreatureTemplate
             return SKILL_HERBALISM;
         else if (type_flags & CREATURE_TYPE_FLAG_SKIN_WITH_MINING)
             return SKILL_MINING;
-        else if (type_flags & CREATURE_TYPE_FLAG_ENGINEERING_SKINNING_SKILL)
+        else if (type_flags & CREATURE_TYPE_FLAG_SKIN_WITH_ENGINEERING)
             return SKILL_ENGINEERING;
         else
             return SKILL_SKINNING;                          // normal case
@@ -226,7 +226,7 @@ struct TC_GAME_API CreatureTemplate
 
     bool IsExotic() const
     {
-        return (type_flags & CREATURE_TYPE_FLAG_EXOTIC_PET) != 0;
+        return (type_flags & CREATURE_TYPE_FLAG_TAMEABLE_EXOTIC) != 0;
     }
 
     bool IsTameable(bool canTameExotic) const
