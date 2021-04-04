@@ -2726,7 +2726,7 @@ enum CreatureTypeFlags
     CREATURE_TYPE_FLAG_NO_FACTION_TOOLTIP                   = 0x00000010,
     CREATURE_TYPE_FLAG_MORE_AUDIBLE                         = 0x00000020,   // Sound related
     CREATURE_TYPE_FLAG_SPELL_ATTACKABLE                     = 0x00000040,
-    CREATURE_TYPE_FLAG_INTERACT_WHILE_DEAD                  = 0x00000080,   // Player can interact with the creature if NPC is dead
+    CREATURE_TYPE_FLAG_INTERACT_WHILE_DEAD                  = 0x00000080,   // Player can interact with the creature if creature is dead (not if player is dead)
     CREATURE_TYPE_FLAG_SKIN_WITH_HERBALISM                  = 0x00000100,   // Can be looted by herbalist
     CREATURE_TYPE_FLAG_SKIN_WITH_MINING                     = 0x00000200,   // Can be looted by miner
     CREATURE_TYPE_FLAG_NO_DEATH_MESSAGE                     = 0x00000400,   // Death event will not show up in combat log
