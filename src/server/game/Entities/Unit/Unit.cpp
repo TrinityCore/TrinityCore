@@ -368,6 +368,9 @@ Unit::Unit(bool isWorldObject) :
     for (uint8 i = 0; i < MAX_MOVE_TYPE; ++i)
         m_speed_rate[i] = 1.0f;
 
+    for (uint8 i = 0; i < MAX_MOVE_TYPE; ++i)
+        m_forced_speed_changes[i] = 0;
+
     m_charmInfo = nullptr;
     _gameClientMovingMe = nullptr;
 
@@ -8651,7 +8654,7 @@ void Unit::SetSpeedRate(UnitMoveType mtype, float rate)
     {
         // register forced speed changes for WorldSession::HandleForceSpeedChangeAck
         // and do it only for real sent packets and use run for run/mounted as client expected
-        ++ToPlayer()->m_forced_speed_changes[mtype];
+        ++m_forced_speed_changes[mtype];
 
         if (!IsInCombat())
             if (Pet* pet = ToPlayer()->GetPet())
