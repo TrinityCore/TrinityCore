@@ -16,6 +16,7 @@
  */
 #pragma once
 #include "TSClasses.h"
+#include "TSStorage.h"
 
 class TC_GAME_API TSSpellInfo {
 public:
@@ -88,4 +89,6 @@ public:
     uint32 TargetAuraStateNot();
     uint32 TargetCreatureType();
     uint32 Targets();
+    TSStorage * GetData();
+    TS_ENTITY_DATA_DECL(TSSpellInfo);
 };

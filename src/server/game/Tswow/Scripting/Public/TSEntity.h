@@ -7,7 +7,7 @@
 
 // Could be a base class, but would have to track the pointer
 
-#define TSENTITY_DECL(CLS)                                                                                                 \
+#define TS_ENTITY_DATA_DECL(CLS)                                                                                                 \
     template <typename T>                                                                                                  \
     std::shared_ptr<T> SetObject(uint32_t modid, TSString key, std::shared_ptr<T> item)                                    \
     {                                                                                                                      \
@@ -35,11 +35,12 @@
     double SetFloat(TSString key, double value);                                                                           \
     bool HasFloat(TSString key);                                                                                           \
     double GetFloat(TSString key, double def = 0);                                                                         \
-                                                                                                                           \
+
+#define TS_ENTITY_TIMER_DECL(CLS) \
     void RemoveTimer(TSString name);                                                                                       \
     void AddTimer(uint32_t modid, TSString name, uint32_t time, uint32_t repeats, TimerCallback(CLS) callback);
 
-#define TSENTITY_IMPL(CLS)                                                                                                                                                                 \
+#define TS_ENTITY_DATA_IMPL(CLS)                                                                                                                                                                 \
     int32_t CLS::SetInt(TSString key, int32_t value) { return GetData()->SetInt(key, value); }                                                                                             \
     bool CLS::HasInt(TSString key) { return GetData()->HasInt(key); }                                                                                                                      \
     int32 CLS::GetInt(TSString key, int32 def) { return GetData()->GetInt(key, def); };                                                                                                    \
@@ -55,6 +56,7 @@
     double CLS::SetFloat(TSString key, double value) { return GetData()->SetFloat(key, value); };                                                                                          \
     bool CLS::HasFloat(TSString key) { return GetData()->HasFloat(key); };                                                                                                                 \
     double CLS::GetFloat(TSString key, double def) { return GetData()->GetFloat(key, def); };                                                                                              \
-                                                                                                                                                                                           \
+
+#define TS_ENTITY_TIMER_IMPL(CLS) \
     void CLS::AddTimer(uint32_t modid, TSString name, uint32_t time, uint32_t repeats, TimerCallback(CLS) callback) { return GetTasks()->AddTimer(modid, name, time, repeats, callback); } \
     void CLS::RemoveTimer(TSString name) { return GetTasks()->RemoveTimer(name); }

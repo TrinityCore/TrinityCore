@@ -17,6 +17,8 @@
 #pragma once
 
 #include "TSClasses.h"
+#include "TSStorage.h"
+#include "TSEntity.h"
 
 class ItemTemplate;
 
@@ -123,4 +125,7 @@ public:
     bool IsArmorVellum();
     bool IsConjuredConsumable();
     bool HasSignature();
+
+    TSStorage * GetData();
+    TS_ENTITY_DATA_DECL(TSItemTemplate);
 };

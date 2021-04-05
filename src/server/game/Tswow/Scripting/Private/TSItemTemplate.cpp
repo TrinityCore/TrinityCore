@@ -147,3 +147,10 @@ uint32 TSItemTemplate::DamageTypeB()
 {
     return info->Damage[1].DamageType;
 }
+
+TSStorage * TSItemTemplate::GetData()
+{
+    return const_cast<TSStorage*>(&info->storage);
+}
+
+TS_ENTITY_DATA_IMPL(TSItemTemplate);

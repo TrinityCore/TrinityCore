@@ -1293,3 +1293,8 @@ TSLoot TSCreature::GetLoot()
 {
     return TSLoot(&creature->loot);
 }
+
+TSCreatureTemplate TSCreature::GetTemplate()
+{
+    return TSCreatureTemplate(const_cast<CreatureTemplate*>(creature->GetCreatureTemplate()));
+}

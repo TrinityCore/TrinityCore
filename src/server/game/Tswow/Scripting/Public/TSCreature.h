@@ -24,6 +24,7 @@
 #include "TSUnit.h"
 #include "TSClasses.h"
 #include "TSPosition.h"
+#include "TSCreatureTemplate.h"
 
 class TC_GAME_API TSCreature : public TSUnit {
 public:
@@ -112,4 +113,5 @@ public:
     void AddLootMode(uint16 lootMode);
     uint32 GetCreatureFamily();
     TSLoot GetLoot();
+    TSCreatureTemplate GetTemplate();
 };

@@ -348,3 +348,9 @@ uint32 TSSpellInfo::Targets()
     return info->Targets;
 }
 
+TSStorage * TSSpellInfo::GetData()
+{
+    return const_cast<TSStorage*>(&info->storage);
+}
+
+TS_ENTITY_DATA_IMPL(TSSpellInfo);

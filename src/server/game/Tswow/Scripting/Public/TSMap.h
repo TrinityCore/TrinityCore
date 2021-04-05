@@ -49,5 +49,7 @@ public:
     void SetWeather(uint32 zoneId, uint32 weatherType, float grade);
     TSTasks<TSMap> GetTasks();
     TSStorage GetData();
-    TSENTITY_DECL(TSMap);
+
+    TS_ENTITY_DATA_DECL(TSMap)
+    TS_ENTITY_TIMER_DECL(TSMap)
 };

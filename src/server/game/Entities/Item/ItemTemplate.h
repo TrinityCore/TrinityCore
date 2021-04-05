@@ -23,6 +23,7 @@
 #include "WorldPacket.h"
 #include <vector>
 // @tswow-begin
+#include "TSStorage.h"
 #include "TSEvents.h"
 // @tswow-end
 
@@ -683,6 +684,7 @@ struct TC_GAME_API ItemTemplate
 
     // @tswow-begin
     TSItemEvents* events = nullptr;
+    TSStorage storage;
     // @tswow-end
     // helpers
     bool CanChangeEquipStateInCombat() const;

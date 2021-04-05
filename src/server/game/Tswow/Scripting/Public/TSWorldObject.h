@@ -98,7 +98,8 @@ public:
     TSTasks<TSWorldObject> * GetTasks();
     TSStorage * GetData();
 
-    TSENTITY_DECL(TSWorldObject);
+    TS_ENTITY_DATA_DECL(TSWorldObject)
+    TS_ENTITY_TIMER_DECL(TSWorldObject)
 
     bool HasCollision(TSString id) ;
     void AddCollision(uint32_t modid, TSString id, float range, uint32_t minDelay, uint32_t maxHits, CollisionCallback callback);

@@ -854,7 +854,8 @@ TSCollisions* TSWorldObject::GetCollisions()
     return &obj->collisions;
 }
 
-TSENTITY_IMPL(TSWorldObject)
+TS_ENTITY_DATA_IMPL(TSWorldObject)
+TS_ENTITY_TIMER_IMPL(TSWorldObject)
 
 bool TSWorldObject::HasCollision(TSString id)
 {

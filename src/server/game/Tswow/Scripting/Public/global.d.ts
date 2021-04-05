@@ -1840,8 +1840,133 @@ declare class TSCorpse extends TSWorldObject {
     SaveToDB() : void    
 }
 
+declare class StorageClass {
+    GetData(): TSStorage;
+    SetObject<T>(key: string, obj: T): T;
+    HasObject(modid: uint32, key: string): boolean;
+    GetObject<T>(key: string, value: T): T;
+    GetDBObject<T>(key: string, sql: string, value: T): T;
+
+    SetInt(key: string, value: int32): int32;
+    HasInt(key: string): boolean;
+    GetInt(key: string, def?: int32): int32;
+
+    SetUInt(key: string, value: uint32): uint32;
+    HasUInt(key: string): boolean;
+    GetUInt(key: string, def?: uint32): uint32;
+
+    SetFloat(key: string, value: double): double;
+    HasFloat(key: string): boolean;
+    GetFloat(key: string, def?: float): double;
+
+    SetString(key: string, value: string): string;
+    HasString(key: string): boolean;
+    GetString(key: string, def?: string): string;    
+}
+
+declare class TSCreatureTemplate extends StorageClass {
+    GetEntry(): uint32;
+    GetDifficultyEntryA(): uint32;
+    GetDifficultyEntryB(): uint32;
+    GetDifficultyEntryC(): uint32;
+    GetDifficultyEntryD(): uint32;
+
+    GetKillCreditA(): uint32;
+    GetKillCreditB(): uint32;
+    GetModelID1(): uint32;
+    GetModelID2(): uint32;
+    GetModelID3(): uint32;
+    GetModelID4(): uint32;
+    GetName(): string;
+    GetTitle(): string;
+    GetIconName(): string;
+    GetGossipMenuID(): uint32;
+    GetMinLevel(): uint8;
+    GetMaxLevel(): uint8;
+    GetExpansion(): uint32;
+    GetFaction(): uint32;
+    GetNPCFlag(): uint32;
+    GetSpeedWalk(): float;
+    GetSpeedRun(): float;
+    GetScale(): float;
+    GetRank(): uint32;
+    GetDamageSchool(): uint32;
+    GetBaseAttackTime(): uint32;
+    GetRangeAttackTime(): uint32;
+    GetBaseVariance(): float;
+    GetRangeVariance(): float;
+    GetUnitClass(): uint32;
+    GetUnitFlags(): uint32;
+    GetUnitFlags2(): uint32;
+    GetDynamicFlags(): uint32;
+    GetFamily(): uint32;
+    GetType(): uint32;
+    GetTypeFlags(): uint32;
+    GetLootID(): uint32;
+    GetPickpocketLootID(): uint32;
+    GetSkinLootID(): uint32;
+
+    GetNormalResistance(): int32;
+    GetHolyResistance(): int32;
+    GetFireResistance(): int32;
+    GetNatureResistance(): int32;
+    GetFrostResistance(): int32;
+    GetShadowResistance(): int32;
+    GetArcaneResistance(): int32;
+
+    GetSpellA(): uint32;
+    GetSpellB(): uint32;
+    GetSpellC(): uint32;
+    GetSpellD(): uint32;
+    GetSpellE(): uint32;
+    GetSpellF(): uint32;
+    GetSpellG(): uint32;
+    GetSpellH(): uint32;
+    GetPetSpellDataID(): uint32;
+    GetVehicleID(): uint32;
+    GetMinGold(): uint32;
+    GetMaxGold(): uint32;
+    GetAIName(): string;
+    GetMovementType(): uint32;
+
+    GetHoverHeight(): float;
+    GetModHealth(): float;
+    GetModMana(): float;
+    GetModArmor(): float;
+    GetModDamage(): float;
+    GetModExperience(): float;
+    GetRacialLeader(): bool;
+    GetMovementID(): uint32;
+    GetRegenHealth(): bool;
+    GetMechanicImmuneMask(): uint32;
+    GetSpellSchoolImmuneMask(): uint32;
+    GetFlagsExtra(): uint32;
+    GetScriptID(): uint32;
+    GetRandomValidModelID(): uint32;
+    GetFirstValidModelID(): uint32;
+    GetFirstInvisibleModel(): uint32;
+    GetFirstVisibleModel(): uint32;
+    GetRequiredLootSkill(): uint32;
+    GetIsExotic(): bool;
+    GetIsTameable(canTameExotic: bool): bool;
+
+    // CreatureMovementData
+    GetGroundMovement(): uint32;
+    GetFlightMovement(): uint32;
+    GetSwims(): bool;
+    GetRooted(): bool;
+    GetChaseMovement(): uint32;
+    GetRandomMovement(): uint32;
+    GetInteractionPauseTimer(): uint32;
+    GetIsGroundAllowed(): bool;
+    GetIsSwimAllowed(): bool;
+    GetIsFlightAllowed(): bool;
+    GetIsRooted(): bool; 
+}
+
 declare class TSCreature extends TSUnit {
     GetLoot(): TSLoot;
+    GetTemplate(): TSCreatureTemplate;
 
     IsNull() : bool
 
@@ -3178,33 +3303,10 @@ declare class TSQuest {
     GetType() : uint32    
 }
 
-declare class TSMap {
+declare class TSMap extends StorageClass {
     IsNull() : bool
 
     GetTasks(): TSTasks<TSMap>;
-    GetData(): TSStorage;
-
-    SetObject<T>(key: string, obj: T): T;
-    HasObject(modid: uint32, key: string): boolean;
-    GetObject<T>(key: string, value: T): T;
-    GetDBObject<T>(key: string, sql: string, value: T): T;
-
-    SetInt(key: string, value: int32): int32;
-    HasInt(key: string): boolean;
-    GetInt(key: string, def?: int32): int32;
-
-    SetUInt(key: string, value: uint32): uint32;
-    HasUInt(key: string): boolean;
-    GetUInt(key: string, def?: uint32): uint32;
-
-    SetFloat(key: string, value: double): double;
-    HasFloat(key: string): boolean;
-    GetFloat(key: string, def?: float): double;
-
-    SetString(key: string, value: string): string;
-    HasString(key: string): boolean;
-    GetString(key: string, def?: string): string;
-
     AddTimer(name: string, time: uint32, repeats: uint32, callback: TimerCallback<TSMap>)
     RemoveTimer(name: string);
 
@@ -6138,7 +6240,7 @@ declare class TSUnit extends TSWorldObject {
     AddThreat(victim : TSUnit,threat : float,spell : uint32,schoolMask : uint32) : void    
 }
 
-declare class TSItemTemplate {
+declare class TSItemTemplate extends StorageClass {
     IsNull() : bool
     ID() : uint32;
     DamageMinA(): float;
@@ -6234,7 +6336,7 @@ declare class TSItemTemplate {
     HasSignature(): bool;
 }
 
-declare class TSSpellInfo {
+declare class TSSpellInfo extends StorageClass {
 	IsNull() : bool
     ID() : uint32
 	School() : uint32

@@ -25,6 +25,7 @@
 #include "SpellAuraDefines.h"
 // @tswow-begin
 #include "TSEvents.h"
+#include "TSStorage.h"
 // @tswow-end
 #include <boost/container/flat_set.hpp>
 
@@ -403,7 +404,11 @@ class TC_GAME_API SpellInfo
         std::array<SpellEffectInfo, MAX_SPELL_EFFECTS> Effects;
         uint32 ExplicitTargetMask;
         SpellChainNode const* ChainEntry;
-        TSSpellEvents* events = nullptr; // @tswow-line
+
+        // @tswow-begin
+        TSSpellEvents* events = nullptr;
+        TSStorage storage;
+        // @tswow-end
 
         SpellInfo(SpellEntry const* spellEntry);
         ~SpellInfo();
