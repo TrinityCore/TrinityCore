@@ -28,6 +28,7 @@
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
+#include "Player.h"
 #include "PhasingHandler.h"
 #include "World.h"
 #include "ScriptMgr.h"
@@ -180,18 +181,18 @@ void LoadHelper(CellGuidSet const& guid_set, CellCoord& cell, GridRefManager<T>&
     }
 }
 
-CellObjectGuids const& ObjectGridLoader::GetCellGuids(CellCoord const& cellCoord) const
+CellObjectGuids const& GetCellGuids(uint32 phaseId, Map* map, CellCoord const& cellCoord)
 {
-    if (_phaseId)
-        return sObjectMgr->GetCellPersonalObjectGuids(i_map->GetId(), i_map->GetDifficultyID(), _phaseId, cellCoord.GetId());
+    if (phaseId)
+        return sObjectMgr->GetCellPersonalObjectGuids(map->GetId(), map->GetDifficultyID(), phaseId, cellCoord.GetId());
     else
-        return sObjectMgr->GetCellObjectGuids(i_map->GetId(), i_map->GetDifficultyID(), cellCoord.GetId());
+        return sObjectMgr->GetCellObjectGuids(map->GetId(), map->GetDifficultyID(), cellCoord.GetId());
 }
 
 void ObjectGridLoader::Visit(GameObjectMapType& m)
 {
     CellCoord cellCoord = i_cell.GetCellCoord();
-    CellObjectGuids const& cell_guids = GetCellGuids(cellCoord);
+    CellObjectGuids const& cell_guids = GetCellGuids(_phaseId, i_map, cellCoord);
 
     LoadHelper(cell_guids.gameobjects, cellCoord, m, i_gameObjects, i_map, _phaseId, _phaseOwner);
 }
@@ -199,7 +200,7 @@ void ObjectGridLoader::Visit(GameObjectMapType& m)
 void ObjectGridLoader::Visit(CreatureMapType &m)
 {
     CellCoord cellCoord = i_cell.GetCellCoord();
-    CellObjectGuids const& cell_guids = GetCellGuids(cellCoord);
+    CellObjectGuids const& cell_guids = GetCellGuids(_phaseId, i_map, cellCoord);
     LoadHelper(cell_guids.creatures, cellCoord, m, i_creatures, i_map, _phaseId, _phaseOwner);
 }
 

@@ -49,8 +49,6 @@ class TC_GAME_API ObjectGridLoader
         template<class T> static void SetObjectCell(T* obj, CellCoord const& cellCoord);
 
     private:
-        CellObjectGuids const& GetCellGuids(CellCoord const& cellCoord) const;
-
         Cell i_cell;
         NGridType &i_grid;
         Map* i_map;

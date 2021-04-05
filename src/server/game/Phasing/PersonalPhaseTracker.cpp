@@ -16,6 +16,8 @@
  */
 
 #include "PersonalPhaseTracker.h"
+#include "Map.h"
+#include "Object.h"
 
  /*********************************************************/
  /***             PersonalPhaseTracker                  ***/
@@ -71,7 +73,7 @@ void PersonalPhaseTracker::DestroyGroup(Map* map, PersonalPhaseTrackerGroup& gro
     group.deleteAfter = PersonalPhaseTrackerGroup::DELETE_TIME_NEVER;
 }
 
-void PersonalPhaseTracker::CleanAllGroups(Map* map)
+void PersonalPhaseTracker::CleanAllGroups()
 {
     for (auto& iter : _phasedGroups)
         if (iter.second.AnyLoaded())
@@ -111,13 +113,13 @@ void MultiPersonalPhaseTracker::AddPersonalPhaseObject(WorldObject const* phaseO
     _data[phaseOwner->GetGUID()].AddPersonalPhaseObject(phaseOwner, phaseId, obj);
 }
 
-void MultiPersonalPhaseTracker::CleanOwnerGroups(WorldObject const* phaseOwner, Map* map)
+void MultiPersonalPhaseTracker::CleanOwnerGroups(WorldObject const* phaseOwner)
 {
     auto iter = _data.find(phaseOwner->GetGUID());
     if (iter == _data.cend())
         return;
 
-    iter->second.CleanAllGroups(map);
+    iter->second.CleanAllGroups();
 }
 
 void MultiPersonalPhaseTracker::RemoveObjectFromPhases(WorldObject* object)

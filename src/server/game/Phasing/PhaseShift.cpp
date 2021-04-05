@@ -17,6 +17,7 @@
 
 #include "PhaseShift.h"
 #include "Containers.h"
+#include "Object.h"
 
 bool PhaseShift::AddPhase(uint32 phaseId, PhaseFlags flags, std::vector<Condition*> const* areaConditions, int32 references /*= 1*/)
 {

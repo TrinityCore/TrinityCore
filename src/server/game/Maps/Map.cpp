@@ -1092,7 +1092,7 @@ void Map::RemovePlayerFromMap(Player* player, bool remove)
     player->UpdateZone(MAP_INVALID_ZONE, 0);
     sScriptMgr->OnPlayerLeaveMap(this, player);
 
-    GetMultiPersonalPhaseTracker().CleanOwnerGroups(player, this);
+    GetMultiPersonalPhaseTracker().CleanOwnerGroups(player);
 
     player->getHostileRefManager().deleteReferences(); // multithreading crashfix
 

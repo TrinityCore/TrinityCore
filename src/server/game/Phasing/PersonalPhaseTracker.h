@@ -19,9 +19,11 @@
 #define _PERSONAL_PHASE_TRACKER_H
 
 #include "Common.h"
+#include "ObjectGuid.h"
 #include <unordered_map>
 #include <set>
 
+class Map;
 class WorldObject;
 
 struct PersonalPhaseTrackerGroup
@@ -50,7 +52,7 @@ public:
     void OnOwnerPhasesChanged(WorldObject const* owner);
     void RemoveObjectFromPhases(WorldObject* object);
 
-    void CleanAllGroups(Map* map);
+    void CleanAllGroups();
 
     void Update(Map* map, uint32 diff);
 
@@ -67,7 +69,7 @@ private:
 struct MultiPersonalPhaseTracker
 {
     void AddPersonalPhaseObject(WorldObject const* phaseOwner, uint32 phaseId, WorldObject* obj);
-    void CleanOwnerGroups(WorldObject const* phaseOwner, Map* map);
+    void CleanOwnerGroups(WorldObject const* phaseOwner);
     void RemoveObjectFromPhases(WorldObject* object);
 
     void OnOwnerPhaseChanged(WorldObject const* phaseOwner);

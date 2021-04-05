@@ -23,6 +23,7 @@
 #include "Language.h"
 #include "Map.h"
 #include "MiscPackets.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "PartyPackets.h"
 #include "PhaseShift.h"
