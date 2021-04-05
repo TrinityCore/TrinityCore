@@ -242,7 +242,7 @@ bool QuestObjectiveCriteriaMgr::HasCompletedObjective(QuestObjective const* ques
     return _completedObjectives.find(questObjective->ID) != _completedObjectives.end();
 }
 
-void QuestObjectiveCriteriaMgr::SendCriteriaUpdate(Criteria const* criteria, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const
+void QuestObjectiveCriteriaMgr::SendCriteriaUpdate(Criteria const* criteria, CriteriaProgress const* progress, Seconds timeElapsed, bool timedCompleted) const
 {
     WorldPackets::Achievement::CriteriaUpdate criteriaUpdate;
 
@@ -254,7 +254,7 @@ void QuestObjectiveCriteriaMgr::SendCriteriaUpdate(Criteria const* criteria, Cri
         criteriaUpdate.Flags = timedCompleted ? 1 : 0; // 1 is for keeping the counter at 0 in client
 
     criteriaUpdate.CurrentTime = progress->Date;
-    criteriaUpdate.ElapsedTime = timeElapsed;
+    criteriaUpdate.ElapsedTime = uint32(timeElapsed.count());
     criteriaUpdate.CreationTime = 0;
 
     SendPacket(criteriaUpdate.Write());

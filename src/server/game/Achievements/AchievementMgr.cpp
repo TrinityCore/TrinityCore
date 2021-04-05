@@ -582,7 +582,7 @@ bool PlayerAchievementMgr::ModifierTreeSatisfied(uint32 modifierTreeId) const
     return false;
 }
 
-void PlayerAchievementMgr::SendCriteriaUpdate(Criteria const* criteria, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const
+void PlayerAchievementMgr::SendCriteriaUpdate(Criteria const* criteria, CriteriaProgress const* progress, Seconds timeElapsed, bool timedCompleted) const
 {
     if (criteria->FlagsCu & CRITERIA_FLAG_CU_ACCOUNT)
     {
@@ -596,7 +596,7 @@ void PlayerAchievementMgr::SendCriteriaUpdate(Criteria const* criteria, Criteria
             criteriaUpdate.Progress.Flags = timedCompleted ? 1 : 0; // 1 is for keeping the counter at 0 in client
 
         criteriaUpdate.Progress.Date = progress->Date;
-        criteriaUpdate.Progress.TimeFromStart = timeElapsed;
+        criteriaUpdate.Progress.TimeFromStart = uint32(timeElapsed.count());
         criteriaUpdate.Progress.TimeFromCreate = 0;
 
         SendPacket(criteriaUpdate.Write());
@@ -613,7 +613,7 @@ void PlayerAchievementMgr::SendCriteriaUpdate(Criteria const* criteria, Criteria
             criteriaUpdate.Flags = timedCompleted ? 1 : 0; // 1 is for keeping the counter at 0 in client
 
         criteriaUpdate.CurrentTime = progress->Date;
-        criteriaUpdate.ElapsedTime = timeElapsed;
+        criteriaUpdate.ElapsedTime = uint32(timeElapsed.count());
         criteriaUpdate.CreationTime = 0;
 
         SendPacket(criteriaUpdate.Write());
@@ -965,7 +965,7 @@ void GuildAchievementMgr::CompletedAchievement(AchievementEntry const* achieveme
     UpdateCriteria(CRITERIA_TYPE_EARN_ACHIEVEMENT_POINTS, achievement->Points, 0, 0, nullptr, referencePlayer);
 }
 
-void GuildAchievementMgr::SendCriteriaUpdate(Criteria const* entry, CriteriaProgress const* progress, uint32 /*timeElapsed*/, bool /*timedCompleted*/) const
+void GuildAchievementMgr::SendCriteriaUpdate(Criteria const* entry, CriteriaProgress const* progress, Seconds /*timeElapsed*/, bool /*timedCompleted*/) const
 {
     WorldPackets::Achievement::GuildCriteriaUpdate guildCriteriaUpdate;
     guildCriteriaUpdate.Progress.resize(1);
