@@ -134,7 +134,7 @@ void Guild::EventLogEntry::SaveToDB(CharacterDatabaseTransaction& trans) const
     stmt->setUInt64(++index, m_playerGuid1);
     stmt->setUInt64(++index, m_playerGuid2);
     stmt->setUInt8 (++index, m_newRank);
-    stmt->setUInt64(++index, m_timestamp);
+    stmt->setInt64 (++index, m_timestamp);
     trans->Append(stmt);
 }
 
@@ -173,7 +173,7 @@ void Guild::BankEventLogEntry::SaveToDB(CharacterDatabaseTransaction& trans) con
     stmt->setUInt64(++index, m_itemOrMoney);
     stmt->setUInt16(++index, m_itemStackCount);
     stmt->setUInt8 (++index, m_destTabId);
-    stmt->setUInt64(++index, m_timestamp);
+    stmt->setInt64 (++index, m_timestamp);
     trans->Append(stmt);
 }
 
@@ -218,7 +218,7 @@ void Guild::NewsLogEntry::SaveToDB(CharacterDatabaseTransaction& trans) const
     stmt->setUInt64(++index, GetPlayerGuid().GetCounter());
     stmt->setUInt32(++index, GetFlags());
     stmt->setUInt32(++index, GetValue());
-    stmt->setUInt64(++index, GetTimestamp());
+    stmt->setInt64 (++index, GetTimestamp());
     CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
 
@@ -2421,7 +2421,7 @@ bool Guild::LoadEventLogFromDB(Field* fields) const
         m_eventLog->LoadEvent(new EventLogEntry(
             m_id,                                       // guild id
             fields[1].GetUInt32(),                      // guid
-            time_t(fields[6].GetUInt32()),              // timestamp
+            fields[6].GetInt64(),                       // timestamp
             GuildEventLogTypes(fields[2].GetUInt8()),   // event type
             fields[3].GetUInt64(),                      // player guid 1
             fields[4].GetUInt64(),                      // player guid 2
@@ -2459,7 +2459,7 @@ bool Guild::LoadBankEventLogFromDB(Field* fields)
             pLog->LoadEvent(new BankEventLogEntry(
                 m_id,                                   // guild id
                 guid,                                   // guid
-                time_t(fields[8].GetUInt32()),          // timestamp
+                fields[8].GetInt64(),                   // timestamp
                 dbTabId,                                // tab id
                 eventType,                              // event type
                 fields[4].GetUInt64(),                  // player guid
@@ -2479,7 +2479,7 @@ void Guild::LoadGuildNewsLogFromDB(Field* fields) const
     m_newsLog->LoadEvent(new NewsLogEntry(
     m_id,                                               // guild id
     fields[1].GetUInt32(),                              // guid
-    fields[6].GetUInt32(),                              // timestamp //64 bits?
+    fields[6].GetInt64(),                               // timestamp //64 bits?
     GuildNews(fields[2].GetUInt8()),                    // type
     ObjectGuid::Create<HighGuid::Player>(fields[3].GetUInt64()), // player guid
     fields[4].GetUInt32(),                              // Flags

@@ -406,14 +406,14 @@ class TC_GAME_API Guild
                 virtual ~LogEntry() { }
 
                 uint32 GetGUID() const { return m_guid; }
-                uint64 GetTimestamp() const { return m_timestamp; }
+                time_t GetTimestamp() const { return m_timestamp; }
 
                 virtual void SaveToDB(CharacterDatabaseTransaction& trans) const = 0;
 
             protected:
                 ObjectGuid::LowType m_guildId;
                 uint32 m_guid;
-                uint64 m_timestamp;
+                time_t m_timestamp;
         };
 
         // Event log entry

@@ -3043,7 +3043,7 @@ BanReturn World::BanCharacter(std::string const& name, std::string const& durati
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_BAN);
     stmt->setUInt64(0, guid.GetCounter());
-    stmt->setUInt32(1, duration_secs);
+    stmt->setInt64(1, duration_secs);
     stmt->setString(2, author);
     stmt->setString(3, reason);
     trans->Append(stmt);
