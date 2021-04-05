@@ -1847,12 +1847,11 @@ class TC_GAME_API ObjectMgr
         QuestRelationResult GetQuestRelationsFrom(QuestRelations const& map, uint32 key, bool onlyActive) const { return { map.equal_range(key), onlyActive }; }
         void PlayerCreateInfoAddItemHelper(uint32 race_, uint32 class_, uint32 itemId, int32 count);
 
-        CellObjectGuids& GetGridCellObjectGuids(SpawnData const* data, bool isPhasePersonal, Difficulty difficulty);
-
-        template <bool IsCreature> CellGuidSet & GetGridCellGuidSet(CellObjectGuids& cellObjectGuids) { return cellObjectGuids.creatures; }
-        template <> CellGuidSet & GetGridCellGuidSet<false>(CellObjectGuids& cellObjectGuids) { return cellObjectGuids.gameobjects; }
+        template <bool IsCreature> CellGuidSet& GetGridCellGuidSetFromCell(CellObjectGuids& cellObjectGuids);
 
         template <bool IsCreature> CellGuidSet& GetGridCellGuidSet(SpawnData const* data, bool isPhasePersonal, Difficulty difficulty);
+
+        CellObjectGuids& GetGridCellObjectGuids(SpawnData const* data, bool isPhasePersonal, Difficulty difficulty);
 
         template <bool IsCreature>
         void InsertToGrid(ObjectGuid::LowType guid, SpawnData const* data, bool isPhasePersonal, Difficulty difficulty);

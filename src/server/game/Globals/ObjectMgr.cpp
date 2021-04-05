@@ -2308,6 +2308,18 @@ void ObjectMgr::LoadCreatures()
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " creatures in %u ms", _creatureDataStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
+template <bool IsCreature>
+CellGuidSet& ObjectMgr::GetGridCellGuidSetFromCell(CellObjectGuids& cellObjectGuids)
+{
+    return cellObjectGuids.creatures;
+}
+
+template <>
+CellGuidSet& ObjectMgr::GetGridCellGuidSetFromCell<false>(CellObjectGuids& cellObjectGuids)
+{
+    return cellObjectGuids.gameobjects;
+}
+
 CellObjectGuids& ObjectMgr::GetGridCellObjectGuids(SpawnData const* data, bool isPhasePersonal, Difficulty difficulty)
 {
     CellCoord cellCoord = Trinity::ComputeCellCoord(data->spawnPoint.GetPositionX(), data->spawnPoint.GetPositionY());
@@ -2329,7 +2341,7 @@ void ObjectMgr::InsertToGrid(ObjectGuid::LowType guid, SpawnData const* data, bo
 template <bool IsCreature>
 CellGuidSet& ObjectMgr::GetGridCellGuidSet(SpawnData const* data, bool isPhasePersonal, Difficulty difficulty)
 {
-    return GetGridCellGuidSet<IsCreature>(GetGridCellObjectGuids(data, isPhasePersonal, difficulty));
+    return GetGridCellGuidSetFromCell<IsCreature>(GetGridCellObjectGuids(data, isPhasePersonal, difficulty));
 }
 
 template <bool IsCreature>
