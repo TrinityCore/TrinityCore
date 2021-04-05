@@ -595,11 +595,14 @@ void WorldSession::HandleMoveKnockBackAck(WorldPacket& recvData)
     MovementInfo movementInfo;
     ReadMovementInfo(recvData, &movementInfo);
 
-    _player->m_movementInfo = movementInfo;
+    GameClient* client = GetGameClient();
+    Unit* mover = client->GetActiveMover();
+
+    mover->m_movementInfo = movementInfo;
 
     WorldPacket data(MSG_MOVE_KNOCK_BACK, 66);
     data << guid.WriteAsPacked();
-    _player->BuildMovementPacket(&data);
+    mover->BuildMovementPacket(&data);
 
     // knockback specific info
     data << movementInfo.jump.sinAngle;
@@ -607,7 +610,7 @@ void WorldSession::HandleMoveKnockBackAck(WorldPacket& recvData)
     data << movementInfo.jump.xyspeed;
     data << movementInfo.jump.zspeed;
 
-    _player->SendMessageToSet(&data, false);
+    client->GetBasePlayer()->SendMessageToSet(&data, false);
 }
 
 void WorldSession::HandleMoveHoverAck(WorldPacket& recvData)
