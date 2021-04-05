@@ -66,7 +66,7 @@ void CinematicMgr::NextCinematicCamera()
             if (!pos.IsPositionValid())
                 return;
 
-            player->GetMap()->LoadGrid(pos.GetPositionX(), pos.GetPositionY());
+            player->GetMap()->LoadGridForActiveObject(pos.GetPositionX(), pos.GetPositionY(), player);
             m_CinematicObject = player->SummonCreature(VISUAL_WAYPOINT, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 5 * MINUTE * IN_MILLISECONDS);
             if (m_CinematicObject)
             {

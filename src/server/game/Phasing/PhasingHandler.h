@@ -67,12 +67,14 @@ public:
     static void SetAlwaysVisible(WorldObject* object, bool apply, bool updateVisibility);
     static void SetInversed(WorldObject* object, bool apply, bool updateVisibility);
 
-    static void PrintToChat(ChatHandler* chat, PhaseShift const& phaseShift);
+    static void PrintToChat(ChatHandler* chat, WorldObject const* target);
     static std::string FormatPhases(PhaseShift const& phaseShift);
 
+    static bool IsPhasePersonal(uint32 phaseId);
+
 private:
-    static void AddPhase(WorldObject* object, uint32 phaseId, ObjectGuid const& personalGuid, bool updateVisibility);
-    static void AddPhaseGroup(WorldObject* object, uint32 phaseGroupId, ObjectGuid const& personalGuid, bool updateVisibility);
+    static void AddPhase(WorldObject* object, uint32 phaseId, WorldObject* personalOwner, bool updateVisibility);
+    static void AddPhaseGroup(WorldObject* object, uint32 phaseGroupId, WorldObject* personalOwner, bool updateVisibility);
     static void UpdateVisibilityIfNeeded(WorldObject* object, bool updateVisibility, bool changed);
 };
 

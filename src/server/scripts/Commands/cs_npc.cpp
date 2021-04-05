@@ -305,8 +305,9 @@ public:
         };
         static std::vector<ChatCommand> npcDeleteCommandTable =
         {
-            { "item", rbac::RBAC_PERM_COMMAND_NPC_DELETE_ITEM, false, &HandleNpcDeleteVendorItemCommand,  "" },
-            { "",     rbac::RBAC_PERM_COMMAND_NPC_DELETE,      false, &HandleNpcDeleteCommand,            "" },
+            { "item",   rbac::RBAC_PERM_COMMAND_NPC_DELETE_ITEM, false, &HandleNpcDeleteVendorItemCommand,  "" },
+            { "phased", rbac::RBAC_PERM_COMMAND_NPC_DELETE_ITEM, false, &HandleNpcDeletePhasedCommand,      "" },
+            { "",       rbac::RBAC_PERM_COMMAND_NPC_DELETE,      false, &HandleNpcDeleteCommand,            "" },
         };
         static std::vector<ChatCommand> npcFollowCommandTable =
         {
@@ -590,11 +591,21 @@ public:
         return true;
     }
 
+    static bool HandleNpcDeletePhasedCommand(ChatHandler* handler, char const* args)
+    {
+        return HandleGenericNpcDeleteCommand(handler, nullptr, false);
+    }
+
     static bool HandleNpcDeleteCommand(ChatHandler* handler, char const* args)
+    {
+        return HandleGenericNpcDeleteCommand(handler, args, true);
+    }
+
+    static bool HandleGenericNpcDeleteCommand(ChatHandler* handler, char const* args, bool deleteFromDB)
     {
         Creature* creature = nullptr;
 
-        if (*args)
+        if (args && *args)
         {
             // number or [name] Shift-click form |color|Hcreature:creature_guid|h[name]|h|r
             char* cId = handler->extractKeyFromLink((char*)args, "Hcreature");
@@ -625,7 +636,8 @@ public:
         {
             // Delete the creature
             creature->CombatStop();
-            creature->DeleteFromDB();
+            if (deleteFromDB)
+                creature->DeleteFromDB();
             creature->AddObjectToRemoveList();
         }
 
@@ -865,7 +877,7 @@ public:
         if (CreatureData const* data = sObjectMgr->GetCreatureData(target->GetSpawnId()))
         {
             handler->PSendSysMessage(LANG_NPCINFO_PHASES, data->phaseId, data->phaseGroup);
-            PhasingHandler::PrintToChat(handler, target->GetPhaseShift());
+            PhasingHandler::PrintToChat(handler, target);
         }
 
         handler->PSendSysMessage(LANG_NPCINFO_ARMOR, target->GetArmor());

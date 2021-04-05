@@ -118,7 +118,7 @@ void AddObjectHelper(CellCoord &cell, CreatureMapType &m, uint32 &count, Map* ma
 }
 
 template <class T>
-void LoadHelper(CellGuidSet const& guid_set, CellCoord &cell, GridRefManager<T> &m, uint32 &count, Map* map)
+void LoadHelper(CellGuidSet const& guid_set, CellCoord& cell, GridRefManager<T>& m, uint32& count, Map* map, uint32 phaseId, Player const* phaseOwner)
 {
     for (CellGuidSet::const_iterator i_guid = guid_set.begin(); i_guid != guid_set.end(); ++i_guid)
     {
@@ -166,38 +166,52 @@ void LoadHelper(CellGuidSet const& guid_set, CellCoord &cell, GridRefManager<T> 
                     }
             }
 
-            if (!obj->LoadFromDB(guid, map, false, false))
+            if (!obj->LoadFromDB(guid, map, false, phaseOwner != nullptr /* allowDuplicate */))
             {
                 delete obj;
                 continue;
             }
             AddObjectHelper(cell, m, count, map, obj);
+            if (phaseOwner)
+                map->GetMultiPersonalPhaseTracker().AddPersonalPhaseObject(phaseOwner, phaseId, obj);
         }
         else
             delete obj;
     }
 }
 
+CellObjectGuids const& ObjectGridLoader::GetCellGuids(CellCoord const& cellCoord) const
+{
+    if (_phaseId)
+        return sObjectMgr->GetCellPersonalObjectGuids(i_map->GetId(), i_map->GetDifficultyID(), _phaseId, cellCoord.GetId());
+    else
+        return sObjectMgr->GetCellObjectGuids(i_map->GetId(), i_map->GetDifficultyID(), cellCoord.GetId());
+}
+
 void ObjectGridLoader::Visit(GameObjectMapType& m)
 {
     CellCoord cellCoord = i_cell.GetCellCoord();
-    CellObjectGuids const& cell_guids = sObjectMgr->GetCellObjectGuids(i_map->GetId(), i_map->GetDifficultyID(), cellCoord.GetId());
-    LoadHelper(cell_guids.gameobjects, cellCoord, m, i_gameObjects, i_map);
+    CellObjectGuids const& cell_guids = GetCellGuids(cellCoord);
+
+    LoadHelper(cell_guids.gameobjects, cellCoord, m, i_gameObjects, i_map, _phaseId, _phaseOwner);
 }
 
 void ObjectGridLoader::Visit(CreatureMapType &m)
 {
     CellCoord cellCoord = i_cell.GetCellCoord();
-    CellObjectGuids const& cell_guids = sObjectMgr->GetCellObjectGuids(i_map->GetId(), i_map->GetDifficultyID(), cellCoord.GetId());
-    LoadHelper(cell_guids.creatures, cellCoord, m, i_creatures, i_map);
+    CellObjectGuids const& cell_guids = GetCellGuids(cellCoord);
+    LoadHelper(cell_guids.creatures, cellCoord, m, i_creatures, i_map, _phaseId, _phaseOwner);
 }
 
 void ObjectGridLoader::Visit(AreaTriggerMapType& m)
 {
+    if (_phaseOwner) // no area triggers per phase (yet)
+        return;
+
     CellCoord cellCoord = i_cell.GetCellCoord();
     CellGuidSet const* areaTriggers = sAreaTriggerDataStore->GetAreaTriggersForMapAndCell(i_map->GetId(), cellCoord.GetId());
     if (areaTriggers)
-        LoadHelper(*areaTriggers, cellCoord, m, i_areaTriggers, i_map);
+        LoadHelper(*areaTriggers, cellCoord, m, i_areaTriggers, i_map, 0, nullptr);
 }
 
 void ObjectWorldLoader::Visit(CorpseMapType& /*m*/)
@@ -222,7 +236,6 @@ void ObjectWorldLoader::Visit(CorpseMapType& /*m*/)
 void ObjectGridLoader::LoadN(void)
 {
     i_gameObjects = 0; i_creatures = 0; i_corpses = 0;
-    i_cell.data.Part.cell_y = 0;
     for (uint32 x = 0; x < MAX_NUMBER_OF_CELLS; ++x)
     {
         i_cell.data.Part.cell_x = x;

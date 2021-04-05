@@ -485,6 +485,7 @@ struct CellObjectGuids
 };
 typedef std::unordered_map<uint32/*cell_id*/, CellObjectGuids> CellObjectGuidsMap;
 typedef std::unordered_map<uint32/*(mapid, spawnMode) pair*/, CellObjectGuidsMap> MapObjectGuids;
+typedef std::unordered_map<std::pair<uint32/*(mapid, spawnMode) pair*/, uint32 /*phaseId*/>, CellObjectGuidsMap> MapPersonalObjectGuids;
 
 // Trinity Trainer Reference start range
 #define TRINITY_TRAINER_START_REF      200000
@@ -1418,6 +1419,13 @@ class TC_GAME_API ObjectMgr
             return _mapObjectGuidsStore[MAKE_PAIR32(mapid, spawnMode)];
         }
 
+        CellObjectGuids const& GetCellPersonalObjectGuids(uint16 mapid, uint8 spawnMode, uint16 phaseId, uint32 cell_id)
+        {
+            // TODO if no need for a check, use single line
+            CellObjectGuidsMap& guidsMap = _mapPersonalObjectGuidsStore[std::make_pair(MAKE_PAIR32(mapid, spawnMode), phaseId)];
+            return guidsMap[cell_id];
+        }
+
         /**
          * Gets temp summon data for all creatures of specified group.
          *
@@ -1780,6 +1788,20 @@ class TC_GAME_API ObjectMgr
         void LoadQuestRelationsHelper(QuestRelations& map, QuestRelationsReverse* reverseMap, std::string const& table, bool starter, bool go);
         void PlayerCreateInfoAddItemHelper(uint32 race_, uint32 class_, uint32 itemId, int32 count);
 
+        CellObjectGuids& GetGridCellObjectGuids(SpawnData const* data, bool isPhasePersonal, Difficulty difficulty);
+
+        template <bool IsCreature> CellGuidSet & GetGridCellGuidSet(CellObjectGuids& cellObjectGuids) { return cellObjectGuids.creatures; }
+        template <> CellGuidSet & GetGridCellGuidSet<false>(CellObjectGuids& cellObjectGuids) { return cellObjectGuids.gameobjects; }
+
+        template <bool IsCreature> CellGuidSet& GetGridCellGuidSet(SpawnData const* data, bool isPhasePersonal, Difficulty difficulty);
+
+        template <bool IsCreature>
+        void InsertToGrid(ObjectGuid::LowType guid, SpawnData const* data, bool isPhasePersonal, Difficulty difficulty);
+
+        template <bool IsCreature>
+        void RemoveFromGrid(ObjectGuid::LowType guid, SpawnData const* data, bool isPhasePersonal, Difficulty difficulty);
+
+
         MailLevelRewardContainer _mailLevelRewardStore;
 
         CreatureBaseStatsContainer _creatureBaseStatsStore;
@@ -1807,6 +1829,7 @@ class TC_GAME_API ObjectMgr
         HalfNameContainer _petHalfName1;
 
         MapObjectGuids _mapObjectGuidsStore;
+        MapPersonalObjectGuids _mapPersonalObjectGuidsStore;
         CreatureDataContainer _creatureDataStore;
         CreatureTemplateContainer _creatureTemplateStore;
         CreatureModelContainer _creatureModelStore;

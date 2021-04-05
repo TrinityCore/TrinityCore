@@ -27,6 +27,7 @@
 class PhasingHandler;
 struct Condition;
 struct TerrainSwapInfo;
+class WorldObject;
 
 #define DEFAULT_PHASE 169
 
@@ -65,6 +66,7 @@ public:
         std::vector<Condition*> const* AreaConditions;
         bool operator<(PhaseRef const& right) const { return Id < right.Id; }
         bool operator==(PhaseRef const& right) const { return Id == right.Id; }
+        bool IsPersonal() const { return Flags.HasFlag(PhaseFlags::Personal); }
     };
     struct VisibleMapIdRef
     {
@@ -104,6 +106,13 @@ public:
     void ClearPhases();
 
     bool CanSee(PhaseShift const& other) const;
+
+    bool HasPersonalPhase() const;
+
+    ObjectGuid const& GetPersonalGuid() const { return PersonalGuid; }
+
+    void SetPersonalOwner(WorldObject const* personalOwner);
+    void ClearPersonalOwner();
 
 protected:
     friend class PhasingHandler;

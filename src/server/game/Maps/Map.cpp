@@ -41,6 +41,7 @@
 #include "ObjectAccessor.h"
 #include "ObjectGridLoader.h"
 #include "ObjectMgr.h"
+#include "PhaseShift.h"
 #include "Pet.h"
 #include "PhasingHandler.h"
 #include "PoolMgr.h"
@@ -332,7 +333,8 @@ m_unloadTimer(0), m_VisibleDistance(DEFAULT_VISIBILITY_DISTANCE),
 m_VisibilityNotifyPeriod(DEFAULT_VISIBILITY_NOTIFY_PERIOD),
 m_activeNonPlayersIter(m_activeNonPlayers.end()), _transportsUpdateIter(_transports.end()),
 i_gridExpiry(expiry),
-i_scriptLock(false), _respawnCheckTimer(0), _defaultLight(DB2Manager::GetDefaultMapLight(id))
+i_scriptLock(false), _respawnCheckTimer(0), _defaultLight(DB2Manager::GetDefaultMapLight(id)),
+_multiPersonalPhaseTracker()
 {
     if (_parent)
     {
@@ -568,6 +570,7 @@ void Map::EnsureGridCreated_i(GridCoord const& p)
 void Map::EnsureGridLoadedForActiveObject(Cell const& cell, WorldObject* object)
 {
     EnsureGridLoaded(cell);
+    EnsurePhasedObjectsLoadedForActiveObject(cell, object);
     NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
     ASSERT(grid != nullptr);
 
@@ -578,6 +581,45 @@ void Map::EnsureGridLoadedForActiveObject(Cell const& cell, WorldObject* object)
         ResetGridExpiry(*grid, 0.1f);
         grid->SetGridState(GRID_STATE_ACTIVE);
     }
+}
+
+void Map::EnsurePhasedObjectsLoadedForActiveObject(Cell const& cell, WorldObject const* object)
+{
+    if (!object)
+        return;
+
+    Player const* player = object->ToPlayer();
+    if (!player)
+        return;
+
+    EnsureGridCreated(GridCoord(cell.GridX(), cell.GridY()));
+    NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
+
+    ASSERT(grid != nullptr);
+    if (LoadPhasedGridObjectsForObject(grid, cell, player))
+        Balance();
+}
+
+bool Map::LoadPhasedGridObjectsForObject(NGridType* grid, Cell const& cell, Player const* player)
+{
+    PhaseShift::PhaseContainer const& phases = player->GetPhaseShift().GetPhases();
+    bool any = false;
+    PersonalPhaseTracker& playerPhaseTracker = GetMultiPersonalPhaseTracker().GetPersonalPhaseTracker(player->GetGUID());
+    uint32 gridId = grid->GetGridId();
+    for (PhaseShift::PhaseRef const& phaseRef : phases)
+    {
+        if (phaseRef.IsPersonal() && !playerPhaseTracker.IsGridLoadedForPhase(gridId, phaseRef.Id))
+        {
+            TC_LOG_DEBUG("maps", "Loading phased objects %u in grid[%u, %u] for map %u instance %u",
+                phaseRef.Id, cell.GridX(), cell.GridY(), GetId(), i_InstanceId);
+
+            ObjectGridLoader loader(*grid, this, cell, phaseRef.Id, player);
+            loader.LoadN();
+
+            playerPhaseTracker.SetGridLoadedForPhase(gridId, phaseRef.Id);
+        }
+    }
+    return any;
 }
 
 //Create NGrid and load the object data in it
@@ -604,7 +646,7 @@ bool Map::EnsureGridLoaded(Cell const& cell)
 
 void Map::LoadGridObjects(NGridType* grid, Cell const& cell)
 {
-    ObjectGridLoader loader(*grid, this, cell);
+    ObjectGridLoader loader(*grid, this, cell, 0, nullptr);
     loader.LoadN();
 }
 
@@ -634,6 +676,13 @@ void Map::GridUnmarkNoUnload(uint32 x, uint32 y)
 void Map::LoadGrid(float x, float y)
 {
     EnsureGridLoaded(Cell(x, y));
+}
+
+void Map::LoadGridForActiveObject(float x, float y, WorldObject const* object)
+{
+    Cell cell(x, y);
+    EnsureGridLoaded(cell);
+    EnsurePhasedObjectsLoadedForActiveObject(cell, object);
 }
 
 bool Map::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)
@@ -799,8 +848,8 @@ void Map::VisitNearbyCellsOf(WorldObject* obj, TypeContainerVisitor<Trinity::Obj
             CellCoord pair(x, y);
             Cell cell(pair);
             cell.SetNoCreate();
-            Visit(cell, gridVisitor);
-            Visit(cell, worldVisitor);
+            Visit(obj, cell, gridVisitor);
+            Visit(obj, cell, worldVisitor);
         }
     }
 }
@@ -844,6 +893,9 @@ void Map::Update(uint32 t_diff)
     }
     else
         _respawnCheckTimer -= t_diff;
+
+    // update phase shiftf objects
+    GetMultiPersonalPhaseTracker().Update(this, t_diff);
 
     /// update active cells around players and active objects
     resetMarkedCells();
@@ -990,8 +1042,8 @@ void Map::ProcessRelocationNotifies(const uint32 diff)
                 Trinity::DelayedUnitRelocation cell_relocation(cell, pair, *this, MAX_VISIBILITY_DISTANCE);
                 TypeContainerVisitor<Trinity::DelayedUnitRelocation, GridTypeMapContainer  > grid_object_relocation(cell_relocation);
                 TypeContainerVisitor<Trinity::DelayedUnitRelocation, WorldTypeMapContainer > world_object_relocation(cell_relocation);
-                Visit(cell, grid_object_relocation);
-                Visit(cell, world_object_relocation);
+                Visit(nullptr, cell, grid_object_relocation);
+                Visit(nullptr, cell, world_object_relocation);
             }
         }
     }
@@ -1027,8 +1079,8 @@ void Map::ProcessRelocationNotifies(const uint32 diff)
                 CellCoord pair(x, y);
                 Cell cell(pair);
                 cell.SetNoCreate();
-                Visit(cell, grid_notifier);
-                Visit(cell, world_notifier);
+                Visit(nullptr, cell, grid_notifier);
+                Visit(nullptr, cell, world_notifier);
             }
         }
     }
@@ -1039,6 +1091,8 @@ void Map::RemovePlayerFromMap(Player* player, bool remove)
     // Before leaving map, update zone/area for stats
     player->UpdateZone(MAP_INVALID_ZONE, 0);
     sScriptMgr->OnPlayerLeaveMap(this, player);
+
+    GetMultiPersonalPhaseTracker().CleanOwnerGroups(player, this);
 
     player->getHostileRefManager().deleteReferences(); // multithreading crashfix
 
@@ -1065,6 +1119,8 @@ void Map::RemoveFromMap(T *obj, bool remove)
     obj->RemoveFromWorld();
     if (obj->isActiveObject())
         RemoveFromActive(obj);
+
+    GetMultiPersonalPhaseTracker().RemoveObjectFromPhases(obj);
 
     if (!inWorld) // if was in world, RemoveFromWorld() called DestroyForNearbyPlayers()
         obj->DestroyForNearbyPlayers(); // previous obj->UpdateObjectVisibility(true)
