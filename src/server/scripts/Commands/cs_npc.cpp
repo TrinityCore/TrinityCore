@@ -591,7 +591,7 @@ public:
         return true;
     }
 
-    static bool HandleNpcDeletePhasedCommand(ChatHandler* handler, char const* args)
+    static bool HandleNpcDeletePhasedCommand(ChatHandler* handler, char const* /*args*/)
     {
         return HandleGenericNpcDeleteCommand(handler, nullptr, false);
     }
