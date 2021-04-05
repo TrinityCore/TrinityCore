@@ -451,7 +451,7 @@ void ReadLiquidTypeTable()
 
 // Map file format data
 static char const* MAP_MAGIC         = "MAPS";
-static char const* MAP_VERSION_MAGIC = "v1.9";
+static uint32 const MAP_VERSION_MAGIC = 9;
 static char const* MAP_AREA_MAGIC    = "AREA";
 static char const* MAP_HEIGHT_MAGIC  = "MHGT";
 static char const* MAP_LIQUID_MAGIC  = "MLIQ";
@@ -575,7 +575,7 @@ bool ConvertADT(std::string const& inputPath, std::string const& outputPath, int
     // Prepare map header
     map_fileheader map;
     map.mapMagic = *reinterpret_cast<uint32 const*>(MAP_MAGIC);
-    map.versionMagic = *reinterpret_cast<uint32 const*>(MAP_VERSION_MAGIC);
+    map.versionMagic = MAP_VERSION_MAGIC;
     map.buildMagic = build;
 
     // Get area flags data
@@ -1181,7 +1181,7 @@ void ExtractMapsFromMpq(uint32 build)
         if (FILE* tileList = fopen(Trinity::StringFormat("%s/maps/%03u.tilelist", output_path, map_ids[z].id).c_str(), "wb"))
         {
             fwrite(MAP_MAGIC, 1, strlen(MAP_MAGIC), tileList);
-            fwrite(MAP_VERSION_MAGIC, 1, strlen(MAP_VERSION_MAGIC), tileList);
+            fwrite(&MAP_VERSION_MAGIC, sizeof(MAP_VERSION_MAGIC), 1, tileList);
             fwrite(&build, sizeof(build), 1, tileList);
             fwrite(existingTiles.to_string().c_str(), 1, existingTiles.size(), tileList);
             fclose(tileList);

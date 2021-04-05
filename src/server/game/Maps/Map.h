@@ -88,7 +88,7 @@ union u_map_magic
 struct map_fileheader
 {
     u_map_magic mapMagic;
-    u_map_magic versionMagic;
+    uint32 versionMagic;
     uint32 buildMagic;
     uint32 areaMapOffset;
     uint32 areaMapSize;
