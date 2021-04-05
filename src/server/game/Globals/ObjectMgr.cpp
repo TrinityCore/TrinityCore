@@ -26,6 +26,7 @@
 #include "CreatureAIFactory.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DBCEnums.h"
 #include "DisableMgr.h"
 #include "GameObject.h"
 #include "GameObjectAIFactory.h"
@@ -2307,8 +2308,40 @@ void ObjectMgr::LoadCreatures()
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " creatures in %u ms", _creatureDataStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
+CellObjectGuids& ObjectMgr::GetGridCellObjectGuids(SpawnData const* data, bool isPhasePersonal, Difficulty difficulty)
+{
+    CellCoord cellCoord = Trinity::ComputeCellCoord(data->spawnPoint.GetPositionX(), data->spawnPoint.GetPositionY());
+
+    if (!isPhasePersonal)
+        return _mapObjectGuidsStore[MAKE_PAIR32(data->spawnPoint.GetMapId(), difficulty)][cellCoord.GetId()];
+    else
+        return _mapPersonalObjectGuidsStore[std::make_pair(MAKE_PAIR32(data->spawnPoint.GetMapId(), difficulty), data->phaseId)][cellCoord.GetId()];
+
+}
+
+template <bool IsCreature>
+void ObjectMgr::InsertToGrid(ObjectGuid::LowType guid, SpawnData const* data, bool isPhasePersonal, Difficulty difficulty)
+{
+    CellGuidSet& cellGuidSet = GetGridCellGuidSet<IsCreature>(data, isPhasePersonal, difficulty);
+    cellGuidSet.insert(guid);
+}
+
+template <bool IsCreature>
+CellGuidSet& ObjectMgr::GetGridCellGuidSet(SpawnData const* data, bool isPhasePersonal, Difficulty difficulty)
+{
+    return GetGridCellGuidSet<IsCreature>(GetGridCellObjectGuids(data, isPhasePersonal, difficulty));
+}
+
+template <bool IsCreature>
+void ObjectMgr::RemoveFromGrid(ObjectGuid::LowType guid, SpawnData const* data, bool isPhasePersonal, Difficulty difficulty)
+{
+    CellGuidSet& cellGuidSet = GetGridCellGuidSet<IsCreature>(data, isPhasePersonal, difficulty);
+    cellGuidSet.erase(guid);
+}
+
 void ObjectMgr::AddCreatureToGrid(ObjectGuid::LowType guid, CreatureData const* data)
 {
+    bool isPhasePersonal = PhasingHandler::IsPhasePersonal(data->phaseId);
     for (Difficulty difficulty : data->spawnDifficulties)
     {
         CellCoord cellCoord = Trinity::ComputeCellCoord(data->spawnPoint.GetPositionX(), data->spawnPoint.GetPositionY());
@@ -2319,6 +2352,7 @@ void ObjectMgr::AddCreatureToGrid(ObjectGuid::LowType guid, CreatureData const* 
 
 void ObjectMgr::RemoveCreatureFromGrid(ObjectGuid::LowType guid, CreatureData const* data)
 {
+    bool isPhasePersonal = PhasingHandler::IsPhasePersonal(data->phaseId);
     for (Difficulty difficulty : data->spawnDifficulties)
     {
         CellCoord cellCoord = Trinity::ComputeCellCoord(data->spawnPoint.GetPositionX(), data->spawnPoint.GetPositionY());
@@ -2887,6 +2921,7 @@ void ObjectMgr::OnDeleteSpawnData(SpawnData const* data)
 
 void ObjectMgr::AddGameobjectToGrid(ObjectGuid::LowType guid, GameObjectData const* data)
 {
+    bool isPhasePersonal = PhasingHandler::IsPhasePersonal(data->phaseId);
     for (Difficulty difficulty : data->spawnDifficulties)
     {
         CellCoord cellCoord = Trinity::ComputeCellCoord(data->spawnPoint.GetPositionX(), data->spawnPoint.GetPositionY());
@@ -2897,6 +2932,7 @@ void ObjectMgr::AddGameobjectToGrid(ObjectGuid::LowType guid, GameObjectData con
 
 void ObjectMgr::RemoveGameobjectFromGrid(ObjectGuid::LowType guid, GameObjectData const* data)
 {
+    bool isPhasePersonal = PhasingHandler::IsPhasePersonal(data->phaseId);
     for (Difficulty difficulty : data->spawnDifficulties)
     {
         CellCoord cellCoord = Trinity::ComputeCellCoord(data->spawnPoint.GetPositionX(), data->spawnPoint.GetPositionY());

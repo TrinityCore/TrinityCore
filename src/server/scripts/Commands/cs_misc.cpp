@@ -302,7 +302,7 @@ public:
         if (status)
             handler->PSendSysMessage(LANG_LIQUID_STATUS, liquidStatus.level, liquidStatus.depth_level, liquidStatus.entry, uint32(liquidStatus.type_flags.AsUnderlyingType()), status);
 
-        PhasingHandler::PrintToChat(handler, object->GetPhaseShift());
+        PhasingHandler::PrintToChat(handler, object);
 
         return true;
     }
@@ -1905,7 +1905,7 @@ public:
 
         // Output XIII. phases
         if (target)
-            PhasingHandler::PrintToChat(handler, target->GetPhaseShift());
+            PhasingHandler::PrintToChat(handler, target);
 
         // Output XIV. LANG_PINFO_CHR_MONEY
         uint32 gold                   = money / GOLD;

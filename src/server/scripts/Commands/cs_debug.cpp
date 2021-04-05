@@ -1453,7 +1453,7 @@ public:
         else if (target->GetDBPhase() < 0)
             handler->PSendSysMessage("Target creature's PhaseGroup in DB: %d", abs(target->GetDBPhase()));
 
-        PhasingHandler::PrintToChat(handler, target->GetPhaseShift());
+        PhasingHandler::PrintToChat(handler, target);
         return true;
     }
 

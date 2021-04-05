@@ -697,7 +697,7 @@ public:
         if (CreatureData const* data = sObjectMgr->GetCreatureData(target->GetSpawnId()))
         {
             handler->PSendSysMessage(LANG_NPCINFO_PHASES, data->phaseId, data->phaseGroup);
-            PhasingHandler::PrintToChat(handler, target->GetPhaseShift());
+            PhasingHandler::PrintToChat(handler, target);
         }
 
         handler->PSendSysMessage(LANG_NPCINFO_ARMOR, target->GetArmor());
