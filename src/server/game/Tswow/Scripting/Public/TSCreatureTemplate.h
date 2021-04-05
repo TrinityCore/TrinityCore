@@ -29,6 +29,7 @@ class TC_GAME_API TSCreatureTemplate
 public:
     CreatureTemplate * ct;
     TSCreatureTemplate(CreatureTemplate * ct);
+    TSCreatureTemplate * operator->(){ return this; }
 
     uint32   GetEntry();
     uint32   GetDifficultyEntryA();
