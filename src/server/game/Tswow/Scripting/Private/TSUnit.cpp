@@ -2566,7 +2566,27 @@ void TSUnit::AddThreat(TSUnit _victim,float threat,uint32 spell,uint32 schoolMas
 #endif
 #endif
 }
-    
+
+uint32 TSUnit::GetResistance(uint32 school)
+{
+    return unit->GetResistance(static_cast<SpellSchools>(school));
+}
+
+uint32 TSUnit::GetArmor()
+{
+    return unit->GetArmor();
+}
+
+void TSUnit::SetResistance(uint32 school, int32 val)
+{
+    unit->SetResistance(static_cast<SpellSchools>(school),val);
+}
+
+void TSUnit::SetArmor(int32 val)
+{
+    unit->SetArmor(val);
+}
+
 /*int TSUnit::RestoreDisplayId(lua_State* L, Unit* unit)
 {
     unit->RestoreDisplayId();

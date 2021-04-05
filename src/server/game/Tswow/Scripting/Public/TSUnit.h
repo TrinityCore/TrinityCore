@@ -178,4 +178,8 @@ public:
     void DealHeal(TSUnit target, uint32 spell, uint32 amount, bool critical);
     void Kill(TSUnit target, bool durLoss);
     void AddThreat(TSUnit victim, float threat, uint32 spell, uint32 schoolMask);
+    uint32 GetResistance(uint32 school);
+    uint32 GetArmor();
+    void SetResistance(uint32 school, int32 val);
+    void SetArmor(int32 val);
 };

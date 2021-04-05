@@ -4827,6 +4827,10 @@ declare class TSObject {
 
 declare class TSUnit extends TSWorldObject {
     IsNull() : bool
+    GetResistance(school: uint32): uint32;
+    GetArmor(): uint32;
+    SetResistance(school: uint32, val: int32): uint32;
+    SetArmor(val: int32): uint32;
 
     /**
      * The [Unit] tries to attack a given target
