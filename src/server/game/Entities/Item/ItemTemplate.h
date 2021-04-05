@@ -744,3 +744,5 @@ struct ItemSetNameLocale
 };
 
 #endif
+
+TC_GAME_API TSItemTemplate GetItemTemplate(uint32 entry);

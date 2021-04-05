@@ -7122,3 +7122,6 @@ declare function GetTimers() : TSTasks<void>
 declare function ModID(): uint32;
 declare function LoadRows<T extends DBTable>(cls: {new (...args: any[]): T}, query: string): TSArray<T>
 
+declare function GetSpellInfo(entry: uint32): TSSpellInfo
+declare function GetItemTemplate(entry: uint32): TSItemTemplate
+declare function GetCreatureTemplate(entry: uint32): TSCreatureTemplate

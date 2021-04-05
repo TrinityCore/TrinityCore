@@ -130,3 +130,5 @@ public:
     bool      GetIsFlightAllowed();
     bool      GetIsRooted();
 };
+
+TC_GAME_API TSCreatureTemplate GetCreatureTemplate(uint32 entry);

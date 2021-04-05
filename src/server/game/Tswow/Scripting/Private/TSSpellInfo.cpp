@@ -19,10 +19,11 @@
 #include "TSSpellInfo.h"
 #include <memory.h>
 #include "SpellInfo.h"
+#include "SpellMgr.h"
 
 TSSpellInfo::TSSpellInfo(SpellInfo const* info)
 {
-    this->info = info;
+    this->info = const_cast<SpellInfo*>(info);
 }
 
 TSSpellInfo::TSSpellInfo()
@@ -354,3 +355,8 @@ TSStorage * TSSpellInfo::GetData()
 }
 
 TS_ENTITY_DATA_IMPL(TSSpellInfo);
+
+TSSpellInfo GetSpellInfo(uint32 entry)
+{
+    return TSSpellInfo(sSpellMgr->GetSpellInfo(entry));
+}

@@ -20,7 +20,7 @@
 
 class TC_GAME_API TSSpellInfo {
 public:
-    SpellInfo const* info;
+    SpellInfo * info;
     TSSpellInfo(SpellInfo const* info);
     TSSpellInfo();
     TSSpellInfo* operator->() { return this;}
@@ -92,3 +92,5 @@ public:
     TSStorage * GetData();
     TS_ENTITY_DATA_DECL(TSSpellInfo);
 };
+
+TC_GAME_API TSSpellInfo GetSpellInfo(uint32 entry);

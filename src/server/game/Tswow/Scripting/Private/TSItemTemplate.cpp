@@ -17,11 +17,12 @@
 #include "TSIncludes.h"
 #include "TSItemTemplate.h"
 #include "ItemTemplate.h"
+#include "ObjectMgr.h"
 #include <memory.h>
 
 TSItemTemplate::TSItemTemplate(ItemTemplate const* info)
 {
-    this->info = info;
+    this->info = const_cast<ItemTemplate*>(info);
 }
 
 TSItemTemplate::TSItemTemplate()
@@ -154,3 +155,8 @@ TSStorage * TSItemTemplate::GetData()
 }
 
 TS_ENTITY_DATA_IMPL(TSItemTemplate);
+
+TSItemTemplate GetItemTemplate(uint32 entry)
+{
+    return TSItemTemplate(sObjectMgr->GetItemTemplate(entry));
+}

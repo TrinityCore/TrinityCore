@@ -15,6 +15,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 #include "TSCreatureTemplate.h"
+#include "ObjectMgr.h"
 #include "CreatureData.h"
 
 TSCreatureTemplate::TSCreatureTemplate(CreatureTemplate * ct)
@@ -406,6 +407,12 @@ bool TSCreatureTemplate::GetIsFlightAllowed()
 bool TSCreatureTemplate::GetIsRooted()
 {
     return ct->Movement.IsRooted();
+}
+
+TSCreatureTemplate GetCreatureTemplate(uint32 entry)
+{
+    return TSCreatureTemplate(
+        const_cast<CreatureTemplate*>(sObjectMgr->GetCreatureTemplate(entry)));
 }
 
 TS_ENTITY_DATA_IMPL(TSCreatureTemplate)
