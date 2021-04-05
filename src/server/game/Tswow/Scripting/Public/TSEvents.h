@@ -60,6 +60,7 @@ EVENT_TYPE(FormulaOnSpellReflect,TSWorldObject,TSUnit,TSSpellInfo,TSMutable<int3
 EVENT_TYPE(FormulaOnSpellHit,TSWorldObject,TSUnit,TSSpellInfo,TSMutable<int32>)
 EVENT_TYPE(FormulaOnSpellResist,TSWorldObject,TSUnit,TSSpellInfo,TSMutable<int32>)
 EVENT_TYPE(FormulaOnSpellDeflect,TSWorldObject,TSUnit,TSSpellInfo,TSMutable<int32>)
+EVENT_TYPE(FormulaOnHeal,TSUnit,TSUnit,TSMutable<uint32>)
 EVENT_TYPE(FormulaOnMeleeOutcome
      , TSUnit
      , TSUnit
@@ -71,11 +72,6 @@ EVENT_TYPE(FormulaOnMeleeOutcome
      , TSMutable<float>);
 
 // UnitScript
-EVENT_TYPE(UnitOnHeal,TSUnit,TSUnit,TSMutable<uint32>)
-EVENT_TYPE(UnitOnDamage,TSUnit,TSUnit,TSMutable<uint32>)
-EVENT_TYPE(UnitModifyPeriodicDamageAurasTick,TSUnit,TSUnit,TSMutable<uint32>)
-EVENT_TYPE(UnitModifyMeleeDamage,TSUnit,TSUnit,TSMutable<uint32>)
-EVENT_TYPE(UnitModifySpellDamageTaken,TSUnit,TSUnit,TSMutable<int32>)
 //EVENT_TYPE(UnitModifyVehiclePassengerExitPos,TSUnit,TSVehicle,TSMutable<Position>)
 
 
@@ -442,11 +438,7 @@ struct TSEvents
     EVENT(ItemOnGossipSelectCode)
 
     // UnitScript
-    EVENT(UnitOnHeal)
-    EVENT(UnitOnDamage)
-    EVENT(UnitModifyPeriodicDamageAurasTick)
-    EVENT(UnitModifyMeleeDamage)
-    EVENT(UnitModifySpellDamageTaken)
+    EVENT(FormulaOnHeal)
     //EVENT(UnitModifyVehiclePassengerExitPos)
 
     // AreaTriggerScript
@@ -670,17 +662,12 @@ public:
          EVENT_HANDLE(Formula,OnSpellResist)
          EVENT_HANDLE(Formula,OnSpellDeflect)
          EVENT_HANDLE(Formula,OnMeleeOutcome)
+         EVENT_HANDLE(Formula,OnHeal)
     } Formula;
 
     struct UnitEvents: public EventHandler
     {
          UnitEvents* operator->() { return this;}
-         EVENT_HANDLE(Unit,OnHeal)
-         EVENT_HANDLE(Unit,OnDamage)
-         EVENT_HANDLE(Unit,ModifyPeriodicDamageAurasTick)
-         EVENT_HANDLE(Unit,ModifyMeleeDamage)
-         EVENT_HANDLE(Unit,ModifySpellDamageTaken)
-         //EVENT_HANDLE(Unit,ModifyVehiclePassengerExitPos)
     } Unit;
 
     struct AreaTriggerEvents: public EventHandler

@@ -30,6 +30,15 @@ public:
     TSItemTemplate* operator->() { return this;}
     uint32 ID();
 
+    float DamageMinA();
+    float DamageMinB();
+
+    float DamageMaxA();
+    float DamageMaxB();
+
+    uint32 DamageTypeA();
+    uint32 DamageTypeB();
+
     uint32 Class();
     uint32 SubClass();
     int32  SoundOverrideSubclass();

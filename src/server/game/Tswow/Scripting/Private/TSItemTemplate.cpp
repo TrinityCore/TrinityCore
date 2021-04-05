@@ -117,3 +117,33 @@ bool TSItemTemplate::IsWeaponVellum() { return info->IsWeaponVellum(); };
 bool TSItemTemplate::IsArmorVellum() { return info->IsArmorVellum(); };
 bool TSItemTemplate::IsConjuredConsumable() { return info->IsConjuredConsumable(); };
 bool TSItemTemplate::HasSignature() { return info->HasSignature(); };
+
+float TSItemTemplate::DamageMinA()
+{
+    return info->Damage[0].DamageMin;
+}
+
+float TSItemTemplate::DamageMinB()
+{
+    return info->Damage[1].DamageMin;
+}
+
+float TSItemTemplate::DamageMaxA()
+{
+    return info->Damage[0].DamageMax;
+}
+
+float TSItemTemplate::DamageMaxB()
+{
+    return info->Damage[1].DamageMax;
+}
+
+uint32 TSItemTemplate::DamageTypeA()
+{
+    return info->Damage[0].DamageType;
+}
+
+uint32 TSItemTemplate::DamageTypeB()
+{
+    return info->Damage[1].DamageType;
+}

@@ -81,11 +81,11 @@ class TSUnitScript : public UnitScript
 {
 public:
     TSUnitScript() : UnitScript("TSUnitScript"){}
-    void OnHeal(Unit* healer,Unit* reciever,uint32& gain) FIRE(UnitOnHeal,TSUnit(healer),TSUnit(reciever),TSMutable<uint32>(&gain))
-    void OnDamage(Unit* attacker,Unit* victim,uint32& damage) FIRE(UnitOnDamage,TSUnit(attacker),TSUnit(victim),TSMutable<uint32>(&damage))
-    void ModifyPeriodicDamageAurasTick(Unit* target,Unit* attacker,uint32& damage) FIRE(UnitModifyPeriodicDamageAurasTick,TSUnit(target),TSUnit(attacker),TSMutable<uint32>(&damage))
-    void ModifyMeleeDamage(Unit* target,Unit* attacker,uint32& damage) FIRE(UnitModifyMeleeDamage,TSUnit(target),TSUnit(attacker),TSMutable<uint32>(&damage))
-    void ModifySpellDamageTaken(Unit* target,Unit* attacker,int32& damage) FIRE(UnitModifySpellDamageTaken,TSUnit(target),TSUnit(attacker),TSMutable<int32>(&damage))
+    void OnHeal(Unit* healer,Unit* reciever,uint32& gain) FIRE(FormulaOnHeal,TSUnit(healer),TSUnit(reciever),TSMutable<uint32>(&gain))
+    //void OnDamage(Unit* attacker,Unit* victim,uint32& damage) FIRE(UnitOnDamage,TSUnit(attacker),TSUnit(victim),TSMutable<uint32>(&damage))
+    //void ModifyPeriodicDamageAurasTick(Unit* target,Unit* attacker,uint32& damage) FIRE(UnitModifyPeriodicDamageAurasTick,TSUnit(target),TSUnit(attacker),TSMutable<uint32>(&damage))
+    //void ModifyMeleeDamage(Unit* target,Unit* attacker,uint32& damage) FIRE(UnitModifyMeleeDamage,TSUnit(target),TSUnit(attacker),TSMutable<uint32>(&damage))
+    //void ModifySpellDamageTaken(Unit* target,Unit* attacker,int32& damage) FIRE(UnitModifySpellDamageTaken,TSUnit(target),TSUnit(attacker),TSMutable<int32>(&damage))
     //void ModifyVehiclePassengerExitPos(Unit* passenger,Vehicle* vehicle,Position& pos) FIRE(UnitModifyVehiclePassengerExitPos,TSUnit(passenger),TSVehicle(vehicle),TSMutable<Position>(pos))
 };
 

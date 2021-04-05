@@ -3480,6 +3480,8 @@ declare class TSItem extends TSObject {
      */
     IsConjuredConsumable() : bool
     //GetItemLink(locale : uint8) : string
+
+    GetTemplate(): TSItemTemplate
     GetOwnerGUID() : uint64
 
     /**
@@ -6135,6 +6137,14 @@ declare class TSUnit extends TSWorldObject {
 declare class TSItemTemplate {
     IsNull() : bool
     ID() : uint32;
+    DamageMinA(): float;
+    DamageMinB(): float;
+
+    DamageMaxA(): float;
+    DamageMaxB(): float;
+
+    DamageTypeA(): uint32;
+    DamageTypeB(): uint32;
     Class(): uint32;
     SubClass(): uint32;
     SoundOverrideSubclass(): int32;
@@ -6373,11 +6383,6 @@ declare namespace _hidden {
 
     export class Unit {
         OnHeal(callback: (healer : TSUnit,reciever : TSUnit,gain : TSMutable<uint32>)=>void);
-        OnDamage(callback: (attacker : TSUnit,victim : TSUnit,damage : TSMutable<uint32>)=>void);
-        ModifyPeriodicDamageAurasTick(callback: (target : TSUnit,attacker : TSUnit,damage : TSMutable<uint32>)=>void);
-        ModifyMeleeDamage(callback: (target : TSUnit,attacker : TSUnit,damage : TSMutable<uint32>)=>void);
-        ModifySpellDamageTaken(callback: (target : TSUnit,attacker : TSUnit,damage : TSMutable<int32>)=>void);
-        //ModifyVehiclePassengerExitPos(callback: (passenger : TSUnit,vehicle : TSVehicle,pos : TSMutable<Position>)=>void);
     }
 
     export class AreaTrigger {
