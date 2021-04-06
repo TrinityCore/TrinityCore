@@ -537,12 +537,12 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPacket &recvData)
     if (!client->IsAllowedToMove(guid))
     {
         // @todo log or kick or do nothing depending on configuration
-        TC_LOG_DEBUG("entities.unit", "set active mover FAILED for client of player %s. GUID %u.", _player->GetName().c_str(), guid.GetCounter());
+        TC_LOG_DEBUG("entities.unit", "set active mover FAILED for client of player %s. GUID %s.", _player->GetName().c_str(), guid.ToString().c_str());
         return;
     }
 
     // step 2:
-    TC_LOG_DEBUG("entities.unit", "set active mover OK for client of player %s. GUID %u.", _player->GetName().c_str(), guid.GetCounter());
+    TC_LOG_DEBUG("entities.unit", "set active mover OK for client of player %s. GUID %s.", _player->GetName().c_str(), guid.ToString().c_str());
     Unit* newActiveMover = ObjectAccessor::GetUnit(*_player, guid);
     client->SetActiveMover(newActiveMover);
 }
@@ -561,11 +561,11 @@ void WorldSession::HandleMoveNotActiveMover(WorldPacket &recvData)
     if (client->GetActiveMover() == nullptr || client->GetActiveMover()->GetGUID() != old_mover_guid)
     {
         // this shouldn't never happen in theory
-        TC_LOG_WARN("entities.unit", "unset active mover FAILED for client of player %s. GUID %u.", _player->GetName().c_str(), old_mover_guid.GetCounter());
+        TC_LOG_WARN("entities.unit", "unset active mover FAILED for client of player %s. GUID %s.", _player->GetName().c_str(), old_mover_guid.ToString().c_str());
         return;
     }
 
-    TC_LOG_DEBUG("entities.unit", "unset active mover OK for client of player %s. GUID %u.", _player->GetName().c_str(), old_mover_guid.GetCounter());
+    TC_LOG_DEBUG("entities.unit", "unset active mover OK for client of player %s. GUID %s.", _player->GetName().c_str(), old_mover_guid.ToString().c_str());
     client->SetActiveMover(nullptr);
 }
 
