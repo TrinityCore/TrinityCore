@@ -127,7 +127,7 @@ WorldPacket const* WorldPackets::Auth::AuthResponse::Write()
         _worldPacket << uint32(SuccessInfo->AvailableClasses->size());
         _worldPacket << uint32(SuccessInfo->Templates.size());
         _worldPacket << uint32(SuccessInfo->CurrencyID);
-        _worldPacket << int32(SuccessInfo->Time);
+        _worldPacket << SuccessInfo->Time;
 
         for (RaceClassAvailability const& raceClassAvailability : *SuccessInfo->AvailableClasses)
         {

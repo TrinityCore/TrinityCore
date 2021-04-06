@@ -18,6 +18,7 @@
 #include "WorldSession.h"
 #include "AchievementPackets.h"
 #include "Common.h"
+#include "GameTime.h"
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "GuildPackets.h"
@@ -386,7 +387,7 @@ void WorldSession::HandleRequestGuildRewardsList(WorldPackets::Guild::RequestGui
         std::vector<GuildReward> const& rewards = sGuildMgr->GetGuildRewards();
 
         WorldPackets::Guild::GuildRewardList rewardList;
-        rewardList.Version = uint32(time(nullptr));
+        rewardList.Version = GameTime::GetGameTimeSystemPoint();
         rewardList.RewardItems.reserve(rewards.size());
 
         for (uint32 i = 0; i < rewards.size(); i++)
