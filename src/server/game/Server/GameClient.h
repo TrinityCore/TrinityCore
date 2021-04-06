@@ -18,9 +18,10 @@
 #ifndef __GAMECLIENT_H
 #define __GAMECLIENT_H
 
+#include "WorldSession.h"
+
 class Player;
 class Unit;
-class WorldSession;
 
 class TC_GAME_API GameClient
 {

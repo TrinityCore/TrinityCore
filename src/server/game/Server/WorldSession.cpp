@@ -1671,7 +1671,6 @@ bool WorldSession::IsRightUnitBeingMoved(ObjectGuid guid)
         TC_LOG_INFO("entities.unit", "Attempt at tampering movement data by Player %s", _player->GetName().c_str());
         return false;
     }
-        
 
     // This can happen if the client has lost control of a unit but hasn't received SMSG_CONTROL_UPDATE before
     // sending this packet yet. We can just safely ignore.
