@@ -8636,6 +8636,20 @@ int64 Unit::GetHealthGain(int64 dVal)
     return gain;
 }
 
+// Always return negative value for power reduction (or 0)
+int32 Unit::ConsumeAllPower(Powers power)
+{
+    int32 curPower = GetPower(power);
+    int32 minPower = GetMinPower(power);
+
+    if (curPower <= minPower)
+        return 0;
+
+    int32 diff = minPower - curPower;
+    SetPower(power, minPower);
+    return diff;
+}
+
 // returns negative amount on power reduction
 int32 Unit::ModifyPower(Powers power, int32 dVal, bool withPowerUpdate /*= true*/)
 {
