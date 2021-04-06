@@ -1777,7 +1777,7 @@ class TC_GAME_API Unit : public WorldObject
         void SetVisible(bool x);
 
         // common function for visibility checks for player/creatures with detection code
-        void OnPhaseChange();
+        virtual void OnPhaseChange();
         void UpdateObjectVisibility(bool forced = true) override;
 
         SpellImmuneContainer m_spellImmune[MAX_SPELL_IMMUNITY];
