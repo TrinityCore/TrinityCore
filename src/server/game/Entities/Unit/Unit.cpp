@@ -6969,16 +6969,20 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask, bool withSpellP
     return DoneAdvertisedBenefit;
 }
 
-int32 Unit::SpellBaseDamageBonusTaken(SpellSchoolMask schoolMask) const
+int32 Unit::SpellBaseDamageBonusTaken(SpellInfo const* spellInfo) const
 {
     int32 TakenAdvertisedBenefit = 0;
 
-    AuraEffectList const& mDamageTaken = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_TAKEN);
-    for (AuraEffectList::const_iterator i = mDamageTaken.begin(); i != mDamageTaken.end(); ++i)
+    TakenAdvertisedBenefit += GetTotalAuraModifier(SPELL_AURA_MOD_DAMAGE_TAKEN, [spellInfo](AuraEffect const* aurEff)
     {
-        if (((*i)->GetMiscValue() & schoolMask) != 0)
-            TakenAdvertisedBenefit += (*i)->GetAmount();
-    }
+        if (spellInfo->HasAttribute(SPELL_ATTR10_IGNORE_POSITIVE_DAMAGE_TAKEN_MODS) && aurEff->GetAmount() > 0)
+            return false;
+
+        if ((aurEff->GetMiscValue() & spellInfo->GetSchoolMask()) != 0)
+            return true;
+
+        return false;
+    });
 
     return TakenAdvertisedBenefit;
 }

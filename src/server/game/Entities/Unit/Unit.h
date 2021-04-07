@@ -1530,7 +1530,7 @@ class TC_GAME_API Unit : public WorldObject
         Unit* GetMeleeHitRedirectTarget(Unit* victim, SpellInfo const* spellInfo = nullptr);
 
         int32  SpellBaseDamageBonusDone(SpellSchoolMask schoolMask, bool withSpellPowerPctMod = false) const;
-        int32  SpellBaseDamageBonusTaken(SpellSchoolMask schoolMask) const;
+        int32  SpellBaseDamageBonusTaken(SpellInfo const* spellInfo) const;
         uint32 SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uint32 pdamage, DamageEffectType damagetype, uint8 effIndex, uint32 stack = 1) const;
         float  SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, DamageEffectType damagetype) const;
         uint32 SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, uint32 pdamage, DamageEffectType damagetype) const;
