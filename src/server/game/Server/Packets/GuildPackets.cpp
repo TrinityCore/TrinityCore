@@ -641,24 +641,74 @@ WorldPacket const* WorldPackets::Guild::GuildBankQueryResults::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Guild::GuildBankSwapItems::Read()
+void WorldPackets::Guild::GuildBankTransferItem::Read()
 {
     _worldPacket >> Banker;
     _worldPacket >> BankTab;
     _worldPacket >> BankSlot;
-    _worldPacket >> ItemID;
-    _worldPacket >> BankTab1;
-    _worldPacket >> BankSlot1;
-    _worldPacket >> ItemID1;
-    _worldPacket >> BankItemCount;
-    _worldPacket >> ContainerSlot;
-    _worldPacket >> ContainerItemSlot;
-    _worldPacket >> ToSlot;
+    _worldPacket >> PlayerSlot;
+
+    HasBag = _worldPacket.ReadBit();
+    _worldPacket.ResetBitPos();
+
+    if (HasBag)
+        _worldPacket >> PlayerBag;
+}
+
+void WorldPackets::Guild::GuildBankMoveItemInBank::Read()
+{
+    _worldPacket >> Banker;
+    _worldPacket >> BankTab;
+    _worldPacket >> BankSlot;
+    _worldPacket >> NewBankTab;
+    _worldPacket >> NewBankSlot;
+}
+
+void WorldPackets::Guild::GuildBankCombineItemStack::Read()
+{
+    _worldPacket >> Banker;
+    _worldPacket >> BankTab;
+    _worldPacket >> BankSlot;
+    _worldPacket >> PlayerSlot;
     _worldPacket >> StackCount;
 
+    HasBag = _worldPacket.ReadBit();
     _worldPacket.ResetBitPos();
-    BankOnly = _worldPacket.ReadBit();
-    AutoStore = _worldPacket.ReadBit();
+
+    if (HasBag)
+        _worldPacket >> PlayerBag;
+}
+
+void WorldPackets::Guild::GuildBankTransferItemStack::Read()
+{
+    _worldPacket >> Banker;
+    _worldPacket >> BankTab;
+    _worldPacket >> BankSlot;
+    _worldPacket >> PlayerSlot;
+    _worldPacket >> StackCount;
+
+    HasBag = _worldPacket.ReadBit();
+    _worldPacket.ResetBitPos();
+
+    if (HasBag)
+        _worldPacket >> PlayerBag;
+}
+
+void WorldPackets::Guild::GuildBankTransferItemAutoStore::Read()
+{
+    _worldPacket >> Banker;
+    _worldPacket >> BankTab;
+    _worldPacket >> BankSlot;
+}
+
+void WorldPackets::Guild::GuildBankCombineItemStackInBank::Read()
+{
+    _worldPacket >> Banker;
+    _worldPacket >> BankTab;
+    _worldPacket >> BankSlot;
+    _worldPacket >> NewBankTab;
+    _worldPacket >> NewBankSlot;
+    _worldPacket >> StackCount;
 }
 
 void WorldPackets::Guild::GuildBankLogQuery::Read()
