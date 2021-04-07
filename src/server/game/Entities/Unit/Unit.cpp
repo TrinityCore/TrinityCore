@@ -6845,12 +6845,15 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
     // Mod damage from spell mechanic
     if (uint32 mechanicMask = spellProto->GetAllEffectsMechanicMask())
     {
-        TakenTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_MECHANIC_DAMAGE_TAKEN_PERCENT, [mechanicMask](AuraEffect const* aurEff) -> bool
-            {
-                if (mechanicMask & uint32(1 << (aurEff->GetMiscValue())))
-                    return true;
+        TakenTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_MECHANIC_DAMAGE_TAKEN_PERCENT, [mechanicMask, spellProto](AuraEffect const* aurEff)
+        {
+            if (spellProto->HasAttribute(SPELL_ATTR10_IGNORE_POSITIVE_DAMAGE_TAKEN_MODS) && aurEff->GetAmount() > 0)
                 return false;
-            });
+
+            if (mechanicMask & uint32(1 << (aurEff->GetMiscValue())))
+                return true;
+            return false;
+        });
     }
 
     //.. taken pct: dummy auras
@@ -6877,12 +6880,15 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
         // From caster spells
         if (caster)
         {
-            TakenTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_DAMAGE_FROM_CASTER, [caster, spellProto](AuraEffect const* aurEff) -> bool
-                {
-                    if (aurEff->GetCasterGUID() == caster->GetGUID() && aurEff->IsAffectingSpell(spellProto))
-                        return true;
+            TakenTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_DAMAGE_FROM_CASTER, [caster, spellProto](AuraEffect const* aurEff)
+            {
+                if (spellProto->HasAttribute(SPELL_ATTR10_IGNORE_POSITIVE_DAMAGE_TAKEN_MODS) && aurEff->GetAmount() > 0)
                     return false;
-                });
+
+                if (aurEff->GetCasterGUID() == caster->GetGUID() && aurEff->IsAffectingSpell(spellProto))
+                    return true;
+                return false;
+            });
         }
     }
 
@@ -7897,13 +7903,31 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
 
     int32 TakenFlatBenefit = 0;
 
-    // ..taken
-    TakenFlatBenefit += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_DAMAGE_TAKEN, attacker->GetMeleeDamageSchoolMask());
+    uint32 meleeDamageSchoolMask = attacker->GetMeleeDamageSchoolMask();
 
+    // ..taken
+    TakenFlatBenefit += GetTotalAuraModifier(SPELL_AURA_MOD_DAMAGE_TAKEN, [meleeDamageSchoolMask, spellProto](AuraEffect const* aurEff)
+    {
+        if (spellProto && spellProto->HasAttribute(SPELL_ATTR10_IGNORE_POSITIVE_DAMAGE_TAKEN_MODS) && aurEff->GetAmount() > 0)
+            return false;
+
+        if ((aurEff->GetMiscValue() & meleeDamageSchoolMask) != 0)
+            return true;
+
+        return false;
+    });
+
+    AuraType modDamageTaken = SPELL_AURA_MOD_RANGED_DAMAGE_TAKEN;
     if (attType != RANGED_ATTACK)
-        TakenFlatBenefit += GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_DAMAGE_TAKEN);
-    else
-        TakenFlatBenefit += GetTotalAuraModifier(SPELL_AURA_MOD_RANGED_DAMAGE_TAKEN);
+        modDamageTaken = SPELL_AURA_MOD_MELEE_DAMAGE_TAKEN;
+
+    TakenFlatBenefit += GetTotalAuraModifier(modDamageTaken, [spellProto](AuraEffect const* aurEff)
+    {
+        if (spellProto && spellProto->HasAttribute(SPELL_ATTR10_IGNORE_POSITIVE_DAMAGE_TAKEN_MODS) && aurEff->GetAmount() > 0)
+            return false;
+
+        return true;
+    });
 
     if ((TakenFlatBenefit < 0) && (pdamage < static_cast<uint32>(-TakenFlatBenefit)))
         return 0;
@@ -7912,7 +7936,16 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
     float TakenTotalMod = 1.0f;
 
     // ..taken
-    TakenTotalMod *= GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, attacker->GetMeleeDamageSchoolMask());
+    TakenTotalMod *= GetTotalAuraModifier(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, [meleeDamageSchoolMask, spellProto](AuraEffect const* aurEff)
+    {
+        if (spellProto && spellProto->HasAttribute(SPELL_ATTR10_IGNORE_POSITIVE_DAMAGE_TAKEN_MODS) && aurEff->GetAmount() > 0)
+            return false;
+
+        if ((aurEff->GetMiscValue() & meleeDamageSchoolMask) != 0)
+            return true;
+
+        return false;
+    });
 
     // .. taken pct (special attacks)
     if (spellProto)
@@ -7920,6 +7953,9 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
         // From caster spells
         TakenTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_DAMAGE_FROM_CASTER, [attacker, spellProto](AuraEffect const* aurEff) -> bool
         {
+            if (spellProto && spellProto->HasAttribute(SPELL_ATTR10_IGNORE_POSITIVE_DAMAGE_TAKEN_MODS) && aurEff->GetAmount() > 0)
+                return false;
+
             if (aurEff->GetCasterGUID() == attacker->GetGUID() && aurEff->IsAffectingSpell(spellProto))
                 return true;
             return false;
@@ -7934,8 +7970,11 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
 
         if (mechanicMask)
         {
-            TakenTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_MECHANIC_DAMAGE_TAKEN_PERCENT, [mechanicMask](AuraEffect const* aurEff) -> bool
+            TakenTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_MECHANIC_DAMAGE_TAKEN_PERCENT, [mechanicMask, spellProto](AuraEffect const* aurEff) -> bool
             {
+                if (spellProto && spellProto->HasAttribute(SPELL_ATTR10_IGNORE_POSITIVE_DAMAGE_TAKEN_MODS) && aurEff->GetAmount() > 0)
+                    return false;
+
                 if (mechanicMask & uint32(1 << (aurEff->GetMiscValue())))
                     return true;
                 return false;
@@ -7964,10 +8003,17 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
     }
 
 
+    AuraType modDamageTakenPct = SPELL_AURA_MOD_RANGED_DAMAGE_TAKEN_PCT;
     if (attType != RANGED_ATTACK)
-        TakenTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_MELEE_DAMAGE_TAKEN_PCT);
-    else
-        TakenTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_RANGED_DAMAGE_TAKEN_PCT);
+        modDamageTakenPct = SPELL_AURA_MOD_MELEE_DAMAGE_TAKEN_PCT;
+
+    TakenTotalMod *= GetTotalAuraMultiplier(modDamageTakenPct, [spellProto](AuraEffect const* aurEff)
+    {
+        if (spellProto && spellProto->HasAttribute(SPELL_ATTR10_IGNORE_POSITIVE_DAMAGE_TAKEN_MODS) && aurEff->GetAmount() > 0)
+            return false;
+
+        return true;
+    });
 
     // Sanctified Wrath (bypass damage reduction)
     if (TakenTotalMod < 1.0f)

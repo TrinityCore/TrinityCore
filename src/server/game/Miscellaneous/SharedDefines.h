@@ -714,7 +714,7 @@ enum SpellAttr9
 enum SpellAttr10
 {
     SPELL_ATTR10_UNK0                             = 0x00000001, //  0
-    SPELL_ATTR10_UNK1                             = 0x00000002, //  1
+    SPELL_ATTR10_IGNORE_POSITIVE_DAMAGE_TAKEN_MODS = 0x00000002, //  1 Ignore Positive Damage Taken Modifiers
     SPELL_ATTR10_UNK2                             = 0x00000004, //  2
     SPELL_ATTR10_UNK3                             = 0x00000008, //  3
     SPELL_ATTR10_WATER_SPOUT                      = 0x00000010, //  4
