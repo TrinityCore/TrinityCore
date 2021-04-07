@@ -6845,7 +6845,7 @@ uint32 Unit::SpellDamageBonusTaken(Unit* caster, SpellInfo const* spellProto, ui
         return pdamage;
 
     float TakenTotalMod = 1.0f;
-    int32 TakenTotalFlat = SpellBaseDamageBonusTaken(SpellSchoolMask(spellProto->SchoolMask));
+    int32 TakenTotalFlat = SpellBaseDamageBonusTaken(spellProto);
 
     // Mod damage from spell mechanic
     if (uint32 mechanicMask = spellProto->GetAllEffectsMechanicMask())
