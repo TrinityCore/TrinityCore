@@ -3193,9 +3193,9 @@ void Unit::ProcessTerrainStatusUpdate(ZLiquidStatus status, Optional<LiquidData>
 
     // remove appropriate auras if we are swimming/not swimming respectively
     if (status & MAP_LIQUID_STATUS_SWIMMING)
-        RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::AboveWater);
-    else
         RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::UnderWater);
+    else
+        RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::AboveWater);
 
     // liquid aura handling
     LiquidTypeEntry const* curLiquid = nullptr;
