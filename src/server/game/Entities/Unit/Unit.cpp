@@ -2156,7 +2156,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(const Unit* victim, WeaponAttackTy
     int32 const victimMaxSkillValueForLevel = victim->GetMaxSkillValueForLevel(this);
 
     // Miss chance based on melee
-    int32 miss_chance = int32(MeleeSpellMissChance(victim, attType, 0) * 100.f);
+    int32 miss_chance = int32(MeleeSpellMissChance(victim, attType) * 100.f);
 
     // Critical hit chance
     int32 crit_chance = int32(GetUnitCriticalChanceAgainst(attType, victim) * 100.0f);
@@ -2406,7 +2406,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spellInfo
         attType = RANGED_ATTACK;
 
     uint32 roll = urand(0, 9999);
-    uint32 missChance = uint32(MeleeSpellMissChance(victim, attType, spellInfo->Id) * 100.0f);
+    uint32 missChance = uint32(MeleeSpellMissChance(victim, attType, spellInfo) * 100.0f);
 
     // Roll miss
     uint32 tmp = missChance;
@@ -12511,24 +12511,23 @@ void Unit::ApplyResilience(Unit const* victim, int32* damage) const
 
 // Melee based spells can be miss, parry or dodge on this step
 // Crit or block - determined on damage calculation phase! (and can be both in some time)
-float Unit::MeleeSpellMissChance(Unit const* victim, WeaponAttackType attType, uint32 spellId) const
+float Unit::MeleeSpellMissChance(Unit const* victim, WeaponAttackType attType, SpellInfo const* spellInfo /*= nullptr*/) const
 {
-    if (spellId && sSpellMgr->AssertSpellInfo(spellId)->HasAttribute(SPELL_ATTR7_CANT_MISS))
+    if (spellInfo && spellInfo->HasAttribute(SPELL_ATTR7_CANT_MISS))
         return 0.f;
 
     // Calculate miss chance
     float missChance = GetUnitMissChance(victim);
 
-    if (!spellId && haveOffhandWeapon())
+    if (!spellInfo && haveOffhandWeapon())
         missChance += 19;
 
     // Spellmod from SPELLMOD_RESIST_MISS_CHANCE
     float resistMissChance = 100.0f;
-    if (spellId)
-    {
+    if (spellInfo)
         if (Player* modOwner = GetSpellModOwner())
-            modOwner->ApplySpellMod(spellId, SPELLMOD_RESIST_MISS_CHANCE, resistMissChance);
-    }
+            modOwner->ApplySpellMod(spellInfo->Id, SPELLMOD_RESIST_MISS_CHANCE, resistMissChance);
+
     missChance -= resistMissChance - 100.0f;
 
     if (attType == RANGED_ATTACK)
