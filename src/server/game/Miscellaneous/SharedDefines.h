@@ -628,9 +628,9 @@ enum SpellAttr7
     SPELL_ATTR7_UNK20                            = 0x00100000, // 20 Blink, Divine Shield, Ice Block
     SPELL_ATTR7_UNK21                            = 0x00200000, // 21 Not set
     SPELL_ATTR7_UNK22                            = 0x00400000, // 22
-    SPELL_ATTR7_UNK23                            = 0x00800000, // 23 Motivate, Mutilate, Shattering Throw
-    SPELL_ATTR7_UNK24                            = 0x01000000, // 24 Motivate, Mutilate, Perform Speech, Shattering Throw
-    SPELL_ATTR7_UNK25                            = 0x02000000, // 25
+    SPELL_ATTR7_CANT_DODGE                       = 0x00800000, // 23 No Attack Dodge
+    SPELL_ATTR7_CANT_PARRY                       = 0x01000000, // 24 No Attack Parry
+    SPELL_ATTR7_CANT_MISS                        = 0x02000000, // 25 No Attack Miss
     SPELL_ATTR7_UNK26                            = 0x04000000, // 26
     SPELL_ATTR7_UNK27                            = 0x08000000, // 27 Not set
     SPELL_ATTR7_CONSOLIDATED_RAID_BUFF           = 0x10000000, // 28 May be collapsed in raid buff frame (clientside attribute)
@@ -641,7 +641,7 @@ enum SpellAttr7
 
 enum SpellAttr8
 {
-    SPELL_ATTR8_CANT_MISS                        = 0x00000001, //  0
+    SPELL_ATTR8_CANT_BLOCK                       = 0x00000001, //  0 No Attack Block
     SPELL_ATTR8_UNK1                             = 0x00000002, //  1
     SPELL_ATTR8_UNK2                             = 0x00000004, //  2
     SPELL_ATTR8_UNK3                             = 0x00000008, //  3
@@ -730,8 +730,8 @@ enum SpellAttr10
     SPELL_ATTR10_UNK14                            = 0x00004000, // 14
     SPELL_ATTR10_UNK15                            = 0x00008000, // 15
     SPELL_ATTR10_UNK16                            = 0x00010000, // 16
-    SPELL_ATTR10_CAN_DODGE_PARRY_WHILE_CASTING    = 0x00020000, // 17
-    SPELL_ATTR10_UNK18                            = 0x00040000, // 18
+    SPELL_ATTR10_ALLOW_DEFENSE_WHILE_CASTING      = 0x00020000, // 17 Allow Defense While Casting
+    SPELL_ATTR10_ALLOW_DEFENSE_WHILE_CHANNELING   = 0x00040000, // 18 Allow Defense While Channeling
     SPELL_ATTR10_UNK19                            = 0x00080000, // 19
     SPELL_ATTR10_UNK20                            = 0x00100000, // 20
     SPELL_ATTR10_UNK21                            = 0x00200000, // 21

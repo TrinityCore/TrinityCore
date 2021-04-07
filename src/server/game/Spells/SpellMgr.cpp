@@ -5514,13 +5514,13 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Release Aberrations
     ApplySpellFix({ 77569 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx8 |= SPELL_ATTR8_CANT_MISS;
+        spellInfo->AttributesEx8 |= SPELL_ATTR7_CANT_MISS;
     });
 
     // Release All Minions
     ApplySpellFix({ 77991 }, [](SpellInfo* spellInfo)
     {
-        spellInfo->AttributesEx8 |= SPELL_ATTR8_CANT_MISS;
+        spellInfo->AttributesEx8 |= SPELL_ATTR7_CANT_MISS;
     });
 
     // Debilitating Slime
