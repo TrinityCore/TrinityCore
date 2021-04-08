@@ -79,7 +79,7 @@ void utf8print(void* /*arg*/, std::string_view str)
 {
     std::string conStr;
     utf8ToConsole(str, conStr);
-    printf(conStr.c_str());
+    printf("%s", conStr.c_str());
 #if TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
     fflush(stdout);
 #endif
