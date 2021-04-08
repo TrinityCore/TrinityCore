@@ -75,15 +75,15 @@ void CalendarMgr::LoadFromDB()
             std::string description = fields[3].GetString();
             CalendarEventType type  = CalendarEventType(fields[4].GetUInt8());
             int32 textureID         = fields[5].GetInt32();
-            uint32 date             = fields[6].GetUInt32();
+            time_t date             = fields[6].GetInt64();
             uint32 flags            = fields[7].GetUInt32();
-            uint32 lockDate         = fields[8].GetUInt32();
+            time_t lockDate         = fields[8].GetInt64();
             ObjectGuid::LowType guildID = UI64LIT(0);
 
             if (flags & CALENDAR_FLAG_GUILD_EVENT || flags & CALENDAR_FLAG_WITHOUT_INVITES)
                 guildID = sCharacterCache->GetCharacterGuildIdByGuid(ownerGUID);
 
-            CalendarEvent* calendarEvent = new CalendarEvent(eventID, ownerGUID, guildID, type, textureID, time_t(date), flags, title, description, time_t(lockDate));
+            CalendarEvent* calendarEvent = new CalendarEvent(eventID, ownerGUID, guildID, type, textureID, date, flags, title, description, lockDate);
             _events.insert(calendarEvent);
 
             _maxEventId = std::max(_maxEventId, eventID);
@@ -107,11 +107,11 @@ void CalendarMgr::LoadFromDB()
             ObjectGuid invitee          = ObjectGuid::Create<HighGuid::Player>(fields[2].GetUInt64());
             ObjectGuid senderGUID       = ObjectGuid::Create<HighGuid::Player>(fields[3].GetUInt64());
             CalendarInviteStatus status = CalendarInviteStatus(fields[4].GetUInt8());
-            uint32 responseTime         = fields[5].GetUInt32();
+            time_t responseTime         = fields[5].GetInt64();
             CalendarModerationRank rank = CalendarModerationRank(fields[6].GetUInt8());
             std::string note            = fields[7].GetString();
 
-            CalendarInvite* invite = new CalendarInvite(inviteId, eventId, invitee, senderGUID, time_t(responseTime), status, rank, note);
+            CalendarInvite* invite = new CalendarInvite(inviteId, eventId, invitee, senderGUID, responseTime, status, rank, note);
             _invites[eventId].push_back(invite);
 
             _maxInviteId = std::max(_maxInviteId, inviteId);
@@ -246,9 +246,9 @@ void CalendarMgr::UpdateEvent(CalendarEvent* calendarEvent)
     stmt->setString(3, calendarEvent->GetDescription());
     stmt->setUInt8(4, calendarEvent->GetType());
     stmt->setInt32(5, calendarEvent->GetTextureId());
-    stmt->setUInt32(6, uint32(calendarEvent->GetDate()));
+    stmt->setInt64(6, calendarEvent->GetDate());
     stmt->setUInt32(7, calendarEvent->GetFlags());
-    stmt->setUInt32(8, uint32(calendarEvent->GetLockDate()));
+    stmt->setInt64(8, calendarEvent->GetLockDate());
     CharacterDatabase.Execute(stmt);
 }
 
@@ -266,7 +266,7 @@ void CalendarMgr::UpdateInvite(CalendarInvite* invite, CharacterDatabaseTransact
     stmt->setUInt64(2, invite->GetInviteeGUID().GetCounter());
     stmt->setUInt64(3, invite->GetSenderGUID().GetCounter());
     stmt->setUInt8(4, invite->GetStatus());
-    stmt->setUInt32(5, uint32(invite->GetResponseTime()));
+    stmt->setInt64(5, invite->GetResponseTime());
     stmt->setUInt8(6, invite->GetRank());
     stmt->setString(7, invite->GetNote());
     CharacterDatabase.ExecuteOrAppend(trans, stmt);

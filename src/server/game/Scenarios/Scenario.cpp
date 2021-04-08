@@ -139,7 +139,7 @@ ScenarioStepState Scenario::GetStepState(ScenarioStepEntry const* step)
     return itr->second;
 }
 
-void Scenario::SendCriteriaUpdate(Criteria const * criteria, CriteriaProgress const * progress, uint32 timeElapsed, bool timedCompleted) const
+void Scenario::SendCriteriaUpdate(Criteria const * criteria, CriteriaProgress const * progress, Seconds timeElapsed, bool timedCompleted) const
 {
     WorldPackets::Scenario::ScenarioProgressUpdate progressUpdate;
     progressUpdate.CriteriaProgress.Id = criteria->ID;
@@ -149,7 +149,7 @@ void Scenario::SendCriteriaUpdate(Criteria const * criteria, CriteriaProgress co
     if (criteria->Entry->StartTimer)
         progressUpdate.CriteriaProgress.Flags = timedCompleted ? 1 : 0;
 
-    progressUpdate.CriteriaProgress.TimeFromStart = timeElapsed;
+    progressUpdate.CriteriaProgress.TimeFromStart = uint32(timeElapsed.count());
     progressUpdate.CriteriaProgress.TimeFromCreate = 0;
 
     SendPacket(progressUpdate.Write());

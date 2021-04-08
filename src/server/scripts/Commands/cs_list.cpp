@@ -580,8 +580,8 @@ public:
                     ObjectGuid::LowType receiverId = queryFields[3].GetUInt64();
                     std::string receiver    = queryFields[4].GetString();
                     std::string subject     = queryFields[5].GetString();
-                    uint64 deliverTime      = queryFields[6].GetUInt32();
-                    uint64 expireTime       = queryFields[7].GetUInt32();
+                    time_t deliverTime      = queryFields[6].GetInt64();
+                    time_t expireTime       = queryFields[7].GetInt64();
                     uint64 money            = queryFields[8].GetUInt64();
                     uint8 hasItem           = queryFields[9].GetUInt8();
                     uint32 gold = money / GOLD;

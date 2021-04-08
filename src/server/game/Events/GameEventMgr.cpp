@@ -1635,7 +1635,7 @@ void GameEventMgr::SaveWorldEventStateToDB(uint16 event_id)
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GAME_EVENT_SAVE);
     stmt->setUInt8(0, uint8(event_id));
     stmt->setUInt8(1, mGameEvent[event_id].state);
-    stmt->setUInt32(2, mGameEvent[event_id].nextstart ? uint32(mGameEvent[event_id].nextstart) : 0);
+    stmt->setInt64(2, mGameEvent[event_id].nextstart ? mGameEvent[event_id].nextstart : SI64LIT(0));
     trans->Append(stmt);
     CharacterDatabase.CommitTransaction(trans);
 }

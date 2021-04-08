@@ -18,10 +18,11 @@
 #ifndef CriteriaHandler_h__
 #define CriteriaHandler_h__
 
-#include "DBCEnums.h"
-#include "ObjectGuid.h"
-#include "DatabaseEnvFwd.h"
 #include "Common.h"
+#include "DatabaseEnvFwd.h"
+#include "DBCEnums.h"
+#include "Duration.h"
+#include "ObjectGuid.h"
 #include <map>
 #include <unordered_map>
 #include <vector>
@@ -279,7 +280,7 @@ public:
     void RemoveCriteriaTimer(CriteriaTimedTypes type, uint32 entry);   // used for quest and scripted timed s
 
 protected:
-    virtual void SendCriteriaUpdate(Criteria const* criteria, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const = 0;
+    virtual void SendCriteriaUpdate(Criteria const* criteria, CriteriaProgress const* progress, Seconds timeElapsed, bool timedCompleted) const = 0;
 
     CriteriaProgress* GetCriteriaProgress(Criteria const* entry);
     void SetCriteriaProgress(Criteria const* criteria, uint64 changeValue, Player* referencePlayer, ProgressType progressType = PROGRESS_SET);

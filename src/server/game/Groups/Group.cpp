@@ -63,7 +63,7 @@ Group::Group() : m_leaderGuid(), m_leaderName(""), m_groupFlags(GROUP_FLAG_NONE)
 m_dungeonDifficulty(DIFFICULTY_NORMAL), m_raidDifficulty(DIFFICULTY_NORMAL_RAID), m_legacyRaidDifficulty(DIFFICULTY_10_N),
 m_bgGroup(nullptr), m_bfGroup(nullptr), m_lootMethod(FREE_FOR_ALL), m_lootThreshold(ITEM_QUALITY_UNCOMMON), m_looterGuid(),
 m_masterLooterGuid(), m_subGroupsCounts(nullptr), m_guid(), m_maxEnchantingLevel(0), m_dbStoreId(0),
-m_readyCheckStarted(false), m_readyCheckTimer(0), m_activeMarkers(0)
+m_readyCheckStarted(false), m_readyCheckTimer(Milliseconds::zero()), m_activeMarkers(0)
 {
     for (uint8 i = 0; i < TARGET_ICONS_COUNT; ++i)
         m_targetIcons[i].Clear();
@@ -2274,12 +2274,12 @@ void Group::UpdateReadyCheck(uint32 diff)
     if (!m_readyCheckStarted)
         return;
 
-    m_readyCheckTimer -= diff;
-    if (m_readyCheckTimer <= 0)
+    m_readyCheckTimer -= Milliseconds(diff);
+    if (m_readyCheckTimer <= Milliseconds::zero())
         EndReadyCheck();
 }
 
-void Group::StartReadyCheck(ObjectGuid starterGuid, int8 partyIndex, uint32 duration)
+void Group::StartReadyCheck(ObjectGuid starterGuid, int8 partyIndex, Milliseconds duration)
 {
     if (m_readyCheckStarted)
         return;
@@ -2299,7 +2299,7 @@ void Group::StartReadyCheck(ObjectGuid starterGuid, int8 partyIndex, uint32 dura
     readyCheckStarted.PartyGUID = m_guid;
     readyCheckStarted.PartyIndex = partyIndex;
     readyCheckStarted.InitiatorGUID = starterGuid;
-    readyCheckStarted.Duration = duration;
+    readyCheckStarted.Duration = uint32(duration.count());
     BroadcastPacket(readyCheckStarted.Write(), false);
 }
 
@@ -2309,7 +2309,7 @@ void Group::EndReadyCheck(void)
         return;
 
     m_readyCheckStarted = false;
-    m_readyCheckTimer = 0;
+    m_readyCheckTimer = Milliseconds::zero();
 
     ResetMemberReadyChecked();
 
