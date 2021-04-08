@@ -71,6 +71,12 @@ EVENT_TYPE(FormulaOnMeleeOutcome
      , TSMutable<float>
      , TSMutable<float>);
 
+EVENT_TYPE(FormulaOnStaminaHealthBonus,TSPlayer,float,float,TSMutable<float>);
+EVENT_TYPE(FormulaOnIntellectManaBonus,TSPlayer,float,float,TSMutable<float>);
+EVENT_TYPE(FormulaOnMaxHealth,TSPlayer,TSMutable<float>);
+EVENT_TYPE(FormulaOnMaxPower,TSPlayer,uint32,float,TSMutable<float>);
+EVENT_TYPE(FormulaOnManaRegen,TSPlayer,TSMutable<float>,TSMutable<float>,TSMutable<int32>);
+
 // UnitScript
 //EVENT_TYPE(UnitModifyVehiclePassengerExitPos,TSUnit,TSVehicle,TSMutable<Position>)
 
@@ -438,7 +444,12 @@ struct TSEvents
     EVENT(ItemOnGossipSelectCode)
 
     // UnitScript
-    EVENT(FormulaOnHeal)
+    EVENT(FormulaOnHeal);
+    EVENT(FormulaOnStaminaHealthBonus);
+    EVENT(FormulaOnIntellectManaBonus);
+    EVENT(FormulaOnMaxHealth);
+    EVENT(FormulaOnMaxPower);
+    EVENT(FormulaOnManaRegen);
     //EVENT(UnitModifyVehiclePassengerExitPos)
 
     // AreaTriggerScript
@@ -663,6 +674,11 @@ public:
          EVENT_HANDLE(Formula,OnSpellDeflect)
          EVENT_HANDLE(Formula,OnMeleeOutcome)
          EVENT_HANDLE(Formula,OnHeal)
+         EVENT_HANDLE(Formula,OnStaminaHealthBonus);
+         EVENT_HANDLE(Formula,OnIntellectManaBonus);
+         EVENT_HANDLE(Formula,OnMaxHealth);
+         EVENT_HANDLE(Formula,OnMaxPower);
+         EVENT_HANDLE(Formula,OnManaRegen);
     } Formula;
 
     struct UnitEvents: public EventHandler

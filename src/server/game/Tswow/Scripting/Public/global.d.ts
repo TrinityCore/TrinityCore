@@ -6477,6 +6477,12 @@ declare namespace _hidden {
             , blockChance : TSMutable<float>
             , parryChance: TSMutable<float>
             )=>void)
+
+        OnStaminaHealthBonus(callback: (player: TSPlayer,baseStam: float,bonusStam: float,maxhp: TSMutable<float>)=>void);
+        OnIntellectManaBonus(callback: (player: TSPlayer,baseInt: float,bonusInt: float,maxMana: TSMutable<float>)=>void);
+        OnMaxHealth(callback: (player: TSPlayer,health: TSMutable<float>)=>void);
+        OnMaxPower(callback: (player: TSPlayer,power:uint32,bonus: float, value: TSMutable<float>)=>void);
+        OnManaRegen(callback: (player: TSPlayer,power_regen: TSMutable<float>,power_regen_mp5: TSMutable<float>,manaRegenInterrupt: TSMutable<int32>)=>void); 
     }
 
     export class Item {

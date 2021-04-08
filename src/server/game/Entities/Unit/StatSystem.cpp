@@ -289,8 +289,11 @@ float Player::GetHealthBonusFromStamina()
     float stamina = GetStat(STAT_STAMINA);
     float baseStam = std::min(20.0f, stamina);
     float moreStam = stamina - baseStam;
-
-    return baseStam + (moreStam*10.0f);
+    // @tswow-begin
+    float health = baseStam + (moreStam*10.0f);
+    FIRE(FormulaOnStaminaHealthBonus,TSPlayer(this),baseStam,moreStam,TSMutable<float>(&health));
+    return health;
+    // @tswow-end
 }
 
 float Player::GetManaBonusFromIntellect()
@@ -300,7 +303,11 @@ float Player::GetManaBonusFromIntellect()
     float baseInt = std::min(20.0f, intellect);
     float moreInt = intellect - baseInt;
 
-    return baseInt + (moreInt * 15.0f);
+    // @tswow-begin
+    float mana = baseInt + (moreInt * 15.0f);
+    FIRE(FormulaOnIntellectManaBonus,TSPlayer(this),baseInt,moreInt,TSMutable<float>(&mana));
+    // @tswow-end
+    return mana;
 }
 
 void Player::UpdateMaxHealth()
@@ -311,7 +318,9 @@ void Player::UpdateMaxHealth()
     value *= GetPctModifierValue(unitMod, BASE_PCT);
     value += GetFlatModifierValue(unitMod, TOTAL_VALUE) + GetHealthBonusFromStamina();
     value *= GetPctModifierValue(unitMod, TOTAL_PCT);
-
+    // @tswow-begin
+    FIRE(FormulaOnMaxHealth,TSPlayer(this),TSMutable<float>(&value));
+    // @tswow-end
     SetMaxHealth((uint32)value);
 }
 
@@ -325,7 +334,9 @@ void Player::UpdateMaxPower(Powers power)
     value *= GetPctModifierValue(unitMod, BASE_PCT);
     value += GetFlatModifierValue(unitMod, TOTAL_VALUE) +  bonusPower;
     value *= GetPctModifierValue(unitMod, TOTAL_PCT);
-
+    // @tswow-begin
+    FIRE(FormulaOnMaxPower,TSPlayer(this),static_cast<uint32>(power),bonusPower,TSMutable<float>(&value));
+    // @tswow-end
     SetMaxPower(power, uint32(std::lroundf(value)));
 }
 
@@ -1022,6 +1033,13 @@ void Player::UpdateManaRegen()
     int32 modManaRegenInterrupt = GetTotalAuraModifier(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT);
     if (modManaRegenInterrupt > 100)
         modManaRegenInterrupt = 100;
+    // @tswow-begin
+    FIRE(FormulaOnManaRegen
+        , TSPlayer(this)
+        , TSMutable<float>(&power_regen)
+        , TSMutable<float>(&power_regen_mp5)
+        , TSMutable<int32>(&modManaRegenInterrupt));
+    // @tswow-end
     SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, power_regen_mp5 + CalculatePct(power_regen, modManaRegenInterrupt));
 
     SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, power_regen_mp5 + power_regen);
