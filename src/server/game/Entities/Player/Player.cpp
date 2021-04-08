@@ -1229,7 +1229,6 @@ void Player::Update(uint32 p_time)
     //because we don't want player's ghost teleported from graveyard
     if (IsHasDelayedTeleport() && IsAlive())
         TeleportTo(m_teleport_dest, m_teleport_options);
-
 }
 
 void Player::setDeathState(DeathState s)
@@ -28954,4 +28953,11 @@ uint8 Player::GetItemLimitCategoryQuantity(ItemLimitCategoryEntry const* limitEn
     }
 
     return limit;
+}
+
+void Player::OnPhaseChange()
+{
+    Unit::OnPhaseChange();
+
+    GetMap()->GetMultiPersonalPhaseTracker().OnOwnerPhaseChanged(this);
 }

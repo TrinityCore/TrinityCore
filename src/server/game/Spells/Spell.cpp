@@ -1846,10 +1846,10 @@ void Spell::SearchTargets(SEARCHER& searcher, uint32 containerMask, Unit* refere
         Map* map = referer->GetMap();
 
         if (searchInWorld)
-            Cell::VisitWorldObjects(x, y, map, searcher, radius);
+            Cell::VisitWorldObjects(nullptr, x, y, map, searcher, radius);
 
         if (searchInGrid)
-            Cell::VisitGridObjects(x, y, map, searcher, radius);
+            Cell::VisitGridObjects(nullptr, x, y, map, searcher, radius);
     }
 }
 

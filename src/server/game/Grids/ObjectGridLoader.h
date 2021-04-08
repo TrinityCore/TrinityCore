@@ -18,21 +18,23 @@
 #ifndef TRINITY_OBJECTGRIDLOADER_H
 #define TRINITY_OBJECTGRIDLOADER_H
 
-#include "TypeList.h"
+#include "Cell.h"
 #include "Define.h"
 #include "GridLoader.h"
 #include "GridDefines.h"
-#include "Cell.h"
+#include "TypeList.h"
 
 class ObjectWorldLoader;
+class Player;
 
 class TC_GAME_API ObjectGridLoader
 {
     friend class ObjectWorldLoader;
 
     public:
-        ObjectGridLoader(NGridType& grid, Map* map, Cell const& cell)
+        ObjectGridLoader(NGridType& grid, Map* map, Cell const& cell, uint32 phaseId, Player const* phaseOwner)
             : i_cell(cell), i_grid(grid), i_map(map), i_gameObjects(0), i_creatures(0), i_corpses(0), i_areaTriggers(0)
+            , _phaseId(phaseId), _phaseOwner(phaseOwner)
             { }
 
         void Visit(GameObjectMapType &m);
@@ -54,6 +56,8 @@ class TC_GAME_API ObjectGridLoader
         uint32 i_creatures;
         uint32 i_corpses;
         uint32 i_areaTriggers;
+        uint32 _phaseId;
+        Player const* _phaseOwner;
 };
 
 //Stop the creatures before unloading the NGrid
