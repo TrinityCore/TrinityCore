@@ -2189,7 +2189,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit const* victim, WeaponAttackTy
     if (attackerLevel >= victimLevel + 4 &&
         // can be from by creature (if can) or from controlled player that considered as creature
         !IsControlledByPlayer() &&
-        !(GetTypeId() == TYPEID_UNIT && ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_CRUSH))
+        !(GetTypeId() == TYPEID_UNIT && ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_CRUSHING_BLOWS))
     {
         // add 2% chance per level, min. is 15%
         tmp = attackerLevel - victimLevel * 1000 - 1500;
@@ -8416,7 +8416,7 @@ bool Unit::ApplyDiminishingToDuration(SpellInfo const* auraSpellInfo, int32& dur
     {
         case DIMINISHING_TAUNT:
         {
-            if (GetTypeId() == TYPEID_UNIT && (ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_TAUNT_DIMINISH))
+            if (GetTypeId() == TYPEID_UNIT && (ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_OBEYS_TAUNT_DIMINISHING_RETURNS))
             {
                 DiminishingLevels diminish = previousLevel;
                 switch (diminish)

@@ -1749,7 +1749,7 @@ void Spell::SelectImplicitTrajTargets(SpellEffectInfo const& spellEffectInfo, Sp
 
             if (Creature* creatureTarget = unit->ToCreature())
             {
-                if (!(creatureTarget->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_CAN_COLLIDE_WITH_MISSILES))
+                if (!(creatureTarget->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_COLLIDE_WITH_MISSILES))
                     continue;
             }
         }

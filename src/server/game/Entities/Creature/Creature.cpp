@@ -685,7 +685,7 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
         ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
     }
 
-    SetIgnoringCombat((cInfo->flags_extra & CREATURE_FLAG_EXTRA_NO_COMBAT) != 0);
+    SetIgnoringCombat((cInfo->flags_extra & CREATURE_FLAG_EXTRA_IGNORE_COMBAT) != 0);
 
     LoadTemplateRoot();
     InitializeMovementFlags();
@@ -1106,7 +1106,7 @@ bool Creature::Create(ObjectGuid::LowType guidlow, Map* map, uint32 entry, Posit
     }
 
     // Allow players to see those units while dead, do it here (mayby altered by addon auras)
-    if (cinfo->type_flags & CREATURE_TYPE_FLAG_GHOST_VISIBLE)
+    if (cinfo->type_flags & CREATURE_TYPE_FLAG_VISIBLE_TO_GHOSTS)
         m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE | GHOST_VISIBILITY_GHOST);
 
     if (!CreateFromProto(guidlow, entry, data, vehId))
@@ -3436,7 +3436,7 @@ bool Creature::CanGiveExperience() const
     return !IsCritter()
         && !IsPet()
         && !IsTotem()
-        && !(GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_XP_AT_KILL);
+        && !(GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_XP);
 }
 
 bool Creature::IsEngaged() const
@@ -3450,7 +3450,7 @@ void Creature::AtEngage(Unit* target)
 {
     Unit::AtEngage(target);
 
-    if (!(GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_MOUNTED_COMBAT_ALLOWED))
+    if (!(GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_ALLOW_MOUNTED_COMBAT))
         Dismount();
 
     RefreshSwimmingFlag();
