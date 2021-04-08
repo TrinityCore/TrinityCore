@@ -362,7 +362,12 @@ namespace WorldPackets
         class GuildBankQueryTab;
         class GuildBankDepositMoney;
         class GuildBankWithdrawMoney;
-        class GuildBankSwapItems;
+        class GuildBankTransferItem;
+        class GuildBankMoveItemInBank;
+        class GuildBankCombineItemStack;
+        class GuildBankTransferItemStack;
+        class GuildBankTransferItemAutoStore;
+        class GuildBankCombineItemStackInBank;
         class GuildBankBuyTab;
         class GuildBankUpdateTab;
         class GuildBankLogQuery;
@@ -1634,7 +1639,15 @@ class TC_GAME_API WorldSession
         void HandleGuildBankLogQuery(WorldPackets::Guild::GuildBankLogQuery& packet);
         void HandleGuildBankDepositMoney(WorldPackets::Guild::GuildBankDepositMoney& packet);
         void HandleGuildBankWithdrawMoney(WorldPackets::Guild::GuildBankWithdrawMoney& packet);
-        void HandleGuildBankSwapItems(WorldPackets::Guild::GuildBankSwapItems& packet);
+        void HandleGuildBankTransferItemToBank(WorldPackets::Guild::GuildBankTransferItem& packet);
+        void HandleGuildBankTransferItemToPlayer(WorldPackets::Guild::GuildBankTransferItem& packet);
+        void HandleGuildBankMoveItemInBank(WorldPackets::Guild::GuildBankMoveItemInBank& packet);
+        void HandleGuildBankCombineItemStackWithBank(WorldPackets::Guild::GuildBankCombineItemStack& packet);
+        void HandleGuildBankCombineItemStackWithPlayer(WorldPackets::Guild::GuildBankCombineItemStack& packet);
+        void HandleGuildBankTransferItemStackToBank(WorldPackets::Guild::GuildBankTransferItemStack& packet);
+        void HandleGuildBankTransferItemStackToPlayer(WorldPackets::Guild::GuildBankTransferItemStack& packet);
+        void HandleGuildBankTransferItemToPlayerAutoStore(WorldPackets::Guild::GuildBankTransferItemAutoStore& packet);
+        void HandleGuildBankCombineItemStackInBank(WorldPackets::Guild::GuildBankCombineItemStackInBank& packet);
 
         void HandleGuildBankUpdateTab(WorldPackets::Guild::GuildBankUpdateTab& packet);
         void HandleGuildBankBuyTab(WorldPackets::Guild::GuildBankBuyTab& packet);

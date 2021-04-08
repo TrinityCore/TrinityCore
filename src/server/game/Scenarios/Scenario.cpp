@@ -149,8 +149,8 @@ void Scenario::SendCriteriaUpdate(Criteria const * criteria, CriteriaProgress co
     if (criteria->Entry->StartTimer)
         progressUpdate.CriteriaProgress.Flags = timedCompleted ? 1 : 0;
 
-    progressUpdate.CriteriaProgress.TimeFromStart = uint32(timeElapsed.count());
-    progressUpdate.CriteriaProgress.TimeFromCreate = 0;
+    progressUpdate.CriteriaProgress.TimeFromStart = timeElapsed;
+    progressUpdate.CriteriaProgress.TimeFromCreate = Seconds::zero();
 
     SendPacket(progressUpdate.Write());
 }

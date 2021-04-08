@@ -2299,7 +2299,7 @@ void Group::StartReadyCheck(ObjectGuid starterGuid, int8 partyIndex, Millisecond
     readyCheckStarted.PartyGUID = m_guid;
     readyCheckStarted.PartyIndex = partyIndex;
     readyCheckStarted.InitiatorGUID = starterGuid;
-    readyCheckStarted.Duration = uint32(duration.count());
+    readyCheckStarted.Duration = duration;
     BroadcastPacket(readyCheckStarted.Write(), false);
 }
 

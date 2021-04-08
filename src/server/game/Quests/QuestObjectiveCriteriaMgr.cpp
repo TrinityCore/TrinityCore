@@ -254,7 +254,7 @@ void QuestObjectiveCriteriaMgr::SendCriteriaUpdate(Criteria const* criteria, Cri
         criteriaUpdate.Flags = timedCompleted ? 1 : 0; // 1 is for keeping the counter at 0 in client
 
     criteriaUpdate.CurrentTime = progress->Date;
-    criteriaUpdate.ElapsedTime = uint32(timeElapsed.count());
+    criteriaUpdate.ElapsedTime = timeElapsed;
     criteriaUpdate.CreationTime = 0;
 
     SendPacket(criteriaUpdate.Write());

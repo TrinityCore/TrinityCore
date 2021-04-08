@@ -634,7 +634,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
 void WorldSession::HandleUpdateAccountData(WorldPackets::ClientConfig::UserClientUpdateAccountData& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_UPDATE_ACCOUNT_DATA: type %u, time %u, decompressedSize %u",
-        packet.DataType, packet.Time, packet.Size);
+        packet.DataType, packet.Time.AsUnderlyingType(), packet.Size);
 
     if (packet.DataType > NUM_ACCOUNT_DATA_TYPES)
         return;
@@ -1045,7 +1045,7 @@ void WorldSession::HandleGuildSetFocusedAchievement(WorldPackets::Achievement::G
 void WorldSession::HandleServerTimeOffsetRequest(WorldPackets::Misc::ServerTimeOffsetRequest& /*request*/)
 {
     WorldPackets::Misc::ServerTimeOffset response;
-    response.Time = time(nullptr);
+    response.Time = GameTime::GetGameTimeSystemPoint();
     SendPacket(response.Write());
 }
 

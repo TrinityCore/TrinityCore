@@ -190,7 +190,7 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::CharacterInfo con
     for (EnumCharactersResult::CharacterInfo::VisualItemInfo const& visualItem : charInfo.VisualItems)
         data << visualItem;
 
-    data << uint32(charInfo.LastPlayedTime);
+    data << charInfo.LastPlayedTime;
     data << uint16(charInfo.SpecID);
     data << uint32(charInfo.Unknown703);
     data << uint32(charInfo.LastLoginVersion);

@@ -222,7 +222,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint32 Time = 0; ///< UnixTime
+            Timestamp<> Time;
         };
 
         class TutorialFlags : public ServerPacket
@@ -916,8 +916,8 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             int32 Type = 0;
-            int32 TimeLeft = 0;
-            int32 TotalTime = 0;
+            Duration<Seconds> TimeLeft;
+            Duration<Seconds> TotalTime;
         };
     }
 }

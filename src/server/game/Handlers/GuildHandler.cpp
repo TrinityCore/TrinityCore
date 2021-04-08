@@ -18,6 +18,7 @@
 #include "WorldSession.h"
 #include "AchievementPackets.h"
 #include "Common.h"
+#include "GameTime.h"
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "GuildPackets.h"
@@ -276,7 +277,7 @@ void WorldSession::HandleGuildBankWithdrawMoney(WorldPackets::Guild::GuildBankWi
             guild->HandleMemberWithdrawMoney(this, packet.Money);
 }
 
-void WorldSession::HandleGuildBankSwapItems(WorldPackets::Guild::GuildBankSwapItems& packet)
+void WorldSession::HandleGuildBankTransferItemToBank(WorldPackets::Guild::GuildBankTransferItem& packet)
 {
     if (!GetPlayer()->GetGameObjectIfCanInteractWith(packet.Banker, GAMEOBJECT_TYPE_GUILD_BANK))
         return;
@@ -285,19 +286,154 @@ void WorldSession::HandleGuildBankSwapItems(WorldPackets::Guild::GuildBankSwapIt
     if (!guild)
         return;
 
-    if (packet.BankOnly)
-    {
-        guild->SwapItems(GetPlayer(), packet.BankTab1, packet.BankSlot1, packet.BankTab, packet.BankSlot, packet.StackCount);
-    }
+    uint8 playerBag = INVENTORY_SLOT_BAG_0;
+
+    if (packet.HasBag)
+        playerBag = packet.PlayerBag;
+
+    if (!Player::IsInventoryPos(playerBag, packet.PlayerSlot))
+        GetPlayer()->SendEquipError(EQUIP_ERR_INTERNAL_BAG_ERROR, nullptr);
     else
-    {
-        // Player <-> Bank
-        // Allow to work with inventory only
-        if (!Player::IsInventoryPos(packet.ContainerSlot, packet.ContainerItemSlot) && !packet.AutoStore)
-            GetPlayer()->SendEquipError(EQUIP_ERR_INTERNAL_BAG_ERROR, nullptr);
-        else
-            guild->SwapItemsWithInventory(GetPlayer(), packet.ToSlot != 0, packet.BankTab, packet.BankSlot, packet.ContainerSlot, packet.ContainerItemSlot, packet.StackCount);
-    }
+        guild->SwapItemsWithInventory(GetPlayer(), false, packet.BankTab, packet.BankSlot, playerBag, packet.PlayerSlot, 0);
+}
+
+void WorldSession::HandleGuildBankTransferItemToPlayer(WorldPackets::Guild::GuildBankTransferItem& packet)
+{
+    if (!GetPlayer()->GetGameObjectIfCanInteractWith(packet.Banker, GAMEOBJECT_TYPE_GUILD_BANK))
+        return;
+
+    Guild* guild = GetPlayer()->GetGuild();
+    if (!guild)
+        return;
+
+    uint8 playerBag = INVENTORY_SLOT_BAG_0;
+
+    if (packet.HasBag)
+        playerBag = packet.PlayerBag;
+
+    if (!Player::IsInventoryPos(playerBag, packet.PlayerSlot))
+        GetPlayer()->SendEquipError(EQUIP_ERR_INTERNAL_BAG_ERROR, nullptr);
+    else
+        guild->SwapItemsWithInventory(GetPlayer(), true, packet.BankTab, packet.BankSlot, playerBag, packet.PlayerSlot, 0);
+}
+
+void WorldSession::HandleGuildBankMoveItemInBank(WorldPackets::Guild::GuildBankMoveItemInBank& packet)
+{
+    if (!GetPlayer()->GetGameObjectIfCanInteractWith(packet.Banker, GAMEOBJECT_TYPE_GUILD_BANK))
+        return;
+
+    Guild* guild = GetPlayer()->GetGuild();
+    if (!guild)
+        return;
+
+    guild->SwapItems(GetPlayer(), packet.BankTab, packet.BankSlot, packet.NewBankTab, packet.NewBankSlot, 0);
+}
+
+void WorldSession::HandleGuildBankCombineItemStackWithBank(WorldPackets::Guild::GuildBankCombineItemStack& packet)
+{
+    if (!GetPlayer()->GetGameObjectIfCanInteractWith(packet.Banker, GAMEOBJECT_TYPE_GUILD_BANK))
+        return;
+
+    Guild* guild = GetPlayer()->GetGuild();
+    if (!guild)
+        return;
+
+    uint8 playerBag = INVENTORY_SLOT_BAG_0;
+
+    if (packet.HasBag)
+        playerBag = packet.PlayerBag;
+
+    if (!Player::IsInventoryPos(playerBag, packet.PlayerSlot))
+        GetPlayer()->SendEquipError(EQUIP_ERR_INTERNAL_BAG_ERROR, nullptr);
+    else
+        guild->SwapItemsWithInventory(GetPlayer(), false, packet.BankTab, packet.BankSlot, playerBag, packet.PlayerSlot, packet.StackCount);
+}
+
+void WorldSession::HandleGuildBankCombineItemStackWithPlayer(WorldPackets::Guild::GuildBankCombineItemStack& packet)
+{
+    if (!GetPlayer()->GetGameObjectIfCanInteractWith(packet.Banker, GAMEOBJECT_TYPE_GUILD_BANK))
+        return;
+
+    Guild* guild = GetPlayer()->GetGuild();
+    if (!guild)
+        return;
+
+    uint8 playerBag = INVENTORY_SLOT_BAG_0;
+
+    if (packet.HasBag)
+        playerBag = packet.PlayerBag;
+
+    if (!Player::IsInventoryPos(playerBag, packet.PlayerSlot))
+        GetPlayer()->SendEquipError(EQUIP_ERR_INTERNAL_BAG_ERROR, nullptr);
+    else
+        guild->SwapItemsWithInventory(GetPlayer(), true, packet.BankTab, packet.BankSlot, playerBag, packet.PlayerSlot, packet.StackCount);
+}
+
+void WorldSession::HandleGuildBankTransferItemStackToBank(WorldPackets::Guild::GuildBankTransferItemStack& packet)
+{
+    if (!GetPlayer()->GetGameObjectIfCanInteractWith(packet.Banker, GAMEOBJECT_TYPE_GUILD_BANK))
+        return;
+
+    Guild* guild = GetPlayer()->GetGuild();
+    if (!guild)
+        return;
+
+    uint8 playerBag = INVENTORY_SLOT_BAG_0;
+
+    if (packet.HasBag)
+        playerBag = packet.PlayerBag;
+
+    if (!Player::IsInventoryPos(playerBag, packet.PlayerSlot))
+        GetPlayer()->SendEquipError(EQUIP_ERR_INTERNAL_BAG_ERROR, nullptr);
+    else
+        guild->SwapItemsWithInventory(GetPlayer(), false, packet.BankTab, packet.BankSlot, playerBag, packet.PlayerSlot, packet.StackCount);
+}
+
+void WorldSession::HandleGuildBankTransferItemStackToPlayer(WorldPackets::Guild::GuildBankTransferItemStack& packet)
+{
+    if (!GetPlayer()->GetGameObjectIfCanInteractWith(packet.Banker, GAMEOBJECT_TYPE_GUILD_BANK))
+        return;
+
+    Guild* guild = GetPlayer()->GetGuild();
+    if (!guild)
+        return;
+
+    uint8 playerBag = INVENTORY_SLOT_BAG_0;
+
+    if (packet.HasBag)
+        playerBag = packet.PlayerBag;
+
+    if (!Player::IsInventoryPos(playerBag, packet.PlayerSlot))
+        GetPlayer()->SendEquipError(EQUIP_ERR_INTERNAL_BAG_ERROR, nullptr);
+    else
+        guild->SwapItemsWithInventory(GetPlayer(), true, packet.BankTab, packet.BankSlot, playerBag, packet.PlayerSlot, packet.StackCount);
+}
+
+void WorldSession::HandleGuildBankTransferItemToPlayerAutoStore(WorldPackets::Guild::GuildBankTransferItemAutoStore& packet)
+{
+    if (!GetPlayer()->GetGameObjectIfCanInteractWith(packet.Banker, GAMEOBJECT_TYPE_GUILD_BANK))
+        return;
+
+    Guild* guild = GetPlayer()->GetGuild();
+    if (!guild)
+        return;
+
+    if (GetPlayer()->GetInventorySlotCount() == 0)
+        GetPlayer()->SendEquipError(EQUIP_ERR_BAG_FULL, nullptr);
+    else
+        guild->SwapItemsWithInventory(GetPlayer(), true, packet.BankTab, packet.BankSlot, 0, 0, 0);
+}
+
+void WorldSession::HandleGuildBankCombineItemStackInBank(WorldPackets::Guild::GuildBankCombineItemStackInBank& packet)
+{
+    if (!GetPlayer()->GetGameObjectIfCanInteractWith(packet.Banker, GAMEOBJECT_TYPE_GUILD_BANK))
+        return;
+
+    Guild* guild = GetPlayer()->GetGuild();
+    if (!guild)
+        return;
+
+    guild->SwapItems(GetPlayer(), packet.BankTab, packet.BankSlot, packet.NewBankTab, packet.NewBankSlot, packet.StackCount);
 }
 
 void WorldSession::HandleGuildBankBuyTab(WorldPackets::Guild::GuildBankBuyTab& packet)
@@ -386,7 +522,7 @@ void WorldSession::HandleRequestGuildRewardsList(WorldPackets::Guild::RequestGui
         std::vector<GuildReward> const& rewards = sGuildMgr->GetGuildRewards();
 
         WorldPackets::Guild::GuildRewardList rewardList;
-        rewardList.Version = uint32(time(nullptr));
+        rewardList.Version = GameTime::GetGameTimeSystemPoint();
         rewardList.RewardItems.reserve(rewards.size());
 
         for (uint32 i = 0; i < rewards.size(); i++)

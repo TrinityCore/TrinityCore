@@ -624,7 +624,7 @@ WorldPacket const* WorldQuestUpdateResponse::Write()
 
     for (WorldQuestUpdateInfo const& worldQuestUpdate : WorldQuestUpdates)
     {
-        _worldPacket << int32(worldQuestUpdate.LastUpdate);
+        _worldPacket << worldQuestUpdate.LastUpdate;
         _worldPacket << uint32(worldQuestUpdate.QuestID);
         _worldPacket << uint32(worldQuestUpdate.Timer);
         _worldPacket << int32(worldQuestUpdate.VariableID);
