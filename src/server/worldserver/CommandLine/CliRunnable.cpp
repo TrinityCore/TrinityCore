@@ -77,11 +77,13 @@ namespace Trinity::Impl::Readline
 
 void utf8print(void* /*arg*/, std::string_view str)
 {
-    std::string conStr;
-    utf8ToConsole(str, conStr);
-    printf("%s", conStr.c_str());
-#if TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+    WriteWinConsole(str);
+#else
+{
+    printf(STRING_VIEW_FMT, STRING_VIEW_FMT_ARG(str));
     fflush(stdout);
+}
 #endif
 }
 
@@ -133,9 +135,11 @@ void CliThread()
         std::string command;
 
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
-        char commandbuf[256];
-        if (fgets(commandbuf, sizeof(commandbuf), stdin))
-            command = commandbuf;
+        if (!ReadWinConsole(command))
+        {
+            PrintCliPrefix();
+            continue;
+        }
 #else
         char* command_str = readline(CLI_PREFIX);
         ::rl_bind_key('\t', ::rl_complete);
@@ -162,15 +166,8 @@ void CliThread()
                 command.erase(nextLineIndex);
             }
 
-            std::string utf8command;
-            if (!consoleToUtf8(command, utf8command))
-            {
-                PrintCliPrefix();
-                continue;
-            }
-
             fflush(stdout);
-            sWorld->QueueCliCommand(new CliCommandHolder(nullptr, utf8command.c_str(), &utf8print, &commandFinished));
+            sWorld->QueueCliCommand(new CliCommandHolder(nullptr, command.c_str(), &utf8print, &commandFinished));
 #if TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
             add_history(command.c_str());
 #endif

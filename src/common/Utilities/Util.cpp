@@ -600,6 +600,41 @@ bool Utf8ToUpperOnlyLatin(std::string& utf8String)
     return WStrToUtf8(wstr, utf8String);
 }
 
+bool ReadWinConsole(std::string& str, size_t size /*= 256*/)
+{
+    if (size < 2)
+        return false;
+
+    wchar_t* commandbuf = new wchar_t[size];
+    HANDLE hConsole = GetStdHandle(STD_INPUT_HANDLE);
+    DWORD read;
+
+    if (!ReadConsoleW(hConsole, commandbuf, size - 1, &read, NULL))
+    {
+        delete[] commandbuf;
+        return false;
+    }
+
+    commandbuf[read] = 0;
+
+    bool ok = WStrToUtf8(commandbuf, wcslen(commandbuf), str);
+    delete[] commandbuf;
+    return ok;
+}
+
+bool WriteWinConsole(std::string_view str, bool error /*= false*/)
+{
+    std::wstring wstr;
+    if (!Utf8toWStr(str, wstr))
+        return false;
+
+    HANDLE hConsole = GetStdHandle(error ? STD_ERROR_HANDLE : STD_OUTPUT_HANDLE);
+    DWORD toWrite = wstr.size();
+    DWORD write;
+
+    return WriteConsoleW(hConsole, wstr.c_str(), wstr.size(), &write, NULL);
+}
+
 std::string Trinity::Impl::ByteArrayToHexStr(uint8 const* bytes, size_t arrayLen, bool reverse /* = false */)
 {
     int32 init = 0;
