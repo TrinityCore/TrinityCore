@@ -859,7 +859,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     // Rage from Damage made (only from direct weapon damage)
     if (cleanDamage && damagetype == DIRECT_DAMAGE && this != victim && GetPowerType() == POWER_RAGE)
     {
-        uint32 rage = uint32(GetAttackTime(cleanDamage->attackType) / 1000 * 6.5f);
+        uint32 rage = uint32((float)GetAttackTime(cleanDamage->attackType) / 1000 * 6.5f);
 
         // Sentinel
         if (victim->GetVictim() && victim->GetVictim() != this)
@@ -13736,9 +13736,9 @@ void Unit::RewardRage(uint32 baseRage, bool attacker)
     else
     {
         // Calculate rage from health and damage taken (formular taken from SimulationCraft)
-        addRage = std::floor(0.5f + (baseRage * 18.92 / GetMaxHealth()));
+        addRage = std::floor(0.5f + (baseRage * 18.92f / GetMaxHealth()));
 
-        // Berserker Rage 
+        // Berserker Rage
         if (HasAura(18499))
             addRage *= 2.0f;
     }
