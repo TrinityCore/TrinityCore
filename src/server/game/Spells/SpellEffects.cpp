@@ -1965,7 +1965,9 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
         return;
     }
 
-    SkillType skillId = SKILL_NONE;
+    // @tswow-begin
+    uint32 skillId = static_cast<uint32>(SKILL_NONE);
+    // @tswow-end
     int32 reqSkillValue = 0;
     int32 skillValue;
 

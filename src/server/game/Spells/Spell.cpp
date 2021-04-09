@@ -5710,7 +5710,9 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                 else if (Item* itm = m_targets.GetItemTarget())
                     lockId = itm->GetTemplate()->LockID;
 
-                SkillType skillId = SKILL_NONE;
+                // @tswow-begin
+                uint32 skillId = static_cast<uint32>(SKILL_NONE);
+                // @tswow-end
                 int32 reqSkillValue = 0;
                 int32 skillValue = 0;
 
@@ -7720,7 +7722,9 @@ void Spell::DoEffectOnLaunchTarget(TargetInfo& targetInfo, float multiplier, uin
     targetInfo.IsCrit = roll_chance_f(critChance);
 }
 
-SpellCastResult Spell::CanOpenLock(uint32 effIndex, uint32 lockId, SkillType& skillId, int32& reqSkillValue, int32& skillValue)
+// @tswow-begin
+SpellCastResult Spell::CanOpenLock(uint32 effIndex, uint32 lockId, uint32& skillId, int32& reqSkillValue, int32& skillValue)
+// @tswow-end
 {
     if (!lockId)                                             // possible case for GO and maybe for items.
         return SPELL_CAST_OK;
@@ -7752,7 +7756,20 @@ SpellCastResult Spell::CanOpenLock(uint32 effIndex, uint32 lockId, SkillType& sk
                 if (uint32(m_spellInfo->Effects[effIndex].MiscValue) != lockInfo->Index[j])
                     continue;
 
-                skillId = SkillByLockType(LockType(lockInfo->Index[j]));
+                // @tswow-begin
+                skillId = static_cast<uint32>(SkillByLockType(LockType(lockInfo->Index[j])));
+                // TODO: This can be cached on the SpellInfo
+                if(lockInfo->Skill[j] > 0 && lockInfo->Index[j]>21 && skillId == SKILL_NONE)
+                {
+                    SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(m_spellInfo->Id);
+                    for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
+                        if (_spell_idx->second->SkillLine != 0)
+                        {
+                            skillId = _spell_idx->second->SkillLine;
+                            break;
+                        }
+                }
+                // @tswow-end
 
                 if (skillId != SKILL_NONE)
                 {
