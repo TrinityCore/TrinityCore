@@ -7538,7 +7538,7 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
         if (statType == -1)
             continue;
 
-        int32 val = item->GetItemStatValue(i, this);
+        float val = item->GetItemStatValue(i, this);
         if (val == 0)
             continue;
 

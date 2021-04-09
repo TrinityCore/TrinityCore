@@ -554,7 +554,7 @@ int32 SpellEffectInfo::CalcBaseValue(Unit const* caster, Unit const* target, uin
                     if (!randPropPoints)
                         randPropPoints = sRandPropPointsStore.AssertEntry(sRandPropPointsStore.GetNumRows() - 1);
 
-                    value = _spellInfo->Scaling.Class == -8 ? randPropPoints->DamageReplaceStat : randPropPoints->DamageSecondary;
+                    value = _spellInfo->Scaling.Class == -8 ? randPropPoints->DamageReplaceStatF : randPropPoints->DamageSecondaryF;
                 }
                 else
                     value = GetRandomPropertyPoints(effectiveItemLevel, ITEM_QUALITY_RARE, INVTYPE_CHEST, 0);
