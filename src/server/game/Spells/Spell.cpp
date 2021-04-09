@@ -622,8 +622,8 @@ m_caster((info->HasAttribute(SPELL_ATTR6_CAST_BY_CHARMER) && caster->GetCharmerO
     effectHandleMode = SPELL_EFFECT_HANDLE_LAUNCH;
     m_damage = 0;
     m_healing = 0;
-    m_procAttacker = 0;
-    m_procVictim = 0;
+    m_procAttacker = PROC_FLAG_NONE;
+    m_procVictim = PROC_FLAG_NONE;
     m_hitMask = 0;
     focusObject = nullptr;
     m_cast_count = 0;
@@ -2083,7 +2083,7 @@ void Spell::prepareDataForTriggerSystem()
     // Create base triggers flags for Attacker and Victim (m_procAttacker, m_procVictim and m_hitMask)
     //==========================================================================================
 
-    m_procVictim = m_procAttacker = 0;
+    m_procVictim = m_procAttacker = PROC_FLAG_NONE;
     // Get data for type of attack and fill base info for trigger
     switch (m_spellInfo->DmgClass)
     {
@@ -2142,9 +2142,9 @@ void Spell::prepareDataForTriggerSystem()
 
     // Some spells may not trigger any procs at all.
     if (m_spellInfo->HasAttribute(SPELL_ATTR3_CANT_TRIGGER_CASTER_PROCS))
-        m_procAttacker = 0;
-    if (m_spellInfo->HasAttribute(SPELL_ATTR3_CANT_TRIGGER_CASTER_PROCS))
-        m_procVictim = 0;
+        m_procAttacker = PROC_FLAG_NONE;
+    if (m_spellInfo->HasAttribute(SPELL_ATTR3_CANT_TRIGGER_TARGET_PROCS))
+        m_procVictim = PROC_FLAG_NONE;
 }
 
 void Spell::CleanupTargetList()

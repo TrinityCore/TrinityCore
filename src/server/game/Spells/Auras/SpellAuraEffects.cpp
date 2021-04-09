@@ -5760,7 +5760,7 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
     caster->DealDamageMods(target, damage, &absorb);
 
     // Set trigger flag
-    uint32 procAttacker = 0, procVictim = 0;
+    uint32 procAttacker, procVictim = PROC_FLAG_NONE;
     if (!m_spellInfo->HasAttribute(SPELL_ATTR3_CANT_TRIGGER_CASTER_PROCS))
         procAttacker = PROC_FLAG_DONE_PERIODIC;
     if (!m_spellInfo->HasAttribute(SPELL_ATTR3_CANT_TRIGGER_TARGET_PROCS))
@@ -5770,7 +5770,8 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
     if (damage)
     {
         hitMask |= crit ? PROC_HIT_CRITICAL : PROC_HIT_NORMAL;
-        procVictim |= PROC_FLAG_TAKEN_DAMAGE;
+        if (!m_spellInfo->HasAttribute(SPELL_ATTR3_CANT_TRIGGER_TARGET_PROCS))
+            procVictim |= PROC_FLAG_TAKEN_DAMAGE;
     }
 
     int32 overkill = damage - target->GetHealth();
@@ -5854,7 +5855,7 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
     damage = damageInfo.GetDamage();
 
     // Set trigger flag
-    uint32 procAttacker = 0, procVictim = 0;
+    uint32 procAttacker, procVictim = PROC_FLAG_NONE;
     if (!m_spellInfo->HasAttribute(SPELL_ATTR3_CANT_TRIGGER_CASTER_PROCS))
         procAttacker = PROC_FLAG_DONE_PERIODIC;
     if (!m_spellInfo->HasAttribute(SPELL_ATTR3_CANT_TRIGGER_TARGET_PROCS))
@@ -6030,7 +6031,7 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
     if (GetAuraType() == SPELL_AURA_OBS_MOD_HEALTH)
         return;
 
-    uint32 procAttacker = 0, procVictim = 0;
+    uint32 procAttacker, procVictim = PROC_FLAG_NONE;
     if (!m_spellInfo->HasAttribute(SPELL_ATTR3_CANT_TRIGGER_CASTER_PROCS))
         procAttacker = PROC_FLAG_DONE_PERIODIC;
     if (!m_spellInfo->HasAttribute(SPELL_ATTR3_CANT_TRIGGER_TARGET_PROCS))
@@ -6206,7 +6207,7 @@ void AuraEffect::HandlePeriodicPowerBurnAuraTick(Unit* target, Unit* caster) con
     caster->SendSpellNonMeleeDamageLog(&damageInfo);
 
     // Set trigger flag
-    uint32 procAttacker = 0, procVictim = 0;
+    uint32 procAttacker, procVictim = PROC_FLAG_NONE;
     if (!m_spellInfo->HasAttribute(SPELL_ATTR3_CANT_TRIGGER_CASTER_PROCS))
         procAttacker = PROC_FLAG_DONE_PERIODIC;
     if (!m_spellInfo->HasAttribute(SPELL_ATTR3_CANT_TRIGGER_TARGET_PROCS))
@@ -6216,7 +6217,9 @@ void AuraEffect::HandlePeriodicPowerBurnAuraTick(Unit* target, Unit* caster) con
     uint32 spellTypeMask = PROC_SPELL_TYPE_NO_DMG_HEAL;
     if (damageInfo.damage)
     {
-        procVictim |= PROC_FLAG_TAKEN_DAMAGE;
+        if (!m_spellInfo->HasAttribute(SPELL_ATTR3_CANT_TRIGGER_TARGET_PROCS))
+            procVictim |= PROC_FLAG_TAKEN_DAMAGE;
+
         spellTypeMask |= PROC_SPELL_TYPE_DAMAGE;
     }
 
