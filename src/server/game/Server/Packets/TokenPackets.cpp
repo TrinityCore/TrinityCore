@@ -31,8 +31,8 @@ WorldPacket const* WorldPackets::Token::CommerceTokenGetLogResponse::Write()
     {
         _worldPacket << auctionableTokenAuctionable.UnkInt1;
         _worldPacket << auctionableTokenAuctionable.UnkInt2;
-        _worldPacket << auctionableTokenAuctionable.Owner;
         _worldPacket << auctionableTokenAuctionable.BuyoutPrice;
+        _worldPacket << auctionableTokenAuctionable.Owner;
         _worldPacket << auctionableTokenAuctionable.DurationLeft;
     }
 

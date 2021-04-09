@@ -1514,7 +1514,7 @@ void DB2Manager::LoadHotfixData()
         hotfixRecord.RecordID = recordId;
         hotfixRecord.HotfixID = id;
         hotfixRecord.HotfixStatus = status;
-        _hotfixData.insert(hotfixRecord);
+        _hotfixData[id].push_back(hotfixRecord);
         deletedRecords[std::make_pair(tableHash, recordId)] = status == HotfixRecord::Status::RecordRemoved;
         ++count;
     } while (result->NextRow());
@@ -1691,7 +1691,7 @@ void DB2Manager::InsertNewHotfix(uint32 tableHash, uint32 recordId)
     hotfixRecord.TableHash = tableHash;
     hotfixRecord.RecordID = recordId;
     hotfixRecord.HotfixID = ++_maxHotfixId;
-    _hotfixData.insert(hotfixRecord);
+    _hotfixData[hotfixRecord.HotfixID].push_back(hotfixRecord);
 }
 
 std::vector<uint32> DB2Manager::GetAreasForGroup(uint32 areaGroupId) const

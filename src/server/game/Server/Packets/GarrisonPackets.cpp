@@ -91,12 +91,12 @@ ByteBuffer& operator<<(ByteBuffer& data, GarrisonFollower const& follower)
 ByteBuffer& operator<<(ByteBuffer& data, GarrisonMission const& mission)
 {
     data << uint64(mission.DbID);
-    data << uint32(mission.MissionRecID);
     data << mission.OfferTime;
     data << mission.OfferDuration;
     data << mission.StartTime;
     data << mission.TravelDuration;
     data << mission.MissionDuration;
+    data << uint32(mission.MissionRecID);
     data << uint32(mission.MissionState);
     data << uint32(mission.SuccessChance);
     data << uint32(mission.Flags);
@@ -125,8 +125,8 @@ ByteBuffer& operator<<(ByteBuffer& data, GarrisonMissionReward const& missionRew
 
 ByteBuffer& operator<<(ByteBuffer& data, GarrisonMissionBonusAbility const& areaBonus)
 {
-    data << uint32(areaBonus.GarrMssnBonusAbilityID);
     data << areaBonus.StartTime;
+    data << uint32(areaBonus.GarrMssnBonusAbilityID);
 
     return data;
 }
@@ -174,8 +174,8 @@ ByteBuffer& operator<<(ByteBuffer& data, GarrisonCollection const& collection)
 
 ByteBuffer& operator<<(ByteBuffer& data, GarrisonEventEntry const& event)
 {
+    data << int64(event.EventValue);
     data << int32(event.EntryID);
-    data << int32(event.EventValue);
 
     return data;
 }
@@ -214,6 +214,7 @@ ByteBuffer& operator<<(ByteBuffer& data, GarrisonInfo const& garrison)
     data << uint32(garrison.ArchivedMissions.size());
     data << int32(garrison.NumFollowerActivationsRemaining);
     data << uint32(garrison.NumMissionsStartedToday);
+    data << int32(garrison.MinAutoTroopLevel);
 
     for (GarrisonPlotInfo* plot : garrison.Plots)
         data << *plot;
