@@ -7860,7 +7860,17 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemT
 {
     // Can do effect if any damage done to target
     // for done procs allow normal + critical + absorbs by default
-    bool canTrigger = (damageInfo.GetHitMask() & (PROC_HIT_NORMAL | PROC_HIT_CRITICAL | PROC_HIT_ABSORB)) != 0;
+    bool canTrigger = [&]()
+    {
+        if (!(damageInfo.GetHitMask() & (PROC_HIT_NORMAL | PROC_HIT_CRITICAL | PROC_HIT_ABSORB)))
+            return false;
+
+        if (damageInfo.GetSpellInfo() && damageInfo.GetSpellInfo()->HasAttribute(SPELL_ATTR3_CANT_TRIGGER_CASTER_PROCS))
+            return false;
+
+        return true;
+    }();
+
     if (canTrigger)
     {
         for (ItemEffect const& effect : proto->Effects)
