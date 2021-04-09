@@ -603,14 +603,11 @@ bool Utf8ToUpperOnlyLatin(std::string& utf8String)
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
 bool ReadWinConsole(std::string& str, size_t size /*= 256*/)
 {
-    if (size < 2)
-        return false;
-
-    wchar_t* commandbuf = new wchar_t[size];
+    wchar_t* commandbuf = new wchar_t[size + 1];
     HANDLE hConsole = GetStdHandle(STD_INPUT_HANDLE);
     DWORD read;
 
-    if (!ReadConsoleW(hConsole, commandbuf, size - 1, &read, NULL))
+    if (!ReadConsoleW(hConsole, commandbuf, size, &read, NULL))
     {
         delete[] commandbuf;
         return false;
