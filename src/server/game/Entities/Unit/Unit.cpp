@@ -437,6 +437,35 @@ Unit::~Unit()
     ASSERT(m_gameObj.empty());
     ASSERT(m_dynObj.empty());
 }
+//ShadowCore codigo adapatado (SLCORE code definition ) holydeew
+
+    int32 GetAuraEffectAmount(AuraType auraType, SpellFamilyNames spellFamilyName, uint32 IconFileDataId, uint8 effIndex) const;
+    int32 GetAuraEffectAmount(uint32 spellId, uint8 effIndex, ObjectGuid casterGuid = ObjectGuid::Empty) const;
+    int32 Unit::GetAuraEffectAmount(uint32 spellId, uint8 effIndex, ObjectGuid casterGuid) const
+    {
+        if (AuraEffect* aurEff = GetAuraEffect(spellId, effIndex, casterGuid))
+            return aurEff->GetAmount();
+
+        return 0;
+    }
+    //ShadowCore codigo adapatado (SLCORE code definition ) holydeew
+    AuraEffect* GetAuraEffect(uint32 spellId, uint8 effIndex, ObjectGuid casterGUID = ObjectGuid::Empty) const;
+
+    AuraEffect* Unit::GetAuraEffect(uint32 spellId, uint8 effIndex, ObjectGuid caster) const
+    {
+        AuraApplicationMapBounds range = m_appliedAuras.equal_range(spellId);
+        for (AuraApplicationMap::const_iterator itr = range.first; itr != range.second; ++itr)
+        {
+            if (itr->second->HasEffect(effIndex)
+                && (!caster || itr->second->GetBase()->GetCasterGUID() == caster))
+            {
+                return itr->second->GetBase()->GetEffect(effIndex);
+            }
+        }
+        return nullptr;
+    }
+    //FIM do codigo adapatado HOLYDEEW
+
 
 // Check if unit in combat with specific unit
 bool Unit::IsInCombatWith(Unit const* who) const
