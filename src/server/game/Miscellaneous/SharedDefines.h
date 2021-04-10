@@ -1686,7 +1686,9 @@ enum SpellCastResult
     SPELL_FAILED_PLAYER_CONDITION                               = 305,
     SPELL_FAILED_NOT_WHILE_CHROMIE_TIMED                        = 306,
     SPELL_FAILED_OPTIONAL_REAGENTS                              = 307,
-    SPELL_FAILED_UNKNOWN                                        = 308,
+    SPELL_FAILED_SPECTATOR_OR_COMMENTATOR                       = 308,
+    SPELL_FAILED_SOULBIND_CONDUIT_LEARN_FAILED_INVALID_COVENANT = 309,
+    SPELL_FAILED_UNKNOWN                                        = 310,
 
     // ok cast value - here in case a future version removes SPELL_FAILED_SUCCESS and we need to use a custom value (not sent to client either way)
     SPELL_CAST_OK                                               = SPELL_FAILED_SUCCESS
@@ -2221,6 +2223,8 @@ enum SpellCustomErrors
     SPELL_CUSTOM_ERROR_YOU_CANNOT_SOULSHAPE_DURING_LICHBORNE            = 533, // You cannot Soulshape during Lichborne.
     SPELL_CUSTOM_ERROR_YOU_CANT_DO_THAT_WHILE_CARRYING_AN_ANIMACONE     = 534, // You can't do that while carrying an Animacone.
     SPELL_CUSTOM_ERROR_NECESSARY_CONSTRUCT_NOT_PRESENT                  = 535, // Necessary construct not present.
+    SPELL_CUSTOM_ERROR_THAT_GUEST_IS_ALREADY_COVERED_IN_GELATIN         = 536, // That guest is already covered in gelatin.
+    SPELL_CUSTOM_ERROR_YOU_NEED_TO_WAIT_TO_USE_THIS_ITEM                = 537, // You need to wait to use this item.
 };
 
 enum StealthType
