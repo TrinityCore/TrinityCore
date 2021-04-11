@@ -19,6 +19,7 @@
 #define TRINITYCORE_CONVERSATION_H
 
 #include "Object.h"
+#include "GridObject.h"
 #include "Hash.h"
 
 class Unit;

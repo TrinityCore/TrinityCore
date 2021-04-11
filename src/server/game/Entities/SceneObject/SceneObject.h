@@ -19,6 +19,7 @@
 #define SceneObject_h__
 
 #include "Object.h"
+#include "GridObject.h"
 
 struct SceneTemplate;
 

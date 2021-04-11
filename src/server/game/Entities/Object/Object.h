@@ -20,9 +20,8 @@
 
 #include "Common.h"
 #include "Duration.h"
+#include "Errors.h"
 #include "EventProcessor.h"
-#include "GridReference.h"
-#include "GridRefManager.h"
 #include "ModelIgnoreFlags.h"
 #include "MovementInfo.h"
 #include "ObjectDefines.h"
@@ -401,19 +400,6 @@ class TC_GAME_API Object
         Object(Object&& right) = delete;
         Object& operator=(Object const& right) = delete;
         Object& operator=(Object&& right) = delete;
-};
-
-template<class T>
-class GridObject
-{
-    public:
-        virtual ~GridObject() { }
-
-        bool IsInGrid() const { return _gridRef.isValid(); }
-        void AddToGrid(GridRefManager<T>& m) { ASSERT(!IsInGrid()); _gridRef.link(&m, (T*)this); }
-        void RemoveFromGrid() { ASSERT(IsInGrid()); _gridRef.unlink(); }
-    private:
-        GridReference<T> _gridRef;
 };
 
 template <class T_VALUES, class T_FLAGS, class FLAG_TYPE, size_t ARRAY_SIZE>

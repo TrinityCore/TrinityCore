@@ -19,6 +19,7 @@
 #define TRINITYCORE_AREATRIGGER_H
 
 #include "Object.h"
+#include "GridObject.h"
 #include "MapObject.h"
 #include "AreaTriggerTemplate.h"
 
