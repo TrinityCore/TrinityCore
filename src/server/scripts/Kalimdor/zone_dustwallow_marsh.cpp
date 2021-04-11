@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "Player.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
 
 enum OozeZap
