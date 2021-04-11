@@ -20269,7 +20269,7 @@ void Player::_SaveStats(CharacterDatabaseTransaction trans) const
     stmt->setFloat(index++, GetFloatValue(PLAYER_CRIT_PERCENTAGE));
     stmt->setFloat(index++, GetFloatValue(PLAYER_RANGED_CRIT_PERCENTAGE));
 
-    // Store the max spell scrit percentage out of all the possible schools
+    // Store the max spell crit percentage out of all the possible schools
     float spellCrit = 0.0f;
     for (int i = 0; i < MAX_SPELL_SCHOOL; ++i)
         spellCrit = std::max(spellCrit, GetFloatValue(PLAYER_SPELL_CRIT_PERCENTAGE1 + i));
