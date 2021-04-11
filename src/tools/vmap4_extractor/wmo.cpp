@@ -500,7 +500,7 @@ uint32 WMOGroup::GetLiquidTypeId(uint32 liquidTypeId)
     return liquidTypeId;
 }
 
-bool WMOGroup::ShouldSkip(WMORoot const& root) const
+bool WMOGroup::ShouldSkip(WMORoot const* root) const
 {
     // skip unreachable
     if (mogpFlags & 0x80)
@@ -510,7 +510,7 @@ bool WMOGroup::ShouldSkip(WMORoot const& root) const
     if (mogpFlags & 0x4000000)
         return true;
 
-    if (groupName < int32(root.GroupNames.size()) && !strcmp(&root.GroupNames[groupName], "antiportal"))
+    if (groupName < int32(root->GroupNames.size()) && !strcmp(&root->GroupNames[groupName], "antiportal"))
         return true;
 
     return false;
