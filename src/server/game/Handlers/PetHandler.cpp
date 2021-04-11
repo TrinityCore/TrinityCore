@@ -427,7 +427,7 @@ void WorldSession::SendQueryPetNameResponse(ObjectGuid guid)
     if (Creature* unit = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, guid))
     {
         response.Allow = true;
-        response.Timestamp = unit->m_unitData->PetNameTimestamp;
+        response.Timestamp = *unit->m_unitData->PetNameTimestamp;
         response.Name = unit->GetName();
 
         if (Pet* pet = unit->ToPet())

@@ -343,8 +343,8 @@ WorldPacket const* WorldPackets::Battleground::PVPMatchInitialize::Write()
 {
     _worldPacket << uint32(MapID);
     _worldPacket << uint8(State);
-    _worldPacket << int32(StartTime);
-    _worldPacket << int32(Duration);
+    _worldPacket << StartTime;
+    _worldPacket << Duration;
     _worldPacket << uint8(ArenaFaction);
     _worldPacket << uint32(BattlemasterListID);
     _worldPacket.WriteBit(Registered);
@@ -357,7 +357,7 @@ WorldPacket const* WorldPackets::Battleground::PVPMatchInitialize::Write()
 WorldPacket const* WorldPackets::Battleground::PVPMatchComplete::Write()
 {
     _worldPacket << uint8(Winner);
-    _worldPacket << int32(Duration);
+    _worldPacket << Duration;
     _worldPacket.WriteBit(LogData.is_initialized());
     _worldPacket.FlushBits();
 

@@ -19,7 +19,9 @@
 #define PacketUtilities_h__
 
 #include "ByteBuffer.h"
+#include "Duration.h"
 #include <boost/container/static_vector.hpp>
+#include <ctime>
 
 namespace WorldPackets
 {
@@ -99,6 +101,86 @@ namespace WorldPackets
 
     private:
         storage_type _storage;
+    };
+
+    template<typename Underlying = int64>
+    class Timestamp
+    {
+    public:
+        Timestamp() = default;
+        Timestamp(time_t value) : _value(value) { }
+        Timestamp(std::chrono::system_clock::time_point const& systemTime) : _value(std::chrono::system_clock::to_time_t(systemTime)) { }
+
+        Timestamp& operator=(time_t value)
+        {
+            _value = value;
+            return *this;
+        }
+
+        Timestamp& operator=(std::chrono::system_clock::time_point const& systemTime)
+        {
+            _value = std::chrono::system_clock::to_time_t(systemTime);
+            return *this;
+        }
+
+        operator time_t() const
+        {
+            return _value;
+        }
+
+        Underlying AsUnderlyingType() const
+        {
+            return static_cast<Underlying>(_value);
+        }
+
+        friend ByteBuffer& operator<<(ByteBuffer& data, Timestamp timestamp)
+        {
+            data << static_cast<Underlying>(timestamp._value);
+            return data;
+        }
+
+        friend ByteBuffer& operator>>(ByteBuffer& data, Timestamp& timestamp)
+        {
+            timestamp._value = data.read<time_t, Underlying>();
+            return data;
+        }
+
+    private:
+        time_t _value = time_t(0);
+    };
+
+    template<typename ChronoDuration, typename Underlying = int64>
+    class Duration
+    {
+    public:
+        Duration() = default;
+        Duration(ChronoDuration value) : _value(value) { }
+
+        Duration& operator=(ChronoDuration value)
+        {
+            _value = value;
+            return *this;
+        }
+
+        operator ChronoDuration() const
+        {
+            return _value;
+        }
+
+        friend ByteBuffer& operator<<(ByteBuffer& data, Duration duration)
+        {
+            data << static_cast<Underlying>(duration._value.count());
+            return data;
+        }
+
+        friend ByteBuffer& operator>>(ByteBuffer& data, Duration& duration)
+        {
+            duration._value = ChronoDuration(data.read<Underlying>());
+            return data;
+        }
+
+    private:
+        ChronoDuration _value = ChronoDuration::zero();
     };
 }
 

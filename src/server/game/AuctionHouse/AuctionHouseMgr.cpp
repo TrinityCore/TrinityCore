@@ -261,7 +261,7 @@ public:
     {
         for (std::size_t i = 0; i < _sortCount; ++i)
         {
-            int32 ordering = CompareColumns(_sorts[i].SortOrder, left, right);
+            int64 ordering = CompareColumns(_sorts[i].SortOrder, left, right);
             if (ordering != 0)
                 return (ordering < 0) == !_sorts[i].ReverseSort;
         }
@@ -270,7 +270,7 @@ public:
     }
 
 private:
-    int32 CompareColumns(AuctionHouseSortOrder column, AuctionsBucketData const* left, AuctionsBucketData const* right) const
+    int64 CompareColumns(AuctionHouseSortOrder column, AuctionsBucketData const* left, AuctionsBucketData const* right) const
     {
         switch (column)
         {
@@ -304,7 +304,7 @@ public:
     {
         for (std::size_t i = 0; i < _sortCount; ++i)
         {
-            int32 ordering = CompareColumns(_sorts[i].SortOrder, left, right);
+            int64 ordering = CompareColumns(_sorts[i].SortOrder, left, right);
             if (ordering != 0)
                 return (ordering < 0) == !_sorts[i].ReverseSort;
         }
@@ -317,7 +317,7 @@ public:
     }
 
 private:
-    int32 CompareColumns(AuctionHouseSortOrder column, AuctionPosting const* left, AuctionPosting const* right) const
+    int64 CompareColumns(AuctionHouseSortOrder column, AuctionPosting const* left, AuctionPosting const* right) const
     {
         switch (column)
         {
@@ -625,8 +625,8 @@ void AuctionHouseMgr::LoadAuctions()
             auction.BuyoutOrUnitPrice = fields[5].GetUInt64();
             auction.Deposit = fields[6].GetUInt64();
             auction.BidAmount = fields[7].GetUInt64();
-            auction.StartTime = std::chrono::system_clock::from_time_t(fields[8].GetUInt32());
-            auction.EndTime = std::chrono::system_clock::from_time_t(fields[9].GetUInt32());
+            auction.StartTime = std::chrono::system_clock::from_time_t(fields[8].GetInt64());
+            auction.EndTime = std::chrono::system_clock::from_time_t(fields[9].GetInt64());
 
             auto biddersItr = biddersByAuction.find(auction.Id);
             if (biddersItr != biddersByAuction.end())
@@ -998,8 +998,8 @@ void AuctionHouseObject::AddAuction(CharacterDatabaseTransaction trans, AuctionP
         stmt->setUInt64(5, auction.BuyoutOrUnitPrice);
         stmt->setUInt64(6, auction.Deposit);
         stmt->setUInt64(7, auction.BidAmount);
-        stmt->setUInt32(8, uint32(std::chrono::system_clock::to_time_t(auction.StartTime)));
-        stmt->setUInt32(9, uint32(std::chrono::system_clock::to_time_t(auction.EndTime)));
+        stmt->setInt64(8, std::chrono::system_clock::to_time_t(auction.StartTime));
+        stmt->setInt64(9, std::chrono::system_clock::to_time_t(auction.EndTime));
         trans->Append(stmt);
 
         for (Item* item : auction.Items)

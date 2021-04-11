@@ -76,8 +76,8 @@ enum Spells
     SPELL_GUZZLE_POTIONS                    = 71893,
     SPELL_OOZE_TANK_PROTECTION              = 71770,    // protects the tank
     SPELL_CHOKING_GAS_BOMB                  = 71255,
-    SPELL_OOZE_VARIABLE                     = 74118,
-    SPELL_GAS_VARIABLE                      = 74119,
+    SPELL_OOZE_VARIABLE                     = 70352,
+    SPELL_GAS_VARIABLE                      = 70353,
     SPELL_UNBOUND_PLAGUE                    = 70911,
     SPELL_UNBOUND_PLAGUE_SEARCHER           = 70917,
     SPELL_PLAGUE_SICKNESS                   = 70953,
@@ -115,8 +115,6 @@ enum Spells
     // Unholy Infusion
     SPELL_UNHOLY_INFUSION_CREDIT            = 71518
 };
-
-#define SPELL_GASEOUS_BLOAT_HELPER RAID_MODE<uint32>(70672, 72455, 72832, 72833)
 
 enum Events
 {
@@ -324,12 +322,12 @@ class boss_professor_putricide : public CreatureScript
                         break;
                     case NPC_GAS_CLOUD:
                         // no possible aura seen in sniff adding the aurastate
-                        summon->ModifyAuraState(AURA_STATE_UNKNOWN22, true);
+                        summon->ModifyAuraState(AURA_STATE_RAID_ENCOUNTER, true);
                         summon->SetReactState(REACT_PASSIVE);
                         break;
                     case NPC_VOLATILE_OOZE:
                         // no possible aura seen in sniff adding the aurastate
-                        summon->ModifyAuraState(AURA_STATE_UNKNOWN19, true);
+                        summon->ModifyAuraState(AURA_STATE_VULNERABLE, true);
                         summon->SetReactState(REACT_PASSIVE);
                         break;
                     case NPC_CHOKING_GAS_BOMB:
@@ -1308,7 +1306,7 @@ class spell_putricide_mutated_plague : public SpellScriptLoader
                 if (!caster)
                     return;
 
-                uint32 triggerSpell = GetSpellInfo()->GetEffect(aurEff->GetEffIndex())->TriggerSpell;
+                uint32 triggerSpell = aurEff->GetSpellEffectInfo()->TriggerSpell;
                 SpellInfo const* spell = sSpellMgr->AssertSpellInfo(triggerSpell, GetCastDifficulty());
 
                 int32 damage = spell->GetEffect(EFFECT_0)->CalcValue(caster);

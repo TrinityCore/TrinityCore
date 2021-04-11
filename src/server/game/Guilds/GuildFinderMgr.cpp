@@ -114,9 +114,9 @@ void GuildFinderMgr::LoadMembershipRequests()
         uint8  classRoles   = fields[3].GetUInt8();
         uint8  interests    = fields[4].GetUInt8();
         std::string comment = fields[5].GetString();
-        uint32 submitTime   = fields[6].GetUInt32();
+        time_t submitTime   = fields[6].GetInt64();
 
-        MembershipRequest request(playerId, guildId, availability, classRoles, interests, std::move(comment), time_t(submitTime));
+        MembershipRequest request(playerId, guildId, availability, classRoles, interests, std::move(comment), submitTime);
 
         _membershipRequestsByGuild[guildId][playerId] = request;
         _membershipRequestsByPlayer[playerId][guildId] = request;
@@ -140,7 +140,7 @@ void GuildFinderMgr::AddMembershipRequest(ObjectGuid const& guildGuid, Membershi
     stmt->setUInt8(3, request.GetClassRoles());
     stmt->setUInt8(4, request.GetInterests());
     stmt->setString(5, request.GetComment());
-    stmt->setUInt32(6, request.GetSubmitTime());
+    stmt->setInt64(6, request.GetSubmitTime());
     trans->Append(stmt);
     CharacterDatabase.CommitTransaction(trans);
 

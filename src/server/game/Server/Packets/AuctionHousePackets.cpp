@@ -554,7 +554,7 @@ WorldPacket const* AuctionGetCommodityQuoteResult::Write()
         _worldPacket << uint32(*Quantity);
 
     if (QuoteDuration)
-        _worldPacket << int32(*QuoteDuration);
+        _worldPacket << *QuoteDuration;
 
     return &_worldPacket;
 }

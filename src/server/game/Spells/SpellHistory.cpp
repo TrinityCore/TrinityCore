@@ -49,10 +49,10 @@ struct SpellHistory::PersistenceHelper<Player>
             return false;
 
         cooldownEntry->SpellId = *spellId;
-        cooldownEntry->CooldownEnd = Clock::from_time_t(time_t(fields[2].GetUInt32()));
+        cooldownEntry->CooldownEnd = Clock::from_time_t(fields[2].GetInt64());
         cooldownEntry->ItemId = fields[1].GetUInt32();
         cooldownEntry->CategoryId = fields[3].GetUInt32();
-        cooldownEntry->CategoryEnd = Clock::from_time_t(time_t(fields[4].GetUInt32()));
+        cooldownEntry->CategoryEnd = Clock::from_time_t(fields[4].GetInt64());
         return true;
     }
 
@@ -62,8 +62,8 @@ struct SpellHistory::PersistenceHelper<Player>
         if (!sSpellCategoryStore.LookupEntry(*categoryId))
             return false;
 
-        chargeEntry->RechargeStart = Clock::from_time_t(time_t(fields[1].GetUInt32()));
-        chargeEntry->RechargeEnd = Clock::from_time_t(time_t(fields[2].GetUInt32()));
+        chargeEntry->RechargeStart = Clock::from_time_t(fields[1].GetInt64());
+        chargeEntry->RechargeEnd = Clock::from_time_t(fields[2].GetInt64());
         return true;
     }
 
@@ -71,16 +71,16 @@ struct SpellHistory::PersistenceHelper<Player>
     {
         stmt->setUInt32(index++, cooldown.first);
         stmt->setUInt32(index++, cooldown.second.ItemId);
-        stmt->setUInt32(index++, uint32(Clock::to_time_t(cooldown.second.CooldownEnd)));
+        stmt->setInt64(index++, Clock::to_time_t(cooldown.second.CooldownEnd));
         stmt->setUInt32(index++, cooldown.second.CategoryId);
-        stmt->setUInt32(index++, uint32(Clock::to_time_t(cooldown.second.CategoryEnd)));
+        stmt->setInt64(index++, Clock::to_time_t(cooldown.second.CategoryEnd));
     }
 
     static void WriteCharge(PreparedStatementBase* stmt, uint8& index, uint32 chargeCategory, ChargeEntry const& charge)
     {
         stmt->setUInt32(index++, chargeCategory);
-        stmt->setUInt32(index++, uint32(Clock::to_time_t(charge.RechargeStart)));
-        stmt->setUInt32(index++, uint32(Clock::to_time_t(charge.RechargeEnd)));
+        stmt->setInt64(index++, Clock::to_time_t(charge.RechargeStart));
+        stmt->setInt64(index++, Clock::to_time_t(charge.RechargeEnd));
     }
 };
 
@@ -101,10 +101,10 @@ struct SpellHistory::PersistenceHelper<Pet>
             return false;
 
         cooldownEntry->SpellId = *spellId;
-        cooldownEntry->CooldownEnd = Clock::from_time_t(time_t(fields[1].GetUInt32()));
+        cooldownEntry->CooldownEnd = Clock::from_time_t(fields[1].GetInt64());
         cooldownEntry->ItemId = 0;
         cooldownEntry->CategoryId = fields[2].GetUInt32();
-        cooldownEntry->CategoryEnd = Clock::from_time_t(time_t(fields[3].GetUInt32()));
+        cooldownEntry->CategoryEnd = Clock::from_time_t(fields[3].GetInt64());
         return true;
     }
 
@@ -114,24 +114,24 @@ struct SpellHistory::PersistenceHelper<Pet>
         if (!sSpellCategoryStore.LookupEntry(*categoryId))
             return false;
 
-        chargeEntry->RechargeStart = Clock::from_time_t(time_t(fields[1].GetUInt32()));
-        chargeEntry->RechargeEnd = Clock::from_time_t(time_t(fields[2].GetUInt32()));
+        chargeEntry->RechargeStart = Clock::from_time_t(fields[1].GetInt64());
+        chargeEntry->RechargeEnd = Clock::from_time_t(fields[2].GetInt64());
         return true;
     }
 
     static void WriteCooldown(PreparedStatementBase* stmt, uint8& index, CooldownStorageType::value_type const& cooldown)
     {
         stmt->setUInt32(index++, cooldown.first);
-        stmt->setUInt32(index++, uint32(Clock::to_time_t(cooldown.second.CooldownEnd)));
+        stmt->setInt64(index++, Clock::to_time_t(cooldown.second.CooldownEnd));
         stmt->setUInt32(index++, cooldown.second.CategoryId);
-        stmt->setUInt32(index++, uint32(Clock::to_time_t(cooldown.second.CategoryEnd)));
+        stmt->setInt64(index++, Clock::to_time_t(cooldown.second.CategoryEnd));
     }
 
     static void WriteCharge(PreparedStatementBase* stmt, uint8& index, uint32 chargeCategory, ChargeEntry const& charge)
     {
         stmt->setUInt32(index++, chargeCategory);
-        stmt->setUInt32(index++, uint32(Clock::to_time_t(charge.RechargeStart)));
-        stmt->setUInt32(index++, uint32(Clock::to_time_t(charge.RechargeEnd)));
+        stmt->setInt64(index++, Clock::to_time_t(charge.RechargeStart));
+        stmt->setInt64(index++, Clock::to_time_t(charge.RechargeEnd));
     }
 };
 
@@ -425,10 +425,10 @@ void SpellHistory::StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spel
         if (Player* modOwner = _owner->GetSpellModOwner())
         {
             if (cooldown >= 0)
-                modOwner->ApplySpellMod(spellInfo->Id, SPELLMOD_COOLDOWN, cooldown, spell);
+                modOwner->ApplySpellMod(spellInfo, SpellModOp::Cooldown, cooldown, spell);
 
             if (categoryCooldown >= 0 && !spellInfo->HasAttribute(SPELL_ATTR6_IGNORE_CATEGORY_COOLDOWN_MODS))
-                modOwner->ApplySpellMod(spellInfo->Id, SPELLMOD_COOLDOWN, categoryCooldown, spell);
+                modOwner->ApplySpellMod(spellInfo, SpellModOp::Cooldown, categoryCooldown, spell);
         }
 
         if (_owner->HasAuraTypeWithAffectMask(SPELL_AURA_MOD_SPELL_COOLDOWN_BY_HASTE, spellInfo))

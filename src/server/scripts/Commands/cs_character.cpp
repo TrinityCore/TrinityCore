@@ -144,7 +144,7 @@ public:
 
                 // account name will be empty for nonexisting account
                 AccountMgr::GetName(info.accountId, info.accountName);
-                info.deleteDate = time_t(fields[3].GetUInt32());
+                info.deleteDate = fields[3].GetInt64();
                 foundList.push_back(info);
             }
             while (result->NextRow());

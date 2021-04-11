@@ -472,7 +472,7 @@ enum SpellAttr2
     SPELL_ATTR2_UNK25                            = 0x02000000, // 25
     SPELL_ATTR2_UNAFFECTED_BY_AURA_SCHOOL_IMMUNE = 0x04000000, // 26 unaffected by school immunity
     SPELL_ATTR2_UNK27                            = 0x08000000, // 27
-    SPELL_ATTR2_IGNORE_ITEM_CHECK                = 0x10000000, // 28 Spell is cast without checking item requirements (charges/reagents/totem)
+    SPELL_ATTR2_IGNORE_ACTION_AURA_INTERRUPT_FLAGS= 0x10000000, // 28 doesnt break auras with SpellAuraInterruptFlags::Action and SpellAuraInterruptFlags::ActionDelayed
     SPELL_ATTR2_CANT_CRIT                        = 0x20000000, // 29 Spell can't crit
     SPELL_ATTR2_TRIGGERED_CAN_TRIGGER_PROC       = 0x40000000, // 30 spell can trigger even if triggered
     SPELL_ATTR2_FOOD_BUFF                        = 0x80000000  // 31 Food or Drink Buff (like Well Fed)
@@ -531,7 +531,7 @@ enum SpellAttr4
     SPELL_ATTR4_UNK12                            = 0x00001000, // 12
     SPELL_ATTR4_COMBAT_LOG_NO_CASTER             = 0x00002000, // 13 No caster object is sent to client combat log
     SPELL_ATTR4_DAMAGE_DOESNT_BREAK_AURAS        = 0x00004000, // 14 doesn't break auras by damage from these spells
-    SPELL_ATTR4_UNK15                            = 0x00008000, // 15
+    SPELL_ATTR4_HIDDEN_IN_SPELLBOOK              = 0x00008000, // 15
     SPELL_ATTR4_NOT_USABLE_IN_ARENA_OR_RATED_BG  = 0x00010000, // 16 Cannot be used in both Arenas or Rated Battlegrounds
     SPELL_ATTR4_USABLE_IN_ARENA                  = 0x00020000, // 17
     SPELL_ATTR4_AREA_TARGET_CHAIN                = 0x00040000, // 18 (NYI)hits area targets one after another instead of all at once
@@ -637,10 +637,10 @@ enum SpellAttr7
     SPELL_ATTR7_DISPEL_CHARGES                   = 0x00000400, // 10 Dispel and Spellsteal individual charges instead of whole aura.
     SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER         = 0x00000800, // 11 Only non-player casts interrupt, though Feral Charge - Bear has it.
     SPELL_ATTR7_SILENCE_ONLY_NONPLAYER           = 0x00001000, // 12 Not set in 3.2.2a.
-    SPELL_ATTR7_UNK13                            = 0x00002000, // 13 Not set in 3.2.2a.
+    SPELL_ATTR7_CAN_ALWAYS_BE_INTERRUPTED        = 0x00002000, // 13 Can always be interrupted, even if caster is immune
     SPELL_ATTR7_UNK14                            = 0x00004000, // 14 Only 52150 (Raise Dead - Pet) spell.
     SPELL_ATTR7_UNK15                            = 0x00008000, // 15 Exorcism. Usable on players? 100% crit chance on undead and demons?
-    SPELL_ATTR7_CAN_RESTORE_SECONDARY_POWER      = 0x00010000, // 16 These spells can replenish a powertype, which is not the current powertype.
+    SPELL_ATTR7_HIDDEN_IN_SPELLBOOK_WHEN_LEARNED = 0x00010000, // 16 After learning these spells become hidden in spellbook (but are visible when not learned for low level characters)
     SPELL_ATTR7_UNK17                            = 0x00020000, // 17 Only 27965 (Suicide) spell.
     SPELL_ATTR7_HAS_CHARGE_EFFECT                = 0x00040000, // 18 Only spells that have Charge among effects.
     SPELL_ATTR7_ZONE_TELEPORT                    = 0x00080000, // 19 Teleports to specific zones.
@@ -842,7 +842,7 @@ enum SpellAttr13
 {
     SPELL_ATTR13_UNK0                            = 0x00000001, //  0
     SPELL_ATTR13_UNK1                            = 0x00000002, //  1
-    SPELL_ATTR13_UNK2                            = 0x00000004, //  2
+    SPELL_ATTR13_PASSIVE_IS_UPGRADE              = 0x00000004, //  2 Displays "Upgrade" in spell tooltip instead of "Passive"
     SPELL_ATTR13_UNK3                            = 0x00000008, //  3
     SPELL_ATTR13_UNK4                            = 0x00000010, //  4
     SPELL_ATTR13_UNK5                            = 0x00000020, //  5
@@ -863,11 +863,51 @@ enum SpellAttr13
     SPELL_ATTR13_UNK20                           = 0x00100000, // 20
     SPELL_ATTR13_UNK21                           = 0x00200000, // 21
     SPELL_ATTR13_UNK22                           = 0x00400000, // 22
-    SPELL_ATTR13_UNK23                           = 0x00800000  // 23
+    SPELL_ATTR13_UNK23                           = 0x00800000, // 23
+    SPELL_ATTR13_UNK24                           = 0x01000000, // 24
+    SPELL_ATTR13_UNK25                           = 0x02000000, // 25
+    SPELL_ATTR13_UNK26                           = 0x04000000, // 26
+    SPELL_ATTR13_UNK27                           = 0x08000000, // 27
+    SPELL_ATTR13_UNK28                           = 0x10000000, // 28
+    SPELL_ATTR13_UNK29                           = 0x20000000, // 29
+    SPELL_ATTR13_UNK30                           = 0x40000000, // 30
+    SPELL_ATTR13_UNK31                           = 0x80000000  // 31
 };
 
 enum SpellAttr14
 {
+    SPELL_ATTR14_UNK0                            = 0x00000001, //  0
+    SPELL_ATTR14_REAGENT_COST_CONSUMES_CHARGES   = 0x00000002, //  1 Consumes item charges for reagent costs instead of whole items
+    SPELL_ATTR14_UNK2                            = 0x00000004, //  2
+    SPELL_ATTR14_HIDE_PASSIVE_FROM_TOOLTIP       = 0x00000008, //  3 Don't show "Passive" or "Upgrade" in tooltip
+    SPELL_ATTR14_UNK4                            = 0x00000010, //  4
+    SPELL_ATTR14_UNK5                            = 0x00000020, //  5
+    SPELL_ATTR14_UNK6                            = 0x00000040, //  6
+    SPELL_ATTR14_UNK7                            = 0x00000080, //  7
+    SPELL_ATTR14_UNK8                            = 0x00000100, //  8
+    SPELL_ATTR14_UNK9                            = 0x00000200, //  9
+    SPELL_ATTR14_UNK10                           = 0x00000400, // 10
+    SPELL_ATTR14_UNK11                           = 0x00000800, // 11
+    SPELL_ATTR14_UNK12                           = 0x00001000, // 12
+    SPELL_ATTR14_UNK13                           = 0x00002000, // 13
+    SPELL_ATTR14_UNK14                           = 0x00004000, // 14
+    SPELL_ATTR14_UNK15                           = 0x00008000, // 15
+    SPELL_ATTR14_UNK16                           = 0x00010000, // 16
+    SPELL_ATTR14_UNK17                           = 0x00020000, // 17
+    SPELL_ATTR14_UNK18                           = 0x00040000, // 18
+    SPELL_ATTR14_UNK19                           = 0x00080000, // 19
+    SPELL_ATTR14_UNK20                           = 0x00100000, // 20
+    SPELL_ATTR14_UNK21                           = 0x00200000, // 21
+    SPELL_ATTR14_UNK22                           = 0x00400000, // 22
+    SPELL_ATTR14_UNK23                           = 0x00800000, // 23
+    SPELL_ATTR14_UNK24                           = 0x01000000, // 24
+    SPELL_ATTR14_UNK25                           = 0x02000000, // 25
+    SPELL_ATTR14_UNK26                           = 0x04000000, // 26
+    SPELL_ATTR14_UNK27                           = 0x08000000, // 27
+    SPELL_ATTR14_UNK28                           = 0x10000000, // 28
+    SPELL_ATTR14_UNK29                           = 0x20000000, // 29
+    SPELL_ATTR14_UNK30                           = 0x40000000, // 30
+    SPELL_ATTR14_UNK31                           = 0x80000000  // 31
 };
 
 #define MIN_SPECIALIZATION_LEVEL    10
@@ -1054,7 +1094,7 @@ enum SpellEffectName
     SPELL_EFFECT_SCHOOL_DAMAGE                      = 2,
     SPELL_EFFECT_DUMMY                              = 3,
     SPELL_EFFECT_PORTAL_TELEPORT                    = 4, // Unused (4.3.4)
-    SPELL_EFFECT_TELEPORT_UNITS_OLD                 = 5, // Unused (7.0.3)
+    SPELL_EFFECT_5                                  = 5,
     SPELL_EFFECT_APPLY_AURA                         = 6,
     SPELL_EFFECT_ENVIRONMENTAL_DAMAGE               = 7,
     SPELL_EFFECT_POWER_DRAIN                        = 8,
@@ -1062,9 +1102,9 @@ enum SpellEffectName
     SPELL_EFFECT_HEAL                               = 10,
     SPELL_EFFECT_BIND                               = 11,
     SPELL_EFFECT_PORTAL                             = 12,
-    SPELL_EFFECT_RITUAL_BASE                        = 13, // Unused (4.3.4)
+    SPELL_EFFECT_TELEPORT_TO_RETURN_POINT           = 13, // MiscValueA = spellid of the aura holding destination
     SPELL_EFFECT_INCREASE_CURRENCY_CAP              = 14,
-    SPELL_EFFECT_RITUAL_ACTIVATE_PORTAL             = 15, // Unused (4.3.4)
+    SPELL_EFFECT_TELEPORT_WITH_SPELL_VISUAL_KIT_LOADING_SCREEN = 15, // MiscValueA = delay, MiscValueB = SpellVisualKitId
     SPELL_EFFECT_QUEST_COMPLETE                     = 16,
     SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL             = 17,
     SPELL_EFFECT_RESURRECT                          = 18,
@@ -1119,7 +1159,7 @@ enum SpellEffectName
     SPELL_EFFECT_HEAL_MAX_HEALTH                    = 67,
     SPELL_EFFECT_INTERRUPT_CAST                     = 68,
     SPELL_EFFECT_DISTRACT                           = 69,
-    SPELL_EFFECT_PULL                               = 70,
+    SPELL_EFFECT_COMPLETE_AND_REWARD_WORLD_QUEST    = 70,
     SPELL_EFFECT_PICKPOCKET                         = 71,
     SPELL_EFFECT_ADD_FARSIGHT                       = 72,
     SPELL_EFFECT_UNTRAIN_TALENTS                    = 73,
@@ -1129,7 +1169,7 @@ enum SpellEffectName
     SPELL_EFFECT_SCRIPT_EFFECT                      = 77,
     SPELL_EFFECT_ATTACK                             = 78,
     SPELL_EFFECT_SANCTUARY                          = 79,
-    SPELL_EFFECT_ADD_COMBO_POINTS                   = 80,
+    SPELL_EFFECT_MODIFY_FOLLOWER_ITEM_LEVEL         = 80,
     SPELL_EFFECT_PUSH_ABILITY_TO_ACTION_BAR         = 81,
     SPELL_EFFECT_BIND_SIGHT                         = 82,
     SPELL_EFFECT_DUEL                               = 83,
@@ -1162,7 +1202,7 @@ enum SpellEffectName
     SPELL_EFFECT_DESTROY_ALL_TOTEMS                 = 110,
     SPELL_EFFECT_DURABILITY_DAMAGE                  = 111,
     SPELL_EFFECT_112                                = 112,
-    SPELL_EFFECT_113                                = 113,
+    SPELL_EFFECT_CANCEL_CONVERSATION                = 113,
     SPELL_EFFECT_ATTACK_ME                          = 114,
     SPELL_EFFECT_DURABILITY_DAMAGE_PCT              = 115,
     SPELL_EFFECT_SKIN_PLAYER_CORPSE                 = 116,
@@ -1171,7 +1211,7 @@ enum SpellEffectName
     SPELL_EFFECT_APPLY_AREA_AURA_PET                = 119,
     SPELL_EFFECT_TELEPORT_GRAVEYARD                 = 120,
     SPELL_EFFECT_NORMALIZED_WEAPON_DMG              = 121,
-    SPELL_EFFECT_122                                = 122, // Unused (4.3.4)
+    SPELL_EFFECT_122                                = 122,
     SPELL_EFFECT_SEND_TAXI                          = 123,
     SPELL_EFFECT_PULL_TOWARDS                       = 124,
     SPELL_EFFECT_MODIFY_THREAT_PERCENT              = 125,
@@ -1195,7 +1235,7 @@ enum SpellEffectName
     SPELL_EFFECT_APPLY_AREA_AURA_OWNER              = 143,
     SPELL_EFFECT_KNOCK_BACK_DEST                    = 144,
     SPELL_EFFECT_PULL_TOWARDS_DEST                  = 145,
-    SPELL_EFFECT_ACTIVATE_RUNE                      = 146,
+    SPELL_EFFECT_RESTORE_GARRISON_TROOP_VITALITY    = 146,
     SPELL_EFFECT_QUEST_FAIL                         = 147,
     SPELL_EFFECT_TRIGGER_MISSILE_SPELL_WITH_VALUE   = 148,
     SPELL_EFFECT_CHARGE_DEST                        = 149,
@@ -1224,10 +1264,10 @@ enum SpellEffectName
     SPELL_EFFECT_RESURRECT_WITH_AURA                = 172,
     SPELL_EFFECT_UNLOCK_GUILD_VAULT_TAB             = 173, // Guild tab unlocked (guild perk)
     SPELL_EFFECT_APPLY_AURA_ON_PET                  = 174, // NYI
-    SPELL_EFFECT_175                                = 175, // Unused (4.3.4)
+    SPELL_EFFECT_175                                = 175,
     SPELL_EFFECT_SANCTUARY_2                        = 176, // NYI
-    SPELL_EFFECT_177                                = 177,
-    SPELL_EFFECT_178                                = 178, // Unused (4.3.4)
+    SPELL_EFFECT_DESPAWN_PERSISTENT_AREA_AURA       = 177,
+    SPELL_EFFECT_178                                = 178,
     SPELL_EFFECT_CREATE_AREATRIGGER                 = 179,
     SPELL_EFFECT_UPDATE_AREATRIGGER                 = 180, // NYI
     SPELL_EFFECT_REMOVE_TALENT                      = 181,
@@ -1237,32 +1277,32 @@ enum SpellEffectName
     SPELL_EFFECT_185                                = 185,
     SPELL_EFFECT_186                                = 186,
     SPELL_EFFECT_RANDOMIZE_ARCHAEOLOGY_DIGSITES     = 187, // NYI
-    SPELL_EFFECT_188                                = 188,
+    SPELL_EFFECT_SUMMON_STABLED_PET_AS_GUARDIAN     = 188,
     SPELL_EFFECT_LOOT                               = 189, // NYI, lootid in MiscValue ?
-    SPELL_EFFECT_190                                = 190,
+    SPELL_EFFECT_CHANGE_PARTY_MEMBERS               = 190, // MiscValueA = 1 is join, MiscValueA = 0 is leave - used by NPCs
     SPELL_EFFECT_TELEPORT_TO_DIGSITE                = 191, // NYI
     SPELL_EFFECT_UNCAGE_BATTLEPET                   = 192,
     SPELL_EFFECT_START_PET_BATTLE                   = 193,
     SPELL_EFFECT_194                                = 194,
-    SPELL_EFFECT_195                                = 195,
-    SPELL_EFFECT_196                                = 196,
-    SPELL_EFFECT_197                                = 197,
+    SPELL_EFFECT_PLAY_SCENE_SCRIPT_PACKAGE          = 195,
+    SPELL_EFFECT_CREATE_SCENE_OBJECT                = 196, // MiscValueA = SceneId, goes into guid as entry, SceneScriptPackageId goes into ObjectData::Entry
+    SPELL_EFFECT_CREATE_PERSONAL_SCENE_OBJECT       = 197, // MiscValueA = SceneId, goes into guid as entry, SceneScriptPackageId goes into ObjectData::Entry
     SPELL_EFFECT_PLAY_SCENE                         = 198,
-    SPELL_EFFECT_199                                = 199,
+    SPELL_EFFECT_DESPAWN_SUMMON                     = 199, // MiscValueA is some kind of unknown internal id
     SPELL_EFFECT_HEAL_BATTLEPET_PCT                 = 200, // NYI
     SPELL_EFFECT_ENABLE_BATTLE_PETS                 = 201, // NYI
     SPELL_EFFECT_APPLY_AREA_AURA_SUMMONS            = 202,
-    SPELL_EFFECT_203                                = 203,
+    SPELL_EFFECT_REMOVE_AURA_2                      = 203,
     SPELL_EFFECT_CHANGE_BATTLEPET_QUALITY           = 204,
     SPELL_EFFECT_LAUNCH_QUEST_CHOICE                = 205,
     SPELL_EFFECT_ALTER_ITEM                         = 206, // NYI
     SPELL_EFFECT_LAUNCH_QUEST_TASK                  = 207, // Starts one of the "progress bar" quests
-    SPELL_EFFECT_208                                = 208,
+    SPELL_EFFECT_SET_REPUTATION                     = 208,
     SPELL_EFFECT_209                                = 209,
     SPELL_EFFECT_LEARN_GARRISON_BUILDING            = 210,
     SPELL_EFFECT_LEARN_GARRISON_SPECIALIZATION      = 211,
-    SPELL_EFFECT_212                                = 212,
-    SPELL_EFFECT_213                                = 213,
+    SPELL_EFFECT_REMOVE_AURA_BY_SPELL_LABEL         = 212,
+    SPELL_EFFECT_JUMP_DEST_2                        = 213,
     SPELL_EFFECT_CREATE_GARRISON                    = 214,
     SPELL_EFFECT_UPGRADE_CHARACTER_SPELLS           = 215, // Unlocks boosted players' spells (ChrUpgrade*.db2)
     SPELL_EFFECT_CREATE_SHIPMENT                    = 216,
@@ -1270,16 +1310,16 @@ enum SpellEffectName
     SPELL_EFFECT_218                                = 218,
     SPELL_EFFECT_CREATE_CONVERSATION                = 219,
     SPELL_EFFECT_ADD_GARRISON_FOLLOWER              = 220,
-    SPELL_EFFECT_221                                = 221,
+    SPELL_EFFECT_ADD_GARRISON_MISSION               = 221,
     SPELL_EFFECT_CREATE_HEIRLOOM_ITEM               = 222,
     SPELL_EFFECT_CHANGE_ITEM_BONUSES                = 223,
     SPELL_EFFECT_ACTIVATE_GARRISON_BUILDING         = 224,
     SPELL_EFFECT_GRANT_BATTLEPET_LEVEL              = 225,
-    SPELL_EFFECT_226                                = 226,
+    SPELL_EFFECT_TRIGGER_ACTION_SET                 = 226,
     SPELL_EFFECT_TELEPORT_TO_LFG_DUNGEON            = 227,
     SPELL_EFFECT_228                                = 228,
     SPELL_EFFECT_SET_FOLLOWER_QUALITY               = 229,
-    SPELL_EFFECT_INCREASE_FOLLOWER_ITEM_LEVEL       = 230,
+    SPELL_EFFECT_230                                = 230,
     SPELL_EFFECT_INCREASE_FOLLOWER_EXPERIENCE       = 231,
     SPELL_EFFECT_REMOVE_PHASE                       = 232,
     SPELL_EFFECT_RANDOMIZE_FOLLOWER_ABILITIES       = 233,
@@ -1296,14 +1336,14 @@ enum SpellEffectName
     SPELL_EFFECT_LEARN_FOLLOWER_ABILITY             = 244,
     SPELL_EFFECT_UPGRADE_HEIRLOOM                   = 245,
     SPELL_EFFECT_FINISH_GARRISON_MISSION            = 246,
-    SPELL_EFFECT_ADD_GARRISON_MISSION               = 247,
+    SPELL_EFFECT_ADD_GARRISON_MISSION_SET           = 247,
     SPELL_EFFECT_FINISH_SHIPMENT                    = 248,
     SPELL_EFFECT_FORCE_EQUIP_ITEM                   = 249,
     SPELL_EFFECT_TAKE_SCREENSHOT                    = 250, // Serverside marker for selfie screenshot - achievement check
     SPELL_EFFECT_SET_GARRISON_CACHE_SIZE            = 251,
     SPELL_EFFECT_TELEPORT_UNITS                     = 252,
     SPELL_EFFECT_GIVE_HONOR                         = 253,
-    SPELL_EFFECT_254                                = 254,
+    SPELL_EFFECT_JUMP_CHARGE                        = 254,
     SPELL_EFFECT_LEARN_TRANSMOG_SET                 = 255,
     SPELL_EFFECT_256                                = 256,
     SPELL_EFFECT_257                                = 257,
@@ -1315,10 +1355,10 @@ enum SpellEffectName
     SPELL_EFFECT_REPAIR_ITEM                        = 263,
     SPELL_EFFECT_REMOVE_GEM                         = 264,
     SPELL_EFFECT_LEARN_AZERITE_ESSENCE_POWER        = 265,
-    SPELL_EFFECT_266                                = 266,
-    SPELL_EFFECT_267                                = 267,
+    SPELL_EFFECT_SET_ITEM_BONUS_LIST_GROUP_ENTRY    = 266, // Sets item bonuses to specific ItemBonusListGroupEntry id
+    SPELL_EFFECT_CREATE_PRIVATE_CONVERSATION        = 267,
     SPELL_EFFECT_APPLY_MOUNT_EQUIPMENT              = 268,
-    SPELL_EFFECT_UPGRADE_ITEM                       = 269,
+    SPELL_EFFECT_INCREASE_ITEM_BONUS_LIST_GROUP_STEP= 269, // Advances ItemBonusListGroup bonuses to next rank
     SPELL_EFFECT_270                                = 270,
     SPELL_EFFECT_APPLY_AREA_AURA_PARTY_NONRANDOM    = 271,
     SPELL_EFFECT_SET_COVENANT                       = 272,
@@ -1332,7 +1372,7 @@ enum SpellEffectName
     SPELL_EFFECT_280                                = 280,
     SPELL_EFFECT_LEARN_SOULBIND_CONDUIT             = 281,
     SPELL_EFFECT_CONVERT_ITEMS_TO_CURRENCY          = 282,
-    SPELL_EFFECT_283                                = 283,
+    SPELL_EFFECT_COMPLETE_CAMPAIGN                  = 283, // Flags all quests as completed that are assigned to campaign (MiscValueA)
     TOTAL_SPELL_EFFECTS
 };
 
@@ -1646,7 +1686,9 @@ enum SpellCastResult
     SPELL_FAILED_PLAYER_CONDITION                               = 305,
     SPELL_FAILED_NOT_WHILE_CHROMIE_TIMED                        = 306,
     SPELL_FAILED_OPTIONAL_REAGENTS                              = 307,
-    SPELL_FAILED_UNKNOWN                                        = 308,
+    SPELL_FAILED_SPECTATOR_OR_COMMENTATOR                       = 308,
+    SPELL_FAILED_SOULBIND_CONDUIT_LEARN_FAILED_INVALID_COVENANT = 309,
+    SPELL_FAILED_UNKNOWN                                        = 310,
 
     // ok cast value - here in case a future version removes SPELL_FAILED_SUCCESS and we need to use a custom value (not sent to client either way)
     SPELL_CAST_OK                                               = SPELL_FAILED_SUCCESS
@@ -2181,6 +2223,8 @@ enum SpellCustomErrors
     SPELL_CUSTOM_ERROR_YOU_CANNOT_SOULSHAPE_DURING_LICHBORNE            = 533, // You cannot Soulshape during Lichborne.
     SPELL_CUSTOM_ERROR_YOU_CANT_DO_THAT_WHILE_CARRYING_AN_ANIMACONE     = 534, // You can't do that while carrying an Animacone.
     SPELL_CUSTOM_ERROR_NECESSARY_CONSTRUCT_NOT_PRESENT                  = 535, // Necessary construct not present.
+    SPELL_CUSTOM_ERROR_THAT_GUEST_IS_ALREADY_COVERED_IN_GELATIN         = 536, // That guest is already covered in gelatin.
+    SPELL_CUSTOM_ERROR_YOU_NEED_TO_WAIT_TO_USE_THIS_ITEM                = 537, // You need to wait to use this item.
 };
 
 enum StealthType
@@ -2254,34 +2298,34 @@ enum AuraStateType
 {   // (C) used in caster aura state     (T) used in target aura state
     // (c) used in caster aura state-not (t) used in target aura state-not
     AURA_STATE_NONE                         = 0,            // C   |
-    AURA_STATE_DEFENSE                      = 1,            // C   |
-    AURA_STATE_HEALTHLESS_20_PERCENT        = 2,            // CcT |
-    AURA_STATE_BERSERKING                   = 3,            // C T |
-    AURA_STATE_FROZEN                       = 4,            //  c t| frozen target
-    AURA_STATE_JUDGEMENT                    = 5,            // C   |
-    //AURA_STATE_UNKNOWN6                   = 6,            //     | not used
-    AURA_STATE_HUNTER_PARRY                 = 7,            // C   |
-    //AURA_STATE_UNKNOWN7                   = 7,            //  c  | creature cheap shot / focused bursts spells
-    //AURA_STATE_UNKNOWN8                   = 8,            //    t| test spells
-    //AURA_STATE_UNKNOWN9                   = 9,            //     |
-    AURA_STATE_WARRIOR_VICTORY_RUSH         = 10,           // C   | warrior victory rush
-    //AURA_STATE_UNKNOWN11                  = 11,           // C  t| 60348 - Maelstrom Ready!, test spells
+    AURA_STATE_DEFENSIVE                    = 1,            // CcTt|
+    AURA_STATE_WOUNDED_20_PERCENT           = 2,            // CcT |
+    AURA_STATE_UNBALANCED                   = 3,            // CcT | NYI
+    AURA_STATE_FROZEN                       = 4,            //  c t|
+    AURA_STATE_MARKED                       = 5,            // C  t| NYI
+    AURA_STATE_WOUNDED_25_PERCENT           = 6,            //   T |
+    AURA_STATE_DEFENSIVE_2                  = 7,            // Cc  | NYI
+    AURA_STATE_BANISHED                     = 8,            //  c  | NYI
+    AURA_STATE_DAZED                        = 9,            //    t|
+    AURA_STATE_VICTORIOUS                   = 10,           // C   |
+    AURA_STATE_RAMPAGE                      = 11,           //     | NYI
     AURA_STATE_FAERIE_FIRE                  = 12,           //  c t|
-    AURA_STATE_HEALTHLESS_35_PERCENT        = 13,           // C T |
-    AURA_STATE_CONFLAGRATE                  = 14,           //   T |
-    AURA_STATE_SWIFTMEND                    = 15,           //   T |
-    AURA_STATE_DEADLY_POISON                = 16,           //   T |
-    AURA_STATE_ENRAGE                       = 17,           // C   |
-    AURA_STATE_BLEEDING                     = 18,           //    T|
-    AURA_STATE_UNKNOWN19                    = 19,           //     |
-    //AURA_STATE_UNKNOWN20                  = 20,           //  c  | only (45317 Suicide)
-    //AURA_STATE_UNKNOWN21                  = 21,           //     | not used
-    AURA_STATE_UNKNOWN22                    = 22,           // C  t| varius spells (63884, 50240)
-    AURA_STATE_HEALTH_ABOVE_75_PERCENT      = 23            // C   |
+    AURA_STATE_WOUNDED_35_PERCENT           = 13,           // CcT |
+    AURA_STATE_RAID_ENCOUNTER_2             = 14,           //  cT |
+    AURA_STATE_DRUID_PERIODIC_HEAL          = 15,           //   T |
+    AURA_STATE_ROGUE_POISONED               = 16,           //     |
+    AURA_STATE_ENRAGED                      = 17,           // C   |
+    AURA_STATE_BLEED                        = 18,           //   T |
+    AURA_STATE_VULNERABLE                   = 19,           //     | NYI
+    AURA_STATE_ARENA_PREPARATION            = 20,           //  c  |
+    AURA_STATE_WOUND_HEALTH_20_80           = 21,           //   T |
+    AURA_STATE_RAID_ENCOUNTER               = 22,           // CcTt|
+    AURA_STATE_HEALTHY_75_PERCENT           = 23,           // C   |
+    AURA_STATE_WOUND_HEALTH_35_80           = 24            //   T |
 };
 
 #define PER_CASTER_AURA_STATE_MASK (\
-    (1<<(AURA_STATE_CONFLAGRATE-1))|(1<<(AURA_STATE_DEADLY_POISON-1)))
+    (1<<(AURA_STATE_RAID_ENCOUNTER_2-1))|(1<<(AURA_STATE_ROGUE_POISONED-1)))
 
 // Spell mechanics
 enum Mechanics

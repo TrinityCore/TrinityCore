@@ -580,8 +580,8 @@ public:
                     ObjectGuid::LowType receiverId = queryFields[3].GetUInt64();
                     std::string receiver    = queryFields[4].GetString();
                     std::string subject     = queryFields[5].GetString();
-                    uint64 deliverTime      = queryFields[6].GetUInt32();
-                    uint64 expireTime       = queryFields[7].GetUInt32();
+                    time_t deliverTime      = queryFields[6].GetInt64();
+                    time_t expireTime       = queryFields[7].GetInt64();
                     uint64 money            = queryFields[8].GetUInt64();
                     uint8 hasItem           = queryFields[9].GetUInt8();
                     uint32 gold = money / GOLD;
@@ -714,7 +714,7 @@ public:
             uint32 gridY = ri->gridId / MAX_NUMBER_OF_GRIDS;
             uint32 gridX = ri->gridId % MAX_NUMBER_OF_GRIDS;
 
-            std::string respawnTime = ri->respawnTime > time(NULL) ? secsToTimeString(uint64(ri->respawnTime - time(NULL)), true) : stringOverdue;
+            std::string respawnTime = ri->respawnTime > time(NULL) ? secsToTimeString(uint64(ri->respawnTime - time(nullptr)), true) : stringOverdue;
             handler->PSendSysMessage(UI64FMTD " | %u | [%02u,%02u] | %s (%u) | %s", ri->spawnId, ri->entry, gridX, gridY, GetZoneName(ri->zoneId, handler->GetSessionDbcLocale()), ri->zoneId, map->IsSpawnGroupActive(data->spawnGroupData->groupId) ? respawnTime.c_str() : "inactive");
         }
 
@@ -735,7 +735,7 @@ public:
             uint32 gridY = ri->gridId / MAX_NUMBER_OF_GRIDS;
             uint32 gridX = ri->gridId % MAX_NUMBER_OF_GRIDS;
 
-            std::string respawnTime = ri->respawnTime > time(NULL) ? secsToTimeString(uint64(ri->respawnTime - time(NULL)), true) : stringOverdue;
+            std::string respawnTime = ri->respawnTime > time(NULL) ? secsToTimeString(uint64(ri->respawnTime - time(nullptr)), true) : stringOverdue;
             handler->PSendSysMessage(UI64FMTD " | %u | [% 02u, % 02u] | %s (%u) | %s", ri->spawnId, ri->entry, gridX, gridY, GetZoneName(ri->zoneId, handler->GetSessionDbcLocale()), ri->zoneId, map->IsSpawnGroupActive(data->spawnGroupData->groupId) ? respawnTime.c_str() : "inactive");
         }
         return true;

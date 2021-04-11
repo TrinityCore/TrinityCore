@@ -70,6 +70,12 @@ enum DAMAGE_ABSORB_TYPE
     ONLY_MAGIC_ABSORB       = -1
 };
 
+enum class AuraTriggerOnPowerChangeDirection : int32
+{
+    Gain    = 0,
+    Loss    = 1
+};
+
 enum AuraType : uint32
 {
     SPELL_AURA_NONE                                         = 0,
@@ -143,7 +149,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_STALKED                                  = 68,
     SPELL_AURA_SCHOOL_ABSORB                                = 69,
     SPELL_AURA_PERIODIC_WEAPON_PERCENT_DAMAGE               = 70,
-    SPELL_AURA_STORE_TELEPORT_RETURN_POINT                  = 71,   // NYI
+    SPELL_AURA_STORE_TELEPORT_RETURN_POINT                  = 71,
     SPELL_AURA_MOD_POWER_COST_SCHOOL_PCT                    = 72,
     SPELL_AURA_MOD_POWER_COST_SCHOOL                        = 73,
     SPELL_AURA_REFLECT_SPELLS_SCHOOL                        = 74,
@@ -340,7 +346,7 @@ enum AuraType : uint32
     SPELL_AURA_265                                          = 265,
     SPELL_AURA_SET_VIGNETTE                                 = 266,  // NYI
     SPELL_AURA_MOD_IMMUNE_AURA_APPLY_SCHOOL                 = 267,
-    SPELL_AURA_268                                          = 268,  // old SPELL_AURA_MOD_ATTACK_POWER_OF_STAT_PERCENT. unused 4.3.4
+    SPELL_AURA_MOD_ARMOR_PCT_FROM_STAT                      = 268,
     SPELL_AURA_MOD_IGNORE_TARGET_RESIST                     = 269,
     SPELL_AURA_MOD_SCHOOL_MASK_DAMAGE_FROM_CASTER           = 270,
     SPELL_AURA_MOD_SPELL_DAMAGE_FROM_CASTER                 = 271,
@@ -400,7 +406,7 @@ enum AuraType : uint32
     SPELL_AURA_LEARN_PVP_TALENT                             = 325,  // NYI
     SPELL_AURA_PHASE_GROUP                                  = 326,  // Puts the player in all the phases that are in the group with id = miscB
     SPELL_AURA_PHASE_ALWAYS_VISIBLE                         = 327,  // Sets PhaseShiftFlags::AlwaysVisible
-    SPELL_AURA_TRIGGER_SPELL_ON_POWER_PCT                   = 328,  // NYI Triggers spell when power goes above (MiscB = 0) or falls below (MiscB = 1) specified percent value (once, not every time condition has meet)
+    SPELL_AURA_TRIGGER_SPELL_ON_POWER_PCT                   = 328,  // Triggers spell when power goes above (MiscB = 0) or falls below (MiscB = 1) specified percent value (once, not every time condition has meet)
     SPELL_AURA_MOD_POWER_GAIN_PCT                           = 329,
     SPELL_AURA_CAST_WHILE_WALKING                           = 330,
     SPELL_AURA_FORCE_WEATHER                                = 331,
@@ -418,7 +424,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_MELEE_DAMAGE_FROM_CASTER                 = 343,  // NYI
     SPELL_AURA_MOD_AUTOATTACK_DAMAGE                        = 344,
     SPELL_AURA_BYPASS_ARMOR_FOR_CASTER                      = 345,
-    SPELL_AURA_ENABLE_ALT_POWER                             = 346,  // NYI
+    SPELL_AURA_ENABLE_ALT_POWER                             = 346,
     SPELL_AURA_MOD_SPELL_COOLDOWN_BY_HASTE                  = 347,
     SPELL_AURA_MOD_MONEY_GAIN                               = 348,  // Modifies gold gains from source: [Misc = 0, Quests][Misc = 1, Loot]
     SPELL_AURA_MOD_CURRENCY_GAIN                            = 349,
@@ -468,7 +474,7 @@ enum AuraType : uint32
     SPELL_AURA_BLOCK_SPELLS_IN_FRONT                        = 393,  // NYI
     SPELL_AURA_SHOW_CONFIRMATION_PROMPT                     = 394,
     SPELL_AURA_AREA_TRIGGER                                 = 395,  // NYI
-    SPELL_AURA_TRIGGER_SPELL_ON_POWER_AMOUNT                = 396,  // NYI Triggers spell when health goes above (MiscA = 0) or falls below (MiscA = 1) specified percent value (once, not every time condition has meet)
+    SPELL_AURA_TRIGGER_SPELL_ON_POWER_AMOUNT                = 396,  // Triggers spell when power goes above (MiscA = 0) or falls below (MiscA = 1) specified percent value (once, not every time condition has meet)
     SPELL_AURA_BATTLEGROUND_PLAYER_POSITION_FACTIONAL       = 397,
     SPELL_AURA_BATTLEGROUND_PLAYER_POSITION                 = 398,
     SPELL_AURA_MOD_TIME_RATE                                = 399,
@@ -556,7 +562,7 @@ enum AuraType : uint32
     SPELL_AURA_CONVERT_CONSUMED_RUNE                        = 481,
     SPELL_AURA_482                                          = 482,
     SPELL_AURA_SUPPRESS_TRANSFORMS                          = 483,  // NYI
-    SPELL_AURA_484                                          = 484,
+    SPELL_AURA_ALLOW_INTERRUPT_SPELL                        = 484,  // NYI
     SPELL_AURA_MOD_MOVEMENT_FORCE_MAGNITUDE                 = 485,
     SPELL_AURA_486                                          = 486,
     SPELL_AURA_487                                          = 487,
