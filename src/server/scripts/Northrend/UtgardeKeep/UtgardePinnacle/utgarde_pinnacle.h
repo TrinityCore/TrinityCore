@@ -103,4 +103,6 @@ inline AI* GetUtgardePinnacleAI(T* obj)
     return GetInstanceAI<AI>(obj, UPScriptName);
 }
 
+#define RegisterUtgardePinnacleCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetUtgardePinnacleAI)
+
 #endif // UTGARDE_PINNACLE_H_
