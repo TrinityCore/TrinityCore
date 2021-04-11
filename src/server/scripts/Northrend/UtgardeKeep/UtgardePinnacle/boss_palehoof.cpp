@@ -606,7 +606,7 @@ void AddSC_boss_palehoof()
     RegisterUtgardePinnacleCreatureAI(boss_frenzied_worgen);
     RegisterUtgardePinnacleCreatureAI(boss_ferocious_rhino);
     RegisterUtgardePinnacleCreatureAI(boss_massive_jormungar);
-    RegisterGameObjectAI(go_palehoof_sphere);
+    RegisterUtgardePinnacleGameObjectAI(go_palehoof_sphere);
     RegisterSpellScript(spell_palehoof_crazed);
     RegisterSpellScript(spell_palehoof_crazed_effect);
     RegisterSpellScript(spell_palehoof_awaken_subboss);
