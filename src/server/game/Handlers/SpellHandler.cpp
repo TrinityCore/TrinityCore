@@ -120,6 +120,8 @@ void WorldSession::HandleUseItemOpcode(WorldPackets::Spells::UseItem& packet)
         }
     }
 
+    user->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::ItemUse);
+
     SpellCastTargets targets(user, packet.Cast);
 
     // Note: If script stop casting it must send appropriate data to client to prevent stuck item in gray state.

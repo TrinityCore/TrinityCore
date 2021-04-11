@@ -349,6 +349,7 @@ class TC_GAME_API Spell
         void EffectPowerDrain(SpellEffIndex effIndex);
         void EffectHeal(SpellEffIndex effIndex);
         void EffectBind(SpellEffIndex effIndex);
+        void EffectTeleportToReturnPoint(SpellEffIndex effIndex);
         void EffectHealthLeech(SpellEffIndex effIndex);
         void EffectQuestComplete(SpellEffIndex effIndex);
         void EffectCreateItem(SpellEffIndex effIndex);
@@ -660,6 +661,7 @@ class TC_GAME_API Spell
         bool IsProcDisabled() const;
         bool IsChannelActive() const;
         bool IsAutoActionResetSpell() const;
+        bool IsPositive() const;
 
         bool IsTriggeredByAura(SpellInfo const* auraSpellInfo) const { return (auraSpellInfo == m_triggeredByAuraSpell); }
 
@@ -844,6 +846,9 @@ class TC_GAME_API Spell
         void CallScriptBeforeHitHandlers(SpellMissInfo missInfo);
         void CallScriptOnHitHandlers();
         void CallScriptAfterHitHandlers();
+    public:
+        void CallScriptCalcCritChanceHandlers(Unit* victim, float& chance);
+    protected:
         void CallScriptObjectAreaTargetSelectHandlers(std::list<WorldObject*>& targets, SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
         void CallScriptObjectTargetSelectHandlers(WorldObject*& target, SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
         void CallScriptDestinationTargetSelectHandlers(SpellDestination& target, SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
@@ -867,7 +872,7 @@ class TC_GAME_API Spell
         HitTriggerSpellList m_hitTriggerSpells;
 
         // effect helpers
-        void SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* properties, uint32 numSummons);
+        void SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* properties, uint32 numSummons, ObjectGuid privateObjectOwner);
         void CalculateJumpSpeeds(SpellEffectInfo const* effInfo, float dist, float& speedxy, float& speedz);
 
         void UpdateSpellCastDataTargets(WorldPackets::Spells::SpellCastData& data);

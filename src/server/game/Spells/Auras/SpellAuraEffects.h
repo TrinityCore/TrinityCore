@@ -49,7 +49,7 @@ class TC_GAME_API AuraEffect
         uint32 GetId() const { return m_spellInfo->Id; }
         uint32 GetEffIndex() const { return m_effectInfo->EffectIndex; }
         int32 GetBaseAmount() const { return m_baseAmount; }
-        int32 GetPeriod() const { return m_period; }
+        int32 GetPeriod() const { return _period; }
 
         int32 GetMiscValueB() const { return GetSpellEffectInfo()->MiscValueB; }
         int32 GetMiscValue() const { return GetSpellEffectInfo()->MiscValue; }
@@ -57,20 +57,20 @@ class TC_GAME_API AuraEffect
         int32 GetAmount() const { return m_amount; }
         void SetAmount(int32 amount) { m_amount = amount; m_canBeRecalculated = false;}
 
-        int32 GetPeriodicTimer() const { return m_periodicTimer; }
-        void SetPeriodicTimer(int32 periodicTimer) { m_periodicTimer = periodicTimer; }
+        int32 GetPeriodicTimer() const { return _periodicTimer; }
+        void SetPeriodicTimer(int32 periodicTimer) { _periodicTimer = periodicTimer; }
 
         int32 CalculateAmount(Unit* caster);
         void CalculatePeriodic(Unit* caster, bool resetPeriodicTimer = true, bool load = false);
         void CalculateSpellMod();
-        void ChangeAmount(int32 newAmount, bool mark = true, bool onStackOrReapply = false);
-        void RecalculateAmount() { if (!CanBeRecalculated()) return; ChangeAmount(CalculateAmount(GetCaster()), false); }
-        void RecalculateAmount(Unit* caster) { if (!CanBeRecalculated()) return; ChangeAmount(CalculateAmount(caster), false); }
+        void ChangeAmount(int32 newAmount, bool mark = true, bool onStackOrReapply = false, AuraEffect const* triggeredBy = nullptr);
+        void RecalculateAmount(AuraEffect const* triggeredBy = nullptr) { if (!CanBeRecalculated()) return; ChangeAmount(CalculateAmount(GetCaster()), false, false, triggeredBy); }
+        void RecalculateAmount(Unit* caster, AuraEffect const* triggeredBy = nullptr) { if (!CanBeRecalculated()) return; ChangeAmount(CalculateAmount(caster), false, false, triggeredBy); }
         bool CanBeRecalculated() const { return m_canBeRecalculated; }
         void SetCanBeRecalculated(bool val) { m_canBeRecalculated = val; }
-        void HandleEffect(AuraApplication * aurApp, uint8 mode, bool apply);
-        void HandleEffect(Unit* target, uint8 mode, bool apply);
-        void ApplySpellMod(Unit* target, bool apply);
+        void HandleEffect(AuraApplication * aurApp, uint8 mode, bool apply, AuraEffect const* triggeredBy = nullptr);
+        void HandleEffect(Unit* target, uint8 mode, bool apply, AuraEffect const* triggeredBy = nullptr);
+        void ApplySpellMod(Unit* target, bool apply, AuraEffect const* triggeredBy = nullptr);
 
         void  SetDamage(int32 val) { m_damage = val; }
         int32 GetDamage() const { return m_damage; }
@@ -80,11 +80,12 @@ class TC_GAME_API AuraEffect
         float GetDonePct() const { return m_donePct; }
 
         void Update(uint32 diff, Unit* caster);
-        void UpdatePeriodic(Unit* caster);
 
-        uint32 GetTickNumber() const { return m_tickNumber; }
-        int32 GetTotalTicks() const { return m_period ? (GetBase()->GetMaxDuration() / m_period) : 1;}
-        void ResetPeriodic(bool resetPeriodicTimer = false) { if (resetPeriodicTimer) m_periodicTimer = m_period; m_tickNumber = 0;}
+        uint32 GetTickNumber() const { return _ticksDone; }
+        uint32 GetRemainingTicks() const { return GetTotalTicks() - _ticksDone; }
+        uint32 GetTotalTicks() const;
+        void ResetPeriodic(bool resetPeriodicTimer = false);
+        void ResetTicks() { _ticksDone = 0; }
 
         bool IsPeriodic() const { return m_isPeriodic; }
         void SetPeriodic(bool isPeriodic) { m_isPeriodic = isPeriodic; }
@@ -120,9 +121,10 @@ class TC_GAME_API AuraEffect
         float m_critChance;
         float m_donePct;
 
-        int32 m_periodicTimer;
-        int32 m_period;
-        uint32 m_tickNumber;
+        // periodic stuff
+        int32 _periodicTimer;
+        int32 _period;          // time between consecutive ticks
+        uint32 _ticksDone;      // ticks counter
 
         bool m_canBeRecalculated;
         bool m_isPeriodic;
@@ -236,6 +238,7 @@ class TC_GAME_API AuraEffect
         void HandleModHealingDonePct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModTotalPercentStat(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModExpertise(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleModArmorPctFromStat(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModStatBonusPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleOverrideSpellPowerByAttackPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleOverrideAttackPowerBySpellPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -321,9 +324,9 @@ class TC_GAME_API AuraEffect
         void HandleBattlegroundPlayerPosition(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleTriggerSpellOnPowerAmount(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleTriggerSpellOnPowerPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleStoreTeleportReturnPoint(AuraApplication const* aurApp, uint8 mode, bool apply) const;
 
         // aura effect periodic tick handlers
-        void HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const;
         void HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) const;
         void HandlePeriodicTriggerSpellWithValueAuraTick(Unit* target, Unit* caster) const;
         void HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const;

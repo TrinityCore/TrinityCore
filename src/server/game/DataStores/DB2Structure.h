@@ -46,6 +46,50 @@ struct AchievementEntry
     int32 CovenantID;
 };
 
+struct AdventureJournalEntry
+{
+    uint32 ID;
+    LocalizedString Name;
+    LocalizedString Description;
+    LocalizedString ButtonText;
+    LocalizedString RewardDescription;
+    LocalizedString ContinueDescription;
+    uint8 Type;
+    uint32 PlayerConditionID;
+    uint8 Flags;
+    uint8 ButtonActionType;
+    int32 TextureFileDataID;
+    uint16 LfgDungeonID;
+    int32 QuestID;
+    uint16 BattleMasterListID;
+    uint8 PriorityMin;
+    uint8 PriorityMax;
+    int32 ItemID;
+    uint32 ItemQuantity;
+    uint16 CurrencyType;
+    uint32 CurrencyQuantity;
+    uint16 UiMapID;
+    uint32 BonusPlayerConditionID[2];
+    uint8 BonusValue[2];
+};
+
+struct AdventureMapPOIEntry
+{
+    uint32 ID;
+    LocalizedString Title;
+    LocalizedString Description;
+    DBCPosition2D WorldPosition;
+    int8 Type;
+    uint32 PlayerConditionID;
+    uint32 QuestID;
+    uint32 LfgDungeonID;
+    int32 RewardItemID;
+    uint32 UiTextureAtlasMemberID;
+    uint32 UiTextureKitID;
+    int32 MapID;
+    uint32 AreaTableID;
+};
+
 struct AnimationDataEntry
 {
     uint32 ID;
@@ -522,6 +566,14 @@ struct ChatChannelsEntry
     int32 Ruleset;
 };
 
+struct ChrClassUIDisplayEntry
+{
+    uint32 ID;
+    uint8 ChrClassesID;
+    uint32 AdvGuidePlayerConditionID;
+    uint32 SplashPlayerConditionID;
+};
+
 struct ChrClassesEntry
 {
     LocalizedString Name;
@@ -605,6 +657,7 @@ struct ChrCustomizationElementEntry
     int32 ChrCustomizationBoneSetID;
     int32 ChrCustomizationCondModelID;
     int32 ChrCustomizationDisplayInfoID;
+    int32 ChrCustItemGeoModifyID;
 };
 
 struct ChrCustomizationOptionEntry
@@ -1745,6 +1798,8 @@ struct ItemBonusTreeNodeEntry
     uint16 ChildItemBonusTreeID;
     uint16 ChildItemBonusListID;
     uint16 ChildItemLevelSelectorID;
+    int32 ItemBonusListGroupID;
+    int32 ParentItemBonusTreeNodeID;
     uint32 ParentItemBonusTreeID;
 };
 
@@ -2590,8 +2645,13 @@ struct QuestXPEntry
 struct RandPropPointsEntry
 {
     uint32 ID;
+    float DamageReplaceStatF;
+    float DamageSecondaryF;
     int32 DamageReplaceStat;
     int32 DamageSecondary;
+    float EpicF[5];
+    float SuperiorF[5];
+    float GoodF[5];
     uint32 Epic[5];
     uint32 Superior[5];
     uint32 Good[5];
@@ -3119,6 +3179,8 @@ struct SpellShapeshiftFormEntry
     uint16 MountTypeID;
     uint32 CreatureDisplayID[4];
     uint32 PresetSpellID[MAX_SHAPESHIFT_SPELLS];
+
+    EnumFlag<SpellShapeshiftFormFlags> GetFlags() const { return static_cast<SpellShapeshiftFormFlags>(Flags); }
 };
 
 struct SpellTargetRestrictionsEntry

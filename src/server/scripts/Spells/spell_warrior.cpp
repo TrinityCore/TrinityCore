@@ -682,7 +682,7 @@ class spell_warr_sweeping_strikes : public SpellScriptLoader
                 if (DamageInfo* damageInfo = eventInfo.GetDamageInfo())
                 {
                     SpellInfo const* spellInfo = damageInfo->GetSpellInfo();
-                    if (spellInfo && (spellInfo->Id == SPELL_WARRIOR_BLADESTORM_PERIODIC_WHIRLWIND || (spellInfo->Id == SPELL_WARRIOR_EXECUTE && !_procTarget->HasAuraState(AURA_STATE_HEALTHLESS_20_PERCENT))))
+                    if (spellInfo && (spellInfo->Id == SPELL_WARRIOR_BLADESTORM_PERIODIC_WHIRLWIND || (spellInfo->Id == SPELL_WARRIOR_EXECUTE && !_procTarget->HasAuraState(AURA_STATE_WOUNDED_20_PERCENT))))
                     {
                         // If triggered by Execute (while target is not under 20% hp) or Bladestorm deals normalized weapon damage
                         GetTarget()->CastSpell(_procTarget, SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_2, true, nullptr, aurEff);

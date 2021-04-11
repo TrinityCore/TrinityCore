@@ -168,7 +168,7 @@ void InstanceSaveManager::RemoveInstanceSave(uint32 InstanceId)
         {
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_INSTANCE_RESETTIME);
 
-            stmt->setUInt64(0, uint64(resettime));
+            stmt->setInt64(0, resettime);
             stmt->setUInt32(1, InstanceId);
 
             CharacterDatabase.Execute(stmt);
@@ -422,7 +422,7 @@ void InstanceSaveManager::LoadResetTimes()
                 CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GLOBAL_INSTANCE_RESETTIME);
                 stmt->setUInt16(0, uint16(mapid));
                 stmt->setUInt8(1, uint8(difficulty));
-                stmt->setUInt64(2, uint64(t));
+                stmt->setInt64(2, t);
                 CharacterDatabase.DirectExecute(stmt);
             }
 
@@ -434,7 +434,7 @@ void InstanceSaveManager::LoadResetTimes()
                 t += ((today - t) / period + 1) * period + diff;
 
                 CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GLOBAL_INSTANCE_RESETTIME);
-                stmt->setUInt64(0, uint64(t));
+                stmt->setInt64(0, t);
                 stmt->setUInt16(1, uint16(mapid));
                 stmt->setUInt8(2, uint8(difficulty));
                 CharacterDatabase.DirectExecute(stmt);

@@ -149,7 +149,7 @@ class spell_marwyn_shared_suffering : public SpellScriptLoader
 
                 if (Unit* caster = GetCaster())
                 {
-                    int32 remainingDamage = aurEff->GetAmount() * (aurEff->GetTotalTicks() - aurEff->GetTickNumber());
+                    int32 remainingDamage = aurEff->GetAmount() * aurEff->GetRemainingTicks();
                     if (remainingDamage > 0)
                         caster->CastCustomSpell(SPELL_SHARED_SUFFERING_DISPEL, SPELLVALUE_BASE_POINT1, remainingDamage, GetTarget(), TRIGGERED_FULL_MASK);
                 }

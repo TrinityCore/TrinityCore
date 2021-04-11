@@ -6045,18 +6045,17 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
     time_t curTime = time(nullptr);
     tm lt;
     localtime_r(&curTime, &lt);
-    uint64 basetime(curTime);
     TC_LOG_INFO("misc", "Returning mails current time: hour: %d, minute: %d, second: %d ", lt.tm_hour, lt.tm_min, lt.tm_sec);
 
     // Delete all old mails without item and without body immediately, if starting server
     if (!serverUp)
     {
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_EMPTY_EXPIRED_MAIL);
-        stmt->setUInt64(0, basetime);
+        stmt->setInt64(0, curTime);
         CharacterDatabase.Execute(stmt);
     }
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_EXPIRED_MAIL);
-    stmt->setUInt64(0, basetime);
+    stmt->setInt64(0, curTime);
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
     if (!result)
     {
@@ -6066,7 +6065,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
 
     std::map<uint32 /*messageId*/, MailItemInfoVec> itemsCache;
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_EXPIRED_MAIL_ITEMS);
-    stmt->setUInt32(0, (uint32)basetime);
+    stmt->setUInt32(0, curTime);
     if (PreparedQueryResult items = CharacterDatabase.Query(stmt))
     {
         MailItemInfo item;
@@ -6091,7 +6090,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
         m->sender         = fields[2].GetUInt64();
         m->receiver       = fields[3].GetUInt64();
         bool has_items    = fields[4].GetBool();
-        m->expire_time    = time_t(fields[5].GetUInt32());
+        m->expire_time    = fields[5].GetInt64();
         m->deliver_time   = 0;
         m->COD            = fields[6].GetUInt64();
         m->checked        = fields[7].GetUInt8();
@@ -6136,8 +6135,8 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_MAIL_RETURNED);
                 stmt->setUInt64(0, m->receiver);
                 stmt->setUInt64(1, m->sender);
-                stmt->setUInt32(2, basetime + 30 * DAY);
-                stmt->setUInt32(3, basetime);
+                stmt->setInt64 (2, curTime + 30 * DAY);
+                stmt->setInt64 (3, curTime);
                 stmt->setUInt8 (4, uint8(MAIL_CHECK_MASK_RETURNED));
                 stmt->setUInt32(5, m->messageID);
                 CharacterDatabase.Execute(stmt);
@@ -7931,8 +7930,8 @@ void ObjectMgr::LoadPointsOfInterest()
 
     uint32 count = 0;
 
-    //                                               0   1          2          3     4      5           6
-    QueryResult result = WorldDatabase.Query("SELECT ID, PositionX, PositionY, Icon, Flags, Importance, Name FROM points_of_interest");
+    //                                               0   1          2          3     4      5           6     7
+    QueryResult result = WorldDatabase.Query("SELECT ID, PositionX, PositionY, Icon, Flags, Importance, Name, Unknown905 FROM points_of_interest");
 
     if (!result)
     {
@@ -7953,6 +7952,7 @@ void ObjectMgr::LoadPointsOfInterest()
         pointOfInterest.Flags           = fields[4].GetUInt32();
         pointOfInterest.Importance      = fields[5].GetUInt32();
         pointOfInterest.Name            = fields[6].GetString();
+        pointOfInterest.Unknown905      = fields[7].GetInt32();
 
         if (!Trinity::IsValidMapCoord(pointOfInterest.Pos.GetPositionX(), pointOfInterest.Pos.GetPositionY()))
         {

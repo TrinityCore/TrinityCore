@@ -28,6 +28,7 @@ EndScriptData */
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
+#include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "the_eye.h"
 
@@ -73,6 +74,34 @@ enum WaitEventType
     WE_DIVE     = 8,
     WE_LAND     = 9,
     WE_SUMMON   = 10
+};
+
+uint32 const flameQuillsSpells[] =
+{
+    34269,
+    34270,
+    34271,
+    34272,
+    34273,
+    34274,
+    34275,
+    34276,
+    34277,
+    34278,
+    34279,
+    34280,
+    34281,
+    34282,
+    34283,
+    34284,
+    34285,
+    34286,
+    34287,
+    34288,
+    34289,
+    34314,
+    34315,
+    34316
 };
 
 class boss_alar : public CreatureScript
@@ -558,9 +587,40 @@ class npc_flame_patch_alar : public CreatureScript
         }
 };
 
+// 34229 - Flame Quills
+class spell_alar_flame_quills : public AuraScript
+{
+    PrepareAuraScript(spell_alar_flame_quills);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(flameQuillsSpells);
+    }
+
+    bool Load() override
+    {
+        return InstanceHasScript(GetUnitOwner(), TheEyeScriptName);
+    }
+
+    void PeriodicTick(AuraEffect const* aurEff)
+    {
+        PreventDefaultAction();
+
+        // cast 24 spells 34269-34289, 34314-34316
+        for (uint32 spellId : flameQuillsSpells)
+            GetTarget()->CastSpell(nullptr, spellId, true, nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_alar_flame_quills::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
 void AddSC_boss_alar()
 {
     new boss_alar();
     new npc_ember_of_alar();
     new npc_flame_patch_alar();
+    RegisterAuraScript(spell_alar_flame_quills);
 }

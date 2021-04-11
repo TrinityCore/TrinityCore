@@ -88,7 +88,11 @@ enum BossSpells
     SPELL_POWER_TWINS           = 65879,
     SPELL_BERSERK               = 64238,
     SPELL_POWERING_UP           = 67590,
-    SPELL_SURGE_OF_SPEED        = 65828
+    SPELL_SURGE_OF_SPEED        = 65828,
+
+    SPELL_SUMMON_PERIODIC_LIGHT = 66152,
+    SPELL_SUMMON_PERIODIC_DARK  = 66153
+
 };
 
 enum Events
@@ -363,7 +367,7 @@ class boss_fjola : public CreatureScript
             {
                 SetEquipmentSlots(false, EQUIP_MAIN_1, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
                 Weapon = EQUIP_MAIN_1;
-                AuraState = AURA_STATE_UNKNOWN22;
+                AuraState = AURA_STATE_RAID_ENCOUNTER;
                 SisterNpcId = NPC_EYDIS_DARKBANE;
                 MyEmphatySpellId = SPELL_TWIN_EMPATHY_DARK;
                 OtherEssenceSpellId = SPELL_DARK_ESSENCE;
@@ -471,7 +475,7 @@ class boss_eydis : public CreatureScript
             {
                 SetEquipmentSlots(false, EQUIP_MAIN_2, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
                 Weapon = EQUIP_MAIN_2;
-                AuraState = AURA_STATE_UNKNOWN19;
+                AuraState = AURA_STATE_VULNERABLE;
                 SisterNpcId = NPC_FJOLA_LIGHTBANE;
                 MyEmphatySpellId = SPELL_TWIN_EMPATHY_LIGHT;
                 OtherEssenceSpellId = SPELL_LIGHT_ESSENCE;
@@ -685,6 +689,32 @@ class npc_bullet_controller : public CreatureScript
         }
 };
 
+// 66149 - Bullet Controller Periodic
+class spell_bullet_controller : public AuraScript
+{
+    PrepareAuraScript(spell_bullet_controller);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUMMON_PERIODIC_LIGHT, SPELL_SUMMON_PERIODIC_DARK });
+    }
+
+    void PeriodicTick(AuraEffect const* /*aurEff*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->CastCustomSpell(SPELL_SUMMON_PERIODIC_LIGHT, SPELLVALUE_MAX_TARGETS, urand(1, 6), GetTarget(), true);
+        caster->CastCustomSpell(SPELL_SUMMON_PERIODIC_DARK, SPELLVALUE_MAX_TARGETS, urand(1, 6), GetTarget(), true);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_bullet_controller::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
 class spell_powering_up : public SpellScriptLoader
 {
     public:
@@ -871,6 +901,7 @@ void AddSC_boss_twin_valkyr()
     new npc_essence_of_twin();
     new npc_bullet_controller();
 
+    RegisterAuraScript(spell_bullet_controller);
     new spell_powering_up();
     new spell_valkyr_essences();
     new spell_power_of_the_twins();

@@ -314,12 +314,10 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         uint32 GetWorldEffectID() const { return _worldEffectID; }
         void SetWorldEffectID(uint32 worldEffectID) { _worldEffectID = worldEffectID; }
 
+        void SetSpellVisualId(int32 spellVisualId, ObjectGuid activatorGuid = ObjectGuid::Empty);
+
         void AIM_Destroy();
         bool AIM_Initialize();
-
-        void SetVisibleByUnitOnly(ObjectGuid unit) { m_visibleByUnitOnly = unit; }
-        bool IsVisibleByUnitOnly() const { return !m_visibleByUnitOnly.IsEmpty(); }
-        ObjectGuid GetVisibleByUnitOnly() const { return m_visibleByUnitOnly; }
 
         UF::UpdateField<UF::GameObjectData, 0, TYPEID_GAMEOBJECT> m_gameObjectData;
 
@@ -378,6 +376,5 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         bool m_respawnCompatibilityMode;
         uint16 _animKitId;
         uint32 _worldEffectID;
-        ObjectGuid m_visibleByUnitOnly;
 };
 #endif

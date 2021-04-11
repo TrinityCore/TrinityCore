@@ -103,7 +103,7 @@ void BugTicket::LoadFromDB(Field* fields)
     _id                 = fields[  idx].GetUInt32();
     _playerGuid         = ObjectGuid::Create<HighGuid::Player>(fields[++idx].GetUInt64());
     _note               = fields[++idx].GetString();
-    _createTime         = fields[++idx].GetUInt32();
+    _createTime         = fields[++idx].GetInt64();
     _mapId              = fields[++idx].GetUInt16();
     _pos.m_positionX    = fields[++idx].GetFloat();
     _pos.m_positionY    = fields[++idx].GetFloat();
@@ -134,6 +134,7 @@ void BugTicket::SaveToDB() const
     stmt->setUInt32(idx, _id);
     stmt->setUInt64(++idx, _playerGuid.GetCounter());
     stmt->setString(++idx, _note);
+    stmt->setInt64(++idx, _createTime);
     stmt->setUInt16(++idx, _mapId);
     stmt->setFloat(++idx, _pos.GetPositionX());
     stmt->setFloat(++idx, _pos.GetPositionY());
@@ -189,7 +190,7 @@ void ComplaintTicket::LoadFromDB(Field* fields)
     _id                     = fields[  idx].GetUInt32();
     _playerGuid             = ObjectGuid::Create<HighGuid::Player>(fields[++idx].GetUInt64());
     _note                   = fields[++idx].GetString();
-    _createTime             = fields[++idx].GetUInt32();
+    _createTime             = fields[++idx].GetInt64();
     _mapId                  = fields[++idx].GetUInt16();
     _pos.m_positionX        = fields[++idx].GetFloat();
     _pos.m_positionY        = fields[++idx].GetFloat();
@@ -220,7 +221,7 @@ void ComplaintTicket::LoadFromDB(Field* fields)
 
 void ComplaintTicket::LoadChatLineFromDB(Field* fields)
 {
-    _chatLog.Lines.emplace_back(fields[0].GetUInt32(), fields[1].GetString());
+    _chatLog.Lines.emplace_back(fields[0].GetInt64(), fields[1].GetString());
 }
 
 void ComplaintTicket::SaveToDB() const
@@ -232,6 +233,7 @@ void ComplaintTicket::SaveToDB() const
     stmt->setUInt32(idx, _id);
     stmt->setUInt64(++idx, _playerGuid.GetCounter());
     stmt->setString(++idx, _note);
+    stmt->setInt64(++idx, _createTime);
     stmt->setUInt16(++idx, _mapId);
     stmt->setFloat(++idx, _pos.GetPositionX());
     stmt->setFloat(++idx, _pos.GetPositionY());
@@ -255,7 +257,7 @@ void ComplaintTicket::SaveToDB() const
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GM_COMPLAINT_CHATLINE);
         stmt->setUInt32(idx, _id);
         stmt->setUInt32(++idx, lineIndex);
-        stmt->setUInt32(++idx, c.Timestamp);
+        stmt->setInt64(++idx, c.Timestamp);
         stmt->setString(++idx, c.Text);
 
         trans->Append(stmt);
@@ -312,7 +314,7 @@ void SuggestionTicket::LoadFromDB(Field* fields)
     _id                 = fields[  idx].GetUInt32();
     _playerGuid         = ObjectGuid::Create<HighGuid::Player>(fields[++idx].GetUInt64());
     _note               = fields[++idx].GetString();
-    _createTime         = fields[++idx].GetUInt32();
+    _createTime         = fields[++idx].GetInt64();
     _mapId              = fields[++idx].GetUInt16();
     _pos.m_positionX    = fields[++idx].GetFloat();
     _pos.m_positionY    = fields[++idx].GetFloat();
@@ -343,6 +345,7 @@ void SuggestionTicket::SaveToDB() const
     stmt->setUInt32(idx, _id);
     stmt->setUInt64(++idx, _playerGuid.GetCounter());
     stmt->setString(++idx, _note);
+    stmt->setInt64(++idx, _createTime);
     stmt->setUInt16(++idx, _mapId);
     stmt->setFloat(++idx, _pos.GetPositionX());
     stmt->setFloat(++idx, _pos.GetPositionY());
