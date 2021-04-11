@@ -20,6 +20,7 @@
 
 #include "UpdateFields.h"
 #include "ByteBuffer.h"
+#include "Errors.h"
 
 class UpdateMask
 {
