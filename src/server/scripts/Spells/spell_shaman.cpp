@@ -65,6 +65,7 @@ enum ShamanSpells
     SPELL_SHAMAN_LAVA_BURST                     = 51505,
     SPELL_SHAMAN_LAVA_BURST_BONUS_DAMAGE        = 71824,
     SPELL_SHAMAN_LAVA_SURGE                     = 77762,
+    SPELL_SHAMAN_LIQUID_MAGMA_HIT               = 192231,
     SPELL_SHAMAN_PATH_OF_FLAMES_SPREAD          = 210621,
     SPELL_SHAMAN_PATH_OF_FLAMES_TALENT          = 201909,
     SPELL_SHAMAN_POWER_SURGE                    = 40466,
@@ -75,7 +76,6 @@ enum ShamanSpells
     SPELL_SHAMAN_TOTEMIC_POWER_ATTACK_POWER     = 28826,
     SPELL_SHAMAN_TOTEMIC_POWER_ARMOR            = 28827,
     SPELL_SHAMAN_WINDFURY_ATTACK                = 25504,
-    SPELL_SHAMAN_LIQUID_MAGMA_HIT               = 192231,
 };
 
 enum MiscSpells
@@ -87,7 +87,7 @@ enum MiscSpells
 
 enum MiscNpcs
 {
-    NPC_HEALING_RAIN                            = 73400,
+    NPC_HEALING_RAIN_INVISIBLE_STALKER          = 73400,
 };
 
 // 108281 - Ancestral Guidance
@@ -492,33 +492,24 @@ class spell_sha_healing_rain_aura : public AuraScript
 public:
     static constexpr const char ScriptName[] = "spell_sha_healing_rain";
 
-    void SetSummon(TempSummon* summon)
+    void SetVisualDummy(TempSummon* summon)
     {
-        _summon = summon;
+        _visualDummy = summon->GetGUID();
+        summon->GetPosition(_x, _y, _z);
     }
 
 private:
     PrepareAuraScript(spell_sha_healing_rain_aura);
 
-
     void HandleEffectPeriodic(AuraEffect const* aurEff)
     {
-        if (!_summon)
-            return;
-
-        if (Unit* caster = GetCaster())
-        {
-            float x, y, z;
-            _summon->GetPosition(x, y, z);
-
-            caster->CastSpell(x, y, z, SPELL_SHAMAN_HEALING_RAIN_HEAL, true, nullptr, aurEff);
-        }
+        GetTarget()->CastSpell(_x, _y, _z, SPELL_SHAMAN_HEALING_RAIN_HEAL, true, nullptr, aurEff);
     }
 
     void HandleEffecRemoved(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (_summon)
-            _summon->DisappearAndDie();
+        if (Creature* summon = ObjectAccessor::GetCreature(*GetTarget(), _visualDummy))
+            summon->DespawnOrUnsummon();
     }
 
     void Register() override
@@ -527,7 +518,8 @@ private:
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_healing_rain_aura::HandleEffectPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
     }
 
-    TempSummon* _summon;
+    ObjectGuid _visualDummy;
+    float _x = 0.0f, _y = 0.0f, _z = 0.0f;
 };
 
 // 73920 - Healing Rain
@@ -535,39 +527,29 @@ class spell_sha_healing_rain : public SpellScript
 {
     PrepareSpellScript(spell_sha_healing_rain);
 
-    void HandleSummon(SpellEffIndex /*effIndex*/)
+    void InitializeVisualStalker()
     {
-        if (WorldLocation* dest = GetHitDest())
-        {
-            int32 duration = GetSpellInfo()->CalcDuration(GetOriginalCaster());
-            _summon = GetCaster()->GetMap()->SummonCreature(NPC_HEALING_RAIN, *dest, nullptr,
-                duration, GetOriginalCaster(), GetSpellInfo()->Id, 0, false);
-            if (!_summon)
-                return;
-
-            _summon->SetCreatorGUID(GetOriginalCaster()->GetGUID());
-            _summon->CastSpell(_summon, SPELL_SHAMAN_HEALING_RAIN_VISUAL, true);
-        }
-    }
-
-    void HandleAura(SpellEffIndex /*effIndex*/)
-    {
-        if (!_summon)
-            return;
-
         if (Aura* aura = GetHitAura())
-            if (spell_sha_healing_rain_aura* script = aura->GetScript<spell_sha_healing_rain_aura>(spell_sha_healing_rain_aura::ScriptName))
-                script->SetSummon(_summon);
+        {
+            if (WorldLocation const* dest = GetExplTargetDest())
+            {
+                int32 duration = GetSpellInfo()->CalcDuration(GetOriginalCaster());
+                TempSummon* summon = GetCaster()->GetMap()->SummonCreature(NPC_HEALING_RAIN_INVISIBLE_STALKER, *dest, nullptr, duration, GetOriginalCaster());
+                if (!summon)
+                    return;
+
+                summon->CastSpell(summon, SPELL_SHAMAN_HEALING_RAIN_VISUAL, true);
+
+                if (spell_sha_healing_rain_aura* script = aura->GetScript<spell_sha_healing_rain_aura>(spell_sha_healing_rain_aura::ScriptName))
+                    script->SetVisualDummy(summon);
+            }
+        }
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_sha_healing_rain::HandleSummon, EFFECT_0, SPELL_EFFECT_DUMMY);
-        OnEffectHitTarget += SpellEffectFn(spell_sha_healing_rain::HandleAura, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
+        OnHit += SpellHitFn(spell_sha_healing_rain::InitializeVisualStalker);
     }
-
-private:
-    TempSummon* _summon;
 };
 
 // 52042 - Healing Stream Totem
