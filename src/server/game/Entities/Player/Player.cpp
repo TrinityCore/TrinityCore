@@ -15139,7 +15139,7 @@ void Player::SendPreparedQuest(WorldObject* source)
         // Auto open
         if (Quest const* quest = sObjectMgr->GetQuestTemplate(questId))
         {
-            if (qmi0.QuestIcon == GOSSIP_ICON_INTERACT_1)
+            if (qmi0.QuestIcon == 4)
                 PlayerTalkClass->SendQuestGiverRequestItems(quest, source->GetGUID(), CanRewardQuest(quest, false), true);
             // Send completable on repeatable and autoCompletable quest if player don't have quest
             /// @todo verify if check for !quest->IsDaily() is really correct (possibly not)
