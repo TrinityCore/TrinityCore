@@ -109,6 +109,10 @@ bool LoginQueryHolder::Initialize()
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_AURA_EFFECTS, stmt);
 
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_AURA_STORED_LOCATIONS);
+    stmt->setUInt64(0, lowGuid);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_AURA_STORED_LOCATIONS, stmt);
+
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_SPELL);
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_SPELLS, stmt);
@@ -1053,9 +1057,9 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     WorldPackets::ClientConfig::AccountDataTimes accountDataTimes;
     accountDataTimes.PlayerGuid = playerGuid;
-    accountDataTimes.ServerTime = uint32(GameTime::GetGameTime());
+    accountDataTimes.ServerTime = GameTime::GetGameTimeSystemPoint();
     for (uint32 i = 0; i < NUM_ACCOUNT_DATA_TYPES; ++i)
-        accountDataTimes.AccountTimes[i] = uint32(GetAccountData(AccountDataType(i))->Time);
+        accountDataTimes.AccountTimes[i] = GetAccountData(AccountDataType(i))->Time;
 
     SendPacket(accountDataTimes.Write());
 
@@ -1152,6 +1156,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
             pCurrChar->SetInGuild(UI64LIT(0));
         }
     }
+
+    pCurrChar->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Login);
 
     pCurrChar->SendInitialPacketsAfterAddToMap();
 

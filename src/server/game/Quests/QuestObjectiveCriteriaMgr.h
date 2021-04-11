@@ -43,7 +43,7 @@ public:
     bool HasCompletedObjective(QuestObjective const* questObjective) const;
 
 protected:
-    void SendCriteriaUpdate(Criteria const* entry, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const override;
+    void SendCriteriaUpdate(Criteria const* entry, CriteriaProgress const* progress, Seconds timeElapsed, bool timedCompleted) const override;
 
     void SendCriteriaProgressRemoved(uint32 criteriaId) override;
 

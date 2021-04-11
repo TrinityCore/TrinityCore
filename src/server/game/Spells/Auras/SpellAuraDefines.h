@@ -149,7 +149,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_STALKED                                  = 68,
     SPELL_AURA_SCHOOL_ABSORB                                = 69,
     SPELL_AURA_PERIODIC_WEAPON_PERCENT_DAMAGE               = 70,
-    SPELL_AURA_STORE_TELEPORT_RETURN_POINT                  = 71,   // NYI
+    SPELL_AURA_STORE_TELEPORT_RETURN_POINT                  = 71,
     SPELL_AURA_MOD_POWER_COST_SCHOOL_PCT                    = 72,
     SPELL_AURA_MOD_POWER_COST_SCHOOL                        = 73,
     SPELL_AURA_REFLECT_SPELLS_SCHOOL                        = 74,
@@ -346,7 +346,7 @@ enum AuraType : uint32
     SPELL_AURA_265                                          = 265,
     SPELL_AURA_SET_VIGNETTE                                 = 266,  // NYI
     SPELL_AURA_MOD_IMMUNE_AURA_APPLY_SCHOOL                 = 267,
-    SPELL_AURA_268                                          = 268,  // old SPELL_AURA_MOD_ATTACK_POWER_OF_STAT_PERCENT. unused 4.3.4
+    SPELL_AURA_MOD_ARMOR_PCT_FROM_STAT                      = 268,
     SPELL_AURA_MOD_IGNORE_TARGET_RESIST                     = 269,
     SPELL_AURA_MOD_SCHOOL_MASK_DAMAGE_FROM_CASTER           = 270,
     SPELL_AURA_MOD_SPELL_DAMAGE_FROM_CASTER                 = 271,
@@ -562,7 +562,7 @@ enum AuraType : uint32
     SPELL_AURA_CONVERT_CONSUMED_RUNE                        = 481,
     SPELL_AURA_482                                          = 482,
     SPELL_AURA_SUPPRESS_TRANSFORMS                          = 483,  // NYI
-    SPELL_AURA_484                                          = 484,
+    SPELL_AURA_ALLOW_INTERRUPT_SPELL                        = 484,  // NYI
     SPELL_AURA_MOD_MOVEMENT_FORCE_MAGNITUDE                 = 485,
     SPELL_AURA_486                                          = 486,
     SPELL_AURA_487                                          = 487,

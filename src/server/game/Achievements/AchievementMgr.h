@@ -94,7 +94,7 @@ public:
     bool ModifierTreeSatisfied(uint32 modifierTreeId) const;
 
 protected:
-    void SendCriteriaUpdate(Criteria const* entry, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const override;
+    void SendCriteriaUpdate(Criteria const* entry, CriteriaProgress const* progress, Seconds timeElapsed, bool timedCompleted) const override;
     void SendCriteriaProgressRemoved(uint32 criteriaId) override;
 
     void SendAchievementEarned(AchievementEntry const* achievement) const;
@@ -127,7 +127,7 @@ public:
     void CompletedAchievement(AchievementEntry const* entry, Player* referencePlayer) override;
 
 protected:
-    void SendCriteriaUpdate(Criteria const* entry, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const override;
+    void SendCriteriaUpdate(Criteria const* entry, CriteriaProgress const* progress, Seconds timeElapsed, bool timedCompleted) const override;
     void SendCriteriaProgressRemoved(uint32 criteriaId) override;
 
     void SendAchievementEarned(AchievementEntry const* achievement) const;

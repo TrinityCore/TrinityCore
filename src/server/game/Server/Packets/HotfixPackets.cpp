@@ -65,9 +65,9 @@ WorldPacket const* DBReply::Write()
 WorldPacket const* AvailableHotfixes::Write()
 {
     _worldPacket << int32(VirtualRealmAddress);
-    _worldPacket << uint32(HotfixCount);
-    for (DB2Manager::HotfixRecord const& hotfixRecord : Hotfixes)
-        _worldPacket << hotfixRecord;
+    _worldPacket << uint32(Hotfixes.size());
+    for (DB2Manager::HotfixContainer::value_type const& hotfixRecord : Hotfixes)
+        _worldPacket << int32(hotfixRecord.first);
 
     return &_worldPacket;
 }
@@ -82,8 +82,8 @@ void HotfixRequest::Read()
         throw PacketArrayMaxCapacityException(hotfixCount, sDB2Manager.GetHotfixCount());
 
     Hotfixes.resize(hotfixCount);
-    for (DB2Manager::HotfixRecord& hotfixRecord : Hotfixes)
-        _worldPacket >> hotfixRecord;
+    for (int32& hotfixId : Hotfixes)
+        _worldPacket >> hotfixId;
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, HotfixConnect::HotfixData const& hotfixData)

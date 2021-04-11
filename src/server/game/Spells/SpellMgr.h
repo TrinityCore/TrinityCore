@@ -749,6 +749,7 @@ class TC_GAME_API SpellMgr
         void LoadSpellInfoStore();
         void UnloadSpellInfoStore();
         void UnloadSpellInfoImplicitTargetConditionLists();
+        void LoadSpellInfoServerside();
         void LoadSpellInfoCustomAttributes();
         void LoadSpellInfoCorrections();
         void LoadSpellInfoSpellSpecificAndAuraState();

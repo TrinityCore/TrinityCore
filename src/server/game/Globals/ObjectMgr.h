@@ -680,6 +680,7 @@ struct PointOfInterest
     uint32 Icon;
     uint32 Flags;
     uint32 Importance;
+    uint32 Unknown905;
     std::string Name;
 };
 

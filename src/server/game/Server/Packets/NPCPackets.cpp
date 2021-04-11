@@ -183,6 +183,7 @@ WorldPacket const* GossipPOI::Write()
     _worldPacket << Pos;
     _worldPacket << int32(Icon);
     _worldPacket << int32(Importance);
+    _worldPacket << int32(Unknown905);
     _worldPacket.WriteBits(Flags, 14);
     _worldPacket.WriteBits(Name.length(), 6);
     _worldPacket.FlushBits();

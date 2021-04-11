@@ -65,7 +65,7 @@ bool Garrison::LoadFromDB(PreparedQueryResult garrison, PreparedQueryResult blue
             fields = buildings->Fetch();
             uint32 plotInstanceId = fields[0].GetUInt32();
             uint32 buildingId = fields[1].GetUInt32();
-            time_t timeBuilt = time_t(fields[2].GetUInt64());
+            time_t timeBuilt = fields[2].GetInt64();
             bool active = fields[3].GetBool();
 
 
@@ -168,7 +168,7 @@ void Garrison::SaveToDB(CharacterDatabaseTransaction trans)
             stmt->setUInt64(0, _owner->GetGUID().GetCounter());
             stmt->setUInt32(1, plot.BuildingInfo.PacketInfo->GarrPlotInstanceID);
             stmt->setUInt32(2, plot.BuildingInfo.PacketInfo->GarrBuildingID);
-            stmt->setUInt64(3, plot.BuildingInfo.PacketInfo->TimeBuilt);
+            stmt->setInt64(3, plot.BuildingInfo.PacketInfo->TimeBuilt);
             stmt->setBool(4, plot.BuildingInfo.PacketInfo->Active);
             trans->Append(stmt);
         }

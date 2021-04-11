@@ -824,6 +824,8 @@ struct GameObjectTemplate
     {
         switch (type)
         {
+            case GAMEOBJECT_TYPE_MAILBOX:       return true;
+            case GAMEOBJECT_TYPE_BARBER_CHAIR:  return false;
             case GAMEOBJECT_TYPE_QUESTGIVER:    return questgiver.allowMounted != 0;
             case GAMEOBJECT_TYPE_TEXT:          return text.allowMounted != 0;
             case GAMEOBJECT_TYPE_GOOBER:        return goober.allowMounted != 0;

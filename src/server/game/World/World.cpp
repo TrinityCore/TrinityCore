@@ -152,7 +152,7 @@ World::World()
     _guidWarn = false;
     _guidAlert = false;
     _warnDiff = 0;
-    _warnShutdownTime = time(NULL);
+    _warnShutdownTime = time(nullptr);
 }
 
 /// World destructor
@@ -1758,6 +1758,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading SpellInfo store...");
     sSpellMgr->LoadSpellInfoStore();
 
+    TC_LOG_INFO("server.loading", "Loading serverside spells...");
+    sSpellMgr->LoadSpellInfoServerside();
+
     TC_LOG_INFO("server.loading", "Loading SpellInfo corrections...");
     sSpellMgr->LoadSpellInfoCorrections();
 
@@ -3040,7 +3043,7 @@ BanReturn World::BanCharacter(std::string const& name, std::string const& durati
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_BAN);
     stmt->setUInt64(0, guid.GetCounter());
-    stmt->setUInt32(1, duration_secs);
+    stmt->setInt64(1, duration_secs);
     stmt->setString(2, author);
     stmt->setString(3, reason);
     trans->Append(stmt);

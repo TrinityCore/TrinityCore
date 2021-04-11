@@ -775,20 +775,20 @@ void WorldSession::LoadAccountData(PreparedQueryResult result, uint32 mask)
             continue;
         }
 
-        _accountData[type].Time = time_t(fields[1].GetUInt32());
+        _accountData[type].Time = fields[1].GetInt64();
         _accountData[type].Data = fields[2].GetString();
     }
     while (result->NextRow());
 }
 
-void WorldSession::SetAccountData(AccountDataType type, uint32 time, std::string const& data)
+void WorldSession::SetAccountData(AccountDataType type, time_t time, std::string const& data)
 {
     if ((1 << type) & GLOBAL_CACHE_MASK)
     {
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_ACCOUNT_DATA);
         stmt->setUInt32(0, GetAccountId());
         stmt->setUInt8(1, type);
-        stmt->setUInt32(2, time);
+        stmt->setInt64(2, time);
         stmt->setString(3, data);
         CharacterDatabase.Execute(stmt);
     }
@@ -801,12 +801,12 @@ void WorldSession::SetAccountData(AccountDataType type, uint32 time, std::string
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_PLAYER_ACCOUNT_DATA);
         stmt->setUInt64(0, m_GUIDLow);
         stmt->setUInt8(1, type);
-        stmt->setUInt32(2, time);
+        stmt->setInt64(2, time);
         stmt->setString(3, data);
         CharacterDatabase.Execute(stmt);
     }
 
-    _accountData[type].Time = time_t(time);
+    _accountData[type].Time = time;
     _accountData[type].Data = data;
 }
 
