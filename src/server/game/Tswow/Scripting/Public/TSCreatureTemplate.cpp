@@ -43,11 +43,6 @@ uint32 TSCreatureTemplate::GetDifficultyEntryC()
     return ct->DifficultyEntry[2];
 }
 
-uint32 TSCreatureTemplate::GetDifficultyEntryD()
-{
-    return ct->DifficultyEntry[3];
-}
-
 uint32 TSCreatureTemplate::GetKillCreditA()
 {
     return ct->KillCredit[0];

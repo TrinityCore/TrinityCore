@@ -1869,7 +1869,6 @@ declare class TSCreatureTemplate extends StorageClass {
     GetDifficultyEntryA(): uint32;
     GetDifficultyEntryB(): uint32;
     GetDifficultyEntryC(): uint32;
-    GetDifficultyEntryD(): uint32;
 
     GetKillCreditA(): uint32;
     GetKillCreditB(): uint32;
