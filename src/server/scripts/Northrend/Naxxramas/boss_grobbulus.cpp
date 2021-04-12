@@ -46,186 +46,142 @@ enum CreatureId
     NPC_FALLOUT_SLIME           = 16290
 };
 
-class boss_grobbulus : public CreatureScript
+struct boss_grobbulus : public BossAI
 {
-    public:
-        boss_grobbulus() : CreatureScript("boss_grobbulus") { }
+    boss_grobbulus(Creature* creature) : BossAI(creature, BOSS_GROBBULUS) { }
 
-        struct boss_grobbulusAI : public BossAI
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        events.ScheduleEvent(EVENT_CLOUD, 15s);
+        events.ScheduleEvent(EVENT_INJECT, 20s);
+        events.ScheduleEvent(EVENT_SPRAY, randtime(Seconds(15), Seconds(30))); // not sure
+        events.ScheduleEvent(EVENT_BERSERK, 12min);
+    }
+
+    void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_SLIME_SPRAY)
+            me->SummonCreature(NPC_FALLOUT_SLIME, *target, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            boss_grobbulusAI(Creature* creature) : BossAI(creature, BOSS_GROBBULUS) { }
-
-            void JustEngagedWith(Unit* who) override
+            switch (eventId)
             {
-                BossAI::JustEngagedWith(who);
-                events.ScheduleEvent(EVENT_CLOUD, 15s);
-                events.ScheduleEvent(EVENT_INJECT, 20s);
-                events.ScheduleEvent(EVENT_SPRAY, randtime(Seconds(15), Seconds(30))); // not sure
-                events.ScheduleEvent(EVENT_BERSERK, 12min);
-            }
-
-            void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
-            {
-                if (spellInfo->Id == SPELL_SLIME_SPRAY)
-                    me->SummonCreature(NPC_FALLOUT_SLIME, *target, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
+                case EVENT_CLOUD:
+                    DoCastAOE(SPELL_POISON_CLOUD);
+                    events.Repeat(Seconds(15));
                     return;
-
-                events.Update(diff);
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_CLOUD:
-                            DoCastAOE(SPELL_POISON_CLOUD);
-                            events.Repeat(Seconds(15));
-                            return;
-                        case EVENT_BERSERK:
-                            DoCastAOE(SPELL_BERSERK, true);
-                            return;
-                        case EVENT_SPRAY:
-                            DoCastAOE(SPELL_SLIME_SPRAY);
-                            events.Repeat(randtime(Seconds(15), Seconds(30)));
-                            return;
-                        case EVENT_INJECT:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true, true, -SPELL_MUTATING_INJECTION))
-                                DoCast(target, SPELL_MUTATING_INJECTION);
-                            events.Repeat(Seconds(8) + Milliseconds(uint32(std::round(120 * me->GetHealthPct()))));
-                            return;
-                        default:
-                            break;
-                    }
-                }
-
-                DoMeleeAttackIfReady();
+                case EVENT_BERSERK:
+                    DoCastAOE(SPELL_BERSERK, true);
+                    return;
+                case EVENT_SPRAY:
+                    DoCastAOE(SPELL_SLIME_SPRAY);
+                    events.Repeat(randtime(Seconds(15), Seconds(30)));
+                    return;
+                case EVENT_INJECT:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true, true, -SPELL_MUTATING_INJECTION))
+                        DoCast(target, SPELL_MUTATING_INJECTION);
+                    events.Repeat(Seconds(8) + Milliseconds(uint32(std::round(120 * me->GetHealthPct()))));
+                    return;
+                default:
+                    break;
             }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetNaxxramasAI<boss_grobbulusAI>(creature);
         }
+
+        DoMeleeAttackIfReady();
+    }
 };
 
-class npc_grobbulus_poison_cloud : public CreatureScript
+struct npc_grobbulus_poison_cloud : public ScriptedAI
 {
-    public:
-        npc_grobbulus_poison_cloud() : CreatureScript("npc_grobbulus_poison_cloud") { }
+    npc_grobbulus_poison_cloud(Creature* creature) : ScriptedAI(creature)
+    {
+        SetCombatMovement(false);
+        creature->SetReactState(REACT_PASSIVE);
+    }
 
-        struct npc_grobbulus_poison_cloudAI : public ScriptedAI
-        {
-            npc_grobbulus_poison_cloudAI(Creature* creature) : ScriptedAI(creature)
-            {
-                SetCombatMovement(false);
-                creature->SetReactState(REACT_PASSIVE);
-            }
+    void IsSummonedBy(WorldObject* /*summoner*/) override
+    {
+        // no visual when casting in ctor or Reset()
+        DoCast(me, SPELL_POISON_CLOUD_PASSIVE, true);
+        DoCast(me, SPELL_PACIFY_SELF, true);
+    }
 
-            void IsSummonedBy(WorldObject* /*summoner*/) override
-            {
-                // no visual when casting in ctor or Reset()
-                DoCast(me, SPELL_POISON_CLOUD_PASSIVE, true);
-                DoCast(me, SPELL_PACIFY_SELF, true);
-            }
-
-            void UpdateAI(uint32 /*diff*/) override { }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetNaxxramasAI<npc_grobbulus_poison_cloudAI>(creature);
-        }
+    void UpdateAI(uint32 /*diff*/) override { }
 };
 
 // 28169 - Mutating Injection
-class spell_grobbulus_mutating_injection : public SpellScriptLoader
+class spell_grobbulus_mutating_injection : public AuraScript
 {
-    public:
-        spell_grobbulus_mutating_injection() : SpellScriptLoader("spell_grobbulus_mutating_injection") { }
+    PrepareAuraScript(spell_grobbulus_mutating_injection);
 
-        class spell_grobbulus_mutating_injection_AuraScript : public AuraScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MUTATING_EXPLOSION, SPELL_POISON_CLOUD });
+    }
+
+    void HandleRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
+        if (removeMode != AURA_REMOVE_BY_ENEMY_SPELL && removeMode != AURA_REMOVE_BY_EXPIRE)
+            return;
+
+        if (Unit* caster = GetCaster())
         {
-            PrepareAuraScript(spell_grobbulus_mutating_injection_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_MUTATING_EXPLOSION, SPELL_POISON_CLOUD });
-            }
-
-            void HandleRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
-            {
-                AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
-                if (removeMode != AURA_REMOVE_BY_ENEMY_SPELL && removeMode != AURA_REMOVE_BY_EXPIRE)
-                    return;
-
-                if (Unit* caster = GetCaster())
-                {
-                    caster->CastSpell(GetTarget(), SPELL_MUTATING_EXPLOSION, true);
-                    GetTarget()->CastSpell(GetTarget(), SPELL_POISON_CLOUD, { aurEff, GetCasterGUID() });
-                }
-            }
-
-            void Register() override
-            {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_grobbulus_mutating_injection_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_grobbulus_mutating_injection_AuraScript();
+            caster->CastSpell(GetTarget(), SPELL_MUTATING_EXPLOSION, true);
+            GetTarget()->CastSpell(GetTarget(), SPELL_POISON_CLOUD, { aurEff, GetCasterGUID() });
         }
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_grobbulus_mutating_injection::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
 };
 
 // 28158, 54362 - Poison (Grobbulus)
-class spell_grobbulus_poison_cloud : public SpellScriptLoader
+class spell_grobbulus_poison_cloud : public AuraScript
 {
-    public:
-        spell_grobbulus_poison_cloud() : SpellScriptLoader("spell_grobbulus_poison_cloud") { }
+    PrepareAuraScript(spell_grobbulus_poison_cloud);
 
-        class spell_grobbulus_poison_cloud_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_grobbulus_poison_cloud_AuraScript);
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ spellInfo->Effects[EFFECT_0].TriggerSpell });
+    }
 
-            bool Validate(SpellInfo const* spellInfo) override
-            {
-                return ValidateSpellInfo({ spellInfo->Effects[EFFECT_0].TriggerSpell });
-            }
+    void PeriodicTick(AuraEffect const* aurEff)
+    {
+        PreventDefaultAction();
+        if (!aurEff->GetTotalTicks())
+            return;
 
-            void PeriodicTick(AuraEffect const* aurEff)
-            {
-                PreventDefaultAction();
-                if (!aurEff->GetTotalTicks())
-                    return;
+        uint32 triggerSpell = GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
+        int32 mod = int32(((float(aurEff->GetTickNumber()) / aurEff->GetTotalTicks()) * 0.9f + 0.1f) * 10000 * 2 / 3);
 
-                uint32 triggerSpell = GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
-                int32 mod = int32(((float(aurEff->GetTickNumber()) / aurEff->GetTotalTicks()) * 0.9f + 0.1f) * 10000 * 2 / 3);
+        CastSpellExtraArgs args(aurEff);
+        args.AddSpellMod(SPELLVALUE_RADIUS_MOD, mod);
+        GetTarget()->CastSpell(nullptr, triggerSpell, args);
+    }
 
-                CastSpellExtraArgs args(aurEff);
-                args.AddSpellMod(SPELLVALUE_RADIUS_MOD, mod);
-                GetTarget()->CastSpell(nullptr, triggerSpell, args);
-            }
-
-            void Register() override
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_grobbulus_poison_cloud_AuraScript::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_grobbulus_poison_cloud_AuraScript();
-        }
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_grobbulus_poison_cloud::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
 };
 
 void AddSC_boss_grobbulus()
 {
-    new boss_grobbulus();
-    new npc_grobbulus_poison_cloud();
-    new spell_grobbulus_mutating_injection();
-    new spell_grobbulus_poison_cloud();
+    RegisterNaxxramasCreatureAI(boss_grobbulus);
+    RegisterNaxxramasCreatureAI(npc_grobbulus_poison_cloud);
+    RegisterSpellScript(spell_grobbulus_mutating_injection);
+    RegisterSpellScript(spell_grobbulus_poison_cloud);
 }
