@@ -55,134 +55,112 @@ enum Events
     EVENT_BERSERK           = 5,    // 300s cd
 };
 
-class boss_archavon : public CreatureScript
+struct boss_archavon : public BossAI
 {
-    public:
-        boss_archavon() : CreatureScript("boss_archavon") { }
+    boss_archavon(Creature* creature) : BossAI(creature, DATA_ARCHAVON)
+    {
+    }
 
-        struct boss_archavonAI : public BossAI
+    void JustEngagedWith(Unit* who) override
+    {
+        events.ScheduleEvent(EVENT_ROCK_SHARDS, 15s);
+        events.ScheduleEvent(EVENT_CHOKING_CLOUD, 30s);
+        events.ScheduleEvent(EVENT_STOMP, 45s);
+        events.ScheduleEvent(EVENT_BERSERK, 5min);
+
+        BossAI::JustEngagedWith(who);
+    }
+
+    // Below UpdateAI may need review/debug.
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            boss_archavonAI(Creature* creature) : BossAI(creature, DATA_ARCHAVON)
+            switch (eventId)
             {
-            }
-
-            void JustEngagedWith(Unit* who) override
-            {
-                events.ScheduleEvent(EVENT_ROCK_SHARDS, 15s);
-                events.ScheduleEvent(EVENT_CHOKING_CLOUD, 30s);
-                events.ScheduleEvent(EVENT_STOMP, 45s);
-                events.ScheduleEvent(EVENT_BERSERK, 5min);
-
-                BossAI::JustEngagedWith(who);
-            }
-
-            // Below UpdateAI may need review/debug.
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
+                case EVENT_ROCK_SHARDS:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                        DoCast(target, SPELL_ROCK_SHARDS);
+                    events.ScheduleEvent(EVENT_ROCK_SHARDS, 15s);
+                    break;
+                case EVENT_CHOKING_CLOUD:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, -10.0f, true))
                     {
-                        case EVENT_ROCK_SHARDS:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                                DoCast(target, SPELL_ROCK_SHARDS);
-                            events.ScheduleEvent(EVENT_ROCK_SHARDS, 15s);
-                            break;
-                        case EVENT_CHOKING_CLOUD:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, -10.0f, true))
-                            {
-                                DoCast(target, SPELL_CRUSHING_LEAP, true); //10y~80y, ignore range
-                                Talk(EMOTE_LEAP, target);
-                            }
-                            events.ScheduleEvent(EVENT_CHOKING_CLOUD, 30s);
-                            break;
-                        case EVENT_STOMP:
-                            DoCastVictim(SPELL_STOMP);
-                            events.ScheduleEvent(EVENT_IMPALE, 3s);
-                            events.ScheduleEvent(EVENT_STOMP, 45s);
-                            break;
-                        case EVENT_IMPALE:
-                            DoCastVictim(SPELL_IMPALE);
-                            break;
-                        case EVENT_BERSERK:
-                            DoCast(me, SPELL_BERSERK);
-                            Talk(EMOTE_BERSERK);
-                            break;
-                        default:
-                            break;
+                        DoCast(target, SPELL_CRUSHING_LEAP, true); //10y~80y, ignore range
+                        Talk(EMOTE_LEAP, target);
                     }
-
-                    if (me->HasUnitState(UNIT_STATE_CASTING))
-                        return;
-                }
-
-                DoMeleeAttackIfReady();
+                    events.ScheduleEvent(EVENT_CHOKING_CLOUD, 30s);
+                    break;
+                case EVENT_STOMP:
+                    DoCastVictim(SPELL_STOMP);
+                    events.ScheduleEvent(EVENT_IMPALE, 3s);
+                    events.ScheduleEvent(EVENT_STOMP, 45s);
+                    break;
+                case EVENT_IMPALE:
+                    DoCastVictim(SPELL_IMPALE);
+                    break;
+                case EVENT_BERSERK:
+                    DoCast(me, SPELL_BERSERK);
+                    Talk(EMOTE_BERSERK);
+                    break;
+                default:
+                    break;
             }
-        };
 
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetVaultOfArchavonAI<boss_archavonAI>(creature);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
+
+        DoMeleeAttackIfReady();
+    }
 };
 
 // 58941 - Rock Shards
-class spell_archavon_rock_shards : public SpellScriptLoader
+class spell_archavon_rock_shards : public SpellScript
 {
-    public:
-        spell_archavon_rock_shards() : SpellScriptLoader("spell_archavon_rock_shards") { }
+    PrepareSpellScript(spell_archavon_rock_shards);
 
-        class spell_archavon_rock_shards_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
         {
-            PrepareSpellScript(spell_archavon_rock_shards_SpellScript);
+            SPELL_ROCK_SHARDS_VISUAL_L,
+            SPELL_ROCK_SHARDS_VISUAL_R,
+            SPELL_ROCK_SHARDS_DAMAGE_L,
+            SPELL_ROCK_SHARDS_DAMAGE_R
+        });
+    }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo(
-                {
-                    SPELL_ROCK_SHARDS_VISUAL_L,
-                    SPELL_ROCK_SHARDS_VISUAL_R,
-                    SPELL_ROCK_SHARDS_DAMAGE_L,
-                    SPELL_ROCK_SHARDS_DAMAGE_R
-                });
-            }
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
 
-            void HandleScript(SpellEffIndex /*effIndex*/)
-            {
-                Unit* caster = GetCaster();
-
-                for (uint8 i = 0; i < 3; ++i)
-                {
-                    caster->CastSpell(nullptr, SPELL_ROCK_SHARDS_VISUAL_L, true);
-                    caster->CastSpell(nullptr, SPELL_ROCK_SHARDS_VISUAL_R, true);
-                }
-
-                caster->CastSpell(nullptr, SPELL_ROCK_SHARDS_DAMAGE_L, true);
-                caster->CastSpell(nullptr, SPELL_ROCK_SHARDS_DAMAGE_R, true);
-            }
-
-            void Register() override
-            {
-                OnEffectHit += SpellEffectFn(spell_archavon_rock_shards_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
+        for (uint8 i = 0; i < 3; ++i)
         {
-            return new spell_archavon_rock_shards_SpellScript();
+            caster->CastSpell(nullptr, SPELL_ROCK_SHARDS_VISUAL_L, true);
+            caster->CastSpell(nullptr, SPELL_ROCK_SHARDS_VISUAL_R, true);
         }
+
+        caster->CastSpell(nullptr, SPELL_ROCK_SHARDS_DAMAGE_L, true);
+        caster->CastSpell(nullptr, SPELL_ROCK_SHARDS_DAMAGE_R, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_archavon_rock_shards::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
 };
 
 void AddSC_boss_archavon()
 {
-    new boss_archavon();
-    new spell_archavon_rock_shards();
+    RegisterVaultOfArchavonCreatureAI(boss_archavon);
+    RegisterSpellScript(spell_archavon_rock_shards);
 }
