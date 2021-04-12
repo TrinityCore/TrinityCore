@@ -525,15 +525,6 @@ class spell_pri_penance : public SpellScriptLoader
                         if (!caster->isInFront(target))
                             return SPELL_FAILED_UNIT_NOT_INFRONT;
                     }
-                    else
-                    {
-                        //Support for modifications of this spell in Legion with The Penitent talent (7.1.5)
-                        if(!caster->HasAura(SPELL_PRIEST_THE_PENITENT_AURA))
-                            return SPELL_FAILED_BAD_TARGETS;
-
-                        if (!caster->isInFront(target))
-                            return SPELL_FAILED_UNIT_NOT_INFRONT;
-                    }
                 }
 
                 return SPELL_CAST_OK;
