@@ -2655,8 +2655,16 @@ void SpellInfo::_LoadSpellSpecific()
                     return SPELL_SPECIFIC_JUDGEMENT;
 
                 // only paladin auras have this (for palaldin class family)
-                if (SpellFamilyFlags[2] & 0x00000020)
-                    return SPELL_SPECIFIC_AURA;
+                switch (Id)
+                {
+                    case 465:    // Devotion Aura
+                    case 32223:  // Crusader Aura
+                    case 183435: // Retribution Aura
+                    case 317920: // Concentration Aura
+                        return SPELL_SPECIFIC_AURA;
+                    default:
+                        break;
+                }
 
                 break;
             }
