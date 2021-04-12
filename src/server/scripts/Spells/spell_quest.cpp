@@ -1653,9 +1653,9 @@ class spell_q11140salvage_wreckage : public SpellScript
         Unit* caster = GetCaster();
 
         if (roll_chance_i(50))
-                caster->CastSpell(caster, SPELL_SUMMON_LOCKBOX, true);
-            else
-                caster->CastSpell(nullptr, SPELL_SUMMON_BURROWER, true);
+            caster->CastSpell(caster, SPELL_SUMMON_LOCKBOX, true);
+        else
+            caster->CastSpell(nullptr, SPELL_SUMMON_BURROWER, true);
     }
 
     void Register() override
