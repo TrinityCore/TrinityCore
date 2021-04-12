@@ -815,7 +815,9 @@ namespace WorldPackets
         public:
             MountSpecial(WorldPacket&& packet) : ClientPacket(CMSG_MOUNT_SPECIAL_ANIM, std::move(packet)) { }
 
-            void Read() override { }
+            void Read() override;
+
+            Array<int32, 2> SpellVisualKitIDs;
         };
 
         class SpecialMountAnim final : public ServerPacket
@@ -826,6 +828,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid UnitGUID;
+            std::vector<int32> SpellVisualKitIDs;
         };
 
         class CrossedInebriationThreshold final : public ServerPacket

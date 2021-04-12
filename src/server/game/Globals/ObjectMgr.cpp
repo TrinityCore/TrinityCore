@@ -7930,8 +7930,8 @@ void ObjectMgr::LoadPointsOfInterest()
 
     uint32 count = 0;
 
-    //                                               0   1          2          3     4      5           6
-    QueryResult result = WorldDatabase.Query("SELECT ID, PositionX, PositionY, Icon, Flags, Importance, Name FROM points_of_interest");
+    //                                               0   1          2          3     4      5           6     7
+    QueryResult result = WorldDatabase.Query("SELECT ID, PositionX, PositionY, Icon, Flags, Importance, Name, Unknown905 FROM points_of_interest");
 
     if (!result)
     {
@@ -7952,6 +7952,7 @@ void ObjectMgr::LoadPointsOfInterest()
         pointOfInterest.Flags           = fields[4].GetUInt32();
         pointOfInterest.Importance      = fields[5].GetUInt32();
         pointOfInterest.Name            = fields[6].GetString();
+        pointOfInterest.Unknown905      = fields[7].GetInt32();
 
         if (!Trinity::IsValidMapCoord(pointOfInterest.Pos.GetPositionX(), pointOfInterest.Pos.GetPositionY()))
         {

@@ -609,6 +609,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags) const
     //if (flags.SmoothPhasing)
     //{
     //    data->WriteBit(ReplaceActive);
+    //    data->WriteBit(StopAnimKits);
     //    data->WriteBit(HasReplaceObject);
     //    data->FlushBits();
     //    if (HasReplaceObject)

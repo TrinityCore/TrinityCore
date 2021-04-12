@@ -633,7 +633,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
 
 void WorldSession::HandleUpdateAccountData(WorldPackets::ClientConfig::UserClientUpdateAccountData& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_UPDATE_ACCOUNT_DATA: type %u, time %u, decompressedSize %u",
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_UPDATE_ACCOUNT_DATA: type %u, time " SI64FMTD ", decompressedSize %u",
         packet.DataType, packet.Time.AsUnderlyingType(), packet.Size);
 
     if (packet.DataType > NUM_ACCOUNT_DATA_TYPES)
@@ -1127,10 +1127,11 @@ void WorldSession::HandleSetAdvancedCombatLogging(WorldPackets::ClientConfig::Se
     _player->SetAdvancedCombatLogging(setAdvancedCombatLogging.Enable);
 }
 
-void WorldSession::HandleMountSpecialAnimOpcode(WorldPackets::Misc::MountSpecial& /*mountSpecial*/)
+void WorldSession::HandleMountSpecialAnimOpcode(WorldPackets::Misc::MountSpecial& mountSpecial)
 {
     WorldPackets::Misc::SpecialMountAnim specialMountAnim;
     specialMountAnim.UnitGUID = _player->GetGUID();
+    std::copy(mountSpecial.SpellVisualKitIDs.begin(), mountSpecial.SpellVisualKitIDs.end(), std::back_inserter(specialMountAnim.SpellVisualKitIDs));
     GetPlayer()->SendMessageToSet(specialMountAnim.Write(), false);
 }
 

@@ -165,7 +165,7 @@ namespace WorldPackets
         struct GarrisonEventEntry
         {
             int32 EntryID = 0;
-            int32 EventValue = 0;
+            int64 EventValue = 0;
         };
 
         struct GarrisonEventList
@@ -181,6 +181,7 @@ namespace WorldPackets
             uint32 GarrSiteLevelID = 0;
             uint32 NumFollowerActivationsRemaining = 0;
             uint32 NumMissionsStartedToday = 0;   // might mean something else, but sending 0 here enables follower abilities "Increase success chance of the first mission of the day by %."
+            int32 MinAutoTroopLevel = 0;
             std::vector<GarrisonPlotInfo*> Plots;
             std::vector<GarrisonBuildingInfo const*> Buildings;
             std::vector<GarrisonFollower const*> Followers;
