@@ -56,186 +56,163 @@ enum SummonGroups
     SUMMON_GROUP_25MAN = 2
 };
 
-class boss_razuvious : public CreatureScript
+struct boss_razuvious : public BossAI
 {
-public:
-    boss_razuvious() : CreatureScript("boss_razuvious") { }
+    boss_razuvious(Creature* creature) : BossAI(creature, BOSS_RAZUVIOUS) { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    void SummonAdds()
     {
-        return GetNaxxramasAI<boss_razuviousAI>(creature);
+        me->SummonCreatureGroup(SUMMON_GROUP_10MAN);
+        if (Is25ManRaid())
+            me->SummonCreatureGroup(SUMMON_GROUP_25MAN);
     }
 
-    struct boss_razuviousAI : public BossAI
+    void InitializeAI() override
     {
-        boss_razuviousAI(Creature* creature) : BossAI(creature, BOSS_RAZUVIOUS) { }
-
-        void SummonAdds()
+        if (!me->isDead() && instance->GetBossState(BOSS_RAZUVIOUS) != DONE)
         {
-            me->SummonCreatureGroup(SUMMON_GROUP_10MAN);
-            if (Is25ManRaid())
-                me->SummonCreatureGroup(SUMMON_GROUP_25MAN);
-        }
-
-        void InitializeAI() override
-        {
-            if (!me->isDead() && instance->GetBossState(BOSS_RAZUVIOUS) != DONE)
-            {
-                Reset();
-                SummonAdds();
-            }
-        }
-
-        void JustReachedHome() override
-        {
-            _JustReachedHome();
+            Reset();
             SummonAdds();
-            me->GetMotionMaster()->Initialize();
         }
+    }
 
-        void KilledUnit(Unit* victim) override
+    void JustReachedHome() override
+    {
+        _JustReachedHome();
+        SummonAdds();
+        me->GetMotionMaster()->Initialize();
+    }
+
+    void KilledUnit(Unit* victim) override
+    {
+        if (victim->GetTypeId() == TYPEID_PLAYER || (victim->GetTypeId() == TYPEID_UNIT && victim->GetEntry() == NPC_DK_UNDERSTUDY))
+            Talk(SAY_SLAY);
+    }
+
+    void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_UNDERSTUDY_TAUNT)
+            Talk(SAY_TAUNTED, caster);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        for (ObjectGuid summonGuid : summons)
+            if (Creature* summon = ObjectAccessor::GetCreature(*me, summonGuid))
+                summon->RemoveCharmAuras();
+        Talk(SAY_DEATH);
+        DoCastAOE(SPELL_HOPELESS, true);
+
+        events.Reset();
+        instance->SetBossState(BOSS_RAZUVIOUS, DONE);
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        me->StopMoving();
+        summons.DoZoneInCombat();
+        Talk(SAY_AGGRO);
+        events.ScheduleEvent(EVENT_ATTACK, 7s);
+        events.ScheduleEvent(EVENT_STRIKE, 21s);
+        events.ScheduleEvent(EVENT_SHOUT, 16s);
+        events.ScheduleEvent(EVENT_KNIFE, 10s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            if (victim->GetTypeId() == TYPEID_PLAYER || (victim->GetTypeId() == TYPEID_UNIT && victim->GetEntry() == NPC_DK_UNDERSTUDY))
-                Talk(SAY_SLAY);
-        }
-
-        void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
-        {
-            if (spellInfo->Id == SPELL_UNDERSTUDY_TAUNT)
-                Talk(SAY_TAUNTED, caster);
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            for (ObjectGuid summonGuid : summons)
-                if (Creature* summon = ObjectAccessor::GetCreature(*me, summonGuid))
-                    summon->RemoveCharmAuras();
-            Talk(SAY_DEATH);
-            DoCastAOE(SPELL_HOPELESS, true);
-
-            events.Reset();
-            instance->SetBossState(BOSS_RAZUVIOUS, DONE);
-        }
-
-        void JustEngagedWith(Unit* who) override
-        {
-            BossAI::JustEngagedWith(who);
-            me->StopMoving();
-            summons.DoZoneInCombat();
-            Talk(SAY_AGGRO);
-            events.ScheduleEvent(EVENT_ATTACK, 7s);
-            events.ScheduleEvent(EVENT_STRIKE, 21s);
-            events.ScheduleEvent(EVENT_SHOUT, 16s);
-            events.ScheduleEvent(EVENT_KNIFE, 10s);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
+            switch (eventId)
             {
-                switch (eventId)
-                {
-                    case EVENT_ATTACK:
-                        SetCombatMovement(true);
-                        if (Unit* victim = me->GetVictim())
-                            me->GetMotionMaster()->MoveChase(victim);
-                        break;
-                    case EVENT_STRIKE:
-                        DoCastVictim(SPELL_UNBALANCING_STRIKE);
-                        events.Repeat(Seconds(6));
-                        return;
-                    case EVENT_SHOUT:
-                        DoCastAOE(SPELL_DISRUPTING_SHOUT);
-                        events.Repeat(Seconds(16));
-                        return;
-                    case EVENT_KNIFE:
-                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 45.0f))
-                            DoCast(target, SPELL_JAGGED_KNIFE);
-                        events.Repeat(randtime(Seconds(10), Seconds(15)));
-                        return;
-                }
+                case EVENT_ATTACK:
+                    SetCombatMovement(true);
+                    if (Unit* victim = me->GetVictim())
+                        me->GetMotionMaster()->MoveChase(victim);
+                    break;
+                case EVENT_STRIKE:
+                    DoCastVictim(SPELL_UNBALANCING_STRIKE);
+                    events.Repeat(Seconds(6));
+                    return;
+                case EVENT_SHOUT:
+                    DoCastAOE(SPELL_DISRUPTING_SHOUT);
+                    events.Repeat(Seconds(16));
+                    return;
+                case EVENT_KNIFE:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 45.0f))
+                        DoCast(target, SPELL_JAGGED_KNIFE);
+                    events.Repeat(randtime(Seconds(10), Seconds(15)));
+                    return;
             }
-
-            DoMeleeAttackIfReady();
         }
 
-        void Reset() override
-        {
-            SetCombatMovement(false);
-            _Reset();
-        }
-    };
+        DoMeleeAttackIfReady();
+    }
 
+    void Reset() override
+    {
+        SetCombatMovement(false);
+        _Reset();
+    }
 };
 
-class npc_dk_understudy : public CreatureScript
+struct npc_dk_understudy : public ScriptedAI
 {
-    public:
-        npc_dk_understudy() : CreatureScript("npc_dk_understudy") { }
+    npc_dk_understudy(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), bloodStrikeTimer(0)
+    {
+        creature->LoadEquipment(1);
+    }
 
-        struct npc_dk_understudyAI : public ScriptedAI
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+        if (Creature* razuvious = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_RAZUVIOUS)))
+            razuvious->AI()->DoZoneInCombat();
+    }
+
+    void JustReachedHome() override
+    {
+        if (_instance->GetBossState(BOSS_RAZUVIOUS) == DONE)
+            me->DespawnOrUnsummon();
+        else
+            ScriptedAI::JustReachedHome();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!me->isPossessedByPlayer() && !UpdateVictim())
+            return;
+
+        if (!me->isPossessedByPlayer())
         {
-            npc_dk_understudyAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), bloodStrikeTimer(0)
-            {
-                creature->LoadEquipment(1);
-            }
-
-            void JustEngagedWith(Unit* /*who*/) override
-            {
-                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
-                if (Creature* razuvious = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_RAZUVIOUS)))
-                    razuvious->AI()->DoZoneInCombat();
-            }
-
-            void JustReachedHome() override
-            {
-                if (_instance->GetBossState(BOSS_RAZUVIOUS) == DONE)
-                    me->DespawnOrUnsummon();
-                else
-                    ScriptedAI::JustReachedHome();
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!me->isPossessedByPlayer() && !UpdateVictim())
-                    return;
-
-                if (!me->isPossessedByPlayer())
-                {
-                    if (diff < bloodStrikeTimer)
-                        bloodStrikeTimer -= diff;
-                    else
-                        DoCastVictim(SPELL_UNDERSTUDY_BLOOD_STRIKE);
-                }
-
-                DoMeleeAttackIfReady();
-            }
-
-            void OnCharmed(bool isNew) override
-            {
-                if (me->IsCharmed() && !me->IsEngaged())
-                    JustEngagedWith(nullptr);
-                ScriptedAI::OnCharmed(isNew);
-            }
-        private:
-            InstanceScript* const _instance;
-            ObjectGuid _charmer;
-            uint32 bloodStrikeTimer;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetNaxxramasAI<npc_dk_understudyAI>(creature);
+            if (diff < bloodStrikeTimer)
+                bloodStrikeTimer -= diff;
+            else
+                DoCastVictim(SPELL_UNDERSTUDY_BLOOD_STRIKE);
         }
+
+        DoMeleeAttackIfReady();
+    }
+
+    void OnCharmed(bool isNew) override
+    {
+        if (me->IsCharmed() && !me->IsEngaged())
+            JustEngagedWith(nullptr);
+        ScriptedAI::OnCharmed(isNew);
+    }
+private:
+    InstanceScript* const _instance;
+    ObjectGuid _charmer;
+    uint32 bloodStrikeTimer;
 };
 
 void AddSC_boss_razuvious()
 {
-    new boss_razuvious();
-    new npc_dk_understudy();
+    RegisterNaxxramasCreatureAI(boss_razuvious);
+    RegisterNaxxramasCreatureAI(npc_dk_understudy);
 }
