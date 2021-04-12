@@ -132,7 +132,7 @@ void WaypointMovementGenerator<Creature>::HandleMovementInformationHooks(Creatur
 
         // Inform the AI that the path has ended.
         if (creature->IsAIEnabled)
-            creature->AI()->WaypointPathEnded(_path->Nodes.at(_currentNode).Id, _path->Id);
+            creature->AI()->WaypointPathEnded(waypoint.Id, _path->Id);
     }
 
     if (waypoint.EventId && urand(0, 99) < waypoint.EventChance)
@@ -142,14 +142,14 @@ void WaypointMovementGenerator<Creature>::HandleMovementInformationHooks(Creatur
         creature->GetMap()->ScriptsStart(sWaypointScripts, waypoint.EventId, creature, nullptr);
     }
 
+    creature->UpdateCurrentWaypointInfo(waypoint.Id, _path->Id);
+
     // inform AI
     if (creature->IsAIEnabled)
     {
         creature->AI()->MovementInform(WAYPOINT_MOTION_TYPE, _currentNode);
         creature->AI()->WaypointReached(waypoint.Id, _path->Id);
     }
-
-    creature->UpdateCurrentWaypointInfo(waypoint.Id, _path->Id);
 
     // All hooks called and infos updated. Time to increment the waypoint node id
     if (_path && !_path->Nodes.empty()) // ensure that the path has not been changed in one of the hooks.

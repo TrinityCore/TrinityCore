@@ -174,7 +174,7 @@ bool EscortAI::IsPlayerOrGroupInRange()
 void EscortAI::UpdateAI(uint32 diff)
 {
     // Waypoint Updating
-    if (HasEscortState(STATE_ESCORT_ESCORTING) && !me->IsInCombat() && !HasEscortState(STATE_ESCORT_RETURNING))
+    if (HasEscortState(STATE_ESCORT_ESCORTING) && !me->IsEngaged() && !HasEscortState(STATE_ESCORT_RETURNING))
     {
         if (_pauseTimer <= diff)
         {
@@ -227,7 +227,7 @@ void EscortAI::UpdateAI(uint32 diff)
     }
 
     // Check if player or any member of his group is within range
-    if (_despawnAtFar && HasEscortState(STATE_ESCORT_ESCORTING) && _playerGUID && !me->GetVictim() && !HasEscortState(STATE_ESCORT_RETURNING))
+    if (_despawnAtFar && HasEscortState(STATE_ESCORT_ESCORTING) && _playerGUID && !me->IsEngaged() && !HasEscortState(STATE_ESCORT_RETURNING))
     {
         if (_playerCheckTimer <= diff)
         {
@@ -239,10 +239,13 @@ void EscortAI::UpdateAI(uint32 diff)
                 if (CreatureData const* creatureData = me->GetCreatureData())
                     isEscort = (sWorld->getBoolConfig(CONFIG_RESPAWN_DYNAMIC_ESCORTNPC) && (creatureData->spawnGroupData->flags & SPAWNGROUP_FLAG_ESCORTQUESTNPC));
 
-                if (_instantRespawn && !isEscort)
-                    me->DespawnOrUnsummon(0, Seconds(1));
-                else if (_instantRespawn && isEscort)
-                    me->GetMap()->Respawn(SPAWN_TYPE_CREATURE, me->GetSpawnId());
+                if (_instantRespawn)
+                {
+                    if (!isEscort)
+                        me->DespawnOrUnsummon(0s, 1s);
+                    else
+                        me->GetMap()->Respawn(SPAWN_TYPE_CREATURE, me->GetSpawnId());
+                }
                 else
                     me->DespawnOrUnsummon();
 
@@ -368,16 +371,13 @@ void EscortAI::SetRun(bool on)
 void EscortAI::Start(bool isActiveAttacker /* = true*/, bool run /* = false */, ObjectGuid playerGUID /* = 0 */, Quest const* quest /* = nullptr */, bool instantRespawn /* = false */, bool canLoopPath /* = false */, bool resetWaypoints /* = true */)
 {
     // Queue respawn from the point it starts
-    if (Map* map = me->GetMap())
+    if (CreatureData const* cdata = me->GetCreatureData())
     {
-        if (CreatureData const* cdata = me->GetCreatureData())
-        {
-            if (sWorld->getBoolConfig(CONFIG_RESPAWN_DYNAMIC_ESCORTNPC) && (cdata->spawnGroupData->flags & SPAWNGROUP_FLAG_ESCORTQUESTNPC))
-                me->SaveRespawnTime(me->GetRespawnDelay());
-        }
+        if (sWorld->getBoolConfig(CONFIG_RESPAWN_DYNAMIC_ESCORTNPC) && (cdata->spawnGroupData->flags & SPAWNGROUP_FLAG_ESCORTQUESTNPC))
+            me->SaveRespawnTime(me->GetRespawnDelay());
     }
 
-    if (me->GetVictim())
+    if (me->IsEngaged())
     {
         TC_LOG_ERROR("scripts", "EscortAI::Start: (script: %s, creature entry: %u) attempts to Start while in combat", me->GetScriptName().c_str(), me->GetEntry());
         return;
