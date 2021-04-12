@@ -160,4 +160,6 @@ inline AI* GetVioletHoldAI(T* obj)
     return GetInstanceAI<AI>(obj, VioletHoldScriptName);
 }
 
+#define RegisterVioletHoldCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetVioletHoldAI)
+
 #endif // VIOLET_HOLD_H_
