@@ -1436,7 +1436,14 @@ class spell_gen_gadgetzan_transporter_backfire : public SpellScript
     }
 };
 
-
+// 28880 - Warrior
+// 59542 - Paladin
+// 59543 - Hunter
+// 59544 - Priest
+// 59545 - Death Knight
+// 59547 - Shaman
+// 59548 - Mage
+// 121093 - Monk
 class spell_gen_gift_of_naaru : public AuraScript
 {
     PrepareAuraScript(spell_gen_gift_of_naaru);
@@ -1446,30 +1453,13 @@ class spell_gen_gift_of_naaru : public AuraScript
         if (!GetCaster() || !aurEff->GetTotalTicks())
             return;
 
-        float heal = 0.0f;
-        switch (GetSpellInfo()->SpellFamilyName)
+        if (SpellEffectInfo const* eff1 = GetSpellInfo()->GetEffect(EFFECT_1))
         {
-            case SPELLFAMILY_MAGE:
-            case SPELLFAMILY_WARLOCK:
-            case SPELLFAMILY_PRIEST:
-                heal = 1.885f * float(GetCaster()->SpellBaseDamageBonusDone(GetSpellInfo()->GetSchoolMask()));
-                break;
-            case SPELLFAMILY_PALADIN:
-            case SPELLFAMILY_SHAMAN:
-                heal = std::max(1.885f * float(GetCaster()->SpellBaseDamageBonusDone(GetSpellInfo()->GetSchoolMask())), 1.1f * float(GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK)));
-                break;
-            case SPELLFAMILY_WARRIOR:
-            case SPELLFAMILY_HUNTER:
-            case SPELLFAMILY_DEATHKNIGHT:
-                heal = 1.1f * float(std::max(GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK), GetCaster()->GetTotalAttackPowerValue(RANGED_ATTACK)));
-                break;
-            case SPELLFAMILY_GENERIC:
-            default:
-                break;
+            float healPct = eff1->CalcValue() / 100.0f;
+            float heal = healPct * GetCaster()->GetMaxHealth();
+            int32 healTick = std::floor(heal / aurEff->GetTotalTicks());
+            amount += healTick;
         }
-
-        int32 healTick = std::floor(heal / aurEff->GetTotalTicks());
-        amount += int32(std::max(healTick, 0));
     }
 
     void Register() override
