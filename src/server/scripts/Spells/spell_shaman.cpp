@@ -490,7 +490,7 @@ class spell_sha_flametongue_weapon_aura : public AuraScript
 class spell_sha_healing_rain_aura : public AuraScript
 {
 public:
-    static constexpr const char ScriptName[] = "spell_sha_healing_rain";
+    static constexpr char const ScriptName[] = "spell_sha_healing_rain";
 
     void SetVisualDummy(TempSummon* summon)
     {
@@ -521,6 +521,7 @@ private:
     ObjectGuid _visualDummy;
     float _x = 0.0f, _y = 0.0f, _z = 0.0f;
 };
+constexpr char const spell_sha_healing_rain_aura::ScriptName[];
 
 // 73920 - Healing Rain
 class spell_sha_healing_rain : public SpellScript
