@@ -217,6 +217,8 @@ inline AI* GetNaxxramasAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, NaxxramasScriptName);
 }
+
 #define RegisterNaxxramasCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetNaxxramasAI)
+#define RegisterNaxxramasGameObjectAI(ai_name) RegisterGameObjectAIWithFactory(ai_name, GetNaxxramasAI)
 
 #endif
