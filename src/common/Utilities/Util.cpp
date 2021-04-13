@@ -442,7 +442,7 @@ bool WStrToUtf8(std::wstring_view wstr, std::string& utf8str)
         std::string utf8str2;
         utf8str2.resize(wstr.size()*4);                     // allocate for most long case
 
-        if (wstr.size())
+        if (!wstr.empty())
         {
             char* oend = utf8::utf16to8(wstr.begin(), wstr.end(), &utf8str2[0]);
             utf8str2.resize(oend-(&utf8str2[0]));                // remove unused tail
@@ -605,9 +605,9 @@ bool ReadWinConsole(std::string& str, size_t size /*= 256*/)
 {
     wchar_t* commandbuf = new wchar_t[size + 1];
     HANDLE hConsole = GetStdHandle(STD_INPUT_HANDLE);
-    DWORD read;
+    DWORD read = 0;
 
-    if (!ReadConsoleW(hConsole, commandbuf, size, &read, NULL))
+    if (!ReadConsoleW(hConsole, commandbuf, size, &read, nullptr))
     {
         delete[] commandbuf;
         return false;
@@ -630,7 +630,7 @@ bool WriteWinConsole(std::string_view str, bool error /*= false*/)
     DWORD toWrite = wstr.size();
     DWORD write;
 
-    return WriteConsoleW(hConsole, wstr.c_str(), wstr.size(), &write, NULL);
+    return WriteConsoleW(hConsole, wstr.c_str(), wstr.size(), &write, nullptr);
 }
 #endif
 
