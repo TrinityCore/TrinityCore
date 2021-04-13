@@ -1841,7 +1841,7 @@ void Player::Regenerate(Powers power)
         }
     }
 
-    if (IsPlayer() && ToPlayer()->GetCommandStatus(CHEAT_POWER))
+    if (GetCommandStatus(CHEAT_POWER))
         curValue = maxPower;
 
     if (m_regenTimerCount >= 2000)
