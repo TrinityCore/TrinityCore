@@ -1196,7 +1196,7 @@ class TC_GAME_API Unit : public WorldObject
         void DeleteCharmInfo();
 
         // base client control of this unit (possess effects, vehicles and similar). Not affected by temporary CC.
-        bool isCharmerOrSelfPlayer() const;
+        bool IsCharmerOrSelfPlayer() const;
         Unit* GetCharmerOrSelf();
         Player* GetCharmerOrSelfPlayer();
         Unit* GetCharmedOrSelf() { return IsCharming() ? GetCharmed() : this; }

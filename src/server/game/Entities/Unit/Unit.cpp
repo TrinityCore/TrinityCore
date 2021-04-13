@@ -5499,7 +5499,7 @@ Unit* Unit::getAttackerForHelper() const                 // If someone wants to 
         return nullptr;
 
     if (Unit* victim = GetVictim())
-        if ((!IsPet() && !isCharmerOrSelfPlayer()) || IsInCombatWith(victim))
+        if ((!IsPet() && !IsCharmerOrSelfPlayer()) || IsInCombatWith(victim))
             return victim;
 
     CombatManager const& mgr = GetCombatManager();
@@ -6273,7 +6273,7 @@ bool Unit::isPossessing() const
         return false;
 }
 
-bool Unit::isCharmerOrSelfPlayer() const
+bool Unit::IsCharmerOrSelfPlayer() const
 {
     if (IsCharmed())
         return GetCharmerGUID().IsPlayer();
