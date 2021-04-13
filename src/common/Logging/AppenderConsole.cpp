@@ -191,9 +191,19 @@ void AppenderConsole::_write(LogMessage const* message)
         }
 
         SetColor(stdout_stream, _colors[index]);
-        utf8printf(stdout_stream ? stdout : stderr, "%s%s\n", message->prefix.c_str(), message->text.c_str());
+
+        if ((stdout_stream == 0) && (sConfigMgr->GetBoolDefault("ConsoleErrorLogging", true)))
+            utf8printf(stderr, "%s%s\n", message->prefix.c_str(), message->text.c_str());
+        else if (stdout_stream == 1)
+            utf8printf(stdout, "%s%s\n", message->prefix.c_str(), message->text.c_str());
+
         ResetColor(stdout_stream);
     }
     else
-        utf8printf(stdout_stream ? stdout : stderr, "%s%s\n", message->prefix.c_str(), message->text.c_str());
+    {
+        if ((stdout_stream == 0) && (sConfigMgr->GetBoolDefault("ConsoleErrorLogging", true)))
+            utf8printf(stderr, "%s%s\n", message->prefix.c_str(), message->text.c_str());
+        else if (stdout_stream == 1)
+            utf8printf(stdout, "%s%s\n", message->prefix.c_str(), message->text.c_str());
+    }
 }
