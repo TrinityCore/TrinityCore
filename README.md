@@ -1,2 +1,2 @@
-Hellgarve Revolution 
-WoW
+Hellgarve Revolution & KyrianCORE
+World OF WarCraft
