@@ -24,6 +24,8 @@
 #include "Conversation.h"
 #include "DynamicObject.h"
 #include "GameObject.h"
+#include "LanguageMgr.h"
+#include "ObjectMgr.h"
 #include "Packet.h"
 #include "Player.h"
 #include "Spell.h"
@@ -118,39 +120,59 @@ namespace Trinity
         void Visit(ConversationMapType &m) { updateObjects<Conversation>(m); }
     };
 
-    struct TC_GAME_API MessageDistDeliverer
+    struct TC_GAME_API MessageDistDelivererBase
     {
-        WorldObject const* i_source;
-        WorldPacket const* i_message;
-        float i_distSq;
-        uint32 team;
-        Player const* skipped_receiver;
-        MessageDistDeliverer(WorldObject const* src, WorldPacket const* msg, float dist, bool own_team_only = false, Player const* skipped = nullptr)
-            : i_source(src), i_message(msg), i_distSq(dist * dist)
-            , team(0)
-            , skipped_receiver(skipped)
-        {
-            if (own_team_only)
-                if (Player const* player = src->ToPlayer())
-                    team = player->GetTeam();
-        }
+        WorldObject const* _source;
+        float _distSq;
+        MessageDistDelivererBase(WorldObject const* src, float dist) : _source(src), _distSq(dist * dist) { }
 
         void Visit(PlayerMapType &m);
         void Visit(CreatureMapType &m);
         void Visit(DynamicObjectMapType &m);
         template<class SKIP> void Visit(GridRefManager<SKIP> &) { }
 
-        void SendPacket(Player* player)
+        virtual void SendPacket(Player* player) = 0;
+    };
+
+    struct TC_GAME_API MessageDistDeliverer : public MessageDistDelivererBase
+    {
+        WorldPacket const* _message;
+        uint32 _team;
+        Player const* _skipped_receiver;
+
+        MessageDistDeliverer(WorldObject const* src, WorldPacket const* msg, float dist, bool own_team_only = false, Player const* skipped = nullptr)
+            : MessageDistDelivererBase(src, dist), _message(msg), _team(0), _skipped_receiver(skipped)
         {
-            // never send packet to self
-            if (player == i_source || (team && player->GetTeam() != team) || skipped_receiver == player)
-                return;
-
-            if (!player->HaveAtClient(i_source))
-                return;
-
-            player->SendDirectMessage(i_message);
+            if (own_team_only)
+                if (Player const* player = src->ToPlayer())
+                    _team = player->GetTeam();
         }
+
+        void SendPacket(Player* player) override;
+    };
+
+    struct TC_GAME_API ChatMessageDistDeliverer : public MessageDistDelivererBase
+    {
+        ChatMsg _chatMsg;
+        uint32 _language;
+        LanguageDesc const* _languageDesc;
+        std::string _originalMsg;
+        bool _isSrcGameMaster;
+
+        ChatMessageDistDeliverer(Player const* player, float dist, ChatMsg chatMsg, uint32 language,
+            LanguageDesc const* languageDesc, std::string&& msg);
+
+        ChatMessageDistDeliverer(WorldObject const* src, float dist, ChatMsg chatMsg, uint32 language,
+            LanguageDesc const* languageDesc, std::string&& msg) : ChatMessageDistDeliverer(src, dist, chatMsg, language, languageDesc, std::move(msg), false)
+        { }
+
+        ChatMessageDistDeliverer(WorldObject const* src, float dist, ChatMsg chatMsg, uint32 language, LanguageDesc const* languageDesc,
+            std::string&& msg, bool isSrcGameMaster)
+            : MessageDistDelivererBase(src, dist)
+            , _chatMsg(chatMsg), _language(language), _languageDesc(languageDesc), _originalMsg(msg), _isSrcGameMaster(isSrcGameMaster)
+        { }
+
+        void SendPacket(Player* player) override;
     };
 
     struct TC_GAME_API MessageDistDelivererToHostile

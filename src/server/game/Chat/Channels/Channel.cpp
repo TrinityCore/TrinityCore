@@ -741,7 +741,7 @@ void Channel::Say(ObjectGuid const& guid, std::string const& what, uint32 lang) 
             packet->Initialize(CHAT_MSG_CHANNEL, Language(lang), player, player, what, 0, GetName(localeIdx));
         else
         {
-            packet->Initialize(CHAT_MSG_CHANNEL, Language(lang), nullptr, nullptr, what, 0, GetName(localeIdx));
+            packet->Initialize(CHAT_MSG_CHANNEL, lang, nullptr, nullptr, what, 0, GetName(localeIdx));
             packet->SenderGUID = guid;
             packet->TargetGUID = guid;
         }

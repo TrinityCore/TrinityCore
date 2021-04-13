@@ -51,7 +51,7 @@ namespace Trinity
     class CustomChatTextBuilder
     {
         public:
-            CustomChatTextBuilder(WorldObject const* obj, ChatMsg msgType, std::string const& text, Language language = LANG_UNIVERSAL, WorldObject const* target = nullptr)
+            CustomChatTextBuilder(WorldObject const* obj, ChatMsg msgType, std::string const& text, uint32 language = LANG_UNIVERSAL, WorldObject const* target = nullptr)
                 : _source(obj), _msgType(msgType), _text(text), _language(language), _target(target) { }
 
             WorldPackets::Packet* operator()(LocaleConstant locale) const;
@@ -60,7 +60,7 @@ namespace Trinity
             WorldObject const* _source;
             ChatMsg _msgType;
             std::string _text;
-            Language _language;
+            uint32 _language;
             WorldObject const* _target;
     };
 

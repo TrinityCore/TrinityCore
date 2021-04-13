@@ -1162,4 +1162,5 @@ enum TrinityStrings
     LANG_YOUR_POWER_CHANGED                       = 11020,
     LANG_INVALID_POWER_NAME                       = 11021
 };
+
 #endif
