@@ -1,0 +1,25 @@
+insert into creature_loot_template (entry, item, chance ) values('164261','184286','2');
+insert into creature_loot_template (entry, item, chance ) values('164261','183028','2');
+insert into creature_loot_template (entry, item, chance ) values('164261','182630','7');
+insert into creature_loot_template (entry, item, chance ) values('164261','183391','1');
+insert into creature_loot_template (entry, item, chance ) values('164261','183024','5');
+insert into creature_loot_template (entry, item, chance ) values('164261','183009','5');
+insert into creature_loot_template (entry, item, chance ) values('164261','183891','2');
+insert into creature_loot_template (entry, item, chance ) values('164261','182992','5');
+insert into creature_loot_template (entry, item, chance ) values('164261','183001','5');
+insert into creature_loot_template (entry, item, chance ) values('164261','183000','2');
+insert into creature_loot_template (entry, item, chance ) values('164261','182994','5');
+insert into creature_loot_template (entry, item, chance ) values('164261','184023','5');
+insert into creature_loot_template (entry, item, chance ) values('164261','181698','5');
+insert into creature_loot_template (entry, item, chance ) values('164261','181827','5');
+insert into creature_loot_template (entry, item, chance ) values('164261','181836','5');
+insert into creature_loot_template (entry, item, chance ) values('164261','184022','5');
+insert into creature_loot_template (entry, item, chance ) values('164261','181640','5');
+insert into creature_loot_template (entry, item, chance ) values('164261','183498','5');
+insert into creature_loot_template (entry, item, chance ) values('164261','173068','5');
+insert into creature_loot_template (entry, item, chance ) values('164261','182622','5');
+insert into creature_loot_template (entry, item, chance ) values('164261','182755','5');
+insert into creature_loot_template (entry, item, chance ) values('164261','181786','5');
+insert into creature_loot_template (entry, item, chance ) values('164261','181435','5');
+
+UPDATE creature_template SET lootid=164261 WHERE entry = 164261;

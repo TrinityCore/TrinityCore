@@ -1,0 +1,35 @@
+insert into `creature_loot_template` (`entry`, `item`, `chance` ) values('164567','178698','2');
+insert into `creature_loot_template` (`entry`, `item`, `chance` ) values('164567','178694','2');
+insert into `creature_loot_template` (`entry`, `item`, `chance` ) values('164567','178700','3');
+insert into `creature_loot_template` (`entry`, `item`, `chance` ) values('164567','178708','3');
+insert into `creature_loot_template` (`entry`, `item`, `chance` ) values('164567','178700','2');
+insert into `creature_loot_template` (`entry`, `item`, `chance` ) values('164567','178713','3');
+insert into `creature_loot_template` (`entry`, `item`, `chance` ) values('164567','178692','2');
+insert into `creature_loot_template` (`entry`, `item`, `chance` ) values('164567','178704','3');
+insert into `creature_loot_template` (`entry`, `item`, `chance` ) values('164567','178696','5');
+insert into `creature_loot_template` (`entry`, `item`, `chance` ) values('164567','183253','1');
+UPDATE creature_template SET lootid=164567 WHERE entry = 164567;
+
+insert into `creature_loot_template` (`entry`, `item`, `chance` ) values('164501','178707','1');
+insert into `creature_loot_template` (`entry`, `item`, `chance` ) values('164501','178691','1');
+insert into `creature_loot_template` (`entry`, `item`, `chance` ) values('164501','182185','3');
+insert into `creature_loot_template` (`entry`, `item`, `chance` ) values('164501','178715','3');
+insert into `creature_loot_template` (`entry`, `item`, `chance` ) values('164501','178705','2');
+insert into `creature_loot_template` (`entry`, `item`, `chance` ) values('164501','178697','3');
+insert into `creature_loot_template` (`entry`, `item`, `chance` ) values('164501','178706','2');
+insert into `creature_loot_template` (`entry`, `item`, `chance` ) values('164501','183266','1');
+insert into `creature_loot_template` (`entry`, `item`, `chance` ) values('164501','181734','5');
+insert into `creature_loot_template` (`entry`, `item`, `chance` ) values('164501','183336','1');
+UPDATE creature_template SET lootid=164501 WHERE entry = 164501;
+
+insert into `creature_loot_template` (`entry`, `item`, `chance` ) values('164517','178707','1');
+insert into `creature_loot_template` (`entry`, `item`, `chance` ) values('164517','178691','1');
+insert into `creature_loot_template` (`entry`, `item`, `chance` ) values('164517','182185','3');
+insert into `creature_loot_template` (`entry`, `item`, `chance` ) values('164517','178715','3');
+insert into `creature_loot_template` (`entry`, `item`, `chance` ) values('164517','178705','2');
+insert into `creature_loot_template` (`entry`, `item`, `chance` ) values('164517','178697','3');
+insert into `creature_loot_template` (`entry`, `item`, `chance` ) values('164517','178706','2');
+insert into `creature_loot_template` (`entry`, `item`, `chance` ) values('164517','183266','1');
+insert into `creature_loot_template` (`entry`, `item`, `chance` ) values('164517','178581','5');
+insert into `creature_loot_template` (`entry`, `item`, `chance` ) values('164517','183229','1');
+UPDATE creature_template SET lootid=164517 WHERE entry = 164517;
