@@ -20,6 +20,8 @@
 
 #include "ObjectGuid.h"
 #include "Position.h"
+#include "WorldPacket.h"
+#include "UnitDefines.h"
 
 struct MovementInfo
 {
@@ -91,6 +93,42 @@ struct MovementInfo
     void SetFallTime(uint32 val) { fallTime = val; }
 
     void OutDebug();
+
+    void Write(WorldPacket* data)
+    {
+        *data << guid.WriteAsPacked();
+        *data << flags;
+        *data << flags2;
+        *data << time;
+        *data << pos.PositionXYZOStream();
+
+        if (HasMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
+        {
+           *data << transport.guid.WriteAsPacked();
+           *data << transport.pos.PositionXYZOStream();
+           *data << transport.time;
+           *data << transport.seat;
+
+           if (HasExtraMovementFlag(MOVEMENTFLAG2_INTERPOLATED_MOVEMENT))
+               *data << transport.time2;
+        }
+
+        if (HasMovementFlag(MovementFlags(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) || HasExtraMovementFlag(MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING))
+            *data << pitch;
+
+        *data << fallTime;
+
+        if (HasMovementFlag(MOVEMENTFLAG_FALLING))
+        {
+            *data << jump.zspeed;
+            *data << jump.sinAngle;
+            *data << jump.cosAngle;
+            *data << jump.xyspeed;
+        }
+
+        if (HasMovementFlag(MOVEMENTFLAG_SPLINE_ELEVATION))
+            *data << splineElevation;
+    }
 };
 
 #endif // MovementInfo_h__

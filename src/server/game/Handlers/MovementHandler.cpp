@@ -383,7 +383,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
     }
 
     movementInfo.guid = mover->GetGUID();
-    WriteMovementInfo(&data, &movementInfo);
+    movementInfo.Write(&data);
     mover->SendMessageToSet(&data, _player);
 
     mover->m_movementInfo = movementInfo;
