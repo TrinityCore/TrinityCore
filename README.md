@@ -1,2 +1,2 @@
-Hellgarve Revolution & KyrianCORE
+Miracle Core
 World OF WarCraft
