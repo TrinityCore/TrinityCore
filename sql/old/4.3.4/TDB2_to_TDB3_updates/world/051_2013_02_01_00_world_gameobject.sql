@@ -1,0 +1,1 @@
+-- DELETE FROM `gameobject` WHERE `id`=180184; 4.x verified

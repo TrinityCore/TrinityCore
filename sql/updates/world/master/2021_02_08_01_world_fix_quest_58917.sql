@@ -1,0 +1,10 @@
+REPLACE INTO `gameobject_questitem` (`GameObjectEntry`, `Idx`, `ItemId`, `VerifiedBuild`) VALUES (351426, 0, 174916, 36839);
+REPLACE INTO `gameobject_questitem` (`GameObjectEntry`, `Idx`, `ItemId`, `VerifiedBuild`) VALUES (341951, 0, 174916, 36839);
+REPLACE INTO `creature_addon` VALUES (4000000000046946, 0, 0, 8, 0, 0, 0, 0, 0, 0, NULL);
+REPLACE INTO `creature` VALUES (4000000000046946, 162972, 2175, 0, 0, '0', 0, 0, 0, -1, 0, 0, 167.952, -2063.49, 77.738, 2.37643, 300, 0, 0, 50, 0, 0, 0, 0, 0, 0, 0, '', 0);
+UPDATE `quest_objectives` SET `Description`='Withering Hemlock' WHERE `ID`=395148;
+REPLACE INTO `creature_questender` VALUES (162972, 58917);
+UPDATE `creature_template` SET `ScriptName`='npc_coulston_nereus' WHERE `entry`=162972;
+UPDATE `creature_template` SET `npcflag`='7' WHERE `entry`=162972;
+REPLACE INTO `creature_queststarter` VALUES (162972, 58933);
+UPDATE `quest_template` SET `RewardNextQuest`='58933' WHERE `ID`=58917;

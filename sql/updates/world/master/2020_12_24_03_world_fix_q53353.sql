@@ -1,0 +1,1 @@
+REPLACE INTO `quest_template_addon` VALUES (53353, 0, 0, 0, 53354, 53355, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '');

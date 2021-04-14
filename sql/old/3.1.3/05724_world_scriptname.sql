@@ -1,0 +1,12 @@
+UPDATE `creature_template` SET `ScriptName`='boss_svala_sorrowgrave' WHERE `entry`=26668;
+UPDATE `creature_template` SET `ScriptName`='mob_ritual_channeler' WHERE `entry`=27281;
+UPDATE `creature_template` SET `ScriptName`='boss_svala' WHERE `entry`=29281;
+UPDATE `creature_template` SET `ScriptName`='boss_palehoof' WHERE `entry`=26687;
+UPDATE `creature_template` SET `ScriptName`='boss_skadi' WHERE `entry`=26693;
+UPDATE `creature_template` SET `ScriptName`='boss_ymiron' WHERE `entry`=26861;
+UPDATE `creature_template` SET `ScriptName`='mob_frenzied_worgen' WHERE `entry`=26683;
+UPDATE `creature_template` SET `ScriptName`='mob_ravenous_furbolg' WHERE `entry`=26684;
+UPDATE `creature_template` SET `ScriptName`='mob_ferocious_rhino' WHERE `entry`=26685;
+UPDATE `creature_template` SET `ScriptName`='mob_massive_jormungar' WHERE `entry`=26686;
+UPDATE `instance_template` SET `script`='instance_utgarde_pinnacle' WHERE `map`=575;
+UPDATE `gameobject_template` SET `ScriptName`='go_palehoof_sphere'WHERE `entry`=188593;

@@ -1,0 +1,6 @@
+UPDATE `smart_scripts` SET `event_flags`=512 WHERE  `entryorguid`=22258 AND `source_type`=0 AND `id`IN(4,5);
+UPDATE `smart_scripts` SET `action_type`=22, `action_param1`=2, `comment`='Demoniac Scryer - Script - Set Phase 2' WHERE  `entryorguid`=2225800 AND `source_type`=9 AND `id` IN(25,27,29);
+UPDATE `smart_scripts` SET `event_phase_mask`=2, `comment`='Demoniac Scryer - On Gossip Hello (Phase 2) - Send Gossip' WHERE  `entryorguid`=22258 AND `source_type`=0 AND `id`=10 AND `link`=0;
+UPDATE `smart_scripts` SET `link`=0, `event_type`=54, `comment`='Demoniac Scryer - On Just SUmmoned  - Cast Magic Sucker Device timer' WHERE  `entryorguid`=22258 AND `source_type`=0 AND `id`=4 AND `link`=5;
+UPDATE `smart_scripts` SET `event_type`=1, `event_param3`=1000, `event_param4`=1000, `comment`='Demoniac Scryer - OOC  - Cast Magic Sucker Device Bunny Appearance' WHERE  `entryorguid`=22258 AND `source_type`=0 AND `id`=5 AND `link`=0;
+DELETE FROM `conditions` WHERE  `SourceTypeOrReferenceId`=22 AND `SourceGroup`=11 AND `SourceEntry`=22258 AND `SourceId`=0 AND `ElseGroup`=0 AND `ConditionTypeOrReference`=1 AND `ConditionTarget`=1 AND `ConditionValue1`=38672 AND `ConditionValue2`=0 AND `ConditionValue3`=0;

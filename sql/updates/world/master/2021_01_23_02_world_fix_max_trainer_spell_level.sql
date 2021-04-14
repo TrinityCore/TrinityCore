@@ -1,0 +1,1 @@
+UPDATE `trainer_spell` SET `ReqLevel`='20' WHERE `ReqLevel` > 60;

@@ -1,0 +1,1 @@
+UPDATE `creature_template` SET `ScriptName`='boss_muehzala' WHERE  `entry`=169769;
