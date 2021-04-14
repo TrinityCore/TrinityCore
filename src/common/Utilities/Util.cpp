@@ -607,7 +607,7 @@ bool ReadWinConsole(std::string& str, size_t size /*= 256*/)
     HANDLE hConsole = GetStdHandle(STD_INPUT_HANDLE);
     DWORD read = 0;
 
-    if (!ReadConsoleW(hConsole, commandbuf, size, &read, nullptr))
+    if (!ReadConsoleW(hConsole, commandbuf, size, &read, nullptr) || read == 0)
     {
         delete[] commandbuf;
         return false;
@@ -627,8 +627,7 @@ bool WriteWinConsole(std::string_view str, bool error /*= false*/)
         return false;
 
     HANDLE hConsole = GetStdHandle(error ? STD_ERROR_HANDLE : STD_OUTPUT_HANDLE);
-    DWORD toWrite = wstr.size();
-    DWORD write;
+    DWORD write = 0;
 
     return WriteConsoleW(hConsole, wstr.c_str(), wstr.size(), &write, nullptr);
 }

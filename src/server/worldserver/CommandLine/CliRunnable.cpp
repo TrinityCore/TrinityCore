@@ -136,10 +136,7 @@ void CliThread()
 
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
         if (!ReadWinConsole(command))
-        {
-            PrintCliPrefix();
             continue;
-        }
 #else
         char* command_str = readline(CLI_PREFIX);
         ::rl_bind_key('\t', ::rl_complete);
