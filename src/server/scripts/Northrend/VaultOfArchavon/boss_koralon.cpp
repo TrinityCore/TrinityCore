@@ -20,18 +20,8 @@
 #include "SpellScript.h"
 #include "vault_of_archavon.h"
 
-enum Events
+enum KoralonSpells
 {
-    // Koralon
-    EVENT_BURNING_BREATH    = 1,
-    EVENT_BURNING_FURY      = 2,
-    EVENT_FLAME_CINDER      = 3,
-    EVENT_METEOR_FISTS      = 4
-};
-
-enum Spells
-{
-    // Spells Koralon
     SPELL_BURNING_BREATH                        = 66665,
     SPELL_BURNING_FURY                          = 66721,
     SPELL_FLAME_CINDER_A                        = 66684,
@@ -39,15 +29,21 @@ enum Spells
     SPELL_METEOR_FISTS                          = 66725,
     SPELL_METEOR_FISTS_DAMAGE                   = 66765,
 
-    // Spells Flame Warder
+    // Flame Warder
     SPELL_FW_METEOR_FISTS_DAMAGE                = 66809
+};
+
+enum KoralonEvents
+{
+    EVENT_BURNING_BREATH = 1,
+    EVENT_BURNING_FURY,
+    EVENT_FLAME_CINDER,
+    EVENT_METEOR_FISTS
 };
 
 struct boss_koralon : public BossAI
 {
-    boss_koralon(Creature* creature) : BossAI(creature, DATA_KORALON)
-    {
-    }
+    boss_koralon(Creature* creature) : BossAI(creature, DATA_KORALON) { }
 
     void JustEngagedWith(Unit* who) override
     {
@@ -103,6 +99,7 @@ struct boss_koralon : public BossAI
     }
 };
 
+// 66725, 68161 - SPELL_METEOR_FISTS
 class spell_koralon_meteor_fists : public AuraScript
 {
     PrepareAuraScript(spell_koralon_meteor_fists);
@@ -124,6 +121,8 @@ class spell_koralon_meteor_fists : public AuraScript
     }
 };
 
+// 66765, 67333 - SPELL_METEOR_FISTS_DAMAGE
+// 66809, 67331 - SPELL_FW_METEOR_FISTS_DAMAGE
 class spell_koralon_meteor_fists_damage : public SpellScript
 {
     PrepareSpellScript(spell_koralon_meteor_fists_damage);
@@ -156,6 +155,7 @@ private:
     uint8 _chainTargets;
 };
 
+// 66808, 68160 - Meteor Fists
 class spell_flame_warder_meteor_fists : public AuraScript
 {
     PrepareAuraScript(spell_flame_warder_meteor_fists);
