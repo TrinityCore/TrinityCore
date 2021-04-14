@@ -28,7 +28,6 @@
 #include "AccountMgr.h"
 #include "Chat.h"
 #include "CliRunnable.h"
-#include "Language.h"
 #include "Log.h"
 #include "MapManager.h"
 #include "Player.h"

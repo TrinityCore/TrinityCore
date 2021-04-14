@@ -7552,20 +7552,6 @@ struct LFGRoleRequirementMeta
     }
 };
 
-struct LanguageWordsMeta
-{
-    static DB2Meta const* Instance()
-    {
-        static DB2MetaField const fields[2] =
-        {
-            { FT_STRING_NOT_LOCALIZED, 1, true },
-            { FT_INT, 1, false },
-        };
-        static DB2Meta instance(984702, -1, 2, 2, 0x364344E1, fields, -1);
-        return &instance;
-    }
-};
-
 struct LanguagesMeta
 {
     static DB2Meta const* Instance()
@@ -7576,6 +7562,20 @@ struct LanguagesMeta
             { FT_INT, 1, false },
         };
         static DB2Meta instance(1135325, 1, 2, 2, 0x8DD4A016, fields, -1);
+        return &instance;
+    }
+};
+
+struct LanguageWordsMeta
+{
+    static DB2Meta const* Instance()
+    {
+        static DB2MetaField const fields[2] =
+        {
+            { FT_STRING_NOT_LOCALIZED, 1, true },
+            { FT_INT, 1, false },
+        };
+        static DB2Meta instance(984702, -1, 2, 2, 0x364344E1, fields, -1);
         return &instance;
     }
 };
