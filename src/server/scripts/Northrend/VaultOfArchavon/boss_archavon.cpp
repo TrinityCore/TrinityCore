@@ -20,15 +20,14 @@
 #include "SpellScript.h"
 #include "vault_of_archavon.h"
 
-enum Emotes
+enum ArchavonTexts
 {
     EMOTE_BERSERK           = 0,
     EMOTE_LEAP              = 1
 };
 
-enum Spells
+enum ArchavonSpells
 {
-    // Spells Archavon
     SPELL_ROCK_SHARDS           = 58678,
     SPELL_ROCK_SHARDS_VISUAL_L  = 58689,
     SPELL_ROCK_SHARDS_VISUAL_R  = 58692,
@@ -40,26 +39,18 @@ enum Spells
     SPELL_BERSERK               = 47008
 };
 
-enum Creatures
+enum ArchavonEvents
 {
-    NPC_ARCHAVON_WARDER         = 32353
-};
-
-enum Events
-{
-    // Archavon
-    EVENT_ROCK_SHARDS       = 1,    // 15s cd
-    EVENT_CHOKING_CLOUD     = 2,    // 30s cd
-    EVENT_STOMP             = 3,    // 45s cd
-    EVENT_IMPALE            = 4,
-    EVENT_BERSERK           = 5,    // 300s cd
+    EVENT_ROCK_SHARDS = 1,          // 15s cd
+    EVENT_CHOKING_CLOUD,            // 30s cd
+    EVENT_STOMP,                    // 45s cd
+    EVENT_IMPALE,
+    EVENT_BERSERK                   // 300s cd
 };
 
 struct boss_archavon : public BossAI
 {
-    boss_archavon(Creature* creature) : BossAI(creature, DATA_ARCHAVON)
-    {
-    }
+    boss_archavon(Creature* creature) : BossAI(creature, DATA_ARCHAVON) { }
 
     void JustEngagedWith(Unit* who) override
     {
@@ -94,7 +85,7 @@ struct boss_archavon : public BossAI
                 case EVENT_CHOKING_CLOUD:
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, -10.0f, true))
                     {
-                        DoCast(target, SPELL_CRUSHING_LEAP, true); //10y~80y, ignore range
+                        DoCast(target, SPELL_CRUSHING_LEAP, true); // 10y~80y, ignore range
                         Talk(EMOTE_LEAP, target);
                     }
                     events.ScheduleEvent(EVENT_CHOKING_CLOUD, 30s);
