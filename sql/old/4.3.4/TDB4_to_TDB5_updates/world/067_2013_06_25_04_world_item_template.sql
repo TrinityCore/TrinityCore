@@ -1,2 +1,0 @@
--- UPDATE `item_template` SET `PageText`=3092 WHERE `entry`=37540;
--- 4.x Item-Sparse.db2 (and hack also)

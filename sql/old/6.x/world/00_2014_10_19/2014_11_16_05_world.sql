@@ -1,1 +1,0 @@
-TRUNCATE `npc_trainer`;

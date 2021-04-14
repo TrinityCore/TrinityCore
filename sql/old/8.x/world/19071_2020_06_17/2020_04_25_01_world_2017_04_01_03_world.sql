@@ -1,1 +1,0 @@
-DELETE FROM `linked_respawn` WHERE `guid` IN(202794,202795,202796);

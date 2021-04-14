@@ -1,7 +1,0 @@
-UPDATE `creature_text` SET `text`='It is over, your search is done. Let fate choose now, the righteous one.', `sound`=11961,`BroadcastTextId`=22261 WHERE  `entry`=23682 AND `groupid`=0 AND `id`=0;  -- Summon 
-UPDATE `creature_text` SET `text`='Here\'s my body, fit and pure!  Now, your blackened souls I\'ll cure!', `sound`=12567,`BroadcastTextId`=22271  WHERE  `entry`=23682 AND `groupid`=1 AND `id`=0; -- Agro
-UPDATE `creature_text` SET `text`='Harken, cur! Tis you I spurn! Now feel... the burn!', `type`=12,`BroadcastTextId`=22587 WHERE  `entry`=23682 AND `groupid`=2 AND `id`=0;  -- Conflaguate
-UPDATE `creature_text` SET `text`='Soldiers arise, stand and fight! Bring victory at last to this fallen knight!', `sound`=11963,`BroadcastTextId`=23861 WHERE  `entry`=23682 AND `groupid`=3 AND `id`=0; -- Summon Pumkins
-UPDATE `creature_text` SET `text`='This end have I reached before.  What new adventure lies in store?', `sound`=11964,`BroadcastTextId`=23455 WHERE  `entry`=23682 AND `groupid`=4 AND `id`=0; -- Death
-UPDATE `creature_text` SET `text`='So eager you are, for my blood to spill. Yet to vanquish me, \'tis my head you must kill!', `sound`=11969, `BroadcastTextId`=22757 WHERE  `entry`=23775 AND `groupid`=0 AND `id`=0; -- Loose Head
-UPDATE `creature_text` SET `text`='Your body lies beaten, battered and broken! Let my curse be your own, fate has spoken!', `sound`=11962,`BroadcastTextId`=40546 WHERE  `entry`=23775 AND `groupid`=1 AND `id`=0; -- PLayer Death
