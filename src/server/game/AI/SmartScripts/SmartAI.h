@@ -159,7 +159,7 @@ class TC_GAME_API SmartAI : public CreatureAI
         void SetData(uint32 id, uint32 value) override;
 
         // Used in scripts to share variables
-        void SetGUID(ObjectGuid guid, int32 id = 0) override;
+        void SetGUID(ObjectGuid const& guid, int32 id = 0) override;
 
         // Used in scripts to share variables
         ObjectGuid GetGUID(int32 id = 0) const override;

@@ -4371,6 +4371,20 @@ void SpellMgr::LoadSpellInfoCorrections()
     });
     // ENDOF ISLE OF CONQUEST SPELLS
 
+    // Aura of Fear
+    ApplySpellFix({ 40453 }, [](SpellInfo* spellInfo)
+    {
+        // Bad DBC data? Copying 25820 here due to spell description
+        // either is a periodic with chance on tick, or a proc
+
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+                spellEffectInfo->ApplyAuraName = SPELL_AURA_PROC_TRIGGER_SPELL;
+                spellEffectInfo->ApplyAuraPeriod = 0;
+        });
+        spellInfo->ProcChance = 10;
+    });
+
     //
     // FIRELANDS SPELLS
     //

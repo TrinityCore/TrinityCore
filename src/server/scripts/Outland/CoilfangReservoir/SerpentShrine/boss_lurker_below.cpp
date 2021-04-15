@@ -202,8 +202,7 @@ public:
                         Submerged = false;
                         WaitTimer2 = 500;
                     }
-
-                    if (!Submerged && WaitTimer2 <= diff) // wait 500ms before emerge anim
+                    else if (WaitTimer2 <= diff) // wait 500ms before emerge anim
                     {
                         me->RemoveAllAuras();
                         me->SetEmoteState(EMOTE_ONESHOT_NONE);

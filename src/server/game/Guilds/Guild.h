@@ -355,7 +355,7 @@ class TC_GAME_API Guild
 
                 void ChangeRank(CharacterDatabaseTransaction& trans, uint8 newRank);
 
-                inline void UpdateLogoutTime() { m_logoutTime = ::time(nullptr); }
+                inline void UpdateLogoutTime();
                 inline bool IsRank(uint8 rankId) const { return m_rankId == rankId; }
                 inline bool IsRankNotLower(uint8 rankId) const { return m_rankId <= rankId; }
                 inline bool IsSamePlayer(ObjectGuid guid) const { return m_guid == guid; }
@@ -401,7 +401,7 @@ class TC_GAME_API Guild
         class LogEntry
         {
             public:
-                LogEntry(ObjectGuid::LowType guildId, uint32 guid) : m_guildId(guildId), m_guid(guid), m_timestamp(::time(nullptr)) { }
+                LogEntry(ObjectGuid::LowType guildId, uint32 guid);
                 LogEntry(ObjectGuid::LowType guildId, uint32 guid, time_t timestamp) : m_guildId(guildId), m_guid(guid), m_timestamp(timestamp) { }
                 virtual ~LogEntry() { }
 

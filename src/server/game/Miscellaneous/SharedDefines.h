@@ -21,6 +21,8 @@
 #include "Define.h"
 #include "DetourNavMesh.h"
 
+float const GROUND_HEIGHT_TOLERANCE = 0.05f; // Extra tolerance to z position to check if it is in air or on ground.
+
 enum SpellEffIndex : uint8
 {
     EFFECT_0 = 0,
@@ -294,10 +296,9 @@ enum SpellSchools : uint16
     SPELL_SCHOOL_NATURE                 = 3,
     SPELL_SCHOOL_FROST                  = 4,
     SPELL_SCHOOL_SHADOW                 = 5,
-    SPELL_SCHOOL_ARCANE                 = 6
+    SPELL_SCHOOL_ARCANE                 = 6,
+    MAX_SPELL_SCHOOL                    = 7
 };
-
-#define MAX_SPELL_SCHOOL                  7
 
 enum SpellSchoolMask
 {
@@ -2363,7 +2364,7 @@ enum Mechanics
     MECHANIC_SAPPED           = 30,
     MECHANIC_ENRAGED          = 31,
     MECHANIC_WOUNDED          = 32,
-    MAX_MECHANIC = 33
+    MAX_MECHANIC              = 33
 };
 
 // Used for spell 42292 Immune Movement Impairment and Loss of Control (0x49967ca6)

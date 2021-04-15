@@ -54,6 +54,9 @@ void PointMovementGenerator<T>::DoInitialize(T* owner)
         init.SetFacing(i_faceTarget);
     if (i_spellEffectExtra)
         init.SetSpellEffectExtraData(*i_spellEffectExtra);
+    if (_finalOrient)
+        init.SetFacing(*_finalOrient);
+
     init.Launch();
 
     // Call for creature group update

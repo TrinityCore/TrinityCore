@@ -17,6 +17,7 @@
 
 #include "ObjectDefines.h"
 #include "Containers.h"
+#include "GameTime.h"
 #include "Group.h"
 #include "LFGQueue.h"
 #include "LFGMgr.h"
@@ -78,6 +79,10 @@ char const* GetCompatibleString(LfgCompatibility compatibles)
             return "Unknown";
     }
 }
+
+LfgQueueData::LfgQueueData() : joinTime(GameTime::GetGameTime()), tanks(LFG_TANKS_NEEDED),
+healers(LFG_HEALERS_NEEDED), dps(LFG_DPS_NEEDED)
+{ }
 
 std::string LFGQueue::GetDetailedMatchRoles(GuidList const& check) const
 {
@@ -535,7 +540,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
     }
 
     // Create a new proposal
-    proposal.cancelTime = time(nullptr) + LFG_TIME_PROPOSAL;
+    proposal.cancelTime = GameTime::GetGameTime() + LFG_TIME_PROPOSAL;
     proposal.state = LFG_PROPOSAL_INITIATING;
     proposal.leader.Clear();
     proposal.dungeonId = Trinity::Containers::SelectRandomContainerElement(proposalDungeons);

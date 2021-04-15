@@ -187,7 +187,7 @@ bool LoginQueryHolder::Initialize()
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_MAILCOUNT);
     stmt->setUInt64(0, lowGuid);
-    stmt->setUInt64(1, uint64(time(nullptr)));
+    stmt->setUInt64(1, GameTime::GetGameTime());
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_MAIL_COUNT, stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_MAILDATE);
@@ -2579,7 +2579,7 @@ void WorldSession::HandleUndeleteCooldownStatusCallback(PreparedQueryResult resu
     if (result)
     {
         uint32 lastUndelete = result->Fetch()[0].GetUInt32();
-        uint32 now = uint32(time(nullptr));
+        uint32 now = uint32(GameTime::GetGameTime());
         if (lastUndelete + maxCooldown > now)
             cooldown = std::max<uint32>(0, lastUndelete + maxCooldown - now);
     }
@@ -2606,7 +2606,7 @@ void WorldSession::HandleCharUndeleteOpcode(WorldPackets::Character::UndeleteCha
         {
             uint32 lastUndelete = result->Fetch()[0].GetUInt32();
             uint32 maxCooldown = sWorld->getIntConfig(CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_COOLDOWN);
-            if (lastUndelete && (lastUndelete + maxCooldown > time(nullptr)))
+            if (lastUndelete && (lastUndelete + maxCooldown > GameTime::GetGameTime()))
             {
                 SendUndeleteCharacterResponse(CHARACTER_UNDELETE_RESULT_ERROR_COOLDOWN, undeleteInfo.get());
                 return;
