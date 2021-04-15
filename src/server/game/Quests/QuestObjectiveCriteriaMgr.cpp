@@ -19,6 +19,7 @@
 #include "AchievementPackets.h"
 #include "DatabaseEnv.h"
 #include "DB2Structure.h"
+#include "GameTime.h"
 #include "Group.h"
 #include "Log.h"
 #include "Map.h"
@@ -87,7 +88,7 @@ void QuestObjectiveCriteriaMgr::LoadFromDB(PreparedQueryResult objectiveResult, 
 
     if (criteriaResult)
     {
-        time_t now = time(nullptr);
+        time_t now = GameTime::GetGameTime();
         do
         {
             Field* fields = criteriaResult->Fetch();

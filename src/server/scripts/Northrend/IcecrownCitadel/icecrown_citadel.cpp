@@ -1016,9 +1016,9 @@ class npc_crok_scourgebane : public CreatureScript
                 }
             }
 
-            void SetGUID(ObjectGuid guid, int32 type/* = 0*/) override
+            void SetGUID(ObjectGuid const& guid, int32 id) override
             {
-                if (type == ACTION_VRYKUL_DEATH)
+                if (id == ACTION_VRYKUL_DEATH)
                 {
                     _aliveTrash.erase(guid);
                     if (_aliveTrash.empty())

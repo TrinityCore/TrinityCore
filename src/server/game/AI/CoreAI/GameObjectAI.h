@@ -19,6 +19,7 @@
 #define TRINITY_GAMEOBJECTAI_H
 
 #include "Define.h"
+#include "ObjectGuid.h"
 #include <list>
 
 class GameObject;
@@ -45,8 +46,8 @@ class TC_GAME_API GameObjectAI
 
         // Pass parameters between AI
         virtual void DoAction(int32 /*param = 0 */) { }
-        virtual void SetGUID(uint64 /*guid*/, int32 /*id = 0 */) { }
-        virtual uint64 GetGUID(int32 /*id = 0 */) const { return 0; }
+        virtual void SetGUID(ObjectGuid const& /*guid*/, int32 /*id = 0 */) { }
+        virtual ObjectGuid GetGUID(int32 /*id = 0 */) const { return ObjectGuid::Empty; }
 
         static int32 Permissible(GameObject const* go);
 

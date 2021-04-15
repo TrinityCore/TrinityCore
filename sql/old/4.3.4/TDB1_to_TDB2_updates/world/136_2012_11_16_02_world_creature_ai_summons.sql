@@ -1,0 +1,1 @@
+-- DROP TABLE `creature_ai_summons`; Do not exist in 4.x

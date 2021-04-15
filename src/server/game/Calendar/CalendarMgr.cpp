@@ -27,6 +27,9 @@
 #include "Player.h"
 #include <sstream>
 
+CalendarInvite::CalendarInvite() : _inviteId(1), _eventId(0), _invitee(), _senderGUID(), _responseTime(0),
+_status(CALENDAR_STATUS_INVITED), _rank(CALENDAR_RANK_PLAYER), _note("") { }
+
 CalendarInvite::~CalendarInvite()
 {
     sCalendarMgr->FreeInviteId(_inviteId);

@@ -125,6 +125,8 @@ namespace UF
     }
 }
 
+float const DEFAULT_COLLISION_HEIGHT = 2.03128f; // Most common value in dbc
+
 class TC_GAME_API Object
 {
     public:
@@ -589,7 +591,9 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         float GetFloorZ() const;
         virtual float GetCollisionHeight() const { return 0.0f; }
-        float GetMidsectionHeight() const { return GetCollisionHeight() / 2.0f; }
+
+        float GetMapWaterOrGroundLevel(float x, float y, float z, float* ground = nullptr) const;
+        float GetMapHeight(float x, float y, float z, bool vmap = true, float distanceToSearch = 50.0f) const; // DEFAULT_HEIGHT_SEARCH in map.h
 
         virtual uint16 GetAIAnimKitId() const { return 0; }
         virtual uint16 GetMovementAnimKitId() const { return 0; }

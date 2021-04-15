@@ -37,13 +37,12 @@ enum TCRDataTypes
     DATA_ANUBARAK               = 5,
 
     // Additional Data
-    DATA_GORMOK_THE_IMPALER     = 5,
-    DATA_ACIDMAW                = 6,
-    DATA_DREADSCALE             = 7,
-    DATA_ICEHOWL                = 8,
-    DATA_FJOLA_LIGHTBANE        = 9,
-    DATA_EYDIS_DARKBANE         = 10,
-    DATA_BARRET_RAMSEY          = 11,
+    DATA_GORMOK_THE_IMPALER     = 6,
+    DATA_ACIDMAW                = 7,
+    DATA_DREADSCALE             = 8,
+    DATA_ICEHOWL                = 9,
+    DATA_FJOLA_LIGHTBANE        = 10,
+    DATA_EYDIS_DARKBANE         = 11,
     DATA_FORDRING               = 12,
     DATA_FORDRING_ANUBARAK      = 13,
     DATA_VARIAN                 = 14,
@@ -57,9 +56,14 @@ enum TCRDataTypes
     DATA_EAST_PORTCULLIS        = 21,
     DATA_WEB_DOOR               = 22,
     DATA_TRIBUTE_CHEST          = 23,
+    DATA_BEASTS_COMBAT_STALKER  = 24,
+    DATA_FURIOUS_CHARGE         = 25,
+    DATA_DESPAWN_SNOBOLDS       = 26,
+    DATA_TEAM                   = 27,
+    DATA_LICH_KING_VOICE        = 28,
 
-    TYPE_COUNTER                = 24,
-    TYPE_EVENT                  = 25,
+    TYPE_COUNTER                = 29,
+    TYPE_EVENT                  = 30,
 
     TYPE_EVENT_TIMER            = 101,
     TYPE_EVENT_NPC              = 102,
@@ -69,20 +73,54 @@ enum TCRDataTypes
     DATA_MISTRESS_OF_PAIN_COUNT = 302,
 
     INCREASE                    = 501,
-    DECREASE                    = 502,
+    DECREASE                    = 502
 };
 
 enum TCRSpellIds
 {
     SPELL_WILFRED_PORTAL        = 68424,
+    SPELL_OPEN_PORTAL           = 67864,
     SPELL_JARAXXUS_CHAINS       = 67924,
-    SPELL_CORPSE_TELEPORT       = 69016,
     SPELL_DESTROY_FLOOR_KNOCKUP = 68193,
+    SPELL_ARTHAS_PORTAL         = 51807,
+    SPELL_LK_FROST_NOVA         = 68198,
+    SPELL_CORPSE_TELEPORT       = 69016
 };
 
-enum TCRMiscData
+enum TCRMisc
 {
-    DESPAWN_TIME = 1200000
+    DESPAWN_TIME      = 1200000,
+    PLAYER_VEHICLE_ID = 444
+};
+
+enum TCRActions
+{
+    ACTION_START_GORMOK = 1,
+    ACTION_START_GORMOK_FAIL,
+    ACTION_START_JORMUNGARS,
+    ACTION_START_ICEHOWL,
+    ACTION_NORTHREND_BEASTS_WIPE,
+    ACTION_NORTHREND_BEASTS_DEFEATED,
+    ACTION_START_JARAXXUS_EVENT,
+    ACTION_KILL_JARAXXUS,
+    ACTION_JARAXXUS_DEFEATED,
+    ACTION_START_CHAMPIONS,
+    ACTION_SUMMON_CHAMPIONS,
+    ACTION_TIRION_ALLOW,
+    ACTION_CHAMPIONS_DEFEATED,
+    ACTION_SUMMON_JARAXXUS,
+    ACTION_JARAXXUS_INTRO,
+    ACTION_START_VALKYR,
+    ACTION_START_LK_EVENT,
+    ACTION_SAY_KILLED_PLAYER,
+    ACTION_VALKYR_DEFEATED,
+    ACTION_LK_EVENT_FINISHED,
+    ACTION_JARAXXUS_ENGAGE,
+    ACTION_START_CHAMPIONS_ENGAGE,
+    ACTION_START_VALKYR_ENGAGE,
+    ACTION_JARAXXUS_WIPE,
+    ACTION_FACTION_WIPE,
+    ACTION_VALKYR_WIPE
 };
 
 extern Position const ToCCommonLoc[];
@@ -119,7 +157,12 @@ enum AnnouncerMessages
 
 enum TCRCreatureIds
 {
-    NPC_BARRET_RAMSEY                = 34816,
+    NPC_BARRETT_BEASTS               = 34816,
+    NPC_BARRETT_BEASTS_HC            = 35909,
+    NPC_BARRETT_JARAXXUS             = 35035,
+    NPC_BARRETT_FACTION              = 35766,
+    NPC_BARRETT_VALKYR               = 35770,
+    NPC_BARRETT_LK                   = 35771,
     NPC_TIRION_FORDRING              = 34996,
     NPC_TIRION_FORDRING_ANUBARAK     = 36095,
     NPC_ARGENT_MAGE                  = 36097,
@@ -131,17 +174,19 @@ enum TCRCreatureIds
     NPC_THRALL                       = 34994,
     NPC_PROUDMOORE                   = 34992,
     NPC_WILFRED_PORTAL               = 17965,
-    NPC_TRIGGER                      = 35651,
+    NPC_PURPLE_GROUND                = 35651,
 
     NPC_ICEHOWL                      = 34797,
     NPC_GORMOK                       = 34796,
     NPC_DREADSCALE                   = 34799,
     NPC_ACIDMAW                      = 35144,
+    NPC_BEASTS_COMBAT_STALKER        = 36549,
+    NPC_FURIOUS_CHARGE_STALKER       = 35062,
+    NPC_SNOBOLD_VASSAL               = 34800,
 
     NPC_JARAXXUS                     = 34780,
 
     NPC_CHAMPIONS_CONTROLLER         = 34781,
-
     NPC_ALLIANCE_DEATH_KNIGHT        = 34461,
     NPC_ALLIANCE_DRUID_BALANCE       = 34460,
     NPC_ALLIANCE_DRUID_RESTORATION   = 34469,
@@ -177,6 +222,9 @@ enum TCRCreatureIds
 
     NPC_DARK_ESSENCE                 = 34567,
     NPC_LIGHT_ESSENCE                = 34568,
+
+    NPC_LICH_KING_VOICE              = 16980,
+    NPC_ARTHAS_PORTAL                = 22517,
 
     NPC_ANUBARAK                     = 34564
 };
@@ -246,5 +294,7 @@ inline AI* GetTrialOfTheCrusaderAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, ToCrScriptName);
 }
+
+#define RegisterTrialOfTheCrusaderCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetTrialOfTheCrusaderAI)
 
 #endif

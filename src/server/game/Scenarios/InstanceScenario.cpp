@@ -18,6 +18,7 @@
 #include "InstanceScenario.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "GameTime.h"
 #include "InstanceSaveMgr.h"
 #include "Log.h"
 #include "Map.h"
@@ -97,7 +98,7 @@ void InstanceScenario::LoadInstanceData(uint32 instanceId)
     if (result)
     {
         CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
-        time_t now = time(nullptr);
+        time_t now = GameTime::GetGameTime();
 
         std::vector<CriteriaTree const*> criteriaTrees;
         do

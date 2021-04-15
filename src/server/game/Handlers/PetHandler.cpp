@@ -595,7 +595,7 @@ void WorldSession::HandlePetRename(WorldPackets::Pet::PetRename& packet)
 
     CharacterDatabase.CommitTransaction(trans);
 
-    pet->SetPetNameTimestamp(uint32(time(nullptr)));
+    pet->SetPetNameTimestamp(uint32(GameTime::GetGameTime()));
 }
 
 void WorldSession::HandlePetAbandon(WorldPackets::Pet::PetAbandon& packet)

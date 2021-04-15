@@ -309,9 +309,9 @@ class boss_lord_marrowgar : public CreatureScript
                 return ObjectGuid::Empty;
             }
 
-            void SetGUID(ObjectGuid guid, int32 type /*= 0 */) override
+            void SetGUID(ObjectGuid const& guid, int32 id) override
             {
-                switch (type)
+                switch (id)
                 {
                     case DATA_COLDFLAME_GUID:
                         _coldflameTarget = guid;

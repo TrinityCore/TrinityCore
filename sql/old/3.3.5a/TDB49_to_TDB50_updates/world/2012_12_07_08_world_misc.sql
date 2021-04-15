@@ -1,0 +1,7 @@
+-- from 2012_12_07_01_world_misc.sql
+UPDATE `quest_template` SET `CompleteScript`=0 WHERE `Id` IN (67,166,231,806,1521,3118,7786,10289,10813);
+DELETE FROM `quest_end_scripts` WHERE `id` IN (67,166,231,806,1521,3118,7786,10289,10813);
+-- from 2012_12_07_06_world_sai.sql
+UPDATE `quest_template` SET `CompleteScript`=0 WHERE `Id` IN (996,998,1514,2523,2878,3363,4113,4114,4115,4116,4117,4118,4119,4221,4222,4343,4401,4403,4443,4444,4445,4446,4447,4448,4461,4462,4464,4465,4466,4467);
+-- from 2012_12_07_07_world_sai.sql
+UPDATE `quest_template` SET `CompleteScript`=0 WHERE `Id` IN (13082,10919);

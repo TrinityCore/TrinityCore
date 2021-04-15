@@ -285,9 +285,9 @@ class boss_blood_queen_lana_thel : public CreatureScript
                     Talk(SAY_KILL);
             }
 
-            void SetGUID(ObjectGuid guid, int32 type = 0) override
+            void SetGUID(ObjectGuid const& guid, int32 id) override
             {
-                switch (type)
+                switch (id)
                 {
                     case GUID_VAMPIRE:
                         _vampires.insert(guid);

@@ -22,6 +22,7 @@
 #include "CellImpl.h"
 #include "ChatTextBuilder.h"
 #include "DatabaseEnv.h"
+#include "GameTime.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "Guild.h"
@@ -265,7 +266,7 @@ void PlayerAchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, Pre
 
     if (criteriaResult)
     {
-        time_t now = time(nullptr);
+        time_t now = GameTime::GetGameTime();
         do
         {
             Field* fields = criteriaResult->Fetch();
@@ -505,7 +506,7 @@ void PlayerAchievementMgr::CompletedAchievement(AchievementEntry const* achievem
     TC_LOG_INFO("criteria.achievement", "PlayerAchievementMgr::CompletedAchievement(%u). %s", achievement->ID, GetOwnerInfo().c_str());
 
     CompletedAchievementData& ca = _completedAchievements[achievement->ID];
-    ca.Date = time(nullptr);
+    ca.Date = GameTime::GetGameTime();
     ca.Changed = true;
 
     if (achievement->Flags & (ACHIEVEMENT_FLAG_REALM_FIRST_REACH | ACHIEVEMENT_FLAG_REALM_FIRST_KILL))
@@ -668,7 +669,7 @@ void PlayerAchievementMgr::SendAchievementEarned(AchievementEntry const* achieve
     achievementEarned.Earner = _owner->GetGUID();
     achievementEarned.EarnerNativeRealm = achievementEarned.EarnerVirtualRealm = GetVirtualRealmAddress();
     achievementEarned.AchievementID = achievement->ID;
-    achievementEarned.Time = time(nullptr);
+    achievementEarned.Time = GameTime::GetGameTime();
     if (!(achievement->Flags & ACHIEVEMENT_FLAG_TRACKING_FLAG))
         _owner->SendMessageToSetInRange(achievementEarned.Write(), sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), true);
     else
@@ -699,7 +700,7 @@ void GuildAchievementMgr::Reset()
         WorldPackets::Achievement::GuildAchievementDeleted guildAchievementDeleted;
         guildAchievementDeleted.AchievementID = iter->first;
         guildAchievementDeleted.GuildGUID = guid;
-        guildAchievementDeleted.TimeDeleted = time(nullptr);
+        guildAchievementDeleted.TimeDeleted = GameTime::GetGameTime();
         SendPacket(guildAchievementDeleted.Write());
     }
 
@@ -751,7 +752,7 @@ void GuildAchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, Prep
 
     if (criteriaResult)
     {
-        time_t now = time(nullptr);
+        time_t now = GameTime::GetGameTime();
         do
         {
             Field* fields = criteriaResult->Fetch();
@@ -940,7 +941,7 @@ void GuildAchievementMgr::CompletedAchievement(AchievementEntry const* achieveme
 
     SendAchievementEarned(achievement);
     CompletedAchievementData& ca = _completedAchievements[achievement->ID];
-    ca.Date = time(nullptr);
+    ca.Date = GameTime::GetGameTime();
     ca.Changed = true;
 
     if (achievement->Flags & ACHIEVEMENT_FLAG_SHOW_GUILD_MEMBERS)
@@ -1006,7 +1007,7 @@ void GuildAchievementMgr::SendAchievementEarned(AchievementEntry const* achievem
     WorldPackets::Achievement::GuildAchievementEarned guildAchievementEarned;
     guildAchievementEarned.AchievementID = achievement->ID;
     guildAchievementEarned.GuildGUID = _owner->GetGUID();
-    guildAchievementEarned.TimeEarned = time(nullptr);
+    guildAchievementEarned.TimeEarned = GameTime::GetGameTime();
     SendPacket(guildAchievementEarned.Write());
 }
 

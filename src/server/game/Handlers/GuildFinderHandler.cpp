@@ -17,6 +17,7 @@
 
 #include "CharacterCache.h"
 #include "WorldSession.h"
+#include "GameTime.h"
 #include "Guild.h"
 #include "GuildFinderMgr.h"
 #include "GuildFinderPackets.h"
@@ -42,7 +43,7 @@ void WorldSession::HandleGuildFinderAddRecruit(WorldPackets::GuildFinder::LFGuil
         return;
 
     MembershipRequest request = MembershipRequest(GetPlayer()->GetGUID(), lfGuildAddRecruit.GuildGUID, lfGuildAddRecruit.Availability,
-        lfGuildAddRecruit.ClassRoles, lfGuildAddRecruit.PlayStyle, lfGuildAddRecruit.Comment, time(nullptr));
+        lfGuildAddRecruit.ClassRoles, lfGuildAddRecruit.PlayStyle, lfGuildAddRecruit.Comment, GameTime::GetGameTime());
     sGuildFinderMgr->AddMembershipRequest(lfGuildAddRecruit.GuildGUID, request);
 }
 
@@ -125,8 +126,8 @@ void WorldSession::HandleGuildFinderGetApplications(WorldPackets::GuildFinder::L
         applicationData.ClassRoles = guildSettings.GetClassRoles();
         applicationData.PlayStyle = guildSettings.GetInterests();
         applicationData.Availability = guildSettings.GetAvailability();
-        applicationData.SecondsSinceCreated = time(nullptr) - application->GetSubmitTime();
-        applicationData.SecondsUntilExpiration = application->GetExpiryTime() - time(nullptr);
+        applicationData.SecondsSinceCreated = GameTime::GetGameTime() - application->GetSubmitTime();
+        applicationData.SecondsUntilExpiration = application->GetExpiryTime() - GameTime::GetGameTime();
         applicationData.Comment = application->GetComment();
     }
 
@@ -165,7 +166,7 @@ void WorldSession::HandleGuildFinderGetRecruits(WorldPackets::GuildFinder::LFGui
     if (!guild)
         return;
 
-    time_t now = time(nullptr);
+    time_t now = GameTime::GetGameTime();
     WorldPackets::GuildFinder::LFGuildRecruits lfGuildRecruits;
     lfGuildRecruits.UpdateTime = now;
     if (std::unordered_map<ObjectGuid, MembershipRequest> const* recruitsList = sGuildFinderMgr->GetAllMembershipRequestsForGuild(guild->GetGUID()))

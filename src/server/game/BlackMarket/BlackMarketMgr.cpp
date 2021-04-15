@@ -21,6 +21,7 @@
 #include "CharacterCache.h"
 #include "Containers.h"
 #include "DatabaseEnv.h"
+#include "GameTime.h"
 #include "Item.h"
 #include "Language.h"
 #include "Log.h"
@@ -110,7 +111,7 @@ void BlackMarketMgr::LoadAuctions()
         return;
     }
 
-    _lastUpdate = time(nullptr); //Set update time before loading
+    _lastUpdate = GameTime::GetGameTime(); //Set update time before loading
 
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     do
@@ -143,7 +144,7 @@ void BlackMarketMgr::LoadAuctions()
 void BlackMarketMgr::Update(bool updateTime)
 {
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
-    time_t now = time(nullptr);
+    time_t now = GameTime::GetGameTime();
     for (BlackMarketEntryMap::iterator itr = _auctions.begin(); itr != _auctions.end(); ++itr)
     {
         BlackMarketEntry* entry = itr->second;
@@ -405,12 +406,12 @@ BlackMarketTemplate const* BlackMarketEntry::GetTemplate() const
 
 uint32 BlackMarketEntry::GetSecondsRemaining() const
 {
-    return _secondsRemaining - (time(nullptr) - sBlackMarketMgr->GetLastUpdate());
+    return _secondsRemaining - (GameTime::GetGameTime() - sBlackMarketMgr->GetLastUpdate());
 }
 
 time_t BlackMarketEntry::GetExpirationTime() const
 {
-    return time(nullptr) + GetSecondsRemaining();
+    return GameTime::GetGameTime() + GetSecondsRemaining();
 }
 
 bool BlackMarketEntry::IsCompleted() const
