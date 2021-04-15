@@ -446,7 +446,7 @@ private:
 
 void AddSC_boss_drakkari_colossus()
 {
-    RegisterCreatureAIWithFactory(boss_drakkari_colossus, GetGundrakAI);
-    RegisterCreatureAIWithFactory(boss_drakkari_elemental, GetGundrakAI);
-    RegisterCreatureAIWithFactory(npc_living_mojo, GetGundrakAI);
+    RegisterGundrakCreatureAI(boss_drakkari_colossus);
+    RegisterGundrakCreatureAI(boss_drakkari_elemental);
+    RegisterGundrakCreatureAI(npc_living_mojo);
 }
