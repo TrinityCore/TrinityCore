@@ -477,3 +477,10 @@ WorldPacket const* WorldPackets::Misc::RequestCemeteryListResponse::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Misc::CorpseReclaimDelay::Write()
+{
+    _worldPacket << uint32(Remaining);
+
+    return &_worldPacket;
+}

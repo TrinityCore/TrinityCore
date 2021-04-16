@@ -509,6 +509,16 @@ namespace WorldPackets
             bool IsGossipTriggered = false;
             std::vector<uint32> CemeteryID;
         };
+
+        class CorpseReclaimDelay final : public ServerPacket
+        {
+        public:
+            CorpseReclaimDelay() : ServerPacket(SMSG_CORPSE_RECLAIM_DELAY, 4) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Remaining = 0;
+        };
     }
 }
 
