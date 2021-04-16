@@ -4829,19 +4829,19 @@ void Spell::ExecuteLogEffectResurrect(uint8 effIndex, Unit* target)
 
 void Spell::SendInterrupted(uint8 result)
 {
-    WorldPacket data(SMSG_SPELL_FAILURE, (8+4+1));
-    data << m_caster->GetPackGUID();
-    data << uint8(m_cast_count);
-    data << uint32(m_spellInfo->Id);
-    data << uint8(result);
-    m_caster->SendMessageToSet(&data, true);
+    WorldPackets::Spells::SpellFailure spellFailure;
+    spellFailure.CasterUnit = m_caster->GetGUID();
+    spellFailure.CastID = m_cast_count;
+    spellFailure.SpellID = m_spellInfo->Id;
+    spellFailure.Reason = result;
+    m_caster->SendMessageToSet(spellFailure.Write(), true);
 
-    data.Initialize(SMSG_SPELL_FAILED_OTHER, (8+4));
-    data << m_caster->GetPackGUID();
-    data << uint8(m_cast_count);
-    data << uint32(m_spellInfo->Id);
-    data << uint8(result);
-    m_caster->SendMessageToSet(&data, true);
+    WorldPackets::Spells::SpellFailedOther spellFailedOther;
+    spellFailedOther.CasterUnit = m_caster->GetGUID();
+    spellFailedOther.CastID = m_cast_count;
+    spellFailedOther.SpellID = m_spellInfo->Id;
+    spellFailedOther.Reason = result;
+    m_caster->SendMessageToSet(spellFailedOther.Write(), true);
 }
 
 void Spell::SendChannelUpdate(uint32 time)
@@ -4932,24 +4932,16 @@ void Spell::SendChannelStart(uint32 duration)
 
 void Spell::SendResurrectRequest(Player* target)
 {
-    // get resurrector name for creature resurrections, otherwise packet will be not accepted
-    // for player resurrections the name is looked up by guid
-    std::string const sentName(m_caster->GetTypeId() == TYPEID_PLAYER
-                               ? ""
-                               : m_caster->GetNameForLocaleIdx(target->GetSession()->GetSessionDbLocaleIndex()));
+    // Get creature name for resurrection. Player names are being received via ResurrectOffererGUID and send a nul-terminator only.
+    std::string const sentName(m_caster->IsPlayer() ? "" : m_caster->GetNameForLocaleIdx(target->GetSession()->GetSessionDbLocaleIndex()));
 
-    WorldPacket data(SMSG_RESURRECT_REQUEST, (8+4+sentName.size()+1+1+1+4));
-    data << uint64(m_caster->GetGUID());
-    data << uint32(sentName.size() + 1);
-
-    data << sentName;
-    data << uint8(0); // null terminator
-
-    data << uint8(m_caster->GetTypeId() == TYPEID_PLAYER ? 0 : 1); // "you'll be afflicted with resurrection sickness"
-    // override delay sent with SMSG_CORPSE_RECLAIM_DELAY, set instant resurrection for spells with this attribute
-    // 4.2.2 edit : id of the spell used to resurect. (used client-side for Mass Resurect)
-    data << uint32(m_spellInfo->Id);
-    target->SendDirectMessage(&data);
+    WorldPackets::Spells::ResurrectRequest resurrectRequest;
+    resurrectRequest.ResurrectOffererGUID =  m_caster->GetGUID();
+    resurrectRequest.Name = sentName;
+    resurrectRequest.Sickness = !m_caster->IsPlayer() && m_caster->IsSpiritHealer(); // "you'll be afflicted with resurrection sickness"
+    resurrectRequest.UseTimer = !m_spellInfo->HasAttribute(SPELL_ATTR3_IGNORE_RESURRECTION_TIMER);
+    resurrectRequest.SpellID = m_spellInfo->Id;
+    target->SendDirectMessage(resurrectRequest.Write());
 }
 
 void Spell::TakeCastItem()
@@ -7307,11 +7299,11 @@ void Spell::Delayed() // only called in DealDamage()
 
     TC_LOG_DEBUG("spells", "Spell %u partially interrupted for (%d) ms at damage", m_spellInfo->Id, delaytime);
 
-    WorldPacket data(SMSG_SPELL_DELAYED, 8+4);
-    data << m_caster->GetPackGUID();
-    data << uint32(delaytime);
+    WorldPackets::Spells::SpellDelayed packet;
+    packet.Caster = m_caster->GetGUID();
+    packet.ActualDelay = delaytime;
 
-    m_caster->SendMessageToSet(&data, true);
+    m_caster->SendMessageToSet(packet.Write(), true);
 }
 
 void Spell::DelayedChannel()

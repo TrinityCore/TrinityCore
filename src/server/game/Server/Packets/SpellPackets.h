@@ -426,6 +426,57 @@ namespace WorldPackets
             uint8 Slot = 0;
             uint8 EffectIndex = 0;
         };
+
+        class SpellFailure final : public ServerPacket
+        {
+        public:
+            SpellFailure() : ServerPacket(SMSG_SPELL_FAILURE, 8 + 1 + 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid CasterUnit;
+            int32 SpellID = 0;
+            uint8 Reason = 0;
+            uint8 CastID = 0;
+        };
+
+        class SpellFailedOther final : public ServerPacket
+        {
+        public:
+            SpellFailedOther() : ServerPacket(SMSG_SPELL_FAILED_OTHER, 8 + 1 + 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid CasterUnit;
+            int32 SpellID = 0;
+            uint8 Reason = 0;
+            uint8 CastID = 0;
+        };
+
+        class ResurrectRequest final : public ServerPacket
+        {
+        public:
+            ResurrectRequest() : ServerPacket(SMSG_RESURRECT_REQUEST, 8 + 4 + 1 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid ResurrectOffererGUID;
+            std::string Name;
+            int32 SpellID = 0;
+            bool Sickness = false;
+            bool UseTimer = false;
+        };
+
+        class SpellDelayed final : public ServerPacket
+        {
+        public:
+            SpellDelayed() : ServerPacket(SMSG_SPELL_DELAYED, 8 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Caster;
+            int32 ActualDelay = 0;
+        };
     }
 }
 

@@ -530,3 +530,42 @@ WorldPacket const* WorldPackets::Spells::AuraPointsDepleted::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::Spells::SpellFailure::Write()
+{
+    _worldPacket << CasterUnit.WriteAsPacked();
+    _worldPacket << uint8(CastID);
+    _worldPacket << int32(SpellID);
+    _worldPacket << uint8(Reason);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Spells::SpellFailedOther::Write()
+{
+    _worldPacket << CasterUnit.WriteAsPacked();
+    _worldPacket << uint8(CastID);
+    _worldPacket << int32(SpellID);
+    _worldPacket << uint8(Reason);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Spells::ResurrectRequest::Write()
+{
+    _worldPacket << ResurrectOffererGUID;
+    _worldPacket << uint32(Name.length() + 1);
+    _worldPacket << Name; // client expects a null-terminated string
+    _worldPacket << bool(Sickness);
+    _worldPacket << bool(UseTimer);
+    _worldPacket << int32(SpellID);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Spells::SpellDelayed::Write()
+{
+    _worldPacket << Caster.WriteAsPacked();
+    _worldPacket << int32(ActualDelay);
+    return &_worldPacket;
+}
