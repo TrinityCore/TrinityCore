@@ -3245,7 +3245,7 @@ void Spell::_cast(bool skipCheck)
         {
             uint8 aura_effmask = 0;
             for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                if (m_spellInfo->GetEffect(i)->IsUnitOwnedAuraEffect())
+                if (m_spellInfo->GetEffect(i) && m_spellInfo->GetEffect(i)->IsUnitOwnedAuraEffect())
                     aura_effmask |= 1 << i;
 
             if (aura_effmask)
