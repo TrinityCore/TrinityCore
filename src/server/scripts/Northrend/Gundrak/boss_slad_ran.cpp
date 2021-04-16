@@ -107,9 +107,9 @@ public:
             lWrappedPlayers.clear();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             Talk(SAY_AGGRO);
         }
 
@@ -186,9 +186,9 @@ public:
             summons.Summon(summon);
         }
 
-        void SetGUID(ObjectGuid guid, int32 type) override
+        void SetGUID(ObjectGuid const& guid, int32 id) override
         {
-            if (type == DATA_SNAKES_WHYD_IT_HAVE_TO_BE_SNAKES)
+            if (id == DATA_SNAKES_WHYD_IT_HAVE_TO_BE_SNAKES)
                 lWrappedPlayers.insert(guid);
         }
 

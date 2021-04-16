@@ -19,6 +19,7 @@
 #include "AchievementPackets.h"
 #include "DatabaseEnv.h"
 #include "DB2Structure.h"
+#include "GameTime.h"
 #include "Group.h"
 #include "Log.h"
 #include "Map.h"
@@ -87,13 +88,13 @@ void QuestObjectiveCriteriaMgr::LoadFromDB(PreparedQueryResult objectiveResult, 
 
     if (criteriaResult)
     {
-        time_t now = time(nullptr);
+        time_t now = GameTime::GetGameTime();
         do
         {
             Field* fields = criteriaResult->Fetch();
             uint32 criteriaId = fields[0].GetUInt32();
             uint64 counter = fields[1].GetUInt64();
-            time_t date = time_t(fields[2].GetUInt32());
+            time_t date = fields[2].GetInt64();
 
             Criteria const* criteria = sCriteriaMgr->GetCriteria(criteriaId);
             if (!criteria)
@@ -154,7 +155,7 @@ void QuestObjectiveCriteriaMgr::SaveToDB(CharacterDatabaseTransaction& trans)
                 stmt->setUInt64(0, _owner->GetGUID().GetCounter());
                 stmt->setUInt32(1, criteriaProgres.first);
                 stmt->setUInt64(2, criteriaProgres.second.Counter);
-                stmt->setUInt32(3, uint32(criteriaProgres.second.Date));
+                stmt->setInt64(3, criteriaProgres.second.Date);
                 trans->Append(stmt);
             }
 
@@ -242,7 +243,7 @@ bool QuestObjectiveCriteriaMgr::HasCompletedObjective(QuestObjective const* ques
     return _completedObjectives.find(questObjective->ID) != _completedObjectives.end();
 }
 
-void QuestObjectiveCriteriaMgr::SendCriteriaUpdate(Criteria const* criteria, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const
+void QuestObjectiveCriteriaMgr::SendCriteriaUpdate(Criteria const* criteria, CriteriaProgress const* progress, Seconds timeElapsed, bool timedCompleted) const
 {
     WorldPackets::Achievement::CriteriaUpdate criteriaUpdate;
 

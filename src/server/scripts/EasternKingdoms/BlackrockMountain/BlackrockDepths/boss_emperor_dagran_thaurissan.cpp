@@ -56,7 +56,7 @@ class boss_emperor_dagran_thaurissan : public CreatureScript
                 _events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
                 me->CallForHelp(VISIBLE_RANGE);

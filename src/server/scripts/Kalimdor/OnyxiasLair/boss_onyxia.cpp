@@ -160,9 +160,9 @@ public:
             instance->DoStopCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             Talk(SAY_AGGRO);
             events.ScheduleEvent(EVENT_FLAME_BREATH, urand(10000, 20000));
             events.ScheduleEvent(EVENT_TAIL_SWEEP, urand(15000, 20000));

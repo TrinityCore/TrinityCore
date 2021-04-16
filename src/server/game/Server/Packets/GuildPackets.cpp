@@ -539,7 +539,7 @@ void WorldPackets::Guild::RequestGuildRewardsList::Read()
 
 WorldPacket const* WorldPackets::Guild::GuildRewardList::Write()
 {
-    _worldPacket << int32(Version);
+    _worldPacket << Version;
     _worldPacket << uint32(RewardItems.size());
 
     for (GuildRewardItem const& item : RewardItems)

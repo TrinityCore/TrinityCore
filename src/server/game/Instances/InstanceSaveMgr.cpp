@@ -20,6 +20,7 @@
 #include "Config.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "GameTime.h"
 #include "GridNotifiers.h"
 #include "GridStates.h"
 #include "Group.h"
@@ -112,7 +113,7 @@ InstanceSave* InstanceSaveManager::AddInstanceSave(uint32 mapId, uint32 instance
             resetTime = GetResetTimeFor(mapId, difficulty);
         else
         {
-            resetTime = time(nullptr) + 2 * HOUR;
+            resetTime = GameTime::GetGameTime() + 2 * HOUR;
             // normally this will be removed soon after in InstanceMap::Add, prevent error
             ScheduleReset(true, resetTime, InstResetEvent(0, mapId, difficulty, instanceId));
         }
@@ -168,7 +169,7 @@ void InstanceSaveManager::RemoveInstanceSave(uint32 InstanceId)
         {
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_INSTANCE_RESETTIME);
 
-            stmt->setUInt64(0, uint64(resettime));
+            stmt->setInt64(0, resettime);
             stmt->setUInt32(1, InstanceId);
 
             CharacterDatabase.Execute(stmt);
@@ -312,7 +313,7 @@ void InstanceSaveManager::LoadInstances()
 
 void InstanceSaveManager::LoadResetTimes()
 {
-    time_t now = time(nullptr);
+    time_t now = GameTime::GetGameTime();
     time_t today = (now / DAY) * DAY;
 
     // NOTE: Use DirectPExecute for tables that will be queried later
@@ -422,7 +423,7 @@ void InstanceSaveManager::LoadResetTimes()
                 CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GLOBAL_INSTANCE_RESETTIME);
                 stmt->setUInt16(0, uint16(mapid));
                 stmt->setUInt8(1, uint8(difficulty));
-                stmt->setUInt64(2, uint64(t));
+                stmt->setInt64(2, t);
                 CharacterDatabase.DirectExecute(stmt);
             }
 
@@ -434,7 +435,7 @@ void InstanceSaveManager::LoadResetTimes()
                 t += ((today - t) / period + 1) * period + diff;
 
                 CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GLOBAL_INSTANCE_RESETTIME);
-                stmt->setUInt64(0, uint64(t));
+                stmt->setInt64(0, t);
                 stmt->setUInt16(1, uint16(mapid));
                 stmt->setUInt8(2, uint8(difficulty));
                 CharacterDatabase.DirectExecute(stmt);
@@ -526,12 +527,12 @@ void InstanceSaveManager::ForceGlobalReset(uint32 mapId, Difficulty difficulty)
     ScheduleReset(false, 0, InstResetEvent(1, mapId, difficulty, 0));
     ScheduleReset(false, 0, InstResetEvent(4, mapId, difficulty, 0));
     // force global reset on the instance
-    _ResetOrWarnAll(mapId, difficulty, false, time(nullptr));
+    _ResetOrWarnAll(mapId, difficulty, false, GameTime::GetGameTime());
 }
 
 void InstanceSaveManager::Update()
 {
-    time_t now = time(nullptr);
+    time_t now = GameTime::GetGameTime();
     time_t t;
 
     while (!m_resetTimeQueue.empty())
@@ -648,7 +649,7 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, b
         return;
     TC_LOG_DEBUG("misc", "InstanceSaveManager::ResetOrWarnAll: Processing map %s (%u) on difficulty %u (warn? %u)", mapEntry->MapName[sWorld->GetDefaultDbcLocale()], mapid, uint8(difficulty), warn);
 
-    time_t now = time(nullptr);
+    time_t now = GameTime::GetGameTime();
 
     if (!warn)
     {

@@ -817,9 +817,11 @@ struct TC_GAME_API ItemTemplate
     bool IsConjuredConsumable() const { return GetClass() == ITEM_CLASS_CONSUMABLE && (GetFlags() & ITEM_FLAG_CONJURED); }
     bool IsCraftingReagent() const { return (GetFlags2() & ITEM_FLAG2_USED_IN_A_TRADESKILL) != 0; }
 
+    bool IsWeapon() const { return GetClass() == ITEM_CLASS_WEAPON; }
+
     bool IsRangedWeapon() const
     {
-        return GetClass() == ITEM_CLASS_WEAPON ||
+        return IsWeapon() ||
                GetSubClass() == ITEM_SUBCLASS_WEAPON_BOW ||
                GetSubClass() == ITEM_SUBCLASS_WEAPON_GUN ||
                GetSubClass() == ITEM_SUBCLASS_WEAPON_CROSSBOW;

@@ -89,9 +89,9 @@ struct boss_amanitar : public BossAI
 {
     boss_amanitar(Creature* creature) : BossAI(creature, DATA_AMANITAR) { }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
-        _EnterCombat();
+        _JustEngagedWith();
         events.ScheduleEvent(EVENT_ROOT, Seconds(5), Seconds(9));
         events.ScheduleEvent(EVENT_BASH, Seconds(10), Seconds(14));
         events.ScheduleEvent(EVENT_BOLT, Seconds(15), Seconds(20));

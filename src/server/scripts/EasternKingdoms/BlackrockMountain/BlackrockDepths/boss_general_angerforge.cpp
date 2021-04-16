@@ -55,7 +55,7 @@ class boss_general_angerforge : public CreatureScript
                 _events.Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 _events.SetPhase(PHASE_ONE);
                 _events.ScheduleEvent(EVENT_MIGHTYBLOW, 8000);

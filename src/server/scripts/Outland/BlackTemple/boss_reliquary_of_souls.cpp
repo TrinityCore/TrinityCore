@@ -341,7 +341,7 @@ struct boss_essence_of_suffering : public BossAI
         }
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         me->SetCombatPulseDelay(5);
         me->setActive(true);
@@ -379,7 +379,7 @@ struct boss_essence_of_suffering : public BossAI
             switch (eventId)
             {
                 case EVENT_SOUL_DRAIN:
-                    me->CastCustomSpell(SPELL_SOUL_DRAIN, SPELLVALUE_MAX_TARGETS, 5, me);
+                    DoCastSelf(SPELL_SOUL_DRAIN, { SPELLVALUE_MAX_TARGETS, 5 });
                     events.Repeat(Seconds(30), Seconds(35));
                     break;
                 case EVENT_FRENZY:
@@ -415,7 +415,7 @@ struct boss_essence_of_desire : public BossAI
         _dead = false;
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_SPIRIT_SHOCK, Seconds(11));
         events.ScheduleEvent(EVENT_RUNE_SHIELD, Seconds(16));
@@ -527,7 +527,7 @@ struct boss_essence_of_anger : public BossAI
         DoCastSelf(SPELL_AURA_OF_ANGER);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         Talk(ANGER_SAY_FREED);
 
@@ -583,7 +583,7 @@ struct boss_essence_of_anger : public BossAI
                     break;
                 case EVENT_SPITE:
                     Talk(ANGER_SAY_SPITE);
-                    me->CastCustomSpell(SPELL_SPITE, SPELLVALUE_MAX_TARGETS, 3, me);
+                    DoCastSelf(SPELL_SPITE, { SPELLVALUE_MAX_TARGETS, 3 });
                     events.Repeat(Seconds(20));
                     break;
                 case EVENT_START_CHECK_TANKER:
@@ -682,8 +682,7 @@ class spell_reliquary_of_souls_aura_of_desire : public AuraScript
             return;
 
         Unit* caster = eventInfo.GetActor();
-        int32 bp = damageInfo->GetDamage() / 2;
-        caster->CastCustomSpell(SPELL_AURA_OF_DESIRE_DAMAGE, SPELLVALUE_BASE_POINT0, bp, caster, true, nullptr, aurEff);
+        caster->CastSpell(caster, SPELL_AURA_OF_DESIRE_DAMAGE, CastSpellExtraArgs(aurEff).AddSpellBP0(damageInfo->GetDamage() / 2));
     }
 
     void UpdateAmount(AuraEffect* /*aurEff*/)

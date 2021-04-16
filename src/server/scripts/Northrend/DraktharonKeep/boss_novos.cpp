@@ -106,9 +106,9 @@ public:
             SetBubbled(false);
         }
 
-        void EnterCombat(Unit* /* victim */) override
+        void JustEngagedWith(Unit* /* victim */) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             Talk(SAY_AGGRO);
 
             SetCrystalsStatus(true);
