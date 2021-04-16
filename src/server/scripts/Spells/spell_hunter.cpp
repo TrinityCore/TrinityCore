@@ -1628,10 +1628,30 @@ class spell_hun_frenzy_effect : public AuraScript
 // 34026 - Kill Command
 class spell_hun_kill_command: public SpellScript
 {
+    bool Load() override
+    {
+        return GetCaster()->IsPlayer();
+    }
+
+    SpellCastResult CheckCast()
+    {
+        Player* player = GetCaster()->ToPlayer();
+        if (Pet* pet = player->GetPet())
+        {
+            if (!pet->GetVictim())
+            {
+                GetSpell()->m_customError = SPELL_CUSTOM_ERROR_PET_MUST_BE_ATTACKING;
+                return SPELL_FAILED_CUSTOM_ERROR;
+            }
+        }
+
+        return SPELL_CAST_OK;
+    }
+
     void HandleScriptEffect(SpellEffIndex effIndex)
     {
         Unit* caster = GetCaster();
-        if (!caster || !caster->IsPlayer())
+        if (!caster)
             return;
 
         Player* player = caster->ToPlayer();
@@ -1642,6 +1662,7 @@ class spell_hun_kill_command: public SpellScript
 
     void Register() override
     {
+        OnCheckCast.Register(&spell_hun_kill_command::CheckCast);
         OnEffectHitTarget.Register(&spell_hun_kill_command::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
