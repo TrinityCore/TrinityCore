@@ -446,7 +446,7 @@ uint32 SpellEffectInfo::CalcPeriod(Unit* caster, Spell* spell /* = nullptr */) c
         if (Player* modOwner = caster->GetSpellModOwner())
             modOwner->ApplySpellMod(_spellInfo->Id, SPELLMOD_ACTIVATION_TIME, period, spell);
 
-        if (_spellInfo->HasAttribute(SPELL_ATTR5_HASTE_AFFECT_DURATION) && !_spellInfo->HasAttribute(SPELL_ATTR3_NO_DONE_BONUS))
+        if (_spellInfo->HasAttribute(SPELL_ATTR5_SPELL_HASTE_AFFECTS_PERIODIC) && !_spellInfo->HasAttribute(SPELL_ATTR3_NO_DONE_BONUS))
             period = int32(period * caster->GetFloatValue(UNIT_MOD_CAST_HASTE));
     }
 
@@ -3374,12 +3374,12 @@ int32 SpellInfo::CalcDuration(Unit* caster, Spell* spell) const
         if (Player* modOwner = caster->GetSpellModOwner())
             modOwner->ApplySpellMod(Id, SPELLMOD_DURATION, duration, spell);
 
-    bool hasUnk17 = HasAttribute(SPELL_ATTR8_UNK17);
-    bool hasAffectDuration = HasAttribute(SPELL_ATTR5_HASTE_AFFECT_DURATION);
+    bool hasteAffectsDuration = HasAttribute(SPELL_ATTR8_HASTE_AFFECTS_DURATION);
+    bool spellHasteAffectsPeriodic = HasAttribute(SPELL_ATTR5_SPELL_HASTE_AFFECTS_PERIODIC);
     // That aura is not used as of 4.3.4, but just include it, as it still is technically supported by the client, and so should we.
     bool hasPeriodicHasteAuras = caster != nullptr && caster->HasAuraTypeWithAffectMask(SPELL_AURA_PERIODIC_HASTE, this);
 
-    if (hasAffectDuration || hasUnk17)
+    if (spellHasteAffectsPeriodic || hasteAffectsDuration)
     {
         // This is just a stupid way to find the first periodic effect.
         int32 periodicEffectIndex = 0;
@@ -3390,12 +3390,12 @@ int32 SpellInfo::CalcDuration(Unit* caster, Spell* spell) const
                 return duration;
         }
 
-        if ((hasAffectDuration || hasPeriodicHasteAuras) && !HasAttribute(SPELL_ATTR3_NO_DONE_BONUS))
+        if ((spellHasteAffectsPeriodic || hasPeriodicHasteAuras) && !HasAttribute(SPELL_ATTR3_NO_DONE_BONUS))
         {
             float hasteValue = caster ? caster->GetFloatValue(UNIT_MOD_CAST_HASTE) : 0.0f;
             if (hasteValue > 0.0f)
             {
-                if (hasUnk17)
+                if (hasteAffectsDuration)
                     return int32(duration * hasteValue);
 
                 int32 effectPeriod = Effects[periodicEffectIndex].CalcPeriod(caster, spell);

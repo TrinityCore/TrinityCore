@@ -9334,7 +9334,7 @@ void Unit::ModSpellDurationTime(SpellInfo const* spellInfo, int32 & duration, Sp
     if (!spellInfo || duration < 0)
         return;
 
-    if (spellInfo->IsChanneled() && !spellInfo->HasAttribute(SPELL_ATTR5_HASTE_AFFECT_DURATION))
+    if (spellInfo->IsChanneled() && !spellInfo->HasAttribute(SPELL_ATTR5_SPELL_HASTE_AFFECTS_PERIODIC))
         return;
 
     // called from caster

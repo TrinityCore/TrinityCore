@@ -546,7 +546,7 @@ enum SpellAttr5
     SPELL_ATTR5_HIDE_DURATION                    = 0x00000400, // 10 do not send duration to client
     SPELL_ATTR5_ALLOW_TARGET_OF_TARGET_AS_TARGET = 0x00000800, // 11 (NYI) uses target's target as target if original target not valid (intervene for example)
     SPELL_ATTR5_UNK12                            = 0x00001000, // 12 Cleave related?
-    SPELL_ATTR5_HASTE_AFFECT_DURATION            = 0x00002000, // 13 haste effects decrease duration of this
+    SPELL_ATTR5_SPELL_HASTE_AFFECTS_PERIODIC     = 0x00002000, // 13 Spell Haste Affects Periodic
     SPELL_ATTR5_NOT_USABLE_WHILE_CHARMED         = 0x00004000, // 14 Charmed units cannot cast this spell
     SPELL_ATTR5_INCLUDE_MELEE_RANGE              = 0x00008000, // 15 Area target selection includes the combat reach of caster and potential target
     SPELL_ATTR5_UNK16                            = 0x00010000, // 16
@@ -658,7 +658,7 @@ enum SpellAttr8
     SPELL_ATTR8_UNK14                            = 0x00004000, // 14
     SPELL_ATTR8_WATER_MOUNT                      = 0x00008000, // 15 only one River Boat used in Thousand Needles
     SPELL_ATTR8_UNK16                            = 0x00010000, // 16
-    SPELL_ATTR8_UNK17                            = 0x00020000, // 17
+    SPELL_ATTR8_HASTE_AFFECTS_DURATION           = 0x00020000, // 17 Haste Affects Duration
     SPELL_ATTR8_REMEMBER_SPELLS                  = 0x00040000, // 18 at some point in time, these auras remember spells and allow to cast them later
     SPELL_ATTR8_USE_COMBO_POINTS_ON_ANY_TARGET   = 0x00080000, // 19 allows to consume combo points from dead targets
     SPELL_ATTR8_ARMOR_SPECIALIZATION             = 0x00100000, // 20
