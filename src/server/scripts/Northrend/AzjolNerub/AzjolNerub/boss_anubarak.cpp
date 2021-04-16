@@ -644,13 +644,13 @@ class spell_anubarak_carrion_beetles : public AuraScript
 
 void AddSC_boss_anub_arak()
 {
-    RegisterCreatureAIWithFactory(boss_anub_arak, GetAzjolNerubAI);
+    RegisterAzjolNerubCreatureAI(boss_anub_arak);
 
-    RegisterCreatureAIWithFactory(npc_anubarak_anub_ar_darter, GetAzjolNerubAI);
-    RegisterCreatureAIWithFactory(npc_anubarak_anub_ar_assassin, GetAzjolNerubAI);
-    RegisterCreatureAIWithFactory(npc_anubarak_anub_ar_guardian, GetAzjolNerubAI);
-    RegisterCreatureAIWithFactory(npc_anubarak_anub_ar_venomancer, GetAzjolNerubAI);
-    RegisterCreatureAIWithFactory(npc_anubarak_impale_target, GetAzjolNerubAI);
+    RegisterAzjolNerubCreatureAI(npc_anubarak_anub_ar_darter);
+    RegisterAzjolNerubCreatureAI(npc_anubarak_anub_ar_assassin);
+    RegisterAzjolNerubCreatureAI(npc_anubarak_anub_ar_guardian);
+    RegisterAzjolNerubCreatureAI(npc_anubarak_anub_ar_venomancer);
+    RegisterAzjolNerubCreatureAI(npc_anubarak_impale_target);
 
     RegisterSpellScript(spell_anubarak_pound);
     RegisterSpellScript(spell_anubarak_carrion_beetles);
