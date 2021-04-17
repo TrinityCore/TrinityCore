@@ -759,22 +759,18 @@ class spell_priest_spirit_of_redemption : public AuraScript
         return ValidateSpellInfo({ SPELL_PRIEST_SPIRIT_OF_REDEMPTION });
     }
 
-    void HandleAbsorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& /*absorbAmount*/)
+    void HandleAbsorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
     {
         Unit* target = GetTarget();
-        if (dmgInfo.GetDamage() >= target->GetHealth())
-        {
-            target->CastSpell(target, SPELL_PRIEST_SPIRIT_OF_REDEMPTION, aurEff);
-            target->SetFullHealth();
-            return;
-        }
+        target->CastSpell(target, SPELL_PRIEST_SPIRIT_OF_REDEMPTION, aurEff);
+        target->SetFullHealth();
 
-        PreventDefaultAction();
+        absorbAmount = dmgInfo.GetDamage();
     }
 
     void Register() override
     {
-        OnEffectAbsorb += AuraEffectAbsorbFn(spell_priest_spirit_of_redemption::HandleAbsorb, EFFECT_0);
+        OnEffectAbsorb += AuraEffectAbsorbOverkillFn(spell_priest_spirit_of_redemption::HandleAbsorb, EFFECT_0);
     }
 };
 
