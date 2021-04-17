@@ -572,6 +572,7 @@ class npc_halion_controller : public CreatureScript
                 _materialCorporealityValue = 5;
                 _materialDamageTaken = 0;
                 _twilightDamageTaken = 0;
+                SetBoundary(_instance->GetBossBoundary(DATA_HALION));
             }
 
             void JustAppeared() override
