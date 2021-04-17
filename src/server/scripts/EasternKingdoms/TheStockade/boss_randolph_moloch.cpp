@@ -68,9 +68,9 @@ struct boss_randolph_moloch : public BossAI
         _firstVanish = false;
         _secondVanish = false;
     }
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
-        BossAI::EnterCombat(who);
+        BossAI::JustEngagedWith(who);
 
         Talk(SAY_PULL);
 

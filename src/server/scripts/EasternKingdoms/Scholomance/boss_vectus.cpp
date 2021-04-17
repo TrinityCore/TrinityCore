@@ -53,7 +53,7 @@ public:
             events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_FIRE_SHIELD, 2000);
             events.ScheduleEvent(EVENT_BLAST_WAVE, 14000);

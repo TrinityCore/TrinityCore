@@ -395,3 +395,20 @@ WorldPacket const* WorldPackets::CombatLog::SpellDispellLog::Write()
 
     return &_worldPacket;
 }
+
+WorldPacket const* WorldPackets::CombatLog::SpellAbsorbLog::Write()
+{
+    *this << Attacker;
+    *this << Victim;
+    *this << int32(AbsorbedSpellID);
+    *this << int32(AbsorbSpellID);
+    *this << Caster;
+    *this << int32(Absorbed);
+    *this << int32(OriginalDamage);
+    WriteBit(Unk);
+    WriteLogDataBit();
+    FlushBits();
+    WriteLogData();
+
+    return &_worldPacket;
+}

@@ -157,7 +157,7 @@ class spell_q5206_test_fetid_skull : public SpellScriptLoader
             {
                 Unit* caster = GetCaster();
                 uint32 spellId = roll_chance_i(50) ? SPELL_CREATE_RESONATING_SKULL : SPELL_CREATE_BONE_DUST;
-                caster->CastSpell(caster, spellId, true, nullptr);
+                caster->CastSpell(caster, spellId, true);
             }
 
             void Register() override
@@ -321,7 +321,7 @@ class spell_q11396_11399_scourging_crystal_controller : public SpellScriptLoader
                     if (target->GetTypeId() == TYPEID_UNIT && target->HasAura(SPELL_FORCE_SHIELD_ARCANE_PURPLE_X3))
                         // Make sure nobody else is channeling the same target
                         if (!target->HasAura(SPELL_SCOURGING_CRYSTAL_CONTROLLER))
-                            GetCaster()->CastSpell(target, SPELL_SCOURGING_CRYSTAL_CONTROLLER, true, GetCastItem());
+                            GetCaster()->CastSpell(target, SPELL_SCOURGING_CRYSTAL_CONTROLLER, GetCastItem());
             }
 
             void Register() override
@@ -498,7 +498,7 @@ class spell_q11730_ultrasonic_screwdriver : public SpellScriptLoader
                         default:
                             return;
                     }
-                    caster->CastSpell(caster, spellId, true, castItem);
+                    caster->CastSpell(caster, spellId, castItem);
                     caster->CastSpell(caster, SPELL_ROBOT_KILL_CREDIT, true);
                     target->DespawnOrUnsummon();
                 }
@@ -608,7 +608,7 @@ class spell_q12634_despawn_fruit_tosser : public SpellScriptLoader
                 // sometimes, if you're lucky, you get a dwarf
                 if (roll_chance_i(5))
                     spellId = SPELL_SUMMON_ADVENTUROUS_DWARF;
-                GetCaster()->CastSpell(GetCaster(), spellId, true, nullptr);
+                GetCaster()->CastSpell(GetCaster(), spellId, true);
             }
 
             void Register() override
@@ -642,7 +642,7 @@ class spell_q12683_take_sputum_sample : public SpellScriptLoader
                 if (caster->HasAuraEffect(reqAuraId, 0))
                 {
                     uint32 spellId = GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue();
-                    caster->CastSpell(caster, spellId, true, nullptr);
+                    caster->CastSpell(caster, spellId, true);
                 }
             }
 
@@ -752,7 +752,7 @@ class spell_q12937_relief_for_the_fallen : public SpellScriptLoader
                 Player* caster = GetCaster()->ToPlayer();
                 if (Creature* target = GetHitCreature())
                 {
-                    caster->CastSpell(caster, SPELL_TRIGGER_AID_OF_THE_EARTHEN, true, nullptr);
+                    caster->CastSpell(caster, SPELL_TRIGGER_AID_OF_THE_EARTHEN, true);
                     caster->KilledMonsterCredit(NPC_FALLEN_EARTHEN_DEFENDER);
                     target->DespawnOrUnsummon();
                 }
@@ -1922,7 +1922,7 @@ class spell_q13086_cannons_target : public SpellScriptLoader
             void HandleEffectDummy(SpellEffIndex /*effIndex*/)
             {
                 if (WorldLocation const* pos = GetExplTargetDest())
-                    GetCaster()->CastSpell(pos->GetPositionX(), pos->GetPositionY(), pos->GetPositionZ(), GetEffectValue(), true);
+                    GetCaster()->CastSpell(pos->GetPosition(), GetEffectValue(), true);
             }
 
             void Register() override
@@ -2215,7 +2215,7 @@ class spell_q12619_emblazon_runeblade : public SpellScriptLoader
             {
                 PreventDefaultAction();
                 if (Unit* caster = GetCaster())
-                    caster->CastSpell(caster, aurEff->GetSpellEffectInfo()->TriggerSpell, true, nullptr, aurEff);
+                    caster->CastSpell(caster, aurEff->GetSpellEffectInfo()->TriggerSpell, aurEff);
             }
 
             void Register() override
@@ -2279,10 +2279,11 @@ class spell_q12919_gymers_grab : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                int8 seatId = 2;
                 if (!GetHitCreature())
                     return;
-                GetHitCreature()->CastCustomSpell(SPELL_RIDE_GYMER, SPELLVALUE_BASE_POINT0, seatId, GetCaster(), true);
+                CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                args.SpellValueOverrides.AddBP0(2);
+                GetHitCreature()->CastSpell(GetCaster(), SPELL_RIDE_GYMER, args);
                 GetHitCreature()->CastSpell(GetHitCreature(), SPELL_GRABBED, true);
             }
 

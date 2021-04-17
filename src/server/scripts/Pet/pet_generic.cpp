@@ -285,7 +285,7 @@ class npc_pet_gen_mojo : public CreatureScript
                     me->GetMotionMaster()->MoveFollow(owner, 0.0f, 0.0f);
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
             void UpdateAI(uint32 /*diff*/) override { }
 
             void ReceiveEmote(Player* player, uint32 emote) override

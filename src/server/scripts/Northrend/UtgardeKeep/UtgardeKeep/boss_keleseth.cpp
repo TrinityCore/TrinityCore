@@ -138,9 +138,9 @@ class boss_keleseth : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_START_COMBAT);
 
                 if (!who)

@@ -60,10 +60,10 @@ class boss_salramm : public CreatureScript
                 Talk(SAY_SPAWN);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
-                _EnterCombat();
+                _JustEngagedWith();
 
                 events.ScheduleEvent(EVENT_CURSE_FLESH, 30000);
                 events.ScheduleEvent(EVENT_SUMMON_GHOULS, urand(19000, 24000));

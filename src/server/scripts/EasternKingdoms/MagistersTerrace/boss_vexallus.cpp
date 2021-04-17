@@ -88,10 +88,10 @@ class boss_vexallus : public CreatureScript
                 _JustDied();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
-                _EnterCombat();
+                _JustEngagedWith();
 
                 events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 8000);
                 events.ScheduleEvent(EVENT_ARCANE_SHOCK, 5000);

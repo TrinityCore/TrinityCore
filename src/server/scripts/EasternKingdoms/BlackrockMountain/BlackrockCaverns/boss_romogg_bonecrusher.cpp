@@ -75,9 +75,9 @@ class boss_romogg_bonecrusher : public CreatureScript
                     Talk(YELL_KILL);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 events.ScheduleEvent(EVENT_CHAINS_OF_WOE, urand(22000, 32000));
                 events.ScheduleEvent(EVENT_WOUNDING_STRIKE, urand(26000, 32000));
                 events.ScheduleEvent(EVENT_QUAKE, 45000);

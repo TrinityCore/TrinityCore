@@ -142,7 +142,7 @@ public:
                 me->AddAura(SPELL_WEAR_CHRISTMAS_HAT, me);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
 

@@ -60,9 +60,9 @@ class boss_baron_geddon : public CreatureScript
             {
             }
 
-            void EnterCombat(Unit* victim) override
+            void JustEngagedWith(Unit* victim) override
             {
-                BossAI::EnterCombat(victim);
+                BossAI::JustEngagedWith(victim);
                 events.ScheduleEvent(EVENT_INFERNO, 45000);
                 events.ScheduleEvent(EVENT_IGNITE_MANA, 30000);
                 events.ScheduleEvent(EVENT_LIVING_BOMB, 35000);
@@ -135,8 +135,12 @@ class spell_baron_geddon_inferno : public SpellScriptLoader
             void OnPeriodic(AuraEffect const* aurEff)
             {
                 PreventDefaultAction();
-                int32 damageForTick[8] = { 500, 500, 1000, 1000, 2000, 2000, 3000, 5000 };
-                GetTarget()->CastCustomSpell(SPELL_INFERNO_DMG, SPELLVALUE_BASE_POINT0, damageForTick[aurEff->GetTickNumber() - 1], nullptr, TRIGGERED_FULL_MASK, nullptr, aurEff);
+                int32 const damageForTick[8] = { 500, 500, 1000, 1000, 2000, 2000, 3000, 5000 };
+                CastSpellExtraArgs args;
+                args.TriggerFlags = TRIGGERED_FULL_MASK;
+                args.TriggeringAura = aurEff;
+                args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, damageForTick[aurEff->GetTickNumber() - 1]);
+                GetTarget()->CastSpell(nullptr, SPELL_INFERNO_DMG, args);
             }
 
             void Register() override

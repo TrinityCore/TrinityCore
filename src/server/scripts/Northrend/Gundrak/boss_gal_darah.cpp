@@ -113,9 +113,9 @@ class boss_gal_darah : public CreatureScript
                 _DespawnAtEvade();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
                 me->InterruptNonMeleeSpells(false);
                 SetPhase(PHASE_TROLL);

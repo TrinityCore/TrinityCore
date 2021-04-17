@@ -139,9 +139,9 @@ class boss_slabhide : public CreatureScript
                 _isFlying = false;
             }
 
-            void EnterCombat(Unit* /*victim*/) override
+            void JustEngagedWith(Unit* /*victim*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
 
                 events.ScheduleEvent(EVENT_HANDLE_ROCK_WALLS, 4000);
                 events.ScheduleEvent(EVENT_LAVA_FISSURE, urand(6000, 8000));
