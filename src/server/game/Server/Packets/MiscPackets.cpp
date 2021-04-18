@@ -484,3 +484,9 @@ WorldPacket const* WorldPackets::Misc::CorpseReclaimDelay::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Misc::SetCurrencyFlags::Read()
+{
+    _worldPacket >> Flags;
+    _worldPacket >> CurrencyID;
+}

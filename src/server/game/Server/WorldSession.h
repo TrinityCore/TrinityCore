@@ -149,6 +149,7 @@ namespace WorldPackets
         class CompleteMovie;
         class NextCinematicCamera;
         class OpeningCinematic;
+        class SetCurrencyFlags;
     }
 
     namespace Movement
@@ -836,20 +837,19 @@ class TC_GAME_API WorldSession
         void SendActivateTaxiReply(ActivateTaxiReply reply);
 
         void HandleTabardVendorActivateOpcode(WorldPacket& recvPacket);
-        void HandleBankerActivateOpcode(WorldPacket& recvPacket);
+        void HandleBankerActivateOpcode(WorldPackets::NPC::Hello& packet);
         void HandleBuyBankSlotOpcode(WorldPacket& recvPacket);
         void HandleTrainerListOpcode(WorldPackets::NPC::Hello& packet);
         void HandleTrainerBuySpellOpcode(WorldPackets::NPC::TrainerBuySpell& packet);
         void HandlePetitionShowListOpcode(WorldPacket& recvPacket);
-        void HandleGossipHelloOpcode(WorldPacket& recvPacket);
+        void HandleGossipHelloOpcode(WorldPackets::NPC::Hello& packet);
         void HandleGossipSelectOptionOpcode(WorldPacket& recvPacket);
         void HandleSpiritHealerActivateOpcode(WorldPacket& recvPacket);
         void HandleNpcTextQueryOpcode(WorldPacket& recvPacket);
-        void HandleBinderActivateOpcode(WorldPacket& recvPacket);
+        void HandleBinderActivateOpcode(WorldPackets::NPC::Hello& packet);
         void HandleListStabledPetsOpcode(WorldPacket& recvPacket);
         void HandleSetPetSlot(WorldPacket& recvPacket);
         void HandleStableRevivePet(WorldPacket& recvPacket);
-        void SendTrainerBuyFailed(uint64 guid, uint32 spellId, uint32 reason);
 
         void HandleDuelAcceptedOpcode(WorldPacket& recvPacket);
         void HandleDuelCancelledOpcode(WorldPacket& recvPacket);
@@ -894,7 +894,7 @@ class TC_GAME_API WorldSession
         void HandleSellItemOpcode(WorldPacket& recvPacket);
         void HandleBuyItemInSlotOpcode(WorldPacket& recvPacket);
         void HandleBuyItemOpcode(WorldPacket& recvPacket);
-        void HandleListInventoryOpcode(WorldPacket& recvPacket);
+        void HandleListInventoryOpcode(WorldPackets::NPC::Hello& packet);
         void HandleAutoStoreBagItemOpcode(WorldPacket& recvPacket);
         void HandleReadItem(WorldPacket& recvPacket);
         void HandleAutoEquipItemSlotOpcode(WorldPacket& recvPacket);
@@ -1057,7 +1057,7 @@ class TC_GAME_API WorldSession
         void HandleCemeteryListRequest(WorldPacket& recvData);
 
         // Currency
-        void HandleSetCurrencyFlags(WorldPacket& recvData);
+        void HandleSetCurrencyFlags(WorldPackets::Misc::SetCurrencyFlags& packet);
 
         // Looking for Dungeon/Raid
         void HandleLfgJoinOpcode(WorldPackets::LFG::LFGJoin& lfgJoin);

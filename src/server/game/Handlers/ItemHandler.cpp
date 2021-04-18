@@ -579,28 +579,18 @@ void WorldSession::HandleBuyItemOpcode(WorldPacket& recvData)
         TC_LOG_DEBUG("network", "WORLD: received wrong itemType (%u) in HandleBuyItemOpcode", itemType);
 }
 
-void WorldSession::HandleSetCurrencyFlags(WorldPacket& recvData)
+void WorldSession::HandleSetCurrencyFlags(WorldPackets::Misc::SetCurrencyFlags& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_SET_CURRENCY_FLAGS");
-
-    uint32 flags, currencyid;
-
-    recvData >> flags;
-    recvData >> currencyid;
 }
 
-void WorldSession::HandleListInventoryOpcode(WorldPacket& recvData)
+void WorldSession::HandleListInventoryOpcode(WorldPackets::NPC::Hello& packet)
 {
-    ObjectGuid guid;
-
-    recvData >> guid;
-
     if (!GetPlayer()->IsAlive())
         return;
 
     TC_LOG_DEBUG("network", "WORLD: Recvd CMSG_LIST_INVENTORY");
 
-    SendListInventory(guid);
+    SendListInventory(packet.Unit);
 }
 
 void WorldSession::SendListInventory(ObjectGuid vendorGuid)
