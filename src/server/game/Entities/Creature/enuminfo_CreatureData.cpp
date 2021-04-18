@@ -47,7 +47,7 @@ TC_API_EXPORT EnumText EnumUtils<CreatureFlagsExtra>::ToString(CreatureFlagsExtr
         case CREATURE_FLAG_EXTRA_IGNORE_COMBAT: return { "CREATURE_FLAG_EXTRA_IGNORE_COMBAT", "CREATURE_FLAG_EXTRA_IGNORE_COMBAT", "creature is not allowed to enter combat" };
         case CREATURE_FLAG_EXTRA_WORLDEVENT: return { "CREATURE_FLAG_EXTRA_WORLDEVENT", "CREATURE_FLAG_EXTRA_WORLDEVENT", "custom flag for world event creatures (left room for merging)" };
         case CREATURE_FLAG_EXTRA_GUARD: return { "CREATURE_FLAG_EXTRA_GUARD", "CREATURE_FLAG_EXTRA_GUARD", "Creature is guard" };
-        case CREATURE_FLAG_EXTRA_UNUSED_16: return { "CREATURE_FLAG_EXTRA_UNUSED_16", "CREATURE_FLAG_EXTRA_UNUSED_16", "" };
+        case CREATURE_FLAG_EXTRA_IGNORE_FEIGN_DEATH: return { "CREATURE_FLAG_EXTRA_IGNORE_FEIGN_DEATH", "CREATURE_FLAG_EXTRA_IGNORE_FEIGN_DEATH", "creature ignores feign death" };
         case CREATURE_FLAG_EXTRA_NO_CRIT: return { "CREATURE_FLAG_EXTRA_NO_CRIT", "CREATURE_FLAG_EXTRA_NO_CRIT", "creature can't do critical strikes" };
         case CREATURE_FLAG_EXTRA_NO_SKILL_GAINS: return { "CREATURE_FLAG_EXTRA_NO_SKILL_GAINS", "CREATURE_FLAG_EXTRA_NO_SKILL_GAINS", "creature won't increase weapon skills" };
         case CREATURE_FLAG_EXTRA_OBEYS_TAUNT_DIMINISHING_RETURNS: return { "CREATURE_FLAG_EXTRA_OBEYS_TAUNT_DIMINISHING_RETURNS", "CREATURE_FLAG_EXTRA_OBEYS_TAUNT_DIMINISHING_RETURNS", "Taunt is subject to diminishing returns on this creature" };
@@ -91,7 +91,7 @@ TC_API_EXPORT CreatureFlagsExtra EnumUtils<CreatureFlagsExtra>::FromIndex(size_t
         case 13: return CREATURE_FLAG_EXTRA_IGNORE_COMBAT;
         case 14: return CREATURE_FLAG_EXTRA_WORLDEVENT;
         case 15: return CREATURE_FLAG_EXTRA_GUARD;
-        case 16: return CREATURE_FLAG_EXTRA_UNUSED_16;
+        case 16: return CREATURE_FLAG_EXTRA_IGNORE_FEIGN_DEATH;
         case 17: return CREATURE_FLAG_EXTRA_NO_CRIT;
         case 18: return CREATURE_FLAG_EXTRA_NO_SKILL_GAINS;
         case 19: return CREATURE_FLAG_EXTRA_OBEYS_TAUNT_DIMINISHING_RETURNS;
@@ -132,7 +132,7 @@ TC_API_EXPORT size_t EnumUtils<CreatureFlagsExtra>::ToIndex(CreatureFlagsExtra v
         case CREATURE_FLAG_EXTRA_IGNORE_COMBAT: return 13;
         case CREATURE_FLAG_EXTRA_WORLDEVENT: return 14;
         case CREATURE_FLAG_EXTRA_GUARD: return 15;
-        case CREATURE_FLAG_EXTRA_UNUSED_16: return 16;
+        case CREATURE_FLAG_EXTRA_IGNORE_FEIGN_DEATH: return 16;
         case CREATURE_FLAG_EXTRA_NO_CRIT: return 17;
         case CREATURE_FLAG_EXTRA_NO_SKILL_GAINS: return 18;
         case CREATURE_FLAG_EXTRA_OBEYS_TAUNT_DIMINISHING_RETURNS: return 19;
