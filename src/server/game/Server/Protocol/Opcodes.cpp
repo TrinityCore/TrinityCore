@@ -574,7 +574,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_SET_CHANNEL_WATCH,                                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSetChannelWatch           );
     DEFINE_HANDLER(CMSG_SET_CONTACT_NOTES,                                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSetContactNotesOpcode     );
     DEFINE_HANDLER(CMSG_SET_CURRENCY_FLAGS,                               STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleSetCurrencyFlags          );
-    DEFINE_HANDLER(CMSG_SET_EVERYONE_IS_ASSISTANT,                        STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
+    DEFINE_HANDLER(CMSG_SET_EVERYONE_IS_ASSISTANT,                        STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleSetEveryoneIsAssistant    );
     DEFINE_HANDLER(CMSG_SET_FACTION_ATWAR,                                STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSetFactionAtWar           );
     DEFINE_HANDLER(CMSG_SET_FACTION_INACTIVE,                             STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleSetFactionInactiveOpcode  );
     DEFINE_HANDLER(CMSG_SET_PET_SLOT,                                     STATUS_LOGGEDIN , PROCESS_THREADUNSAFE, &WorldSession::HandleSetPetSlot                );

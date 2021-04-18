@@ -91,6 +91,16 @@ namespace WorldPackets
             uint32 ChangeMask = 0;
             PartyMemberStats MemberStats;
         };
+
+        class SetEveryoneIsAssistant final : public ClientPacket
+        {
+        public:
+            SetEveryoneIsAssistant(WorldPacket&& packet) : ClientPacket(CMSG_SET_EVERYONE_IS_ASSISTANT, std::move(packet)) { }
+
+            void Read() override;
+
+            bool EveryoneIsAssistant = false;
+        };
     }
 }
 

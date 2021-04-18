@@ -309,3 +309,8 @@ WorldPacket const* WorldPackets::Party::PartyMemberState::Write()
 
     return &_worldPacket;
 }
+
+void WorldPackets::Party::SetEveryoneIsAssistant::Read()
+{
+    EveryoneIsAssistant = _worldPacket.ReadBit();
+}

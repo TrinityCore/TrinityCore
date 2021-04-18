@@ -827,7 +827,7 @@ void WorldSession::HandleGroupRequestJoinUpdates(WorldPacket& /*recvData*/)
         return;
 
     WorldPacket data(SMSG_REAL_GROUP_UPDATE, 1 + 4 + 8);
-    data << uint8(group->GetGroupType());
+    data << uint8(group->GetGroupFlags());
     data << uint32(group->GetMembersCount() - 1);
     data << uint64(group->GetLeaderGUID());
     SendPacket(&data);
@@ -1065,4 +1065,16 @@ void WorldSession::HandleRolePollBeginOpcode(WorldPacket& recvData)
 
         GetPlayer()->GetGroup()->BroadcastPacket(&data, true);
     }
+}
+
+void WorldSession::HandleSetEveryoneIsAssistant(WorldPackets::Party::SetEveryoneIsAssistant& packet)
+{
+    Group* group = GetPlayer()->GetGroup();
+    if (!group)
+        return;
+
+    if (!group->IsLeader(GetPlayer()->GetGUID()))
+        return;
+
+    group->SetEveryoneIsAssistant(packet.EveryoneIsAssistant);
 }

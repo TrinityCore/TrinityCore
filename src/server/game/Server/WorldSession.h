@@ -165,6 +165,11 @@ namespace WorldPackets
         class TrainerBuySpell;
     }
 
+    namespace Party
+    {
+        class SetEveryoneIsAssistant;
+    }
+
     namespace Quest
     {
         class QuestGiverAcceptQuest;
@@ -768,6 +773,7 @@ class TC_GAME_API WorldSession
         void HandleGroupAssistantLeaderOpcode(WorldPacket& recvData);
         void HandlePartyAssignmentOpcode(WorldPacket& recvData);
         void HandleRolePollBeginOpcode(WorldPacket& recvData);
+        void HandleSetEveryoneIsAssistant(WorldPackets::Party::SetEveryoneIsAssistant& packet);
 
         void HandlePetitionBuyOpcode(WorldPacket& recvData);
         void HandlePetitionShowSignOpcode(WorldPacket& recvData);
