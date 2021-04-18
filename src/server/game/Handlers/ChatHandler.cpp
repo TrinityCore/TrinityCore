@@ -30,6 +30,7 @@
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "Language.h"
+#include "LanguageMgr.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -106,14 +107,14 @@ void WorldSession::HandleChatMessage(ChatMsg type, uint32 lang, std::string msg,
     }
 
     // prevent talking at unknown language (cheating)
-    LanguageDesc const* langDesc = GetLanguageDescByID(lang);
+    LanguageDesc const* langDesc = sLanguageMgr->GetLanguageDescById(lang);
     if (!langDesc)
     {
         SendNotification(LANG_UNKNOWN_LANGUAGE);
         return;
     }
 
-    if (langDesc->skill_id != 0 && !sender->HasSkill(langDesc->skill_id))
+    if (langDesc->SkillId != 0 && !sender->HasSkill(langDesc->SkillId))
     {
         // also check SPELL_AURA_COMPREHEND_LANGUAGE (client offers option to speak in that language)
         Unit::AuraEffectList const& langAuras = sender->GetAuraEffectsByType(SPELL_AURA_COMPREHEND_LANGUAGE);
@@ -217,7 +218,7 @@ void WorldSession::HandleChatMessage(ChatMsg type, uint32 lang, std::string msg,
                 return;
             }
 
-            sender->Say(msg, Language(lang));
+            sender->Say(msg, lang);
             break;
         }
         case CHAT_MSG_EMOTE:
@@ -247,7 +248,7 @@ void WorldSession::HandleChatMessage(ChatMsg type, uint32 lang, std::string msg,
                 return;
             }
 
-            sender->Yell(msg, Language(lang));
+            sender->Yell(msg, lang);
             break;
         }
         case CHAT_MSG_WHISPER:
@@ -291,7 +292,7 @@ void WorldSession::HandleChatMessage(ChatMsg type, uint32 lang, std::string msg,
                 (HasPermission(rbac::RBAC_PERM_CAN_FILTER_WHISPERS) && !sender->isAcceptWhispers() && !sender->IsInWhisperWhiteList(receiver->GetGUID())))
                 sender->AddWhisperWhiteList(receiver->GetGUID());
 
-            GetPlayer()->Whisper(msg, Language(lang), receiver);
+            GetPlayer()->Whisper(msg, lang, receiver);
             break;
         }
         case CHAT_MSG_PARTY:
@@ -311,7 +312,7 @@ void WorldSession::HandleChatMessage(ChatMsg type, uint32 lang, std::string msg,
             sScriptMgr->OnPlayerChat(GetPlayer(), type, lang, msg, group);
 
             WorldPackets::Chat::Chat packet;
-            packet.Initialize(ChatMsg(type), Language(lang), sender, nullptr, msg);
+            packet.Initialize(ChatMsg(type), lang, sender, nullptr, msg);
             group->BroadcastPacket(packet.Write(), false, group->GetMemberGroup(GetPlayer()->GetGUID()));
             break;
         }
@@ -353,7 +354,7 @@ void WorldSession::HandleChatMessage(ChatMsg type, uint32 lang, std::string msg,
             sScriptMgr->OnPlayerChat(GetPlayer(), type, lang, msg, group);
 
             WorldPackets::Chat::Chat packet;
-            packet.Initialize(ChatMsg(type), Language(lang), sender, nullptr, msg);
+            packet.Initialize(ChatMsg(type), lang, sender, nullptr, msg);
             group->BroadcastPacket(packet.Write(), false);
             break;
         }
@@ -367,7 +368,7 @@ void WorldSession::HandleChatMessage(ChatMsg type, uint32 lang, std::string msg,
 
             WorldPackets::Chat::Chat packet;
             //in battleground, raid warning is sent only to players in battleground - code is ok
-            packet.Initialize(CHAT_MSG_RAID_WARNING, Language(lang), sender, nullptr, msg);
+            packet.Initialize(CHAT_MSG_RAID_WARNING, lang, sender, nullptr, msg);
             group->BroadcastPacket(packet.Write(), false);
             break;
         }
@@ -401,7 +402,7 @@ void WorldSession::HandleChatMessage(ChatMsg type, uint32 lang, std::string msg,
             sScriptMgr->OnPlayerChat(GetPlayer(), type, lang, msg, group);
 
             WorldPackets::Chat::Chat packet;
-            packet.Initialize(ChatMsg(type), Language(lang), sender, nullptr, msg);
+            packet.Initialize(ChatMsg(type), lang, sender, nullptr, msg);
             group->BroadcastPacket(packet.Write(), false);
             break;
         }

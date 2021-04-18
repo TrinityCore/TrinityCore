@@ -19,9 +19,9 @@
 #define __TRINITY_REPUTATION_MGR_H
 
 #include "Common.h"
-#include "SharedDefines.h"
-#include "Language.h"
 #include "DatabaseEnvFwd.h"
+#include "Language.h"
+#include "SharedDefines.h"
 #include <map>
 
 struct FactionEntry;

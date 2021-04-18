@@ -1031,45 +1031,6 @@ enum CharacterSlot
     SLOT_EMPTY                         = 19
 };
 
-// Languages.db2 (9.0.2.37176)
-enum Language
-{
-    LANG_UNIVERSAL         = 0,
-    LANG_ORCISH            = 1,
-    LANG_DARNASSIAN        = 2,
-    LANG_TAURAHE           = 3,
-    LANG_DWARVISH          = 6,
-    LANG_COMMON            = 7,
-    LANG_DEMONIC           = 8,
-    LANG_TITAN             = 9,
-    LANG_THALASSIAN        = 10,
-    LANG_DRACONIC          = 11,
-    LANG_KALIMAG           = 12,
-    LANG_GNOMISH           = 13,
-    LANG_TROLL             = 14,
-    LANG_GUTTERSPEAK       = 33,
-    LANG_DRAENEI           = 35,
-    LANG_ZOMBIE            = 36,
-    LANG_GNOMISH_BINARY    = 37,
-    LANG_GOBLIN_BINARY     = 38,
-    LANG_WORGEN            = 39,
-    LANG_GOBLIN            = 40,
-    LANG_PANDAREN_NEUTRAL  = 42,
-    LANG_PANDAREN_ALLIANCE = 43,
-    LANG_PANDAREN_HORDE    = 44,
-    LANG_SPRITE            = 168,
-    LANG_SHATH_YAR         = 178,
-    LANG_NERGLISH          = 179,
-    LANG_MOONKIN           = 180,
-    LANG_SHALASSIAN        = 181,
-    LANG_THALASSIAN_2      = 182,
-    LANG_ADDON             = 183,
-    LANG_ADDON_LOGGED      = 184,
-    LANG_VULPERA           = 285
-};
-
-#define LANGUAGES_COUNT   31
-
 enum TeamId
 {
     TEAM_ALLIANCE = 0,
@@ -7500,6 +7461,14 @@ enum class MountResult : uint32
     Shapeshifted   = 8,
     ForcedDismount = 9,
     Ok             = 10 // never sent
+};
+
+/* Languages that do not exist in .db2 files and/or are used in code */
+enum Language
+{
+    LANG_UNIVERSAL = 0,
+    LANG_ADDON = 183,
+    LANG_ADDON_LOGGED = 184,
 };
 
 #endif

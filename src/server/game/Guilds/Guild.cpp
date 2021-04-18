@@ -2594,7 +2594,7 @@ void Guild::BroadcastToGuild(WorldSession* session, bool officerOnly, std::strin
     if (session && session->GetPlayer() && _HasRankRight(session->GetPlayer(), officerOnly ? GR_RIGHT_OFFCHATSPEAK : GR_RIGHT_GCHATSPEAK))
     {
         WorldPackets::Chat::Chat packet;
-        packet.Initialize(officerOnly ? CHAT_MSG_OFFICER : CHAT_MSG_GUILD, Language(language), session->GetPlayer(), nullptr, msg);
+        packet.Initialize(officerOnly ? CHAT_MSG_OFFICER : CHAT_MSG_GUILD, language, session->GetPlayer(), nullptr, msg);
         WorldPacket const* data = packet.Write();
         for (auto itr = m_members.begin(); itr != m_members.end(); ++itr)
             if (Player* player = itr->second->FindConnectedPlayer())

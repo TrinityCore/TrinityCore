@@ -72,7 +72,7 @@
 #include "InstanceScript.h"
 #include "ItemPackets.h"
 #include "KillRewarder.h"
-#include "Language.h"
+#include "LanguageMgr.h"
 #include "LFGMgr.h"
 #include "Log.h"
 #include "LootItemStorage.h"
@@ -22217,14 +22217,29 @@ void Player::StopCastingCharm()
     }
 }
 
-void Player::Say(std::string const& text, Language language, WorldObject const* /*= nullptr*/)
+void Player::Say(std::string const& text, uint32 language, WorldObject const* /*= nullptr*/)
 {
     std::string _text(text);
     sScriptMgr->OnPlayerChat(this, CHAT_MSG_SAY, language, _text);
 
-    WorldPackets::Chat::Chat packet;
-    packet.Initialize(CHAT_MSG_SAY, language, this, this, _text);
-    SendMessageToSetInRange(packet.Write(), sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), true);
+    SendChatMessageToSetInRange(CHAT_MSG_SAY, language, std::move(_text), sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY));
+}
+
+void Player::SendChatMessageToSetInRange(ChatMsg chatMsg, uint32 language, std::string&& text, float range)
+{
+    // Send to players
+    // sLanguageMgr->GetFactionLanguageId(faction) == language LANG_UNIVERSAL
+    WorldPackets::Chat::Chat chatPacket;
+    chatPacket.Initialize(chatMsg, language, this, this, text);
+    WorldPacket const* packet = chatPacket.Write();
+    SendDirectMessage(packet);
+
+    // Send to others in range. Player will be skiped
+    if (LanguageDesc const* languageDesc = sLanguageMgr->GetLanguageDescById(language))
+    {
+        Trinity::ChatMessageDistDeliverer notifier(this, range, chatMsg, language, languageDesc, std::move(text));
+        Cell::VisitWorldObjects(this, notifier, range);
+    }
 }
 
 void Player::Say(uint32 textId, WorldObject const* target /*= nullptr*/)
@@ -22232,14 +22247,12 @@ void Player::Say(uint32 textId, WorldObject const* target /*= nullptr*/)
     Talk(textId, CHAT_MSG_SAY, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), target);
 }
 
-void Player::Yell(std::string const& text, Language language, WorldObject const* /*= nullptr*/)
+void Player::Yell(std::string const& text, uint32 language, WorldObject const* /*= nullptr*/)
 {
     std::string _text(text);
     sScriptMgr->OnPlayerChat(this, CHAT_MSG_YELL, language, _text);
 
-    WorldPackets::Chat::Chat packet;
-    packet.Initialize(CHAT_MSG_YELL, language, this, this, _text);
-    SendMessageToSetInRange(packet.Write(), sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_YELL), true);
+    SendChatMessageToSetInRange(CHAT_MSG_YELL, language, std::move(_text), sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_YELL));
 }
 
 void Player::Yell(uint32 textId, WorldObject const* target /*= nullptr*/)
@@ -22275,7 +22288,12 @@ void Player::TextEmote(uint32 textId, WorldObject const* target /*= nullptr*/, b
     Talk(textId, CHAT_MSG_EMOTE, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), target);
 }
 
-void Player::Whisper(std::string const& text, Language language, Player* target, bool /*= false*/)
+bool Player::CanUnderstandLanguageSkillId(uint32 langSkillId) const
+{
+    return langSkillId != 0 && HasSkill(langSkillId);
+}
+
+void Player::Whisper(std::string const& text, uint32 language, Player* target, bool /*= false*/)
 {
     ASSERT(target);
 
@@ -22288,14 +22306,14 @@ void Player::Whisper(std::string const& text, Language language, Player* target,
     sScriptMgr->OnPlayerChat(this, CHAT_MSG_WHISPER, language, _text, target);
 
     WorldPackets::Chat::Chat packet;
-    packet.Initialize(CHAT_MSG_WHISPER, Language(language), this, this, _text);
+    packet.Initialize(CHAT_MSG_WHISPER, language, this, this, _text);
     target->SendDirectMessage(packet.Write());
 
     // rest stuff shouldn't happen in case of addon message
     if (isAddonMessage)
         return;
 
-    packet.Initialize(CHAT_MSG_WHISPER_INFORM, Language(language), target, target, _text);
+    packet.Initialize(CHAT_MSG_WHISPER_INFORM, language, target, target, _text);
     SendDirectMessage(packet.Write());
 
     if (!isAcceptWhispers() && !IsGameMaster() && !target->IsGameMaster())

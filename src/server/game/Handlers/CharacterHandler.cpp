@@ -43,7 +43,6 @@
 #include "GuildFinderMgr.h"
 #include "GuildMgr.h"
 #include "Item.h"
-#include "Language.h"
 #include "Log.h"
 #include "Map.h"
 #include "Metric.h"
