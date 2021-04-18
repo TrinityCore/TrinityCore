@@ -53,9 +53,9 @@ bool DelayedSpellCastEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
     return true;
 }
 
-void firelands_bossAI::EnterCombat(Unit* target)
+void firelands_bossAI::JustEngagedWith(Unit* target)
 {
-    BossAI::EnterCombat(target);
+    BossAI::JustEngagedWith(target);
     instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
 }
 
@@ -111,7 +111,7 @@ struct npc_firelands_flame_archon : public ScriptedAI
         });
     }
 
-    void EnterCombat(Unit* /*attacker*/) override
+    void JustEngagedWith(Unit* /*attacker*/) override
     {
         scheduler.Schedule(Seconds(10), Seconds(12), [this](TaskContext context)
         {
@@ -178,7 +178,7 @@ struct npc_firelands_molten_flamefather : public ScriptedAI
         summon->DespawnOrUnsummon();
     }
 
-    void EnterCombat(Unit* /*attacker*/) override
+    void JustEngagedWith(Unit* /*attacker*/) override
     {
         scheduler.Schedule(Seconds(5), [this](TaskContext context)
         {

@@ -85,8 +85,8 @@ class TC_GAME_API CreatureAI : public UnitAI
         // Called for reaction at stopping attack at no attackers or targets
         virtual void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER);
 
-        // Called for reaction when initially engaged
-        virtual void EnterCombat(Unit* /*victim*/) { }
+        // Called for reaction when initially engaged - this will always happen _after_ JustEnteredCombat
+        virtual void JustEngagedWith(Unit* /*who*/) { }
 
         // Called when the creature is killed
         virtual void JustDied(Unit* /*killer*/) { }

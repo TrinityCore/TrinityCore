@@ -68,7 +68,7 @@ class spell_item_trigger_spell : public SpellScriptLoader
             {
                 Unit* caster = GetCaster();
                 if (Item* item = GetCastItem())
-                    caster->CastSpell(caster, _triggeredSpellId, true, item);
+                    caster->CastSpell(caster, _triggeredSpellId, item);
             }
 
             void Register() override
@@ -101,7 +101,7 @@ class spell_item_aegis_of_preservation : public AuraScript
     void HandleProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
     {
         PreventDefaultAction();
-        GetTarget()->CastSpell(GetTarget(), SPELL_AEGIS_HEAL, true, nullptr, aurEff);
+        GetTarget()->CastSpell(GetTarget(), SPELL_AEGIS_HEAL, aurEff);
     }
 
     void Register() override
@@ -132,7 +132,7 @@ class spell_item_absorb_eye_of_grillok : public AuraScript
         if (!GetCaster() || GetTarget()->GetTypeId() != TYPEID_UNIT)
             return;
 
-        GetCaster()->CastSpell(GetCaster(), SPELL_EYE_OF_GRILLOK, true, nullptr, aurEff);
+        GetCaster()->CastSpell(GetCaster(), SPELL_EYE_OF_GRILLOK, aurEff);
         GetTarget()->ToCreature()->DespawnOrUnsummon();
     }
 
@@ -191,7 +191,10 @@ class spell_item_alchemist_stone : public AuraScript
         if (!spellId)
             return;
 
-        GetTarget()->CastCustomSpell(spellId, SPELLVALUE_BASE_POINT0, amount, GetTarget(), true, nullptr, aurEff);
+        Unit* caster = eventInfo.GetActionTarget();
+        CastSpellExtraArgs args(aurEff);
+        args.SpellValueOverrides.AddBP0(amount);
+        caster->CastSpell(nullptr, spellId, args);
     }
 
     void Register() override
@@ -251,7 +254,7 @@ class spell_item_anger_capacitor : public SpellScriptLoader
                     if (player->GetWeaponForAttack(OFF_ATTACK, true) && roll_chance_i(50))
                         spellId = SPELL_MANIFEST_ANGER_OFF_HAND;
 
-                caster->CastSpell(target, spellId, true, nullptr, aurEff);
+                caster->CastSpell(target, spellId, aurEff);
             }
 
             void Register() override
@@ -357,7 +360,7 @@ class spell_item_aura_of_madness : public AuraScript
         PreventDefaultAction();
         Unit* caster = eventInfo.GetActor();
         uint32 spellId = Trinity::Containers::SelectRandomContainerElement(triggeredSpells[caster->getClass()]);
-        caster->CastSpell(caster, spellId, true, nullptr, aurEff);
+        caster->CastSpell(caster, spellId, aurEff);
 
         if (roll_chance_i(10))
             caster->Unit::Say(SAY_MADNESS);
@@ -386,7 +389,7 @@ class spell_item_dementia : public AuraScript
     void HandlePeriodicDummy(AuraEffect const* aurEff)
     {
         PreventDefaultAction();
-        GetTarget()->CastSpell(GetTarget(), RAND(SPELL_DEMENTIA_POS, SPELL_DEMENTIA_NEG), true, nullptr, aurEff);
+        GetTarget()->CastSpell(GetTarget(), RAND(SPELL_DEMENTIA_POS, SPELL_DEMENTIA_NEG), aurEff);
     }
 
     void Register() override
@@ -433,7 +436,11 @@ class spell_item_blessing_of_ancient_kings : public AuraScript
             protEff->GetBase()->RefreshDuration();
         }
         else
-            GetTarget()->CastCustomSpell(SPELL_PROTECTION_OF_ANCIENT_KINGS, SPELLVALUE_BASE_POINT0, absorb, eventInfo.GetProcTarget(), true, nullptr, aurEff);
+        {
+            CastSpellExtraArgs args(aurEff);
+            args.SpellValueOverrides.AddBP0(absorb);
+            GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_PROTECTION_OF_ANCIENT_KINGS, args);
+        }
     }
 
     void Register() override
@@ -494,7 +501,9 @@ class spell_item_deadly_precision_dummy : public SpellScript
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_DEADLY_PRECISION, GetCastDifficulty());
-        GetCaster()->CastCustomSpell(spellInfo->Id, SPELLVALUE_AURA_STACK, spellInfo->StackAmount, GetCaster(), true);
+        CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+        args.SpellValueOverrides.AddMod(SPELLVALUE_AURA_STACK, spellInfo->StackAmount);
+        GetCaster()->CastSpell(GetCaster(), spellInfo->Id, args);
     }
 
     void Register() override
@@ -583,7 +592,7 @@ class spell_item_deathbringers_will : public SpellScriptLoader
                     return;
 
                 uint32 spellId = Trinity::Containers::SelectRandomContainerElement(randomSpells);
-                caster->CastSpell(caster, spellId, true, nullptr, aurEff);
+                caster->CastSpell(caster, spellId, aurEff);
             }
 
             void Register() override
@@ -669,7 +678,7 @@ class spell_item_defibrillate : public SpellScriptLoader
                 {
                     PreventHitDefaultEffect(effIndex);
                     if (_failSpell)
-                        GetCaster()->CastSpell(GetCaster(), _failSpell, true, GetCastItem());
+                        GetCaster()->CastSpell(GetCaster(), _failSpell, GetCastItem());
                 }
             }
 
@@ -710,7 +719,7 @@ class spell_item_desperate_defense : public AuraScript
     void HandleProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
     {
         PreventDefaultAction();
-        GetTarget()->CastSpell(GetTarget(), SPELL_DESPERATE_RAGE, true, nullptr, aurEff);
+        GetTarget()->CastSpell(GetTarget(), SPELL_DESPERATE_RAGE, aurEff);
     }
 
     void Register() override
@@ -748,7 +757,7 @@ class spell_item_deviate_fish : public SpellScript
     {
         Unit* caster = GetCaster();
         uint32 spellId = urand(SPELL_SLEEPY, SPELL_HEALTHY_SPIRIT);
-        caster->CastSpell(caster, spellId, true, nullptr);
+        caster->CastSpell(caster, spellId, true);
     }
 
     void Register() override
@@ -775,7 +784,7 @@ class spell_item_discerning_eye_beast_dummy : public AuraScript
     void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
-        eventInfo.GetActor()->CastSpell(nullptr, SPELL_DISCERNING_EYE_BEAST, true, nullptr, aurEff);
+        eventInfo.GetActor()->CastSpell(nullptr, SPELL_DISCERNING_EYE_BEAST, aurEff);
     }
 
     void Register() override
@@ -951,9 +960,10 @@ class spell_item_frozen_shadoweave : public AuraScript
         if (!damageInfo || !damageInfo->GetDamage())
             return;
 
-        int32 amount = CalculatePct(static_cast<int32>(damageInfo->GetDamage()), aurEff->GetAmount());
         Unit* caster = eventInfo.GetActor();
-        caster->CastCustomSpell(SPELL_SHADOWMEND, SPELLVALUE_BASE_POINT0, amount, nullptr, true, nullptr, aurEff);
+        CastSpellExtraArgs args(aurEff);
+        args.SpellValueOverrides.AddBP0(CalculatePct(damageInfo->GetDamage(), aurEff->GetAmount()));
+        caster->CastSpell(nullptr, SPELL_SHADOWMEND, args);
     }
 
     void Register() override
@@ -1089,7 +1099,7 @@ class spell_item_heartpierce : public SpellScriptLoader
                         return;
                 }
 
-                caster->CastSpell(nullptr, spellId, true, nullptr, aurEff);
+                caster->CastSpell(nullptr, spellId, aurEff);
             }
 
             void Register() override
@@ -1174,7 +1184,7 @@ class spell_item_make_a_wish : public SpellScript
             case 3: spellId = SPELL_SUMMON_FURIOUS_MR_PINCHY; break;
             case 4: spellId = SPELL_TINY_MAGICAL_CRAWDAD; break;
         }
-        caster->CastSpell(caster, spellId, true, nullptr);
+        caster->CastSpell(caster, spellId, true);
     }
 
     void Register() override
@@ -1207,7 +1217,7 @@ class spell_item_mark_of_conquest : public AuraScript
             // in that case, do not cast heal spell
             PreventDefaultAction();
             // but mana instead
-            eventInfo.GetActor()->CastSpell(nullptr, SPELL_MARK_OF_CONQUEST_ENERGIZE, true, nullptr, aurEff);
+            eventInfo.GetActor()->CastSpell(nullptr, SPELL_MARK_OF_CONQUEST_ENERGIZE, aurEff);
         }
     }
 
@@ -1289,8 +1299,9 @@ class spell_item_necrotic_touch : public AuraScript
         if (!damageInfo || !damageInfo->GetDamage())
             return;
 
-        int32 bp = CalculatePct(static_cast<int32>(damageInfo->GetDamage()), aurEff->GetAmount());
-        GetTarget()->CastCustomSpell(SPELL_ITEM_NECROTIC_TOUCH_PROC, SPELLVALUE_BASE_POINT0, bp, eventInfo.GetProcTarget(), true, nullptr, aurEff);
+        CastSpellExtraArgs args(aurEff);
+        args.SpellValueOverrides.AddBP0(CalculatePct(damageInfo->GetDamage(), aurEff->GetAmount()));
+        GetTarget()->CastSpell(nullptr, SPELL_ITEM_NECROTIC_TOUCH_PROC, args);
     }
 
     void Register() override
@@ -1334,7 +1345,7 @@ class spell_item_net_o_matic : public SpellScript
             else if (roll < 4)                       // 2% for 20 sec root, charge to target (off-like chance unknown)
                 spellId = SPELL_NET_O_MATIC_TRIGGERED2;
 
-            GetCaster()->CastSpell(target, spellId, true, nullptr);
+            GetCaster()->CastSpell(target, spellId, true);
         }
     }
 
@@ -1382,7 +1393,7 @@ class spell_item_noggenfogger_elixir : public SpellScript
             case 2: spellId = SPELL_NOGGENFOGGER_ELIXIR_TRIGGERED2; break;
         }
 
-        caster->CastSpell(caster, spellId, true, nullptr);
+        caster->CastSpell(caster, spellId, true);
     }
 
     void Register() override
@@ -1446,7 +1457,9 @@ class spell_item_persistent_shield : public AuraScript
             if (shield->GetAmount() > bp0)
                 return;
 
-        caster->CastCustomSpell(SPELL_PERSISTENT_SHIELD_TRIGGERED, SPELLVALUE_BASE_POINT0, bp0, target, true, nullptr, aurEff);
+        CastSpellExtraArgs args(aurEff);
+        args.SpellValueOverrides.AddBP0(bp0);
+        caster->CastSpell(target, SPELL_PERSISTENT_SHIELD_TRIGGERED, args);
     }
 
     void Register() override
@@ -1480,9 +1493,9 @@ class spell_item_pet_healing : public AuraScript
         if (!damageInfo || !damageInfo->GetDamage())
             return;
 
-        int32 bp = CalculatePct(static_cast<int32>(damageInfo->GetDamage()), aurEff->GetAmount());
-        Unit* caster = eventInfo.GetActor();
-        caster->CastCustomSpell(SPELL_HEALTH_LINK, SPELLVALUE_BASE_POINT0, bp, nullptr, true, nullptr, aurEff);
+        CastSpellExtraArgs args(aurEff);
+        args.SpellValueOverrides.AddBP0(CalculatePct(damageInfo->GetDamage(), aurEff->GetAmount()));
+        eventInfo.GetActor()->CastSpell(nullptr, SPELL_HEALTH_LINK, args);
     }
 
     void Register() override
@@ -1550,7 +1563,7 @@ class spell_item_savory_deviate_delight : public SpellScript
             // Yaaarrrr - pirate
             case 2: spellId = (caster->getGender() == GENDER_MALE ? SPELL_YAAARRRR_MALE : SPELL_YAAARRRR_FEMALE); break;
         }
-        caster->CastSpell(caster, spellId, true, nullptr);
+        caster->CastSpell(caster, spellId, true);
     }
 
     void Register() override
@@ -1707,14 +1720,14 @@ class spell_item_shadowmourne : public AuraScript
     void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
-        GetTarget()->CastSpell(GetTarget(), SPELL_SHADOWMOURNE_SOUL_FRAGMENT, true, nullptr, aurEff);
+        GetTarget()->CastSpell(GetTarget(), SPELL_SHADOWMOURNE_SOUL_FRAGMENT, aurEff);
 
         // this can't be handled in AuraScript of SoulFragments because we need to know victim
         if (Aura* soulFragments = GetTarget()->GetAura(SPELL_SHADOWMOURNE_SOUL_FRAGMENT))
         {
             if (soulFragments->GetStackAmount() >= 10)
             {
-                GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_SHADOWMOURNE_CHAOS_BANE_DAMAGE, true, nullptr, aurEff);
+                GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_SHADOWMOURNE_CHAOS_BANE_DAMAGE, aurEff);
                 soulFragments->Remove();
             }
         }
@@ -1833,7 +1846,7 @@ class spell_item_six_demon_bag : public SpellScript
                 target = caster;
             }
 
-            caster->CastSpell(target, spellId, true, GetCastItem());
+            caster->CastSpell(target, spellId, GetCastItem());
         }
     }
 
@@ -1863,8 +1876,9 @@ class spell_item_swift_hand_justice_dummy : public AuraScript
         PreventDefaultAction();
 
         Unit* caster = eventInfo.GetActor();
-        int32 amount = caster->CountPctFromMaxHealth(aurEff->GetAmount());
-        caster->CastCustomSpell(SPELL_SWIFT_HAND_OF_JUSTICE_HEAL, SPELLVALUE_BASE_POINT0, amount, nullptr, true, nullptr, aurEff);
+        CastSpellExtraArgs args(aurEff);
+        args.SpellValueOverrides.AddBP0(caster->CountPctFromMaxHealth(aurEff->GetAmount()));
+        caster->CastSpell(nullptr, SPELL_SWIFT_HAND_OF_JUSTICE_HEAL, args);
     }
 
     void Register() override
@@ -1927,7 +1941,7 @@ class spell_item_underbelly_elixir : public SpellScript
             case 1: spellId = SPELL_UNDERBELLY_ELIXIR_TRIGGERED1; break;
             case 2: spellId = SPELL_UNDERBELLY_ELIXIR_TRIGGERED2; break;
         }
-        caster->CastSpell(caster, spellId, true, nullptr);
+        caster->CastSpell(caster, spellId, true);
     }
 
     void Register() override
@@ -2372,7 +2386,7 @@ class spell_item_purify_helboar_meat : public SpellScript
     void HandleDummy(SpellEffIndex /* effIndex */)
     {
         Unit* caster = GetCaster();
-        caster->CastSpell(caster, roll_chance_i(50) ? SPELL_SUMMON_PURIFIED_HELBOAR_MEAT : SPELL_SUMMON_TOXIC_HELBOAR_MEAT, true, nullptr);
+        caster->CastSpell(caster, roll_chance_i(50) ? SPELL_SUMMON_PURIFIED_HELBOAR_MEAT : SPELL_SUMMON_TOXIC_HELBOAR_MEAT, true);
     }
 
     void Register() override
@@ -2495,9 +2509,9 @@ class spell_item_nigh_invulnerability : public SpellScript
         if (Item* castItem = GetCastItem())
         {
             if (roll_chance_i(86))                  // Nigh-Invulnerability   - success
-                caster->CastSpell(caster, SPELL_NIGH_INVULNERABILITY, true, castItem);
+                caster->CastSpell(caster, SPELL_NIGH_INVULNERABILITY, castItem);
             else                                    // Complete Vulnerability - backfire in 14% casts
-                caster->CastSpell(caster, SPELL_COMPLETE_VULNERABILITY, true, castItem);
+                caster->CastSpell(caster, SPELL_COMPLETE_VULNERABILITY, castItem);
         }
     }
 
@@ -2525,7 +2539,7 @@ class spell_item_poultryizer : public SpellScript
     void HandleDummy(SpellEffIndex /* effIndex */)
     {
         if (GetCastItem() && GetHitUnit())
-            GetCaster()->CastSpell(GetHitUnit(), roll_chance_i(80) ? SPELL_POULTRYIZER_SUCCESS : SPELL_POULTRYIZER_BACKFIRE, true, GetCastItem());
+            GetCaster()->CastSpell(GetHitUnit(), roll_chance_i(80) ? SPELL_POULTRYIZER_SUCCESS : SPELL_POULTRYIZER_BACKFIRE, GetCastItem());
     }
 
     void Register() override
@@ -2645,7 +2659,7 @@ class spell_item_complete_raptor_capture : public SpellScript
             GetHitCreature()->DespawnOrUnsummon();
 
             //cast spell Raptor Capture Credit
-            caster->CastSpell(caster, SPELL_RAPTOR_CAPTURE_CREDIT, true, nullptr);
+            caster->CastSpell(caster, SPELL_RAPTOR_CAPTURE_CREDIT, true);
         }
     }
 
@@ -2778,7 +2792,7 @@ class spell_item_nitro_boosts : public SpellScript
         bool success = true;
         if (areaEntry && areaEntry->IsFlyable() && !caster->GetMap()->IsDungeon())
             success = roll_chance_i(95); // nitro boosts can only fail in flying-enabled locations on 3.3.5
-        caster->CastSpell(caster, success ? SPELL_NITRO_BOOSTS_SUCCESS : SPELL_NITRO_BOOSTS_BACKFIRE, true, GetCastItem());
+        caster->CastSpell(caster, success ? SPELL_NITRO_BOOSTS_SUCCESS : SPELL_NITRO_BOOSTS_BACKFIRE, GetCastItem());
     }
 
     void Register() override
@@ -2808,7 +2822,7 @@ class spell_item_nitro_boosts_backfire : public AuraScript
         if (curZ < lastZ)
         {
             if (roll_chance_i(80)) // we don't have enough sniffs to verify this, guesstimate
-                GetTarget()->CastSpell(GetTarget(), SPELL_NITRO_BOOSTS_PARACHUTE, true, nullptr, effect);
+                GetTarget()->CastSpell(GetTarget(), SPELL_NITRO_BOOSTS_PARACHUTE, effect);
             GetAura()->Remove();
         }
         else
@@ -2884,7 +2898,7 @@ class spell_item_rocket_boots : public SpellScript
             bg->EventPlayerDroppedFlag(caster);
 
         caster->GetSpellHistory()->ResetCooldown(SPELL_ROCKET_BOOTS_PROC);
-        caster->CastSpell(caster, SPELL_ROCKET_BOOTS_PROC, true, nullptr);
+        caster->CastSpell(caster, SPELL_ROCKET_BOOTS_PROC, true);
     }
 
     SpellCastResult CheckCast()
@@ -3077,10 +3091,10 @@ class spell_item_shard_of_the_scale : public SpellScriptLoader
                 Unit* target = eventInfo.GetProcTarget();
 
                 if (eventInfo.GetTypeMask() & PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS)
-                    caster->CastSpell(target, HealProc, true, nullptr, aurEff);
+                    caster->CastSpell(target, HealProc, aurEff);
 
                 if (eventInfo.GetTypeMask() & PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG)
-                    caster->CastSpell(target, DamageProc, true, nullptr, aurEff);
+                    caster->CastSpell(target, DamageProc, aurEff);
             }
 
             void Register() override
@@ -3127,16 +3141,16 @@ class spell_item_soul_preserver : public AuraScript
         switch (caster->getClass())
         {
             case CLASS_DRUID:
-                caster->CastSpell(caster, SPELL_SOUL_PRESERVER_DRUID, true, nullptr, aurEff);
+                caster->CastSpell(caster, SPELL_SOUL_PRESERVER_DRUID, aurEff);
                 break;
             case CLASS_PALADIN:
-                caster->CastSpell(caster, SPELL_SOUL_PRESERVER_PALADIN, true, nullptr, aurEff);
+                caster->CastSpell(caster, SPELL_SOUL_PRESERVER_PALADIN, aurEff);
                 break;
             case CLASS_PRIEST:
-                caster->CastSpell(caster, SPELL_SOUL_PRESERVER_PRIEST, true, nullptr, aurEff);
+                caster->CastSpell(caster, SPELL_SOUL_PRESERVER_PRIEST, aurEff);
                 break;
             case CLASS_SHAMAN:
-                caster->CastSpell(caster, SPELL_SOUL_PRESERVER_SHAMAN, true, nullptr, aurEff);
+                caster->CastSpell(caster, SPELL_SOUL_PRESERVER_SHAMAN, aurEff);
                 break;
             default:
                 break;
@@ -3211,10 +3225,10 @@ class spell_item_sunwell_neck : public SpellScriptLoader
 
                 // Aggression checks are in the spell system... just cast and forget
                 if (player->GetReputationRank(FACTION_ALDOR) == REP_EXALTED)
-                    player->CastSpell(target, Aldors, true, nullptr, aurEff);
+                    player->CastSpell(target, Aldors, aurEff);
 
                 if (player->GetReputationRank(FACTION_SCRYERS) == REP_EXALTED)
-                    player->CastSpell(target, Scryers, true, nullptr, aurEff);
+                    player->CastSpell(target, Scryers, aurEff);
             }
 
             void Register() override
@@ -3294,17 +3308,17 @@ class spell_item_death_choice : public AuraScript
             case SPELL_DEATH_CHOICE_NORMAL_AURA:
             {
                 if (str > agi)
-                    caster->CastSpell(caster, SPELL_DEATH_CHOICE_NORMAL_STRENGTH, true, nullptr, aurEff);
+                    caster->CastSpell(caster, SPELL_DEATH_CHOICE_NORMAL_STRENGTH, aurEff);
                 else
-                    caster->CastSpell(caster, SPELL_DEATH_CHOICE_NORMAL_AGILITY, true, nullptr, aurEff);
+                    caster->CastSpell(caster, SPELL_DEATH_CHOICE_NORMAL_AGILITY, aurEff);
                 break;
             }
             case SPELL_DEATH_CHOICE_HEROIC_AURA:
             {
                 if (str > agi)
-                    caster->CastSpell(caster, SPELL_DEATH_CHOICE_HEROIC_STRENGTH, true, nullptr, aurEff);
+                    caster->CastSpell(caster, SPELL_DEATH_CHOICE_HEROIC_STRENGTH, aurEff);
                 else
-                    caster->CastSpell(caster, SPELL_DEATH_CHOICE_HEROIC_AGILITY, true, nullptr, aurEff);
+                    caster->CastSpell(caster, SPELL_DEATH_CHOICE_HEROIC_AGILITY, aurEff);
                 break;
             }
             default:
@@ -3363,7 +3377,7 @@ public:
 
             Unit* caster = eventInfo.GetActor();
 
-            caster->CastSpell(caster, _stackSpell, true, nullptr, aurEff); // cast the stack
+            caster->CastSpell(caster, _stackSpell, aurEff); // cast the stack
 
             Aura* dummy = caster->GetAura(_stackSpell); // retrieve aura
 
@@ -3374,7 +3388,7 @@ public:
             // if right amount, remove the aura and cast real trigger
             caster->RemoveAurasDueToSpell(_stackSpell);
             if (Unit* target = eventInfo.GetActionTarget())
-                caster->CastSpell(target, _triggerSpell, true, nullptr, aurEff);
+                caster->CastSpell(target, _triggerSpell, aurEff);
         }
 
         void Register() override
@@ -3457,7 +3471,7 @@ class spell_item_darkmoon_card_greatness : public AuraScript
             stat = vers;
         }
 
-        caster->CastSpell(caster, spellTrigger, true, nullptr, aurEff);
+        caster->CastSpell(caster, spellTrigger, aurEff);
     }
 
     void Register() override
@@ -3494,10 +3508,10 @@ class spell_item_mana_drain : public AuraScript
         Unit* target = eventInfo.GetActionTarget();
 
         if (caster->IsAlive())
-            caster->CastSpell(caster, SPELL_MANA_DRAIN_ENERGIZE, true, nullptr, aurEff);
+            caster->CastSpell(caster, SPELL_MANA_DRAIN_ENERGIZE, aurEff);
 
         if (target && target->IsAlive())
-            caster->CastSpell(target, SPELL_MANA_DRAIN_LEECH, true, nullptr, aurEff);
+            caster->CastSpell(target, SPELL_MANA_DRAIN_LEECH, aurEff);
     }
 
     void Register() override
@@ -3587,7 +3601,7 @@ class spell_item_mind_control_cap : public SpellScript
         if (Unit* target = GetHitUnit())
         {
             if (roll_chance_i(ROLL_CHANCE_NO_BACKFIRE))
-                caster->CastSpell(target, roll_chance_i(ROLL_CHANCE_DULLARD) ? SPELL_DULLARD : SPELL_GNOMISH_MIND_CONTROL_CAP, true, GetCastItem());
+                caster->CastSpell(target, roll_chance_i(ROLL_CHANCE_DULLARD) ? SPELL_DULLARD : SPELL_GNOMISH_MIND_CONTROL_CAP, GetCastItem());
             else
                 target->CastSpell(caster, SPELL_GNOMISH_MIND_CONTROL_CAP, true); // backfire - 5% chance
         }
@@ -3629,11 +3643,11 @@ class spell_item_universal_remote : public SpellScript
         {
             uint8 chance = urand(0, 99);
             if (chance < 15)
-                GetCaster()->CastSpell(target, SPELL_TARGET_LOCK, true, GetCastItem());
+                GetCaster()->CastSpell(target, SPELL_TARGET_LOCK, GetCastItem());
             else if (chance < 25)
-                GetCaster()->CastSpell(target, SPELL_MOBILITY_MALFUNCTION, true, GetCastItem());
+                GetCaster()->CastSpell(target, SPELL_MOBILITY_MALFUNCTION, GetCastItem());
             else
-                GetCaster()->CastSpell(target, SPELL_CONTROL_MACHINE, true, GetCastItem());
+                GetCaster()->CastSpell(target, SPELL_CONTROL_MACHINE, GetCastItem());
         }
     }
 
@@ -3971,7 +3985,7 @@ class spell_item_mad_alchemists_potion : public SpellScript
         }
 
         if (useElixir)
-            target->CastSpell(target, chosenElixir, true, GetCastItem());
+            target->CastSpell(target, chosenElixir, GetCastItem());
     }
 
     void Register() override
@@ -4011,7 +4025,7 @@ class spell_item_crazy_alchemists_potion : public SpellScript
 
         uint32 chosenElixir = Trinity::Containers::SelectRandomContainerElement(availableElixirs);
 
-        target->CastSpell(target, chosenElixir, true, GetCastItem());
+        target->CastSpell(target, chosenElixir, GetCastItem());
     }
 
     void Register() override

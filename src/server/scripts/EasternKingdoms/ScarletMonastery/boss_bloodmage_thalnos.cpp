@@ -60,10 +60,10 @@ class boss_bloodmage_thalnos : public CreatureScript
                 _Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
-                _EnterCombat();
+                _JustEngagedWith();
                 events.ScheduleEvent(EVENT_FLAME_SHOCK, 10000);
                 events.ScheduleEvent(EVENT_SHADOW_BOLT, 2000);
                 events.ScheduleEvent(EVENT_FLAME_SPIKE, 8000);

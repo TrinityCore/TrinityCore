@@ -69,7 +69,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void Reset() override { }
 
@@ -352,7 +352,7 @@ public:
         npc_icefangAI(Creature* creature) : EscortAI(creature) { }
 
         void AttackStart(Unit* /*who*/) override { }
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
         void EnterEvadeMode(EvadeReason /*why*/) override { }
 
         void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) override
@@ -829,7 +829,7 @@ public:
             if (seatId != SEAT_INITIAL)
                 return;
 
-            me->CastCustomSpell(SPELL_GRIP, SPELLVALUE_AURA_STACK, 50);
+            me->CastSpell(nullptr, SPELL_GRIP, CastSpellExtraArgs().AddSpellMod(SPELLVALUE_AURA_STACK, 50));
             DoCastAOE(SPELL_CLAW_SWIPE_PERIODIC);
 
             _scheduler.Async([this]

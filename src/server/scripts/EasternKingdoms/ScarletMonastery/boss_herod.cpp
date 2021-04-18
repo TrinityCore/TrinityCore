@@ -76,11 +76,11 @@ class boss_herod : public CreatureScript
                 _Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
                 DoCast(me, SPELL_RUSHINGCHARGE);
-                _EnterCombat();
+                _JustEngagedWith();
 
                 events.ScheduleEvent(EVENT_CLEAVE, 12000);
                 events.ScheduleEvent(EVENT_WHIRLWIND, 60000);
@@ -158,7 +158,7 @@ public:
         uint32 Start_Timer;
 
         void Reset() override { }
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void UpdateAI(uint32 diff) override
         {

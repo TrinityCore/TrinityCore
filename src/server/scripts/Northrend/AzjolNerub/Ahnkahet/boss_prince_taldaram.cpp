@@ -110,9 +110,9 @@ class boss_prince_taldaram : public CreatureScript
                     me->SummonCreatureGroup(SUMMON_GROUP_CONTROLLERS);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
                 events.ScheduleEvent(EVENT_BLOODTHIRST, 10000);
                 events.ScheduleEvent(EVENT_VANISH, urand(25000, 35000));
@@ -325,7 +325,7 @@ class npc_prince_taldaram_flame_sphere : public CreatureScript
                 _flameSphereTargetGUID = guid;
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
             void MoveInLineOfSight(Unit* /*who*/) override { }
 
             void UpdateAI(uint32 diff) override

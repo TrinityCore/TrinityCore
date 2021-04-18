@@ -131,7 +131,7 @@ public:
                 Talk(SAY_OGRE_DEATH);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             DoZoneInCombat();
             instance->SetBossState(DATA_MAULGAR, IN_PROGRESS);
@@ -254,7 +254,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             DoZoneInCombat();
             instance->SetBossState(DATA_MAULGAR, IN_PROGRESS);
@@ -341,7 +341,7 @@ public:
             instance->SetBossState(DATA_MAULGAR, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             DoZoneInCombat();
             instance->SetBossState(DATA_MAULGAR, IN_PROGRESS);
@@ -433,7 +433,7 @@ public:
             instance->SetBossState(DATA_MAULGAR, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             DoZoneInCombat();
             instance->SetBossState(DATA_MAULGAR, IN_PROGRESS);
@@ -516,7 +516,7 @@ public:
             instance->SetBossState(DATA_MAULGAR, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             DoZoneInCombat();
             instance->SetBossState(DATA_MAULGAR, IN_PROGRESS);

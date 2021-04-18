@@ -121,7 +121,7 @@ class boss_archaedas : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->SetFaction(FACTION_MONSTER);
                 me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
@@ -270,7 +270,7 @@ class npc_archaedas_minions : public CreatureScript
                 me->AddAura(SPELL_MINION_FREEZE_ANIM, me);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->SetFaction(FACTION_MONSTER);
                 me->RemoveAllAuras();
@@ -359,7 +359,7 @@ class npc_stonekeepers : public CreatureScript
                 me->AddAura(SPELL_MINION_FREEZE_ANIM, me);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 me->SetFaction(FACTION_FRIENDLY);
                 me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);

@@ -117,9 +117,9 @@ struct boss_baleroc : public firelands_bossAI
         EquipWeapon(EQUIP_DEFAULT);
     }
 
-    void EnterCombat(Unit* target) override
+    void JustEngagedWith(Unit* target) override
     {
-        firelands_bossAI::EnterCombat(target);
+        firelands_bossAI::JustEngagedWith(target);
 
         Talk(SAY_AGGRO);
         PreparePhase(PHASE_ONE);

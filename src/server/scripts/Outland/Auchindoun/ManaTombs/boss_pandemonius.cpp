@@ -67,9 +67,9 @@ public:
             Talk(SAY_KILL);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             Talk(SAY_AGGRO);
             events.ScheduleEvent(EVENT_DARK_SHELL, 20000);
             events.ScheduleEvent(EVENT_VOID_BLAST, urand(8000, 23000));

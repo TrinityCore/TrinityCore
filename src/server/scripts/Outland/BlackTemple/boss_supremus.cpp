@@ -81,9 +81,9 @@ struct boss_supremus : public BossAI
         _DespawnAtEvade();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
-        _EnterCombat();
+        _JustEngagedWith();
         ChangePhase();
         events.ScheduleEvent(EVENT_BERSERK, Minutes(15));
         events.ScheduleEvent(EVENT_FLAME, Seconds(20));

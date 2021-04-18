@@ -88,10 +88,10 @@ class boss_tharon_ja : public CreatureScript
                 me->RestoreDisplayId();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
-                _EnterCombat();
+                _JustEngagedWith();
 
                 events.ScheduleEvent(EVENT_DECAY_FLESH, 20000);
                 events.ScheduleEvent(EVENT_CURSE_OF_LIFE, 1000);

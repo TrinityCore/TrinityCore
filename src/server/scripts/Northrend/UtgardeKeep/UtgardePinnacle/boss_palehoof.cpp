@@ -132,7 +132,7 @@ public:
 
     bool Execute(uint64 /*eventTime*/, uint32 /*diff*/) override
     {
-        _owner->CastCustomSpell(SPELL_AWAKEN_SUBBOSS, SPELLVALUE_MAX_TARGETS, 1, _owner);
+        _owner->CastSpell(_owner, SPELL_AWAKEN_SUBBOSS, { SPELLVALUE_MAX_TARGETS, 1 });
         return true;
     }
 
@@ -219,9 +219,9 @@ public:
                 _orb = summon->GetGUID();
         }
 
-        void EnterCombat (Unit* /*who*/) override
+        void JustEngagedWith (Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             Talk(SAY_AGGRO);
             events.ScheduleEvent(EVENT_ARCING_SMASH, Seconds(7));
             events.ScheduleEvent(EVENT_IMPALE, Seconds(11));
@@ -287,7 +287,7 @@ public:
                     if (_encountersCount == _dungeonMode)
                         orb->CastSpell(orb, SPELL_AWAKEN_GORTOK, true);
                     else
-                        orb->CastCustomSpell(SPELL_AWAKEN_SUBBOSS, SPELLVALUE_MAX_TARGETS, 1, orb, true);
+                        orb->CastSpell(orb, SPELL_AWAKEN_SUBBOSS, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_MAX_TARGETS, 1));
                     break;
                 }
                 case ACTION_START_FIGHT:
@@ -333,7 +333,7 @@ struct PalehoofMinionsBossAI : public BossAI
         DoCastSelf(SPELL_FREEZE, true);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         me->SetCombatPulseDelay(5);
         me->setActive(true);
