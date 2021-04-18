@@ -1,0 +1,1 @@
+ALTER TABLE `gameobject_addon` ADD `AIAnimKitID` INT(10) UNSIGNED DEFAULT '0' NOT NULL AFTER `WorldEffectID`;
