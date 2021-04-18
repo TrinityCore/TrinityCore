@@ -579,7 +579,7 @@ void WorldSession::HandleBuyItemOpcode(WorldPacket& recvData)
         TC_LOG_DEBUG("network", "WORLD: received wrong itemType (%u) in HandleBuyItemOpcode", itemType);
 }
 
-void WorldSession::HandleSetCurrencyFlags(WorldPackets::Misc::SetCurrencyFlags& packet)
+void WorldSession::HandleSetCurrencyFlags(WorldPackets::Misc::SetCurrencyFlags& /*packet*/)
 {
 }
 
