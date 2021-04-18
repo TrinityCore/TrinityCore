@@ -77,7 +77,7 @@ enum CreatureDifficultyFlags2
     CREATURE_DIFFICULTYFLAGS_2_UNK4                            = 0x00000020,
     CREATURE_DIFFICULTYFLAGS_2_UNK5                            = 0x00000040,
     CREATURE_DIFFICULTYFLAGS_2_UNK6                            = 0x00000080,
-    CREATURE_DIFFICULTYFLAGS_2_UNK7                            = 0x00000100,
+    CREATURE_DIFFICULTYFLAGS_2_IGNORE_FEIGN_DEATH              = 0x00000100,
     CREATURE_DIFFICULTYFLAGS_2_UNK8                            = 0x00000200,
     CREATURE_DIFFICULTYFLAGS_2_UNK9                            = 0x00000400,
     CREATURE_DIFFICULTYFLAGS_2_DEAD_INTERACT                   = 0x00000800, // CREATURE_TYPEFLAGS_DEAD_INTERACT
@@ -274,7 +274,7 @@ enum CreatureFlagsExtra : uint32
     CREATURE_FLAG_EXTRA_IGNORE_COMBAT        = 0x00002000,       // creature is not allowed to enter combat
     CREATURE_FLAG_EXTRA_WORLDEVENT           = 0x00004000,       // custom flag for world event creatures (left room for merging)
     CREATURE_FLAG_EXTRA_GUARD                = 0x00008000,       // Creature is guard
-    CREATURE_FLAG_EXTRA_UNUSED_16            = 0x00010000,
+    CREATURE_FLAG_EXTRA_IGNORE_FEIGN_DEATH   = 0x00010000,       // creature ignores feign death
     CREATURE_FLAG_EXTRA_NO_CRIT              = 0x00020000,       // creature can't do critical strikes
     CREATURE_FLAG_EXTRA_NO_SKILL_GAINS       = 0x00040000,       // creature won't increase weapon skills
     CREATURE_FLAG_EXTRA_OBEYS_TAUNT_DIMINISHING_RETURNS = 0x00080000,       // Taunt is subject to diminishing returns on this creature
@@ -292,7 +292,7 @@ enum CreatureFlagsExtra : uint32
     CREATURE_FLAG_EXTRA_UNUSED_31            = 0x80000000,
 
     // Masks
-    CREATURE_FLAG_EXTRA_UNUSED               = (CREATURE_FLAG_EXTRA_UNUSED_16 | CREATURE_FLAG_EXTRA_UNUSED_22 |
+    CREATURE_FLAG_EXTRA_UNUSED               = (CREATURE_FLAG_EXTRA_UNUSED_22 |
                                                 CREATURE_FLAG_EXTRA_UNUSED_23 | CREATURE_FLAG_EXTRA_UNUSED_24 | CREATURE_FLAG_EXTRA_UNUSED_25 |
                                                 CREATURE_FLAG_EXTRA_UNUSED_26 | CREATURE_FLAG_EXTRA_UNUSED_27 | CREATURE_FLAG_EXTRA_UNUSED_31), // SKIP
 
