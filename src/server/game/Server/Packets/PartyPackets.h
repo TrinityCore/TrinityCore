@@ -101,6 +101,79 @@ namespace WorldPackets
 
             bool EveryoneIsAssistant = false;
         };
+
+        class PartyCommandResult final : public ServerPacket
+        {
+        public:
+            PartyCommandResult() : ServerPacket(SMSG_PARTY_COMMAND_RESULT, 4 + 1 + 4 + 4 + 8) { }
+
+            WorldPacket const* Write() override;
+
+            std::string Name;
+            uint8 Command = 0u;
+            uint8 Result = 0u;
+            uint32 ResultData = 0u;
+            ObjectGuid ResultGUID;
+        };
+
+        class PartyInviteClient final : public ClientPacket
+        {
+        public:
+            PartyInviteClient(WorldPacket&& packet) : ClientPacket(CMSG_PARTY_INVITE, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 PartyIndex = 0;
+            uint32 ProposedRoles = 0;
+            uint32 TargetCfgRealmID = 0;
+            std::string TargetName;
+            std::string TargetRealm;
+            ObjectGuid TargetGUID;
+        };
+
+        class PartyInvite final : public ServerPacket
+        {
+        public:
+            PartyInvite() : ServerPacket(SMSG_PARTY_INVITE, 43) { }
+
+            WorldPacket const* Write() override;
+
+            void Initialize(Player* const inviter, int32 proposedRoles, bool canAccept);
+
+            bool IsXRealm = false;
+            bool MustBeBNetFriend = false;
+            bool CanAccept = false;
+            uint32 InviterCfgRealmID = 0;
+            uint32 LfgCompletedMask = 0;
+            uint32 ProposedRoles = 0;
+            uint32 Timestamp = 0; // not in WoD client magic but 4.x sniffs send timestamp data
+            std::string InviterRealmName;
+            std::string InviterName;
+            std::vector<uint32> LfgSlots;
+            ObjectGuid InviterGUID;
+        };
+
+        class PartyInviteResponse final : public ClientPacket
+        {
+        public:
+            PartyInviteResponse(WorldPacket&& packet) : ClientPacket(CMSG_PARTY_INVITE_RESPONSE, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 PartyIndex = 0;
+            bool Accept = false;
+            Optional<uint32> RolesDesired;
+        };
+
+        class GroupDecline final : public ServerPacket
+        {
+        public:
+            GroupDecline(std::string const& name) : ServerPacket(SMSG_GROUP_DECLINE, name.size()), Name(name) { }
+
+            WorldPacket const* Write() override;
+
+            std::string Name;
+        };
     }
 }
 

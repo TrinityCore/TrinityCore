@@ -19,10 +19,12 @@
 #include "Group.h"
 #include "Pet.h"
 #include "Player.h"
+#include "Realm.h"
 #include "PhasingHandler.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
 #include "Vehicle.h"
+#include "World.h"
 
 void WorldPackets::Party::PartyMemberState::Initialize(Player const* player)
 {
@@ -313,4 +315,127 @@ WorldPacket const* WorldPackets::Party::PartyMemberState::Write()
 void WorldPackets::Party::SetEveryoneIsAssistant::Read()
 {
     EveryoneIsAssistant = _worldPacket.ReadBit();
+}
+
+WorldPacket const* WorldPackets::Party::PartyCommandResult::Write()
+{
+    _worldPacket.resize(4 + Name.length() + 4 + 4 + 8);
+
+    _worldPacket << uint32(Command);
+    _worldPacket << Name;
+    _worldPacket << uint32(Result);
+    _worldPacket << uint32(ResultData);
+    _worldPacket << ResultGUID;
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Party::PartyInviteClient::Read()
+{
+    uint32 targetNameLen, targetRealmLen;
+
+    _worldPacket >> TargetCfgRealmID;
+    _worldPacket >> ProposedRoles;
+
+    TargetGUID[2] = _worldPacket.ReadBit();
+    TargetGUID[7] = _worldPacket.ReadBit();
+
+    targetRealmLen = _worldPacket.ReadBits(9);
+
+    TargetGUID[3] = _worldPacket.ReadBit();
+
+    targetNameLen = _worldPacket.ReadBits(10);
+
+    TargetGUID[5] = _worldPacket.ReadBit();
+    TargetGUID[4] = _worldPacket.ReadBit();
+    TargetGUID[6] = _worldPacket.ReadBit();
+    TargetGUID[0] = _worldPacket.ReadBit();
+    TargetGUID[1] = _worldPacket.ReadBit();
+
+    _worldPacket.ReadByteSeq(TargetGUID[4]);
+    _worldPacket.ReadByteSeq(TargetGUID[7]);
+    _worldPacket.ReadByteSeq(TargetGUID[6]);
+
+    TargetName = _worldPacket.ReadString(targetNameLen);
+    TargetRealm = _worldPacket.ReadString(targetRealmLen);
+
+    _worldPacket.ReadByteSeq(TargetGUID[1]);
+    _worldPacket.ReadByteSeq(TargetGUID[0]);
+    _worldPacket.ReadByteSeq(TargetGUID[5]);
+    _worldPacket.ReadByteSeq(TargetGUID[3]);
+    _worldPacket.ReadByteSeq(TargetGUID[2]);
+}
+
+void WorldPackets::Party::PartyInvite::Initialize(Player* const inviter, int32 proposedRoles, bool canAccept)
+{
+    CanAccept = canAccept;
+    InviterName = inviter->GetName();
+    InviterGUID = inviter->GetGUID();
+    InviterRealmName = realm.Name;
+    InviterCfgRealmID = realm.Id.Realm;
+    Timestamp = getMSTime();
+
+    ProposedRoles = proposedRoles;
+}
+
+WorldPacket const* WorldPackets::Party::PartyInvite::Write()
+{
+    _worldPacket.WriteBit(MustBeBNetFriend); // This bit automatically declines party invites so it's probably bnet friends parental control stuff
+    _worldPacket.WriteBit(InviterGUID[0]);
+    _worldPacket.WriteBit(InviterGUID[3]);
+    _worldPacket.WriteBit(InviterGUID[2]);
+    _worldPacket.WriteBit(CanAccept);
+    _worldPacket.WriteBit(InviterGUID[6]);
+    _worldPacket.WriteBit(InviterGUID[5]);
+    _worldPacket.WriteBits(InviterRealmName.length(), 9);
+    _worldPacket.WriteBit(InviterGUID[4]);
+    _worldPacket.WriteBits(InviterName.length(), 7);
+    _worldPacket.WriteBits(LfgSlots.size(), 27);
+    _worldPacket.WriteBit(IsXRealm); // @todo: validate. Just seen it once in a firelands raid sniff.
+    _worldPacket.FlushBits();
+
+    _worldPacket.WriteByteSeq(InviterGUID[1]);
+    _worldPacket.WriteByteSeq(InviterGUID[4]);
+
+    _worldPacket << uint32(Timestamp);
+    _worldPacket << uint32(ProposedRoles);
+    _worldPacket << uint32(LfgCompletedMask);
+
+    _worldPacket.WriteByteSeq(InviterGUID[6]);
+    _worldPacket.WriteByteSeq(InviterGUID[0]);
+    _worldPacket.WriteByteSeq(InviterGUID[2]);
+    _worldPacket.WriteByteSeq(InviterGUID[3]);
+
+    for (uint32 lfgSlot : LfgSlots)
+        _worldPacket << uint32(lfgSlot);
+
+    _worldPacket.WriteByteSeq(InviterGUID[5]);
+
+    _worldPacket.WriteString(InviterRealmName);
+
+    _worldPacket.WriteByteSeq(InviterGUID[7]);
+
+    _worldPacket.WriteString(InviterName);
+    _worldPacket << uint32(InviterCfgRealmID);
+
+    return &_worldPacket;
+}
+
+void WorldPackets::Party::PartyInviteResponse::Read()
+{
+    bool hasRolesDesired = _worldPacket.ReadBit();
+    Accept = _worldPacket.ReadBit();
+
+    if (hasRolesDesired)
+    {
+        RolesDesired.emplace();
+        _worldPacket >> *RolesDesired;
+    }
+}
+
+WorldPacket const* WorldPackets::Party::GroupDecline::Write()
+{
+    _worldPacket << Name;
+
+    return &_worldPacket;
 }

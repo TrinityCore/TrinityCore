@@ -168,6 +168,8 @@ namespace WorldPackets
     namespace Party
     {
         class SetEveryoneIsAssistant;
+        class PartyInviteClient;
+        class PartyInviteResponse;
     }
 
     namespace Quest
@@ -750,9 +752,9 @@ class TC_GAME_API WorldSession
         void HandleBattlefieldStatusOpcode(WorldPacket& recvData);
         void HandleBattleMasterHelloOpcode(WorldPacket& recvData);
 
-        void HandleGroupInviteOpcode(WorldPacket& recvPacket);
+        void HandlePartyInviteOpcode(WorldPackets::Party::PartyInviteClient& packet);
         //void HandleGroupCancelOpcode(WorldPacket& recvPacket);
-        void HandleGroupInviteResponseOpcode(WorldPacket& recvPacket);
+        void HandlePartyInviteResponseOpcode(WorldPackets::Party::PartyInviteResponse& packet);
         void HandleGroupClearMarker(WorldPacket& recvPacket);
         void HandleGroupUninviteOpcode(WorldPacket& recvPacket);
         void HandleGroupUninviteGuidOpcode(WorldPacket& recvPacket);

@@ -1373,8 +1373,8 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint16 opcode) co
         case CMSG_EQUIPMENT_SET_DELETE:                 //   0               1.5
         case CMSG_DISMISS_CRITTER:                      //   0               1.5
         case CMSG_REPOP_REQUEST:                        //   0               1.5
-        case CMSG_GROUP_INVITE:                         //   0               1.5
-        case CMSG_GROUP_INVITE_RESPONSE:                //   0               1.5
+        case CMSG_PARTY_INVITE:                         //   0               1.5
+        case CMSG_PARTY_INVITE_RESPONSE:                //   0               1.5
         case CMSG_GROUP_UNINVITE_GUID:                  //   0               1.5
         case CMSG_GROUP_DISBAND:                        //   0               1.5
         case CMSG_BATTLEMASTER_JOIN_ARENA:              //   0               1.5

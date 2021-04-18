@@ -322,8 +322,8 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_GROUP_ASSISTANT_LEADER,                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGroupAssistantLeaderOpcode);
     DEFINE_HANDLER(CMSG_GROUP_CHANGE_SUB_GROUP,                           STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGroupChangeSubGroupOpcode );
     DEFINE_HANDLER(CMSG_GROUP_DISBAND,                                    STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGroupDisbandOpcode        );
-    DEFINE_HANDLER(CMSG_GROUP_INVITE,                                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGroupInviteOpcode         );
-    DEFINE_HANDLER(CMSG_GROUP_INVITE_RESPONSE,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGroupInviteResponseOpcode );
+    DEFINE_HANDLER(CMSG_PARTY_INVITE,                                     STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePartyInviteOpcode         );
+    DEFINE_HANDLER(CMSG_PARTY_INVITE_RESPONSE,                            STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandlePartyInviteResponseOpcode );
     DEFINE_HANDLER(CMSG_GROUP_RAID_CONVERT,                               STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGroupRaidConvertOpcode    );
     DEFINE_HANDLER(CMSG_GROUP_REQUEST_JOIN_UPDATES,                       STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGroupRequestJoinUpdates   );
     DEFINE_HANDLER(CMSG_GROUP_SET_LEADER,                                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleGroupSetLeaderOpcode      );
@@ -879,7 +879,7 @@ void OpcodeTable::Initialize()
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GROUP_CANCEL,                                     STATUS_NEVER,       CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GROUP_DECLINE,                                    STATUS_NEVER,       CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GROUP_DESTROYED,                                  STATUS_NEVER,       CONNECTION_TYPE_REALM);
-    DEFINE_SERVER_OPCODE_HANDLER(SMSG_GROUP_INVITE,                                     STATUS_NEVER,       CONNECTION_TYPE_INSTANCE);
+    DEFINE_SERVER_OPCODE_HANDLER(SMSG_PARTY_INVITE,                                     STATUS_NEVER,       CONNECTION_TYPE_INSTANCE);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GROUP_LIST,                                       STATUS_NEVER,       CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GROUP_SET_LEADER,                                 STATUS_NEVER,       CONNECTION_TYPE_REALM);
     DEFINE_SERVER_OPCODE_HANDLER(SMSG_GROUP_SET_ROLE,                                   STATUS_NEVER,       CONNECTION_TYPE_REALM);
