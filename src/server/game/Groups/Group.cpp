@@ -607,10 +607,7 @@ bool Group::RemoveMember(ObjectGuid guid, const RemoveMethod& method /*= GROUP_R
             }
 
             // Do we really need to send this opcode?
-            data.Initialize(SMSG_GROUP_LIST, 1+1+1+1+8+4+4+8);
-            data << uint8(0x10) << uint8(0) << uint8(0) << uint8(0);
-            data << uint64(m_guid) << uint32(m_counter) << uint32(0) << uint64(0);
-            player->SendDirectMessage(&data);
+            SendUpdateDestroyGroupToPlayer(player);
 
             _homebindIfInstance(player);
         }
@@ -845,16 +842,9 @@ void Group::Disband(bool hideDestroy /* = false */)
 
         //we already removed player from group and in player->GetGroup() is his original group, send update
         if (Group* group = player->GetGroup())
-        {
             group->SendUpdate();
-        }
         else
-        {
-            data.Initialize(SMSG_GROUP_LIST, 1+1+1+1+8+4+4+8);
-            data << uint8(0x10) << uint8(0) << uint8(0) << uint8(0);
-            data << uint64(m_guid) << uint32(m_counter) << uint32(0) << uint64(0);
-            player->SendDirectMessage(&data);
-        }
+            SendUpdateDestroyGroupToPlayer(player);
 
         _homebindIfInstance(player);
 
@@ -1756,56 +1746,61 @@ void Group::SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot)
         slot = &(*witr);
     }
 
-    WorldPacket data(SMSG_GROUP_LIST, (1+1+1+1+1+4+8+4+4+(GetMembersCount()-1)*(13+8+1+1+1+1)+8+1+8+1+1+1+1));
-    data << uint8(m_groupFlags);
-    data << uint8(slot->group);
-    data << uint8(slot->flags);
-    data << uint8(slot->roles);
+    WorldPackets::Party::PartyUpdate partyUpdate;
+    partyUpdate.PartyFlags = m_groupFlags;
+    partyUpdate.Subgroup = slot->group;
+    partyUpdate.Flags = slot->flags;
+    partyUpdate.RolesAssigned = slot->roles;
+
     if (isLFGGroup())
     {
-        data << uint8(sLFGMgr->GetState(m_guid) == lfg::LFG_STATE_FINISHED_DUNGEON ? 2 : 0); // FIXME - Dungeon save status? 2 = done
-        data << uint32(sLFGMgr->GetDungeon(m_guid));
-        data << uint8(0); // 4.x new
+        partyUpdate.LfgInfo.MyLfgFlags = sLFGMgr->GetState(m_guid) == lfg::LFG_STATE_FINISHED_DUNGEON ? 2 : 0; // Todo: 'saved' status (1)
+        partyUpdate.LfgInfo.LfgSlot = sLFGMgr->GetLFGDungeonEntry(sLFGMgr->GetDungeon(m_guid));
+        partyUpdate.LfgInfo.LfgAborted = false; // todo
     }
 
-    data << uint64(m_guid);
-    data << uint32(m_counter++);                        // 3.3, value increases every time this packet gets sent
-    data << uint32(GetMembersCount()-1);
-    for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
+    partyUpdate.PartyGUID = m_guid;
+    partyUpdate.LeaderGUID = m_leaderGuid;
+    partyUpdate.SequenceNum = m_counter++;
+
+    for (MemberSlot const& memberSlot : m_memberSlots)
     {
-        if (slot->guid == citr->guid)
+        if (slot->guid == memberSlot.guid)
             continue;
 
-        Player* member = ObjectAccessor::FindConnectedPlayer(citr->guid);
+        WorldPackets::Party::PartyPlayerInfo& playerInfo = partyUpdate.PlayerList.emplace_back();
 
-        uint8 onlineState = (member && !member->GetSession()->PlayerLogout()) ? MEMBER_STATUS_ONLINE : MEMBER_STATUS_OFFLINE;
-        onlineState = onlineState | ((isBGGroup() || isBFGroup()) ? MEMBER_STATUS_PVP : 0);
+        Player* member = ObjectAccessor::FindConnectedPlayer(memberSlot.guid);
+        playerInfo.Connected = (member && !member->GetSession()->PlayerLogout()) ? MEMBER_STATUS_ONLINE : MEMBER_STATUS_OFFLINE;
+        playerInfo.Connected |= ((isBGGroup() || isBFGroup()) ? MEMBER_STATUS_PVP : 0);
 
-        data << citr->name;
-        data << uint64(citr->guid);                     // guid
-        data << uint8(onlineState);                     // online-state
-        data << uint8(citr->group);                     // groupid
-        data << uint8(citr->flags);                     // See enum GroupMemberFlags
-        data << uint8(citr->roles);                     // Lfg Roles
+        playerInfo.Name = memberSlot.name;
+        playerInfo.Guid = memberSlot.guid;
+        playerInfo.Subgroup = memberSlot.group;
+        playerInfo.Flags = memberSlot.flags;
+        playerInfo.RolesAssigned = memberSlot.roles;
     }
 
-    data << uint64(m_leaderGuid);                       // leader guid
-
-    if (GetMembersCount() - 1)
+    if (!partyUpdate.PlayerList.empty())
     {
-        data << uint8(m_lootMethod);                    // loot method
+        partyUpdate.LootSettings.LootMethod = m_lootMethod;
+        partyUpdate.LootSettings.LootMaster = m_lootMethod == MASTER_LOOT ? m_masterLooterGuid : ObjectGuid::Empty;
+        partyUpdate.LootSettings.LootThreshold = m_lootThreshold;
 
-        if (m_lootMethod == MASTER_LOOT)
-            data << uint64(m_masterLooterGuid);         // master looter guid
-        else
-            data << uint64(0);
-
-        data << uint8(m_lootThreshold);                 // loot threshold
-        data << uint8(m_dungeonDifficulty);             // Dungeon Difficulty
-        data << uint8(m_raidDifficulty);                // Raid Difficulty
+        partyUpdate.DifficultySettings.DungeonDifficulty = m_dungeonDifficulty;
+        partyUpdate.DifficultySettings.RaidDifficulty = m_raidDifficulty;
     }
 
-    player->SendDirectMessage(&data);
+    player->SendDirectMessage(partyUpdate.Write());
+}
+
+void Group::SendUpdateDestroyGroupToPlayer(Player* player)
+{
+    WorldPackets::Party::PartyUpdate partyUpdate;
+    partyUpdate.PartyFlags = GROUP_FLAG_DESTROYED;
+    partyUpdate.PartyGUID = m_guid;
+    partyUpdate.SequenceNum = m_counter++;
+    player->SendDirectMessage(partyUpdate.Write());
 }
 
 void Group::UpdatePlayerOutOfRange(Player* player)

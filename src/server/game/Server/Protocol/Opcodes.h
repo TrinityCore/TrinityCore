@@ -818,7 +818,7 @@ enum OpcodeServer
     SMSG_GROUP_DECLINE                                = 0x6835,
     SMSG_GROUP_DESTROYED                              = 0x2207,
     SMSG_PARTY_INVITE                                 = 0x31B2,
-    SMSG_GROUP_LIST                                   = 0x4C24,
+    SMSG_PARTY_UPDATE                                 = 0x4C24,
     SMSG_GROUP_SET_LEADER                             = 0x0526,
     SMSG_GROUP_SET_ROLE                               = 0x39A6,
     SMSG_GROUP_UNINVITE                               = 0x0A07,

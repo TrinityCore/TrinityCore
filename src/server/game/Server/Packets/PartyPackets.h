@@ -174,6 +174,56 @@ namespace WorldPackets
 
             std::string Name;
         };
+
+        struct PartyLFGInfo
+        {
+            uint8 MyLfgFlags = 0;
+            uint32 LfgSlot = 0;
+            bool LfgAborted = false;
+        };
+
+        struct PartyPlayerInfo
+        {
+            std::string Name;
+            ObjectGuid Guid;
+            uint8 Connected = 0;
+            uint8 Subgroup = 0;
+            uint8 Flags = 0;
+            uint8 RolesAssigned = 0;
+        };
+
+       struct  PartyLootSettings
+        {
+            ObjectGuid LootMaster;
+            uint8 LootMethod = 0;
+            uint8 LootThreshold = 0;
+        };
+
+        struct PartyDifficultySettings
+        {
+            uint32 DungeonDifficulty = 0;
+            uint32 RaidDifficulty = 0;
+        };
+
+        class PartyUpdate final : public ServerPacket
+        {
+        public:
+            PartyUpdate() : ServerPacket(SMSG_PARTY_UPDATE) { }
+
+            WorldPacket const* Write() override;
+
+            uint8 PartyFlags = 0;
+            uint8 Subgroup = 0;
+            uint8 Flags = 0;
+            uint8 RolesAssigned = 0;
+            uint32 SequenceNum = 0;
+            ObjectGuid LeaderGUID;
+            ObjectGuid PartyGUID;
+            std::vector<PartyPlayerInfo> PlayerList;
+            PartyLootSettings LootSettings;
+            PartyLFGInfo LfgInfo;
+            PartyDifficultySettings DifficultySettings;
+        };
     }
 }
 

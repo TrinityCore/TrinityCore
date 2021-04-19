@@ -333,6 +333,7 @@ class TC_GAME_API Group
         void SendRaidMarkerUpdateToPlayer(ObjectGuid playerGUID, bool remove = false);
         void SendUpdate();
         void SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot = nullptr);
+        void SendUpdateDestroyGroupToPlayer(Player* player);
         void UpdatePlayerOutOfRange(Player* player);
 
         template<class Worker>

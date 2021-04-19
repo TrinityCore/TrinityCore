@@ -439,3 +439,69 @@ WorldPacket const* WorldPackets::Party::GroupDecline::Write()
 
     return &_worldPacket;
 }
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::PartyPlayerInfo const& partyPlayerInfo)
+{
+    data << partyPlayerInfo.Name;
+    data << partyPlayerInfo.Guid;
+    data << uint8(partyPlayerInfo.Connected);
+    data << uint8(partyPlayerInfo.Subgroup);
+    data << uint8(partyPlayerInfo.Flags);
+    data << uint8(partyPlayerInfo.RolesAssigned);
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::PartyLFGInfo const& lfgInfo)
+{
+    data << uint8(lfgInfo.MyLfgFlags);
+    data << uint32(lfgInfo.LfgSlot);
+    data << bool(lfgInfo.LfgAborted);
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::PartyLootSettings const& lootSettings)
+{
+    data << uint8(lootSettings.LootMethod);
+    data << lootSettings.LootMaster;
+    data << uint8(lootSettings.LootThreshold);
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Party::PartyDifficultySettings const& difficultySettings)
+{
+    data << uint8(difficultySettings.DungeonDifficulty);
+    data << uint8(difficultySettings.RaidDifficulty);
+
+    return data;
+}
+
+WorldPacket const* WorldPackets::Party::PartyUpdate::Write()
+{
+    _worldPacket << uint8(PartyFlags);
+    _worldPacket << uint8(Subgroup);
+    _worldPacket << uint8(Flags);
+    _worldPacket << uint8(RolesAssigned);
+
+    if (PartyFlags & GROUP_FLAG_LFG)
+        _worldPacket << LfgInfo;
+
+    _worldPacket << PartyGUID;
+    _worldPacket << uint32(SequenceNum);
+    _worldPacket << uint32(PlayerList.size());
+
+    for (PartyPlayerInfo const& playerInfo : PlayerList)
+        _worldPacket << playerInfo;
+
+    _worldPacket << LeaderGUID;
+
+    if (!PlayerList.empty())
+    {
+        _worldPacket << LootSettings;
+        _worldPacket << DifficultySettings;
+    }
+
+    return &_worldPacket;
+}
