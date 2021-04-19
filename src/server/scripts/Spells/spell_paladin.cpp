@@ -290,7 +290,7 @@ class spell_pal_crusader_might : public AuraScript
 
     void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
     {
-        GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_PALADIN_HOLY_SHOCK_R1, aurEff->GetAmount());
+        GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_PALADIN_HOLY_SHOCK_R1, Seconds(aurEff->GetAmount()));
     }
 
     void Register() override
@@ -437,7 +437,7 @@ class spell_pal_fist_of_justice : public AuraScript
     {
         int32 value = aurEff->GetAmount() / 10;
 
-        GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_PALADIN_HAMMER_OF_JUSTICE, -value);
+        GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_PALADIN_HAMMER_OF_JUSTICE, Seconds(-value));
     }
 
     void Register() override
@@ -863,8 +863,8 @@ class spell_pal_righteous_protector : public AuraScript
     {
         int32 value = aurEff->GetAmount() * 100 * _baseHolyPowerCost->Amount;
 
-        GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_PALADIN_AVENGING_WRATH, -value);
-        GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_PALADIN_GUARDIAN_OF_ANCIENT_KINGS, -value);
+        GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_PALADIN_AVENGING_WRATH, Seconds(-value));
+        GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_PALADIN_GUARDIAN_OF_ANCIENT_KINGS, Seconds(-value));
     }
 
     void Register() override

@@ -850,7 +850,7 @@ class spell_sha_item_t10_elemental_2p_bonus : public SpellScriptLoader
             {
                 PreventDefaultAction();
                 if (Player* target = GetTarget()->ToPlayer())
-                    target->GetSpellHistory()->ModifyCooldown(SPELL_SHAMAN_ELEMENTAL_MASTERY, -aurEff->GetAmount());
+                    target->GetSpellHistory()->ModifyCooldown(SPELL_SHAMAN_ELEMENTAL_MASTERY, Milliseconds(-aurEff->GetAmount()));
             }
 
             void Register() override

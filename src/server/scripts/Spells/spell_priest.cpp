@@ -375,18 +375,21 @@ class spell_pri_holy_words : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_HEAL, SPELL_PRIEST_FLASH_HEAL, SPELL_PRIEST_PRAYER_OF_HEALING,
-            SPELL_PRIEST_RENEW, SPELL_PRIEST_SMITE,
-            SPELL_PRIEST_HOLY_WORD_CHASTISE, SPELL_PRIEST_HOLY_WORD_SANCTIFY, SPELL_PRIEST_HOLY_WORD_SERENITY })
+        return ValidateSpellInfo
+        ({
+            SPELL_PRIEST_HEAL,
+            SPELL_PRIEST_FLASH_HEAL,
+            SPELL_PRIEST_PRAYER_OF_HEALING,
+            SPELL_PRIEST_RENEW,
+            SPELL_PRIEST_SMITE,
+            SPELL_PRIEST_HOLY_WORD_CHASTISE,
+            SPELL_PRIEST_HOLY_WORD_SANCTIFY,
+            SPELL_PRIEST_HOLY_WORD_SERENITY
+        })
             && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_HOLY_WORD_SERENITY, DIFFICULTY_NONE)->GetEffect(EFFECT_1)
             && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_HOLY_WORD_SANCTIFY, DIFFICULTY_NONE)->GetEffect(EFFECT_2)
             && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_HOLY_WORD_SANCTIFY, DIFFICULTY_NONE)->GetEffect(EFFECT_3)
             && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_HOLY_WORD_CHASTISE, DIFFICULTY_NONE)->GetEffect(EFFECT_1);
-    }
-
-    bool Load() override
-    {
-        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
     }
 
     void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
@@ -394,7 +397,6 @@ class spell_pri_holy_words : public AuraScript
         SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
         if (!spellInfo)
             return;
-        Player* player = GetTarget()->ToPlayer();
 
         uint32 targetSpellId;
         SpellEffIndex cdReductionEffIndex;
@@ -423,8 +425,9 @@ class spell_pri_holy_words : public AuraScript
                 return;
         }
 
-        int32 cdReduction = sSpellMgr->GetSpellInfo(targetSpellId, GetCastDifficulty())->GetEffect(cdReductionEffIndex)->CalcValue(player);
-        player->GetSpellHistory()->ModifySpellOrChargeCooldown(targetSpellId, std::chrono::seconds(-cdReduction));
+        SpellInfo const* targetSpellInfo = sSpellMgr->AssertSpellInfo(targetSpellId, GetCastDifficulty());
+        int32 cdReduction = targetSpellInfo->GetEffect(cdReductionEffIndex)->CalcValue(GetTarget());
+        GetTarget()->GetSpellHistory()->ModifyCooldown(targetSpellInfo, Seconds(-cdReduction));
     }
 
     void Register() override
@@ -534,9 +537,9 @@ public:
         }
     };
 
-    SpellScript* GetSpellScript() const
+    SpellScript* GetSpellScript() const override
     {
-        return new spell_pri_levitate_SpellScript;
+        return new spell_pri_levitate_SpellScript();
     }
 };
 

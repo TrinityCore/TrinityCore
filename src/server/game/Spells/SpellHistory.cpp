@@ -545,13 +545,7 @@ void SpellHistory::AddCooldown(uint32 spellId, uint32 itemId, Clock::time_point 
         _categoryCooldowns[categoryId] = &cooldownEntry;
 }
 
-void SpellHistory::ModifyCooldown(uint32 spellId, int32 cooldownModMs)
-{
-    Clock::duration offset = std::chrono::duration_cast<Clock::duration>(std::chrono::milliseconds(cooldownModMs));
-    ModifyCooldown(spellId, offset);
-}
-
-void SpellHistory::ModifyCooldown(uint32 spellId, Clock::duration offset)
+void SpellHistory::ModifySpellCooldown(uint32 spellId, Clock::duration offset)
 {
     auto itr = _spellCooldowns.find(spellId);
     if (!offset.count() || itr == _spellCooldowns.end())
@@ -574,19 +568,21 @@ void SpellHistory::ModifyCooldown(uint32 spellId, Clock::duration offset)
     }
 }
 
-void SpellHistory::ModifySpellOrChargeCooldown(uint32 spellId, Clock::duration cooldownMod)
+void SpellHistory::ModifyCooldown(uint32 spellId, Clock::duration cooldownMod)
+{
+    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, _owner->GetMap()->GetDifficultyID()))
+        ModifyCooldown(spellInfo, cooldownMod);
+}
+
+void SpellHistory::ModifyCooldown(SpellInfo const* spellInfo, Clock::duration cooldownMod)
 {
     if (!cooldownMod.count())
-        return;
-
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE);
-    if (!spellInfo)
         return;
 
     if (GetChargeRecoveryTime(spellInfo->ChargeCategoryId) > 0 && GetMaxCharges(spellInfo->ChargeCategoryId) > 0)
         ModifyChargeRecoveryTime(spellInfo->ChargeCategoryId, cooldownMod);
     else
-        ModifyCooldown(spellId, cooldownMod);
+        ModifySpellCooldown(spellInfo->Id, cooldownMod);
 }
 
 void SpellHistory::ResetCooldown(uint32 spellId, bool update /*= false*/)

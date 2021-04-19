@@ -31,7 +31,6 @@ class Player;
 class Spell;
 class SpellInfo;
 class Unit;
-struct SpellCategoryEntry;
 
 /// Spell cooldown flags sent in SMSG_SPELL_COOLDOWN
 enum SpellCooldownFlags
@@ -102,9 +101,8 @@ public:
     }
 
     void AddCooldown(uint32 spellId, uint32 itemId, Clock::time_point cooldownEnd, uint32 categoryId, Clock::time_point categoryEnd, bool onHold = false);
-    void ModifyCooldown(uint32 spellId, int32 cooldownModMs);
     void ModifyCooldown(uint32 spellId, Clock::duration cooldownMod);
-    void ModifySpellOrChargeCooldown(uint32 spellId, Clock::duration cooldownMod);
+    void ModifyCooldown(SpellInfo const* spellInfo, Clock::duration cooldownMod);
     void ResetCooldown(uint32 spellId, bool update = false);
     void ResetCooldown(CooldownStorageType::iterator& itr, bool update = false);
     template<typename Predicate>
@@ -156,6 +154,7 @@ public:
 
 private:
     Player* GetPlayerOwner() const;
+    void ModifySpellCooldown(uint32 spellId, Clock::duration cooldownMod);
     void SendClearCooldowns(std::vector<int32> const& cooldowns) const;
     CooldownStorageType::iterator EraseCooldown(CooldownStorageType::iterator itr)
     {

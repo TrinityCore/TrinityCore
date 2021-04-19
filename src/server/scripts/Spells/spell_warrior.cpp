@@ -571,7 +571,7 @@ public:
         void HandleAfterCast()
         {
             if (_targetCount >= uint32(GetSpellInfo()->GetEffect(EFFECT_0)->CalcValue()))
-                GetCaster()->ToPlayer()->GetSpellHistory()->ModifyCooldown(GetSpellInfo()->Id, -(GetSpellInfo()->GetEffect(EFFECT_3)->CalcValue() * IN_MILLISECONDS));
+                GetCaster()->ToPlayer()->GetSpellHistory()->ModifyCooldown(GetSpellInfo()->Id, Seconds(-GetSpellInfo()->GetEffect(EFFECT_3)->CalcValue()));
         }
 
         void Register() override
