@@ -31,7 +31,6 @@ class Player;
 class Spell;
 class SpellInfo;
 class Unit;
-struct SpellCategoryEntry;
 
 /// Spell cooldown flags sent in SMSG_SPELL_COOLDOWN
 enum SpellCooldownFlags
@@ -66,9 +65,10 @@ public:
         Clock::time_point RechargeEnd;
     };
 
+    typedef std::deque<ChargeEntry> ChargeEntryCollection;
     typedef std::unordered_map<uint32 /*spellId*/, CooldownEntry> CooldownStorageType;
     typedef std::unordered_map<uint32 /*categoryId*/, CooldownEntry*> CategoryCooldownStorageType;
-    typedef std::unordered_map<uint32 /*categoryId*/, std::deque<ChargeEntry>> ChargeStorageType;
+    typedef std::unordered_map<uint32 /*categoryId*/, ChargeEntryCollection> ChargeStorageType;
     typedef std::unordered_map<uint32 /*categoryId*/, Clock::time_point> GlobalCooldownStorageType;
 
     explicit SpellHistory(Unit* owner) : _owner(owner), _schoolLockouts() { }
@@ -101,8 +101,8 @@ public:
     }
 
     void AddCooldown(uint32 spellId, uint32 itemId, Clock::time_point cooldownEnd, uint32 categoryId, Clock::time_point categoryEnd, bool onHold = false);
-    void ModifyCooldown(uint32 spellId, int32 cooldownModMs);
     void ModifyCooldown(uint32 spellId, Clock::duration cooldownMod);
+    void ModifyCooldown(SpellInfo const* spellInfo, Clock::duration cooldownMod);
     void ResetCooldown(uint32 spellId, bool update = false);
     void ResetCooldown(CooldownStorageType::iterator& itr, bool update = false);
     template<typename Predicate>
@@ -136,6 +136,7 @@ public:
 
     // Charges
     bool ConsumeCharge(uint32 chargeCategoryId);
+    void ModifyChargeRecoveryTime(uint32 chargeCategoryId, Clock::duration cooldownMod);
     void RestoreCharge(uint32 chargeCategoryId);
     void ResetCharges(uint32 chargeCategoryId);
     void ResetAllCharges();
@@ -153,12 +154,15 @@ public:
 
 private:
     Player* GetPlayerOwner() const;
+    void ModifySpellCooldown(uint32 spellId, Clock::duration cooldownMod);
     void SendClearCooldowns(std::vector<int32> const& cooldowns) const;
     CooldownStorageType::iterator EraseCooldown(CooldownStorageType::iterator itr)
     {
         _categoryCooldowns.erase(itr->second.CategoryId);
         return _spellCooldowns.erase(itr);
     }
+
+    void SendSetSpellCharges(uint32 chargeCategoryId, ChargeEntryCollection const& chargeCollection);
 
     static void GetCooldownDurations(SpellInfo const* spellInfo, uint32 itemId, int32* cooldown, uint32* categoryId, int32* categoryCooldown);
 
