@@ -143,8 +143,9 @@ class spell_pri_aq_3p_bonus : public SpellScriptLoader
                 if (!healInfo || !healInfo->GetHeal())
                     return;
 
-                int32 amount = CalculatePct(static_cast<int32>(healInfo->GetHeal()), 10);
-                caster->CastCustomSpell(SPELL_PRIEST_ORACULAR_HEAL, SPELLVALUE_BASE_POINT0, amount, caster, true, nullptr, aurEff);
+                CastSpellExtraArgs args(aurEff);
+                args.SpellValueOverrides.AddBP0(CalculatePct(static_cast<int32>(healInfo->GetHeal()), 10));
+                caster->CastSpell(caster, SPELL_PRIEST_ORACULAR_HEAL, args);
             }
 
             void Register() override
@@ -184,13 +185,14 @@ public:
         void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
         {
             DamageInfo* damageInfo = eventInfo.GetDamageInfo();
-            int32 heal = CalculatePct(damageInfo->GetDamage(), aurEff->GetAmount());
-            _appliedAtonements.erase(std::remove_if(_appliedAtonements.begin(), _appliedAtonements.end(), [this, heal](ObjectGuid const& targetGuid)
+            CastSpellExtraArgs args(aurEff);
+            args.AddSpellMod(SPELLVALUE_BASE_POINT0, CalculatePct(damageInfo->GetDamage(), aurEff->GetAmount()));
+            _appliedAtonements.erase(std::remove_if(_appliedAtonements.begin(), _appliedAtonements.end(), [this, &args](ObjectGuid const& targetGuid)
             {
                 if (Unit* target = ObjectAccessor::GetUnit(*GetTarget(), targetGuid))
                 {
                     if (target->GetExactDist(GetTarget()) < GetSpellInfo()->GetEffect(EFFECT_1)->CalcValue())
-                        GetTarget()->CastCustomSpell(SPELL_PRIEST_ATONEMENT_HEAL, SPELLVALUE_BASE_POINT0, heal, target, true);
+                        GetTarget()->CastSpell(target, SPELL_PRIEST_ATONEMENT_HEAL, args);
 
                     return false;
                 }
@@ -347,7 +349,9 @@ class spell_pri_guardian_spirit : public SpellScriptLoader
                 int32 healAmount = int32(target->CountPctFromMaxHealth(healPct));
                 // remove the aura now, we don't want 40% healing bonus
                 Remove(AURA_REMOVE_BY_ENEMY_SPELL);
-                target->CastCustomSpell(target, SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL, &healAmount, nullptr, nullptr, true);
+                CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                args.SpellValueOverrides.AddBP0(healAmount);
+                target->CastSpell(target, SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL, args);
                 absorbAmount = dmgInfo.GetDamage();
             }
 
@@ -489,7 +493,7 @@ class spell_pri_leap_of_faith_effect_trigger : public SpellScriptLoader
                 SpellCastTargets targets;
                 targets.SetDst(destPos);
                 targets.SetUnitTarget(GetCaster());
-                GetHitUnit()->CastSpell(targets, sSpellMgr->GetSpellInfo(GetEffectValue(), GetCastDifficulty()), nullptr);
+                GetHitUnit()->CastSpell(targets, GetEffectValue(), GetCastDifficulty());
             }
 
             void Register() override
@@ -600,15 +604,6 @@ class spell_pri_penance : public SpellScriptLoader
                         if (!caster->isInFront(target))
                             return SPELL_FAILED_UNIT_NOT_INFRONT;
                     }
-                    else
-                    {
-                        //Support for modifications of this spell in Legion with The Penitent talent (7.1.5)
-                        if(!caster->HasAura(SPELL_PRIEST_THE_PENITENT_AURA))
-                            return SPELL_FAILED_BAD_TARGETS;
-
-                        if (!caster->isInFront(target))
-                            return SPELL_FAILED_UNIT_NOT_INFRONT;
-                    }
                 }
 
                 return SPELL_CAST_OK;
@@ -713,10 +708,11 @@ public:
     void CastPrayerOfMendingAura(Unit* caster, Unit* target, uint8 stack)
     {
         uint32 basePoints = caster->SpellHealingBonusDone(target, _spellInfoHeal, _healEffectDummy->CalcValue(caster), HEAL, _healEffectDummy);
-        CustomSpellValues values;
-        values.AddSpellMod(SPELLVALUE_AURA_STACK, stack);
-        values.AddSpellMod(SPELLVALUE_BASE_POINT0, basePoints);
-        caster->CastCustomSpell(SPELL_PRIEST_PRAYER_OF_MENDING_AURA, values, target, TRIGGERED_FULL_MASK);
+        CastSpellExtraArgs args;
+        args.TriggerFlags = TRIGGERED_FULL_MASK;
+        args.AddSpellMod(SPELLVALUE_AURA_STACK, stack);
+        args.AddSpellMod(SPELLVALUE_BASE_POINT0, basePoints);
+        caster->CastSpell(target, SPELL_PRIEST_PRAYER_OF_MENDING_AURA, args);
     }
 
 protected:
@@ -758,12 +754,19 @@ class spell_pri_prayer_of_mending_aura : public AuraScript
         if (Unit* caster = GetCaster())
         {
             // Cast the spell to heal the owner
-            caster->CastSpell(target, SPELL_PRIEST_PRAYER_OF_MENDING_HEAL, true, nullptr, aurEff);
+            caster->CastSpell(target, SPELL_PRIEST_PRAYER_OF_MENDING_HEAL, aurEff);
 
             // Only cast jump if stack is higher than 0
             int32 stackAmount = GetStackAmount();
             if (stackAmount > 1)
-                target->CastCustomSpell(SPELL_PRIEST_PRAYER_OF_MENDING_JUMP, SPELLVALUE_BASE_POINT0, stackAmount - 1, target, true, nullptr, aurEff, caster->GetGUID());
+            {
+                CastSpellExtraArgs args;
+                args.TriggerFlags = TRIGGERED_FULL_MASK;
+                args.TriggeringAura = aurEff;
+                args.OriginalCaster = caster->GetGUID();
+                args.AddSpellMod(SPELLVALUE_BASE_POINT0, stackAmount - 1);
+                target->CastSpell(target, SPELL_PRIEST_PRAYER_OF_MENDING_JUMP, args);
+            }
 
             Remove();
         }
@@ -831,22 +834,18 @@ class spell_priest_spirit_of_redemption : public AuraScript
         return ValidateSpellInfo({ SPELL_PRIEST_SPIRIT_OF_REDEMPTION });
     }
 
-    void HandleAbsorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& /*absorbAmount*/)
+    void HandleAbsorb(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
     {
         Unit* target = GetTarget();
-        if (dmgInfo.GetDamage() >= target->GetHealth())
-        {
-            target->CastSpell(target, SPELL_PRIEST_SPIRIT_OF_REDEMPTION, TRIGGERED_FULL_MASK, nullptr, aurEff);
-            target->SetFullHealth();
-            return;
-        }
+        target->CastSpell(target, SPELL_PRIEST_SPIRIT_OF_REDEMPTION, aurEff);
+        target->SetFullHealth();
 
-        PreventDefaultAction();
+        absorbAmount = dmgInfo.GetDamage();
     }
 
     void Register() override
     {
-        OnEffectAbsorb += AuraEffectAbsorbFn(spell_priest_spirit_of_redemption::HandleAbsorb, EFFECT_0);
+        OnEffectAbsorb += AuraEffectAbsorbOverkillFn(spell_priest_spirit_of_redemption::HandleAbsorb, EFFECT_0);
     }
 };
 
@@ -868,7 +867,7 @@ class spell_pri_t3_4p_bonus : public SpellScriptLoader
             void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), SPELL_PRIEST_ARMOR_OF_FAITH, true, nullptr, aurEff);
+                eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), SPELL_PRIEST_ARMOR_OF_FAITH, aurEff);
             }
 
             void Register() override
@@ -912,7 +911,7 @@ class spell_pri_t5_heal_2p_bonus : public SpellScriptLoader
             void HandleProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
-                GetTarget()->CastSpell(GetTarget(), SPELL_PRIEST_ITEM_EFFICIENCY, true, nullptr, aurEff);
+                GetTarget()->CastSpell(GetTarget(), SPELL_PRIEST_ITEM_EFFICIENCY, aurEff);
             }
 
             void Register() override
@@ -962,7 +961,9 @@ class spell_pri_t10_heal_2p_bonus : public SpellScriptLoader
                 Unit* target = eventInfo.GetProcTarget();
                 amount += target->GetRemainingPeriodicAmount(caster->GetGUID(), SPELL_PRIEST_BLESSED_HEALING, SPELL_AURA_PERIODIC_HEAL);
 
-                caster->CastCustomSpell(SPELL_PRIEST_BLESSED_HEALING, SPELLVALUE_BASE_POINT0, amount, target, true, nullptr, aurEff);
+                CastSpellExtraArgs args(aurEff);
+                args.SpellValueOverrides.AddBP0(amount);
+                caster->CastSpell(target, SPELL_PRIEST_BLESSED_HEALING, args);
             }
 
             void Register() override
@@ -1008,7 +1009,10 @@ class spell_pri_vampiric_embrace : public SpellScriptLoader
                 int32 selfHeal = int32(CalculatePct(damageInfo->GetDamage(), aurEff->GetAmount()));
                 int32 teamHeal = selfHeal / 2;
 
-                GetTarget()->CastCustomSpell(nullptr, SPELL_PRIEST_VAMPIRIC_EMBRACE_HEAL, &teamHeal, &selfHeal, nullptr, true, nullptr, aurEff);
+                CastSpellExtraArgs args(aurEff);
+                args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT0, teamHeal);
+                args.SpellValueOverrides.AddMod(SPELLVALUE_BASE_POINT1, selfHeal);
+                GetTarget()->CastSpell(nullptr, SPELL_PRIEST_VAMPIRIC_EMBRACE_HEAL, args);
             }
 
             void Register() override
@@ -1074,9 +1078,10 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
                     {
                         if (AuraEffect const* aurEff = GetEffect(EFFECT_1))
                         {
-                            int32 damage = aurEff->GetAmount() * 8;
                             // backfire damage
-                            caster->CastCustomSpell(target, SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL, &damage, nullptr, nullptr, true, nullptr, aurEff);
+                            CastSpellExtraArgs args(aurEff);
+                            args.SpellValueOverrides.AddBP0(aurEff->GetAmount() * 8);
+                            caster->CastSpell(target, SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL, args);
                         }
                     }
                 }
@@ -1090,7 +1095,7 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
             void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
             {
                 PreventDefaultAction();
-                eventInfo.GetProcTarget()->CastSpell(nullptr, SPELL_GEN_REPLENISHMENT, true, nullptr, aurEff);
+                eventInfo.GetProcTarget()->CastSpell(nullptr, SPELL_GEN_REPLENISHMENT, aurEff);
             }
 
             void Register() override
@@ -1136,7 +1141,10 @@ class spell_pri_angelic_feather_trigger : public SpellScriptLoader
                 {
                     SpellCastTargets targets;
                     targets.SetDst(destPos);
-                    GetCaster()->CastSpell(targets, sSpellMgr->GetSpellInfo(SPELL_PRIEST_ANGELIC_FEATHER_AREATRIGGER, GetCastDifficulty()), nullptr);
+                    CastSpellExtraArgs args;
+                    args.TriggerFlags = TRIGGERED_FULL_MASK;
+                    args.CastDifficulty = GetCastDifficulty();
+                    GetCaster()->CastSpell(targets, SPELL_PRIEST_ANGELIC_FEATHER_AREATRIGGER, args);
                 }
             }
 

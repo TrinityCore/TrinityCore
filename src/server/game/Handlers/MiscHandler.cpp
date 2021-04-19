@@ -283,7 +283,7 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPackets::Character::LogoutRequ
         GetPlayer()->AddUnitFlag(UNIT_FLAG_STUNNED);
     }
 
-    SetLogoutStartTime(time(nullptr));
+    SetLogoutStartTime(GameTime::GetGameTime());
 }
 
 void WorldSession::HandleLogoutCancelOpcode(WorldPackets::Character::LogoutCancel& /*logoutCancel*/)
@@ -317,7 +317,7 @@ void WorldSession::HandleTogglePvP(WorldPackets::Misc::TogglePvP& /*packet*/)
         GetPlayer()->RemovePlayerFlag(PLAYER_FLAGS_IN_PVP);
         GetPlayer()->AddPlayerFlag(PLAYER_FLAGS_PVP_TIMER);
         if (!GetPlayer()->pvpInfo.IsHostile && GetPlayer()->IsPvP())
-            GetPlayer()->pvpInfo.EndTimer = time(nullptr); // start toggle-off
+            GetPlayer()->pvpInfo.EndTimer = GameTime::GetGameTime(); // start toggle-off
     }
     else
     {
@@ -335,7 +335,7 @@ void WorldSession::HandleSetPvP(WorldPackets::Misc::SetPvP& packet)
         GetPlayer()->RemovePlayerFlag(PLAYER_FLAGS_IN_PVP);
         GetPlayer()->AddPlayerFlag(PLAYER_FLAGS_PVP_TIMER);
         if (!GetPlayer()->pvpInfo.IsHostile && GetPlayer()->IsPvP())
-            GetPlayer()->pvpInfo.EndTimer = time(nullptr); // start toggle-off
+            GetPlayer()->pvpInfo.EndTimer = GameTime::GetGameTime(); // start toggle-off
     }
     else
     {
@@ -412,7 +412,7 @@ void WorldSession::HandleReclaimCorpse(WorldPackets::Misc::ReclaimCorpse& /*pack
         return;
 
     // prevent resurrect before 30-sec delay after body release not finished
-    if (time_t(corpse->GetGhostTime() + _player->GetCorpseReclaimDelay(corpse->GetType() == CORPSE_RESURRECTABLE_PVP)) > time_t(time(nullptr)))
+    if (time_t(corpse->GetGhostTime() + _player->GetCorpseReclaimDelay(corpse->GetType() == CORPSE_RESURRECTABLE_PVP)) > time_t(GameTime::GetGameTime()))
         return;
 
     if (!corpse->IsWithinDistInMap(_player, CORPSE_RECLAIM_RADIUS, true))
@@ -633,8 +633,8 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
 
 void WorldSession::HandleUpdateAccountData(WorldPackets::ClientConfig::UserClientUpdateAccountData& packet)
 {
-    TC_LOG_DEBUG("network", "WORLD: Received CMSG_UPDATE_ACCOUNT_DATA: type %u, time %u, decompressedSize %u",
-        packet.DataType, packet.Time, packet.Size);
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_UPDATE_ACCOUNT_DATA: type %u, time " SI64FMTD ", decompressedSize %u",
+        packet.DataType, packet.Time.AsUnderlyingType(), packet.Size);
 
     if (packet.DataType > NUM_ACCOUNT_DATA_TYPES)
         return;
@@ -1045,7 +1045,7 @@ void WorldSession::HandleGuildSetFocusedAchievement(WorldPackets::Achievement::G
 void WorldSession::HandleServerTimeOffsetRequest(WorldPackets::Misc::ServerTimeOffsetRequest& /*request*/)
 {
     WorldPackets::Misc::ServerTimeOffset response;
-    response.Time = time(nullptr);
+    response.Time = GameTime::GetGameTimeSystemPoint();
     SendPacket(response.Write());
 }
 
@@ -1127,10 +1127,11 @@ void WorldSession::HandleSetAdvancedCombatLogging(WorldPackets::ClientConfig::Se
     _player->SetAdvancedCombatLogging(setAdvancedCombatLogging.Enable);
 }
 
-void WorldSession::HandleMountSpecialAnimOpcode(WorldPackets::Misc::MountSpecial& /*mountSpecial*/)
+void WorldSession::HandleMountSpecialAnimOpcode(WorldPackets::Misc::MountSpecial& mountSpecial)
 {
     WorldPackets::Misc::SpecialMountAnim specialMountAnim;
     specialMountAnim.UnitGUID = _player->GetGUID();
+    std::copy(mountSpecial.SpellVisualKitIDs.begin(), mountSpecial.SpellVisualKitIDs.end(), std::back_inserter(specialMountAnim.SpellVisualKitIDs));
     GetPlayer()->SendMessageToSet(specialMountAnim.Write(), false);
 }
 

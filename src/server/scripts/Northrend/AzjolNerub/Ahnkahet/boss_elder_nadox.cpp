@@ -78,9 +78,9 @@ class boss_elder_nadox : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
 
                 events.ScheduleEvent(EVENT_PLAGUE, 13 * IN_MILLISECONDS);
@@ -258,7 +258,12 @@ class spell_ahn_kahet_swarm : public SpellScriptLoader
                         aura->RefreshDuration();
                     }
                     else
-                        GetCaster()->CastCustomSpell(SPELL_SWARM_BUFF, SPELLVALUE_AURA_STACK, _targetCount, GetCaster(), TRIGGERED_FULL_MASK);
+                    {
+                        CastSpellExtraArgs args;
+                        args.TriggerFlags = TRIGGERED_FULL_MASK;
+                        args.SpellValueOverrides.AddMod(SPELLVALUE_AURA_STACK, _targetCount);
+                        GetCaster()->CastSpell(GetCaster(), SPELL_SWARM_BUFF, args);
+                    }
                 }
                 else
                     GetCaster()->RemoveAurasDueToSpell(SPELL_SWARM_BUFF);

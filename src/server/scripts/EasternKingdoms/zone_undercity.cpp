@@ -121,7 +121,7 @@ public:
             _events.Reset();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             DoPlaySoundToSet(me, SOUND_AGGRO);
             _events.ScheduleEvent(EVENT_FADE, 30000);
@@ -131,9 +131,9 @@ public:
             _events.ScheduleEvent(EVENT_MULTI_SHOT, 10000);
         }
 
-        void SetGUID(ObjectGuid guid, int32 type) override
+        void SetGUID(ObjectGuid const& guid, int32 id) override
         {
-            if (type == GUID_EVENT_INVOKER)
+            if (id == GUID_EVENT_INVOKER)
             {
                 Talk(EMOTE_LAMENT);
                 DoPlaySoundToSet(me, SOUND_CREDIT);
@@ -294,7 +294,7 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
 
         void UpdateAI(uint32 diff) override
         {

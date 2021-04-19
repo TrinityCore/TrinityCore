@@ -111,7 +111,7 @@ struct npc_guard_generic : public GuardAI
         DoReplyToTextEmote(textEmote);
     }
 
-    void EnterCombat(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
         if (me->GetEntry() == NPC_CENARION_HOLD_INFANTRY)
             Talk(SAY_GUARD_SIL_AGGRO, who);
@@ -199,7 +199,7 @@ struct npc_guard_shattrath_faction : public GuardAI
         _scheduler.CancelAll();
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         ScheduleVanish();
     }

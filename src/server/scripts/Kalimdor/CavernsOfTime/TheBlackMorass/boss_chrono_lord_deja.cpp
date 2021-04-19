@@ -62,7 +62,7 @@ public:
 
         void Reset() override { }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             events.ScheduleEvent(EVENT_ARCANE_BLAST, urand(18000, 23000));
             events.ScheduleEvent(EVENT_TIME_LAPSE, urand(10000, 15000));

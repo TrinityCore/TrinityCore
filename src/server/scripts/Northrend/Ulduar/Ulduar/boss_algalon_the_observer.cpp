@@ -394,7 +394,7 @@ class boss_algalon_the_observer : public CreatureScript
                 return type == DATA_HAS_FED_ON_TEARS ? _fedOnTears : 1;
             }
 
-            void EnterCombat(Unit* /*target*/) override
+            void JustEngagedWith(Unit* /*target*/) override
             {
                 uint32 introDelay = 0;
                 me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
@@ -405,7 +405,7 @@ class boss_algalon_the_observer : public CreatureScript
                 if (!_firstPull)
                 {
                     Talk(SAY_ALGALON_AGGRO);
-                    _EnterCombat();
+                    _JustEngagedWith();
                     introDelay = 8000;
                 }
                 else

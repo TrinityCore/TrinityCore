@@ -39,13 +39,13 @@ WorldPacket const* WorldPackets::Ticket::GMTicketCaseStatus::Write()
 {
     _worldPacket << int32(Cases.size());
 
-    for (auto const& c : Cases)
+    for (GMTicketCase const& c : Cases)
     {
         _worldPacket << int32(c.CaseID);
-        _worldPacket << int32(c.CaseOpened);
+        _worldPacket << c.CaseOpened;
         _worldPacket << int32(c.CaseStatus);
-        _worldPacket << int16(c.CfgRealmID);
-        _worldPacket << int64(c.CharacterID);
+        _worldPacket << uint16(c.CfgRealmID);
+        _worldPacket << uint64(c.CharacterID);
         _worldPacket << int32(c.WaitTimeOverrideMinutes);
 
         _worldPacket.WriteBits(c.Url.size(), 11);
@@ -76,7 +76,7 @@ void WorldPackets::Ticket::SubmitUserFeedback::Read()
     }
 }
 
-WorldPackets::Ticket::SupportTicketSubmitComplaint::SupportTicketChatLine::SupportTicketChatLine(uint32 timestamp, std::string const& text) :
+WorldPackets::Ticket::SupportTicketSubmitComplaint::SupportTicketChatLine::SupportTicketChatLine(time_t timestamp, std::string const& text) :
     Timestamp(timestamp), Text(text)
 { }
 

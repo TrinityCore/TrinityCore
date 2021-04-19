@@ -178,11 +178,11 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
             Talk(SAY_AGGRO);
-            _EnterCombat();
+            _JustEngagedWith();
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -385,9 +385,9 @@ public:
         {
             if (Unit* caster = GetCaster())
             {
-                CustomSpellValues values;
-                values.AddSpellMod(SPELLVALUE_BASE_POINT0, aurEff->GetAmount());
-                caster->CastCustomSpell(aurEff->GetSpellEffectInfo()->TriggerSpell, values, GetTarget());
+                CastSpellExtraArgs args;
+                args.AddSpellMod(SPELLVALUE_BASE_POINT0, aurEff->GetAmount());
+                caster->CastSpell(GetTarget(), aurEff->GetSpellEffectInfo()->TriggerSpell, args);
             }
         }
 

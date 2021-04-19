@@ -75,9 +75,9 @@ namespace WorldPackets
         {
             uint32 GarrPlotInstanceID = 0;
             uint32 GarrBuildingID = 0;
-            time_t TimeBuilt = time_t(0);
+            Timestamp<> TimeBuilt;
             uint32 CurrentGarSpecID = 0;
-            time_t TimeSpecCooldown = time_t(2288912640);   // 06/07/1906 18:35:44 - another in the series of magic blizz dates
+            Timestamp<> TimeSpecCooldown = time_t(2288912640);   // 06/07/1906 18:35:44 - another in the series of magic blizz dates
             bool Active = false;
         };
 
@@ -97,7 +97,7 @@ namespace WorldPackets
             uint32 ZoneSupportSpellID = 0;
             uint32 FollowerStatus = 0;
             int32 Health = 0;
-            int32 HealingTimestamp = 0;
+            Timestamp<> HealingTimestamp;
             int8 BoardIndex = 0;
             std::string CustomName;
         };
@@ -106,11 +106,11 @@ namespace WorldPackets
         {
             uint64 DbID = 0;
             uint32 MissionRecID = 0;
-            time_t OfferTime = time_t(0);
-            uint32 OfferDuration = 0;
-            time_t StartTime = time_t(2288912640);
-            uint32 TravelDuration = 0;
-            uint32 MissionDuration = 0;
+            Timestamp<> OfferTime;
+            Duration<Seconds> OfferDuration;
+            Timestamp<> StartTime = time_t(2288912640);
+            Duration<Seconds> TravelDuration;
+            Duration<Seconds> MissionDuration;
             uint32 MissionState = 0;
             uint32 SuccessChance = 0;
             uint32 Flags = 0;
@@ -132,7 +132,7 @@ namespace WorldPackets
         struct GarrisonMissionBonusAbility
         {
             uint32 GarrMssnBonusAbilityID = 0;
-            time_t StartTime = time_t(0);
+            Timestamp<> StartTime;
         };
 
         struct GarrisonTalentSocketData
@@ -145,7 +145,7 @@ namespace WorldPackets
         {
             int32 GarrTalentID = 0;
             int32 Rank = 0;
-            time_t ResearchStartTime = time_t(0);
+            Timestamp<> ResearchStartTime;
             int32 Flags = 0;
             Optional<GarrisonTalentSocketData> Socket;
         };
@@ -165,7 +165,7 @@ namespace WorldPackets
         struct GarrisonEventEntry
         {
             int32 EntryID = 0;
-            int32 EventValue = 0;
+            int64 EventValue = 0;
         };
 
         struct GarrisonEventList
@@ -181,6 +181,7 @@ namespace WorldPackets
             uint32 GarrSiteLevelID = 0;
             uint32 NumFollowerActivationsRemaining = 0;
             uint32 NumMissionsStartedToday = 0;   // might mean something else, but sending 0 here enables follower abilities "Increase success chance of the first mission of the day by %."
+            int32 MinAutoTroopLevel = 0;
             std::vector<GarrisonPlotInfo*> Plots;
             std::vector<GarrisonBuildingInfo const*> Buildings;
             std::vector<GarrisonFollower const*> Followers;

@@ -57,9 +57,9 @@ class boss_beauty : public CreatureScript
                 _Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 events.ScheduleEvent(SPELL_MAGMA_SPIT, urand(7000, 10000));
                 events.ScheduleEvent(EVENT_BERSERKER_CHARGE, urand(16000, 19000));
                 events.ScheduleEvent(EVENT_FLAMEBREAK, urand(18000, 22000));

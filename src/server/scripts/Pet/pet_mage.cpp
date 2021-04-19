@@ -126,7 +126,7 @@ class npc_pet_mage_mirror_image : public CreatureScript
                 owner->CastSpell(me, SPELL_MAGE_CLONE_ME, false);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 if (me->GetVictim() && !me->GetVictim()->HasBreakableByDamageCrowdControlAura(me))
                 {

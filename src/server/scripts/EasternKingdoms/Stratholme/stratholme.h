@@ -78,7 +78,8 @@ enum STRGameobjectIds
     GO_ZIGGURAT5                        = 175796,  // baron
     GO_PORT_GAUNTLET                    = 175374,  // port from gauntlet to slaugther
     GO_PORT_SLAUGTHER                   = 175373,  // port at slaugther
-    GO_PORT_ELDERS                      = 175377   // port at elders square
+    GO_PORT_ELDERS                      = 175377,  // port at elders square
+    GO_YSIDA_CAGE                       = 181071
 };
 
 enum STRQuestIds
@@ -88,7 +89,10 @@ enum STRQuestIds
 
 enum STRSpellIds
 {
-    SPELL_BARON_ULTIMATUM               = 27861
+    SPELL_BARON_ULTIMATUM               = 27861,
+    SPELL_PERM_FEIGN_DEATH              = 29266,
+    SPELL_YSIDA_SAVED                   = 31912,
+    SPELL_YSIDA_CREDIT_EFFECT           = 31913
 };
 
 enum STRMisc
