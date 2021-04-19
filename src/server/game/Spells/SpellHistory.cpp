@@ -773,12 +773,14 @@ void SpellHistory::ModifyChargeRecoveryTime(uint32 chargeCategoryId, Clock::dura
 
     Clock::time_point now = GameTime::GetGameTimeSystemPoint();
 
-    ChargeEntry& entry = itr->second[0];
-
-    if (entry.RechargeEnd + cooldownMod > now)
+    for (ChargeEntry& entry : itr->second)
+    {
+        entry.RechargeStart += cooldownMod;
         entry.RechargeEnd += cooldownMod;
-    else
-        itr->second.pop_back();
+    }
+
+    while (!itr->second.empty() && itr->second.front().RechargeEnd < now)
+        itr->second.pop_front();
 
     SendSetSpellCharges(chargeCategoryId, itr->second);
 }
