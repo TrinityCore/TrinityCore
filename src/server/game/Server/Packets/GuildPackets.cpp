@@ -698,3 +698,190 @@ void WorldPackets::Guild::SetGuildMaster::Read()
     IsDethrone = _worldPacket.ReadBit();
     NewMasterName = _worldPacket.ReadString(nameLen);
 }
+
+WorldPacket const* WorldPackets::Guild::GuildNews::Write()
+{
+    _worldPacket.WriteBits(NewsEvents.size(), 21);
+
+    for (GuildNewsEvent const& newsEvent : NewsEvents)
+    {
+        _worldPacket.WriteBits(newsEvent.MemberList.size(), 26);
+        _worldPacket.WriteBit(newsEvent.MemberGuid[7]);
+
+        for (ObjectGuid const& memberGuid : newsEvent.MemberList)
+        {
+            _worldPacket.WriteBit(memberGuid[7]);
+            _worldPacket.WriteBit(memberGuid[1]);
+            _worldPacket.WriteBit(memberGuid[5]);
+            _worldPacket.WriteBit(memberGuid[3]);
+            _worldPacket.WriteBit(memberGuid[4]);
+            _worldPacket.WriteBit(memberGuid[6]);
+            _worldPacket.WriteBit(memberGuid[0]);
+            _worldPacket.WriteBit(memberGuid[2]);
+        }
+
+        _worldPacket.WriteBit(newsEvent.MemberGuid[0]);
+        _worldPacket.WriteBit(newsEvent.MemberGuid[6]);
+        _worldPacket.WriteBit(newsEvent.MemberGuid[5]);
+        _worldPacket.WriteBit(newsEvent.MemberGuid[4]);
+        _worldPacket.WriteBit(newsEvent.MemberGuid[3]);
+        _worldPacket.WriteBit(newsEvent.MemberGuid[1]);
+        _worldPacket.WriteBit(newsEvent.MemberGuid[2]);
+    }
+
+    _worldPacket.FlushBits();
+
+    for (GuildNewsEvent const& newsEvent : NewsEvents)
+    {
+        for (ObjectGuid const& memberGuid : newsEvent.MemberList)
+        {
+            _worldPacket.WriteByteSeq(memberGuid[0]);
+            _worldPacket.WriteByteSeq(memberGuid[1]);
+            _worldPacket.WriteByteSeq(memberGuid[4]);
+            _worldPacket.WriteByteSeq(memberGuid[7]);
+            _worldPacket.WriteByteSeq(memberGuid[5]);
+            _worldPacket.WriteByteSeq(memberGuid[6]);
+            _worldPacket.WriteByteSeq(memberGuid[3]);
+            _worldPacket.WriteByteSeq(memberGuid[2]);
+        }
+
+        _worldPacket.WriteByteSeq(newsEvent.MemberGuid[5]);
+
+        _worldPacket << uint32(newsEvent.Flags);
+
+        for (int32 data : newsEvent.Data)
+            _worldPacket << int32(data);
+
+        _worldPacket.WriteByteSeq(newsEvent.MemberGuid[7]);
+        _worldPacket.WriteByteSeq(newsEvent.MemberGuid[6]);
+        _worldPacket.WriteByteSeq(newsEvent.MemberGuid[2]);
+        _worldPacket.WriteByteSeq(newsEvent.MemberGuid[3]);
+        _worldPacket.WriteByteSeq(newsEvent.MemberGuid[0]);
+        _worldPacket.WriteByteSeq(newsEvent.MemberGuid[4]);
+        _worldPacket.WriteByteSeq(newsEvent.MemberGuid[1]);
+
+        _worldPacket << int32(newsEvent.Id);
+        _worldPacket << int32(newsEvent.Type);
+        _worldPacket.AppendPackedTime(newsEvent.CompletedDate);
+    }
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Guild::GuildEventLogQueryResults::Write()
+{
+    _worldPacket.WriteBits(Entry.size(), 23);
+
+    for (GuildEventEntry const& entry : Entry)
+    {
+        _worldPacket.WriteBit(entry.PlayerGUID[2]);
+        _worldPacket.WriteBit(entry.PlayerGUID[4]);
+        _worldPacket.WriteBit(entry.OtherGUID[7]);
+        _worldPacket.WriteBit(entry.OtherGUID[6]);
+        _worldPacket.WriteBit(entry.PlayerGUID[3]);
+        _worldPacket.WriteBit(entry.OtherGUID[3]);
+        _worldPacket.WriteBit(entry.OtherGUID[5]);
+        _worldPacket.WriteBit(entry.PlayerGUID[7]);
+        _worldPacket.WriteBit(entry.PlayerGUID[5]);
+        _worldPacket.WriteBit(entry.PlayerGUID[0]);
+        _worldPacket.WriteBit(entry.OtherGUID[4]);
+        _worldPacket.WriteBit(entry.OtherGUID[2]);
+        _worldPacket.WriteBit(entry.OtherGUID[0]);
+        _worldPacket.WriteBit(entry.OtherGUID[1]);
+        _worldPacket.WriteBit(entry.PlayerGUID[1]);
+        _worldPacket.WriteBit(entry.PlayerGUID[6]);
+    }
+
+    _worldPacket.FlushBits();
+
+    for (GuildEventEntry const& entry : Entry)
+    {
+        _worldPacket.WriteByteSeq(entry.OtherGUID[3]);
+        _worldPacket.WriteByteSeq(entry.OtherGUID[2]);
+        _worldPacket.WriteByteSeq(entry.OtherGUID[5]);
+
+        _worldPacket << uint8(entry.RankID);
+
+        _worldPacket.WriteByteSeq(entry.OtherGUID[4]);
+        _worldPacket.WriteByteSeq(entry.PlayerGUID[0]);
+        _worldPacket.WriteByteSeq(entry.PlayerGUID[4]);
+
+        _worldPacket << uint32(entry.TransactionDate);
+
+        _worldPacket.WriteByteSeq(entry.PlayerGUID[7]);
+        _worldPacket.WriteByteSeq(entry.PlayerGUID[3]);
+        _worldPacket.WriteByteSeq(entry.OtherGUID[0]);
+        _worldPacket.WriteByteSeq(entry.OtherGUID[6]);
+        _worldPacket.WriteByteSeq(entry.OtherGUID[7]);
+        _worldPacket.WriteByteSeq(entry.PlayerGUID[5]);
+
+        _worldPacket << uint8(entry.TransactionType);
+
+        _worldPacket.WriteByteSeq(entry.OtherGUID[1]);
+        _worldPacket.WriteByteSeq(entry.PlayerGUID[2]);
+        _worldPacket.WriteByteSeq(entry.PlayerGUID[6]);
+        _worldPacket.WriteByteSeq(entry.PlayerGUID[1]);
+    }
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Guild::GuildBankLogQueryResults::Write()
+{
+    _worldPacket.WriteBit(WeeklyBonusMoney.has_value());
+    _worldPacket.WriteBits(Entry.size(), 23);
+
+    for (GuildBankLogEntry const& entry : Entry)
+    {
+        _worldPacket.WriteBit(entry.Money.has_value());
+        _worldPacket.WriteBit(entry.PlayerGUID[4]);
+        _worldPacket.WriteBit(entry.PlayerGUID[1]);
+        _worldPacket.WriteBit(entry.ItemID.has_value());
+        _worldPacket.WriteBit(entry.Count.has_value());
+        _worldPacket.WriteBit(entry.PlayerGUID[2]);
+        _worldPacket.WriteBit(entry.PlayerGUID[5]);
+        _worldPacket.WriteBit(entry.PlayerGUID[3]);
+        _worldPacket.WriteBit(entry.PlayerGUID[6]);
+        _worldPacket.WriteBit(entry.PlayerGUID[0]);
+        _worldPacket.WriteBit(entry.OtherTab.has_value());
+        _worldPacket.WriteBit(entry.PlayerGUID[7]);
+    }
+
+    _worldPacket.FlushBits();
+
+    for (GuildBankLogEntry const& entry : Entry)
+    {
+        _worldPacket.WriteByteSeq(entry.PlayerGUID[6]);
+        _worldPacket.WriteByteSeq(entry.PlayerGUID[1]);
+        _worldPacket.WriteByteSeq(entry.PlayerGUID[5]);
+
+        if (entry.Count.has_value())
+            _worldPacket << int32(*entry.Count);
+
+        _worldPacket << int8(entry.EntryType);
+
+        _worldPacket.WriteByteSeq(entry.PlayerGUID[2]);
+        _worldPacket.WriteByteSeq(entry.PlayerGUID[4]);
+        _worldPacket.WriteByteSeq(entry.PlayerGUID[0]);
+        _worldPacket.WriteByteSeq(entry.PlayerGUID[7]);
+        _worldPacket.WriteByteSeq(entry.PlayerGUID[3]);
+
+        if (entry.ItemID.has_value())
+            _worldPacket << int32(*entry.ItemID);
+
+        _worldPacket << uint32(entry.TimeOffset);
+
+        if (entry.Money.has_value())
+            _worldPacket << uint64(*entry.Money);
+
+        if (entry.OtherTab.has_value())
+            _worldPacket << int8(*entry.OtherTab);
+    }
+
+    _worldPacket << int32(Tab);
+
+    if (WeeklyBonusMoney.has_value())
+        _worldPacket << uint64(*WeeklyBonusMoney);
+
+    return &_worldPacket;
+}

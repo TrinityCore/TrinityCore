@@ -39,6 +39,16 @@ enum AchievementCriteriaTypes : uint8;
 enum InventoryResult : uint8;
 enum LocaleConstant : uint8;
 
+namespace WorldPackets
+{
+    namespace Guild
+    {
+        class GuildBankLogQueryResults;
+        class GuildEventLogQueryResults;
+        class GuildNews;
+    }
+}
+
 enum GuildMisc
 {
     GUILD_BANK_MAX_TABS                 = 8,                    // send by client for money log also
@@ -461,7 +471,6 @@ private:
         uint64 GetTimestamp() const { return m_timestamp; }
 
         virtual void SaveToDB(CharacterDatabaseTransaction& trans) const = 0;
-        virtual void WritePacket(WorldPacket& data, ByteBuffer& content) const = 0;
 
     protected:
         ObjectGuid::LowType m_guildId;
@@ -482,7 +491,7 @@ private:
         ~EventLogEntry() { }
 
         void SaveToDB(CharacterDatabaseTransaction& trans) const override;
-        void WritePacket(WorldPacket& data, ByteBuffer& content) const override;
+        void WritePacket(WorldPackets::Guild::GuildEventLogQueryResults& packet) const;
 
     private:
         GuildEventLogTypes m_eventType;
@@ -520,7 +529,7 @@ private:
         ~BankEventLogEntry() { }
 
         void SaveToDB(CharacterDatabaseTransaction& trans) const override;
-        void WritePacket(WorldPacket& data, ByteBuffer& content) const override;
+        void WritePacket(WorldPackets::Guild:: GuildBankLogQueryResults& packet) const;
 
     private:
         GuildBankEventLogTypes m_eventType;
@@ -556,7 +565,7 @@ private:
         }
 
         void SaveToDB(CharacterDatabaseTransaction& trans) const;
-        void WritePacket(WorldPacket& data, ByteBuffer& content) const;
+        void WritePacket(WorldPackets::Guild::GuildNews& newsPacket) const;
 
     private:
         GuildNews m_type;

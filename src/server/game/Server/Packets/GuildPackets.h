@@ -571,6 +571,69 @@ namespace WorldPackets
             bool IsDethrone = false;
             std::string NewMasterName;
         };
+
+        struct GuildNewsEvent
+        {
+            int32 Id = 0;
+            int32 Type = 0;
+            int32 Flags = 0;
+            uint32 CompletedDate = 0;
+            std::array<int32, 2> Data = { };
+            ObjectGuid MemberGuid;
+            std::vector<ObjectGuid> MemberList;
+        };
+
+        class GuildNews final : public ServerPacket
+        {
+        public:
+            GuildNews() : ServerPacket(SMSG_GUILD_NEWS, 25) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<GuildNewsEvent> NewsEvents;
+        };
+
+        struct GuildEventEntry
+        {
+            ObjectGuid PlayerGUID;
+            ObjectGuid OtherGUID;
+            uint8 TransactionType = 0;
+            uint8 RankID = 0;
+            uint32 TransactionDate = 0;
+        };
+
+        class GuildEventLogQueryResults final : public ServerPacket
+        {
+        public:
+            GuildEventLogQueryResults() : ServerPacket(SMSG_GUILD_EVENT_LOG_QUERY_RESULTS, 4) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<GuildEventEntry> Entry;
+        };
+
+        struct GuildBankLogEntry
+        {
+            ObjectGuid PlayerGUID;
+            uint32 TimeOffset = 0;
+            int8 EntryType = 0;
+            Optional<uint64> Money;
+            Optional<int32> ItemID;
+            Optional<int32> Count;
+            Optional<int8> OtherTab;
+        };
+
+        class GuildBankLogQueryResults final : public ServerPacket
+        {
+        public:
+            GuildBankLogQueryResults() : ServerPacket(SMSG_GUILD_BANK_LOG_QUERY_RESULTS, 25) { }
+
+            WorldPacket const* Write() override;
+
+            int32 Tab = 0;
+            std::vector<GuildBankLogEntry> Entry;
+            Optional<uint64> WeeklyBonusMoney;
+        };
     }
 }
 

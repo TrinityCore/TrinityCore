@@ -25643,7 +25643,9 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, GameObject* go)
         --loot->unlootedCount;
 
         if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item->itemid))
-            if (proto->GetQuality() > ITEM_QUALITY_EPIC || (proto->GetQuality() == ITEM_QUALITY_EPIC && proto->GetBaseItemLevel() >= MinNewsItemLevel[sWorld->getIntConfig(CONFIG_EXPANSION)]))
+            if ((proto->GetQuality() > ITEM_QUALITY_EPIC // always log legendary items
+                || (proto->GetQuality() == ITEM_QUALITY_EPIC && proto->GetBaseItemLevel() >= MinNewsItemLevel[sWorld->getIntConfig(CONFIG_EXPANSION)])) // log epic items when within item level range
+                && !proto->GetDuration()) // log items only when they are permanent (skipping legendary items from Kael'thas encounter for example)
                 if (Guild* guild = GetGuild())
                     guild->AddGuildNews(GUILD_NEWS_ITEM_LOOTED, GetGUID(), 0, item->itemid);
 
