@@ -104,7 +104,7 @@ public:
     void AddCooldown(uint32 spellId, uint32 itemId, Clock::time_point cooldownEnd, uint32 categoryId, Clock::time_point categoryEnd, bool onHold = false);
     void ModifyCooldown(uint32 spellId, int32 cooldownModMs);
     void ModifyCooldown(uint32 spellId, Clock::duration cooldownMod);
-    void ModifySpellOrChargeCooldown(uint32 spellId, Clock::duration offset);
+    void ModifySpellOrChargeCooldown(uint32 spellId, Clock::duration cooldownMod);
     void ResetCooldown(uint32 spellId, bool update = false);
     void ResetCooldown(CooldownStorageType::iterator& itr, bool update = false);
     template<typename Predicate>
@@ -137,8 +137,8 @@ public:
     bool IsSchoolLocked(SpellSchoolMask schoolMask) const;
 
     // Charges
-    void SendChargeUpdate(uint32 chargeCategoryId, ChargeEntryCollection const& chargeCollection);
     bool ConsumeCharge(uint32 chargeCategoryId);
+    void ModifyChargeRecoveryTime(uint32 chargeCategoryId, Clock::duration cooldownMod);
     void RestoreCharge(uint32 chargeCategoryId);
     void ResetCharges(uint32 chargeCategoryId);
     void ResetAllCharges();
@@ -162,6 +162,8 @@ private:
         _categoryCooldowns.erase(itr->second.CategoryId);
         return _spellCooldowns.erase(itr);
     }
+
+    void SendSetSpellCharges(uint32 chargeCategoryId, ChargeEntryCollection const& chargeCollection);
 
     static void GetCooldownDurations(SpellInfo const* spellInfo, uint32 itemId, int32* cooldown, uint32* categoryId, int32* categoryCooldown);
 

@@ -574,34 +574,19 @@ void SpellHistory::ModifyCooldown(uint32 spellId, Clock::duration offset)
     }
 }
 
-void SpellHistory::ModifySpellOrChargeCooldown(uint32 spellId, Clock::duration offset)
+void SpellHistory::ModifySpellOrChargeCooldown(uint32 spellId, Clock::duration cooldownMod)
 {
-    if (!offset.count())
+    if (!cooldownMod.count())
         return;
 
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE);
     if (!spellInfo)
         return;
 
-    if (SpellCategoryEntry const* chargeCategoryEntry = sSpellCategoryStore.LookupEntry(spellInfo->ChargeCategoryId))
-    {
-        auto itr = _categoryCharges.find(spellInfo->ChargeCategoryId);
-        if (itr == _categoryCharges.end() || itr->second.empty())
-            return;
-
-        Clock::time_point now = GameTime::GetGameTimeSystemPoint();
-
-        ChargeEntry &entry = itr->second[0];
-
-        if (entry.RechargeEnd + offset > now)
-            entry.RechargeEnd += offset;
-        else
-            itr->second.pop_back();
-
-        SendChargeUpdate(spellInfo->ChargeCategoryId, itr->second);
-    }
+    if (GetChargeRecoveryTime(spellInfo->ChargeCategoryId) > 0 && GetMaxCharges(spellInfo->ChargeCategoryId) > 0)
+        ModifyChargeRecoveryTime(spellInfo->ChargeCategoryId, cooldownMod);
     else
-        ModifyCooldown(spellId, offset);
+        ModifyCooldown(spellId, cooldownMod);
 }
 
 void SpellHistory::ResetCooldown(uint32 spellId, bool update /*= false*/)
@@ -776,19 +761,26 @@ bool SpellHistory::ConsumeCharge(uint32 chargeCategoryId)
     return false;
 }
 
-void SpellHistory::SendChargeUpdate(uint32 chargeCategoryId, ChargeEntryCollection const& chargeCollection)
+void SpellHistory::ModifyChargeRecoveryTime(uint32 chargeCategoryId, Clock::duration cooldownMod)
 {
-    if (Player* player = GetPlayerOwner())
-    {
-        WorldPackets::Spells::SetSpellCharges setSpellCharges;
-        setSpellCharges.Category = chargeCategoryId;
-        if (!chargeCollection.empty())
-            setSpellCharges.NextRecoveryTime = uint32(std::chrono::duration_cast<std::chrono::milliseconds>(chargeCollection.front().RechargeEnd - Clock::now()).count());
-        setSpellCharges.ConsumedCharges = uint8(chargeCollection.size());
-        setSpellCharges.IsPet = player != _owner;
+    SpellCategoryEntry const* chargeCategoryEntry = sSpellCategoryStore.LookupEntry(chargeCategoryId);
+    if (!chargeCategoryEntry)
+        return;
 
-        player->SendDirectMessage(setSpellCharges.Write());
-    }
+    auto itr = _categoryCharges.find(chargeCategoryId);
+    if (itr == _categoryCharges.end() || itr->second.empty())
+        return;
+
+    Clock::time_point now = GameTime::GetGameTimeSystemPoint();
+
+    ChargeEntry& entry = itr->second[0];
+
+    if (entry.RechargeEnd + cooldownMod > now)
+        entry.RechargeEnd += cooldownMod;
+    else
+        itr->second.pop_back();
+
+    SendSetSpellCharges(chargeCategoryId, itr->second);
 }
 
 void SpellHistory::RestoreCharge(uint32 chargeCategoryId)
@@ -798,7 +790,7 @@ void SpellHistory::RestoreCharge(uint32 chargeCategoryId)
     {
         itr->second.pop_back();
 
-        SendChargeUpdate(chargeCategoryId, itr->second);
+        SendSetSpellCharges(chargeCategoryId, itr->second);
     }
 }
 
@@ -906,6 +898,20 @@ void SpellHistory::SendClearCooldowns(std::vector<int32> const& cooldowns) const
         clearCooldowns.IsPet = _owner != playerOwner;
         clearCooldowns.SpellID = cooldowns;
         playerOwner->SendDirectMessage(clearCooldowns.Write());
+    }
+}
+
+void SpellHistory::SendSetSpellCharges(uint32 chargeCategoryId, ChargeEntryCollection const& chargeCollection)
+{
+    if (Player* player = GetPlayerOwner())
+    {
+        WorldPackets::Spells::SetSpellCharges setSpellCharges;
+        setSpellCharges.Category = chargeCategoryId;
+        if (!chargeCollection.empty())
+            setSpellCharges.NextRecoveryTime = uint32(std::chrono::duration_cast<std::chrono::milliseconds>(chargeCollection.front().RechargeEnd - Clock::now()).count());
+        setSpellCharges.ConsumedCharges = uint8(chargeCollection.size());
+        setSpellCharges.IsPet = player != _owner;
+        player->SendDirectMessage(setSpellCharges.Write());
     }
 }
 
