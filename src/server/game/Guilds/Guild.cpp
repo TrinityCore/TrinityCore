@@ -2360,7 +2360,6 @@ void Guild::SendEventLog(WorldSession* session) const
 
 void Guild::SendNewsUpdate(WorldSession* session)
 {
-    uint32 size = m_newsLog->GetSize();
     GuildLog* logs = m_newsLog->GetGuildLog();
 
     if (!logs)
