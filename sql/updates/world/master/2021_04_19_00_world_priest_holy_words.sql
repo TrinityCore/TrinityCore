@@ -5,7 +5,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 
 -- Spell Procs
 -- Make holy words Proc on the following spells:
--- 060 	    Heal                0x1000
+-- 2060     Heal                0x1000
 -- 2061     Flash Heal          0x0800
 -- 596      Prayer of Healing   0x0200
 -- 139      Renew               0x0040
