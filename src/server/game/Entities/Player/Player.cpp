@@ -23,6 +23,7 @@
 #include "ArenaTeamMgr.h"
 #include "AzeriteEmpoweredItem.h"
 #include "AzeriteItem.h"
+#include "Bag.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "BattlefieldTB.h"
@@ -394,19 +395,6 @@ Player::~Player()
         delete _voidStorageItems[i];
 
     sWorld->DecreasePlayerCount();
-}
-
-template <typename T>
-bool Player::ForEachStorageItem(ItemSearchLocation location, T callback) const
-{
-    return ForEachStorageItem(location, callback, [callback](Bag* pBag, uint8 equipmentSlots, ItemSearchLocation callbackLocation)
-    {
-        for (uint32 j = 0; j < pBag->GetBagSize(); j++)
-            if (Item* pItem = pBag->GetItemByPos(j))
-                if (!callback(pItem, equipmentSlots, callbackLocation))
-                    return false;
-        return true;
-    });
 }
 
 void Player::CleanupsBeforeDelete(bool finalCleanup)
@@ -9948,36 +9936,21 @@ InventoryResult Player::CanUnequipItems(uint32 item, uint32 count) const
 {
     InventoryResult res = EQUIP_ERR_OK;
     uint32 tempcount = 0;
-    bool result = ForEachStorageItem(ItemSearchLocation::Equipment, [this, item, &res, &tempcount, count](Item* pItem, uint8 equipmentSlots, ItemSearchLocation /*location*/)
+    bool result = ForEachItem(ItemSearchLocation::Equipment, [this, item, &res, &tempcount, count](Item* pItem)
     {
         if (pItem->GetEntry() == item)
         {
-            InventoryResult ires = CanUnequipItem(INVENTORY_SLOT_BAG_0 << 8 | equipmentSlots, false);
-            if (ires != EQUIP_ERR_OK)
-                res = ires;
-            else
+            InventoryResult ires = CanUnequipItem(pItem->GetPos(), false);
+            if (ires == EQUIP_ERR_OK)
             {
                 tempcount += pItem->GetCount();
                 if (tempcount >= count)
-                    return false;
+                    return ItemSearchCallbackResult::Stop;
             }
+            else
+                res = ires;
         }
-        return true;
-    });
-
-    if (!result) // we stopped early due to a sucess
-        return EQUIP_ERR_OK;
-
-    ItemSearchLocation location = ItemSearchLocation::Inventory | ItemSearchLocation::Bank | ItemSearchLocation::ReagentBank;
-    result = ForEachStorageItem(location, [item, &tempcount, count](Item* pItem, uint8 /*equipmentSlots*/, ItemSearchLocation /*location*/)
-    {
-        if (pItem->GetEntry() == item)
-        {
-            tempcount += pItem->GetCount();
-            if (tempcount >= count)
-                return false;
-        }
-        return true;
+        return ItemSearchCallbackResult::Continue;
     });
 
     if (!result) // we stopped early due to a sucess
@@ -9988,30 +9961,26 @@ InventoryResult Player::CanUnequipItems(uint32 item, uint32 count) const
 
 uint32 Player::GetItemCount(uint32 item, bool inBankAlso, Item* skipItem) const
 {
-    bool skipItemHasGemProps = skipItem && skipItem->GetTemplate()->GetGemProperties();
+    bool countGems = skipItem && skipItem->GetTemplate()->GetGemProperties();
 
     ItemSearchLocation location = ItemSearchLocation::Equipment | ItemSearchLocation::Inventory | ItemSearchLocation::ReagentBank;
     if (inBankAlso)
         location |= ItemSearchLocation::Bank;
 
     uint32 count = 0;
-    ForEachStorageItem(location, [&count, item, skipItem, skipItemHasGemProps](Item* pItem, uint8 /*equipmentSlots*/, ItemSearchLocation /*location*/)
+    ForEachItem(location, [&count, item, skipItem, countGems](Item* pItem)
+    {
+        if (pItem != skipItem)
         {
-            if (pItem != skipItem)
-            {
-                if (pItem->GetEntry() == item)
-                    count += pItem->GetCount();
-                else if (skipItemHasGemProps && pItem->GetSocketColor(0))
-                    count += pItem->GetGemCountWithID(item);
-            }
-            return true;
-        },
-        [&count, item, skipItem](Bag* pBag, uint8 /*equipmentSlots*/, ItemSearchLocation /*location*/)
-        {
-            count += pBag->GetItemCount(item, skipItem);
-            return true;
+            if (pItem->GetEntry() == item)
+                count += pItem->GetCount();
+
+            if (countGems)
+                count += pItem->GetGemCountWithID(item);
         }
-    );
+
+        return ItemSearchCallbackResult::Continue;
+    });
 
     return count;
 }
@@ -10019,36 +9988,31 @@ uint32 Player::GetItemCount(uint32 item, bool inBankAlso, Item* skipItem) const
 uint32 Player::GetItemCountWithLimitCategory(uint32 limitCategory, Item* skipItem) const
 {
     uint32 count = 0;
-    ForEachStorageItem(ItemSearchLocation::Everywhere, [&count, limitCategory, skipItem](Item* pItem, uint8 /*equipmentSlots*/, ItemSearchLocation /*location*/)
-        {
-            if (pItem != skipItem)
-                if (ItemTemplate const* pProto = pItem->GetTemplate())
-                    if (pProto->GetItemLimitCategory() == limitCategory)
-                        count += pItem->GetCount();
-            return true;
-        },
-        [&count, limitCategory, skipItem](Bag* pBag, uint8 /*equipmentSlots*/, ItemSearchLocation /*location*/)
-        {
-            count += pBag->GetItemCountWithLimitCategory(limitCategory, skipItem);
-            return true;
-        }
-    );
+    ForEachItem(ItemSearchLocation::Everywhere, [&count, limitCategory, skipItem](Item* item)
+    {
+        if (item != skipItem)
+            if (ItemTemplate const* pProto = item->GetTemplate())
+                if (pProto->GetItemLimitCategory() == limitCategory)
+                    count += item->GetCount();
+
+        return ItemSearchCallbackResult::Continue;
+    });
     return count;
 }
 
 Item* Player::GetItemByGuid(ObjectGuid guid) const
 {
     Item* result = nullptr;
-    ForEachStorageItem(ItemSearchLocation::Everywhere, [&result, guid](Item* pItem, uint8 /*equipmentSlots*/, ItemSearchLocation /*location*/)
+    ForEachItem(ItemSearchLocation::Everywhere, [&result, guid](Item* item)
+    {
+        if (item->GetGUID() == guid)
         {
-            if (pItem->GetGUID() == guid)
-            {
-                result = pItem;
-                return false;
-            }
-            return true;
+            result = item;
+            return ItemSearchCallbackResult::Stop;
         }
-    );
+
+        return ItemSearchCallbackResult::Continue;
+    });
     return result;
 }
 
@@ -10141,16 +10105,15 @@ Item* Player::GetShield(bool useable) const
 Item* Player::GetChildItemByGuid(ObjectGuid guid) const
 {
     Item* result = nullptr;
-    ForEachStorageItem(ItemSearchLocation::Equipment, [&result, guid](Item* pItem, uint8 /*equipmentSlots*/, ItemSearchLocation /*location*/)
+    ForEachItem(ItemSearchLocation::Equipment | ItemSearchLocation::Inventory, [&result, guid](Item* item)
+    {
+        if (item->GetGUID() == guid)
         {
-            if (pItem->GetGUID() == guid)
-            {
-                result = pItem;
-                return false;
-            }
-            return true;
+            result = item;
+            return ItemSearchCallbackResult::Stop;
         }
-    );
+        return ItemSearchCallbackResult::Continue;
+    });
     return result;
 }
 
@@ -10314,17 +10277,16 @@ bool Player::HasItemCount(uint32 item, uint32 count, bool inBankAlso) const
         location |= ItemSearchLocation::Bank;
 
     uint32 currentCount = 0;
-    return !ForEachStorageItem(location, [item, count, &currentCount](Item* pItem, uint8 /*equipmentSlots*/, ItemSearchLocation /*location*/)
+    return !ForEachItem(location, [item, count, &currentCount](Item* pItem)
+    {
+        if (pItem->GetEntry() == item && !pItem->IsInTrade())
         {
-            if (pItem && pItem->GetEntry() == item && !pItem->IsInTrade())
-            {
-                currentCount += pItem->GetCount();
-                if (currentCount >= count)
-                    return false;
-            }
-            return true;
+            currentCount += pItem->GetCount();
+            if (currentCount >= count)
+                return ItemSearchCallbackResult::Stop;
         }
-    );
+        return ItemSearchCallbackResult::Continue;
+    });
 }
 
 bool Player::HasItemOrGemWithIdEquipped(uint32 item, uint32 count, uint8 except_slot) const
@@ -10332,66 +10294,62 @@ bool Player::HasItemOrGemWithIdEquipped(uint32 item, uint32 count, uint8 except_
     uint32 tempcount = 0;
 
     ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(item);
-    bool hasGemProps = pProto && pProto->GetGemProperties();
-    return !ForEachStorageItem(ItemSearchLocation::Equipment, [item, &tempcount, count, except_slot, hasGemProps](Item* pItem, uint8 equipmentSlots, ItemSearchLocation /*location*/)
+    bool includeGems = pProto && pProto->GetGemProperties();
+    return !ForEachItem(ItemSearchLocation::Equipment, [item, &tempcount, count, except_slot, includeGems](Item* pItem)
+    {
+        if (pItem->GetSlot() != except_slot)
         {
-            if (equipmentSlots != except_slot)
-            {
-                if (pItem->GetEntry() == item)
-                    tempcount += pItem->GetCount();
-                else if (hasGemProps && pItem->GetSocketColor(0))
-                    tempcount += pItem->GetGemCountWithID(item);
+            if (pItem->GetEntry() == item)
+                tempcount += pItem->GetCount();
 
-                if (tempcount >= count)
-                    return false;
-            }
-            return true;
+            if (includeGems)
+                tempcount += pItem->GetGemCountWithID(item);
+
+            if (tempcount >= count)
+                return ItemSearchCallbackResult::Stop;
         }
-    );
+
+        return ItemSearchCallbackResult::Continue;
+    });
 }
 
 bool Player::HasItemWithLimitCategoryEquipped(uint32 limitCategory, uint32 count, uint8 except_slot) const
 {
     uint32 tempcount = 0;
-    return !ForEachStorageItem(ItemSearchLocation::Equipment, [&tempcount, limitCategory, count, except_slot](Item* pItem, uint8 equipmentSlots, ItemSearchLocation /*location*/)
-        {
-            if (equipmentSlots == except_slot)
-                return true;
+    return !ForEachItem(ItemSearchLocation::Equipment, [&tempcount, limitCategory, count, except_slot](Item* pItem)
+    {
+        if (pItem->GetSlot() == except_slot)
+            return ItemSearchCallbackResult::Continue;
 
-            ItemTemplate const* pProto = pItem->GetTemplate();
-            if (!pProto)
-                return true;
+        if (pItem->GetTemplate()->GetItemLimitCategory() != limitCategory)
+            return ItemSearchCallbackResult::Continue;
 
-            if (pProto->GetItemLimitCategory() != limitCategory)
-                return true;
-            
-            tempcount += pItem->GetCount();
-            return (tempcount < count);
-        }
-    );
+        tempcount += pItem->GetCount();
+        if (tempcount >= count)
+            return ItemSearchCallbackResult::Stop;
+
+        return ItemSearchCallbackResult::Continue;
+    });
 }
 
 bool Player::HasGemWithLimitCategoryEquipped(uint32 limitCategory, uint32 count, uint8 except_slot) const
 {
     uint32 tempcount = 0;
-    return !ForEachStorageItem(ItemSearchLocation::Equipment, [&tempcount, limitCategory, count, except_slot](Item* pItem, uint8 equipmentSlots, ItemSearchLocation /*location*/)
-        {
-            if (equipmentSlots == except_slot)
-                return true;
+    return !ForEachItem(ItemSearchLocation::Equipment, [&tempcount, limitCategory, count, except_slot](Item* pItem)
+    {
+        if (pItem->GetSlot() == except_slot)
+            return ItemSearchCallbackResult::Continue;
 
-            ItemTemplate const* pProto = pItem->GetTemplate();
-            if (!pProto)
-                return true;
+        ItemTemplate const* pProto = pItem->GetTemplate();
+        if (!pProto)
+            return ItemSearchCallbackResult::Continue;
 
-            if (pItem->GetSocketColor(0) || pItem->GetEnchantmentId(PRISMATIC_ENCHANTMENT_SLOT))
-            {
-                tempcount += pItem->GetGemCountWithLimitCategory(limitCategory);
-                if (tempcount >= count)
-                    return false;
-            }
-            return true;
-        }
-    );
+        tempcount += pItem->GetGemCountWithLimitCategory(limitCategory);
+        if (tempcount >= count)
+            return ItemSearchCallbackResult::Stop;
+
+        return ItemSearchCallbackResult::Continue;
+    });
 }
 
 InventoryResult Player::CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item* pItem, uint32* no_space_count /*= nullptr*/, uint32* offendingItemId /*= nullptr*/) const
@@ -13017,14 +12975,15 @@ void Player::DestroyConjuredItems(bool update)
 Item* Player::GetItemByEntry(uint32 entry, ItemSearchLocation where /*= ItemSearchLocation::Default */) const
 {
     Item* result = nullptr;
-    ForEachStorageItem(where, [&result, entry](Item* item, uint8 /*equipmentSlots*/, ItemSearchLocation /*location*/)
+    ForEachItem(where, [&result, entry](Item* item)
     {
         if (item->GetEntry() == entry)
         {
             result = item;
-            return false;
+            return ItemSearchCallbackResult::Stop;
         }
-        return true;
+
+        return ItemSearchCallbackResult::Continue;
     });
     return result;
 }
@@ -13036,11 +12995,12 @@ std::vector<Item*> Player::GetItemListByEntry(uint32 entry, bool inBankAlso) con
         location |= ItemSearchLocation::Bank;
 
     std::vector<Item*> itemList = std::vector<Item*>();
-    ForEachStorageItem(location, [&itemList, entry](Item* item, uint8 /*equipmentSlots*/, ItemSearchLocation /*location*/)
+    ForEachItem(location, [&itemList, entry](Item* item)
     {
         if (item->GetEntry() == entry)
             itemList.push_back(item);
-        return true;
+
+        return ItemSearchCallbackResult::Continue;
     });
     return itemList;
 }
@@ -28714,7 +28674,7 @@ uint8 Player::GetItemLimitCategoryQuantity(ItemLimitCategoryEntry const* limitEn
 }
 
 template <typename T>
-bool ForEachEquipmentSlot(InventoryType inventoryType, bool canDualWield, bool canTitanGrip, T callback)
+static bool ForEachEquipmentSlot(InventoryType inventoryType, bool canDualWield, bool canTitanGrip, T callback)
 {
     switch (inventoryType)
     {
@@ -28769,10 +28729,11 @@ bool ForEachEquipmentSlot(InventoryType inventoryType, bool canDualWield, bool c
 
 void Player::UpdateAverageItemLevelTotal()
 {
-    std::unordered_map<EquipmentSlots, std::pair<InventoryType, uint32>> bestItemLevels;
+    std::array<std::pair<InventoryType, uint32>, EQUIPMENT_SLOT_END> bestItemLevels = { };
+    bestItemLevels.fill({ INVTYPE_NON_EQUIP, 0 });
     float sum = 0;
 
-    ForEachStorageItem(ItemSearchLocation::Everywhere, [this, &bestItemLevels, &sum](Item* item, uint8 /*equipmentSlots*/, ItemSearchLocation /*location*/)
+    ForEachItem(ItemSearchLocation::Everywhere, [this, &bestItemLevels, &sum](Item* item)
     {
         ItemTemplate const* itemTemplate = item->GetTemplate();
         if (itemTemplate)
@@ -28784,27 +28745,22 @@ void Player::UpdateAverageItemLevelTotal()
                 InventoryType inventoryType = itemTemplate->GetInventoryType();
                 ForEachEquipmentSlot(inventoryType, m_canDualWield, m_canTitanGrip, [&bestItemLevels, itemLevel, inventoryType, &sum](EquipmentSlots slot)
                 {
-                    auto iter = bestItemLevels.find(slot);
-                    if (iter == bestItemLevels.end())
+                    std::pair<InventoryType, uint32>& slotData = bestItemLevels[slot];
+                    if (itemLevel > slotData.second)
                     {
-                        bestItemLevels[slot] = std::make_pair(inventoryType, itemLevel);
-                        sum += itemLevel;
-                    }
-                    else if (itemLevel > iter->second.second)
-                    {
-                        sum += itemLevel - iter->second.second;
-                        iter->second = std::make_pair(iter->second.first, itemLevel);
+                        sum += itemLevel - slotData.second;
+                        slotData = std::make_pair(inventoryType, itemLevel);
                     }
                 });
             }
         }
-        return true;
+        return ItemSearchCallbackResult::Continue;
     });
 
     // If main hand is a 2h weapon, count it twice
-    auto mainHand = bestItemLevels.find(EQUIPMENT_SLOT_MAINHAND);
-    if (mainHand != bestItemLevels.cend() && mainHand->second.first == INVTYPE_2HWEAPON)
-        sum += mainHand->second.second;
+    std::pair<InventoryType, uint32> mainHand = bestItemLevels[EQUIPMENT_SLOT_MAINHAND];
+    if (mainHand.first == INVTYPE_2HWEAPON)
+        sum += mainHand.second;
 
     sum /= 16.0f;
     UpdateAverageItemLevelTotal(sum);

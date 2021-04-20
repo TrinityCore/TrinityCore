@@ -18,7 +18,6 @@
 #ifndef _PLAYER_H
 #define _PLAYER_H
 
-#include "Bag.h"
 #include "Unit.h"
 #include "CUFProfile.h"
 #include "DatabaseEnvFwd.h"
@@ -111,6 +110,9 @@ namespace WorldPackets
         enum class UpdateCollisionHeightReason : uint8;
     }
 }
+
+TC_GAME_API uint32 GetBagSize(Bag const* bag);
+TC_GAME_API Item* GetItemInBag(Bag const* bag, uint8 slot);
 
 typedef std::deque<Mail*> PlayerMails;
 
@@ -689,6 +691,12 @@ enum class ItemSearchLocation
 
 DEFINE_ENUM_FLAG(ItemSearchLocation);
 
+enum class ItemSearchCallbackResult
+{
+    Stop,
+    Continue
+};
+
 enum TransferAbortReason
 {
     TRANSFER_ABORT_NONE                          = 0,
@@ -1162,68 +1170,67 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         /***                    STORAGE SYSTEM                 ***/
         /*********************************************************/
 
-        /// <summary>
-        /// Iterate over each item in the player storage
-        /// </summary>
-        /// <typeparam name="T">bool ItemCallback(Item* item, uint8 equipmentSlots, ItemSearchLocation location)</typeparam>
-        /// <typeparam name="U">bool BagCallback(Bag* bag, uint8 equipmentSlots, ItemSearchLocation location)</typeparam>
-        /// <param name="location">Locations of the items to iterate over</param>
-        /// <param name="callback">Callback called on each item. Will continue as long as it returns true</param>
-        /// <param name="bagCallback">Callback called on each bag. Will continue as long as it returns true</param>
-        template <typename T, typename U>
-        bool ForEachStorageItem(ItemSearchLocation location, T callback, U bagCallback) const
+        /**
+         * @brief Iterate over each item in the player storage
+         * @tparam T ItemSearchCallbackResult ItemCallback(Item* item)
+         * @param location Locations of the items to iterate over
+         * @param callback Callback called on each item. Will continue as long as it returns ItemSearchCallbackResult::Continue
+         */
+        template <typename T>
+        bool ForEachItem(ItemSearchLocation location, T callback) const
         {
             EnumFlag<ItemSearchLocation> flag = location;
 
             if (flag.HasFlag(ItemSearchLocation::Equipment))
-                for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; i++)
+                for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
                     if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-                        if (!callback(pItem, i, ItemSearchLocation::Equipment))
+                        if (callback(pItem) == ItemSearchCallbackResult::Stop)
                             return false;
 
             if (flag.HasFlag(ItemSearchLocation::Inventory))
             {
-                for (uint8 i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_START + GetInventorySlotCount(); i++)
+                uint8 inventoryEnd = INVENTORY_SLOT_ITEM_START + GetInventorySlotCount();
+                for (uint8 i = INVENTORY_SLOT_BAG_START; i < inventoryEnd; ++i)
                     if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-                        if (!callback(pItem, i, ItemSearchLocation::Inventory))
+                        if (callback(pItem) == ItemSearchCallbackResult::Stop)
                             return false;
 
                 for (uint8 i = CHILD_EQUIPMENT_SLOT_START; i < CHILD_EQUIPMENT_SLOT_END; ++i)
                     if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-                        if (!callback(pItem, i, ItemSearchLocation::Inventory))
+                        if (callback(pItem) == ItemSearchCallbackResult::Stop)
                             return false;
 
-                for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; i++)
+                for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
                     if (Bag* pBag = GetBagByPos(i))
-                        if (!bagCallback(pBag, i, ItemSearchLocation::Inventory))
-                            return false;
+                        for (uint32 j = 0; j < GetBagSize(pBag); ++j)
+                            if (Item* pItem = GetItemInBag(pBag, j))
+                                if (callback(pItem) == ItemSearchCallbackResult::Stop)
+                                    return false;
             }
 
             if (flag.HasFlag(ItemSearchLocation::Bank))
             {
                 for (uint8 i = BANK_SLOT_ITEM_START; i < BANK_SLOT_BAG_END; ++i)
                     if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-                        if (!callback(pItem, i, ItemSearchLocation::Bank))
+                        if (callback(pItem) == ItemSearchCallbackResult::Stop)
                             return false;
 
                 for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
                     if (Bag* pBag = GetBagByPos(i))
-                        if (!bagCallback(pBag, i, ItemSearchLocation::Bank))
-                            return false;
+                        for (uint32 j = 0; j < GetBagSize(pBag); ++j)
+                            if (Item* pItem = GetItemInBag(pBag, j))
+                                if (callback(pItem) == ItemSearchCallbackResult::Stop)
+                                    return false;
             }
 
             if (flag.HasFlag(ItemSearchLocation::ReagentBank))
                 for (uint8 i = REAGENT_SLOT_START; i < REAGENT_SLOT_END; ++i)
                     if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-                        if (!callback(pItem, i, ItemSearchLocation::ReagentBank))
+                        if (callback(pItem) == ItemSearchCallbackResult::Stop)
                             return false;
 
             return true;
         }
-
-    private:
-        template <typename T>
-        bool ForEachStorageItem(ItemSearchLocation location, T callback) const;
 
     public:
         void UpdateAverageItemLevelTotal();
