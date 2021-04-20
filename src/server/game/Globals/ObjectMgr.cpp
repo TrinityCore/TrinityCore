@@ -10509,7 +10509,7 @@ void ObjectMgr::LoadPlayerChoices()
     //                                                             0           1                   2                3      4            5
     if (QueryResult responses = WorldDatabase.Query("SELECT ChoiceId, ResponseId, ResponseIdentifier, ChoiceArtFileId, Flags, WidgetSetID, "
     //                         6           7        8               9      10      11         12              13           14            15             16
-        "UiTextureAtlasElementID, SoundKitID, GroupID, UiTextureKitID, Answer, Header, SubHeader, ButtonTemplate, Description, Confirmation, RewardQuestID "
+        "UiTextureAtlasElementID, SoundKitID, GroupID, UiTextureKitID, Answer, Header, SubHeader, ButtonTooltip, Description, Confirmation, RewardQuestID "
         "FROM playerchoice_response ORDER BY `Index` ASC"))
     {
         do
