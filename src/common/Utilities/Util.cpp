@@ -638,7 +638,7 @@ TC_COMMON_API Optional<std::size_t> RemoveCRLF(std::string & str)
     std::size_t nextLineIndex = str.find_first_of("\r\n");
     if (nextLineIndex == std::string::npos)
         return std::nullopt;
-    
+
     str.erase(nextLineIndex);
     return nextLineIndex;
 }
