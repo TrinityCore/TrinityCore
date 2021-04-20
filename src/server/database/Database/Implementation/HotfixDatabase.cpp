@@ -48,7 +48,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "RequiredPersonalArenaRating, ItemPurchaseGroup, "
         "RequiredCurrency1, RequiredCurrency2, RequiredCurrency3, RequiredCurrency4, RequiredCurrency5, "
         "RequiredCurrencyCount1, RequiredCurrencyCount2, RequiredCurrencyCount3, RequiredCurrencyCount4, RequiredCurrencyCount5, "
-        "RequiredFactionId, RequiredFactionStanding, RequirementFlags, RequiredAchievement FROM item_extended_cost ORDER BY ID DESC", CONNECTION_SYNCH);
+        "RequiredFactionId, RequiredFactionStanding, RequirementFlags, RequiredGuildLevel, RequiredAchievement FROM item_extended_cost ORDER BY ID DESC", CONNECTION_SYNCH);
 
     // Item-sparse.db2
     PrepareStatement(HOTFIX_SEL_ITEM_SPARSE, "SELECT ID, Quality, Flags1, Flags2, PriceRandomValue, PriceVariance, BuyCount, BuyPrice, SellPrice, InventoryType, "
