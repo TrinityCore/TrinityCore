@@ -72,230 +72,197 @@ Position const PipeLocations[] =
 
 Position const CenterPoint = { 1295.21f, 667.157f, 189.691f, 0.0f };
 
-class boss_sjonnir : public CreatureScript
+struct boss_sjonnir : public BossAI
 {
-    public:
-        boss_sjonnir() : CreatureScript("boss_sjonnir") { }
+    boss_sjonnir(Creature* creature) : BossAI(creature, DATA_SJONNIR)
+    {
+        Initialize();
+    }
 
-        struct boss_sjonnirAI : public BossAI
+    void Initialize()
+    {
+        abuseTheOoze = 0;
+    }
+
+    void Reset() override
+    {
+        _Reset();
+        Initialize();
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        if (!instance->CheckRequiredBosses(DATA_SJONNIR, who->ToPlayer()))
         {
-            boss_sjonnirAI(Creature* creature) : BossAI(creature, DATA_SJONNIR)
-            {
-                Initialize();
-            }
-
-            void Initialize()
-            {
-                abuseTheOoze = 0;
-            }
-
-            void Reset() override
-            {
-                _Reset();
-                Initialize();
-            }
-
-            void JustEngagedWith(Unit* who) override
-            {
-                if (!instance->CheckRequiredBosses(DATA_SJONNIR, who->ToPlayer()))
-                {
-                    EnterEvadeMode();
-                    return;
-                }
-
-                BossAI::JustEngagedWith(who);
-                Talk(SAY_AGGRO);
-
-                events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 3s, 8s);
-                events.ScheduleEvent(EVENT_LIGHTNING_SHIELD, 20s, 25s);
-                events.ScheduleEvent(EVENT_STATIC_CHARGE, 20s, 25s);
-                events.ScheduleEvent(EVENT_LIGHTNING_RING, 30s, 35s);
-                events.ScheduleEvent(EVENT_SUMMON, 5s);
-                events.ScheduleEvent(EVENT_FRENZY, 5min);
-            }
-
-            void JustSummoned(Creature* summon) override
-            {
-                summon->GetMotionMaster()->MovePoint(0, CenterPoint);
-                /*if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
-                    summon->AI()->AttackStart(target);*/
-                summons.Summon(summon);
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-                Talk(SAY_DEATH);
-            }
-
-            void KilledUnit(Unit* who) override
-            {
-                if (who->GetTypeId() == TYPEID_PLAYER)
-                    Talk(SAY_SLAY);
-            }
-
-            void DoAction(int32 action) override
-            {
-                if (action == ACTION_OOZE_DEAD)
-                    ++abuseTheOoze;
-            }
-
-            uint32 GetData(uint32 type) const override
-            {
-                if (type == DATA_ABUSE_THE_OOZE)
-                    return abuseTheOoze;
-
-                return 0;
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_CHAIN_LIGHTNING:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
-                                DoCast(target, SPELL_CHAIN_LIGHTING);
-                            events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 10s, 15s);
-                            break;
-                        case EVENT_LIGHTNING_SHIELD:
-                            DoCast(me, SPELL_LIGHTING_SHIELD);
-                            break;
-                        case EVENT_STATIC_CHARGE:
-                            DoCastVictim(SPELL_STATIC_CHARGE);
-                            events.ScheduleEvent(EVENT_STATIC_CHARGE, 20s, 25s);
-                            break;
-                        case EVENT_LIGHTNING_RING:
-                            DoCast(me, SPELL_LIGHTING_RING);
-                            events.ScheduleEvent(EVENT_LIGHTNING_RING, 30s, 35s);
-                            break;
-                        case EVENT_SUMMON:
-                        {
-                            uint8 summonPipe = urand(0, 1);
-                            if (HealthAbovePct(75))
-                                me->SummonCreature(NPC_FORGED_IRON_DWARF, PipeLocations[summonPipe], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30s);
-                            else if (HealthAbovePct(50))
-                                me->SummonCreature(NPC_FORGED_IRON_TROGG, PipeLocations[summonPipe], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30s);
-                            else if (HealthAbovePct(25))
-                                me->SummonCreature(NPC_MALFORMED_OOZE, PipeLocations[summonPipe], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30s);
-                            else
-                                me->SummonCreature(NPC_EARTHEN_DWARF, PipeLocations[summonPipe], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30s);
-
-                            events.ScheduleEvent(EVENT_SUMMON, 20s);
-                            break;
-                        }
-                        case EVENT_FRENZY:
-                            /// @todo: add emote
-                            DoCast(me, SPELL_FRENZY, true);
-                            break;
-                        default:
-                            break;
-                    }
-
-                    if (me->HasUnitState(UNIT_STATE_CASTING))
-                        return;
-                }
-
-                DoMeleeAttackIfReady();
-            }
-
-            private:
-                uint8 abuseTheOoze;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetHallsOfStoneAI<boss_sjonnirAI>(creature);
+            EnterEvadeMode();
+            return;
         }
+
+        BossAI::JustEngagedWith(who);
+        Talk(SAY_AGGRO);
+
+        events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 3s, 8s);
+        events.ScheduleEvent(EVENT_LIGHTNING_SHIELD, 20s, 25s);
+        events.ScheduleEvent(EVENT_STATIC_CHARGE, 20s, 25s);
+        events.ScheduleEvent(EVENT_LIGHTNING_RING, 30s, 35s);
+        events.ScheduleEvent(EVENT_SUMMON, 5s);
+        events.ScheduleEvent(EVENT_FRENZY, 5min);
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        summon->GetMotionMaster()->MovePoint(0, CenterPoint);
+        /*if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
+            summon->AI()->AttackStart(target);*/
+        summons.Summon(summon);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        Talk(SAY_DEATH);
+    }
+
+    void KilledUnit(Unit* who) override
+    {
+        if (who->GetTypeId() == TYPEID_PLAYER)
+            Talk(SAY_SLAY);
+    }
+
+    void DoAction(int32 action) override
+    {
+        if (action == ACTION_OOZE_DEAD)
+            ++abuseTheOoze;
+    }
+
+    uint32 GetData(uint32 type) const override
+    {
+        if (type == DATA_ABUSE_THE_OOZE)
+            return abuseTheOoze;
+
+        return 0;
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_CHAIN_LIGHTNING:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
+                        DoCast(target, SPELL_CHAIN_LIGHTING);
+                    events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 10s, 15s);
+                    break;
+                case EVENT_LIGHTNING_SHIELD:
+                    DoCast(me, SPELL_LIGHTING_SHIELD);
+                    break;
+                case EVENT_STATIC_CHARGE:
+                    DoCastVictim(SPELL_STATIC_CHARGE);
+                    events.ScheduleEvent(EVENT_STATIC_CHARGE, 20s, 25s);
+                    break;
+                case EVENT_LIGHTNING_RING:
+                    DoCast(me, SPELL_LIGHTING_RING);
+                    events.ScheduleEvent(EVENT_LIGHTNING_RING, 30s, 35s);
+                    break;
+                case EVENT_SUMMON:
+                {
+                    uint8 summonPipe = urand(0, 1);
+                    if (HealthAbovePct(75))
+                        me->SummonCreature(NPC_FORGED_IRON_DWARF, PipeLocations[summonPipe], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30s);
+                    else if (HealthAbovePct(50))
+                        me->SummonCreature(NPC_FORGED_IRON_TROGG, PipeLocations[summonPipe], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30s);
+                    else if (HealthAbovePct(25))
+                        me->SummonCreature(NPC_MALFORMED_OOZE, PipeLocations[summonPipe], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30s);
+                    else
+                        me->SummonCreature(NPC_EARTHEN_DWARF, PipeLocations[summonPipe], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30s);
+
+                    events.ScheduleEvent(EVENT_SUMMON, 20s);
+                    break;
+                }
+                case EVENT_FRENZY:
+                    /// @todo: add emote
+                    DoCast(me, SPELL_FRENZY, true);
+                    break;
+                default:
+                    break;
+            }
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+    private:
+        uint8 abuseTheOoze;
 };
 
-class npc_malformed_ooze : public CreatureScript
+struct npc_malformed_ooze : public ScriptedAI
 {
-    public:
-        npc_malformed_ooze() : CreatureScript("npc_malformed_ooze") { }
+    npc_malformed_ooze(Creature* creature) : ScriptedAI(creature)
+    {
+        Initialize();
+    }
 
-        struct npc_malformed_oozeAI : public ScriptedAI
+    void Initialize()
+    {
+        _mergeTimer = 10000;
+    }
+
+    void Reset() override
+    {
+        Initialize();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (_mergeTimer <= diff)
         {
-            npc_malformed_oozeAI(Creature* creature) : ScriptedAI(creature)
+            if (Creature* temp = me->FindNearestCreature(NPC_MALFORMED_OOZE, 3.0f, true))
             {
-                Initialize();
+                DoSpawnCreature(NPC_IRON_SLUDGE, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 20s);
+                temp->DisappearAndDie();
+                me->DisappearAndDie();
             }
-
-            void Initialize()
-            {
-                _mergeTimer = 10000;
-            }
-
-            void Reset() override
-            {
-                Initialize();
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (_mergeTimer <= diff)
-                {
-                    if (Creature* temp = me->FindNearestCreature(NPC_MALFORMED_OOZE, 3.0f, true))
-                    {
-                        DoSpawnCreature(NPC_IRON_SLUDGE, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 20s);
-                        temp->DisappearAndDie();
-                        me->DisappearAndDie();
-                    }
-                    _mergeTimer = 3000;
-                }
-                else
-                    _mergeTimer -= diff;
-
-                if (!UpdateVictim())
-                    return;
-
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            uint32 _mergeTimer;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetHallsOfStoneAI<npc_malformed_oozeAI>(creature);
+            _mergeTimer = 3000;
         }
+        else
+            _mergeTimer -= diff;
+
+        if (!UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    uint32 _mergeTimer;
 };
 
-class npc_iron_sludge : public CreatureScript
+struct npc_iron_sludge : public ScriptedAI
 {
-    public:
-        npc_iron_sludge() : CreatureScript("npc_iron_sludge") { }
+    npc_iron_sludge(Creature* creature) : ScriptedAI(creature)
+    {
+        instance = creature->GetInstanceScript();
+    }
 
-        struct npc_iron_sludgeAI : public ScriptedAI
-        {
-            npc_iron_sludgeAI(Creature* creature) : ScriptedAI(creature)
-            {
-                instance = creature->GetInstanceScript();
-            }
+    InstanceScript* instance;
 
-            InstanceScript* instance;
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                if (Creature* sjonnir = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SJONNIR)))
-                    sjonnir->AI()->DoAction(ACTION_OOZE_DEAD);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetHallsOfStoneAI<npc_iron_sludgeAI>(creature);
-        }
+    void JustDied(Unit* /*killer*/) override
+    {
+        if (Creature* sjonnir = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SJONNIR)))
+            sjonnir->AI()->DoAction(ACTION_OOZE_DEAD);
+    }
 };
 
 class achievement_abuse_the_ooze : public AchievementCriteriaScript
@@ -320,8 +287,8 @@ class achievement_abuse_the_ooze : public AchievementCriteriaScript
 
 void AddSC_boss_sjonnir()
 {
-    new boss_sjonnir();
-    new npc_malformed_ooze();
-    new npc_iron_sludge();
+    RegisterHallsOfStoneCreatureAI(boss_sjonnir);
+    RegisterHallsOfStoneCreatureAI(npc_malformed_ooze);
+    RegisterHallsOfStoneCreatureAI(npc_iron_sludge);
     new achievement_abuse_the_ooze();
 }
