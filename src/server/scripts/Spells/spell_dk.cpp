@@ -471,7 +471,7 @@ class spell_dk_death_strike : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget.Register(&spell_dk_death_strike::HandleDummy, EFFECT_2, SPELL_EFFECT_DUMMY);
+        OnEffectLaunch.Register(&spell_dk_death_strike::HandleDummy, EFFECT_2, SPELL_EFFECT_DUMMY);
     }
 };
 
