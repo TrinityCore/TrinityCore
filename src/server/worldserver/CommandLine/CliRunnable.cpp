@@ -149,7 +149,7 @@ void CliThread()
 
         if (!command.empty())
         {
-            auto nextLineIndex = RemoveCRLF(command);
+            Optional<std::size_t> nextLineIndex = RemoveCRLF(command);
             if (nextLineIndex && *nextLineIndex == 0)
             {
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
