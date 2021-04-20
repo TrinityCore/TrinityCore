@@ -43,7 +43,7 @@ enum SpellCooldownFlags
 class TC_GAME_API SpellHistory
 {
 public:
-    typedef std::chrono::system_clock Clock;
+    using Clock = std::chrono::system_clock;
 
     struct CooldownEntry
     {
@@ -57,7 +57,7 @@ public:
 
     struct ChargeEntry
     {
-        ChargeEntry() { }
+        ChargeEntry() = default;
         ChargeEntry(Clock::time_point startTime, std::chrono::milliseconds rechargeTime) : RechargeStart(startTime), RechargeEnd(startTime + rechargeTime) { }
         ChargeEntry(Clock::time_point startTime, Clock::time_point endTime) : RechargeStart(startTime), RechargeEnd(endTime) { }
 
@@ -65,11 +65,11 @@ public:
         Clock::time_point RechargeEnd;
     };
 
-    typedef std::deque<ChargeEntry> ChargeEntryCollection;
-    typedef std::unordered_map<uint32 /*spellId*/, CooldownEntry> CooldownStorageType;
-    typedef std::unordered_map<uint32 /*categoryId*/, CooldownEntry*> CategoryCooldownStorageType;
-    typedef std::unordered_map<uint32 /*categoryId*/, ChargeEntryCollection> ChargeStorageType;
-    typedef std::unordered_map<uint32 /*categoryId*/, Clock::time_point> GlobalCooldownStorageType;
+    using ChargeEntryCollection = std::deque<ChargeEntry>;
+    using CooldownStorageType = std::unordered_map<uint32 /*spellId*/, CooldownEntry>;
+    using CategoryCooldownStorageType = std::unordered_map<uint32 /*categoryId*/, CooldownEntry*>;
+    using ChargeStorageType = std::unordered_map<uint32 /*categoryId*/, ChargeEntryCollection>;
+    using GlobalCooldownStorageType = std::unordered_map<uint32 /*categoryId*/, Clock::time_point>;
 
     explicit SpellHistory(Unit* owner) : _owner(owner), _schoolLockouts() { }
 
@@ -96,7 +96,7 @@ public:
     template<class Type, class Period>
     void AddCooldown(uint32 spellId, uint32 itemId, std::chrono::duration<Type, Period> cooldownDuration)
     {
-        Clock::time_point now = GameTime::GetGameTimeSystemPoint();
+        Clock::time_point now = GameTime::GetGameTimePoint<Clock>();
         AddCooldown(spellId, itemId, now + std::chrono::duration_cast<Clock::duration>(cooldownDuration), 0, now);
     }
 

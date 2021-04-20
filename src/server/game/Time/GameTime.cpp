@@ -56,6 +56,24 @@ namespace GameTime
         return GameTimeSteadyPoint;
     }
 
+    template<typename Clock>
+    typename Clock::time_point GetGameTimePoint()
+    {
+        static_assert(!std::is_same<Clock, Clock>::value, "Missing specialization for GetGameTimePoint");
+    }
+
+    template<>
+    TC_GAME_API std::chrono::system_clock::time_point GetGameTimePoint<std::chrono::system_clock>()
+    {
+        return GetGameTimeSystemPoint();
+    }
+
+    template<>
+    TC_GAME_API std::chrono::steady_clock::time_point GetGameTimePoint<std::chrono::steady_clock>()
+    {
+        return GetGameTimeSteadyPoint();
+    }
+
     uint32 GetUptime()
     {
         return uint32(GameTime - StartTime);

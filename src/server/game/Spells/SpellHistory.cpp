@@ -18,6 +18,7 @@
 #include "SpellHistory.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "Duration.h"
 #include "Item.h"
 #include "Map.h"
 #include "ObjectMgr.h"
@@ -30,7 +31,7 @@
 #include "SpellPackets.h"
 #include "World.h"
 
-SpellHistory::Clock::duration const SpellHistory::InfinityCooldownDelay = std::chrono::duration_cast<SpellHistory::Clock::duration>(std::chrono::seconds(MONTH));
+SpellHistory::Clock::duration const SpellHistory::InfinityCooldownDelay = std::chrono::duration_cast<SpellHistory::Clock::duration>(Seconds(MONTH));
 
 template<>
 struct SpellHistory::PersistenceHelper<Player>
@@ -138,7 +139,7 @@ struct SpellHistory::PersistenceHelper<Pet>
 template<class OwnerType>
 void SpellHistory::LoadFromDB(PreparedQueryResult cooldownsResult, PreparedQueryResult chargesResult)
 {
-    typedef PersistenceHelper<OwnerType> StatementInfo;
+    using StatementInfo = PersistenceHelper<OwnerType>;
 
     if (cooldownsResult)
     {
@@ -173,7 +174,7 @@ void SpellHistory::LoadFromDB(PreparedQueryResult cooldownsResult, PreparedQuery
 template<class OwnerType>
 void SpellHistory::SaveToDB(CharacterDatabaseTransaction& trans)
 {
-    typedef PersistenceHelper<OwnerType> StatementInfo;
+    using StatementInfo = PersistenceHelper<OwnerType>;
 
     uint8 index = 0;
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(StatementInfo::CooldownsDeleteStatement);
@@ -211,7 +212,7 @@ void SpellHistory::SaveToDB(CharacterDatabaseTransaction& trans)
 
 void SpellHistory::Update()
 {
-    Clock::time_point now = GameTime::GetGameTimeSystemPoint();
+    Clock::time_point now = GameTime::GetGameTimePoint<Clock>();
     for (auto itr = _categoryCooldowns.begin(); itr != _categoryCooldowns.end();)
     {
         if (itr->second->CategoryEnd < now)
@@ -294,7 +295,7 @@ void SpellHistory::WritePacket(WorldPackets::Spells::SendSpellHistory* sendSpell
 {
     sendSpellHistory->Entries.reserve(_spellCooldowns.size());
 
-    Clock::time_point now = GameTime::GetGameTimeSystemPoint();
+    Clock::time_point now = GameTime::GetGameTimePoint<Clock>();
     for (auto const& p : _spellCooldowns)
     {
         WorldPackets::Spells::SpellHistoryEntry historyEntry;
@@ -305,12 +306,12 @@ void SpellHistory::WritePacket(WorldPackets::Spells::SendSpellHistory* sendSpell
             historyEntry.OnHold = true;
         else
         {
-            std::chrono::milliseconds cooldownDuration = std::chrono::duration_cast<std::chrono::milliseconds>(p.second.CooldownEnd - now);
+            Milliseconds cooldownDuration = std::chrono::duration_cast<Milliseconds>(p.second.CooldownEnd - now);
             if (cooldownDuration.count() <= 0)
                 continue;
 
             historyEntry.RecoveryTime = uint32(cooldownDuration.count());
-            std::chrono::milliseconds categoryDuration = std::chrono::duration_cast<std::chrono::milliseconds>(p.second.CategoryEnd - now);
+            Milliseconds categoryDuration = std::chrono::duration_cast<Milliseconds>(p.second.CategoryEnd - now);
             if (categoryDuration.count() > 0)
             {
                 historyEntry.Category = p.second.CategoryId;
@@ -327,12 +328,12 @@ void SpellHistory::WritePacket(WorldPackets::Spells::SendSpellCharges* sendSpell
 {
     sendSpellCharges->Entries.reserve(_categoryCharges.size());
 
-    Clock::time_point now = GameTime::GetGameTimeSystemPoint();
+    Clock::time_point now = GameTime::GetGameTimePoint<Clock>();
     for (auto const& p : _categoryCharges)
     {
         if (!p.second.empty())
         {
-            std::chrono::milliseconds cooldownDuration = std::chrono::duration_cast<std::chrono::milliseconds>(p.second.front().RechargeEnd - now);
+            Milliseconds cooldownDuration = std::chrono::duration_cast<Milliseconds>(p.second.front().RechargeEnd - now);
             if (cooldownDuration.count() <= 0)
                 continue;
 
@@ -348,7 +349,7 @@ void SpellHistory::WritePacket(WorldPackets::Spells::SendSpellCharges* sendSpell
 template<>
 void SpellHistory::WritePacket(WorldPackets::Pet::PetSpells* petSpells) const
 {
-    Clock::time_point now = GameTime::GetGameTimeSystemPoint();
+    Clock::time_point now = GameTime::GetGameTimePoint<Clock>();
 
     petSpells->Cooldowns.reserve(_spellCooldowns.size());
     for (auto const& p : _spellCooldowns)
@@ -359,12 +360,12 @@ void SpellHistory::WritePacket(WorldPackets::Pet::PetSpells* petSpells) const
 
         if (!p.second.OnHold)
         {
-            std::chrono::milliseconds cooldownDuration = std::chrono::duration_cast<std::chrono::milliseconds>(p.second.CooldownEnd - now);
+            Milliseconds cooldownDuration = std::chrono::duration_cast<Milliseconds>(p.second.CooldownEnd - now);
             if (cooldownDuration.count() <= 0)
                 continue;
 
             petSpellCooldown.Duration = uint32(cooldownDuration.count());
-            std::chrono::milliseconds categoryDuration = std::chrono::duration_cast<std::chrono::milliseconds>(p.second.CategoryEnd - now);
+            Milliseconds categoryDuration = std::chrono::duration_cast<Milliseconds>(p.second.CategoryEnd - now);
             if (categoryDuration.count() > 0)
                 petSpellCooldown.CategoryDuration = uint32(categoryDuration.count());
         }
@@ -379,7 +380,7 @@ void SpellHistory::WritePacket(WorldPackets::Pet::PetSpells* petSpells) const
     {
         if (!p.second.empty())
         {
-            std::chrono::milliseconds cooldownDuration = std::chrono::duration_cast<std::chrono::milliseconds>(p.second.front().RechargeEnd - now);
+            Milliseconds cooldownDuration = std::chrono::duration_cast<Milliseconds>(p.second.front().RechargeEnd - now);
             if (cooldownDuration.count() <= 0)
                 continue;
 
@@ -402,7 +403,7 @@ void SpellHistory::StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spel
 
     GetCooldownDurations(spellInfo, itemId, &cooldown, &categoryId, &categoryCooldown);
 
-    Clock::time_point curTime = GameTime::GetGameTimeSystemPoint();
+    Clock::time_point curTime = GameTime::GetGameTimePoint<Clock>();
     Clock::time_point catrecTime;
     Clock::time_point recTime;
     bool needsCooldownPacket = false;
@@ -469,7 +470,7 @@ void SpellHistory::StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spel
 
             SpellCategoryEntry const* categoryEntry = sSpellCategoryStore.AssertEntry(categoryId);
             if (categoryEntry->Flags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET)
-                categoryCooldown = int32(std::chrono::duration_cast<std::chrono::milliseconds>(Clock::from_time_t(sWorld->GetNextDailyQuestsResetTime()) - Clock::now()).count());
+                categoryCooldown = int32(std::chrono::duration_cast<Milliseconds>(Clock::from_time_t(sWorld->GetNextDailyQuestsResetTime()) - Clock::now()).count());
         }
 
         // replace negative cooldowns by 0
@@ -483,8 +484,8 @@ void SpellHistory::StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spel
         if (cooldown == 0 && categoryCooldown == 0)
             return;
 
-        catrecTime = categoryCooldown ? curTime + std::chrono::duration_cast<Clock::duration>(std::chrono::milliseconds(categoryCooldown)) : curTime;
-        recTime = cooldown ? curTime + std::chrono::duration_cast<Clock::duration>(std::chrono::milliseconds(cooldown)) : catrecTime;
+        catrecTime = categoryCooldown ? curTime + std::chrono::duration_cast<Clock::duration>(Milliseconds(categoryCooldown)) : curTime;
+        recTime = cooldown ? curTime + std::chrono::duration_cast<Clock::duration>(Milliseconds(cooldown)) : catrecTime;
     }
 
     // self spell cooldown
@@ -551,7 +552,7 @@ void SpellHistory::ModifySpellCooldown(uint32 spellId, Clock::duration offset)
     if (!offset.count() || itr == _spellCooldowns.end())
         return;
 
-    Clock::time_point now = GameTime::GetGameTimeSystemPoint();
+    Clock::time_point now = GameTime::GetGameTimePoint<Clock>();
 
     if (itr->second.CooldownEnd + offset > now)
         itr->second.CooldownEnd += offset;
@@ -563,7 +564,7 @@ void SpellHistory::ModifySpellCooldown(uint32 spellId, Clock::duration offset)
         WorldPackets::Spells::ModifyCooldown modifyCooldown;
         modifyCooldown.IsPet = _owner != playerOwner;
         modifyCooldown.SpellID = spellId;
-        modifyCooldown.DeltaTime = std::chrono::duration_cast<std::chrono::milliseconds>(offset).count();
+        modifyCooldown.DeltaTime = std::chrono::duration_cast<Milliseconds>(offset).count();
         playerOwner->SendDirectMessage(modifyCooldown.Write());
     }
 }
@@ -663,18 +664,18 @@ uint32 SpellHistory::GetRemainingCooldown(SpellInfo const* spellInfo) const
         end = catItr->second->CategoryEnd;
     }
 
-    Clock::time_point now = GameTime::GetGameTimeSystemPoint();
+    Clock::time_point now = GameTime::GetGameTimePoint<Clock>();
     if (end < now)
         return 0;
 
     Clock::duration remaining = end - now;
-    return uint32(std::chrono::duration_cast<std::chrono::milliseconds>(remaining).count());
+    return uint32(std::chrono::duration_cast<Milliseconds>(remaining).count());
 }
 
 void SpellHistory::LockSpellSchool(SpellSchoolMask schoolMask, uint32 lockoutTime)
 {
-    Clock::time_point now = GameTime::GetGameTimeSystemPoint();
-    Clock::time_point lockoutEnd = now + std::chrono::duration_cast<Clock::duration>(std::chrono::milliseconds(lockoutTime));
+    Clock::time_point now = GameTime::GetGameTimePoint<Clock>();
+    Clock::time_point lockoutEnd = now + std::chrono::duration_cast<Clock::duration>(Milliseconds(lockoutTime));
     for (uint32 i = 0; i < MAX_SPELL_SCHOOL; ++i)
         if (SpellSchoolMask(1 << i) & schoolMask)
             _schoolLockouts[i] = lockoutEnd;
@@ -695,9 +696,9 @@ void SpellHistory::LockSpellSchool(SpellSchoolMask schoolMask, uint32 lockoutTim
     else
     {
         Creature* creatureOwner = _owner->ToCreature();
-        for (uint8 i = 0; i < MAX_CREATURE_SPELLS; ++i)
-            if (creatureOwner->m_spells[i])
-                knownSpells.insert(creatureOwner->m_spells[i]);
+        for (uint32 spell : creatureOwner->m_spells)
+            if (spell)
+                knownSpells.insert(spell);
     }
 
     WorldPackets::Spells::SpellCooldown spellCooldown;
@@ -726,7 +727,7 @@ void SpellHistory::LockSpellSchool(SpellSchoolMask schoolMask, uint32 lockoutTim
 
 bool SpellHistory::IsSchoolLocked(SpellSchoolMask schoolMask) const
 {
-    Clock::time_point now = GameTime::GetGameTimeSystemPoint();
+    Clock::time_point now = GameTime::GetGameTimePoint<Clock>();
     for (uint32 i = 0; i < MAX_SPELL_SCHOOL; ++i)
         if (SpellSchoolMask(1 << i) & schoolMask)
             if (_schoolLockouts[i] > now)
@@ -746,11 +747,11 @@ bool SpellHistory::ConsumeCharge(uint32 chargeCategoryId)
         Clock::time_point recoveryStart;
         std::deque<ChargeEntry>& charges = _categoryCharges[chargeCategoryId];
         if (charges.empty())
-            recoveryStart = GameTime::GetGameTimeSystemPoint();
+            recoveryStart = GameTime::GetGameTimePoint<Clock>();
         else
             recoveryStart = charges.back().RechargeEnd;
 
-        charges.emplace_back(recoveryStart, std::chrono::milliseconds(chargeRecovery));
+        charges.emplace_back(recoveryStart, Milliseconds(chargeRecovery));
         return true;
     }
 
@@ -767,7 +768,7 @@ void SpellHistory::ModifyChargeRecoveryTime(uint32 chargeCategoryId, Clock::dura
     if (itr == _categoryCharges.end() || itr->second.empty())
         return;
 
-    Clock::time_point now = GameTime::GetGameTimeSystemPoint();
+    Clock::time_point now = GameTime::GetGameTimePoint<Clock>();
 
     for (ChargeEntry& entry : itr->second)
     {
@@ -875,7 +876,7 @@ bool SpellHistory::HasGlobalCooldown(SpellInfo const* spellInfo) const
 
 void SpellHistory::AddGlobalCooldown(SpellInfo const* spellInfo, uint32 duration)
 {
-    _globalCooldowns[spellInfo->StartRecoveryCategory] = Clock::now() + std::chrono::duration_cast<Clock::duration>(std::chrono::milliseconds(duration));
+    _globalCooldowns[spellInfo->StartRecoveryCategory] = Clock::now() + std::chrono::duration_cast<Clock::duration>(Milliseconds(duration));
 }
 
 void SpellHistory::CancelGlobalCooldown(SpellInfo const* spellInfo)
@@ -906,7 +907,7 @@ void SpellHistory::SendSetSpellCharges(uint32 chargeCategoryId, ChargeEntryColle
         WorldPackets::Spells::SetSpellCharges setSpellCharges;
         setSpellCharges.Category = chargeCategoryId;
         if (!chargeCollection.empty())
-            setSpellCharges.NextRecoveryTime = uint32(std::chrono::duration_cast<std::chrono::milliseconds>(chargeCollection.front().RechargeEnd - Clock::now()).count());
+            setSpellCharges.NextRecoveryTime = uint32(std::chrono::duration_cast<Milliseconds>(chargeCollection.front().RechargeEnd - Clock::now()).count());
         setSpellCharges.ConsumedCharges = uint8(chargeCollection.size());
         setSpellCharges.IsPet = player != _owner;
         player->SendDirectMessage(setSpellCharges.Write());
@@ -974,12 +975,12 @@ void SpellHistory::RestoreCooldownStateAfterDuel()
         }
 
         // check for spell with onHold active before and during the duel
-        for (auto itr = _spellCooldownsBeforeDuel.begin(); itr != _spellCooldownsBeforeDuel.end(); ++itr)
+        for (CooldownStorageType::value_type const& pair : _spellCooldownsBeforeDuel)
         {
-            if (!itr->second.OnHold &&
-                _spellCooldowns.find(itr->first) != _spellCooldowns.end() &&
-                !_spellCooldowns[itr->first].OnHold)
-                _spellCooldowns[itr->first] = _spellCooldownsBeforeDuel[itr->first];
+            if (!pair.second.OnHold &&
+                _spellCooldowns.find(pair.first) != _spellCooldowns.end() &&
+                !_spellCooldowns[pair.first].OnHold)
+                _spellCooldowns[pair.first] = _spellCooldownsBeforeDuel[pair.first];
         }
 
         // update the client: restore old cooldowns
@@ -989,8 +990,8 @@ void SpellHistory::RestoreCooldownStateAfterDuel()
 
         for (auto const& c : _spellCooldowns)
         {
-            Clock::time_point now = GameTime::GetGameTimeSystemPoint();
-            uint32 cooldownDuration = uint32(c.second.CooldownEnd > now ? std::chrono::duration_cast<std::chrono::milliseconds>(c.second.CooldownEnd - now).count() : 0);
+            Clock::time_point now = GameTime::GetGameTimePoint<Clock>();
+            uint32 cooldownDuration = uint32(c.second.CooldownEnd > now ? std::chrono::duration_cast<Milliseconds>(c.second.CooldownEnd - now).count() : 0);
 
             // cooldownDuration must be between 0 and 10 minutes in order to avoid any visual bugs
             if (cooldownDuration <= 0 || cooldownDuration > 10 * MINUTE * IN_MILLISECONDS || c.second.OnHold)
