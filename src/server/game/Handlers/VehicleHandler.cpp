@@ -16,6 +16,7 @@
  */
 
 #include "WorldSession.h"
+#include "Creature.h"
 #include "DBCStructure.h"
 #include "Log.h"
 #include "Map.h"
@@ -208,7 +209,12 @@ void WorldSession::HandleRequestVehicleExit(WorldPacket& /*recvData*/)
         if (VehicleSeatEntry const* seat = vehicle->GetSeatForPassenger(GetPlayer()))
         {
             if (seat->CanEnterOrExit())
+            {
                 GetPlayer()->ExitVehicle();
+                if (Creature* creature = vehicle->GetBase()->ToCreature())
+                    if (creature->IsFlying())
+                        GetPlayer()->CastSpell(GetPlayer(), VEHICLE_SPELL_PARACHUTE);
+            }
             else
                 TC_LOG_ERROR("network", "Player %u tried to exit vehicle, but seatflags %u (ID: %u) don't permit that.",
                 GetPlayer()->GetGUID().GetCounter(), seat->ID, seat->Flags);
