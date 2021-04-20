@@ -1998,6 +1998,27 @@ class spell_pal_seal_of_insight : public AuraScript
     }
 };
 
+// 20066 - Repentance
+class spell_pal_repentance : public AuraScript
+{
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        if (!eventInfo.GetSpellInfo())
+            return false;
+
+        // Censure may not cancel the aura
+        if (eventInfo.GetSpellInfo()->SpellFamilyName == SPELLFAMILY_PALADIN && (eventInfo.GetSpellInfo()->SpellFamilyFlags[0] & 0x20000000) != 0)
+            return false;
+
+        return true;
+    }
+
+    void Register() override
+    {
+        DoCheckProc.Register(&spell_pal_repentance::CheckProc);
+    }
+};
+
 void AddSC_paladin_spell_scripts()
 {
     RegisterSpellScript(spell_pal_ardent_defender);
@@ -2039,6 +2060,7 @@ void AddSC_paladin_spell_scripts()
     RegisterSpellScript(spell_pal_light_of_dawn);
     RegisterSpellScript(spell_pal_long_arm_of_the_law);
     RegisterSpellScript(spell_pal_protector_of_the_innocent);
+    RegisterSpellScript(spell_pal_repentance);
     new spell_pal_righteous_defense();
     RegisterSpellScript(spell_pal_sacred_shield);
     RegisterSpellScript(spell_pal_seal_of_insight);
