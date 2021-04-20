@@ -28692,21 +28692,21 @@ static bool ForEachEquipmentSlot(InventoryType inventoryType, bool canDualWield,
         case INVTYPE_CLOAK: callback(EQUIPMENT_SLOT_BACK); return true;
         case INVTYPE_FINGER:
             callback(EQUIPMENT_SLOT_FINGER1);
-            callback(EQUIPMENT_SLOT_FINGER2);
+            callback(EQUIPMENT_SLOT_FINGER2, true);
             return true;
         case INVTYPE_TRINKET:
             callback(EQUIPMENT_SLOT_TRINKET1);
-            callback(EQUIPMENT_SLOT_TRINKET2);
+            callback(EQUIPMENT_SLOT_TRINKET2, true);
             return true;
         case INVTYPE_WEAPON:
             callback(EQUIPMENT_SLOT_MAINHAND);
             if (canDualWield)
-                callback(EQUIPMENT_SLOT_OFFHAND);
+                callback(EQUIPMENT_SLOT_OFFHAND, true);
             return true;
         case INVTYPE_2HWEAPON:
             callback(EQUIPMENT_SLOT_MAINHAND);
             if (canDualWield && canTitanGrip)
-                callback(EQUIPMENT_SLOT_OFFHAND);
+                callback(EQUIPMENT_SLOT_OFFHAND, true);
             return true;
         case INVTYPE_RANGED:
         case INVTYPE_RANGEDRIGHT:
@@ -28729,8 +28729,8 @@ static bool ForEachEquipmentSlot(InventoryType inventoryType, bool canDualWield,
 
 void Player::UpdateAverageItemLevelTotal()
 {
-    std::array<std::pair<InventoryType, uint32>, EQUIPMENT_SLOT_END> bestItemLevels = { };
-    bestItemLevels.fill({ INVTYPE_NON_EQUIP, 0 });
+    std::array<std::tuple<InventoryType, uint32, ObjectGuid>, EQUIPMENT_SLOT_END> bestItemLevels = { };
+    bestItemLevels.fill({ INVTYPE_NON_EQUIP, 0, ObjectGuid::Empty });
     float sum = 0;
 
     ForEachItem(ItemSearchLocation::Everywhere, [this, &bestItemLevels, &sum](Item* item)
@@ -28739,17 +28739,35 @@ void Player::UpdateAverageItemLevelTotal()
         if (itemTemplate)
         {
             uint16 dest;
-            if (CanEquipItem(NULL_SLOT, dest, item, true, false) == EQUIP_ERR_OK)
+            if (item->IsEquipped())
             {
                 uint32 itemLevel = item->GetItemLevel(this);
                 InventoryType inventoryType = itemTemplate->GetInventoryType();
-                ForEachEquipmentSlot(inventoryType, m_canDualWield, m_canTitanGrip, [&bestItemLevels, itemLevel, inventoryType, &sum](EquipmentSlots slot)
+                std::tuple<InventoryType, uint32, ObjectGuid>& slotData = bestItemLevels[item->GetSlot()];
+                if (itemLevel > std::get<1>(slotData))
                 {
-                    std::pair<InventoryType, uint32>& slotData = bestItemLevels[slot];
-                    if (itemLevel > slotData.second)
+                    sum += itemLevel - std::get<1>(slotData);
+                    slotData = { inventoryType, itemLevel, item->GetGUID() };
+                }
+            }
+            else if (CanEquipItem(NULL_SLOT, dest, item, true, false) == EQUIP_ERR_OK)
+            {
+                uint32 itemLevel = item->GetItemLevel(this);
+                InventoryType inventoryType = itemTemplate->GetInventoryType();
+                ForEachEquipmentSlot(inventoryType, m_canDualWield, m_canTitanGrip, [&bestItemLevels, item, itemLevel, inventoryType, &sum](EquipmentSlots slot, bool checkDuplicateGuid = false)
+                {
+                    if (checkDuplicateGuid)
                     {
-                        sum += itemLevel - slotData.second;
-                        slotData = std::make_pair(inventoryType, itemLevel);
+                        for (std::tuple<InventoryType, uint32, ObjectGuid> const& slotData : bestItemLevels)
+                            if (std::get<2>(slotData) == item->GetGUID())
+                                return;
+                    }
+
+                    std::tuple<InventoryType, uint32, ObjectGuid>& slotData = bestItemLevels[slot];
+                    if (itemLevel > std::get<1>(slotData))
+                    {
+                        sum += itemLevel - std::get<1>(slotData);
+                        slotData = { inventoryType, itemLevel, item->GetGUID() };
                     }
                 });
             }
@@ -28758,12 +28776,12 @@ void Player::UpdateAverageItemLevelTotal()
     });
 
     // If main hand is a 2h weapon, count it twice
-    std::pair<InventoryType, uint32> mainHand = bestItemLevels[EQUIPMENT_SLOT_MAINHAND];
-    if (mainHand.first == INVTYPE_2HWEAPON)
-        sum += mainHand.second;
+    std::tuple<InventoryType, uint32, ObjectGuid> const& mainHand = bestItemLevels[EQUIPMENT_SLOT_MAINHAND];
+    if (!m_canTitanGrip && std::get<0>(mainHand) == INVTYPE_2HWEAPON)
+        sum += std::get<1>(mainHand);
 
     sum /= 16.0f;
-    UpdateAverageItemLevelTotal(sum);
+    SetAverageItemLevelTotal(sum);
 }
 
 void Player::UpdateAverageItemLevelEquipped()
@@ -28775,11 +28793,11 @@ void Player::UpdateAverageItemLevelEquipped()
         {
             uint32 itemLevel = pItem->GetItemLevel(this);
             totalItemLevel += itemLevel;
-            if (i == EQUIPMENT_SLOT_MAINHAND && pItem->GetTemplate()->GetInventoryType() == INVTYPE_2HWEAPON) // 2h weapon counts twice
+            if (!m_canTitanGrip && i == EQUIPMENT_SLOT_MAINHAND && pItem->GetTemplate()->GetInventoryType() == INVTYPE_2HWEAPON) // 2h weapon counts twice
                 totalItemLevel += itemLevel;
         }
     }
 
     totalItemLevel /= 16.0;
-    UpdateAverageItemLevelEquipped(totalItemLevel);
+    SetAverageItemLevelEquipped(totalItemLevel);
 }
