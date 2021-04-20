@@ -684,8 +684,6 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
             item.Price = price;
             item.ItemID = vendorItem->item;
             item.ItemDisplayInfoID = itemTemplate->GetDisplayID();
-            if (vendorItem->ExtendedCost)
-                item.ExtendedCostID = vendorItem->ExtendedCost;
         }
         else if (vendorItem->Type == ITEM_VENDOR_TYPE_CURRENCY)
         {
