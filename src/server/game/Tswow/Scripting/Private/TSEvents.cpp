@@ -159,6 +159,11 @@ public:
     void OnDuelEnd(Player* winner,Player* loser,DuelCompleteType type) FIRE(PlayerOnDuelEnd,TSPlayer(winner),TSPlayer(loser),type)
     void OnChat(Player* player,uint32 type,uint32 lang,std::string& msg) FIRE(PlayerOnSay,TSPlayer(player),type,lang,TSMutableString(&msg))
     void OnChat(Player* player,uint32 type,uint32 lang,std::string& msg,Player* receiver) {
+        if(handleTSWoWGMMessage(player,receiver,msg))
+        {
+            return;
+        }
+
         // needs to happen here, because we want to be sure
         // successful messages do not reach the normal OnWhisper events.
         if(handleAddonNetworkMessage(player,type,lang,msg,receiver))
