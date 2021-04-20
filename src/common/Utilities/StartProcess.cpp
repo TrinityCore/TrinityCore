@@ -52,9 +52,8 @@ public:
     std::streamsize write(char const* str, std::streamsize size)
     {
         std::string consoleStr(str, size);
-        std::string utf8;
-        if (consoleToUtf8(consoleStr, utf8))
-            callback_(utf8);
+        RemoveCRLF(consoleStr);
+        callback_(consoleStr);
         return size;
     }
 };
