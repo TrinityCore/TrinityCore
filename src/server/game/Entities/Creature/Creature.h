@@ -24,6 +24,7 @@
 #include "DatabaseEnvFwd.h"
 #include "Duration.h"
 #include "Loot.h"
+#include "GridObject.h"
 #include "MapObject.h"
 #include <list>
 

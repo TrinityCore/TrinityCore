@@ -49,15 +49,22 @@ public:
 
     ChatCommandTable GetCommands() const override
     {
+        static ChatCommandTable listAurasCommandTable =
+        {
+            { "",               HandleListAllAurasCommand,      rbac::RBAC_PERM_COMMAND_LIST_AURAS,         Console::No  },
+            { "id",             HandleListAurasByIdCommand,     rbac::RBAC_PERM_COMMAND_LIST_AURAS,         Console::No  },
+            { "name",           HandleListAurasByNameCommand,   rbac::RBAC_PERM_COMMAND_LIST_AURAS,         Console::No  },
+        };
+
         static ChatCommandTable listCommandTable =
         {
             { "creature",       HandleListCreatureCommand,      rbac::RBAC_PERM_COMMAND_LIST_CREATURE,      Console::Yes },
             { "item",           HandleListItemCommand,          rbac::RBAC_PERM_COMMAND_LIST_ITEM,          Console::Yes },
             { "object",         HandleListObjectCommand,        rbac::RBAC_PERM_COMMAND_LIST_OBJECT,        Console::Yes },
-            { "auras",          HandleListAurasCommand,         rbac::RBAC_PERM_COMMAND_LIST_AURAS,         Console::No },
+            { "auras",          listAurasCommandTable                                                                    },
             { "mail",           HandleListMailCommand,          rbac::RBAC_PERM_COMMAND_LIST_MAIL,          Console::Yes },
-            { "spawnpoints",    HandleListSpawnPointsCommand,   rbac::RBAC_PERM_COMMAND_LIST_SPAWNPOINTS,   Console::No },
-            { "respawns",       HandleListRespawnsCommand,      rbac::RBAC_PERM_COMMAND_LIST_RESPAWNS,      Console::No },
+            { "spawnpoints",    HandleListSpawnPointsCommand,   rbac::RBAC_PERM_COMMAND_LIST_SPAWNPOINTS,   Console::No  },
+            { "respawns",       HandleListRespawnsCommand,      rbac::RBAC_PERM_COMMAND_LIST_RESPAWNS,      Console::No  },
         };
         static ChatCommandTable commandTable =
         {
@@ -430,7 +437,22 @@ public:
         return true;
     }
 
-    static bool HandleListAurasCommand(ChatHandler* handler)
+    static bool HandleListAllAurasCommand(ChatHandler* handler)
+    {
+        return ListAurasCommand(handler, {}, {});
+    }
+
+    static bool HandleListAurasByIdCommand(ChatHandler* handler, uint32 spellId)
+    {
+        return ListAurasCommand(handler, spellId, {});
+    }
+
+    static bool HandleListAurasByNameCommand(ChatHandler* handler, WTail namePart)
+    {
+        return ListAurasCommand(handler, {}, namePart);
+    }
+
+    static bool ListAurasCommand(ChatHandler* handler, Optional<uint32> spellId, std::wstring namePart)
     {
         Unit* unit = handler->getSelectedUnit();
         if (!unit)
@@ -440,17 +462,22 @@ public:
             return false;
         }
 
+        wstrToLower(namePart);
+
         char const* talentStr = handler->GetTrinityString(LANG_TALENT);
         char const* passiveStr = handler->GetTrinityString(LANG_PASSIVE);
 
         Unit::AuraApplicationMap const& auras = unit->GetAppliedAuras();
         handler->PSendSysMessage(LANG_COMMAND_TARGET_LISTAURAS, auras.size());
-        for (auto const& [spellId, aurApp] : auras)
+        for (auto const& [aurId, aurApp] : auras)
         {
             bool talent = GetTalentSpellCost(aurApp->GetBase()->GetId()) > 0;
 
             Aura const* aura = aurApp->GetBase();
             char const* name = aura->GetSpellInfo()->SpellName[handler->GetSessionDbcLocale()];
+
+            if (!ShouldListAura(aura->GetSpellInfo(), spellId, namePart, handler->GetSessionDbcLocale()))
+                continue;
 
             std::ostringstream ss_name;
             ss_name << "|cffffffff|Hspell:" << aura->GetId() << "|h[" << name << "]|h|r";
@@ -468,14 +495,40 @@ public:
             if (auraList.empty())
                 continue;
 
-            handler->PSendSysMessage(LANG_COMMAND_TARGET_LISTAURATYPE, auraList.size(), i);
+            bool sizeLogged = false;
 
             for (AuraEffect const* effect : auraList)
+            {
+                if (!ShouldListAura(effect->GetSpellInfo(), spellId, namePart, handler->GetSessionDbcLocale()))
+                    continue;
+
+                if (!sizeLogged)
+                {
+                    sizeLogged = true;
+                    handler->PSendSysMessage(LANG_COMMAND_TARGET_LISTAURATYPE, auraList.size(), i);
+                }
+
                 handler->PSendSysMessage(LANG_COMMAND_TARGET_AURASIMPLE, effect->GetId(), effect->GetEffIndex(), effect->GetAmount());
+            }
         }
 
         return true;
     }
+
+    static bool ShouldListAura(SpellInfo const* spellInfo, Optional<uint32> spellId, std::wstring namePart, uint8 locale)
+    {
+        if (spellId)
+            return spellInfo->Id == spellId;
+
+        if (!namePart.empty())
+        {
+            std::string name = spellInfo->SpellName[locale];
+            return Utf8FitTo(name, namePart);
+        }
+
+        return true;
+    }
+
     // handle list mail command
     static bool HandleListMailCommand(ChatHandler* handler, Optional<PlayerIdentifier> player)
     {

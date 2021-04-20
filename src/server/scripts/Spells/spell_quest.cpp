@@ -1112,125 +1112,68 @@ class spell_q14112_14145_chum_the_water: public SpellScriptLoader
         }
 };
 
-// http://old01.wowhead.com/quest=9452 - Red Snapper - Very Tasty!
 enum RedSnapperVeryTasty
 {
-    ITEM_RED_SNAPPER             = 23614,
-    SPELL_CAST_NET               = 29866,
+    SPELL_FISHED_UP_RED_SNAPPER  = 29867,
     SPELL_FISHED_UP_MURLOC       = 29869
 };
 
-class spell_q9452_cast_net: public SpellScriptLoader
+// 29866 - Cast Fishing Net
+class spell_q9452_cast_net : public SpellScript
 {
-    public:
-        spell_q9452_cast_net() : SpellScriptLoader("spell_q9452_cast_net") { }
+    PrepareSpellScript(spell_q9452_cast_net);
 
-        class spell_q9452_cast_net_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_q9452_cast_net_SpellScript);
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_FISHED_UP_RED_SNAPPER, SPELL_FISHED_UP_MURLOC });
+    }
 
-            bool Load() override
-            {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-            }
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
 
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                Player* caster = GetCaster()->ToPlayer();
-                if (roll_chance_i(66))
-                    caster->AddItem(ITEM_RED_SNAPPER, 1);
-                else
-                    caster->CastSpell(caster, SPELL_FISHED_UP_MURLOC, true);
-            }
+        if (roll_chance_i(66))
+            caster->CastSpell(caster, SPELL_FISHED_UP_RED_SNAPPER, true);
+        else
+            caster->CastSpell(nullptr, SPELL_FISHED_UP_MURLOC, true);
+    }
 
-            void HandleActiveObject(SpellEffIndex effIndex)
-            {
-                PreventHitDefaultEffect(effIndex);
-                GetHitGObj()->SetRespawnTime(roll_chance_i(50) ? 2 * MINUTE : 3 * MINUTE);
-                GetHitGObj()->Use(GetCaster());
-                GetHitGObj()->SetLootState(GO_JUST_DEACTIVATED);
-            }
-
-            void Register() override
-            {
-                OnEffectHit += SpellEffectFn(spell_q9452_cast_net_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-                OnEffectHitTarget += SpellEffectFn(spell_q9452_cast_net_SpellScript::HandleActiveObject, EFFECT_1, SPELL_EFFECT_ACTIVATE_OBJECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_q9452_cast_net_SpellScript();
-        }
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_q9452_cast_net::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
 };
 
-enum PoundDrumSpells
+enum BreakfastOfChampions
 {
     SPELL_SUMMON_DEEP_JORMUNGAR     = 66510,
     SPELL_STORMFORGED_MOLE_MACHINE  = 66492
 };
 
-class spell_q14076_14092_pound_drum : public SpellScriptLoader
+// 66512 - Pound Drum
+class spell_q14076_14092_pound_drum : public SpellScript
 {
-    public:
-        spell_q14076_14092_pound_drum() : SpellScriptLoader("spell_q14076_14092_pound_drum") { }
+    PrepareSpellScript(spell_q14076_14092_pound_drum);
 
-        class spell_q14076_14092_pound_drum_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_q14076_14092_pound_drum_SpellScript);
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUMMON_DEEP_JORMUNGAR, SPELL_STORMFORGED_MOLE_MACHINE });
+    }
 
-            void HandleSummon()
-            {
-                Unit* caster = GetCaster();
+    void HandleSummon()
+    {
+        Unit* caster = GetCaster();
 
-                if (roll_chance_i(50))
-                    caster->CastSpell(caster, SPELL_SUMMON_DEEP_JORMUNGAR, true);
-                else
-                    caster->CastSpell(caster, SPELL_STORMFORGED_MOLE_MACHINE, true);
-            }
+        if (roll_chance_i(50))
+            caster->CastSpell(caster, SPELL_SUMMON_DEEP_JORMUNGAR, true);
+        else
+            caster->CastSpell(caster, SPELL_STORMFORGED_MOLE_MACHINE, true);
+    }
 
-            void HandleActiveObject(SpellEffIndex /*effIndex*/)
-            {
-                GetHitGObj()->SetLootState(GO_JUST_DEACTIVATED);
-            }
-
-            void Register() override
-            {
-                OnCast += SpellCastFn(spell_q14076_14092_pound_drum_SpellScript::HandleSummon);
-                OnEffectHitTarget += SpellEffectFn(spell_q14076_14092_pound_drum_SpellScript::HandleActiveObject, EFFECT_0, SPELL_EFFECT_ACTIVATE_OBJECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_q14076_14092_pound_drum_SpellScript();
-        }
-};
-
-class spell_q12279_cast_net : public SpellScriptLoader
-{
-    public:
-        spell_q12279_cast_net() : SpellScriptLoader("spell_q12279_cast_net") { }
-
-        class spell_q12279_cast_net_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_q12279_cast_net_SpellScript);
-
-            void HandleActiveObject(SpellEffIndex /*effIndex*/)
-            {
-                GetHitGObj()->SetLootState(GO_JUST_DEACTIVATED);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_q12279_cast_net_SpellScript::HandleActiveObject, EFFECT_1, SPELL_EFFECT_ACTIVATE_OBJECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_q12279_cast_net_SpellScript();
-        }
+    void Register() override
+    {
+        OnCast += SpellCastFn(spell_q14076_14092_pound_drum::HandleSummon);
+    }
 };
 
 enum HodirsHelm
@@ -1687,6 +1630,38 @@ class spell_q11010_q11102_q11023_q11008_check_fly_mount : public SpellScriptLoad
         {
             return new spell_q11010_q11102_q11023_q11008_check_fly_mount_SpellScript();
         }
+};
+
+enum RecoverTheCargo
+{
+    SPELL_SUMMON_LOCKBOX        = 42288,
+    SPELL_SUMMON_BURROWER       = 42289
+};
+
+// 42287 - Salvage Wreckage
+class spell_q11140salvage_wreckage : public SpellScript
+{
+    PrepareSpellScript(spell_q11140salvage_wreckage);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUMMON_LOCKBOX, SPELL_SUMMON_BURROWER });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+
+        if (roll_chance_i(50))
+            caster->CastSpell(caster, SPELL_SUMMON_LOCKBOX, true);
+        else
+            caster->CastSpell(nullptr, SPELL_SUMMON_BURROWER, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_q11140salvage_wreckage::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
 };
 
 enum SpellZuldrakRat
@@ -2298,6 +2273,52 @@ class spell_q12308_escape_from_silverbrook_summon_worgen : public SpellScriptLoa
         {
             return new spell_q12308_escape_from_silverbrook_summon_worgen_SpellScript();
         }
+};
+
+enum BasicOrdersEmote
+{
+    SPELL_TEST_SALUTE        = 73835,
+    SPELL_TEST_ROAR          = 73836,
+    SPELL_TEST_CHEER         = 73725,
+    SPELL_TEST_DANCE         = 73837,
+    SPELL_TEST_STOP_DANCE    = 73886
+};
+
+class spell_q25199_emote : public AuraScript
+{
+    PrepareAuraScript(spell_q25199_emote);
+
+    void HandlePeriodic(AuraEffect const* /*aurEff*/)
+    {
+        Unit* target = GetTarget();
+
+        switch (GetSpellInfo()->Id)
+        {
+            case SPELL_TEST_SALUTE:
+                target->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
+                break;
+            case SPELL_TEST_ROAR:
+                target->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
+                break;
+            case SPELL_TEST_CHEER:
+                target->HandleEmoteCommand(EMOTE_ONESHOT_CHEER);
+                break;
+            case SPELL_TEST_DANCE:
+                target->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_DANCE);
+                break;
+            case SPELL_TEST_STOP_DANCE:
+                target->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
+                break;
+            default:
+                return;
+        }
+        Remove();
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_q25199_emote::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
 };
 
 enum DeathComesFromOnHigh
@@ -2936,9 +2957,8 @@ void AddSC_quest_spell_scripts()
     RegisterSpellScript(spell_q13280_13283_plant_battle_standard);
     RegisterSpellScript(spell_q13280_13283_jump_jets);
     new spell_q14112_14145_chum_the_water();
-    new spell_q9452_cast_net();
-    new spell_q12279_cast_net();
-    new spell_q14076_14092_pound_drum();
+    RegisterSpellScript(spell_q9452_cast_net);
+    RegisterSpellScript(spell_q14076_14092_pound_drum);
     new spell_q12987_read_pronouncement();
     new spell_q12277_wintergarde_mine_explosion();
     new spell_q12066_bunny_kill_credit();
@@ -2950,6 +2970,7 @@ void AddSC_quest_spell_scripts()
     new spell_q11010_q11102_q11023_aggro_burst();
     new spell_q11010_q11102_q11023_choose_loc();
     new spell_q11010_q11102_q11023_q11008_check_fly_mount();
+    RegisterSpellScript(spell_q11140salvage_wreckage);
     new spell_q12372_azure_on_death_force_whisper();
     new spell_q12527_zuldrak_rat();
     new spell_q12661_q12669_q12676_q12677_q12713_summon_stefan();
@@ -2968,6 +2989,7 @@ void AddSC_quest_spell_scripts()
     RegisterSpellScript(spell_q11896_weakness_to_lightning_46444);
     new spell_q12308_escape_from_silverbrook_summon_worgen();
     new spell_q12308_escape_from_silverbrook();
+    RegisterSpellScript(spell_q25199_emote);
     new spell_q12641_death_comes_from_on_high();
     new spell_q12641_recall_eye_of_acherus();
     new spell_q12619_emblazon_runeblade();

@@ -312,7 +312,7 @@ struct boss_algalon_the_observer : public BossAI
         {
             case ACTION_START_INTRO:
             {
-                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_INSTANTLY_APPEAR_MODEL);
+                me->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DO_NOT_FADE_IN);
                 me->SetDisableGravity(true);
                 DoCastSelf(SPELL_ARRIVAL, true);
                 DoCastSelf(SPELL_RIDE_THE_LIGHTNING, true);
