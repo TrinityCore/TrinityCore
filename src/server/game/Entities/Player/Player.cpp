@@ -4650,6 +4650,9 @@ void Player::UpdateLocalChannels(uint32 newZone)
         if (!channelEntry)
             continue;
 
+        if (!(channelEntry->Flags & CHANNEL_DBC_FLAG_INITIAL))
+            continue;
+
         Channel* usedChannel = nullptr;
         for (Channel* channel : m_channels)
         {
