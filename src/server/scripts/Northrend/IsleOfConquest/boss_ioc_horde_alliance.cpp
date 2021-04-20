@@ -60,7 +60,7 @@ public:
                 (*itr)->Respawn();
         };
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             _events.ScheduleEvent(EVENT_BRUTAL_STRIKE, 5 * IN_MILLISECONDS);
             _events.ScheduleEvent(EVENT_DAGGER_THROW,  7 * IN_MILLISECONDS);

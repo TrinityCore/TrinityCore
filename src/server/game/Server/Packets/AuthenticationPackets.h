@@ -21,6 +21,7 @@
 #include "Packet.h"
 #include "Define.h"
 #include "Optional.h"
+#include "PacketUtilities.h"
 #include <array>
 #include <unordered_map>
 
@@ -146,7 +147,7 @@ namespace WorldPackets
                 uint32 VirtualRealmAddress = 0; ///< a special identifier made from the Index, BattleGroup and Region.
                 uint32 TimeSecondsUntilPCKick = 0; ///< @todo research
                 uint32 CurrencyID = 0; ///< this is probably used for the ingame shop. @todo implement
-                int32 Time = 0;
+                Timestamp<> Time;
 
                 GameTime GameTimeInfo;
 

@@ -83,8 +83,9 @@ class spell_rog_blade_flurry : public SpellScriptLoader
 
                 if (DamageInfo* damageInfo = eventInfo.GetDamageInfo())
                 {
-                    int32 damage = damageInfo->GetDamage();
-                    GetTarget()->CastCustomSpell(SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK, SPELLVALUE_BASE_POINT0, damage, _procTarget, true, nullptr, aurEff);
+                    CastSpellExtraArgs args(aurEff);
+                    args.SpellValueOverrides.AddBP0(damageInfo->GetDamage());
+                    GetTarget()->CastSpell(_procTarget, SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK, args);
                 }
             }
 
@@ -179,9 +180,9 @@ class spell_rog_deadly_poison : public SpellScriptLoader
                                 continue;
 
                             if (spellInfo->IsPositive())
-                                player->CastSpell(player, enchant->EffectArg[s], true, item);
+                                player->CastSpell(player, enchant->EffectArg[s], item);
                             else
-                                player->CastSpell(target, enchant->EffectArg[s], true, item);
+                                player->CastSpell(target, enchant->EffectArg[s], item);
                         }
                     }
                 }
@@ -605,7 +606,7 @@ public:
             PreventDefaultAction();
 
             Unit* target = GetTarget();
-            target->CastSpell(target, SPELL_ROGUE_HONOR_AMONG_THIEVES_ENERGIZE, TRIGGERED_FULL_MASK, nullptr, aurEff);
+            target->CastSpell(target, SPELL_ROGUE_HONOR_AMONG_THIEVES_ENERGIZE, aurEff);
         }
 
         void Register() override

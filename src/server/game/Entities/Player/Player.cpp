@@ -229,7 +229,7 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
         m_bgBattlegroundQueueID[j].joinTime = 0;
     }
 
-    m_logintime = time(nullptr);
+    m_logintime = GameTime::GetGameTime();
     m_Last_tick = m_logintime;
     m_Played_time[PLAYED_TIME_TOTAL] = 0;
     m_Played_time[PLAYED_TIME_LEVEL] = 0;
@@ -287,7 +287,7 @@ Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
     m_spellPenetrationItemMod = 0;
 
     // Honor System
-    m_lastHonorUpdateTime = time(nullptr);
+    m_lastHonorUpdateTime = GameTime::GetGameTime();
 
     m_IsBGRandomWinner = false;
 
@@ -507,7 +507,7 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     SetCreateCurrency(CURRENCY_TYPE_JUSTICE_POINTS, sWorld->getIntConfig(CONFIG_CURRENCY_START_JUSTICE_POINTS));
 
     // Played time
-    m_Last_tick = time(nullptr);
+    m_Last_tick = GameTime::GetGameTime();
     m_Played_time[PLAYED_TIME_TOTAL] = 0;
     m_Played_time[PLAYED_TIME_LEVEL] = 0;
 
@@ -923,7 +923,7 @@ void Player::Update(uint32 p_time)
         return;
 
     // undelivered mail
-    if (m_nextMailDelivereTime && m_nextMailDelivereTime <= time(nullptr))
+    if (m_nextMailDelivereTime && m_nextMailDelivereTime <= GameTime::GetGameTime())
     {
         SendNewMail();
         ++unReadMails;
@@ -945,7 +945,7 @@ void Player::Update(uint32 p_time)
     Unit::Update(p_time);
     SetCanDelayTeleport(false);
 
-    time_t now = time(nullptr);
+    time_t now = GameTime::GetGameTime();
 
     UpdatePvPFlag(now);
 
@@ -1082,7 +1082,7 @@ void Player::Update(uint32 p_time)
             if (u->IsPvP() && (!duel || duel->opponent != u))
             {
                 UpdatePvP(true);
-                RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
+                RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::PvPActive);
             }*/
         }
     }
@@ -1506,7 +1506,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
                     InterruptNonMeleeSpells(true);
 
             //remove auras before removing from map...
-            RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags(AURA_INTERRUPT_FLAG_CHANGE_MAP | AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_TURNING));
+            RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Moving | SpellAuraInterruptFlags::Turning);
 
             if (!GetSession()->PlayerLogout() && !(options & TELE_TO_SEAMLESS))
             {
@@ -1794,22 +1794,6 @@ void Player::Regenerate(Powers power)
     int32 minPower = powerType->MinPower;
     int32 maxPower = GetMaxPower(power);
 
-    if (addvalue < 0.0f)
-    {
-        if (curValue <= minPower)
-            return;
-    }
-    else if (addvalue > 0.0f)
-    {
-        if (curValue >= maxPower)
-            return;
-    }
-    else
-        return;
-
-    addvalue += m_powerFraction[powerIndex];
-    int32 integerValue = int32(std::fabs(addvalue));
-
     if (powerType->CenterPower)
     {
         if (curValue > powerType->CenterPower)
@@ -1825,6 +1809,22 @@ void Player::Regenerate(Powers power)
         else
             return;
     }
+
+    addvalue += m_powerFraction[powerIndex];
+    int32 integerValue = int32(std::fabs(addvalue));
+
+    if (addvalue < 0.0f)
+    {
+        if (curValue <= minPower)
+            return;
+    }
+    else if (addvalue > 0.0f)
+    {
+        if (curValue >= maxPower)
+            return;
+    }
+    else
+        return;
 
     if (addvalue < 0.0f)
     {
@@ -1852,6 +1852,9 @@ void Player::Regenerate(Powers power)
             m_powerFraction[powerIndex] = 0;
         }
     }
+
+    if (GetCommandStatus(CHEAT_POWER))
+        curValue = maxPower;
 
     if (m_regenTimerCount >= 2000)
         SetPower(power, curValue);
@@ -2662,7 +2665,7 @@ void Player::UpdateNextMailTimeAndUnreads()
 {
     // calculate next delivery time (min. from non-delivered mails
     // and recalculate unReadMail
-    time_t cTime = time(nullptr);
+    time_t cTime = GameTime::GetGameTime();
     m_nextMailDelivereTime = 0;
     unReadMails = 0;
     for (PlayerMails::iterator itr = m_mail.begin(); itr != m_mail.end(); ++itr)
@@ -2679,7 +2682,7 @@ void Player::UpdateNextMailTimeAndUnreads()
 
 void Player::AddNewMailDeliverTime(time_t deliver_time)
 {
-    if (deliver_time <= time(nullptr))                          // ready now
+    if (deliver_time <= GameTime::GetGameTime())                          // ready now
     {
         ++unReadMails;
         SendNewMail();
@@ -2745,6 +2748,27 @@ void Player::RemoveTalent(TalentEntry const* talent)
     PlayerTalentMap::iterator plrTalent = GetTalentMap(GetActiveTalentGroup())->find(talent->ID);
     if (plrTalent != GetTalentMap(GetActiveTalentGroup())->end())
         plrTalent->second = PLAYERSPELL_REMOVED;
+}
+
+void Player::AddStoredAuraTeleportLocation(uint32 spellId)
+{
+    StoredAuraTeleportLocation& storedLocation = m_storedAuraTeleportLocations[spellId];
+    storedLocation.Loc.WorldRelocate(this);
+    storedLocation.State = StoredAuraTeleportLocation::CHANGED;
+}
+
+void Player::RemoveStoredAuraTeleportLocation(uint32 spellId)
+{
+    if (StoredAuraTeleportLocation* storedLocation = Trinity::Containers::MapGetValuePtr(m_storedAuraTeleportLocations, spellId))
+        storedLocation->State = StoredAuraTeleportLocation::DELETED;
+}
+
+WorldLocation const* Player::GetStoredAuraTeleportLocation(uint32 spellId) const
+{
+    if (StoredAuraTeleportLocation const* auraLocation = Trinity::Containers::MapGetValuePtr(m_storedAuraTeleportLocations, spellId))
+        return &auraLocation->Loc;
+
+    return nullptr;
 }
 
 bool Player::AddSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading /*= false*/, int32 fromSkill /*= 0*/)
@@ -3446,7 +3470,7 @@ bool Player::ResetTalents(bool noCost)
         UpdateCriteria(CRITERIA_TYPE_NUMBER_OF_TALENT_RESETS, 1);
 
         SetTalentResetCost(cost);
-        SetTalentResetTime(time(nullptr));
+        SetTalentResetTime(GameTime::GetGameTime());
     }
 
     /* when prev line will dropped use next line
@@ -4140,6 +4164,10 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
             stmt->setUInt64(0, guid);
             trans->Append(stmt);
 
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_AURA_STORED_LOCATIONS_BY_GUID);
+            stmt->setUInt64(0, guid);
+            trans->Append(stmt);
+
             Corpse::DeleteFromDB(playerguid, trans);
 
             Garrison::DeleteFromDB(guid, trans);
@@ -4197,7 +4225,7 @@ void Player::DeleteOldCharacters(uint32 keepDays)
     TC_LOG_INFO("entities.player", "Player::DeleteOldCharacters: Deleting all characters which have been deleted %u days before...", keepDays);
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_OLD_CHARS);
-    stmt->setUInt32(0, uint32(time(nullptr) - time_t(keepDays * DAY)));
+    stmt->setUInt32(0, uint32(GameTime::GetGameTime() - time_t(keepDays * DAY)));
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     if (result)
@@ -4226,6 +4254,8 @@ void Player::BuildPlayerRepop()
     if (HasSpell(20585))
         CastSpell(this, 20584, true);
     CastSpell(this, 8326, true);
+
+    RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Release);
 
     // there must be SMSG.FORCE_RUN_SPEED_CHANGE, SMSG.FORCE_SWIM_SPEED_CHANGE, SMSG.MOVE_SET_WATER_WALK
     // there must be SMSG.STOP_MIRROR_TIMER
@@ -6058,9 +6088,9 @@ bool Player::UpdatePosition(float x, float y, float z, float orientation, bool t
         return false;
 
     //if (movementInfo.flags & MOVEMENTFLAG_MOVING)
-    //    mover->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOVE);
+    //    mover->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Moving);
     //if (movementInfo.flags & MOVEMENTFLAG_TURNING)
-    //    mover->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TURNING);
+    //    mover->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Turning);
 
     // group update
     if (GetGroup())
@@ -6433,8 +6463,8 @@ void Player::RewardReputation(Quest const* quest)
 void Player::UpdateHonorFields()
 {
     /// called when rewarding honor and at each save
-    time_t now = time_t(time(nullptr));
-    time_t today = time_t(time(nullptr) / DAY) * DAY;
+    time_t now = GameTime::GetGameTime();
+    time_t today = GameTime::GetGameTime() / DAY * DAY;
 
     if (m_lastHonorUpdateTime < today)
     {
@@ -7523,7 +7553,7 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
         if (statType == -1)
             continue;
 
-        int32 val = item->GetItemStatValue(i, this);
+        float val = item->GetItemStatValue(i, this);
         if (val == 0)
             continue;
 
@@ -7750,7 +7780,7 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
 
     if (uint32 armor = proto->GetArmor(itemLevel))
     {
-        HandleStatFlatModifier(UNIT_MOD_ARMOR, BASE_VALUE, float(armor), apply);
+        HandleStatFlatModifier(UNIT_MOD_ARMOR, TOTAL_VALUE, float(armor), apply);
         if (proto->GetClass() == ITEM_CLASS_ARMOR && proto->GetSubClass() == ITEM_SUBCLASS_ARMOR_SHIELD)
             SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ShieldBlock), apply ? int32(armor * 2.5f) : 0);
     }
@@ -7844,7 +7874,7 @@ void Player::ApplyItemObtainSpells(Item* item, bool apply)
         if (apply)
         {
             if (!HasAura(spellId))
-                CastSpell(this, spellId, true, item);
+                CastSpell(this, spellId, item);
         }
         else
             RemoveAurasDueToSpell(spellId);
@@ -7976,7 +8006,7 @@ void Player::ApplyEquipSpell(SpellInfo const* spellInfo, Item* item, bool apply,
         TC_LOG_DEBUG("entities.player", "Player::ApplyEquipSpell: Player '%s' (%s) cast %s equip spell (ID: %i)",
             GetName().c_str(), GetGUID().ToString().c_str(), (item ? "item" : "itemset"), spellInfo->Id);
 
-        CastSpell(this, spellInfo, true, item);
+        CastSpell(this, spellInfo->Id, item);
     }
     else
     {
@@ -8085,13 +8115,15 @@ void Player::ApplyArtifactPowerRank(Item* artifact, ArtifactPowerRankEntry const
         }
         else if (apply)
         {
-            CustomSpellValues csv;
+            CastSpellExtraArgs args;
+            args.TriggerFlags = TRIGGERED_FULL_MASK;
+            args.CastItem = artifact;
             if (artifactPowerRank->AuraPointsOverride)
                 for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                     if (spellInfo->GetEffect(i))
-                        csv.AddSpellMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + i), artifactPowerRank->AuraPointsOverride);
+                        args.AddSpellMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + i), artifactPowerRank->AuraPointsOverride);
 
-            CastCustomSpell(artifactPowerRank->SpellID, csv, this, TRIGGERED_FULL_MASK, artifact);
+            CastSpell(this, artifactPowerRank->SpellID, args);
         }
     }
     else
@@ -8148,7 +8180,7 @@ void Player::ApplyAzeriteItemMilestonePower(AzeriteItem* item, AzeriteItemMilest
         if (AzeritePowerEntry const* azeritePower = sAzeritePowerStore.LookupEntry(azeriteItemMilestonePower->AzeritePowerID))
         {
             if (apply)
-                CastSpell(this, azeritePower->SpellID, true, item);
+                CastSpell(this, azeritePower->SpellID, item);
             else
                 RemoveAurasDueToItemSpell(azeritePower->SpellID, item->GetGUID());
         }
@@ -8165,7 +8197,7 @@ void Player::ApplyAzeriteEssence(AzeriteItem* item, uint32 azeriteEssenceId, uin
             if (major && currentRank == 1)
             {
                 if (apply)
-                    CastCustomSpell(SPELL_ID_HEART_ESSENCE_ACTION_BAR_OVERRIDE, SPELLVALUE_BASE_POINT0, azeriteEssencePower->MajorPowerDescription, this, TRIGGERED_FULL_MASK);
+                    CastSpell(this, SPELL_ID_HEART_ESSENCE_ACTION_BAR_OVERRIDE, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellBP0(azeriteEssencePower->MajorPowerDescription));
                 else
                     RemoveAurasDueToSpell(SPELL_ID_HEART_ESSENCE_ACTION_BAR_OVERRIDE);
             }
@@ -8178,7 +8210,7 @@ void Player::ApplyAzeriteEssencePower(AzeriteItem* item, AzeriteEssencePowerEntr
     if (SpellInfo const* powerSpell = sSpellMgr->GetSpellInfo(azeriteEssencePower->MinorPowerDescription, DIFFICULTY_NONE))
     {
         if (apply)
-            CastSpell(this, powerSpell, true, item);
+            CastSpell(this, powerSpell->Id, item);
         else
             RemoveAurasDueToItemSpell(powerSpell->Id, item->GetGUID());
     }
@@ -8190,7 +8222,7 @@ void Player::ApplyAzeriteEssencePower(AzeriteItem* item, AzeriteEssencePowerEntr
             if (powerSpell->IsPassive())
             {
                 if (apply)
-                    CastSpell(this, powerSpell, true, item);
+                    CastSpell(this, powerSpell->Id, item);
                 else
                     RemoveAurasDueToItemSpell(powerSpell->Id, item->GetGUID());
             }
@@ -8210,7 +8242,7 @@ void Player::ApplyAzeritePower(AzeriteEmpoweredItem* item, AzeritePowerEntry con
     if (apply)
     {
         if (!azeritePower->SpecSetID || sDB2Manager.IsSpecSetMember(azeritePower->SpecSetID, GetPrimarySpecialization()))
-            CastSpell(this, azeritePower->SpellID, true, item);
+            CastSpell(this, azeritePower->SpellID, item);
     }
     else
         RemoveAurasDueToItemSpell(azeritePower->SpellID, item->GetGUID());
@@ -8302,7 +8334,7 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemT
                 chance = GetWeaponProcChance();
 
             if (roll_chance_f(chance) && sScriptMgr->OnCastItemCombatSpell(this, damageInfo.GetVictim(), spellInfo, item))
-                CastSpell(damageInfo.GetVictim(), spellInfo->Id, true, item);
+                CastSpell(damageInfo.GetVictim(), spellInfo->Id, item);
         }
     }
 
@@ -8366,17 +8398,17 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemT
             if (roll_chance_f(chance))
             {
                 if (spellInfo->IsPositive())
-                    CastSpell(this, spellInfo, true, item);
+                    CastSpell(this, spellInfo->Id, item);
                 else
-                    CastSpell(damageInfo.GetVictim(), spellInfo, true, item);
+                    CastSpell(damageInfo.GetVictim(), spellInfo->Id, item);
             }
 
             if (roll_chance_f(chance))
             {
                 Unit* target = spellInfo->IsPositive() ? this : damageInfo.GetVictim();
 
+                CastSpellExtraArgs args(item);
                 // reduce effect values if enchant is limited
-                CustomSpellValues values;
                 if (entry &&  (entry->AttributesMask & ENCHANT_PROC_ATTR_LIMIT_60) && target->GetLevelForTarget(this) > 60)
                 {
                     int32 const lvlDifference = target->GetLevelForTarget(this) - 60;
@@ -8387,11 +8419,10 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemT
                     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                     {
                         if (spellInfo->GetEffect(i)->IsEffect())
-                            values.AddSpellMod(static_cast<SpellValueMod>(SPELLVALUE_BASE_POINT0 + i), CalculatePct(spellInfo->GetEffect(i)->CalcValue(this), effectPct));
+                            args.SpellValueOverrides.AddMod(static_cast<SpellValueMod>(SPELLVALUE_BASE_POINT0 + i), CalculatePct(spellInfo->GetEffect(i)->CalcValue(this), effectPct));
                     }
                 }
-
-                CastCustomSpell(spellInfo->Id, values, target, TRIGGERED_FULL_MASK, item);
+                CastSpell(target, spellInfo->Id, args);
             }
         }
     }
@@ -8425,7 +8456,7 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, Objec
             spell->m_fromClient = true;
             spell->m_CastItem = item;
             spell->SetSpellValue(SPELLVALUE_BASE_POINT0, learning_spell_id);
-            spell->prepare(&targets);
+            spell->prepare(targets);
             return;
         }
     }
@@ -8455,7 +8486,7 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, Objec
         spell->m_CastItem = item;
         spell->m_misc.Raw.Data[0] = misc[0];
         spell->m_misc.Raw.Data[1] = misc[1];
-        spell->prepare(&targets);
+        spell->prepare(targets);
         return;
     }
 
@@ -8489,7 +8520,7 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, Objec
             spell->m_CastItem = item;
             spell->m_misc.Raw.Data[0] = misc[0];
             spell->m_misc.Raw.Data[1] = misc[1];
-            spell->prepare(&targets);
+            spell->prepare(targets);
             return;
         }
     }
@@ -8630,9 +8661,14 @@ ObjectGuid Player::GetLootWorldObjectGUID(ObjectGuid const& lootObjectGuid) cons
     return ObjectGuid::Empty;
 }
 
-void Player::RemoveAELootedObject(ObjectGuid const& lootObjectGuid)
+void Player::RemoveAELootedWorldObject(ObjectGuid const& lootWorldObjectGuid)
 {
-    m_AELootView.erase(lootObjectGuid);
+    auto itr = std::find_if(m_AELootView.begin(), m_AELootView.end(), [&lootWorldObjectGuid](std::pair<ObjectGuid const, ObjectGuid> const& lootView)
+    {
+        return lootView.second == lootWorldObjectGuid;
+    });
+    if (itr != m_AELootView.end())
+        m_AELootView.erase(itr);
 }
 
 bool Player::HasLootWorldObjectGUID(ObjectGuid const& lootWorldObjectGuid) const
@@ -8692,9 +8728,8 @@ void Player::SendLootReleaseAll() const
 
 void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool aeLooting/* = false*/)
 {
-    ObjectGuid currentLootGuid = GetLootGUID();
-    if (!currentLootGuid.IsEmpty() && !aeLooting)
-        m_session->DoLootRelease(currentLootGuid);
+    if (!GetLootGUID().IsEmpty() && !aeLooting)
+        m_session->DoLootReleaseAll();
 
     Loot* loot;
     PermissionTypes permission = ALL_PERMISSION;
@@ -8717,7 +8752,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool aeLooting/* = fa
 
         // loot was generated and respawntime has passed since then, allow to recreate loot
         // to avoid bugs, this rule covers spawned gameobjects only
-        if (go->isSpawnedByDefault() && go->getLootState() == GO_ACTIVATED && !go->loot.isLooted() && go->GetLootGenerationTime() + go->GetRespawnDelay() < time(nullptr))
+        if (go->isSpawnedByDefault() && go->getLootState() == GO_ACTIVATED && !go->loot.isLooted() && go->GetLootGenerationTime() + go->GetRespawnDelay() < GameTime::GetGameTime())
             go->SetLootState(GO_READY);
 
         if (go->getLootState() == GO_READY)
@@ -9749,7 +9784,7 @@ void Player::SendBattlefieldWorldStates() const
         {
             SendUpdateWorldState(BATTLEFIELD_WG_WORLD_STATE_ACTIVE, wg->IsWarTime() ? 0 : 1);
             uint32 timer = wg->IsWarTime() ? 0 : (wg->GetTimer() / 1000); // 0 - Time to next battle
-            SendUpdateWorldState(ClockWorldState[1], uint32(time(nullptr) + timer));
+            SendUpdateWorldState(ClockWorldState[1], uint32(GameTime::GetGameTime() + timer));
         }
     }
 
@@ -9759,8 +9794,8 @@ void Player::SendBattlefieldWorldStates() const
         {
             SendUpdateWorldState(TB_WS_FACTION_CONTROLLING, uint32(tb->GetDefenderTeam() + 1));
             uint32 timer = tb->GetTimer() / 1000;
-            SendUpdateWorldState(TB_WS_TIME_BATTLE_END, uint32(tb->IsWarTime() ? uint32(time(nullptr) + timer) : 0));
-            SendUpdateWorldState(TB_WS_TIME_NEXT_BATTLE, uint32(!tb->IsWarTime() ? uint32(time(nullptr) + timer) : 0));
+            SendUpdateWorldState(TB_WS_TIME_BATTLE_END, uint32(tb->IsWarTime() ? uint32(GameTime::GetGameTime() + timer) : 0));
+            SendUpdateWorldState(TB_WS_TIME_NEXT_BATTLE, uint32(!tb->IsWarTime() ? uint32(GameTime::GetGameTime() + timer) : 0));
         }
     }
 }
@@ -13575,7 +13610,7 @@ void Player::AddItemToBuyBackSlot(Item* pItem)
             GetName().c_str(), GetGUID().ToString().c_str(), pItem->GetEntry(), slot);
 
         m_items[slot] = pItem;
-        time_t base = time(nullptr);
+        time_t base = GameTime::GetGameTime();
         uint32 etime = uint32(base - m_logintime + (30 * 3600));
         uint32 eslot = slot - BUYBACK_SLOT_START;
 
@@ -14029,7 +14064,7 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                     if (enchant_spell_id)
                     {
                         if (apply)
-                            CastSpell(this, enchant_spell_id, true, item);
+                            CastSpell(this, enchant_spell_id, item);
                         else
                             RemoveAurasDueToItemSpell(enchant_spell_id, item->GetGUID());
                     }
@@ -14646,7 +14681,7 @@ void Player::OnGossipSelect(WorldObject* source, uint32 optionIndex, uint32 menu
             break;
         case GOSSIP_OPTION_SPIRITHEALER:
             if (isDead())
-                source->ToCreature()->CastSpell(source->ToCreature(), 17251, true, nullptr, nullptr, GetGUID());
+                source->ToCreature()->CastSpell(source->ToCreature(), 17251, GetGUID());
             break;
         case GOSSIP_OPTION_QUESTGIVER:
             PrepareQuestMenu(guid);
@@ -14871,32 +14906,23 @@ void Player::SendPreparedQuest(WorldObject* source)
         if (Quest const* quest = sObjectMgr->GetQuestTemplate(questId))
         {
             if (qmi0.QuestIcon == 4)
-            {
                 PlayerTalkClass->SendQuestGiverRequestItems(quest, source->GetGUID(), CanRewardQuest(quest, false), true);
-                return;
-            }
             // Send completable on repeatable and autoCompletable quest if player don't have quest
             /// @todo verify if check for !quest->IsDaily() is really correct (possibly not)
+            else if (!source->hasQuest(questId) && !source->hasInvolvedQuest(questId))
+                PlayerTalkClass->SendCloseGossip();
             else
             {
-                if (!source->hasQuest(questId) && !source->hasInvolvedQuest(questId))
-                {
-                    PlayerTalkClass->SendCloseGossip();
-                    return;
-                }
+                if (quest->IsAutoAccept() && CanAddQuest(quest, true) && CanTakeQuest(quest, true))
+                    AddQuestAndCheckCompletion(quest, source);
 
-                if (source->GetTypeId() != TYPEID_UNIT || source->ToUnit()->HasNpcFlag(UNIT_NPC_FLAG_GOSSIP))
-                {
-                    if (quest->IsAutoAccept() && CanAddQuest(quest, true) && CanTakeQuest(quest, true))
-                        AddQuestAndCheckCompletion(quest, source);
-
-                    if (quest->IsAutoComplete() && quest->IsRepeatable() && !quest->IsDailyOrWeekly())
-                        PlayerTalkClass->SendQuestGiverRequestItems(quest, source->GetGUID(), CanCompleteRepeatableQuest(quest), true);
-                    else
-                        PlayerTalkClass->SendQuestGiverQuestDetails(quest, source->GetGUID(), true, false);
-                    return;
-                }
+                if (quest->IsAutoComplete() && quest->IsRepeatable() && !quest->IsDailyOrWeekly())
+                    PlayerTalkClass->SendQuestGiverRequestItems(quest, source->GetGUID(), CanCompleteRepeatableQuest(quest), true);
+                else
+                    PlayerTalkClass->SendQuestGiverQuestDetails(quest, source->GetGUID(), true, false);
             }
+
+            return;
         }
     }
 
@@ -15322,7 +15348,7 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
 
         AddTimedQuest(quest_id);
         questStatusData.Timer = limittime * IN_MILLISECONDS;
-        qtime = static_cast<uint32>(time(nullptr)) + limittime;
+        qtime = static_cast<uint32>(GameTime::GetGameTime()) + limittime;
     }
     else
         questStatusData.Timer = 0;
@@ -15341,7 +15367,7 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
             if (Unit* unit = questGiver->ToUnit())
                 caster = unit;
 
-        caster->CastSpell(this, spellInfo, true);
+        caster->CastSpell(this, spellInfo->Id, CastSpellExtraArgs(TRIGGERED_FULL_MASK).SetCastDifficulty(spellInfo->Difficulty));
     }
 
     SetQuestSlot(log_slot, quest_id, qtime);
@@ -15678,7 +15704,7 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
             if (Unit* unit = questGiver->ToUnit())
                 caster = unit;
 
-        caster->CastSpell(this, spellInfo, true);
+        caster->CastSpell(this, spellInfo->Id, CastSpellExtraArgs(TRIGGERED_FULL_MASK).SetCastDifficulty(spellInfo->Difficulty));
     }
     else
     {
@@ -15694,7 +15720,7 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
                 if (Unit* unit = questGiver->ToUnit())
                     caster = unit;
 
-            caster->CastSpell(this, spellInfo, true);
+            caster->CastSpell(this, spellInfo->Id, CastSpellExtraArgs(TRIGGERED_FULL_MASK).SetCastDifficulty(spellInfo->Difficulty));
         }
     }
 
@@ -17169,7 +17195,7 @@ bool Player::HasQuestForItem(uint32 itemid) const
                 // examined item is a source item
                 if (qInfo->ItemDrop[j] == itemid)
                 {
-                    ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(itemid);
+                    ItemTemplate const* pProto = ASSERT_NOTNULL(sObjectMgr->GetItemTemplate(itemid));
 
                     // 'unique' item
                     if (pProto->GetMaxCount() && GetItemCount(itemid, true) < pProto->GetMaxCount())
@@ -17776,10 +17802,10 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder* holder)
         uint32 totaltime;
         uint32 leveltime;
         float rest_bonus;
-        uint32 logout_time;
+        time_t logout_time;
         uint8 is_logout_resting;
         uint32 resettalents_cost;
-        uint32 resettalents_time;
+        time_t resettalents_time;
         uint32 primarySpecialization;
         float trans_x;
         float trans_y;
@@ -17791,7 +17817,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder* holder)
         uint16 at_login;
         uint16 zone;
         uint8 online;
-        uint32 death_expire_time;
+        time_t death_expire_time;
         std::string taxi_path;
         Difficulty dungeonDifficulty;
         uint32 totalKills;
@@ -17844,10 +17870,10 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder* holder)
             totaltime = fields[i++].GetUInt32();
             leveltime = fields[i++].GetUInt32();
             rest_bonus = fields[i++].GetFloat();
-            logout_time = fields[i++].GetUInt32();
+            logout_time = fields[i++].GetInt64();
             is_logout_resting = fields[i++].GetUInt8();
             resettalents_cost = fields[i++].GetUInt32();
-            resettalents_time = fields[i++].GetUInt32();
+            resettalents_time = fields[i++].GetInt64();
             primarySpecialization = fields[i++].GetUInt32();
             trans_x = fields[i++].GetFloat();
             trans_y = fields[i++].GetFloat();
@@ -17859,7 +17885,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder* holder)
             at_login = fields[i++].GetUInt16();
             zone = fields[i++].GetUInt16();
             online = fields[i++].GetUInt8();
-            death_expire_time = fields[i++].GetUInt32();
+            death_expire_time = fields[i++].GetInt64();
             taxi_path = fields[i++].GetString();
             dungeonDifficulty = Difficulty(fields[i++].GetUInt8());
             totalKills = fields[i++].GetUInt32();
@@ -18316,7 +18342,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder* holder)
 
     SaveRecallPosition();
 
-    time_t now = time(nullptr);
+    time_t now = GameTime::GetGameTime();
     time_t logoutTime = time_t(fields.logout_time);
 
     // since last logout (in seconds)
@@ -18335,7 +18361,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder* holder)
     m_Played_time[PLAYED_TIME_LEVEL] = fields.leveltime;
 
     SetTalentResetCost(fields.resettalents_cost);
-    SetTalentResetTime(time_t(fields.resettalents_time));
+    SetTalentResetTime(fields.resettalents_time);
 
     m_taxi.LoadTaxiMask(fields.taximask);                // must be before InitTaxiNodesForLevel
 
@@ -18362,7 +18388,7 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder* holder)
     m_lastHonorUpdateTime = logoutTime;
     UpdateHonorFields();
 
-    m_deathExpireTime = time_t(fields.death_expire_time);
+    m_deathExpireTime = fields.death_expire_time;
 
     if (m_deathExpireTime > now + MAX_DEATH_COUNT * DEATH_EXPIRE_STEP)
         m_deathExpireTime = now + MAX_DEATH_COUNT * DEATH_EXPIRE_STEP - 1;
@@ -18413,6 +18439,9 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder* holder)
     // add ghost flag (must be after aura load: PLAYER_FLAGS_GHOST set in aura)
     if (HasPlayerFlag(PLAYER_FLAGS_GHOST))
         m_deathState = DEAD;
+
+    // Load spell locations - must be after loading auras
+    _LoadStoredAuraTeleportLocations(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_AURA_STORED_LOCATIONS));
 
     // after spell load, learn rewarded spell if need also
     _LoadQuestStatus(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_QUEST_STATUS));
@@ -19346,8 +19375,8 @@ void Player::_LoadMail()
             m->receiver       = fields[3].GetUInt64();
             m->subject        = fields[4].GetString();
             m->body           = fields[5].GetString();
-            m->expire_time    = time_t(fields[6].GetUInt32());
-            m->deliver_time   = time_t(fields[7].GetUInt32());
+            m->expire_time    = fields[6].GetInt64();
+            m->deliver_time   = fields[7].GetInt64();
             m->money          = fields[8].GetUInt64();
             m->COD            = fields[9].GetUInt64();
             m->checked        = fields[10].GetUInt8();
@@ -19453,7 +19482,7 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
                         GetName().c_str(), GetGUID().ToString().c_str(), quest_id, qstatus);
                 }
 
-                time_t quest_time = time_t(fields[2].GetUInt32());
+                time_t quest_time = fields[2].GetInt64();
 
                 if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_TIMED) && !GetQuestRewardStatus(quest_id))
                 {
@@ -19605,13 +19634,13 @@ void Player::_LoadDailyQuestStatus(PreparedQueryResult result)
                 if (qQuest->IsDFQuest())
                 {
                     m_DFQuests.insert(qQuest->GetQuestId());
-                    m_lastDailyQuestTime = time_t(fields[1].GetUInt32());
+                    m_lastDailyQuestTime = fields[1].GetInt64();
                     continue;
                 }
             }
 
             // save _any_ from daily quest times (it must be after last reset anyway)
-            m_lastDailyQuestTime = time_t(fields[1].GetUInt32());
+            m_lastDailyQuestTime = fields[1].GetInt64();
 
             Quest const* quest = sObjectMgr->GetQuestTemplate(quest_id);
             if (!quest)
@@ -19724,6 +19753,42 @@ void Player::_LoadSpells(PreparedQueryResult result)
     }
 }
 
+void Player::_LoadStoredAuraTeleportLocations(PreparedQueryResult result)
+{
+    //                                                       0      1      2          3          4          5
+    //QueryResult* result = CharacterDatabase.PQuery("SELECT Spell, MapId, PositionX, PositionY, PositionZ, Orientation FROM character_spell_location WHERE Guid = ?", GetGUIDLow());
+
+    m_storedAuraTeleportLocations.clear();
+    if (result)
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+            uint32 spellId = fields[0].GetUInt32();
+
+            if (!sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE))
+            {
+                TC_LOG_ERROR("spells", "Player::_LoadStoredAuraTeleportLocations: Player %s (%s) spell (ID: %u) does not exist",
+                    GetName().c_str(), GetGUID().ToString().c_str(), spellId);
+                continue;
+            }
+
+            WorldLocation location(fields[1].GetUInt32(), fields[2].GetFloat(), fields[3].GetFloat(), fields[4].GetFloat(), fields[5].GetFloat());
+            if (!MapManager::IsValidMapCoord(location))
+            {
+                TC_LOG_ERROR("spells", "Player::_LoadStoredAuraTeleportLocations: Player %s (%s) spell (ID: %u) has invalid position on map %u, {%s}.",
+                    GetName().c_str(), GetGUID().ToString().c_str(), spellId, location.GetMapId(), location.ToString().c_str());
+                continue;
+            }
+
+            StoredAuraTeleportLocation& storedLocation = m_storedAuraTeleportLocations[spellId];
+            storedLocation.Loc = location;
+            storedLocation.State = StoredAuraTeleportLocation::UNCHANGED;
+        }
+        while (result->NextRow());
+    }
+}
+
 void Player::_LoadGroup(PreparedQueryResult result)
 {
     //QueryResult* result = CharacterDatabase.PQuery("SELECT guid FROM group_member WHERE memberGuid=%u", GetGUIDLow());
@@ -19769,7 +19834,7 @@ void Player::_LoadBoundInstances(PreparedQueryResult result)
             uint8 difficulty = fields[3].GetUInt8();
             BindExtensionState extendState = BindExtensionState(fields[4].GetUInt8());
 
-            time_t resetTime = time_t(fields[5].GetUInt64());
+            time_t resetTime = fields[5].GetInt64();
             // the resettime for normal instances is only saved when the InstanceSave is unloaded
             // so the value read from the DB may be wrong here but only if the InstanceSave is loaded
             // and in that case it is not used
@@ -20003,7 +20068,7 @@ void Player::SendRaidInfo()
 {
     WorldPackets::Instance::InstanceInfo instanceInfo;
 
-    time_t now = time(nullptr);
+    time_t now = GameTime::GetGameTime();
 
     for (auto difficultyItr = m_boundInstances.begin(); difficultyItr != m_boundInstances.end(); ++difficultyItr)
     {
@@ -20357,18 +20422,18 @@ void Player::SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDataba
         stmt->setUInt32(index++, m_Played_time[PLAYED_TIME_TOTAL]);
         stmt->setUInt32(index++, m_Played_time[PLAYED_TIME_LEVEL]);
         stmt->setFloat(index++, finiteAlways(_restMgr->GetRestBonus(REST_TYPE_XP)));
-        stmt->setUInt32(index++, uint32(time(nullptr)));
+        stmt->setUInt64(index++, GameTime::GetGameTime());
         stmt->setUInt8(index++,  (HasPlayerFlag(PLAYER_FLAGS_RESTING) ? 1 : 0));
         //save, far from tavern/city
         //save, but in tavern/city
         stmt->setUInt32(index++, GetTalentResetCost());
-        stmt->setUInt32(index++, GetTalentResetTime());
+        stmt->setInt64(index++, GetTalentResetTime());
         stmt->setUInt32(index++, GetPrimarySpecialization());
         stmt->setUInt16(index++, (uint16)m_ExtraFlags);
         stmt->setUInt8(index++,  m_stableSlots);
         stmt->setUInt16(index++, (uint16)m_atLoginFlags);
         stmt->setUInt16(index++, GetZoneId());
-        stmt->setUInt32(index++, uint32(m_deathExpireTime));
+        stmt->setInt64(index++, m_deathExpireTime);
 
         ss.str("");
         ss << m_taxi.SaveTaxiDestinationsToString();
@@ -20499,19 +20564,19 @@ void Player::SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDataba
         stmt->setUInt32(index++, m_Played_time[PLAYED_TIME_TOTAL]);
         stmt->setUInt32(index++, m_Played_time[PLAYED_TIME_LEVEL]);
         stmt->setFloat(index++, finiteAlways(_restMgr->GetRestBonus(REST_TYPE_XP)));
-        stmt->setUInt32(index++, uint32(time(nullptr)));
+        stmt->setUInt64(index++, GameTime::GetGameTime());
         stmt->setUInt8(index++,  (HasPlayerFlag(PLAYER_FLAGS_RESTING) ? 1 : 0));
         //save, far from tavern/city
         //save, but in tavern/city
         stmt->setUInt32(index++, GetTalentResetCost());
-        stmt->setUInt32(index++, GetTalentResetTime());
+        stmt->setInt64(index++, GetTalentResetTime());
         stmt->setUInt8(index++, GetNumRespecs());
         stmt->setUInt32(index++, GetPrimarySpecialization());
         stmt->setUInt16(index++, (uint16)m_ExtraFlags);
         stmt->setUInt8(index++,  m_stableSlots);
         stmt->setUInt16(index++, (uint16)m_atLoginFlags);
         stmt->setUInt16(index++, GetZoneId());
-        stmt->setUInt32(index++, uint32(m_deathExpireTime));
+        stmt->setInt64(index++, m_deathExpireTime);
 
         ss.str("");
         ss << m_taxi.SaveTaxiDestinationsToString();
@@ -20624,6 +20689,7 @@ void Player::SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDataba
     _SaveActions(trans);
     _SaveAuras(trans);
     _SaveSkills(trans);
+    _SaveStoredAuraTeleportLocations(trans);
     m_achievementMgr->SaveToDB(trans);
     m_reputationMgr->SaveToDB(trans);
     m_questObjectiveCriteriaMgr->SaveToDB(trans);
@@ -20660,7 +20726,7 @@ void Player::SaveToDB(LoginDatabaseTransaction loginTransaction, CharacterDataba
     loginStmt->setUInt32(3, realm.Id.Realm);
     loginStmt->setString(4, GetName());
     loginStmt->setUInt64(5, GetGUID().GetCounter());
-    loginStmt->setUInt32(6, time(nullptr));
+    loginStmt->setUInt32(6, GameTime::GetGameTime());
     loginTransaction->Append(loginStmt);
 
     // save pet (hunter pet level and experience and all type pets health/mana).
@@ -21041,8 +21107,8 @@ void Player::_SaveMail(CharacterDatabaseTransaction& trans)
         {
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_MAIL);
             stmt->setUInt8(0, uint8(m->HasItems() ? 1 : 0));
-            stmt->setUInt32(1, uint32(m->expire_time));
-            stmt->setUInt32(2, uint32(m->deliver_time));
+            stmt->setInt64(1, m->expire_time);
+            stmt->setInt64(2, m->deliver_time);
             stmt->setUInt64(3, m->money);
             stmt->setUInt64(4, m->COD);
             stmt->setUInt8(5, uint8(m->checked));
@@ -21126,7 +21192,7 @@ void Player::_SaveQuestStatus(CharacterDatabaseTransaction& trans)
                 stmt->setUInt64(0, GetGUID().GetCounter());
                 stmt->setUInt32(1, statusItr->first);
                 stmt->setUInt8(2, uint8(qData.Status));
-                stmt->setUInt32(3, uint32(qData.Timer / IN_MILLISECONDS+ GameTime::GetGameTime()));
+                stmt->setInt64(3, qData.Timer / IN_MILLISECONDS + GameTime::GetGameTime());
                 trans->Append(stmt);
 
                 // Save objectives
@@ -21202,7 +21268,7 @@ void Player::_SaveDailyQuestStatus(CharacterDatabaseTransaction& trans)
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_QUESTSTATUS_DAILY);
         stmt->setUInt64(0, GetGUID().GetCounter());
         stmt->setUInt32(1, questId);
-        stmt->setUInt64(2, uint64(m_lastDailyQuestTime));
+        stmt->setInt64(2, m_lastDailyQuestTime);
         trans->Append(stmt);
     }
 
@@ -21213,7 +21279,7 @@ void Player::_SaveDailyQuestStatus(CharacterDatabaseTransaction& trans)
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_QUESTSTATUS_DAILY);
             stmt->setUInt64(0, GetGUID().GetCounter());
             stmt->setUInt32(1, (*itr));
-            stmt->setUInt64(2, uint64(m_lastDailyQuestTime));
+            stmt->setInt64(2, m_lastDailyQuestTime);
             trans->Append(stmt);
         }
     }
@@ -21384,6 +21450,41 @@ void Player::_SaveSpells(CharacterDatabaseTransaction& trans)
     }
 }
 
+void Player::_SaveStoredAuraTeleportLocations(CharacterDatabaseTransaction& trans)
+{
+    for (auto itr = m_storedAuraTeleportLocations.begin(); itr != m_storedAuraTeleportLocations.end(); )
+    {
+        StoredAuraTeleportLocation& storedLocation = itr->second;
+        if (storedLocation.State == StoredAuraTeleportLocation::DELETED)
+        {
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_AURA_STORED_LOCATION);
+            stmt->setUInt64(0, GetGUID().GetCounter());
+            trans->Append(stmt);
+            itr = m_storedAuraTeleportLocations.erase(itr);
+            continue;
+        }
+
+        if (storedLocation.State == StoredAuraTeleportLocation::CHANGED)
+        {
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_AURA_STORED_LOCATION);
+            stmt->setUInt64(0, GetGUID().GetCounter());
+            trans->Append(stmt);
+
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_AURA_STORED_LOCATION);
+            stmt->setUInt64(0, GetGUID().GetCounter());
+            stmt->setUInt32(1, itr->first);
+            stmt->setUInt32(2, storedLocation.Loc.GetMapId());
+            stmt->setFloat(3, storedLocation.Loc.GetPositionX());
+            stmt->setFloat(4, storedLocation.Loc.GetPositionY());
+            stmt->setFloat(5, storedLocation.Loc.GetPositionZ());
+            stmt->setFloat(6, storedLocation.Loc.GetOrientation());
+            trans->Append(stmt);
+        }
+
+        ++itr;
+    }
+}
+
 // save player stats -- only for external usage
 // real stats will be recalculated on player login
 void Player::_SaveStats(CharacterDatabaseTransaction& trans) const
@@ -21411,7 +21512,7 @@ void Player::_SaveStats(CharacterDatabaseTransaction& trans) const
         stmt->setUInt32(index++, GetStat(Stats(i)));
 
     for (int i = 0; i < MAX_SPELL_SCHOOL; ++i)
-        stmt->setUInt32(index++, GetResistance(SpellSchools(i)) + GetBonusResistanceMod(SpellSchools(i)));
+        stmt->setUInt32(index++, GetResistance(SpellSchools(i)));
 
     stmt->setFloat(index++, m_activePlayerData->BlockPercentage);
     stmt->setFloat(index++, m_activePlayerData->DodgePercentage);
@@ -21456,7 +21557,7 @@ void Player::UpdateSpeakTime()
     if (GetSession()->HasPermission(rbac::RBAC_PERM_SKIP_CHECK_CHAT_SPAM))
         return;
 
-    time_t current = time(nullptr);
+    time_t current = GameTime::GetGameTime();
     if (m_speakTime > current)
     {
         uint32 max_count = sWorld->getIntConfig(CONFIG_CHATFLOOD_MESSAGE_COUNT);
@@ -22111,7 +22212,7 @@ void Player::VehicleSpellInitialize()
         }
 
         if (spellInfo->IsPassive())
-            vehicle->CastSpell(vehicle, spellInfo, true);
+            vehicle->CastSpell(vehicle, spellInfo->Id, true);
 
         petSpells.ActionButtons[i] = MAKE_UNIT_ACTION_BUTTON(spellId, i + 8);
     }
@@ -22626,7 +22727,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     UpdateCriteria(CRITERIA_TYPE_FLIGHT_PATHS_TAKEN, 1);
 
     // prevent stealth flight
-    //RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TALK);
+    //RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Interacting);
 
     if (sWorld->getBoolConfig(CONFIG_INSTANT_TAXI))
     {
@@ -23310,7 +23411,7 @@ void Player::UpdatePvPState(bool onlyFFA)
     else                                                    // in friendly area
     {
         if (IsPvP() && !HasPlayerFlag(PLAYER_FLAGS_IN_PVP) && !pvpInfo.EndTimer)
-            pvpInfo.EndTimer = time(nullptr);                  // start toggle-off
+            pvpInfo.EndTimer = GameTime::GetGameTime();                  // start toggle-off
     }
 }
 
@@ -23330,7 +23431,7 @@ void Player::UpdatePvP(bool state, bool _override)
     }
     else
     {
-        pvpInfo.EndTimer = time(nullptr);
+        pvpInfo.EndTimer = GameTime::GetGameTime();
         SetPvP(state);
     }
 }
@@ -24059,6 +24160,19 @@ void Player::ClearComboPoints()
     SetPower(POWER_COMBO_POINTS, 0);
 }
 
+bool Player::IsInGroup(ObjectGuid groupGuid) const
+{
+    if (Group const* group = GetGroup())
+        if (group->GetGUID() == groupGuid)
+            return true;
+
+    if (Group const* group = GetOriginalGroup())
+        if (group->GetGUID() == groupGuid)
+            return true;
+
+    return false;
+}
+
 void Player::SetGroup(Group* group, int8 subgroup)
 {
     if (group == nullptr)
@@ -24668,13 +24782,13 @@ void Player::SetDailyQuestStatus(uint32 quest_id)
         if (!qQuest->IsDFQuest())
         {
             AddDynamicUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::DailyQuestsCompleted)) = quest_id;
-            m_lastDailyQuestTime = time(nullptr);              // last daily quest time
+            m_lastDailyQuestTime = GameTime::GetGameTime();              // last daily quest time
             m_DailyQuestChanged = true;
         }
         else
         {
             m_DFQuests.insert(quest_id);
-            m_lastDailyQuestTime = time(nullptr);
+            m_lastDailyQuestTime = GameTime::GetGameTime();
             m_DailyQuestChanged = true;
         }
     }
@@ -25068,7 +25182,7 @@ void Player::UpdateForQuestWorldObjects()
 
 bool Player::HasSummonPending() const
 {
-    return m_summon_expire >= time(nullptr);
+    return m_summon_expire >= GameTime::GetGameTime();
 }
 
 void Player::SendSummonRequestFrom(Unit* summoner)
@@ -25084,7 +25198,7 @@ void Player::SendSummonRequestFrom(Unit* summoner)
     if (HasAura(23445))
         return;
 
-    m_summon_expire = time(nullptr) + MAX_PLAYER_SUMMON_DELAY;
+    m_summon_expire = GameTime::GetGameTime() + MAX_PLAYER_SUMMON_DELAY;
     m_summon_location.WorldRelocate(*summoner);
 
     WorldPackets::Movement::SummonRequest summonRequest;
@@ -25103,7 +25217,7 @@ void Player::SummonIfPossible(bool agree)
     }
 
     // expire and auto declined
-    if (m_summon_expire < time(nullptr))
+    if (m_summon_expire < GameTime::GetGameTime())
         return;
 
     // stop taxi flight at summon
@@ -25121,6 +25235,7 @@ void Player::SummonIfPossible(bool agree)
     m_summon_expire = 0;
 
     UpdateCriteria(CRITERIA_TYPE_ACCEPTED_SUMMONINGS, 1);
+    RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Summon);
 
     TeleportTo(m_summon_location);
 }
@@ -25442,7 +25557,7 @@ bool Player::IsAtRecruitAFriendDistance(WorldObject const* pOther) const
 
 void Player::ResurrectUsingRequestData()
 {
-    /// Teleport before resurrecting by player, otherwise the player might get attacked from creatures near his corpse
+    // Teleport before resurrecting by player, otherwise the player might get attacked from creatures near his corpse
     TeleportTo(_resurrectionData->Location);
 
     if (IsBeingTeleported())
@@ -25473,7 +25588,7 @@ void Player::ResurrectUsingRequestDataImpl()
     SetPower(POWER_LUNAR_POWER, 0);
 
     if (uint32 aura = resurrectAura)
-        CastSpell(this, aura, true, nullptr, nullptr, resurrectGUID);
+        CastSpell(this, aura, resurrectGUID);
 
     SpawnCorpseBones();
 }
@@ -25543,7 +25658,7 @@ uint32 Player::GetCorpseReclaimDelay(bool pvp) const
     else if (!sWorld->getBoolConfig(CONFIG_DEATH_CORPSE_RECLAIM_DELAY_PVE))
         return 0;
 
-    time_t now = time(nullptr);
+    time_t now = GameTime::GetGameTime();
     // 0..2 full period
     // should be ceil(x)-1 but not floor(x)
     uint64 count = (now < m_deathExpireTime - 1) ? (m_deathExpireTime - 1 - now) / DEATH_EXPIRE_STEP : 0;
@@ -25558,7 +25673,7 @@ void Player::UpdateCorpseReclaimDelay()
         (!pvp && !sWorld->getBoolConfig(CONFIG_DEATH_CORPSE_RECLAIM_DELAY_PVE)))
         return;
 
-    time_t now = time(nullptr);
+    time_t now = GameTime::GetGameTime();
 
     if (now < m_deathExpireTime)
     {
@@ -25602,7 +25717,7 @@ int32 Player::CalculateCorpseReclaimDelay(bool load) const
         }
 
         time_t expected_time = corpse->GetGhostTime() + copseReclaimDelay[count];
-        time_t now = time(nullptr);
+        time_t now = GameTime::GetGameTime();
 
         if (now >= expected_time)
             return -1;
@@ -26174,7 +26289,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot, AELootResult* aeResult/* 
     // dont allow protected item to be looted by someone else
     if (!item->rollWinnerGUID.IsEmpty() && item->rollWinnerGUID != GetGUID())
     {
-        SendLootRelease(GetLootGUID());
+        SendLootReleaseAll();
         return;
     }
 
@@ -27874,7 +27989,7 @@ void Player::_SaveInstanceTimeRestrictions(CharacterDatabaseTransaction& trans)
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ACCOUNT_INSTANCE_LOCK_TIMES);
         stmt->setUInt32(0, GetSession()->GetAccountId());
         stmt->setUInt32(1, itr->first);
-        stmt->setUInt64(2, itr->second);
+        stmt->setInt64(2, itr->second);
         trans->Append(stmt);
     }
 }
@@ -27970,6 +28085,8 @@ VoidStorageItem* Player::GetVoidStorageItem(uint64 id, uint8& slot) const
 
 void Player::OnCombatExit()
 {
+    Unit::OnCombatExit();
+
     UpdatePotionCooldown();
     m_combatExitTime = getMSTime();
 }
@@ -28238,7 +28355,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
             pet->SetPetNextLevelExperience(1000);
             pet->SetFullHealth();
             pet->SetFullPower(POWER_MANA);
-            pet->SetPetNameTimestamp(uint32(time(nullptr)));
+            pet->SetPetNameTimestamp(uint32(GameTime::GetGameTime()));
             break;
         default:
             break;

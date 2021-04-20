@@ -56,9 +56,9 @@ class boss_garr : public CreatureScript
             {
             }
 
-            void EnterCombat(Unit* victim) override
+            void JustEngagedWith(Unit* victim) override
             {
-                BossAI::EnterCombat(victim);
+                BossAI::JustEngagedWith(victim);
                 events.ScheduleEvent(EVENT_ANTIMAGIC_PULSE, 25000);
                 events.ScheduleEvent(EVENT_MAGMA_SHACKLES, 15000);
             }

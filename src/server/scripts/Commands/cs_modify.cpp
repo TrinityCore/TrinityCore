@@ -511,13 +511,13 @@ public:
         if (!*args)
             return false;
 
-        const char* mount_cstr = strtok(const_cast<char*>(args), " ");
-        const char* speed_cstr = strtok(nullptr, " ");
+        char const* mount_cstr = strtok(const_cast<char*>(args), " ");
+        char const* speed_cstr = strtok(nullptr, " ");
 
         if (!mount_cstr || !speed_cstr)
             return false;
 
-        uint32 mount = atoul(args);
+        uint32 mount = atoul(mount_cstr);
         if (!sCreatureDisplayInfoStore.HasRecord(mount))
         {
             handler->SendSysMessage(LANG_NO_MOUNT);

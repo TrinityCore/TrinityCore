@@ -31,7 +31,6 @@ class Player;
 class Spell;
 class SpellInfo;
 class Unit;
-struct SpellCategoryEntry;
 
 /// Spell cooldown flags sent in SMSG_SPELL_COOLDOWN
 enum SpellCooldownFlags
@@ -44,7 +43,7 @@ enum SpellCooldownFlags
 class TC_GAME_API SpellHistory
 {
 public:
-    typedef std::chrono::system_clock Clock;
+    using Clock = std::chrono::system_clock;
 
     struct CooldownEntry
     {
@@ -58,7 +57,7 @@ public:
 
     struct ChargeEntry
     {
-        ChargeEntry() { }
+        ChargeEntry() = default;
         ChargeEntry(Clock::time_point startTime, std::chrono::milliseconds rechargeTime) : RechargeStart(startTime), RechargeEnd(startTime + rechargeTime) { }
         ChargeEntry(Clock::time_point startTime, Clock::time_point endTime) : RechargeStart(startTime), RechargeEnd(endTime) { }
 
@@ -66,10 +65,11 @@ public:
         Clock::time_point RechargeEnd;
     };
 
-    typedef std::unordered_map<uint32 /*spellId*/, CooldownEntry> CooldownStorageType;
-    typedef std::unordered_map<uint32 /*categoryId*/, CooldownEntry*> CategoryCooldownStorageType;
-    typedef std::unordered_map<uint32 /*categoryId*/, std::deque<ChargeEntry>> ChargeStorageType;
-    typedef std::unordered_map<uint32 /*categoryId*/, Clock::time_point> GlobalCooldownStorageType;
+    using ChargeEntryCollection = std::deque<ChargeEntry>;
+    using CooldownStorageType = std::unordered_map<uint32 /*spellId*/, CooldownEntry>;
+    using CategoryCooldownStorageType = std::unordered_map<uint32 /*categoryId*/, CooldownEntry*>;
+    using ChargeStorageType = std::unordered_map<uint32 /*categoryId*/, ChargeEntryCollection>;
+    using GlobalCooldownStorageType = std::unordered_map<uint32 /*categoryId*/, Clock::time_point>;
 
     explicit SpellHistory(Unit* owner) : _owner(owner), _schoolLockouts() { }
 
@@ -96,13 +96,13 @@ public:
     template<class Type, class Period>
     void AddCooldown(uint32 spellId, uint32 itemId, std::chrono::duration<Type, Period> cooldownDuration)
     {
-        Clock::time_point now = GameTime::GetGameTimeSystemPoint();
+        Clock::time_point now = GameTime::GetGameTimePoint<Clock>();
         AddCooldown(spellId, itemId, now + std::chrono::duration_cast<Clock::duration>(cooldownDuration), 0, now);
     }
 
     void AddCooldown(uint32 spellId, uint32 itemId, Clock::time_point cooldownEnd, uint32 categoryId, Clock::time_point categoryEnd, bool onHold = false);
-    void ModifyCooldown(uint32 spellId, int32 cooldownModMs);
     void ModifyCooldown(uint32 spellId, Clock::duration cooldownMod);
+    void ModifyCooldown(SpellInfo const* spellInfo, Clock::duration cooldownMod);
     void ResetCooldown(uint32 spellId, bool update = false);
     void ResetCooldown(CooldownStorageType::iterator& itr, bool update = false);
     template<typename Predicate>
@@ -136,6 +136,7 @@ public:
 
     // Charges
     bool ConsumeCharge(uint32 chargeCategoryId);
+    void ModifyChargeRecoveryTime(uint32 chargeCategoryId, Clock::duration cooldownMod);
     void RestoreCharge(uint32 chargeCategoryId);
     void ResetCharges(uint32 chargeCategoryId);
     void ResetAllCharges();
@@ -153,12 +154,15 @@ public:
 
 private:
     Player* GetPlayerOwner() const;
+    void ModifySpellCooldown(uint32 spellId, Clock::duration cooldownMod);
     void SendClearCooldowns(std::vector<int32> const& cooldowns) const;
     CooldownStorageType::iterator EraseCooldown(CooldownStorageType::iterator itr)
     {
         _categoryCooldowns.erase(itr->second.CategoryId);
         return _spellCooldowns.erase(itr);
     }
+
+    void SendSetSpellCharges(uint32 chargeCategoryId, ChargeEntryCollection const& chargeCollection);
 
     static void GetCooldownDurations(SpellInfo const* spellInfo, uint32 itemId, int32* cooldown, uint32* categoryId, int32* categoryCooldown);
 

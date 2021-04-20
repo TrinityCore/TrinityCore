@@ -324,6 +324,23 @@ namespace WorldPackets
             float Unk = 0.0f;
             Spells::ContentTuningParams ContentTuning;
         };
+
+        class SpellAbsorbLog final : public CombatLogServerPacket
+        {
+        public:
+            SpellAbsorbLog() : CombatLogServerPacket(SMSG_SPELL_ABSORB_LOG, 100) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Attacker;
+            ObjectGuid Victim;
+            ObjectGuid Caster;
+            int32 AbsorbedSpellID = 0;
+            int32 AbsorbSpellID = 0;
+            int32 Absorbed = 0;
+            int32 OriginalDamage = 0;
+            bool Unk = false;
+        };
     }
 }
 

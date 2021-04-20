@@ -387,7 +387,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, ObjectGuid guid1, uint32 spe
                     }
                 }
 
-                spell->prepare(&(spell->m_targets));
+                spell->prepare(spell->m_targets);
             }
             else
             {
@@ -427,7 +427,7 @@ void WorldSession::SendQueryPetNameResponse(ObjectGuid guid)
     if (Creature* unit = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, guid))
     {
         response.Allow = true;
-        response.Timestamp = unit->m_unitData->PetNameTimestamp;
+        response.Timestamp = *unit->m_unitData->PetNameTimestamp;
         response.Name = unit->GetName();
 
         if (Pet* pet = unit->ToPet())
@@ -595,7 +595,7 @@ void WorldSession::HandlePetRename(WorldPackets::Pet::PetRename& packet)
 
     CharacterDatabase.CommitTransaction(trans);
 
-    pet->SetPetNameTimestamp(uint32(time(nullptr)));
+    pet->SetPetNameTimestamp(uint32(GameTime::GetGameTime()));
 }
 
 void WorldSession::HandlePetAbandon(WorldPackets::Pet::PetAbandon& packet)
@@ -713,7 +713,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPackets::Spells::PetCastSpell& 
         spellPrepare.ServerCastID = spell->m_castId;
         SendPacket(spellPrepare.Write());
 
-        spell->prepare(&targets);
+        spell->prepare(targets);
     }
     else
     {

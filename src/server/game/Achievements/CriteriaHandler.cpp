@@ -29,6 +29,7 @@
 #include "DB2Stores.h"
 #include "DisableMgr.h"
 #include "GameEventMgr.h"
+#include "GameTime.h"
 #include "Garrison.h"
 #include "Group.h"
 #include "InstanceScript.h"
@@ -978,10 +979,10 @@ void CriteriaHandler::SetCriteriaProgress(Criteria const* criteria, uint64 chang
     }
 
     progress->Changed = true;
-    progress->Date = time(nullptr); // set the date to the latest update.
+    progress->Date = GameTime::GetGameTime(); // set the date to the latest update.
     progress->PlayerGUID = referencePlayer ? referencePlayer->GetGUID() : ObjectGuid::Empty;
 
-    uint32 timeElapsed = 0;
+    Seconds timeElapsed = Seconds::zero();
 
     if (criteria->Entry->StartTimer)
     {
@@ -993,7 +994,7 @@ void CriteriaHandler::SetCriteriaProgress(Criteria const* criteria, uint64 chang
             if (timedIter != _timeCriteriaTrees.end())
             {
                 // Client expects this in packet
-                timeElapsed = criteria->Entry->StartTimer - (timedIter->second / IN_MILLISECONDS);
+                timeElapsed = Seconds(criteria->Entry->StartTimer - (timedIter->second / IN_MILLISECONDS));
 
                 // Remove the timer, we wont need it anymore
                 if (IsCompletedCriteriaTree(tree))

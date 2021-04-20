@@ -88,7 +88,7 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         { }
 
         void JustSummoned(Creature* summoned) override
@@ -198,7 +198,7 @@ public:
             Initialize();
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         { }
 
         void UpdateAI(uint32 diff) override

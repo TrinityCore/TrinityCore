@@ -109,6 +109,10 @@ bool LoginQueryHolder::Initialize()
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_AURA_EFFECTS, stmt);
 
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_AURA_STORED_LOCATIONS);
+    stmt->setUInt64(0, lowGuid);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_AURA_STORED_LOCATIONS, stmt);
+
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_SPELL);
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_SPELLS, stmt);
@@ -183,7 +187,7 @@ bool LoginQueryHolder::Initialize()
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_MAILCOUNT);
     stmt->setUInt64(0, lowGuid);
-    stmt->setUInt64(1, uint64(time(nullptr)));
+    stmt->setUInt64(1, GameTime::GetGameTime());
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_MAIL_COUNT, stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_MAILDATE);
@@ -1053,9 +1057,9 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     WorldPackets::ClientConfig::AccountDataTimes accountDataTimes;
     accountDataTimes.PlayerGuid = playerGuid;
-    accountDataTimes.ServerTime = uint32(GameTime::GetGameTime());
+    accountDataTimes.ServerTime = GameTime::GetGameTimeSystemPoint();
     for (uint32 i = 0; i < NUM_ACCOUNT_DATA_TYPES; ++i)
-        accountDataTimes.AccountTimes[i] = uint32(GetAccountData(AccountDataType(i))->Time);
+        accountDataTimes.AccountTimes[i] = GetAccountData(AccountDataType(i))->Time;
 
     SendPacket(accountDataTimes.Write());
 
@@ -1153,6 +1157,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         }
     }
 
+    pCurrChar->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Login);
+
     pCurrChar->SendInitialPacketsAfterAddToMap();
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_ONLINE);
@@ -1211,10 +1217,10 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     {
         // not blizz like, we must correctly save and load player instead...
         if (pCurrChar->getRace() == RACE_NIGHTELF && !pCurrChar->HasAura(20584))
-            pCurrChar->CastSpell(pCurrChar, 20584, true, nullptr);// auras SPELL_AURA_INCREASE_SPEED(+speed in wisp form), SPELL_AURA_INCREASE_SWIM_SPEED(+swim speed in wisp form), SPELL_AURA_TRANSFORM (to wisp form)
+            pCurrChar->CastSpell(pCurrChar, 20584, true);// auras SPELL_AURA_INCREASE_SPEED(+speed in wisp form), SPELL_AURA_INCREASE_SWIM_SPEED(+swim speed in wisp form), SPELL_AURA_TRANSFORM (to wisp form)
 
         if (!pCurrChar->HasAura(8326))
-            pCurrChar->CastSpell(pCurrChar, 8326, true, nullptr);     // auras SPELL_AURA_GHOST, SPELL_AURA_INCREASE_SPEED(why?), SPELL_AURA_INCREASE_SWIM_SPEED(why?)
+            pCurrChar->CastSpell(pCurrChar, 8326, true); // auras SPELL_AURA_GHOST, SPELL_AURA_INCREASE_SPEED(why?), SPELL_AURA_INCREASE_SWIM_SPEED(why?)
 
         pCurrChar->SetWaterWalking(true);
     }
@@ -2576,7 +2582,7 @@ void WorldSession::HandleUndeleteCooldownStatusCallback(PreparedQueryResult resu
     if (result)
     {
         uint32 lastUndelete = result->Fetch()[0].GetUInt32();
-        uint32 now = uint32(time(nullptr));
+        uint32 now = uint32(GameTime::GetGameTime());
         if (lastUndelete + maxCooldown > now)
             cooldown = std::max<uint32>(0, lastUndelete + maxCooldown - now);
     }
@@ -2603,7 +2609,7 @@ void WorldSession::HandleCharUndeleteOpcode(WorldPackets::Character::UndeleteCha
         {
             uint32 lastUndelete = result->Fetch()[0].GetUInt32();
             uint32 maxCooldown = sWorld->getIntConfig(CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_COOLDOWN);
-            if (lastUndelete && (lastUndelete + maxCooldown > time(nullptr)))
+            if (lastUndelete && (lastUndelete + maxCooldown > GameTime::GetGameTime()))
             {
                 SendUndeleteCharacterResponse(CHARACTER_UNDELETE_RESULT_ERROR_COOLDOWN, undeleteInfo.get());
                 return;

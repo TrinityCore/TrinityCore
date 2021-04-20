@@ -352,9 +352,9 @@ struct boss_razorscale : public BossAI
         }
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
-        _EnterCombat();
+        _JustEngagedWith();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         ScheduleAirPhaseEvents();
         summons.DoAction(ACTION_START_FIGHT, DummyEntryCheckPredicate());
@@ -1263,7 +1263,7 @@ struct npc_darkrune_watcher : public ScriptedAI
             razorscale->AI()->JustSummoned(me);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         _events.ScheduleEvent(EVENT_LIGHTNING_BOLT, Seconds(5));
         _events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, Seconds(34));
@@ -1324,7 +1324,7 @@ struct npc_darkrune_guardian : public ScriptedAI
             razorscale->AI()->JustSummoned(me);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         _events.ScheduleEvent(EVENT_STORMSTRIKE, Seconds(23));
     }
@@ -1392,7 +1392,7 @@ struct npc_darkrune_sentinel : public ScriptedAI
             razorscale->AI()->JustSummoned(me);
     }
 
-    void EnterCombat(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         _events.ScheduleEvent(EVENT_HEROIC_STRIKE, Seconds(9));
         _events.ScheduleEvent(EVENT_BATTLE_SHOUT, Seconds(15));

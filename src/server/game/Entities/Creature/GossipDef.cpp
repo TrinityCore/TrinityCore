@@ -293,6 +293,7 @@ void PlayerMenu::SendPointOfInterest(uint32 id) const
     packet.Pos = pointOfInterest->Pos;
     packet.Icon = pointOfInterest->Icon;
     packet.Importance = pointOfInterest->Importance;
+    packet.Unknown905 = pointOfInterest->Unknown905;
 
     _session->SendPacket(packet.Write());
 }

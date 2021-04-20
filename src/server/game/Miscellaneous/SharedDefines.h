@@ -21,6 +21,8 @@
 #include "Define.h"
 #include "DetourNavMesh.h"
 
+float const GROUND_HEIGHT_TOLERANCE = 0.05f; // Extra tolerance to z position to check if it is in air or on ground.
+
 enum SpellEffIndex : uint8
 {
     EFFECT_0 = 0,
@@ -294,10 +296,9 @@ enum SpellSchools : uint16
     SPELL_SCHOOL_NATURE                 = 3,
     SPELL_SCHOOL_FROST                  = 4,
     SPELL_SCHOOL_SHADOW                 = 5,
-    SPELL_SCHOOL_ARCANE                 = 6
+    SPELL_SCHOOL_ARCANE                 = 6,
+    MAX_SPELL_SCHOOL                    = 7
 };
-
-#define MAX_SPELL_SCHOOL                  7
 
 enum SpellSchoolMask
 {
@@ -472,7 +473,7 @@ enum SpellAttr2
     SPELL_ATTR2_UNK25                            = 0x02000000, // 25
     SPELL_ATTR2_UNAFFECTED_BY_AURA_SCHOOL_IMMUNE = 0x04000000, // 26 unaffected by school immunity
     SPELL_ATTR2_UNK27                            = 0x08000000, // 27
-    SPELL_ATTR2_IGNORE_ITEM_CHECK                = 0x10000000, // 28 Spell is cast without checking item requirements (charges/reagents/totem)
+    SPELL_ATTR2_IGNORE_ACTION_AURA_INTERRUPT_FLAGS= 0x10000000, // 28 doesnt break auras with SpellAuraInterruptFlags::Action and SpellAuraInterruptFlags::ActionDelayed
     SPELL_ATTR2_CANT_CRIT                        = 0x20000000, // 29 Spell can't crit
     SPELL_ATTR2_TRIGGERED_CAN_TRIGGER_PROC       = 0x40000000, // 30 spell can trigger even if triggered
     SPELL_ATTR2_FOOD_BUFF                        = 0x80000000  // 31 Food or Drink Buff (like Well Fed)
@@ -531,7 +532,7 @@ enum SpellAttr4
     SPELL_ATTR4_UNK12                            = 0x00001000, // 12
     SPELL_ATTR4_COMBAT_LOG_NO_CASTER             = 0x00002000, // 13 No caster object is sent to client combat log
     SPELL_ATTR4_DAMAGE_DOESNT_BREAK_AURAS        = 0x00004000, // 14 doesn't break auras by damage from these spells
-    SPELL_ATTR4_UNK15                            = 0x00008000, // 15
+    SPELL_ATTR4_HIDDEN_IN_SPELLBOOK              = 0x00008000, // 15
     SPELL_ATTR4_NOT_USABLE_IN_ARENA_OR_RATED_BG  = 0x00010000, // 16 Cannot be used in both Arenas or Rated Battlegrounds
     SPELL_ATTR4_USABLE_IN_ARENA                  = 0x00020000, // 17
     SPELL_ATTR4_AREA_TARGET_CHAIN                = 0x00040000, // 18 (NYI)hits area targets one after another instead of all at once
@@ -637,10 +638,10 @@ enum SpellAttr7
     SPELL_ATTR7_DISPEL_CHARGES                   = 0x00000400, // 10 Dispel and Spellsteal individual charges instead of whole aura.
     SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER         = 0x00000800, // 11 Only non-player casts interrupt, though Feral Charge - Bear has it.
     SPELL_ATTR7_SILENCE_ONLY_NONPLAYER           = 0x00001000, // 12 Not set in 3.2.2a.
-    SPELL_ATTR7_UNK13                            = 0x00002000, // 13 Not set in 3.2.2a.
+    SPELL_ATTR7_CAN_ALWAYS_BE_INTERRUPTED        = 0x00002000, // 13 Can always be interrupted, even if caster is immune
     SPELL_ATTR7_UNK14                            = 0x00004000, // 14 Only 52150 (Raise Dead - Pet) spell.
     SPELL_ATTR7_UNK15                            = 0x00008000, // 15 Exorcism. Usable on players? 100% crit chance on undead and demons?
-    SPELL_ATTR7_CAN_RESTORE_SECONDARY_POWER      = 0x00010000, // 16 These spells can replenish a powertype, which is not the current powertype.
+    SPELL_ATTR7_HIDDEN_IN_SPELLBOOK_WHEN_LEARNED = 0x00010000, // 16 After learning these spells become hidden in spellbook (but are visible when not learned for low level characters)
     SPELL_ATTR7_UNK17                            = 0x00020000, // 17 Only 27965 (Suicide) spell.
     SPELL_ATTR7_HAS_CHARGE_EFFECT                = 0x00040000, // 18 Only spells that have Charge among effects.
     SPELL_ATTR7_ZONE_TELEPORT                    = 0x00080000, // 19 Teleports to specific zones.
@@ -842,7 +843,7 @@ enum SpellAttr13
 {
     SPELL_ATTR13_UNK0                            = 0x00000001, //  0
     SPELL_ATTR13_UNK1                            = 0x00000002, //  1
-    SPELL_ATTR13_UNK2                            = 0x00000004, //  2
+    SPELL_ATTR13_PASSIVE_IS_UPGRADE              = 0x00000004, //  2 Displays "Upgrade" in spell tooltip instead of "Passive"
     SPELL_ATTR13_UNK3                            = 0x00000008, //  3
     SPELL_ATTR13_UNK4                            = 0x00000010, //  4
     SPELL_ATTR13_UNK5                            = 0x00000020, //  5
@@ -863,11 +864,51 @@ enum SpellAttr13
     SPELL_ATTR13_UNK20                           = 0x00100000, // 20
     SPELL_ATTR13_UNK21                           = 0x00200000, // 21
     SPELL_ATTR13_UNK22                           = 0x00400000, // 22
-    SPELL_ATTR13_UNK23                           = 0x00800000  // 23
+    SPELL_ATTR13_UNK23                           = 0x00800000, // 23
+    SPELL_ATTR13_UNK24                           = 0x01000000, // 24
+    SPELL_ATTR13_UNK25                           = 0x02000000, // 25
+    SPELL_ATTR13_UNK26                           = 0x04000000, // 26
+    SPELL_ATTR13_UNK27                           = 0x08000000, // 27
+    SPELL_ATTR13_UNK28                           = 0x10000000, // 28
+    SPELL_ATTR13_UNK29                           = 0x20000000, // 29
+    SPELL_ATTR13_UNK30                           = 0x40000000, // 30
+    SPELL_ATTR13_UNK31                           = 0x80000000  // 31
 };
 
 enum SpellAttr14
 {
+    SPELL_ATTR14_UNK0                            = 0x00000001, //  0
+    SPELL_ATTR14_REAGENT_COST_CONSUMES_CHARGES   = 0x00000002, //  1 Consumes item charges for reagent costs instead of whole items
+    SPELL_ATTR14_UNK2                            = 0x00000004, //  2
+    SPELL_ATTR14_HIDE_PASSIVE_FROM_TOOLTIP       = 0x00000008, //  3 Don't show "Passive" or "Upgrade" in tooltip
+    SPELL_ATTR14_UNK4                            = 0x00000010, //  4
+    SPELL_ATTR14_UNK5                            = 0x00000020, //  5
+    SPELL_ATTR14_UNK6                            = 0x00000040, //  6
+    SPELL_ATTR14_UNK7                            = 0x00000080, //  7
+    SPELL_ATTR14_UNK8                            = 0x00000100, //  8
+    SPELL_ATTR14_UNK9                            = 0x00000200, //  9
+    SPELL_ATTR14_UNK10                           = 0x00000400, // 10
+    SPELL_ATTR14_UNK11                           = 0x00000800, // 11
+    SPELL_ATTR14_UNK12                           = 0x00001000, // 12
+    SPELL_ATTR14_UNK13                           = 0x00002000, // 13
+    SPELL_ATTR14_UNK14                           = 0x00004000, // 14
+    SPELL_ATTR14_UNK15                           = 0x00008000, // 15
+    SPELL_ATTR14_UNK16                           = 0x00010000, // 16
+    SPELL_ATTR14_UNK17                           = 0x00020000, // 17
+    SPELL_ATTR14_UNK18                           = 0x00040000, // 18
+    SPELL_ATTR14_UNK19                           = 0x00080000, // 19
+    SPELL_ATTR14_UNK20                           = 0x00100000, // 20
+    SPELL_ATTR14_UNK21                           = 0x00200000, // 21
+    SPELL_ATTR14_UNK22                           = 0x00400000, // 22
+    SPELL_ATTR14_UNK23                           = 0x00800000, // 23
+    SPELL_ATTR14_UNK24                           = 0x01000000, // 24
+    SPELL_ATTR14_UNK25                           = 0x02000000, // 25
+    SPELL_ATTR14_UNK26                           = 0x04000000, // 26
+    SPELL_ATTR14_UNK27                           = 0x08000000, // 27
+    SPELL_ATTR14_UNK28                           = 0x10000000, // 28
+    SPELL_ATTR14_UNK29                           = 0x20000000, // 29
+    SPELL_ATTR14_UNK30                           = 0x40000000, // 30
+    SPELL_ATTR14_UNK31                           = 0x80000000  // 31
 };
 
 #define MIN_SPECIALIZATION_LEVEL    10
@@ -1646,7 +1687,9 @@ enum SpellCastResult
     SPELL_FAILED_PLAYER_CONDITION                               = 305,
     SPELL_FAILED_NOT_WHILE_CHROMIE_TIMED                        = 306,
     SPELL_FAILED_OPTIONAL_REAGENTS                              = 307,
-    SPELL_FAILED_UNKNOWN                                        = 308,
+    SPELL_FAILED_SPECTATOR_OR_COMMENTATOR                       = 308,
+    SPELL_FAILED_SOULBIND_CONDUIT_LEARN_FAILED_INVALID_COVENANT = 309,
+    SPELL_FAILED_UNKNOWN                                        = 310,
 
     // ok cast value - here in case a future version removes SPELL_FAILED_SUCCESS and we need to use a custom value (not sent to client either way)
     SPELL_CAST_OK                                               = SPELL_FAILED_SUCCESS
@@ -2181,6 +2224,8 @@ enum SpellCustomErrors
     SPELL_CUSTOM_ERROR_YOU_CANNOT_SOULSHAPE_DURING_LICHBORNE            = 533, // You cannot Soulshape during Lichborne.
     SPELL_CUSTOM_ERROR_YOU_CANT_DO_THAT_WHILE_CARRYING_AN_ANIMACONE     = 534, // You can't do that while carrying an Animacone.
     SPELL_CUSTOM_ERROR_NECESSARY_CONSTRUCT_NOT_PRESENT                  = 535, // Necessary construct not present.
+    SPELL_CUSTOM_ERROR_THAT_GUEST_IS_ALREADY_COVERED_IN_GELATIN         = 536, // That guest is already covered in gelatin.
+    SPELL_CUSTOM_ERROR_YOU_NEED_TO_WAIT_TO_USE_THIS_ITEM                = 537, // You need to wait to use this item.
 };
 
 enum StealthType
@@ -2319,7 +2364,7 @@ enum Mechanics
     MECHANIC_SAPPED           = 30,
     MECHANIC_ENRAGED          = 31,
     MECHANIC_WOUNDED          = 32,
-    MAX_MECHANIC = 33
+    MAX_MECHANIC              = 33
 };
 
 // Used for spell 42292 Immune Movement Impairment and Loss of Control (0x49967ca6)

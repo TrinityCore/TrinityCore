@@ -76,7 +76,7 @@ class TC_GAME_API Scenario : public CriteriaHandler
     protected:
         GuidUnorderedSet _players;
 
-        void SendCriteriaUpdate(Criteria const* criteria, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const override;
+        void SendCriteriaUpdate(Criteria const* criteria, CriteriaProgress const* progress, Seconds timeElapsed, bool timedCompleted) const override;
         void SendCriteriaProgressRemoved(uint32 /*criteriaId*/) override { }
 
         bool CanUpdateCriteriaTree(Criteria const* criteria, CriteriaTree const* tree, Player* referencePlayer) const override;

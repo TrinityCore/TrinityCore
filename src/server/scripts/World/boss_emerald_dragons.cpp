@@ -272,10 +272,10 @@ class boss_ysondre : public CreatureScript
                 events.ScheduleEvent(EVENT_LIGHTNING_WAVE, 12000);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 Talk(SAY_YSONDRE_AGGRO);
-                WorldBossAI::EnterCombat(who);
+                WorldBossAI::JustEngagedWith(who);
             }
 
             // Summon druid spirits on 75%, 50% and 25% health
@@ -366,10 +366,10 @@ class boss_lethon : public CreatureScript
                 events.ScheduleEvent(EVENT_SHADOW_BOLT_WHIRL, 10000);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 Talk(SAY_LETHON_AGGRO);
-                WorldBossAI::EnterCombat(who);
+                WorldBossAI::JustEngagedWith(who);
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
@@ -501,10 +501,10 @@ class boss_emeriss : public CreatureScript
                 emerald_dragonAI::KilledUnit(who);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 Talk(SAY_EMERISS_AGGRO);
-                WorldBossAI::EnterCombat(who);
+                WorldBossAI::JustEngagedWith(who);
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) override
@@ -599,10 +599,10 @@ class boss_taerar : public CreatureScript
                 events.ScheduleEvent(EVENT_BELLOWING_ROAR, 30000);
             }
 
-            void EnterCombat(Unit* who) override
+            void JustEngagedWith(Unit* who) override
             {
                 Talk(SAY_TAERAR_AGGRO);
-                emerald_dragonAI::EnterCombat(who);
+                emerald_dragonAI::JustEngagedWith(who);
             }
 
             void SummonedCreatureDies(Creature* /*summon*/, Unit* /*killer*/) override

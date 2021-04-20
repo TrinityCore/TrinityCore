@@ -66,10 +66,10 @@ namespace WorldPackets
             struct GMTicketCase
             {
                 int32 CaseID = 0;
-                int32 CaseOpened = 0;
+                Timestamp<> CaseOpened;
                 int32 CaseStatus = 0;
-                int16 CfgRealmID = 0;
-                int64 CharacterID = 0;
+                uint16 CfgRealmID = 0;
+                uint64 CharacterID = 0;
                 int32 WaitTimeOverrideMinutes = 0;
                 std::string Url;
                 std::string WaitTimeOverrideMessage;
@@ -110,9 +110,9 @@ namespace WorldPackets
             struct SupportTicketChatLine
             {
                 SupportTicketChatLine(ByteBuffer& data);
-                SupportTicketChatLine(uint32 timestamp, std::string const& text);
+                SupportTicketChatLine(time_t timestamp, std::string const& text);
 
-                uint32 Timestamp = 0;
+                WorldPackets::Timestamp<> Timestamp;
                 std::string Text;
             };
 
@@ -133,7 +133,7 @@ namespace WorldPackets
                     uint8 field_6;
                 };
 
-                int32 Timestamp;
+                WorldPackets::Timestamp<> Timestamp;
                 ObjectGuid AuthorGUID;
                 Optional<uint64> ClubID;
                 Optional<ObjectGuid> ChannelGUID;
