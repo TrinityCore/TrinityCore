@@ -9807,14 +9807,14 @@ void Player::SendRespecWipeConfirm(ObjectGuid const& guid, uint32 cost) const
 /***                    STORAGE SYSTEM                 ***/
 /*********************************************************/
 
-uint8 Player::FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) const
+uint8 Player::FindEquipSlot(Item const* item, uint32 slot, bool swap) const
 {
     uint8 slots[4];
     slots[0] = NULL_SLOT;
     slots[1] = NULL_SLOT;
     slots[2] = NULL_SLOT;
     slots[3] = NULL_SLOT;
-    switch (proto->GetInventoryType())
+    switch (item->GetTemplate()->GetInventoryType())
     {
         case INVTYPE_HEAD:
             slots[0] = EQUIPMENT_SLOT_HEAD;
@@ -9922,10 +9922,29 @@ uint8 Player::FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) c
                 if (slots[i] != EQUIPMENT_SLOT_OFFHAND || !IsTwoHandUsed())
                     return slots[i];
 
-        // if not found free and can swap return first appropriate from used
-        for (uint8 i = 0; i < 4; ++i)
-            if (slots[i] != NULL_SLOT && swap)
-                return slots[i];
+        // if not found free and can swap return slot with lower item level equipped
+        if (swap)
+        {
+            uint32 minItemLevel = std::numeric_limits<uint32>::max();
+            uint8 minItemLevelIndex = 0;
+            for (uint8 i = 0; i < 4; ++i)
+            {
+                if (slots[i] != NULL_SLOT)
+                {
+                    if (Item const* equipped = GetItemByPos(INVENTORY_SLOT_BAG_0, slots[i]))
+                    {
+                        uint32 itemLevel = equipped->GetItemLevel(this);
+                        if (itemLevel < minItemLevel)
+                        {
+                            minItemLevel = itemLevel;
+                            minItemLevelIndex = i;
+                        }
+                    }
+                }
+            }
+
+            return slots[minItemLevelIndex];
+        }
     }
 
     // no free position
@@ -11382,7 +11401,7 @@ InventoryResult Player::CanEquipItem(uint8 slot, uint16 &dest, Item* pItem, bool
             if (requiredLevels && requiredLevels->MaxLevel < DEFAULT_MAX_LEVEL && requiredLevels->MaxLevel < getLevel() && !sDB2Manager.GetHeirloomByItemId(pProto->GetId()))
                 return EQUIP_ERR_NOT_EQUIPPABLE;
 
-            uint8 eslot = FindEquipSlot(pProto, slot, swap);
+            uint8 eslot = FindEquipSlot(pItem, slot, swap);
             if (eslot == NULL_SLOT)
                 return EQUIP_ERR_NOT_EQUIPPABLE;
 

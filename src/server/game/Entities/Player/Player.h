@@ -1236,7 +1236,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void UpdateAverageItemLevelTotal();
         void UpdateAverageItemLevelEquipped();
 
-        uint8 FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) const;
+        uint8 FindEquipSlot(Item const* item, uint32 slot, bool swap) const;
         uint32 GetItemCount(uint32 item, bool inBankAlso = false, Item* skipItem = nullptr) const;
         uint32 GetItemCountWithLimitCategory(uint32 limitCategory, Item* skipItem = nullptr) const;
         Item* GetItemByGuid(ObjectGuid guid) const;
