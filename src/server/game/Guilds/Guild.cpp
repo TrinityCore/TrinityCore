@@ -26,6 +26,7 @@
 #include "Config.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "GameTime.h"
 #include "GuildFinderMgr.h"
 #include "GuildMgr.h"
 #include "GuildPackets.h"
@@ -118,6 +119,8 @@ inline uint32 Guild::LogHolder::GetNextGUID()
     return m_nextGUID;
 }
 
+Guild::LogEntry::LogEntry(ObjectGuid::LowType guildId, uint32 guid) : m_guildId(guildId), m_guid(guid), m_timestamp(GameTime::GetGameTime()) { }
+
 // EventLogEntry
 void Guild::EventLogEntry::SaveToDB(CharacterDatabaseTransaction& trans) const
 {
@@ -134,7 +137,7 @@ void Guild::EventLogEntry::SaveToDB(CharacterDatabaseTransaction& trans) const
     stmt->setUInt64(++index, m_playerGuid1);
     stmt->setUInt64(++index, m_playerGuid2);
     stmt->setUInt8 (++index, m_newRank);
-    stmt->setUInt64(++index, m_timestamp);
+    stmt->setInt64 (++index, m_timestamp);
     trans->Append(stmt);
 }
 
@@ -147,7 +150,7 @@ void Guild::EventLogEntry::WritePacket(WorldPackets::Guild::GuildEventLogQueryRe
     eventEntry.PlayerGUID = playerGUID;
     eventEntry.OtherGUID = otherGUID;
     eventEntry.TransactionType = uint8(m_eventType);
-    eventEntry.TransactionDate = uint32(::time(nullptr) - m_timestamp);
+    eventEntry.TransactionDate = uint32(GameTime::GetGameTime() - m_timestamp);
     eventEntry.RankID = uint8(m_newRank);
     packet.Entry.push_back(eventEntry);
 }
@@ -173,7 +176,7 @@ void Guild::BankEventLogEntry::SaveToDB(CharacterDatabaseTransaction& trans) con
     stmt->setUInt64(++index, m_itemOrMoney);
     stmt->setUInt16(++index, m_itemStackCount);
     stmt->setUInt8 (++index, m_destTabId);
-    stmt->setUInt64(++index, m_timestamp);
+    stmt->setInt64 (++index, m_timestamp);
     trans->Append(stmt);
 }
 
@@ -190,7 +193,7 @@ void Guild::BankEventLogEntry::WritePacket(WorldPackets::Guild:: GuildBankLogQue
 
     WorldPackets::Guild::GuildBankLogEntry bankLogEntry;
     bankLogEntry.PlayerGUID = logGuid;
-    bankLogEntry.TimeOffset = int32(time(nullptr) - m_timestamp);
+    bankLogEntry.TimeOffset = int32(GameTime::GetGameTime() - m_timestamp);
     bankLogEntry.EntryType = int8(m_eventType);
 
     if (hasStack)
@@ -218,7 +221,7 @@ void Guild::NewsLogEntry::SaveToDB(CharacterDatabaseTransaction& trans) const
     stmt->setUInt64(++index, GetPlayerGuid().GetCounter());
     stmt->setUInt32(++index, GetFlags());
     stmt->setUInt32(++index, GetValue());
-    stmt->setUInt64(++index, GetTimestamp());
+    stmt->setInt64 (++index, GetTimestamp());
     CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
 
@@ -517,7 +520,7 @@ Guild::Member::Member(ObjectGuid::LowType guildId, ObjectGuid guid, uint8 rankId
     m_class(0),
     _gender(0),
     m_flags(GUILDMEMBER_STATUS_NONE),
-    m_logoutTime(::time(nullptr)),
+    m_logoutTime(GameTime::GetGameTime()),
     m_accountId(0),
     m_rankId(rankId),
     m_bankWithdrawMoney(0),
@@ -592,6 +595,11 @@ void Guild::Member::ChangeRank(CharacterDatabaseTransaction& trans, uint8 newRan
     CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
 
+void Guild::Member::UpdateLogoutTime()
+{
+    m_logoutTime = GameTime::GetGameTime();
+}
+
 void Guild::Member::SaveToDB(CharacterDatabaseTransaction& trans) const
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GUILD_MEMBER);
@@ -662,7 +670,7 @@ float Guild::Member::GetInactiveDays() const
 {
     if (IsOnline())
         return 0.0f;
-    return float(::time(nullptr) - GetLogoutTime()) / float(DAY);
+    return float(GameTime::GetGameTime() - GetLogoutTime()) / float(DAY);
 }
 
 // Decreases amount of slots left for today.
@@ -1146,7 +1154,7 @@ bool Guild::Create(Player* pLeader, std::string const& name)
     m_info = "";
     m_motd = "No message set.";
     m_bankMoney = 0;
-    m_createdDate = ::time(nullptr);
+    m_createdDate = GameTime::GetGameTime();
     _CreateLogHolders();
 
     TC_LOG_DEBUG("guild", "GUILD: creating guild [%s] for leader %s (%s)",
@@ -2421,7 +2429,7 @@ bool Guild::LoadEventLogFromDB(Field* fields) const
         m_eventLog->LoadEvent(new EventLogEntry(
             m_id,                                       // guild id
             fields[1].GetUInt32(),                      // guid
-            time_t(fields[6].GetUInt32()),              // timestamp
+            fields[6].GetInt64(),                       // timestamp
             GuildEventLogTypes(fields[2].GetUInt8()),   // event type
             fields[3].GetUInt64(),                      // player guid 1
             fields[4].GetUInt64(),                      // player guid 2
@@ -2459,7 +2467,7 @@ bool Guild::LoadBankEventLogFromDB(Field* fields)
             pLog->LoadEvent(new BankEventLogEntry(
                 m_id,                                   // guild id
                 guid,                                   // guid
-                time_t(fields[8].GetUInt32()),          // timestamp
+                fields[8].GetInt64(),                   // timestamp
                 dbTabId,                                // tab id
                 eventType,                              // event type
                 fields[4].GetUInt64(),                  // player guid
@@ -2479,7 +2487,7 @@ void Guild::LoadGuildNewsLogFromDB(Field* fields) const
     m_newsLog->LoadEvent(new NewsLogEntry(
     m_id,                                               // guild id
     fields[1].GetUInt32(),                              // guid
-    fields[6].GetUInt32(),                              // timestamp //64 bits?
+    fields[6].GetInt64(),                               // timestamp //64 bits?
     GuildNews(fields[2].GetUInt8()),                    // type
     ObjectGuid::Create<HighGuid::Player>(fields[3].GetUInt64()), // player guid
     fields[4].GetUInt32(),                              // Flags

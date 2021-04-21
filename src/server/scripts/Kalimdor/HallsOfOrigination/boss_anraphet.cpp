@@ -158,11 +158,11 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
             Talk(ANRAPHET_SAY_AGGRO);
-            _EnterCombat();
+            _JustEngagedWith();
         }
 
         void JustDied(Unit* /*killer*/) override

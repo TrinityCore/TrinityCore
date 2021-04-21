@@ -75,9 +75,9 @@ class boss_pathaleon_the_calculator : public CreatureScript
         {
             boss_pathaleon_the_calculatorAI(Creature* creature) : BossAI(creature, DATA_PATHALEON_THE_CALCULATOR) { }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 events.ScheduleEvent(EVENT_SUMMON, 30000);
                 events.ScheduleEvent(EVENT_MANA_TAP, urand(12000, 20000));
                 events.ScheduleEvent(EVENT_ARCANE_TORRENT, urand(16000, 25000));
@@ -198,7 +198,7 @@ class npc_nether_wraith : public CreatureScript
                 Initialize();
             }
 
-            void EnterCombat(Unit* /*who*/) override { }
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             void UpdateAI(uint32 diff) override
             {

@@ -928,8 +928,8 @@ void AuraScript::EffectApplyHandler::Call(AuraScript* auraScript, AuraEffect con
         (auraScript->*pEffectHandlerScript)(_aurEff, _mode);
 }
 
-AuraScript::EffectAbsorbHandler::EffectAbsorbHandler(AuraEffectAbsorbFnType _pEffectHandlerScript, uint8 _effIndex)
-    : AuraScript::EffectBase(_effIndex, SPELL_AURA_SCHOOL_ABSORB)
+AuraScript::EffectAbsorbHandler::EffectAbsorbHandler(AuraEffectAbsorbFnType _pEffectHandlerScript, uint8 _effIndex, bool overKill)
+    : AuraScript::EffectBase(_effIndex, overKill ? SPELL_AURA_SCHOOL_ABSORB_OVERKILL : SPELL_AURA_SCHOOL_ABSORB)
 {
     pEffectHandlerScript = _pEffectHandlerScript;
 }

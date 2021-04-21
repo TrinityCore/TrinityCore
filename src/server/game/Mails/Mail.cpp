@@ -21,6 +21,7 @@
 #include "CalendarMgr.h"
 #include "CharacterCache.h"
 #include "DatabaseEnv.h"
+#include "GameTime.h"
 #include "Item.h"
 #include "Log.h"
 #include "LootMgr.h"
@@ -194,7 +195,7 @@ void MailDraft::SendMailTo(CharacterDatabaseTransaction& trans, MailReceiver con
 
     uint32 mailId = sObjectMgr->GenerateMailID();
 
-    time_t deliver_time = time(nullptr) + deliver_delay;
+    time_t deliver_time = GameTime::GetGameTime() + deliver_delay;
 
     //expire time if COD 3 days, if no COD 30 days, if auction sale pending 1 hour
     uint32 expire_delay;
@@ -225,8 +226,8 @@ void MailDraft::SendMailTo(CharacterDatabaseTransaction& trans, MailReceiver con
     stmt->setString(++index, GetSubject());
     stmt->setString(++index, GetBody());
     stmt->setBool  (++index, !m_items.empty());
-    stmt->setUInt64(++index, uint64(expire_time));
-    stmt->setUInt64(++index, uint64(deliver_time));
+    stmt->setInt64 (++index, expire_time);
+    stmt->setInt64 (++index, deliver_time);
     stmt->setUInt64(++index, m_money);
     stmt->setUInt64(++index, m_COD);
     stmt->setUInt8 (++index, uint8(checked));

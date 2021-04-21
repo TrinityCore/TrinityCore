@@ -176,7 +176,7 @@ void ScriptedAI::DoCastSpell(Unit* target, SpellInfo const* spellInfo, bool trig
         return;
 
     me->StopMoving();
-    me->CastSpell(target, spellInfo, triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE);
+    me->CastSpell(target, spellInfo->Id, triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE);
 }
 
 void ScriptedAI::DoPlaySoundToSet(WorldObject* source, uint32 soundId)
@@ -480,7 +480,7 @@ void BossAI::_JustReachedHome()
     me->setActive(false);
 }
 
-void BossAI::_EnterCombat()
+void BossAI::_JustEngagedWith()
 {
     if (instance)
     {
@@ -593,7 +593,7 @@ void WorldBossAI::_JustDied()
     summons.DespawnAll();
 }
 
-void WorldBossAI::_EnterCombat()
+void WorldBossAI::_JustEngagedWith()
 {
     Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
     if (target)

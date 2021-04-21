@@ -554,7 +554,7 @@ int32 SpellEffectInfo::CalcBaseValue(Unit const* caster, Unit const* target, uin
                     if (!randPropPoints)
                         randPropPoints = sRandPropPointsStore.AssertEntry(sRandPropPointsStore.GetNumRows() - 1);
 
-                    value = _spellInfo->Scaling.Class == -8 ? randPropPoints->DamageReplaceStat : randPropPoints->DamageSecondary;
+                    value = _spellInfo->Scaling.Class == -8 ? randPropPoints->DamageReplaceStatF : randPropPoints->DamageSecondaryF;
                 }
                 else
                     value = GetRandomPropertyPoints(effectiveItemLevel, ITEM_QUALITY_RARE, INVTYPE_CHEST, 0);
@@ -2655,8 +2655,16 @@ void SpellInfo::_LoadSpellSpecific()
                     return SPELL_SPECIFIC_JUDGEMENT;
 
                 // only paladin auras have this (for palaldin class family)
-                if (SpellFamilyFlags[2] & 0x00000020)
-                    return SPELL_SPECIFIC_AURA;
+                switch (Id)
+                {
+                    case 465:    // Devotion Aura
+                    case 32223:  // Crusader Aura
+                    case 183435: // Retribution Aura
+                    case 317920: // Concentration Aura
+                        return SPELL_SPECIFIC_AURA;
+                    default:
+                        break;
+                }
 
                 break;
             }

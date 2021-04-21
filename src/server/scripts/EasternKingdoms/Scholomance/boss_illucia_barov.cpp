@@ -51,9 +51,9 @@ class boss_illucia_barov : public CreatureScript
         {
             boss_illuciabarovAI(Creature* creature) : BossAI(creature, DATA_LADYILLUCIABAROV) { }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 events.ScheduleEvent(EVENT_CURSEOFAGONY, 18000);
                 events.ScheduleEvent(EVENT_SHADOWSHOCK, 9000);
                 events.ScheduleEvent(EVENT_SILENCE, 5000);

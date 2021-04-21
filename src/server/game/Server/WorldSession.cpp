@@ -261,13 +261,13 @@ void WorldSession::SendPacket(WorldPacket const* packet, bool forced /*= false*/
     static uint64 sendPacketCount = 0;
     static uint64 sendPacketBytes = 0;
 
-    static time_t firstTime = time(nullptr);
+    static time_t firstTime = GameTime::GetGameTime();
     static time_t lastTime = firstTime;                     // next 60 secs start time
 
     static uint64 sendLastPacketCount = 0;
     static uint64 sendLastPacketBytes = 0;
 
-    time_t cur_time = time(nullptr);
+    time_t cur_time = GameTime::GetGameTime();
 
     if ((cur_time - lastTime) < 60)
     {
@@ -336,7 +336,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     bool deletePacket = true;
     std::vector<WorldPacket*> requeuePackets;
     uint32 processedPackets = 0;
-    time_t currentTime = time(nullptr);
+    time_t currentTime = GameTime::GetGameTime();
 
     while (m_Socket[CONNECTION_TYPE_REALM] && _recvQueue.next(packet, updater))
     {
@@ -456,9 +456,8 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     //logout procedure should happen only in World::UpdateSessions() method!!!
     if (updater.ProcessUnsafe())
     {
-        time_t currTime = time(nullptr);
         ///- If necessary, log the player out
-        if (ShouldLogOut(currTime) && m_playerLoading.IsEmpty())
+        if (ShouldLogOut(currentTime) && m_playerLoading.IsEmpty())
             LogoutPlayer(true);
 
         if (m_Socket[CONNECTION_TYPE_REALM] && GetPlayer() && _warden)
@@ -775,20 +774,20 @@ void WorldSession::LoadAccountData(PreparedQueryResult result, uint32 mask)
             continue;
         }
 
-        _accountData[type].Time = time_t(fields[1].GetUInt32());
+        _accountData[type].Time = fields[1].GetInt64();
         _accountData[type].Data = fields[2].GetString();
     }
     while (result->NextRow());
 }
 
-void WorldSession::SetAccountData(AccountDataType type, uint32 time, std::string const& data)
+void WorldSession::SetAccountData(AccountDataType type, time_t time, std::string const& data)
 {
     if ((1 << type) & GLOBAL_CACHE_MASK)
     {
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_ACCOUNT_DATA);
         stmt->setUInt32(0, GetAccountId());
         stmt->setUInt8(1, type);
-        stmt->setUInt32(2, time);
+        stmt->setInt64(2, time);
         stmt->setString(3, data);
         CharacterDatabase.Execute(stmt);
     }
@@ -801,12 +800,12 @@ void WorldSession::SetAccountData(AccountDataType type, uint32 time, std::string
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_PLAYER_ACCOUNT_DATA);
         stmt->setUInt64(0, m_GUIDLow);
         stmt->setUInt8(1, type);
-        stmt->setUInt32(2, time);
+        stmt->setInt64(2, time);
         stmt->setString(3, data);
         CharacterDatabase.Execute(stmt);
     }
 
-    _accountData[type].Time = time_t(time);
+    _accountData[type].Time = time;
     _accountData[type].Data = data;
 }
 

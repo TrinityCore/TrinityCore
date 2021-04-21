@@ -503,9 +503,9 @@ class boss_thorim : public CreatureScript
                 _DespawnAtEvade();
             }
 
-            void SetGUID(ObjectGuid guid, int32 type) override
+            void SetGUID(ObjectGuid const& guid, int32 id) override
             {
-                if (type == DATA_CHARGED_PILLAR)
+                if (id == DATA_CHARGED_PILLAR)
                 {
                     _activePillarGUID = guid;
 
@@ -592,9 +592,9 @@ class boss_thorim : public CreatureScript
                 SetBoundary(&ArenaBoundaries);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO_1);
 
                 events.SetPhase(PHASE_1);
@@ -1241,7 +1241,7 @@ class npc_thorim_arena_phase : public CreatureScript
                     _events.ScheduleEvent(EVENT_ABILITY_CHARGE, 8000);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 if (_info->Type == DARK_RUNE_WARBRINGER)
                     DoCast(me, SPELL_AURA_OF_CELERITY);
@@ -1412,7 +1412,7 @@ class npc_runic_colossus : public CreatureScript
                 }
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoZoneInCombat();
                 _events.Reset();
@@ -1499,7 +1499,7 @@ class npc_ancient_rune_giant : public CreatureScript
                     me->SummonCreature(s.entry, s.pos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoZoneInCombat();
                 _events.Reset();

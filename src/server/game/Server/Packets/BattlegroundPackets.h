@@ -468,8 +468,8 @@ namespace WorldPackets
 
             uint32 MapID = 0;
             MatchState State = Inactive;
-            time_t StartTime = time_t(0);
-            int32 Duration = 0;
+            Timestamp<> StartTime;
+            WorldPackets::Duration<Seconds> Duration;
             uint8 ArenaFaction = 0;
             uint32 BattlemasterListID = 0;
             bool Registered = false;
@@ -484,7 +484,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint8 Winner = 0;
-            int32 Duration = 0;
+            WorldPackets::Duration<Seconds> Duration;
             Optional<PVPMatchStatistics> LogData;
         };
     }

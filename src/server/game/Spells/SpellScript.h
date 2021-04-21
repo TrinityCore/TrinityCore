@@ -654,7 +654,7 @@ class TC_GAME_API AuraScript : public _SpellScript
         class TC_GAME_API EffectAbsorbHandler : public EffectBase
         {
             public:
-                EffectAbsorbHandler(AuraEffectAbsorbFnType _pEffectHandlerScript, uint8 _effIndex);
+                EffectAbsorbHandler(AuraEffectAbsorbFnType _pEffectHandlerScript, uint8 _effIndex, bool overKill);
                 void Call(AuraScript* auraScript, AuraEffect* aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount);
             private:
                 AuraEffectAbsorbFnType pEffectHandlerScript;
@@ -726,7 +726,7 @@ class TC_GAME_API AuraScript : public _SpellScript
         class EffectCalcSpellModHandlerFunction : public AuraScript::EffectCalcSpellModHandler { public: EffectCalcSpellModHandlerFunction(AuraEffectCalcSpellModFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName) : AuraScript::EffectCalcSpellModHandler((AuraScript::AuraEffectCalcSpellModFnType)_pEffectHandlerScript, _effIndex, _effName) { } }; \
         class EffectCalcCritChanceHandlerFunction : public AuraScript::EffectCalcCritChanceHandler { public: EffectCalcCritChanceHandlerFunction(AuraEffectCalcCritChanceFnType effectHandlerScript, uint8 effIndex, uint16 effName) : AuraScript::EffectCalcCritChanceHandler((AuraScript::AuraEffectCalcCritChanceFnType)effectHandlerScript, effIndex, effName) { } }; \
         class EffectApplyHandlerFunction : public AuraScript::EffectApplyHandler { public: EffectApplyHandlerFunction(AuraEffectApplicationModeFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName, AuraEffectHandleModes _mode) : AuraScript::EffectApplyHandler((AuraScript::AuraEffectApplicationModeFnType)_pEffectHandlerScript, _effIndex, _effName, _mode) { } }; \
-        class EffectAbsorbFunction : public AuraScript::EffectAbsorbHandler { public: EffectAbsorbFunction(AuraEffectAbsorbFnType _pEffectHandlerScript, uint8 _effIndex) : AuraScript::EffectAbsorbHandler((AuraScript::AuraEffectAbsorbFnType)_pEffectHandlerScript, _effIndex) { } }; \
+        class EffectAbsorbFunction : public AuraScript::EffectAbsorbHandler { public: EffectAbsorbFunction(AuraEffectAbsorbFnType _pEffectHandlerScript, uint8 _effIndex, bool overkill = false) : AuraScript::EffectAbsorbHandler((AuraScript::AuraEffectAbsorbFnType)_pEffectHandlerScript, _effIndex, overkill) { } }; \
         class EffectManaShieldFunction : public AuraScript::EffectManaShieldHandler { public: EffectManaShieldFunction(AuraEffectAbsorbFnType _pEffectHandlerScript, uint8 _effIndex) : AuraScript::EffectManaShieldHandler((AuraScript::AuraEffectAbsorbFnType)_pEffectHandlerScript, _effIndex) { } }; \
         class EffectSplitFunction : public AuraScript::EffectSplitHandler { public: EffectSplitFunction(AuraEffectSplitFnType _pEffectHandlerScript, uint8 _effIndex) : AuraScript::EffectSplitHandler((AuraScript::AuraEffectSplitFnType)_pEffectHandlerScript, _effIndex) { } }; \
         class CheckProcHandlerFunction : public AuraScript::CheckProcHandler { public: CheckProcHandlerFunction(AuraCheckProcFnType handlerScript) : AuraScript::CheckProcHandler((AuraScript::AuraCheckProcFnType)handlerScript) { } }; \
@@ -847,6 +847,7 @@ class TC_GAME_API AuraScript : public _SpellScript
         // where function is: void function (AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount);
         HookList<EffectAbsorbHandler> OnEffectAbsorb;
         #define AuraEffectAbsorbFn(F, I) EffectAbsorbFunction(&F, I)
+        #define AuraEffectAbsorbOverkillFn(F, I) EffectAbsorbFunction(&F, I, true)
 
         // executed after absorb aura effect reduced damage to target - absorbAmount is real amount absorbed by aura
         // example: AfterEffectAbsorb += AuraEffectAbsorbFn(class::function, EffectIndexSpecifier);

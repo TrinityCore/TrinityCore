@@ -49,9 +49,9 @@ class boss_scorn : public CreatureScript
                 _Reset();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 events.ScheduleEvent(EVENT_LICH_SLAP, 45000);
                 events.ScheduleEvent(EVENT_FROSTBOLT_VOLLEY, 30000);
                 events.ScheduleEvent(EVENT_MIND_FLAY, 30000);

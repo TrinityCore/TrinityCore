@@ -100,9 +100,9 @@ public:
             instance->DoStopCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_TIMELY_DEATH_START_EVENT);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             Talk(SAY_AGGRO);
             events.SetPhase(PHASE_NORMAL);
             events.ScheduleEvent(EVENT_ARC_LIGHTNING, 15000);

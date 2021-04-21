@@ -117,9 +117,9 @@ struct boss_baleroc : public firelands_bossAI
         EquipWeapon(EQUIP_DEFAULT);
     }
 
-    void EnterCombat(Unit* target) override
+    void JustEngagedWith(Unit* target) override
     {
-        firelands_bossAI::EnterCombat(target);
+        firelands_bossAI::JustEngagedWith(target);
 
         Talk(SAY_AGGRO);
         PreparePhase(PHASE_ONE);
@@ -219,7 +219,7 @@ struct boss_baleroc : public firelands_bossAI
         firelands_bossAI::UpdateAI(diff);
     }
 
-    void SetGUID(ObjectGuid guid, int32 type = 0) override
+    void SetGUID(ObjectGuid const& guid, int32 type = 0) override
     {
         switch (type)
         {

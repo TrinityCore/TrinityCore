@@ -140,7 +140,7 @@ class spell_pal_ardent_defender : public SpellScriptLoader
 
                     int32 healAmount = int32(victim->CountPctFromMaxHealth(static_cast<uint32>(lroundf(_healPct * defenseFactor))));
                     victim->CastCustomSpell(victim, PAL_SPELL_ARDENT_DEFENDER_HEAL, &healAmount, nullptr, nullptr, true, nullptr, aurEff);
-                    victim->ToPlayer()->AddSpellCooldown(PAL_SPELL_ARDENT_DEFENDER_HEAL, 0, time(nullptr) + 120);
+                    victim->ToPlayer()->AddSpellCooldown(PAL_SPELL_ARDENT_DEFENDER_HEAL, 0, GameTime::GetGameTime() + 120);
                 }
                 else if (remainingHealth < int32(allowedHealth))
                 {
@@ -290,7 +290,7 @@ class spell_pal_crusader_might : public AuraScript
 
     void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
     {
-        GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_PALADIN_HOLY_SHOCK_R1, aurEff->GetAmount());
+        GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_PALADIN_HOLY_SHOCK_R1, Seconds(aurEff->GetAmount()));
     }
 
     void Register() override
@@ -437,7 +437,7 @@ class spell_pal_fist_of_justice : public AuraScript
     {
         int32 value = aurEff->GetAmount() / 10;
 
-        GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_PALADIN_HAMMER_OF_JUSTICE, -value);
+        GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_PALADIN_HAMMER_OF_JUSTICE, Seconds(-value));
     }
 
     void Register() override
@@ -676,7 +676,7 @@ class spell_pal_item_healing_discount : public AuraScript
     void HandleProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
     {
         PreventDefaultAction();
-        GetTarget()->CastSpell(GetTarget(), SPELL_PALADIN_ITEM_HEALING_TRANCE, true, nullptr, aurEff);
+        GetTarget()->CastSpell(GetTarget(), SPELL_PALADIN_ITEM_HEALING_TRANCE, aurEff);
     }
 
     void Register() override
@@ -725,7 +725,7 @@ class spell_pal_item_t6_trinket : public AuraScript
             return;
 
         if (roll_chance_i(chance))
-            eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), spellId, true, nullptr, aurEff);
+            eventInfo.GetActor()->CastSpell(eventInfo.GetProcTarget(), spellId, aurEff);
     }
 
     void Register() override
@@ -816,7 +816,11 @@ class spell_pal_light_s_beacon : public SpellScriptLoader
                         std::list<AuraApplication*> applications;
                         (*itr)->GetApplicationList(applications);
                         if (!applications.empty())
-                            eventInfo.GetActor()->CastCustomSpell(SPELL_PALADIN_BEACON_OF_LIGHT_HEAL, SPELLVALUE_BASE_POINT0, heal, applications.front()->GetTarget(), true);
+                        {
+                            CastSpellExtraArgs args(aurEff);
+                            args.SpellValueOverrides.AddBP0(heal);
+                            eventInfo.GetActor()->CastSpell(applications.front()->GetTarget(), SPELL_PALADIN_BEACON_OF_LIGHT_HEAL, args);
+                        }
                         return;
                     }
                 }
@@ -859,8 +863,8 @@ class spell_pal_righteous_protector : public AuraScript
     {
         int32 value = aurEff->GetAmount() * 100 * _baseHolyPowerCost->Amount;
 
-        GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_PALADIN_AVENGING_WRATH, -value);
-        GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_PALADIN_GUARDIAN_OF_ANCIENT_KINGS, -value);
+        GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_PALADIN_AVENGING_WRATH, Seconds(-value));
+        GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_PALADIN_GUARDIAN_OF_ANCIENT_KINGS, Seconds(-value));
     }
 
     void Register() override
@@ -985,7 +989,7 @@ class spell_pal_t3_6p_bonus : public SpellScriptLoader
                         return;
                 }
 
-                caster->CastSpell(target, spellId, true, nullptr, aurEff);
+                caster->CastSpell(target, spellId, aurEff);
             }
 
             void Register() override
@@ -1034,7 +1038,9 @@ class spell_pal_t8_2p_bonus : public SpellScriptLoader
                 // Add remaining ticks to damage done
                 amount += target->GetRemainingPeriodicAmount(caster->GetGUID(), SPELL_PALADIN_HOLY_MENDING, SPELL_AURA_PERIODIC_HEAL);
 
-                caster->CastCustomSpell(SPELL_PALADIN_HOLY_MENDING, SPELLVALUE_BASE_POINT0, amount, target, true, nullptr, aurEff);
+                CastSpellExtraArgs args(aurEff);
+                args.SpellValueOverrides.AddBP0(amount);
+                caster->CastSpell(target, SPELL_PALADIN_HOLY_MENDING, args);
             }
 
             void Register() override
@@ -1062,7 +1068,7 @@ class spell_pal_zeal : public AuraScript
     void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& /*procInfo*/)
     {
         Unit* target = GetTarget();
-        target->CastCustomSpell(SPELL_PALADIN_ZEAL_AURA, SPELLVALUE_AURA_STACK, aurEff->GetAmount(), target, true);
+        target->CastSpell(target, SPELL_PALADIN_ZEAL_AURA, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_AURA_STACK, aurEff->GetAmount()));
 
         PreventDefaultAction();
     }

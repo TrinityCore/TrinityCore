@@ -434,9 +434,9 @@ public:
             return ObjectGuid::Empty;
         }
 
-        void SetGUID(ObjectGuid guid, int32 type) override
+        void SetGUID(ObjectGuid const& guid, int32 id) override
         {
-            switch (type)
+            switch (id)
             {
                 case DATA_LAST_OVERLOAD_GUID:
                     _arcaneOverloadGUID = guid;
@@ -444,7 +444,7 @@ public:
                 case DATA_FIRST_SURGE_TARGET_GUID:
                 case DATA_FIRST_SURGE_TARGET_GUID + 1:
                 case DATA_FIRST_SURGE_TARGET_GUID + 2:
-                    _surgeTargetGUID[type - DATA_FIRST_SURGE_TARGET_GUID] = guid;
+                    _surgeTargetGUID[id - DATA_FIRST_SURGE_TARGET_GUID] = guid;
                     break;
                 case DATA_LAST_TARGET_BARRAGE_GUID:
                     _lastHitByArcaneBarrageGUID = guid;
@@ -567,7 +567,7 @@ public:
                BossAI::AttackStart(target);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             // We can't call full function here since it includes DoZoneInCombat(),
             // if someone does it will be returned with a warning.
@@ -776,13 +776,11 @@ public:
                 switch (eventId)
                 {
                     case EVENT_START_FIRST_RANDOM_PORTAL:
-                        me->CastCustomSpell(SPELL_RANDOM_PORTAL, SPELLVALUE_MAX_TARGETS, 1);
+                    case EVENT_RANDOM_PORTAL:
+                        DoCastAOE(SPELL_RANDOM_PORTAL, { SPELLVALUE_MAX_TARGETS,1 });
                         break;
                     case EVENT_STOP_PORTAL_BEAM:
                         me->InterruptNonMeleeSpells(true);
-                        break;
-                    case EVENT_RANDOM_PORTAL:
-                        me->CastCustomSpell(SPELL_RANDOM_PORTAL, SPELLVALUE_MAX_TARGETS, 1);
                         break;
                     case EVENT_LAND_START_ENCOUNTER:
                         if (GameObject* iris = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_FOCUSING_IRIS_GUID)))
@@ -1423,7 +1421,7 @@ class npc_scion_of_eternity : public CreatureScript
                 _events.ScheduleEvent(EVENT_ARCANE_BARRAGE, urand(14, 29)*IN_MILLISECONDS);
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
             }
 
@@ -2029,7 +2027,7 @@ class spell_scion_of_eternity_arcane_barrage : public SpellScriptLoader
             void TriggerDamageSpellFromPlayer()
             {
                 if (Player* hitTarget = GetHitPlayer())
-                    hitTarget->CastSpell(hitTarget, SPELL_ARCANE_BARRAGE_DAMAGE, true, nullptr, nullptr, GetCaster()->GetGUID());
+                    hitTarget->CastSpell(hitTarget, SPELL_ARCANE_BARRAGE_DAMAGE, GetCaster()->GetGUID());
             }
 
             void Register() override

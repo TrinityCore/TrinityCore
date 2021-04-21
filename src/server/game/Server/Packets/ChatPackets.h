@@ -180,7 +180,8 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid Guid;
-            int32 EmoteID = 0;
+            uint32 EmoteID = 0;
+            std::vector<int32> SpellVisualKitIDs;
         };
 
         class CTextEmote final : public ClientPacket
@@ -193,6 +194,7 @@ namespace WorldPackets
             ObjectGuid Target;
             int32 EmoteID = 0;
             int32 SoundIndex = -1;
+            Array<int32, 2> SpellVisualKitIDs;
         };
 
         class STextEmote final : public ServerPacket

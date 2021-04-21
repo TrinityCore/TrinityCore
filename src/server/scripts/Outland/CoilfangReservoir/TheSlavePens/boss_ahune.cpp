@@ -182,9 +182,9 @@ public:
             me->SetControlled(true, UNIT_STATE_ROOT);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            _EnterCombat();
+            _JustEngagedWith();
             events.ScheduleEvent(EVENT_INITIAL_EMERGE, Milliseconds(4));
             events.ScheduleEvent(EVENT_SYNCH_HEALTH, Seconds(3));
         }
@@ -1015,7 +1015,7 @@ public:
 
         void HandleScriptEffect(SpellEffIndex /*effIndex*/)
         {
-            GetCaster()->CastSpell(GetHitDest()->GetPositionX(), GetHitDest()->GetPositionY(), GetHitDest()->GetPositionZ(), SPELL_ICE_BOMBARDMENT, true);
+            GetCaster()->CastSpell(GetHitDest()->GetPosition(), SPELL_ICE_BOMBARDMENT, true);
         }
 
         void Register() override

@@ -130,9 +130,9 @@ class boss_mandokir : public CreatureScript
                 _reviveGUID.Clear();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                _EnterCombat();
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
 
                 DoCastAOE(SPELL_BLOODLORD_AURA);
@@ -224,7 +224,7 @@ class boss_mandokir : public CreatureScript
                 return 0;
             }
 
-            void SetGUID(ObjectGuid guid, int32 /*type = 0 */) override
+            void SetGUID(ObjectGuid const& guid, int32 /*type = 0 */) override
             {
                 _reviveGUID = guid;
             }
@@ -313,7 +313,7 @@ class npc_ohgan : public CreatureScript
                 _instance = me->GetInstanceScript();
             }
 
-            void EnterCombat(Unit* /*who*/) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 DoCastAOE(SPELL_OHGAN_ORDERS, true);
             }
@@ -380,7 +380,7 @@ class npc_chained_spirit : public CreatureScript
                 _revivePlayerGUID.Clear();
             }
 
-            void SetGUID(ObjectGuid guid, int32 /*type = 0 */) override
+            void SetGUID(ObjectGuid const& guid, int32 /*type = 0 */) override
             {
                 _revivePlayerGUID = guid;
             }
@@ -500,10 +500,12 @@ class spell_mandokir_bloodletting : public SpellScriptLoader
                 if (!caster)
                     return;
 
-                int32 damage = std::max<int32>(7500, target->CountPctFromCurHealth(aurEff->GetAmount()));
+                CastSpellExtraArgs args;
+                args.TriggerFlags = TRIGGERED_FULL_MASK;
+                args.AddSpellMod(SPELLVALUE_BASE_POINT0, std::max<int32>(7500, target->CountPctFromCurHealth(aurEff->GetAmount())));
 
-                caster->CastCustomSpell(target, SPELL_BLOODLETTING_DAMAGE, &damage, nullptr, nullptr, true);
-                target->CastCustomSpell(caster, SPELL_BLOODLETTING_HEAL, &damage, nullptr, nullptr, true);
+                caster->CastSpell(target, SPELL_BLOODLETTING_DAMAGE, args);
+                target->CastSpell(caster, SPELL_BLOODLETTING_HEAL, args);
             }
 
             void Register() override
@@ -606,7 +608,7 @@ class spell_mandokir_devastating_slam : public SpellScriptLoader
                         angle = float(rand_norm()) * static_cast<float>(M_PI * 35.0f / 180.0f) - static_cast<float>(M_PI * 17.5f / 180.0f);
                         caster->GetClosePoint(x, y, z, 4.0f, frand(-2.5f, 50.0f), angle);
 
-                        caster->CastSpell(x, y, z, SPELL_DEVASTATING_SLAM_DAMAGE, true);
+                        caster->CastSpell({ x, y, z }, SPELL_DEVASTATING_SLAM_DAMAGE, true);
                     }
                 }
             }

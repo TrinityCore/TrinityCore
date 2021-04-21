@@ -121,7 +121,7 @@ public:
         InfernalPoint *point;
 
         void Reset() override { }
-        void EnterCombat(Unit* /*who*/) override { }
+        void JustEngagedWith(Unit* /*who*/) override { }
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
 
@@ -271,7 +271,7 @@ public:
             instance->HandleGameObject(instance->GetGuidData(DATA_GO_NETHER_DOOR), true);
         }
 
-        void EnterCombat(Unit* /*who*/) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             Talk(SAY_AGGRO);
 
@@ -339,7 +339,10 @@ public:
                     enfeeble_targets[i] = target->GetGUID();
                     enfeeble_health[i] = target->GetHealth();
 
-                    target->CastSpell(target, SPELL_ENFEEBLE, true, nullptr, nullptr, me->GetGUID());
+                    CastSpellExtraArgs args;
+                    args.TriggerFlags = TRIGGERED_FULL_MASK;
+                    args.OriginalCaster = me->GetGUID();
+                    target->CastSpell(target, SPELL_ENFEEBLE, args);
                     target->SetHealth(1);
                 }
         }

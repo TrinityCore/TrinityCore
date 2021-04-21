@@ -21,6 +21,8 @@
 #include "Define.h"
 #include "DetourNavMesh.h"
 
+float const GROUND_HEIGHT_TOLERANCE = 0.05f; // Extra tolerance to z position to check if it is in air or on ground.
+
 enum SpellEffIndex : uint8
 {
     EFFECT_0 = 0,
@@ -294,10 +296,9 @@ enum SpellSchools : uint16
     SPELL_SCHOOL_NATURE                 = 3,
     SPELL_SCHOOL_FROST                  = 4,
     SPELL_SCHOOL_SHADOW                 = 5,
-    SPELL_SCHOOL_ARCANE                 = 6
+    SPELL_SCHOOL_ARCANE                 = 6,
+    MAX_SPELL_SCHOOL                    = 7
 };
-
-#define MAX_SPELL_SCHOOL                  7
 
 enum SpellSchoolMask
 {
@@ -1686,7 +1687,9 @@ enum SpellCastResult
     SPELL_FAILED_PLAYER_CONDITION                               = 305,
     SPELL_FAILED_NOT_WHILE_CHROMIE_TIMED                        = 306,
     SPELL_FAILED_OPTIONAL_REAGENTS                              = 307,
-    SPELL_FAILED_UNKNOWN                                        = 308,
+    SPELL_FAILED_SPECTATOR_OR_COMMENTATOR                       = 308,
+    SPELL_FAILED_SOULBIND_CONDUIT_LEARN_FAILED_INVALID_COVENANT = 309,
+    SPELL_FAILED_UNKNOWN                                        = 310,
 
     // ok cast value - here in case a future version removes SPELL_FAILED_SUCCESS and we need to use a custom value (not sent to client either way)
     SPELL_CAST_OK                                               = SPELL_FAILED_SUCCESS
@@ -2221,6 +2224,8 @@ enum SpellCustomErrors
     SPELL_CUSTOM_ERROR_YOU_CANNOT_SOULSHAPE_DURING_LICHBORNE            = 533, // You cannot Soulshape during Lichborne.
     SPELL_CUSTOM_ERROR_YOU_CANT_DO_THAT_WHILE_CARRYING_AN_ANIMACONE     = 534, // You can't do that while carrying an Animacone.
     SPELL_CUSTOM_ERROR_NECESSARY_CONSTRUCT_NOT_PRESENT                  = 535, // Necessary construct not present.
+    SPELL_CUSTOM_ERROR_THAT_GUEST_IS_ALREADY_COVERED_IN_GELATIN         = 536, // That guest is already covered in gelatin.
+    SPELL_CUSTOM_ERROR_YOU_NEED_TO_WAIT_TO_USE_THIS_ITEM                = 537, // You need to wait to use this item.
 };
 
 enum StealthType
@@ -2359,7 +2364,7 @@ enum Mechanics
     MECHANIC_SAPPED           = 30,
     MECHANIC_ENRAGED          = 31,
     MECHANIC_WOUNDED          = 32,
-    MAX_MECHANIC = 33
+    MAX_MECHANIC              = 33
 };
 
 // Used for spell 42292 Immune Movement Impairment and Loss of Control (0x49967ca6)

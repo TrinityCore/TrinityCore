@@ -182,7 +182,7 @@ void WorldSession::HandleAuctionGetCommodityQuote(WorldPackets::AuctionHouse::Au
     {
         commodityQuoteResult.TotalPrice = quote->TotalPrice;
         commodityQuoteResult.Quantity = quote->Quantity;
-        commodityQuoteResult.QuoteDuration = std::chrono::duration_cast<Milliseconds>(quote->ValidTo - GameTime::GetGameTimeSteadyPoint()).count();
+        commodityQuoteResult.QuoteDuration = std::chrono::duration_cast<Milliseconds>(quote->ValidTo - GameTime::GetGameTimeSteadyPoint());
     }
 
     commodityQuoteResult.DesiredDelay = uint32(throttle.DelayUntilNext.count());
