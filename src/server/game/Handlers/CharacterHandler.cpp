@@ -1364,6 +1364,9 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     if (!pCurrChar->IsStandState() && !pCurrChar->HasUnitState(UNIT_STATE_STUNNED))
         pCurrChar->SetStandState(UNIT_STAND_STATE_STAND);
 
+    pCurrChar->UpdateAverageItemLevelTotal();
+    pCurrChar->UpdateAverageItemLevelEquipped();
+
     m_playerLoading.Clear();
 
     // Handle Login-Achievements (should be handled after loading)
