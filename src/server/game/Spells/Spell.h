@@ -305,6 +305,7 @@ struct SpellValue
     uint32    MaxAffectedTargets;
     float     RadiusMod;
     int32     AuraStackAmount;
+    float     DurationMul;
 };
 
 enum SpellState
