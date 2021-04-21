@@ -5475,7 +5475,7 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* param1 /*= nullptr*/, uint
                         if (m_spellInfo->HasAttribute(SPELL_ATTR0_REQ_AMMO)
                             || m_spellInfo->IsNextMeleeSwingSpell()
                             || m_spellInfo->HasAttribute(SPELL_ATTR1_MELEE_COMBAT_START)
-                            || m_spellInfo->HasAttribute(SPELL_ATTR2_UNK20)
+                            || m_spellInfo->HasAttribute(SPELL_ATTR2_INITIATE_COMBAT_POST_CAST)
                             || m_spellInfo->HasEffect(SPELL_EFFECT_ATTACK)
                             || m_spellInfo->HasEffect(SPELL_EFFECT_NORMALIZED_WEAPON_DMG)
                             || m_spellInfo->HasEffect(SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL)
@@ -7789,7 +7789,7 @@ void Spell::DoAllEffectOnLaunchTarget(TargetInfo& targetInfo, float* multiplier)
         && !m_originalCaster->IsFriendlyTo(unit)
         && (!m_spellInfo->IsPositive() || m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL))
         && (m_spellInfo->CausesInitialThreat() || unit->IsEngaged())
-        && !m_originalCaster->IsIgnoringCombat())
+        && !m_originalCaster->IsIgnoringCombat() && m_spellInfo->HasAttribute(SPELL_ATTR2_INITIATE_COMBAT_POST_CAST))
         m_originalCaster->SetInCombatWith(unit);
 
     for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
