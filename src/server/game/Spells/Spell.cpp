@@ -7788,8 +7788,8 @@ void Spell::DoAllEffectOnLaunchTarget(TargetInfo& targetInfo, float* multiplier)
     if (m_originalCaster  && targetInfo.missCondition != SPELL_MISS_EVADE
         && !m_originalCaster->IsFriendlyTo(unit)
         && (!m_spellInfo->IsPositive() || m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL))
-        && (m_spellInfo->CausesInitialThreat() || unit->IsEngaged())
-        && !m_originalCaster->IsIgnoringCombat() && m_spellInfo->HasAttribute(SPELL_ATTR2_INITIATE_COMBAT_POST_CAST))
+        && (m_spellInfo->CausesInitialThreat() || m_spellInfo->HasAttribute(SPELL_ATTR2_INITIATE_COMBAT_POST_CAST) || unit->IsEngaged())
+        && !m_originalCaster->IsIgnoringCombat())
         m_originalCaster->SetInCombatWith(unit);
 
     for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
