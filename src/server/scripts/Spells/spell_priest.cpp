@@ -40,7 +40,7 @@ enum PriestSpells
     SPELL_PRIEST_ATONEMENT                          = 81749,
     SPELL_PRIEST_ATONEMENT_HEAL                     = 81751,
     SPELL_PRIEST_ATONEMENT_TRIGGERED                = 194384,
-    SPELL_PRIEST_ATONEMENT_TRIGGERED_POWER_SHIELD   = 214206,
+    SPELL_PRIEST_ATONEMENT_TRIGGERED_TRINITY        = 214206,
     SPELL_PRIEST_BLESSED_HEALING                    = 70772,
     SPELL_PRIEST_BODY_AND_SOUL                      = 64129,
     SPELL_PRIEST_BODY_AND_SOUL_SPEED                = 65081,
@@ -70,6 +70,7 @@ enum PriestSpells
     SPELL_PRIEST_STRENGTH_OF_SOUL                   = 197535,
     SPELL_PRIEST_STRENGTH_OF_SOUL_EFFECT            = 197548,
     SPELL_PRIEST_THE_PENITENT_AURA                  = 200347,
+    SPELL_PRIEST_TRINITY                            = 214205,
     SPELL_PRIEST_VAMPIRIC_EMBRACE_HEAL              = 15290,
     SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL              = 64085,
     SPELL_PRIEST_VOID_SHIELD                        = 199144,
@@ -633,7 +634,7 @@ class spell_pri_power_word_radiance : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_ATONEMENT, SPELL_PRIEST_ATONEMENT_TRIGGERED });
+        return ValidateSpellInfo({ SPELL_PRIEST_ATONEMENT, SPELL_PRIEST_ATONEMENT_TRIGGERED, SPELL_PRIEST_TRINITY });
     }
 
     void OnTargetSelect(std::list<WorldObject*>& targets)
@@ -649,7 +650,7 @@ class spell_pri_power_word_radiance : public SpellScript
 
             // Sort targets so units with no atonement are first, then units who are injured, then oher units
             // Make sure explicit target unit is first
-            targets.sort([explTarget](WorldObject* lhs, WorldObject* rhs)
+            targets.sort([this, explTarget](WorldObject* lhs, WorldObject* rhs)
             {
                 if (lhs == explTarget) // explTarget > anything: always true
                     return true;
@@ -664,11 +665,14 @@ class spell_pri_power_word_radiance : public SpellScript
 
     void HandleEffectHitTarget(SpellEffIndex /*effIndex*/)
     {
+        Unit* caster = GetCaster();
+        if (caster->HasAura(SPELL_PRIEST_TRINITY))
+            return;
+
         SpellEffectInfo const* effect3 = GetEffectInfo(EFFECT_3);
         if (!effect3)
             return;
 
-        Unit* caster = GetCaster();
         uint32 durationPct = effect3->CalcValue(caster);
         if (caster->HasAura(SPELL_PRIEST_ATONEMENT))
             caster->CastSpell(GetHitUnit(), SPELL_PRIEST_ATONEMENT_TRIGGERED, CastSpellExtraArgs(SPELLVALUE_DURATION_PCT, durationPct).SetTriggerFlags(TRIGGERED_FULL_MASK));
@@ -681,16 +685,16 @@ class spell_pri_power_word_radiance : public SpellScript
     }
 
 private:
-    static std::tuple<bool, bool> MakeSortTuple(WorldObject* obj)
+    std::tuple<bool, bool> MakeSortTuple(WorldObject* obj)
     {
         return std::make_tuple(IsUnitWithNoAtonement(obj), IsUnitInjured(obj));
     }
 
     // Returns true if obj is a unit but has no atonement
-    static bool IsUnitWithNoAtonement(WorldObject* obj)
+    bool IsUnitWithNoAtonement(WorldObject* obj)
     {
         Unit* unit = obj->ToUnit();
-        return unit && !unit->HasAura(SPELL_PRIEST_ATONEMENT_TRIGGERED);
+        return unit && !unit->HasAura(SPELL_PRIEST_ATONEMENT_TRIGGERED, GetCaster()->GetGUID());
     }
 
     // Returns true if obj is a unit and is injured
@@ -710,6 +714,27 @@ public:
     class spell_pri_power_word_shield_AuraScript : public AuraScript
     {
         PrepareAuraScript(spell_pri_power_word_shield_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo
+            ({
+                SPELL_PRIEST_BODY_AND_SOUL,
+                SPELL_PRIEST_BODY_AND_SOUL_SPEED,
+                SPELL_PRIEST_STRENGTH_OF_SOUL,
+                SPELL_PRIEST_STRENGTH_OF_SOUL_EFFECT,
+                SPELL_PRIEST_RENEWED_HOPE,
+                SPELL_PRIEST_RENEWED_HOPE_EFFECT,
+                SPELL_PRIEST_VOID_SHIELD,
+                SPELL_PRIEST_VOID_SHIELD_EFFECT,
+                SPELL_PRIEST_ATONEMENT,
+                SPELL_PRIEST_TRINITY,
+                SPELL_PRIEST_ATONEMENT_TRIGGERED,
+                SPELL_PRIEST_ATONEMENT_TRIGGERED_TRINITY,
+                SPELL_PRIEST_SHIELD_DISCIPLINE_PASSIVE,
+                SPELL_PRIEST_SHIELD_DISCIPLINE_ENERGIZE
+            });
+        }
 
         void CalculateAmount(AuraEffect const* /*auraEffect*/, int32& amount, bool& canBeRecalculated)
         {
@@ -742,7 +767,7 @@ public:
             if (caster->HasAura(SPELL_PRIEST_VOID_SHIELD) && caster == target)
                 caster->CastSpell(target, SPELL_PRIEST_VOID_SHIELD_EFFECT, true);
             if (caster->HasAura(SPELL_PRIEST_ATONEMENT))
-                caster->CastSpell(target, SPELL_PRIEST_ATONEMENT_TRIGGERED_POWER_SHIELD, true);
+                caster->CastSpell(target, caster->HasAura(SPELL_PRIEST_TRINITY) ? SPELL_PRIEST_ATONEMENT_TRIGGERED_TRINITY : SPELL_PRIEST_ATONEMENT_TRIGGERED, true);
         }
 
         void HandleOnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -935,7 +960,7 @@ class spell_pri_shadow_mend : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_ATONEMENT, SPELL_PRIEST_ATONEMENT_TRIGGERED });
+        return ValidateSpellInfo({ SPELL_PRIEST_ATONEMENT, SPELL_PRIEST_ATONEMENT_TRIGGERED, SPELL_PRIEST_TRINITY });
     }
 
     void HandleEffectHit(SpellEffIndex /*effIndex*/)
@@ -943,7 +968,7 @@ class spell_pri_shadow_mend : public SpellScript
         if (Unit* target = GetHitUnit())
         {
             Unit* caster = GetCaster();
-            if (caster->HasAura(SPELL_PRIEST_ATONEMENT))
+            if (caster->HasAura(SPELL_PRIEST_ATONEMENT) && !caster->HasAura(SPELL_PRIEST_TRINITY))
                 caster->CastSpell(target, SPELL_PRIEST_ATONEMENT_TRIGGERED, true);
         }
     }
