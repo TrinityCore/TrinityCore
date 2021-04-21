@@ -159,9 +159,62 @@ class spell_monk_provoke : public SpellScript
     }
 };
 
+// Roll - 109132
+class spell_monk_roll : public SpellScriptLoader
+{
+public:
+    spell_monk_roll() : SpellScriptLoader("spell_monk_roll") { }
+
+    class spell_monk_roll_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_monk_roll_SpellScript);
+
+        bool Validate(SpellInfo const* /*spell*/) override
+        {
+            if (!sSpellMgr->GetSpellInfo(109132, DIFFICULTY_NONE))
+                return false;
+            return true;
+        }
+
+        void HandleBeforeCast()
+        {
+            Aura* aur = GetCaster()->AddAura(107427, GetCaster());
+            if (!aur)
+                return;
+
+            AuraApplication* app = aur->GetApplicationOfTarget(GetCaster()->GetGUID());
+            if (!app)
+                return;
+
+            app->ClientUpdate();
+        }
+
+        void HandleAfterCast()
+        {
+            Unit* caster = GetCaster();
+            if (!caster || caster->GetTypeId() != TYPEID_PLAYER)
+                return;
+
+            caster->CastSpell(caster, 107427, true);
+        }
+
+        void Register() override
+        {
+            BeforeCast += SpellCastFn(spell_monk_roll_SpellScript::HandleBeforeCast);
+            AfterCast += SpellCastFn(spell_monk_roll_SpellScript::HandleAfterCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_monk_roll_SpellScript();
+    }
+};
+
 void AddSC_monk_spell_scripts()
 {
     RegisterAuraScript(spell_monk_crackling_jade_lightning);
     RegisterAuraScript(spell_monk_crackling_jade_lightning_knockback_proc_aura);
     RegisterSpellScript(spell_monk_provoke);
+    new spell_monk_roll();
 }
