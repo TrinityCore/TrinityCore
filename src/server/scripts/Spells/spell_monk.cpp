@@ -179,8 +179,8 @@ Aura* FindExistingStaggerEffect(Unit* unit)
     return nullptr;
 }
 
-SpellEffIndex AuraStaggerEffectTick = EFFECT_0;
-SpellEffIndex AuraStaggerEffectTotal = EFFECT_1;
+static constexpr SpellEffIndex AuraStaggerEffectTick = EFFECT_0;
+static constexpr SpellEffIndex AuraStaggerEffectTotal = EFFECT_1;
 
 // 115069 - Stagger
 class spell_monk_stagger : public AuraScript
@@ -202,6 +202,7 @@ class spell_monk_stagger : public AuraScript
         AuraEffect const* effect = GetEffect(EFFECT_4);
         if (!effect)
             return;
+
         Absorb(dmgInfo, float(effect->GetAmount()) / 100.0f);
     }
 
@@ -362,12 +363,12 @@ class spell_monk_stagger_debuff_aura : public AuraScript
 
     void Register() override
     {
-        OnEffectApply += AuraEffectRemoveFn(spell_monk_stagger_debuff_aura::OnReapply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-        OnEffectRemove += AuraEffectRemoveFn(spell_monk_stagger_debuff_aura::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectApply += AuraEffectRemoveFn(spell_monk_stagger_debuff_aura::OnReapply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_monk_stagger_debuff_aura::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 
 private:
-    float _period;
+    float _period = 0.0f;
 
     void CastOrChangeTickDamage(float tickDamage)
     {
