@@ -138,7 +138,7 @@ struct npc_fallout_slime : public ScriptedAI
 {
     npc_fallout_slime(Creature* creature) : ScriptedAI(creature) { }
 
-    void InitializeAI()
+    void InitializeAI() override
     {
         me->SetCorpseDelay(2, true);
         me->SetReactState(REACT_PASSIVE);
