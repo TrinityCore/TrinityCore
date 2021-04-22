@@ -16,7 +16,6 @@
  */
 
 /*
- * Move everything from EVENT_HATEFUL to SPELL_HATEFUL_STRIKE_PRIMER spell script
  * He should call trash(from the room with Embalming Slime up to frogger(not sure
   if trash before Embalming Slime too or not)) after aggro
  */
@@ -107,6 +106,7 @@ struct boss_patchwerk : public BossAI
         {
             switch (eventId)
             {
+                // Move everything to SPELL_HATEFUL_STRIKE_PRIMER spell script
                 case EVENT_HATEFUL:
                 {
                     // Hateful Strike targets the highest non-MT threat in melee range on 10man
