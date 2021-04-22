@@ -286,7 +286,7 @@ private:
     void AddNewStagger(Unit* unit, uint32 staggerSpellId, float staggerAmount)
     {
         // We only set the total stagger amount. The amount per tick will be set by the stagger spell script
-        unit->CastCustomSpell(staggerSpellId, SPELLVALUE_BASE_POINT1, staggerAmount, unit, true);
+        unit->CastSpell(unit, staggerSpellId, CastSpellExtraArgs(SPELLVALUE_BASE_POINT1, staggerAmount).SetTriggerFlags(TRIGGERED_FULL_MASK));
     }
 };
 
