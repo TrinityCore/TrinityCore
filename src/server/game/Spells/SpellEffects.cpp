@@ -3807,7 +3807,7 @@ void Spell::EffectFeedPet(SpellEffIndex effIndex)
     player->DestroyItemCount(foodItem, count, true);
     /// @todo fix crash when a spell has two effects, both pointed at the same item target
 
-    m_caster->CastSpell(pet, effectInfo->TriggerSpell, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
+    m_caster->CastSpell(pet, effectInfo->TriggerSpell, CastSpellExtraArgs(SPELLVALUE_BASE_POINT0, pct).SetTriggerFlags(TRIGGERED_FULL_MASK));
 }
 
 void Spell::EffectDismissPet(SpellEffIndex effIndex)
