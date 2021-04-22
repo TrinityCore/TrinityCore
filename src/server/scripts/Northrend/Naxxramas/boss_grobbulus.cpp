@@ -16,19 +16,16 @@
  */
 
 /*
- * Slime Spray timers must always looks like ~30 (initial) ~30 (first repeat) 55 (second repeat) ~30 55 ~30 55 ~30 55 ~30 55
-  so after second cast timers are always flipped
- * SPELL_BOMBARD_SLIME should be used out of combat (waypoint script?)
  * He should call all stitched giants after aggro
  */
 
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "PassiveAI.h"
-#include "ObjectAccessor.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
 #include "naxxramas.h"
+#include "ObjectAccessor.h"
+#include "PassiveAI.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 
 enum GrobbulusTexts
 {
@@ -39,9 +36,7 @@ enum GrobbulusTexts
 enum GrobbulusSpells
 {
     // Grobbulus
-    SPELL_BOMBARD_SLIME         = 28280,
-    SPELL_SLIME_SPRAY           = 28157,
-    SPELL_SLIME_SPRAY_H         = 54364,
+    SPELL_BOMBARD_SLIME         = 28280,   // should be used out of combat (waypoint script?)
     SPELL_SUMMON_FALLOUT_SLIME  = 28218,
     SPELL_MUTATING_INJECTION    = 28169,
     SPELL_MUTATING_EXPLOSION    = 28206,
@@ -53,6 +48,8 @@ enum GrobbulusSpells
     // Fallout Slime
     SPELL_DISEASE_CLOUD         = 54367
 };
+
+#define SPELL_SLIME_SPRAY RAID_MODE<uint32>(28157, 54364)
 
 enum GrobbulusEvents
 {
@@ -77,7 +74,7 @@ struct boss_grobbulus : public BossAI
 
     void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
     {
-        if (spellInfo->Id == SPELL_SLIME_SPRAY || spellInfo->Id == SPELL_SLIME_SPRAY_H)
+        if (spellInfo->Id == SPELL_SLIME_SPRAY)
             target->CastSpell(target, SPELL_SUMMON_FALLOUT_SLIME, true);
     }
 
@@ -102,6 +99,8 @@ struct boss_grobbulus : public BossAI
                 case EVENT_SPRAY:
                     DoCastAOE(SPELL_SLIME_SPRAY);
                     Talk(EMOTE_SLIME);
+                    // timers must always looks like ~30 (initial) ~30 (first repeat) 55 (second repeat) ~30 55
+                    // ~30 55 ~30 55 ~30 55. So after second cast timers are always flipped
                     events.Repeat(RAND(32500ms, 33700ms));
                     return;
                 case EVENT_INJECT:
@@ -137,12 +136,9 @@ struct npc_grobbulus_poison_cloud : public NullCreatureAI
 
 struct npc_fallout_slime : public ScriptedAI
 {
-    npc_fallout_slime(Creature* creature) : ScriptedAI(creature)
-    {
-        Initialize();
-    }
+    npc_fallout_slime(Creature* creature) : ScriptedAI(creature) { }
 
-    void Initialize()
+    void InitializeAI()
     {
         me->SetCorpseDelay(2, true);
         me->SetReactState(REACT_PASSIVE);
@@ -165,7 +161,8 @@ struct npc_fallout_slime : public ScriptedAI
 
     void EnterEvadeMode(EvadeReason /*why*/) override
     {
-        // they don't despawn when Grobbulus dies
+        // They don't despawn when Grobbulus dies. Calling despawn here is not entirely correct because originally
+        // they just stuck after leaving combat(literally, they don't move), then they despawns after few seconds
         me->DespawnOrUnsummon();
     }
 
