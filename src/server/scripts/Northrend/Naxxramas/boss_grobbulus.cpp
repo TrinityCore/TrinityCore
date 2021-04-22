@@ -25,6 +25,7 @@
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
+#include "SpellMgr.h"
 #include "SpellScript.h"
 
 enum GrobbulusTexts
@@ -37,6 +38,7 @@ enum GrobbulusSpells
 {
     // Grobbulus
     SPELL_BOMBARD_SLIME         = 28280,   // should be used out of combat (waypoint script?)
+    SPELL_SLIME_SPRAY           = 28157,
     SPELL_SUMMON_FALLOUT_SLIME  = 28218,
     SPELL_MUTATING_INJECTION    = 28169,
     SPELL_MUTATING_EXPLOSION    = 28206,
@@ -48,8 +50,6 @@ enum GrobbulusSpells
     // Fallout Slime
     SPELL_DISEASE_CLOUD         = 54367
 };
-
-#define SPELL_SLIME_SPRAY RAID_MODE<uint32>(28157, 54364)
 
 enum GrobbulusEvents
 {
@@ -74,7 +74,7 @@ struct boss_grobbulus : public BossAI
 
     void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
     {
-        if (spellInfo->Id == SPELL_SLIME_SPRAY)
+        if (spellInfo->Id == sSpellMgr->GetSpellIdForDifficulty(SPELL_SLIME_SPRAY, me))
             target->CastSpell(target, SPELL_SUMMON_FALLOUT_SLIME, true);
     }
 
