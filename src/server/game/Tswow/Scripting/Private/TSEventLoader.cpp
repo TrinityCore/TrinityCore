@@ -301,32 +301,59 @@ bool handleTSWoWGMMessage(Player* player, Player* receiver, std::string & msg)
 
 bool handleAddonNetworkMessage(Player* player,uint32 type,uint32 lang,std::string& msg,Player* receiver)
 {
-    if(player!=receiver) { return false; }
+    if(player!=receiver) {
+        TC_LOG_DEBUG("tswow.addonmessage","AddOnMessage: Sender is not the receiver");
+        return false;
+    }
 
     char * carr = const_cast<char*>(msg.c_str());
-    if(msg.size()<=5) { return false; }
-
-    if(((uint32_t*)(carr+1))[0] != 1346455379)
+    int offset = 0;
+    for(int i=0;i<msg.size();++i)
     {
+        if(carr[i] == '\t' || carr[i] == ' ') offset++;
+        else break;
+    }
+
+    if((msg.size()-offset)<=4) {
+        TC_LOG_DEBUG("tswow.addonmessage","AddOnMessage: Message is too small");
+        return false;
+    }
+
+    auto preDecodeHeader = ((uint32_t*)(carr+offset))[0];
+    if(preDecodeHeader != 0x50414753)
+    {
+        TC_LOG_DEBUG("tswow.addonmessage","AddOnMessage: Incorrect header (before decode) %x (expected 0x50414753)",preDecodeHeader);
         return false;
     }
 
     uint8_t outarr[250];
 
-    int outlen = decodeBase64((uint8_t*)(carr+1),msg.size()-1,outarr);
+    int outlen = decodeBase64((uint8_t*)(carr+offset),msg.size()-offset,outarr);
 
     BinReader<uint8_t> reader(outarr,outlen);
     FIRE(AddonOnMessage,reader);
 
-    if(outlen<=6) { return false; }
+    if(outlen<=6) {
+        TC_LOG_DEBUG("tswow.addonmessage","AddOnMessage: Message too short");
+        return false;
+    }
 
-    if(reader.Read<uint32_t>(0)!=1007688) { return false; }
+    if(reader.Read<uint32_t>(0)!=1007688) {
+        TC_LOG_ERROR("tswow.addonmessage","AddOnMessage: Incorrect header (after decode) %x (expected 1007688)",reader.Read<uint32>(0));
+        return false;
+    }
 
     uint16_t opcode = reader.Read<uint16_t>(4);
-    if(opcode>=getMessageMap().size()) { return true; }
+    if(opcode>=getMessageMap().size()) {
+        TC_LOG_DEBUG("tswow.addonmessage","AddOnMessage: Received invalid opcode %u",opcode);
+        return true;
+    }
 
     auto handler = &getMessageMap()[opcode];
-    if(handler->size!=(outlen-6) || !handler->enabled) { return true; }
+    if(handler->size!=(outlen-6) || !handler->enabled) {
+        TC_LOG_DEBUG("tswow.addonmessage","AddOnMessage: Received invalid message size %u for opcode %u (expected %u)",outlen,opcode,handler->size+6);
+        return true;
+    }
 
     handler->fire(TSPlayer(player),outarr+6);
     return true;
