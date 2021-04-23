@@ -159,7 +159,6 @@ public:
     void OnDuelEnd(Player* winner,Player* loser,DuelCompleteType type) FIRE(PlayerOnDuelEnd,TSPlayer(winner),TSPlayer(loser),type)
     void OnChat(Player* player,uint32 type,uint32 lang,std::string& msg) FIRE(PlayerOnSay,TSPlayer(player),type,lang,TSMutableString(&msg))
     void OnChat(Player* player,uint32 type,uint32 lang,std::string& msg,Player* receiver) {
-        TC_LOG_DEBUG("tswow.chat","Receive chat message '%s'",msg);
         if(handleTSWoWGMMessage(player,receiver,msg))
         {
             TC_LOG_DEBUG("tswow","CHAT: Successfully handled TSWoW GM Message");
