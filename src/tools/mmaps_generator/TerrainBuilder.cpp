@@ -679,7 +679,7 @@ namespace MMAP
 
                 // transform data
                 float scale = instance.iScale;
-                G3D::Matrix3 rotation = G3D::Matrix3::fromEulerAnglesXYZ(G3D::pi()*instance.iRot.z / -180.f, G3D::pi() * instance.iRot.x / -180.f, G3D::pi() * instance.iRot.y / -180.f);
+                G3D::Matrix3 rotation = instance.GetInvRot();
                 G3D::Vector3 position = instance.iPos;
                 position.x -= 32 * GRID_SIZE;
                 position.y -= 32 * GRID_SIZE;

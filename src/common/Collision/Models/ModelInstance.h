@@ -46,7 +46,6 @@ namespace VMAP
             uint8 adtId;
             uint32 ID;
             G3D::Vector3 iPos;
-            G3D::Vector3 iRot;
             float iScale;
             G3D::AABox iBound;
 #ifdef VMAP_DEBUG
@@ -59,6 +58,7 @@ namespace VMAP
 
     struct TC_COMMON_API ModelSpawn : public ModelMinimalData
     {
+            G3D::Vector3 iRot;
 #ifndef VMAP_DEBUG
             std::string name;
 #endif
