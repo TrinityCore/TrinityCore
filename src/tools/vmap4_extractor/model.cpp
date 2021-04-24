@@ -69,8 +69,10 @@ bool Model::open()
             vertices[i] = fixCoordSystem(vertices[i]);
         f.seek(m2start);
         f.seekRelative(header.ofsBoundingTriangles);
-        indices = new uint16[header.nBoundingTriangles];
-        f.read(indices,header.nBoundingTriangles*2);
+        indices = new uint32[header.nBoundingTriangles];
+        std::unique_ptr<uint16[]> tempindices = std::make_unique<uint16[]>(header.nBoundingTriangles);
+        f.read(tempindices.get(), header.nBoundingTriangles * 2);
+        std::copy_n(tempindices.get(), header.nBoundingTriangles, indices);
         f.close();
     }
     else
@@ -117,12 +119,12 @@ bool Model::ConvertToVMAPModel(const char * outfilename)
         {
             if ((i % 3) - 1 == 0 && i + 1 < nIndexes)
             {
-                uint16 tmp = indices[i];
+                uint32 tmp = indices[i];
                 indices[i] = indices[i + 1];
                 indices[i + 1] = tmp;
             }
         }
-        fwrite(indices, sizeof(unsigned short), nIndexes, output);
+        fwrite(indices, sizeof(uint32), nIndexes, output);
     }
 
     fwrite("VERT", 4, 1, output);

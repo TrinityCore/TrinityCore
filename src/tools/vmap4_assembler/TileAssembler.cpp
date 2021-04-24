@@ -427,8 +427,8 @@ namespace VMAP
         READ_OR_RETURN(&nindexes, sizeof(uint32));
         if (nindexes >0)
         {
-            uint16 *indexarray = new uint16[nindexes];
-            READ_OR_RETURN_WITH_DELETE(indexarray, nindexes*sizeof(uint16));
+            uint32 *indexarray = new uint32[nindexes];
+            READ_OR_RETURN_WITH_DELETE(indexarray, nindexes*sizeof(uint32));
             triangles.reserve(nindexes / 3);
             for (uint32 i=0; i<nindexes; i+=3)
                 triangles.push_back(MeshTriangle(indexarray[i], indexarray[i+1], indexarray[i+2]));

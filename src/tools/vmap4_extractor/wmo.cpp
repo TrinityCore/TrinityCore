@@ -203,7 +203,7 @@ bool WMORoot::ConvertToVMAPRootWmo(FILE* pOutfile)
 }
 
 WMOGroup::WMOGroup(const std::string &filename) :
-    filename(filename), MOPY(nullptr), MOVI(nullptr), MoviEx(nullptr), MOVT(nullptr), MOBA(nullptr), MobaEx(nullptr),
+    filename(filename), MOPY(nullptr), MOVX(nullptr), MOVT(nullptr), MOBA(nullptr), MobaEx(nullptr),
     hlq(nullptr), LiquEx(nullptr), LiquBytes(nullptr), groupName(0), descGroupName(0), mogpFlags(0),
     moprIdx(0), moprNItems(0), nBatchA(0), nBatchB(0), nBatchC(0), fogIdx(0),
     groupLiquid(0), groupWMOID(0), mopy_size(0), moba_size(0), LiquEx_size(0),
@@ -268,8 +268,15 @@ bool WMOGroup::open(WMORoot* rootWMO)
         }
         else if (!strcmp(fourcc,"MOVI"))
         {
-            MOVI = new uint16[size/2];
-            f.read(MOVI, size);
+            MOVX = std::make_unique<uint32[]>(size / 2);
+            std::unique_ptr<uint16[]> MOVI = std::make_unique<uint16[]>(size / 2);
+            f.read(MOVI.get(), size);
+            std::copy_n(MOVI.get(), size / 2, MOVX.get());
+        }
+        else if (!strcmp(fourcc,"MOVX"))
+        {
+            MOVX = std::make_unique<uint32[]>(size / 2);
+            f.read(MOVX.get(), size);
         }
         else if (!strcmp(fourcc,"MOVT"))
         {
@@ -379,7 +386,7 @@ int WMOGroup::ConvertToVMAPGroupWmo(FILE* output, bool preciseVectorData)
         }
         if(nIdexes >0)
         {
-            if(fwrite(MOVI, sizeof(unsigned short), nIdexes, output) != nIdexes)
+            if (fwrite(MOVX.get(), sizeof(uint32), nIdexes, output) != nIdexes)
             {
                 printf("Error while writing file indexarray");
                 exit(0);
@@ -433,9 +440,9 @@ int WMOGroup::ConvertToVMAPGroupWmo(FILE* output, bool preciseVectorData)
 
         //-------INDX------------------------------------
         //-------MOPY--------
-        MoviEx = new uint16[nTriangles*3]; // "worst case" size...
-        int *IndexRenum = new int[nVertices];
-        memset(IndexRenum, 0xFF, nVertices*sizeof(int));
+        std::unique_ptr<uint32[]> MovxEx = std::make_unique<uint32[]>(nTriangles*3); // "worst case" size...
+        std::unique_ptr<uint32[]> IndexRenum = std::make_unique<uint32[]>(nVertices);
+        std::fill_n(IndexRenum.get(), nVertices, 0xFFFFFFFF);
         for (int i=0; i<nTriangles; ++i)
         {
             // Skip no collision triangles
@@ -448,14 +455,14 @@ int WMOGroup::ConvertToVMAPGroupWmo(FILE* output, bool preciseVectorData)
             // Use this triangle
             for (int j=0; j<3; ++j)
             {
-                IndexRenum[MOVI[3*i + j]] = 1;
-                MoviEx[3*nColTriangles + j] = MOVI[3*i + j];
+                IndexRenum[MOVX[3*i + j]] = 1;
+                MovxEx[3*nColTriangles + j] = MOVX[3*i + j];
             }
             ++nColTriangles;
         }
 
         // assign new vertex index numbers
-        int nColVertices = 0;
+        uint32 nColVertices = 0;
         for (uint32 i=0; i<nVertices; ++i)
         {
             if (IndexRenum[i] == 1)
@@ -468,17 +475,17 @@ int WMOGroup::ConvertToVMAPGroupWmo(FILE* output, bool preciseVectorData)
         // translate triangle indices to new numbers
         for (int i=0; i<3*nColTriangles; ++i)
         {
-            ASSERT(MoviEx[i] < nVertices);
-            MoviEx[i] = IndexRenum[MoviEx[i]];
+            ASSERT(MovxEx[i] < nVertices);
+            MovxEx[i] = IndexRenum[MovxEx[i]];
         }
 
         // write triangle indices
         int INDX[] = {0x58444E49, nColTriangles*6+4, nColTriangles*3};
         fwrite(INDX,4,3,output);
-        fwrite(MoviEx,2,nColTriangles*3,output);
+        fwrite(MovxEx.get(),4,nColTriangles*3,output);
 
         // write vertices
-        int VERT[] = {0x54524556, nColVertices*3*static_cast<int>(sizeof(float))+4, nColVertices};// "VERT"
+        uint32 VERT[] = {0x54524556u, nColVertices*3*static_cast<uint32>(sizeof(float))+4, nColVertices};// "VERT"
         int check = 3*nColVertices;
         fwrite(VERT,4,3,output);
         for (uint32 i=0; i<nVertices; ++i)
@@ -486,9 +493,6 @@ int WMOGroup::ConvertToVMAPGroupWmo(FILE* output, bool preciseVectorData)
                 check -= fwrite(MOVT+3*i, sizeof(float), 3, output);
 
         ASSERT(check==0);
-
-        delete [] MoviEx;
-        delete [] IndexRenum;
     }
 
     //------LIQU------------------------
@@ -555,7 +559,6 @@ bool WMOGroup::ShouldSkip(WMORoot const* root) const
 WMOGroup::~WMOGroup()
 {
     delete [] MOPY;
-    delete [] MOVI;
     delete [] MOVT;
     delete [] MOBA;
     delete hlq;

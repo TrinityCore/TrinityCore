@@ -125,8 +125,7 @@ public:
     // MOGP
 
     char* MOPY;
-    uint16* MOVI;
-    uint16* MoviEx;
+    std::unique_ptr<uint32[]> MOVX;
     float* MOVT;
     uint16* MOBA;
     int* MobaEx;
