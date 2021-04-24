@@ -605,14 +605,15 @@ void MapObject::Extract(ADT::MODF const& mapObjDef, char const* WmoInstName, boo
     if (mapObjDef.Flags & 0x4)
         scale = mapObjDef.Scale / 1024.0f;
     uint32 uniqueId = GenerateUniqueObjectId(mapObjDef.UniqueId, 0);
-    uint32 flags = MOD_HAS_BOUND;
+    uint8 flags = MOD_HAS_BOUND;
+    uint8 nameSet = mapObjDef.NameSet;
     if (mapID != originalMapId)
         flags |= MOD_PARENT_SPAWN;
 
     //write mapID, Flags, NameSet, UniqueId, Pos, Rot, Scale, Bound_lo, Bound_hi, name
     fwrite(&mapID, sizeof(uint32), 1, pDirfile);
-    fwrite(&flags, sizeof(uint32), 1, pDirfile);
-    fwrite(&mapObjDef.NameSet, sizeof(uint16), 1, pDirfile);
+    fwrite(&flags, sizeof(uint8), 1, pDirfile);
+    fwrite(&nameSet, sizeof(uint8), 1, pDirfile);
     fwrite(&uniqueId, sizeof(uint32), 1, pDirfile);
     fwrite(&position, sizeof(Vec3D), 1, pDirfile);
     fwrite(&mapObjDef.Rotation, sizeof(Vec3D), 1, pDirfile);
@@ -628,7 +629,7 @@ void MapObject::Extract(ADT::MODF const& mapObjDef, char const* WmoInstName, boo
         ADTOutputCache& cacheModelData = dirfileCache->back();
         cacheModelData.Flags = flags & ~MOD_PARENT_SPAWN;
         cacheModelData.Data.resize(
-            sizeof(uint16) +    // mapObjDef.NameSet
+            sizeof(uint8) +     // nameSet
             sizeof(uint32) +    // uniqueId
             sizeof(Vec3D) +     // position
             sizeof(Vec3D) +     // mapObjDef.Rotation
@@ -640,7 +641,7 @@ void MapObject::Extract(ADT::MODF const& mapObjDef, char const* WmoInstName, boo
         uint8* cacheData = cacheModelData.Data.data();
 #define CACHE_WRITE(value, size, count, dest) memcpy(dest, value, size * count); dest += size * count;
 
-        CACHE_WRITE(&mapObjDef.NameSet, sizeof(uint16), 1, cacheData);
+        CACHE_WRITE(&nameSet, sizeof(uint8), 1, cacheData);
         CACHE_WRITE(&uniqueId, sizeof(uint32), 1, cacheData);
         CACHE_WRITE(&position, sizeof(Vec3D), 1, cacheData);
         CACHE_WRITE(&mapObjDef.Rotation, sizeof(Vec3D), 1, cacheData);

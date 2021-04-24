@@ -57,8 +57,6 @@ class TC_COMMON_API GameObjectModel /*, public Intersectable*/
 {
     GameObjectModel() : _collisionEnabled(false), iInvScale(0), iScale(0), iModel(nullptr), isWmo(false) { }
 public:
-    std::string name;
-
     const G3D::AABox& getBounds() const { return iBound; }
 
     ~GameObjectModel();
