@@ -45,8 +45,20 @@ namespace VMAP
             delete i->second;
 
         for (auto i = iLoadedModelFiles.begin(); i != iLoadedModelFiles.end(); ++i)
-            delete i->second.getModel();
+            delete i->second;
     }
+
+    class ManagedModel
+    {
+        public:
+            ManagedModel() : iRefCount(0) { }
+            WorldModel* getModel() { return &iModel; }
+            void incRefCount() { ++iRefCount; }
+            int decRefCount() { return --iRefCount; }
+        protected:
+            WorldModel iModel;
+            int iRefCount;
+    };
 
     InstanceTreeMap::const_iterator VMapManager2::GetMapTree(uint32 mapId) const
     {
@@ -347,8 +359,8 @@ namespace VMAP
         auto model = iLoadedModelFiles.find(filename);
         if (model == iLoadedModelFiles.end())
         {
-            WorldModel* worldmodel = new WorldModel();
-            if (!worldmodel->readFile(basepath + filename + ".vmo"))
+            ManagedModel* worldmodel = new ManagedModel();
+            if (!worldmodel->getModel()->readFile(basepath + filename + ".vmo"))
             {
                 VMAP_ERROR_LOG("misc", "VMapManager2: could not load '%s%s.vmo'", basepath.c_str(), filename.c_str());
                 delete worldmodel;
@@ -356,13 +368,13 @@ namespace VMAP
             }
             VMAP_DEBUG_LOG("maps", "VMapManager2: loading file '%s%s'", basepath.c_str(), filename.c_str());
 
-            worldmodel->Flags = flags;
+            worldmodel->getModel()->SetName(filename);
+            worldmodel->getModel()->Flags = flags;
 
-            model = iLoadedModelFiles.insert(std::pair<std::string, ManagedModel>(filename, ManagedModel())).first;
-            model->second.setModel(worldmodel);
+            model = iLoadedModelFiles.insert(std::pair<std::string, ManagedModel*>(filename, worldmodel)).first;
         }
-        model->second.incRefCount();
-        return model->second.getModel();
+        model->second->incRefCount();
+        return model->second->getModel();
     }
 
     void VMapManager2::releaseModelInstance(const std::string &filename)
@@ -376,10 +388,10 @@ namespace VMAP
             VMAP_ERROR_LOG("misc", "VMapManager2: trying to unload non-loaded file '%s'", filename.c_str());
             return;
         }
-        if (model->second.decRefCount() == 0)
+        if (model->second->decRefCount() == 0)
         {
             VMAP_DEBUG_LOG("maps", "VMapManager2: unloading file '%s'", filename.c_str());
-            delete model->second.getModel();
+            delete model->second;
             iLoadedModelFiles.erase(model);
         }
     }

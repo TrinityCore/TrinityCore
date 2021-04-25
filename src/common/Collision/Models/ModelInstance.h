@@ -39,28 +39,35 @@ namespace VMAP
         MOD_PARENT_SPAWN = 1 << 2
     };
 
-    class TC_COMMON_API ModelSpawn
+    struct ModelMinimalData
     {
-        public:
-            //mapID, tileX, tileY, Flags, ID, Pos, Rot, Scale, Bound_lo, Bound_hi, name
-            uint32 flags;
-            uint16 adtId;
-            uint32 ID;
-            G3D::Vector3 iPos;
-            G3D::Vector3 iRot;
-            float iScale;
-            G3D::AABox iBound;
-            std::string name;
-            bool operator==(const ModelSpawn &other) const { return ID == other.ID; }
-            //uint32 hashCode() const { return ID; }
-            // temp?
-            const G3D::AABox& getBounds() const { return iBound; }
+        //Flags, ID, Pos, Rot, Scale, Bound_lo, Bound_hi
+        uint8 flags;
+        uint8 adtId;
+        uint32 ID;
+        G3D::Vector3 iPos;
+        G3D::Vector3 iRot;
+        float iScale;
+        G3D::AABox iBound;
+#ifdef VMAP_DEBUG
+        std::string name;
+#endif
 
-            static bool readFromFile(FILE* rf, ModelSpawn &spawn);
-            static bool writeToFile(FILE* rw, const ModelSpawn &spawn);
+        bool operator==(ModelMinimalData const& other) const { return ID == other.ID; }
+        G3D::AABox const& getBounds() const { return iBound; }
     };
 
-    class TC_COMMON_API ModelInstance: public ModelSpawn
+    struct TC_COMMON_API ModelSpawn : public ModelMinimalData
+    {
+#ifndef VMAP_DEBUG
+        std::string name;
+#endif
+
+        static bool readFromFile(FILE* rf, ModelSpawn& spawn);
+        static bool writeToFile(FILE* rw, ModelSpawn const& spawn);
+    };
+
+    class TC_COMMON_API ModelInstance: public ModelMinimalData
     {
         public:
             ModelInstance(): iInvScale(0.0f), iModel(nullptr) { }
@@ -70,6 +77,7 @@ namespace VMAP
             void intersectPoint(const G3D::Vector3& p, AreaInfo &info) const;
             bool GetLocationInfo(const G3D::Vector3& p, LocationInfo &info) const;
             bool GetLiquidLevel(const G3D::Vector3& p, LocationInfo &info, float &liqHeight) const;
+            G3D::Matrix3 const& GetInvRot() { return iInvRot; }
             WorldModel* getWorldModel() { return iModel; }
         protected:
             G3D::Matrix3 iInvRot;

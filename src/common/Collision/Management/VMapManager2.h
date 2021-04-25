@@ -47,24 +47,12 @@ namespace G3D
 
 namespace VMAP
 {
+    class ManagedModel;
     class StaticMapTree;
     class WorldModel;
 
-    class TC_COMMON_API ManagedModel
-    {
-        public:
-            ManagedModel() : iModel(nullptr), iRefCount(0) { }
-            void setModel(WorldModel* model) { iModel = model; }
-            WorldModel* getModel() { return iModel; }
-            void incRefCount() { ++iRefCount; }
-            int decRefCount() { return --iRefCount; }
-        protected:
-            WorldModel* iModel;
-            int iRefCount;
-    };
-
     typedef std::unordered_map<uint32, StaticMapTree*> InstanceTreeMap;
-    typedef std::unordered_map<std::string, ManagedModel> ModelFileMap;
+    typedef std::unordered_map<std::string, ManagedModel*> ModelFileMap;
 
     enum DisableTypes
     {

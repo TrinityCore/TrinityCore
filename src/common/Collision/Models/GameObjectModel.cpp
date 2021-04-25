@@ -99,7 +99,7 @@ void LoadGameObjectModelList(std::string const& dataPath)
 GameObjectModel::~GameObjectModel()
 {
     if (iModel)
-        VMAP::VMapFactory::createOrGetVMapManager()->releaseModelInstance(name);
+        VMAP::VMapFactory::createOrGetVMapManager()->releaseModelInstance(iModel->GetName());
 }
 
 bool GameObjectModel::initialize(std::unique_ptr<GameObjectModelOwnerBase> modelOwner, std::string const& dataPath)
@@ -121,7 +121,6 @@ bool GameObjectModel::initialize(std::unique_ptr<GameObjectModelOwnerBase> model
     if (!iModel)
         return false;
 
-    name = it->second.name;
     iPos = modelOwner->GetPosition();
     iScale = modelOwner->GetScale();
     iInvScale = 1.f / iScale;
