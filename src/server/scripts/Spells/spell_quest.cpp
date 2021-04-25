@@ -2713,7 +2713,7 @@ class spell_q10930_big_bone_worm_AuraScript : public AuraScript
     PrepareAuraScript(spell_q10930_big_bone_worm_AuraScript);
     bool Validate(SpellInfo const* /*spell*/) override
     {
-        return ValidateSpellInfo({ SPELL_SUMMON_MATURE_BONE_SIFTER,SPELL_SUMMON_MATURE_BONE_SIFTER3, SPELL_SUMMON_HAISHULUD });//changed 24042021
+        return ValidateSpellInfo({ SPELL_SUMMON_MATURE_BONE_SIFTER,SPELL_SUMMON_MATURE_BONE_SIFTER3, SPELL_SUMMON_HAISHULUD });
     }
     void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
