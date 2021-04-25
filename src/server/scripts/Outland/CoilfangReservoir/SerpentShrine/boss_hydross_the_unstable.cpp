@@ -152,7 +152,6 @@ public:
             {
                 beamer->CastSpell(me, SPELL_BLUE_BEAM, true);
                 beamer->SetDisplayId(11686);  //invisible
-                beamer->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 beams[0] = beamer->GetGUID();
             }
             beamer = me->SummonCreature(ENTRY_BEAM_DUMMY, -219.918f, -371.308f, 22.0042f, 2.73072f, TEMPSUMMON_CORPSE_DESPAWN);
@@ -160,7 +159,6 @@ public:
             {
                 beamer->CastSpell(me, SPELL_BLUE_BEAM, true);
                 beamer->SetDisplayId(11686);  //invisible
-                beamer->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 beams[1] = beamer->GetGUID();
             }
         }
@@ -188,13 +186,11 @@ public:
         {
             if (summoned->GetEntry() == ENTRY_PURE_SPAWN)
             {
-                summoned->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, true);
                 summoned->CastSpell(summoned, SPELL_ELEMENTAL_SPAWNIN, true);
                 Summons.Summon(summoned);
             }
             if (summoned->GetEntry() == ENTRY_TAINTED_SPAWN)
             {
-                summoned->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
                 summoned->CastSpell(summoned, SPELL_ELEMENTAL_SPAWNIN, true);
                 Summons.Summon(summoned);
             }

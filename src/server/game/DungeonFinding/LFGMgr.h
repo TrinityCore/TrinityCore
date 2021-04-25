@@ -44,7 +44,7 @@ enum LfgOptions
 
 enum LFGMgrEnum
 {
-    LFG_TIME_ROLECHECK                           = 45 * IN_MILLISECONDS,
+    LFG_TIME_ROLECHECK                           = 45,
     LFG_TIME_BOOT                                = 120,
     LFG_TIME_PROPOSAL                            = 45,
     LFG_QUEUEUPDATE_INTERVAL                     = 15 * IN_MILLISECONDS,

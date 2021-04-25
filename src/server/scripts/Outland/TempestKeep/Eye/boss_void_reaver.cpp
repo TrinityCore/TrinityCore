@@ -83,6 +83,7 @@ class boss_void_reaver : public CreatureScript
             {
                 Talk(SAY_AGGRO);
                 BossAI::JustEngagedWith(who);
+                me->CallForHelp(120.0f);
 
                 events.ScheduleEvent(EVENT_POUNDING, 15s);
                 events.ScheduleEvent(EVENT_ARCANE_ORB, 3s);

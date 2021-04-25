@@ -98,12 +98,11 @@ class boss_high_astromancer_solarian : public CreatureScript
 
         struct boss_high_astromancer_solarianAI : public BossAI
         {
-            boss_high_astromancer_solarianAI(Creature* creature) : BossAI(creature, DATA_HIGH_ASTROMANCER_SOLARIAN)
+            boss_high_astromancer_solarianAI(Creature* creature) : BossAI(creature, DATA_SOLARIAN)
             {
                 Initialize();
 
                 defaultarmor = creature->GetArmor();
-                defaultsize = creature->GetObjectScale();
                 memset(Portals, 0, sizeof(Portals));
             }
 
@@ -138,7 +137,6 @@ class boss_high_astromancer_solarian : public CreatureScript
             uint32 defaultarmor;
             uint32 Wrath_Timer;
 
-            float defaultsize;
             float Portals[3][3];
 
             bool AppearDelay;
@@ -151,7 +149,6 @@ class boss_high_astromancer_solarian : public CreatureScript
                 me->SetArmor(defaultarmor);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetVisible(true);
-                me->SetObjectScale(defaultsize);
                 me->SetDisplayId(MODEL_HUMAN);
 
             }
@@ -163,7 +160,6 @@ class boss_high_astromancer_solarian : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                me->SetObjectScale(defaultsize);
                 me->SetDisplayId(MODEL_HUMAN);
                 Talk(SAY_DEATH);
                 _JustDied();
@@ -173,6 +169,7 @@ class boss_high_astromancer_solarian : public CreatureScript
             {
                 Talk(SAY_AGGRO);
                 BossAI::JustEngagedWith(who);
+                me->CallForHelp(120.0f);
             }
 
             void SummonMinion(uint32 entry, float x, float y, float z)
@@ -403,7 +400,6 @@ class boss_high_astromancer_solarian : public CreatureScript
                     Talk(SAY_VOIDB);
                     me->SetArmor(WV_ARMOR);
                     me->SetDisplayId(MODEL_VOIDWALKER);
-                    me->SetObjectScale(defaultsize*2.5f);
                 }
 
                 DoMeleeAttackIfReady();
@@ -461,7 +457,7 @@ class npc_solarium_priest : public CreatureScript
                     switch (urand(0, 1))
                     {
                         case 0:
-                            target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_ASTROMANCER));
+                            target = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_SOLARIAN));
                             break;
                         case 1:
                             target = me;

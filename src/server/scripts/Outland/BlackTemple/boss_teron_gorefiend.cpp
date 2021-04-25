@@ -257,12 +257,7 @@ private:
 
 struct npc_shadowy_construct : public ScriptedAI
 {
-    npc_shadowy_construct(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
-    {
-        //This creature must be immune everything, except spells of Vengeful Spirit.
-        creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, true);
-        creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_MAGIC, true);
-    }
+    npc_shadowy_construct(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
 
     void Reset() override
     {

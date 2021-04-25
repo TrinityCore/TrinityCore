@@ -1652,7 +1652,7 @@ void Spell::SelectImplicitTrajTargets(SpellEffIndex effIndex, SpellImplicitTarge
 
             if (Creature* creatureTarget = unit->ToCreature())
             {
-                if (!(creatureTarget->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_CAN_COLLIDE_WITH_MISSILES))
+                if (!(creatureTarget->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_COLLIDE_WITH_MISSILES))
                     continue;
             }
         }
@@ -4176,8 +4176,8 @@ void Spell::SendSpellStart()
     uint32 mechanicImmunityMask = 0;
     if (Unit* unitCaster = m_caster->ToUnit())
     {
-        schoolImmunityMask = unitCaster->GetSchoolImmunityMask();
-        mechanicImmunityMask = unitCaster->GetMechanicImmunityMask();
+        schoolImmunityMask = m_timer!= 0 ? unitCaster->GetSchoolImmunityMask() : 0;
+        mechanicImmunityMask = m_timer != 0 ? m_spellInfo->GetMechanicImmunityMask(unitCaster) : 0;
     }
 
     if (schoolImmunityMask || mechanicImmunityMask)

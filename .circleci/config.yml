@@ -52,7 +52,11 @@ jobs:
           command: |
             mkdir bin
             cd bin
-            cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS=static -DSERVERS=1 -DNOJEM=0 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS="-Werror" -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_C_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_CXX_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_INSTALL_PREFIX=check_install -DBUILD_TESTING=1
+            if [ "$DOCKERHUB_PUSH_IMAGES" == "TRUE" ]; then
+              cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS=static -DSERVERS=1 -DNOJEM=0 -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS="-Werror" -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_INSTALL_PREFIX=check_install -DBUILD_TESTING=1
+            else
+              cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS=static -DSERVERS=1 -DNOJEM=0 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS="-Werror" -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_C_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_CXX_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_INSTALL_PREFIX=check_install -DBUILD_TESTING=1
+            fi
             cd ..
       - run:
           name: Build
@@ -78,10 +82,17 @@ jobs:
             cd bin/check_install/bin
             cp -r ../../../contrib/Docker/* .
             cp -r ../../../sql ./sql
-            image_prefix=$(echo $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME-$(echo $CIRCLE_BRANCH | tr '/' '-') | tr '[:upper:]' '[:lower:]')
+            image_prefix=$(echo $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME | tr '[:upper:]' '[:lower:]')
             echo $image_prefix
-            docker build --file Dockerfile --force-rm --tag $image_prefix:$CIRCLE_SHA1 --tag $image_prefix:latest .
-            docker save $image_prefix:$CIRCLE_SHA1 | gzip > ../../../docker.tar.gz
+            docker build --file Dockerfile --force-rm --tag $image_prefix:$CIRCLE_SHA1 --tag $image_prefix:$(echo $CIRCLE_BRANCH | tr '/' '-' | tr '[:upper:]' '[:lower:]') .
+            docker save $image_prefix | gzip > ../../../docker.tar.gz
+            if [ "$DOCKERHUB_PUSH_IMAGES" == "TRUE" ]; then
+              if [ "$CIRCLE_BRANCH" == "3.3.5" ] || [ "$CIRCLE_BRANCH" == "master" ]; then
+                docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
+                echo "Pushing docker image to dockerhub"
+                docker push $image_prefix
+              fi
+            fi
       - store_artifacts:
           path: docker.tar.gz
   nopch:
@@ -114,6 +125,7 @@ jobs:
             export CCACHE_CPP2=yes
             export USE_CCACHE=1
             export PATH=/usr/lib/ccache:$PATH
+            ccache -z
             ccache -s
             git config user.email "circleci@build.bot" && git config user.name "Circle CI"
             $CXX --version

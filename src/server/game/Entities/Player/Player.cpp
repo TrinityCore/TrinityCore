@@ -2277,11 +2277,11 @@ Creature* Player::GetNPCIfCanInteractWith(ObjectGuid const& guid, uint32 npcflag
         return nullptr;
 
     // Deathstate checks
-    if (!IsAlive() && !(creature->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_GHOST_VISIBLE))
+    if (!IsAlive() && !(creature->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_VISIBLE_TO_GHOSTS))
         return nullptr;
 
     // alive or spirit healer
-    if (!creature->IsAlive() && !(creature->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_CAN_INTERACT_WHILE_DEAD))
+    if (!creature->IsAlive() && !(creature->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_INTERACT_WHILE_DEAD))
         return nullptr;
 
     // appropriate npc type
@@ -5837,7 +5837,7 @@ void Player::UpdateWeaponSkill(Unit* victim, WeaponAttackType attType)
     if (GetShapeshiftForm() == FORM_TREE)
         return;                                             // use weapon but not skill up
 
-    if (victim->GetTypeId() == TYPEID_UNIT && (victim->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_SKILLGAIN))
+    if (victim->GetTypeId() == TYPEID_UNIT && (victim->ToCreature()->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_SKILL_GAINS))
         return;
 
     uint32 weapon_skill_gain = sWorld->getIntConfig(CONFIG_SKILL_GAIN_WEAPON);
@@ -12563,7 +12563,7 @@ uint32 Player::DestroyItemCount(uint32 itemEntry, uint32 count, bool update, boo
                     if (IsInWorld() && update)
                         item->SendUpdateToPlayer(this);
                     item->SetState(ITEM_CHANGED, this);
-                    return remcount;
+                    return count;
                 }
             }
         }
@@ -12591,7 +12591,7 @@ uint32 Player::DestroyItemCount(uint32 itemEntry, uint32 count, bool update, boo
                     if (IsInWorld() && update)
                         item->SendUpdateToPlayer(this);
                     item->SetState(ITEM_CHANGED, this);
-                    return remcount;
+                    return count;
                 }
             }
         }
@@ -12624,7 +12624,7 @@ uint32 Player::DestroyItemCount(uint32 itemEntry, uint32 count, bool update, boo
                             if (IsInWorld() && update)
                                 item->SendUpdateToPlayer(this);
                             item->SetState(ITEM_CHANGED, this);
-                            return remcount;
+                            return count;
                         }
                     }
                 }
@@ -12657,7 +12657,7 @@ uint32 Player::DestroyItemCount(uint32 itemEntry, uint32 count, bool update, boo
                     if (IsInWorld() && update)
                         item->SendUpdateToPlayer(this);
                     item->SetState(ITEM_CHANGED, this);
-                    return remcount;
+                    return count;
                 }
             }
         }
@@ -12684,7 +12684,7 @@ uint32 Player::DestroyItemCount(uint32 itemEntry, uint32 count, bool update, boo
                     if (IsInWorld() && update)
                         item->SendUpdateToPlayer(this);
                     item->SetState(ITEM_CHANGED, this);
-                    return remcount;
+                    return count;
                 }
             }
         }
@@ -12717,7 +12717,7 @@ uint32 Player::DestroyItemCount(uint32 itemEntry, uint32 count, bool update, boo
                             if (IsInWorld() && update)
                                 item->SendUpdateToPlayer(this);
                             item->SetState(ITEM_CHANGED, this);
-                            return remcount;
+                            return count;
                         }
                     }
                 }
@@ -20268,7 +20268,13 @@ void Player::_SaveStats(CharacterDatabaseTransaction trans) const
     stmt->setFloat(index++, GetFloatValue(PLAYER_PARRY_PERCENTAGE));
     stmt->setFloat(index++, GetFloatValue(PLAYER_CRIT_PERCENTAGE));
     stmt->setFloat(index++, GetFloatValue(PLAYER_RANGED_CRIT_PERCENTAGE));
-    stmt->setFloat(index++, GetFloatValue(PLAYER_SPELL_CRIT_PERCENTAGE1));
+
+    // Store the max spell crit percentage out of all the possible schools
+    float spellCrit = 0.0f;
+    for (int i = 0; i < MAX_SPELL_SCHOOL; ++i)
+        spellCrit = std::max(spellCrit, GetFloatValue(PLAYER_SPELL_CRIT_PERCENTAGE1 + i));
+    stmt->setFloat(index++, spellCrit);
+
     stmt->setUInt32(index++, GetUInt32Value(UNIT_FIELD_ATTACK_POWER));
     stmt->setUInt32(index++, GetUInt32Value(UNIT_FIELD_RANGED_ATTACK_POWER));
     stmt->setUInt32(index++, GetBaseSpellPowerBonus());

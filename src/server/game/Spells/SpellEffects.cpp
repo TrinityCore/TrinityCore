@@ -755,10 +755,6 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
                 unitTarget->CastSpell(unitTarget, 7870, true);
                 return;
             }
-            // just skip
-            case 23770:                                         // Sayge's Dark Fortune of *
-                // not exist, common cooldown can be implemented in scripts if need.
-                return;
             // Brittle Armor - (need add max stack of 24575 Brittle Armor)
             case 29284:
             {
@@ -2446,7 +2442,7 @@ void Spell::EffectUntrainTalents(SpellEffIndex /*effIndex*/)
         unitTarget->ToPlayer()->SendTalentWipeConfirm(guid);
 }
 
-void Spell::EffectTeleUnitsFaceCaster(SpellEffIndex effIndex)
+void Spell::EffectTeleUnitsFaceCaster(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
@@ -2457,12 +2453,8 @@ void Spell::EffectTeleUnitsFaceCaster(SpellEffIndex effIndex)
     if (unitTarget->IsInFlight())
         return;
 
-    float dis = m_spellInfo->Effects[effIndex].CalcRadius(m_caster);
-
-    float fx, fy, fz;
-    m_caster->GetClosePoint(fx, fy, fz, unitTarget->GetCombatReach(), dis);
-
-    unitTarget->NearTeleportTo(fx, fy, fz, -m_caster->GetOrientation(), unitTarget == m_caster);
+    if (m_targets.HasDst())
+        unitTarget->NearTeleportTo(destTarget->GetPositionX(), destTarget->GetPositionY(), destTarget->GetPositionZ(), destTarget->GetAbsoluteAngle(m_caster), unitTarget == m_caster);
 }
 
 void Spell::EffectLearnSkill(SpellEffIndex effIndex)

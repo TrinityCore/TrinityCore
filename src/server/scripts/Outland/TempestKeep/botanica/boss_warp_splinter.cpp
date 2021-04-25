@@ -167,8 +167,6 @@ class boss_warp_splinter : public CreatureScript
             void Reset() override
             {
                 Initialize();
-
-                me->SetSpeedRate(MOVE_RUN, 0.7f);
             }
 
             void JustEngagedWith(Unit* /*who*/) override

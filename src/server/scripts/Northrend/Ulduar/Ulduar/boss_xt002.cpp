@@ -139,7 +139,7 @@ enum Misc
 
 struct boss_xt002 : public BossAI
 {
-    boss_xt002(Creature* creature) : BossAI(creature, BOSS_XT002)
+    boss_xt002(Creature* creature) : BossAI(creature, DATA_XT002)
     {
         Initialize();
     }
@@ -404,7 +404,7 @@ struct npc_xt002_heart : public NullCreatureAI
 
     void DoAction(int32 action) override
     {
-        Creature* xt002 = _instance->GetCreature(BOSS_XT002);
+        Creature* xt002 = _instance->GetCreature(DATA_XT002);
         if (!xt002)
             return;
 
@@ -414,19 +414,19 @@ struct npc_xt002_heart : public NullCreatureAI
             DoCast(xt002, SPELL_RIDE_VEHICLE_EXPOSED, true);
             DoCastSelf(SPELL_HEART_OVERLOAD);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT);
         }
         else if (action == ACTION_DISPOSE_HEART)
         {
             DoCast(xt002, SPELL_HEART_RIDE_VEHICLE, true);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT);
         }
     }
 
     void JustDied(Unit* /*killer*/) override
     {
-        if (Creature* xt002 = _instance->GetCreature(BOSS_XT002))
+        if (Creature* xt002 = _instance->GetCreature(DATA_XT002))
             xt002->AI()->DoAction(ACTION_ENTER_HARD_MODE);
     }
 
@@ -443,31 +443,31 @@ struct npc_scrapbot : public ScriptedAI
         me->SetReactState(REACT_PASSIVE);
         _scheduler.CancelAll();
 
-        if (_instance->GetBossState(BOSS_XT002) != IN_PROGRESS)
+        if (_instance->GetBossState(DATA_XT002) != IN_PROGRESS)
         {
             me->DespawnOrUnsummon();
             return;
         }
 
-        if (Creature* xt002 = _instance->GetCreature(BOSS_XT002))
+        if (Creature* xt002 = _instance->GetCreature(DATA_XT002))
             xt002->AI()->JustSummoned(me);
 
         _scheduler.
             Schedule(2s, [this](TaskContext /*StartMove*/)
             {
-                if (Creature* xt002 = _instance->GetCreature(BOSS_XT002))
+                if (Creature* xt002 = _instance->GetCreature(DATA_XT002))
                     me->GetMotionMaster()->MoveFollow(xt002, 0.0f, 0.0f);
             })
             .Schedule(1s, [this](TaskContext checkXt002)
             {
-                if (Creature* xt002 = _instance->GetCreature(BOSS_XT002))
+                if (Creature* xt002 = _instance->GetCreature(DATA_XT002))
                 {
                     if (me->IsWithinMeleeRange(xt002))
                     {
                         DoCast(xt002, SPELL_SCRAPBOT_RIDE_VEHICLE);
                         _scheduler.Schedule(1s, [this](TaskContext /*ScrapRepair*/)
                         {
-                            if (Creature* xt002 = _instance->GetCreature(BOSS_XT002))
+                            if (Creature* xt002 = _instance->GetCreature(DATA_XT002))
                                 xt002->CastSpell(me, SPELL_SCRAP_REPAIR, true);
                             me->DespawnOrUnsummon(1s);
                         });
@@ -499,13 +499,13 @@ struct npc_pummeller : public ScriptedAI
         me->SetReactState(REACT_PASSIVE);
         _scheduler.CancelAll();
 
-        if (_instance->GetBossState(BOSS_XT002) != IN_PROGRESS)
+        if (_instance->GetBossState(DATA_XT002) != IN_PROGRESS)
         {
             me->DespawnOrUnsummon();
             return;
         }
 
-        if (Creature* xt002 = _instance->GetCreature(BOSS_XT002))
+        if (Creature* xt002 = _instance->GetCreature(DATA_XT002))
             xt002->AI()->JustSummoned(me);
 
         _scheduler.
@@ -558,7 +558,7 @@ struct npc_boombot : public ScriptedAI
         me->SetReactState(REACT_PASSIVE);
         _scheduler.CancelAll();
 
-        if (_instance->GetBossState(BOSS_XT002) != IN_PROGRESS)
+        if (_instance->GetBossState(DATA_XT002) != IN_PROGRESS)
         {
             me->DespawnOrUnsummon();
             return;
@@ -570,19 +570,19 @@ struct npc_boombot : public ScriptedAI
         me->SetFloatValue(UNIT_FIELD_MINDAMAGE, 15000.0f);
         me->SetFloatValue(UNIT_FIELD_MAXDAMAGE, 18000.0f);
 
-        if (Creature* xt002 = _instance->GetCreature(BOSS_XT002))
+        if (Creature* xt002 = _instance->GetCreature(DATA_XT002))
             xt002->AI()->JustSummoned(me);
 
         _scheduler.
             Schedule(4s, [this](TaskContext /*StartMove*/)
             {
-                if (Creature* xt002 = _instance->GetCreature(BOSS_XT002))
+                if (Creature* xt002 = _instance->GetCreature(DATA_XT002))
                     me->GetMotionMaster()->MoveFollow(xt002, 0.0f, 0.0f);
 
             })
             .Schedule(1s, [this](TaskContext checkXt002)
             {
-                if (Creature* xt002 = _instance->GetCreature(BOSS_XT002))
+                if (Creature* xt002 = _instance->GetCreature(DATA_XT002))
                 {
                     if (me->IsWithinMeleeRange(xt002))
                         DoCastAOE(SPELL_BOOM);
@@ -754,7 +754,7 @@ class spell_xt002_gravity_bomb_damage : public SpellScript
     {
         if (GetHitDamage() >= int32(GetHitUnit()->GetHealth()))
             if (InstanceScript* instance = GetCaster()->GetInstanceScript())
-                if (Creature* xt002 = instance->GetCreature(BOSS_XT002))
+                if (Creature* xt002 = instance->GetCreature(DATA_XT002))
                     xt002->AI()->SetData(DATA_GRAVITY_BOMB_CASUALTY, 1);
     }
 
@@ -956,7 +956,7 @@ class spell_xt002_exposed_heart : public AuraScript
     void HandleLifeTransfer(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (InstanceScript* instance = GetTarget()->GetInstanceScript())
-            if (Creature* xt002 = instance->GetCreature(BOSS_XT002))
+            if (Creature* xt002 = instance->GetCreature(DATA_XT002))
                 xt002->AI()->SetData(DATA_TRANSFERED_HEALTH, _damageAmount);
     }
 

@@ -19,6 +19,7 @@
 #define TRINITY_SMARTSCRIPTMGR_H
 
 #include "Define.h"
+#include "EnumFlag.h"
 #include "ObjectGuid.h"
 #include "WaypointDefines.h"
 #include <map>
@@ -468,7 +469,7 @@ enum SMART_ACTION
     SMART_ACTION_ACTIVATE_GOBJECT                   = 9,      //
     SMART_ACTION_RANDOM_EMOTE                       = 10,     // EmoteId1, EmoteId2, EmoteId3...
     SMART_ACTION_CAST                               = 11,     // SpellId, CastFlags, TriggeredFlags
-    SMART_ACTION_SUMMON_CREATURE                    = 12,     // CreatureID, summonType, duration in ms, attackInvoker
+    SMART_ACTION_SUMMON_CREATURE                    = 12,     // CreatureID, summonType, duration in ms, attackInvoker, flags(SmartActionSummonCreatureFlags)
     SMART_ACTION_THREAT_SINGLE_PCT                  = 13,     // Threat%
     SMART_ACTION_THREAT_ALL_PCT                     = 14,     // Threat%
     SMART_ACTION_CALL_AREAEXPLOREDOREVENTHAPPENS    = 15,     // QuestID
@@ -598,9 +599,22 @@ enum SMART_ACTION
     SMART_ACTION_OVERRIDE_WEATHER                   = 139,    // zoneId, weatherId, intensity
     SMART_ACTION_SET_AI_ANIM_KIT                    = 140,    // don't use on 3.3.5a
     SMART_ACTION_SET_HOVER                          = 141,    // 0/1
+    SMART_ACTION_SET_HEALTH_PCT                     = 142,    // percent
+    SMART_ACTION_CREATE_CONVERSATION                = 143,    // don't use on 3.3.5a
 
-    SMART_ACTION_END                                = 142
+    SMART_ACTION_END                                = 144
 };
+
+enum class SmartActionSummonCreatureFlags
+{
+    None = 0,
+    PersonalSpawn = 1,
+    PreferUnit = 2,
+
+    All = PersonalSpawn | PreferUnit,
+};
+
+DEFINE_ENUM_FLAG(SmartActionSummonCreatureFlags);
 
 struct SmartAction
 {
@@ -684,6 +698,7 @@ struct SmartAction
             uint32 type;
             uint32 duration;
             uint32 attackInvoker;
+            uint32 flags; // SmartActionSummonCreatureFlags
         } summonCreature;
 
         struct
@@ -1104,6 +1119,7 @@ struct SmartAction
         struct
         {
             uint32 timer;
+            uint32 includeDecayRatio;
         } corpseDelay;
 
         struct
@@ -1189,6 +1205,11 @@ struct SmartAction
         {
             uint32 toRespawnPosition;
         } evade;
+
+        struct
+        {
+            uint32 percent;
+        } setHealthPct;
 
         //! Note for any new future actions
         //! All parameters must have type uint32
@@ -1407,7 +1428,10 @@ enum SmartScriptType
     SMART_SCRIPT_TYPE_TRANSPORT = 7, //
     SMART_SCRIPT_TYPE_INSTANCE = 8, //
     SMART_SCRIPT_TYPE_TIMED_ACTIONLIST = 9, //
-    SMART_SCRIPT_TYPE_MAX = 10
+    SMART_SCRIPT_TYPE_SCENE = 10, // RESERVED master branch
+    SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY = 11,  // RESERVED master branch
+    SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_SERVERSIDE = 12, // RESERVED master branch
+    SMART_SCRIPT_TYPE_MAX
 };
 
 enum SmartAITypeMaskId
@@ -1426,16 +1450,19 @@ enum SmartAITypeMaskId
 
 const uint32 SmartAITypeMask[SMART_SCRIPT_TYPE_MAX][2] =
 {
-    {SMART_SCRIPT_TYPE_CREATURE,            SMART_SCRIPT_TYPE_MASK_CREATURE },
-    {SMART_SCRIPT_TYPE_GAMEOBJECT,          SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
-    {SMART_SCRIPT_TYPE_AREATRIGGER,         SMART_SCRIPT_TYPE_MASK_AREATRIGGER },
-    {SMART_SCRIPT_TYPE_EVENT,               SMART_SCRIPT_TYPE_MASK_EVENT },
-    {SMART_SCRIPT_TYPE_GOSSIP,              SMART_SCRIPT_TYPE_MASK_GOSSIP },
-    {SMART_SCRIPT_TYPE_QUEST,               SMART_SCRIPT_TYPE_MASK_QUEST },
-    {SMART_SCRIPT_TYPE_SPELL,               SMART_SCRIPT_TYPE_MASK_SPELL },
-    {SMART_SCRIPT_TYPE_TRANSPORT,           SMART_SCRIPT_TYPE_MASK_TRANSPORT },
-    {SMART_SCRIPT_TYPE_INSTANCE,            SMART_SCRIPT_TYPE_MASK_INSTANCE },
-    {SMART_SCRIPT_TYPE_TIMED_ACTIONLIST,    SMART_SCRIPT_TYPE_MASK_TIMED_ACTIONLIST }
+    {SMART_SCRIPT_TYPE_CREATURE,                      SMART_SCRIPT_TYPE_MASK_CREATURE },
+    {SMART_SCRIPT_TYPE_GAMEOBJECT,                    SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
+    {SMART_SCRIPT_TYPE_AREATRIGGER,                   SMART_SCRIPT_TYPE_MASK_AREATRIGGER },
+    {SMART_SCRIPT_TYPE_EVENT,                         SMART_SCRIPT_TYPE_MASK_EVENT },
+    {SMART_SCRIPT_TYPE_GOSSIP,                        SMART_SCRIPT_TYPE_MASK_GOSSIP },
+    {SMART_SCRIPT_TYPE_QUEST,                         SMART_SCRIPT_TYPE_MASK_QUEST },
+    {SMART_SCRIPT_TYPE_SPELL,                         SMART_SCRIPT_TYPE_MASK_SPELL },
+    {SMART_SCRIPT_TYPE_TRANSPORT,                     SMART_SCRIPT_TYPE_MASK_TRANSPORT },
+    {SMART_SCRIPT_TYPE_INSTANCE,                      SMART_SCRIPT_TYPE_MASK_INSTANCE },
+    {SMART_SCRIPT_TYPE_TIMED_ACTIONLIST,              SMART_SCRIPT_TYPE_MASK_TIMED_ACTIONLIST },
+    {SMART_SCRIPT_TYPE_SCENE,                         0 },
+    {SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY,            0 },
+    {SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_SERVERSIDE, 0 }
 };
 
 const uint32 SmartAIEventMask[SMART_EVENT_END][2] =
