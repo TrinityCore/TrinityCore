@@ -2673,7 +2673,7 @@ class spell_q10929_fumpingAuraScript : public AuraScript
 
     bool Validate(SpellInfo const* /*spell*/) override
     {
-        return ValidateSpellInfo({ SPELL_SUMMON_SAND_GNOME,SPELL_SUMMON_SAND_GNOME3, SPELL_SUMMON_MATURE_BONE_SIFTER });//changed 24042021
+        return ValidateSpellInfo({ SPELL_SUMMON_SAND_GNOME,SPELL_SUMMON_SAND_GNOME3, SPELL_SUMMON_MATURE_BONE_SIFTER });
     }
 
     void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
