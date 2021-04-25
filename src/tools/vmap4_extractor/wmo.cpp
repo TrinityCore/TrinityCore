@@ -275,7 +275,7 @@ bool WMOGroup::open(WMORoot* rootWMO)
         }
         else if (!strcmp(fourcc,"MOVX"))
         {
-            MOVX = std::make_unique<uint32[]>(size / 2);
+            MOVX = std::make_unique<uint32[]>(size / 4);
             f.read(MOVX.get(), size);
         }
         else if (!strcmp(fourcc,"MOVT"))
@@ -441,8 +441,8 @@ int WMOGroup::ConvertToVMAPGroupWmo(FILE* output, bool preciseVectorData)
         //-------INDX------------------------------------
         //-------MOPY--------
         std::unique_ptr<uint32[]> MovxEx = std::make_unique<uint32[]>(nTriangles*3); // "worst case" size...
-        std::unique_ptr<uint32[]> IndexRenum = std::make_unique<uint32[]>(nVertices);
-        std::fill_n(IndexRenum.get(), nVertices, 0xFFFFFFFF);
+        std::unique_ptr<int32[]> IndexRenum = std::make_unique<int32[]>(nVertices);
+        std::fill_n(IndexRenum.get(), nVertices, -1);
         for (int i=0; i<nTriangles; ++i)
         {
             // Skip no collision triangles
