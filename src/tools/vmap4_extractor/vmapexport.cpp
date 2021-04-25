@@ -22,6 +22,7 @@
 #include "DB2CascFileSource.h"
 #include "ExtractorDB2LoadInfo.h"
 #include "StringFormat.h"
+#include "VMapDefinitions.h"
 #include "vmapexport.h"
 #include "wdtfile.h"
 #include "wmo.h"
@@ -388,24 +389,14 @@ static bool RetardCheck()
     return true;
 }
 
-//xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-// Main
-//
-// The program must be run with two command line arguments
-//
-// Arg1 - The source MPQ name (for testing reading and file find)
-// Arg2 - Listfile name
-//
-
 int main(int argc, char ** argv)
 {
     Trinity::Banner::Show("VMAP data extractor", [](char const* text) { printf("%s\n", text); }, nullptr);
 
     bool success = true;
-    const char *versionString = "V4.06 2018_02";
 
     // Use command line arguments, when some
-    if (!processArgv(argc, argv, versionString))
+    if (!processArgv(argc, argv, VMAP::VMAP_MAGIC))
         return 1;
 
     if (!RetardCheck())
@@ -426,7 +417,7 @@ int main(int argc, char ** argv)
         }
     }
 
-    printf("Extract %s. Beginning work ....\n", versionString);
+    printf("Extract %s. Beginning work ....\n", VMAP::VMAP_MAGIC);
     //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     // Create the working directory
     if (mkdir(szWorkDirWmo
@@ -543,10 +534,10 @@ int main(int argc, char ** argv)
     printf("\n");
     if (!success)
     {
-        printf("ERROR: Extract %s. Work NOT complete.\n   Precise vector data=%d.\nPress any key.\n", versionString, preciseVectorData);
+        printf("ERROR: Extract %s. Work NOT complete.\n   Precise vector data=%d.\nPress any key.\n", VMAP::VMAP_MAGIC, preciseVectorData);
         getchar();
     }
 
-    printf("Extract %s. Work complete. No errors.\n", versionString);
+    printf("Extract %s. Work complete. No errors.\n", VMAP::VMAP_MAGIC);
     return 0;
 }
