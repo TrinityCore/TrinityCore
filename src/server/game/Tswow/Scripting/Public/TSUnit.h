@@ -177,7 +177,9 @@ public:
     void DealDamage(TSUnit target, uint32 damage, bool durabilityloss, uint32 school, uint32 spell);
     void DealHeal(TSUnit target, uint32 spell, uint32 amount, bool critical);
     void Kill(TSUnit target, bool durLoss);
-    void AddThreat(TSUnit victim, float threat, uint32 spell, uint32 schoolMask);
+    void AddThreat(TSUnit victim, float threat, uint32 spell = 0, uint32 schoolMask = 0, bool ignoreModifiers = true, bool ignoreRedirects = true, bool raw = false);
+    void ScaleThreat(TSUnit victim, float scale, bool raw = false);
+
     uint32 GetResistance(uint32 school);
     uint32 GetArmor();
     void SetResistance(uint32 school, int32 val);

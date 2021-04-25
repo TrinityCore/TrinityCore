@@ -32,6 +32,12 @@
 #include "WorldPacket.h"
 #include <algorithm>
 #include "TemporarySummon.h"
+// @tswow-begin
+#include "TSEvents.h"
+#include "TSSpellInfo.h"
+#include "TSUnit.h"
+#include "TSMutable.h"
+// @tswow-end
 
 #include "Hacks/boost_1_74_fibonacci_heap.h"
 BOOST_1_74_FIBONACCI_HEAP_MSVC_COMPILE_FIX(ThreatManager::threat_list_heap::value_type)
@@ -301,7 +307,9 @@ void ThreatManager::EvaluateSuppressed(bool canExpire)
     }
 }
 
-void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell, bool ignoreModifiers, bool ignoreRedirects)
+// @tswow-begin
+void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell, bool ignoreModifiers, bool ignoreRedirects, bool isRaw)
+// @tswow-end
 {
     // step 1: we can shortcut if the spell has one of the NO_THREAT attrs set - nothing will happen
     if (spell)
@@ -352,10 +360,28 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
         return;
     }
 
+    // @tswow-begin
+    FIRE(FormulaOnAddThreatEarly
+        , TSUnit(const_cast<Unit*>(_owner))
+        , TSUnit(target)
+        , TSSpellInfo(spell)
+        , isRaw
+        , TSMutable<float>(&amount)
+    );
+    // @tswow-end
     // apply threat modifiers to the amount
     if (!ignoreModifiers)
         amount = CalculateModifiedThreat(amount, target, spell);
 
+    // @tswow-begin
+    FIRE(FormulaOnAddThreatLate
+        , TSUnit(const_cast<Unit*>(_owner))
+        , TSUnit(target)
+        , TSSpellInfo(spell)
+        , isRaw
+        , TSMutable<float>(&amount)
+    );
+    // @tswow-end
     // if we're increasing threat, send some/all of it to redirection targets instead if applicable
     if (!ignoreRedirects && amount > 0.0f)
     {
@@ -422,9 +448,19 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
         ProcessAIUpdates();
 }
 
-void ThreatManager::ScaleThreat(Unit* target, float factor)
+// @tswow-begin
+void ThreatManager::ScaleThreat(Unit* target, float factor, bool isRaw)
+// @tswow-end
 {
     auto it = _myThreatListEntries.find(target->GetGUID());
+    // @tswow-begin
+    FIRE(FormulaOnScaleThreat
+        , TSUnit(const_cast<Unit*>(_owner))
+        , TSUnit(target)
+        , isRaw
+        , TSMutable<float>(&factor)
+    );
+    // @tswow-end
     if (it != _myThreatListEntries.end())
         it->second->ScaleThreat(std::max<float>(factor,0.0f));
 }

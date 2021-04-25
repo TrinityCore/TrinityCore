@@ -6236,7 +6236,8 @@ declare class TSUnit extends TSWorldObject {
      * @param [SpellSchoolMask] schoolMask = 0 : [SpellSchoolMask] of the threat causer
      * @param uint32 spell = 0 : spell entry used for threat
      */
-    AddThreat(victim : TSUnit,threat : float,spell : uint32,schoolMask : uint32) : void    
+    AddThreat(victim : TSUnit,threat : float,spell? : uint32,schoolMask? : uint32, ignoreModifiers?: boolean, ignoreRedirects?: boolean, raw?: boolean) : void
+    ScaleThreat(victim: TSUnit, scale: float, raw?: boolean)
 }
 
 declare class TSItemTemplate extends StorageClass {
@@ -6482,6 +6483,29 @@ declare namespace _hidden {
         OnMaxHealth(callback: (player: TSPlayer,health: TSMutable<float>)=>void);
         OnMaxPower(callback: (player: TSPlayer,power:uint32,bonus: float, value: TSMutable<float>)=>void);
         OnManaRegen(callback: (player: TSPlayer,power_regen: TSMutable<float>,power_regen_mp5: TSMutable<float>,manaRegenInterrupt: TSMutable<int32>)=>void); 
+
+        OnAddThreatEarly(callback: (
+              owner: TSUnit
+            , target: TSUnit
+            , spell: TSSpellInfo
+            , isRaw: boolean
+            , value: TSMutable<float>)=>void
+        )
+
+        OnAddThreatLate(callback: (
+            owner: TSUnit
+          , target: TSUnit
+          , spell: TSSpellInfo
+          , isRaw: boolean
+          , value: TSMutable<float>)=>void
+        )
+
+        OnScaleThreat(callback: (
+            owner: TSUnit
+          , target: TSUnit
+          , isRaw: boolean
+          , value: TSMutable<float>)=>void
+        )
     }
 
     export class Item {

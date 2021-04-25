@@ -70,6 +70,28 @@ EVENT_TYPE(FormulaOnMeleeOutcome
      , TSMutable<float>
      , TSMutable<float>
      , TSMutable<float>);
+EVENT_TYPE(FormulaOnAddThreatEarly
+     , TSUnit
+     , TSUnit
+     , TSSpellInfo
+     , bool
+     , TSMutable<float>
+     );
+
+EVENT_TYPE(FormulaOnAddThreatLate
+     , TSUnit
+     , TSUnit
+     , TSSpellInfo
+     , bool
+     , TSMutable<float>
+     );
+
+EVENT_TYPE(FormulaOnScaleThreat
+     , TSUnit
+     , TSUnit
+     , bool
+     , TSMutable<float>
+     );
 
 EVENT_TYPE(FormulaOnStaminaHealthBonus,TSPlayer,float,float,TSMutable<float>);
 EVENT_TYPE(FormulaOnIntellectManaBonus,TSPlayer,float,float,TSMutable<float>);
@@ -430,6 +452,9 @@ struct TSEvents
     EVENT(FormulaOnSpellReflect)
     EVENT(FormulaOnSpellDeflect)
     EVENT(FormulaOnMeleeOutcome)
+    EVENT(FormulaOnAddThreatEarly)
+    EVENT(FormulaOnAddThreatLate)
+    EVENT(FormulaOnScaleThreat)
 
     // ItemScript
     EVENT(ItemOnUse)
@@ -673,6 +698,9 @@ public:
          EVENT_HANDLE(Formula,OnSpellResist)
          EVENT_HANDLE(Formula,OnSpellDeflect)
          EVENT_HANDLE(Formula,OnMeleeOutcome)
+         EVENT_HANDLE(Formula,OnAddThreatEarly)
+         EVENT_HANDLE(Formula,OnAddThreatLate)
+         EVENT_HANDLE(Formula,OnScaleThreat)
          EVENT_HANDLE(Formula,OnHeal)
          EVENT_HANDLE(Formula,OnStaminaHealthBonus);
          EVENT_HANDLE(Formula,OnIntellectManaBonus);

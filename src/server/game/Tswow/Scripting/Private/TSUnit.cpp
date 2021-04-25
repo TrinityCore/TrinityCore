@@ -2541,12 +2541,12 @@ void TSUnit::Kill(TSUnit _target,bool durLoss)
  * @param [SpellSchoolMask] schoolMask = 0 : [SpellSchoolMask] of the threat causer
  * @param uint32 spell = 0 : spell entry used for threat
  */
-void TSUnit::AddThreat(TSUnit _victim,float threat,uint32 spell,uint32 schoolMask)
+void TSUnit::AddThreat(TSUnit _victim,float threat,uint32 spell,uint32 schoolMask, bool ignoreModifiers, bool ignoreRedirects, bool raw)
 {
     auto victim = _victim.unit;
     
 #ifdef TRINITY
-    unit->GetThreatManager().AddThreat(victim, threat, spell ? sSpellMgr->GetSpellInfo(spell) : NULL, true, true);
+    unit->GetThreatManager().AddThreat(victim, threat, spell ? sSpellMgr->GetSpellInfo(spell) : NULL, ignoreModifiers, ignoreRedirects, raw);
 #elif AZEROTHCORE
     if (schoolMask > SPELL_SCHOOL_MASK_ALL)
     {
@@ -2565,6 +2565,11 @@ void TSUnit::AddThreat(TSUnit _victim,float threat,uint32 spell,uint32 schoolMas
 #endif
 #endif
 #endif
+}
+
+void TSUnit::ScaleThreat(TSUnit victim, float scale, bool raw)
+{
+    unit->GetThreatManager().ScaleThreat(victim.unit, scale, raw);
 }
 
 uint32 TSUnit::GetResistance(uint32 school)

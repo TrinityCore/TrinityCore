@@ -137,8 +137,10 @@ class TC_GAME_API ThreatManager
         // Notify the ThreatManager that its owner may now be suppressed on others' threat lists (immunity or damage-breakable CC being applied)
         void EvaluateSuppressed(bool canExpire = false);
         ///== AFFECT MY THREAT LIST ==
-        void AddThreat(Unit* target, float amount, SpellInfo const* spell = nullptr, bool ignoreModifiers = false, bool ignoreRedirects = false);
-        void ScaleThreat(Unit* target, float factor);
+        // @tswow-begin
+        void AddThreat(Unit* target, float amount, SpellInfo const* spell = nullptr, bool ignoreModifiers = false, bool ignoreRedirects = false, bool isRaw = false);
+        void ScaleThreat(Unit* target, float factor, bool isRaw = false);
+        // @tswow-end
         // Modify target's threat by +percent%
         void ModifyThreatByPercent(Unit* target, int32 percent) { if (percent) ScaleThreat(target, 0.01f*float(100 + percent)); }
         // Resets the specified unit's threat to zero
