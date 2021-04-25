@@ -183,9 +183,6 @@ enum Corruption
     MAX_CORRUPTION                  = 100,
     CORRUPTION_ACHIEVEMENT_CAP      = 30,
 
-    CORRUPTION_NORMAL               = 1,
-    CORRUPTION_SIGNIFICANT          = 10,
-
     CORRUPTION_LEVEL_ACCELERATED    = 25,
     CORRUPTION_LEVEL_SICKNESS       = 50,
     CORRUPTION_LEVEL_MALFORMATION   = 75,
@@ -1293,56 +1290,24 @@ class spell_chogall_consume_blood_of_the_old_god_triggered final : public SpellS
     }
 };
 
-class spell_chogall_corruption_significant final : public SpellScript
+class spell_chogall_corruption_script_effect final : public SpellScript
 {
+public:
+    spell_chogall_corruption_script_effect(uint8 corruptionAmount, uint8 spellEffectIndex) :
+        _corruptionAmount(corruptionAmount), _spellEffectIndex(spellEffectIndex) { }
+
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
-        CorruptionHandler::AddCorruption(GetHitUnit(), CORRUPTION_SIGNIFICANT);
+        CorruptionHandler::AddCorruption(GetHitUnit(), _corruptionAmount);
     }
 
     void Register() override
     {
-        OnEffectHitTarget.Register(&spell_chogall_corruption_significant::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget.Register(&spell_chogall_corruption_script_effect::HandleScriptEffect, _spellEffectIndex, SPELL_EFFECT_SCRIPT_EFFECT);
     }
-};
-
-class spell_chogall_corruption_normal final : public SpellScript
-{
-    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
-    {
-        CorruptionHandler::AddCorruption(GetHitUnit(), CORRUPTION_NORMAL);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget.Register(&spell_chogall_corruption_normal::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
-class spell_chogall_corruption_normal_alternative final : public SpellScript
-{
-    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
-    {
-        CorruptionHandler::AddCorruption(GetHitUnit(), CORRUPTION_NORMAL);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget.Register(&spell_chogall_corruption_normal_alternative::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
-class spell_chogall_corruption_of_the_old_god final : public SpellScript
-{
-    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
-    {
-        CorruptionHandler::AddCorruption(GetHitUnit(), CORRUPTION_NORMAL);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget.Register(&spell_chogall_corruption_of_the_old_god::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
+private:
+    uint8 _corruptionAmount;
+    uint8 _spellEffectIndex;
 };
 
 class spell_chogall_corruption_sickness final : public AuraScript
@@ -1420,7 +1385,7 @@ class spell_chogall_debilitating_beam final : public AuraScript
 {
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
-        CorruptionHandler::AddCorruption(GetTarget(), CORRUPTION_NORMAL);
+        CorruptionHandler::AddCorruption(GetTarget(), 2);
     }
 
     void Register() override
@@ -1469,10 +1434,14 @@ void AddSC_boss_chogall()
     RegisterSpellScript(spell_chogall_worshipping);
     RegisterSpellScript(spell_chogall_consume_blood_of_the_old_god);
     RegisterSpellScript(spell_chogall_consume_blood_of_the_old_god_triggered);
-    RegisterSpellScript(spell_chogall_corruption_significant);
-    RegisterSpellScript(spell_chogall_corruption_normal);
-    RegisterSpellScript(spell_chogall_corruption_normal_alternative);
-    RegisterSpellScript(spell_chogall_corruption_of_the_old_god);
+    RegisterSpellScriptWithArgs(spell_chogall_corruption_script_effect, "spell_chogall_corrupting_crash", 10, EFFECT_1);
+    RegisterSpellScriptWithArgs(spell_chogall_corruption_script_effect, "spell_chogall_depravity", 10, EFFECT_1);
+    RegisterSpellScriptWithArgs(spell_chogall_corruption_script_effect, "spell_chogall_spilled_blood_of_the_old_god", 5, EFFECT_1);
+    RegisterSpellScriptWithArgs(spell_chogall_corruption_script_effect, "spell_chogall_corruption_sickness_script_effect", 5, EFFECT_1); // @todo: validate
+    RegisterSpellScriptWithArgs(spell_chogall_corruption_script_effect, "spell_chogall_sprayed_corruption", 5, EFFECT_1);
+    RegisterSpellScriptWithArgs(spell_chogall_corruption_script_effect, "spell_chogall_corruption_of_the_old_god", 1, EFFECT_1);
+    RegisterSpellScriptWithArgs(spell_chogall_corruption_script_effect, "spell_chogall_corruption_accelerated", 2, EFFECT_0);
+    RegisterSpellScriptWithArgs(spell_chogall_corruption_script_effect, "spell_chogall_corrupted_bite", 2, EFFECT_0);
     RegisterSpellScript(spell_chogall_corruption_sickness);
     RegisterSpellScript(spell_chogall_corruption_malformation);
     RegisterSpellScript(spell_chogall_shadow_bolt);
