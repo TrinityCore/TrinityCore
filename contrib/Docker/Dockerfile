@@ -1,4 +1,4 @@
-FROM trinitycore/circle-ci:master-buildpacks-focal
+FROM trinitycore/circle-ci:master-buildpacks-hirsute
 
 #Setup
 WORKDIR /home/circleci
