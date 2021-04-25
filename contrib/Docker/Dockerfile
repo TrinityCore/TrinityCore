@@ -1,4 +1,4 @@
-FROM funjoker/circle-ci:4.3.4-buildpacks-focal
+FROM funjoker/circle-ci:4.3.4-buildpacks-hirsute
 
 #Setup
 WORKDIR /home/circleci
