@@ -24,8 +24,12 @@
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "Object.h"
+#include "Map.h"
+#include "MotionMaster.h"
 #include "PassiveAI.h"
 #include "Player.h"
+#include "VMapFactory.h"
+#include "VMapManager2.h"
 #include "bastion_of_twilight.h"
 
 #include <vector>
@@ -135,6 +139,85 @@ struct npc_bot_chogall final : public NullCreatureAI
     }
 };
 
+enum EvolvedDrakonaar
+{
+    EVENT_CLEAVE = 1,
+    EVENT_TWILIGHT_RUPTURE,
+    EVENT_BLADE_TEMPEST,
+
+    SPELL_CLEAVE            = 40504,
+    SPELL_TWILIGHT_RUPTURE  = 93377,
+    SPELL_BLADE_TEMPEST     = 93373,
+};
+
+struct npc_bot_evolved_drakonaar : public ScriptedAI
+{
+    npc_bot_evolved_drakonaar(Creature * creature) : ScriptedAI(creature) { }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _events.ScheduleEvent(EVENT_CLEAVE, 9s);
+        _events.ScheduleEvent(EVENT_TWILIGHT_RUPTURE, 10s);
+        _events.ScheduleEvent(EVENT_BLADE_TEMPEST, 18s);
+
+        // The Drakonaar in the corner starts moving along the same path as the moving one when engaging the moving one
+        if (me->GetWaypointPath())
+            if (Creature* drakonaar = me->FindNearestCreature(me->GetEntry(), 200.f))
+                if (drakonaar->GetMotionMaster()->GetCurrentSlot() == MOTION_SLOT_IDLE && drakonaar->GetMotionMaster()->GetCurrentMovementGeneratorType() != WAYPOINT_MOTION_TYPE)
+                    drakonaar->GetMotionMaster()->MovePath(me->GetWaypointPath(), true);
+    }
+
+    void EnterEvadeMode(EvadeReason why) override
+    {
+        ScriptedAI::EnterEvadeMode(why);
+        _events.Reset();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_CLEAVE:
+                    DoCastVictim(SPELL_CLEAVE);
+                    _events.Repeat(20s, 21s);
+                    break;
+                case EVENT_TWILIGHT_RUPTURE:
+                {
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.f, true, false))
+                        DoCast(target, SPELL_TWILIGHT_RUPTURE);
+                    else
+                        DoCastVictim(SPELL_TWILIGHT_RUPTURE);
+                    _events.Repeat(24s, 25s);
+                    break;
+                }
+                case EVENT_BLADE_TEMPEST:
+                    DoCastSelf(SPELL_BLADE_TEMPEST);
+                    // @todo: repeat timer
+                    break;
+                default:
+                    break;
+            }
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+};
+
 static constexpr uint32 const SPELL_WYVERN_STING_PERIODIC = 24336;
 
 class spell_bot_wyvern_sting : public AuraScript
@@ -153,6 +236,61 @@ class spell_bot_wyvern_sting : public AuraScript
     void Register() override
     {
         AfterEffectRemove.Register(&spell_bot_wyvern_sting::HandleAfterRemove, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+static constexpr uint32 const SPELL_TWILIGHT_RUPTURE_MISSILE = 93378;
+
+class spell_bot_twilight_rupture : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_TWILIGHT_RUPTURE_MISSILE });
+    }
+
+    void HandleDummyEffect(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        float angleVariance = 0.15f;
+        float currentAngle = caster->GetOrientation();
+        bool left = true;
+        for (uint8 i = 0; i < 60; ++i)
+        {
+            float forward = 1.5f * i;
+            if (i >= 3 && !((i - 3) % 5))
+                left = !left;
+
+            currentAngle = left ? (currentAngle + angleVariance) : (currentAngle - angleVariance);
+
+            // Sniffs indicate that they use pathfinding for every single destination but we are not going to do so because of performance.
+            float destX = caster->GetPositionX() + std::cos(currentAngle) * forward;
+            float destY = caster->GetPositionY() + std::sin(currentAngle) * forward;
+            float destZ = caster->GetPositionZ();
+
+            bool col = VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(caster->GetMapId(),
+                caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ() + 0.5f,
+                destX, destY, destZ + 0.5f,
+                destX, destY, destZ, -0.5f);
+
+            destZ -= 0.5f;
+
+            // Collided with static LOS object, move back to collision point
+            if (col)
+            {
+                destX -= 2.f * std::cos(currentAngle);
+                destY -= 2.f * std::sin(currentAngle);
+            }
+
+            caster->CastSpell({ destX, destY, destZ }, SPELL_TWILIGHT_RUPTURE_MISSILE);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget.Register(&spell_bot_twilight_rupture::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -175,7 +313,9 @@ void AddSC_bastion_of_twilight()
 {
     RegisterBastionOfTwilightCreatureAI(npc_bot_invisible_stalker_phase_twist);
     RegisterBastionOfTwilightCreatureAI(npc_bot_chogall);
+    RegisterBastionOfTwilightCreatureAI(npc_bot_evolved_drakonaar);
     RegisterSpellScript(spell_bot_wyvern_sting);
+    RegisterSpellScript(spell_bot_twilight_rupture);
     new at_bot_intro_events("at_halfus_wyrmbreaker_intro", DATA_AT_HALFUS_WYRMBREAKER_INTRO);
     new at_bot_intro_events("at_theralion_and_valiona_intro", DATA_AT_THERALION_AND_VALIONA_INTRO);
     new at_bot_intro_events("at_ascendant_council_intro_1", DATA_AT_ASCENDANT_COUNCIL_INTRO_1);
