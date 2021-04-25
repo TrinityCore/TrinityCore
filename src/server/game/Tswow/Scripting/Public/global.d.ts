@@ -7121,6 +7121,13 @@ declare function AuthTable(classTarget: any)
 declare function Field(fieldTarget: any, name: any)
 declare function PrimaryKey(pkTarget: any, name: any)
 
+// File system functions
+declare function ReadFile(file: string, def?: string): string
+declare function WriteFile(file: string, value)
+declare function AppendFile(file: string, value: string)
+declare function FileExists(file: string): boolean
+declare function ReadDirectory(directory: string): string[];
+
 // Client/Server functions
 declare function Message(classTarget: any)
 declare function MsgClass(classTarget: any, name: string)
