@@ -2667,7 +2667,6 @@ class spell_q10929_fumping : public SpellScript
     }
 };
 
-
 class spell_q10929_fumpingAuraScript : public AuraScript
 {
     PrepareAuraScript(spell_q10929_fumpingAuraScript);
