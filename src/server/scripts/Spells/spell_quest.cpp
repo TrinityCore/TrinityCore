@@ -2682,7 +2682,7 @@ class spell_q10929_fumpingAuraScript : public AuraScript
             return;
 
         if (Unit* caster = GetCaster())
-            caster->CastSpell(caster, RAND(SPELL_SUMMON_SAND_GNOME, SPELL_SUMMON_SAND_GNOME3, SPELL_SUMMON_MATURE_BONE_SIFTER), true);//changed 24042021
+            caster->CastSpell(caster, RAND(SPELL_SUMMON_SAND_GNOME, SPELL_SUMMON_SAND_GNOME3, SPELL_SUMMON_MATURE_BONE_SIFTER), true);
     }
 
     void Register() override
