@@ -32,6 +32,19 @@ using G3D::Vector3;
 
 namespace VMAP
 {
+    class ManagedModel
+    {
+        public:
+            ManagedModel() : iRefCount(0) { }
+            WorldModel* getModel() { return &iModel; }
+            void incRefCount() { ++iRefCount; }
+            int decRefCount() { return --iRefCount; }
+        protected:
+            WorldModel iModel;
+            int iRefCount;
+    };
+
+
     VMapManager2::VMapManager2()
     {
         GetLiquidFlagsPtr = &GetLiquidFlagsDummy;
@@ -47,18 +60,6 @@ namespace VMAP
         for (auto i = iLoadedModelFiles.begin(); i != iLoadedModelFiles.end(); ++i)
             delete i->second;
     }
-
-    class ManagedModel
-    {
-        public:
-            ManagedModel() : iRefCount(0) { }
-            WorldModel* getModel() { return &iModel; }
-            void incRefCount() { ++iRefCount; }
-            int decRefCount() { return --iRefCount; }
-        protected:
-            WorldModel iModel;
-            int iRefCount;
-    };
 
     InstanceTreeMap::const_iterator VMapManager2::GetMapTree(uint32 mapId) const
     {
