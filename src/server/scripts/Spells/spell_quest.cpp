@@ -2643,43 +2643,90 @@ class spell_q14100_q14111_make_player_destroy_totems : public SpellScriptLoader
 
 enum Fumping
 {
-    SPELL_SUMMON_SAND_GNOME  = 39240,
-    SPELL_SUMMON_BONE_SLICER = 39241
+    SPELL_SUMMON_SAND_GNOME = 39240,
+    SPELL_SUMMON_SAND_GNOME3 = 39247,
+    SPELL_SUMMON_MATURE_BONE_SIFTER = 39241,
+    SPELL_SUMMON_MATURE_BONE_SIFTER3 = 39245,
+    SPELL_SUMMON_HAISHULUD = 39248
 };
 
 // 39238 - Fumping
-class spell_q10929_fumping : SpellScriptLoader
+class spell_q10929_fumping : public SpellScript
 {
-    public:
-        spell_q10929_fumping() : SpellScriptLoader("spell_q10929_fumping") { }
+    PrepareSpellScript(spell_q10929_fumping);
 
-        class spell_q10929_fumpingAuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_q10929_fumpingAuraScript);
-
-            bool Validate(SpellInfo const* /*spell*/) override
-            {
-                return ValidateSpellInfo({ SPELL_SUMMON_SAND_GNOME, SPELL_SUMMON_BONE_SLICER });
-            }
-
-            void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
-                    return;
-
-                if (Unit* caster = GetCaster())
-                    caster->CastSpell(caster, urand(SPELL_SUMMON_SAND_GNOME, SPELL_SUMMON_BONE_SLICER), true);
-            }
-
-        void Register() override
-        {
-            OnEffectRemove += AuraEffectRemoveFn(spell_q10929_fumpingAuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
+    void SetDest(SpellDestination& dest)
     {
-        return new spell_q10929_fumpingAuraScript();
+        Position const offset = { 0.5f, 0.5f, 5.0f, 0.0f };
+        dest.RelocateOffset(offset);
+    }
+
+    void Register() override
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_q10929_fumping::SetDest, EFFECT_1, TARGET_DEST_CASTER);
+    }
+};
+
+
+class spell_q10929_fumpingAuraScript : public AuraScript
+{
+    PrepareAuraScript(spell_q10929_fumpingAuraScript);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUMMON_SAND_GNOME,SPELL_SUMMON_SAND_GNOME3, SPELL_SUMMON_MATURE_BONE_SIFTER });//changed 24042021
+    }
+
+    void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+            return;
+
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(caster, RAND(SPELL_SUMMON_SAND_GNOME, SPELL_SUMMON_SAND_GNOME3, SPELL_SUMMON_MATURE_BONE_SIFTER), true);//changed 24042021
+    }
+
+    void Register() override
+    {
+        OnEffectRemove += AuraEffectRemoveFn(spell_q10929_fumpingAuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+//39246 spell_q10930_big_bone_worm
+class spell_q10930_big_bone_worm : public SpellScript
+{
+    PrepareSpellScript(spell_q10930_big_bone_worm);
+
+    void SetDest(SpellDestination& dest)
+    {
+        Position const offset = { 0.5f, 0.5f, 5.0f, 0.0f };
+        dest.RelocateOffset(offset);
+    }
+
+    void Register() override
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_q10930_big_bone_worm::SetDest, EFFECT_1, TARGET_DEST_CASTER);
+    }
+};
+
+class spell_q10930_big_bone_worm_AuraScript : public AuraScript
+{
+    PrepareAuraScript(spell_q10930_big_bone_worm_AuraScript);
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUMMON_MATURE_BONE_SIFTER,SPELL_SUMMON_MATURE_BONE_SIFTER3, SPELL_SUMMON_HAISHULUD });//changed 24042021
+    }
+    void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+            return;
+
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(caster, RAND(SPELL_SUMMON_HAISHULUD, SPELL_SUMMON_MATURE_BONE_SIFTER, SPELL_SUMMON_MATURE_BONE_SIFTER3), true);
+    }
+    void Register() override
+    {
+        OnEffectRemove += AuraEffectRemoveFn(spell_q10930_big_bone_worm_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -2998,7 +3045,6 @@ void AddSC_quest_spell_scripts()
     new spell_q12919_gymers_throw();
     new spell_q13400_illidan_kill_master();
     new spell_q14100_q14111_make_player_destroy_totems();
-    new spell_q10929_fumping();
     new spell_q12414_hand_over_reins();
     new spell_q13665_q13790_bested_trigger();
     new spell_59064_59439_portals();
@@ -3006,4 +3052,6 @@ void AddSC_quest_spell_scripts()
     new spell_q11306_mixing_vrykul_blood();
     new spell_q11306_failed_mix_43376();
     new spell_q11306_failed_mix_43378();
+    RegisterSpellAndAuraScriptPair(spell_q10929_fumping, spell_q10929_fumpingAuraScript);
+    RegisterSpellAndAuraScriptPair(spell_q10930_big_bone_worm, spell_q10930_big_bone_worm_AuraScript);
 }
