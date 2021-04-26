@@ -242,14 +242,15 @@ void SmartAI::EndPath(bool fail)
     if (fail)
         return;
 
-    GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_ENDED, nullptr, _currentWaypointNode, GetScript()->GetPathId());
+    uint32 pathid = GetScript()->GetPathId();
+    GetScript()->ProcessEventsFor(SMART_EVENT_WAYPOINT_ENDED, nullptr, _currentWaypointNode, pathid);
 
     if (_repeatWaypointPath)
     {
         if (IsAIControlled())
             StartPath(mRun, GetScript()->GetPathId(), _repeatWaypointPath);
     }
-    else
+    else if (pathid == GetScript()->GetPathId()) // if it's not the same pathid, our script wants to start another path; don't override it
         GetScript()->SetPathId(0);
 
     if (mDespawnState == 1)
