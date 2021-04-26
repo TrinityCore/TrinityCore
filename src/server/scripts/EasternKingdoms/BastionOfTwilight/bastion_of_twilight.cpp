@@ -257,9 +257,9 @@ class spell_bot_twilight_rupture : public SpellScript
         float angleVariance = 0.15f;
         float currentAngle = caster->GetOrientation();
         bool left = true;
-        for (uint8 i = 0; i < 60; ++i)
+        for (int32 i = 0; i < GetEffectValue(); ++i)
         {
-            float forward = 1.5f * i;
+            float forward = 1.f * i;
             if (i >= 3 && !((i - 3) % 5))
                 left = !left;
 
