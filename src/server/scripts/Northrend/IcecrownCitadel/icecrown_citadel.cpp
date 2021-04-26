@@ -433,7 +433,7 @@ public:
         if (unit->GetTypeId() != TYPEID_PLAYER || _me->GetDistance(unit) > 100.0f)
             return false;
 
-        if (_me->GetVictim() && _me->GetVictim()->GetGUID() == unit->GetGUID())
+        if (_me->GetVictim() && _me->EnsureVictim()->GetGUID() == unit->GetGUID())
             return false;
 
         if (unit->HasAura(SPELL_DEATH_PLAGUE_AURA) || unit->HasAura(SPELL_RECENTLY_INFECTED))

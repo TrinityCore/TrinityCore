@@ -738,7 +738,7 @@ class npc_anub_ar_skirmisher : public CreatureScript
                             _events.Repeat(randtime(Seconds(20), Seconds(25)));
                             break;
                         case EVENT_BACKSTAB:
-                            if (me->GetVictim() && me->GetVictim()->isInBack(me))
+                            if (me->GetVictim() && me->EnsureVictim()->isInBack(me))
                                 DoCastVictim(SPELL_BACKSTAB);
                             _events.Repeat(randtime(Seconds(10), Seconds(13)));
                             break;

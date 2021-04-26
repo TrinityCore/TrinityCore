@@ -486,7 +486,7 @@ struct npc_anubarak_anub_ar_assassin : public npc_anubarak_pet_template
     {
         _scheduler.Schedule(6s, [this](TaskContext task)
         {
-            if (me->GetVictim() && me->GetVictim()->isInBack(me))
+            if (me->GetVictim() && me->EnsureVictim()->isInBack(me))
                 DoCastVictim(SPELL_BACKSTAB);
 
             task.Repeat();
