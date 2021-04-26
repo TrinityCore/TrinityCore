@@ -582,7 +582,7 @@ public:
         {
             instance->SetBossState(DATA_MALYGOS_EVENT, FAIL);
 
-            me->GetMap()->SetZoneOverrideLight(AREA_EYE_OF_ETERNITY, LIGHT_DEFAULT, 0, 1*IN_MILLISECONDS);
+            me->GetMap()->SetZoneOverrideLight(AREA_EYE_OF_ETERNITY, LIGHT_DEFAULT, 0, 1s);
 
             if (!summons.empty())
             {
@@ -700,7 +700,7 @@ public:
                     me->SetDisableGravity(true);
                     if (Creature* alexstraszaBunny = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_ALEXSTRASZA_BUNNY_GUID)))
                         me->SetFacingToObject(alexstraszaBunny);
-                    me->GetMap()->SetZoneOverrideLight(AREA_EYE_OF_ETERNITY, LIGHT_DEFAULT, LIGHT_ARCANE_RUNES, 5 * IN_MILLISECONDS);
+                    me->GetMap()->SetZoneOverrideLight(AREA_EYE_OF_ETERNITY, LIGHT_DEFAULT, LIGHT_ARCANE_RUNES, 5s);
                     events.ScheduleEvent(EVENT_FLY_OUT_OF_PLATFORM, 18s, 0, PHASE_TWO);
                     break;
                 case POINT_SURGE_OF_POWER_P_TWO:
@@ -712,7 +712,7 @@ public:
                     }
                     break;
                 case POINT_DESTROY_PLATFORM_P_TWO:
-                    me->GetMap()->SetZoneOverrideLight(AREA_EYE_OF_ETERNITY, LIGHT_DEFAULT, LIGHT_OBSCURE_SPACE, 1 * IN_MILLISECONDS);
+                    me->GetMap()->SetZoneOverrideLight(AREA_EYE_OF_ETERNITY, LIGHT_DEFAULT, LIGHT_OBSCURE_SPACE, 1s);
                     DoCast(me, SPELL_DESTROY_PLATFORM_CHANNEL);
                     events.ScheduleEvent(EVENT_MOVE_TO_P_THREE_POINT, 11s, 0, PHASE_TWO);
                     break;
@@ -908,7 +908,7 @@ public:
                         }
                         break;
                     case EVENT_LIGHT_DIMENSION_CHANGE:
-                        me->GetMap()->SetZoneOverrideLight(AREA_EYE_OF_ETERNITY, LIGHT_DEFAULT, LIGHT_CHANGE_DIMENSIONS, 2 * IN_MILLISECONDS);
+                        me->GetMap()->SetZoneOverrideLight(AREA_EYE_OF_ETERNITY, LIGHT_DEFAULT, LIGHT_CHANGE_DIMENSIONS, 2s);
                         break;
                     case EVENT_DELAY_MOVE_TO_DESTROY_P:
                         me->GetMotionMaster()->MovePoint(POINT_DESTROY_PLATFORM_P_TWO, MalygosPositions[0]);
@@ -918,7 +918,7 @@ public:
                         me->GetMotionMaster()->MovePoint(POINT_IDLE_P_THREE, MalygosPositions[4]);
                         break;
                     case EVENT_START_P_THREE:
-                        me->GetMap()->SetZoneOverrideLight(AREA_EYE_OF_ETERNITY, LIGHT_DEFAULT, LIGHT_OBSCURE_ARCANE_RUNES, 1 * IN_MILLISECONDS);
+                        me->GetMap()->SetZoneOverrideLight(AREA_EYE_OF_ETERNITY, LIGHT_DEFAULT, LIGHT_OBSCURE_ARCANE_RUNES, 1s);
                         DoCast(me, SPELL_CLEAR_ALL_DEBUFFS);
                         DoCast(me, SPELL_IMMUNE_CURSES);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
