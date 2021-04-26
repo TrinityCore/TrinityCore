@@ -616,6 +616,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         Weather* GetOrGenerateZoneDefaultWeather(uint32 zoneId);
         void SetZoneWeather(uint32 zoneId, WeatherState weatherId, float intensity);
         void SetZoneOverrideLight(uint32 zoneId, uint32 areaLightId, uint32 overrideLightId, uint32 transitionMilliseconds);
+        void SetZoneOverrideLight(uint32 zoneId, uint32 areaLightId, uint32 overrideLightId, Milliseconds transitionTime);
 
         void UpdateAreaDependentAuras();
 
