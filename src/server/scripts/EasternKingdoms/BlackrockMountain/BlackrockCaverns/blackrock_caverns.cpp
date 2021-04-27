@@ -654,27 +654,10 @@ struct npc_raz_the_crazed : public EscortAI
         {
             SetEscortPaused(true);
             _events.ScheduleEvent(EVENT_FACE_TO_THE_SIDE, 1s);
-            _events.ScheduleEvent(EVENT_LEAP_FROM_BRIDGE, 2s);
-            _events.ScheduleEvent(EVENT_RESUME_ESCORT, 2s + 500ms);
             me->DespawnOrUnsummon(12s);
         }
         else if (id == 1 && _instance->GetData(DATA_RAZ_LAST_AREA_INDEX) == RAZ_AREA_INDEX_CORLA)
             _events.ScheduleEvent(EVENT_LEAP_OVER_BORER_PACKS, 1s);
-    }
-
-    void SpellHitTarget(Unit* target, SpellInfo const* spell) override
-    {
-        if (!target)
-            return;
-
-        if (!target->IsInCombat())
-            return;
-
-        if (spell->Id == SPELL_FURIOUS_SWIPE_DUMMY)
-        {
-            DoCast(target, SPELL_FURIOUS_SWIPE);
-            DoCastSelf(SPELL_FURIOUS_RAGE, true);
-        }
     }
 
     void UpdateEscortAI(uint32 diff) override
@@ -691,14 +674,31 @@ struct npc_raz_the_crazed : public EscortAI
                     Talk(SAY_SMASH);
                     break;
                 case EVENT_START_ESCORT_PATH:
-                    me->SetHomePosition(me->GetPosition());
-                    Start(true, true);
+                    if (!me->IsEngaged())
+                    {
+                        me->SetHomePosition(me->GetPosition());
+                        Start(true, true);
+                    }
+                    else
+                        _events.Repeat(1s);
                     break;
                 case EVENT_FACE_TO_THE_SIDE:
-                    me->SetFacingTo(5.061455f);
+                    if (!me->IsEngaged())
+                    {
+                        me->SetFacingTo(5.061455f);
+                        _events.ScheduleEvent(EVENT_LEAP_FROM_BRIDGE, 1s);
+                    }
+                    else
+                        _events.Repeat(1s);
                     break;
                 case EVENT_LEAP_FROM_BRIDGE:
-                    DoCastSelf(SPELL_LEAP_FROM_BRIDGE);
+                    if (!me->IsEngaged())
+                    {
+                        DoCastSelf(SPELL_LEAP_FROM_BRIDGE);
+                        _events.ScheduleEvent(EVENT_RESUME_ESCORT, 500ms);
+                    }
+                    else
+                        _events.Repeat(1s);
                     break;
                 case EVENT_RESUME_ESCORT:
                     SetEscortPaused(false);
@@ -722,12 +722,57 @@ struct npc_raz_the_crazed : public EscortAI
                 default:
                     break;
             }
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
     }
 
 private:
     EventMap _events;
     InstanceScript* _instance;
+};
+
+class spell_brc_furious_swipe_dummy : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_FURIOUS_SWIPE });
+    }
+
+    void HandleDummyEffect(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+        {
+            caster->SetFacingTo(caster->GetAngle(GetHitUnit()));
+            caster->CastSpell(GetHitUnit(), SPELL_FURIOUS_SWIPE);
+            if (caster->GetMap()->IsHeroic()) // Heroic difficulty casts the spell twice in a row
+                caster->CastSpell(GetHitUnit(), SPELL_FURIOUS_SWIPE);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget.Register(&spell_brc_furious_swipe_dummy::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+class spell_brc_furious_swipe : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_FURIOUS_RAGE });
+    }
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetHitUnit(), SPELL_FURIOUS_RAGE);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget.Register(&spell_brc_furious_swipe::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
 };
 
 class at_raz_corla_event : public AreaTriggerScript
@@ -805,6 +850,8 @@ void AddSC_blackrock_caverns()
     RegisterBlackrockCavernsCreatureAI(npc_mad_prisoner);
     RegisterBlackrockCavernsCreatureAI(npc_crazed_mage);
     RegisterBlackrockCavernsCreatureAI(npc_raz_the_crazed);
+    RegisterSpellScript(spell_brc_furious_swipe_dummy);
+    RegisterSpellScript(spell_brc_furious_swipe);
     new at_raz_corla_event();
     new at_raz_obsidius_event();
     new at_brc_quest_trigger("at_brc_corla_quest", QUEST_ID_WHAT_IS_THIS_PLACE);
