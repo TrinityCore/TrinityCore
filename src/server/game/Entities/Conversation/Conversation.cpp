@@ -133,16 +133,13 @@ bool Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
     _duration = conversationTemplate->LastLineEndTime;
     _textureKitId = conversationTemplate->TextureKitId;
 
-    for (ConversationActorTemplate const* actor : conversationTemplate->Actors)
+    for (ConversationActor const& actor : conversationTemplate->Actors)
     {
-        if (actor)
-        {
             UF::ConversationActor& actorField = AddDynamicUpdateFieldValue(m_values.ModifyValue(&Conversation::m_conversationData).ModifyValue(&UF::ConversationData::Actors));
-            actorField.CreatureID = actor->CreatureId;
-            actorField.CreatureDisplayInfoID = actor->CreatureModelId;
-            actorField.Id = actor->Id;
+            actorField.CreatureID = actor.CreatureId;
+            actorField.CreatureDisplayInfoID = actor.CreatureDisplayInfoId;
+            actorField.Id = actor.ActorId;
             actorField.Type = AsUnderlyingType(ActorType::CreatureActor);
-        }
     }
 
     for (uint16 actorIndex = 0; actorIndex < conversationTemplate->ActorGuids.size(); ++actorIndex)
