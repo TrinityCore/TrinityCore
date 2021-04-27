@@ -19,6 +19,7 @@
 #include "blackrock_caverns.h"
 #include "AreaTrigger.h"
 #include "GossipDef.h"
+#include "Map.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
