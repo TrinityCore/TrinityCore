@@ -3280,12 +3280,17 @@ uint32 SpellInfo::GetAllowedMechanicMask() const
 
 uint32 SpellInfo::GetMechanicImmunityMask(Unit* caster) const
 {
-    if (HasAttribute(SPELL_ATTR7_CAN_ALWAYS_BE_INTERRUPTED))
-        return 0;
+    bool canBeInterrupted = [&]()
+    {
+        return HasAttribute(SPELL_ATTR7_CAN_ALWAYS_BE_INTERRUPTED)
+            || HasChannelInterruptFlag(SpellAuraInterruptFlags::Damage | SpellAuraInterruptFlags::EnteringCombat)
+            || (caster->IsPlayer() && InterruptFlags.HasFlag(SpellInterruptFlags::DamageCancelsPlayerOnly))
+            || PreventionType & SPELL_PREVENTION_TYPE_SILENCE;
+    }();
 
     uint32 casterMechanicImmunityMask = caster->GetMechanicImmunityMask();
     uint32 mechanicImmunityMask = 0;
-    if (CanBeInterrupted(caster))
+    if (canBeInterrupted)
     {
         if (casterMechanicImmunityMask & (1 << MECHANIC_INTERRUPT))
             mechanicImmunityMask |= (1 << MECHANIC_INTERRUPT);

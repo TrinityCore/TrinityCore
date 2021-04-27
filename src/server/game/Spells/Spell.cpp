@@ -4903,7 +4903,7 @@ void Spell::SendChannelStart(uint32 duration)
     {
         packet.InterruptImmunities.emplace();
         packet.InterruptImmunities->SchoolImmunities = schoolImmunityMask; // CastSchoolImmunities
-        packet.InterruptImmunities->SchoolImmunities = mechanicImmunityMask; // CastImmunities
+        packet.InterruptImmunities->Immunities = mechanicImmunityMask; // CastImmunities
     }
 
     if (m_spellInfo->HasAttribute(SPELL_ATTR8_HEAL_PREDICTION))
