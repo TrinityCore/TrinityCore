@@ -203,7 +203,7 @@ struct npc_bot_evolved_drakonaar : public ScriptedAI
                 }
                 case EVENT_BLADE_TEMPEST:
                     DoCastSelf(SPELL_BLADE_TEMPEST);
-                    // @todo: repeat timer
+                    _events.Repeat(22s, 23s);
                     break;
                 default:
                     break;
