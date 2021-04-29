@@ -40,6 +40,7 @@
 #include "Garrison.h"
 #include "GossipDef.h"
 #include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "Guild.h"
 #include "InstanceScript.h"
@@ -4006,13 +4007,13 @@ void Spell::EffectForceDeselect(SpellEffIndex /*effIndex*/)
     // clear focus
     WorldPackets::Combat::BreakTarget breakTarget;
     breakTarget.UnitGUID = m_caster->GetGUID();
-    Trinity::MessageDistDelivererToHostile notifierBreak(m_caster, breakTarget.Write(), dist);
+    Trinity::MessageDistDelivererToHostile<> notifierBreak(m_caster, breakTarget.Write(), dist);
     Cell::VisitWorldObjects(m_caster, notifierBreak, dist);
 
     // and selection
     WorldPackets::Spells::ClearTarget clearTarget;
     clearTarget.Guid = m_caster->GetGUID();
-    Trinity::MessageDistDelivererToHostile notifierClear(m_caster, clearTarget.Write(), dist);
+    Trinity::MessageDistDelivererToHostile<> notifierClear(m_caster, clearTarget.Write(), dist);
     Cell::VisitWorldObjects(m_caster, notifierClear, dist);
 
     // we should also force pets to remove us from current target

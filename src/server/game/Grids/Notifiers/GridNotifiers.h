@@ -118,15 +118,28 @@ namespace Trinity
         void Visit(ConversationMapType &m) { updateObjects<Conversation>(m); }
     };
 
+    struct MessageDistDelivererCustomizer
+    {
+        WorldPacket const* i_message;
+
+        MessageDistDelivererCustomizer(WorldPacket const* message) : i_message(message) { }
+
+        WorldPacket const* operator()(Player* /*player*/) const
+        {
+            return i_message;
+        }
+    };
+
+    template<typename PacketCustomizer = MessageDistDelivererCustomizer>
     struct TC_GAME_API MessageDistDeliverer
     {
         WorldObject const* i_source;
-        WorldPacket const* i_message;
+        PacketCustomizer i_messageCustomizer;
         float i_distSq;
         uint32 team;
         Player const* skipped_receiver;
-        MessageDistDeliverer(WorldObject const* src, WorldPacket const* msg, float dist, bool own_team_only = false, Player const* skipped = nullptr)
-            : i_source(src), i_message(msg), i_distSq(dist * dist)
+        MessageDistDeliverer(WorldObject const* src, PacketCustomizer packetCustomizer, float dist, bool own_team_only = false, Player const* skipped = nullptr)
+            : i_source(src), i_messageCustomizer(std::move(packetCustomizer)), i_distSq(dist * dist)
             , team(0)
             , skipped_receiver(skipped)
         {
@@ -135,12 +148,12 @@ namespace Trinity
                     team = player->GetTeam();
         }
 
-        void Visit(PlayerMapType &m);
-        void Visit(CreatureMapType &m);
-        void Visit(DynamicObjectMapType &m);
-        template<class SKIP> void Visit(GridRefManager<SKIP> &) { }
+        void Visit(PlayerMapType &m) const;
+        void Visit(CreatureMapType &m) const;
+        void Visit(DynamicObjectMapType &m) const;
+        template<class SKIP> void Visit(GridRefManager<SKIP> &) const { }
 
-        void SendPacket(Player* player)
+        void SendPacket(Player* player) const
         {
             // never send packet to self
             if (player == i_source || (team && player->GetTeam() != team) || skipped_receiver == player)
@@ -149,33 +162,34 @@ namespace Trinity
             if (!player->HaveAtClient(i_source))
                 return;
 
-            player->SendDirectMessage(i_message);
+            player->SendDirectMessage(i_messageCustomizer(player));
         }
     };
 
+    template<typename PacketCustomizer = MessageDistDelivererCustomizer>
     struct TC_GAME_API MessageDistDelivererToHostile
     {
         Unit* i_source;
-        WorldPacket const* i_message;
+        PacketCustomizer i_messageCustomizer;
         float i_distSq;
 
-        MessageDistDelivererToHostile(Unit* src, WorldPacket const* msg, float dist)
-            : i_source(src), i_message(msg), i_distSq(dist * dist)
+        MessageDistDelivererToHostile(Unit* src, PacketCustomizer packetCustomizer, float dist)
+            : i_source(src), i_messageCustomizer(std::move(packetCustomizer)), i_distSq(dist * dist)
         {
         }
 
-        void Visit(PlayerMapType &m);
-        void Visit(CreatureMapType &m);
-        void Visit(DynamicObjectMapType &m);
-        template<class SKIP> void Visit(GridRefManager<SKIP> &) { }
+        void Visit(PlayerMapType &m) const;
+        void Visit(CreatureMapType &m) const;
+        void Visit(DynamicObjectMapType &m) const;
+        template<class SKIP> void Visit(GridRefManager<SKIP> &) const { }
 
-        void SendPacket(Player* player)
+        void SendPacket(Player* player) const
         {
             // never send packet to self
             if (player == i_source || !player->HaveAtClient(i_source) || player->IsFriendlyTo(i_source))
                 return;
 
-            player->SendDirectMessage(i_message);
+            player->SendDirectMessage(i_messageCustomizer(player));
         }
     };
 
