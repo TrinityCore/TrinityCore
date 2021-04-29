@@ -789,17 +789,14 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
     }
 
     // Reward eligible guild challenges
-    LFGDungeonEntry const* entry = sLFGDungeonStore.LookupEntry(dungeonId);
-    if (!entry)
-        return;
-
+    uint8 appropriateMaxLevel = DBCManager::GetMaxLevelForExpansion(sMapStore.AssertEntry(instance->GetId())->Expansion());
     for (auto itr : minlevelByGuild)
     {
         Guild* guild = sGuildMgr->GetGuildById(itr.first);
         if (!guild)
             continue;
 
-        if (itr.second <= entry->Maxlevel)
+        if (itr.second <= appropriateMaxLevel)
         {
             if (Player* player = playersByGuild[itr.first])
             {
