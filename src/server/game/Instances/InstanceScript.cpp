@@ -753,7 +753,7 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
             for (LFGDungeonEntry const* dungeonEntry : sLFGDungeonStore)
             {
                 uint8 difficulty = encounter->dbcEntry->DifficultyID != -1 ? encounter->dbcEntry->DifficultyID : instance->GetDifficulty();
-                if (dungeonEntry->MapID != instance->GetId() || dungeonEntry->DifficultyID != instance->GetDifficulty())
+                if (dungeonEntry->MapID != instance->GetId() || dungeonEntry->DifficultyID != difficulty)
                     continue;
 
                 dungeonId = dungeonEntry->ID;
