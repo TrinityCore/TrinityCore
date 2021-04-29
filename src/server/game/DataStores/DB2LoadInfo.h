@@ -3398,6 +3398,35 @@ struct KeychainLoadInfo
     }
 };
 
+struct LanguageWordsLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_STRING_NOT_LOCALIZED, "Word" },
+            { false, FT_INT, "LanguageID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, LanguageWordsMeta::Instance(), HOTFIX_SEL_LANGUAGE_WORDS);
+        return &loadInfo;
+    }
+};
+
+struct LanguagesLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_STRING, "Name" },
+            { false, FT_INT, "ID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, LanguagesMeta::Instance(), HOTFIX_SEL_LANGUAGES);
+        return &loadInfo;
+    }
+};
+
 struct LfgDungeonsLoadInfo
 {
     static DB2LoadInfo const* Instance()
