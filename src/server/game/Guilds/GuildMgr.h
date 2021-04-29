@@ -86,6 +86,7 @@ public:
     std::vector<GuildChallenge> const& GetGuildChallengeData() const { return GuildChallenges; }
 
     void ResetTimes(bool week);
+    void ClearExpiredGuildNews();
 protected:
     typedef std::unordered_map<ObjectGuid::LowType, Guild*> GuildContainer;
     typedef std::unordered_map<uint32 /*skillID*/, std::vector<GuildProfession>> GuildProfessionMap;

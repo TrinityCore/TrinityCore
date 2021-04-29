@@ -829,7 +829,7 @@ class TC_GAME_API World
         void InitRandomBGResetTime();
         void InitGuildResetTime();
         void ResetRandomBG();
-        void ResetGuildCap();
+        void PerformDailyGuildActions();
         void ResetCurrencyWeekCap();
     private:
         World();

@@ -654,3 +654,15 @@ void GuildMgr::ResetTimes(bool week)
         if (Guild* guild = itr->second)
             guild->ResetTimes(week);
 }
+
+void GuildMgr::ClearExpiredGuildNews()
+{
+    // Clean guild news that are older than a week
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_NEWS);
+    stmt->setUInt64(0, uint64(GameTime::GetGameTime() - time_t(7 * DAY)));
+    CharacterDatabase.Execute(stmt);
+
+    for (std::pair<ObjectGuid::LowType, Guild*> guildPair : GuildStore)
+        if (Guild* guild = guildPair.second)
+            guild->ClearExpiredNews();
+}

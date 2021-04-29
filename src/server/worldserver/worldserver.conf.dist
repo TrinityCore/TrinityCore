@@ -1025,7 +1025,7 @@ Guild.EventLogRecordsCount = 100
 
 #
 #    Guild.ResetHour
-#        Description: Hour of the day when the daily cap resets occur.
+#        Description: Hour of the day when the daily cap resets and guild news cleanups occur.
 #        Range:       0-23
 #        Default:     6 - (06:00 AM)
 

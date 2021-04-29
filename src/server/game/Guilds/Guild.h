@@ -918,6 +918,8 @@ public:
 
     void InitializeGuildChallengeRewards();
 
+    void ClearExpiredNews();
+
 protected:
     ObjectGuid::LowType m_id;
     std::string m_name;

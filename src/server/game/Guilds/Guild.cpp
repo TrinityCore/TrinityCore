@@ -2368,8 +2368,14 @@ void Guild::SendNewsUpdate(WorldSession* session)
     WorldPackets::Guild::GuildNews packet;
     packet.NewsEvents.reserve(m_newsLog->GetSize());
 
+    uint64 weeklyMinTime = uint64(GameTime::GetGameTime() - time_t(7 * DAY));
+
     for (GuildLog::const_iterator itr = logs->begin(); itr != logs->end(); ++itr)
     {
+        // Skip news log entries that are older than a week. A cleanup of db and log data will be executed on daily guild reset time.
+        if ((*itr)->GetTimestamp() < weeklyMinTime)
+            continue;
+
         NewsLogEntry* eventLog = static_cast<NewsLogEntry*>(*itr);
         eventLog->WritePacket(packet);
     }
@@ -4098,6 +4104,17 @@ void Guild::InitializeGuildChallengeRewards()
         _challengeGoldMaxLevel[challenge.ChallengeType] = challenge.GoldMaxLevel;
         _challengeXp[challenge.ChallengeType] = challenge.Experience;
     }
+}
+
+void Guild::ClearExpiredNews()
+{
+    // Filter news that are older than a week
+    uint64 minTime = uint64(GameTime::GetGameTime() - time_t(7 * DAY));
+
+    if (GuildLog* logs = m_newsLog->GetGuildLog())
+        for (GuildLog::const_iterator itr = logs->begin(); itr != logs->end(); ++itr)
+            if ((*itr)->GetTimestamp() < minTime)
+                itr = logs->erase(itr);
 }
 
 Guild::LogEntry::LogEntry(ObjectGuid::LowType guildId, uint32 guid) : m_guildId(guildId), m_guid(guid), m_timestamp(::GameTime::GetGameTime()) { }

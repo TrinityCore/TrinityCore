@@ -2397,7 +2397,7 @@ void World::Update(uint32 diff)
         ResetRandomBG();
 
     if (currentGameTime  > m_NextGuildReset)
-        ResetGuildCap();
+        PerformDailyGuildActions();
 
     if (currentGameTime  > m_NextCurrencyReset)
         ResetCurrencyWeekCap();
@@ -3513,7 +3513,7 @@ void World::ResetRandomBG()
     sWorld->setWorldState(WS_BG_DAILY_RESET_TIME, uint64(m_NextRandomBGReset));
 }
 
-void World::ResetGuildCap()
+void World::PerformDailyGuildActions()
 {
     m_NextGuildReset = time_t(m_NextGuildReset + DAY);
     sWorld->setWorldState(WS_GUILD_DAILY_RESET_TIME, uint64(m_NextGuildReset));
@@ -3523,6 +3523,8 @@ void World::ResetGuildCap()
     TC_LOG_INFO("misc", "Guild Daily Cap reset. Week: %u", week == 1);
     sWorld->setWorldState(WS_GUILD_WEEKLY_RESET_TIME, week);
     sGuildMgr->ResetTimes(week == 1);
+
+    sGuildMgr->ClearExpiredGuildNews();
 }
 
 void World::UpdateMaxSessionCounters()
