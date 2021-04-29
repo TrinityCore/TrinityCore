@@ -276,7 +276,7 @@ enum GuildNews
 {
     GUILD_NEWS_GUILD_ACHIEVEMENT        = 0,
     GUILD_NEWS_PLAYER_ACHIEVEMENT       = 1,
-    GUILD_NEWS_DUNGEON_ENCOUNTER        = 2, // @todo Implement
+    GUILD_NEWS_DUNGEON_ENCOUNTER        = 2,
     GUILD_NEWS_ITEM_LOOTED              = 3,
     GUILD_NEWS_ITEM_CRAFTED             = 4,
     GUILD_NEWS_ITEM_PURCHASED           = 5,

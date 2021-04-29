@@ -724,6 +724,7 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
         return;
 
     uint32 dungeonId = 0;
+    uint32 encounterId = 0;
 
     for (DungeonEncounter const* encounter : *encounters)
     {
@@ -731,6 +732,7 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
             continue;
 
         completedEncounters |= 1 << encounter->dbcEntry->Bit;
+        encounterId = encounter->dbcEntry->ID;
 
         // Encounter is marked as final encounter of the dungeon
         if (encounter->lastEncounterDungeon)
@@ -798,8 +800,14 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
             continue;
 
         if (itr.second <= entry->Maxlevel)
+        {
             if (Player* player = playersByGuild[itr.first])
+            {
                 guild->CompleteChallenge(instance->IsNonRaidDungeon() ? GUILD_CHALLENGE_TYPE_DUNGEON : GUILD_CHALLENGE_TYPE_RAID, player);
+                if (instance->IsRaid())
+                    guild->AddGuildNews(GUILD_NEWS_DUNGEON_ENCOUNTER, ObjectGuid::Empty, 0, encounterId);
+            }
+        }
     }
 }
 
