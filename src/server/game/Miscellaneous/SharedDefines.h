@@ -248,8 +248,8 @@ enum Powers
 
 #define MAX_POWERS_PER_CLASS                5
 #define UNIT_HEALTH_REGENERATION_INTERVAL   2 * IN_MILLISECONDS
-static constexpr uint32 const PLAYER_POWER_UPDATE_INTERVAL  = 2 * IN_MILLISECONDS;
-static constexpr uint32 const UNIT_POWER_UPDATE_INTERVAL    = 1 * IN_MILLISECONDS;
+#define PLAYER_POWER_UPDATE_INTERVAL        2 * IN_MILLISECONDS;
+#define UNIT_POWER_UPDATE_INTERVAL          1 * IN_MILLISECONDS;
 
 enum SpellSchools
 {
@@ -696,7 +696,7 @@ enum SpellAttr9
     SPELL_ATTR9_UNK16                            = 0x00010000, // 16
     SPELL_ATTR9_UNK17                            = 0x00020000, // 17
     SPELL_ATTR9_UNK18                            = 0x00040000, // 18
-    SPELL_ATTR9_UNK19                            = 0x00080000, // 19
+    SPELL_ATTR9_ALLOW_DARK_SIMULACRUM            = 0x00080000, // 19 Allow Dark Simulacrum
     SPELL_ATTR9_UNK20                            = 0x00100000, // 20
     SPELL_ATTR9_UNK21                            = 0x00200000, // 21
     SPELL_ATTR9_UNK22                            = 0x00400000, // 22
