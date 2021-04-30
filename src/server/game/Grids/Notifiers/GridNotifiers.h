@@ -131,7 +131,7 @@ namespace Trinity
     };
 
     template<typename PacketCustomizer = MessageDistDelivererCustomizer>
-    struct TC_GAME_API MessageDistDeliverer
+    struct MessageDistDeliverer
     {
         WorldObject const* i_source;
         PacketCustomizer i_messageCustomizer;
@@ -167,7 +167,7 @@ namespace Trinity
     };
 
     template<typename PacketCustomizer = MessageDistDelivererCustomizer>
-    struct TC_GAME_API MessageDistDelivererToHostile
+    struct MessageDistDelivererToHostile
     {
         Unit* i_source;
         PacketCustomizer i_messageCustomizer;
