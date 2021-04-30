@@ -7544,7 +7544,9 @@ bool Spell::IsChannelActive() const
 
 bool Spell::IsAutoActionResetSpell() const
 {
-    if (IsTriggered())
+    // @todo: The check for interrupt flags is most likely not correct but the only clue that we have right now for known cases
+    // Ice lance resets swing timer >> has interrupt flags / Frost Shock does not >> has no interrupt flags
+    if (IsTriggered() || !m_spellInfo->InterruptFlags.HasAnyFlag())
         return false;
 
     if (!m_casttime && m_spellInfo->HasAttribute(SPELL_ATTR6_NOT_RESET_SWING_IF_INSTANT))
