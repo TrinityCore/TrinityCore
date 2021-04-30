@@ -25,6 +25,7 @@
 
 class ByteBuffer;
 class Item;
+struct LootItem;
 
 namespace WorldPackets
 {
