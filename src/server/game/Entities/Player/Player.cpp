@@ -1204,8 +1204,14 @@ void Player::Update(uint32 p_time)
             m_zoneUpdateTimer -= p_time;
     }
 
+    // Power regeneration update
+    _powerUpdateTimer -= p_time;
     if (IsAlive())
         RegenerateAll(p_time);
+
+    // Reset the power update timer after regeneration happened
+    if (_powerUpdateTimer <= 0)
+        _powerUpdateTimer = GetPowerUpdateInterval();
 
     if (m_deathState == JUST_DIED)
         KillPlayer();

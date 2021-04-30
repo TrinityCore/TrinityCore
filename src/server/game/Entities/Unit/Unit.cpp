@@ -413,7 +413,7 @@ Unit::Unit(bool isWorldObject) :
     for (uint8 i = 0; i < MAX_POWERS_PER_CLASS; ++i)
         _powerFraction[i] = 0;
 
-    _regenerationTimer = GetRegenerationInterval();
+    _powerUpdateTimer = GetPowerUpdateInterval();
     _healthRegenerationTimer = UNIT_HEALTH_REGENERATION_INTERVAL;
 
     _oldFactionId = 0;
@@ -521,12 +521,6 @@ void Unit::Update(uint32 p_time)
 
     // All position info based actions have been executed, reset info
     _positionUpdateInfo.Reset();
-
-    // Update Power regeneration interval
-    if (_regenerationTimer >= int32(GetRegenerationInterval()))
-        _regenerationTimer -= (GetRegenerationInterval() - p_time);
-    else
-        _regenerationTimer += p_time;
 
     // Update Health Regeneration
     _healthRegenerationTimer -= p_time;
@@ -10052,7 +10046,7 @@ void Unit::Regenerate(Powers powerType, uint32 diff)
     }
 
     // Players update their powers in 2 seconds intervals, creatures in 1 second ones
-    if (_regenerationTimer >= int32(GetRegenerationInterval()))
+    if (_powerUpdateTimer <= 0)
         SetPower(powerType, curValue);
     else
         UpdateUInt32Value(UNIT_FIELD_POWER1 + powerIndex, curValue);

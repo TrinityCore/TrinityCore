@@ -247,9 +247,9 @@ enum Powers
 };
 
 #define MAX_POWERS_PER_CLASS                5
-#define PLAYER_REGENERATION_INTERVAL        2 * IN_MILLISECONDS
-#define UNIT_REGENERATION_INTERVAL          1 * IN_MILLISECONDS
 #define UNIT_HEALTH_REGENERATION_INTERVAL   2 * IN_MILLISECONDS
+static constexpr uint32 const PLAYER_POWER_UPDATE_INTERVAL  = 2 * IN_MILLISECONDS;
+static constexpr uint32 const UNIT_POWER_UPDATE_INTERVAL    = 1 * IN_MILLISECONDS;
 
 enum SpellSchools
 {

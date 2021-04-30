@@ -1806,7 +1806,7 @@ class TC_GAME_API Unit : public WorldObject
         LiquidTypeEntry const* _lastLiquid;
         uint32 _powerBarId;
         float _powerFraction[MAX_POWERS_PER_CLASS];
-        int32 _regenerationTimer;
+        int32 _powerUpdateTimer;
         int32 _healthRegenerationTimer;
 
         bool IsAlwaysVisibleFor(WorldObject const* seer) const override;
@@ -1825,6 +1825,8 @@ class TC_GAME_API Unit : public WorldObject
         virtual void AtDisengage() {}
 
         void InterruptMovementBasedAuras();
+
+        uint32 GetPowerUpdateInterval() const { return IsPlayer() ? PLAYER_POWER_UPDATE_INTERVAL : UNIT_POWER_UPDATE_INTERVAL; }
     private:
 
         void UpdateSplineMovement(uint32 t_diff);
@@ -1835,8 +1837,6 @@ class TC_GAME_API Unit : public WorldObject
         uint32 GetCombatRatingDamageReduction(CombatRating cr, float rate, float cap, uint32 damage) const;
 
         void ProcSkillsAndReactives(bool isVictim, Unit* procTarget, uint32 typeMask, uint32 hitMask, WeaponAttackType attType);
-
-        uint32 GetRegenerationInterval() const { return IsPlayer() ? PLAYER_REGENERATION_INTERVAL : UNIT_REGENERATION_INTERVAL; }
 
     protected:
         void SetFeared(bool apply);

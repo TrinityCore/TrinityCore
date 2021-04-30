@@ -850,7 +850,12 @@ void Creature::Update(uint32 diff)
             if (!IsAlive())
                 break;
 
+            _powerUpdateTimer -= diff;
             Regenerate(GetPowerType(), diff);
+
+            // Reset the power update timer after regeneration happened
+            if (_powerUpdateTimer <= 0)
+                _powerUpdateTimer = GetPowerUpdateInterval();
 
             if (CanNotReachTarget() && !IsInEvadeMode() && !GetMap()->IsRaid())
             {
