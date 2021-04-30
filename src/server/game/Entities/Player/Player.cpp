@@ -6779,7 +6779,7 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
 
     if (uint32(newTotalCount) != oldTotalCount)
     {
-        if (currency->Flags & CURRENCY_FLAG_COUNT_SEASON_TOTAL)
+        if (currency->Flags & CURRENCY_FLAG_COUNT_SEASON_TOTAL && !isRefund)
             hasSeasonCount = true;
 
         if (itr->second.state != PLAYERCURRENCY_NEW)
