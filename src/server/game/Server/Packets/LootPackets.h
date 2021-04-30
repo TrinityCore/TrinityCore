@@ -88,6 +88,39 @@ namespace WorldPackets
             ObjectGuid Disenchanter;
             WorldPackets::Item::ItemInstance Item;
         };
+
+        struct LootItemData
+        {
+            uint8 Type              = 0;
+            uint8 UIType            = 0;
+            uint32 Quantity         = 0;
+            uint8 LootItemType      = 0;
+            uint8 LootListID        = 0;
+            WorldPackets::Item::ItemInstance Loot;
+        };
+
+        struct LootCurrency
+        {
+            uint32 CurrencyID   = 0;
+            uint32 Quantity     = 0;
+            uint8 LootListID    = 0;
+        };
+
+        class LootResponse final : public ServerPacket
+        {
+        public:
+            LootResponse() : ServerPacket(SMSG_LOOT_RESPONSE, 100) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Owner;
+            uint8 Threshold      = 2; // Most common value, 2 = Uncommon
+            uint8 AcquireReason  = 0;
+            uint8 FailureReason  = 17; // Most common value
+            uint32 Coins         = 0;
+            std::vector<LootItemData> Items;
+            std::vector<LootCurrency> Currencies;
+        };
     }
 }
 

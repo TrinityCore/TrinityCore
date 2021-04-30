@@ -33,6 +33,14 @@ class Player;
 struct Loot;
 struct LootStoreItem;
 
+namespace WorldPackets
+{
+    namespace Loot
+    {
+        class LootResponse;
+    }
+}
+
 enum RollType
 {
     ROLL_PASS         = 0,
@@ -285,6 +293,9 @@ struct TC_GAME_API Loot
     bool hasItemForAll() const;
     bool hasItemFor(Player* player) const;
     bool hasOverThresholdItem() const;
+
+    // Builds data for SMSG_LOOT_RESPONSE
+    void BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* viewer, PermissionTypes permission = ALL_PERMISSION) const;
 
     private:
         void FillNotNormalLootFor(Player* player, bool presentAtLooting);

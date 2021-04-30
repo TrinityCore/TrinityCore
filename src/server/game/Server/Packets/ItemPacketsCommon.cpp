@@ -17,14 +17,24 @@
 
 #include "ItemPacketsCommon.h"
 #include "Item.h"
+#include "ObjectMgr.h"
 #include "Player.h"
 #include "Loot.h"
 
 void WorldPackets::Item::ItemInstance::Initialize(::Item const* item)
 {
     ItemID               = item->GetEntry();
+    ItemDisplayID        = item->GetDisplayId();
     RandomPropertiesID   = item->GetItemRandomPropertyId();
     RandomPropertiesSeed = item->GetItemSuffixFactor();
+}
+
+void WorldPackets::Item::ItemInstance::Initialize(::LootItem const& lootItem)
+{
+    ItemID                  = lootItem.itemid;
+    ItemDisplayID           = ASSERT_NOTNULL(sObjectMgr->GetItemTemplate(lootItem.itemid))->GetDisplayID();
+    RandomPropertiesID      = lootItem.randomPropertyId.Type == ItemRandomEnchantmentType::Property ? lootItem.randomPropertyId.Id : -int32(lootItem.randomPropertyId.Id);
+    RandomPropertiesSeed    = lootItem.randomSuffix;
 }
 
 bool WorldPackets::Item::ItemInstance::operator==(ItemInstance const& r) const

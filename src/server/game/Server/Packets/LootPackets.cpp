@@ -16,6 +16,7 @@
  */
 
 #include "LootPackets.h"
+#include "ItemPacketsCommon.h"
 
 WorldPacket const* WorldPackets::Loot::LootMoneyNotify::Write()
 {
@@ -74,6 +75,51 @@ WorldPacket const* WorldPackets::Loot::DisenchantCredit::Write()
     _worldPacket.WriteByteSeq(Disenchanter[7]);
     _worldPacket.WriteByteSeq(Disenchanter[3]);
     _worldPacket.WriteByteSeq(Disenchanter[0]);
+
+    return &_worldPacket;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Loot::LootItemData const& lootItemData)
+{
+    data << uint8(lootItemData.LootListID);
+    data << uint32(lootItemData.Loot.ItemID);
+    data << uint32(lootItemData.Quantity);
+    data << int32(lootItemData.Loot.ItemDisplayID);
+    data << int32(lootItemData.Loot.RandomPropertiesSeed);
+    data << int32(lootItemData.Loot.RandomPropertiesID);
+    data << uint8(lootItemData.UIType);
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Loot::LootCurrency const& lootCurrency)
+{
+    data << uint8(lootCurrency.LootListID);
+    data << uint32(lootCurrency.CurrencyID);
+    data << uint32(lootCurrency.Quantity);
+
+    return data;
+}
+
+WorldPacket const* WorldPackets::Loot::LootResponse::Write()
+{
+    _worldPacket << Owner;
+    _worldPacket << uint8(AcquireReason);
+    if (!AcquireReason)
+    {
+        _worldPacket << uint8(FailureReason);
+        return &_worldPacket;
+    }
+
+    _worldPacket << uint32(Coins);
+    _worldPacket << uint8(Items.size());
+    _worldPacket << uint8(Currencies.size());
+
+    for (LootItemData const& lootItemData : Items)
+        _worldPacket << lootItemData;
+
+    for (LootCurrency const& lootCurrency : Currencies)
+        _worldPacket << lootCurrency;
 
     return &_worldPacket;
 }
