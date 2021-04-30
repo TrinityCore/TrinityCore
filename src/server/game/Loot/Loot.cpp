@@ -120,6 +120,8 @@ void Loot::AddItem(LootStoreItem const& item)
     std::vector<LootItem>& lootItems = item.needs_quest ? quest_items : items;
     uint32 limit = item.needs_quest ? MAX_NR_QUEST_ITEMS : MAX_NR_LOOT_ITEMS;
 
+    Player* player = ObjectAccessor::FindPlayer(lootOwnerGUID);
+
     if (item.is_currency)
     {
         CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(item.itemid);
@@ -128,6 +130,11 @@ void Loot::AddItem(LootStoreItem const& item)
 
         uint32 totalCap = currency->MaxQty > 0 ? currency->MaxQty : 1;
         uint32 count = urand(item.mincount, item.maxcount);
+
+        // SPELL_AURA_MOD_CURRENCY_CATEGORY_GAIN_PCT bonus
+        if (player)
+            count *= player->GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_CURRENCY_CATEGORY_GAIN_PCT, currency->CategoryID);
+
         uint32 stacks = count / totalCap + ((count % totalCap) ? 1 : 0);
 
         for (uint32 i = 0; i < stacks && lootItems.size() < limit; ++i)
@@ -139,7 +146,7 @@ void Loot::AddItem(LootStoreItem const& item)
 
             // In some cases, a dropped item should be visible/lootable only for some players in group
             bool canSeeItemInLootWindow = false;
-            if (Player* player = ObjectAccessor::FindPlayer(lootOwnerGUID))
+            if (player)
             {
                 if (Group* group = player->GetGroup())
                 {
@@ -178,7 +185,7 @@ void Loot::AddItem(LootStoreItem const& item)
 
         // In some cases, a dropped item should be visible/lootable only for some players in group
         bool canSeeItemInLootWindow = false;
-        if (Player* player = ObjectAccessor::FindPlayer(lootOwnerGUID))
+        if (player)
         {
             if (Group* group = player->GetGroup())
             {
