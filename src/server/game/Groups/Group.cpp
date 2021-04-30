@@ -1561,7 +1561,7 @@ void Group::CountTheRoll(Rolls::iterator rollI, Map* allowedMap)
                         WorldPackets::Loot::DisenchantCredit disenchantCredit;
                         disenchantCredit.Disenchanter = m_disenchantInfo.DisenchanterGUID;
                         disenchantCredit.Item.ItemID = item->itemid;
-                        disenchantCredit.Item.RandomPropertiesID = item->randomPropertyId.Id;
+                        disenchantCredit.Item.RandomPropertiesID = item->randomPropertyId.Type == ItemRandomEnchantmentType::Property ? item->randomPropertyId.Id : -item->randomPropertyId.Id;
                         disenchantCredit.Item.RandomPropertiesSeed = item->randomSuffix;
                         BroadcastPacket(disenchantCredit.Write(), false);
 

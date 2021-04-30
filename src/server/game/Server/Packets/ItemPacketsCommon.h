@@ -35,8 +35,8 @@ namespace WorldPackets
             void Initialize(::Item const* item);
 
             uint32 ItemID = 0;
-            uint32 RandomPropertiesSeed = 0;
-            uint32 RandomPropertiesID = 0;
+            int32 RandomPropertiesSeed = 0;
+            int32 RandomPropertiesID = 0;
 
             bool operator==(ItemInstance const& r) const;
             bool operator!=(ItemInstance const& r) const { return !(*this == r); }
