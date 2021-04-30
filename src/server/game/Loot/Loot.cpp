@@ -789,6 +789,7 @@ void Loot::BuildLootResponse(WorldPackets::Loot::LootResponse& packet, Player* v
                                 lootItem.UIType = item.is_blocked ? LOOT_SLOT_TYPE_LOCKED : LOOT_SLOT_TYPE_ALLOW_LOOT;
                                 break;
                             case GROUP_PERMISSION:
+                            case ROUND_ROBIN_PERMISSION:
                                 if (!item.is_blocked)
                                     lootItem.UIType = LOOT_SLOT_TYPE_ALLOW_LOOT;
                                 else
