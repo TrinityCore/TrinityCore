@@ -171,7 +171,7 @@ struct boss_baron_silverlaine : public BossAI
                 summon->CastSpell(summon, SPELL_SUMMON_SPIRIT_OF_ODO_THE_BLINDWATCHER_SUMMON);
                 break;
             case NPC_WORGEN_SPIRIT_RAZORCLAW:
-                summon->CastSpell(summon, SPELL_SUMMON_SPIRIT_OF_WOLF_MASTER_NANDOS_SUMMON);
+                summon->CastSpell(summon, SPELL_SUMMON_SPIRIT_OF_RAZORCLAW_THE_BUTCHER_SUMMON);
                 break;
             case NPC_WORGEN_SPIRIT_NANDOS:
                 summon->CastSpell(summon, SPELL_SUMMON_SPIRIT_OF_WOLF_MASTER_NANDOS_SUMMON);
