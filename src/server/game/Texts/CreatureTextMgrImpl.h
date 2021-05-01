@@ -37,7 +37,7 @@ public:
     void operator()(Player const* player) const
     {
         LocaleConstant loc_idx = player->GetSession()->GetSessionDbLocaleIndex();
-        Trinity::PacketSenderOwning<WorldPackets::Chat::Chat>* sender;
+        Trinity::ChatPacketSender* sender;
 
         // create if not cached yet
         if (!_cache[loc_idx])
@@ -53,7 +53,7 @@ public:
             case CHAT_MSG_MONSTER_WHISPER:
             case CHAT_MSG_RAID_BOSS_WHISPER:
             {
-                WorldPackets::Chat::Chat message(sender->Data);
+                WorldPackets::Chat::Chat message(sender->UntranslatedPacket);
                 message.SetReceiver(player, loc_idx);
                 player->SendDirectMessage(message.Write());
                 return;
@@ -66,7 +66,7 @@ public:
     }
 
 private:
-    mutable std::array<std::unique_ptr<Trinity::PacketSenderOwning<WorldPackets::Chat::Chat>>, TOTAL_LOCALES> _cache;
+    mutable std::array<std::unique_ptr<Trinity::ChatPacketSender>, TOTAL_LOCALES> _cache;
     Builder const& _builder;
     ChatMsg _msgType;
 };

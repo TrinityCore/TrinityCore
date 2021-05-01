@@ -42,6 +42,7 @@
 #include "CharacterPackets.h"
 #include "Chat.h"
 #include "ChatPackets.h"
+#include "ChatTextBuilder.h"
 #include "CinematicMgr.h"
 #include "CombatLogPackets.h"
 #include "CombatPackets.h"
@@ -21969,54 +21970,15 @@ void Player::Say(std::string const& text, Language language, WorldObject const* 
     SendChatMessageToSetInRange(CHAT_MSG_SAY, language, std::move(_text), sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY));
 }
 
-struct ChatMessageDistDelivererCustomizer
-{
-    // params
-    ChatMsg Type;
-    ::Language Language;
-    WorldObject const* Sender;
-    WorldObject const* Receiver;
-    std::string Text;
-
-    // caches
-    WorldPackets::Chat::Chat UntranslatedPacket;
-    mutable Optional<WorldPackets::Chat::Chat> TranslatedPacket;
-    uint32 LanguageSkillId;
-
-    ChatMessageDistDelivererCustomizer(ChatMsg chatType, ::Language language, WorldObject const* sender, WorldObject const* receiver, std::string message)
-        : Type(chatType), Language(language), Sender(sender), Receiver(receiver), Text(std::move(message)), LanguageSkillId(0)
-    {
-        UntranslatedPacket.Initialize(Type, Language, Sender, Receiver, Text);
-        UntranslatedPacket.Write();
-        if (LanguageDesc const* languageDesc = sLanguageMgr->GetLanguageDescById(language))
-            LanguageSkillId = languageDesc->SkillId;
-    }
-
-    WorldPacket const* operator()(Player* player) const
-    {
-        if (player->CanUnderstandLanguageSkillId(LanguageSkillId))
-            return UntranslatedPacket.GetRawPacket();
-
-        if (!TranslatedPacket)
-        {
-            TranslatedPacket.emplace();
-            TranslatedPacket->Initialize(Type, Language, Sender, Receiver, sLanguageMgr->Translate(Text, Language));
-            TranslatedPacket->Write();
-        }
-
-        return TranslatedPacket->GetRawPacket();
-    }
-};
-
 void Player::SendChatMessageToSetInRange(ChatMsg chatMsg, Language language, std::string&& text, float range)
 {
-    ChatMessageDistDelivererCustomizer customizer(chatMsg, language, this, this, std::move(text));
+    Trinity::ChatPacketSender customizer(chatMsg, language, this, this, std::move(text));
 
     // Send to self
     SendDirectMessage(customizer.UntranslatedPacket.GetRawPacket());
 
     // Send to players
-    Trinity::MessageDistDeliverer<ChatMessageDistDelivererCustomizer> notifier(this, std::move(customizer), range);
+    Trinity::MessageDistDeliverer<Trinity::ChatPacketSender> notifier(this, customizer, range);
     Cell::VisitWorldObjects(this, notifier, range);
 }
 
