@@ -390,7 +390,7 @@ WorldPacket const* WorldPackets::Party::PartyInvite::Write()
     _worldPacket.WriteBits(InviterRealmName.length(), 9);
     _worldPacket.WriteBit(InviterGUID[4]);
     _worldPacket.WriteBits(InviterName.length(), 7);
-    _worldPacket.WriteBits(LfgSlots.size(), 27);
+    _worldPacket.WriteBits(LfgSlots.size(), 24);
     _worldPacket.WriteBit(IsXRealm); // @todo: validate. Just seen it once in a firelands raid sniff.
     _worldPacket.WriteBit(InviterGUID[1]);
     _worldPacket.WriteBit(InviterGUID[7]);
