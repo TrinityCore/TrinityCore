@@ -57,14 +57,13 @@ enum SKCreatures
 
     // Encounter related creatures
     /*Baron Silverlaine*/
-    NPC_NANDOS_DUMMY                = 51047,
+    NPC_WORGEN_SPIRIT_NANDOS        = 51047,
     NPC_WOLF_MASTER_NANDOS          = 50851,
-    NPC_LUPINE_SPECTRE              = 50923,
-    NPC_ODO_DUMMY                   = 50934,
+    NPC_WORGEN_SPIRIT_ODO           = 50934,
     NPC_ODO_THE_BLINDWATCHER        = 50857,
-    NPC_RAZORCLAW_DUMMY             = 51080,
+    NPC_WORGEN_SPIRIT_RAZORCLAW     = 51080,
     NPC_RAZORCLAW_THE_BUTCHER       = 50869,
-    NPC_RETHILGORE_DUMMY            = 51085,
+    NPC_WORGEN_SPIRIT_RETHILGORE    = 51085,
     NPC_RETHILGORE                  = 50834,
 
     /*Commander Springvale*/
