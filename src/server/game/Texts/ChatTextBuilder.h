@@ -19,6 +19,7 @@
 #define __CHATTEXT_BUILDER_H
 
 #include "Common.h"
+#include "ChatPackets.h"
 #include "SharedDefines.h"
 #include <string>
 
@@ -27,29 +28,38 @@ class WorldObject;
 
 namespace Trinity
 {
-    template<typename Packet>
-    struct PacketSenderOwning;
-}
-
-namespace WorldPackets
-{
-    class Packet;
-
-    namespace Chat
+    class ChatPacketSender
     {
-        class Chat;
-    }
-}
+    private:
+        // params
+        ChatMsg Type;
+        ::Language Language;
+        WorldObject const* Sender;
+        WorldObject const* Receiver;
+        std::string Text;
+        uint32 AchievementId;
+        LocaleConstant Locale;
 
-namespace Trinity
-{
+        uint32 LanguageSkillId;
+
+    public:
+        // caches
+        WorldPackets::Chat::Chat UntranslatedPacket;
+        mutable Optional<WorldPackets::Chat::Chat> TranslatedPacket;
+
+        ChatPacketSender(ChatMsg chatType, ::Language language, WorldObject const* sender, WorldObject const* receiver, std::string message,
+            uint32 achievementId = 0, LocaleConstant locale = LOCALE_enUS);
+
+        void operator()(Player const* player) const;
+    };
+
     class BroadcastTextBuilder
     {
         public:
             BroadcastTextBuilder(WorldObject const* obj, ChatMsg msgType, uint32 textId, uint8 gender, WorldObject const* target = nullptr, uint32 achievementId = 0)
                 : _source(obj), _msgType(msgType), _textId(textId), _gender(gender), _target(target), _achievementId(achievementId) { }
 
-            PacketSenderOwning<WorldPackets::Chat::Chat>* operator()(LocaleConstant locale) const;
+            ChatPacketSender* operator()(LocaleConstant locale) const;
 
         private:
             WorldObject const* _source;
@@ -66,7 +76,7 @@ namespace Trinity
             CustomChatTextBuilder(WorldObject const* obj, ChatMsg msgType, std::string const& text, Language language = LANG_UNIVERSAL, WorldObject const* target = nullptr)
                 : _source(obj), _msgType(msgType), _text(text), _language(language), _target(target) { }
 
-            PacketSenderOwning<WorldPackets::Chat::Chat>* operator()(LocaleConstant locale) const;
+            ChatPacketSender* operator()(LocaleConstant locale) const;
 
         private:
             WorldObject const* _source;
@@ -82,7 +92,7 @@ namespace Trinity
             TrinityStringChatBuilder(WorldObject const* obj, ChatMsg msgType, uint32 textId, WorldObject const* target = nullptr, va_list* args = nullptr)
                 : _source(obj), _msgType(msgType), _textId(textId), _target(target), _args(args) { }
 
-            PacketSenderOwning<WorldPackets::Chat::Chat>* operator()(LocaleConstant locale) const;
+            ChatPacketSender* operator()(LocaleConstant locale) const;
 
         private:
             WorldObject const* _source;
@@ -98,7 +108,7 @@ namespace Trinity
             CreatureTextTextBuilder(WorldObject const* obj, WorldObject const* speaker, uint8 gender, ChatMsg msgtype, uint8 textGroup, uint32 id, Language language, WorldObject const* target)
                 : _source(obj), _talker(speaker), _gender(gender), _msgType(msgtype), _textGroup(textGroup), _textId(id), _language(language), _target(target) { }
 
-            PacketSenderOwning<WorldPackets::Chat::Chat>* operator()(LocaleConstant locale) const;
+            ChatPacketSender* operator()(LocaleConstant locale) const;
 
         private:
             WorldObject const* _source;
