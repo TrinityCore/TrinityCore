@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "Hash.h"
+#include "IteratorPair.h"
 #include "SharedDefines.h"
 #include <string>
 #include <vector>
@@ -27,11 +28,15 @@
 
 struct LanguageDesc
 {
-    uint32          SpellId;
-    uint32          SkillId;
+    uint32 SpellId = 0;
+    uint32 SkillId = 0;
+
+    friend bool operator==(LanguageDesc const& left, LanguageDesc const& right)
+    {
+        return left.SpellId == right.SpellId && left.SkillId == right.SkillId;
+    }
 };
 
-struct SkillLineEntry;
 struct SpellEffectEntry;
 
 class TC_GAME_API LanguageMgr
@@ -43,7 +48,7 @@ class TC_GAME_API LanguageMgr
     typedef std::vector<char const*> WordList;
     typedef std::unordered_map<WordKey, WordList> WordsMap;
 
-    typedef std::unordered_map<uint32, LanguageDesc> LanguagesMap;
+    typedef std::unordered_multimap<uint32, LanguageDesc> LanguagesMap;
 
     // Constructors
     private:
@@ -60,7 +65,7 @@ class TC_GAME_API LanguageMgr
         uint32 SStrHash(char const* string, bool caseInsensitive, uint32 seed = 0x7FED7FED) const;
 
         bool IsLanguageExist(uint32 languageId) const;
-        LanguageDesc const* GetLanguageDescById(uint32 languageId) const;
+        Trinity::IteratorPair<LanguagesMap::const_iterator> GetLanguageDescById(Language languageId) const;
 
         /* Calls a callback for each available language.
          * Callback signature: bool callback(uint32 lang, LanguageDesc const& languageDesc)
@@ -83,11 +88,6 @@ class TC_GAME_API LanguageMgr
 
         void LoadLanguagesWords();
         void LoadLanguages();
-        void LoadLanguagesSkills();
-
-        bool IsRelevantLanguageSkill(SkillLineEntry const* skillLineEntry) const;
-
-        uint32 GetSpellLanguage(uint32 spellId) const;
 
         WordList const* FindWordGroup(uint32 language, uint32 wordLen) const;
 

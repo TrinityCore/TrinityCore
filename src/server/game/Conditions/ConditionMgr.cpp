@@ -2625,18 +2625,20 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
 
     if (condition->LanguageID)
     {
-        if (LanguageDesc const* langDesc = sLanguageMgr->GetLanguageDescById(condition->LanguageID))
+        int32 languageSkill = 0;
+        if (player->HasAuraTypeWithMiscvalue(SPELL_AURA_COMPREHEND_LANGUAGE, condition->LanguageID))
+            languageSkill = 300;
+        else
         {
-            int32 languageSkill = player->GetSkillValue(langDesc->SkillId);
-            if (!languageSkill && player->HasAuraTypeWithMiscvalue(SPELL_AURA_COMPREHEND_LANGUAGE, condition->LanguageID))
-                languageSkill = 300;
-
-            if (condition->MinLanguage && languageSkill < condition->MinLanguage)
-                return false;
-
-            if (condition->MaxLanguage && languageSkill > condition->MaxLanguage)
-                return false;
+            for (std::pair<uint32 const, LanguageDesc> const& languageDesc : sLanguageMgr->GetLanguageDescById(Language(condition->LanguageID)))
+                languageSkill = std::max<int32>(languageSkill, player->GetSkillValue(languageDesc.second.SkillId));
         }
+
+        if (condition->MinLanguage && languageSkill < condition->MinLanguage)
+            return false;
+
+        if (condition->MaxLanguage && languageSkill > condition->MaxLanguage)
+            return false;
     }
 
     if (condition->MinFactionID[0] && condition->MinFactionID[1] && condition->MinFactionID[2] && condition->MaxFactionID)

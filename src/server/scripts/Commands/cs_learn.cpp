@@ -291,7 +291,9 @@ public:
     {
         sLanguageMgr->ForEachLanguage([handler](uint32 /*lang*/, LanguageDesc const& languageDesc)
         {
-            handler->GetSession()->GetPlayer()->LearnSpell(languageDesc.SpellId, false);
+            if (languageDesc.SpellId)
+                handler->GetSession()->GetPlayer()->LearnSpell(languageDesc.SpellId, false);
+
             return true;
         });
 

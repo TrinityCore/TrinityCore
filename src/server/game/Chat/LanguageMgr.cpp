@@ -16,12 +16,12 @@
  */
 
 #include "LanguageMgr.h"
+#include "Containers.h"
 #include "DB2Stores.h"
 #include "Log.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "Timer.h"
-
 #include <sstream>
 
 LanguageMgr::LanguageMgr() : _langsMap(), _wordsMap() { }
@@ -43,37 +43,8 @@ void LanguageMgr::LoadSpellEffectLanguage(SpellEffectEntry const* spellEffect)
     ASSERT(spellEffect && spellEffect->Effect == SPELL_EFFECT_LANGUAGE);
 
     uint32 languageId = uint32(spellEffect->EffectMiscValue[0]);
-    auto iter = _langsMap.find(languageId);
-    if (iter == _langsMap.end())
-    {
-        TC_LOG_WARN("languages.spell", "LoadSpellEffectLanguage called on Spell %u with language %u which does not exist in Language.db2!",
-            spellEffect->SpellID, languageId);
-        return;
-    }
-    LanguageDesc& desc = iter->second;
-    desc.SpellId = spellEffect->SpellID;
-}
 
-uint32 LanguageMgr::GetSpellLanguage(uint32 spellId) const
-{
-    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE))
-    {
-        SpellEffectInfoVector const& effects = spellInfo->GetEffects();
-        if (effects.size() != 1 || effects[0]->Effect != SPELL_EFFECT_LANGUAGE)
-            TC_LOG_WARN("languages.spell", "Invalid language spell %u. Expected 1 effect with SPELL_EFFECT_LANGUAGE", spellId);
-        else
-            return effects[0]->MiscValue;
-    }
-    return 0;
-}
-
-bool LanguageMgr::IsRelevantLanguageSkill(SkillLineEntry const* skillLineEntry) const
-{
-    if (!skillLineEntry)
-        return false;
-
-    SkillRaceClassInfoEntry const* entry = sDB2Manager.GetAvailableSkillRaceClassInfo(skillLineEntry->ID);
-    return entry != nullptr;
+    _langsMap.emplace(languageId, LanguageDesc{ spellEffect->SpellID, 0 }); // register without a skill id for now
 }
 
 void LanguageMgr::LoadLanguages()
@@ -82,7 +53,25 @@ void LanguageMgr::LoadLanguages()
 
     // Load languages from Languages.db2. Just the id, we don't need the name
     for (LanguagesEntry const* langEntry : sLanguagesStore)
-        _langsMap.emplace(langEntry->ID, LanguageDesc());
+    {
+        auto spellsRange = Trinity::Containers::MapEqualRange(_langsMap, langEntry->ID);
+        if (spellsRange.begin() == spellsRange.end())
+            _langsMap.emplace(langEntry->ID, LanguageDesc());
+        else
+        {
+            std::vector<LanguageDesc> langsWithSkill;
+            for (LanguagesMap::value_type const& spellItr : spellsRange)
+                for (SkillLineAbilityMap::value_type const& skillPair : Trinity::Containers::MakeIteratorPair(sSpellMgr->GetSkillLineAbilityMapBounds(spellItr.second.SpellId)))
+                    langsWithSkill.emplace_back(LanguageDesc{ spellItr.second.SpellId, uint32(skillPair.second->SkillLine) });
+
+            for (LanguageDesc const& langDesc : langsWithSkill)
+            {
+                // erase temporary assignment that lacked skill
+                Trinity::Containers::MultimapErasePair(_langsMap, langEntry->ID, { langDesc.SpellId, 0 });
+                _langsMap.emplace(langEntry->ID, langDesc);
+            }
+        }
+    }
 
     // Add the languages used in code in case they don't exist
     _langsMap.emplace(LANG_UNIVERSAL, LanguageDesc());
@@ -91,48 +80,6 @@ void LanguageMgr::LoadLanguages()
 
     // Log load time
     TC_LOG_INFO("server.loading", ">> Loaded %u languages in %u ms", uint32(_langsMap.size()), GetMSTimeDiffToNow(oldMSTime));
-}
-
-void LanguageMgr::LoadLanguagesSkills()
-{
-    uint32 oldMSTime = getMSTime();
-
-    uint32 count = 0;
-    for (SkillLineEntry const* skillLineEntry : sSkillLineStore)
-    {
-        if (skillLineEntry->CategoryID != SKILL_CATEGORY_LANGUAGES)
-            continue;
-
-        if (!IsRelevantLanguageSkill(skillLineEntry))
-            continue;
-
-        std::vector<SkillLineAbilityEntry const*> const* skills = sDB2Manager.GetSkillLineAbilitiesBySkill(skillLineEntry->ID);
-
-        // We're expecting only 1 skill
-        if (skills->size() != 1)
-            TC_LOG_WARN("server.loading", "Found language skill line with %u spells. Expected 1. Will use 1st if available", uint32(skills->size()));
-
-        if (SkillLineAbilityEntry const* ability = skills->empty() ? nullptr : skills->at(0))
-        {
-            if (uint32 languageId = GetSpellLanguage(ability->Spell))
-            {
-                auto iter = _langsMap.find(languageId);
-                if (iter == _langsMap.cend())
-                    TC_LOG_WARN("server.loading", "Spell %u has language %u, which doesn't exist in Languages.db2", ability->Spell, languageId);
-                else
-                {
-                    iter->second.SpellId = ability->Spell;
-                    iter->second.SkillId = skillLineEntry->ID;
-                    ++count;
-                }
-            }
-        }
-    }
-
-    // Languages that don't have skills will be added in SpellMgr::LoadSpellInfoStore() (e.g. LANG_ZOMBIE, LANG_SHATH_YAR)
-
-    // Log load time
-    TC_LOG_INFO("server.loading", ">> Loaded %u languages skills in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void LanguageMgr::LoadLanguagesWords()
@@ -146,8 +93,7 @@ void LanguageMgr::LoadLanguagesWords()
 
         WordKey key = WordKey(wordEntry->LanguageID, length);
 
-        auto result = _wordsMap.insert(std::make_pair(key, WordList()));
-        result.first->second.push_back(wordEntry->Word);
+        _wordsMap[key].push_back(wordEntry->Word);
         ++wordsNum;
     }
 
@@ -157,10 +103,7 @@ void LanguageMgr::LoadLanguagesWords()
 
 LanguageMgr::WordList const* LanguageMgr::FindWordGroup(uint32 language, uint32 wordLen) const
 {
-    WordsMap::const_iterator iter = _wordsMap.find(WordKey(language, wordLen));
-    if (iter != _wordsMap.end())
-        return &(iter->second);
-    return nullptr;
+    return Trinity::Containers::MapGetValuePtr(_wordsMap, WordKey(language, wordLen));
 }
 
 std::string LanguageMgr::Translate(std::string const& msg, uint32 sourcePlayerLanguage) const
@@ -221,14 +164,10 @@ uint32 LanguageMgr::SStrHash(char const* string, bool caseInsensitive, uint32 se
 
 bool LanguageMgr::IsLanguageExist(uint32 languageId) const
 {
-    auto iter = _langsMap.find(languageId);
-    return iter != _langsMap.cend();
+    return sLanguagesStore.HasRecord(languageId);
 }
 
-LanguageDesc const* LanguageMgr::GetLanguageDescById(uint32 languageId) const
+Trinity::IteratorPair<LanguageMgr::LanguagesMap::const_iterator> LanguageMgr::GetLanguageDescById(Language languageId) const
 {
-    auto iter = _langsMap.find(languageId);
-    if (iter == _langsMap.cend())
-        return nullptr;
-    return &(iter->second);
+    return Trinity::Containers::MapEqualRange(_langsMap, languageId);
 }

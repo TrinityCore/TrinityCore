@@ -27,17 +27,15 @@ namespace Trinity
 {
 ChatPacketSender::ChatPacketSender(ChatMsg chatType, ::Language language, WorldObject const* sender, WorldObject const* receiver,
     std::string message, uint32 achievementId /*= 0*/, LocaleConstant locale /*= LOCALE_enUS*/)
-    : Type(chatType), Language(language), Sender(sender), Receiver(receiver), Text(std::move(message)), AchievementId(achievementId), Locale(locale), LanguageSkillId(0)
+    : Type(chatType), Language(language), Sender(sender), Receiver(receiver), Text(std::move(message)), AchievementId(achievementId), Locale(locale)
 {
     UntranslatedPacket.Initialize(Type, Language, Sender, Receiver, Text, AchievementId, "", Locale);
     UntranslatedPacket.Write();
-    if (LanguageDesc const* languageDesc = sLanguageMgr->GetLanguageDescById(language))
-        LanguageSkillId = languageDesc->SkillId;
 }
 
 void ChatPacketSender::operator()(Player const* player) const
 {
-    if (Language == LANG_UNIVERSAL || Language == LANG_ADDON || Language == LANG_ADDON_LOGGED || player->CanUnderstandLanguageSkillId(LanguageSkillId))
+    if (Language == LANG_UNIVERSAL || Language == LANG_ADDON || Language == LANG_ADDON_LOGGED || player->CanUnderstandLanguage(Language))
     {
         player->SendDirectMessage(UntranslatedPacket.GetRawPacket());
         return;
