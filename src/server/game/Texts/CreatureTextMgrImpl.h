@@ -20,7 +20,7 @@
 
 #include "CreatureTextMgr.h"
 #include "CellImpl.h"
-#include "ChatPackets.h"
+#include "ChatTextBuilder.h"
 #include "GridNotifiers.h"
 #include "Group.h"
 #include "World.h"
@@ -30,38 +30,30 @@ template<class Builder>
 class CreatureTextLocalizer
 {
 public:
-    CreatureTextLocalizer(Builder const& builder, ChatMsg msgType) : _builder(builder), _msgType(msgType)
+    CreatureTextLocalizer(Builder const& builder, ChatMsg msgType) : _cache(), _builder(builder), _msgType(msgType)
     {
-        _packetCache.resize(TOTAL_LOCALES, nullptr);
-    }
-
-    ~CreatureTextLocalizer()
-    {
-        for (size_t i = 0; i < _packetCache.size(); ++i)
-            delete _packetCache[i];
     }
 
     void operator()(Player const* player) const
     {
         LocaleConstant loc_idx = player->GetSession()->GetSessionDbLocaleIndex();
-        WorldPackets::Chat::Chat* messageTemplate;
+        Trinity::PacketSenderOwning<WorldPackets::Chat::Chat>* sender;
 
         // create if not cached yet
-        if (!_packetCache[loc_idx])
+        if (!_cache[loc_idx])
         {
-            messageTemplate = static_cast<WorldPackets::Chat::Chat*>(_builder(loc_idx));
-            messageTemplate->Write();
-            _packetCache[loc_idx] = messageTemplate;
+            sender = _builder(loc_idx);
+            _cache[loc_idx].reset(sender);
         }
         else
-            messageTemplate = _packetCache[loc_idx];
+            sender = _cache[loc_idx].get();
 
         switch (_msgType)
         {
             case CHAT_MSG_MONSTER_WHISPER:
             case CHAT_MSG_RAID_BOSS_WHISPER:
             {
-                WorldPackets::Chat::Chat message(*messageTemplate);
+                WorldPackets::Chat::Chat message(sender->Data);
                 message.SetReceiver(player, loc_idx);
                 player->SendDirectMessage(message.Write());
                 return;
@@ -70,11 +62,11 @@ public:
                 break;
         }
 
-        player->SendDirectMessage(messageTemplate->GetRawPacket());
+        (*sender)(player);
     }
 
 private:
-    mutable std::vector<WorldPackets::Chat::Chat*> _packetCache;
+    mutable std::array<std::unique_ptr<Trinity::PacketSenderOwning<WorldPackets::Chat::Chat>>, TOTAL_LOCALES> _cache;
     Builder const& _builder;
     ChatMsg _msgType;
 };

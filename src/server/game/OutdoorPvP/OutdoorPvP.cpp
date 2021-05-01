@@ -37,13 +37,14 @@ class DefenseMessageBuilder
         DefenseMessageBuilder(uint32 zoneId, uint32 id)
             : _zoneId(zoneId), _id(id) { }
 
-        WorldPackets::Chat::DefenseMessage* operator()(LocaleConstant locale) const
+        Trinity::PacketSenderOwning<WorldPackets::Chat::DefenseMessage>* operator()(LocaleConstant locale) const
         {
             std::string text = sOutdoorPvPMgr->GetDefenseMessage(_zoneId, _id, locale);
 
-            WorldPackets::Chat::DefenseMessage* defenseMessage = new WorldPackets::Chat::DefenseMessage();
-            defenseMessage->ZoneID = _zoneId;
-            defenseMessage->MessageText = text;
+            Trinity::PacketSenderOwning<WorldPackets::Chat::DefenseMessage>* defenseMessage = new Trinity::PacketSenderOwning<WorldPackets::Chat::DefenseMessage>();
+            defenseMessage->Data.ZoneID = _zoneId;
+            defenseMessage->Data.MessageText = text;
+            defenseMessage->Data.Write();
             return defenseMessage;
         }
 
@@ -636,7 +637,7 @@ void OutdoorPvP::OnGameObjectRemove(GameObject* go)
 void OutdoorPvP::SendDefenseMessage(uint32 zoneId, uint32 id)
 {
     DefenseMessageBuilder builder(zoneId, id);
-    Trinity::LocalizedPacketDo<DefenseMessageBuilder> localizer(builder);
+    Trinity::LocalizedDo<DefenseMessageBuilder> localizer(builder);
     BroadcastWorker(localizer, zoneId);
 }
 

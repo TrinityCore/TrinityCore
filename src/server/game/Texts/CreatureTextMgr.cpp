@@ -19,7 +19,7 @@
 #include "CreatureTextMgrImpl.h"
 #include "CellImpl.h"
 #include "Chat.h"
-#include "ChatPackets.h"
+#include "ChatTextBuilder.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
@@ -28,55 +28,6 @@
 #include "MiscPackets.h"
 #include "ObjectMgr.h"
 #include "World.h"
-
-class CreatureTextBuilder
-{
-    public:
-        CreatureTextBuilder(WorldObject const* obj, uint8 gender, ChatMsg msgtype, uint8 textGroup, uint32 id, uint32 language, WorldObject const* target)
-            : _source(obj), _gender(gender), _msgType(msgtype), _textGroup(textGroup), _textId(id), _language(language), _target(target) { }
-
-        WorldPackets::Packet* operator()(LocaleConstant locale) const
-        {
-            std::string const& text = sCreatureTextMgr->GetLocalizedChatString(_source->GetEntry(), _gender, _textGroup, _textId, locale);
-            WorldPackets::Chat::Chat* chat = new WorldPackets::Chat::Chat();
-            chat->Initialize(_msgType, Language(_language), _source, _target, text, 0, "", locale);
-            return chat;
-        }
-
-    private:
-        WorldObject const* _source;
-        uint8 _gender;
-        ChatMsg _msgType;
-        uint8 _textGroup;
-        uint32 _textId;
-        uint32 _language;
-        WorldObject const* _target;
-};
-
-class PlayerTextBuilder
-{
-    public:
-        PlayerTextBuilder(WorldObject const* obj, WorldObject const* speaker, uint8 gender, ChatMsg msgtype, uint8 textGroup, uint32 id, uint32 language, WorldObject const* target)
-            : _source(obj), _talker(speaker), _gender(gender), _msgType(msgtype), _textGroup(textGroup), _textId(id), _language(language), _target(target) { }
-
-        WorldPackets::Packet* operator()(LocaleConstant locale) const
-        {
-            std::string const& text = sCreatureTextMgr->GetLocalizedChatString(_source->GetEntry(), _gender, _textGroup, _textId, locale);
-            WorldPackets::Chat::Chat* chat = new WorldPackets::Chat::Chat();
-            chat->Initialize(_msgType, Language(_language), _talker, _target, text, 0, "", locale);
-            return chat;
-        }
-
-    private:
-        WorldObject const* _source;
-        WorldObject const* _talker;
-        uint8 _gender;
-        ChatMsg _msgType;
-        uint8 _textGroup;
-        uint32 _textId;
-        uint32 _language;
-        WorldObject const* _target;
-};
 
 CreatureTextMgr* CreatureTextMgr::instance()
 {
@@ -270,12 +221,12 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, WorldObject 
 
     if (srcPlr)
     {
-        PlayerTextBuilder builder(source, finalSource, finalSource->getGender(), finalType, iter->groupId, iter->id, finalLang, whisperTarget);
+        Trinity::CreatureTextTextBuilder builder(source, finalSource, finalSource->getGender(), finalType, iter->groupId, iter->id, finalLang, whisperTarget);
         SendChatPacket(finalSource, builder, finalType, whisperTarget, range, team, gmOnly);
     }
     else
     {
-        CreatureTextBuilder builder(finalSource, finalSource->getGender(), finalType, iter->groupId, iter->id, finalLang, whisperTarget);
+        Trinity::CreatureTextTextBuilder builder(finalSource, finalSource, finalSource->getGender(), finalType, iter->groupId, iter->id, finalLang, whisperTarget);
         SendChatPacket(finalSource, builder, finalType, whisperTarget, range, team, gmOnly);
     }
 

@@ -641,7 +641,7 @@ void PlayerAchievementMgr::SendAchievementEarned(AchievementEntry const* achieve
         if (Guild* guild = sGuildMgr->GetGuildById(_owner->GetGuildId()))
         {
             Trinity::BroadcastTextBuilder _builder(_owner, CHAT_MSG_GUILD_ACHIEVEMENT, BROADCAST_TEXT_ACHIEVEMENT_EARNED, _owner->getGender(), _owner, achievement->ID);
-            Trinity::LocalizedPacketDo<Trinity::BroadcastTextBuilder> _localizer(_builder);
+            Trinity::LocalizedDo<Trinity::BroadcastTextBuilder> _localizer(_builder);
             guild->BroadcastWorker(_localizer, _owner);
         }
 
@@ -658,8 +658,8 @@ void PlayerAchievementMgr::SendAchievementEarned(AchievementEntry const* achieve
         else if (_owner->IsInWorld())
         {
             Trinity::BroadcastTextBuilder _builder(_owner, CHAT_MSG_ACHIEVEMENT, BROADCAST_TEXT_ACHIEVEMENT_EARNED, _owner->getGender(), _owner, achievement->ID);
-            Trinity::LocalizedPacketDo<Trinity::BroadcastTextBuilder> _localizer(_builder);
-            Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::BroadcastTextBuilder>> _worker(_owner, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), _localizer);
+            Trinity::LocalizedDo<Trinity::BroadcastTextBuilder> _localizer(_builder);
+            Trinity::PlayerDistWorker<Trinity::LocalizedDo<Trinity::BroadcastTextBuilder>> _worker(_owner, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY), _localizer);
             Cell::VisitWorldObjects(_owner, _worker, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY));
         }
     }

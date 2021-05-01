@@ -16,29 +16,33 @@
  */
 
 #include "ChatTextBuilder.h"
-#include "ChatPackets.h"
+#include "CreatureTextMgr.h"
 #include "DB2Stores.h"
+#include "GridNotifiers.h"
 #include "ObjectMgr.h"
+#include "Player.h"
 #include <cstdarg>
 
-WorldPackets::Packet* Trinity::BroadcastTextBuilder::operator()(LocaleConstant locale) const
+namespace Trinity
+{
+PacketSenderOwning<WorldPackets::Chat::Chat>* BroadcastTextBuilder::operator()(LocaleConstant locale) const
 {
     BroadcastTextEntry const* bct = sBroadcastTextStore.LookupEntry(_textId);
-    WorldPackets::Chat::Chat* chat = new WorldPackets::Chat::Chat();
-    chat->Initialize(_msgType, bct ? Language(bct->LanguageID) : LANG_UNIVERSAL, _source, _target, bct ? DB2Manager::GetBroadcastTextValue(bct, locale, _gender) : "", _achievementId, "", locale);
+    PacketSenderOwning<WorldPackets::Chat::Chat>* chat = new PacketSenderOwning<WorldPackets::Chat::Chat>();
+    chat->Data.Initialize(_msgType, bct ? Language(bct->LanguageID) : LANG_UNIVERSAL, _source, _target, bct ? DB2Manager::GetBroadcastTextValue(bct, locale, _gender) : "", _achievementId, "", locale);
     return chat;
 }
 
-WorldPackets::Packet* Trinity::CustomChatTextBuilder::operator()(LocaleConstant locale) const
+PacketSenderOwning<WorldPackets::Chat::Chat>* CustomChatTextBuilder::operator()(LocaleConstant locale) const
 {
-    WorldPackets::Chat::Chat* chat = new WorldPackets::Chat::Chat();
-    chat->Initialize(_msgType, _language, _source, _target, _text, 0, "", locale);
+    PacketSenderOwning<WorldPackets::Chat::Chat>* chat = new PacketSenderOwning<WorldPackets::Chat::Chat>();
+    chat->Data.Initialize(_msgType, _language, _source, _target, _text, 0, "", locale);
     return chat;
 }
 
-WorldPackets::Packet* Trinity::TrinityStringChatBuilder::operator()(LocaleConstant locale) const
+PacketSenderOwning<WorldPackets::Chat::Chat>* TrinityStringChatBuilder::operator()(LocaleConstant locale) const
 {
-    WorldPackets::Chat::Chat* packet = new WorldPackets::Chat::Chat();
+    PacketSenderOwning<WorldPackets::Chat::Chat>* chat = new PacketSenderOwning<WorldPackets::Chat::Chat>();
 
     char const* text = sObjectMgr->GetTrinityString(_textId, locale);
 
@@ -53,10 +57,18 @@ WorldPackets::Packet* Trinity::TrinityStringChatBuilder::operator()(LocaleConsta
         vsnprintf(strBuffer, BufferSize, text, ap);
         va_end(ap);
 
-        packet->Initialize(_msgType, LANG_UNIVERSAL, _source, _target, strBuffer, 0, "", locale);
+        chat->Data.Initialize(_msgType, LANG_UNIVERSAL, _source, _target, strBuffer, 0, "", locale);
     }
     else
-        packet->Initialize(_msgType, LANG_UNIVERSAL, _source, _target, text, 0, "", locale);
+        chat->Data.Initialize(_msgType, LANG_UNIVERSAL, _source, _target, text, 0, "", locale);
 
-    return packet;
+    return chat;
+}
+
+PacketSenderOwning<WorldPackets::Chat::Chat>* CreatureTextTextBuilder::operator()(LocaleConstant locale) const
+{
+    PacketSenderOwning<WorldPackets::Chat::Chat>* chat = new PacketSenderOwning<WorldPackets::Chat::Chat>();
+    chat->Data.Initialize(_msgType, _language, _talker, _target, sCreatureTextMgr->GetLocalizedChatString(_source->GetEntry(), _gender, _textGroup, _textId, locale), 0, "", locale);
+    return chat;
+}
 }

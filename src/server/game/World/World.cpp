@@ -2737,13 +2737,24 @@ namespace Trinity
 {
     class WorldWorldTextBuilder
     {
+        class MultiplePacketSender
+        {
         public:
-            typedef std::vector<WorldPackets::Packet*> WorldPacketList;
+            void operator()(Player const* receiver) const
+            {
+                for (std::unique_ptr<WorldPackets::Packet> const& packet : Packets)
+                    receiver->SendDirectMessage(packet->GetRawPacket());
+            }
+
+            std::vector<std::unique_ptr<WorldPackets::Packet>> Packets;
+        };
+
+        public:
             static size_t const BufferSize = 2048;
 
             explicit WorldWorldTextBuilder(uint32 textId, va_list* args = nullptr) : i_textId(textId), i_args(args) { }
 
-            void operator()(WorldPacketList& dataList, LocaleConstant locale)
+            MultiplePacketSender* operator()(LocaleConstant locale)
             {
                 char const* text = sObjectMgr->GetTrinityString(i_textId, locale);
 
@@ -2762,18 +2773,20 @@ namespace Trinity
                     strBuffer[BufferSize - 1] = '\0';
                 }
 
-                do_helper(dataList, strBuffer);
+                MultiplePacketSender* sender = new MultiplePacketSender();
+                do_helper(sender->Packets, strBuffer);
+                return sender;
             }
 
         private:
-            void do_helper(WorldPacketList& dataList, char* text)
+            void do_helper(std::vector<std::unique_ptr<WorldPackets::Packet>>& dataList, char* text)
             {
                 while (char* line = ChatHandler::LineFromMessage(text))
                 {
                     WorldPackets::Chat::Chat* packet = new WorldPackets::Chat::Chat();
                     packet->Initialize(CHAT_MSG_SYSTEM, LANG_UNIVERSAL, nullptr, nullptr, line);
                     packet->Write();
-                    dataList.push_back(packet);
+                    dataList.emplace_back(packet);
                 }
             }
 
@@ -2789,7 +2802,7 @@ void World::SendWorldText(uint32 string_id, ...)
     va_start(ap, string_id);
 
     Trinity::WorldWorldTextBuilder wt_builder(string_id, &ap);
-    Trinity::LocalizedPacketListDo<Trinity::WorldWorldTextBuilder> wt_do(wt_builder);
+    Trinity::LocalizedDo<Trinity::WorldWorldTextBuilder> wt_do(wt_builder);
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
     {
         if (!itr->second || !itr->second->GetPlayer() || !itr->second->GetPlayer()->IsInWorld())
@@ -2808,7 +2821,7 @@ void World::SendGMText(uint32 string_id, ...)
     va_start(ap, string_id);
 
     Trinity::WorldWorldTextBuilder wt_builder(string_id, &ap);
-    Trinity::LocalizedPacketListDo<Trinity::WorldWorldTextBuilder> wt_do(wt_builder);
+    Trinity::LocalizedDo<Trinity::WorldWorldTextBuilder> wt_do(wt_builder);
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
     {
         // Session should have permissions to receive global gm messages

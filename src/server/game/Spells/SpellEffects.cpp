@@ -4005,15 +4005,17 @@ void Spell::EffectForceDeselect(SpellEffIndex /*effIndex*/)
     float dist = m_caster->GetVisibilityRange();
 
     // clear focus
-    WorldPackets::Combat::BreakTarget breakTarget;
-    breakTarget.UnitGUID = m_caster->GetGUID();
-    Trinity::MessageDistDelivererToHostile<> notifierBreak(m_caster, breakTarget.Write(), dist);
+    Trinity::PacketSenderOwning<WorldPackets::Combat::BreakTarget> breakTarget;
+    breakTarget.Data.UnitGUID = m_caster->GetGUID();
+    breakTarget.Data.Write();
+    Trinity::MessageDistDelivererToHostile<Trinity::PacketSenderOwning<WorldPackets::Combat::BreakTarget>> notifierBreak(m_caster, breakTarget, dist);
     Cell::VisitWorldObjects(m_caster, notifierBreak, dist);
 
     // and selection
-    WorldPackets::Spells::ClearTarget clearTarget;
-    clearTarget.Guid = m_caster->GetGUID();
-    Trinity::MessageDistDelivererToHostile<> notifierClear(m_caster, clearTarget.Write(), dist);
+    Trinity::PacketSenderOwning<WorldPackets::Spells::ClearTarget> clearTarget;
+    clearTarget.Data.Guid = m_caster->GetGUID();
+    clearTarget.Data.Write();
+    Trinity::MessageDistDelivererToHostile<Trinity::PacketSenderOwning<WorldPackets::Spells::ClearTarget>> notifierClear(m_caster, clearTarget, dist);
     Cell::VisitWorldObjects(m_caster, notifierClear, dist);
 
     // we should also force pets to remove us from current target

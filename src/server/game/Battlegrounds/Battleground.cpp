@@ -626,7 +626,7 @@ void Battleground::SendBroadcastText(uint32 id, ChatMsg msgType, WorldObject con
     }
 
     Trinity::BroadcastTextBuilder builder(nullptr, msgType, id, GENDER_MALE, target);
-    Trinity::LocalizedPacketDo<Trinity::BroadcastTextBuilder> localizer(builder);
+    Trinity::LocalizedDo<Trinity::BroadcastTextBuilder> localizer(builder);
     BroadcastWorker(localizer);
 }
 
@@ -1666,7 +1666,7 @@ void Battleground::SendMessageToAll(uint32 entry, ChatMsg msgType, Player const*
         return;
 
     Trinity::TrinityStringChatBuilder builder(nullptr, msgType, entry, source);
-    Trinity::LocalizedPacketDo<Trinity::TrinityStringChatBuilder> localizer(builder);
+    Trinity::LocalizedDo<Trinity::TrinityStringChatBuilder> localizer(builder);
     BroadcastWorker(localizer);
 }
 
@@ -1679,7 +1679,7 @@ void Battleground::PSendMessageToAll(uint32 entry, ChatMsg msgType, Player const
     va_start(ap, source);
 
     Trinity::TrinityStringChatBuilder builder(nullptr, msgType, entry, source, &ap);
-    Trinity::LocalizedPacketDo<Trinity::TrinityStringChatBuilder> localizer(builder);
+    Trinity::LocalizedDo<Trinity::TrinityStringChatBuilder> localizer(builder);
     BroadcastWorker(localizer);
 
     va_end(ap);

@@ -37,8 +37,8 @@ inline void Trinity::VisibleNotifier::Visit(GridRefManager<T> &m)
     }
 }
 
-template<typename PacketCustomizer>
-void Trinity::MessageDistDeliverer<PacketCustomizer>::Visit(PlayerMapType& m) const
+template<typename PacketSender>
+void Trinity::MessageDistDeliverer<PacketSender>::Visit(PlayerMapType& m) const
 {
     for (PlayerMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
@@ -63,8 +63,8 @@ void Trinity::MessageDistDeliverer<PacketCustomizer>::Visit(PlayerMapType& m) co
     }
 }
 
-template<typename PacketCustomizer>
-void Trinity::MessageDistDeliverer<PacketCustomizer>::Visit(CreatureMapType& m) const
+template<typename PacketSender>
+void Trinity::MessageDistDeliverer<PacketSender>::Visit(CreatureMapType& m) const
 {
     for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
@@ -86,8 +86,8 @@ void Trinity::MessageDistDeliverer<PacketCustomizer>::Visit(CreatureMapType& m) 
     }
 }
 
-template<typename PacketCustomizer>
-void Trinity::MessageDistDeliverer<PacketCustomizer>::Visit(DynamicObjectMapType& m) const
+template<typename PacketSender>
+void Trinity::MessageDistDeliverer<PacketSender>::Visit(DynamicObjectMapType& m) const
 {
     for (DynamicObjectMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
@@ -108,8 +108,8 @@ void Trinity::MessageDistDeliverer<PacketCustomizer>::Visit(DynamicObjectMapType
     }
 }
 
-template<typename PacketCustomizer>
-void Trinity::MessageDistDelivererToHostile<PacketCustomizer>::Visit(PlayerMapType& m) const
+template<typename PacketSender>
+void Trinity::MessageDistDelivererToHostile<PacketSender>::Visit(PlayerMapType& m) const
 {
     for (PlayerMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
@@ -134,8 +134,8 @@ void Trinity::MessageDistDelivererToHostile<PacketCustomizer>::Visit(PlayerMapTy
     }
 }
 
-template<typename PacketCustomizer>
-void Trinity::MessageDistDelivererToHostile<PacketCustomizer>::Visit(CreatureMapType& m) const
+template<typename PacketSender>
+void Trinity::MessageDistDelivererToHostile<PacketSender>::Visit(CreatureMapType& m) const
 {
     for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
@@ -157,8 +157,8 @@ void Trinity::MessageDistDelivererToHostile<PacketCustomizer>::Visit(CreatureMap
     }
 }
 
-template<typename PacketCustomizer>
-void Trinity::MessageDistDelivererToHostile<PacketCustomizer>::Visit(DynamicObjectMapType& m) const
+template<typename PacketSender>
+void Trinity::MessageDistDelivererToHostile<PacketSender>::Visit(DynamicObjectMapType& m) const
 {
     for (DynamicObjectMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
@@ -749,55 +749,26 @@ void Trinity::PlayerLastSearcher<Check>::Visit(PlayerMapType& m)
     }
 }
 
-template<class Builder>
-void Trinity::LocalizedPacketDo<Builder>::operator()(Player* p)
+template<typename Localizer>
+void Trinity::LocalizedDo<Localizer>::operator()(Player* p)
 {
     LocaleConstant loc_idx = p->GetSession()->GetSessionDbLocaleIndex();
-    uint32 cache_idx = loc_idx+1;
-    WorldPackets::Packet* data;
+    uint32 cache_idx = loc_idx + 1;
+    LocalizedAction* action;
 
     // create if not cached yet
-    if (i_data_cache.size() < cache_idx + 1 || !i_data_cache[cache_idx])
+    if (_localizedCache.size() < cache_idx + 1 || !_localizedCache[cache_idx])
     {
-        if (i_data_cache.size() < cache_idx + 1)
-            i_data_cache.resize(cache_idx + 1);
+        if (_localizedCache.size() < cache_idx + 1)
+            _localizedCache.resize(cache_idx + 1);
 
-        data = i_builder(loc_idx);
-
-        ASSERT(data->GetSize() == 0);
-
-        data->Write();
-
-        i_data_cache[cache_idx] = data;
+        action = _localizer(loc_idx);
+        _localizedCache[cache_idx].reset(action);
     }
     else
-        data = i_data_cache[cache_idx];
+        action = _localizedCache[cache_idx].get();
 
-    p->SendDirectMessage(data->GetRawPacket());
-}
-
-template<class Builder>
-void Trinity::LocalizedPacketListDo<Builder>::operator()(Player* p)
-{
-    LocaleConstant loc_idx = p->GetSession()->GetSessionDbLocaleIndex();
-    uint32 cache_idx = loc_idx+1;
-    WorldPacketList* data_list;
-
-    // create if not cached yet
-    if (i_data_cache.size() < cache_idx+1 || i_data_cache[cache_idx].empty())
-    {
-        if (i_data_cache.size() < cache_idx+1)
-            i_data_cache.resize(cache_idx+1);
-
-        data_list = &i_data_cache[cache_idx];
-
-        i_builder(*data_list, loc_idx);
-    }
-    else
-        data_list = &i_data_cache[cache_idx];
-
-    for (size_t i = 0; i < data_list->size(); ++i)
-        p->SendDirectMessage((*data_list)[i]->GetRawPacket());
+    (*action)(p);
 }
 
 #endif                                                      // TRINITY_GRIDNOTIFIERSIMPL_H
