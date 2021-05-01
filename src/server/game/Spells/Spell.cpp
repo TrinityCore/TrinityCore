@@ -7544,13 +7544,23 @@ bool Spell::IsChannelActive() const
 
 bool Spell::IsAutoActionResetSpell() const
 {
-    // @todo: The check for interrupt flags is most likely not correct but the only clue that we have right now for known cases
-    // Ice lance resets swing timer >> has interrupt flags / Frost Shock does not >> has no interrupt flags
-    if (IsTriggered() || !m_spellInfo->InterruptFlags.HasAnyFlag())
+    if (IsTriggered())
         return false;
 
     if (!m_casttime && m_spellInfo->HasAttribute(SPELL_ATTR6_NOT_RESET_SWING_IF_INSTANT))
         return false;
+
+    switch (m_spellInfo->DmgClass)
+    {
+        case SPELL_DAMAGE_CLASS_NONE:
+        case SPELL_DAMAGE_CLASS_RANGED:
+            // Spells with no or ranged damage class always reset swing timers
+            return true;
+        case SPELL_DAMAGE_CLASS_MAGIC:
+        case SPELL_DAMAGE_CLASS_MELEE:
+            // Spells with damage class magic or melee reset swing timers when any interrupt flag is given
+            return m_spellInfo->InterruptFlags.HasAnyFlag();
+    }
 
     return true;
 }
