@@ -37,7 +37,7 @@ ChatPacketSender::ChatPacketSender(ChatMsg chatType, ::Language language, WorldO
 
 void ChatPacketSender::operator()(Player const* player) const
 {
-    if (player->CanUnderstandLanguageSkillId(LanguageSkillId))
+    if (Language == LANG_UNIVERSAL || Language == LANG_ADDON || Language == LANG_ADDON_LOGGED || player->CanUnderstandLanguageSkillId(LanguageSkillId))
     {
         player->SendDirectMessage(UntranslatedPacket.GetRawPacket());
         return;
