@@ -40,8 +40,6 @@ namespace Trinity
         uint32 AchievementId;
         LocaleConstant Locale;
 
-        uint32 LanguageSkillId;
-
     public:
         // caches
         WorldPackets::Chat::Chat UntranslatedPacket;

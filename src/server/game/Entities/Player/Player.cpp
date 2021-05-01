@@ -22082,9 +22082,16 @@ void Player::Whisper(uint32 textId, Player* target, bool /*isBossWhisper = false
     target->SendDirectMessage(packet.Write());
 }
 
-bool Player::CanUnderstandLanguageSkillId(uint32 langSkillId) const
+bool Player::CanUnderstandLanguage(Language language) const
 {
-    return IsGameMaster() || (langSkillId && HasSkill(langSkillId));
+    if (IsGameMaster())
+        return true;
+
+    for (std::pair<uint32 const, LanguageDesc> const& languageDesc : sLanguageMgr->GetLanguageDescById(language))
+        if (languageDesc.second.SkillId && HasSkill(languageDesc.second.SkillId))
+            return true;
+
+    return false;
 }
 
 Item* Player::GetMItem(ObjectGuid::LowType id)

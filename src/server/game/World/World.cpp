@@ -1756,12 +1756,6 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Initializing PlayerDump tables...");
     PlayerDump::InitializeTables();
 
-    TC_LOG_INFO("server.loading", "Loading languages...");
-    sLanguageMgr->LoadLanguages();
-
-    TC_LOG_INFO("server.loading", "Loading languages words...");
-    sLanguageMgr->LoadLanguagesWords();
-
     TC_LOG_INFO("server.loading", "Loading SpellInfo store...");
     sSpellMgr->LoadSpellInfoStore();
 
@@ -1783,14 +1777,17 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading SpellInfo immunity infos...");
     sSpellMgr->LoadSpellInfoImmunities();
 
-    TC_LOG_INFO("server.loading", "Loading languages skills...");
-    sLanguageMgr->LoadLanguagesSkills();
-
     TC_LOG_INFO("server.loading", "Loading PetFamilySpellsStore Data...");
     sSpellMgr->LoadPetFamilySpellsStore();
 
     TC_LOG_INFO("server.loading", "Loading Spell Totem models...");
     sSpellMgr->LoadSpellTotemModel();
+
+    TC_LOG_INFO("server.loading", "Loading languages...");  // must be after LoadSpellInfoStore and LoadSkillLineAbilityMap
+    sLanguageMgr->LoadLanguages();
+
+    TC_LOG_INFO("server.loading", "Loading languages words...");
+    sLanguageMgr->LoadLanguagesWords();
 
     TC_LOG_INFO("server.loading", "Loading GameObject models...");
     LoadGameObjectModelList(m_dataPath);

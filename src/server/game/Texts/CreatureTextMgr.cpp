@@ -82,7 +82,7 @@ void CreatureTextMgr::LoadCreatureTexts()
             }
         }
 
-        if (!sLanguageMgr->IsLanguageExist(temp.lang))
+        if (temp.lang != LANG_UNIVERSAL && !sLanguageMgr->IsLanguageExist(temp.lang))
         {
             TC_LOG_ERROR("sql.sql", "CreatureTextMgr: Entry %u, Group %u in table `creature_text` using Language %u but Language does not exist.", temp.creatureId, temp.groupId, uint32(temp.lang));
             temp.lang = LANG_UNIVERSAL;

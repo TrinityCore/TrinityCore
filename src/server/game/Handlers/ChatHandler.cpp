@@ -107,27 +107,18 @@ void WorldSession::HandleChatMessage(ChatMsg type, Language lang, std::string ms
     }
 
     // prevent talking at unknown language (cheating)
-    LanguageDesc const* langDesc = sLanguageMgr->GetLanguageDescById(lang);
-    if (!langDesc)
+    auto languageData = sLanguageMgr->GetLanguageDescById(lang);
+    if (languageData.begin() == languageData.end())
     {
         SendNotification(LANG_UNKNOWN_LANGUAGE);
         return;
     }
 
-    if (langDesc->SkillId != 0 && !sender->HasSkill(langDesc->SkillId))
+    if (std::none_of(languageData.begin(), languageData.end(),
+        [sender](std::pair<uint32 const, LanguageDesc> const& langDesc) { return langDesc.second.SkillId == 0 || sender->HasSkill(langDesc.second.SkillId); }))
     {
         // also check SPELL_AURA_COMPREHEND_LANGUAGE (client offers option to speak in that language)
-        Unit::AuraEffectList const& langAuras = sender->GetAuraEffectsByType(SPELL_AURA_COMPREHEND_LANGUAGE);
-        bool foundAura = false;
-        for (Unit::AuraEffectList::const_iterator i = langAuras.begin(); i != langAuras.end(); ++i)
-        {
-            if ((*i)->GetMiscValue() == int32(lang))
-            {
-                foundAura = true;
-                break;
-            }
-        }
-        if (!foundAura)
+        if (!sender->HasAuraTypeWithMiscvalue(SPELL_AURA_COMPREHEND_LANGUAGE, lang))
         {
             SendNotification(LANG_NOT_LEARNED_LANGUAGE);
             return;
