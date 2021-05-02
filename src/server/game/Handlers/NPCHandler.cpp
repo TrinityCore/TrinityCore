@@ -416,7 +416,7 @@ void WorldSession::HandleStablePet(WorldPacket& recvData)
             if (pet)
             {
                 // stable summoned pet
-                _player->RemovePet(pet, PetSaveMode(PET_SAVE_FIRST_STABLE_SLOT + freeSlot));
+                _player->RemovePet(pet, PetSaveMode(PET_SAVE_FIRST_STABLE_SLOT + freeSlot), true);
                 std::swap(petStable->StabledPets[freeSlot], petStable->CurrentPet);
                 SendPetStableResult(STABLE_SUCCESS_STABLE);
                 return;
