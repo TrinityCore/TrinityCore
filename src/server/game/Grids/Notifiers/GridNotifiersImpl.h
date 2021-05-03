@@ -750,7 +750,7 @@ void Trinity::PlayerLastSearcher<Check>::Visit(PlayerMapType& m)
 }
 
 template<typename Localizer>
-void Trinity::LocalizedDo<Localizer>::operator()(Player* p)
+void Trinity::LocalizedDo<Localizer>::operator()(Player const* p)
 {
     LocaleConstant loc_idx = p->GetSession()->GetSessionDbLocaleIndex();
     uint32 cache_idx = loc_idx + 1;

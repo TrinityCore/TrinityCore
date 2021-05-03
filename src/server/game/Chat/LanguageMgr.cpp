@@ -106,60 +106,169 @@ LanguageMgr::WordList const* LanguageMgr::FindWordGroup(uint32 language, uint32 
     return Trinity::Containers::MapGetValuePtr(_wordsMap, WordKey(language, wordLen));
 }
 
-std::string LanguageMgr::Translate(std::string const& msg, uint32 sourcePlayerLanguage) const
+namespace
 {
-    std::stringstream result;
-    Tokenizer tokens(msg, ' ');
-    bool first = true;
+    void StripHyperlinks(std::string const& source, std::string& dest)
+    {
+        dest.resize(source.length());
+        size_t destSize = 0;
+        bool skipSquareBrackets = false;
+        for (size_t i = 0; i < source.length(); ++i)
+        {
+            char c = source[i];
+            if (c != '|')
+            {
+                if (!skipSquareBrackets || (c != '[' && c != ']'))
+                    dest[destSize++] = source[i];
+
+                continue;
+            }
+
+            if (i + 1 >= source.length())
+                break;
+
+            switch (source[i + 1])
+            {
+                case 'c':
+                case 'C':
+                    // skip color
+                    i += 9;
+                    break;
+                case 'r':
+                    ++i;
+                    break;
+                case 'H':
+                    // skip just past first |h
+                    i = source.find("|h", i);
+                    if (i != std::string::npos)
+                        i += 2;
+                    skipSquareBrackets = true;
+                    break;
+                case 'h':
+                    ++i;
+                    skipSquareBrackets = false;
+                    break;
+                case 'T':
+                    // skip just past closing |t
+                    i = source.find("|t", i);
+                    if (i != std::string::npos)
+                        i += 2;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        dest.resize(destSize);
+    }
+
+    void ReplaceUntranslatableCharactersWithSpace(std::string& text)
+    {
+        std::wstring wstrText;
+        if (!Utf8toWStr(text, wstrText))
+            return;
+
+        for (wchar_t& w : wstrText)
+            if (!isExtendedLatinCharacter(w) && !isNumeric(w) && w <= 0xFF && w != L'\\')
+                w = L' ';
+
+        WStrToUtf8(wstrText, text);
+    }
+
+    static char upper_backslash(char c)
+    {
+        return c == '/' ? '\\' : char(toupper(c));
+    }
+
+    static uint32 const sstr_hashtable[16] =
+    {
+        0x486E26EE, 0xDCAA16B3, 0xE1918EEF, 0x202DAFDB,
+        0x341C7DC7, 0x1C365303, 0x40EF2D37, 0x65FD5E49,
+        0xD6057177, 0x904ECE93, 0x1C38024F, 0x98FD323B,
+        0xE3061AE7, 0xA39B0FA1, 0x9797F25F, 0xE4444563,
+    };
+
+    uint32 SStrHash(char const* string, bool caseInsensitive, uint32 seed = 0x7FED7FED)
+    {
+        ASSERT(string);
+
+        uint32 shift = 0xEEEEEEEE;
+        while (*string)
+        {
+            char c = *string++;
+
+            if (caseInsensitive)
+                c = upper_backslash(c);
+
+            seed = (sstr_hashtable[c >> 4] - sstr_hashtable[c & 0xF]) ^ (shift + seed);
+            shift = c + seed + 33 * shift + 3;
+        }
+
+        return seed ? seed : 1;
+    }
+}
+
+std::string LanguageMgr::Translate(std::string const& msg, uint32 language, LocaleConstant locale) const
+{
+    std::string textToTranslate;
+    StripHyperlinks(msg, textToTranslate);
+    ReplaceUntranslatableCharactersWithSpace(textToTranslate);
+
+    std::string result;
+    result.reserve(textToTranslate.length());
+    Tokenizer tokens(textToTranslate, ' ');
     for (char const* str : tokens)
     {
-        const char* nextPart = str;
-        uint32 wordLen = std::min(18U, (uint32)strlen(str));
-        LanguageMgr::WordList const* wordGroup = FindWordGroup(sourcePlayerLanguage, wordLen);
-        if (!wordGroup)
-            nextPart = "";
-        else
+        uint32 wordLen = std::min(18u, uint32(strlen(str)));
+        if (LanguageMgr::WordList const* wordGroup = FindWordGroup(language, wordLen))
         {
             uint32 wordHash = SStrHash(str, true);
             uint8 idxInsideGroup = wordHash % wordGroup->size();
-            nextPart = wordGroup->at(idxInsideGroup);
+
+            char const* replacementWord = (*wordGroup)[idxInsideGroup];
+
+            switch (locale)
+            {
+                case LOCALE_koKR:
+                case LOCALE_zhCN:
+                case LOCALE_zhTW:
+                {
+                    size_t length = std::min(strlen(str), strlen(replacementWord));
+                    for (size_t i = 0; i < length; ++i)
+                    {
+                        if (str[i] >= 'A' && str[i] <= 'Z')
+                            result += char(toupper(replacementWord[i]));
+                        else
+                            result += replacementWord[i];
+                    }
+                    break;
+                }
+                default:
+                {
+                    std::wstring wstrSourceWord;
+                    if (Utf8toWStr(str, wstrSourceWord))
+                    {
+                        size_t length = std::min(wstrSourceWord.length(), strlen(replacementWord));
+                        for (size_t i = 0; i < length; ++i)
+                        {
+                            if (isUpper(wstrSourceWord[i]))
+                                result += char(toupper(replacementWord[i]));
+                            else
+                                result += char(tolower(replacementWord[i]));
+                        }
+                    }
+                    break;
+                }
+            }
         }
 
-        if (first)
-            first = false;
-        else
-            result << " ";
-
-        result << nextPart;
-    }
-    return result.str();
-}
-
-static char upper_backslash(char c) { return c == '/' ? '\\' : toupper(c); }
-
-static uint32 const s_hashtable[16] = {
-    0x486E26EE, 0xDCAA16B3, 0xE1918EEF, 0x202DAFDB,
-    0x341C7DC7, 0x1C365303, 0x40EF2D37, 0x65FD5E49,
-    0xD6057177, 0x904ECE93, 0x1C38024F, 0x98FD323B,
-    0xE3061AE7, 0xA39B0FA1, 0x9797F25F, 0xE4444563,
-};
-
-uint32 LanguageMgr::SStrHash(char const* string, bool caseInsensitive, uint32 seed) const
-{
-    ASSERT(string);
-
-    uint32 shift = 0xEEEEEEEE;
-    while (*string) {
-        char c = *string++;
-
-        if (caseInsensitive)
-            c = upper_backslash(c);
-
-        seed = (s_hashtable[c >> 4] - s_hashtable[c & 0xF]) ^ (shift + seed);
-        shift = c + seed + 33 * shift + 3;
+        result += ' ';
     }
 
-    return seed ? seed : 1;
+    if (!result.empty())
+        result.pop_back();
+
+    return result;
 }
 
 bool LanguageMgr::IsLanguageExist(uint32 languageId) const

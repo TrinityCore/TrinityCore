@@ -1612,7 +1612,7 @@ namespace Trinity
     public:
         explicit LocalizedDo(Localizer& localizer) : _localizer(localizer) { }
 
-        void operator()(Player* p);
+        void operator()(Player const* p);
 
     private:
         Localizer& _localizer;

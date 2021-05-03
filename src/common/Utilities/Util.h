@@ -291,6 +291,24 @@ inline wchar_t wcharToLower(wchar_t wchar)
     return wchar;
 }
 
+inline bool isLower(wchar_t wchar)
+{
+    if (wchar >= L'a' && wchar <= L'z')                      // LATIN CAPITAL LETTER A - LATIN CAPITAL LETTER Z
+        return true;
+    if (wchar >= 0x00E0 && wchar <= 0x00FF)                  // LATIN SMALL LETTER A WITH GRAVE - LATIN SMALL LETTER Y WITH DIAERESIS
+        return true;
+    if (wchar >= 0x0430 && wchar <= 0x044F)                  // CYRILLIC SMALL LETTER A - CYRILLIC SMALL LETTER YA
+        return true;
+    if (wchar == 0x0451)                                     // CYRILLIC SMALL LETTER IO
+        return true;
+    return false;
+}
+
+inline bool isUpper(wchar_t wchar)
+{
+    return !isLower(wchar);
+}
+
 TC_COMMON_API std::wstring wstrCaseAccentInsensitiveParse(std::wstring const& wstr, LocaleConstant locale);
 
 TC_COMMON_API void wstrToUpper(std::wstring& str);
