@@ -21,6 +21,7 @@
 #include "LanguageMgr.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "WorldSession.h"
 #include <cstdarg>
 
 namespace Trinity
@@ -44,7 +45,8 @@ void ChatPacketSender::operator()(Player const* player) const
     if (!TranslatedPacket)
     {
         TranslatedPacket.emplace();
-        TranslatedPacket->Initialize(Type, Language, Sender, Receiver, sLanguageMgr->Translate(Text, Language), AchievementId, "", Locale);
+        TranslatedPacket->Initialize(Type, Language, Sender, Receiver, sLanguageMgr->Translate(Text, Language, player->GetSession()->GetSessionDbcLocale()),
+            AchievementId, "", Locale);
         TranslatedPacket->Write();
     }
 

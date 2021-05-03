@@ -18,11 +18,10 @@
 #ifndef _LANGUAGE_MGR_H
 #define _LANGUAGE_MGR_H
 
-#include "Define.h"
+#include "Common.h"
 #include "Hash.h"
 #include "IteratorPair.h"
 #include "SharedDefines.h"
-#include <string>
 #include <vector>
 #include <unordered_map>
 
@@ -60,9 +59,7 @@ class TC_GAME_API LanguageMgr
         static LanguageMgr* instance();
 
         //
-        std::string Translate(std::string const& msg, uint32 sourcePlayerLanguage) const;
-
-        uint32 SStrHash(char const* string, bool caseInsensitive, uint32 seed = 0x7FED7FED) const;
+        std::string Translate(std::string const& msg, uint32 language, LocaleConstant locale) const;
 
         bool IsLanguageExist(uint32 languageId) const;
         Trinity::IteratorPair<LanguagesMap::const_iterator> GetLanguageDescById(Language languageId) const;

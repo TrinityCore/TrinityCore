@@ -21972,13 +21972,14 @@ void Player::Say(std::string const& text, Language language, WorldObject const* 
 
 void Player::SendChatMessageToSetInRange(ChatMsg chatMsg, Language language, std::string&& text, float range)
 {
-    Trinity::ChatPacketSender sender(chatMsg, language, this, this, std::move(text));
+    Trinity::CustomChatTextBuilder builder(this, chatMsg, std::move(text), language, this);
+    Trinity::LocalizedDo<Trinity::CustomChatTextBuilder> localizer(builder);
 
     // Send to self
-    sender(this);
+    localizer(this);
 
     // Send to players
-    Trinity::MessageDistDeliverer<Trinity::ChatPacketSender> notifier(this, sender, range);
+    Trinity::MessageDistDeliverer<Trinity::LocalizedDo<Trinity::CustomChatTextBuilder>> notifier(this, localizer, range);
     Cell::VisitWorldObjects(this, notifier, range);
 }
 
