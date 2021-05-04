@@ -1198,7 +1198,7 @@ class TC_GAME_API Unit : public WorldObject
         // base client control of this unit (possess effects, vehicles and similar). Not affected by temporary CC.
         bool IsCharmerOrSelfPlayer() const;
         Unit* GetCharmerOrSelf();
-        Player* GetCharmerOrSelfPlayer();
+        Player* GetCharmerOrSelfPlayer() { return ToPlayer(GetCharmerOrSelf());}
         Unit* GetCharmedOrSelf() { return IsCharming() ? GetCharmed() : this; }
         const Unit* GetCharmedOrSelf() const { return IsCharming() ? GetCharmed() : this; }
 

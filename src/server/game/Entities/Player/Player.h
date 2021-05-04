@@ -60,6 +60,7 @@ class Channel;
 class CharacterCreateInfo;
 class Creature;
 class DynamicObject;
+class GameClient;
 class Group;
 class Guild;
 class Item;

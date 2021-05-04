@@ -6289,14 +6289,6 @@ Unit* Unit::GetCharmerOrSelf()
         return this;
 }
 
-Player* Unit::GetCharmerOrSelfPlayer()
-{
-    if (IsCharmed())
-        return ToPlayer(GetCharmer());
-    else
-        return ToPlayer();
-}
-
 Unit* Unit::GetNextRandomRaidMemberOrPet(float radius)
 {
     Player* player = nullptr;
