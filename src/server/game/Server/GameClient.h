@@ -38,6 +38,8 @@ class TC_GAME_API GameClient
         void SetActiveMover(Unit* activeMover) { _activeMover = activeMover; }
 
         Player* GetBasePlayer() const { return _sessionToServer->GetPlayer(); }
+
+        void SendDirectMessage(WorldPacket const* data) const { GetBasePlayer()->SendDirectMessage(data); }
     private:
         // describe all units that this client has direct control over. Example, a player on a vehicle has client control over himself and the vehicle at the same time.
         GuidSet _allowedMovers;
