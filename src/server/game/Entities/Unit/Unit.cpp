@@ -12177,7 +12177,7 @@ void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)
     }
     else
     {
-        Player* playerMover = GetGameClientMovingMe()->GetBasePlayer();
+        Player* basePlayer = GetGameClientMovingMe()->GetBasePlayer();
         float vcos, vsin;
         GetSinCos(x, y, vsin, vcos);
 
@@ -12188,7 +12188,7 @@ void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)
         data << float(speedXY);                                 // Horizontal speed
         data << float(-speedZ);                                 // Z Movement speed (vertical)
 
-        playerMover->SendDirectMessage(&data);
+        basePlayer->SendDirectMessage(&data);
 
         if (HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) || HasAuraType(SPELL_AURA_FLY))
             SetCanFly(true, true);
