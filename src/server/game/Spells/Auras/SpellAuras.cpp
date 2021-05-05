@@ -2382,9 +2382,11 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* c
                     case SPELL_EFFECT_APPLY_AREA_AURA_SUMMONS:
                     {
                         units.push_back(GetUnitOwner());
-                        Trinity::WorldObjectSpellAreaTargetCheck check(radius, GetUnitOwner(), caster, GetUnitOwner(), m_spellInfo, TARGET_CHECK_SUMMONED, nullptr, TARGET_OBJECT_TYPE_UNIT);
+                        Trinity::WorldObjectSpellAreaTargetCheck check(radius, GetUnitOwner(), caster, GetUnitOwner(), m_spellInfo, TARGET_CHECK_SUMMONED, effect->ImplicitTargetConditions, TARGET_OBJECT_TYPE_UNIT);
                         Trinity::UnitListSearcher<Trinity::WorldObjectSpellAreaTargetCheck> searcher(GetUnitOwner(), units, check);
                         Cell::VisitAllObjects(GetUnitOwner(), searcher, radius);
+                        // by design WorldObjectSpellAreaTargetCheck allows not-in-world units (for spells) but for auras it is not acceptable
+                        units.erase(std::remove_if(units.begin(), units.end(), [caster](Unit* unit) { return !unit->IsSelfOrInSameMap(caster); }), units.end());
                         break;
                     }
                 }
