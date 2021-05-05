@@ -2839,6 +2839,11 @@ class spell_gen_pet_summoned : public SpellScript
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         Player* player = GetCaster()->ToPlayer();
+
+        // Don't try to summon any pet when being dead
+        if (!player->IsAlive())
+            return;
+
         if (player->GetLastPetNumber())
         {
             if (HandlePetAlreadySummonedCase())
