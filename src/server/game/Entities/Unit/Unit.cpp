@@ -14524,8 +14524,12 @@ struct CombatLogSender
 
 void Unit::SendCombatLogMessage(WorldPackets::CombatLog::CombatLogServerPacket* combatLog) const
 {
-    CombatLogSender combatLogCustomizer(combatLog);
-    Trinity::MessageDistDeliverer<CombatLogSender> notifier(this, combatLogCustomizer, GetVisibilityRange());
+    CombatLogSender combatLogSender(combatLog);
+
+    if (Player const* self = ToPlayer())
+        combatLogSender(self);
+
+    Trinity::MessageDistDeliverer<CombatLogSender> notifier(this, combatLogSender, GetVisibilityRange());
     Cell::VisitWorldObjects(this, notifier, GetVisibilityRange());
 }
 
