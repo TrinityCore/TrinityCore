@@ -2846,9 +2846,6 @@ class spell_gen_pet_summoned : public SpellScript
 
         if (player->GetLastPetNumber())
         {
-            if (HandlePetAlreadySummonedCase())
-                return;
-
             if (HandleStabledPetCase())
                 return;
 
@@ -2876,54 +2873,6 @@ class spell_gen_pet_summoned : public SpellScript
             else
                 delete newPet;
         }
-    }
-
-    bool HandlePetAlreadySummonedCase()
-    {
-        // The code below has been copied from Spell::EffectSummonPet() to handle the case of summoning the current pet again
-
-        Player* owner = GetCaster()->ToPlayer();
-        Pet* OldSummon = owner->GetPet();
-
-        // if pet requested type already exist
-        if (OldSummon)
-        {
-            uint32 lastPetNumber = owner->GetLastPetNumber();
-            if (OldSummon->GetCharmInfo()->GetPetNumber() == lastPetNumber)
-            {
-                // revive the pet if it is dead
-                if (OldSummon->getDeathState() != ALIVE && OldSummon->getDeathState() != JUST_RESPAWNED)
-                    OldSummon->setDeathState(JUST_RESPAWNED);
-
-                OldSummon->SetFullHealth();
-                OldSummon->SetPower(OldSummon->GetPowerType(), OldSummon->GetMaxPower(OldSummon->GetPowerType()));
-
-                ASSERT(OldSummon->GetMap() == owner->GetMap());
-
-                //OldSummon->GetMap()->Remove(OldSummon->ToCreature(), false);
-
-                float px, py, pz;
-                owner->GetClosePoint(px, py, pz, OldSummon->GetCombatReach());
-
-                OldSummon->NearTeleportTo(px, py, pz, OldSummon->GetOrientation());
-                //OldSummon->Relocate(px, py, pz, OldSummon->GetOrientation());
-                //OldSummon->SetMap(owner->GetMap());
-                //owner->GetMap()->Add(OldSummon->ToCreature());
-                if (OldSummon->getPetType() == SUMMON_PET)
-                {
-                    OldSummon->SetHealth(OldSummon->GetMaxHealth());
-                    OldSummon->SetPower(OldSummon->GetPowerType(), OldSummon->GetMaxPower(OldSummon->GetPowerType()));
-                    OldSummon->GetSpellHistory()->ResetAllCooldowns();
-                }
-
-                if (owner->GetTypeId() == TYPEID_PLAYER && OldSummon->isControlled())
-                    owner->ToPlayer()->PetSpellInitialize();
-
-                return true;
-            }
-        }
-
-        return false;
     }
 
     bool HandleStabledPetCase()

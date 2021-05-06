@@ -197,6 +197,10 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
         return false;
     }
 
+    // Don't try to reload the current pet
+    if (petStable->CurrentPet && owner->GetPet() && petStable->CurrentPet.value().PetNumber == petInfo->PetNumber)
+        return false;
+
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(petInfo->CreatedBySpellId);
 
     bool isTemporarySummon = spellInfo && spellInfo->GetDuration() > 0;
