@@ -320,9 +320,13 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     // PET_SAVE_NOT_IN_SLOT(100) = not stable slot (summoning))
     if (slot == PET_SAVE_NOT_IN_SLOT)
     {
+        uint32 petInfoNumber = petInfo->PetNumber;
+        if (petStable->CurrentPet)
+            owner->RemovePet(nullptr, PET_SAVE_NOT_IN_SLOT);
+
         auto unslottedPetItr = std::find_if(petStable->UnslottedPets.begin(), petStable->UnslottedPets.end(), [&](PetStable::PetInfo const& unslottedPet)
         {
-            return unslottedPet.PetNumber == petInfo->PetNumber;
+            return unslottedPet.PetNumber == petInfoNumber;
         });
         ASSERT(!petStable->CurrentPet);
         ASSERT(unslottedPetItr != petStable->UnslottedPets.end());
