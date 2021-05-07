@@ -20,9 +20,6 @@ if(WITHOUT_GIT)
   set(rev_date "1970-01-01 00:00:00 +0000")
   set(rev_hash "unknown")
   set(rev_branch "Archived")
-  set(rev_version_major "1")
-  set(rev_version_minor "0")
-  set(rev_version_patch "0")
 else()
   if(GIT_EXECUTABLE)
     # Create a revision-string that we can use
@@ -51,22 +48,6 @@ else()
       OUTPUT_STRIP_TRAILING_WHITESPACE
       ERROR_QUIET
     )
-
-    # Describe current commit
-    execute_process(
-      COMMAND "${GIT_EXECUTABLE}" describe --tags
-      WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-      OUTPUT_VARIABLE rev_describe
-      OUTPUT_STRIP_TRAILING_WHITESPACE
-      ERROR_QUIET
-    )
-
-    string(REGEX REPLACE
-      "T?D?B?[0-9]\\.?[0-9]\\.?[0-9].([0-9][0-9])([0-9][0-9])([0-9]).*$"
-      "\\1;\\2;\\3" rev_tag_version "${rev_describe}")
-    list(GET rev_tag_version 0 rev_version_major)
-    list(GET rev_tag_version 1 rev_version_minor)
-    list(GET rev_tag_version 2 rev_version_patch)
   endif()
 
   # Last minute check - ensure that we have a proper revision

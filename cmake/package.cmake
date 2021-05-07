@@ -13,7 +13,9 @@ include(GNUInstallDirs)
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/sql" DESTINATION "${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}")
 
 # Download the full database
-set(FULL_DATABASE_URL "https://github.com/TrinityCore/TrinityCore/releases/download/TDB335.21041/TDB_full_world_335.21041_2021_04_16.7z"
+set(DATABASE_NAME "TDB_full_world_335.21041_2021_04_16")
+set(DATABASE_TAG "TDB335.21041")
+set(FULL_DATABASE_URL "https://github.com/TrinityCore/TrinityCore/releases/download/${DATABASE_TAG}/${DATABASE_NAME}.7z"
     CACHE STRING
     "The url to download the full database from"
 )
@@ -34,6 +36,11 @@ if(NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/${FULL_DATABASE_NAME}")
 endif()
 
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${FULL_DATABASE_NAMEWE}.sql" DESTINATION "${CONF_DIR}")
+
+# Define version information for packages
+set(VERSION_MAJOR "21")
+set(VERSION_MINOR "04")
+set(VERSION_PATCH "1")
 
 if(SERVERS AND TOOLS)
   set(CPACK_PACKAGE_NAME "trinity-${rev_branch}")
@@ -64,9 +71,9 @@ execute_process(
 )
 
 set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${rev_hash}-${ARCHITECTURE}")
-set(CPACK_PACKAGE_VERSION_MAJOR "${rev_version_major}")
-set(CPACK_PACKAGE_VERSION_MINOR "${rev_version_minor}")
-set(CPACK_PACKAGE_VERSION_PATCH "${rev_version_patch}")
+set(CPACK_PACKAGE_VERSION_MAJOR "${VERSION_MAJOR}")
+set(CPACK_PACKAGE_VERSION_MINOR "${VERSION_MINOR}")
+set(CPACK_PACKAGE_VERSION_PATCH "${VERSION_PATCH}")
 string(REPLACE "/" "_" CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_FILE_NAME}")
 
 message("* Package filename       : ${CPACK_PACKAGE_FILE_NAME}")
