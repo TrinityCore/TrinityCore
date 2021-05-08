@@ -86,7 +86,9 @@ include(cmake/genrev.cmake)
 include(cmake/showoptions.cmake)
 
 # Configure package information
-include(cmake/package.cmake)
+if(BUILD_PACKAGE)
+  include(cmake/package.cmake)
+endif()
 
 # add dependencies
 add_subdirectory(dep)
