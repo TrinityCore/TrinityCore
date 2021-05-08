@@ -2840,10 +2840,6 @@ class spell_gen_pet_summoned : public SpellScript
     {
         Player* player = GetCaster()->ToPlayer();
 
-        // Don't try to summon any pet when being dead
-        if (!player->IsAlive())
-            return;
-
         if (player->GetLastPetNumber())
         {
             PetType newPetType = (player->GetClass() == CLASS_HUNTER) ? HUNTER_PET : SUMMON_PET;
