@@ -341,6 +341,19 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
         // old petInfo pointer is no longer valid, refresh it
         petInfo = &petStable->CurrentPet.value();
     }
+    else if (PET_SAVE_FIRST_STABLE_SLOT <= slot && slot <= PET_SAVE_LAST_STABLE_SLOT)
+    {
+        auto stabledPet = std::find_if(petStable->StabledPets.begin(), petStable->StabledPets.end(), [petnumber](Optional<PetStable::PetInfo> const& pet)
+        {
+            return pet && pet->PetNumber == petnumber;
+        });
+        ASSERT(stabledPet != petStable->StabledPets.end());
+
+        std::swap(*stabledPet, petStable->CurrentPet);
+
+        // old petInfo pointer is no longer valid, refresh it
+        petInfo = &petStable->CurrentPet.value();
+    }
 
     // Send fake summon spell cast - this is needed for correct cooldown application for spells
     // Example: 46584 - without this cooldown (which should be set always when pet is loaded) isn't set clientside

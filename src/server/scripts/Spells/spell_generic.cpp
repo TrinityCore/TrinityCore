@@ -2846,9 +2846,6 @@ class spell_gen_pet_summoned : public SpellScript
 
         if (player->GetLastPetNumber())
         {
-            if (HandleStabledPetCase())
-                return;
-
             PetType newPetType = (player->GetClass() == CLASS_HUNTER) ? HUNTER_PET : SUMMON_PET;
             Pet* newPet = new Pet(player, newPetType);
             if (newPet->LoadPetFromDB(player, 0, player->GetLastPetNumber(), true))
@@ -2873,20 +2870,6 @@ class spell_gen_pet_summoned : public SpellScript
             else
                 delete newPet;
         }
-    }
-
-    bool HandleStabledPetCase()
-    {
-        Player* player = GetCaster()->ToPlayer();
-
-        if (player->GetPetStable())
-        {
-            std::pair<PetStable::PetInfo const*, PetSaveMode> info = Pet::GetLoadPetInfo(*player->GetPetStable(), 0, player->GetLastPetNumber(), true);
-            if (info.second != PET_SAVE_AS_CURRENT && info.second != PET_SAVE_NOT_IN_SLOT)
-                return true;
-        }
-
-        return false;
     }
 
     void Register() override
