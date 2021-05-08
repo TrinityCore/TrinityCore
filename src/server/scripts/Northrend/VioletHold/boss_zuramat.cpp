@@ -48,162 +48,140 @@ enum Misc
     DATA_VOID_DANCE                             = 2153
 };
 
-class boss_zuramat : public CreatureScript
+struct boss_zuramat : public BossAI
 {
-    public:
-        boss_zuramat() : CreatureScript("boss_zuramat") { }
+    boss_zuramat(Creature* creature) : BossAI(creature, DATA_ZURAMAT)
+    {
+        Initialize();
+    }
 
-        struct boss_zuramatAI : public BossAI
+    void Initialize()
+    {
+        _voidDance = true;
+    }
+
+    void Reset() override
+    {
+        BossAI::Reset();
+        Initialize();
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        Talk(SAY_AGGRO);
+    }
+
+    void JustReachedHome() override
+    {
+        BossAI::JustReachedHome();
+        instance->SetData(DATA_HANDLE_CELLS, DATA_ZURAMAT);
+    }
+
+    void SummonedCreatureDies(Creature* summon, Unit* /*who*/) override
+    {
+        if (summon->GetEntry() == NPC_VOID_SENTRY)
+            _voidDance = false;
+    }
+
+    void SummonedCreatureDespawn(Creature* summon) override
+    {
+        if (summon->GetEntry() == NPC_VOID_SENTRY)
+            summon->AI()->DoAction(ACTION_DESPAWN_VOID_SENTRY_BALL);
+        BossAI::SummonedCreatureDespawn(summon);
+    }
+
+    uint32 GetData(uint32 type) const override
+    {
+        if (type == DATA_VOID_DANCE)
+            return _voidDance ? 1 : 0;
+
+        return 0;
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        Talk(SAY_DEATH);
+        _JustDied();
+    }
+
+    void KilledUnit(Unit* victim) override
+    {
+        if (victim->GetTypeId() == TYPEID_PLAYER)
+            Talk(SAY_SLAY);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        scheduler.Update(diff,
+            std::bind(&BossAI::DoMeleeAttackIfReady, this));
+    }
+
+    void ScheduleTasks() override
+    {
+        scheduler.Schedule(Seconds(4), [this](TaskContext task)
         {
-            boss_zuramatAI(Creature* creature) : BossAI(creature, DATA_ZURAMAT)
-            {
-                Initialize();
-            }
+            DoCast(me, SPELL_SUMMON_VOID_SENTRY);
+            task.Repeat(Seconds(7), Seconds(10));
+        });
 
-            void Initialize()
-            {
-                _voidDance = true;
-            }
-
-            void Reset() override
-            {
-                BossAI::Reset();
-                Initialize();
-            }
-
-            void JustEngagedWith(Unit* who) override
-            {
-                BossAI::JustEngagedWith(who);
-                Talk(SAY_AGGRO);
-            }
-
-            void JustReachedHome() override
-            {
-                BossAI::JustReachedHome();
-                instance->SetData(DATA_HANDLE_CELLS, DATA_ZURAMAT);
-            }
-
-            void SummonedCreatureDies(Creature* summon, Unit* /*who*/) override
-            {
-                if (summon->GetEntry() == NPC_VOID_SENTRY)
-                    _voidDance = false;
-            }
-
-            void SummonedCreatureDespawn(Creature* summon) override
-            {
-                if (summon->GetEntry() == NPC_VOID_SENTRY)
-                    summon->AI()->DoAction(ACTION_DESPAWN_VOID_SENTRY_BALL);
-                BossAI::SummonedCreatureDespawn(summon);
-            }
-
-            uint32 GetData(uint32 type) const override
-            {
-                if (type == DATA_VOID_DANCE)
-                    return _voidDance ? 1 : 0;
-
-                return 0;
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                Talk(SAY_DEATH);
-                _JustDied();
-            }
-
-            void KilledUnit(Unit* victim) override
-            {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
-                    Talk(SAY_SLAY);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                scheduler.Update(diff,
-                    std::bind(&BossAI::DoMeleeAttackIfReady, this));
-            }
-
-            void ScheduleTasks() override
-            {
-                scheduler.Schedule(Seconds(4), [this](TaskContext task)
-                {
-                    DoCast(me, SPELL_SUMMON_VOID_SENTRY);
-                    task.Repeat(Seconds(7), Seconds(10));
-                });
-
-                scheduler.Schedule(Seconds(9), [this](TaskContext task)
-                {
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 60.0f, true))
-                        DoCast(target, SPELL_VOID_SHIFT);
-                    task.Repeat(Seconds(15));
-                });
-
-                scheduler.Schedule(Seconds(18), Seconds(20), [this](TaskContext task)
-                {
-                    DoCast(me, SPELL_SHROUD_OF_DARKNESS);
-                    task.Repeat(Seconds(18), Seconds(20));
-                });
-            }
-
-        private:
-            bool _voidDance;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
+        scheduler.Schedule(Seconds(9), [this](TaskContext task)
         {
-            return GetVioletHoldAI<boss_zuramatAI>(creature);
-        }
+            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 60.0f, true))
+                DoCast(target, SPELL_VOID_SHIFT);
+            task.Repeat(Seconds(15));
+        });
+
+        scheduler.Schedule(Seconds(18), Seconds(20), [this](TaskContext task)
+        {
+            DoCast(me, SPELL_SHROUD_OF_DARKNESS);
+            task.Repeat(Seconds(18), Seconds(20));
+        });
+    }
+
+private:
+    bool _voidDance;
 };
 
-class npc_void_sentry : public CreatureScript
+struct npc_void_sentry : public ScriptedAI
 {
-    public:
-        npc_void_sentry() : CreatureScript("npc_void_sentry") { }
+    npc_void_sentry(Creature* creature) : ScriptedAI(creature), _summons(creature)
+    {
+        me->SetReactState(REACT_PASSIVE);
+    }
 
-        struct npc_void_sentryAI : public ScriptedAI
-        {
-            npc_void_sentryAI(Creature* creature) : ScriptedAI(creature), _summons(creature)
-            {
-                me->SetReactState(REACT_PASSIVE);
-            }
+    void IsSummonedBy(WorldObject* /*summoner*/) override
+    {
+        me->CastSpell(me, SPELL_SUMMON_VOID_SENTRY_BALL, true);
+    }
 
-            void IsSummonedBy(WorldObject* /*summoner*/) override
-            {
-                me->CastSpell(me, SPELL_SUMMON_VOID_SENTRY_BALL, true);
-            }
+    void JustSummoned(Creature* summon) override
+    {
+        _summons.Summon(summon);
+        summon->SetReactState(REACT_PASSIVE);
+    }
 
-            void JustSummoned(Creature* summon) override
-            {
-                _summons.Summon(summon);
-                summon->SetReactState(REACT_PASSIVE);
-            }
+    void SummonedCreatureDespawn(Creature* summon) override
+    {
+        _summons.Despawn(summon);
+    }
 
-            void SummonedCreatureDespawn(Creature* summon) override
-            {
-                _summons.Despawn(summon);
-            }
+    void DoAction(int32 actionId) override
+    {
+        if (actionId == ACTION_DESPAWN_VOID_SENTRY_BALL)
+            _summons.DespawnAll();
+    }
 
-            void DoAction(int32 actionId) override
-            {
-                if (actionId == ACTION_DESPAWN_VOID_SENTRY_BALL)
-                    _summons.DespawnAll();
-            }
+    void JustDied(Unit* /*killer*/) override
+    {
+        DoAction(ACTION_DESPAWN_VOID_SENTRY_BALL);
+    }
 
-            void JustDied(Unit* /*killer*/) override
-            {
-                DoAction(ACTION_DESPAWN_VOID_SENTRY_BALL);
-            }
-
-        private:
-            SummonList _summons;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetVioletHoldAI<npc_void_sentryAI>(creature);
-        }
+private:
+    SummonList _summons;
 };
 
 class achievement_void_dance : public AchievementCriteriaScript
@@ -226,7 +204,7 @@ class achievement_void_dance : public AchievementCriteriaScript
 
 void AddSC_boss_zuramat()
 {
-    new boss_zuramat();
-    new npc_void_sentry();
+    RegisterVioletHoldCreatureAI(boss_zuramat);
+    RegisterVioletHoldCreatureAI(npc_void_sentry);
     new achievement_void_dance();
 }

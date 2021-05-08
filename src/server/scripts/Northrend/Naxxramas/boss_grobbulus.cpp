@@ -15,35 +15,48 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "naxxramas.h"
+/*
+ * He should call all stitched giants after aggro
+ */
 
-enum Spells
+#include "naxxramas.h"
+#include "ObjectAccessor.h"
+#include "PassiveAI.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
+#include "SpellAuraEffects.h"
+#include "SpellMgr.h"
+#include "SpellScript.h"
+
+enum GrobbulusTexts
 {
-    SPELL_BOMBARD_SLIME         = 28280,
+    EMOTE_SLIME                 = 0,
+    EMOTE_MUTAGEN               = 1
+};
+
+enum GrobbulusSpells
+{
+    // Grobbulus
+    SPELL_BOMBARD_SLIME         = 28280,   // should be used out of combat (waypoint script?)
     SPELL_SLIME_SPRAY           = 28157,
+    SPELL_SUMMON_FALLOUT_SLIME  = 28218,
     SPELL_MUTATING_INJECTION    = 28169,
     SPELL_MUTATING_EXPLOSION    = 28206,
     SPELL_POISON_CLOUD          = 28240,
+    SPELL_BERSERK               = 26662,
+    // Grobbulus Cloud
     SPELL_POISON_CLOUD_PASSIVE  = 28158,
     SPELL_PACIFY_SELF           = 19951,
-    SPELL_BERSERK               = 26662
+    // Fallout Slime
+    SPELL_DISEASE_CLOUD         = 54367
 };
 
-enum Events
+enum GrobbulusEvents
 {
     EVENT_BERSERK               = 1,
-    EVENT_CLOUD                 = 2,
-    EVENT_INJECT                = 3,
-    EVENT_SPRAY                 = 4
-};
-
-enum CreatureId
-{
-    NPC_FALLOUT_SLIME           = 16290
+    EVENT_CLOUD,
+    EVENT_INJECT,
+    EVENT_SPRAY
 };
 
 struct boss_grobbulus : public BossAI
@@ -53,16 +66,16 @@ struct boss_grobbulus : public BossAI
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
-        events.ScheduleEvent(EVENT_CLOUD, 15s);
-        events.ScheduleEvent(EVENT_INJECT, 20s);
-        events.ScheduleEvent(EVENT_SPRAY, randtime(Seconds(15), Seconds(30))); // not sure
+        events.ScheduleEvent(EVENT_CLOUD, 5s, 10s);
+        events.ScheduleEvent(EVENT_INJECT, 12s, 15s);
+        events.ScheduleEvent(EVENT_SPRAY, RAND(25700ms, 27700ms, 30000ms));
         events.ScheduleEvent(EVENT_BERSERK, 12min);
     }
 
     void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
     {
-        if (spellInfo->Id == SPELL_SLIME_SPRAY)
-            me->SummonCreature(NPC_FALLOUT_SLIME, *target, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT);
+        if (spellInfo->Id == sSpellMgr->GetSpellIdForDifficulty(SPELL_SLIME_SPRAY, me))
+            target->CastSpell(target, SPELL_SUMMON_FALLOUT_SLIME, true);
     }
 
     void UpdateAI(uint32 diff) override
@@ -77,19 +90,27 @@ struct boss_grobbulus : public BossAI
             switch (eventId)
             {
                 case EVENT_CLOUD:
-                    DoCastAOE(SPELL_POISON_CLOUD);
-                    events.Repeat(Seconds(15));
+                    DoCastSelf(SPELL_POISON_CLOUD);
+                    events.Repeat(RAND(15600ms, 16800ms));
                     return;
                 case EVENT_BERSERK:
-                    DoCastAOE(SPELL_BERSERK, true);
+                    DoCastSelf(SPELL_BERSERK, true);
                     return;
                 case EVENT_SPRAY:
                     DoCastAOE(SPELL_SLIME_SPRAY);
-                    events.Repeat(randtime(Seconds(15), Seconds(30)));
+                    Talk(EMOTE_SLIME);
+                    // timers must always looks like ~30 (initial) ~30 (first repeat) 55 (second repeat) ~30 55
+                    // ~30 55 ~30 55 ~30 55. So after second cast timers are always flipped
+                    events.Repeat(RAND(32500ms, 33700ms));
                     return;
                 case EVENT_INJECT:
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true, true, -SPELL_MUTATING_INJECTION))
+                    {
                         DoCast(target, SPELL_MUTATING_INJECTION);
+                        Talk(EMOTE_MUTAGEN, target);
+                    }
+                    // The timers indeed depends on health but most likely they are just changed at health ptc
+                    // Default timers are 10800ms, 12000ms, then changed to ~8000ms, 10000ms
                     events.Repeat(Seconds(8) + Milliseconds(uint32(std::round(120 * me->GetHealthPct()))));
                     return;
                 default:
@@ -101,22 +122,63 @@ struct boss_grobbulus : public BossAI
     }
 };
 
-struct npc_grobbulus_poison_cloud : public ScriptedAI
+struct npc_grobbulus_poison_cloud : public NullCreatureAI
 {
-    npc_grobbulus_poison_cloud(Creature* creature) : ScriptedAI(creature)
+    npc_grobbulus_poison_cloud(Creature* creature) : NullCreatureAI(creature) { }
+
+    void JustAppeared() override
     {
-        SetCombatMovement(false);
-        creature->SetReactState(REACT_PASSIVE);
+        DoCastSelf(SPELL_POISON_CLOUD_PASSIVE);
+        DoCastSelf(SPELL_PACIFY_SELF);
+        me->DespawnOrUnsummon(61s);
+    }
+};
+
+struct npc_fallout_slime : public ScriptedAI
+{
+    npc_fallout_slime(Creature* creature) : ScriptedAI(creature) { }
+
+    void InitializeAI() override
+    {
+        me->SetCorpseDelay(2, true);
+        me->SetReactState(REACT_PASSIVE);
+        DoCastSelf(SPELL_DISEASE_CLOUD);
+
+        _scheduler.Schedule(2s, [this](TaskContext /*task*/)
+        {
+            me->SetReactState(REACT_AGGRESSIVE);
+
+            if (Unit* summoner = ObjectAccessor::GetUnit(*me, _summonerGUID))
+                // maybe only if threat list was empty?
+                AddThreat(summoner, 100000.0f);
+        });
     }
 
-    void IsSummonedBy(WorldObject* /*summoner*/) override
+    void IsSummonedBy(WorldObject* summoner) override
     {
-        // no visual when casting in ctor or Reset()
-        DoCast(me, SPELL_POISON_CLOUD_PASSIVE, true);
-        DoCast(me, SPELL_PACIFY_SELF, true);
+        _summonerGUID = summoner->GetGUID();
     }
 
-    void UpdateAI(uint32 /*diff*/) override { }
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        // They don't despawn when Grobbulus dies. Calling despawn here is not entirely correct because originally
+        // they just stuck after leaving combat(literally, they don't move), then they despawns after few seconds
+        me->DespawnOrUnsummon();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+
+        if (!UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    TaskScheduler _scheduler;
+    ObjectGuid _summonerGUID;
 };
 
 // 28169 - Mutating Injection
@@ -182,6 +244,7 @@ void AddSC_boss_grobbulus()
 {
     RegisterNaxxramasCreatureAI(boss_grobbulus);
     RegisterNaxxramasCreatureAI(npc_grobbulus_poison_cloud);
+    RegisterNaxxramasCreatureAI(npc_fallout_slime);
     RegisterSpellScript(spell_grobbulus_mutating_injection);
     RegisterSpellScript(spell_grobbulus_poison_cloud);
 }

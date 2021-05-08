@@ -75,4 +75,6 @@ inline AI* GetHallsOfStoneAI(T* obj)
     return GetInstanceAI<AI>(obj, HoSScriptName);
 }
 
+#define RegisterHallsOfStoneCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetHallsOfStoneAI)
+
 #endif // HALLS_OF_STONE_H_

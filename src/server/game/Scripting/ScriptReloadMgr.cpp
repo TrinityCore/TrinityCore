@@ -610,7 +610,7 @@ public:
         boost::system::error_code code;
         if ((!fs::exists(temporary_cache_path_, code)
              || (fs::remove_all(temporary_cache_path_, code) > 0)) &&
-             !fs::create_directory(temporary_cache_path_, code))
+             !fs::create_directories(temporary_cache_path_, code))
         {
             TC_LOG_ERROR("scripts.hotswap", "Couldn't create the cache directory at \"%s\".",
                 temporary_cache_path_.generic_string().c_str());

@@ -15,32 +15,37 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * He should call trash(from the room with Embalming Slime up to frogger(not sure
+  if trash before Embalming Slime too or not)) after aggro
+ */
+
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "naxxramas.h"
 #include "ScriptedCreature.h"
 
-enum Spells
+enum PatchwerkTexts
 {
-    SPELL_HATEFUL_STRIKE                        = 28308,
-    SPELL_FRENZY                                = 28131,
-    SPELL_BERSERK                               = 26662,
-    SPELL_SLIME_BOLT                            = 32309
+    SAY_AGGRO                   = 0,
+    SAY_SLAY                    = 1,
+    SAY_DEATH                   = 2,
+    EMOTE_BERSERK               = 3,
+    EMOTE_FRENZY                = 4
 };
 
-enum Yells
+enum PatchwerkSpells
 {
-    SAY_AGGRO                                   = 0,
-    SAY_SLAY                                    = 1,
-    SAY_DEATH                                   = 2,
-    EMOTE_BERSERK                               = 3,
-    EMOTE_FRENZY                                = 4
+    SPELL_HATEFUL_STRIKE_PRIMER = 28307,
+    SPELL_HATEFUL_STRIKE        = 28308,
+    SPELL_FRENZY                = 28131,
+    SPELL_BERSERK               = 26662,
+    SPELL_SLIME_BOLT            = 32309
 };
 
-enum Events
+enum PatchwerkEvents
 {
-    EVENT_NONE,
-    EVENT_BERSERK,
+    EVENT_BERSERK = 1,
     EVENT_HATEFUL,
     EVENT_SLIME
 };
@@ -57,22 +62,19 @@ enum HatefulThreatAmounts
 
 struct boss_patchwerk : public BossAI
 {
-    boss_patchwerk(Creature* creature) : BossAI(creature, BOSS_PATCHWERK)
-    {
-        Enraged = false;
-    }
-
-    bool Enraged;
+    boss_patchwerk(Creature* creature) : BossAI(creature, BOSS_PATCHWERK), _enraged(false) { }
 
     void Reset() override
     {
         _Reset();
+        _enraged = false;
 
         instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT);
     }
 
     void KilledUnit(Unit* /*Victim*/) override
     {
+        // 20s cd, not random
         if (!(rand32() % 5))
             Talk(SAY_SLAY);
     }
@@ -86,9 +88,8 @@ struct boss_patchwerk : public BossAI
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
-        Enraged = false;
         Talk(SAY_AGGRO);
-        events.ScheduleEvent(EVENT_HATEFUL, 1s);
+        events.ScheduleEvent(EVENT_HATEFUL, 3600ms);
         events.ScheduleEvent(EVENT_BERSERK, 6min);
 
         instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT);
@@ -105,6 +106,7 @@ struct boss_patchwerk : public BossAI
         {
             switch (eventId)
             {
+                // Move everything to SPELL_HATEFUL_STRIKE_PRIMER spell script
                 case EVENT_HATEFUL:
                 {
                     // Hateful Strike targets the highest non-MT threat in melee range on 10man
@@ -149,11 +151,11 @@ struct boss_patchwerk : public BossAI
 
                     DoCast(pHatefulTarget, SPELL_HATEFUL_STRIKE, true);
 
-                    events.Repeat(Seconds(1));
+                    events.Repeat(1200ms);
                     break;
                 }
                 case EVENT_BERSERK:
-                    DoCast(me, SPELL_BERSERK, true);
+                    DoCastSelf(SPELL_BERSERK, true);
                     Talk(EMOTE_BERSERK);
                     events.ScheduleEvent(EVENT_SLIME, 2s);
                     break;
@@ -164,15 +166,18 @@ struct boss_patchwerk : public BossAI
             }
         }
 
-        if (!Enraged && HealthBelowPct(5))
+        if (!_enraged && !HealthAbovePct(5))
         {
-            DoCast(me, SPELL_FRENZY, true);
+            DoCastSelf(SPELL_FRENZY, true);
             Talk(EMOTE_FRENZY);
-            Enraged = true;
+            _enraged = true;
         }
 
         DoMeleeAttackIfReady();
     }
+
+private:
+    bool _enraged;
 };
 
 void AddSC_boss_patchwerk()

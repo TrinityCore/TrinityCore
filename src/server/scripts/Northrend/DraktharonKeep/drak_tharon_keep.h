@@ -92,4 +92,6 @@ inline AI* GetDrakTharonKeepAI(T* obj)
     return GetInstanceAI<AI>(obj, DrakTharonKeepScriptName);
 }
 
+#define RegisterDrakTharonKeepCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetDrakTharonKeepAI)
+
 #endif // DRAK_THARON_KEEP_H_

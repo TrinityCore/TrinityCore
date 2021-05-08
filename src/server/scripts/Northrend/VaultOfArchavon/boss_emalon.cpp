@@ -22,7 +22,14 @@
 #include "SpellAuras.h"
 #include "vault_of_archavon.h"
 
-enum Spells
+enum EmalonTexts
+{
+    EMOTE_OVERCHARGE            = 0,
+    EMOTE_MINION_RESPAWN        = 1,
+    EMOTE_BERSERK               = 2
+};
+
+enum EmalonSpells
 {
     SPELL_OVERCHARGE            = 64218,    // Cast every 45 sec on a random Tempest Minion
     SPELL_BERSERK               = 26662,
@@ -34,29 +41,18 @@ enum Spells
     SPELL_LIGHTNING_NOVA        = 64216
 };
 
-enum Emotes
+enum EmalonEvents
 {
-    EMOTE_OVERCHARGE            = 0,
-    EMOTE_MINION_RESPAWN        = 1,
-    EMOTE_BERSERK               = 2
+    EVENT_CHAIN_LIGHTNING = 1,
+    EVENT_LIGHTNING_NOVA,
+    EVENT_OVERCHARGE,
+    EVENT_BERSERK,
+    EVENT_SHOCK
 };
 
-enum Events
+enum EmalonMisc
 {
-    EVENT_CHAIN_LIGHTNING       = 1,
-    EVENT_LIGHTNING_NOVA        = 2,
-    EVENT_OVERCHARGE            = 3,
-    EVENT_BERSERK               = 4,
-    EVENT_SHOCK                 = 5,
-};
-
-enum Npcs
-{
-    NPC_TEMPEST_MINION          = 33998
-};
-
-enum Misc
-{
+    NPC_TEMPEST_MINION          = 33998,
     MAX_TEMPEST_MINIONS         = 4
 };
 
@@ -70,9 +66,7 @@ Position const TempestMinions[MAX_TEMPEST_MINIONS] =
 
 struct boss_emalon : public BossAI
 {
-    boss_emalon(Creature* creature) : BossAI(creature, DATA_EMALON)
-    {
-    }
+    boss_emalon(Creature* creature) : BossAI(creature, DATA_EMALON) { }
 
     void Reset() override
     {
@@ -80,15 +74,6 @@ struct boss_emalon : public BossAI
 
         for (uint8 i = 0; i < MAX_TEMPEST_MINIONS; ++i)
             me->SummonCreature(NPC_TEMPEST_MINION, TempestMinions[i], TEMPSUMMON_CORPSE_DESPAWN);
-    }
-
-    void JustSummoned(Creature* summoned) override
-    {
-        BossAI::JustSummoned(summoned);
-
-        // AttackStart has nullptr-check for victim
-        if (summoned->AI())
-            summoned->AI()->AttackStart(me->GetVictim());
     }
 
     void JustEngagedWith(Unit* who) override
@@ -109,6 +94,15 @@ struct boss_emalon : public BossAI
         events.ScheduleEvent(EVENT_OVERCHARGE, 45s);
 
         BossAI::JustEngagedWith(who);
+    }
+
+    void JustSummoned(Creature* summoned) override
+    {
+        BossAI::JustSummoned(summoned);
+
+        // AttackStart has nullptr-check for victim
+        if (summoned->AI())
+            summoned->AI()->AttackStart(me->GetVictim());
     }
 
     void UpdateAI(uint32 diff) override
@@ -168,23 +162,35 @@ struct npc_tempest_minion : public ScriptedAI
     npc_tempest_minion(Creature* creature) : ScriptedAI(creature)
     {
         Initialize();
-        instance = creature->GetInstanceScript();
+        _instance = creature->GetInstanceScript();
     }
 
     void Initialize()
     {
-        OverchargedTimer = 0;
+        _overchargedTimer = 0;
     }
 
     void Reset() override
     {
-        events.Reset();
+        _events.Reset();
         Initialize();
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        DoZoneInCombat();
+        _events.ScheduleEvent(EVENT_SHOCK, 20s);
+
+        if (Creature* pEmalon = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_EMALON)))
+        {
+            if (!pEmalon->GetVictim() && pEmalon->AI())
+                pEmalon->AI()->AttackStart(who);
+        }
     }
 
     void JustDied(Unit* /*killer*/) override
     {
-        if (Creature* emalon = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EMALON)))
+        if (Creature* emalon = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_EMALON)))
         {
             if (emalon->IsAlive())
             {
@@ -194,25 +200,12 @@ struct npc_tempest_minion : public ScriptedAI
         }
     }
 
-    void JustEngagedWith(Unit* who) override
-    {
-        DoZoneInCombat();
-        events.ScheduleEvent(EVENT_SHOCK, 20s);
-
-        if (Creature* pEmalon = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_EMALON)))
-        {
-            if (!pEmalon->GetVictim() && pEmalon->AI())
-                pEmalon->AI()->AttackStart(who);
-        }
-    }
-
     void UpdateAI(uint32 diff) override
     {
-        //Return since we have no target
         if (!UpdateVictim())
             return;
 
-        events.Update(diff);
+        _events.Update(diff);
 
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
@@ -221,13 +214,13 @@ struct npc_tempest_minion : public ScriptedAI
         {
             if (overchargedAura->GetStackAmount() < 10)
             {
-                if (OverchargedTimer <= diff)
+                if (_overchargedTimer <= diff)
                 {
                     DoCast(me, SPELL_OVERCHARGED);
-                    OverchargedTimer = 2000; // ms
+                    _overchargedTimer = 2000; // ms
                 }
                 else
-                    OverchargedTimer -= diff;
+                    _overchargedTimer -= diff;
             }
             else
             {
@@ -240,19 +233,19 @@ struct npc_tempest_minion : public ScriptedAI
             }
         }
 
-        if (events.ExecuteEvent() == EVENT_SHOCK)
+        if (_events.ExecuteEvent() == EVENT_SHOCK)
         {
             DoCastVictim(SPELL_SHOCK);
-            events.ScheduleEvent(EVENT_SHOCK, 20s);
+            _events.ScheduleEvent(EVENT_SHOCK, 20s);
         }
 
         DoMeleeAttackIfReady();
     }
 
 private:
-    InstanceScript* instance;
-    EventMap events;
-    uint32 OverchargedTimer;
+    InstanceScript* _instance;
+    EventMap _events;
+    uint32 _overchargedTimer;
 };
 
 void AddSC_boss_emalon()

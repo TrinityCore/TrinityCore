@@ -161,5 +161,6 @@ inline AI* GetVioletHoldAI(T* obj)
 }
 
 #define RegisterVioletHoldCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetVioletHoldAI)
+#define RegisterVioletHoldGameObjectAI(ai_name) RegisterGameObjectAIWithFactory(ai_name, GetVioletHoldAI)
 
 #endif // VIOLET_HOLD_H_
