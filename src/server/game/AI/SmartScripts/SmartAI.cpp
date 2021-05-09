@@ -1172,7 +1172,7 @@ public:
     SmartQuest() : QuestScript("SmartQuest") { }
 
     // Called when a quest status change
-    void OnQuestStatusChange(Player* player, Quest const* quest, QuestStatus /*oldStatus*/, QuestStatus newStatus)
+    void OnQuestStatusChange(Player* player, Quest const* quest, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
     {
         SmartScript smartScript;
         smartScript.OnInitialize(nullptr, nullptr, nullptr, quest);
@@ -1197,7 +1197,7 @@ public:
     }
 
     // Called when a quest objective data change
-    void OnQuestObjectiveChange(Player* player, Quest const* quest, QuestObjective const& objective, int32 /*oldAmount*/, int32 /*newAmount*/)
+    void OnQuestObjectiveChange(Player* player, Quest const* quest, QuestObjective const& objective, int32 /*oldAmount*/, int32 /*newAmount*/) override
     {
         if (player->IsQuestObjectiveComplete(objective))
         {

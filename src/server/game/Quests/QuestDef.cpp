@@ -252,6 +252,7 @@ void Quest::LoadQuestObjective(Field* fields)
     obj.Description = fields[9].GetString();
 
     Objectives.push_back(obj);
+    _usedQuestObjectiveTypes[obj.Type] = true;
 }
 
 void Quest::LoadQuestObjectiveVisualEffect(Field* fields)
