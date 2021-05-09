@@ -15,32 +15,37 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * He should call trash(from the room with Embalming Slime up to frogger(not sure
+  if trash before Embalming Slime too or not)) after aggro
+ */
+
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "naxxramas.h"
 #include "ScriptedCreature.h"
 
-enum Spells
+enum PatchwerkTexts
 {
-    SPELL_HATEFUL_STRIKE                        = 28308,
-    SPELL_FRENZY                                = 28131,
-    SPELL_BERSERK                               = 26662,
-    SPELL_SLIME_BOLT                            = 32309
+    SAY_AGGRO                   = 0,
+    SAY_SLAY                    = 1,
+    SAY_DEATH                   = 2,
+    EMOTE_BERSERK               = 3,
+    EMOTE_FRENZY                = 4
 };
 
-enum Yells
+enum PatchwerkSpells
 {
-    SAY_AGGRO                                   = 0,
-    SAY_SLAY                                    = 1,
-    SAY_DEATH                                   = 2,
-    EMOTE_BERSERK                               = 3,
-    EMOTE_FRENZY                                = 4
+    SPELL_HATEFUL_STRIKE_PRIMER = 28307,
+    SPELL_HATEFUL_STRIKE        = 28308,
+    SPELL_FRENZY                = 28131,
+    SPELL_BERSERK               = 26662,
+    SPELL_SLIME_BOLT            = 32309
 };
 
-enum Events
+enum PatchwerkEvents
 {
-    EVENT_NONE,
-    EVENT_BERSERK,
+    EVENT_BERSERK = 1,
     EVENT_HATEFUL,
     EVENT_SLIME
 };
@@ -55,139 +60,127 @@ enum HatefulThreatAmounts
     HATEFUL_THREAT_AMT  = 1000,
 };
 
-class boss_patchwerk : public CreatureScript
+struct boss_patchwerk : public BossAI
 {
-public:
-    boss_patchwerk() : CreatureScript("boss_patchwerk") { }
+    boss_patchwerk(Creature* creature) : BossAI(creature, BOSS_PATCHWERK), _enraged(false) { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    void Reset() override
     {
-        return GetNaxxramasAI<boss_patchwerkAI>(creature);
+        _Reset();
+        _enraged = false;
+
+        instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT);
     }
 
-    struct boss_patchwerkAI : public BossAI
+    void KilledUnit(Unit* /*Victim*/) override
     {
-        boss_patchwerkAI(Creature* creature) : BossAI(creature, BOSS_PATCHWERK)
+        // 20s cd, not random
+        if (!(rand32() % 5))
+            Talk(SAY_SLAY);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        Talk(SAY_DEATH);
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        Talk(SAY_AGGRO);
+        events.ScheduleEvent(EVENT_HATEFUL, 3600ms);
+        events.ScheduleEvent(EVENT_BERSERK, 6min);
+
+        instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            Enraged = false;
-        }
-
-        bool Enraged;
-
-        void Reset() override
-        {
-            _Reset();
-
-            instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT);
-        }
-
-        void KilledUnit(Unit* /*Victim*/) override
-        {
-            if (!(rand32() % 5))
-                Talk(SAY_SLAY);
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            _JustDied();
-            Talk(SAY_DEATH);
-        }
-
-        void JustEngagedWith(Unit* who) override
-        {
-            BossAI::JustEngagedWith(who);
-            Enraged = false;
-            Talk(SAY_AGGRO);
-            events.ScheduleEvent(EVENT_HATEFUL, 1s);
-            events.ScheduleEvent(EVENT_BERSERK, 6min);
-
-            instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
+            switch (eventId)
             {
-                switch (eventId)
+                // Move everything to SPELL_HATEFUL_STRIKE_PRIMER spell script
+                case EVENT_HATEFUL:
                 {
-                    case EVENT_HATEFUL:
+                    // Hateful Strike targets the highest non-MT threat in melee range on 10man
+                    // and the higher HP target out of the two highest non-MT threats in melee range on 25man
+                    ThreatReference* secondThreat = nullptr;
+                    ThreatReference* thirdThreat = nullptr;
+
+                    ThreatManager& mgr = me->GetThreatManager();
+                    Unit* currentVictim = mgr.GetCurrentVictim();
+                    auto list = mgr.GetModifiableThreatList();
+                    auto it = list.begin(), end = list.end();
+                    if (it == end)
                     {
-                        // Hateful Strike targets the highest non-MT threat in melee range on 10man
-                        // and the higher HP target out of the two highest non-MT threats in melee range on 25man
-                        ThreatReference* secondThreat = nullptr;
-                        ThreatReference* thirdThreat = nullptr;
-
-                        ThreatManager& mgr = me->GetThreatManager();
-                        Unit* currentVictim = mgr.GetCurrentVictim();
-                        auto list = mgr.GetModifiableThreatList();
-                        auto it = list.begin(), end = list.end();
-                        if (it == end)
-                        {
-                            EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
-                            return;
-                        }
-
-                        if ((*it)->GetVictim() != currentVictim)
-                            secondThreat = *it;
-                        if ((!secondThreat || Is25ManRaid()) && (++it != end && (*it)->IsAvailable()))
-                        {
-                            if ((*it)->GetVictim() != currentVictim)
-                                (secondThreat ? thirdThreat : secondThreat) = *it;
-                            if (!thirdThreat && Is25ManRaid() && (++it != end && (*it)->IsAvailable()))
-                                thirdThreat = *it;
-                        }
-
-                        Unit* pHatefulTarget = nullptr;
-                        if (!secondThreat)
-                            pHatefulTarget = currentVictim;
-                        else if (!thirdThreat)
-                            pHatefulTarget = secondThreat->GetVictim();
-                        else
-                            pHatefulTarget = (secondThreat->GetVictim()->GetHealth() < thirdThreat->GetVictim()->GetHealth()) ? thirdThreat->GetVictim() : secondThreat->GetVictim();
-
-                        // add threat to highest threat targets
-                        AddThreat(currentVictim, HATEFUL_THREAT_AMT);
-                        if (secondThreat)
-                            secondThreat->AddThreat(HATEFUL_THREAT_AMT);
-                        if (thirdThreat)
-                            thirdThreat->AddThreat(HATEFUL_THREAT_AMT);
-
-                        DoCast(pHatefulTarget, SPELL_HATEFUL_STRIKE, true);
-
-                        events.Repeat(Seconds(1));
-                        break;
+                        EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+                        return;
                     }
-                    case EVENT_BERSERK:
-                        DoCast(me, SPELL_BERSERK, true);
-                        Talk(EMOTE_BERSERK);
-                        events.ScheduleEvent(EVENT_SLIME, 2s);
-                        break;
-                    case EVENT_SLIME:
-                        DoCastAOE(SPELL_SLIME_BOLT, true);
-                        events.Repeat(Seconds(2));
-                        break;
+
+                    if ((*it)->GetVictim() != currentVictim)
+                        secondThreat = *it;
+                    if ((!secondThreat || Is25ManRaid()) && (++it != end && (*it)->IsAvailable()))
+                    {
+                        if ((*it)->GetVictim() != currentVictim)
+                            (secondThreat ? thirdThreat : secondThreat) = *it;
+                        if (!thirdThreat && Is25ManRaid() && (++it != end && (*it)->IsAvailable()))
+                            thirdThreat = *it;
+                    }
+
+                    Unit* pHatefulTarget = nullptr;
+                    if (!secondThreat)
+                        pHatefulTarget = currentVictim;
+                    else if (!thirdThreat)
+                        pHatefulTarget = secondThreat->GetVictim();
+                    else
+                        pHatefulTarget = (secondThreat->GetVictim()->GetHealth() < thirdThreat->GetVictim()->GetHealth()) ? thirdThreat->GetVictim() : secondThreat->GetVictim();
+
+                    // add threat to highest threat targets
+                    AddThreat(currentVictim, HATEFUL_THREAT_AMT);
+                    if (secondThreat)
+                        secondThreat->AddThreat(HATEFUL_THREAT_AMT);
+                    if (thirdThreat)
+                        thirdThreat->AddThreat(HATEFUL_THREAT_AMT);
+
+                    DoCast(pHatefulTarget, SPELL_HATEFUL_STRIKE, true);
+
+                    events.Repeat(1200ms);
+                    break;
                 }
+                case EVENT_BERSERK:
+                    DoCastSelf(SPELL_BERSERK, true);
+                    Talk(EMOTE_BERSERK);
+                    events.ScheduleEvent(EVENT_SLIME, 2s);
+                    break;
+                case EVENT_SLIME:
+                    DoCastAOE(SPELL_SLIME_BOLT, true);
+                    events.Repeat(Seconds(2));
+                    break;
             }
-
-            if (!Enraged && HealthBelowPct(5))
-            {
-                DoCast(me, SPELL_FRENZY, true);
-                Talk(EMOTE_FRENZY);
-                Enraged = true;
-            }
-
-            DoMeleeAttackIfReady();
         }
-    };
 
+        if (!_enraged && !HealthAbovePct(5))
+        {
+            DoCastSelf(SPELL_FRENZY, true);
+            Talk(EMOTE_FRENZY);
+            _enraged = true;
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    bool _enraged;
 };
 
 void AddSC_boss_patchwerk()
 {
-    new boss_patchwerk();
+    RegisterNaxxramasCreatureAI(boss_patchwerk);
 }

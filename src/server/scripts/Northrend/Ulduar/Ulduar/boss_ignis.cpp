@@ -120,7 +120,7 @@ class boss_ignis : public CreatureScript
 
         struct boss_ignis_AI : public BossAI
         {
-            boss_ignis_AI(Creature* creature) : BossAI(creature, BOSS_IGNIS)
+            boss_ignis_AI(Creature* creature) : BossAI(creature, DATA_IGNIS)
             {
                 Initialize();
             }
@@ -328,7 +328,7 @@ class npc_iron_construct : public CreatureScript
                 if (me->HasAura(RAID_MODE(SPELL_BRITTLE, SPELL_BRITTLE_25)) && damage >= 5000)
                 {
                     DoCast(SPELL_SHATTER);
-                    if (Creature* ignis = _instance->GetCreature(BOSS_IGNIS))
+                    if (Creature* ignis = _instance->GetCreature(DATA_IGNIS))
                         if (ignis->AI())
                             ignis->AI()->DoAction(ACTION_REMOVE_BUFF);
 

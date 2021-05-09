@@ -147,7 +147,10 @@ namespace Trinity::Impl::ChatCommands
         {
             _wrapper = [](void* handler, ChatHandler* chatHandler, std::string_view argsStr)
             {
-                return reinterpret_cast<bool(*)(ChatHandler*, char const*)>(handler)(chatHandler, argsStr.empty() ? "" : argsStr.data());
+                // make a copy of the argument string
+                // legacy handlers can destroy input strings with strtok
+                std::string argsStrCopy(argsStr);
+                return reinterpret_cast<bool(*)(ChatHandler*, char const*)>(handler)(chatHandler, argsStrCopy.c_str());
             };
             _handler = reinterpret_cast<void*>(handler);
         }

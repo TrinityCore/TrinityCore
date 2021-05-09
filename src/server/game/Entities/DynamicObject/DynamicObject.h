@@ -19,6 +19,7 @@
 #define TRINITYCORE_DYNAMICOBJECT_H
 
 #include "Object.h"
+#include "GridObject.h"
 #include "MapObject.h"
 
 class Unit;

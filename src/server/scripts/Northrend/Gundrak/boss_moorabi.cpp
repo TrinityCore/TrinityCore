@@ -68,131 +68,120 @@ enum Phases
     PHASE_COMBAT
 };
 
-class boss_moorabi : public CreatureScript
+struct boss_moorabi : public BossAI
 {
-    public:
-        boss_moorabi() : CreatureScript("boss_moorabi") { }
+    boss_moorabi(Creature* creature) : BossAI(creature, DATA_MOORABI), _transformed(false) { }
 
-        struct boss_moorabiAI : public BossAI
+    void Reset() override
+    {
+        _Reset();
+        _transformed = false;
+        events.SetPhase(PHASE_INTRO);
+        events.ScheduleEvent(EVENT_PHANTOM, Seconds(21), 0, PHASE_INTRO);
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        Talk(SAY_AGGRO);
+        DoCastSelf(SPELL_MOJO_FRENZY, true);
+
+        events.SetPhase(PHASE_COMBAT);
+        events.ScheduleEvent(EVENT_GROUND_TREMOR, 18s);
+        events.ScheduleEvent(EVENT_NUMBLING_SHOUT, 10s);
+        events.ScheduleEvent(EVENT_DETERMINED_STAB, 20s);
+        events.ScheduleEvent(EVENT_TRANFORMATION, 12s);
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        _DespawnAtEvade();
+    }
+
+    void JustSummoned(Creature* /*summon*/) override {}
+
+    uint32 GetData(uint32 type) const override
+    {
+        if (type == DATA_LESS_RABI)
+            return _transformed ? 0 : 1;
+        return 0;
+    }
+
+    void KilledUnit(Unit* victim) override
+    {
+        if (victim->GetTypeId() == TYPEID_PLAYER)
+            Talk(SAY_SLAY);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        Talk(EMOTE_ACTIVATE_ALTAR);
+        Talk(SAY_DEATH);
+    }
+
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_TRANSFORMATION)
         {
-            boss_moorabiAI(Creature* creature) : BossAI(creature, DATA_MOORABI), _transformed(false) { }
-
-            void Reset() override
-            {
-                _Reset();
-                _transformed = false;
-                events.SetPhase(PHASE_INTRO);
-                events.ScheduleEvent(EVENT_PHANTOM, Seconds(21), 0, PHASE_INTRO);
-            }
-
-            void JustEngagedWith(Unit* who) override
-            {
-                BossAI::JustEngagedWith(who);
-                Talk(SAY_AGGRO);
-                DoCastSelf(SPELL_MOJO_FRENZY, true);
-
-                events.SetPhase(PHASE_COMBAT);
-                events.ScheduleEvent(EVENT_GROUND_TREMOR, 18s);
-                events.ScheduleEvent(EVENT_NUMBLING_SHOUT, 10s);
-                events.ScheduleEvent(EVENT_DETERMINED_STAB, 20s);
-                events.ScheduleEvent(EVENT_TRANFORMATION, 12s);
-            }
-
-            void EnterEvadeMode(EvadeReason /*why*/) override
-            {
-                _DespawnAtEvade();
-            }
-
-            void JustSummoned(Creature* /*summon*/) override {}
-
-            uint32 GetData(uint32 type) const override
-            {
-                if (type == DATA_LESS_RABI)
-                    return _transformed ? 0 : 1;
-                return 0;
-            }
-
-            void KilledUnit(Unit* victim) override
-            {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
-                    Talk(SAY_SLAY);
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-                Talk(EMOTE_ACTIVATE_ALTAR);
-                Talk(SAY_DEATH);
-            }
-
-            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
-            {
-                if (spellInfo->Id == SPELL_TRANSFORMATION)
-                {
-                    _transformed = true;
-                    Talk(EMOTE_TRANSFORMED);
-                    events.CancelEvent(EVENT_TRANFORMATION);
-                    me->RemoveAurasDueToSpell(SPELL_MOJO_FRENZY);
-                }
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim() && !events.IsInPhase(PHASE_INTRO))
-                    return;
-
-                events.Update(diff);
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_GROUND_TREMOR:
-                            if (roll_chance_i(50))
-                                Talk(SAY_QUAKE);
-                            DoCastAOE(_transformed ? SPELL_QUAKE : SPELL_GROUND_TREMOR);
-                            events.Repeat(Seconds(10));
-                            break;
-                        case EVENT_NUMBLING_SHOUT:
-                            DoCastAOE(_transformed ? SPELL_NUMBING_ROAR : SPELL_NUMBING_SHOUT);
-                            events.Repeat(Seconds(10));
-                            break;
-                        case EVENT_DETERMINED_STAB:
-                            DoCastAOE(_transformed ? SPELL_DETERMINED_GORE : SPELL_DETERMINED_STAB);
-                            events.Repeat(Seconds(8));
-                            break;
-                        case EVENT_TRANFORMATION:
-                            Talk(EMOTE_BEGIN_TRANSFORM);
-                            Talk(SAY_TRANSFORM);
-                            DoCastSelf(SPELL_TRANSFORMATION);
-                            DoCastSelf(SPELL_SUMMON_PHANTOM_TRANSFORM, true);
-                            events.Repeat(Seconds(10));
-                            break;
-                        case EVENT_PHANTOM:
-                            DoCastSelf(SPELL_SUMMON_PHANTOM, true);
-                            events.Repeat(Seconds(20), Seconds(25));
-                            break;
-                        default:
-                            break;
-                    }
-
-                    if(me->HasUnitState(UNIT_STATE_CASTING))
-                        return;
-                }
-
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            bool _transformed;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetGundrakAI<boss_moorabiAI>(creature);
+            _transformed = true;
+            Talk(EMOTE_TRANSFORMED);
+            events.CancelEvent(EVENT_TRANFORMATION);
+            me->RemoveAurasDueToSpell(SPELL_MOJO_FRENZY);
         }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim() && !events.IsInPhase(PHASE_INTRO))
+            return;
+
+        events.Update(diff);
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_GROUND_TREMOR:
+                    if (roll_chance_i(50))
+                        Talk(SAY_QUAKE);
+                    DoCastAOE(_transformed ? SPELL_QUAKE : SPELL_GROUND_TREMOR);
+                    events.Repeat(Seconds(10));
+                    break;
+                case EVENT_NUMBLING_SHOUT:
+                    DoCastAOE(_transformed ? SPELL_NUMBING_ROAR : SPELL_NUMBING_SHOUT);
+                    events.Repeat(Seconds(10));
+                    break;
+                case EVENT_DETERMINED_STAB:
+                    DoCastAOE(_transformed ? SPELL_DETERMINED_GORE : SPELL_DETERMINED_STAB);
+                    events.Repeat(Seconds(8));
+                    break;
+                case EVENT_TRANFORMATION:
+                    Talk(EMOTE_BEGIN_TRANSFORM);
+                    Talk(SAY_TRANSFORM);
+                    DoCastSelf(SPELL_TRANSFORMATION);
+                    DoCastSelf(SPELL_SUMMON_PHANTOM_TRANSFORM, true);
+                    events.Repeat(Seconds(10));
+                    break;
+                case EVENT_PHANTOM:
+                    DoCastSelf(SPELL_SUMMON_PHANTOM, true);
+                    events.Repeat(Seconds(20), Seconds(25));
+                    break;
+                default:
+                    break;
+            }
+
+            if(me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    bool _transformed;
 };
 
 class achievement_less_rabi : public AchievementCriteriaScript
@@ -214,46 +203,35 @@ class achievement_less_rabi : public AchievementCriteriaScript
 };
 
 // 55163 - Mojo Frenzy
-class spell_moorabi_mojo_frenzy : public SpellScriptLoader
+class spell_moorabi_mojo_frenzy : public AuraScript
 {
-    public:
-        spell_moorabi_mojo_frenzy() : SpellScriptLoader("spell_moorabi_mojo_frenzy") { }
+    PrepareAuraScript(spell_moorabi_mojo_frenzy);
 
-        class spell_moorabi_mojo_frenzy_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_moorabi_mojo_frenzy_AuraScript);
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MOJO_FRENZY_CAST_SPEED });
+    }
 
-            bool Validate(SpellInfo const* /*spell*/) override
-            {
-                return ValidateSpellInfo({ SPELL_MOJO_FRENZY_CAST_SPEED });
-            }
+    void HandlePeriodic(AuraEffect const* /*aurEff*/)
+    {
+        PreventDefaultAction();
 
-            void HandlePeriodic(AuraEffect const* /*aurEff*/)
-            {
-                PreventDefaultAction();
+        Unit* owner = GetUnitOwner();
+        int32 castSpeedBonus = (100.0f - owner->GetHealthPct()) * 4; // between 0% and 400% cast speed bonus
+        CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+        args.AddSpellBP0(castSpeedBonus);
+        owner->CastSpell(owner, SPELL_MOJO_FRENZY_CAST_SPEED, args);
+    }
 
-                Unit* owner = GetUnitOwner();
-                int32 castSpeedBonus = (100.0f - owner->GetHealthPct()) * 4; // between 0% and 400% cast speed bonus
-                CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                args.AddSpellBP0(castSpeedBonus);
-                owner->CastSpell(owner, SPELL_MOJO_FRENZY_CAST_SPEED, args);
-            }
-
-            void Register() override
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_moorabi_mojo_frenzy_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const override
-        {
-            return new spell_moorabi_mojo_frenzy_AuraScript();
-        }
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_moorabi_mojo_frenzy::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
 };
 
 void AddSC_boss_moorabi()
 {
-    new boss_moorabi();
+    RegisterGundrakCreatureAI(boss_moorabi);
     new achievement_less_rabi();
-    new spell_moorabi_mojo_frenzy();
+    RegisterSpellScript(spell_moorabi_mojo_frenzy);
 }

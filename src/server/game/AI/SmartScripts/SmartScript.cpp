@@ -60,6 +60,7 @@ SmartScript::SmartScript()
     mCurrentPriority = 0;
     mEventSortingRequired = false;
     mNestedEventsCounter = 0;
+    mAllEventFlags = 0;
 }
 
 SmartScript::~SmartScript()
@@ -863,10 +864,10 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 break;
 
             // If invoker was pet or charm
-            Player* player = unit->GetCharmerOrOwnerPlayerOrPlayerItself();
-            if (player && GetBaseObject())
+            Player* playerCharmed = unit->GetCharmerOrOwnerPlayerOrPlayerItself();
+            if (playerCharmed && GetBaseObject())
             {
-                player->GroupEventHappens(e.action.quest.quest, GetBaseObject());
+                playerCharmed->GroupEventHappens(e.action.quest.quest, GetBaseObject());
                 TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction: SMART_ACTION_CALL_GROUPEVENTHAPPENS: Player %s, group credit for quest %u",
                     unit->GetGUID().ToString().c_str(), e.action.quest.quest);
             }
@@ -1258,9 +1259,13 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_SUMMON_CREATURE:
         {
-            WorldObject* baseObj = GetBaseObjectOrPlayerTrigger();
-            if (!baseObj)
+            EnumFlag<SmartActionSummonCreatureFlags> flags(static_cast<SmartActionSummonCreatureFlags>(e.action.summonCreature.flags));
+            bool preferUnit = flags.HasFlag(SmartActionSummonCreatureFlags::PreferUnit);
+            WorldObject* summoner = preferUnit ? unit : Coalesce<WorldObject>(GetBaseObjectOrPlayerTrigger(), unit);
+            if (!summoner)
                 break;
+
+            bool personalSpawn = flags.HasFlag(SmartActionSummonCreatureFlags::PersonalSpawn);
 
             float x, y, z, o;
             for (WorldObject* target : targets)
@@ -1270,7 +1275,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 y += e.target.y;
                 z += e.target.z;
                 o += e.target.o;
-                if (Creature* summon = baseObj->SummonCreature(e.action.summonCreature.creature, x, y, z, o, (TempSummonType)e.action.summonCreature.type, Milliseconds(e.action.summonCreature.duration)))
+                if (Creature* summon = summoner->SummonCreature(e.action.summonCreature.creature, x, y, z, o, (TempSummonType)e.action.summonCreature.type, Milliseconds(e.action.summonCreature.duration), personalSpawn))
                     if (e.action.summonCreature.attackInvoker)
                         summon->AI()->AttackStart(target->ToUnit());
             }
@@ -1278,7 +1283,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (e.GetTargetType() != SMART_TARGET_POSITION)
                 break;
 
-            if (Creature* summon = baseObj->SummonCreature(e.action.summonCreature.creature, e.target.x, e.target.y, e.target.z, e.target.o, (TempSummonType)e.action.summonCreature.type, Milliseconds(e.action.summonCreature.duration)))
+            if (Creature* summon = summoner->SummonCreature(e.action.summonCreature.creature, e.target.x, e.target.y, e.target.z, e.target.o, (TempSummonType)e.action.summonCreature.type, Milliseconds(e.action.summonCreature.duration), personalSpawn))
                 if (unit && e.action.summonCreature.attackInvoker)
                     summon->AI()->AttackStart(unit);
             break;
@@ -3836,15 +3841,13 @@ void SmartScript::FillScript(SmartAIEventList e, WorldObject* obj, AreaTriggerEn
 
         if (scriptholder.event.event_flags & SMART_EVENT_FLAG_DIFFICULTY_ALL)//if has instance flag add only if in it
         {
-            if (obj && obj->GetMap()->IsDungeon())
-            {
-                if ((1 << (obj->GetMap()->GetSpawnMode()+1)) & scriptholder.event.event_flags)
-                {
-                    mEvents.push_back(scriptholder);
-                }
-            }
-            continue;
+            if (!(obj && obj->GetMap()->IsDungeon()))
+                continue;
+
+            if (!(1 << (obj->GetMap()->GetSpawnMode() + 1) & scriptholder.event.event_flags))
+                continue;
         }
+        mAllEventFlags |= scriptholder.event.event_flags;
         mEvents.push_back(scriptholder);//NOTE: 'world(0)' events still get processed in ANY instance mode
     }
 }

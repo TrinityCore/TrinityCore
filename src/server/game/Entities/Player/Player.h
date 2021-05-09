@@ -18,6 +18,7 @@
 #ifndef _PLAYER_H
 #define _PLAYER_H
 
+#include "GridObject.h"
 #include "Unit.h"
 #include "DatabaseEnvFwd.h"
 #include "DBCEnums.h"

@@ -33,70 +33,59 @@ enum Events
     EVENT_STUN_BOMB                 = 2
 };
 
-class quartermaster_zigris : public CreatureScript
+struct quartermaster_zigris : public BossAI
 {
-public:
-    quartermaster_zigris() : CreatureScript("quartermaster_zigris") { }
+    quartermaster_zigris(Creature* creature) : BossAI(creature, DATA_QUARTERMASTER_ZIGRIS) { }
 
-    struct boss_quatermasterzigrisAI : public BossAI
+    void Reset() override
     {
-        boss_quatermasterzigrisAI(Creature* creature) : BossAI(creature, DATA_QUARTERMASTER_ZIGRIS) { }
+        _Reset();
+    }
 
-        void Reset() override
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        events.ScheduleEvent(EVENT_SHOOT, 1s);
+        events.ScheduleEvent(EVENT_STUN_BOMB, 16s);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            _Reset();
-        }
-
-        void JustEngagedWith(Unit* who) override
-        {
-            BossAI::JustEngagedWith(who);
-            events.ScheduleEvent(EVENT_SHOOT, 1s);
-            events.ScheduleEvent(EVENT_STUN_BOMB, 16s);
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            _JustDied();
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
+            switch (eventId)
+            {
+                case EVENT_SHOOT:
+                    DoCastVictim(SPELL_SHOOT);
+                    events.ScheduleEvent(EVENT_SHOOT, 500ms);
+                    break;
+                case EVENT_STUN_BOMB:
+                    DoCastVictim(SPELL_STUNBOMB);
+                    events.ScheduleEvent(EVENT_STUN_BOMB, 14s);
+                    break;
+            }
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_SHOOT:
-                        DoCastVictim(SPELL_SHOOT);
-                        events.ScheduleEvent(EVENT_SHOOT, 500ms);
-                        break;
-                    case EVENT_STUN_BOMB:
-                        DoCastVictim(SPELL_STUNBOMB);
-                        events.ScheduleEvent(EVENT_STUN_BOMB, 14s);
-                        break;
-                }
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-            }
-            DoMeleeAttackIfReady();
         }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetBlackrockSpireAI<boss_quatermasterzigrisAI>(creature);
+        DoMeleeAttackIfReady();
     }
 };
 
 void AddSC_boss_quatermasterzigris()
 {
-    new quartermaster_zigris();
+    RegisterBlackrockSpireCreatureAI(quartermaster_zigris);
 }

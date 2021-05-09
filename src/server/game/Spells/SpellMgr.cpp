@@ -3536,6 +3536,25 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_7_YARDS);
     });
 
+    // In sniff caster hits multiple targets
+    ApplySpellFix({
+        73725, // [DND] Test Cheer
+        73835, // [DND] Test Salute
+        73836  // [DND] Test Roar
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_50_YARDS); // 50yd
+    });
+
+    // In sniff caster hits multiple targets
+    ApplySpellFix({
+        73837, // [DND] Test Dance
+        73886  // [DND] Test Stop Dance
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_150_YARDS); // 150yd
+    });
+
     // Master Shapeshifter: missing stance data for forms other than bear - bear version has correct data
     // To prevent aura staying on target after talent unlearned
     ApplySpellFix({ 48420 }, [](SpellInfo* spellInfo)
@@ -3832,6 +3851,12 @@ void SpellMgr::LoadSpellInfoCorrections()
     });
 
     ApplySpellFix({
+        6789,  // Warlock - Death Coil (Rank 1)
+        17925, // Warlock - Death Coil (Rank 2)
+        17926, // Warlock - Death Coil (Rank 3)
+        27223, // Warlock - Death Coil (Rank 4)
+        47859, // Warlock - Death Coil (Rank 5)
+        47860, // Warlock - Death Coil (Rank 6)
         71838, // Drain Life - Bryntroll Normal
         71839  // Drain Life - Bryntroll Heroic
     }, [](SpellInfo* spellInfo)
