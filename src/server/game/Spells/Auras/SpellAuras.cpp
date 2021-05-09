@@ -2386,7 +2386,7 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* c
                         Trinity::UnitListSearcher<Trinity::WorldObjectSpellAreaTargetCheck> searcher(GetUnitOwner(), units, check);
                         Cell::VisitAllObjects(GetUnitOwner(), searcher, radius);
                         // by design WorldObjectSpellAreaTargetCheck allows not-in-world units (for spells) but for auras it is not acceptable
-                        units.erase(std::remove_if(units.begin(), units.end(), [caster](Unit* unit) { return !unit->IsSelfOrInSameMap(caster); }), units.end());
+                        units.erase(std::remove_if(units.begin(), units.end(), [this](Unit* unit) { return !unit->IsSelfOrInSameMap(GetUnitOwner()); }), units.end());
                         break;
                     }
                 }
