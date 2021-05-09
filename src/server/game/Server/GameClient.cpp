@@ -55,3 +55,8 @@ void GameClient::SetMovedUnit(Unit* target, bool allowMove)
     else
         RemoveAllowedMover(target);
 }
+
+void GameClient::SendDirectMessage(WorldPacket const* data) const
+{
+    GetBasePlayer()->SendDirectMessage(data);
+}

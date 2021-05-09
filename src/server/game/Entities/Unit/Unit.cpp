@@ -6273,20 +6273,12 @@ bool Unit::isPossessing() const
         return false;
 }
 
-bool Unit::IsCharmerOrSelfPlayer() const
-{
-    if (IsCharmed())
-        return GetCharmerGUID().IsPlayer();
-    else
-        return IsPlayer();
-}
-
-Unit* Unit::GetCharmerOrSelf()
+Unit* Unit::GetCharmerOrSelf() const
 {
     if (IsCharmed())
         return GetCharmer();
     else
-        return this;
+        return const_cast<Unit*>(this);
 }
 
 Unit* Unit::GetNextRandomRaidMemberOrPet(float radius)

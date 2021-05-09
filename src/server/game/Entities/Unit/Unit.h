@@ -1196,11 +1196,10 @@ class TC_GAME_API Unit : public WorldObject
         void DeleteCharmInfo();
 
         // base client control of this unit (possess effects, vehicles and similar). Not affected by temporary CC.
-        bool IsCharmerOrSelfPlayer() const;
-        Unit* GetCharmerOrSelf();
-        Player* GetCharmerOrSelfPlayer() { return ToPlayer(GetCharmerOrSelf());}
-        Unit* GetCharmedOrSelf() { return IsCharming() ? GetCharmed() : this; }
-        const Unit* GetCharmedOrSelf() const { return IsCharming() ? GetCharmed() : this; }
+        bool IsCharmerOrSelfPlayer() const { return GetCharmerOrSelf()->IsPlayer(); }
+        Unit* GetCharmerOrSelf() const;
+        Player* GetCharmerOrSelfPlayer() const { return ToPlayer(GetCharmerOrSelf());}
+        Unit* GetCharmedOrSelf() const { return IsCharming() ? GetCharmed() : const_cast<Unit*>(this); }
 
         // real time client control status of this unit (possess effects, vehicles and similar). For example, if this unit is a player temporarly under fear, it will return false.
         bool IsMovedByClient() const { return _gameClientMovingMe != nullptr; }
