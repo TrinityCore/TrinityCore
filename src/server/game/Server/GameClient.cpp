@@ -18,8 +18,9 @@
 #include "GameClient.h"
 #include "WorldSession.h"
 #include "Unit.h"
+#include "Player.h"
 
-GameClient::GameClient(WorldSession* sessionToServer) // : unitBeingMoved(nullptr)
+GameClient::GameClient(WorldSession* sessionToServer)
 {
     _sessionToServer = sessionToServer;
     _activeMover = nullptr;
