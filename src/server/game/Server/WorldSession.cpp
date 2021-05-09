@@ -1673,8 +1673,8 @@ bool WorldSession::IsRightUnitBeingMoved(ObjectGuid guid)
     }
 
     // This can happen if a legitimate client has lost control of a unit but hasn't received SMSG_CONTROL_UPDATE before
-    // sending this packet yet. The server should silently ignore all MOVE messages coming from the client after
-    // 'SMSG_CONTROL_UPDATE allowMove=false' is sent.
+    // sending this packet yet. The server should silently ignore all MOVE messages coming from the client as soon
+    // as control over that unit is revoked (through a 'SMSG_CONTROL_UPDATE allowMove=false' message).
     if (!client->IsAllowedToMove(guid))
     {
         TC_LOG_DEBUG("entities.unit", "Bad or outdated movement data by Player %s", _player->GetName().c_str());
