@@ -342,7 +342,7 @@ public:
                 if (uint32(quest->Objectives[i].ObjectID) != me->GetEntry())
                     continue;
 
-                if (player->GetQuestObjectiveData(quest, i) != 0)
+                if (player->GetQuestObjectiveData(quest->Objectives[i]) != 0)
                     continue;
 
                 player->KilledMonsterCredit(me->GetEntry());

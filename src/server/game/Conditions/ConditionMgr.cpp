@@ -524,7 +524,15 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
                 if (!obj)
                     break;
 
-                condMeets = (!player->GetQuestRewardStatus(obj->QuestID) && player->IsQuestObjectiveComplete(*obj));
+                Quest const* quest = sObjectMgr->GetQuestTemplate(obj->QuestID);
+                if (!quest)
+                    break;
+
+                uint16 slot = player->FindQuestSlot(obj->QuestID);
+                if (slot >= MAX_QUEST_LOG_SIZE)
+                    break;
+
+                condMeets = (!player->GetQuestRewardStatus(obj->QuestID) && player->IsQuestObjectiveComplete(slot, quest, *obj));
             }
             break;
         }
@@ -2929,7 +2937,8 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
     if (condition->QuestKillID)
     {
         Quest const* quest = sObjectMgr->GetQuestTemplate(condition->QuestKillID);
-        if (quest && player->GetQuestStatus(condition->QuestKillID) != QUEST_STATUS_COMPLETE)
+        uint16 questSlot = player->FindQuestSlot(condition->QuestKillID);
+        if (quest && player->GetQuestStatus(condition->QuestKillID) != QUEST_STATUS_COMPLETE && questSlot < MAX_QUEST_LOG_SIZE)
         {
             using QuestKillCount = std::extent<decltype(condition->QuestKillMonster)>;
 
@@ -2944,7 +2953,7 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
                         return objective.Type == QUEST_OBJECTIVE_MONSTER && uint32(objective.ObjectID) == condition->QuestKillMonster[i];
                     });
                     if (objectiveItr != quest->GetObjectives().end())
-                        results[i] = player->GetQuestObjectiveData(quest, objectiveItr->StorageIndex) >= objectiveItr->Amount;
+                        results[i] = player->GetQuestSlotObjectiveData(questSlot, *objectiveItr) >= objectiveItr->Amount;
                 }
             }
 

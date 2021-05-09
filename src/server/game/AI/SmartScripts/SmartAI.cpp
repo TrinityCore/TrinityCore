@@ -1199,7 +1199,8 @@ public:
     // Called when a quest objective data change
     void OnQuestObjectiveChange(Player* player, Quest const* quest, QuestObjective const& objective, int32 /*oldAmount*/, int32 /*newAmount*/) override
     {
-        if (player->IsQuestObjectiveComplete(objective))
+        uint16 slot = player->FindQuestSlot(quest->GetQuestId());
+        if (slot < MAX_QUEST_LOG_SIZE && player->IsQuestObjectiveComplete(slot, quest, objective))
         {
             SmartScript smartScript;
             smartScript.OnInitialize(nullptr, nullptr, nullptr, quest);

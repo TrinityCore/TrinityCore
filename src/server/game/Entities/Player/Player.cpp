@@ -6877,19 +6877,6 @@ bool Player::HasCurrency(uint32 id, uint32 count) const
     return itr != _currencyStorage.end() && itr->second.Quantity >= count;
 }
 
-bool Player::IsQuestObjectiveProgressComplete(Quest const* quest) const
-{
-    float progress = 0;
-    for (QuestObjective const& obj : quest->GetObjectives())
-        if (obj.Flags & QUEST_OBJECTIVE_FLAG_PART_OF_PROGRESS_BAR)
-        {
-            progress += GetQuestObjectiveData(quest, obj.StorageIndex) * obj.ProgressBarWeight;
-            if (progress >= 100)
-                return true;
-        }
-    return false;
-}
-
 void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bool ignoreMultipliers/* = false*/)
 {
     if (!count)
@@ -6983,14 +6970,14 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
         if (itr->second.state != PLAYERCURRENCY_NEW)
             itr->second.state = PLAYERCURRENCY_CHANGED;
 
+        CurrencyChanged(id, newTotalCount - itr->second.Quantity);
+
         itr->second.Quantity = newTotalCount;
         itr->second.WeeklyQuantity = newWeekCount;
         itr->second.TrackedQuantity = newTrackedCount;
 
         if (count > 0)
             UpdateCriteria(CRITERIA_TYPE_CURRENCY, id, count);
-
-        CurrencyChanged(id, count);
 
         WorldPackets::Misc::SetCurrency packet;
         packet.Type = id;
@@ -15064,7 +15051,7 @@ bool Player::CanCompleteQuest(uint32 quest_id)
             {
                 if (!(obj.Flags & QUEST_OBJECTIVE_FLAG_OPTIONAL) && !(obj.Flags & QUEST_OBJECTIVE_FLAG_PART_OF_PROGRESS_BAR))
                 {
-                    if (!IsQuestObjectiveComplete(obj))
+                    if (!IsQuestObjectiveComplete(q_status.Slot, qInfo, obj))
                         return false;
                 }
             }
@@ -15317,15 +15304,8 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
     // check for repeatable quests status reset
     questStatusData.Status = QUEST_STATUS_INCOMPLETE;
 
-    int32 maxStorageIndex = 0;
-    for (QuestObjective const& obj : quest->GetObjectives())
-        if (obj.StorageIndex > maxStorageIndex)
-            maxStorageIndex = obj.StorageIndex;
-
-    questStatusData.ObjectiveData.resize(maxStorageIndex+1, 0);
-
     GiveQuestSourceItem(quest);
-    AdjustQuestReqItemCount(quest);
+    AdjustQuestObjectiveProgress(quest);
 
     for (QuestObjective const& obj : quest->GetObjectives())
     {
@@ -15375,6 +15355,7 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
         caster->CastSpell(this, spellInfo->Id, CastSpellExtraArgs(TRIGGERED_FULL_MASK).SetCastDifficulty(spellInfo->Difficulty));
     }
 
+    questStatusData.Slot = log_slot;
     SetQuestSlot(log_slot, quest_id, qtime);
 
     m_QuestStatusSave[quest_id] = QUEST_DEFAULT_SAVE_TYPE;
@@ -16539,14 +16520,18 @@ uint16 Player::GetReqKillOrCastCurrentCount(uint32 quest_id, int32 entry) const
     if (!qInfo)
         return 0;
 
+    uint16 slot = FindQuestSlot(quest_id);
+    if (slot >= MAX_QUEST_LOG_SIZE)
+        return 0;
+
     for (QuestObjective const& obj : qInfo->GetObjectives())
         if (obj.ObjectID == entry)
-            return GetQuestObjectiveData(qInfo, obj.StorageIndex);
+            return GetQuestSlotObjectiveData(slot, obj);
 
     return 0;
 }
 
-void Player::AdjustQuestReqItemCount(Quest const* quest)
+void Player::AdjustQuestObjectiveProgress(Quest const* quest)
 {
     // adjust progress of quest objectives that rely on external counters, like items
     if (quest->HasQuestObjectiveType(QUEST_OBJECTIVE_ITEM))
@@ -16558,6 +16543,12 @@ void Player::AdjustQuestReqItemCount(Quest const* quest)
                 uint32 reqItemCount = obj.Amount;
                 uint32 curItemCount = GetItemCount(obj.ObjectID, true);
                 SetQuestObjectiveData(obj, std::min(curItemCount, reqItemCount));
+            }
+            else if (obj.Type == QUEST_OBJECTIVE_HAVE_CURRENCY)
+            {
+                uint32 reqCurrencyCount = obj.Amount;
+                uint32 curCurrencyCount = GetCurrency(obj.ObjectID);
+                SetQuestObjectiveData(obj, std::min(reqCurrencyCount, curCurrencyCount));
             }
         }
     }
@@ -16592,6 +16583,35 @@ uint16 Player::GetQuestSlotCounter(uint16 slot, uint8 counter) const
 uint32 Player::GetQuestSlotTime(uint16 slot) const
 {
     return m_playerData->QuestLog[slot].EndTime;
+}
+
+bool Player::GetQuestSlotObjectiveFlag(uint16 slot, int8 objectiveIndex) const
+{
+    if (objectiveIndex < MAX_QUEST_COUNTS)
+        return (*m_playerData->QuestLog[slot].ObjectiveFlags) & (1 << objectiveIndex);
+    return false;
+}
+
+int32 Player::GetQuestSlotObjectiveData(uint16 slot, QuestObjective const& objective) const
+{
+    if (objective.StorageIndex < 0)
+    {
+        TC_LOG_ERROR("entities.player.quest", "Player::GetQuestObjectiveData: Called for quest %u with invalid StorageIndex %d (objective data is not tracked)",
+            objective.QuestID, int32(objective.StorageIndex));
+        return 0;
+    }
+
+    if (objective.StorageIndex >= MAX_QUEST_COUNTS)
+    {
+        TC_LOG_ERROR("entities.player.quest", "Player::GetQuestObjectiveData: Player '%s' (%s) quest %u out of range StorageIndex %u",
+            GetName().c_str(), GetGUID().ToString().c_str(), objective.QuestID, uint32(objective.StorageIndex));
+        return 0;
+    }
+
+    if (!objective.IsStoringFlag())
+        return GetQuestSlotCounter(slot, objective.StorageIndex);
+
+    return GetQuestSlotObjectiveFlag(slot, objective.StorageIndex) ? 1 : 0;
 }
 
 void Player::SetQuestSlot(uint16 slot, uint32 quest_id, uint32 timer /*= 0*/)
@@ -16729,30 +16749,27 @@ void Player::ItemAddedQuestCheck(uint32 entry, uint32 count)
 
         for (QuestObjective const& obj : qInfo->GetObjectives())
         {
-            if (obj.Type != QUEST_OBJECTIVE_ITEM)
+            if (obj.Type != QUEST_OBJECTIVE_ITEM || !IsQuestObjectiveCompletable(i, qInfo, obj))
                 continue;
 
-            uint32 reqItem = obj.ObjectID;
-            if (reqItem == entry)
+            if (uint32(obj.ObjectID) != entry)
+                continue;
+
+            uint32 reqItemCount = obj.Amount;
+            uint32 curItemCount = GetQuestSlotObjectiveData(i, obj);
+            if (curItemCount < reqItemCount)
             {
-                uint32 reqItemCount = obj.Amount;
-                uint32 curItemCount = GetQuestObjectiveData(qInfo, obj.StorageIndex);
-                if (curItemCount < reqItemCount)
-                {
-                    uint32 newItemCount = std::min<uint32>(curItemCount + count, reqItemCount);
-                    SetQuestObjectiveData(obj, newItemCount);
-
-                    //SendQuestUpdateAddItem(qInfo, j, additemcount);
-                    // FIXME: verify if there's any packet sent updating item
-                }
-
-                if (CanCompleteQuest(questid))
-                    CompleteQuest(questid);
-
-                return;
+                uint32 newItemCount = std::min<uint32>(curItemCount + count, reqItemCount);
+                SetQuestObjectiveData(obj, newItemCount);
             }
+
+            if (CanCompleteQuest(questid))
+                CompleteQuest(questid);
+
+            break;
         }
     }
+
     UpdateForQuestWorldObjects();
 }
 
@@ -16770,29 +16787,30 @@ void Player::ItemRemovedQuestCheck(uint32 entry, uint32 count)
 
         for (QuestObjective const& obj : qInfo->GetObjectives())
         {
-            if (obj.Type != QUEST_OBJECTIVE_ITEM)
+            if (obj.Type != QUEST_OBJECTIVE_ITEM || !IsQuestObjectiveCompletable(i, qInfo, obj))
                 continue;
 
-            uint32 reqItem = obj.ObjectID;
-            if (reqItem == entry)
+            if (uint32(obj.ObjectID) != entry)
+                continue;
+
+            uint32 reqItemCount = obj.Amount;
+            uint16 curItemCount = GetQuestSlotObjectiveData(i, obj);
+
+            if (curItemCount >= reqItemCount) // we may have more than what the status shows
+                curItemCount = GetItemCount(entry, false);
+
+            uint16 newItemCount = (count > curItemCount) ? 0 : curItemCount - count;
+
+            if (newItemCount < reqItemCount)
             {
-                uint32 reqItemCount = obj.Amount;
-                uint16 curItemCount = GetQuestObjectiveData(qInfo, obj.StorageIndex);
-
-                if (curItemCount >= reqItemCount) // we may have more than what the status shows
-                    curItemCount = GetItemCount(entry, false);
-
-                uint16 newItemCount = (count > curItemCount) ? 0 : curItemCount - count;
-
-                if (newItemCount < reqItemCount)
-                {
-                    SetQuestObjectiveData(obj, newItemCount);
-                    IncompleteQuest(questid);
-                }
-                return;
+                SetQuestObjectiveData(obj, newItemCount);
+                IncompleteQuest(questid);
             }
+
+            break;
         }
     }
+
     UpdateForQuestWorldObjects();
 }
 
@@ -16823,6 +16841,7 @@ void Player::KilledMonsterCredit(uint32 entry, ObjectGuid guid /*= ObjectGuid::E
     StartCriteriaTimer(CRITERIA_TIMED_TYPE_CREATURE, real_entry);   // MUST BE CALLED FIRST
     UpdateCriteria(CRITERIA_TYPE_KILL_CREATURE, real_entry, addKillCount, 0, killed);
 
+    bool completedObjectiveInSequencedQuest = false;
     for (uint8 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
     {
         uint32 questid = GetQuestSlotQuestId(i);
@@ -16833,42 +16852,47 @@ void Player::KilledMonsterCredit(uint32 entry, ObjectGuid guid /*= ObjectGuid::E
         if (!qInfo || !qInfo->HasQuestObjectiveType(QUEST_OBJECTIVE_MONSTER))
             continue;
 
-        // just if !ingroup || !noraidgroup || raidgroup
-        QuestStatusData& q_status = m_QuestStatus[questid];
-        if (q_status.Status == QUEST_STATUS_INCOMPLETE && (!GetGroup() || !GetGroup()->isRaidGroup() || qInfo->IsAllowedInRaid(GetMap()->GetDifficultyID())))
+
+        if (m_QuestStatus[questid].Status != QUEST_STATUS_INCOMPLETE)
+            continue;
+
+        if (GetGroup() && GetGroup()->isRaidGroup() && qInfo->IsAllowedInRaid(GetMap()->GetDifficultyID()))
+            continue;
+
+        for (QuestObjective const& obj : qInfo->GetObjectives())
         {
-            for (QuestObjective const& obj : qInfo->GetObjectives())
+            if (obj.Type != QUEST_OBJECTIVE_MONSTER || !IsQuestObjectiveCompletable(i, qInfo, obj))
+                continue;
+
+            if (uint32(obj.ObjectID) != entry)
+                continue;
+
+            uint32 reqKillCount = obj.Amount;
+            uint16 curKillCount = GetQuestSlotObjectiveData(i, obj);
+            if (curKillCount < reqKillCount)
             {
-                if (obj.Type != QUEST_OBJECTIVE_MONSTER)
-                    continue;
-
-                uint32 reqkill = obj.ObjectID;
-
-                if (reqkill == real_entry)
-                {
-                    uint32 reqKillCount = obj.Amount;
-                    uint16 curKillCount = GetQuestObjectiveData(qInfo, obj.StorageIndex);
-                    if (curKillCount < reqKillCount)
-                    {
-                        SetQuestObjectiveData(obj, curKillCount + addKillCount);
-                        SendQuestUpdateAddCredit(qInfo, guid, obj, curKillCount + addKillCount);
-                    }
-
-                    if (CanCompleteQuest(questid))
-                        CompleteQuest(questid);
-
-                    // same objective target can be in many active quests, but not in 2 objectives for single quest (code optimization).
-                    break;
-                }
+                SetQuestObjectiveData(obj, curKillCount + addKillCount);
+                SendQuestUpdateAddCredit(qInfo, guid, obj, curKillCount + addKillCount);
+                if (!completedObjectiveInSequencedQuest && qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_SEQUENCED_OBJECTIVES) && IsQuestObjectiveComplete(i, qInfo, obj))
+                    completedObjectiveInSequencedQuest = true;
             }
+
+            if (CanCompleteQuest(questid))
+                CompleteQuest(questid);
+
+            // same objective target can be in many active quests, but not in 2 objectives for single quest (code optimization).
+            break;
         }
     }
+
+    if (completedObjectiveInSequencedQuest)
+        UpdateForQuestWorldObjects();
 }
 
 void Player::KilledPlayerCredit()
 {
     uint16 addKillCount = 1;
-
+    bool completedObjectiveInSequencedQuest = false;
     for (uint8 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
     {
         uint32 questid = GetQuestSlotQuestId(i);
@@ -16885,14 +16909,16 @@ void Player::KilledPlayerCredit()
         {
             for (QuestObjective const& obj : qInfo->GetObjectives())
             {
-                if (obj.Type != QUEST_OBJECTIVE_PLAYERKILLS)
+                if (obj.Type != QUEST_OBJECTIVE_PLAYERKILLS || !IsQuestObjectiveCompletable(i, qInfo, obj))
                     continue;
 
-                uint32 curKillCount = GetQuestObjectiveData(qInfo, obj.StorageIndex);
+                uint32 curKillCount = GetQuestSlotObjectiveData(i, obj);
                 if (curKillCount < uint32(obj.Amount))
                 {
                     SetQuestObjectiveData(obj, curKillCount + addKillCount);
                     SendQuestUpdateAddPlayer(qInfo, curKillCount + addKillCount);
+                    if (!completedObjectiveInSequencedQuest && qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_SEQUENCED_OBJECTIVES) && IsQuestObjectiveComplete(i, qInfo, obj))
+                        completedObjectiveInSequencedQuest = true;
                 }
 
                 if (CanCompleteQuest(questid))
@@ -16903,11 +16929,15 @@ void Player::KilledPlayerCredit()
             }
         }
     }
+
+    if (completedObjectiveInSequencedQuest)
+        UpdateForQuestWorldObjects();
 }
 
 void Player::KillCreditGO(uint32 entry, ObjectGuid guid)
 {
     uint16 addCastCount = 1;
+    bool completedObjectiveInSequencedQuest = false;
     for (uint8 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
     {
         uint32 questid = GetQuestSlotQuestId(i);
@@ -16915,45 +16945,50 @@ void Player::KillCreditGO(uint32 entry, ObjectGuid guid)
             continue;
 
         Quest const* qInfo = sObjectMgr->GetQuestTemplate(questid);
-        if (!qInfo)
+        if (!qInfo || !qInfo->HasQuestObjectiveType(QUEST_OBJECTIVE_GAMEOBJECT))
             continue;
 
-        QuestStatusData& q_status = m_QuestStatus[questid];
+        if (m_QuestStatus[questid].Status != QUEST_STATUS_INCOMPLETE)
+            continue;
 
-        if (q_status.Status == QUEST_STATUS_INCOMPLETE)
+        if (GetGroup() && GetGroup()->isRaidGroup() && qInfo->IsAllowedInRaid(GetMap()->GetDifficultyID()))
+            continue;
+
+        for (QuestObjective const& obj : qInfo->GetObjectives())
         {
-            for (QuestObjective const& obj : qInfo->GetObjectives())
+            if (obj.Type != QUEST_OBJECTIVE_GAMEOBJECT || !IsQuestObjectiveCompletable(i, qInfo, obj))
+                continue;
+
+            // other not this creature/GO related objectives
+            if (uint32(obj.ObjectID) != entry)
+                continue;
+
+            uint32 reqCastCount = obj.Amount;
+            uint32 curCastCount = GetQuestSlotObjectiveData(i, obj);
+            if (curCastCount < reqCastCount)
             {
-                if (obj.Type != QUEST_OBJECTIVE_GAMEOBJECT)
-                    continue;
-
-                uint32 reqTarget = obj.ObjectID;
-
-                // other not this creature/GO related objectives
-                if (reqTarget != entry)
-                    continue;
-
-                uint32 reqCastCount = obj.Amount;
-                uint32 curCastCount = GetQuestObjectiveData(qInfo, obj.StorageIndex);
-                if (curCastCount < reqCastCount)
-                {
-                    SetQuestObjectiveData(obj, curCastCount + addCastCount);
-                    SendQuestUpdateAddCredit(qInfo, guid, obj, curCastCount + addCastCount);
-                }
-
-                if (CanCompleteQuest(questid))
-                    CompleteQuest(questid);
-
-                // same objective target can be in many active quests, but not in 2 objectives for single quest (code optimization).
-                break;
+                SetQuestObjectiveData(obj, curCastCount + addCastCount);
+                SendQuestUpdateAddCredit(qInfo, guid, obj, curCastCount + addCastCount);
+                if (!completedObjectiveInSequencedQuest && qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_SEQUENCED_OBJECTIVES) && IsQuestObjectiveComplete(i, qInfo, obj))
+                    completedObjectiveInSequencedQuest = true;
             }
+
+            if (CanCompleteQuest(questid))
+                CompleteQuest(questid);
+
+            // same objective target can be in many active quests, but not in 2 objectives for single quest (code optimization).
+            break;
         }
     }
+
+    if (completedObjectiveInSequencedQuest)
+        UpdateForQuestWorldObjects();
 }
 
 void Player::TalkedToCreature(uint32 entry, ObjectGuid guid)
 {
     uint16 addTalkCount = 1;
+    bool completedObjectiveInSequencedQuest = false;
     for (uint8 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
     {
         uint32 questid = GetQuestSlotQuestId(i);
@@ -16961,39 +16996,43 @@ void Player::TalkedToCreature(uint32 entry, ObjectGuid guid)
             continue;
 
         Quest const* qInfo = sObjectMgr->GetQuestTemplate(questid);
-        if (!qInfo)
+        if (!qInfo || !qInfo->HasQuestObjectiveType(QUEST_OBJECTIVE_TALKTO))
             continue;
 
-        QuestStatusData& q_status = m_QuestStatus[questid];
+        if (m_QuestStatus[questid].Status != QUEST_STATUS_INCOMPLETE)
+            continue;
 
-        if (q_status.Status == QUEST_STATUS_INCOMPLETE)
+        if (GetGroup() && GetGroup()->isRaidGroup() && qInfo->IsAllowedInRaid(GetMap()->GetDifficultyID()))
+            continue;
+
+        for (QuestObjective const& obj : qInfo->GetObjectives())
         {
-            for (QuestObjective const& obj : qInfo->GetObjectives())
+            if (obj.Type != QUEST_OBJECTIVE_TALKTO || !IsQuestObjectiveCompletable(i, qInfo, obj))
+                continue;
+
+            if (uint32(obj.ObjectID) != entry)
+                continue;
+
+            uint32 reqTalkCount = obj.Amount;
+            uint32 curTalkCount = GetQuestSlotObjectiveData(i, obj);
+            if (curTalkCount < reqTalkCount)
             {
-                if (obj.Type != QUEST_OBJECTIVE_TALKTO)
-                    continue;
-
-                uint32 reqTarget = obj.ObjectID;
-
-                if (reqTarget == entry)
-                {
-                    uint32 reqTalkCount = obj.Amount;
-                    uint32 curTalkCount = GetQuestObjectiveData(qInfo, obj.StorageIndex);
-                    if (curTalkCount < reqTalkCount)
-                    {
-                        SetQuestObjectiveData(obj, curTalkCount + addTalkCount);
-                        SendQuestUpdateAddCredit(qInfo, guid, obj, curTalkCount + addTalkCount);
-                    }
-
-                    if (CanCompleteQuest(questid))
-                        CompleteQuest(questid);
-
-                    // Quest can't have more than one objective for the same creature (code optimisation)
-                    break;
-                }
+                SetQuestObjectiveData(obj, curTalkCount + addTalkCount);
+                SendQuestUpdateAddCredit(qInfo, guid, obj, curTalkCount + addTalkCount);
+                if (!completedObjectiveInSequencedQuest && qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_SEQUENCED_OBJECTIVES) && IsQuestObjectiveComplete(i, qInfo, obj))
+                    completedObjectiveInSequencedQuest = true;
             }
+
+            if (CanCompleteQuest(questid))
+                CompleteQuest(questid);
+
+            // Quest can't have more than one objective for the same creature (code optimisation)
+            break;
         }
     }
+
+    if (completedObjectiveInSequencedQuest)
+        UpdateForQuestWorldObjects();
 }
 
 void Player::KillCreditCriteriaTreeObjective(QuestObjective const& questObjective)
@@ -17001,18 +17040,23 @@ void Player::KillCreditCriteriaTreeObjective(QuestObjective const& questObjectiv
     if (questObjective.Type != QUEST_OBJECTIVE_CRITERIA_TREE)
         return;
 
-    if (GetQuestStatus(questObjective.QuestID) == QUEST_STATUS_INCOMPLETE)
+    Quest const* quest = ASSERT_NOTNULL(sObjectMgr->GetQuestTemplate(questObjective.QuestID));
+    if (!IsQuestObjectiveComplete(FindQuestSlot(questObjective.QuestID), quest, questObjective))
     {
         SetQuestObjectiveData(questObjective, 1);
         SendQuestUpdateAddCreditSimple(questObjective);
 
         if (CanCompleteQuest(questObjective.QuestID))
             CompleteQuest(questObjective.QuestID);
+
+        if (quest->HasSpecialFlag(QUEST_SPECIAL_FLAGS_SEQUENCED_OBJECTIVES))
+            UpdateForQuestWorldObjects();
     }
 }
 
 void Player::MoneyChanged(uint64 value)
 {
+    bool completedObjectiveInSequencedQuest = false;
     for (uint8 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
     {
         uint32 questid = GetQuestSlotQuestId(i);
@@ -17023,19 +17067,25 @@ void Player::MoneyChanged(uint64 value)
         if (!qInfo)
             continue;
 
+        if (!qInfo->HasQuestObjectiveType(QUEST_OBJECTIVE_MONEY))
+            continue;
+
+        QuestStatusData& q_status = m_QuestStatus[questid];
+
         for (QuestObjective const& obj : qInfo->GetObjectives())
         {
-            if (obj.Type != QUEST_OBJECTIVE_MONEY)
+            if (obj.Type != QUEST_OBJECTIVE_MONEY || !IsQuestObjectiveCompletable(i, qInfo, obj))
                 continue;
 
-            QuestStatusData& q_status = m_QuestStatus[questid];
-
-            if (q_status.Status == QUEST_STATUS_INCOMPLETE)
+            if (!IsQuestObjectiveComplete(i, qInfo, obj))
             {
-                if (int64(value) >= obj.Amount)
+                if (int64(value) >= int64(obj.Amount))
                 {
                     if (CanCompleteQuest(questid))
                         CompleteQuest(questid);
+
+                    if (!completedObjectiveInSequencedQuest && qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_SEQUENCED_OBJECTIVES))
+                        completedObjectiveInSequencedQuest = true;
                 }
             }
             else if (q_status.Status == QUEST_STATUS_COMPLETE)
@@ -17045,10 +17095,14 @@ void Player::MoneyChanged(uint64 value)
             }
         }
     }
+
+    if (completedObjectiveInSequencedQuest)
+        UpdateForQuestWorldObjects();
 }
 
-void Player::ReputationChanged(FactionEntry const* factionEntry)
+void Player::ReputationChanged(FactionEntry const* factionEntry, int32 change)
 {
+    bool completedObjectiveInSequencedQuest = false;
     for (uint8 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
     {
         if (uint32 questid = GetQuestSlotQuestId(i))
@@ -17057,47 +17111,85 @@ void Player::ReputationChanged(FactionEntry const* factionEntry)
             {
                 QuestStatusData& q_status = m_QuestStatus[questid];
 
+                if (!qInfo->HasQuestObjectiveType(QUEST_OBJECTIVE_MIN_REPUTATION)
+                    && !qInfo->HasQuestObjectiveType(QUEST_OBJECTIVE_MAX_REPUTATION)
+                    && (!qInfo->HasQuestObjectiveType(QUEST_OBJECTIVE_INCREASE_REPUTATION) || q_status.Status != QUEST_STATUS_INCOMPLETE))
+                    continue;
+
                 for (QuestObjective const& obj : qInfo->GetObjectives())
                 {
-                    if (uint32(obj.ObjectID) != factionEntry->ID)
+                    if (uint32(obj.ObjectID) != factionEntry->ID || !IsQuestObjectiveCompletable(i, qInfo, obj))
                         continue;
 
-                    if (obj.Type == QUEST_OBJECTIVE_MIN_REPUTATION)
+                    switch (obj.Type)
                     {
-                        if (q_status.Status == QUEST_STATUS_INCOMPLETE)
+                        case QUEST_OBJECTIVE_MIN_REPUTATION:
+                            if (!IsQuestObjectiveComplete(i, qInfo, obj))
+                            {
+                                if (GetReputationMgr().GetReputation(factionEntry) + change >= obj.Amount)
+                                {
+                                    if (CanCompleteQuest(questid))
+                                        CompleteQuest(questid);
+
+                                    if (qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_SEQUENCED_OBJECTIVES))
+                                        completedObjectiveInSequencedQuest = true;
+                                }
+                            }
+                            else if (q_status.Status == QUEST_STATUS_COMPLETE)
+                            {
+                                if (GetReputationMgr().GetReputation(factionEntry) + change < obj.Amount)
+                                    IncompleteQuest(questid);
+                            }
+                            break;
+                        case QUEST_OBJECTIVE_MAX_REPUTATION:
+                            if (!IsQuestObjectiveComplete(i, qInfo, obj))
+                            {
+                                if (GetReputationMgr().GetReputation(factionEntry) + change <= obj.Amount)
+                                {
+                                    if (CanCompleteQuest(questid))
+                                        CompleteQuest(questid);
+
+                                    if (qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_SEQUENCED_OBJECTIVES))
+                                        completedObjectiveInSequencedQuest = true;
+                                }
+                            }
+                            else if (q_status.Status == QUEST_STATUS_COMPLETE)
+                            {
+                                if (GetReputationMgr().GetReputation(factionEntry) + change > obj.Amount)
+                                    IncompleteQuest(questid);
+                            }
+                            break;
+                        case QUEST_OBJECTIVE_INCREASE_REPUTATION:
                         {
-                            if (GetReputationMgr().GetReputation(factionEntry) >= obj.Amount)
+                            int32 currentProgress = GetQuestSlotObjectiveData(i, obj);
+                            if (change > 0 && currentProgress < obj.Amount)
+                            {
+                                SetQuestObjectiveData(obj, currentProgress + change);
+                                SendQuestUpdateAddCredit(qInfo, ObjectGuid::Empty, obj, currentProgress + change);
+
                                 if (CanCompleteQuest(questid))
                                     CompleteQuest(questid);
+
+                                if (!completedObjectiveInSequencedQuest && qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_SEQUENCED_OBJECTIVES) && IsQuestObjectiveComplete(i, qInfo, obj))
+                                    completedObjectiveInSequencedQuest = true;
+                            }
+                            break;
                         }
-                        else if (q_status.Status == QUEST_STATUS_COMPLETE)
-                        {
-                            if (GetReputationMgr().GetReputation(factionEntry) < obj.Amount)
-                                IncompleteQuest(questid);
-                        }
-                    }
-                    else if (obj.Type == QUEST_OBJECTIVE_MAX_REPUTATION)
-                    {
-                        if (q_status.Status == QUEST_STATUS_INCOMPLETE)
-                        {
-                            if (GetReputationMgr().GetReputation(factionEntry) <= obj.Amount)
-                                if (CanCompleteQuest(questid))
-                                    CompleteQuest(questid);
-                        }
-                        else if (q_status.Status == QUEST_STATUS_COMPLETE)
-                        {
-                            if (GetReputationMgr().GetReputation(factionEntry) > obj.Amount)
-                                IncompleteQuest(questid);
-                        }
+                        default:
+                            break;
                     }
                 }
             }
         }
     }
+
+    if (completedObjectiveInSequencedQuest)
+        UpdateForQuestWorldObjects();
 }
 
 void Player::CurrencyChanged(uint32 currencyId, int32 change)
 {
+    bool completedObjectiveInSequencedQuest = false;
     for (uint8 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
     {
         uint32 questid = GetQuestSlotQuestId(i);
@@ -17108,41 +17200,87 @@ void Player::CurrencyChanged(uint32 currencyId, int32 change)
         if (!qInfo)
             continue;
 
+        QuestStatusData& q_status = m_QuestStatus[questid];
+
+        if (!qInfo->HasQuestObjectiveType(QUEST_OBJECTIVE_CURRENCY)
+            && !qInfo->HasQuestObjectiveType(QUEST_OBJECTIVE_HAVE_CURRENCY)
+            && (!qInfo->HasQuestObjectiveType(QUEST_OBJECTIVE_OBTAIN_CURRENCY) || q_status.Status != QUEST_STATUS_INCOMPLETE))
+            continue;
+
         for (QuestObjective const& obj : qInfo->GetObjectives())
         {
-            if (uint32(obj.ObjectID) != currencyId)
+            if (uint32(obj.ObjectID) != currencyId || !IsQuestObjectiveCompletable(i, qInfo, obj))
                 continue;
 
             QuestStatusData& q_status = m_QuestStatus[questid];
-            if (obj.Type == QUEST_OBJECTIVE_CURRENCY || obj.Type == QUEST_OBJECTIVE_HAVE_CURRENCY)
+            switch (obj.Type)
             {
-                int64 value = GetCurrency(currencyId);
-                if (obj.Type == QUEST_OBJECTIVE_HAVE_CURRENCY)
-                    SetQuestObjectiveData(obj, int32(std::min<int64>(value, obj.Amount)));
-
-                if (q_status.Status == QUEST_STATUS_INCOMPLETE)
+                case QUEST_OBJECTIVE_CURRENCY:
                 {
-                    if (value >= obj.Amount)
+                    if (!IsQuestObjectiveComplete(i, qInfo, obj))
                     {
+                        if (int64(GetCurrency(currencyId)) + change >= obj.Amount)
+                        {
+                            if (CanCompleteQuest(questid))
+                                CompleteQuest(questid);
+
+                            if (qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_SEQUENCED_OBJECTIVES))
+                                completedObjectiveInSequencedQuest = true;
+                        }
+                    }
+                    else if (q_status.Status == QUEST_STATUS_COMPLETE)
+                    {
+                        if (int64(GetCurrency(currencyId)) + change < obj.Amount)
+                            IncompleteQuest(questid);
+                    }
+                    break;
+                }
+                case QUEST_OBJECTIVE_HAVE_CURRENCY:
+                {
+                    int32 newProgress = int32(std::min<int64>(int64(GetCurrency(currencyId)) + change, obj.Amount));
+                    SetQuestObjectiveData(obj, newProgress);
+                    if (!IsQuestObjectiveComplete(i, qInfo, obj))
+                    {
+                        if (newProgress >= obj.Amount)
+                        {
+                            if (CanCompleteQuest(questid))
+                                CompleteQuest(questid);
+
+                            if (qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_SEQUENCED_OBJECTIVES))
+                                completedObjectiveInSequencedQuest = true;
+                        }
+                    }
+                    else if (q_status.Status == QUEST_STATUS_COMPLETE)
+                    {
+                        if (newProgress < obj.Amount)
+                            IncompleteQuest(questid);
+                    }
+                    break;
+                }
+                case QUEST_OBJECTIVE_OBTAIN_CURRENCY:
+                {
+                    int32 currentProgress = GetQuestSlotObjectiveData(i, obj);
+                    if (change > 0 && currentProgress < obj.Amount)
+                    {
+                        SetQuestObjectiveData(obj, currentProgress + change);
+                        SendQuestUpdateAddCredit(qInfo, ObjectGuid::Empty, obj, currentProgress + change);
+
                         if (CanCompleteQuest(questid))
                             CompleteQuest(questid);
+
+                        if (!completedObjectiveInSequencedQuest && qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_SEQUENCED_OBJECTIVES) && IsQuestObjectiveComplete(i, qInfo, obj))
+                            completedObjectiveInSequencedQuest = true;
                     }
+                    break;
                 }
-                else if (q_status.Status == QUEST_STATUS_COMPLETE)
-                {
-                    if (value < obj.Amount)
-                        IncompleteQuest(questid);
-                }
-            }
-            else if (obj.Type == QUEST_OBJECTIVE_OBTAIN_CURRENCY && change > 0) // currency losses are not accounted for in this objective type
-            {
-                int64 currentProgress = GetQuestObjectiveData(qInfo, obj.StorageIndex);
-                SetQuestObjectiveData(obj, int32(std::max(std::min<int64>(currentProgress + change, obj.Amount), SI64LIT(0))));
-                if (CanCompleteQuest(questid))
-                    CompleteQuest(questid);
+                default:
+                    break;
             }
         }
     }
+
+    if (completedObjectiveInSequencedQuest)
+        UpdateForQuestWorldObjects();
 }
 
 bool Player::HasQuestForItem(uint32 itemid) const
@@ -17174,7 +17312,7 @@ bool Player::HasQuestForItem(uint32 itemid) const
             // This part for ReqItem drop
             for (QuestObjective const& obj : qInfo->GetObjectives())
             {
-                if (obj.Type == QUEST_OBJECTIVE_ITEM && itemid == uint32(obj.ObjectID) && GetQuestObjectiveData(qInfo, obj.StorageIndex) < obj.Amount)
+                if (obj.Type == QUEST_OBJECTIVE_ITEM && IsQuestObjectiveCompletable(i, qInfo, obj) && itemid == uint32(obj.ObjectID) && GetQuestSlotObjectiveData(i, obj) < obj.Amount)
                     return true;
             }
             // This part - for ReqSource
@@ -17203,44 +17341,136 @@ bool Player::HasQuestForItem(uint32 itemid) const
     return false;
 }
 
-int32 Player::GetQuestObjectiveData(Quest const* quest, int8 storageIndex) const
+int32 Player::GetQuestObjectiveData(QuestObjective const& objective) const
 {
-    if (storageIndex < 0)
-        TC_LOG_ERROR("entities.player.quest", "Player::GetQuestObjectiveData: Called for quest %u with invalid StorageIndex %d (objective data is not tracked)",
-            quest->GetQuestId(), storageIndex);
-
-    auto itr = m_QuestStatus.find(quest->GetQuestId());
-    if (itr == m_QuestStatus.end())
+    uint16 slot = FindQuestSlot(objective.QuestID);
+    if (slot >= MAX_QUEST_LOG_SIZE)
         return 0;
 
-    QuestStatusData const& status = itr->second;
-
-    if (uint8(storageIndex) >= status.ObjectiveData.size())
-    {
-        TC_LOG_ERROR("entities.player.quest", "Player::GetQuestObjectiveData: Player '%s' (%s) quest %u out of range StorageIndex %u",
-            GetName().c_str(), GetGUID().ToString().c_str(), quest->GetQuestId(), storageIndex);
-        return 0;
-    }
-
-    return status.ObjectiveData[storageIndex];
+    return GetQuestSlotObjectiveData(slot, objective);
 }
 
-bool Player::IsQuestObjectiveComplete(QuestObjective const& objective) const
+void Player::SetQuestObjectiveData(QuestObjective const& objective, int32 data)
 {
-    Quest const* quest = sObjectMgr->GetQuestTemplate(objective.QuestID);
-    ASSERT(quest);
+    if (objective.StorageIndex < 0)
+    {
+        TC_LOG_ERROR("entities.player.quest", "Player::SetQuestObjectiveData: called for quest %u with invalid StorageIndex %d (objective data is not tracked)",
+            objective.QuestID, objective.StorageIndex);
+        return;
+    }
 
+    auto itr = m_QuestStatus.find(objective.QuestID);
+    if (itr == m_QuestStatus.end())
+    {
+        TC_LOG_ERROR("entities.player.quest", "Player::SetQuestObjectiveData: player '%s' (%s) doesn't have quest status data (QuestID: %u)",
+            GetName().c_str(), GetGUID().ToString().c_str(), objective.QuestID);
+        return;
+    }
+
+    QuestStatusData& status = itr->second;
+
+    if (uint8(objective.StorageIndex) >= MAX_QUEST_COUNTS)
+    {
+        TC_LOG_ERROR("entities.player.quest", "Player::SetQuestObjectiveData: player '%s' (%s) quest %u out of range StorageIndex %u",
+            GetName().c_str(), GetGUID().ToString().c_str(), objective.QuestID, objective.StorageIndex);
+        return;
+    }
+
+    if (status.Slot >= MAX_QUEST_LOG_SIZE)
+        return;
+
+    // No change
+    int32 oldData = GetQuestSlotObjectiveData(status.Slot, objective);
+    if (oldData == data)
+        return;
+
+    if (Quest const* quest = sObjectMgr->GetQuestTemplate(objective.QuestID))
+        sScriptMgr->OnQuestObjectiveChange(this, quest, objective, oldData, data);
+
+    // Add to save
+    m_QuestStatusSave[objective.QuestID] = QUEST_DEFAULT_SAVE_TYPE;
+
+    // Update quest fields
+    if (!objective.IsStoringFlag())
+        SetQuestSlotCounter(status.Slot, objective.StorageIndex, data);
+    else if (data)
+        SetQuestSlotObjectiveFlag(status.Slot, objective.StorageIndex);
+    else
+        RemoveQuestSlotObjectiveFlag(status.Slot, objective.StorageIndex);
+}
+
+bool Player::IsQuestObjectiveCompletable(uint16 slot, Quest const* quest, QuestObjective const& objective) const
+{
+    ASSERT(objective.QuestID == quest->GetQuestId());
+
+    if (objective.Flags & QUEST_OBJECTIVE_FLAG_PART_OF_PROGRESS_BAR)
+    {
+        // delegate check to actual progress bar objective
+        auto progressBarObjectiveItr = std::find_if(quest->GetObjectives().begin(), quest->GetObjectives().end(), [](QuestObjective const& otherObjective)
+        {
+            return otherObjective.Type == QUEST_OBJECTIVE_PROGRESS_BAR && !(otherObjective.Flags & QUEST_OBJECTIVE_FLAG_PART_OF_PROGRESS_BAR);
+        });
+        if (progressBarObjectiveItr == quest->GetObjectives().end())
+            return false;
+
+        return IsQuestObjectiveCompletable(slot, quest, *progressBarObjectiveItr) && !IsQuestObjectiveComplete(slot, quest, *progressBarObjectiveItr);
+    }
+
+    int32 objectiveIndex = int32(std::distance(&quest->GetObjectives()[0], &objective));
+    if (!objectiveIndex)
+        return true;
+
+    // check sequenced objectives
+    int32 previousIndex = objectiveIndex - 1;
+    bool objectiveSequenceSatisfied = true;
+    bool previousSequencedObjectiveComplete = false;
+    int32 previousSequencedObjectiveIndex = -1;
+    do
+    {
+        QuestObjective const& previousObjective = quest->GetObjectives()[previousIndex];
+        if (previousObjective.Flags & QUEST_OBJECTIVE_FLAG_SEQUENCED)
+        {
+            previousSequencedObjectiveIndex = previousIndex;
+            previousSequencedObjectiveComplete = IsQuestObjectiveComplete(slot, quest, previousObjective);
+            break;
+        }
+
+        if (objectiveSequenceSatisfied)
+            objectiveSequenceSatisfied = IsQuestObjectiveComplete(slot, quest, previousObjective) || (previousObjective.Flags & (QUEST_OBJECTIVE_FLAG_OPTIONAL | QUEST_OBJECTIVE_FLAG_PART_OF_PROGRESS_BAR));
+
+        --previousIndex;
+    } while (previousIndex >= 0);
+
+    if (objective.Flags & QUEST_OBJECTIVE_FLAG_SEQUENCED)
+    {
+        if (previousSequencedObjectiveIndex == -1)
+            return objectiveSequenceSatisfied;
+        if (!previousSequencedObjectiveComplete || !objectiveSequenceSatisfied)
+            return false;
+    }
+    else if (!previousSequencedObjectiveComplete && previousSequencedObjectiveIndex != -1)
+    {
+        if (!IsQuestObjectiveCompletable(slot, quest, quest->GetObjectives()[previousSequencedObjectiveIndex]))
+            return false;
+    }
+
+    return true;
+}
+
+bool Player::IsQuestObjectiveComplete(uint16 slot, Quest const* quest, QuestObjective const& objective) const
+{
     switch (objective.Type)
     {
         case QUEST_OBJECTIVE_MONSTER:
         case QUEST_OBJECTIVE_ITEM:
         case QUEST_OBJECTIVE_GAMEOBJECT:
-        case QUEST_OBJECTIVE_PLAYERKILLS:
         case QUEST_OBJECTIVE_TALKTO:
+        case QUEST_OBJECTIVE_PLAYERKILLS:
         case QUEST_OBJECTIVE_WINPVPPETBATTLES:
         case QUEST_OBJECTIVE_HAVE_CURRENCY:
         case QUEST_OBJECTIVE_OBTAIN_CURRENCY:
-            if (GetQuestObjectiveData(quest, objective.StorageIndex) < objective.Amount)
+        case QUEST_OBJECTIVE_INCREASE_REPUTATION:
+            if (GetQuestSlotObjectiveData(slot, objective) < objective.Amount)
                 return false;
             break;
         case QUEST_OBJECTIVE_MIN_REPUTATION:
@@ -17256,8 +17486,12 @@ bool Player::IsQuestObjectiveComplete(QuestObjective const& objective) const
                 return false;
             break;
         case QUEST_OBJECTIVE_AREATRIGGER:
+        case QUEST_OBJECTIVE_WINPETBATTLEAGAINSTNPC:
+        case QUEST_OBJECTIVE_DEFEATBATTLEPET:
         case QUEST_OBJECTIVE_CRITERIA_TREE:
-            if (!GetQuestObjectiveData(quest, objective.StorageIndex))
+        case QUEST_OBJECTIVE_AREA_TRIGGER_ENTER:
+        case QUEST_OBJECTIVE_AREA_TRIGGER_EXIT:
+            if (!GetQuestSlotObjectiveData(slot, objective))
                 return false;
             break;
         case QUEST_OBJECTIVE_LEARNSPELL:
@@ -17269,7 +17503,7 @@ bool Player::IsQuestObjectiveComplete(QuestObjective const& objective) const
                 return false;
             break;
         case QUEST_OBJECTIVE_PROGRESS_BAR:
-            if (!IsQuestObjectiveProgressComplete(quest))
+            if (!IsQuestObjectiveProgressBarComplete(slot, quest))
                 return false;
             break;
         default:
@@ -17281,58 +17515,19 @@ bool Player::IsQuestObjectiveComplete(QuestObjective const& objective) const
     return true;
 }
 
-void Player::SetQuestObjectiveData(QuestObjective const& objective, int32 data)
+bool Player::IsQuestObjectiveProgressBarComplete(uint16 slot, Quest const* quest) const
 {
-    if (objective.StorageIndex < 0)
+    float progress = 0.0f;
+    for (QuestObjective const& obj : quest->GetObjectives())
     {
-        TC_LOG_ERROR("entities.player.quest", "Player::SetQuestObjectiveData: called for quest %u with invalid StorageIndex %d (objective data is not tracked)",
-            objective.QuestID, objective.StorageIndex);
-        return;
+        if (obj.Flags & QUEST_OBJECTIVE_FLAG_PART_OF_PROGRESS_BAR)
+        {
+            progress += GetQuestSlotObjectiveData(slot, obj) * obj.ProgressBarWeight;
+            if (progress >= 100.0f)
+                return true;
+        }
     }
-
-    auto itr = m_QuestStatus.find(objective.QuestID);
-
-    if (itr == m_QuestStatus.end())
-    {
-        TC_LOG_ERROR("entities.player.quest", "Player::SetQuestObjectiveData: player '%s' (%s) doesn't have quest status data (QuestID: %u)",
-            GetName().c_str(), GetGUID().ToString().c_str(), objective.QuestID);
-        return;
-    }
-
-    QuestStatusData& status = itr->second;
-
-    if (uint8(objective.StorageIndex) >= status.ObjectiveData.size())
-    {
-        TC_LOG_ERROR("entities.player.quest", "Player::SetQuestObjectiveData: player '%s' (%s) quest %u out of range StorageIndex %u",
-            GetName().c_str(), GetGUID().ToString().c_str(), objective.QuestID, objective.StorageIndex);
-        return;
-    }
-
-    // No change
-    int32 oldData = status.ObjectiveData[objective.StorageIndex];
-    if (oldData == data)
-        return;
-
-    if (Quest const* quest = sObjectMgr->GetQuestTemplate(objective.QuestID))
-        sScriptMgr->OnQuestObjectiveChange(this, quest, objective, oldData, data);
-
-    // Set data
-    status.ObjectiveData[objective.StorageIndex] = data;
-
-    // Add to save
-    m_QuestStatusSave[objective.QuestID] = QUEST_DEFAULT_SAVE_TYPE;
-
-    // Update quest fields
-    uint16 log_slot = FindQuestSlot(objective.QuestID);
-    if (log_slot < MAX_QUEST_LOG_SIZE)
-    {
-        if (!objective.IsStoringFlag())
-            SetQuestSlotCounter(log_slot, objective.StorageIndex, status.ObjectiveData[objective.StorageIndex]);
-        else if (data)
-            SetQuestSlotObjectiveFlag(log_slot, objective.StorageIndex);
-        else
-            RemoveQuestSlotObjectiveFlag(log_slot, objective.StorageIndex);
-    }
+    return false;
 }
 
 void Player::SendQuestComplete(Quest const* quest) const
@@ -19487,6 +19682,7 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
                 // add to quest log
                 if (slot < MAX_QUEST_LOG_SIZE && questStatusData.Status != QUEST_STATUS_NONE)
                 {
+                    questStatusData.Slot = slot;
                     SetQuestSlot(slot, quest_id, uint32(quest_time)); // cast can't be helped
 
                     if (questStatusData.Status == QUEST_STATUS_COMPLETE)
@@ -19496,14 +19692,6 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
 
                     ++slot;
                 }
-
-                // Resize quest objective data to proper size
-                int32 maxStorageIndex = 0;
-                for (QuestObjective const& obj : quest->GetObjectives())
-                    if (obj.StorageIndex > maxStorageIndex)
-                        maxStorageIndex = obj.StorageIndex;
-
-                questStatusData.ObjectiveData.resize(maxStorageIndex+1);
 
                 TC_LOG_DEBUG("entities.player.loading", "Player::_LoadQuestStatus: Quest status is {%u} for quest {%u} for player (%s)", questStatusData.Status, quest_id, GetGUID().ToString().c_str());
             }
@@ -19530,24 +19718,22 @@ void Player::_LoadQuestStatusObjectives(PreparedQueryResult result)
 
             uint32 questID = fields[0].GetUInt32();
             Quest const* quest = sObjectMgr->GetQuestTemplate(questID);
-            uint16 slot = FindQuestSlot(questID);
             auto itr = m_QuestStatus.find(questID);
-            if (itr != m_QuestStatus.end() && slot < MAX_QUEST_LOG_SIZE && quest)
+            if (itr != m_QuestStatus.end() && itr->second.Slot < MAX_QUEST_LOG_SIZE && quest)
             {
                 QuestStatusData& questStatusData = itr->second;
-                uint8 objectiveIndex = fields[1].GetUInt8();
-                auto objectiveItr = std::find_if(quest->Objectives.begin(), quest->Objectives.end(), [=](QuestObjective const& objective) { return uint8(objective.StorageIndex) == objectiveIndex; });
-                if (objectiveIndex < questStatusData.ObjectiveData.size() && objectiveItr != quest->Objectives.end())
+                uint8 storageIndex = fields[1].GetUInt8();
+                auto objectiveItr = std::find_if(quest->Objectives.begin(), quest->Objectives.end(), [=](QuestObjective const& objective) { return uint8(objective.StorageIndex) == storageIndex; });
+                if (objectiveItr != quest->Objectives.end())
                 {
                     int32 data = fields[2].GetInt32();
-                    questStatusData.ObjectiveData[objectiveIndex] = data;
                     if (!objectiveItr->IsStoringFlag())
-                        SetQuestSlotCounter(slot, objectiveIndex, data);
+                        SetQuestSlotCounter(questStatusData.Slot, storageIndex, data);
                     else if (data)
-                        SetQuestSlotObjectiveFlag(slot, objectiveIndex);
+                        SetQuestSlotObjectiveFlag(questStatusData.Slot, storageIndex);
                 }
                 else
-                    TC_LOG_ERROR("entities.player", "Player::_LoadQuestStatusObjectives: Player '%s' (%s) has quest %d out of range objective index %u.", GetName().c_str(), GetGUID().ToString().c_str(), questID, objectiveIndex);
+                    TC_LOG_ERROR("entities.player", "Player::_LoadQuestStatusObjectives: Player '%s' (%s) has quest %d out of range objective index %u.", GetName().c_str(), GetGUID().ToString().c_str(), questID, storageIndex);
             }
             else
                 TC_LOG_ERROR("entities.player", "Player::_LoadQuestStatusObjectives: Player %s (%s) does not have quest %d but has objective data for it.", GetName().c_str(), GetGUID().ToString().c_str(), questID);
@@ -21184,13 +21370,24 @@ void Player::_SaveQuestStatus(CharacterDatabaseTransaction& trans)
                 trans->Append(stmt);
 
                 // Save objectives
-                for (uint32 i = 0; i < qData.ObjectiveData.size(); ++i)
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_QUESTSTATUS_OBJECTIVES_BY_QUEST);
+                stmt->setUInt64(0, GetGUID().GetCounter());
+                stmt->setUInt32(1, saveItr->first);
+                trans->Append(stmt);
+
+                Quest const* quest = ASSERT_NOTNULL(sObjectMgr->GetQuestTemplate(saveItr->first));
+
+                for (QuestObjective const& obj : quest->GetObjectives())
                 {
+                    int32 count = GetQuestSlotObjectiveData(qData.Slot, obj);
+                    if (!count)
+                        continue;
+
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CHAR_QUESTSTATUS_OBJECTIVES);
                     stmt->setUInt64(0, GetGUID().GetCounter());
                     stmt->setUInt32(1, statusItr->first);
-                    stmt->setUInt8(2, i);
-                    stmt->setInt32(3, qData.ObjectiveData[i]);
+                    stmt->setUInt8(2, obj.StorageIndex);
+                    stmt->setInt32(3, count);
                     trans->Append(stmt);
                 }
             }
@@ -24107,8 +24304,8 @@ bool Player::HasEnoughMoney(int64 amount) const
 
 void Player::SetMoney(uint64 value)
 {
-    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Coinage), value);
     MoneyChanged(value);
+    SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Coinage), value);
     UpdateCriteria(CRITERIA_TYPE_HIGHEST_GOLD_VALUE_OWNED);
 }
 
@@ -25114,7 +25311,10 @@ bool Player::HasQuestForGO(int32 GOId) const
                 if (obj.Type != QUEST_OBJECTIVE_GAMEOBJECT) //skip non GO case
                     continue;
 
-                if (GOId == obj.ObjectID && GetQuestObjectiveData(qInfo, obj.StorageIndex) < obj.Amount)
+                if (!IsQuestObjectiveCompletable(i, qInfo, obj))
+                    continue;
+
+                if (GOId == obj.ObjectID && GetQuestSlotObjectiveData(i, obj) < obj.Amount)
                     return true;
             }
         }

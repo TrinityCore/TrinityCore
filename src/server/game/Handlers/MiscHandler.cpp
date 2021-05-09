@@ -491,17 +491,21 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
     {
         if (std::unordered_set<uint32> const* quests = sObjectMgr->GetQuestsForAreaTrigger(packet.AreaTriggerID))
         {
+            bool completedObjectiveInSequencedQuest = false;
             for (uint32 questId : *quests)
             {
                 Quest const* qInfo = sObjectMgr->GetQuestTemplate(questId);
-                if (qInfo && player->GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE)
+                uint16 slot = player->FindQuestSlot(questId);
+                if (qInfo && slot < MAX_QUEST_LOG_SIZE && player->GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE)
                 {
                     for (QuestObjective const& obj : qInfo->Objectives)
                     {
-                        if (obj.Type == QUEST_OBJECTIVE_AREATRIGGER && !player->IsQuestObjectiveComplete(obj))
+                        if (obj.Type == QUEST_OBJECTIVE_AREATRIGGER && !player->IsQuestObjectiveComplete(slot, qInfo, obj))
                         {
                             player->SetQuestObjectiveData(obj, 1);
                             player->SendQuestUpdateAddCreditSimple(obj);
+                            if (qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_SEQUENCED_OBJECTIVES))
+                                completedObjectiveInSequencedQuest = true;
                             break;
                         }
                     }
@@ -510,6 +514,9 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
                         player->CompleteQuest(questId);
                 }
             }
+
+            if (completedObjectiveInSequencedQuest)
+                player->UpdateForQuestWorldObjects();
         }
     }
 

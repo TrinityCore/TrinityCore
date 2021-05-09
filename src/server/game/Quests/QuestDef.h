@@ -253,6 +253,7 @@ enum QuestSpecialFlags
 
     QUEST_SPECIAL_FLAGS_DB_ALLOWED = QUEST_SPECIAL_FLAGS_REPEATABLE | QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT | QUEST_SPECIAL_FLAGS_AUTO_ACCEPT | QUEST_SPECIAL_FLAGS_DF_QUEST | QUEST_SPECIAL_FLAGS_MONTHLY,
 
+    QUEST_SPECIAL_FLAGS_SEQUENCED_OBJECTIVES = 0x020,    // Internal flag computed only
 };
 
 enum class QuestTagType
@@ -670,9 +671,9 @@ class TC_GAME_API Quest
 
 struct QuestStatusData
 {
+    uint16 Slot = MAX_QUEST_LOG_SIZE;
     QuestStatus Status = QUEST_STATUS_NONE;
     uint32 Timer = 0;
-    std::vector<int32> ObjectiveData;
 };
 
 #endif

@@ -361,7 +361,11 @@ bool ReputationMgr::SetOneFactionReputation(FactionEntry const* factionEntry, in
         ReputationRank old_rank = ReputationToRank(itr->second.Standing + BaseRep);
         ReputationRank new_rank = ReputationToRank(standing);
 
-        itr->second.Standing = standing - BaseRep;
+        int32 newStanding = standing - BaseRep;
+
+        _player->ReputationChanged(factionEntry, newStanding - itr->second.Standing);
+
+        itr->second.Standing = newStanding;
         itr->second.needSend = true;
         itr->second.needSave = true;
 
@@ -375,7 +379,6 @@ bool ReputationMgr::SetOneFactionReputation(FactionEntry const* factionEntry, in
 
         UpdateRankCounters(old_rank, new_rank);
 
-        _player->ReputationChanged(factionEntry);
         _player->UpdateCriteria(CRITERIA_TYPE_KNOWN_FACTIONS,          factionEntry->ID);
         _player->UpdateCriteria(CRITERIA_TYPE_GAIN_REPUTATION,         factionEntry->ID);
         _player->UpdateCriteria(CRITERIA_TYPE_GAIN_EXALTED_REPUTATION, factionEntry->ID);

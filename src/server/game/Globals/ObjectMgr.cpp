@@ -17,6 +17,8 @@
 
 #include "ObjectMgr.h"
 #include "ArenaTeamMgr.h"
+#include "AreaTriggerDataStore.h"
+#include "AreaTriggerTemplate.h"
 #include "AzeriteEmpoweredItem.h"
 #include "AzeriteItem.h"
 #include "Chat.h"
@@ -4577,9 +4579,13 @@ void ObjectMgr::LoadQuests()
                             qinfo->GetQuestId(), obj.ID, uint32(obj.ObjectID));
                     break;
                 case QUEST_OBJECTIVE_TALKTO:
+                    if (!sObjectMgr->GetCreatureTemplate(obj.ObjectID))
+                        TC_LOG_ERROR("sql.sql", "Quest %u objective %u has non existing creature entry %u, quest can't be done.",
+                            qinfo->GetQuestId(), obj.ID, uint32(obj.ObjectID));
                     break;
                 case QUEST_OBJECTIVE_MIN_REPUTATION:
                 case QUEST_OBJECTIVE_MAX_REPUTATION:
+                case QUEST_OBJECTIVE_INCREASE_REPUTATION:
                     if (!sFactionStore.LookupEntry(obj.ObjectID))
                         TC_LOG_ERROR("sql.sql", "Quest %u objective %u has non existing faction id %d", qinfo->GetQuestId(), obj.ID, obj.ObjectID);
                     break;
@@ -4614,6 +4620,11 @@ void ObjectMgr::LoadQuests()
                     break;
                 case QUEST_OBJECTIVE_AREATRIGGER:
                     if (!sAreaTriggerStore.LookupEntry(uint32(obj.ObjectID)) && obj.ObjectID != -1)
+                        TC_LOG_ERROR("sql.sql", "Quest %u objective %u has non existing AreaTrigger.db2 id %d", qinfo->GetQuestId(), obj.ID, obj.ObjectID);
+                    break;
+                case QUEST_OBJECTIVE_AREA_TRIGGER_ENTER:
+                case QUEST_OBJECTIVE_AREA_TRIGGER_EXIT:
+                    if (!sAreaTriggerDataStore->GetAreaTriggerTemplate({ uint32(obj.ObjectID), false }) && !sAreaTriggerDataStore->GetAreaTriggerTemplate({ uint32(obj.ObjectID), true }))
                         TC_LOG_ERROR("sql.sql", "Quest %u objective %u has non existing areatrigger id %d", qinfo->GetQuestId(), obj.ID, obj.ObjectID);
                     break;
                 case QUEST_OBJECTIVE_MONEY:
@@ -4623,6 +4634,9 @@ void ObjectMgr::LoadQuests()
                     TC_LOG_ERROR("sql.sql", "Quest %u objective %u has unhandled type %u", qinfo->GetQuestId(), obj.ID, obj.Type);
                     break;
             }
+
+            if (obj.Flags & QUEST_OBJECTIVE_FLAG_SEQUENCED)
+                qinfo->SetSpecialFlag(QUEST_SPECIAL_FLAGS_SEQUENCED_OBJECTIVES);
         }
 
         for (uint8 j = 0; j < QUEST_ITEM_DROP_COUNT; ++j)

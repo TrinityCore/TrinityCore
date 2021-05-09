@@ -296,6 +296,14 @@ bool QuestObjectiveCriteriaMgr::CanUpdateCriteriaTree(Criteria const* criteria, 
         return false;
     }
 
+    uint16 slot = _owner->FindQuestSlot(objective->QuestID);
+    if (slot >= MAX_QUEST_LOG_SIZE || !_owner->IsQuestObjectiveCompletable(slot, quest, *objective))
+    {
+        TC_LOG_TRACE("criteria.quest", "QuestObjectiveCriteriaMgr::CanUpdateCriteriaTree: (Id: %u Type %s Quest Objective %u) Objective not completable",
+            criteria->ID, CriteriaMgr::GetCriteriaTypeString(criteria->Entry->Type), objective->ID);
+        return false;
+    }
+
     return CriteriaHandler::CanUpdateCriteriaTree(criteria, tree, referencePlayer);
 }
 
