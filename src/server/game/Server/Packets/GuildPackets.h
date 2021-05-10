@@ -22,6 +22,7 @@
 #include "Guild.h"
 #include "ObjectGuid.h"
 #include "PacketUtilities.h"
+#include <boost/container/static_vector.hpp>
 #include <array>
 
 namespace WorldPackets
@@ -207,7 +208,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint8 Type = 0;
-            std::array<std::string_view, 3> Params = { };
+            boost::container::static_vector<std::string_view, 3> Params;
             ObjectGuid Guid;
         };
 

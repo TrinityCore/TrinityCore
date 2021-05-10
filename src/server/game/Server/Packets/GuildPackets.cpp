@@ -122,10 +122,9 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Guild::GuildRosterMemberD
 WorldPacket const* WorldPackets::Guild::GuildEvent::Write()
 {
     _worldPacket << uint8(Type);
-    uint8 paramCount = Params[2].empty() ? (Params[1].empty() ? (Params[0].empty() ? 0 : 1) : 2) : 3;
-    _worldPacket << uint8(paramCount);
-    for (uint8 i = 0; i < paramCount; ++i)
-        _worldPacket << Params[i];
+    _worldPacket << uint8(Params.size());
+    for (std::string_view param : Params)
+        _worldPacket << param;
 
     switch (Type)
     {
