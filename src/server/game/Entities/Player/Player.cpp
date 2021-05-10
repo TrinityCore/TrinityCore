@@ -15059,6 +15059,9 @@ bool Player::CanCompleteQuest(uint32 quest_id, uint32 ignoredQuestObjectiveId /*
                 }
             }
 
+            if (qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT) && !q_status.Explored)
+                return false;
+
             if (qInfo->GetLimitTime() && q_status.Timer == 0)
                 return false;
 
@@ -15306,7 +15309,9 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
     QuestStatus oldStatus = questStatusData.Status;
 
     // check for repeatable quests status reset
+    questStatusData.Slot = log_slot;
     questStatusData.Status = QUEST_STATUS_INCOMPLETE;
+    questStatusData.Explored = false;
 
     GiveQuestSourceItem(quest);
     AdjustQuestObjectiveProgress(quest);
@@ -15360,7 +15365,6 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
         caster->CastSpell(this, spellInfo->Id, CastSpellExtraArgs(TRIGGERED_FULL_MASK).SetCastDifficulty(spellInfo->Difficulty));
     }
 
-    questStatusData.Slot = log_slot;
     SetQuestSlot(log_slot, quest_id, qtime);
 
     m_QuestStatusSave[quest_id] = QUEST_DEFAULT_SAVE_TYPE;
@@ -16701,23 +16705,16 @@ void Player::AreaExploredOrEventHappens(uint32 questId)
 {
     if (questId)
     {
-        uint16 log_slot = FindQuestSlot(questId);
-        if (log_slot < MAX_QUEST_LOG_SIZE)
+        if (QuestStatusData* status = Trinity::Containers::MapGetValuePtr(m_QuestStatus, questId))
         {
-            TC_LOG_ERROR("entities.player.quest", "Player::AreaExploredOrEventHappens:Deprecated function called for quest %u", questId);
-            /** @todo
-            This function was previously used for area triggers but now those are a part of quest objective system
-            Currently this function is used to complete quests with no objectives (needs verifying) so probably rename it?
-
-            QuestStatusData& q_status = m_QuestStatus[questId];
-
-            if (!q_status.Explored)
+            // Dont complete failed quest
+            if (!status->Explored && status->Status != QUEST_STATUS_FAILED)
             {
-                q_status.Explored = true;
+                status->Explored = true;
                 m_QuestStatusSave[questId] = QUEST_DEFAULT_SAVE_TYPE;
 
                 SendQuestComplete(questId);
-            }**/
+            }
         }
         if (CanCompleteQuest(questId))
             CompleteQuest(questId);
@@ -17193,12 +17190,12 @@ bool Player::IsQuestObjectiveProgressBarComplete(uint16 slot, Quest const* quest
     return false;
 }
 
-void Player::SendQuestComplete(Quest const* quest) const
+void Player::SendQuestComplete(uint32 questId) const
 {
-    if (quest)
+    if (questId)
     {
         WorldPackets::Quest::QuestUpdateComplete data;
-        data.QuestID = quest->GetQuestId();
+        data.QuestID = questId;
         SendDirectMessage(data.Write());
     }
 }
@@ -19301,8 +19298,8 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
 {
     uint16 slot = 0;
 
-    ////                                                       0      1       2
-    //QueryResult* result = CharacterDatabase.PQuery("SELECT quest, status, timer WHERE guid = '%u' AND status <> 0", GetGUIDLow());
+    ////                                                       0      1       2        3
+    //QueryResult* result = CharacterDatabase.PQuery("SELECT quest, status, explored, timer WHERE guid = '%u' AND status <> 0", GetGUIDLow());
 
     if (result)
     {
@@ -19327,6 +19324,8 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
                     TC_LOG_ERROR("entities.player", "Player::_LoadQuestStatus: Player '%s' (%s) has invalid quest %d status (%u), replaced by QUEST_STATUS_INCOMPLETE(3).",
                         GetName().c_str(), GetGUID().ToString().c_str(), quest_id, qstatus);
                 }
+
+                questStatusData.Explored = (fields[2].GetUInt8() > 0);
 
                 time_t quest_time = fields[2].GetInt64();
 
@@ -21029,7 +21028,8 @@ void Player::_SaveQuestStatus(CharacterDatabaseTransaction& trans)
                 stmt->setUInt64(0, GetGUID().GetCounter());
                 stmt->setUInt32(1, statusItr->first);
                 stmt->setUInt8(2, uint8(qData.Status));
-                stmt->setInt64(3, qData.Timer / IN_MILLISECONDS + GameTime::GetGameTime());
+                stmt->setBool(3, qData.Explored);
+                stmt->setInt64(4, qData.Timer / IN_MILLISECONDS + GameTime::GetGameTime());
                 trans->Append(stmt);
 
                 // Save objectives

@@ -1550,7 +1550,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool IsQuestObjectiveCompletable(uint16 slot, Quest const* quest, QuestObjective const& objective) const;
         bool IsQuestObjectiveComplete(uint16 slot, Quest const* quest, QuestObjective const& objective) const;
         bool IsQuestObjectiveProgressBarComplete(uint16 slot, Quest const* quest) const;
-        void SendQuestComplete(Quest const* quest) const;
+        void SendQuestComplete(uint32 questId) const;
         void SendQuestReward(Quest const* quest, Creature const* questGiver, uint32 xp, bool hideChatMessage) const;
         void SendQuestFailed(uint32 questID, InventoryResult reason = EQUIP_ERR_OK) const;
         void SendQuestTimerFailed(uint32 questID) const;

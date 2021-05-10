@@ -713,6 +713,7 @@ struct QuestStatusData
     uint16 Slot = MAX_QUEST_LOG_SIZE;
     QuestStatus Status = QUEST_STATUS_NONE;
     uint32 Timer = 0;
+    bool Explored = false;
 };
 
 #endif
