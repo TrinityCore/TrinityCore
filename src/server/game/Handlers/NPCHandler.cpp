@@ -542,8 +542,6 @@ void WorldSession::HandleUnstablePet(WorldPacket& recvData)
     }
     else
     {
-        std::swap(*stabledPet, petStable->CurrentPet);
-
         // update current pet slot in db immediately to maintain slot consistency, dismissed pet was already saved
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_PET_SLOT_BY_ID);
         stmt->setUInt8(0, PET_SAVE_AS_CURRENT);
