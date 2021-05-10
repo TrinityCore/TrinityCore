@@ -122,7 +122,7 @@ Quest::Quest(Field* questRecord)
     _logTitle = questRecord[107].GetString();
     _logDescription = questRecord[108].GetString();
     _questDescription = questRecord[109].GetString();
-    _areaDescription = questRecord[111].GetString();
+    _areaDescription = questRecord[110].GetString();
     _portraitGiverText = questRecord[111].GetString();
     _portraitGiverName = questRecord[112].GetString();
     _portraitTurnInText = questRecord[113].GetString();
