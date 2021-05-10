@@ -24,6 +24,7 @@
 #include "TSTask.h"
 #include "TSStorage.h"
 #include "TSEntity.h"
+#include "TSDictionary.h"
 #include <chrono>
 #include <vector>
 
