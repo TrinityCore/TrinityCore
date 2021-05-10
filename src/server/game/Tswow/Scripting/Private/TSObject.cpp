@@ -406,3 +406,16 @@ bool TSObject::IsCorpse()
 {
     return obj != nullptr && obj->IsCorpse();
 }
+
+bool TSObject::operator==(TSObject& rhs)
+{
+    bool lnull = IsNull();
+    bool rnull = rhs.IsNull();
+
+    if(lnull || rnull)
+    {
+        return lnull == rnull;
+    }
+
+    return GetGUID() == rhs.GetGUID();
+}

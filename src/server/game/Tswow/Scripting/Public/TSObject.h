@@ -86,4 +86,6 @@ public:
     bool IsCreature();
     bool IsUnit();
     bool IsCorpse();
+
+    bool operator==(TSObject& rhs);
 };
