@@ -373,6 +373,26 @@ struct QuestObjective
     std::string Description;
     std::vector<int32> VisualEffects;
 
+    bool IsStoringValue() const
+    {
+        switch (Type)
+        {
+            case QUEST_OBJECTIVE_MONSTER:
+            case QUEST_OBJECTIVE_ITEM:
+            case QUEST_OBJECTIVE_GAMEOBJECT:
+            case QUEST_OBJECTIVE_TALKTO:
+            case QUEST_OBJECTIVE_PLAYERKILLS:
+            case QUEST_OBJECTIVE_WINPVPPETBATTLES:
+            case QUEST_OBJECTIVE_HAVE_CURRENCY:
+            case QUEST_OBJECTIVE_OBTAIN_CURRENCY:
+            case QUEST_OBJECTIVE_INCREASE_REPUTATION:
+                return true;
+            default:
+                break;
+        }
+        return false;
+    }
+
     bool IsStoringFlag() const
     {
         switch (Type)
@@ -383,6 +403,25 @@ struct QuestObjective
             case QUEST_OBJECTIVE_CRITERIA_TREE:
             case QUEST_OBJECTIVE_AREA_TRIGGER_ENTER:
             case QUEST_OBJECTIVE_AREA_TRIGGER_EXIT:
+                return true;
+            default:
+                break;
+        }
+        return false;
+    }
+
+    static constexpr bool CanAlwaysBeProgressedInRaid(QuestObjectiveType type)
+    {
+        switch (type)
+        {
+            case QUEST_OBJECTIVE_ITEM:
+            case QUEST_OBJECTIVE_CURRENCY:
+            case QUEST_OBJECTIVE_LEARNSPELL:
+            case QUEST_OBJECTIVE_MIN_REPUTATION:
+            case QUEST_OBJECTIVE_MAX_REPUTATION:
+            case QUEST_OBJECTIVE_MONEY:
+            case QUEST_OBJECTIVE_HAVE_CURRENCY:
+            case QUEST_OBJECTIVE_INCREASE_REPUTATION:
                 return true;
             default:
                 break;
