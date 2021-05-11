@@ -104,8 +104,8 @@ PEXCEPTION_POINTERS pExceptionInfo)
     alreadyCrashed = true;
 
     TCHAR module_folder_name[MAX_PATH];
-    GetModuleFileName(nullptr, module_folder_name, MAX_PATH);
-    TCHAR* pos = _tcsrchr(module_folder_name, '\\');
+    size_t len = GetCurrentDirectory(MAX_PATH, module_folder_name);
+    TCHAR* pos = module_folder_name + len;
     if (!pos)
         return 0;
     pos[0] = '\0';
