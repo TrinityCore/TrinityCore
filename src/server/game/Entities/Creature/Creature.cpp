@@ -3343,7 +3343,19 @@ void Creature::AtEngage(Unit* target)
 
     MovementGeneratorType const movetype = GetMotionMaster()->GetCurrentMovementGeneratorType();
     if (movetype == WAYPOINT_MOTION_TYPE || movetype == POINT_MOTION_TYPE || (IsAIEnabled() && AI()->IsEscorted()))
+    {
         SetHomePosition(GetPosition());
+
+        // if its a vehicle, set the home positon of every creature passenger at engage
+        // so that they are in combat range if hostile
+        if (Vehicle* vehicle = GetVehicleKit())
+        {
+            for (auto seat = vehicle->Seats.begin(); seat != vehicle->Seats.end(); ++seat)
+                if (Unit* passenger = ObjectAccessor::GetUnit(*this, seat->second.Passenger.Guid))
+                    if (Creature* creature = passenger->ToCreature())
+                        creature->SetHomePosition(GetPosition());
+        }
+    }
 
     if (CreatureAI* ai = AI())
         ai->JustEngagedWith(target);
