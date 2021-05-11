@@ -136,10 +136,7 @@ void CliThread()
 
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
         if (!ReadWinConsole(command))
-        {
-            PrintCliPrefix();
             continue;
-        }
 #else
         char* command_str = readline(CLI_PREFIX);
         ::rl_bind_key('\t', ::rl_complete);
@@ -152,18 +149,13 @@ void CliThread()
 
         if (!command.empty())
         {
-            std::size_t nextLineIndex = command.find_first_of("\r\n");
-            if (nextLineIndex != std::string::npos)
+            Optional<std::size_t> nextLineIndex = RemoveCRLF(command);
+            if (nextLineIndex && *nextLineIndex == 0)
             {
-                if (nextLineIndex == 0)
-                {
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
-                    PrintCliPrefix();
+                PrintCliPrefix();
 #endif
-                    continue;
-                }
-
-                command.erase(nextLineIndex);
+                continue;
             }
 
             fflush(stdout);

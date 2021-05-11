@@ -843,7 +843,7 @@ void WorldSession::SendCalendarRaidLockoutUpdated(InstanceSave const* save)
 
     ObjectGuid guid = _player->GetGUID();
     TC_LOG_DEBUG("network", "SMSG_CALENDAR_RAID_LOCKOUT_UPDATED [%s] Map: %u, Difficulty %u",
-        guid.ToString().c_str(), save->GetMapId(), save->GetDifficulty());
+        guid.ToString().c_str(), save->GetMapId(), static_cast<uint32>(save->GetDifficulty()));
 
     time_t currTime = GameTime::GetGameTime();
 
