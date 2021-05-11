@@ -39,7 +39,9 @@ public:
     void SetLeader(TSPlayer player);
     void SetBankTabText(uint8 tabId, TSString text);
     void SendPacket(TSWorldPacket data);
+    void SendPacket(std::shared_ptr<TSWorldPacket> data);
     void SendPacketToRanked(TSWorldPacket data, uint8 ranked);
+    void SendPacketToRanked(std::shared_ptr<TSWorldPacket> data, uint8 ranked);
     void Disband();
     void AddMember(TSPlayer player, uint8 rankId);
     void DeleteMember(TSPlayer player, bool isDisbanding);

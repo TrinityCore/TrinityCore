@@ -268,6 +268,11 @@ float TSWorldObject::GetAngle(TSWorldObject _target,float x,float y)
     }
 #endif
 }
+
+void TSWorldObject::SendPacket(std::shared_ptr<TSWorldPacket> _data)
+{
+    SendPacket(*_data);
+}
     
 /**
  * Sends a [WorldPacket] to [Player]s in sight of the [WorldObject].

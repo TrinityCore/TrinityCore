@@ -55,6 +55,7 @@ public:
     TSCreature  SpawnCreature(uint32 entry, float x, float y, float z, float o, uint32 spawnType, uint32 despawnTimer);
 
     void SendPacket(TSWorldPacket data);
+    void SendPacket(std::shared_ptr<TSWorldPacket> data);
     bool IsWithinLoS(TSWorldObject target, float x, float y, float z);
     bool IsInMap(TSWorldObject target);
 

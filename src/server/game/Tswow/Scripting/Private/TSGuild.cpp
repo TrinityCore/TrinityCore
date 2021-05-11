@@ -166,6 +166,11 @@ void TSGuild::SetBankTabText(uint8 tabId,TSString text)
 #endif
 }
 #endif
+
+void TSGuild::SendPacket(std::shared_ptr<TSWorldPacket> _data)
+{
+    SendPacket(*_data);
+}
     
 // SendPacketToGuild(packet)
 /**
@@ -182,6 +187,11 @@ void TSGuild::SendPacket(TSWorldPacket _data)
 #else
     guild->BroadcastPacket(data);
 #endif
+}
+
+void TSGuild::SendPacketToRanked(std::shared_ptr<TSWorldPacket> _data,uint8 ranked)
+{
+    SendPacketToRanked(*_data,ranked);
 }
     
 // SendPacketToRankedInGuild(packet, rankId)

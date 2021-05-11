@@ -44,6 +44,7 @@ public:
     uint8 GetMemberGroup(uint64 guid);
     void SetLeader(uint64 guid);
     void SendPacket(TSWorldPacket data, bool ignorePlayersInBg, uint64 ignore);
+    void SendPacket(std::shared_ptr<TSWorldPacket> data, bool ignorePlayersInBg, uint64 ignore);
     bool RemoveMember(uint64 guid, uint32 method);
     void Disband();
     void ConvertToRaid();

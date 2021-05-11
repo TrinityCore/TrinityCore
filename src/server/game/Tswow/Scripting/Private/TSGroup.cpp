@@ -260,6 +260,11 @@ void TSGroup::SetLeader(uint64 guid)
     group->ChangeLeader(ObjectGuid(guid));
     group->SendUpdate();
 }
+
+void TSGroup::SendPacket(std::shared_ptr<TSWorldPacket> _data,bool ignorePlayersInBg,uint64 ignore)
+{
+    SendPacket(*_data,ignorePlayersInBg,ignore);
+}
     
 /**
  * Sends a specified [WorldPacket] to this [Group]
