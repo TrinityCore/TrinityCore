@@ -3026,6 +3026,8 @@ declare class TSGroup {
 }
 
 declare class TSWorldPacket {
+    constructor(opcode: uint32, size: uint16);
+
     IsNull() : bool
 
     /**

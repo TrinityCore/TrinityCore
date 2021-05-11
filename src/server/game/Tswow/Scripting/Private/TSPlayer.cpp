@@ -3200,6 +3200,11 @@ void TSPlayer::SendNotification(TSString _msg)
     if (msg.length() > 0)
         player->GetSession()->SendNotification("%s", msg.c_str());
 }
+
+void TSPlayer::SendPacketPlayer(std::shared_ptr<TSWorldPacket> data, bool selfOnly)
+{
+    SendPacketPlayer(*data,selfOnly);
+}
     
 /**
  * Sends a [WorldPacket] to the [Player]

@@ -24,11 +24,29 @@
 TSWorldPacket::TSWorldPacket(WorldPacket *packet)
 {
     this->packet = packet;
+    this->owner = false;
 }
 
 TSWorldPacket::TSWorldPacket()
 {
     this->packet = nullptr;
+    this->owner = false;
+}
+
+TSWorldPacket::TSWorldPacket(uint16 opcode, uint32 res)
+{
+    this->packet = new WorldPacket(opcode,res);
+    this->owner = true;
+}
+
+TSWorldPacket::~TSWorldPacket()
+{
+    if(this->owner)
+    {
+        // TODO: why does this segfault? I'm just leaving it like this
+        // because that looks like what eluna is doing.
+        //delete this->packet;
+    }
 }
 
 /**

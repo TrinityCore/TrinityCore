@@ -239,6 +239,7 @@ public:
 	void SendAreaTriggerMessage(TSString msg);
 	void SendNotification(TSString msg);
 	void SendPacketPlayer(TSWorldPacket data, bool selfOnly);
+	void SendPacketPlayer(std::shared_ptr<TSWorldPacket> data, bool selfOnly);
 	void SendAddonMessage(TSString prefix, TSString message, uint8 channel, TSPlayer receiver);
 	void KickPlayer();
 	void ModifyMoney(int32 amt);

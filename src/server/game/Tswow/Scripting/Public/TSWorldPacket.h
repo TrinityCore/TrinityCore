@@ -23,9 +23,13 @@
 class TC_GAME_API TSWorldPacket {
 public:
     WorldPacket *packet;
+    bool owner;
+
     TSWorldPacket();
+    TSWorldPacket(uint16 opcode, uint32 res = 200);
     TSWorldPacket(WorldPacket *packet);
     TSWorldPacket* operator->() { return this;}
+    ~TSWorldPacket();
     bool IsNull() { return packet == nullptr; }
     uint16 GetOpcode();
     uint32 GetSize();
