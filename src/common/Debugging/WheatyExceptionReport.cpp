@@ -104,15 +104,21 @@ PEXCEPTION_POINTERS pExceptionInfo)
     alreadyCrashed = true;
 
     TCHAR module_folder_name[MAX_PATH];
-    size_t len = GetCurrentDirectory(MAX_PATH, module_folder_name);
-    TCHAR* pos = module_folder_name + len;
-    if (!pos)
+    TCHAR cur_working_dir[MAX_PATH];
+    // @tswow-begin
+    size_t len = GetCurrentDirectory(MAX_PATH, cur_working_dir);
+    GetModuleFileName(nullptr, module_folder_name, MAX_PATH);
+    TCHAR* pos0 =_tcsrchr(module_folder_name, '\\');
+    TCHAR* pos1 = cur_working_dir + len;
+    if (!pos0 || !pos1)
         return 0;
-    pos[0] = '\0';
-    ++pos;
+    pos0[0] = '\0';
+    pos1[0] = '\0';
+    ++pos0;
+    ++pos1;
 
     TCHAR crash_folder_path[MAX_PATH];
-    sprintf_s(crash_folder_path, "%s\\%s", module_folder_name, CrashFolder);
+    sprintf_s(crash_folder_path, "%s\\%s", cur_working_dir, CrashFolder);
     if (!CreateDirectory(crash_folder_path, nullptr))
     {
         if (GetLastError() != ERROR_ALREADY_EXISTS)
@@ -122,10 +128,11 @@ PEXCEPTION_POINTERS pExceptionInfo)
     SYSTEMTIME systime;
     GetLocalTime(&systime);
     sprintf(m_szDumpFileName, "%s\\%s_%s_[%u-%u_%u-%u-%u].dmp",
-        crash_folder_path, GitRevision::GetHash(), pos, systime.wDay, systime.wMonth, systime.wHour, systime.wMinute, systime.wSecond);
+        crash_folder_path, GitRevision::GetHash(), pos0, systime.wDay, systime.wMonth, systime.wHour, systime.wMinute, systime.wSecond);
 
     _stprintf(m_szLogFileName, _T("%s\\%s_%s_[%u-%u_%u-%u-%u].txt"),
-        crash_folder_path, GitRevision::GetHash(), pos, systime.wDay, systime.wMonth, systime.wHour, systime.wMinute, systime.wSecond);
+        crash_folder_path, GitRevision::GetHash(), pos0, systime.wDay, systime.wMonth, systime.wHour, systime.wMinute, systime.wSecond);
+    // @tswow-end
 
     m_hDumpFile = CreateFile(m_szDumpFileName,
         GENERIC_WRITE,
