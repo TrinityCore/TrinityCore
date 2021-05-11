@@ -193,7 +193,7 @@ void KillRewarder::_RewardPlayer(Player* player, bool isDungeon)
         _RewardHonor(player);
         // 4.1.1 Send player killcredit for quests with PlayerSlain
         if (_victim->GetTypeId() == TYPEID_PLAYER)
-            player->KilledPlayerCredit();
+            player->KilledPlayerCredit(_victim->GetGUID());
     }
     // Give XP only in PvE or in battlegrounds.
     // Give reputation and kill credit only in PvE.

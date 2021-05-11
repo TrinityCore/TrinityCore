@@ -16804,9 +16804,9 @@ void Player::KilledMonsterCredit(uint32 entry, ObjectGuid guid /*= ObjectGuid::E
     UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_MONSTER, entry, 1, guid);
 }
 
-void Player::KilledPlayerCredit()
+void Player::KilledPlayerCredit(ObjectGuid victimGuid)
 {
-    UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_PLAYERKILLS, 0, 1);
+    UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_PLAYERKILLS, 0, 1, victimGuid);
 }
 
 void Player::KillCreditGO(uint32 entry, ObjectGuid guid)
@@ -16867,6 +16867,11 @@ void Player::UpdateQuestObjectiveProgress(QuestObjectiveType objectiveType, int3
             bool objectiveIsNowComplete = false;
             if (objective.IsStoringValue())
             {
+                if (objectiveType == QUEST_OBJECTIVE_PLAYERKILLS && objective.Flags & QUEST_OBJECTIVE_FLAG_KILL_PLAYERS_SAME_FACTION)
+                    if (Player const* victim = ObjectAccessor::GetPlayer(GetMap(), victimGuid))
+                        if (victim->GetTeam() != GetTeam())
+                            continue;
+
                 int32 currentProgress = GetQuestSlotObjectiveData(logSlot, objective);
                 if (addCount > 0 ? (currentProgress < objective.Amount) : (currentProgress > 0))
                 {
