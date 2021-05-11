@@ -3182,6 +3182,8 @@ void Player::LearnSpell(uint32 spell_id, bool dependent, int32 fromSkill /*= 0*/
                 LearnSpell(itr2->second, false, fromSkill);
         }
     }
+    else
+        UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_LEARNSPELL, spell_id, 1);
 }
 
 void Player::RemoveSpell(uint32 spell_id, bool disabled /*= false*/, bool learn_low_rank /*= true*/, bool suppressMessaging /*= false*/)

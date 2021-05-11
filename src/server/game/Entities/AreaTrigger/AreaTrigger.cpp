@@ -464,8 +464,12 @@ void AreaTrigger::HandleUnitEnterExit(std::vector<Unit*> const& newTargetList)
     for (Unit* unit : enteringUnits)
     {
         if (Player* player = unit->ToPlayer())
+        {
             if (player->isDebugAreaTriggers)
                 ChatHandler(player->GetSession()).PSendSysMessage(LANG_DEBUG_AREATRIGGER_ENTERED, GetTemplate()->Id.Id);
+
+            player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_AREA_TRIGGER_ENTER, GetEntry(), 1);
+        }
 
         DoActions(unit);
 
@@ -477,8 +481,12 @@ void AreaTrigger::HandleUnitEnterExit(std::vector<Unit*> const& newTargetList)
         if (Unit* leavingUnit = ObjectAccessor::GetUnit(*this, exitUnitGuid))
         {
             if (Player* player = leavingUnit->ToPlayer())
+            {
                 if (player->isDebugAreaTriggers)
                     ChatHandler(player->GetSession()).PSendSysMessage(LANG_DEBUG_AREATRIGGER_LEFT, GetTemplate()->Id.Id);
+
+                player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_AREA_TRIGGER_EXIT, GetEntry(), 1);
+            }
 
             UndoActions(leavingUnit);
 
