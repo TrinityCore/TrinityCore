@@ -23,7 +23,7 @@
 GameClient::GameClient(WorldSession* sessionToServer)
 {
     _sessionToServer = sessionToServer;
-    _activeMover = nullptr;
+    _activelyMovedUnit = nullptr;
 }
 
 void GameClient::AddAllowedMover(Unit* unit)

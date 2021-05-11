@@ -224,7 +224,7 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recvData)
     recvData >> sequenceIndex >> time;
 
     GameClient* client = GetGameClient();
-    Unit* mover = client->GetActiveMover();
+    Unit* mover = client->GetActivelyMovedUnit();
     Player* plMover = mover->ToPlayer();
 
     if (!plMover || !plMover->IsBeingTeleportedNear())
@@ -276,7 +276,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
     }
 
     GameClient* client = GetGameClient();
-    Unit* mover = client->GetActiveMover();
+    Unit* mover = client->GetActivelyMovedUnit();
     Player* plrMover = mover->ToPlayer();
 
     // ignore, waiting processing in WorldSession::HandleMoveWorldportAckOpcode and WorldSession::HandleMoveTeleportAck
@@ -462,7 +462,7 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
     }
 
     GameClient* client = GetGameClient();
-    Unit* mover = client->GetActiveMover();
+    Unit* mover = client->GetActivelyMovedUnit();
 
     // continue parse packet
 
@@ -544,8 +544,8 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPacket &recvData)
 
     // step 2:
     TC_LOG_DEBUG("entities.unit", "set active mover OK for client of player %s. GUID %s.", _player->GetName().c_str(), guid.ToString().c_str());
-    Unit* newActiveMover = ObjectAccessor::GetUnit(*_player, guid);
-    client->SetActiveMover(newActiveMover);
+    Unit* newActivelyMovedUnit = ObjectAccessor::GetUnit(*_player, guid);
+    client->SetActivelyMovedUnit(newActivelyMovedUnit);
 }
 
 void WorldSession::HandleMoveNotActiveMover(WorldPacket &recvData)
@@ -559,7 +559,7 @@ void WorldSession::HandleMoveNotActiveMover(WorldPacket &recvData)
 
     GameClient* client = GetGameClient();
 
-    if (client->GetActiveMover() == nullptr || client->GetActiveMover()->GetGUID() != old_mover_guid)
+    if (client->GetActivelyMovedUnit() == nullptr || client->GetActivelyMovedUnit()->GetGUID() != old_mover_guid)
     {
         // this shouldn't never happen in theory
         TC_LOG_WARN("entities.unit", "unset active mover FAILED for client of player %s. GUID %s.", _player->GetName().c_str(), old_mover_guid.ToString().c_str());
@@ -567,7 +567,7 @@ void WorldSession::HandleMoveNotActiveMover(WorldPacket &recvData)
     }
 
     TC_LOG_DEBUG("entities.unit", "unset active mover OK for client of player %s. GUID %s.", _player->GetName().c_str(), old_mover_guid.ToString().c_str());
-    client->SetActiveMover(nullptr);
+    client->SetActivelyMovedUnit(nullptr);
 }
 
 void WorldSession::HandleMountSpecialAnimOpcode(WorldPacket& /*recvData*/)
@@ -597,7 +597,7 @@ void WorldSession::HandleMoveKnockBackAck(WorldPacket& recvData)
     ReadMovementInfo(recvData, &movementInfo);
 
     GameClient* client = GetGameClient();
-    Unit* mover = client->GetActiveMover();
+    Unit* mover = client->GetActivelyMovedUnit();
 
     mover->m_movementInfo = movementInfo;
 
@@ -845,7 +845,7 @@ void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket& recvData)
     }
 
     GameClient* client = GetGameClient();
-    Unit* mover = client->GetActiveMover();
+    Unit* mover = client->GetActivelyMovedUnit();
     mover->m_movementInfo.time += timeSkipped;
 
     WorldPacket data(MSG_MOVE_TIME_SKIPPED, recvData.size());

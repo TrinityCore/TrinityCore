@@ -34,8 +34,8 @@ class TC_GAME_API GameClient
         bool IsAllowedToMove(ObjectGuid guid) const;
         void SetMovedUnit(Unit* target, bool allowMove);
 
-        Unit* GetActiveMover() const { return _activeMover; }
-        void SetActiveMover(Unit* activeMover) { _activeMover = activeMover; }
+        Unit* GetActivelyMovedUnit() const { return _activelyMovedUnit; }
+        void SetActivelyMovedUnit(Unit* activelyMovedUnit) { _activelyMovedUnit = activelyMovedUnit; }
 
         Player* GetBasePlayer() const { return _sessionToServer->GetPlayer(); }
 
@@ -46,7 +46,7 @@ class TC_GAME_API GameClient
 
         // set/unset upon receiving CMSG_SET_ACTIVE_MOVER and CMSG_MOVE_NOT_ACTIVE_MOVER by the client
         // in other words, this field is set by the client (as long as the change is allowed by the server)
-        Unit* _activeMover;
+        Unit* _activelyMovedUnit;
 
         WorldSession* _sessionToServer;
 };

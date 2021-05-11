@@ -1663,7 +1663,7 @@ void WorldSession::SendTimeSync()
 bool WorldSession::IsRightUnitBeingMoved(ObjectGuid guid)
 {
     GameClient* client = GetGameClient();
-    Unit* mover = client->GetActiveMover();
+    Unit* mover = client->GetActivelyMovedUnit();
 
     // the client is attempting to tamper movement data
     if (!mover || guid != mover->GetGUID())
