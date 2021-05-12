@@ -464,13 +464,8 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
         // Meteor like spells (divided damage to targets)
         if (m_spellInfo->HasAttribute(SPELL_ATTR0_CU_SHARE_DAMAGE))
         {
-            uint32 count = std::count_if(m_UniqueTargetInfo.begin(), m_UniqueTargetInfo.end(), [effIndex](TargetInfo const& targetInfo)
-            {
-                return targetInfo.effectMask & (1 << effIndex);
-            });
-
             // divide to all targets
-            if (count)
+            if (int64 count = GetUnitTargetCountForEffect(effIndex))
                 damage /= count;
         }
 

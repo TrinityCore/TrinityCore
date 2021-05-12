@@ -699,6 +699,10 @@ class TC_GAME_API Spell
 
         int32 GetTimer() const { return m_timer; }
 
+        int64 GetUnitTargetCountForEffect(SpellEffIndex effect) const;
+        int64 GetGameObjectTargetCountForEffect(SpellEffIndex effect) const;
+        int64 GetItemTargetCountForEffect(SpellEffIndex effect) const;
+
     protected:
         bool HasGlobalCooldown() const;
         void TriggerGlobalCooldown();
