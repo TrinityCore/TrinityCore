@@ -163,7 +163,7 @@ bool SceneMgr::HasScene(uint32 sceneInstanceID, uint32 sceneScriptPackageId /*= 
 
 void SceneMgr::AddInstanceIdToSceneMap(uint32 sceneInstanceID, SceneTemplate const* sceneTemplate)
 {
-    _scenesByInstance[sceneInstanceID] = sceneTemplate;
+    _scenesByInstance[sceneInstanceID] = std::make_unique<SceneTemplate>(*sceneTemplate);
 }
 
 void SceneMgr::CancelSceneBySceneId(uint32 sceneId)
@@ -182,7 +182,7 @@ void SceneMgr::CancelSceneByPackageId(uint32 sceneScriptPackageId)
 {
     std::vector<uint32> instancesIds;
 
-    for (auto itr : _scenesByInstance)
+    for (auto const& itr : _scenesByInstance)
         if (itr.second->ScenePackageId == sceneScriptPackageId)
             instancesIds.push_back(itr.first);
 
@@ -213,7 +213,7 @@ SceneTemplate const* SceneMgr::GetSceneTemplateFromInstanceId(uint32 sceneInstan
     auto itr = _scenesByInstance.find(sceneInstanceID);
 
     if (itr != _scenesByInstance.end())
-        return itr->second;
+        return itr->second.get();
 
     return nullptr;
 }
@@ -222,7 +222,7 @@ uint32 SceneMgr::GetActiveSceneCount(uint32 sceneScriptPackageId /*= 0*/)
 {
     uint32 activeSceneCount = 0;
 
-    for (auto itr : _scenesByInstance)
+    for (auto const& itr : _scenesByInstance)
         if (!sceneScriptPackageId || itr.second->ScenePackageId == sceneScriptPackageId)
             ++activeSceneCount;
 

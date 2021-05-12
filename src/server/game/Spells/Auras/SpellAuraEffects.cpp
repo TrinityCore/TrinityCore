@@ -5816,14 +5816,10 @@ void AuraEffect::HandlePlayScene(AuraApplication const* aurApp, uint8 mode, bool
     if (!player)
         return;
 
-    SceneTemplate const* sceneTemplate = sObjectMgr->GetSceneTemplate(GetMiscValue());
-    if (!sceneTemplate)
-        return;
-
     if (apply)
-        player->GetSceneMgr().PlaySceneByTemplate(sceneTemplate);
+        player->GetSceneMgr().PlayScene(GetMiscValue());
     else
-        player->GetSceneMgr().CancelSceneByPackageId(sceneTemplate->ScenePackageId);
+        player->GetSceneMgr().CancelSceneBySceneId(GetMiscValue());
 }
 
 void AuraEffect::HandleCreateAreaTrigger(AuraApplication const* aurApp, uint8 mode, bool apply) const
