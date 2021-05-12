@@ -42,6 +42,9 @@ class TC_GAME_API SceneMgr
 public:
     SceneMgr(Player* player);
 
+    SceneMgr(SceneMgr const&) = delete;
+    SceneMgr(SceneMgr&&) = delete;
+
     Player* GetPlayer() const { return _player; }
 
     uint32 PlayScene(uint32 sceneId, Position const* position = nullptr);
