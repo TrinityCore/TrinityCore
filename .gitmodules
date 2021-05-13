@@ -1,0 +1,3 @@
+[submodule "src/server/game/Tswow"]
+	path = src/server/game/Tswow
+	url = https://github.com/tswow/tswow-core-module.git
