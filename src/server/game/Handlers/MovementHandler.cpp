@@ -15,25 +15,26 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+
+#include "Battleground.h"
 #include "Common.h"
-#include "WorldPacket.h"
-#include "WorldSession.h"
-#include "Opcodes.h"
-#include "Log.h"
 #include "Corpse.h"
-#include "Player.h"
+#include "GameTime.h"
+#include "GameClient.h"
+#include "InstanceSaveMgr.h"
+#include "Log.h"
 #include "MapManager.h"
 #include "MotionMaster.h"
 #include "MovementGenerator.h"
 #include "MoveSpline.h"
 #include "ObjectAccessor.h"
-#include "Transport.h"
-#include "Battleground.h"
-#include "InstanceSaveMgr.h"
 #include "ObjectMgr.h"
+#include "Opcodes.h"
+#include "Player.h"
+#include "Transport.h"
 #include "Vehicle.h"
-#include "GameTime.h"
-#include "GameClient.h"
+#include "WorldPacket.h"
+#include "WorldSession.h"
 #include <boost/accumulators/statistics/variance.hpp>
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics.hpp>
