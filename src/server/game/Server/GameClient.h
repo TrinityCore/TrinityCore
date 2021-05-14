@@ -42,7 +42,7 @@ class TC_GAME_API GameClient
         void SendDirectMessage(WorldPacket const* data) const;
     private:
         // describe all units that this client has direct control over. Example, a player on a vehicle has client control over himself and the vehicle at the same time.
-        GuidSet _allowedMovers;
+        GuidUnorderedSet _allowedMovers;
 
         // set/unset upon receiving CMSG_SET_ACTIVE_MOVER and CMSG_MOVE_NOT_ACTIVE_MOVER by the client
         // in other words, this field is set by the client (as long as the change is allowed by the server)
