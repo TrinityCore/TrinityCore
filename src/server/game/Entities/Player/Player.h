@@ -1974,7 +1974,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         int32 CalculateReputationGain(ReputationSource source, uint32 creatureOrQuestLevel, int32 rep, int32 faction, bool noQuestBonus = false);
 
         void UpdateSkillsForLevel();
-        void UpdateWeaponsSkillsToMaxSkillsForLevel();             // for .levelup
         void ModifySkillBonus(uint32 skillid, int32 val, bool talent);
 
         void SetLastSoulburnSpell(SpellInfo const* spell) { m_lastSoulburnSpell = spell; }

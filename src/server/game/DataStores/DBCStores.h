@@ -244,7 +244,8 @@ public:
     uint32 GetPowerIndexByClass(Powers power, uint32 classId);
     static bool IsInArea(uint32 objectAreaId, uint32 areaId);
     static LFGDungeonEntry const* GetLFGDungeon(uint32 mapId, Difficulty difficulty);
-    std::vector<uint32> const* GetPhasesForGroup(uint32 group); 
+    std::vector<uint32> const* GetPhasesForGroup(uint32 group);
+    std::vector<SkillLineAbilityEntry const*> const* GetSkillLineAbilitiesBySkill(uint32 skillId) const;
     SkillRaceClassInfoEntry const* GetSkillRaceClassInfo(uint32 skill, uint8 race, uint8 class_);
     ResponseCodes ValidateName(std::wstring const& name, LocaleConstant locale);
     EmotesTextSoundEntry const* FindTextSoundEmoteFor(uint32 emote, uint32 race, uint32 gender); 
