@@ -21,6 +21,7 @@
 #include "GridNotifiers.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
+#include "PassiveAI.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
@@ -1530,9 +1531,9 @@ private:
     EventMap _events;
 };
 
-struct npc_ascendant_council_plume_stalker final : public ScriptedAI
+struct npc_ascendant_council_plume_stalker final : public NullCreatureAI
 {
-    npc_ascendant_council_plume_stalker(Creature* creature) : ScriptedAI(creature) { }
+    npc_ascendant_council_plume_stalker(Creature* creature) : NullCreatureAI(creature) { }
 
     void SpellHit(Unit* /*caster*/, SpellInfo const* spell) override
     {
