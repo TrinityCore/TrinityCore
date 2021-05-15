@@ -6748,7 +6748,7 @@ void Unit::EnergizeBySpell(Unit* victim, SpellInfo const* spellInfo, int32 damag
     int32 gain = victim->ModifyPower(powerType, damage, false);
     int32 overEnergize = damage - gain;
     victim->GetThreatManager().ForwardThreatForAssistingMe(this, float(damage) / 2, spellInfo, true);
-    SendEnergizeSpellLog(victim, spellInfo->Id, damage, overEnergize, powerType);
+    SendEnergizeSpellLog(victim, spellInfo->Id, gain, overEnergize, powerType);
 }
 
 uint32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, uint32 pdamage, DamageEffectType damagetype, SpellEffectInfo const* effect, uint32 stack) const
