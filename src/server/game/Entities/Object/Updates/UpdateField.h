@@ -171,10 +171,10 @@ namespace UF
             return { value };
         }
 
-        insert_result InsertValue(uint32 index)
+        insert_result InsertValue(std::size_t index)
         {
             _values.emplace(_values.begin() + index);
-            for (uint32 i = index; i < _values.size(); ++i)
+            for (std::size_t i = index; i < _values.size(); ++i)
             {
                 MarkChanged(i);
                 // also mark all fields of value as changed
@@ -183,11 +183,11 @@ namespace UF
             return { _values[index] };
         }
 
-        void RemoveValue(uint32 index)
+        void RemoveValue(std::size_t index)
         {
             // remove by shifting entire container - client might rely on values being sorted for certain fields
             _values.erase(_values.begin() + index);
-            for (uint32 i = index; i < _values.size(); ++i)
+            for (std::size_t i = index; i < _values.size(); ++i)
             {
                 MarkChanged(i);
                 // also mark all fields of value as changed
@@ -205,9 +205,9 @@ namespace UF
             _updateMask.clear();
         }
 
-        void MarkChanged(uint32 index)
+        void MarkChanged(std::size_t index)
         {
-            uint32 block = UpdateMaskHelpers::GetBlockIndex(index);
+            std::size_t block = UpdateMaskHelpers::GetBlockIndex(index);
             if (block >= _updateMask.size())
                 _updateMask.resize(block + 1);
 
@@ -813,7 +813,7 @@ namespace UF
             return _values.size();
         }
 
-        T const& operator[](uint32 index) const
+        T const& operator[](std::size_t index) const
         {
             return _values[index];
         }
@@ -848,18 +848,18 @@ namespace UF
         }
 
     private:
-        void MarkChanged(uint32 index)
+        void MarkChanged(std::size_t index)
         {
-            uint32 block = UpdateMaskHelpers::GetBlockIndex(index);
+            std::size_t block = UpdateMaskHelpers::GetBlockIndex(index);
             if (block >= _updateMask.size())
                 _updateMask.emplace_back(0);
 
             _updateMask[block] |= UpdateMaskHelpers::GetBlockFlag(index);
         }
 
-        void ClearChanged(uint32 index)
+        void ClearChanged(std::size_t index)
         {
-            uint32 block = UpdateMaskHelpers::GetBlockIndex(index);
+            std::size_t block = UpdateMaskHelpers::GetBlockIndex(index);
             if (block >= _updateMask.size())
                 _updateMask.emplace_back(0);
 
