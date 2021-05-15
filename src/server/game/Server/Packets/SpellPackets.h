@@ -19,6 +19,7 @@
 #define SpellPackets_h__
 
 #include "Packet.h"
+#include "MovementInfo.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include "Position.h"

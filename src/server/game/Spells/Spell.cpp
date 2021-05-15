@@ -112,8 +112,8 @@ void SpellDestination::RelocateOffset(Position const& offset)
     _position.RelocateOffset(offset);
 }
 
-SpellCastTargets::SpellCastTargets() : m_elevation(0.f), m_speed(0.f), m_strTarget(), m_objectTarget(nullptr),
-    m_itemTarget(nullptr), m_itemTargetEntry(0), m_targetMask(0)
+SpellCastTargets::SpellCastTargets() : m_targetMask(0), m_objectTarget(nullptr), m_itemTarget(nullptr),
+    m_itemTargetEntry(0),  m_elevation(0.f), m_speed(0.f)
 {
 }
 
