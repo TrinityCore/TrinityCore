@@ -23,6 +23,11 @@
 
 #include "Packets/QueryPackets.h"
 
+// @tswow-begin
+#include "TSMutable.h"
+#include "TSItemTemplate.h"
+// @tswow-end
+
 bool ItemTemplate::HasSignature() const
 {
     return GetMaxStackSize() == 1 &&
@@ -49,7 +54,11 @@ bool ItemTemplate::CanChangeEquipStateInCombat() const
             return true;
     }
 
-    return false;
+    // @tswow-begin
+    bool val = false;
+    FIRE_MAP(events, ItemOnCanChangeEquipState, TSItemTemplate(this), TSMutable<bool>(&val));
+    return val;
+    // @tswow-end
 }
 
 float ItemTemplate::getDPS() const
