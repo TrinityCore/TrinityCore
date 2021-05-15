@@ -33,6 +33,7 @@
 
 enum MageSpells
 {
+    SPELL_MAGE_ARCANE_BARRAGE_ENERGIZE           = 321529,
     SPELL_MAGE_ARCANE_BARRAGE_R3                 = 321526,
     SPELL_MAGE_ARCANE_MAGE                       = 137021,
     SPELL_MAGE_BLAZING_BARRIER_TRIGGER           = 235314,
@@ -83,38 +84,41 @@ class spell_mage_arcane_barrage : public SpellScript
 {
     PrepareSpellScript(spell_mage_arcane_barrage);
 
-    bool Validate(SpellInfo const* /*spellInfo*/) override
+    bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ SPELL_MAGE_ARCANE_BARRAGE_R3 });
+        return ValidateSpellInfo({ SPELL_MAGE_ARCANE_BARRAGE_R3, SPELL_MAGE_ARCANE_BARRAGE_ENERGIZE })
+            && spellInfo->GetEffect(EFFECT_1);
+    }
+
+    void ConsumeArcaneCharges()
+    {
+        Unit* caster = GetCaster();
+
+        // Consume all arcane charges
+        if (int32 arcaneCharges = -caster->ModifyPower(POWER_ARCANE_CHARGES, -caster->GetMaxPower(POWER_ARCANE_CHARGES), false))
+            if (AuraEffect const* auraEffect = caster->GetAuraEffect(SPELL_MAGE_ARCANE_BARRAGE_R3, EFFECT_0, caster->GetGUID()))
+                caster->CastSpell(caster, SPELL_MAGE_ARCANE_BARRAGE_ENERGIZE, { SPELLVALUE_BASE_POINT0, arcaneCharges * auraEffect->GetAmount() / 100 });
     }
 
     void HandleEffectHitTarget(SpellEffIndex /*effIndex*/)
     {
-        // Consume all arcane charges; for each charge add 30% additional damage
-        Unit* caster = GetCaster();
-        double charges = double(-caster->ConsumeAllPower(POWER_ARCANE_CHARGES));
+        if (GetHitUnit()->GetGUID() != _primaryTarget)
+            SetHitDamage(CalculatePct(GetHitDamage(), GetEffectInfo(EFFECT_1)->CalcValue(GetCaster())));
+    }
 
-        double currDamage = double(GetHitDamage());
-        double extraDamage = (charges * 0.3) * currDamage;
-        SetHitDamage(int32(currDamage + extraDamage));
-
-        if (Aura const* aura = caster->GetAura(SPELL_MAGE_ARCANE_BARRAGE_R3))
-        {
-            if (AuraEffect const* auraEffect = aura->GetEffect(EFFECT_0))
-            {
-                double pct = charges * (double(auraEffect->GetAmount()) * 0.01);
-                int32 maxMana = caster->GetMaxPower(POWER_MANA);
-
-                int32 extraMana = CalculatePct(double(maxMana), pct);
-                caster->ModifyPower(POWER_MANA, extraMana);
-            }
-        }
+    void MarkPrimaryTarget(SpellEffIndex /*effIndex*/)
+    {
+        _primaryTarget = GetHitUnit()->GetGUID();
     }
 
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_mage_arcane_barrage::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectLaunchTarget += SpellEffectFn(spell_mage_arcane_barrage::MarkPrimaryTarget, EFFECT_1, SPELL_EFFECT_DUMMY);
+        AfterCast += SpellCastFn(spell_mage_arcane_barrage::ConsumeArcaneCharges);
     }
+
+    ObjectGuid _primaryTarget;
 };
 
 // 1449 - Arcane Explosion
