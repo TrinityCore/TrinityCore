@@ -477,6 +477,41 @@ namespace WorldPackets
             ObjectGuid Caster;
             int32 ActualDelay = 0;
         };
+
+        struct MissileTrajectoryRequest
+        {
+            float Pitch = 0.0f;
+            float Speed = 0.0f;
+        };
+
+        struct SpellWeight
+        {
+            uint8 Type = 0;
+            int32 ID = 0;
+            uint32 Quantity = 0;
+        };
+
+        struct SpellCastRequest
+        {
+            uint8 CastID = 0;
+            uint8 SendCastFlags = 0;
+            int32 SpellID = 0;
+            int32 Misc = 0;
+            SpellTargetData Target;
+            MissileTrajectoryRequest MissileTrajectory;
+            Optional<MovementInfo> MoveUpdate;
+            std::vector<SpellWeight> Weight;
+        };
+
+        class CastSpell final : public ClientPacket
+        {
+        public:
+            CastSpell(WorldPacket&& packet) : ClientPacket(CMSG_CAST_SPELL, std::move(packet)) { }
+
+            void Read() override;
+
+            SpellCastRequest Cast;
+        };
     }
 }
 

@@ -36,6 +36,7 @@
 #include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
+#include "SpellPackets.h"
 #include "Totem.h"
 #include "World.h"
 #include "WorldPacket.h"
@@ -355,40 +356,19 @@ void WorldSession::HandleGameobjectReportUse(WorldPacket& recvPacket)
     }
 }
 
-void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
 {
-    uint32 spellId, glyphIndex;
-    uint8  castCount, castFlags;
-
-    recvPacket >> castCount;
-    recvPacket >> spellId;
-    recvPacket >> glyphIndex;
-    recvPacket >> castFlags;
-    TriggerCastFlags triggerFlag = TRIGGERED_NONE;
-
-    TC_LOG_DEBUG("network", "WORLD: got cast spell packet, castCount: %u, spellId: %u, castFlags: %u, data length = %u", castCount, spellId, castFlags, (uint32)recvPacket.size());
-
     // ignore for remote control state (for player case)
     Unit* mover = _player->m_unitMovedByMe;
     if (mover != _player && mover->GetTypeId() == TYPEID_PLAYER)
-    {
-        recvPacket.rfinish(); // prevent spam at ignore packet
         return;
-    }
 
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(cast.Cast.SpellID);
     if (!spellInfo)
-    {
-        TC_LOG_ERROR("network", "WORLD: unknown spell id %u", spellId);
-        recvPacket.rfinish(); // prevent spam at ignore packet
         return;
-    }
 
     if (spellInfo->IsPassive())
-    {
-        recvPacket.rfinish(); // prevent spam at ignore packet
         return;
-    }
 
     Unit* caster = mover;
     if (caster->GetTypeId() == TYPEID_UNIT && !caster->ToCreature()->HasSpell(spellInfo->Id))
@@ -396,18 +376,13 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         // If the vehicle creature does not have the spell but it allows the passenger to cast own spells
         // change caster to player and let him cast
         if (!_player->IsOnVehicle(caster) || spellInfo->CheckVehicle(_player) != SPELL_CAST_OK)
-        {
-            recvPacket.rfinish(); // prevent spam at ignore packet
             return;
-        }
 
         caster = _player;
     }
 
     // client provided targets
-    SpellCastTargets targets;
-    targets.Read(recvPacket, caster);
-    HandleClientCastFlags(recvPacket, castFlags, targets);
+    SpellCastTargets targets(caster, cast.Cast);
 
     if (caster->GetTypeId() == TYPEID_PLAYER && !caster->ToPlayer()->HasActiveSpell(spellInfo->Id) && !spellInfo->IsRaidMarker() &&
         !caster->ToPlayer()->HasArchProject(static_cast<uint16>(spellInfo->ResearchProjectId)))
@@ -444,16 +419,9 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
     // Skip it to prevent "interrupt" message
     // Also check targets! target may have changed and we need to interrupt current spell
     if (spellInfo->IsAutoRepeatRangedSpell())
-    {
         if (Spell* spell = caster->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
-        {
             if (spell->m_spellInfo == spellInfo && spell->m_targets.GetUnitTargetGUID() == targets.GetUnitTargetGUID())
-            {
-                recvPacket.rfinish();
                 return;
-            }
-        }
-    }
 
     // auto-selection buff level base at target level (in spellInfo)
     // TODO: is this even necessary? client already seems to send correct rank for "standard" buffs
@@ -467,9 +435,33 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
                 spellInfo = actualSpellInfo;
         }
 
-    Spell* spell = new Spell(caster, spellInfo, triggerFlag, ObjectGuid::Empty, false);
-    spell->m_cast_count = castCount;                       // set count of casts
-    spell->m_glyphIndex = glyphIndex;
+    if (!cast.Cast.Weight.empty())
+    {
+        ArchData archaeologyCastData;
+        for (WorldPackets::Spells::SpellWeight& weight : cast.Cast.Weight)
+        {
+            switch (weight.Type)
+            {
+                case 1: // Currency
+                    archaeologyCastData.FragId = weight.ID;
+                    archaeologyCastData.FragCount = weight.Quantity;
+                    break;
+                case 2: // Item
+                    archaeologyCastData.KeyId = weight.ID;
+                    archaeologyCastData.KeyCount = weight.Quantity;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        if (Player* player = GetPlayer())
+            player->SetArchData(archaeologyCastData);
+    }
+
+    Spell* spell = new Spell(caster, spellInfo, TRIGGERED_NONE, ObjectGuid::Empty, false);
+    spell->m_cast_count = cast.Cast.CastID; // set count of casts
+    spell->m_glyphIndex = cast.Cast.Misc;
     spell->prepare(targets);
 }
 

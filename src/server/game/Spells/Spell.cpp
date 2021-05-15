@@ -112,14 +112,52 @@ void SpellDestination::RelocateOffset(Position const& offset)
     _position.RelocateOffset(offset);
 }
 
-SpellCastTargets::SpellCastTargets() : m_elevation(0), m_speed(0), m_strTarget()
+SpellCastTargets::SpellCastTargets() : m_elevation(0.f), m_speed(0.f), m_strTarget(), m_objectTarget(nullptr),
+    m_itemTarget(nullptr), m_itemTargetEntry(0), m_targetMask(0)
 {
-    m_objectTarget = nullptr;
-    m_itemTarget = nullptr;
+}
 
-    m_itemTargetEntry  = 0;
+SpellCastTargets::SpellCastTargets(Unit* caster, WorldPackets::Spells::SpellCastRequest const& spellCastRequest) :
+    m_targetMask(spellCastRequest.Target.Flags), m_objectTarget(nullptr), m_itemTarget(nullptr),
+    m_itemTargetEntry(0), m_elevation(0.0f), m_speed(0.0f)
+{
+    if (spellCastRequest.Target.Unit)
+        m_objectTargetGUID = *spellCastRequest.Target.Unit;
 
-    m_targetMask = 0;
+    if (spellCastRequest.Target.Item)
+        m_itemTargetGUID = *spellCastRequest.Target.Item;
+
+    if (spellCastRequest.Target.Name)
+        m_strTarget = *spellCastRequest.Target.Name;
+
+    if (spellCastRequest.Target.SrcLocation)
+    {
+        m_src._transportGUID = spellCastRequest.Target.SrcLocation->Transport;
+        Position* pos;
+        if (!m_src._transportGUID.IsEmpty())
+            pos = &m_src._transportOffset;
+        else
+            pos = &m_src._position;
+
+        pos->Relocate(spellCastRequest.Target.SrcLocation->Location);
+    }
+
+    if (spellCastRequest.Target.DstLocation)
+    {
+        m_dst._transportGUID = spellCastRequest.Target.DstLocation->Transport;
+        Position* pos;
+        if (!m_dst._transportGUID.IsEmpty())
+            pos = &m_dst._transportOffset;
+        else
+            pos = &m_dst._position;
+
+        pos->Relocate(spellCastRequest.Target.DstLocation->Location);
+    }
+
+    SetElevation(spellCastRequest.MissileTrajectory.Pitch);
+    SetSpeed(spellCastRequest.MissileTrajectory.Speed);
+
+    Update(caster);
 }
 
 SpellCastTargets::~SpellCastTargets() { }

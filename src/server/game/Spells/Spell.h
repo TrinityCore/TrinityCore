@@ -29,8 +29,10 @@ namespace WorldPackets
 {
     namespace Spells
     {
+        struct SpellCastRequest;
         struct SpellTargetData;
         struct SpellAmmo;
+        struct SpellCastData;
         struct SpellHitInfo;
         struct SpellHealPrediction;
     }
@@ -73,7 +75,7 @@ enum SpellCastFlags
     CAST_FLAG_PENDING            = 0x00000001,              // aoe combat log?
     CAST_FLAG_HAS_TRAJECTORY     = 0x00000002,
     CAST_FLAG_UNKNOWN_3          = 0x00000004,
-    CAST_FLAG_UNKNOWN_4          = 0x00000008,              // ignore AOE visual
+    CAST_FLAG_HAS_WEIGHT         = 0x00000008,
     CAST_FLAG_UNKNOWN_5          = 0x00000010,
     CAST_FLAG_PROJECTILE         = 0x00000020,
     CAST_FLAG_UNKNOWN_7          = 0x00000040,
@@ -137,6 +139,7 @@ class TC_GAME_API SpellCastTargets
 {
     public:
         SpellCastTargets();
+        SpellCastTargets(Unit* caster, WorldPackets::Spells::SpellCastRequest const& spellCastRequest);
         ~SpellCastTargets();
 
         void Read(ByteBuffer& data, Unit* caster);

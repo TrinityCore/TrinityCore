@@ -34,6 +34,7 @@
 #include "PartyPackets.h"
 #include "QuestPackets.h"
 #include "QueryPackets.h"
+#include "SpellPackets.h"
 #include "SystemPackets.h"
 #include "VehiclePackets.h"
 #include "WhoPackets.h"

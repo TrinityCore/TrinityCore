@@ -16,6 +16,8 @@
  */
 
 #include "SpellPackets.h"
+#include "Spell.h"
+#include "SpellInfo.h"
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellHealPrediction const& predict)
 {
@@ -568,4 +570,221 @@ WorldPacket const* WorldPackets::Spells::SpellDelayed::Write()
     _worldPacket << Caster.WriteAsPacked();
     _worldPacket << int32(ActualDelay);
     return &_worldPacket;
+}
+
+ByteBuffer& operator>>(ByteBuffer& data, Optional<WorldPackets::Spells::TargetLocation>& location)
+{
+    location.emplace();
+    data >> location->Transport.ReadAsPacked();
+    data >> location->Location.m_positionX;
+    data >> location->Location.m_positionY;
+    data >> location->Location.m_positionZ;
+
+    return data;
+}
+
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Spells::SpellTargetData& targetData)
+{
+    data >> targetData.Flags;
+
+    if (targetData.Flags & (TARGET_FLAG_UNIT | TARGET_FLAG_UNIT_MINIPET | TARGET_FLAG_GAMEOBJECT | TARGET_FLAG_CORPSE_ENEMY | TARGET_FLAG_CORPSE_ALLY))
+    {
+        targetData.Unit.emplace();
+        data >> targetData.Unit->ReadAsPacked();
+    }
+
+    if (targetData.Flags & (TARGET_FLAG_ITEM | TARGET_FLAG_TRADE_ITEM))
+    {
+        targetData.Item.emplace();
+        data >> targetData.Item->ReadAsPacked();
+    }
+
+    if (targetData.Flags & TARGET_FLAG_SOURCE_LOCATION)
+        data >> targetData.SrcLocation;
+
+    if (targetData.Flags & TARGET_FLAG_DEST_LOCATION)
+        data >> targetData.DstLocation;
+
+    if (targetData.Flags & TARGET_FLAG_STRING)
+    {
+        targetData.Name.emplace();
+        data >> *targetData.Name;
+    }
+
+    return data;
+}
+
+ByteBuffer& operator>>(ByteBuffer& data, Optional<MovementInfo>& movementInfo)
+{
+    movementInfo.emplace();
+    data >> movementInfo->pos.m_positionZ;
+    data >> movementInfo->pos.m_positionY;
+    data >> movementInfo->pos.m_positionX;
+
+    bool hasFallData = data.ReadBit();
+    bool hasTime = !data.ReadBit();
+    bool hasFacing = !data.ReadBit();
+
+    data.ReadBit(); // HasSpline
+    data.ReadBit(); // HeightChangeFailed
+
+    movementInfo->guid[6] = data.ReadBit();
+    movementInfo->guid[4] = data.ReadBit();
+
+    bool hasExtraMovementFlags = !data.ReadBit();
+
+    movementInfo->guid[3] = data.ReadBit();
+    movementInfo->guid[5] = data.ReadBit();
+
+    bool hasSplineElevation = !data.ReadBit();
+    bool hasPitch = !data.ReadBit();
+
+    movementInfo->guid[7] = data.ReadBit();
+
+    bool hasTransportData = data.ReadBit();
+
+    movementInfo->guid[2] = data.ReadBit();
+
+    bool hasMovementFlags = !data.ReadBit();
+
+    movementInfo->guid[1] = data.ReadBit();
+    movementInfo->guid[0] = data.ReadBit();
+
+    bool hasTransportTime2 = false;
+    bool hasVehicleRecId = false;
+    if (hasTransportData)
+    {
+        movementInfo->transport.guid[6] = data.ReadBit();
+        movementInfo->transport.guid[2] = data.ReadBit();
+        movementInfo->transport.guid[5] = data.ReadBit();
+        hasTransportTime2 = data.ReadBit();
+        movementInfo->transport.guid[7] = data.ReadBit();
+        movementInfo->transport.guid[4] = data.ReadBit();
+        hasVehicleRecId = data.ReadBit();
+        movementInfo->transport.guid[0] = data.ReadBit();
+        movementInfo->transport.guid[1] = data.ReadBit();
+        movementInfo->transport.guid[3] = data.ReadBit();
+    }
+
+    if (hasExtraMovementFlags)
+        movementInfo->SetExtraMovementFlags(data.ReadBits(12));
+
+    if (hasMovementFlags)
+        movementInfo->SetMovementFlags(data.ReadBits(30));
+
+    bool hasFallDirection = false;
+    if (hasFallData)
+        hasFallDirection = data.ReadBit();
+
+    data.ReadByteSeq(movementInfo->guid[1]);
+    data.ReadByteSeq(movementInfo->guid[4]);
+    data.ReadByteSeq(movementInfo->guid[7]);
+    data.ReadByteSeq(movementInfo->guid[3]);
+    data.ReadByteSeq(movementInfo->guid[0]);
+    data.ReadByteSeq(movementInfo->guid[2]);
+    data.ReadByteSeq(movementInfo->guid[5]);
+    data.ReadByteSeq(movementInfo->guid[6]);
+
+    if (hasTransportData)
+    {
+        data >> movementInfo->transport.seat;
+        movementInfo->transport.pos.SetOrientation(data.read<float>());
+        data >> movementInfo->transport.time;
+
+        data.ReadByteSeq(movementInfo->transport.guid[6]);
+        data.ReadByteSeq(movementInfo->transport.guid[5]);
+
+        if (hasTransportTime2)
+            data >> movementInfo->transport.time2;
+
+        data >> movementInfo->transport.pos.m_positionX;
+
+        data.ReadByteSeq(movementInfo->transport.guid[4]);
+
+        data >> movementInfo->transport.pos.m_positionZ;
+
+        data.ReadByteSeq(movementInfo->transport.guid[2]);
+        data.ReadByteSeq(movementInfo->transport.guid[0]);
+
+        if (hasVehicleRecId)
+            data >> movementInfo->transport.vehicleId;
+
+        data.ReadByteSeq(movementInfo->transport.guid[1]);
+        data.ReadByteSeq(movementInfo->transport.guid[3]);
+
+        data >> movementInfo->transport.pos.m_positionY;
+
+        data.ReadByteSeq(movementInfo->transport.guid[7]);
+    }
+
+    if (hasFacing)
+        movementInfo->pos.SetOrientation(data.read<float>());
+
+    if (hasSplineElevation)
+        data >> movementInfo->splineElevation;
+
+    if (hasFallData)
+    {
+        data >> movementInfo->jump.fallTime;
+        if (hasFallDirection)
+        {
+            data >> movementInfo->jump.sinAngle;
+            data >> movementInfo->jump.cosAngle;
+            data >> movementInfo->jump.xyspeed;
+        }
+        data >> movementInfo->jump.zspeed;
+    }
+
+    if (hasTime)
+        data >> movementInfo->time;
+
+    if (hasPitch)
+        data >> movementInfo->pitch;
+
+    return data;
+}
+
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Spells::MissileTrajectoryRequest& missileTrajectory)
+{
+    data >> missileTrajectory.Pitch;
+    data >> missileTrajectory.Speed;
+
+    return data;
+}
+
+ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Spells::SpellCastRequest& castRequest)
+{
+    data >> castRequest.CastID;
+    data >> castRequest.SpellID;
+    data >> castRequest.Misc;
+    data >> castRequest.SendCastFlags;
+    data >> castRequest.Target;
+
+    if (castRequest.SendCastFlags & CAST_FLAG_HAS_TRAJECTORY)
+    {
+        data >> castRequest.MissileTrajectory;
+        bool hasMovementData = data.read<bool>();
+        if (hasMovementData)
+            data >> castRequest.MoveUpdate;
+    }
+
+    if (castRequest.SendCastFlags & CAST_FLAG_HAS_WEIGHT)
+    {
+        uint32 weightCount = data.read<uint32>();
+        castRequest.Weight.resize(weightCount);
+
+        for (WorldPackets::Spells::SpellWeight& weight : castRequest.Weight)
+        {
+            data >> weight.Type;
+            data >> weight.ID;
+            data >> weight.Quantity;
+        }
+    }
+
+    return data;
+}
+
+void WorldPackets::Spells::CastSpell::Read()
+{
+    _worldPacket >> Cast;
 }
