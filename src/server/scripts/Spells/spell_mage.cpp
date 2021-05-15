@@ -35,6 +35,7 @@ enum MageSpells
 {
     SPELL_MAGE_ARCANE_BARRAGE_ENERGIZE           = 321529,
     SPELL_MAGE_ARCANE_BARRAGE_R3                 = 321526,
+    SPELL_MAGE_ARCANE_CHARGE                     = 36032,
     SPELL_MAGE_ARCANE_MAGE                       = 137021,
     SPELL_MAGE_BLAZING_BARRIER_TRIGGER           = 235314,
     SPELL_MAGE_CAUTERIZE_DOT                     = 87023,
@@ -119,6 +120,27 @@ class spell_mage_arcane_barrage : public SpellScript
     }
 
     ObjectGuid _primaryTarget;
+};
+
+// 195302 - Arcane Charge
+class spell_mage_arcane_charge_clear : public SpellScript
+{
+    PrepareSpellScript(spell_mage_arcane_charge_clear);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_ARCANE_CHARGE });
+    }
+
+    void RemoveArcaneCharge(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->RemoveAurasDueToSpell(SPELL_MAGE_ARCANE_CHARGE);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_mage_arcane_charge_clear::RemoveArcaneCharge, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
 };
 
 // 1449 - Arcane Explosion
@@ -961,6 +983,7 @@ class spell_mage_water_elemental_freeze : public SpellScript
 void AddSC_mage_spell_scripts()
 {
     RegisterSpellScript(spell_mage_arcane_barrage);
+    RegisterSpellScript(spell_mage_arcane_charge_clear);
     RegisterSpellScript(spell_mage_arcane_explosion);
     RegisterAuraScript(spell_mage_blazing_barrier);
     RegisterAuraScript(spell_mage_burning_determination);

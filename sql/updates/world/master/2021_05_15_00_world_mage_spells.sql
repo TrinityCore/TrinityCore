@@ -1,7 +1,8 @@
 -- Mage Spells
-DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_mage_arcane_barrage', 'spell_mage_arcane_explosion');
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_mage_arcane_barrage', 'spell_mage_arcane_explosion', 'spell_mage_arcane_charge_clear');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (44425, 'spell_mage_arcane_barrage'),
+(195302, 'spell_mage_arcane_charge_clear'),
 (1449, 'spell_mage_arcane_explosion');
 
 DELETE FROM `spell_proc` WHERE `SpellId` IN (36032);
