@@ -34,6 +34,7 @@
 enum MageSpells
 {
     SPELL_MAGE_ARCANE_BARRAGE_R3                 = 321526,
+    SPELL_MAGE_ARCANE_MAGE                       = 137021,
     SPELL_MAGE_BLAZING_BARRIER_TRIGGER           = 235314,
     SPELL_MAGE_CAUTERIZE_DOT                     = 87023,
     SPELL_MAGE_CAUTERIZED                        = 87024,
@@ -51,6 +52,7 @@ enum MageSpells
     SPELL_MAGE_LIVING_BOMB_EXPLOSION             = 44461,
     SPELL_MAGE_LIVING_BOMB_PERIODIC              = 217694,
     SPELL_MAGE_MANA_SURGE                        = 37445,
+    SPELL_MAGE_REVERBERATE                       = 281482,
     SPELL_MAGE_RING_OF_FROST_DUMMY               = 91264,
     SPELL_MAGE_RING_OF_FROST_FREEZE              = 82691,
     SPELL_MAGE_RING_OF_FROST_SUMMON              = 113724,
@@ -120,34 +122,46 @@ class spell_mage_arcane_explosion : public SpellScript
 {
     PrepareSpellScript(spell_mage_arcane_explosion);
 
-    void PreventEnergize(SpellEffIndex effIndex)
+    bool Validate(SpellInfo const* spellInfo) override
     {
-        PreventHitDefaultEffect(effIndex);
+        if (!ValidateSpellInfo({ SPELL_MAGE_ARCANE_MAGE, SPELL_MAGE_REVERBERATE }))
+            return false;
+
+        SpellEffectInfo const* damageEffect = spellInfo->GetEffect(EFFECT_1);
+        return damageEffect && damageEffect->IsEffect(SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 
-    void HandleTargetHit(SpellEffIndex /*effIndex*/)
+    void CheckRequiredAuraForBaselineEnergize(SpellEffIndex effIndex)
     {
-        if (_once)
+        if (!GetUnitTargetCountForEffect(EFFECT_1) || !GetCaster()->HasAura(SPELL_MAGE_ARCANE_MAGE))
+            PreventHitDefaultEffect(effIndex);
+    }
+
+    void HandleReverberate(SpellEffIndex effIndex)
+    {
+        bool procTriggered = [&]()
         {
-            if (SpellEffectInfo const* effInfo = GetEffectInfo(EFFECT_0))
-            {
-                Unit* caster = GetCaster();
-                int32 value = effInfo->CalcValue(caster);
-                caster->ModifyPower(Powers(effInfo->MiscValue), value);
-            }
-            _once = false;
-        }
+            Unit const* caster = GetCaster();
+            AuraEffect const* triggerChance = caster->GetAuraEffect(SPELL_MAGE_REVERBERATE, EFFECT_0);
+            if (!triggerChance)
+                return false;
+
+            AuraEffect const* requiredTargets = caster->GetAuraEffect(SPELL_MAGE_REVERBERATE, EFFECT_1);
+            if (!requiredTargets)
+                return false;
+
+            return GetUnitTargetCountForEffect(EFFECT_1) >= requiredTargets->GetAmount() && roll_chance_i(triggerChance->GetAmount());
+        }();
+
+        if (!procTriggered)
+            PreventHitDefaultEffect(effIndex);
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_mage_arcane_explosion::PreventEnergize, EFFECT_0, SPELL_EFFECT_ENERGIZE);
-        OnEffectHitTarget += SpellEffectFn(spell_mage_arcane_explosion::PreventEnergize, EFFECT_2, SPELL_EFFECT_ENERGIZE);
-        OnEffectHitTarget += SpellEffectFn(spell_mage_arcane_explosion::HandleTargetHit, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectHitTarget += SpellEffectFn(spell_mage_arcane_explosion::CheckRequiredAuraForBaselineEnergize, EFFECT_0, SPELL_EFFECT_ENERGIZE);
+        OnEffectHitTarget += SpellEffectFn(spell_mage_arcane_explosion::HandleReverberate, EFFECT_2, SPELL_EFFECT_ENERGIZE);
     }
-
-private:
-    bool _once = true;
 };
 
 // 235313 - Blazing Barrier
