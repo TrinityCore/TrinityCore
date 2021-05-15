@@ -8,10 +8,6 @@ Boost Process (Proposed for boost, but its not an official part of it yet. Used 
   http://www.highscore.de/boost/process0.5/
   Version: 0.5
 
-bzip2 (a freely available, patent free, high-quality data compressor)
-  http://www.bzip.org/
-  Version: 1.0.6
-
 cotire (CMake module to speed up builds)
   https://github.com/sakra/cotire
   Version: 1.7.10 516d78476f6dda336181fc5514f72774e1e0a8e2

@@ -22,7 +22,6 @@ target_link_libraries(vmap4extractor
   PRIVATE
     trinity-core-interface
   PUBLIC
-    bzip2
     extractor_common)
 
 CollectIncludeDirectories(
