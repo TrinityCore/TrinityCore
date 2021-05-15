@@ -345,13 +345,14 @@ struct CreatureAddon
 // Vendors
 struct VendorItem
 {
-    VendorItem() : item(0), maxcount(0), incrtime(0), ExtendedCost(0), Type(0) { }
+    VendorItem() : item(0), maxcount(0), incrtime(0), ExtendedCost(0), Type(0), PlayerConditionId(0) { }
 
     uint32 item;
     uint32 maxcount;                                        // 0 for infinity item amount
     uint32 incrtime;                                        // time for restore items amount if maxcount != 0
     uint32 ExtendedCost;
     uint8  Type;
+    uint32 PlayerConditionId;
 
     //helpers
     bool IsGoldRequired(ItemTemplate const* pProto) const;

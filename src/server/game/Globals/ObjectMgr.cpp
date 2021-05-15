@@ -8995,7 +8995,7 @@ void ObjectMgr::LoadVendors()
 
     std::set<uint32> skip_vendors;
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, item, maxcount, incrtime, ExtendedCost, type FROM npc_vendor ORDER BY entry, slot ASC");
+    QueryResult result = WorldDatabase.Query("SELECT entry, item, maxcount, incrtime, ExtendedCost, type, PlayerConditionID FROM npc_vendor ORDER BY entry, slot ASC");
     if (!result)
     {
 
@@ -9023,6 +9023,7 @@ void ObjectMgr::LoadVendors()
             vItem.incrtime = fields[3].GetUInt32();
             vItem.ExtendedCost = fields[4].GetUInt32();
             vItem.Type = fields[5].GetUInt8();
+            vItem.PlayerConditionId = fields[6].GetUInt32();
 
             if (!IsVendorItemValid(entry, vItem, nullptr, &skip_vendors))
                 continue;
