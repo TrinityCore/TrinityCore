@@ -17,6 +17,7 @@
 
 #include "PhaseShift.h"
 #include "Containers.h"
+#include "Object.h"
 
 bool PhaseShift::AddPhase(uint32 phaseId, PhaseFlags flags, std::vector<Condition*> const* areaConditions, int32 references /*= 1*/)
 {
@@ -185,5 +186,23 @@ void PhaseShift::UpdateUnphasedFlag()
 void PhaseShift::UpdatePersonalGuid()
 {
     if (!PersonalReferences)
-        PersonalGuid.Clear();
+        ClearPersonalOwner();
+}
+
+void PhaseShift::ClearPersonalOwner()
+{
+    PersonalGuid.Clear();
+}
+
+bool PhaseShift::HasPersonalPhase() const
+{
+    for (PhaseRef const& phaseRef : GetPhases())
+        if (phaseRef.IsPersonal())
+            return true;
+    return false;
+}
+
+void PhaseShift::SetPersonalOwner(WorldObject const* personalOwner)
+{
+    PersonalGuid = personalOwner->GetGUID();
 }

@@ -23,6 +23,7 @@
 #include "Language.h"
 #include "Map.h"
 #include "MiscPackets.h"
+#include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "PartyPackets.h"
 #include "PhaseShift.h"
@@ -38,10 +39,12 @@ inline PhaseFlags GetPhaseFlags(uint32 phaseId)
 {
     if (PhaseEntry const* phase = sPhaseStore.LookupEntry(phaseId))
     {
-        if (phase->Flags & PHASE_FLAG_COSMETIC)
+        EnumFlag<PhaseEntryFlags> flags(phase->GetFlags());
+
+        if (flags.HasFlag(PhaseEntryFlags::Cosmetic))
             return PhaseFlags::Cosmetic;
 
-        if (phase->Flags & PHASE_FLAG_PERSONAL)
+        if (flags.HasFlag(PhaseEntryFlags::Personal))
             return PhaseFlags::Personal;
     }
 
@@ -62,24 +65,30 @@ inline void ForAllControlled(Unit* unit, Func&& func)
 }
 }
 
-void PhasingHandler::AddPhase(WorldObject* object, uint32 phaseId, bool updateVisibility)
+bool PhasingHandler::IsPhasePersonal(uint32 phaseId)
 {
-    AddPhase(object, phaseId, object->GetGUID(), updateVisibility);
+    PhaseFlags flags = GetPhaseFlags(phaseId);
+    return (flags & PhaseFlags::Personal) == PhaseFlags::Personal;
 }
 
-void PhasingHandler::AddPhase(WorldObject* object, uint32 phaseId, ObjectGuid const& personalGuid, bool updateVisibility)
+void PhasingHandler::AddPhase(WorldObject* object, uint32 phaseId, bool updateVisibility)
+{
+    AddPhase(object, phaseId, object, updateVisibility);
+}
+
+void PhasingHandler::AddPhase(WorldObject* object, uint32 phaseId, WorldObject* personalOwner, bool updateVisibility)
 {
     bool changed = object->GetPhaseShift().AddPhase(phaseId, GetPhaseFlags(phaseId), nullptr);
 
     if (object->GetPhaseShift().PersonalReferences)
-        object->GetPhaseShift().PersonalGuid = personalGuid;
+        object->GetPhaseShift().SetPersonalOwner(personalOwner);
 
     if (Unit* unit = object->ToUnit())
     {
         unit->OnPhaseChange();
         ForAllControlled(unit, [&](Unit* controlled)
         {
-            AddPhase(controlled, phaseId, personalGuid, updateVisibility);
+            AddPhase(controlled, phaseId, personalOwner, updateVisibility);
         });
         unit->RemoveNotOwnSingleTargetAuras(true);
     }
@@ -106,10 +115,10 @@ void PhasingHandler::RemovePhase(WorldObject* object, uint32 phaseId, bool updat
 
 void PhasingHandler::AddPhaseGroup(WorldObject* object, uint32 phaseGroupId, bool updateVisibility)
 {
-    AddPhaseGroup(object, phaseGroupId, object->GetGUID(), updateVisibility);
+    AddPhaseGroup(object, phaseGroupId, object, updateVisibility);
 }
 
-void PhasingHandler::AddPhaseGroup(WorldObject* object, uint32 phaseGroupId, ObjectGuid const& personalGuid, bool updateVisibility)
+void PhasingHandler::AddPhaseGroup(WorldObject* object, uint32 phaseGroupId, WorldObject* personalOwner, bool updateVisibility)
 {
     std::vector<uint32> const* phasesInGroup = sDB2Manager.GetPhasesForGroup(phaseGroupId);
     if (!phasesInGroup)
@@ -120,14 +129,14 @@ void PhasingHandler::AddPhaseGroup(WorldObject* object, uint32 phaseGroupId, Obj
         changed = object->GetPhaseShift().AddPhase(phaseId, GetPhaseFlags(phaseId), nullptr) || changed;
 
     if (object->GetPhaseShift().PersonalReferences)
-        object->GetPhaseShift().PersonalGuid = personalGuid;
+        object->GetPhaseShift().SetPersonalOwner(personalOwner);
 
     if (Unit* unit = object->ToUnit())
     {
         unit->OnPhaseChange();
         ForAllControlled(unit, [&](Unit* controlled)
         {
-            AddPhaseGroup(controlled, phaseGroupId, personalGuid, updateVisibility);
+            AddPhaseGroup(controlled, phaseGroupId, personalOwner, updateVisibility);
         });
         unit->RemoveNotOwnSingleTargetAuras(true);
     }
@@ -286,7 +295,7 @@ void PhasingHandler::OnAreaChange(WorldObject* object)
                     changed = phaseShift.AddPhase(phaseId, GetPhaseFlags(phaseId), nullptr) || changed;
 
         if (phaseShift.PersonalReferences)
-            phaseShift.PersonalGuid = unit->GetGUID();
+            phaseShift.SetPersonalOwner(unit);
 
         if (changed)
             unit->OnPhaseChange();
@@ -302,7 +311,7 @@ void PhasingHandler::OnAreaChange(WorldObject* object)
     else
     {
         if (phaseShift.PersonalReferences)
-            phaseShift.PersonalGuid = object->GetGUID();
+            phaseShift.SetPersonalOwner(object);
     }
 
     UpdateVisibilityIfNeeded(object, true, changed);
@@ -396,7 +405,7 @@ void PhasingHandler::OnConditionChange(WorldObject* object)
     }
 
     if (phaseShift.PersonalReferences)
-        phaseShift.PersonalGuid = object->GetGUID();
+        phaseShift.SetPersonalOwner(object);
 
     changed = changed || !newSuppressions.Phases.empty() || !newSuppressions.VisibleMapIds.empty();
     for (PhaseShift::PhaseRef const& phaseRef : newSuppressions.Phases)
@@ -543,9 +552,17 @@ void PhasingHandler::SetInversed(WorldObject* object, bool apply, bool updateVis
     UpdateVisibilityIfNeeded(object, updateVisibility, true);
 }
 
-void PhasingHandler::PrintToChat(ChatHandler* chat, PhaseShift const& phaseShift)
+void PhasingHandler::PrintToChat(ChatHandler* chat, WorldObject const* target)
 {
-    chat->PSendSysMessage(LANG_PHASESHIFT_STATUS, phaseShift.Flags.AsUnderlyingType(), phaseShift.PersonalGuid.ToString().c_str());
+    PhaseShift const& phaseShift = target->GetPhaseShift();
+
+    std::string personalGuidName = "N/A";
+    if (phaseShift.HasPersonalPhase())
+        if (WorldObject * personalGuid = ObjectAccessor::GetWorldObject(*target, phaseShift.GetPersonalGuid()))
+            personalGuidName = personalGuid->GetName();
+
+    chat->PSendSysMessage(LANG_PHASESHIFT_STATUS, phaseShift.Flags.AsUnderlyingType(),
+        phaseShift.PersonalGuid.ToString().c_str(), personalGuidName.c_str());
     if (!phaseShift.Phases.empty())
     {
         std::ostringstream phases;
@@ -561,6 +578,14 @@ void PhasingHandler::PrintToChat(ChatHandler* chat, PhaseShift const& phaseShift
             phases << ", ";
         }
 
+        if (phaseShift.HasPersonalPhase())
+        {
+            WorldObject* personalGuid = ObjectAccessor::GetWorldObject(*target, phaseShift.GetPersonalGuid());
+            if (personalGuid)
+                phases << "PersonalGuid: " << personalGuid->GetName();
+            else
+                phases << "PersonalGuid: N/A";
+        }
         chat->PSendSysMessage(LANG_PHASESHIFT_PHASES, phases.str().c_str());
     }
 
