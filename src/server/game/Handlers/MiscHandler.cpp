@@ -854,64 +854,6 @@ void WorldSession::HandleNextCinematicCamera(WorldPackets::Misc::NextCinematicCa
     GetPlayer()->GetCinematicMgr()->BeginCinematic();
 }
 
-void WorldSession::HandleFeatherFallAck(WorldPacket& recvData)
-{
-    TC_LOG_DEBUG("network", "WORLD: CMSG_MOVE_FEATHER_FALL_ACK");
-
-    // no used
-    recvData.rfinish();                       // prevent warnings spam
-}
-
-void WorldSession::HandleMoveUnRootAck(WorldPacket& recvData)
-{
-    // no used
-    recvData.rfinish();                       // prevent warnings spam
-/*
-    uint64 guid;
-    recvData >> guid;
-
-    // now can skip not our packet
-    if (_player->GetGUID() != guid)
-    {
-        recvData.rfinish();                   // prevent warnings spam
-        return;
-    }
-
-    TC_LOG_DEBUG("network", "WORLD: CMSG_FORCE_MOVE_UNROOT_ACK");
-
-    recvData.read_skip<uint32>();                          // unk
-
-    MovementInfo movementInfo;
-    movementInfo.guid = guid;
-    ReadMovementInfo(recvData, &movementInfo);
-    recvData.read_skip<float>();                           // unk2
-*/
-}
-
-void WorldSession::HandleMoveRootAck(WorldPacket& recvData)
-{
-    // no used
-    recvData.rfinish();                       // prevent warnings spam
-/*
-    uint64 guid;
-    recvData >> guid;
-
-    // now can skip not our packet
-    if (_player->GetGUID() != guid)
-    {
-        recvData.rfinish();                   // prevent warnings spam
-        return;
-    }
-
-    TC_LOG_DEBUG("network", "WORLD: CMSG_FORCE_MOVE_ROOT_ACK");
-
-    recvData.read_skip<uint32>();                          // unk
-
-    MovementInfo movementInfo;
-    ReadMovementInfo(recvData, &movementInfo);
-*/
-}
-
 void WorldSession::HandleCompleteMovie(WorldPackets::Misc::CompleteMovie& /*packet*/)
 {
     uint32 movie = _player->GetMovie();
@@ -1325,25 +1267,6 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPacket& recvData)
         _player->ResetInstances(INSTANCE_RESET_CHANGE_DIFFICULTY, true);
         _player->SetRaidDifficulty(Difficulty(mode));
     }
-}
-
-void WorldSession::HandleMoveSetCanFlyAckOpcode(WorldPacket& recvData)
-{
-    // fly mode on/off
-    TC_LOG_DEBUG("network", "WORLD: CMSG_MOVE_SET_CAN_FLY_ACK");
-
-    ObjectGuid guid;                                            // guid - unused
-    recvData >> guid.ReadAsPacked();
-
-    recvData.read_skip<uint32>();                          // unk
-
-    MovementInfo movementInfo;
-    movementInfo.guid = guid;
-    ReadMovementInfo(recvData, &movementInfo);
-
-    recvData.read_skip<float>();                           // unk2
-
-    _player->GetUnitBeingMoved()->m_movementInfo.flags = movementInfo.GetMovementFlags();
 }
 
 void WorldSession::HandleSetTaxiBenchmarkOpcode(WorldPacket& recvData)

@@ -61,6 +61,7 @@ class Channel;
 class CharacterCreateInfo;
 class Creature;
 class DynamicObject;
+class GameClient;
 class Group;
 class Guild;
 class Item;
@@ -1653,6 +1654,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void RemovedInsignia(Player* looterPlr);
 
         WorldSession* GetSession() const { return m_session; }
+        GameClient* GetGameClient() const;
 
         void BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) const override;
         void DestroyForPlayer(Player* target, bool onDeath = false) const override;
@@ -2016,8 +2018,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         template<class T>
         void UpdateVisibilityOf(T* target, UpdateData& data, std::set<Unit*>& visibleNow);
-
-        uint8 m_forced_speed_changes[MAX_MOVE_TYPE];
 
         bool HasAtLoginFlag(AtLoginFlags f) const { return (m_atLoginFlags & f) != 0; }
         void SetAtLoginFlag(AtLoginFlags f) { m_atLoginFlags |= f; }

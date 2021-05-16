@@ -41,6 +41,7 @@
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "Formulas.h"
+#include "GameClient.h"
 #include "GameEventMgr.h"
 #include "GameObjectAI.h"
 #include "GameTime.h"
@@ -307,9 +308,6 @@ Player::Player(WorldSession* session): Unit(true)
     m_resetTalentsTime = 0;
     m_itemUpdateQueueBlocked = false;
 
-    for (uint8 i = 0; i < MAX_MOVE_TYPE; ++i)
-        m_forced_speed_changes[i] = 0;
-
     /////////////////// Instance System /////////////////////
 
     m_HomebindTimer = 0;
@@ -354,8 +352,6 @@ Player::Player(WorldSession* session): Unit(true)
     // Player summoning
     m_summon_expire = 0;
 
-    m_unitMovedByMe = this;
-    m_playerMovingMe = this;
     m_seer = this;
 
     m_homebindMapId = 0;
@@ -1351,7 +1347,6 @@ void Player::Update(uint32 p_time)
     //because we don't want player's ghost teleported from graveyard
     if (IsHasDelayedTeleport() && IsAlive())
         TeleportTo(m_teleport_dest, m_teleport_options);
-
 }
 
 void Player::setDeathState(DeathState s)
@@ -22352,7 +22347,7 @@ bool Player::IsNeverVisible() const
 bool Player::CanAlwaysSee(WorldObject const* obj) const
 {
     // Always can see self
-    if (GetUnitBeingMoved() == obj)
+    if (GetCharmedOrSelf() == obj)
         return true;
 
     if (ObjectGuid guid = GetGuidValue(PLAYER_FARSIGHT))
@@ -22727,7 +22722,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
     /// SMSG_RESYNC_RUNES
     ResyncRunes();
 
-    SetMovedUnit(this);
+    GetSession()->GetGameClient()->AddAllowedMover(this);
 }
 
 void Player::SendInitialPacketsAfterAddToMap()
@@ -24045,7 +24040,7 @@ void Player::SetClientControl(Unit* target, bool allowMove)
             SetViewpoint(target, true);
     }
 
-    SetMovedUnit(target);
+    GetGameClient()->SetMovedUnit(target, allowMove);
 }
 
 void Player::UpdateZoneDependentAuras(uint32 newZone)
@@ -26968,4 +26963,9 @@ std::string Player::GetDebugInfo() const
     std::stringstream sstr;
     sstr << Unit::GetDebugInfo();
     return sstr.str();
+}
+
+GameClient* Player::GetGameClient() const
+{
+    return GetSession()->GetGameClient();
 }
