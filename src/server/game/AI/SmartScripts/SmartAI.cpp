@@ -768,7 +768,7 @@ void SmartAI::QuestAccept(Player* player, Quest const* quest)
     GetScript()->ProcessEventsFor(SMART_EVENT_ACCEPTED_QUEST, player, quest->GetQuestId());
 }
 
-void SmartAI::QuestReward(Player* player, Quest const* quest, uint32 opt)
+void SmartAI::QuestReward(Player* player, Quest const* quest, LootItemType /*type*/, uint32 opt)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_REWARD_QUEST, player, quest->GetQuestId(), opt);
 }
@@ -1035,7 +1035,7 @@ void SmartGameObjectAI::QuestAccept(Player* player, Quest const* quest)
 }
 
 // Called when a player selects a quest reward.
-void SmartGameObjectAI::QuestReward(Player* player, Quest const* quest, uint32 opt)
+void SmartGameObjectAI::QuestReward(Player* player, Quest const* quest, LootItemType /*type*/, uint32 opt)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_REWARD_QUEST, player, quest->GetQuestId(), opt, false, nullptr, me);
 }

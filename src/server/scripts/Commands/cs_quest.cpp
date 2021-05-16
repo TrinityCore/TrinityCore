@@ -26,7 +26,6 @@ EndScriptData */
 #include "Chat.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
-#include "LootMgr.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "RBAC.h"

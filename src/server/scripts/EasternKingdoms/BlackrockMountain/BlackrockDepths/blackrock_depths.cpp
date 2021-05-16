@@ -600,7 +600,7 @@ public:
             EscortAI::UpdateAI(diff);
         }
 
-        void QuestReward(Player* /*player*/, Quest const* quest, uint32 /*item*/) override
+        void QuestReward(Player* /*player*/, Quest const* quest, LootItemType /*type*/, uint32 /*item*/) override
         {
             if (instance->GetData(TYPE_BAR) == DONE || instance->GetData(TYPE_BAR) == SPECIAL)
                 return;

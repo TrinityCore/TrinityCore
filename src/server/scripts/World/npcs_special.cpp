@@ -336,7 +336,7 @@ public:
                 Reset();
         }
 
-        void QuestReward(Player* /*player*/, Quest const* quest, uint32 /*opt*/) override
+        void QuestReward(Player* /*player*/, Quest const* quest, LootItemType /*type*/, uint32 /*opt*/) override
         {
             if (quest->GetQuestId() == QUEST_CLUCK)
                 Reset();

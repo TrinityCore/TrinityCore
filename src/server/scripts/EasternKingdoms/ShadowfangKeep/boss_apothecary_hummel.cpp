@@ -266,7 +266,7 @@ class boss_apothecary_hummel : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void QuestReward(Player* /*player*/, Quest const* quest, uint32 /*opt*/) override
+            void QuestReward(Player* /*player*/, Quest const* quest, LootItemType /*type*/, uint32 /*opt*/) override
             {
                 if (quest->GetQuestId() == QUEST_YOUVE_BEEN_SERVED)
                     DoAction(ACTION_START_EVENT);

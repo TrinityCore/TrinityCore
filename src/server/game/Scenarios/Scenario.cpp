@@ -18,7 +18,6 @@
 #include "Scenario.h"
 #include "InstanceSaveMgr.h"
 #include "Log.h"
-#include "LootMgr.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"

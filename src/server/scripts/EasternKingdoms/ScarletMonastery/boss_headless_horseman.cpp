@@ -890,7 +890,7 @@ class go_loosely_turned_soil : public GameObjectScript
                 return false;
             }
 
-            void QuestReward(Player* player, Quest const* /*quest*/, uint32 /*opt*/) override
+            void QuestReward(Player* player, Quest const* /*quest*/, LootItemType /*type*/, uint32 /*opt*/) override
             {
                 if (instance->GetBossState(DATA_HORSEMAN_EVENT) == IN_PROGRESS)
                     return;

@@ -15,24 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "GameObjectAI.h"
-#include "CreatureAI.h"
-#include "GameObject.h"
-#include "QuestDef.h"
+#ifndef LootItemType_h__
+#define LootItemType_h__
 
-int32 GameObjectAI::Permissible(GameObject const* /*go*/)
+#include "Define.h"
+
+enum class LootItemType : uint8
 {
-    return PERMIT_BASE_NO;
-}
+    Item        = 0,
+    Currency    = 1
+};
 
-Optional<QuestGiverStatus> GameObjectAI::GetDialogStatus(Player* /*player*/)
-{
-    return {};
-}
-
-NullGameObjectAI::NullGameObjectAI(GameObject* g) : GameObjectAI(g) { }
-
-int32 NullGameObjectAI::Permissible(GameObject const* /*go*/)
-{
-    return PERMIT_BASE_IDLE;
-}
+#endif // LootItemType_h__

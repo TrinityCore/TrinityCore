@@ -20,12 +20,11 @@
 
 #include "Packet.h"
 #include "ItemPacketsCommon.h"
+#include "LootItemType.h"
 #include "NPCPackets.h"
 #include "ObjectGuid.h"
 #include "QuestDef.h"
 #include <array>
-
-enum class LootItemType : uint8;
 
 namespace WorldPackets
 {
@@ -238,7 +237,7 @@ namespace WorldPackets
 
         struct QuestChoiceItem
         {
-            ::LootItemType LootItemType = ::LootItemType(0);
+            ::LootItemType LootItemType = ::LootItemType::Item;
             Item::ItemInstance Item;
             int32 Quantity  = 0;
         };

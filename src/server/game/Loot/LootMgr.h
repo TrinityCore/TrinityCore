@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "ConditionMgr.h"
+#include "LootItemType.h"
 #include "ObjectGuid.h"
 #include "SharedDefines.h"
 #include <list>
@@ -32,12 +33,6 @@ class LootTemplate;
 class Player;
 struct Loot;
 struct LootItem;
-
-enum class LootItemType : uint8
-{
-    Item        = 0,
-    Currency    = 1
-};
 
 struct TC_GAME_API LootStoreItem
 {

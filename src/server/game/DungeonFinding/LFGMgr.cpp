@@ -29,7 +29,6 @@
 #include "LFGQueue.h"
 #include "LFGScripts.h"
 #include "Log.h"
-#include "LootMgr.h"
 #include "Map.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"

@@ -21,6 +21,7 @@
 #include "Common.h"
 #include "DBCEnums.h"
 #include "DatabaseEnvFwd.h"
+#include "LootItemType.h"
 #include "Optional.h"
 #include "RaceMask.h"
 #include "SharedDefines.h"
@@ -29,7 +30,6 @@
 #include <vector>
 
 class Player;
-enum class LootItemType : uint8;
 
 namespace WorldPackets
 {

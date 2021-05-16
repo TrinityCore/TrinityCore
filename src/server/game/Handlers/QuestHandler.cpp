@@ -27,7 +27,6 @@
 #include "GossipDef.h"
 #include "Group.h"
 #include "Log.h"
-#include "LootMgr.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"

@@ -94,7 +94,6 @@ enum GroupCategory : uint8;
 enum InventoryType : uint8;
 enum ItemClass : uint8;
 enum LootError : uint8;
-enum class LootItemType : uint8;
 enum LootType : uint8;
 enum PlayerRestState : uint8;
 enum RestTypes : uint8;
