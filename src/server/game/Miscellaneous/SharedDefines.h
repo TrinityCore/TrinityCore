@@ -409,9 +409,9 @@ enum SpellAttr1
     SPELL_ATTR1_UNAUTOCASTABLE_BY_PET            = 0x00020000, // 17
     SPELL_ATTR1_UNK18                            = 0x00040000, // 18 stun, polymorph, daze, hex
     SPELL_ATTR1_CANT_TARGET_SELF                 = 0x00080000, // 19
-    SPELL_ATTR1_REQ_COMBO_POINTS1                = 0x00100000, // 20 Req combo points on target
+    SPELL_ATTR1_FINISHING_MOVE_DAMAGE            = 0x00100000, // 20 Finishing Move - Damage
     SPELL_ATTR1_UNK21                            = 0x00200000, // 21
-    SPELL_ATTR1_REQ_COMBO_POINTS2                = 0x00400000, // 22 Req combo points on target
+    SPELL_ATTR1_FINISHING_MOVE_DURATION          = 0x00400000, // 22 Finishing Move - Duration
     SPELL_ATTR1_UNK23                            = 0x00800000, // 23
     SPELL_ATTR1_IS_FISHING                       = 0x01000000, // 24 only fishing spells
     SPELL_ATTR1_UNK25                            = 0x02000000, // 25

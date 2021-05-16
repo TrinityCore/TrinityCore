@@ -528,7 +528,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
     if (caster)
     {
         // bonus amount from combo points
-        if (caster->m_playerMovingMe && comboDamage)
+        if (_spellInfo->HasAttribute(SPELL_ATTR1_FINISHING_MOVE_DAMAGE) && caster->m_playerMovingMe && comboDamage)
             if (uint8 comboPoints = caster->m_playerMovingMe->GetComboPoints())
                 value += comboDamage * comboPoints;
 
@@ -1456,7 +1456,7 @@ bool SpellInfo::IsMoveAllowedChannel() const
 
 bool SpellInfo::NeedsComboPoints() const
 {
-    return HasAttribute(SpellAttr1(SPELL_ATTR1_REQ_COMBO_POINTS1 | SPELL_ATTR1_REQ_COMBO_POINTS2));
+    return HasAttribute(SpellAttr1(SPELL_ATTR1_FINISHING_MOVE_DAMAGE | SPELL_ATTR1_FINISHING_MOVE_DURATION));
 }
 
 bool SpellInfo::IsNextMeleeSwingSpell() const
@@ -3367,12 +3367,14 @@ int32 SpellInfo::CalcDuration(Unit* caster, Spell* spell) const
     if (duration == -1)
         return -1;
 
-    // This is ***not** in client code, but is very much needed for, ie, Slice and Dice.
-    uint8 comboPoints = caster != nullptr && caster->m_playerMovingMe ? caster->m_playerMovingMe->GetComboPoints() : 0;
-    if (comboPoints != 0)
+    // Increase duration based on combo points
+    if (HasAttribute(SPELL_ATTR1_FINISHING_MOVE_DURATION))
     {
-        if (GetDuration() != GetMaxDuration() && GetDuration() != -1)
-            duration += int32((GetMaxDuration() - GetDuration()) * comboPoints / 5);
+        if (uint8 comboPoints = (caster && caster->m_playerMovingMe) ? caster->m_playerMovingMe->GetComboPoints() : 0)
+        {
+            if (GetDuration() != GetMaxDuration() && GetDuration() != -1)
+                duration += int32((GetMaxDuration() - GetDuration()) * comboPoints / 5);
+        }
     }
 
     if (caster != nullptr)
