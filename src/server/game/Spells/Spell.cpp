@@ -5061,25 +5061,22 @@ void Spell::TakePower()
 
     Powers powerType = Powers(m_spellInfo->PowerType);
     bool hit = true;
-    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+    if (m_caster->GetTypeId() == TYPEID_PLAYER && m_spellInfo->HasAttribute(SPELL_ATTR1_DISCOUNT_POWER_ON_MISS))
     {
-        if (powerType == POWER_RAGE || powerType == POWER_ENERGY || powerType == POWER_RUNE)
+        if (ObjectGuid targetGUID = m_targets.GetUnitTargetGUID())
         {
-            if (ObjectGuid targetGUID = m_targets.GetUnitTargetGUID())
+            for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
             {
-                for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+                if (ihit->targetGUID == targetGUID)
                 {
-                    if (ihit->targetGUID == targetGUID)
+                    if (ihit->missCondition != SPELL_MISS_NONE)
                     {
-                        if (ihit->missCondition != SPELL_MISS_NONE)
-                        {
-                            hit = false;
-                            //lower spell cost on fail (by talent aura)
-                            if (Player* modOwner = m_caster->ToPlayer()->GetSpellModOwner())
-                                modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_SPELL_COST_REFUND_ON_FAIL, m_powerCost);
-                        }
-                        break;
+                        hit = false;
+                        //lower spell cost on fail (by talent aura)
+                        if (Player* modOwner = m_caster->ToPlayer()->GetSpellModOwner())
+                            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_SPELL_COST_REFUND_ON_FAIL, m_powerCost);
                     }
+                    break;
                 }
             }
         }
