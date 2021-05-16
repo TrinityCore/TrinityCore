@@ -6687,12 +6687,6 @@ void Unit::SendEnergizeSpellLog(Unit* victim, uint32 spellID, int32 damage, int3
     SendCombatLogMessage(&data);
 }
 
-void Unit::EnergizeBySpell(Unit* victim, uint32 spellId, int32 damage, Powers powerType)
-{
-    if (SpellInfo const* info = sSpellMgr->GetSpellInfo(spellId, GetMap()->GetDifficultyID()))
-        EnergizeBySpell(victim, info, damage, powerType);
-}
-
 void Unit::EnergizeBySpell(Unit* victim, SpellInfo const* spellInfo, int32 damage, Powers powerType)
 {
     int32 gain = victim->ModifyPower(powerType, damage, false);

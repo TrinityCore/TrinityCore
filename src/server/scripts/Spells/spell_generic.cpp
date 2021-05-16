@@ -2380,7 +2380,7 @@ class spell_gen_restoration : public AuraScript
         if (int32 mana = caster->GetMaxPower(POWER_MANA))
         {
             mana /= 10;
-            caster->EnergizeBySpell(caster, GetId(), mana, POWER_MANA);
+            caster->EnergizeBySpell(caster, GetSpellInfo(), mana, POWER_MANA);
         }
     }
 
