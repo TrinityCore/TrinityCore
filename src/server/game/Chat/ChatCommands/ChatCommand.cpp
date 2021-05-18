@@ -26,6 +26,12 @@
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "WorldSession.h"
+// @tswow-begin
+#include "TSEvents.h"
+#include "TSMutableString.h"
+#include "TSMutable.h"
+#include "TSPlayer.h"
+// @tswow-end
 
 using ChatSubCommandMap = std::map<std::string_view, Trinity::Impl::ChatCommands::ChatCommandNode, StringCompareLessI_T>;
 
@@ -244,6 +250,21 @@ namespace Trinity::Impl::ChatCommands
 {
     ChatCommandNode const* cmd = nullptr;
     ChatSubCommandMap const* map = &GetTopLevelMap();
+
+    // @tswow-begin
+    bool found = false;
+    std::string str(cmdStr);
+    FIRE( PlayerOnCommand
+        , TSPlayer(handler.GetPlayer())
+        , TSMutableString(&str)
+        , TSMutable<bool>(&found)
+        );
+    if(found)
+    {
+        return true;
+    }
+    cmdStr = std::string_view(str);
+    // @tswow-end
 
     while (!cmdStr.empty() && (cmdStr.front() == COMMAND_DELIMITER))
         cmdStr.remove_prefix(1);
