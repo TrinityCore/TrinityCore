@@ -12690,7 +12690,7 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
         pItem->SetSlot(NULL_SLOT);
         pItem->SetState(ITEM_REMOVED, this);
 
-        if (pItem->GetTemplate()->GetInventoryType() != INVTYPE_NON_EQUIP)
+        if (pProto->GetInventoryType() != INVTYPE_NON_EQUIP)
             UpdateAverageItemLevelTotal();
         if (bag == INVENTORY_SLOT_BAG_0)
             UpdateAverageItemLevelEquipped();
