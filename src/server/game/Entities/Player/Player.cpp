@@ -5674,16 +5674,23 @@ bool Player::UpdateSkill(uint32 skill_id, uint32 step)
     return false;
 }
 
-inline int SkillGainChance(uint32 SkillValue, uint32 GrayLevel, uint32 GreenLevel, uint32 YellowLevel)
+// @tswow-begin (reroute function through formula event)
+inline int SkillGainChance(Player* player, uint32 skillId, uint32 SkillValue, uint32 GrayLevel, uint32 GreenLevel, uint32 YellowLevel)
 {
+    int chance = 0;
     if (SkillValue >= GrayLevel)
-        return sWorld->getIntConfig(CONFIG_SKILL_CHANCE_GREY)*10;
-    if (SkillValue >= GreenLevel)
-        return sWorld->getIntConfig(CONFIG_SKILL_CHANCE_GREEN)*10;
-    if (SkillValue >= YellowLevel)
-        return sWorld->getIntConfig(CONFIG_SKILL_CHANCE_YELLOW)*10;
-    return sWorld->getIntConfig(CONFIG_SKILL_CHANCE_ORANGE)*10;
+        chance = sWorld->getIntConfig(CONFIG_SKILL_CHANCE_GREY)*10;
+    else if (SkillValue >= GreenLevel)
+        chance = sWorld->getIntConfig(CONFIG_SKILL_CHANCE_GREEN)*10;
+    else if (SkillValue >= YellowLevel)
+        chance = sWorld->getIntConfig(CONFIG_SKILL_CHANCE_YELLOW)*10;
+    else
+        chance = sWorld->getIntConfig(CONFIG_SKILL_CHANCE_ORANGE)*10;
+
+    FIRE(FormulaOnSkillGainChance,TSPlayer(player), skillId, SkillValue, GrayLevel, GreenLevel, YellowLevel, TSMutable<int>(&chance));
+    return chance;
 }
+// @tswow-end
 
 bool Player::UpdateCraftSkill(uint32 spellid)
 {
@@ -5708,11 +5715,13 @@ bool Player::UpdateCraftSkill(uint32 spellid)
 
             uint32 craft_skill_gain = sWorld->getIntConfig(CONFIG_SKILL_GAIN_CRAFTING);
 
-            return UpdateSkillPro(_spell_idx->second->SkillLine, SkillGainChance(SkillValue,
+            // @tswow-begin
+            return UpdateSkillPro(_spell_idx->second->SkillLine, SkillGainChance(this,_spell_idx->second->SkillLine, SkillValue,
                 _spell_idx->second->TrivialSkillLineRankHigh,
                 (_spell_idx->second->TrivialSkillLineRankHigh + _spell_idx->second->TrivialSkillLineRankLow)/2,
                 _spell_idx->second->TrivialSkillLineRankLow),
                 craft_skill_gain);
+            // @tswow-end
         }
     }
     return false;
@@ -5728,24 +5737,24 @@ bool Player::UpdateGatherSkill(uint32 SkillId, uint32 SkillValue, uint32 RedLeve
     // For skinning and Mining chance decrease with level. 1-74 - no decrease, 75-149 - 2 times, 225-299 - 8 times
     switch (SkillId)
     {
+        // @tswow-begin (add SkillId to SkillGainChance calls)
         case SKILL_HERBALISM:
         case SKILL_LOCKPICKING:
         case SKILL_JEWELCRAFTING:
         case SKILL_INSCRIPTION:
-            return UpdateSkillPro(SkillId, SkillGainChance(SkillValue, RedLevel+100, RedLevel+50, RedLevel+25)*Multiplicator, gathering_skill_gain);
+            return UpdateSkillPro(SkillId, SkillGainChance(this, SkillId,SkillValue, RedLevel+100, RedLevel+50, RedLevel+25)*Multiplicator, gathering_skill_gain);
         case SKILL_SKINNING:
             if (sWorld->getIntConfig(CONFIG_SKILL_CHANCE_SKINNING_STEPS) == 0)
-                return UpdateSkillPro(SkillId, SkillGainChance(SkillValue, RedLevel+100, RedLevel+50, RedLevel+25)*Multiplicator, gathering_skill_gain);
+                return UpdateSkillPro(SkillId, SkillGainChance(this, SkillId,SkillValue, RedLevel+100, RedLevel+50, RedLevel+25)*Multiplicator, gathering_skill_gain);
             else
-                return UpdateSkillPro(SkillId, (SkillGainChance(SkillValue, RedLevel+100, RedLevel+50, RedLevel+25)*Multiplicator) >> (SkillValue/sWorld->getIntConfig(CONFIG_SKILL_CHANCE_SKINNING_STEPS)), gathering_skill_gain);
+                return UpdateSkillPro(SkillId, (SkillGainChance(this, SkillId,SkillValue, RedLevel+100, RedLevel+50, RedLevel+25)*Multiplicator) >> (SkillValue/sWorld->getIntConfig(CONFIG_SKILL_CHANCE_SKINNING_STEPS)), gathering_skill_gain);
         case SKILL_MINING:
             if (sWorld->getIntConfig(CONFIG_SKILL_CHANCE_MINING_STEPS) == 0)
-                return UpdateSkillPro(SkillId, SkillGainChance(SkillValue, RedLevel+100, RedLevel+50, RedLevel+25)*Multiplicator, gathering_skill_gain);
+                return UpdateSkillPro(SkillId, SkillGainChance(this, SkillId,SkillValue, RedLevel+100, RedLevel+50, RedLevel+25)*Multiplicator, gathering_skill_gain);
             else
-                return UpdateSkillPro(SkillId, (SkillGainChance(SkillValue, RedLevel+100, RedLevel+50, RedLevel+25)*Multiplicator) >> (SkillValue/sWorld->getIntConfig(CONFIG_SKILL_CHANCE_MINING_STEPS)), gathering_skill_gain);
-        // @tswow-begin
+                return UpdateSkillPro(SkillId, (SkillGainChance(this, SkillId,SkillValue, RedLevel+100, RedLevel+50, RedLevel+25)*Multiplicator) >> (SkillValue/sWorld->getIntConfig(CONFIG_SKILL_CHANCE_MINING_STEPS)), gathering_skill_gain);
         default:
-            return UpdateSkillPro(SkillId, SkillGainChance(SkillValue, RedLevel+100, RedLevel+50, RedLevel+25)*Multiplicator, gathering_skill_gain);
+            return UpdateSkillPro(SkillId, SkillGainChance(this, SkillId,SkillValue, RedLevel+100, RedLevel+50, RedLevel+25)*Multiplicator, gathering_skill_gain);
         // @tswow-end
     }
     return false;
