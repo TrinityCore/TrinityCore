@@ -52,6 +52,10 @@
 #include "SystemPackets.h"
 #include "QueryHolder.h"
 #include "World.h"
+// @tswow-begin
+#include "TSPlayer.h"
+#include "TSEvents.h"
+// @tswow-end
 
 class LoginQueryHolder : public CharacterDatabaseQueryHolder
 {
@@ -584,6 +588,9 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
                 newChar->setCinematic(1);                         // not show intro
 
             newChar->SetAtLoginFlag(AT_LOGIN_FIRST);              // First login
+            // @tswow-begin
+            FIRE(PlayerOnCreateEarly,TSPlayer(newChar.get()));
+            // @tswow-end
 
             CharacterDatabaseTransaction characterTransaction = CharacterDatabase.BeginTransaction();
             LoginDatabaseTransaction trans = LoginDatabase.BeginTransaction();
