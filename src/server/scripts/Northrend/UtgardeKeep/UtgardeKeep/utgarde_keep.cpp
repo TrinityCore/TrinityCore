@@ -106,32 +106,6 @@ private:
     uint8 _forgeId;
 };
 
-enum TickingTimeBomb
-{
-    SPELL_TICKING_TIME_BOMB_EXPLODE = 59687
-};
-
-class spell_ticking_time_bomb : public AuraScript
-{
-    PrepareAuraScript(spell_ticking_time_bomb);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_TICKING_TIME_BOMB_EXPLODE });
-    }
-
-    void HandleOnEffectRemove(AuraEffect const* /* aurEff */, AuraEffectHandleModes /* mode */)
-    {
-        if (GetCaster() == GetTarget())
-            GetTarget()->CastSpell(GetTarget(), SPELL_TICKING_TIME_BOMB_EXPLODE, true);
-    }
-
-    void Register() override
-    {
-        OnEffectRemove += AuraEffectRemoveFn(spell_ticking_time_bomb::HandleOnEffectRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
-    }
-};
-
 enum Fixate
 {
     SPELL_FIXATE_TRIGGER = 40415
@@ -285,14 +259,12 @@ struct npc_enslaved_proto_drake : public ScriptedAI
 private:
     bool _setData;
     EventMap _events;
-
 };
 
 void AddSC_utgarde_keep()
 {
     RegisterUtgardeKeepCreatureAI(npc_dragonflayer_forge_master);
     RegisterUtgardeKeepCreatureAI(npc_enslaved_proto_drake);
-    RegisterSpellScript(spell_ticking_time_bomb);
     RegisterSpellScript(spell_fixate);
     RegisterSpellScript(spell_uk_second_wind);
 }
