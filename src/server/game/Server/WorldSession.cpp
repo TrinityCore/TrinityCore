@@ -1665,9 +1665,10 @@ bool WorldSession::IsRightUnitBeingMoved(ObjectGuid guid)
     GameClient* client = GetGameClient();
 
     // the client is attempting to tamper movement data
+    // edit: this wouldn't happen in retail but it does in TC, even with a legitimate client.
     if (!client->GetActivelyMovedUnit() || client->GetActivelyMovedUnit()->GetGUID() != guid)
     {
-        TC_LOG_INFO("entities.unit", "Attempt at tampering movement data by Player %s", _player->GetName().c_str());
+        TC_LOG_DEBUG("entities.unit", "Attempt at tampering movement data by Player %s", _player->GetName().c_str());
         return false;
     }
 

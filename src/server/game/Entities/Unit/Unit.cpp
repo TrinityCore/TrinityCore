@@ -422,6 +422,7 @@ Unit::~Unit()
     ASSERT(m_removedAuras.empty());
     ASSERT(m_gameObj.empty());
     ASSERT(m_dynObj.empty());
+    ASSERT(!_gameClientMovingMe || _gameClientMovingMe->GetBasePlayer() == this);
 }
 
 void Unit::Update(uint32 p_time)
