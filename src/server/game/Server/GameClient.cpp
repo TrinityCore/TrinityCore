@@ -42,7 +42,7 @@ void GameClient::RemoveAllowedMover(Unit* unit)
     {
         unit->SetGameClientMovingMe(nullptr);
         SetActivelyMovedUnit(nullptr);
-    }  
+    }
 }
 
 bool GameClient::IsAllowedToMove(Unit* unit) const
