@@ -11368,6 +11368,22 @@ InventoryResult Player::CanEquipItem(uint8 slot, uint16 &dest, Item* pItem, bool
         ItemTemplate const* pProto = pItem->GetTemplate();
         if (pProto)
         {
+            // @tswow-begin
+            uint32 evtRes = static_cast<uint32>(InventoryResult::EQUIP_ERR_OK);
+            FIRE_MAP( pProto->events
+                    , ItemOnEquipEarly
+                    , TSItem(pItem)
+                    , TSPlayer(const_cast<Player*>(this))
+                    , slot
+                    , swap
+                    , TSMutable<uint32>(&evtRes)
+                    );
+            InventoryResult evtResEnum = static_cast<InventoryResult>(evtRes);
+            if(evtResEnum != InventoryResult::EQUIP_ERR_OK)
+            {
+                return evtResEnum;
+            }
+            // @tswow-end
             // item used
             if (pItem->m_lootGenerated)
                 return EQUIP_ERR_ALREADY_LOOTED;
@@ -11567,7 +11583,17 @@ InventoryResult Player::CanUnequipItem(uint16 pos, bool swap) const
     if (!swap && pItem->IsNotEmptyBag())
         return EQUIP_ERR_CAN_ONLY_DO_WITH_EMPTY_BAGS;
 
-    return EQUIP_ERR_OK;
+    // @tswow-begin
+    uint32 status = static_cast<uint32>(InventoryResult::EQUIP_ERR_OK);
+    FIRE_MAP( pProto->events
+            , ItemOnUnequip
+            , TSItem(pItem)
+            , TSPlayer(const_cast<Player*>(this))
+            , swap
+            , TSMutable<uint32>(&status)
+            );
+    return static_cast<InventoryResult>(status);
+    // @tswow-end
 }
 
 InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec &dest, Item* pItem, bool swap, bool not_loading) const
@@ -11582,6 +11608,24 @@ InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec &dest
     ItemTemplate const* pProto = pItem->GetTemplate();
     if (!pProto)
         return swap ? EQUIP_ERR_ITEMS_CANT_BE_SWAPPED : EQUIP_ERR_ITEM_NOT_FOUND;
+
+    // @tswow-begin
+    uint32 eventRes = static_cast<uint32>(InventoryResult::EQUIP_ERR_OK);
+    FIRE_MAP( pProto->events
+            , ItemOnBank
+            , TSItem(pItem)
+            , TSPlayer(const_cast<Player*>(this))
+            , bag
+            , slot
+            , swap
+            , TSMutable<uint32>(&eventRes)
+            );
+    InventoryResult eventResEnum = static_cast<InventoryResult>(eventRes);
+    if(eventResEnum != InventoryResult::EQUIP_ERR_OK)
+    {
+        return eventResEnum;
+    }
+    // @tswow-end
 
     // item used
     if (pItem->m_lootGenerated)
@@ -11811,7 +11855,22 @@ InventoryResult Player::CanUseItem(Item* pItem, bool not_loading) const
 
             if (pProto->RequiredReputationFaction && uint32(GetReputationRank(pProto->RequiredReputationFaction)) < pProto->RequiredReputationRank)
                 return EQUIP_ERR_CANT_EQUIP_REPUTATION;
-
+            // @tswow-begin
+            {
+                uint32 evtRes = static_cast<uint32>(InventoryResult::EQUIP_ERR_OK);
+                FIRE_MAP( pProto->events
+                        , ItemOnUseLate
+                        , TSItem(pItem)
+                        , TSPlayer(const_cast<Player*>(this))
+                        , TSMutable<uint32>(&evtRes)
+                        );
+                InventoryResult evtResEnum = static_cast<InventoryResult>(evtRes);
+                if(evtResEnum != InventoryResult::EQUIP_ERR_OK)
+                {
+                    return evtResEnum;
+                }
+            }
+            // @tswow-end
             return EQUIP_ERR_OK;
         }
     }
@@ -11871,6 +11930,22 @@ InventoryResult Player::CanRollForItemInLFG(ItemTemplate const* proto, WorldObje
     if (!proto)
         return EQUIP_ERR_ITEM_NOT_FOUND;
    // Used by group, function NeedBeforeGreed, to know if a prototype can be used by a player
+
+    // @tswow-begin
+    int32 evtRes = -1;
+    FIRE_MAP( proto->events
+            , ItemOnLFGRollEarly
+            , TSItemTemplate(proto)
+            , TSWorldObject(const_cast<WorldObject*>(lootedObject))
+            , TSPlayer(const_cast<Player*>(this))
+            , TSMutable<int32>(&evtRes)
+            );
+    InventoryResult evtResEnum = static_cast<InventoryResult>(evtRes);
+    if(evtRes >= 0)
+    {
+        return static_cast<InventoryResult>(evtRes);
+    }
+    // @tswow-end
 
     const static uint32 item_weapon_skills[MAX_ITEM_SUBCLASS_WEAPON] =
     {
@@ -12503,6 +12578,21 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
     Item* pItem = GetItemByPos(bag, slot);
     if (pItem)
     {
+        // @tswow-begin
+        {
+            bool evtCanDestroy = true;
+            FIRE_MAP( pItem->GetTemplate()->events
+                    , ItemOnDestroyEarly
+                    , TSItem(pItem)
+                    , TSPlayer(this)
+                    , TSMutable<bool>(&evtCanDestroy)
+                    );
+            if(!evtCanDestroy)
+            {
+                return;
+            }
+        }
+        // @tswow-end
         TC_LOG_DEBUG("entities.player.items", "Player::DestroyItem: Player '%s' (%s), Bag: %u, Slot: %u, Item: %u",
             GetName().c_str(), GetGUID().ToString().c_str(), bag, slot, pItem->GetEntry());
         // Also remove all contained items if the item is a bag.
