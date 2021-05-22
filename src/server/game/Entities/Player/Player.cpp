@@ -13663,7 +13663,7 @@ void Player::RemoveItemFromBuyBackSlot(uint32 slot, bool del)
     }
 }
 
-void Player::SendEquipError(InventoryResult msg, Item* item1 /*= nullptr*/, Item* item2 /*= nullptr*/, uint32 itemId /*= 0*/) const
+void Player::SendEquipError(InventoryResult msg, Item const* item1 /*= nullptr*/, Item const* item2 /*= nullptr*/, uint32 itemId /*= 0*/) const
 {
     WorldPackets::Item::InventoryChangeFailure failure;
     failure.BagResult = msg;
