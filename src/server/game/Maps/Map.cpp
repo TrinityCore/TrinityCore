@@ -52,6 +52,7 @@
 #include <vector>
 // @tswow-begin
 #include "TSEventLoader.h"
+#include "TSEvents.h"
 #include "TSMacros.h"
 #include "TSMap.h"
 #include "TSPlayer.h"
@@ -774,6 +775,12 @@ void Map::Update(uint32 t_diff)
 {
     // @tswow-begin
     tasks.Tick(TSMap(this));
+    FIRE_MAP(
+          GetExtraData()->events
+        , MapOnUpdate
+        , TSMap(this)
+        , t_diff
+        );
     // @tswow-end
     _dynamicTree.update(t_diff);
     /// update worldsessions for existing players
