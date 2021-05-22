@@ -641,26 +641,6 @@ WorldPacket const* WorldPackets::Guild::GuildBankQueryResults::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Guild::GuildBankSwapItems::Read()
-{
-    _worldPacket >> Banker;
-    _worldPacket >> BankTab;
-    _worldPacket >> BankSlot;
-    _worldPacket >> ItemID;
-    _worldPacket >> BankTab1;
-    _worldPacket >> BankSlot1;
-    _worldPacket >> ItemID1;
-    _worldPacket >> BankItemCount;
-    _worldPacket >> ContainerSlot;
-    _worldPacket >> ContainerItemSlot;
-    _worldPacket >> ToSlot;
-    _worldPacket >> StackCount;
-
-    _worldPacket.ResetBitPos();
-    BankOnly = _worldPacket.ReadBit();
-    AutoStore = _worldPacket.ReadBit();
-}
-
 void WorldPackets::Guild::DepositGuildBankItem::Read()
 {
     _worldPacket >> Banker;
