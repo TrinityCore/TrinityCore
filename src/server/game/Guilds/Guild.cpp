@@ -785,13 +785,13 @@ bool Guild::MoveItemData::CheckItem(uint32& splitedAmount)
     return true;
 }
 
-bool Guild::MoveItemData::CanStore(Item* pItem, bool swap, bool sendError)
+InventoryResult Guild::MoveItemData::CanStore(Item* pItem, bool swap, bool sendError)
 {
     m_vec.clear();
     InventoryResult msg = CanStore(pItem, swap);
     if (sendError && msg != EQUIP_ERR_OK)
-        m_pPlayer->SendEquipError(msg, pItem);
-    return (msg == EQUIP_ERR_OK);
+        SendEquipError(msg, pItem);
+    return msg;
 }
 
 bool Guild::MoveItemData::CloneItem(uint32 count)
@@ -800,7 +800,7 @@ bool Guild::MoveItemData::CloneItem(uint32 count)
     m_pClonedItem = m_pItem->CloneItem(count);
     if (!m_pClonedItem)
     {
-        m_pPlayer->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, m_pItem);
+        SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, m_pItem);
         return false;
     }
     return true;
@@ -821,6 +821,11 @@ inline void Guild::MoveItemData::CopySlots(SlotIds& ids) const
         ids.insert(uint8(itr->pos));
 }
 
+void Guild::MoveItemData::SendEquipError(InventoryResult result, Item const* item)
+{
+    m_pPlayer->SendEquipError(result, item);
+}
+
 // PlayerMoveItemData
 bool Guild::PlayerMoveItemData::InitItem()
 {
@@ -830,13 +835,13 @@ bool Guild::PlayerMoveItemData::InitItem()
         // Anti-WPE protection. Do not move non-empty bags to bank.
         if (m_pItem->IsNotEmptyBag())
         {
-            m_pPlayer->SendEquipError(EQUIP_ERR_DESTROY_NONEMPTY_BAG, m_pItem);
+            SendEquipError(EQUIP_ERR_DESTROY_NONEMPTY_BAG, m_pItem);
             m_pItem = nullptr;
         }
         // Bound items cannot be put into bank.
         else if (!m_pItem->CanBeTraded())
         {
-            m_pPlayer->SendEquipError(EQUIP_ERR_CANT_SWAP, m_pItem);
+            SendEquipError(EQUIP_ERR_CANT_SWAP, m_pItem);
             m_pItem = nullptr;
         }
     }
@@ -3228,12 +3233,16 @@ void Guild::_MoveItems(MoveItemData* pSrc, MoveItemData* pDest, uint32 splitedAm
     else // 6. No split
     {
         // 6.1. Try to merge items in destination (pDest->GetItem() == nullptr)
-        if (!Guild::_DoItemsMove(pSrc, pDest, false)) // Item could not be merged
+        InventoryResult mergeAttemptResult = Guild::_DoItemsMove(pSrc, pDest, false);
+        if (mergeAttemptResult != EQUIP_ERR_OK) // Item could not be merged
         {
             // 6.2. Try to swap items
             // 6.2.1. Initialize destination item
             if (!pDest->InitItem())
+            {
+                pSrc->SendEquipError(mergeAttemptResult, pSrc->GetItem(false));
                 return;
+            }
 
             // 6.2.2. Check rights to store item in source (opposite direction)
             if (!pSrc->HasStoreRights(pDest))
@@ -3250,20 +3259,24 @@ void Guild::_MoveItems(MoveItemData* pSrc, MoveItemData* pDest, uint32 splitedAm
     _SendBankContentUpdate(pSrc, pDest);
 }
 
-bool Guild::_DoItemsMove(MoveItemData* pSrc, MoveItemData* pDest, bool sendError, uint32 splitedAmount)
+InventoryResult Guild::_DoItemsMove(MoveItemData* pSrc, MoveItemData* pDest, bool sendError, uint32 splitedAmount)
 {
     Item* pDestItem = pDest->GetItem();
     bool swap = (pDestItem != nullptr);
 
     Item* pSrcItem = pSrc->GetItem(splitedAmount != 0);
     // 1. Can store source item in destination
-    if (!pDest->CanStore(pSrcItem, swap, sendError))
-        return false;
+    InventoryResult destResult = pDest->CanStore(pSrcItem, swap, sendError);
+    if (destResult != EQUIP_ERR_OK)
+        return destResult;
 
     // 2. Can store destination item in source
     if (swap)
-        if (!pSrc->CanStore(pDestItem, true, true))
-            return false;
+    {
+        InventoryResult srcResult = pSrc->CanStore(pDestItem, true, true);
+        if (srcResult != EQUIP_ERR_OK)
+            return srcResult;
+    }
 
     // GM LOG (@todo move to scripts)
     pDest->LogAction(pSrc);
@@ -3291,7 +3304,7 @@ bool Guild::_DoItemsMove(MoveItemData* pSrc, MoveItemData* pDest, bool sendError
         pSrc->StoreItem(trans, pDestItem);
 
     CharacterDatabase.CommitTransaction(trans);
-    return true;
+    return EQUIP_ERR_OK;
 }
 
 void Guild::_SendBankContentUpdate(MoveItemData* pSrc, MoveItemData* pDest) const
