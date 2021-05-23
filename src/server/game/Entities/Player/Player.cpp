@@ -7940,7 +7940,7 @@ void Player::CastItemCombatSpell(DamageInfo const& damageInfo, Item* item, ItemT
     }
 }
 
-void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8 cast_count, uint32 glyphIndex)
+void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8 castId, uint32 glyphIndex)
 {
     ItemTemplate const* proto = item->GetTemplate();
     // special learning case
@@ -7959,7 +7959,7 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
 
         Spell* spell = new Spell(this, spellInfo, TRIGGERED_NONE);
         spell->m_CastItem = item;
-        spell->m_cast_count = cast_count;                   //set count of casts
+        spell->m_cast_count = castId;
         spell->SetSpellValue(SPELLVALUE_BASE_POINT0, learning_spell_id);
         spell->prepare(targets);
         return;
@@ -7984,8 +7984,8 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
 
         Spell* spell = new Spell(this, spellInfo, TRIGGERED_NONE);
         spell->m_CastItem = item;
-        spell->m_cast_count = cast_count;                   // set count of casts
-        spell->m_glyphIndex = glyphIndex;                   // glyph index
+        spell->m_cast_count = castId;
+        spell->m_glyphIndex = glyphIndex;
         spell->prepare(targets);
         return;
     }
@@ -8014,7 +8014,7 @@ void Player::CastItemUseSpell(Item* item, SpellCastTargets const& targets, uint8
 
             Spell* spell = new Spell(this, spellInfo, TRIGGERED_NONE);
             spell->m_CastItem = item;
-            spell->m_cast_count = cast_count;               // set count of casts
+            spell->m_cast_count = castId;                   // set count of casts
             spell->m_glyphIndex = glyphIndex;               // glyph index
             spell->prepare(targets);
             return;

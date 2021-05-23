@@ -25,6 +25,7 @@
 #include "SpellDefines.h"
 #include "ThreatManager.h"
 #include "Timer.h"
+#include "SpellPacketsCommon.h"
 #include "UnitDefines.h"
 #include "Util.h"
 #include <array>
@@ -728,6 +729,29 @@ struct PositionUpdateInfo
 
     bool Relocated = false;
     bool Turned = false;
+};
+
+struct SpellCastRequestItemData
+{
+    SpellCastRequestItemData(uint8 bagSlot, uint8 slot, ObjectGuid castItem) :
+        BagSlot(bagSlot), Slot(slot), CastItem(castItem)
+    {
+    }
+
+    uint8 BagSlot = 0;
+    uint8 Slot = 0;
+    ObjectGuid CastItem;
+};
+
+struct PendingSpellCastRequest
+{
+    PendingSpellCastRequest(WorldPackets::Spells::SpellCastRequest&& castRequest, Optional<SpellCastRequestItemData> castItemData = {}) :
+        CastRequest(castRequest), CastItemData(castItemData)
+    {
+    }
+
+    WorldPackets::Spells::SpellCastRequest CastRequest;
+    Optional<SpellCastRequestItemData> CastItemData;
 };
 
 // delay time next attack to prevent client attack animation problems
@@ -1736,6 +1760,11 @@ class TC_GAME_API Unit : public WorldObject
         // enables/disables combat permission of this unit
         void SetIgnoringCombat(bool apply) { _isIgnoringCombat = apply; }
 
+        // Queues up a spell cast request that has been received via packet and processes it whenever possible.
+        void RequestSpellCast(PendingSpellCastRequest castRequest, SpellInfo const* spellInfo);
+        void CancelPendingCastRequest();
+        bool CanRequestSpellCast(SpellInfo const* spell) const;
+
     protected:
         explicit Unit (bool isWorldObject);
 
@@ -1880,6 +1909,11 @@ class TC_GAME_API Unit : public WorldObject
         std::array<std::unordered_set<AbstractPursuer*>, AsUnderlyingType(PursuingType::Max)> _unitsPursuingMe;
 
         bool _isIgnoringCombat;
+
+        Optional<PendingSpellCastRequest> _pendingSpellCastRequest;
+        void ProcessPendingSpellCastRequest();
+        void ProcessItemCast(PendingSpellCastRequest const& castRequest, SpellCastTargets const& targets);
+        bool CanExecutePendingSpellCastRequest(SpellInfo const* spellInfo) const;
 };
 
 namespace Trinity

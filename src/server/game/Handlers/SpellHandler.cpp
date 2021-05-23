@@ -88,116 +88,20 @@ void WorldSession::HandleClientCastFlags(WorldPacket& recvPacket, uint8 castFlag
     }
 }
 
-void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
+void WorldSession::HandleUseItemOpcode(WorldPackets::Spells::UseItem& packet)
 {
-    /// @todo add targets.read() check
-    Player* pUser = _player;
+    Player* user = _player;
 
     // ignore for remote control state
-    if (pUser->m_unitMovedByMe != pUser)
+    if (user->m_unitMovedByMe != user)
         return;
 
-    uint8 bagIndex, slot, castFlags;
-    uint8 castCount;                                        // next cast if exists (single or not)
-    ObjectGuid itemGUID;
-    uint32 glyphIndex;                                      // something to do with glyphs?
-    uint32 spellId;                                         // cast spell id
-
-    recvPacket >> bagIndex >> slot >> castCount >> spellId >> itemGUID >> glyphIndex >> castFlags;
-
-    if (glyphIndex >= MAX_GLYPH_SLOT_INDEX)
-    {
-        pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, nullptr, nullptr);
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(packet.Cast.SpellID);
+    if (!spellInfo)
         return;
-    }
 
-    Item* pItem = pUser->GetUseableItemByPos(bagIndex, slot);
-    if (!pItem)
-    {
-        pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, nullptr, nullptr);
-        return;
-    }
-
-    if (pItem->GetGUID() != itemGUID)
-    {
-        pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, nullptr, nullptr);
-        return;
-    }
-
-    TC_LOG_DEBUG("network", "WORLD: CMSG_USE_ITEM packet, bagIndex: %u, slot: %u, castCount: %u, spellId: %u, Item: %u, glyphIndex: %u, data length = %i", bagIndex, slot, castCount, spellId, pItem->GetEntry(), glyphIndex, (uint32)recvPacket.size());
-
-    ItemTemplate const* proto = pItem->GetTemplate();
-    if (!proto)
-    {
-        pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, pItem, nullptr);
-        return;
-    }
-
-    // some item classes can be used only in equipped state
-    if (proto->GetInventoryType() != INVTYPE_NON_EQUIP && !pItem->IsEquipped())
-    {
-        pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, pItem, nullptr);
-        return;
-    }
-
-    InventoryResult msg = pUser->CanUseItem(pItem);
-    if (msg != EQUIP_ERR_OK)
-    {
-        pUser->SendEquipError(msg, pItem, nullptr);
-        return;
-    }
-
-    // only allow conjured consumable, bandage, poisons (all should have the 2^21 item flag set in DB)
-    if (proto->GetClass() == ITEM_CLASS_CONSUMABLE && !(proto->GetFlags() & ITEM_FLAG_IGNORE_DEFAULT_ARENA_RESTRICTIONS) && pUser->InArena())
-    {
-        pUser->SendEquipError(EQUIP_ERR_NOT_DURING_ARENA_MATCH, pItem, nullptr);
-        return;
-    }
-
-    // don't allow items banned in arena
-    if ((proto->GetFlags() & ITEM_FLAG_NOT_USEABLE_IN_ARENA) && pUser->InArena())
-    {
-        pUser->SendEquipError(EQUIP_ERR_NOT_DURING_ARENA_MATCH, pItem, nullptr);
-        return;
-    }
-
-    if (pUser->IsInCombat())
-    {
-        for (ItemEffect const& effect : proto->Effects)
-        {
-            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(effect.SpellID))
-            {
-                if (!spellInfo->CanBeUsedInCombat())
-                {
-                    pUser->SendEquipError(EQUIP_ERR_NOT_IN_COMBAT, pItem, nullptr);
-                    return;
-                }
-            }
-        }
-    }
-
-    // check also BIND_ON_ACQUIRE and BIND_QUEST for .additem or .additemset case by GM (not binded at adding to inventory)
-    if (pItem->GetTemplate()->GetBonding() == BIND_ON_USE || pItem->GetTemplate()->GetBonding() == BIND_ON_ACQUIRE || pItem->GetTemplate()->GetBonding() == BIND_QUEST)
-    {
-        if (!pItem->IsSoulBound())
-        {
-            pItem->SetState(ITEM_CHANGED, pUser);
-            pItem->SetBinding(true);
-        }
-    }
-
-    pUser->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::ItemUse);
-
-    SpellCastTargets targets;
-    targets.Read(recvPacket, pUser);
-    HandleClientCastFlags(recvPacket, castFlags, targets);
-
-    // Note: If script stop casting it must send appropriate data to client to prevent stuck item in gray state.
-    if (!sScriptMgr->OnItemUse(pUser, pItem, targets))
-    {
-        // no script or script not process request by self
-        pUser->CastItemUseSpell(pItem, targets, castCount, glyphIndex);
-    }
+    if (user->CanRequestSpellCast(spellInfo))
+        user->RequestSpellCast(PendingSpellCastRequest(std::move(packet.Cast), SpellCastRequestItemData(packet.PackSlot, packet.Slot, packet.CastItem)), spellInfo);
 }
 
 void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
@@ -360,120 +264,31 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
 {
     // ignore for remote control state (for player case)
     Unit* mover = _player->m_unitMovedByMe;
-    if (mover != _player && mover->GetTypeId() == TYPEID_PLAYER)
+    if (mover != _player && mover->IsPlayer())
         return;
 
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(cast.Cast.SpellID);
-    if (!spellInfo)
+    if (!spellInfo || spellInfo->IsPassive())
         return;
 
-    if (spellInfo->IsPassive())
-        return;
-
-    Unit* caster = mover;
-    if (caster->GetTypeId() == TYPEID_UNIT && !caster->ToCreature()->HasSpell(spellInfo->Id))
-    {
-        // If the vehicle creature does not have the spell but it allows the passenger to cast own spells
-        // change caster to player and let him cast
-        if (!_player->IsOnVehicle(caster) || spellInfo->CheckVehicle(_player) != SPELL_CAST_OK)
-            return;
-
-        caster = _player;
-    }
-
-    // client provided targets
-    SpellCastTargets targets(caster, cast.Cast);
-
-    if (caster->GetTypeId() == TYPEID_PLAYER && !caster->ToPlayer()->HasActiveSpell(spellInfo->Id) && !spellInfo->IsRaidMarker() &&
-        !caster->ToPlayer()->HasArchProject(static_cast<uint16>(spellInfo->ResearchProjectId)))
-    {
-        bool allow = false;
-
-        // allow casting of unknown spells for special lock cases
-        if (GameObject *go = targets.GetGOTarget())
-            if (go->GetSpellForLock(caster->ToPlayer()) == spellInfo)
-                allow = true;
-
-        // TODO: Preparation for #23204
-        // allow casting of spells triggered by clientside periodic trigger auras
-        /*
-         if (caster->HasAuraTypeWithTriggerSpell(SPELL_AURA_PERIODIC_TRIGGER_SPELL_FROM_CLIENT, spellId))
-        {
-            allow = true;
-            triggerFlag = TRIGGERED_FULL_MASK;
-        }
-        */
-
-        if (!allow)
-            return;
-    }
-
-    // Check possible spell cast overrides
-    spellInfo = caster->GetCastSpellInfo(spellInfo);
-
-    // can't use our own spells when we're in possession of another unit,
-    if (_player->isPossessing())
-        return;
-
-    // Client is resending autoshot cast opcode when other spell is cast during shoot rotation
-    // Skip it to prevent "interrupt" message
-    // Also check targets! target may have changed and we need to interrupt current spell
-    if (spellInfo->IsAutoRepeatRangedSpell())
-        if (Spell* spell = caster->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
-            if (spell->m_spellInfo == spellInfo && spell->m_targets.GetUnitTargetGUID() == targets.GetUnitTargetGUID())
-                return;
-
-    // auto-selection buff level base at target level (in spellInfo)
-    // TODO: is this even necessary? client already seems to send correct rank for "standard" buffs
-    if (spellInfo->IsPositive())
-        if (Unit* target = targets.GetUnitTarget())
-        {
-            SpellInfo const* actualSpellInfo = spellInfo->GetAuraRankForLevel(target->getLevel());
-
-            // if rank not found then function return NULL but in explicit cast case original spell can be cast and later failed with appropriate error message
-            if (actualSpellInfo)
-                spellInfo = actualSpellInfo;
-        }
-
-    if (!cast.Cast.Weight.empty())
-    {
-        ArchData archaeologyCastData;
-        for (WorldPackets::Spells::SpellWeight& weight : cast.Cast.Weight)
-        {
-            switch (weight.Type)
-            {
-                case 1: // Currency
-                    archaeologyCastData.FragId = weight.ID;
-                    archaeologyCastData.FragCount = weight.Quantity;
-                    break;
-                case 2: // Item
-                    archaeologyCastData.KeyId = weight.ID;
-                    archaeologyCastData.KeyCount = weight.Quantity;
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        if (Player* player = GetPlayer())
-            player->SetArchData(archaeologyCastData);
-    }
-
-    Spell* spell = new Spell(caster, spellInfo, TRIGGERED_NONE, ObjectGuid::Empty, false);
-    spell->m_cast_count = cast.Cast.CastID; // set count of casts
-    spell->m_glyphIndex = cast.Cast.Misc;
-    spell->prepare(targets);
+    if (mover->CanRequestSpellCast(spellInfo))
+        mover->RequestSpellCast(PendingSpellCastRequest(std::move(cast.Cast)), spellInfo);
+    else if (mover->IsPlayer())
+        Spell::SendCastResult(mover->ToPlayer(), spellInfo, cast.Cast.CastID, SPELL_FAILED_DONT_REPORT);
 }
 
 void WorldSession::HandleCancelCastOpcode(WorldPacket& recvPacket)
 {
     uint32 spellId = 0;
+    uint8 castId = 0;
 
-    recvPacket.read_skip<uint8>();                          // counter, increments with every CANCEL packet, don't use for now
+    recvPacket >> castId;
     recvPacket >> spellId;
 
     if (_player->IsNonMeleeSpellCast(false))
         _player->InterruptNonMeleeSpells(false, spellId, false);
+
+    _player->CancelPendingCastRequest();
 }
 
 void WorldSession::HandleCancelAuraOpcode(WorldPacket& recvPacket)
@@ -782,4 +597,13 @@ void WorldSession::HandleUpdateProjectilePosition(WorldPacket& recvPacket)
 void WorldSession::HandleRequestCategoryCooldowns(WorldPacket& /*recvPacket*/)
 {
     _player->SendSpellCategoryCooldowns();
+}
+
+void WorldSession::HandleCancelQueuedSpellOpcode(WorldPackets::Spells::CancelQueuedSpell& /*cancelQueuedSpell*/)
+{
+    Unit* mover = _player->m_unitMovedByMe;
+    if (mover != _player && mover->IsPlayer())
+        return;
+
+    mover->CancelPendingCastRequest();
 }

@@ -19,11 +19,7 @@
 #define SpellPackets_h__
 
 #include "Packet.h"
-#include "MovementInfo.h"
-#include "ObjectGuid.h"
-#include "Optional.h"
-#include "Position.h"
-#include "SharedDefines.h"
+#include "SpellPacketsCommon.h"
 
 #include <array>
 
@@ -66,25 +62,9 @@ namespace WorldPackets
             uint32 Value = 0;
         };
 
-        struct TargetLocation
-        {
-            ObjectGuid Transport;
-            Position Location;
-        };
-
         struct ProjectileVisual
         {
             std::array<int32, 2> Id = { };
-        };
-
-        struct SpellTargetData
-        {
-            uint32 Flags = 0;
-            Optional<ObjectGuid> Unit;
-            Optional<ObjectGuid> Item;
-            Optional<TargetLocation> SrcLocation;
-            Optional<TargetLocation> DstLocation;
-            Optional<std::string> Name;
         };
 
         struct SpellHealPrediction
@@ -479,31 +459,6 @@ namespace WorldPackets
             int32 ActualDelay = 0;
         };
 
-        struct MissileTrajectoryRequest
-        {
-            float Pitch = 0.0f;
-            float Speed = 0.0f;
-        };
-
-        struct SpellWeight
-        {
-            uint8 Type = 0;
-            int32 ID = 0;
-            uint32 Quantity = 0;
-        };
-
-        struct SpellCastRequest
-        {
-            uint8 CastID = 0;
-            uint8 SendCastFlags = 0;
-            int32 SpellID = 0;
-            int32 Misc = 0;
-            SpellTargetData Target;
-            MissileTrajectoryRequest MissileTrajectory;
-            Optional<MovementInfo> MoveUpdate;
-            std::vector<SpellWeight> Weight;
-        };
-
         class CastSpell final : public ClientPacket
         {
         public:
@@ -511,6 +466,27 @@ namespace WorldPackets
 
             void Read() override;
 
+            SpellCastRequest Cast;
+        };
+
+        class CancelQueuedSpell final : public ClientPacket
+        {
+        public:
+            CancelQueuedSpell(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_QUEUED_SPELL, std::move(packet)) { }
+
+            void Read() override { }
+        };
+
+        class UseItem final : public ClientPacket
+        {
+        public:
+            UseItem(WorldPacket&& packet) : ClientPacket(CMSG_USE_ITEM, std::move(packet)) { }
+
+            void Read() override;
+
+            uint8 PackSlot = 0;
+            uint8 Slot = 0;
+            ObjectGuid CastItem;
             SpellCastRequest Cast;
         };
     }

@@ -17,6 +17,7 @@
 
 #include "Unit.h"
 #include "AbstractPursuer.h"
+#include "Archaeology.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "Battleground.h"
@@ -485,6 +486,7 @@ void Unit::Update(uint32 p_time)
     }
 
     _UpdateSpells(p_time);
+    ProcessPendingSpellCastRequest();
 
     // If this is set during update SetCantProc(false) call is missing somewhere in the code
     // Having this would prevent spells from being proced, so let's crash
@@ -3031,11 +3033,11 @@ void Unit::SetCurrentCastSpell(Spell* pSpell)
 
 void Unit::InterruptSpell(CurrentSpellTypes spellType, bool withDelayed, bool withInstant, Spell* interruptingSpell /* = nullptr */)
 {
-    //TC_LOG_DEBUG("entities.unit", "Interrupt spell for unit %u.", GetEntry());
     Spell* spell = m_currentSpells[spellType];
-    if (spell
-        && (withDelayed || spell->getState() != SPELL_STATE_DELAYED)
-        && (withInstant || spell->GetCastTime() > 0 || spell->getState() == SPELL_STATE_CASTING))
+    if (!spell)
+        return;
+
+    if ((withDelayed || spell->getState() != SPELL_STATE_DELAYED) && (withInstant || spell->GetCastTime() > 0 || spell->getState() == SPELL_STATE_CASTING))
     {
         // for example, do not let self-stun aura interrupt itself
         if (!spell->IsInterruptable())
@@ -9094,6 +9096,7 @@ void Unit::setDeathState(DeathState s)
         // remove aurastates allowing special moves
         ClearAllReactives();
         ClearDiminishings();
+        CancelPendingCastRequest();
         if (IsInWorld())
         {
             // Only clear MotionMaster for entities that exists in world
@@ -14578,4 +14581,291 @@ SpellInfo const* Unit::GetCastSpellInfo(SpellInfo const* spellInfo) const
     }
 
     return spellInfo;
+}
+
+bool Unit::CanExecutePendingSpellCastRequest(SpellInfo const* spellInfo) const
+{
+    // Generic and melee spells have to wait, channeled spells can be processed immediately.
+    if (!GetCurrentSpell(CURRENT_CHANNELED_SPELL) && HasUnitState(UNIT_STATE_CASTING))
+        return false;
+
+    // Waiting for the global cooldown to expire
+    if (GetSpellHistory()->GetRemainingGlobalCooldown(spellInfo) > 0)
+        return false;
+
+    return true;
+}
+
+void Unit::RequestSpellCast(PendingSpellCastRequest castRequest, SpellInfo const* spellInfo)
+{
+    _pendingSpellCastRequest = castRequest;
+
+    // If we can process the cast request right now, do it.
+    if (CanExecutePendingSpellCastRequest(spellInfo))
+        ProcessPendingSpellCastRequest();
+}
+
+void Unit::CancelPendingCastRequest()
+{
+    if (!_pendingSpellCastRequest.has_value())
+        return;
+
+    // We have to inform the client that the cast has been canceled to avoid the cast button to stay highlightened
+    if (IsPlayer())
+    {
+        // @todo: convert to packet class
+        WorldPacket data(SMSG_CAST_FAILED, 1 + 4 + 1);
+        data << uint8(_pendingSpellCastRequest->CastRequest.CastID);
+        data << uint32(_pendingSpellCastRequest->CastRequest.SpellID);
+        data << uint8(SPELL_FAILED_DONT_REPORT);
+        ToPlayer()->SendDirectMessage(&data);
+    }
+
+    _pendingSpellCastRequest.reset();
+}
+
+// A spell can be queued up within 400 milliseconds before global cooldown expires or the cast finishes
+static constexpr uint16 const SPELL_QUEUE_TIME_WINDOW = 400;
+
+bool Unit::CanRequestSpellCast(SpellInfo const* spellInfo) const
+{
+    if (GetSpellHistory()->GetRemainingGlobalCooldown(spellInfo) > SPELL_QUEUE_TIME_WINDOW)
+        return false;
+
+    for (CurrentSpellTypes spellSlot : { CURRENT_MELEE_SPELL, CURRENT_GENERIC_SPELL })
+        if (Spell const* spell = GetCurrentSpell(spellSlot))
+            if (spell->GetRemainingCastTime() > SPELL_QUEUE_TIME_WINDOW)
+                return false;
+
+    return true;
+}
+
+void Unit::ProcessPendingSpellCastRequest()
+{
+    if (!_pendingSpellCastRequest.has_value())
+        return;
+
+    // Sanity check. If the player requested an invalid spell cast, just skip the request.
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(_pendingSpellCastRequest->CastRequest.SpellID);
+    if (!spellInfo)
+    {
+        _pendingSpellCastRequest.reset();
+        return;
+    }
+
+    // Waiting for ongoing casts to finish and the global cooldown to expire.
+    if (!CanExecutePendingSpellCastRequest(spellInfo))
+        return;
+
+    // Spell can be executed now. Check data and prepare cast.
+    Unit* caster = this;
+
+    // Process packet provided targets
+    SpellCastTargets targets(caster, _pendingSpellCastRequest->CastRequest);
+
+    // The spell cast has been requested by using an item. Handle the cast accordingly.
+    if (_pendingSpellCastRequest->CastItemData.has_value())
+    {
+        ProcessItemCast(*_pendingSpellCastRequest, targets);
+        _pendingSpellCastRequest.reset();
+        return;
+    }
+
+    if (caster->IsCreature() && !caster->ToCreature()->HasSpell(spellInfo->Id))
+    {
+        // If the vehicle creature does not have the spell but it allows the passenger to cast own spells
+        // change caster to player and let him cast
+
+        Unit* charmer = caster->GetCharmer();
+        if (charmer && (!charmer->IsOnVehicle(this) || spellInfo->CheckVehicle(charmer) != SPELL_CAST_OK))
+            return;
+
+        caster = charmer;
+    }
+
+    if (caster->GetTypeId() == TYPEID_PLAYER && !caster->ToPlayer()->HasActiveSpell(spellInfo->Id) && !spellInfo->IsRaidMarker() &&
+        !caster->ToPlayer()->HasArchProject(static_cast<uint16>(spellInfo->ResearchProjectId)))
+    {
+        bool allow = false;
+
+        // allow casting of unknown spells for special lock cases
+        if (GameObject *go = targets.GetGOTarget())
+            if (go->GetSpellForLock(caster->ToPlayer()) == spellInfo)
+                allow = true;
+
+        // TODO: Preparation for #23204
+        // allow casting of spells triggered by clientside periodic trigger auras
+        /*
+        if (caster->HasAuraTypeWithTriggerSpell(SPELL_AURA_PERIODIC_TRIGGER_SPELL_FROM_CLIENT, spellId))
+        {
+        allow = true;
+        triggerFlag = TRIGGERED_FULL_MASK;
+        }
+        */
+
+        if (!allow)
+        {
+            _pendingSpellCastRequest.reset();
+            return;
+        }
+    }
+
+    // Check possible spell cast overrides
+    spellInfo = caster->GetCastSpellInfo(spellInfo);
+
+    // can't use our own spells when we're in possession of another unit,
+    if (caster->isPossessing())
+    {
+        _pendingSpellCastRequest.reset();
+        return;
+    }
+
+    // Client is resending autoshot cast opcode when other spell is cast during shoot rotation
+    // Skip it to prevent "interrupt" message
+    // Also check targets! target may have changed and we need to interrupt current spell
+    if (spellInfo->IsAutoRepeatRangedSpell())
+    {
+        if (Spell* spell = caster->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL))
+        {
+            if (spell->m_spellInfo == spellInfo && spell->m_targets.GetUnitTargetGUID() == targets.GetUnitTargetGUID())
+            {
+                _pendingSpellCastRequest.reset();
+                return;
+            }
+        }
+    }
+
+    // auto-selection buff level base at target level (in spellInfo)
+    // TODO: is this even necessary? client already seems to send correct rank for "standard" buffs
+    if (spellInfo->IsPositive())
+    {
+        if (Unit* target = targets.GetUnitTarget())
+        {
+            SpellInfo const* actualSpellInfo = spellInfo->GetAuraRankForLevel(target->getLevel());
+
+            // if rank not found then function return NULL but in explicit cast case original spell can be cast and later failed with appropriate error message
+            if (actualSpellInfo)
+                spellInfo = actualSpellInfo;
+        }
+    }
+
+    if (!_pendingSpellCastRequest->CastRequest.Weight.empty())
+    {
+        ArchData archaeologyCastData;
+        for (WorldPackets::Spells::SpellWeight const& weight : _pendingSpellCastRequest->CastRequest.Weight)
+        {
+            switch (weight.Type)
+            {
+                case 1: // Currency
+                    archaeologyCastData.FragId = weight.ID;
+                    archaeologyCastData.FragCount = weight.Quantity;
+                    break;
+                case 2: // Item
+                    archaeologyCastData.KeyId = weight.ID;
+                    archaeologyCastData.KeyCount = weight.Quantity;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        if (Player* player = caster->ToPlayer())
+            player->SetArchData(archaeologyCastData);
+    }
+
+    Spell* spell = new Spell(caster, spellInfo, TRIGGERED_NONE, ObjectGuid::Empty, false);
+    spell->m_cast_count = _pendingSpellCastRequest->CastRequest.CastID; // set count of casts
+    spell->m_glyphIndex = _pendingSpellCastRequest->CastRequest.Misc;
+    spell->prepare(targets);
+
+    _pendingSpellCastRequest.reset();
+}
+
+void Unit::ProcessItemCast(PendingSpellCastRequest const& castRequest, SpellCastTargets const& targets)
+{
+    Player* player = ToPlayer();
+    if (!player || !castRequest.CastItemData.has_value())
+        return;
+
+    Item* item = player->GetUseableItemByPos(castRequest.CastItemData->BagSlot, castRequest.CastItemData->Slot);
+    if (!item)
+    {
+        player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, nullptr, nullptr);
+        return;
+    }
+
+    if (item->GetGUID() != castRequest.CastItemData->CastItem)
+    {
+        player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, nullptr, nullptr);
+        return;
+    }
+
+    ItemTemplate const* proto = item->GetTemplate();
+    if (!proto)
+    {
+        player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, item, nullptr);
+        return;
+    }
+
+    // some item classes can be used only in equipped state
+    if (proto->GetInventoryType() != INVTYPE_NON_EQUIP && !item->IsEquipped())
+    {
+        player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, item, nullptr);
+        return;
+    }
+
+    InventoryResult msg = player->CanUseItem(item);
+    if (msg != EQUIP_ERR_OK)
+    {
+        player->SendEquipError(msg, item, nullptr);
+        return;
+    }
+
+    // only allow conjured consumable, bandage, poisons (all should have the 2^21 item flag set in DB)
+    if (proto->GetClass() == ITEM_CLASS_CONSUMABLE && !(proto->GetFlags() & ITEM_FLAG_IGNORE_DEFAULT_ARENA_RESTRICTIONS) && player->InArena())
+    {
+        player->SendEquipError(EQUIP_ERR_NOT_DURING_ARENA_MATCH, item, nullptr);
+        return;
+    }
+
+    // don't allow items banned in arena
+    if ((proto->GetFlags() & ITEM_FLAG_NOT_USEABLE_IN_ARENA) && player->InArena())
+    {
+        player->SendEquipError(EQUIP_ERR_NOT_DURING_ARENA_MATCH, item, nullptr);
+        return;
+    }
+
+    if (player->IsInCombat())
+    {
+        for (ItemEffect const& effect : proto->Effects)
+        {
+            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(effect.SpellID))
+            {
+                if (!spellInfo->CanBeUsedInCombat())
+                {
+                    player->SendEquipError(EQUIP_ERR_NOT_IN_COMBAT, item, nullptr);
+                    return;
+                }
+            }
+        }
+    }
+
+    // check also BIND_ON_ACQUIRE and BIND_QUEST for .additem or .additemset case by GM (not binded at adding to inventory)
+    if (item->GetTemplate()->GetBonding() == BIND_ON_USE || item->GetTemplate()->GetBonding() == BIND_ON_ACQUIRE || item->GetTemplate()->GetBonding() == BIND_QUEST)
+    {
+        if (!item->IsSoulBound())
+        {
+            item->SetState(ITEM_CHANGED, player);
+            item->SetBinding(true);
+        }
+    }
+
+    player->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::ItemUse);
+
+    // Note: If script stop casting it must send appropriate data to client to prevent stuck item in gray state.
+    if (!sScriptMgr->OnItemUse(player, item, targets))
+    {
+        // no script or script not process request by self
+        player->CastItemUseSpell(item, targets, castRequest.CastRequest.CastID, castRequest.CastRequest.Misc);
+    }
 }

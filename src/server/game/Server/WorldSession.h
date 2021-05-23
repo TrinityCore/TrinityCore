@@ -198,6 +198,8 @@ namespace WorldPackets
     namespace Spells
     {
         class CastSpell;
+        class CancelQueuedSpell;
+        class UseItem;
     }
 
     namespace Who
@@ -921,11 +923,12 @@ class TC_GAME_API WorldSession
         void HandleAttackStopOpcode(WorldPacket& recvPacket);
         void HandleSetSheathedOpcode(WorldPacket& recvPacket);
 
-        void HandleUseItemOpcode(WorldPacket& recvPacket);
+        void HandleUseItemOpcode(WorldPackets::Spells::UseItem& packet);
         void HandleOpenItemOpcode(WorldPacket& recvPacket);
         void HandleOpenWrappedItemCallback(uint16 pos, ObjectGuid itemGuid, PreparedQueryResult result);
         void HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& castRequest);
         void HandleCancelCastOpcode(WorldPacket& recvPacket);
+        void HandleCancelQueuedSpellOpcode(WorldPackets::Spells::CancelQueuedSpell& cancelQueuedSpell);
         void HandleCancelAuraOpcode(WorldPacket& recvPacket);
         void HandleCancelGrowthAuraOpcode(WorldPacket& recvPacket);
         void HandleCancelAutoRepeatSpellOpcode(WorldPacket& recvPacket);

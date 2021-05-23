@@ -226,7 +226,7 @@ void OpcodeTable::Initialize()
     DEFINE_HANDLER(CMSG_CANCEL_CHANNELLING,                               STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleCancelChanneling          );
     DEFINE_HANDLER(CMSG_CANCEL_GROWTH_AURA,                               STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleCancelGrowthAuraOpcode    );
     DEFINE_HANDLER(CMSG_CANCEL_MOUNT_AURA,                                STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleCancelMountAuraOpcode     );
-    DEFINE_HANDLER(CMSG_CANCEL_QUEUED_SPELL,                              STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
+    DEFINE_HANDLER(CMSG_CANCEL_QUEUED_SPELL,                              STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleCancelQueuedSpellOpcode   );
     DEFINE_HANDLER(CMSG_CANCEL_TEMP_ENCHANTMENT,                          STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleCancelTempEnchantmentOpcode);
     DEFINE_HANDLER(CMSG_CANCEL_TRADE,                                     STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT, PROCESS_THREADUNSAFE, &WorldSession::HandleCancelTradeOpcode);
     DEFINE_HANDLER(CMSG_CAST_SPELL,                                       STATUS_LOGGEDIN,  PROCESS_THREADSAFE,   &WorldSession::HandleCastSpellOpcode           );

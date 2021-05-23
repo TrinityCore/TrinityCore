@@ -137,6 +137,7 @@ public:
     bool HasGlobalCooldown(SpellInfo const* spellInfo) const;
     void AddGlobalCooldown(SpellInfo const* spellInfo, uint32 duration);
     void CancelGlobalCooldown(SpellInfo const* spellInfo);
+    uint32 GetRemainingGlobalCooldown(SpellInfo const* spellInfo) const;
 
     void BuildCooldownPacket(WorldPacket& data, uint8 flags, uint32 spellId, uint32 cooldown) const;
 

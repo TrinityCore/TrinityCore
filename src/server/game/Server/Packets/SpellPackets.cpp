@@ -788,3 +788,36 @@ void WorldPackets::Spells::CastSpell::Read()
 {
     _worldPacket >> Cast;
 }
+
+void WorldPackets::Spells::UseItem::Read()
+{
+    _worldPacket >> PackSlot;
+    _worldPacket >> Slot;
+    _worldPacket >> Cast.CastID;
+    _worldPacket >> Cast.SpellID;
+    _worldPacket >> CastItem;
+    _worldPacket >> Cast.Misc;
+    _worldPacket >> Cast.SendCastFlags;
+    _worldPacket >> Cast.Target;
+
+    if (Cast.SendCastFlags & CAST_FLAG_HAS_TRAJECTORY)
+    {
+        _worldPacket >> Cast.MissileTrajectory;
+        bool hasMovementData = _worldPacket.read<bool>();
+        if (hasMovementData)
+            _worldPacket >> Cast.MoveUpdate;
+    }
+
+    if (Cast.SendCastFlags & CAST_FLAG_HAS_WEIGHT)
+    {
+        uint32 weightCount = _worldPacket.read<uint32>();
+        Cast.Weight.resize(weightCount);
+
+        for (WorldPackets::Spells::SpellWeight& weight : Cast.Weight)
+        {
+            _worldPacket >> weight.Type;
+            _worldPacket >> weight.ID;
+            _worldPacket >> weight.Quantity;
+        }
+    }
+}
