@@ -307,6 +307,10 @@ i_scriptLock(false), _respawnCheckTimer(0)
     _weatherUpdateTimer.SetInterval(time_t(1 * IN_MILLISECONDS));
 
     sScriptMgr->OnCreateMap(this);
+    // @tswow-begin
+    FIRE_MAP(GetExtraData()->events,MapOnCreate,TSMap(this));
+    FIRE_MAP(GetExtraData()->events,MapOnReload,TSMap(this));
+    // @tswow-end
 }
 
 void Map::InitVisibilityDistance()
