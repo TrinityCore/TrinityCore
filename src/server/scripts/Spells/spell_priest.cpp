@@ -562,8 +562,11 @@ class spell_pri_pain_and_suffering_proc : public SpellScript
             return;
 
         // Refresh Shadow Word: Pain duration on target
-        if (AuraEffect* aur = GetHitUnit()->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PRIEST, 0x8000, 0, 0, caster->GetGUID()))
-            aur->GetBase()->RefreshDuration();
+        if (AuraEffect* aurEff = GetHitUnit()->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PRIEST, 0x8000, 0, 0, caster->GetGUID()))
+        {
+            aurEff->RecalculateAmount(caster);
+            aurEff->GetBase()->RefreshDuration();
+        }
     }
 
     void Register() override
