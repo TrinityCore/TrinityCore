@@ -6742,8 +6742,6 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
                 // EFFECT_0 contains the bonus amount per application, EFFECT_1 contains the maximum bonus amount
                 int32 bonusPerApplication = CalculateSpellDamage(this, (*i)->GetSpellInfo(), EFFECT_0);
                 int32 pctBonus = 0;
-
-                AuraApplicationMap const& victimAuras = victim->GetAppliedAuras();
                 for (auto const& itr : victim->GetAppliedAuras())
                 {
                     Aura const* aura = itr.second->GetBase();
