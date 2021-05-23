@@ -119,11 +119,6 @@ enum WarlockSpellIcons
     WARLOCK_ICON_ID_JINX                            = 5002
 };
 
-enum WarlockSkillIds
-{
-    WARLOCK_SKILL_ID_AFFLICTION                     = 355
-};
-
 enum MiscSpells
 {
     SPELL_GEN_REPLENISHMENT                         = 57669,
@@ -1453,141 +1448,55 @@ class spell_warl_unstable_affliction : public SpellScriptLoader
 };
 
 // 689 / 89420 - Drain Life
-class spell_warl_drain_life : public SpellScriptLoader
+class spell_warl_drain_life : public AuraScript
 {
-    public:
-        spell_warl_drain_life() : SpellScriptLoader("spell_warl_drain_life") { }
+    bool Validate(SpellInfo const* /*spellInfo*/)
+    {
+        return ValidateSpellInfo({ SPELL_WARLOCK_DRAIN_LIFE_HEAL });
+    }
 
-        class spell_warl_drain_life_AuraScript : public AuraScript
+    void HandlePeriodic(AuraEffect const* aurEff)
+    {
+        if (Unit* caster = GetCaster())
         {
-            bool Validate(SpellInfo const* /*spellInfo*/) 
-            {
-                return ValidateSpellInfo({ SPELL_WARLOCK_DRAIN_LIFE_HEAL });
-            }
+            SpellInfo const* healspell = sSpellMgr->AssertSpellInfo(SPELL_WARLOCK_DRAIN_LIFE_HEAL);
+            int32 baseAmount = caster->CalculateSpellDamage(caster, healspell, aurEff->GetEffIndex());
 
-            void HandlePeriodic(AuraEffect const* aurEff)
-            {
-                if (Unit* caster = GetCaster())
-                {
-                    int32 baseAmount = 0;
-                    if (SpellInfo const* healspell = sSpellMgr->GetSpellInfo(SPELL_WARLOCK_DRAIN_LIFE_HEAL))
-                        baseAmount = caster->CalculateSpellDamage(caster, healspell, aurEff->GetEffIndex());
+            // Death's Embrace
+            if (AuraEffect const* deathsEmbraceAurEff = caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_DEATHS_EMBRACE, 0))
+                if (caster->HealthBelowPct(caster->CalculateSpellDamage(caster, healspell, EFFECT_2)))
+                    baseAmount += int32(deathsEmbraceAurEff->GetAmount());
 
-                    // Death's Embrace
-                    if (AuraEffect const* deathsEmbraceAurEff = caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_DEATHS_EMBRACE, 0))
-                        if (caster->HealthBelowPct(25))
-                            baseAmount += int32(deathsEmbraceAurEff->GetAmount());
-
-                    caster->CastSpell(caster, SPELL_WARLOCK_DRAIN_LIFE_HEAL, CastSpellExtraArgs(true).AddSpellBP0(baseAmount));
-                }
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic.Register(&spell_warl_drain_life_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_warl_drain_life_AuraScript();
+            caster->CastSpell(caster, SPELL_WARLOCK_DRAIN_LIFE_HEAL, CastSpellExtraArgs(true).AddSpellBP0(baseAmount));
         }
-};
+    }
 
-// 89653 - Drain Life (Health Energize)
-class spell_warl_drain_life_heal : public SpellScriptLoader
-{
-    public:
-        spell_warl_drain_life_heal() : SpellScriptLoader("spell_warl_drain_life_heal") { }
-
-        class spell_warl_drain_life_heal_SpellScript : public SpellScript
-        {
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo(
-                    {
-                        SPELL_WARLOCK_DRAIN_LIFE,
-                        SPELL_WARLOCK_DRAIN_LIFE_SOULBURN,
-                    });
-            }
-
-            void HandleSoulSiphon(SpellEffIndex effIndex)
-            {
-                // Soul Siphon
-                int32 baseHeal = 0;
-                int32 bonusHeal = 0;
-                if (Unit* caster = GetCaster())
-                {
-                    if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_SOUL_SIPHON, 0))
-                    {
-                        baseHeal = CalculatePct(caster->GetHealth(), GetSpellInfo()->Effects[effIndex].BasePoints);
-                        Unit* target = nullptr;
-                        if (Spell* spell = caster->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
-                            target = spell->m_targets.GetUnitTarget();
-
-                        if (target)
-                        {
-                            uint8 afflictionAurasCount = 0;
-                            if (!target->GetOwnedAuras().empty())
-                                for (auto itr = target->GetOwnedAuras().begin(); itr != target->GetOwnedAuras().end(); itr++)
-                                    if (Aura* auraToCheck = itr->second)
-                                        if (auraToCheck->GetCasterGUID() == caster->GetGUID())
-                                            if (auraToCheck->GetSpellInfo()->Id != SPELL_WARLOCK_DRAIN_LIFE && auraToCheck->GetSpellInfo()->Id != SPELL_WARLOCK_DRAIN_LIFE_SOULBURN)
-                                                if (auraToCheck->GetSpellInfo()->IsAbilityOfSkillType(WARLOCK_SKILL_ID_AFFLICTION) && afflictionAurasCount < 3)
-                                                {
-                                                    bonusHeal += CalculatePct(baseHeal, aurEff->GetAmount());
-                                                    afflictionAurasCount++;
-                                                }
-
-                            SetHitHeal(bonusHeal);
-                        }
-                    }
-                }
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget.Register(&spell_warl_drain_life_heal_SpellScript::HandleSoulSiphon, EFFECT_0, SPELL_EFFECT_HEAL_PCT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_warl_drain_life_heal_SpellScript();
-        }
+    void Register()
+    {
+        OnEffectPeriodic.Register(&spell_warl_drain_life::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+    }
 };
 
 // 1120 - Drain Soul
-class spell_warl_drain_soul : public SpellScriptLoader
+class spell_warl_drain_soul : public AuraScript
 {
-    public:
-		spell_warl_drain_soul() : SpellScriptLoader("spell_warl_drain_soul") { }
+    bool Validate(SpellInfo const* /*spellInfo*/)
+    {
+        return ValidateSpellInfo({ SPELL_WARLOCK_SOUL_SHARD_ENERGIZE });
+    }
 
-        class spell_warl_drain_soul_AuraScript : public AuraScript
-        {
-            bool Validate(SpellInfo const* /*spellInfo*/)
-            {
-                return ValidateSpellInfo({  SPELL_WARLOCK_SOUL_SHARD_ENERGIZE });
-            }
+    void OnAuraRemoveHandler(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::ByDeath))
+            if (Unit* caster = GetCaster())
+                if (GetOwner() && caster->ToPlayer() && caster->ToPlayer()->isHonorOrXPTarget(GetOwner()->ToUnit()))
+                    caster->CastSpell(caster, SPELL_WARLOCK_SOUL_SHARD_ENERGIZE, true);
+    }
 
-            void OnAuraRemoveHandler(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (GetTargetApplication()->GetRemoveMode().HasFlag(AuraRemoveFlags::ByDeath))
-                    if (Unit* caster = GetCaster())
-                        if (GetOwner() && caster->ToPlayer() && caster->ToPlayer()->isHonorOrXPTarget(GetOwner()->ToUnit()))
-                            caster->CastSpell(caster, SPELL_WARLOCK_SOUL_SHARD_ENERGIZE, true);
-            }
-
-            void Register()
-            {
-                AfterEffectRemove.Register(&spell_warl_drain_soul_AuraScript::OnAuraRemoveHandler, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_warl_drain_soul_AuraScript();
-        }
+    void Register()
+    {
+        AfterEffectRemove.Register(&spell_warl_drain_soul::OnAuraRemoveHandler, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+    }
 };
 
 // 28176 - Fel Armor
@@ -1935,9 +1844,8 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_demonic_circle_teleport();
     new spell_warl_demonic_empowerment();
     new spell_warl_demon_soul();
-    new spell_warl_drain_life();
-    new spell_warl_drain_life_heal();
-	new spell_warl_drain_soul();
+    RegisterSpellScript(spell_warl_drain_life);
+    RegisterSpellScript(spell_warl_drain_soul);
     new spell_warl_everlasting_affliction();
     new spell_warl_fel_flame();
     new spell_warl_fel_synergy();

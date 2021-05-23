@@ -6736,31 +6736,25 @@ float Unit::SpellDamagePctDone(Unit* victim, SpellInfo const* spellProto, Damage
                 if (HealthBelowPct(CalculateSpellDamage(this, (*i)->GetSpellInfo(), EFFECT_2)))
                     AddPct(DoneTotalMod, (*i)->GetAmount());
                 break;
-            // Soul Siphon
-            case 4992:
+            case 4992:  // Soul Siphon
             case 4993:
             {
-                // effect 1 m_amount
-                int32 maxPercent = (*i)->GetAmount();
-                // effect 0 m_amount
-                int32 stepPercent = CalculateSpellDamage(this, (*i)->GetSpellInfo(), 0);
-                // count affliction effects and calc additional damage in percentage
-                int32 modPercent = 0;
+                // EFFECT_0 contains the bonus amount per application, EFFECT_1 contains the maximum bonus amount
+                int32 bonusPerApplication = CalculateSpellDamage(this, (*i)->GetSpellInfo(), EFFECT_0);
+                int32 pctBonus = 0;
+
                 AuraApplicationMap const& victimAuras = victim->GetAppliedAuras();
-                for (AuraApplicationMap::const_iterator itr = victimAuras.begin(); itr != victimAuras.end(); ++itr)
+                for (auto const& itr : victim->GetAppliedAuras())
                 {
-                    Aura const* aura = itr->second->GetBase();
-                    SpellInfo const* spell = aura->GetSpellInfo();
-                    if (spell->SpellFamilyName != SPELLFAMILY_WARLOCK || !(spell->SpellFamilyFlags[1] & 0x0004071B || spell->SpellFamilyFlags[0] & 0x8044C402))
+                    Aura const* aura = itr.second->GetBase();
+                    if (aura->GetCasterGUID() != GetGUID() || !aura->GetSpellInfo()->IsAbilityOfSkillType(SKILL_AFFLICTION))
                         continue;
-                    modPercent += stepPercent * aura->GetStackAmount();
-                    if (modPercent >= maxPercent)
-                    {
-                        modPercent = maxPercent;
-                        break;
-                    }
+
+                    pctBonus += bonusPerApplication;
                 }
-                AddPct(DoneTotalMod, modPercent);
+
+                pctBonus = std::min<int32>(pctBonus, (*i)->GetAmount());
+                AddPct(DoneTotalMod, pctBonus);
                 break;
             }
             case 5481: // Starfire Bonus
