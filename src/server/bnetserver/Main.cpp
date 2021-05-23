@@ -46,6 +46,8 @@
 #include <iostream>
 #include <csignal>
 
+#include "Hacks/boost_program_options_with_filesystem_path.h"
+
 using boost::asio::ip::tcp;
 using namespace boost::program_options;
 namespace fs = boost::filesystem;
