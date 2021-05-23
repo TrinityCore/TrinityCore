@@ -84,6 +84,7 @@ enum WarlockSpells
     SPELL_WARLOCK_LIFE_TAP_ENERGIZE_2               = 32553,
     SPELL_WARLOCK_NETHER_WARD                       = 91711,
     SPELL_WARLOCK_NETHER_TALENT                     = 91713,
+    SPELL_WARLOCK_PANDEMIC_SCRIPT_EFFECT            = 92931,
     SPELL_WARLOCK_RAIN_OF_FIRE                      = 42223,
     SPELL_WARLOCK_SHADOW_TRANCE                     = 17941,
     SPELL_WARLOCK_SEARING_PAIN                      = 5676,
@@ -1586,6 +1587,59 @@ private:
     uint32 _debuffSpellId = 0;
 };
 
+// -85099 - Pandemic
+class spell_warl_pandemic : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARLOCK_PANDEMIC_SCRIPT_EFFECT });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        if (!eventInfo.GetProcTarget())
+            return false;
+
+        return roll_chance_i(GetSpellInfo()->Effects[EFFECT_0].CalcValue());
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_WARLOCK_PANDEMIC_SCRIPT_EFFECT, aurEff);
+    }
+
+    void Register() override
+    {
+        DoCheckProc.Register(&spell_warl_pandemic::CheckProc);
+        OnEffectProc.Register(&spell_warl_pandemic::HandleProc, EFFECT_1, SPELL_AURA_ADD_FLAT_MODIFIER);
+    }
+};
+
+// 92931 - Pandemic
+class spell_warl_pandemic_script : public SpellScript
+{
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        Unit* target = GetHitUnit();
+        if (AuraEffect* aurEff = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_WARLOCK, 0x0, 0x100, 0x0, caster->GetGUID()))
+        {
+            aurEff->RecalculateAmount(caster);
+            aurEff->CalculatePeriodic(caster, false, false);
+            aurEff->GetBase()->RefreshDuration(true);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget.Register(&spell_warl_pandemic_script::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_warlock_spell_scripts()
 {
     RegisterSpellScript(spell_warl_aftermath);
@@ -1615,6 +1669,8 @@ void AddSC_warlock_spell_scripts()
     RegisterSpellScript(spell_warl_jinx);
     RegisterSpellScript(spell_warl_life_tap);
     RegisterSpellScript(spell_warl_nether_ward_overrride);
+    RegisterSpellScript(spell_warl_pandemic);
+    RegisterSpellScript(spell_warl_pandemic_script);
     RegisterSpellScript(spell_warl_seduction);
     RegisterSpellScript(spell_warl_seed_of_corruption);
     RegisterSpellScript(spell_warl_seed_of_corruption_aoe);
