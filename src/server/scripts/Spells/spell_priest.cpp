@@ -565,6 +565,7 @@ class spell_pri_pain_and_suffering_proc : public SpellScript
         if (AuraEffect* aurEff = GetHitUnit()->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PRIEST, 0x8000, 0, 0, caster->GetGUID()))
         {
             aurEff->RecalculateAmount(caster);
+            aurEff->CalculatePeriodic(caster, false, false);
             aurEff->GetBase()->RefreshDuration();
         }
     }
