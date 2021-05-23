@@ -154,58 +154,39 @@ class spell_warl_aftermath : public AuraScript
 };
 
 // 710 - Banish
-class spell_warl_banish : public SpellScriptLoader
+class spell_warl_banish : public SpellScript
 {
-    public:
-        spell_warl_banish() : SpellScriptLoader("spell_warl_banish") { }
-
-        class spell_warl_banish_SpellScript : public SpellScript
+    void HandleBanish()
+    {
+        /// Casting Banish on a banished target will cancel the effect
+        /// Check if the target already has Banish, if so, do nothing.
+        if (Unit* target = GetHitUnit())
         {
-        public:
-            spell_warl_banish_SpellScript()
+            if (target->GetAuraEffect(SPELL_AURA_SCHOOL_IMMUNITY, SPELLFAMILY_WARLOCK, 0, 0x08000000, 0))
             {
-                _removed = false;
+                // No need to remove old aura since its removed due to not stack by current Banish aura
+                PreventHitDefaultEffect(EFFECT_0);
+                PreventHitDefaultEffect(EFFECT_1);
+                PreventHitDefaultEffect(EFFECT_2);
+                _removed = true;
             }
-
-        private:
-            void HandleBanish()
-            {
-                /// Casting Banish on a banished target will cancel the effect
-                /// Check if the target already has Banish, if so, do nothing.
-                if (Unit* target = GetHitUnit())
-                {
-                    if (target->GetAuraEffect(SPELL_AURA_SCHOOL_IMMUNITY, SPELLFAMILY_WARLOCK, 0, 0x08000000, 0))
-                    {
-                        // No need to remove old aura since its removed due to not stack by current Banish aura
-                        PreventHitDefaultEffect(EFFECT_0);
-                        PreventHitDefaultEffect(EFFECT_1);
-                        PreventHitDefaultEffect(EFFECT_2);
-                        _removed = true;
-                    }
-                }
-            }
-
-            void RemoveAura()
-            {
-                if (_removed)
-                    PreventHitAura();
-            }
-
-            void Register() override
-            {
-                BeforeHit.Register(&spell_warl_banish_SpellScript::HandleBanish);
-                AfterHit.Register(&spell_warl_banish_SpellScript::RemoveAura);
-            }
-
-            bool _removed;
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_warl_banish_SpellScript();
         }
-};
+    }
 
+    void RemoveAura()
+    {
+        if (_removed)
+            PreventHitAura();
+    }
+
+    void Register() override
+    {
+        BeforeHit.Register(&spell_warl_banish::HandleBanish);
+        AfterHit.Register(&spell_warl_banish::RemoveAura);
+    }
+private:
+    bool _removed = false;
+};
 // 17962 - Conflagrate
 class spell_warl_conflagrate : public SpellScript
 {
@@ -231,38 +212,27 @@ class spell_warl_conflagrate : public SpellScript
 };
 
 // 6201 - Create Healthstone
-class spell_warl_create_healthstone : public SpellScriptLoader
+class spell_warl_create_healthstone : public SpellScript
 {
-    public:
-        spell_warl_create_healthstone() : SpellScriptLoader("spell_warl_create_healthstone") { }
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARLOCK_CREATE_HEALTHSTONE });
+    }
 
-        class spell_warl_create_healthstone_SpellScript : public SpellScript
-        {
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_WARLOCK_CREATE_HEALTHSTONE });
-            }
+    bool Load() override
+    {
+        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+    }
 
-            bool Load() override
-            {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-            }
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_WARLOCK_CREATE_HEALTHSTONE, true);
+    }
 
-            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
-            {
-                GetCaster()->CastSpell(GetCaster(), SPELL_WARLOCK_CREATE_HEALTHSTONE, true);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget.Register(&spell_warl_create_healthstone_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_warl_create_healthstone_SpellScript();
-        }
+    void Register() override
+    {
+        OnEffectHitTarget.Register(&spell_warl_create_healthstone::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
 };
 
 // 603 - Bane of Doom
