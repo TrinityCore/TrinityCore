@@ -1600,7 +1600,7 @@ class spell_warl_pandemic : public AuraScript
         if (!eventInfo.GetProcTarget())
             return false;
 
-        return roll_chance_i(GetSpellInfo()->Effects[EFFECT_0].CalcValue());
+        return eventInfo.GetProcTarget()->GetHealthPct() <= 25.f && roll_chance_i(GetSpellInfo()->Effects[EFFECT_0].CalcValue());
     }
 
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
