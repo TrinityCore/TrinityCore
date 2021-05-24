@@ -14598,6 +14598,10 @@ bool Unit::CanExecutePendingSpellCastRequest(SpellInfo const* spellInfo) const
 
 void Unit::RequestSpellCast(PendingSpellCastRequest castRequest, SpellInfo const* spellInfo)
 {
+    // We are overriding an already existing spell cast request so inform the client that the old cast is being replaced
+    if (_pendingSpellCastRequest.has_value())
+        CancelPendingCastRequest();
+
     _pendingSpellCastRequest = castRequest;
 
     // If we can process the cast request right now, do it.
