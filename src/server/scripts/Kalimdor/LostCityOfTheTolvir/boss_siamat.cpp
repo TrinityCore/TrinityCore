@@ -146,7 +146,6 @@ struct boss_siamat : public BossAI
     void JustDied(Unit* /*killer*/) override
     {
         Talk(SAY_DEATH);
-        summons.DespawnAll();
         DespawnServants();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         _JustDied();
@@ -203,6 +202,7 @@ struct boss_siamat : public BossAI
                 }, 2s);
                 break;
             default:
+                summons.Summon(summon);
                 break;
         }
     }
