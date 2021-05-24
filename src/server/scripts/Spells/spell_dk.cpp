@@ -313,14 +313,14 @@ class spell_dk_death_coil : public SpellScript
         if (caster->IsFriendlyTo(target))
         {
             bp *= 3.5f;
-            caster->CastSpell(target, SPELL_DK_DEATH_COIL_HEAL, CastSpellExtraArgs(true).AddSpellBP0(bp));
+            caster->CastSpell(target, SPELL_DK_DEATH_COIL_HEAL, CastSpellExtraArgs(false).AddSpellBP0(bp));
         }
         else
         {
             if (AuraEffect const* auraEffect = caster->GetAuraEffect(SPELL_DK_ITEM_SIGIL_VENGEFUL_HEART, EFFECT_1))
                 bp += auraEffect->GetBaseAmount();
 
-            caster->CastSpell(target, SPELL_DK_DEATH_COIL_DAMAGE, CastSpellExtraArgs(true).AddSpellBP0(bp));
+            caster->CastSpell(target, SPELL_DK_DEATH_COIL_DAMAGE, CastSpellExtraArgs(false).AddSpellBP0(bp));
         }
     }
 
@@ -1123,9 +1123,6 @@ class spell_dk_runic_empowerment : public AuraScript
     {
         return ValidateSpellInfo(
             {
-                SPELL_DK_DEATH_COIL_DAMAGE,
-                SPELL_DK_FROST_STRIKE,
-                SPELL_DK_RUNE_STRIKE,
                 SPELL_DK_ENERGIZE_BLOOD_RUNE,
                 SPELL_DK_ENERGIZE_FROST_RUNE,
                 SPELL_DK_ENERGIZE_UNHOLY_RUNE,
@@ -1133,64 +1130,51 @@ class spell_dk_runic_empowerment : public AuraScript
             });
     }
 
-    bool CheckProc(ProcEventInfo& eventInfo)
-    {
-        uint32 spellId = eventInfo.GetSpellInfo()->Id;
-        if (spellId == SPELL_DK_DEATH_COIL_DAMAGE || spellId == SPELL_DK_FROST_STRIKE || spellId == SPELL_DK_RUNE_STRIKE)
-            return true;
-
-        return false;
-    }
-
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
     {
         PreventDefaultAction();
 
-        if (Player* player = GetUnitOwner()->ToPlayer())
+        Player* player = GetTarget()->ToPlayer();
+        if (!player)
+            return;
+
+        // Runic corruption replaces the rune activation with a rune regeneration speed buff
+        if (AuraEffect const* runicCorruption = player->GetDummyAuraEffect(SPELLFAMILY_DEATHKNIGHT, DK_ICON_ID_RUNIC_CORRUPTION, EFFECT_0))
         {
-            std::list<uint8> cooldownRuneIndex;
+            player->CastSpell(player, SPELL_DK_RUNIC_CORRUPTION_TRIGGERED, CastSpellExtraArgs(aurEff).AddSpellBP0(runicCorruption->GetAmount()));
+            return;
+        }
 
-            for (uint8 i = 0; i < MAX_RUNES; i++)
-            {
-                if (player->GetRuneCooldown(i))
-                    cooldownRuneIndex.push_back(i);
-            }
+        std::vector<uint8> runesOnCooldown;
+        runesOnCooldown.reserve(MAX_RUNES);
+        for (uint8 i = 0; i < MAX_RUNES; ++i)
+            if (player->GetRuneCooldown(i))
+                runesOnCooldown.emplace_back(i);
 
-            if (!cooldownRuneIndex.empty())
-            {
-                // Runic Corruption
-                if (AuraEffect* corruptionEff = player->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_DEATHKNIGHT, DK_ICON_ID_RUNIC_CORRUPTION, EFFECT_0))
-                {
-                    int32 bp0 = corruptionEff->GetAmount();
-                    player->CastSpell(player, SPELL_DK_RUNIC_CORRUPTION_TRIGGERED, CastSpellExtraArgs(aurEff).AddSpellBP0(bp0));
-                }
-                else
-                {
-                    uint8 randomRune = Trinity::Containers::SelectRandomContainerElement(cooldownRuneIndex);
-                    RuneType rune = player->GetCurrentRune(randomRune);
-                    switch (rune)
-                    {
-                        case RUNE_BLOOD:
-                        case RUNE_DEATH:
-                            player->CastSpell(player, SPELL_DK_ENERGIZE_BLOOD_RUNE,aurEff);
-                            break;
-                        case RUNE_FROST:
-                            player->CastSpell(player, SPELL_DK_ENERGIZE_FROST_RUNE, aurEff);
-                            break;
-                        case RUNE_UNHOLY:
-                            player->CastSpell(player, SPELL_DK_ENERGIZE_UNHOLY_RUNE, aurEff);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
+        if (runesOnCooldown.empty())
+            return;
+
+        uint8 runeIndex = Trinity::Containers::SelectRandomContainerElement(runesOnCooldown);
+        RuneType rune = player->GetCurrentRune(runeIndex);
+        switch (rune)
+        {
+            case RUNE_BLOOD:
+            case RUNE_DEATH:
+                player->CastSpell(player, SPELL_DK_ENERGIZE_BLOOD_RUNE, aurEff);
+                break;
+            case RUNE_FROST:
+                player->CastSpell(player, SPELL_DK_ENERGIZE_FROST_RUNE, aurEff);
+                break;
+            case RUNE_UNHOLY:
+                player->CastSpell(player, SPELL_DK_ENERGIZE_UNHOLY_RUNE, aurEff);
+                break;
+            default:
+                break;
         }
     }
 
     void Register() override
     {
-        DoCheckProc.Register(&spell_dk_runic_empowerment::CheckProc);
         OnEffectProc.Register(&spell_dk_runic_empowerment::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
