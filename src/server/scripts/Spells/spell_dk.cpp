@@ -292,7 +292,10 @@ class spell_dk_death_coil : public SpellScript
                 return SPELL_FAILED_UNIT_NOT_INFRONT;
 
             if (target->IsFriendlyTo(caster) && target->GetCreatureType() != CREATURE_TYPE_UNDEAD)
-                return SPELL_FAILED_BAD_TARGETS;
+            {
+                GetSpell()->m_customError = SPELL_CUSTOM_ERROR_TARGET_MUST_BE_UNDEAD;
+                return SPELL_FAILED_CUSTOM_ERROR;
+            }
         }
         else
             return SPELL_FAILED_BAD_TARGETS;
