@@ -5174,9 +5174,14 @@ void Spell::EffectActivateRune(SpellEffIndex effIndex)
 
     // needed later
     m_runesState = player->GetRunesState();
-    int32 count = damage;
+
+    uint32 count = damage;
     int32 miscValue = (1 << m_spellInfo->Effects[effIndex].MiscValue);
-    if (miscValue & (1 << RUNE_DEATH))
+
+    // Death and Blood runes may activate each other
+    if (miscValue & (1 << RUNE_BLOOD))
+        miscValue |= (1 << RUNE_DEATH);
+    else if (miscValue & (1 << RUNE_DEATH))
         miscValue |= (1 << RUNE_BLOOD);
 
     for (uint32 i = 0; i < MAX_RUNES && count > 0; ++i)
