@@ -53,6 +53,8 @@ std::unordered_map<uint32, LiquidTypeEntry> LiquidTypes;
 #define MAX_PATH_LENGTH 128
 char output_path[MAX_PATH_LENGTH] = ".";
 char input_path[MAX_PATH_LENGTH] = ".";
+std::set<int> extracted_maps;
+std::set<std::pair<int,int>> extracted_adts;
 
 // **************************************************
 // Extractor options
@@ -130,6 +132,61 @@ void HandleArgs(int argc, char * arg[])
 
         switch (arg[c][1])
         {
+            case 'm':
+            {
+                c++;
+                auto len = strlen(arg[c]);
+                char cur[4] = {0,0,0,0};
+                int j = 0;
+                for(int i=0;i<=len;++i) {
+                    if(i==len||arg[c][i]==',')
+                    {
+                        std::cout << "Doing only map " << cur << "\n";
+                        extracted_maps.insert(atoi(cur));
+                        *((unsigned*)cur) = 0;
+                        j = 0;
+                    }
+                    else 
+                    {
+                        cur[j++] = arg[c][i];
+                    }
+                }
+                break;
+            }
+            case 't': {
+                c++;
+                auto len = strlen(arg[c]);
+                char cur1[4] = { 0,0,0,0 };
+                char cur2[4] = { 0,0,0,0 };
+                bool passed = false;
+                int j = 0;
+                for (int i = 0; i <= len; ++i) {
+                    if (i == len || arg[c][i] == ',') 
+                    {
+                        std::cout << "Doing only tile " << cur1 << " " << cur2 << "\n";
+                        extracted_adts.insert(
+                            std::make_pair<int,int>(
+                                  atoi(cur1)
+                                , atoi(cur2)
+                                ));
+                        *((unsigned*)cur1) = 0;
+                        *((unsigned*)cur2) = 0;
+                        j = 0;
+                        passed = false;
+                    }
+                    else if(arg[c][i] == '.') 
+                    {
+                        j = 0;
+                        passed = true;
+                    } 
+                    else
+                    {
+                        if(passed) cur1[j++] = arg[c][i];
+                        else cur2[j++] = arg[c][i];
+                    }
+                }
+                break;
+            }
             case 'i':
                 if (c + 1 < argc && strlen(arg[c + 1]) < MAX_PATH_LENGTH) // all ok
                 {
@@ -937,6 +994,10 @@ void ExtractMapsFromMpq(uint32 build)
     printf("Convert map files\n");
     for(uint32 z = 0; z < map_count; ++z)
     {
+        if(extracted_maps.size() > 0 && extracted_maps.find(map_ids[z].id) == extracted_maps.end())
+        {
+            continue;
+        }
         printf("Extract %s (%d/%u)                  \n", map_ids[z].name, z+1, map_count);
         // Loadup map grid data
 
@@ -954,6 +1015,15 @@ void ExtractMapsFromMpq(uint32 build)
             {
                 if (!wdt.main->adt_list[y][x].exist)
                     continue;
+
+                // @tswow-begin
+                if(extracted_adts.size() > 0
+                    && extracted_adts.find(std::make_pair<int,int>((int)x,(int)y))
+                        == extracted_adts.end())
+                {
+                    continue;
+                }
+                // @tswow-end
 
                 mpqFileName = Trinity::StringFormat("World\\Maps\\%s\\%s_%u_%u.adt", map_ids[z].name, map_ids[z].name, x, y);
                 outputFileName = Trinity::StringFormat("%s/maps/%03u%02u%02u.map", output_path, map_ids[z].id, y, x);
@@ -1023,8 +1093,10 @@ void ExtractDBCFiles(int locale, bool basicLocale)
         std::string filename = path;
         filename += (iter->c_str() + strlen("DBFilesClient\\"));
 
-        if (boost::filesystem::exists(filename))
-            continue;
+        // @tswow-begin we don't want this for custom content
+        //if (boost::filesystem::exists(filename))
+        //    continue;
+        // @tswow-end
 
         if (ExtractFile(iter->c_str(), filename))
             ++count;
@@ -1082,34 +1154,43 @@ void ExtractCameraFiles(int locale, bool basicLocale)
     printf("Extracted %u camera files\n", count);
 }
 
-void LoadLocaleMPQFiles(int const locale)
+inline bool ends_with(std::string const& value, std::string const& ending)
 {
-    std::string fileName = Trinity::StringFormat("%s/Data/%s/locale-%s.MPQ", input_path, langs[locale], langs[locale]);
+    if (ending.size() > value.size()) return false;
+    return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
+}
 
-    new MPQArchive(fileName.c_str());
-
-    for(int i = 1; i < 5; ++i)
+void LoadMPQFiles(std::string pin)
+{
+    boost::filesystem::directory_iterator end;
+    std::vector<std::string> files;
+    for (boost::filesystem::directory_iterator itr(boost::filesystem::path(pin.c_str())); itr != end; ++itr)
     {
-        std::string ext;
-        if (i > 1)
-            ext = Trinity::StringFormat("-%i", i);
+        std::string str = itr->path().string();
+        if (ends_with(str, ".MPQ") || ends_with(str, ".mpq"))
+        {
+            files.push_back(str);
+        }
+    }
 
-        fileName = Trinity::StringFormat("%s/Data/%s/patch-%s%s.MPQ", input_path, langs[locale], langs[locale], ext.c_str());
-        if (boost::filesystem::exists(fileName))
-            new MPQArchive(fileName.c_str());
+    std::sort(files.begin(), files.end(), [](auto a, auto b) {return a.substr(0,a.size()-4) < b.substr(0,b.size()-4); });
+    for (auto& str : files)
+    {
+        if (boost::filesystem::exists(str))
+        {
+            new MPQArchive(str.c_str());
+        }
     }
 }
 
 void LoadCommonMPQFiles()
 {
-    std::string fileName;
-    int count = sizeof(CONF_mpq_list)/sizeof(char*);
-    for(int i = 0; i < count; ++i)
-    {
-        fileName = Trinity::StringFormat("%s/Data/%s", input_path, CONF_mpq_list[i]);
-        if (boost::filesystem::exists(fileName))
-            new MPQArchive(fileName.c_str());
-    }
+    LoadMPQFiles(Trinity::StringFormat("%s/Data",input_path));
+}
+
+void LoadLocaleMPQFiles(int const locale)
+{
+    LoadMPQFiles(Trinity::StringFormat("%s/Data/%s",input_path,langs[locale]));
 }
 
 inline void CloseMPQFiles()
@@ -1151,10 +1232,18 @@ int main(int argc, char * arg[])
                 FirstLocale = i;
                 build = ReadBuild(FirstLocale);
                 printf("Detected client build: %u\n", build);
+                // @tswow-begin load common mpq for dbc data
+                LoadCommonMPQFiles();
+                // @tswow-end
                 ExtractDBCFiles(i, true);
             }
             else
+            // @tswow-begin load common mpq for dbc data
+            {
+                LoadCommonMPQFiles();
                 ExtractDBCFiles(i, false);
+            }
+            // @tswow-end
 
             //Close MPQs
             CloseMPQFiles();
