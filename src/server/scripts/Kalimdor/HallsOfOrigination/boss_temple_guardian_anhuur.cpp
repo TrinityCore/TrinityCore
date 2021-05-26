@@ -43,13 +43,13 @@ enum Texts
 
 enum Events
 {
-    EVENT_BURNING_LIGHT          = 1,
-    EVENT_SEARING_LIGHT          = 2,
-    EVENT_DIVINE_RECKONING       = 3,
-    EVENT_CAST_SHIELD            = 4,
-    EVENT_ACTIVATE_BEACONS       = 5,
-    EVENT_CAST_BEAMS             = 6,
-    EVENT_ACHIEVEMENT_FAILED     = 7
+    EVENT_BURNING_LIGHT = 1,
+    EVENT_SEARING_LIGHT,
+    EVENT_DIVINE_RECKONING,
+    EVENT_CAST_SHIELD,
+    EVENT_ACTIVATE_BEACONS,
+    EVENT_CAST_BEAMS,
+    EVENT_ACHIEVEMENT_FAILED
 };
 
 enum Spells
@@ -113,14 +113,14 @@ struct boss_temple_guardian_anhuur : public BossAI
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         Talk(SAY_AGGRO);
         events.SetPhase(PHASE_FIGHT);
-        events.ScheduleEvent(EVENT_DIVINE_RECKONING, Seconds(10), 0, PHASE_FIGHT);
-        events.ScheduleEvent(EVENT_BURNING_LIGHT, Seconds(12), 0, PHASE_FIGHT);
+        events.ScheduleEvent(EVENT_DIVINE_RECKONING, 10s, 0, PHASE_FIGHT);
+        events.ScheduleEvent(EVENT_BURNING_LIGHT, 12s, 0, PHASE_FIGHT);
         instance->DoUpdateWorldState(WS_I_HATE_THIS_SONG, 0);
     }
 
     void JustDied(Unit* /*killer*/) override
     {
-        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me, 1);
         Talk(SAY_DEATH);
         _JustDied();
     }
@@ -224,7 +224,10 @@ struct boss_temple_guardian_anhuur : public BossAI
                     events.ScheduleEvent(EVENT_BURNING_LIGHT, 10s, 0, PHASE_FIGHT);
                     break;
                 case EVENT_DIVINE_RECKONING:
-                    DoCastVictim(SPELL_DIVINE_RECKONING);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.f, true, false))
+                        DoCast(target, SPELL_DIVINE_RECKONING);
+                    else
+                        DoCastVictim(SPELL_DIVINE_RECKONING);
                     events.ScheduleEvent(EVENT_DIVINE_RECKONING, 10s, 0, PHASE_FIGHT);
                     break;
                 case EVENT_CAST_SHIELD:

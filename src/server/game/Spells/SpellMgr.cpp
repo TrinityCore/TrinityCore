@@ -4668,7 +4668,10 @@ void SpellMgr::LoadSpellInfoCorrections()
     });
 
     // Reverberating Hymn
-    ApplySpellFix({ 75323 }, [](SpellInfo* spellInfo)
+    ApplySpellFix({
+        75323,
+        90008
+    }, [](SpellInfo* spellInfo)
     {
         // Aura is refreshed at 3 seconds, and the tick should happen at the fourth.
         spellInfo->AttributesEx8 |= SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER;
