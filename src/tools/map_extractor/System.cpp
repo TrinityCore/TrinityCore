@@ -35,6 +35,10 @@
 #include <G3D/Plane.h>
 #include <boost/filesystem.hpp>
 
+// @tswow-begin
+#include <cxxopts.h>
+// @tswow-end
+
 extern ArchiveSet gOpenArchives;
 
 typedef struct
@@ -105,123 +109,60 @@ void CreateDir(boost::filesystem::path const& path)
         throw std::runtime_error("Unable to create directory" + path.string());
 }
 
-void Usage(char* prg)
+void Usage(cxxopts::Options const& opts, std::string const& error)
 {
-    printf(
-        "Usage:\n"\
-        "%s -[var] [value]\n"\
-        "-i set input path (max %d characters)\n"\
-        "-o set output path (max %d characters)\n"\
-        "-e extract only MAP(1)/DBC(2)/Camera(4) - standard: all(7)\n"\
-        "-f height stored as int (less map size but lost some accuracy) 1 by default\n"\
-        "Example: %s -f 0 -i \"c:\\games\\game\"", prg, MAX_PATH_LENGTH - 1, MAX_PATH_LENGTH - 1, prg);
+    printf("Error %s\n%s", error.c_str(), opts.help().c_str());
     exit(1);
 }
 
 void HandleArgs(int argc, char * arg[])
 {
-    for(int c = 1; c < argc; ++c)
-    {
-        // i - input path
-        // o - output path
-        // e - extract only MAP(1)/DBC(2) - standard both(3)
-        // f - use float to int conversion
-        // h - limit minimum height
-        if(arg[c][0] != '-')
-            Usage(arg[0]);
+    cxxopts::Options options("mapextractor", "Extract map/dbc data");
+    options.add_options()
+        ("i,input", "Input path", cxxopts::value<std::string>()->default_value("."))
+        ("o,output", "Output path", cxxopts::value<std::string>()->default_value("."))
+        ("e", "extract only MAP(1)/DBC(2)/Camera(4) - standard: all(7)", cxxopts::value<int>()->default_value("7"))
+        ("f", "height stored as int (less map size but lost some accuracy) 1 by default", cxxopts::value<int>()->default_value("1"))
+        ("h", "maximum height limit (500 by default)", cxxopts::value<int>()->default_value("-500"))
+        ("maps", "Specify individual maps to create", cxxopts::value<std::vector<int>>()->default_value(""))
+        ("tiles", "Specify individual tiles to create", cxxopts::value<std::vector<int>>()->default_value(""))
+        ;
+    auto result = options.parse(argc, arg);
 
-        switch (arg[c][1])
-        {
-            case 'm':
-            {
-                c++;
-                auto len = strlen(arg[c]);
-                char cur[4] = {0,0,0,0};
-                int j = 0;
-                for(int i=0;i<=len;++i) {
-                    if(i==len||arg[c][i]==',')
-                    {
-                        std::cout << "Doing only map " << cur << "\n";
-                        extracted_maps.insert(atoi(cur));
-                        *((unsigned*)cur) = 0;
-                        j = 0;
-                    }
-                    else 
-                    {
-                        cur[j++] = arg[c][i];
-                    }
-                }
-                break;
-            }
-            case 't': {
-                c++;
-                auto len = strlen(arg[c]);
-                char cur1[4] = { 0,0,0,0 };
-                char cur2[4] = { 0,0,0,0 };
-                bool passed = false;
-                int j = 0;
-                for (int i = 0; i <= len; ++i) {
-                    if (i == len || arg[c][i] == ',') 
-                    {
-                        std::cout << "Doing only tile " << cur1 << " " << cur2 << "\n";
-                        extracted_adts.insert(
-                            std::make_pair<int,int>(
-                                  atoi(cur1)
-                                , atoi(cur2)
-                                ));
-                        *((unsigned*)cur1) = 0;
-                        *((unsigned*)cur2) = 0;
-                        j = 0;
-                        passed = false;
-                    }
-                    else if(arg[c][i] == '.') 
-                    {
-                        j = 0;
-                        passed = true;
-                    } 
-                    else
-                    {
-                        if(passed) cur1[j++] = arg[c][i];
-                        else cur2[j++] = arg[c][i];
-                    }
-                }
-                break;
-            }
-            case 'i':
-                if (c + 1 < argc && strlen(arg[c + 1]) < MAX_PATH_LENGTH) // all ok
-                {
-                    strncpy(input_path, arg[c++ + 1], MAX_PATH_LENGTH);
-                    input_path[MAX_PATH_LENGTH - 1] = '\0';
-                }
-                else
-                    Usage(arg[0]);
-                break;
-            case 'o':
-                if (c + 1 < argc && strlen(arg[c + 1]) < MAX_PATH_LENGTH) // all ok
-                {
-                    strncpy(output_path, arg[c++ + 1], MAX_PATH_LENGTH);
-                    output_path[MAX_PATH_LENGTH - 1] = '\0';
-                }
-                else
-                    Usage(arg[0]);
-                break;
-            case 'f':
-                if (c + 1 < argc)                            // all ok
-                    CONF_allow_float_to_int = atoi(arg[(c++) + 1]) != 0;
-                else
-                    Usage(arg[0]);
-                break;
-            case 'e':
-                if (c + 1 < argc)                            // all ok
-                {
-                    CONF_extract = atoi(arg[(c++) + 1]);
-                    if (!(CONF_extract > 0 && CONF_extract < 8))
-                        Usage(arg[0]);
-                }
-                else
-                    Usage(arg[0]);
-                break;
-        }
+    auto maps = result["maps"].as<std::vector<int>>();
+    for (auto map : maps) extracted_maps.insert(map);
+
+    auto tiles = result["tiles"].as<std::vector<int>>();
+    if (tiles.size() % 2 == 1)
+    {
+        Usage(options, "Error: uneven set of tile coordinates");
+    }
+
+    for (unsigned i = 0; i < tiles.size() / 2; ++i)
+    {
+        unsigned nxt = i + 1;
+        extracted_adts.insert({ tiles[i],tiles[nxt] });
+    }
+
+    std::string input = result["input"].as<std::string>();
+    std::string output = result["output"].as<std::string>();
+
+    strncpy(input_path, input.c_str(),input.size());
+    input_path[MAX_PATH_LENGTH - 1] = '\0';
+
+    strncpy(output_path, output.c_str(), output.size());
+    output_path[MAX_PATH_LENGTH - 1] = '\0';
+
+    if (result.count("h") > 0)
+    {
+        CONF_allow_height_limit = true;
+        CONF_use_minHeight = result["h"].as<float>();
+    }
+
+    CONF_extract = result["e"].as<int>();
+    if (!(CONF_extract > 0 && CONF_extract < 8))
+    {
+        Usage(options, "Error: invalid extract value");
     }
 }
 

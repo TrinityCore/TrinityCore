@@ -28,7 +28,8 @@ target_link_libraries(mapextractor
     trinity-core-interface
   PUBLIC
     common
-    mpq)
+    mpq
+    cxxopts)
 
 CollectIncludeDirectories(
   ${CMAKE_CURRENT_SOURCE_DIR}
