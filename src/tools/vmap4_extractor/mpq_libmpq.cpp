@@ -16,16 +16,27 @@
  */
 
 #include "mpq_libmpq04.h"
+#include <boost/filesystem.hpp>
+#include <ios>
 #include <deque>
 #include <cstdio>
-#include <algorithm>
+#include <fstream>
 
 ArchiveSet gOpenArchives;
 
 MPQArchive::MPQArchive(char const* filename)
 {
-    int result = libmpq__archive_open(&mpq_a, filename, -1);
+    this->filename =  std::string(filename);
     printf("Opening %s\n", filename);
+    if(boost::filesystem::is_directory(filename))
+    {
+        is_directory = true;
+        mpq_a = nullptr;
+        gOpenArchives.push_front(this);
+        return;
+    }
+    is_directory = false;
+    int result = libmpq__archive_open(&mpq_a, filename, -1);
     if(result) {
         switch(result) {
             case LIBMPQ_ERROR_OPEN :
@@ -52,15 +63,13 @@ MPQArchive::MPQArchive(char const* filename)
     gOpenArchives.push_front(this);
 }
 
-bool MPQArchive::isOpened() const
-{
-    return std::find(gOpenArchives.begin(), gOpenArchives.end(), this) != gOpenArchives.end();
-}
-
 void MPQArchive::close()
 {
+    if(!is_directory)
+    {
+        libmpq__archive_close(mpq_a);
+    }
     //gOpenArchives.erase(erase(&mpq_a);
-    libmpq__archive_close(mpq_a);
 }
 
 MPQFile::MPQFile(char const* filename):
@@ -71,20 +80,49 @@ MPQFile::MPQFile(char const* filename):
 {
     for(ArchiveSet::iterator i=gOpenArchives.begin(); i!=gOpenArchives.end();++i)
     {
+        if((*i)->is_directory)
+        {
+            auto fullpath = (*i)->filename / boost::filesystem::path(filename);
+            if(boost::filesystem::exists(fullpath))
+            {
+                std::ifstream fin;
+                fin.open(fullpath.string(),std::ios::binary);
+                fin.seekg(0, std::ios::end);
+                size = fin.tellg();
+                if (size > 0)
+                {
+                    buffer = new char[size];
+                    fin.seekg(0,std::ios::beg);
+                    fin.read(buffer,size);
+                    eof = false;
+                }
+                else
+                {
+                    eof = true;
+                    buffer = 0;
+                    continue;
+                }
+                fin.close();
+                return;
+            }
+            continue;
+        }
+
         mpq_archive *mpq_a = (*i)->mpq_a;
 
-        uint32 filenum;
+        uint32_t filenum;
         if(libmpq__file_number(mpq_a, filename, &filenum)) continue;
         libmpq__off_t transferred;
         libmpq__file_size_unpacked(mpq_a, filenum, &size);
 
         // HACK: in patch.mpq some files don't want to open and give 1 for filesize
         if (size<=1) {
-            // printf("info: file %s has size %d; considered dummy file.\n", filename, size);
+//            printf("warning: file %s has size %d; cannot read.\n", filename, size);
             eof = true;
             buffer = 0;
             return;
         }
+
         buffer = new char[size];
 
         //libmpq_file_getdata
@@ -128,7 +166,7 @@ void MPQFile::seekRelative(int offset)
 
 void MPQFile::close()
 {
+    eof = true;
     delete[] buffer;
     buffer = 0;
-    eof = true;
 }

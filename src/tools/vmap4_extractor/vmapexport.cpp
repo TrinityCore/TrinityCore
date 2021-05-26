@@ -33,11 +33,31 @@
 #include <cstdio>
 #include <cerrno>
 #include <sys/stat.h>
+// @tswow-begin
+#include <set>
+// @tswow-end
 
 #ifdef _WIN32
     #include <direct.h>
     #define mkdir _mkdir
 #endif
+
+// @tswow-begin
+std::set<int> assembled_maps;
+std::set<std::string> assembled_models;
+std::set<std::pair<int, int>> assembled_tiles;
+std::set<std::string> done_files;
+
+bool HasDoneFile(char const* file)
+{
+    if(done_files.find(file) != done_files.end())
+    {
+        return true;
+    }
+    done_files.insert(file);
+    return false;
+}
+// @tswow-end
 
 //------------------------------------------------------------------------------
 // Defines
@@ -96,6 +116,13 @@ void strToLower(char* str)
 
 bool ExtractSingleWmo(std::string& fname)
 {
+    // @tswow-begin
+    if(assembled_models.size()> 0 && assembled_models.find(fname)==assembled_models.end())
+    {
+        // TODO: Not implemented
+        //return true;
+    }
+    // @tswow-end
     // Copy files from archive
     std::string originalName = fname;
 
@@ -104,9 +131,11 @@ bool ExtractSingleWmo(std::string& fname)
     fixnamen(plain_name, strlen(plain_name));
     fixname2(plain_name, strlen(plain_name));
     sprintf(szLocalFile, "%s/%s", szWorkDirWmo, plain_name);
-
+    
+    // @tswow-begin
     if (FileExists(szLocalFile))
         return true;
+    // @tswow-end
 
     int p = 0;
     // Select root wmo files
@@ -199,6 +228,13 @@ void ParsMapFiles()
     //char id_filename[64];
     for (unsigned int i=0; i<map_count; ++i)
     {
+        // @tswow-begin
+        if (assembled_maps.size() > 0 && assembled_maps.find(map_ids[i].id) == assembled_maps.end())
+        {
+            // TODO: Not implemented
+            //continue;
+        }
+        // @tswow-end
         sprintf(fn,"World\\Maps\\%s\\%s.wdt", map_ids[i].name, map_ids[i].name);
         WDTFile WDT(fn,map_ids[i].name);
         if (WDT.init(map_ids[i].id))
@@ -208,6 +244,13 @@ void ParsMapFiles()
             {
                 for (int y=0; y<64; ++y)
                 {
+                    // @tswow-begin
+                    if(assembled_tiles.size() > 0 && assembled_tiles.find(std::make_pair(x, y)) == assembled_tiles.end())
+                    {
+                        // TODO: Not implemented
+                        //continue;
+                    }
+                    // @tswow-end
                     if (ADTFile *ADT = WDT.GetMap(x,y))
                     {
                         //sprintf(id_filename,"%02u %02u %03u",x,y,map_ids[i].id);//!!!!!!!!!
@@ -340,60 +383,122 @@ bool fillArchiveNameVector(std::vector<std::string>& pArchiveNames)
     return true;
 }
 
-bool processArgv(int argc, char ** argv, const char *versionString)
+// @tswow-begin
+void HandleArgs(int argc, char* arg[])
 {
-    bool result = true;
-    hasInputPathParam = false;
-    preciseVectorData = false;
-
-    for(int i = 1; i < argc; ++i)
+    for (int c = 1; c < argc; ++c)
     {
-        if(strcmp("-s",argv[i]) == 0)
+        if (arg[c][0] != '-')
         {
-            preciseVectorData = false;
+            //Usage(arg[0]);
         }
-        else if(strcmp("-d",argv[i]) == 0)
-        {
-            if((i+1)<argc)
-            {
-                hasInputPathParam = true;
-                strncpy(input_path, argv[i + 1], sizeof(input_path));
-                input_path[sizeof(input_path) - 1] = '\0';
 
-                if (input_path[strlen(input_path) - 1] != '\\' && input_path[strlen(input_path) - 1] != '/')
-                    strcat(input_path, "/");
-                ++i;
-            }
-            else
-            {
-                result = false;
-            }
-        }
-        else if(strcmp("-?",argv[1]) == 0)
+        switch (arg[c][1])
         {
-            result = false;
-        }
-        else if(strcmp("-l",argv[i]) == 0)
-        {
+        case 'o':
+            c++;
+            szWorkDirWmo = arg[c];
+            std::cout << "Setting the workdirwmo to " << szWorkDirWmo << "\n";
+            break;
+        case 's':
+            c++;
+            preciseVectorData = false;
+            break;
+        case 'i':
+            c++;
+            hasInputPathParam = true;
+            strncpy(input_path, arg[c], sizeof(input_path));
+            input_path[sizeof(input_path) - 1] = '\0';
+            if (input_path[strlen(input_path) - 1] != '\\' && input_path[strlen(input_path) - 1] != '/')
+                strcat(input_path, "/");
+            break;
+        case 'l':
+            c++;
             preciseVectorData = true;
-        }
-        else
+            break;
+        case 'm':
         {
-            result = false;
+            c++;
+            auto len = strlen(arg[c]);
+            char cur[4] = { 0,0,0,0 };
+            int j = 0;
+            for (int i = 0; i <= len; ++i) {
+                if (i == len || arg[c][i] == ',')
+                {
+                    std::cout << "Doing only map " << cur << "\n";
+                    assembled_maps.insert(atoi(cur));
+                    *((unsigned*)cur) = 0;
+                    j = 0;
+                }
+                else
+                {
+                    cur[j++] = arg[c][i];
+                }
+            }
             break;
         }
+        break;
+        case 'd':
+        {
+            c++;
+            auto len = strlen(arg[c]);
+            std::string cur = "";
+            for (int i = 0; i <= len; ++i)
+            {
+                if (i == len || arg[c][i] == ',')
+                {
+                    assembled_models.insert(std::string(cur));
+                    cur = "";
+                }
+                else
+                {
+                    cur += arg[c][i];
+                }
+            }
+            break;
+        }
+        case 't':
+        {
+            c++;
+            auto len = strlen(arg[c]);
+            char cur1[4] = { 0,0,0,0 };
+            char cur2[4] = { 0,0,0,0 };
+            bool passed = false;
+            int j = 0;
+            for (int i = 0; i <= len; ++i) {
+                if (i == len || arg[c][i] == ',')
+                {
+                    std::cout << "Doing only tile " << cur1 << " " << cur2 << "\n";
+                    assembled_tiles.insert(
+                        std::make_pair<int, int>(
+                            atoi(cur1)
+                            , atoi(cur2)
+                            ));
+                    *((unsigned*)cur1) = 0;
+                    *((unsigned*)cur2) = 0;
+                    j = 0;
+                    passed = false;
+                }
+                else if (arg[c][i] == '.')
+                {
+                    j = 0;
+                    passed = true;
+                }
+                else
+                {
+                    if (passed) cur1[j++] = arg[c][i];
+                    else cur2[j++] = arg[c][i];
+                }
+            }
+            break;
+        }
+        break;
+        default:
+            std::cout << "Unsupported " << arg[c][1] << "\n";
+        }
     }
-    if(!result)
-    {
-        printf("Extract %s.\n",versionString);
-        printf("%s [-?][-s][-l][-d <path>]\n", argv[0]);
-        printf("   -s : (default) small size (data size optimization), ~500MB less vmap data.\n");
-        printf("   -l : large size, ~500MB more vmap data. (might contain more details)\n");
-        printf("   -d <path>: Path to the vector data source folder.\n");
-        printf("   -? : This message.\n");
-    }
-    return result;
 }
+// @tswow-end
 
 //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 // Main
@@ -412,22 +517,27 @@ int main(int argc, char ** argv)
     const char *versionString = "V4.00 2012_02";
 
     // Use command line arguments, when some
-    if (!processArgv(argc, argv, versionString))
-        return 1;
-
+    // @tswow-begin
+    HandleArgs(argc, argv);
+    if(!false) {}
+    // @tswow-end
     // some simple check if working dir is dirty
     else
     {
         std::string sdir = std::string(szWorkDirWmo) + "/dir";
         std::string sdir_bin = std::string(szWorkDirWmo) + "/dir_bin";
         struct stat status;
-        if (!stat(sdir.c_str(), &status) || !stat(sdir_bin.c_str(), &status))
+
+        // @tswow-begin
+        if (!stat(sdir_bin.c_str(), &status))
         {
-            printf("Your output directory seems to be polluted, please use an empty directory!\n");
-            printf("<press return to exit>");
-            char garbage[2];
-            return scanf("%c", garbage);
+            remove(sdir_bin.c_str());
+        //    printf("Your output directory seems to be polluted, please use an empty directory!\n");
+        //    printf("<press return to exit>");
+        //    char garbage[2];
+        //    return scanf("%c", garbage);
         }
+        // @tswow-end
     }
 
     printf("Extract %s. Beginning work ....\n", versionString);

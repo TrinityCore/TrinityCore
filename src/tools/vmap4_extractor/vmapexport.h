@@ -21,6 +21,9 @@
 #include "Define.h"
 #include <string>
 #include <unordered_map>
+// @tswow-begin
+#include <set>
+// @tswow-end
 
 enum ModelFlags
 {
@@ -33,6 +36,13 @@ struct WMODoodadData;
 
 extern const char * szWorkDirWmo;
 extern std::unordered_map<std::string, WMODoodadData> WmoDoodads;
+// @tswow-begin
+bool HasDoneFile(char const* file);
+extern std::set<int> assembled_maps;
+extern std::set<std::string> assembled_models;
+extern std::set<std::pair<int, int>> assembled_tiles;
+extern std::set<std::string> done_files;
+// @tswow-end
 
 uint32 GenerateUniqueObjectId(uint32 clientId, uint16 clientDoodadId);
 

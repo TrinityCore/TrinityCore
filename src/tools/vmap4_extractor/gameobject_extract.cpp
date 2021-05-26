@@ -44,12 +44,21 @@ bool ExtractSingleModel(std::string& fname)
     fixnamen(name, strlen(name));
     fixname2(name, strlen(name));
 
+    // @tswow-begin
+    if (assembled_models.size() > 0 && assembled_models.find(name) == assembled_models.end())
+    {
+        // TODO: Not implemented
+        //return true;
+    }
+    // @tswow-end
+
     std::string output(szWorkDirWmo);
     output += "/";
     output += name;
 
-    if (FileExists(output.c_str()))
-        return true;
+    // @tswow-begin
+    if (FileExists(output.c_str())) return true;
+    // @tswow-end
 
     Model mdl(originalName);
     if (!mdl.open())

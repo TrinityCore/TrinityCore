@@ -21,9 +21,12 @@
 #include "loadlib/loadlib.h"
 #include "libmpq/mpq.h"
 
+#include <boost/filesystem.hpp>
 #include <string.h>
-#include <string>
+#include <ctype.h>
 #include <vector>
+#include <iostream>
+#include <fstream>
 #include <deque>
 
 class MPQArchive
@@ -31,17 +34,35 @@ class MPQArchive
 
 public:
     mpq_archive_s *mpq_a;
+    std::string filename;
+    bool is_directory;
 
     MPQArchive(char const* filename);
-    ~MPQArchive() { if (isOpened()) close(); }
+    ~MPQArchive() { close(); }
+    void close();
 
     void GetFileListTo(std::vector<std::string>& filelist) {
+        if(is_directory)
+        {
+            boost::filesystem::recursive_directory_iterator dir(filename), end;
+            while (dir != end)
+            {
+                if(boost::filesystem::is_regular_file(dir->path()))
+                {
+                    auto str = boost::filesystem::relative(dir->path(), filename).string();
+                    filelist.push_back(str);
+                }
+                ++dir;
+            }
+            return;
+        }
+
         uint32_t filenum;
         if(libmpq__file_number(mpq_a, "(listfile)", &filenum)) return;
         libmpq__off_t size, transferred;
         libmpq__file_size_unpacked(mpq_a, filenum, &size);
 
-        char *buffer = new char[size + 1];
+        char *buffer = new char[size+1];
         buffer[size] = '\0';
 
         libmpq__file_read(mpq_a, filenum, (unsigned char*)buffer, size, &transferred);
@@ -62,10 +83,6 @@ public:
 
         delete[] buffer;
     }
-
-private:
-    void close();
-    bool isOpened() const;
 };
 typedef std::deque<MPQArchive*> ArchiveSet;
 
@@ -76,6 +93,7 @@ class MPQFile
     char *buffer;
     libmpq__off_t pointer,size;
 
+    // disable copying
     MPQFile(MPQFile const& /*f*/) = delete;
     void operator=(MPQFile const& /*f*/) = delete;
 
@@ -95,8 +113,13 @@ public:
 
 inline void flipcc(char *fcc)
 {
-    std::swap(fcc[0], fcc[3]);
-    std::swap(fcc[1], fcc[2]);
+    char t;
+    t=fcc[0];
+    fcc[0]=fcc[3];
+    fcc[3]=t;
+    t=fcc[1];
+    fcc[1]=fcc[2];
+    fcc[2]=t;
 }
 
 #endif

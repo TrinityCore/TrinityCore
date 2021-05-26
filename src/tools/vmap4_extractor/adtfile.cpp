@@ -166,6 +166,13 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY)
                 {
                     ADT::MDDF doodadDef;
                     _file.read(&doodadDef, sizeof(ADT::MDDF));
+                    // @tswow-begin
+                    if (assembled_models.size() > 0 && assembled_models.find(ModelInstanceNames[doodadDef.Id]) == assembled_models.end())
+                    {
+                        // TODO: Not implemented
+                        //continue;
+                    }
+                    // @tswow-end
                     Doodad::Extract(doodadDef, ModelInstanceNames[doodadDef.Id].c_str(), map_num, tileX, tileY, dirfile);
                 }
             }
@@ -179,6 +186,13 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY)
                 {
                     ADT::MODF mapObjDef;
                     _file.read(&mapObjDef, sizeof(ADT::MODF));
+                    // @tswow-begin
+                    if(assembled_models.size() > 0 && assembled_models.find(WmoInstanceNames[mapObjDef.Id]) == assembled_models.end())
+                    {
+                        // TODO: Not implemented
+                        //continue;
+                    }
+                    // @tswow-end
                     MapObject::Extract(mapObjDef, WmoInstanceNames[mapObjDef.Id].c_str(), map_num, tileX, tileY, dirfile);
                     Doodad::ExtractSet(WmoDoodads[WmoInstanceNames[mapObjDef.Id]], mapObjDef, map_num, tileX, tileY, dirfile);
                 }
