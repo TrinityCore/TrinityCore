@@ -476,19 +476,37 @@ class spell_sha_fire_nova : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_SHAMAN_ELEMENTAL_MASTERY });
+        return ValidateSpellInfo(
+            {
+                SPELL_SHAMAN_FLAME_SHOCK,
+                SPELL_SHAMAN_FIRE_NOVA_DAMAGE
+            });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        targets.remove_if([&](WorldObject const* target)
+        {
+            return (!target->ToUnit() || !target->ToUnit()->HasAura(SPELL_SHAMAN_FLAME_SHOCK, GetCaster()->GetGUID()));
+        });
+
+        if (targets.empty())
+        {
+            // This is some weird way to check for targets post CheckCast but for now there is no other way.
+            GetSpell()->m_customError = SPELL_CUSTOM_ERROR_FLAME_SHOCK_NOT_ACTIVE;
+            FinishCast(SPELL_FAILED_CUSTOM_ERROR);
+        }
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         if (Unit* caster = GetCaster())
-            if (Unit* target = GetHitUnit())
-                if (target->HasAura(SPELL_SHAMAN_FLAME_SHOCK))
-                    caster->CastSpell(target, SPELL_SHAMAN_FIRE_NOVA_DAMAGE, true);
+             caster->CastSpell(GetHitUnit(), SPELL_SHAMAN_FIRE_NOVA_DAMAGE);
     }
 
     void Register() override
     {
+        OnObjectAreaTargetSelect.Register(&spell_sha_fire_nova::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
         OnEffectHitTarget.Register(&spell_sha_fire_nova::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
@@ -502,7 +520,6 @@ class spell_sha_fire_nova_damage : public SpellScript
             return;
 
         Unit const* targetUnit = GetExplTargetUnit();
-
         targets.remove_if([targetUnit](WorldObject const* target)->bool
         {
             return targetUnit == target;
