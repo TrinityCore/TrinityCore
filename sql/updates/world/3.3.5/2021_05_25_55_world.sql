@@ -1,4 +1,5 @@
--- Quest creature will be not summoned if cocoon is killed by a pet, it's correct behavior
+-- Quest creature will be not summoned if cocoon is killed by a pet, it's close to correct behavior. I mean, in retail they summons nothing
+-- if killed by pets. Perhaps our conditions work differently or we need to add another condition to check if killer is player
 -- Chance to summon hostile unit may be just 75 and not 66, it's just not easy to find a balance between chance and respawn time to
 -- reflect what I see in movies
 -- Quest creatures currently can be attacked by other creatures, they don't have immune flag. It may look like a bug but it's probably not
@@ -47,7 +48,7 @@ INSERT INTO `creature_text` (`CreatureID`,`GroupID`,`ID`,`Text`,`Type`,`Language
 (17681,0,3,"I knew Cornelius wouldn't leave us behind!",12,7,100,0,0,0,14349,0,"Expedition Researcher");
 
 
--- Taken in the Night
+-- Taken in the Night, sniffed
 DELETE FROM `spell_script_names` WHERE `spell_id` = 38949 AND `ScriptName` = "spell_free_webbed_terokkar";
 DELETE FROM `spell_script_names` WHERE `spell_id` = 38950 AND `ScriptName` = "spell_free_webbed_terokkar_on_quest";
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
@@ -85,7 +86,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 UPDATE `creature_text` SET `GroupID` = 0, `Language` = 0, `Emote` = 0 WHERE `CreatureID` = 22459;
 
 
--- Cocooned!
+-- Cocooned!, sniffed
 DELETE FROM `spell_script_names` WHERE `spell_id` = 51596 AND `ScriptName` = "spell_cocooned_not_on_quest";
 DELETE FROM `spell_script_names` WHERE `spell_id` = 51598 AND `ScriptName` = "spell_cocooned_on_quest";
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
@@ -120,7 +121,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (2841500,9,2,0,0,0,100,0,0,0,0,0,0,11,7,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Captive Footman - On Script - Cast 'Suicide'"),
 (2841500,9,3,0,0,0,100,0,0,0,0,0,0,41,20000,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Captive Footman - On Script - Delayed Despawn"),
 
-(2841501,9,0,0,0,0,100,0,0,0,0,0,0,1,1,0,0,0,0,0,23,0,0,0,0,0,0,0,0,"Captive Footman - On Script - Say Line 0"),
+(2841501,9,0,0,0,0,100,0,0,0,0,0,0,1,1,0,0,0,0,0,23,0,0,0,0,0,0,0,0,"Captive Footman - On Script - Say Line 1"),
 (2841501,9,1,0,0,0,100,0,0,0,0,0,0,33,28415,0,0,0,0,0,23,0,0,0,0,0,0,0,0,"Captive Footman - On Script - Quest Credit 'Cocooned!'"),
 (2841501,9,2,0,0,0,100,0,2000,2000,0,0,0,17,333,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Captive Footman - On Script - Set Emote State 333"),
 (2841501,9,3,0,0,0,100,0,0,0,0,0,0,41,10000,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Captive Footman - On Script - Delayed Despawn");
