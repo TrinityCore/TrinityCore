@@ -178,16 +178,16 @@ class TC_GAME_API _SpellScript
         }
 
     private:
-        template <class InputIt>
-        static bool _ValidateSpellInfo(InputIt first, InputIt last)
+        template<typename Iterator>
+        static bool _ValidateSpellInfo(Iterator begin, Iterator end)
         {
             bool allValid = true;
-            while (first != last)
+            while (begin != end)
             {
-                if (!_ValidateSpellInfo(*first))
+                if (!_ValidateSpellInfo(*begin))
                     allValid = false;
 
-                ++first;
+                ++begin;
             }
             return allValid;
         }
