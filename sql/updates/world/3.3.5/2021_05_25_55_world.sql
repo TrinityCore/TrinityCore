@@ -138,3 +138,56 @@ INSERT INTO `creature_text` (`CreatureID`,`GroupID`,`ID`,`Text`,`Type`,`Language
 (28415,1,3,"I am in your debt, friend.",12,0,100,71,0,0,27899,0,"Captive Footman");
 
 UPDATE `smart_scripts` SET `target_type` = 7, `target_param1` = 0, `comment` = "Drakkari Captive - On Just Summoned - Start Attack Invoker" WHERE `entryorguid` = 28414 AND `source_type` = 0 AND `id` = 0;
+
+
+-- Rivenwood Captives, in general same as above
+DELETE FROM `spell_script_names` WHERE `spell_id` = 43288 AND `ScriptName` = "spell_rivenwood_captives_not_on_quest";
+DELETE FROM `spell_script_names` WHERE `spell_id` = 43287 AND `ScriptName` = "spell_rivenwood_captives_on_quest";
+INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
+(43288,"spell_rivenwood_captives_not_on_quest"),
+(43287,"spell_rivenwood_captives_on_quest");
+
+-- They're probably pooled, no clue what is original respawn time but something like 2 minutes or 1 minute,
+-- hard to say, let's make it 2 just to make quest less annoying
+UPDATE `creature` SET `spawntimesecs` = 120 WHERE `id` = 24210;
+
+UPDATE `creature_template` SET `AIName` = "SmartAI", `ScriptName` = "" WHERE `entry` = 24210;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 24210 AND `source_type` = 0;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(24210,0,0,0,37,0,100,0,0,0,0,0,0,116,5,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Riven Widow Cocoon - On AI Initialize - Set Corpse Delay"),
+(24210,0,1,0,37,0,100,0,0,0,0,0,0,8,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Riven Widow Cocoon - On AI Initialize - Set Reactstate Passive"),
+(24210,0,2,0,6,0,100,0,0,0,0,0,0,11,43288,2,0,0,0,0,7,0,0,0,0,0,0,0,0,"Riven Widow Cocoon - On Death - Cast 'Rivenwood Captives: Player Not On Quest'"),
+(24210,0,3,0,6,0,100,0,0,0,0,0,0,11,43287,2,0,0,0,0,7,0,0,0,0,0,0,0,0,"Riven Widow Cocoon - On Death - Cast 'Rivenwood Captives: Player On Quest'");
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 22 AND `SourceEntry` = 24210 AND `SourceId` = 0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorType`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
+(22,3,24210,0,0,9,0,11296,0,0,1,0,0,"","Group 0: Execute SAI (Action 2) if quest 'Rivenwood Captives' is not taken by invoker"),
+(22,4,24210,0,0,9,0,11296,0,0,0,0,0,"","Group 0: Execute SAI (Action 3) if quest 'Rivenwood Captives' is taken by invoker");
+
+-- These are immune
+UPDATE `creature_template` SET `unit_flags` = 33536 WHERE `entry` = 24211;
+
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 24211 AND `source_type` = 0;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 2421100 AND `source_type` = 9;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(24211,0,0,0,54,0,100,0,0,0,0,0,0,80,2421100,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Freed Winterhoof Longrunner - On Just Summoned - Run Script"),
+
+(2421100,9,0,0,0,0,100,0,1000,1000,0,0,0,33,24211,0,0,0,0,0,23,0,0,0,0,0,0,0,0,"Freed Winterhoof Longrunner - On Script - Quest Credit 'Rivenwood Captives'"),
+(2421100,9,1,0,0,0,100,0,1000,1000,0,0,0,66,0,0,0,0,0,0,23,0,0,0,0,0,0,0,0,"Freed Winterhoof Longrunner - On Script - Set Orientation Owner"),
+(2421100,9,2,0,0,0,100,0,1000,1000,0,0,0,29,0,0,0,0,0,0,23,0,0,0,0,0,0,0,0,"Freed Winterhoof Longrunner - On Script - Start Follow Owner"),
+-- Our usual hack
+(2421100,9,3,0,0,0,100,0,6000,6000,0,0,0,69,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Freed Winterhoof Longrunner - On Script - Stop Follow Owner"),
+(2421100,9,4,0,0,0,100,0,0,0,0,0,0,1,0,0,0,0,0,0,23,0,0,0,0,0,0,0,0,"Freed Winterhoof Longrunner - On Script - Say Line 0"),
+(2421100,9,5,0,0,0,100,0,0,0,0,0,0,41,6000,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Freed Winterhoof Longrunner - On Script - Delayed Despawn");
+
+-- Reorder
+DELETE FROM `creature_text` WHERE `CreatureID` = 24211;
+INSERT INTO `creature_text` (`CreatureID`,`GroupID`,`ID`,`Text`,`Type`,`Language`,`Probability`,`Emote`,`Duration`,`Sound`,`BroadcastTextId`,`TextRange`,`comment`) VALUES
+(24211,0,0,"Thank you, stranger.",12,1,100,1,0,0,22945,0,"Freed Winterhoof Longrunner"),
+(24211,0,1,"I must return. Good hunting to you.",12,1,100,1,0,0,22946,0,"Freed Winterhoof Longrunner"),
+(24211,0,2,"Blessings of the spirits of the land and air upon you.",12,1,100,1,0,0,22947,0,"Freed Winterhoof Longrunner"),
+(24211,0,3,"You saved me from certain death. I owe you.",12,1,100,1,0,0,22948,0,"Freed Winterhoof Longrunner"),
+(24211,0,4,"We should never have traveled through the Rivenwood. Everyone knows this!",12,1,100,1,0,0,22949,0,"Freed Winterhoof Longrunner"),
+(24211,0,5,"Strange ghosts walk the land. Be careful!",12,1,100,1,0,0,22950,0,"Freed Winterhoof Longrunner"),
+(24211,0,6,"They took us one by one. I'm sure there are other survivors.",12,1,100,1,0,0,22951,0,"Freed Winterhoof Longrunner"),
+(24211,0,7,"I owe you a life debt, stranger.",12,1,100,1,0,0,22952,0,"Freed Winterhoof Longrunner");
