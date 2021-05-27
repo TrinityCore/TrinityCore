@@ -1,7 +1,8 @@
 -- Quest creature will be not summoned if cocoon is killed by a pet, it's close to correct behavior. I mean, in retail they summons nothing
--- if killed by pets. Perhaps our conditions work differently or we need to add another condition to check if killer is player
+-- if killed by pets. Perhaps our conditions work differently or we need to add another condition to check if killer is player. It's also possible that
+-- final check is done in spell script
 -- Chance to summon hostile unit may be just 75 and not 66, it's just not easy to find a balance between chance and respawn time to
--- reflect what I see in movies
+-- reflect what I see in movies. In case of Rivenwood chance 80 looks fine
 -- Quest creatures currently can be attacked by other creatures, they don't have immune flag. It may look like a bug but it's probably not
 
 -- They're Alive! Maybe...
