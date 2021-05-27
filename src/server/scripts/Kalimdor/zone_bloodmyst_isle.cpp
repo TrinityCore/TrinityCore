@@ -773,7 +773,7 @@ enum FreeWebbedBloodmyst
     SPELL_FREE_WEBBED_11     = 31010
 };
 
-std::array<uint32, 10> const SummonSpells =
+uint32 const CocoonSummonSpells[10] =
 {
     SPELL_FREE_WEBBED_1, SPELL_FREE_WEBBED_2, SPELL_FREE_WEBBED_3, SPELL_FREE_WEBBED_4, SPELL_FREE_WEBBED_5,
     SPELL_FREE_WEBBED_6, SPELL_FREE_WEBBED_7, SPELL_FREE_WEBBED_8, SPELL_FREE_WEBBED_9, SPELL_FREE_WEBBED_10
@@ -786,17 +786,12 @@ class spell_free_webbed : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo(
-        {
-            SPELL_FREE_WEBBED_1, SPELL_FREE_WEBBED_2, SPELL_FREE_WEBBED_3, SPELL_FREE_WEBBED_4,
-            SPELL_FREE_WEBBED_5, SPELL_FREE_WEBBED_6, SPELL_FREE_WEBBED_7, SPELL_FREE_WEBBED_8,
-            SPELL_FREE_WEBBED_9, SPELL_FREE_WEBBED_10
-        });
+        return ValidateSpellInfo(CocoonSummonSpells);
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetCaster(), Trinity::Containers::SelectRandomContainerElement(SummonSpells), true);
+        GetCaster()->CastSpell(GetCaster(), Trinity::Containers::SelectRandomContainerElement(CocoonSummonSpells), true);
     }
 
     void Register() override
@@ -812,12 +807,7 @@ class spell_free_webbed_on_quest : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo(
-        {
-            SPELL_FREE_WEBBED_1, SPELL_FREE_WEBBED_2, SPELL_FREE_WEBBED_3, SPELL_FREE_WEBBED_4,
-            SPELL_FREE_WEBBED_5, SPELL_FREE_WEBBED_6, SPELL_FREE_WEBBED_7, SPELL_FREE_WEBBED_8,
-            SPELL_FREE_WEBBED_9, SPELL_FREE_WEBBED_10, SPELL_FREE_WEBBED_11
-        });
+        return ValidateSpellInfo(CocoonSummonSpells) && ValidateSpellInfo({ SPELL_FREE_WEBBED_11 });
     }
 
     // This one is a bit different from the one used in Terokkar. There is additional spell 31011 which apply periodic aura to trigger
@@ -828,7 +818,7 @@ class spell_free_webbed_on_quest : public SpellScript
         Unit* target = GetHitUnit();
 
         if (roll_chance_i(66))
-            caster->CastSpell(caster, Trinity::Containers::SelectRandomContainerElement(SummonSpells), true);
+            caster->CastSpell(caster, Trinity::Containers::SelectRandomContainerElement(CocoonSummonSpells), true);
         else
             target->CastSpell(caster, SPELL_FREE_WEBBED_11, true);
     }

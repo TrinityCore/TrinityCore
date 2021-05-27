@@ -534,7 +534,7 @@ enum RivenwoodCaptives
     SPELL_SUMMON_FREED_MIST_WHISPER_SCOUT = 43289
 };
 
-std::array<uint32, 11> const SummonSpells =
+uint32 const CocoonSummonSpells[11] =
 {
     SPELL_SUMMON_BABY_RIVEN_WIDOWS,
     SPELL_SUMMON_DARKCLAW_BAT,
@@ -556,25 +556,12 @@ class spell_rivenwood_captives_not_on_quest : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo(
-        {
-            SPELL_SUMMON_BABY_RIVEN_WIDOWS,
-            SPELL_SUMMON_DARKCLAW_BAT,
-            SPELL_SUMMON_FANGGORE_WORG,
-            SPELL_SUMMON_GJALERBRON_RUNECASTER,
-            SPELL_SUMMON_GJALERBRON_SLEEPWATCHER,
-            SPELL_SUMMON_GJALERBRON_WARRIOR,
-            SPELL_SUMMON_PUTRID_HORROR,
-            SPELL_SUMMON_WINTERSKORN_BERSERKER,
-            SPELL_SUMMON_WINTERSKORN_WOODSMAN,
-            SPELL_SUMMON_WINTERSKORN_TRIBESMAN,
-            SPELL_SUMMON_WINTERSKORN_ORACLE
-        });
+        return ValidateSpellInfo(CocoonSummonSpells);
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(GetCaster(), Trinity::Containers::SelectRandomContainerElement(SummonSpells), true);
+        GetHitUnit()->CastSpell(GetCaster(), Trinity::Containers::SelectRandomContainerElement(CocoonSummonSpells), true);
     }
 
     void Register() override
@@ -590,21 +577,7 @@ class spell_rivenwood_captives_on_quest : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo(
-        {
-            SPELL_SUMMON_BABY_RIVEN_WIDOWS,
-            SPELL_SUMMON_DARKCLAW_BAT,
-            SPELL_SUMMON_FANGGORE_WORG,
-            SPELL_SUMMON_GJALERBRON_RUNECASTER,
-            SPELL_SUMMON_GJALERBRON_SLEEPWATCHER,
-            SPELL_SUMMON_GJALERBRON_WARRIOR,
-            SPELL_SUMMON_PUTRID_HORROR,
-            SPELL_SUMMON_WINTERSKORN_BERSERKER,
-            SPELL_SUMMON_WINTERSKORN_WOODSMAN,
-            SPELL_SUMMON_WINTERSKORN_TRIBESMAN,
-            SPELL_SUMMON_WINTERSKORN_ORACLE,
-            SPELL_SUMMON_FREED_MIST_WHISPER_SCOUT
-        });
+        return ValidateSpellInfo(CocoonSummonSpells) && ValidateSpellInfo({ SPELL_SUMMON_FREED_MIST_WHISPER_SCOUT });
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -613,7 +586,7 @@ class spell_rivenwood_captives_on_quest : public SpellScript
         Unit* target = GetHitUnit();
 
         if (roll_chance_i(80))
-            target->CastSpell(caster, Trinity::Containers::SelectRandomContainerElement(SummonSpells), true);
+            target->CastSpell(caster, Trinity::Containers::SelectRandomContainerElement(CocoonSummonSpells), true);
         else
             target->CastSpell(caster, SPELL_SUMMON_FREED_MIST_WHISPER_SCOUT, true);
     }

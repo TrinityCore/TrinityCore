@@ -191,7 +191,7 @@ enum FreeWebbedTerokkar
     SPELL_FREE_WEBBED_6      = 38978
 };
 
-std::array<uint32, 5> const SummonSpells =
+uint32 const CocoonSummonSpells[5] =
 {
     SPELL_FREE_WEBBED_1, SPELL_FREE_WEBBED_2, SPELL_FREE_WEBBED_3, SPELL_FREE_WEBBED_4, SPELL_FREE_WEBBED_5
 };
@@ -203,16 +203,12 @@ class spell_free_webbed_terokkar : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo(
-        {
-            SPELL_FREE_WEBBED_1, SPELL_FREE_WEBBED_2, SPELL_FREE_WEBBED_3,
-            SPELL_FREE_WEBBED_4, SPELL_FREE_WEBBED_5
-        });
+        return ValidateSpellInfo(CocoonSummonSpells);
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetCaster(), Trinity::Containers::SelectRandomContainerElement(SummonSpells), true);
+        GetCaster()->CastSpell(GetCaster(), Trinity::Containers::SelectRandomContainerElement(CocoonSummonSpells), true);
     }
 
     void Register() override
@@ -228,11 +224,7 @@ class spell_free_webbed_terokkar_on_quest : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo(
-        {
-            SPELL_FREE_WEBBED_1, SPELL_FREE_WEBBED_2, SPELL_FREE_WEBBED_3,
-            SPELL_FREE_WEBBED_4, SPELL_FREE_WEBBED_5, SPELL_FREE_WEBBED_6
-        });
+        return ValidateSpellInfo(CocoonSummonSpells) && ValidateSpellInfo({ SPELL_FREE_WEBBED_6 });
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -241,7 +233,7 @@ class spell_free_webbed_terokkar_on_quest : public SpellScript
         Unit* target = GetHitUnit();
 
         if (roll_chance_i(66))
-            caster->CastSpell(caster, Trinity::Containers::SelectRandomContainerElement(SummonSpells), true);
+            caster->CastSpell(caster, Trinity::Containers::SelectRandomContainerElement(CocoonSummonSpells), true);
         else
             target->CastSpell(caster, SPELL_FREE_WEBBED_6, true);
     }
