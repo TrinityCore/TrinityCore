@@ -97,6 +97,9 @@ class TC_COMMON_API Log
         std::string const& GetLogsDir() const { return m_logsDir; }
         std::string const& GetLogsTimestamp() const { return m_logsTimestamp; }
 
+        void CreateAppenderFromConfigLine(std::string const& name, std::string const& options);
+        void CreateLoggerFromConfigLine(std::string const& name, std::string const& options);
+
     private:
         static std::string GetTimestampStr();
         void write(std::unique_ptr<LogMessage>&& msg) const;
