@@ -404,7 +404,7 @@ class npc_apothecary_baxter : public CreatureScript
         }
 };
 
-// 68965 -[DND] Lingering Fumes Targetting (starter)
+// 68965 - [DND] Lingering Fumes Targetting (starter)
 class spell_apothecary_lingering_fumes : public SpellScriptLoader
 {
     public:

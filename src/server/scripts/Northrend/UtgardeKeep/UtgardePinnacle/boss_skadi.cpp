@@ -576,6 +576,7 @@ struct npc_ymirjar_harpooner : public npc_skadi_trashAI
     }
 };
 
+// 47594 - Freezing Cloud
 class spell_freezing_cloud_area_right : public SpellScript
 {
     PrepareSpellScript(spell_freezing_cloud_area_right);
@@ -602,6 +603,7 @@ class spell_freezing_cloud_area_right : public SpellScript
     }
 };
 
+// 47574 - Freezing Cloud
 class spell_freezing_cloud_area_left : public SpellScript
 {
     PrepareSpellScript(spell_freezing_cloud_area_left);
@@ -628,6 +630,7 @@ class spell_freezing_cloud_area_left : public SpellScript
     }
 };
 
+// 47579, 60020 - Freezing Cloud
 class spell_freezing_cloud_damage : public AuraScript
 {
     PrepareAuraScript(spell_freezing_cloud_damage);

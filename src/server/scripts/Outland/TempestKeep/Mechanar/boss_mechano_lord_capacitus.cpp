@@ -169,6 +169,8 @@ class boss_mechano_lord_capacitus : public CreatureScript
         }
 };
 
+// 39090 - Positive Charge
+// 39093 - Negative Charge
 class spell_capacitus_polarity_charge : public SpellScriptLoader
 {
     public:
@@ -235,6 +237,7 @@ class spell_capacitus_polarity_charge : public SpellScriptLoader
         }
 };
 
+// 39096 - Polarity Shift
 class spell_capacitus_polarity_shift : public SpellScriptLoader
 {
     public:

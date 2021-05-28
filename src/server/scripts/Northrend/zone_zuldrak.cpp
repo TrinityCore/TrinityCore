@@ -1028,6 +1028,7 @@ class spell_scourge_disguise_expiring : public AuraScript
     }
 };
 
+// 54089 - Drop Disguise
 class spell_drop_disguise : public SpellScript
 {
     PrepareSpellScript(spell_drop_disguise);

@@ -247,6 +247,7 @@ private:
     uint32 _permafrostStack;
 };
 
+// 68786, 70336 - Permafrost
 class spell_garfrost_permafrost : public SpellScript
 {
     PrepareSpellScript(spell_garfrost_permafrost);

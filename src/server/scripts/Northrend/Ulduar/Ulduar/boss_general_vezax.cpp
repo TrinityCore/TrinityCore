@@ -448,6 +448,7 @@ class npc_saronite_vapors : public CreatureScript
         }
 };
 
+// 63276 - Mark of the Faceless
 class spell_general_vezax_mark_of_the_faceless : public SpellScriptLoader
 {
     public:
@@ -484,6 +485,7 @@ class spell_general_vezax_mark_of_the_faceless : public SpellScriptLoader
         }
 };
 
+// 63278 - Mark of the Faceless
 class spell_general_vezax_mark_of_the_faceless_leech : public SpellScriptLoader
 {
     public:
@@ -513,6 +515,7 @@ class spell_general_vezax_mark_of_the_faceless_leech : public SpellScriptLoader
         }
 };
 
+// 63322 - Saronite Vapors
 class spell_general_vezax_saronite_vapors : public SpellScriptLoader
 {
     public:

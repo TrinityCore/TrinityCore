@@ -133,6 +133,7 @@ class achievement_defenseless : public AchievementCriteriaScript
         }
 };
 
+// 58694 - Arcane Vacuum
 class spell_cyanigosa_arcane_vacuum : public SpellScript
 {
     PrepareSpellScript(spell_cyanigosa_arcane_vacuum);

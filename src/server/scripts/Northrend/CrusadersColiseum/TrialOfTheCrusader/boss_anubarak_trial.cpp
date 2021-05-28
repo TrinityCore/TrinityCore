@@ -912,6 +912,7 @@ class spell_impale : public SpellScriptLoader
         }
 };
 
+// 66118, 67630, 68646, 68647 - Leeching Swarm
 class spell_anubarak_leeching_swarm : public SpellScriptLoader
 {
     public:

@@ -276,7 +276,7 @@ class go_broggok_lever : public GameObjectScript
         }
 };
 
-// 30914, 38462 - Poison (Broggok)
+// 30914, 38462 - Poison
 class spell_broggok_poison_cloud : public SpellScriptLoader
 {
     public:

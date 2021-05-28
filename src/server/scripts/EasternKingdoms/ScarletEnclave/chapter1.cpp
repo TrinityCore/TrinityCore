@@ -349,6 +349,7 @@ class go_acherus_soul_prison : public GameObjectScript
         }
 };
 
+// 51519 - Death Knight Initiate Visual
 class spell_death_knight_initiate_visual : public SpellScript
 {
     PrepareSpellScript(spell_death_knight_initiate_visual);
@@ -865,6 +866,7 @@ class spell_stable_master_repo : public AuraScript
     }
 };
 
+// 52264 - Deliver Stolen Horse
 class spell_deliver_stolen_horse : public SpellScript
 {
     PrepareSpellScript(spell_deliver_stolen_horse);

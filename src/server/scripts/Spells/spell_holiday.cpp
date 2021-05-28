@@ -1341,6 +1341,7 @@ class spell_brewfest_relay_race_intro_force_player_to_throw : public SpellScript
         }
 };
 
+// 43755 - Brewfest - Daily - Relay Race - Player - Increase Mount Duration - DND
 class spell_brewfest_relay_race_turn_in : public SpellScriptLoader
 {
 public:

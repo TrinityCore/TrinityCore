@@ -243,6 +243,7 @@ private:
 
 };
 
+// 47941 - Crystal Spike
 class spell_crystal_spike : public AuraScript
 {
     PrepareAuraScript(spell_crystal_spike);

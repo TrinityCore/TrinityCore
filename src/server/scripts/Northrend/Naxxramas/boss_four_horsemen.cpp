@@ -646,6 +646,10 @@ struct boss_four_horsemen_sir : public boss_four_horsemen_baseAI
         bool _shouldSay; // throttle to make sure we only talk on first target hit by holy wrath
 };
 
+// 28832 - Mark of Korth'azz
+// 28833 - Mark of Blaumeux
+// 28834 - Mark of Rivendare
+// 28835 - Mark of Zeliek
 class spell_four_horsemen_mark : public AuraScript
 {
     PrepareAuraScript(spell_four_horsemen_mark);
@@ -694,6 +698,7 @@ class spell_four_horsemen_mark : public AuraScript
     }
 };
 
+// 28865 - Consumption
 class spell_four_horsemen_consumption : public SpellScript
 {
     PrepareSpellScript(spell_four_horsemen_consumption);

@@ -712,8 +712,7 @@ class npc_bullet_controller : public CreatureScript
         }
 };
 
-// 66149 - Bullet Controller Periodic
-// 68396 - Bullet Controller Periodic
+// 66149, 68396 - Bullet Controller Periodic
 class spell_bullet_controller : public AuraScript
 {
     PrepareAuraScript(spell_bullet_controller);

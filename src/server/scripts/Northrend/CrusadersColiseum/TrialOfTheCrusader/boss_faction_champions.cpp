@@ -2248,6 +2248,7 @@ class npc_toc_pet_hunter : public CreatureScript
         }
 };
 
+// 65812, 68154, 68155, 68156 - Unstable Affliction
 class spell_faction_champion_warl_unstable_affliction : public SpellScriptLoader
 {
     public:
@@ -2280,6 +2281,7 @@ class spell_faction_champion_warl_unstable_affliction : public SpellScriptLoader
         }
 };
 
+// 66017, 68753, 68754, 68755 - Death Grip
 class spell_faction_champion_death_grip : public SpellScriptLoader
 {
     public:

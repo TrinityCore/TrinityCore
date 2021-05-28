@@ -2743,6 +2743,8 @@ class spell_q13665_q13790_bested_trigger : public SpellScriptLoader
 };
 
 // herald of war and life without regret portal spells
+// 59064 - Portal to Orgrimmar
+// 59439 - Portal to Undercity
 class spell_59064_59439_portals : public SpellScriptLoader
 {
 public:

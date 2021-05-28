@@ -1094,7 +1094,7 @@ class spell_dru_predatory_strikes : public AuraScript
     }
 };
 
-// 33851 - Primal Tenacity
+// -33851 - Primal Tenacity
 class spell_dru_primal_tenacity : public AuraScript
 {
     PrepareAuraScript(spell_dru_primal_tenacity);

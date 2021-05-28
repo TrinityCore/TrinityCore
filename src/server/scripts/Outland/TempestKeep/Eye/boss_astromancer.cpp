@@ -499,6 +499,7 @@ class npc_solarium_priest : public CreatureScript
         }
 };
 
+// 42783 - Wrath of the Astromancer
 class spell_astromancer_wrath_of_the_astromancer : public SpellScriptLoader
 {
     public:
