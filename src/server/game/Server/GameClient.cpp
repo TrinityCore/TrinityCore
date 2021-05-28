@@ -37,6 +37,7 @@ void GameClient::AddAllowedMover(Unit* unit)
 
 void GameClient::RemoveAllowedMover(Unit* unit)
 {
+    unit->PurgePendingMovementChanges();
     _allowedMovers.erase(unit->GetGUID());
     if (unit->GetGameClientMovingMe() == this)
     {

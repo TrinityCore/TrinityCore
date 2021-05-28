@@ -1695,6 +1695,7 @@ class TC_GAME_API Unit : public WorldObject
         void PushPendingMovementChange(PlayerMovementPendingChange newChange);
         bool HasPendingMovementChange() const { return !m_pendingMovementChanges.empty(); }
         bool HasPendingMovementChange(MovementChangeType changeType) const;
+        void PurgePendingMovementChanges();
 
         void RewardRage(uint32 damage, uint32 weaponSpeedHitFactor, bool attacker);
 
@@ -1838,7 +1839,6 @@ class TC_GAME_API Unit : public WorldObject
         void UpdateSplinePosition();
         void InterruptMovementBasedAuras();
         void CheckPendingMovementAcks();
-        void PurgePendingMovementChanges();
 
         // player or player's pet
         float GetCombatRatingReduction(CombatRating cr) const;

@@ -12949,7 +12949,33 @@ void Unit::CheckPendingMovementAcks()
 
 void Unit::PurgePendingMovementChanges()
 {
-    //todo
+    for (auto pendingChange = m_pendingMovementChanges.cbegin(); pendingChange != m_pendingMovementChanges.cend(); ++pendingChange)
+    {
+        float speedFlat = pendingChange->newValue;
+        MovementChangeType changeType = pendingChange->movementChangeType;
+        UnitMoveType moveType;
+        switch (changeType)
+        {
+            case SPEED_CHANGE_WALK:                 moveType = MOVE_WALK; break;
+            case SPEED_CHANGE_RUN:                  moveType = MOVE_RUN; break;
+            case SPEED_CHANGE_RUN_BACK:             moveType = MOVE_RUN_BACK; break;
+            case SPEED_CHANGE_SWIM:                 moveType = MOVE_SWIM; break;
+            case SPEED_CHANGE_SWIM_BACK:            moveType = MOVE_SWIM_BACK; break;
+            case RATE_CHANGE_TURN:                  moveType = MOVE_TURN_RATE; break;
+            case SPEED_CHANGE_FLIGHT_SPEED:         moveType = MOVE_FLIGHT; break;
+            case SPEED_CHANGE_FLIGHT_BACK_SPEED:    moveType = MOVE_FLIGHT_BACK; break;
+            case RATE_CHANGE_PITCH:                 moveType = MOVE_PITCH_RATE; break;
+            default:
+                ASSERT(false);
+                return;
+        }
+
+        float newSpeedRate = speedFlat / (IsControlledByPlayer() ? playerBaseMoveSpeed[moveType] : baseMoveSpeed[moveType]);
+        SetSpeedRateReal(moveType, newSpeedRate);
+        MovementPacketSender::SendSpeedChangeToObservers(this, moveType, speedFlat);
+    }
+
+    m_pendingMovementChanges.clear();
 }
 
 PlayerMovementPendingChange::PlayerMovementPendingChange()
