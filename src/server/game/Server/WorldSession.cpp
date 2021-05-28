@@ -423,12 +423,6 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 
     _recvQueue.readd(requeuePackets.begin(), requeuePackets.end());
 
-    //if (_player && _player->IsRepopPending() && !_player->HasPendingMovementChange())
-    //    _player->RepopAtGraveyard();
-
-    //if (_player && _player->IsHasDelayedTeleport() && _player->IsAlive())
-    //    _player->TeleportTo(_player->m_teleport_dest, _player->m_teleport_options);
-
     if (!updater.ProcessUnsafe()) // <=> updater is of type MapSessionFilter
     {
         // Send time sync packet every 10s.
