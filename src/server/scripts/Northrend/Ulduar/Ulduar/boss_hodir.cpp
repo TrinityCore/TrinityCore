@@ -983,6 +983,7 @@ class npc_toasty_fire : public CreatureScript
         };
 };
 
+// 62038 - Biting Cold
 class spell_biting_cold : public SpellScriptLoader
 {
     public:
@@ -1039,6 +1040,7 @@ class spell_biting_cold : public SpellScriptLoader
         }
 };
 
+// 62039 - Biting Cold
 class spell_biting_cold_dot : public SpellScriptLoader
 {
 public:

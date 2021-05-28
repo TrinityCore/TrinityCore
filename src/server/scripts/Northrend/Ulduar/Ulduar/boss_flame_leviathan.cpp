@@ -1590,6 +1590,7 @@ class spell_load_into_catapult : public SpellScriptLoader
         }
 };
 
+// 62705 - Auto-repair
 class spell_auto_repair : public SpellScriptLoader
 {
     enum Spells

@@ -570,6 +570,7 @@ class spell_ick_explosive_barrage : public AuraScript
     }
 };
 
+// 44851 - Hasty Grow
 class spell_exploding_orb_hasty_grow : public AuraScript
 {
     PrepareAuraScript(spell_exploding_orb_hasty_grow);

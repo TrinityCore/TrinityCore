@@ -717,6 +717,7 @@ class DreamFogTargetSelector
         }
 };
 
+// 24778 - Sleep
 class spell_dream_fog_sleep : public SpellScriptLoader
 {
     public:

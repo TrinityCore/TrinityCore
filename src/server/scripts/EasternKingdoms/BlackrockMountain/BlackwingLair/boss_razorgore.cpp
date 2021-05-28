@@ -201,6 +201,7 @@ class go_orb_of_domination : public GameObjectScript
         }
 };
 
+// 19873 - Destroy Egg
 class spell_egg_event : public SpellScriptLoader
 {
     public:

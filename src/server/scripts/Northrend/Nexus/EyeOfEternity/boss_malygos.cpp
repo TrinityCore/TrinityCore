@@ -1856,6 +1856,7 @@ class ExactDistanceCheck
         float _dist;
 };
 
+// 56438 - Arcane Overload
 class spell_arcane_overload : public SpellScriptLoader
 {
     public:
@@ -2060,6 +2061,7 @@ class spell_malygos_destroy_platform_channel : public SpellScriptLoader
         }
 };
 
+// 59084 - Destroy Platform Boom Visual
 class spell_alexstrasza_bunny_destroy_platform_boom_visual : public SpellScriptLoader
 {
     public:
@@ -2097,6 +2099,7 @@ class spell_alexstrasza_bunny_destroy_platform_boom_visual : public SpellScriptL
         }
 };
 
+// 59099 - Destroy Platform Event
 class spell_alexstrasza_bunny_destroy_platform_event : public SpellScriptLoader
 {
     public:
@@ -2317,6 +2320,7 @@ class spell_malygos_surge_of_power_25 : public SpellScriptLoader
         }
 };
 
+// 61028 - Alexstrasza's Gift Beam
 class spell_alexstrasza_gift_beam : public SpellScriptLoader
 {
     public:
@@ -2361,6 +2365,7 @@ class spell_alexstrasza_gift_beam : public SpellScriptLoader
         }
 };
 
+// 61023 - Alexstrasza's Gift Visual
 class spell_alexstrasza_gift_beam_visual : public SpellScriptLoader
 {
     public:

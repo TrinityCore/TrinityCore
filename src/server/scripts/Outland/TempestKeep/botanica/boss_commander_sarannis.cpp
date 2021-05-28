@@ -161,6 +161,7 @@ enum Creatures
     NPC_SUMMONED_BLOODWARDER_RESERVIST  = 20078
 };
 
+// 34803 - Summon Reinforcements
 class spell_commander_sarannis_summon_reinforcements : public SpellScriptLoader
 {
     public:

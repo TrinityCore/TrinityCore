@@ -4313,7 +4313,6 @@ class spell_gen_vehicle_control_link : public AuraScript
     }
 };
 
-// 34779 - Freezing Circle
 enum FreezingCircleMisc
 {
     SPELL_FREEZING_CIRCLE_PIT_OF_SARON_NORMAL = 69574,
@@ -4323,6 +4322,7 @@ enum FreezingCircleMisc
     MAP_ID_BLOOD_IN_THE_SNOW_SCENARIO         = 1130
 };
 
+// 34779 - Freezing Circle
 class spell_freezing_circle : public SpellScript
 {
     PrepareSpellScript(spell_freezing_circle);

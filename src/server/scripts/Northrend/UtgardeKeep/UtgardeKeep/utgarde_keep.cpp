@@ -111,6 +111,7 @@ enum Fixate
     SPELL_FIXATE_TRIGGER = 40415
 };
 
+// 40414 - Fixate
 class spell_fixate : public SpellScript
 {
     PrepareSpellScript(spell_fixate);

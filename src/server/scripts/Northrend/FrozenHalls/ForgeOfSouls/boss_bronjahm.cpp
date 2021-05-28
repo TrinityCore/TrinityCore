@@ -259,6 +259,7 @@ class npc_corrupted_soul_fragment : public CreatureScript
         }
 };
 
+// 68793, 69050 - Magic's Bane
 class spell_bronjahm_magic_bane : public SpellScriptLoader
 {
     public:
@@ -290,6 +291,7 @@ class spell_bronjahm_magic_bane : public SpellScriptLoader
         }
 };
 
+// 68861 - Consume Soul
 class spell_bronjahm_consume_soul : public SpellScriptLoader
 {
     public:
@@ -356,6 +358,7 @@ class spell_bronjahm_soulstorm_visual : public SpellScriptLoader
         }
 };
 
+// 68921, 69049 - Soulstorm
 class spell_bronjahm_soulstorm_targeting : public SpellScriptLoader
 {
     public:

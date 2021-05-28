@@ -636,6 +636,7 @@ class spell_muru_darkness : SpellScriptLoader
         }
 };
 
+// 45934 - Dark Fiend
 class spell_dark_fiend_skin : public SpellScriptLoader
 {
     public:
