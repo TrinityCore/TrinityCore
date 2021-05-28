@@ -28,8 +28,7 @@ GameClient::GameClient(WorldSession* sessionToServer)
 
 void GameClient::AddAllowedMover(Unit* unit)
 {
-    if (GameClient* previousController = unit->GetGameClientMovingMe())
-        previousController->RemoveAllowedMover(unit);
+    ASSERT(!unit->GetGameClientMovingMe() || unit->GetGameClientMovingMe() == this);
 
     _allowedMovers.insert(unit->GetGUID());
     unit->SetGameClientMovingMe(this);
