@@ -86,8 +86,7 @@ void MovementPacketSender::SendSpeedChangeToObservers(Unit* unit, UnitMoveType m
 
     WorldPacket data;
     data.Initialize(moveTypeToOpcode[mtype][2], 8 + 30 + 4);
-    data << unit->GetPackGUID();
-    unit->BuildMovementPacket(&data);
+    WorldSession::WriteMovementInfo(&data, &unit->m_movementInfo);
     data << newSpeedFlat;
     unit->SendMessageToSet(&data, controller->GetBasePlayer());
 }
