@@ -446,6 +446,7 @@ class npc_scorch_ground : public CreatureScript
         }
 };
 
+// 62717, 63477 - Slag Pot
 class spell_ignis_slag_pot : public SpellScriptLoader
 {
     public:

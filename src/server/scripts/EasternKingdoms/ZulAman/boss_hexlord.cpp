@@ -1002,6 +1002,7 @@ class boss_koragg : public CreatureScript
         }
 };
 
+// 43522 - Unstable Affliction
 class spell_hexlord_unstable_affliction : public SpellScriptLoader
 {
     public:

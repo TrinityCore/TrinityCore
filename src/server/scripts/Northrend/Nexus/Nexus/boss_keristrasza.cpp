@@ -233,6 +233,7 @@ struct containment_sphere : public GameObjectAI
     }
 };
 
+// 48095 - Intense Cold
 class spell_intense_cold : public AuraScript
 {
     PrepareAuraScript(spell_intense_cold);

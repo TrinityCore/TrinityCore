@@ -139,6 +139,8 @@ class npc_ioc_gunship_captain : public CreatureScript
         }
 };
 
+// 66630 - Alliance Gunship Portal
+// 66637 - Horde Gunship Portal
 class spell_ioc_gunship_portal : public SpellScriptLoader
 {
     public:
@@ -179,6 +181,7 @@ class spell_ioc_gunship_portal : public SpellScriptLoader
         }
 };
 
+// 66656 - Parachute
 class spell_ioc_parachute_ic : public SpellScriptLoader
 {
     public:
@@ -235,6 +238,7 @@ class StartLaunchEvent : public BasicEvent
         ObjectGuid::LowType _lowGuid;
 };
 
+// 66218 - Launch
 class spell_ioc_launch : public SpellScriptLoader
 {
     public:
@@ -272,6 +276,8 @@ enum SeaforiumBombSpells
     SPELL_A_BOMB_INATION_CREDIT = 68367
 };
 
+// 66672 - Huge Seaforium Blast
+// 66676 - Seaforium Blast
 class spell_ioc_seaforium_blast_credit : public SpellScriptLoader
 {
     public:

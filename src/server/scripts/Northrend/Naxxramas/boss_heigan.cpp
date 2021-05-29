@@ -211,6 +211,7 @@ struct boss_heigan : public BossAI
         bool _safetyDance; // is achievement still possible? (= no player deaths yet)
 };
 
+// 29371 - Eruption
 class spell_heigan_eruption : public SpellScript
 {
     PrepareSpellScript(spell_heigan_eruption);

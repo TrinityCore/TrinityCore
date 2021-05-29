@@ -183,6 +183,7 @@ class boss_shattered_executioner : public CreatureScript
         }
 };
 
+// 39288, 39289, 39290 - Kargath's Executioner
 class spell_kargath_executioner : public SpellScriptLoader
 {
     public:

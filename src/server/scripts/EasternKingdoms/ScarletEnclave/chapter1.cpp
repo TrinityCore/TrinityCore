@@ -1080,6 +1080,7 @@ enum GiftOfTheHarvester
     SPELL_GHOST_TRANSFORM   = 52505
 };
 
+// 52479 - Gift of the Harvester
 class spell_gift_of_the_harvester : public SpellScript
 {
     PrepareSpellScript(spell_gift_of_the_harvester);
@@ -1087,10 +1088,10 @@ class spell_gift_of_the_harvester : public SpellScript
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo(
-                {
-                        SPELL_GHOUL_TRANFORM,
-                        SPELL_GHOST_TRANSFORM
-                });
+        {
+            SPELL_GHOUL_TRANFORM,
+            SPELL_GHOST_TRANSFORM
+        });
     }
 
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)

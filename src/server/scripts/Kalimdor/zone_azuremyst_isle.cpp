@@ -617,7 +617,7 @@ public:
     }
 };
 
-// 29528 -  Inoculate Nestlewood Owlkin
+// 29528 - Inoculate Nestlewood Owlkin
 class spell_inoculate_nestlewood : public AuraScript
 {
     PrepareAuraScript(spell_inoculate_nestlewood);

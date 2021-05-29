@@ -881,6 +881,7 @@ class spell_pursuing_spikes : public AuraScript
     }
 };
 
+// 65919 - Impale
 class spell_impale : public SpellScriptLoader
 {
     public:

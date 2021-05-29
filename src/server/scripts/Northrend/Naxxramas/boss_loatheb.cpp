@@ -151,6 +151,7 @@ class achievement_spore_loser : public AchievementCriteriaScript
         }
 };
 
+// 29865, 55053 - Deathbloom
 class spell_loatheb_deathbloom : public AuraScript
 {
     PrepareAuraScript(spell_loatheb_deathbloom);

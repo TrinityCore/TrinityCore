@@ -99,7 +99,7 @@ struct boss_koralon : public BossAI
     }
 };
 
-// 66725, 68161 - SPELL_METEOR_FISTS
+// 66725, 68161 - Meteor Fists
 class spell_koralon_meteor_fists : public AuraScript
 {
     PrepareAuraScript(spell_koralon_meteor_fists);
@@ -121,8 +121,8 @@ class spell_koralon_meteor_fists : public AuraScript
     }
 };
 
-// 66765, 67333 - SPELL_METEOR_FISTS_DAMAGE
-// 66809, 67331 - SPELL_FW_METEOR_FISTS_DAMAGE
+// 66765, 67333 - Meteor Fists
+// 66809, 67331 - Meteor Fists
 class spell_koralon_meteor_fists_damage : public SpellScript
 {
     PrepareSpellScript(spell_koralon_meteor_fists_damage);
