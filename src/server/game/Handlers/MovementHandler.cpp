@@ -591,8 +591,7 @@ void WorldSession::HandleMoveNotActiveMover(WorldPacket &recvData)
 
     if (client->GetActivelyMovedUnit() == nullptr || client->GetActivelyMovedUnit()->GetGUID() != old_mover_guid)
     {
-        // this shouldn't never happen in theory
-        TC_LOG_WARN("entities.unit", "unset active mover FAILED for client of player %s. GUID %s.", _player->GetName().c_str(), old_mover_guid.ToString().c_str());
+        TC_LOG_DEBUG("entities.unit", "unset active mover FAILED for client of player %s. GUID %s.", _player->GetName().c_str(), old_mover_guid.ToString().c_str());
         return;
     }
 
