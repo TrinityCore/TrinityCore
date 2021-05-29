@@ -607,6 +607,7 @@ class spell_ulduar_stone_grip : public SpellScriptLoader
         }
 };
 
+// 63720, 64004 - Stone Shout
 class spell_kologarn_stone_shout : public SpellScriptLoader
 {
     public:
@@ -642,6 +643,7 @@ class spell_kologarn_stone_shout : public SpellScriptLoader
         }
 };
 
+// 63342 - Focused Eyebeam Summon Trigger
 class spell_kologarn_summon_focused_eyebeam : public SpellScriptLoader
 {
     public:

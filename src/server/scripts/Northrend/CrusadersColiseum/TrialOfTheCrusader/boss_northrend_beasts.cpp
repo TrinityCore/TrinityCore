@@ -1137,7 +1137,7 @@ class spell_gormok_snobolled : public AuraScript
     }
 };
 
-// 66823 - Paralytic Toxin
+// 66823, 67618, 67619, 67620 - Paralytic Toxin
 class spell_jormungars_paralytic_toxin : public AuraScript
 {
     PrepareAuraScript(spell_jormungars_paralytic_toxin);
@@ -1191,7 +1191,7 @@ class spell_jormungars_paralytic_toxin : public AuraScript
     }
 };
 
-// 66870 - Burning Bile
+// 66870, 67621, 67622, 67623 - Burning Bile
 class spell_jormungars_burning_bile : public SpellScript
 {
     PrepareSpellScript(spell_jormungars_burning_bile);

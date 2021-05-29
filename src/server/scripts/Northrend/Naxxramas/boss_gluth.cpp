@@ -287,7 +287,7 @@ private:
     uint8 state;
 };
 
-// spell 28374 (10man) / 54426 (25man) -  Decimate
+// 28374, 54426 - Decimate
 class spell_gluth_decimate : public SpellScript
 {
     PrepareSpellScript(spell_gluth_decimate);
@@ -330,8 +330,7 @@ class spell_gluth_decimate : public SpellScript
     }
 };
 
-// used by both 28239 & 28404 (single target and aoe zombie-kill spell) to heal Gluth on each target hit.
-
+// 28239, 28404 - Zombie Chow Search (single target and aoe zombie-kill spell) to heal Gluth on each target hit
 class spell_gluth_zombiechow_search : public SpellScript
 {
     PrepareSpellScript(spell_gluth_zombiechow_search);

@@ -199,6 +199,7 @@ struct boss_loken : public BossAI
         bool _isIntroDone;
 };
 
+// 52942, 59837 - Pulsing Shockwave
 class spell_loken_pulsing_shockwave : public SpellScript
 {
     PrepareSpellScript(spell_loken_pulsing_shockwave);
