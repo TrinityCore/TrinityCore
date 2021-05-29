@@ -264,7 +264,7 @@ enum UnitState : uint32
 TC_GAME_API extern float baseMoveSpeed[MAX_MOVE_TYPE];
 TC_GAME_API extern float playerBaseMoveSpeed[MAX_MOVE_TYPE];
 
-enum MovementChangeType
+enum class MovementChangeType : uint8
 {
     INVALID,
 
@@ -296,7 +296,7 @@ struct PlayerMovementPendingChange
     PlayerMovementPendingChange();
 
     uint32 movementCounter = 0;
-    MovementChangeType movementChangeType = INVALID;
+    MovementChangeType movementChangeType = MovementChangeType::INVALID;
     uint32 time;
 
     float newValue = 0.0f; // used if speed or height change

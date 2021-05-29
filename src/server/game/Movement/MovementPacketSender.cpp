@@ -41,17 +41,17 @@ MovementChangeType MovementPacketSender::GetChangeTypeByMoveType(UnitMoveType mo
 {
     switch (moveType)
     {
-    case MOVE_WALK:         return SPEED_CHANGE_WALK;
-    case MOVE_RUN:          return SPEED_CHANGE_RUN;
-    case MOVE_RUN_BACK:     return SPEED_CHANGE_RUN_BACK;
-    case MOVE_SWIM:         return SPEED_CHANGE_SWIM;
-    case MOVE_SWIM_BACK:    return SPEED_CHANGE_SWIM_BACK;
-    case MOVE_TURN_RATE:    return RATE_CHANGE_TURN;
-    case MOVE_FLIGHT:       return SPEED_CHANGE_FLIGHT_SPEED;
-    case MOVE_FLIGHT_BACK:  return SPEED_CHANGE_FLIGHT_BACK_SPEED;
-    case MOVE_PITCH_RATE:   return RATE_CHANGE_PITCH;
-    default:
-        ASSERT(false, "MovementPacketSender::SendSpeedChangeToMover Unsupported UnitMoveType");
+        case MOVE_WALK:         return MovementChangeType::SPEED_CHANGE_WALK;
+        case MOVE_RUN:          return MovementChangeType::SPEED_CHANGE_RUN;
+        case MOVE_RUN_BACK:     return MovementChangeType::SPEED_CHANGE_RUN_BACK;
+        case MOVE_SWIM:         return MovementChangeType::SPEED_CHANGE_SWIM;
+        case MOVE_SWIM_BACK:    return MovementChangeType::SPEED_CHANGE_SWIM_BACK;
+        case MOVE_TURN_RATE:    return MovementChangeType::RATE_CHANGE_TURN;
+        case MOVE_FLIGHT:       return MovementChangeType::SPEED_CHANGE_FLIGHT_SPEED;
+        case MOVE_FLIGHT_BACK:  return MovementChangeType::SPEED_CHANGE_FLIGHT_BACK_SPEED;
+        case MOVE_PITCH_RATE:   return MovementChangeType::RATE_CHANGE_PITCH;
+        default:
+            ASSERT(false, "MovementPacketSender::SendSpeedChangeToMover Unsupported UnitMoveType");
     }
 }
 

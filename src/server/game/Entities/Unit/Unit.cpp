@@ -12938,7 +12938,7 @@ void Unit::CheckPendingMovementAcks()
         For this reason and because the current implementation is simple (you dear reader, feel free to improve it if you can), we will just ignore checking for
         near teleport acks (for now. @todo).
         */
-        if (oldestChangeToAck.movementChangeType == TELEPORT)
+        if (oldestChangeToAck.movementChangeType == MovementChangeType::TELEPORT)
             return;
 
         GameClient* controller = GetGameClientMovingMe();
@@ -12956,15 +12956,15 @@ void Unit::PurgePendingMovementChanges()
         UnitMoveType moveType;
         switch (changeType)
         {
-            case SPEED_CHANGE_WALK:                 moveType = MOVE_WALK; break;
-            case SPEED_CHANGE_RUN:                  moveType = MOVE_RUN; break;
-            case SPEED_CHANGE_RUN_BACK:             moveType = MOVE_RUN_BACK; break;
-            case SPEED_CHANGE_SWIM:                 moveType = MOVE_SWIM; break;
-            case SPEED_CHANGE_SWIM_BACK:            moveType = MOVE_SWIM_BACK; break;
-            case RATE_CHANGE_TURN:                  moveType = MOVE_TURN_RATE; break;
-            case SPEED_CHANGE_FLIGHT_SPEED:         moveType = MOVE_FLIGHT; break;
-            case SPEED_CHANGE_FLIGHT_BACK_SPEED:    moveType = MOVE_FLIGHT_BACK; break;
-            case RATE_CHANGE_PITCH:                 moveType = MOVE_PITCH_RATE; break;
+            case MovementChangeType::SPEED_CHANGE_WALK:                 moveType = MOVE_WALK; break;
+            case MovementChangeType::SPEED_CHANGE_RUN:                  moveType = MOVE_RUN; break;
+            case MovementChangeType::SPEED_CHANGE_RUN_BACK:             moveType = MOVE_RUN_BACK; break;
+            case MovementChangeType::SPEED_CHANGE_SWIM:                 moveType = MOVE_SWIM; break;
+            case MovementChangeType::SPEED_CHANGE_SWIM_BACK:            moveType = MOVE_SWIM_BACK; break;
+            case MovementChangeType::RATE_CHANGE_TURN:                  moveType = MOVE_TURN_RATE; break;
+            case MovementChangeType::SPEED_CHANGE_FLIGHT_SPEED:         moveType = MOVE_FLIGHT; break;
+            case MovementChangeType::SPEED_CHANGE_FLIGHT_BACK_SPEED:    moveType = MOVE_FLIGHT_BACK; break;
+            case MovementChangeType::RATE_CHANGE_PITCH:                 moveType = MOVE_PITCH_RATE; break;
             default:
                 ASSERT(false);
                 return;

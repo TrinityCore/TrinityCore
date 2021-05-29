@@ -503,15 +503,15 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
     UnitMoveType moveTypeSent;
     switch (changeType)
     {
-        case SPEED_CHANGE_WALK:                 moveTypeSent = MOVE_WALK; break;
-        case SPEED_CHANGE_RUN:                  moveTypeSent = MOVE_RUN; break;
-        case SPEED_CHANGE_RUN_BACK:             moveTypeSent = MOVE_RUN_BACK; break;
-        case SPEED_CHANGE_SWIM:                 moveTypeSent = MOVE_SWIM; break;
-        case SPEED_CHANGE_SWIM_BACK:            moveTypeSent = MOVE_SWIM_BACK; break;
-        case RATE_CHANGE_TURN:                  moveTypeSent = MOVE_TURN_RATE; break;
-        case SPEED_CHANGE_FLIGHT_SPEED:         moveTypeSent = MOVE_FLIGHT; break;
-        case SPEED_CHANGE_FLIGHT_BACK_SPEED:    moveTypeSent = MOVE_FLIGHT_BACK; break;
-        case RATE_CHANGE_PITCH:                 moveTypeSent = MOVE_PITCH_RATE; break;
+        case MovementChangeType::SPEED_CHANGE_WALK:                 moveTypeSent = MOVE_WALK; break;
+        case MovementChangeType::SPEED_CHANGE_RUN:                  moveTypeSent = MOVE_RUN; break;
+        case MovementChangeType::SPEED_CHANGE_RUN_BACK:             moveTypeSent = MOVE_RUN_BACK; break;
+        case MovementChangeType::SPEED_CHANGE_SWIM:                 moveTypeSent = MOVE_SWIM; break;
+        case MovementChangeType::SPEED_CHANGE_SWIM_BACK:            moveTypeSent = MOVE_SWIM_BACK; break;
+        case MovementChangeType::RATE_CHANGE_TURN:                  moveTypeSent = MOVE_TURN_RATE; break;
+        case MovementChangeType::SPEED_CHANGE_FLIGHT_SPEED:         moveTypeSent = MOVE_FLIGHT; break;
+        case MovementChangeType::SPEED_CHANGE_FLIGHT_BACK_SPEED:    moveTypeSent = MOVE_FLIGHT_BACK; break;
+        case MovementChangeType::RATE_CHANGE_PITCH:                 moveTypeSent = MOVE_PITCH_RATE; break;
         default:
             TC_LOG_INFO("cheat", "WorldSession::HandleForceSpeedChangeAck: Player %s from account id %u kicked for incorrect data returned in an ack",
                 _player->GetName().c_str(), _player->GetSession()->GetAccountId());

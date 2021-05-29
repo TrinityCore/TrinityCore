@@ -23,6 +23,7 @@
 class Player;
 class Unit;
 struct MovementInfo;
+enum class MovementChangeType : uint8;
 
 //!
 //!   movement flag changes for player controlled units:
