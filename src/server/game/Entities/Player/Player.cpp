@@ -4507,14 +4507,13 @@ void Player::BuildPlayerRepop()
 {
     WorldPackets::Misc::PreRessurect packet;
     packet.PlayerGUID = GetGUID();
-    SendMessageToSet(packet.Write(), true);
+    GetSession()->SendPacket(packet.Write());
 
-    // the ghost spell will take care of the SMSG.FORCE_RUN_SPEED_CHANGE, SMSG.FORCE_SWIM_SPEED_CHANGE, SMSG.MOVE_WATER_WALK and SMSG_FORCE_MOVE_UNROOT
-    // either by spell effects or by spell aura effects
     if (GetRace() == RACE_NIGHTELF)
-        CastSpell(this, 20584);
-    CastSpell(this, 8326); // GHOST SPELL
+        CastSpell(this, 20584, true);
+    CastSpell(this, 8326, true);
 
+    // there must be SMSG.FORCE_RUN_SPEED_CHANGE, SMSG.FORCE_SWIM_SPEED_CHANGE, SMSG.MOVE_WATER_WALK
     // there must be SMSG.STOP_MIRROR_TIMER
 
     // the player cannot have a corpse already on current map, only bones which are not returned by GetCorpse
