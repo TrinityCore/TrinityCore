@@ -22723,7 +22723,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
     /// SMSG_RESYNC_RUNES
     ResyncRunes();
 
-    GetSession()->GetGameClient()->AddAllowedMover(this);
+    GetGameClient()->SetMovedUnit(this, true);
 }
 
 void Player::SendInitialPacketsAfterAddToMap()
