@@ -23,7 +23,7 @@
 
 // SMSG_SPLINE_SET_* messages are for units controlled by the server.
 // SMSG_FORCE_*_SPEED_CHANGE messages are for units controlled by a player and require the client to respond with an ACK message.
-// MSG_MOVE_SET_*_SPEED is used to broadcast changes to observers of units controlled by a player 
+// MSG_MOVE_SET_*_SPEED is used to broadcast changes to observers of units controlled by a player
 Opcodes const MovementPacketSender::moveTypeToOpcode[MAX_MOVE_TYPE][3] =
 {
     { SMSG_SPLINE_SET_WALK_SPEED,        SMSG_FORCE_WALK_SPEED_CHANGE,           MSG_MOVE_SET_WALK_SPEED },

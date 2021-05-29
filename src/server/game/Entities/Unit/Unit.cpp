@@ -8633,10 +8633,10 @@ void Unit::SetSpeedRate(UnitMoveType mtype, float rate)
     }
 
     // explaination of (1):
-    // If the player is not in the world yet, it won't reply to the packets requiring an ack. And once the player is in the world, next time a movement 
-    // packet which requires an ack is sent to the client (change of speed for example), the client is kicked from the 
-    // server on the ground that it should have replied to the first packet first. That line is a hacky fix 
-    // in the sense that it doesn't work like that in retail since buffs are applied only after the player has been 
+    // If the player is not in the world yet, it won't reply to the packets requiring an ack. And once the player is in the world, next time a movement
+    // packet which requires an ack is sent to the client (change of speed for example), the client is kicked from the
+    // server on the ground that it should have replied to the first packet first. That line is a hacky fix
+    // in the sense that it doesn't work like that in retail since buffs are applied only after the player has been
     // initialized in the world. cf description of PR #18771
 }
 

@@ -486,7 +486,7 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
 
     recvData >> movementCounter;
     ReadMovementInfo(recvData, &movementInfo);
-    recvData >> speedReceived;  
+    recvData >> speedReceived;
 
     // verify that indeed the client is replying with the changes that were send to him
     if (!mover->HasPendingMovementChange())
