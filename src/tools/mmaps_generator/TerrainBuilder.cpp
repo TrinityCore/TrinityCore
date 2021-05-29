@@ -17,64 +17,13 @@
 
 #include "TerrainBuilder.h"
 #include "MapBuilder.h"
+#include "MapDefines.h"
 #include "MapTree.h"
 #include "MMapDefines.h"
 #include "ModelInstance.h"
+#include "Util.h"
 #include "VMapFactory.h"
 #include "VMapManager2.h"
-
-// ******************************************
-// Map file format defines
-// ******************************************
-struct map_fileheader
-{
-    uint32 mapMagic;
-    uint32 versionMagic;
-    uint32 buildMagic;
-    uint32 areaMapOffset;
-    uint32 areaMapSize;
-    uint32 heightMapOffset;
-    uint32 heightMapSize;
-    uint32 liquidMapOffset;
-    uint32 liquidMapSize;
-    uint32 holesOffset;
-    uint32 holesSize;
-};
-
-#define MAP_HEIGHT_NO_HEIGHT  0x0001
-#define MAP_HEIGHT_AS_INT16   0x0002
-#define MAP_HEIGHT_AS_INT8    0x0004
-
-struct map_heightHeader
-{
-    uint32 fourcc;
-    uint32 flags;
-    float  gridHeight;
-    float  gridMaxHeight;
-};
-
-#define MAP_LIQUID_NO_TYPE    0x0001
-#define MAP_LIQUID_NO_HEIGHT  0x0002
-
-struct map_liquidHeader
-{
-    uint32 fourcc;
-    uint8 flags;
-    uint8 liquidFlags;
-    uint16 liquidType;
-    uint8  offsetX;
-    uint8  offsetY;
-    uint8  width;
-    uint8  height;
-    float  liquidLevel;
-};
-
-#define MAP_LIQUID_TYPE_NO_WATER    0x00
-#define MAP_LIQUID_TYPE_WATER       0x01
-#define MAP_LIQUID_TYPE_OCEAN       0x02
-#define MAP_LIQUID_TYPE_MAGMA       0x04
-#define MAP_LIQUID_TYPE_SLIME       0x08
-#define MAP_LIQUID_TYPE_DARK_WATER  0x10
 
 namespace MMAP
 {
@@ -150,7 +99,7 @@ namespace MMAP
 
         map_fileheader fheader;
         if (fread(&fheader, sizeof(map_fileheader), 1, mapFile) != 1 ||
-            fheader.versionMagic != *((uint32 const*)(MAP_VERSION_MAGIC)))
+            fheader.versionMagic != MapVersionMagic)
         {
             fclose(mapFile);
             printf("%s is the wrong version, please extract new .map files\n", mapFileName);
@@ -164,7 +113,7 @@ namespace MMAP
         bool haveLiquid = false;
         if (fread(&hheader, sizeof(map_heightHeader), 1, mapFile) == 1)
         {
-            haveTerrain = !(hheader.flags & MAP_HEIGHT_NO_HEIGHT);
+            haveTerrain = !hheader.flags.HasFlag(map_heightHeaderFlags::NoHeight);
             haveLiquid = fheader.liquidMapOffset && !m_skipLiquid;
         }
 
@@ -180,7 +129,7 @@ namespace MMAP
         memset(holes, 0, sizeof(holes));
         uint16 liquid_entry[16][16];
         memset(liquid_entry, 0, sizeof(liquid_entry));
-        uint8 liquid_flags[16][16];
+        map_liquidHeaderTypeFlags liquid_flags[16][16];
         memset(liquid_flags, 0, sizeof(liquid_flags));
         G3D::Array<int> ltriangles;
         G3D::Array<int> ttriangles;
@@ -192,7 +141,7 @@ namespace MMAP
             float V9[V9_SIZE_SQ], V8[V8_SIZE_SQ];
             int expected = V9_SIZE_SQ + V8_SIZE_SQ;
 
-            if (hheader.flags & MAP_HEIGHT_AS_INT8)
+            if (hheader.flags.HasFlag(map_heightHeaderFlags::HeightAsInt8))
             {
                 uint8 v9[V9_SIZE_SQ];
                 uint8 v8[V8_SIZE_SQ];
@@ -210,7 +159,7 @@ namespace MMAP
                 for (int i = 0; i < V8_SIZE_SQ; ++i)
                     V8[i] = (float)v8[i]*heightMultiplier + hheader.gridHeight;
             }
-            else if (hheader.flags & MAP_HEIGHT_AS_INT16)
+            else if (hheader.flags.HasFlag(map_heightHeaderFlags::HeightAsInt16))
             {
                 uint16 v9[V9_SIZE_SQ];
                 uint16 v8[V8_SIZE_SQ];
@@ -291,7 +240,7 @@ namespace MMAP
 
             float* liquid_map = nullptr;
 
-            if (!(lheader.flags & MAP_LIQUID_NO_TYPE))
+            if (!lheader.flags.HasFlag(map_liquidHeaderFlags::NoType))
             {
                 if (fread(liquid_entry, sizeof(liquid_entry), 1, mapFile) != 1)
                     printf("TerrainBuilder::loadMap: Failed to read some data expected 1, read 0\n");
@@ -304,7 +253,7 @@ namespace MMAP
                 std::fill_n(&liquid_flags[0][0], 16 * 16, lheader.liquidFlags);
             }
 
-            if (!(lheader.flags & MAP_LIQUID_NO_HEIGHT))
+            if (!lheader.flags.HasFlag(map_liquidHeaderFlags::NoHeight))
             {
                 uint32 toRead = lheader.width * lheader.height;
                 liquid_map = new float [toRead];
@@ -324,7 +273,7 @@ namespace MMAP
             int row, col;
 
             // generate coordinates
-            if (!(lheader.flags & MAP_LIQUID_NO_HEIGHT))
+            if (!lheader.flags.HasFlag(map_liquidHeaderFlags::NoHeight))
             {
                 int j = 0;
                 for (int i = 0; i < V9_SIZE_SQ; ++i)
@@ -409,7 +358,8 @@ namespace MMAP
                 // default is true, will change to false if needed
                 useTerrain = true;
                 useLiquid = true;
-                uint8 liquidType = MAP_LIQUID_TYPE_NO_WATER;
+                EnumFlag<map_liquidHeaderTypeFlags> liquidType = map_liquidHeaderTypeFlags::NoWater;
+                uint8 navLiquidType = NAV_AREA_EMPTY;
 
                 // if there is no liquid, don't use liquid
                 if (!meshData.liquidVerts.size() || !ltriangles.size())
@@ -417,16 +367,16 @@ namespace MMAP
                 else
                 {
                     liquidType = getLiquidType(i, liquid_flags);
-                    if (liquidType & MAP_LIQUID_TYPE_DARK_WATER)
+                    if (liquidType.HasFlag(map_liquidHeaderTypeFlags::DarkWater))
                     {
                         // players should not be here, so logically neither should creatures
                         useTerrain = false;
                         useLiquid = false;
                     }
-                    else if ((liquidType & (MAP_LIQUID_TYPE_WATER | MAP_LIQUID_TYPE_OCEAN)) != 0)
-                        liquidType = NAV_AREA_WATER;
-                    else if ((liquidType & (MAP_LIQUID_TYPE_MAGMA | MAP_LIQUID_TYPE_SLIME)) != 0)
-                        liquidType = NAV_AREA_MAGMA_SLIME;
+                    else if (liquidType.HasFlag(map_liquidHeaderTypeFlags::Water | map_liquidHeaderTypeFlags::Ocean))
+                        navLiquidType = NAV_AREA_WATER;
+                    else if (liquidType.HasFlag(map_liquidHeaderTypeFlags::Magma | map_liquidHeaderTypeFlags::Slime))
+                        navLiquidType = NAV_AREA_MAGMA_SLIME;
                     else
                         useLiquid = false;
                 }
@@ -512,7 +462,7 @@ namespace MMAP
                 // store the result
                 if (useLiquid)
                 {
-                    meshData.liquidType.append(liquidType);
+                    meshData.liquidType.append(navLiquidType);
                     for (int k = 0; k < 3; ++k)
                         meshData.liquidTris.append(ltris[k]);
                 }
@@ -624,7 +574,7 @@ namespace MMAP
     }
 
     /**************************************************************************/
-    uint8 TerrainBuilder::getLiquidType(int square, const uint8 liquid_type[16][16])
+    map_liquidHeaderTypeFlags TerrainBuilder::getLiquidType(int square, map_liquidHeaderTypeFlags const (&liquid_type)[16][16])
     {
         int row = square / 128;
         int col = square % 128;
@@ -716,10 +666,10 @@ namespace MMAP
                         uint8 type = NAV_AREA_EMPTY;
 
                         // convert liquid type to NavTerrain
-                        uint32 liquidFlags = vmapManager->GetLiquidFlagsPtr(liquid->GetType());
-                        if ((liquidFlags & (MAP_LIQUID_TYPE_WATER | MAP_LIQUID_TYPE_OCEAN)) != 0)
+                        EnumFlag<map_liquidHeaderTypeFlags> liquidFlags = map_liquidHeaderTypeFlags(vmapManager->GetLiquidFlagsPtr(liquid->GetType()));
+                        if (liquidFlags.HasFlag(map_liquidHeaderTypeFlags::Water | map_liquidHeaderTypeFlags::Ocean))
                             type = NAV_AREA_WATER;
-                        else if ((liquidFlags & (MAP_LIQUID_TYPE_MAGMA | MAP_LIQUID_TYPE_SLIME)) != 0)
+                        else if (liquidFlags.HasFlag(map_liquidHeaderTypeFlags::Magma | map_liquidHeaderTypeFlags::Slime))
                             type = NAV_AREA_MAGMA_SLIME;
 
                         // indexing is weird...

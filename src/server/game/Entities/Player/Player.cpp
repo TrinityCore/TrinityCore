@@ -25794,7 +25794,7 @@ void Player::ProcessTerrainStatusUpdate(ZLiquidStatus status, Optional<LiquidDat
     if (status && liquidData)
     {
         // Breath bar state (under water in any liquid type)
-        if (liquidData->type_flags & MAP_ALL_LIQUIDS)
+        if (liquidData->type_flags.HasFlag(map_liquidHeaderTypeFlags::AllLiquids))
         {
             if (status & LIQUID_MAP_UNDER_WATER)
                 m_MirrorTimerFlags |= UNDERWATER_INWATER;
@@ -25803,13 +25803,13 @@ void Player::ProcessTerrainStatusUpdate(ZLiquidStatus status, Optional<LiquidDat
         }
 
         // Fatigue bar state (if not on flight path or transport)
-        if ((liquidData->type_flags & MAP_LIQUID_TYPE_DARK_WATER) && !IsInFlight() && !GetTransport())
+        if (liquidData->type_flags.HasFlag(map_liquidHeaderTypeFlags::DarkWater) && !IsInFlight() && !GetTransport())
             m_MirrorTimerFlags |= UNDERWATER_INDARKWATER;
         else
             m_MirrorTimerFlags &= ~UNDERWATER_INDARKWATER;
 
         // Lava state (any contact)
-        if (liquidData->type_flags & MAP_LIQUID_TYPE_MAGMA)
+        if (liquidData->type_flags.HasFlag(map_liquidHeaderTypeFlags::Magma))
         {
             if (status & MAP_LIQUID_STATUS_IN_CONTACT)
                 m_MirrorTimerFlags |= UNDERWATER_INLAVA;
@@ -25818,7 +25818,7 @@ void Player::ProcessTerrainStatusUpdate(ZLiquidStatus status, Optional<LiquidDat
         }
 
         // Slime state (any contact)
-        if (liquidData->type_flags & MAP_LIQUID_TYPE_SLIME)
+        if (liquidData->type_flags.HasFlag(map_liquidHeaderTypeFlags::Slime))
         {
             if (status & MAP_LIQUID_STATUS_IN_CONTACT)
                 m_MirrorTimerFlags |= UNDERWATER_INSLIME;

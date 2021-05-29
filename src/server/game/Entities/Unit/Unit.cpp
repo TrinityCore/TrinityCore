@@ -8009,7 +8009,7 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
         mountFlags = areaTable->MountFlags;
 
     LiquidData liquid;
-    ZLiquidStatus liquidStatus = GetMap()->GetLiquidStatus(GetPhaseShift(), GetPositionX(), GetPositionY(), GetPositionZ(), MAP_ALL_LIQUIDS, &liquid);
+    ZLiquidStatus liquidStatus = GetMap()->GetLiquidStatus(GetPhaseShift(), GetPositionX(), GetPositionY(), GetPositionZ(), map_liquidHeaderTypeFlags::AllLiquids, &liquid);
     isSubmerged = (liquidStatus & LIQUID_MAP_UNDER_WATER) != 0 || HasUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
     isInWater = (liquidStatus & (LIQUID_MAP_IN_WATER | LIQUID_MAP_UNDER_WATER)) != 0;
 
