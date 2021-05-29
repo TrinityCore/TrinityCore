@@ -12943,7 +12943,7 @@ void Unit::CheckPendingMovementAcks()
 
         GameClient* controller = GetGameClientMovingMe();
         controller->GetWorldSession()->KickPlayer("Took too long to ack a movement change");
-        TC_LOG_INFO("cheat", "Unit::CheckPendingMovementAcks: Player GUID: %u took too long to acknowledge a movement change. He was therefore kicked.", controller->GetBasePlayer()->GetGUID().GetCounter());
+        TC_LOG_INFO("cheat", "Unit::CheckPendingMovementAcks: Player GUID: %s took too long to acknowledge a movement change. He was therefore kicked.", controller->GetBasePlayer()->GetGUID().ToString().c_str());
     }
 }
 

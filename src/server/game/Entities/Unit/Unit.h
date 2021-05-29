@@ -1582,7 +1582,7 @@ class TC_GAME_API Unit : public WorldObject
     private:
         void SetSpeedRateReal(UnitMoveType mtype, float rate);
 
-	public:
+    public:
         float CalculateSpellpowerCoefficientLevelPenalty(SpellInfo const* spellInfo) const;
 
         void FollowerAdded(AbstractFollower* f) { m_followingMe.insert(f); }
