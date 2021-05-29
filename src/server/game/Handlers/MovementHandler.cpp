@@ -453,14 +453,21 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
     ObjectGuid guid;
     recvData >> guid.ReadAsPacked();
 
-    if (!IsRightUnitBeingMoved(guid))
+    GameClient* client = GetGameClient();
+
+    // ACK handlers should call GameClient::IsAllowedToMove instead of WorldSession::IsRightUnitBeingMoved
+    // because the ACK could be coming from a unit that is under the control of that client but is not the 'Active Mover' unit.
+    // Example: Get a speed buff on yourself, then mount a vehicle before the end of the buff. When the buff expires,
+    // a force message will be sent to the client regarding the player and the client is required to respond with an ACK.
+    // But the vehicle will be the active mover unit at that time.
+    if (!client->IsAllowedToMove(guid))
     {
         recvData.rfinish();                     // prevent warnings spam
+        TC_LOG_DEBUG("entities.unit", "Ignoring ACK. Bad or outdated movement data by Player %s", _player->GetName().c_str());
         return;
     }
 
-    GameClient* client = GetGameClient();
-    Unit* mover = client->GetActivelyMovedUnit();
+    Unit* mover = ObjectAccessor::GetUnit(*_player, guid);
 
     UnitMoveType move_type;
     switch (recvData.GetOpcode())
@@ -608,20 +615,26 @@ void WorldSession::HandleMoveKnockBackAck(WorldPacket& recvData)
     ObjectGuid guid;
     recvData >> guid.ReadAsPacked();
 
-    if (!IsRightUnitBeingMoved(guid))
+    GameClient* client = GetGameClient();
+
+    // ACK handlers should call GameClient::IsAllowedToMove instead of WorldSession::IsRightUnitBeingMoved
+    // because the ACK could be coming from a unit that is under the control of that client but is not the 'Active Mover' unit.
+    // Example: Get a speed buff on yourself, then mount a vehicle before the end of the buff. When the buff expires,
+    // a force message will be sent to the client regarding the player and the client is required to respond with an ACK.
+    // But the vehicle will be the active mover unit at that time.
+    if (!client->IsAllowedToMove(guid))
     {
         recvData.rfinish();                     // prevent warnings spam
         return;
     }
+
+    Unit* mover = ObjectAccessor::GetUnit(*_player, guid);
 
     recvData.read_skip<uint32>();                          // unk
 
     MovementInfo movementInfo;
     movementInfo.guid = guid;
     ReadMovementInfo(recvData, &movementInfo);
-
-    GameClient* client = GetGameClient();
-    Unit* mover = client->GetActivelyMovedUnit();
 
     int64 movementTime = (int64)movementInfo.time + _timeSyncClockDelta;
     if (_timeSyncClockDelta == 0 || movementTime < 0 || movementTime > 0xFFFFFFFF)
