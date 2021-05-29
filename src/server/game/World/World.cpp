@@ -1540,7 +1540,7 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_CHECK_GOBJECT_LOS] = sConfigMgr->GetBoolDefault("CheckGameObjectLoS", true);
 
     // Anti movement cheat measure. Time each client have to acknowledge a movement change until they are kicked
-    m_int_configs[CONFIG_PENDING_MOVE_CHANGES_TIMEOUT] = sConfigMgr->GetIntDefault("AntiCheats.PendingMoveChangesTimeoutTime", 5000);
+    m_int_configs[CONFIG_PENDING_MOVE_CHANGES_TIMEOUT] = sConfigMgr->GetIntDefault("AntiCheat.PendingMoveChangesTimeoutTime", 5000);
 
     // call ScriptMgr if we're reloading the configuration
     if (reload)

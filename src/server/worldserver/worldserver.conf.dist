@@ -4050,7 +4050,7 @@ PacketSpoof.BanDuration = 86400
 #                     sometimes get kicked.
 #        Default:     2000 (2 seconds)
 
-AntiCheats.PendingMoveChangesTimeoutTime = 2000
+AntiCheat.PendingMoveChangesTimeoutTime = 5000
 
 
 #
