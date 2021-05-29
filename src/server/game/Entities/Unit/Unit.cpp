@@ -53,7 +53,6 @@
 #include "Opcodes.h"
 #include "OutdoorPvP.h"
 #include "MovementPacketSender.h"
-#include "MoveSplineInit.h"
 #include "PassiveAI.h"
 #include "PetAI.h"
 #include "Pet.h"
