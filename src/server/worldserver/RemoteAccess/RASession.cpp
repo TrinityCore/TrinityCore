@@ -26,6 +26,7 @@
 #include <boost/asio/buffer.hpp>
 #include <boost/asio/read_until.hpp>
 #include <memory>
+#include <thread>
 
 using boost::asio::ip::tcp;
 
