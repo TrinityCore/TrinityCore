@@ -124,7 +124,7 @@ enum VoodooSpells
     SPELL_LAUNCH    = 16716, // Launch (Whee!)
 };
 
-// 17009
+// 17009 - Voodoo
 class spell_voodoo : public SpellScriptLoader
 {
     public:

@@ -1506,6 +1506,7 @@ enum ZuluhedChains
     NPC_KARYNAKU    = 22112,
 };
 
+// 38790 - Unlocking Zuluhed's Chains
 class spell_unlocking_zuluheds_chains : public SpellScriptLoader
 {
     public:

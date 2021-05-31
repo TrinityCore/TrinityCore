@@ -939,6 +939,8 @@ struct npc_tesla : public ScriptedAI
     void DamageTaken(Unit* /*who*/, uint32& damage) override { damage = 0; } // no, you can't kill it
 };
 
+// 28062 - Positive Charge
+// 28085 - Negative Charge
 class spell_thaddius_polarity_charge : public SpellScript
 {
     PrepareSpellScript(spell_thaddius_polarity_charge);
@@ -1028,6 +1030,7 @@ class spell_thaddius_polarity_charge : public SpellScript
     }
 };
 
+// 28089 - Polarity Shift
 class spell_thaddius_polarity_shift : public SpellScript
 {
     PrepareSpellScript(spell_thaddius_polarity_shift);
@@ -1070,6 +1073,7 @@ class spell_thaddius_polarity_shift : public SpellScript
     }
 };
 
+// 54517 - Magnetic Pull
 class spell_thaddius_magnetic_pull : public SpellScript
 {
     PrepareSpellScript(spell_thaddius_magnetic_pull);

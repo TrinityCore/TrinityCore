@@ -1523,7 +1523,7 @@ class spell_overload_circuit : public AuraScript
     }
 };
 
-// 62292 Blaze
+// 62292 - Blaze
 class spell_tar_blaze : public AuraScript
 {
     PrepareAuraScript(spell_tar_blaze);
@@ -1661,6 +1661,7 @@ class spell_auto_repair : public SpellScriptLoader
         }
 };
 
+// 62475 - Systems Shutdown
 class spell_systems_shutdown : public SpellScriptLoader
 {
     public:
@@ -1791,6 +1792,7 @@ class spell_pursue : public SpellScriptLoader
         }
 };
 
+// 62324 - Throw Passenger
 class spell_vehicle_throw_passenger : public SpellScriptLoader
 {
     public:

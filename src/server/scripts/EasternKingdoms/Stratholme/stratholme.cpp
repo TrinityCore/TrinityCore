@@ -322,6 +322,7 @@ public:
 
 };
 
+// 31912 - Ysida Saved Credit Trigger
 class spell_ysida_saved_credit : public SpellScript
 {
     PrepareSpellScript(spell_ysida_saved_credit);
@@ -361,6 +362,7 @@ enum HauntingPhantoms
     SPELL_SUMMON_WRATH_PHANTOM    = 16335
 };
 
+// 16336 - Haunting Phantoms
 class spell_stratholme_haunting_phantoms : public AuraScript
 {
     PrepareAuraScript(spell_stratholme_haunting_phantoms);

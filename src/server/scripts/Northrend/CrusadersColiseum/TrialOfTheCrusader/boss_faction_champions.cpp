@@ -2313,6 +2313,7 @@ class spell_faction_champion_death_grip : public SpellScriptLoader
         }
 };
 
+// 65980 - Bloodlust
 class spell_toc_bloodlust : public SpellScriptLoader
 {
     public:
@@ -2352,6 +2353,7 @@ class spell_toc_bloodlust : public SpellScriptLoader
         }
 };
 
+// 65983 - Heroism
 class spell_toc_heroism : public SpellScriptLoader
 {
     public:

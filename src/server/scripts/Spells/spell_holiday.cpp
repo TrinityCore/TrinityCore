@@ -982,6 +982,7 @@ enum Mistletoe
     SPELL_CREATE_SNOWFLAKES         = 45036
 };
 
+// 26218 - Mistletoe
 class spell_winter_veil_mistletoe : public SpellScriptLoader
 {
     public:
@@ -1039,6 +1040,7 @@ uint32 const WonderboltTransformSpells[] =
     SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_4
 };
 
+// 26275 - PX-238 Winter Wondervolt TRAP
 class spell_winter_veil_px_238_winter_wondervolt : public SpellScriptLoader
 {
     public:
