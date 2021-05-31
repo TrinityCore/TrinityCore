@@ -129,6 +129,9 @@ bool Model::ConvertToVMAPModel(const char * outfilename)
     }
 
     fclose(output);
+    // @tswow-begin
+    FinishFile(outfilename);
+    // @tswow-end
 
     return true;
 }
@@ -141,7 +144,9 @@ Vec3D fixCoordSystem(Vec3D const& v)
 void Doodad::Extract(ADT::MDDF const& doodadDef, char const* ModelInstName, uint32 mapID, uint32 tileX, uint32 tileY, FILE* pDirfile)
 {
     char tempname[1036];
-    sprintf(tempname, "%s/%s", szWorkDirWmo, ModelInstName);
+    // @tswow-begin
+    sprintf(tempname, "%s/%s", szWorkDirWmo.c_str(), ModelInstName);
+    // @tswow-end
     FILE* input = fopen(tempname, "r+b");
 
     if (!input)
@@ -215,7 +220,9 @@ void Doodad::ExtractSet(WMODoodadData const& doodadData, ADT::MODF const& wmo, u
         }
 
         char tempname[1036];
-        sprintf(tempname, "%s/%s", szWorkDirWmo, ModelInstName);
+        // @tswow-begin
+        sprintf(tempname, "%s/%s", szWorkDirWmo.c_str(), ModelInstName);
+        // @tswow-end
         FILE* input = fopen(tempname, "r+b");
         if (!input)
             continue;
@@ -260,5 +267,8 @@ void Doodad::ExtractSet(WMODoodadData const& doodadData, ADT::MODF const& wmo, u
         fwrite(&doodad.Scale, sizeof(float), 1, pDirfile);
         fwrite(&nlen, sizeof(uint32), 1, pDirfile);
         fwrite(ModelInstName, sizeof(char), nlen, pDirfile);
+        // @tswow-begin
+        bindir_counter++;
+        // @tswow-end
     }
 }

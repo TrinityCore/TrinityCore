@@ -23,7 +23,8 @@ target_link_libraries(vmap4assembler
     trinity-core-interface
   PUBLIC
     common
-    zlib)
+    zlib
+    cxxopts)
 
 set_target_properties(vmap4assembler
     PROPERTIES

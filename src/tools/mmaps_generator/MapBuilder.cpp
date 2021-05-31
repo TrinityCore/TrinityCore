@@ -59,7 +59,9 @@ namespace MMAP
 
     MapBuilder::MapBuilder(Optional<float> maxWalkableAngle, Optional<float> maxWalkableAngleNotSteep, bool skipLiquid,
         bool skipContinents, bool skipJunkMaps, bool skipBattlegrounds,
-        bool debugOutput, bool bigBaseUnit, int mapid, char const* offMeshFilePath, unsigned int threads) :
+        // @tswow-begin
+        bool debugOutput, bool bigBaseUnit, std::set<uint32> mapids, char const* offMeshFilePath, unsigned int threads) :
+        // @tswow-end
         m_terrainBuilder     (nullptr),
         m_debugOutput        (debugOutput),
         m_offMeshFilePath    (offMeshFilePath),
@@ -71,7 +73,9 @@ namespace MMAP
         m_maxWalkableAngle   (maxWalkableAngle),
         m_maxWalkableAngleNotSteep (maxWalkableAngleNotSteep),
         m_bigBaseUnit        (bigBaseUnit),
-        m_mapid              (mapid),
+        // @tswow-begin
+        m_mapid              (mapids),
+        // @tswow-end
         m_totalTiles         (0u),
         m_totalTilesProcessed(0u),
         m_rcContext          (nullptr),
@@ -237,7 +241,9 @@ namespace MMAP
         }
     }
 
-    void MapBuilder::buildMaps(Optional<uint32> mapID)
+    // @tswow-begin
+    void MapBuilder::buildMaps(std::set<uint32> mapIDs, std::set<std::pair<int,int>> tiles)
+    // @tswow-end
     {
         printf("Using %u threads to generate mmaps\n", m_threads);
 
@@ -246,17 +252,21 @@ namespace MMAP
             m_tileBuilders.push_back(new TileBuilder(this, m_skipLiquid, m_bigBaseUnit, m_debugOutput));
         }
 
-        if (mapID)
+        // @tswow-begin
+        if (mapIDs.size() > 0)
         {
-            buildMap(*mapID);
+            for (auto map : mapIDs) buildMap(map, tiles);
         }
+        // @tswow-end
         else
         {
             // Build all maps if no map id has been specified
             for (TileList::iterator it = m_tiles.begin(); it != m_tiles.end(); ++it)
             {
                 if (!shouldSkipMap(it->m_mapId))
-                    buildMap(it->m_mapId);
+                    // @tswow-begin
+                    buildMap(it->m_mapId, tiles);
+                    // @tswow-end
             }
         }
 
@@ -429,7 +439,9 @@ namespace MMAP
     }
 
     /**************************************************************************/
-    void MapBuilder::buildMap(uint32 mapID)
+    // @tswow-begin
+    void MapBuilder::buildMap(uint32 mapID, std::set<std::pair<int,int>> builtTiles)
+    // @tswow-end
     {
         std::set<uint32>* tiles = getTileList(mapID);
 
@@ -453,6 +465,13 @@ namespace MMAP
 
                 // unpack tile coords
                 StaticMapTree::unpackTileID((*it), tileX, tileY);
+
+                // @tswow-begin
+                if (builtTiles.size() > 0 && builtTiles.find({ tileX,tileY }) == builtTiles.end())
+                {
+                    continue;
+                }
+                // @tswow-end
 
                 TileInfo tileInfo;
                 tileInfo.m_mapId = mapID;
@@ -958,8 +977,10 @@ namespace MMAP
     /**************************************************************************/
     bool MapBuilder::shouldSkipMap(uint32 mapID) const
     {
-        if (m_mapid >= 0)
-            return static_cast<uint32>(m_mapid) != mapID;
+        // @tswow-begin
+        if (m_mapid.size() > 0)
+            return m_mapid.find(mapID) == m_mapid.end();
+        // @tswow-end
 
         if (m_skipContinents)
             if (isContinentMap(mapID))

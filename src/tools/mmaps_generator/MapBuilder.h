@@ -154,7 +154,9 @@ namespace MMAP
                 bool skipBattlegrounds,
                 bool debugOutput,
                 bool bigBaseUnit,
-                int mapid,
+                // @tswow-begin
+                std::set<uint32> mapIds,
+                // @tswow-end
                 char const* offMeshFilePath,
                 unsigned int threads);
 
@@ -166,11 +168,15 @@ namespace MMAP
             void buildSingleTile(uint32 mapID, uint32 tileX, uint32 tileY);
 
             // builds list of maps, then builds all of mmap tiles (based on the skip settings)
-            void buildMaps(Optional<uint32> mapID);
+            // @tswow-begin
+            void buildMaps(std::set<uint32> mapID, std::set<std::pair<int,int>>);
+            // @tswow-end
 
         private:
             // builds all mmap tiles for the specified map id (ignores skip settings)
-            void buildMap(uint32 mapID);
+            // @tswow-begin
+            void buildMap(uint32 mapID, std::set<std::pair<int,int>> tiles);
+            // @tswow-end
             // detect maps and tiles
             void discoverTiles();
             std::set<uint32>* getTileList(uint32 mapID);
@@ -207,7 +213,9 @@ namespace MMAP
             Optional<float> m_maxWalkableAngleNotSteep;
             bool m_bigBaseUnit;
 
-            int32 m_mapid;
+            // @tswow-begin
+            std::set<uint32> m_mapid;
+            // @tswow-end
 
             std::atomic<uint32> m_totalTiles;
             std::atomic<uint32> m_totalTilesProcessed;

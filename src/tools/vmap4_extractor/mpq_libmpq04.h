@@ -123,3 +123,5 @@ inline void flipcc(char *fcc)
 }
 
 #endif
+
+void ReadMPQFiles(std::string dataPath, bool use_directories);

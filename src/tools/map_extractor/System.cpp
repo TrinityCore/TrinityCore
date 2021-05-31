@@ -55,10 +55,13 @@ struct LiquidTypeEntry
 std::vector<map_id> map_ids;
 std::unordered_map<uint32, LiquidTypeEntry> LiquidTypes;
 #define MAX_PATH_LENGTH 128
+// @tswow-begin
 char output_path[MAX_PATH_LENGTH] = ".";
 char input_path[MAX_PATH_LENGTH] = ".";
 std::set<int> extracted_maps;
 std::set<std::pair<int,int>> extracted_adts;
+bool use_directories = true;
+// @tswow-end
 
 // **************************************************
 // Extractor options
@@ -122,6 +125,7 @@ void HandleArgs(int argc, char * arg[])
         ("i,input", "Input path", cxxopts::value<std::string>()->default_value("."))
         ("o,output", "Output path", cxxopts::value<std::string>()->default_value("."))
         ("e", "extract only MAP(1)/DBC(2)/Camera(4) - standard: all(7)", cxxopts::value<int>()->default_value("7"))
+        ("d", "read directory mpqs", cxxopts::value<int>()->default_value("1"))
         ("f", "height stored as int (less map size but lost some accuracy) 1 by default", cxxopts::value<int>()->default_value("1"))
         ("h", "maximum height limit (500 by default)", cxxopts::value<int>()->default_value("-500"))
         ("maps", "Specify individual maps to create", cxxopts::value<std::vector<int>>()->default_value(""))
@@ -143,6 +147,8 @@ void HandleArgs(int argc, char * arg[])
         unsigned nxt = i + 1;
         extracted_adts.insert({ tiles[i],tiles[nxt] });
     }
+
+    use_directories = result["d"].as<int>();
 
     std::string input = result["input"].as<std::string>();
     std::string output = result["output"].as<std::string>();
@@ -1095,45 +1101,6 @@ void ExtractCameraFiles(int locale, bool basicLocale)
     printf("Extracted %u camera files\n", count);
 }
 
-inline bool ends_with(std::string const& value, std::string const& ending)
-{
-    if (ending.size() > value.size()) return false;
-    return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
-}
-
-void LoadMPQFiles(std::string pin)
-{
-    boost::filesystem::directory_iterator end;
-    std::vector<std::string> files;
-    for (boost::filesystem::directory_iterator itr(boost::filesystem::path(pin.c_str())); itr != end; ++itr)
-    {
-        std::string str = itr->path().string();
-        if (ends_with(str, ".MPQ") || ends_with(str, ".mpq"))
-        {
-            files.push_back(str);
-        }
-    }
-
-    std::sort(files.begin(), files.end(), [](auto a, auto b) {return a.substr(0,a.size()-4) < b.substr(0,b.size()-4); });
-    for (auto& str : files)
-    {
-        if (boost::filesystem::exists(str))
-        {
-            new MPQArchive(str.c_str());
-        }
-    }
-}
-
-void LoadCommonMPQFiles()
-{
-    LoadMPQFiles(Trinity::StringFormat("%s/Data",input_path));
-}
-
-void LoadLocaleMPQFiles(int const locale)
-{
-    LoadMPQFiles(Trinity::StringFormat("%s/Data/%s",input_path,langs[locale]));
-}
-
 inline void CloseMPQFiles()
 {
     for(ArchiveSet::iterator j = gOpenArchives.begin(); j != gOpenArchives.end();++j) (*j)->close();
@@ -1149,6 +1116,9 @@ int main(int argc, char * arg[])
     int FirstLocale = -1;
     uint32 build = 0;
 
+    // @tswow-begin
+    std::string data_path = Trinity::StringFormat("%s/Data",input_path);
+    // @tswow-end
     for (int i = 0; i < LANG_COUNT; i++)
     {
         std::string filename = Trinity::StringFormat("%s/Data/%s/locale-%s.MPQ", input_path, langs[i], langs[i]);
@@ -1157,7 +1127,9 @@ int main(int argc, char * arg[])
             printf("Detected locale: %s\n", langs[i]);
 
             //Open MPQs
-            LoadLocaleMPQFiles(i);
+            // @tswow-begin
+            ReadMPQFiles(data_path, use_directories);
+            // @tswow-end
 
             if((CONF_extract & EXTRACT_DBC) == 0)
             {
@@ -1173,15 +1145,11 @@ int main(int argc, char * arg[])
                 FirstLocale = i;
                 build = ReadBuild(FirstLocale);
                 printf("Detected client build: %u\n", build);
-                // @tswow-begin load common mpq for dbc data
-                LoadCommonMPQFiles();
-                // @tswow-end
                 ExtractDBCFiles(i, true);
             }
             else
             // @tswow-begin load common mpq for dbc data
             {
-                LoadCommonMPQFiles();
                 ExtractDBCFiles(i, false);
             }
             // @tswow-end
@@ -1202,8 +1170,9 @@ int main(int argc, char * arg[])
         printf("Using locale: %s\n", langs[FirstLocale]);
 
         // Open MPQs
-        LoadLocaleMPQFiles(FirstLocale);
-        LoadCommonMPQFiles();
+        // @tswow-begin
+        ReadMPQFiles(data_path,use_directories);
+        // @tswow-end
 
         ExtractCameraFiles(FirstLocale, true);
         // Close MPQs
@@ -1215,8 +1184,9 @@ int main(int argc, char * arg[])
         printf("Using locale: %s\n", langs[FirstLocale]);
 
         // Open MPQs
-        LoadLocaleMPQFiles(FirstLocale);
-        LoadCommonMPQFiles();
+        // @tswow-begin
+        ReadMPQFiles(data_path,use_directories);
+        // @tswow-end
 
         // Extract maps
         ExtractMapsFromMpq(build);

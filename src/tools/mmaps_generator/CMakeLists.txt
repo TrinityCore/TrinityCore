@@ -23,7 +23,8 @@ target_link_libraries(mmaps_generator
     common
     Recast
     Detour
-    mpq)
+    mpq
+    cxxopts)
 
 CollectIncludeDirectories(
   ${CMAKE_CURRENT_SOURCE_DIR}

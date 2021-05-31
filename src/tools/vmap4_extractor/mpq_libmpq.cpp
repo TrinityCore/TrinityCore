@@ -170,3 +170,124 @@ void MPQFile::close()
     delete[] buffer;
     buffer = 0;
 }
+
+inline bool ends_with(std::string const& value, std::string const& ending)
+{
+  if (ending.size() > value.size()) return false;
+  return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
+}
+
+void CheckMPQ(std::string path, bool use_directories, std::vector<std::string> & files)
+{
+  if (ends_with(path, ".MPQ") || ends_with(path, ".mpq"))
+  {
+    if (use_directories || !boost::filesystem::is_directory(path))
+    {
+      files.push_back(path);
+    }
+  }
+}
+
+// @tswow-begin
+static std::vector<std::string> langs({
+      "enGB", "enUS", "deDE", "esES", "frFR", "koKR"
+    , "zhCN", "zhTW", "enCN", "enTW", "esMX", "ruRU"
+  });
+
+int BaseFileScore(std::string const& file)
+{
+  if (file.find("base") != std::string::npos) return 1;
+  if (file.find("backup") != std::string::npos) return 2;
+  if (file.find("expansion-locale") != std::string::npos) return 3;
+  if (file.find("patch-") != std::string::npos) return 4;
+  if (file.find("lichking-locale") != std::string::npos) return 9;
+  if (file.find("locale-") != std::string::npos) return 5;
+  if (file.find("expansion-speech") != std::string::npos) return 8;
+  if (file.find("expansion") != std::string::npos) return 7;
+  if (file.find("speech-") != std::string::npos) return 6;
+  if (file.find("common.") != std::string::npos) return 10;
+  if (file.find("lichking") != std::string::npos) return 11;
+  if (file.find("patch.") != std::string::npos) return 12;
+  if (file.find("common-2") != std::string::npos) return 13;
+  return 0;
+}
+
+int LocaleIndex(std::string const& file)
+{
+  for (int i = 0; i < int(langs.size()); ++i)
+  {
+    if (file.find(langs[i]) != std::string::npos)
+    {
+      return i;
+    }
+  }
+  return -1;
+}
+
+bool IsLocale(std::string const& file)
+{
+  return LocaleIndex(file) >= 0;
+}
+
+bool IsPatch(std::string const& file)
+{
+  return file.find("patch") != std::string::npos;
+}
+
+char PatchID(std::string const& file)
+{
+  // the "base" patch files are not read in order like normal patches.
+  int locale_index = LocaleIndex(file);
+  if (locale_index >= 0)
+  {
+    if (file.find("patch-" + langs[locale_index] + ".") != std::string::npos) return '1';
+  }
+  if (file.find("patch.") != std::string::npos) return '1';
+  return toupper(file.substr(file.size() - 5, 1).c_str()[0]);
+}
+
+void ReadMPQFiles(std::string dataPath, bool use_directories)
+{
+  boost::filesystem::directory_iterator end;
+  std::vector<std::string> files;
+  for (boost::filesystem::directory_iterator itr(boost::filesystem::path(dataPath.c_str())); itr != end; ++itr)
+  {
+    CheckMPQ(itr->path().string(), use_directories, files);
+
+    for (auto & lang : langs)
+    {
+      if (ends_with(itr->path().string(), lang) && boost::filesystem::is_directory(itr->path()))
+      {
+        for (boost::filesystem::directory_iterator localeItr(itr->path()); localeItr != end; ++localeItr)
+        {
+          CheckMPQ(localeItr->path().string(), use_directories, files);
+        }
+        break;
+      }
+    }
+  }
+
+  std::sort(files.begin(), files.end(), [](auto a, auto b) {
+    if (IsPatch(a) && IsPatch(b))
+    {
+      if (PatchID(a) == PatchID(b))
+      {
+        if (IsLocale(a)) return true;
+        else return false;
+      }
+
+      return PatchID(a) < PatchID(b);
+    }
+
+    if (IsPatch(a)) return false;
+    if (IsPatch(b)) return true;
+
+    return BaseFileScore(a) < BaseFileScore(b);
+  });
+
+  for (auto& file : files)
+  {
+      new MPQArchive(file.c_str());
+  }
+}
+// @tswow-end

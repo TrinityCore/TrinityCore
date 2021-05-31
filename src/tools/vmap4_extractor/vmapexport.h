@@ -34,14 +34,18 @@ enum ModelFlags
 
 struct WMODoodadData;
 
-extern const char * szWorkDirWmo;
+// @tswow-begin
+extern std::string szWorkDirWmo;
+// @tswow-end
 extern std::unordered_map<std::string, WMODoodadData> WmoDoodads;
 // @tswow-begin
 bool HasDoneFile(char const* file);
+void FinishFile(char const* file);
 extern std::set<int> assembled_maps;
 extern std::set<std::string> assembled_models;
 extern std::set<std::pair<int, int>> assembled_tiles;
 extern std::set<std::string> done_files;
+extern int bindir_counter;
 // @tswow-end
 
 uint32 GenerateUniqueObjectId(uint32 clientId, uint16 clientDoodadId);

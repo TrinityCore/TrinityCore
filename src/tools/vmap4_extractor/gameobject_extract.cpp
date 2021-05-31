@@ -57,7 +57,7 @@ bool ExtractSingleModel(std::string& fname)
     output += name;
 
     // @tswow-begin
-    if (FileExists(output.c_str())) return true;
+    if (HasDoneFile(output.c_str())) return true;
     // @tswow-end
 
     Model mdl(originalName);

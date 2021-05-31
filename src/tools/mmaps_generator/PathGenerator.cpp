@@ -23,6 +23,9 @@
 #include "Util.h"
 #include <boost/filesystem.hpp>
 #include <unordered_map>
+// @tswow-begin
+#include <cxxopts.h>
+// @tswow-end
 
 using namespace MMAP;
 
@@ -71,6 +74,17 @@ bool checkDirectories(bool debugOutput)
     return true;
 }
 
+// @tswow-begin
+void Usage(cxxopts::Options const& opts, std::string const& error)
+{
+    printf("Error %s\n%s", error.c_str(), opts.help().c_str());
+    exit(1);
+}
+
+std::string input;
+std::string output;
+std::set<uint32> generated_maps;
+std::set<std::pair<int, int>> generated_tiles;
 bool handleArgs(int argc, char** argv,
                int &mapnum,
                int &tileX,
@@ -88,174 +102,62 @@ bool handleArgs(int argc, char** argv,
                char* &file,
                unsigned int& threads)
 {
-    char* param = nullptr;
-    for (int i = 1; i < argc; ++i)
+    cxxopts::Options options("mmaps_generator", "Generate mmaps");
+    options.add_options()
+        ("i,input", "Input path", cxxopts::value<std::string>()->default_value("Buildings"))
+        ("o,output", "Output path", cxxopts::value<std::string>()->default_value("vmaps"))
+        ("offMeshInput", "", cxxopts::value<bool>()->default_value("0"))
+        ("silent", "", cxxopts::value<bool>()->default_value("0"))
+        ("debugOutput", "", cxxopts::value<bool>()->default_value("0"))
+        ("skipBattlegrounds", "", cxxopts::value<bool>()->default_value("0"))
+        ("skipJunkMaps", "", cxxopts::value<bool>()->default_value("0"))
+        ("skipLiquid", "", cxxopts::value<bool>()->default_value("0"))
+        ("file", "", cxxopts::value<std::string>()->default_value(""))
+        ("threads", "", cxxopts::value<int>()->default_value("3"))
+        ("maxAngle", "", cxxopts::value<int>()->default_value("0"))
+        ("maxAngleNotSteep", "", cxxopts::value<int>()->default_value("0"))
+        ("maps", "Specify individual maps to create", cxxopts::value<std::vector<int>>()->default_value(""))
+        ("tiles", "Specify individual tiles to create", cxxopts::value<std::vector<int>>()->default_value(""))
+        ;
+
+    auto result = options.parse(argc, argv);
+    input = result["input"].as<std::string>();
+    output = result["output"].as<std::string>();
+
+    if (result.count("maxAngle") > 0)
     {
-        if (strcmp(argv[i], "--maxAngle") == 0)
-        {
-            param = argv[++i];
-            if (!param)
-                return false;
+        maxAngle = result["maxAngle"].as<float>();
+    }
 
-            float maxangle = atof(param);
-            if (maxangle <= 90.f && maxangle >= 0.f)
-                maxAngle = maxangle;
-            else
-                printf("invalid option for '--maxAngle', using default\n");
-        }
-        else if (strcmp(argv[i], "--maxAngleNotSteep") == 0)
-        {
-            param = argv[++i];
-            if (!param)
-                return false;
+    if (result.count("maxAngleNotSteep") > 0)
+    {
+        maxAngleNotSteep = result["maxAngleNotSteep"].as<float>();
+    }
 
-            float maxangle = atof(param);
-            if (maxangle <= 90.f && maxangle >= 0.f)
-                maxAngleNotSteep = maxangle;
-            else
-                printf("invalid option for '--maxAngleNotSteep', using default\n");
-        }
-        else if (strcmp(argv[i], "--threads") == 0)
-        {
-            param = argv[++i];
-            if (!param)
-                return false;
-            threads = static_cast<unsigned int>(std::max(0, atoi(param)));
-        }
-        else if (strcmp(argv[i], "--file") == 0)
-        {
-            param = argv[++i];
-            if (!param)
-                return false;
-            file = param;
-        }
-        else if (strcmp(argv[i], "--tile") == 0)
-        {
-            param = argv[++i];
-            if (!param)
-                return false;
+    silent = result["silent"].as<bool>();
+    debugOutput = result["debugOutput"].as<bool>();
+    skipBattlegrounds = result["skipBattlegrounds"].as<bool>();
+    skipJunkMaps = result["skipJunkMaps"].as<bool>();
+    skipLiquid = result["skipLiquid"].as<bool>();
+    threads = result["threads"].as<int>();
 
-            char* stileX = strtok(param, ",");
-            char* stileY = strtok(nullptr, ",");
-            int tilex = atoi(stileX);
-            int tiley = atoi(stileY);
+    auto maps = result["maps"].as<std::vector<int>>();
+    for (auto map : maps) generated_maps.insert(map);
 
-            if ((tilex > 0 && tilex < 64) || (tilex == 0 && strcmp(stileX, "0") == 0))
-                tileX = tilex;
-            if ((tiley > 0 && tiley < 64) || (tiley == 0 && strcmp(stileY, "0") == 0))
-                tileY = tiley;
-
-            if (tileX < 0 || tileY < 0)
-            {
-                printf("invalid tile coords.\n");
-                return false;
-            }
-        }
-        else if (strcmp(argv[i], "--skipLiquid") == 0)
-        {
-            param = argv[++i];
-            if (!param)
-                return false;
-
-            if (strcmp(param, "true") == 0)
-                skipLiquid = true;
-            else if (strcmp(param, "false") == 0)
-                skipLiquid = false;
-            else
-                printf("invalid option for '--skipLiquid', using default\n");
-        }
-        else if (strcmp(argv[i], "--skipContinents") == 0)
-        {
-            param = argv[++i];
-            if (!param)
-                return false;
-
-            if (strcmp(param, "true") == 0)
-                skipContinents = true;
-            else if (strcmp(param, "false") == 0)
-                skipContinents = false;
-            else
-                printf("invalid option for '--skipContinents', using default\n");
-        }
-        else if (strcmp(argv[i], "--skipJunkMaps") == 0)
-        {
-            param = argv[++i];
-            if (!param)
-                return false;
-
-            if (strcmp(param, "true") == 0)
-                skipJunkMaps = true;
-            else if (strcmp(param, "false") == 0)
-                skipJunkMaps = false;
-            else
-                printf("invalid option for '--skipJunkMaps', using default\n");
-        }
-        else if (strcmp(argv[i], "--skipBattlegrounds") == 0)
-        {
-            param = argv[++i];
-            if (!param)
-                return false;
-
-            if (strcmp(param, "true") == 0)
-                skipBattlegrounds = true;
-            else if (strcmp(param, "false") == 0)
-                skipBattlegrounds = false;
-            else
-                printf("invalid option for '--skipBattlegrounds', using default\n");
-        }
-        else if (strcmp(argv[i], "--debugOutput") == 0)
-        {
-            param = argv[++i];
-            if (!param)
-                return false;
-
-            if (strcmp(param, "true") == 0)
-                debugOutput = true;
-            else if (strcmp(param, "false") == 0)
-                debugOutput = false;
-            else
-                printf("invalid option for '--debugOutput', using default true\n");
-        }
-        else if (strcmp(argv[i], "--silent") == 0)
-        {
-            silent = true;
-        }
-        else if (strcmp(argv[i], "--bigBaseUnit") == 0)
-        {
-            param = argv[++i];
-            if (!param)
-                return false;
-
-            if (strcmp(param, "true") == 0)
-                bigBaseUnit = true;
-            else if (strcmp(param, "false") == 0)
-                bigBaseUnit = false;
-            else
-                printf("invalid option for '--bigBaseUnit', using default false\n");
-        }
-        else if (strcmp(argv[i], "--offMeshInput") == 0)
-        {
-            param = argv[++i];
-            if (!param)
-                return false;
-
-            offMeshInputPath = param;
-        }
-        else
-        {
-            int map = atoi(argv[i]);
-            if (map > 0 || (map == 0 && (strcmp(argv[i], "0") == 0)))
-                mapnum = map;
-            else
-            {
-                printf("invalid map id\n");
-                return false;
-            }
-        }
+    auto tiles = result["tiles"].as<std::vector<int>>();
+    if (tiles.size() % 2 == 1)
+    {
+        Usage(options, "Error: uneven set of tile coordinates");
+    }
+    for (unsigned i = 0; i < tiles.size() / 2; ++i)
+    {
+        unsigned nxt = i + 1;
+        generated_tiles.insert({ tiles[i],tiles[nxt] });
     }
 
     return true;
 }
+// @tswow-end
 
 int finish(char const* message, int returnValue)
 {
@@ -307,7 +209,9 @@ int main(int argc, char** argv)
     if (!validParam)
         return silent ? -1 : finish("You have specified invalid parameters", -1);
 
-    if (mapnum == -1 && debugOutput)
+    // @tswow-begin
+    if (generated_maps.size() > 0 && debugOutput)
+    // @tswow-end
     {
         if (silent)
             return -2;
@@ -327,17 +231,16 @@ int main(int argc, char** argv)
         return silent ? -5 : finish("Failed to load LiquidType.dbc", -5);
 
     MapBuilder builder(maxAngle, maxAngleNotSteep, skipLiquid, skipContinents, skipJunkMaps,
-                       skipBattlegrounds, debugOutput, bigBaseUnit, mapnum, offMeshInputPath, threads);
+    // @tswow-begin
+                       skipBattlegrounds, debugOutput, bigBaseUnit, generated_maps, offMeshInputPath, threads);
+    // @tswow-end
 
     uint32 start = getMSTime();
     if (file)
         builder.buildMeshFromFile(file);
-    else if (tileX > -1 && tileY > -1 && mapnum >= 0)
-        builder.buildSingleTile(mapnum, tileX, tileY);
-    else if (mapnum >= 0)
-        builder.buildMaps(uint32(mapnum));
-    else
-        builder.buildMaps({});
+    // @tswow-begin
+    else builder.buildMaps(generated_maps, generated_tiles);
+    // @tswow-end
 
     if (!silent)
         printf("Finished. MMAPS were built in %s\n", secsToTimeString(GetMSTimeDiffToNow(start) / 1000).c_str());

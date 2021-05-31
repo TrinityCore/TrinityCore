@@ -21,12 +21,37 @@
 #include "TileAssembler.h"
 #include "Banner.h"
 
+// @tswow-begin
+#include <cxxopts.h>
+
+std::string src;
+std::string dest;
+
+void HandleArgs(int argc, char** argv)
+{
+    cxxopts::Options options("vmap4_assembler", "Assemble vmaps");
+    options.add_options()
+        ("i,input", "Input path", cxxopts::value<std::string>()->default_value("Buildings"))
+        ("o,output", "Output path", cxxopts::value<std::string>()->default_value("vmaps"))
+        ("maps", "Specify individual maps to create", cxxopts::value<std::vector<int>>()->default_value(""))
+        ("tiles", "Specify individual tiles to create", cxxopts::value<std::vector<int>>()->default_value(""))
+        ;
+
+    auto result = options.parse(argc, argv);
+    src = result["input"].as<std::string>();
+    dest = result["output"].as<std::string>();
+
+    // TODO: Handle individual maps
+}
+// @tswow-end
+
 int main(int argc, char* argv[])
 {
     Trinity::Banner::Show("VMAP assembler", [](char const* text) { std::cout << text << std::endl; }, nullptr);
 
-    std::string src = "Buildings";
-    std::string dest = "vmaps";
+    // @tswow-begin
+    HandleArgs(argc, argv);
+    // @tswow-end
 
     if (argc > 3)
     {

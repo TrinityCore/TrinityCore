@@ -35,6 +35,7 @@
 #include <sys/stat.h>
 // @tswow-begin
 #include <set>
+#include <cxxopts.h>
 // @tswow-end
 
 #ifdef _WIN32
@@ -47,15 +48,16 @@ std::set<int> assembled_maps;
 std::set<std::string> assembled_models;
 std::set<std::pair<int, int>> assembled_tiles;
 std::set<std::string> done_files;
+bool use_directories = true;
 
 bool HasDoneFile(char const* file)
 {
-    if(done_files.find(file) != done_files.end())
-    {
-        return true;
-    }
+    return done_files.find(file) != done_files.end();
+}
+
+void FinishFile(char const* file)
+{
     done_files.insert(file);
-    return false;
 }
 // @tswow-end
 
@@ -76,15 +78,20 @@ typedef struct
 
 std::vector<map_id> map_ids;
 uint32 map_count;
-char output_path[128]=".";
-char input_path[1024]=".";
+// @tswow-begin
+std::string input_path = ".";
+std::string output_path = ".";
+// @tswow-end
 bool hasInputPathParam = false;
 bool preciseVectorData = false;
 std::unordered_map<std::string, WMODoodadData> WmoDoodads;
 
 // Constants
 
-char const* szWorkDirWmo = "./Buildings";
+// @tswow-begin
+std::string szWorkDirWmo = "./Buildings";
+// @tswow-end
+int bindir_counter = 0;
 
 std::map<std::pair<uint32, uint16>, uint32> uniqueObjectIds;
 
@@ -130,10 +137,12 @@ bool ExtractSingleWmo(std::string& fname)
     char* plain_name = GetPlainName(&fname[0]);
     fixnamen(plain_name, strlen(plain_name));
     fixname2(plain_name, strlen(plain_name));
-    sprintf(szLocalFile, "%s/%s", szWorkDirWmo, plain_name);
+    // @tswow-begin
+    sprintf(szLocalFile, "%s/%s", szWorkDirWmo.c_str(), plain_name);
+    // @tswow-end
     
     // @tswow-begin
-    if (FileExists(szLocalFile))
+    if (HasDoneFile(szLocalFile))
         return true;
     // @tswow-end
 
@@ -219,6 +228,10 @@ bool ExtractSingleWmo(std::string& fname)
     // Delete the extracted file in the case of an error
     if (!file_ok)
         remove(szLocalFile);
+    // @tswow-begin
+    else
+        FinishFile(szLocalFile);
+    // @tswow-end
     return true;
 }
 
@@ -268,11 +281,7 @@ void ParsMapFiles()
 
 void getGamePath()
 {
-#ifdef _WIN32
-    strcpy(input_path,"Data\\");
-#else
-    strcpy(input_path,"Data/");
-#endif
+    input_path = "Data\\";
 }
 
 bool scan_patches(char const* scanmatch, std::vector<std::string>& pArchiveNames)
@@ -307,10 +316,12 @@ bool scan_patches(char const* scanmatch, std::vector<std::string>& pArchiveNames
 
 bool fillArchiveNameVector(std::vector<std::string>& pArchiveNames)
 {
-    if(!hasInputPathParam)
-        getGamePath();
+    // @tswow-begin
+    //if(!hasInputPathParam)
+        //getGamePath();
+    // @tswow-end
 
-    printf("\nGame path: %s\n", input_path);
+    printf("\nGame path: %s\n", input_path.c_str());
 
     std::string in_path(input_path);
     std::vector<std::string> locales, searchLocales;
@@ -359,7 +370,9 @@ bool fillArchiveNameVector(std::vector<std::string>& pArchiveNames)
 
     // now, scan for the patch levels in the core dir
     printf("Scanning patch levels from data directory.\n");
-    if (!scan_patches(Trinity::StringFormat("%spatch", input_path).c_str(), pArchiveNames))
+    // @tswow-begin
+    if (!scan_patches(Trinity::StringFormat("%spatch", input_path.c_str()).c_str(), pArchiveNames))
+    // @tswow-end
         return(false);
 
     // now, scan for the patch levels in locale dirs
@@ -368,7 +381,9 @@ bool fillArchiveNameVector(std::vector<std::string>& pArchiveNames)
     for (std::string const& locale : locales)
     {
         printf("Locale: %s\n", locale.c_str());
-        if(scan_patches(Trinity::StringFormat("%s%s/patch-%s", input_path, locale.c_str(), locale.c_str()).c_str(), pArchiveNames))
+        // @tswow-begin
+        if(scan_patches(Trinity::StringFormat("%s%s/patch-%s", input_path.c_str(), locale.c_str(), locale.c_str()).c_str(), pArchiveNames))
+        // @tswow-end
             foundOne = true;
     }
 
@@ -386,117 +401,31 @@ bool fillArchiveNameVector(std::vector<std::string>& pArchiveNames)
 // @tswow-begin
 void HandleArgs(int argc, char* arg[])
 {
-    for (int c = 1; c < argc; ++c)
-    {
-        if (arg[c][0] != '-')
-        {
-            //Usage(arg[0]);
-        }
+    cxxopts::Options options("vmap4_extractor", "Extract model data");
+    options.add_options()
+        ("i,input", "Input path", cxxopts::value<std::string>()->default_value("."))
+        ("o,output", "Output path", cxxopts::value<std::string>()->default_value("./Buildings"))
+        ("s", "use precise vector data", cxxopts::value<bool>()->default_value("1"))
+        ("d", "read data from mpq directories", cxxopts::value<int>()->default_value("1"))
+        ("maps", "Specify individual maps to create", cxxopts::value<std::vector<int>>()->default_value(""))
+        ("tiles", "Specify individual tiles to create", cxxopts::value<std::vector<int>>()->default_value(""))
+        ;
 
-        switch (arg[c][1])
-        {
-        case 'o':
-            c++;
-            szWorkDirWmo = arg[c];
-            std::cout << "Setting the workdirwmo to " << szWorkDirWmo << "\n";
-            break;
-        case 's':
-            c++;
-            preciseVectorData = false;
-            break;
-        case 'i':
-            c++;
-            hasInputPathParam = true;
-            strncpy(input_path, arg[c], sizeof(input_path));
-            input_path[sizeof(input_path) - 1] = '\0';
-            if (input_path[strlen(input_path) - 1] != '\\' && input_path[strlen(input_path) - 1] != '/')
-                strcat(input_path, "/");
-            break;
-        case 'l':
-            c++;
-            preciseVectorData = true;
-            break;
-        case 'm':
-        {
-            c++;
-            auto len = strlen(arg[c]);
-            char cur[4] = { 0,0,0,0 };
-            int j = 0;
-            for (int i = 0; i <= len; ++i) {
-                if (i == len || arg[c][i] == ',')
-                {
-                    std::cout << "Doing only map " << cur << "\n";
-                    assembled_maps.insert(atoi(cur));
-                    *((unsigned*)cur) = 0;
-                    j = 0;
-                }
-                else
-                {
-                    cur[j++] = arg[c][i];
-                }
-            }
-            break;
-        }
-        break;
-        case 'd':
-        {
-            c++;
-            auto len = strlen(arg[c]);
-            std::string cur = "";
-            for (int i = 0; i <= len; ++i)
-            {
-                if (i == len || arg[c][i] == ',')
-                {
-                    assembled_models.insert(std::string(cur));
-                    cur = "";
-                }
-                else
-                {
-                    cur += arg[c][i];
-                }
-            }
-            break;
-        }
-        case 't':
-        {
-            c++;
-            auto len = strlen(arg[c]);
-            char cur1[4] = { 0,0,0,0 };
-            char cur2[4] = { 0,0,0,0 };
-            bool passed = false;
-            int j = 0;
-            for (int i = 0; i <= len; ++i) {
-                if (i == len || arg[c][i] == ',')
-                {
-                    std::cout << "Doing only tile " << cur1 << " " << cur2 << "\n";
-                    assembled_tiles.insert(
-                        std::make_pair<int, int>(
-                            atoi(cur1)
-                            , atoi(cur2)
-                            ));
-                    *((unsigned*)cur1) = 0;
-                    *((unsigned*)cur2) = 0;
-                    j = 0;
-                    passed = false;
-                }
-                else if (arg[c][i] == '.')
-                {
-                    j = 0;
-                    passed = true;
-                }
-                else
-                {
-                    if (passed) cur1[j++] = arg[c][i];
-                    else cur2[j++] = arg[c][i];
-                }
-            }
-            break;
-        }
-        break;
-        default:
-            std::cout << "Unsupported " << arg[c][1] << "\n";
-        }
-    }
+    auto result = options.parse(argc, arg);
+
+    szWorkDirWmo = result["output"].as<std::string>();
+
+    preciseVectorData = result["s"].as<bool>();
+    use_directories = result["d"].as<int>();
+    input_path = result["input"].as<std::string>();
+}
+// @tswow-end
+
+// @tswow-begin
+inline bool ends_with(std::string const& value, std::string const& ending)
+{
+    if (ending.size() > value.size()) return false;
+    return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
 }
 // @tswow-end
 
@@ -543,7 +472,9 @@ int main(int argc, char ** argv)
     printf("Extract %s. Beginning work ....\n", versionString);
     //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     // Create the working directory
-    if (mkdir(szWorkDirWmo
+    // @tswow-begin
+    if (mkdir(szWorkDirWmo.c_str()
+    // @tswow-end
 #if defined(__linux__) || defined(__APPLE__)
                     , 0711
 #endif
@@ -551,18 +482,15 @@ int main(int argc, char ** argv)
             success = (errno == EEXIST);
 
     // prepare archive name list
-    std::vector<std::string> archiveNames;
-    fillArchiveNameVector(archiveNames);
-    for (size_t i = 0; i < archiveNames.size(); ++i)
-    {
-        MPQArchive *archive = new MPQArchive(archiveNames[i].c_str());
-        if (gOpenArchives.empty() || gOpenArchives.front() != archive)
-            delete archive;
-    }
+    // @tswow-begin
+    ReadMPQFiles(input_path,use_directories);
+    // @tswow-end
 
     if (gOpenArchives.empty())
     {
-        printf("FATAL ERROR: None MPQ archive found by path '%s'. Use -d option with proper path.\n", input_path);
+        // @tswow-begin
+        printf("FATAL ERROR: None MPQ archive found by path '%s'. Use -d option with proper path.\n", input_path.c_str());
+        // @tswow-end
         return 1;
     }
 

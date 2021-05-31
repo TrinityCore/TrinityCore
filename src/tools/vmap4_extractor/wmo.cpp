@@ -537,7 +537,9 @@ void MapObject::Extract(ADT::MODF const& mapObjDef, char const* WmoInstName, uin
     //-----------add_in _dir_file----------------
 
     char tempname[512];
-    sprintf(tempname, "%s/%s", szWorkDirWmo, WmoInstName);
+    // @tswow-begin
+    sprintf(tempname, "%s/%s", szWorkDirWmo.c_str(), WmoInstName);
+    // @tswow-end
     FILE *input;
     input = fopen(tempname, "r+b");
 
