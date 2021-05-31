@@ -2056,7 +2056,7 @@ class spell_mimiron_plasma_blast : public SpellScriptLoader
         }
 };
 
-// 66351 - Explosion
+// 66351, 63009 - Explosion
 class spell_mimiron_proximity_explosion : public SpellScriptLoader
 {
     public:

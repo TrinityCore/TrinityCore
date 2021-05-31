@@ -1322,6 +1322,7 @@ class spell_sindragosa_mystic_buffet : public SpellScript
     }
 };
 
+// 71376 - Icy Blast
 class spell_rimefang_icy_blast : public SpellScript
 {
     PrepareSpellScript(spell_rimefang_icy_blast);

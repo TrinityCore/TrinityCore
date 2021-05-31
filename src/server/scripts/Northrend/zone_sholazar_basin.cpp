@@ -369,6 +369,7 @@ enum MiscLifewarden
     SPELL_WILD_GROWTH            = 52948,
 };
 
+// 51957 - Call of the Lifewarden
 class spell_q12620_the_lifewarden_wrath : public SpellScriptLoader
 {
 public:
@@ -457,6 +458,7 @@ enum KickWhatKick
     SAY_DROSTAN_REPLY_MISS    = 0,
 };
 
+// 51330 - Shoot RJR
 class spell_q12589_shoot_rjr : public SpellScriptLoader
 {
 public:
@@ -608,6 +610,8 @@ enum ShangoTracks
     SAY_INCORRECT_TRACKS   = 28635
 };
 
+// 52160 - Correct Tracks
+// 52163 - Incorrect Tracks
 class spell_shango_tracks : public SpellScriptLoader
 {
 public:
@@ -654,6 +658,7 @@ enum ReturnedSevenfold
     SPELL_DEATHBOLT             = 51855
 };
 
+// 51854 - Deathbolt
 class spell_q12611_deathbolt : public SpellScript
 {
     PrepareSpellScript(spell_q12611_deathbolt);

@@ -531,6 +531,11 @@ enum FeastOnSpells
     SPELL_ON_PLATE_EAT_VISUAL           = 61826
 };
 
+/* 61784 - Feast On Turkey
+   61785 - Feast On Cranberries
+   61786 - Feast On Sweet Potatoes
+   61787 - Feast On Pie
+   61788 - Feast On Stuffing */
 class spell_pilgrims_bounty_feast_on : public SpellScriptLoader
 {
     public:
@@ -612,6 +617,7 @@ enum TheTurkinator
     EMOTE_TURKEY_TRIUMPH            = 3
 };
 
+// 62014 - Turkey Tracker
 class spell_pilgrims_bounty_turkey_tracker : public SpellScriptLoader
 {
     public:

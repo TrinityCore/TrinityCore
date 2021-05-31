@@ -218,6 +218,7 @@ class spell_kargath_executioner : public SpellScriptLoader
         }
 };
 
+// 39291 - Remove Kargath's Executioner
 class spell_remove_kargath_executioner : public SpellScriptLoader
 {
     public:

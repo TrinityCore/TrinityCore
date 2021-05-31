@@ -835,6 +835,7 @@ public:
     void SetRedirectTarget(ObjectGuid guid) { _redirectTarget = guid; }
 };
 
+// 57934 - Tricks of the Trade
 class spell_rog_tricks_of_the_trade : public SpellScript
 {
     PrepareSpellScript(spell_rog_tricks_of_the_trade);

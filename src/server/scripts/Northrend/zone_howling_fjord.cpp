@@ -468,6 +468,7 @@ public:
     }
 };
 
+// 42268 - Quest - Mindless Abomination Explosion FX Master
 class spell_mindless_abomination_explosion_fx_master : public SpellScriptLoader
 {
     enum Spells

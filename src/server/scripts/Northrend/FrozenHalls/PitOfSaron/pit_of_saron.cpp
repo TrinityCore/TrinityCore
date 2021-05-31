@@ -230,6 +230,7 @@ private:
     ObjectGuid _summonerGUID;
 };
 
+// 70827 - Ice Shards
 class spell_pos_ice_shards : public SpellScript
 {
     PrepareSpellScript(spell_pos_ice_shards);
