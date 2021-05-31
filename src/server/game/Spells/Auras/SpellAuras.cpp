@@ -2250,6 +2250,9 @@ void Aura::CallScriptAfterDispel(DispelInfo* dispelInfo)
 
 bool Aura::CallScriptEffectApplyHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode)
 {
+    // @tswow-begin
+    FIRE_MAP(m_spellInfo->events,SpellOnApply,TSAuraEffect(const_cast<AuraEffect*>(aurEff)),TSAuraApplication(const_cast<AuraApplication*>(aurApp)),mode);
+    // @tswow-end
     bool preventDefault = false;
     for (auto scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end(); ++scritr)
     {
