@@ -367,6 +367,7 @@ public:
     }
 };
 
+// 59910 - Summon Minions
 class spell_novos_summon_minions : public SpellScriptLoader
 {
     public:

@@ -26,6 +26,7 @@ enum Spells
     SPELL_MARK_OF_MALICE_TRIGGERED = 33494
 };
 
+// 33493 - Mark of Malice
 class spell_mark_of_malice : public SpellScriptLoader
 {
     public:

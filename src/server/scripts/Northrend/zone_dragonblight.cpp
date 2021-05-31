@@ -383,6 +383,7 @@ enum StrengthenAncientsMisc
     NPC_LOTHALOR                = 26321
 };
 
+// 47575 - Strengthen the Ancients: On Interact Dummy to Woodlands Walker
 class spell_q12096_q12092_dummy : public SpellScriptLoader // Strengthen the Ancients: On Interact Dummy to Woodlands Walker
 {
 public:
@@ -430,7 +431,8 @@ public:
     }
 };
 
-class spell_q12096_q12092_bark : public SpellScriptLoader // Bark of the Walkers
+// 47530 - Bark of the Walkers
+class spell_q12096_q12092_bark : public SpellScriptLoader
 {
 public:
     spell_q12096_q12092_bark() : SpellScriptLoader("spell_q12096_q12092_bark") { }

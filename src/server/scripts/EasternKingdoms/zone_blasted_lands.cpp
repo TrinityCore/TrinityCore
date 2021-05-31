@@ -34,10 +34,7 @@ enum DeathlyUsher
     SPELL_TELEPORT_GROUP                = 27686
 };
 
-/*#####
-# spell_razelikh_teleport_group
-#####*/
-
+// 27686 - Teleport to Razelikh (GROUP)
 class spell_razelikh_teleport_group : public SpellScriptLoader
 {
     public: spell_razelikh_teleport_group() : SpellScriptLoader("spell_razelikh_teleport_group") { }

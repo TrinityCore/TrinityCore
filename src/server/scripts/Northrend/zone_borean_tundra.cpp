@@ -198,6 +198,7 @@ const uint32 CaribouTraps[CaribouTrapsNum] =
     GO_CARIBOU_TRAP_11, GO_CARIBOU_TRAP_12, GO_CARIBOU_TRAP_13, GO_CARIBOU_TRAP_14, GO_CARIBOU_TRAP_15,
 };
 
+// 46085 - Place Fake Fur
 class spell_q11865_place_fake_fur : public SpellScript
 {
     PrepareSpellScript(spell_q11865_place_fake_fur);
@@ -357,6 +358,7 @@ enum red_dragonblood
     SPELL_SUBDUED = 46675
 };
 
+// 46620 - Red Dragonblood
 class spell_red_dragonblood : public SpellScriptLoader
 {
 public:
@@ -1700,6 +1702,7 @@ enum BloodsporeRuination
     EVENT_RESET_ORIENTATION
 };
 
+// 45997 - Bloodspore Ruination
 class spell_q11719_bloodspore_ruination_45997 : public SpellScriptLoader
 {
 public:
@@ -1834,7 +1837,6 @@ public:
     }
 };
 
-// 45668 - Ultra-Advanced Proto-Typical Shortening Blaster
 enum ShorteningBlaster
 {
     SPELL_SHORTENING_BLASTER_BIGGER1    = 45674,
@@ -1850,6 +1852,7 @@ enum ShorteningBlaster
     SPELL_SHORTENING_BLASTER_POLYMORPH2 = 45683
 };
 
+// 45668 - Crafty's Ultra-Advanced Proto-Typical Shortening Blaster
 class spell_q11653_shortening_blaster : public SpellScript
 {
     PrepareSpellScript(spell_q11653_shortening_blaster);

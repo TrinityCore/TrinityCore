@@ -459,6 +459,7 @@ class RitualTargetCheck
         }
 };
 
+// 48278 - Paralyze
 class spell_paralyze_pinnacle : public SpellScript
 {
     PrepareSpellScript(spell_paralyze_pinnacle);

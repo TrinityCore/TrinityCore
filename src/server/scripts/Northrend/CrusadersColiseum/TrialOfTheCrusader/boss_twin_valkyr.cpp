@@ -741,6 +741,7 @@ class spell_bullet_controller : public AuraScript
     }
 };
 
+// 67590, 67602, 67603, 67604 - Powering Up
 class spell_powering_up : public SpellScriptLoader
 {
     public:
@@ -898,6 +899,8 @@ class spell_valkyr_essences : public SpellScriptLoader
         }
 };
 
+// 65879, 67244, 67245, 67246 - Power of the Twins
+// 65916, 67248, 67249, 67250 - Power of the Twins
 class spell_power_of_the_twins : public SpellScriptLoader
 {
     public:

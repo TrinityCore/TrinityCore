@@ -164,6 +164,7 @@ private:
     EventMap _events;
 };
 
+// 32960 - Mark of Kazzak
 class spell_mark_of_kazzak : public AuraScript
 {
     PrepareAuraScript(spell_mark_of_kazzak);

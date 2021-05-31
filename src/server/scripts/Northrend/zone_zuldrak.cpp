@@ -631,10 +631,9 @@ uint32 const FetchIngredients[21][4] =
     { SPELL_FETCH_FROZEN_SPIDER_ICHOR,        SPELL_HAVE_FROZEN_SPIDER_ICHOR,        ITEM_FROZEN_SPIDER_ICHOR,        SAY_FROZEN_SPIDER_ICHOR        }
 };
 
-/*#####
-# spell_random_ingredient_aura
-#####*/
-
+// 51015 - Random Ingredient Easy Aura
+// 51154 - Random Ingredient Medium Aura
+// 51157 - Random Ingredient Hard Aura
 class spell_random_ingredient_aura : public SpellScriptLoader
 {
     public: spell_random_ingredient_aura() : SpellScriptLoader("spell_random_ingredient_aura") { }
@@ -681,10 +680,9 @@ class spell_random_ingredient_aura : public SpellScriptLoader
         }
 };
 
-/*#####
-# spell_random_ingredient
-#####*/
-
+// 51105 - Random Ingredient Medium
+// 51107 - Random Ingredient Hard
+// 51134 - Random Ingredient Easy
 class spell_random_ingredient : public SpellScriptLoader
 {
     public: spell_random_ingredient() : SpellScriptLoader("spell_random_ingredient") { }
@@ -764,6 +762,7 @@ class spell_random_ingredient : public SpellScriptLoader
 # spell_pot_check
 #####*/
 
+// 51046 - Pot Check
 class spell_pot_check : public SpellScriptLoader
 {
     public: spell_pot_check() : SpellScriptLoader("spell_pot_check") { }
@@ -960,6 +959,7 @@ enum ScourgeDisguise
     TEXT_DISGUISE_WARNING              = 28891
 };
 
+// 51966 - Scourge Disguise
 class spell_scourge_disguise : public AuraScript
 {
     PrepareAuraScript(spell_scourge_disguise);
@@ -983,6 +983,7 @@ class spell_scourge_disguise : public AuraScript
     }
 };
 
+// 51971 - Scourge Disguise Instability
 class spell_scourge_disguise_instability : public AuraScript
 {
     PrepareAuraScript(spell_scourge_disguise_instability);
@@ -1011,6 +1012,7 @@ class spell_scourge_disguise_instability : public AuraScript
     }
 };
 
+// 52010 - Scourge Disguise Expiring
 class spell_scourge_disguise_expiring : public AuraScript
 {
     PrepareAuraScript(spell_scourge_disguise_expiring);

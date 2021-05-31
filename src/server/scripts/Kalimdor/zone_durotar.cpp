@@ -368,6 +368,7 @@ class npc_troll_volunteer : public CreatureScript
 
 typedef npc_troll_volunteer::npc_troll_volunteerAI VolunteerAI;
 
+// 75420 - Mounting Check
 class spell_mount_check : public SpellScriptLoader
 {
     public:

@@ -69,13 +69,13 @@ class spell_generic_quest_update_entry_SpellScript : public SpellScript
 };
 
 // http://www.wowhead.com/quest=55 Morbent Fel
-// 8913 Sacred Cleansing
 enum Quest55Data
 {
     NPC_MORBENT             = 1200,
     NPC_WEAKENED_MORBENT    = 24782,
 };
 
+// 8913 - Sacred Cleansing
 class spell_q55_sacred_cleansing : public SpellScriptLoader
 {
     public:
@@ -93,6 +93,7 @@ enum BendingShinbone
     SPELL_BENDING_SHINBONE2 = 8855
 };
 
+// 8856 - Bending Shinbone
 class spell_q1846_bending_shinbone : public SpellScript
 {
     PrepareSpellScript(spell_q1846_bending_shinbone);
@@ -114,12 +115,12 @@ class spell_q1846_bending_shinbone : public SpellScript
     }
 };
 
-// 9712 - Thaumaturgy Channel
 enum ThaumaturgyChannel
 {
     SPELL_THAUMATURGY_CHANNEL = 21029
 };
 
+// 9712 - Thaumaturgy Channel
 class spell_q2203_thaumaturgy_channel : public SpellScriptLoader
 {
     public:
@@ -154,13 +155,13 @@ class spell_q2203_thaumaturgy_channel : public SpellScriptLoader
 };
 
 // http://www.wowhead.com/quest=5206 Marauders of Darrowshire
-// 17271 Test Fetid Skull
 enum Quest5206Data
 {
     SPELL_CREATE_RESONATING_SKULL = 17269,
     SPELL_CREATE_BONE_DUST = 17270
 };
 
+// 17271 - Test Fetid Skull
 class spell_q5206_test_fetid_skull : public SpellScriptLoader
 {
     public:
@@ -201,7 +202,6 @@ class spell_q5206_test_fetid_skull : public SpellScriptLoader
 
 // http://www.wowhead.com/quest=6124 Curing the Sick (A)
 // http://www.wowhead.com/quest=6129 Curing the Sick (H)
-// 19512 Apply Salve
 enum Quests6124_6129Data
 {
     NPC_SICKLY_GAZELLE  = 12296,
@@ -212,6 +212,7 @@ enum Quests6124_6129Data
 
 constexpr Milliseconds Quest6124_6129_DESPAWN_TIME = 30s;
 
+// 19512 - Apply Salve
 class spell_q6124_6129_apply_salve : public SpellScriptLoader
 {
     public:
@@ -266,13 +267,13 @@ class spell_q6124_6129_apply_salve : public SpellScriptLoader
 };
 
 // http://www.wowhead.com/quest=10255 Testing the Antidote
-// 34665 Administer Antidote
 enum Quest10255Data
 {
     NPC_HELBOAR     = 16880,
     NPC_DREADTUSK   = 16992,
 };
 
+// 34665 - Administer Antidote
 class spell_q10255_administer_antidote : public SpellScriptLoader
 {
     public:
@@ -292,7 +293,7 @@ enum Quest11396_11399Data
     SPELL_SCOURGING_CRYSTAL_CONTROLLER = 43878
 };
 
-// 43874 Scourge Mur'gul Camp: Force Shield Arcane Purple x3
+// 43874 - Scourge Mur'gul Camp: Force Shield Arcane Purple x3
 class spell_q11396_11399_force_shield_arcane_purple_x3 : public SpellScriptLoader
 {
     public:
@@ -328,7 +329,7 @@ class spell_q11396_11399_force_shield_arcane_purple_x3 : public SpellScriptLoade
         }
 };
 
-// 50133 Scourging Crystal Controller
+// 50133 - Scourging Crystal Controller
 class spell_q11396_11399_scourging_crystal_controller : public SpellScriptLoader
 {
     public:
@@ -364,7 +365,7 @@ class spell_q11396_11399_scourging_crystal_controller : public SpellScriptLoader
         }
 };
 
-// 43882 Scourging Crystal Controller Dummy
+// 43882 - Scourging Crystal Controller Dummy
 class spell_q11396_11399_scourging_crystal_controller_dummy : public SpellScriptLoader
 {
     public:
@@ -399,13 +400,13 @@ class spell_q11396_11399_scourging_crystal_controller_dummy : public SpellScript
 };
 
 // http://www.wowhead.com/quest=11515 Blood for Blood
-// 44936 Quest - Fel Siphon Dummy
 enum Quest11515Data
 {
     NPC_FELBLOOD_INITIATE   = 24918,
     NPC_EMACIATED_FELBLOOD  = 24955
 };
 
+// 44936 - Quest - Fel Siphon Dummy
 class spell_q11515_fel_siphon_dummy : public SpellScriptLoader
 {
     public:
@@ -418,13 +419,13 @@ class spell_q11515_fel_siphon_dummy : public SpellScriptLoader
 };
 
 // http://www.wowhead.com/quest=11587 Prison Break
-// 45449 Arcane Prisoner Rescue
 enum Quest11587Data
 {
     SPELL_SUMMON_ARCANE_PRISONER_MALE    = 45446,    // Summon Arcane Prisoner - Male
     SPELL_SUMMON_ARCANE_PRISONER_FEMALE  = 45448     // Summon Arcane Prisoner - Female
 };
 
+// 45449 - Arcane Prisoner Rescue
 class spell_q11587_arcane_prisoner_rescue : public SpellScriptLoader
 {
     public:
@@ -461,7 +462,6 @@ class spell_q11587_arcane_prisoner_rescue : public SpellScriptLoader
 };
 
 // http://www.wowhead.com/quest=11730 Master and Servant
-// 46023 The Ultrasonic Screwdriver
 enum Quest11730Data
 {
     SPELL_SUMMON_SCAVENGEBOT_004A8  = 46063,
@@ -477,6 +477,7 @@ enum Quest11730Data
     NPC_55D_COLLECTATRON            = 25793
 };
 
+// 46023 - The Ultrasonic Screwdriver
 class spell_q11730_ultrasonic_screwdriver : public SpellScriptLoader
 {
     public:
@@ -540,7 +541,6 @@ class spell_q11730_ultrasonic_screwdriver : public SpellScriptLoader
 };
 
 // http://www.wowhead.com/quest=12459 That Which Creates Can Also Destroy
-// 49587 Seeds of Nature's Wrath
 enum Quest12459Data
 {
     NPC_REANIMATED_FROSTWYRM        = 26841,
@@ -553,6 +553,7 @@ enum Quest12459Data
     NPC_WEAK_DEATHGAZE              = 27807,
 };
 
+// 49587 - Seeds of Nature's Wrath
 class spell_q12459_seeds_of_natures_wrath : public SpellScriptLoader
 {
     public:
@@ -591,7 +592,6 @@ class spell_q12459_seeds_of_natures_wrath : public SpellScriptLoader
 };
 
 // http://www.wowhead.com/quest=12634 Some Make Lemonade, Some Make Liquor
-// 51840 Despawn Fruit Tosser
 enum Quest12634Data
 {
     SPELL_BANANAS_FALL_TO_GROUND    = 51836,
@@ -600,6 +600,7 @@ enum Quest12634Data
     SPELL_SUMMON_ADVENTUROUS_DWARF  = 52070
 };
 
+// 51840 - Despawn Fruit Tosser
 class spell_q12634_despawn_fruit_tosser : public SpellScriptLoader
 {
     public:
@@ -647,7 +648,7 @@ class spell_q12634_despawn_fruit_tosser : public SpellScriptLoader
 };
 
 // http://www.wowhead.com/quest=12683 Burning to Help
-// 52308 Take Sputum Sample
+// 52308 - Take Sputum Sample
 class spell_q12683_take_sputum_sample : public SpellScriptLoader
 {
     public:
@@ -682,7 +683,6 @@ class spell_q12683_take_sputum_sample : public SpellScriptLoader
 };
 
 // http://www.wowhead.com/quest=12851 Going Bearback
-// 54798 FLAMING Arrow Triggered Effect
 enum Quest12851Data
 {
     NPC_FROSTGIANT = 29351,
@@ -693,6 +693,7 @@ enum Quest12851Data
     SPELL_ABLAZE            = 54683,
 };
 
+// 54798 - FLAMING Arrow Triggered Effect
 class spell_q12851_going_bearback : public SpellScriptLoader
 {
     public:
@@ -744,13 +745,13 @@ class spell_q12851_going_bearback : public SpellScriptLoader
 };
 
 // http://www.wowhead.com/quest=12937 Relief for the Fallen
-// 55804 Healing Finished
 enum Quest12937Data
 {
     SPELL_TRIGGER_AID_OF_THE_EARTHEN    = 55809,
     NPC_FALLEN_EARTHEN_DEFENDER         = 30035,
 };
 
+// 55804 - Healing Finished
 class spell_q12937_relief_for_the_fallen : public SpellScriptLoader
 {
     public:
@@ -800,6 +801,7 @@ enum Whoarethey
     SPELL_GENERIC_DISGUISE = 32756
 };
 
+// 48917 - Who Are They: Cast from Questgiver
 class spell_q10041_q10040_who_are_they : public SpellScriptLoader
 {
     public:
@@ -879,12 +881,12 @@ class spell_symbol_of_life_dummy : public SpellScriptLoader
 };
 
 // http://www.wowhead.com/quest=12659 Scalps!
-// 52090 Ahunae's Knife
 enum Quest12659Data
 {
     NPC_SCALPS_KC_BUNNY = 28622,
 };
 
+// 52090 - Ahunae's Knife
 class spell_q12659_ahunaes_knife : public SpellScriptLoader
 {
     public:
@@ -927,6 +929,7 @@ enum StoppingTheSpread
     SPELL_FLAMES                                 = 39199
 };
 
+// 32146 - Liquid Fire
 class spell_q9874_liquid_fire : public SpellScriptLoader
 {
     public:
@@ -972,6 +975,7 @@ enum SalvagingLifesStength
     NPC_SHARD_KILL_CREDIT                        = 29303,
 };
 
+// 54190 - Lifeblood Dummy
 class spell_q12805_lifeblood_dummy : public SpellScriptLoader
 {
     public:
@@ -1014,8 +1018,6 @@ class spell_q12805_lifeblood_dummy : public SpellScriptLoader
 /*
  http://www.wowhead.com/quest=13283 King of the Mountain
  http://www.wowhead.com/quest=13280 King of the Mountain
- 59643 Plant Horde Battle Standard
- 4338 Plant Alliance Battle Standard
  */
 enum BattleStandard
 {
@@ -1026,6 +1028,8 @@ enum BattleStandard
     SPELL_JUMP_ROCKET_BLAST              = 4340
 };
 
+// 4338 - Plant Alliance Battle Standard
+// 59643 - Plant Horde Battle Standard
 class spell_q13280_13283_plant_battle_standard : public SpellScript
 {
     PrepareSpellScript(spell_q13280_13283_plant_battle_standard);
@@ -1054,6 +1058,7 @@ class spell_q13280_13283_plant_battle_standard : public SpellScript
     }
 };
 
+// 4336 - Jump Jets
 class spell_q13280_13283_jump_jets : public SpellScript
 {
     PrepareSpellScript(spell_q13280_13283_jump_jets);
@@ -1080,6 +1085,7 @@ enum ChumTheWaterSummons
     SUMMON_NORTH_SEA_BLUE_SHARK = 66740
 };
 
+// 66741 - Chum the Water
 class spell_q14112_14145_chum_the_water: public SpellScriptLoader
 {
     public:
@@ -1184,6 +1190,7 @@ enum HodirsHelm
     NPC_ICE_SPIKE_BUNNY = 30215
 };
 
+// 56278 - Read Pronouncement
 class spell_q12987_read_pronouncement : public SpellScriptLoader
 {
 public:
@@ -1228,6 +1235,7 @@ enum LeaveNothingToChance
     SPELL_LOWER_MINE_SHAFT_CREDIT   = 48745,
 };
 
+// 48742 - Wintergarde Mine Explosion
 class spell_q12277_wintergarde_mine_explosion : public SpellScriptLoader
 {
     public:
@@ -1281,6 +1289,7 @@ enum FocusOnTheBeach
     SPELL_BUNNY_CREDIT_BEAM = 47390,
 };
 
+// 50546 - The Focus on the Beach: Ley Line Focus Control Ring Effect
 class spell_q12066_bunny_kill_credit : public SpellScriptLoader
 {
 public:
@@ -1319,6 +1328,7 @@ enum ACleansingSong
     AREA_WINTERGRASPRIVER           = 4388,
 };
 
+// 52941 - Song of Cleansing
 class spell_q12735_song_of_cleansing : public SpellScriptLoader
 {
     public:
@@ -1364,6 +1374,7 @@ enum DefendingWyrmrestTemple
     SPELL_SUMMON_WYRMREST_DEFENDER       = 49207
 };
 
+// 49213 - Defending Wyrmrest Temple: Character Script Cast From Gossip
 class spell_q12372_cast_from_gossip_trigger : public SpellScriptLoader
 {
     public:
@@ -1391,7 +1402,6 @@ class spell_q12372_cast_from_gossip_trigger : public SpellScriptLoader
 };
 
 // http://www.wowhead.com/quest=12372 Defending Wyrmrest Temple
-// 49370 - Wyrmrest Defender: Destabilize Azure Dragonshrine Effect
 enum Quest12372Data
 {
     // NPCs
@@ -1400,6 +1410,7 @@ enum Quest12372Data
     WHISPER_ON_HIT_BY_FORCE_WHISPER       = 1
 };
 
+// 49370 - Wyrmrest Defender: Destabilize Azure Dragonshrine Effect
 class spell_q12372_destabilize_azure_dragonshrine_dummy : public SpellScriptLoader
 {
     public:
@@ -1431,11 +1442,12 @@ class spell_q12372_destabilize_azure_dragonshrine_dummy : public SpellScriptLoad
         }
 };
 
-// ID - 50287 Azure Dragon: On Death Force Cast Wyrmrest Defender to Whisper to Controller - Random (cast from Azure Dragons and Azure Drakes on death)
 enum q12372Creatures
 {
     NPC_WYRMREST_DEFENDER = 27629
 };
+
+// 50287 - Azure Dragon: On Death Force Cast Wyrmrest Defender to Whisper to Controller - Random (cast from Azure Dragons and Azure Drakes on death)
 class spell_q12372_azure_on_death_force_whisper : public SpellScriptLoader
 {
     public:
@@ -1475,7 +1487,7 @@ enum Quest11010_11102_11023Data
     NPC_FEL_CANNON2           = 23082
 };
 
-// 40113 Knockdown Fel Cannon: The Aggro Check Aura
+// 40113 - Knockdown Fel Cannon: The Aggro Check Aura
 class spell_q11010_q11102_q11023_aggro_check_aura : public SpellScriptLoader
 {
     public:
@@ -1504,7 +1516,7 @@ class spell_q11010_q11102_q11023_aggro_check_aura : public SpellScriptLoader
         }
 };
 
-// 40112 Knockdown Fel Cannon: The Aggro Check
+// 40112 - Knockdown Fel Cannon: The Aggro Check
 class spell_q11010_q11102_q11023_aggro_check : public SpellScriptLoader
 {
     public:
@@ -1534,7 +1546,7 @@ class spell_q11010_q11102_q11023_aggro_check : public SpellScriptLoader
         }
 };
 
-// 40119 Knockdown Fel Cannon: The Aggro Burst
+// 40119 - Knockdown Fel Cannon: The Aggro Burst
 class spell_q11010_q11102_q11023_aggro_burst : public SpellScriptLoader
 {
     public:
@@ -1563,7 +1575,7 @@ class spell_q11010_q11102_q11023_aggro_burst : public SpellScriptLoader
         }
 };
 
-// 40056 Knockdown Fel Cannon: Choose Loc
+// 40056 - Knockdown Fel Cannon: Choose Loc
 class spell_q11010_q11102_q11023_choose_loc : public SpellScriptLoader
 {
     public:
@@ -1669,6 +1681,7 @@ enum SpellZuldrakRat
     SPELL_SUMMON_GORGED_LURKING_BASILISK    = 50928
 };
 
+// 50894 - Zul'Drak Rat
 class spell_q12527_zuldrak_rat : public SpellScriptLoader
 {
     public:
@@ -1739,6 +1752,7 @@ enum QuenchingMist
     SPELL_FLICKERING_FLAMES = 53504
 };
 
+// 53350 - Quenching Mist
 class spell_q12730_quenching_mist : public SpellScriptLoader
 {
     public:
@@ -1780,6 +1794,7 @@ enum Quest13291_13292_13239_13261Data
     SPELL_RIDE         = 59319
 };
 
+// 59318 - Grab Fake Soldier
 class spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy : public SpellScriptLoader
 {
     public:
@@ -1879,6 +1894,7 @@ enum BearFlankMaster
     SPELL_BEAR_FLANK_FAIL   = 56569
 };
 
+// 56565 - Bear Flank Master
 class spell_q13011_bear_flank_master : public SpellScriptLoader
 {
     public:
@@ -1929,6 +1945,8 @@ class spell_q13011_bear_flank_master : public SpellScriptLoader
         }
 };
 
+// 57385 - Argent Cannon
+// 57412 - Reckoning Bomb
 class spell_q13086_cannons_target : public SpellScriptLoader
 {
     public:
@@ -1997,6 +2015,7 @@ enum BurstAtTheSeams
     SPELL_DRAKKARI_CHIEFTAINK_KILL_CREDIT       = 52620
 };
 
+// 59576 - Burst at the Seams
 class spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59576 : public SpellScript
 {
     PrepareSpellScript(spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59576);
@@ -2036,6 +2055,7 @@ class spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59576 : public SpellS
     }
 };
 
+// 59579 - Burst at the Seams
 class spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59579 : public AuraScript
 {
     PrepareAuraScript(spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59579);
@@ -2079,6 +2099,7 @@ class spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59579 : public AuraSc
     }
 };
 
+// 52593 - Bloated Abomination Feign Death
 class spell_q13264_q13276_q13288_q13289_bloated_abom_feign_death : public AuraScript
 {
     PrepareAuraScript(spell_q13264_q13276_q13288_q13289_bloated_abom_feign_death);
@@ -2107,6 +2128,7 @@ class spell_q13264_q13276_q13288_q13289_bloated_abom_feign_death : public AuraSc
     }
 };
 
+// 76245 - Area Restrict Abom
 class spell_q13264_q13276_q13288_q13289_area_restrict_abom : public SpellScript
 {
     PrepareSpellScript(spell_q13264_q13276_q13288_q13289_area_restrict_abom);
@@ -2126,6 +2148,9 @@ class spell_q13264_q13276_q13288_q13289_area_restrict_abom : public SpellScript
     }
 };
 
+// 59590 - Assign Ghoul Kill Credit to Master
+// 60039 - Assign Skeleton Kill Credit to Master
+// 60041 - Assign Geist Kill Credit to Master
 class spell_q13264_q13276_q13288_q13289_assign_credit_to_master : public SpellScript
 {
     PrepareSpellScript(spell_q13264_q13276_q13288_q13289_assign_credit_to_master);
@@ -2147,6 +2172,7 @@ class spell_q13264_q13276_q13288_q13289_assign_credit_to_master : public SpellSc
     }
 };
 
+// 52510 - Burst at the Seams
 class spell_q12690_burst_at_the_seams_52510 : public SpellScript
 {
     PrepareSpellScript(spell_q12690_burst_at_the_seams_52510);
@@ -2284,6 +2310,11 @@ enum BasicOrdersEmote
     SPELL_TEST_STOP_DANCE    = 73886
 };
 
+/* 73725 - [DND] Test Cheer
+   73835 - [DND] Test Salute
+   73836 - [DND] Test Roar
+   73837 - [DND] Test Dance
+   73886 - [DND] Test Stop Dance */
 class spell_q25199_emote : public AuraScript
 {
     PrepareAuraScript(spell_q25199_emote);
@@ -2392,12 +2423,12 @@ class spell_q12641_death_comes_from_on_high : public SpellScriptLoader
         }
 };
 
-// 52694 - Recall Eye of Acherus
 enum Recall_Eye_of_Acherus
 {
     THE_EYE_OF_ACHERUS = 51852
 };
 
+// 52694 - Recall Eye of Acherus
 class spell_q12641_recall_eye_of_acherus : public SpellScriptLoader
 {
     public:
@@ -2491,6 +2522,7 @@ enum Quest_The_Storm_King
     SPELL_GRABBED               = 55424
 };
 
+// 55516 - Gymer's Grab
 class spell_q12919_gymers_grab : public SpellScriptLoader
 {
     public:
@@ -2532,6 +2564,7 @@ enum Quest_The_Storm_King_Throw
     SPELL_VARGUL_EXPLOSION      = 55569
 };
 
+// 55421 - Gymer's Throw
 class spell_q12919_gymers_throw : public SpellScriptLoader
 {
     public:
@@ -2569,6 +2602,7 @@ enum Quest_The_Hunter_And_The_Prince
     SPELL_ILLIDAN_KILL_CREDIT      = 61748
 };
 
+// 61752 - Illidan Kill Credit Master
 class spell_q13400_illidan_kill_master : public SpellScriptLoader
 {
     public:
@@ -2683,6 +2717,7 @@ class spell_q10929_fumping : SpellScriptLoader
     }
 };
 
+// 49285 - Hand Over Reins
 class spell_q12414_hand_over_reins : public SpellScriptLoader
 {
     public:
@@ -2785,6 +2820,7 @@ enum ApplyHeatAndStir
     TALK_1 = 1
 };
 
+// 43972 - Mixing Blood
 class spell_q11306_mixing_blood : public SpellScriptLoader
 {
 public:
@@ -2813,6 +2849,7 @@ public:
     }
 };
 
+// 43375 - Mixing Vrykul Blood
 class spell_q11306_mixing_vrykul_blood : public SpellScriptLoader
 {
     public:
@@ -2855,6 +2892,7 @@ class spell_q11306_mixing_vrykul_blood : public SpellScriptLoader
         }
 };
 
+// 43376 - Failed Mix
 class spell_q11306_failed_mix_43376 : public SpellScriptLoader
 {
 public:
@@ -2883,6 +2921,7 @@ public:
     }
 };
 
+// 43378 - Failed Mix
 class spell_q11306_failed_mix_43378 : public SpellScriptLoader
 {
 public:
@@ -2911,6 +2950,7 @@ public:
     }
 };
 
+// 46444 - Weakness to Lightning: Cast on Master Script Effect
 class spell_q11896_weakness_to_lightning_46444 : public SpellScript
 {
     PrepareSpellScript(spell_q11896_weakness_to_lightning_46444);

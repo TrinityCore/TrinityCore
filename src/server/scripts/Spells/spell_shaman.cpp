@@ -1396,6 +1396,7 @@ class spell_sha_shamanistic_rage : public AuraScript
     }
 };
 
+// 55278, 55328, 55329, 55330, 55332, 55333, 55335, 58589, 58590, 58591 - Stoneclaw Totem
 class spell_sha_stoneclaw_totem : public SpellScript
 {
     PrepareSpellScript(spell_sha_stoneclaw_totem);

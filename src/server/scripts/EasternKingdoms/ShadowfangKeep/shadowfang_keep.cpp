@@ -313,6 +313,7 @@ class boss_archmage_arugal : public CreatureScript
         }
 };
 
+// 7057 - Haunting Spirits
 class spell_shadowfang_keep_haunting_spirits : public SpellScriptLoader
 {
     public:
