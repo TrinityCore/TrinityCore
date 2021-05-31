@@ -2178,6 +2178,7 @@ class spell_wyrmrest_skytalon_summon_red_dragon_buddy : public SpellScriptLoader
         }
 };
 
+// 56072 - Ride Red Dragon Buddy
 class spell_wyrmrest_skytalon_ride_red_dragon_buddy_trigger : public SpellScriptLoader
 {
     public:

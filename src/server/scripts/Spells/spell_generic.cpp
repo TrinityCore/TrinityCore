@@ -201,7 +201,7 @@ class spell_gen_animal_blood : public AuraScript
     }
 };
 
-// 63471 -Spawn Blood Pool
+// 63471 - Spawn Blood Pool
 class spell_spawn_blood_pool : public SpellScript
 {
     PrepareSpellScript(spell_spawn_blood_pool);

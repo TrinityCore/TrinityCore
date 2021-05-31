@@ -96,7 +96,7 @@ enum WarlockSpellIcons
     WARLOCK_ICON_ID_DEMONIC_PACT                    = 3220
 };
 
-// -980 Curse of Agony
+// -980 - Curse of Agony
 class spell_warl_curse_of_agony : public AuraScript
 {
     PrepareAuraScript(spell_warl_curse_of_agony);
@@ -177,7 +177,7 @@ class spell_warl_banish : public SpellScriptLoader
         }
 };
 
-// 6201 - Create Healthstone (and ranks)
+// -6201 - Create Healthstone (and ranks)
 class spell_warl_create_healthstone : public SpellScriptLoader
 {
     public:
@@ -303,6 +303,7 @@ class spell_warl_curse_of_doom : public SpellScriptLoader
         }
 };
 
+// -63156 - Decimation
 class spell_warl_decimation : public SpellScriptLoader
 {
     public:

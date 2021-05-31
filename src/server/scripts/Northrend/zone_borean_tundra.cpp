@@ -1666,6 +1666,7 @@ enum WindsoulTotemAura
     SPELL_WINDSOUL_CREDT = 46378
 };
 
+// 46374 - Windsoul Totem Aura
 class spell_windsoul_totem_aura : public SpellScriptLoader
 {
 public:

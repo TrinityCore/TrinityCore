@@ -682,8 +682,7 @@ private:
     TaskScheduler _scheduler;
 };
 
-/* 63018 - Searing Light
-   65121 - Searing Light */
+// 63018, 65121 - Searing Light
 class spell_xt002_searing_light_spawn_life_spark : public AuraScript
 {
     PrepareAuraScript(spell_xt002_searing_light_spawn_life_spark);
@@ -707,8 +706,7 @@ class spell_xt002_searing_light_spawn_life_spark : public AuraScript
     }
 };
 
-/* 63024 - Gravity Bomb
-   64234 - Gravity Bomb */
+// 63024, 64234 - Gravity Bomb
 class spell_xt002_gravity_bomb_aura : public AuraScript
 {
     PrepareAuraScript(spell_xt002_gravity_bomb_aura);
@@ -744,8 +742,7 @@ class spell_xt002_gravity_bomb_aura : public AuraScript
     }
 };
 
-/*  63025 - Gravity Bomb
-    64233 - Gravity Bomb */
+// 63025, 64233 - Gravity Bomb (Damage)
 class spell_xt002_gravity_bomb_damage : public SpellScript
 {
     PrepareSpellScript(spell_xt002_gravity_bomb_damage);
@@ -810,7 +807,7 @@ class spell_xt002_heart_overload_periodic : public SpellScript
     }
 };
 
-// 62826 Energy Orb
+// 62826 - Energy Orb
 class spell_xt002_energy_orb : public SpellScript
 {
     PrepareSpellScript(spell_xt002_energy_orb);

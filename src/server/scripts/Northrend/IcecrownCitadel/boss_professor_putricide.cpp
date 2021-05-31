@@ -1430,6 +1430,7 @@ class spell_putricide_clear_aura_effect_value : public SpellScript
 };
 
 // Stinky and Precious spell, it's here because its used for both (Festergut and Rotface "pets")
+// 71123 - Decimate
 class spell_stinky_precious_decimate : public SpellScript
 {
     PrepareSpellScript(spell_stinky_precious_decimate);

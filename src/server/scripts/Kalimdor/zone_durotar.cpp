@@ -415,6 +415,7 @@ class spell_mount_check : public SpellScriptLoader
         }
 };
 
+// 75102 - Vol'jin's War Drums
 class spell_voljin_war_drums : public SpellScriptLoader
 {
     public:
@@ -467,7 +468,7 @@ enum VoodooSpells
     SPELL_LAUNCH    = 16716, // Launch (Whee!)
 };
 
-// 17009
+// 17009 - Voodoo
 class spell_voodoo : public SpellScriptLoader
 {
     public:

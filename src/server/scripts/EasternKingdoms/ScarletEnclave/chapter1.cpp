@@ -843,6 +843,7 @@ enum HorseSeats
     SEAT_ID_0   = 0
 };
 
+// 52265 - Repo
 class spell_stable_master_repo : public AuraScript
 {
     PrepareAuraScript(spell_stable_master_repo);

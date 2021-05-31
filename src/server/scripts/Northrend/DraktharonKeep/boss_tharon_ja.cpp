@@ -208,6 +208,7 @@ class boss_tharon_ja : public CreatureScript
         }
 };
 
+// 53242 - Clear Gift of Tharon'ja
 class spell_tharon_ja_clear_gift_of_tharon_ja : public SpellScriptLoader
 {
     public:

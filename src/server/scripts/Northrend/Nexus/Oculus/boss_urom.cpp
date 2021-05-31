@@ -334,6 +334,7 @@ private:
     std::vector<uint8> _group;
 };
 
+// 51103 - Frostbomb
 class spell_urom_frostbomb : public AuraScript
 {
     PrepareAuraScript(spell_urom_frostbomb);

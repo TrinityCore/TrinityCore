@@ -799,6 +799,8 @@ class spell_powering_up : public SpellScriptLoader
         }
 };
 
+// 65684, 67176, 67177, 67178 - Dark Essence
+// 65686, 67222, 67223, 67224 - Light Essence
 class spell_valkyr_essences : public SpellScriptLoader
 {
     public:

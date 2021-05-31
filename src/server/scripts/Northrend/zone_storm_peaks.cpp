@@ -996,6 +996,7 @@ class spell_jokkum_scriptcast : public SpellScriptLoader
         }
 };
 
+// 56650 - Player Cast Veranus Summon
 class spell_veranus_summon : public SpellScriptLoader
 {
     public: spell_veranus_summon() : SpellScriptLoader("spell_veranus_summon") { }

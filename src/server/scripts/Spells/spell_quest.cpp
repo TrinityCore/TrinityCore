@@ -843,7 +843,7 @@ enum symboloflife
     SPELL_PERMANENT_FEIGN_DEATH = 29266,
 };
 
-// 8593 Symbol of life dummy
+// 8593 - Symbol of Life (Dummy)
 class spell_symbol_of_life_dummy : public SpellScriptLoader
 {
     public:

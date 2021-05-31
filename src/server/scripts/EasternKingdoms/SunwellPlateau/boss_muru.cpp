@@ -572,6 +572,7 @@ public:
     }
 };
 
+// 46050 - Summon Blood Elves Script
 class spell_summon_blood_elves_script : SpellScriptLoader
 {
     public:
@@ -674,6 +675,7 @@ class spell_dark_fiend_skin : public SpellScriptLoader
         }
 };
 
+// 46205 - Transform Visual Missile Periodic
 class spell_transform_visual_missile_periodic : public SpellScriptLoader
 {
     public:
@@ -700,6 +702,7 @@ class spell_transform_visual_missile_periodic : public SpellScriptLoader
         }
 };
 
+// 46041 - Summon Blood Elves Periodic
 class spell_summon_blood_elves_periodic : public SpellScriptLoader
 {
     public:
