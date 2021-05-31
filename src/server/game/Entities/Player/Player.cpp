@@ -25051,6 +25051,16 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
         GuidSet looters = item->GetAllowedLooters();
         Item* newitem = StoreNewItem(dest, item->itemid, true, item->randomPropertyId, looters);
 
+        // @tswow-begin
+        FIRE_MAP( newitem->GetTemplate()->events
+                , ItemOnTakenAsLoot
+                , TSItem(newitem)
+                , TSLootItem(item)
+                , TSLoot(loot)
+                , TSPlayer(this)
+                );
+        // @tswow-end
+
         if (qitem)
         {
             qitem->is_looted = true;
