@@ -1292,13 +1292,13 @@ bool CriteriaHandler::ConditionsSatisfied(Criteria const* criteria, Player* refe
     if (!criteria->Entry->FailEvent)
         return true;
 
-    switch (criteria->Entry->FailEvent)
+    switch (CriteriaFailEvent(criteria->Entry->FailEvent))
     {
-        case CRITERIA_CONDITION_BG_MAP:
+        case CriteriaFailEvent::LeaveBattleground:
             if (!referencePlayer->InBattleground())
                 return false;
             break;
-        case CRITERIA_CONDITION_NOT_IN_GROUP:
+        case CriteriaFailEvent::ModifyPartyStatus:
             if (referencePlayer->GetGroup())
                 return false;
             break;
@@ -1536,7 +1536,7 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
             if (!miscValue1)
                 return false;
 
-            if (criteria->Entry->FailEvent == CRITERIA_CONDITION_BG_MAP)
+            if (CriteriaFailEvent(criteria->Entry->FailEvent) == CriteriaFailEvent::LeaveBattleground)
             {
                 if (!referencePlayer->InBattleground())
                     return false;
@@ -3448,8 +3448,8 @@ void CriteriaMgr::LoadCriteriaList()
             criteriaEntry->Type + 1, CRITERIA_TYPE_TOTAL);
         ASSERT(criteriaEntry->StartEvent < CRITERIA_TIMED_TYPE_MAX, "CRITERIA_TYPE_TOTAL must be greater than or equal to %u but is currently equal to %u",
             criteriaEntry->StartEvent + 1, CRITERIA_TIMED_TYPE_MAX);
-        ASSERT(criteriaEntry->FailEvent < CRITERIA_CONDITION_MAX, "CRITERIA_CONDITION_MAX must be greater than or equal to %u but is currently equal to %u",
-            criteriaEntry->FailEvent + 1, CRITERIA_CONDITION_MAX);
+        ASSERT(criteriaEntry->FailEvent < uint8(CriteriaFailEvent::Count), "CriteriaFailEvent::Count must be greater than or equal to %u but is currently equal to %u",
+            criteriaEntry->FailEvent + 1, uint32(CriteriaFailEvent::Count));
 
         auto treeItr = _criteriaTreeByCriteria.find(criteriaEntry->ID);
         if (treeItr == _criteriaTreeByCriteria.end())

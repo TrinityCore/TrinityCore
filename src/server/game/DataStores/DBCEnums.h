@@ -244,24 +244,6 @@ enum class CorruptionEffectsFlag
 
 DEFINE_ENUM_FLAG(CorruptionEffectsFlag);
 
-enum CriteriaCondition
-{
-    CRITERIA_CONDITION_NONE            = 0,
-    CRITERIA_CONDITION_NO_DEATH        = 1,     // reset progress on death
-    CRITERIA_CONDITION_UNK2            = 2,     // only used in "Complete a daily quest every day for five consecutive days"
-    CRITERIA_CONDITION_BG_MAP          = 3,     // requires you to be on specific map, reset at change
-    CRITERIA_CONDITION_NO_LOSE         = 4,     // only used in "Win 10 arenas without losing"
-    CRITERIA_CONDITION_REMOVE_AURA     = 5,     // reset when this aura is removed
-    CRITERIA_CONDITION_CAST_SPELL      = 8,     // reset when casting this spell
-    CRITERIA_CONDITION_NO_SPELL_HIT    = 9,     // requires the player not to be hit by specific spell
-    CRITERIA_CONDITION_NOT_IN_GROUP    = 10,    // requires the player not to be in group
-    CRITERIA_CONDITION_LOSE_PET_BATTLE = 11,    // reset when losing pet battle
-    CRITERIA_CONDITION_UNK13           = 13,    // unk
-    CRITERIA_CONDITION_EVENT           = 14,
-
-    CRITERIA_CONDITION_MAX
-};
-
 enum CriteriaAdditionalCondition
 {
     CRITERIA_ADDITIONAL_CONDITION_SOURCE_DRUNK_VALUE            = 1,
@@ -575,6 +557,27 @@ enum CriteriaAdditionalCondition
     CRITERIA_ADDITIONAL_CONDITION_SOULBIND_MIN_CONDUITS_AT_RANK = 309, // NYI
     CRITERIA_ADDITIONAL_CONDITION_IS_RESTRICTED_ACCOUNT         = 310, // NYI
     CRITERIA_ADDITIONAL_CONDITION_SOURCE_FLYING                 = 311,
+};
+
+enum class CriteriaFailEvent : uint8
+{
+    None                                = 0,
+    Death                               = 1,    // Death
+    Hours24WithoutCompletingDailyQuest  = 2,    // 24 hours without completing a daily quest
+    LeaveBattleground                   = 3,    // Leave a battleground
+    LoseRankedArenaMatchWithTeamSize    = 4,    // Lose a ranked arena match with team size {#Team Size}
+    LoseAura                            = 5,    // Lose aura "{Spell}"
+    GainAura                            = 6,    // Gain aura "{Spell}"
+    GainAuraEffect                      = 7,    // Gain aura effect "{SpellAuraNames.EnumID}"
+    CastSpell                           = 8,    // Cast spell "{Spell}"
+    BeSpellTarget                       = 9,    // Have spell "{Spell}" cast on you
+    ModifyPartyStatus                   = 10,   // Modify your party status
+    LosePetBattle                       = 11,   // Lose a pet battle
+    BattlePetDies                       = 12,   // Battle pet dies
+    DailyQuestsCleared                  = 13,   // Daily quests cleared
+    SendEvent                           = 14,   // Send event "{GameEvents}" (player-sent/instance only)
+
+    Count
 };
 
 enum CriteriaFlags

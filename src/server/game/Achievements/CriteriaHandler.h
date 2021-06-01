@@ -350,10 +350,10 @@ public:
         return _criteriasByTimedType[type];
     }
 
-    CriteriaList const* GetCriteriaByFailEvent(CriteriaCondition condition, int32 asset)
+    CriteriaList const* GetCriteriaByFailEvent(CriteriaFailEvent condition, int32 asset)
     {
-        auto itr = _criteriasByFailEvent[condition].find(asset);
-        return itr != _criteriasByFailEvent[condition].end() ? &itr->second : nullptr;
+        auto itr = _criteriasByFailEvent[size_t(condition)].find(asset);
+        return itr != _criteriasByFailEvent[size_t(condition)].end() ? &itr->second : nullptr;
     }
 
     CriteriaDataSet const* GetCriteriaDataSet(Criteria const* Criteria) const
@@ -413,7 +413,7 @@ private:
     CriteriaList _questObjectiveCriteriasByType[CRITERIA_TYPE_TOTAL];
 
     CriteriaList _criteriasByTimedType[CRITERIA_TIMED_TYPE_MAX];
-    std::unordered_map<int32, CriteriaList> _criteriasByFailEvent[CRITERIA_CONDITION_MAX];
+    std::unordered_map<int32, CriteriaList> _criteriasByFailEvent[size_t(CriteriaFailEvent::Count)];
 };
 
 #define sCriteriaMgr CriteriaMgr::Instance()

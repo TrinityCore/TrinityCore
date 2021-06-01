@@ -966,7 +966,7 @@ void Battleground::RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool Sen
         player->SetBGTeam(0);
 
         // remove all criterias on bg leave
-        player->ResetCriteria(CRITERIA_CONDITION_BG_MAP, GetMapId(), true);
+        player->ResetCriteria(CriteriaFailEvent::LeaveBattleground, GetMapId(), true);
 
         if (Transport)
             player->TeleportToBGEntryPoint();
@@ -1116,7 +1116,7 @@ void Battleground::AddPlayer(Player* player)
     }
 
     // reset all map criterias on map enter
-    player->ResetCriteria(CRITERIA_CONDITION_BG_MAP, GetMapId(), true);
+    player->ResetCriteria(CriteriaFailEvent::LeaveBattleground, GetMapId(), true);
 
     // setup BG group membership
     PlayerAddedToBGCheckIfBGIsRunning(player);
