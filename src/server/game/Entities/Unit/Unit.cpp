@@ -12925,6 +12925,9 @@ bool Unit::HasPendingMovementChange(MovementChangeType changeType) const
 
 void Unit::CheckPendingMovementAcks()
 {
+    if (sWorld->getIntConfig(CONFIG_PENDING_MOVE_CHANGES_TIMEOUT) <= 0)
+        return;
+
     if (!HasPendingMovementChange())
         return;
 
