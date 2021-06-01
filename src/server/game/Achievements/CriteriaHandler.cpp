@@ -1102,8 +1102,8 @@ bool CriteriaHandler::IsCompletedCriteriaTree(CriteriaTree const* tree)
 
 bool CriteriaHandler::CanUpdateCriteriaTree(Criteria const* criteria, CriteriaTree const* tree, Player* referencePlayer) const
 {
-    if ((tree->Entry->Flags & CRITERIA_TREE_FLAG_HORDE_ONLY && referencePlayer->GetTeam() != HORDE) ||
-        (tree->Entry->Flags & CRITERIA_TREE_FLAG_ALLIANCE_ONLY && referencePlayer->GetTeam() != ALLIANCE))
+    if ((tree->Entry->GetFlags().HasFlag(CriteriaTreeFlags::HordeOnly) && referencePlayer->GetTeam() != HORDE) ||
+        (tree->Entry->GetFlags().HasFlag(CriteriaTreeFlags::AllianceOnly) && referencePlayer->GetTeam() != ALLIANCE))
     {
         TC_LOG_TRACE("criteria", "CriteriaHandler::CanUpdateCriteriaTree: (Id: %u Type %s CriteriaTree %u) Wrong faction",
             criteria->ID, CriteriaMgr::GetCriteriaTypeString(criteria->Entry->Type), tree->Entry->ID);

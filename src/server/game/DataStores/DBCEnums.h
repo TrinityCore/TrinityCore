@@ -843,15 +843,24 @@ enum CriteriaTypes : uint8
 
 #define CRITERIA_TYPE_TOTAL 230
 
-enum CriteriaTreeFlags : uint16
+enum class CriteriaTreeFlags : uint16
 {
-    CRITERIA_TREE_FLAG_PROGRESS_BAR         = 0x0001,
-    CRITERIA_TREE_FLAG_PROGRESS_IS_DATE     = 0x0004,
-    CRITERIA_TREE_FLAG_SHOW_CURRENCY_ICON   = 0x0008,
-    CRITERIA_TREE_FLAG_ALLIANCE_ONLY        = 0x0200,
-    CRITERIA_TREE_FLAG_HORDE_ONLY           = 0x0400,
-    CRITERIA_TREE_FLAG_SHOW_REQUIRED_COUNT  = 0x0800
+    ProgressBar                 = 0x0001, // Progress Bar
+    DoNotDisplay                = 0x0002, // Do Not Display
+    IsDate                      = 0x0004, // Is a Date
+    IsMoney                     = 0x0008, // Is Money
+    ToastOnComplete             = 0x0010, // Toast on Complete
+    UseObjectsDescription       = 0x0020, // Use Object's Description
+    ShowFactionSpecificChild    = 0x0040, // Show faction specific child
+    DisplayAllChildren          = 0x0080, // Display all children
+    AwardBonusRep               = 0x0100, // Award Bonus Rep (Hack!!)
+    AllianceOnly                = 0x0200, // Treat this criteria or block as Alliance
+    HordeOnly                   = 0x0400, // Treat this criteria or block as Horde
+    DisplayAsFraction           = 0x0800, // Display as Fraction
+    IsForQuest                  = 0x1000  // Is For Quest
 };
+
+DEFINE_ENUM_FLAG(CriteriaTreeFlags);
 
 enum CriteriaTreeOperator : uint8
 {

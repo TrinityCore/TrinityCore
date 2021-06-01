@@ -1136,6 +1136,8 @@ struct CriteriaTreeEntry
     uint32 CriteriaID;
     int32 OrderIndex;
     int32 Flags;
+
+    EnumFlag<CriteriaTreeFlags> GetFlags() const { return static_cast<CriteriaTreeFlags>(Flags); }
 };
 
 struct CurrencyTypesEntry
