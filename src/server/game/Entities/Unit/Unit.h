@@ -1695,7 +1695,7 @@ class TC_GAME_API Unit : public WorldObject
         void PushPendingMovementChange(PlayerMovementPendingChange newChange);
         bool HasPendingMovementChange() const { return !m_pendingMovementChanges.empty(); }
         bool HasPendingMovementChange(MovementChangeType changeType) const;
-        void PurgePendingMovementChanges();
+        void PurgePendingMovementChanges(bool informObservers = true);
 
         void RewardRage(uint32 damage, uint32 weaponSpeedHitFactor, bool attacker);
 

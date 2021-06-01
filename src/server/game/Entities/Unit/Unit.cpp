@@ -12946,7 +12946,7 @@ void Unit::CheckPendingMovementAcks()
     }
 }
 
-void Unit::PurgePendingMovementChanges()
+void Unit::PurgePendingMovementChanges(bool informObservers /* = true */)
 {
     for (auto pendingChange = m_pendingMovementChanges.cbegin(); pendingChange != m_pendingMovementChanges.cend(); ++pendingChange)
     {
@@ -12971,7 +12971,9 @@ void Unit::PurgePendingMovementChanges()
 
         float newSpeedRate = speedFlat / (IsControlledByPlayer() ? playerBaseMoveSpeed[moveType] : baseMoveSpeed[moveType]);
         SetSpeedRateReal(moveType, newSpeedRate);
-        MovementPacketSender::SendSpeedChangeToObservers(this, moveType, speedFlat);
+
+        if (informObservers)
+            MovementPacketSender::SendSpeedChangeToObservers(this, moveType, speedFlat);
     }
 
     m_pendingMovementChanges.clear();
