@@ -276,8 +276,8 @@ public:
     virtual void SendAllData(Player const* receiver) const = 0;
 
     void UpdateTimedCriteria(uint32 timeDiff);
-    void StartCriteriaTimer(CriteriaTimedTypes type, uint32 entry, uint32 timeLost = 0);
-    void RemoveCriteriaTimer(CriteriaTimedTypes type, uint32 entry);   // used for quest and scripted timed s
+    void StartCriteriaTimer(CriteriaStartEvent startEvent, uint32 entry, uint32 timeLost = 0);
+    void RemoveCriteriaTimer(CriteriaStartEvent startEvent, uint32 entry);   // used for quest and scripted timed s
 
 protected:
     virtual void SendCriteriaUpdate(Criteria const* criteria, CriteriaProgress const* progress, Seconds timeElapsed, bool timedCompleted) const = 0;
@@ -345,9 +345,9 @@ public:
         return itr != _criteriaTreeByCriteria.end() ? &itr->second : nullptr;
     }
 
-    CriteriaList const& GetTimedCriteriaByType(CriteriaTimedTypes type) const
+    CriteriaList const& GetTimedCriteriaByType(CriteriaStartEvent startEvent) const
     {
-        return _criteriasByTimedType[type];
+        return _criteriasByTimedType[size_t(startEvent)];
     }
 
     CriteriaList const* GetCriteriaByFailEvent(CriteriaFailEvent condition, int32 asset)
@@ -412,7 +412,7 @@ private:
     CriteriaList _scenarioCriteriasByType[CRITERIA_TYPE_TOTAL];
     CriteriaList _questObjectiveCriteriasByType[CRITERIA_TYPE_TOTAL];
 
-    CriteriaList _criteriasByTimedType[CRITERIA_TIMED_TYPE_MAX];
+    CriteriaList _criteriasByTimedType[size_t(CriteriaStartEvent::Count)];
     std::unordered_map<int32, CriteriaList> _criteriasByFailEvent[size_t(CriteriaFailEvent::Count)];
 };
 

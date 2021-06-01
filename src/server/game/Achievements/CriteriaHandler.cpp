@@ -855,9 +855,9 @@ void CriteriaHandler::UpdateTimedCriteria(uint32 timeDiff)
     }
 }
 
-void CriteriaHandler::StartCriteriaTimer(CriteriaTimedTypes type, uint32 entry, uint32 timeLost /* = 0 */)
+void CriteriaHandler::StartCriteriaTimer(CriteriaStartEvent startEvent, uint32 entry, uint32 timeLost /* = 0 */)
 {
-    CriteriaList const& criteriaList = sCriteriaMgr->GetTimedCriteriaByType(type);
+    CriteriaList const& criteriaList = sCriteriaMgr->GetTimedCriteriaByType(startEvent);
     for (Criteria const* criteria : criteriaList)
     {
         if (criteria->Entry->StartAsset != int32(entry))
@@ -886,9 +886,9 @@ void CriteriaHandler::StartCriteriaTimer(CriteriaTimedTypes type, uint32 entry, 
     }
 }
 
-void CriteriaHandler::RemoveCriteriaTimer(CriteriaTimedTypes type, uint32 entry)
+void CriteriaHandler::RemoveCriteriaTimer(CriteriaStartEvent startEvent, uint32 entry)
 {
-    CriteriaList const& criteriaList = sCriteriaMgr->GetTimedCriteriaByType(type);
+    CriteriaList const& criteriaList = sCriteriaMgr->GetTimedCriteriaByType(startEvent);
     for (Criteria const* criteria : criteriaList)
     {
         if (criteria->Entry->StartAsset != int32(entry))
@@ -3446,8 +3446,8 @@ void CriteriaMgr::LoadCriteriaList()
     {
         ASSERT(criteriaEntry->Type < CRITERIA_TYPE_TOTAL, "CRITERIA_TYPE_TOTAL must be greater than or equal to %u but is currently equal to %u",
             criteriaEntry->Type + 1, CRITERIA_TYPE_TOTAL);
-        ASSERT(criteriaEntry->StartEvent < CRITERIA_TIMED_TYPE_MAX, "CRITERIA_TYPE_TOTAL must be greater than or equal to %u but is currently equal to %u",
-            criteriaEntry->StartEvent + 1, CRITERIA_TIMED_TYPE_MAX);
+        ASSERT(criteriaEntry->StartEvent < uint8(CriteriaStartEvent::Count), "CriteriaStartEvent::Count must be greater than or equal to %u but is currently equal to %u",
+            criteriaEntry->StartEvent + 1, uint32(CriteriaStartEvent::Count));
         ASSERT(criteriaEntry->FailEvent < uint8(CriteriaFailEvent::Count), "CriteriaFailEvent::Count must be greater than or equal to %u but is currently equal to %u",
             criteriaEntry->FailEvent + 1, uint32(CriteriaFailEvent::Count));
 

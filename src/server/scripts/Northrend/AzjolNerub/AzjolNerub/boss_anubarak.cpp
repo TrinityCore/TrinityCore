@@ -123,7 +123,7 @@ public:
         {
             BossAI::Reset();
             me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
-            instance->DoStopCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_GOTTA_GO_START_EVENT);
+            instance->DoStopCriteriaTimer(CriteriaStartEvent::SendEvent, ACHIEV_GOTTA_GO_START_EVENT);
             _nextSubmerge = 75;
             _petCount = 0;
         }
@@ -140,7 +140,7 @@ public:
                 door2->SetGoState(GO_STATE_ACTIVE);
 
             Talk(SAY_AGGRO);
-            instance->DoStartCriteriaTimer(CRITERIA_TIMED_TYPE_EVENT, ACHIEV_GOTTA_GO_START_EVENT);
+            instance->DoStartCriteriaTimer(CriteriaStartEvent::SendEvent, ACHIEV_GOTTA_GO_START_EVENT);
 
             events.SetPhase(PHASE_EMERGE);
             events.ScheduleEvent(EVENT_CLOSE_DOOR, Seconds(5));

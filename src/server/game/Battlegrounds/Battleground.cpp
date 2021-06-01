@@ -1858,11 +1858,11 @@ WorldSafeLocsEntry const* Battleground::GetClosestGraveyard(Player* player)
     return sObjectMgr->GetClosestGraveyard(*player, player->GetTeam(), player);
 }
 
-void Battleground::StartCriteriaTimer(CriteriaTimedTypes type, uint32 entry)
+void Battleground::StartCriteriaTimer(CriteriaStartEvent startEvent, uint32 entry)
 {
     for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
         if (Player* player = ObjectAccessor::FindPlayer(itr->first))
-            player->StartCriteriaTimer(type, entry);
+            player->StartCriteriaTimer(startEvent, entry);
 }
 
 void Battleground::SetBracket(PVPDifficultyEntry const* bracketEntry)

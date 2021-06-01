@@ -627,25 +627,25 @@ void InstanceScript::DoUpdateCriteria(CriteriaTypes type, uint32 miscValue1 /*= 
 }
 
 // Start timed achievement for all players in instance
-void InstanceScript::DoStartCriteriaTimer(CriteriaTimedTypes type, uint32 entry)
+void InstanceScript::DoStartCriteriaTimer(CriteriaStartEvent startEvent, uint32 entry)
 {
     Map::PlayerList const& PlayerList = instance->GetPlayers();
 
     if (!PlayerList.isEmpty())
         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
             if (Player* player = i->GetSource())
-                player->StartCriteriaTimer(type, entry);
+                player->StartCriteriaTimer(startEvent, entry);
 }
 
 // Stop timed achievement for all players in instance
-void InstanceScript::DoStopCriteriaTimer(CriteriaTimedTypes type, uint32 entry)
+void InstanceScript::DoStopCriteriaTimer(CriteriaStartEvent startEvent, uint32 entry)
 {
     Map::PlayerList const& PlayerList = instance->GetPlayers();
 
     if (!PlayerList.isEmpty())
         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
             if (Player* player = i->GetSource())
-                player->RemoveCriteriaTimer(type, entry);
+                player->RemoveCriteriaTimer(startEvent, entry);
 }
 
 // Remove Auras due to Spell on all players in instance
