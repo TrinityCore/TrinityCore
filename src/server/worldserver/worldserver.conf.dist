@@ -4047,7 +4047,7 @@ PacketSpoof.BanDuration = 86400
 #        Description: Time each client has to acknowledge a movement change until they are kicked.
 #        Note:        A lower time will give cheaters less advantage when using a very specific
 #                     type of hack. However, the cost is that innocent but laggy players might
-#                     sometimes get kicked.
+#                     sometimes get kicked. Disabled if 0.
 #        Default:     5000 (5 seconds)
 
 AntiCheat.PendingMoveChangesTimeoutTime = 5000
