@@ -862,16 +862,16 @@ enum class CriteriaTreeFlags : uint16
 
 DEFINE_ENUM_FLAG(CriteriaTreeFlags);
 
-enum CriteriaTreeOperator : uint8
+enum class CriteriaTreeOperator : uint8
 {
-    CRITERIA_TREE_OPERATOR_SINGLE                   = 0,
-    CRITERIA_TREE_OPERATOR_SINGLE_NOT_COMPLETED     = 1,
-    CRITERIA_TREE_OPERATOR_ALL                      = 4,
-    CRITERIA_TREE_OPERAROR_SUM_CHILDREN             = 5,
-    CRITERIA_TREE_OPERATOR_MAX_CHILD                = 6,
-    CRITERIA_TREE_OPERATOR_COUNT_DIRECT_CHILDREN    = 7,
-    CRITERIA_TREE_OPERATOR_ANY                      = 8,
-    CRITERIA_TREE_OPERATOR_SUM_CHILDREN_WEIGHT      = 9
+    Complete        = 0, // Complete
+    NotComplete     = 1, // Not Complete
+    CompleteAll     = 4, // Complete All
+    Sum             = 5, // Sum Of Criteria Is
+    Highest         = 6, // Highest Criteria Is
+    StartedAtLeast  = 7, // Started At Least
+    CompleteAtLeast = 8, // Complete At Least
+    ProgressBar     = 9  // Progress Bar
 };
 
 enum class ChrCustomizationOptionFlag : int32

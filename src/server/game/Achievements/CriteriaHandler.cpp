@@ -1026,18 +1026,18 @@ bool CriteriaHandler::IsCompletedCriteriaTree(CriteriaTree const* tree)
         return false;
 
     uint64 requiredCount = tree->Entry->Amount;
-    switch (tree->Entry->Operator)
+    switch (CriteriaTreeOperator(tree->Entry->Operator))
     {
-        case CRITERIA_TREE_OPERATOR_SINGLE:
+        case CriteriaTreeOperator::Complete:
             return tree->Criteria && IsCompletedCriteria(tree->Criteria, requiredCount);
-        case CRITERIA_TREE_OPERATOR_SINGLE_NOT_COMPLETED:
+        case CriteriaTreeOperator::NotComplete:
             return !tree->Criteria || !IsCompletedCriteria(tree->Criteria, requiredCount);
-        case CRITERIA_TREE_OPERATOR_ALL:
+        case CriteriaTreeOperator::CompleteAll:
             for (CriteriaTree const* node : tree->Children)
                 if (!IsCompletedCriteriaTree(node))
                     return false;
             return true;
-        case CRITERIA_TREE_OPERAROR_SUM_CHILDREN:
+        case CriteriaTreeOperator::Sum:
         {
             uint64 progress = 0;
             CriteriaMgr::WalkCriteriaTree(tree, [this, &progress](CriteriaTree const* criteriaTree)
@@ -1048,7 +1048,7 @@ bool CriteriaHandler::IsCompletedCriteriaTree(CriteriaTree const* tree)
             });
             return progress >= requiredCount;
         }
-        case CRITERIA_TREE_OPERATOR_MAX_CHILD:
+        case CriteriaTreeOperator::Highest:
         {
             uint64 progress = 0;
             CriteriaMgr::WalkCriteriaTree(tree, [this, &progress](CriteriaTree const* criteriaTree)
@@ -1060,7 +1060,7 @@ bool CriteriaHandler::IsCompletedCriteriaTree(CriteriaTree const* tree)
             });
             return progress >= requiredCount;
         }
-        case CRITERIA_TREE_OPERATOR_COUNT_DIRECT_CHILDREN:
+        case CriteriaTreeOperator::StartedAtLeast:
         {
             uint64 progress = 0;
             for (CriteriaTree const* node : tree->Children)
@@ -1072,7 +1072,7 @@ bool CriteriaHandler::IsCompletedCriteriaTree(CriteriaTree const* tree)
 
             return false;
         }
-        case CRITERIA_TREE_OPERATOR_ANY:
+        case CriteriaTreeOperator::CompleteAtLeast:
         {
             uint64 progress = 0;
             for (CriteriaTree const* node : tree->Children)
@@ -1082,7 +1082,7 @@ bool CriteriaHandler::IsCompletedCriteriaTree(CriteriaTree const* tree)
 
             return false;
         }
-        case CRITERIA_TREE_OPERATOR_SUM_CHILDREN_WEIGHT:
+        case CriteriaTreeOperator::ProgressBar:
         {
             uint64 progress = 0;
             CriteriaMgr::WalkCriteriaTree(tree, [this, &progress](CriteriaTree const* criteriaTree)
