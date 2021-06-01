@@ -496,11 +496,9 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
     recvData >> speedReceived;
 
     // verify that indeed the client is replying with the changes that were send to him
-    if (!mover->HasPendingMovementChange())
+    if (!mover->HasPendingMovementChange() || mover->PeakFirstPendingMovementChange().movementCounter > movementCounter)
     {
-        TC_LOG_INFO("cheat", "WorldSession::HandleForceSpeedChangeAck: Player %s from account id %u kicked because no movement change ack was expected from this player",
-            _player->GetName().c_str(), _player->GetSession()->GetAccountId());
-        client->GetWorldSession()->KickPlayer("No movement change ack was expected from this player");
+        TC_LOG_DEBUG("entities.unit", "Ignoring ACK. Bad or outdated movement data by Player %s", _player->GetName().c_str());
         return;
     }
 

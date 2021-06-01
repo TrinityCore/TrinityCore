@@ -1691,6 +1691,7 @@ class TC_GAME_API Unit : public WorldObject
         }
 
         uint32 GetMovementCounterAndInc() { return m_movementCounter++; }
+        PlayerMovementPendingChange& PeakFirstPendingMovementChange();
         PlayerMovementPendingChange PopPendingMovementChange();
         void PushPendingMovementChange(PlayerMovementPendingChange newChange);
         bool HasPendingMovementChange() const { return !m_pendingMovementChanges.empty(); }

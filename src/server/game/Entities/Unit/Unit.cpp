@@ -12897,6 +12897,11 @@ void Unit::UpdateHeight(float newZ)
         GetVehicleKit()->RelocatePassengers();
 }
 
+PlayerMovementPendingChange& Unit::PeakFirstPendingMovementChange()
+{
+    return m_pendingMovementChanges.front();
+}
+
 PlayerMovementPendingChange Unit::PopPendingMovementChange()
 {
     PlayerMovementPendingChange result = m_pendingMovementChanges.front();
