@@ -601,15 +601,17 @@ enum class CriteriaStartEvent : uint8
     Count
 };
 
-enum CriteriaFlags
+enum class CriteriaFlags : uint8
 {
-    CRITERIA_FLAG_SHOW_PROGRESS_BAR = 0x00000001,   // Show progress as bar
-    CRITERIA_FLAG_HIDDEN            = 0x00000002,   // Not show criteria in client
-    CRITERIA_FLAG_FAIL_ACHIEVEMENT  = 0x00000004,   // BG related??
-    CRITERIA_FLAG_RESET_ON_START    = 0x00000008,   //
-    CRITERIA_FLAG_IS_DATE           = 0x00000010,   // not used
-    CRITERIA_FLAG_MONEY_COUNTER     = 0x00000020    // Displays counter as money
+    FailAchievement         = 0x01, // Fail Achievement
+    ResetOnStart            = 0x02, // Reset on Start
+    ServerOnly              = 0x04, // Server Only
+    AlwaysSaveToDB          = 0x08, // Always Save to DB (Use with Caution)
+    AllowCriteriaDecrement  = 0x10, // Allow criteria to be decremented
+    IsForQuest              = 0x20  // Is For Quest
 };
+
+DEFINE_ENUM_FLAG(CriteriaFlags);
 
 enum CriteriaTypes : uint8
 {
