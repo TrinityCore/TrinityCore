@@ -12946,7 +12946,7 @@ void Unit::CheckPendingMovementAcks()
     }
 }
 
-void Unit::PurgePendingMovementChanges(bool informObservers /* = true */)
+void Unit::PurgeAndApplyPendingMovementChanges(bool informObservers /* = true */)
 {
     for (auto pendingChange = m_pendingMovementChanges.cbegin(); pendingChange != m_pendingMovementChanges.cend(); ++pendingChange)
     {
