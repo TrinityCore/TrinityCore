@@ -702,6 +702,7 @@ public:
             return false;
         }
 
+        handler->PSendSysMessage(LANG_UNBAN_UNBANNED, name.c_str());
         return true;
     }
 
