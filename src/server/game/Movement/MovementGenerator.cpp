@@ -59,9 +59,3 @@ MovementGenerator* WaypointMovementFactory::Create(Unit* /*object*/) const
 {
     return new WaypointMovementGenerator<Creature>();
 }
-
-void MovementGenerator::NotifyAIOnFinalize(Unit* object)
-{
-    if (UnitAI* ai = object->GetAI())
-        ai->OnMovementGeneratorFinalized(GetMovementGeneratorType());
-}
