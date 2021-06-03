@@ -128,8 +128,8 @@ struct npc_underbog_mushroom : public ScriptedAI
 
             // It's random(sniffs), makes them grow to different size. We need here count of stacks
             // and not task repeat counter because first stack is applied not when task is repeated
-            Aura* GrowAura = me->GetAura(SPELL_GROW);
-            if (GrowAura && GrowAura->GetStackAmount() != _counter)
+            Aura* growAura = me->GetAura(SPELL_GROW);
+            if (growAura && growAura->GetStackAmount() != _counter)
                 task.Repeat(2s);
             else
             {
