@@ -543,6 +543,28 @@ bool MotionMaster::GetDestination(float &x, float &y, float &z)
     return true;
 }
 
+bool MotionMaster::StopOnDeath()
+{
+    if (MovementGenerator* movementGenerator = GetCurrentMovementGenerator())
+        if (movementGenerator->HasFlag(MOVEMENTGENERATOR_FLAG_PERSIST_ON_DEATH))
+            return false;
+
+    if (_owner->IsInWorld())
+    {
+        // Only clear MotionMaster for entities that exists in world
+        // Avoids crashes in the following conditions :
+        //  * Using 'call pet' on dead pets
+        //  * Using 'call stabled pet'
+        //  * Logging in with dead pets
+        Clear();
+        MoveIdle();
+    }
+
+    _owner->StopMoving();
+
+    return true;
+}
+
 void MotionMaster::MoveIdle()
 {
     Add(GetIdleMovementGenerator(), MOTION_SLOT_DEFAULT);
@@ -1240,26 +1262,4 @@ void MotionMaster::ClearBaseUnitStates()
 
     _owner->ClearUnitState(unitState);
     _baseUnitStatesMap.clear();
-}
-
-bool MotionMaster::StopOnDeath()
-{
-    if (MovementGenerator* movementGenerator = GetCurrentMovementGenerator())
-        if (movementGenerator->HasFlag(MOVEMENTGENERATOR_FLAG_PERSIST_ON_DEATH))
-            return false;
-
-    if (_owner->IsInWorld())
-    {
-        // Only clear MotionMaster for entities that exists in world
-        // Avoids crashes in the following conditions :
-        //  * Using 'call pet' on dead pets
-        //  * Using 'call stabled pet'
-        //  * Logging in with dead pets
-        Clear();
-        MoveIdle();
-    }
-
-    _owner->StopMoving();
-
-    return true;
 }
