@@ -22,6 +22,7 @@
 #include "SharedDefines.h"
 #include "Language.h"
 #include "DatabaseEnvFwd.h"
+#include <set>
 #include <map>
 
 struct FactionEntry;
