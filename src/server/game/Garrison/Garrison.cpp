@@ -494,6 +494,8 @@ void Garrison::ActivateBuilding(uint32 garrPlotInstanceId)
             WorldPackets::Garrison::GarrisonBuildingActivated buildingActivated;
             buildingActivated.GarrPlotInstanceID = garrPlotInstanceId;
             _owner->SendDirectMessage(buildingActivated.Write());
+
+            _owner->UpdateCriteria(CRITERIA_TYPE_UPGRADE_GARRISON_BUILDING, plot->BuildingInfo.PacketInfo->GarrBuildingID);
         }
     }
 }

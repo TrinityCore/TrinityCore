@@ -33,7 +33,9 @@ struct GarrSiteLevelEntry;
 enum GarrisonType
 {
     GARRISON_TYPE_GARRISON      = 2,
-    GARRISON_TYPE_CLASS_ORDER   = 3
+    GARRISON_TYPE_CLASS_ORDER   = 3,
+    GARRISON_TYPE_WAR_CAMPAIGN  = 9,
+    GARRISON_TYPE_COVENANT      = 111
 };
 
 enum GarrisonFactionIndex
@@ -54,8 +56,11 @@ enum GarrisonFollowerFlags
 
 enum GarrisonFollowerType
 {
-    FOLLOWER_TYPE_GARRISON = 1,
-    FOLLOWER_TYPE_SHIPYARD = 2
+    FOLLOWER_TYPE_GARRISON      = 1,
+    FOLLOWER_TYPE_SHIPYARD      = 2,
+    FOLLOWER_TYPE_CLASS_ORDER   = 4,
+    FOLLOWER_TYPE_WAR_CAMPAIGN  = 11,
+    FOLLOWER_TYPE_COVENANT      = 123
 };
 
 enum GarrisonAbilityFlags

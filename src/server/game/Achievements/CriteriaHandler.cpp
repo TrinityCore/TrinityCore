@@ -519,6 +519,7 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
             case CRITERIA_TYPE_WIN_ARENA: // This also behaves like CRITERIA_TYPE_WIN_RATED_ARENA
             case CRITERIA_TYPE_ON_LOGIN:
             case CRITERIA_TYPE_PLACE_GARRISON_BUILDING:
+            case CRITERIA_TYPE_UPGRADE_GARRISON_BUILDING:
             case CRITERIA_TYPE_OWN_BATTLE_PET_COUNT:
             case CRITERIA_TYPE_HONOR_LEVEL_REACHED:
             case CRITERIA_TYPE_PRESTIGE_REACHED:
@@ -770,7 +771,6 @@ void CriteriaHandler::UpdateCriteria(CriteriaTypes type, uint64 miscValue1 /*= 0
             case CRITERIA_TYPE_ENTER_AREA:
             case CRITERIA_TYPE_LEAVE_AREA:
             case CRITERIA_TYPE_COMPLETE_DUNGEON_ENCOUNTER:
-            case CRITERIA_TYPE_UPGRADE_GARRISON_BUILDING:
             case CRITERIA_TYPE_CONSTRUCT_GARRISON_BUILDING:
             case CRITERIA_TYPE_UPGRADE_GARRISON:
             case CRITERIA_TYPE_START_GARRISON_MISSION:
