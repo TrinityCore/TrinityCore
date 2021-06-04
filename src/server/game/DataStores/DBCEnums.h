@@ -997,6 +997,17 @@ enum FactionMasks
     // if none flags set then non-aggressive creature
 };
 
+enum class FriendshipReputationFlags : int32
+{
+    NoFXOnReactionChange                            = 0x01,
+    NoLogTextOnRepGain                              = 0x02,
+    NoLogTextOnReactionChange                       = 0x04,
+    ShowRepGainandReactionChangeForHiddenFaction    = 0x08,
+    NoRepGainModifiers                              = 0x10
+};
+
+DEFINE_ENUM_FLAG(FriendshipReputationFlags);
+
 enum class GlobalCurve : int32
 {
     CritDiminishing = 0,

@@ -360,8 +360,7 @@ public:
 
                     if (factionState) // and then target != NULL also
                     {
-                        uint32 index = target->GetReputationMgr().GetReputationRankStrIndex(factionEntry);
-                        std::string rankName = handler->GetTrinityString(index);
+                        std::string rankName = target->GetReputationMgr().GetReputationRankName(factionEntry);
 
                         ss << ' ' << rankName << "|h|r (" << target->GetReputationMgr().GetReputation(factionEntry) << ')';
 

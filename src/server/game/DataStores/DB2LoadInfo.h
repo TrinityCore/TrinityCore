@@ -1998,6 +1998,41 @@ struct FactionTemplateLoadInfo
     }
 };
 
+struct FriendshipRepReactionLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_STRING, "Reaction" },
+            { false, FT_INT, "FriendshipRepID" },
+            { false, FT_SHORT, "ReactionThreshold" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, FriendshipRepReactionMeta::Instance(), HOTFIX_SEL_FRIENDSHIP_REP_REACTION);
+        return &loadInfo;
+    }
+};
+
+struct FriendshipReputationLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_STRING, "Description" },
+            { false, FT_STRING, "StandingModified" },
+            { false, FT_STRING, "StandingChanged" },
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "FactionID" },
+            { true, FT_INT, "TextureFileID" },
+            { true, FT_INT, "Flags" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, FriendshipReputationMeta::Instance(), HOTFIX_SEL_FRIENDSHIP_REPUTATION);
+        return &loadInfo;
+    }
+};
+
 struct GameobjectDisplayInfoLoadInfo
 {
     static DB2LoadInfo const* Instance()

@@ -684,55 +684,6 @@ public:
         if (!factionId || !rankTxt)
             return false;
 
-        amount = atoi(rankTxt);
-        if ((amount == 0) && (rankTxt[0] != '-') && !isdigit(rankTxt[0]))
-        {
-            std::string rankStr = rankTxt;
-            std::wstring wrankStr;
-            if (!Utf8toWStr(rankStr, wrankStr))
-                return false;
-            wstrToLower(wrankStr);
-
-            int r = 0;
-            amount = -42000;
-            for (; r < MAX_REPUTATION_RANK; ++r)
-            {
-                std::string rank = handler->GetTrinityString(ReputationRankStrIndex[r]);
-                if (rank.empty())
-                    continue;
-
-                std::wstring wrank;
-                if (!Utf8toWStr(rank, wrank))
-                    continue;
-
-                wstrToLower(wrank);
-
-                if (wrank.substr(0, wrankStr.size()) == wrankStr)
-                {
-                    char *deltaTxt = strtok(nullptr, " ");
-                    if (deltaTxt)
-                    {
-                        int32 delta = atoi(deltaTxt);
-                        if ((delta < 0) || (delta > ReputationMgr::PointsInRank[r] -1))
-                        {
-                            handler->PSendSysMessage(LANG_COMMAND_FACTION_DELTA, (ReputationMgr::PointsInRank[r]-1));
-                            handler->SetSentErrorMessage(true);
-                            return false;
-                        }
-                        amount += delta;
-                    }
-                    break;
-                }
-                amount += ReputationMgr::PointsInRank[r];
-            }
-            if (r >= MAX_REPUTATION_RANK)
-            {
-                handler->PSendSysMessage(LANG_COMMAND_FACTION_INVPARAM, rankTxt);
-                handler->SetSentErrorMessage(true);
-                return false;
-            }
-        }
-
         FactionEntry const* factionEntry = sFactionStore.LookupEntry(factionId);
 
         if (!factionEntry)
@@ -747,6 +698,67 @@ public:
             handler->PSendSysMessage(LANG_COMMAND_FACTION_NOREP_ERROR, factionEntry->Name[handler->GetSessionDbcLocale()], factionId);
             handler->SetSentErrorMessage(true);
             return false;
+        }
+
+        amount = atoi(rankTxt);
+        // try to find rank by name
+        if ((amount == 0) && (rankTxt[0] != '-') && !isdigit(rankTxt[0]))
+        {
+            std::string rankStr = rankTxt;
+            std::wstring wrankStr;
+            if (!Utf8toWStr(rankStr, wrankStr))
+                return false;
+
+            wstrToLower(wrankStr);
+
+            auto rankThresholdItr = ReputationMgr::ReputationRankThresholds.begin();
+            auto end = ReputationMgr::ReputationRankThresholds.end();
+
+            int32 r = 0;
+
+            for (; rankThresholdItr != end; ++rankThresholdItr, ++r)
+            {
+                std::string rank = handler->GetTrinityString(ReputationRankStrIndex[r]);
+                if (rank.empty())
+                    continue;
+
+                std::wstring wrank;
+                if (!Utf8toWStr(rank, wrank))
+                    continue;
+
+                wstrToLower(wrank);
+
+                if (wrank.substr(0, wrankStr.size()) == wrankStr)
+                    break;
+            }
+
+            if (rankThresholdItr == end)
+            {
+                handler->PSendSysMessage(LANG_COMMAND_FACTION_INVPARAM, rankTxt);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            amount = *rankThresholdItr;
+
+            char *deltaTxt = strtok(nullptr, " ");
+            if (deltaTxt)
+            {
+                int32 toNextRank = 0;
+                auto nextThresholdItr = rankThresholdItr;
+                ++nextThresholdItr;
+                if (nextThresholdItr != end)
+                    toNextRank = *nextThresholdItr - *rankThresholdItr;
+
+                int32 delta = atoi(deltaTxt);
+                if (delta < 0 || delta >= toNextRank)
+                {
+                    handler->PSendSysMessage(LANG_COMMAND_FACTION_DELTA, std::max(0, toNextRank - 1));
+                    handler->SetSentErrorMessage(true);
+                    return false;
+                }
+                amount += delta;
+            }
         }
 
         target->GetReputationMgr().SetOneFactionReputation(factionEntry, amount, false);
