@@ -1408,10 +1408,17 @@ class TC_GAME_API Unit : public WorldObject
         AuraEffect* GetAuraEffectOfRankedSpell(uint32 spellId, uint8 effIndex, ObjectGuid casterGUID = ObjectGuid::Empty) const;
         AuraEffect* GetAuraEffect(AuraType type, SpellFamilyNames family, flag128 const& familyFlag, ObjectGuid casterGUID = ObjectGuid::Empty) const;
 
-        AuraApplication * GetAuraApplication(uint32 spellId, ObjectGuid casterGUID = ObjectGuid::Empty, ObjectGuid itemCasterGUID = ObjectGuid::Empty, uint32 reqEffMask = 0, AuraApplication * except = nullptr) const;
-        Aura* GetAura(uint32 spellId, ObjectGuid casterGUID = ObjectGuid::Empty, ObjectGuid itemCasterGUID = ObjectGuid::Empty, uint32 reqEffMask = 0) const;
+        AuraApplication* GetAuraApplication(uint32 spellId, ObjectGuid casterGUID = ObjectGuid::Empty, ObjectGuid itemCasterGUID = ObjectGuid::Empty, uint32 reqEffMask = 0, AuraApplication* except = nullptr) const;
+        AuraApplication* GetAuraApplication(uint32 spellId, std::function<bool(AuraApplication const*)> const& predicate) const;
+        AuraApplication* GetAuraApplication(uint32 spellId, std::function<bool(Aura const*)> const& predicate) const;
+        AuraApplication* GetAuraApplication(std::function<bool(AuraApplication const*)> const& predicate) const;
+        AuraApplication* GetAuraApplication(std::function<bool(Aura const*)> const& predicate) const;
 
-        AuraApplication * GetAuraApplicationOfRankedSpell(uint32 spellId, ObjectGuid casterGUID = ObjectGuid::Empty, ObjectGuid itemCasterGUID = ObjectGuid::Empty, uint32 reqEffMask = 0, AuraApplication * except = nullptr) const;
+        Aura* GetAura(uint32 spellId, ObjectGuid casterGUID = ObjectGuid::Empty, ObjectGuid itemCasterGUID = ObjectGuid::Empty, uint32 reqEffMask = 0) const;
+        Aura* GetAura(uint32 spellId, std::function<bool(Aura const*)> const& predicate) const;
+        Aura* GetAura(std::function<bool(Aura const*)> const& predicate) const;
+
+        AuraApplication* GetAuraApplicationOfRankedSpell(uint32 spellId, ObjectGuid casterGUID = ObjectGuid::Empty, ObjectGuid itemCasterGUID = ObjectGuid::Empty, uint32 reqEffMask = 0, AuraApplication* except = nullptr) const;
         Aura* GetAuraOfRankedSpell(uint32 spellId, ObjectGuid casterGUID = ObjectGuid::Empty, ObjectGuid itemCasterGUID = ObjectGuid::Empty, uint32 reqEffMask = 0) const;
 
         void GetDispellableAuraList(Unit* caster, uint32 dispelMask, DispelChargesList& dispelList, bool isReflect = false) const;
@@ -1419,6 +1426,7 @@ class TC_GAME_API Unit : public WorldObject
         bool HasAuraEffect(uint32 spellId, uint8 effIndex, ObjectGuid caster = ObjectGuid::Empty) const;
         uint32 GetAuraCount(uint32 spellId) const;
         bool HasAura(uint32 spellId, ObjectGuid casterGUID = ObjectGuid::Empty, ObjectGuid itemCasterGUID = ObjectGuid::Empty, uint32 reqEffMask = 0) const;
+        bool HasAura(std::function<bool(Aura const*)> const& predicate) const;
         bool HasAuraType(AuraType auraType) const;
         bool HasAuraTypeWithCaster(AuraType auratype, ObjectGuid caster) const;
         bool HasAuraTypeWithMiscvalue(AuraType auratype, int32 miscvalue) const;

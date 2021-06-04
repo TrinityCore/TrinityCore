@@ -4413,26 +4413,73 @@ AuraEffect* Unit::GetAuraEffect(AuraType type, SpellFamilyNames family, flag128 
 
 AuraApplication * Unit::GetAuraApplication(uint32 spellId, ObjectGuid casterGUID, ObjectGuid itemCasterGUID, uint32 reqEffMask, AuraApplication * except) const
 {
-    AuraApplicationMapBounds range = m_appliedAuras.equal_range(spellId);
-    for (; range.first != range.second; ++range.first)
+    return GetAuraApplication(spellId, [&](AuraApplication const* app)
     {
-        AuraApplication* app = range.first->second;
         Aura const* aura = app->GetBase();
 
         if (((aura->GetEffectMask() & reqEffMask) == reqEffMask)
-                && (!casterGUID || aura->GetCasterGUID() == casterGUID)
-                && (!itemCasterGUID || aura->GetCastItemGUID() == itemCasterGUID)
-                && (!except || except != app))
+            && (!casterGUID || aura->GetCasterGUID() == casterGUID)
+            && (!itemCasterGUID || aura->GetCastItemGUID() == itemCasterGUID)
+            && (!except || except != app))
         {
-            return app;
+            return true;
         }
-    }
+
+        return false;
+    });
+}
+
+AuraApplication* Unit::GetAuraApplication(uint32 spellId, std::function<bool(AuraApplication const*)> const& predicate) const
+{
+    for (AuraApplicationMap::value_type const& pair : Trinity::Containers::MapEqualRange(m_appliedAuras, spellId))
+        if (predicate(pair.second))
+            return pair.second;
+
+    return nullptr;
+}
+
+AuraApplication* Unit::GetAuraApplication(uint32 spellId, std::function<bool(Aura const*)> const& predicate) const
+{
+    for (AuraApplicationMap::value_type const& pair : Trinity::Containers::MapEqualRange(m_appliedAuras, spellId))
+        if (predicate(pair.second->GetBase()))
+            return pair.second;
+
+    return nullptr;
+}
+
+AuraApplication* Unit::GetAuraApplication(std::function<bool(AuraApplication const*)> const& predicate) const
+{
+    for (AuraApplicationMap::value_type const& pair : m_appliedAuras)
+        if (predicate(pair.second))
+            return pair.second;
+
+    return nullptr;
+}
+
+AuraApplication* Unit::GetAuraApplication(std::function<bool(Aura const*)> const& predicate) const
+{
+    for (AuraApplicationMap::value_type const& pair : m_appliedAuras)
+        if (predicate(pair.second->GetBase()))
+            return pair.second;
+
     return nullptr;
 }
 
 Aura* Unit::GetAura(uint32 spellId, ObjectGuid casterGUID, ObjectGuid itemCasterGUID, uint32 reqEffMask) const
 {
-    AuraApplication * aurApp = GetAuraApplication(spellId, casterGUID, itemCasterGUID, reqEffMask);
+    AuraApplication* aurApp = GetAuraApplication(spellId, casterGUID, itemCasterGUID, reqEffMask);
+    return aurApp ? aurApp->GetBase() : nullptr;
+}
+
+Aura* Unit::GetAura(uint32 spellId, std::function<bool(Aura const*)> const& predicate) const
+{
+    AuraApplication* aurApp = GetAuraApplication(spellId, predicate);
+    return aurApp ? aurApp->GetBase() : nullptr;
+}
+
+Aura* Unit::GetAura(std::function<bool(Aura const*)> const& predicate) const
+{
+    AuraApplication* aurApp = GetAuraApplication(predicate);
     return aurApp ? aurApp->GetBase() : nullptr;
 }
 
@@ -4524,9 +4571,12 @@ uint32 Unit::GetAuraCount(uint32 spellId) const
 
 bool Unit::HasAura(uint32 spellId, ObjectGuid casterGUID, ObjectGuid itemCasterGUID, uint32 reqEffMask) const
 {
-    if (GetAuraApplication(spellId, casterGUID, itemCasterGUID, reqEffMask))
-        return true;
-    return false;
+    return GetAuraApplication(spellId, casterGUID, itemCasterGUID, reqEffMask) != nullptr;
+}
+
+bool Unit::HasAura(std::function<bool(Aura const*)> const& predicate) const
+{
+    return GetAuraApplication(predicate) != nullptr;
 }
 
 bool Unit::HasAuraType(AuraType auraType) const
