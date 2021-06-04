@@ -2146,7 +2146,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 return false;
             break;
         case CRITERIA_ADDITIONAL_CONDITION_MENTOR: // 123
-            if (!referencePlayer->HasPlayerFlag(PLAYER_FLAGS_MENTOR))
+            if (!referencePlayer->HasPlayerFlag(PLAYER_FLAGS_TIMEWALKING))
                 return false;
             break;
         case CRITERIA_ADDITIONAL_CONDITION_GARRISON_LEVEL_ABOVE: // 126
