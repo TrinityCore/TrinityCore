@@ -2515,6 +2515,9 @@ void SpellMgr::LoadSpellInfoStore()
     for (SpellInterruptsEntry const* interrupts : sSpellInterruptsStore)
         loadData[{ interrupts->SpellID, Difficulty(interrupts->DifficultyID) }].Interrupts = interrupts;
 
+    for (SpellLabelEntry const* label : sSpellLabelStore)
+        loadData[{ label->LabelID, DIFFICULTY_NONE }].Labels.push_back(label);
+
     for (SpellLevelsEntry const* levels : sSpellLevelsStore)
         loadData[{ levels->SpellID, Difficulty(levels->DifficultyID) }].Levels = levels;
 
@@ -2568,6 +2571,7 @@ void SpellMgr::LoadSpellInfoStore()
         if (!spellNameEntry)
             continue;
 
+        std::vector<SpellLabelEntry const*> labels = data.second.Labels; // copy, need to ensure source remains unmodified
         SpellVisualVector visuals = data.second.Visuals; // copy, need to ensure source remains unmodified
 
         // fill blanks
@@ -2596,6 +2600,8 @@ void SpellMgr::LoadSpellInfoStore()
                     if (!data.second.Interrupts)
                         data.second.Interrupts = fallbackData->Interrupts;
 
+                    labels.insert(labels.end(), fallbackData->Labels.begin(), fallbackData->Labels.end());
+
                     if (!data.second.Levels)
                         data.second.Levels = fallbackData->Levels;
 
@@ -2616,7 +2622,7 @@ void SpellMgr::LoadSpellInfoStore()
             } while (difficultyEntry);
         }
 
-        mSpellInfoMap.emplace(spellNameEntry, data.first.second, data.second, std::move(visuals));
+        mSpellInfoMap.emplace(spellNameEntry, data.first.second, data.second, labels, std::move(visuals));
     }
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo store in %u ms", GetMSTimeDiffToNow(oldMSTime));

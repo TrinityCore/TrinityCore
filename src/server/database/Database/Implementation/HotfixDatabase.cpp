@@ -1331,6 +1331,10 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "Logic1, Logic2, Logic3, Logic4, Logic5 FROM spell_item_enchantment_condition WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_SPELL_ITEM_ENCHANTMENT_CONDITION, "SELECT MAX(ID) + 1 FROM spell_item_enchantment_condition", CONNECTION_SYNCH);
 
+    // SpellLabel.db2
+    PrepareStatement(HOTFIX_SEL_SPELL_LABEL, "SELECT ID, LabelID, SpellID FROM spell_label WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_SPELL_LABEL, "SELECT MAX(ID) + 1 FROM spell_label", CONNECTION_SYNCH);
+
     // SpellLearnSpell.db2
     PrepareStatement(HOTFIX_SEL_SPELL_LEARN_SPELL, "SELECT ID, SpellID, LearnSpellID, OverridesSpellID FROM spell_learn_spell"
         " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);

@@ -3072,6 +3072,13 @@ struct SpellItemEnchantmentConditionEntry
     uint8 Logic[5];
 };
 
+struct SpellLabelEntry
+{
+    uint32 ID;
+    uint32 LabelID;
+    int32 SpellID;
+};
+
 struct SpellLearnSpellEntry
 {
     uint32 ID;

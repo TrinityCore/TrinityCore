@@ -1079,7 +1079,8 @@ SpellEffectInfo::StaticData SpellEffectInfo::_data[TOTAL_SPELL_EFFECTS] =
     {EFFECT_IMPLICIT_TARGET_EXPLICIT, TARGET_OBJECT_TYPE_UNIT}, // 283 SPELL_EFFECT_COMPLETE_CAMPAIGN
 };
 
-SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, SpellInfoLoadHelper const& data, SpellVisualVector&& visuals)
+SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, SpellInfoLoadHelper const& data,
+    std::vector<SpellLabelEntry const*> const& labels, SpellVisualVector&& visuals)
     : Id(spellName->ID), Difficulty(difficulty)
 {
     _effects.reserve(32);
@@ -1218,6 +1219,9 @@ SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, S
         ChannelInterruptFlags = SpellAuraInterruptFlags(_interrupt->ChannelInterruptFlags[0]);
         ChannelInterruptFlags2 = SpellAuraInterruptFlags2(_interrupt->ChannelInterruptFlags[1]);
     }
+
+    for (SpellLabelEntry const* label : labels)
+        Labels.insert(label->LabelID);
 
     // SpellLevelsEntry
     if (SpellLevelsEntry const* _levels = data.Levels)
@@ -4651,4 +4655,9 @@ bool SpellInfo::MeetsFutureSpellPlayerCondition(Player const* player) const
 
     PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(ShowFutureSpellPlayerConditionID);
     return !playerCondition || ConditionMgr::IsPlayerMeetingCondition(player, playerCondition);
+}
+
+bool SpellInfo::HasLabel(uint32 labelId) const
+{
+    return Labels.find(labelId) != Labels.end();
 }

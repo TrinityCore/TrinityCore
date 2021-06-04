@@ -50,6 +50,7 @@ struct SpellCooldownsEntry;
 struct SpellEffectEntry;
 struct SpellEquippedItemsEntry;
 struct SpellInterruptsEntry;
+struct SpellLabelEntry;
 struct SpellLevelsEntry;
 struct SpellMiscEntry;
 struct SpellNameEntry;
@@ -613,6 +614,7 @@ struct SpellInfoLoadHelper
     std::array<SpellEffectEntry const*, MAX_SPELL_EFFECTS> Effects = { };
     SpellEquippedItemsEntry const* EquippedItems = nullptr;
     SpellInterruptsEntry const* Interrupts = nullptr;
+    std::vector<SpellLabelEntry const*> Labels;
     SpellLevelsEntry const* Levels = nullptr;
     SpellMiscEntry const* Misc = nullptr;
     std::array<SpellPowerEntry const*, MAX_POWERS_PER_SPELL> Powers;
