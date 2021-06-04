@@ -2855,7 +2855,19 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
             return false;
     }
 
-    // TODO: time condition
+    if (condition->Time[0])
+    {
+        ByteBuffer unpacker;
+        unpacker << condition->Time[0];
+        time_t from = unpacker.ReadPackedTime();
+        unpacker.rpos(0);
+        unpacker.wpos(0);
+        unpacker << condition->Time[1];
+        time_t to = unpacker.ReadPackedTime();
+
+        if (GameTime::GetGameTime() < from || GameTime::GetGameTime() > to)
+            return false;
+    }
 
     if (condition->WorldStateExpressionID)
     {
@@ -2867,7 +2879,9 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
             return false;
     }
 
-    // TODO: weather condition
+    if (condition->WeatherID)
+        if (player->GetMap()->GetZoneWeather(player->GetZoneId()) != WeatherState(condition->WeatherID))
+            return false;
 
     if (condition->Achievement[0])
     {
