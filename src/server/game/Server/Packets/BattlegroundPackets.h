@@ -448,7 +448,7 @@ namespace WorldPackets
                 int32 BestSeasonRating = 0;
                 int32 PvpTierID = 0;
                 int32 Unused3 = 0;
-                bool Unused4 = false;
+                bool Disqualified = false;
             } Bracket[6];
         };
 

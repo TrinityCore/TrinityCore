@@ -2547,15 +2547,15 @@ void RestInfo::ClearChangesMask()
 
 void PVPInfo::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
 {
-    data << uint32(Field_0);
-    data << uint32(Field_4);
-    data << uint32(Field_8);
-    data << uint32(Field_C);
+    data << uint32(WeeklyPlayed);
+    data << uint32(WeeklyWon);
+    data << uint32(SeasonPlayed);
+    data << uint32(SeasonWon);
     data << uint32(Rating);
-    data << uint32(Field_14);
-    data << uint32(Field_18);
+    data << uint32(WeeklyBestRating);
+    data << uint32(SeasonBestRating);
     data << uint32(PvpTierID);
-    data.WriteBit(Field_20);
+    data.WriteBit(Disqualified);
     data.FlushBits();
 }
 
@@ -2571,7 +2571,7 @@ void PVPInfo::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const
     {
         if (changesMask[1])
         {
-            data.WriteBit(Field_20);
+            data.WriteBit(Disqualified);
         }
     }
     data.FlushBits();
@@ -2579,19 +2579,19 @@ void PVPInfo::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const
     {
         if (changesMask[2])
         {
-            data << uint32(Field_0);
+            data << uint32(WeeklyPlayed);
         }
         if (changesMask[3])
         {
-            data << uint32(Field_4);
+            data << uint32(WeeklyWon);
         }
         if (changesMask[4])
         {
-            data << uint32(Field_8);
+            data << uint32(SeasonPlayed);
         }
         if (changesMask[5])
         {
-            data << uint32(Field_C);
+            data << uint32(SeasonWon);
         }
         if (changesMask[6])
         {
@@ -2599,11 +2599,11 @@ void PVPInfo::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const
         }
         if (changesMask[7])
         {
-            data << uint32(Field_14);
+            data << uint32(WeeklyBestRating);
         }
         if (changesMask[8])
         {
-            data << uint32(Field_18);
+            data << uint32(SeasonBestRating);
         }
         if (changesMask[9])
         {
@@ -2615,14 +2615,14 @@ void PVPInfo::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const
 
 void PVPInfo::ClearChangesMask()
 {
-    Base::ClearChangesMask(Field_20);
-    Base::ClearChangesMask(Field_0);
-    Base::ClearChangesMask(Field_4);
-    Base::ClearChangesMask(Field_8);
-    Base::ClearChangesMask(Field_C);
+    Base::ClearChangesMask(Disqualified);
+    Base::ClearChangesMask(WeeklyPlayed);
+    Base::ClearChangesMask(WeeklyWon);
+    Base::ClearChangesMask(SeasonPlayed);
+    Base::ClearChangesMask(SeasonWon);
     Base::ClearChangesMask(Rating);
-    Base::ClearChangesMask(Field_14);
-    Base::ClearChangesMask(Field_18);
+    Base::ClearChangesMask(WeeklyBestRating);
+    Base::ClearChangesMask(SeasonBestRating);
     Base::ClearChangesMask(PvpTierID);
     _changesMask.ResetAll();
 }

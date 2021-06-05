@@ -522,14 +522,14 @@ struct RestInfo : public IsUpdateFieldStructureTag, public HasChangesMask<3>
 
 struct PVPInfo : public IsUpdateFieldStructureTag, public HasChangesMask<10>
 {
-    UpdateField<bool, 0, 1> Field_20;
-    UpdateField<uint32, 0, 2> Field_0;
-    UpdateField<uint32, 0, 3> Field_4;
-    UpdateField<uint32, 0, 4> Field_8;
-    UpdateField<uint32, 0, 5> Field_C;
+    UpdateField<bool, 0, 1> Disqualified;
+    UpdateField<uint32, 0, 2> WeeklyPlayed;
+    UpdateField<uint32, 0, 3> WeeklyWon;
+    UpdateField<uint32, 0, 4> SeasonPlayed;
+    UpdateField<uint32, 0, 5> SeasonWon;
     UpdateField<uint32, 0, 6> Rating;
-    UpdateField<uint32, 0, 7> Field_14;
-    UpdateField<uint32, 0, 8> Field_18;
+    UpdateField<uint32, 0, 7> WeeklyBestRating;
+    UpdateField<uint32, 0, 8> SeasonBestRating;
     UpdateField<uint32, 0, 9> PvpTierID;
 
     void WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const;
