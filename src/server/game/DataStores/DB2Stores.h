@@ -162,6 +162,7 @@ TC_GAME_API extern DB2Storage<MountCapabilityEntry>                 sMountCapabi
 TC_GAME_API extern DB2Storage<MountEntry>                           sMountStore;
 TC_GAME_API extern DB2Storage<MovieEntry>                           sMovieStore;
 TC_GAME_API extern DB2Storage<OverrideSpellDataEntry>               sOverrideSpellDataStore;
+TC_GAME_API extern DB2Storage<ParagonReputationEntry>               sParagonReputationStore;
 TC_GAME_API extern DB2Storage<PhaseEntry>                           sPhaseStore;
 TC_GAME_API extern DB2Storage<PlayerConditionEntry>                 sPlayerConditionStore;
 TC_GAME_API extern DB2Storage<PowerDisplayEntry>                    sPowerDisplayStore;
@@ -393,6 +394,7 @@ public:
     std::string GetNameGenEntry(uint8 race, uint8 gender) const;
     ResponseCodes ValidateName(std::wstring const& name, LocaleConstant locale) const;
     static int32 GetNumTalentsAtLevel(uint32 level, Classes playerClass);
+    ParagonReputationEntry const* GetParagonReputation(uint32 factionId) const;
     std::vector<uint32> const* GetPhasesForGroup(uint32 group) const;
     PowerTypeEntry const* GetPowerTypeEntry(Powers power) const;
     PowerTypeEntry const* GetPowerTypeByName(std::string const& name) const;

@@ -121,6 +121,9 @@ class TC_GAME_API ReputationMgr
             return forceItr != _forcedReactions.end() ? &forceItr->second : nullptr;
         }
 
+        int32 GetParagonLevel(uint32 paragonFactionId) const;
+        int32 GetParagonLevel(FactionEntry const* paragonFactionEntry) const;
+
     public:                                                 // modifiers
         bool SetReputation(FactionEntry const* factionEntry, int32 standing)
         {
@@ -156,6 +159,7 @@ class TC_GAME_API ReputationMgr
         void SendVisible(FactionState const* faction, bool visible = true) const;
         void UpdateRankCounters(ReputationRank old_rank, ReputationRank new_rank);
         int32 GetFactionDataIndexForRaceAndClass(FactionEntry const* factionEntry) const;
+        bool CanGainParagonReputationForFaction(FactionEntry const* factionEntry) const;
 
     private:
         Player* _player;

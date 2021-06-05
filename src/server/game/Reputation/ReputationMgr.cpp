@@ -136,11 +136,30 @@ int32 ReputationMgr::GetMinReputation(FactionEntry const* factionEntry) const
 
 int32 ReputationMgr::GetMaxReputation(FactionEntry const* factionEntry) const
 {
+    if (ParagonReputationEntry const* paragonReputation = sDB2Manager.GetParagonReputation(factionEntry->ID))
+    {
+        // has reward quest, cap is just before threshold for another quest reward
+        // for example: if current reputation is 12345 and questa are given every 10000 and player has unclaimed reward
+        // then cap will be 19999
+
+        // otherwise cap is one theshold level larger
+        // if current reputation is 12345 and questa are given every 10000 and player does NOT have unclaimed reward
+        // then cap will be 29999
+
+        int32 reputation = GetReputation(factionEntry);
+        int32 cap = reputation + paragonReputation->LevelThreshold - reputation % paragonReputation->LevelThreshold - 1;
+
+        if (_player->GetQuestStatus(paragonReputation->QuestID) == QUEST_STATUS_NONE)
+            cap += paragonReputation->LevelThreshold;
+
+        return cap;
+    }
+
     if (std::set<FriendshipRepReactionEntry const*> const* friendshipReactions = sDB2Manager.GetFriendshipRepReactions(factionEntry->FriendshipRepID))
         return (*friendshipReactions->rbegin())->ReactionThreshold;
 
     int32 dataIndex = GetFactionDataIndexForRaceAndClass(factionEntry);
-    if (dataIndex >= 0 && factionEntry->ReputationMax[dataIndex])
+    if (dataIndex >= 0)
         return factionEntry->ReputationMax[dataIndex];
 
     return *ReputationRankThresholds.rbegin();
@@ -191,6 +210,22 @@ ReputationRank const* ReputationMgr::GetForcedRankIfAny(FactionTemplateEntry con
     return GetForcedRankIfAny(factionTemplateEntry->Faction);
 }
 
+int32 ReputationMgr::GetParagonLevel(uint32 paragonFactionId) const
+{
+    return GetParagonLevel(sFactionStore.LookupEntry(paragonFactionId));
+}
+
+int32 ReputationMgr::GetParagonLevel(FactionEntry const* paragonFactionEntry) const
+{
+    if (!paragonFactionEntry)
+        return 0;
+
+    if (ParagonReputationEntry const* paragonReputation = sDB2Manager.GetParagonReputation(paragonFactionEntry->ID))
+        return GetReputation(paragonFactionEntry) / paragonReputation->LevelThreshold;
+
+    return 0;
+}
+
 void ReputationMgr::ApplyForceReaction(uint32 faction_id, ReputationRank rank, bool apply)
 {
     if (apply)
@@ -201,11 +236,19 @@ void ReputationMgr::ApplyForceReaction(uint32 faction_id, ReputationRank rank, b
 
 ReputationFlags ReputationMgr::GetDefaultStateFlags(FactionEntry const* factionEntry) const
 {
-    int32 dataIndex = GetFactionDataIndexForRaceAndClass(factionEntry);
-    if (dataIndex < 0)
-        return ReputationFlags::None;
+    ReputationFlags flags = [&]()
+    {
+        int32 dataIndex = GetFactionDataIndexForRaceAndClass(factionEntry);
+        if (dataIndex < 0)
+            return ReputationFlags::None;
 
-    return static_cast<ReputationFlags>(factionEntry->ReputationFlags[dataIndex]);
+        return static_cast<ReputationFlags>(factionEntry->ReputationFlags[dataIndex]);
+    }();
+
+    if (sDB2Manager.GetParagonReputation(factionEntry->ID))
+        flags |= ReputationFlags::ShowPropagated;
+
+    return flags;
 }
 
 void ReputationMgr::SendForceReactions()
@@ -374,12 +417,22 @@ bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standi
     FactionStateList::iterator faction = _factions.find(factionEntry->ReputationIndex);
     if (faction != _factions.end())
     {
-        // if we update spillover only, do not update main reputation (rank exceeds creature reward rate)
-        if (!spillOverOnly)
-            res = SetOneFactionReputation(factionEntry, standing, incremental);
+        FactionEntry const* primaryFactionToModify = factionEntry;
+        if (incremental && standing > 0 && CanGainParagonReputationForFaction(factionEntry))
+        {
+            primaryFactionToModify = sFactionStore.AssertEntry(factionEntry->ParagonFactionID);
+            faction = _factions.find(primaryFactionToModify->ReputationIndex);
+        }
 
-        // only this faction gets reported to client, even if it has no own visible standing
-        SendState(&faction->second);
+        if (faction != _factions.end())
+        {
+            // if we update spillover only, do not update main reputation (rank exceeds creature reward rate)
+            if (!spillOverOnly)
+                res = SetOneFactionReputation(primaryFactionToModify, standing, incremental);
+
+            // only this faction gets reported to client, even if it has no own visible standing
+            SendState(&faction->second);
+        }
     }
     return res;
 }
@@ -406,6 +459,7 @@ bool ReputationMgr::SetOneFactionReputation(FactionEntry const* factionEntry, in
         ReputationRank old_rank = ReputationToRank(factionEntry, itr->second.Standing + BaseRep);
         ReputationRank new_rank = ReputationToRank(factionEntry, standing);
 
+        int32 oldStanding = itr->second.Standing + BaseRep;
         int32 newStanding = standing - BaseRep;
 
         _player->ReputationChanged(factionEntry, newStanding - itr->second.Standing);
@@ -422,7 +476,17 @@ bool ReputationMgr::SetOneFactionReputation(FactionEntry const* factionEntry, in
         if (new_rank > old_rank)
             _sendFactionIncreased = true;
 
-        if (!factionEntry->FriendshipRepID)
+        ParagonReputationEntry const* paragonReputation = sDB2Manager.GetParagonReputation(factionEntry->ID);
+        if (paragonReputation)
+        {
+            int32 oldParagonLevel = oldStanding / paragonReputation->LevelThreshold;
+            int32 newParagonLevel = standing / paragonReputation->LevelThreshold;
+            if (oldParagonLevel != newParagonLevel)
+                if (Quest const* paragonRewardQuest = sObjectMgr->GetQuestTemplate(paragonReputation->QuestID))
+                    _player->AddQuestAndCheckCompletion(paragonRewardQuest, nullptr);
+        }
+
+        if (!factionEntry->FriendshipRepID && !paragonReputation)
             UpdateRankCounters(old_rank, new_rank);
 
         _player->UpdateCriteria(CRITERIA_TYPE_KNOWN_FACTIONS,          factionEntry->ID);
@@ -466,6 +530,9 @@ void ReputationMgr::SetVisible(FactionState* faction)
         return;
 
     if (faction->Flags.HasFlag(ReputationFlags::Header) && !faction->Flags.HasFlag(ReputationFlags::HeaderShowsBar))
+        return;
+
+    if (sDB2Manager.GetParagonReputation(faction->ID))
         return;
 
     // already set
@@ -660,4 +727,23 @@ int32 ReputationMgr::GetFactionDataIndexForRaceAndClass(FactionEntry const* fact
     }
 
     return -1;
+}
+
+bool ReputationMgr::CanGainParagonReputationForFaction(FactionEntry const* factionEntry) const
+{
+    if (!sFactionStore.LookupEntry(factionEntry->ParagonFactionID))
+        return false;
+
+    if (GetRank(factionEntry) != REP_EXALTED)
+        return false;
+
+    ParagonReputationEntry const* paragonReputation = sDB2Manager.GetParagonReputation(factionEntry->ParagonFactionID);
+    if (!paragonReputation)
+        return false;
+
+    Quest const* quest = sObjectMgr->GetQuestTemplate(paragonReputation->QuestID);
+    if (!quest)
+        return false;
+
+    return _player->getLevel() >= _player->GetQuestMinLevel(quest);
 }

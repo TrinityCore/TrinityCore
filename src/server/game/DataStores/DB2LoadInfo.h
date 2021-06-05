@@ -3971,6 +3971,22 @@ struct OverrideSpellDataLoadInfo
     }
 };
 
+struct ParagonReputationLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_INT, "FactionID" },
+            { true, FT_INT, "LevelThreshold" },
+            { true, FT_INT, "QuestID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ParagonReputationMeta::Instance(), HOTFIX_SEL_PARAGON_REPUTATION);
+        return &loadInfo;
+    }
+};
+
 struct PhaseLoadInfo
 {
     static DB2LoadInfo const* Instance()

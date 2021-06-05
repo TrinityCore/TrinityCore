@@ -1054,6 +1054,11 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "Spells10, PlayerActionBarFileDataID, Flags FROM override_spell_data WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_OVERRIDE_SPELL_DATA, "SELECT MAX(ID) + 1 FROM override_spell_data", CONNECTION_SYNCH);
 
+    // ParagonReputation.db2
+    PrepareStatement(HOTFIX_SEL_PARAGON_REPUTATION, "SELECT ID, FactionID, LevelThreshold, QuestID FROM paragon_reputation"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_PARAGON_REPUTATION, "SELECT MAX(ID) + 1 FROM paragon_reputation", CONNECTION_SYNCH);
+
     // Phase.db2
     PrepareStatement(HOTFIX_SEL_PHASE, "SELECT ID, Flags FROM phase WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_PHASE, "SELECT MAX(ID) + 1 FROM phase", CONNECTION_SYNCH);

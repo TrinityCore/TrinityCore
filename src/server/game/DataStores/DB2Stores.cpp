@@ -218,6 +218,7 @@ DB2Storage<NamesReservedEntry>                  sNamesReservedStore("NamesReserv
 DB2Storage<NamesReservedLocaleEntry>            sNamesReservedLocaleStore("NamesReservedLocale.db2", NamesReservedLocaleLoadInfo::Instance());
 DB2Storage<NumTalentsAtLevelEntry>              sNumTalentsAtLevelStore("NumTalentsAtLevel.db2", NumTalentsAtLevelLoadInfo::Instance());
 DB2Storage<OverrideSpellDataEntry>              sOverrideSpellDataStore("OverrideSpellData.db2", OverrideSpellDataLoadInfo::Instance());
+DB2Storage<ParagonReputationEntry>              sParagonReputationStore("ParagonReputation.db2", ParagonReputationLoadInfo::Instance());
 DB2Storage<PhaseEntry>                          sPhaseStore("Phase.db2", PhaseLoadInfo::Instance());
 DB2Storage<PhaseXPhaseGroupEntry>               sPhaseXPhaseGroupStore("PhaseXPhaseGroup.db2", PhaseXPhaseGroupLoadInfo::Instance());
 DB2Storage<PlayerConditionEntry>                sPlayerConditionStore("PlayerCondition.db2", PlayerConditionLoadInfo::Instance());
@@ -437,6 +438,7 @@ namespace
     MountDisplaysCointainer _mountDisplays;
     NameGenContainer _nameGenData;
     NameValidationRegexContainer _nameValidators;
+    std::unordered_map<uint32, ParagonReputationEntry const*> _paragonReputations;
     PhaseGroupContainer _phasesByGroup;
     PowerTypesContainer _powerTypes;
     std::unordered_map<uint32, uint8> _pvpItemBonus;
@@ -761,6 +763,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sNamesReservedLocaleStore);
     LOAD_DB2(sNumTalentsAtLevelStore);
     LOAD_DB2(sOverrideSpellDataStore);
+    LOAD_DB2(sParagonReputationStore);
     LOAD_DB2(sPhaseStore);
     LOAD_DB2(sPhaseXPhaseGroupStore);
     LOAD_DB2(sPlayerConditionStore);
@@ -1225,6 +1228,10 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
                 _nameValidators[i].emplace_back(name, Trinity::regex::perl | Trinity::regex::icase | Trinity::regex::optimize);
         }
     }
+
+    for (ParagonReputationEntry const* paragonReputation : sParagonReputationStore)
+        if (sFactionStore.HasRecord(paragonReputation->FactionID))
+            _paragonReputations[paragonReputation->FactionID] = paragonReputation;
 
     for (PhaseXPhaseGroupEntry const* group : sPhaseXPhaseGroupStore)
         if (PhaseEntry const* phase = sPhaseStore.LookupEntry(group->PhaseID))
@@ -2648,6 +2655,11 @@ int32 DB2Manager::GetNumTalentsAtLevel(uint32 level, Classes playerClass)
     }
 
     return 0;
+}
+
+ParagonReputationEntry const* DB2Manager::GetParagonReputation(uint32 factionId) const
+{
+    return Trinity::Containers::MapGetValuePtr(_paragonReputations, factionId);
 }
 
 PVPDifficultyEntry const* DB2Manager::GetBattlegroundBracketByLevel(uint32 mapid, uint32 level)

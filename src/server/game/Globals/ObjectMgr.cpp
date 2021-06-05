@@ -4935,6 +4935,11 @@ void ObjectMgr::LoadQuests()
         }
     }
 
+    // Make all paragon reward quests repeatable
+    for (ParagonReputationEntry const* paragonReputation : sParagonReputationStore)
+        if (Quest const* quest = GetQuestTemplate(paragonReputation->QuestID))
+            const_cast<Quest*>(quest)->SetSpecialFlag(QUEST_SPECIAL_FLAGS_REPEATABLE);
+
     TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " quests definitions in %u ms", _questTemplates.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
