@@ -3076,7 +3076,7 @@ struct SpellLabelEntry
 {
     uint32 ID;
     uint32 LabelID;
-    int32 SpellID;
+    uint32 SpellID;
 };
 
 struct SpellLearnSpellEntry

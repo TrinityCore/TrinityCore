@@ -5134,7 +5134,7 @@ struct SpellLabelLoadInfo
         {
             { false, FT_INT, "ID" },
             { false, FT_INT, "LabelID" },
-            { true, FT_INT, "SpellID" },
+            { false, FT_INT, "SpellID" },
         };
         static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, SpellLabelMeta::Instance(), HOTFIX_SEL_SPELL_LABEL);
         return &loadInfo;
