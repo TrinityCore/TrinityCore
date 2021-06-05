@@ -364,17 +364,17 @@ public:
 
                         ss << ' ' << rankName << "|h|r (" << target->GetReputationMgr().GetReputation(factionEntry) << ')';
 
-                        if (factionState->Flags & FACTION_FLAG_VISIBLE)
+                        if (factionState->Flags.HasFlag(ReputationFlags::Visible))
                             ss << handler->GetTrinityString(LANG_FACTION_VISIBLE);
-                        if (factionState->Flags & FACTION_FLAG_AT_WAR)
+                        if (factionState->Flags.HasFlag(ReputationFlags::AtWar))
                             ss << handler->GetTrinityString(LANG_FACTION_ATWAR);
-                        if (factionState->Flags & FACTION_FLAG_PEACE_FORCED)
+                        if (factionState->Flags.HasFlag(ReputationFlags::Peaceful))
                             ss << handler->GetTrinityString(LANG_FACTION_PEACE_FORCED);
-                        if (factionState->Flags & FACTION_FLAG_HIDDEN)
+                        if (factionState->Flags.HasFlag(ReputationFlags::Hidden))
                             ss << handler->GetTrinityString(LANG_FACTION_HIDDEN);
-                        if (factionState->Flags & FACTION_FLAG_INVISIBLE_FORCED)
+                        if (factionState->Flags.HasFlag(ReputationFlags::Header))
                             ss << handler->GetTrinityString(LANG_FACTION_INVISIBLE_FORCED);
-                        if (factionState->Flags & FACTION_FLAG_INACTIVE)
+                        if (factionState->Flags.HasFlag(ReputationFlags::Inactive))
                             ss << handler->GetTrinityString(LANG_FACTION_INACTIVE);
                     }
                     else

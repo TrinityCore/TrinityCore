@@ -19,9 +19,10 @@
 #define __TRINITY_REPUTATION_MGR_H
 
 #include "Common.h"
-#include "SharedDefines.h"
+#include "EnumFlag.h"
 #include "Language.h"
 #include "DatabaseEnvFwd.h"
+#include "SharedDefines.h"
 #include <set>
 #include <map>
 
@@ -34,26 +35,31 @@ static uint32 ReputationRankStrIndex[MAX_REPUTATION_RANK] =
     LANG_REP_FRIENDLY, LANG_REP_HONORED, LANG_REP_REVERED,    LANG_REP_EXALTED
 };
 
-enum FactionFlags
+enum class ReputationFlags : uint16
 {
-    FACTION_FLAG_NONE               = 0x00,                 // no faction flag
-    FACTION_FLAG_VISIBLE            = 0x01,                 // makes visible in client (set or can be set at interaction with target of this faction)
-    FACTION_FLAG_AT_WAR             = 0x02,                 // enable AtWar-button in client. player controlled (except opposition team always war state), Flag only set on initial creation
-    FACTION_FLAG_HIDDEN             = 0x04,                 // hidden faction from reputation pane in client (player can gain reputation, but this update not sent to client)
-    FACTION_FLAG_INVISIBLE_FORCED   = 0x08,                 // always overwrite FACTION_FLAG_VISIBLE and hide faction in rep.list, used for hide opposite team factions
-    FACTION_FLAG_PEACE_FORCED       = 0x10,                 // always overwrite FACTION_FLAG_AT_WAR, used for prevent war with own team factions
-    FACTION_FLAG_INACTIVE           = 0x20,                 // player controlled, state stored in characters.data (CMSG_SET_FACTION_INACTIVE)
-    FACTION_FLAG_RIVAL              = 0x40,                 // flag for the two competing outland factions
-    FACTION_FLAG_SPECIAL            = 0x80                  // horde and alliance home cities and their northrend allies have this flag
+    None                        = 0x0000,
+    Visible                     = 0x0001,                   // makes visible in client (set or can be set at interaction with target of this faction)
+    AtWar                       = 0x0002,                   // enable AtWar-button in client. player controlled (except opposition team always war state), Flag only set on initial creation
+    Hidden                      = 0x0004,                   // hidden faction from reputation pane in client (player can gain reputation, but this update not sent to client)
+    Header                      = 0x0008,                   // Display as header in UI
+    Peaceful                    = 0x0010,
+    Inactive                    = 0x0020,                   // player controlled (CMSG_SET_FACTION_INACTIVE)
+    ShowPropagated              = 0x0040,
+    HeaderShowsBar              = 0x0080,                   // Header has its own reputation bar
+    CapitalCityForRaceChange    = 0x0100,
+    Guild                       = 0x0200,
+    GarrisonInvasion            = 0x0400
 };
+
+DEFINE_ENUM_FLAG(ReputationFlags);
 
 typedef uint32 RepListID;
 struct FactionState
 {
     uint32 ID;
     RepListID ReputationListID;
-    int32  Standing;
-    uint8 Flags;
+    int32 Standing;
+    EnumFlag<ReputationFlags> Flags = ReputationFlags::None;
     bool needSend;
     bool needSave;
 };
@@ -142,7 +148,7 @@ class TC_GAME_API ReputationMgr
 
     private:                                                // internal helper functions
         void Initialize();
-        uint32 GetDefaultStateFlags(FactionEntry const* factionEntry) const;
+        ReputationFlags GetDefaultStateFlags(FactionEntry const* factionEntry) const;
         bool SetReputation(FactionEntry const* factionEntry, int32 standing, bool incremental, bool spillOverOnly, bool noSpillover);
         void SetVisible(FactionState* faction);
         void SetAtWar(FactionState* faction, bool atWar) const;

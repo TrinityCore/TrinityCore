@@ -100,7 +100,7 @@ bool ReputationMgr::IsAtWar(FactionEntry const* factionEntry) const
         return false;
 
     if (FactionState const* factionState = GetState(factionEntry))
-        return (factionState->Flags & FACTION_FLAG_AT_WAR) != 0;
+        return factionState->Flags.HasFlag(ReputationFlags::AtWar);
     return false;
 }
 
@@ -199,13 +199,13 @@ void ReputationMgr::ApplyForceReaction(uint32 faction_id, ReputationRank rank, b
         _forcedReactions.erase(faction_id);
 }
 
-uint32 ReputationMgr::GetDefaultStateFlags(FactionEntry const* factionEntry) const
+ReputationFlags ReputationMgr::GetDefaultStateFlags(FactionEntry const* factionEntry) const
 {
     int32 dataIndex = GetFactionDataIndexForRaceAndClass(factionEntry);
     if (dataIndex < 0)
-        return 0;
+        return ReputationFlags::None;
 
-    return factionEntry->ReputationFlags[dataIndex];
+    return static_cast<ReputationFlags>(factionEntry->ReputationFlags[dataIndex]);
 }
 
 void ReputationMgr::SendForceReactions()
@@ -255,7 +255,7 @@ void ReputationMgr::SendInitialReputations()
 
     for (FactionStateList::iterator itr = _factions.begin(); itr != _factions.end(); ++itr)
     {
-        initFactions.FactionFlags[itr->first] = itr->second.Flags;
+        initFactions.FactionFlags[itr->first] = itr->second.Flags.AsUnderlyingType();
         initFactions.FactionStandings[itr->first] = itr->second.Standing;
         /// @todo faction bonus
         itr->second.needSend = false;
@@ -296,7 +296,7 @@ void ReputationMgr::Initialize()
             newFaction.needSend = true;
             newFaction.needSave = true;
 
-            if (newFaction.Flags & FACTION_FLAG_VISIBLE)
+            if (newFaction.Flags.HasFlag(ReputationFlags::Visible))
                 ++_visibleFactionCount;
 
             if (!factionEntry->FriendshipRepID)
@@ -342,7 +342,7 @@ bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standi
                 {
                     FactionStateList::iterator parentState = _factions.find(parent->ReputationIndex);
                     // some team factions have own reputation standing, in this case do not spill to other sub-factions
-                    if (parentState != _factions.end() && (parentState->second.Flags & FACTION_FLAG_SPECIAL))
+                    if (parentState != _factions.end() && parentState->second.Flags.HasFlag(ReputationFlags::HeaderShowsBar))
                     {
                         SetOneFactionReputation(parent, int32(spillOverRepOut), incremental);
                     }
@@ -462,15 +462,17 @@ void ReputationMgr::SetVisible(FactionEntry const* factionEntry)
 void ReputationMgr::SetVisible(FactionState* faction)
 {
     // always invisible or hidden faction can't be make visible
-    // except if faction has FACTION_FLAG_SPECIAL
-    if (faction->Flags & (FACTION_FLAG_INVISIBLE_FORCED|FACTION_FLAG_HIDDEN) && !(faction->Flags & FACTION_FLAG_SPECIAL))
+    if (faction->Flags.HasFlag(ReputationFlags::Hidden))
+        return;
+
+    if (faction->Flags.HasFlag(ReputationFlags::Header) && !faction->Flags.HasFlag(ReputationFlags::HeaderShowsBar))
         return;
 
     // already set
-    if (faction->Flags & FACTION_FLAG_VISIBLE)
+    if (faction->Flags.HasFlag(ReputationFlags::Visible))
         return;
 
-    faction->Flags |= FACTION_FLAG_VISIBLE;
+    faction->Flags |= ReputationFlags::Visible;
     faction->needSend = true;
     faction->needSave = true;
 
@@ -486,7 +488,7 @@ void ReputationMgr::SetAtWar(RepListID repListID, bool on)
         return;
 
     // always invisible or hidden faction can't change war state
-    if (itr->second.Flags & (FACTION_FLAG_INVISIBLE_FORCED|FACTION_FLAG_HIDDEN))
+    if (itr->second.Flags.HasFlag(ReputationFlags::Hidden | ReputationFlags::Header))
         return;
 
     SetAtWar(&itr->second, on);
@@ -495,17 +497,17 @@ void ReputationMgr::SetAtWar(RepListID repListID, bool on)
 void ReputationMgr::SetAtWar(FactionState* faction, bool atWar) const
 {
     // Do not allow to declare war to our own faction. But allow for rival factions (eg Aldor vs Scryer).
-    if (atWar && (faction->Flags & FACTION_FLAG_PEACE_FORCED) && !(faction->Flags & FACTION_FLAG_RIVAL))
+    if (atWar && faction->Flags.HasFlag(ReputationFlags::Peaceful))
         return;
 
     // already set
-    if (((faction->Flags & FACTION_FLAG_AT_WAR) != 0) == atWar)
+    if (faction->Flags.HasFlag(ReputationFlags::AtWar) == atWar)
         return;
 
     if (atWar)
-        faction->Flags |= FACTION_FLAG_AT_WAR;
+        faction->Flags |= ReputationFlags::AtWar;
     else
-        faction->Flags &= ~FACTION_FLAG_AT_WAR;
+        faction->Flags &= ~ReputationFlags::AtWar;
 
     faction->needSend = true;
     faction->needSave = true;
@@ -523,17 +525,17 @@ void ReputationMgr::SetInactive(RepListID repListID, bool on)
 void ReputationMgr::SetInactive(FactionState* faction, bool inactive) const
 {
     // always invisible or hidden faction can't be inactive
-    if (inactive && ((faction->Flags & (FACTION_FLAG_INVISIBLE_FORCED|FACTION_FLAG_HIDDEN)) || !(faction->Flags & FACTION_FLAG_VISIBLE)))
+    if (faction->Flags.HasFlag(ReputationFlags::Hidden | ReputationFlags::Header) || !faction->Flags.HasFlag(ReputationFlags::Visible))
         return;
 
     // already set
-    if (((faction->Flags & FACTION_FLAG_INACTIVE) != 0) == inactive)
+    if (faction->Flags.HasFlag(ReputationFlags::Inactive) == inactive)
         return;
 
     if (inactive)
-        faction->Flags |= FACTION_FLAG_INACTIVE;
+        faction->Flags |= ReputationFlags::Inactive;
     else
-        faction->Flags &= ~FACTION_FLAG_INACTIVE;
+        faction->Flags &= ~ReputationFlags::Inactive;
 
     faction->needSend = true;
     faction->needSave = true;
@@ -569,21 +571,21 @@ void ReputationMgr::LoadFromDB(PreparedQueryResult result)
                     UpdateRankCounters(old_rank, new_rank);
                 }
 
-                uint32 dbFactionFlags = fields[2].GetUInt16();
+                EnumFlag<ReputationFlags> dbFactionFlags = static_cast<ReputationFlags>(fields[2].GetUInt16());
 
-                if (dbFactionFlags & FACTION_FLAG_VISIBLE)
-                    SetVisible(faction);                    // have internal checks for forced invisibility
+                if (dbFactionFlags.HasFlag(ReputationFlags::Visible))
+                    SetVisible(faction);                                    // have internal checks for forced invisibility
 
-                if (dbFactionFlags & FACTION_FLAG_INACTIVE)
-                    SetInactive(faction, true);              // have internal checks for visibility requirement
+                if (dbFactionFlags.HasFlag(ReputationFlags::Inactive))
+                    SetInactive(faction, true);                             // have internal checks for visibility requirement
 
-                if (dbFactionFlags & FACTION_FLAG_AT_WAR)  // DB at war
-                    SetAtWar(faction, true);                 // have internal checks for FACTION_FLAG_PEACE_FORCED
-                else                                        // DB not at war
+                if (dbFactionFlags.HasFlag(ReputationFlags::AtWar))    // DB at war
+                    SetAtWar(faction, true);                                // have internal checks for ReputationFlags::Peaceful
+                else                                                        // DB not at war
                 {
                     // allow remove if visible (and then not FACTION_FLAG_INVISIBLE_FORCED or FACTION_FLAG_HIDDEN)
-                    if (faction->Flags & FACTION_FLAG_VISIBLE)
-                        SetAtWar(faction, false);            // have internal checks for FACTION_FLAG_PEACE_FORCED
+                    if (faction->Flags.HasFlag(ReputationFlags::Visible))
+                        SetAtWar(faction, false);                           // have internal checks for ReputationFlags::Peaceful
                 }
 
                 // set atWar for hostile
@@ -617,7 +619,7 @@ void ReputationMgr::SaveToDB(CharacterDatabaseTransaction& trans)
             stmt->setUInt64(0, _player->GetGUID().GetCounter());
             stmt->setUInt16(1, uint16(itr->second.ID));
             stmt->setInt32(2, itr->second.Standing);
-            stmt->setUInt16(3, uint16(itr->second.Flags));
+            stmt->setUInt16(3, itr->second.Flags.AsUnderlyingType());
             trans->Append(stmt);
 
             itr->second.needSave = false;
