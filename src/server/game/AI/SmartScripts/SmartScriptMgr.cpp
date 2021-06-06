@@ -1051,7 +1051,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             case SMART_EVENT_EVADE:
             case SMART_EVENT_REACHED_HOME:
             case SMART_EVENT_QUEST_ACCEPTED:
-            case SMART_EVENT_QUEST_OBJ_COPLETETION:
+            case SMART_EVENT_QUEST_OBJ_COMPLETION:
             case SMART_EVENT_QUEST_COMPLETION:
             case SMART_EVENT_QUEST_REWARDED:
             case SMART_EVENT_QUEST_FAIL:
