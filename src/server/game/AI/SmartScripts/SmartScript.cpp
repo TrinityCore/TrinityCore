@@ -3180,8 +3180,9 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
             if (me->IsWithinDistInMap(unit, range) && me->IsWithinLOSInMap(unit))
             {
                 //if friendly event&&who is not hostile OR hostile event&&who is hostile
-                if ((e.event.los.noHostile && !me->IsHostileTo(unit)) ||
-                    (!e.event.los.noHostile && me->IsHostileTo(unit)))
+                if ((e.event.los.hostilityMode == static_cast<uint32>(SmartEvent::LOS::Any)) ||
+                    (e.event.los.hostilityMode == static_cast<uint32>(SmartEvent::LOS::NotHostile) && !me->IsHostileTo(unit)) ||
+                    (e.event.los.hostilityMode == static_cast<uint32>(SmartEvent::LOS::Hostile) && me->IsHostileTo(unit)))
                 {
                     if (e.event.los.playerOnly && unit->GetTypeId() != TYPEID_PLAYER)
                         return;
@@ -3202,8 +3203,9 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
             if (me->IsWithinDistInMap(unit, range) && me->IsWithinLOSInMap(unit))
             {
                 //if friendly event&&who is not hostile OR hostile event&&who is hostile
-                if ((e.event.los.noHostile && !me->IsHostileTo(unit)) ||
-                    (!e.event.los.noHostile && me->IsHostileTo(unit)))
+                if ((e.event.los.hostilityMode == static_cast<uint32>(SmartEvent::LOS::Any)) ||
+                    (e.event.los.hostilityMode == static_cast<uint32>(SmartEvent::LOS::NotHostile) && !me->IsHostileTo(unit)) ||
+                    (e.event.los.hostilityMode == static_cast<uint32>(SmartEvent::LOS::Hostile) && me->IsHostileTo(unit)))
                 {
                     if (e.event.los.playerOnly && unit->GetTypeId() != TYPEID_PLAYER)
                         return;
