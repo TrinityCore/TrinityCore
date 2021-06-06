@@ -84,5 +84,6 @@ void WorldSession::HandleAcceptGrantLevel(WorldPacket& recvData)
     else
         return;
 
+    _player->SetBeenGrantedLevelsFromRaF();
     _player->GiveLevel(_player->GetLevel() + 1);
 }
