@@ -17,6 +17,12 @@
 #include "ScriptMgr.h"
 #include "Player.h"
 #include "InstanceScript.h"
+#include "instance_mists_of_tirna_scithe.cpp"
+#include "zone_mists_of_tirna_scithe.cpp"
+#include "zone_mists_of_tirna_scithe.h"
+#include "Boss_Tred_ova.cpp"
+#include "Boss_Mistcaller.cpp"
+#include "Boss_Ingra_Maloch.cpp"
 
 struct instance_mists_of_tirna_scithe : public InstanceScript
 {
