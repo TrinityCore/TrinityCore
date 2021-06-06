@@ -15,6 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "zone_ardenweald.cpp"
+#include 
 void AddSC_zone_ardenweald()
 {
 }
