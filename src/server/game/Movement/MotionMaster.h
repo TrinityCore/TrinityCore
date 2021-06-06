@@ -149,6 +149,7 @@ class TC_GAME_API MotionMaster
         void Clear(MovementGeneratorPriority priority);
         void PropagateSpeedChange();
         bool GetDestination(float &x, float &y, float &z);
+        bool StopOnDeath();
 
         void MoveIdle();
         void MoveTargetedHome();

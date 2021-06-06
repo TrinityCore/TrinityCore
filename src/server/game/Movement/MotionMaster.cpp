@@ -543,6 +543,28 @@ bool MotionMaster::GetDestination(float &x, float &y, float &z)
     return true;
 }
 
+bool MotionMaster::StopOnDeath()
+{
+    if (MovementGenerator* movementGenerator = GetCurrentMovementGenerator())
+        if (movementGenerator->HasFlag(MOVEMENTGENERATOR_FLAG_PERSIST_ON_DEATH))
+            return false;
+
+    if (_owner->IsInWorld())
+    {
+        // Only clear MotionMaster for entities that exists in world
+        // Avoids crashes in the following conditions :
+        //  * Using 'call pet' on dead pets
+        //  * Using 'call stabled pet'
+        //  * Logging in with dead pets
+        Clear();
+        MoveIdle();
+    }
+
+    _owner->StopMoving();
+
+    return true;
+}
+
 void MotionMaster::MoveIdle()
 {
     Add(GetIdleMovementGenerator(), MOTION_SLOT_DEFAULT);
@@ -757,6 +779,7 @@ void MotionMaster::MoveKnockbackFrom(float srcX, float srcY, float speedXY, floa
 
     GenericMovementGenerator* movement = new GenericMovementGenerator(std::move(init), EFFECT_MOTION_TYPE, 0);
     movement->Priority = MOTION_PRIORITY_HIGHEST;
+    movement->AddFlag(MOVEMENTGENERATOR_FLAG_PERSIST_ON_DEATH);
     Add(movement);
 }
 
@@ -801,6 +824,7 @@ void MotionMaster::MoveJump(float x, float y, float z, float o, float speedXY, f
     GenericMovementGenerator* movement = new GenericMovementGenerator(std::move(init), EFFECT_MOTION_TYPE, id);
     movement->Priority = MOTION_PRIORITY_HIGHEST;
     movement->BaseUnitState = UNIT_STATE_JUMPING;
+    movement->AddFlag(MOVEMENTGENERATOR_FLAG_PERSIST_ON_DEATH);
     Add(movement);
 }
 
