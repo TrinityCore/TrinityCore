@@ -862,6 +862,11 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "TransmogSourceTypeEnum FROM item_modified_appearance WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_ITEM_MODIFIED_APPEARANCE, "SELECT MAX(ID) + 1 FROM item_modified_appearance", CONNECTION_SYNCH);
 
+    // ItemModifiedAppearanceExtra.db2
+    PrepareStatement(HOTFIX_SEL_ITEM_MODIFIED_APPEARANCE_EXTRA, "SELECT ID, IconFileDataID, UnequippedIconFileDataID, SheatheType, "
+        "DisplayWeaponSubclassID, DisplayInventoryType FROM item_modified_appearance_extra WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_ITEM_MODIFIED_APPEARANCE_EXTRA, "SELECT MAX(ID) + 1 FROM item_modified_appearance_extra", CONNECTION_SYNCH);
+
     // ItemNameDescription.db2
     PrepareStatement(HOTFIX_SEL_ITEM_NAME_DESCRIPTION, "SELECT ID, Description, Color FROM item_name_description WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_ITEM_NAME_DESCRIPTION, "SELECT MAX(ID) + 1 FROM item_name_description", CONNECTION_SYNCH);

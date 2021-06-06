@@ -3134,6 +3134,24 @@ struct ItemModifiedAppearanceLoadInfo
     }
 };
 
+struct ItemModifiedAppearanceExtraLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { true, FT_INT, "IconFileDataID" },
+            { true, FT_INT, "UnequippedIconFileDataID" },
+            { false, FT_BYTE, "SheatheType" },
+            { true, FT_BYTE, "DisplayWeaponSubclassID" },
+            { true, FT_BYTE, "DisplayInventoryType" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, ItemModifiedAppearanceExtraMeta::Instance(), HOTFIX_SEL_ITEM_MODIFIED_APPEARANCE_EXTRA);
+        return &loadInfo;
+    }
+};
+
 struct ItemNameDescriptionLoadInfo
 {
     static DB2LoadInfo const* Instance()

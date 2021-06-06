@@ -1985,6 +1985,16 @@ struct ItemModifiedAppearanceEntry
     int8 TransmogSourceTypeEnum;
 };
 
+struct ItemModifiedAppearanceExtraEntry
+{
+    uint32 ID;
+    int32 IconFileDataID;
+    int32 UnequippedIconFileDataID;
+    uint8 SheatheType;
+    int8 DisplayWeaponSubclassID;
+    int8 DisplayInventoryType;
+};
+
 struct ItemNameDescriptionEntry
 {
     uint32 ID;
