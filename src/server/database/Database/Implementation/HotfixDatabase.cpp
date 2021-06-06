@@ -1134,6 +1134,12 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         " FROM pvp_talent_slot_unlock WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_PVP_TALENT_SLOT_UNLOCK, "SELECT MAX(ID) + 1 FROM pvp_talent_slot_unlock", CONNECTION_SYNCH);
 
+    // PvpTier.db2
+    PrepareStatement(HOTFIX_SEL_PVP_TIER, "SELECT Name, ID, MinRating, MaxRating, PrevTier, NextTier, BracketID, `Rank`, RankIconFileDataID"
+        " FROM pvp_tier WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_PVP_TIER, "SELECT MAX(ID) + 1 FROM pvp_tier", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_PVP_TIER, "SELECT ID, Name_lang FROM pvp_tier_locale WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
+
     // QuestFactionReward.db2
     PrepareStatement(HOTFIX_SEL_QUEST_FACTION_REWARD, "SELECT ID, Difficulty1, Difficulty2, Difficulty3, Difficulty4, Difficulty5, Difficulty6, "
         "Difficulty7, Difficulty8, Difficulty9, Difficulty10 FROM quest_faction_reward WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);

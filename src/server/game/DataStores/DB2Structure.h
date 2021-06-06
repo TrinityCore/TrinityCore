@@ -2655,6 +2655,19 @@ struct PvpTalentSlotUnlockEntry
     int32 DemonHunterLevelRequired;
 };
 
+struct PvpTierEntry
+{
+    LocalizedString Name;
+    uint32 ID;
+    int16 MinRating;
+    int16 MaxRating;
+    int32 PrevTier;
+    int32 NextTier;
+    int8 BracketID;
+    int8 Rank;
+    int32 RankIconFileDataID;
+};
+
 struct QuestFactionRewardEntry
 {
     uint32 ID;

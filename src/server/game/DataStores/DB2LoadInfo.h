@@ -4338,6 +4338,27 @@ struct PvpTalentSlotUnlockLoadInfo
     }
 };
 
+struct PvpTierLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_STRING, "Name" },
+            { false, FT_INT, "ID" },
+            { true, FT_SHORT, "MinRating" },
+            { true, FT_SHORT, "MaxRating" },
+            { true, FT_INT, "PrevTier" },
+            { true, FT_INT, "NextTier" },
+            { true, FT_BYTE, "BracketID" },
+            { true, FT_BYTE, "Rank" },
+            { true, FT_INT, "RankIconFileDataID" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, PvpTierMeta::Instance(), HOTFIX_SEL_PVP_TIER);
+        return &loadInfo;
+    }
+};
+
 struct QuestFactionRewardLoadInfo
 {
     static DB2LoadInfo const* Instance()
