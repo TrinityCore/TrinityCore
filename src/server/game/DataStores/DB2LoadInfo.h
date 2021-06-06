@@ -4399,6 +4399,22 @@ struct QuestInfoLoadInfo
     }
 };
 
+struct QuestLineXQuestLoadInfo
+{
+    static DB2LoadInfo const* Instance()
+    {
+        static DB2FieldMeta const fields[] =
+        {
+            { false, FT_INT, "ID" },
+            { false, FT_INT, "QuestLineID" },
+            { false, FT_INT, "QuestID" },
+            { false, FT_INT, "OrderIndex" },
+        };
+        static DB2LoadInfo const loadInfo(&fields[0], std::extent<decltype(fields)>::value, QuestLineXQuestMeta::Instance(), HOTFIX_SEL_QUEST_LINE_X_QUEST);
+        return &loadInfo;
+    }
+};
+
 struct QuestMoneyRewardLoadInfo
 {
     static DB2LoadInfo const* Instance()

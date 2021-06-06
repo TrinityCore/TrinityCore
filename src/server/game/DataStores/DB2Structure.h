@@ -2683,6 +2683,14 @@ struct QuestInfoEntry
     uint16 Profession;
 };
 
+struct QuestLineXQuestEntry
+{
+    uint32 ID;
+    uint32 QuestLineID;
+    uint32 QuestID;
+    uint32 OrderIndex;
+};
+
 struct QuestMoneyRewardEntry
 {
     uint32 ID;
