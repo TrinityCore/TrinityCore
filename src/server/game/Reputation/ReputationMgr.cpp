@@ -50,8 +50,8 @@ std::set<int32> const ReputationMgr::ReputationRankThresholds =
 const int32 ReputationMgr::Reputation_Cap = 42000;
 const int32 ReputationMgr::Reputation_Bottom = -42000;
 
-template<typename T, typename F>
-static int32 ReputationToRankHelper(std::set<T> const& thresholds, int32 standing, F thresholdExtractor)
+template<typename T, typename F, typename... Rest>
+static int32 ReputationToRankHelper(std::set<T, Rest...> const& thresholds, int32 standing, F thresholdExtractor)
 {
     auto itr = thresholds.begin();
     auto end = thresholds.end();
@@ -68,7 +68,7 @@ static int32 ReputationToRankHelper(std::set<T> const& thresholds, int32 standin
 ReputationRank ReputationMgr::ReputationToRank(FactionEntry const* factionEntry, int32 standing)
 {
     int32 rank = MIN_REPUTATION_RANK;
-    if (std::set<FriendshipRepReactionEntry const*> const* friendshipReactions = sDB2Manager.GetFriendshipRepReactions(factionEntry->FriendshipRepID))
+    if (DB2Manager::FriendshipRepReactionSet const* friendshipReactions = sDB2Manager.GetFriendshipRepReactions(factionEntry->FriendshipRepID))
         rank = ReputationToRankHelper(*friendshipReactions, standing, [](FriendshipRepReactionEntry const* frr) { return frr->ReactionThreshold; });
     else
         rank = ReputationToRankHelper(ReputationRankThresholds, standing, [](int32 threshold) { return threshold; });
@@ -128,7 +128,7 @@ int32 ReputationMgr::GetBaseReputation(FactionEntry const* factionEntry) const
 
 int32 ReputationMgr::GetMinReputation(FactionEntry const* factionEntry) const
 {
-    if (std::set<FriendshipRepReactionEntry const*> const* friendshipReactions = sDB2Manager.GetFriendshipRepReactions(factionEntry->FriendshipRepID))
+    if (DB2Manager::FriendshipRepReactionSet const* friendshipReactions = sDB2Manager.GetFriendshipRepReactions(factionEntry->FriendshipRepID))
         return (*friendshipReactions->begin())->ReactionThreshold;
 
     return *ReputationRankThresholds.begin();
@@ -155,7 +155,7 @@ int32 ReputationMgr::GetMaxReputation(FactionEntry const* factionEntry) const
         return cap;
     }
 
-    if (std::set<FriendshipRepReactionEntry const*> const* friendshipReactions = sDB2Manager.GetFriendshipRepReactions(factionEntry->FriendshipRepID))
+    if (DB2Manager::FriendshipRepReactionSet const* friendshipReactions = sDB2Manager.GetFriendshipRepReactions(factionEntry->FriendshipRepID))
         return (*friendshipReactions->rbegin())->ReactionThreshold;
 
     int32 dataIndex = GetFactionDataIndexForRaceAndClass(factionEntry);
@@ -195,7 +195,7 @@ std::string ReputationMgr::GetReputationRankName(FactionEntry const* factionEntr
     if (!factionEntry->FriendshipRepID)
         return sObjectMgr->GetTrinityString(ReputationRankStrIndex[GetRank(factionEntry)], _player->GetSession()->GetSessionDbcLocale());
 
-    if (std::set<FriendshipRepReactionEntry const*> const* friendshipReactions = sDB2Manager.GetFriendshipRepReactions(factionEntry->FriendshipRepID))
+    if (DB2Manager::FriendshipRepReactionSet const* friendshipReactions = sDB2Manager.GetFriendshipRepReactions(factionEntry->FriendshipRepID))
     {
         auto itr = friendshipReactions->begin();
         std::advance(itr, uint32(rank));
