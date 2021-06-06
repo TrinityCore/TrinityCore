@@ -506,7 +506,7 @@ SmartScriptHolder& SmartAIMgr::FindLinkedEvent(SmartAIEventList& list, uint32 li
         case SMART_EVENT_TRANSPORT_ADDCREATURE:
         case SMART_EVENT_DATA_SET:
         case SMART_EVENT_QUEST_ACCEPTED:
-        case SMART_EVENT_QUEST_OBJ_COPLETETION:
+        case SMART_EVENT_QUEST_OBJ_COMPLETION:
         case SMART_EVENT_QUEST_COMPLETION:
         case SMART_EVENT_QUEST_FAIL:
         case SMART_EVENT_QUEST_REWARDED:
@@ -1109,10 +1109,10 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                     return false;
                 }
                 break;
-            case SMART_EVENT_QUEST_OBJ_COPLETETION:
+            case SMART_EVENT_QUEST_OBJ_COMPLETION:
                 if (!sObjectMgr->GetQuestObjective(e.event.questObjective.id))
                 {
-                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Event SMART_EVENT_QUEST_OBJ_COPLETETION using invalid objective id %u, skipped.", e.event.questObjective.id);
+                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Event SMART_EVENT_QUEST_OBJ_COMPLETION using invalid objective id %u, skipped.", e.event.questObjective.id);
                     return false;
                 }
                 break;

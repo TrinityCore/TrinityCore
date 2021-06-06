@@ -1244,7 +1244,7 @@ public:
         {
             SmartScript smartScript;
             smartScript.OnInitialize(nullptr, nullptr, nullptr, quest);
-            smartScript.ProcessEventsFor(SMART_EVENT_QUEST_OBJ_COPLETETION, player, objective.ID);
+            smartScript.ProcessEventsFor(SMART_EVENT_QUEST_OBJ_COMPLETION, player, objective.ID);
         }
     }
 };
