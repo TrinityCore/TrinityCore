@@ -28167,6 +28167,27 @@ bool Player::MeetPlayerCondition(uint32 conditionId) const
     return true;
 }
 
+bool Player::IsInFriendlyArea() const
+{
+    if (AreaTableEntry const* areaEntry = sAreaTableStore.LookupEntry(GetAreaId()))
+        return IsFriendlyArea(areaEntry);
+    return false;
+}
+
+bool Player::IsFriendlyArea(AreaTableEntry const* areaEntry) const
+{
+    ASSERT(areaEntry != nullptr);
+
+    FactionTemplateEntry const* factionTemplate = GetFactionTemplateEntry();
+    if (!factionTemplate)
+        return false;
+
+    if (!(factionTemplate->FriendGroup & areaEntry->FactionGroupMask))
+        return false;
+
+    return true;
+}
+
 std::string Player::GetMapAreaAndZoneString() const
 {
     uint32 areaId = GetAreaId();
@@ -28745,4 +28766,13 @@ void Player::UpdateAverageItemLevelEquipped()
 
     totalItemLevel /= 16.0;
     SetAverageItemLevelEquipped(totalItemLevel);
+}
+
+bool Player::CanEnableWarModeInArea() const
+{
+    AreaTableEntry const* area = sAreaTableStore.LookupEntry(GetAreaId());
+    if (!area || !IsFriendlyArea(area))
+        return false;
+
+    return area->Flags[1] & AREA_FLAG_2_CAN_ENABLE_WAR_MODE;
 }
