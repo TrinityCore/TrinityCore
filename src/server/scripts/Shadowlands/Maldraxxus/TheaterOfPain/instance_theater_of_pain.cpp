@@ -25,6 +25,11 @@
 #include "AreaTriggerAI.h"
 #include "InstanceScript.h"
 #include "theater_of_pain.h"
+#include "An_Affront_to_Challengers.cpp"
+#include "Boss_Gorechop.cpp"
+#include "Boss_Kul_tharok.cpp"
+#include "Boss_Mordretha_the_Endless_Empress.cpp"
+#include "Boss_Xav_the_Unfallen.cpp"
 
  //2293
 struct instance_theater_of_pain : public InstanceScript
