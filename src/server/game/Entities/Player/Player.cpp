@@ -15358,12 +15358,10 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
     QuestStatus oldStatus = questStatusData.Status;
 
     // check for repeatable quests status reset
+    SetQuestSlot(log_slot, quest_id);
     questStatusData.Slot = log_slot;
     questStatusData.Status = QUEST_STATUS_INCOMPLETE;
     questStatusData.Explored = false;
-
-    GiveQuestSourceItem(quest);
-    AdjustQuestObjectiveProgress(quest);
 
     for (QuestObjective const& obj : quest->GetObjectives())
     {
@@ -15382,6 +15380,9 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
                 break;
         }
     }
+
+    GiveQuestSourceItem(quest);
+    AdjustQuestObjectiveProgress(quest);
 
     time_t endTime = 0;
     if (uint32 limittime = quest->GetLimitTime())
@@ -15414,7 +15415,6 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
         caster->CastSpell(this, spellInfo->Id, CastSpellExtraArgs(TRIGGERED_FULL_MASK).SetCastDifficulty(spellInfo->Difficulty));
     }
 
-    SetQuestSlot(log_slot, quest_id);
     SetQuestSlotEndTime(log_slot, endTime);
     SetQuestSlotAcceptTime(log_slot, GameTime::GetGameTime());
 
@@ -15447,9 +15447,8 @@ void Player::CompleteQuest(uint32 quest_id)
     {
         SetQuestStatus(quest_id, QUEST_STATUS_COMPLETE);
 
-        uint16 log_slot = FindQuestSlot(quest_id);
-        if (log_slot < MAX_QUEST_LOG_SIZE)
-            SetQuestSlotState(log_slot, QUEST_STATE_COMPLETE);
+        if (QuestStatusData const* questStatus = Trinity::Containers::MapGetValuePtr(m_QuestStatus, quest_id))
+            SetQuestSlotState(questStatus->Slot, QUEST_STATE_COMPLETE);
 
         if (Quest const* qInfo = sObjectMgr->GetQuestTemplate(quest_id))
             if (qInfo->HasFlag(QUEST_FLAGS_TRACKING))
