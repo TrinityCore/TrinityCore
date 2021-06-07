@@ -449,11 +449,12 @@ struct SmartEvent
         } raw;
     };
 
-    enum class LOS : uint32
+    enum class LOSHostilityMode : uint32
     {
         Hostile = 0,
         NotHostile = 1,
-        Any = 2
+        Any = 2,
+        End
     };
 };
 
