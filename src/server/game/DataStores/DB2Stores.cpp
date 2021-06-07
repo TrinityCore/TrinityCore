@@ -2393,6 +2393,17 @@ std::set<uint32> DB2Manager::GetDefaultItemBonusTree(uint32 itemId, ItemContext 
     return bonusListIDs;
 }
 
+std::set<uint32> DB2Manager::GetAllItemBonusTreeBonuses(uint32 itemBonusTreeId) const
+{
+    std::set<uint32> bonusListIDs;
+    VisitItemBonusTree(itemBonusTreeId, true, [&bonusListIDs](ItemBonusTreeNodeEntry const* bonusTreeNode)
+    {
+        if (bonusTreeNode->ChildItemBonusListID)
+            bonusListIDs.insert(bonusTreeNode->ChildItemBonusListID);
+    });
+    return bonusListIDs;
+}
+
 void LoadAzeriteEmpoweredItemUnlockMappings(std::unordered_map<int32, std::vector<AzeriteUnlockMappingEntry const*>> const& azeriteUnlockMappingsBySet, uint32 itemId)
 {
     auto itemIdRange = _itemToBonusTree.equal_range(itemId);

@@ -56,6 +56,7 @@ public:
     virtual void CompletedAchievement(AchievementEntry const* entry, Player* referencePlayer) = 0;
     bool HasAchieved(uint32 achievementId) const;
     uint32 GetAchievementPoints() const;
+    std::vector<uint32> GetCompletedAchievementIds() const;
 
 protected:
     bool CanUpdateCriteriaTree(Criteria const* criteria, CriteriaTree const* tree, Player* referencePlayer) const override;

@@ -373,6 +373,7 @@ public:
     ItemBonusList const* GetItemBonusList(uint32 bonusListId) const;
     uint32 GetItemBonusListForItemLevelDelta(int16 delta) const;
     std::set<uint32> GetDefaultItemBonusTree(uint32 itemId, ItemContext itemContext) const;
+    std::set<uint32> GetAllItemBonusTreeBonuses(uint32 itemBonusTreeId) const;
     ItemChildEquipmentEntry const* GetItemChildEquipment(uint32 itemId) const;
     ItemClassEntry const* GetItemClassByOldEnum(uint32 itemClass) const;
     bool HasItemCurrencyCost(uint32 itemId) const;

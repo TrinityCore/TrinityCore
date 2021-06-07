@@ -2468,6 +2468,29 @@ void Item::InitArtifactPowers(uint8 artifactId, uint8 artifactTier)
     }
 }
 
+uint32 Item::GetTotalUnlockedArtifactPowers() const
+{
+    uint32 purchased = GetTotalPurchasedArtifactPowers();
+    uint64 artifactXp = m_itemData->ArtifactXP;
+    uint32 currentArtifactTier = GetModifier(ITEM_MODIFIER_ARTIFACT_TIER);
+    uint32 extraUnlocked = 0;
+    do
+    {
+        uint64 xpCost = 0;
+        if (GtArtifactLevelXPEntry const* cost = sArtifactLevelXPGameTable.GetRow(purchased + extraUnlocked + 1))
+            xpCost = uint64(currentArtifactTier == MAX_ARTIFACT_TIER ? cost->XP2 : cost->XP);
+
+        if (artifactXp < xpCost)
+            break;
+
+        artifactXp -= xpCost;
+        ++extraUnlocked;
+
+    } while (true);
+
+    return purchased + extraUnlocked;
+}
+
 uint32 Item::GetTotalPurchasedArtifactPowers() const
 {
     uint32 purchasedRanks = 0;

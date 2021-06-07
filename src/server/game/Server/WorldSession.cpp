@@ -911,6 +911,11 @@ TransactionCallback& WorldSession::AddTransactionCallback(TransactionCallback&& 
     return _transactionCallbacks.AddCallback(std::move(callback));
 }
 
+bool WorldSession::CanAccessAlliedRaces() const
+{
+    return GetAccountExpansion() >= EXPANSION_BATTLE_FOR_AZEROTH;
+}
+
 void WorldSession::InitWarden(SessionKey const& k)
 {
     if (_os == "Win")

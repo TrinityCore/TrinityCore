@@ -9969,6 +9969,50 @@ uint8 Player::FindEquipSlot(Item const* item, uint32 slot, bool swap) const
     return NULL_SLOT;
 }
 
+uint32 Player::GetFreeInventorySlotCount(EnumFlag<ItemSearchLocation> location /*= ItemSearchLocation::Inventory*/) const
+{
+    uint32 freeSlotCount = 0;
+
+    if (location.HasFlag(ItemSearchLocation::Equipment))
+        for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
+            if (!GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+                ++freeSlotCount;
+
+    if (location.HasFlag(ItemSearchLocation::Inventory))
+    {
+        uint8 inventoryEnd = INVENTORY_SLOT_ITEM_START + GetInventorySlotCount();
+        for (uint8 i = INVENTORY_SLOT_BAG_START; i < inventoryEnd; ++i)
+            if (!GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+                ++freeSlotCount;
+
+        for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
+            if (Bag* bag = GetBagByPos(i))
+                for (uint32 j = 0; j < GetBagSize(bag); ++j)
+                    if (!GetItemInBag(bag, j))
+                        ++freeSlotCount;
+    }
+
+    if (location.HasFlag(ItemSearchLocation::Bank))
+    {
+        for (uint8 i = BANK_SLOT_ITEM_START; i < BANK_SLOT_BAG_END; ++i)
+            if (!GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+                ++freeSlotCount;
+
+        for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
+            if (Bag* bag = GetBagByPos(i))
+                for (uint32 j = 0; j < GetBagSize(bag); ++j)
+                    if (!GetItemInBag(bag, j))
+                        ++freeSlotCount;
+    }
+
+    if (location.HasFlag(ItemSearchLocation::ReagentBank))
+        for (uint8 i = REAGENT_SLOT_START; i < REAGENT_SLOT_END; ++i)
+            if (!GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+                ++freeSlotCount;
+
+    return freeSlotCount;
+}
+
 InventoryResult Player::CanUnequipItems(uint32 item, uint32 count) const
 {
     InventoryResult res = EQUIP_ERR_OK;
@@ -23226,19 +23270,13 @@ bool Player::BuyItemFromVendorSlot(ObjectGuid vendorguid, uint32 vendorslot, uin
 uint32 Player::GetMaxPersonalArenaRatingRequirement(uint32 minarenaslot) const
 {
     // returns the maximal personal arena rating that can be used to purchase items requiring this condition
-    // the personal rating of the arena team must match the required limit as well
-    // so return max[in arenateams](min(personalrating[teamtype], teamrating[teamtype]))
+    // so return max[in arenateams](personalrating[teamtype])
     uint32 max_personal_rating = 0;
     for (uint8 i = minarenaslot; i < MAX_ARENA_SLOT; ++i)
     {
-        if (ArenaTeam* at = sArenaTeamMgr->GetArenaTeamById(GetArenaTeamId(i)))
-        {
-            uint32 p_rating = GetArenaPersonalRating(i);
-            uint32 t_rating = at->GetRating();
-            p_rating = p_rating < t_rating ? p_rating : t_rating;
-            if (max_personal_rating < p_rating)
-                max_personal_rating = p_rating;
-        }
+        uint32 p_rating = GetArenaPersonalRating(i);
+        if (max_personal_rating < p_rating)
+            max_personal_rating = p_rating;
     }
     return max_personal_rating;
 }
@@ -26512,6 +26550,11 @@ void Player::SendRespondInspectAchievements(Player* player) const
 uint32 Player::GetAchievementPoints() const
 {
     return m_achievementMgr->GetAchievementPoints();
+}
+
+std::vector<uint32> Player::GetCompletedAchievementIds() const
+{
+    return m_achievementMgr->GetCompletedAchievementIds();
 }
 
 bool Player::HasAchieved(uint32 achievementId) const

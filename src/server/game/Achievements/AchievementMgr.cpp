@@ -71,6 +71,16 @@ uint32 AchievementMgr::GetAchievementPoints() const
     return _achievementPoints;
 }
 
+std::vector<uint32> AchievementMgr::GetCompletedAchievementIds() const
+{
+    std::vector<uint32> achievementIds;
+    std::transform(_completedAchievements.begin(), _completedAchievements.end(), std::back_inserter(achievementIds), [](std::pair<uint32 const, CompletedAchievementData> const& achievement)
+    {
+        return achievement.first;
+    });
+    return achievementIds;
+}
+
 bool AchievementMgr::CanUpdateCriteriaTree(Criteria const* criteria, CriteriaTree const* tree, Player* referencePlayer) const
 {
     AchievementEntry const* achievement = tree->Achievement;

@@ -431,7 +431,7 @@ void WorldSession::HandleCharEnum(CharacterDatabaseQueryHolder* holder)
         while (result->NextRow());
     }
 
-    charEnum.IsAlliedRacesCreationAllowed = GetAccountExpansion() >= EXPANSION_BATTLE_FOR_AZEROTH;
+    charEnum.IsAlliedRacesCreationAllowed = CanAccessAlliedRaces();
 
     for (std::pair<uint8 const, RaceUnlockRequirement> const& requirement : sObjectMgr->GetRaceUnlockRequirements())
     {

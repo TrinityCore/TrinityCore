@@ -69,6 +69,7 @@ class TC_GAME_API Scenario : public CriteriaHandler
         ScenarioStepState GetStepState(ScenarioStepEntry const* step);
         ScenarioStepEntry const* GetStep() const { return _currentstep; }
         ScenarioStepEntry const* GetFirstStep() const;
+        ScenarioStepEntry const* GetLastStep() const;
 
         void SendScenarioState(Player* player);
         void SendBootPlayer(Player* player);

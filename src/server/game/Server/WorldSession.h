@@ -989,6 +989,8 @@ class TC_GAME_API WorldSession
         uint8 GetExpansion() const { return m_expansion; }
         std::string const& GetOS() const { return _os; }
 
+        bool CanAccessAlliedRaces() const;
+
         void InitWarden(SessionKey const& k);
 
         /// Session in auth.queue currently
