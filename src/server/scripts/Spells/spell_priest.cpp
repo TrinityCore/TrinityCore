@@ -650,7 +650,7 @@ class spell_pri_phantasm : public AuraScript
     void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
     {
         PreventDefaultAction();
-        GetTarget()->RemoveMovementImpairingAuras();
+        GetTarget()->RemoveMovementImpairingAuras(true);
     }
 
     void Register() override
