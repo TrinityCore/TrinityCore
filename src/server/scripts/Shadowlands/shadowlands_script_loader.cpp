@@ -60,7 +60,7 @@ void AddSC_boss_dealer_xyexa();
 void AddSC_boss_muehzala();
 //Mists of Tirna Scithe
 void AddSC_instance_mists_of_tirna_scithe();
-void AddSC_Boss_Ingra _Maloch();
+void AddSC_Boss_Ingra_Maloch();
 Void AddSC_Boss_Mistcaller();
 Void AddSC_Boss_Tred_ova();
 void AddSC_Zone_Mist_Of_Tirna_Scithe();
@@ -84,53 +84,69 @@ void AddSC_ShadowlandsIntro();
 
 void AddShadowlandsScripts()
 {
-    //Zones
-    AddSC_zone_exiles_reach();
-    AddSC_zone_bastion();
-    AddSC_zone_oribos();
-    AddSC_zone_maldraxxus();
-    AddSC_zone_ardenweald();
-    AddSC_zone_revendreth();
-    //Darkmaul Citadel
-    AddSC_instance_darkmaul_citadel();
-    AddSC_boss_tunk();
-    AddSC_boss_gorgroth();
-    AddSC_boss_ravnyr();
-    //ShadowlandsIntro
+	//Zones
+	AddSC_zone_exiles_reach();
+	AddSC_zone_bastion();
+	AddSC_zone_the_maw();
+	AddSC_zone_oribos();
+	AddSC_zone_maldraxxus();
+	AddSC_zone_ardenweald();
+	AddSC_zone_revendreth();
+	//Darkmaul Citadel
+	AddSC_instance_darkmaul_citadel();
+	AddSC_darkmaul_citadel();
+	AddSC_boss_tunk();
+	AddSC_boss_gorgroth();
+	AddSC_boss_ravnyr();
+	//Necrotic Wake
+	AddSC_instance_necrotic_wake();
+	AddSC_necrotic_wake();
+	AddSC_boss_blightbone();
+	AddSC_boss_amarth();
+	AddSC_boss_surgeon_stitchflesh();
+	AddSC_boss_nalthor();
+	//Plaguefall
+	AddSC_instance_plaguefall();
+	AddSC_boss_globgrog();
+	AddSC_boss_doctor_ickus();
+	AddSC_boss_domina_venomblade();
+	AddSC_boss_margrave_stradama();
+	//Spires of Ascension
+	AddSC_instance_spires_of_ascension();
+	AddSC_boss_kintara();
+	AddSC_boss_ventunax();
+	AddSC_boss_oryphrion();
+	AddSC_boss_devos();
+	//Castle Nathria
+	AddSC_instance_castle_nathria();
+	AddSC_zone_castle_nathria();
+	AddSC_boss_shriekwing();
+	AddSC_boss_huntsman_altimor();
+	AddSC_boss_hungering_destroyer();
+	AddSC_boss_lady_inerva_darkvein();
+	AddSC_boss_artificer_xymox();
+	AddSC_boss_sun_kings_salvation();
+	AddSC_boss_council_of_blood();
+	AddSC_boss_sludgefist();
+	//AddSC_boss_stone_legion_generals();
+	AddSC_boss_sire_denathrius();
+	//De Other Side
+	AddSC_instance_de_other_side();
+	AddSC_boss_hakkar_the_soulflayer_os();
+	AddSC_boss_the_manastorms();
+	AddSC_boss_dealer_xyexa();
+	AddSC_boss_muehzala();
+	//Mists of Tirna Scithe
+	AddSC_instance_mists_of_tirna_scithe();
+	//Sanguine Depths
+	AddSC_instance_sanquine_depths();
+	//Halls of Atonement
+	AddSC_instance_halls_of_attonement();
+        AddSC_Zone_Hall_Of_Attonement();
+        AddSC_Boss_Echelon();
+        AddSC_Boss_Halkias();
+        AddSC_Boss_High_Adjudicator_Aleez();
+        AddSC_Boss_Lord_Chamberlain(); 
+    //shadowlands intro
     AddSC_ShadowlandsIntro();
-    //Necrotic Wake
-    AddSC_instance_necrotic_wake();
-    AddSC_necrotic_wake();
-    AddSC_boss_blightbone();
-    AddSC_boss_amarth();
-    AddSC_boss_surgeon_stitchflesh();
-    AddSC_boss_nalthor();
-    //Plaguefall
-    AddSC_instance_plaguefall();
-    AddSC_boss_globgrog();
-    AddSC_boss_doctor_ickus();
-    AddSC_boss_domina_venomblade();
-    AddSC_boss_margrave_stradama();
-    //Spires of Ascension
-    AddSC_instance_spires_of_ascension();
-    AddSC_boss_kintara();
-    AddSC_boss_ventunax();
-    AddSC_boss_oryphrion();
-    AddSC_boss_devos();
-    //Castle Nathria
-    AddSC_instance_castle_nathria();
-    AddSC_zone_castle_nathria();
-    AddSC_boss_council_of_blood();
-    //De Other Side
-    AddSC_instance_de_other_side();
-    AddSC_boss_hakkar_the_soulflayer_os();
-    AddSC_boss_the_manastorms();
-    AddSC_boss_dealer_xyexa();
-    AddSC_boss_muehzala();
-    //Mists of Tirna Scithe
-    AddSC_instance_mists_of_tirna_scithe();
-    //Sanguine Depths
-    AddSC_instance_sanquine_depths();
-    //Halls of Atonement
-    AddSC_instance_halls_of_attonement();
 }
