@@ -17,6 +17,8 @@
 #include "ScriptMgr.h"
 #include "Player.h"
 #include "InstanceScript.h"
+#include "objects_De_Other_Side.h"
+#include "npc_De_Other_Side.h"
 
 struct instance_de_other_side : public InstanceScript
 {
