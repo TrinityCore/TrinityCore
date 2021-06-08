@@ -23,6 +23,8 @@
 #include "Boss_Tred_ova.cpp"
 #include "Boss_Mistcaller.cpp"
 #include "Boss_Ingra_Maloch.cpp"
+#include "Objects_Mist_Of_Tirna_Scithe.h"
+#include "npc_Mist_Of_Tirna_Scithe.h"
 
 struct instance_mists_of_tirna_scithe : public InstanceScript
 {
