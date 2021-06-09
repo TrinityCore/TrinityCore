@@ -59,3 +59,4 @@ npc_Ingra_Maloch yells "Darkness...surrounds me!"
 npc_Ingra_Maloch yells "I will break you intro splinters!"
 npc_Droman_Oulfarran yells "I cannot...control it"
 npc_Ingra_Maloch yells "Obey me!"
+
