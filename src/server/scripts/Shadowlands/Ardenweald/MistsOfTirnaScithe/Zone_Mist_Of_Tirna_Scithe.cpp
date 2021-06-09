@@ -15,4 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include 
+#include "ScriptMgr.h"
+#include "Player.h"
+#include "InstanceScript.h"
+#include "instance_mists_of_tirna_scithe.cpp"
+#include "zone_mists_of_tirna_scithe.cpp"
+#include "zone_mists_of_tirna_scithe.h"
+#include "Boss_Tred_ova.cpp"
+#include "Boss_Mistcaller.cpp"
+#include "Boss_Ingra_Maloch.cpp"
+#include "Objects_Mist_Of_Tirna_Scithe.h"
+#include "npc_Mist_Of_Tirna_Scithe.h"
