@@ -20,15 +20,7 @@
 #include "instance_mists_of_tirna_scithe.cpp"
 #include "zone_mists_of_tirna_scithe.cpp"
 #include "zone_mists_of_tirna_scithe.h"
-#include "Objects_Mist_Of_Tirna_Scithe.h"
-
-std::list<uint64> Boss_Ingra_Maloch /*164567*/;
-std::list<uint64> Mistcaller /*170217*/;
-std::list<uint64> Tredova /*164517*/;
-std::list<uint64> Ancient_Swoop /*151846*/;
-std::list<uint64> Cocoon_of_Lakali /*165512*/;
-std::list<uint64> Doomguard <Condemned Demon> /*168932*/;
-std::list<uint64> Droman_Oulfarran /*164804*/;
+#include "Objects_Mist_Of_Tirna_Scithe.h" 
 
  enum Creatures
 {
@@ -36,4 +28,8 @@ std::list<uint64> Droman_Oulfarran /*164804*/;
   NPC_Ingra_Maloch     = 164567;
   NPC_Mistcaller       = 170217;
   NPC_Tred_ova         = 164517;
+  NPC_Ancient_Swoop    = 151846;
+  NPC_Cocoon_of_Lakali = 165512;
+  NPC_Doomguard        = 168932;
+  NPC_Droman_Oulfarran = 164804;
 };
