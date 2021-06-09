@@ -24,3 +24,4 @@
 #include "boss_muehzala.cpp"
 #include "boss_the_manastorms.cpp"
 
+ Hakkar_the_Soulflayer
