@@ -28,6 +28,7 @@
 
 class WorldObject;
 enum SpellEffIndex : uint8;
+typedef uint32 SAIBool;
 
 enum eSmartAI
 {
@@ -1711,6 +1712,7 @@ class TC_GAME_API SmartAIMgr
         bool IsTargetValid(SmartScriptHolder const& e);
 
         static bool IsMinMaxValid(SmartScriptHolder const& e, uint32 min, uint32 max);
+        static bool IsBooleanValid(SmartScriptHolder const& e, uint32 value);
 
         static bool NotNULL(SmartScriptHolder const& e, uint32 data);
         static bool IsCreatureValid(SmartScriptHolder const& e, uint32 entry);
