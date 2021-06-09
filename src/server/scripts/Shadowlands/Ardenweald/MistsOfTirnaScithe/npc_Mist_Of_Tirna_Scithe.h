@@ -24,12 +24,49 @@
 
  enum Creatures
 {
-  NPC_Droman_Oulfarran = 170229;
-  NPC_Ingra_Maloch     = 164567;
-  NPC_Mistcaller       = 170217;
-  NPC_Tred_ova         = 164517;
-  NPC_Ancient_Swoop    = 151846;
-  NPC_Cocoon_of_Lakali = 165512;
-  NPC_Doomguard        = 168932;
-  NPC_Droman_Oulfarran = 164804;
+  NPC_Droman_Oulfarran             = 170229;
+  NPC_Ingra_Maloch                 = 164567;
+  NPC_Mistcaller                   = 170217;164501;166885;
+  NPC_Tred_ova                     = 164517;
+  NPC_Ancient_Swoop                = 151846;
+  NPC_Cocoon_of_Lakali             = 165512;
+  NPC_Doomguard                    = 168932;
+  NPC_Droman_Oulfarran             = 164804;170218;170229;
+  NPC_Drust_Boughbreaker           = 164926;
+  NPC_Drust_Harvester              = 164921;
+  NPC_Drust_Soulcleaver            = 164920;172991;
+  NPC_Drust_Spiteclaw              = 165111;
+  NPC_Ethereal_Transmorpher        = 149596;
+  NPC_Felguard                     = 169421;
+  NPC_Felhound                     = 169425;
+  NPC_Fleeting_Memory              = 175581;
+  MPC_Generic_Hunter_Pet           = 165189;
+  NPC_Gormling_Larva               = 165560;
+  NPC_Greater_Earth_Elemental      = 95072;
+  NPC_Hydra_Seed                   = 172995;
+  NPC_Illusionary_Clone            = 165108;
+  NPC_Illusionary Vulpin           = 165251;
+  NPC_Infernal                     = 169426;
+  NPC_Manifestation_of_Pride       = 173729;
+  NPC_Merchant_Maku                = 142668;
+  NPC_Mistveil_Defender            = 163058;171772;
+  NPC_Mistveil_Gorgegullet         = 173720;
+  NPC_Mistveil_Guardian            = 166276;
+  NPC_Mistveil_Matriarch           = 173655;
+  NPC_Mistveil_Nightblossom        = 173714;
+  NPC_Mistveil_Shaper              = 166275;
+  NPC_Mistveil_Stalker             = 166301;
+  NPC_Mistveil_Stinger             = 166304;
+  NPC_Mistveil_Tender              = 166299;
+  NPC_Nathrian_Inquisitor          = 175513;
+  NPC_Overgrown_Hydra              = 172992;
+  NPC_Overgrowth                   = 168988;
+  NPC_Parasitic_Infestor           = 172647;
+  NPC_Savory_Statshroom            = 173680;
+  NPC_Shadowlands_Wormhole         = 169501;
+  NPC_Shivarra                     = 169429;
+  NPC_Spinemaw_Acidgullet          = 167113;
+  NPC_Spinemaw_Gorger              = 172312;
+  
+
 };
