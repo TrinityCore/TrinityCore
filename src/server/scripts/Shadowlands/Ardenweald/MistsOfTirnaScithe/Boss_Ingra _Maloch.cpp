@@ -47,7 +47,7 @@ public:
     {
         uint64 Boss_Ingra_Maloch;
         uint64 portalTemp instance_mist_of_tirna_scitheGuid;
-    }
+    };
  std::list<uint64> Boss_Ingra_Maloch;
 
 npc_Droman_Oulfarran yells "Pain...Confussion..."

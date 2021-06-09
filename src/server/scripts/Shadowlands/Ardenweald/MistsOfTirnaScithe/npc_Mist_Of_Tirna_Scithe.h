@@ -34,4 +34,6 @@ std::list<uint64> Droman_Oulfarran /*164804*/;
 {
   NPC_Droman_Oulfarran = 170229;
   NPC_Ingra_Maloch     = 164567;
-} 
+  NPC_Mistcaller       = 170217;
+  NPC_Tred_ova         = 164517;
+};
