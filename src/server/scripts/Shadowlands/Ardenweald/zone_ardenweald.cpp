@@ -16,7 +16,9 @@
  */
 
 #include "zone_ardenweald.cpp"
-#include 
+#include "Objects_Ardenweald.h"
+#include "npc_Ardenweald.h"
+
 void AddSC_zone_ardenweald()
 {
 }
