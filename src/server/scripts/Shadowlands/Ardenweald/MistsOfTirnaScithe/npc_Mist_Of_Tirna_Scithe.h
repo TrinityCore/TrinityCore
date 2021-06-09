@@ -29,3 +29,9 @@ std::list<uint64> Ancient_Swoop /*151846*/;
 std::list<uint64> Cocoon_of_Lakali /*165512*/;
 std::list<uint64> Doomguard <Condemned Demon> /*168932*/;
 std::list<uint64> Droman_Oulfarran /*164804*/;
+
+ enum Creatures
+{
+  NPC_Droman_Oulfarran = 170229;
+  NPC_Ingra_Maloch     = 164567;
+} 
