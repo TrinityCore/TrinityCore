@@ -19,3 +19,8 @@
 #include "Player.h"
 #include "InstanceScript.h"
 #include "objects_De_Other_Side.h"
+#include "boss_dealer_xyexa.cpp"
+#include "boss_hakkar_the_soulflayer_os.cpp"
+#include "boss_muehzala.cpp"
+#include "boss_the_manastorms.cpp"
+
