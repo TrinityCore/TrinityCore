@@ -14,6 +14,13 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+#include "Creature.h"
+#include "CreatureAI.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
+#include "AreaTrigger.h"
+#include "AreaTriggerAI.h"
+#include "SpellAuraEffects.h"
 #include "ScriptMgr.h"
 #include "Player.h"
 #include "InstanceScript.h"
@@ -22,3 +29,23 @@
 #include "zone_mists_of_tirna_scithe.h"
 #include "Objects_Mist_Of_Tirna_Scithe.h"
 #include "npc_Mist_Of_Tirna_Scithe.h"
+
+
+
+
+class instance_mists_of_tirna_scithe : public InstanceMapScript
+{
+public:
+    instance_mists_of_tirna_scithe() : InstanceMapScript("instance_mists_of_tirna_scithe", 13309) { }
+
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
+    {
+        return new instance_mists_of_tirna_scithe_InstanceMapScript(map);
+    }
+
+    struct instance_mists_of_tirna_scithe_InstanceMapScript : public InstanceScript
+    {
+        uint64 Boss_Ingra_Maloch;
+        uint64 portalTemp instance_mist_of_tirna_scitheGuid;
+    }
+ std::list<uint64> Boss_Ingra_Maloch;
