@@ -25,6 +25,8 @@
 #include "AreaTriggerAI.h"
 #include "SpellAuraEffects.h"
 #include "necrotic_wake.h"
+#include "npc_Bastion"
+#include "objects_Bastion"
 
 enum Spells
 {
