@@ -21,3 +21,9 @@
 #include "instance_mists_of_tirna_scithe.cpp"
 #include "zone_mists_of_tirna_scithe.cpp"
 #include "zone_mists_of_tirna_scithe.h"
+
+enum Gameobjects
+{
+    GO_NECROPOLIS_TRANSPORT = 344772,
+    GO_BLIGHTBONE_EXIT      = 352094,
+};
