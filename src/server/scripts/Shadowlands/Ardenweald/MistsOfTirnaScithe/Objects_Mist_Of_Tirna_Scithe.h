@@ -24,6 +24,10 @@
 
 enum Gameobjects
 {
+    GO_Anvil                = 192628,
+    GO_Challengers_Cache    = 354972,
+    GO_Overgrown_Roots      = 326498,
+    GO_Snow_Patch           = 358375,
     GO_NECROPOLIS_TRANSPORT = 344772,
     GO_BLIGHTBONE_EXIT      = 352094,
 };
