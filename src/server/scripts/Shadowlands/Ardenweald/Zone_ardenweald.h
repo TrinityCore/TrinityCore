@@ -18,3 +18,8 @@
 void AddSC_zone_ardenweald()
 {
 }
+
+void AddSC_zone_Heart_Of_The_Forest()
+{
+}
+    
