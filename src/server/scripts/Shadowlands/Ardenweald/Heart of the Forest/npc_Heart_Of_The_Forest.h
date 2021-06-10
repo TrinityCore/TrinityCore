@@ -17,12 +17,10 @@
 #include "ScriptMgr.h"
 #include "Player.h"
 #include "InstanceScript.h"
-#include "instance_mists_of_tirna_scithe.cpp"
-#include "zone_mists_of_tirna_scithe.cpp"
-#include "zone_mists_of_tirna_scithe.h"
-#include "Objects_Mist_Of_Tirna_Scithe.h"
-#include "npc_Mist_Of_Tirna_Scthithe.h"
-#include "Ardenweald.cpp" 
+#include "instance_Heart_Of_The_Forest.cpp"
+#include "zone_Heart_Of_The_Forest.h"
+#include "Objects_Heart_Of_The_Forest.h"
+#include "npc_Heart_Of_The_Forest.h"
 
  enum Creatures
 {
