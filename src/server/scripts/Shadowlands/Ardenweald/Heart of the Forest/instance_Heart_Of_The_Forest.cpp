@@ -30,4 +30,35 @@ struct instance_Heart_Of_The_Forest : public InstanceScript
 void AddSC_instance_Heart_Of_The_Forest()
 {
     RegisterInstanceScript(instance_Heart_Of_The_Forest, 12858);
-}
+};
+
+void OnCreatureCreate(Creature* creature) override
+{
+        switch (creature->GetEntry())
+        {
+        case NPC_Aithlyn:
+            Aithlyn = creature->GetGUID();
+            break;
+        }
+        case NPC_Anaris_Windwood:
+            Anaris Windwood = creature->GetGUID();
+            break;
+        }
+        case NPC_Aralon:
+            Aralon = creature->GetGUID();
+            break;
+        }
+        case NPC_Astarii_Starseeker:
+            Astarii_Starseeker = creature->GetGUID();
+            break;
+        }
+        case            
+};
+
+    void OnGameObjectCreate(GameObject* go) override
+    {
+        switch (go->GetEntry())
+        {
+        case GO_BRICKDOOR_LEFT:
+            brickDoorLeft = go->GetGUID();
+            break;
