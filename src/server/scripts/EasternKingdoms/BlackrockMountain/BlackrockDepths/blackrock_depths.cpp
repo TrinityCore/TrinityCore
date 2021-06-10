@@ -177,8 +177,6 @@ public:
         void Reset() override
         {
             Initialize();
-
-            me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
         }
 
         /// @todo move them to center

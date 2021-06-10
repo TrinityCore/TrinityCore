@@ -80,8 +80,6 @@ struct boss_keristrasza : public BossAI
         Initialize();
         _intenseColdList.clear();
 
-        me->RemoveUnitFlag(UNIT_FLAG_STUNNED);
-
         RemovePrison(CheckContainmentSpheres());
         _Reset();
     }
@@ -132,15 +130,13 @@ struct boss_keristrasza : public BossAI
     {
         if (remove)
         {
-            me->SetImmuneToPC(false);
-            me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+            me->SetImmuneToAll(false);
             if (me->HasAura(SPELL_FROZEN_PRISON))
                 me->RemoveAurasDueToSpell(SPELL_FROZEN_PRISON);
         }
         else
         {
-            me->SetImmuneToPC(true);
-            me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+            me->SetImmuneToAll(true);
             DoCast(me, SPELL_FROZEN_PRISON, false);
         }
     }
