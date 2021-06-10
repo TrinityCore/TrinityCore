@@ -52,6 +52,7 @@ public:
     enum Spells
 {
     SPELL_Soul_Shackle = 321010,
+    EVENT_Soul_Shackle_START = 0,
     EVENT_Soul_Shackle_END = 1,
 };
 
