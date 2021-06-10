@@ -570,6 +570,23 @@ bool SmartAIMgr::IsMinMaxValid(SmartScriptHolder const& e, uint32 min, uint32 ma
     return true;
 }
 
+bool SmartAIMgr::IsBooleanValid(SmartScriptHolder const& e, uint32 value)
+{
+    if (!IsValueInRange(e, value, 0, 1))
+        return true; // Return true for now until all errors have been fixed as any value != 0 is true in C++ anyway
+    return true;
+}
+
+bool SmartAIMgr::IsValueInRange(SmartScriptHolder const& e, uint32 value, uint32 min, uint32 max)
+{
+    if (value < min || value > max)
+    {
+        TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses param %u out of range [%u/%u], skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), value, min, max);
+        return false;
+    }
+    return true;
+}
+
 bool SmartAIMgr::NotNULL(SmartScriptHolder const& e, uint32 data)
 {
     if (!data)

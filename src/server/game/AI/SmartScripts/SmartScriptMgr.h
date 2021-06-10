@@ -1713,6 +1713,7 @@ class TC_GAME_API SmartAIMgr
 
         static bool IsMinMaxValid(SmartScriptHolder const& e, uint32 min, uint32 max);
         static bool IsBooleanValid(SmartScriptHolder const& e, uint32 value);
+        static bool IsValueInRange(SmartScriptHolder const& e, uint32 value, uint32 min, uint32 max);
 
         static bool NotNULL(SmartScriptHolder const& e, uint32 data);
         static bool IsCreatureValid(SmartScriptHolder const& e, uint32 entry);
