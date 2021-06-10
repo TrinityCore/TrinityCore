@@ -52,7 +52,11 @@ void OnCreatureCreate(Creature* creature) override
             Astarii_Starseeker = creature->GetGUID();
             break;
         }
-        case            
+        case NPC_Attendant_Sparkledew:
+            Attendant_Sparkledew = creature->GetGUID();
+            break;
+        }
+        Case   
 };
 
     void OnGameObjectCreate(GameObject* go) override
