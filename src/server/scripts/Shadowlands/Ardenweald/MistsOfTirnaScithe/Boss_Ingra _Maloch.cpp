@@ -33,21 +33,32 @@
 
 
 
-class instance_mists_of_tirna_scithe : public InstanceMapScript
+class Boss_Ingra_Maloch : public InstanceMapScript
 {
 public:
-    instance_mists_of_tirna_scithe() : InstanceMapScript("instance_mists_of_tirna_scithe", 13309) { }
+    Boss_Ingra_Maloch() : InstanceMapScript("Boss_Ingra_Maloch", 13309) { }
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
         return new instance_mists_of_tirna_scithe_InstanceMapScript(map);
     }
 
-    struct instance_mists_of_tirna_scithe_InstanceMapScript : public InstanceScript
+    struct Boss_Ingra_Maloch_InstanceMapScript : public InstanceScript
     {
         uint64 Boss_Ingra_Maloch;
         uint64 portalTemp instance_mist_of_tirna_scitheGuid;
     };
+    
+    enum Spells
+{
+    SPELL_Soul_Shackle = 321010,
+    EVENT_Soul_Shackle_END = 1,
+};
+
+//164567
+struct Boss_Ingra_Maloch : public BossAI
+{
+    Boss_Ingra_Maloch(Creature* creature) : BossAI(creature, DATA_INGRA_MALOCH) { }
  std::list<uint64> Boss_Ingra_Maloch;
 
 npc_Droman_Oulfarran yells "Pain...Confussion..."

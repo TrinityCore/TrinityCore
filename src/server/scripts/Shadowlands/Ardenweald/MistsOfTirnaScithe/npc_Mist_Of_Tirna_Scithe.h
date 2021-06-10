@@ -20,7 +20,10 @@
 #include "instance_mists_of_tirna_scithe.cpp"
 #include "zone_mists_of_tirna_scithe.cpp"
 #include "zone_mists_of_tirna_scithe.h"
-#include "Objects_Mist_Of_Tirna_Scithe.h" 
+#include "Objects_Mist_Of_Tirna_Scithe.h"
+#include "Boss_Ingra _Maloch.cpp"
+#include "Boss_Mistcaller.cpp"
+#include "Boss_Tred_ova.cpp"
 
  enum Creatures
 {
@@ -67,6 +70,16 @@
   NPC_Shivarra                     = 169429;
   NPC_Spinemaw_Acidgullet          = 167113;
   NPC_Spinemaw_Gorger              = 172312;
-  
-
+  NPC_Spinemaw_Larva               = 167117;
+  NPC_Spinemaw_Reaver              = 167116;
+  NPC_Spinemaw_Staghorn            = 167111;
+  NPC_Spiteful_Shade               = 174773;
+  NPC_Tasty_Toughshroom            = 173679;
+  NPC_Tirnenn_Sapling              = 167707;
+  NPC_Tirnenn_Villager             = 164929;165120;
+  NPC_Turnip_Punching_Bag          = 65310;
+  NPC_Urzul                        = 169430;
+  NPC_Wrathguard                   = 169428;
+  NPC_Xolartios                    = 158635;
 };
+
