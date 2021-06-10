@@ -27,3 +27,33 @@ enum Objects
 	Objects_Mailbox    = 32349,
 	Objects_Snow_Patch = 358375,
 }	
+
+void Objects_Mailbox 
+ObjectGuid Mailbox;
+
+void Objects_Snow_Patch
+ObjectGuid Snow_Patch;
+
+void OnGameObjectCreate(GameObject* go) override
+{
+    {
+        switch (go->GetEntry())
+        {
+        case GO_Objects_Mailbox:
+            Mailbox = go->GetGUID();
+            break;
+        }
+    }
+};
+
+void OnGameObjectCreate(GameObject* go) override
+{ 
+    {
+       swich (go->GetEntry())
+       {
+       	case GO_Objects_Snow_Patch:
+       	    Snow_Patch = go->GetGUID();
+       	    break;
+       	}
+    }
+};
