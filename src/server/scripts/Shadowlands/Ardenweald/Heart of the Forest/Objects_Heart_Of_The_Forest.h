@@ -24,5 +24,6 @@
 
 enum Objects
 {
-	Objects_one = 1,
+	Objects_Mailbox    = 32349,
+	Objects_Snow_Patch = 358375,
 }	
