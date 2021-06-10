@@ -15,11 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-void AddSC_zone_ardenweald()
+void AddSC_Zone_Ardenweald()
 {
 }
 
-void AddSC_zone_Heart_Of_The_Forest()
+void AddSC_Zone_Heart_Of_The_Forest()
 {
 }
-    
+
+void AddSC_Zone_Mist_Of_Tirna_Scithe()    
