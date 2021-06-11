@@ -56,7 +56,31 @@ void OnCreatureCreate(Creature* creature) override
             Attendant_Sparkledew = creature->GetGUID();
             break;
         }
-        Case   
+        case NPC_Blodwyn:
+            Blodwyn = creature->GetGUID();
+            break;
+        }
+        case NPC_Boles:
+            Boles = creature->GetGUID();
+            break;
+        }
+        case NPC_Ceridwyn:
+            Ceridwyn = creature->GetGUID();
+            break;
+        }
+        case NPC_Cleave_Training_Dummy:
+            Cleave_Training_Dummy = creature->GetGUID();
+            break;
+        }
+        case NPC_Craftsmaster_Lamda:
+            Craftsmaster_Lamda = creature->GetGUID();
+            break;
+        }
+        case NPC_Curious_Squirrel:
+            Curious_Squirrel = creature->GetGUID();
+            break;
+        }
+
 };
 
     void OnGameObjectCreate(GameObject* go) override
