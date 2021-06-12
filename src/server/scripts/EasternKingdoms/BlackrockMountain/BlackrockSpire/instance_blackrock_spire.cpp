@@ -426,8 +426,6 @@ public:
 
         void Dragonspireroomstore()
         {
-            uint8 creatureCount;
-
             for (size_t i = 0; i < _roomRuneGUIDs.size(); ++i)
             {
                 if (GameObject* rune = instance->GetGameObject(_roomRuneGUIDs[i]))
