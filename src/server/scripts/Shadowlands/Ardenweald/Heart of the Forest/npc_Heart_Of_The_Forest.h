@@ -91,6 +91,9 @@ void OnCreatureCreate(Creature* creature) override
         case NPC_Aithlyn:
             Aithlyn = creature->GetGUID();
             break;
+void CreatureLoot(Creature* loot) override
+{
+        creatureData            
         }
         case NPC_Anaris_Windwood:
             Anaris Windwood = creature->GetGUID();
