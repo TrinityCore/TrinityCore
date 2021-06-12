@@ -83,3 +83,97 @@
   NPC_Zaki                        = 174609,
   NPC_Zayhad_The_Builder          = 165702,
 };
+
+void OnCreatureCreate(Creature* creature) override
+{
+        switch (creature->GetEntry())
+        {
+        case NPC_Aithlyn:
+            Aithlyn = creature->GetGUID();
+            break;
+        }
+        case NPC_Anaris_Windwood:
+            Anaris Windwood = creature->GetGUID();
+            break;
+        }
+        case NPC_Aralon:
+            Aralon = creature->GetGUID();
+            break;
+        }
+        case NPC_Astarii_Starseeker:
+            Astarii_Starseeker = creature->GetGUID();
+            break;
+        }
+        case NPC_Attendant_Sparkledew:
+            Attendant_Sparkledew = creature->GetGUID();
+            break;
+        }
+        case NPC_Blodwyn:
+            Blodwyn = creature->GetGUID();
+            break;
+        }
+        case NPC_Boles:
+            Boles = creature->GetGUID();
+            break;
+        }
+        case NPC_Ceridwyn:
+            Ceridwyn = creature->GetGUID();
+            break;
+        }
+        case NPC_Cleave_Training_Dummy:
+            Cleave_Training_Dummy = creature->GetGUID();
+            break;
+        }
+        case NPC_Craftsmaster_Lamda:
+            Craftsmaster_Lamda = creature->GetGUID();
+            break;
+        }
+        case NPC_Curious_Squirrel:
+            Curious_Squirrel = creature->GetGUID();
+            break;
+        }
+        case NPC_Denalan:
+            Denalan = creature->GetGUID();
+            break;
+        }    
+        case NPC_Dor_levgoren:
+            Dor_levgoren = creature->GetGUID();
+            break;
+        }
+        case NPC_Dreamweaver:
+            Dreamweaver = creature->GetGUID();
+            break;
+        }    
+        case NPC_Droman_Aliothe:
+            Droman_Aliothe = creature->GetGUID();
+            break;
+        }
+        case NPC_Dungeoneers_Tanking_Dummy:
+            Dungeoneers_Tanking_Dummy = creature->GetGUID();
+            break;
+        }
+        case NPC_Elwyn:
+            Elwyn = creature->GetGUID();
+            break;
+        }
+        case NPC_Fae_Courtier:
+            Fae_Courtier = creature->GetGUID();
+            break;
+        }    
+        case NPC_Featherlight:
+            Featherlight = creature->GetGUID();
+            break;
+        }
+        case NPC_Ferryn:
+            Ferryn = creature->GetGUID();
+            break;
+        }
+        case NPC_Fleeting_Memory:
+            Fleeting_Memory = creature->GetGUID();
+            break;
+        }
+        case NPC_Flutterby:
+            Flutterby = creature->GetGUID();
+            break;
+        }            
+};
