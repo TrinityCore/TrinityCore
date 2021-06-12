@@ -121,8 +121,9 @@ public:
                 case NPC_SCARSHIELD_INFILTRATOR:
                     ScarshieldInfiltrator = creature->GetGUID();
                     break;
-                case NPC_FINKLE_EINHORN:
-                    creature->AI()->Talk(SAY_FINKLE_GANG);
+                case NPC_FINKLE_EINHORN: // @todo: move this either to SAI or CreatureAI
+                    if (creature->IsAIEnabled())
+                        creature->AI()->Talk(SAY_FINKLE_GANG);
                     break;
                 case NPC_BLACKHAND_INCARCERATOR:
                     _incarceratorList.push_back(creature->GetGUID());
@@ -276,8 +277,9 @@ public:
                 case EVENT_PYROGUARD_EMBERSEER:
                     if (GetBossState(DATA_PYROGAURD_EMBERSEER) == NOT_STARTED)
                     {
-                        if (Creature* Emberseer = instance->GetCreature(PyroguardEmberseer))
-                            Emberseer->AI()->SetData(1, 1);
+                        if (Creature* emberseer = instance->GetCreature(PyroguardEmberseer))
+                            if (emberseer->IsAIEnabled())
+                                emberseer->AI()->SetData(1, 1);
                     }
                     break;
                 case EVENT_UROK_DOOMHOWL:
@@ -586,6 +588,9 @@ public:
 
             if (Creature* rend = player->FindNearestCreature(NPC_WARCHIEF_REND_BLACKHAND, 50.0f))
             {
+                if (!rend->IsAIEnabled())
+                    return false;
+
                 rend->AI()->SetData(AREATRIGGER, AREATRIGGER_BLACKROCK_STADIUM);
                 return true;
             }
@@ -608,6 +613,9 @@ public:
             {
                 if (Creature* infiltrator = ObjectAccessor::GetCreature(*player, instance->GetGuidData(DATA_SCARSHIELD_INFILTRATOR)))
                 {
+                    if (!infiltrator->IsAIEnabled())
+                        return false;
+
                     if (player->GetLevel() >= 57)
                         infiltrator->AI()->SetData(1, 1);
                     else if (infiltrator->GetEntry() == NPC_SCARSHIELD_INFILTRATOR)
