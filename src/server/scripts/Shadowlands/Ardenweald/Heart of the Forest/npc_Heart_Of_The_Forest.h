@@ -200,5 +200,37 @@ void OnCreatureCreate(Creature* creature) override
             Hunt_Captain_Korayn = creature->GetGUID();
             break;
         }    
-        case                                   
+        case NPC_Ilthalaine:
+            Ilthalaine = creature->GetGUID();
+            break;
+        }
+        case NPC_Jandria:
+            Jandria = creature->GetGUID();
+            break;
+        }
+        case NPC_Karuth:
+            Karuth = creature->GetGUID();
+            break;
+        }
+        case NPC_Kewarin:
+            Kewarin = creature->GetGUID();
+            break;
+        }
+        case NPC_Lady_Moonberry:
+            Lady_Moonberry = creature->GetGUID();
+            break;
+        }
+        case NPC_Lady_Muunn:
+            Lady_Muunn = creature->GetGUID();
+            break;
+        }
+        case NPC_Lafwyn:
+            Lafwyn = creature->GetGUID();
+            break;
+        }
+        case NPC_Laurel:
+            Laurel = creature->GetGUID();
+            break;
+        }
+        case                                                                     
 };
