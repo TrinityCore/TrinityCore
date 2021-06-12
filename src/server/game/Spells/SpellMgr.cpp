@@ -5916,6 +5916,15 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_1].MiscValue = 3;
     });
 
+    // Sanguinary Vein
+    ApplySpellFix({
+        79146,
+        79147,
+    },[](SpellInfo* spellInfo)
+    {
+            spellInfo->SpellFamilyName = SPELLFAMILY_ROGUE;
+    });
+
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {
         SpellInfo* spellInfo = mSpellInfoMap[i];

@@ -82,7 +82,8 @@ enum RogueSpells
 enum RogueSpellIcons
 {
     ICON_ROGUE_IMPROVED_RECUPERATE                  = 4819,
-    ROGUE_ICON_ID_SERRATED_BLADES                   = 2004
+    ROGUE_ICON_ID_SERRATED_BLADES                   = 2004,
+    ROGUE_ICON_ID_SANGUINARY_VEIN                   = 4821
 };
 
 // 13877, 33735, (check 51211, 65956) - Blade Flurry
@@ -1489,6 +1490,28 @@ class spell_rog_relentless_strikes : public SpellScript
     }
 };
 
+// 1776 - Gouge
+class spell_rog_gouge : public AuraScript
+{
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        // Only the caster's bleed effects may cancel the effect
+        if (Unit* actor = eventInfo.GetActor())
+            if (actor == GetCaster() && eventInfo.GetSpellInfo())
+                if (eventInfo.GetSpellInfo()->SpellFamilyName == SPELLFAMILY_ROGUE && eventInfo.GetSpellInfo()->Mechanic == MECHANIC_BLEED)
+                    if (AuraEffect const* aurEff = actor->GetDummyAuraEffect(SPELLFAMILY_ROGUE, ROGUE_ICON_ID_SANGUINARY_VEIN, EFFECT_1))
+                        if (roll_chance_i(aurEff->GetAmount()))
+                            return false;
+
+        return true;
+    }
+
+    void Register() override
+    {
+        DoCheckProc.Register(&spell_rog_gouge::CheckProc);
+    }
+};
+
 void AddSC_rogue_spell_scripts()
 {
     RegisterSpellScript(spell_rog_bandits_guile);
@@ -1502,6 +1525,7 @@ void AddSC_rogue_spell_scripts()
     RegisterSpellScript(spell_rog_envenom);
     RegisterSpellScript(spell_rog_eviscerate);
     RegisterSpellScript(spell_rog_glyph_of_hemorrhage);
+    RegisterSpellScript(spell_rog_gouge);
     RegisterSpellScript(spell_rog_improved_expose_armor);
     new spell_rog_killing_spree();
     RegisterSpellScript(spell_rog_main_gauche);
