@@ -21,6 +21,14 @@
 #include "zone_Heart_Of_The_Forest.h"
 #include "Objects_Heart_Of_The_Forest.h"
 #include "npc_Heart_Of_The_Forest.h"
+#include "AreaTrigger.h"
+#include "AreaTriggerAI.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
+#include "NpcObject.h"
+#include "NpcObjectAI.h"
+#include "SpellAuraEffects.h"
+
 
  enum Creatures
 {
