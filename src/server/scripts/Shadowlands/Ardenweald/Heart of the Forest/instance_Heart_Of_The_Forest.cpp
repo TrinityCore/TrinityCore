@@ -30,14 +30,4 @@ struct instance_Heart_Of_The_Forest : public InstanceScript
 void AddSC_instance_Heart_Of_The_Forest()
 {
     RegisterInstanceScript(instance_Heart_Of_The_Forest, 12858);
-};
-
-
-
-    void OnGameObjectCreate(GameObject* go) override
-    {
-        switch (go->GetEntry())
-        {
-        case GO_BRICKDOOR_LEFT:
-            brickDoorLeft = go->GetGUID();
-            break;
+}; 
