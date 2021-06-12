@@ -70,5 +70,32 @@ enum Creatures
  NPC_Nathrian_Inquisitor               = 175513,
  NPC_Risen_Bonesoldier                 = 168949,
  NPC_Risen_Cultist                     = 168992,
- 
+ NPC_Risen_Warlord                     = 169905,
+ NPC_Runestag_Elderhorn                = 164873,
+ NPC_Sentient_Oil                      = 167967,
+ NPC_Shadowlands_Wormhole              = 169501,
+ NPC_Shattered_Visage                  = 168326,
+ NPC_Shivarra                          = 169429,
+ NPC_Skeletal_Raptor                   = 168986,
+ NPC_Son_of_Hakkar                     = 165905,170488,
+ NPC_Spiteful_Shade                    = 174773,
+ NPC_Spriggan_Barkbinder               = 164861,
+ NPC_Spriggan_Mendbender               = 164857,
+ NPC_Territorial_Bladebeak             = 171181,
+ NPC_Turnip_Punching_Bag               = 65310,
+ NPC_Urzul                             = 169430,
+ NPC_Volatile_Memory                   = 170147,
+ NPC_Weald_Shimmermoth                 = 164862,
+ NPC_Wrathguard                        = 169428,
+};
+
+void OnCreatureCreate(Creature* creature) override
+{
+        switch (creature->GetEntry())
+        {
+        case NPC_Hakkar_the_Soulflayer:
+            Hakkar_the_Soulflayer = creature->GetGUID();
+            break;
+        }
+        case     
 
