@@ -37,5 +37,14 @@
   NPC_Aithlyn                                         = 158556,
   NPC_Alascene                                        = 166328,
   NPC_Aldas                                           = 170549,
-  NPC_
+  NPC_Alderyn                                         = 173402,
+  NPC_Alice                                           = 173653,
+  NPC_Amberfoot                                       = 170928,
+  NPC_Ammi                                            = 167048,
+  NPC_Amphitheater_Musician                           = 175598,
+  NPC_Anaris_Windwood                                 = 174532,
+  NPC_Anaya_Dawnrunner                                = 174477,
+  NPC_Ancient_Gazelle                                 = 151847,
+  NPC_Angelia                                         = 170552,
+  NPC_Angry_Egg_Tender                                = 171827,
 };
