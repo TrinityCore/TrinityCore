@@ -57,6 +57,8 @@ class TC_GAME_API AuraEffect
         int32 GetAmount() const { return _amount; }
         void SetAmount(int32 amount) { _amount = amount; m_canBeRecalculated = false; }
 
+        Optional<float> GetEstimatedAmount() const { return _estimatedAmount; }
+
         int32 GetPeriodicTimer() const { return _periodicTimer; }
         void SetPeriodicTimer(int32 periodicTimer) { _periodicTimer = periodicTimer; }
 
@@ -110,6 +112,7 @@ class TC_GAME_API AuraEffect
 
         int32 const m_baseAmount;
         int32 _amount;
+        Optional<float> _estimatedAmount;   // for periodic damage and healing auras this will include damage done bonuses
 
         // periodic stuff
         int32 _periodicTimer;

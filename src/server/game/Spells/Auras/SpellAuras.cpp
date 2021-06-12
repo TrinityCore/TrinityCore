@@ -203,10 +203,19 @@ void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo
 
     if (auraData.Flags & AFLAG_SCALABLE)
     {
-        auraData.Points.resize(aura->GetAuraEffects().size(), 0.0f);
+        auraData.Points.reserve(aura->GetAuraEffects().size());
+        auraData.EstimatedPoints.reserve(aura->GetAuraEffects().size());
         for (AuraEffect const* effect : GetBase()->GetAuraEffects())
+        {
             if (effect && HasEffect(effect->GetEffIndex()))       // Not all of aura's effects have to be applied on every target
-                auraData.Points[effect->GetEffIndex()] = float(effect->GetAmount());
+            {
+                Trinity::Containers::EnsureWritableVectorIndex(auraData.Points, effect->GetEffIndex()) = float(effect->GetAmount());
+                if (effect->GetEstimatedAmount())
+                    Trinity::Containers::EnsureWritableVectorIndex(auraData.EstimatedPoints, effect->GetEffIndex()) = *effect->GetEstimatedAmount();
+            }
+        }
+        if (!auraData.EstimatedPoints.empty())
+            auraData.EstimatedPoints.resize(auraData.Points.size()); // pad to equal sizes
     }
 }
 
