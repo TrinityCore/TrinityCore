@@ -46,12 +46,17 @@ enum Objects
 {
     Objects_Abandoned_Stockpile                           = 354202,
     Objects_Acolytes_Spear                                = 361261,
-    Objects_Adrimas_Lily                                  = 336680,
-    Objects_
+    Objects_Adrimas_Lily                                  = 336680,363992,
+    Objects_Aged_Windcheese                               = 357333,
+    Objects_Agthian_Spear                                 = 336444,
+    Objects_Ancient_Memorial                              = 353807,
+    Objects_Anima_Canister                                = 349706,
+    Objects_Anima_Conflux                                 = 349976,
+
 }   
 
-void Objects_Anvil 
-ObjectGuid Anvil;
+void Objects_Abandoned_Stockpile 
+ObjectGuid Abandoned_Stockpile;
 
 void OnGameObjectCreate(GameObject* go) override
 {

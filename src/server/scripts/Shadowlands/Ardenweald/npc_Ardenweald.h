@@ -47,4 +47,5 @@
   NPC_Ancient_Gazelle                                 = 151847,
   NPC_Angelia                                         = 170552,
   NPC_Angry_Egg_Tender                                = 171827,
+  
 };
