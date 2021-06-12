@@ -232,5 +232,92 @@ void OnCreatureCreate(Creature* creature) override
             Laurel = creature->GetGUID();
             break;
         }
-        case                                                                     
+        case NPC_Lillyensthoom:
+            Lillyensthoom = creature->GetGUID();
+            break;
+        }
+        case NPC_Lord_Herne:
+            Lord_Herne - creature->GetGUID();
+            break;
+        }
+        case NPC_MCan:
+            MCan = creature->GetGUID();
+            break;
+        }
+        case NPC_Marlan:
+            Marlan = creature->GetGUID();
+            break;
+        }
+        case NPC_Niya:
+            Niya = creature->GetGUID();
+            break;
+        }
+        case NPC_Ofer:
+            NPC_Ofer = creature->GetGUID();
+            break;
+        }
+        case NPC_Rchll:
+            Rchll = creature->GetGUID();
+            break;
+        }
+        case NPC_Rahad:
+            Rahad = creature->GetGUID();
+            break;
+        }
+        case NPC_Raiders_Tanking_Dummy:
+            Raiders_Tanking_Dummy = creature->GetGUID();
+            break;
+        }
+        case NPC_Rescued_Soul:
+            Rescued_Soul = creature->GetGUID();
+            break;
+        }
+        case NPC_Samngo:
+            Samngo = creature->GetGUID();
+            break;
+        }
+        case NPC_Shandris_Feathermoon:
+            Shandris_Feathermoon = creature->GetGUID();
+            break;
+        }
+        case NPC_Sparkle:
+            Sparkle = creature->GetGUID();
+            break;
+        }
+        case NPC_Swarm_Training_Dummy:
+            Swarm_Training_Dummy = creature->GetGUID();
+            break;
+        }
+        case NPC_Thiernax:
+            Thiernax = creature->GetGUID();
+            break;
+        }
+        case NPC_Training_Dummy:
+            Training_Dummy = creature->GetGUID();
+            break;
+        }
+        case NPC_Vulpera_Caravan:
+            Vulpera_Caravan = creature->GetGUID();
+            break;
+        }
+        case NPC_Wheelbarrow_Racer:
+            Wheelbarrow_Racer = creature->GetGUID();
+            break;
+        }
+        case NPC_Yanlar:
+            Yanlar = creature->GetGUID();
+            break;
+        }
+        case NPC_Ysera:
+            Ysera = creature->GetGUID();
+            break;
+        }
+        case NPC_Zaki:
+            Zaki = creature->GetGUID();
+            break;
+        }
+        case NPC_Zayhad_The_Builder:
+            Zayhad_The_Builder = creature->GetGUID();
+            break;
+        }                                                                                                                                                           
 };
