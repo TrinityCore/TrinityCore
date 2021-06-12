@@ -42,3 +42,26 @@
 #include "NpcObjectAI.h"
 #include "SpellAuraEffects.h"
 
+enum Objects
+{
+    Objects_Abandoned_Stockpile                           = 354202,
+    Objects_Acolytes_Spear                                = 361261,
+    Objects_Adrimas_Lily                                  = 336680,
+    Objects_
+}   
+
+void Objects_Anvil 
+ObjectGuid Anvil;
+
+void OnGameObjectCreate(GameObject* go) override
+{
+    {
+        switch (go->GetEntry())
+        {
+        case GO_Objects_Abandoned_Stockpile:
+            Abandoned_Stockpile = go->GetGUID();
+            break;
+        }
+    }
+};
+
