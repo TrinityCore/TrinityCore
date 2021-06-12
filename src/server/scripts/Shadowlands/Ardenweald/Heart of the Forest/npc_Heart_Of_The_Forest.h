@@ -46,7 +46,7 @@
   NPC_Ferryn                      = 174522,174548,174549,
   NPC_Fleeting_Memory             = 175581,
   NPC_Flutterby                   = 158553,
-  NPC_Gertie Jr                   = 167661,
+  NPC_Gertie_Jr                   = 167661,
   NPC_Gormling                    = 175665,
   NPC_Gravid_Devourer_Mite        = 175692,
   NPC_Guardian                    = 158547,165751,
@@ -175,5 +175,30 @@ void OnCreatureCreate(Creature* creature) override
         case NPC_Flutterby:
             Flutterby = creature->GetGUID();
             break;
-        }            
+        }
+        case NPC_Gertie_Jr:
+            Gertie_Jr = creature->GetGUID();
+            break;
+        }
+        case NPC_Gormling:
+            Gormling = creature->GetGUID();
+            break;
+        }
+        case NPC_Gravid_Devourer_Mite:
+            Gravid_Devourer_Mite = creature->GetGUID();
+            break;
+        }
+        case NPC_Guardian:
+            Guardian = creature->GetGUID();
+            break;
+        }
+        case NPC_Huln_Highmountain:
+            Huln_Highmountain = creature->GetGUID();
+            break;
+        }
+        case NPC_Hunt_Captain_Korayn:
+            Hunt_Captain_Korayn = creature->GetGUID();
+            break;
+        }    
+        case                                   
 };
