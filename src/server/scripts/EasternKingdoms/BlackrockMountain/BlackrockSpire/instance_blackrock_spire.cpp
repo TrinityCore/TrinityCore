@@ -54,6 +54,8 @@ enum EventIds
     EVENT_UROK_DOOMHOWL_SPAWN_IN           = 8
 };
 
+static constexpr uint8 MAX_ROOM_RUNES = 7;
+
 class instance_blackrock_spire : public InstanceMapScript
 {
 public:
@@ -163,72 +165,72 @@ public:
                         HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
                 case GO_HALL_RUNE_1:
-                    go_roomrunes[0] = go->GetGUID();
+                    _roomRuneGUIDs[0] = go->GetGUID();
                     if (GetBossState(DATA_HALL_RUNE_1) == DONE)
                         HandleGameObject(ObjectGuid::Empty, false, go);
                     break;
                 case GO_HALL_RUNE_2:
-                    go_roomrunes[1] = go->GetGUID();
+                    _roomRuneGUIDs[1] = go->GetGUID();
                     if (GetBossState(DATA_HALL_RUNE_2) == DONE)
                         HandleGameObject(ObjectGuid::Empty, false, go);
                     break;
                 case GO_HALL_RUNE_3:
-                    go_roomrunes[2] = go->GetGUID();
+                    _roomRuneGUIDs[2] = go->GetGUID();
                     if (GetBossState(DATA_HALL_RUNE_3) == DONE)
                         HandleGameObject(ObjectGuid::Empty, false, go);
                     break;
                 case GO_HALL_RUNE_4:
-                    go_roomrunes[3] = go->GetGUID();
+                    _roomRuneGUIDs[3] = go->GetGUID();
                     if (GetBossState(DATA_HALL_RUNE_4) == DONE)
                         HandleGameObject(ObjectGuid::Empty, false, go);
                     break;
                 case GO_HALL_RUNE_5:
-                    go_roomrunes[4] = go->GetGUID();
+                    _roomRuneGUIDs[4] = go->GetGUID();
                     if (GetBossState(DATA_HALL_RUNE_5) == DONE)
                         HandleGameObject(ObjectGuid::Empty, false, go);
                     break;
                 case GO_HALL_RUNE_6:
-                    go_roomrunes[5] = go->GetGUID();
+                    _roomRuneGUIDs[5] = go->GetGUID();
                     if (GetBossState(DATA_HALL_RUNE_6) == DONE)
                         HandleGameObject(ObjectGuid::Empty, false, go);
                     break;
                 case GO_HALL_RUNE_7:
-                    go_roomrunes[6] = go->GetGUID();
+                    _roomRuneGUIDs[6] = go->GetGUID();
                     if (GetBossState(DATA_HALL_RUNE_7) == DONE)
                         HandleGameObject(ObjectGuid::Empty, false, go);
                     break;
                 case GO_EMBERSEER_RUNE_1:
-                    go_emberseerrunes[0] = go->GetGUID();
+                    _emberseeingRuneGUIDs[0] = go->GetGUID();
                     if (GetBossState(DATA_PYROGAURD_EMBERSEER) == DONE)
                         HandleGameObject(ObjectGuid::Empty, false, go);
                     break;
                 case GO_EMBERSEER_RUNE_2:
-                    go_emberseerrunes[1] = go->GetGUID();
+                    _emberseeingRuneGUIDs[1] = go->GetGUID();
                     if (GetBossState(DATA_PYROGAURD_EMBERSEER) == DONE)
                         HandleGameObject(ObjectGuid::Empty, false, go);
                     break;
                 case GO_EMBERSEER_RUNE_3:
-                    go_emberseerrunes[2] = go->GetGUID();
+                    _emberseeingRuneGUIDs[2] = go->GetGUID();
                     if (GetBossState(DATA_PYROGAURD_EMBERSEER) == DONE)
                         HandleGameObject(ObjectGuid::Empty, false, go);
                     break;
                 case GO_EMBERSEER_RUNE_4:
-                    go_emberseerrunes[3] = go->GetGUID();
+                    _emberseeingRuneGUIDs[3] = go->GetGUID();
                     if (GetBossState(DATA_PYROGAURD_EMBERSEER) == DONE)
                         HandleGameObject(ObjectGuid::Empty, false, go);
                     break;
                 case GO_EMBERSEER_RUNE_5:
-                    go_emberseerrunes[4] = go->GetGUID();
+                    _emberseeingRuneGUIDs[4] = go->GetGUID();
                     if (GetBossState(DATA_PYROGAURD_EMBERSEER) == DONE)
                         HandleGameObject(ObjectGuid::Empty, false, go);
                     break;
                 case GO_EMBERSEER_RUNE_6:
-                    go_emberseerrunes[5] = go->GetGUID();
+                    _emberseeingRuneGUIDs[5] = go->GetGUID();
                     if (GetBossState(DATA_PYROGAURD_EMBERSEER) == DONE)
                         HandleGameObject(ObjectGuid::Empty, false, go);
                     break;
                 case GO_EMBERSEER_RUNE_7:
-                    go_emberseerrunes[6] = go->GetGUID();
+                    _emberseeingRuneGUIDs[6] = go->GetGUID();
                     if (GetBossState(DATA_PYROGAURD_EMBERSEER) == DONE)
                         HandleGameObject(ObjectGuid::Empty, false, go);
                     break;
@@ -362,33 +364,33 @@ public:
                 case GO_EMBERSEER_OUT:
                     return go_emberseerout;
                 case GO_HALL_RUNE_1:
-                    return go_roomrunes[0];
+                    return _roomRuneGUIDs[0];
                 case GO_HALL_RUNE_2:
-                    return go_roomrunes[1];
+                    return _roomRuneGUIDs[1];
                 case GO_HALL_RUNE_3:
-                    return go_roomrunes[2];
+                    return _roomRuneGUIDs[2];
                 case GO_HALL_RUNE_4:
-                    return go_roomrunes[3];
+                    return _roomRuneGUIDs[3];
                 case GO_HALL_RUNE_5:
-                    return go_roomrunes[4];
+                    return _roomRuneGUIDs[4];
                 case GO_HALL_RUNE_6:
-                    return go_roomrunes[5];
+                    return _roomRuneGUIDs[5];
                 case GO_HALL_RUNE_7:
-                    return go_roomrunes[6];
+                    return _roomRuneGUIDs[6];
                 case GO_EMBERSEER_RUNE_1:
-                    return go_emberseerrunes[0];
+                    return _emberseeingRuneGUIDs[0];
                 case GO_EMBERSEER_RUNE_2:
-                    return go_emberseerrunes[1];
+                    return _emberseeingRuneGUIDs[1];
                 case GO_EMBERSEER_RUNE_3:
-                    return go_emberseerrunes[2];
+                    return _emberseeingRuneGUIDs[2];
                 case GO_EMBERSEER_RUNE_4:
-                    return go_emberseerrunes[3];
+                    return _emberseeingRuneGUIDs[3];
                 case GO_EMBERSEER_RUNE_5:
-                    return go_emberseerrunes[4];
+                    return _emberseeingRuneGUIDs[4];
                 case GO_EMBERSEER_RUNE_6:
-                    return go_emberseerrunes[5];
+                    return _emberseeingRuneGUIDs[5];
                 case GO_EMBERSEER_RUNE_7:
-                    return go_emberseerrunes[6];
+                    return _emberseeingRuneGUIDs[6];
                 case GO_PORTCULLIS_ACTIVE:
                     return go_portcullis_active;
                 case GO_PORTCULLIS_TOBOSSROOMS:
@@ -426,18 +428,18 @@ public:
         {
             uint8 creatureCount;
 
-            for (size_t i = 0; i < go_roomrunes.size(); ++i)
+            for (size_t i = 0; i < _roomRuneGUIDs.size(); ++i)
             {
-                if (GameObject* rune = instance->GetGameObject(go_roomrunes[i]))
+                if (GameObject* rune = instance->GetGameObject(_roomRuneGUIDs[i]))
                 {
                     for (size_t j = 0; j < DragonspireMobs.size(); ++j)
                     {
                         std::list<Creature*> creatureList;
                         GetCreatureListWithEntryInGrid(creatureList, rune, DragonspireMobs[j], 15.0f);
-                        runeCreatureGUIDs[i].reserve(creatureList.size());
+                        _runeCreatureGUIDs[i].reserve(creatureList.size());
 
                         for (Creature* creature : creatureList)
-                            runeCreatureGUIDs[i].push_back(creature->GetGUID());
+                            _runeCreatureGUIDs[i].push_back(creature->GetGUID());
                     }
                 }
             }
@@ -446,16 +448,16 @@ public:
         void Dragonspireroomcheck()
         {
             GameObject* rune = nullptr;
-            for (size_t i = 0; i < go_roomrunes.size(); ++i)
+            for (size_t i = 0; i < _roomRuneGUIDs.size(); ++i)
             {
                 bool hasAliveCreatures = false;
-                rune = instance->GetGameObject(go_roomrunes[i]);
+                rune = instance->GetGameObject(_roomRuneGUIDs[i]);
                 if (!rune)
                     continue;
 
                 if (rune->GetGoState() == GO_STATE_ACTIVE)
                 {
-                    for (ObjectGuid const& guid : runeCreatureGUIDs[i])
+                    for (ObjectGuid const& guid : _runeCreatureGUIDs[i])
                     {
                         if (Creature const* creature = instance->GetCreature(guid))
                         {
@@ -536,9 +538,9 @@ public:
             ObjectGuid go_doors;
             ObjectGuid go_emberseerout;
             ObjectGuid go_blackrockaltar;
-            std::array<ObjectGuid, 7> go_roomrunes;
-            ObjectGuid go_emberseerrunes[7];
-            std::array<GuidVector, 7> runeCreatureGUIDs;
+            std::array<ObjectGuid, MAX_ROOM_RUNES> _roomRuneGUIDs;
+            std::array<ObjectGuid, MAX_ROOM_RUNES> _emberseeingRuneGUIDs;
+            std::array<GuidVector, MAX_ROOM_RUNES> _runeCreatureGUIDs;
             ObjectGuid go_portcullis_active;
             ObjectGuid go_portcullis_tobossrooms;
             GuidVector _incarceratorGUIDs;
