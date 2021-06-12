@@ -26,7 +26,12 @@
 
 //uint32 const DragonspireRunes[7] = { GO_HALL_RUNE_1, GO_HALL_RUNE_2, GO_HALL_RUNE_3, GO_HALL_RUNE_4, GO_HALL_RUNE_5, GO_HALL_RUNE_6, GO_HALL_RUNE_7 };
 
-uint32 const DragonspireMobs[3] = { NPC_BLACKHAND_DREADWEAVER, NPC_BLACKHAND_SUMMONER, NPC_BLACKHAND_VETERAN };
+static std::array<uint32, 3> DragonspireMobs =
+{
+    NPC_BLACKHAND_DREADWEAVER,
+    NPC_BLACKHAND_SUMMONER,
+    NPC_BLACKHAND_VETERAN
+};
 
 DoorData const doorData[] =
 {
@@ -126,7 +131,9 @@ public:
                         creature->AI()->Talk(SAY_FINKLE_GANG);
                     break;
                 case NPC_BLACKHAND_INCARCERATOR:
-                    _incarceratorList.push_back(creature->GetGUID());
+                    _incarceratorGUIDs.push_back(creature->GetGUID());
+                    break;
+                default:
                     break;
              }
          }
@@ -305,8 +312,8 @@ public:
                     }
                     break;
                 case DATA_BLACKHAND_INCARCERATOR:
-                    for (GuidList::const_iterator itr = _incarceratorList.begin(); itr != _incarceratorList.end(); ++itr)
-                        if (Creature* creature = instance->GetCreature(*itr))
+                    for (ObjectGuid const& guid: _incarceratorGUIDs)
+                        if (Creature* creature = instance->GetCreature(guid))
                             creature->Respawn();
                     break;
                 default:
@@ -419,24 +426,18 @@ public:
         {
             uint8 creatureCount;
 
-            for (uint8 i = 0; i < 7; ++i)
+            for (size_t i = 0; i < go_roomrunes.size(); ++i)
             {
-                creatureCount = 0;
-
                 if (GameObject* rune = instance->GetGameObject(go_roomrunes[i]))
                 {
-                    for (uint8 j = 0; j < 3; ++j)
+                    for (size_t j = 0; j < DragonspireMobs.size(); ++j)
                     {
                         std::list<Creature*> creatureList;
                         GetCreatureListWithEntryInGrid(creatureList, rune, DragonspireMobs[j], 15.0f);
-                        for (std::list<Creature*>::iterator itr = creatureList.begin(); itr != creatureList.end(); ++itr)
-                        {
-                            if (Creature* creature = *itr)
-                            {
-                                runecreaturelist[i][creatureCount] = creature->GetGUID();
-                                ++creatureCount;
-                            }
-                        }
+                        runecreaturelist[i].reserve(creatureList.size());
+
+                        for (Creature* creature : creatureList)
+                            runecreaturelist[i].push_back(creature->GetGUID());
                     }
                 }
             }
@@ -444,27 +445,31 @@ public:
 
         void Dragonspireroomcheck()
         {
-            Creature* mob = nullptr;
             GameObject* rune = nullptr;
-
-            for (uint8 i = 0; i < 7; ++i)
+            for (size_t i = 0; i < go_roomrunes.size(); ++i)
             {
-                bool _mobAlive = false;
+                bool hasAliveCreatures = false;
                 rune = instance->GetGameObject(go_roomrunes[i]);
                 if (!rune)
                     continue;
 
                 if (rune->GetGoState() == GO_STATE_ACTIVE)
                 {
-                    for (uint8 ii = 0; ii < 5; ++ii)
+                    for (ObjectGuid const& guid : runecreaturelist[i])
                     {
-                        mob = instance->GetCreature(runecreaturelist[i][ii]);
-                        if (mob && mob->IsAlive())
-                            _mobAlive = true;
+                        if (Creature const* creature = instance->GetCreature(guid))
+                        {
+                            if (creature->IsAlive())
+                            {
+                                hasAliveCreatures = true;
+                                break;
+                            }
+                        }
+                        
                     }
                 }
 
-                if (!_mobAlive && rune->GetGoState() == GO_STATE_ACTIVE)
+                if (!hasAliveCreatures && rune->GetGoState() == GO_STATE_ACTIVE)
                 {
                     HandleGameObject(ObjectGuid::Empty, false, rune);
 
@@ -531,12 +536,12 @@ public:
             ObjectGuid go_doors;
             ObjectGuid go_emberseerout;
             ObjectGuid go_blackrockaltar;
-            ObjectGuid go_roomrunes[7];
+            std::array<ObjectGuid, 7> go_roomrunes;
             ObjectGuid go_emberseerrunes[7];
-            ObjectGuid runecreaturelist[7][5];
+            std::array<GuidVector, 7> runecreaturelist;
             ObjectGuid go_portcullis_active;
             ObjectGuid go_portcullis_tobossrooms;
-            GuidList _incarceratorList;
+            GuidVector _incarceratorGUIDs;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
