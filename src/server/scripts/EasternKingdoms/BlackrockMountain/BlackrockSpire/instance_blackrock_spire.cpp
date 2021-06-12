@@ -426,6 +426,11 @@ public:
 
         void Dragonspireroomstore()
         {
+            // first we clear the stored creatures of previous attempts
+            for (GuidVector& storedRuneCreatures : _runeCreatureGUIDs)
+                storedRuneCreatures.clear();
+
+            // next we store all creatures that are near a rune
             for (size_t i = 0; i < _roomRuneGUIDs.size(); ++i)
             {
                 if (GameObject* rune = instance->GetGameObject(_roomRuneGUIDs[i]))
@@ -437,7 +442,8 @@ public:
                         _runeCreatureGUIDs[i].reserve(creatureList.size());
 
                         for (Creature* creature : creatureList)
-                            _runeCreatureGUIDs[i].push_back(creature->GetGUID());
+                            if (creature->IsAlive())
+                                _runeCreatureGUIDs[i].push_back(creature->GetGUID());
                     }
                 }
             }
