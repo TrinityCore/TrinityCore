@@ -32,56 +32,7 @@ void AddSC_instance_Heart_Of_The_Forest()
     RegisterInstanceScript(instance_Heart_Of_The_Forest, 12858);
 };
 
-void OnCreatureCreate(Creature* creature) override
-{
-        switch (creature->GetEntry())
-        {
-        case NPC_Aithlyn:
-            Aithlyn = creature->GetGUID();
-            break;
-        }
-        case NPC_Anaris_Windwood:
-            Anaris Windwood = creature->GetGUID();
-            break;
-        }
-        case NPC_Aralon:
-            Aralon = creature->GetGUID();
-            break;
-        }
-        case NPC_Astarii_Starseeker:
-            Astarii_Starseeker = creature->GetGUID();
-            break;
-        }
-        case NPC_Attendant_Sparkledew:
-            Attendant_Sparkledew = creature->GetGUID();
-            break;
-        }
-        case NPC_Blodwyn:
-            Blodwyn = creature->GetGUID();
-            break;
-        }
-        case NPC_Boles:
-            Boles = creature->GetGUID();
-            break;
-        }
-        case NPC_Ceridwyn:
-            Ceridwyn = creature->GetGUID();
-            break;
-        }
-        case NPC_Cleave_Training_Dummy:
-            Cleave_Training_Dummy = creature->GetGUID();
-            break;
-        }
-        case NPC_Craftsmaster_Lamda:
-            Craftsmaster_Lamda = creature->GetGUID();
-            break;
-        }
-        case NPC_Curious_Squirrel:
-            Curious_Squirrel = creature->GetGUID();
-            break;
-        }
 
-};
 
     void OnGameObjectCreate(GameObject* go) override
     {
