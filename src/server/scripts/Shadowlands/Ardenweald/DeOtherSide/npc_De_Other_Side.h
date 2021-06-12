@@ -97,5 +97,45 @@ void OnCreatureCreate(Creature* creature) override
             Hakkar_the_Soulflayer = creature->GetGUID();
             break;
         }
-        case     
+        case NPC_Millificent_Manastorm:
+            Millificent_Manastorm = creature->GetGUID();
+            break;
+        }
+        case NPC_Muehzala:
+            Muehzala = creature->GetGUID();
+            break;
+        }
+        case NPC_4.RF_4.RF:
+            4.RF_4.RF = creature->GetGUID();
+            break;
+        }
+        case NPC_Ancient_Kodo:
+            Ancient_Kodo = creature->GetGUID();
+            break;
+        }
+        case NPC_Ancient_Swoop:
+            Ancient_Swoop = creature->GetGUID();
+            break;
+        }
+        case NPC_Atalai_Deathwalker:
+            Atalai_Deathwalker = creature->GetGUID();
+            break;
+        }
+        case NPC_Atalai_Deathwalkers_Spirit:
+            Atalai_Deathwalkers_Spirit = creature->GetGUID();
+            break;
+        }
+        case NPC_Atalai_Devoted:
+            Atalai_Devoted = creature->GetGUID();
+            break;
+        }
+        case NPC_Atalai_High_Priest:
+            Atalai_High_Priest = creature->GetGUID();
+            break;
+        }
+        case NPC_Atalai_Hoodoo_Hexxer:
+            Atalai_Hoodoo_Hexxer = creature->GetGUID();
+            break;
+        }
+                                                   
 
