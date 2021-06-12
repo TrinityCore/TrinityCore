@@ -274,7 +274,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPackets::Spells::CastSpell& cast)
     if (mover->CanRequestSpellCast(spellInfo))
         mover->RequestSpellCast(PendingSpellCastRequest(std::move(cast.Cast)), spellInfo);
     else if (mover->IsPlayer())
-        Spell::SendCastResult(mover->ToPlayer(), spellInfo, cast.Cast.CastID, SPELL_FAILED_DONT_REPORT);
+        Spell::SendCastResult(mover->ToPlayer(), spellInfo, cast.Cast.CastID, SPELL_FAILED_SPELL_IN_PROGRESS);
 }
 
 void WorldSession::HandleCancelCastOpcode(WorldPacket& recvPacket)
