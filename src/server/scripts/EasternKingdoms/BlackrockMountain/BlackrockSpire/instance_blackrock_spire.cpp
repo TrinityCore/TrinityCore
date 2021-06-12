@@ -434,10 +434,10 @@ public:
                     {
                         std::list<Creature*> creatureList;
                         GetCreatureListWithEntryInGrid(creatureList, rune, DragonspireMobs[j], 15.0f);
-                        runecreaturelist[i].reserve(creatureList.size());
+                        runeCreatureGUIDs[i].reserve(creatureList.size());
 
                         for (Creature* creature : creatureList)
-                            runecreaturelist[i].push_back(creature->GetGUID());
+                            runeCreatureGUIDs[i].push_back(creature->GetGUID());
                     }
                 }
             }
@@ -455,7 +455,7 @@ public:
 
                 if (rune->GetGoState() == GO_STATE_ACTIVE)
                 {
-                    for (ObjectGuid const& guid : runecreaturelist[i])
+                    for (ObjectGuid const& guid : runeCreatureGUIDs[i])
                     {
                         if (Creature const* creature = instance->GetCreature(guid))
                         {
@@ -538,7 +538,7 @@ public:
             ObjectGuid go_blackrockaltar;
             std::array<ObjectGuid, 7> go_roomrunes;
             ObjectGuid go_emberseerrunes[7];
-            std::array<GuidVector, 7> runecreaturelist;
+            std::array<GuidVector, 7> runeCreatureGUIDs;
             ObjectGuid go_portcullis_active;
             ObjectGuid go_portcullis_tobossrooms;
             GuidVector _incarceratorGUIDs;
