@@ -67,6 +67,12 @@
 
 #include "Hacks/boost_1_74_fibonacci_heap.h"
 
+u_map_magic MapMagic        = { {'M','A','P','S'} };
+u_map_magic MapVersionMagic = { {'v','1','.','9'} };
+u_map_magic MapAreaMagic    = { {'A','R','E','A'} };
+u_map_magic MapHeightMagic  = { {'M','H','G','T'} };
+u_map_magic MapLiquidMagic  = { {'M','L','I','Q'} };
+
 #define DEFAULT_GRID_EXPIRY     300
 #define MAX_GRID_LOAD_TIME      50
 #define MAX_CREATURE_ATTACK_RADIUS  (45.0f * sWorld->getRate(RATE_CREATURE_AGGRO))
@@ -81,7 +87,7 @@ struct RespawnListContainer : boost::heap::fibonacci_heap<RespawnInfoWithHandle*
 {
 };
 //BOOST_1_74_FIBONACCI_HEAP_MSVC_COMPILE_FIX(RespawnListContainer::value_type)
-//此处原句,在shadowcore中删除了,出问题找这里
+//�˴�ԭ��,��shadowcore��ɾ����,������������
 
 BOOST_1_74_FIBONACCI_HEAP_MSVC_COMPILE_FIX(RespawnListContainer::value_type)
 
@@ -171,9 +177,9 @@ void Map::DiscoverGridMapFiles()
     if (FILE* tileList = fopen(tileListName.c_str(), "rb"))
     {
         u_map_magic_TCB mapMagic;
-        u_map_magic_TCB MapMagic;//后加
-        //u_map_magic_TCB versionMagic;//后加
-        u_map_magic_TCB MapVersionMagic;//后加
+        u_map_magic_TCB MapMagic;//���
+        //u_map_magic_TCB versionMagic;//���
+        u_map_magic_TCB MapVersionMagic;//���
         u_map_magic_TCB versionMagic;
         uint32 build;
         char tilesData[MAX_NUMBER_OF_GRIDS * MAX_NUMBER_OF_GRIDS];
@@ -3671,7 +3677,7 @@ void Map::DeleteRespawnTimesInDB()
     CharacterDatabase.Execute(stmt);
 }
 
-void Map::DeleteRespawnTimesInDB(uint16 mapId, uint32 instanceId)   //兼容TCB后加的
+void Map::DeleteRespawnTimesInDB(uint16 mapId, uint32 instanceId)   //����TCB��ӵ�
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CREATURE_RESPAWN_BY_INSTANCE);
     stmt->setUInt16(0, mapId);
