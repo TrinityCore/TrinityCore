@@ -415,11 +415,10 @@ public:
 
         void Dragonspireroomstore()
         {
-            uint8 creatureCount;
-
             for (uint8 i = 0; i < 7; ++i)
             {
-                creatureCount = 0;
+                // Refresh the creature list
+                runecreaturelist[i].clear();
 
                 if (GameObject* rune = instance->GetGameObject(go_roomrunes[i]))
                 {
@@ -430,10 +429,7 @@ public:
                         for (std::list<Creature*>::iterator itr = creatureList.begin(); itr != creatureList.end(); ++itr)
                         {
                             if (Creature* creature = *itr)
-                            {
-                                runecreaturelist[i][creatureCount] = creature->GetGUID();
-                                ++creatureCount;
-                            }
+                                runecreaturelist[i].push_back(creature->GetGUID());
                         }
                     }
                 }
@@ -454,9 +450,9 @@ public:
 
                 if (rune->GetGoState() == GO_STATE_ACTIVE)
                 {
-                    for (uint8 ii = 0; ii < 5; ++ii)
+                    for (ObjectGuid const& guid : runecreaturelist[i])
                     {
-                        mob = instance->GetCreature(runecreaturelist[i][ii]);
+                        mob = instance->GetCreature(guid);
                         if (mob && mob->IsAlive())
                             _mobAlive = true;
                     }
@@ -531,7 +527,7 @@ public:
             ObjectGuid go_blackrockaltar;
             ObjectGuid go_roomrunes[7];
             ObjectGuid go_emberseerrunes[7];
-            ObjectGuid runecreaturelist[7][5];
+            GuidVector runecreaturelist[7];
             ObjectGuid go_portcullis_active;
             ObjectGuid go_portcullis_tobossrooms;
             GuidList _incarceratorList;

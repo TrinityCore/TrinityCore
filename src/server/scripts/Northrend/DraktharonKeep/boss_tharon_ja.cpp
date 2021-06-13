@@ -75,173 +75,152 @@ enum Models
     MODEL_FLESH                                   = 27073
 };
 
-class boss_tharon_ja : public CreatureScript
+struct boss_tharon_ja : public BossAI
 {
-    public:
-        boss_tharon_ja() : CreatureScript("boss_tharon_ja") { }
+    boss_tharon_ja(Creature* creature) : BossAI(creature, DATA_THARON_JA) { }
 
-        struct boss_tharon_jaAI : public BossAI
+    void Reset() override
+    {
+        _Reset();
+        me->RestoreDisplayId();
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        Talk(SAY_AGGRO);
+        BossAI::JustEngagedWith(who);
+
+        events.ScheduleEvent(EVENT_DECAY_FLESH, 20s);
+        events.ScheduleEvent(EVENT_CURSE_OF_LIFE, 1s);
+        events.ScheduleEvent(EVENT_RAIN_OF_FIRE, 14s, 18s);
+        events.ScheduleEvent(EVENT_SHADOW_VOLLEY, 8s, 10s);
+    }
+
+    void KilledUnit(Unit* who) override
+    {
+        if (who->GetTypeId() == TYPEID_PLAYER)
+            Talk(SAY_KILL);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+
+        Talk(SAY_DEATH);
+        DoCastAOE(SPELL_CLEAR_GIFT_OF_THARON_JA, true);
+        DoCastAOE(SPELL_ACHIEVEMENT_CHECK, true);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            boss_tharon_jaAI(Creature* creature) : BossAI(creature, DATA_THARON_JA) { }
-
-            void Reset() override
+            switch (eventId)
             {
-                _Reset();
-                me->RestoreDisplayId();
-            }
-
-            void JustEngagedWith(Unit* who) override
-            {
-                Talk(SAY_AGGRO);
-                BossAI::JustEngagedWith(who);
-
-                events.ScheduleEvent(EVENT_DECAY_FLESH, 20s);
-                events.ScheduleEvent(EVENT_CURSE_OF_LIFE, 1s);
-                events.ScheduleEvent(EVENT_RAIN_OF_FIRE, 14s, 18s);
-                events.ScheduleEvent(EVENT_SHADOW_VOLLEY, 8s, 10s);
-            }
-
-            void KilledUnit(Unit* who) override
-            {
-                if (who->GetTypeId() == TYPEID_PLAYER)
-                    Talk(SAY_KILL);
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-
-                Talk(SAY_DEATH);
-                DoCastAOE(SPELL_CLEAR_GIFT_OF_THARON_JA, true);
-                DoCastAOE(SPELL_ACHIEVEMENT_CHECK, true);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
+                case EVENT_CURSE_OF_LIFE:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
+                        DoCast(target, SPELL_CURSE_OF_LIFE);
+                    events.ScheduleEvent(EVENT_CURSE_OF_LIFE, 10s, 15s);
                     return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
+                case EVENT_SHADOW_VOLLEY:
+                    DoCastVictim(SPELL_SHADOW_VOLLEY);
+                    events.ScheduleEvent(EVENT_SHADOW_VOLLEY, 8s, 10s);
                     return;
+                case EVENT_RAIN_OF_FIRE:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
+                        DoCast(target, SPELL_RAIN_OF_FIRE);
+                    events.ScheduleEvent(EVENT_RAIN_OF_FIRE, 14s, 18s);
+                    return;
+                case EVENT_LIGHTNING_BREATH:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
+                        DoCast(target, SPELL_LIGHTNING_BREATH);
+                    events.ScheduleEvent(EVENT_LIGHTNING_BREATH, 6s, 7s);
+                    return;
+                case EVENT_EYE_BEAM:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
+                        DoCast(target, SPELL_EYE_BEAM);
+                    events.ScheduleEvent(EVENT_EYE_BEAM, 4s, 6s);
+                    return;
+                case EVENT_POISON_CLOUD:
+                    DoCastAOE(SPELL_POISON_CLOUD);
+                    events.ScheduleEvent(EVENT_POISON_CLOUD, 10s, 12s);
+                    return;
+                case EVENT_DECAY_FLESH:
+                    DoCastAOE(SPELL_DECAY_FLESH);
+                    events.ScheduleEvent(EVENT_GOING_FLESH, 6s);
+                    return;
+                case EVENT_GOING_FLESH:
+                    Talk(SAY_FLESH);
+                    me->SetDisplayId(MODEL_FLESH);
+                    DoCastAOE(SPELL_GIFT_OF_THARON_JA, true);
+                    DoCast(me, SPELL_FLESH_VISUAL, true);
+                    DoCast(me, SPELL_DUMMY, true);
 
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_CURSE_OF_LIFE:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
-                                DoCast(target, SPELL_CURSE_OF_LIFE);
-                            events.ScheduleEvent(EVENT_CURSE_OF_LIFE, 10s, 15s);
-                            return;
-                        case EVENT_SHADOW_VOLLEY:
-                            DoCastVictim(SPELL_SHADOW_VOLLEY);
-                            events.ScheduleEvent(EVENT_SHADOW_VOLLEY, 8s, 10s);
-                            return;
-                        case EVENT_RAIN_OF_FIRE:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
-                                DoCast(target, SPELL_RAIN_OF_FIRE);
-                            events.ScheduleEvent(EVENT_RAIN_OF_FIRE, 14s, 18s);
-                            return;
-                        case EVENT_LIGHTNING_BREATH:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
-                                DoCast(target, SPELL_LIGHTNING_BREATH);
-                            events.ScheduleEvent(EVENT_LIGHTNING_BREATH, 6s, 7s);
-                            return;
-                        case EVENT_EYE_BEAM:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
-                                DoCast(target, SPELL_EYE_BEAM);
-                            events.ScheduleEvent(EVENT_EYE_BEAM, 4s, 6s);
-                            return;
-                        case EVENT_POISON_CLOUD:
-                            DoCastAOE(SPELL_POISON_CLOUD);
-                            events.ScheduleEvent(EVENT_POISON_CLOUD, 10s, 12s);
-                            return;
-                        case EVENT_DECAY_FLESH:
-                            DoCastAOE(SPELL_DECAY_FLESH);
-                            events.ScheduleEvent(EVENT_GOING_FLESH, 6s);
-                            return;
-                        case EVENT_GOING_FLESH:
-                            Talk(SAY_FLESH);
-                            me->SetDisplayId(MODEL_FLESH);
-                            DoCastAOE(SPELL_GIFT_OF_THARON_JA, true);
-                            DoCast(me, SPELL_FLESH_VISUAL, true);
-                            DoCast(me, SPELL_DUMMY, true);
+                    events.Reset();
+                    events.ScheduleEvent(EVENT_RETURN_FLESH, 20s);
+                    events.ScheduleEvent(EVENT_LIGHTNING_BREATH, 3s, 4s);
+                    events.ScheduleEvent(EVENT_EYE_BEAM, 4s, 8s);
+                    events.ScheduleEvent(EVENT_POISON_CLOUD, 6s, 7s);
+                    break;
+                case EVENT_RETURN_FLESH:
+                    DoCastAOE(SPELL_RETURN_FLESH);
+                    events.ScheduleEvent(EVENT_GOING_SKELETAL, 6s);
+                    return;
+                case EVENT_GOING_SKELETAL:
+                    Talk(SAY_SKELETON);
+                    me->RestoreDisplayId();
+                    DoCastAOE(SPELL_CLEAR_GIFT_OF_THARON_JA, true);
 
-                            events.Reset();
-                            events.ScheduleEvent(EVENT_RETURN_FLESH, 20s);
-                            events.ScheduleEvent(EVENT_LIGHTNING_BREATH, 3s, 4s);
-                            events.ScheduleEvent(EVENT_EYE_BEAM, 4s, 8s);
-                            events.ScheduleEvent(EVENT_POISON_CLOUD, 6s, 7s);
-                            break;
-                        case EVENT_RETURN_FLESH:
-                            DoCastAOE(SPELL_RETURN_FLESH);
-                            events.ScheduleEvent(EVENT_GOING_SKELETAL, 6s);
-                            return;
-                        case EVENT_GOING_SKELETAL:
-                            Talk(SAY_SKELETON);
-                            me->RestoreDisplayId();
-                            DoCastAOE(SPELL_CLEAR_GIFT_OF_THARON_JA, true);
-
-                            events.Reset();
-                            events.ScheduleEvent(EVENT_DECAY_FLESH, 20s);
-                            events.ScheduleEvent(EVENT_CURSE_OF_LIFE, 1s);
-                            events.ScheduleEvent(EVENT_RAIN_OF_FIRE, 14s, 18s);
-                            events.ScheduleEvent(EVENT_SHADOW_VOLLEY, 8s, 10s);
-                            break;
-                        default:
-                            break;
-                    }
-
-                    if (me->HasUnitState(UNIT_STATE_CASTING))
-                        return;
-                }
-
-                DoMeleeAttackIfReady();
+                    events.Reset();
+                    events.ScheduleEvent(EVENT_DECAY_FLESH, 20s);
+                    events.ScheduleEvent(EVENT_CURSE_OF_LIFE, 1s);
+                    events.ScheduleEvent(EVENT_RAIN_OF_FIRE, 14s, 18s);
+                    events.ScheduleEvent(EVENT_SHADOW_VOLLEY, 8s, 10s);
+                    break;
+                default:
+                    break;
             }
-        };
 
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetDrakTharonKeepAI<boss_tharon_jaAI>(creature);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
+
+        DoMeleeAttackIfReady();
+    }
 };
 
-class spell_tharon_ja_clear_gift_of_tharon_ja : public SpellScriptLoader
+// 53242 - Clear Gift of Tharon'ja
+class spell_tharon_ja_clear_gift_of_tharon_ja : public SpellScript
 {
-    public:
-        spell_tharon_ja_clear_gift_of_tharon_ja() : SpellScriptLoader("spell_tharon_ja_clear_gift_of_tharon_ja") { }
+    PrepareSpellScript(spell_tharon_ja_clear_gift_of_tharon_ja);
 
-        class spell_tharon_ja_clear_gift_of_tharon_ja_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_tharon_ja_clear_gift_of_tharon_ja_SpellScript);
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_GIFT_OF_THARON_JA });
+    }
 
-            bool Validate(SpellInfo const* /*spellInfo*/) override
-            {
-                return ValidateSpellInfo({ SPELL_GIFT_OF_THARON_JA });
-            }
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* target = GetHitUnit())
+            target->RemoveAura(SPELL_GIFT_OF_THARON_JA);
+    }
 
-            void HandleScript(SpellEffIndex /*effIndex*/)
-            {
-                if (Unit* target = GetHitUnit())
-                    target->RemoveAura(SPELL_GIFT_OF_THARON_JA);
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_tharon_ja_clear_gift_of_tharon_ja_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_tharon_ja_clear_gift_of_tharon_ja_SpellScript();
-        }
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_tharon_ja_clear_gift_of_tharon_ja::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
 };
 
 void AddSC_boss_tharon_ja()
 {
-    new boss_tharon_ja();
-    new spell_tharon_ja_clear_gift_of_tharon_ja();
+    RegisterDrakTharonKeepCreatureAI(boss_tharon_ja);
+    RegisterSpellScript(spell_tharon_ja_clear_gift_of_tharon_ja);
 }

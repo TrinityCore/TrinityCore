@@ -1037,7 +1037,7 @@ private:
     InstanceScript* _instance;
 };
 
-//  64412 - Phase Punch
+// 64412 - Phase Punch
 class spell_algalon_phase_punch : public AuraScript
 {
     PrepareAuraScript(spell_algalon_phase_punch);
@@ -1065,7 +1065,7 @@ class spell_algalon_phase_punch : public AuraScript
     }
 };
 
-//  65508 - Constellation Phase Trigger
+// 65508 - Constellation Phase Trigger
 class spell_algalon_phase_constellation : public AuraScript
 {
     PrepareAuraScript(spell_algalon_phase_constellation);
@@ -1118,7 +1118,7 @@ class spell_algalon_trigger_3_adds : public SpellScript
     }
 };
 
-//  62018 - Collapse
+// 62018 - Collapse
 class spell_algalon_collapse : public AuraScript
 {
     PrepareAuraScript(spell_algalon_collapse);

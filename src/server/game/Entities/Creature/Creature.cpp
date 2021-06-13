@@ -2684,7 +2684,7 @@ void Creature::InitializeMovementFlags()
 void Creature::UpdateMovementFlags()
 {
     // Do not update movement flags if creature is controlled by a player (charm/vehicle)
-    if (m_playerMovingMe)
+    if (IsMovedByClient())
         return;
 
     // Creatures with CREATURE_FLAG_EXTRA_NO_MOVE_FLAGS_UPDATE should control MovementFlags in your own scripts
@@ -3375,11 +3375,23 @@ void Creature::AtEngage(Unit* target)
 
     MovementGeneratorType const movetype = GetMotionMaster()->GetCurrentMovementGeneratorType();
     if (movetype == WAYPOINT_MOTION_TYPE || movetype == POINT_MOTION_TYPE || (IsAIEnabled() && AI()->IsEscorted()))
+    {
         SetHomePosition(GetPosition());
 
-    // @tswow-begin
-    FIRE_MAP(GetCreatureTemplate()->events,CreatureOnJustEngagedWith,TSCreature(this),TSUnit(target));
-    // @tswow-end
+        // if its a vehicle, set the home positon of every creature passenger at engage
+        // so that they are in combat range if hostile
+        if (Vehicle* vehicle = GetVehicleKit())
+        {
+            for (auto seat = vehicle->Seats.begin(); seat != vehicle->Seats.end(); ++seat)
+                if (Unit* passenger = ObjectAccessor::GetUnit(*this, seat->second.Passenger.Guid))
+                    if (Creature* creature = passenger->ToCreature())
+                        creature->SetHomePosition(GetPosition());
+        }
+
+        // @tswow-begin
+        FIRE_MAP(GetCreatureTemplate()->events,CreatureOnJustEngagedWith,TSCreature(this),TSUnit(target));
+        // @tswow-end
+    }
 
     if (CreatureAI* ai = AI())
         ai->JustEngagedWith(target);

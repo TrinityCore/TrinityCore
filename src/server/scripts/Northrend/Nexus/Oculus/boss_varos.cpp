@@ -240,6 +240,7 @@ private:
     InstanceScript* instance;
 };
 
+// 50053 - Centrifuge Shield
 class spell_varos_centrifuge_shield : public AuraScript
 {
     PrepareAuraScript(spell_varos_centrifuge_shield);
@@ -281,6 +282,7 @@ class spell_varos_centrifuge_shield : public AuraScript
     }
 };
 
+// 50785, 59372 - Energize Cores
 class spell_varos_energize_core_area_enemy : public SpellScript
 {
     PrepareSpellScript(spell_varos_energize_core_area_enemy);
@@ -314,6 +316,8 @@ class spell_varos_energize_core_area_enemy : public SpellScript
     }
 };
 
+// 54069, 56251 - Energize Cores
+// 61407, 62136 - Energize Cores
 class spell_varos_energize_core_area_entry : public SpellScript
 {
     PrepareSpellScript(spell_varos_energize_core_area_entry);

@@ -1894,7 +1894,7 @@ void Guild::SendLoginInfo(WorldSession* session)
 {
     WorldPackets::Guild::GuildEvent motd;
     motd.Type = GE_MOTD;
-    motd.Params[0] = m_motd.c_str();
+    motd.Params.emplace_back(m_motd);
     session->SendPacket(motd.Write());
 
     TC_LOG_DEBUG("guild", "SMSG_GUILD_EVENT [%s] MOTD", session->GetPlayerInfo().c_str());
@@ -2828,13 +2828,26 @@ void Guild::_SendBankContentUpdate(uint8 tabId, SlotIds slots) const
     _SendBankList(nullptr, tabId, false, &slots);
 }
 
-void Guild::_BroadcastEvent(GuildEvents guildEvent, ObjectGuid guid, std::string_view param1, std::string_view param2, std::string_view param3) const
+void Guild::_BroadcastEvent(GuildEvents guildEvent, ObjectGuid guid,
+    Optional<std::string_view> param1 /*= {}*/, Optional<std::string_view> param2 /*= {}*/, Optional<std::string_view> param3 /*= {}*/) const
 {
     WorldPackets::Guild::GuildEvent event;
     event.Type = guildEvent;
-    event.Params[0] = param1;
-    event.Params[1] = param2;
-    event.Params[2] = param3;
+    if (param1)
+        event.Params.push_back(*param1);
+
+    if (param2)
+    {
+        event.Params.resize(2);
+        event.Params[1] = *param2;
+    }
+
+    if (param3)
+    {
+        event.Params.resize(3);
+        event.Params[2] = *param3;
+    }
+
     event.Guid = guid;
     BroadcastPacket(event.Write());
 

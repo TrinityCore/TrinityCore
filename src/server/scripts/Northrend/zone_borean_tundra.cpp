@@ -26,6 +26,7 @@
 #include "ScriptedEscortAI.h"
 #include "ScriptedFollowerAI.h"
 #include "ScriptedGossip.h"
+#include "SpellAuras.h"
 #include "SpellAuraEffects.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
@@ -103,65 +104,6 @@ public:
     }
 };
 
-/*######
-## npc_nerubar_victim
-######*/
-
-enum Nerubar
-{
-    NPC_WARSONG_PEON                        = 25270,
-    QUEST_TAKEN_BY_THE_SCOURGE              = 11611,
-    SPELL_FREED_WARSONG_MAGE                = 45526,
-    SPELL_FREED_WARSONG_SHAMAN              = 45527,
-    SPELL_FREED_WARSONG_WARRIOR             = 45514,
-    SPELL_FREED_WARSONG_PEON                = 45532
-};
-
-const uint32 nerubarVictims[3] =
-{
-    SPELL_FREED_WARSONG_MAGE, SPELL_FREED_WARSONG_SHAMAN, SPELL_FREED_WARSONG_WARRIOR
-};
-
-class npc_nerubar_victim : public CreatureScript
-{
-public:
-    npc_nerubar_victim() : CreatureScript("npc_nerubar_victim") { }
-
-    struct npc_nerubar_victimAI : public ScriptedAI
-    {
-        npc_nerubar_victimAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void Reset() override { }
-        void JustEngagedWith(Unit* /*who*/) override { }
-        void MoveInLineOfSight(Unit* /*who*/) override { }
-
-        void JustDied(Unit* killer) override
-        {
-            if (!killer || killer->GetTypeId() != TYPEID_PLAYER)
-                return;
-
-            Player* player = killer->ToPlayer();
-
-            if (player->GetQuestStatus(QUEST_TAKEN_BY_THE_SCOURGE) == QUEST_STATUS_INCOMPLETE)
-            {
-                uint8 uiRand = urand(0, 99);
-                if (uiRand < 25)
-                {
-                    player->CastSpell(me, SPELL_FREED_WARSONG_PEON, true);
-                    player->KilledMonsterCredit(NPC_WARSONG_PEON);
-                }
-                else if (uiRand < 75)
-                    player->CastSpell(me, nerubarVictims[urand(0, 2)], true);
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_nerubar_victimAI(creature);
-    }
-};
-
 enum NesingwaryTrapper
 {
     NPC_NESINGWARY_TRAPPER = 25835,
@@ -198,6 +140,7 @@ const uint32 CaribouTraps[CaribouTrapsNum] =
     GO_CARIBOU_TRAP_11, GO_CARIBOU_TRAP_12, GO_CARIBOU_TRAP_13, GO_CARIBOU_TRAP_14, GO_CARIBOU_TRAP_15,
 };
 
+// 46085 - Place Fake Fur
 class spell_q11865_place_fake_fur : public SpellScript
 {
     PrepareSpellScript(spell_q11865_place_fake_fur);
@@ -357,6 +300,7 @@ enum red_dragonblood
     SPELL_SUBDUED = 46675
 };
 
+// 46620 - Red Dragonblood
 class spell_red_dragonblood : public SpellScriptLoader
 {
 public:
@@ -1664,6 +1608,7 @@ enum WindsoulTotemAura
     SPELL_WINDSOUL_CREDT = 46378
 };
 
+// 46374 - Windsoul Totem Aura
 class spell_windsoul_totem_aura : public SpellScriptLoader
 {
 public:
@@ -1700,6 +1645,7 @@ enum BloodsporeRuination
     EVENT_RESET_ORIENTATION
 };
 
+// 45997 - Bloodspore Ruination
 class spell_q11719_bloodspore_ruination_45997 : public SpellScriptLoader
 {
 public:
@@ -1834,7 +1780,6 @@ public:
     }
 };
 
-// 45668 - Ultra-Advanced Proto-Typical Shortening Blaster
 enum ShorteningBlaster
 {
     SPELL_SHORTENING_BLASTER_BIGGER1    = 45674,
@@ -1850,6 +1795,7 @@ enum ShorteningBlaster
     SPELL_SHORTENING_BLASTER_POLYMORPH2 = 45683
 };
 
+// 45668 - Crafty's Ultra-Advanced Proto-Typical Shortening Blaster
 class spell_q11653_shortening_blaster : public SpellScript
 {
     PrepareSpellScript(spell_q11653_shortening_blaster);
@@ -1874,10 +1820,124 @@ class spell_q11653_shortening_blaster : public SpellScript
     }
 };
 
+/*######
+## Quest 11611: Taken by the Scourge
+######*/
+
+enum TakenByTheScourge
+{
+    SPELL_FREED_WARSONG_MAGE        = 45526,
+    SPELL_FREED_WARSONG_SHAMAN      = 45527,
+    SPELL_FREED_WARSONG_WARRIOR     = 45514,
+    SPELL_FREED_WARSONG_PEON        = 45532,
+    SPELL_FREED_SOLDIER_DEBUFF      = 45523
+};
+
+std::array<uint32, 3> const CocoonSummonSpells =
+{
+    SPELL_FREED_WARSONG_MAGE, SPELL_FREED_WARSONG_SHAMAN, SPELL_FREED_WARSONG_WARRIOR
+};
+
+// 45516 - Nerub'ar Web Random Unit (Not On Quest, Script Effect)
+class spell_nerubar_web_random_unit_not_on_quest : public SpellScript
+{
+    PrepareSpellScript(spell_nerubar_web_random_unit_not_on_quest);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->Effects[EFFECT_0].CalcValue()) });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), (uint32)GetSpellInfo()->Effects[EFFECT_0].CalcValue(), true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_nerubar_web_random_unit_not_on_quest::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 45515 - Nerub'ar Web Random Unit (Not On Quest, Dummy)
+class spell_nerubar_web_random_unit_not_on_quest_dummy : public SpellScript
+{
+    PrepareSpellScript(spell_nerubar_web_random_unit_not_on_quest_dummy);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(CocoonSummonSpells) && ValidateSpellInfo({ SPELL_FREED_SOLDIER_DEBUFF });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+
+        // Do nothing if has 3 soldiers
+        Aura* aura = caster->GetAura(SPELL_FREED_SOLDIER_DEBUFF);
+        if (!aura || aura->GetStackAmount() < 3)
+            caster->CastSpell(caster, Trinity::Containers::SelectRandomContainerElement(CocoonSummonSpells), true);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_nerubar_web_random_unit_not_on_quest_dummy::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 45535 - Nerub'ar Web Random Unit (On Quest, Dummy)
+class spell_nerubar_web_random_unit_on_quest_dummy : public SpellScript
+{
+    PrepareSpellScript(spell_nerubar_web_random_unit_on_quest_dummy);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(CocoonSummonSpells) && ValidateSpellInfo({ SPELL_FREED_SOLDIER_DEBUFF, SPELL_FREED_WARSONG_PEON });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+
+        // Always summon peon if has 3 soldiers
+        Aura* aura = caster->GetAura(SPELL_FREED_SOLDIER_DEBUFF);
+        if ((!aura || aura->GetStackAmount() < 3) && roll_chance_i(75))
+            caster->CastSpell(caster, Trinity::Containers::SelectRandomContainerElement(CocoonSummonSpells), true);
+        else
+            caster->CastSpell(nullptr, SPELL_FREED_WARSONG_PEON, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_nerubar_web_random_unit_on_quest_dummy::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 45522 - Dispel Freed Soldier Debuff
+class spell_dispel_freed_soldier_debuff : public SpellScript
+{
+    PrepareSpellScript(spell_dispel_freed_soldier_debuff);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->Effects[EFFECT_0].CalcValue()) });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Aura* aura = GetHitUnit()->GetAura((uint32)GetSpellInfo()->Effects[EFFECT_0].CalcValue()))
+            aura->ModStackAmount(-1);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dispel_freed_soldier_debuff::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_borean_tundra()
 {
     new npc_corastrasza();
-    new npc_nerubar_victim();
     RegisterSpellScript(spell_q11865_place_fake_fur);
     new npc_nesingwary_trapper();
     new spell_red_dragonblood();
@@ -1896,4 +1956,8 @@ void AddSC_borean_tundra()
     new npc_bloodmage_laurith();
     new npc_orabus_the_helmsman_ship_exit_pos();
     RegisterSpellScript(spell_q11653_shortening_blaster);
+    RegisterSpellScript(spell_nerubar_web_random_unit_not_on_quest);
+    RegisterSpellScript(spell_nerubar_web_random_unit_not_on_quest_dummy);
+    RegisterSpellScript(spell_nerubar_web_random_unit_on_quest_dummy);
+    RegisterSpellScript(spell_dispel_freed_soldier_debuff);
 }

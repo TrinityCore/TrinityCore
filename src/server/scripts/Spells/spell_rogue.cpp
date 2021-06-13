@@ -928,6 +928,7 @@ public:
     void SetRedirectTarget(ObjectGuid const& guid) { _redirectTarget = guid; }
 };
 
+// 57934 - Tricks of the Trade
 class spell_rog_tricks_of_the_trade : public SpellScript
 {
     PrepareSpellScript(spell_rog_tricks_of_the_trade);
@@ -966,7 +967,7 @@ class spell_rog_tricks_of_the_trade_proc : public AuraScript
     }
 };
 
-// 51698,51700,51701 - Honor Among Thieves
+// -51698, 51700, 51701 - Honor Among Thieves
 class spell_rog_honor_among_thieves : public SpellScriptLoader
 {
 public:

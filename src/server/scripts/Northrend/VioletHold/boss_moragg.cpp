@@ -87,6 +87,8 @@ struct boss_moragg : public BossAI
     }
 };
 
+// 54438, 59523 - Ray of Pain
+// 54442, 59524 - Ray of Suffering
 class spell_moragg_ray : public AuraScript
 {
     PrepareAuraScript(spell_moragg_ray);
@@ -109,6 +111,7 @@ class spell_moragg_ray : public AuraScript
     }
 };
 
+// 54396 - Optic Link
 class spell_moragg_optic_link : public AuraScript
 {
     PrepareAuraScript(spell_moragg_optic_link);

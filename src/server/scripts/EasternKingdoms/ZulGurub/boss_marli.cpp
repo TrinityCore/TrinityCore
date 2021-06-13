@@ -305,21 +305,21 @@ class npc_spawn_of_marli : public CreatureScript
         }
 };
 
+// 24083 - Hatch Eggs
 class spell_hatch_spiders : public SpellScript
 {
-       PrepareSpellScript(spell_hatch_spiders);
+    PrepareSpellScript(spell_hatch_spiders);
 
-       void HandleObjectAreaTargetSelect(std::list<WorldObject*>& targets)
-       {
-           targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster()));
-           targets.resize(GetSpellInfo()->MaxAffectedTargets);
-       }
+    void HandleObjectAreaTargetSelect(std::list<WorldObject*>& targets)
+    {
+        targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster()));
+        targets.resize(GetSpellInfo()->MaxAffectedTargets);
+    }
 
-       void Register() override
-       {
-           OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hatch_spiders::HandleObjectAreaTargetSelect, EFFECT_0, TARGET_GAMEOBJECT_DEST_AREA);
-       }
-
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hatch_spiders::HandleObjectAreaTargetSelect, EFFECT_0, TARGET_GAMEOBJECT_DEST_AREA);
+    }
 };
 
 void AddSC_boss_marli()

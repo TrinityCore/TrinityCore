@@ -72,206 +72,176 @@ enum Events
     EVENT_BERSERK                   = 6
 };
 
-class boss_mechano_lord_capacitus : public CreatureScript
+struct boss_mechano_lord_capacitus : public BossAI
 {
-    public:
-        boss_mechano_lord_capacitus() : CreatureScript("boss_mechano_lord_capacitus") { }
+    boss_mechano_lord_capacitus(Creature* creature) : BossAI(creature, DATA_MECHANOLORD_CAPACITUS) { }
 
-        struct boss_mechano_lord_capacitusAI : public BossAI
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        Talk(YELL_AGGRO);
+        events.ScheduleEvent(EVENT_HEADCRACK, 10s);
+        events.ScheduleEvent(EVENT_REFLECTIVE_DAMAGE_SHIELD, 15s);
+        events.ScheduleEvent(EVENT_SUMMON_NETHER_CHARGE, 10s);
+        events.ScheduleEvent(EVENT_BERSERK, 3min);
+
+        if (IsHeroic())
+            events.ScheduleEvent(EVENT_POSITIVE_SHIFT, 15s);
+    }
+
+    void KilledUnit(Unit* /*victim*/) override
+    {
+        Talk(YELL_KILL);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        Talk(YELL_DEATH);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            boss_mechano_lord_capacitusAI(Creature* creature) : BossAI(creature, DATA_MECHANOLORD_CAPACITUS) { }
-
-            void JustEngagedWith(Unit* who) override
+            switch (eventId)
             {
-                BossAI::JustEngagedWith(who);
-                Talk(YELL_AGGRO);
-                events.ScheduleEvent(EVENT_HEADCRACK, 10s);
-                events.ScheduleEvent(EVENT_REFLECTIVE_DAMAGE_SHIELD, 15s);
-                events.ScheduleEvent(EVENT_SUMMON_NETHER_CHARGE, 10s);
-                events.ScheduleEvent(EVENT_BERSERK, 3min);
-
-                if (IsHeroic())
-                    events.ScheduleEvent(EVENT_POSITIVE_SHIFT, 15s);
-            }
-
-            void KilledUnit(Unit* /*victim*/) override
-            {
-                Talk(YELL_KILL);
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-                Talk(YELL_DEATH);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
+                case EVENT_HEADCRACK:
+                    DoCastVictim(SPELL_HEADCRACK);
+                    events.ScheduleEvent(EVENT_HEADCRACK, 10s);
+                    break;
+                case EVENT_REFLECTIVE_DAMAGE_SHIELD:
+                    Talk(YELL_REFLECTIVE_DAMAGE_SHIELD);
+                    DoCast(me, SPELL_REFLECTIVE_DAMAGE_SHIELD);
+                    events.ScheduleEvent(EVENT_REFLECTIVE_MAGIE_SHIELD, 30s);
+                    break;
+                case EVENT_REFLECTIVE_MAGIE_SHIELD:
+                    Talk(YELL_REFLECTIVE_MAGIC_SHIELD);
+                    DoCast(me, SPELL_REFLECTIVE_MAGIC_SHIELD);
+                    events.ScheduleEvent(EVENT_REFLECTIVE_DAMAGE_SHIELD, 30s);
+                    break;
+                case EVENT_POSITIVE_SHIFT:
+                    DoCastAOE(SPELL_POLARITY_SHIFT);
+                    events.ScheduleEvent(EVENT_POSITIVE_SHIFT, 45s, 60s);
+                    break;
+                case EVENT_SUMMON_NETHER_CHARGE:
                 {
-                    switch (eventId)
-                    {
-                        case EVENT_HEADCRACK:
-                            DoCastVictim(SPELL_HEADCRACK);
-                            events.ScheduleEvent(EVENT_HEADCRACK, 10s);
-                            break;
-                        case EVENT_REFLECTIVE_DAMAGE_SHIELD:
-                            Talk(YELL_REFLECTIVE_DAMAGE_SHIELD);
-                            DoCast(me, SPELL_REFLECTIVE_DAMAGE_SHIELD);
-                            events.ScheduleEvent(EVENT_REFLECTIVE_MAGIE_SHIELD, 30s);
-                            break;
-                        case EVENT_REFLECTIVE_MAGIE_SHIELD:
-                            Talk(YELL_REFLECTIVE_MAGIC_SHIELD);
-                            DoCast(me, SPELL_REFLECTIVE_MAGIC_SHIELD);
-                            events.ScheduleEvent(EVENT_REFLECTIVE_DAMAGE_SHIELD, 30s);
-                            break;
-                        case EVENT_POSITIVE_SHIFT:
-                            DoCastAOE(SPELL_POLARITY_SHIFT);
-                            events.ScheduleEvent(EVENT_POSITIVE_SHIFT, 45s, 60s);
-                            break;
-                        case EVENT_SUMMON_NETHER_CHARGE:
-                        {
-                            uint32 spellId = RAND(SPELL_SUMMON_NETHER_CHARGE_NE,
-                                                  SPELL_SUMMON_NETHER_CHARGE_NW,
-                                                  SPELL_SUMMON_NETHER_CHARGE_SE,
-                                                  SPELL_SUMMON_NETHER_CHARGE_SW);
-                            Milliseconds netherChargeTimer = DUNGEON_MODE(randtime(9s, 11s), randtime(2s, 5s));
-                            DoCastSelf(spellId);
-                            events.ScheduleEvent(EVENT_SUMMON_NETHER_CHARGE, netherChargeTimer);
-                            break;
-                        }
-                        case EVENT_BERSERK:
-                            DoCast(me, SPELL_BERSERK);
-                            break;
-                        default:
-                            break;
-                    }
-
-                    if (me->HasUnitState(UNIT_STATE_CASTING))
-                        return;
+                    uint32 spellId = RAND(SPELL_SUMMON_NETHER_CHARGE_NE,
+                                          SPELL_SUMMON_NETHER_CHARGE_NW,
+                                          SPELL_SUMMON_NETHER_CHARGE_SE,
+                                          SPELL_SUMMON_NETHER_CHARGE_SW);
+                    Milliseconds netherChargeTimer = DUNGEON_MODE(randtime(9s, 11s), randtime(2s, 5s));
+                    DoCastSelf(spellId);
+                    events.ScheduleEvent(EVENT_SUMMON_NETHER_CHARGE, netherChargeTimer);
+                    break;
                 }
-
-                DoMeleeAttackIfReady();
+                case EVENT_BERSERK:
+                    DoCast(me, SPELL_BERSERK);
+                    break;
+                default:
+                    break;
             }
-        };
 
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetMechanarAI<boss_mechano_lord_capacitusAI>(creature);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
+
+        DoMeleeAttackIfReady();
+    }
 };
 
-class spell_capacitus_polarity_charge : public SpellScriptLoader
+// 39090 - Positive Charge
+// 39093 - Negative Charge
+class spell_capacitus_polarity_charge : public SpellScript
 {
-    public:
-        spell_capacitus_polarity_charge() : SpellScriptLoader("spell_capacitus_polarity_charge") { }
+    PrepareSpellScript(spell_capacitus_polarity_charge);
 
-        class spell_capacitus_polarity_charge_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo(
         {
-            PrepareSpellScript(spell_capacitus_polarity_charge_SpellScript);
+            SPELL_POSITIVE_CHARGE,
+            SPELL_POSITIVE_CHARGE_STACK,
+            SPELL_NEGATIVE_CHARGE,
+            SPELL_NEGATIVE_CHARGE_STACK
+        });
+    }
 
-            bool Validate(SpellInfo const* /*spell*/) override
-            {
-                return ValidateSpellInfo(
-                {
-                    SPELL_POSITIVE_CHARGE,
-                    SPELL_POSITIVE_CHARGE_STACK,
-                    SPELL_NEGATIVE_CHARGE,
-                    SPELL_NEGATIVE_CHARGE_STACK
-                });
-            }
+    void HandleTargets(std::list<WorldObject*>& targetList)
+    {
+        uint8 count = 0;
+        for (std::list<WorldObject*>::iterator ihit = targetList.begin(); ihit != targetList.end(); ++ihit)
+            if ((*ihit)->GetGUID() != GetCaster()->GetGUID())
+                if (Player* target = (*ihit)->ToPlayer())
+                    if (target->HasAura(GetTriggeringSpell()->Id))
+                        ++count;
 
-            void HandleTargets(std::list<WorldObject*>& targetList)
-            {
-                uint8 count = 0;
-                for (std::list<WorldObject*>::iterator ihit = targetList.begin(); ihit != targetList.end(); ++ihit)
-                    if ((*ihit)->GetGUID() != GetCaster()->GetGUID())
-                        if (Player* target = (*ihit)->ToPlayer())
-                            if (target->HasAura(GetTriggeringSpell()->Id))
-                                ++count;
-
-                if (count)
-                {
-                    uint32 spellId = 0;
-
-                    if (GetSpellInfo()->Id == SPELL_POSITIVE_CHARGE)
-                        spellId = SPELL_POSITIVE_CHARGE_STACK;
-                    else // if (GetSpellInfo()->Id == SPELL_NEGATIVE_CHARGE)
-                        spellId = SPELL_NEGATIVE_CHARGE_STACK;
-
-                    GetCaster()->SetAuraStack(spellId, GetCaster(), count);
-                }
-            }
-
-            void HandleDamage(SpellEffIndex /*effIndex*/)
-            {
-                if (!GetTriggeringSpell())
-                    return;
-
-                Unit* target = GetHitUnit();
-
-                if (target->HasAura(GetTriggeringSpell()->Id))
-                    PreventHitDamage();
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_capacitus_polarity_charge_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_capacitus_polarity_charge_SpellScript::HandleTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
+        if (count)
         {
-            return new spell_capacitus_polarity_charge_SpellScript();
+            uint32 spellId = 0;
+
+            if (GetSpellInfo()->Id == SPELL_POSITIVE_CHARGE)
+                spellId = SPELL_POSITIVE_CHARGE_STACK;
+            else // if (GetSpellInfo()->Id == SPELL_NEGATIVE_CHARGE)
+                spellId = SPELL_NEGATIVE_CHARGE_STACK;
+
+            GetCaster()->SetAuraStack(spellId, GetCaster(), count);
         }
+    }
+
+    void HandleDamage(SpellEffIndex /*effIndex*/)
+    {
+        if (!GetTriggeringSpell())
+            return;
+
+        Unit* target = GetHitUnit();
+
+        if (target->HasAura(GetTriggeringSpell()->Id))
+            PreventHitDamage();
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_capacitus_polarity_charge::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_capacitus_polarity_charge::HandleTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+    }
 };
 
-class spell_capacitus_polarity_shift : public SpellScriptLoader
+// 39096 - Polarity Shift
+class spell_capacitus_polarity_shift : public SpellScript
 {
-    public:
-        spell_capacitus_polarity_shift() : SpellScriptLoader("spell_capacitus_polarity_shift") { }
+    PrepareSpellScript(spell_capacitus_polarity_shift);
 
-        class spell_capacitus_polarity_shift_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_capacitus_polarity_shift_SpellScript);
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_POSITIVE_POLARITY, SPELL_NEGATIVE_POLARITY });
+    }
 
-            bool Validate(SpellInfo const* /*spell*/) override
-            {
-                return ValidateSpellInfo({ SPELL_POSITIVE_POLARITY, SPELL_NEGATIVE_POLARITY });
-            }
+    void HandleDummy(SpellEffIndex /* effIndex */)
+    {
+        Unit* target = GetHitUnit();
+        Unit* caster = GetCaster();
 
-            void HandleDummy(SpellEffIndex /* effIndex */)
-            {
-                Unit* target = GetHitUnit();
-                Unit* caster = GetCaster();
+        target->CastSpell(target, roll_chance_i(50) ? SPELL_POSITIVE_POLARITY : SPELL_NEGATIVE_POLARITY, caster->GetGUID());
+    }
 
-                target->CastSpell(target, roll_chance_i(50) ? SPELL_POSITIVE_POLARITY : SPELL_NEGATIVE_POLARITY, caster->GetGUID());
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_capacitus_polarity_shift_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_capacitus_polarity_shift_SpellScript();
-        }
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_capacitus_polarity_shift::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
 };
 
 void AddSC_boss_mechano_lord_capacitus()
 {
-    new boss_mechano_lord_capacitus();
-    new spell_capacitus_polarity_charge();
-    new spell_capacitus_polarity_shift();
+    RegisterMechanarCreatureAI(boss_mechano_lord_capacitus);
+    RegisterSpellScript(spell_capacitus_polarity_charge);
+    RegisterSpellScript(spell_capacitus_polarity_shift);
 }

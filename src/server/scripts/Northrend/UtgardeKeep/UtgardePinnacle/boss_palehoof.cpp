@@ -521,7 +521,7 @@ struct go_palehoof_sphere : public GameObjectAI
     }
 };
 
-//  48139 - Crazed
+// 48139 - Crazed
 class spell_palehoof_crazed : public AuraScript
 {
     PrepareAuraScript(spell_palehoof_crazed);
@@ -537,6 +537,7 @@ class spell_palehoof_crazed : public AuraScript
     }
 };
 
+// 48146 - Crazed
 class spell_palehoof_crazed_effect : public SpellScript
 {
     PrepareSpellScript(spell_palehoof_crazed_effect);
@@ -557,7 +558,7 @@ class spell_palehoof_crazed_effect : public SpellScript
     }
 };
 
-// 47669 - Awaken Subbos
+// 47669 - Awaken Subboss
 class spell_palehoof_awaken_subboss : public SpellScript
 {
     PrepareSpellScript(spell_palehoof_awaken_subboss);

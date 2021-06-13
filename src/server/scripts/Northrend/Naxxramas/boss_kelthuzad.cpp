@@ -825,6 +825,7 @@ struct npc_kelthuzad_guardian : public ScriptedAI
         uint32 _bloodTapTimer;
 };
 
+// 28410 - Chains of Kel'Thuzad
 class spell_kelthuzad_chains : public AuraScript
 {
     PrepareAuraScript(spell_kelthuzad_chains);
@@ -846,6 +847,7 @@ class spell_kelthuzad_chains : public AuraScript
     }
 };
 
+// 27819 - Detonate Mana
 class spell_kelthuzad_detonate_mana : public AuraScript
 {
     PrepareAuraScript(spell_kelthuzad_detonate_mana);

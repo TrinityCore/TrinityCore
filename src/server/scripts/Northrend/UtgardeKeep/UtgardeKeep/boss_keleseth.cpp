@@ -305,6 +305,7 @@ private:
     EventMap events;
 };
 
+// 48400 - Frost Tomb
 class spell_frost_tomb : public AuraScript
 {
     PrepareAuraScript(spell_frost_tomb);

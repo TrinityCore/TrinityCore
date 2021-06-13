@@ -405,6 +405,7 @@ class player_overlord_brandAI : public PlayerAI
         ObjectGuid _tyrannusGUID;
 };
 
+// 69172 - Overlord's Brand
 class spell_tyrannus_overlord_brand : public AuraScript
 {
     PrepareAuraScript(spell_tyrannus_overlord_brand);
@@ -438,6 +439,7 @@ class spell_tyrannus_overlord_brand : public AuraScript
     }
 };
 
+// 69275 - Mark of Rimefang
 class spell_tyrannus_mark_of_rimefang : public AuraScript
 {
     PrepareAuraScript(spell_tyrannus_mark_of_rimefang);

@@ -124,6 +124,7 @@ class boss_baron_geddon : public CreatureScript
         }
 };
 
+// 19695 - Inferno
 class spell_baron_geddon_inferno : public SpellScriptLoader
 {
     public:

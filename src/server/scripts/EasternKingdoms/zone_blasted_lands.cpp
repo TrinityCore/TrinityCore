@@ -15,71 +15,54 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
-Blasted_Lands
-Quest support: 3628.
-*/
-
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
 #include "SpellScript.h"
 #include "Player.h"
 #include "Group.h"
 
-enum DeathlyUsher
+/*######
+## Quest 3628: You Are Rakh'likh, Demon
+######*/
+
+enum TeleportToRazelikh
 {
     SPELL_TELEPORT_SINGLE               = 12885,
-    SPELL_TELEPORT_SINGLE_IN_GROUP      = 13142,
-    SPELL_TELEPORT_GROUP                = 27686
+    SPELL_TELEPORT_SINGLE_IN_GROUP      = 13142
 };
 
-/*#####
-# spell_razelikh_teleport_group
-#####*/
-
-class spell_razelikh_teleport_group : public SpellScriptLoader
+// 27686 - Teleport to Razelikh (GROUP)
+class spell_razelikh_teleport_group : public SpellScript
 {
-    public: spell_razelikh_teleport_group() : SpellScriptLoader("spell_razelikh_teleport_group") { }
+    PrepareSpellScript(spell_razelikh_teleport_group);
 
-        class spell_razelikh_teleport_group_SpellScript : public SpellScript
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_TELEPORT_SINGLE, SPELL_TELEPORT_SINGLE_IN_GROUP });
+    }
+
+    void HandleScriptEffect(SpellEffIndex /* effIndex */)
+    {
+        if (Player* player = GetHitPlayer())
         {
-            PrepareSpellScript(spell_razelikh_teleport_group_SpellScript);
-
-            bool Validate(SpellInfo const* /*spell*/) override
+            if (Group* group = player->GetGroup())
             {
-                return ValidateSpellInfo({ SPELL_TELEPORT_SINGLE, SPELL_TELEPORT_SINGLE_IN_GROUP });
+                for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
+                    if (Player* member = itr->GetSource())
+                        if (member->IsWithinDistInMap(player, 20.0f) && !member->isDead())
+                            member->CastSpell(member, SPELL_TELEPORT_SINGLE_IN_GROUP, true);
             }
-
-            void HandleScriptEffect(SpellEffIndex /* effIndex */)
-            {
-                if (Player* player = GetHitPlayer())
-                {
-                    if (Group* group = player->GetGroup())
-                    {
-                        for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
-                            if (Player* member = itr->GetSource())
-                                if (member->IsWithinDistInMap(player, 20.0f) && !member->isDead())
-                                    member->CastSpell(member, SPELL_TELEPORT_SINGLE_IN_GROUP, true);
-                    }
-                    else
-                        player->CastSpell(player, SPELL_TELEPORT_SINGLE, true);
-                }
-            }
-
-            void Register() override
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_razelikh_teleport_group_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_razelikh_teleport_group_SpellScript();
+            else
+                player->CastSpell(player, SPELL_TELEPORT_SINGLE, true);
         }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_razelikh_teleport_group::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
 };
 
 void AddSC_blasted_lands()
 {
-    new spell_razelikh_teleport_group();
+    RegisterSpellScript(spell_razelikh_teleport_group);
 }

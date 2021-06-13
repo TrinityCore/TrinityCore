@@ -368,6 +368,7 @@ class npc_troll_volunteer : public CreatureScript
 
 typedef npc_troll_volunteer::npc_troll_volunteerAI VolunteerAI;
 
+// 75420 - Mounting Check
 class spell_mount_check : public SpellScriptLoader
 {
     public:
@@ -414,6 +415,7 @@ class spell_mount_check : public SpellScriptLoader
         }
 };
 
+// 75102 - Vol'jin's War Drums
 class spell_voljin_war_drums : public SpellScriptLoader
 {
     public:
@@ -466,7 +468,7 @@ enum VoodooSpells
     SPELL_LAUNCH    = 16716, // Launch (Whee!)
 };
 
-// 17009
+// 17009 - Voodoo
 class spell_voodoo : public SpellScriptLoader
 {
     public:

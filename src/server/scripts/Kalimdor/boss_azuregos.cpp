@@ -163,6 +163,7 @@ class MarkOfFrostTargetSelector
         }
 };
 
+// 23183 - Mark of Frost - Triggered spell
 class spell_mark_of_frost : public SpellScript
 {
     PrepareSpellScript(spell_mark_of_frost);

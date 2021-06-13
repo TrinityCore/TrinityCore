@@ -451,7 +451,7 @@ class spell_dk_blade_barrier : public SpellScriptLoader
         }
 };
 
-// 48721 - Blood Boil
+// -48721 - Blood Boil
 class spell_dk_blood_boil : public SpellScriptLoader
 {
     public:
@@ -636,7 +636,7 @@ private:
     bool _allowGhoul;
 };
 
-// 49158 - Corpse Explosion (51325, 51326, 51327, 51328)
+// -49158 - Corpse Explosion (51325, 51326, 51327, 51328)
 class spell_dk_corpse_explosion : public SpellScriptLoader
 {
     public:
@@ -799,6 +799,7 @@ class spell_dk_dancing_rune_weapon : public SpellScriptLoader
         }
 };
 
+// -43265 - Death and Decay
 class spell_dk_death_and_decay : public SpellScriptLoader
 {
     public:
@@ -1764,7 +1765,7 @@ class spell_dk_necrosis : public SpellScriptLoader
         }
 };
 
-// ID - 50842 Pestilence
+// 50842 - Pestilence
 class spell_dk_pestilence : public SpellScriptLoader
 {
     public:
@@ -2244,7 +2245,7 @@ class spell_dk_scent_of_blood_trigger : public SpellScriptLoader
         }
 };
 
-// 55090 - Scourge Strike (55265, 55270, 55271)
+// -55090 - Scourge Strike (55265, 55270, 55271)
 class spell_dk_scourge_strike : public SpellScriptLoader
 {
     public:
@@ -2309,7 +2310,7 @@ class spell_dk_scourge_strike : public SpellScriptLoader
         }
 };
 
-// 49145 - Spell Deflection
+// -49145 - Spell Deflection
 class spell_dk_spell_deflection : public SpellScriptLoader
 {
     public:
@@ -2542,6 +2543,7 @@ class spell_dk_unholy_blight : public SpellScriptLoader
             return new spell_dk_unholy_blight_AuraScript();
         }
 };
+
 // 55233 - Vampiric Blood
 class spell_dk_vampiric_blood : public SpellScriptLoader
 {
@@ -2650,7 +2652,7 @@ class spell_dk_wandering_plague : public SpellScriptLoader
         }
 };
 
-// 52284 - Will of the Necropolis
+// -52284 - Will of the Necropolis
 class spell_dk_will_of_the_necropolis : public SpellScriptLoader
 {
     public:

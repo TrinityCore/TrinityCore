@@ -416,6 +416,7 @@ class npc_vilebranch_speaker : public CreatureScript
         }
 };
 
+// 24314 - Threatening Gaze
 class spell_threatening_gaze : public SpellScriptLoader
 {
     public:

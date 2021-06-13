@@ -344,6 +344,13 @@ private:
     uint32 _insanityHandled;
 };
 
+/* 60291 - Volazj Whisper: Aggro
+   60292 - Volazj Whisper: Insanity
+   60293 - Volazj Whisper: Slay 01
+   60294 - Volazj Whisper: Slay 02
+   60295 - Volazj Whisper: Slay 03
+   60296 - Volazj Whisper: Death 01
+   60297 - Volazj Whisper: Death 02 */
 class spell_volazj_whisper : public SpellScript
 {
     PrepareSpellScript(spell_volazj_whisper);

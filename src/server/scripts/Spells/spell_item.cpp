@@ -2644,6 +2644,7 @@ enum MagicEater
     SPELL_WELL_FED_5                             = 57291,
 };
 
+// 58886 - Food
 class spell_magic_eater_food : public AuraScript
 {
     PrepareAuraScript(spell_magic_eater_food);

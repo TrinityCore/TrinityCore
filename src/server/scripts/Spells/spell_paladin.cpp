@@ -142,7 +142,7 @@ enum MiscSpellIcons
     SPELL_ICON_ID_HELLSCREAM_WARSONG             = 937
 };
 
-// 31850 - Ardent Defender
+// -31850 - Ardent Defender
 class spell_pal_ardent_defender : public SpellScriptLoader
 {
     public:
@@ -2368,7 +2368,7 @@ class spell_pal_t3_6p_bonus : public SpellScriptLoader
         }
 };
 
-// 64890 Item - Paladin T8 Holy 2P Bonus
+// 64890 - Item - Paladin T8 Holy 2P Bonus
 class spell_pal_t8_2p_bonus : public SpellScriptLoader
 {
     public:

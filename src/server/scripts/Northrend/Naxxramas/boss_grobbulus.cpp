@@ -210,7 +210,7 @@ class spell_grobbulus_mutating_injection : public AuraScript
     }
 };
 
-// 28158, 54362 - Poison (Grobbulus)
+// 28158, 54362 - Poison
 class spell_grobbulus_poison_cloud : public AuraScript
 {
     PrepareAuraScript(spell_grobbulus_poison_cloud);

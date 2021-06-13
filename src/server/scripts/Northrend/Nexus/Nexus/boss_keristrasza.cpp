@@ -81,8 +81,6 @@ struct boss_keristrasza : public BossAI
         Initialize();
         _intenseColdList.clear();
 
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
-
         RemovePrison(CheckContainmentSpheres());
         _Reset();
     }
@@ -133,15 +131,13 @@ struct boss_keristrasza : public BossAI
     {
         if (remove)
         {
-            me->SetImmuneToPC(false);
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->SetImmuneToAll(false);
             if (me->HasAura(SPELL_FROZEN_PRISON))
                 me->RemoveAurasDueToSpell(SPELL_FROZEN_PRISON);
         }
         else
         {
-            me->SetImmuneToPC(true);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->SetImmuneToAll(true);
             DoCast(me, SPELL_FROZEN_PRISON, false);
         }
     }
@@ -233,6 +229,7 @@ struct containment_sphere : public GameObjectAI
     }
 };
 
+// 48095 - Intense Cold
 class spell_intense_cold : public AuraScript
 {
     PrepareAuraScript(spell_intense_cold);

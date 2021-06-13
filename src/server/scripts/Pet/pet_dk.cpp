@@ -139,6 +139,7 @@ class npc_pet_dk_guardian : public CreatureScript
         }
 };
 
+// 51963 - Gargoyle Strike
 class spell_pet_dk_gargoyle_strike : public SpellScript
 {
     PrepareSpellScript(spell_pet_dk_gargoyle_strike);

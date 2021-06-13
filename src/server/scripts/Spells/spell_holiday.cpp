@@ -31,17 +31,17 @@
 #include "Vehicle.h"
 #include "World.h"
 
-// 45102 Romantic Picnic
 enum SpellsPicnic
 {
     SPELL_BASKET_CHECK              = 45119, // Holiday - Valentine - Romantic Picnic Near Basket Check
     SPELL_MEAL_PERIODIC             = 45103, // Holiday - Valentine - Romantic Picnic Meal Periodic - effect dummy
     SPELL_MEAL_EAT_VISUAL           = 45120, // Holiday - Valentine - Romantic Picnic Meal Eat Visual
-    //SPELL_MEAL_PARTICLE             = 45114, // Holiday - Valentine - Romantic Picnic Meal Particle - unused
+    // SPELL_MEAL_PARTICLE          = 45114, // Holiday - Valentine - Romantic Picnic Meal Particle - unused
     SPELL_DRINK_VISUAL              = 45121, // Holiday - Valentine - Romantic Picnic Drink Visual
     SPELL_ROMANTIC_PICNIC_ACHIEV    = 45123, // Romantic Picnic periodic = 5000
 };
 
+// 45102 - Romantic Picnic
 class spell_love_is_in_the_air_romantic_picnic : public AuraScript
 {
     PrepareAuraScript(spell_love_is_in_the_air_romantic_picnic);
@@ -210,7 +210,6 @@ class spell_hallow_end_candy_pirate : public SpellScriptLoader
         }
 };
 
-// 24750 Trick
 enum TrickSpells
 {
     SPELL_PIRATE_COSTUME_MALE           = 24708,
@@ -225,6 +224,7 @@ enum TrickSpells
     SPELL_TRICK_BUFF                    = 24753,
 };
 
+// 24750 - Trick
 class spell_hallow_end_trick : public SpellScriptLoader
 {
     public:
@@ -295,7 +295,6 @@ class spell_hallow_end_trick : public SpellScriptLoader
         }
 };
 
-// 24751 Trick or Treat
 enum TrickOrTreatSpells
 {
     SPELL_TRICK                 = 24714,
@@ -306,6 +305,7 @@ enum TrickOrTreatSpells
     SPELL_UPSET_TUMMY           = 42966
 };
 
+// 24751 - Trick or Treat
 class spell_hallow_end_trick_or_treat : public SpellScriptLoader
 {
     public:
@@ -342,6 +342,7 @@ class spell_hallow_end_trick_or_treat : public SpellScriptLoader
         }
 };
 
+// 44436 - Tricky Treat
 class spell_hallow_end_tricky_treat : public SpellScriptLoader
 {
     public:
@@ -380,10 +381,8 @@ class spell_hallow_end_tricky_treat : public SpellScriptLoader
         }
 };
 
-// Hallowed wands
 enum HallowendData
 {
-    //wand spells
     SPELL_HALLOWED_WAND_PIRATE             = 24717,
     SPELL_HALLOWED_WAND_NINJA              = 24718,
     SPELL_HALLOWED_WAND_LEPER_GNOME        = 24719,
@@ -394,6 +393,7 @@ enum HallowendData
     SPELL_HALLOWED_WAND_BAT                = 24741
 };
 
+// 24717, 24718, 24719, 24720, 24724, 24733, 24737, 24741
 class spell_hallow_end_wand : public SpellScriptLoader
 {
 public:
@@ -529,6 +529,11 @@ enum FeastOnSpells
     SPELL_ON_PLATE_EAT_VISUAL           = 61826
 };
 
+/* 61784 - Feast On Turkey
+   61785 - Feast On Cranberries
+   61786 - Feast On Sweet Potatoes
+   61787 - Feast On Pie
+   61788 - Feast On Stuffing */
 class spell_pilgrims_bounty_feast_on : public SpellScriptLoader
 {
     public:
@@ -602,6 +607,7 @@ enum TheTurkinator
     EMOTE_TURKEY_TRIUMPH            = 3
 };
 
+// 62014 - Turkey Tracker
 class spell_pilgrims_bounty_turkey_tracker : public SpellScriptLoader
 {
     public:
@@ -966,6 +972,7 @@ enum Mistletoe
     SPELL_CREATE_SNOWFLAKES         = 45036
 };
 
+// 26218 - Mistletoe
 class spell_winter_veil_mistletoe : public SpellScriptLoader
 {
     public:
@@ -1023,6 +1030,7 @@ uint32 const WonderboltTransformSpells[] =
     SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_4
 };
 
+// 26275 - PX-238 Winter Wondervolt TRAP
 class spell_winter_veil_px_238_winter_wondervolt : public SpellScriptLoader
 {
     public:
@@ -1341,6 +1349,7 @@ class spell_brewfest_relay_race_intro_force_player_to_throw : public SpellScript
         }
 };
 
+// 43755 - Brewfest - Daily - Relay Race - Player - Increase Mount Duration - DND
 class spell_brewfest_relay_race_turn_in : public SpellScriptLoader
 {
 public:

@@ -437,7 +437,7 @@ struct boss_gothik : public BossAI
                 {
                     if (RAID_MODE(waves10,waves25).size() <= _waveCount) // bounds check
                     {
-                        TC_LOG_INFO("scripts", "GothikAI: Wave count %d is out of range for difficulty %d.", _waveCount, GetDifficulty());
+                        TC_LOG_INFO("scripts", "GothikAI: Wave count %d is out of range for difficulty %d.", _waveCount, static_cast<uint32>(GetDifficulty()));
                         break;
                     }
 
@@ -865,6 +865,7 @@ struct npc_gothik_trigger : public ScriptedAI
     }
 };
 
+// 27831, 55638 - Shadow Bolt Volley
 class spell_gothik_shadow_bolt_volley : public SpellScript
 {
     PrepareSpellScript(spell_gothik_shadow_bolt_volley);

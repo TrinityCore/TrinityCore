@@ -118,8 +118,7 @@ public:
     static bool HandleGroupReviveCommand(ChatHandler* handler, char const* args)
     {
         Player* playerTarget;
-        ObjectGuid playerTargetGuid;
-        if (!handler->extractPlayerTarget((char*)args, &playerTarget, &playerTargetGuid))
+        if (!handler->extractPlayerTarget((char*)args, &playerTarget))
             return false;
 
         Group* groupTarget = playerTarget->GetGroup();
@@ -144,8 +143,7 @@ public:
     static bool HandleGroupRepairCommand(ChatHandler* handler, char const* args)
     {
         Player* playerTarget;
-        ObjectGuid playerTargetGuid;
-        if (!handler->extractPlayerTarget((char*)args, &playerTarget, &playerTargetGuid))
+        if (!handler->extractPlayerTarget((char*)args, &playerTarget))
             return false;
 
         Group* groupTarget = playerTarget->GetGroup();

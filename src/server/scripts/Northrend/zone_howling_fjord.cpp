@@ -470,6 +470,7 @@ public:
     }
 };
 
+// 42268 - Quest - Mindless Abomination Explosion FX Master
 class spell_mindless_abomination_explosion_fx_master : public SpellScriptLoader
 {
     enum Spells
@@ -514,7 +515,11 @@ class spell_mindless_abomination_explosion_fx_master : public SpellScriptLoader
         }
 };
 
-enum SummonSpells
+/*######
+## Quest 11296: Rivenwood Captives
+######*/
+
+enum RivenwoodCaptives
 {
     SPELL_SUMMON_BABY_RIVEN_WIDOWS        = 43275,
     SPELL_SUMMON_DARKCLAW_BAT             = 43276,
@@ -527,11 +532,10 @@ enum SummonSpells
     SPELL_SUMMON_WINTERSKORN_WOODSMAN     = 43283,
     SPELL_SUMMON_WINTERSKORN_TRIBESMAN    = 43284,
     SPELL_SUMMON_WINTERSKORN_ORACLE       = 43285,
-    SPELL_SUMMON_FREED_MIST_WHISPER_SCOUT = 43289,
-    NPC_MIST_WHISPER_SCOUT                = 24211
+    SPELL_SUMMON_FREED_MIST_WHISPER_SCOUT = 43289
 };
 
-const uint32 rivenWidowCocoonVictims[11] =
+uint32 const CocoonSummonSpells[11] =
 {
     SPELL_SUMMON_BABY_RIVEN_WIDOWS,
     SPELL_SUMMON_DARKCLAW_BAT,
@@ -546,39 +550,51 @@ const uint32 rivenWidowCocoonVictims[11] =
     SPELL_SUMMON_WINTERSKORN_ORACLE
 };
 
-class npc_riven_widow_cocoon : public CreatureScript
+// 43288 - Rivenwood Captives: Player Not On Quest
+class spell_rivenwood_captives_not_on_quest : public SpellScript
 {
-public:
-    npc_riven_widow_cocoon() : CreatureScript("npc_riven_widow_cocoon") { }
+    PrepareSpellScript(spell_rivenwood_captives_not_on_quest);
 
-    struct npc_riven_widow_cocoonAI : public ScriptedAI
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        npc_riven_widow_cocoonAI(Creature* creature) : ScriptedAI(creature) { }
+        return ValidateSpellInfo(CocoonSummonSpells);
+    }
 
-        void Reset() override { }
-        void JustEngagedWith(Unit* /*who*/) override { }
-        void MoveInLineOfSight(Unit* /*who*/) override { }
-
-        void JustDied(Unit* killer) override
-        {
-            if (!killer || killer->GetTypeId() != TYPEID_PLAYER)
-                return;
-
-            Player* player = killer->ToPlayer();
-
-            if (roll_chance_i(20))
-            {
-                player->CastSpell(me, SPELL_SUMMON_FREED_MIST_WHISPER_SCOUT, true);
-                player->KilledMonsterCredit(NPC_MIST_WHISPER_SCOUT);
-            }
-            else
-                player->CastSpell(me, rivenWidowCocoonVictims[urand(0, 10)], true);
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
+    void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        return new npc_riven_widow_cocoonAI(creature);
+        GetHitUnit()->CastSpell(GetCaster(), Trinity::Containers::SelectRandomContainerElement(CocoonSummonSpells), true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_rivenwood_captives_not_on_quest::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 43287 - Rivenwood Captives: Player On Quest
+class spell_rivenwood_captives_on_quest : public SpellScript
+{
+    PrepareSpellScript(spell_rivenwood_captives_on_quest);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(CocoonSummonSpells) && ValidateSpellInfo({ SPELL_SUMMON_FREED_MIST_WHISPER_SCOUT });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        if (roll_chance_i(80))
+            target->CastSpell(caster, Trinity::Containers::SelectRandomContainerElement(CocoonSummonSpells), true);
+        else
+            target->CastSpell(caster, SPELL_SUMMON_FREED_MIST_WHISPER_SCOUT, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_rivenwood_captives_on_quest::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -588,5 +604,6 @@ void AddSC_howling_fjord()
     RegisterCreatureAI(npc_daegarn);
     new npc_mindless_abomination();
     new spell_mindless_abomination_explosion_fx_master();
-    new npc_riven_widow_cocoon();
+    RegisterSpellScript(spell_rivenwood_captives_not_on_quest);
+    RegisterSpellScript(spell_rivenwood_captives_on_quest);
  }
