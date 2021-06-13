@@ -67,6 +67,14 @@ namespace Trinity { struct ObjectUpdater; }
 namespace G3D { class Plane; }
 namespace VMAP { enum class ModelIgnoreFlags : uint32; }
 
+namespace WorldPackets
+{
+    namespace WorldState
+    {
+        struct WorldStateInfo;
+    }
+}
+
 struct ScriptAction
 {
     ObjectGuid sourceGUID;
@@ -853,6 +861,10 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         // This will not affect any already-present creatures in the group
         void SetSpawnGroupInactive(uint32 groupId) { SetSpawnGroupActive(groupId, false); }
 
+        // Sets and stores world state values that will be used by the AchievementMgr to check additional criterias that require world state values
+        void SetWorldState(uint32 worldStateId, int32 value, bool withUpdatePacket = true);
+        int32 GetWorldStateValue(uint32 worldStateId) const;
+        void AppendWorldStates(std::vector<WorldPackets::WorldState::WorldStateInfo>& worldStates);
 
     private:
         // Type specific code for add/remove to/from grid
@@ -939,6 +951,8 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         std::unordered_set<Corpse*> _corpseBones;
 
         std::unordered_set<Object*> _updateObjects;
+
+        std::unordered_map<uint32 /*worldStateId*/, int32 /*value*/> _worldStates;
 };
 
 enum InstanceResetMethod

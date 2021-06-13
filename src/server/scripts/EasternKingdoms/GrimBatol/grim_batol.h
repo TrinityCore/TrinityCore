@@ -92,6 +92,11 @@ enum GBSummonGroups
     SUMMON_GROUP_BATTERED_DRAKES = 0
 };
 
+enum GBWorldStates
+{
+    WORLD_STATE_ID_DONT_NEED_TO_BREAK_EGGS = 5117 // Erduax Achievement required world state
+};
+
 template<class AI, class T>
 AI* GetGrimBatolAI(T* creature)
 {

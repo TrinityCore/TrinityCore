@@ -9204,6 +9204,10 @@ void Player::SendInitWorldStates(uint32 zoneId, uint32 areaId)
             break;
     }
 
+    // insert map world states
+    if (Map* map = GetMap())
+        map->AppendWorldStates(packet.Worldstates);
+
     SendDirectMessage(packet.Write());
     SendBGWeekendWorldStates();
     SendBattlefieldWorldStates();

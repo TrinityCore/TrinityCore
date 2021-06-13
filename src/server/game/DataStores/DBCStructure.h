@@ -614,8 +614,8 @@ struct AchievementCriteriaEntry
     uint32  Timer_asset_ID;                                 // 12 Alway appears with timed events, used internally to start the achievement, store
     uint32  Timer_time;                                     // 13 time limit in seconds
     uint32  Ui_order;                                       // 14 also used in achievement shift-links as index in state bitmask
-    //uint32 unk1;                                          // 15 only one value, still unknown
-    //uint32 unk2;                                          // 16 all zeros
+    uint32 RequiredWorldStateID;                            // 15
+    int32  RequiredWorldStateValue;                         // 16
     uint32 AdditionalConditionType[MAX_ADDITIONAL_CRITERIA_CONDITIONS];  // 17-19
     uint32 AdditionalConditionValue[MAX_ADDITIONAL_CRITERIA_CONDITIONS]; // 20-22
 };

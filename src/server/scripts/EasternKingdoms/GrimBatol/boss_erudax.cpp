@@ -88,13 +88,7 @@ enum Events
 enum Actions
 {
     ACTION_FINISH_CORRUPTION    = 0,
-    ACTION_DESPAWN              = 1,
-    ACTION_FAIL_ACHIEVEMENT     = 0
-};
-
-enum Data
-{
-    DATA_ACHIEVEMT_ENLIGIBLE = 1
+    ACTION_DESPAWN              = 1
 };
 
 Position const facelessCorruptorPositions1[] =
@@ -140,13 +134,14 @@ enum ModelIds
 
 struct boss_erudax : public BossAI
 {
-    boss_erudax(Creature* creature) : BossAI(creature, DATA_ERUDAX), _achievementEnligible(true) { }
+    boss_erudax(Creature* creature) : BossAI(creature, DATA_ERUDAX) { }
 
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
+        instance->instance->SetWorldState(WORLD_STATE_ID_DONT_NEED_TO_BREAK_EGGS, 0);
         events.ScheduleEvent(EVENT_BINDING_SHADOWS, 10s + 500ms);
         events.ScheduleEvent(EVENT_ENFEEBLING_BLOW, 19s);
         events.ScheduleEvent(EVENT_SHADOW_GALE, 26s);
@@ -176,13 +171,6 @@ struct boss_erudax : public BossAI
         summons.DespawnAll();
     }
 
-
-    void DoAction(int32 action) override
-    {
-        if (action == ACTION_FAIL_ACHIEVEMENT)
-            _achievementEnligible = false;
-    }
-
     void JustSummoned(Creature* summon) override
     {
         summons.RemoveNotExisting(); // keeping the summon container clean
@@ -200,14 +188,6 @@ struct boss_erudax : public BossAI
             default:
                 break;
         }
-    }
-
-    uint32 GetData(uint32 type) const override
-    {
-        if (type == DATA_ACHIEVEMT_ENLIGIBLE)
-            return _achievementEnligible;
-
-        return 0;
     }
 
     void OnSpellCastFinished(SpellInfo const* spell, SpellFinishReason reason) override
@@ -294,7 +274,6 @@ private:
         summons.DoAction(ACTION_DESPAWN, pred2);
     }
 
-    bool _achievementEnligible;
     ObjectGuid _shadowGaleStalkerGUID;
 };
 
@@ -387,8 +366,8 @@ struct npc_erudax_faceless_corruptor : public ScriptedAI
                     _instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
                     break;
                 case EVENT_TWILIGHT_CORRUPTION:
-                    if (Creature* erudax = _instance->GetCreature(DATA_ERUDAX))
-                        erudax->AI()->DoAction(ACTION_FAIL_ACHIEVEMENT);
+                    // Fail achievement by setting the required world state to 1 (0 is required for successful achievement)
+                    _instance->instance->SetWorldState(WORLD_STATE_ID_DONT_NEED_TO_BREAK_EGGS, 1);
                     DoCastAOE(SPELL_TWILIGHT_CORRUPTION);
                     break;
                 case EVENT_UMBRAL_MENDING:
@@ -547,23 +526,6 @@ class spell_erudax_twilight_corruption_AuraScript : public AuraScript
     }
 };
 
-class achievement_dont_need_to_break_eggs : public AchievementCriteriaScript
-{
-    public:
-        achievement_dont_need_to_break_eggs() : AchievementCriteriaScript("achievement_dont_need_to_break_eggs") { }
-
-        bool OnCheck(Player* /*source*/, Unit* target)
-        {
-            if (!target)
-                return false;
-
-            if (target->GetMap()->IsHeroic())
-                return target->GetAI()->GetData(DATA_ACHIEVEMT_ENLIGIBLE);
-
-            return false;
-        }
-};
-
 void AddSC_boss_erudax()
 {
     RegisterGrimBatolCreatureAI(boss_erudax);
@@ -572,5 +534,4 @@ void AddSC_boss_erudax()
     RegisterSpellScript(spell_erudax_shadow_gale);
     RegisterSpellScript(spell_erudax_shadow_gale_aura);
     RegisterSpellAndAuraScriptPair(spell_erudax_twilight_corruption, spell_erudax_twilight_corruption_AuraScript);
-    new achievement_dont_need_to_break_eggs();
 }

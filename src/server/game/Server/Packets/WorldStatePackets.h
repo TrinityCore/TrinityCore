@@ -24,18 +24,18 @@ namespace WorldPackets
 {
     namespace WorldState
     {
+        struct WorldStateInfo
+        {
+            WorldStateInfo(int32 variableID, int32 value)
+                : VariableID(variableID), Value(value) { }
+
+            int32 VariableID;
+            int32 Value;
+        };
+
         class InitWorldStates final : public ServerPacket
         {
         public:
-            struct WorldStateInfo
-            {
-                WorldStateInfo(int32 variableID, int32 value)
-                    : VariableID(variableID), Value(value) { }
-
-                int32 VariableID;
-                int32 Value;
-            };
-
             InitWorldStates();
 
             WorldPacket const* Write() override;

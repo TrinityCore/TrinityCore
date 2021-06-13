@@ -2472,6 +2472,11 @@ bool AchievementMgr<T>::ConditionsSatisfied(AchievementCriteriaEntry const* crit
         }
     }
 
+    if (criteria->RequiredWorldStateID != 0)
+        if (Map* map = referencePlayer->GetMap())
+            if (map->GetWorldStateValue(criteria->RequiredWorldStateID) != criteria->RequiredWorldStateValue)
+                return false;
+
     return true;
 }
 

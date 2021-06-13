@@ -49,6 +49,7 @@
 #include "Weather.h"
 #include "WeatherMgr.h"
 #include "World.h"
+#include "WorldStatePackets.h"
 #include <unordered_set>
 #include <vector>
 
@@ -4771,4 +4772,38 @@ void Map::UpdateAreaDependentAuras()
                 player->UpdateAreaDependentAuras(player->GetAreaId());
                 player->UpdateZoneDependentAuras(player->GetZoneId());
             }
+}
+
+void Map::SetWorldState(uint32 worldStateId, int32 value, bool withUpdatePacket /*= true*/)
+{
+    _worldStates[worldStateId] = value;
+
+    if (!withUpdatePacket)
+        return;
+
+    // Notify all players on the map
+    WorldPackets::WorldState::UpdateWorldState updateWorldState;
+    updateWorldState.VariableID = worldStateId;
+    updateWorldState.Value = value;
+    updateWorldState.Write();
+
+    Map::PlayerList const& players = GetPlayers();
+    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+        if (Player* player = itr->GetSource())
+            player->SendDirectMessage(updateWorldState.GetRawPacket());
+}
+
+int32 Map::GetWorldStateValue(uint32 worldStateId) const
+{
+    std::unordered_map<uint32, int32>::const_iterator itr = _worldStates.find(worldStateId);
+    if (itr != _worldStates.end())
+        return itr->second;
+
+    return 0;
+}
+
+void Map::AppendWorldStates(std::vector<WorldPackets::WorldState::WorldStateInfo>& worldStates)
+{
+    for (std::pair<uint32, int32> worldState : _worldStates)
+        worldStates.emplace_back(worldState.first, worldState.second);
 }

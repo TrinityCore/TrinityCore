@@ -60,6 +60,7 @@ class instance_grim_batol : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadObjectData(creatureData, nullptr);
+                instance->SetWorldState(WORLD_STATE_ID_DONT_NEED_TO_BREAK_EGGS, 0, false);
                 _initialized = false;
                 _destroyedNets = 0;
                 _batteredRedDrakeState = STATE_EMPRISONED;
