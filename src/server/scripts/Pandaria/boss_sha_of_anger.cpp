@@ -8,6 +8,22 @@ World boss
 #include "ScriptedCreature.h"
 #include "CreatureTextMgr.h"
 #include "QuestDef.h"
+#include "CreatureAI.h"
+#include "CreatureData.h"
+#include "CreatureTextMgr.h"
+#include "Creature.h"
+#include "CreatureGroups.h"
+#include <Player.cpp>
+enum FindNearestPlayer
+{
+    BOSS_SHA_OF_ANGER,
+};
+
+enum SetCreatureFlag
+{
+    BOSS_SHA_OF_ANGER,
+};
+
 enum eBosses
 {
     BOSS_SHA_OF_ANGER,
@@ -34,7 +50,7 @@ public:
     {
         boss_sha_of_anger_AI(Creature* creature) : BossAI(creature, BOSS_SHA_OF_ANGER)
         {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+            //me->SetCreatureFlag(UNIT_CREATURE_FIELD, UNIT_CREATURE_DISABLE_MOVE);
         }
 
         uint32 checkdistance;
@@ -60,11 +76,11 @@ public:
         
         void RegeneratePower(Powers power, float &value)
         {
-            if (!me->isInCombat())
-            {
-                value = 0;
-                return;
-            }
+            //if (!me->isInCombat())
+            //{
+              //  value = 0;
+                //return;
+            //}
 
             if (phaseone)
                 value = 2;
@@ -186,7 +202,7 @@ class npc_bitter_thoughths : public CreatureScript
             {
                 me->SetReactState(REACT_PASSIVE);
                 me->SetDisplayId(11686);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE);
+               // me->SetCreatureFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NON_ATTACKABLE);
             }
             
             uint32 unsummon;
@@ -229,8 +245,8 @@ class npc_ire : public CreatureScript
             
             void Reset()
             {
-                if (Unit* target = me->FindNearestPlayer(15.0f, true))
-                    AttackStart(target);
+               // if (Unit* target = me->FocusTarget(15.0f, true))
+                 //   AttackStart(target);
             }
 
             void UpdateAI(uint32 diff)
@@ -274,7 +290,7 @@ class spell_sha_of_anger_aggressive_behaviour : public SpellScriptLoader
                     
                     target->SetPvP(true);
                     target->SetFaction(16);
-                    target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
+                    //target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
                 }
 
             }
@@ -284,7 +300,7 @@ class spell_sha_of_anger_aggressive_behaviour : public SpellScriptLoader
                 if(Unit* target = GetTarget())
                 {
                     target->RestoreFaction();
-                    target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
+              //      target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
                 }
             }
 

@@ -30,6 +30,24 @@ class Unit;
 class WorldObject;
 class WorldPacket;
 
+enum IsInCombat
+{
+    COMBAT_RANGE_NORMAL = 0,
+    COMBAT_RANGE_AREA = 1,
+    COMBAT_RANGE_ZONE = 2,
+    COMBAT_RANGE_MAP = 3,
+    COMBAT_RANGE_WORLD = 4,
+};
+
+enum SetCreatureFLag
+{
+    FLAG_RANGE_NORMAL = 0,
+    FLAG_RANGE_AREA = 1,
+    FLAG_RANGE_ZONE = 2,
+    FLAG_RANGE_MAP = 3,
+    FLAG_RANGE_WORLD = 4,
+};
+
 enum CreatureTextRange
 {
     TEXT_RANGE_NORMAL   = 0,
@@ -123,6 +141,8 @@ class TC_GAME_API CreatureTextMgr
 
     private:
         static void SendNonChatPacket(WorldObject* source, WorldPacket const* data, ChatMsg msgType, WorldObject const* whisperTarget, CreatureTextRange range, Team team, bool gmOnly);
+
+        void SendSound(Creature* source, uint32 sound, ChatMsg msgType, WorldObject const* whisperTarget, CreatureTextRange range, Team team, bool gmOnly);
 
         CreatureTextMap mTextMap;
         LocaleCreatureTextMap mLocaleTextMap;
