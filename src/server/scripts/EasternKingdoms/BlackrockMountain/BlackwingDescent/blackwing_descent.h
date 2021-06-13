@@ -206,7 +206,14 @@ enum BWDSpells
 
 enum BWDWorldStates
 {
-    WS_KEEPING_IT_IN_THE_FAMILY = 0
+    // Omnotron Defense System
+    WORLD_STATE_ID_STATIC_SHOCK         = 5644,
+    WORLD_STATE_ID_POISON_BOMB          = 5645,
+    WORLD_STATE_ID_ARCANE_ANNIHILATOR   = 5646,
+    WORLD_STATE_ID_FLAMETHROWER         = 5647,
+
+    // Nefarian's End
+    WS_KEEPING_IT_IN_THE_FAMILY         = 0
 };
 
 template <class AI, class T>
