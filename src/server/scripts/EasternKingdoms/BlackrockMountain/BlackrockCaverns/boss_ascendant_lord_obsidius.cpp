@@ -65,8 +65,7 @@ enum Events
 
 enum Data
 {
-    DATA_DEAD_ELEMENTAL_WARDEN = 0,
-    DATA_ASCENDANT_DESCENDING
+    DATA_DEAD_ELEMENTAL_WARDEN = 0
 };
 
 Position const ShadowOfObsidiusPositions[] =
@@ -85,7 +84,6 @@ struct boss_ascendant_lord_obsidius : public BossAI
         _Reset();
         _transformationCount = 0;
         _deadElementalWardenCount = 0;
-        _achievementEnligible = true;
 
         if (instance->GetData(DATA_RAZ_LAST_AREA_INDEX) == RAZ_AREA_INDEX_OBSIDIUS)
         {
@@ -110,6 +108,7 @@ struct boss_ascendant_lord_obsidius : public BossAI
     {
         BossAI::JustEngagedWith(who);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+        instance->instance->SetWorldState(WORLD_STATE_ID_ASCENDANT_DESCENDING, 0);
         Talk(SAY_AGGRO);
         events.ScheduleEvent(EVENT_STONE_BLOW, 8s);
         events.ScheduleEvent(EVENT_TWILIGHT_CORRUPTION, 12s);
@@ -182,20 +181,9 @@ struct boss_ascendant_lord_obsidius : public BossAI
                     DoCastAOE(SPELL_STOP_HEART);
                 }
                 break;
-            case DATA_ASCENDANT_DESCENDING:
-                _achievementEnligible = false;
-                break;
             default:
                 break;
         }
-    }
-
-    uint32 GetData(uint32 data) const override
-    {
-        if (data == DATA_ASCENDANT_DESCENDING)
-            return _achievementEnligible;
-
-        return 0;
     }
 
     void UpdateAI(uint32 diff) override
@@ -235,7 +223,6 @@ struct boss_ascendant_lord_obsidius : public BossAI
 private:
     uint8 _transformationCount;
     uint8 _deadElementalWardenCount;
-    bool _achievementEnligible;
 };
 
 class spell_obsidius_twitchy : public AuraScript
@@ -331,14 +318,9 @@ class spell_obsidius_crepuscular_veil : public SpellScript
             return;
 
         if (aura->GetStackAmount() == GetSpellInfo()->StackAmount)
-        {
-            InstanceScript* instance = target->GetInstanceScript();
-            if (!instance)
-                return;
-
-            if (Creature* obsidius = instance->GetCreature(DATA_ASCENDANT_LORD_OBSIDIUS))
-                obsidius->AI()->SetData(DATA_ASCENDANT_DESCENDING, FAIL);
-        }
+            if (InstanceScript* instance = target->GetInstanceScript())
+                if (!instance->instance->GetWorldStateValue(WORLD_STATE_ID_ASCENDANT_DESCENDING))
+                    instance->instance->SetWorldState(WORLD_STATE_ID_ASCENDANT_DESCENDING, 1);
     }
 
     void Register() override
@@ -366,23 +348,6 @@ class spell_obsidius_shadow_of_obsidius : public AuraScript
     }
 };
 
-class achievement_ascendant_descending : public AchievementCriteriaScript
-{
-    public:
-        achievement_ascendant_descending() : AchievementCriteriaScript("achievement_ascendant_descending") { }
-
-        bool OnCheck(Player* /*source*/, Unit* target) override
-        {
-            if (!target)
-                return false;
-
-            if (target->IsAIEnabled)
-                return target->GetAI()->GetData(DATA_ASCENDANT_DESCENDING);
-
-            return false;
-        }
-};
-
 void AddSC_boss_ascendant_lord_obsidius()
 {
     RegisterBlackrockCavernsCreatureAI(boss_ascendant_lord_obsidius);
@@ -392,5 +357,4 @@ void AddSC_boss_ascendant_lord_obsidius()
     RegisterSpellScript(spell_obsidius_transformation_scale);
     RegisterSpellScript(spell_obsidius_crepuscular_veil);
     RegisterSpellScript(spell_obsidius_shadow_of_obsidius);
-    new achievement_ascendant_descending();
 }

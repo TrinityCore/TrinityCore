@@ -90,6 +90,11 @@ enum BRCRazAreaIndex
     RAZ_AREA_INDEX_OBSIDIUS = 2
 };
 
+enum BRCWorldStates
+{
+    WORLD_STATE_ID_ASCENDANT_DESCENDING = 5637
+};
+
 Position const RazTheCrazedSummonPositions[] =
 {
     { 249.2639f, 949.1614f, 191.7866f, 3.141593f },
