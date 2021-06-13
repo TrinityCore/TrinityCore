@@ -166,16 +166,9 @@ enum Phases
     PHASE_HEROIC_DEATH
 };
 
-enum Actions
-{
-    // 1 - 6 used by header file
-    ACTION_FAIL_ACHIEVEMENT = 7
-};
-
 enum Data
 {
-    DATA_ELEMENTAL_POWER_STACKS     = 0,
-    DATA_ABYSS_WILL_GAZE_INTO_YOU   = 1
+    DATA_ELEMENTAL_POWER_STACKS = 0
 };
 
 enum Corruption
@@ -245,8 +238,8 @@ namespace CorruptionHandler
         // Achievement check
         if (power > CORRUPTION_ACHIEVEMENT_CAP)
             if (InstanceScript* instance = target->GetInstanceScript())
-                if (Creature* chogall = instance->GetCreature(DATA_CHOGALL))
-                    chogall->AI()->DoAction(ACTION_FAIL_ACHIEVEMENT);
+                if (!instance->instance->GetWorldStateValue(WORLD_STATE_ID_THE_ABYSS_WILL_GAZE_BACK_INTO_YOU))
+                    instance->instance->SetWorldState(WORLD_STATE_ID_THE_ABYSS_WILL_GAZE_BACK_INTO_YOU, 1);
     }
 }
 
@@ -299,7 +292,6 @@ struct boss_chogall final : public BossAI
         _elementalPowerStacks = 0;
         _firstDarkenedCreations = true;
         _allowDeath = true;
-        _achievementEnligibe = true;
     }
 
     void JustEngagedWith(Unit* who) override
@@ -307,6 +299,7 @@ struct boss_chogall final : public BossAI
         BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+        instance->instance->SetWorldState(WORLD_STATE_ID_THE_ABYSS_WILL_GAZE_BACK_INTO_YOU, 0);
         DoCastSelf(SPELL_CORRUPTED_BLOOD);
         events.SetPhase(PHASE_1);
         events.ScheduleEvent(EVENT_FURY_OF_CHOGALL, 57s + 800ms);
@@ -395,9 +388,6 @@ struct boss_chogall final : public BossAI
             case ACTION_TALK_CHOGALL_INTRO:
                 Talk(SAY_INTRO);
                 break;
-            case ACTION_FAIL_ACHIEVEMENT:
-                _achievementEnligibe = false;
-                break;
             default:
                 break;
         }
@@ -425,8 +415,6 @@ struct boss_chogall final : public BossAI
         {
             case DATA_ELEMENTAL_POWER_STACKS:
                 return _elementalPowerStacks;
-            case DATA_ABYSS_WILL_GAZE_INTO_YOU:
-                return _achievementEnligibe;
         }
         return 0;
     }
@@ -557,7 +545,6 @@ private:
     uint8 _elementalPowerStacks;
     bool _firstDarkenedCreations;
     bool _allowDeath;
-    bool _achievementEnligibe;
 };
 
 class SpilledBloodAuraEvent : public BasicEvent
@@ -1394,23 +1381,6 @@ class spell_chogall_debilitating_beam final : public AuraScript
     }
 };
 
-class achievement_the_abyss_will_gaze_into_you final : public AchievementCriteriaScript
-{
-    public:
-        achievement_the_abyss_will_gaze_into_you() : AchievementCriteriaScript("achievement_the_abyss_will_gaze_into_you") { }
-
-        bool OnCheck(Player* /*source*/, Unit* target) override
-        {
-            if (!target)
-                return false;
-
-            if (target->IsAIEnabled)
-                return target->GetAI()->GetData(DATA_ABYSS_WILL_GAZE_INTO_YOU);
-
-            return false;
-        }
-};
-
 void AddSC_boss_chogall()
 {
     RegisterBastionOfTwilightCreatureAI(boss_chogall);
@@ -1446,5 +1416,4 @@ void AddSC_boss_chogall()
     RegisterSpellScript(spell_chogall_corruption_malformation);
     RegisterSpellScript(spell_chogall_shadow_bolt);
     RegisterSpellScript(spell_chogall_debilitating_beam);
-    new achievement_the_abyss_will_gaze_into_you();
 }

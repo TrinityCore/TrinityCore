@@ -294,11 +294,6 @@ enum MovePoints
     POINT_NONE = 0
 };
 
-enum AchievementData
-{
-    DATA_ELEMENTARY = 1
-};
-
 enum SummonProperties
 {
     PROPERTY_DEFAULT = 64
@@ -338,6 +333,7 @@ struct boss_ascendant_council_controller final : public BossAI
                     break;
 
                 instance->SetBossState(DATA_ASCENDANT_COUNCIL, IN_PROGRESS);
+                instance->instance->SetWorldState(WORLD_STATE_ID_ELEMENTARY, 0);
 
                 if (Creature* feludius = instance->GetCreature(DATA_FELUDIUS))
                 {
@@ -1276,7 +1272,7 @@ private:
 struct npc_elementium_monstrosity final : public ScriptedAI
 {
     npc_elementium_monstrosity(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _summons(me), _mergedHealth(0),
-        _mergedTargets(0), _liquidIceCount(0), _achievementEnligible(true)
+        _mergedTargets(0), _liquidIceCount(0)
     {
         me->SetReactState(REACT_PASSIVE);
     }
@@ -1322,9 +1318,9 @@ struct npc_elementium_monstrosity final : public ScriptedAI
 
         if (summon->GetEntry() == NPC_LIQUID_ICE)
         {
-            _liquidIceCount++;
+            ++_liquidIceCount;
             if (_liquidIceCount == 2)
-                _achievementEnligible = false;
+                _instance->instance->SetWorldState(WORLD_STATE_ID_ELEMENTARY, 1);
         }
     }
 
@@ -1344,14 +1340,6 @@ struct npc_elementium_monstrosity final : public ScriptedAI
                 _instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
             }
         }
-    }
-
-    uint32 GetData(uint32 type) const override
-    {
-        if (type == DATA_ELEMENTARY)
-            return _achievementEnligible;
-
-        return 0;
     }
 
     void UpdateAI(uint32 diff) override
@@ -1399,7 +1387,6 @@ private:
     uint32 _mergedHealth;
     uint8 _mergedTargets;
     uint8 _liquidIceCount;
-    bool _achievementEnligible;
 };
 
 struct npc_ascendant_council_violent_cyclone final : public ScriptedAI
@@ -2572,23 +2559,6 @@ class spell_elementium_monstrosity_gravity_crush final : public SpellScript
     }
 };
 
-class achievement_elementary final : public AchievementCriteriaScript
-{
-    public:
-        achievement_elementary() : AchievementCriteriaScript("achievement_elementary") { }
-
-        bool OnCheck(Player* /*source*/, Unit* target) override
-        {
-            if (!target)
-                return false;
-
-            if (target->IsAIEnabled)
-                return target->GetAI()->GetData(DATA_ELEMENTARY);
-
-            return false;
-        }
-};
-
 void AddSC_boss_ascendant_council()
 {
     RegisterBastionOfTwilightCreatureAI(boss_ascendant_council_controller);
@@ -2636,5 +2606,4 @@ void AddSC_boss_ascendant_council()
     RegisterSpellScript(spell_elementium_monstrosity_liquid_ice);
     RegisterSpellScript(spell_elementium_monstrosity_electric_instability);
     RegisterSpellScript(spell_elementium_monstrosity_gravity_crush);
-    new achievement_elementary();
 }

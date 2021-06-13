@@ -82,11 +82,6 @@ enum Events
     EVENT_MOVE_OUT_OF_CAGE
 };
 
-enum AchievementData
-{
-    DATA_THE_ONLY_ESCAPE = 1
-};
-
 enum Texts
 {
     // Halfus Wyrmbreaker
@@ -174,7 +169,8 @@ struct boss_halfus_wyrmbreaker final : public BossAI
     {
         BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
-        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+        instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
+        instance->instance->SetWorldState(WORLD_STATE_ID_THE_ONLY_ESCAPE, 0);
         events.ScheduleEvent(EVENT_BERSERK, 10min);
 
         if (Creature* protoBehemoth = instance->GetCreature(DATA_PROTO_BEHEMOTH))
@@ -241,11 +237,13 @@ struct boss_halfus_wyrmbreaker final : public BossAI
                 if (_theOnlyEscapeAchievementState == NOT_STARTED)
                 {
                     _theOnlyEscapeAchievementState = IN_PROGRESS;
+                    instance->instance->SetWorldState(WORLD_STATE_ID_THE_ONLY_ESCAPE, 1);
                     events.ScheduleEvent(EVENT_RESET_ACHIEVEMT, Seconds(10));
                 }
                 else if (_theOnlyEscapeAchievementState == IN_PROGRESS)
                 {
                     _theOnlyEscapeAchievementState = DONE;
+                    instance->instance->SetWorldState(WORLD_STATE_ID_THE_ONLY_ESCAPE, 2);
                     events.CancelEvent(EVENT_RESET_ACHIEVEMT);
                 }
                 break;
@@ -279,14 +277,6 @@ struct boss_halfus_wyrmbreaker final : public BossAI
             default:
                 break;
         }
-    }
-
-    uint32 GetData(uint32 type) const override
-    {
-        if (type == DATA_THE_ONLY_ESCAPE)
-            return _theOnlyEscapeAchievementState;
-
-        return 0;
     }
 
     void UpdateAI(uint32 diff) override
@@ -700,20 +690,6 @@ class spell_halfus_dancing_flames final : public SpellScript
     }
 };
 
-class achievement_the_only_escape final : public AchievementCriteriaScript
-{
-    public:
-        achievement_the_only_escape() : AchievementCriteriaScript("achievement_the_only_escape") { }
-
-        bool OnCheck(Player* /*source*/, Unit* target)
-        {
-            if (target && target->IsAIEnabled)
-                return (target->GetAI()->GetData(DATA_THE_ONLY_ESCAPE) == DONE);
-
-            return false;
-        }
-};
-
 void AddSC_boss_halfus_wyrmbreaker()
 {
     RegisterBastionOfTwilightCreatureAI(boss_halfus_wyrmbreaker);
@@ -725,5 +701,4 @@ void AddSC_boss_halfus_wyrmbreaker()
     RegisterSpellScript(spell_halfus_stone_touch);
     RegisterSpellScript(spell_halfus_cyclone_winds);
     RegisterSpellScript(spell_halfus_dancing_flames);
-    new achievement_the_only_escape();
 }

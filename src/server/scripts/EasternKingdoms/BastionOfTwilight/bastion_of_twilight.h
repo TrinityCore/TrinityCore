@@ -78,7 +78,7 @@ enum BoTDataTypes
 
 enum BoTDataStates
 {
-    DRAGON_BUFFS_HALFUS_WYRMBREAKER,
+    DRAGON_BUFFS_HALFUS_WYRMBREAKER = 0,
     DRAGON_BUFFS_PROTO_BEHEMOTH,
 };
 
@@ -192,6 +192,18 @@ enum BoTSpells
 {
     SPELL_DANCING_FLAMES_VISUAL = 83962,
     SPELL_BERSERK               = 26662
+};
+
+enum BoTWorldStates
+{
+    // Halfus Wyrmbreaker
+    WORLD_STATE_ID_THE_ONLY_ESCAPE                      = 5607,
+
+    // Ascendant Council
+    WORLD_STATE_ID_ELEMENTARY                           = 5621,
+
+    // Cho'Gall
+    WORLD_STATE_ID_THE_ABYSS_WILL_GAZE_BACK_INTO_YOU    = 5659
 };
 
 template<class AI>
