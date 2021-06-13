@@ -291,8 +291,7 @@ static OnyxiaChainData OnyxiaChainInfo[] =
 
 enum Misc
 {
-    SOUND_ID_ROAR           = 7274,
-    WS_ACHIEVEMENT_CRITERIA = 5652
+    SOUND_ID_ROAR = 7274
 };
 
 Position const NefarianSummonPosition                           = { -166.655f,    -224.602f,    40.48163f, 0.0f };
@@ -438,7 +437,6 @@ struct boss_nefarians_end : public BossAI
         }
 
         summons.DespawnAll();
-        instance->SetData(DATA_NEFARIAN_ACHIEVEMENT_STATE, 1);
         instance->SetBossState(DATA_NEFARIANS_END, FAIL);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_EXPLOSIVE_CINDERS);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DOMINION_OVERRIDE_ACTION_BAR);
@@ -781,7 +779,7 @@ struct boss_nefarians_end : public BossAI
                     break;
                 case EVENT_LAND_PHASE_THREE:
                     if (me->GetHealthPct() > 50.f)
-                        instance->SetData(DATA_NEFARIAN_ACHIEVEMENT_STATE, 0);
+                        instance->instance->SetWorldState(WORLD_STATE_ID_KEEPING_IT_IN_THE_FAMILY, 0);
 
                     me->RemoveAurasDueToSpell(SPELL_NEFARIAN_PHASE_2_HEALTH_AURA);
                     me->SendSetPlayHoverAnim(true);
@@ -924,7 +922,10 @@ struct npc_nefarians_end_onyxia : public ScriptedAI
     void JustEngagedWith(Unit* /*who*/) override
     {
         if (_instance->GetBossState(DATA_NEFARIANS_END) != IN_PROGRESS)
+        {
             _instance->SetBossState(DATA_NEFARIANS_END, IN_PROGRESS);
+            _instance->instance->SetWorldState(WORLD_STATE_ID_KEEPING_IT_IN_THE_FAMILY, 1);
+        }
 
         _instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, FRAME_INDEX_ONYXIA);
 
@@ -2051,21 +2052,6 @@ private:
     InstanceScript* _instance;
 };
 
-class achievement_keeping_it_in_the_family : public AchievementCriteriaScript
-{
-public:
-    achievement_keeping_it_in_the_family() : AchievementCriteriaScript("achievement_keeping_it_in_the_family") { }
-
-    bool OnCheck(Player* /*source*/, Unit* target) override
-    {
-        InstanceScript* instance = target->GetInstanceScript();
-        if (!instance)
-            return false;
-
-        return instance->GetData(DATA_NEFARIAN_ACHIEVEMENT_STATE);
-    }
-};
-
 void AddSC_boss_nefarians_end()
 {
     RegisterBlackwingDescentCreatureAI(boss_nefarians_end);
@@ -2098,5 +2084,4 @@ void AddSC_boss_nefarians_end()
     RegisterSpellScript(spell_nefarians_end_siphon_power);
     RegisterSpellScript(spell_nefarians_end_explosive_cinders);
     RegisterGameObjectAI(go_nefarians_end_orb_of_culmination);
-    new achievement_keeping_it_in_the_family();
 }

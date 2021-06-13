@@ -133,7 +133,6 @@ enum Actions
     ACTION_DISABLE_MOUNTING         = 2,
     ACTION_EXPOSE_HEAD              = 4,
     ACTION_COVER_HEAD               = 5,
-    ACTION_FAIL_ACHIEVEMT           = 3,
 
     // Nefarian
     ACTION_SCHEDULE_SHADOW_BREATH   = 0,
@@ -174,8 +173,7 @@ enum VehicleSeats
 
 enum Data
 {
-    DATA_FREE_PINCER        = 0,
-    DATA_ACHIEVEMENT_STATE  = 1
+    DATA_FREE_PINCER = 0
 };
 
 enum MovePoints
@@ -212,7 +210,7 @@ Position const NefarianIntroSummonPos   = { -390.1042f, 40.88411f,  207.8586f, 0
 struct boss_magmaw : public BossAI
 {
     boss_magmaw(Creature* creature) : BossAI(creature, DATA_MAGMAW),
-        _magmaProjectileCount(0), _achievementEnligible(true), _headEngaged(false), _heroicPhaseTwoActive(!IsHeroic())
+        _magmaProjectileCount(0), _headEngaged(false), _heroicPhaseTwoActive(!IsHeroic())
     {
         me->SetReactState(REACT_PASSIVE);
     }
@@ -237,6 +235,7 @@ struct boss_magmaw : public BossAI
 
         BossAI::JustEngagedWith(who);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, FRAME_PRIORITY_MAGMAW);
+        instance->instance->SetWorldState(WORLD_STATE_ID_PARASITE_EVENING, 0);
         me->SetReactState(REACT_AGGRESSIVE);
 
         events.SetPhase(PHASE_COMBAT);
@@ -328,14 +327,6 @@ struct boss_magmaw : public BossAI
                 summons.Summon(summon);
                 break;
         }
-    }
-
-    uint32 GetData(uint32 type) const override
-    {
-        if (type == DATA_ACHIEVEMENT_STATE)
-            return _achievementEnligible;
-
-        return 0;
     }
 
     ObjectGuid GetGUID(int32 type) const override
@@ -431,9 +422,6 @@ struct boss_magmaw : public BossAI
                     head->CastSpell(head, SPELL_RIDE_VEHICLE_EXPOSED_HEAD, true);
                     head->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 }
-                break;
-            case ACTION_FAIL_ACHIEVEMT:
-                _achievementEnligible = false;
                 break;
             default:
                 break;
@@ -604,7 +592,6 @@ private:
 
     std::array<ObjectGuid, MAX_BODY_PARTS> _bodyPartGUIDs;
     uint8 _magmaProjectileCount;
-    bool _achievementEnligible;
     bool _headEngaged;
     bool _heroicPhaseTwoActive;
 };
@@ -714,8 +701,8 @@ struct npc_magmaw_lava_parasite : public ScriptedAI
             me->AttackStop();
             me->SetReactState(REACT_PASSIVE);
             me->DespawnOrUnsummon(4s);
-            if (Creature* magmaw = _instance->GetCreature(DATA_MAGMAW))
-                magmaw->AI()->DoAction(ACTION_FAIL_ACHIEVEMT);
+            if (!_instance->instance->GetWorldStateValue(WORLD_STATE_ID_PARASITE_EVENING))
+                _instance->instance->SetWorldState(WORLD_STATE_ID_PARASITE_EVENING, 1);
         }
     }
 
@@ -1271,22 +1258,6 @@ class spell_magmaw_captured : public AuraScript
     }
 };
 
-class achievement_parasite_evening : public AchievementCriteriaScript
-{
-    public:
-        achievement_parasite_evening() : AchievementCriteriaScript("achievement_parasite_evening") { }
-
-        bool OnCheck(Player* /*source*/, Unit* target) override
-        {
-            if (!target)
-                return false;
-
-            if (target->IsAIEnabled)
-                return target->GetAI()->GetData(DATA_ACHIEVEMENT_STATE);
-
-            return false;
-        }
-};
 
 void AddSC_boss_magmaw()
 {
@@ -1308,5 +1279,4 @@ void AddSC_boss_magmaw()
     RegisterSpellScript(spell_magmaw_massive_crash);
     RegisterSpellScript(spell_magmaw_impale_self);
     RegisterSpellScript(spell_magmaw_captured);
-    new achievement_parasite_evening();
 }

@@ -125,11 +125,6 @@ enum GossipMenuMisc
     NPC_TEXT_MISSING_KEY        = 16565
 };
 
-enum Data
-{
-    DATA_ACHIEVEMENT_ENLIGIBLE = 0
-};
-
 Position const LordVictorNefariusSummonPosition = { -113.8229f, 45.86111f, 80.36481f, 4.817109f };
 
 struct boss_chimaeron : public BossAI
@@ -155,6 +150,7 @@ struct boss_chimaeron : public BossAI
     {
         BossAI::JustEngagedWith(who);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+        instance->instance->SetWorldState(WORLD_STATE_ID_FULL_OF_SOUND_AND_FURY, 0);
         me->SetReactState(REACT_AGGRESSIVE);
         events.SetPhase(PHASE_1);
         events.ScheduleEvent(EVENT_CAUSTIC_SLIME, 5s, 0, PHASE_1);
@@ -213,7 +209,11 @@ struct boss_chimaeron : public BossAI
     void KilledUnit(Unit* victim) override
     {
         if (victim->GetTypeId() == TYPEID_PLAYER)
+        {
             _killedPlayerCount++;
+            if (_killedPlayerCount == 3)
+                instance->instance->SetWorldState(WORLD_STATE_ID_FULL_OF_SOUND_AND_FURY, 1);
+        }
     }
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage) override
@@ -311,19 +311,6 @@ struct boss_chimaeron : public BossAI
                 summons.Summon(summon);
                 break;
         }
-    }
-
-    uint32 GetData(uint32 type) const override
-    {
-        switch (type)
-        {
-            case DATA_ACHIEVEMENT_ENLIGIBLE:
-                return uint8(_killedPlayerCount <= 2);
-            default:
-                return 0;
-        }
-
-        return 0;
     }
 
     void UpdateAI(uint32 diff) override
@@ -697,23 +684,6 @@ class spell_chimaeron_shadow_whip : public SpellScript
     }
 };
 
-class achievement_full_of_sound_and_fury : public AchievementCriteriaScript
-{
-    public:
-        achievement_full_of_sound_and_fury() : AchievementCriteriaScript("achievement_full_of_sound_and_fury") { }
-
-        bool OnCheck(Player* /*source*/, Unit* target) override
-        {
-            if (!target)
-                return false;
-
-            if (target->IsAIEnabled)
-                return target->GetAI()->GetData(DATA_ACHIEVEMENT_ENLIGIBLE);
-
-            return false;
-        }
-};
-
 void AddSC_boss_chimaeron()
 {
     RegisterBlackwingDescentCreatureAI(boss_chimaeron);
@@ -726,5 +696,4 @@ void AddSC_boss_chimaeron()
     RegisterSpellScript(spell_chimaeron_reroute_power);
     RegisterSpellScript(spell_chimaeron_feud);
     RegisterSpellScript(spell_chimaeron_shadow_whip);
-    new achievement_full_of_sound_and_fury();
 }

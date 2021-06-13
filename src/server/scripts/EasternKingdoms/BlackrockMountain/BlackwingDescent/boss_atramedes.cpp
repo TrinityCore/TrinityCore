@@ -19,6 +19,7 @@
 #include "ScriptMgr.h"
 #include "CommonPredicates.h"
 #include "GridNotifiers.h"
+#include "Map.h"
 #include "MoveSpline.h"
 #include "PassiveAI.h"
 #include "ScriptedCreature.h"
@@ -130,7 +131,6 @@ enum Actions
     // Atramedes
     ACTION_START_INTRO              = 0,
     ACTION_HALT_REVERBERATING_FLAME = 1,
-    ACTION_FAIL_ACHIEVEMENT         = 2,
 
     // Lord Victor Nefarius
     ACTION_DESTROY_SHIELD           = 0,
@@ -166,7 +166,6 @@ enum Data
     DATA_ADD_NOISY_PLAYER                   = 1,
     DATA_REMOVE_NOISY_PLAYER                = 2,
     DATA_LAST_SHIELD_USER                   = 3,
-    DATA_ACHIEVEMENT_ENLIGIBLE              = 4,
 
     // Getter
     DATA_IS_IN_AIR                          = 0,
@@ -188,7 +187,7 @@ Position const LordVictorNefariusSummonPosition = { 92.91319f, -223.9931f, 96.89
 
 struct boss_atramedes : public BossAI
 {
-    boss_atramedes(Creature* creature) : BossAI(creature, DATA_ATRAMEDES), _achievementEnligible(true) { }
+    boss_atramedes(Creature* creature) : BossAI(creature, DATA_ATRAMEDES) { }
 
     void Reset() override
     {
@@ -200,6 +199,7 @@ struct boss_atramedes : public BossAI
     {
         BossAI::JustEngagedWith(who);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+        instance->instance->SetWorldState(WORLD_STATE_ID_SILENCE_IS_GOLDEN, 0);
         Talk(SAY_AGGRO);
         DoCastSelf(SPELL_DEVASTATION_TRIGGER);
         DoCastSelf(SPELL_SOUND_BAR);
@@ -307,8 +307,6 @@ struct boss_atramedes : public BossAI
                 return (uint8(!_noisyPlayerGUIDs.empty()));
             case DATA_IS_IN_INTRO_PHASE:
                 return (uint8(events.IsInPhase(PHASE_INTRO)));
-            case DATA_ACHIEVEMENT_ENLIGIBLE:
-                return (uint8(_achievementEnligible));
         }
 
         return 0;
@@ -410,9 +408,6 @@ struct boss_atramedes : public BossAI
                     events.CancelEvent(EVENT_DESTROY_SHIELD_AND_RESUME_PLAYER_TRACKING);
                     events.ScheduleEvent(EVENT_MOVE_REVERBERATING_FLAME_TO_SHIELD, 2s, 0, PHASE_AIR);
                 }
-                break;
-            case ACTION_FAIL_ACHIEVEMENT:
-                _achievementEnligible = false;
                 break;
             default:
                 break;
@@ -518,7 +513,6 @@ private:
     ObjectGuid _lastShieldUserGUID;
     ObjectGuid _lastUsedAncientDwarvenShieldGUID;
     ObjectGuid _reverberatingFlameGUID;
-    bool _achievementEnligible;
 };
 
 struct npc_atramedes_ancient_dwarven_shield : public NullCreatureAI
@@ -842,8 +836,8 @@ class spell_atramedes_sound_bar : public AuraScript
             target->CastSpell(target, SPELL_NOISY, aurEff);
         }
         else if (target->GetPower(POWER_ALTERNATE_POWER) >= 50)
-            if (Creature* atramedes = instance->GetCreature(DATA_ATRAMEDES))
-                atramedes->AI()->DoAction(ACTION_FAIL_ACHIEVEMENT);
+            if (!instance->instance->GetWorldStateValue(WORLD_STATE_ID_SILENCE_IS_GOLDEN))
+                instance->instance->SetWorldState(WORLD_STATE_ID_SILENCE_IS_GOLDEN, 1);
     }
 
     void Register() override
@@ -1039,23 +1033,6 @@ class spell_atramedes_apply_vehicle_periodic : public AuraScript
     }
 };
 
-class achievement_silence_is_golden : public AchievementCriteriaScript
-{
-    public:
-        achievement_silence_is_golden() : AchievementCriteriaScript("achievement_silence_is_golden") { }
-
-        bool OnCheck(Player* /*source*/, Unit* target) override
-        {
-            if (!target)
-                return false;
-
-            if (target->IsAIEnabled)
-                return target->GetAI()->GetData(DATA_ACHIEVEMENT_ENLIGIBLE);
-
-            return false;
-        }
-};
-
 void AddSC_boss_atramedes()
 {
     RegisterBlackwingDescentCreatureAI(boss_atramedes);
@@ -1078,5 +1055,4 @@ void AddSC_boss_atramedes()
     RegisterSpellScript(spell_atramedes_destroy_shield);
     RegisterSpellScript(spell_atramedes_pestered);
     RegisterSpellScript(spell_atramedes_apply_vehicle_periodic);
-    new achievement_silence_is_golden();
 }
