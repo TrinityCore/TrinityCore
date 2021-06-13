@@ -49,6 +49,7 @@
 #include "Weather.h"
 #include "WeatherMgr.h"
 #include "World.h"
+#include "WorldStateMgr.h"
 #include "WorldStatePackets.h"
 #include <unordered_set>
 #include <vector>
@@ -367,6 +368,8 @@ i_scriptLock(false), _respawnCheckTimer(0)
     MMAP::MMapFactory::createOrGetMMapManager()->loadMapInstance(sWorld->GetDataPath(), GetId(), i_InstanceId);
 
     sScriptMgr->OnCreateMap(this);
+
+    sWorldStateMgr->FillDefaultWorldStatesForMap(_worldStates, id);
 }
 
 void Map::InitVisibilityDistance()

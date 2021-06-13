@@ -128,10 +128,6 @@ class instance_blackwing_descent : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadObjectData(creatureData, gameobjectData);
                 LoadDoorData(doorData);
-                instance->SetWorldState(WORLD_STATE_ID_STATIC_SHOCK, 0, false);
-                instance->SetWorldState(WORLD_STATE_ID_POISON_BOMB, 0, false);
-                instance->SetWorldState(WORLD_STATE_ID_ARCANE_ANNIHILATOR, 0, false);
-                instance->SetWorldState(WORLD_STATE_ID_FLAMETHROWER, 0, false);
                 _deadDwarfSpiritsLeft = 0;
                 _deadDwarfSpiritsRight = 0;
                 _atramedesIntroState = NOT_STARTED;

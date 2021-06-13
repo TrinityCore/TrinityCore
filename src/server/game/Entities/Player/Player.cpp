@@ -112,6 +112,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "WorldStateMgr.h"
 #include "WorldStatePackets.h"
 #include <G3D/g3dmath.h>
 
@@ -9203,6 +9204,9 @@ void Player::SendInitWorldStates(uint32 zoneId, uint32 areaId)
             packet.Worldstates.emplace_back(0x915, 0x0);           // 10
             break;
     }
+
+    // insert realm wide world states
+    sWorldStateMgr->AppendRealmWorldStates(packet.Worldstates);
 
     // insert map world states
     if (Map* map = GetMap())

@@ -88,6 +88,7 @@
 #include "WeatherMgr.h"
 #include "WhoListStorage.h"
 #include "WorldSession.h"
+#include "WorldStateMgr.h"
 #include "WorldSocket.h"
 
 #include <boost/asio/ip/address.hpp>
@@ -2121,6 +2122,9 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading World States...");              // must be loaded before battleground, outdoor PvP and conditions
     LoadWorldStates();
+
+    TC_LOG_INFO("server.loading", "Loading Map default and Realm wide World States...");
+    sWorldStateMgr->LoadFromDB();
 
     sObjectMgr->LoadPhases();
 
